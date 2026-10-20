@@ -6013,7 +6013,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                         and int(details.st_mtime) == int(old.st_mtime)
                         and _macos_digest(path) != previous["sha256"]):
                     os.utime(path, ns=(details.st_atime_ns, (int(old.st_mtime) + 2) * 1_000_000_000),
-                             follow_symlinks=False)
+                             **({"follow_symlinks": False} if os.utime in os.supports_follow_symlinks else {}))
                     if int(os.stat(path).st_mtime) == int(old.st_mtime):
                         raise OSError(errno.EIO, os.strerror(errno.EIO), path)
         code, imported = runner([staged_python, "-I", "-c", "import spacr.qt"])

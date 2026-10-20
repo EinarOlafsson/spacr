@@ -178,7 +178,8 @@ def _move_without_overwrite(source: Path, destination: Path) -> None:
     if not source.is_file():
         raise FileNotFoundError(source)
     try:
-        os.link(source, destination, follow_symlinks=False)
+        os.link(source, destination,
+                **({"follow_symlinks": False} if os.link in os.supports_follow_symlinks else {}))
     except OSError as exc:
         unsupported = {
             errno.EXDEV, errno.EPERM, errno.EACCES, errno.ENOSYS,

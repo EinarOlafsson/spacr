@@ -71,7 +71,7 @@ def test_a_folder_that_is_not_a_plates_merged_one_is_refused(tmp_path):
         qc_quarantine.quarantine_dir_for(stray)
 
     assert "expected a plate's 'merged' folder" in str(caught.value)
-    assert str(stray) in str(caught.value)
+    assert repr(str(stray)) in str(caught.value)
     assert list(tmp_path.joinpath("plate1").iterdir()) == [stray], (
         "a refused folder gets no sibling quarantine directory")
 
@@ -142,6 +142,7 @@ def test_an_unserialisable_record_leaves_no_temporary_file_behind(tmp_path):
         "the temporary the encoder wrote into is removed")
 
 
+@pytest.mark.posix_only
 def test_a_ledger_folder_that_cannot_be_written_raises_without_a_file(
         tmp_path):
     """A read-only quarantine folder fails before a temporary is even made."""
@@ -200,6 +201,7 @@ def test_an_unknown_account_is_recorded_as_unknown(tmp_path, monkeypatch):
 
 # -- moving the array --------------------------------------------------------
 
+@pytest.mark.needs_symlink
 def test_a_symlinked_field_is_never_moved(tmp_path):
     """A symlink in ``merged`` points somewhere this module does not own."""
     merged = _plate(tmp_path)
@@ -416,6 +418,7 @@ def test_a_restore_that_cannot_be_undone_says_the_field_is_still_out(
 
 # -- listing -----------------------------------------------------------------
 
+@pytest.mark.posix_only
 def test_an_unreadable_quarantine_folder_lists_nothing(tmp_path):
     """A folder the user cannot read is an empty listing, not a traceback."""
     merged = _plate(tmp_path)
