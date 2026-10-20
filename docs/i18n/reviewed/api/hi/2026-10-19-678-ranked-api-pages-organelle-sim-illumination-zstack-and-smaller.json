@@ -7696,7 +7696,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "Importance tables are always retained as source data, but plots are only presented when the held-out fidelity clears the declared improvement gate.",
       "source_sha256": "7565b07279c07a2fae498b3aa21f4b8516cd2e799e7f4374a1828e38c3221c0d",
-      "translation": "Importance तालिकाएँ हमेशा स्रोत डेटा के रूप में रखी जाती हैं, लेकिन प्लॉट केवल तब प्रस्तुत होते हैं जब held-out fidelity घोषित सुधार सीमा (gate) पार करे।"
+      "translation": "Importance तालिकाएँ हमेशा स्रोत डेटा के रूप में रखी जाती हैं, लेकिन प्लॉट केवल तब प्रस्तुत होते हैं जब held-out fidelity घोषित सुधार द्वार (gate) पार करे।"
     },
     {
       "context": "fitted :class:`SurrogateResult`.",
@@ -8472,7 +8472,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "gate for the distance-based backends, in xy pixels, with z scaled by ``anisotropy``.",
       "source_sha256": "c7804616f91f9a418ebb6ce3d342e55dee92a8fe2346eca6c3ed17456b9067e2",
-      "translation": "दूरी-आधारित बैकएंड के लिए सीमा (gate), xy पिक्सेल में, z को ``anisotropy`` से स्केल करते हुए।"
+      "translation": "दूरी-आधारित बैकएंड के लिए द्वार (gate), xy पिक्सेल में, z को ``anisotropy`` से स्केल करते हुए।"
     },
     {
       "context": "the same data-selection boundary in micrometres; needs ``voxel_size_um``. Mutually exclusive with ``max_displacement_px``.",
@@ -8480,7 +8480,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "the same gate in micrometres; needs ``voxel_size_um``. Mutually exclusive with ``max_displacement_px``.",
       "source_sha256": "2c2c8bf9fbe52ab5f1910b1dfc6e50c417a534b73cb25602ff041761373afb5b",
-      "translation": "वही सीमा माइक्रोमीटर में; ``voxel_size_um`` आवश्यक है। ``max_displacement_px`` के साथ परस्पर अनन्य।"
+      "translation": "वही द्वार (gate) माइक्रोमीटर में; ``voxel_size_um`` आवश्यक है। ``max_displacement_px`` के साथ परस्पर अनन्य।"
     },
     {
       "context": "**Collapse z before linking.** Linking then uses the projection instead of the volume. This option starts disabled and is never implied. spaCR still cannot process volume data with those processing engines. Details: :func:`track_4d`.",
@@ -8800,7 +8800,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "A distance-based backend was asked for without a displacement gate.",
       "source_sha256": "6f4cdf6aa55424c8f4caa80e577f7e90acdf93f3202f9d34128630950b607cdc",
-      "translation": "विस्थापन सीमा के बिना दूरी-आधारित बैकएंड माँगा गया।"
+      "translation": "विस्थापन द्वार (gate) के बिना दूरी-आधारित बैकएंड माँगा गया।"
     },
     {
       "context": "There is no safe default: the right value is set by how fast the objects move relative to the frame interval, and a wrong one either links objects that are not the same or splits one object into a track per frame.",

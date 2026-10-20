@@ -8456,7 +8456,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "Power / Design — estimate how many cells per well, and how many wells, a screen needs.",
       "source_sha256": "b021907f13c8c2f2f4ee5510a612d00ce8e72fa8425ac0834af7c5167e71a3e4",
-      "translation": "Power / Design — अनुमान लगाएँ कि किसी आनुवंशिक स्क्रीन प्रयोग को प्रति वेल कितनी कोशिकाएँ और कितने वेल चाहिए।"
+      "translation": "Power / Design — अनुमान लगाएँ कि किसी स्क्रीनिंग को प्रति वेल कितनी कोशिकाएँ और कितने वेल चाहिए।"
     },
     {
       "context": "Screen layout",

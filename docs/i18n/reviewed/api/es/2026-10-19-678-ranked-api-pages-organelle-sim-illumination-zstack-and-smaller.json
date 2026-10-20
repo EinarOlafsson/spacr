@@ -2920,7 +2920,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "The classical organelle segmenter predates slots and reads roughly forty ``organelle_*`` keys. Keeping that well-tested implementation and adapting one settings view at its boundary prevents four copies of the algorithm.",
       "source_sha256": "56c26e42fc1fadd0c9c835c6463b5d1d01ec4f3fde9e82cec6af0f2f183a1b7f",
-      "translation": "El segmentador clásico de orgánulos es anterior a las ranuras y lee unas cuarenta claves ``organelle_*``. Conservar esa implementación, ya probada a fondo, y adaptar una vista de ajustes en su frontera evita tener cuatro copias del algoritmo."
+      "translation": "El segmentador clásico de orgánulos es anterior a las ranuras y lee unas cuarenta claves ``organelle_*``. Conservar esa implementación, bien probada, y adaptar una vista de ajustes en su frontera evita tener cuatro copias del algoritmo."
     },
     {
       "context": "Return the setting name for ``suffix`` in one segmented role.",

@@ -2824,7 +2824,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "The classical organelle segmenter predates slots and reads roughly forty ``organelle_*`` keys. Keeping that well-tested implementation and adapting one settings view at its boundary prevents four copies of the algorithm.",
       "source_sha256": "56c26e42fc1fadd0c9c835c6463b5d1d01ec4f3fde9e82cec6af0f2f183a1b7f",
-      "translation": "O segmentador clássico de organelas é anterior às posições e lê cerca de quarenta chaves ``organelle_*``. Manter essa implementação amplamente testada e adaptar uma visão das configurações na sua fronteira evita quatro cópias do algoritmo."
+      "translation": "O segmentador clássico de organelas é anterior às posições e lê cerca de quarenta chaves ``organelle_*``. Manter essa implementação bem testada e adaptar uma visão das configurações na sua fronteira evita quatro cópias do algoritmo."
     },
     {
       "context": "Return the setting name for ``suffix`` in one segmented role.",
@@ -4880,7 +4880,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "the library as designed — names from the gRNA reference. Supplying it lets the dropout be reported (\"2% of the library was never seen\") rather than only the observed count, which shows whether the screen has the coverage it was powered for.",
       "source_sha256": "923ce47b174a92ca4529e08b487385370349e15e0214858544e2b087f1009a1d",
-      "translation": "a biblioteca conforme projetada — nomes da referência de gRNA. Fornecê-la permite informar a perda (\"2% of the library was never seen\", ou seja, 2% da biblioteca nunca foi visto), e não apenas o número observado, o que mostra se a triagem tem a cobertura para a qual foi dimensionada."
+      "translation": "a biblioteca conforme projetada — nomes da referência de gRNA. Fornecê-la permite informar a perda (\"2% of the library was never seen\", ou seja, 2% da biblioteca nunca foi visto), e não apenas o número observado, o que mostra se a triagem tem a cobertura para a qual seu poder estatístico foi calculado."
     },
     {
       "context": "key-value mapping with ``n_grnas_observed``, ``n_grnas_expected``, ``dropout_fraction``, ``dropped_grnas`` (sorted names), ``gini``, ``skew_ratio`` (90th/10th percentile of per-gRNA read totals — the standard pooled-library evenness number), ``top_decile_share`` and ``reads_per_grna`` (a Series, descending).",

@@ -1680,7 +1680,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "scanpy is a separate install and is NOT required to write the file:",
       "source_sha256": "58e2751e5f5374ae53d902e7cb5e83b39c5eaa4371c4a03365f16702ac687d00",
-      "translation": "scanpy se instala por separado y NOT (no) es necesario para escribir el archivo:"
+      "translation": "scanpy se instala por separado y NO es necesario para escribir el archivo:"
     },
     {
       "context": ":mod:`anndata` is not installed.",
@@ -2400,7 +2400,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "an absolute path, which is NOT checked for existence -- an absent file is :func:`spacr.validate.validate_settings`'s report to make, with the path in it, rather than an exception from here.",
       "source_sha256": "07bfc44d712e01739159479df2ebb090721c7cf72de49a8784641fb0b940cdb4",
-      "translation": "una ruta absoluta, cuya existencia NOT (no) se comprueba -- un archivo ausente es algo que debe notificar :func:`spacr.validate.validate_settings`, con la ruta incluida, en lugar de una excepción de aquí."
+      "translation": "una ruta absoluta, cuya existencia NO se comprueba -- un archivo ausente es algo que debe notificar :func:`spacr.validate.validate_settings`, con la ruta incluida, en lugar de una excepción de aquí."
     },
     {
       "context": "Execute the export from a settings key-value mapping. The headless entry point.",
@@ -3536,7 +3536,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "a row carrying ``png_path`` (or ``path``), or a bare path string, which is accepted as-is and only re-anchored. A row with neither raises :class:`CropError`. Re-anchoring goes through :func:`reanchor_path`, so it is separator-agnostic (a Windows path opened on Linux re-anchors), it takes the LAST ``<folder>`` component rather than the first (an old root that itself contained a ``data`` folder used to produce a path naming a directory), and \"already under the root\" is a component-wise prefix test rather than a substring one. A path carrying no anchor at all is returned untouched even if it points nowhere on this machine, and the failure surfaces on read.",
       "source_sha256": "176b56fd1d3666da1d96e84b5c1833d6e033b5f2f50ef87026b15d3465d922ba",
-      "translation": "una fila que incluye ``png_path`` (o ``path``), o una cadena de ruta simple, que se acepta tal cual y solo se vuelve a anclar. Una fila sin ninguno de los dos lanza :class:`CropError`. El reanclaje pasa por :func:`reanchor_path`, por lo que no depende del separador (una ruta de Windows abierta en Linux se reancla), toma el componente ``<folder>`` LAST (último) en lugar del primero (una raíz antigua que contenía a su vez una carpeta ``data`` producía antes una ruta que nombraba un directorio), y \"already under the root\" (ya bajo la raíz) es una prueba de prefijo por componentes y no de subcadena. Una ruta sin ningún anclaje se devuelve intacta aunque no apunte a ningún sitio en esta máquina, y el fallo aparece al leer."
+      "translation": "una fila que incluye ``png_path`` (o ``path``), o una cadena de ruta simple, que se acepta tal cual y solo se vuelve a anclar. Una fila sin ninguno de los dos lanza :class:`CropError`. El reanclaje pasa por :func:`reanchor_path`, por lo que no depende del separador (una ruta de Windows abierta en Linux se reancla), toma el componente ``<folder>`` ÚLTIMO en lugar del primero (una raíz antigua que contenía a su vez una carpeta ``data`` producía antes una ruta que nombraba un directorio), y \"already under the root\" (ya bajo la raíz) es una prueba de prefijo por componentes y no de subcadena. Una ruta sin ningún anclaje se devuelve intacta aunque no apunte a ningún sitio en esta máquina, y el fallo aparece al leer."
     },
     {
       "context": "Summary of one path re-anchoring pass.",
@@ -3664,7 +3664,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "The file name after the last separator of EITHER kind.",
       "source_sha256": "38bebec78f3ec845cb609bd70622e0df52b13ef7fb778453c0ebe9ced5c5eb25",
-      "translation": "El nombre de archivo tras el último separador de EITHER (cualquiera de los dos) tipo."
+      "translation": "El nombre de archivo tras el último separador de CUALQUIERA de los dos tipos."
     },
     {
       "context": "a recorded path, written on any OS.",
@@ -3768,7 +3768,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "Return the source channels in COLOUR order: ``(red, green, blue)``.",
       "source_sha256": "90b6ec8034773086dd9448bd9843f2054244a455680b00b09ccfe4213faa45ac",
-      "translation": "Devuelve los canales de origen en orden de COLOUR (color): ``(red, green, blue)``."
+      "translation": "Devuelve los canales de origen en orden de COLOR: ``(red, green, blue)``."
     },
     {
       "context": "The one translation from \"what the user declared\" to \"what an extracted image region array holds\". Everything downstream -- :class:`CropSpec`, :func:`png_view`, :func:`extract_crop` -- is in this order, so image data channel 0 of an extracted image region is always the red one and there is no second convention to keep straight.",
@@ -4632,7 +4632,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "A database written on Windows records ``C:\\lab\\exp1\\data\\plate1\\a.png`` and is then opened on Linux, where ``str.split('/data/')`` cannot match and :func:`os.path.basename` returns the WHOLE string because posix knows nothing of backslashes. Every path comparison in this module therefore starts here, so the re-anchor works on a share mounted both ways.",
       "source_sha256": "3f992c9c64a1a97337a5f589bfef3fecdf2b681f54c6336c786e88f68387452c",
-      "translation": "Una base de datos escrita en Windows registra ``C:\\lab\\exp1\\data\\plate1\\a.png`` y luego se abre en Linux, donde ``str.split('/data/')`` no puede coincidir y :func:`os.path.basename` devuelve la cadena WHOLE (entera) porque posix no sabe nada de barras invertidas. Por eso toda comparación de rutas de este módulo empieza aquí, para que el reanclaje funcione en un recurso compartido montado de ambas formas."
+      "translation": "Una base de datos escrita en Windows registra ``C:\\lab\\exp1\\data\\plate1\\a.png`` y luego se abre en Linux, donde ``str.split('/data/')`` no puede coincidir y :func:`os.path.basename` devuelve la cadena ENTERA porque posix no sabe nada de barras invertidas. Por eso toda comparación de rutas de este módulo empieza aquí, para que el reanclaje funcione en un recurso compartido montado de ambas formas."
     },
     {
       "context": "anything path-like. ``None`` becomes ``''``.",
@@ -4920,7 +4920,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "That holds because a crop is cut in COLOUR order -- ``CropSpec.channels`` is ``(red_source, green_source, blue_source)``, built by :func:`channels_from_settings` from the declared ``png_channel_mapping``. So channel 0 is the red one here, in the file, and in what :func:`read_crop_png` hands back. There is exactly one order and every part of the crop path speaks it.",
       "source_sha256": "33b596802463b4a3fa401ec84d2a0f1c13ac5a79f31510498778ed39c3672d46",
-      "translation": "Esto se cumple porque un recorte se corta en orden de COLOUR (color) -- ``CropSpec.channels`` es ``(red_source, green_source, blue_source)``, construido por :func:`channels_from_settings` a partir del ``png_channel_mapping`` declarado. Así, el canal 0 es el rojo aquí, en el archivo y en lo que devuelve :func:`read_crop_png`. Hay exactamente un orden y todas las partes de la ruta de recortes lo hablan."
+      "translation": "Esto se cumple porque un recorte se corta en orden de COLOR -- ``CropSpec.channels`` es ``(red_source, green_source, blue_source)``, construido por :func:`channels_from_settings` a partir del ``png_channel_mapping`` declarado. Así, el canal 0 es el rojo aquí, en el archivo y en lo que devuelve :func:`read_crop_png`. Hay exactamente un orden y todas las partes de la ruta de recortes lo hablan."
     },
     {
       "context": "The alternative -- keeping extracted image regions in ``png_dims`` list order and translating at the edges -- is what made the on-demand source and the PNG folder return different pixels for the same object.",
@@ -5176,7 +5176,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "the folder names that may anchor the rewrite, e.g. ``('data', 'merged')``. The rightmost occurrence of ANY of them wins.",
       "source_sha256": "8f1a364e4fa56d0cafe6a629895be6c3576f9a2cbc00d62f36c024ccf67d8061",
-      "translation": "los nombres de carpeta que pueden anclar la reescritura, p. ej., ``('data', 'merged')``. Prevalece la aparición más a la derecha de ANY (cualquiera) de ellos."
+      "translation": "los nombres de carpeta que pueden anclar la reescritura, p. ej., ``('data', 'merged')``. Prevalece la aparición más a la derecha de CUALQUIERA de ellos."
     },
     {
       "context": "``(path, outcome)`` where outcome is :data:`ALREADY_ANCHORED`, :data:`REANCHORED` or :data:`NO_ANCHOR`. The path is unchanged for :data:`ALREADY_ANCHORED` and :data:`NO_ANCHOR`.",
@@ -7464,7 +7464,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "``measurements/measurements.db``, one SQLite table per object type, one row per object, keyed by the plate/row/column/field/object identity :mod:`spacr.schema` composes. The columns are shape, intensity, texture and SPATIAL features -- how many neighbours an object has within a radius, how far the nearest one is, what fraction of its border touches another.",
       "source_sha256": "728f36aa73181c2bc95b9844792b8e7d73dd50f7a2083d4eb826eee79cdbc2ec",
-      "translation": "``measurements/measurements.db``, una tabla SQLite por tipo de objeto y una fila por objeto, indexadas por la identidad placa/fila/columna/campo/objeto que compone :mod:`spacr.schema`. Las columnas son características de forma, intensidad, textura y SPATIAL (espaciales) -- cuántos vecinos tiene un objeto dentro de un radio, a qué distancia está el más cercano, qué fracción de su borde toca a otro."
+      "translation": "``measurements/measurements.db``, una tabla SQLite por tipo de objeto y una fila por objeto, indexadas por la identidad placa/fila/columna/campo/objeto que compone :mod:`spacr.schema`. Las columnas son características de forma, intensidad, textura y espaciales -- cuántos vecinos tiene un objeto dentro de un radio, a qué distancia está el más cercano, qué fracción de su borde toca a otro."
     },
     {
       "context": "Optionally, one PNG per object (``save_png``), extracted image regions by the mask. Those extracted image regions are what :func:`spacr.deep_spacr.deep_spacr` trains on and what Annotate shows, which is why the extracting image regions lives here rather than beside the machine-learning classification model: they must be cut by the same mask the measurements came from.",
@@ -8352,7 +8352,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "**The file's colour slots hold what the mapping declares.** The caller assembles ``png_channels`` in file order — red plane first — with :func:`spacr.crops.build_png_channels` and :func:`spacr.crops.resolve_png_channel_mapping`; under the legacy ``settings['png_dims']`` list that mapping is entry 0 blue, 1 green, 2 red, so ``png_dims[0]`` lands in the file's BLUE slot.",
       "source_sha256": "a9e480ee714fac59a64cf802dab8e357f05548c6cdcacf53dd4b6d8a82b40917",
-      "translation": "**Las ranuras de color del archivo contienen lo que declara la asignación.** Quien llama ensambla ``png_channels`` en el orden del archivo — primero el plano rojo — con :func:`spacr.crops.build_png_channels` y :func:`spacr.crops.resolve_png_channel_mapping`; con la lista heredada ``settings['png_dims']``, esa asignación es entrada 0 azul, 1 verde, 2 rojo, de modo que ``png_dims[0]`` acaba en la ranura BLUE (azul) del archivo."
+      "translation": "**Las ranuras de color del archivo contienen lo que declara la asignación.** Quien llama ensambla ``png_channels`` en el orden del archivo — primero el plano rojo — con :func:`spacr.crops.build_png_channels` y :func:`spacr.crops.resolve_png_channel_mapping`; con la lista heredada ``settings['png_dims']``, esa asignación es entrada 0 azul, 1 verde, 2 rojo, de modo que ``png_dims[0]`` acaba en la ranura AZUL del archivo."
     },
     {
       "context": "That is the REVERSE of what ``png_dims`` reads like, and it is kept deliberately: every extracted image region already on disk was written with this mapping, so flipping it would silently change what each colour means and invalidate the models trained on those extracted image regions. The mapping is declared rather than corrected.",
@@ -8360,7 +8360,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "That is the REVERSE of what ``png_dims`` reads like, and it is kept deliberately: every crop already on disk was written with this mapping, so flipping it would silently change what each colour means and invalidate the models trained on those crops. The mapping is declared rather than corrected.",
       "source_sha256": "a8019e6121c64d956efc142378bce1e43a1388b5a7637f2732544330a7b248dc",
-      "translation": "Es lo REVERSE (inverso) de lo que parece indicar ``png_dims``, y se mantiene deliberadamente: todos los recortes ya guardados en disco se escribieron con esta asignación, así que invertirla cambiaría en silencio lo que significa cada color e invalidaría los modelos entrenados con esos recortes. La asignación se declara en lugar de corregirse."
+      "translation": "Es lo INVERSO de lo que parece indicar ``png_dims``, y se mantiene deliberadamente: todos los recortes ya guardados en disco se escribieron con esta asignación, así que invertirla cambiaría en silencio lo que significa cada color e invalidaría los modelos entrenados con esos recortes. La asignación se declara en lugar de corregirse."
     },
     {
       "context": "``cv2.imwrite`` interprets a 3-image data channel array as BGR, so :func:`spacr.crops.to_cv2_bgr` reverses the array once, here, and cv2's interpretation lands the red plane in the file's red slot. It refuses more than three image data channels rather than letting cv2 write the fourth as an alpha plane for every reader to drop in silence.",
@@ -9088,7 +9088,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "For a FOLD, which mounts one module's extra settings onto another's panel. The timelapse fold on the mask screen built all 364 of timelapse's settings -- 1,552 widgets, 1,148 ms -- and kept the 14 that mask does not already have, discarding the rest because the host already owns them. Naming them here skips them instead, which is the same result for 4% of the work.",
       "source_sha256": "ce09415d4df6b12587d6650db27d0cecf9cc2285e832a89647760cb82b2c600c",
-      "translation": "Para un FOLD (pliegue), que monta los ajustes adicionales de un módulo en el panel de otro. El pliegue de timelapse en la pantalla de máscaras construía los 364 ajustes de timelapse -- 1,552 widgets, 1,148 ms -- y conservaba los 14 que mask aún no tiene, descartando el resto porque el anfitrión ya los posee. Nombrarlos aquí los omite, lo que da el mismo resultado con el 4% del trabajo."
+      "translation": "Para un pliegue (fold), que monta los ajustes adicionales de un módulo en el panel de otro. El pliegue de timelapse en la pantalla de máscaras construía los 364 ajustes de timelapse -- 1,552 widgets, 1,148 ms -- y conservaba los 14 que mask aún no tiene, descartando el resto porque el anfitrión ya los posee. Nombrarlos aquí los omite, lo que da el mismo resultado con el 4% del trabajo."
     },
     {
       "context": "optional mapping from the form being rebuilt. Recognized settings replace the app defaults; its organelle count, slot, and object-channel values determine which controls the replacement form builds.",
@@ -9232,7 +9232,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "The widgets STAY -- they are what `collect()` reads and what the grid writes through to -- so this hides rows rather than dropping them. The settings search still indexes them and every check that walks the form still finds them holding their values.",
       "source_sha256": "d17ed1fa041bd1dc2fed6e65a6f110dbc1adda38ce1a678092095185637d1b97",
-      "translation": "Los widgets STAY (permanecen) -- son lo que lee `collect()` y aquello a través de lo cual escribe la cuadrícula -- así que esto oculta filas en lugar de eliminarlas. La búsqueda de ajustes las sigue indexando y toda comprobación que recorre el formulario las sigue encontrando con sus valores."
+      "translation": "Los widgets PERMANECEN -- son lo que lee `collect()` y aquello a través de lo cual escribe la cuadrícula -- así que esto oculta filas en lugar de eliminarlas. La búsqueda de ajustes las sigue indexando y toda comprobación que recorre el formulario las sigue encontrando con sus valores."
     },
     {
       "context": "the setting names the grid answers.",
@@ -9360,7 +9360,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "Idempotent, and it decides EVERY gated row every time rather than toggling the ones that changed -- so a row put back on screen by something else answering a different question (the settings search releasing its filter shows every row it indexed) is hidden again on the next call instead of drifting.",
       "source_sha256": "84ac8a318d4c07667fb79f3c9406568047c10ed180baf5875cb1f1365d41a692",
-      "translation": "Es idempotente y decide EVERY (cada) fila condicionada en cada llamada en lugar de alternar las que cambiaron -- así, una fila que otra cosa volvió a mostrar respondiendo a una pregunta distinta (la búsqueda de ajustes, al soltar su filtro, muestra todas las filas que indexó) se oculta de nuevo en la siguiente llamada en lugar de desviarse."
+      "translation": "Es idempotente y decide CADA fila condicionada en cada llamada en lugar de alternar las que cambiaron -- así, una fila que otra cosa volvió a mostrar respondiendo a una pregunta distinta (la búsqueda de ajustes, al soltar su filtro, muestra todas las filas que indexó) se oculta de nuevo en la siguiente llamada en lugar de desviarse."
     },
     {
       "context": "Disable settings that the selected training basis does not use.",
@@ -9920,7 +9920,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "THE MATHS AND THE CODE MUST AGREE, and this is the half that keeps them agreeing: it takes the same two plate arguments :func:`formula_for` does and reads them the same way. If the code line says ``+ rowID + columnID``, ρ and γ are here; if the plate-position toggle turns them off, BOTH lose them; if they are random effects, both say random. A box whose two formulas disagree is worse than a box with one.",
       "source_sha256": "7a718ec0741da502b63c9877582a68785b6c2a26a589ebc841573c7d4e5b86de",
-      "translation": "Las matemáticas y el código deben coincidir, y esta es la mitad que los mantiene de acuerdo: recibe los mismos dos argumentos de placa que :func:`formula_for` y los interpreta igual. Si la línea de código dice ``+ rowID + columnID``, ρ y γ están aquí; si el conmutador de posición en la placa los desactiva, BOTH (ambas) los pierden; si son efectos aleatorios, ambas dicen aleatorio. Un cuadro cuyas dos fórmulas discrepan es peor que un cuadro con una sola."
+      "translation": "Las matemáticas y el código deben coincidir, y esta es la mitad que los mantiene de acuerdo: recibe los mismos dos argumentos de placa que :func:`formula_for` y los interpreta igual. Si la línea de código dice ``+ rowID + columnID``, ρ y γ están aquí; si el conmutador de posición en la placa los desactiva, AMBAS los pierden; si son efectos aleatorios, ambas dicen aleatorio. Un cuadro cuyas dos fórmulas discrepan es peor que un cuadro con una sola."
     },
     {
       "context": "the response line first, then the distribution line(s).",
@@ -9984,7 +9984,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "A spaCR backend is named by its MODULE and resolved against the published API documentation, so `group_lasso` and `rra` get the same kind of link statsmodels does rather than a module path a user has to go and find.",
       "source_sha256": "8857437b3b62fa426700bf07deb2dcf6a5ff71be3de31ea40bc117b039e45d99",
-      "translation": "Un backend de spaCR se nombra por su MODULE (módulo) y se resuelve frente a la documentación publicada de la API, de modo que `group_lasso` y `rra` obtienen el mismo tipo de enlace que statsmodels en lugar de una ruta de módulo que el usuario tenga que ir a buscar."
+      "translation": "Un backend de spaCR se nombra por su MÓDULO y se resuelve frente a la documentación publicada de la API, de modo que `group_lasso` y `rra` obtienen el mismo tipo de enlace que statsmodels en lugar de una ruta de módulo que el usuario tenga que ir a buscar."
     },
     {
       "context": "Backend key shown in the regression selector.",
@@ -10352,7 +10352,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "Return the blurb for one heading of the settings TREE.",
       "source_sha256": "7eb17a4171c2c5c502b1681eca50edc6956200190aeaadf00047b4b3bf951da8",
-      "translation": "Devuelve el texto breve de un encabezado del TREE (árbol) de ajustes."
+      "translation": "Devuelve el texto breve de un encabezado del ÁRBOL de ajustes."
     },
     {
       "context": "A nested heading is resolved by its :attr:`SettingsSection.path`, not by its title: \"Cell\" under \"Object filtration\" and the top-level \"Cell\" segmentation category are the same word for two different groups, and a title-only lookup would give the first one the second one's help.",
@@ -11224,7 +11224,7 @@
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
       "source": "``{path, sequence, siblings, error}``. When ``list_siblings`` is true ``siblings`` is ALWAYS a list, never ``None``, even if the listing failed -- see the fallback below for why that matters.",
       "source_sha256": "244106ee374045ec98e007414e022a9429a7f502e04a76077ac03fe72ec1ab9f",
-      "translation": "``{path, sequence, siblings, error}``. Cuando ``list_siblings`` es verdadero, ``siblings`` es ALWAYS (siempre) una lista, nunca ``None``, aunque el listado haya fallado -- véase el recurso de respaldo más abajo para saber por qué importa."
+      "translation": "``{path, sequence, siblings, error}``. Cuando ``list_siblings`` es verdadero, ``siblings`` es SIEMPRE una lista, nunca ``None``, aunque el listado haya fallado -- véase el recurso de respaldo más abajo para saber por qué importa."
     },
     {
       "context": "Recolour a label stack by track id using spaCR's own relabeller.",
