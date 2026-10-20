@@ -1511,7 +1511,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     channels = _segmentation_input_channels(
         channels, len(channels_to_extract), model)
     _note_the_diameter(settings, object_type)
-    count_loc = os.path.dirname(src)+'/measurements/measurements.db'
+    count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
 
@@ -1972,7 +1972,7 @@ def generate_cellpose_masks(src, settings, object_type):
     
     paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]    
     
-    count_loc = os.path.dirname(src)+'/measurements/measurements.db'
+    count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
     

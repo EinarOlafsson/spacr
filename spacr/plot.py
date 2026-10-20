@@ -6731,8 +6731,8 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
             measurement rows and inflate the jitter plot.
         """
         from .io import _read_and_merge_data, _read_db
-        db_loc = [src+'/measurements/measurements.db']
-        loc = src+'/measurements/measurements.db'
+        db_loc = [os.path.join(src, 'measurements', 'measurements.db')]
+        loc = os.path.join(src, 'measurements', 'measurements.db')
         df, _ = _read_and_merge_data(db_loc, 
                                     tables, 
                                     verbose=True, 
