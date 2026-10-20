@@ -1,0 +1,3 @@
+{
+  "spacr.qt.app.MainWindow.breathing_like_an_open": "Let heavy GUI work inside take the breaths of a module open.\n\nFor :meth:`rebuild_app_screen` and for a caller that does more work\non the rebuilt screen straight after it (a settings pack applied\nto it). Inside an open already, the open's breathing is used and\nleft on."
+}

@@ -1,0 +1,56 @@
+{
+  "language": "is",
+  "note": "Upstream af94d4ebde/f8afacf74c/8ff0d3bd40: MainWindow.rebuild_app_screen and the new breathing_like_an_open.",
+  "records": [
+    {
+      "context": "Let heavy GUI work inside take the breaths of a module open.",
+      "label": "spacr.qt.app.MainWindow.breathing_like_an_open#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Let heavy GUI work inside take the breaths of a module open.",
+      "source_sha256": "25529da2e30f823896d3c8002710935c620c58ad30a401ab268857b2418df56e",
+      "translation": "Láta þunga GUI-vinnu innan þessa fá sömu andrými og opnun einingar."
+    },
+    {
+      "context": "For :meth:`rebuild_app_screen` and for a caller that does more work on the rebuilt screen straight after it (a settings pack applied to it). Inside an open already, the open's breathing is used and left on.",
+      "label": "spacr.qt.app.MainWindow.breathing_like_an_open#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "For :meth:`rebuild_app_screen` and for a caller that does more work on the rebuilt screen straight after it (a settings pack applied to it). Inside an open already, the open's breathing is used and left on.",
+      "source_sha256": "eaeaf9002555f1a91a6c0dd3c1196a52c10fef1575f88e071176cba2a8044227",
+      "translation": "Fyrir :meth:`rebuild_app_screen` og fyrir kallanda sem vinnur meira á endurbyggða skjánum strax á eftir (stillingapakki sem er beitt á hann). Þegar þetta gerist innan opnunar eru andrými opnunarinnar notuð og látin vera virk."
+    },
+    {
+      "context": "Build ``key``'s screen again, with breaths between its steps.",
+      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Build ``key``'s screen again, with breaths between its steps.",
+      "source_sha256": "a2a83ebc4194dfcd33c8e71d32796a50c6b9bab60c2f6f010f1cbe858f477c34",
+      "translation": "Byggja skjá ``key`` aftur, með andrýmum milli skrefa hans."
+    },
+    {
+      "context": "A rebuild runs the same heavy steps as a first open -- build, theme, join the stack, translate, show -- and used to execute them in one piece: Mask's \"Load test data\" applies a settings pack that changes the form's shape, and the whole rebuild was one freeze of about 0.4 s with the backdrop stopped. The steps are now separated by the breaths a module open takes (:meth:`_breathe_while_opening`), so the longest freeze is the longest single step. User input is held back during a breath and navigation waits, exactly as for an open.",
+      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "A rebuild runs the same heavy steps as a first open -- build, theme, join the stack, translate, show -- and used to run them in one piece: Mask's \"Load test data\" applies a settings pack that changes the form's shape, and the whole rebuild was one freeze of about 0.4 s with the backdrop stopped. The steps are now separated by the breaths a module open takes (:meth:`_breathe_while_opening`), so the longest freeze is the longest single step. User input is held back during a breath and navigation waits, exactly as for an open.",
+      "source_sha256": "16404e08d9bea2d23bafdc5f27d97b566c88dc9d53b8c5ebbe295a82c74a809b",
+      "translation": "Endurbygging keyrir sömu þungu skref og fyrsta opnun -- smíði, þema, tenging við staflann, þýðing, birting -- og keyrði þau áður í einu lagi: \"Load test data\" í Mask beitir stillingapakka sem breytir lögun eyðublaðsins, og öll endurbyggingin var ein frysting upp á um 0.4 s þar sem bakgrunnurinn stöðvaðist. Skrefin eru nú aðskilin með þeim andrýmum sem opnun einingar tekur (:meth:`_breathe_while_opening`), svo lengsta frystingin er lengsta einstaka skrefið. Inntaki notandans er haldið aftur á meðan andrými stendur og leiðsögn bíður, nákvæmlega eins og við opnun."
+    },
+    {
+      "context": "A rebuild that runs inside an open (a font-scale rebuild) breathes under that open and leaves its breathing on when it returns.",
+      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "A rebuild that runs inside an open (a font-scale rebuild) breathes under that open and leaves its breathing on when it returns.",
+      "source_sha256": "8655175efa53ec7252ac6de6a4f9613f243b673a7ea98caadaedcce39d8787e6",
+      "translation": "Endurbygging sem keyrir innan opnunar (endurbygging vegna leturkvarða) tekur andrými undir þeirri opnun og lætur andrýmin vera virk þegar hún snýr til baka."
+    },
+    {
+      "context": "the app whose screen is to be rebuilt.",
+      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "the app whose screen is to be rebuilt.",
+      "source_sha256": "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
+      "translation": "forritið sem á að endurbyggja skjáinn fyrir."
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}

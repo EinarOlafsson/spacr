@@ -1,4 +1,16 @@
 {
   "schema": 1,
-  "sources": {}
+  "sources": {
+    "6fa2aaa9f190bdf6dd14057864f605166717522ca4fb1ce1a762b679ea36a232": {
+      "source_blocks_sha256": [
+        "a01e13d2eecdd90ec3260902fdea7be6b1a7ed5fff17169dfcb7b64ba31078ce",
+        "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
+        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589",
+        "da2ecd63a868752ab4849fbdbfc1deb35c3e6047820d50d7d2bddaf5bf3fff9b",
+        "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
+      ],
+      "source_sha256": "6fa2aaa9f190bdf6dd14057864f605166717522ca4fb1ce1a762b679ea36a232",
+      "text": "Build ``key``'s screen again, carrying ``values`` across.\n\n:param key: the app whose screen is to be rebuilt.\n:param values: settings to apply to the new screen.\n\nThe whole screen is rebuilt because which settings a form holds\ndepends on a few of its own values -- the organelle count, and\nwhether an object's channel names a plane -- so a committed change to one of those means\na different form, not a changed one. Rebuilding is the same path\nevery module open already takes.\n\nThe old screen is dropped from the cache and destroyed, so the new\none is built from scratch rather than reusing widgets that belong to\na shape that no longer applies."
+    }
+  }
 }
