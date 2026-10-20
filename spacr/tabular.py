@@ -57,6 +57,7 @@ module to get canonical names and must not import torch.
 from __future__ import annotations
 
 import os
+import re
 import sqlite3
 from contextlib import contextmanager
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -877,11 +878,50 @@ def _postgres_connect(dsn: str):
     return psycopg.connect(dsn.strip())
 
 
+_PARQUET_FOLDER_UNSAFE = frozenset('<>:"|?*%')
+
+
+def _parquet_folder_name(table: str) -> str:
+    """The folder a Parquet store keeps ``table`` in, valid on every system.
+
+    A table is one folder, and Windows refuses ``< > : " | ? *``, control
+    characters and a trailing dot or space in a folder name, so a table such
+    as ``cell "one"`` could be written on Linux and never opened on Windows,
+    nor created there at all. Those characters, and ``%`` so the spelling
+    reverses, are written as ``%XX``; every other name is its own folder.
+    """
+    encoded = ''.join(f'%{ord(char):02X}' if char in _PARQUET_FOLDER_UNSAFE
+                      or ord(char) < 32 else char for char in table)
+    if encoded and encoded[-1] in '. ':
+        encoded = encoded[:-1] + f'%{ord(encoded[-1]):02X}'
+    return encoded
+
+
+def _parquet_table_name(folder: str) -> str:
+    """The table a store folder holds: :func:`_parquet_folder_name` reversed."""
+    return re.sub(r'%([0-9A-Fa-f]{2})',
+                  lambda match: chr(int(match.group(1), 16)), folder)
+
+
+def _parquet_table_folder(store: str, table: str) -> str:
+    """The folder of ``table``: its portable spelling, or a store's older verbatim one."""
+    folder = os.path.join(store, _parquet_folder_name(table))
+    if os.path.isdir(folder) or _parquet_folder_name(table) == table:
+        return folder
+    verbatim = os.path.join(store, table)
+    try:
+        if os.path.isdir(verbatim):
+            return verbatim
+    except (OSError, ValueError):
+        pass
+    return folder
+
+
 def _parquet_parts(store: str, table: str) -> List[str]:
     """The active Parquet parts, using a published snapshot when one exists."""
     if table in ('.', '..') or '/' in table or '\\' in table:
         raise ValueError(f'Invalid Parquet table name: {table!r}')
-    folder = os.path.join(store, table)
+    folder = _parquet_table_folder(store, table)
     if not os.path.isdir(folder):
         return []
     manifest = _parquet_manifest(folder)
@@ -1003,8 +1043,14 @@ def _store_tables(db: Any, backend: str) -> Tuple[str, ...]:
         store = resolve_path(db)
         if not os.path.isdir(store):
             return ()
-        return tuple(sorted(name for name in os.listdir(store)
-                            if _parquet_parts(store, name)))
+        names = []
+        for folder in os.listdir(store):
+            table = _parquet_table_name(folder)
+            if table != folder and _parquet_parts(store, table):
+                names.append(table)
+            elif _parquet_parts(store, folder):
+                names.append(folder)
+        return tuple(sorted(names))
     query = ("SELECT table_name FROM information_schema.tables "
              "WHERE table_schema = current_schema() "
              "AND table_type = 'BASE TABLE'")
@@ -1124,7 +1170,7 @@ def _store_write(frame: pd.DataFrame, db: Any, backend: str, table: str,
             raise ValueError(f'Invalid Parquet table name: {table!r}')
         store = resolve_path(db)
         with _parquet_store_lock(store):
-            folder = os.path.join(store, table)
+            folder = _parquet_table_folder(store, table)
             manifest = _parquet_manifest(folder) if os.path.isdir(folder) else None
             previous = _parquet_parts(store, table)
             if previous and if_exists == 'fail':

@@ -20,6 +20,8 @@ that has to put them there.
 """
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pytest
 from PySide6.QtCore import QSettings
@@ -54,7 +56,7 @@ def _isolated_qsettings(monkeypatch, tmp_path):
     """
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
     monkeypatch.setattr(prefs, "_settings", lambda: store)
-    assert str(tmp_path) in store.fileName(), (
+    assert str(tmp_path) in os.path.normpath(store.fileName()), (
         "QSettings isolation failed; refusing to write to real preferences")
     return store
 

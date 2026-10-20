@@ -22,6 +22,8 @@ additionally measured by counting rows of ink in a real render.
 """
 from __future__ import annotations
 
+import os
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -49,7 +51,7 @@ def _isolated_qsettings(monkeypatch, tmp_path):
     """Never write to the developer's real preferences."""
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
     monkeypatch.setattr(prefs, "_settings", lambda: store)
-    assert str(tmp_path) in store.fileName(), (
+    assert str(tmp_path) in os.path.normpath(store.fileName()), (
         "QSettings isolation failed; refusing to write to real preferences")
     return store
 

@@ -221,6 +221,26 @@ if os.name == "nt":
     pytest.MonkeyPatch.setenv = _setenv_moving_the_windows_home_too
 
 
+# OFFSCREEN QT ON WINDOWS HAS NO FONTS UNLESS IT IS TOLD WHERE THEY ARE.
+#
+# The offscreen platform plugin reads fonts through FreeType from
+# QT_QPA_FONTDIR (or Qt's own lib/fonts), not from the Windows font service,
+# so on Windows its font database is EMPTY: every family falls back to one
+# built-in face, "Open Sans", "Segoe UI" and "Arial" render identical pixels,
+# and every test that measures ink, colour or growth of text fails or passes
+# for the wrong reason (found natively 2026-10-20: 0 families; with the
+# system font folder, 174). Linux's offscreen plugin uses fontconfig and
+# needs nothing. Set before any QApplication exists, and inherited by every
+# child a test starts.
+if (os.name == "nt"
+        and os.environ.get("QT_QPA_PLATFORM", "offscreen").startswith("offscreen")
+        and not os.environ.get("QT_QPA_FONTDIR")):
+    _windows_root = os.environ.get("WINDIR") or os.environ.get("SystemRoot") or ""
+    _windows_fonts = os.path.join(_windows_root, "Fonts")
+    if _windows_root and os.path.isdir(_windows_fonts):
+        os.environ["QT_QPA_FONTDIR"] = _windows_fonts
+
+
 # WHERE THE NATIVE QSETTINGS STORE CANNOT BE MOVED, NOTHING MAY USE IT.
 #
 # The sandbox further down redirects every QSettings format with `setPath`.

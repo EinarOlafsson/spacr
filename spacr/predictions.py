@@ -986,15 +986,15 @@ def _merge_parquet_store(results, db_path, spec, table, key, timelapse,
 
     from .tabular import (
         _parquet_manifest, _parquet_part_record, _parquet_parts,
-        _parquet_store_lock, _publish, _publish_parquet_manifest,
-        _require_optional, _PYARROW_MISSING_MESSAGE,
+        _parquet_store_lock, _parquet_table_folder, _publish,
+        _publish_parquet_manifest, _require_optional, _PYARROW_MISSING_MESSAGE,
     )
 
     arrow = _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
     parquet = _require_optional('pyarrow.parquet', _PYARROW_MISSING_MESSAGE)
     if table in ('.', '..') or '/' in table or '\\' in table:
         raise ValueError(f'Invalid Parquet table name: {table!r}')
-    folder = os.path.join(db_path, table)
+    folder = _parquet_table_folder(db_path, table)
     with _parquet_store_lock(db_path):
         parts = _parquet_parts(db_path, table)
         if not parts:

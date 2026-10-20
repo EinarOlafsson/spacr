@@ -103,11 +103,21 @@ def test_a_cancelled_save_writes_nothing(qtbot, figure, monkeypatch, tmp_path):
     assert not list(tmp_path.iterdir())
 
 
-def test_an_unwritable_path_reports_rather_than_raises(qtbot, figure):
-    """A menu action that throws takes the window down with it."""
-    from spacr.qt.widgets.figure_settings import save_figure_as
+def test_an_unwritable_path_reports_rather_than_raises(qtbot, figure, tmp_path):
+    """A menu action that throws takes the window down with it.
 
-    assert save_figure_as(None, figure, "/nope/nowhere/out.png") == ""
+    The folder is refused rather than named at the drive root: on Windows an
+    ordinary account may create ``C:\\nope``, so ``/nope/nowhere`` was simply
+    written to, outside the test's sandbox.
+    """
+    from spacr.qt.widgets.figure_settings import save_figure_as
+    from tests.refused_access import refused
+
+    locked = tmp_path / "locked"
+    locked.mkdir()
+    with refused(locked, 0o500, windows="write"):
+        assert save_figure_as(None, figure, str(locked / "nowhere" / "out.png")) == ""
+    assert not (locked / "nowhere").exists()
 
 
 def test_saving_nothing_is_not_a_crash(qtbot):

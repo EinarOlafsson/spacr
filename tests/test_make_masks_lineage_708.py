@@ -451,7 +451,10 @@ def test_windows_frame_aliases_reopen_on_linux_without_cwd_prefix(tmp_path):
     assert reopened["frames"] == {frame: {"1": identity}}
     assert reopened["cells"][identity]["born_frame"] == frame
     assert reopened["cells"][identity]["born_frame_id"] == state["cells"][identity]["born_frame_id"]
-    assert not any("C:" in path for path in reopened["frame_ids"])
+    # Nothing of the Windows alias survives, in any spelling or under a cwd
+    # prefix. Named by its folder, because on Windows the real frame's own
+    # path legitimately starts with a drive letter too.
+    assert not any("acquisition" in path for path in reopened["frame_ids"])
 
 
 def test_copied_standalone_mask_recovers_names_and_ids_without_source_or_sidecar(tmp_path):

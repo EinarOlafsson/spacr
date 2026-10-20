@@ -382,3 +382,25 @@ def test_the_measurement_writer_feeds_the_chosen_store(tmp_path, backend):
     got = tabular.read_database(store, ["cell"], canonicalise=False)[0]
     assert len(got) == 4
     assert sorted(got["cell_area"].tolist()) == [10.0, 10.0, 20.0, 20.0]
+
+@pytest.mark.parametrize("table", ['cell "one"', "a:b", "x?", "pct%41", "trailing.", "plain"])
+def test_a_parquet_table_folder_is_valid_everywhere_and_reverses(table):
+    """A table is a folder; Windows refuses `< > : " | ? *` and a trailing dot."""
+    folder = tabular._parquet_folder_name(table)
+    assert not set(folder) & set('<>:"|?*')
+    assert not folder.endswith((".", " "))
+    assert tabular._parquet_table_name(folder) == table
+    if table == "plain":
+        assert folder == table
+
+
+@pytest.mark.posix_only
+def test_a_store_written_with_a_verbatim_table_folder_still_reads(tmp_path):
+    """Stores written before the portable spelling keep their tables."""
+    store = tmp_path / "old.parquetdb"
+    legacy = store / 'cell "one"'
+    legacy.mkdir(parents=True)
+    pd.DataFrame({"a": [1]}).to_parquet(legacy / "part.parquet")
+    assert tabular._parquet_parts(str(store), 'cell "one"') == [
+        str(legacy / "part.parquet")]
+    assert tabular._store_tables(str(store), "parquet") == ('cell "one"',)

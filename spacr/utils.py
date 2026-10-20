@@ -1786,7 +1786,7 @@ def is_multiprocessing_process(process):
     return False
 
 def close_file_descriptors():
-    """Close file descriptors from 3 up to the soft NOFILE limit; Windows has no such limit and is left alone."""
+    """Close file descriptors from 3 up to the soft NOFILE limit."""
     try:
         import resource
     except ImportError:

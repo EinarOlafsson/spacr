@@ -160,8 +160,9 @@ def test_partition_assigns_every_archive_once_and_keeps_devices_explicit():
     records = [{'path': f'/batch{index}.npz', 'bytes': size}
                for index, size in enumerate([8, 4, 4, 2])]
     result = _partition_batches(records, [5, 2])
-    assert result == {5: ['/batch0.npz', '/batch3.npz'],
-                      2: ['/batch1.npz', '/batch2.npz']}
+    absolute = os.path.abspath
+    assert result == {5: [absolute('/batch0.npz'), absolute('/batch3.npz')],
+                      2: [absolute('/batch1.npz'), absolute('/batch2.npz')]}
     assert records[0]['bytes'] == 8
     with pytest.raises(ValueError, match='unique paths'):
         _partition_batches(records + records[:1], [5, 2])
