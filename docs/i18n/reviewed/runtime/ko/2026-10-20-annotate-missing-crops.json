@@ -1,0 +1,14 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "{missing} of {total} crops on this page are missing on disk; spaCR looked for them in {folder}",
+      "source": "{missing} of {total} crops on this page are missing on disk; spaCR looked for them in {folder}",
+      "source_sha256": "4c975ab1688eeb0914d93b008e9671299afa12c039829b9657c8371775fb3f2b",
+      "table": "ui",
+      "translation": "이 페이지의 크롭 {missing}개(전체 {total}개)가 디스크에 없습니다. spaCR은 {folder}에서 찾았습니다"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

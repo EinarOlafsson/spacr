@@ -2918,6 +2918,128 @@ def _reanchor_png_path(path: str, db_path: str) -> str:
     return path
 
 
+_MISSING_CROP = "spacr_missing_crop"
+
+
+def _missing_crop_image(size, path: str) -> Image.Image:
+    """A hatched tile that stands in for a crop whose file is not on disk.
+
+    A plain dark square read as a dark cell: on 2026-10-20 a whole page of
+    them looked like a rendering failure while the real cause was a database
+    listing files that did not exist. Mid-grey diagonal stripes cannot pass
+    for microscopy on either theme. The missing path rides along in
+    ``Image.info`` so the screen can say which folder it looked in.
+
+    :param size: ``(width, height)`` of the tile.
+    :param path: the crop path that did not resolve.
+    """
+    import numpy as np
+
+    width, height = (max(1, int(v)) for v in size)
+    yy, xx = np.mgrid[0:height, 0:width]
+    stripe = ((xx + yy) // 8) % 2 == 0
+    pixels = np.where(stripe, 150, 96).astype(np.uint8)
+    image = Image.fromarray(np.stack([pixels] * 3, axis=-1), "RGB")
+    image.info[_MISSING_CROP] = str(path or "")
+    return image
+
+
+def _example_database_lists_its_crops(database, sample: int = 64) -> bool:
+    """Whether a cached example database indexes crops that are on disk.
+
+    The example plate folder is shared and long-lived, so a database from
+    another plate can end up in it. Annotate then pages through rows whose
+    files do not exist and shows nothing but placeholders. The first
+    ``sample`` rows are checked; one crop that resolves is enough.
+
+    Only a database that lists crops, none of which resolve, counts as stale.
+    One that cannot be read is given the benefit of the doubt -- it may
+    simply be locked by a writer -- and one that lists nothing is left to
+    the screen, which already says when there is nothing to page.
+
+    :param database: path of ``measurements/measurements.db``.
+    :param sample: how many rows to try.
+    """
+    import sqlite3
+    from pathlib import Path
+
+    database = Path(database)
+    try:
+        uri = database.resolve().as_uri() + "?mode=ro"
+        with sqlite3.connect(uri, uri=True, timeout=5) as conn:
+            tables = {r[0] for r in conn.execute(
+                "select name from sqlite_master where type='table'")}
+            if "png_list" not in tables:
+                return True
+            rows = conn.execute(
+                'select png_path from "png_list" limit ?',
+                (int(sample),)).fetchall()
+    except (sqlite3.Error, OSError, ValueError):
+        LOG.debug("could not check example database %s", database,
+                  exc_info=True)
+        return True
+    listed = [str(path) for (path,) in rows if path]
+    if not listed:
+        return True
+    return any(os.path.isfile(_reanchor_png_path(path, str(database)))
+               for path in listed)
+
+
+def _set_aside_example_database(database):
+    """Rename a stale example database out of the way, keeping it.
+
+    The database may hold labels the user made, so it is never deleted: it
+    and its ``-wal``/``-shm`` companions get an ``.unmatched-<time>`` suffix
+    and the published copy is fetched in its place.
+
+    :param database: path of ``measurements/measurements.db``.
+    :returns: the new path, or ``None`` when the rename failed.
+    """
+    from pathlib import Path
+
+    database = Path(database)
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    target = database.with_name(f"{database.name}.unmatched-{stamp}")
+    try:
+        database.rename(target)
+    except OSError:
+        LOG.warning("could not set aside example database %s", database,
+                    exc_info=True)
+        return None
+    for suffix in ("-wal", "-shm"):
+        companion = database.with_name(database.name + suffix)
+        if companion.exists():
+            try:
+                companion.rename(target.with_name(target.name + suffix))
+            except OSError:
+                LOG.warning("could not set aside %s", companion,
+                            exc_info=True)
+    LOG.warning("example database %s lists no crops that exist on disk; "
+                "kept as %s and fetching the published copy",
+                database, target)
+    return target
+
+
+def _usable_example_database(destination) -> bool:
+    """Whether the example plate already has a database Annotate can page.
+
+    A database whose rows name no crops on disk is set aside first, so the
+    caller fetches the published one instead of opening a page of
+    placeholders.
+
+    :param destination: the example plate folder.
+    """
+    from pathlib import Path
+
+    database = Path(destination) / "measurements" / "measurements.db"
+    if not database.is_file():
+        return False
+    if _example_database_lists_its_crops(database):
+        return True
+    _set_aside_example_database(database)
+    return database.is_file()
+
+
 def _load_thumb_image_worker(row, src, settings, should_stop=None):
     """Load one thumbnail from an immutable page-request snapshot.
 
@@ -2949,7 +3071,9 @@ def _load_thumb_image_worker(row, src, settings, should_stop=None):
     else:
         path = _reanchor_png_path(row.get("png_path"), s.db_path)
         if not path or not os.path.isfile(path):
-            return Image.new("RGB", s.image_size, color=(20, 20, 20)), annotation
+            return (_missing_crop_image(s.image_size,
+                                        path or row.get("png_path") or ""),
+                    annotation)
         try:
             img = load_crop_image(
                 path, db_path=s.db_path,
@@ -3777,7 +3901,7 @@ class _SettingsDialog(QDialog):
         destination = self.example_destination()
         destination.mkdir(parents=True, exist_ok=True)
 
-        if (destination / "measurements" / "measurements.db").is_file():
+        if _usable_example_database(destination):
             return self._use_the_example_data(destination)
 
         button = getattr(self, "_example_btn", None)
@@ -5155,7 +5279,7 @@ class AnnotateScreen(QWidget):
         destination.mkdir(parents=True, exist_ok=True)
 
         missing = []
-        if not (destination / "measurements" / "measurements.db").is_file():
+        if not _usable_example_database(destination):
             missing.append(ask or hf_download.download_annotate_example)
         if route == "stream":
             merged = destination / "merged"
@@ -8230,12 +8354,53 @@ class AnnotateScreen(QWidget):
         if gen != self._page_gen:
             return
         page = self._settings.page_size
+        absent = []
         for i, (img, _annotation) in enumerate(loaded):
             if i >= len(self._thumbs):
                 break
+            info = getattr(img, "info", None) or {}
+            if _MISSING_CROP in info:
+                absent.append(info[_MISSING_CROP])
             self._set_slot_image(i, img)
             self._repaint_slot(i)
         self._set_page_label(self._page_counter_text())
+        self._report_missing_crops(absent, min(len(loaded), len(self._thumbs)))
+
+    def _report_missing_crops(self, absent: Sequence[str], total: int) -> None:
+        """Say once per page that crops are missing on disk, and where.
+
+        Logged once per screen with the first missing path; the console gets
+        one non-modal line per page, naming the folder that was expected, so
+        a moved dataset or a database from another plate is obvious at once.
+
+        :param absent: the paths that did not resolve on this page.
+        :param total: how many crops the page holds.
+        """
+        if not absent:
+            return
+        key = (self._settings.db_path, self._offset, len(absent))
+        if getattr(self, "_missing_crops_reported", None) == key:
+            return
+        self._missing_crops_reported = key
+        first = str(absent[0])
+        folder = os.path.dirname(first) or first
+        if not getattr(self, "_missing_crop_logged", False):
+            self._missing_crop_logged = True
+            LOG.warning("Annotate: crop file missing on disk: %s (database %s)",
+                        first, self._settings.db_path)
+        console = getattr(self, "_console", None)
+        if console is not None:
+            console.append_notice(
+                "{missing} of {total} crops on this page are missing on disk; "
+                "spaCR looked for them in {folder}\n",
+                missing=len(absent), total=total, folder=folder)
+        status = getattr(self, "_status_label", None)
+        if status is not None:
+            status.setText(tr(
+                "{missing} of {total} crops on this page are missing on disk; "
+                "spaCR looked for them in {folder}").format(
+                    missing=len(absent), total=total, folder=folder))
+            self._similar_notice_until = time.monotonic() + 15.0
 
     def _page_counter_text(self) -> str:
         """``Page N of M`` for the page on screen, and which crops it holds.

@@ -1,0 +1,14 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "{missing} of {total} crops on this page are missing on disk; spaCR looked for them in {folder}",
+      "source": "{missing} of {total} crops on this page are missing on disk; spaCR looked for them in {folder}",
+      "source_sha256": "4c975ab1688eeb0914d93b008e9671299afa12c039829b9657c8371775fb3f2b",
+      "table": "ui",
+      "translation": "{missing} von {total} Ausschnitten auf dieser Seite fehlen auf der Festplatte; spaCR hat in {folder} danach gesucht"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}
