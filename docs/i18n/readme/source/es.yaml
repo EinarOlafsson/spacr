@@ -251,7 +251,7 @@ blocks:
     al clon superficial no reduce la copia de trabajo: su almacén de objetos Git
     aún ocupa 2032 MB. Git no informa de las descargas diferidas de objetos, por
     lo que no se midió un total de descarga. Los archivos versionados de nightly
-    ocupan 4657 MB en la copia de trabajo (medidos el 2026-10-15), sin el historial
+    ocupan 1178 MB en la copia de trabajo (medidos el 2026-10-20), sin el historial
     de Git. El tamaño y la duración de la descarga varían según la rama.'
 - h2: Comandos de línea de comandos
 - code: |-

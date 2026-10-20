@@ -1,5 +1,6 @@
 """Bounded write transport with actual SQLite commits and durable failures."""
 import multiprocessing
+import os
 import sqlite3
 import threading
 from pathlib import Path
@@ -558,3 +559,83 @@ def test_simulation_invalid_capture_is_not_hidden_as_success(tmp_path):
         with pytest.raises(IndexError):
             sim.save_data(str(tmp_path), [pd.DataFrame({'value': [4]})], {})
     assert not (tmp_path / 'simulations.db').exists()
+
+
+@pytest.mark.parametrize('given, expected', [
+    (r'C:\project\measurements\.write_queue',
+     '\\\\?\\C:\\project\\measurements\\.write_queue'),
+    ('C:/project/sub/../measurements/.write_queue',
+     '\\\\?\\C:\\project\\measurements\\.write_queue'),
+    (r'\\server\share\project\.write_queue',
+     '\\\\?\\UNC\\server\\share\\project\\.write_queue'),
+    ('\\\\?\\C:\\already\\long', '\\\\?\\C:\\already\\long'),
+])
+def test_windows_spool_paths_take_the_extended_length_spelling(given, expected):
+    """On Windows the spool folder escapes MAX_PATH; drive, UNC and prefixed alike."""
+    from spacr.database_concurrency import _extended_length_path
+
+    assert _extended_length_path(given, windows=True) == expected
+
+
+@pytest.mark.posix_only
+def test_posix_spool_folder_is_byte_identical(tmp_path):
+    """Away from Windows the spool folder and ticket names are exactly as before."""
+    import hashlib
+
+    from spacr.database_concurrency import _extended_length_path
+
+    assert _extended_length_path(str(tmp_path / 'q')) == str(tmp_path / 'q')
+    writer = _DatabaseWriteQueue(tmp_path / 'measurements' / '.write_queue',
+                                lambda _: None, lambda *_: None, ram_gib=0)
+    run_id = writer.endpoint.run_id
+    assert writer.endpoint.folder == str(
+        tmp_path / 'measurements' / '.write_queue' / run_id)
+    ticket = writer.endpoint.enqueue('field', ['row'])
+    assert ticket == hashlib.sha256((run_id + '\0field').encode()).hexdigest()
+    assert [path.name for path in Path(writer.endpoint.folder).iterdir()] == [
+        ticket + '.pkl']
+    writer.start()
+    writer.finish()
+
+
+def test_a_deep_windows_project_passes_max_path_only_without_the_prefix():
+    """The spool sidecar of a 150-character project is past MAX_PATH unprefixed."""
+    import ntpath
+
+    from spacr.database_concurrency import _extended_length_path
+
+    project = 'C:\\' + '\\'.join(['experiment_folder_' + str(index) for index in range(7)])
+    assert len(project) < 150
+    queue = ntpath.join(project, 'measurements', '.write_queue')
+    sidecar = ntpath.join(queue, '0' * 32, 'f' * 64 + '.pkl.final_error.json')
+    assert len(sidecar) > 259
+    folder = _extended_length_path(queue, windows=True)
+    assert folder.startswith('\\\\?\\') and ntpath.join(folder, '0' * 32).startswith(folder)
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='native Windows MAX_PATH behaviour')
+def test_a_windows_project_past_max_path_still_commits_its_fields(tmp_path):
+    """With long paths disabled, every spool file past 260 characters still works."""
+    from spacr.database_concurrency import _extended_length_path
+
+    deep = str(tmp_path)
+    while len(deep) < 220:
+        deep = os.path.join(deep, 'a_rather_long_experiment_folder')
+    os.makedirs(_extended_length_path(deep))
+    database = tmp_path / 'measurements.db'
+    outcomes = []
+    def busy_once(packet, seen=[]):
+        if not seen:
+            seen.append(packet['field'])
+            raise sqlite3.OperationalError('database is locked')
+        _sqlite_dispatch(database, packet)
+    writer = _DatabaseWriteQueue(os.path.join(deep, 'measurements', '.write_queue'),
+                                busy_once, lambda *row: outcomes.append(row), ram_gib=0)
+    assert len(writer.endpoint.folder) > 260
+    for identity in ('one', 'two'):
+        writer.endpoint.enqueue(identity, [identity])
+    writer.start()
+    writer.finish()
+    assert all(error is None for _, _, error in outcomes) and len(outcomes) == 2
+    with connect(database, readonly=True) as connection:
+        assert connection.execute('SELECT COUNT(*) FROM rows').fetchone()[0] == 2

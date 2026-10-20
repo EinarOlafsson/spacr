@@ -58,6 +58,7 @@ about 0.70, and the regions measured 0.000 before the fix.
 """
 from __future__ import annotations
 
+import os
 import pytest
 
 pytest.importorskip("PySide6")
@@ -93,7 +94,7 @@ def _isolated_qsettings(monkeypatch, tmp_path):
     """
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
     monkeypatch.setattr(prefs, "_settings", lambda: store)
-    assert str(tmp_path) in store.fileName(), (
+    assert str(tmp_path) in os.path.normpath(store.fileName()), (
         "QSettings isolation failed; refusing to write to real preferences")
     return store
 

@@ -42,6 +42,7 @@ def _controller(tmp_path, **extra):
     fake._pipeline_failed = lambda error: Controller._pipeline_failed(fake, error)
     fake._attach_to_the_worker = lambda: Controller._attach_to_the_worker(fake)
     fake._keep_installer_cleanup = lambda: Controller._keep_installer_cleanup(fake)
+    fake._onboarding_running = lambda: Controller._onboarding_running(fake)
     fake._installed_root = Controller._installed_root
     fake._require_installed_origin = Controller._require_installed_origin
     fake.__dict__.update(extra)
@@ -636,7 +637,31 @@ def test_the_screen_phase_waits_for_an_enabled_run_and_no_modal(tmp_path):
     fake.app.activeModalWidget = lambda: object()
     Controller._advance(fake)
     assert failures == [
-        "An unexpected modal dialog blocks the installed application"]
+        "An unexpected modal dialog blocks the installed application: cls='object'"]
+    assert fake.record["blocking_modal"] == {"cls": "object"}
+
+
+def test_a_blocking_modal_is_named_in_the_failure_and_the_receipt(qtbot, tmp_path):
+    from PySide6.QtWidgets import QMessageBox
+
+    box = QMessageBox(QMessageBox.Warning, "Optional cache cleanup",
+                      "Cache review could not finish.")
+    box.setObjectName("SomeNotice")
+    box.setInformativeText("Check the log.")
+    qtbot.addWidget(box)
+    fake, failures = _advancing(tmp_path, "screen")
+    fake.window._screens = {"measure": _screen()}
+    fake.app.activeModalWidget = lambda: box
+    Controller._advance(fake)
+    detail = {"cls": "QMessageBox", "objectName": "SomeNotice",
+              "windowTitle": "Optional cache cleanup",
+              "text": "Cache review could not finish.",
+              "informativeText": "Check the log."}
+    assert fake.record["blocking_modal"] == detail
+    assert json.loads(fake.output.read_text(encoding="utf-8"))["blocking_modal"] == detail
+    assert len(failures) == 1
+    for value in detail.values():
+        assert repr(value) in failures[0]
 
 
 @pytest.mark.parametrize("change,message", [
@@ -1091,3 +1116,45 @@ def test_a_cleanup_dialog_cannot_bypass_quit_or_review_deadline(qtbot, tmp_path,
         assert 'installation_review' not in fake.record
     finally:
         dialog.reject()
+
+
+def test_launch_waits_for_onboarding_before_it_opens_measure(tmp_path):
+    opened = []
+    window = SimpleNamespace(findChildren=lambda kind: [], isVisible=lambda: True,
+                             open_module=opened.append, _cache_cleanup_busy=True,
+                             _consent_timer=SimpleNamespace(isActive=lambda: False),
+                             _startup_sequence_running=lambda: False,
+                             _startup_deferred=[])
+    fake, failures = _advancing(tmp_path, "launch")
+    fake.window = window
+    fake._provenance = lambda: None
+    Controller._advance(fake)
+    assert fake.phase == "onboarding" and opened == []
+    Controller._advance(fake)
+    assert fake.phase == "onboarding" and opened == []
+    window._cache_cleanup_busy = False
+    window._startup_deferred = [object()]
+    Controller._advance(fake)
+    assert opened == []
+    window._startup_deferred = []
+    Controller._advance(fake)
+    assert opened == ["measure"] and fake.phase == "screen" and not failures
+    assert "onboarding_settled_s" in fake.record
+
+
+def test_a_modal_left_during_onboarding_is_named_not_waited_out(tmp_path):
+    from PySide6.QtWidgets import QMessageBox
+
+    box = QMessageBox(QMessageBox.Warning, "Optional cache cleanup",
+                      "Cache review could not finish.")
+    window = SimpleNamespace(findChildren=lambda kind: [], _cache_cleanup_busy=True,
+                             _cache_cleanup_error="Traceback: preview failed")
+    fake, failures = _advancing(tmp_path, "onboarding")
+    fake.window = window
+    fake.app.activeModalWidget = lambda: box
+    Controller._advance(fake)
+    assert len(failures) == 1
+    assert failures[0].startswith(
+        "An unexpected modal dialog blocks first-launch onboarding: cls='QMessageBox'")
+    assert fake.record["blocking_modal"]["cache_review_error"] == "Traceback: preview failed"
+    assert fake.phase == "onboarding"

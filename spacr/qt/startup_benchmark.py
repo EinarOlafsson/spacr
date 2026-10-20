@@ -698,6 +698,39 @@ def _cancel_the_smoke_stack_dump():
         faulthandler.cancel_dump_traceback_later()
 
 
+def _name_the_blocking_modal(controller, reason):
+    """Name the blocking modal in the smoke receipt and in its failure message.
+
+    The class, object name, window title and any message-box text go to
+    ``record['blocking_modal']``, so a native run that cannot be repeated
+    interactively still says which dialog appeared. A failed cache review's
+    traceback goes with them, since its warning is one such dialog.
+
+    :param controller: the distribution smoke controller, or a stand-in with
+        ``app``, ``record`` and ``_write``.
+    :param reason: what the dialog blocked.
+    :returns: the failure message, ``reason`` followed by the dialog's details.
+    """
+    widget = controller.app.activeModalWidget()
+    detail = dict(cls=type(widget).__name__)
+    for name in ('objectName', 'windowTitle', 'text', 'informativeText'):
+        reader = getattr(widget, name, None)
+        if callable(reader):
+            try:
+                value = reader()
+            except Exception:
+                continue
+            if isinstance(value, str) and value:
+                detail[name] = value
+    described = ', '.join(f'{key}={value!r}' for key, value in detail.items())
+    failure = getattr(getattr(controller, 'window', None), '_cache_cleanup_error', None)
+    if isinstance(failure, str) and failure:
+        detail['cache_review_error'] = failure[-4000:]
+    controller.record['blocking_modal'] = detail
+    controller._write()
+    return f'{reason}: {described}'
+
+
 class _DistributionSmokeController(QObject):
     """Exercise an installed application's real Measure screen and Run action."""
 
@@ -856,6 +889,14 @@ class _DistributionSmokeController(QObject):
                 self._provenance()
                 if not self.window.isVisible():
                     return
+                self.phase = 'onboarding'
+            elif self.phase == 'onboarding':
+                if self.app.activeModalWidget() is not None:
+                    raise RuntimeError(_name_the_blocking_modal(self,
+                        'An unexpected modal dialog blocks first-launch onboarding'))
+                if self._onboarding_running():
+                    return
+                self.record['onboarding_settled_s'] = round(time.monotonic() - self.started, 1)
                 self.window.open_module('measure')
                 self.phase = 'screen'
             elif self.phase == 'screen':
@@ -863,7 +904,8 @@ class _DistributionSmokeController(QObject):
                 if self.screen is None or not self.screen._btn_run.isEnabled():
                     return
                 if self.app.activeModalWidget() is not None:
-                    raise RuntimeError('An unexpected modal dialog blocks the installed application')
+                    raise RuntimeError(_name_the_blocking_modal(self,
+                        'An unexpected modal dialog blocks the installed application'))
                 from .synthetic import demo_settings, generate_measure_demo
 
                 layout = generate_measure_demo(self.root, wells=('A01',), fields=1,
@@ -1277,15 +1319,27 @@ class _DistributionSmokeController(QObject):
         if time.monotonic() - self._installation_review_started > 30:
             raise RuntimeError('Installation review acceptance exceeded its deadline')
         if self.app.activeModalWidget() is not None:
-            raise RuntimeError('An unexpected modal dialog blocks installation review')
-        consent = getattr(self.window, '_consent_timer', None)
-        startup = getattr(self.window, '_startup_sequence_running', None)
-        if ((consent is not None and consent.isActive())
-                or (startup is not None and startup())
-                or getattr(self.window, '_startup_deferred', ())
-                or getattr(self.window, '_cache_cleanup_busy', False)):
+            raise RuntimeError(_name_the_blocking_modal(self,
+                'An unexpected modal dialog blocks installation review'))
+        if self._onboarding_running():
             return
         self._start_native_menu_check()
+
+    def _onboarding_running(self):
+        """Whether first-launch onboarding may still open a dialog.
+
+        The installer consent, the optional cache review and the report
+        notice open from the start-up timers on their own schedule. The
+        smoke waits for them before it drives a screen, so none of them
+        opens in the middle of a screen being built or configured, and a
+        dialog that is left is one the smoke did not expect.
+        """
+        consent = getattr(self.window, '_consent_timer', None)
+        startup = getattr(self.window, '_startup_sequence_running', None)
+        return bool((consent is not None and consent.isActive())
+                    or (startup is not None and startup())
+                    or getattr(self.window, '_startup_deferred', ())
+                    or getattr(self.window, '_cache_cleanup_busy', False))
 
     @staticmethod
     def _cocoa_message(receiver, selector, result_type, *arguments):

@@ -115,6 +115,7 @@ def test_changed_source_or_shape_refuses_load_and_save(tmp_path):
         engine.save_yolo_boxes(tmp_path, source.name, (10, 10), [], ["object"])
 
 
+@pytest.mark.needs_symlink
 def test_path_escape_and_corrupted_ledger_are_refused(tmp_path):
     inside = tmp_path / "inside"
     inside.mkdir()
@@ -213,6 +214,7 @@ def test_export_failed_replace_keeps_existing_labels_and_cleans_temp(tmp_path,
     assert not list(tmp_path.glob(".field.txt.*.tmp"))
 
 
+@pytest.mark.needs_symlink
 def test_a_broken_project_ledger_symlink_is_refused(tmp_path):
     _source(tmp_path)
     ledger = tmp_path / engine.YOLO_ANNOTATIONS_NAME

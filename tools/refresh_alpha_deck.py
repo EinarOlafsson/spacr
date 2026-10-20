@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import importlib.util
 import io
 import json
 import os
@@ -295,4 +296,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=ROOT / "docs/source/_static/deck")
     args = parser.parse_args()
+    published = args.out.resolve() == (ROOT / "docs/source/_static/deck").resolve()
+    if published:
+        _spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
+        media = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(media)
+        media.fetch("deck", ROOT)
     print(f"Updated alpha slide: {refresh(args.out)} registered features")
+    if published:
+        revision = media.publish("deck", ROOT, "deck: alpha feature slide follows the registry")
+        print(f"deck media pinned at {revision}" if revision else "deck media unchanged")

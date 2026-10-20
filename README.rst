@@ -263,7 +263,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="docs/readme_text/en/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/install-from-source-light-2.desktop.svg"><img src="docs/readme_images/en/install-from-source-light-2.svg" alt="The full nightly clone downloaded 9.25 GiB. Adding --filter=blob:none to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 4657 MB checkout (measured 2026-10-15), excluding Git history. Download sizes and times vary with the branch."></picture></a></div>
+   <div><a href="docs/readme_text/en/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/install-from-source-light-2.desktop.svg"><img src="docs/readme_images/en/install-from-source-light-2.svg" alt="The full nightly clone downloaded 9.25 GiB. Adding --filter=blob:none to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 1178 MB checkout (measured 2026-10-20), excluding Git history. Download sizes and times vary with the branch."></picture></a></div>
 
 .. raw:: html
 

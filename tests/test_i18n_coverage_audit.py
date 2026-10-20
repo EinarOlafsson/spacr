@@ -110,7 +110,8 @@ def test_report_ignores_stale_generated_english_manifests(
     }), encoding="utf-8")
     readme = tmp_path / "docs" / "i18n" / "readme"
     readme.mkdir(parents=True)
-    (readme / "README.sv.rst").write_text("Svenska\n", encoding="utf-8")
+    # Bytes, so the 8 below does not become 9 under Windows' CRLF text mode.
+    (readme / "README.sv.rst").write_bytes("Svenska\n".encode("utf-8"))
 
     report = coverage.build_report()
 

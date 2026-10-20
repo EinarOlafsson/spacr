@@ -382,3 +382,84 @@ def test_the_measurement_writer_feeds_the_chosen_store(tmp_path, backend):
     got = tabular.read_database(store, ["cell"], canonicalise=False)[0]
     assert len(got) == 4
     assert sorted(got["cell_area"].tolist()) == [10.0, 10.0, 20.0, 20.0]
+
+
+@pytest.mark.parametrize("table", ['cell "one"', "a:b", "x?", "pct%41", "trailing.",
+                                   "tab\there ", "plain"])
+def test_a_parquet_table_folder_is_valid_on_windows_and_reverses(table):
+    """A table is a folder; Windows refuses `< > : " | ? *` and a trailing dot."""
+    folder = tabular._parquet_windows_folder_name(table)
+    assert not set(folder) & set('<>:"|?*')
+    assert not any(ord(char) < 32 for char in folder)
+    assert not folder.endswith((".", " "))
+    assert tabular._parquet_table_name(folder) == table
+    if table in ("plain", "pct%41"):
+        assert folder == table
+
+
+@pytest.mark.parametrize("table", ["cell", "a:b", 'cell "one"', "50%", "pct%3A",
+                                   "trailing.", "x?", "ünïcode tåble"])
+def test_every_name_posix_could_already_store_keeps_its_folder(table):
+    """Existing POSIX stores keep their exact folders: no name is respelled."""
+    assert tabular._parquet_folder_name(table, windows=False) == table
+    if os.name != "nt":
+        assert tabular._parquet_table_folder("/store", table) == os.path.join("/store", table)
+
+
+@pytest.mark.parametrize("table", ["cell", "50%", "pct%3A", "nucleus_2", "ünïcode tåble"])
+def test_every_name_windows_could_already_store_keeps_its_folder(table):
+    """A name Windows already accepted is still its own folder there."""
+    assert tabular._parquet_windows_folder_name(table) == table
+    assert tabular._parquet_folder_name(table, windows=True) == table
+    assert tabular._parquet_folder_name(table + ":", windows=True) == table + "%3A"
+    assert tabular._parquet_folder_name(table + ":", windows=False) == table + ":"
+
+
+def test_a_posix_store_lists_and_rewrites_its_tables_in_their_old_folders(tmp_path):
+    """Tables named with Windows-forbidden characters stay where POSIX put them."""
+    store = tmp_path / "old.parquetdb"
+    names = ['cell "one"', "a:b", "50%", "plain"]
+    for name in names:
+        tabular._store_write(pd.DataFrame({"a": [1]}), str(store), "parquet",
+                             name, if_exists="replace")
+    if os.name != "nt":
+        assert sorted(path.name for path in store.iterdir()
+                      if not path.name.startswith(".")) == sorted(names)
+    assert tabular._store_tables(str(store), "parquet") == tuple(sorted(names))
+    tabular._store_write(pd.DataFrame({"a": [2]}), str(store), "parquet",
+                         "a:b", if_exists="append")
+    assert len(tabular._parquet_parts(str(store), "a:b")) == 2
+
+
+def test_a_store_written_on_windows_opens_on_posix(tmp_path):
+    """The escaped folder Windows wrote is found under the table's real name."""
+    store = tmp_path / "win.parquetdb"
+    folder = store / "a%3Ab"
+    folder.mkdir(parents=True)
+    pd.DataFrame({"a": [1]}).to_parquet(folder / "part.parquet")
+    assert tabular._parquet_parts(str(store), "a:b") == [str(folder / "part.parquet")]
+    assert tabular._store_tables(str(store), "parquet") == ("a:b",)
+
+
+@pytest.mark.posix_only
+def test_a_verbatim_and_an_escaped_folder_both_stay_listed(tmp_path):
+    """Two folders whose names unescape alike are two tables, never one."""
+    store = tmp_path / "both.parquetdb"
+    for name in ("a:b", "a%3Ab"):
+        (store / name).mkdir(parents=True)
+        pd.DataFrame({"a": [1]}).to_parquet(store / name / "part.parquet")
+    assert tabular._store_tables(str(store), "parquet") == ("a%3Ab", "a:b")
+    assert tabular._parquet_parts(str(store), "a:b") == [
+        str(store / "a:b" / "part.parquet")]
+
+
+@pytest.mark.posix_only
+def test_a_store_written_with_a_verbatim_table_folder_still_reads(tmp_path):
+    """Stores written before the portable spelling keep their tables."""
+    store = tmp_path / "old.parquetdb"
+    legacy = store / 'cell "one"'
+    legacy.mkdir(parents=True)
+    pd.DataFrame({"a": [1]}).to_parquet(legacy / "part.parquet")
+    assert tabular._parquet_parts(str(store), 'cell "one"') == [
+        str(legacy / "part.parquet")]
+    assert tabular._store_tables(str(store), "parquet") == ('cell "one"',)

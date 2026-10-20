@@ -38,6 +38,9 @@ def test_metadata_changed_to_fifo_between_check_and_open_is_refused(
 
 
 @pytest.mark.parametrize("replacement", [False, True])
+# Another writer unlinking the lock this one holds open: Windows refuses that
+# delete outright (WinError 32), so the race exists only on POSIX.
+@pytest.mark.posix_only
 def test_lock_cleanup_does_not_erase_a_disappeared_or_replaced_lock(
         tmp_path, monkeypatch, replacement):
     source = tmp_path / "field.tif"

@@ -175,6 +175,12 @@ jobs:
             "torch>=2.0" torchvision
           python -m pip install -e ".[dev]"
           python -m pip install sphinx furo sphinx-design sphinx-autoapi
+      - name: Fetch the info deck's pinned PDF and animations
+        run: |
+          if [ -f docs/media_revision.json ]; then
+            tools/run_capped.sh 2G python tools/fetch_docs_media.py fetch
+            tools/run_capped.sh 2G python tools/fetch_docs_media.py check
+          fi
       - name: Generate Make Masks parameter reference from the pinned branch
         run: |
           if [ -f tools/build_make_masks_reference.py ]; then

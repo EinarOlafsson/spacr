@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_method": "AI technical numeric/date maintenance; no human or native-speaker signoff. Only the tracked-checkout size and its measurement date changed after item 710 phase 2 removed the movable features/data files; existing reviewed wording/markup and historical transport measurements remain identical. Size is rounded Git blob bytes / 1048576 under the existing MB label (packaging/measure_clone_forms.sh --branch nightly, depth1 worktree 1178.3 MB).",
+  "records": [
+    {
+      "label": "tracked-checkout-size-2026-10-20",
+      "source_sha256": "001569bea1300e33acfbdecf7e13ee778fabf5426c528cc91eb2da431bfaec23",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 1178 MB checkout (measured 2026-10-20), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í nightly taka 1178 MB í vinnueintakinu (mælt 2026-10-20), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."
+    }
+  ]
+}

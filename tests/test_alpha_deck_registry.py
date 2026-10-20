@@ -27,7 +27,11 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 685 (2026-10-10): the Make Masks vvvv export makes 62.
     # 691 (2026-10-11): MitoNet for mitochondria in TEM makes 63.
     assert deck._check_registry(ROOT / "spacr/settings.py") == 63
-    pdf = PdfReader(ROOT / "docs/source/_static/deck/spacr_deck.pdf")
+    # 710: the published PDF is fetched from the pinned dataset revision.
+    media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
+    media = importlib.util.module_from_spec(media_spec)
+    media_spec.loader.exec_module(media)
+    pdf = PdfReader(media.media_path("docs/source/_static/deck/spacr_deck.pdf"))
     text = " ".join(unicodedata.normalize("NFKC", pdf.pages[3].extract_text()).split())
     for _, rows in deck.GROUPS:
         for _, caption in rows:
