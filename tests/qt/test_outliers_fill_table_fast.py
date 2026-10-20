@@ -1,4 +1,10 @@
-"""Refilling the Outliers object table is cheap, keeps every item alive and shows the new values."""
+"""Refilling the Outliers object table is cheap, keeps every item alive and shows the new values.
+
+The wall-clock budgets hold in an uninstrumented process; under a coverage
+tracer every Python line of the fill is traced, so there the timings measure
+the tracer and only the behaviour is asserted.
+"""
+import sys
 import time
 
 import numpy as np
@@ -11,6 +17,10 @@ from PySide6.QtWidgets import QTableWidget
 
 from spacr.qt.screens.outliers import _fill_table
 from spacr.qt.widgets.sortable_table import install_sorting
+
+
+#: Whether the wall-clock budgets apply: not under a line tracer such as coverage.
+TIMED = sys.gettrace() is None
 
 
 def _frame(rows, columns, seed):
@@ -30,7 +40,7 @@ def test_a_large_refill_takes_under_a_second_and_shows_the_new_values(qtbot):
     started = time.perf_counter()
     _fill_table(table, second)
     elapsed = time.perf_counter() - started
-    assert elapsed < 1.0, f"refilling 50 000 cells took {elapsed:.2f} s"
+    assert elapsed < 1.0 or not TIMED, f"refilling 50 000 cells took {elapsed:.2f} s"
     assert table.rowCount() == 500 and table.columnCount() == 100
     assert table.item(3, 4) is kept                                   # rewritten in place, none deleted
     assert table.item(499, 99).text() == f"{second.iloc[499, 99]:.6g}"
@@ -62,10 +72,11 @@ def test_shrinking_from_every_feature_to_one_is_cheap_and_regrowing_reuses_the_k
     started = time.perf_counter()
     _fill_table(table, narrow)
     shrink = time.perf_counter() - started
-    assert shrink < 1.0, f"shrinking 140 000 cells took {shrink:.2f} s"
+    assert shrink < 1.0 or not TIMED, f"shrinking 140 000 cells took {shrink:.2f} s"
     assert (table.rowCount(), table.columnCount()) == (500, 3)
     assert table.item(499, 2).text() == f"{narrow.iloc[499, 2]:.6g}"
     started = time.perf_counter()
     _fill_table(table, wide)
-    assert time.perf_counter() - started < 3.0
+    regrow = time.perf_counter() - started
+    assert regrow < 3.0 or not TIMED, f"regrowing 140 000 cells took {regrow:.2f} s"
     assert table.item(250, 279).text() == f"{wide.iloc[250, 279]:.6g}"
