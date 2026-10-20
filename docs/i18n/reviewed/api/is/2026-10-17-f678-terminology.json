@@ -10029,15 +10029,13 @@
     {
       "context": "Build ``key``'s screen again, carrying ``values`` across.",
       "label": "spacr.qt.app.MainWindow.rebuild_app_screen#0",
-      "retired": "2026-10-19",
-      "retired_reason": "MainWindow.rebuild_app_screen docstring rewritten in af94d4ebde/f8afacf74c; the current blocks have records in 2026-10-19-mainwindow-rebuild-breathing-api.json",
       "source": "Build ``key``'s screen again, carrying ``values`` across.",
       "source_sha256": "a01e13d2eecdd90ec3260902fdea7be6b1a7ed5fff17169dfcb7b64ba31078ce",
       "translation": "Búa ``key`` skjár aftur, með því að flytja ``values`` yfir."
     },
     {
       "context": "settings to apply to the new screen.",
-      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#4",
+      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#2",
       "source": "settings to apply to the new screen.",
       "source_sha256": "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589",
       "translation": "Sættir til að gleyma við nýja skjár."
@@ -10045,8 +10043,6 @@
     {
       "context": "The whole screen is rebuilt because which settings a form holds depends on a few of its own values -- the organelle count, and whether an object's image data channel names an image layer -- so a committed change to one of those means a different form, not a changed one. Rebuilding is the same path every module open already takes.",
       "label": "spacr.qt.app.MainWindow.rebuild_app_screen#3",
-      "retired": "2026-10-19",
-      "retired_reason": "MainWindow.rebuild_app_screen docstring rewritten in af94d4ebde/f8afacf74c; the current blocks have records in 2026-10-19-mainwindow-rebuild-breathing-api.json",
       "source": "The whole screen is rebuilt because which settings a form holds depends on a few of its own values -- the organelle count, and whether an object's channel names a plane -- so a committed change to one of those means a different form, not a changed one. Rebuilding is the same path every module open already takes.",
       "source_sha256": "da2ecd63a868752ab4849fbdbfc1deb35c3e6047820d50d7d2bddaf5bf3fff9b",
       "translation": "Allur skæran er endurbyggð vegna þess að hvaða settingar forminn holds er eftir nokkrum af eigin gildi sínu - organelle tákn, og hvort rás á hlutinn nefnir myndslagi - þannig að viðeigandi breyting á einn af þeim þýðir öðruvísi form, ekki breytt einn."
@@ -10054,8 +10050,6 @@
     {
       "context": "The old screen is dropped from the cache and destroyed, so the new one is built from scratch rather than reusing widgets that belong to a shape that no longer applies.",
       "label": "spacr.qt.app.MainWindow.rebuild_app_screen#4",
-      "retired": "2026-10-19",
-      "retired_reason": "MainWindow.rebuild_app_screen docstring rewritten in af94d4ebde/f8afacf74c; the current blocks have records in 2026-10-19-mainwindow-rebuild-breathing-api.json",
       "source": "The old screen is dropped from the cache and destroyed, so the new one is built from scratch rather than reusing widgets that belong to a shape that no longer applies.",
       "source_sha256": "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc",
       "translation": "Gamla skjár er hættað úr cache og eyðileggið, þannig að nýja er byggð frá skratch í stað þess að endurnýta widgets sem tilheyra form sem er ekki lengur viðeigandi."

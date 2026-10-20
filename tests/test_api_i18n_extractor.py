@@ -1819,15 +1819,6 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in timelapse_arrivals} == timelapse_arrivals
     assert not timelapse_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **timelapse_arrivals}
-    # 2026-10-19: MainWindow.breathing_like_an_open (af94d4ebde) lets a
-    # settings pack applied after a rebuild take a module open's breaths;
-    # one named contract.
-    breathing_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "rebuild_breathing_api_arrival_2026-10-19.json").read_text())
-    assert set(breathing_arrivals) == {"spacr.qt.app.MainWindow.breathing_like_an_open"}
-    assert {key: docs[key] for key in breathing_arrivals} == breathing_arrivals
-    assert not breathing_arrivals.keys() & zoo_arrivals.keys()
-    zoo_arrivals = {**zoo_arrivals, **breathing_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]

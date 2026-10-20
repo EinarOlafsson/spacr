@@ -2618,7 +2618,7 @@
     },
     {
       "context": "the app whose screen is to be rebuilt.",
-      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#3",
+      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#1",
       "source": "the app whose screen is to be rebuilt.",
       "source_sha256": "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
       "translation": "l'application dont l'écran doit être reconstruit."
@@ -2626,8 +2626,6 @@
     {
       "context": "The whole screen is rebuilt because which settings a form holds depends on a few of its own values -- the organelle count, and whether an object's image data channel names an image layer -- so a committed change to one of those means a different form, not a changed one. Rebuilding is the same path every module open already takes.",
       "label": "spacr.qt.app.MainWindow.rebuild_app_screen#3",
-      "retired": "2026-10-19",
-      "retired_reason": "MainWindow.rebuild_app_screen docstring rewritten in af94d4ebde/f8afacf74c; the current blocks have records in 2026-10-19-mainwindow-rebuild-breathing-api.json",
       "source": "The whole screen is rebuilt because which settings a form holds depends on a few of its own values -- the organelle count, and whether an object's channel names a plane -- so a committed change to one of those means a different form, not a changed one. Rebuilding is the same path every module open already takes.",
       "source_sha256": "da2ecd63a868752ab4849fbdbfc1deb35c3e6047820d50d7d2bddaf5bf3fff9b",
       "translation": "L'écran entier est reconstruit parce que les paramètres d'une forme dépendent de quelques-unes de ses propres valeurs -- le nombre d'organelles, et si le canal de données d'image d'un objet nomme un calque d'images -- donc un changement engagé à l'une d'elles signifie une forme différente, pas une autre. La reconstruction est le même chemin que chaque module ouvert prend déjà."
@@ -2635,8 +2633,6 @@
     {
       "context": "The old screen is dropped from the cache and destroyed, so the new one is built from scratch rather than reusing widgets that belong to a shape that no longer applies.",
       "label": "spacr.qt.app.MainWindow.rebuild_app_screen#4",
-      "retired": "2026-10-19",
-      "retired_reason": "MainWindow.rebuild_app_screen docstring rewritten in af94d4ebde/f8afacf74c; the current blocks have records in 2026-10-19-mainwindow-rebuild-breathing-api.json",
       "source": "The old screen is dropped from the cache and destroyed, so the new one is built from scratch rather than reusing widgets that belong to a shape that no longer applies.",
       "source_sha256": "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc",
       "translation": "L'ancien écran est tombé du cache et détruit, de sorte que le nouveau est construit à partir de zéro plutôt que de réutiliser des widgets qui appartiennent à une forme qui ne s'applique plus."
