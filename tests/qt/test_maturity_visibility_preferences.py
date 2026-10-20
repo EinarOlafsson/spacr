@@ -21,11 +21,14 @@ def maturity_prefs(tmp_path, monkeypatch):
     return prefs
 
 
-def test_maturity_visibility_defaults_to_showing_everything(maturity_prefs):
+def test_maturity_visibility_ships_alpha_off_and_beta_on(maturity_prefs):
     prefs = maturity_prefs
-    assert prefs.get_show_alpha() is True
+    assert prefs.get_show_alpha() is False
     assert prefs.get_show_beta() is True
-    assert prefs.maturity_is_visible("alpha") is True
+    assert prefs.maturity_is_visible("alpha") is False
+    assert prefs.DEFAULT_SHOW_ALPHA is False
+    assert prefs._get_show_alpha_features() is False
+    assert prefs._get_show_alpha_species() is False
     assert prefs.maturity_is_visible("beta") is True
     assert prefs.maturity_is_visible("stable") is True
 
@@ -181,6 +184,7 @@ def test_open_settings_toggle_in_place_without_losing_sections(
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.widgets.section import Section
 
+    maturity_prefs.set_show_alpha(True)
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
     sections = screen.findChildren(Section)

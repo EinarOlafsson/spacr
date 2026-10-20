@@ -101,7 +101,7 @@ Values:
   on the right. Fields are **exempt from** ``pane_opacity`` while this is
   on — see :func:`get_field_fade_enabled` and
   :mod:`spacr.qt.widgets.field_fade`.
-* ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control
+* ``show_alpha`` (default ``False``) / ``show_beta`` (default ``True``): bool. Control
   whether modules and settings at that maturity are shown. Stable features
   are always visible.
 * ``sound/music_file``: str, default ``""``. A WAV of the user's own that
@@ -6086,12 +6086,12 @@ def set_db_browser_editable(on: bool) -> None:
 
 
 
-DEFAULT_SHOW_ALPHA = True
+DEFAULT_SHOW_ALPHA = False
 DEFAULT_SHOW_BETA = True
 
 
 def get_show_alpha() -> bool:
-    """Whether Alpha modules and settings are visible (default: ``True``)."""
+    """Whether Alpha modules and settings are visible (default: ``False``)."""
     return _as_bool(_settings().value(_KEY_SHOW_ALPHA, DEFAULT_SHOW_ALPHA),
                     DEFAULT_SHOW_ALPHA)
 

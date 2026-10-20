@@ -92,9 +92,15 @@ def home(request, qapp, qt_theme_applied):
     on the page as ``testBuildFontScale`` so a test that measures with
     ``scaled_px`` can put it back first.
     """
+    from spacr.qt import preferences as _prefs
     from spacr.qt.preferences import get_font_scale
     from spacr.qt.theme import stylesheet
 
+    # Alpha tiles are off for a new user; these tests lay out every tile.
+    # Module scope builds this before the per-test seed in conftest runs.
+    _prefs_patch = pytest.MonkeyPatch()
+    _prefs_patch.setattr(_prefs, "DEFAULT_SHOW_ALPHA", True)
+    request.addfinalizer(_prefs_patch.undo)
     theme = request.param
     qss = stylesheet(theme)
 

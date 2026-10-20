@@ -725,6 +725,27 @@ def _qt_catalog_matches_test_language(
 
 
 @pytest.fixture(autouse=True)
+def _alpha_modules_visible_unless_testing_the_default(request, monkeypatch):
+    """Show Alpha modules in tests, except the one that tests the default.
+
+    New users start with "Show Alpha modules and settings" off
+    (``preferences.DEFAULT_SHOW_ALPHA`` is False), so the shipped default
+    hides every Alpha tile. Most Qt tests exercise those screens and read
+    their own throwaway settings files, so the fallback is raised for them.
+    A test whose name contains ``ships_alpha_off`` keeps the real default.
+    """
+    if "ships_alpha_off" in request.node.name:
+        yield
+        return
+    try:
+        from spacr.qt import preferences
+        monkeypatch.setattr(preferences, "DEFAULT_SHOW_ALPHA", True)
+    except Exception:
+        pass
+    yield
+
+
+@pytest.fixture(autouse=True)
 def _skip_first_launch_tour():
     """The first-launch tour attaches a modal overlay to the MainWindow
     the first time it opens. Left alone, it steals focus + adds widgets

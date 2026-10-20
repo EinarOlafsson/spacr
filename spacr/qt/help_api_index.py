@@ -5593,7 +5593,7 @@ API_ENTRIES = (
     ('spacr.qt.preferences.get_section_layout', 'What ``panel`` looked like when it was last used.'),
     ('spacr.qt.preferences.get_setting_animations_enabled', 'Whether setting tooltips show their animation WITHOUT being asked.'),
     ('spacr.qt.preferences.get_share_diagnostic_logs', 'Whether an error report saves a redacted copy of the recent log.'),
-    ('spacr.qt.preferences.get_show_alpha', 'Whether Alpha modules and settings are visible (default: ``True``).'),
+    ('spacr.qt.preferences.get_show_alpha', 'Whether Alpha modules and settings are visible (default: ``False``).'),
     ('spacr.qt.preferences.get_show_beta', 'Whether Beta modules and settings are visible (default: ``True``).'),
     ('spacr.qt.preferences.get_sound_enabled', 'Whether spaCR plays any sound at all. Default ``False``.'),
     ('spacr.qt.preferences.get_sound_event_enabled', "Whether one event's sound is switched on, apart from the master."),
