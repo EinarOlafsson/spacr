@@ -55,6 +55,7 @@ def test_native_short_or_case_alias_snapshots_and_restores_the_same_folder(tmp_p
     assert json.loads((actual / 'metadata.json').read_text(encoding="utf-8")) == state
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('operation', ['snapshot', 'restore'])
 def test_actual_symlink_ancestor_is_still_refused(tmp_path, windows_guard, operation):
     physical = tmp_path / 'private work'
@@ -123,6 +124,7 @@ def test_alias_is_not_accepted_when_existing_native_identity_does_not_match(tmp_
     assert source.read_bytes() == b'original'
 
 
+@pytest.mark.posix_only
 def test_posix_folder_policy_still_refuses_a_symlink_parent(tmp_path, monkeypatch):
     physical = tmp_path / 'physical'
     physical.mkdir()

@@ -29,7 +29,6 @@ from tests.test_install_cleanup import (
     _nothing_here_reaches_this_computer as _nothing_here_reaches_this_computer,
 )
 
-pytestmark = pytest.mark.skipif(os.name == "nt", reason="POSIX launch folders")
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.realpath(spacr.__file__)))
 
@@ -130,6 +129,7 @@ def test_a_pip_launch_must_be_owned_by_exactly_the_updated_distribution(tmp_path
         assert _result(handshake)["state"] == "error"
 
 
+@pytest.mark.posix_only
 def test_a_launch_folder_must_stay_the_folder_that_was_checked(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="invalid update launch binding"):
         ic._UpdateLaunchHandshake(str(tmp_path), "E" * 64)

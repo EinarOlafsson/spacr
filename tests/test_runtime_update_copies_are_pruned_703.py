@@ -14,13 +14,13 @@ import pytest
 
 from spacr import install_cleanup as ic
 
-pytestmark = pytest.mark.skipif(os.name == "nt", reason="POSIX ownership fixtures")
 
 
 @pytest.fixture(autouse=True)
 def _private_home(tmp_path, monkeypatch):
     """update.log goes to the test's own home, never the developer's."""
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "home"))
 
 
 @pytest.fixture
@@ -82,6 +82,7 @@ def test_an_unreadable_or_foreign_journal_is_kept(runtime):
     assert broken.is_dir() and other.is_dir()
 
 
+@pytest.mark.needs_symlink
 def test_a_link_is_never_followed(runtime, tmp_path):
     root, prefix = runtime
     outside = tmp_path / "precious"
@@ -129,8 +130,9 @@ def test_after_launch_a_newer_unconfirmed_transaction_keeps_every_copy(runtime):
 
 def test_the_launch_prune_takes_the_runtime_lease_and_skips_when_an_update_holds_it(runtime, monkeypatch):
     root, prefix = runtime
-    older = _copy(root, prefix, "older", "committed", 1000)
-    _copy(root, prefix, "newer", "committed", 2000)
+    family = "windows-private-pip" if os.name == "nt" else "posix-runtime"
+    older = _copy(root, prefix, "older", "committed", 1000, family=family)
+    _copy(root, prefix, "newer", "committed", 2000, family=family)
     monkeypatch.setattr(ic, "_runtime_recovery_inventory", lambda path: {"live": True})
     lock = root / ".venv.spacr-update-lock"
     ic._take_lease_dir(str(lock))

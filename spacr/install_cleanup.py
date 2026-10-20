@@ -5099,7 +5099,10 @@ class _UpdatePhaseClient(_UpdatePhaseChannel):
                 or getattr(before, "st_file_attributes", 0) & 0x400):
             raise ValueError(tr("The operation authorization descriptor is not private."))
         if os.name == "nt":
-            _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+            try:
+                _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+            except ValueError as error:
+                raise ValueError(tr("The operation authorization descriptor is not private.")) from error
         elif before.st_uid != owner or stat.S_IMODE(before.st_mode) & 0o077:
             raise ValueError(tr("The operation authorization descriptor is not private."))
         descriptor = os.open(endpoint, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
@@ -5110,7 +5113,10 @@ class _UpdatePhaseClient(_UpdatePhaseChannel):
                     or os.name != "nt" and (actual.st_uid != owner or stat.S_IMODE(actual.st_mode) & 0o077)):
                 raise ValueError(tr("The operation authorization descriptor is not private."))
             if os.name == "nt":
-                _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+                try:
+                    _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+                except ValueError as error:
+                    raise ValueError(tr("The operation authorization descriptor is not private.")) from error
             endpoint_text = stream.read(129)
         match = re.fullmatch(r"([1-9][0-9]{0,4}):([a-f0-9]{64})", endpoint_text)
         if match is None or int(match[1]) > 65535:

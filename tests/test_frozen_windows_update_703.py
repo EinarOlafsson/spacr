@@ -99,7 +99,8 @@ def update(runtime, monkeypatch, tmp_path):
     expected = hashlib.sha256(installer_bytes).hexdigest()
     monkeypatch.setattr(cleanup, '_published_digest', lambda _url: expected)
     actions = []
-    monkeypatch.setattr(cleanup, '_desktop_process_identity', lambda _pid: (cleanup.os.getuid(), str(runtime.executable)))
+    owner = 'S-1-5-21-123' if cleanup.os.name == 'nt' else cleanup.os.getuid()
+    monkeypatch.setattr(cleanup, '_desktop_process_identity', lambda _pid: (owner, str(runtime.executable)))
     monkeypatch.setattr(cleanup, '_wait_for_exit', lambda _pid, **_kwargs: 'approved-exit' in actions)
     handshake = cleanup._WindowsPipHandshake(plan)
     real_ready = cleanup._WindowsPipHandshake.ready
@@ -166,7 +167,6 @@ def run_update(update, **kwargs):
         run=kwargs.get('run', identity))
 
 
-@pytest.mark.posix_only
 def test_verified_nsis_update_keeps_data_and_relaunches_after_actual_identity(update):
     assert run_update(update) == ('1.5.1.5', 'modeled NSIS completed')
     assert update.actions == ['download', 'stage', 'approved-exit', 'install', 'relaunch']
@@ -177,7 +177,6 @@ def test_verified_nsis_update_keeps_data_and_relaunches_after_actual_identity(up
     assert json.loads(results[0].read_text(encoding="utf-8"))['state'] == 'desktop-ready'
 
 
-@pytest.mark.posix_only
 @pytest.mark.parametrize("failure", ["old-version", "exited", "never-ready", "cannot-stop"])
 def test_unconfirmed_windows_desktop_retains_recovery_and_cannot_report_success(update, monkeypatch, failure):
     stopped = []
@@ -255,7 +254,6 @@ def test_cancelled_uac_never_relaunches_or_changes_old_runtime(update):
     assert not list((update.runtime.home / '.spacr/update-locks').iterdir())
 
 
-@pytest.mark.posix_only
 def test_failed_nsis_transaction_restores_old_bytes_and_never_relaunches(update):
     before = snapshot(update.runtime.root)
 
@@ -298,7 +296,6 @@ def test_live_installer_timeout_retains_lock_stage_and_journal(update):
         run_update(update)
 
 
-@pytest.mark.posix_only
 @pytest.mark.parametrize('change', ['root', 'executable', 'version', 'stage'])
 def test_changed_destination_or_staged_installer_refused_after_approved_exit(update, change):
     def mutate(pid):
@@ -312,16 +309,23 @@ def test_changed_destination_or_staged_installer_refused_after_approved_exit(upd
         elif change == 'version':
             metadata = next(update.runtime.internal.glob('*.dist-info/METADATA'))
             metadata.write_text('Name: spacr\nVersion: 1.5.1.6\n', encoding="utf-8")
+        elif pinned:
+            with pytest.raises(PermissionError):
+                Path(update.plan['fetch']['path']).write_bytes(b'replaced after approval')
         else:
             Path(update.plan['fetch']['path']).write_bytes(b'replaced after approval')
         return True
 
+    pinned = change == 'stage' and cleanup.os.name == 'nt'
+    if pinned:
+        assert run_update(update, wait=mutate) == ('1.5.1.5', 'modeled NSIS completed')
+        assert update.actions == ['download', 'stage', 'approved-exit', 'install', 'relaunch']
+        return
     with pytest.raises((ValueError, FileNotFoundError)):
         run_update(update, wait=mutate)
     assert 'install' not in update.actions and 'relaunch' not in update.actions
 
 
-@pytest.mark.posix_only
 @pytest.mark.parametrize('change', ['version', 'runtime', 'receipt'])
 def test_wrong_installed_runtime_or_receipt_is_not_relaunched(update, change):
     def wrong(installer, root, **kwargs):
@@ -381,7 +385,6 @@ def test_reparse_and_nonregular_boundaries_are_refused(update, tmp_path, entry):
     assert 'install' not in update.actions and 'relaunch' not in update.actions
 
 
-@pytest.mark.posix_only
 @pytest.mark.parametrize('variable', ['SPACR_HOME', 'SPACR_MODEL_CACHE', 'SPACR_NEWS_CACHE'])
 @pytest.mark.parametrize('late', [False, True])
 def test_configured_data_inside_payload_refuses_before_staging_or_after_approval(update, variable, late):
@@ -471,7 +474,6 @@ def test_native_installer_pin_denies_write_delete_and_keeps_descriptor_live(upda
         os.fstat(opened[0])
 
 
-@pytest.mark.posix_only
 def test_lost_approval_or_expired_lease_never_activates_staged_runtime(update, monkeypatch):
     original_wait = cleanup._WindowsPipHandshake.wait_for_shutdown
 

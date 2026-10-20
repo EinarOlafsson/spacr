@@ -17,6 +17,7 @@ def profile_for(record, **changes):
     return path
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("choice", [False, True, "unwritable", "unsupported"])
 def test_online_update_binds_resolution_to_its_own_saved_profile(installation, tmp_path, monkeypatch, choice):
     record, _machine, _kept = installation
@@ -59,6 +60,7 @@ def test_unreadable_saved_choice_refuses_without_starting_update(installation, t
     assert plan["command"] is None and "choices could not be read" in plan["error"]
 
 
+@pytest.mark.posix_only
 def test_changing_saved_backend_during_staging_refuses_activation(installation, tmp_path, monkeypatch):
     record, machine, kept = installation
     path = profile_for(record, without_wgpu=False)
@@ -110,6 +112,7 @@ def test_only_one_explicit_missing_wgpu_diagnostic_is_eligible(change):
     assert ic._only_saved_wgpu_omission(code, output) is (change is None)
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("saved, extra", [(True, False), (False, False), (True, True)])
 def test_dependency_exception_requires_saved_choice_and_preserves_other_failures(
         installation, tmp_path, monkeypatch, saved, extra):

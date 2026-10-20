@@ -10,6 +10,8 @@ from spacr import install_cleanup as ic
 from tests.test_pip_runtime_transaction_703 import installation
 from tests.test_macos_runtime_transaction_703 import _snapshot, _wheel
 
+pytestmark = pytest.mark.posix_only
+
 
 @pytest.fixture
 def updated(installation, tmp_path):
