@@ -763,7 +763,9 @@ def test_errors_module_only_imports_the_stdlib_database_sibling():
     makes run-status writes transactional without importing an analysis stack.
     Its cooperative cancellation dependency must also remain standard-library-only.
     The queued writer may import its retry policy lazily inside its worker;
-    importing errors must never load that analysis dependency.
+    importing errors must never load that analysis dependency. Its Windows
+    spool spelling comes lazily from ``portable_paths``, whose module level is
+    standard-library-only and whose own sibling imports stay inside functions.
     """
     import ast
     import pkgutil
@@ -802,10 +804,12 @@ def test_errors_module_only_imports_the_stdlib_database_sibling():
                                 'tensorflow', 'skimage', 'cv2'})
 
     import spacr.cancellation as cancellation_module
+    import spacr.portable_paths as portable_paths_module
 
     for module, allowed_siblings in (
-        (concurrency_module, {'cancellation', 'runctx'}),
+        (concurrency_module, {'cancellation', 'runctx', 'portable_paths'}),
         (cancellation_module, set()),
+        (portable_paths_module, {'qt.i18n'}),
     ):
         with open(module.__file__, encoding='utf-8') as handle:
             module_tree = ast.parse(handle.read())
@@ -836,6 +840,17 @@ def test_errors_module_only_imports_the_stdlib_database_sibling():
                         assert enclosing.name == '_run'
                         assert isinstance(parents[enclosing], ast.ClassDef)
                         assert parents[enclosing].name == '_DatabaseWriteQueue'
+                    if module is concurrency_module and node.module == 'portable_paths':
+                        enclosing = parents[node]
+                        while not isinstance(enclosing, ast.FunctionDef):
+                            assert enclosing in parents, 'dependency must stay lazy'
+                            enclosing = parents[enclosing]
+                        assert enclosing.name == '_extended_length_path'
+                    if module is portable_paths_module:
+                        enclosing = parents[node]
+                        while not isinstance(enclosing, ast.FunctionDef):
+                            assert enclosing in parents, 'dependency must stay lazy'
+                            enclosing = parents[enclosing]
                 else:
                     module_imports.add((node.module or '').split('.')[0])
         assert siblings <= allowed_siblings, (
