@@ -20,3 +20,14 @@ def test_the_application_sheet_uses_the_platform_family():
     assert f"font-family: {theme.QSS_FONT_FAMILY};" in sheet
     if not sys.platform.startswith("win"):
         assert "Segoe UI" not in sheet
+
+
+def test_the_ai_usage_row_is_transparent_like_the_usage_bar_row():
+    """2026-10-20 macOS: the console's "N% of your share left" row (object
+    name AiUsageRow) painted pure black behind its bar and text; the
+    transparency rule named only UsageBarRow."""
+    sheet = theme.stylesheet("dark")
+    rule = sheet[sheet.index("QWidget#CardBody, QWidget#UsageBarRow"):]
+    rule = rule[:rule.index("}")]
+    assert "QWidget#AiUsageRow" in rule and "QLabel#AiUsageText" in rule
+    assert "background: transparent" in rule

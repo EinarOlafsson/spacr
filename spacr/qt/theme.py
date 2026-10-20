@@ -6273,7 +6273,8 @@ QToolButton#SettingListFooter {{
     text-align: left;
 }}
 QWidget#CardBody, QWidget#UsageBarRow,
-QWidget#UsageBarRow QProgressBar, QLabel#CategoryHintStrip {{
+QWidget#UsageBarRow QProgressBar, QLabel#CategoryHintStrip,
+QWidget#AiUsageRow, QLabel#AiUsageText {{
     background: transparent;
 }}
 QSplitter#ConsoleSplit::handle:vertical {{
