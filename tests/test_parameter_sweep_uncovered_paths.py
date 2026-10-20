@@ -160,7 +160,7 @@ def test_be_polite_carries_on_when_the_kernel_refuses_a_nice_change(
     def refuse(increment):
         raise OSError("nice is not permitted here")
 
-    monkeypatch.setattr(os, "nice", refuse)
+    monkeypatch.setattr(os, "nice", refuse, raising=False)
     oom_file = tmp_path / "oom_score_adj"
     _redirect_oom_file(monkeypatch, str(oom_file))
     commands = []
@@ -178,7 +178,7 @@ def test_be_polite_carries_on_when_the_oom_score_file_cannot_be_written(
     """Containers and hardened kernels refuse the write; the sweep still runs."""
     nice_calls = []
     monkeypatch.setattr(os, "nice", lambda increment: nice_calls.append(
-        increment) or increment)
+        increment) or increment, raising=False)
 
     real_open = builtins.open
 
@@ -203,7 +203,7 @@ def test_be_polite_carries_on_when_ionice_is_missing(monkeypatch, tmp_path):
     """ionice is a Linux utility a minimal image may simply not ship."""
     nice_calls = []
     monkeypatch.setattr(os, "nice", lambda increment: nice_calls.append(
-        increment) or increment)
+        increment) or increment, raising=False)
     oom_file = tmp_path / "oom_score_adj"
     _redirect_oom_file(monkeypatch, str(oom_file))
 

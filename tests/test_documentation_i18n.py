@@ -3169,6 +3169,7 @@ def test_cache_lock_releases_descriptor_when_owner_stamp_fails(
         pass
 
 
+@__import__("pytest").mark.posix_only
 def test_cache_lock_closes_descriptor_when_explicit_unlock_fails(
     tmp_path, monkeypatch,
 ):
@@ -3191,6 +3192,7 @@ def test_cache_lock_closes_descriptor_when_explicit_unlock_fails(
         pass
 
 
+@__import__("pytest").mark.posix_only
 def test_atomic_catalog_writes_preserve_existing_mode(tmp_path):
     from build_documentation_i18n import _write_json
     from build_i18n_catalogs import _atomic_write_text
