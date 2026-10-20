@@ -274,6 +274,63 @@ def _get_dim(widget, key: str) -> int:
     return actual
 
 
+def _actual_minimum_height(widget) -> int:
+    """``widget``'s minimum height in the pixels it is drawn at now.
+
+    The patched :meth:`QWidget.minimumHeight` answers in 100 % units, which
+    is right for a value code wrote and wrong for one measured from a laid
+    out widget, such as a ``minimumSizeHint`` or a ``heightForWidth``.
+
+    :param widget: the widget to read.
+    :returns: the minimum height Qt is enforcing.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    getter = _ORIGINAL.get((QWidget, "minimumHeight"))
+    return int(getter(widget) if getter is not None else widget.minimumHeight())
+
+
+def _actual_minimum_size(widget):
+    """``widget``'s minimum size in the pixels it is drawn at now.
+
+    :param widget: the widget to read.
+    :returns: the ``QSize`` Qt is enforcing, not the 100 % record.
+    """
+    from PySide6.QtCore import QSize
+    from PySide6.QtWidgets import QWidget
+
+    getter = _ORIGINAL.get((QWidget, "minimumWidth"))
+    width = getter(widget) if getter is not None else widget.minimumWidth()
+    return QSize(int(width), _actual_minimum_height(widget))
+
+
+def _set_actual_minimum_height(widget, height: int) -> None:
+    """Hold ``widget`` at least ``height`` pixels tall at the current scale.
+
+    For a height MEASURED from widgets already drawn at the GUI scale.
+    Passing it to :meth:`QWidget.setMinimumHeight` would scale it a second
+    time: at 75 % a pane that needs 196 px got a floor of 147, and the
+    Actions buttons were cut to half their height (the macOS distribution
+    smoke at 1440 x 870, 2026-10-20). The 100 % record is kept, rounded up,
+    so a later change of scale starts from a floor that still fits.
+
+    :param widget: the widget to hold.
+    :param height: the minimum, in the pixels it is drawn at now.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    height = max(0, int(height))
+    setter = _ORIGINAL.get((QWidget, "setMinimumHeight"))
+    if setter is None:
+        widget.setMinimumHeight(height)
+        return
+    factor = _factor_for(widget)
+    base = height if factor == 1.0 else int(math.ceil(height / factor))
+    _store(widget, "_gs_geo")["minh"] = base
+    _store(widget, "_gs_geo_set")["minh"] = height
+    setter(widget, height)
+
+
 def _install_widget_setters() -> None:
     """Replace ``QWidget``'s size setters and getters."""
     from PySide6.QtCore import QSize

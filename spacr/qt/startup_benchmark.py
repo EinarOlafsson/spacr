@@ -963,6 +963,8 @@ class _DistributionSmokeController(QObject):
         from PySide6.QtWidgets import (QAbstractButton, QAbstractSpinBox, QComboBox,
                                        QLabel, QLineEdit, QPlainTextEdit, QTextEdit)
 
+        from .gui_scale import _actual_minimum_size
+
         def rectangle(widget):
             """Map actual geometry into the window.
 
@@ -1006,7 +1008,7 @@ class _DistributionSmokeController(QObject):
                     clip = clip.intersected(rectangle(ancestor))
                     ancestor = ancestor.parentWidget()
                 hint = widget.minimumSizeHint()
-                explicit = widget.minimumSize()
+                explicit = _actual_minimum_size(widget)
                 embedded_editor = False
                 if isinstance(widget, QLineEdit):
                     owner = widget.parentWidget()

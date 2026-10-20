@@ -1543,7 +1543,16 @@ class _RuntimeViewport(QScrollArea):
         return False
 
     def _sync_floor(self):
-        """Let scrolling absorb genuine overflow instead of shrinking controls."""
+        """Let scrolling absorb genuine overflow instead of shrinking controls.
+
+        Every height here is measured from widgets already drawn at the GUI
+        scale, so the floors are set in those pixels
+        (:func:`spacr.qt.gui_scale._set_actual_minimum_height`); a pane's
+        registered ``minimum`` is a 100 % value and is scaled to match.
+        """
+        from ..gui_scale import (_actual_minimum_height,
+                                 _set_actual_minimum_height, scale_int)
+
         split = self._split
         if split is None:
             return
@@ -1557,22 +1566,23 @@ class _RuntimeViewport(QScrollArea):
                 height = split._collapsed_extent(pane)
                 minimum = 0
             else:
+                registered = int(pane.minimum or 0) if pane is not None else 0
                 minimum = max(0, widget.minimumSizeHint().height(),
-                              int(pane.minimum or 0) if pane is not None else 0)
+                              scale_int(registered))
                 if pane is not None and pane.stretch <= 0:
                     minimum = max(minimum, split._height_for_width(widget))
                 height = minimum
-            if widget.minimumHeight() != minimum:
-                widget.setMinimumHeight(minimum)
+            if _actual_minimum_height(widget) != minimum:
+                _set_actual_minimum_height(widget, minimum)
                 changed = True
             floor += height
-        margins = self.widget().layout().contentsMargins()
-        content_floor = floor + margins.top() + margins.bottom()
-        if split.minimumHeight() != floor:
-            split.setMinimumHeight(floor)
+        _left, top, _right, bottom = self.widget().layout().getContentsMargins()
+        content_floor = floor + top + bottom
+        if _actual_minimum_height(split) != floor:
+            _set_actual_minimum_height(split, floor)
             changed = True
-        if self.widget().minimumHeight() != content_floor:
-            self.widget().setMinimumHeight(content_floor)
+        if _actual_minimum_height(self.widget()) != content_floor:
+            _set_actual_minimum_height(self.widget(), content_floor)
             changed = True
         if changed:
             split.rebalance(refit=True)
