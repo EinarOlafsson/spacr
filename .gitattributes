@@ -12,3 +12,11 @@
 # 325_two_sessions_one_repo_working_protocol.txt for the one-line
 # `git config` that installs it.
 instructions/00_INDEX.txt merge=spacr-index
+
+# HASH-PINNED EVIDENCE IS CHECKED OUT BYTE FOR BYTE. Tests pin these files'
+# SHA-256, so a core.autocrlf=true checkout (Git for Windows' default) that
+# rewrote LF as CRLF would fail them on a file nobody changed.
+features/data/combined_feature_progress_2026-10-14/** -text
+features/data/ci_api_assignment_arrival_contract_2026-10-15/historical-english-surface-delta.json -text
+features/data/ci_api_assignment_arrival_contract_2026-10-15/twenty-arrivals-provenance.json -text
+features/data/n676_install_selective_completed_2026-10-15/export/review-evidence/56-scenes.json -text

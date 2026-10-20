@@ -20,7 +20,12 @@ Everything here is offline and side-effect free:
 from __future__ import annotations
 
 import os
-import resource
+import sys
+
+try:
+    import resource
+except ImportError:
+    resource = None
 
 import numpy as np
 import pandas as pd
@@ -559,6 +564,22 @@ def test_is_multiprocessing_process_matches_substring():
 # close_file_descriptors
 # ---------------------------------------------------------------------------
 
+def test_close_file_descriptors_is_a_no_op_without_the_resource_module(monkeypatch):
+    """Windows has no ``resource`` module; the sweep must not raise there."""
+    import spacr.utils as U
+
+    calls = []
+    monkeypatch.setitem(sys.modules, "resource", None)
+    monkeypatch.setattr(U.os, "close", lambda fd: calls.append(fd))
+    try:
+        U.close_file_descriptors()
+    finally:
+        monkeypatch.undo()
+
+    assert calls == []
+
+
+@pytest.mark.posix_only
 def test_close_file_descriptors_sweeps_3_to_soft_limit(monkeypatch):
     """Every fd in [3, soft) is closed; an already-closed fd is ignored."""
     import spacr.utils as U
@@ -582,6 +603,7 @@ def test_close_file_descriptors_sweeps_3_to_soft_limit(monkeypatch):
     assert closed == [3, 5]
 
 
+@pytest.mark.posix_only
 def test_close_file_descriptors_noop_when_soft_limit_is_three(monkeypatch):
     """soft == 3 -> nothing to sweep, os.close is never called."""
     import spacr.utils as U

@@ -24,7 +24,6 @@ import posixpath
 import re
 import shlex
 import subprocess
-import tempfile
 import threading
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -484,7 +483,9 @@ def _write_json_atomic(path: Path, value: Any) -> None:
     Written to a temporary file in the same directory, flushed and fsynced,
     then renamed over the target -- so a crash mid-write cannot leave a
     truncated store that parses as a shorter job list. The temporary file is
-    removed on any path out.
+    removed on any path out. It is opened once with ``O_EXCL`` rather than
+    through ``tempfile.mkstemp``, which on Windows takes a refused folder for
+    a name collision and retries ten thousand times before it fails.
 
     :param path: the file to write.
     :param value: the value to serialise.
@@ -496,9 +497,11 @@ def _write_json_atomic(path: Path, value: Any) -> None:
         payload = json.dumps(
             value, indent=2, sort_keys=True, default=str
         ) + "\n"
-        fd, temporary = tempfile.mkstemp(
-            prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent)
-        )
+        candidate = path.parent / f".{path.name}.{uuid.uuid4().hex}.tmp"
+        flags = (os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0)
+                 | getattr(os, "O_NOINHERIT", 0) | getattr(os, "O_CLOEXEC", 0))
+        fd = os.open(candidate, flags, 0o600)
+        temporary = str(candidate)
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(payload)
             handle.flush()
@@ -886,8 +889,16 @@ def _ssh_lookup(host, directives, *, home=None, default_port="22"):
         if key in selected:
             selected[key] = selected[key].replace("%d", user_home)
             if selected[key].startswith("~/") or selected[key].startswith("~\\"):
-                selected[key] = os.path.join(user_home, selected[key][2:])
+                selected[key] = os.path.join(user_home, selected[key][2:].replace("/", os.sep))
     return selected
+
+
+def _system_ssh_config(environ=None, *, windows=None):
+    """Name the OpenSSH client's system-wide config: %PROGRAMDATA%\\ssh\\ssh_config on Windows."""
+    environment = os.environ if environ is None else environ
+    if (os.name == "nt") if windows is None else windows:
+        return Path(environment.get("PROGRAMDATA") or r"C:\ProgramData") / "ssh" / "ssh_config"
+    return Path("/etc/ssh/ssh_config")
 
 
 def _discover_ssh_settings(folder=None, *, home=None, environ=None, system_config=None):
@@ -900,7 +911,7 @@ def _discover_ssh_settings(folder=None, *, home=None, environ=None, system_confi
         if candidate not in folders:
             folders.append(candidate)
     paths = [path / "config" for path in folders]
-    system = Path(system_config) if system_config is not None else Path("/etc/ssh/ssh_config")
+    system = Path(system_config) if system_config is not None else _system_ssh_config(environment)
     if folder is None:
         paths.append(system)
     directives = _ssh_config_directives(paths)
@@ -985,7 +996,7 @@ def _ssh_resolve(host, options):
 
     alias = host.rsplit("@", 1)[-1]
     config = options.get("config")
-    paths = [Path(config)] if config else [Path.home() / ".ssh/config", Path("/etc/ssh/ssh_config")]
+    paths = [Path(config)] if config else [Path.home() / ".ssh/config", _system_ssh_config()]
     resolved = _ssh_lookup(alias, _ssh_config_directives(paths))
     resolved.update({key: value for key, value in options.items() if value})
     if "@" in host:
