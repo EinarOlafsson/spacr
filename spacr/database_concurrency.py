@@ -241,6 +241,33 @@ def is_busy_error(error: BaseException) -> bool:
     return "locked" in message or "busy" in message
 
 
+def _extended_length_path(path, *, windows=None):
+    """The spelling of ``path`` that is not bound by Windows' MAX_PATH.
+
+    A queued field is spooled as ``<run>\\<64 hex>.pkl`` and its sidecars
+    under ``measurements\\.write_queue``, about 150 characters past the
+    project folder, so a moderately deep project passes the 260-character
+    limit Windows keeps unless long paths are enabled machine-wide. The
+    ``\\\\?\\`` prefix lifts that limit for every file call made with it.
+    Elsewhere the path is returned unchanged.
+
+    :param path: the spool folder.
+    :param windows: whether to use the Windows spelling; this system by default.
+    :returns: the absolute extended-length path on Windows, else ``path``.
+    """
+    path = os.fspath(path)
+    if not (os.name == 'nt' if windows is None else windows):
+        return path
+    import ntpath
+
+    if path.startswith('\\\\?\\'):
+        return path
+    absolute = ntpath.abspath(path) if os.name == 'nt' else ntpath.normpath(path)
+    if absolute.startswith('\\\\'):
+        return '\\\\?\\UNC\\' + absolute[2:]
+    return '\\\\?\\' + absolute
+
+
 @dataclass(frozen=True)
 class _WriteQueueEndpoint:
     """Spawn-safe producer handles for bounded serialized database writes.
@@ -339,7 +366,7 @@ class _DatabaseWriteQueue:
             raise ValueError('Database queue RAM must be finite and nonnegative')
         context = context or multiprocessing.get_context()
         run_id = uuid.uuid4().hex
-        folder = Path(folder) / run_id
+        folder = Path(_extended_length_path(folder)) / run_id
         folder.mkdir(mode=0o700, parents=True, exist_ok=True)
         self.endpoint = _WriteQueueEndpoint(
             context.Queue(maxsize=max(1, int(slots))),
