@@ -134,7 +134,10 @@ API_DIR to tmp_path are unchanged.
 PHASE 4 — history rewrite (Home, after phases 2-3 are on main and nightly)
 Measured on /mnt/wd4tb/scratch/repo-slim/rewrite.git (bare clone of the
 mirror, heads and tags only; filter-repo 26 s, 1.7 GB RSS): 11.26 GiB ->
-744 MiB pack, nightly tree 543 MB. The first eight purge paths alone give
+744 MiB pack, nightly tree 543 MB (re-measured 2026-10-20 with the corrected
+list on nightly 7492e7d80d: 11.47 GiB -> 971 MiB pack, nightly tree 678 MB,
+over the 0.8 GiB / 600 MB acceptance because the deck pictures, readme_deck
+images and kept evidence now stay). The first eight purge paths alone give
 1.19 GiB; the last eight are folders already deleted from the tree, whose
 purge also drops them from old release tags (maintainer: "Yes, purge them
 too", 2026-10-18). Command, on a fresh mirror clone:
@@ -144,13 +147,16 @@ too", 2026-10-18). Command, on a fresh mirror clone:
   git remote add origin git@github.com:EinarOlafsson/spacr.git
   git push --force origin 'refs/heads/*:refs/heads/*' 'refs/tags/*:refs/tags/*'
   (not --mirror: refs/pull/* are read-only on GitHub)
-purge-paths.txt: features/data/, docs/source/_static/i18n/,
-docs/source/_extra/tutorials/production/, .../examples/, .../catalog/,
-docs/source/_static/deck/, tools/readme_deck/images/,
-tools/tutorials/release_candidate/, datasets/, notebooks/, Notebooks/,
-docs/_build/, docs/.doctrees/, docs/source/_build/, False.pdf, spacr/models/.
-(The keep-list must already live under tests/data/evidence, deck pages and
-index must be outside the purged folder, i.e. move them first.)
+purge-paths.txt (corrected 2026-10-20, /mnt/wd4tb/scratch/repo-slim/
+purge-paths-20261020.txt): regex:^features/data/(?!(?:<the 73 kept
+paths>)$), docs/source/_static/i18n/, docs/source/_extra/tutorials/
+production/, .../examples/, .../catalog/, docs/source/_static/deck/
+spacr_deck.pdf, docs/source/_static/deck/anim/, tools/tutorials/
+release_candidate/, datasets/, notebooks/, Notebooks/, docs/_build/,
+docs/.doctrees/, docs/source/_build/, False.pdf, spacr/models/. The kept
+features/data files, the in-git deck (slides, thumbs, pages, viewer,
+title_base.jpg, slides.json) and tools/readme_deck/images/ are not purged.
+Regenerate the regex from `git ls-files features/data` just before the run.
 Coordination checklist:
 - Announce in features/HANDOFF.md and to Claude WS; freeze pushes; every
   session pushes or archives its branches as patches first.
@@ -172,7 +178,8 @@ Coordination checklist:
   _extra/tutorials switch to HF URLs before the rewrite.
 
 2026-10-18 — Registered (bdc360004). Inventory, secret/PII scan, HF staging and mirror rewrite measured (11.26 GiB -> 1.19 GiB approved paths, 744 MiB with deleted folders).
-2026-10-18 — Keep-list validated in a throwaway clone with the 22,797 files removed: the 43-file cohort gives the same 4 pre-existing nightly failures plus only the README checkout-size test. Remaining: phases 2-4 after 1.5.1.5.
-2026-10-18 — Private HF dataset einarolafsson/spacr-evidence uploaded and verified (a9971ff7634d); maintainer approved purging the eight already-deleted folders, now in the phase 4 list (744 MiB measured).
+2026-10-18 — Keep-list validated in a throwaway clone (same 4 pre-existing failures plus the README size test); private HF dataset einarolafsson/spacr-evidence uploaded and verified (a9971ff7634d); maintainer approved purging the eight already-deleted folders (744 MiB measured).
 2026-10-20 — Phase 2: keep-list re-derived on 850c2e30a3 (same 73 files, kept in place); 33 changed n676 files uploaded (spacr-evidence 1f6fb59e90cd); 22,797 files (4,097,622,132 bytes) removed after hash check (5400e02335). README checkout size re-measured to 1178 MB (a95558196a).
 2026-10-20 — Phase 3 deck: spacr_deck.pdf and anim/ (69,793,628 bytes) pinned in docs/media_revision.json at spacr-tutorials 64ff46ea4409; tools/fetch_docs_media.py fetches/checks/publishes, docs.yml fetches before Sphinx, deck builder --publish and refresh_alpha_deck bump the pin. Remaining: API catalogs, WS tutorial media, phase 4.
+
+2026-10-20 — Phase 4 purge list corrected to spare the 73 kept features/data files, the in-git deck and tools/readme_deck/images; mirror re-measure 971 MiB pack, 678 MB tree, above the 0.8 GiB / 600 MB acceptance: maintainer to choose moving the deck pictures and readme_deck images to HF or a new target. Rewrite not run.
