@@ -1,0 +1,28 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Off-screen Qt reads its fonts from {folder}.",
+      "source": "Off-screen Qt reads its fonts from {folder}.",
+      "source_sha256": "eb20f2bddbc26644efe568e0cb071641f53e96579375d5f13f65d9109eeeb7b3",
+      "table": "ui",
+      "translation": "오프스크린 Qt가 {folder}에서 글꼴을 읽습니다."
+    },
+    {
+      "key": "QT_QPA_FONTDIR={folder} is not a folder, so off-screen Qt has no fonts and draws all text in one fallback face.",
+      "source": "QT_QPA_FONTDIR={folder} is not a folder, so off-screen Qt has no fonts and draws all text in one fallback face.",
+      "source_sha256": "9d0a7908e2c661c84e64e827f7af3d25d50d1fabe81644ed5d3bbc08eea44bbf",
+      "table": "ui",
+      "translation": "QT_QPA_FONTDIR={folder}은(는) 폴더가 아니므로 오프스크린 Qt에 글꼴이 없어 모든 텍스트를 하나의 대체 글꼴로 그립니다."
+    },
+    {
+      "key": "QT_QPA_PLATFORM={platform}: on Windows, off-screen Qt has no fonts unless QT_QPA_FONTDIR names a font folder, so all text is drawn in one fallback face.",
+      "source": "QT_QPA_PLATFORM={platform}: on Windows, off-screen Qt has no fonts unless QT_QPA_FONTDIR names a font folder, so all text is drawn in one fallback face.",
+      "source_sha256": "4bf2aac5e0f5f4b798f8cf1ecffb594034522797de1e40d0f3a53fa9b5526e04",
+      "table": "ui",
+      "translation": "QT_QPA_PLATFORM={platform}: Windows에서는 QT_QPA_FONTDIR이 글꼴 폴더를 지정하지 않으면 오프스크린 Qt에 글꼴이 없으므로 모든 텍스트가 하나의 대체 글꼴로 그려집니다."
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

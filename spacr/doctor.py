@@ -1051,6 +1051,38 @@ def check_display(ctx: Context) -> Result:
     )
 
 
+@_register("offscreen fonts")
+def _check_offscreen_fonts(ctx: Context) -> Optional[Result]:
+    """On Windows, whether off-screen Qt has a font folder to draw text with.
+
+    The offscreen platform plugin reads fonts only from ``QT_QPA_FONTDIR`` on
+    Windows, so ``QT_QPA_PLATFORM=offscreen`` alone renders every family as
+    one fallback face. No row is added elsewhere, or without offscreen.
+    """
+    from .qt import _windows_font_folder
+    from .qt.i18n import tr
+
+    windows = sys.platform.startswith("win")
+    platform = os.environ.get("QT_QPA_PLATFORM", "")
+    if not windows or not platform.strip().lower().startswith("offscreen"):
+        return None
+    chosen = os.environ.get("QT_QPA_FONTDIR", "")
+    if chosen and os.path.isdir(chosen):
+        return Result("offscreen fonts", PASS,
+                      tr("Off-screen Qt reads its fonts from {folder}.", folder=chosen))
+    fonts = _windows_font_folder(windows=True) or "%WINDIR%\\Fonts"
+    fix = (f"set QT_QPA_FONTDIR={fonts}\n"
+           f"$env:QT_QPA_FONTDIR = \"{fonts}\"")
+    if chosen:
+        return Result("offscreen fonts", WARN, tr(
+            "QT_QPA_FONTDIR={folder} is not a folder, so off-screen Qt has no "
+            "fonts and draws all text in one fallback face.", folder=chosen), fix=fix)
+    return Result("offscreen fonts", WARN, tr(
+        "QT_QPA_PLATFORM={platform}: on Windows, off-screen Qt has no fonts "
+        "unless QT_QPA_FONTDIR names a font folder, so all text is drawn in one "
+        "fallback face.", platform=platform), fix=fix)
+
+
 #: Modules spaCR imports during a run, and the distribution that provides each
 #: when the two names differ. Only core dependencies belong here — an optional
 #: extra missing is not a broken install.

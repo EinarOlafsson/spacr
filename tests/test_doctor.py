@@ -1057,6 +1057,71 @@ def test_display_check_warns_headless_and_offers_the_headless_runner(
     assert "QT_QPA_PLATFORM=offscreen" in row.fix
 
 
+def test_offscreen_fonts_add_no_row_away_from_windows(ctx, monkeypatch):
+    monkeypatch.setattr(doctor.sys, "platform", "linux")
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    monkeypatch.delenv("QT_QPA_FONTDIR", raising=False)
+    assert doctor._check_offscreen_fonts(ctx) is None
+
+
+def test_offscreen_fonts_add_no_row_for_the_windows_desktop(ctx, monkeypatch):
+    monkeypatch.setattr(doctor.sys, "platform", "win32")
+    monkeypatch.delenv("QT_QPA_PLATFORM", raising=False)
+    assert doctor._check_offscreen_fonts(ctx) is None
+
+
+def test_offscreen_on_windows_without_a_font_folder_warns_with_the_setting(
+    ctx, monkeypatch
+):
+    monkeypatch.setattr(doctor.sys, "platform", "win32")
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    monkeypatch.delenv("QT_QPA_FONTDIR", raising=False)
+    monkeypatch.setenv("WINDIR", r"C:\Windows")
+    row = doctor._check_offscreen_fonts(ctx)
+    assert row.status == WARN
+    assert "QT_QPA_FONTDIR" in row.message
+    assert "set QT_QPA_FONTDIR=C:\\Windows\\Fonts" in row.fix
+    assert '$env:QT_QPA_FONTDIR = "C:\\Windows\\Fonts"' in row.fix
+
+
+def test_offscreen_on_windows_with_a_missing_font_folder_warns(ctx, monkeypatch, tmp_path):
+    monkeypatch.setattr(doctor.sys, "platform", "win32")
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    monkeypatch.setenv("QT_QPA_FONTDIR", str(tmp_path / "missing"))
+    row = doctor._check_offscreen_fonts(ctx)
+    assert row.status == WARN and str(tmp_path / "missing") in row.message
+    assert "QT_QPA_FONTDIR=" in row.fix
+
+
+def test_offscreen_on_windows_with_a_font_folder_passes(ctx, monkeypatch, tmp_path):
+    monkeypatch.setattr(doctor.sys, "platform", "win32")
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    monkeypatch.setenv("QT_QPA_FONTDIR", str(tmp_path))
+    row = doctor._check_offscreen_fonts(ctx)
+    assert row.status == PASS and str(tmp_path) in row.message
+
+
+def test_offscreen_qt_gets_the_windows_fonts_only_on_windows(monkeypatch):
+    import spacr.qt as qt
+    from spacr.qt import _give_offscreen_qt_the_windows_fonts
+
+    root = "C:\\Windows"
+    monkeypatch.setattr(qt.os.path, "isdir", lambda path: path == "C:\\Windows\\Fonts")
+    environ = {"QT_QPA_PLATFORM": "offscreen", "WINDIR": root}
+    assert _give_offscreen_qt_the_windows_fonts(environ, windows=False) == ""
+    assert "QT_QPA_FONTDIR" not in environ
+    folder = _give_offscreen_qt_the_windows_fonts(environ, windows=True)
+    assert folder == "C:\\Windows\\Fonts" == environ["QT_QPA_FONTDIR"]
+    assert _give_offscreen_qt_the_windows_fonts({"QT_QPA_PLATFORM": "offscreen"},
+                                                windows=True) == ""
+    chosen = {"QT_QPA_PLATFORM": "offscreen", "WINDIR": root, "QT_QPA_FONTDIR": "D:\\mine"}
+    assert _give_offscreen_qt_the_windows_fonts(chosen, windows=True) == ""
+    assert chosen["QT_QPA_FONTDIR"] == "D:\\mine"
+    desktop = {"QT_QPA_PLATFORM": "windows", "WINDIR": root}
+    assert _give_offscreen_qt_the_windows_fonts(desktop, windows=True) == ""
+    assert "QT_QPA_FONTDIR" not in desktop
+
+
 # ---------------------------------------------------------------------------
 # check: core dependencies and optional extras
 # ---------------------------------------------------------------------------
