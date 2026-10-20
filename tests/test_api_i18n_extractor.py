@@ -377,8 +377,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # recommended_workers, run_sweep, run_sweep_parallel, summarise_sweep,
     # the Qt screen module, and its register function. The retired entries are
     # regression_search.SearchSpace, build_trials, run_search and
-    # summarise_search; the regression_search module itself remains as a
-    # compatibility explanation. Enumerated rather than merely counted: this
+    # summarise_search; the regression_search module itself remained as a
+    # compatibility shim until item 127 removed it on 2026-10-19.
+    # Enumerated rather than merely counted: this
     # ratchet is only useful if a bump names what it admitted and retired.
     # +73/-0 on the 2026-08-16 merge of the two concurrent sessions. Both
     # sides added public surface and neither retired any, so this is a pure
@@ -1465,7 +1466,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # (AiToggleLabel.paintEvent, also retired, was a 2026-10-15 arrival.)
     # 2026-10-19 item 600: -14 with ChannelSortDialog and RegexWindow
     # (spacr.qt.widgets.channel_sort_dialog) deleted.
-    expected = 13_175
+    # 2026-10-20 item 127: -1, the spacr.regression_search shim module left.
+    expected = 13_174
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
@@ -1904,7 +1906,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_175
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_174
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

@@ -722,13 +722,6 @@
       "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "context": "The alias emits one :class:`DeprecationWarning` per import. New code should import :mod:`spacr.parameter_sweep` and use ``SweepSpace``, ``run_sweep``, and ``summarise_sweep`` directly.",
-      "label": "spacr.regression_search#2",
-      "source": "The alias emits one :class:`DeprecationWarning` per import. New code should import :mod:`spacr.parameter_sweep` and use ``SweepSpace``, ``run_sweep``, and ``summarise_sweep`` directly.",
-      "source_sha256": "2c47bafc6dc33f6b1bc4113924ee4d59c4eb9e53d38c3f04d3dd97fb8c5c8808",
-      "translation": "Nafnið gefur frá sér eitt :class:`DeprecationWarning` fyrir hvern innflutning. Nýr kóði ætti að flytja inn :mod:`spacr.parameter_sweep` og nota ``SweepSpace``, ``run_sweep`` og ``summarise_sweep`` beint."
-    },
-    {
       "context": "WHERE it goes. The processing-session folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a processing session from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
       "label": "spacr.regression_summary#12",
       "retired": true,

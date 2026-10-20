@@ -125950,18 +125950,6 @@
         "54cc92a0af8ecedc88268ae27a5636ff8c0f832e6d5aa201dc090e781ef85972"
       ]
     },
-    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent": {
-      "source_blocks_sha256": [
-        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
-        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
-      ],
-      "source_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
-      "text": "Teikna merkið og útlínuna úr skyndiminni meðan það hefur lyklaborðsfókus.\n\n:param event: teiknibeiðni sem er send til QLabel áður en útlínan er teiknuð.",
-      "translation_source_blocks_sha256": [
-        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
-        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
-      ]
-    },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.resizeEvent": {
       "source_blocks_sha256": [
         "6c4cc0155da9a806c82bd0380fd647017b9ca48faf0c2b9d8054ee28109d8af1",
@@ -146072,20 +146060,6 @@
         "77334c3d3b37a528dd9821cc970cf39807e1b44c5042ad5032a5cc4f5a178f80",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "98be1954cf7a78f78f49d502e342af0827d97035886eec97f7591549c88e135b"
-      ]
-    },
-    "spacr.qt.widgets.fold_strip.FoldButton.paintEvent": {
-      "source_blocks_sha256": [
-        "50e972271dea387c5fba81151e0a4585ac58f85597d60adb36a8ef8e5fe02857",
-        "33df2767f5b4c7dc50824bff9cb8aaf8994abe9400c2ca9d811bec9df095cdfd",
-        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
-      ],
-      "source_sha256": "0710df7f403cb5357c20a1a67e2adef7afa3df16a3285a504f523da0e3227a92",
-      "text": "Leyfðu upp íkönnun folded module, og fullorð hennar sem rímur litur.\n\nFólkið tekur upplýsingum, þannig að það er þreytur í stað þess að látið til stílabild: alfa og beta-módúlar eru merkt, og lesendur sem ekki geta skilið hútinn er enn að fá verktakið.\n\n:param event: Qt málunaratburðurinn.",
-      "translation_source_blocks_sha256": [
-        "50e972271dea387c5fba81151e0a4585ac58f85597d60adb36a8ef8e5fe02857",
-        "33df2767f5b4c7dc50824bff9cb8aaf8994abe9400c2ca9d811bec9df095cdfd",
-        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ]
     },
     "spacr.qt.widgets.fold_strip.FoldButton.set_stage": {
@@ -184548,20 +184522,6 @@
         "5da62d77ed3bda2a89bf8e9ba80eb4f362bf55adae24f99b0121224ac31c2e09",
         "94cf8697d56715d09b925eac311aa462a972a988bbba5219c78388a357a50523",
         "76ffbb5ed9c84cd398cbf925e682fd90078303e19fcef7cc77d9ab81335d2b18"
-      ]
-    },
-    "spacr.regression_search": {
-      "source_blocks_sha256": [
-        "75f6741d96914396de09b382abb8436629f516cf04c025ea11f8a4af3e334356",
-        "d7b6c9b2757c7f0adeaf123d84a75235bfc6afd9ff08dace0a4096a565204f74",
-        "2c47bafc6dc33f6b1bc4113924ee4d59c4eb9e53d38c3f04d3dd97fb8c5c8808"
-      ],
-      "source_sha256": "a31325140042533332e63bc307ff3c11813b224f3d52d71c4a5a5afe849795c1",
-      "text": "Vinsamlegast beitaðu :mod:`spacr.regression_search` innleiðslu leið.\n\nModulinn var endurnýjandi þegar svipurinn varð spaCR modulinn í eigin hægri (\"Parameter Sweep\") í stað þess að skripinn er við regressíu. Ítalað þetta nafn virkar enn þannig að ekkert skrifuð gegn því breytir; það endurnýjar nýjan API og ekkert annað.\n\nNafnið gefur frá sér eitt :class:`DeprecationWarning` fyrir hvern innflutning. Nýr kóði ætti að flytja inn :mod:`spacr.parameter_sweep` og nota ``SweepSpace``, ``run_sweep`` og ``summarise_sweep`` beint.",
-      "translation_source_blocks_sha256": [
-        "75f6741d96914396de09b382abb8436629f516cf04c025ea11f8a4af3e334356",
-        "d7b6c9b2757c7f0adeaf123d84a75235bfc6afd9ff08dace0a4096a565204f74",
-        "2c47bafc6dc33f6b1bc4113924ee4d59c4eb9e53d38c3f04d3dd97fb8c5c8808"
       ]
     },
     "spacr.regression_spec": {

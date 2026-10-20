@@ -4822,7 +4822,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) == 13139
+               - zoo_additions.keys()) == 13138
+    # 2026-10-20: 13,139 -> 13,138, item 127: the spacr.regression_search
+    # shim module left in 1.5.1.6.
     # 2026-10-19: 13,154 -> 13,153, FoldButton.paintEvent retired (native
     # verdict-dot layer).
     # 2026-10-15 item 700: 13,182 -> 13,154, the 28 first-run setup symbols

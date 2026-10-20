@@ -11854,7 +11854,6 @@ API_ENTRIES = (
     ('spacr.regression_qc.score_panel', "Return the verdict for one panel's statistics; never raises."),
     ('spacr.regression_qc.variance_inflation_factors', 'Return the VIF of every non-constant column of a design matrix.'),
     ('spacr.regression_qc.worst_verdict', 'Return the verdict that summarises a suite, or None when there is none.'),
-    ('spacr.regression_search', 'Preserve the deprecated :mod:`spacr.regression_search` import path.'),
     ('spacr.regression_spec', 'Regression backend vocabulary and setting dependencies.'),
     ('spacr.regression_summary', 'Build a summary of a regression run with the same fields for every mode.'),
     ('spacr.regression_summary.RunSummary', 'Summary of one finished regression run, in contract sections.'),

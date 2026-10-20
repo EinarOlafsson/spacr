@@ -9,6 +9,7 @@
   - Windows: `%LOCALAPPDATA%\.spaCR.spacr-installer-lock` and `%LOCALAPPDATA%\spaCR\.venv.spacr-update-lock` (files).
   - A folder of the same name ending in `.takeover` beside any of them can go too.
   For an installation in another folder, the locks sit beside and inside that folder under the same names.
+- `spacr.regression_search` was removed; import from `spacr.parameter_sweep` (`SweepSpace`, `run_sweep`, `run_sweep_parallel`, `summarise_sweep`, `DEFAULT_SWEEP_SPACE`).
 
 ### Improved
 

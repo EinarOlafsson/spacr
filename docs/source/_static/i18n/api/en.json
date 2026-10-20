@@ -116317,15 +116317,6 @@
       "source_sha256": "384075b918b3158d9efba2733161ea43a7d8c20d9ccea35142a9d2fe64aab71b",
       "text": "Return the verdict that summarises a suite, or None when there is none.\n\n:param verdicts: iterable of panel verdicts or None entries to compare.\n\nThe most severe verdict is returned, not the most common one or an\naverage. Nineteen panels passing and one saying the design is rank deficient is a run whose\ncoefficients are one of infinitely many solutions, and a summary that\nreports \"95% passed\" is a summary that hides exactly the panel the suite\nwas run for."
     },
-    "spacr.regression_search": {
-      "source_blocks_sha256": [
-        "75f6741d96914396de09b382abb8436629f516cf04c025ea11f8a4af3e334356",
-        "d7b6c9b2757c7f0adeaf123d84a75235bfc6afd9ff08dace0a4096a565204f74",
-        "2c47bafc6dc33f6b1bc4113924ee4d59c4eb9e53d38c3f04d3dd97fb8c5c8808"
-      ],
-      "source_sha256": "a31325140042533332e63bc307ff3c11813b224f3d52d71c4a5a5afe849795c1",
-      "text": "Preserve the deprecated :mod:`spacr.regression_search` import path.\n\nThe module was renamed when the sweep became a spaCR module in its own right\n(\"Parameter Sweep\") rather than a script beside the regression. Importing this\nname still works so nothing written against it breaks; it re-exports the new\nAPI and nothing else.\n\nThe alias emits one :class:`DeprecationWarning` per import. New code should\nimport :mod:`spacr.parameter_sweep` and use ``SweepSpace``, ``run_sweep``, and\n``summarise_sweep`` directly."
-    },
     "spacr.regression_spec": {
       "source_blocks_sha256": [
         "a593669ad3c968db5c68a277ec6fb62f139a65fcaa984569ae8c056555deebed",

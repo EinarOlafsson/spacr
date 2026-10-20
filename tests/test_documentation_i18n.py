@@ -278,7 +278,9 @@ TOOLS = ROOT / "tools"
 # 2026-10-19: -1, FoldButton.paintEvent retired (native verdict-dot layer).
 # 2026-10-19 item 600: +0/-14, ChannelSortDialog and RegexWindow leave
 # spacr.qt.widgets.channel_sort_dialog; the example-set check stays.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_203
+# 2026-10-20 item 127: +0/-1, the deprecated spacr.regression_search shim
+# module leaves in 1.5.1.6.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_202
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",
