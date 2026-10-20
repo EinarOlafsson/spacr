@@ -305,6 +305,7 @@ def test_a_dialog_kept_per_language_is_translated_once(qtbot, monkeypatch):
     dialog.setAttribute(Qt.WA_DontShowOnScreen, True)
     for _ in range(2):
         dialog.show()
+        QApplication.processEvents()
         dialog.hide()
     assert walked.count(dialog) == 1
 

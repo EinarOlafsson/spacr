@@ -4090,6 +4090,31 @@ def _a11y_layout_holding(layout, child):
     return None
 
 
+def _a11y_alive(obj) -> bool:
+    """Whether ``obj`` still has its C++ object behind it."""
+    if obj is None:
+        return False
+    try:
+        import shiboken6
+        return bool(shiboken6.isValid(obj))
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _a11y_live_tree(root) -> list:
+    """``root`` and its descendant widgets, read fresh from Qt."""
+    from PySide6.QtWidgets import QWidget
+
+    if not _a11y_alive(root):
+        return []
+    widgets = [root] if isinstance(root, QWidget) else []
+    try:
+        widgets.extend(root.findChildren(QWidget))
+    except (AttributeError, RuntimeError):
+        pass
+    return widgets
+
+
 def _a11y_label_beside(widget):
     """The caption a layout places in front of ``widget``, if any.
 
@@ -4104,7 +4129,11 @@ def _a11y_label_beside(widget):
 
     current = widget
     for _depth in range(4):
+        if not _a11y_alive(current):
+            return None
         parent = current.parentWidget()
+        if parent is not None and not _a11y_alive(parent):
+            return None
         layout = parent.layout() if parent is not None else None
         if layout is not None:
             layout = _a11y_layout_holding(layout, current)
@@ -4351,6 +4380,8 @@ def _name_for_assistive_tech(widgets, stamp=None, only_new=False) -> int:
     targets = []
     menus = []
     for widget in widgets:
+        if not _a11y_alive(widget):
+            continue
         try:
             if isinstance(widget, QMenu):
                 menus.append(widget)
@@ -4373,6 +4404,8 @@ def _name_for_assistive_tech(widgets, stamp=None, only_new=False) -> int:
             continue
     changed = 0
     for menu in menus:
+        if not _a11y_alive(menu):
+            continue
         try:
             current = str(menu.accessibleName() or "")
             if current and current != menu.property(_A11Y_DERIVED_NAME):
@@ -4386,6 +4419,8 @@ def _name_for_assistive_tech(widgets, stamp=None, only_new=False) -> int:
         except (AttributeError, RuntimeError):
             continue
     for widget in targets:
+        if not _a11y_alive(widget):
+            continue
         try:
             if (only_new and stamp is not None
                     and widget.property(_A11Y_NAMED_STAMP) == stamp):
@@ -4480,21 +4515,18 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
             QTabWidget,
             QTextEdit,
             QTreeWidget,
-            QWidget,
         )
     except Exception:
         return
 
-    widgets = [root] if isinstance(root, QWidget) else []
-    try:
-        widgets.extend(root.findChildren(QWidget))
-    except (AttributeError, RuntimeError):
-        pass
+    widgets = _a11y_live_tree(root)
 
     stamp = _pass_stamp(code)
     collections = (QTabWidget, QComboBox, QTableWidget, QTreeWidget)
     unstamped = []
     for widget in widgets:
+        if not _a11y_alive(widget):
+            continue
         if only_new:
             try:
                 if widget.property(_PASS_STAMP) == stamp:
@@ -4647,6 +4679,8 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
     except (AttributeError, RuntimeError):
         pass
     for action in actions:
+        if not _a11y_alive(action):
+            continue
         _translate_qt_text(
             action, "text", "setText", "_spacr_i18n_text", code)
         _translate_qt_text(
@@ -4657,14 +4691,15 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
                 "_spacr_i18n_status_tip", code)
         _refresh_module_help(action, code)
 
-    _name_for_assistive_tech(widgets, stamp, only_new)
+    _name_for_assistive_tech(_a11y_live_tree(root), stamp, only_new)
 
     if "spacr.qt.screens.settings_model" not in sys.modules:
         return
     try:
         from .screens import settings_model
         if only_new:
-            settings_model._refresh_api_tooltips_of(unstamped, code)
+            settings_model._refresh_api_tooltips_of(
+                [w for w in unstamped if _a11y_alive(w)], code)
         else:
             settings_model.refresh_api_tooltips(root, code)
     except (ImportError, AttributeError, RuntimeError, TypeError, ValueError):
@@ -4740,6 +4775,19 @@ TRANSLATE_ONCE_PER_LANGUAGE = "spacrTranslateOncePerLanguage"
 _TRANSLATED_FOR = "spacrTranslatedFor"
 
 
+def _translate_shown_dialog(dialog) -> None:
+    """Walk a shown dialog once its show has finished."""
+    if not _a11y_alive(dialog) or not dialog.isVisible():
+        return
+    once = bool(dialog.property(TRANSLATE_ONCE_PER_LANGUAGE))
+    language = current_language() if once else None
+    if once and dialog.property(_TRANSLATED_FOR) == language:
+        return
+    retranslate_widget_tree(dialog)
+    if once and _a11y_alive(dialog):
+        dialog.setProperty(_TRANSLATED_FOR, language)
+
+
 def install_dialog_translation(app) -> None:
     """Translate transient Qt dialogs when they are shown.
 
@@ -4757,7 +4805,7 @@ def install_dialog_translation(app) -> None:
     if app is None or getattr(app, "_spacr_dialog_i18n_filter", None) is not None:
         return
     try:
-        from PySide6.QtCore import QEvent, QObject
+        from PySide6.QtCore import QEvent, QObject, QTimer
         from PySide6.QtWidgets import QDialog
     except Exception:
         return
@@ -4793,9 +4841,9 @@ def install_dialog_translation(app) -> None:
                 language = current_language() if once else None
                 if once and watched.property(_TRANSLATED_FOR) == language:
                     return False
-                retranslate_widget_tree(watched)
-                if once:
-                    watched.setProperty(_TRANSLATED_FOR, language)
+                QTimer.singleShot(
+                    0, watched,
+                    lambda dialog=watched: _translate_shown_dialog(dialog))
             return False
 
     event_filter = _DialogTranslationFilter(app)
