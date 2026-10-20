@@ -847,7 +847,7 @@ def make_the_example_paths_absolute(root) -> int:
     from .database_concurrency import connect
 
     root = Path(root)
-    prefix = str(root).rstrip("/") + "/"
+    prefix = str(root).rstrip("/\\") + os.sep
     rewritten = 0
 
     for database in (root / "measurements" / "measurements.db",
@@ -865,10 +865,10 @@ def make_the_example_paths_absolute(root) -> int:
                 for column in columns:
                     try:
                         cursor = connection.execute(
-                            f'update "{table}" set "{column}" = ? || "{column}" '
+                            f'update "{table}" set "{column}" = ? || replace("{column}", \'/\', ?) '
                             f'where cast("{column}" as text) like \'data/%\' '
                             f'or cast("{column}" as text) like \'measurements/%\'',
-                            (prefix,))
+                            (prefix, os.sep))
                         rewritten += cursor.rowcount or 0
                     except sqlite3.Error:
                         continue
