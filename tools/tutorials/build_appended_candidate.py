@@ -401,7 +401,7 @@ def selected_visual_timing(stage, identity, baseline, retained_ids):
 
 
 def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(),
-          host_web=False, migrate_web=(), retain_narration=(), retain_visual_timing=(), withdraw=()):
+          host_web=False, migrate_web=(), retain_narration=(), retain_visual_timing=(), withdraw=(), candidate_root=None):
     """Create a new private candidate; never upload or modify the published tree.
 
     ``withdraw`` unlists published lessons: they leave every catalog, the
@@ -500,7 +500,10 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
         raise ValueError('Migrate only unique, otherwise preserved lessons')
     # Reject stale playback evidence before allocating or copying the library.
     web_inputs = {lesson['id']: checked_web_input(stage, lesson['id']) for lesson in lessons}
-    root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=stage))
+    candidate_parent = stage if candidate_root is None else Path(candidate_root).expanduser().resolve()
+    if candidate_root is not None:
+        candidate_parent.mkdir(parents=True, exist_ok=True)
+    root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=candidate_parent))
     records = copy_preserved_web(published, baseline, root, previous,
                                  replacements=[*refresh_ids, *withdraw], hosted=migrate_web)
     for identity in migrate_web:
@@ -623,6 +626,8 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, required=True)
+    parser.add_argument('--candidate-root', type=Path,
+                        help='Parent directory for the new candidate (default: --stage)')
     parser.add_argument('--baseline', type=Path, required=True)
     parser.add_argument('--lesson', action='append', required=True)
     parser.add_argument('--replace-existing', action='store_true',
@@ -646,4 +651,4 @@ if __name__ == '__main__':
           refresh_ids=args.refresh_lesson, link_ids=args.refresh_links,
           host_web=args.host_web, migrate_web=args.migrate_web, retain_narration=args.retain_narration,
           retain_visual_timing=args.retain_visual_timing,
-          withdraw=args.withdraw)
+          withdraw=args.withdraw, candidate_root=args.candidate_root)
