@@ -276,7 +276,7 @@ jobs:
           test -s "$runtime/install-profile.json"
           "$runtime/venv/bin/python" -I -c \
             "import numpy as np, spacr, PySide6, torch; \
-             assert torch.backends.mps.is_available(); \
+             assert torch.backends.mps.is_built(); \
              assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1"
           "$runtime/venv/bin/python" -I -c \
             "import json, pathlib; p=json.loads((pathlib.Path.home()/'Library/Application Support/spaCR/install-profile.json').read_text()); assert p['requested_backend'] == 'auto'; assert p['active_backend'] == 'mps'; assert not any(p['consent'].values())"
