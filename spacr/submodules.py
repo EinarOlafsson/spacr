@@ -972,7 +972,7 @@ def analyze_percent_positive(settings):
     
     save_settings(settings, name='analyze_percent_positive', show=False)
     
-    df, _ = _read_and_merge_data(locs=[settings['src']+'/measurements/measurements.db'], 
+    df, _ = _read_and_merge_data(locs=[os.path.join(settings['src'], 'measurements', 'measurements.db')], 
                              tables=settings['tables'], 
                              verbose=True, 
                              nuclei_limit=None, 
@@ -1109,7 +1109,7 @@ def analyze_recruitment(settings):
     sns.color_palette("mako", as_cmap=True)
     print(f"channel:{settings['channel_of_interest']} = {settings['target']}")
     
-    df, _ = _read_and_merge_data(locs=[settings['src']+'/measurements/measurements.db'], 
+    df, _ = _read_and_merge_data(locs=[os.path.join(settings['src'], 'measurements', 'measurements.db')], 
                                  tables=['cell', 'nucleus', 'pathogen','cytoplasm'], 
                                  verbose=True, 
                                  nuclei_limit=settings['nuclei_limit'], 
@@ -2548,7 +2548,7 @@ def interpret_vision_model(settings=None):
         :returns: dataframe of merged object measurements.
         """
         df, _ = _read_and_merge_data(
-            locs=[settings['src']+'/measurements/measurements.db'], 
+            locs=[os.path.join(settings['src'], 'measurements', 'measurements.db')], 
             tables=settings['tables'], 
             verbose=True, 
             nuclei_limit=settings['nuclei_limit'], 

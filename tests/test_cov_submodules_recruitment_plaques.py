@@ -185,7 +185,7 @@ def test_analyze_recruitment_writes_csvs_and_exact_ratios(tmp_path, recruitment_
 
     # The DB location analyze_recruitment asked for.
     assert recruitment_env["read_calls"][0]["locs"] == [
-        str(src) + "/measurements/measurements.db"]
+        os.path.join(str(src), "measurements", "measurements.db")]
     assert recruitment_env["read_calls"][0]["tables"] == [
         "cell", "nucleus", "pathogen", "cytoplasm"]
 
@@ -235,8 +235,10 @@ def test_analyze_recruitment_moves_loose_db_into_measurements(tmp_path,
     src = tmp_path / "plate"
     src.mkdir()
     loose_db = src / "measurements.db"
-    with sqlite3.connect(loose_db) as con:
-        con.execute("CREATE TABLE t (a INTEGER)")
+    con = sqlite3.connect(loose_db)
+    con.execute("CREATE TABLE t (a INTEGER)")
+    con.commit()
+    con.close()
 
     settings = _base_settings(loose_db)
     analyze_recruitment(settings)
