@@ -237,7 +237,9 @@ def _workflow(path: Path) -> dict:
 
 
 def test_the_release_publishes_the_sifs_after_the_docker_images():
-    """release.yml calls apptainer-images once container-images succeeded."""
+    """release.yml calls apptainer-images once container-images and github-release succeeded.
+
+    apptainer-images.yml checks out the release tag, which github-release creates."""
     release = _workflow(RELEASE_WORKFLOW)
     jobs = release["jobs"]
     names = list(jobs)
@@ -245,10 +247,11 @@ def test_the_release_publishes_the_sifs_after_the_docker_images():
     assert names.index("apptainer-images") > names.index("container-images")
     job = jobs["apptainer-images"]
     assert job["uses"] == "./.github/workflows/apptainer-images.yml"
-    assert set(job["needs"]) == {"bump", "container-images"}
+    assert set(job["needs"]) == {"bump", "container-images", "github-release"}
     condition = " ".join(job["if"].split())
     assert "always()" in condition
     assert "needs.container-images.result == 'success'" in condition
+    assert "needs.github-release.result == 'success'" in condition
     assert job["permissions"] == {"contents": "read", "packages": "write"}
     assert job["with"]["publish"] is True
     assert job["with"]["release_version"] == "${{ needs.bump.outputs.version }}"
