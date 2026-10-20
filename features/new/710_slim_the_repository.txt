@@ -135,7 +135,9 @@ PHASE 4 — history rewrite (Home, after phases 2-3 are on main and nightly)
 Measured on /mnt/wd4tb/scratch/repo-slim/rewrite.git (bare clone of the
 mirror, heads and tags only; filter-repo 26 s, 1.7 GB RSS): 11.26 GiB ->
 744 MiB pack, nightly tree 543 MB (re-measured 2026-10-20 with the corrected
-list on nightly 7492e7d80d: 11.47 GiB -> 971 MiB pack, nightly tree 678 MB,
+list on nightly 7492e7d80d: 11.47 GiB -> 971 MiB pack, nightly tree 678 MB;
+again on 033cb0ac17 after the catalogs left: 11.52 GiB -> 986 MiB pack,
+nightly tree 694 MB (filter-repo 27 s, 2.1 GB RSS),
 within the 1.0 GiB / 700 MB acceptance; the deck pictures, readme_deck
 images and kept evidence stay). The first eight purge paths alone give
 1.19 GiB; the last eight are folders already deleted from the tree, whose
@@ -181,5 +183,5 @@ Coordination checklist:
 2026-10-20 — Phase 2: keep-list re-derived on 850c2e30a3 (same 73 files, kept in place); 33 changed n676 files uploaded (spacr-evidence 1f6fb59e90cd); 22,797 files (4,097,622,132 bytes) removed after hash check (5400e02335). README checkout size re-measured to 1178 MB (a95558196a).
 2026-10-20 — Phase 3 deck: spacr_deck.pdf and anim/ (69,793,628 bytes) pinned in docs/media_revision.json at spacr-tutorials 64ff46ea4409; tools/fetch_docs_media.py fetches/checks/publishes, docs.yml fetches before Sphinx, deck builder --publish and refresh_alpha_deck bump the pin. Remaining: API catalogs, WS tutorial media, phase 4.
 
-2026-10-20 — Phase 4 purge list corrected to spare the 73 kept features/data files, the in-git deck and tools/readme_deck/images; mirror re-measure 971 MiB pack, 678 MB tree. Maintainer accepted clone <= 1.0 GiB and tree <= 700 MB with the deck pictures in git. Rewrite waits for the maintainer's go and a coordinated re-clone.
+2026-10-20 — Phase 4 purge list corrected to spare the 73 kept features/data files, the in-git deck and tools/readme_deck/images; maintainer accepted clone <= 1.0 GiB and tree <= 700 MB. Mirror re-measure on 033cb0ac17: 986 MiB pack, 694 MB tree. Rewrite waits for the maintainer's go and a coordinated re-clone.
 2026-10-20 — Phase 3 API catalogs: catalogs (181,774,852 bytes) leave git; memory pinned at spacr-tutorials 958fe3e95328 (after 678 batch 5); --assemble in docs.yml and the api_catalogs test fixture; README checkout size 958 MB. Remaining: WS tutorial media, phase 4 on the maintainer's go.
