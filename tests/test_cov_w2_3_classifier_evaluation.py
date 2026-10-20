@@ -404,8 +404,8 @@ def test_the_folder_button_opens_the_bundles_own_folder(screen, monkeypatch):
                         staticmethod(lambda url: opened.append(url)))
     screen._open_current_folder()
     assert opened
-    assert opened[0].toLocalFile() == str(
-        Path(screen.bundle["path"]).parent.resolve())
+    assert Path(opened[0].toLocalFile()) == Path(
+        screen.bundle["path"]).parent.resolve()
 
 
 def test_closing_the_screen_cancels_and_drains_every_worker(screen):

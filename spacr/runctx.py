@@ -471,7 +471,7 @@ class _RunLogHandler(logging.Handler):
         """Open the JSONL file lazily, appending."""
         if self._stream is None:
             os.makedirs(os.path.dirname(self.path) or ".", exist_ok=True)
-            self._stream = open(self.path, "a", encoding="utf-8")
+            self._stream = open(self.path, "a", encoding="utf-8", newline="\n")
         return self._stream
 
     def emit(self, record: logging.LogRecord) -> None:
