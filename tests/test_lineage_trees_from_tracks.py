@@ -129,7 +129,7 @@ def test_the_run_step_writes_every_output(tmp_path):
                                 "save": True})
     paths = result["paths"]
     for key in ("segments", "statistics", "newick", "figure"):
-        assert (tmp_path / "run" / "tracks" / "lineage").as_posix() in paths[key]
+        assert str(tmp_path / "run" / "tracks" / "lineage") in paths[key]
     segments = pd.read_csv(paths["segments"])
     four = segments[segments.track_id == 4].iloc[0]
     assert four.color_cell_area == pytest.approx(40.0)

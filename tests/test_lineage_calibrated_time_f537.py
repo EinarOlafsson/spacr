@@ -153,6 +153,8 @@ def test_calibrated_colour_keeps_figure_axis_explicitly_in_frames():
     assert any(np.array_equal(line.get_xdata(), [5, 13]) for line in figure.axes[0].lines)
 
 
+@pytest.mark.skipif(np.finfo(np.longdouble).max == np.finfo(np.float64).max,
+                    reason="long double has no range beyond float64 here (MSVC builds); spaCR refuses the value instead")
 def test_large_finite_calibration_does_not_overflow_summary_variance(tmp_path):
     path = tmp_path / 'tracks.csv'
     _field().to_csv(path, index=False)

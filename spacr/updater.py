@@ -622,9 +622,10 @@ def editable_install_location() -> Optional[str]:
             if record.get("dir_info", {}).get("editable"):
                 url = str(record.get("url", ""))
                 if url.startswith("file://"):
-                    from urllib.parse import unquote, urlparse
+                    from urllib.parse import urlparse
+                    from urllib.request import url2pathname
 
-                    return unquote(urlparse(url).path)
+                    return url2pathname(urlparse(url).path)
                 if url:
                     return url
     except Exception:                                            # noqa: BLE001

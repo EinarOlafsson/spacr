@@ -999,6 +999,10 @@ def _read_chunk_bytes(path: Path) -> Optional[bytes]:
         return None
     except IsADirectoryError:
         return None
+    except PermissionError:
+        if not isinstance(path, _CloudPath) and os.path.isdir(path):
+            return None
+        raise
 
 
 def _dtype_from_zarr(raw: Any, where: str) -> np.dtype:
