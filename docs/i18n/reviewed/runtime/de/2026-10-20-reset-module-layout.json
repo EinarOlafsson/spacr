@@ -1,0 +1,21 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "Open this module's collapsed panels and return every pane to its default size. Other modules keep their layout.",
+      "source": "Open this module's collapsed panels and return every pane to its default size. Other modules keep their layout.",
+      "source_sha256": "deee7584cebd729d0a53fd2e0ed5d050894af83d119b77699afbdee44b3aa0f1",
+      "table": "ui",
+      "translation": "Klappt die eingeklappten Bereiche dieses Moduls auf und setzt jedes Teilfenster auf die Standardgröße zurück. Andere Module behalten ihr Layout."
+    },
+    {
+      "key": "Reset this module's layout",
+      "source": "Reset this module's layout",
+      "source_sha256": "d4aac9b15c9a49b3bbbec245165a3818a761660f350f0b3afd549abe72a86f71",
+      "table": "ui",
+      "translation": "Layout dieses Moduls zurücksetzen"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

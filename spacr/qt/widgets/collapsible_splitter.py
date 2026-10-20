@@ -87,8 +87,11 @@ from PySide6.QtWidgets import (QSizePolicy, QSpacerItem, QSplitter,
                                QSplitterHandle, QWidget)
 from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
-#: What a pane's own watch reads: its hide, and a pane shown or hidden.
-_PANE_KINDS = frozenset((QEvent.Hide, QEvent.ShowToParent, QEvent.HideToParent))
+#: What a pane's own watch reads: its hide, a pane shown or hidden, and a
+#: pane whose contents changed size (a new font or GUI scale re-measures a
+#: collapsed heading).
+_PANE_KINDS = frozenset((QEvent.Hide, QEvent.ShowToParent, QEvent.HideToParent,
+                         QEvent.LayoutRequest))
 
 #: What a body or focus-widget watch reads.
 _VISIBILITY_KINDS = frozenset((QEvent.ShowToParent, QEvent.HideToParent))
@@ -121,6 +124,14 @@ CLICK_SLOP_PX = 3
 
 #: Preferences key prefix for the remembered pane sizes.
 _EXTENTS_PREFIX = "layout/panes"
+
+#: A remembered size at or below this, in 100 % pixels, is not a size the
+#: user dragged to but a pane squeezed shut by an older layout or a damaged
+#: store; it is dropped on load, and the pane opens at its default.
+_SMALLEST_STORED = 24
+
+#: A remembered size above this is not a screen's worth of anything.
+_LARGEST_STORED = 20000
 
 #: How long a held handle rests before the sizes are written, in ms.
 #: Writing rewrites the whole preferences file, 5-7 ms, which every move of
@@ -160,11 +171,57 @@ def get_pane_extents(persist_key: str) -> dict:
     out = {}
     for name, size in value.items():
         try:
-            if int(size) > 0:
-                out[str(name)] = int(size)
-        except (TypeError, ValueError):
+            size = int(size)
+        except (TypeError, ValueError, OverflowError):
             continue
+        if _SMALLEST_STORED < size <= _LARGEST_STORED:
+            out[str(name)] = size
     return out
+
+
+def _repair_pane_extents(persist_key: str) -> dict:
+    """Read the sizes of ``persist_key``, writing back a repaired copy.
+
+    A size of zero, a negative or absurd size, a value that is not a number
+    or a store that is not a mapping cannot be laid out; it is dropped from
+    the store as well as from what is returned, so a damaged value is
+    repaired once rather than skipped on every launch.
+
+    :param persist_key: the splitter's key.
+    :returns: the usable sizes, ``{pane name: pixels}``.
+    """
+    key = str(persist_key or "").strip()
+    if not key:
+        return {}
+    clean = get_pane_extents(key)
+    try:
+        raw = _settings().value(f"{_EXTENTS_PREFIX}/{key}", "")
+        stored = json.loads(raw) if raw else None
+    except Exception:                                        # noqa: BLE001
+        stored = False
+    if stored is None:
+        return clean
+    if stored != clean:
+        if clean:
+            set_pane_extents(key, clean)
+        else:
+            _forget_pane_extents(key)
+        LOG.info("repaired the remembered pane sizes of %s", key)
+    return clean
+
+
+def _forget_pane_extents(persist_key: str) -> None:
+    """Remove the sizes remembered for ``persist_key``.
+
+    :param persist_key: the splitter's key.
+    """
+    key = str(persist_key or "").strip()
+    if not key:
+        return
+    try:
+        _settings().remove(f"{_EXTENTS_PREFIX}/{key}")
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not forget the pane sizes", exc_info=True)
 
 
 def set_pane_extents(persist_key: str, extents: dict) -> None:
@@ -435,6 +492,8 @@ class Pane:
         self.fold_key = str(fold_key or "")
         self.hint = str(hint or "")
         self.edge_collapsed = False
+        #: The size it opens at by default, which a layout reset returns to.
+        self.default_extent = self.extent
 
     def is_collapsed(self) -> bool:
         """Whether the pane is collapsed right now."""
@@ -502,16 +561,61 @@ class _PaneHandle(QSplitterHandle):
         """Remember where a press began, to tell a click from a drag."""
         self._pressed_at = event.position().toPoint()
         self._dragged = False
+        self._opened = False
         self.splitter()._held = True
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:                 # noqa: N802
-        """A press that travels is a drag."""
+        """A press that travels is a drag; one that grows a heading opens it.
+
+        A collapsed HEADER pane is held at its heading's height, so dragging
+        its edge would otherwise do nothing at all. Dragging towards it opens
+        it, once per press, and the drag goes on to size it; until the press
+        ends, a drag that is short of its minimum holds it there rather than
+        letting Qt collapse it straight back.
+        """
         if self._pressed_at is not None:
             moved = event.position().toPoint() - self._pressed_at
             if moved.manhattanLength() > CLICK_SLOP_PX:
                 self._dragged = True
+                if not getattr(self, "_opened", False):
+                    along = (moved.y() if self.orientation() == Qt.Vertical
+                             else moved.x())
+                    pane = self.folded_heading_towards(along)
+                    if pane is not None:
+                        self._opened = True
+                        splitter = self.splitter()
+                        splitter.set_collapsed(pane.name, False, by_user=True)
+                        splitter.setCollapsible(
+                            splitter.indexOf(pane.widget), False)
         super().mouseMoveEvent(event)
+
+    def folded_heading_towards(self, along: int) -> Optional[Pane]:
+        """The collapsed HEADER pane a drag of ``along`` pixels would grow.
+
+        :param along: the drag along the splitter; negative grows the pane
+            after this handle, positive the pane before it.
+        :returns: the pane, or None when that pane is open or has no heading.
+        """
+        splitter = self.splitter()
+        finder = getattr(splitter, "_pane_of", None)
+        at = self._index()
+        if not callable(finder) or at < 0 or along == 0:
+            return None
+        if along < 0:
+            indices = range(at, splitter.count())
+        else:
+            indices = range(at - 1, -1, -1)
+        for i in indices:
+            widget = splitter.widget(i)
+            if widget is None or widget.isHidden():
+                continue
+            pane = finder(widget)
+            if (pane is not None and pane.mode == HEADER
+                    and pane.is_collapsed()):
+                return pane
+            return None
+        return None
 
     def mouseReleaseEvent(self, event) -> None:              # noqa: N802
         """A click beside an EDGE pane collapses or restores it."""
@@ -522,6 +626,9 @@ class _PaneHandle(QSplitterHandle):
                    and event.button() == Qt.LeftButton)
         self._pressed_at = None
         self.splitter()._held = False
+        if getattr(self, "_opened", False):
+            self._opened = False
+            self.splitter()._sync_flags()
         self.splitter()._flush_extents()
         pane = self.edge_pane() if clicked else None
         if pane is not None:
@@ -599,7 +706,7 @@ class CollapsibleSplitter(QSplitter):
         super().__init__(orientation, parent)
         self._panes: List[Pane] = []
         self._persist_key = str(persist_key or "")
-        self._stored = get_pane_extents(self._persist_key)
+        self._stored = _repair_pane_extents(self._persist_key)
         self._laid_out = False
         self._rebalance_queued = False
         self._held = False
@@ -607,9 +714,14 @@ class CollapsibleSplitter(QSplitter):
         self._extents_timer.setSingleShot(True)
         self._extents_timer.setInterval(_EXTENTS_SAVE_MS)
         self._extents_timer.timeout.connect(self._save_extents)
+        self._limits_queued = False
+        self._applied_extents = {}
         self.setHandleWidth(GRIP_PX)
         self.splitterMoved.connect(self._on_moved)
         _watch_object_events(self, self, _PANE_KINDS)
+        from .. import gui_scale
+
+        gui_scale.add_listener(self._on_gui_scale)
 
     def createHandle(self):                                  # noqa: N802
         """Every handle is a :class:`_PaneHandle`."""
@@ -656,6 +768,7 @@ class CollapsibleSplitter(QSplitter):
         pane = Pane(widget, name, mode, folder, stretch,
                     self._stored.get(str(name), extent), minimum, focus,
                     fold_key, hint)
+        pane.default_extent = int(extent or 0)
         self._panes.append(pane)
         self.setStretchFactor(self.indexOf(widget), max(0, int(stretch)))
         _watch_object_events(widget, self, _PANE_KINDS)
@@ -791,9 +904,11 @@ class CollapsibleSplitter(QSplitter):
         index = self.indexOf(widget)
         if collapsed:
             if 0 <= index < self.count():
-                size = self.sizes()[index]
+                from ..gui_scale import _actual_sizes
+
+                size = _actual_sizes(self)[index]
                 if size > self._collapsed_extent(pane) + GRIP_PX:
-                    pane.extent = size
+                    pane.extent = self._base(size)
             if self.orientation() == Qt.Vertical:
                 widget.setMinimumHeight(0)
             else:
@@ -848,15 +963,74 @@ class CollapsibleSplitter(QSplitter):
                 ("bottom" if index < self.count() - 1 else "top"),
                 rect=landing_rect)
 
+    def _factor(self) -> float:
+        """The GUI scale this splitter is drawn at."""
+        from ..gui_scale import _factor_for
+
+        return float(_factor_for(self) or 1.0)
+
+    def _base(self, drawn: int) -> int:
+        """``drawn`` pixels in the 100 % units the sizes are remembered in."""
+        factor = self._factor()
+        drawn = int(drawn)
+        return drawn if factor == 1.0 or drawn <= 0 else int(
+            round(drawn / factor))
+
+    def _drawn(self, base: int) -> int:
+        """A remembered 100 % size in the pixels it is drawn at now."""
+        from ..gui_scale import scale_int
+
+        return scale_int(int(base or 0), self._factor())
+
     def _collapsed_extent(self, pane: Pane) -> int:
-        """How much room a collapsed HEADER pane needs: its heading."""
+        """How much room a collapsed HEADER pane needs: its heading.
+
+        In the pixels it is drawn at, measured from the heading's font at
+        the GUI and font scale in force, never a fixed number: the larger of
+        the pane's own layout hints and :meth:`_heading_need`.
+        """
         widget = pane.widget
         layout = widget.layout()
         if layout is not None:
             layout.activate()
         return max(self._along(widget.minimumSizeHint()),
                    self._along(widget.sizeHint()) if pane.is_collapsed()
-                   else 0)
+                   else 0,
+                   self._heading_need(pane))
+
+    def _heading_need(self, pane: Pane) -> int:
+        """The room a HEADER pane's heading needs to be read and clicked.
+
+        The heading's own size hint, which follows its font metrics, and at
+        least one line of its font, plus every layout margin between it and
+        the pane, so a heading inside a card's frame is not cut by the frame.
+
+        :returns: pixels along the splitter, or 0 for a pane with no heading.
+        """
+        heading = getattr(pane.folder, "heading", None)
+        if not _alive(heading):
+            return 0
+        vertical = self.orientation() == Qt.Vertical
+        metrics = heading.fontMetrics()
+        if vertical:
+            need = max(heading.sizeHint().height(),
+                       heading.minimumSizeHint().height(),
+                       metrics.height())
+        else:
+            need = max(heading.minimumSizeHint().width(),
+                       metrics.height())
+        widget = pane.widget
+        holder = heading.parentWidget()
+        while _alive(holder):
+            layout = holder.layout()
+            if layout is not None:
+                margins = layout.contentsMargins()
+                need += (margins.top() + margins.bottom() if vertical
+                         else margins.left() + margins.right())
+            if holder is widget:
+                break
+            holder = holder.parentWidget()
+        return int(need)
 
     def _sync_flags(self) -> None:
         """Which children Qt may take to zero, and the handles' dress.
@@ -950,6 +1124,11 @@ class CollapsibleSplitter(QSplitter):
         kind = event.type()
         if kind == QEvent.Hide and watched is self:
             self._flush_extents()
+        elif kind == QEvent.LayoutRequest:
+            pane = self._pane_of(watched)
+            if (pane is not None and pane.mode == HEADER
+                    and pane.is_collapsed()):
+                self._queue_limits()
         elif kind in (QEvent.ShowToParent, QEvent.HideToParent):
             pane = self._pane_of(watched)
             if pane is not None:
@@ -958,6 +1137,86 @@ class CollapsibleSplitter(QSplitter):
                     self.set_collapsed(pane.name, False, by_user=False)
                 self._queue_rebalance()
         return False
+
+    def _on_gui_scale(self, _scale: float) -> None:
+        """The GUI scale changed: measure the collapsed headings again."""
+        if _alive(self):
+            self._queue_limits()
+
+    def _queue_limits(self) -> None:
+        """Re-measure the collapsed headings on the next turn, once."""
+        if self._limits_queued:
+            return
+        self._limits_queued = True
+        QTimer.singleShot(0, self._refresh_limits)
+
+    def _refresh_limits(self) -> None:
+        """Follow a collapsed heading whose font or scale changed.
+
+        A new font scale, GUI scale or language changes how tall a heading
+        is. Its pane is held to the old height while that is not measured
+        again, which is done here; the panes are laid out again only when a
+        heading's need moved or a collapsed pane is below it, and never
+        while a handle is held.
+        """
+        self._limits_queued = False
+        if not _alive(self):
+            return
+        before = dict(self._applied_extents)
+        self._apply_limits()
+        if self._held or not self._laid_out:
+            return
+        from ..gui_scale import _actual_sizes
+
+        sizes = _actual_sizes(self)
+        short = False
+        for i in self._visible_indices():
+            pane = self._pane_of(self.widget(i))
+            if (pane is not None and pane.mode == HEADER
+                    and pane.is_collapsed()
+                    and sizes[i] < self._applied_extents.get(pane.name, 0)):
+                short = True
+        if short or before != self._applied_extents:
+            self.rebalance()
+
+    def _reset_layout(self) -> int:
+        """Open every pane and put it back at the size it opens at.
+
+        What was remembered for the panes -- their folds and the sizes the
+        user dragged them to -- is forgotten too, so the next launch starts
+        from the defaults. A panel that starts folded goes back to folded.
+
+        :returns: how many panes were reset.
+        """
+        try:
+            from ..preferences import set_folded_panel
+        except Exception:                                    # noqa: BLE001
+            set_folded_panel = None
+        count = 0
+        for pane in list(self._panes):
+            if not _alive(pane.widget):
+                continue
+            count += 1
+            pane.extent = int(pane.default_extent or 0)
+            if pane.mode == HEADER and pane.folder is not None:
+                key = str(getattr(pane.folder, "persist_key", "") or "")
+                shut = bool(getattr(pane.folder, "shut_by_default", False))
+                if key and set_folded_panel is not None:
+                    set_folded_panel(key, shut, default_shut=shut)
+                if pane.folder.shut != shut:
+                    pane.folder.set_shut(shut, by_user=False)
+            elif pane.mode == EDGE:
+                if pane.fold_key and set_folded_panel is not None:
+                    set_folded_panel(pane.fold_key, False)
+                if pane.edge_collapsed:
+                    self._set_edge(pane, False, by_user=False)
+        self._stored = {}
+        self._extents_timer.stop()
+        _forget_pane_extents(self._persist_key)
+        self._sync_flags()
+        if self._laid_out:
+            self.rebalance(fresh=True)
+        return count
 
     def showEvent(self, event) -> None:                      # noqa: N802
         """Lay the panes out from their remembered sizes, once.
@@ -1026,11 +1285,19 @@ class CollapsibleSplitter(QSplitter):
         """Hold every collapsed HEADER pane at its heading's size.
 
         A maximum rather than a size: Qt keeps it through every window
-        resize and every drag, where a size would be handed the growth.
+        resize and every drag, where a size would be handed the growth. And
+        the same size as its minimum, so no drag, restored size or squeezed
+        window can take a collapsed pane below its heading. Both are set in
+        the pixels the heading was measured in, which the GUI scale must
+        not scale a second time.
         """
+        from ..gui_scale import _set_actual_dim
+
         visible = self._visible_indices()
         absorber = self._absorber(visible)
         vertical = self.orientation() == Qt.Vertical
+        low, high = ("minh", "maxh") if vertical else ("minw", "maxw")
+        applied = {}
         for i in range(self.count()):
             pane = self._pane_of(self.widget(i))
             if pane is None:
@@ -1038,14 +1305,15 @@ class CollapsibleSplitter(QSplitter):
             widget = pane.widget
             if pane.mode != HEADER:
                 continue
-            if pane.is_collapsed() and i != absorber:
-                limit = self._collapsed_extent(pane)
+            if pane.is_collapsed():
+                need = self._collapsed_extent(pane)
+                applied[pane.name] = need
+                _set_actual_dim(widget, low, need)
+                _set_actual_dim(widget, high,
+                                UNLIMITED if i == absorber else need)
             else:
-                limit = UNLIMITED
-            if vertical:
-                widget.setMaximumHeight(limit)
-            else:
-                widget.setMaximumWidth(limit)
+                _set_actual_dim(widget, high, UNLIMITED)
+        self._applied_extents = applied
 
     def _height_for_width(self, widget) -> int:
         """The height ``widget`` needs at this splitter's width, or 0.
@@ -1101,14 +1369,21 @@ class CollapsibleSplitter(QSplitter):
         remembered size instead. ``refit`` sizes a fixed-size pane that wraps
         to the height its width now needs.
 
-        :returns: the sizes set, or ``[]`` when there was nothing to lay out.
+        Worked out in the pixels the panes are drawn at, because a heading
+        and a wrapped row are measured in them; only a remembered size is
+        kept in 100 % units, and is scaled here.
+
+        :returns: the sizes set, in 100 % units, or ``[]`` when there was
+            nothing to lay out.
         """
+        from ..gui_scale import _actual_sizes, _set_actual_sizes
+
         self._apply_limits()
         count = self.count()
         visible = self._visible_indices()
         if not visible:
             return []
-        sizes = list(self.sizes())
+        sizes = _actual_sizes(self)
         handles = self.handleWidth() * max(0, len(visible) - 1)
         room = self._along(self.size()) - handles
         total = sum(sizes[i] for i in visible)
@@ -1127,7 +1402,7 @@ class CollapsibleSplitter(QSplitter):
                 continue
             natural = self._along(widget.sizeHint())
             current = sizes[i]
-            remembered = pane.extent if pane is not None else 0
+            remembered = self._drawn(pane.extent) if pane is not None else 0
             small = current <= GRIP_PX * 4
             if pane is not None and (pane is grow or small or fresh):
                 want = remembered or natural or current
@@ -1168,8 +1443,8 @@ class CollapsibleSplitter(QSplitter):
         for i in range(count):
             if i not in visible:
                 new[i] = sizes[i]
-        self.setSizes(new)
-        return new
+        _set_actual_sizes(self, new)
+        return [self._base(v) for v in new]
 
     def _on_moved(self, _pos: int, _index: int) -> None:
         """The user dragged a handle: collapse at the limit, remember sizes.
@@ -1403,6 +1678,199 @@ def splitter_of(widget) -> Optional[CollapsibleSplitter]:
     """
     parent = widget.parentWidget() if _alive(widget) else None
     return parent if isinstance(parent, CollapsibleSplitter) else None
+
+
+def _splitters_under(root) -> list:
+    """Every CollapsibleSplitter in ``root``, ``root`` included.
+
+    :param root: a widget, usually a module screen or the main window.
+    """
+    if not _alive(root):
+        return []
+    found = list(root.findChildren(CollapsibleSplitter))
+    if isinstance(root, CollapsibleSplitter):
+        found.insert(0, root)
+    return [split for split in found if _alive(split)]
+
+
+def _reset_layout_under(root) -> int:
+    """Put every collapsible container in ``root`` back to its defaults.
+
+    Behind Help > Window > "Reset this module's layout": a container that
+    was collapsed and left somewhere it could not be reached comes back, and
+    nothing remembered for it outlives the reset.
+
+    :param root: the module screen.
+    :returns: how many panes were reset.
+    """
+    total = 0
+    for split in _splitters_under(root):
+        try:
+            total += split._reset_layout()
+        except RuntimeError:
+            continue
+    return total
+
+
+def _rect_in(item, window):
+    """``item``'s rectangle in ``window`` coordinates."""
+    from PySide6.QtCore import QPoint, QRect
+
+    return QRect(item.mapTo(window, QPoint()), item.size())
+
+
+def _clip_in(widget, window):
+    """The part of ``widget`` that every ancestor up to ``window`` shows.
+
+    :returns: a ``QRect`` in ``window`` coordinates.
+    """
+    clip = _rect_in(widget, window)
+    ancestor = widget.parentWidget()
+    while ancestor is not None and ancestor is not window:
+        clip = clip.intersected(_rect_in(ancestor, window))
+        ancestor = ancestor.parentWidget()
+    return clip.intersected(window.rect())
+
+
+def _handles_of(split, index: int) -> list:
+    """The shown handles on either side of the child at ``index``.
+
+    The one before it, and the one before the next child that is shown.
+    """
+    out = []
+    candidates = [index]
+    for at in range(index + 1, split.count()):
+        if not split.widget(at).isHidden():
+            candidates.append(at)
+            break
+    for at in candidates:
+        if 0 < at < split.count():
+            handle = split.handle(at)
+            if _alive(handle) and handle.isVisible():
+                out.append(handle)
+    return out
+
+
+def _inside_a_shut_pane(widget) -> bool:
+    """Whether ``widget`` sits inside a collapsed EDGE pane.
+
+    A splitter in a column folded away to its strip is not on screen; it is
+    judged when its column is open.
+    """
+    child = widget
+    parent = widget.parentWidget()
+    while _alive(parent):
+        if isinstance(parent, CollapsibleSplitter):
+            pane = parent._pane_of(child)
+            if pane is not None and pane.mode == EDGE and pane.is_collapsed():
+                return True
+        child, parent = parent, parent.parentWidget()
+    return False
+
+
+def _collapsed_header_faults(root) -> list:
+    """Every collapsed container in ``root`` that a user could not get back.
+
+    The check shared by the tests and the distribution smoke's layout pass.
+    A collapsed HEADER pane is a fault when its heading is hidden, shorter
+    than one line of its own font, cut by its pane or any ancestor, or when
+    no handle beside it can be grabbed. A collapsed EDGE pane is a fault
+    when the handle that is its strip is hidden or has no area. Panes their
+    owner hides, and splitters not on screen, are not judged. Only the pane
+    and its splitter clip the heading here: a heading a scroll area has
+    scrolled away can be scrolled to, which the smoke's reachability pass
+    judges on its own.
+
+    :param root: the widget to search, usually the main window.
+    :returns: one ``dict`` per fault, with ``splitter`` (its key), ``pane``,
+        ``problem`` and the measured numbers.
+    """
+    faults = []
+    if not _alive(root):
+        return faults
+    for split in _splitters_under(root):
+        if (not split.isVisible() or split.width() <= 0
+                or split.height() <= 0 or _inside_a_shut_pane(split)):
+            continue
+        key = split._persist_key or split.objectName() or type(split).__name__
+        shown = split._visible_indices()
+        for pane in split.panes():
+            widget = pane.widget
+            if (not _alive(widget) or not pane.is_collapsed()
+                    or not widget.isVisible()):
+                continue
+            index = split.indexOf(widget)
+            row = {"splitter": key, "pane": pane.name, "mode": pane.mode}
+            handles = _handles_of(split, index)
+            grabbable = [h for h in handles
+                         if h.width() > 0 and h.height() > 0
+                         and not _clip_in(h, split).isEmpty()]
+            if pane.mode == EDGE:
+                if not grabbable:
+                    faults.append(dict(row, problem="no strip to click"))
+                continue
+            heading = getattr(pane.folder, "heading", None)
+            if not _alive(heading) or not heading.isVisible():
+                faults.append(dict(row, problem="heading hidden"))
+                continue
+            line = heading.fontMetrics().height()
+            clip = _clip_in(heading, split)
+            along = split._along(widget.size())
+            need = split._collapsed_extent(pane)
+            numbers = {"heading": heading.height(), "line": line,
+                       "visible": clip.height(), "size": along,
+                       "need": need}
+            if heading.height() < line:
+                faults.append(dict(row, **numbers,
+                                   problem="heading shorter than its text"))
+            elif clip.height() < heading.height() or clip.width() <= 0:
+                faults.append(dict(row, **numbers, problem="heading cut"))
+            elif along < need:
+                faults.append(dict(row, **numbers,
+                                   problem="pane below its heading"))
+            if len(shown) > 1 and not grabbable:
+                faults.append(dict(row, **numbers,
+                                   problem="no handle to drag"))
+    return faults
+
+
+def _probe_collapsed_headers(root, settle: Callable[[], None]) -> list:
+    """Collapse every open container in ``root``, judge them, open them again.
+
+    The active half of :func:`_collapsed_header_faults`, for a pass that
+    must not depend on what the user happened to leave collapsed. The
+    panes with a heading are collapsed and judged first, then the columns
+    that fold to a strip, so a heading inside such a column is judged while
+    it is on screen. Every
+    fold is made on the user's behalf, so nothing is remembered, and every
+    pane is put back as it was.
+
+    :param root: the module screen.
+    :param settle: runs the event loop until the layout has caught up.
+    :returns: the faults found while everything was collapsed.
+    """
+    faults = []
+    for mode in (HEADER, EDGE):
+        folded = []
+        for split in _splitters_under(root):
+            if not split.isVisible():
+                continue
+            for pane in split.panes():
+                if (pane.mode != mode or pane.is_collapsed()
+                        or not _alive(pane.widget)
+                        or pane.widget.isHidden()):
+                    continue
+                if split.set_collapsed(pane.name, True, by_user=False):
+                    folded.append((split, pane.name))
+        settle()
+        try:
+            faults += _collapsed_header_faults(root)
+        finally:
+            for split, name in reversed(folded):
+                if _alive(split):
+                    split.set_collapsed(name, False, by_user=False)
+            settle()
+    return faults
 
 
 __all__ = [

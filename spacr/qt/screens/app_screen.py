@@ -1564,7 +1564,7 @@ class _RuntimeViewport(QScrollArea):
             pane = split._pane_of(widget)
             if pane is not None and pane.is_collapsed():
                 height = split._collapsed_extent(pane)
-                minimum = 0
+                minimum = height if pane.mode == "header" else 0
             else:
                 registered = int(pane.minimum or 0) if pane is not None else 0
                 minimum = max(0, widget.minimumSizeHint().height(),

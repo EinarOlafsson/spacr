@@ -207,7 +207,10 @@ class TestPanes:
         split.show()
         _pump()
         folder.toggle()
-        assert pane.minimumWidth() == 0
+        need = split._collapsed_extent(split.pane("Head"))
+        assert need > 0
+        assert pane.minimumWidth() == need
+        assert pane.maximumWidth() == need
         folder.toggle()
         assert pane.maximumWidth() == cs.UNLIMITED
 

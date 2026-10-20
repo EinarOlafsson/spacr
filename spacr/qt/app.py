@@ -299,7 +299,13 @@ class _CrampedScroll(QScrollArea):
             _after(0, self, self._fit_content)
 
     def _fit_content(self) -> None:
-        """Fill the screen, or keep the content's minimum and scroll."""
+        """Fill the screen, or keep the content's minimum and scroll.
+
+        Every size here is measured from the laid-out screen, so the content
+        is resized in those pixels, not scaled again by the GUI scale.
+        """
+        from .gui_scale import _resize_actual
+
         self._fit_pending = False
         content = self.widget()
         if content is None:
@@ -311,7 +317,7 @@ class _CrampedScroll(QScrollArea):
             self.setHorizontalScrollBarPolicy(off)
             self.setVerticalScrollBarPolicy(off)
             if content.size() != size:
-                content.resize(size)
+                _resize_actual(content, size)
             return
         need = content.minimumSizeHint().expandedTo(content.minimumSize())
         bar = self.verticalScrollBar().sizeHint().width()
@@ -327,7 +333,7 @@ class _CrampedScroll(QScrollArea):
         self.setVerticalScrollBarPolicy(as_needed if tall else off)
         target = QSize(max(room_w, need.width()), max(room_h, need.height()))
         if content.size() != target:
-            content.resize(target)
+            _resize_actual(content, target)
 
 
 def _scroll_when_cramped(screen: QWidget) -> bool:
@@ -4405,6 +4411,9 @@ class MainWindow(QMainWindow):
         app_menu.insertAction(quit_action, minimise)
         app_menu.insertAction(quit_action, maximise)
         app_menu.insertAction(quit_action, self._act_borderless)
+        reset = getattr(self, "_act_reset_layout", None)
+        if reset is not None:
+            app_menu.insertAction(quit_action, reset)
         app_menu.insertSeparator(quit_action)
 
     def _build_window_menu(self, bar):
@@ -4507,6 +4516,16 @@ class MainWindow(QMainWindow):
         menu.addAction(act_jobs)
         self._act_jobs = act_jobs
 
+        act_reset_layout = QAction(tr("Reset this module's layout"), self)
+        act_reset_layout.setObjectName("ResetModuleLayoutAction")
+        act_reset_layout.setStatusTip(tr(
+            "Open this module's collapsed panels and return every pane to "
+            "its default size. Other modules keep their layout."))
+        act_reset_layout.setMenuRole(QAction.MenuRole.NoRole)
+        act_reset_layout.triggered.connect(self._reset_current_layout)
+        menu.addAction(act_reset_layout)
+        self._act_reset_layout = act_reset_layout
+
         act_close = QAction(tr("Close window"), self)
         act_close.setStatusTip(tr("Close the main window. spaCR quits with it."))
         act_close.triggered.connect(self.close)
@@ -4531,6 +4550,24 @@ class MainWindow(QMainWindow):
         self._act_quit_here = act_quit_here
 
         return menu
+
+    def _reset_current_layout(self, *_args) -> int:
+        """Put the module on screen back to its default layout.
+
+        Every collapsible container in it opens, every pane returns to the
+        size it opens at, and what was remembered for them is forgotten, so
+        the next launch starts from the defaults too. Other modules keep
+        theirs.
+
+        :returns: how many panes were reset.
+        """
+        from .widgets.collapsible_splitter import _reset_layout_under
+
+        screen = (self._stack.currentWidget()
+                  if hasattr(self, "_stack") else None)
+        if screen is None:
+            return 0
+        return _reset_layout_under(screen)
 
     def _show_jobs_dock(self, *_args):
         """Open the Jobs dock on the right edge, building it on first use.

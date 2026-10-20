@@ -101,6 +101,10 @@ class Folder:
         self.last_change_by_user = True
         self._shut = False
         self._alert = ""
+        #: Where :func:`make_foldable` remembers the fold, and the state it
+        #: starts in when nothing is remembered; what a layout reset needs.
+        self.persist_key = ""
+        self.shut_by_default = False
         heading.unsetCursor()
         self._refresh_tooltip()
         self._filter = _ClickToFold(heading, self.toggle)
@@ -267,6 +271,8 @@ def make_foldable(heading: QLabel, body: QWidget, name: str = "",
 
     folder = Folder(heading, body, name=name,
                     on_change=remember if key else on_change)
+    folder.persist_key = key
+    folder.shut_by_default = bool(shut_by_default)
     if shut_at_start:
         folder.set_shut(True, by_user=not shut_by_default)
     return folder

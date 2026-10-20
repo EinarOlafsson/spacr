@@ -731,6 +731,39 @@ def _name_the_blocking_modal(controller, reason):
     return f'{reason}: {described}'
 
 
+def _let_the_layouts_settle():
+    """Let the queued re-layouts run."""
+    from PySide6.QtWidgets import QApplication
+
+    for _turn in range(6):
+        QApplication.processEvents()
+
+
+def _collapsed_heading_faults_of(controller):
+    """Judge the smoke's collapsed containers on screen, then every one collapsed.
+
+    :param controller: the smoke controller, or a stand-in with no window.
+    :returns: the faults, ``[]`` for none, or None when there is no
+        window on screen to judge.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    window = getattr(controller, 'window', None)
+    if not isinstance(window, QWidget):
+        return None
+    try:
+        from .widgets.collapsible_splitter import (
+            _collapsed_header_faults, _probe_collapsed_headers)
+
+        screen = getattr(controller, 'screen', None)
+        root = screen if isinstance(screen, QWidget) else window
+        faults = _collapsed_header_faults(window)
+        faults += _probe_collapsed_headers(root, _let_the_layouts_settle)
+    except Exception as exc:                                 # noqa: BLE001
+        faults = [{'problem': f'collapsed-heading check failed: {exc}'}]
+    return faults
+
+
 class _DistributionSmokeController(QObject):
     """Exercise an installed application's real Measure screen and Run action."""
 
@@ -1276,8 +1309,19 @@ class _DistributionSmokeController(QObject):
         self._write()
 
     def _finish_layout_check(self):
-        """Finish visual acceptance separately from the retained scientific result."""
+        """Finish visual acceptance separately from the retained scientific result.
+
+        Every collapsible container on the screen is also collapsed once and
+        judged (:func:`spacr.qt.widgets.collapsible_splitter._probe_collapsed_headers`):
+        a collapsed heading that is cut, or one with no handle left to drag,
+        fails the layout as a clipped button does.
+        """
         record = self.record['layout']
+        faults = _collapsed_heading_faults_of(self)
+        if faults is not None:
+            record['collapsed_heading_faults'] = faults
+            if faults and record.get('status') == 'passed':
+                record['status'] = 'failed'
         self.record['visual_layout_status'] = record['status']
         self._write()
         if record['status'] != 'passed':
