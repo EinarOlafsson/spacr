@@ -8633,7 +8633,9 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     _app_name, _app_display_name = name_the_application()
 
-    app = QApplication(sys.argv[:1])
+    # Qt names the macOS application menu's About, Hide and Quit items from
+    # argv[0], which is .../spacr/qt/__main__.py under `python -m spacr.qt`.
+    app = QApplication([_app_name] if sys.platform == "darwin" else sys.argv[:1])
     try:
         from .gui_scale import apply_saved_gui_scale
         apply_saved_gui_scale()
