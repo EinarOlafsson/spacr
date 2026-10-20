@@ -21,7 +21,6 @@ import json
 import logging
 import os
 import socketserver
-import stat
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -29,6 +28,7 @@ import pytest
 
 from spacr import run_journal
 from spacr.errors import PartialRunError, RunLedger
+from tests.refused_access import only_the_owner_can_read_the_file
 
 
 class _FakeSmtp(socketserver.ThreadingTCPServer):
@@ -489,7 +489,7 @@ def test_a_secret_without_a_keyring_goes_to_a_mode_600_file(tmp_path,
     monkeypatch.setattr(run_journal, "_notify_keyring", lambda: None)
 
     assert run_journal._store_notify_secret("ntfy_token", "tk-1") == "file"
-    assert stat.S_IMODE(os.stat(path).st_mode) == 0o600
+    assert only_the_owner_can_read_the_file(path)
     assert json.loads(path.read_text(encoding="utf-8")) == {"ntfy_token": "tk-1"}
     assert run_journal._load_notify_secret("ntfy_token") == "tk-1"
     assert run_journal._load_notify_secret("smtp_password") == ""
@@ -539,3 +539,62 @@ def test_the_message_reads_as_a_short_summary():
         "https://hooks.slack.com/*** failed"
     with pytest.raises(ValueError):
         run_journal._notify_http_post("file:///etc/passwd", b"", {})
+
+@pytest.mark.skipif(os.name != "nt", reason="mode 600 already covers this on POSIX")
+def test_a_secret_file_in_a_shared_folder_is_still_private_on_windows(
+        tmp_path, monkeypatch):
+    """A new Windows file inherits its folder's ACL; a portable or lab-drive
+    folder that admits the Users group must not hand them the secret."""
+    import subprocess
+
+    shared = tmp_path / "shared"
+    shared.mkdir()
+    subprocess.run(["icacls", str(shared), "/grant", "*S-1-5-32-545:(OI)(CI)R"],
+                   check=True, capture_output=True, timeout=30)
+    path = shared / "notification_secrets.json"
+    monkeypatch.setattr(run_journal, "_notify_secrets_path", lambda: path)
+    monkeypatch.setattr(run_journal, "_notify_keyring", lambda: None)
+
+    assert run_journal._store_notify_secret("ntfy_token", "tk-1") == "file"
+    assert only_the_owner_can_read_the_file(path)
+    assert run_journal._load_notify_secret("ntfy_token") == "tk-1"
+
+
+def test_the_secret_file_is_made_private_before_any_secret_byte(tmp_path, monkeypatch):
+    """The owner-only step sees an empty file; when it fails nothing is left."""
+    path = tmp_path / "notification_secrets.json"
+    seen = []
+
+    def private(temporary, folder=False):
+        if not folder:
+            seen.append((temporary.name, temporary.stat().st_size))
+
+    monkeypatch.setattr(run_journal, "_restrict_to_owner", private)
+    run_journal._write_notify_secret_file({"ntfy_token": "tk-1"}, path)
+    assert len(seen) == 1 and seen[0][1] == 0 and seen[0][0] != path.name
+    assert json.loads(path.read_text(encoding="utf-8")) == {"ntfy_token": "tk-1"}
+    if os.name != "nt":
+        assert os.stat(path).st_mode & 0o777 == 0o600
+
+    def refuse(temporary, folder=False):
+        raise OSError("could not make it private")
+
+    monkeypatch.setattr(run_journal, "_restrict_to_owner", refuse)
+    with pytest.raises(OSError, match="private"):
+        run_journal._write_notify_secret_file({"ntfy_token": "tk-2"}, path)
+    assert json.loads(path.read_text(encoding="utf-8")) == {"ntfy_token": "tk-1"}
+    assert sorted(entry.name for entry in tmp_path.iterdir()) == [path.name]
+
+
+@pytest.mark.posix_only
+def test_posix_secret_files_are_not_given_to_icacls(tmp_path, monkeypatch):
+    """Off Windows the mode-600 file is the whole protection; no process starts."""
+    import subprocess
+
+    def no_process(*args, **kwargs):
+        raise AssertionError("no subprocess on POSIX")
+
+    monkeypatch.setattr(subprocess, "run", no_process)
+    path = tmp_path / "s.json"
+    run_journal._write_notify_secret_file({"a": "b"}, path)
+    assert os.stat(path).st_mode & 0o777 == 0o600

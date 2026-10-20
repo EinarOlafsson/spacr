@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import sys
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -140,3 +141,27 @@ def test_diff_settings_load_from_run_folder(tmp_path):
     changed = [r for r in diff if r.key == "src"]
     assert len(changed) == 1
     assert changed[0].kind == "changed"
+
+
+@pytest.mark.posix_only
+def test_posix_workflow_exports_keep_every_destination_spelling():
+    """POSIX exports are as before: a dst keeps its own segments, and a
+    backslash or a colon is part of a name, never a Windows separator."""
+    from spacr.cli_repro import _workflow_plates
+
+    jobs = _workflow_plates({"src": ["/p/one", "/p/two"], "dst": "a/../b",
+                             "db_path": "we\\ird:name/c.db"}, module="convert")
+    assert jobs["one"]["dst"] == "a/../b/one"
+    assert jobs["two"]["db_path"] == "we\\ird:name/two/c.db"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="native Windows spelling")
+def test_a_windows_export_keeps_recorded_posix_paths():
+    from spacr.cli_repro import _workflow_plates
+
+    jobs = _workflow_plates({"src": ["/p/one", "/p/two"], "dst": "/outputs",
+                             "db_path": "/outputs/m.db"}, module="convert")
+    assert jobs["one"]["dst"] == "/outputs/one"
+    assert jobs["two"]["db_path"] == "/outputs/two/m.db"
+    windows = _workflow_plates({"src": ["/p/one", "/p/two"], "dst": "D:\\out"})
+    assert windows["one"]["dst"] == "D:\\out\\one"

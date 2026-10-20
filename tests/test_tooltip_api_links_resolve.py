@@ -33,7 +33,7 @@ def _missing_link_targets(links, built_docs):
             rel = rel[len("spacr/"):]
         target = built_docs / rel
         if not target.exists():
-            missing.setdefault(str(target.relative_to(built_docs)), set()).add(
+            missing.setdefault(target.relative_to(built_docs).as_posix(), set()).add(
                 f"{app_key}.{key}"
             )
     return missing

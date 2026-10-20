@@ -662,6 +662,19 @@ def _setting_path_candidates(
     return candidates
 
 
+def _is_link_or_unreadable(path: Path) -> bool:
+    """Whether a walk should pass ``path`` by: a symlink, or an entry it may not stat.
+
+    Windows refuses ``lstat`` on entries the account may not open, with an
+    access-denied error that ``Path.is_symlink`` raises rather than answers,
+    so one protected file used to abort the whole inventory.
+    """
+    try:
+        return path.is_symlink()
+    except OSError:
+        return True
+
+
 def _iter_files(path: Path, excluded_roots: Iterable[Path]) -> Iterator[Path]:
     """Yield regular files below ``path`` in deterministic order."""
     try:
@@ -698,12 +711,12 @@ def _iter_files(path: Path, excluded_roots: Iterable[Path]) -> Iterator[Path]:
         dirnames[:] = sorted(
             name for name in dirnames
             if name not in _IGNORED_TREE_NAMES
-            and not (root_path / name).is_symlink()
+            and not _is_link_or_unreadable(root_path / name)
             and not excluded(root_path / name)
         )
         for name in sorted(filenames):
             candidate = root_path / name
-            if not candidate.is_symlink() and not excluded(candidate):
+            if not _is_link_or_unreadable(candidate) and not excluded(candidate):
                 yield candidate
 
 
@@ -1069,7 +1082,10 @@ class Run:
         if path.is_dir():
             return path
         if output_only or _is_output_key(key):
-            return path.parent
+            parent = path.parent
+            if parent == Path(parent.anchor):
+                return None
+            return parent
         return None
 
     def _capture_initial_provenance(self) -> None:
@@ -1567,6 +1583,73 @@ def _read_notify_secret_file(path: Optional[Path] = None) -> Dict[str, str]:
         return {}
 
 
+def _restrict_to_owner(path: Path, *, folder: bool = False) -> None:
+    """Make ``path`` readable by its owner alone on Windows, before it holds a secret.
+
+    Windows ignores mode bits: a new file inherits its folder's ACL, so a
+    secret file under a shared portable folder or a lab drive was readable by
+    every account the folder admits. Inheritance is removed and the current
+    account is the only one granted access. Elsewhere mode 600 already says
+    this and nothing is done.
+
+    :param path: the empty file, or the empty staging folder, just created.
+    :param folder: grant the owner a folder entry its new files inherit.
+    :raises OSError: when the ACL cannot be set; the secret is then not written.
+    """
+    if os.name != "nt":
+        return
+    import subprocess
+
+    from .qt.i18n import tr
+
+    user = os.environ.get("USERNAME") or ""
+    domain = os.environ.get("USERDOMAIN") or ""
+    account = f"{domain}\\{user}" if domain and user else user
+    if not account:
+        raise OSError(tr("The current Windows account could not be named, so "
+                         "the secret was not saved."))
+    try:
+        result = subprocess.run(
+            ["icacls", str(path), "/inheritance:r", "/grant:r",
+             f"{account}:(OI)(CI)F" if folder else f"{account}:F"],
+            capture_output=True, text=True, timeout=30,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise OSError(tr("Could not make {path} private, so the secret was not "
+                         "saved: {error}", path=path, error=exc)) from exc
+    if result.returncode != 0:
+        raise OSError(tr("Could not make {path} private, so the secret was not "
+                         "saved: {error}", path=path,
+                         error=(result.stderr or result.stdout).strip()))
+
+
+def _private_secret_staging(path: Path) -> Path:
+    """The folder a secret's temporary file is created in.
+
+    On Windows a file created beside ``path`` takes the folder's ACL at the
+    moment it exists, and an account the folder admits can open it then and
+    keep reading through that handle after the ACL is narrowed. The file is
+    therefore created inside a new folder that is private before anything is
+    put in it. Elsewhere it is ``path``'s own folder, as it always was.
+
+    :param path: the secret file to be written.
+    :raises OSError: when the private folder cannot be made.
+    """
+    if os.name != "nt":
+        return path.parent
+    staging = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}.d")
+    staging.mkdir()
+    try:
+        _restrict_to_owner(staging, folder=True)
+    except BaseException:
+        try:
+            staging.rmdir()
+        except OSError:
+            pass
+        raise
+    return staging
+
+
 def _write_notify_secret_file(values: Dict[str, str],
                               path: Optional[Path] = None) -> None:
     """Write a secret file readable by its owner only (mode 600).
@@ -1587,11 +1670,13 @@ def _write_notify_secret_file(values: Dict[str, str],
             pass
         return
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}")
-    descriptor = os.open(str(temporary),
-                         os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    staging = _private_secret_staging(path)
+    temporary = staging / f".{path.name}.{uuid.uuid4().hex[:8]}"
     try:
+        descriptor = os.open(str(temporary),
+                             os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            _restrict_to_owner(temporary)
             json.dump(kept, handle)
         os.chmod(temporary, 0o600)
         os.replace(temporary, path)
@@ -1601,6 +1686,12 @@ def _write_notify_secret_file(values: Dict[str, str],
         except OSError:
             pass
         raise
+    finally:
+        if staging != path.parent:
+            try:
+                staging.rmdir()
+            except OSError:
+                pass
 
 
 def _store_notify_secret(name: str, value: str) -> str:
@@ -2579,6 +2670,24 @@ def _normalize_str(s: str, depth: int = 0) -> Any:
     return t
 
 
+def _same_windows_path(a: Any, b: Any) -> bool:
+    """On Windows, whether a :class:`~pathlib.Path` and a string name one path.
+
+    ``str(Path('/tmp/x'))`` is ``'\\tmp\\x'`` there, so a recorded string
+    and the Path it was read back as compared unequal. POSIX keeps the
+    comparison :func:`values_equal` always made.
+    """
+    if os.name != "nt":
+        return False
+    if not (isinstance(a, Path) and isinstance(b, (str, Path))
+            or isinstance(b, Path) and isinstance(a, str)):
+        return False
+    try:
+        return Path(a) == Path(b)
+    except Exception:
+        return False
+
+
 def values_equal(a: Any, b: Any) -> bool:
     """True when ``a`` and ``b`` mean the same thing.
 
@@ -2591,6 +2700,8 @@ def values_equal(a: Any, b: Any) -> bool:
     to "not equal" if that also fails. A settings comparison must
     never be the thing that raises.
     """
+    if _same_windows_path(a, b):
+        return True
     try:
         return bool(_normalize_value(a) == _normalize_value(b))
     except Exception:

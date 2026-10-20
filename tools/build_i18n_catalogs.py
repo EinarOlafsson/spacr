@@ -4626,6 +4626,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "_lineage_trees.py")
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
+    paths.add(ROOT / "spacr" / "run_journal.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4651,6 +4652,12 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
+        if path == source_root / "run_journal.py":
+            # Only the Windows owner-only secret refusal is catalogued here;
+            # the module's other captions reach the catalog through the GUI.
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "_restrict_to_owner"]
         if path == source_root / "utils.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)

@@ -44,6 +44,7 @@ from pathlib import Path
 import pytest
 
 import spacr.report as R
+from tests.refused_access import allow, refuse
 from spacr.report import (
     Figure,
     Report,
@@ -152,11 +153,8 @@ def _write_run_dir(root: Path, name: str, settings, app_key="mask",
 
 
 def _chmod_back(path: Path, mode=0o755):
-    """Restore a mode so pytest can clean the tmp tree up afterwards."""
-    try:
-        os.chmod(path, mode)
-    except OSError:
-        pass
+    """Restore a mode (or lift the Windows deny) so pytest can clean the tmp tree up."""
+    allow(path, mode)
 
 
 # ===========================================================================
@@ -212,6 +210,7 @@ def test_elapsed_times_switch_unit_at_ninety(value, expected):
     assert R._fmt_elapsed(value) == expected
 
 
+@pytest.mark.needs_symlink
 def test_same_path_sees_through_a_symlink_and_survives_a_null_byte(tmp_path):
     real = tmp_path / "plate"
     real.mkdir()
@@ -233,7 +232,7 @@ def test_a_runs_src_setting_is_matched_in_every_shape_it_is_stored_in(tmp_path):
     assert R._settings_point_at({"src": [str(other), str(src)]}, src) is True
     assert R._settings_point_at({"src": (str(src),)}, src) is True
     # The shape a list of plates takes after a CSV round-trip.
-    assert R._settings_point_at({"src": f"['{other}', '{src}']"}, src) is True
+    assert R._settings_point_at({"src": repr([str(other), str(src)])}, src) is True
 
     assert R._settings_point_at({"src": str(other)}, src) is False
     assert R._settings_point_at({"src": f"[{src}"}, src) is False   # unparseable
@@ -287,7 +286,7 @@ def test_a_folder_the_user_cannot_open_is_skipped_not_fatal(tmp_path):
     locked.mkdir(parents=True)
     (locked / "hidden.csv").write_text("a\n", encoding="utf-8")
     (root / "readable.csv").write_text("a\n", encoding="utf-8")
-    os.chmod(locked, 0o000)
+    refuse(locked, 0o000, windows="read")
     try:
         files, truncated = R._iter_dir_files(root)
         assert [p.name for p in files] == ["readable.csv"]
@@ -354,6 +353,7 @@ def test_dir_stats_counts_bytes_and_stops_at_its_budget(tmp_path):
     assert (n_files, truncated) == (1, True)
 
 
+@pytest.mark.posix_only
 def test_a_file_that_cannot_be_stat_ed_is_counted_but_adds_no_bytes(tmp_path):
     # r-- on a folder lists its names but forbids resolving them, so
     # scandir succeeds and every entry.stat() raises EACCES.
@@ -385,13 +385,14 @@ def test_the_file_inventory_of_an_unreadable_folder_is_empty_not_fatal(tmp_path)
     src = tmp_path / "plate"
     src.mkdir()
     (src / "a.txt").write_text("x", encoding="utf-8")
-    os.chmod(src, 0o000)
+    refuse(src, 0o000, windows="read")
     try:
         assert R._file_inventory(src) == ([], False)
     finally:
         _chmod_back(src)
 
 
+@pytest.mark.posix_only
 def test_loose_files_that_cannot_be_stat_ed_are_still_counted(tmp_path):
     src = tmp_path / "plate"
     (src / "qc").mkdir(parents=True)
@@ -536,7 +537,7 @@ def test_the_journal_scan_keeps_exactly_the_runs_whose_src_is_this_folder(
                              app_key="measure",
                              start="2026-07-02T10:00:00+00:00")
     as_repr = _write_run_dir(runs, "2026-07-03_100000_cccc__mask",
-                             {"src": f"['{src}']"},
+                             {"src": repr([str(src)])},
                              start="2026-07-03T10:00:00+00:00")
     # ... and four that must not be kept.
     _write_run_dir(runs, "2026-06-01_100000_dddd__mask", {"src": str(other)})
@@ -683,7 +684,7 @@ def test_a_scorecard_that_cannot_be_opened_is_reported_as_such(tmp_path):
     card = _write_csv(src / "qc" / "segmentation_qc_cell.csv", QC_HEADER,
                       [_qc_row("f1")])
     _write_csv(src / "qc" / "segmentation_qc_nucleus.csv", QC_HEADER, [])
-    os.chmod(card, 0o000)
+    refuse(card, 0o000, windows="read")
     try:
         report = collect_report(src, run_dirs=[])
         section = report.section("segmentation_qc")
@@ -743,7 +744,7 @@ def test_a_layout_export_that_cannot_be_opened_is_skipped(tmp_path):
                        for i in range(6)])
     locked = _write_csv(src / "qc" / "plate_other.csv", LAYOUT_HEADER,
                         [["p", "A01", "r", "c", 0, 0, 20, 1.5, 0, True]])
-    os.chmod(locked, 0o000)
+    refuse(locked, 0o000, windows="read")
     try:
         report = collect_report(src, run_dirs=[])
         section = report.section("plate_qc")
@@ -921,7 +922,7 @@ def test_a_result_csv_that_cannot_be_opened_is_noted_and_left_out(tmp_path):
     good = _write_csv(src / "results" / "good.csv", ["gene", "coef"],
                       [["g1", 1.0]])
     locked = _write_csv(src / "results" / "locked.csv", ["gene"], [["g2"]])
-    os.chmod(locked, 0o000)
+    refuse(locked, 0o000, windows="read")
     try:
         report = collect_report(src, run_dirs=[])
         section = report.section("statistics")
@@ -987,7 +988,7 @@ def test_a_settings_csv_that_cannot_be_opened_is_noted(tmp_path):
                       [["cell_diameter", "30"]])
     locked = _write_csv(src / "settings" / "b_measure.csv", ["Key", "Value"],
                         [["src", str(src)]])
-    os.chmod(locked, 0o000)
+    refuse(locked, 0o000, windows="read")
     try:
         report = collect_report(src, run_dirs=[])
         section = report.section("settings")
@@ -1063,6 +1064,7 @@ def test_a_feature_dictionary_of_an_unexpected_shape_is_reported(tmp_path):
 # collect_report
 # ===========================================================================
 
+@pytest.mark.needs_symlink
 def test_a_src_that_is_a_symlink_loop_reports_instead_of_raising(tmp_path):
     """BUG (fixed): pathlib raised RuntimeError straight out of collect_report."""
     loop = tmp_path / "loop"

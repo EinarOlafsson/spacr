@@ -16,6 +16,7 @@ million reads, and the identity space is established long before that.
 from __future__ import annotations
 
 import gzip
+import os
 import sys
 from pathlib import Path
 
@@ -67,10 +68,13 @@ def flip_orientation(settings):
     """
     flipped = dict(settings)
     for key, (drop, add) in FLIPPED.items():
-        path = Path(str(settings[key]))
-        stem = path.stem
+        # Only the file name changes; the folder keeps the spelling it was
+        # recorded with, so a Linux path stays a Linux path on Windows.
+        text = str(settings[key])
+        cut = max(text.rfind("/"), text.rfind("\\")) + 1
+        stem, suffix = os.path.splitext(text[cut:])
         stem = stem[:-len(drop)] if drop and stem.endswith(drop) else stem
-        flipped[key] = str(path.with_name(f"{stem}{add}{path.suffix}"))
+        flipped[key] = f"{text[:cut]}{stem}{add}{suffix}"
     return flipped
 
 
