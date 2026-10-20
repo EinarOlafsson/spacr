@@ -758,7 +758,8 @@ def _looks_like_path(value: Any) -> bool:
     """
     if not isinstance(value, str) or not value.strip():
         return False
-    return (os.sep in value or value.startswith('~')
+    return (os.sep in value or bool(os.altsep and os.altsep in value)
+            or value.startswith('~')
             or bool(os.path.splitext(value)[1]))
 
 

@@ -382,6 +382,25 @@ def test_the_outside_root_helper_refuses_before_touching_any_file(
     assert (helper.root / "spacr.exe").exists() and helper.events == []
 
 
+_REAL_PRIVATE_ACCESS = ic._windows_pip_private_access
+
+
+def test_a_request_owned_by_another_user_is_refused_as_an_uninstall_request(
+        frozen_windows_helper, monkeypatch):
+    helper = frozen_windows_helper
+    if os.name != "nt":
+        mine = "S-1-5-21-1000"
+        monkeypatch.setattr(ic, "_windows_pip_acl", lambda path: {
+            "owner": mine, "user": mine, "has_dacl": True,
+            "rules": [{"sid": mine, "type": 0, "rights": 0x1F01FF, "propagation": 0}]})
+    monkeypatch.setattr(ic, "_windows_pip_private_access", _REAL_PRIVATE_ACCESS)
+    monkeypatch.setattr(ic, "_desktop_process_identity",
+                        lambda pid: ("S-1-5-21-1-2-3-4", str(helper.root / "spacr.exe")))
+    with pytest.raises(ValueError, match="^invalid_windows_uninstall_request$"):
+        helper.call()
+    assert (helper.root / "spacr.exe").exists() and helper.events == []
+
+
 def test_a_request_replaced_while_it_is_read_is_refused(frozen_windows_helper, monkeypatch):
     helper = frozen_windows_helper
     real_fstat = os.fstat

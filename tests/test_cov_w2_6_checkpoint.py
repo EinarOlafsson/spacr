@@ -30,7 +30,7 @@ def store(tmp_path):
 def test_a_path_is_recorded_as_its_text_not_its_repr():
     """A checkpoint is meant to be inspectable without importing the workflow
     that produced it, and `PosixPath('/data')` is not a path."""
-    assert cp.json_safe(Path("/data/plate1")) == "/data/plate1"
+    assert cp.json_safe(Path("/data/plate1")) == str(Path("/data/plate1"))
 
 
 def test_a_set_is_recorded_in_a_stable_order():

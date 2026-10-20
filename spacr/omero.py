@@ -2597,7 +2597,8 @@ def export_file_annotation(gateway: Any, target: Any,
     if not local.is_file():
         raise OmeroError(f"{local} is not a file, so there is nothing to attach.")
 
-    guessed = mimetype or mimetypes.guess_type(local.name)[0] or "application/octet-stream"
+    guessed = (mimetype or mimetypes.MimeTypes().guess_type(local.name)[0]
+               or "application/octet-stream")
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
     desc = description or f"spaCR {get_version()} results, written {stamp}"
 

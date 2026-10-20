@@ -321,7 +321,8 @@ def test_teacher_rejects_non_tensor_nonfinite_or_complex_weights(checkpoint, wei
     assert calls == [] and path.read_bytes() == before
 
 
-@pytest.mark.parametrize('restore_original', [False, True])
+@pytest.mark.parametrize('restore_original', [
+    False, pytest.param(True, marks=pytest.mark.posix_only)])
 def test_teacher_decode_has_no_retry_when_held_bytes_change(checkpoint, monkeypatch, restore_original):
     import os
 

@@ -223,7 +223,7 @@ def test_the_journal_loads_where_the_os_has_no_fork_hooks(monkeypatch):
 
     from spacr import errors
 
-    monkeypatch.delattr(os, "register_at_fork")
+    monkeypatch.delattr(os, "register_at_fork", raising=False)
     monkeypatch.setattr(errors, "_FINALIZE_LISTENERS", [])
     spec = importlib.util.spec_from_file_location(
         "spacr._run_journal_without_fork_hooks", journal.__file__)

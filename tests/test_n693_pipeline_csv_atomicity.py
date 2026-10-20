@@ -65,11 +65,13 @@ def test_success_preserves_csv_bytes_and_existing_mode(tmp_path):
     target = folder / 'sample.csv'
     target.write_text('old', encoding="utf-8")
     target.chmod(0o640)
+    mode = stat.S_IMODE(target.stat().st_mode)
+    assert mode == 0o640 or os.name == 'nt'
     settings = {'src': str(tmp_path), 'value': 3, 'channels': [0, 1], 'none': None, 'text': 'μm,a'}
     expected = pd.DataFrame(list(settings.items()), columns=['Key', 'Value']).to_csv(index=False)
     save_settings(settings, name='sample')
-    assert target.read_text(encoding="utf-8") == expected
-    assert stat.S_IMODE(target.stat().st_mode) == 0o640
+    assert target.read_bytes() == expected.encode('utf-8')
+    assert stat.S_IMODE(target.stat().st_mode) == mode
     assert sorted(p.name for p in folder.iterdir()) == ['sample.csv', 'sample.json']
 
 
@@ -102,6 +104,8 @@ def test_read_only_csv_still_refuses_without_updating_json(tmp_path, capsys):
     csv_path.write_bytes(b'previous CSV snapshot')
     json_path.write_bytes(b'previous JSON snapshot')
     csv_path.chmod(0o440)
+    mode = stat.S_IMODE(csv_path.stat().st_mode)
+    assert mode == 0o440 or os.name == 'nt'
     if os.access(csv_path, os.W_OK):
         pytest.skip('Current account can write read-only files')
     try:
@@ -109,7 +113,7 @@ def test_read_only_csv_still_refuses_without_updating_json(tmp_path, capsys):
         assert 'Warning: could not save settings' in capsys.readouterr().out
         assert csv_path.read_bytes() == b'previous CSV snapshot'
         assert json_path.read_bytes() == b'previous JSON snapshot'
-        assert stat.S_IMODE(csv_path.stat().st_mode) == 0o440
+        assert stat.S_IMODE(csv_path.stat().st_mode) == mode
     finally:
         csv_path.chmod(0o640)
 

@@ -39,8 +39,7 @@ def test_a_pip_editable_install_names_its_working_tree(monkeypatch, tmp_path):
     checkout = tmp_path / "my checkout"
     checkout.mkdir()
     _fake_metadata(monkeypatch, (
-        '{"dir_info": {"editable": true}, "url": "file://'
-        + str(checkout).replace(" ", "%20") + '"}'))
+        '{"dir_info": {"editable": true}, "url": "' + checkout.as_uri() + '"}'))
     assert updater.editable_install_location() == str(checkout)
 
 

@@ -129,7 +129,7 @@ def test_missing_stale_and_obsolete_pages_fail_the_currency_check(tmp_path, monk
     (directory / "model-zoo.md").write_text("Wrong text\n", encoding="utf-8")
     (directory / "retired.md").write_text("Old text\n", encoding="utf-8")
     monkeypatch.setattr(tool, "COVER_SOURCE", tool.ROOT / tool.COVER_SOURCE)
-    monkeypatch.setattr(tool, "ROOT", Path("/"))
+    monkeypatch.setattr(tool, "ROOT", Path(tool.ROOT.anchor))
     problems = tool.check(["en"])
     assert any("spacr.md is missing" in problem for problem in problems)
     assert any("model-zoo.md is stale" in problem for problem in problems)

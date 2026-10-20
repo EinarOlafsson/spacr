@@ -293,6 +293,7 @@ def test_a_plugin_that_offers_the_same_model_twice_adds_it_once(monkeypatch):
 # fetch: cleaning up something that is already gone
 # --------------------------------------------------------------------------
 
+@pytest.mark.posix_only
 def test_a_download_whose_scratch_file_vanished_still_reports_the_download(
         tmp_path):
     """The cleanup after a failed fetch is not the story -- the failure is. A

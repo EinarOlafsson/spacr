@@ -19,6 +19,7 @@ of them may be silent about what the record now omits.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 from datetime import datetime, timedelta, timezone
@@ -27,6 +28,7 @@ from pathlib import Path
 import pytest
 
 from spacr import run_journal as RJ
+from tests.refused_access import refused
 
 
 @pytest.fixture
@@ -298,13 +300,11 @@ def test_a_changed_input_that_cannot_be_read_is_left_out_of_the_manifest(
         "src_file": str(readable),
         "model_path": str(sealed),
     }
-    try:
+    with contextlib.ExitStack() as unsealing:
         with RJ.open_run("mask", settings) as run:
             readable.write_bytes(b"r" * 4096)
             sealed.write_bytes(b"s" * 4096)
-            os.chmod(sealed, 0o000)
-    finally:
-        os.chmod(sealed, 0o600)
+            unsealing.enter_context(refused(sealed, 0o000, windows="read"))
 
     outputs = {Path(key).name for key in run.output_hashes}
     assert "readable.tif" in outputs, (

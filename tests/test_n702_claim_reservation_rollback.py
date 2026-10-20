@@ -41,7 +41,8 @@ def test_failed_replace_removes_own_reservation_and_retains_original_error(
     assert list(root.iterdir()) == []
 
 
-@pytest.mark.parametrize("foreign", ["regular", "dangling-link"])
+@pytest.mark.parametrize("foreign", [
+    "regular", pytest.param("dangling-link", marks=pytest.mark.needs_symlink)])
 def test_failed_fetch_never_removes_foreign_replacement(
         tmp_path, monkeypatch, foreign):
     root = tmp_path / "models"

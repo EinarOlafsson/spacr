@@ -612,6 +612,14 @@ def test_cancel_stops_the_command_and_what_it_started(tmp_path):
     child = int(marker.read_text(encoding="utf-8"))
     deadline = time.monotonic() + 10
     while time.monotonic() < deadline:
+        if os.name == "nt":
+            # os.kill(pid, 0) is TerminateProcess on Windows, not a probe.
+            import psutil
+
+            if not psutil.pid_exists(child):
+                break
+            time.sleep(0.1)
+            continue
         try:
             os.kill(child, 0)
         except ProcessLookupError:
@@ -1795,7 +1803,7 @@ def test_nearest_existing_climbs_to_a_folder_that_is_there(tmp_path,
                                                          monkeypatch):
     assert SB._nearest_existing(str(tmp_path / "a" / "b")) == str(tmp_path)
     monkeypatch.setattr(SB.os.path, "exists", lambda path: False)
-    assert SB._nearest_existing("/no/drive") == "/"
+    assert SB._nearest_existing("/no/drive") == os.path.abspath("/")
 
 
 def test_under_cellpose3_an_objects_model_name_is_read_as_it_was_written(

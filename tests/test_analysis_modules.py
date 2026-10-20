@@ -8,6 +8,8 @@ point is importable and callable.
 """
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -97,7 +99,7 @@ def test_ml_create_volcano_filename_quantile_uses_alpha():
         regression_type="quantile", alpha=0.25, dst="/tmp/dst",
     )
     assert "0.25" in out
-    assert out.startswith("/tmp/dst/")
+    assert out.startswith(os.path.join("/tmp/dst", ""))
 
 
 def test_ml_apply_transformation_returns_transformer():

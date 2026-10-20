@@ -631,6 +631,7 @@ def test_images_that_match_the_pattern_but_cannot_be_read_stay_put(tmp_path):
     assert "could not be opened" in message
 
 
+@pytest.mark.posix_only
 def test_stacks_and_archives_get_the_mode_any_new_file_gets(plate):
     """numpy.save onto the final name gave the umask's mode (0644 under
     umask 022); tempfile.mkstemp would give 0600, which a shared cluster

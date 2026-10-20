@@ -28,6 +28,7 @@ import glob
 import json
 import os
 import random
+import re
 import shutil
 import sqlite3
 import tarfile
@@ -156,11 +157,12 @@ def _point_png_list_at(project):
         rows = conn.execute("SELECT png_path FROM png_list").fetchall()
         if not rows:
             return
-        marker = os.sep + "data" + os.sep
         first = rows[0][0]
-        if marker not in first:
+        # Either separator: a Windows run records "/" as readily as "\\".
+        marker = re.search(r"[\\/]data[\\/]", first)
+        if marker is None:
             return
-        old_root = first.split(marker)[0]
+        old_root = first[:marker.start()]
         if os.path.abspath(old_root) == os.path.abspath(project):
             return
         conn.execute("UPDATE png_list SET png_path = ? || "

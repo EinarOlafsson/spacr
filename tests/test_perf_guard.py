@@ -68,7 +68,7 @@ HEAVY = ("spacr.utils", "torch", "cellpose", "tensorflow", "cv2", "tkinter",
 STARTUP_SCIENTIFIC = ("pandas", "scipy", "sklearn", "torch")
 
 _PREAMBLE = f"""
-import json, os, resource, sys, time
+import json, os, sys, time
 HEAVY = {HEAVY!r}
 
 
@@ -85,7 +85,13 @@ def report(**values):
         values["rss_mb"] = (
             resident_pages * os.sysconf("SC_PAGE_SIZE") / (1024.0 * 1024.0)
         )
+    elif sys.platform == "win32":
+        # No resource module; the working set is this process's current RSS,
+        # the same quantity the Linux branch reads.
+        import psutil
+        values["rss_mb"] = psutil.Process().memory_info().rss / (1024.0 * 1024.0)
     else:
+        import resource
         values["rss_mb"] = (
             resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
             / (1024.0 * 1024.0 if sys.platform == "darwin" else 1024.0)

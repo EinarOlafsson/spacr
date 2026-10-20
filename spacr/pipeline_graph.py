@@ -154,7 +154,7 @@ class Node:
     @property
     def label(self) -> str:
         """Short two-line-able label: the module and what it produced."""
-        name = os.path.basename(self.path.rstrip(os.sep)) or self.path
+        name = os.path.basename(self.path.rstrip(os.sep + (os.altsep or ""))) or self.path
         return f"{self.module}: {name}"
 
     def to_dict(self) -> Dict[str, Any]:
@@ -733,8 +733,8 @@ def to_dot(graph: PipelineGraph) -> str:
     colours = {STATE_CURRENT: "#d9ead3", STATE_STALE: "#fce5cd",
                STATE_MISSING: "#f4cccc"}
     for node in graph.nodes:
-        label = (f"{node.module}\\n{node.kind}\\n"
-                 f"{os.path.basename(node.path.rstrip(os.sep)) or node.path}")
+        name = os.path.basename(node.path.rstrip(os.sep + (os.altsep or ""))) or node.path
+        label = f"{node.module}\\n{node.kind}\\n{name}"
         lines.append(
             f'  "{node.artifact_id}" [label="{label}", '
             f'fillcolor="{colours.get(node.state, "#ffffff")}"];')

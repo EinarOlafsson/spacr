@@ -85,7 +85,7 @@ def test_a_column_that_is_not_there_is_not_an_error():
 def test_the_root_of_a_database_is_the_plate_folder_that_holds_data():
     got = source_root_for_database("/screens/plate1/measurements/measurements.db")
 
-    assert got == "/screens/plate1"
+    assert got == os.path.abspath("/screens/plate1")
 
 
 def test_no_root_means_no_rewrite():

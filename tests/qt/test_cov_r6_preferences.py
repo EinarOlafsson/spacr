@@ -21,6 +21,8 @@ them, in the file that would have to change first if any of them came back.
 """
 from __future__ import annotations
 
+import os
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -38,7 +40,7 @@ def store(qapp, tmp_path, monkeypatch):
     settings = QSettings(str(tmp_path / "spacr-qt.ini"), QSettings.IniFormat)
     monkeypatch.setattr(prefs, "_settings", lambda: settings)
     monkeypatch.setattr(prefs, "_SAFE_MODE", False)
-    assert str(tmp_path) in prefs._settings().fileName()
+    assert str(tmp_path) in os.path.normpath(prefs._settings().fileName())
     return settings
 
 

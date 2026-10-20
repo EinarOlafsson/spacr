@@ -15,12 +15,14 @@ from dataclasses import fields
 import json
 import os
 from pathlib import Path
+import re
 
 import numpy as np
 import pandas as pd
 import pytest
 
 from spacr import classifier_evaluation as ce
+from tests.refused_access import refused
 from spacr.classifier_evaluation import (
     EVALUATION_FILES,
     LeakageError,
@@ -238,11 +240,8 @@ def test_a_file_that_cannot_be_read_is_reported_with_its_error(tmp_path):
     escape would abort the whole audit over one bad permission bit."""
     blocked = tmp_path / "blocked.png"
     blocked.write_bytes(b"pixels")
-    blocked.chmod(0o000)
-    try:
+    with refused(blocked, 0o000, windows="read"):
         digest, error = ce._content_sha256(blocked)
-    finally:
-        blocked.chmod(0o600)
     assert digest == ""
     assert "PermissionError" in error
 
@@ -601,7 +600,7 @@ def test_any_other_file_in_a_bundle_points_at_its_folder(tmp_path):
 def test_a_missing_evaluation_source_names_the_path(tmp_path):
     missing = tmp_path / "missing"
 
-    with pytest.raises(FileNotFoundError, match=str(missing)):
+    with pytest.raises(FileNotFoundError, match=re.escape(str(missing))):
         find_evaluation_bundles(missing)
 
 

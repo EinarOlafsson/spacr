@@ -26,6 +26,8 @@ somebody moves it into the per-notch pass.
 """
 from __future__ import annotations
 
+import os
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -62,7 +64,7 @@ def _isolated_qsettings(monkeypatch, tmp_path):
     """Never write the developer's real font scale. The settle persists it."""
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
     monkeypatch.setattr(prefs, "_settings", lambda: store)
-    assert str(tmp_path) in store.fileName(), (
+    assert str(tmp_path) in os.path.normpath(store.fileName()), (
         "QSettings isolation failed; refusing to write real preferences")
     prefs.set_font_scale(1.0)
     return store

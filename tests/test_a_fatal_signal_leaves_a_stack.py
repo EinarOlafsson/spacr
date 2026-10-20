@@ -71,5 +71,7 @@ def test_a_real_segfault_lands_in_the_file(tmp_path):
     dump = tmp_path / "spacr-crash.log"
     assert dump.exists()
     text = dump.read_text(encoding="utf-8")
-    assert "Fatal Python error" in text
+    # faulthandler heads a Windows access violation with its own banner.
+    assert ("Windows fatal exception: access violation" if os.name == "nt"
+            else "Fatal Python error") in text
     assert "ctypes" in text, "the stack must name the frame that died"

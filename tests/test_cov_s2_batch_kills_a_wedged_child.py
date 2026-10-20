@@ -43,6 +43,7 @@ def _deaf_child(ready_path):
     """)]
 
 
+@pytest.mark.posix_only
 def test_a_child_that_ignores_sigterm_is_killed_after_the_grace_period(
         tmp_path, monkeypatch):
     """SIGTERM, five seconds, then SIGKILL -- and the queue is free again."""

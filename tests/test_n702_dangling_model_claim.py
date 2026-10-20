@@ -13,6 +13,7 @@ from spacr import model_zoo as zoo
     ("m.CP_model", ["m.CP_model", "m_v2.CP_model"], "m_v3.CP_model"),
     ("m", ["m", "m_v2"], "m_v3"),
 ])
+@pytest.mark.needs_symlink
 def test_version_allocation_steps_over_dangling_checkpoint_links(
         tmp_path, requested, occupied, expected):
     for name in occupied:
@@ -25,6 +26,7 @@ def test_version_allocation_steps_over_dangling_checkpoint_links(
 
 
 @pytest.mark.parametrize("boundary", ["claim", "fetch"])
+@pytest.mark.needs_symlink
 def test_native_exclusive_claim_is_bounded_and_preserves_dangling_link(
         tmp_path, monkeypatch, boundary):
     dest = tmp_path / "models"

@@ -165,7 +165,7 @@ def test_state_that_json_cannot_hold_becomes_text_rather_than_failing():
     out = _jsonable({"colour": Opaque(), "path": Path("/tmp/x"),
                      "seen": {3, 1, 2}, "pair": (1, 2)})
     assert out["colour"] == "<a QColor>"
-    assert out["path"] == "/tmp/x"
+    assert out["path"] == str(Path("/tmp/x"))
     assert out["seen"] == [1, 2, 3]
     assert out["pair"] == [1, 2]
     json.dumps(out)          # the point of the exercise

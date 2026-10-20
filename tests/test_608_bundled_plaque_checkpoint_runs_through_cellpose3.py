@@ -8,6 +8,7 @@ it the refusal is a sentence saying what to do. Cellpose itself is faked.
 """
 from __future__ import annotations
 
+import os
 from types import SimpleNamespace
 
 import numpy as np
@@ -78,7 +79,7 @@ def test_the_bundled_checkpoint_segments_through_the_cellpose3_backend(
     assert isinstance(model, SUB._Cellpose3PlaqueModel)
     backend = model._backend
     assert backend.name == SB._CELLPOSE3
-    assert backend.model == "/m/old.CP_model"
+    assert backend.model == os.path.abspath("/m/old.CP_model")
     rgb = np.zeros((20, 30, 3), np.uint8)
     rgb[..., 0] = 30
     labels, flows, styles = model.eval(rgb, channel_axis=-1, diameter=40,
