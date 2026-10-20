@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-78c-t17/release-candidate-append-ke6k886g",
-  "manifest_sha256": "428e76d8496c790d07c1a14434577c989f89c95b118fb5169e6e7b006f96bf6c",
+  "private_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-82-t17/release-candidate-append-2uygzeyi",
+  "manifest_sha256": "f9c86b5798865c09954e3542e2145dfa27c3523bcad26636b645019d892e406c",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -259,8 +259,8 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "0ed87a886491a56a6813f73bae366a9e845d4082dd0bf5088a93b95afdb77473",
-      "bytes": 15677
+      "sha256": "b6169f103a925499b2544375518c72c6b22f7549edbb9ca6637e9a333485d865",
+      "bytes": 15665
     },
     {
       "path": "web/lesson_catalog.js",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "78c50e2257a5a30451b17ac7715d89a55300df4422823e031f5c8af4648a2e7b",
+      "sha256": "92586aeac7e008dd9d75efa2a0ecb41a9d87f37e1c5c760e9b891c0590badf10",
       "bytes": 17171
     },
     {
@@ -679,8 +679,8 @@
     },
     {
       "path": "web/production/82_toxoplasma/poster.jpg",
-      "sha256": "cc9c98942ed575e1f9091fab7dc14358aa0511cb0d1cd95ee3773f22bab92ee5",
-      "bytes": 1188374
+      "sha256": "15e1b3515589b9a424f7795400a64576da4a0934a98b6414ad6e6f138727e26d",
+      "bytes": 787601
     },
     {
       "path": "web/production/85_host_pathogen/poster.jpg",
@@ -714,13 +714,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "428e76d8496c790d07c1a14434577c989f89c95b118fb5169e6e7b006f96bf6c",
-      "bytes": 1295304
+      "sha256": "f9c86b5798865c09954e3542e2145dfa27c3523bcad26636b645019d892e406c",
+      "bytes": 1295295
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "d0b410cf405baf8e4b9cba5f4f2b32e0839a98e0357c35fe4d9e088f570db3d7",
-      "bytes": 127551
+      "sha256": "f46371af1c52f010480b482a9259e5809e3a6f96b4ee89683407b11bf65436b6",
+      "bytes": 127560
     },
     {
       "path": "placeholder-mutation-checks.json",
@@ -737,10 +737,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "n676-ws-78-spacr-screens-20261020",
-    "tag": "n676-ws-78-spacr-screens-20261020-verified",
-    "commit": "af7bb6f5aa7bf10b314864a2828040cecbc70118",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/af7bb6f5aa7bf10b314864a2828040cecbc70118"
+    "branch": "n676-ws-82-toxoplasma-20261020",
+    "tag": "n676-ws-82-toxoplasma-20261020-verified",
+    "commit": "9c2077bf37153f2d0f221874026137b29d6726d8",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9c2077bf37153f2d0f221874026137b29d6726d8"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }
