@@ -63,6 +63,7 @@ def clustered():
 # what hardware answered
 # ---------------------------------------------------------------------------
 
+@pytest.mark.posix_only
 def test_free_memory_on_a_device_that_cannot_be_asked_reads_as_zero(
         monkeypatch):
     """Zero means "no budget can be proved", which blocks the large-fit check."""

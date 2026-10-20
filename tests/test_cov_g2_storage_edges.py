@@ -163,6 +163,7 @@ def test_tree_stats_skips_a_file_removed_during_the_scan(tmp_path,
     assert size >= 4
 
 
+@pytest.mark.needs_symlink
 def test_clear_logs_refuses_a_file_replaced_by_a_link(home, tmp_path):  # noqa: F811
     """A plan cannot follow a changed log path outside spaCR's folder."""
     logs = Path(os.environ["SPACR_LOG_DIR"])

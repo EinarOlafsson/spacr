@@ -96,6 +96,7 @@ def test_a_flattened_key_that_repeats_a_nested_one_is_offered_once(tmp_path):
 # walking a source tree
 # ---------------------------------------------------------------------------
 
+@pytest.mark.needs_symlink
 def test_a_symlinked_file_in_a_source_folder_is_not_hashed(runs_dir, tmp_path):
     """``followlinks=False`` is only half the protection.
 
