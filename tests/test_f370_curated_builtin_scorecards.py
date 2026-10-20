@@ -129,3 +129,15 @@ def test_verified_copy_preserves_bound_card_and_generic_identity_equality():
     assert verified._curated_card and "Boundary F1 (2 px)" in verified.describe()
     assert bound == zoo._entry_from_mapping(raw)
     assert "_curated_card" not in repr(bound)
+
+
+def test_every_pinned_digest_is_of_the_committed_lf_bytes():
+    """Line-ending normalisation is a no-op where the checkout keeps LF: every pin is of the raw file."""
+    import hashlib
+
+    for key, binding in zoo._CURATED_SCORECARD_BINDINGS.items():
+        raw = (model_cards._CARD_DIR / binding["resource"]).read_bytes()
+        normalised = raw.replace(b"\r\n", b"\n")
+        assert hashlib.sha256(normalised).hexdigest() == binding["resource_sha256"], key
+        if b"\r" not in raw:
+            assert hashlib.sha256(raw).hexdigest() == binding["resource_sha256"], key
