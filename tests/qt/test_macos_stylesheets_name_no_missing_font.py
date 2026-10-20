@@ -30,4 +30,5 @@ def test_the_ai_usage_row_is_transparent_like_the_usage_bar_row():
     rule = sheet[sheet.index("QWidget#CardBody, QWidget#UsageBarRow"):]
     rule = rule[:rule.index("}")]
     assert "QWidget#AiUsageRow" in rule and "QLabel#AiUsageText" in rule
+    assert "QWidget#ActionStatusRow" in rule, "the black row under Run and Stop"
     assert "background: transparent" in rule
