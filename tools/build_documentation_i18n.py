@@ -5936,6 +5936,143 @@ def reusable_api_translations(
     return reusable
 
 
+API_MEMORY_GROUP = "api_memory"
+ASSEMBLED_STAMP = STATIC_API_DIR.parent / ".api-assembled.json"
+
+
+def _media_tool():
+    """The pinned-media fetcher, loaded from its file beside this one."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "fetch_docs_media", Path(__file__).resolve().parent / "fetch_docs_media.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def assemble_api_catalog(docs: Mapping[str, str], language: str) -> dict[str, object]:
+    """Build one locale's API catalog from translation memory and reviews.
+
+    No model runs. The memory is the catalog the last translation run
+    wrote (item 710: kept at a pinned Hugging Face revision rather than in
+    git, and placed at ``API_DIR`` by :func:`assemble_api_catalogs`). Every
+    entry whose sources are unchanged gets the accepted reviewed blocks
+    exactly as a translation run would apply them; an entry whose English
+    has moved keeps its old record, so the site keeps falling back to
+    English for it; a symbol the package no longer documents is dropped.
+
+    :param docs: the current English docstrings.
+    :param language: the locale.
+    :returns: the catalog payload.
+    """
+    memory = json.loads((API_DIR / f"{language}.json").read_text(encoding="utf-8"))
+    if memory.get("schema") != 2 or memory.get("language") != language:
+        raise ValueError(f"invalid API translation memory for {language}")
+    reusable = reusable_api_translations(docs, language)
+    overlaid = _reviewed_api_overlay(docs, reusable, language)
+    old = memory.get("symbols", {})
+    symbols: dict[str, dict[str, object]] = {}
+    for key, source in docs.items():
+        if key in API_DOC_ALIASES:
+            continue
+        if key in overlaid:
+            symbols[key] = {
+                "source_sha256": _source_hash(source),
+                "source_blocks_sha256": _source_block_hashes(source),
+                "translation_source_blocks_sha256":
+                    _translation_source_block_hashes(source),
+                "text": overlaid[key],
+            }
+        elif key in old:
+            symbols[key] = old[key]
+    _materialize_alias_records(docs, symbols)
+    if language == "zh_CN":
+        traditional = [key for key, record in symbols.items()
+                       if key in overlaid and _has_traditional_chinese_prose(str(record["text"]))]
+        if traditional:
+            raise ValueError("zh_CN API output is not OpenCC t2s-normalized: "
+                             + ", ".join(traditional[:5]))
+    return {**{k: v for k, v in memory.items() if k != "symbols"}, "symbols": symbols}
+
+
+def _assemble_one(item: tuple[Mapping[str, str], str]) -> str:
+    docs, language = item
+    _write_json(API_DIR / f"{language}.json", assemble_api_catalog(docs, language))
+    return language
+
+
+def _assembly_inputs(docs: Mapping[str, str], languages: Iterable[str]) -> str:
+    """A digest of everything the assembled catalogs are built from."""
+    digest = hashlib.sha256()
+    pin = ROOT / "docs" / "media_revision.json"
+    group = json.loads(pin.read_text(encoding="utf-8"))["groups"][API_MEMORY_GROUP]
+    digest.update(json.dumps(group, sort_keys=True).encode("utf-8"))
+    digest.update(json.dumps(sorted(languages)).encode("utf-8"))
+    digest.update(json.dumps(dict(sorted(docs.items())), ensure_ascii=False).encode("utf-8"))
+    for path in sorted(REVIEWED_API_DIR.glob("*/*.json")):
+        digest.update(path.relative_to(REVIEWED_API_DIR).as_posix().encode("utf-8"))
+        digest.update(hashlib.sha256(path.read_bytes()).digest())
+    digest.update(hashlib.sha256(Path(__file__).read_bytes()).digest())
+    return digest.hexdigest()
+
+
+def assemble_api_catalogs(
+    languages: Iterable[str] = tuple(MODEL_SPECS), docs: Mapping[str, str] | None = None,
+    *, jobs: int | None = None, if_stale: bool = False,
+) -> bool:
+    """Write every API catalog and the English manifest without a model.
+
+    The one command a local docs build and the docs workflow run::
+
+        python tools/build_documentation_i18n.py --assemble
+
+    It fetches the pinned translation memory (``docs/media_revision.json``,
+    group ``api_memory``), checks its hashes, applies the committed reviewed
+    records (:func:`assemble_api_catalog`) and writes ``en.json`` as
+    ``--sources-only`` does. A translation run still writes the catalogs
+    itself; ``python tools/fetch_docs_media.py publish --group api_memory``
+    then uploads them as the new memory and moves the pin.
+
+    :param languages: the locales to assemble.
+    :param docs: the English docstrings; read from the source when omitted.
+    :param jobs: worker processes; one per locale up to the CPU count by
+        default on Linux, one elsewhere.
+    :param if_stale: skip the work when the catalogs on disk were assembled
+        from exactly the same inputs.
+    :returns: True when the catalogs were written.
+    """
+    import os
+
+    languages = list(languages)
+    docs = dict(public_docstrings() if docs is None else docs)
+    inputs = _assembly_inputs(docs, languages)
+    if if_stale and ASSEMBLED_STAMP.is_file():
+        try:
+            if json.loads(ASSEMBLED_STAMP.read_text(encoding="utf-8")).get("inputs") == inputs and all(
+                    (API_DIR / f"{language}.json").is_file() for language in [*languages, "en"]):
+                return False
+        except (OSError, ValueError):
+            pass
+    media = _media_tool()
+    media.fetch(API_MEMORY_GROUP, ROOT)
+    if jobs is None:
+        jobs = min(len(languages), os.cpu_count() or 1) if sys.platform.startswith("linux") else 1
+    work = [(docs, language) for language in languages]
+    if jobs > 1:
+        import multiprocessing
+        from concurrent.futures import ProcessPoolExecutor
+
+        with ProcessPoolExecutor(jobs, mp_context=multiprocessing.get_context("fork")) as pool:
+            list(pool.map(_assemble_one, work))
+    else:
+        for item in work:
+            _assemble_one(item)
+    _write_english_api_manifest(docs)
+    _write_json(ASSEMBLED_STAMP, {"inputs": inputs, "languages": sorted(languages)})
+    return True
+
+
 def reviewed_api_block_translations(
     docs: Mapping[str, str], language: str,
 ) -> dict[str, str]:
@@ -7001,6 +7138,11 @@ def main() -> int:
               f"or set {MODEL_ROOT_ENV}"),
     )
     parser.add_argument("--sources-only", action="store_true")
+    parser.add_argument(
+        "--assemble", action="store_true",
+        help=("build the API catalogs from the pinned translation memory and "
+              "the reviewed records, with no model; the docs build runs this"),
+    )
     audit_mode = parser.add_mutually_exclusive_group()
     audit_mode.add_argument("--audit", action="store_true")
     audit_mode.add_argument(
@@ -7045,7 +7187,13 @@ def main() -> int:
     if args.audit or args.audit_english:
         return audit(docs, () if args.audit_english else args.languages)
 
+    if args.assemble:
+        assemble_api_catalogs(args.languages, docs)
+        print(f"assembled API catalogs: {', '.join(args.languages)}; symbols={len(docs)}")
+        return 0
     if args.sources_only:
+        if any(not (API_DIR / f"{language}.json").is_file() for language in MODEL_SPECS):
+            assemble_api_catalogs(tuple(MODEL_SPECS), docs, if_stale=True)
         _write_english_api_manifest(docs)
         print(f"wrote English API manifest: symbols={len(docs)}")
         return 0

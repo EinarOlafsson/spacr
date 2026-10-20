@@ -2,8 +2,8 @@
 SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI
 ================================================================================
 
-Status:    in progress — phases 1-2 and the phase 3 deck done; API
-           catalogs (after 678 batch 4), WS tutorial media and phase 4 remain.
+Status:    in progress — phases 1-2, the phase 3 deck and API catalogs
+           done; WS tutorial media and phase 4 remain.
 Requested: maintainer, 2026-10-18 (question tool, main session). Approved
            steps: "Move features/data to HF", "Move tutorial media + deck
            renders", "Build generated catalogs in CI", "Rewrite history
@@ -113,24 +113,23 @@ budget, test_tutorial_release_audit, test_alpha_deck_registry,
 test_spacr_logo, 14 tools/tutorials/tests) read through the same fetcher,
 cached under ~/.cache, and fail rather than skip when the pin is unfetched.
 
-PHASE 3c — API i18n catalogs built in CI (Home)
-The ten docs/source/_static/i18n/api/*.json are both output and translation
-memory: reusable_api_translations() reads the committed catalog to avoid
-re-running opus-mt/madlad, so they cannot simply be regenerated in CI.
-Plan: store translation memory as text keyed by source hash (60% of each
-catalog is derivable hashes) in the HF dataset einarolafsson/spacr-tutorials
-under i18n/api/, pinned in docs/i18n/api_memory.json; build_documentation_i18n
-gains --assemble (no model: English docstrings + memory + docs/i18n/reviewed
-overlays -> catalogs) used by docs.yml after --sources-only; translation runs
-on Home/WS upload new memory and bump the pin. Tests reading committed
-catalogs change to an api_catalog(language) fixture that assembles them:
-test_built_nested_helper_api (3 reads), test_english_documentation_
-publication (en.json byte comparison), test_example_pack_published_
-translations, test_mask_filter_api_translations, test_n702_resolution_
-localized_consumers, test_documentation_i18n (direct reads), test_docs_
-channels; tools publish_docs_channels, report_translation_compatibility,
-build_help_search_index read the assembled output. Tests that monkeypatch
-API_DIR to tmp_path are unchanged.
+PHASE 3c — API i18n catalogs built in CI (Home, done 2026-10-20)
+The ten docs/source/_static/i18n/api/*.json (181,774,852 bytes) are no longer
+committed. Only ~45% of translated blocks have reviewed records (sv: 22,616
+of 50,604), so the model output is kept as translation memory: the nine
+locale catalogs, whole, in einarolafsson/spacr-tutorials i18n/api/, pinned
+with sha256 in docs/media_revision.json (group api_memory).
+`python tools/build_documentation_i18n.py --assemble` fetches the memory,
+applies the committed reviewed records, keeps stale records, drops deleted
+symbols and writes en.json; it reproduced all ten committed catalogs and
+api_source_history.json byte for byte. docs.yml runs it before
+--sources-only; a local docs build runs the same command (CONTRIBUTING).
+A translation run still writes the catalogs, then `python
+tools/fetch_docs_media.py publish --group api_memory` uploads them and moves
+the pin. Tests that read the real catalogs use the session fixture
+api_catalogs (tests/conftest.py), which assembles once per set of inputs and
+fails when the memory cannot be fetched. spacr/qt/i18n_catalogs and
+spacr/qt/help_api_index.py stay committed (the app and the wheel read them).
 
 PHASE 4 — history rewrite (Home, after phases 2-3 are on main and nightly)
 Measured on /mnt/wd4tb/scratch/repo-slim/rewrite.git (bare clone of the
@@ -178,9 +177,9 @@ Coordination checklist:
 - Documentation links to raw.githubusercontent paths under features/data or
   _extra/tutorials switch to HF URLs before the rewrite.
 
-2026-10-18 — Registered (bdc360004). Inventory, secret/PII scan, HF staging and mirror rewrite measured (11.26 GiB -> 1.19 GiB approved paths, 744 MiB with deleted folders).
-2026-10-18 — Keep-list validated in a throwaway clone (same 4 pre-existing failures plus the README size test); private HF dataset einarolafsson/spacr-evidence uploaded and verified (a9971ff7634d); maintainer approved purging the eight already-deleted folders (744 MiB measured).
+2026-10-18 — Registered (bdc360004): inventory, secret/PII scan, keep-list validated in a throwaway clone, private HF dataset einarolafsson/spacr-evidence uploaded and verified (a9971ff7634d); maintainer approved purging the eight already-deleted folders.
 2026-10-20 — Phase 2: keep-list re-derived on 850c2e30a3 (same 73 files, kept in place); 33 changed n676 files uploaded (spacr-evidence 1f6fb59e90cd); 22,797 files (4,097,622,132 bytes) removed after hash check (5400e02335). README checkout size re-measured to 1178 MB (a95558196a).
 2026-10-20 — Phase 3 deck: spacr_deck.pdf and anim/ (69,793,628 bytes) pinned in docs/media_revision.json at spacr-tutorials 64ff46ea4409; tools/fetch_docs_media.py fetches/checks/publishes, docs.yml fetches before Sphinx, deck builder --publish and refresh_alpha_deck bump the pin. Remaining: API catalogs, WS tutorial media, phase 4.
 
 2026-10-20 — Phase 4 purge list corrected to spare the 73 kept features/data files, the in-git deck and tools/readme_deck/images; mirror re-measure 971 MiB pack, 678 MB tree. Maintainer accepted clone <= 1.0 GiB and tree <= 700 MB with the deck pictures in git. Rewrite waits for the maintainer's go and a coordinated re-clone.
+2026-10-20 — Phase 3 API catalogs: catalogs (181,774,852 bytes) leave git; memory pinned at spacr-tutorials 958fe3e95328 (after 678 batch 5); --assemble in docs.yml and the api_catalogs test fixture; README checkout size 958 MB. Remaining: WS tutorial media, phase 4 on the maintainer's go.

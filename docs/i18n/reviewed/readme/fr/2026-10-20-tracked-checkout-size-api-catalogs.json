@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_method": "AI technical numeric maintenance; no human or native-speaker signoff. Only the tracked-checkout size changed after item 710 moved the generated API catalogs out of git; existing reviewed wording/markup, the measurement date and historical transport measurements remain identical. Size is rounded Git blob bytes / 1048576 under the existing MB label (958.2 MB).",
+  "records": [
+    {
+      "label": "tracked-checkout-size-2026-10-20-api-catalogs",
+      "source_sha256": "789faa2e151fe0b1cf7227a3e7ba5d426ce35b1b3e1beb3f74883b4f4fa066b1",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 958 MB checkout (measured 2026-10-20), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de nightly occupent 958 MB dans la copie de travail (mesurés le 2026-10-20), hors historique Git. La taille et la durée du téléchargement varient selon la branche."
+    }
+  ]
+}

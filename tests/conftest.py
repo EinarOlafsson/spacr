@@ -3182,3 +3182,27 @@ def _the_flowview_collector_is_put_back():
         give_back_an_untraced_process(after)
         return
     restore_flowview_trace_to(after, snapshot)
+
+
+@pytest.fixture(scope="session")
+def api_catalogs():
+    """The API catalogs, assembled for this session (item 710).
+
+    They are no longer committed: ``tools/build_documentation_i18n.py
+    --assemble`` builds them from the pinned translation memory and the
+    reviewed records, and a test that reads the real catalogs reads that
+    build. Assembled once per set of inputs and reused while the inputs are
+    unchanged; a lock keeps parallel workers from building it twice. A
+    memory that cannot be fetched fails the test rather than skipping it.
+    """
+    from filelock import FileLock
+
+    tools = str(Path(__file__).resolve().parents[1] / "tools")
+    if tools not in sys.path:
+        sys.path.insert(0, tools)
+    import build_documentation_i18n as builder
+
+    builder.STATIC_API_DIR.mkdir(parents=True, exist_ok=True)
+    with FileLock(str(builder.STATIC_API_DIR.parent / ".api-assemble.lock")):
+        builder.assemble_api_catalogs(if_stale=True)
+    return builder.STATIC_API_DIR

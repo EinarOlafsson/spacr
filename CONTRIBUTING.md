@@ -115,8 +115,19 @@ Two steps that are easy to miss and both turn CI red:
 
 1. Add it to `spacr/__init__.py::_SUBMODULES`, or every compatibility-matrix
    cell fails on `test_smoke.py::test_lazy_loader_matches_files`.
-2. Run `python tools/build_documentation_i18n.py --sources-only`, which writes
-   only `en.json`, or the docs job goes red.
+2. Give it docstrings the API catalogs can carry. The catalogs are not
+   committed: the docs job builds them, and so does the one command a local
+   docs build needs first:
+
+       python tools/build_documentation_i18n.py --assemble
+
+   It fetches the pinned translation memory named in
+   `docs/media_revision.json`, applies the reviewed records under
+   `docs/i18n/reviewed/api/` and writes every catalog and `en.json` under
+   `docs/source/_static/i18n/api/`, with no translation model. After a
+   translation run, `python tools/fetch_docs_media.py publish --group
+   api_memory` uploads the new catalogs as the memory and moves the pin;
+   commit the pin.
 
 ## Docstrings and settings
 

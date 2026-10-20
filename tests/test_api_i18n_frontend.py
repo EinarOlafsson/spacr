@@ -22,6 +22,9 @@ from urllib.parse import urlsplit
 
 import pytest
 
+#: Item 710: the API catalogs are assembled for the session, not committed.
+pytestmark = pytest.mark.usefixtures("api_catalogs")
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "docs" / "source" / "_static" / "api_i18n.js"
 CONF = ROOT / "docs" / "source" / "conf.py"

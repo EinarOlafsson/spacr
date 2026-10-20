@@ -188,6 +188,11 @@ jobs:
             HOME="$reference_home" XDG_CONFIG_HOME="$reference_home/config" \
               tools/run_capped.sh 4G python tools/build_make_masks_reference.py
           fi
+      - name: Assemble the API catalogs from the pinned translation memory
+        run: |
+          if grep -q '"api_memory"' docs/media_revision.json 2>/dev/null; then
+            tools/run_capped.sh 12G python tools/build_documentation_i18n.py --assemble
+          fi
       - name: Refresh English manifests from the pinned branch
         run: |
           tools/run_capped.sh 4G python tools/build_documentation_i18n.py --sources-only

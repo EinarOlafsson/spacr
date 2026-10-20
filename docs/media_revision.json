@@ -22,6 +22,58 @@
      "size": 3781193
     }
    }
+  },
+  "api_memory": {
+   "repo": "einarolafsson/spacr-tutorials",
+   "repo_type": "dataset",
+   "revision": "958fe3e9532803cf8a1a600c0682ebec0867f6bc",
+   "files": {
+    "docs/source/_static/i18n/api/de.json": {
+     "path_in_repo": "i18n/api/de.json",
+     "sha256": "d72954985212bb49ddd5f1d1c563335ab96b81fb49b22aa33da4fb41d4b1a451",
+     "size": 18342770
+    },
+    "docs/source/_static/i18n/api/es.json": {
+     "path_in_repo": "i18n/api/es.json",
+     "sha256": "62ca120eadddc416546c841b7ce4cdc8b3e549cf3d911e24561d77724bb9ac67",
+     "size": 18262099
+    },
+    "docs/source/_static/i18n/api/fr.json": {
+     "path_in_repo": "i18n/api/fr.json",
+     "sha256": "bf6e26e4697237b4e0be571526f863af9942d543081006631d729a849e78e988",
+     "size": 18476586
+    },
+    "docs/source/_static/i18n/api/hi.json": {
+     "path_in_repo": "i18n/api/hi.json",
+     "sha256": "822c777a4167770df4b13f8a8b65a8fa62cdd5069a6b5cf3232dfc34912b6441",
+     "size": 24839572
+    },
+    "docs/source/_static/i18n/api/is.json": {
+     "path_in_repo": "i18n/api/is.json",
+     "sha256": "b5399ca8157048fef73f601c1c0c2798fb076db37ff80f13f161df85d71fa7ab",
+     "size": 17675695
+    },
+    "docs/source/_static/i18n/api/ko.json": {
+     "path_in_repo": "i18n/api/ko.json",
+     "sha256": "d880725fa5566d6460aadd8f758ceb5fafa4f923f8ef2db2ccfa63e8b43fc065",
+     "size": 18571500
+    },
+    "docs/source/_static/i18n/api/pt.json": {
+     "path_in_repo": "i18n/api/pt.json",
+     "sha256": "a43aa1246edb3020227d6013019d1b70527fb8691a32c70db6985de188c3bfea",
+     "size": 18113797
+    },
+    "docs/source/_static/i18n/api/sv.json": {
+     "path_in_repo": "i18n/api/sv.json",
+     "sha256": "a3280d9c05a3070a72370e74fe8fcd164352f6f2e2795c7d4d1bc6bf180cbe18",
+     "size": 17784260
+    },
+    "docs/source/_static/i18n/api/zh_CN.json": {
+     "path_in_repo": "i18n/api/zh_CN.json",
+     "sha256": "8b20fed875c61ccb09537647b106bdd96fb8b61ff389893c31f1f9a56109a334",
+     "size": 16918144
+    }
+   }
   }
  }
 }

@@ -205,8 +205,6 @@ tutorial_colab.ipynb
 !/docs/source/_static/api_i18n.js
 !/docs/source/_static/workflow/
 !/docs/source/_static/workflow/**
-!/docs/source/_static/i18n/
-!/docs/source/_static/i18n/**
 !/docs/source/module_audit.rst
 !/docs/source/installers.rst
 !/docs/source/installer_guide.rst
@@ -294,3 +292,6 @@ docs/objects.inv
 # docs/media_revision.json pins (tools/fetch_docs_media.py, item 710).
 /docs/source/_static/deck/spacr_deck.pdf
 /docs/source/_static/deck/anim/
+# The API catalogs are assembled from the pinned translation memory and the
+# reviewed records (python tools/build_documentation_i18n.py --assemble).
+/docs/source/_static/i18n/

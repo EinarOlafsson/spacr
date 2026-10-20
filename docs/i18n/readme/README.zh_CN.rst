@@ -263,7 +263,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 1178 MB（2026-10-20 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 958 MB（2026-10-20 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
 
 .. raw:: html
 

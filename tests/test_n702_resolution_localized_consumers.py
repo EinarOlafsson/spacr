@@ -7,6 +7,9 @@ import urllib.request
 
 import pytest
 
+#: Item 710: the API catalogs are assembled for the session, not committed.
+pytestmark = pytest.mark.usefixtures("api_catalogs")
+
 from spacr import model_zoo as zoo
 from spacr import utils
 

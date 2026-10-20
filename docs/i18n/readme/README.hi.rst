@@ -263,7 +263,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-from-source-light-2.desktop.svg"><img src="../../readme_images/hi/install-from-source-light-2.svg" alt="nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में --filter=blob:none जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। nightly की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 1178 MB लेती हैं (2026-10-20 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"></picture></a></div>
+   <div><a href="../../readme_text/hi/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-from-source-light-2.desktop.svg"><img src="../../readme_images/hi/install-from-source-light-2.svg" alt="nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में --filter=blob:none जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। nightly की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 958 MB लेती हैं (2026-10-20 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"></picture></a></div>
 
 .. raw:: html
 

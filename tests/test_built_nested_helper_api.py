@@ -15,6 +15,9 @@ import zlib
 
 import pytest
 
+#: Item 710: the API catalogs are assembled for the session, not committed.
+pytestmark = pytest.mark.usefixtures("api_catalogs")
+
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))

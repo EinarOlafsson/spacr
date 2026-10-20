@@ -263,7 +263,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light-2.desktop.svg"><img src="../../readme_images/sv/install-from-source-light-2.svg" alt="Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till --filter=blob:none till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 1178 MB (uppmätt 2026-10-20), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."></picture></a></div>
+   <div><a href="../../readme_text/sv/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light-2.desktop.svg"><img src="../../readme_images/sv/install-from-source-light-2.svg" alt="Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till --filter=blob:none till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 958 MB (uppmätt 2026-10-20), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."></picture></a></div>
 
 .. raw:: html
 

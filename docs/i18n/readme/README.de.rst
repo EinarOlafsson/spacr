@@ -263,7 +263,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/install-from-source-light-2.desktop.svg"><img src="../../readme_images/de/install-from-source-light-2.svg" alt="Der vollständige nightly-Klon lud 9.25 GiB herunter. --filter=blob:none zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 1178 MB (gemessen am 2026-10-20), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab."></picture></a></div>
+   <div><a href="../../readme_text/de/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/install-from-source-light-2.desktop.svg"><img src="../../readme_images/de/install-from-source-light-2.svg" alt="Der vollständige nightly-Klon lud 9.25 GiB herunter. --filter=blob:none zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 958 MB (gemessen am 2026-10-20), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab."></picture></a></div>
 
 .. raw:: html
 
