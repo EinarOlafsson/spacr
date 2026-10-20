@@ -6,12 +6,15 @@ database had measurements/measurements.db appended again and was "not found". an
 file name with ``split('/')[-1]``, which returns a whole Windows path, so plate/well/field parsing broke.
 """
 import sqlite3
+import sys
 
 import pandas as pd
+import pytest
 
 from spacr import submodules, utils
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="a backslash path is only a real path on Windows")
 def test_count_phenotypes_accepts_a_backslash_database_path(tmp_path, monkeypatch):
     folder = tmp_path / "plate" / "measurements"
     folder.mkdir(parents=True)
