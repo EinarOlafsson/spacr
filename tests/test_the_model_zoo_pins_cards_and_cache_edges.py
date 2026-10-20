@@ -12,6 +12,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import threading
 from copy import deepcopy
 from types import SimpleNamespace
@@ -155,7 +156,7 @@ def test_a_pinned_download_that_left_no_file_is_refused(monkeypatch, tmp_path):
     raw = _raw()
     missing = tmp_path / raw["name"]
     monkeypatch.setattr(mz, "_ensure_catalogue_model_file", lambda *a, **k: str(missing))
-    with pytest.raises(mz.ModelZooError, match=str(missing)):
+    with pytest.raises(mz.ModelZooError, match=re.escape(str(missing))):
         mz._resolve_pinned_model_file(_pinned(raw), "cellpose_model", download=True)
     assert mz._resolve_pinned_model_file(_pinned(raw), "cellpose_model", download=False) == missing
 

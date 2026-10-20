@@ -6,6 +6,8 @@ uses against the scikit-image / Mahotas path that stays the default.
 """
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -222,7 +224,9 @@ def test_cucim_sees_sequential_labels_and_the_table_keeps_the_original_ones(monk
 def test_the_nvrtc_matching_the_cupy_wheel_is_loaded_first(monkeypatch, tmp_path):
     import ctypes
     import site
+    import sys
 
+    monkeypatch.setattr(sys, "platform", "linux")
     for name in ("libnvrtc.so.12", "libnvrtc.alt.so.12"):
         target = tmp_path / "nvidia" / "cuda_nvrtc" / "lib" / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -235,7 +239,8 @@ def test_the_nvrtc_matching_the_cupy_wheel_is_loaded_first(monkeypatch, tmp_path
     monkeypatch.setattr(ctypes, "CDLL", lambda path, mode=0: loaded.append(path))
     monkeypatch.setattr(M, "_cupy_wheel_cuda_major", lambda: 12)
     path = M._preload_matching_nvrtc()
-    assert loaded == [path] and path.endswith("cuda_nvrtc/lib/libnvrtc.so.12")
+    assert loaded == [path] and path.endswith(
+        os.path.join("cuda_nvrtc", "lib", "libnvrtc.so.12"))
     monkeypatch.setattr(M, "_cupy_wheel_cuda_major", lambda: None)
     assert M._preload_matching_nvrtc() is None
 
@@ -275,6 +280,7 @@ def test_measure_pool_spawns_workers_when_measure_gpu_is_on(monkeypatch):
     assert M._measure_pool_context({}) is mp
 
 
+@pytest.mark.posix_only
 def test_an_explicit_start_method_still_wins_over_measure_gpu(monkeypatch):
     from spacr import measure as M
     monkeypatch.setenv(M.START_METHOD_ENV_VAR, 'forkserver')

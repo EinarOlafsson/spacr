@@ -851,8 +851,8 @@ def _preload_matching_nvrtc():
     major = _cupy_wheel_cuda_major()
     if major is None:
         return None
-    layouts = (("cuda_nvrtc/lib", "cuda_runtime/include"),
-               (f"cu{major}/lib", f"cu{major}/include"))
+    layouts = ((os.path.join("cuda_nvrtc", "lib"), os.path.join("cuda_runtime", "include")),
+               (os.path.join(f"cu{major}", "lib"), os.path.join(f"cu{major}", "include")))
     roots = list(site.getsitepackages()) + [site.getusersitepackages()]
     for root in roots:
         for lib_dir, include_dir in layouts:
