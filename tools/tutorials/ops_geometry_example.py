@@ -138,7 +138,7 @@ def run(source, destination):
               'full_pipeline_completed': False, 'gui_pipeline_completed': False,
               'segmentation_or_decoding_performed': False, 'published': False,
               'artifacts': {p.name: digest(p) for p in sorted(destination.iterdir())}}
-    (destination / 'run.json').write_text(json.dumps(report, indent=2) + '\n', encoding="utf-8")
+    (destination / 'run.json').write_text(json.dumps(report, indent=2) + '\n')
     print('Saved exact arrays, actual figure, source hashes and independently checked overlaps.', flush=True)
     return report
 

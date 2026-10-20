@@ -28,7 +28,7 @@ def digest(path):
 
 
 def save(path, value):
-    Path(path).write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n', encoding="utf-8")
+    Path(path).write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n')
 
 
 def check_arrays(images, labels, expected):
@@ -84,7 +84,7 @@ def run(source, destination):
     if destination.is_relative_to(source):
         raise ValueError('Use a new destination outside the preserved source')
     manifest_path = source / 'source_manifest.json'
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest = json.loads(manifest_path.read_text())
     if (manifest.get('image_channel') != 1 or manifest.get('mask_plane') != 4
             or manifest.get('crop_size') != 512 or len(manifest.get('pairs', [])) != 6):
         raise ValueError('The six verified cell-compartment pairs are required')

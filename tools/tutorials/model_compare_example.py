@@ -103,7 +103,7 @@ def run(source, destination):
               'accuracy_validated': False, 'different_model_weights_compared': False,
               'gui_workflow_completed': False, 'inference_performed': False, 'published': False,
               'artifacts': {p.name: digest(p) for p in sorted(destination.iterdir())}}
-    (destination / 'run.json').write_text(json.dumps(report, indent=2) + '\n', encoding="utf-8")
+    (destination / 'run.json').write_text(json.dumps(report, indent=2) + '\n')
     return report
 
 

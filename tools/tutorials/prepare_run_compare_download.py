@@ -27,7 +27,7 @@ def prepare(destination, root=None):
     destination=Path(destination).expanduser().resolve()
     if destination.exists():
         raise FileExistsError('Choose a NEW folder; existing projects are never overwritten')
-    manifest=json.loads((root/'source_records.json').read_text(encoding="utf-8"))
+    manifest=json.loads((root/'source_records.json').read_text())
     entries=manifest['records']
     if len(entries)!=2 or len({e['original']['run_id'] for e in entries})!=2:
         raise ValueError('Require exactly two distinct historical runs')

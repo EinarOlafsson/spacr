@@ -23,7 +23,7 @@ def source_files(source):
     """Accept only the exact documented layout and regular numeric arrays."""
     source = Path(source).resolve()
     marker = source / '.spacr_plane_layout.json'
-    if marker.is_symlink() or json.loads(marker.read_text(encoding="utf-8")) != LAYOUT:
+    if marker.is_symlink() or json.loads(marker.read_text()) != LAYOUT:
         raise ValueError('This helper requires the documented four-channel, three-mask layout')
     files = sorted(source.glob('*.npy'))
     if not files or any(p.is_symlink() or not p.is_file() for p in files):
@@ -123,7 +123,7 @@ def export(source, destination):
                    source_hashes=original, reports=reports, original_inputs_unchanged=True,
                    app_source_modified=False, native_plotting_loop_fixed=False,
                    segmentation_accuracy_certified=False, published=False)
-    (destination / 'overlay_checks.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding="utf-8")
+    (destination / 'overlay_checks.json').write_text(json.dumps(receipt, indent=2) + '\n')
     return receipt
 
 
