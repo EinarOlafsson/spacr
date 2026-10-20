@@ -549,9 +549,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Home के सभी मौजूदा मॉड्यूल बाएँ से दाएँ देखें। फिर Mask से साझा नियंत्रण सीखें और नेविगेशन, सहायता तथा रूप बदलें।",
+      "description": "Home के अवलोकन और श्रेणी टैब देखें, फिर Mask के माध्यम से मॉड्यूल के साझा नियंत्रणों को समझें और नेविगेशन, सहायता तथा रूप-रंग समायोजित करें।",
       "objectives": [
-        "मौजूदा Core, Data और Tools पंक्तियों के हर मॉड्यूल की पहचान करना।",
+        "Home, Core, Data, Tools और Organism टैब से मॉड्यूल खोजें।",
         "Mask से साझा सेटिंग, पूर्वावलोकन, कार्रवाइयों और परिणामों को पहचानना।",
         "Home पर लौटना, खोज का उपयोग करना और पैनल व्यवस्थित करना।",
         "रूप और प्रदर्शन की सेटिंग चुनना।"
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data और Tools। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।",
+          "narration": "Home शुरुआत का स्थान है। इसका अवलोकन मॉड्यूल को Core, Data, Tools और Organism के अंतर्गत समूहित करता है। श्रेणी टैब दृश्य को सीमित करते हैं। हर टाइल अपने नाम वाला मॉड्यूल खोलती है। साइडबार भी वही रास्ते देता है और Home अवलोकन पर वापस लाता है।",
           "hold_after": 0.7,
-          "speech_text": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data और Tools। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।"
+          "speech_text": "Home शुरुआत का स्थान है। इसका अवलोकन मॉड्यूल को Core, Data, Tools और Organism के अंतर्गत समूहित करता है। श्रेणी टैब दृश्य को सीमित करते हैं। हर टाइल अपने नाम वाला मॉड्यूल खोलती है। साइडबार भी वही रास्ते देता है और Home अवलोकन पर वापस लाता है।"
         },
         {
           "visual": "home_module_mask",
@@ -599,6 +599,18 @@
             "09_annotate"
           ],
           "speech_text": "Annotate में वस्तुओं के कटे चित्र देखकर उदाहरणों के लिए जाँचे हुए लेबल दर्ज कर सकते हैं।"
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify जाँचे हुए लेबल पर एक मॉडल प्रशिक्षित करता है और कटे चित्रों या मापी गई विशेषताओं की मदद से अन्य वस्तुओं को स्कोर देता है।",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify जाँचे हुए लेबल पर एक मॉडल प्रशिक्षित करता है और कटे चित्रों या मापी गई विशेषताओं की मदद से अन्य वस्तुओं को स्कोर देता है।"
         },
         {
           "visual": "home_module_map_barcodes",
@@ -707,6 +719,18 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder माप तालिकाओं से ग्राफ बनाता है, जिनके कॉलम और समूह चुन सकते हैं।"
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Organism पंक्ति में Toxoplasma है। यह जीव की जानकारी, संवादात्मक चित्र और उपलब्ध Toxoplasma परीक्षणों के रास्ते खोलता है। अलग Toxoplasma ट्यूटोरियल इस पेज को समझाता है।",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "Organism पंक्ति में Toxoplasma है। यह जीव की जानकारी, संवादात्मक चित्र और उपलब्ध Toxoplasma परीक्षणों के रास्ते खोलता है। अलग Toxoplasma ट्यूटोरियल इस पेज को समझाता है।"
         },
         {
           "visual": "06_mask_host",
@@ -875,12 +899,6 @@
             1500
           ],
           "speech_text": "Prune now बिना पूछे कभी कुछ नहीं हटाता। रन फ़ोल्डर के लिए एक छोटी उदाहरण सीमा के साथ, यह बताता है कि हर फ़ोल्डर में क्या हटाया जाएगा और जवाब का इंतज़ार करता है। Cancel पर क्लिक करें, तो कुछ नहीं हटता।"
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Spaceout मोड में Preferences के spaCR field नियंत्रण आठ स्वतंत्र प्रभावों के लिए हैं। हर प्रभाव अलग से चालू या बंद करें। रूप और सेटिंग विंडो के ऐनिमेशन के सामान्य नियंत्रण उपलब्ध रहते हैं। Apply बदलाव का पूर्वावलोकन दिखाता है, Keep स्वीकार करता है और Revert पिछला चुनाव बहाल करता है।",
-          "hold_after": 0.7,
-          "speech_text": "Spaceout मोड में Preferences के स्पेकर field नियंत्रण आठ स्वतंत्र प्रभावों के लिए हैं। हर प्रभाव अलग से चालू या बंद करें। रूप और सेटिंग विंडो के ऐनिमेशन के सामान्य नियंत्रण उपलब्ध रहते हैं। Apply बदलाव का पूर्वावलोकन दिखाता है, Keep स्वीकार करता है और Revert पिछला चुनाव बहाल करता है।"
         }
       ],
       "narration_voices": {
@@ -977,13 +995,12 @@
             650
           ],
           "narration": "वह Python परिवेश सक्रिय करें जिसमें आपने spaCR इंस्टॉल किया है। दिखाए गए कमांड से spacr आयात करें और उसका संस्करण प्रिंट करें। संस्करण को अपने विश्लेषण नोट्स के साथ रखें, ताकि आप बाद में वही रन दोहरा सकें।",
-          "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
           "hold_after": 0.7,
-          "speech_text": "वह Python परिवेश सक्रिय करें जिसमें आपने स्पेकर इंस्टॉल किया है। दिखाए गए कमांड से स्पेकर आयात करें और उसका संस्करण प्रिंट करें। संस्करण को अपने विश्लेषण नोट्स के साथ रखें, ताकि आप बाद में वही रन दोहरा सकें।"
+          "speech_text": "वह Python परिवेश सक्रिय करें जिसमें आपने स्पेकर इंस्टॉल किया है। दिखाए गए कमांड से स्पेकर आयात करें और उसका संस्करण प्रिंट करें। संस्करण को अपने विश्लेषण नोट्स के साथ रखें, ताकि आप बाद में वही रन दोहरा सकें।",
+          "related_lessons": [
+            "02_install_spacr",
+            "04_platform_installers"
+          ]
         },
         {
           "visual": "02_list",
@@ -1006,12 +1023,12 @@
             900
           ],
           "narration": "spacr-run को डैश डैश describe और उसके बाद regression के साथ चलाएँ। ज़रूरी इनपुट, डिफ़ॉल्ट मान और फ़ंक्शन का नाम पढ़ें। यहाँ बैच कमांड spacr.ml में perform_regression को बुलाता है। उसके पैरामीटर और लौटाए गए परिणाम पढ़ने के लिए वह फ़ंक्शन API संदर्भ में खोलें।",
+          "hold_after": 0.7,
+          "speech_text": "स्पेकर-run को डैश डैश describe और उसके बाद regression के साथ चलाएँ। ज़रूरी इनपुट, डिफ़ॉल्ट मान और फ़ंक्शन का नाम पढ़ें। यहाँ बैच कमांड स्पेकर.ml में perform_regression को बुलाता है। उसके पैरामीटर और लौटाए गए परिणाम पढ़ने के लिए वह फ़ंक्शन API संदर्भ में खोलें।",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "स्पेकर-run को डैश डैश describe और उसके बाद regression के साथ चलाएँ। ज़रूरी इनपुट, डिफ़ॉल्ट मान और फ़ंक्शन का नाम पढ़ें। यहाँ बैच कमांड स्पेकर.ml में perform_regression को बुलाता है। उसके पैरामीटर और लौटाए गए परिणाम पढ़ने के लिए वह फ़ंक्शन API संदर्भ में खोलें।"
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1046,12 +1063,12 @@
             900
           ],
           "narration": "विश्लेषण चलाने के लिए वही कमांड डैश डैश dry-run के बिना चलाएँ। कमांड पूरा होने तक कंसोल देखें, फिर उस मॉड्यूल के ट्यूटोरियल और API पेज में बताए गए आउटपुट जाँचें। सेटिंग फ़ाइल, इनपुट तालिकाएँ, पैकेज संस्करण और कंसोल लॉग परिणामों के साथ रखें।",
+          "hold_after": 0.7,
+          "speech_text": "विश्लेषण चलाने के लिए वही कमांड डैश डैश dry-run के बिना चलाएँ। कमांड पूरा होने तक कंसोल देखें, फिर उस मॉड्यूल के ट्यूटोरियल और API पेज में बताए गए आउटपुट जाँचें। सेटिंग फ़ाइल, इनपुट तालिकाएँ, पैकेज संस्करण और कंसोल लॉग परिणामों के साथ रखें।",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "विश्लेषण चलाने के लिए वही कमांड डैश डैश dry-run के बिना चलाएँ। कमांड पूरा होने तक कंसोल देखें, फिर उस मॉड्यूल के ट्यूटोरियल और API पेज में बताए गए आउटपुट जाँचें। सेटिंग फ़ाइल, इनपुट तालिकाएँ, पैकेज संस्करण और कंसोल लॉग परिणामों के साथ रखें।"
+          ]
         }
       ],
       "narration_voices": {
@@ -3140,9 +3157,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "घटाने की विधि के रूप में UMAP चुनें। हर बिंदु एक वस्तु को दो प्लॉट किए गए निर्देशांकों से दिखाएगा। अगर आपको रैखिक प्रक्षेपण और विशेषताओं के लोडिंग चाहिए, तो उससे जुड़े टूल में PCA देख सकते हैं।",
+          "narration": "घटाने की विधि के रूप में UMAP चुनें। हर बिंदु एक वस्तु को दो प्लॉट किए गए निर्देशांकों से दिखाएगा।",
           "hold_after": 0.7,
-          "speech_text": "घटाने की विधि के रूप में यू मैप चुनें। हर बिंदु एक वस्तु को दो प्लॉट किए गए निर्देशांकों से दिखाएगा। अगर आपको रैखिक प्रक्षेपण और विशेषताओं के लोडिंग चाहिए, तो उससे जुड़े टूल में PCA देख सकते हैं।"
+          "speech_text": "घटाने की विधि के रूप में यू मैप चुनें। हर बिंदु एक वस्तु को दो प्लॉट किए गए निर्देशांकों से दिखाएगा।"
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3199,20 +3216,38 @@
           "speech_text": "उसके क्रॉप की तुलना के लिए किसी दूसरे बिंदु पर क्लिक करें। साइडबार में चयन पर लेबल लगाने और क्लस्टर लेबल फैलाने की सुविधा भी है। ये नियंत्रण एनोटेशन सहेजते हैं, इसलिए लागू करने से पहले सही लेबल और चयन चुनें।"
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "चुनी गई विशेषताओं की सीधे तुलना के लिए Image UMAP के शीर्ष भाग से Image Scatter खोलें, या रैखिक प्रक्षेपण के लिए PCA खोलें। उनकी इनपुट सेटिंग और सहेजे गए आउटपुट के लिए जुड़े ट्यूटोरियल देखें।",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "तैयार एम्बेडिंग की समीक्षा करें और चुनी गई वस्तुओं के इमेज क्रॉप की तुलना करें। इनपुट माप, चुनी गई सेटिंग और सहेजे गए परिणाम साथ रखें, ताकि हर बिंदु को उसके स्रोत तक खोज सकें।",
           "hold_after": 0.7,
-          "speech_text": "चुनी गई विशेषताओं की सीधे तुलना के लिए Image यू मैप के शीर्ष भाग से Image Scatter खोलें, या रैखिक प्रक्षेपण के लिए PCA खोलें। उनकी इनपुट सेटिंग और सहेजे गए आउटपुट के लिए जुड़े ट्यूटोरियल देखें।"
+          "speech_text": "तैयार एम्बेडिंग की समीक्षा करें और चुनी गई वस्तुओं के इमेज क्रॉप की तुलना करें। इनपुट माप, चुनी गई सेटिंग और सहेजे गए परिणाम साथ रखें, ताकि हर बिंदु को उसके स्रोत तक खोज सकें।"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3561,7 +3596,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4016,7 +4074,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Source के अंदर masks सबफ़ोल्डर खोलें। हर इमेज की उसी नाम वाली एक मास्क TIFF फ़ाइल है। मूल इमेज के साथ चित्र देखें, छूटी हुई वस्तुओं और जुड़ी हुई कोशिकाओं पर ध्यान दें। फ़्लो पैनल सेगमेंटेशन में मॉडल द्वारा इस्तेमाल की गई दिशाएँ दिखाता है।",
+          "narration": "Source के अंदर masks सबफ़ोल्डर में हर इमेज के लिए उसी नाम वाली एक मास्क TIFF फ़ाइल होती है। मूल इमेज के साथ चित्र देखें, छूटी हुई वस्तुओं और जुड़ी हुई कोशिकाओं पर ध्यान दें। फ़्लो पैनल सेगमेंटेशन में मॉडल द्वारा इस्तेमाल की गई दिशाएँ दिखाता है।",
           "focus": [
             1000,
             450,
@@ -4024,17 +4082,17 @@
             640
           ],
           "hold_after": 0.7,
-          "speech_text": "Source के अंदर masks सबफ़ोल्डर खोलें। हर इमेज की उसी नाम वाली एक मास्क TIFF फ़ाइल है। मूल इमेज के साथ चित्र देखें, छूटी हुई वस्तुओं और जुड़ी हुई कोशिकाओं पर ध्यान दें। फ़्लो पैनल सेगमेंटेशन में मॉडल द्वारा इस्तेमाल की गई दिशाएँ दिखाता है।"
+          "speech_text": "Source के अंदर masks सबफ़ोल्डर में हर इमेज के लिए उसी नाम वाली एक मास्क TIFF फ़ाइल होती है। मूल इमेज के साथ चित्र देखें, छूटी हुई वस्तुओं और जुड़ी हुई कोशिकाओं पर ध्यान दें। फ़्लो पैनल सेगमेंटेशन में मॉडल द्वारा इस्तेमाल की गई दिशाएँ दिखाता है।"
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Live preview चालू करें और इमेज चयनकर्ता से एक इमेज चुनें। Live settings खोलें और चैनल तथा नॉर्मलाइज़ेशन नियंत्रण जाँचें। ज़रूरत हो तो पूर्वावलोकन को ज़्यादा जगह देने के लिए Console और System को छोटा करें।",
+          "narration": "पूर्वावलोकन को ज़्यादा जगह देने के लिए बाकी परिणाम कार्ड छोटे करें। Live preview चालू करें और इमेज चयनकर्ता से एक इमेज चुनें। दी गई उदाहरण इमेज तक ब्राउज़ करें।",
           "hold_after": 0.7,
-          "speech_text": "Live preview चालू करें और इमेज चयनकर्ता से एक इमेज चुनें। Live settings खोलें और चैनल तथा नॉर्मलाइज़ेशन नियंत्रण जाँचें। ज़रूरत हो तो पूर्वावलोकन को ज़्यादा जगह देने के लिए Console और System को छोटा करें।"
+          "speech_text": "पूर्वावलोकन को ज़्यादा जगह देने के लिए बाकी परिणाम कार्ड छोटे करें। Live preview चालू करें और इमेज चयनकर्ता से एक इमेज चुनें। दी गई उदाहरण इमेज तक ब्राउज़ करें।"
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "पूर्वावलोकन की तुलना बैच में सहेजे गए मास्क से करें। इस उदाहरण में पूर्वावलोकन और Apply अलग-अलग प्रोसेसिंग रास्ते इस्तेमाल करते हैं, इसलिए सीमाएँ और गिनती अलग हो सकती हैं। बैच आउटपुट माप के लिए ठीक हैं या नहीं, यह तय करते समय सहेजी गई TIFF फ़ाइलें देखें।",
+          "narration": "Live settings में चैनल और नॉर्मलाइज़ेशन जाँचें, फिर पूर्वावलोकन चलाएँ। पूर्वावलोकन और Apply इन इमेज को अलग तरह से प्रोसेस करते हैं, इसलिए सीमाएँ और गिनती अलग हो सकती हैं। बैच आउटपुट माप के लिए ठीक हैं या नहीं, यह तय करते समय सहेजी गई TIFF फ़ाइलें देखें।",
           "focus": [
             1000,
             1160,
@@ -4042,11 +4100,11 @@
             610
           ],
           "hold_after": 0.7,
-          "speech_text": "पूर्वावलोकन की तुलना बैच में सहेजे गए मास्क से करें। इस उदाहरण में पूर्वावलोकन और Apply अलग-अलग प्रोसेसिंग रास्ते इस्तेमाल करते हैं, इसलिए सीमाएँ और गिनती अलग हो सकती हैं। बैच आउटपुट माप के लिए ठीक हैं या नहीं, यह तय करते समय सहेजी गई TIFF फ़ाइलें देखें।"
+          "speech_text": "Live settings में चैनल और नॉर्मलाइज़ेशन जाँचें, फिर पूर्वावलोकन चलाएँ। पूर्वावलोकन और Apply इन इमेज को अलग तरह से प्रोसेस करते हैं, इसलिए सीमाएँ और गिनती अलग हो सकती हैं। बैच आउटपुट माप के लिए ठीक हैं या नहीं, यह तय करते समय सहेजी गई TIFF फ़ाइलें देखें।"
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "माउस व्हील से दोनों पूर्वावलोकन कैनवास पर कोई हिस्सा बड़ा करें। छूती हुई वस्तुएँ और धुँधली सीमाएँ देखें, फिर पूरा फ़ील्ड जाँचने के लिए ज़ूम वापस कम करें।",
+          "narration": "माउस व्हील से दोनों पूर्वावलोकन कैनवास पर कोई हिस्सा बड़ा करें। बड़े किए गए दृश्य में छूती हुई वस्तुएँ और धुँधली सीमाएँ देखें।",
           "focus": [
             1010,
             1280,
@@ -4054,7 +4112,7 @@
             455
           ],
           "hold_after": 0.7,
-          "speech_text": "माउस व्हील से दोनों पूर्वावलोकन कैनवास पर कोई हिस्सा बड़ा करें। छूती हुई वस्तुएँ और धुँधली सीमाएँ देखें, फिर पूरा फ़ील्ड जाँचने के लिए ज़ूम वापस कम करें।"
+          "speech_text": "माउस व्हील से दोनों पूर्वावलोकन कैनवास पर कोई हिस्सा बड़ा करें। बड़े किए गए दृश्य में छूती हुई वस्तुएँ और धुँधली सीमाएँ देखें।"
         },
         {
           "visual": "22_native_filter_reduces_objects",
@@ -4093,7 +4151,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4534,7 +4615,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5763,7 +5867,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6509,7 +6636,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6664,7 +6814,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6980,7 +7153,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7595,7 +7791,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7839,7 +8058,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8912,7 +9154,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9106,7 +9371,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -10622,7 +10910,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

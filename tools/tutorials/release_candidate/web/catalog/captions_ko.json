@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Home의 현재 모든 모듈을 왼쪽에서 오른쪽으로 살펴봅니다. 그런 다음 Mask로 공통 조작 요소를 배우고 탐색, 도움말, 모양을 조정합니다.",
+      "description": "Home 개요와 범주 탭을 살펴본 다음, Mask로 모듈의 공통 조작 방법을 익히고 탐색, 도움말, 모양을 조정합니다.",
       "objectives": [
-        "현재 Core, Data, Tools 행의 모든 모듈을 식별합니다.",
+        "Home, Core, Data, Tools, Organism 탭을 사용해 모듈을 찾습니다.",
         "Mask로 공통 설정, 미리보기, 동작, 출력을 파악합니다.",
         "Home으로 돌아가 검색을 사용하고 패널을 배치합니다.",
         "모양과 성능 설정을 선택합니다."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home이 시작점입니다. 각 행을 왼쪽부터 읽으세요. Core, Data, Tools 순서입니다. 각 타일은 해당 모듈을 엽니다. 왼쪽 사이드바에도 같은 경로가 있으며 Home으로 이 개요에 돌아옵니다.",
+          "narration": "Home이 시작점입니다. 개요에서는 모듈을 Core, Data, Tools, Organism으로 묶어 보여 줍니다. 범주 탭으로 표시 범위를 좁힐 수 있습니다. 각 타일은 해당 이름의 모듈을 엽니다. 사이드바에서도 같은 경로를 이용할 수 있으며, Home을 선택하면 개요로 돌아옵니다.",
           "hold_after": 0.7
         },
         {
@@ -534,6 +534,17 @@
           ],
           "related_lessons": [
             "09_annotate"
+          ]
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify는 검토된 레이블로 모델을 학습시키고 크롭 이미지나 측정된 특징을 사용해 다른 객체의 점수를 계산합니다.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
           ]
         },
         {
@@ -633,6 +644,17 @@
           ],
           "related_lessons": [
             "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Organism 행에는 Toxoplasma가 있습니다. 생물 안내, 상호작용 가능한 그림과 사용 가능한 톡소플라스마 분석 경로를 엽니다. 별도의 Toxoplasma 튜토리얼에서 이 페이지를 설명합니다.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
           ]
         },
         {
@@ -784,11 +806,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Spaceout 모드의 Preferences에는 독립적인 여덟 효과를 위한 spaCR field 항목이 있습니다. 각 효과를 따로 켜거나 끌 수 있습니다. 일반적인 모양과 설정 창 애니메이션 항목도 계속 사용할 수 있습니다. Apply는 변경을 미리 보고 Keep은 적용을 확정하며 Revert는 이전 선택으로 되돌립니다.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -885,12 +902,11 @@
             650
           ],
           "narration": "spaCR을 설치한 Python 환경을 활성화하세요. 표시된 명령으로 spacr를 가져오고 버전을 출력하세요. 나중에 같은 실행을 재현할 수 있도록 버전을 분석 노트와 함께 기록해 두세요.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "02_list",
@@ -912,11 +928,11 @@
             900
           ],
           "narration": "spacr-run --describe regression을 실행하세요. 필수 입력, 기본값, 함수 이름을 읽으세요. 여기서 배치 명령은 spacr.ml의 perform_regression을 호출합니다. API 참조에서 그 함수를 열어 매개변수와 반환 결과를 읽으세요.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "05_report_api",
@@ -949,11 +965,11 @@
             900
           ],
           "narration": "분석을 실행하려면 --dry-run 없이 같은 명령을 실행하세요. 명령이 끝날 때까지 콘솔을 지켜본 뒤, 그 모듈의 튜토리얼과 API 페이지에 설명된 출력을 확인하세요. 설정 파일, 입력 표, 패키지 버전, 콘솔 로그를 결과와 함께 보관하세요.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -2877,7 +2893,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "축소 방법으로 UMAP을 고르세요. 각 점은 그래프의 두 좌표로 객체 하나를 나타냅니다. 선형 투영과 특징 적재값이 필요하면 연결된 도구에서 PCA를 살펴볼 수 있습니다.",
+          "narration": "축소 방법으로 UMAP을 고르세요. 각 점은 그래프의 두 좌표로 객체 하나를 나타냅니다.",
           "hold_after": 0.7
         },
         {
@@ -2926,19 +2942,37 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "선택한 특징을 직접 비교하려면 Image UMAP 머리글에서 Image Scatter를 열고, 선형 투영이 필요하면 PCA를 여세요. 입력 설정과 저장되는 출력은 연결된 튜토리얼에서 이어서 확인하세요.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "완성된 임베딩을 검토하고 선택한 객체의 잘라낸 이미지를 비교하세요. 각 점의 출처를 추적할 수 있도록 입력 측정값, 선택한 설정, 저장된 결과를 함께 보관하세요.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3263,7 +3297,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3690,7 +3747,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Source 안의 masks 하위 폴더를 여세요. 각 이미지에는 같은 이름의 마스크 TIFF가 있습니다. 원본 이미지 옆의 그림을 확인하며 놓친 객체와 붙은 세포에 주의하세요. 흐름 패널은 모델이 분할에 쓰는 방향을 보여 줍니다.",
+          "narration": "Source 안의 masks 하위 폴더에는 각 이미지에 대해 같은 이름의 마스크 TIFF가 들어 있습니다. 원본 이미지 옆의 그림을 확인하며 놓친 객체와 붙은 세포에 주의하세요. 흐름 패널은 모델이 분할에 쓰는 방향을 보여 줍니다.",
           "focus": [
             1000,
             450,
@@ -3701,12 +3758,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Live preview를 켜고 이미지 선택기로 이미지를 고르세요. Live settings를 열고 채널과 정규화 컨트롤을 확인하세요. 필요하면 Console과 System을 접어 미리 보기 공간을 넓히세요.",
+          "narration": "미리 보기 공간을 넓히려면 나머지 결과 카드를 접으세요. Live preview를 켜고 이미지 선택기로 이미지를 고르세요. 제공된 예제 이미지를 찾아 선택하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "미리 보기를 배치로 저장된 마스크와 비교하세요. 이 예제에서는 미리 보기와 Apply의 처리 경로가 달라서 경계와 개수가 다를 수 있습니다. 배치 출력이 측정에 적합한지 판단할 때는 저장된 TIFF를 검토하세요.",
+          "narration": "Live settings에서 채널과 정규화를 확인한 다음 미리 보기를 실행하세요. 미리 보기와 Apply는 이 이미지들을 다르게 처리하므로 경계와 개수가 다를 수 있습니다. 배치 출력이 측정에 적합한지 판단할 때는 저장된 TIFF를 검토하세요.",
           "focus": [
             1000,
             1160,
@@ -3717,7 +3774,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "마우스 휠로 두 미리 보기 캔버스의 한 영역을 확대하세요. 맞닿은 객체와 흐린 경계를 확인한 뒤 다시 축소해 전체 시야를 점검하세요.",
+          "narration": "마우스 휠로 두 미리 보기 캔버스의 한 영역을 확대하세요. 확대한 화면에서 맞닿은 객체와 흐린 경계를 확인하세요.",
           "focus": [
             1010,
             1280,
@@ -3760,7 +3817,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4172,7 +4252,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5324,7 +5427,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6023,7 +6149,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6168,7 +6317,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6464,7 +6636,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7039,7 +7234,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7269,7 +7487,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8279,7 +8520,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8462,7 +8726,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9886,7 +10173,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

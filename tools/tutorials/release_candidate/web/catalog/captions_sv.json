@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Gå igenom alla aktuella moduler på Home från vänster till höger. Lär dig sedan de gemensamma kontrollerna med Mask och anpassa navigering, hjälp och utseende.",
+      "description": "Utforska Home-översikten och kategoriflikarna, lär dig sedan modulernas gemensamma reglage med Mask och anpassa navigering, hjälp och utseende.",
       "objectives": [
-        "Identifiera alla moduler i de aktuella raderna Core, Data och Tools.",
+        "Hitta moduler med flikarna Home, Core, Data, Tools och Organism.",
         "Använda Mask för att känna igen gemensamma inställningar, förhandsvisningar, åtgärder och resultat.",
         "Återgå till Home, använda sökningen och ordna panelerna.",
         "Välja inställningar för utseende och prestanda."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home är utgångspunkten. Läs varje rad från vänster till höger: Core, Data och Tools. Varje ruta öppnar sin modul. Sidopanelen ger samma ingångar och Home återgår till översikten.",
+          "narration": "Home är utgångspunkten. Översikten grupperar moduler under Core, Data, Tools och Organism. Kategoriflikarna begränsar vyn. Varje ruta öppnar modulen som den är namngiven efter. Sidopanelen ger samma vägar, och Home återgår till översikten.",
           "hold_after": 0.7
         },
         {
@@ -534,6 +534,17 @@
           ],
           "related_lessons": [
             "09_annotate"
+          ]
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify tränar en modell på granskade etiketter och ger andra objekt poäng utifrån utsnittsbilder eller uppmätta egenskaper.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
           ]
         },
         {
@@ -633,6 +644,17 @@
           ],
           "related_lessons": [
             "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Raden Organism innehåller Toxoplasma. Den öppnar en organismguide, en interaktiv teckning och tillgängliga Toxoplasma-analyser. Den separata Toxoplasma-handledningen går igenom sidan.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
           ]
         },
         {
@@ -784,11 +806,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "I Spaceout-läge innehåller Preferences spaCR field-kontroller för åtta oberoende effekter. Slå på eller av varje effekt separat. Vanliga kontroller för utseende och animation i inställningsfönstret finns kvar. Apply förhandsvisar, Keep godtar och Revert återställer föregående val.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -885,12 +902,11 @@
             650
           ],
           "narration": "Aktivera Python-miljön där du installerade spaCR. Importera spacr och skriv ut versionen med det visade kommandot. Spara versionen med dina analysanteckningar så att du kan återskapa samma körning senare.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "02_list",
@@ -912,11 +928,11 @@
             900
           ],
           "narration": "Kör spacr-run --describe regression. Läs de obligatoriska indata, standardvärdena och funktionsnamnet. Här anropar batchkommandot perform_regression i spacr.ml. Öppna funktionen i API-referensen för att läsa dess parametrar och returvärden.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "05_report_api",
@@ -949,11 +965,11 @@
             900
           ],
           "narration": "För att köra analysen kör du samma kommando utan --dry-run. Följ konsolen tills kommandot är klart och granska sedan de utdata som beskrivs i modulens handledning och API-sida. Spara inställningsfilen, indatatabellerna, paketversionen och konsolloggen tillsammans med resultaten.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -2877,7 +2893,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Välj UMAP som reduktionsmetod. Varje punkt representerar ett objekt med två ritade koordinater. Du kan utforska PCA via dess länkade verktyg när du vill ha en linjär projektion och egenskapsladdningar.",
+          "narration": "Välj UMAP som reduktionsmetod. Varje punkt representerar ett objekt med två ritade koordinater.",
           "hold_after": 0.7
         },
         {
@@ -2926,19 +2942,37 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Öppna Image Scatter från sidhuvudet i Image UMAP för att jämföra valda egenskaper direkt, eller öppna PCA för en linjär projektion. Fortsätt med de länkade handledningarna för deras indatainställningar och sparade utdata.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Granska den färdiga inbäddningen och jämför bildutsnitten av de valda objekten. Förvara indatamätningarna, de valda inställningarna och de sparade resultaten tillsammans så att du kan spåra varje punkt tillbaka till dess källa.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3263,7 +3297,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3690,7 +3747,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Öppna undermappen masks i Source. Varje bild har en mask-TIFF med samma filnamnsstam. Granska figurerna bredvid originalbilderna och var uppmärksam på missade objekt och sammanfogade celler. Flödespanelen visar de riktningar modellen använder för segmenteringen.",
+          "narration": "Undermappen masks i Source innehåller en mask-TIFF med samma filnamnsstam för varje bild. Granska figurerna bredvid originalbilderna och var uppmärksam på missade objekt och sammanfogade celler. Flödespanelen visar de riktningar modellen använder för segmenteringen.",
           "focus": [
             1000,
             450,
@@ -3701,12 +3758,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Slå på Live preview och välj en bild med bildväljaren. Öppna Live settings och kontrollera reglagen för kanal och normalisering. Fäll ihop Console och System för att ge förhandsvisningen mer plats vid behov.",
+          "narration": "Fäll ihop de andra resultatkorten för att ge förhandsvisningen mer plats. Slå på Live preview och välj en bild med bildväljaren. Bläddra till den medföljande exempelbilden.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Jämför förhandsvisningen med den sparade batchmasken. Förhandsvisningen och Apply använder olika bearbetningsvägar i det här exemplet, så de kan ge olika gränser och antal. Granska de sparade TIFF-filerna när du avgör om batchens utdata duger för mätning.",
+          "narration": "Kontrollera kanal och normalisering i Live settings och kör sedan förhandsvisningen. Förhandsvisningen och Apply bearbetar dessa bilder olika, så gränser och antal kan skilja sig. Granska de sparade TIFF-filerna när du avgör om batchens utdata duger för mätning.",
           "focus": [
             1000,
             1160,
@@ -3717,7 +3774,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Använd mushjulet för att förstora ett område på båda förhandsvisningsytorna. Granska objekt som ligger an mot varandra och svaga gränser, och zooma sedan ut för att kontrollera hela synfältet.",
+          "narration": "Använd mushjulet för att förstora ett område på båda förhandsvisningsytorna. Granska objekt som ligger an mot varandra och svaga gränser i den förstorade vyn.",
           "focus": [
             1010,
             1280,
@@ -3760,7 +3817,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4172,7 +4252,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5324,7 +5427,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6023,7 +6149,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6168,7 +6317,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6464,7 +6636,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7039,7 +7234,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7269,7 +7487,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8279,7 +8520,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8462,7 +8726,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9886,7 +10173,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
