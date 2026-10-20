@@ -90,6 +90,7 @@ def test_a_file_that_cannot_be_stat_ed_is_an_error_not_a_crash(
     assert any("epoch_10.pth" in problem for problem in usage.errors)
 
 
+@pytest.mark.needs_symlink
 def test_a_symlinked_file_is_recorded_and_never_counted(project):
     """Its bytes belong to whatever it points at, which may not be ours."""
     root, registry = project
@@ -132,6 +133,7 @@ def test_a_kind_with_no_bytes_and_no_artifacts_is_left_out_of_the_report(
     assert empty.label not in DM.format_usage(padded)
 
 
+@pytest.mark.needs_symlink
 def test_the_usage_report_names_missing_artifacts_links_and_unreadable_paths(
         unreadable_dir):
     """Three ways a project disagrees with its registry, in one report."""
@@ -162,6 +164,7 @@ def test_enumerating_a_path_that_is_not_there_is_empty_not_an_error(tmp_path):
     assert DM._enumerate(str(tmp_path / "gone")) == []
 
 
+@pytest.mark.needs_symlink
 def test_a_symlinked_folder_enumerates_as_nothing(tmp_path):
     """Following it is how a recursive delete leaves the project."""
     real = tmp_path / "shared"
@@ -443,6 +446,7 @@ def crops_artifact(project):
     return root, registry, artifact
 
 
+@pytest.mark.needs_symlink
 def test_an_artifact_reached_through_a_symlink_is_never_pruned(crops_artifact):
     """``rmtree`` through a link deletes storage the project does not own."""
     root, registry, artifact = crops_artifact

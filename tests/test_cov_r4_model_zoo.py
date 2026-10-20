@@ -191,6 +191,7 @@ def test_a_run_that_recorded_one_epoch_does_not_get_the_other_invented(
 # discovery: a link to nothing is not a model
 # --------------------------------------------------------------------------
 
+@pytest.mark.needs_symlink
 def test_a_link_to_a_model_that_is_gone_is_not_listed_as_a_model(tmp_path):
     """A model folder full of symlinks into a NAS is normal; a NAS that is not
     mounted turns every one of them into a name with no file behind it. Those
