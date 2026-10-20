@@ -109,6 +109,7 @@ from PySide6.QtCore import (
     QModelIndex,
     Qt,
     Signal,
+    QTimer,
 )
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -124,6 +125,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QSpinBox,
+    QStyle,
     QTableView,
     QVBoxLayout,
     QWidget,
@@ -875,8 +877,9 @@ class ReadOnlyDb:
             with open(out_path, "w", newline="", encoding="utf-8") as fh:
                 writer = csv.writer(fh)
                 writer.writerow(cols)
+                step = max(1, min(int(chunk), _CSV_ROWS_PER_WRITE))
                 while True:
-                    batch = cur.fetchmany(chunk)
+                    batch = cur.fetchmany(step)
                     if not batch:
                         break
                     writer.writerows(batch)
@@ -1005,6 +1008,25 @@ def _capture_result(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
     payload["result"] = fn()
 
 
+_TEXT_ROLES = frozenset({int(Qt.DisplayRole.value), int(Qt.ToolTipRole.value)})
+_EDIT_ROLE = int(Qt.EditRole.value)
+_COLUMN_SEARCH_DELAY_MS = 150
+_CSV_ROWS_PER_WRITE = 32
+_WIDTH_SAMPLE_ROWS = 500
+_WIDTH_CANDIDATES = 3
+
+
+def _display_text(value: Any) -> str:
+    """How a stored value reads in a preview cell."""
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return f"<{len(value)} bytes>"
+    if isinstance(value, float):
+        return f"{value:.6g}"
+    return str(value)
+
+
 def _sort_key(value: Any) -> tuple:
     """Total order over a sqlite column: NULLs, then numbers, then text."""
     if value is None:
@@ -1049,6 +1071,9 @@ class PreviewModel(QAbstractTableModel):
         self._more: bool = False
         self._fetch_hook: Optional[Callable[[], Any]] = None
         self._commit_hook: Optional[Callable[[int, str, Any], bool]] = None
+        self._shown: List[Optional[tuple]] = []
+        self._widest: Dict[int, List[str]] = {}
+        self._cell_flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
 
     def set_page(self, columns: Sequence[str], rows: Sequence[Sequence[Any]],
@@ -1067,6 +1092,8 @@ class PreviewModel(QAbstractTableModel):
         self._keys = (list(keys) if keys is not None
                       else [None] * len(self._rows))
         self._row_offset = int(row_offset)
+        self._shown = [None] * len(self._rows)
+        self._widest = {}
         self._recompute_visible()
         self.endResetModel()
 
@@ -1084,8 +1111,11 @@ class PreviewModel(QAbstractTableModel):
         first = len(self._rows)
         self.beginInsertRows(QModelIndex(), first, first + len(new) - 1)
         self._rows.extend(new)
+        self._shown.extend([None] * len(new))
         self._keys.extend(list(keys) if keys is not None
                           else [None] * len(new))
+        if first < _WIDTH_SAMPLE_ROWS:
+            self._widest = {}
         self.endInsertRows()
         return len(new)
 
@@ -1137,6 +1167,8 @@ class PreviewModel(QAbstractTableModel):
         current = list(self._rows[row])
         current[col] = value
         self._rows[row] = tuple(current)
+        self._shown[row] = None
+        self._widest.pop(col, None)
         if col in self._visible:
             idx = self.index(row, self._visible.index(col))
             self.dataChanged.emit(idx, idx, [Qt.DisplayRole, Qt.EditRole])
@@ -1227,6 +1259,9 @@ class PreviewModel(QAbstractTableModel):
             return
         self.beginResetModel()
         self._editable = editable
+        self._cell_flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        if editable:
+            self._cell_flags |= Qt.ItemIsEditable
         self.endResetModel()
 
     def is_editable(self) -> bool:
@@ -1260,10 +1295,9 @@ class PreviewModel(QAbstractTableModel):
 
         :param index: model index whose interaction flags are requested.
         """
-        base = super().flags(index)
-        if index.isValid() and self._editable:
-            base |= Qt.ItemIsEditable
-        return base
+        if not index.isValid():
+            return Qt.NoItemFlags
+        return self._cell_flags
 
     def data(self, index, role=Qt.DisplayRole):
         """Return the display, tooltip, or exact editor value for a cell.
@@ -1271,8 +1305,19 @@ class PreviewModel(QAbstractTableModel):
         :param index: model index identifying the requested cell.
         :param role: Qt data role; unsupported roles return ``None``.
         """
-        if not index.isValid() or role not in (Qt.DisplayRole, Qt.ToolTipRole,
-                                               Qt.EditRole):
+        if role in _TEXT_ROLES:
+            row = index.row()
+            if row < 0:
+                return None
+            try:
+                shown = self._shown[row]
+                if shown is None:
+                    shown = self._shown[row] = tuple(
+                        _display_text(v) for v in self._rows[row])
+                return shown[self._visible[index.column()]]
+            except IndexError:
+                return None
+        if role != _EDIT_ROLE or not index.isValid():
             return None
         try:
             value = self._rows[index.row()][self._visible[index.column()]]
@@ -1282,11 +1327,7 @@ class PreviewModel(QAbstractTableModel):
             return ""
         if isinstance(value, bytes):
             return f"<{len(value)} bytes>"
-        if role == Qt.EditRole:
-            return repr(value) if isinstance(value, float) else str(value)
-        if isinstance(value, float):
-            return f"{value:.6g}"
-        return str(value)
+        return repr(value) if isinstance(value, float) else str(value)
 
     def setData(self, index, value, role=Qt.EditRole) -> bool:  # noqa: N802
         """Commit an editor value through the guarded screen callback.
@@ -1341,7 +1382,23 @@ class PreviewModel(QAbstractTableModel):
         self.beginResetModel()
         self._rows = [self._rows[i] for i in order_]
         self._keys = [self._keys[i] for i in order_]
+        self._shown = [self._shown[i] for i in order_]
+        self._widest = {}
         self.endResetModel()
+
+    def _widest_texts(self, column: int) -> List[str]:
+        """The longest display strings of visible ``column`` in the sample."""
+        try:
+            col = self._visible[column]
+        except IndexError:
+            return []
+        cached = self._widest.get(col)
+        if cached is None:
+            texts = {_display_text(row[col])
+                     for row in self._rows[:_WIDTH_SAMPLE_ROWS]}
+            cached = sorted(texts, key=len, reverse=True)[:_WIDTH_CANDIDATES]
+            self._widest[col] = cached
+        return cached
 
 
 
@@ -1559,7 +1616,12 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._col_search.setPlaceholderText(
             "Search columns…  e.g. 'percentile' or 'channel_1'")
         self._col_search.setClearButtonEnabled(True)
-        self._col_search.textChanged.connect(self.set_column_filter)
+        self._column_search_timer = QTimer(self)
+        self._column_search_timer.setSingleShot(True)
+        self._column_search_timer.setInterval(_COLUMN_SEARCH_DELAY_MS)
+        self._column_search_timer.timeout.connect(self._apply_column_search)
+        self._col_search.textChanged.connect(self._on_column_search_typed)
+        self._col_search.editingFinished.connect(self._flush_column_search)
         self._col_count_label = QLabel("", right)
         self._col_count_label.setObjectName("Muted")
         col_row.addWidget(self._col_search, 1)
@@ -1871,15 +1933,33 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         :param text: case-insensitive substring required in visible names.
         """
-        if self._col_search.text() != (text or ""):
-            self._col_search.setText(text or "")
-            return
-        self._model.set_column_filter(text or "")
+        text = text or ""
+        if self._col_search.text() != text:
+            self._col_search.setText(text)
+        self._column_search_timer.stop()
+        self._model.set_column_filter(text)
         self._update_column_count()
         self._autosize_columns()
 
+    def _on_column_search_typed(self, _text: str = "") -> None:
+        """Wait for a pause in typing before filtering the columns."""
+        self._column_search_timer.start()
+
+    def _flush_column_search(self) -> None:
+        """Apply a typed column search that is still waiting for its pause."""
+        if self._column_search_timer.isActive():
+            self._column_search_timer.stop()
+            self._apply_column_search()
+
+    def _apply_column_search(self) -> None:
+        """Filter the columns by what the search box holds now."""
+        text = self._col_search.text()
+        if text != self._model.column_filter():
+            self.set_column_filter(text)
+
     def visible_columns(self) -> List[str]:
         """Column names currently shown in the preview."""
+        self._flush_column_search()
         return self._model.visible_columns()
 
     def preview_columns(self) -> List[str]:
@@ -1896,8 +1976,36 @@ class DbBrowserScreen(LinkedView, QWidget):
         A 500-column feature table keeps the fixed default width — the
         user narrows it with the column search first.
         """
-        if 0 < self._model.columnCount() <= AUTOSIZE_MAX_COLUMNS:
-            self._view.resizeColumnsToContents()
+        count = self._model.columnCount()
+        if not 0 < count <= AUTOSIZE_MAX_COLUMNS:
+            return
+        view = self._view
+        header = view.horizontalHeader()
+        metrics = view.fontMetrics()
+        pad = None
+        for column in range(count):
+            texts = self._model._widest_texts(column)
+            width = header.sectionSizeHint(column)
+            if texts:
+                if pad is None:
+                    pad = self._cell_padding(texts[0], column)
+                width = max(width, pad + max(
+                    metrics.horizontalAdvance(t) for t in texts))
+            if header.sectionSize(column) != width:
+                header.resizeSection(column, width)
+
+    def _cell_padding(self, text: str, column: int) -> int:
+        """What a cell adds around its text, read off one real cell."""
+        rows = self._model.rowCount()
+        if rows:
+            hint = self._view.sizeHintForIndex(self._model.index(0, column))
+            first = self._model.data(self._model.index(0, column))
+            if first is not None:
+                extra = 1 if self._view.showGrid() else 0
+                return max(0, hint.width() - self._view.fontMetrics(
+                ).horizontalAdvance(str(first))) + extra
+        return 2 * (self._view.style().pixelMetric(
+            QStyle.PM_FocusFrameHMargin, None, self._view) + 1) + 1
 
     def _update_column_count(self) -> None:
         """Say how many columns the filter is letting through."""
@@ -2206,6 +2314,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         there has to be a way back to the keyset-paged order without
         reloading the screen.
         """
+        self._flush_column_search()
         columns = self._model.visible_columns()
         if not (0 <= section < len(columns)):
             return
@@ -2778,6 +2887,7 @@ class DbBrowserScreen(LinkedView, QWidget):
             return False
         db, table = self._db, self._table
         where, params = self._where, self._params
+        self._flush_column_search()
         columns = self._model.visible_columns() or self._all_columns
 
         def _job() -> Dict[str, Any]:
