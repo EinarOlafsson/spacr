@@ -147,7 +147,7 @@ def test_native_series_collection_stop_resumes_without_repeating_inference(
         'plate1_A01_1_1.npy', 'plate1_A01_1_2.npy'}
 
 
-@pytest.mark.parametrize('kind', ['orphan', 'linked_reserved', 'hidden_output'])
+@pytest.mark.parametrize('kind', ['orphan', pytest.param('linked_reserved', marks=pytest.mark.needs_symlink), 'hidden_output'])
 def test_native_series_resume_excludes_only_regular_reserved_mask_workspace(
         tmp_path, fake_model, monkeypatch, kind):
     source, _rows = _converted_series(tmp_path)
@@ -216,7 +216,7 @@ def test_two_native_series_scope_convert_rows_and_time_outputs_by_field(
 @pytest.mark.parametrize('damage', [
     'map', 'plane', 'receipt', 'receipt_digest', 'receipt_oversize',
     'missing_frame', 'extra_plane', 'missing_stack', 'missing_masks',
-    'missing_stack_frame', 'linked_mask_folder',
+    'missing_stack_frame', pytest.param('linked_mask_folder', marks=pytest.mark.needs_symlink),
 ])
 def test_native_series_checkpoint_rejects_changed_staging_without_reanalysis(
         tmp_path, fake_model, monkeypatch, damage):

@@ -1,5 +1,6 @@
 """Watch resume cannot silently mix mask and measurement pipeline outputs."""
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -21,9 +22,22 @@ def _images(folder, well):
 
 
 def _bytes(folder):
-    """Snapshot acquired and output file contents for preservation assertions."""
-    return {str(path.relative_to(folder)): path.read_bytes()
-            for path in folder.rglob('*') if path.is_file()}
+    """Snapshot acquired and output file contents for preservation assertions.
+
+    Keys are POSIX-relative. On Windows the walk uses the extended-length form,
+    because the Measure write spool sits past the 260-character path limit.
+    """
+    root = _walkable(folder)
+    return {path.relative_to(root).as_posix(): path.read_bytes()
+            for path in root.rglob('*') if path.is_file()}
+
+
+def _walkable(folder):
+    """``folder`` in a form whose whole tree can be listed on this platform."""
+    folder = Path(folder).resolve()
+    if os.name == 'nt' and not str(folder).startswith('\\\\?\\'):
+        return Path('\\\\?\\' + str(folder))
+    return folder
 
 
 @pytest.mark.parametrize('first,second', [

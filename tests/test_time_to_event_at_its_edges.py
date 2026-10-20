@@ -4,6 +4,7 @@ the object table, grouping by plate, row, column or field, one condition
 only, a Cox model that cannot be fitted, and the step's own report."""
 from __future__ import annotations
 
+import os
 import sqlite3
 
 import numpy as np
@@ -101,7 +102,7 @@ def test_one_condition_draws_one_curve_without_tests(tmp_path):
                 "time_to_event_covariates": []}
     result = m._time_to_event(db, settings, plot=True, engine="builtin")
     assert result["tests"].empty and result["cox"].empty
-    assert [p.rsplit("/", 1)[-1] for p in result["figures"]] == [
+    assert [os.path.basename(p) for p in result["figures"]] == [
         "kaplan_meier.pdf"]
 
 

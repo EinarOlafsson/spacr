@@ -27,6 +27,7 @@ def _fast(folder):
                      watch_poll_seconds=0.01, watch_idle_minutes=0.001)
 
 
+@pytest.mark.needs_symlink
 def test_scan_preserves_top_level_names_and_prunes_outputs_hidden_and_links(tmp_path):
     root = _write(tmp_path, _name('A01', 1))
     nested = _write(tmp_path / 'plate' / 'well', _name('A02', 1))
@@ -38,7 +39,7 @@ def test_scan_preserves_top_level_names_and_prunes_outputs_hidden_and_links(tmp_
     (tmp_path / 'linked-folder').symlink_to(nested.parent, target_is_directory=True)
     (nested.parent / 'loop').symlink_to(tmp_path, target_is_directory=True)
     assert core._watch_images(str(tmp_path)) == sorted([
-        root.name, str(nested.relative_to(tmp_path))])
+        root.name, nested.relative_to(tmp_path).as_posix()])
 
 
 def test_nested_complete_fields_keep_flat_metadata_names_and_resume(tmp_path):
@@ -53,7 +54,7 @@ def test_nested_complete_fields_keep_flat_metadata_names_and_resume(tmp_path):
     assert not result['failed'] and not result['incomplete']
     assert recorder.calls[1][1] == [_name('A02', 1), _name('A02', 2)]
     nested = _ledger(tmp_path)['plate1_A02_0001_001']
-    assert set(nested['files']) == {str(Path('plate/A02') / _name('A02', n)) for n in [1, 2]}
+    assert set(nested['files']) == {f'plate/A02/{_name("A02", n)}' for n in [1, 2]}
     resumed = Recorder()
     assert core._watch_folder_and_analyse(_fast(tmp_path), resumed)['done'] == result['done']
     assert not resumed.calls
@@ -142,3 +143,20 @@ def test_nested_actual_preprocessing_and_measure_matches_flat_batch(tmp_path, re
         assert _rows(batch / 'measurements/measurements.db', table) == _rows(
             watched / 'spacr_watch/measurements/measurements.db', table)
     assert all(path.read_bytes() == data for path, data in raw.items())
+
+
+@pytest.mark.posix_only
+def test_posix_watch_identity_and_keys_are_unchanged(tmp_path):
+    """POSIX ledgers keep their exact keys and stat identities."""
+    import os
+
+    from spacr import core
+
+    nested = tmp_path / 'plate' / 'A02'
+    nested.mkdir(parents=True)
+    image = nested / 'f1.tif'
+    image.write_bytes(b'x')
+    info = os.stat(image, follow_symlinks=False)
+    assert core._watch_file_identity(str(image)) == [
+        info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns]
+    assert core._watch_images(str(tmp_path)) == [os.path.join('plate', 'A02', 'f1.tif')]

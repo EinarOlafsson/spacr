@@ -8,6 +8,8 @@ that cannot open the module at all for the sake of a diagnostic number.
 import importlib
 import sys
 
+import pytest
+
 import spacr.ops_engine as ops_engine
 
 
@@ -22,6 +24,7 @@ def test_a_platform_without_the_resource_module_still_imports_the_engine(monkeyp
         importlib.reload(ops_engine)
 
 
+@pytest.mark.posix_only
 def test_where_the_platform_can_report_it_the_peak_is_a_real_measurement():
     assert ops_engine.resource is not None
     assert ops_engine._peak_rss_gb() > 0.0

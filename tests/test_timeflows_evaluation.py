@@ -138,6 +138,7 @@ def test_false_successor_links_are_counted_but_missing_annotations_are_not():
     assert [row['label'] for row in censored] == [91]
 
 
+@pytest.mark.needs_symlink
 def test_holdout_check_rejects_aliases_and_missing_provenance(tmp_path):
     training = tmp_path / 'training'
     training.mkdir()

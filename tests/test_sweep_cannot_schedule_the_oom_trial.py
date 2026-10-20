@@ -141,6 +141,7 @@ def test_the_contained_child_sets_it_at_import():
     assert int(out.stdout.strip()) >= 500
 
 
+@pytest.mark.posix_only
 def test_be_polite_survives_a_kernel_that_refuses():
     """Best effort, not a requirement: a container or hardened kernel may
     refuse the write, and that is not a reason to fail a sweep.

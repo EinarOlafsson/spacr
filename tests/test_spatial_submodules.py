@@ -299,6 +299,7 @@ def test_xenium_reads_are_counted_into_the_cells_and_join_measure(xenium_run):
 
 
 
+@pytest.mark.needs_symlink
 def test_zero_qv_map_retires_verified_analyses_and_keeps_other_outputs(tmp_path, monkeypatch):
     import hashlib
     import pathlib
@@ -420,6 +421,7 @@ def test_zero_qv_map_keeps_unverified_outputs(tmp_path, monkeypatch, prior_state
 
 
 
+@pytest.mark.needs_symlink
 def test_zero_qv_map_replaces_report_symlink_without_touching_target(tmp_path):
     import pathlib
 

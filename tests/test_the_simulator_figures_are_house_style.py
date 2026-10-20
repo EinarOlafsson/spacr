@@ -16,6 +16,8 @@ this module broke every one of them:
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -190,7 +192,7 @@ def test_save_plot_goes_through_the_format_preference(tmp_path, monkeypatch):
     figure = plt.figure()
     S.save_plot(figure, str(tmp_path), "well_ineq_coeff", 12)
 
-    assert seen["path"] == f"{tmp_path}/well_ineq_coeff/12_figure.pdf"
+    assert seen["path"] == os.path.join(str(tmp_path), "well_ineq_coeff", "12_figure.pdf")
     written = list((tmp_path / "well_ineq_coeff").iterdir())
     assert len(written) == 1 and written[0].stem == "12_figure"
 
@@ -205,7 +207,7 @@ def test_save_shap_plot_goes_through_the_format_preference(tmp_path, monkeypatch
 
     monkeypatch.setattr(S, "save_figure", spy)
     S.save_shap_plot(plt.figure(), str(tmp_path), "shap", 7)
-    assert seen["path"] == f"{tmp_path}/shap/7_figure.pdf"
+    assert seen["path"] == os.path.join(str(tmp_path), "shap", "7_figure.pdf")
     written = list((tmp_path / "shap").iterdir())
     assert len(written) == 1 and written[0].stem == "7_figure"
 

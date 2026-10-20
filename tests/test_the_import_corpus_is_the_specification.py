@@ -87,7 +87,7 @@ def test_every_corpus_tree_is_well_formed(name, corpus):
     about the corpus rather than about spaCR.
     """
     tree = corpus[name]
-    on_disk = {str(p.relative_to(tree.root))
+    on_disk = {p.relative_to(tree.root).as_posix()
                for p in tree.root.rglob("*") if p.is_file()}
     assert on_disk == set(tree.truth), (
         f"{name}: files on disk and truth records disagree")

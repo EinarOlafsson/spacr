@@ -300,7 +300,8 @@ def test_series_refuses_a_custom_convention_even_when_it_matches_convert(tmp_pat
 
 
 @pytest.mark.parametrize('damage', [
-    'none', 'staged', 'combined', 'old_checkpoint', 'linked_destination'])
+    'none', 'staged', 'combined', 'old_checkpoint',
+    pytest.param('linked_destination', marks=pytest.mark.needs_symlink)])
 def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
         tmp_path, monkeypatch, damage):
     output, _rows_ = _converted_series(tmp_path)
@@ -314,7 +315,7 @@ def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
         analysis(folder, recipe)
         tracks = Path(folder) / 'tracks'
         tracks.mkdir()
-        (tracks / track_name).write_text('frame,track_id\n0,1\n1,1\n', encoding="utf-8")
+        (tracks / track_name).write_bytes(b'frame,track_id\n0,1\n1,1\n')
 
     def fail_merge(*_args):
         """Interrupt collection after the track link but before the DB append."""
@@ -377,6 +378,7 @@ def test_track_collection_publishes_only_flat_csv_from_a_field(tmp_path):
         tracks / 'trackpy_tracks_cell_field.csv').read_bytes()
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('kind', ['directory_link', 'csv_link'])
 def test_track_collection_refuses_linked_source_artifacts(tmp_path, kind):
     field = tmp_path / 'field'

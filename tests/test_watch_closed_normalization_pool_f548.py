@@ -12,7 +12,7 @@ import tifffile
 from spacr import convert, core
 from spacr.cancellation import CancellationToken, PipelineCancelled, installed_token
 from tests.test_watch_folder_and_analyse import MASK, MEASURE, _channels, real_pipeline
-from tests.test_watch_pipeline_resume_f548 import _bytes
+from tests.test_watch_pipeline_resume_f548 import _bytes, _walkable
 
 
 def _rows(db, table):
@@ -170,7 +170,7 @@ def test_interrupted_collection_resumes_one_cohort_without_reanalysis(
     unit = ledger['normalization_cohorts'][ledger['normalization_pool']['id']]
     assert 'collection_checkpoint' in unit
     preserved = {path: (path.read_bytes(), path.stat().st_mtime_ns)
-                 for path in Path(calls[0]).rglob('*.npy')}
+                 for path in _walkable(calls[0]).rglob('*.npy')}
     monkeypatch.setattr(core, '_watch_merge_database', append)
     result = core._watch_folder_and_analyse(settings, count)
     assert len(result['done']) == 3 and not result['failed']

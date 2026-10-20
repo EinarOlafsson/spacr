@@ -639,3 +639,16 @@ def test_a_windows_project_past_max_path_still_commits_its_fields(tmp_path):
     assert all(error is None for _, _, error in outcomes) and len(outcomes) == 2
     with connect(database, readonly=True) as connection:
         assert connection.execute('SELECT COUNT(*) FROM rows').fetchone()[0] == 2
+def test_spool_beneath_a_deep_output_folder_commits(tmp_path):
+    """A watched field's spool passes the 260-character Windows path limit."""
+    deep = tmp_path.joinpath('x' * 60, 'y' * 60, 'z' * 60, '.write_queue')
+    seen, outcomes = [], []
+    writer = _DatabaseWriteQueue(deep, seen.append,
+                                 lambda *row: outcomes.append(row), ram_gib=0).start()
+    ticket = writer.endpoint.enqueue('field', [])
+    writer.finish()
+    assert [packet['ticket'] for packet in seen] == [ticket]
+    assert outcomes == [('field', ticket, None)]
+    assert len(str(Path(writer.endpoint.folder) / (ticket + '.pkl.committed'))) > 260
+    if os.name == 'nt':
+        assert writer.endpoint.folder.startswith('\\\\?\\')

@@ -13,6 +13,8 @@ analysis of a screen that took a week to run.
 from __future__ import annotations
 
 
+import os
+
 import pandas as pd
 import pytest
 
@@ -162,7 +164,7 @@ def test_an_explicit_checkpoint_path_wins():
     from spacr.hyperparam import umap_checkpoint_path
 
     assert umap_checkpoint_path(
-        {"checkpoint_path": "/tmp/mine.json"}) == "/tmp/mine.json"
+        {"checkpoint_path": "/tmp/mine.json"}) == os.path.abspath("/tmp/mine.json")
 
 
 def test_the_default_sits_under_the_projects_results(tmp_path):
