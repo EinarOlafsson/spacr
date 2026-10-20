@@ -84,11 +84,13 @@ def test_the_hook_is_tracked_in_the_tree():
 
 @pytest.mark.parametrize("message", REFUSED,
                          ids=["opus5", "bare", "shouty", "pr-footer"])
+@pytest.mark.posix_only
 def test_the_hook_refuses_an_attribution(message):
     assert _run_hook(message) == 1, f"the guard accepted: {message!r}"
 
 
 @pytest.mark.parametrize("message", ALLOWED, ids=["plain", "talks-about-it"])
+@pytest.mark.posix_only
 def test_the_hook_allows_an_ordinary_message(message):
     assert _run_hook(message) == 0, f"the guard refused: {message!r}"
 

@@ -3,6 +3,10 @@ from pathlib import Path
 import os
 import subprocess
 
+import pytest
+
+# Runs a POSIX sh helper against a "#!/bin/sh" fake git found through PATH.
+pytestmark = pytest.mark.posix_only
 
 HELPER = Path(__file__).resolve().parents[1] / "packaging" / "measure_clone_forms.sh"
 

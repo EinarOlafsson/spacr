@@ -77,6 +77,7 @@ spacr_linux_gui_install ''' + shlex.quote(str(backend)) + ''' --package-spec 'fa
 
 
 @pytest.mark.parametrize('choices', ['', 'diagnostics'])
+@pytest.mark.posix_only
 def test_gui_consent_choices_default_on_wgpu_off_and_only_current_selection_reaches_headless_child(gui, choices):
     """Maintainer 2026-10-19 (cc56a5857): every consent box starts ticked; Install without wgpu starts clear."""
     tmp, harness, environment = gui
@@ -101,6 +102,7 @@ def test_gui_consent_choices_default_on_wgpu_off_and_only_current_selection_reac
     assert len(logs) == 1 and 'backend complete' in logs[0].read_text(encoding="utf-8")
 
 
+@pytest.mark.posix_only
 def test_backend_failure_keeps_its_actual_exit_and_log_without_retry(gui):
     tmp, harness, environment = gui
     result = subprocess.run(['bash', str(harness)], env=dict(environment, GUI_CASE='failure'),
@@ -112,6 +114,7 @@ def test_backend_failure_keeps_its_actual_exit_and_log_without_retry(gui):
     assert (tmp / 'backend-args').exists()
 
 
+@pytest.mark.posix_only
 def test_closing_progress_signals_only_own_group_and_waits_for_rollback(gui):
     tmp, harness, environment = gui
     result = subprocess.run(['bash', str(harness)], env=dict(environment, GUI_CASE='backend-cancel'),
@@ -121,6 +124,7 @@ def test_closing_progress_signals_only_own_group_and_waits_for_rollback(gui):
     assert not list((tmp / 'cache').rglob('*.fifo'))
 
 
+@pytest.mark.posix_only
 def test_consent_cancellation_starts_no_backend_and_creates_no_runtime_folder(gui):
     tmp, harness, environment = gui
     result = subprocess.run(['bash', str(harness)], env=dict(environment, GUI_CASE='consent-cancel'),
@@ -130,6 +134,7 @@ def test_consent_cancellation_starts_no_backend_and_creates_no_runtime_folder(gu
     assert not (tmp / 'cache').exists()
 
 
+@pytest.mark.posix_only
 def test_missing_dialog_dependency_fails_before_installation_mutation(gui):
     tmp, harness, environment = gui
     result = subprocess.run(['bash', str(harness)], env=dict(environment, GUI_CASE='missing'),
@@ -155,6 +160,7 @@ def test_gui_reuses_existing_installer_locale_sources_and_preserves_explicit_hea
     ('consent-collected', 'CLI'), ('no-launch', 'CLI'), ('child', 'CLI'),
     ('explicit-gui', 'GUI'),
 ])
+@pytest.mark.posix_only
 def test_actual_desktop_routing_preserves_explicit_headless_and_child_invocations(tmp_path, mode, expected):
     source = SCRIPT.read_text(encoding="utf-8")
     route = source.split('# @SPACR_LINUX_GUI_END@',1)[1].split('require_command()',1)[0]

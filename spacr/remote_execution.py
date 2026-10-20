@@ -109,7 +109,7 @@ def _run_command(
         )
     except FileNotFoundError as exc:
         raise RemoteExecutionError(
-            f"Command not found: {argv[0]!r}. Install it or update the "
+            f"Command not found: '{argv[0]}'. Install it or update the "
             "execution profile."
         ) from exc
     except subprocess.TimeoutExpired as exc:
@@ -118,7 +118,7 @@ def _run_command(
         ) from exc
     except OSError as exc:
         raise RemoteExecutionError(
-            f"Could not start {argv[0]!r}: {type(exc).__name__}: {exc}"
+            f"Could not start '{argv[0]}': {type(exc).__name__}: {exc}"
         ) from exc
     return CommandResult(result.returncode, result.stdout, result.stderr)
 

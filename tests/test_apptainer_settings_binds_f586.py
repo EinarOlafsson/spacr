@@ -10,6 +10,9 @@ import pytest
 
 SCRIPT = Path(__file__).parents[1] / 'packaging/apptainer/spacr_slurm.sh'
 
+# Runs the Slurm wrapper with bash against a shebang-executed fake apptainer.
+pytestmark = pytest.mark.posix_only
+
 
 def _run_wrapper(tmp_path, *, separate=True, linked=False, missing=False, absolute=False):
     """Use a fake Apptainer to enforce explicit settings-directory visibility."""

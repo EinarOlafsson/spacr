@@ -12,6 +12,9 @@ SHELLS = ['/bin/bash']
 if os.environ.get('SPACR_TEST_BASH32'):
     SHELLS.append(os.environ['SPACR_TEST_BASH32'])
 
+# Every test executes the Unix installer under /bin/bash.
+pytestmark = pytest.mark.posix_only
+
 
 @pytest.mark.parametrize('shell', SHELLS)
 @pytest.mark.parametrize('version', ['@SPACR_VERSION@', '1.5.1.5', '1.5.1.5.dev1'])

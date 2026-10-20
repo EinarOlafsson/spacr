@@ -219,6 +219,7 @@ def test_the_fallback_is_what_makes_that_pass_and_not_luck():
 
 
 @pytest.mark.slow
+@pytest.mark.posix_only
 def test_the_script_produces_a_tree_that_imports_spacr():
     """End to end, against this very checkout.
 

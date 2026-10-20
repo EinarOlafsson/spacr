@@ -171,6 +171,7 @@ def test_actual_workflow_isolates_access_check_from_all_build_and_deploy_jobs():
     assert 'HF_TOKEN' not in probe['steps'][-1]['run']
 
 
+@pytest.mark.posix_only
 def test_actual_workflow_does_not_mask_failed_access_check_behind_tee(tmp_path):
     root = Path(__file__).resolve().parents[1]
     workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text(encoding="utf-8"))

@@ -197,6 +197,7 @@ exec "$@"
     return repo
 
 
+@pytest.mark.posix_only
 def test_real_failing_child_keeps_its_exit_live_log_and_exact_manifest(tiny_repo, tmp_path):
     output = tmp_path / "evidence"
     result = subprocess.run([
@@ -238,6 +239,7 @@ def test_exact_sha_refuses_dirty_source_and_output_inside_repo(tiny_repo, tmp_pa
     assert result.returncode == 2 and "outside the repository" in result.stderr
 
 
+@pytest.mark.posix_only
 def test_cleanup_timeout_keeps_an_interrupted_receipt(monkeypatch):
     from types import SimpleNamespace
 
@@ -273,6 +275,7 @@ def test_single_coverage_batch_uses_recovery_and_never_claims_shard_integrity(tm
     assert not list(output.rglob("*integrity*"))
 
 
+@pytest.mark.posix_only
 def test_interrupt_stops_a_child_even_in_a_separate_process_session(tiny_repo, tmp_path):
     marker = tmp_path / "sleeper.pid"
     (tiny_repo / "tests/test_a.py").write_text(
