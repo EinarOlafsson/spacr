@@ -1659,11 +1659,11 @@ _SEMANTIC_BAD_TARGETS: Mapping[str, Mapping[str, str]] = {
     },
     "gate": {
         "fr": r"\b(?:portes?|fermetures?)\b",
-        "hi": r"(?:द्वार|दरवाज़[ाे]|दरवाज[ाे])",
+        "hi": r"(?:द्वार(?!\s*\((?:gate|gating)\))|दरवाज़[ाे]|दरवाज[ाे])",
         "ko": r"(?<![가-힣])문(?:들)?(?![가-힣])",
         "is": r"\b(?:hlið\w*|hurð\w*|dyr)\b",
-        "zh_CN": r"(?<!部)(?<!入)(?<!专)(?<!类)(?<!出)门(?!控|槛|户|口|类|窗|外)",
-        "pt": r"\b(?:portas?|portões?)\b",
+        "zh_CN": r"(?<!部)(?<!入)(?<!专)(?<!类)(?<!出)门(?!控|槛|户|口|类|窗|外|限)",
+        "pt": r"\b(?:portas?|portões?|portão)\b",
     },
     "power": {
         "fr": r"\bpouvoirs?\b",
@@ -1671,7 +1671,7 @@ _SEMANTIC_BAD_TARGETS: Mapping[str, Mapping[str, str]] = {
         "ko": r"(?:권력|권한|전력)",
         "is": r"\b(?:vald|völd|yfirráð|orka|afl)\b",
         "zh_CN": r"(?:权力|权势|权限|电力|功率)",
-        "pt": r"\bpoder(?:es)?\b",
+        "pt": r"\bpoder(?:es)?\b(?!\s+(?:estatístico|do teste|de detecção|amostral))",
     },
     "dictionary": {
         "fr": r"\b(?:dictées?|dictations?)\b",
@@ -2119,6 +2119,18 @@ _SCIENTIFIC_WELL_BAD_TARGET = {
 }
 
 
+#: Fixed adverbial and conjunctive expressions that contain the bad
+#: "well" word but never stand for a plate well, so a sentence that also
+#: names a plate well may still use them.
+_WELL_IDIOMS = {
+    "fr": r"\b(?:si bien que|bien que|bien entendu|bien sûr|aussi bien|"
+          r"eh bien|bien plus|bien moins|bien avant|bien après|bien souvent)\b",
+    "es": r"\b(?:si bien|más bien|bien sea|bien entendido|así como también)\b",
+    "pt": r"\b(?:bem como|bem-sucedid[ao]s?|bem definid[ao]s?|bem mais|"
+          r"bem menos|bem antes|bem depois)\b",
+}
+
+
 def _context_prose(text: str) -> str:
     """Hide hard API literals while retaining offsets for proximity tests."""
     return _CONTEXT_HARD_PROTECT_RE.sub(
@@ -2318,11 +2330,21 @@ def _semantic_false_friends(
     bad_well_word = _SCIENTIFIC_WELL_BAD_TARGET.get(language)
     if bad_well_word:
         total_well, noun_well = _english_well_sense_counts(source_text)
+        compound_adverbs = len(re.findall(
+            r"(?i)(?<![A-Za-z])well-(?:[a-z]+ed|known|kept|made|built|done|"
+            r"suited|worn|written|grown|understood|chosen|thought)\b",
+            source_text,
+        ))
+        noun_well = max(0, noun_well - compound_adverbs)
         allowed_adverbs = total_well - noun_well
         if (
             noun_well
-            and len(re.findall(bad_well_word, target_text, re.I))
-                > allowed_adverbs
+            and len(re.findall(
+                bad_well_word,
+                re.sub(_WELL_IDIOMS.get(language, r"(?!)"), " ", target_text,
+                       flags=re.I),
+                re.I,
+            )) > allowed_adverbs
         ):
             failures.append("scientific-well-as-adverb")
 
@@ -2332,7 +2354,8 @@ def _semantic_false_friends(
         and re.search(
             r"\b(?:CRISPR|pooled|genome[- ]wide|gRNAs?|genes?|genotypes?|"
             r"hits?|phenotypes?|libraries?|widefield|assay|regression|"
-            r"classification|screening)\b",
+            r"classification|screening|wells?|plates?|guides?|barcodes?|"
+            r"sequencing|image-based|screen-level|count_data)\b",
             source_text,
             re.I,
         )
@@ -2814,7 +2837,7 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
         (r"\bcrops?\b", r"作物", "图像裁剪"),
         (_COMPUTE_RUN_SOURCE, r"赛跑", "运行"),
         (_UI_SCREEN_SOURCE, r"筛选", "界面"),
-        (r"\bgates?\b", r"门(?!控)", "门控"),
+        (r"\bgates?\b", r"门(?!控|限)", "门控"),
         (r"\bwells?\b", r"井", "孔"),
     ),
     "pt": (
@@ -2831,7 +2854,7 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
         (r"\bcrops?\b", r"\bcultura\b", "recorte"),
         (_COMPUTE_RUN_SOURCE, r"\bcorridas\b", "execuções"),
         (_COMPUTE_RUN_SOURCE, r"\bcorrida\b", "execução"),
-        (r"\bpower\b", r"\b[Pp]oder(?:es)?\b", "potência"),
+        (r"\bpower\b", r"\b[Pp]oder(?:es)?\b(?!\s+(?:estatístico|do teste|de detecção|amostral))", "potência"),
         (_UI_SCREEN_SOURCE, r"\btriagens\b", "telas"),
         (_UI_SCREEN_SOURCE, r"\btriagem\b", "tela"),
         (r"\b(?:gates?|gating|gated)\b", r"\b[Pp]ortões\b", "gates"),
@@ -3011,7 +3034,7 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
         (_UI_SCREEN_SOURCE, r"स्क्रीनिंग", "स्क्रीन"),
         (r"\bgates?\b", r"दरवाजे", "गेट"),
         (r"\bgates?\b", r"दरवाजा", "गेट"),
-        (r"\bgates?\b", r"द्वार", "गेट"),
+        (r"\bgates?\b", r"द्वार(?!\s*\((?:gate|gating)\))", "गेट"),
         (r"\bwells?\b", r"कुआँ", "वेल"),
     ),
     "ko": (
