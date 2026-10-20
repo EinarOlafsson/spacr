@@ -22,7 +22,8 @@ def root(tmp_path, monkeypatch):
 def old(folder):
     moment = time.time() - 90 * 86400
     for path in sorted(folder.rglob('*'), reverse=True):
-        os.utime(path, (moment, moment), follow_symlinks=False)
+        os.utime(path, (moment, moment),
+                 **({"follow_symlinks": False} if os.utime in os.supports_follow_symlinks else {}))
     os.utime(folder, (moment, moment))
     return folder
 
@@ -121,6 +122,7 @@ def test_native_settings_bootstrap_with_empty_outputs_and_real_environment_is_el
     assert journal._prune(journal._prune_plan('run_folders', 30, 0))[0] == 1
 
 
+@pytest.mark.needs_symlink
 def test_symlinked_manifest_does_not_turn_unknown_folder_into_a_journal(root):
     folder = root / 'private-data'
     folder.mkdir()
@@ -202,6 +204,7 @@ def test_native_bootstrap_with_populated_unknown_contents_is_preserved(root, chi
     assert journal._prune_plan('run_folders', 30, 0)['delete'] == []
 
 
+@pytest.mark.needs_symlink
 def test_a_bootstrap_folder_holding_a_symlink_is_preserved(root, tmp_path):
     folder = journal._new_run_dir('mask')
     outside = tmp_path / 'outside-settings.json'
