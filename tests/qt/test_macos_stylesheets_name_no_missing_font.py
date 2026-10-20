@@ -32,3 +32,14 @@ def test_the_ai_usage_row_is_transparent_like_the_usage_bar_row():
     assert "QWidget#AiUsageRow" in rule and "QLabel#AiUsageText" in rule
     assert "QWidget#ActionStatusRow" in rule, "the black row under Run and Stop"
     assert "background: transparent" in rule
+
+
+def test_macos_sheets_do_not_ask_for_the_generic_sans_serif():
+    """2026-10-20 (Intel Mac, installed 1.5.1.5): with the generic family last
+    in the list, sheeting the startup window still logged "Populating font
+    family aliases ... missing font family "Sans-serif"". Open Sans is
+    bundled and Helvetica Neue ships with every macOS, so nothing is lost."""
+    if sys.platform == "darwin":
+        assert theme.QSS_FONT_FAMILY == '"Open Sans", "Helvetica Neue"'
+    else:
+        assert theme.QSS_FONT_FAMILY.endswith("sans-serif")

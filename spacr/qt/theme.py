@@ -47,7 +47,9 @@ from .night_themes import DATA_ART_THEMES, DATA_ART_THEME_KEYS, NIGHT_THEME_KEYS
 from .night_themes import palettes as night_palettes
 
 QSS_FONT_FAMILY = ('"Open Sans", "Segoe UI", "Helvetica Neue", sans-serif'
-                   if sys.platform.startswith("win") else '"Open Sans", "Helvetica Neue", sans-serif')
+                   if sys.platform.startswith("win") else
+                   '"Open Sans", "Helvetica Neue"' if sys.platform == "darwin" else
+                   '"Open Sans", "Helvetica Neue", sans-serif')
 
 LOG = logging.getLogger(__name__)
 
