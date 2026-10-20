@@ -9,6 +9,8 @@ Item 76, open points recorded 2026-09-19 and fixed 2026-09-30:
 """
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pytest
 import tifffile
@@ -50,7 +52,7 @@ def test_three_folder_only_groups_are_typed_by_their_folders(tmp_path):
         _labels(tmp_path / folder / "fov001.tif")
     groups = em.detect_inputs(
         [tmp_path / f for f in ("organelle", "organelle_1", "organelle_2")])
-    typed = sorted((g.root.rsplit("/", 1)[-1], g.object_type)
+    typed = sorted((os.path.basename(g.root), g.object_type)
                    for g in groups if g.role == "mask")
     assert typed == [("organelle", "organelle"),
                      ("organelle_1", "organelle"),
