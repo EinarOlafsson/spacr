@@ -73857,18 +73857,6 @@
         "7f583e856fac9ad165729b3c12e898ecace49ae1b37a7bfec5645d4b10b88d8a"
       ]
     },
-    "spacr.qt.app.MainWindow.breathing_like_an_open": {
-      "source_blocks_sha256": [
-        "25529da2e30f823896d3c8002710935c620c58ad30a401ab268857b2418df56e",
-        "eaeaf9002555f1a91a6c0dd3c1196a52c10fef1575f88e071176cba2a8044227"
-      ],
-      "source_sha256": "58c0bed1d6343fd6d95330306e2f5a70485c3c7a3f44604b58b36a64e28113f8",
-      "text": "让其中繁重的 GUI 工作像打开模块时一样，在步骤之间留出喘息间隙。\n\n供 :meth:`rebuild_app_screen` 使用，也供在重建界面之后立即对其执行更多工作的调用方使用（例如对其应用设置包）。如果已经处于一次打开过程中，则沿用该打开过程的喘息机制，并保持其开启。",
-      "translation_source_blocks_sha256": [
-        "25529da2e30f823896d3c8002710935c620c58ad30a401ab268857b2418df56e",
-        "eaeaf9002555f1a91a6c0dd3c1196a52c10fef1575f88e071176cba2a8044227"
-      ]
-    },
     "spacr.qt.app.MainWindow.changeEvent": {
       "source_blocks_sha256": [
         "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
@@ -73969,20 +73957,20 @@
     },
     "spacr.qt.app.MainWindow.rebuild_app_screen": {
       "source_blocks_sha256": [
-        "a2a83ebc4194dfcd33c8e71d32796a50c6b9bab60c2f6f010f1cbe858f477c34",
-        "16404e08d9bea2d23bafdc5f27d97b566c88dc9d53b8c5ebbe295a82c74a809b",
-        "8655175efa53ec7252ac6de6a4f9613f243b673a7ea98caadaedcce39d8787e6",
+        "a01e13d2eecdd90ec3260902fdea7be6b1a7ed5fff17169dfcb7b64ba31078ce",
         "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
-        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589"
+        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589",
+        "da2ecd63a868752ab4849fbdbfc1deb35c3e6047820d50d7d2bddaf5bf3fff9b",
+        "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
       ],
-      "source_sha256": "20921a8498f00b96053fdeb78f1eec5ca2ff2158e487896eadf0e66b956c0f9b",
-      "text": "重新构建 ``key`` 的界面，并在各步骤之间留出喘息间隙。\n\n重建执行的繁重步骤与首次打开相同 -- 构建、应用主题、加入堆栈、翻译、显示 -- 过去这些步骤是一次性连续执行的：Mask 的 \"Load test data\" 会应用一个改变表单结构的设置包，整个重建会造成一次约 0.4 s 的卡顿，期间背景动画停止。现在各步骤之间插入了与打开模块时相同的喘息间隙（:meth:`_breathe_while_opening`），因此最长的卡顿就是最长的单个步骤。喘息期间用户输入会被暂缓，导航会等待，与打开模块时完全相同。\n\n在一次打开过程中运行的重建（例如字体缩放引起的重建）会沿用该打开过程的喘息机制，并在返回时保持其开启。\n\n:param key: 要重建其界面的应用。\n:param values: 要应用到新界面的设置。",
+      "source_sha256": "6fa2aaa9f190bdf6dd14057864f605166717522ca4fb1ce1a762b679ea36a232",
+      "text": "重新构建 ``key`` 筛选,将 ``values`` 转移。\n\n:param key: 要重建其界面的应用。\n:param values: 要应用到新界面的设置。\n\n整个筛选重建。 因为一个形式的设置取决于其自己的价值的一些。 -- 有机数计, 对象的图像数据通道是否命名图像层 -- 因此,承诺改变其中一个意味着一个不同的形式,而不是一个改变的形式。\n\n旧筛选从存储库中丢失并被摧毁,因此新筛选是从破坏中构建的,而不是重复使用属于不再适用的格式的 widgets。",
       "translation_source_blocks_sha256": [
-        "a2a83ebc4194dfcd33c8e71d32796a50c6b9bab60c2f6f010f1cbe858f477c34",
-        "4d9eb458a2162a7baa65725711afc382c31f3adeec462f281cc897906f73efd3",
-        "8655175efa53ec7252ac6de6a4f9613f243b673a7ea98caadaedcce39d8787e6",
+        "a01e13d2eecdd90ec3260902fdea7be6b1a7ed5fff17169dfcb7b64ba31078ce",
         "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
-        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589"
+        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589",
+        "fc822c5e8d809fcea632dd470a9d1b90cd6cb301b94b4bb5cfd9bacb7d2d0a3f",
+        "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
       ]
     },
     "spacr.qt.app.MainWindow.refresh_after_preferences": {

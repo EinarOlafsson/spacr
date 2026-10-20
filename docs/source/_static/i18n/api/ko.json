@@ -73856,18 +73856,6 @@
         "7f583e856fac9ad165729b3c12e898ecace49ae1b37a7bfec5645d4b10b88d8a"
       ]
     },
-    "spacr.qt.app.MainWindow.breathing_like_an_open": {
-      "source_blocks_sha256": [
-        "25529da2e30f823896d3c8002710935c620c58ad30a401ab268857b2418df56e",
-        "eaeaf9002555f1a91a6c0dd3c1196a52c10fef1575f88e071176cba2a8044227"
-      ],
-      "source_sha256": "58c0bed1d6343fd6d95330306e2f5a70485c3c7a3f44604b58b36a64e28113f8",
-      "text": "내부의 무거운 GUI 작업이 모듈 열기와 같은 숨 고르기를 하도록 합니다.\n\n:meth:`rebuild_app_screen`과, 다시 만든 화면에서 곧바로 추가 작업을 하는 호출자(화면에 설정 묶음을 적용하는 경우)를 위한 것입니다. 이미 열기 도중이면 그 열기의 숨 고르기를 사용하며, 끝난 뒤에도 켜 둡니다.",
-      "translation_source_blocks_sha256": [
-        "25529da2e30f823896d3c8002710935c620c58ad30a401ab268857b2418df56e",
-        "eaeaf9002555f1a91a6c0dd3c1196a52c10fef1575f88e071176cba2a8044227"
-      ]
-    },
     "spacr.qt.app.MainWindow.changeEvent": {
       "source_blocks_sha256": [
         "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
@@ -73968,20 +73956,20 @@
     },
     "spacr.qt.app.MainWindow.rebuild_app_screen": {
       "source_blocks_sha256": [
-        "a2a83ebc4194dfcd33c8e71d32796a50c6b9bab60c2f6f010f1cbe858f477c34",
-        "16404e08d9bea2d23bafdc5f27d97b566c88dc9d53b8c5ebbe295a82c74a809b",
-        "8655175efa53ec7252ac6de6a4f9613f243b673a7ea98caadaedcce39d8787e6",
+        "a01e13d2eecdd90ec3260902fdea7be6b1a7ed5fff17169dfcb7b64ba31078ce",
         "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
-        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589"
+        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589",
+        "da2ecd63a868752ab4849fbdbfc1deb35c3e6047820d50d7d2bddaf5bf3fff9b",
+        "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
       ],
-      "source_sha256": "20921a8498f00b96053fdeb78f1eec5ca2ff2158e487896eadf0e66b956c0f9b",
-      "text": "``key``의 화면을 다시 만들며, 단계 사이에 숨 고르기를 넣습니다.\n\n다시 만들기는 처음 열 때와 같은 무거운 단계 -- 구성, 테마 적용, 스택 합류, 번역, 표시 -- 를 실행하며, 예전에는 이를 한 번에 실행했습니다. Mask의 \"Load test data\"는 폼의 형태를 바꾸는 설정 묶음을 적용하는데, 다시 만들기 전체가 배경 애니메이션이 멈춘 채 약 0.4 s 동안 한 번에 멈췄습니다. 이제 단계 사이에 모듈 열기와 같은 숨 고르기(:meth:`_breathe_while_opening`)가 들어가므로, 가장 긴 멈춤은 가장 긴 단일 단계의 길이가 됩니다. 숨 고르기 동안 사용자 입력은 보류되고 탐색은 대기하며, 이는 열기와 똑같습니다.\n\n열기 도중에 실행되는 다시 만들기(글꼴 배율에 따른 다시 만들기)는 그 열기 아래에서 숨 고르기를 하며, 반환할 때 숨 고르기를 켜 둔 채로 둡니다.\n\n:param key: 화면을 다시 만들 앱입니다.\n:param values: 새 화면에 적용할 설정입니다.",
+      "source_sha256": "6fa2aaa9f190bdf6dd14057864f605166717522ca4fb1ce1a762b679ea36a232",
+      "text": "``key``의 화면을 다시 구축하여 ``values``를 전환합니다.\n\n:param key: 화면을 다시 만들 앱입니다.\n:param values: 새 화면에 적용할 설정입니다.\n\n전체 화면은 어떤 설정을 형식이 유지하는지에 따라 몇 가지 자신의 가치에 달려 있기 때문에 재건됩니다 - organelle 계산, 그리고 개체의 이미지 데이터 채널이 이미지 레이어를 이름하는지 여부 - 그래서 그 중 하나에 대한 헌신적인 변화는 다른 형식, 변경되지 않습니다.\n\n오래된 스크린은 캐시에서 떨어지고 파괴되므로 새로운 스크립트는 더 이상 적용되지 않은 모양에 속하는 위젯을 재사용하는 대신 삭감에서 구축됩니다.",
       "translation_source_blocks_sha256": [
-        "a2a83ebc4194dfcd33c8e71d32796a50c6b9bab60c2f6f010f1cbe858f477c34",
-        "4d9eb458a2162a7baa65725711afc382c31f3adeec462f281cc897906f73efd3",
-        "8655175efa53ec7252ac6de6a4f9613f243b673a7ea98caadaedcce39d8787e6",
+        "a01e13d2eecdd90ec3260902fdea7be6b1a7ed5fff17169dfcb7b64ba31078ce",
         "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
-        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589"
+        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589",
+        "fc822c5e8d809fcea632dd470a9d1b90cd6cb301b94b4bb5cfd9bacb7d2d0a3f",
+        "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
       ]
     },
     "spacr.qt.app.MainWindow.refresh_after_preferences": {

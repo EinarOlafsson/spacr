@@ -1,24 +1,4 @@
 {
   "schema": 1,
-  "sources": {
-    "20921a8498f00b96053fdeb78f1eec5ca2ff2158e487896eadf0e66b956c0f9b": {
-      "source_blocks_sha256": [
-        "a2a83ebc4194dfcd33c8e71d32796a50c6b9bab60c2f6f010f1cbe858f477c34",
-        "16404e08d9bea2d23bafdc5f27d97b566c88dc9d53b8c5ebbe295a82c74a809b",
-        "8655175efa53ec7252ac6de6a4f9613f243b673a7ea98caadaedcce39d8787e6",
-        "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
-        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589"
-      ],
-      "source_sha256": "20921a8498f00b96053fdeb78f1eec5ca2ff2158e487896eadf0e66b956c0f9b",
-      "text": "Build ``key``'s screen again, with breaths between its steps.\n\nA rebuild runs the same heavy steps as a first open -- build, theme,\njoin the stack, translate, show -- and used to run them in one\npiece: Mask's \"Load test data\" applies a settings pack that changes\nthe form's shape, and the whole rebuild was one freeze of about\n0.4 s with the backdrop stopped. The steps are now separated by the\nbreaths a module open takes (:meth:`_breathe_while_opening`), so\nthe longest freeze is the longest single step. User input is held\nback during a breath and navigation waits, exactly as for an open.\n\nA rebuild that runs inside an open (a font-scale rebuild) breathes\nunder that open and leaves its breathing on when it returns.\n\n:param key: the app whose screen is to be rebuilt.\n:param values: settings to apply to the new screen."
-    },
-    "58c0bed1d6343fd6d95330306e2f5a70485c3c7a3f44604b58b36a64e28113f8": {
-      "source_blocks_sha256": [
-        "25529da2e30f823896d3c8002710935c620c58ad30a401ab268857b2418df56e",
-        "eaeaf9002555f1a91a6c0dd3c1196a52c10fef1575f88e071176cba2a8044227"
-      ],
-      "source_sha256": "58c0bed1d6343fd6d95330306e2f5a70485c3c7a3f44604b58b36a64e28113f8",
-      "text": "Let heavy GUI work inside take the breaths of a module open.\n\nFor :meth:`rebuild_app_screen` and for a caller that does more work\non the rebuilt screen straight after it (a settings pack applied\nto it). Inside an open already, the open's breathing is used and\nleft on."
-    }
-  }
+  "sources": {}
 }

@@ -73856,18 +73856,6 @@
         "7f583e856fac9ad165729b3c12e898ecace49ae1b37a7bfec5645d4b10b88d8a"
       ]
     },
-    "spacr.qt.app.MainWindow.breathing_like_an_open": {
-      "source_blocks_sha256": [
-        "25529da2e30f823896d3c8002710935c620c58ad30a401ab268857b2418df56e",
-        "eaeaf9002555f1a91a6c0dd3c1196a52c10fef1575f88e071176cba2a8044227"
-      ],
-      "source_sha256": "58c0bed1d6343fd6d95330306e2f5a70485c3c7a3f44604b58b36a64e28113f8",
-      "text": "Permite que el trabajo pesado de la GUI que se hace dentro use las pausas de respiro de la apertura de un módulo.\n\nPara :meth:`rebuild_app_screen` y para un llamador que hace más trabajo sobre la pantalla reconstruida justo después (un paquete de ajustes aplicado a ella). Si ya se está dentro de una apertura, se usan los respiros de esa apertura y se dejan activados.",
-      "translation_source_blocks_sha256": [
-        "25529da2e30f823896d3c8002710935c620c58ad30a401ab268857b2418df56e",
-        "eaeaf9002555f1a91a6c0dd3c1196a52c10fef1575f88e071176cba2a8044227"
-      ]
-    },
     "spacr.qt.app.MainWindow.changeEvent": {
       "source_blocks_sha256": [
         "de5b21bc1f733f8b123311f10cdd2352e8fecc4f42fa0186b287433a91a32ce6",
@@ -73968,20 +73956,20 @@
     },
     "spacr.qt.app.MainWindow.rebuild_app_screen": {
       "source_blocks_sha256": [
-        "a2a83ebc4194dfcd33c8e71d32796a50c6b9bab60c2f6f010f1cbe858f477c34",
-        "16404e08d9bea2d23bafdc5f27d97b566c88dc9d53b8c5ebbe295a82c74a809b",
-        "8655175efa53ec7252ac6de6a4f9613f243b673a7ea98caadaedcce39d8787e6",
+        "a01e13d2eecdd90ec3260902fdea7be6b1a7ed5fff17169dfcb7b64ba31078ce",
         "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
-        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589"
+        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589",
+        "da2ecd63a868752ab4849fbdbfc1deb35c3e6047820d50d7d2bddaf5bf3fff9b",
+        "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
       ],
-      "source_sha256": "20921a8498f00b96053fdeb78f1eec5ca2ff2158e487896eadf0e66b956c0f9b",
-      "text": "Vuelve a construir la pantalla de ``key``, con respiros entre sus pasos.\n\nUna reconstrucción ejecuta los mismos pasos pesados que una primera apertura -- construir, aplicar el tema, unirse a la pila, traducir, mostrar -- y antes los ejecutaba de una sola vez: \"Load test data\" de Mask aplica un paquete de ajustes que cambia la forma del formulario, y toda la reconstrucción era una única congelación de unos 0.4 s con el fondo animado detenido. Ahora los pasos están separados por los respiros que hace la apertura de un módulo (:meth:`_breathe_while_opening`), de modo que la congelación más larga es la del paso individual más largo. Durante un respiro se retiene la entrada del usuario y la navegación espera, exactamente igual que en una apertura.\n\nUna reconstrucción que se ejecuta dentro de una apertura (una reconstrucción por cambio de escala de fuente) respira bajo esa apertura y deja sus respiros activados al volver.\n\n:param key: la aplicación cuya pantalla se va a reconstruir.\n:param values: configuración para aplicar a la nueva pantalla.",
+      "source_sha256": "6fa2aaa9f190bdf6dd14057864f605166717522ca4fb1ce1a762b679ea36a232",
+      "text": "Construir la pantalla de ``key`` de nuevo, llevando ``values`` a través.\n\n:param key: la aplicación cuya pantalla se va a reconstruir.\n:param values: configuración para aplicar a la nueva pantalla.\n\nToda la pantalla se reconstruye porque la configuración de un formulario depende de algunos de sus propios valores -- el conteo de orgánulos, y si el canal de datos de imagen de un objeto nombra una capa de imagen -- por lo que un cambio comprometido a uno de esos significa una forma diferente, no uno cambiado. Reconstruir es la misma ruta que cada módulo abierto ya toma.\n\nLa vieja pantalla se suelta de la caché y se destruye, por lo que la nueva se construye desde cero en lugar de reutilizar widgets que pertenecen a una forma que ya no se aplica.",
       "translation_source_blocks_sha256": [
-        "a2a83ebc4194dfcd33c8e71d32796a50c6b9bab60c2f6f010f1cbe858f477c34",
-        "4d9eb458a2162a7baa65725711afc382c31f3adeec462f281cc897906f73efd3",
-        "8655175efa53ec7252ac6de6a4f9613f243b673a7ea98caadaedcce39d8787e6",
+        "a01e13d2eecdd90ec3260902fdea7be6b1a7ed5fff17169dfcb7b64ba31078ce",
         "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
-        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589"
+        "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589",
+        "fc822c5e8d809fcea632dd470a9d1b90cd6cb301b94b4bb5cfd9bacb7d2d0a3f",
+        "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
       ]
     },
     "spacr.qt.app.MainWindow.refresh_after_preferences": {
