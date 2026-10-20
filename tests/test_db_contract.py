@@ -1144,8 +1144,16 @@ def age_database(db, *, version=0, legacy_names=True):
                 columns = set(declared_columns(db, table))
                 for new, old in renames:
                     if new in columns:
-                        con.execute(f'ALTER TABLE "{table}" '
-                                    f'RENAME COLUMN "{new}" TO "{old}"')
+                        try:
+                            con.execute(f'ALTER TABLE "{table}" '
+                                        f'RENAME COLUMN "{new}" TO "{old}"')
+                        except sqlite3.OperationalError as exc:
+                            if 'rowid alias' not in str(exc):
+                                raise
+                            from spacr import database_schema
+                            database_schema._rebuild_with_column_renamed(
+                                con.cursor(), table, new, old)
+                            con.commit()
         con.execute(f'PRAGMA user_version = {int(version)}')
         con.commit()
     finally:
