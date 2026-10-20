@@ -3470,6 +3470,11 @@ def _describe_processed_folder(folder):
     return '; '.join(parts), advice
 
 
+_SPACR_PLATE_FOLDERS = frozenset((
+    'settings', 'orig', 'stack', 'channel_stack', 'masks', 'merged',
+    'measurements', 'datasets', 'test'))
+
+
 def _no_stacks_error(src, requested_src, regex, metadata_type):
     """Build the error for a run that produced no field stack, naming the likely cause.
 
@@ -3495,8 +3500,14 @@ def _no_stacks_error(src, requested_src, regex, metadata_type):
             entries = sorted(_listdir_visible(subject))
         except OSError:
             entries = []
-    subdirs = [name for name in entries
-               if os.path.isdir(os.path.join(subject, name))][:6]
+    folders = [name for name in entries
+               if os.path.isdir(os.path.join(subject, name))]
+    own = [name for name in folders if name in _SPACR_PLATE_FOLDERS]
+    subdirs = [name for name in folders
+               if name not in _SPACR_PLATE_FOLDERS][:6]
+    other_files = [name for name in entries
+                   if os.path.isfile(os.path.join(subject, name))
+                   and not name.lower().endswith(_RAW_IMAGE_SUFFIXES)]
     subject_images = [name for name in entries
                       if name.lower().endswith(_RAW_IMAGE_SUFFIXES)]
     summary, advice = _describe_processed_folder(subject)
@@ -3514,6 +3525,23 @@ def _no_stacks_error(src, requested_src, regex, metadata_type):
         hint += (f" It holds no images but does hold sub-folders "
                  f"({', '.join(subdirs)}) — if those are plates, point "
                  f"src at one of them rather than at their parent.")
+    elif not summary:
+        hint += f' {subject} holds no image files at all'
+        if own:
+            hint += (f"; its only sub-folders ({', '.join(own)}) are "
+                     f"spaCR's own output, not plates (every run writes "
+                     f"settings/ first)")
+        hint += '.'
+        if other_files:
+            shown = ', '.join(other_files[:6])
+            more = ', …' if len(other_files) > 6 else ''
+            hint += (f' It does hold {len(other_files)} other file(s) '
+                     f'({shown}{more}), but spaCR reads only files ending in '
+                     f'{", ".join(_RAW_IMAGE_SUFFIXES)}; export or convert '
+                     f'the images to one of those formats.')
+        hint += (' Set src to the folder that directly holds the raw image '
+                 'files of one plate, or check that the images finished '
+                 'copying into this one.')
     return FileNotFoundError(
         f"No image stacks were produced from {src}. spaCR found "
         f"{len(images)} image file(s) directly in that folder.{hint}")
