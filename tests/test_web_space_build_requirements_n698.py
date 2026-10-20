@@ -75,7 +75,10 @@ def test_actual_offline_pip_resolves_immutable_git_extra_before_source_copy(tmp_
     command = [sys.executable, '-m', 'pip', 'wheel', '--no-index', '--no-cache-dir', '--no-build-isolation', '--find-links', str(wheelhouse), '--wheel-dir', str(outputs)]
     local = subprocess.run(command + ['.[plaque]'], cwd=empty, env=environment, capture_output=True, text=True, timeout=25)
     assert local.returncode != 0 and 'Neither' in local.stderr
-    request = 'managed-build-fixture[plaque] @ git+' + repo.as_uri() + '@' + commit
+    # A host-less file:/// URL is not a PEP 508 URL for packaging < 22, which pip 24.0 vendors;
+    # git and every pip accept the same repository as file://localhost/.
+    source = repo.as_uri().replace('file:///', 'file://localhost/', 1)
+    request = 'managed-build-fixture[plaque] @ git+' + source + '@' + commit
     actual = subprocess.run(command + [request], cwd=empty, env=environment, capture_output=True, text=True, timeout=40)
     assert actual.returncode == 0, actual.stdout + actual.stderr
     assert not (empty / 'setup.py').exists() and not (empty / 'pyproject.toml').exists()
