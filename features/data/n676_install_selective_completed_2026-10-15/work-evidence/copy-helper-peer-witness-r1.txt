@@ -1,1 +1,0 @@
-Source-only witness first attempt exited1: assertion searched peer.get(...) syntax, while actual helper uses stricter peer[...] indexing. Source SHAa844 unchanged. This was a reviewer witness typo; helper was never executed. Corrected source witness checks indexed expressions and passes.

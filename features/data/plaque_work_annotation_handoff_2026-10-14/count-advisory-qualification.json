@@ -1,7 +1,0 @@
-{
-  "original_identity_receipt_preserved": true,
-  "affected_records": 15,
-  "qualification": "Source allows saved canonical versus current canvas counting differences even within one action, or different actions/times. No cause measured; no mask decoding or verdict conflict established. Original Different source lifetimes classification is explanatory possibility only, not observed cause.",
-  "source_peer": "/root/review_701",
-  "live_queue_or_GUI_not_accessed_for_peer": true
-}

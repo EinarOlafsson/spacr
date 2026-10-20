@@ -1,9 +1,0 @@
-{
-  "source": "15b8b49af5",
-  "node": "tests/test_the_settings_flow_artefacts_are_current.py::test_every_section_says_today_what_the_source_says_today",
-  "result": "actual1FAIL42.70s; exactly1/1400 sectionstale:config new_forget_password path",
-  "owner": "Claude N699 per maintainer current claim",
-  "required_action": "owner run unchanged python tools/settings_flow.py --rst on coherent current source, normal generated outputs/checks; no manual docs edits",
-  "root_changes": "NONE to699code/docs/tests or generatedflow; respect handover",
-  "supersession": "incoming ca8d24c259 already resolves prior20N700contract+3oldbody records from earlier3bda packet; do not repeat supersededN700repair. Remaining699prior-profile ssh_keychain and F56119+FigureQueue2 contract wiring still source-specific dependencies."
-}

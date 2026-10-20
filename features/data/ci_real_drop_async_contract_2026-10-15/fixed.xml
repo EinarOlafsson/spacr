@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="1.159" timestamp="2026-10-15T07:50:51.682603-04:00" hostname="olafsson"><testcase classname="tests.test_regression_workbench" name="test_file_list_accepts_a_real_drop" time="0.653" /></testsuite></testsuites>

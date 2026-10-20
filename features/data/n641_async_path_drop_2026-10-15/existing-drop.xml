@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="1.067" timestamp="2026-10-15T02:37:46.608758-04:00" hostname="olafsson"><testcase classname="tests.test_cov_w3_8_file_list" name="test_a_drop_of_files_fills_the_list_and_anything_else_does_not" time="0.522" /></testsuite></testsuites>

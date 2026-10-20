@@ -1,8 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "proposal_sha256": "80364fcd9aa544ac66b6ff662f07fe7fbee41dba1c6156e98c3c7051238326c6",
-  "decision": "approve exact read-only existing-target format validation",
-  "scope": "Map numeric NPY read-only and close before deleting redundant NPZ. Invalid/empty/truncated/NPZ-disguised/object-pickle target follows existing warning, preserving target and intact archive. Valid numeric edge shapes/Fortran/structured arrays keep original winning policy. No rewriting or checksum/biological integrity claim.",
-  "limits": "Static format validation only; existing concurrent replacement/write after validation remains outside scope. _mmap.close established repo pattern. No API/helper/caption changes.",
-  "required_acceptance": "Preserve honest5FAIL6PASS baseline, finite13 owning cases; no repeated unaffected staging cohort."
-}

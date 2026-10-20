@@ -1,6 +1,0 @@
-{
-  "before_sha256": "2c3f908fec15d352dbbf9a2b40e993079319c472e276dc2340bdf65ad8a58e9b",
-  "after_sha256": "1ef6837e54ddd6334baa8eb39d97fc37ba5ec98eb2113aaeaddec5defa7646dc",
-  "outside_target_entire_ast_unchanged": true,
-  "production_diff": ""
-}

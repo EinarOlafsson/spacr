@@ -1,9 +1,0 @@
-{
-  "result": "2 passed in60.51s",
-  "exit": 0,
-  "merged_public_source": "f9fc7b8479",
-  "protected_test_sha256": "776f710cfcfe66e9d1375b71fcafa30e11388543e1225b5fcc01e5f9f077bcfd",
-  "why_repeated": "incoming actual canonical web source changed; both original nodes rerun against merged source",
-  "full_ci": false,
-  "runtime_catalog_writer": false
-}

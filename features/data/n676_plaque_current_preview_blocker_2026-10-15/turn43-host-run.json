@@ -1,7 +1,0 @@
-{
-  "app_exit_code": 0,
-  "recorder_rc": null,
-  "failure": "Traceback (most recent call last):\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py\", line 646, in driver\n    outcome['rc'] = capture_refresh.main()\n                    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_refresh.py\", line 1099, in main\n    record_plaque(app, window, screen, stage, captures, capture,\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                  settle, write_json, args.timeout, use_zoo_model=args.plaque_zoo_model)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ui_drv_e.py\", line 51, in run\n    return function(*args, **kwargs)\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_plaque.py\", line 110, in record_plaque\n    worker = screen._worker\n             ^^^^^^^^^^^^^^\nAttributeError: 'AppScreen' object has no attribute '_worker'\n",
-  "clips": {},
-  "gate_failed": []
-}

@@ -1,5 +1,0 @@
-Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/stage-tools/run_tool.py', 'tools/tutorials/check_completed_matrix.py', '--stage', '/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015', '--lesson', '05_home']
-Source: 8ab0b4f421baf9e6318c9f9f0d08ccd73241113b
-05_home: 50 final tracks, 14 browser checks, matching sources; not published.
-
-Terminal exit status: 0

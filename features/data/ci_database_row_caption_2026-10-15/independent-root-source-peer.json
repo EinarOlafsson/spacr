@@ -1,9 +1,0 @@
-{
-  "verdict": "ACCEPT",
-  "commit": "25dc56cb473a9f5445c4228fa0a2734b50caabb3",
-  "integrated_test_sha256": "13604b8e9074ea3c6a63305dc48e13410937833aeac6aa7aa301e1a9a8f2364f",
-  "actual_receipts_inspected": true,
-  "production_mutation": false,
-  "review": "N626 routes exact intended partial-write disk failure through actual stream copier, all original assertions retained. Database-row test uses exact published tr suffix while retaining real DB/plate/status behavior assertions.",
-  "repeated_tests": "None"
-}

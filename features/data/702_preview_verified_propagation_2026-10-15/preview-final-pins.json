@@ -1,7 +1,0 @@
-{
-  "spacr/qt/widgets/live_preview.py": "58047f4092a416949a90f5e1f3dcd06b95acee242f2dd108a8f7da1afc7407a1",
-  "spacr/qt/screens/app_screen.py": "622ff735e8296b82f566aeebb3c2796a4e90dd5a8d1da39b713006ae48d2d1f1",
-  "spacr/qt/preview_registry.py": "d4b31153c9ab33c8eed2031e53144ca428591687890a93634ffd64ad3a2246f4",
-  "tests/qt/test_n702_picker_verified_reference.py": "80f7eda91987144be5117a2def5193a06427a28bafd39727914a5ef7630f47f8",
-  "patch_sha256": "9f4cea8b5e27c57ed22b52ba0ebe352b3047407d9be75dd60696ecd65f5aa401"
-}

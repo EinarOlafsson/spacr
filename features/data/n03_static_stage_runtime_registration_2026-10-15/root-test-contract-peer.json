@@ -1,6 +1,0 @@
-{
-  "reviewer": "Original Home root independent contract peer",
-  "approved_test_sha256": "75b43cdacbb451602e4afbe0b01981dc1f33f728571231ee07e859ff43f307b5",
-  "decision": "Approved exact static literal-only alpha/beta + unique-key signoff guard, valid/registered runtime guards and actual stable-registration/undeclared-alpha/idempotence control. No production change, broad stable allowance or ratchet ceiling adjustment.",
-  "owning_requirement": "Original node + actual declared stable + existing organism/Toxo/maturity default +3Classify routes; terminal evidence separate."
-}

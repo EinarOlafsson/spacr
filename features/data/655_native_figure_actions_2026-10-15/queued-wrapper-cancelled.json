@@ -1,8 +1,0 @@
-{
-  "session": 11695,
-  "pid": 2384934,
-  "command": "flock /mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock /mnt/wd4tb/spacr-worktrees/codex-home-b-n180-final-help-20261015/tools/run_capped.sh 2G /usr/bin/time -v -o /mnt/wd4tb/scratch/home-b-n655-native-figure-actions-20261015/time.txt /usr/bin/timeout 90s /usr/bin/dbus-run-session -- /usr/bin/xvfb-run -a -s -screen 0 1000x800x24 /bin/bash /mnt/wd4tb/scratch/home-b-n655-native-figure-actions-20261015/inner.sh ",
-  "children_before": [],
-  "owned_app_started": false,
-  "reason": "Parent authorized private native lane instead of waiting behind unrelated README generation. Only own blocked flock wrapper terminated; no actual native attempt ran."
-}

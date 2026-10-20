@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.286" timestamp="2026-10-15T07:48:33.669206-04:00" hostname="olafsson"><testcase classname="tests.test_regression_workbench" name="test_file_list_accepts_a_real_drop" time="0.760"><failure message="assert 0 == 1&#10; +  where 0 = len([])&#10; +    where [] = get_value()&#10; +      where get_value = &lt;spacr.qt.widgets.file_list.FilePathListWidget(0x5dccbb3a01a0) at 0x7a10bf72fc40&gt;.get_value">tests/test_regression_workbench.py:206: in test_file_list_accepts_a_real_drop
-    assert len(widget.get_value()) == 1
-E   assert 0 == 1
-E    +  where 0 = len([])
-E    +    where [] = get_value()
-E    +      where get_value = &lt;spacr.qt.widgets.file_list.FilePathListWidget(0x5dccbb3a01a0) at 0x7a10bf72fc40&gt;.get_value</failure></testcase></testsuite></testsuites>

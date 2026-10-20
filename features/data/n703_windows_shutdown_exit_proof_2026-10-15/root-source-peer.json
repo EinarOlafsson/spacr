@@ -1,9 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "proposal_sha256": "8a4a31564df08921d78846e127470d47d0c38abb7585080e388779a8058e8194",
-  "decision": "approve exact Windows failed-probe distinction and positive DWORD guard",
-  "scope": "NULL OpenProcess no longer universally implies shutdown; only recognized invalid-parameter result for positive DWORD PID is treated as absent. Access denied/unknown results refuse replacement. Existing real-handle wait/finally/POSIX unchanged.",
-  "primary_source": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess",
-  "source_limits": "Microsoft confirms DWORD PID, Idle PID0 invalid-parameter, protected existing processes access-denied, and NULL means failure requiring GetLastError. Positive-PID invalid-parameter absence handling is the proposed guarded interpretation, not a native acceptance claim.",
-  "required_checks": "Seven actual modeled failures plus known-gone/error87, access-denied/unknown, invalid PID, real handle close, WAIT_FAILED, POSIX and actual-plan refusal controls. No live processes or native Windows claim."
-}

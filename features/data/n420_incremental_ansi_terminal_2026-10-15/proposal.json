@@ -1,9 +1,0 @@
-{
-  "base": "1b62f722da3fd158597fb5d646aecb8bd61c07bc",
-  "before_sha256": "0b108e4c846dd74793bba07110c4d9f738f760858cc6706a6279bd258cae553b",
-  "proposed_sha256": "a0dbf4c24346126966177cd5ebe790fe03426bbc44dd6bc323e438d970fd1804",
-  "baseline": "5FAIL4PASS7.96s actualexit1, all supported ANSI families split across actual PtySession.read calls leak fragments; ASCII+incomplete EOF controls pass.",
-  "behavior": "Retain only incomplete supported escape suffix between reads; pump marks closure after final UTF8 output. EOF releases an incomplete tail once through unchanged stateless stripper, preserving current incomplete-sequence policy. Public helper/prose/captions/lifecycle untouched.",
-  "production_applied": false,
-  "closure_race": "Snapshot output_closed BEFORE draining queue. Closed=true guarantees final decoded text already queued; closure during draining retains a tail until next read rather than releasing a fragmented escape prematurely."
-}

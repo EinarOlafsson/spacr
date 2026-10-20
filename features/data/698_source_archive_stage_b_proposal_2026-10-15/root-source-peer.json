@@ -1,7 +1,0 @@
-{
-  "decision": "ACCEPT exact StageB source requirement/docs",
-  "source_commit": "2c2b6df05bd8f90930d32451d75b3015359836b4",
-  "review": "Exact public immutable85b41 archiveURL and independent a2068 SHA fragment, same plaque extra/all four dependency pins. Root independently streamed archive977 payloads/969 original Git+SHA identities before StageA; actual StageA source/archive readback verified. Normal archive metadata version1.5.1.4 stated honestly. No Git clone, runtimepip, dependency omission, mutablebranch or credential introduced.",
-  "tests": "New exact HTTP requirement contract passes; actual offline archive+real-extra+corrupt-hash refusal fixture unchanged/reused, not rerun.",
-  "pending": "Actual managed dependency/native build/provision/inference remain."
-}

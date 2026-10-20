@@ -1,9 +1,0 @@
-2026-10-15T18:10:22.0435170Z [gw1] [ 28%] PASSED tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_opening_annotate_does_not_wait_for_a_sleeping_last_source 
-2026-10-15T18:10:22.2185432Z [gw1] [ 29%] PASSED tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_the_suggestion_still_appears_once_the_probe_answers 
-2026-10-15T18:10:22.4467023Z [gw1] [ 29%] PASSED tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_a_source_that_is_gone_leaves_the_placeholder_standing 
-2026-10-15T18:10:22.6183331Z [gw1] [ 29%] PASSED tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_the_picker_is_not_started_in_a_folder_that_is_gone 
-2026-10-15T18:10:22.7955281Z [gw1] [ 29%] PASSED tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_closing_releases_the_screen_from_a_process_wide_signal 
-2026-10-15T18:10:22.9765540Z [gw1] [ 29%] PASSED tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_the_screen_subscribes_to_the_probe_before_it_asks_it_anything 
-2026-10-15T18:10:23.1480697Z [gw1] [ 29%] PASSED tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_the_picker_does_not_start_in_an_open_source_it_cannot_vouch_for 
-2026-10-15T18:10:23.3328974Z [gw1] [ 30%] PASSED tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_opening_a_source_teaches_the_probe_so_the_picker_can_go_back 
-2026-10-15T18:10:30.9601464Z [gw1] [ 30%] FAILED tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_browsing_from_the_settings_dialog_does_not_wait_on_the_field 

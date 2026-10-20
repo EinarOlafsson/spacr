@@ -1,6 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "proposal_sha256": "358d0a6a0cc764a19cc1dd58b7c8d36de386b9a1ff3d34bbf8d9a4fca1e6f54a",
-  "decision": "approve exact OverflowError addition to documented organelle-count fallback",
-  "scope": "Only exception tuple changes; existing float/int conversion, finite legacy fractional/clamped behavior, maximum count and implied-slot fallback unchanged. Raw invalid setting remains editable, not claimed valid to run. Ten native baseline failures and positive controls remain required proof."
-}

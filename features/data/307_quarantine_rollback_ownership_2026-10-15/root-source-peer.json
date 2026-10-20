@@ -1,7 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "proposal_sha256": "a7fc443a585758ae664e54729c5e4e905539a5b7dfbae804c19bd75600788b19",
-  "decision": "approve exact descriptor-identity rollback guard",
-  "reason": "Record fstat only after exclusive create succeeds; failed create cannot trigger deletion. Compare lstat with recorded inode/device so foreign regular files and symlinks survive rollback; owned partial file still cleaned. Unchanged hard-link/success path and API prose.",
-  "limits": "Finite failed-copy/create rollback protection; final lstat-to-unlink race and success-path concurrent replacement not claimed solved. Required owner six-case baseline/final evidence remains separate."
-}

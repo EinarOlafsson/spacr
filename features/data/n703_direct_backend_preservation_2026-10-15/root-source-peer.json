@@ -1,7 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "proposal_sha256": "17e68af7dfd8b475ef19cd92fbcb7f3860dd56b65034d397f93a0eb7b101fe9a",
-  "decision": "approve exact configured-backend preservation addition",
-  "scope": "SPACR_BACKENDS_DIR is an existing independently configured environment/weight root; actual _backends_root strips/expanduser/abspath. New _user_data entry retains configured backend software/weights during ordinary app retirement; existing canonical path expansion supplies absolute protection. Tilde uses machine.home for bare/current-user home in fixtures. Preserve explicit purge opt-in, unconfigured app-software removal, all global cleanup/schema/prose behavior.",
-  "acceptance": "Seven native baseline failures plus existing external/unconfigured/purge controls; finite backend/staging/removal/lease controls required. No installed/downloaded backend or native Windows/macOS claim."
-}

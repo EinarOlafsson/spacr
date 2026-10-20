@@ -1,5 +1,0 @@
-Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/stage-tools/run_tool.py', 'tools/tutorials/native_live_timing.py', '--stage', '/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015', '--lesson', '05_home', '--output', '/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/production/05_home/video/native-live-timings.json']
-Source: 87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9
-50 source-bound tracks; 0 genuine footage duration gaps
-
-Terminal exit status: 0

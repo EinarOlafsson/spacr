@@ -1,6 +1,0 @@
-{"source_sha256": "448c0af4610d9fd3cdd591079881ea7205c68d6bacbfeba43ce6aa1baf9f38db", "report": {"restored": [], "skipped": [{"section": "table", "why": "FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/scratch/n180-carried-file-restore-20261015/tmpgvna58ue/original.csv'"}], "files": [{"role": "table.input", "path": "/mnt/wd4tb/scratch/n180-carried-file-restore-20261015/tmpgvna58ue/run/workspace/files/d5fc3337a3148acf__original.csv", "state": "carried"}]}, "provider_read": "None", "heavy_modules_loaded": false}
-Traceback (most recent call last):
-  File "/mnt/wd4tb/scratch/n180-carried-file-restore-20261015/reproduce.py", line 16, in <module>
-    assert report['restored']==['table'] and reader.read==b'actual retained rows\n', 'Carried bytes were found but never passed to the provider'
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: Carried bytes were found but never passed to the provider

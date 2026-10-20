@@ -1,1 +1,0 @@
-Initial audit mistakenly compared manifest array hashes to complete TIFF container hashes and raised AssertionError; builder source explicitly hashes array.tobytes(). No data defect inferred. Corrected reader verifies uncompressed TIFF strip payload against those exact array hashes. Original published archive SHA matches HF LFS exactly.

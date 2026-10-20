@@ -1,7 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "proposal_sha256": "b89c1af37d8e8f78bfd4a45120a62fb00a9768392ef51b5cedb24fcc177ee2e6",
-  "decision": "approve exact staged new-target array publication",
-  "scope": "Unique sibling private stage, held-file save/flush/fsync and close before exclusive hardlink; remove archive only after complete target publication. Concurrent target remains untouched and archive retained; preserve legacy existing-valid-target policy and umask. No API/caption/helper changes.",
-  "required_checks": "Real interrupted write/retry byte proof, normal keys/mode, concurrent target and cleanup; unsupported hardlink must warn and preserve intact NPZ with no partial final. Explicit filesystem limitation, not universal mounted-filesystem acceptance. Final5FAIL2PASS baseline includes four newly injected seam contracts, not four historical independently reproduced races."
-}

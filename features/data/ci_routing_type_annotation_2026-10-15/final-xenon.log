@@ -1,2 +1,0 @@
-ERROR:xenon:block "tests/test_ci_suite_classification.py:279 test_torch_heartbeat_runs_once_serially_and_its_failure_blocks_ci" has a rank of F
-ERROR:xenon:average complexity is ranked B

@@ -1,9 +1,0 @@
-{
-  "status": "ONEline fixture dependency repair, actualRootfourcase retry stillrequired",
-  "root_source_pin": "5d2ddb0b4cd08d5035f21cb41639ccd6dec6b971",
-  "source_proof": "Rootd381tool exact441helper matches accepted; removingnewhelper+singlecall restoresentirepriorRootAST, allN702/N639 sourceowners preserved.",
-  "actual_root_run": "4FAIL1.78s solely FileNotFoundError temp/spacr/channel_sorting.py. CurrentRootnormalcollector correctlyincludes newerchannel_sorting owner absentoriginaltinyfixturelist.",
-  "repair": "Addchannel_sorting.py to emptybackendfixturefilenames ONLY. No production/expectedsource/assertion/gate changes.",
-  "test_sha256": "f6ded8a45a09e76f392e5362cd805bfea28db467f564a42b4cfc4da13008dc80",
-  "retry": "Runonly four tests on actualRootcap2G underOriginalCPUlock aftercoordinator adopts; no old62repeat/globalcollector."
-}

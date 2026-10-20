@@ -1,8 +1,0 @@
-{
-  "before_sha256": "a0dbf4c24346126966177cd5ebe790fe03426bbc44dd6bc323e438d970fd1804",
-  "corrected_sha256": "5751b946b31444ab01a31ce3cf968ec18e02117c7a411a3af5a8628f3a7114da",
-  "original_prose_signatures_symbols_tr_unchanged": true,
-  "strip_terminal_codes_find_urls_fullAST_unchanged": true,
-  "peer_correction": "Root accepted Hard request to apply ANSI regex once then identical CR normalization directly; malformed/nested escape counterexample regression added. Original proposed bytes/hash preserved.",
-  "no_new_API_runtime_caption_helper_module": true
-}

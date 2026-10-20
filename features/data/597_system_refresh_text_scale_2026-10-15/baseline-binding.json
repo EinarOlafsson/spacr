@@ -1,9 +1,0 @@
-{
-  "base_commit": "2a64bc3bcee4d96aa4ea12561fac2cc34cbceab1",
-  "current_nightly": "686793f8642cbff9f9f6d3a25770864139e9089e",
-  "source_path": "spacr/qt/widgets/home.py",
-  "source_sha256": "15ed2f9dda2a579958b249f92bd43ffb919e0743eb23b32de4e9c82c244ede0d",
-  "same_source_as_origin_nightly": true,
-  "test_path": "tests/qt/test_597_system_refresh_text_scale.py",
-  "test_sha256": "b445edec9ffef74302f6cc438c91a3b416d7c3e5c2220f7db45922c33d3f9799"
-}

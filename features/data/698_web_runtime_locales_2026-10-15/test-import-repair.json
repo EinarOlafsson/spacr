@@ -1,8 +1,0 @@
-{
-  "actual_before": "Collection failed ModuleNotFoundError,0callbacks executed; exit2,1error1.13s",
-  "repair": "Use existing tests package-qualified fixture import; no runtime or assertion changes",
-  "frozen_test_sha256": "3b266269a7df3d8a894cff0e6cf1996ec70ffbdc75d4509d255015aa9abe84e1",
-  "actual_repaired_test_sha256": "d13928f9b51af1c2755f5fb623e31e4842b921530390de9dfbfb73073ba06298",
-  "exact_one_line_import_replacement": true,
-  "runtime_source_bodies_unchanged": true
-}

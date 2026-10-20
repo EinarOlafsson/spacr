@@ -1,6 +1,0 @@
-{
-  "reviewer": "Original Home root, adopting independent Hard exact source peer and specified correction",
-  "approved_source_sha256": "5751b946b31444ab01a31ce3cf968ec18e02117c7a411a3af5a8628f3a7114da",
-  "decision": "Root approved CR carry plus one exact correction before application: after the single _ANSI.sub and CR carry, directly return text.replace(CRLF,LF).replace(CR,LF). Public stateless helper remains unchanged. Hard malformed nested-escape counterexample retained as owning regression.",
-  "scope": "Original8new +37existing cohort expanded by exactly1 peer counterexample, no generator/full CI or other source changes."
-}

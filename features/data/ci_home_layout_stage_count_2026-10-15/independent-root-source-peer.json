@@ -1,9 +1,0 @@
-{
-  "verdict": "ACCEPT",
-  "source_commit": "2b5a5aa108760ae1dd42d97df8f2071563ad2a2f",
-  "exact_tested_files_after_integration": [
-    "tests/qt/test_home_layout.py"
-  ],
-  "review": "Export format and DPI state assertions retained; exact published scientifically accurate captions replace stale substrings. Home count ratchet decreases39to37 for existing Classify/Toxoplasma declarations, preserves partitions and explicitly keeps seven alpha organisms. No production/registry/ratchet ceiling increases.",
-  "test_reexecution": "None; owning meaningful before/after receipts inspected."
-}

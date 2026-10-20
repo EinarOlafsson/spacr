@@ -1,6 +1,0 @@
-{
-  "original_sha256": "5feb0d79f47630e82c3f0308ede453dce38e5628418fc789dd8b8034351e7085",
-  "proposed_sha256": "f32c177776ce5fe5cba9f00f7c21f47d0d06af8edb4a35b25872b02d5a7674c5",
-  "scope": "Only numeric target-class conversion in existing helper. Decimal preserves exact saved numeric text, rejects fraction/underflow/nonfinite/out-of-class values via existing ValueError, integer conversion only after bounded valid class range. Named-condition route returns before this code, all algorithms/settings/UI/prose/strings unchanged.",
-  "limits": "Input identity boundary only; no generator/classifier training or counterfactual scientific-quality guarantee."
-}

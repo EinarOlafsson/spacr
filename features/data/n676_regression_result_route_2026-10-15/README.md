@@ -1,5 +1,0 @@
-Held source bf8d18835fd24e499991a377146c8cbcdeb2cc0f corrects an obsolete Regression recorder interaction. Failed whole55 stopped after11selected rawclips because unselected generic scene24 clicked the hidden legacy FigureQueue behind the current public results workspace. Actual worker completed with5figures; host workflow failed, no scientific/native acceptance, cleanup survivors empty.
-
-Only Regression skips generic24; existing real public Runs/Results/detail-tab tour, figure exports/counts, pipeline and late error checks remain unchanged. Canonical15does not include24. Two owning tests passed4.74s, including real AppScreen result/figure slots and actual tab mouse clicks, unchangedsettings/noRun; another module retains original24 behavior. Independent HIGH source peer PASS decompressed SHA256 374e5d97dbd144133bf69663e0f865b783471f35a0ab48807f7b24730889552e.
-
-Home: review/import exact narrow held patch, preserve newer Home and previous public Classify/fold-visibility repairs. No app source/gate change or private widget show. Fresh whole56 will capture exact clean bf8d; no55clips reused. This features packet does not apply source.

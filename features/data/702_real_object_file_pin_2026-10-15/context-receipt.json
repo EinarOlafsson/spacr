@@ -1,8 +1,0 @@
-{
-  "baseline": "2FAIL0.83s unknownPOSIX/Windows requests lacked compatible keys/checksum; no deserialization.",
-  "final": "9PASS5.10s exit0, including original7filepin/control cases with explicit newcontext interface assertions.",
-  "scope": "Only real-object bundle loader preserves rawrequested, forwards actualsetting and retains ValueError with existing localized context. Existing files/folders/decoder unchanged.",
-  "source_sha256": "a12e4d22cfcc2fa400bdfd6b4cb8c0812af994c6fee6bdc7e42a8641215f4c9f",
-  "test_sha256": "f9492376763267e3b85e130ed3259e9728137f661e743a00aaef15830b67cb99",
-  "no_new_target": true
-}

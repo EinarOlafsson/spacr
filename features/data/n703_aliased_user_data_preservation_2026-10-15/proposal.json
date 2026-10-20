@@ -1,8 +1,0 @@
-{
-  "before_sha256": "ce83661355adafec15a81cfb62990e6394d98f90ecf74a7e3d0fd1760e47f44a",
-  "proposed_sha256": "bc9d50b69ea9b91a3e9657ab296087cecb0d0e2d49e4ddee17ac021e0ab51a48",
-  "source": "_user_data body only, retain every configured spelling then append resolved physical targets, de-duplicate spellings without inode de-duplication.",
-  "protection": "Existing _refusal, recursive _delete keep/inner_keep, final lease empty-root guard all consult the same list. Global containment/deletion/symlink behavior unchanged. Fresh lookup handles moved/retargeted aliases; dangling aliases remain original protected spellings and resolved missing paths cannot delete anything.",
-  "production_applied": false,
-  "cases": "4 SPACR_HOME/HF_HOME \u00d7final/parent aliases into oldvenv; empty aliased root lease cleanup; configured link insideoldvenv to external data; moved+retargeted alias; broken alias with unrelated sentinel."
-}

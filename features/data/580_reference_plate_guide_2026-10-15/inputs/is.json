@@ -1,7 +1,0 @@
-[
-  {
-    "domain": "measure_live",
-    "msgid": "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name.",
-    "msgstr": "Þegar **Sýna alfa-eiginleika** er virkt tekur styrkkvörðun við valfrjálsu heiti viðmiðunarplötu í ``intensity_calibration_reference_plate``; skildu reitinn eftir auðan til að nota fyrstu plötuna í nafnaröð."
-  }
-]

@@ -1,6 +1,0 @@
-{
-  "before_test_sha256": "823cc22d55ef2228e4374b6c86f749120ba05dc5266526565eb6472cb690484e",
-  "final_test_sha256": "8cc56d718d94b98fcfd1ff90b19b3393b6cc0f762d5c47dc7b6b498a2a9b3768",
-  "delta": "Follow existing optionalGradio importorskip convention so minimalprofiles withoutGradio collect normally; remove authored hardcodedversionassert so same behavioral regression supports ordinarynewerGradio. Actual28run used exact6.17.3; realC0preprocess assertion retained.",
-  "production_source_unchanged": true
-}

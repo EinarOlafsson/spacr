@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -uo pipefail
-set -C
-cd /media/carruthers/mnt3/claude/spacr-f288-cupy-20261013
-printf '%s\n' "$BASHPID" > /media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1-outer.pid
-env -u GPU_IDLE_S -u GPU_GAP_S -u GPU_POLL_S CUDA_VISIBLE_DEVICES=0 QT_QPA_PLATFORM=offscreen PYTEST_QT_API=pyside6 SPACR_NO_GL=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 COVERAGE_FILE=/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1/.coverage-f288-real-cupy /media/carruthers/mnt3/claude/spacr-f288-cupy-20261013/tools/gpu_turn.sh f288-ops-real-cupy-20261013 timeout --signal=TERM --kill-after=15s 180s /media/carruthers/mnt3/claude/spacr-f288-cupy-20261013/tools/run_capped.sh 6G /home/carruthers/anaconda3/envs/spacr/bin/python /media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct_coverage_runner.py --output /media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1 > /media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1.log 2>&1
-cu_task_status=$?
-printf '%s\n' "$cu_task_status" > /media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/approved-attempt-1.exit
-exit "$cu_task_status"

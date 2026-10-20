@@ -1,8 +1,0 @@
-RuntimeMaxUSec=2h 13min 20s
-MainPID=0
-ExecMainStatus=1
-CPUQuotaPerSecUSec=1s
-MemoryMax=8589934592
-MemorySwapMax=0
-ActiveState=failed
-SubState=failed

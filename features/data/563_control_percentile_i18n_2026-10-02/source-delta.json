@@ -1,9 +1,0 @@
-{
-  "base_commit": "3f2c0563b5685a07f443a201a0f21efd9b4b60e6",
-  "added_ui": [
-    "Control percentile"
-  ],
-  "removed_ui": [],
-  "before_ui": 6525,
-  "after_ui": 6526
-}

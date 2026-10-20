@@ -1,3 +1,0 @@
-{
-  "spacr.qt.widgets.volume_view.angles_from_axes": "Return ``(elev, azim, roll)`` in degrees for the supplied screen axes.\n\n``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the\nroll then carries whatever turn about the line of sight the frame has.\nNear either pole, where ``abs(w[2]) > 1.0 - 1e-9`` after normalization,\nthe returned elevation is ``89.9999`` or ``-89.9999`` degrees. The azimuth\nis chosen from ``u`` and roll is zero. This branch deliberately\napproximates the supplied frame instead of returning an exact pole.\n\n:param u: the screen's right-pointing axis.\n:param w: the axis pointing out of the screen."
-}

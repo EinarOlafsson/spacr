@@ -1,6 +1,0 @@
-{
-  "exact_scope": "One4line earlyguard inexisting _backbone_scorecards; removingguard recovers alloriginalAST. No changedfunctionsignature/docstring/nestedhelperdefinition/API text, no modelmathchanges.",
-  "source_module": "/mnt/wd4tb/spacr-worktrees/codex-f567-parent-identity-20261015/spacr/embeddings.py",
-  "proposed_source_sha256": "d64ddef0b98e23e519f19f480e12da0326ea4f860bd5b3995a670e829ec15f7d",
-  "normal_api_reason": "Existingprivateouter helper unchanged documentation/eligibility; no newnestedfunction or class target. Body-only addition has no translatable APIprose delta; normalruntime collector exactowner addition stillrequired."
-}

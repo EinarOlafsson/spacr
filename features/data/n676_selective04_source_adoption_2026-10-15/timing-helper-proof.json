@@ -1,7 +1,0 @@
-{
-  "original_module_blob": "1d37097497ad78e59c6a0eccb777010fb4f7debe",
-  "remove_only_author_helper_and_Fraction_restores_entire_original_AST": true,
-  "helper_AST_exact_author_e257": true,
-  "source_sha256": "3cf5164132d080d9e26c2e76c88c47f5cb61e4c14b0cdb5dd2317acf4f58f578",
-  "test_sha256": "7f2ab1069d6c4852fca7a2b9d80689fded90dfa2b82ea95c8abbf5f8024eda27"
-}

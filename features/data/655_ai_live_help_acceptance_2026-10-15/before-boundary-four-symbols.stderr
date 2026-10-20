@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/mnt/wd4tb/scratch/n655-ai-toggle-help-20261015/check_four_symbols.py", line 36, in <module>
-    assert module not in sys.modules, module
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: spacr.qt.widgets.ai_toggle_label

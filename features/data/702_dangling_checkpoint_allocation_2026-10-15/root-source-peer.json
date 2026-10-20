@@ -1,7 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "proposal_sha256": "4a065a1fe20ad439f9d43102ff3a6bdb8de0fb70399ad05e9fdab61c289adb4d",
-  "decision": "approve exact dangling-link occupancy predicate",
-  "scope": "Treat existing symlink as occupied even when target absent; retain original name/base/version/suffix behavior and exclusive claim. No overwriting/removing dangling user link, network/model/API prose change.",
-  "evidence": "Six native failures including bounded actual O_EXCL refusals and fetch; no runaway busy loop. Necessary version/fetch/concurrent/reservation controls must pass on exact patch."
-}

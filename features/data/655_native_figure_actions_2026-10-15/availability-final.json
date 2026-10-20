@@ -1,9 +1,0 @@
-{
-  "memory_bytes": {
-    "MemTotal": 135000322048,
-    "MemAvailable": 99319906304
-  },
-  "desktop_idle": "(uint64 5649777,)",
-  "recording_encoding_processes": [],
-  "parent_authorized_correction": "Re-enumerate current header after layout-changing Clear; all assertions unchanged."
-}
