@@ -1,0 +1,24 @@
+{
+  "language": "sv",
+  "note": "Upstream 60172283ca: CollapsibleSplitter.rebalance docstring.",
+  "records": [
+    {
+      "context": "Worked out in the pixels the panes are drawn at, because a heading and a wrapped row are measured in them; only a remembered size is kept in 100 % units, and is scaled here.",
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.rebalance#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Worked out in the pixels the panes are drawn at, because a heading and a wrapped row are measured in them; only a remembered size is kept in 100 % units, and is scaled here.",
+      "source_sha256": "eb3aef1296f5df7fd8d8e5160bea2675f33f4036b58fa9911e3d30d932d8028d",
+      "translation": "Beräknas i de pixlar som panelerna ritas i, eftersom en rubrik och en radbruten rad mäts i dem; endast en ihågkommen storlek lagras i enheter för 100 %, och den skalas här."
+    },
+    {
+      "context": "the sizes set, in 100 % units, or ``[]`` when there was nothing to lay out.",
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.rebalance#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "the sizes set, in 100 % units, or ``[]`` when there was nothing to lay out.",
+      "source_sha256": "5ee426b9096253487aa5525fc35e95a33e6e8cb56cfa39323eef9bfdd170355a",
+      "translation": "de storlekar som sattes, i enheter för 100 %, eller ``[]`` när det inte fanns något att lägga ut."
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}

@@ -13,6 +13,8 @@
     {
       "context": "the sizes set, or ``[]`` when there was nothing to lay out.",
       "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.rebalance#2",
+      "retired": "2026-10-20",
+      "retired_reason": "CollapsibleSplitter.rebalance docstring rewritten in 60172283ca; the current blocks have records in 2026-10-20-late-drift-api.json",
       "review_basis": "MT draft edited in AI review",
       "source": "the sizes set, or ``[]`` when there was nothing to lay out.",
       "source_sha256": "696509aabd8e5d0f2c3c644dea5541da5d01fe7cda37b8757b721940ff69292d",
