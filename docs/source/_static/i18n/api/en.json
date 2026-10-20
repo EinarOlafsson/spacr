@@ -47796,58 +47796,6 @@
       "source_sha256": "fd828672fe1cb726dd04873ff45db521c5597b16010f0395fd5dab71456faf3f",
       "text": "The crop's path on *this* machine, re-anchored if the dataset moved.\n\n``png_list`` stores absolute paths built at measure time, so a dataset\ncopied to another disk resolves to nothing and every preview is blank.\n:func:`spacr.qt.screens.annotate._reanchor_png_path` already knows how to\nrebuild one from the ``/data/`` segment under the database's own root;\nthis borrows it rather than growing a third copy of that rule, and falls\nback to the stored path when the Annotate screen is not importable (a\nheadless test, a trimmed install).\n\n:param path: crop path as stored in ``png_list``; returned unchanged when\n    it is empty or already exists as a file."
     },
-    "spacr.qt.curation_timing": {
-      "source_blocks_sha256": [
-        "c468c8c4cd5a87df6fc3844eff2c2a629095a87d7774171cf512c7481585b785",
-        "876592925ed51d790177eeca4e2b950d08be4371e51bea0c6a20a9bc33832059"
-      ],
-      "source_sha256": "d5d7074ea2cfdd1c4ba32f2a633d0ad5ce87e35224fb17f63374b8c699cbe7e8",
-      "text": "Per-field timing log for a timed curation session.\n\nOne row is appended to ``<queue folder>/curate_timing.csv`` each time a field\nis saved or skipped in Make Masks. Nothing here may block or crash curation:\n:func:`log_visit` swallows and logs every failure."
-    },
-    "spacr.qt.curation_timing.FieldTimer": {
-      "source_blocks_sha256": [
-        "b72c007563fd28c1f0714a07bc273e8d74a50cc9dd098a8f70f2e09077c5e103"
-      ],
-      "source_sha256": "b72c007563fd28c1f0714a07bc273e8d74a50cc9dd098a8f70f2e09077c5e103",
-      "text": "Wall and active time for one field on screen."
-    },
-    "spacr.qt.curation_timing.FieldTimer.touch": {
-      "source_blocks_sha256": [
-        "09355ac5d8e277477590b550590c4aaeec373028ca261e1ec85746289c01bb9a"
-      ],
-      "source_sha256": "09355ac5d8e277477590b550590c4aaeec373028ca261e1ec85746289c01bb9a",
-      "text": "Mark user activity; gaps over the idle limit are not counted."
-    },
-    "spacr.qt.curation_timing.append_row": {
-      "source_blocks_sha256": [
-        "eab541fe6aa87d28372975c42ab170cad4f05fdef5003b93ad1b78bccdf94703"
-      ],
-      "source_sha256": "eab541fe6aa87d28372975c42ab170cad4f05fdef5003b93ad1b78bccdf94703",
-      "text": "Append ``row`` to the folder's timing CSV, writing the header if new."
-    },
-    "spacr.qt.curation_timing.build_row": {
-      "source_blocks_sha256": [
-        "711055e82cee26e6cc528c083814d8bba676193cb20c8f6b63cfedba7cb67f8a"
-      ],
-      "source_sha256": "711055e82cee26e6cc528c083814d8bba676193cb20c8f6b63cfedba7cb67f8a",
-      "text": "The CSV row for one finished visit."
-    },
-    "spacr.qt.curation_timing.count_object_changes": {
-      "source_blocks_sha256": [
-        "7b0534db39d432dc367a4ca7e3accdff9666e9ae9777db402cb59f34aece63ef",
-        "b02ca027270c5337e4fdd24ad519026a50a6064cdefda4367c4a1cb3ff9c8129",
-        "f1e57b3c8bd7ca74582ba51c80e030cf0f2c2bacc2e9b25fa053a3ce229ba0fb"
-      ],
-      "source_sha256": "b919c781806a4e4c531b210d68f6c74bfc5559ab34ce4e6157ec47724808ed81",
-      "text": "Compare two label arrays by IoU matching.\n\nObjects are paired greedily by descending IoU; a pair needs IoU >= 0.5,\nand is *modified* when IoU < 0.9. Unpaired ``after`` objects are added,\nunpaired ``before`` objects are removed.\n\n:returns: ``(n_before, n_after, added, removed, modified)``."
-    },
-    "spacr.qt.curation_timing.log_visit": {
-      "source_blocks_sha256": [
-        "bf1afb371bdc2112627b8bede8b56c65fa42abc93d21ee30ac444049c2af68b9"
-      ],
-      "source_sha256": "bf1afb371bdc2112627b8bede8b56c65fa42abc93d21ee30ac444049c2af68b9",
-      "text": "Build and append one row; never raises."
-    },
     "spacr.qt.curation_tool": {
       "source_blocks_sha256": [
         "2fd65b85ca385510001da901d7fede3046043d365553b1c7872c68d5132ee927",
@@ -58053,10 +58001,11 @@
     },
     "spacr.qt.preferences.get_font_scale": {
       "source_blocks_sha256": [
-        "5367c8ff589146b57284866676a2a82adeec3e4bbd4dd6522abff3251740e264"
+        "8032d89a1951c3b373da6f4494a11326c87cf13372c7e19d4a88d92e20966867",
+        "9b74a1f12a59e4d911dd1e2938ca119f303790da508cdd1acdc5577bc8a19d4e"
       ],
-      "source_sha256": "5367c8ff589146b57284866676a2a82adeec3e4bbd4dd6522abff3251740e264",
-      "text": "Return the saved UI font scale, clamped to supported bounds."
+      "source_sha256": "27e6cdb440f4d3190498b146eed49db87e29b6d30ddfc6d8eb3ed53effa70c34",
+      "text": "Return the UI font scale, clamped to supported bounds.\n\nThe stored choice when there is one; otherwise the screen-aware\ndefault of :func:`_screen_default_scale`."
     },
     "spacr.qt.preferences.get_fractal_settings": {
       "source_blocks_sha256": [
@@ -58092,11 +58041,11 @@
     },
     "spacr.qt.preferences.get_gui_scale": {
       "source_blocks_sha256": [
-        "5aa7542d83f6badc3d42bc3aeb53a3e226cc74d737da4ba050288744f556e760",
-        "f5be1dc73529d15cc10ce13ecc03379d00ee0a856aa3aa29f98c1afc87eb405a"
+        "d4b0952dc1849fbb88dfa02c502f39acf2ba27be9a02445317d81fdd60dff447",
+        "844d474b69d640c5620cd1ffe3691140207f0e200c0b9c9be6894e25c85b9441"
       ],
-      "source_sha256": "7f4f64aebae5946d35b8e4b3fa80a5fd7389110204db182b95b091457eef4f7c",
-      "text": "Return the saved whole-GUI scale, clamped to supported bounds.\n\nApplied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale`\nand live by :func:`spacr.qt.gui_scale.set_gui_scale_live`."
+      "source_sha256": "2ef17937940b3ee580ad8837f9b313ee9859416515e6fa2d769a9e69da0a54e3",
+      "text": "Return the whole-GUI scale, clamped to supported bounds.\n\nThe stored choice when there is one; otherwise the screen-aware\ndefault of :func:`_screen_default_scale`. Applied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale`\nand live by :func:`spacr.qt.gui_scale.set_gui_scale_live`."
     },
     "spacr.qt.preferences.get_hash_inputs": {
       "source_blocks_sha256": [

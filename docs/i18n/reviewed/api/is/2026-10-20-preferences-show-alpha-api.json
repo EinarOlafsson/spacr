@@ -1,0 +1,56 @@
+{
+  "language": "is",
+  "note": "Upstream 5e0aead945: spacr.qt.preferences module, get_show_alpha (now defaults to False), get_gui_scale and get_font_scale docstrings.",
+  "records": [
+    {
+      "context": "``show_alpha`` (default ``False``) / ``show_beta`` (default ``True``): bool. Control whether modules and settings at that maturity are shown. Stable features are always visible.",
+      "label": "spacr.qt.preferences#17",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``show_alpha`` (default ``False``) / ``show_beta`` (default ``True``): bool. Control whether modules and settings at that maturity are shown. Stable features are always visible.",
+      "source_sha256": "97f1bc01d72e5d1c8735938a6ba25e864032be9ae3a56a4b42f2019531c1578f",
+      "translation": "``show_alpha`` (sjálfgefið ``False``) / ``show_beta`` (sjálfgefið ``True``): bool. Stjórna því hvort einingar og stillingar á því þroskastigi eru sýndar. Stöðugir eiginleikar eru alltaf sýnilegir."
+    },
+    {
+      "context": "Return the UI font scale, clamped to supported bounds.",
+      "label": "spacr.qt.preferences.get_font_scale#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Return the UI font scale, clamped to supported bounds.",
+      "source_sha256": "8032d89a1951c3b373da6f4494a11326c87cf13372c7e19d4a88d92e20966867",
+      "translation": "Skila leturkvarða UI, takmörkuðum við studd mörk."
+    },
+    {
+      "context": "The stored choice when there is one; otherwise the screen-aware default of :func:`_screen_default_scale`.",
+      "label": "spacr.qt.preferences.get_font_scale#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The stored choice when there is one; otherwise the screen-aware default of :func:`_screen_default_scale`.",
+      "source_sha256": "9b74a1f12a59e4d911dd1e2938ca119f303790da508cdd1acdc5577bc8a19d4e",
+      "translation": "Vistaða valið þegar það er til; annars sjálfgildið sem tekur mið af skjánum, úr :func:`_screen_default_scale`."
+    },
+    {
+      "context": "Return the whole-GUI scale, clamped to supported bounds.",
+      "label": "spacr.qt.preferences.get_gui_scale#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Return the whole-GUI scale, clamped to supported bounds.",
+      "source_sha256": "d4b0952dc1849fbb88dfa02c502f39acf2ba27be9a02445317d81fdd60dff447",
+      "translation": "Skila kvarða alls GUI, takmörkuðum við studd mörk."
+    },
+    {
+      "context": "The stored choice when there is one; otherwise the application view-aware default of :func:`_screen_default_scale`. Applied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale` and live by :func:`spacr.qt.gui_scale.set_gui_scale_live`.",
+      "label": "spacr.qt.preferences.get_gui_scale#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The stored choice when there is one; otherwise the screen-aware default of :func:`_screen_default_scale`. Applied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale` and live by :func:`spacr.qt.gui_scale.set_gui_scale_live`.",
+      "source_sha256": "844d474b69d640c5620cd1ffe3691140207f0e200c0b9c9be6894e25c85b9441",
+      "translation": "Vistaða valið þegar það er til; annars sjálfgildið sem tekur mið af skjánum, úr :func:`_screen_default_scale`. Beitt við ræsingu af :func:`spacr.qt.gui_scale.apply_saved_gui_scale` og jafnóðum af :func:`spacr.qt.gui_scale.set_gui_scale_live`."
+    },
+    {
+      "context": "Whether Alpha modules and settings are visible (default: ``False``).",
+      "label": "spacr.qt.preferences.get_show_alpha#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Whether Alpha modules and settings are visible (default: ``False``).",
+      "source_sha256": "55e9fe6a951ea258159f615db6ac67d3805f392028a51e4468a6a6580630f7b4",
+      "translation": "Hvort Alpha-einingar og -stillingar eru sýnilegar (sjálfgefið: ``False``)."
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}

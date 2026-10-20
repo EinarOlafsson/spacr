@@ -2888,6 +2888,8 @@
     },
     {
       "label": "spacr.qt.preferences.get_gui_scale#0",
+      "retired": "2026-10-20",
+      "retired_reason": "spacr.qt.preferences docstrings rewritten in 5e0aead945 (show_alpha defaults to False); the current blocks have records in 2026-10-20-preferences-show-alpha-api.json",
       "source": "Return the saved whole-GUI scale, clamped to supported bounds.",
       "source_sha256": "5aa7542d83f6badc3d42bc3aeb53a3e226cc74d737da4ba050288744f556e760",
       "context": "Return the saved whole-GUI scale, clamped to supported bounds.",
@@ -2896,6 +2898,8 @@
     },
     {
       "label": "spacr.qt.preferences.get_gui_scale#1",
+      "retired": "2026-10-20",
+      "retired_reason": "spacr.qt.preferences docstrings rewritten in 5e0aead945 (show_alpha defaults to False); the current blocks have records in 2026-10-20-preferences-show-alpha-api.json",
       "source": "Applied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale` and live by :func:`spacr.qt.gui_scale.set_gui_scale_live`.",
       "source_sha256": "f5be1dc73529d15cc10ce13ecc03379d00ee0a856aa3aa29f98c1afc87eb405a",
       "context": "Applied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale` and live by :func:`spacr.qt.gui_scale.set_gui_scale_live`.",

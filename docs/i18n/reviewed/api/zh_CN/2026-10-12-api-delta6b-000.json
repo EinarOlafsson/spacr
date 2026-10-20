@@ -4486,6 +4486,8 @@
     },
     {
       "label": "spacr.qt.preferences#17",
+      "retired": "2026-10-20",
+      "retired_reason": "spacr.qt.preferences docstrings rewritten in 5e0aead945 (show_alpha defaults to False); the current blocks have records in 2026-10-20-preferences-show-alpha-api.json",
       "source": "``show_alpha`` / ``show_beta``: bool, both default ``True``. Control whether modules and settings at that maturity are shown. Stable features are always visible.",
       "source_sha256": "1e1c2796b5672d22615df126c341330a62d6f73fbcf36a6dfbdec64d61f3603c",
       "context": "``show_alpha`` / ``show_beta``: bool, both default ``True``. Control whether modules and settings at that maturity are shown. Stable features are always visible.",
