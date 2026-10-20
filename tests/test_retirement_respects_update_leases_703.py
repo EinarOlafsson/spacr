@@ -42,6 +42,7 @@ def installation(tmp_path, monkeypatch):
     return root, launcher, machine, record
 
 
+@pytest.mark.posix_only
 def test_real_active_installer_cannot_be_retired_from_another_root(installation, tmp_path):
     root, launcher, machine, record = installation
     command, environment = _installer(tmp_path, root)
@@ -65,6 +66,7 @@ def test_real_active_installer_cannot_be_retired_from_another_root(installation,
     assert (root / 'cache/model').read_text(encoding="utf-8") == 'weights'
 
 
+@pytest.mark.posix_only
 def test_installer_cannot_enter_between_retirement_check_and_actual_delete(installation, tmp_path, monkeypatch):
     root, launcher, machine, record = installation
     command, environment = _installer(tmp_path, root)

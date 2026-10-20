@@ -786,6 +786,7 @@ def test_a_module_missing_from_the_data_fails_even_with_an_allowance(tmp_path):
     assert _module(report, "demo/logic.py")["failures"] == ["missing coverage row"]
 
 
+@pytest.mark.posix_only
 def test_a_missing_shard_turns_the_combine_step_red(tmp_path):
     if shutil.which("bash") is None:
         pytest.fail("the combine step is bash; this runner has no bash")

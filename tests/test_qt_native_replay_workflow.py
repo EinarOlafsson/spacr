@@ -201,6 +201,7 @@ def test_native_replay_retains_failure_and_bounded_core_capture():
         '${{ runner.temp }}/spacr-coverage-data/')
 
 
+@pytest.mark.posix_only
 def test_two_attempt_shell_stops_on_either_failure_and_separates_data(tmp_path):
     """A failed first or second replay keeps its failure and original receipt."""
     job = _workflow()['jobs']['replay']
@@ -311,6 +312,7 @@ def _sidecar(name):
     return module
 
 
+@pytest.mark.posix_only
 def test_safe_start_job_defers_runner_paths_until_runtime(tmp_path):
     """Job env cannot evaluate runner context; steps publish its actual paths."""
     job = _workflow()['jobs']['safe-start']
@@ -392,6 +394,7 @@ def test_child_capture_failure_preserves_original_call_and_outcome(
     assert sidecar._errors
 
 
+@pytest.mark.posix_only
 def test_child_phase_write_failure_cannot_escape_the_profile_callback(
         tmp_path, monkeypatch):
     """A failing phase journal marks integrity without interrupting app code."""

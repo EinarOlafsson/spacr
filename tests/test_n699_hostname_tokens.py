@@ -1,10 +1,28 @@
 """HostName substitutions agree with isolated OpenSSH configuration resolution."""
+import getpass
+import os
 import shutil
 import subprocess
 
 import pytest
 
 from spacr import remote_execution as remote
+
+
+def _owner_only(tmp_path):
+    """A folder Windows OpenSSH accepts config files from.
+
+    Windows OpenSSH refuses (exit 255, "Bad owner or permissions") a config
+    file whose ACL grants OWNER RIGHTS, which is what Python 3.12.4+ mkdtemp
+    folders, and so pytest's tmp_path, hand down. A real ~/.ssh does not.
+    """
+    folder = tmp_path / 'ssh'
+    folder.mkdir()
+    if os.name == 'nt':
+        subprocess.run(['icacls', str(folder), '/inheritance:r', '/grant:r',
+                        getpass.getuser() + ':(OI)(CI)F'],
+                       capture_output=True, check=True, timeout=30)
+    return folder
 
 
 @pytest.mark.skipif(shutil.which('ssh') is None, reason='Native OpenSSH parser unavailable')
@@ -14,6 +32,7 @@ from spacr import remote_execution as remote
     '%h%%.invalid', '%%.invalid', None,
 ])
 def test_hostname_tokens_match_native_without_rescanning(tmp_path, template):
+    tmp_path = _owner_only(tmp_path)
     config = tmp_path / 'config'
     child = tmp_path / 'child'
     child.write_text('Host wanted\n' + (' HostName ' + template + '\n' if template else ''), encoding="utf-8")

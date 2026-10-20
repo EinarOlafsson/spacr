@@ -120,6 +120,7 @@ def test_test_data_keeps_whole_fields(builder, tmp_path):
     assert len(builder.select_test_fields([tmp_path / n for n in names], 0)) == 9
 
 
+@pytest.mark.posix_only
 def test_checksums_cover_every_file_but_themselves(builder, tmp_path):
     (tmp_path / "wheels").mkdir()
     (tmp_path / "wheels" / "a.whl").write_bytes(b"a")
@@ -138,6 +139,7 @@ def test_mask_check_replaces_only_models_the_bundle_cannot_resolve(mask_check, t
     assert mask_check.model_overrides(settings, "cpsam") == ["pathogen_model_name=cpsam"]
 
 
+@pytest.mark.posix_only
 def test_unix_offline_dry_run_uses_the_bundle_and_never_downloads(tmp_path):
     installer = _unix_installer(tmp_path)
     bundle = tmp_path / "bundle"
@@ -155,6 +157,7 @@ def test_unix_offline_dry_run_uses_the_bundle_and_never_downloads(tmp_path):
     assert not (tmp_path / "spacr").exists()
 
 
+@pytest.mark.posix_only
 def test_unix_offline_refuses_a_folder_that_is_not_a_bundle(tmp_path):
     installer = _unix_installer(tmp_path)
     result = subprocess.run(

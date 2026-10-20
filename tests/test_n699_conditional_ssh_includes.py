@@ -1,5 +1,6 @@
 """Static Include scopes agree with private native OpenSSH configuration probes."""
 import getpass
+import os
 import shutil
 import subprocess
 
@@ -8,12 +9,29 @@ import pytest
 from spacr import remote_execution as remote
 
 
+def _owner_only(tmp_path):
+    """A folder Windows OpenSSH accepts config files from.
+
+    Windows OpenSSH refuses (exit 255, "Bad owner or permissions") a config
+    file whose ACL grants OWNER RIGHTS, which is what Python 3.12.4+ mkdtemp
+    folders, and so pytest's tmp_path, hand down. A real ~/.ssh does not.
+    """
+    folder = tmp_path / 'ssh'
+    folder.mkdir()
+    if os.name == 'nt':
+        subprocess.run(['icacls', str(folder), '/inheritance:r', '/grant:r',
+                        getpass.getuser() + ':(OI)(CI)F'],
+                       capture_output=True, check=True, timeout=30)
+    return folder
+
+
 @pytest.mark.skipif(shutil.which('ssh') is None, reason='Native OpenSSH parser unavailable')
 @pytest.mark.parametrize('case', [
     'inactive', 'active', 'negated', 'wildcard', 'nested_inactive',
     'nested_active', 'parent_restore', 'first_value', 'glob_restore', 'nested_restore',
 ])
 def test_include_scopes_match_native_private_config(tmp_path, case):
+    tmp_path = _owner_only(tmp_path)
     child = tmp_path / 'child.conf'
     grandchild = tmp_path / 'grandchild.conf'
     target = 'wanted'
@@ -50,16 +68,27 @@ def test_include_scopes_match_native_private_config(tmp_path, case):
     child.write_text(child_text.format(grandchild=grandchild), encoding="utf-8")
     config = tmp_path / 'config'
     config.write_text(parent.format(child=child), encoding="utf-8")
+    empty = tmp_path / 'empty'
+    empty.write_text('', encoding="utf-8")
     before = {path: path.read_bytes() for path in tmp_path.rglob('*') if path.is_file()}
-    result = subprocess.run(
-        ['ssh', '-G', '-F', str(config), '-o', 'CanonicalizeHostname=no',
-         '-o', 'ControlMaster=no', target],
-        capture_output=True, text=True, check=True, timeout=5,
-    )
-    native = dict(line.split(' ', 1) for line in result.stdout.splitlines() if ' ' in line)
+
+    def probe(path):
+        result = subprocess.run(
+            ['ssh', '-G', '-F', str(path), '-o', 'CanonicalizeHostname=no',
+             '-o', 'ControlMaster=no', target],
+            capture_output=True, text=True, check=True, timeout=5,
+        )
+        return dict(line.split(' ', 1) for line in result.stdout.splitlines() if ' ' in line)
+
+    native = probe(config)
+    unconfigured = probe(empty)['user']
+    # Windows OpenSSH defaults to the lowercased domain\user of a domain
+    # account, so the default is taken from ssh itself rather than assumed.
+    if os.name != 'nt':
+        assert unconfigured == getpass.getuser()
     directives = remote._ssh_config_directives([config])
     actual = remote._ssh_lookup(target, directives)
-    assert actual.get('user', getpass.getuser()) == native['user']
+    assert actual.get('user', unconfigured) == native['user']
     assert actual['hostname'] == native['hostname']
     assert actual['port'] == native['port']
     assert {path: path.read_bytes() for path in before} == before

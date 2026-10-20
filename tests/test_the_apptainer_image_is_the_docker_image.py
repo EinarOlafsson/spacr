@@ -132,6 +132,7 @@ def test_the_definition_needs_no_root_step():
 
 
 @pytest.mark.parametrize("section", ["environment", "runscript", "test"])
+@pytest.mark.posix_only
 def test_each_script_section_is_posix_sh(section, tmp_path):
     """Apptainer runs these with /bin/sh; a bashism fails only on the node."""
     script = tmp_path / f"{section}.sh"
@@ -160,6 +161,7 @@ def _entrypoint(tmp_path: Path, **extra: str) -> tuple[Path, str]:
 
 @pytest.mark.parametrize("variable", ["APPTAINER_CONTAINER",
                                       "SINGULARITY_CONTAINER"])
+@pytest.mark.posix_only
 def test_under_apptainer_nothing_is_linked_into_the_real_home(
         variable, tmp_path):
     """A link to an image-only /models would outlive the container."""
@@ -179,6 +181,7 @@ def test_the_entrypoint_hands_a_bound_models_folder_to_cellpose():
         assert "CELLPOSE_LOCAL_MODELS_PATH" in text
 
 
+@pytest.mark.posix_only
 def test_the_image_libraries_come_before_the_nv_bound_host_libraries(tmp_path):
     """--nv binds a host libEGL that can need a newer glibc than the image's.
 
@@ -200,6 +203,7 @@ def test_the_image_libraries_come_before_the_nv_bound_host_libraries(tmp_path):
     assert set(entries[:-1]) == set(libdirs)
 
 
+@pytest.mark.posix_only
 def test_the_slurm_recipe_is_a_valid_array_job():
     """The batch recipe parses, uses the GPU flag and caps the workers."""
     script = APPTAINER_DIR / "spacr_slurm.sh"

@@ -10,6 +10,9 @@ from spacr import install_cleanup as ic
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# Generates and runs the Linux installer's uninstaller with bash and sh.
+pytestmark = pytest.mark.posix_only
+
 
 def _write(path, text='preserved'):
     path.parent.mkdir(parents=True, exist_ok=True)

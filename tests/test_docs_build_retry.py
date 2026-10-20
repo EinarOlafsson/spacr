@@ -11,6 +11,7 @@ import yaml
     ('transient', 2, True), ('unavailable', 3, False),
     ('invalid_reference', 1, False), ('missing_output', 1, False),
 ])
+@pytest.mark.posix_only
 def test_strict_build_retries_only_inventory_fetch_failure(tmp_path, mode, attempts, success):
     root = Path(__file__).resolve().parents[1]
     workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text(encoding="utf-8"))

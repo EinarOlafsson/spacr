@@ -88,6 +88,7 @@ int main(int argc, char **argv) {
 
 
 @pytest.mark.parametrize('installer_exit', [0, 7])
+@pytest.mark.posix_only
 def test_user_helper_forwards_gui_choices_without_terminal_or_hidden_relaunch(tmp_path, installer_exit):
     support = tmp_path / 'support'
     support.mkdir()

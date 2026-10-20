@@ -31,6 +31,7 @@ def test_refresh_is_post_publication_and_does_not_gate_the_release(job):
 
 
 @pytest.mark.parametrize('token,status', [('', 0), ('test-token', 0), ('test-token', 1)])
+@pytest.mark.posix_only
 def test_actual_step_skips_missing_credentials_and_sends_one_release_event(
         job, tmp_path, token, status):
     executable = tmp_path / 'gh'

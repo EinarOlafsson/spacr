@@ -101,7 +101,8 @@ def _partition(root, suite, runner, args, shard, count):
              if not any(Path(path).resolve() == excluded
                         or excluded in Path(path).resolve().parents
                         for excluded in ignored)]
-    return runner._batches(files, args.batch_size)
+    return [[Path(path).as_posix() for path in batch]
+            for batch in runner._batches(files, args.batch_size)]
 
 
 def _skipped_by_ci(runner, args, files):

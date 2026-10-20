@@ -119,7 +119,18 @@ def test_a_file_that_cannot_be_executed_is_reported_not_raised(tmp_path):
         rx._run_command([str(not_a_program)])
 
     assert str(not_a_program) in str(caught.value)
-    assert "PermissionError" in str(caught.value)
+    # Windows refuses a data file with WinError 193, a plain OSError.
+    assert ("OSError" if os.name == "nt" else "PermissionError") in str(caught.value)
+
+
+def test_a_missing_program_is_named_exactly_as_the_profile_spells_it(tmp_path):
+    """A Windows path must reach the user with single backslashes, copyable as is."""
+    missing = tmp_path / "no such folder" / "program.exe"
+
+    with pytest.raises(RemoteExecutionError) as caught:
+        rx._run_command([str(missing)])
+
+    assert f"'{missing}'" in str(caught.value)
 
 
 # ---------------------------------------------------------------------------
