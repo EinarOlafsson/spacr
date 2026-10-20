@@ -385,13 +385,12 @@ EXPECTED_STAGES = {
     # folded onto a host and lost its registry row, and a maturity is a
     # property of a tile. What their buttons light up in now comes from
     # the host's own fold record, checked in the fold tests.
-    "make_masks": "beta",
+    # Make Masks, Analyze Plaques, Replication and Image UMAP were beta
+    # until 2026-10-20 and are stable now, so they read the default.
     # A stage is a property of a tile on Home, so a key folded out of the
     # registry drops out of this ledger with its row. What the button
     # lights in afterwards is recorded in the host's fold fallback, and
     # `test_the_switch_lights_in_the_stage_the_tile_LIT` holds it there.
-    "analyze_plaques": "beta",
-    "replication": "beta", "umap": "beta",
 }
 
 
@@ -458,7 +457,9 @@ def test_every_app_carries_the_maturity_it_was_given():
     # demotions.
     # 33 -> 38: the five 634 alpha organism pages (eb2201537).
     # 38 -> 37 alpha, 6 -> 7 stable: Toxoplasma is not an alpha species.
-    assert counts == {"alpha": 36, "beta": 4, "stable": 8}
+    # 4 -> 0 beta, 8 -> 12 stable on 2026-10-20: Make Masks, Analyze
+    # Plaques, Replication and Image UMAP were signed off for the paper.
+    assert counts == {"alpha": 36, "beta": 0, "stable": 12}
 
 
 def test_no_section_is_used_that_was_never_declared():

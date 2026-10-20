@@ -621,7 +621,7 @@ def test_the_replication_assay_is_a_first_class_module():
     row = next((a for a in APPS if a[0] == "replication"), None)
     assert row is not None, "replication is not in the app registry"
     assert row[3] == SECTION_ASSAYS
-    assert app_stage("replication") == "beta"
+    assert app_stage("replication") == "stable"
     assert row[3] in SECTIONS
     assert row[1] and row[2]
     assert APP_TITLES.get("replication")
@@ -962,15 +962,10 @@ ALPHA_MODULES = {
     # list was short because the REGISTRY was, not because their stage moved.
     "dose_response", "project_browser", "gate_editor",
 }
-BETA_MODULES = {
-    "make_masks",
-    # `cellpose_masks` stood here until it became the applying tab of the
-    # Cellpose Workbench rather than a tile of its own, and `train_cellpose`
-    # until that whole workbench became a button on the Make Masks masthead.
-    # Both rows went and both names stayed; this list counts tiles, so they
-    # come out too.
-    "analyze_plaques", "replication", "umap",
-}
+# Empty since 2026-10-20: Make Masks, Analyze Plaques, Replication and
+# Image UMAP were the last four beta tiles and were signed off as stable
+# for the BMC Bioinformatics submission that uses them.
+BETA_MODULES: set = set()
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
@@ -990,13 +985,13 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
             continue
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
-    assert by_stage["beta"] == BETA_MODULES
+    assert by_stage.get("beta", set()) == BETA_MODULES
     # Every alpha and beta key is a tile: a module folded into a host has
     # no tile and no stage, so it leaves both lists with its row.
     registry = {key for key, *_rest in APPS}
     assert (ALPHA_MODULES | BETA_MODULES) <= registry
     assert len(ALPHA_MODULES) == len(by_stage["alpha"])
-    assert len(BETA_MODULES) == len(by_stage["beta"])
+    assert len(BETA_MODULES) == len(by_stage.get("beta", set()))
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES
         - _alpha_names("apps"))

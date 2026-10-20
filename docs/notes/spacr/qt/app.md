@@ -355,10 +355,10 @@ The merged Classify module is new. "stable" is the ABSENCE of a line here, so le
 ### line 1303  _(unsure)_
 
 ```python
-"make_masks":      STAGE_BETA,
+"report":          STAGE_ALPHA,
 ```
 
-beta: further along, in regular use, still not signed off
+Make Masks, Analyze Plaques, Replication and Image UMAP were beta (further along, in regular use, not signed off) until 2026-10-20, when they were signed off as stable for the paper that uses them; their lines were deleted and `spacr.qt.maturity.PROMOTIONS` records the evidence.
 
 ### lines 1310-1313
 
