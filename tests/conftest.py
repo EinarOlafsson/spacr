@@ -239,6 +239,12 @@ def _native_qsettings_follow_set_path() -> bool:
         from PySide6 import QtCore
     except Exception:
         return True
+    # The probe must leave the native path where it found it: the real-store
+    # snapshot in pytest_configure reads it, and a probe left pointing at its
+    # deleted folder would make that guard watch the wrong file.
+    before = QtCore.QSettings("spacr-native-probe", "probe").fileName()
+    original = (os.path.dirname(os.path.dirname(before))
+                if os.path.isabs(before) and not before.startswith("\\") else None)
     probe = tempfile.mkdtemp(prefix="spacr-qsettings-probe-")
     try:
         QtCore.QSettings.setPath(QtCore.QSettings.NativeFormat,
@@ -249,6 +255,9 @@ def _native_qsettings_follow_set_path() -> bool:
         except (OSError, ValueError):
             return False
     finally:
+        if original is not None:
+            QtCore.QSettings.setPath(QtCore.QSettings.NativeFormat,
+                                     QtCore.QSettings.UserScope, original)
         import shutil as _probe_shutil
         _probe_shutil.rmtree(probe, ignore_errors=True)
 
