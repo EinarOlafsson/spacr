@@ -91660,12 +91660,14 @@
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply_the_scales_live": {
       "source_blocks_sha256": [
-        "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1"
+        "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1",
+        "cc7e9c8c2935529c8b8d19ab4021b9625d7e076ec5cf8feb6b7879f66aa11f44"
       ],
-      "source_sha256": "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1",
-      "text": "Beitir kvörðunum tveimur núna og spyr hvort halda eigi þeim.",
+      "source_sha256": "78f3e025ef39a47809ebcbba74cdd87a12adc30d4dd3898cfc1ee564a7d7957e",
+      "text": "Beitir kvörðunum tveimur núna og spyr hvort halda eigi þeim.\n\nSpurningin tilheyrir þessum glugga meðan hann er opinn. Þegar aðalglugginn átti hana opnaðist hún sem blað þess glugga á bak við lokandi Preferences-gluggann, og á macOS var hvorki hægt að smella á Keep né Revert (samþykktarprófun 2026-10-20); aðeins Enter náði til hennar.",
       "translation_source_blocks_sha256": [
-        "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1"
+        "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1",
+        "cc7e9c8c2935529c8b8d19ab4021b9625d7e076ec5cf8feb6b7879f66aa11f44"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._blink_value_changed": {
@@ -92274,16 +92276,6 @@
       "text": "Framsendu til Qt og teldu breytingu á möppu sem flutning.",
       "translation_source_blocks_sha256": [
         "e4488afc653acd19bc8d8ca4d4125e804e415d73574cd9e5794d53f8407f1c17"
-      ]
-    },
-    "spacr.qt.preferences._count_store_writes.write": {
-      "source_blocks_sha256": [
-        "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355"
-      ],
-      "source_sha256": "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355",
-      "text": "Framsenda til Qt og fella síðan úr gildi gildin sem voru geymd í skyndiminni.",
-      "translation_source_blocks_sha256": [
-        "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355"
       ]
     },
     "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__": {
@@ -131394,14 +131386,16 @@
       "source_blocks_sha256": [
         "166b55b2c78f0c8c3a442a1687f7143afc1127d23be668ab055cc734a1170dcb",
         "3fadf841c3ec17ab846526377f43000bade8f9fac1e51c0d27ecd4a56c94d253",
-        "696509aabd8e5d0f2c3c644dea5541da5d01fe7cda37b8757b721940ff69292d"
+        "eb3aef1296f5df7fd8d8e5160bea2675f33f4036b58fa9911e3d30d932d8028d",
+        "5ee426b9096253487aa5525fc35e95a33e6e8cb56cfa39323eef9bfdd170355a"
       ],
-      "source_sha256": "93ea7e95287b4f811aa2f7f9293c2aa00d2396b76a17ca465c2439b029d95e92",
-      "text": "Gefa hverri sýnilegri rúðu sinn hlut og skila nýju stærðunum.\n\nSamanbrotnar HAUSrúður fá fyrirsögn sína, samanbrotnar EDGE-rúður fá ekkert, rúður með ``stretch`` 0 fá eigin stærð, og restinni af rýminu er deilt milli hinna í hlutfalli við núverandi stærð þeirra. Rúða sem verið er að opna (``grow``), rúða sem er of lítil til að hafa raunverulega stærð, og hver rúða í fyrstu uppsetningu (``fresh``) fá í staðinn munaða stærð sína. ``refit`` stillir stærð rúðu af fastri stærð sem brotnar í þá hæð sem breidd hennar þarf nú.\n\n:returns: stærðirnar sem voru stilltar, eða ``[]`` þegar ekkert var til að raða upp.",
+      "source_sha256": "fc4fccafeb298565e70f83c92b275c6e0df25bbd66ea3b1b4f2fef3683b6f900",
+      "text": "Gefa hverri sýnilegri rúðu sinn hlut og skila nýju stærðunum.\n\nSamanbrotnar HAUSrúður fá fyrirsögn sína, samanbrotnar EDGE-rúður fá ekkert, rúður með ``stretch`` 0 fá eigin stærð, og restinni af rýminu er deilt milli hinna í hlutfalli við núverandi stærð þeirra. Rúða sem verið er að opna (``grow``), rúða sem er of lítil til að hafa raunverulega stærð, og hver rúða í fyrstu uppsetningu (``fresh``) fá í staðinn munaða stærð sína. ``refit`` stillir stærð rúðu af fastri stærð sem brotnar í þá hæð sem breidd hennar þarf nú.\n\nReiknað í þeim dílum sem rúðurnar eru teiknaðar í, því fyrirsögn og lína með línuskiptingu eru mældar í þeim; aðeins munuð stærð er geymd í 100 % einingum og er kvörðuð hér.\n\n:returns: stærðirnar sem settar voru, í 100 % einingum, eða ``[]`` þegar ekkert var til að raða upp.",
       "translation_source_blocks_sha256": [
         "166b55b2c78f0c8c3a442a1687f7143afc1127d23be668ab055cc734a1170dcb",
         "3fadf841c3ec17ab846526377f43000bade8f9fac1e51c0d27ecd4a56c94d253",
-        "696509aabd8e5d0f2c3c644dea5541da5d01fe7cda37b8757b721940ff69292d"
+        "eb3aef1296f5df7fd8d8e5160bea2675f33f4036b58fa9911e3d30d932d8028d",
+        "5ee426b9096253487aa5525fc35e95a33e6e8cb56cfa39323eef9bfdd170355a"
       ]
     },
     "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.resizeEvent": {
