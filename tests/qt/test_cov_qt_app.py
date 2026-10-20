@@ -824,6 +824,12 @@ def test_no_shipping_sidebar_label_is_clipped(qtbot, qapp, qt_theme_applied):
 
 @pytest.fixture(scope="module")
 def home_page(qapp, qt_theme_applied):
+    # Alpha tiles are off for a new user (DEFAULT_SHOW_ALPHA is False) and
+    # this page is built at module scope, before conftest's per-test
+    # fixture raises the fallback, so raise it here for the page's life.
+    from spacr.qt import preferences as _prefs
+    patch = pytest.MonkeyPatch()
+    patch.setattr(_prefs, "DEFAULT_SHOW_ALPHA", True)
     page = make_home_page()  # the page MainWindow ships
     page.resize(1500, 950)
     page.show()
@@ -832,6 +838,7 @@ def home_page(qapp, qt_theme_applied):
     page.hide()
     page.deleteLater()
     qapp.processEvents()
+    patch.undo()
 
 
 def test_home_renders_one_tile_per_app_under_every_section_heading(home_page):
