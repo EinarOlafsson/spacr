@@ -104,7 +104,7 @@ class TestWhatTheseFunctionsActuallyDo:
         a.mkdir()
         b.mkdir()
         for folder in (a, b):
-            (folder / "notes.txt").write_text("not an image")
+            (folder / "notes.txt").write_text("not an image", encoding="utf-8")
 
         import matplotlib.pyplot as plt
 

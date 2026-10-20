@@ -88,14 +88,14 @@ def test_a_module_key_that_no_longer_exists_is_skipped(tmp_path):
 def test_a_path_that_is_not_a_folder_is_not_a_project(tmp_path):
     """A file dropped on the browser is not a project root."""
     plain = tmp_path / "notes.txt"
-    plain.write_text("hello")
+    plain.write_text("hello", encoding="utf-8")
     assert looks_like_project(plain) is False
 
 
 def test_an_archived_project_is_still_a_project(tmp_path):
     """An archive manifest is the strongest evidence a folder is a project."""
     from spacr import data_manager as _dm
-    (tmp_path / _dm.ARCHIVE_MANIFEST_NAME).write_text("{}")
+    (tmp_path / _dm.ARCHIVE_MANIFEST_NAME).write_text("{}", encoding="utf-8")
     assert looks_like_project(tmp_path) is True
 
 
@@ -104,7 +104,7 @@ def test_an_archived_project_is_still_a_project(tmp_path):
 def _make_project(path):
     from spacr import data_manager as _dm
     path.mkdir(parents=True, exist_ok=True)
-    (path / _dm.ARCHIVE_MANIFEST_NAME).write_text("{}")
+    (path / _dm.ARCHIVE_MANIFEST_NAME).write_text("{}", encoding="utf-8")
     return path
 
 
@@ -139,7 +139,7 @@ def test_hidden_and_skipped_folders_are_not_searched(tmp_path):
 
 def test_a_plain_file_beside_the_projects_is_not_descended_into(tmp_path):
     """scandir returns files too, and a file has nothing to walk."""
-    (tmp_path / "readme.txt").write_text("hello")
+    (tmp_path / "readme.txt").write_text("hello", encoding="utf-8")
     _make_project(tmp_path / "real")
     found = discover([tmp_path], depth=2, limit=10)
     assert [os.path.basename(p) for p in found] == ["real"]

@@ -14,7 +14,7 @@ PRODUCTION = ROOT / "production"
 
 
 def main() -> int:
-    english = json.loads((CATALOG / "lessons_en.json").read_text())
+    english = json.loads((CATALOG / "lessons_en.json").read_text(encoding="utf-8"))
     for lesson in english["lessons"]:
         lesson["poster"] = f"{lesson['id']}/poster.jpg"
         lesson["silent"] = f"{lesson['id']}/video/{lesson['id']}_silent.mp4"

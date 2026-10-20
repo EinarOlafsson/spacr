@@ -328,7 +328,7 @@ class TestDiscoveringAUsersOwnSplits:
                            "pos_accuracy": 0.95,
                            "optimal_threshold": 0.3}]).to_csv(
                 folder / f"model_time_x_test_result.csv", index=False)
-            (folder / "unrelated.csv").write_text("a,b\n1,2\n")
+            (folder / "unrelated.csv").write_text("a,b\n1,2\n", encoding="utf-8")
 
         found = module.discover_test_splits(str(tmp_path))
 

@@ -137,7 +137,7 @@ def test_the_first_watch_builds_an_owned_plate_and_stops_it_on_close(
     work.mkdir()
     (work / "watch_ledger.json").write_text(json.dumps({
         "fields": {"plate_A01_field": {"status": "done"}},
-    }))
+    }), encoding="utf-8")
     plate.refresh()
     assert plate._plate._summary.text() == "1 completed fields on plate"
     owned = plate._plate

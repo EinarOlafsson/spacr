@@ -161,7 +161,7 @@ def _make_stub_settings(dst: Path) -> Path:
         # so keep the artefact it is looking for instead of calling a planned
         # cleanup "no masks were produced".
         "keep_intermediate,true\n"
-    )
+    , encoding="utf-8")
     (settings / _PACK_CSV["measure"]).write_text(
         "Key,Value\n"
         "src,\n"
@@ -174,8 +174,8 @@ def _make_stub_settings(dst: Path) -> Path:
         "pathogen_mask_dim,None\n"
         "organelle_mask_dim,None\n"
         "plot,false\n"
-    )
-    (settings / "annotate_settings.csv").write_text("Key,Value\nsrc,\n")
+    , encoding="utf-8")
+    (settings / "annotate_settings.csv").write_text("Key,Value\nsrc,\n", encoding="utf-8")
     return settings
 
 

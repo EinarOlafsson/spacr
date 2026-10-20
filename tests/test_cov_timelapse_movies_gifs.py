@@ -325,7 +325,7 @@ def test_scmovie_ignores_non_png_and_unparsable_names(tmp_path, fake_writer):
     folder.mkdir()
     _write_png(folder / "not_a_match.png", 10, (8, 8))        # too few fields
     _write_png(folder / "p1_A01_f01_x_1.png", 10, (8, 8))     # time is not digits
-    (folder / "notes.txt").write_text("ignore me")
+    (folder / "notes.txt").write_text("ignore me", encoding="utf-8")
     (folder / "array.npy").write_bytes(b"\x00\x01")
 
     _scmovie([str(folder)])
@@ -529,7 +529,7 @@ def test_timelapse_masks_to_gif_skips_unparsable_filenames(tmp_path, gif_spy):
     _write_npy_series(str(src), "1", "A01", "1", times=[0], channels=1)
     np.save(src / "notes.npy", np.zeros((6, 6, 1), dtype=np.uint16))
     np.save(src / "1_a01_1_0.npy", np.zeros((6, 6, 1), dtype=np.uint16))  # lowercase well
-    (src / "ignored.txt").write_text("not an array")
+    (src / "ignored.txt").write_text("not an array", encoding="utf-8")
 
     _timelapse_masks_to_gif(str(src), [0], ["cell"])
 

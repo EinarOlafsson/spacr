@@ -25,7 +25,7 @@ class _Dist:
 def _wheel_tree(tmp_path: Path) -> Path:
     package = tmp_path / "site-packages" / "spacr"
     package.mkdir(parents=True)
-    (package / "version.py").write_text("")
+    (package / "version.py").write_text("", encoding="utf-8")
     return package
 
 
@@ -42,7 +42,7 @@ def test_a_tree_with_setup_py_beside_it_is_a_checkout(tmp_path):
     """``setup.py`` next to the package marks a source checkout."""
     package = tmp_path / "spacr"
     package.mkdir()
-    (tmp_path / "setup.py").write_text("")
+    (tmp_path / "setup.py").write_text("", encoding="utf-8")
 
     assert version._runs_from_source(package) is True
 
@@ -105,7 +105,7 @@ def test_a_frozen_installer_with_metadata_reports_its_metadata(monkeypatch, tmp_
     """A frozen bundle that copied its dist-info owns its files like a wheel."""
     package = tmp_path / "_internal" / "spacr"
     package.mkdir(parents=True)
-    (package / "version.py").write_text("")
+    (package / "version.py").write_text("", encoding="utf-8")
     monkeypatch.setattr(version, "distribution",
                         lambda name: _Dist(package.parent))
     monkeypatch.setattr(version, "package_version", lambda name: "1.5.1.4")

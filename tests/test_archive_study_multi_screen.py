@@ -102,7 +102,7 @@ def test_the_study_has_one_pagetab_over_every_screen(two_screens, tmp_path):
                                                       files["Screen"]))
     assert "biostudies/file_list.tsv" in (pkg / "checksums.md5").read_text(encoding="utf-8")
 
-    pagetab.write_text(text.replace("Screen\tscreenB", "Screen\tscreenZ"))
+    pagetab.write_text(text.replace("Screen\tscreenB", "Screen\tscreenZ"), encoding="utf-8")
     problems = rep._validate_archive_study(pkg)
     assert any("Screen subsections" in p for p in problems)
     (pkg / "biostudies" / "file_list.tsv").unlink()

@@ -13,7 +13,7 @@ def main():
     reports = []
     for policy, width in [('per_channel', 1536), ('project', 512)]:
         output = root / policy
-        report = json.loads((output / 'run.json').read_text())
+        report = json.loads((output / 'run.json').read_text(encoding="utf-8"))
         if (report['helper_sha256'] != digest(Path(__file__).with_name('embeddings_example.py'))
                 or report['shape'] != [16, width] or report['accepted'] is not True):
             raise ValueError('Actual preflight report is stale or incomplete')
@@ -33,11 +33,11 @@ def main():
     if reports[0]['sources'] != reports[1]['sources']:
         raise ValueError('The channel comparison must use the same actual crops')
     gui = DEFAULT_STAGE / 'captures/embeddings_1507_gui'
-    proof = json.loads((gui / 'scientific_acceptance.json').read_text())
+    proof = json.loads((gui / 'scientific_acceptance.json').read_text(encoding="utf-8"))
     if (proof['accepted'] is not True or proof['crops_injected'] is not False
             or proof['gui_workflow_completed'] is not False):
         raise ValueError('Expected honest navigation-only GUI introduction')
-    frames = json.loads((gui / 'frames.json').read_text())
+    frames = json.loads((gui / 'frames.json').read_text(encoding="utf-8"))
     for frame in frames.values():
         if digest(gui / frame['image']) != frame['sha256']:
             raise ValueError('Actual GUI frame changed')

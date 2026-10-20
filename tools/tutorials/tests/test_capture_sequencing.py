@@ -49,8 +49,8 @@ def test_matching_short_files_do_not_meet_the_requested_read_count(tmp_path):
 def mapping_files(tmp_path, count=4):
     folder = tmp_path / 'SRR_example_paired'
     folder.mkdir()
-    (folder / 'unique_combinations.csv').write_text(f'grna_name,count\nguide1,{count}\n')
-    (folder / 'qc.csv').write_text('total_reads\n10\n')
+    (folder / 'unique_combinations.csv').write_text(f'grna_name,count\nguide1,{count}\n', encoding="utf-8")
+    (folder / 'qc.csv').write_text('total_reads\n10\n', encoding="utf-8")
     (folder / 'annotated_reads.h5').write_bytes(b'nonempty artifact fixture')
     return folder
 

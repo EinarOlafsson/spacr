@@ -46,6 +46,7 @@ def test_concurrent_same_archive_attempts_publish_only_their_own_stream(tmp_path
     assert sorted(p.name for p in tmp_path.iterdir()) == ['example.tar']
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('symbolic', [False, True])
 def test_existing_partial_path_is_not_download_owned(tmp_path, monkeypatch, symbolic):
     foreign = tmp_path / 'foreign.bin'

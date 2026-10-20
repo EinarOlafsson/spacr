@@ -451,7 +451,7 @@ def main() -> int:
             }
             (output / "geometry.json").write_text(
                 json.dumps(geometry, indent=2) + "\n"
-            )
+            , encoding="utf-8")
         finally:
             if browser is not None:
                 browser.close()

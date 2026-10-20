@@ -384,7 +384,7 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
         'accepted': False, 'reason': 'Actual Database capture not independently verified',
         'published': False})
     catalog = Path(__file__).resolve().parents[2] / 'docs/source/_extra/tutorials/catalog/lessons_en.json'
-    mapping = retained_scene_mapping(json.loads(catalog.read_text()))
+    mapping = retained_scene_mapping(json.loads(catalog.read_text(encoding="utf-8")))
     write_json(captures / 'scene_mapping.json', mapping)
 
     def click(widget):

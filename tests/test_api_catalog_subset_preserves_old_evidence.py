@@ -17,7 +17,7 @@ def test_scoped_api_writer_preserves_missing_baseline_and_old_model_inputs(tmp_p
               'license': 'historical-license',
               'symbols': {'spacr.previous_symbol': unrelated}}
     path = tmp_path / 'sv.json'
-    path.write_text(json.dumps(before))
+    path.write_text(json.dumps(before), encoding="utf-8")
     source = 'The updater verifies its actual application before restarting.'
     builder.write_language({'spacr.installer_update': source}, 'sv',
                            {'spacr.installer_update': 'Uppdateraren verifierar programmet före omstart.'},

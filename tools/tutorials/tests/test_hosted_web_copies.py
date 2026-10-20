@@ -31,7 +31,7 @@ def run_player_video_source(dataset, lesson, quality='1440p'):
     """Evaluate the player's own videoSource() and root constants in Node."""
     if not shutil.which('node'):
         pytest.skip('Node is required to run the player source')
-    text = PLAYER.read_text()
+    text = PLAYER.read_text(encoding="utf-8")
     start = text.index('function videoSource(')
     body = text[start:text.index('\n}\n', start) + 3]
     roots = [line for line in text.splitlines()
@@ -144,10 +144,10 @@ def published_index(tmp_path, web_root):
     pages.mkdir()
     (pages / 'index.html').write_text(
         f'<html data-production-root="production" data-audio-root="{ROOT}" '
-        f'data-video4k-root="{ROOT}" data-web-root="{web_root}">')
+        f'data-video4k-root="{ROOT}" data-web-root="{web_root}">', encoding="utf-8")
     root = tmp_path / 'candidate'
     root.mkdir()
-    (root / 'release-manifest.json').write_text(json.dumps({'files': []}))
+    (root / 'release-manifest.json').write_text(json.dumps({'files': []}), encoding="utf-8")
     return root, pages
 
 

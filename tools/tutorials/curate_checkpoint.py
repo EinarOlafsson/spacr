@@ -23,7 +23,7 @@ def checkpoint(source,destination):
     if destination.exists():raise FileExistsError('Choose a NEW checkpoint directory')
     if not source.is_file() or not ledger.is_file():
         raise ValueError('Both saved data and its curation ledger must exist')
-    log=json.loads(ledger.read_text())
+    log=json.loads(ledger.read_text(encoding="utf-8"))
     if not isinstance(log.get('edits'),list):raise ValueError('Expected a recorded edit list')
     before={str(path):sha(path) for path in (source,ledger)}
     destination.mkdir(parents=True)
@@ -37,7 +37,7 @@ def checkpoint(source,destination):
     receipt=dict(source_sha256=before,copied_sha256=copies,edit_count=len(log['edits']),
         scope='External exact-byte checkpoint, not automatic app history restoration',
         source_unchanged=True)
-    (destination/'checkpoint.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    (destination/'checkpoint.json').write_text(json.dumps(receipt,indent=2)+'\n', encoding="utf-8")
     print('Preserved saved data and ledger:',destination)
     return receipt
 

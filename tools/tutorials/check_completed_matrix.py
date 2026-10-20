@@ -30,7 +30,7 @@ def digest(path):
 
 def voice_matrix(renderer):
     """Read the renderer's literal inventory without importing TTS/GPU code."""
-    tree = ast.parse(Path(renderer).read_text())
+    tree = ast.parse(Path(renderer).read_text(encoding="utf-8"))
     matches = [node.value for node in tree.body if isinstance(node, ast.Assign)
                and any(isinstance(target, ast.Name) and target.id == 'LANGUAGES'
                        for target in node.targets)]

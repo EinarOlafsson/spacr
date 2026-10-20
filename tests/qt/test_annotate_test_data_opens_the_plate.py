@@ -48,7 +48,7 @@ def _write_annotate_half(plate: Path) -> None:
                          [(p,) for p in paths])
     (plate / "settings" / "annotate_settings.csv").write_text(
         "Key,Value\nannotation_column,infected\nimg_size,24\n"
-        f"src,{plate}/measurements.db\n")
+        f"src,{plate}/measurements.db\n", encoding="utf-8")
 
 
 def _write_stream_half(plate: Path) -> None:

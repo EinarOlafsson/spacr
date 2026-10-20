@@ -131,7 +131,7 @@ def prepare(source, destination, *, pairs=PAIRS, crop_size=CROP_SIZE):
     }
     (destination / "tutorial_settings.json").write_text(
         json.dumps(settings, indent=2) + "\n"
-    )
+    , encoding="utf-8")
     manifest = {
         'source_root': str(source), 'image_channel': IMAGE_CHANNEL,
         'mask_plane': MASK_PLANE, 'recorded_settings_sha256': recorded,
@@ -147,7 +147,7 @@ def prepare(source, destination, *, pairs=PAIRS, crop_size=CROP_SIZE):
             indent=2,
         )
         + "\n"
-    )
+    , encoding="utf-8")
     return manifest
 
 

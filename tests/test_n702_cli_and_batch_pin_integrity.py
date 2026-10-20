@@ -33,7 +33,7 @@ def test_explicit_repeated_model_override_invalidates_only_its_pin(inputs, tmp_p
         resolved = batch.resolve_job_settings(batch.Job(module='mask', settings=supplied, overrides=overrides))
     else:
         path = tmp_path / 'settings.json'
-        path.write_text(json.dumps(supplied))
+        path.write_text(json.dumps(supplied), encoding="utf-8")
         resolved = (cli.resolve_settings(module, str(path), overrides) if route == 'cli'
                     else batch.resolve_job_settings(batch.Job(module='mask', settings=str(path), overrides=overrides)))
     assert resolved['cell_model_name'] == supplied['cell_model_name']
@@ -53,7 +53,7 @@ def test_a_stale_import_is_rejected_before_an_override_can_make_it_match(inputs,
             batch.resolve_job_settings(batch.Job(module='mask', settings=supplied, overrides=overrides))
         else:
             path = tmp_path / 'settings.json'
-            path.write_text(json.dumps(supplied))
+            path.write_text(json.dumps(supplied), encoding="utf-8")
             if route == 'cli':
                 cli.resolve_settings(module, str(path), overrides)
             else:
@@ -146,7 +146,7 @@ def test_run_flags_cannot_bypass_invalid_imported_pins(inputs, tmp_path, monkeyp
     _module, supplied = inputs
     supplied['model_metadata']['settings']['cell_model_name']['requested_value'] = '/models/stale'
     path = tmp_path / 'settings.json'
-    path.write_text(json.dumps(supplied))
+    path.write_text(json.dumps(supplied), encoding="utf-8")
     monkeypatch.setattr(cli, 'setup_logging', lambda *args: logging.getLogger('n702-cli-test'))
     monkeypatch.setattr(cli, 'import_entry', lambda *args: pytest.fail('invalid pin reached pipeline import'))
     assert cli.main(['mask', '--settings', str(path), flag,
@@ -172,7 +172,7 @@ def test_incompatible_imported_kind_fails_before_an_edit_can_remove_it(inputs, t
             batch.resolve_job_settings(batch.Job(module='mask', settings=supplied, overrides=overrides))
         else:
             path = tmp_path / 'settings.json'
-            path.write_text(json.dumps(supplied))
+            path.write_text(json.dumps(supplied), encoding="utf-8")
             if route == 'cli':
                 cli.resolve_settings(module, str(path), overrides)
             else:
@@ -223,6 +223,6 @@ def test_a_pin_on_an_old_spelling_is_refused_when_the_new_spelling_disagrees(inp
 def test_a_csv_model_metadata_row_without_a_value_is_refused(tmp_path):
     """A metadata row that lost its value cell is not parsed as text and is refused."""
     path = tmp_path / 'settings.csv'
-    path.write_text('Key,Value\nsrc,/data\ncell_model_name,/models/cell7\nmodel_metadata\n')
+    path.write_text('Key,Value\nsrc,/data\ncell_model_name,/models/cell7\nmodel_metadata\n', encoding="utf-8")
     with pytest.raises(cli.SettingsError, match='model_metadata'):
         cli._load_settings_csv(str(path))

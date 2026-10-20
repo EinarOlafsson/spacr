@@ -151,7 +151,7 @@ def test_capture_refuses_a_reopened_session_or_a_crash_offer(_private_store):
 
 
 def test_every_frame_check_includes_the_fresh_start_check():
-    source = (TUTORIALS / "capture_policy.py").read_text()
+    source = (TUTORIALS / "capture_policy.py").read_text(encoding="utf-8")
     body = source[source.index("def verify_appearance("):source.index("def exclude_special_backdrops(")]
     assert "verify_fresh_start(window)" in body
     body = source[source.index("def configure_appearance("):source.index("def verify_appearance(")]
@@ -204,7 +204,7 @@ def test_the_shell_launcher_profile_call_clears_the_session(tmp_path):
     store = QSettings(str(tmp_path / "spacr" / "qt.conf"), QSettings.IniFormat)
     assert not store.contains(SESSION_KEY)
     assert not store.contains(RESTORE_SESSION_KEY)
-    script = (TUTORIALS / "run_neutral_capture.sh").read_text()
+    script = (TUTORIALS / "run_neutral_capture.sh").read_text(encoding="utf-8")
     assert "capture_policy.py" in script and "--force-alpha-off" in script
 
 
@@ -212,9 +212,9 @@ def test_fresh_argv_and_the_installed_launcher_probe(tmp_path):
     assert fresh_argv() == ["--fresh"]
     assert fresh_argv(["--no-setup", "--fresh"]) == ["--fresh", "--no-setup"]
     new = tmp_path / "new_app.py"
-    new.write_text("_OPEN_FRESH = [False]\n")
+    new.write_text("_OPEN_FRESH = [False]\n", encoding="utf-8")
     old = tmp_path / "old_app.py"
-    old.write_text("def main(argv=None): ...\n")
+    old.write_text("def main(argv=None): ...\n", encoding="utf-8")
     assert launcher_accepts_fresh(new) is True
     assert launcher_accepts_fresh(old) is False
     assert launcher_accepts_fresh(tmp_path / "missing.py") is False
@@ -224,7 +224,7 @@ def test_fresh_argv_and_the_installed_launcher_probe(tmp_path):
 
 _RECORDERS = sorted(
     path for path in [*TUTORIALS.glob("*.py"), *(TUTORIALS / "authoring" / "tools").glob("*.py")]
-    if re.search(r"\bMainWindow\(\)", path.read_text()))
+    if re.search(r"\bMainWindow\(\)", path.read_text(encoding="utf-8")))
 
 
 def test_the_recorder_list_is_not_empty():
@@ -236,7 +236,7 @@ def test_the_recorder_list_is_not_empty():
 @pytest.mark.parametrize("path", _RECORDERS, ids=lambda p: p.name)
 def test_every_recorder_starts_fresh_and_checks_its_window(path):
     """Fresh before the window is built; refused after if it restored."""
-    source = path.read_text()
+    source = path.read_text(encoding="utf-8")
     built = re.search(r"\bwindow = [\w.]*MainWindow\(\)", source).start()
     before = source[:built]
     assert "force_fresh_start()" in before or "configure_appearance(" in before, path.name
@@ -244,17 +244,17 @@ def test_every_recorder_starts_fresh_and_checks_its_window(path):
 
 
 def test_the_openings_recorder_checks_the_fresh_start():
-    source = (TUTORIALS / "capture_openings.py").read_text()
+    source = (TUTORIALS / "capture_openings.py").read_text(encoding="utf-8")
     body = source[source.index("def record_openings("):source.index("def _open(")]
     assert body.index("verify_fresh_start(window)") < body.index("go_home()\n    capture(")
 
 
 def test_installed_app_recordings_start_fresh():
-    pip = (TUTORIALS / "capture_pip_installation.py").read_text()
+    pip = (TUTORIALS / "capture_pip_installation.py").read_text(encoding="utf-8")
     assert "_set_restore_session" not in pip       # the default stays on
     assert "fresh_argv(" in pip and "launcher_accepts_fresh(" in pip
     assert "verify_profile_starts_fresh(" in pip
-    terminal = (TUTORIALS / "capture_terminal_install.py").read_text()
+    terminal = (TUTORIALS / "capture_terminal_install.py").read_text(encoding="utf-8")
     body = terminal[terminal.index("    def gui(self"):]
     assert body.index("verify_profile_starts_fresh(") < body.index("self.send(command")
 
@@ -321,11 +321,11 @@ def test_capture_refuses_a_whats_new_window_title():
 
 
 def test_installed_app_recordings_never_record_whats_new():
-    pip = (TUTORIALS / "capture_pip_installation.py").read_text()
+    pip = (TUTORIALS / "capture_pip_installation.py").read_text(encoding="utf-8")
     assert "updates/last_seen_version" in pip
     body = pip[pip.index("    def snapshot(name):"):]
     assert body.index("refuse_whats_new_titles(") < body.index("grabWindow(0)")
-    terminal = (TUTORIALS / "capture_terminal_install.py").read_text()
+    terminal = (TUTORIALS / "capture_terminal_install.py").read_text(encoding="utf-8")
     body = terminal[terminal.index("    def shot(self"):]
     # The grab is ffmpeg x11grab since 0fbbd1e47 (was ImageMagick import).
     assert body.index("refuse_whats_new_titles(") < body.index("'x11grab'")

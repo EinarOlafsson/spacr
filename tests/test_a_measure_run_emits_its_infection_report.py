@@ -127,7 +127,7 @@ def test_a_report_is_not_worth_a_run(tmp_path, monkeypatch, capsys):
     from spacr import measure
 
     path = tmp_path / "measurements.db"
-    path.write_text("not a database")
+    path.write_text("not a database", encoding="utf-8")
 
     def _boom(*_args, **_kwargs):
         raise RuntimeError("pandas said no")

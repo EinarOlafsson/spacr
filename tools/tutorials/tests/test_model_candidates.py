@@ -22,7 +22,7 @@ FIRST_RECORDINGS = [('21_model_compare', 8), ('22_model_zoo', 7)]
 
 
 def read(path):
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def sha(path):

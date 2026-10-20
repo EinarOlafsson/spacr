@@ -11,8 +11,8 @@ from sweep_evidence import (check_display,check_result_family,count_result_rows,
 
 
 def verify(capture):
-    proof=json.loads((capture/'scientific_acceptance.json').read_text())
-    provenance=json.loads((capture/'provenance.json').read_text())
+    proof=json.loads((capture/'scientific_acceptance.json').read_text(encoding="utf-8"))
+    provenance=json.loads((capture/'provenance.json').read_text(encoding="utf-8"))
     work=Path(proof['private_folder'])
     if not provenance['completed_capture']:
         raise ValueError('Expected a completed sweep capture')
@@ -31,8 +31,8 @@ def verify(capture):
     for row in rows:
         folder=Path(row['folder']);path=folder/'results/ridge/results.csv'
         result=list(csv.DictReader(path.open()))
-        actual=json.loads((folder/'settings/regression.json').read_text())
-        requested=json.loads((folder/'_trial_settings.json').read_text())['settings']
+        actual=json.loads((folder/'settings/regression.json').read_text(encoding="utf-8"))
+        requested=json.loads((folder/'_trial_settings.json').read_text(encoding="utf-8"))['settings']
         prepared_path=path.with_name('regression_data.csv')
         prepared=list(csv.DictReader(prepared_path.open()))
         qc={}
@@ -40,10 +40,10 @@ def verify(capture):
         for level in ('grna','gene'):
             qc_path=path.parent/level/'regression_qc/regression_qc_numbers.json'
             if qc_path.exists():
-                qc[level]=json.loads(qc_path.read_text())
+                qc[level]=json.loads(qc_path.read_text(encoding="utf-8"))
                 qc_hashes[level]=sha(qc_path)
         fitted_path=path.with_name('regression_fit_designs.json')
-        fit_designs=json.loads(fitted_path.read_text())
+        fit_designs=json.loads(fitted_path.read_text(encoding="utf-8"))
         if not isinstance(fit_designs,dict):
             raise ValueError('Missing measured fit records')
         support=check_fitted_support(prepared,row,actual,requested,qc,fit_designs)

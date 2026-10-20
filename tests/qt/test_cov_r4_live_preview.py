@@ -125,8 +125,8 @@ def test_the_first_image_is_found_past_the_files_that_are_not_images(tmp_path):
     """A folder whose first name sorts before any image still finds one."""
     ahead = tmp_path / "ahead"
     ahead.mkdir()
-    (ahead / "a_readme.txt").write_text("not an image")
-    (ahead / "b_notes.csv").write_text("also not an image")
+    (ahead / "a_readme.txt").write_text("not an image", encoding="utf-8")
+    (ahead / "b_notes.csv").write_text("also not an image", encoding="utf-8")
     tifffile.imwrite(ahead / "c_scan.tif", _tile(5))
 
     found = LP.first_supported_image(ahead)
@@ -139,7 +139,7 @@ def test_the_first_image_is_found_past_the_files_that_are_not_images(tmp_path):
     straight = tmp_path / "straight"
     straight.mkdir()
     tifffile.imwrite(straight / "a_scan.tif", _tile(5))
-    (straight / "z_readme.txt").write_text("not an image")
+    (straight / "z_readme.txt").write_text("not an image", encoding="utf-8")
     assert LP.first_supported_image(straight).name == "a_scan.tif"
 
 

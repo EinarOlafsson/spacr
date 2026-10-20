@@ -239,7 +239,7 @@ def test_a_settings_file_that_already_holds_the_list_shape_loads_as_one_path(
     the wrong shape forward."""
     model = _barcode_model(qtbot)
     csv = tmp_path / "barcodes.csv"
-    csv.write_text("name,sequence\nA1,ACGT\n")
+    csv.write_text("name,sequence\nA1,ACGT\n", encoding="utf-8")
 
     assert model.set_value_for_key("row_csv", [str(csv)]) is True
 
@@ -254,7 +254,7 @@ def test_choosing_another_barcode_reference_replaces_the_first(qtbot,
     model = _barcode_model(qtbot)
     first, second = tmp_path / "old.csv", tmp_path / "new.csv"
     for path in (first, second):
-        path.write_text("name,sequence\nA1,ACGT\n")
+        path.write_text("name,sequence\nA1,ACGT\n", encoding="utf-8")
     widget = model._widgets["row_csv"]
 
     widget.add_paths([str(first)])

@@ -253,7 +253,7 @@ def test_visualize_smooth_grad_saves_expected_map(tmp_path, rng):
     src = tmp_path / "src"
     src.mkdir()
     _write_png(src / "a.png", rng, size=size)
-    (src / "notes.txt").write_text("not an image")  # exercises the .png filter
+    (src / "notes.txt").write_text("not an image", encoding="utf-8")  # exercises the .png filter
 
     save_dir = tmp_path / "sg_out"  # does not exist -> makedirs branch
     out = visualize_smooth_grad(str(src), model_path, 1, image_size=size,
@@ -331,8 +331,8 @@ def test_visualize_smooth_grad_no_pngs_is_a_noop(tmp_path, monkeypatch):
 
     src = tmp_path / "empty"
     src.mkdir()
-    (src / "readme.md").write_text("nothing to see")
-    (src / "table.csv").write_text("a,b\n1,2\n")
+    (src / "readme.md").write_text("nothing to see", encoding="utf-8")
+    (src / "table.csv").write_text("a,b\n1,2\n", encoding="utf-8")
 
     shown = []
     monkeypatch.setattr(ds.plt, "show", lambda *a, **k: shown.append(1))
@@ -359,7 +359,7 @@ def test_visualize_smooth_grad_reuses_existing_save_dir(tmp_path, rng):
 
     save_dir = tmp_path / "already_here"
     save_dir.mkdir()
-    (save_dir / "keep_me.txt").write_text("previous run")
+    (save_dir / "keep_me.txt").write_text("previous run", encoding="utf-8")
 
     visualize_smooth_grad(str(src), model_path, 0, image_size=size,
                           save_smooth_grad=True, save_dir=str(save_dir))

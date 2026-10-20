@@ -49,7 +49,7 @@ def validate(data, root=ROOT, *, live=True):
                     or module["parent"] is not None):
                 raise ValueError(f"{key}: invalid API-only route")
             if not any(isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-                       and node.name == name for node in ast.parse(api.read_text()).body):
+                       and node.name == name for node in ast.parse(api.read_text(encoding="utf-8")).body):
                 raise ValueError(f"{key}: missing API entry point")
     seen = set()
     for edge in data["connections"]:

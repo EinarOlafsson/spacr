@@ -715,7 +715,7 @@ def test_an_unreadable_previous_summary_does_not_stop_the_write(tmp_path,
     folder = tmp_path / "run"
     folder.mkdir()
     path = folder / RS._summary_filename()
-    path.write_text("an earlier statsmodels summary")
+    path.write_text("an earlier statsmodels summary", encoding="utf-8")
 
     real_open = builtins.open
 

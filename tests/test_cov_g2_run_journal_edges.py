@@ -116,14 +116,14 @@ def test_unhashable_lock_files_are_left_out(tmp_path, monkeypatch):
 
 def test_recorded_models_skip_unreadable_runs(tmp_path, monkeypatch):
     blocked = tmp_path / "not-a-folder"
-    blocked.write_text("x")
+    blocked.write_text("x", encoding="utf-8")
     monkeypatch.setattr(rj, "runs_root", lambda: blocked)
     assert rj._recorded_models("classify", tmp_path) == {}
     root = tmp_path / "runs"
     for name, models in (("c", {}), ("b", {}), ("a", None)):
         (root / name).mkdir(parents=True)
         (root / name / "manifest.json").write_text(json.dumps(
-            {"app_key": "classify", "model_files": models or {}}))
+            {"app_key": "classify", "model_files": models or {}}), encoding="utf-8")
     monkeypatch.setattr(rj, "runs_root", lambda: root)
     real = rj.load_run_settings
 
@@ -151,7 +151,7 @@ def test_an_unchanged_locked_file_is_no_deviation(tmp_path):
 def test_unreadable_first_seen_lines_are_skipped():
     record = {"lock_id": "lock-seen-edge"}
     rj._seen_log(record).parent.mkdir(parents=True, exist_ok=True)
-    rj._seen_log(record).write_text('not json\n{"key": "a"}\n')
+    rj._seen_log(record).write_text('not json\n{"key": "a"}\n', encoding="utf-8")
     deviations = [{"key": "k", "locked": 1, "now": 2}]
     rj._note_first_seen(record, deviations)
     assert deviations[0]["first_seen_utc"]

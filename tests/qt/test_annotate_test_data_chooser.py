@@ -124,7 +124,7 @@ def test_choosing_stream_sets_the_stream_mode(screen, tmp_path, monkeypatch):
     plate = tmp_path / "plate1"
     (plate / "merged").mkdir(parents=True)
     (plate / "measurements").mkdir(parents=True)
-    (plate / "measurements" / "measurements.db").write_text("")
+    (plate / "measurements" / "measurements.db").write_text("", encoding="utf-8")
     np.save(plate / "merged" / "f.npy", np.zeros((2, 2)))
     monkeypatch.setattr(hf, "example_plate_folder", lambda: plate)
 

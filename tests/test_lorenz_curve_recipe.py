@@ -133,7 +133,7 @@ def test_lorenz_standalone_recreates_independent_shares_and_gini_without_spacr(
         "    def find_spec(self, fullname, path=None, target=None):\n"
         "        if fullname == 'spacr' or fullname.startswith('spacr.'):\n"
         "            raise ImportError('standalone must not import spaCR')\n"
-        "sys.meta_path.insert(0, RejectSpacr())\n")
+        "sys.meta_path.insert(0, RejectSpacr())\n", encoding="utf-8")
     process = subprocess.run(
         [sys.executable, str(tmp_path / "standalone/recreate_figure.py"), "png", "svg"],
         cwd=tmp_path / "standalone",

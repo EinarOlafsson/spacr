@@ -7,7 +7,7 @@ from test_player_holds_narration import served, CHROME, PAGE
 
 def complete_fixture(served, tmp_path):
     url, handler = served
-    script = (PAGE / 'lesson_catalog.js').read_text()
+    script = (PAGE / 'lesson_catalog.js').read_text(encoding="utf-8")
     catalog = json.loads(script[script.index('Object.freeze(') + len('Object.freeze('):script.rindex(');')])
     identity = url.split('lesson=')[1]
     lesson = next(row for row in catalog['lessons'] if row['id'] == identity)
@@ -24,25 +24,25 @@ def complete_fixture(served, tmp_path):
                  speech_start=i, speech_end=i+.65, text=row['narration'])])
             for i, row in enumerate(lesson['scenes'])]
     timing = tmp_path / 'complete-native-audio.json'
-    timing.write_text(json.dumps(dict(schema=1, language='en', voice='af_heart', total_duration=3, scenes=rows)))
+    timing.write_text(json.dumps(dict(schema=1, language='en', voice='af_heart', total_duration=3, scenes=rows)), encoding="utf-8")
     visual = tmp_path / 'complete-native-visual.json'
     visual.write_text(json.dumps(dict(kind='native_visual_timing', native_live_video=True,
         complete_native_clips=True, coverage=dict(accepted=True), total_duration=12,
         scenes=[dict(row, speech_start=i*4, speech_end=(i+1)*4, scene_end=(i+1)*4,
-                     duration=4, native_live_video=True) for i,row in enumerate(rows)])))
+                     duration=4, native_live_video=True) for i,row in enumerate(rows)])), encoding="utf-8")
     lesson['visual_timings'] = f'{identity}/video/native-live-timings.json'
     catalog_path = tmp_path / 'complete-native-catalog.js'
-    catalog_path.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');')
+    catalog_path.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');', encoding="utf-8")
     handler.video = video
     spanish = json.loads(json.dumps(catalog))
     for row in next(row for row in spanish['lessons'] if row['id'] == identity)['scenes']:
         row['narration'] = 'Texto de prueba para el intervalo hablado.'
     spanish_path = tmp_path / 'complete-native-es.json'
-    spanish_path.write_text(json.dumps(spanish))
+    spanish_path.write_text(json.dumps(spanish), encoding="utf-8")
     spanish_timing = tmp_path / 'complete-native-es-timings.json'
     spanish_rows = [dict(row, text='Texto de prueba para el intervalo hablado.') for row in rows]
     spanish_timing.write_text(json.dumps(dict(schema=1, language='es', voice='ef_dora',
-        total_duration=3, scenes=spanish_rows)))
+        total_duration=3, scenes=spanish_rows)), encoding="utf-8")
     handler.routes.update({'/web/catalog/lessons_es.json': (spanish_path, 'application/json'),
         f'/media_host/{identity}/audio/es/ef_dora.m4a': (audio, 'audio/mp4'),
         f'/media_host/{identity}/audio/es/ef_dora.json': (spanish_timing, 'application/json'),'/web/lesson_catalog.js': (catalog_path, 'application/javascript'),

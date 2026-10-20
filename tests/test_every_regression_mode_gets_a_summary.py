@@ -690,7 +690,7 @@ def test_a_model_that_cannot_render_twice_keeps_the_summary_on_disk(tmp_path):
     folder = tmp_path / "beta_1"
     folder.mkdir()
     (folder / SUMMARY_FILENAME).write_text("Beta Regression Results\n"
-                                           "=======================\n")
+                                           "=======================\n", encoding="utf-8")
     path = RS.write_run_summary(
         str(folder), model=None, settings=_settings("beta", "parametric"),
         coef_df=_parametric_coefficients("beta"), regression_type="beta")

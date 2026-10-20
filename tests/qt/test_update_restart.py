@@ -73,7 +73,7 @@ def test_altered_same_module_settings_prevent_shutdown_approval(messages, monkey
         target = Path(target)
         document = json.loads(target.read_text(encoding="utf-8"))
         document['settings']['src'] = '/different-input'
-        target.write_text(json.dumps(document, indent=2))
+        target.write_text(json.dumps(document, indent=2), encoding="utf-8")
 
     monkeypatch.setattr(restart_state.os, 'replace', altered_replace)
     window = Window()

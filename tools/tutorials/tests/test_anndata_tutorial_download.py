@@ -14,7 +14,7 @@ def test_download_contains_the_checked_helper_and_all_six_distinct_commands():
         assert archive.testzip() is None
         assert archive.read('anndata_missing_metadata_example.py') == helper
         text = archive.read('README.txt').decode()
-        assert text == (examples / 'AnnData_API_workaround_README.txt').read_text()
+        assert text == (examples / 'AnnData_API_workaround_README.txt').read_text(encoding="utf-8")
     commands = [shlex.split(line) for line in text.splitlines() if line.startswith('python ')]
     assert len(commands) == 6
     observed, outputs = set(), set()

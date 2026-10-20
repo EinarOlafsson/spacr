@@ -59,7 +59,7 @@ def test_a_missing_or_escaping_executable_is_refused(tmp_path):
     with pytest.raises(ValueError, match="missing or not executable"):
         ic._macos_bundle_identity(str(bundle))
     outside = tmp_path / "outside-spacr"
-    outside.write_text("elsewhere")
+    outside.write_text("elsewhere", encoding="utf-8")
     outside.chmod(0o755)
     executable.unlink()
     executable.symlink_to(outside)
@@ -188,7 +188,7 @@ def test_an_exchange_that_did_not_happen_as_journaled_is_refused_and_undone(tmp_
         if swap == "tamper" or len(calls) > 1:
             _swap(left, right)
         if swap == "tamper" and len(calls) == 1:
-            (target / "Contents" / "added-by-someone").write_text("x")
+            (target / "Contents" / "added-by-someone").write_text("x", encoding="utf-8")
 
     with pytest.raises(ValueError, match=error):
         ic._macos_replace_user_bundle(str(target), str(staged), str(transaction), "1.5.1.1",
@@ -222,7 +222,7 @@ def test_recovery_refuses_a_shared_folder_a_linked_journal_or_moved_paths(tmp_pa
     with pytest.raises(ValueError, match="cannot be a symlink"):
         ic._macos_recover_user_bundle(str(transaction), run=_native, swap=_swap)
     journal.unlink()
-    journal.write_text(json.dumps(dict(data, backup=str(tmp_path / "previous.app"))))
+    journal.write_text(json.dumps(dict(data, backup=str(tmp_path / "previous.app"))), encoding="utf-8")
     with pytest.raises(ValueError, match="differ from the original application transaction"):
         ic._macos_recover_user_bundle(str(transaction), run=_native, swap=_swap)
 
@@ -230,7 +230,7 @@ def test_recovery_refuses_a_shared_folder_a_linked_journal_or_moved_paths(tmp_pa
 def test_recovery_refuses_a_journal_whose_state_disagrees_with_the_folders(tmp_path):
     target, transaction, journal = _journaled(tmp_path)
     data = json.loads(journal.read_text(encoding="utf-8"))
-    journal.write_text(json.dumps(dict(data, state="unknown")))
+    journal.write_text(json.dumps(dict(data, state="unknown")), encoding="utf-8")
     with pytest.raises(ValueError, match="journal state and actual application identities disagree"):
         ic._macos_recover_user_bundle(str(transaction), run=_native, swap=_swap)
 
@@ -240,7 +240,7 @@ def test_recovery_never_replaces_a_committed_old_bundle_or_one_replaced_since(tm
     data = json.loads(journal.read_text(encoding="utf-8"))
     backup = data["backup"]
     _swap(str(target), backup)
-    journal.write_text(json.dumps(dict(data, state="committed")))
+    journal.write_text(json.dumps(dict(data, state="committed")), encoding="utf-8")
     with pytest.raises(ValueError, match="cannot replace changed or committed"):
         ic._macos_recover_user_bundle(str(transaction), run=_native, swap=_swap)
     other = tmp_path / "replacement.app"

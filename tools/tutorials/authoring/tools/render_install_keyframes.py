@@ -241,7 +241,7 @@ def write_geometry(lesson_root: Path, scenes: list[dict]) -> None:
         "schema": 2,
         "frame_size": list(SIZE),
         "scenes": scenes,
-    }, indent=2) + "\n")
+    }, indent=2) + "\n", encoding="utf-8")
 
 
 def build_sources(production: Path, captures: Path | None) -> None:
@@ -269,7 +269,7 @@ def build_sources(production: Path, captures: Path | None) -> None:
             "lesson 01 needs a fresh capture bundle; run "
             "tools/capture_install_web.py first"
         )
-    capture_geometry = json.loads(capture_geometry_path.read_text())
+    capture_geometry = json.loads(capture_geometry_path.read_text(encoding="utf-8"))
     if capture_geometry.get("frame_size") != list(SIZE):
         raise ValueError("lesson 01 web captures are not native 4K")
     if capture_geometry.get("release_version") != RELEASE_VERSION:

@@ -110,5 +110,5 @@ receipt = dict(schema=1, feature=661, fields=len(manifests), input_parent_rows=i
                parameters=cpu_modes.provenance(cpu_modes.PUNCTA, cpu_modes.DEFAULT_PARAMS),
                elapsed_seconds=time.monotonic()-started, fields_provenance=manifests,
                figure_final_statistics_rerun=False, whole_measure_pipeline_rerun=False)
-(out/'receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2)+'\n')
+(out/'receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2)+'\n', encoding="utf-8")
 print(json.dumps({k:v for k,v in receipt.items() if k != 'fields_provenance'}, ensure_ascii=False), flush=True)

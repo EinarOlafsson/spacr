@@ -27,7 +27,7 @@ No old database, saved results, settings, or model weights are included.
 
 def archive_members(source):
     source = Path(source)
-    manifest = json.loads((source/'manifest.json').read_text())
+    manifest = json.loads((source/'manifest.json').read_text(encoding="utf-8"))
     names = [row['file'] for row in manifest['records']]
     if len(names) != 4 or len(set(names)) != 4 or any(Path(n).name != n or not n.endswith('.tif') for n in names):
         raise ValueError('Expected exactly four distinct plain TIFF names')

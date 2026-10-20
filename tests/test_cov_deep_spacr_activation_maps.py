@@ -512,7 +512,7 @@ def test_visualize_integrated_gradients_saves_maps(tmp_path, model_path, monkeyp
     src.mkdir()
     _write_png(src / "a.png", seed=1)
     _write_png(src / "b.png", seed=2)
-    (src / "notes.txt").write_text("ignore me")
+    (src / "notes.txt").write_text("ignore me", encoding="utf-8")
 
     out_dir = tmp_path / "igs"
     shown = []

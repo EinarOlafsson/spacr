@@ -223,7 +223,7 @@ def test_a_sibling_folder_that_is_not_a_project_is_not_a_candidate(tmp_path):
     parent.mkdir()
     plate = _plate(parent / "plate1")
     (parent / "notes").mkdir()
-    (parent / "notes" / "readme.txt").write_text("nothing to see")
+    (parent / "notes" / "readme.txt").write_text("nothing to see", encoding="utf-8")
 
     result = chaining.resolve_drop("measure", str(parent))
 

@@ -100,7 +100,7 @@ def main():
             write(root / 'receipt.json', receipt)
         print(f'{name}: exit {result.returncode}, {row["elapsed_seconds"]}s', flush=True)
         if result.returncode:
-            print(log.read_text(errors='replace')[-5000:], flush=True)
+            print(log.read_text(errors='replace', encoding="utf-8")[-5000:], flush=True)
             raise RuntimeError(f'{name} failed; do not claim installation success')
 
     run('01_installer', ['bash', str(installer), '--install-root', str(runtime),

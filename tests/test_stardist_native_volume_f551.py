@@ -23,7 +23,7 @@ def _folder(tmp_path, **changes):
     config = dict(n_dim=3, axes='ZYXC', n_channel_in=1)
     config.update(changes)
     tmp_path.mkdir(exist_ok=True)
-    (tmp_path / 'config.json').write_text(json.dumps(config))
+    (tmp_path / 'config.json').write_text(json.dumps(config), encoding="utf-8")
     return str(tmp_path)
 
 

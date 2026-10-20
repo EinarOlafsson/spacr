@@ -82,7 +82,7 @@ def test_delete_empty_subdirectories_removes_only_empties(tmp_path):
     (tmp_path / "empty_b").mkdir()
     non_empty = tmp_path / "with_file"
     non_empty.mkdir()
-    (non_empty / "keep.txt").write_text("hello")
+    (non_empty / "keep.txt").write_text("hello", encoding="utf-8")
 
     IO.delete_empty_subdirectories(str(tmp_path))
 
@@ -95,7 +95,7 @@ def test_delete_empty_subdirectories_removes_only_empties(tmp_path):
 def test_delete_empty_subdirectories_noop_when_all_populated(tmp_path):
     d = tmp_path / "sub"
     d.mkdir()
-    (d / "f.txt").write_text("x")
+    (d / "f.txt").write_text("x", encoding="utf-8")
     IO.delete_empty_subdirectories(str(tmp_path))
     assert d.exists()
 
@@ -113,7 +113,7 @@ def test_is_dir_empty_true(tmp_path):
 def test_is_dir_empty_false(tmp_path):
     d = tmp_path / "with"
     d.mkdir()
-    (d / "f").write_text("")
+    (d / "f").write_text("", encoding="utf-8")
     assert IO._is_dir_empty(str(d)) is False
 
 

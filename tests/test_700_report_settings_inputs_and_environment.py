@@ -97,8 +97,8 @@ def test_input_facts_count_images_and_read_the_first_header(tmp_path):
     """Only image files are counted; the first one gives shape and channels."""
     np.save(tmp_path / "a.npy", np.zeros((4, 5, 2), np.uint8))
     np.save(tmp_path / "b.npy", np.zeros((4, 5, 2), np.uint8))
-    (tmp_path / "notes.txt").write_text("x")
-    (tmp_path / "README").write_text("x")
+    (tmp_path / "notes.txt").write_text("x", encoding="utf-8")
+    (tmp_path / "README").write_text("x", encoding="utf-8")
     (tmp_path / "folder.tif").mkdir()
     facts = cr.public_input_facts({"src": str(tmp_path)})
     assert facts == {"images": 2, "extensions": ["npy"], "shape": [4, 5, 2],

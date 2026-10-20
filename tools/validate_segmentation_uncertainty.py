@@ -307,7 +307,7 @@ def main() -> None:
            "flow_bad": FLOW_BAD, "summary": summary, "folds": folds,
            "crops_detail": [{k: v for k, v in r.items() if k != "objects"}
                             for r in rows]}
-    Path(args.out).write_text(json.dumps(out, indent=1))
+    Path(args.out).write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(json.dumps({"summary": summary, "folds": [
         {k: f[k] for k in ("chosen_on_train", "chosen_on_test",
                            "combo_weights", "combo_on_test",

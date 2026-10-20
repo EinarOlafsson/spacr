@@ -63,7 +63,7 @@ def test_time_courses_are_keyed_per_time_point():
 
 
 def test_the_measured_fields_skip_what_is_not_a_field(tmp_path):
-    (tmp_path / "notes.txt").write_text("x")
+    (tmp_path / "notes.txt").write_text("x", encoding="utf-8")
     np.save(tmp_path / "junk.npy", np.zeros(2))
     np.save(tmp_path / "plate1_A01_1.npy", np.zeros(2))
     fields = m._measured_fields({"src": str(tmp_path)})

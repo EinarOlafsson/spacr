@@ -110,7 +110,7 @@ def main(argv=None) -> int:
     fresh = build()
     text = json.dumps(fresh, indent=2, ensure_ascii=False) + "\n"
     if args.check:
-        current = TARGET.read_text() if TARGET.exists() else ""
+        current = TARGET.read_text(encoding="utf-8") if TARGET.exists() else ""
         if current != text:
             print(f"{TARGET} is stale -- run "
                   f"`python tools/build_release_notes.py`", file=sys.stderr)
@@ -119,7 +119,7 @@ def main(argv=None) -> int:
               f"({len(fresh['releases'])} releases)")
         return 0
     TARGET.parent.mkdir(parents=True, exist_ok=True)
-    TARGET.write_text(text)
+    TARGET.write_text(text, encoding="utf-8")
     print(f"wrote {TARGET} ({len(fresh['releases'])} releases)")
     return 0
 

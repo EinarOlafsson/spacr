@@ -48,7 +48,7 @@ ROWS = [
 
 def test_a_plate_imported_with_a_barcode_gets_its_plate_map(tmp_path):
     src = _imaged(tmp_path)
-    (tmp_path / "plate1" / "barcode.txt").write_text("BC001\n")
+    (tmp_path / "plate1" / "barcode.txt").write_text("BC001\n", encoding="utf-8")
     settings = {"src": str(src), "plate_barcode_source":
                 _records(tmp_path, ROWS), "plate_barcode_column": "barcode",
                 "profiling_metadata": "", "viability_plate_map": "",
@@ -111,7 +111,7 @@ def test_every_kind_of_mismatch_is_reported(tmp_path, capsys):
 def test_barcodes_come_from_the_setting_then_the_file_then_the_name(tmp_path):
     src = _imaged(tmp_path)
     assert _plate_barcodes(str(src), ["plate1"]) == {"plate1": "plate1"}
-    (tmp_path / "plate1" / "barcode.txt").write_text("plate1=BCF\n")
+    (tmp_path / "plate1" / "barcode.txt").write_text("plate1=BCF\n", encoding="utf-8")
     assert _plate_barcodes(str(src), ["plate1", "p2"]) == {
         "plate1": "BCF", "p2": "p2"}
     assert _plate_barcodes(str(src), ["plate1"], {"plate1": "BCS"}) == {
@@ -209,7 +209,7 @@ def test_only_readable_field_arrays_count_as_imaged_wells(tmp_path):
     from spacr.plate_qc import _imaged_wells
 
     src = _imaged(tmp_path, wells=((1, 1),))
-    (src / "notes.txt").write_text("not an array")
+    (src / "notes.txt").write_text("not an array", encoding="utf-8")
     np.save(src / "not_a_field.npy", np.zeros(1))
     np.save(src / "plate1_A00_1.npy", np.zeros(1))
     wells = _imaged_wells(str(src))
@@ -219,7 +219,7 @@ def test_only_readable_field_arrays_count_as_imaged_wells(tmp_path):
 def test_a_barcode_file_for_several_plates_needs_plate_names(tmp_path):
     """One bare barcode is only meaningful for a folder of one plate."""
     src = _imaged(tmp_path)
-    (tmp_path / "plate1" / "barcode.txt").write_text("BC001\n")
+    (tmp_path / "plate1" / "barcode.txt").write_text("BC001\n", encoding="utf-8")
     assert _plate_barcodes(str(src), ["plate1", "plate2"]) == {
         "plate1": "plate1", "plate2": "plate2"}
 

@@ -435,7 +435,7 @@ def test_a_fingerprint_is_the_paths_their_times_and_their_sizes(banner,
     from spacr import seg_qc
 
     card = tmp_path / "segmentation_qc_cell.csv"
-    card.write_text("well,n\nA01,10\n")
+    card.write_text("well,n\nA01,10\n", encoding="utf-8")
     monkeypatch.setattr(seg_qc, "find_scorecards", lambda src: [str(card)])
     widget = banner(src=str(tmp_path))
 
@@ -450,7 +450,7 @@ def test_a_second_refresh_with_an_unchanged_fingerprint_does_not_re_read(
     from spacr import seg_qc
 
     card = tmp_path / "segmentation_qc_cell.csv"
-    card.write_text("well,n\nA01,10\n")
+    card.write_text("well,n\nA01,10\n", encoding="utf-8")
     monkeypatch.setattr(seg_qc, "find_scorecards", lambda src: [str(card)])
     reads = []
 

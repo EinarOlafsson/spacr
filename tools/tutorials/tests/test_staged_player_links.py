@@ -27,14 +27,14 @@ def test_server_uses_committed_player_not_stale_authoring_copy(tmp_path, monkeyp
     production = workspace/'refresh/production'
     live = repo/'docs/source/_extra/tutorials'
     (workspace/'web').mkdir(parents=True); live.mkdir(parents=True)
-    (workspace/'web/app_v2.js').write_text('STALE PLAYER')
-    (live/'app_v2.js').write_text('CURRENT PLAYER')
+    (workspace/'web/app_v2.js').write_text('STALE PLAYER', encoding="utf-8")
+    (live/'app_v2.js').write_text('CURRENT PLAYER', encoding="utf-8")
     (live/'examples').mkdir(); (live/'examples/example.zip').write_bytes(b'current archive')
     monkeypatch.setattr(staged,'WORKSPACE',workspace)
     monkeypatch.setattr(staged,'REPO',repo)
     monkeypatch.setattr(staged,'DEFAULT_STAGE',workspace/'refresh')
     handler=staged.Handler.__new__(staged.Handler); handler.directory=str(workspace)
-    assert Path(handler.translate_path('/web/app_v2.js?v=fresh')).read_text() == 'CURRENT PLAYER'
+    assert Path(handler.translate_path('/web/app_v2.js?v=fresh')).read_text(encoding="utf-8") == 'CURRENT PLAYER'
     assert Path(handler.translate_path('/web/examples/example.zip')).read_bytes() == b'current archive'
     # Media routing remains independent: an existing staged file wins,
     # and untouched lessons retain their original media fallback.

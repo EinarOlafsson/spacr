@@ -94,7 +94,7 @@ def _write_table(path, sequences, prefix):
     lines = ["name,sequence"]
     lines += [f"{prefix}{index + 1},{sequence}"
               for index, sequence in enumerate(sequences)]
-    path.write_text("\n".join(lines) + "\n")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def _write_fastq(path, reads):

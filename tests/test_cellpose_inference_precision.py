@@ -36,7 +36,7 @@ def test_mask_comparison_streaming_and_editor_share_precision(
     path = tmp_path / 'stack.npy'
     image = np.ones((16, 16, 1), np.uint16)
     np.save(path, image)
-    (tmp_path / 'channel_order.json').write_text(json.dumps({'image_channels': ['DAPI']}))
+    (tmp_path / 'channel_order.json').write_text(json.dumps({'image_channels': ['DAPI']}), encoding="utf-8")
     stack = pipeline_v2.StackFile('field', path, image.shape, ['DAPI'])
     pipeline_v2.stream_masks_from_stack([stack], model_name='cpsam')
     check()

@@ -639,7 +639,7 @@ def test_a_bad_gate_file_is_reported_rather_than_raised(qtbot, tmp_path, hand):
     from spacr.qt.screens.gate_editor import GateEditorScreen
 
     bad = tmp_path / "bad.json"
-    bad.write_text("not json at all")
+    bad.write_text("not json at all", encoding="utf-8")
     screen = GateEditorScreen(link=LinkedSelection(), threaded=False)
     qtbot.addWidget(screen)
     screen.set_frame(hand)

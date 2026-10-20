@@ -51,7 +51,7 @@ def test_lock_cleanup_does_not_erase_a_disappeared_or_replaced_lock(
         assert lock.is_file()
         lock.unlink()
         if replacement:
-            lock.write_text("different writer")
+            lock.write_text("different writer", encoding="utf-8")
         return actual_atomic(path, payload)
 
     monkeypatch.setattr(engine, "_yolo_atomic", change_lock_before_write)

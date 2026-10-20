@@ -51,8 +51,8 @@ def test_explicit_pairs_take_precedence_over_legacy_paths():
 def test_real_cli_dry_run_reads_no_tables_creates_no_output_and_imports_no_model(tmp_path):
     scores = tmp_path / 'scores.csv'
     counts = tmp_path / 'counts.csv'
-    scores.write_text('plateID,rowID,columnID,pred\np1,r1,c1,0.5\n')
-    counts.write_text('plateID,rowID,columnID,grna,count\np1,r1,c1,g1,50\n')
+    scores.write_text('plateID,rowID,columnID,pred\np1,r1,c1,0.5\n', encoding="utf-8")
+    counts.write_text('plateID,rowID,columnID,grna,count\np1,r1,c1,g1,50\n', encoding="utf-8")
     output = tmp_path / 'new-output'
     settings_file = tmp_path / 'settings.csv'
     with settings_file.open('w', newline='') as handle:

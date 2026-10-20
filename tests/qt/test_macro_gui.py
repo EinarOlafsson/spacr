@@ -84,7 +84,7 @@ def gui_demo(tmp_path, monkeypatch):
     """
     package = tmp_path / "pkg"
     package.mkdir()
-    (package / "spacr_macro_gui_demo.py").write_text(DEMO_MODULE)
+    (package / "spacr_macro_gui_demo.py").write_text(DEMO_MODULE, encoding="utf-8")
     monkeypatch.syspath_prepend(str(package))
 
     home = tmp_path / "home"
@@ -129,8 +129,8 @@ def gui_demo(tmp_path, monkeypatch):
 def make_inputs(root: Path) -> Path:
     """Create the demo module's inputs."""
     root.mkdir(parents=True, exist_ok=True)
-    (root / "a.txt").write_text("1\n2\n3\n")
-    (root / "b.txt").write_text("10\n20\n")
+    (root / "a.txt").write_text("1\n2\n3\n", encoding="utf-8")
+    (root / "b.txt").write_text("10\n20\n", encoding="utf-8")
     return root
 
 

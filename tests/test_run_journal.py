@@ -116,7 +116,7 @@ def test_record_model_hashes_file(tmp_path):
 def test_attach_output_copies_into_outputs_dir(tmp_path):
     from spacr.run_journal import open_run
     src = tmp_path / "some_result.csv"
-    src.write_text("a,b,c\n1,2,3\n")
+    src.write_text("a,b,c\n1,2,3\n", encoding="utf-8")
     with open_run("measure", {}) as run:
         dst = run.attach_output(src)
     assert dst is not None
@@ -201,7 +201,7 @@ def test_manifest_hashes_inputs_outputs_settings_seeds_and_packages(
         running = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
         assert running["status"] == "running"
         output.parent.mkdir()
-        output.write_text("score\n0.9\n")
+        output.write_text("score\n0.9\n", encoding="utf-8")
 
     manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     source_record = manifest["input_hashes"][str(source)]
@@ -295,7 +295,7 @@ def test_search_runs_filters_settings_outputs_warnings_and_failures(
                      "optimizer": "adamw", "hash_inputs": True},
     ) as run:
         run.record_warning("class imbalance detected")
-        output.write_text("class,score\nA,0.8\n")
+        output.write_text("class,score\nA,0.8\n", encoding="utf-8")
 
     with pytest.raises(RuntimeError):
         with rj.open_run("measure", {"src": str(source)}):
@@ -323,10 +323,10 @@ def test_search_runs_keeps_corrupt_and_inflight_folders_visible(
     monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
     inflight = tmp_path / "inflight"
     inflight.mkdir()
-    (inflight / "settings.json").write_text('{"src": "/plate"}')
+    (inflight / "settings.json").write_text('{"src": "/plate"}', encoding="utf-8")
     corrupt = tmp_path / "corrupt"
     corrupt.mkdir()
-    (corrupt / "manifest.json").write_text("{bad json")
+    (corrupt / "manifest.json").write_text("{bad json", encoding="utf-8")
 
     records = {record["run_id"]: record for record in rj.search_runs()}
     assert records["inflight"]["status"] == "running"

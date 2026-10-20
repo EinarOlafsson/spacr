@@ -29,7 +29,7 @@ def _recipe(folder, model, **extra):
               'generate_training_dataset': False,
               'apply_model_to_dataset': True, 'crop_source': 'merged',
               'extract_channels': [0], 'cell_mask_dim': 1, **extra}
-    path.write_text(json.dumps(values))
+    path.write_text(json.dumps(values), encoding="utf-8")
     return {**_settings(folder, 'mask_measure_classify'),
             'watch_classify_settings': str(path)}
 
@@ -88,7 +88,7 @@ def adapter(monkeypatch):
 def test_watched_predictions_match_the_same_per_field_batch_pipeline(tmp_path, adapter):
     masks, measurements, calls, _hooks = adapter
     model = tmp_path / 'model.pt'
-    model.write_text('2')
+    model.write_text('2', encoding="utf-8")
     watched = tmp_path / 'watched'
     watched.mkdir()
     _arrive(watched, 'A01', 1)
@@ -122,14 +122,14 @@ def test_watched_predictions_match_the_same_per_field_batch_pipeline(tmp_path, a
 def test_model_and_recipe_are_frozen_until_resume(tmp_path, adapter):
     _masks, _measurements, calls, hooks = adapter
     model = tmp_path / 'model.pt'
-    model.write_text('2')
+    model.write_text('2', encoding="utf-8")
     _arrive(tmp_path, 'A01', 1)
     _arrive(tmp_path, 'A02', 3)
     settings = _recipe(tmp_path, model, n_top_examples=1)
 
     def change_sources(_applied):
         if len(calls) == 1:
-            model.write_text('4')
+            model.write_text('4', encoding="utf-8")
             _recipe(tmp_path, model, n_top_examples=9)
 
     hooks.append(change_sources)
@@ -153,7 +153,7 @@ def test_model_and_recipe_are_frozen_until_resume(tmp_path, adapter):
 def test_training_and_unstable_crop_recipes_are_refused_before_output(tmp_path,
                                                                     change):
     model = tmp_path / 'model.pt'
-    model.write_text('2')
+    model.write_text('2', encoding="utf-8")
     _arrive(tmp_path, 'A01', 1)
     settings = _recipe(tmp_path, model, **change)
     before = _bytes(tmp_path)
@@ -168,7 +168,7 @@ def test_no_predictions_means_the_field_is_not_collected(tmp_path, adapter,
 
     monkeypatch.setattr(deep_spacr, 'deep_spacr', lambda _settings: None)
     model = tmp_path / 'model.pt'
-    model.write_text('2')
+    model.write_text('2', encoding="utf-8")
     _arrive(tmp_path, 'A01', 1)
     settings = _recipe(tmp_path, model)
     result = core._watch_folder_and_analyse(settings)
@@ -188,7 +188,7 @@ def test_empty_prediction_columns_do_not_count_as_classification(tmp_path, adapt
 
     monkeypatch.setattr(deep_spacr, 'deep_spacr', empty_predictions)
     model = tmp_path / 'model.pt'
-    model.write_text('2')
+    model.write_text('2', encoding="utf-8")
     _arrive(tmp_path, 'A01', 1)
     result = core._watch_folder_and_analyse(_recipe(tmp_path, model))
     assert result['failed'] == ['plate1_A01_0001_001']
@@ -220,14 +220,14 @@ def test_real_mask_and_measure_predictions_match_batch_size_one(
         for channel, image in enumerate(_channels(shift), start=1):
             tifffile.imwrite(source / _name(well, channel), image)
     model = tmp_path / 'model.pt'
-    model.write_text('2')
+    model.write_text('2', encoding="utf-8")
     watched = tmp_path / 'watched'
     batch = tmp_path / 'batch'
     shutil.copytree(source, watched)
     shutil.copytree(source, batch)
     measure = {**MEASURE, 'save_png': True}
     measure_file = tmp_path / 'measure.json'
-    measure_file.write_text(json.dumps(measure))
+    measure_file.write_text(json.dumps(measure), encoding="utf-8")
     settings = _recipe(watched, model)
     settings.update(MASK, src=str(watched), watch_folder=True,
                     watch_pipeline='mask_measure_classify',

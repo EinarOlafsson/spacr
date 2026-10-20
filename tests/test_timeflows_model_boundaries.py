@@ -206,7 +206,7 @@ def test_ctc_pair_limit_reads_only_selected_endpoints_and_ignores_gaps(tmp_path,
                                       ("01_GT/TRA", "man_track", labels)]:
             tifffile.imwrite(tmp_path / folder / f"{prefix}{index:03d}.tif", array)
     for name in ("t_notes.tif", "notes.txt", "wrong000.tif"):
-        (tmp_path / "01" / name).write_text("not an image")
+        (tmp_path / "01" / name).write_text("not an image", encoding="utf-8")
     original = tifffile.imread
     reads = []
 

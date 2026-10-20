@@ -100,7 +100,7 @@ def test_the_refresh_proof_passes_and_counts_what_it_kept(pair):
     assert result['unchanged_lessons_per_catalog'] == 2
     assert result['catalogs_checked'] == len(CATALOGS)
     assert result['published'] is False
-    written = json.loads((candidate / 'checks/map-preservation-checks.json').read_text())
+    written = json.loads((candidate / 'checks/map-preservation-checks.json').read_text(encoding="utf-8"))
     assert written == result
 
 
@@ -163,11 +163,11 @@ def test_a_lesson_refreshed_in_media_only_is_accepted_and_reported(tmp_path):
 def test_media_that_belongs_to_no_named_lesson_is_refused(pair, tmp_path):
     prior, candidate = pair
     manifest_path = candidate / 'release-manifest.json'
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     for record in manifest['files']:
         if record['path'] == 'media_host/13_regression/audio/en/af_heart.m4a':
             record['sha256'] = 'regression-rerendered'
-    manifest_path.write_text(json.dumps(manifest))
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(ValueError, match='An unexplained file changed'):
         preservation.check_refresh(prior, candidate, [OTHER])
 
@@ -185,9 +185,9 @@ def test_a_catalog_locale_nobody_compares_is_not_excused(pair):
     assert stranger not in preservation.COMPARED_CATALOG_PATHS
     for root, digest in ((prior, 'stranger-before'), (candidate, 'stranger-after')):
         manifest_path = root / 'release-manifest.json'
-        manifest = json.loads(manifest_path.read_text())
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest['files'].append({'path': stranger, 'sha256': digest})
-        manifest_path.write_text(json.dumps(manifest))
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(ValueError, match='An unexplained file changed'):
         preservation.check_refresh(prior, candidate, [OTHER])
 
@@ -225,6 +225,6 @@ def test_a_navigation_change_outside_the_commit_is_refused(pair):
 
 def test_a_file_that_is_not_a_frozen_payload_fails_loudly(pair):
     prior, candidate = pair
-    (candidate / 'web/lesson_catalog.js').write_text('window.X = {"lessons": []};')
+    (candidate / 'web/lesson_catalog.js').write_text('window.X = {"lessons": []};', encoding="utf-8")
     with pytest.raises(ValueError, match='Not a frozen catalog payload'):
         preservation.check_refresh(prior, candidate, [OTHER])

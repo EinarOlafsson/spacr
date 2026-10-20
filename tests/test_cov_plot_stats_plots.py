@@ -287,7 +287,7 @@ def _vision_tree(base, rows_per_model):
             d / f"{model}_time1700000000_test_result.csv", index=False
         )
     # A file that must be ignored by the *_test_result.csv filter.
-    (base / "notes.csv").write_text("accuracy\n0.99\n")
+    (base / "notes.csv").write_text("accuracy\n0.99\n", encoding="utf-8")
 
 
 @pytest.fixture

@@ -16,11 +16,11 @@ from spacr import remote_execution as remote
 def test_hostname_tokens_match_native_without_rescanning(tmp_path, template):
     config = tmp_path / 'config'
     child = tmp_path / 'child'
-    child.write_text('Host wanted\n' + (' HostName ' + template + '\n' if template else ''))
+    child.write_text('Host wanted\n' + (' HostName ' + template + '\n' if template else ''), encoding="utf-8")
     config.write_text('Host wanted\n Include ' + str(child)
-                      + '\n HostName first-fallback.invalid\n User controlled-user\n')
+                      + '\n HostName first-fallback.invalid\n User controlled-user\n', encoding="utf-8")
     if template is None:
-        config.write_text('Host wanted\n User controlled-user\n')
+        config.write_text('Host wanted\n User controlled-user\n', encoding="utf-8")
     before = {p: p.read_bytes() for p in (config, child)}
     result = subprocess.run(
         ['ssh', '-G', '-F', str(config), '-o', 'CanonicalizeHostname=no',

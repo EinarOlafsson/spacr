@@ -153,7 +153,7 @@ def test_an_export_that_cannot_be_registered_still_leaves_a_complete_file(
     monkeypatch.delenv("SPACR_ARTIFACTS_DB", raising=False)
     db = _write_db(tmp_path / "m.db", {"cell": _cell_table()})
     blocked_root = tmp_path / "root_is_a_file"
-    blocked_root.write_text("not a directory")
+    blocked_root.write_text("not a directory", encoding="utf-8")
     out = str(tmp_path / "written" / "export.h5ad")
 
     with pytest.warns(RuntimeWarning) as caught:

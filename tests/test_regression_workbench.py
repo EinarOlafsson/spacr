@@ -138,7 +138,7 @@ def test_adjusted_value_label_names_the_right_quantity():
 @pytest.fixture()
 def csv_folder(tmp_path):
     for name in ("plate1.csv", "plate2.csv", "plate3.csv"):
-        (tmp_path / name).write_text("a,b\n1,2\n")
+        (tmp_path / name).write_text("a,b\n1,2\n", encoding="utf-8")
     (tmp_path / "picture.png").write_bytes(b"\x89PNG")
     return tmp_path
 
@@ -892,11 +892,11 @@ def test_a_data_csv_is_routed_to_the_input_it_belongs_in(qtbot, tmp_path):
     from spacr.qt.widgets.file_list import FilePathListWidget
 
     score = tmp_path / "plate1_dv.csv"
-    score.write_text("path,pred,plate,row,col\na,0.5,plate1,r1,c1\n")
+    score.write_text("path,pred,plate,row,col\na,0.5,plate1,r1,c1\n", encoding="utf-8")
     count = tmp_path / "plate_1_unique_combinations.csv"
-    count.write_text("row_name,column_name,grna_name,count\nr1,c1,g_1,5\n")
+    count.write_text("row_name,column_name,grna_name,count\nr1,c1,g_1,5\n", encoding="utf-8")
     settings_csv = tmp_path / "settings.csv"
-    settings_csv.write_text("Key,Value\nsrc,/tmp\n")
+    settings_csv.write_text("Key,Value\nsrc,/tmp\n", encoding="utf-8")
 
     assert not _looks_like_settings_csv(score)
     assert not _looks_like_settings_csv(count)
@@ -931,7 +931,7 @@ def test_a_screen_with_no_file_inputs_still_reports_the_problem(qtbot,
     from spacr.qt.dnd import _route_data_csv_to_inputs
 
     data = tmp_path / "data.csv"
-    data.write_text("a,b\n1,2\n")
+    data.write_text("a,b\n1,2\n", encoding="utf-8")
 
     class _Screen:
         def apply_settings_dict(self, values):
@@ -954,11 +954,11 @@ def test_a_dropped_csv_reaches_the_paired_table_not_metadata(qtbot, tmp_path):
     )
 
     score = tmp_path / "plate1_dv.csv"
-    score.write_text("path,pred,plate,row,col\na,0.5,plate1,r1,c1\n")
+    score.write_text("path,pred,plate,row,col\na,0.5,plate1,r1,c1\n", encoding="utf-8")
     count = tmp_path / "plate_1_unique_combinations.csv"
-    count.write_text("row_name,column_name,grna_name,count\nr1,c1,g_1,5\n")
+    count.write_text("row_name,column_name,grna_name,count\nr1,c1,g_1,5\n", encoding="utf-8")
     annotation = tmp_path / "grna_barcodes.csv"
-    annotation.write_text("name,sequence\nTGGT1_225160_2,ACGT\n")
+    annotation.write_text("name,sequence\nTGGT1_225160_2,ACGT\n", encoding="utf-8")
 
     class _Model:
         pass
@@ -993,9 +993,9 @@ def test_a_count_dropped_before_its_score_still_pairs(qtbot, tmp_path):
     counts, scores = [], []
     for plate in (1, 2):
         count = tmp_path / f"plate_{plate}_unique_combinations.csv"
-        count.write_text("row_name,column_name,grna_name,count\nr1,c1,g,5\n")
+        count.write_text("row_name,column_name,grna_name,count\nr1,c1,g,5\n", encoding="utf-8")
         score = tmp_path / f"plate{plate}_dv.csv"
-        score.write_text("path,pred,plate\na,0.5,plate1\n")
+        score.write_text("path,pred,plate\na,0.5,plate1\n", encoding="utf-8")
         counts.append(str(count))
         scores.append(str(score))
 
@@ -1041,9 +1041,9 @@ def test_two_lists_added_in_opposite_orders_still_pair_by_plate(qtbot,
     scores, counts = {}, {}
     for plate in (1, 2):
         score = tmp_path / f"plate{plate}_dv.csv"
-        score.write_text("path,pred,plate\na,0.5,plate1\n")
+        score.write_text("path,pred,plate\na,0.5,plate1\n", encoding="utf-8")
         count = tmp_path / f"plate_{plate}_unique_combinations.csv"
-        count.write_text("row_name,column_name,grna_name,count\nr1,c1,g,5\n")
+        count.write_text("row_name,column_name,grna_name,count\nr1,c1,g,5\n", encoding="utf-8")
         scores[plate], counts[plate] = str(score), str(count)
 
     added_scores = [scores[2], scores[1]]
@@ -1090,7 +1090,7 @@ class TestTheOutputFolderIsTheCallersChoice:
         data = tmp_path / "data"
         data.mkdir(exist_ok=True)
         count = data / "counts.csv"
-        count.write_text("grna,count\na,1\n")
+        count.write_text("grna,count\na,1\n", encoding="utf-8")
         settings = {"count_data": [str(count)], "score_data": [str(count)],
                     "regression_type": "ols"}
         settings.update(extra)
@@ -1132,7 +1132,7 @@ class TestTheOutputFolderIsTheCallersChoice:
         import pathlib as _pathlib
 
         first, _ = self._paths(tmp_path)
-        (_pathlib.Path(first) / "results.csv").write_text("x\n")
+        (_pathlib.Path(first) / "results.csv").write_text("x\n", encoding="utf-8")
 
         second, _ = self._paths(tmp_path)
 
@@ -1498,11 +1498,11 @@ class TestASettingThatCannotDoAnythingIsGreyedOut:
         from spacr.qt.screens.settings_model import SettingsWidgets
 
         one = tmp_path / "one.csv"
-        one.write_text("plateID,well,score\np1,A01,1\np1,A02,2\n")
+        one.write_text("plateID,well,score\np1,A01,1\np1,A02,2\n", encoding="utf-8")
         two = tmp_path / "two.csv"
-        two.write_text("plateID,well,score\np1,A01,1\np2,A02,2\n")
+        two.write_text("plateID,well,score\np1,A01,1\np2,A02,2\n", encoding="utf-8")
         bare = tmp_path / "bare.csv"
-        bare.write_text("well,score\nA01,1\nA02,2\n")
+        bare.write_text("well,score\nA01,1\nA02,2\n", encoding="utf-8")
 
         read = SettingsWidgets._plate_context
         assert read([str(one)]) == {'plate_count': 1, 'has_plate_id': True}
@@ -1527,9 +1527,9 @@ class TestASettingThatCannotDoAnythingIsGreyedOut:
         import spacr.settings as settings_module
 
         two = tmp_path / "two.csv"
-        two.write_text("plateID,well,score\np1,A01,1\np2,A02,2\n")
+        two.write_text("plateID,well,score\np1,A01,1\np2,A02,2\n", encoding="utf-8")
         one = tmp_path / "one.csv"
-        one.write_text("plateID,well,score\np1,A01,1\np1,A02,2\n")
+        one.write_text("plateID,well,score\np1,A01,1\np1,A02,2\n", encoding="utf-8")
 
         rule = {
             'sources': ('paired_data',),

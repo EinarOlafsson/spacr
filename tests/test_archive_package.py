@@ -136,7 +136,7 @@ def test_a_package_missing_what_the_templates_need_is_rejected(screen,
         in problems
 
     plates = pkg / "idr" / "drugscreen-screenA-plates.txt"
-    plates.write_text("Plate\tDirectory\nplate1\t.\n")
+    plates.write_text("Plate\tDirectory\nplate1\t.\n", encoding="utf-8")
     assert any("not on the plate list" in p for p in
                rep._validate_archive_package(pkg, verify_checksums=False))
 
@@ -169,7 +169,7 @@ def test_unknown_publication_has_the_official_idr_row(screen, tmp_path):
     # structure independently of the checksum failure caused by this mutation.
     study_path.write_text("\n".join(
         line for line in lines if not line.startswith("Study Publication Title\t")
-    ) + "\n")
+    ) + "\n", encoding="utf-8")
     assert "IDR study: 'Study Publication Title' row is missing" in (
         rep._validate_archive_package(package, verify_checksums=False)
     )

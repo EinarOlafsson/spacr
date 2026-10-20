@@ -176,7 +176,7 @@ def test_a_download_folder_that_cannot_be_made_says_so(
     from spacr.qt.widgets import model_zoo_picker
 
     blocker = tmp_path / "a_file"
-    blocker.write_text("in the way")
+    blocker.write_text("in the way", encoding="utf-8")
     monkeypatch.setattr(model_zoo_picker, "remembered_model_dir",
                         lambda: str(blocker / "models"))
     monkeypatch.setattr(screen, "_confirm", lambda *a: True)

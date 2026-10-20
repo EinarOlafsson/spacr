@@ -803,7 +803,7 @@ def test_a_missing_shard_turns_the_combine_step_red(tmp_path):
     count = int(step["env"]["SPACR_COVERAGE_SHARD_COUNT"])
     for shard in range(count):
         if shard != 7:
-            (data / f".coverage.shard-{shard:02d}.batch-001.host.1.abc").write_text("")
+            (data / f".coverage.shard-{shard:02d}.batch-001.host.1.abc").write_text("", encoding="utf-8")
     environment = {
         "PATH": "/usr/bin:/bin",
         "SPACR_COVERAGE_INPUT": str(data),
@@ -814,7 +814,7 @@ def test_a_missing_shard_turns_the_combine_step_red(tmp_path):
         ["bash", "-e", "-c", check],
         env=environment, capture_output=True, text=True, check=False,
     )
-    (data / ".coverage.shard-07.batch-001.host.1.abc").write_text("")
+    (data / ".coverage.shard-07.batch-001.host.1.abc").write_text("", encoding="utf-8")
     complete = subprocess.run(
         ["bash", "-e", "-c", check],
         env=environment, capture_output=True, text=True, check=False,

@@ -50,11 +50,11 @@ def test_a_real_windows_computer_also_reads_the_all_users_start_menu(tmp_path, m
     program_files = tmp_path / "Program Files"
     root = program_files / "spaCR"
     (root / "Uninstall.exe").parent.mkdir(parents=True)
-    (root / "spacr.exe").write_text("desktop")
-    (root / "Uninstall.exe").write_text("uninstaller")
+    (root / "spacr.exe").write_text("desktop", encoding="utf-8")
+    (root / "Uninstall.exe").write_text("uninstaller", encoding="utf-8")
     common = tmp_path / "Common Programs"
     common.mkdir()
-    (common / "spaCR.lnk").write_text(str(root))
+    (common / "spaCR.lnk").write_text(str(root), encoding="utf-8")
     monkeypatch.setenv("PROGRAMFILES", str(program_files))
     monkeypatch.setenv("APPDATA", str(tmp_path / "AppData"))
     machine = ic._Machine(platform="windows", registry=SimpleNamespace(), packages=None)

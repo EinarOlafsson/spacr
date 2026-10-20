@@ -274,7 +274,7 @@ def test_a_settings_file_round_trips_auto(tmp_path, written):
 
     path = tmp_path / "mask_settings.csv"
     path.write_text(f"Key,Value\ncell_diameter,{written}\n"
-                    f"nucleus_diameter,\n")
+                    f"nucleus_diameter,\n", encoding="utf-8")
     module = resolve_module("mask")
     resolved = resolve_settings(module, str(path))
     assert resolved["cell_diameter"] == "auto"

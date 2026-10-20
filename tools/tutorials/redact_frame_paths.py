@@ -1208,13 +1208,13 @@ def cmd_record(args):
     applied = json.loads((args.out / f'{args.lesson}.apply.json').read_text(encoding='utf-8'))
     master = folder / 'video' / f'{args.lesson}_silent.mp4'
     web = stage / 'web-renditions' / args.lesson / 'video' / master.name
-    rendition = json.loads((stage / 'web-renditions' / args.lesson / 'rendition-checks.json').read_text())
+    rendition = json.loads((stage / 'web-renditions' / args.lesson / 'rendition-checks.json').read_text(encoding="utf-8"))
     sweep = json.loads(args.sweep.read_text(encoding='utf-8'))
     browser = {}
     for case, report in (('sentence_cues', stage / 'browser' / args.lesson / 'en-af_heart-sentence-cues'),
                          ('web_rendition', stage / 'browser-web' / args.lesson / 'en-af_heart')):
         report = report / 'playback-checks.json'
-        result = json.loads(report.read_text())
+        result = json.loads(report.read_text(encoding="utf-8"))
         browser[case] = {'passed': result.get('passed'), 'report_sha256': sha256(report)}
         if case == 'web_rendition' and result.get('loaded_video_sha256') not in (None, sha256(web)):
             raise ValueError('web playback report is for another rendition')

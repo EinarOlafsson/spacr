@@ -343,7 +343,7 @@ def test_an_old_settings_csv_without_the_key_still_loads(tmp_path):
     path.write_text("setting_key,setting_value\n"
                     "regression_type,mixed\n"
                     "dependent_variable,pred\n"
-                    "alpha,1\n")
+                    "alpha,1\n", encoding="utf-8")
     loaded = load_settings_file(str(path))
     assert "regression_backend" not in loaded
 

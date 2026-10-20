@@ -86,7 +86,7 @@ def test_the_guide_level_table_wins_over_the_gene_level_one(tmp_path):
     _results_frame().to_csv(folder / "results.csv", index=False)
     _results_frame().to_csv(folder / "results_grna.csv", index=False)
     (folder / "guide_permutation_results_long.csv").write_text(
-        _results_frame().to_csv(index=False))
+        _results_frame().to_csv(index=False), encoding="utf-8")
     assert volcano.find_results_table(folder) == os.path.abspath(
         folder / "guide_permutation_results_long.csv")
 
@@ -94,7 +94,7 @@ def test_the_guide_level_table_wins_over_the_gene_level_one(tmp_path):
 def test_a_folder_of_the_wrong_csvs_holds_no_table(tmp_path):
     folder = tmp_path / "settings_only"
     folder.mkdir()
-    (folder / "settings.csv").write_text("key,value\n")
+    (folder / "settings.csv").write_text("key,value\n", encoding="utf-8")
     assert volcano.find_results_table(folder) is None
 
 

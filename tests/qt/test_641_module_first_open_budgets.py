@@ -228,9 +228,9 @@ def test_the_pyside_import_probe_reads_bytes(tmp_path, monkeypatch):
     assert app._quicken_the_pyside_import_probe() is True
     assert app._quicken_the_pyside_import_probe() is False
     uses = tmp_path / "uses.py"
-    uses.write_text("from PySide6 import QtCore\n")
+    uses.write_text("from PySide6 import QtCore\n", encoding="utf-8")
     plain = tmp_path / "plain.py"
-    plain.write_text("x = 1\n")
+    plain.write_text("x = 1\n", encoding="utf-8")
     probe = feature._mod_uses_pyside
     assert probe(types.SimpleNamespace(__file__=str(uses))) is True
     assert probe(types.SimpleNamespace(__file__=str(plain))) is False

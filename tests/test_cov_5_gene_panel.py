@@ -180,7 +180,7 @@ def test_a_write_that_fails_says_which_file_and_why(
 
     panel.show_feature("fraction:grna[239740_3]")
     blocker = tmp_path / "blocker"
-    blocker.write_text("this is a file, not a folder")
+    blocker.write_text("this is a file, not a folder", encoding="utf-8")
     doomed = blocker / "topology.csv"
     monkeypatch.setattr(gp.QFileDialog, "getSaveFileName",
                         staticmethod(lambda *a, **k: (str(doomed), "")))

@@ -51,7 +51,7 @@ def frozen_native_stage(tmp_path):
     root.mkdir(parents=True)
     def write(path,value):
         path.parent.mkdir(parents=True,exist_ok=True)
-        path.write_text(json.dumps(value,ensure_ascii=False))
+        path.write_text(json.dumps(value,ensure_ascii=False), encoding="utf-8")
     write(root/'lesson.en.json',authored)
     video=root/'recorded.mp4';video.write_bytes(b'explicit nonmedia unit fixture')
     receipt=root/'recorded.capture.json'
@@ -100,21 +100,21 @@ def test_changed_native_inputs_and_duration_gaps_fail_closed(frozen_native_stage
     from native_live_timing import plan,checked_native_timing,sha256
     stage,root=frozen_native_stage;accepted=plan(stage,'05_home')
     sidecar=root/'video/native-live-timings.json';sidecar.parent.mkdir()
-    sidecar.write_text(json.dumps(accepted));assert checked_native_timing(stage,'05_home')==sidecar
+    sidecar.write_text(json.dumps(accepted), encoding="utf-8");assert checked_native_timing(stage,'05_home')==sidecar
     if mutation=='audio':(root/'audio/en/af_heart.m4a').write_bytes(b'changed')
-    elif mutation=='receipt':(root/'recorded.capture.json').write_text('{}')
+    elif mutation=='receipt':(root/'recorded.capture.json').write_text('{}', encoding="utf-8")
     elif mutation=='source':
-        path=stage/'catalog/lessons_en.json';value=json.loads(path.read_text())
-        value['lessons'][0]['scenes'][0]['narration']='A changed instruction.';path.write_text(json.dumps(value))
+        path=stage/'catalog/lessons_en.json';value=json.loads(path.read_text(encoding="utf-8"))
+        value['lessons'][0]['scenes'][0]['narration']='A changed instruction.';path.write_text(json.dumps(value), encoding="utf-8")
     elif mutation=='fingerprint':
-        path=root/'audio/en/af_heart.json';value=json.loads(path.read_text())
-        value['render_fingerprint']='changed';path.write_text(json.dumps(value))
+        path=root/'audio/en/af_heart.json';value=json.loads(path.read_text(encoding="utf-8"))
+        value['render_fingerprint']='changed';path.write_text(json.dumps(value), encoding="utf-8")
     else:
-        path=root/'recorded.capture.json';value=json.loads(path.read_text())
-        value['duration']=1;path.write_text(json.dumps(value))
-        path=root/'scenes.json';value=json.loads(path.read_text())
+        path=root/'recorded.capture.json';value=json.loads(path.read_text(encoding="utf-8"))
+        value['duration']=1;path.write_text(json.dumps(value), encoding="utf-8")
+        path=root/'scenes.json';value=json.loads(path.read_text(encoding="utf-8"))
         value['scenes'][0]['clip']['receipt_sha256']=sha256(root/'recorded.capture.json')
-        path.write_text(json.dumps(value))
+        path.write_text(json.dumps(value), encoding="utf-8")
         assert not plan(stage,'05_home')['coverage']['accepted']
     with pytest.raises(ValueError):checked_native_timing(stage,'05_home')
 

@@ -50,12 +50,12 @@ def _runner_options(job, script):
 def _configuration(root, suite, shard, output):
     import yaml
 
-    workflow = yaml.safe_load((root / ".github/workflows/tests.yml").read_text())
+    workflow = yaml.safe_load((root / ".github/workflows/tests.yml").read_text(encoding="utf-8"))
     job = workflow["jobs"]["coverage-shards" if suite == "coverage" else suite]
     runner = _load_runner(root, suite == "coverage")
     replacements = {}
     if suite == "qt":
-        reusable = yaml.safe_load((root / ".github/workflows/_pytest-suite.yml").read_text())
+        reusable = yaml.safe_load((root / ".github/workflows/_pytest-suite.yml").read_text(encoding="utf-8"))
         inputs = reusable.get("on", reusable.get(True))["workflow_call"]["inputs"]
         values = {key: value.get("default") for key, value in inputs.items()}
         values.update(job["with"])
@@ -140,7 +140,7 @@ def _identity(root, files):
 
 def _write(path, data):
     temporary = path.with_suffix(path.suffix + ".partial")
-    temporary.write_text(json.dumps(data, indent=2) + "\n")
+    temporary.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     temporary.replace(path)
 
 
@@ -177,7 +177,7 @@ def _environment(root, output, suite, shard, count, disabled_plugins=()):
 
 
 def _execute(cli, root, runner, args, options, files):
-    manifest = json.loads((cli.output / "manifest.json").read_text())
+    manifest = json.loads((cli.output / "manifest.json").read_text(encoding="utf-8"))
     if _identity(root, files) != manifest["source"] or _hash(Path(__file__)) != manifest["helper_sha256"]:
         raise ValueError("source changed after planning the batch")
     if cli.suite == "coverage":
@@ -192,8 +192,8 @@ def _execute(cli, root, runner, args, options, files):
 
 def _owned_scope(pid):
     try:
-        child = Path(f"/proc/{pid}/cgroup").read_text().strip().split("::")[-1]
-        parent = Path("/proc/self/cgroup").read_text().strip().split("::")[-1]
+        child = Path(f"/proc/{pid}/cgroup").read_text(encoding="utf-8").strip().split("::")[-1]
+        parent = Path("/proc/self/cgroup").read_text(encoding="utf-8").strip().split("::")[-1]
     except OSError:
         return None
     unit = Path(child).name
@@ -207,7 +207,7 @@ def _stop_child(process, scope):
     parents = {}
     for status in Path("/proc").glob("[0-9]*/status"):
         try:
-            match = re.search(r"^PPid:\s+(\d+)", status.read_text(), re.MULTILINE)
+            match = re.search(r"^PPid:\s+(\d+)", status.read_text(encoding="utf-8"), re.MULTILINE)
             if match:
                 parents[int(status.parent.name)] = int(match.group(1))
         except OSError:

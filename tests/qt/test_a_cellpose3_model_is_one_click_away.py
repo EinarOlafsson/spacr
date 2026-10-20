@@ -70,7 +70,7 @@ def installed_cellpose3(tmp_path):
     """
     env = tmp_path / "backend-environments" / SB._CELLPOSE3
     (env / "bin").mkdir(parents=True, exist_ok=True)
-    (env / "bin" / "python").write_text("")
+    (env / "bin" / "python").write_text("", encoding="utf-8")
     SB._write_marker(str(env), {"backend": SB._CELLPOSE3, "protocol": 1})
     assert SB._backend_state(SB._CELLPOSE3).ready, "the stand-in is not read"
     return str(env)

@@ -58,7 +58,7 @@ def _finish(tmp_path, name):
     env = tmp_path / "backends" / name
     python = Path(SB._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("")
+    python.write_text("", encoding="utf-8")
     SB._write_marker(str(env), {"backend": name})
     return env
 
@@ -163,7 +163,7 @@ def _fake_runner(record):
         if argv[1:3] == ("-m", "venv"):
             python = Path(SB._env_python(argv[3]))
             python.parent.mkdir(parents=True)
-            python.write_text("")
+            python.write_text("", encoding="utf-8")
         on_line("ok")
         if "--selftest" in argv:
             return 0, [json.dumps({

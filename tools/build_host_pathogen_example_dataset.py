@@ -76,7 +76,7 @@ def build(source, destination):
     layout = {'version': 1, 'intensity_channels': [0, 1, 2, 3],
               'mask_plane_order': ['cell', 'nucleus', 'pathogen'],
               'mask_dims': {'cell': 4, 'nucleus': 5, 'pathogen': 6}}
-    (merged / '.spacr_plane_layout.json').write_text(json.dumps(layout, indent=2) + '\n')
+    (merged / '.spacr_plane_layout.json').write_text(json.dumps(layout, indent=2) + '\n', encoding="utf-8")
     measure_crop(settings)
     database = destination / 'measurements/measurements.db'
     with sqlite3.connect(database) as connection:
@@ -119,7 +119,7 @@ def build(source, destination):
         'replication_counts': 'unavailable: masks represent whole vacuoles, not individual parasites',
         'channels': ['Hoechst', 'RNF213 target', 'Toxoplasma', 'CellMask'],
         'masks': 'Existing automatic masks, reconciled with Measure parent/child and nucleus filtering; not manual truth',
-    }, indent=2) + '\n')
+    }, indent=2) + '\n', encoding="utf-8")
     for key in ('wells', 'cells', 'vacuoles'):
         frame = result[key].copy()
         for column in frame.select_dtypes(include=['object', 'string']):
@@ -127,7 +127,7 @@ def build(source, destination):
                                               if isinstance(value, str) else value)
         frame.to_csv(destination / f'example_{key}.csv', index=False)
     for path in (destination / 'settings').glob('measure_crop_settings.*'):
-        path.write_text(path.read_text().replace(str(destination), '<dataset>'))
+        path.write_text(path.read_text(encoding="utf-8").replace(str(destination), '<dataset>'), encoding="utf-8")
     verify(source, destination)
     return destination
 

@@ -63,7 +63,7 @@ def _observed_update_command(event, values, expected_command):
 
 def write(payload):
     """Write the current stage receipt to the explicit output path."""
-    args.output.write_text(json.dumps(payload, indent=2) + '\n')
+    args.output.write_text(json.dumps(payload, indent=2) + '\n', encoding="utf-8")
 
 def state():
     """Measure version, source provenance, missing pip, and actual torch backend."""
@@ -80,7 +80,7 @@ def state():
         path = Path(distribution.locate_file(relative)).resolve()
         assert path.is_relative_to(prefix), ('Package source outside installed venv', path)
         origins[relative] = {'path': str(path), 'sha256': sha(path)}
-    known = json.loads(Path(__file__).with_name('historical_upgrade_sources.json').read_text())
+    known = json.loads(Path(__file__).with_name('historical_upgrade_sources.json').read_text(encoding="utf-8"))
     if version in known:
         for row in known[version]['files']:
             if row['path'] in origins:
@@ -102,7 +102,7 @@ if args.mode == 'state':
 
 if args.mode == 'verify':
     evidence = args.evidence
-    records = {name: json.loads((evidence / f'{name}.json').read_text()) for name in
+    records = {name: json.loads((evidence / f'{name}.json').read_text(encoding="utf-8")) for name in
         ('before', 'broken-gui', 'repaired', 'fixed-gui', 'after')}
     errors = []
     if not all(record.get('passed') is True for record in records.values()):
@@ -192,7 +192,7 @@ if args.mode == 'verify':
                 errors.append('Original Windows wrapper neither passed nor has explicit verified recovery')
         except (OSError, ValueError, KeyError, TypeError) as error:
             errors.append(f'Windows installation/recovery provenance is incomplete: {error}')
-    known = json.loads(Path(__file__).with_name('historical_upgrade_sources.json').read_text())
+    known = json.loads(Path(__file__).with_name('historical_upgrade_sources.json').read_text(encoding="utf-8"))
     source_names = ('spacr/updater.py', 'spacr/qt/app.py', 'spacr/qt/__init__.py')
     for name, row in zip(('before', 'repaired', 'after'), states):
         prefix = Path(row['prefix']).resolve()
@@ -244,7 +244,7 @@ if args.mode == 'verify':
         errors.append('pip was installed, concealing the bug')
     if any(row['torch_cuda_build'] is not None or row['cuda_available'] for row in states):
         errors.append('CPU backend was not preserved by the historical repair/update route')
-    failure_log = (evidence / 'broken-gui.log').read_text(errors='replace')
+    failure_log = (evidence / 'broken-gui.log').read_text(errors='replace', encoding="utf-8")
     if 'No module named pip' not in failure_log:
         errors.append('Actual old child-process missing-pip failure is absent')
     recovered_windows = windows_installation is not None and not windows_installation['original_wrapper_accepted']

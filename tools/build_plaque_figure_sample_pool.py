@@ -41,7 +41,7 @@ def main(argv=None) -> int:
     rows = []
     for image in sorted((root / "images" / "train").iterdir()):
         label = root / "labels" / "train" / f"{image.stem}.txt"
-        wells = (len([line for line in label.read_text().splitlines()
+        wells = (len([line for line in label.read_text(encoding="utf-8").splitlines()
                       if line.strip()]) if label.is_file() else 0)
         with Image.open(image) as opened:
             width, height = opened.size

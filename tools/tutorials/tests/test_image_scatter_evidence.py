@@ -70,7 +70,7 @@ def crop(tmp_path):
     grid=np.arange(300*240*3,dtype=np.uint8).reshape(300,240,3)
     path=tmp_path/'crop.png';Image.fromarray(grid).save(path)
     marker=tmp_path/'.spacr_crop_format.json'
-    marker.write_text(json.dumps(dict(spacr_crop_format=3,channel_order='declared_rgb')))
+    marker.write_text(json.dumps(dict(spacr_crop_format=3,channel_order='declared_rgb')), encoding="utf-8")
     preview=Image.fromarray(grid);preview.thumbnail((192,192))
     from PIL.ImageQt import ImageQt
     pixmap=QPixmap.fromImage(ImageQt(preview).copy())
@@ -84,5 +84,5 @@ def test_preview_identity_pixels_and_format_fail_after_positive(crop,kind):
     if kind=='caption':caption='cell2'
     elif kind=='missing':pixmap=None
     elif kind=='pixels':pixmap.fill(__import__('PySide6.QtGui',fromlist=['QColor']).QColor('red'))
-    elif kind=='format':marker.write_text(json.dumps(dict(spacr_crop_format=2,channel_order='rgb')))
+    elif kind=='format':marker.write_text(json.dumps(dict(spacr_crop_format=2,channel_order='rgb')), encoding="utf-8")
     with pytest.raises(ValueError):verify_preview(pixmap,path,caption,'cell1')

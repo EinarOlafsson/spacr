@@ -783,7 +783,7 @@ def test_a_registry_that_cannot_be_opened_does_not_lose_the_export(
 
     db = _write_db(tmp_path / "measurements" / "m.db", {"cell": _cells()})
     blocked = tmp_path / "root_is_a_file"
-    blocked.write_text("not a directory")
+    blocked.write_text("not a directory", encoding="utf-8")
     out = tmp_path / "written" / "export.h5ad"
 
     with pytest.warns(RuntimeWarning) as caught:

@@ -61,7 +61,7 @@ def _write_index(path, *, bare=False):
         '<?xml version="1.0" encoding="utf-8"?>'
         '<EvaluationInputData xmlns="http://www.perkinelmer.com/PEHH/'
         'HarmonyV5"><Maps><Map>' + entries + '</Map></Maps>'
-        '</EvaluationInputData>')
+        '</EvaluationInputData>', encoding="utf-8")
     return path
 
 
@@ -149,7 +149,7 @@ def test_a_channel_harmony_never_profiled_is_refused(tmp_path):
 
 def test_xml_without_a_profile_is_refused(tmp_path):
     empty = tmp_path / "Index.idx.xml"
-    empty.write_text("<Root><Images/></Root>")
+    empty.write_text("<Root><Images/></Root>", encoding="utf-8")
     with pytest.raises(ill.IlluminationError, match="no Harmony"):
         ill._vendor_illumination(str(empty), [0], verbose=False)
 
@@ -205,7 +205,7 @@ def test_only_polynomial_profiles_are_evaluated():
 
 def test_unreadable_xml_is_refused(tmp_path):
     broken = tmp_path / "Index.idx.xml"
-    broken.write_text("<Root><unclosed></Root>")
+    broken.write_text("<Root><unclosed></Root>", encoding="utf-8")
     with pytest.raises(ill.IlluminationError, match="could not be read as XML"):
         ill._vendor_illumination(str(broken), [0], verbose=False)
 
@@ -222,7 +222,7 @@ def test_profiles_are_numbered_by_entry_or_by_order_and_flat_ones_skipped(
         + json.dumps(no_channel) + '</FlatfieldProfile></Entry>'
         '<FlatfieldProfile>' + json.dumps(no_channel)
         + '</FlatfieldProfile>'
-        '<FlatfieldProfile>' + json.dumps(flat) + '</FlatfieldProfile></Root>')
+        '<FlatfieldProfile>' + json.dumps(flat) + '</FlatfieldProfile></Root>', encoding="utf-8")
     profiles = ill._harmony_profiles(str(path))
     assert sorted(profiles) == [2, 3]
 
@@ -233,7 +233,7 @@ def test_a_harmony_channel_without_a_background_gets_a_zero_offset(tmp_path):
     path = tmp_path / "Index.idx.xml"
     path.write_text('<Root><Entry><FlatfieldProfile>' + json.dumps(_blob(2))
                     + '</FlatfieldProfile></Entry><Entry><FlatfieldProfile>'
-                    + json.dumps(blob) + '</FlatfieldProfile></Entry></Root>')
+                    + json.dumps(blob) + '</FlatfieldProfile></Entry></Root>', encoding="utf-8")
     model = ill._vendor_illumination(str(path), [0, 1], verbose=False)
     darkfield = model.fields[ill.ALL_PLATES].darkfield
     assert not darkfield[0].any() and darkfield[1].any()
@@ -296,7 +296,7 @@ def test_a_missing_file_no_channels_mixed_sizes_or_a_zero_gain_are_refused(
     path = tmp_path / "Index.idx.xml"
     path.write_text('<Root><FlatfieldProfile>' + json.dumps(_blob(1))
                     + '</FlatfieldProfile><FlatfieldProfile>'
-                    + json.dumps(small) + '</FlatfieldProfile></Root>')
+                    + json.dumps(small) + '</FlatfieldProfile></Root>', encoding="utf-8")
     with pytest.raises(ill.IlluminationError, match="differ in size"):
         ill._vendor_illumination(str(path), [0, 1], verbose=False)
 
@@ -318,7 +318,7 @@ def test_a_background_only_profile_is_applied_additively_with_its_mean(
             "Version": "Acapella:2013"}
     path = tmp_path / "Index.xml"
     path.write_text('<Root><Entry><FlatfieldProfile>' + _bare(blob)
-                    + '</FlatfieldProfile></Entry></Root>')
+                    + '</FlatfieldProfile></Entry></Root>', encoding="utf-8")
     model = ill._vendor_illumination(str(path), [0], verbose=False)
     raw = np.random.default_rng(3).uniform(300, 3000, (H, W, 1))
     raw = raw.astype(np.float32)
@@ -333,7 +333,7 @@ def test_a_background_only_profile_without_a_mean_is_refused(tmp_path):
     blob = {"Background": _profile([[1.0]]), "Channel": 1}
     path = tmp_path / "Index.xml"
     path.write_text('<Root><FlatfieldProfile>' + json.dumps(blob)
-                    + '</FlatfieldProfile></Root>')
+                    + '</FlatfieldProfile></Root>', encoding="utf-8")
     with pytest.raises(ill.IlluminationError, match="background polynomial"):
         ill._vendor_illumination(str(path), [0], verbose=False)
 
@@ -376,7 +376,7 @@ def test_a_real_phenix_foreground_and_background_profile(tmp_path):
         '"http://www.perkinelmer.com/PEHH/HarmonyV5"><Map>'
         '<Entry ChannelID="3"><FlatfieldProfile>' + JUMP_PHENIX_PROFILE
         + '</FlatfieldProfile></Entry><Entry ChannelID="6"><FlatfieldProfile>'
-        + JUMP_IDENTITY_PROFILE + '</FlatfieldProfile></Entry></Map></Results>')
+        + JUMP_IDENTITY_PROFILE + '</FlatfieldProfile></Entry></Map></Results>', encoding="utf-8")
     profiles = ill._harmony_profiles(str(path))
     assert sorted(profiles) == [3]
     assert profiles[3]["name"] == "488 long"

@@ -113,7 +113,7 @@ def test_a_timeout_message_names_the_time_that_was_actually_waited():
 def test_a_file_that_cannot_be_executed_is_reported_not_raised(tmp_path):
     """A profile pointing at a data file is an ordinary configuration slip."""
     not_a_program = tmp_path / "settings.json"
-    not_a_program.write_text("{}")
+    not_a_program.write_text("{}", encoding="utf-8")
 
     with pytest.raises(RemoteExecutionError) as caught:
         rx._run_command([str(not_a_program)])
@@ -244,7 +244,7 @@ def test_a_stored_status_this_version_does_not_know_becomes_unknown():
 
 def test_a_lock_that_cannot_be_opened_names_the_path(tmp_path):
     blocker = tmp_path / "blocker"
-    blocker.write_text("not a directory")
+    blocker.write_text("not a directory", encoding="utf-8")
 
     with pytest.raises(RemoteExecutionError, match="Could not open state lock"):
         with rx._file_lock(blocker / "sub" / "jobs.json.lock"):
@@ -270,7 +270,7 @@ def test_an_interpreter_with_no_fcntl_still_takes_the_lock(tmp_path,
 
 def test_a_state_file_that_is_not_json_names_it(tmp_path):
     path = tmp_path / "jobs.json"
-    path.write_text("{ this was edited by hand")
+    path.write_text("{ this was edited by hand", encoding="utf-8")
 
     with pytest.raises(RemoteExecutionError) as caught:
         JobStore(path).list()

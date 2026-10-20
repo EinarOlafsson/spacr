@@ -462,7 +462,7 @@ def test_plot_arrays_directory_samples_nr_arrays(tmp_path, capsys):
     names = ["a.npy", "b.npy", "c.npy"]
     for n in names:
         np.save(src / n, _rand_stack(shape=(16, 16, 2)))
-    (src / "notes.txt").write_text("ignore me")
+    (src / "notes.txt").write_text("ignore me", encoding="utf-8")
     np.savez(src / "d.npz", images=_rand_stack(shape=(16, 16, 2))[None, ...])
 
     plot_arrays(str(src), nr=2, normalize=False)

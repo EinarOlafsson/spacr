@@ -238,7 +238,7 @@ def test_a_bad_folder_is_reported_inline_and_never_in_a_dialog(screen, tmp_path)
 def test_a_folder_with_no_images_is_reported_inline(screen, tmp_path):
     empty = tmp_path / "csvs"
     empty.mkdir()
-    (empty / "settings.csv").write_text("a,b\n1,2\n")
+    (empty / "settings.csv").write_text("a,b\n1,2\n", encoding="utf-8")
     assert screen.set_source(str(empty)) is False
     assert "no readable field" in screen.status_text()
     assert screen.report() is None

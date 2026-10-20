@@ -20,7 +20,7 @@ from tests.test_frozen_macos_update import _protected_script
 @pytest.mark.parametrize("decision", ["confirmed", "cancel", "failed", "retain", "disconnect"])
 def test_actual_pipe_bridge_preserves_or_restores_payload_at_fixed_checkpoints(tmp_path, monkeypatch, decision):
     payload = tmp_path / "payload"
-    payload.write_text("old")
+    payload.write_text("old", encoding="utf-8")
     journal = tmp_path / "journal"
     checkpoint = re.search(r"(?ms)^phase_checkpoint\(\) \{\n.*?^\}\n", ic._MACOS_PROTECTED_TRANSACTION).group()
     script = "set -eu\nphased=1\nphase=prepared\n"

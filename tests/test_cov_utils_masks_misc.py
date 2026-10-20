@@ -44,7 +44,7 @@ def test_convert_and_relabel_masks_skips_non_int64_files(tmp_path, capsys):
     mask[2:6, 2:6] = 7
     np.save(str(tmp_path / "u8.npy"), mask)
     # A non-npy file must not even be looked at.
-    (tmp_path / "notes.txt").write_text("ignore me")
+    (tmp_path / "notes.txt").write_text("ignore me", encoding="utf-8")
 
     convert_and_relabel_masks(str(tmp_path))
 
@@ -479,7 +479,7 @@ def test_control_filelist_default_column_values(tmp_path):
 
     names = ["plate1_A01_f1.tif", "plate1_B02_f1.tif", "plate1_C03_f1.tif"]
     for n in names:
-        (tmp_path / n).write_text("")
+        (tmp_path / n).write_text("", encoding="utf-8")
 
     got = control_filelist(str(tmp_path))
     assert sorted(got) == ["plate1_A01_f1.tif", "plate1_B02_f1.tif"]
@@ -489,7 +489,7 @@ def test_control_filelist_rowid_mode(tmp_path):
     from spacr.utils import control_filelist
 
     for n in ("plate1_A01_f1.tif", "plate1_B02_f1.tif", "plate1_C03_f1.tif"):
-        (tmp_path / n).write_text("")
+        (tmp_path / n).write_text("", encoding="utf-8")
 
     got = control_filelist(str(tmp_path), mode="rowID", values=["A", "C"])
     assert sorted(got) == ["plate1_A01_f1.tif", "plate1_C03_f1.tif"]
@@ -499,7 +499,7 @@ def test_control_filelist_column_values_argument(tmp_path):
     from spacr.utils import control_filelist
 
     for n in ("plate1_A01_f1.tif", "plate1_B02_f1.tif", "plate1_C03_f1.tif"):
-        (tmp_path / n).write_text("")
+        (tmp_path / n).write_text("", encoding="utf-8")
 
     assert control_filelist(str(tmp_path), mode="columnID", values=["03"]) == \
         ["plate1_C03_f1.tif"]

@@ -542,7 +542,7 @@ def legacy_mask_csv(tmp_path, raw_plate):
         ("fps", "4"),
         ("motility_analysis", "True"),
     ]
-    csv.write_text("Key,Value\n" + "\n".join(f'{k},"{v}"' for k, v in rows) + "\n")
+    csv.write_text("Key,Value\n" + "\n".join(f'{k},"{v}"' for k, v in rows) + "\n", encoding="utf-8")
     return csv
 
 

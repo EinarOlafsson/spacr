@@ -51,7 +51,7 @@ def _report(tmp_path, body):
 
     path = tmp_path / REPORT
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(body if isinstance(body, str) else json.dumps(body))
+    path.write_text(body if isinstance(body, str) else json.dumps(body), encoding="utf-8")
     return path
 
 
@@ -80,7 +80,7 @@ def test_an_unreadable_benchmark_is_named(tmp_path, monkeypatch):
     import spacr.tabular as tabular
 
     path = _report(tmp_path, _scored())
-    (path.parent / "image_qc_benchmark.csv").write_text("x\n1\n")
+    (path.parent / "image_qc_benchmark.csv").write_text("x\n1\n", encoding="utf-8")
 
     def broken(*a, **k):
         raise ValueError("bad table")

@@ -909,7 +909,7 @@ def _helper_plan(tmp_path, box=None):
     plan["fetch"], plan["install"], plan["relaunch"] = ic._reinstall_steps(
         running, "9.9.9", plan["workdir"], machine)
     plan["error"] = None
-    (tmp_path / "helper" / "plan.json").write_text(json.dumps(plan))
+    (tmp_path / "helper" / "plan.json").write_text(json.dumps(plan), encoding="utf-8")
     return box, root, machine, str(tmp_path / "helper" / "plan.json")
 
 
@@ -956,7 +956,7 @@ def test_the_helper_reports_failed_retirement_after_verified_install_without_rel
     other = ic.InstallRecord(kind='installer', layout='linux-online', platform='linux',
                               root=str(box.home / 'spacr obsolete'))
     data['records'].append(dataclasses.asdict(other))
-    Path(plan).write_text(json.dumps(data))
+    Path(plan).write_text(json.dumps(data), encoding="utf-8")
     events = []
     def run(argv):
         events.append('verify' if '-c' in argv else 'install')

@@ -77,7 +77,7 @@ def fetch_model(family, model_key=None, *, cache_dir="spacr-models"):
     cache = Path(cache_dir).expanduser()
     cache.mkdir(parents=True, exist_ok=True)
     index_file = cache / "index.json"
-    index = json.loads(index_file.read_text()) if index_file.is_file() else {}
+    index = json.loads(index_file.read_text(encoding="utf-8")) if index_file.is_file() else {}
     path = Path(index[key]) if key in index else None
     if path is None or not path.is_file():
         entry = next(model_zoo._entry_from_mapping(record, source="bundled") for record in published_models()
@@ -93,7 +93,7 @@ def fetch_model(family, model_key=None, *, cache_dir="spacr-models"):
 
         path = Path(model_zoo.fetch(entry, cache / key, progress=progress))
         index[key] = str(path.resolve())
-        index_file.write_text(json.dumps(index, indent=1, sort_keys=True))
+        index_file.write_text(json.dumps(index, indent=1, sort_keys=True), encoding="utf-8")
     resolved = resolve_trusted_model(family, {key: path}, model_key=key)
     metadata = resolved["metadata"]
     return {"key": key, "version": metadata["version"], "sha256": metadata["sha256"], "path": str(resolved["checkpoint"])}
@@ -101,7 +101,7 @@ def fetch_model(family, model_key=None, *, cache_dir="spacr-models"):
 
 def example_records():
     """Pinned held-out test images, the same list the site uses."""
-    return json.loads(EXAMPLES_FILE.read_text())["records"]
+    return json.loads(EXAMPLES_FILE.read_text(encoding="utf-8"))["records"]
 
 
 def random_example(family, *, folder="."):
@@ -383,11 +383,11 @@ def main(argv=None):
     stale = []
     for name, text in rendered().items():
         path = NOTEBOOK_DIR / name
-        if not path.is_file() or path.read_text() != text:
+        if not path.is_file() or path.read_text(encoding="utf-8") != text:
             stale.append(name)
             if arguments.write:
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(text)
+                path.write_text(text, encoding="utf-8")
     if stale and not arguments.write:
         print(tr("Out of date: {names}. Run with --write.", names=", ".join(stale)))
         return 1

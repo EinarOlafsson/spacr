@@ -34,7 +34,7 @@ def _take(tmp_path, lease, extra="", env=None):
     script = tmp_path / "take.sh"
     script.write_text("set -Eeuo pipefail\nPLATFORM=" + PLATFORM + f"\nINSTALL_ROOT='{tmp_path / 'scratch-root'}'\n"
                       + "spacr_say() { printf '%s\\n' \"$*\" >&2; }\n"
-                      + _lease_source() + extra + f'\nspacr_take_installer_lease "{lease}"\nprintf "acquired\\n"\n')
+                      + _lease_source() + extra + f'\nspacr_take_installer_lease "{lease}"\nprintf "acquired\\n"\n', encoding="utf-8")
     return subprocess.run(["bash", str(script)], text=True, capture_output=True, timeout=20, env=env)
 
 
@@ -57,7 +57,7 @@ def _ended_pid():
 def _stamp(lease, pid, started, host=None, pidns=None):
     lease.mkdir(mode=0o700)
     namespace = ic._pid_namespace() if pidns is None else pidns
-    (lease / "owner").write_text(f"pid={pid}\nstarted={started}\nhost={host or platform.node()}\npidns={namespace}\n")
+    (lease / "owner").write_text(f"pid={pid}\nstarted={started}\nhost={host or platform.node()}\npidns={namespace}\n", encoding="utf-8")
 
 
 def test_a_new_lease_records_its_owner(tmp_path):
@@ -106,7 +106,7 @@ def test_a_retained_rollback_or_any_evidence_is_never_taken_over(tmp_path, evide
     lease = tmp_path / ".app.spacr-installer-lock"
     pid, started = _ended_pid()
     _stamp(lease, pid, started)
-    (lease / evidence).write_text("preserve")
+    (lease / evidence).write_text("preserve", encoding="utf-8")
     result = _take(tmp_path, lease)
     assert result.returncode != 0
     assert (lease / evidence).read_text(encoding="utf-8") == "preserve"
@@ -170,10 +170,10 @@ def test_the_macos_first_run_check_lets_only_a_dead_owner_through(tmp_path):
     support = tmp_path / "support"
     support.mkdir()
     wrapper = support / "install-for-user.sh"
-    wrapper.write_text(WRAPPER.read_text(encoding="utf-8"))
-    (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n')
+    wrapper.write_text(WRAPPER.read_text(encoding="utf-8"), encoding="utf-8")
+    (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n', encoding="utf-8")
     backend = support / "install-online.sh"
-    backend.write_text("#!/bin/sh\nprintf 'backend\\n'\n")
+    backend.write_text("#!/bin/sh\nprintf 'backend\\n'\n", encoding="utf-8")
     backend.chmod(0o755)
     runtime = tmp_path / "runtime"
     runtime.mkdir()
@@ -182,7 +182,7 @@ def test_the_macos_first_run_check_lets_only_a_dead_owner_through(tmp_path):
     _stamp(runtime / ".installing", pid, started)
     passed = subprocess.run(["/bin/sh", str(wrapper)], env=env, text=True, capture_output=True, timeout=20)
     assert passed.returncode == 0 and "backend" in passed.stdout
-    (runtime / ".installing" / "rollback").write_text("pending")
+    (runtime / ".installing" / "rollback").write_text("pending", encoding="utf-8")
     refused = subprocess.run(["/bin/sh", str(wrapper)], env=env, text=True, capture_output=True, timeout=20)
     assert refused.returncode == 75 and "lease_held" in refused.stdout
 
@@ -275,7 +275,7 @@ def test_an_open_windows_lease_file_is_never_taken_over(tmp_path, monkeypatch):
     pid, started = _ended_pid()
     lease = tmp_path / ".app.spacr-installer-lock"
     record = "".join(line + "\n" for line in ic._lease_owner_text().splitlines() if not line.startswith("pgid="))
-    lease.write_text(record.replace(f"pid={os.getpid()}", f"pid={pid}"))
+    lease.write_text(record.replace(f"pid={os.getpid()}", f"pid={pid}"), encoding="utf-8")
     assert ic._lease_owner_dead(str(lease)) is True
     monkeypatch.setattr(ic, "_lease_file_in_use", lambda path: True)
     assert ic._lease_owner_dead(str(lease)) is False
@@ -319,9 +319,9 @@ def test_the_macos_first_run_check_reports_a_later_lease_the_same_way(tmp_path, 
     support = tmp_path / "support"
     support.mkdir()
     wrapper = support / "install-for-user.sh"
-    wrapper.write_text(WRAPPER.read_text(encoding="utf-8"))
-    (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n')
-    (support / "install-online.sh").write_text("#!/bin/sh\nprintf 'backend\\n'\n")
+    wrapper.write_text(WRAPPER.read_text(encoding="utf-8"), encoding="utf-8")
+    (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n', encoding="utf-8")
+    (support / "install-online.sh").write_text("#!/bin/sh\nprintf 'backend\\n'\n", encoding="utf-8")
     (support / "install-online.sh").chmod(0o755)
     runtime = tmp_path / "runtime"
     runtime.mkdir()

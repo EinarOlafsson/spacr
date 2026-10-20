@@ -136,7 +136,7 @@ def _old_export(folder, name, panels, *, figure_bytes=b"figure"):
     sidecar = folder / (name + plot._PROVENANCE_SUFFIX)
     sidecar.write_text(json.dumps({
         "schema": plot._PROVENANCE_SCHEMA, "panels": panels,
-        "figure_sha256": hash_file(str(figure), full=True)}))
+        "figure_sha256": hash_file(str(figure), full=True)}), encoding="utf-8")
     os.utime(figure, (1, 1))
     return figure
 
@@ -211,7 +211,7 @@ def test_index_lookup_skips_its_own_figure_and_irregular_sidecars(tmp_path):
              "panels": [{"panel": 0, "displayed_sha256": "same"}]}
     (tmp_path / "f.png").write_bytes(b"x")
     assert plot._indexed_prior_panel(entry, entry["panels"][0], {}) is None
-    (tmp_path / plot._INDEX_NAME).write_text(json.dumps(entry) + "\n")
+    (tmp_path / plot._INDEX_NAME).write_text(json.dumps(entry) + "\n", encoding="utf-8")
     panels = [{"panel": 0, "displayed_sha256": "same"}]
     assert plot._index_findings(panels, tmp_path / "f.png", []) == []
 

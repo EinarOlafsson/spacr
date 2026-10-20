@@ -314,7 +314,7 @@ def test_cli_preserves_existing_validation_report_and_model(tmp_path, monkeypatc
     _, _, output, args = cli_setup(tmp_path, monkeypatch)
     output.write_bytes(b'original model')
     report = output.with_suffix('.pt.validation.jsonl')
-    report.write_text('original report')
+    report.write_text('original report', encoding="utf-8")
     with pytest.raises(FileExistsError):
         tm.main(args)
     assert report.read_text(encoding="utf-8") == 'original report'

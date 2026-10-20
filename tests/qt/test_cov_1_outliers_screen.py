@@ -205,7 +205,7 @@ def test_an_export_that_cannot_be_written_says_so_and_stops(screen, tmp_path,
     """One unwritable destination is a message, not four half-written files."""
     screen.set_frame(planted_plate())
     blocker = tmp_path / "not-a-directory"
-    blocker.write_text("x")
+    blocker.write_text("x", encoding="utf-8")
     monkeypatch.setattr(
         "spacr.qt.screens.outliers.QFileDialog.getSaveFileName",
         staticmethod(lambda *a, **k: (str(blocker / "scan.csv"), "")))

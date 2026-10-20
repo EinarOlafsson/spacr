@@ -32,7 +32,7 @@ def test_a_database_beside_the_plate_names_its_folder(tmp_path):
 
 def test_an_unreadable_settings_file_reads_as_empty(tmp_path, monkeypatch):
     path = tmp_path / "annotate_settings.csv"
-    path.write_text("Key,Value\nsrc,/x\n")
+    path.write_text("Key,Value\nsrc,/x\n", encoding="utf-8")
 
     def broken(self, *a, **k):
         raise OSError("locked")
@@ -51,7 +51,7 @@ def test_a_field_view_of_an_empty_folder_says_so(qtbot, tmp_path):
 
     report = tmp_path / REPORT
     report.parent.mkdir(parents=True)
-    report.write_text("{not json")
+    report.write_text("{not json", encoding="utf-8")
     dialog = an._FieldQCDialog()
     qtbot.addWidget(dialog)
     assert dialog.load_folder(str(tmp_path)) == 0

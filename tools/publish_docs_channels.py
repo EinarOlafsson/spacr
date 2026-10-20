@@ -41,7 +41,7 @@ def verified_video_hosts(build: Path, checkpoint: Path) -> dict:
     receipt_path = checkpoint / "publication-receipt.json"
     if not manifest_path.is_file() or not receipt_path.is_file():
         return {}
-    receipt = json.loads(receipt_path.read_text())
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     commit = receipt.get("commit", "")
     readback = receipt.get("readback", {})
     if (not re.fullmatch(r"[0-9a-f]{40}", commit)
@@ -52,7 +52,7 @@ def verified_video_hosts(build: Path, checkpoint: Path) -> dict:
             or readback.get("downloaded_sha256_matched") != readback["files_expected"]
             or readback.get("metadata_matched") != readback["files_expected"]):
         return {}
-    records = {row["path"]: row for row in json.loads(manifest_path.read_text())["files"]}
+    records = {row["path"]: row for row in json.loads(manifest_path.read_text(encoding="utf-8"))["files"]}
     hosts = {}
     for path in (build / "tutorials/production").rglob("*.mp4"):
         relative = path.relative_to(build / "tutorials/production").as_posix()
@@ -76,23 +76,23 @@ def prepare(build: Path, report_path: Path, branch: str, commit: str,
     for cache in [build / ".doctrees", *build.glob(".doctrees-guide-*")]:
         if cache.is_dir():
             shutil.rmtree(cache, ignore_errors=True)
-    report = json.loads(report_path.read_text())
+    report = json.loads(report_path.read_text(encoding="utf-8"))
     report["source_commit"] = commit
     for language, row in report["api"].items():
         if not row["source_compatible"]:
             path = build / "_static/i18n/api" / f"{language}.json"
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps({"schema": 2, "language": language,
-                                       "symbols": {}, "unavailable": True}) + "\n")
+                                       "symbols": {}, "unavailable": True}) + "\n", encoding="utf-8")
     (build / "translation-compatibility.json").write_text(
-        json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+        json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     (build / "publication.json").write_text(json.dumps({
         "schema": 1, "branch": branch, "commit": commit,
         "translation_policy": "report-only; incompatible locales fall back to English",
-    }, indent=2) + "\n")
+    }, indent=2) + "\n", encoding="utf-8")
     if checkpoint is not None and (build / "tutorials").is_dir():
         (build / "tutorials/verified-video-hosts.json").write_text(
-            json.dumps(verified_video_hosts(build, checkpoint), indent=2) + "\n")
+            json.dumps(verified_video_hosts(build, checkpoint), indent=2) + "\n", encoding="utf-8")
 
 
 def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
@@ -102,14 +102,14 @@ def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
     production = tutorial / "production"
     if not player.exists() or not production.exists():
         return
-    text = player.read_text()
+    text = player.read_text(encoding="utf-8")
     lookups = ("`${PRODUCTION_ROOT}/${lesson.silent}`",
                "`${PRODUCTION_ROOT}/${activeLesson.poster}`")
     if any(text.count(lookup) != 1 for lookup in lookups):
         raise ValueError(f"{branch}: tutorial media lookups changed; review the publisher")
     manifest = {}
     proof_path = tutorial / "verified-video-hosts.json"
-    verified = json.loads(proof_path.read_text()) if proof_path.exists() else {}
+    verified = json.loads(proof_path.read_text(encoding="utf-8")) if proof_path.exists() else {}
     media_dir = output / "_media"
     media_dir.mkdir(exist_ok=True)
     prefix = "../"
@@ -142,18 +142,18 @@ def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
     text = text.replace(lookups[0], "publishedMedia(lesson.silent)")
     text = text.replace(lookups[1], "publishedMedia(activeLesson.poster)")
     text = text.replace('"use strict";', '"use strict";' + helper, 1)
-    player.write_text(text)
+    player.write_text(text, encoding="utf-8")
     index = tutorial / "index.html"
     version = hashlib.sha256(player.read_bytes()).hexdigest()
     html, matches = re.subn(
         r'''(<script\b[^>]*\bsrc=["'])app_v2\.js(?:\?[^"']*)?(["'])''',
         lambda match: match[1] + "app_v2.js?v=" + version + match[2],
-        index.read_text(),
+        index.read_text(encoding="utf-8"),
     )
     if matches != 1:
         raise ValueError(f"{branch}: expected one tutorial player script reference")
-    index.write_text(html)
-    (tutorial / "published-media.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    index.write_text(html, encoding="utf-8")
+    (tutorial / "published-media.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
 def channel_banner(branch: str, main_url: str, nightly_url: str) -> str:
@@ -169,12 +169,12 @@ def channel_banner(branch: str, main_url: str, nightly_url: str) -> str:
 def add_banner(channel: Path, banner: str) -> None:
     """Insert the switcher after <body>, or above the tutorial player."""
     for path in channel.rglob("*.html"):
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         target = (r'(<main\b[^>]*id="lesson-content"[^>]*>)'
                   if path == channel / "tutorials/index.html" and 'id="lesson-content"' in text
                   else r"(<body\b[^>]*>)")
         text = re.sub(target, lambda match: match[0] + banner, text, count=1)
-        path.write_text(text)
+        path.write_text(text, encoding="utf-8")
 
 
 def site_size(root: Path) -> int:
@@ -196,7 +196,7 @@ def write_channel_receipt(output: Path, receipt: dict) -> dict:
 
 
 def read_record(source: Path, branch: str) -> dict:
-    record = json.loads((source / "publication.json").read_text())
+    record = json.loads((source / "publication.json").read_text(encoding="utf-8"))
     if record["branch"] != branch or not (source / "index.html").is_file():
         raise ValueError(f"Missing or mismatched {branch} build")
     return record
@@ -227,20 +227,20 @@ def write_nightly_stub(output: Path, base: str, nightly_url: str) -> None:
         f'<link rel="canonical" href="{nightly_url}">'
         f"<title>spaCR nightly documentation moved</title>{script}</head>"
         f'<body><p>The nightly preview moved to <a href="{nightly_url}">{nightly_url}</a>.</p>'
-        "</body></html>\n")
+        "</body></html>\n", encoding="utf-8")
     missing = output / "404.html"
     if missing.is_file():
-        text = missing.read_text()
+        text = missing.read_text(encoding="utf-8")
         text, count = re.subn(r"(<head\b[^>]*>)", lambda match: match[0] + script, text, count=1)
         if count != 1:
             raise ValueError("main: 404.html has no <head>")
-        missing.write_text(text)
+        missing.write_text(text, encoding="utf-8")
     else:
         missing.write_text(
             '<!doctype html><html lang="en"><head><meta charset="utf-8">'
             f"<title>Page not found · spaCR documentation</title>{script}</head>"
             f'<body><p>Page not found. Open the <a href="{base}/">spaCR documentation</a>.</p>'
-            "</body></html>\n")
+            "</body></html>\n", encoding="utf-8")
 
 
 def assemble_main(main: Path, output: Path, base_path: str = "/spacr",
@@ -281,7 +281,7 @@ def explicit_index_links(root: Path) -> int:
     pattern = re.compile(r'''(\b(?:href|src)=)(["\'])([^"\'<>]*)\2''')
     rewritten = 0
     for page in root.rglob("*.html"):
-        text = page.read_text()
+        text = page.read_text(encoding="utf-8")
 
         def fix(match):
             nonlocal rewritten
@@ -298,7 +298,7 @@ def explicit_index_links(root: Path) -> int:
 
         updated = pattern.sub(fix, text)
         if updated != text:
-            page.write_text(updated)
+            page.write_text(updated, encoding="utf-8")
     return rewritten
 
 
@@ -329,7 +329,7 @@ def assemble_nightly(nightly: Path, output: Path, main_url: str = MAIN_URL,
     share_tutorial_media(output, output, "nightly")
     add_banner(output, channel_banner("nightly", main_url, nightly_url))
     index_links = explicit_index_links(output)
-    (output / "README.md").write_text(SPACE_README.format(main_url=main_url))
+    (output / "README.md").write_text(SPACE_README.format(main_url=main_url), encoding="utf-8")
     receipt = {"schema": 2, "channels": {"nightly": record}, "nightly_url": nightly_url,
                "index_links": index_links,
                "media_files": len(list((output / "_media").glob("*")))}
@@ -344,7 +344,7 @@ def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
     leaving a mixed site if a later batch reaches the repository quota.
     """
     from huggingface_hub import CommitOperationAdd, CommitOperationDelete, HfApi
-    record = json.loads((site / "channels.json").read_text())["channels"]["nightly"]
+    record = json.loads((site / "channels.json").read_text(encoding="utf-8"))["channels"]["nightly"]
     if not (site / "index.html").is_file() or not (site / "README.md").is_file():
         raise ValueError("Expected an assembled nightly site")
     api = HfApi()
@@ -541,7 +541,7 @@ def verify_space_tree(site: Path, space: str, revision: str) -> dict:
     """
     if not re.fullmatch(r"[0-9a-f]{40}", revision):
         raise ValueError("Expected an immutable full Space commit")
-    record = json.loads((site / "channels.json").read_text())["channels"]["nightly"]
+    record = json.loads((site / "channels.json").read_text(encoding="utf-8"))["channels"]["nightly"]
     if not (site / "index.html").is_file() or not (site / "README.md").is_file():
         raise ValueError("Expected an assembled nightly site")
     from huggingface_hub import HfApi
@@ -612,7 +612,7 @@ def verify_nightly(site: Path, url: str = NIGHTLY_URL, attempts: int = 30,
     """Match public receipts and exact homepage bytes apart from HF's host script."""
     if attempts < 1 or interval < 0:
         raise ValueError("Expected at least one attempt and a nonnegative interval")
-    expected = json.loads((site / "channels.json").read_text())
+    expected = json.loads((site / "channels.json").read_text(encoding="utf-8"))
     expected_index = (site / "index.html").read_bytes()
     record = expected["channels"]["nightly"]
     last_error = "public receipt does not match the assembled site"

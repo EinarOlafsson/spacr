@@ -86,7 +86,7 @@ def test_failed_atomic_replace_preserves_previous_svg(tmp_path, monkeypatch):
     frame, layout, host = _screen()
     result = sp._structure_activity(_scored(frame), layout, host=host)
     path = tmp_path / 'hit_structures.svg'
-    path.write_text('previous vector export')
+    path.write_text('previous vector export', encoding="utf-8")
 
     def denied(*args):
         raise OSError('destination unavailable')

@@ -39,7 +39,7 @@ def test_portable_mode_is_off_without_marker_or_variable(clean_env):
 
 
 def test_a_marker_next_to_the_app_moves_every_folder(clean_env):
-    (clean_env / "spacr-portable").write_text("")
+    (clean_env / "spacr-portable").write_text("", encoding="utf-8")
     data = clean_env / "spacr-data"
     assert logging_util._portable_root() == clean_env
     assert logging_util._spacr_home() == data
@@ -56,7 +56,7 @@ def test_a_marker_next_to_the_app_moves_every_folder(clean_env):
 
 
 def test_the_variable_overrides_the_marker(clean_env, monkeypatch, tmp_path):
-    (clean_env / "spacr-portable").write_text("")
+    (clean_env / "spacr-portable").write_text("", encoding="utf-8")
     monkeypatch.setenv("SPACR_PORTABLE", "off")
     assert logging_util._portable_root() is None
 

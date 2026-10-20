@@ -183,7 +183,7 @@ def test_a_missing_folder_is_not_an_error(tmp_path):
 def test_only_figures_are_collected(tmp_path):
     """The screen folder holds the count and score CSVs. Copying those into
     every run folder would double the inputs on disk."""
-    tmp_path.joinpath("counts.csv").write_text("a,b\n1,2\n")
+    tmp_path.joinpath("counts.csv").write_text("a,b\n1,2\n", encoding="utf-8")
     tmp_path.joinpath("figure.pdf").write_bytes(b"%PDF-1.4\n")
     tmp_path.joinpath("figure.PNG").write_bytes(b"\x89PNG\r\n")
     stamps = _figure_stamps([str(tmp_path)])

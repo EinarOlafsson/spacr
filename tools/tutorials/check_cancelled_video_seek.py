@@ -18,7 +18,7 @@ from verify_staged_lesson import Handler
 
 
 def check(candidate, output):
-    source = (REPO / 'docs/source/_extra/tutorials/app_v2.js').read_text()
+    source = (REPO / 'docs/source/_extra/tutorials/app_v2.js').read_text(encoding="utf-8")
     catalog = read(candidate / 'web/catalog/lessons_en.json')['lessons']
     hold = first_placeholder(catalog)
     ready = [item['id'] for item in catalog if item.get('status') != 'coming_soon']

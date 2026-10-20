@@ -54,7 +54,7 @@ def test_a_real_segfault_lands_in_the_file(tmp_path):
         "_install_crash_dump()\n"
         "import ctypes\n"
         "ctypes.string_at(0)\n"
-    )
+    , encoding="utf-8")
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen")
     # A developer may have another editable spacr checkout installed. A
     # subprocess launched from this temporary script would otherwise import

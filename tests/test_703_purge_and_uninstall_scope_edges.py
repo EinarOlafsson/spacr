@@ -121,7 +121,7 @@ def test_uninstall_data_follows_home_relative_and_relocated_locations(tmp_path):
     news.mkdir()
     (app_home / ic._CACHE_LOCATIONS_FILE).write_text(json.dumps(
         {"SPACR_MODEL_CACHE": str(models), "SPACR_NEWS_CACHE": str(news),
-         "SPACR_BACKENDS_DIR": 7}))
+         "SPACR_BACKENDS_DIR": 7}), encoding="utf-8")
     machine = _machine(box, SPACR_HOME="~/custom-spacr")
     rows = {path: (category, owned) for category, path, owned in
             ic._uninstall_data_candidates(machine)}
@@ -133,7 +133,7 @@ def test_uninstall_data_follows_home_relative_and_relocated_locations(tmp_path):
 def test_uninstall_data_with_unreadable_cache_locations_keeps_only_the_defaults(tmp_path):
     box = Box(tmp_path)
     (box.home / ".spacr" / "cache").mkdir(parents=True)
-    (box.home / ".spacr" / ic._CACHE_LOCATIONS_FILE).write_text("{not json")
+    (box.home / ".spacr" / ic._CACHE_LOCATIONS_FILE).write_text("{not json", encoding="utf-8")
     rows = ic._uninstall_data_candidates(_machine(box))
     assert ("caches", str(box.home / ".spacr" / "cache"), True) in rows
 

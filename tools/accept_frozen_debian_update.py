@@ -338,7 +338,7 @@ def gui_measure(executable: Path, home: Path, display: str, receipt_dir: Path,
                                   timeout=720).returncode
         except subprocess.TimeoutExpired:
             code = None
-    record = json.loads(smoke.read_text()) if smoke.is_file() else {}
+    record = json.loads(smoke.read_text(encoding="utf-8")) if smoke.is_file() else {}
     verdict = {"exit": code, "seconds": round(time.monotonic() - started, 1),
                "status": record.get("status"), "error": record.get("error"),
                "frozen": record.get("frozen"), "kind": record.get("kind"),
@@ -390,7 +390,7 @@ def helper_refusal(bundle: Path, work: Path, home: Path, version: str) -> Dict:
                      "root": str(bundle), "running": True}],
         "log": str(copy_root / "update.log"), "workdir": str(copy_root),
         "fetch": None, "install": None, "relaunch": None,
-        "frozen_application": True}))
+        "frozen_application": True}), encoding="utf-8")
     before = tree_inventory(bundle.parent.parent, [BUNDLE])
     environment = {"HOME": str(home), "PATH": "", "PYINSTALLER_RESET_ENVIRONMENT": "1",
                    "TMPDIR": str(extraction), "TMP": str(extraction), "TEMP": str(extraction)}
@@ -452,14 +452,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     (home / ".config").mkdir(parents=True)
     sentinel = home / ".spacr" / "preferences-sentinel.json"
     sentinel.parent.mkdir()
-    sentinel.write_text('{"kept": true}\n')
+    sentinel.write_text('{"kept": true}\n', encoding="utf-8")
     old_version, new_version = deb_field(args.old, "Version"), deb_field(args.new, "Version")
     receipt: Dict = {
         "schema": 1, "item": 53, "date": time.strftime("%Y-%m-%d"),
         "scope": "Debian frozen family: real dpkg replace, interrupted update, rollback and "
                  "post-update GUI restart/CPU Measure in a private unprivileged dpkg root",
         "host": {"platform": platform.platform(), "os_release": Path("/etc/os-release")
-                 .read_text().splitlines()[:4]},
+                 .read_text(encoding="utf-8").splitlines()[:4]},
         "artifacts": {label: {"file": deb.name, "sha256": sha256_file(deb),
                               "version": deb_field(deb, "Version")}
                       for label, deb in (("old", args.old), ("new", args.new))},
@@ -534,7 +534,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     receipt["all_passed"] = all(s.get("passed") for s in scenarios.values())
     receipt["gui_exercised"] = bool(args.xvfb)
     args.receipt.parent.mkdir(parents=True, exist_ok=True)
-    args.receipt.write_text(json.dumps(receipt, indent=1, sort_keys=True) + "\n")
+    args.receipt.write_text(json.dumps(receipt, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     return 0 if receipt["all_passed"] else 1
 
 

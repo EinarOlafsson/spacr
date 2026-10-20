@@ -45,7 +45,7 @@ def fresh(monkeypatch):
 def _fake_torch(monkeypatch, tmp_path, names):
     package = tmp_path / "torch"
     (package / "lib").mkdir(parents=True)
-    (package / "__init__.py").write_text("")
+    (package / "__init__.py").write_text("", encoding="utf-8")
     for name in names:
         (package / "lib" / name).write_bytes(b"")
     monkeypatch.setattr(importlib.util, "find_spec",
@@ -142,12 +142,12 @@ def test_the_wheel_cuda_libraries_follow_torchs_condition(
         return 1
 
     plain = tmp_path / "plain_maps"
-    plain.write_text("7f00 r-xp /usr/lib/libc.so.6\n")
+    plain.write_text("7f00 r-xp /usr/lib/libc.so.6\n", encoding="utf-8")
     assert gil_priority._open_wheel_cuda_libraries(dlopen, str(plain))
     assert opened == []
 
     wheel = tmp_path / "wheel_maps"
-    wheel.write_text("7f00 r-xp /x/nvidia/cuda_runtime/lib/libcudart.so.12\n")
+    wheel.write_text("7f00 r-xp /x/nvidia/cuda_runtime/lib/libcudart.so.12\n", encoding="utf-8")
     assert gil_priority._open_wheel_cuda_libraries(dlopen, str(wheel))
     assert opened == ["libnvrtc.so.12", "libnvJitLink.so.12"]
 

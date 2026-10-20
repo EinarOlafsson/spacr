@@ -94,7 +94,7 @@ def test_nested_map_real_preprocessing_and_measure_equal_flat_batch(converted, t
     core.preprocess_generate_masks(dict(MASK, src=str(batch)))
     measure_crop(dict(MEASURE, src=str(batch / 'merged')))
     settings = tmp_path / 'measure.json'
-    settings.write_text(json.dumps(MEASURE))
+    settings.write_text(json.dumps(MEASURE), encoding="utf-8")
     result = core.preprocess_generate_masks(dict(
         MASK, **_fast(watched), watch_pipeline='mask_measure',
         watch_measure_settings=str(settings)))

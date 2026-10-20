@@ -44,7 +44,7 @@ def adapter(monkeypatch):
 def _recipe(folder, **extra):
     """Save supported JSON Measure settings and return watch settings."""
     path = folder / 'measure.json'
-    path.write_text(json.dumps({'channels': [0, 1], 'save_png': False, **extra}))
+    path.write_text(json.dumps({'channels': [0, 1], 'save_png': False, **extra}), encoding="utf-8")
     return {**_settings(folder, 'mask_measure'), 'watch_measure_settings': str(path)}
 
 
@@ -57,7 +57,7 @@ def test_measure_recipe_is_captured_before_first_field(tmp_path, adapter):
     def change_source(_settings):
         """Simulate editing the same settings file while a watch is active."""
         Path(settings['watch_measure_settings']).write_text(
-            json.dumps({'channels': [0, 1], 'save_png': True}))
+            json.dumps({'channels': [0, 1], 'save_png': True}), encoding="utf-8")
 
     hooks.append(change_source)
     result = core._watch_folder_and_analyse(settings)
@@ -88,7 +88,7 @@ def test_equivalent_recipe_ignores_file_format_src_and_adjustable_timing(tmp_pat
     first = core._watch_folder_and_analyse(settings)
     before = json.loads(Path(first['ledger']).read_text(encoding="utf-8"))['fields']
     replacement = tmp_path / 'moved-recipe.json'
-    replacement.write_text('{\n "save_png": false, "src": "/different", "channels": [0, 1]\n}')
+    replacement.write_text('{\n "save_png": false, "src": "/different", "channels": [0, 1]\n}', encoding="utf-8")
     settings.update(watch_measure_settings=str(replacement), watch_poll_seconds=0.02,
                     watch_settle_seconds=0.02, watch_idle_minutes=0.002)
     _images(tmp_path, 'A02')
@@ -119,7 +119,7 @@ def test_missing_legacy_recipe_is_not_assumed(tmp_path, adapter):
     path = Path(result['ledger'])
     ledger = json.loads(path.read_text(encoding="utf-8"))
     ledger.pop('measure_settings_sha256', None)
-    path.write_text(json.dumps(ledger))
+    path.write_text(json.dumps(ledger), encoding="utf-8")
     before = _bytes(tmp_path)
     with pytest.raises(ValueError, match='Measure settings.*separate watch workspace'):
         core._watch_folder_and_analyse(settings)

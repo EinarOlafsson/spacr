@@ -35,7 +35,7 @@ def windows(monkeypatch):
 
 def _lease(tmp_path, text):
     path = tmp_path / ".app.spacr-installer-lock"
-    path.write_text(text)
+    path.write_text(text, encoding="utf-8")
     return str(path)
 
 

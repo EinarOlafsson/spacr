@@ -210,7 +210,7 @@ def test_the_migration_leaves_names_that_are_not_field_stems_alone(tmp_path):
     (src / "merged").mkdir(parents=True)
     np.save(src / "merged" / "exp_1_A01_1_1.npy", np.zeros((4, 4), np.uint16))
     np.save(src / "merged" / "notes.npy", np.zeros(2))
-    (src / "merged" / "layout.json").write_text("{}")
+    (src / "merged" / "layout.json").write_text("{}", encoding="utf-8")
 
     migrate_unescaped_plate_names(str(src))
 

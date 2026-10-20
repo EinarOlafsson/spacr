@@ -82,9 +82,9 @@ def plate(tmp_path):
                   "object_label_cell": [1]}).to_sql("cell", connection,
                                                     index=False)
     connection.close()
-    (folder / "s.csv").write_text("prc,pred\nplate1_r1_c1,0.1\n")
+    (folder / "s.csv").write_text("prc,pred\nplate1_r1_c1,0.1\n", encoding="utf-8")
     (folder / "c.csv").write_text(
-        "rowID,columnID,grna_name,count,plateID\nr1,c1,TGGT1_1_1,5,plate1\n")
+        "rowID,columnID,grna_name,count,plateID\nr1,c1,TGGT1_1_1,5,plate1\n", encoding="utf-8")
     return folder
 
 

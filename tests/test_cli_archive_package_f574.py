@@ -16,7 +16,7 @@ def archive_run(tmp_path):
     (source / "settings").mkdir(parents=True)
     (source / "plate1_A01_T0001F001L01A01Z01C01.tif").write_bytes(b"original pixels")
     (source / "settings" / "gen_mask_settings.csv").write_text(
-        "Key,Value\nexperiment,archive-fixture\nmetadata_type,cellvoyager\nchannels,[0]\n")
+        "Key,Value\nexperiment,archive-fixture\nmetadata_type,cellvoyager\nchannels,[0]\n", encoding="utf-8")
     return source
 
 
@@ -119,7 +119,7 @@ def test_real_postwrite_checksum_failure_is_nonzero(archive_run, tmp_path, monke
     def corrupt(*args, **kwargs):
         """Write a real package, then simulate corruption before validation."""
         package = original(*args, **kwargs)
-        (package / "README.txt").write_text("corrupted")
+        (package / "README.txt").write_text("corrupted", encoding="utf-8")
         return package
 
     monkeypatch.setattr(report, "_write_archive_package", corrupt)

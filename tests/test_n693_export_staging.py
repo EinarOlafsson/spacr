@@ -59,8 +59,8 @@ def test_successful_export_preserves_modes_and_symlink_destinations(tmp_path):
     targets.mkdir()
     csv = targets / 'actual.csv'
     js = targets / 'actual.json'
-    csv.write_text('old csv')
-    js.write_text('old json')
+    csv.write_text('old csv', encoding="utf-8")
+    js.write_text('old json', encoding="utf-8")
     csv.chmod(0o640)
     js.chmod(0o600)
     alias = tmp_path / 'settings.csv'

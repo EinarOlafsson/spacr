@@ -179,7 +179,7 @@ def checked_retained_visual_timing(stage, identity, baseline):
     render_path = require_binding(receipt['render_log'])
     render = read(render_path)
     output_log = require_binding(render['output_log'])
-    if (not output_log.read_text().rstrip().endswith('Terminal exit status: 0')
+    if (not output_log.read_text(encoding="utf-8").rstrip().endswith('Terminal exit status: 0')
             or render.get('returncode') != 0 or render.get('command') != overlay_command(
             old_master, card, master, first, count, total, fps)):
         raise ValueError('Render did not use the bounded published-master overlay')
@@ -491,7 +491,7 @@ def _checked_mixed_refresh(stage, identity, baseline):
                     raise ValueError('Unselected legacy native source changed')
     render = read(require_binding(receipt['render_log']))
     log = require_binding(render['output_log'])
-    if (render.get('returncode') != 0 or not log.read_text().rstrip().endswith('Terminal exit status: 0')
+    if (render.get('returncode') != 0 or not log.read_text(encoding="utf-8").rstrip().endswith('Terminal exit status: 0')
             or render.get('command') != mixed_overlay_command(old_master, home, card, master, native_frames)):
         raise ValueError('Mixed render did not preserve the two exact source intervals')
     expected_timing = mixed_retained_timing(timing, digest(spec_path), digest(receipt_path),

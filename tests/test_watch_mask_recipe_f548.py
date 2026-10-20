@@ -48,7 +48,7 @@ def test_missing_legacy_mask_provenance_refuses_a_populated_resume(tmp_path):
     path = Path(first['ledger'])
     ledger = json.loads(path.read_text(encoding="utf-8"))
     ledger.pop('mask_settings_sha256')
-    path.write_text(json.dumps(ledger))
+    path.write_text(json.dumps(ledger), encoding="utf-8")
     before = _bytes(tmp_path)
     with pytest.raises(ValueError, match='Mask settings differ'):
         core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())

@@ -625,7 +625,7 @@ def test_the_newest_mask_is_found_past_files_that_are_not_masks(tmp_path):
     folder = tmp_path / "cell_mask_stack"
     folder.mkdir()
     np.save(folder / "plate1_A01_f1.npy", np.zeros((8, 8), np.uint16))
-    (folder / "notes.txt").write_text("not a mask")
+    (folder / "notes.txt").write_text("not a mask", encoding="utf-8")
     os.utime(folder / "notes.txt", (10 ** 9, 10 ** 9))
     os.utime(folder / "plate1_A01_f1.npy", (10 ** 6, 10 ** 6))
     os.utime(folder, (10 ** 5, 10 ** 5))

@@ -26,7 +26,7 @@ HOST = 'https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/'
 @pytest.mark.parametrize('filename', CATALOGS)
 def test_public_catalog_has_playable_lessons_and_translated_unavailable_screens(filename):
     language = filename.split('_', 1)[1].removesuffix('.json')
-    catalog = json.loads((PUBLIC / 'catalog' / filename).read_text())
+    catalog = json.loads((PUBLIC / 'catalog' / filename).read_text(encoding="utf-8"))
     held = [lesson for lesson in catalog['lessons'] if lesson.get('status') == 'coming_soon']
     ready = [lesson for lesson in catalog['lessons'] if lesson.get('status') != 'coming_soon']
     assert [lesson['id'] for lesson in held] == REMAINING == []
@@ -56,8 +56,8 @@ def test_preservation_guard_rejects_changed_ready_content(field, value):
 
 def test_public_player_pins_the_verified_media_revision_and_exposes_coming_soon():
     """Narration and 4K come from one immutable, read-back commit, never from main."""
-    index = (PUBLIC / 'index.html').read_text()
-    receipt = json.loads((CHECKPOINT / 'publication-receipt.json').read_text())
+    index = (PUBLIC / 'index.html').read_text(encoding="utf-8")
+    receipt = json.loads((CHECKPOINT / 'publication-receipt.json').read_text(encoding="utf-8"))
     root = receipt['media_root']
     assert re.fullmatch(re.escape(HOST) + r'[0-9a-f]{40}', root) and root == HOST + receipt['commit']
     assert receipt['tag'] and receipt['readback']['passed'] is True

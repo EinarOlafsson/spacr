@@ -11,7 +11,7 @@ PLAYER = ROOT / 'docs/source/_extra/tutorials/app_v2.js'
 
 
 def chapters(*, language='en', timing_language='en', timing_voice='af_heart', text='Spoken Windows instructions.'):
-    source = PLAYER.read_text()
+    source = PLAYER.read_text(encoding="utf-8")
     function = source.split('function rebuildChapterData()', 1)[1].split('\nfunction relatedLessonsForScene', 1)[0]
     setup = {'captionLanguage': language, 'timingLanguage': timing_language,
              'timingVoice': timing_voice, 'text': text}

@@ -1005,7 +1005,7 @@ def test_something_that_cannot_be_watched_is_simply_not_watched(qapp):
 ])
 def test_scaled_census_distinguishes_qsize_geometry_from_raster_calls(tmp_path, monkeypatch, source, geometry):
     path = tmp_path / "drawing.py"
-    path.write_text(source)
+    path.write_text(source, encoding="utf-8")
     monkeypatch.setitem(_scaled_call_sites.__globals__, "QT_ROOT", tmp_path)
     sites = _scaled_call_sites()
     assert ("drawing.py" not in sites) is geometry

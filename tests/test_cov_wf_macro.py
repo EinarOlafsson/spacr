@@ -214,7 +214,7 @@ def test_a_macro_folder_that_is_a_file_still_leaves_the_run_its_copy(
     failure is a logged exception, not a raised one.
     """
     blocker = isolated_macros / "not-a-folder"
-    blocker.write_text("this is a file, not a directory\n")
+    blocker.write_text("this is a file, not a directory\n", encoding="utf-8")
     monkeypatch.setenv(macro.MACRO_DIR_ENV, str(blocker))
     run_dir = isolated_macros / "runs" / "run-abc123"
     run_dir.mkdir(parents=True)
@@ -250,7 +250,7 @@ def test_when_neither_copy_can_be_written_the_recorder_announces_nothing(
     ``current_macro()`` remains usable for the exporter.
     """
     blocker = isolated_macros / "not-a-folder"
-    blocker.write_text("x\n")
+    blocker.write_text("x\n", encoding="utf-8")
     monkeypatch.setenv(macro.MACRO_DIR_ENV, str(blocker))
 
     recording = macro.begin_recording("mask", {"src": str(isolated_macros)},

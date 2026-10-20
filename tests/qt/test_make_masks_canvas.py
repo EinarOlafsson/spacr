@@ -817,7 +817,7 @@ def test_load_failure_clears_canvas_and_blocks_a_stale_save(
 def test_save_failure_is_reported_not_raised(qtbot, qt_theme_applied, headless,
                                              folder_3: Path):
     # A regular file where the masks/ directory needs to go.
-    (folder_3 / "masks").write_text("not a directory")
+    (folder_3 / "masks").write_text("not a directory", encoding="utf-8")
     s = MakeMasksScreen()
     qtbot.addWidget(s)
     s._open_folder(str(folder_3))
@@ -831,7 +831,7 @@ def test_open_folder_without_images_reports_and_keeps_empty_state(
         qtbot, qt_theme_applied, headless, tmp_path: Path):
     empty = tmp_path / "nothing"
     empty.mkdir()
-    (empty / "readme.txt").write_text("no pictures here")
+    (empty / "readme.txt").write_text("no pictures here", encoding="utf-8")
     s = MakeMasksScreen()
     qtbot.addWidget(s)
     s._open_folder(str(empty))

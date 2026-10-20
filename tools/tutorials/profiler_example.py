@@ -48,7 +48,7 @@ def prepare(destination):
         note='Teaching example only. The GUI imports coefficients, assumes 0..1 ranges, '
              'and does not read these observations, refit, or validate a model.',
         files={p.name: digest(p) for p in sorted(destination.glob('*.csv'))})
-    (destination / 'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
+    (destination / 'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding="utf-8")
     return manifest
 
 
@@ -78,7 +78,7 @@ def verify_curve(curve, coefficients, *, variable, held, points):
 def package(source, archive):
     """Package checked original teaching inputs without refitting or overwriting."""
     source, archive = Path(source), Path(archive)
-    manifest = json.loads((source/'manifest.json').read_text())
+    manifest = json.loads((source/'manifest.json').read_text(encoding="utf-8"))
     names = {'SYNTHETIC_observations.csv', 'SYNTHETIC_OLS_coefficients.csv'}
     if (manifest.get('synthetic') is not True or set(manifest['files']) != names
             or any(digest(source/name) != manifest['files'][name] for name in names)):

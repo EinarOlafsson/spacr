@@ -31,7 +31,7 @@ def digest(data):
 
 
 def write_json(path, value):
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding="utf-8")
 
 
 def select_sentence(metadata):
@@ -79,7 +79,7 @@ def build(output):
         cached = hf_hub_download(REPO_ID, MEDIA_PATH + suffix, repo_type='dataset', revision=revision)
         (original / ('af_heart' + suffix)).write_bytes(Path(cached).read_bytes())
     source_bytes = (original / 'af_heart.m4a').read_bytes()
-    metadata = json.loads((original / 'af_heart.json').read_text())
+    metadata = json.loads((original / 'af_heart.json').read_text(encoding="utf-8"))
     if digest(source_bytes) != EXPECTED_AUDIO or metadata['media_sha256'] != EXPECTED_AUDIO:
         raise ValueError('Hosted Heart narration changed; do not repair an unverified revision')
     scene_index, sentence_index, sentence = select_sentence(metadata)
@@ -173,7 +173,7 @@ def build(output):
 
 def publish(output):
     from huggingface_hub import HfApi, CommitOperationAdd, hf_hub_download
-    receipt = json.loads((output / 'repair-receipt.json').read_text())
+    receipt = json.loads((output / 'repair-receipt.json').read_text(encoding="utf-8"))
     api = HfApi()
     revision = api.dataset_info(REPO_ID).sha
     expected = {'.m4a': EXPECTED_AUDIO, '.json': receipt['repair']['source_metadata_sha256']}

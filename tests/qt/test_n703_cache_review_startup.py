@@ -23,7 +23,7 @@ class SettingsStore:
 
     def sync(self):
         self.syncs += 1
-        self.path.write_text(json.dumps(self.values))
+        self.path.write_text(json.dumps(self.values), encoding="utf-8")
 
 
 class FinishedSignal:

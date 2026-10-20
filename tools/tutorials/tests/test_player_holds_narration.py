@@ -53,7 +53,7 @@ def make_media(root, lesson):
                            'text': scene['narration']}]})
     timings = {'schema': 1, 'language': 'en', 'voice': 'af_heart', 'total_duration': DURATION,
                'scenes': timing_scenes}
-    (root / 'timings.json').write_text(json.dumps(timings))
+    (root / 'timings.json').write_text(json.dumps(timings), encoding="utf-8")
     return video, audio, root / 'timings.json'
 
 
@@ -110,7 +110,7 @@ def served(tmp_path):
     if not (shutil.which('ffmpeg') and CHROME.exists() and (PAGE / 'index.html').exists()):
         pytest.skip('Requires ffmpeg, Chrome and the committed release checkpoint page')
     pytest.importorskip('playwright')
-    js = (PAGE / 'lesson_catalog.js').read_text()
+    js = (PAGE / 'lesson_catalog.js').read_text(encoding="utf-8")
     catalog = json.loads(js[js.index('Object.freeze(') + len('Object.freeze('):js.rindex(');')])
     lesson = next(item for item in catalog['lessons']
                   if item.get('status') != 'coming_soon' and len(item['scenes']) >= 4)

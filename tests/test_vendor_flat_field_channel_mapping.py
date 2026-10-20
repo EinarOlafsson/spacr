@@ -25,7 +25,7 @@ def profiles(tmp_path, ids=(1, 2)):
                 "Background": polynomial([[dark], [0, dark_slope]])}
         entries.append('<FlatfieldProfile>' + json.dumps(blob) + '</FlatfieldProfile>')
     path = tmp_path / 'Index.idx.xml'
-    path.write_text('<Root>' + ''.join(entries) + '</Root>')
+    path.write_text('<Root>' + ''.join(entries) + '</Root>', encoding="utf-8")
     y, x = np.mgrid[:5, :7]
     return path, [1 + .02 * x, 2 - .03 * x], [10 + y, 40 + 2 * y]
 

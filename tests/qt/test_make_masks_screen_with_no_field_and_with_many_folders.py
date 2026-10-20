@@ -160,7 +160,7 @@ def test_a_verdict_that_cannot_be_read_shows_none(opened, monkeypatch):
 def spread(qtbot, qt_theme_applied, tmp_path):
     first = _folder(tmp_path, "first", ("a.tif",))
     second = _folder(tmp_path, "second", ("b.tif",))
-    (tmp_path / "notes.txt").write_text("not an image")
+    (tmp_path / "notes.txt").write_text("not an image", encoding="utf-8")
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     assert made.open_paths([first / "a.tif", tmp_path / "notes.txt",
@@ -178,7 +178,7 @@ def test_a_drop_from_two_folders_is_one_queue_listed_once(spread):
 
 
 def test_a_drop_with_no_image_says_so(blank, tmp_path):
-    (tmp_path / "notes.txt").write_text("no pixels here")
+    (tmp_path / "notes.txt").write_text("no pixels here", encoding="utf-8")
     assert blank.open_paths([tmp_path / "notes.txt",
                              tmp_path / "missing.tif"]) is False
     assert "None of the dropped items" in blank._status_label.text()

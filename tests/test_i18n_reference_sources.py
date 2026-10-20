@@ -47,8 +47,8 @@ def _make_tree(base: Path, *, sources: dict | None = None,
     tree = base / "tree"
     (tree / "spacr" / "qt").mkdir(parents=True)
     (tree / "tools").mkdir(parents=True)
-    (tree / "spacr" / "__init__.py").write_text("ORIGIN = 'target'\n")
-    (tree / "spacr" / "qt" / "__init__.py").write_text("")
+    (tree / "spacr" / "__init__.py").write_text("ORIGIN = 'target'\n", encoding="utf-8")
+    (tree / "spacr" / "qt" / "__init__.py").write_text("", encoding="utf-8")
     if builder_body is None:
         payload = sources or {
             "setting_labels": {"alpha": "Alpha"},
@@ -64,7 +64,7 @@ def _make_tree(base: Path, *, sources: dict | None = None,
             def canonical_sources():
                 return {payload!r}
         """)
-    (tree / "tools" / "build_i18n_catalogs.py").write_text(builder_body)
+    (tree / "tools" / "build_i18n_catalogs.py").write_text(builder_body, encoding="utf-8")
     return tree
 
 
@@ -72,7 +72,7 @@ def _decoy(base: Path) -> Path:
     """A second checkout that a meta_path finder would otherwise serve."""
     decoy = base / "decoy"
     (decoy / "spacr").mkdir(parents=True)
-    (decoy / "spacr" / "__init__.py").write_text("ORIGIN = 'decoy'\n")
+    (decoy / "spacr" / "__init__.py").write_text("ORIGIN = 'decoy'\n", encoding="utf-8")
     return decoy
 
 
@@ -120,7 +120,7 @@ def test_the_child_strips_a_foreign_checkout_it_is_handed_on_sys_path(
     tree = _make_tree(tmp_path)
     decoy = _decoy(tmp_path)
     child = tmp_path / "read.py"
-    child.write_text(runner._CHILD)
+    child.write_text(runner._CHILD, encoding="utf-8")
 
     env = dict(os.environ)
     env["PYTHONPATH"] = str(decoy)          # deliberately NOT scrubbed
@@ -150,7 +150,7 @@ def test_a_module_from_outside_the_tree_is_reported_not_accepted(
     """
     foreign = tmp_path / "elsewhere" / "spacr_qt_theme.py"
     foreign.parent.mkdir(parents=True)
-    foreign.write_text("")
+    foreign.write_text("", encoding="utf-8")
     tree = _make_tree(tmp_path, builder_body=textwrap.dedent(f"""
         import sys, types
         import spacr  # noqa: F401
@@ -188,7 +188,7 @@ def test_a_tree_that_cannot_import_itself_is_not_called_a_path_problem(
             return {}
     """))
     (tree / "spacr" / "qt" / "missing.py").write_text(
-        "# the symbol this revision's importer expects is not here\n")
+        "# the symbol this revision's importer expects is not here\n", encoding="utf-8")
 
     result = runner._run_child(tree, sys.executable)
 
@@ -253,7 +253,7 @@ def test_the_reader_refuses_to_patch_the_repository_itself(runner, tmp_path):
     later capture would silently bake into its digest.
     """
     patch = tmp_path / "any.patch"
-    patch.write_text("")
+    patch.write_text("", encoding="utf-8")
     args = runner.argparse.Namespace(
         rev=None, tree=str(runner.ROOT), out=str(tmp_path / "out.json"),
         python=sys.executable, workdir=str(tmp_path), patch=str(patch),

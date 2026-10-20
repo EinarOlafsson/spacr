@@ -78,7 +78,7 @@ def test_a_profile_that_does_not_match_the_schema_is_read_as_absent(
     IP.write_profile(target, "cpu", "none")
     payload = json.loads(target.read_text(encoding="utf-8"))
     payload.update(mutate)
-    target.write_text(json.dumps(payload))
+    target.write_text(json.dumps(payload), encoding="utf-8")
     assert IP.read_profile(target) is None, why
 
 

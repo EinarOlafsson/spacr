@@ -259,7 +259,7 @@ def test_an_already_converted_plate_file_is_not_converted_again(tmp_path):
     tifffile.imwrite(str(folder / "a_raw.tif"), np.full((2, 2), 3, np.uint16))
     already = folder / "plate9_B02_T0001F001L01C01.tif"
     tifffile.imwrite(str(already), np.full((2, 2), 7, np.uint16))
-    (folder / "notes.txt").write_text("not an image")
+    (folder / "notes.txt").write_text("not an image", encoding="utf-8")
 
     before = {path.name: path.read_bytes() for path in folder.iterdir()}
     with pytest.raises(ValueError, match="already contains converted images"):

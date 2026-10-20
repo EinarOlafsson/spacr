@@ -16,12 +16,12 @@ def test_current_alpha_and_unlisted_lessons_are_audited_without_network(tmp_path
         for identity in identities
     ]
     catalog = tmp_path / "catalog.json"
-    catalog.write_text(json.dumps({"lessons": published}))
+    catalog.write_text(json.dumps({"lessons": published}), encoding="utf-8")
     for lesson in published:
         authored = json.loads(json.dumps(lesson))
         if authored["id"] != identities[0]:
             authored["scenes"][0]["narration"] = "Inspect the new live plate card."
-        (lessons / f'{authored["id"]}.json').write_text(json.dumps(authored))
+        (lessons / f'{authored["id"]}.json').write_text(json.dumps(authored), encoding="utf-8")
     report_path = tmp_path / "report.json"
     subprocess.run(
         [sys.executable, str(root / "tools/tutorials/audit_user_walkthroughs.py"),

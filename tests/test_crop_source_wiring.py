@@ -1058,7 +1058,7 @@ def test_marking_a_folder_that_cannot_be_written_warns_instead_of_raising(tmp_pa
     # fails, and failing a whole training run over a 300-byte sidecar helps
     # nobody -- but it must not be silent either.
     blocked = tmp_path / "afile"
-    blocked.write_text("not a directory")
+    blocked.write_text("not a directory", encoding="utf-8")
     assert mark_crop_output_folder(str(blocked)) is None
     assert "could not stamp the crop format" in capsys.readouterr().out
 

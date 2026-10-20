@@ -188,7 +188,7 @@ def test_parquet_manifest_refuses_invalid_snapshot_control(tmp_path,
         manifest['active'][0]['size'] = True
     else:
         manifest['active'][0]['name'] = '../outside.parquet'
-    path.write_text(json.dumps(manifest))
+    path.write_text(json.dumps(manifest), encoding="utf-8")
 
     with pytest.raises(ValueError, match='Invalid Parquet part manifest'):
         tabular.read_database(store, 'cell', report=None)

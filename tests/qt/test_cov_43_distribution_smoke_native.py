@@ -544,7 +544,7 @@ def test_a_registry_row_wins_over_its_own_fold_child():
 
 def test_a_linux_artifact_is_rooted_beside_its_executable(tmp_path):
     executable = tmp_path / "spacr"
-    executable.write_text("")
+    executable.write_text("", encoding="utf-8")
     assert Controller._installed_root(executable, tmp_path, "linux") == tmp_path
 
 
@@ -557,8 +557,8 @@ def _resources(tmp_path, *, policy="{}", icon=True, font=b""):
     real = Path(spacr.__file__).parent / "resources"
     package = tmp_path / "installed" / "spacr"
     (package / "resources" / "icons").mkdir(parents=True)
-    (package / "__init__.py").write_text("")
-    (package / "resources" / "layout_policy.json").write_text(policy)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "resources" / "layout_policy.json").write_text(policy, encoding="utf-8")
     if icon:
         shutil.copy(real / "icons" / "measure.png",
                     package / "resources" / "icons" / "measure.png")

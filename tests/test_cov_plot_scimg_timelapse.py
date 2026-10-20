@@ -71,7 +71,7 @@ def scimg_dir(tmp_path):
     assert cv2.imwrite(str(odd_path), odd)
 
     # a non-image file that _generate_filelist must ignore
-    (src / "notes.txt").write_text("not an image")
+    (src / "notes.txt").write_text("not an image", encoding="utf-8")
 
     return {
         "root": root,

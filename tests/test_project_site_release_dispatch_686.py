@@ -39,7 +39,7 @@ import json, os, sys
 from pathlib import Path
 Path(os.environ['DISPATCH_LOG']).write_text(json.dumps(sys.argv[1:]))
 sys.exit(int(os.environ['DISPATCH_STATUS']))
-''')
+''', encoding="utf-8")
     executable.chmod(0o755)
     summary = tmp_path / 'summary'
     request = tmp_path / 'request.json'

@@ -15,12 +15,12 @@ def prepare(monkeypatch, tmp_path, source, index=0):
               'source_sha256': api._source_hash('Original paragraph.')}
     active = root / 'sv/current.json'
     active.parent.mkdir(parents=True)
-    active.write_text(json.dumps({'records': [record]}))
+    active.write_text(json.dumps({'records': [record]}), encoding="utf-8")
     archived = root / '_archive/sv/previous/historical.json'
     archived.parent.mkdir(parents=True)
     archived.write_text(json.dumps({'records': [{'label': 'spacr.example#0',
                                               'source': 'Archived obsolete paragraph.',
-                                              'source_sha256': 'obsolete'}]}))
+                                              'source_sha256': 'obsolete'}]}), encoding="utf-8")
 
 
 def test_archived_reviews_do_not_override_current_evidence(monkeypatch, tmp_path, capsys):

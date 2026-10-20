@@ -317,7 +317,7 @@ def test_extract_tar_bz2_files_rejects_non_folder(tmp_path):
     from spacr.utils import extract_tar_bz2_files
 
     f = tmp_path / "plain.txt"
-    f.write_text("x")
+    f.write_text("x", encoding="utf-8")
     with pytest.raises(ValueError, match="not a valid folder"):
         extract_tar_bz2_files(str(f))
 
@@ -328,7 +328,7 @@ def test_extract_tar_bz2_files_extracts_into_named_subfolder(tmp_path, capsys):
     folder = tmp_path / "arch"
     folder.mkdir()
     _make_tar_bz2(str(folder), "sample", payload=b"hello spacr")
-    (folder / "ignore_me.txt").write_text("not an archive")
+    (folder / "ignore_me.txt").write_text("not an archive", encoding="utf-8")
 
     extract_tar_bz2_files(str(folder))
 
@@ -434,7 +434,7 @@ def test_format_path_for_system_reports_existing_path(tmp_path, monkeypatch, cap
 
     monkeypatch.setattr(su.platform, "system", lambda: "Linux")
     p = tmp_path / "img.tif"
-    p.write_text("x")
+    p.write_text("x", encoding="utf-8")
     got = su.format_path_for_system(str(p).replace(os.sep, "\\"))
 
     assert got == str(p)
@@ -483,7 +483,7 @@ def _nested_image_tree(root):
     (root / "sub1" / "sub2").mkdir()
     (root / "sub1" / "a.tif").write_bytes(b"AAA")
     (root / "sub1" / "sub2" / "b.png").write_bytes(b"BBB")
-    (root / "sub1" / "notes.txt").write_text("skip me")
+    (root / "sub1" / "notes.txt").write_text("skip me", encoding="utf-8")
     return root
 
 

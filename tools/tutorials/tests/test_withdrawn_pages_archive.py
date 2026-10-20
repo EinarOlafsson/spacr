@@ -16,7 +16,7 @@ def archived_lesson(tmp_path):
     data=dict(lessons=[dict(id='02_install_spacr')],
               lesson_aliases={'02_conda_install':'02_install_spacr'})
     (candidate/'web/lesson_catalog.js').write_text(
-        '"use strict";\nwindow.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(data)+');\n')
+        '"use strict";\nwindow.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(data)+');\n', encoding="utf-8")
     old=pages/'production/02_conda_install'
     (old/'audio/en').mkdir(parents=True)
     (old/'poster.jpg').write_bytes(b'accepted archival poster')

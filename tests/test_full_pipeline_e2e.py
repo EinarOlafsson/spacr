@@ -538,7 +538,7 @@ def test_stage_6_xgboost_per_measurement_category(_measured_workspace):
                     key=lambda kv: kv[1], reverse=True)[:5],
             }
             path = out_dir / f"xgboost_{cat}.json"
-            path.write_text(json.dumps(payload, indent=2))
+            path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
             trained[cat] = path
             print(f"[e2e] stage 6: {cat!r} xgboost OK — "
                     f"top feature = {payload['top_features'][0][0]}")

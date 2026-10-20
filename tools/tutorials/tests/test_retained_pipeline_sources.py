@@ -150,7 +150,7 @@ def test_browser_cli_selects_protected_retained_or_normal_validator_before_brows
     monkeypatch.setattr(browser, 'DEFAULT_STAGE', browser.DEFAULT_STAGE)
     monkeypatch.setattr(browser, 'WORKSPACE', browser.WORKSPACE)
     player = r.repo / 'tools/tutorials/authoring/web/app_v2.js'
-    player.parent.mkdir(parents=True);player.write_text('fixture player')
+    player.parent.mkdir(parents=True);player.write_text('fixture player', encoding="utf-8")
     monkeypatch.setattr(build_navigation, 'build', lambda *args: {})
     calls = []
 

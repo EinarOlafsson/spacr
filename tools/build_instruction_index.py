@@ -191,7 +191,7 @@ def _entries(folder: str) -> List[Tuple[str, str, str]]:
         number = path.name.split("_", 1)[0]
         if not number.isdigit():
             continue
-        lines = path.read_text(errors="replace").splitlines()
+        lines = path.read_text(errors="replace", encoding="utf-8").splitlines()
         title = _instruction_title(lines, number, path.stem)
         out.append((number, title, path.name))
     # Instruction 84 exists twice, so the numeric id is not a unique sort
@@ -384,7 +384,7 @@ def main(argv=None) -> int:
         print("no features/ folder here")
         return 0
 
-    current = INDEX.read_text() if INDEX.exists() else ""
+    current = INDEX.read_text(encoding="utf-8") if INDEX.exists() else ""
     # The stamp is the one line that changes without the content changing, so
     # --check compares everything BELOW it. An index that fails CI because a
     # day passed would be an index nobody keeps.
@@ -413,7 +413,7 @@ def main(argv=None) -> int:
             return 0
         print("STALE — run tools/build_instruction_index.py")
         return 1
-    INDEX.write_text(fresh)
+    INDEX.write_text(fresh, encoding="utf-8")
     print(f"index regenerated: {INDEX}")
     return 0
 

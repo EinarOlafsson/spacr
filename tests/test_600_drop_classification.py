@@ -257,7 +257,7 @@ def test_a_sorted_channels_folder_opens_its_first_channel(tmp_path):
 def test_a_renamed_sort_is_known_by_its_manifest(tmp_path):
     dest = tmp_path / "my_sort"
     _tif(dest / "C01" / "x.tif")
-    (dest / cs.MANIFEST_NAME).write_text("kind\n")
+    (dest / cs.MANIFEST_NAME).write_text("kind\n", encoding="utf-8")
     assert dc.classify_drop([dest]).open_folder == str(dest / "C01")
 
 
@@ -296,7 +296,7 @@ def test_npy_text_and_missing_paths_are_listed_never_opened(tmp_path):
     npy = tmp_path / "x.npy"
     np.save(npy, np.zeros(3))
     txt = tmp_path / "notes.txt"
-    txt.write_text("x")
+    txt.write_text("x", encoding="utf-8")
     empty = tmp_path / "empty"
     empty.mkdir()
     found = dc.classify_drop([npy, txt, empty, tmp_path / "gone.tif"])
@@ -322,7 +322,7 @@ def test_the_drop_handler_policy(tmp_path):
     npy = tmp_path / "x.npy"
     np.save(npy, np.zeros(3))
     (tmp_path / "empty").mkdir()
-    (tmp_path / "t.txt").write_text("x")
+    (tmp_path / "t.txt").write_text("x", encoding="utf-8")
     assert dc._accepts(str(exp))
     assert dc._accepts(str(exp / "DAPI"))
     assert dc._accepts(str(npy))

@@ -15,7 +15,7 @@ def selectors(lesson, language="en", voice="af_bella"):
     node = shutil.which("node")
     if not node:
         pytest.skip("Node is required to exercise the actual player functions")
-    source = PLAYER.read_text()
+    source = PLAYER.read_text(encoding="utf-8")
     functions = []
     for name in ("lessonVoices", "populateVoiceSelector", "populateNarrationLanguages"):
         match = re.search(r"function " + name + r"\([^)]*\)\s*\{[\s\S]*?\n\}", source)

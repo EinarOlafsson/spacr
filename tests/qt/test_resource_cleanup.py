@@ -319,7 +319,7 @@ def test_library_thread_counts_never_go_below_the_floor(monkeypatch):
 # ---------------------------------------------------------------------------
 
 def test_the_disk_check_only_reads(tmp_path):
-    (tmp_path / "keep.txt").write_text("data")
+    (tmp_path / "keep.txt").write_text("data", encoding="utf-8")
     report = rc.disk_report([str(tmp_path)])
     assert len(report.entries) == 1
     entry = report.entries[0]

@@ -19,7 +19,7 @@ def _merged(tmp_path, names):
         if name.endswith(".npy"):
             np.save(merged / name, np.ones((4, 4), dtype=np.uint16))
         else:
-            (merged / name).write_text("not an array")
+            (merged / name).write_text("not an array", encoding="utf-8")
     return merged
 
 

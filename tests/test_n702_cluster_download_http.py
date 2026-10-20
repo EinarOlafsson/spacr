@@ -216,7 +216,7 @@ def test_parallel_jobs_sharing_a_cache_download_once(node):
 
 def _foreign_lock(path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text('424242\nspacr\nspacr-other-node.invalid\n')
+    path.write_text('424242\nspacr\nspacr-other-node.invalid\n', encoding="utf-8")
 
 
 def test_live_lock_from_another_node_is_waited_for(node, monkeypatch, caplog):

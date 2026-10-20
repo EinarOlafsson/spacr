@@ -106,7 +106,7 @@ def test_cache_refusals_and_relocation_guards(home, tmp_path, monkeypatch):  # n
     target_parent = tmp_path / "elsewhere"
     full = target_parent / "spacr-news"
     full.mkdir(parents=True)
-    (full / "keep").write_text("x")
+    (full / "keep").write_text("x", encoding="utf-8")
     with pytest.raises(ValueError, match="already holds files"):
         rj._relocate_cache("news", target_parent)
     moved = rj._relocate_cache("torch", tmp_path / "fresh")
@@ -242,7 +242,7 @@ def test_clear_logs_deletes_only_recognised_closed_logs(home):  # noqa: F811
     verbose = _aged(logs / "spacr-debug.log.1", 60, size=300)
     run_log = _aged(logs / "runs" / "done123.jsonl", 60, size=400)
     unrelated = logs / "keep.txt"
-    unrelated.write_text("not a log")
+    unrelated.write_text("not a log", encoding="utf-8")
     plan = rj._clear_logs_plan()
     assert all(plan["groups"][group] for group in
                ("daily", "crash", "verbose", "run_logs"))

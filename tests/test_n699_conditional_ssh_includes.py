@@ -19,7 +19,7 @@ def test_include_scopes_match_native_private_config(tmp_path, case):
     target = 'wanted'
     parent = 'Host wanted\n Include {child}\n'
     child_text = 'Host *\n User included-user\n'
-    grandchild.write_text('Host *\n User nested-user\n')
+    grandchild.write_text('Host *\n User nested-user\n', encoding="utf-8")
     if case == 'inactive':
         parent = 'Host unrelated\n Include {child}\nHost wanted\n HostName target.invalid\n'
     elif case == 'negated':
@@ -41,15 +41,15 @@ def test_include_scopes_match_native_private_config(tmp_path, case):
     elif case == 'glob_restore':
         fragments = tmp_path / 'fragments'
         fragments.mkdir()
-        (fragments / 'a.fragment').write_text('Host unrelated\n Port 2223\n')
-        (fragments / 'b.fragment').write_text('User second-file-user\n')
+        (fragments / 'a.fragment').write_text('Host unrelated\n Port 2223\n', encoding="utf-8")
+        (fragments / 'b.fragment').write_text('User second-file-user\n', encoding="utf-8")
         parent = 'Host wanted\n Include ' + str(fragments / '*.fragment') + '\n'
     elif case == 'nested_restore':
         child_text = 'Host wanted\n Include {grandchild}\n User child-after-user\n'
-        grandchild.write_text('Host unrelated\n User unrelated-user\n')
-    child.write_text(child_text.format(grandchild=grandchild))
+        grandchild.write_text('Host unrelated\n User unrelated-user\n', encoding="utf-8")
+    child.write_text(child_text.format(grandchild=grandchild), encoding="utf-8")
     config = tmp_path / 'config'
-    config.write_text(parent.format(child=child))
+    config.write_text(parent.format(child=child), encoding="utf-8")
     before = {path: path.read_bytes() for path in tmp_path.rglob('*') if path.is_file()}
     result = subprocess.run(
         ['ssh', '-G', '-F', str(config), '-o', 'CanonicalizeHostname=no',
@@ -68,12 +68,12 @@ def test_include_scopes_match_native_private_config(tmp_path, case):
 def test_passive_discovery_never_executes_match_and_ignores_internal_markers(tmp_path):
     sentinel = tmp_path / 'must-not-exist'
     child = tmp_path / 'child.conf'
-    child.write_text('Host *\n User wrong-included-user\n')
+    child.write_text('Host *\n User wrong-included-user\n', encoding="utf-8")
     config = tmp_path / 'config'
     config.write_text(
         'Match exec "touch ' + str(sentinel) + '"\n Include ' + str(child)
         + '\nHost wanted\n User wanted-user\n'
-    )
+    , encoding="utf-8")
     rows = remote._discover_ssh_settings(folder=tmp_path, home=tmp_path, environ={})
     wanted = next(row for row in rows if row['alias'] == 'wanted')
     assert wanted['user'] == 'wanted-user'
@@ -87,7 +87,7 @@ def test_unsupported_text_cannot_impersonate_internal_scope_markers(tmp_path):
         'Host unrelated\n __top anything\n __include_start anything\n'
         ' __include_end anything\n User wrong-user\n'
         'Host wanted\n User wanted-user\n'
-    )
+    , encoding="utf-8")
     directives = remote._ssh_config_directives([config])
     actual = remote._ssh_lookup('wanted', directives)
     assert actual['user'] == 'wanted-user'

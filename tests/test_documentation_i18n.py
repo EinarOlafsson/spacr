@@ -3108,7 +3108,7 @@ def test_translation_cache_atomically_removes_rejected_checkpoint(tmp_path):
     from build_i18n_catalogs import _merge_write_translation_cache
 
     path = tmp_path / "ko.json"
-    path.write_text(json.dumps({"api-block-v7\0Source": "Source"}))
+    path.write_text(json.dumps({"api-block-v7\0Source": "Source"}), encoding="utf-8")
     baseline = {"api-block-v7\0Source": "Source"}
     _merge_write_translation_cache(path, {}, baseline)
     assert json.loads(path.read_text(encoding="utf-8")) == {}
@@ -3250,14 +3250,14 @@ def test_runtime_audit_rejects_a_synthetic_missing_tooltip_translation(
     monkeypatch.setattr(builder, "reviewed_runtime_translations", lambda _: {})
     installer = tmp_path / "packaging/i18n"
     installer.mkdir(parents=True)
-    (installer / "sv.json").write_text(json.dumps(sources["installer"]))
+    (installer / "sv.json").write_text(json.dumps(sources["installer"]), encoding="utf-8")
     builder.write_english(sources)
     values = {"SETTING_LABELS": {}, "SETTING_TOOLTIPS": {
         "cell_diameter": "Celldiameter i pixlar."}, "CATEGORY_HELP": {},
         "UI": {}, "MODULE_SUMMARIES": {}, "SOURCE_HASHES": builder._source_hashes(sources),
         "SECONDARY_MODEL": builder.SECONDARY_MODEL, "SECONDARY_LICENSE": builder.SECONDARY_LICENSE}
     swedish = catalog_dir / "sv.py"
-    swedish.write_text("\n".join(f"{key} = {value!r}" for key, value in values.items()))
+    swedish.write_text("\n".join(f"{key} = {value!r}" for key, value in values.items()), encoding="utf-8")
     assert builder.audit(sources, ["sv"]) == 0
     with swedish.open("a") as handle:
         handle.write('\nSETTING_TOOLTIPS.pop("cell_diameter")\n')

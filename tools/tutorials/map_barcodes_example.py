@@ -16,11 +16,11 @@ def run(stage, destination):
     if destination.exists():
         raise FileExistsError('Use a new output folder; recorded results are never overwritten')
     capture = stage / 'captures/map_search_v2'
-    settings = json.loads((capture / 'batch_settings.json').read_text())
-    references = json.loads((capture / 'mapping_reference_selection.json').read_text())
+    settings = json.loads((capture / 'batch_settings.json').read_text(encoding="utf-8"))
+    references = json.loads((capture / 'mapping_reference_selection.json').read_text(encoding="utf-8"))
     source = stage / 'example_data/sequencing'
     full = verify_counts(source / 'SRR33531217_paired', references, 10000)
-    download = json.loads((capture / 'sequencing_download.json').read_text())
+    download = json.loads((capture / 'sequencing_download.json').read_text(encoding="utf-8"))
     inputs = {str(source / row['file']): row['sha256'] for row in download['files']}
     inputs.update({str(path): digest(path) for path in references.values()})
     if any(digest(path) != value for path, value in inputs.items()):
@@ -72,7 +72,7 @@ def run(stage, destination):
              'helper_sha256': digest(__file__), 'gui_barcode_set_control_claimed': False,
              'biological_validation_claimed': False,
              'artifacts': {p.name: digest(p) for p in destination.iterdir()}}
-    (destination / 'run.json').write_text(json.dumps(proof, indent=2) + '\n')
+    (destination / 'run.json').write_text(json.dumps(proof, indent=2) + '\n', encoding="utf-8")
     print(f'GUI: {full["requested_pairs"]:,} pairs; {full["extracted_rows"]:,} extracted; '
           f'{full["mapped_reads"]:,} mapped; {full["count_rows"]:,} count rows.')
     print("API barcode_set = ['column', 'grna']")

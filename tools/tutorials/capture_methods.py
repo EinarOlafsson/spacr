@@ -52,7 +52,7 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
                 copies[str(p.relative_to(work))] = _digest(p)
                 if _digest(p) != originals[str(root/p.relative_to(work/key))]:
                     raise ValueError('Methods source changed during copying')
-    manifest = json.loads((work/'run_dir/manifest.json').read_text())
+    manifest = json.loads((work/'run_dir/manifest.json').read_text(encoding="utf-8"))
     declared = manifest['seeds']['declared']['guide_permutation_seed']
     proof = dict(lesson='49_methods_results', accepted=False, source_files=originals,
                  private_folder=str(work), private_input_hashes=copies,

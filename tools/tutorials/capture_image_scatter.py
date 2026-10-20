@@ -16,7 +16,7 @@ def record_scatter(app,window,stage,captures,capture,settle,write_json,timeout):
     from spacr.qt.screens.image_scatter import ImageScatterScreen
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.linked_selection import linked_selection
-    prepared=json.loads((Path(stage)/'image_scatter_state'/f'{Path(captures).name}.json').read_text())
+    prepared=json.loads((Path(stage)/'image_scatter_state'/f'{Path(captures).name}.json').read_text(encoding="utf-8"))
     database=Path(prepared['source']['database']);rows,_=read_measurements(database)
     with _readonly(database) as con:
         cols=[d[0] for d in con.execute('SELECT * FROM png_list LIMIT 0').description]

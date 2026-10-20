@@ -60,12 +60,12 @@ def main(argv=None):
     live_lessons = {x['id']: x for x in json.loads(live_bytes)['lessons']}
     main_bytes = fetch(args.main_catalog)
     main_lessons = {x['id']: x for x in json.loads(main_bytes)['lessons']}
-    prepared_lessons = {x['id']: x for x in json.loads(args.prepared_catalog.read_text())['lessons']}
+    prepared_lessons = {x['id']: x for x in json.loads(args.prepared_catalog.read_text(encoding="utf-8"))['lessons']}
 
 
     sources = dict(prepared_lessons)
     for path in sorted(root.glob('[0-9][0-9]_*.json')):
-        lesson = json.loads(path.read_text())
+        lesson = json.loads(path.read_text(encoding="utf-8"))
         if 'id' in lesson:
             sources[lesson['id']] = lesson
     for identity, lesson in sorted(sources.items()):
@@ -84,7 +84,7 @@ def main(argv=None):
             # apply_map_reviews.py) is not a per-language translation review.
             if review_path.name in {'12_map_barcodes.reviewed.json'}:
                 continue
-            review = json.loads(review_path.read_text())
+            review = json.loads(review_path.read_text(encoding="utf-8"))
             if review.get('english_sha256') != current:
                 stale.append(review.get('language', review_path.stem))
         rows.append(dict(lesson=identity, english_sha256=current,
@@ -121,7 +121,7 @@ def main(argv=None):
                   rows=rows)
     output = args.output
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+    output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding="utf-8")
     print(json.dumps(dict(source_lessons=len(rows), manually_rewritten=len(revised),
                          unpublished=report['narration_and_caption_refresh_required'],
                          pending=report['manual_review_pending'],

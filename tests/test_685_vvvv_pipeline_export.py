@@ -327,13 +327,13 @@ def test_merged_export_reports_fields_it_cannot_write(tmp_path, capsys):
     (merged / MERGED_LAYOUT_SIDECAR).write_text(json.dumps({
         "version": 1, "intensity_channels": [0],
         "mask_plane_order": ["cell", "nucleus"],
-        "mask_dims": {"cell": 1, "nucleus": 2}}))
+        "mask_dims": {"cell": 1, "nucleus": 2}}), encoding="utf-8")
     np.save(merged / "volume.npy", np.zeros((2, 4, 4, 3), np.float32))
     wide = np.zeros((6, 6, 3), np.float64)
     wide[1:3, 1:3, 1] = 70000.0
     wide[3:5, 3:5, 2] = 2.0
     np.save(merged / "wide.npy", wide)
-    (merged / "notes.txt").write_text("not a field")
+    (merged / "notes.txt").write_text("not a field", encoding="utf-8")
     written = _export_vvvv_merged(str(tmp_path), pixel_size=(0.3, 0.3))
     out = capsys.readouterr().out
     assert "volume.npy: only 2-D fields" in out
@@ -406,7 +406,7 @@ def test_merged_export_without_intensities_or_with_a_missing_plane(tmp_path):
     (merged / MERGED_LAYOUT_SIDECAR).write_text(json.dumps({
         "version": 1, "intensity_channels": [],
         "mask_plane_order": ["cell", "ghost"],
-        "mask_dims": {"cell": 0, "ghost": 5}}))
+        "mask_dims": {"cell": 0, "ghost": 5}}), encoding="utf-8")
     plane = np.zeros((6, 6, 1), np.uint16)
     plane[1:4, 1:4, 0] = 3
     np.save(merged / "only.npy", plane)

@@ -61,7 +61,7 @@ def main() -> int:
         errors.append(
             f"partial visual masters remain: {rendered_paths}"
         )
-    english = json.loads((CATALOG / "lessons_en.json").read_text())
+    english = json.loads((CATALOG / "lessons_en.json").read_text(encoding="utf-8"))
     expected = len(english["lessons"])
     for lesson in english["lessons"]:
         for index, scene in enumerate(lesson["scenes"], start=1):
@@ -77,7 +77,7 @@ def main() -> int:
         if not path.exists():
             errors.append(f"missing catalog {language}")
             continue
-        catalog = json.loads(path.read_text())
+        catalog = json.loads(path.read_text(encoding="utf-8"))
         current = [lesson["id"] for lesson in catalog["lessons"]]
         if len(current) != expected or len(set(current)) != expected:
             errors.append(
@@ -98,7 +98,7 @@ def main() -> int:
                 errors.append(f"missing scene specification {lesson_id}")
             else:
                 try:
-                    spec = json.loads(scenes_path.read_text())
+                    spec = json.loads(scenes_path.read_text(encoding="utf-8"))
                     validate_geometry(spec, root)
                     source_lesson = next(
                         item for item in english["lessons"]
@@ -118,7 +118,7 @@ def main() -> int:
                         video_properties(video)
                     )
                     heart_timing = json.loads(
-                        (root / "audio" / "en" / "af_heart.json").read_text()
+                        (root / "audio" / "en" / "af_heart.json").read_text(encoding="utf-8")
                     )
                     expected_duration = float(heart_timing["total_duration"])
                     native_timing_path = root / 'video' / 'native-live-timings.json'
@@ -126,7 +126,7 @@ def main() -> int:
                         sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
                         from native_live_timing import checked_native_timing
                         checked = checked_native_timing(PRODUCTION.parent, lesson_id)
-                        expected_duration = float(json.loads(checked.read_text())['total_duration'])
+                        expected_duration = float(json.loads(checked.read_text(encoding="utf-8"))['total_duration'])
                     if (
                         (width, height) != (3840, 2160)
                         or duration < 20
@@ -180,7 +180,7 @@ def main() -> int:
                 errors.append(f"unsupported caption artifact: {unexpected}")
 
     web_text = "\n".join(
-        path.read_text(errors="ignore")
+        path.read_text(errors="ignore", encoding="utf-8")
         for path in WEB.rglob("*")
         if path.is_file()
         and path.suffix in {".html", ".js", ".css", ".json"}
@@ -193,7 +193,7 @@ def main() -> int:
                      "lesson_catalog.js", "logo_spacr.png", "favicon.svg"):
         if not (WEB / filename).exists():
             errors.append(f"missing web asset {filename}")
-    player = (WEB / "app_v2.js").read_text(errors="ignore")
+    player = (WEB / "app_v2.js").read_text(errors="ignore", encoding="utf-8")
     for contract in (
             "async function fetchNarrationAudio",
             "response.blob()",
@@ -216,7 +216,7 @@ def main() -> int:
             errors.append(
                 "normal playback may seek or rate-shift narration on phones: "
                 f"{forbidden}")
-    index = (WEB / "index.html").read_text(errors="ignore")
+    index = (WEB / "index.html").read_text(errors="ignore", encoding="utf-8")
     player_cache_key = re.search(
         r'<script src="app_v2\.js\?v=([^"&]+)"></script>', index)
     if not player_cache_key:

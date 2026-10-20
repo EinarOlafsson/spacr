@@ -95,7 +95,7 @@ def test_crlf_endings_preserved():
 
 def test_check_and_apply(tmp_path, capsys):
     f = tmp_path / "m.py"
-    f.write_text("x = 1  # c\n# d\n")
+    f.write_text("x = 1  # c\n# d\n", encoding="utf-8")
     assert sc.main([str(tmp_path), "--check"]) == 1
     assert f.read_text(encoding="utf-8") == "x = 1  # c\n# d\n"
     assert sc.main([str(tmp_path), "--apply"]) == 0

@@ -625,7 +625,7 @@ def test_foreign_preflight_does_not_invent_problems(tmp_path):
     images.mkdir()
     masks.mkdir()
     table = tmp_path / "theirs.csv"
-    table.write_text("object,area\n1,10\n")
+    table.write_text("object,area\n1,10\n", encoding="utf-8")
 
     module = cli.MODULES["foreign"]
     settings = cli.resolve_settings(module, None, [

@@ -754,11 +754,11 @@ def test_a_run_journal_folder_is_read_from_settings_json_and_manifest(tmp_path):
         folder.mkdir()
         write_curve(str(folder), "val", [0.5, 0.6, 0.7])
         (folder / "settings.json").write_text(json.dumps(
-            {"model_type": "maxvit_t", "learning_rate": lr}))
+            {"model_type": "maxvit_t", "learning_rate": lr}), encoding="utf-8")
         (folder / "manifest.json").write_text(json.dumps(
             {"app_key": "classify", "status": "success",
              "env": {"spacr": "1.3.6", "torch": torch_version,
-                     "python": "3.10.19"}}))
+                     "python": "3.10.19"}}), encoding="utf-8")
         runs.append(load_run(str(folder), run_id=name))
 
     assert runs[0].settings["model_type"] == "maxvit_t"
@@ -781,12 +781,12 @@ def test_manifest_env_is_dropped_entirely_when_one_side_has_none(tmp_path):
     import json
     a = tmp_path / "a"
     a.mkdir()
-    (a / "settings.json").write_text(json.dumps({"k": 1}))
-    (a / "manifest.json").write_text(json.dumps({"env": {"torch": "2.6.0"}}))
+    (a / "settings.json").write_text(json.dumps({"k": 1}), encoding="utf-8")
+    (a / "manifest.json").write_text(json.dumps({"env": {"torch": "2.6.0"}}), encoding="utf-8")
     b = tmp_path / "b"
     b.mkdir()
-    (b / "settings.json").write_text(json.dumps({"k": 1}))
-    (b / "manifest.json").write_text("{ not json")
+    (b / "settings.json").write_text(json.dumps({"k": 1}), encoding="utf-8")
+    (b / "manifest.json").write_text("{ not json", encoding="utf-8")
     runs = [load_run(str(a), run_id="A"), load_run(str(b), run_id="B")]
     assert runs[1].manifest == {}
     assert compare_runs(runs).settings_diff["env_manifest"] == []
@@ -795,7 +795,7 @@ def test_manifest_env_is_dropped_entirely_when_one_side_has_none(tmp_path):
 def test_a_settings_json_that_is_not_an_object_is_reported(tmp_path):
     folder = tmp_path / "run"
     folder.mkdir()
-    (folder / "settings.json").write_text("[1, 2, 3]")
+    (folder / "settings.json").write_text("[1, 2, 3]", encoding="utf-8")
     run = load_run(str(folder), run_id="A")
     assert any("settings.json is a list" in n for n in run.notes)
     assert run.settings == {}
@@ -804,7 +804,7 @@ def test_a_settings_json_that_is_not_an_object_is_reported(tmp_path):
 def test_an_unreadable_settings_json_falls_through_with_a_note(tmp_path):
     folder = tmp_path / "run"
     folder.mkdir()
-    (folder / "settings.json").write_text("{ not json at all")
+    (folder / "settings.json").write_text("{ not json at all", encoding="utf-8")
     run = load_run(str(folder), run_id="A")
     assert any("settings.json unreadable (JSONDecodeError)" in n
                for n in run.notes)
@@ -813,7 +813,7 @@ def test_an_unreadable_settings_json_falls_through_with_a_note(tmp_path):
 def test_a_settings_csv_inside_the_run_folder_is_used(tmp_path):
     folder = tmp_path / "run"
     folder.mkdir()
-    (folder / "settings.csv").write_text("Key,Value\nmodel_type,resnet50\n")
+    (folder / "settings.csv").write_text("Key,Value\nmodel_type,resnet50\n", encoding="utf-8")
     run = load_run(str(folder), run_id="A")
     assert run.settings == {"model_type": "resnet50"}
     assert run.settings_path.endswith("settings.csv")
@@ -859,7 +859,7 @@ def test_an_ambiguous_settings_folder_names_the_file_it_picked(tmp_path):
 def test_an_unreadable_manifest_is_ignored(tmp_path):
     folder = tmp_path / "run"
     folder.mkdir()
-    (folder / "manifest.json").write_text("[]")
+    (folder / "manifest.json").write_text("[]", encoding="utf-8")
     assert load_run(str(folder), run_id="A").manifest == {}
 
 
@@ -870,7 +870,7 @@ def test_an_unreadable_manifest_is_ignored(tmp_path):
 def test_a_log_without_an_epoch_column_falls_back_to_row_order(tmp_path):
     folder = tmp_path / "run"
     folder.mkdir()
-    (folder / "train.csv").write_text("accuracy,loss\n0.5,1.0\n0.7,0.5\n")
+    (folder / "train.csv").write_text("accuracy,loss\n0.5,1.0\n0.7,0.5\n", encoding="utf-8")
     run = load_run(str(folder), run_id="A")
     assert any("no 'epoch' column — using row order" in n for n in run.notes)
     series = compare_runs([run]).series_for("A · train")
@@ -881,7 +881,7 @@ def test_rows_with_an_unreadable_epoch_are_dropped_and_counted(tmp_path):
     folder = tmp_path / "run"
     folder.mkdir()
     (folder / "train.csv").write_text(
-        "epoch,accuracy\n1,0.5\nlater,0.6\n3,0.7\n")
+        "epoch,accuracy\n1,0.5\nlater,0.6\n3,0.7\n", encoding="utf-8")
     run = load_run(str(folder), run_id="A")
     assert any("1 row(s) with an unreadable epoch were dropped" in n
                for n in run.notes)
@@ -893,7 +893,7 @@ def test_a_csv_pandas_cannot_parse_is_reported_not_raised(tmp_path):
     folder = tmp_path / "run"
     folder.mkdir()
     # An unterminated quoted field — what a write interrupted mid-row leaves.
-    (folder / "train.csv").write_text('epoch,accuracy\n1,"0.5\n2,0.6\n')
+    (folder / "train.csv").write_text('epoch,accuracy\n1,"0.5\n2,0.6\n', encoding="utf-8")
     run = load_run(str(folder), run_id="A")
     assert any("could not be parsed (ParserError" in n for n in run.notes)
     assert not run.has_curves
@@ -925,7 +925,7 @@ def test_a_metric_that_is_nan_throughout_prints_as_nan(tmp_path):
     folder = tmp_path / "run"
     folder.mkdir()
     (folder / "train.csv").write_text(
-        "epoch,accuracy,prauc\n1,0.5,0.4\n2,0.6,\n")
+        "epoch,accuracy,prauc\n1,0.5,0.4\n2,0.6,\n", encoding="utf-8")
     run = load_run(str(folder), run_id="A")
     text = format_comparison(compare_runs([run]), "prauc")
     # Epoch 2's prauc is missing, so "last" is epoch 1 — a NaN tail must not
@@ -1123,7 +1123,7 @@ def test_a_settings_folder_with_no_csv_is_skipped(tmp_path):
     dst.mkdir(parents=True)
     write_curve(str(dst), "train", [0.5] * 4)
     (src / "settings").mkdir()
-    (src / "settings" / "notes.txt").write_text("not a settings file")
+    (src / "settings" / "notes.txt").write_text("not a settings file", encoding="utf-8")
     run = load_run(str(dst), run_id="A")
     assert run.settings == {}
     assert any("no settings found" in n for n in run.notes)

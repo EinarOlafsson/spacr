@@ -732,7 +732,7 @@ def test_a_timing_report_that_was_written_says_where_it_went(
     target = tmp_path / "spacr-timing.log"
 
     def _write():
-        target.write_text("spaCR timing report\n")
+        target.write_text("spaCR timing report\n", encoding="utf-8")
         return str(target)
 
     monkeypatch.setattr(app_mod._timing, "write_report", _write)

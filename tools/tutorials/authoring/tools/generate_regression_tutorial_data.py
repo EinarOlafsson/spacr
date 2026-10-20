@@ -89,7 +89,7 @@ def main() -> int:
     }
     (OUTPUT / "manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n"
-    )
+    , encoding="utf-8")
     print(score_path)
     print(count_path)
     return 0

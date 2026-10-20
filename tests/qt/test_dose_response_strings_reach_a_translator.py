@@ -97,7 +97,7 @@ def test_the_status_messages_go_through_tr(qtbot, marked, tmp_path):
     assert widget.report.toPlainText().startswith("⟦No column")
 
     broken = tmp_path / "not_a_database.db"
-    broken.write_text("not sqlite")
+    broken.write_text("not sqlite", encoding="utf-8")
     widget.load_path(str(broken))
     assert widget._source.text().startswith("⟦could not read")
 

@@ -23,12 +23,12 @@ def audit_readme(tmp_path, monkeypatch, capsys):
     readme = tmp_path / 'readme'
     api.mkdir()
     readme.mkdir()
-    (api / 'en.json').write_text(json.dumps({'schema': 2, 'symbols': {}}))
+    (api / 'en.json').write_text(json.dumps({'schema': 2, 'symbols': {}}), encoding="utf-8")
     (api / 'sv.json').write_text(json.dumps({
         'schema': 2, 'symbols': {},
         'secondary_generator': builder.SECONDARY_MODEL,
         'secondary_license': builder.SECONDARY_LICENSE,
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(builder, 'API_DIR', api)
     monkeypatch.setattr(builder, 'README_DIR', readme)
     monkeypatch.setattr(builder, 'reviewed_api_block_translations', lambda *_: {})

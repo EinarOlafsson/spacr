@@ -41,7 +41,7 @@ def main() -> int:
         "batch_size": 8,
     })
     settings_path = DESTINATION / "tutorial_settings.json"
-    settings_path.write_text(json.dumps(settings, indent=2) + "\n")
+    settings_path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
     manifest = {
         "schema": 1,
         "kind": "deterministic synthetic timelapse",
@@ -53,7 +53,7 @@ def main() -> int:
     }
     (DESTINATION / "tutorial_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n"
-    )
+    , encoding="utf-8")
     print(settings_path)
     print(f"images={len(layout.image_files)}")
     return 0

@@ -1410,7 +1410,7 @@ def rebuild(path: Path) -> Optional[str]:
     spec = NOTEBOOK_SPECS.get(path.name)
     if spec is None:
         return None
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     notebook_metadata = notebook.setdefault("metadata", {}).setdefault(
         "spacr", {})
     notebook_metadata.update({
@@ -1738,12 +1738,12 @@ def main(argv=None) -> int:
         if new_text is None:
             skipped.append(path.name)
             continue
-        if new_text == path.read_text():
+        if new_text == path.read_text(encoding="utf-8"):
             continue
         if args.check:
             stale.append(path.name)
         else:
-            path.write_text(new_text)
+            path.write_text(new_text, encoding="utf-8")
             written.append(path.name)
 
     if skipped:

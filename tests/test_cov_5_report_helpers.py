@@ -108,7 +108,7 @@ def test_a_subfolder_that_cannot_be_listed_costs_only_that_subfolder(
         tmp_path, monkeypatch):
     """A permission error deep in the tree must not empty the whole inventory."""
     (tmp_path / "results").mkdir()
-    (tmp_path / "results" / "a.csv").write_text("x\n")
+    (tmp_path / "results" / "a.csv").write_text("x\n", encoding="utf-8")
     locked = tmp_path / "locked"
     locked.mkdir()
 
@@ -130,7 +130,7 @@ def test_a_subfolder_that_cannot_be_listed_costs_only_that_subfolder(
 def test_the_walk_stops_at_its_budget_and_says_it_did(tmp_path):
     """A truncated inventory that did not say so would read as a short run."""
     for i in range(5):
-        (tmp_path / f"f{i}.csv").write_text("x\n")
+        (tmp_path / f"f{i}.csv").write_text("x\n", encoding="utf-8")
 
     files, truncated = R._iter_dir_files(tmp_path, budget=2)
 
@@ -142,7 +142,7 @@ def test_the_raw_image_folders_are_never_descended_into(tmp_path):
     (tmp_path / "orig").mkdir()
     (tmp_path / "orig" / "image.tif").write_bytes(b"0")
     (tmp_path / "results").mkdir()
-    (tmp_path / "results" / "a.csv").write_text("x\n")
+    (tmp_path / "results" / "a.csv").write_text("x\n", encoding="utf-8")
 
     files, _truncated = R._iter_dir_files(tmp_path)
     assert [f.name for f in files] == ["a.csv"]
@@ -169,7 +169,7 @@ def test_sizing_descends_into_the_bulk_folders_the_inventory_skips(tmp_path):
     """The size of the plate is the whole plate, images included."""
     (tmp_path / "orig").mkdir()
     (tmp_path / "orig" / "image.tif").write_bytes(b"0" * 100)
-    (tmp_path / "a.csv").write_text("xy")
+    (tmp_path / "a.csv").write_text("xy", encoding="utf-8")
 
     n_files, total, truncated = R._dir_stats(tmp_path)
 

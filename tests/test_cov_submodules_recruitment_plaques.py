@@ -563,7 +563,7 @@ def test_analyze_plaques_masks_false_reads_existing_masks(tmp_path, plaque_env):
     img_a = _write_label_tif(masks / "a.tif")
     _write_label_tif(masks / "b.tif", blobs=((20, 20, 5),))
     # Decoys that must be ignored: wrong extension and a directory.
-    (masks / "notes.txt").write_text("ignore me")
+    (masks / "notes.txt").write_text("ignore me", encoding="utf-8")
     (masks / "sub.tif").mkdir()
 
     settings = {"src": str(src), "masks": False}

@@ -136,7 +136,7 @@ def test_the_neutral_wrapper_turns_alpha_off_before_it_launches_spacr(
         'printf "%s\\0" "$@" >> "$CAPTURE_COMMAND_LOG"\n'
         'printf "\\0" >> "$CAPTURE_COMMAND_LOG"\n'
         'if [[ $1 == 2G ]]; then exit "$CAPTURE_POLICY_STATUS"; fi\n'
-    )
+    , encoding="utf-8")
     capped.chmod(0o755)
     stage = tmp_path / "private stage"
     profile = stage / "config" / "mask profile"

@@ -12,11 +12,11 @@ def test_the_drag_module_extractor_boundary_matches_real_sphinx(tmp_path, monkey
     qt = package / "qt"
     qt.mkdir(parents=True)
     for directory in (package, qt):
-        (directory / "__init__.py").write_text('"""Public package."""\n')
+        (directory / "__init__.py").write_text('"""Public package."""\n', encoding="utf-8")
     for name in ("api", "core", "measure", "deep_spacr", "sequencing", "ml", "artifacts", "settings"):
-        (package / f"{name}.py").write_text(f'"""Public {name} module."""\n')
+        (package / f"{name}.py").write_text(f'"""Public {name} module."""\n', encoding="utf-8")
     (package / "example.py").write_text(
-        '"""Public example."""\ndef entry():\n    """Visible callable."""\n')
+        '"""Public example."""\ndef entry():\n    """Visible callable."""\n', encoding="utf-8")
     shutil.copyfile(ROOT / "spacr/qt/_magnifier_drag.py", qt / "_magnifier_drag.py")
 
     output = _build_site(root, (), "drag-private")

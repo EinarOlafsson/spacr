@@ -169,7 +169,7 @@ def test_map_barcodes_handler_accepts_fastq_gz(tmp_path):
 
 def test_map_barcodes_handler_rejects_random_file(tmp_path):
     from spacr.qt.dnd_handlers import MapBarcodesDropHandler
-    (tmp_path / "notes.txt").write_text("hi")
+    (tmp_path / "notes.txt").write_text("hi", encoding="utf-8")
     assert MapBarcodesDropHandler().can_accept(tmp_path / "notes.txt") is False
 
 

@@ -15,8 +15,8 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("override", type=Path)
     args = parser.parse_args()
-    lesson = json.loads(args.override.read_text())
-    catalog = json.loads(CATALOG.read_text())
+    lesson = json.loads(args.override.read_text(encoding="utf-8"))
+    catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     for index, current in enumerate(catalog["lessons"]):
         if current["id"] == lesson["id"]:
             catalog["lessons"][index] = lesson
@@ -25,7 +25,7 @@ def main() -> int:
         raise KeyError(f"lesson {lesson['id']!r} is not in the catalog")
     CATALOG.write_text(
         json.dumps(catalog, indent=2, ensure_ascii=False) + "\n"
-    )
+    , encoding="utf-8")
     print(lesson["id"])
     return 0
 

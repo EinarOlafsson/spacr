@@ -18,7 +18,7 @@ def record_lineage(app,window,stage,captures,capture,settle,write_json,timeout):
     from spacr.qt.linked_selection import linked_selection,has_object_opener
     from spacr import lineage as lin
 
-    prepared=json.loads((Path(stage)/'lineage_state'/f'{Path(captures).name}.json').read_text())
+    prepared=json.loads((Path(stage)/'lineage_state'/f'{Path(captures).name}.json').read_text(encoding="utf-8"))
     database=Path(prepared['source']['database']);work=Path(prepared['work'])
     expected=read_expected(database)
     if expected['source_counts']!={'cell':2341,'nucleus':2682,'pathogen':2178}:

@@ -67,7 +67,7 @@ def main() -> int:
     })
     path = ROOT / "synthetic" / "motility" / "tutorial_settings.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(settings, indent=2) + "\n")
+    path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
     print(path)
     return 0
 

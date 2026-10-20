@@ -846,7 +846,7 @@ def test_a_cached_model_whose_environment_was_deleted_is_not_reused(
     env = tmp_path / "backend-environments" / "cellpose3"
     python = Path(backends._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("")
+    python.write_text("", encoding="utf-8")
     backends._write_marker(str(env), {"backend": "cellpose3"})
 
     built = []
@@ -946,7 +946,7 @@ def test_a_mode_is_ready_when_its_backend_environment_is(tmp_path,
     env = tmp_path / "backend-environments" / "cellpose3"
     python = Path(backends._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("")
+    python.write_text("", encoding="utf-8")
     backends._write_marker(str(env), {"backend": "cellpose3"})
     assert mm._backend_ready("cellpose3:cyto")
 

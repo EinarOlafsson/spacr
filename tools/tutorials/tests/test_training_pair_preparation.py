@@ -17,8 +17,8 @@ def original(tmp_path, *, cell_plane=4, dtype=np.uint16):
     source = tmp_path / 'original/merged'; source.mkdir(parents=True)
     settings = source.parent / 'settings'; settings.mkdir()
     (settings/'measure_crop_settings.csv').write_text(
-        f'Key,Value\ncell_mask_dim,{cell_plane}\nnucleus_mask_dim,5\npathogen_mask_dim,6\n')
-    (settings/'gen_mask_settings.csv').write_text('Key,Value\ncell_channel,1\n')
+        f'Key,Value\ncell_mask_dim,{cell_plane}\nnucleus_mask_dim,5\npathogen_mask_dim,6\n', encoding="utf-8")
+    (settings/'gen_mask_settings.csv').write_text('Key,Value\ncell_channel,1\n', encoding="utf-8")
     data = np.zeros((4,4,7),dtype=dtype)
     data[1:3,1:3,1] = [[11,12],[13,14]]
     data[1:3,1:3,4] = [[0,10],[20,30]]
@@ -46,8 +46,8 @@ def test_exact_cell_image_mask_pair_is_not_pathogen_and_preserves_source(tmp_pat
     assert manifest['pairs'][0]['objects']==3
     assert manifest['independent_annotation_review'] is False
     assert manifest['held_out_accuracy_validated'] is False
-    assert json.loads((destination/'source_manifest.json').read_text())==manifest
-    assert json.loads((destination/'tutorial_settings.json').read_text())['src']==str(destination)
+    assert json.loads((destination/'source_manifest.json').read_text(encoding="utf-8"))==manifest
+    assert json.loads((destination/'tutorial_settings.json').read_text(encoding="utf-8"))['src']==str(destination)
 
 
 def test_changed_recorded_compartment_refused_after_valid_counterpart(tmp_path):

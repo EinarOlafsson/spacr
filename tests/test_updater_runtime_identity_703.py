@@ -27,11 +27,11 @@ def runtime(tmp_path):
     shutil.copytree(packaging, site / 'packaging', ignore=shutil.ignore_patterns('__pycache__'))
     package = site / 'spacr'
     package.mkdir()
-    (package / '__init__.py').write_text('from ._version import __version__\n')
-    (package / '_version.py').write_text('__version__ = "1.5.1.5"\n')
+    (package / '__init__.py').write_text('from ._version import __version__\n', encoding="utf-8")
+    (package / '_version.py').write_text('__version__ = "1.5.1.5"\n', encoding="utf-8")
     info = site / 'spacr-1.5.1.5.dist-info'
     info.mkdir()
-    (info / 'METADATA').write_text('Metadata-Version: 2.1\nName: spacr\nVersion: 1.5.1.5\n')
+    (info / 'METADATA').write_text('Metadata-Version: 2.1\nName: spacr\nVersion: 1.5.1.5\n', encoding="utf-8")
     return root, python, package, info
 
 
@@ -39,14 +39,14 @@ def runtime(tmp_path):
 def test_runtime_probe_detects_wrong_code_owner_version_and_environment(runtime, tmp_path, failure):
     root, python, package, info = runtime
     if failure == 'version':
-        (package / '_version.py').write_text('__version__ = "1.5.1.4"\n')
+        (package / '_version.py').write_text('__version__ = "1.5.1.4"\n', encoding="utf-8")
     elif failure == 'metadata':
-        (info / 'METADATA').write_text('Metadata-Version: 2.1\nName: spacr\nVersion: 1.5.1.4\n')
+        (info / 'METADATA').write_text('Metadata-Version: 2.1\nName: spacr\nVersion: 1.5.1.4\n', encoding="utf-8")
     elif failure == 'shadow':
         shadow = tmp_path / 'obsolete application'
         shutil.copytree(package, shadow / 'spacr')
         (package.parent / 'old-copy.pth').write_text(
-            f'import sys; sys.path.insert(0, {str(shadow)!r})\n')
+            f'import sys; sys.path.insert(0, {str(shadow)!r})\n', encoding="utf-8")
     command = cleanup._runtime_identity_command(str(python), '1.5.1.5',
                                                prefix=str(tmp_path) if failure == 'prefix' else str(root))
     result = subprocess.run(command, capture_output=True, text=True, timeout=15)
@@ -175,7 +175,7 @@ def test_private_runtime_rejects_external_application_or_distribution(runtime, t
         shutil.move(str(package), str(outside / 'spacr'))
     if foreign in ('application-and-metadata', 'metadata'):
         shutil.move(str(info), str(outside / info.name))
-        (package.parent / 'foreign-wheel.pth').write_text(str(outside) + '\n')
+        (package.parent / 'foreign-wheel.pth').write_text(str(outside) + '\n', encoding="utf-8")
     if foreign == 'linked-metadata':
         shutil.move(str(info), str(outside / info.name))
         try:

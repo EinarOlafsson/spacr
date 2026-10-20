@@ -48,8 +48,8 @@ def test_the_images_step_runs_the_tool_in_the_tree(tmp_path, monkeypatch):
     release = _release()
     (tmp_path / "tools").mkdir()
     (tmp_path / "tools" / "build_readme_images.py").write_text(
-        "from pathlib import Path\nPath('built').write_text('yes')\n")
-    (tmp_path / "README.rst").write_text("x\n")
+        "from pathlib import Path\nPath('built').write_text('yes')\n", encoding="utf-8")
+    (tmp_path / "README.rst").write_text("x\n", encoding="utf-8")
     monkeypatch.setattr(release, "README_IMAGE_MODULES", ())
     assert release.rebuild_readme_images(tmp_path, "1.5.1.1") is True
     assert (tmp_path / "built").read_text(encoding="utf-8") == "yes"
@@ -60,8 +60,8 @@ def test_the_images_step_skips_without_its_modules_or_tool(tmp_path,
     release = _release()
     assert release.rebuild_readme_images(tmp_path, "1.5.1.1") is False
     (tmp_path / "tools").mkdir()
-    (tmp_path / "tools" / "build_readme_images.py").write_text("raise SystemExit(3)\n")
-    (tmp_path / "README.rst").write_text("x\n")
+    (tmp_path / "tools" / "build_readme_images.py").write_text("raise SystemExit(3)\n", encoding="utf-8")
+    (tmp_path / "README.rst").write_text("x\n", encoding="utf-8")
     monkeypatch.setattr(release, "README_IMAGE_MODULES", ("no_such_module_x",))
     assert release.rebuild_readme_images(tmp_path, "1.5.1.1") is False
     assert "no_such_module_x" in capsys.readouterr().err

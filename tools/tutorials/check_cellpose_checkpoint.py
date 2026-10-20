@@ -38,4 +38,4 @@ if __name__ == '__main__':
     report = compare(args.base, args.trained)
     print(json.dumps(report, indent=2))
     if args.output:
-        args.output.write_text(json.dumps(report, indent=2) + '\n')
+        args.output.write_text(json.dumps(report, indent=2) + '\n', encoding="utf-8")

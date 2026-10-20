@@ -56,7 +56,7 @@ def test_six_axis_tiff_and_foreign_files_leave_the_folder_alone(tmp_path):
                                ).reshape(2, 3, 4, 5, 6, 2))
     tifffile.imwrite(str(folder / "three.tif"),
                      np.arange(8 * 8 * 2, dtype=np.uint16).reshape(8, 8, 2))
-    (folder / "notes.txt").write_text("not an image")
+    (folder / "notes.txt").write_text("not an image", encoding="utf-8")
 
     process_non_tif_non_2D_images(str(folder))
 
@@ -292,7 +292,7 @@ def test_non_numeric_well_field_channel_and_time_tokens_survive(tmp_path):
     src = tmp_path / "plate1"
     src.mkdir()
     (src / "plateA-wellB-fieldC-chanD-timeE.tif").write_bytes(b"x")
-    (src / "readme.md").write_text("ignore me")
+    (src / "readme.md").write_text("ignore me", encoding="utf-8")
 
     regex = (r'(?P<plateID>[^-]+)-(?P<wellID>[^-]+)-(?P<fieldID>[^-]+)'
              r'-(?P<chanID>[^-]+)-(?P<timeID>[^.]+)')

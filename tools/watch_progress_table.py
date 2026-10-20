@@ -117,7 +117,7 @@ def main():
     root = Path(__file__).resolve().parents[1]
     args.output.mkdir(parents=True, exist_ok=True)
     saved = args.output / "state.json"
-    state = json.loads(saved.read_text()) if saved.exists() else {}
+    state = json.loads(saved.read_text(encoding="utf-8")) if saved.exists() else {}
     deadline = time.monotonic() + args.hours * 3600 if args.hours > 0 else float("inf")
     while True:
         try:

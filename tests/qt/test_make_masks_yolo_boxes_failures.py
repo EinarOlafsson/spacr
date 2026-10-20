@@ -80,7 +80,7 @@ def test_linked_source_with_box_ledger_still_warns(
     imageio.imwrite(source, np.zeros((64, 64), dtype=np.uint16))
     (folder / 'field.tif').symlink_to(source)
     (folder / engine.YOLO_ANNOTATIONS_NAME).write_text(
-        '{"version":1,"classes":["object"],"images":{}}')
+        '{"version":1,"classes":["object"],"images":{}}', encoding="utf-8")
     warnings = []
     monkeypatch.setattr(MakeMasksScreen, '_warn',
                         lambda self, title, message: warnings.append((title, message)))

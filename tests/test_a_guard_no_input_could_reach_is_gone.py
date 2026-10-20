@@ -778,7 +778,7 @@ def test_the_stack_builder_runs_whatever_extension_was_sniffed(tmp_path,
             _write_tif(src / name, _tiny_img(seed=i))
     else:
         # nothing with a recognised extension -> img_format sniffs to None
-        (src / "notes.txt").write_text("not an image")
+        (src / "notes.txt").write_text("not an image", encoding="utf-8")
         (src / "0").mkdir()
 
     seen = []

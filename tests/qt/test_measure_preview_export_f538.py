@@ -81,9 +81,9 @@ def test_existing_destinations_are_never_replaced(tmp_path, kind):
     if kind in {'empty', 'populated'}:
         destination.mkdir()
         if kind == 'populated':
-            (destination / 'keep').write_text('original')
+            (destination / 'keep').write_text('original', encoding="utf-8")
     elif kind == 'file':
-        destination.write_text('original')
+        destination.write_text('original', encoding="utf-8")
     else:
         destination.symlink_to(tmp_path / 'missing')
     result = mp._write_preview_crop_export(destination, [_entry()], {}, 'rgb', threading.Event())

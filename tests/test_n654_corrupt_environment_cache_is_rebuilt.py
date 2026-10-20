@@ -53,7 +53,7 @@ def test_valid_pip_cache_without_conda_is_reused(tmp_path, monkeypatch):
     digest = journal._environment_digest(packages)
     store = root.parent / 'env_locks' / digest[:32]
     store.mkdir(parents=True)
-    (store / journal._PIP_LOCK_NAME).write_text('pkg==2\n')
+    (store / journal._PIP_LOCK_NAME).write_text('pkg==2\n', encoding="utf-8")
 
     def unexpected(*args):
         raise AssertionError('a valid cache must not rerun an environment command')

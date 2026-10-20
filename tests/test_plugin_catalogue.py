@@ -87,7 +87,7 @@ def _catalogue(folder, version="1.0.0", **extra):
             "settings": {"channels": [0, 1, 2], "cell_mask_dim": 4},
         }],
     }
-    (folder / "catalogue.json").write_text(json.dumps(data))
+    (folder / "catalogue.json").write_text(json.dumps(data), encoding="utf-8")
     return folder
 
 
@@ -190,12 +190,12 @@ def test_bad_checksums_and_incompatible_plugins_are_refused(tmp_path, home):
 
 def test_malformed_catalogues_say_what_is_wrong(tmp_path, monkeypatch):
     path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps({"plugins": [{"key": "x1", "name": "X"}]}))
+    path.write_text(json.dumps({"plugins": [{"key": "x1", "name": "X"}]}), encoding="utf-8")
     with pytest.raises(ValueError, match="version"):
         plugins._read_catalogue(path)
     path.write_text(json.dumps({"recipes": [
         {"key": "r1", "name": "R", "version": "1", "settings": {"a": 1}},
-        {"key": "r1", "name": "S", "version": "1", "settings": {"a": 1}}]}))
+        {"key": "r1", "name": "S", "version": "1", "settings": {"a": 1}}]}), encoding="utf-8")
     with pytest.raises(ValueError, match="repeats"):
         plugins._read_catalogue(tmp_path)
     monkeypatch.delenv("SPACR_PLUGIN_CATALOGUE", raising=False)
@@ -315,7 +315,7 @@ def test_a_malformed_catalogue_row_says_what_is_wrong(tmp_path, row, error,
 def test_a_malformed_catalogue_file_says_what_is_wrong(tmp_path, document,
                                                        match):
     path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps(document))
+    path.write_text(json.dumps(document), encoding="utf-8")
     with pytest.raises(ValueError, match=match):
         plugins._read_catalogue(path)
 
@@ -370,13 +370,13 @@ def test_a_plugins_requirements_are_installed_beside_it(tmp_path, home,
 def test_a_recipe_from_a_file_must_hold_a_settings_object(tmp_path, home):
     source = tmp_path / "cat"
     source.mkdir()
-    (source / "listy.json").write_text(json.dumps([1, 2]))
-    (source / "good.json").write_text(json.dumps({"channels": [0]}))
+    (source / "listy.json").write_text(json.dumps([1, 2]), encoding="utf-8")
+    (source / "good.json").write_text(json.dumps({"channels": [0]}), encoding="utf-8")
     (source / "catalogue.json").write_text(json.dumps({"recipes": [
         {"key": "listy", "name": "Listy", "version": "1",
          "source": "listy.json"},
         {"key": "good", "name": "Good", "version": "1",
-         "source": "good.json"}]}))
+         "source": "good.json"}]}), encoding="utf-8")
     with pytest.raises(ValueError, match="is not a settings object"):
         plugins._install_from_catalogue("listy", source)
     record = plugins._install_from_catalogue("good", source)
@@ -432,7 +432,7 @@ def test_a_failed_install_from_a_requirement_leaves_no_staging_folder(
     source.mkdir()
     (source / "catalogue.json").write_text(json.dumps({"plugins": [{
         "key": "from_pypi", "name": "From PyPI", "version": "1",
-        "source": "spacr-probe-plugin>=1", "entry": "probe:plugin"}]}))
+        "source": "spacr-probe-plugin>=1", "entry": "probe:plugin"}]}), encoding="utf-8")
     seen = []
 
     def pip(arguments, runner=None):

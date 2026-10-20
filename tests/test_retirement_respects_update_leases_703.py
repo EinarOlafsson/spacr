@@ -21,7 +21,7 @@ def _installer(tmp_path, root):
     script = tmp_path / 'installer.sh'
     script.write_text('set -Eeuo pipefail\nPLATFORM=linux\n'
                       'spacr_say() { printf "%s\\n" "$*" >&2; }\n' + block +
-                      '\nprintf "ready\\n"\nread -r finish\n')
+                      '\nprintf "ready\\n"\nread -r finish\n', encoding="utf-8")
     return ['bash', str(script)], dict(os.environ, INSTALL_ROOT=str(root), HOME=str(tmp_path / 'home'))
 
 
@@ -30,11 +30,11 @@ def installation(tmp_path, monkeypatch):
     monkeypatch.setenv('SPACR_LANGUAGE', 'en')
     root = tmp_path / 'application'
     (root / 'venv/lib').mkdir(parents=True)
-    (root / 'venv/lib/spacr.py').write_text('original runtime')
+    (root / 'venv/lib/spacr.py').write_text('original runtime', encoding="utf-8")
     (root / 'cache').mkdir()
-    (root / 'cache/model').write_text('weights')
+    (root / 'cache/model').write_text('weights', encoding="utf-8")
     launcher = tmp_path / 'spacr'
-    launcher.write_text(str(root / 'venv/bin/python'))
+    launcher.write_text(str(root / 'venv/bin/python'), encoding="utf-8")
     machine = ic._Machine(platform='linux', fs_root=str(tmp_path),
                           environ={'HOME': str(tmp_path / 'home')}, running_prefix=None)
     record = ic.InstallRecord(kind='installer', layout='linux-online', platform='linux',
@@ -92,12 +92,12 @@ def test_existing_unknown_or_interrupted_outer_lease_is_preserved(installation, 
     lease = root.parent / ('.' + root.name + '.spacr-installer-lock')
     if kind == 'directory':
         lease.mkdir()
-        (lease / 'evidence').write_text('retain')
+        (lease / 'evidence').write_text('retain', encoding="utf-8")
     elif kind == 'file':
-        lease.write_text('unknown owner')
+        lease.write_text('unknown owner', encoding="utf-8")
     else:
         target = tmp_path / 'user-file'
-        target.write_text('preserve')
+        target.write_text('preserve', encoding="utf-8")
         lease.symlink_to(target)
     before = lease.lstat()
     report = ic.remove_install(record, system=machine)
@@ -111,7 +111,7 @@ def test_existing_private_update_lease_refuses_before_removal_and_releases_only_
     root, launcher, machine, record = installation
     lease = root / '.venv.spacr-update-lock'
     lease.mkdir()
-    (lease / 'journal').write_text('interrupted update proof')
+    (lease / 'journal').write_text('interrupted update proof', encoding="utf-8")
     report = ic.remove_install(record, system=machine)
     assert not report.ok and not report.removed
     assert (lease / 'journal').read_text(encoding="utf-8") == 'interrupted update proof'
@@ -202,10 +202,10 @@ def test_retirement_release_never_removes_a_replaced_outer_lease(installation, t
         if path == str(root):
             lease.rename(retained)
             if platform == 'windows':
-                lease.write_text('other owner')
+                lease.write_text('other owner', encoding="utf-8")
             else:
                 lease.mkdir()
-                (lease / 'proof').write_text('other owner')
+                (lease / 'proof').write_text('other owner', encoding="utf-8")
         return original(path, *args)
 
     monkeypatch.setattr(ic, '_delete', replace_during_delete)

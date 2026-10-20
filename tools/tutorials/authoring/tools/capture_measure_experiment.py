@@ -409,7 +409,7 @@ def main() -> int:
         "captures": sorted(capture.frames),
     }
     (OUTPUT.parent / "source_manifest.json").write_text(
-        json.dumps(manifest, indent=2, default=str) + "\n")
+        json.dumps(manifest, indent=2, default=str) + "\n", encoding="utf-8")
 
     panel.shutdown()
     window.close()

@@ -26,7 +26,7 @@ def loaded(widget, tmp_path):
     crops = np.arange(4 * 3 * 3 * 3, dtype=np.uint16).reshape(4, 3, 3, 3)
     widget.set_crops(crops)
     artifact = tmp_path / 'own-classifier.pt'
-    artifact.write_text('Inert adapter boundary; never decode this fixture')
+    artifact.write_text('Inert adapter boundary; never decode this fixture', encoding="utf-8")
     return crops, str(artifact)
 
 

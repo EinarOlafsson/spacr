@@ -765,13 +765,13 @@ class TestReadRecordedSettings:
 
     def test_reads_a_key_value_csv(self, tmp_path):
         path = tmp_path / 'gen_mask_settings.csv'
-        path.write_text('Key,Value\ncell_channel,0\nnucleus_channel,1\n')
+        path.write_text('Key,Value\ncell_channel,0\nnucleus_channel,1\n', encoding="utf-8")
         assert read_recorded_settings(str(path)) == {'cell_channel': '0',
                                                      'nucleus_channel': '1'}
 
     def test_reads_a_settings_json(self, tmp_path):
         path = tmp_path / 'settings.json'
-        path.write_text('{"cell_mask_dim": 4}')
+        path.write_text('{"cell_mask_dim": 4}', encoding="utf-8")
         assert read_recorded_settings(str(path)) == {'cell_mask_dim': 4}
 
     def test_missing_and_empty_sources_read_as_empty(self, tmp_path):
@@ -779,7 +779,7 @@ class TestReadRecordedSettings:
         assert read_recorded_settings(str(tmp_path / 'nope.db')) == {}
         assert read_recorded_settings(str(tmp_path / 'nope.txt')) == {}
         other = tmp_path / 'x.txt'
-        other.write_text('hi')
+        other.write_text('hi', encoding="utf-8")
         assert read_recorded_settings(str(other)) == {}
 
 

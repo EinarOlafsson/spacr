@@ -27,14 +27,14 @@ def test_prepared_scope_requires_explicit_review(tmp_path, monkeypatch):
 @pytest.mark.parametrize("tests,failed,errors,skipped", [(0,0,0,0),(2,1,0,0),(2,0,1,0),(2,0,0,1)])
 def test_empty_failed_or_skipped_checks_never_finish_an_item(tmp_path, tests, failed, errors, skipped):
     path = tmp_path / "result.xml"
-    path.write_text(f'<testsuites><testsuite tests="{tests}" failures="{failed}" errors="{errors}" skipped="{skipped}"/></testsuites>')
+    path.write_text(f'<testsuites><testsuite tests="{tests}" failures="{failed}" errors="{errors}" skipped="{skipped}"/></testsuites>', encoding="utf-8")
     with pytest.raises(ValueError):
         publisher.counts(path)
 
 
 def test_real_passing_counts_are_retained(tmp_path):
     path = tmp_path / "result.xml"
-    path.write_text('<testsuites><testsuite tests="3" failures="0" errors="0" skipped="0"/></testsuites>')
+    path.write_text('<testsuites><testsuite tests="3" failures="0" errors="0" skipped="0"/></testsuites>', encoding="utf-8")
     assert publisher.counts(path) == dict(tests=3, failures=0, errors=0, skipped=0)
 
 
@@ -52,7 +52,7 @@ def test_unrelated_work_is_never_staged(tmp_path, monkeypatch):
     root = tmp_path / "private"
     root.mkdir()
     item = root / "item.txt"
-    item.write_text("Status: COMPLETE 100%\n")
+    item.write_text("Status: COMPLETE 100%\n", encoding="utf-8")
     def fake_git(root, *args):
         return {"rev-parse": "base", "branch": "private", "status": " M item.txt\n M unrelated.txt"}[args[0]]
     monkeypatch.setattr(publisher, "git", fake_git)
@@ -64,7 +64,7 @@ def test_unrelated_work_is_never_staged(tmp_path, monkeypatch):
 
 def test_failed_test_command_never_commits_or_pushes(tmp_path, monkeypatch):
     manifest = tmp_path / "failure.job.json"
-    manifest.write_text(json.dumps(dict(tests=["tests/test_example.py"])))
+    manifest.write_text(json.dumps(dict(tests=["tests/test_example.py"])), encoding="utf-8")
     monkeypatch.setattr(publisher, "validate", lambda job: tmp_path)
     monkeypatch.setattr(publisher.subprocess, "Popen", lambda *a, **kw: SimpleNamespace(pid=12345, wait=lambda timeout: 1))
     mutations = []

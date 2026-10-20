@@ -146,7 +146,7 @@ def _write_run_dir(root: Path, src: Path, app_key="mask", status="success",
     payload = {"src": str(src), "channels": [0, 1, 2], "cell_diameter": 30,
                "magnification": 20, "plot": True}
     payload.update(settings or {})
-    (run_dir / "settings.json").write_text(json.dumps(payload, default=str))
+    (run_dir / "settings.json").write_text(json.dumps(payload, default=str), encoding="utf-8")
     manifest = {
         "app_key": app_key,
         "start_utc": "2026-07-01T10:00:00+00:00",
@@ -162,7 +162,7 @@ def _write_run_dir(root: Path, src: Path, app_key="mask", status="success",
                       if status == "failed" else None),
     }
     manifest.update(manifest_extra or {})
-    (run_dir / "manifest.json").write_text(json.dumps(manifest, default=str))
+    (run_dir / "manifest.json").write_text(json.dumps(manifest, default=str), encoding="utf-8")
     return run_dir
 
 
@@ -313,7 +313,7 @@ def test_a_complete_stamp_reads_as_complete(tmp_path):
 def test_a_json_sidecar_stamp_is_read_too(tmp_path):
     src = tmp_path / "plate_sidecar"
     (src / "results").mkdir(parents=True)
-    (src / "results" / "wells.csv").write_text("well,value\nA01,1\n")
+    (src / "results" / "wells.csv").write_text("well,value\nA01,1\n", encoding="utf-8")
     (src / "results" / "wells.run_status.json").write_text(json.dumps({
         "run_id": "r2", "name": "convert_to_yokogawa", "status": "partial",
         "n_attempted": 40, "n_succeeded": 38, "n_failed": 2,
@@ -321,7 +321,7 @@ def test_a_json_sidecar_stamp_is_read_too(tmp_path):
         "failures": [{"item": "img_07.nd2", "stage": "convert",
                       "error": "OSError: truncated"}],
         "summary": "2 of 40 images failed to convert",
-    }))
+    }), encoding="utf-8")
     report = collect_report(src, run_dirs=[])
     assert report.status == "partial"
     assert "img_07.nd2" in report.sections[0].body_html

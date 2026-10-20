@@ -327,7 +327,7 @@ def main(argv=None) -> int:
                                 "claim. Software-renderer timings are not GPU timings."),
               "all_passed": ok, "rows": rows}
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2) + "\n")
+    args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return 0 if ok else 1
 
 

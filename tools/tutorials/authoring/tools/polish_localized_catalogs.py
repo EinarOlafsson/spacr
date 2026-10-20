@@ -342,11 +342,11 @@ def main() -> int:
     )
     args = parser.parse_args()
     requested_lessons = set(args.lessons) if args.lessons else None
-    english = json.loads((CATALOG / "lessons_en.json").read_text())
+    english = json.loads((CATALOG / "lessons_en.json").read_text(encoding="utf-8"))
     english_by_id = {lesson["id"]: lesson for lesson in english["lessons"]}
     for language in args.languages:
         path = CATALOG / f"lessons_{language}.json"
-        localized = json.loads(path.read_text())
+        localized = json.loads(path.read_text(encoding="utf-8"))
         for series in localized["series"]:
             series["title"] = replace_glossary(series["title"], language)
         for lesson in localized["lessons"]:
@@ -405,7 +405,7 @@ def main() -> int:
                     if not scene["narration"].startswith(prefix):
                         scene["narration"] = f"{prefix} {scene['narration']}"
                 scene["speech_text"] = speech_text(scene["narration"], language)
-        path.write_text(json.dumps(localized, indent=2, ensure_ascii=False) + "\n")
+        path.write_text(json.dumps(localized, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print(path)
     return 0
 

@@ -277,7 +277,7 @@ def test_a_header_that_cannot_be_read_is_no_header_at_all(tmp_path):
 def test_a_data_csv_with_no_file_input_to_take_it_routes_nowhere(
         qtbot, tmp_path):
     data = tmp_path / "data.csv"
-    data.write_text("alpha,beta\n1,2\n")
+    data.write_text("alpha,beta\n1,2\n", encoding="utf-8")
 
     class Model:
         pass
@@ -295,7 +295,7 @@ def test_a_routed_data_csv_is_announced_in_the_console(qtbot, tmp_path):
     from spacr.qt.widgets.file_list import FilePathListWidget
 
     data = tmp_path / "plate1_dv.csv"
-    data.write_text("path,pred,plate,row,col\na,0.5,p1,r1,c1\n")
+    data.write_text("path,pred,plate,row,col\na,0.5,p1,r1,c1\n", encoding="utf-8")
 
     class Model:
         pass
@@ -324,7 +324,7 @@ def test_a_screen_that_imports_no_settings_ignores_the_drop(tmp_path):
         pass
 
     csv_path = tmp_path / "settings.csv"
-    csv_path.write_text("Key,Value\nsrc,/tmp\n")
+    csv_path.write_text("Key,Value\nsrc,/tmp\n", encoding="utf-8")
     assert dnd._apply_settings_csv(csv_path, Screen()) is None
 
 
@@ -332,7 +332,7 @@ def test_a_settings_csv_that_will_not_load_says_so_in_a_dialog(
         qtbot, monkeypatch, tmp_path):
     """The failure reaches both the console report and a real message box."""
     csv_path = tmp_path / "settings.csv"
-    csv_path.write_text("Key,Value\nsrc,/tmp\n")
+    csv_path.write_text("Key,Value\nsrc,/tmp\n", encoding="utf-8")
 
     import spacr.utils
 
@@ -364,7 +364,7 @@ def test_a_settings_csv_that_will_not_load_says_so_in_a_dialog(
 def test_a_settings_csv_in_the_second_spelling_still_imports(
         qtbot, tmp_path):
     csv_path = tmp_path / "settings.csv"
-    csv_path.write_text("setting_key,setting_value\nsrc,/tmp/data\n")
+    csv_path.write_text("setting_key,setting_value\nsrc,/tmp/data\n", encoding="utf-8")
 
     class Screen(QWidget):
         def __init__(self):

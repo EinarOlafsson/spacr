@@ -14,7 +14,7 @@ from test_player_holds_narration import served, CHROME, PAGE
 def test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries(served,tmp_path):
     from playwright.sync_api import sync_playwright
     url,handler=served
-    script=(PAGE/'lesson_catalog.js').read_text()
+    script=(PAGE/'lesson_catalog.js').read_text(encoding="utf-8")
     catalog=json.loads(script[script.index('Object.freeze(')+len('Object.freeze('):script.rindex(');')])
     identity=url.split('lesson=')[1];lesson=next(row for row in catalog['lessons'] if row['id']==identity)
     count=len(lesson['scenes']);native_step=60/count;audio_step=native_step*.6
@@ -28,15 +28,15 @@ def test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries(served,t
                          'duration':audio_step-.1,'text':scene['narration']}]}
           for i,scene in enumerate(lesson['scenes'])]
     timing=tmp_path/'short-native-test-timings.json';timing.write_text(json.dumps({'schema':1,
-        'language':'en','voice':'af_heart','total_duration':audio_step*count,'scenes':rows}))
+        'language':'en','voice':'af_heart','total_duration':audio_step*count,'scenes':rows}), encoding="utf-8")
     native=tmp_path/'native-test-visual-timings.json';native.write_text(json.dumps({
         'kind':'native_visual_timing','native_live_video':True,'coverage':{'accepted':True},
         'total_duration':60,'scenes':[dict(row,speech_start=i*native_step,
            speech_end=(i+1)*native_step,scene_end=(i+1)*native_step,
-           duration=native_step,native_live_video=True) for i,row in enumerate(rows)]}))
+           duration=native_step,native_live_video=True) for i,row in enumerate(rows)]}), encoding="utf-8")
     lesson['visual_timings']=f'{identity}/video/native-live-timings.json'
     catalog_path=tmp_path/'native-test-lesson-catalog.js';catalog_path.write_text(
-        'window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');')
+        'window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');', encoding="utf-8")
     handler.routes.update({'/web/lesson_catalog.js':(catalog_path,'application/javascript'),
         f'/media_host/{identity}/audio/en/af_heart.m4a':(audio,'audio/mp4'),
         f'/media_host/{identity}/audio/en/af_heart.json':(timing,'application/json'),
@@ -94,11 +94,11 @@ def test_native_video_guard_rejects_disabled_frame_sync(served,tmp_path):
     """Frame-ordered observations still reject a missing boundary correction."""
     from test_player_holds_narration import PLAYER
     url,handler=served
-    source=PLAYER.read_text()
+    source=PLAYER.read_text(encoding="utf-8")
     needle='function startNativeFrameSync() {'
     assert source.count(needle)==1
     disabled=tmp_path/'disabled-native-frame-sync.js'
-    disabled.write_text(source.replace(needle,needle+'\n  return;'))
+    disabled.write_text(source.replace(needle,needle+'\n  return;'), encoding="utf-8")
     handler.routes['/web/app_v2.js']=(disabled,'application/javascript')
     with pytest.raises(AssertionError,match="'audio':"):
         test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries((url,handler),tmp_path)

@@ -128,7 +128,7 @@ def test_returns_early_when_src_has_no_npz(tmp_path, capsys):
     """No .npz in src -> print + return before the database is created."""
     src = tmp_path / "masks"
     src.mkdir()
-    (src / "not_a_stack.txt").write_text("ignored")
+    (src / "not_a_stack.txt").write_text("ignored", encoding="utf-8")
 
     assert _run(src, _base_settings()) is None
 

@@ -271,6 +271,7 @@ def test_raw_images_are_reported_as_the_largest_thing_nobody_registered(
     assert usage.unregistered_bytes >= row.size_bytes
 
 
+@pytest.mark.needs_symlink
 def test_a_symlink_is_reported_and_never_walked_into(tmp_path):
     """A link into somebody else's storage is not this project's bytes."""
     outside = tmp_path / "shared"

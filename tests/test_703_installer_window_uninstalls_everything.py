@@ -134,6 +134,6 @@ def test_an_update_error_with_a_traceback_is_shown_as_one_sentence(tmp_path, mon
     assert str(log_path()) in shown
     update_log = tmp_path / ".spacr" / "logs" / "update.log"
     update_log.parent.mkdir(parents=True, exist_ok=True)
-    update_log.write_text("helper report\n")
+    update_log.write_text("helper report\n", encoding="utf-8")
     assert str(update_log) in MainWindow._removal_reason_text(why)
     assert MainWindow._removal_reason_text("Plain reason.") == "Plain reason."

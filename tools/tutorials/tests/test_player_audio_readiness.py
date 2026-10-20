@@ -132,9 +132,9 @@ def test_audio_decoder_wait_holds_both_clocks_without_a_catchup_seek(served, tmp
     if not complete_native:
         path = next(path for name, (path, _) in served[1].routes.items()
                     if name.endswith('/video/native-live-timings.json'))
-        legacy = json.loads(path.read_text())
+        legacy = json.loads(path.read_text(encoding="utf-8"))
         legacy.pop('complete_native_clips')
-        path.write_text(json.dumps(legacy))
+        path.write_text(json.dumps(legacy), encoding="utf-8")
     with sync_playwright() as engine:
         browser = engine.chromium.launch(executable_path=str(CHROME), headless=True,
             args=['--disable-gpu', '--disable-accelerated-video-decode',

@@ -370,7 +370,7 @@ def test_a_folder_that_is_not_a_folder_is_reported_inline(screen, tmp_path):
 
 def test_a_file_given_as_a_run_folder_is_reported_inline(screen, tmp_path):
     target = tmp_path / "a_file.txt"
-    target.write_text("not a folder")
+    target.write_text("not a folder", encoding="utf-8")
     screen.set_source(str(target))
     assert screen.scan() is False
     assert "Not a folder" in screen.last_error

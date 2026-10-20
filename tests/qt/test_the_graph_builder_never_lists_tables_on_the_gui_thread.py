@@ -175,7 +175,7 @@ def test_a_csv_is_never_opened_as_a_database(qtbot, tmp_path, monkeypatch):
     screen would report "could not read" for a file it reads perfectly well.
     """
     csv = tmp_path / "plate.csv"
-    csv.write_text("a,b\n1,2\n")
+    csv.write_text("a,b\n1,2\n", encoding="utf-8")
 
     asked = []
     monkeypatch.setattr("spacr.qt.screens.graph_builder.table_names",

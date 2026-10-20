@@ -162,6 +162,7 @@ def test_without_a_registry_the_input_survival_rule_cannot_be_applied(project):
 # _enumerate / PrunePlan.file_list
 # ---------------------------------------------------------------------------
 
+@pytest.mark.needs_symlink
 def test_a_symlinked_file_inside_a_candidate_is_not_listed_for_deletion(
         tmp_path):
     """A link dropped into a folder is not one of the folder's files.

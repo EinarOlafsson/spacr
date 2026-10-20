@@ -435,7 +435,7 @@ class TestQueue:
         old = sorted(cr._queue_dir().glob("*.json"))[0]
         entry = json.loads(old.read_text(encoding="utf-8"))
         entry["queued_at"] = time.time() - cr.QUEUE_RETENTION_S - 60
-        old.write_text(json.dumps(entry))
+        old.write_text(json.dumps(entry), encoding="utf-8")
         assert [s["message"] for s in cr.queued_summaries()] == ["new"]
         assert cr.QUEUE_RETENTION_S == 7 * 24 * 3600
 

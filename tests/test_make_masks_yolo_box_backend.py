@@ -125,12 +125,12 @@ def test_path_escape_and_corrupted_ledger_are_refused(tmp_path):
         with pytest.raises(ValueError):
             engine.load_yolo_boxes(inside, name, (10, 10))
     ledger = inside / engine.YOLO_ANNOTATIONS_NAME
-    ledger.write_text('{"version":1,"classes":["object"],"images":{},"images":{}}')
+    ledger.write_text('{"version":1,"classes":["object"],"images":{},"images":{}}', encoding="utf-8")
     with pytest.raises(ValueError, match="duplicate"):
         engine.load_yolo_boxes(inside, "field.tif", (10, 10))
     ledger.write_text('{"version":1,"classes":["object"],"images":'
                       '{"../outside.tif":{"shape":[10,10],'
-                      '"source_sha256":"' + "0" * 64 + '","boxes":[]}}}')
+                      '"source_sha256":"' + "0" * 64 + '","boxes":[]}}}', encoding="utf-8")
     with pytest.raises(ValueError, match="record"):
         engine.save_yolo_boxes(inside, "field.tif", (10, 10), [], ["object"])
 
@@ -292,7 +292,7 @@ def test_busy_project_lock_preserves_both_fields_after_retry(tmp_path,
 def test_abandoned_or_unsafe_project_lock_is_not_stolen(tmp_path):
     _source(tmp_path)
     lock = tmp_path / (engine.YOLO_ANNOTATIONS_NAME + ".lock")
-    lock.write_text("other writer")
+    lock.write_text("other writer", encoding="utf-8")
     with pytest.raises(ValueError, match="busy"):
         engine.save_yolo_boxes(tmp_path, "field.tif", (10, 10), [], ["object"])
     assert lock.read_text(encoding="utf-8") == "other writer"

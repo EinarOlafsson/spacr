@@ -22,7 +22,7 @@ import pytest
 @pytest.fixture
 def nowhere(tmp_path):
     """A folder with neither a ``*_png`` route nor a ``merged/`` one."""
-    (tmp_path / "notes.txt").write_text("nothing a crop can be cut from")
+    (tmp_path / "notes.txt").write_text("nothing a crop can be cut from", encoding="utf-8")
     return tmp_path
 
 
@@ -34,7 +34,7 @@ def somewhere(tmp_path):
     merged.mkdir(parents=True)
     np.save(merged / "plate1_A01_F001.npy", np.zeros((4, 4, 2), dtype=np.uint16))
     (merged / "channel_order.json").write_text(
-        '{"image_channels": ["dapi"], "mask_channels": ["cell"]}')
+        '{"image_channels": ["dapi"], "mask_channels": ["cell"]}', encoding="utf-8")
     return root
 
 

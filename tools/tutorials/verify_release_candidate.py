@@ -88,7 +88,7 @@ def verify(root, *, placeholders_only=False, published=None):
     validate(root, include_hosted_media=published is None)
     records = {r['path']: r for r in read(root / 'release-manifest.json')['files']}
     hosted_web = {lesson['id']: lesson['web'] for lesson in parse_javascript(
-        (root / 'web/lesson_catalog.js').read_text())['lessons'] if 'web' in lesson}
+        (root / 'web/lesson_catalog.js').read_text(encoding="utf-8"))['lessons'] if 'web' in lesson}
     if published is None:
         served, entry, media_root = root, '/web/', None
     else:

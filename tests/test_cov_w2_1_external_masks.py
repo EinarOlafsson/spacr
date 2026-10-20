@@ -132,7 +132,7 @@ def test_a_single_supported_file_is_its_own_group(tmp_path):
 def test_an_unsupported_file_contributes_nothing(tmp_path):
     """A README dropped alongside the images is not an image."""
     notes = tmp_path / "README.txt"
-    notes.write_text("segmented in ilastik\n")
+    notes.write_text("segmented in ilastik\n", encoding="utf-8")
 
     assert em.detect_inputs([notes]) == []
 

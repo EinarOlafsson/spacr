@@ -265,7 +265,7 @@ class HashCache:
         self.path = path
         self.rows = {}
         if path.exists():
-            for line in path.read_text().splitlines():
+            for line in path.read_text(encoding="utf-8").splitlines():
                 row = json.loads(line)
                 self.rows[row["key"]] = row
         self.handle = open(path, "a")
@@ -402,7 +402,7 @@ def mr_inventory(work: Path):
     if not cache.exists():
         wait_for_ram(8)
         say("reading prepared_review.json (one-off)")
-        data = json.loads((MR / "prepared_review.json").read_text())
+        data = json.loads((MR / "prepared_review.json").read_text(encoding="utf-8"))
         with open(cache, "w", newline="") as handle:
             w = csv.writer(handle)
             w.writerow(["id", "review_stem", "review_image", "domain", "eligibility", "group", "shape",
@@ -943,7 +943,7 @@ def main(argv=None):
         curated_by_ledger=dict(collections.Counter(r["mask_origin"] for r in manifest_rows if r["curated"] == "yes")),
         duplicate_reasons=dict(collections.Counter(w.split(" (")[0] for _, _, w in duplicates)),
         excluded_reasons=dict(collections.Counter(excluded.values())))
-    (out / "build_summary.json").write_text(json.dumps(summary, indent=1))
+    (out / "build_summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
     by_source = collections.Counter()
     for e in entries:
         by_source[e["ledger"]] += 1
@@ -1012,7 +1012,7 @@ def build_variant(args) -> int:
     run_info = {}
     for name in ("drafts_run.json",):
         if (args.drafts_from / name).exists():
-            run_info = json.loads((args.drafts_from / name).read_text())
+            run_info = json.loads((args.drafts_from / name).read_text(encoding="utf-8"))
     model = run_info.get("model") or args.draft_model
     settings = run_info.get("settings_text") or args.draft_settings
     decided = {"done", "skip", "recropped"}
@@ -1087,7 +1087,7 @@ def build_variant(args) -> int:
                    decided=collections.Counter((x.get("state") or "").lower() for x in status_out.values()),
                    with_variant_draft=sum(d["mask_origin"].startswith("draft:") for d in drafts_out),
                    without_mask=len(missing), drafts_run=run_info)
-    (variant / "build_summary.json").write_text(json.dumps(summary, indent=1, default=str))
+    (variant / "build_summary.json").write_text(json.dumps(summary, indent=1, default=str), encoding="utf-8")
     (variant / "README.txt").write_text(f"""PLAQUE ALL, {args.variant} drafts (built {dt.date.today().isoformat()})
 
 The same {len(manifest_out)} images as {base.name} (hard links on Home; Syncthing
@@ -1158,9 +1158,9 @@ def make_drafts(args) -> int:
             info["errors"].append(dict(stem=r["stem"], error=repr(exc)))
         if i % 200 == 0:
             say(f"  drafts {i}/{len(rows)}: {info['drawn']} drawn, {len(info['errors'])} errors")
-            (out / "drafts_run.json").write_text(json.dumps(info, indent=1))
+            (out / "drafts_run.json").write_text(json.dumps(info, indent=1), encoding="utf-8")
     info["finished"] = dt.datetime.now().isoformat(timespec="seconds")
-    (out / "drafts_run.json").write_text(json.dumps(info, indent=1))
+    (out / "drafts_run.json").write_text(json.dumps(info, indent=1), encoding="utf-8")
     say(f"drafts done: {info['drawn']} drawn, {info['skipped_existing']} already there, {len(info['errors'])} errors")
     return 0 if not info["errors"] else 1
 

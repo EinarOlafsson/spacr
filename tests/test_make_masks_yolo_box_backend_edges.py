@@ -52,7 +52,7 @@ def test_source_folder_and_source_entry_must_be_files_of_the_right_kind(tmp_path
 def test_corrupt_project_ledger_is_never_replaced(tmp_path, ledger):
     (tmp_path / "field.tif").write_bytes(b"source image")
     path = tmp_path / engine.YOLO_ANNOTATIONS_NAME
-    path.write_text(ledger if isinstance(ledger, str) else json.dumps(ledger))
+    path.write_text(ledger if isinstance(ledger, str) else json.dumps(ledger), encoding="utf-8")
     before = path.read_bytes()
 
     with pytest.raises(ValueError):
@@ -86,7 +86,7 @@ def test_export_refuses_bad_paths_symlinks_and_corrupt_class_metadata(tmp_path):
     assert outside.read_bytes() == b"keep"
     metadata.unlink()
 
-    metadata.write_text('{"classes": ["object"], "unexpected": true}')
+    metadata.write_text('{"classes": ["object"], "unexpected": true}', encoding="utf-8")
     before = metadata.read_bytes()
     with pytest.raises(ValueError, match="class metadata"):
         engine.export_yolo_boxes(label, boxes, (10, 10), classes)

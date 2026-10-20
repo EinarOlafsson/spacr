@@ -142,7 +142,7 @@ def test_the_inputs_are_read_from_the_top_of_a_folder(tmp_path):
     _png(tmp_path / "mixed" / "deeper" / "p2.png")
     paper = tmp_path / "paper"
     _png(paper / "fig1.png")
-    (paper / PP.LEGENDS_FILE).write_text("file,legend\n")
+    (paper / PP.LEGENDS_FILE).write_text("file,legend\n", encoding="utf-8")
     pdfs, images, papers = dh.plaque_inputs([tmp_path / "mixed", paper])
     assert [p.name for p in pdfs] == ["a.pdf", "b.pdf"]
     assert [p.name for p in images] == ["p1.png"]
@@ -315,7 +315,7 @@ def test_a_paper_folder_in_figure_mode_asks_nothing(plaque_screen, tmp_path,
     asked = answer()
     paper = tmp_path / "paper"
     _png(paper / "fig1.png")
-    (paper / PP.PAPER_FILE).write_text("{}")
+    (paper / PP.PAPER_FILE).write_text("{}", encoding="utf-8")
     plaque_screen._settings_model._widgets["src"].setText(str(paper))
     _settle()
     assert asked.boxes == []
@@ -385,7 +385,7 @@ def _fake_runner(record):
         if argv[1:3] == ("-m", "venv"):
             python = Path(SB._env_python(argv[3]))
             python.parent.mkdir(parents=True, exist_ok=True)
-            python.write_text("")
+            python.write_text("", encoding="utf-8")
         if "--selftest" in argv:
             return 0, [json.dumps({"ok": True, "python": "3.12.0",
                                    "packages": {}, "device": "cpu"})]
@@ -400,7 +400,7 @@ def test_reinstall_builds_an_installed_reader_again(tmp_path, monkeypatch):
     env = root / "papers"
     python = Path(SB._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("")
+    python.write_text("", encoding="utf-8")
     SB._write_marker(str(env), {"backend": "papers", "requirements": [
         "ultralytics==8.4.157", "rapidocr-onnxruntime==1.4.4"]})
     assert SB._stale_requirements("papers") == ["pdfplumber==0.11.10"]

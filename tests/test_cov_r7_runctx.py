@@ -322,7 +322,7 @@ def test_a_resource_log_that_cannot_be_registered_is_still_written(
     project = tmp_path / "project"
     project.mkdir()
     log = tmp_path / "r7.resources.json"
-    log.write_text('{"schema_version": 3, "mode": "summary"}')
+    log.write_text('{"schema_version": 3, "mode": "summary"}', encoding="utf-8")
 
     run = _context(settings={"src": str(project)})
     run.resource_log_path = str(log)

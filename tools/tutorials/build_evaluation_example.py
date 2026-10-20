@@ -107,12 +107,12 @@ def prepare(stage=DEFAULT_STAGE):
         root=str(root), manifest=str(manifest), source_csv=str(prediction_csv),
         source_database=str(database), original_inputs=before, crop_lineage=lineage,
         prediction_count=234, class_names=['infected_1', 'infected_2'],
-        original_leakage_audit=json.loads(original_audit.read_text()),
+        original_leakage_audit=json.loads(original_audit.read_text(encoding="utf-8")),
         database_identity_audit=audit.to_dict(), independent_validation=False,
         model_retrained=False, probability_values_invented=False,
         original_inputs_preserved=True, app_source_modified=False, published=False,
         next_gate='Independent numerical checks and actual saved-bundle GUI inspection')
-    (root / 'preparation.json').write_text(json.dumps(proof, indent=2) + '\n')
+    (root / 'preparation.json').write_text(json.dumps(proof, indent=2) + '\n', encoding="utf-8")
     return root
 
 

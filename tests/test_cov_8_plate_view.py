@@ -57,7 +57,7 @@ def test_live_plate_rejects_nonmapping_ledger_without_overwriting_committed_stat
     qtbot.addWidget(card)
     work = tmp_path / 'spacr_watch'
     work.mkdir()
-    (work / 'watch_ledger.json').write_text(json.dumps({'fields': fields}))
+    (work / 'watch_ledger.json').write_text(json.dumps({'fields': fields}), encoding="utf-8")
     card._source = str(tmp_path)
     card._wells = {'plate1_A1': 2}
     card.refresh()

@@ -76,7 +76,7 @@ def plate(tmp_path):
     (src / "psf").mkdir()
     (src / "psf" / "segmentation_application.json").write_text(
         json.dumps({"configuration": {"version": 0}, "complete": True,
-                    "fields": [], "archives": {}}))
+                    "fields": [], "archives": {}}), encoding="utf-8")
     return src
 
 

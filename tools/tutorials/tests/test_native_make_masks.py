@@ -29,7 +29,7 @@ def test_prepared_inputs_are_copied_byte_for_byte_with_a_manifest(tmp_path):
     assert manifest == {'profile/.cellpose/models/cpsam': sha(b'weights'),
                         'puncta/images/field.tif': sha(b'acquired pixels')}
     assert (stage / 'puncta/images/field.tif').read_bytes() == b'acquired pixels'
-    recorded = json.loads((stage / 'inputs-manifest.json').read_text())
+    recorded = json.loads((stage / 'inputs-manifest.json').read_text(encoding="utf-8"))
     assert recorded['sha256'] == manifest
 
 
@@ -38,7 +38,7 @@ def test_prepared_inputs_keep_file_and_folder_ages(tmp_path):
     source = tmp_path / 'inputs'
     folder = source / 'app-state/runs/tutorial-prune-example-1'
     folder.mkdir(parents=True)
-    (folder / 'README.txt').write_text('Disposable Storage demonstration')
+    (folder / 'README.txt').write_text('Disposable Storage demonstration', encoding="utf-8")
     old = 1_000_000_000
     os.utime(folder / 'README.txt', (old, old))
     os.utime(folder, (old, old))
@@ -54,7 +54,7 @@ def test_prepared_inputs_keep_file_and_folder_ages(tmp_path):
 def test_prepared_inputs_cannot_supply_capture_evidence(tmp_path, evidence):
     source = tmp_path / 'inputs'
     (source / evidence).parent.mkdir(parents=True, exist_ok=True)
-    (source / evidence).write_text('{}')
+    (source / evidence).write_text('{}', encoding="utf-8")
     stage = tmp_path / 'stage'
     stage.mkdir()
     with pytest.raises(ValueError):
@@ -113,10 +113,10 @@ def native_recording(tmp_path, key, *, clip=True, backdrop=CAPTURE_BACKDROP, res
     stage = tmp_path / f'{key}-stage'
     folder = stage / 'captures/make_masks'
     folder.mkdir(parents=True)
-    (stage / 'exact-source.json').write_text(json.dumps({'sha256': {'spacr/qt/screens/make_masks.py': 'same'}}))
+    (stage / 'exact-source.json').write_text(json.dumps({'sha256': {'spacr/qt/screens/make_masks.py': 'same'}}), encoding="utf-8")
     (folder / 'provenance.json').write_text(json.dumps({'completed_capture': True, 'module': 'make_masks',
-                                                        'app_source_modified': False}))
-    (folder / f'{key}_acceptance.json').write_text(json.dumps(result or RESULTS[key]))
+                                                        'app_source_modified': False}), encoding="utf-8")
+    (folder / f'{key}_acceptance.json').write_text(json.dumps(result or RESULTS[key]), encoding="utf-8")
     frames = {}
     for visual in ['00_home', *VISUALS[key]]:
         image = folder / f'{visual}.png'
@@ -130,11 +130,11 @@ def native_recording(tmp_path, key, *, clip=True, backdrop=CAPTURE_BACKDROP, res
             video.write_bytes(f'{key}-{visual}-live-video'.encode())
             receipt = folder / f'{visual}.capture.json'
             receipt.write_text(json.dumps({'sha256': sha(video.read_bytes()), 'full_decode_passed': True,
-                                           'audio_streams': 0}))
+                                           'audio_streams': 0}), encoding="utf-8")
             frame['clip'] = {'video': video.name, 'sha256': sha(video.read_bytes()),
                              'receipt': receipt.name, 'receipt_sha256': sha(receipt.read_bytes())}
         frames[visual] = frame
-    (folder / 'frames.json').write_text(json.dumps(frames))
+    (folder / 'frames.json').write_text(json.dumps(frames), encoding="utf-8")
     return folder
 
 
@@ -144,11 +144,11 @@ def repository(tmp_path, monkeypatch):
     (repo / 'tools/tutorials/lessons').mkdir(parents=True)
     scenes = [{'visual': visual, 'narration': visual} for key in VISUALS for visual in VISUALS[key]]
     scenes.insert(2, {'visual': '03_real_labels', 'narration': 'again', 'focus': [1, 2, 3, 4]})
-    (repo / 'tools/tutorials/lessons/14_make_masks.json').write_text(json.dumps({'id': '14_make_masks', 'scenes': scenes}))
+    (repo / 'tools/tutorials/lessons/14_make_masks.json').write_text(json.dumps({'id': '14_make_masks', 'scenes': scenes}), encoding="utf-8")
     (repo / 'features/data').mkdir(parents=True)
     for key, result in RESULTS.items():
         (repo / f'features/data/662_make_masks_current_{key}_2026-10-07.json').write_text(
-            json.dumps({'accepted': True, 'native_acceptance': result}))
+            json.dumps({'accepted': True, 'native_acceptance': result}), encoding="utf-8")
     monkeypatch.setattr(composer, 'REPO', repo)
     return repo
 
@@ -160,12 +160,12 @@ def test_native_composition_keeps_every_clip_and_replays_accepted_results(tmp_pa
     assert set(frames) == {visual for rows in VISUALS.values() for visual in rows}
     for visual, frame in frames.items():
         assert (out / frame['clip']['video']).read_bytes().endswith(b'live-video')
-    focus = json.loads((out / 'focus.json').read_text())
+    focus = json.loads((out / 'focus.json').read_text(encoding="utf-8"))
     assert focus['scenes']['restoration_04_compare'] == [10, 20, 300, 400]
     # Like the still composer, a repeated visual keeps its last authored focus.
     assert focus['scenes']['03_real_labels'] == [1, 2, 3, 4]
     assert focus['recapture']['capture_module'] == 'make_masks_native'
-    accepted = json.loads((out / 'scientific_acceptance.json').read_text())
+    accepted = json.loads((out / 'scientific_acceptance.json').read_text(encoding="utf-8"))
     assert accepted['accepted'] and accepted['native_live_video']
     assert set(accepted['input_receipts']) == set(VISUALS)
 

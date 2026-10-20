@@ -57,7 +57,7 @@ def test_only_authorized_samples_change():
 
 def test_contract_detects_a_source_mutation_that_does_no_repair():
     path = Path(__file__).resolve().parents[1] / 'repair_platform_heart_cuda.py'
-    source = path.read_text()
+    source = path.read_text(encoding="utf-8")
     mutant = source.replace('result[start:end] = replacement', 'pass  # deliberately omit repair', 1)
     assert source != mutant
     namespace = {'__name__':'mutant', '__file__':str(path)}

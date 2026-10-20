@@ -159,7 +159,7 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
         saved=[];brush.saved.connect(saved.append);click(brush.save_mask_button)
         if saved!=[str(mask_path)]:raise ValueError('The real Save mask control did not save its private input')
         log_path=Path(str(mask_path)+'.curation.json')
-        first_log=json.loads(log_path.read_text())
+        first_log=json.loads(log_path.read_text(encoding="utf-8"))
         snapshot('07_saved_mask_and_ledger',mask=check_mask(tifffile.imread(mask_path),painted.astype(np.uint16)),
             mask_sha256=sha(mask_path),ledger=first_log)
         # Explicit external companion-script step, not an invented GUI action.
@@ -173,7 +173,7 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
             history=proof['mask_history_on_reopen'])
         fill(brush.radius_spin,4);click(brush.next_label_button);click(brush.paint_button)
         second,centre=paint_at(192,32);click(brush.save_mask_button)
-        second_log=json.loads(log_path.read_text())
+        second_log=json.loads(log_path.read_text(encoding="utf-8"))
         proof['mask_prior_history_preserved_after_second_save']=(
             second_log['edits'][:len(first_log['edits'])]==first_log['edits'])
         snapshot('10_second_session_saved_history',mask=check_mask(tifffile.imread(mask_path),second.astype(np.uint16)),
@@ -209,7 +209,7 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
         if sha(track_path)!=track_initial_sha:raise ValueError('Unsaved track edits changed the disk CSV')
         saved=[];tr.saved.connect(saved.append);click(tr.save_button)
         if saved!=[str(track_path)]:raise ValueError('The real Save tracks button did not write')
-        saved_log=json.loads(Path(str(track_path)+'.curation.json').read_text())
+        saved_log=json.loads(Path(str(track_path)+'.curation.json').read_text(encoding="utf-8"))
         snapshot('16_saved_tracks_and_history',tracks=check_tracks(list(csv.DictReader(track_path.open())),tracks),ledger=saved_log)
         select([3]);click(tr.delete_button)
         reduced=[dict(r) for r in tracks if int(r['track_id'])!=3]

@@ -80,7 +80,7 @@ def record_widget_video(window, process_events, output: Path, seconds: float,
                 encoder.kill()
                 encoder.wait()
     if encoder.returncode:
-        raise RuntimeError(error_path.read_text())
+        raise RuntimeError(error_path.read_text(encoding="utf-8"))
     if scheduled:
         raise RuntimeError("The recording ended before a scheduled action")
     probe = json.loads(subprocess.check_output([
@@ -109,7 +109,7 @@ def record_widget_video(window, process_events, output: Path, seconds: float,
         "surface": "Qt application widget; no native compositor claim",
         "full_decode_passed": True, "audio_streams": 0,
     }
-    output.with_suffix(".capture.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    output.with_suffix(".capture.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     return receipt
 
 
@@ -160,7 +160,7 @@ def record_x11_video(window, process_events, output: Path, seconds: float,
                 encoder.kill()
                 encoder.wait()
     if encoder.returncode:
-        raise RuntimeError(output.with_suffix('.encoder.log').read_text())
+        raise RuntimeError(output.with_suffix('.encoder.log').read_text(encoding="utf-8"))
     if scheduled:
         raise RuntimeError('Recording ended before a scheduled action')
     probe = json.loads(subprocess.check_output(['ffprobe', '-v', 'error', '-show_streams',
@@ -190,5 +190,5 @@ def record_x11_video(window, process_events, output: Path, seconds: float,
                'timing': 'real X11 frames at original wallclock speed',
                'surface': 'isolated native Qt application on X11; no compositor claim',
                'full_decode_passed': True, 'audio_streams': 0}
-    output.with_suffix('.capture.json').write_text(json.dumps(receipt, indent=2) + '\n')
+    output.with_suffix('.capture.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding="utf-8")
     return receipt

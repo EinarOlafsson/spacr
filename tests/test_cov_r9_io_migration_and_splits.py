@@ -117,8 +117,8 @@ class TestTheMigration:
         """
         merged = tmp_path / "merged"
         merged.mkdir(parents=True)
-        (merged / "exp_1_A01_1_1.json").write_text("{}")
-        (merged / "notes_about_exp_1_and_more.txt").write_text("hello")
+        (merged / "exp_1_A01_1_1.json").write_text("{}", encoding="utf-8")
+        (merged / "notes_about_exp_1_and_more.txt").write_text("hello", encoding="utf-8")
 
         assert IO.migrate_unescaped_plate_names(str(tmp_path)) == []
         assert sorted(p.name for p in merged.iterdir()) == [

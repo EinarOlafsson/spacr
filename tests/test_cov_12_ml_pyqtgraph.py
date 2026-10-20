@@ -291,7 +291,7 @@ def test_a_bundle_holding_no_figure_announces_nothing(monkeypatch, tmp_path):
 
     monkeypatch.setattr(plot_module, 'figure_output_preferences',
                         lambda: ('svg', 300))
-    (tmp_path / 'data.csv').write_text('a,b\n1,2\n')
+    (tmp_path / 'data.csv').write_text('a,b\n1,2\n', encoding="utf-8")
 
     assert ml._announce_the_bundle(str(tmp_path), 'a figure') is None
 

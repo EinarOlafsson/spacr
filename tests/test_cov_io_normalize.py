@@ -437,7 +437,7 @@ def test_concatenate_and_normalize_ignores_non_npy_and_bad_npy(tmp_path,
 
     src = tmp_path / "stack"
     _write_fields(src, ["g1_A01_1.npy", "g2_A01_1.npy", "g3_A01_1.npy"])
-    (src / "readme.txt").write_text("not an array")
+    (src / "readme.txt").write_text("not an array", encoding="utf-8")
     (src / "b_broken.npy").write_bytes(b"definitely not a numpy file")
 
     # Deterministic iteration order so the broken file is NOT last (the
@@ -607,7 +607,7 @@ def test_concatenate_and_normalize_timelapse_groups_by_field(tmp_path,
     ]
     _write_fields(src, names)
     # Ignored by _generate_time_lists: wrong extension / too few parts.
-    (src / "junk.txt").write_text("x")
+    (src / "junk.txt").write_text("x", encoding="utf-8")
     np.save(src / "plate1_A01.npy", _plane())
 
     out_fldr = concatenate_and_normalize(
@@ -659,7 +659,7 @@ def test_concatenate_and_normalize_timelapse_no_valid_files(tmp_path):
 
     src = tmp_path / "stack"
     src.mkdir()
-    (src / "nope.txt").write_text("x")
+    (src / "nope.txt").write_text("x", encoding="utf-8")
 
     out_fldr = concatenate_and_normalize(
         str(src), [0, 1], settings=_base_settings(timelapse=True))

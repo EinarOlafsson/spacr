@@ -37,7 +37,7 @@ def _fake_ps(tmp_path, rows, *, broken=False, lineage_group=None):
     the process that ran ps in that group, as a real process table would.
     """
     table = tmp_path / "ps-table"
-    table.write_text("".join(f"{a} {b} {c} {d}\n" for a, b, c, d in rows))
+    table.write_text("".join(f"{a} {b} {c} {d}\n" for a, b, c, d in rows), encoding="utf-8")
     tool = tmp_path / "bin"
     tool.mkdir(exist_ok=True)
     ps = tool / "ps"
@@ -58,7 +58,7 @@ case "$*" in
   "-o pgid= -p "*) printf '{GROUP}\\n'; exit 0 ;;
 esac
 exec {REAL_PS} "$@"
-""")
+""", encoding="utf-8")
     ps.chmod(0o755)
     return dict(os.environ, PATH=f"{tool}:{os.environ['PATH']}", LINEAGE_GROUP=str(lineage_group or ""))
 
@@ -72,7 +72,7 @@ def _take(tmp_path, lease, env, root=None):
     script = tmp_path / "take.sh"
     script.write_text("set -Eeuo pipefail\nPLATFORM=" + PLATFORM + f"\nINSTALL_ROOT='{root}'\n"
                       + "spacr_say() { printf '%s\\n' \"$*\" >&2; }\n"
-                      + _lease_source() + f'\nspacr_take_installer_lease "{lease}"\nprintf "acquired\\n"\n')
+                      + _lease_source() + f'\nspacr_take_installer_lease "{lease}"\nprintf "acquired\\n"\n', encoding="utf-8")
     return subprocess.run(["bash", str(script)], text=True, capture_output=True, timeout=20, env=env)
 
 
@@ -88,7 +88,7 @@ def _stamp(lease, pid, started, group=GROUP):
     text = f"pid={pid}\nstarted={started}\nhost={platform.node()}\npidns={ic._pid_namespace()}\n"
     if group is not None:
         text += f"pgid={group}\n"
-    (lease / "owner").write_text(text)
+    (lease / "owner").write_text(text, encoding="utf-8")
 
 
 def test_a_new_lease_records_its_process_group(tmp_path):
@@ -114,7 +114,7 @@ def test_an_empty_group_is_taken_over_and_its_staging_removed(tmp_path):
     root = tmp_path / "root"
     root.mkdir()
     (root / f".venv-staging-{pid}" / "bin").mkdir(parents=True)
-    (root / f".install-profile-staging-{pid}.json").write_text("{}")
+    (root / f".install-profile-staging-{pid}.json").write_text("{}", encoding="utf-8")
     live = os.getpid()
     (root / f".venv-staging-{live}").mkdir()
     _stamp(root.parent / f".{root.name}.spacr-installer-lock", pid, started)
@@ -124,7 +124,7 @@ def test_an_empty_group_is_taken_over_and_its_staging_removed(tmp_path):
     env = _fake_ps(tmp_path, [(777, 1, GROUP + 1, UID)])
     script = tmp_path / "acquire.sh"
     script.write_text("set -Eeuo pipefail\nPLATFORM=" + PLATFORM + f"\nINSTALL_ROOT='{root}'\n"
-                      + "spacr_say() { printf '%s\\n' \"$*\" >&2; }\n" + _lease_source() + "\nexit 0\n")
+                      + "spacr_say() { printf '%s\\n' \"$*\" >&2; }\n" + _lease_source() + "\nexit 0\n", encoding="utf-8")
     result = subprocess.run(["bash", str(script)], text=True, capture_output=True, timeout=20, env=env)
     assert result.returncode == 0, result.stderr
     assert "lease_cleared" in result.stderr and f"staging_removed {root}/.venv-staging-{pid}" in result.stderr
@@ -192,10 +192,10 @@ def test_the_macos_first_run_check_follows_the_group_too(tmp_path):
     support = tmp_path / "support"
     support.mkdir()
     wrapper = support / "install-for-user.sh"
-    wrapper.write_text(WRAPPER.read_text(encoding="utf-8"))
-    (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n')
+    wrapper.write_text(WRAPPER.read_text(encoding="utf-8"), encoding="utf-8")
+    (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n', encoding="utf-8")
     backend = support / "install-online.sh"
-    backend.write_text("#!/bin/sh\nprintf 'backend\\n'\n")
+    backend.write_text("#!/bin/sh\nprintf 'backend\\n'\n", encoding="utf-8")
     backend.chmod(0o755)
     runtime = tmp_path / "runtime"
     runtime.mkdir()

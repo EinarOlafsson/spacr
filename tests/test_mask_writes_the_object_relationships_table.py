@@ -58,7 +58,7 @@ def _write_run(src, names=("plate1_A01_1", "plate1_B02_3")):
     layout = {"version": 1, "intensity_channels": [0, 1],
               "mask_plane_order": roles,
               "mask_dims": {r: 2 + i for i, r in enumerate(roles)}}
-    (merged / MERGED_LAYOUT_SIDECAR).write_text(json.dumps(layout))
+    (merged / MERGED_LAYOUT_SIDECAR).write_text(json.dumps(layout), encoding="utf-8")
     return src / "measurements" / "measurements.db"
 
 
@@ -223,10 +223,10 @@ def test_no_layout_no_pairs_no_planes_or_no_overlap_is_an_empty_table(tmp_path):
     merged.mkdir()
     assert _object_relationships_frame(str(merged)).empty
     (merged / MERGED_LAYOUT_SIDECAR).write_text(
-        json.dumps({"mask_dims": {"cell": 2}}))
+        json.dumps({"mask_dims": {"cell": 2}}), encoding="utf-8")
     assert _object_relationships_frame(str(merged)).empty
     (merged / MERGED_LAYOUT_SIDECAR).write_text(
-        json.dumps({"mask_dims": {"cell": 2, "nucleus": 9}}))
+        json.dumps({"mask_dims": {"cell": 2, "nucleus": 9}}), encoding="utf-8")
     np.save(merged / "plate1_A01_1.npy", np.zeros((8, 8, 3), np.float32))
     frame = _object_relationships_frame(str(merged))
     assert frame.empty

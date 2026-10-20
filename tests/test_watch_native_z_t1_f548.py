@@ -118,7 +118,7 @@ def test_native_z_t1_matches_raw_volume_batch_and_measure(tmp_path, fake_model,
     measure = dict(MEASURE, anisotropy=2)
     measure_crop(dict(measure, src=str(batch / 'merged')))
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(measure))
+    recipe.write_text(json.dumps(measure), encoding="utf-8")
     settings = dict(_mask(watched), **_fast(watched),
                     watch_pipeline='mask_measure',
                     watch_measure_settings=str(recipe))
@@ -398,7 +398,7 @@ def test_native_z_preflight_refuses_unsafe_layouts(tmp_path, change):
         elif change == 'measure_time':
             measure.update(anisotropy=2, timelapse=True)
         recipe = tmp_path / 'measure.json'
-        recipe.write_text(json.dumps(measure))
+        recipe.write_text(json.dumps(measure), encoding="utf-8")
         settings.update(watch_pipeline='mask_measure',
                         watch_measure_settings=str(recipe))
     elif change == 'illumination':

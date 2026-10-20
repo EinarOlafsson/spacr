@@ -42,11 +42,11 @@ def _write_run(runs_dir, name, manifest, *, settings=None, settings_csv=None):
     """Lay out one run folder by hand, the way a finished run leaves one."""
     directory = runs_dir / name
     directory.mkdir()
-    (directory / "manifest.json").write_text(json.dumps(manifest))
+    (directory / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     if settings is not None:
-        (directory / "settings.json").write_text(settings)
+        (directory / "settings.json").write_text(settings, encoding="utf-8")
     if settings_csv is not None:
-        (directory / "settings.csv").write_text(settings_csv)
+        (directory / "settings.csv").write_text(settings_csv, encoding="utf-8")
     return directory
 
 

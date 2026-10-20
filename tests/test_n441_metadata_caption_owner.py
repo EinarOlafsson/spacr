@@ -17,12 +17,12 @@ def extract_metadata(tmp_path, monkeypatch):
             'model_zoo.py', 'utils.py',
             'attribution.py', 'measure.py', 'channel_sorting.py', 'object_classifier.py', 'core.py',
             'psf_pipeline.py', '_lineage_trees.py', 'plot.py'):
-        (tmp_path / 'spacr' / name).write_text('')
+        (tmp_path / 'spacr' / name).write_text('', encoding="utf-8")
     monkeypatch.setattr(builder, 'ROOT', tmp_path)
     monkeypatch.setattr(builder, '_indirect_runtime_ui_sources', set)
     def extract(source, name='settings_model.py'):
         path = root / name
-        path.write_text(source)
+        path.write_text(source, encoding="utf-8")
         return set(builder.extract_static_ui_sources())
     return extract
 

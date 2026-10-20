@@ -71,7 +71,7 @@ def main() -> int:
         "model_path": str(model_path),
         "images": [str(path) for path in crops],
     }
-    (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(output)
     return 0
 

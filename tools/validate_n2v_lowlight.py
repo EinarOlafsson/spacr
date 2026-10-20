@@ -334,7 +334,7 @@ def stage_simulated():
         summary["snr_expected_median"] = float(np.median([r["snr_expected"] for r in records]))
         summary["snr_measured_median"] = float(np.median([r["snr_measured"] for r in records]))
     if not (folder / "simulation.json").is_file():
-        (folder / "simulation.json").write_text(json.dumps(summary, indent=1))
+        (folder / "simulation.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
     return pairs, None
 
 
@@ -441,7 +441,7 @@ def predenoise(pairs, diameters):
         jobs = [(str(src), str(dst.with_suffix(".npy")), float(d)) for src, dst, d in todo]
         if jobs:
             spec = folder / "jobs.json"
-            spec.write_text(json.dumps(jobs))
+            spec.write_text(json.dumps(jobs), encoding="utf-8")
             env = dict(os.environ, CUDA_VISIBLE_DEVICES="",
                        CELLPOSE_LOCAL_MODELS_PATH=str(Path(CP3_PYTHON).parents[1] / "models"))
             subprocess.run([CP3_PYTHON, "-c", _CP3_SCRIPT, PREDENOISE[4:], str(spec),
@@ -535,7 +535,7 @@ def main():
         struct = dict(struct_axes="horizontal", struct_span=STRUCT_SPAN) if VARIANT == "struct" else {}
         record = SB._n2v_train(planes, ckpt, epochs=EPOCHS, device=DEVICE, **struct)
         record.update(fields=[p.stem for p, _ in pairs], channel=0)
-        (models / "channel_0.json").write_text(json.dumps(record, indent=1))
+        (models / "channel_0.json").write_text(json.dumps(record, indent=1), encoding="utf-8")
         print("trained", {k: record[k] for k in ("method", "epochs", "seconds", "train_loss", "val_loss")},
               flush=True)
     n2v = "n2v_struct" if VARIANT == "struct" else "n2v"
@@ -563,16 +563,16 @@ def main():
     prov = root / "prep" / n2v
     records = sorted(prov.glob("lowlight/*/psf/segmentation_application.json"))
     if records:
-        results["n2v_provenance_example"] = json.loads(records[0].read_text())["configuration"]
+        results["n2v_provenance_example"] = json.loads(records[0].read_text(encoding="utf-8"))["configuration"]
     if DATASET == "simulated" and FLOWS:
         meta = dict(source=SIM_SOURCE, photons=None if PHOTONS == "clean" else float(PHOTONS),
                     predenoise=PREDENOISE, epochs=EPOCHS, chains=chains,
                     simulation=str(OUT / data_tag() / "simulation.json"))
-        (OUT / "flows" / model_tag() / "meta.json").write_text(json.dumps(meta, indent=1))
+        (OUT / "flows" / model_tag() / "meta.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
     path = OUT / f"results_{model_tag()}.json"
     if path.is_file():
-        results = {**json.loads(path.read_text()), **results}
-    path.write_text(json.dumps(results, indent=1))
+        results = {**json.loads(path.read_text(encoding="utf-8")), **results}
+    path.write_text(json.dumps(results, indent=1), encoding="utf-8")
 
 
 def _masks_at(kept, cellprob_threshold, flow_threshold, device):
@@ -703,7 +703,7 @@ def sweep(folder):
         }
         print(chain_dir.name, json.dumps({k: report[chain_dir.name][k] for k in (
             "default", "tuned_held_out", "chosen")}), flush=True)
-    (folder / "sweep.json").write_text(json.dumps(report, indent=1))
+    (folder / "sweep.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
 
 
 ARM_LABELS = {"raw": "raw (no denoising)", "nlm": "non-local means",
@@ -732,16 +732,16 @@ def report(out):
     out = Path(out)
     rows = []
     for meta_path in sorted((out / "flows").glob("sim_*/meta.json")):
-        meta = json.loads(meta_path.read_text())
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
         sweep_path = meta_path.parent / "sweep.json"
         if not sweep_path.is_file():
             continue
-        result = json.loads(sweep_path.read_text())
+        result = json.loads(sweep_path.read_text(encoding="utf-8"))
         simulation = Path(meta["simulation"])
         snr = None
         truth_kind = None
         if simulation.is_file():
-            record = json.loads(simulation.read_text())
+            record = json.loads(simulation.read_text(encoding="utf-8"))
             snr = record.get("snr_expected_median")
             truth_kind = record["images"][0]["truth_kind"] if record["images"] else None
         for chain, entry in result.items():

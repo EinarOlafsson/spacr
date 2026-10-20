@@ -255,27 +255,27 @@ def test_stale_generated_prose_stops_the_docs_build(tmp_path):
     data = workflow.load()
     path = tmp_path / workflow.MAP_PATH
     path.parent.mkdir(parents=True)
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     for relative in {m["api_module"].replace(".", "/") + ".py" for m in data["modules"].values()}:
         file = tmp_path / relative
         file.parent.mkdir(parents=True, exist_ok=True)
-        file.write_text("")
+        file.write_text("", encoding="utf-8")
     for source in data["source_contracts"]:
-        (tmp_path / source["path"]).write_text("\n".join(source["literals"]))
+        (tmp_path / source["path"]).write_text("\n".join(source["literals"]), encoding="utf-8")
     for module in data["modules"].values():
         if module.get("api_entry"):
             file = tmp_path / (module["api_module"].replace(".", "/") + ".py")
-            file.write_text((workflow.ROOT / file.relative_to(tmp_path)).read_text(encoding="utf-8"))
+            file.write_text((workflow.ROOT / file.relative_to(tmp_path)).read_text(encoding="utf-8"), encoding="utf-8")
     for key, tutorial in data["tutorials"].items():
         if tutorial.get("lesson_source") == "authored":
             relative = Path(f"tools/tutorials/lessons/{key}.json")
             destination = tmp_path / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text((workflow.ROOT / relative).read_text(encoding="utf-8"))
+            destination.write_text((workflow.ROOT / relative).read_text(encoding="utf-8"), encoding="utf-8")
             for scene in json.loads(destination.read_text(encoding="utf-8"))["scenes"]:
                 for link in scene.get("related_lessons", []):
                     relative = Path(f"tools/tutorials/lessons/{link}.json")
-                    (tmp_path / relative).write_text((workflow.ROOT / relative).read_text(encoding="utf-8"))
+                    (tmp_path / relative).write_text((workflow.ROOT / relative).read_text(encoding="utf-8"), encoding="utf-8")
     with pytest.raises(ValueError, match="stale workflow artifact"):
         workflow.prepare_jinja(Environment(), root=tmp_path)
 
@@ -315,7 +315,7 @@ def test_authored_lesson_source_and_links_cannot_silently_drift(tmp_path, fault,
     path.parent.mkdir(parents=True)
     for scene in lesson["scenes"]:
         for link in scene.get("related_lessons", []):
-            (path.parent / f"{link}.json").write_text("{}")
+            (path.parent / f"{link}.json").write_text("{}", encoding="utf-8")
     if fault == "identity":
         lesson["id"] = "81_sequencing_pathways"
     elif fault == "title":
@@ -327,7 +327,7 @@ def test_authored_lesson_source_and_links_cannot_silently_drift(tmp_path, fault,
     elif fault == "escape":
         lesson["scenes"][0]["related_lessons"] = ["../80_image_analysis_pathways"]
     if fault != "missing":
-        path.write_text(json.dumps(lesson))
+        path.write_text(json.dumps(lesson), encoding="utf-8")
     with pytest.raises(ValueError, match=match):
         workflow.lesson_document(data, key, root=tmp_path)
 

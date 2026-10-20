@@ -20,7 +20,7 @@ def _run(root, i, app="mask", models=None):
     payload = {"app_key": app, "status": "ok", "start_utc": when.isoformat()}
     if models:
         payload["model_hashes"] = models
-    (folder / "manifest.json").write_text(json.dumps(payload))
+    (folder / "manifest.json").write_text(json.dumps(payload), encoding="utf-8")
     return folder
 
 
@@ -80,7 +80,7 @@ class TestTheCacheNeverLies:
 
     def test_a_corrupt_cache_is_ignored(self, journal):
         run_journal.journal_totals()
-        run_journal._totals_cache_path().write_text("{ not json")
+        run_journal._totals_cache_path().write_text("{ not json", encoding="utf-8")
         assert run_journal.journal_totals()["total_runs"] == 30
 
     def test_an_old_cache_version_is_ignored(self, journal):
@@ -88,7 +88,7 @@ class TestTheCacheNeverLies:
         path = run_journal._totals_cache_path()
         raw = json.loads(path.read_text(encoding="utf-8"))
         raw["version"] = 0
-        path.write_text(json.dumps(raw))
+        path.write_text(json.dumps(raw), encoding="utf-8")
         assert run_journal.journal_totals()["total_runs"] == 30
 
     def test_the_cache_file_is_not_counted_as_a_run(self, journal):

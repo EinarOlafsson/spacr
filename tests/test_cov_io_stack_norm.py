@@ -415,7 +415,7 @@ def test_create_movies_with_no_matching_files_writes_nothing(tmp_path):
     src = tmp_path / "stack"
     src.mkdir()
     np.save(str(src / "nomatch.npy"), np.zeros((4, 4, 1), dtype=np.uint16))
-    (src / "ignored.txt").write_text("not a npy")
+    (src / "ignored.txt").write_text("not a npy", encoding="utf-8")
 
     _create_movies_from_npy_per_channel(str(src))
 
@@ -433,7 +433,7 @@ def test_delete_empty_subdirectories_removes_nested_empties_bottom_up(tmp_path):
 
     (tmp_path / "a" / "b" / "c").mkdir(parents=True)
     (tmp_path / "keep" / "inner").mkdir(parents=True)
-    (tmp_path / "keep" / "inner" / "x.txt").write_text("x")
+    (tmp_path / "keep" / "inner" / "x.txt").write_text("x", encoding="utf-8")
 
     delete_empty_subdirectories(str(tmp_path))
 
