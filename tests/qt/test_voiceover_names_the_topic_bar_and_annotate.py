@@ -26,3 +26,15 @@ def test_the_annotate_screen_is_named(qtbot):
     qtbot.addWidget(screen)
     i18n.retranslate_widget_tree(screen)
     assert _name(screen).strip()
+
+
+def test_the_annotate_name_follows_a_language_change(qtbot, monkeypatch):
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    monkeypatch.setattr(i18n, "current_language", lambda: "de")
+    screen = AnnotateScreen()
+    qtbot.addWidget(screen)
+    assert screen.accessibleName() == i18n.tr("Annotate", "de")
+    for code in ("sv", "en", "is"):
+        i18n.retranslate_widget_tree(screen, code)
+        assert screen.accessibleName() == i18n.tr("Annotate", code), code
