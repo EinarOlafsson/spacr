@@ -154,11 +154,34 @@ purge-paths-20261020.txt): regex:^features/data/(?!(?:<the 73 kept
 paths>)$), docs/source/_static/i18n/, docs/source/_extra/tutorials/
 production/, .../examples/, .../catalog/, docs/source/_static/deck/
 spacr_deck.pdf, docs/source/_static/deck/anim/, tools/tutorials/
-release_candidate/, datasets/, notebooks/, Notebooks/, docs/_build/,
+release_candidate/, datasets/, notebooks/, regex:^Notebooks/(?!(?:<the 38
+current notebooks>)$), docs/_build/,
 docs/.doctrees/, docs/source/_build/, False.pdf, spacr/models/. The kept
 features/data files, the in-git deck (slides, thumbs, pages, viewer,
 title_base.jpg, slides.json) and tools/readme_deck/images/ are not purged.
-Regenerate the regex from `git ls-files features/data` just before the run.
+Regenerate both regexes from `git ls-files features/data` and `git ls-files
+Notebooks` just before the run. Notebooks/ is live (38 notebooks read by
+test_notebook_appendix_f574, test_cli_archive_package_f574 and the source
+install keep-list); only its deleted paths (225 MB of history) are purged.
+
+PHASE 4 PREREQUISITES (origin/nightly 7fc574ee9d, 2026-10-20)
+Purge paths that still match files in the current tree, all still read, so
+the rewrite waits until each has moved out of git:
+- docs/source/_extra/tutorials/production/ 95.5 MB (354 files): docs site
+  (conf.py stages it via html_extra_path), tools/tutorials publishers.
+- docs/source/_extra/tutorials/examples/ 76.7 MB (33): docs site,
+  tools/tutorials (16 files) and 4 tools/tutorials/tests.
+- docs/source/_extra/tutorials/catalog/ 13.5 MB (14): docs site,
+  tools/tutorials (16 files) and 3 tools/tutorials/tests.
+- tools/tutorials/release_candidate/ 125.1 MB (150): test_docs_channels,
+  test_docs_media_budget, test_tutorial_release_audit, publish_docs_channels,
+  verify_tutorial_live and 5 tools/tutorials scripts.
+All four (311 MB) are tutorial media: the tutorial lane (Codex on WS) moves
+them to HF einarolafsson/spacr-tutorials behind a pin, with their readers,
+as phase 3b says. Every other purge path matches nothing in the current
+tree (features/data and Notebooks only through their sparing regexes), so
+Home has nothing left to move. Once the four are out, the tree is the
+measured 695 MB.
 Coordination checklist:
 - Announce in features/HANDOFF.md and to Claude WS; freeze pushes; every
   session pushes or archives its branches as patches first.
@@ -183,5 +206,5 @@ Coordination checklist:
 2026-10-20 — Phase 2: keep-list re-derived on 850c2e30a3 (same 73 files, kept in place); 33 changed n676 files uploaded (spacr-evidence 1f6fb59e90cd); 22,797 files (4,097,622,132 bytes) removed after hash check (5400e02335). README checkout size re-measured to 1178 MB (a95558196a).
 2026-10-20 — Phase 3 deck: spacr_deck.pdf and anim/ (69,793,628 bytes) pinned in docs/media_revision.json at spacr-tutorials 64ff46ea4409; tools/fetch_docs_media.py fetches/checks/publishes, docs.yml fetches before Sphinx, deck builder --publish and refresh_alpha_deck bump the pin. Remaining: API catalogs, WS tutorial media, phase 4.
 
-2026-10-20 — Phase 4 purge list corrected to spare the 73 kept features/data files, the in-git deck and tools/readme_deck/images; maintainer accepted clone <= 1.0 GiB and tree <= 700 MB. Mirror re-measure on 033cb0ac17: 986 MiB pack, 694 MB tree. Rewrite waits for the maintainer's go and a coordinated re-clone.
+2026-10-20 — Phase 4 purge list spares the 73 kept features/data files, the in-git deck, tools/readme_deck/images and the 38 live Notebooks/; maintainer accepted clone <= 1.0 GiB and tree <= 700 MB; mirror re-measure on 7fc574ee9d: 987 MiB pack, 695 MB tree. Waits for the tutorial lane to move 311 MB of tutorial media (prerequisites above), then the maintainer's go.
 2026-10-20 — Phase 3 API catalogs: catalogs (181,774,852 bytes) leave git; memory pinned at spacr-tutorials 958fe3e95328 (after 678 batch 5); --assemble in docs.yml and the api_catalogs test fixture; README checkout size 958 MB. Remaining: WS tutorial media, phase 4 on the maintainer's go.
