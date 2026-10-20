@@ -13486,7 +13486,7 @@ class AppScreen(QWidget):
                     self._deferred_bulk_settings = deferred_bulk
                     self._form_rebuild_deferred = True
                 else:
-                    breathing = getattr(window, "breathing_like_an_open", None)
+                    breathing = getattr(window, "_breathing_like_an_open", None)
                     with (breathing() if callable(breathing)
                           else contextlib.nullcontext()):
                         rebuild(self.app_key, target)

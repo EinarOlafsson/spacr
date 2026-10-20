@@ -3086,7 +3086,7 @@ def _end_the_event_loop(app) -> None:
 
 
 #: Seconds of work between two breaths while a screen is rebuilt in place
-#: (:meth:`MainWindow.breathing_like_an_open`).
+#: (:meth:`MainWindow._breathing_like_an_open`).
 REBUILD_BREATH_AFTER_S = 0.05
 
 
@@ -6836,31 +6836,29 @@ class MainWindow(QMainWindow):
             getattr(self, name)(*args)
 
     def rebuild_app_screen(self, key: str, values=None) -> None:
-        """Build ``key``'s screen again, with breaths between its steps.
-
-        A rebuild runs the same heavy steps as a first open -- build, theme,
-        join the stack, translate, show -- and used to run them in one
-        piece: Mask's "Load test data" applies a settings pack that changes
-        the form's shape, and the whole rebuild was one freeze of about
-        0.4 s with the backdrop stopped. The steps are now separated by the
-        breaths a module open takes (:meth:`_breathe_while_opening`), so
-        the longest freeze is the longest single step. User input is held
-        back during a breath and navigation waits, exactly as for an open.
-
-        A rebuild that runs inside an open (a font-scale rebuild) breathes
-        under that open and leaves its breathing on when it returns.
+        """Build ``key``'s screen again, carrying ``values`` across.
 
         :param key: the app whose screen is to be rebuilt.
         :param values: settings to apply to the new screen.
+
+        The whole screen is rebuilt because which settings a form holds
+        depends on a few of its own values -- the organelle count, and
+        whether an object's channel names a plane -- so a committed change to one of those means
+        a different form, not a changed one. Rebuilding is the same path
+        every module open already takes.
+
+        The old screen is dropped from the cache and destroyed, so the new
+        one is built from scratch rather than reusing widgets that belong to
+        a shape that no longer applies.
         """
         if _a_modal_dialog_is_open():
             self._after_the_modal_closes("rebuild_app_screen", key, values)
             return
-        with self.breathing_like_an_open():
+        with self._breathing_like_an_open():
             self._rebuild_app_screen_in_steps(key, values)
 
     @contextlib.contextmanager
-    def breathing_like_an_open(self):
+    def _breathing_like_an_open(self):
         """Let heavy GUI work inside take the breaths of a module open.
 
         For :meth:`rebuild_app_screen` and for a caller that does more work
@@ -6891,20 +6889,22 @@ class MainWindow(QMainWindow):
             _screens_package._stop_breathing_while_a_window_opens()
 
     def _rebuild_app_screen_in_steps(self, key: str, values=None) -> None:
-        """Build ``key``'s screen again, carrying ``values`` across.
+        """Build ``key``'s screen again, with breaths between its steps.
+
+        A rebuild runs the same heavy steps as a first open -- build, theme,
+        join the stack, translate, show -- and used to run them in one
+        piece: Mask's "Load test data" applies a settings pack that changes
+        the form's shape, and the whole rebuild was one freeze of about
+        0.4 s with the backdrop stopped. The steps are now separated by the
+        breaths a module open takes (:meth:`_breathe_while_opening`), so
+        the longest freeze is the longest single step. User input is held
+        back during a breath and navigation waits, exactly as for an open.
+
+        A rebuild that runs inside an open (a font-scale rebuild) breathes
+        under that open and leaves its breathing on when it returns.
 
         :param key: the app whose screen is to be rebuilt.
         :param values: settings to apply to the new screen.
-
-        The whole screen is rebuilt because which settings a form holds
-        depends on a few of its own values -- the organelle count, and
-        whether an object's channel names a plane -- so a committed change to one of those means
-        a different form, not a changed one. Rebuilding is the same path
-        every module open already takes.
-
-        The old screen is dropped from the cache and destroyed, so the new
-        one is built from scratch rather than reusing widgets that belong to
-        a shape that no longer applies.
         """
         import gc
 
