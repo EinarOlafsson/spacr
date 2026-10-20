@@ -576,14 +576,10 @@ def show_as_page(screen: QWidget, host: Optional[QWidget],
         return None
     index = pages.indexOf(screen)
     if index < 0:
-        # Hidden while it is re-parented into the page host: a hidden widget is not
-        # laid out or polished during the move, so the reparent is the only cost of this step.
         if not screen.isVisible():
             screen.hide()
         index = pages.addTab(screen, title)
         install_close_marks(pages, tooltip=tr("Close"))
-        # The reparent into the page host (about 0.37 s for Train Cellpose) is its own turn of
-        # the event loop; the icon, the selection and the first show follow in the next.
         _breathe()
     key = str(getattr(screen, "app_key", "") or "")
     if key:
@@ -640,10 +636,6 @@ class FoldOpener:
             except RuntimeError:
                 built = self.window = None
         if built is None:
-            # THE FIRST FOLD ON A HOST DID ITS WHOLE OPEN IN ONE FREEZE: the page strip
-            # (the host body is re-parented into it), then the page's build, then its
-            # sheet and first layout, 0.35-0.4 s without a turn of the event loop (lesson 43,
-            # clip 05_setting_src). Each is its own step now, with a breath between them.
             if (self.screen is not None
                     and getattr(self.screen, "_fold_pages", None) is None
                     and host_pages(self.screen) is not None):

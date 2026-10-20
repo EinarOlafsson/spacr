@@ -634,17 +634,9 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
     table.setSortingEnabled(False)
     table.setUpdatesEnabled(False)
     try:
-        # Rewrite the cells that are already there instead of wiping, taking and re-inserting every one: a scan of a
-        # 280-column table refills 140 000 cells, and the per-cell wipe (itemData, one setData per role, takeItem,
-        # setItem) took minutes with the ambient field painting. No item is deleted: surplus cells are wiped and kept
-        # as spares, exactly as before.
         had_rows, had_columns = table.rowCount(), table.columnCount()
         table.clearSelection()
         if columns < had_columns or rows < had_rows:
-            # The shape shrinks (an all-features scan, then one feature: 140 000 cells become a few hundred). Items are
-            # never deleted: the surplus ones are TAKEN out and kept as spares. Every cell of this table is created
-            # by this function and carries only its text and sort key, both rewritten when a spare is reused, so no
-            # per-cell wipe (itemData + setData per role) is needed. That wipe took minutes under the ambient painting.
             spare = _spare_items(table)
             table.model().blockSignals(True)
             try:
@@ -660,7 +652,7 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
         table.setRowCount(rows)
         table.setHorizontalHeaderLabels([str(c) for c in frame.columns])
         model = table.model()
-        model.blockSignals(True)                              # one dataChanged at the end, not one per cell
+        model.blockSignals(True)
         try:
             for column, name in enumerate(frame.columns):
                 values = frame[name].tolist()

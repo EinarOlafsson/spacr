@@ -6879,9 +6879,6 @@ class MainWindow(QMainWindow):
             return
         self._opening_a_screen = True
         every = _screens_package.BREATH_AFTER_S
-        # Shorter than an open's: the old page stays on show and the user
-        # is watching it, so a step as long as an open allows reads as a
-        # stall (tutorial 07 recorded 0.36 s with the open's 0.15 s).
         _screens_package.BREATH_AFTER_S = min(every, REBUILD_BREATH_AFTER_S)
         _screens_package._start_breathing_while_a_window_opens(
             _time.perf_counter())
