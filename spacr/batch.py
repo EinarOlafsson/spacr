@@ -1290,7 +1290,7 @@ def subprocess_runner(job: Job, settings_path: str, log_path: str) -> int:
     with open(log_path, 'w', encoding='utf-8', errors='replace') as handle:
         handle.write(f'# spaCR queue job {job.id} ({job.label})\n')
         handle.write(f'# started {_now_iso()}\n')
-        handle.write(f'# {" ".join(cmd)}\n\n')
+        handle.write(f'# {" ".join([os.path.basename(cmd[0]), *cmd[1:]])}\n\n')
         handle.flush()
         process = None
         try:
