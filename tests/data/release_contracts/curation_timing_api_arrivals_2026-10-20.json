@@ -1,0 +1,9 @@
+{
+  "spacr.qt.curation_timing": "Per-field timing log for a timed curation session.\n\nOne row is appended to ``<queue folder>/curate_timing.csv`` each time a field\nis saved or skipped in Make Masks. Nothing here may block or crash curation:\n:func:`log_visit` swallows and logs every failure.",
+  "spacr.qt.curation_timing.FieldTimer": "Wall and active time for one field on screen.",
+  "spacr.qt.curation_timing.FieldTimer.touch": "Mark user activity; gaps over the idle limit are not counted.",
+  "spacr.qt.curation_timing.append_row": "Append ``row`` to the folder's timing CSV, writing the header if new.",
+  "spacr.qt.curation_timing.build_row": "The CSV row for one finished visit.",
+  "spacr.qt.curation_timing.count_object_changes": "Compare two label arrays by IoU matching.\n\nObjects are paired greedily by descending IoU; a pair needs IoU >= 0.5,\nand is *modified* when IoU < 0.9. Unpaired ``after`` objects are added,\nunpaired ``before`` objects are removed.\n\n:returns: ``(n_before, n_after, added, removed, modified)``.",
+  "spacr.qt.curation_timing.log_visit": "Build and append one row; never raises."
+}

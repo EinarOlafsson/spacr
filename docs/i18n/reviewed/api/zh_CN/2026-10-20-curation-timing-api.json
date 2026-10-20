@@ -1,0 +1,80 @@
+{
+  "language": "zh_CN",
+  "note": "Upstream 61d2aca57f: the new spacr.qt.curation_timing module (Make Masks per-field curation timing log).",
+  "records": [
+    {
+      "context": "Per-field timing log for a timed curation session.",
+      "label": "spacr.qt.curation_timing#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Per-field timing log for a timed curation session.",
+      "source_sha256": "c468c8c4cd5a87df6fc3844eff2c2a629095a87d7774171cf512c7481585b785",
+      "translation": "计时整理会话的逐视野计时日志。"
+    },
+    {
+      "context": "One row is appended to ``<queue folder>/curate_timing.csv`` each time a field is saved or skipped in Make Masks. Nothing here may block or crash curation: :func:`log_visit` swallows and logs every failure.",
+      "label": "spacr.qt.curation_timing#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "One row is appended to ``<queue folder>/curate_timing.csv`` each time a field is saved or skipped in Make Masks. Nothing here may block or crash curation: :func:`log_visit` swallows and logs every failure.",
+      "source_sha256": "876592925ed51d790177eeca4e2b950d08be4371e51bea0c6a20a9bc33832059",
+      "translation": "每当在 Make Masks 中保存或跳过一个视野时，就会向 ``<queue folder>/curate_timing.csv`` 追加一行。这里的任何操作都不能阻塞整理过程或使其崩溃：:func:`log_visit` 会捕获并记录每一个失败。"
+    },
+    {
+      "context": "Wall and active time for one field on application view.",
+      "label": "spacr.qt.curation_timing.FieldTimer#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Wall and active time for one field on screen.",
+      "source_sha256": "b72c007563fd28c1f0714a07bc273e8d74a50cc9dd098a8f70f2e09077c5e103",
+      "translation": "单个视野显示在界面上的实际时间和活跃时间。"
+    },
+    {
+      "context": "Mark user activity; gaps over the idle limit are not counted.",
+      "label": "spacr.qt.curation_timing.FieldTimer.touch#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Mark user activity; gaps over the idle limit are not counted.",
+      "source_sha256": "09355ac5d8e277477590b550590c4aaeec373028ca261e1ec85746289c01bb9a",
+      "translation": "标记用户活动；超过空闲上限的间隔不计入。"
+    },
+    {
+      "context": "Append ``row`` to the folder's timing CSV, writing the header if new.",
+      "label": "spacr.qt.curation_timing.append_row#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Append ``row`` to the folder's timing CSV, writing the header if new.",
+      "source_sha256": "eab541fe6aa87d28372975c42ab170cad4f05fdef5003b93ad1b78bccdf94703",
+      "translation": "将 ``row`` 追加到该文件夹的计时 CSV 中；文件为新建时写入表头。"
+    },
+    {
+      "context": "The CSV row for one finished visit.",
+      "label": "spacr.qt.curation_timing.build_row#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The CSV row for one finished visit.",
+      "source_sha256": "711055e82cee26e6cc528c083814d8bba676193cb20c8f6b63cfedba7cb67f8a",
+      "translation": "一次已完成访问对应的 CSV 行。"
+    },
+    {
+      "context": "Compare two label arrays by IoU matching.",
+      "label": "spacr.qt.curation_timing.count_object_changes#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Compare two label arrays by IoU matching.",
+      "source_sha256": "7b0534db39d432dc367a4ca7e3accdff9666e9ae9777db402cb59f34aece63ef",
+      "translation": "通过 IoU 匹配比较两个标签数组。"
+    },
+    {
+      "context": "Objects are paired greedily by descending IoU; a pair needs IoU >= 0.5, and is *modified* when IoU < 0.9. Unpaired ``after`` objects are added, unpaired ``before`` objects are removed.",
+      "label": "spacr.qt.curation_timing.count_object_changes#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Objects are paired greedily by descending IoU; a pair needs IoU >= 0.5, and is *modified* when IoU < 0.9. Unpaired ``after`` objects are added, unpaired ``before`` objects are removed.",
+      "source_sha256": "b02ca027270c5337e4fdd24ad519026a50a6064cdefda4367c4a1cb3ff9c8129",
+      "translation": "对象按 IoU 从高到低贪心配对；配对要求 IoU >= 0.5，当 IoU < 0.9 时视为*已修改*。未配对的 ``after`` 对象计为新增，未配对的 ``before`` 对象计为移除。"
+    },
+    {
+      "context": "Build and append one row; never throws.",
+      "label": "spacr.qt.curation_timing.log_visit#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Build and append one row; never raises.",
+      "source_sha256": "bf1afb371bdc2112627b8bede8b56c65fa42abc93d21ee30ac444049c2af68b9",
+      "translation": "构建并追加一行；绝不引发异常。"
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}

@@ -1819,6 +1819,18 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in timelapse_arrivals} == timelapse_arrivals
     assert not timelapse_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **timelapse_arrivals}
+    # 2026-10-20: Make Masks per-field curation timing log (61d2aca57f),
+    # the spacr.qt.curation_timing module and its six members; one named
+    # contract.
+    timing_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "curation_timing_api_arrivals_2026-10-20.json").read_text())
+    assert set(timing_arrivals) == {"spacr.qt.curation_timing", *(
+        "spacr.qt.curation_timing." + name for name in (
+            "FieldTimer", "FieldTimer.touch", "append_row", "build_row",
+            "count_object_changes", "log_visit"))}
+    assert {key: docs[key] for key in timing_arrivals} == timing_arrivals
+    assert not timing_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **timing_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]
