@@ -530,7 +530,10 @@ def main(argv=None):
                 assert vtt.startswith('WEBVTT') and '-->' in vtt, vtt[:100]
                 evidence['caption_webvtt_sha256'] = hashlib.sha256(vtt.encode()).hexdigest()
                 page.locator('#caption-settings-close').click()
-            evidence['scene_count'] = page.locator('.chapter-button').count()
+            evidence['scene_count'] = page.wait_for_function(
+                '(expected) => { const actual = document.querySelectorAll(".chapter-button").length; '
+                'return actual === expected && actual; }',
+                arg=len(lesson['scenes']), timeout=30000).json_value()
             expected = sorted({identity for scene in lesson['scenes'] for identity in scene.get('related_lessons', [])})
             actual = page.locator('#chapter-list [data-related-lesson]').evaluate_all(
                 '(nodes) => [...new Set(nodes.map(n => n.dataset.relatedLesson))].sort()')
