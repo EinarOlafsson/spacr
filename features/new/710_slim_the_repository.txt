@@ -29,9 +29,10 @@ Phase 3: tutorial media and deck renders from HF; API catalogs built in CI.
 Phase 4: git filter-repo over all history, one force-push, everyone re-clones.
 
 ACCEPTANCE
-Fresh `git clone` of origin downloads at most 0.8 GiB (measured on a
-mirror with all sixteen purge paths: 744 MiB). The nightly tree is at most
-600 MB (measured after the same rewrite: 543 MB), spacr/resources unchanged.
+Fresh `git clone` of origin downloads at most 1.0 GiB and the nightly tree
+is at most 700 MB (maintainer, 2026-10-20, replacing 0.8 GiB / 600 MB: the
+deck pictures stay in git; corrected purge list measured 971 MiB pack and
+678 MB tree), spacr/resources unchanged.
 features/data keeps only files a test, tool, workflow or the package reads;
 every removed file is byte-identical on the HF dataset at its original path.
 Docs CI builds API catalogs, tutorial media and the deck from pinned HF
@@ -136,8 +137,8 @@ Measured on /mnt/wd4tb/scratch/repo-slim/rewrite.git (bare clone of the
 mirror, heads and tags only; filter-repo 26 s, 1.7 GB RSS): 11.26 GiB ->
 744 MiB pack, nightly tree 543 MB (re-measured 2026-10-20 with the corrected
 list on nightly 7492e7d80d: 11.47 GiB -> 971 MiB pack, nightly tree 678 MB,
-over the 0.8 GiB / 600 MB acceptance because the deck pictures, readme_deck
-images and kept evidence now stay). The first eight purge paths alone give
+within the 1.0 GiB / 700 MB acceptance; the deck pictures, readme_deck
+images and kept evidence stay). The first eight purge paths alone give
 1.19 GiB; the last eight are folders already deleted from the tree, whose
 purge also drops them from old release tags (maintainer: "Yes, purge them
 too", 2026-10-18). Command, on a fresh mirror clone:
@@ -182,4 +183,4 @@ Coordination checklist:
 2026-10-20 — Phase 2: keep-list re-derived on 850c2e30a3 (same 73 files, kept in place); 33 changed n676 files uploaded (spacr-evidence 1f6fb59e90cd); 22,797 files (4,097,622,132 bytes) removed after hash check (5400e02335). README checkout size re-measured to 1178 MB (a95558196a).
 2026-10-20 — Phase 3 deck: spacr_deck.pdf and anim/ (69,793,628 bytes) pinned in docs/media_revision.json at spacr-tutorials 64ff46ea4409; tools/fetch_docs_media.py fetches/checks/publishes, docs.yml fetches before Sphinx, deck builder --publish and refresh_alpha_deck bump the pin. Remaining: API catalogs, WS tutorial media, phase 4.
 
-2026-10-20 — Phase 4 purge list corrected to spare the 73 kept features/data files, the in-git deck and tools/readme_deck/images; mirror re-measure 971 MiB pack, 678 MB tree, above the 0.8 GiB / 600 MB acceptance: maintainer to choose moving the deck pictures and readme_deck images to HF or a new target. Rewrite not run.
+2026-10-20 — Phase 4 purge list corrected to spare the 73 kept features/data files, the in-git deck and tools/readme_deck/images; mirror re-measure 971 MiB pack, 678 MB tree. Maintainer accepted clone <= 1.0 GiB and tree <= 700 MB with the deck pictures in git. Rewrite waits for the maintainer's go and a coordinated re-clone.
