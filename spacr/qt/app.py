@@ -3055,6 +3055,23 @@ def _a_modal_dialog_is_open() -> bool:
     return _Application.activeModalWidget() is not None
 
 
+def _an_event_loop_is_running() -> bool:
+    """Whether this thread is inside an event loop that ``exit(0)`` would end.
+
+    ``exit()`` also marks the application as quitting, and every event loop
+    started after that returns at once until ``exec`` runs again. A window
+    closed with no loop running -- a test's teardown -- has nothing to leave,
+    and exiting there stopped every later wait and timer in the process (all
+    49 thread and timer tests after the first closed main window failed on
+    macOS, 2026-10-20). Inside ``exec`` the level is at least one.
+
+    :returns: true while an event loop runs on this thread.
+    """
+    from PySide6.QtCore import QThread
+
+    return QThread.currentThread().loopLevel() > 0
+
+
 def _end_the_event_loop(app) -> None:
     """End the session after the main window accepted its close.
 
@@ -3072,6 +3089,8 @@ def _end_the_event_loop(app) -> None:
     leave = getattr(app, "exit", None) if sys.platform == "darwin" else None
     if leave is None:
         app.quit()
+        return
+    if not _an_event_loop_is_running():
         return
     if getattr(app, "_spacr_leaving", False):
         return

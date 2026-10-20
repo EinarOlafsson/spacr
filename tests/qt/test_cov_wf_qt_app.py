@@ -484,6 +484,7 @@ def test_closing_the_window_quits_the_application_exactly_once(win,
             return holder["instance"]
 
     monkeypatch.setattr(app_mod, "QApplication", _StubQApplication)
+    monkeypatch.setattr(app_mod, "_an_event_loop_is_running", lambda: True)
     first = QCloseEvent()
     win.closeEvent(first)
     assert first.isAccepted() is True
