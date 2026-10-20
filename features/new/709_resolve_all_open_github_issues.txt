@@ -2,7 +2,7 @@
 RESOLVE ALL OPEN GITHUB ISSUES; THE ITEM REOPENS WHENEVER ISSUES ARE ADDED
 ================================================================================
 
-Status:    OPEN — 1 open GitHub issue
+Status:    OPEN — 2 open GitHub issues
 Requested: maintainer, 2026-10-18 — "make an item that resolves all GitHub
            issues and gets reactivated every time issues are added, currently
            there are 4"
@@ -28,7 +28,8 @@ The block and Status match the GitHub issue list (pull requests excluded);
 running the tool twice changes nothing.
 
 --- OPEN ISSUES (auto) ---
-#152 annotate app suggestions (EinarOlafsson, 2026-10-16)
+#155 [user-report] KeyError in classify_merged: 'png_path' (spacr-first-responder[bot], 2026-10-19)
+#156 [user-report] FileNotFoundError in mask: No image stacks were produced from <PATH> spaCR found 0 image file(s) directly … (spacr-first-responder[bot], 2026-10-19)
 --- END OPEN ISSUES ---
 
 2026-10-18 — Registered with the sync tool and the issues workflow; four issues open (#146, #147, #150, #152).
