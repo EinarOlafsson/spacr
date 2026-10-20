@@ -4554,6 +4554,7 @@ class AnnotateScreen(QWidget):
         self._build_ui()
         self._install_shortcuts()
         self.setFocusPolicy(Qt.StrongFocus)
+        self.setAccessibleName(tr("Annotate"))
         try:
             from ..gui_scale import add_listener
             add_listener(self._on_gui_scale_changed)

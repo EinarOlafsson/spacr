@@ -373,6 +373,7 @@ class _TopicBar(QFrame):
         super().__init__(parent)
         self.setObjectName("ConsoleTopicBar")
         self.setFocusPolicy(Qt.StrongFocus)
+        self.setAccessibleName(label)
         self._expanded = True
         lay = QHBoxLayout(self)
         lay.setContentsMargins(SPACING["md"], SPACING["xs"],
