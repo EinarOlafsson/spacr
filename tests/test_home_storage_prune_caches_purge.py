@@ -193,7 +193,7 @@ def test_purge_lists_only_spacr_owned_paths(home, tmp_path):
     (home / ".spacr" / "cache_locations.json").write_text(json.dumps(
         {"SPACR_BACKENDS_DIR": str(backends), "HF_HOME": str(shared)}), encoding="utf-8")
     targets = ic._purge_targets(_machine(home))
-    names = {os.path.relpath(p, tmp_path) for p in targets}
+    names = {Path(os.path.relpath(p, tmp_path)).as_posix() for p in targets}
     assert names == {"home/.spacr", "home/.cache/spacr", "home/.config/spacr",
                      "home/spacr-demos", "spacr-backends"}
 

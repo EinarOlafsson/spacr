@@ -109,6 +109,7 @@ def test_a_user_expanded_tilde_reaches_the_same_table(monkeypatch,
                                                       results_folder):
     """``~/run`` and the absolute path must resolve to one file."""
     monkeypatch.setenv("HOME", str(results_folder.parent))
+    monkeypatch.setenv("USERPROFILE", str(results_folder.parent))
     assert volcano.find_results_table("~/run_2024") == os.path.abspath(
         results_folder / "results.csv")
 

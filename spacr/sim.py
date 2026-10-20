@@ -953,8 +953,8 @@ def save_plot(fig, src, variable, i):
     :param i: Zero-padded simulation index used in the file name.
     :returns: None.
     """
-    os.makedirs(f'{src}/{variable}', exist_ok=True)
-    filename_fig = f'{src}/{variable}/{str(i)}_figure.pdf'
+    os.makedirs(os.path.join(src, variable), exist_ok=True)
+    filename_fig = os.path.join(src, variable, f'{str(i)}_figure.pdf')
     save_figure(fig, filename_fig, bbox_inches='tight')
     return
     
@@ -1583,8 +1583,8 @@ def save_shap_plot(fig, src, variable, i):
     :param i: identifier prefixed to the output filename.
     """
     import os
-    os.makedirs(f'{src}/{variable}', exist_ok=True)
-    filename_fig = f'{src}/{variable}/{str(i)}_figure.pdf'
+    os.makedirs(os.path.join(src, variable), exist_ok=True)
+    filename_fig = os.path.join(src, variable, f'{str(i)}_figure.pdf')
     filename_fig = save_figure(fig, filename_fig, bbox_inches='tight')
     print(f"Saved figure as {filename_fig}")
 
