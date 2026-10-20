@@ -76,7 +76,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple
+from typing import (Any, Dict, Iterable, Iterator, List, Mapping, Optional,
+                    Set, Tuple)
 
 from .macro import begin_recording, finish_recording
 from .logging_util import _spacr_home
@@ -795,6 +796,8 @@ class Run:
         default_factory=dict, repr=False,
     )
     _start_cpu_s: float = field(default_factory=time.process_time, repr=False)
+    _owner: Optional[Dict[str, str]] = field(default=None, init=False,
+                                             repr=False)
     _ledgers: List[Dict[str, Any]] = field(default_factory=list, repr=False)
 
     def _note_ledger(self, ledger: Any) -> None:
@@ -1196,6 +1199,7 @@ class Run:
                 if self.end_ts else None),
             "elapsed_s":     elapsed,
             "status":        self.status,
+            **({"owner": dict(self._owner)} if self._owner else {}),
             "env":           self.environment,
             "environment_lock": self.environment_lock or None,
             "model_hashes":  self.model_hashes,
@@ -1344,6 +1348,84 @@ def _raise_if_incomplete(run: Run) -> None:
             f"Run incomplete: {summary}. Partial artifacts were retained.")
 
 
+_OWN_RUN_OWNER: Dict[int, Dict[str, str]] = {}
+
+
+def _run_owner() -> Optional[Dict[str, str]]:
+    """The process that opens a run, as the installer leases record an owner.
+
+    Process id, start stamp and host, plus the pid namespace on Linux, so a
+    run's manifest can later be judged by :func:`_run_owner_gone`. Measured
+    once per process. Never raises: a run opens without an owner rather than
+    not at all.
+
+    :returns: the owner record, or None when the start stamp is unreadable.
+    """
+    pid = os.getpid()
+    if pid not in _OWN_RUN_OWNER:
+        try:
+            from .install_cleanup import (_lease_host, _pid_namespace,
+                                          _process_started)
+
+            started = _process_started(pid) or ""
+            owner = {"pid": str(pid), "started": started,
+                     "host": _lease_host()}
+            if os.name != "nt":
+                owner["pidns"] = _pid_namespace()
+        except Exception:
+            LOG.debug("could not record the run owner", exc_info=True)
+            owner = {}
+        _OWN_RUN_OWNER[pid] = owner if owner.get("started") else {}
+    return dict(_OWN_RUN_OWNER[pid]) or None
+
+
+def _run_owner_gone(owner: Any) -> bool:
+    """True only when a running run's recorded owner is provably gone.
+
+    The owner must have been recorded on this host (and, on Linux, in this
+    pid namespace), and its process must be absent or carry another start
+    stamp of the same kind. A run from another host or container, an
+    unreadable process, this process, and a manifest from a version that
+    recorded no owner are never judged dead.
+
+    :param owner: the manifest's ``owner`` record.
+    :returns: whether the run can be shown as interrupted.
+    """
+    if not isinstance(owner, Mapping):
+        return False
+    try:
+        from .install_cleanup import (_lease_host, _pid_namespace,
+                                      _process_gone, _process_started)
+
+        pid = int(str(owner.get("pid", "")))
+        started = str(owner.get("started") or "")
+        if pid <= 0 or not started or pid == os.getpid():
+            return False
+        if str(owner.get("host") or "") != _lease_host():
+            return False
+        if os.name != "nt":
+            here = _pid_namespace()
+            if here == "unknown" or str(owner.get("pidns") or "") != here:
+                return False
+        if _process_gone(pid):
+            return True
+        now = _process_started(pid)
+    except Exception:
+        LOG.debug("could not judge a run owner", exc_info=True)
+        return False
+    if not now:
+        return False
+    return (now.partition(":")[0] == started.partition(":")[0]
+            and now != started)
+
+
+def _listed_status(manifest: Mapping[str, Any], status: str) -> str:
+    """The status Run History shows: ``interrupted`` for a dead owner's run."""
+    if status == "running" and _run_owner_gone(manifest.get("owner")):
+        return "interrupted"
+    return status
+
+
 @contextmanager
 def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     """Open a fresh run journal folder around a pipeline invocation.
@@ -1365,6 +1447,7 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     run = Run(app_key=app_key, settings=dict(settings or {}),
                 dir=_new_run_dir(app_key))
     run.environment = _env_snapshot()
+    run._owner = _run_owner()
     try:
         run.environment_lock = _write_environment_lock(
             run.dir, run.environment.get("packages") or {})
@@ -2084,7 +2167,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
         all_entries.append({
             "dir":       d,
             "app_key":   m.get("app_key", "?"),
-            "status":    m.get("status", "?"),
+            "status":    _listed_status(m, m.get("status", "?")),
             "start_utc": m.get("start_utc", ""),
             "elapsed_s": m.get("elapsed_s"),
             "manifest":  m,
@@ -2147,6 +2230,7 @@ def search_runs(
                 if "no manifest.json (run may still be in flight)" in rec["errors"]
                 else "corrupt"
             )
+        current_status = _listed_status(manifest, current_status)
         if wanted_app and current_app.lower() != wanted_app:
             continue
         if wanted_status and current_status != wanted_status:
