@@ -30,7 +30,7 @@ def test_the_attribute_is_set_before_the_application_exists():
     source = inspect.getsource(module.main) if hasattr(module, "main") else \
         inspect.getsource(module)
     setting = source.find("AA_DontUseNativeDialogs")
-    construction = source.find("QApplication(sys.argv")
+    construction = source.find("app = QApplication(")
     assert setting != -1, "the attribute is never set"
     assert construction != -1
     assert setting < construction, (
