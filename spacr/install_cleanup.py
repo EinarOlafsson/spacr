@@ -5781,9 +5781,11 @@ def _prune_runtime_transactions(prefix, family, *, live=False, inventory=None):
     ones. Only a copy whose journal says "committed" is removed; one rolling back, awaiting launch
     confirmation, unknown or unreadable is kept, as is the newest committed one. A copy whose update
     failed or was cancelled before the live runtime was retired (``staging_failed``, ``cancelled``, about
-    2.3 GB of staged runtime) is always removed. With ``live`` the committed copies
-    are pruned only when the newest transaction of all is committed and its new runtime is the one now
-    installed, by directory identity and content. The caller holds the runtime lease. Nothing outside the
+    2.3 GB of staged runtime) is always removed. A Windows copy whose folder holds no retired runtime is
+    only a staged one: once its staging owner is gone it is removed when rolled back or still staging, even
+    when the installed runtime has since been replaced by another update or a reinstall. With ``live`` the
+    committed copies are pruned only when the newest transaction of all (on Windows, of those not being
+    removed) is committed and its new runtime is the one now installed, by directory identity and content. The caller holds the runtime lease. Nothing outside the
     runtime's own folder is touched and no link is followed.
 
     :param prefix: the runtime directory the transactions replaced.
@@ -5806,15 +5808,20 @@ def _prune_runtime_transactions(prefix, family, *, live=False, inventory=None):
         live_identity = [details.st_dev, details.st_ino]
     except OSError:
         live_identity = None
+    windows = family != "posix-runtime"
     abandoned = [row for row in journals if row[2].get("state") in _ABANDONED_TRANSACTION_STATES
-                 and not (family != "posix-runtime" and os.path.lexists(os.path.join(row[1], child)))]
+                 and not (windows and os.path.lexists(os.path.join(row[1], child)))]
     abandoned += [row for row in journals if row[2].get("state") in _STAGING_TRANSACTION_STATES
-                  and live_identity is not None and row[2].get("old_identity") == live_identity
-                  and not (family != "posix-runtime" and os.path.lexists(os.path.join(row[1], child)))
+                  and (windows or (live_identity is not None and row[2].get("old_identity") == live_identity))
+                  and not (windows and os.path.lexists(os.path.join(row[1], child)))
+                  and _transaction_owner_gone(row[2])]
+    abandoned += [row for row in journals if windows and row[2].get("state") == "rolled_back"
+                  and not os.path.lexists(os.path.join(row[1], child))
                   and _transaction_owner_gone(row[2])]
     committed = [row for row in journals if row[2].get("state") == "committed"]
     candidates = list(abandoned)
-    if len(committed) >= 2 and _newest_copy_is_live(prefix, family, journals, live, inventory):
+    remaining = [row for row in journals if row not in abandoned] if windows else journals
+    if len(committed) >= 2 and _newest_copy_is_live(prefix, family, remaining, live, inventory):
         candidates.extend(committed[:-1])
     return _remove_runtime_copies(parent, candidates)
 
