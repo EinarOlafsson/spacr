@@ -1289,7 +1289,14 @@ class _DistributionSmokeController(QObject):
         self._finish(0)
 
     def _keep_installer_cleanup(self):
-        """Choose the actual default-off cleanup dialog's Keep button without removing files."""
+        """Choose the actual default-off cleanup dialog's Keep button without removing files.
+
+        Keep is pressed on a later tick than the one that first sees the
+        dialog, and only once its window is exposed. On macOS a modal's
+        show runs a modal session that delivers this timer, and Keep
+        pressed from inside that show hid the window while Cocoa was still
+        showing it ("Already setting window visible!", first-run smoke).
+        """
         from PySide6.QtCore import Qt
         from PySide6.QtTest import QTest
         from PySide6.QtWidgets import QDialog, QPushButton
@@ -1298,6 +1305,11 @@ class _DistributionSmokeController(QObject):
         dialog = self.app.activeModalWidget()
         if not isinstance(dialog, _InstallerCleanupDialog):
             return False
+        handle = dialog.windowHandle()
+        if (getattr(self, '_cleanup_review_seen', None) is not dialog
+                or handle is None or not handle.isExposed()):
+            self._cleanup_review_seen = dialog
+            return True
         keep = dialog.findChild(QPushButton, 'InstallerCleanupKeep')
         remove = dialog.findChild(QPushButton, 'InstallerCleanupRemove')
         if (not dialog.isVisible() or dialog.choices()['keys']

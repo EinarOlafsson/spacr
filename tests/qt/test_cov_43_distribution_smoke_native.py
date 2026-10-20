@@ -992,6 +992,9 @@ def test_native_menu_waits_for_late_install_review_and_keeps_actual_files(qtbot,
     qtbot.waitUntil(lambda: QApplication.activeModalWidget() is dialog)
     assert dialog.findChild(QPushButton, 'InstallerCleanupKeep').isDefault()
     Controller._advance(fake)
+    assert dialog.isVisible() and 'installation_review' not in fake.record
+    qtbot.waitUntil(lambda: dialog.windowHandle().isExposed())
+    Controller._advance(fake)
     assert not dialog.isVisible()
     assert dialog.result() == QDialog.DialogCode.Rejected
     assert events == []
@@ -1064,6 +1067,9 @@ def test_smoke_never_changes_a_cleanup_choice_or_uses_an_unsafe_keep_button(qtbo
         keep.hide()
     before = dialog.choices()
     fake = _controller(tmp_path, app=QApplication.instance())
+    qtbot.waitUntil(lambda: dialog.windowHandle().isExposed())
+    assert Controller._keep_installer_cleanup(fake) is True
+    assert fake._cleanup_review_seen is dialog
     try:
         with pytest.raises(RuntimeError, match='default Keep state'):
             Controller._keep_installer_cleanup(fake)
