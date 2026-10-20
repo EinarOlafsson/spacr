@@ -30,9 +30,18 @@ NIGHTLY_SPACE = "einarolafsson/spacr-docs-nightly"
 NIGHTLY_URL = "https://einarolafsson-spacr-docs-nightly.static.hf.space/"
 PAGES_LIMIT = 900 * 1000 * 1000
 _HF_STATIC_INJECTION_BYTES = 101
+_HF_STATIC_SOCIAL_BYTES = 1500
 _HF_STATIC_INJECTION = re.compile(
     rb'<script>window\.huggingface=\{variables:\{"SPACE_CREATOR_USER_ID":'
     rb'"[0-9a-f]{24}"\}\};</script>')
+_HF_STATIC_SOCIAL = re.compile(
+    rb'<meta property="og:title" content="[^"<>]*">'
+    rb'<meta property="og:description" content="[^"<>]*">'
+    rb'<meta property="og:image" content="https://cdn-thumbnails\.huggingface\.co/'
+    rb'social-thumbnails/spaces/[a-z0-9-]+/[a-z0-9-]+\.png">'
+    rb'<meta name="twitter:card" content="[^"<>]*">'
+    rb'<meta name="twitter:image" content="https://cdn-thumbnails\.huggingface\.co/'
+    rb'social-thumbnails/spaces/[a-z0-9-]+/[a-z0-9-]+\.png">')
 
 
 def _read_text(path: Path) -> str:
@@ -605,20 +614,38 @@ def verify_space_tree(site: Path, space: str, revision: str) -> dict:
 
 
 def _public_index_matches(expected: bytes, received: bytes, url: str) -> bool:
-    """Allow only the observed static-Space creator script around exact bytes."""
+    """Allow only the static-Space scripts and card tags around exact bytes.
+
+    Hugging Face adds the creator script right after ``<head>`` and, since
+    October 2026, the Open Graph and Twitter card tags right before
+    ``</head>``. Anything else that differs is a real difference.
+    """
     if received == expected:
         return True
     address = urlsplit(url)
     if (address.scheme != "https"
             or not (address.hostname or "").endswith(".static.hf.space")
-            or len(received) != len(expected) + _HF_STATIC_INJECTION_BYTES):
+            or len(received) > len(expected) + _HF_STATIC_INJECTION_BYTES
+            + _HF_STATIC_SOCIAL_BYTES):
         return False
     head = re.search(rb"<head\b[^>]*>", expected)
     if head is None or received[:head.end()] != expected[:head.end()]:
         return False
-    injection = _HF_STATIC_INJECTION.match(received, head.end())
-    return (injection is not None
-            and received[injection.end():] == expected[head.end():])
+    rest = received[head.end():]
+    script = _HF_STATIC_INJECTION.match(rest)
+    if script is not None:
+        rest = rest[script.end():]
+    original = expected[head.end():]
+    close = original.find(b"</head>")
+    if close < 0:
+        return rest == original
+    if rest[:close] != original[:close]:
+        return False
+    tail = rest[close:]
+    social = _HF_STATIC_SOCIAL.match(tail)
+    if social is not None:
+        tail = tail[social.end():]
+    return tail == original[close:]
 
 
 def verify_nightly(site: Path, url: str = NIGHTLY_URL, attempts: int = 30,
@@ -644,7 +671,8 @@ def verify_nightly(site: Path, url: str = NIGHTLY_URL, attempts: int = 30,
                                   headers={"Cache-Control": "no-cache"})
                 with urlopen(request, timeout=15) as response:
                     received_index = response.read(
-                        len(expected_index) + _HF_STATIC_INJECTION_BYTES + 1)
+                        len(expected_index) + _HF_STATIC_INJECTION_BYTES
+                        + _HF_STATIC_SOCIAL_BYTES + 1)
                     if _public_index_matches(expected_index, received_index, url):
                         return record["commit"]
                 last_error = "public index.html does not match the assembled site"
