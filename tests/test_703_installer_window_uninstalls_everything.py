@@ -123,6 +123,7 @@ def test_an_update_error_with_a_traceback_is_shown_as_one_sentence(tmp_path, mon
     from spacr.qt.app import MainWindow
 
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
     monkeypatch.setenv("SPACR_LOG_DIR", str(tmp_path / "app-logs"))
     why = ("The staged application identity could not be verified: Traceback (most recent call last):\n"
            '  File "<string>", line 40, in <module>\nAssertionError: Requested spaCR version differs\n')

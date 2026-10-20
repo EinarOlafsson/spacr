@@ -45,6 +45,7 @@ def test_current_and_all_are_distinct_scopes_and_checkouts_stay(installation):
     assert not checkout["selectable"] and checkout["reason"] == "checkout"
 
 
+@pytest.mark.posix_only
 def test_current_macos_online_scope_includes_its_application_launcher(tmp_path):
     box = Box(tmp_path)
     support = macos_package(box, "1.5.0.7")
@@ -149,6 +150,7 @@ def test_spacr_named_external_folder_is_not_ownership_evidence(installation, var
     assert data.exists()
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize("ancestor", [False, True])
 def test_linked_data_paths_are_never_followed(installation, ancestor):
     box, root, machine = installation
@@ -255,6 +257,7 @@ def _prepared_helper(installation, tmp_path):
     return box, root, machine, plan, calls
 
 
+@pytest.mark.posix_only
 def test_preparation_does_not_remove_anything_and_uses_outside_copied_source(installation, tmp_path):
     box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
     assert (root / "venv" / "bin" / "python").exists()
@@ -264,6 +267,7 @@ def test_preparation_does_not_remove_anything_and_uses_outside_copied_source(ins
     assert not (tmp_path / "outside-helper" / "approved.json").exists()
 
 
+@pytest.mark.posix_only
 def test_approved_helper_requires_verified_process_exit_and_records_result(installation, tmp_path):
     box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
     handshake = ic._FrozenUpdateHandshake(plan)
@@ -278,6 +282,7 @@ def test_approved_helper_requires_verified_process_exit_and_records_result(insta
     assert json.loads((tmp_path / "outside-helper" / "result.json").read_text(encoding="utf-8"))["ok"]
 
 
+@pytest.mark.posix_only
 def test_cancelled_helper_does_not_remove_application_or_data(installation, tmp_path):
     box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
     ic._FrozenUpdateHandshake(plan).cancel()
@@ -289,6 +294,7 @@ def test_cancelled_helper_does_not_remove_application_or_data(installation, tmp_
     assert box.commands == []
 
 
+@pytest.mark.posix_only
 def test_approval_without_process_exit_cannot_remove_application(installation, tmp_path):
     box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
     handshake = ic._FrozenUpdateHandshake(plan)
@@ -305,6 +311,7 @@ def test_approval_without_process_exit_cannot_remove_application(installation, t
     assert (box.home / ".spacr" / "logs" / "old.log").exists()
 
 
+@pytest.mark.posix_only
 def test_saved_plan_cannot_change_cleanup_after_approval(installation, tmp_path):
     box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
     path = tmp_path / "outside-helper" / "plan.json"
@@ -350,6 +357,7 @@ def test_shared_environment_package_permissions_are_checked_before_closing(insta
     assert box.files() == before and box.commands == []
 
 
+@pytest.mark.posix_only
 def test_shared_environment_parent_permission_is_not_needed_to_remove_only_spacr(installation, tmp_path, monkeypatch):
     box, root, machine = installation
     environment = _conda_env(box, "shared-science")
@@ -475,6 +483,7 @@ def protected_macos(tmp_path, monkeypatch):
     return box, machine, preview, choice, records, helper
 
 
+@pytest.mark.posix_only
 def test_native_macos_preparation_authorizes_only_the_fixed_installed_helper(protected_macos, tmp_path):
     box, machine, preview, choice, records, helper = protected_macos
     adapter = ic._macos_native_uninstall_adapter(preview, records, machine)
@@ -492,6 +501,7 @@ def test_native_macos_preparation_authorizes_only_the_fixed_installed_helper(pro
     assert "install_cleanup.py" not in command[2]
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("invalid", ["old_binary", "writable_binary", "linked_binary"])
 def test_native_macos_preparation_refuses_untrusted_or_older_installed_helper(protected_macos, invalid):
     box, machine, preview, choice, records, helper = protected_macos
@@ -506,6 +516,7 @@ def test_native_macos_preparation_refuses_untrusted_or_older_installed_helper(pr
         ic._macos_native_uninstall_adapter(preview, records, machine)
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("cancelled", [False, True])
 def test_native_authorization_precedes_readiness_and_deletion_waits_for_exit(installation, tmp_path, monkeypatch, cancelled):
     box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
@@ -576,6 +587,7 @@ def test_native_authorization_precedes_readiness_and_deletion_waits_for_exit(ins
     assert (root / "venv/bin/python").exists()
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("decision,exited", [("activate", True), ("cancel", True), ("activate", False)])
 def test_native_debian_removes_only_spacr_after_authorization_and_actual_exit(monkeypatch, decision, exited):
     from contextlib import nullcontext
@@ -630,6 +642,7 @@ def test_native_debian_refuses_different_desktop_owner_before_package_commands(m
         ic._uninstall_debian_root("private-descriptor", 12345, "/opt/spacr/spacr", 1000, "1.5.0.7")
 
 
+@pytest.mark.posix_only
 def test_copied_uninstall_helper_binds_original_desktop_executable(installation, tmp_path, monkeypatch):
     box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
     assert plan["desktop_executable"] == machine.executable
@@ -647,6 +660,7 @@ def test_copied_uninstall_helper_binds_original_desktop_executable(installation,
     assert observed == [{"running_prefix": machine.running_prefix, "executable": machine.executable}]
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("invalid", ["linked_marker", "writable_marker", "writable_resources", "oversized_marker"])
 def test_native_macos_requires_trusted_bounded_capability_marker(protected_macos, invalid):
     box, machine, preview, choice, records, helper = protected_macos
@@ -787,6 +801,7 @@ def test_windows_native_helper_requires_system_ownership_and_no_foreign_write(tm
             ic._windows_system_owned(str(helper))
 
 
+@pytest.mark.posix_only
 def test_frozen_macos_descriptor_removal_preserves_optouts_and_external_link_targets(tmp_path):
     root = tmp_path / "spaCR.app"
     executable = root / "Contents/MacOS/spacr"
@@ -811,6 +826,7 @@ def test_frozen_macos_descriptor_removal_preserves_optouts_and_external_link_tar
     assert (project / "analysis.csv").read_text(encoding="utf-8") == "keep outside"
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("invalid", ["writable_subtree", "changed_root", "outside_keep"])
 def test_frozen_macos_descriptor_preflight_refuses_before_mutation(tmp_path, invalid):
     root = tmp_path / "spaCR.app"
@@ -833,6 +849,7 @@ def test_frozen_macos_descriptor_preflight_refuses_before_mutation(tmp_path, inv
     assert payload.read_text(encoding="utf-8") == "old application"
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("decision,exited", [("activate", True), ("cancel", True), ("activate", False)])
 def test_frozen_macos_authorized_helper_requires_activation_and_actual_exit(monkeypatch, decision, exited):
     from types import SimpleNamespace
@@ -888,6 +905,7 @@ def test_frozen_macos_authorized_helper_requires_activation_and_actual_exit(monk
         assert events.index("prepared") < events.index("exited") < events.index(removals[0]) < events.index("complete")
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("cancelled", [False, True])
 def test_windows_uninstall_bootstrap_exit_is_not_authenticated_completion(installation, tmp_path, monkeypatch, cancelled):
     from contextlib import contextmanager
@@ -986,6 +1004,7 @@ def test_windows_new_payload_marker_does_not_authorize_an_old_uninstaller(protec
     assert project.read_text(encoding="utf-8") == "unrelated" and (root / "spacr.exe").exists()
 
 
+@pytest.mark.posix_only
 def test_frozen_macos_authorizes_nonwritable_bundle_even_with_writable_applications(tmp_path, monkeypatch):
     box = Box(tmp_path)
     app = box.system("/Applications/spaCR.app")

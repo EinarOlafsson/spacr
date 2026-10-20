@@ -493,6 +493,7 @@ def test_what_is_left_of_a_group_is_killed(monkeypatch):
     assert process.signals == []
 
 
+@pytest.mark.posix_only
 def test_cancel_kills_a_child_that_keeps_the_output_open(monkeypatch):
     """The installer has exited; something it started holds the pipe."""
     gate = threading.Event()
@@ -593,6 +594,7 @@ def test_a_cli_off_path_is_found_in_a_folder_installers_use(monkeypatch):
     assert cli_install.locate(Tool([])) == ""
 
 
+@pytest.mark.posix_only
 def test_the_folders_looked_in_on_linux(monkeypatch, tmp_path):
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("CONDA_PREFIX", "/envs/spacr")
@@ -616,7 +618,7 @@ def test_the_folders_looked_in_on_windows(monkeypatch, tmp_path):
         lambda *a, **k: subprocess.CompletedProcess(a, 0, "C:/npm\n", ""))
     folders = cli_install.likely_folders("win32")
     assert str(tmp_path / "local" / "Microsoft/WinGet/Links") in folders
-    assert folders[-1] == "C:/npm"
+    assert folders[-1] == str(Path("C:/npm"))
 
 
 @pytest.mark.parametrize("answer,expected", [

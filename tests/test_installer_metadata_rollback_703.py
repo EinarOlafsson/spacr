@@ -26,6 +26,7 @@ def _cli(*args):
                            capture_output=True, text=True, timeout=15)
 
 
+@pytest.mark.posix_only
 def test_real_subprocess_restores_original_bytes_modes_links_and_absent_receipt(tmp_path):
     source = _write(tmp_path / 'installed/profile.json', 'old profile')
     source.chmod(0o640)
@@ -54,7 +55,8 @@ def test_real_subprocess_restores_original_bytes_modes_links_and_absent_receipt(
     assert (folder / 'metadata.json').exists()
 
 
-@pytest.mark.parametrize('damage', ['backup-content', 'backup-link', 'journal-link', 'parent-link', 'traversal', 'duplicate'])
+@pytest.mark.parametrize('damage', ['backup-content'] + [pytest.param(name, marks=pytest.mark.needs_symlink)
+                                    for name in ('backup-link', 'journal-link', 'parent-link')] + ['traversal', 'duplicate'])
 def test_restore_validates_all_backup_bindings_before_writing_any_target(tmp_path, damage):
     first = _write(tmp_path / 'live/first', 'original first')
     second = _write(tmp_path / 'live/second', 'original second')
@@ -98,6 +100,7 @@ def test_empty_snapshot_request_fails_without_creating_folder(tmp_path):
     assert not folder.exists()
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('corrupt_backup', [False, True])
 def test_actual_linux_exit_trap_restores_runtime_and_matching_sidecars_or_retains_proof(tmp_path, corrupt_backup):
     root = tmp_path / 'installation'
