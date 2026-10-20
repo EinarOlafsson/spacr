@@ -4,6 +4,7 @@ import sys
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from verify_sweep_capture import check_saved_summary
 from sweep_evidence import (same_value,check_display,count_result_rows,check_result_family,
                             check_trial_set,check_fitted_support)
 
@@ -226,3 +227,35 @@ def test_exact_two_successful_distinct_penalties_required(case):
     else: rows[1]['alpha'] = '.01'
     with pytest.raises(ValueError):
         check_trial_set(rows)
+
+
+def saved_summary_fixture():
+    path = '/tmp/spacr-tutorial-current/sweep_runs/example/trials/trial_0001/results/ridge/model_summary.txt'
+    saved = '  spaCR RUN SUMMARY\n=================\n  coefficient  α=0.01\n'
+    displayed = (f"Read from {path}: this is the run's own summary, written when it was "
+                 "fitted, not recomputed here.\n\n" + saved.strip())
+    return displayed, saved, path
+
+
+def test_saved_summary_is_nonempty_verbatim_body_from_selected_trial():
+    displayed, saved, path = saved_summary_fixture()
+    result = check_saved_summary(displayed, saved, path)
+    assert result['passed'] and result['saved_summary_checked']
+    assert result['source'] == path and result['characters'] == len(saved.strip())
+    assert not result['new_fit_requested']
+
+
+@pytest.mark.parametrize('case', ['wrong_trial', 'changed_body', 'empty_saved', 'empty_display'])
+def test_saved_summary_rejects_wrong_source_changed_or_empty_body(case):
+    displayed, saved, path = saved_summary_fixture()
+    assert check_saved_summary(displayed, saved, path)['passed']
+    if case == 'wrong_trial':
+        displayed = displayed.replace('trial_0001', 'trial_0002')
+    elif case == 'changed_body':
+        displayed = displayed.replace('α=0.01', 'α=0.1')
+    elif case == 'empty_saved':
+        saved = ' \n\t'
+    else:
+        displayed = ''
+    with pytest.raises(ValueError):
+        check_saved_summary(displayed, saved, path)
