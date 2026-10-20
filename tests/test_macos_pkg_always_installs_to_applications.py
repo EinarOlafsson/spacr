@@ -7,6 +7,8 @@ installer still reported success.
 """
 import pathlib
 
+import pytest
+
 SCRIPT = (pathlib.Path(__file__).resolve().parents[1]
           / "packaging" / "online" / "build_macos_online.sh").read_text(encoding="utf-8")
 
@@ -26,6 +28,7 @@ def _postinstall():
     return SCRIPT[start:SCRIPT.index("\nEOF\n", start)] + "\n"
 
 
+@pytest.mark.posix_only
 def test_the_1499_system_runtime_is_retired_and_its_cache_kept(tmp_path):
     """1.4.9.9 put a root runtime in the support folder; an upgrade left it there unused."""
     import subprocess

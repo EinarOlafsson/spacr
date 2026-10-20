@@ -9,6 +9,7 @@ from spacr import install_cleanup as cleanup
 from spacr import updater
 
 
+@pytest.mark.posix_only
 def test_current_debian_package_is_recognized_as_the_running_frozen_app(tmp_path):
     """dpkg's new /opt layout must enter the installer-helper path."""
     root = tmp_path / "opt" / "spacr"
@@ -27,6 +28,7 @@ def test_current_debian_package_is_recognized_as_the_running_frozen_app(tmp_path
     assert records[0].registrations == ("deb:spacr",)
 
 
+@pytest.mark.posix_only
 def test_legacy_stdeb_layout_is_retained_despite_an_unowned_opt_directory(tmp_path):
     """A python3-spacr record cannot acquire another package's /opt directory."""
     root = tmp_path / "opt" / "spacr"

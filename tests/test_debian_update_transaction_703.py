@@ -262,6 +262,7 @@ def test_privileged_runner_drops_inherited_environment(ic, monkeypatch):
     assert len(observed) == 1
 
 
+@pytest.mark.posix_only
 def test_desktop_probe_executes_only_as_nonroot_with_private_profile(ic, tmp_path, monkeypatch):
     root = tmp_path / "bundle"
     root.mkdir(mode=0o755)
@@ -477,7 +478,8 @@ def test_journal_replacement_is_complete_private_and_retains_archives(ic, tmp_pa
     assert not list(tmp_path.glob(".journal-*"))
 
 
-@pytest.mark.parametrize("fault", [None, "marker", "owner", "changed-version", "not-newer", "user-data", "other-copy"])
+@pytest.mark.parametrize("fault", [pytest.param(None, marks=pytest.mark.posix_only), "marker", "owner",
+                                   "changed-version", "not-newer", "user-data", "other-copy"])
 def test_marked_debian_planner_binds_package_helper_and_desktop(ic, monkeypatch, fault):
     monkeypatch.setattr(ic.sys, "frozen", True, raising=False)
     record = ic.InstallRecord(kind="installer", layout="linux-deb", platform="linux",

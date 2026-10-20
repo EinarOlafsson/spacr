@@ -27,7 +27,7 @@ pytestmark = pytest.mark.skipif(os.name == "nt", reason="POSIX process groups")
 PLATFORM = "macos" if sys.platform == "darwin" else "linux"
 REAL_PS = "/bin/ps" if os.path.exists("/bin/ps") else "/usr/bin/ps"
 GROUP = 424242
-UID = os.geteuid()
+UID = getattr(os, "geteuid", lambda: -1)()
 
 
 def _fake_ps(tmp_path, rows, *, broken=False, lineage_group=None):

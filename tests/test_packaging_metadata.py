@@ -434,7 +434,12 @@ def test_every_claimed_python_version_has_a_ci_cell():
 
 _IMPORT_PROBE = textwrap.dedent(
     r"""
-    import builtins, json, os, runpy, socket, subprocess, sys, urllib.request
+    import builtins, json, os, platform, runpy, socket, subprocess, sys, urllib.request
+
+    # On Windows the stdlib asks the shell for the OS version the first time
+    # anything (setuptools included) calls platform.uname(); answer that once
+    # here so only work done by setup.py itself is caught below.
+    platform.uname()
 
     calls = []
 

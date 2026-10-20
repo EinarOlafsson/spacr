@@ -145,6 +145,7 @@ def test_credentials_never_appear_in_timeout_or_tool_failure(monkeypatch):
     assert str(error.value) == 'security failed (exit 1)'
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('fail_import', [False, True])
 def test_ci_keychain_cleanup_restores_search_path_even_after_failed_import(
         monkeypatch, tmp_path, fail_import):

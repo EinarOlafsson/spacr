@@ -242,7 +242,10 @@ def test_cancelled_uac_never_relaunches_or_changes_old_runtime(update):
     before = snapshot(update.runtime.root)
 
     def cancel(*_args, **_kwargs):
-        raise OSError(1223, 'modeled UAC declined')
+        declined = OSError(1223, 'modeled UAC declined')
+        if cleanup.os.name == 'nt':
+            declined.winerror = 1223
+        raise declined
 
     with pytest.raises(OSError) as error:
         run_update(update, install=cancel)

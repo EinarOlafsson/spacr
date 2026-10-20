@@ -88,7 +88,7 @@ def test_installer_cannot_enter_between_retirement_check_and_actual_delete(insta
     assert (root / 'cache/model').read_text(encoding="utf-8") == 'weights'
 
 
-@pytest.mark.parametrize('kind', ['directory', 'file', 'symlink'])
+@pytest.mark.parametrize('kind', ['directory', 'file', pytest.param('symlink', marks=pytest.mark.needs_symlink)])
 def test_existing_unknown_or_interrupted_outer_lease_is_preserved(installation, tmp_path, kind):
     root, launcher, machine, record = installation
     lease = root.parent / ('.' + root.name + '.spacr-installer-lock')
@@ -164,6 +164,7 @@ def test_empty_protected_user_or_shared_folder_is_not_removed_during_lease_relea
     assert report.failed or report.skipped
 
 
+@pytest.mark.needs_symlink
 def test_symlinked_record_does_not_remove_its_empty_user_directory_target(installation, tmp_path):
     _root, _launcher, machine, _record = installation
     target = tmp_path / 'unrelated empty folder'
@@ -199,9 +200,14 @@ def test_retirement_release_never_removes_a_replaced_outer_lease(installation, t
     lease = root.parent / ('.' + root.name + '.spacr-installer-lock')
     retained = tmp_path / 'previous-owned-lease'
     original = ic._delete
+    native_windows = platform == 'windows' and os.name == 'nt'
 
     def replace_during_delete(path, *args):
-        if path == str(root):
+        if path == str(root) and native_windows:
+            with pytest.raises(PermissionError):
+                lease.rename(retained)
+            assert lease.is_file() and not retained.exists()
+        elif path == str(root):
             lease.rename(retained)
             if platform == 'windows':
                 lease.write_text('other owner', encoding="utf-8")
@@ -213,6 +219,10 @@ def test_retirement_release_never_removes_a_replaced_outer_lease(installation, t
     monkeypatch.setattr(ic, '_delete', replace_during_delete)
     report = ic.remove_install(record, system=machine)
     assert report.ok
+    if native_windows:
+        assert not lease.exists() and not retained.exists()
+        assert (root / 'cache/model').read_text(encoding="utf-8") == 'weights'
+        return
     assert retained.exists()
     assert (lease.read_text(encoding="utf-8") if platform == 'windows' else (lease / 'proof').read_text(encoding="utf-8")) == 'other owner'
     assert (root / 'cache/model').read_text(encoding="utf-8") == 'weights'
