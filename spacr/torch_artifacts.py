@@ -320,12 +320,12 @@ def load_model_artifact(
         payload["legacy"] = True
     else:
         raise ValueError(
-            f"Unsupported PyTorch checkpoint mapping at {path!r}: no model "
+            f"Unsupported PyTorch checkpoint mapping at '{path}': no model "
             "state dictionary was found."
         )
 
     if not isinstance(state_dict, Mapping):
-        raise ValueError(f"Model state in {path!r} is not a state dictionary.")
+        raise ValueError(f"Model state in '{path}' is not a state dictionary.")
     if model is None:
         if not config.get("model_name"):
             raise ValueError(

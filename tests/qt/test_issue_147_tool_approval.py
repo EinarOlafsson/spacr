@@ -50,7 +50,7 @@ def fake_claude(tmp_path, monkeypatch):
     monkeypatch.setenv("PATH", f"{tmp_path}{os.pathsep}{os.environ.get('PATH', '')}")
 
     def calls():
-        return [json.loads(line) for line in log.read_text().splitlines()]
+        return [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
 
     return calls
 

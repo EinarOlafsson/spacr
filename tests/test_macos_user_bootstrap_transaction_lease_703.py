@@ -20,8 +20,8 @@ def _support(tmp_path):
     support.mkdir()
     wrapper = support / 'install-for-user.sh'
     shutil.copyfile(ONLINE / 'install_for_macos_user.sh', wrapper)
-    (support / 'installer_messages.sh').write_text('spacr_say() { printf "%s\\n" "$1"; }\n')
-    source = (ONLINE / 'install_spacr_unix.sh').read_text().split(
+    (support / 'installer_messages.sh').write_text('spacr_say() { printf "%s\\n" "$1"; }\n', encoding="utf-8")
+    source = (ONLINE / 'install_spacr_unix.sh').read_text(encoding="utf-8").split(
         '# @SPACR_INSTALLER_LEASE_BEGIN@\n', 1)[1].split('# @SPACR_INSTALLER_LEASE_END@', 1)[0]
     journal = tmp_path / 'backend-entry'
     backend = support / 'install-online.sh'
@@ -36,7 +36,7 @@ def _support(tmp_path):
         '\nprintf "acquired\\n"\n'
         'if [[ "${SPACR_TEST_WAIT:-0}" == "1" ]]; then read -r finish; fi\n'
         'if [[ "${SPACR_TEST_RETAIN:-0}" == "1" ]]; then SPACR_INSTALLER_RETAIN_LEASE=1; fi\n'
-        'exit "${SPACR_TEST_EXIT:-0}"\n')
+        'exit "${SPACR_TEST_EXIT:-0}"\n', encoding="utf-8")
     backend.chmod(0o755)
     runtime = tmp_path / 'user runtime'
     env = dict(os.environ, SPACR_USER_INSTALL_ROOT=str(runtime), SPACR_NO_RELAUNCH='1')
@@ -61,7 +61,7 @@ def test_gui_wrapper_does_not_create_application_or_marker_before_backend_lease(
     wrapper, runtime, env, journal = _support(tmp_path)
     result = _run(wrapper, env)
     assert result.returncode == 0, result.stderr
-    assert journal.read_text().strip() == 'absent'
+    assert journal.read_text(encoding="utf-8").strip() == 'absent'
     assert runtime.is_dir()
     assert not (runtime / '.installing').exists()
     assert not (runtime / '.venv.spacr-update-lock').exists()

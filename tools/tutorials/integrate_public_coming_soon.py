@@ -49,8 +49,8 @@ def integrate(baseline, destination, player):
             count = check_preserved(before, after)
             checks.append({'catalog': filename, 'ready_content_preserved': count,
                            'before_sha256': digest(before), 'after_sha256': digest(after)})
-        index = (baseline / 'index.html').read_text()
-        template = (player / 'index.html').read_text()
+        index = (baseline / 'index.html').read_text(encoding="utf-8")
+        template = (player / 'index.html').read_text(encoding="utf-8")
         pattern = r'<section\b[^>]*id="planned-card"[\s\S]*?</section>'
         panel = re.search(pattern, template)
         if not panel:
@@ -67,10 +67,10 @@ def integrate(baseline, destination, player):
         index = re.sub(r'(id="available-count">)\d+', r'\g<1>71', index)
         index = re.sub(r'(id="total-count">)\d+', r'\g<1>77', index)
         original_roots = re.findall(r'data-(?:production|audio|video4k)-root="[^"]+"',
-                                    (baseline / 'index.html').read_text())
+                                    (baseline / 'index.html').read_text(encoding="utf-8"))
         if original_roots != re.findall(r'data-(?:production|audio|video4k)-root="[^"]+"', index):
             raise ValueError('Public media roots changed')
-        (generated / 'index.html').write_text(index)
+        (generated / 'index.html').write_text(index, encoding="utf-8")
         for name in ('app_v2.js', 'styles.css'):
             shutil.copy2(player / name, generated / name)
         for path in generated.rglob('*'):

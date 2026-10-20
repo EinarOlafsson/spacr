@@ -458,7 +458,7 @@ def test_reference_report_passes_constraint_to_outputs_and_baseline(monkeypatch,
     assert all(row['preserved_channels'] == '0' for row in rows)
     assert summary['flip_rate'] == 0 and summary['baseline_flip_rate'] == 0
     np.testing.assert_array_equal(frames[:, :, 0], np.repeat(frames[:, :1, 0], 7, axis=1))
-    assert 'preserved_channels' in (tmp_path / 'counterfactual_summary.csv').read_text()
+    assert 'preserved_channels' in (tmp_path / 'counterfactual_summary.csv').read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize('entry', ['sequence', 'report'])

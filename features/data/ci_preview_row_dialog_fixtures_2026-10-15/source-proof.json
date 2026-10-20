@@ -1,9 +1,0 @@
-{
-  "test_before_sha256": "52a529f085cf0a79b930166404cf19dd2e33c21ebd6af48f7ce8e367c038fab8",
-  "test_after_sha256": "b73dd8fa9c1796df235607669da7194f8413b42d1f59357596ce3f2d557a4e6e",
-  "all_original_module_assert_ASTs_exact": 12,
-  "all4_original_affected_assert_ASTs_exact": true,
-  "outside3testbodies_entire_module_AST_exact": true,
-  "all_production_and_actual_modal_guard_source_bytes_unchanged": true,
-  "fixture_interface": "Real ModelZooPicker(kinds,parent) factory shape; Accepted chosen_path exactoriginalstrings with explicit_chosen_referenceNone; Rejected chosen_path fails ifread. No production chooser method replaced."
-}

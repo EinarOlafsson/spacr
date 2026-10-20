@@ -1,6 +1,0 @@
-Command: ['/home/carruthers/anaconda3/envs/spacr/bin/python', '-m', 'pytest', '-n', '0', '-q', 'tests/test_docs_media_budget.py', 'tests/test_tutorial_release_audit.py::test_every_spoken_pypi_is_the_reviewed_single_syllable_pype']
-Source: 9db0e4b61b8f1a6c814d69f102bd9a0c55ab19d4
-.................................                                        [100%]
-33 passed in 0.56s
-
-Terminal exit status: 0

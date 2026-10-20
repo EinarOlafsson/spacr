@@ -905,6 +905,7 @@ spacr_say downloading_dependencies
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
     "$UV_BIN" pip install \
         --python "$stage_python" \
+        --compile-bytecode \
         --offline --no-index \
         --find-links "$OFFLINE_BUNDLE/wheels" \
         ${override_args[@]+"${override_args[@]}"} \
@@ -912,6 +913,7 @@ if [[ -n "$OFFLINE_BUNDLE" ]]; then
 else
     "$UV_BIN" pip install \
         --python "$stage_python" \
+        --compile-bytecode \
         --torch-backend "$TORCH_BACKEND" \
         ${override_args[@]+"${override_args[@]}"} \
         "$PACKAGE_SPEC" \
@@ -919,7 +921,20 @@ else
 fi
 
 spacr_say validating_install
-"$UV_BIN" pip check --python "$stage_python"
+# An install without wgpu leaves one declared dependency out on purpose, so
+# uv's sole "spacr requires wgpu" diagnostic is accepted then and nothing else
+# is (install_cleanup._only_saved_wgpu_omission, as the updater does).
+pip_check_log="$work_dir/pip-check.txt"
+pip_check_code=0
+"$UV_BIN" pip check --python "$stage_python" > "$pip_check_log" 2>&1 || pip_check_code=$?
+cat "$pip_check_log"
+if [[ "$pip_check_code" != "0" ]]; then
+    if [[ "$WITHOUT_WGPU" != "1" ]] || ! "$stage_python" -I -c \
+        'import sys; from spacr.install_cleanup import _only_saved_wgpu_omission as only; sys.exit(0 if only(int(sys.argv[1]), open(sys.argv[2], encoding="utf-8", errors="replace").read()) else 1)' \
+        "$pip_check_code" "$pip_check_log"; then
+        exit "$pip_check_code"
+    fi
+fi
 QT_QPA_PLATFORM=offscreen "$stage_python" -I -c \
     "import spacr, PySide6, torch; import numpy as np; assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1; print('spaCR', spacr.__version__, '| torch', torch.__version__, '| numpy', np.__version__)"
 if [[ "$TORCH_BACKEND" != "cpu" && "$DETECTED_ACCELERATOR" == "nvidia" ]]; then

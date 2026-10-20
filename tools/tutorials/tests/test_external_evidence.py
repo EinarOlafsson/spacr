@@ -100,7 +100,7 @@ def example(tmp_path):
                          f"plate1_r1_c1_f{field}_o{label}", f"o{label}"))
     write_map(root / "images" / "conversion_map.csv", maps)
     (root / "merged" / ".spacr_plane_layout.json").write_text(json.dumps({
-        "version": 1, "intensity_channels": [0], "mask_plane_order": ["cell"], "mask_dims": {"cell": 1}}))
+        "version": 1, "intensity_channels": [0], "mask_plane_order": ["cell"], "mask_dims": {"cell": 1}}), encoding="utf-8")
     db = root / "measurements" / "measurements.db"
     with sqlite3.connect(db) as connection:
         connection.execute("CREATE TABLE cell(file_name TEXT, plateID TEXT, rowID TEXT, columnID TEXT, "
@@ -340,7 +340,7 @@ def test_reject_unreadable_png(example):
     {"version": 1, "intensity_channels": [0], "mask_plane_order": ["nucleus"], "mask_dims": {"nucleus": 1}},
 ])
 def test_reject_wrong_layout(example, layout):
-    (example["root"] / "merged" / ".spacr_plane_layout.json").write_text(json.dumps(layout))
+    (example["root"] / "merged" / ".spacr_plane_layout.json").write_text(json.dumps(layout), encoding="utf-8")
     with pytest.raises(ValueError, match="plane layout"):
         verify(example)
 

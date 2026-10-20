@@ -246,7 +246,7 @@ def _write_dose_example(folder):
                       "p_value": [0.0, 0.001, 0.01]}).to_csv(
             run / "results.csv", index=False)
         (run / "settings.json").write_text(json.dumps(
-            {"regression_type": "ols", "plate_normalisation": name}))
+            {"regression_type": "ols", "plate_normalisation": name}), encoding="utf-8")
     for epochs in (3, 5):
         run = (folder / "training" / "model" / "logistic_sgd" / "profiles"
                / f"epochs_{epochs}")
@@ -372,7 +372,7 @@ def _tar_of(folder, files, archive):
     for name, text in files.items():
         path = staging / name
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text)
+        path.write_text(text, encoding="utf-8")
     with tarfile.open(archive, "w") as tar:
         for name in files:
             tar.add(staging / name, arcname=name)
@@ -525,9 +525,9 @@ def _write_hit_example(folder):
     (folder / "measurements").mkdir(parents=True)
     (folder / "measurements" / "measurements.db").write_bytes(b"")
     (folder / "results" / "ols").mkdir(parents=True)
-    (folder / "results" / "ols" / "results.csv").write_text("feature\n")
-    (folder / "plate1_dv.csv").write_text("path,pred,cv_predictions\n")
-    (folder / "guide_fractions.csv").write_text("prc,grna,fraction\n")
+    (folder / "results" / "ols" / "results.csv").write_text("feature\n", encoding="utf-8")
+    (folder / "plate1_dv.csv").write_text("path,pred,cv_predictions\n", encoding="utf-8")
+    (folder / "guide_fractions.csv").write_text("prc,grna,fraction\n", encoding="utf-8")
     (folder / mx._HIT_RECORD).write_text(json.dumps({
         "target_gene": "239740", "target_guides": ["239740_1"],
         "score_column": "pred", "hit_direction": "positive",
@@ -536,7 +536,7 @@ def _write_hit_example(folder):
         "predictions_file": "plate1_dv.csv",
         "guide_fractions_file": "guide_fractions.csv",
         "hit_effect": 0.48, "hit_fdr": 0.04, "hit_n_guides": 1,
-        "hit_well_support": 16}))
+        "hit_well_support": 16}), encoding="utf-8")
     return folder
 
 
@@ -645,6 +645,6 @@ def test_the_hit_fetch_unpacks_the_archive_and_fills_the_settings_path(
     assert asked == [("einarolafsson/spacr-example-hit",
                       "spacr-example-hit.tar")]
     assert (folder / "hit.json").is_file()
-    settings = (folder / "settings" / "regression.csv").read_text()
+    settings = (folder / "settings" / "regression.csv").read_text(encoding="utf-8")
     assert f"src,{folder}" in settings
     assert not (folder / "spacr-example-hit.tar").exists()

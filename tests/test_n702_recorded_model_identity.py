@@ -10,13 +10,13 @@ from spacr.cli import SettingsError, load_settings_file, write_settings_file
 
 
 FIXTURES = Path(__file__).resolve().parents[1] / 'features/data/702_work_model_reference_schema_2026-10-14'
-CASES = [row for row in json.loads((FIXTURES / 'fixture-index-final.json').read_text())
+CASES = [row for row in json.loads((FIXTURES / 'fixture-index-final.json').read_text(encoding="utf-8"))
          if row['file'].endswith('.json')]
 
 
 @pytest.mark.parametrize('case', CASES, ids=lambda case: Path(case['file']).stem)
 def test_independently_prepared_identity_fixtures(case):
-    settings = json.loads((FIXTURES / case['file']).read_text())
+    settings = json.loads((FIXTURES / case['file']).read_text(encoding="utf-8"))
     original = copy.deepcopy(settings)
     if case['expected'] == 'reject':
         with pytest.raises(SettingsError):

@@ -74,7 +74,7 @@ def test_a_path_that_is_not_a_file_is_the_same_as_nothing(screen, tmp_path):
 def test_a_file_the_loader_refuses_names_the_file(screen, tmp_path):
     """A .tif that is not a TIFF -- the commonest way this goes wrong."""
     broken = tmp_path / "not_really.tif"
-    broken.write_text("this is a note, not a mask")
+    broken.write_text("this is a note, not a mask", encoding="utf-8")
     screen._mask_edit.setText(str(broken))
 
     assert screen.open_mask() is None

@@ -61,9 +61,9 @@ def _answer_modal(act, tries=200):
 
 def test_a_count_export_is_told_apart_from_a_score_export(tmp_path):
     count = tmp_path / "counts.csv"
-    count.write_text("row_name,column_name,grna_name,count\nr1,c1,g_1,5\n")
+    count.write_text("row_name,column_name,grna_name,count\nr1,c1,g_1,5\n", encoding="utf-8")
     score = tmp_path / "scores.csv"
-    score.write_text("path,pred,plate,row,col\na,0.5,p1,r1,c1\n")
+    score.write_text("path,pred,plate,row,col\na,0.5,p1,r1,c1\n", encoding="utf-8")
     assert fl.side_for_header(count) == "count"
     assert fl.side_for_header(score) == "score"
 
@@ -113,7 +113,7 @@ def test_a_drag_with_no_files_is_refused_by_the_paired_table(paired):
 
 def test_a_drag_of_real_files_is_taken_by_the_paired_table(paired, tmp_path):
     score = tmp_path / "plate1_scores.csv"
-    score.write_text("path,pred\na,0.5\n")
+    score.write_text("path,pred\na,0.5\n", encoding="utf-8")
     payload = _url_mime([score])
     where = QPointF(paired.rect().center())
 
@@ -139,7 +139,7 @@ def test_a_plate_row_can_be_moved_up_and_down(paired, tmp_path):
     first = tmp_path / "plate1_scores.csv"
     second = tmp_path / "plate2_scores.csv"
     for path in (first, second):
-        path.write_text("path,pred\na,0.5\n")
+        path.write_text("path,pred\na,0.5\n", encoding="utf-8")
     paired.set_value([{"plate": "p1", "score": str(first)},
                       {"plate": "p2", "score": str(second)}])
     moved = []
@@ -172,7 +172,7 @@ def listing(qtbot):
 
 def _csv(tmp_path, name):
     path = tmp_path / name
-    path.write_text("a,b\n1,2\n")
+    path.write_text("a,b\n1,2\n", encoding="utf-8")
     return path
 
 
@@ -198,7 +198,7 @@ def test_a_single_file_setting_replaces_rather_than_appends(qtbot, tmp_path):
 def test_a_folder_is_expanded_to_the_files_of_its_kind(listing, tmp_path):
     _csv(tmp_path, "a.csv")
     _csv(tmp_path, "b.csv")
-    (tmp_path / "notes.md").write_text("x")
+    (tmp_path / "notes.md").write_text("x", encoding="utf-8")
     (tmp_path / "nested").mkdir()
     assert listing.add_paths([str(tmp_path)]) == 2
     assert [os.path.basename(p) for p in listing.paths()] == ["a.csv", "b.csv"]

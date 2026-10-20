@@ -475,6 +475,7 @@ def test_an_exited_installer_on_windows_is_left_alone(monkeypatch):
     assert process.signals == []
 
 
+@pytest.mark.posix_only
 def test_what_is_left_of_a_group_is_killed(monkeypatch):
     sent = []
     process = FakeProcess()
@@ -492,6 +493,7 @@ def test_what_is_left_of_a_group_is_killed(monkeypatch):
     assert process.signals == []
 
 
+@pytest.mark.posix_only
 def test_cancel_kills_a_child_that_keeps_the_output_open(monkeypatch):
     """The installer has exited; something it started holds the pipe."""
     gate = threading.Event()
@@ -532,6 +534,7 @@ def test_an_install_that_finishes_as_cancel_is_pressed_is_installed(
     assert outcome.location == "/usr/bin/fakecli"
 
 
+@pytest.mark.posix_only
 def test_a_group_that_ignores_sigterm_is_killed(monkeypatch):
     sent = []
     process = FakeProcess(gate=threading.Event())
@@ -542,6 +545,7 @@ def test_a_group_that_ignores_sigterm_is_killed(monkeypatch):
     assert sent == [signal.SIGTERM, signal.SIGKILL]
 
 
+@pytest.mark.posix_only
 def test_without_process_groups_the_process_itself_is_stopped(monkeypatch):
     process = FakeProcess(gate=threading.Event())
     monkeypatch.setattr(cli_install, "_signal_group", None)
@@ -590,6 +594,7 @@ def test_a_cli_off_path_is_found_in_a_folder_installers_use(monkeypatch):
     assert cli_install.locate(Tool([])) == ""
 
 
+@pytest.mark.posix_only
 def test_the_folders_looked_in_on_linux(monkeypatch, tmp_path):
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("CONDA_PREFIX", "/envs/spacr")
@@ -613,7 +618,7 @@ def test_the_folders_looked_in_on_windows(monkeypatch, tmp_path):
         lambda *a, **k: subprocess.CompletedProcess(a, 0, "C:/npm\n", ""))
     folders = cli_install.likely_folders("win32")
     assert str(tmp_path / "local" / "Microsoft/WinGet/Links") in folders
-    assert folders[-1] == "C:/npm"
+    assert folders[-1] == str(Path("C:/npm"))
 
 
 @pytest.mark.parametrize("answer,expected", [
@@ -721,7 +726,7 @@ def test_a_real_installer_process_streams_and_is_found(monkeypatch,
         f"mkdir -p '{target}'\n"
         f"printf '#!/bin/sh\\nexit 0\\n' > '{target}/fakecli'\n"
         f"chmod +x '{target}/fakecli'\n"
-        "echo done\n")
+        "echo done\n", encoding="utf-8")
     fake_npm.chmod(0o755)
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}/usr/bin{os.pathsep}/bin")
@@ -757,7 +762,7 @@ def test_cancel_ends_every_process_the_installer_started(monkeypatch,
     outcome = cli_install.run_install(plan, on_output, stop)
     assert outcome.kind == cli_install.CANCELLED
     assert time.monotonic() - began < 10
-    child = int(pid_file.read_text())
+    child = int(pid_file.read_text(encoding="utf-8"))
     for _ in range(50):
         try:
             os.kill(child, 0)
@@ -796,7 +801,7 @@ def test_cancel_ends_a_child_left_holding_the_output(monkeypatch, tmp_path):
     outcome = cli_install.run_install(plan, on_output, stop)
     assert time.monotonic() - began < 10
     assert outcome.kind == cli_install.CANCELLED
-    child = int(pid_file.read_text())
+    child = int(pid_file.read_text(encoding="utf-8"))
     for _ in range(50):
         try:
             os.kill(child, 0)

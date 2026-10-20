@@ -266,7 +266,7 @@ def test_no_bubble_colour_is_a_literal():
     import re
     from pathlib import Path
 
-    source = Path("spacr/qt/widgets/class_editor.py").read_text()
+    source = Path("spacr/qt/widgets/class_editor.py").read_text(encoding="utf-8")
     # Hex colours in the widget itself would bypass the palette.
     literals = re.findall(r"#[0-9a-fA-F]{6}", source)
     assert not literals, f"hard-coded colours in the class editor: {literals}"

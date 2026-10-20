@@ -23,7 +23,7 @@ def test_actual_checkpoint_labels_and_help_use_compiled_targets(qtbot, tmp_path,
     preferences._set_show_alpha_features(True)
     review = (Path(__file__).parents[2] / 'docs/i18n/reviewed/runtime' / language
               / '2026-10-15-counterfactual-pinned-reuse.json')
-    rows = json.loads(review.read_text())['records']
+    rows = json.loads(review.read_text(encoding="utf-8"))['records']
     expected = {(row['table'], row['key']): row for row in rows}
     screen = AppScreen('activation')
     qtbot.addWidget(screen)

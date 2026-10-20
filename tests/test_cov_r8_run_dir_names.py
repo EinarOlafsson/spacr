@@ -34,8 +34,8 @@ def test_it_reports_the_directories(tmp_path):
 def test_a_loose_file_is_not_a_run(tmp_path):
     """The `is_dir()` half of the old pass still has to happen."""
     (tmp_path / "2026-08-30_120000_aaaa__mask").mkdir()
-    (tmp_path / ".journal_totals.json").write_text("{}")
-    (tmp_path / "notes.txt").write_text("hello")
+    (tmp_path / ".journal_totals.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "notes.txt").write_text("hello", encoding="utf-8")
     assert _run_dir_names(tmp_path) == ["2026-08-30_120000_aaaa__mask"]
 
 
@@ -93,7 +93,7 @@ class TestTheCallersStillAgreeWithThemselves:
             "start_utc": f"2026-08-30T{name[16:18]}:00:00",
             "elapsed_s": 1.0,
             "models": list(models),
-        }))
+        }), encoding="utf-8")
         return d
 
     def test_recent_runs_orders_newest_first_and_bounds_the_read(

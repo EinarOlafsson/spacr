@@ -114,7 +114,7 @@ def test_graph_annotation_roundtrip_export_reopen_and_invalid_edit(qtbot, tmp_pa
     destination = tmp_path / 'working.csv'
     screen.export_table(destination)
     assert pd.read_csv(destination).treatment.iloc[0] == 'treated'
-    assert json.loads((tmp_path / 'working.csv.conditions.json').read_text())['condition_annotation'] == definition
+    assert json.loads((tmp_path / 'working.csv.conditions.json').read_text(encoding="utf-8"))['condition_annotation'] == definition
     with pytest.raises(ValueError, match='preserve'):
         screen.export_table(path)
     if source_kind == 'sqlite':

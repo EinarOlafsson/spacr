@@ -21,7 +21,7 @@ SOURCE_SHA256 = 'a2068b97a8973a64fa13febbd81b87e933befb7684779be50d356fe969ce457
 
 
 def test_managed_project_requirement_uses_the_immutable_archive_and_extra():
-    rows = (ROOT / 'tools/web_mask_generator/space/requirements.txt').read_text().splitlines()
+    rows = (ROOT / 'tools/web_mask_generator/space/requirements.txt').read_text(encoding="utf-8").splitlines()
     project = Requirement(rows[0])
     assert project.name == 'spacr' and project.extras == {'plaque'}
     assert project.url == ('https://huggingface.co/spaces/einarolafsson/spacr-mask-generator/resolve/'
@@ -33,7 +33,7 @@ def test_managed_project_requirement_uses_the_immutable_archive_and_extra():
     assert parsed.query == '' and parsed.fragment == 'sha256=' + SOURCE_SHA256
     assert rows[1:] == ['huggingface-hub==0.36.2', 'torch==2.13.0',
                         'torchvision==0.28.0', 'pypdfium2==5.13.0']
-    readme = (ROOT / 'tools/web_mask_generator/space/README.md').read_text()
+    readme = (ROOT / 'tools/web_mask_generator/space/README.md').read_text(encoding="utf-8")
     assert PIN in readme and SOURCE_SHA256 in readme
 
 
@@ -56,15 +56,17 @@ def _dependency_wheel(destination):
 
 def test_actual_offline_pip_resolves_immutable_git_extra_before_source_copy(tmp_path):
     repo = tmp_path / 'public-source-fixture'; repo.mkdir()
-    (repo / 'setup.py').write_text("from setuptools import setup\nsetup(name='managed-build-fixture',version='1.0',py_modules=['fixture_model'],extras_require={'plaque':['managed-plaque-dependency==1.0']})\n")
-    (repo / 'fixture_model.py').write_text("SOURCE = 'immutable-first-revision'\n")
-    (repo / 'pyproject.toml').write_text('[build-system]\nrequires=["setuptools", "wheel"]\nbuild-backend="setuptools.build_meta"\n')
+    (repo / 'setup.py').write_text("from setuptools import setup\nsetup(name='managed-build-fixture',version='1.0',py_modules=['fixture_model'],extras_require={'plaque':['managed-plaque-dependency==1.0']})\n", encoding="utf-8")
+    (repo / 'fixture_model.py').write_bytes(b"SOURCE = 'immutable-first-revision'\n")
+    # A host git with core.autocrlf=true (Git for Windows' default) would check out CRLF.
+    (repo / '.gitattributes').write_bytes(b'* -text\n')
+    (repo / 'pyproject.toml').write_text('[build-system]\nrequires=["setuptools", "wheel"]\nbuild-backend="setuptools.build_meta"\n', encoding="utf-8")
     def git(*args):
         return subprocess.check_output(['git', '-C', str(repo), *args], stderr=subprocess.STDOUT, text=True, timeout=15).strip()
     git('init', '-q'); git('add', '.')
     git('-c', 'user.name=Disposable Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Initial immutable source')
     commit = git('rev-parse', 'HEAD')
-    (repo / 'fixture_model.py').write_text("SOURCE = 'wrong-later-revision'\n")
+    (repo / 'fixture_model.py').write_bytes(b"SOURCE = 'wrong-later-revision'\n")
     git('add', '.'); git('-c', 'user.name=Disposable Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Later version must not leak')
     wheelhouse = tmp_path / 'wheelhouse'; wheelhouse.mkdir(); digest = _dependency_wheel(wheelhouse)
     empty = tmp_path / 'managed-before-copy'; empty.mkdir()
@@ -73,7 +75,10 @@ def test_actual_offline_pip_resolves_immutable_git_extra_before_source_copy(tmp_
     command = [sys.executable, '-m', 'pip', 'wheel', '--no-index', '--no-cache-dir', '--no-build-isolation', '--find-links', str(wheelhouse), '--wheel-dir', str(outputs)]
     local = subprocess.run(command + ['.[plaque]'], cwd=empty, env=environment, capture_output=True, text=True, timeout=25)
     assert local.returncode != 0 and 'Neither' in local.stderr
-    request = 'managed-build-fixture[plaque] @ git+' + repo.as_uri() + '@' + commit
+    # A host-less file:/// URL is not a PEP 508 URL for packaging < 22, which pip 24.0 vendors;
+    # git and every pip accept the same repository as file://localhost/.
+    source = repo.as_uri().replace('file:///', 'file://localhost/', 1)
+    request = 'managed-build-fixture[plaque] @ git+' + source + '@' + commit
     actual = subprocess.run(command + [request], cwd=empty, env=environment, capture_output=True, text=True, timeout=40)
     assert actual.returncode == 0, actual.stdout + actual.stderr
     assert not (empty / 'setup.py').exists() and not (empty / 'pyproject.toml').exists()
@@ -89,9 +94,9 @@ def test_actual_offline_pip_resolves_immutable_git_extra_before_source_copy(tmp_
 
 def test_actual_offline_source_archive_hash_and_extra_resolution(tmp_path):
     source = tmp_path / 'source'; source.mkdir()
-    (source / 'setup.py').write_text("from setuptools import setup\nsetup(name='managed-archive-fixture',version='1.0',py_modules=['archive_model'],extras_require={'plaque':['managed-plaque-dependency==1.0']})\n")
-    (source / 'archive_model.py').write_text("SOURCE = 'reviewed-archive-source'\n")
-    (source / 'pyproject.toml').write_text('[build-system]\nrequires=["setuptools", "wheel"]\nbuild-backend="setuptools.build_meta"\n')
+    (source / 'setup.py').write_text("from setuptools import setup\nsetup(name='managed-archive-fixture',version='1.0',py_modules=['archive_model'],extras_require={'plaque':['managed-plaque-dependency==1.0']})\n", encoding="utf-8")
+    (source / 'archive_model.py').write_bytes(b"SOURCE = 'reviewed-archive-source'\n")
+    (source / 'pyproject.toml').write_text('[build-system]\nrequires=["setuptools", "wheel"]\nbuild-backend="setuptools.build_meta"\n', encoding="utf-8")
     archives = tmp_path / 'archives'; archives.mkdir()
     built = subprocess.run([sys.executable, '-c', 'from setuptools.build_meta import build_sdist; import sys; build_sdist(sys.argv[1])', str(archives)], cwd=source, capture_output=True, text=True, timeout=25)
     assert built.returncode == 0, built.stdout + built.stderr

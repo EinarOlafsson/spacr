@@ -49,7 +49,7 @@ def _unpack_a_published_copy(folder: Path, key: str, *, src=None) -> Path:
             path = folder / name
             path.parent.mkdir(parents=True, exist_ok=True)
             if not path.exists():
-                path.write_text('{}')
+                path.write_text('{}', encoding="utf-8")
     with (folder / "settings" / f"{key}_settings.csv").open(
             "w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
@@ -328,7 +328,7 @@ def test_the_worker_unpacks_the_archive_and_fills_in_the_path(monkeypatch,
     assert urls == [f"https://huggingface.co/datasets/{REPLICATION_EXAMPLE_REPO}"
                     "/resolve/main/spacr-example-replication.tar?download=true"]
     assert example_set("replication").is_present(dest)
-    text = (dest / "settings" / "replication_settings.csv").read_text()
+    text = (dest / "settings" / "replication_settings.csv").read_text(encoding="utf-8")
     assert DATASET_PLACEHOLDER not in text
     assert str(dest) in text
     assert not (dest / "spacr-example-replication.tar").exists()

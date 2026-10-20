@@ -156,7 +156,7 @@ def test_move_relocates_after_yes(page, home, tmp_path, qtbot):
 
     news = home / ".spacr" / "news"
     news.mkdir(parents=True)
-    (news / "releases.json").write_text("[]")
+    (news / "releases.json").write_text("[]", encoding="utf-8")
     row = [r["key"] for r in page._rows].index("news")
     page.table.selectRow(row)
     assert page.move_button.isEnabled()
@@ -244,7 +244,7 @@ def test_failed_cache_move_reports_the_reason_and_keeps_the_source(
     news = home / ".spacr" / "news"
     news.mkdir(parents=True)
     cached = news / "releases.json"
-    cached.write_text("[]")
+    cached.write_text("[]", encoding="utf-8")
 
     def unavailable(_key, _folder):
         raise OSError("destination unavailable")

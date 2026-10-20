@@ -111,7 +111,7 @@ def test_valid_and_unspecified_time_calibration_preserve_native_table_inputs(
 @pytest.mark.parametrize('route', ['preview', 'table'])
 def test_installed_reviewed_language_at_actual_wound_boundary(monkeypatch, language, route):
     path = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-wound-calibration.json'
-    target = json.loads(path.read_text())['records'][0]['translation']
+    target = json.loads(path.read_text(encoding="utf-8"))['records'][0]['translation']
     assert target != SOURCE
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     name = 'voxel_size_xy_um' if route == 'preview' else 'wound_hours_per_frame'

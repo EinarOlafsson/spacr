@@ -82,6 +82,10 @@ _ASSET_SUFFIX = {
 }
 _WAIT_SECONDS = 600.0
 _FROZEN_PREPARATION_SECONDS = 3600.0
+#: An update preparing without any sign of progress for this long has stalled.
+_PREPARATION_STALL_SECONDS = 900.0
+#: However much progress it reports, an update plan expires this long after its deadline.
+_PROGRESS_CAP_SECONDS = 24 * 3600.0
 _RMTREE_TAKES_ONEXC = sys.version_info >= (3, 12)
 _PRIVILEGED_DEBIAN_HELPER = False
 _MACOS_FROZEN_PHASE_COMMANDS = ("apply-macos-root", "uninstall-macos-root")
@@ -603,8 +607,9 @@ def _editable_source(dist_info: str) -> Optional[str]:
         return None
     url = str(record.get("url") or "")
     if url.startswith("file://"):
-        from urllib.parse import unquote, urlparse
-        return unquote(urlparse(url).path) or url
+        from urllib.parse import urlparse
+        from urllib.request import url2pathname
+        return url2pathname(urlparse(url).path) or url
     return url or None
 
 
@@ -697,7 +702,7 @@ def _windows_desktops(machine: _Machine) -> List[str]:
         if value:
             for name in ("USERPROFILE", "HOMEDRIVE", "HOMEPATH", "OneDrive"):
                 value = value.replace(f"%{name}%", machine.env(name))
-            folders.insert(0, value)
+            folders.insert(0, os.path.normpath(value))
     return folders
 
 
@@ -2887,7 +2892,10 @@ def _uninstall_frozen_windows(request, root, endpoint, desktop_pid, desktop_exec
     if os.path.normcase(executable) != os.path.normcase(os.path.realpath(desktop_executable)):
         raise ValueError(tr("The running desktop could not be identified."))
     _installer_metadata_folder(request, "windows_uninstall_request", windows=True)
-    _windows_pip_private_access(request, owner_sid=owner, private_read=True)
+    try:
+        _windows_pip_private_access(request, owner_sid=owner, private_read=True)
+    except ValueError as error:
+        raise ValueError("invalid_windows_uninstall_request") from error
     before = os.lstat(request)
     if not stat.S_ISREG(before.st_mode) or before.st_size > 65536:
         raise ValueError("invalid_windows_uninstall_request")
@@ -4094,15 +4102,45 @@ class _FrozenUpdateHandshake:
             os.fsync(stream.fileno())
         os.replace(temporary, os.path.join(self.root, name))
 
+    def progress(self):
+        """Record that preparation, or the desktop waiting on its Restart prompt, is still alive.
+
+        Each record moves the stall deadline: preparation times out after
+        :data:`_PREPARATION_STALL_SECONDS` without progress, and readiness after
+        :data:`_WAIT_SECONDS` without the desktop, rather than on total time.
+        """
+        self._write("progress.json", "progress", expires=time.time())
+
+    def _last_progress(self):
+        """When progress was last recorded, or 0 when never or unreadable."""
+        try:
+            message = self._read("progress.json")
+        except (OSError, ValueError):
+            return 0.0
+        if message is None or message.get("state") != "progress":
+            return 0.0
+        try:
+            at = float(message["expires"])
+        except (KeyError, TypeError, ValueError):
+            return 0.0
+        return at if 0 < at <= time.time() + 60 else 0.0
+
     def check(self):
-        """Refuse expired or cancelled work, even if ready or approved arrived later."""
+        """Refuse expired or cancelled work, even if ready or approved arrived later.
+
+        The deadline follows progress: the original deadline, or the last progress plus the stall
+        allowance, whichever is later, and never past :data:`_PROGRESS_CAP_SECONDS` beyond the plan.
+        """
         if self._read("cancelled.json") is not None:
             raise RuntimeError("frozen update cancelled; nothing was changed")
         message = self._read("readiness.json")
-        deadline = (float(message["expires"]) if message is not None
-                    and message.get("state") == "ready" else self.expires)
-        if not 0 < deadline <= self.expires + _WAIT_SECONDS:
+        ready = message is not None and message.get("state") == "ready"
+        initial = float(message["expires"]) if ready else self.expires
+        cap = self.expires + _PROGRESS_CAP_SECONDS
+        if not 0 < initial <= self.expires + _WAIT_SECONDS:
             raise ValueError("invalid frozen updater readiness deadline")
+        last = self._last_progress()
+        deadline = min(cap, max(initial, last + (_WAIT_SECONDS if ready else _PREPARATION_STALL_SECONDS)))
         if time.time() >= deadline:
             raise RuntimeError("frozen update preparation or shutdown timed out; nothing was changed")
 
@@ -4154,6 +4192,175 @@ class _FrozenUpdateHandshake:
                     self.check()
                     return
             time.sleep(0.05)
+
+
+def _cpu_seconds(text):
+    """Seconds in a ps ``time`` column: ``[[dd-]hh:]mm:ss[.ss]``; None when it does not parse."""
+    days, _, clock = text.strip().rpartition("-")
+    parts = clock.split(":")
+    try:
+        seconds = sum(float(part) * 60 ** index for index, part in enumerate(reversed(parts)))
+        return seconds + (int(days) * 86400 if days else 0)
+    except ValueError:
+        return None
+
+
+def _windows_tree_activity(pid):
+    """CPU time and I/O bytes of ``pid`` and its descendants on Windows; None when they cannot be read."""
+    import ctypes
+    from ctypes import wintypes
+
+    class Entry(ctypes.Structure):
+        """PROCESSENTRY32W."""
+
+        _fields_ = [("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD), ("th32ProcessID", wintypes.DWORD),
+                    ("th32DefaultHeapID", ctypes.c_size_t), ("th32ModuleID", wintypes.DWORD),
+                    ("cntThreads", wintypes.DWORD), ("th32ParentProcessID", wintypes.DWORD),
+                    ("pcPriClassBase", ctypes.c_long), ("dwFlags", wintypes.DWORD),
+                    ("szExeFile", ctypes.c_wchar * 260)]
+
+    class Counters(ctypes.Structure):
+        """IO_COUNTERS."""
+
+        _fields_ = [(name, ctypes.c_ulonglong) for name in
+                    ("reads", "writes", "others", "read_bytes", "write_bytes", "other_bytes")]
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    kernel.OpenProcess.restype = wintypes.HANDLE
+    snapshot = kernel.CreateToolhelp32Snapshot(0x2, 0)
+    if snapshot in (None, 0, ctypes.c_void_p(-1).value):
+        return None
+    parents = {}
+    try:
+        entry = Entry()
+        entry.dwSize = ctypes.sizeof(Entry)
+        more = kernel.Process32FirstW(snapshot, ctypes.byref(entry))
+        while more:
+            parents[int(entry.th32ProcessID)] = int(entry.th32ParentProcessID)
+            more = kernel.Process32NextW(snapshot, ctypes.byref(entry))
+    finally:
+        kernel.CloseHandle(snapshot)
+    total = 0.0
+    for member in _descendants(parents, int(pid)):
+        handle = kernel.OpenProcess(0x1000, False, member)
+        if not handle:
+            continue
+        try:
+            counters = Counters()
+            if kernel.GetProcessIoCounters(handle, ctypes.byref(counters)):
+                total += counters.read_bytes + counters.write_bytes + counters.other_bytes
+            times = [wintypes.FILETIME() for _ in range(4)]
+            if kernel.GetProcessTimes(handle, *[ctypes.byref(item) for item in times]):
+                for item in times[2:]:
+                    total += ((item.dwHighDateTime << 32) | item.dwLowDateTime) / 1e7
+        finally:
+            kernel.CloseHandle(handle)
+    return total
+
+
+def _descendants(parents, pid):
+    """``pid`` and every process whose chain of parents reaches it, from a ``{pid: ppid}`` table."""
+    children = {}
+    for child, parent in parents.items():
+        if child != parent:
+            children.setdefault(parent, []).append(child)
+    found, pending = [], [pid]
+    while pending and len(found) < 100_000:
+        current = pending.pop()
+        if current in found:
+            continue
+        found.append(current)
+        pending.extend(children.get(current, ()))
+    return found
+
+
+def _process_tree_activity(pid):
+    """A total that grows while ``pid`` or a descendant uses the CPU or moves bytes; None when unknown.
+
+    Standard library only, since this module also runs embedded in the shell installer: Windows reads the
+    process table and its I/O and CPU counters, POSIX reads ``ps`` CPU time and, on Linux, /proc I/O.
+    """
+    if os.name == "nt":
+        try:
+            return _windows_tree_activity(pid)
+        except (OSError, AttributeError, ValueError):
+            return None
+    try:
+        done = subprocess.run(["ps", "-A", "-o", "pid=,ppid=,time="], capture_output=True, text=True,
+                              timeout=10, env=dict(os.environ, LC_ALL="C"))
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if done.returncode != 0:
+        return None
+    parents, seconds = {}, {}
+    for line in done.stdout.splitlines():
+        fields = line.split()
+        if len(fields) == 3 and fields[0].isdigit() and fields[1].isdigit():
+            parents[int(fields[0])] = int(fields[1])
+            seconds[int(fields[0])] = _cpu_seconds(fields[2]) or 0.0
+    if int(pid) not in parents:
+        return None
+    total = 0.0
+    for member in _descendants(parents, int(pid)):
+        total += seconds.get(member, 0.0)
+        try:
+            with open(f"/proc/{member}/io", encoding="ascii") as handle:
+                for row in handle:
+                    key, _, value = row.partition(":")
+                    if key in ("rchar", "wchar"):
+                        total += int(value)
+        except (OSError, ValueError):
+            pass
+    return total
+
+
+def _heartbeat_loop(handshake, measure, stop, interval):
+    """Sample activity every ``interval`` seconds and record progress whenever it moved."""
+    previous = measure()
+    while not stop.wait(interval):
+        current = measure()
+        if current is not None and previous is not None and current != previous:
+            try:
+                handshake.progress()
+            except (OSError, ValueError):
+                pass
+        previous = current
+
+
+@contextmanager
+def _preparation_heartbeat(plan, *, windows=False, interval=30.0, activity=None, channel=None):
+    """Record progress while this helper or its children are doing work, for as long as the block runs.
+
+    A download, a pip resolve or a copy shows up as CPU or byte counts that keep growing; a hung child
+    shows none, so its update still times out after the stall allowance. When activity cannot be read,
+    nothing is recorded and the original deadlines apply.
+
+    :param plan: the update plan whose readiness channel records the progress.
+    :param windows: whether the channel is the Windows one.
+    :param interval: seconds between activity samples.
+    :param activity: replaces :func:`_process_tree_activity` for tests.
+    :param channel: an already open readiness channel, for tests.
+    """
+    handshake = channel
+    if handshake is None:
+        try:
+            handshake = (_WindowsPipHandshake if windows else _FrozenUpdateHandshake)(plan)
+        except Exception:                                        # noqa: BLE001
+            handshake = None
+    if handshake is None:
+        yield
+        return
+    measure = activity or (lambda: _process_tree_activity(os.getpid()))
+    stop = threading.Event()
+    worker = threading.Thread(target=_heartbeat_loop, args=(handshake, measure, stop, interval),
+                              name="spacr-update-heartbeat", daemon=True)
+    worker.start()
+    try:
+        yield
+    finally:
+        stop.set()
+        worker.join(timeout=interval + 5)
 
 
 def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=None):
@@ -4895,7 +5102,10 @@ class _UpdatePhaseClient(_UpdatePhaseChannel):
                 or getattr(before, "st_file_attributes", 0) & 0x400):
             raise ValueError(tr("The operation authorization descriptor is not private."))
         if os.name == "nt":
-            _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+            try:
+                _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+            except ValueError as error:
+                raise ValueError(tr("The operation authorization descriptor is not private.")) from error
         elif before.st_uid != owner or stat.S_IMODE(before.st_mode) & 0o077:
             raise ValueError(tr("The operation authorization descriptor is not private."))
         descriptor = os.open(endpoint, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
@@ -4906,7 +5116,10 @@ class _UpdatePhaseClient(_UpdatePhaseChannel):
                     or os.name != "nt" and (actual.st_uid != owner or stat.S_IMODE(actual.st_mode) & 0o077)):
                 raise ValueError(tr("The operation authorization descriptor is not private."))
             if os.name == "nt":
-                _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+                try:
+                    _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+                except ValueError as error:
+                    raise ValueError(tr("The operation authorization descriptor is not private.")) from error
             endpoint_text = stream.read(129)
         match = re.fullmatch(r"([1-9][0-9]{0,4}):([a-f0-9]{64})", endpoint_text)
         if match is None or int(match[1]) > 65535:
@@ -5305,13 +5518,14 @@ def _runtime_exchange(first, second):
     """Atomically exchange two runtime directories, with no missing-prefix gap."""
     import ctypes
 
-    library = ctypes.CDLL(None, use_errno=True)
     left, right = os.fsencode(first), os.fsencode(second)
     if sys.platform == "darwin":
+        library = ctypes.CDLL(None, use_errno=True)
         operation = library.renamex_np
         operation.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
         arguments = (left, right, 2)
     elif sys.platform.startswith("linux"):
+        library = ctypes.CDLL(None, use_errno=True)
         operation = library.renameat2
         operation.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
         arguments = (-100, left, -100, right, 2)
@@ -5466,6 +5680,36 @@ _RUNTIME_TRANSACTIONS = {
 #: Journal states of an update that stopped before touching the live runtime: only its staged copy is left.
 _ABANDONED_TRANSACTION_STATES = frozenset({"staging_failed", "cancelled"})
 
+#: Journal states of an update still staging; abandoned once its owner is provably gone.
+_STAGING_TRANSACTION_STATES = frozenset({"staging", "ready"})
+
+
+def _transaction_owner(pid=None):
+    """The owner a new transaction journal records: this process and its start stamp."""
+    pid = os.getpid() if pid is None else pid
+    return {"pid": pid, "started": _process_started(pid) or ""}
+
+
+def _transaction_owner_gone(state):
+    """Whether the process that staged a transaction is provably gone.
+
+    The caller holds the runtime lease, which every staging update holds for its whole run, so a journal
+    from a version that recorded no owner has none left. A recorded owner counts as gone only when its pid
+    no longer exists or carries another start stamp of the same kind.
+    """
+    owner = state.get("owner")
+    if owner is None:
+        return True
+    if not isinstance(owner, dict) or isinstance(owner.get("pid"), bool) or not isinstance(owner.get("pid"), int):
+        return False
+    pid, started = owner["pid"], str(owner.get("started") or "")
+    if pid <= 0 or pid == os.getpid():
+        return False
+    if _process_gone(pid):
+        return True
+    now = _process_started(pid)
+    return bool(now and started and now.partition(":")[0] == started.partition(":")[0] and now != started)
+
 
 def _runtime_transaction_folders(parent):
     """Retained update transaction folders directly inside ``parent``, as plain directories only.
@@ -5557,8 +5801,17 @@ def _prune_runtime_transactions(prefix, family, *, live=False, inventory=None):
             journals.append((found[1], path, found[0]))
     journals.sort(key=lambda row: (row[0], row[1]))
     _marker, _schema, child = _RUNTIME_TRANSACTIONS[family]
+    try:
+        details = os.stat(prefix, follow_symlinks=False)
+        live_identity = [details.st_dev, details.st_ino]
+    except OSError:
+        live_identity = None
     abandoned = [row for row in journals if row[2].get("state") in _ABANDONED_TRANSACTION_STATES
                  and not (family != "posix-runtime" and os.path.lexists(os.path.join(row[1], child)))]
+    abandoned += [row for row in journals if row[2].get("state") in _STAGING_TRANSACTION_STATES
+                  and live_identity is not None and row[2].get("old_identity") == live_identity
+                  and not (family != "posix-runtime" and os.path.lexists(os.path.join(row[1], child)))
+                  and _transaction_owner_gone(row[2])]
     committed = [row for row in journals if row[2].get("state") == "committed"]
     candidates = list(abandoned)
     if len(committed) >= 2 and _newest_copy_is_live(prefix, family, journals, live, inventory):
@@ -5707,6 +5960,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         staged = os.path.join(transaction, "runtime")
         journal = os.path.join(transaction, "transaction.json")
         state = {"schema": 2, "family": "posix-runtime", "prefix": prefix, "rollback_runtime": staged,
+                 "owner": _transaction_owner(),
                  "old_identity": [os.stat(prefix).st_dev, os.stat(prefix).st_ino],
                  "old_inventory": _runtime_recovery_inventory(prefix),
                  "requested_version": str(version), "state": "staging"}
@@ -5769,7 +6023,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                         and int(details.st_mtime) == int(old.st_mtime)
                         and _macos_digest(path) != previous["sha256"]):
                     os.utime(path, ns=(details.st_atime_ns, (int(old.st_mtime) + 2) * 1_000_000_000),
-                             follow_symlinks=False)
+                             **({"follow_symlinks": False} if os.utime in os.supports_follow_symlinks else {}))
                     if int(os.stat(path).st_mtime) == int(old.st_mtime):
                         raise OSError(errno.EIO, os.strerror(errno.EIO), path)
         code, imported = runner([staged_python, "-I", "-c", "import spacr.qt"])
@@ -7019,7 +7273,7 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         previous = os.path.join(root, "previous")
         details = os.stat(prefix, follow_symlinks=False)
         state = {"schema": 1, "family": "windows-online-uv" if uv_tool else "windows-private-pip", "prefix": prefix,
-                 "rollback_runtime": previous, "staged_runtime": staged,
+                 "rollback_runtime": previous, "staged_runtime": staged, "owner": _transaction_owner(),
                  "requested_version": version, "old_identity": [details.st_dev, details.st_ino],
                  "old_inventory": _windows_pip_tree(prefix), "state": "staging"}
         _runtime_recovery_journal(root, state)
@@ -8366,7 +8620,9 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
             operation = (_run_pip_environment_update if plan["adapter"] in {"pip-private-posix-v1", "pip-private-windows-v1"}
                          else _run_windows_online_update if plan["adapter"] == "windows-online-uv-v1"
                          else _run_macos_online_update)
-            observed, output = operation(plan, machine, wait=wait, run=run, spawn=spawn)
+            with _preparation_heartbeat(plan, windows=plan["adapter"] in {"pip-private-windows-v1",
+                                                                          "windows-online-uv-v1"}):
+                observed, output = operation(plan, machine, wait=wait, run=run, spawn=spawn)
         except Exception as error:
             lines.append(f"macOS environment update stopped: {error}" if plan["adapter"] == "macos-online-uv-v1"
                          else f"Windows environment update stopped: {error}" if plan["adapter"] == "windows-online-uv-v1"
@@ -8381,8 +8637,9 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return _finish(0)
     if plan.get("adapter") == "windows-frozen-nsis-v1":
         try:
-            observed, output = _run_windows_frozen_update(
-                plan, machine, wait=wait, download=fetch, run=run, spawn=spawn)
+            with _preparation_heartbeat(plan, windows=True):
+                observed, output = _run_windows_frozen_update(
+                    plan, machine, wait=wait, download=fetch, run=run, spawn=spawn)
             lines.extend([output, json.dumps({"version": observed, "relaunch": "ready"})])
             return _finish(0)
         except Exception as error:
@@ -9121,19 +9378,25 @@ def preview_optional_cleanup(operation_id, *, system=None, guard=None):
     cache_home = normalized(cache_home)
     locations = {}
     try:
-        home_fd = _optional_cleanup_directory(cache_home)
-        try:
-            descriptor = os.open(_CACHE_LOCATIONS_FILE, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=home_fd)
-            with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
-                details = os.fstat(stream.fileno())
-                if stat.S_ISREG(details.st_mode) and details.st_size <= 1_048_576:
-                    raw = stream.read(1_048_577)
-                    data = json.loads(raw) if len(raw) <= 1_048_576 else None
-                    if isinstance(data, dict):
-                        locations = {key: value for key, value in data.items()
-                                     if isinstance(value, str) and value.strip() and "\x00" not in value}
-        finally:
-            os.close(home_fd)
+        if hasattr(os, "O_DIRECTORY") and hasattr(os, "O_NOFOLLOW"):
+            home_fd = _optional_cleanup_directory(cache_home)
+            try:
+                descriptor = os.open(_CACHE_LOCATIONS_FILE, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=home_fd)
+            finally:
+                os.close(home_fd)
+        else:
+            manifest = os.path.join(cache_home, _CACHE_LOCATIONS_FILE)
+            if os.path.islink(cache_home) or os.path.islink(manifest):
+                raise ValueError("link")
+            descriptor = os.open(manifest, os.O_RDONLY | getattr(os, "O_BINARY", 0))
+        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+            details = os.fstat(stream.fileno())
+            if stat.S_ISREG(details.st_mode) and details.st_size <= 1_048_576:
+                raw = stream.read(1_048_577)
+                data = json.loads(raw) if len(raw) <= 1_048_576 else None
+                if isinstance(data, dict):
+                    locations = {key: value for key, value in data.items()
+                                 if isinstance(value, str) and value.strip() and "\x00" not in value}
     except (OSError, ValueError, RecursionError):
         pass
 

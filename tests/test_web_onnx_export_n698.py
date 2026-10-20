@@ -21,7 +21,7 @@ def catalogue(tmp_path):
     rows = [_row("fam_v1", contents["fam_v1"]),
             _row("det_v1", contents["det_v1"], kind="detector", family="det", filename="best.pt")]
     path = tmp_path / "models.json"
-    path.write_text(json.dumps({"schema": 1, "models": rows}))
+    path.write_text(json.dumps({"schema": 1, "models": rows}), encoding="utf-8")
     return path, {row["key"]: row for row in rows}, contents
 
 
@@ -44,7 +44,7 @@ def test_key_selection(catalogue):
 def test_duplicate_catalogue_key_is_refused(tmp_path):
     row = _row("k_v1", b"x")
     path = tmp_path / "models.json"
-    path.write_text(json.dumps({"schema": 1, "models": [row, row]}))
+    path.write_text(json.dumps({"schema": 1, "models": [row, row]}), encoding="utf-8")
     with pytest.raises(e.ExportError, match="duplicate"):
         e.load_catalogue(path)
 
@@ -138,13 +138,13 @@ def test_manifest_is_created_then_merged_per_key(tmp_path):
     path = tmp_path / "m" / "browser-manifest.json"
     first = e.merge_manifest(path, {"b_v1": {"file": "b.onnx"}})
     assert first == {"schema": 1, "generated_by": e.GENERATED_BY, "base_url": None, "models": {"b_v1": {"file": "b.onnx"}}}
-    data = json.loads(path.read_text())
+    data = json.loads(path.read_text(encoding="utf-8"))
     data["base_url"] = "https://example.invalid/web-onnx/"
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     merged = e.merge_manifest(path, {"a_v1": {"file": "a.onnx"}, "b_v1": {"file": "b2.onnx"}})
     assert merged["base_url"] == "https://example.invalid/web-onnx/"
     assert list(merged["models"]) == ["a_v1", "b_v1"] and merged["models"]["b_v1"] == {"file": "b2.onnx"}
-    path.write_text(json.dumps({"schema": 2, "models": {}}))
+    path.write_text(json.dumps({"schema": 2, "models": {}}), encoding="utf-8")
     with pytest.raises(e.ExportError):
         e.merge_manifest(path, {})
 
@@ -229,7 +229,7 @@ def test_main_writes_manifest_for_verified_weights(tmp_path, catalogue, monkeypa
     monkeypatch.setattr(e, "export_one", lambda row, weights, out, **k: {"file": row["key"] + ".onnx", "weights": str(weights)})
     out = tmp_path / "out"
     assert e.main(["--catalogue", str(path), "--all", "--weights-dir", str(directory), "--out", str(out)]) == 0
-    manifest = json.loads((out / "browser-manifest.json").read_text())
+    manifest = json.loads((out / "browser-manifest.json").read_text(encoding="utf-8"))
     assert manifest["base_url"] is None and sorted(manifest["models"]) == ["det_v1", "fam_v1"]
 
 

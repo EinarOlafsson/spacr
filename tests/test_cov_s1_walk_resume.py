@@ -149,7 +149,7 @@ def test_a_walk_that_stops_improving_records_where_it_got_to(tmp_path):
                          n_trials=5, checkpoint=checkpoint)
 
     assert any("stopped because" in note for note in result.notes)
-    stored = json.loads((tmp_path / "walk.json").read_text())
+    stored = json.loads((tmp_path / "walk.json").read_text(encoding="utf-8"))
     assert stored["meta"]["rounds_completed"] >= 1
 
 
@@ -182,9 +182,9 @@ def test_a_hand_edited_checkpoint_entry_is_skipped_not_fatal(tmp_path):
     store = _checkpoint(tmp_path)
     store.record(Trial(params={"n_neighbors": 5}, score=0.8, index=0))
     store.finish()
-    document = json.loads((tmp_path / "walk.json").read_text())
+    document = json.loads((tmp_path / "walk.json").read_text(encoding="utf-8"))
     document["completed"]["hand-edited"] = "not a record"
-    (tmp_path / "walk.json").write_text(json.dumps(document))
+    (tmp_path / "walk.json").write_text(json.dumps(document), encoding="utf-8")
 
     loaded = _checkpoint(tmp_path, resume=True).load()
 

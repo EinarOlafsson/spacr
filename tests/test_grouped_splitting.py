@@ -195,7 +195,7 @@ def test_generated_crop_dataset_writes_split_provenance_and_keeps_wells(
         if name.endswith('.png')
     }
     assert not train_wells & test_wells
-    provenance = json.loads((root / ".spacr_split.json").read_text())
+    provenance = json.loads((root / ".spacr_split.json").read_text(encoding="utf-8"))
     assert provenance["group_by"] == "well"
     assert provenance["group_fraction"] == pytest.approx(0.25)
     assert provenance["cell_fraction"] == pytest.approx(0.25)

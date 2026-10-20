@@ -58,7 +58,7 @@ class TestTheGridIsWrittenAndRead:
         write_effects_grid(
             pd.DataFrame({"cell_area": [0.4]}, index=["g1"]), str(tmp_path))
         results = tmp_path / "results.csv"
-        results.write_text("feature,coefficient\ng1,0.4\n")
+        results.write_text("feature,coefficient\ng1,0.4\n", encoding="utf-8")
 
         assert effects_grid_from_results(str(results)) is not None
 
@@ -66,7 +66,7 @@ class TestTheGridIsWrittenAndRead:
         from spacr.cell_montage import (EFFECTS_GRID_FILE,
                                         effects_grid_from_results)
 
-        (tmp_path / EFFECTS_GRID_FILE).write_text("")
+        (tmp_path / EFFECTS_GRID_FILE).write_text("", encoding="utf-8")
 
         assert effects_grid_from_results(str(tmp_path)) is None
 
@@ -144,7 +144,7 @@ class TestThePrefixIsMeasuredNotHardCoded:
         import pathlib
 
         source = pathlib.Path(
-            "spacr/qt/widgets/cell_montage_view.py").read_text()
+            "spacr/qt/widgets/cell_montage_view.py").read_text(encoding="utf-8")
         # The comment explaining the fix may name it; the CODE must not.
         code = [line for line in source.splitlines()
                 if 'TGGT1_' in line and not line.strip().startswith("#")]

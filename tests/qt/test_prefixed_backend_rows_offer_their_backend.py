@@ -80,7 +80,7 @@ def _install(tmp_path, name):
     env = tmp_path / "backends" / name
     python = Path(SB._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("")
+    python.write_text("", encoding="utf-8")
     SB._write_marker(str(env), {"backend": name})
     return env
 

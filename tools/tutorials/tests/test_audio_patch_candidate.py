@@ -57,12 +57,12 @@ def test_rejects_drift_before_any_candidate_is_created(staged, mutation):
     baseline, stage, repo = staged
     if mutation == 'translation':
         path = stage / 'catalog/lessons_fr.json'
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
         data['lessons'][0]['title'] = 'Modified translation'
         write(path, data)
     elif mutation == 'canonical':
         path = repo / 'tools/tutorials/lessons/07_mask.json'
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
         data['scenes'][0]['narration'] = 'Different workflow instructions.'
         write(path, data)
     elif mutation == 'extra_voice':
@@ -71,7 +71,7 @@ def test_rejects_drift_before_any_candidate_is_created(staged, mutation):
         (stage / 'production/07_mask/audio/en/bf_alice.json').unlink()
     elif mutation in {'audio_identity', 'timing_narration'}:
         path = stage / 'production/07_mask/audio/en/af_heart.json'
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
         if mutation == 'audio_identity':
             data['media_sha256'] = 'wrong'
         else:
@@ -79,7 +79,7 @@ def test_rejects_drift_before_any_candidate_is_created(staged, mutation):
         write(path, data)
     elif mutation == 'missing_original':
         path = baseline / 'release-manifest.json'
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
         data['files'] = data['files'][1:]
         write(path, data)
     with pytest.raises(ValueError):

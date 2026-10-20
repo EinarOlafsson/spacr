@@ -1,6 +1,6 @@
 {
   "about": "Written only by tools/verify_module_coverage.py. Do not edit: the checksum covers every other key and the gate refuses a file it did not write. Tighten with --update-baseline --reason; regenerate deliberately with --reset-baseline --reason (see the tool's docstring).",
-  "checksum": "sha256:570337187ad19a5ff185f8b01968484cf1025cd8ff3e1ddec0f100b541f748c6",
+  "checksum": "sha256:0d85f28adfeb4e62f9c0be609228d80a531b116bac0163d3249449bfd86cfc83",
   "history": [
     {
       "commit": "b740c741dbf1a1154d60aa08722897bb304d03eb",
@@ -45,6 +45,15 @@
       "reason": "The first-run setup no longer offers AI providers or GitHub sign-in; its drawn provider marks left the package.",
       "retired": "spacr/qt/widgets/provider_marks.py",
       "written_at": "2026-10-15T17:55:47Z"
+    },
+    {
+      "commit": "1375e1873abb62c2877e7c66d2a6b664d9481fe1",
+      "coverage_timestamp": "none: a deleted module has no coverage",
+      "coverage_version": "none",
+      "mode": "retire",
+      "reason": "item 127: the deprecated regression_search shim was removed in 1.5.1.5",
+      "retired": "spacr/regression_search.py",
+      "written_at": "2026-10-19T17:22:46Z"
     }
   ],
   "modules": {
@@ -3576,13 +3585,6 @@
       "uncovered_branches": 2,
       "uncovered_statements": 3
     },
-    "spacr/regression_search.py": {
-      "excluded_lines": 0,
-      "pragma_no_cover": 0,
-      "since": "2026-09-15T11:54:08Z",
-      "uncovered_branches": 0,
-      "uncovered_statements": 0
-    },
     "spacr/regression_spec.py": {
       "excluded_lines": 0,
       "pragma_no_cover": 0,
@@ -3993,8 +3995,8 @@
   "schema": "spacr.module-coverage-baseline/v1",
   "totals": {
     "excluded_lines": 0,
-    "modules": 563,
-    "modules_at_100_percent": 389,
+    "modules": 562,
+    "modules_at_100_percent": 388,
     "modules_with_gaps": 174,
     "pragma_no_cover": 46,
     "uncovered_branches": 1271,

@@ -50,7 +50,7 @@ def test_every_numbered_switch_has_its_own_translated_label_and_floor(language):
 @pytest.mark.parametrize("language", LANGUAGES)
 def test_reviewed_switch_records_are_published_and_source_bound(language):
     path = ROOT / "docs/i18n/reviewed/runtime" / language / "2026-09-21-organelle-background.json"
-    records = json.loads(path.read_text())["records"]
+    records = json.loads(path.read_text(encoding="utf-8"))["records"]
     assert len(records) == 8
     for record in records:
         key = record["key"]

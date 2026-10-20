@@ -201,7 +201,7 @@ def test_v1_applies_the_chain_per_selected_channel_and_records_it(
     with np.load(next((tmp_path / 'masks').glob('*.npz'))) as result:
         np.testing.assert_allclose(result['data'], expected, atol=2e-6)
     assert {p.name: p.read_bytes() for p in stack.glob('*.npy')} == original
-    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text())
+    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text(encoding="utf-8"))
     steps = record['configuration']['enhancement']
     assert record['complete'] and steps['background'] == 'rolling_ball'
     assert steps['log'] and steps['percentile_clip'] == [1.0, 99.0]
@@ -259,7 +259,7 @@ def test_psf_alone_keeps_its_record_without_an_enhancement_key(tmp_path):
     settings.update(dc.chain_settings())
     session = _run(stack, settings)
     assert session.chain is None
-    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text())
+    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text(encoding="utf-8"))
     assert 'enhancement' not in record['configuration']
 
 
@@ -278,7 +278,7 @@ def test_v2_model_sees_the_chain(tmp_path, monkeypatch):
     np.testing.assert_allclose(_CaptureModel.received[0],
                                expected / expected.max(), rtol=1e-5, atol=1e-6)
     np.testing.assert_array_equal(np.load(stack.path)[..., :2], _raw())
-    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text())
+    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text(encoding="utf-8"))
     assert record['complete'] and record['configuration']['enhancement']['log']
 
 

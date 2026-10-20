@@ -47,9 +47,9 @@ def test_a_broken_keyring_counts_as_none(monkeypatch):
 
 def test_a_secret_file_that_is_not_an_object_or_not_json_is_empty(tmp_path):
     path = tmp_path / "s.json"
-    path.write_text("[1, 2]")
+    path.write_text("[1, 2]", encoding="utf-8")
     assert rj._read_notify_secret_file(path) == {}
-    path.write_text("{broken")
+    path.write_text("{broken", encoding="utf-8")
     assert rj._read_notify_secret_file(path) == {}
 
 

@@ -22,7 +22,7 @@ import render_all_voices as renderer  # noqa: E402
 
 
 def read(path):
-    return json.loads(Path(path).read_text())
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def sha(path):

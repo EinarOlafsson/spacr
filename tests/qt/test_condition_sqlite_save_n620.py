@@ -61,7 +61,7 @@ def test_collisions_never_overwrite_source(screen, collision):
     with sqlite3.connect(source) as db:
         db.execute('CREATE VIEW samples_view AS SELECT * FROM samples')
     from spacr.derived_tables import sidecar_path
-    sidecar_path(source).write_text(json.dumps({'source': str(Path(source).resolve()), 'definitions': {'derived_name': {}}}))
+    sidecar_path(source).write_text(json.dumps({'source': str(Path(source).resolve()), 'definitions': {'derived_name': {}}}), encoding="utf-8")
     with pytest.raises(ValueError):
         save_annotated_table(source, collision, screen._frame, screen._condition_definition, screen._condition_source)
     with sqlite3.connect(source) as db:

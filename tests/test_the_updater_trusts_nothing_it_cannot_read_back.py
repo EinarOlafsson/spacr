@@ -35,12 +35,12 @@ def test_a_cache_that_cannot_be_written_is_logged_not_raised(tmp_path,
                                                              monkeypatch,
                                                              caplog):
     blocker = tmp_path / "not_a_folder"
-    blocker.write_text("a file where the cache folder should be")
+    blocker.write_text("a file where the cache folder should be", encoding="utf-8")
     monkeypatch.setenv(updater.ENV_NEWS_CACHE, str(blocker))
     with caplog.at_level(logging.DEBUG, logger=updater.LOG.name):
         updater._write_news_cache([{"tag": "v1"}])
     assert "could not write the news cache" in caplog.text
-    assert blocker.read_text() == "a file where the cache folder should be"
+    assert blocker.read_text(encoding="utf-8") == "a file where the cache folder should be"
 
 
 def test_an_unparseable_installed_version_is_not_verified(monkeypatch):

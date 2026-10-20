@@ -10804,7 +10804,6 @@ class _VolumeStage(QWidget):
         self._layer_rows = {}
         self._render_cache = {}
         self._render_serial = 0
-        # Requests older than the floor are cancelled; the newest shown one is never replaced by an older one.
         self._render_floor = self._shown_serial = 0
         self._render_turning = None
         self._view_signature = None
@@ -12116,9 +12115,6 @@ class _VolumeStage(QWidget):
                            for position, axis in enumerate(session.axes))
         self._render_serial += 1
         serial = self._render_serial
-        # While the view turns, a newer interactive request of the same content
-        # leaves the one being drawn to finish, so a slow (CPU) renderer still
-        # shows frames during a drag instead of starting over at every move.
         turning = (session, self._version) if quality == 'interactive' else None
         if turning is None or turning != self._render_turning:
             self._render_floor = serial

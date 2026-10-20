@@ -19,7 +19,7 @@ def _source(tmp_path, pathogen=False):
         "version": 1, "intensity_channels": [0, 1],
         "mask_plane_order": order,
         "mask_dims": {role: 2 + index for index, role in enumerate(order)},
-    }))
+    }), encoding="utf-8")
     return merged, manifest
 
 

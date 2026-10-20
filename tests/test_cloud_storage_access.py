@@ -51,22 +51,22 @@ def _write_plate(root: Path) -> dict:
     """
     rng = np.random.default_rng(550)
     root.mkdir(parents=True)
-    (root / ".zgroup").write_text(json.dumps({"zarr_format": 2}))
+    (root / ".zgroup").write_text(json.dumps({"zarr_format": 2}), encoding="utf-8")
     (root / ".zattrs").write_text(json.dumps({"plate": {
         "name": "screen_1", "version": "0.4",
         "rows": [{"name": "A"}, {"name": "B"}],
         "columns": [{"name": "1"}, {"name": "2"}, {"name": "3"}],
         "wells": [{"path": f"{r}/{c}", "rowIndex": ri, "columnIndex": ci}
-                  for r, c, ri, ci in WELLS]}}))
+                  for r, c, ri, ci in WELLS]}}), encoding="utf-8")
     arrays = {}
     for row, column, _, _ in WELLS:
         (root / row).mkdir(exist_ok=True)
-        (root / row / ".zgroup").write_text(json.dumps({"zarr_format": 2}))
+        (root / row / ".zgroup").write_text(json.dumps({"zarr_format": 2}), encoding="utf-8")
         well = root / row / column
         well.mkdir()
-        (well / ".zgroup").write_text(json.dumps({"zarr_format": 2}))
+        (well / ".zgroup").write_text(json.dumps({"zarr_format": 2}), encoding="utf-8")
         (well / ".zattrs").write_text(json.dumps(
-            {"well": {"images": [{"path": f} for f in FIELDS]}}))
+            {"well": {"images": [{"path": f} for f in FIELDS]}}), encoding="utf-8")
         for field in FIELDS:
             data = rng.integers(0, 4000, size=SHAPE, dtype=np.uint16)
             write_ome_zarr(
@@ -76,9 +76,9 @@ def _write_plate(root: Path) -> dict:
                       Axis.space("x", 0.5, "micrometer")],
                 levels=2, channel_names=("DAPI", "GFP"), chunks=CHUNKS)
             attrs_path = well / field / ".zattrs"
-            attrs = json.loads(attrs_path.read_text())
+            attrs = json.loads(attrs_path.read_text(encoding="utf-8"))
             attrs["multiscales"][0]["axes"][1].pop("unit")
-            attrs_path.write_text(json.dumps(attrs))
+            attrs_path.write_text(json.dumps(attrs), encoding="utf-8")
             arrays[(f"{row}{column}", field)] = data
     return arrays
 
@@ -166,7 +166,7 @@ def test_only_the_chosen_fields_are_fetched_and_only_once(plate_in_memory,
                                      report=None)
     assert again["fetched"] == 0 and again["reused"] == 1
     assert chunk_reads == []
-    record = json.loads((dest / "spacr_cloud_source.json").read_text())
+    record = json.loads((dest / "spacr_cloud_source.json").read_text(encoding="utf-8"))
     assert record["fields"]["B03/F001"]["z_projected"] is True
     assert record["fields"]["B03/F001"]["spacing"] == (
         "y 0.5 micrometer, x 0.5 micrometer")
@@ -353,7 +353,7 @@ def test_a_plate_served_over_http_stages_without_leaking_secrets(
     assert len(list(Path(local).glob("*.tif"))) == 2
     assert chunk_reads and all("/B/3/0/0/" in p for p in chunk_reads)
     printed = capsys.readouterr().out
-    manifest = (Path(local) / "spacr_cloud_source.json").read_text()
+    manifest = (Path(local) / "spacr_cloud_source.json").read_text(encoding="utf-8")
     for text in (printed, manifest, local):
         assert "hunter2" not in text and "topsecret" not in text
     with pytest.raises(ome_zarr._CloudStorageError, match="cannot be listed"):

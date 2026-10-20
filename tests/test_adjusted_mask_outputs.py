@@ -97,6 +97,7 @@ def test_interrupted_adjustment_restarts_from_raw_masks(plate, monkeypatch):
     np.testing.assert_array_equal(np.load(output / 'f0.npy'), np.load(output / 'f1.npy'))
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('role', ['cell', 'nucleus', 'pathogen'])
 @pytest.mark.parametrize('alias', [False, True])
 def test_output_aliases_are_refused_without_changing_raw_masks(plate, role, alias):

@@ -188,7 +188,7 @@ def test_a_hand_written_job_gets_an_id_and_a_label_of_its_own():
 
 def test_a_write_that_completes_leaves_no_temporary_behind(tmp_path):
     target = batch._atomic_write(tmp_path / "queue.json", "{}\n")
-    assert target.read_text() == "{}\n"
+    assert target.read_text(encoding="utf-8") == "{}\n"
     assert [p.name for p in tmp_path.iterdir()] == ["queue.json"]
 
 
@@ -220,7 +220,7 @@ def test_a_queue_file_that_cannot_be_read_says_so_in_a_sentence(tmp_path,
                                                                 monkeypatch):
     """An unattended runner should fail with a sentence, never a traceback."""
     path = tmp_path / "queue.json"
-    path.write_text("{}")
+    path.write_text("{}", encoding="utf-8")
     real = Path.read_text
 
     def _refuse(self, *args, **kwargs):
@@ -455,7 +455,7 @@ def test_a_job_process_runs_and_its_output_lands_in_its_own_log(tmp_path,
                         [sys.executable, "-c", "print('segmenting')"])
     code = batch.subprocess_runner(Job(module="mask", id="mask-1"), "", str(log))
     assert code == 0
-    text = log.read_text()
+    text = log.read_text(encoding="utf-8")
     assert "segmenting" in text
     assert "exit code 0" in text
 
@@ -468,7 +468,7 @@ def test_a_process_that_will_not_start_is_a_usage_failure(tmp_path,
     code = batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
                                    str(log))
     assert code == batch.EXIT_USAGE
-    assert "could not start the job process" in log.read_text()
+    assert "could not start the job process" in log.read_text(encoding="utf-8")
 
 
 def test_a_running_job_is_polled_so_a_stop_can_be_honoured(tmp_path,
@@ -483,7 +483,7 @@ def test_a_running_job_is_polled_so_a_stop_can_be_honoured(tmp_path,
         code = batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
                                        str(log))
     assert code == 0
-    assert "done" in log.read_text()
+    assert "done" in log.read_text(encoding="utf-8")
 
 
 def test_a_stop_pressed_mid_job_stops_the_child_and_says_so(tmp_path,
@@ -498,7 +498,7 @@ def test_a_stop_pressed_mid_job_stops_the_child_and_says_so(tmp_path,
         with pytest.raises(PipelineCancelled):
             batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
                                     str(log))
-    assert "cancelled safely" in log.read_text()
+    assert "cancelled safely" in log.read_text(encoding="utf-8")
 
 
 def test_the_in_process_runner_calls_the_cli_and_tees_its_output(tmp_path,
@@ -518,7 +518,7 @@ def test_the_in_process_runner_calls_the_cli_and_tees_its_output(tmp_path,
     assert batch.inprocess_runner(job, "/data/mask.csv", str(log)) == 0
     assert seen["argv"] == ["mask", "--settings", "/data/mask.csv",
                             "--set", "diameter=30"]
-    text = log.read_text()
+    text = log.read_text(encoding="utf-8")
     assert "in-process" in text
     assert "running in this interpreter" in text
 
@@ -545,7 +545,7 @@ def test_the_in_process_runner_honours_a_sys_exit_from_the_cli(tmp_path,
 def test_a_run_status_sidecar_beside_the_plate_is_an_artifact(tmp_path):
     src = Path(_plate(tmp_path))
     sidecar = src / f"mask{batch.RUN_STATUS_SUFFIX}"
-    sidecar.write_text("{}")
+    sidecar.write_text("{}", encoding="utf-8")
     found = [p.name for p in batch._status_artifacts({"src": str(src)})]
     assert sidecar.name in found
 
@@ -555,7 +555,7 @@ def test_an_artifact_with_no_new_stamp_contributes_nothing(tmp_path,
     """A measurements.db accumulates one row per stage, so 'what did THIS
     job record' is the difference, not the total."""
     src = Path(_plate(tmp_path))
-    (src / "mask.run_status.json").write_text("{}")
+    (src / "mask.run_status.json").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(batch, "_status_artifacts",
                         lambda settings: [src / "mask.run_status.json"])
     monkeypatch.setattr(batch, "read_run_status",
@@ -572,7 +572,7 @@ def test_a_stamp_that_attempted_nothing_is_empty_not_complete(tmp_path,
     re-run, and a stage that attempted no items has not earned it."""
     src = Path(_plate(tmp_path))
     artifact = src / "mask.run_status.json"
-    artifact.write_text("{}")
+    artifact.write_text("{}", encoding="utf-8")
     monkeypatch.setattr(batch, "_status_artifacts",
                         lambda settings: [artifact])
     monkeypatch.setattr(batch, "read_run_status",
@@ -589,7 +589,7 @@ def test_a_log_that_is_not_there_has_no_tail(tmp_path):
 
 def test_a_usage_failure_with_nothing_in_the_log_still_names_itself(tmp_path):
     log = tmp_path / "empty.log"
-    log.write_text("\n\n")
+    log.write_text("\n\n", encoding="utf-8")
     kind, message = batch.classify_failure(batch.EXIT_USAGE, str(log))
     assert kind == "ConfigurationError"
     assert "exit code 2" in message
@@ -602,7 +602,7 @@ def test_a_usage_failure_with_nothing_in_the_log_still_names_itself(tmp_path):
 def _ok_runner(code=0, text=""):
     def runner(job, settings_path, log_path):
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text(text)
+        Path(log_path).write_text(text, encoding="utf-8")
         return code
     return runner
 
@@ -639,7 +639,7 @@ def test_a_job_whose_settings_went_missing_fails_without_being_run(tmp_path):
     def runner(job, settings_path, log_path):
         ran.append(job.id)
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text("")
+        Path(log_path).write_text("", encoding="utf-8")
         return 0
 
     result = run_queue(queue, runner=runner, echo=False, force=True)
@@ -705,7 +705,7 @@ def test_ctrl_c_during_a_job_marks_it_interrupted_and_halts_the_rest(
 
     def runner(job, settings_path, log_path):
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text("")
+        Path(log_path).write_text("", encoding="utf-8")
         if job.id == "mask-1":
             raise KeyboardInterrupt
         return 0
@@ -787,7 +787,7 @@ def test_a_job_that_was_running_when_the_machine_died_is_resumed(tmp_path):
     def runner(job, settings_path, log_path):
         ran.append(job.override_args)
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text("")
+        Path(log_path).write_text("", encoding="utf-8")
         return 0
 
     result = resume_queue(path, runner=runner, echo=False)
@@ -816,7 +816,7 @@ def test_a_child_that_ignores_a_polite_stop_is_killed(tmp_path, monkeypatch):
         with pytest.raises(PipelineCancelled):
             batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
                                     str(log))
-    assert "cancelled safely" in log.read_text()
+    assert "cancelled safely" in log.read_text(encoding="utf-8")
 
 
 def test_a_job_that_was_still_running_when_the_queue_halted_is_not_run(
@@ -833,7 +833,7 @@ def test_a_job_that_was_still_running_when_the_queue_halted_is_not_run(
 
     def runner(job, settings_path, log_path):
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text("RuntimeError: the share went away\n")
+        Path(log_path).write_text("RuntimeError: the share went away\n", encoding="utf-8")
         return 1
 
     result = run_queue(queue, runner=runner, on_error="stop", echo=False)

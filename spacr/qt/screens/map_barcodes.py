@@ -551,6 +551,17 @@ def hide_as_page(screen: QWidget, host: Optional[QWidget]) -> bool:
     return True
 
 
+def _breathe() -> None:
+    """Let the event loop run one pass (timers, paints, posted work), user input held back.
+
+    :returns: nothing; the pass is the point, so the GUI keeps answering between the steps
+        of one fold open.
+    """
+    from PySide6.QtCore import QCoreApplication, QEventLoop
+
+    QCoreApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+
+
 def show_as_page(screen: QWidget, host: Optional[QWidget],
                  title: str) -> Optional[QWidget]:
     """Add ``screen`` to ``host``'s page strip and select it.
@@ -565,8 +576,11 @@ def show_as_page(screen: QWidget, host: Optional[QWidget],
         return None
     index = pages.indexOf(screen)
     if index < 0:
+        if not screen.isVisible():
+            screen.hide()
         index = pages.addTab(screen, title)
         install_close_marks(pages, tooltip=tr("Close"))
+        _breathe()
     key = str(getattr(screen, "app_key", "") or "")
     if key:
         try:
@@ -622,6 +636,10 @@ class FoldOpener:
             except RuntimeError:
                 built = self.window = None
         if built is None:
+            if (self.screen is not None
+                    and getattr(self.screen, "_fold_pages", None) is None
+                    and host_pages(self.screen) is not None):
+                _breathe()
             host_window = (self.screen.window()
                            if self.screen is not None else None)
             try:
@@ -629,6 +647,7 @@ class FoldOpener:
             except Exception:
                 LOG.exception("Could not open the folded module %r", self.key)
                 return None
+            _breathe()
         title = folded_module_title(self.key)
         shown = show_as_page(built, self.screen, title)
         if shown is None:

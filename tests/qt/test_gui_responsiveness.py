@@ -156,10 +156,18 @@ def big_db(tmp_path):
     return str(path)
 
 
-def _drive(qtbot, dog, done, budget_s=20.0):
-    """Pump the event loop until ``done()``, never blocking it."""
-    end = time.perf_counter() + budget_s
-    while time.perf_counter() < end and not done():
+def _drive(qtbot, dog, done, budget_s=20.0, observe_s=0.0):
+    """Pump the event loop until ``done()``, never blocking it.
+
+    ``observe_s`` keeps pumping for at least that long, so a tick count is
+    measured over a fair window even when the work finished at once: a PCA
+    fit done before the first wait left one ~300 ms redraw filling the whole
+    window, five ticks, and a failure that was not a freeze (macOS, 2026-10-20).
+    """
+    start = time.perf_counter()
+    end = start + budget_s
+    while time.perf_counter() < end and (
+            not done() or time.perf_counter() - start < observe_s):
         qtbot.wait(20)
     qtbot.wait(50)
     dog.stop()
@@ -934,7 +942,7 @@ def test_recomputing_a_pca_never_freezes_the_gui_thread(qtbot, big_db):
     dispatch = time.perf_counter() - dispatch
     _drive(qtbot, dog,
            lambda: not screen.is_busy() and screen.active_jobs() == 0,
-           budget_s=90.0)
+           budget_s=90.0, observe_s=0.5)
 
     assert dispatch < 0.100, (
         f"PCAPanel.recompute took {dispatch * 1000:.0f} ms to return; the "

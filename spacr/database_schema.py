@@ -19,6 +19,7 @@ re-exported here rather than redefined; see the comment above
 from __future__ import annotations
 
 import os
+import re
 import sqlite3
 from dataclasses import dataclass
 from typing import Callable, Optional, Sequence, Tuple
@@ -130,6 +131,74 @@ def _quote_identifier(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
 
 
+_REBUILD_REFUSED = re.compile(
+    r"\b(CHECK|FOREIGN\s+KEY|REFERENCES|UNIQUE|WITHOUT\s+ROWID|COLLATE|GENERATED|AUTOINCREMENT)\b",
+    re.IGNORECASE,
+)
+
+
+def _rebuild_with_column_renamed(cursor: sqlite3.Cursor, table: str, old: str, new: str) -> None:
+    """Rename ``old`` to ``new`` by rebuilding ``table`` with every row and rowid.
+
+    SQLite 3.54 refuses ``RENAME COLUMN`` and ``ADD COLUMN`` to a rowid alias
+    such as ``rowID`` ("cannot rename to rowid alias"), while ``CREATE TABLE``
+    still accepts one. This runs inside the migration's transaction, so a
+    failure leaves the table as it was. A table whose definition this cannot
+    reproduce exactly -- constraints beyond types, NOT NULL, defaults and the
+    primary key, generated columns, or an index or trigger that names the
+    column -- is refused rather than rebuilt approximately.
+
+    :param cursor: cursor on the migrating connection, inside its transaction.
+    :param table: the table to rebuild.
+    :param old: the legacy column name.
+    :param new: its canonical name.
+    :raises DatabaseMigrationError: the table cannot be rebuilt faithfully.
+    """
+    quoted = _quote_identifier(table)
+    cursor.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?", (table,))
+    found = cursor.fetchone()
+    definition = (found[0] if found else "") or ""
+    cursor.execute(f"PRAGMA table_xinfo({quoted})")
+    info = cursor.fetchall()
+    cursor.execute(
+        "SELECT sql FROM sqlite_master WHERE tbl_name = ? AND type IN ('index', 'trigger') "
+        "AND sql IS NOT NULL",
+        (table,),
+    )
+    dependents = [row[0] for row in cursor.fetchall()]
+    if (_REBUILD_REFUSED.search(definition) or any(row[6] for row in info)
+            or any(old.lower() in sql.lower() for sql in dependents)):
+        raise DatabaseMigrationError(
+            f"cannot rename {table}.{old} to {new}: this SQLite refuses a rowid-alias "
+            "rename and the table cannot be rebuilt faithfully"
+        )
+    names = [row[1] for row in info]
+    renamed = [new if name == old else name for name in names]
+    parts = []
+    for (_cid, _name, kind, notnull, default, _pk, _hidden), name in zip(info, renamed):
+        part = _quote_identifier(name)
+        if kind:
+            part += f" {kind}"
+        if notnull:
+            part += " NOT NULL"
+        if default is not None:
+            part += f" DEFAULT {default}"
+        parts.append(part)
+    keys = [name for row, name in sorted(zip(info, renamed), key=lambda item: item[0][5]) if row[5]]
+    if keys:
+        parts.append("PRIMARY KEY (" + ", ".join(_quote_identifier(name) for name in keys) + ")")
+    staging = _quote_identifier(f"_spacr_rebuild_{table}")
+    keep_rowid = "_rowid_" not in {name.lower() for name in names}
+    target = ", ".join((["_rowid_"] if keep_rowid else []) + [_quote_identifier(name) for name in renamed])
+    source = ", ".join((["_rowid_"] if keep_rowid else []) + [_quote_identifier(name) for name in names])
+    cursor.execute(f"CREATE TABLE {staging} ({', '.join(parts)})")
+    cursor.execute(f"INSERT INTO {staging} ({target}) SELECT {source} FROM {quoted}")
+    cursor.execute(f"DROP TABLE {quoted}")
+    cursor.execute(f"ALTER TABLE {staging} RENAME TO {quoted}")
+    for sql in dependents:
+        cursor.execute(sql)
+
+
 def _rename_legacy_columns(
     connection: sqlite3.Connection,
 ) -> Tuple[ColumnRename, ...]:
@@ -157,11 +226,16 @@ def _rename_legacy_columns(
                 others = {name.lower() for name in columns if name != old}
                 if new.lower() in others:
                     continue
-                cursor.execute(
-                    f"ALTER TABLE {quoted_table} "
-                    f"RENAME COLUMN {_quote_identifier(old)} "
-                    f"TO {_quote_identifier(new)}"
-                )
+                try:
+                    cursor.execute(
+                        f"ALTER TABLE {quoted_table} "
+                        f"RENAME COLUMN {_quote_identifier(old)} "
+                        f"TO {_quote_identifier(new)}"
+                    )
+                except sqlite3.OperationalError as error:
+                    if "rowid alias" not in str(error).lower():
+                        raise
+                    _rebuild_with_column_renamed(cursor, table, old, new)
                 columns[columns.index(old)] = new
                 renamed.append((table, old, new))
     finally:

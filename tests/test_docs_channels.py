@@ -21,12 +21,12 @@ def hosted_checkpoint(tmp_path, content, commit='a' * 40, hosted_content=None):
     manifest.write_text(json.dumps({'files': [
         {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data),
          'path': prefix + 'lesson/video.mp4'}
-        for prefix, data in (('web/production/', content), ('media_host/', hosted_content))]}))
+        for prefix, data in (('web/production/', content), ('media_host/', hosted_content))]}), encoding="utf-8")
     (checkpoint / 'publication-receipt.json').write_text(json.dumps({
         'commit': commit, 'media_root': MEDIA_ROOT + commit,
         'manifest_sha256': hashlib.sha256(manifest.read_bytes()).hexdigest(),
         'readback': {'passed': True, 'commit': commit, 'files_expected': 1,
-                     'downloaded_sha256_matched': 1, 'metadata_matched': 1}}))
+                     'downloaded_sha256_matched': 1, 'metadata_matched': 1}}), encoding="utf-8")
     return checkpoint
 
 
@@ -36,7 +36,7 @@ def test_verified_hosted_videos_reduce_size_and_preserve_each_channel_revision(t
     main = site(tmp_path, 'main', b'old video')
     nightly = site(tmp_path, 'nightly', b'new video')
     report = tmp_path / 'report.json'
-    report.write_text('{"api": {}}')
+    report.write_text('{"api": {}}', encoding="utf-8")
     for branch, root, content, revision in (
             ('main', main, b'old video', 'a' * 40),
             ('nightly', nightly, b'new video', 'b' * 40)):
@@ -46,7 +46,7 @@ def test_verified_hosted_videos_reduce_size_and_preserve_each_channel_revision(t
     assert assemble_main(main, pages)['media_files'] == 1
     assert assemble_nightly(nightly, space)['media_files'] == 1
     for root, revision in ((pages, 'a' * 40), (space, 'b' * 40)):
-        manifest = json.loads((root / 'tutorials/published-media.json').read_text())
+        manifest = json.loads((root / 'tutorials/published-media.json').read_text(encoding="utf-8"))
         assert manifest['lesson/video.mp4'] == MEDIA_ROOT + revision + '/lesson/video.mp4'
         assert not (root / 'tutorials/production/lesson/video.mp4').exists()
         assert (root / 'tutorials' / manifest['lesson/poster.jpg']).read_bytes() == b'poster'
@@ -61,9 +61,9 @@ def test_unverified_or_changed_video_stays_local(tmp_path):
     video.write_bytes(b'original video')
     assert verified_video_hosts(root, checkpoint)
     receipt_path = checkpoint / 'publication-receipt.json'
-    receipt = json.loads(receipt_path.read_text())
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     receipt['readback']['downloaded_sha256_matched'] = 0
-    receipt_path.write_text(json.dumps(receipt))
+    receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
     assert verified_video_hosts(root, checkpoint) == {}
     assert video.exists()
 
@@ -71,7 +71,7 @@ def test_unverified_or_changed_video_stays_local(tmp_path):
 def test_tampered_host_proof_cannot_redirect_a_video(tmp_path):
     main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
     proof = {'lesson/video.mp4': {'sha256': 'wrong', 'url': 'https://wrong.example/video'}}
-    (nightly / 'tutorials/verified-video-hosts.json').write_text(json.dumps(proof))
+    (nightly / 'tutorials/verified-video-hosts.json').write_text(json.dumps(proof), encoding="utf-8")
     with pytest.raises(ValueError, match='hosted video proof differs'):
         assemble_nightly(nightly, tmp_path / 'space')
 
@@ -79,20 +79,20 @@ def test_tampered_host_proof_cannot_redirect_a_video(tmp_path):
 def site(tmp_path, branch, video=b'same recording'):
     root = tmp_path / branch
     root.mkdir()
-    (root / 'index.html').write_text(f'<body>{branch}</body>')
-    (root / 'publication.json').write_text(json.dumps({'branch': branch, 'commit': branch + '-sha'}))
+    (root / 'index.html').write_text(f'<body>{branch}</body>', encoding="utf-8")
+    (root / 'publication.json').write_text(json.dumps({'branch': branch, 'commit': branch + '-sha'}), encoding="utf-8")
     tutorial = root / 'tutorials'
     media = tutorial / 'production/lesson'
     media.mkdir(parents=True)
     (media / 'video.mp4').write_bytes(video)
     (media / 'poster.jpg').write_bytes(b'poster')
     (tutorial / 'index.html').write_text('<body><header>Fixed toolbar</header><main id="lesson-content">Player</main>'
-                                       '<script src="app_v2.js?v=unchanged-source"></script></body>')
+                                       '<script src="app_v2.js?v=unchanged-source"></script></body>', encoding="utf-8")
     (tutorial / 'app_v2.js').write_text('"use strict";\n'
         'const video = `${PRODUCTION_ROOT}/${lesson.silent}`;\n'
         'const poster = `${PRODUCTION_ROOT}/${activeLesson.poster}`;\n'
-        f'const AUDIO_ROOT = "https://media.example/{branch}-revision";')
-    (tutorial / 'lesson_catalog.js').write_text(branch + ' lessons')
+        f'const AUDIO_ROOT = "https://media.example/{branch}-revision";', encoding="utf-8")
+    (tutorial / 'lesson_catalog.js').write_text(branch + ' lessons', encoding="utf-8")
     return root
 
 
@@ -111,16 +111,16 @@ def test_each_channel_is_a_standalone_site_with_its_own_content(tmp_path):
     assert not (space / 'nightly').exists()
     assert not (pages / 'nightly/tutorials').exists()
     for branch, path in [('main', pages), ('nightly', space)]:
-        assert f'>{branch}</body>' in (path / 'index.html').read_text()
-        assert (path / 'tutorials/lesson_catalog.js').read_text() == branch + ' lessons'
-        player = (path / 'tutorials/app_v2.js').read_text()
+        assert f'>{branch}</body>' in (path / 'index.html').read_text(encoding="utf-8")
+        assert (path / 'tutorials/lesson_catalog.js').read_text(encoding="utf-8") == branch + ' lessons'
+        player = (path / 'tutorials/app_v2.js').read_text(encoding="utf-8")
         assert f'https://media.example/{branch}-revision' in player
         assert 'publishedMedia(lesson.silent)' in player
-        manifest = json.loads((path / 'tutorials/published-media.json').read_text())
+        manifest = json.loads((path / 'tutorials/published-media.json').read_text(encoding="utf-8"))
         assert (path / 'tutorials' / manifest['lesson/video.mp4']).read_bytes() == b'same recording'
-        assert f'href="{NIGHTLY_URL}">Nightly preview' in (path / 'index.html').read_text()
+        assert f'href="{NIGHTLY_URL}">Nightly preview' in (path / 'index.html').read_text(encoding="utf-8")
         assert player.count('"../_media/') == 2
-        assert '<main id="lesson-content"><div class="spacr-publication-channel"' in (path / 'tutorials/index.html').read_text()
+        assert '<main id="lesson-content"><div class="spacr-publication-channel"' in (path / 'tutorials/index.html').read_text(encoding="utf-8")
     assert (main / 'tutorials/production/lesson/video.mp4').exists()
 
 
@@ -128,16 +128,16 @@ def test_main_links_home_on_pages_and_nightly_links_main_absolutely(tmp_path):
     from publish_docs_channels import MAIN_URL
     main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
     pages, space, _main, _nightly = publish(tmp_path, main, nightly)
-    assert 'href="/spacr/">Main documentation' in (pages / 'index.html').read_text()
-    assert f'href="{MAIN_URL}">Main documentation' in (space / 'index.html').read_text()
-    assert 'spaCR nightly' in (space / 'tutorials/index.html').read_text()
+    assert 'href="/spacr/">Main documentation' in (pages / 'index.html').read_text(encoding="utf-8")
+    assert f'href="{MAIN_URL}">Main documentation' in (space / 'index.html').read_text(encoding="utf-8")
+    assert 'spaCR nightly' in (space / 'tutorials/index.html').read_text(encoding="utf-8")
 
 
 def test_changed_nightly_video_cannot_change_main_video(tmp_path):
     main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly', b'new recording')
     pages, space, _main, _nightly = publish(tmp_path, main, nightly)
     for path, expected in [(pages, b'same recording'), (space, b'new recording')]:
-        manifest = json.loads((path / 'tutorials/published-media.json').read_text())
+        manifest = json.loads((path / 'tutorials/published-media.json').read_text(encoding="utf-8"))
         assert (path / 'tutorials' / manifest['lesson/video.mp4']).read_bytes() == expected
 
 
@@ -153,7 +153,7 @@ def test_media_only_update_changes_the_player_cache_key(tmp_path):
     versions = []
     for output in (before, after):
         tutorial = output / 'tutorials'
-        version = re.search(r'app_v2\.js\?v=([0-9a-f]{64})', (tutorial / 'index.html').read_text())[1]
+        version = re.search(r'app_v2\.js\?v=([0-9a-f]{64})', (tutorial / 'index.html').read_text(encoding="utf-8"))[1]
         assert version == hashlib.sha256((tutorial / 'app_v2.js').read_bytes()).hexdigest()
         versions.append(version)
     assert versions[0] != versions[1]
@@ -167,7 +167,7 @@ def test_live_audit_recognizes_only_the_publishers_asset_changes(tmp_path, monke
     assemble_nightly(nightly, output)
     receipt = tmp_path / 'tools/tutorials/release_candidate/publication-receipt.json'
     receipt.parent.mkdir(parents=True)
-    receipt.write_text(json.dumps({'media_root': 'https://example.invalid/immutable'}))
+    receipt.write_text(json.dumps({'media_root': 'https://example.invalid/immutable'}), encoding="utf-8")
     monkeypatch.setattr(live, 'ROOT', tmp_path)
     monkeypatch.setattr(live, 'LOCAL', nightly / 'tutorials')
     monkeypatch.setattr(live, 'EXPECTED_APP_KEY', 'unchanged-source')
@@ -207,12 +207,12 @@ def test_channel_receipt_counts_every_published_byte(tmp_path, branch, previous_
     from publish_docs_channels import site_size
     source = site(tmp_path, branch)
     if previous_receipt:
-        (source / 'channels.json').write_text('{"obsolete": "' + 'x' * 1000 + '"}')
+        (source / 'channels.json').write_text('{"obsolete": "' + 'x' * 1000 + '"}', encoding="utf-8")
     output = tmp_path / 'published'
     assemble = assemble_main if branch == 'main' else assemble_nightly
     receipt = assemble(source, output)
     assert receipt['size_bytes'] == site_size(output)
-    assert json.loads((output / 'channels.json').read_text()) == receipt
+    assert json.loads((output / 'channels.json').read_text(encoding="utf-8")) == receipt
 
 
 def test_main_size_guard_includes_its_own_publication_receipt(tmp_path):
@@ -233,10 +233,10 @@ def test_old_nightly_pages_urls_redirect_to_the_same_space_path(tmp_path):
     from publish_docs_channels import NIGHTLY_URL
     pages = tmp_path / 'pages'
     assemble_main(site(tmp_path, 'main'), pages)
-    stub = (pages / 'nightly/index.html').read_text()
+    stub = (pages / 'nightly/index.html').read_text(encoding="utf-8")
     assert f'url={NIGHTLY_URL}"' in stub
     assert sorted(p.name for p in (pages / 'nightly').iterdir()) == ['index.html']
-    script = re.search(r'<script>(.*?)</script>', (pages / '404.html').read_text())[1]
+    script = re.search(r'<script>(.*?)</script>', (pages / '404.html').read_text(encoding="utf-8"))[1]
     node = _shutil.which('node')
     if node is None:
         pytest.skip('node is not installed')
@@ -255,10 +255,10 @@ def test_old_nightly_pages_urls_redirect_to_the_same_space_path(tmp_path):
 
 def test_an_existing_404_page_keeps_its_content_and_gains_the_redirect(tmp_path):
     main = site(tmp_path, 'main')
-    (main / '404.html').write_text('<html><head><title>Lost</title></head><body>Lost</body></html>')
+    (main / '404.html').write_text('<html><head><title>Lost</title></head><body>Lost</body></html>', encoding="utf-8")
     pages = tmp_path / 'pages'
     assemble_main(main, pages)
-    text = (pages / '404.html').read_text()
+    text = (pages / '404.html').read_text(encoding="utf-8")
     assert text.startswith('<html><head><script>') and '<title>Lost</title>' in text
 
 
@@ -266,7 +266,7 @@ def test_nightly_site_uploads_atomically_and_deletes_removed_pages(tmp_path, mon
     import types
     space = tmp_path / 'space'
     assemble_nightly(site(tmp_path, 'nightly'), space)
-    readme = (space / 'README.md').read_text()
+    readme = (space / 'README.md').read_text(encoding="utf-8")
     assert readme.startswith('---\n') and '\nsdk: static\n' in readme
     calls = []
 
@@ -304,12 +304,12 @@ def test_nightly_space_license_matches_the_project_declaration(tmp_path):
     import re
     root = Path(__file__).resolve().parents[1]
     project = re.search(r'^license = "([^"]+)"$',
-                        (root / 'pyproject.toml').read_text(), re.M)[1]
+                        (root / 'pyproject.toml').read_text(encoding="utf-8"), re.M)[1]
     assert project == 'BSD-3-Clause'
-    assert (root / 'LICENSE').read_text().startswith('BSD 3-Clause License\n')
+    assert (root / 'LICENSE').read_text(encoding="utf-8").startswith('BSD 3-Clause License\n')
     output = tmp_path / 'space'
     assemble_nightly(site(tmp_path, 'nightly'), output)
-    metadata = (output / 'README.md').read_text().split('---')[1]
+    metadata = (output / 'README.md').read_text(encoding="utf-8").split('---')[1]
     assert re.search(r'^license: (.+)$', metadata, re.M)[1] == project.lower()
 
 
@@ -344,7 +344,7 @@ def test_nightly_verification_rejects_stale_public_receipts(tmp_path, monkeypatc
     import publish_docs_channels as publisher
     space = tmp_path / 'space'
     receipt = assemble_nightly(site(tmp_path, 'nightly'), space)
-    public = json.loads((space / 'publication.json').read_text())
+    public = json.loads((space / 'publication.json').read_text(encoding="utf-8"))
     if wrong_receipt == 'source':
         receipt['channels']['nightly']['commit'] = 'old-source'
     elif wrong_receipt == 'size':
@@ -515,16 +515,16 @@ def test_incompatible_catalog_is_registered_and_english_is_publishable(tmp_path)
     catalogs = root / '_static/i18n/api'
     catalogs.mkdir(parents=True)
     for language in ('en', 'es', 'de'):
-        (catalogs / f'{language}.json').write_text('{}')
+        (catalogs / f'{language}.json').write_text('{}', encoding="utf-8")
     report = tmp_path / 'report.json'
     report.write_text(json.dumps({'api': {'es': {'source_compatible': False, 'issues': ['stale']},
-                                           'de': {'source_compatible': True, 'issues': []}}}))
+                                           'de': {'source_compatible': True, 'issues': []}}}), encoding="utf-8")
     prepare(root, report, 'main', 'current-sha')
-    assert json.loads((catalogs / 'es.json').read_text())['unavailable'] is True
+    assert json.loads((catalogs / 'es.json').read_text(encoding="utf-8"))['unavailable'] is True
     assert (catalogs / 'en.json').exists()
     assert (catalogs / 'de.json').exists()
-    assert json.loads((root / 'translation-compatibility.json').read_text()) == {
-        **json.loads(report.read_text()), 'source_commit': 'current-sha'}
+    assert json.loads((root / 'translation-compatibility.json').read_text(encoding="utf-8")) == {
+        **json.loads(report.read_text(encoding="utf-8")), 'source_commit': 'current-sha'}
 
 
 def test_report_names_every_missing_stale_and_obsolete_symbol():
@@ -568,7 +568,7 @@ def test_cli_reports_null_api_text_as_incompatible_without_blocking_english(
         record = {**source, 'text': text,
                   'translation_source_blocks_sha256': ['block']}
         (api_dir / f'{language}.json').write_text(json.dumps(
-            {'schema': 2, 'symbols': {'current': record}}))
+            {'schema': 2, 'symbols': {'current': record}}), encoding="utf-8")
     sources = {name: {} for name in ('setting_labels', 'setting_tooltips',
                                      'categories', 'ui', 'module_summaries')}
     docs = SimpleNamespace(MODEL_SPECS={'es': None}, public_docstrings=lambda: {},
@@ -580,7 +580,7 @@ def test_cli_reports_null_api_text_as_incompatible_without_blocking_english(
     report = tmp_path / 'report.json'
     assert reporter.main(['--root', str(tmp_path), '--output', str(report),
                           '--english-required']) == 0
-    data = json.loads(report.read_text())
+    data = json.loads(report.read_text(encoding="utf-8"))
     assert data['api']['es'] == {
         'source_compatible': False,
         'issues': [{'kind': 'empty_or_malformed', 'symbol': 'current'}]}
@@ -618,10 +618,10 @@ def test_report_only_pytest_policy_preserves_english_and_code_failures(tmp_path)
     assert not advisory('tests/test_documentation_i18n.py',
                         'test_documentation_api_catalog_inventory_and_hashes_are_current', {'language': 'en'})
     assert not advisory('tests/test_api_i18n_frontend.py', 'test_stale_translation_falls_back')
-    (tmp_path / 'pytest.ini').write_text('[pytest]\n')
+    (tmp_path / 'pytest.ini').write_text('[pytest]\n', encoding="utf-8")
     (tmp_path / 'test_external_i18n_catalogs.py').write_text(
         'def test_external_runtime_catalogs_have_exact_current_source_keys():\n'
-        '    raise KeyError("missing translated Next caption")\n')
+        '    raise KeyError("missing translated Next caption")\n', encoding="utf-8")
     env = {**os.environ, 'PYTHONPATH': str(Path(__file__).resolve().parents[1])}
     command = [sys.executable, '-m', 'pytest', '-q', '-p', 'tools.pytest_translation_compatibility']
     result = subprocess.run(command, cwd=tmp_path, env=env, text=True, capture_output=True)
@@ -629,10 +629,10 @@ def test_report_only_pytest_policy_preserves_english_and_code_failures(tmp_path)
     assert '1 xfailed' in result.stdout
     records = list((tmp_path / '.translation-reports').glob('*.json'))
     assert len(records) == 1
-    record = json.loads(records[0].read_text())
+    record = json.loads(records[0].read_text(encoding="utf-8"))
     assert record['blocking'] is False
     assert 'missing translated Next caption' in record['diagnostics']
-    (tmp_path / 'test_english.py').write_text('def test_english_build():\n    assert False, "broken English"\n')
+    (tmp_path / 'test_english.py').write_text('def test_english_build():\n    assert False, "broken English"\n', encoding="utf-8")
     result = subprocess.run(command, cwd=tmp_path, env=env, text=True, capture_output=True)
     assert result.returncode == 1
     assert '1 failed' in result.stdout
@@ -645,8 +645,8 @@ def test_cli_allows_bad_translations_but_requires_good_english(tmp_path, monkeyp
 
     api_dir = tmp_path / 'docs/source/_static/i18n/api'
     api_dir.mkdir(parents=True)
-    (api_dir / 'en.json').write_text(json.dumps({'symbols': {'current': {'text': 'Current'}}}))
-    (api_dir / 'es.json').write_text(json.dumps({'schema': 2, 'symbols': {}}))
+    (api_dir / 'en.json').write_text(json.dumps({'symbols': {'current': {'text': 'Current'}}}), encoding="utf-8")
+    (api_dir / 'es.json').write_text(json.dumps({'schema': 2, 'symbols': {}}), encoding="utf-8")
     sources = {'setting_labels': {}, 'setting_tooltips': {}, 'categories': {},
                'ui': {'Next': 'Next'}, 'module_summaries': {}}
     docs = SimpleNamespace(MODEL_SPECS={'es': None}, public_docstrings=lambda: {},
@@ -657,7 +657,7 @@ def test_cli_allows_bad_translations_but_requires_good_english(tmp_path, monkeyp
                         lambda name: docs if name == 'build_documentation_i18n' else runtime)
     report = tmp_path / 'report.json'
     assert reporter.main(['--root', str(tmp_path), '--output', str(report), '--english-required']) == expected_exit
-    data = json.loads(report.read_text())
+    data = json.loads(report.read_text(encoding="utf-8"))
     assert data['api']['es']['issues'] == [{'kind': 'missing', 'symbol': 'current'}]
     assert data['runtime']['es']['issues'][0]['kind'] == 'unreadable_catalog'
 
@@ -686,16 +686,16 @@ def test_configure_loads_the_compat_extension_without_shadowing_branch_tools(tmp
     from publish_docs_channels import main
     config = tmp_path / 'docs/source/conf.py'
     config.parent.mkdir(parents=True)
-    config.write_text('extensions = []\n')
+    config.write_text('extensions = []\n', encoding="utf-8")
     before = list(sys.path)
     monkeypatch.delitem(sys.modules, 'docs_publication_compat', raising=False)
     assert main(['configure', '--root', str(tmp_path)]) == 0
     namespace = {}
-    exec(compile(config.read_text(), str(config), 'exec'), namespace)
+    exec(compile(config.read_text(encoding="utf-8"), str(config), 'exec'), namespace)
     publisher_tools = str(Path(__file__).resolve().parents[1] / 'tools')
     assert namespace['extensions'] == ['docs_publication_compat']
     assert sys.path == before
-    assert sys.modules['docs_publication_compat'].__file__ == publisher_tools + '/docs_publication_compat.py'
+    assert Path(sys.modules['docs_publication_compat'].__file__) == Path(publisher_tools, 'docs_publication_compat.py')
 
 
 def test_nightly_directory_links_name_their_index_for_the_static_space(tmp_path):
@@ -706,10 +706,10 @@ def test_nightly_directory_links_name_their_index_for_the_static_space(tmp_path)
         '<body><a href="../../tutorials/#lesson=09_annotate">Lesson</a>'
         '<a href="../../tutorials/">All</a><a href="../../missing/">Gone</a>'
         '<a href="https://example.org/docs/">Out</a><a href="#top">Top</a>'
-        "<a href='/tutorials/?x=1'>Root</a></body>")
+        "<a href='/tutorials/?x=1'>Root</a></body>", encoding="utf-8")
     space = tmp_path / 'space'
     receipt = assemble_nightly(nightly, space)
-    text = (space / 'api/spacr/index.html').read_text()
+    text = (space / 'api/spacr/index.html').read_text(encoding="utf-8")
     assert 'href="../../tutorials/index.html#lesson=09_annotate"' in text
     assert 'href="../../tutorials/index.html"' in text
     assert "href='/tutorials/index.html?x=1'" in text

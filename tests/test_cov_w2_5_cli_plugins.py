@@ -69,8 +69,8 @@ plugin = {"name": "", "version": ""}
 @pytest.fixture
 def plugin_registry(monkeypatch, tmp_path):
     """Install plugin modules by name and rediscover, restoring afterwards."""
-    (tmp_path / "w2_5_probe_plugin.py").write_text(PLUGIN_SOURCE)
-    (tmp_path / "w2_5_broken_plugin.py").write_text(BROKEN_SOURCE)
+    (tmp_path / "w2_5_probe_plugin.py").write_text(PLUGIN_SOURCE, encoding="utf-8")
+    (tmp_path / "w2_5_broken_plugin.py").write_text(BROKEN_SOURCE, encoding="utf-8")
     monkeypatch.syspath_prepend(str(tmp_path))
 
     def install(*modules):

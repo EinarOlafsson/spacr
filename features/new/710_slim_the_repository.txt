@@ -2,8 +2,8 @@
 SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI
 ================================================================================
 
-Status:    in progress — phase 1 done (HF evidence mirror verified);
-           phases 2-4 wait for the 1.5.1.5 release.
+Status:    in progress — phases 1-2 done (features/data slimmed to the
+           73-file keep-list); phases 3-4 remain.
 Requested: maintainer, 2026-10-18 (question tool, main session). Approved
            steps: "Move features/data to HF", "Move tutorial media + deck
            renders", "Build generated catalogs in CI", "Rewrite history
@@ -172,3 +172,4 @@ Coordination checklist:
 2026-10-18 — Registered (bdc360004). Inventory, secret/PII scan, HF staging and mirror rewrite measured (11.26 GiB -> 1.19 GiB approved paths, 744 MiB with deleted folders).
 2026-10-18 — Keep-list validated in a throwaway clone with the 22,797 files removed: the 43-file cohort gives the same 4 pre-existing nightly failures plus only the README checkout-size test. Remaining: phases 2-4 after 1.5.1.5.
 2026-10-18 — Private HF dataset einarolafsson/spacr-evidence uploaded and verified (a9971ff7634d); maintainer approved purging the eight already-deleted folders, now in the phase 4 list (744 MiB measured).
+2026-10-20 — Phase 2: keep-list re-derived on nightly 850c2e30a3 (unchanged, 73 files kept in place); 33 n676 checkpoint files changed since phase 1 uploaded (HF revision 1f6fb59e90cd); 22,797 files (4,097,622,132 bytes) removed after hash verification. Cohort before/after identical except the README checkout-size test, whose 4657 MB figure needs a README re-measure. Remaining: README size, phases 3-4.

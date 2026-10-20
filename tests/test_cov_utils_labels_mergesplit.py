@@ -503,7 +503,7 @@ def test_process_single_fov_channel_last_intensity(tmp_path):
 
 def test_merge_split_objects_no_masks_is_a_noop(tmp_path):
     from spacr.utils import merge_split_objects
-    (tmp_path / "notes.txt").write_text("no masks here")
+    (tmp_path / "notes.txt").write_text("no masks here", encoding="utf-8")
 
     assert merge_split_objects(str(tmp_path)) is None
     assert sorted(p.name for p in tmp_path.iterdir()) == ["notes.txt"]
@@ -515,7 +515,7 @@ def test_merge_split_objects_processes_every_mask_in_place(tmp_path):
     mask_dir.mkdir()
     tifffile.imwrite(str(mask_dir / "A01_f01.tif"), _two_touching_blocks())
     np.save(mask_dir / "A01_f02.npy", _two_touching_blocks())
-    (mask_dir / "README.md").write_text("ignored by the extension filter")
+    (mask_dir / "README.md").write_text("ignored by the extension filter", encoding="utf-8")
 
     calls = []
     merge_split_objects(str(mask_dir), perimeter_fraction=0.5, n_jobs=1,
@@ -528,7 +528,7 @@ def test_merge_split_objects_processes_every_mask_in_place(tmp_path):
         assert out.dtype == np.uint16
         assert sorted(np.unique(out).tolist()) == [0, 1]
         assert int(np.sum(out > 0)) == 120
-    assert (mask_dir / "README.md").read_text().startswith("ignored")
+    assert (mask_dir / "README.md").read_text(encoding="utf-8").startswith("ignored")
     assert [c[0] for c in calls] == [0, 1]
     assert {c[1] for c in calls} == {2}
     assert {c[3] for c in calls} == {"merge_cell"}

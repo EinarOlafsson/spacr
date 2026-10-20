@@ -126,7 +126,7 @@ def test_missing_settings_file_names_every_place_it_looked(support, tmp_path):
 def test_settings_file_returns_the_first_candidate_that_exists(support, tmp_path):
     """Order is preference: the nearest recorded location wins."""
     (tmp_path / "settings").mkdir()
-    (tmp_path / "settings" / "b.csv").write_text("Key,Value\n")
+    (tmp_path / "settings" / "b.csv").write_text("Key,Value\n", encoding="utf-8")
     found = support.settings_file(tmp_path, ("settings/a.csv", "settings/b.csv"))
     assert found == (tmp_path / "settings" / "b.csv").resolve()
 
@@ -207,7 +207,7 @@ def test_scratch_empties_a_directory_it_reuses(support, tmp_path, monkeypatch):
     """
     monkeypatch.setenv("SPACR_DRIVER_SCRATCH", str(tmp_path))
     first = support.scratch("measure_on_plate1")
-    (first / "leftover.csv").write_text("stale")
+    (first / "leftover.csv").write_text("stale", encoding="utf-8")
     second = support.scratch("measure_on_plate1")
     assert second == first
     assert not (second / "leftover.csv").exists()
@@ -235,7 +235,7 @@ def test_a_blank_cell_loads_as_empty_and_not_as_a_number(support, tmp_path):
     naming a setting the chosen analysis does not even read.
     """
     path = tmp_path / "regression.csv"
-    path.write_text("Key,Value\nhinge_threshold,\nregression_type,ols\n")
+    path.write_text("Key,Value\nhinge_threshold,\nregression_type,ols\n", encoding="utf-8")
     settings = support.read_settings(path)
     assert settings["hinge_threshold"] is None
     assert settings["regression_type"] == "ols"
@@ -246,7 +246,7 @@ def test_settings_values_come_back_as_the_types_they_were_written_as(support,
     """A list has to survive the round trip as a list."""
     path = tmp_path / "measure.csv"
     path.write_text('Key,Value\nchannels,"[0, 1, 2, 3]"\nsave_png,True\n'
-                    'png_size,"[[224, 224]]"\n')
+                    'png_size,"[[224, 224]]"\n', encoding="utf-8")
     settings = support.read_settings(path)
     assert settings["channels"] == [0, 1, 2, 3]
     assert settings["save_png"] is True

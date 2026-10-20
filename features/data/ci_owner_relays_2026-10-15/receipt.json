@@ -1,8 +1,0 @@
-{
-  "scope": "Read-only CI owner handoff, no source changes or tests",
-  "run_source": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
-  "latest_workflow_source": "3ed17e347af0bf443134f7c93bb3c8ba4b8811d4",
-  "Claude_N700": "Three assertion-free test functions named and AST/file hashes compared across5727/19ac/3ed; no owner edits or ratchet exemptions",
-  "Home_B_F561": "18 locale boundary nodes fail before callbacks because expected review filename absent; nine actual current candidate normalbackend review files/source+target hashes provided, owner must resolve path",
-  "limits": "Run snapshots are observations at query time, not current-green claims. Candidate review files read in local current checkout; no loader/fullcatalog/actual callback proof claimed."
-}

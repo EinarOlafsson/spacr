@@ -17,8 +17,8 @@ def test_reviewed_headings_render_and_preserve_fold_names(qtbot, language):
     from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter
 
     review = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
-                         "2026-09-22-section-headings.json").read_text())
-    inventory = json.loads((ROOT / "tests/data/release_contracts/288_section_title_inventory_2026-09-22.json").read_text())
+                         "2026-09-22-section-headings.json").read_text(encoding="utf-8"))
+    inventory = json.loads((ROOT / "tests/data/release_contracts/288_section_title_inventory_2026-09-22.json").read_text(encoding="utf-8"))
     records = {row["source"]: row["translation"] for row in review["records"]}
     assert set(records) == set(inventory["added"])
     splitter = CollapsibleSplitter(Qt.Vertical)

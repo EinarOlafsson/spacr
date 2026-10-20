@@ -4655,7 +4655,7 @@ def _umap_source_label(src):
     ``measurements/measurements.db`` to it, so the file name is the same for
     every plate and useless as a label.
     """
-    text = str(src).rstrip(os.sep)
+    text = str(src).rstrip(os.sep + (os.altsep or ''))
     return os.path.basename(text) or text
 
 

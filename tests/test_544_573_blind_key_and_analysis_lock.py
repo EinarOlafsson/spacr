@@ -93,7 +93,7 @@ def test_an_unchanged_rerun_verifies_against_the_lock(journal):
     assert "_plot_theme" not in lock["settings"]
     assert "hash_inputs" not in lock["settings"]
     stored = json.loads((rj._locks_root() / f"{lock['lock_id']}.json")
-                        .read_text())
+                        .read_text(encoding="utf-8"))
     assert stored == lock
 
     rerun = _settings(journal, channels="[0, 1, 2]", hash_inputs=True)
@@ -161,9 +161,9 @@ def test_an_edited_lock_and_a_changed_model_file_are_caught(journal):
         f"file:{model.resolve()}"]
 
     path = rj._locks_root() / f"{lock['lock_id']}.json"
-    edited = json.loads(path.read_text())
+    edited = json.loads(path.read_text(encoding="utf-8"))
     edited["settings"]["prediction_threshold"] = 0.1
-    path.write_text(json.dumps(edited))
+    path.write_text(json.dumps(edited), encoding="utf-8")
     tampered = rj.check_analysis_lock(_settings(journal, model_path=str(model)),
                                       app_key="ml_analyze")
     assert tampered["status"] == "tampered"
@@ -172,13 +172,13 @@ def test_an_edited_lock_and_a_changed_model_file_are_caught(journal):
 def test_a_journalled_run_carries_the_verdict_in_its_manifest(journal):
     with rj.open_run("ml_analyze", _settings(journal)) as run:
         pass
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert "analysis_lock" not in manifest
 
     rj.lock_analysis(_settings(journal), app_key="ml_analyze")
     with rj.open_run("ml_analyze", _settings(journal)) as same:
         pass
-    manifest = json.loads((same.dir / "manifest.json").read_text())
+    manifest = json.loads((same.dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["analysis_lock"]["status"] == "verified"
     assert not any("Analysis lock" in w
                    for w in manifest["provenance_warnings"])
@@ -186,7 +186,7 @@ def test_a_journalled_run_carries_the_verdict_in_its_manifest(journal):
     with rj.open_run("ml_analyze",
                      _settings(journal, model_type="random_forest")) as moved:
         pass
-    manifest = json.loads((moved.dir / "manifest.json").read_text())
+    manifest = json.loads((moved.dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["analysis_lock"]["status"] == "deviation"
     assert manifest["analysis_lock"]["deviations"][0]["key"] == "model_type"
     assert any("DEVIATION" in w and "model_type" in w

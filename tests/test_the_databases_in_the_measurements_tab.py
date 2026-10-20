@@ -677,8 +677,8 @@ def test_the_input_tables_own_rows_are_understood_as_they_come(
     from spacr.qt.widgets.measurement_scan_panel import DatabaseMergePanel
 
     for plate in ("plate1", "plate2"):
-        (tmp_path / f"{plate}_scores.csv").write_text("grna,score\n")
-        (tmp_path / f"{plate}_counts.csv").write_text("grna,count\n")
+        (tmp_path / f"{plate}_scores.csv").write_text("grna,score\n", encoding="utf-8")
+        (tmp_path / f"{plate}_counts.csv").write_text("grna,count\n", encoding="utf-8")
     inputs = PairedFileTableWidget()
     qtbot.addWidget(inputs)
     inputs.add_paths_for_side(
@@ -817,7 +817,7 @@ def test_a_file_that_is_not_a_database_is_named_in_its_own_row(
     from spacr.qt.widgets.measurement_scan_panel import DatabaseMergePanel
 
     broken = tmp_path / "broken.db"
-    broken.write_text("this is not a database\n")
+    broken.write_text("this is not a database\n", encoding="utf-8")
     widget = DatabaseMergePanel(
         lambda: _rows(list(two_plates) + [str(broken)],
                       plates=["plate1", "plate2", "plate3"]))

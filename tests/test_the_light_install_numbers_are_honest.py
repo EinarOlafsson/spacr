@@ -96,7 +96,7 @@ def _tracked_bytes() -> int:
 
 def _exclusions():
     """Each excluded path from the list, with what it weighs today."""
-    lines = [ln.strip() for ln in EXCLUDES.read_text().splitlines()
+    lines = [ln.strip() for ln in EXCLUDES.read_text(encoding="utf-8").splitlines()
              if ln.strip() and not ln.strip().startswith("#")]
     out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z"],
                          capture_output=True)
@@ -233,6 +233,7 @@ def test_the_readme_dates_its_numbers_and_names_what_remeasures_them():
     assert os.access(HELPER, os.X_OK), "the helper is not executable"
 
 
+@pytest.mark.posix_only
 def test_the_helper_prints_the_command_each_form_would_run():
     """--dry-run is the part of the helper a test can run: no network.
 
@@ -268,6 +269,7 @@ def test_the_helper_prints_the_command_each_form_would_run():
         "the measurement must not pip install into the caller's environment")
 
 
+@pytest.mark.posix_only
 def test_the_helper_refuses_to_call_a_local_clone_a_download():
     """Git hardlinks a clone of a PATH, which is not a transfer at all.
 
@@ -292,6 +294,7 @@ def test_the_helper_refuses_to_call_a_local_clone_a_download():
 
 
 @pytest.mark.slow
+@pytest.mark.posix_only
 def test_the_light_checkout_launches_spacr_and_not_merely_imports_it():
     """Instruction 328's own condition: LAUNCH the result, do not watch pip.
 
@@ -415,6 +418,7 @@ def _show_exclusions(argv0, cwd=None):
 
 
 @pytest.mark.slow
+@pytest.mark.posix_only
 def test_an_edited_exclusion_list_reaches_the_checkout(tmp_path):
     """THE REGRESSION, and it made editing the exclusion list a no-op.
 
@@ -466,7 +470,7 @@ def test_an_edited_exclusion_list_reaches_the_checkout(tmp_path):
     if run.returncode != 0:
         pytest.skip(f"fetch failed here: {run.stderr[-300:]}")
 
-    written = (out / ".git" / "info" / "sparse-checkout").read_text()
+    written = (out / ".git" / "info" / "sparse-checkout").read_text(encoding="utf-8")
     assert marker in written.split(), (
         "the edited exclusion list never reached the checkout; the script "
         "used its embedded copy instead:\n" + written)
@@ -475,6 +479,7 @@ def test_an_edited_exclusion_list_reaches_the_checkout(tmp_path):
         "bug but the same broken promise")
 
 
+@pytest.mark.posix_only
 def test_the_installer_on_its_own_still_knows_the_list(tmp_path):
     """The curl'd case: one file, no checkout around it, no second fetch."""
     alone = tmp_path / "install_spacr.sh"
@@ -487,6 +492,7 @@ def test_the_installer_on_its_own_still_knows_the_list(tmp_path):
         "installer would exclude different paths from the checkout one")
 
 
+@pytest.mark.posix_only
 def test_asking_what_would_be_excluded_creates_nothing(tmp_path):
     """A diagnostic that leaves a ./spacr behind is not a diagnostic."""
     before = set(os.listdir(tmp_path))
@@ -506,6 +512,7 @@ def test_asking_what_would_be_excluded_creates_nothing(tmp_path):
                  {"--repo", "--branch", "--forms", "--dry-run"},
                  id="measure_clone_forms"),
 ])
+@pytest.mark.posix_only
 def test_the_scripts_help_lists_every_flag_and_no_shell(script, must_have):
     """`usage` prints a HAND-COUNTED line range, and both ends of it bite.
 

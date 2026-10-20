@@ -39,8 +39,7 @@ def test_a_pip_editable_install_names_its_working_tree(monkeypatch, tmp_path):
     checkout = tmp_path / "my checkout"
     checkout.mkdir()
     _fake_metadata(monkeypatch, (
-        '{"dir_info": {"editable": true}, "url": "file://'
-        + str(checkout).replace(" ", "%20") + '"}'))
+        '{"dir_info": {"editable": true}, "url": "' + checkout.as_uri() + '"}'))
     assert updater.editable_install_location() == str(checkout)
 
 
@@ -89,7 +88,7 @@ def test_a_package_under_site_packages_is_not_a_checkout(monkeypatch,
 
     site = tmp_path / "site-packages"
     (site / "spacr").mkdir(parents=True)
-    (site / "spacr" / "__init__.py").write_text("")
+    (site / "spacr" / "__init__.py").write_text("", encoding="utf-8")
     # A .git alongside it would fool the marker check on its own.
     (site / ".git").mkdir()
     fake = types.ModuleType("spacr")
@@ -113,7 +112,7 @@ def test_a_tree_with_no_git_and_no_pyproject_is_not_a_checkout(monkeypatch,
     monkeypatch.setitem(sys.modules, "spacr", fake)
     monkeypatch.setattr(sys, "path", [str(tmp_path / "lib")])
     assert updater.editable_install_location() is None
-    (root / "pyproject.toml").write_text("[project]\n")
+    (root / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
     assert updater.editable_install_location() == str(root)
 
 

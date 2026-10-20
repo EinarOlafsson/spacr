@@ -654,7 +654,7 @@ def test_private_pip_refusal_and_settings_failure_use_reviewed_locale(
 
     reviews = json.loads((Path(__file__).resolve().parents[2] / "docs" / "i18n" /
                           "reviewed" / "runtime" / language /
-                          "2026-10-14-n703-private-pip-handoff.json").read_text())
+                          "2026-10-14-n703-private-pip-handoff.json").read_text(encoding="utf-8"))
     expected = {row["source"]: row["translation"] for row in reviews["records"]}
     monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
     reason = install_cleanup._PRIVATE_PIP_UPDATE_ERROR

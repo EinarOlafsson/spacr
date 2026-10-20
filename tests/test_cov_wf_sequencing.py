@@ -290,4 +290,4 @@ def test_a_misspelt_single_direction_never_reaches_a_fastq_file(
                                        "single_direction": "r2"})
     assert len(mapping_env) == 1, (
         "an unrecognised direction still handed a file to the reader")
-    assert not os.path.exists(os.path.join(str(tmp_path), "S1_single_r2"))
+    assert "S1_single_r2" not in os.listdir(str(tmp_path))

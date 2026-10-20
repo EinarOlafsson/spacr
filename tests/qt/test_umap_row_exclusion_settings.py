@@ -440,7 +440,7 @@ def test_the_pure_readers_survive_everything_a_src_field_can_hold(tmp_path):
     # A file that is not a database, and a path that cannot be opened.
     junk = tmp_path / "junk" / "measurements.db"
     junk.parent.mkdir()
-    junk.write_text("this is not sqlite")
+    junk.write_text("this is not sqlite", encoding="utf-8")
     assert discover(str(junk)) == {}
     assert values_of([(junk, "cell")], "plateID") == []
     missing = tmp_path / "gone" / "x.db"

@@ -90,7 +90,7 @@ def test_prev_after_a_negative_export_reloads_the_exact_saved_boxes(qtbot, opene
 
 def test_the_driver_waits_for_the_field_a_navigation_asked_for():
     """``ready`` takes the expected field, and both navigations pass one."""
-    tree = ast.parse(DRIVER.read_text())
+    tree = ast.parse(DRIVER.read_text(encoding="utf-8"))
     tour = next(node for node in tree.body
                 if isinstance(node, ast.FunctionDef) and node.name == "record_yolo_boxes")
     ready = next(node for node in ast.walk(tour)

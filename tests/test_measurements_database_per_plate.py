@@ -37,13 +37,13 @@ def _tracked(qtbot, widget):
 
 def _score(tmp_path, plate):
     path = tmp_path / f"plate{plate}_dv.csv"
-    path.write_text(f"path,pred,plate\na,0.5,plate{plate}\n")
+    path.write_text(f"path,pred,plate\na,0.5,plate{plate}\n", encoding="utf-8")
     return str(path)
 
 
 def _count(tmp_path, plate):
     path = tmp_path / f"plate_{plate}_unique_combinations.csv"
-    path.write_text("row_name,column_name,grna_name,count\nr1,c1,g,5\n")
+    path.write_text("row_name,column_name,grna_name,count\nr1,c1,g,5\n", encoding="utf-8")
     return str(path)
 
 

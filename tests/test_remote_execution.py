@@ -5,6 +5,7 @@ import json
 from collections import deque
 from dataclasses import fields
 import inspect
+import os
 
 import pytest
 
@@ -255,7 +256,9 @@ def test_custom_cloud_backend_templates_are_argument_vectors(tmp_path):
     assert job.external_id == "cloud-77"
     submit_argv = runner.calls[0][0]
     assert submit_argv[:4] == ["cloud", "submit", "--module", "classify"]
-    assert submit_argv[-1].endswith("/settings.json")
+    # A local command receives the local settings file as a native path.
+    assert submit_argv[-1] == job.settings_path
+    assert submit_argv[-1].endswith(os.sep + "settings.json")
     assert "shell" not in runner.calls[0][1]
     assert manager.refresh(job.job_id, include_logs=False).status == "running"
     assert manager.logs(job.job_id) == "epoch 2\n"

@@ -30,11 +30,11 @@ def _build(tmp_path, *, projected):
     pytest.importorskip('autoapi')
     package = tmp_path / 'source' / 'projection_fixture'
     package.mkdir(parents=True)
-    (package / '__init__.py').write_text('"""Projection fixture package."""\n')
+    (package / '__init__.py').write_text('"""Projection fixture package."""\n', encoding="utf-8")
     (package / 'foreign.py').write_text('''"""Canonical foreign objects."""
 class Foreign:
     """A separate canonical class."""
-''')
+''', encoding="utf-8")
     (package / 'engine.py').write_text('''"""Canonical engine documents."""
 from .foreign import Foreign as Imported
 __all__ = ['Surface', 'Imported']
@@ -60,7 +60,7 @@ def _parent():
     return helper
 class Undocumented:
     pass
-''')
+''', encoding="utf-8")
     docs = tmp_path / 'docs'
     docs.mkdir()
     policy = '''
@@ -87,15 +87,15 @@ def setup(app):
         "autoapi_options = ['members', 'show-inheritance', 'show-module-summary']\n"
         "autoapi_keep_files = True\n"
         + policy
-    )
-    (docs / 'index.rst').write_text('Projection fixture\n==================\n\n.. toctree::\n\n   autoapi/index\n')
+    , encoding="utf-8")
+    (docs / 'index.rst').write_text('Projection fixture\n==================\n\n.. toctree::\n\n   autoapi/index\n', encoding="utf-8")
     output = tmp_path / 'html'
     result = subprocess.run(
         [sys.executable, '-m', 'sphinx', '-q', '-W', '-E', '-b', 'html', str(docs), str(output)],
         capture_output=True, text=True, timeout=45,
     )
     assert result.returncode == 0, result.stdout + result.stderr
-    return (output / 'autoapi/projection_fixture/engine/index.html').read_text()
+    return (output / 'autoapi/projection_fixture/engine/index.html').read_text(encoding="utf-8")
 
 
 def test_actual_projection_renders_existing_source_without_imported_duplicates(tmp_path):
@@ -118,8 +118,8 @@ def _build_branches(tmp_path, *, supplemented):
     pytest.importorskip('autoapi')
     package = tmp_path / 'source' / 'projection_fixture'
     package.mkdir(parents=True)
-    (package / '__init__.py').write_text('"""Source-branch fixture."""\n')
-    (package / 'foreign.py').write_text('class Node:\n    """Canonical input node."""\n')
+    (package / '__init__.py').write_text('"""Source-branch fixture."""\n', encoding="utf-8")
+    (package / 'foreign.py').write_text('class Node:\n    """Canonical input node."""\n', encoding="utf-8")
     (package / 'engine.py').write_text('''"""Optional source branches."""
 from .foreign import Node
 _AVAILABLE = False
@@ -156,7 +156,7 @@ else:
 def _private():
     """Private implementation stays private."""
     return None
-''')
+''', encoding="utf-8")
     docs = tmp_path / 'docs'
     docs.mkdir()
     templates = tmp_path / 'templates'
@@ -197,9 +197,9 @@ def _private():
         "autoapi_keep_files = True\n"
         + (f'autoapi_template_dir = {str(templates)!r}\n'
            if supplemented else '') + custom
-    )
+    , encoding="utf-8")
     (docs / 'index.rst').write_text(
-        'Source branches\n===============\n\n.. toctree::\n\n   autoapi/index\n')
+        'Source branches\n===============\n\n.. toctree::\n\n   autoapi/index\n', encoding="utf-8")
     output = tmp_path / 'html'
     result = subprocess.run(
         [sys.executable, '-m', 'sphinx', '-q', '-W', '-E', '-b', 'html',
@@ -214,8 +214,8 @@ def test_actual_source_branches_render_once_with_source_defaults(tmp_path):
     before = _build_branches(tmp_path / 'before', supplemented=False)
     after = _build_branches(tmp_path / 'after', supplemented=True)
     relative = 'autoapi/projection_fixture/engine/index.html'
-    old = (before / relative).read_text()
-    rendered = (after / relative).read_text()
+    old = (before / relative).read_text(encoding="utf-8")
+    rendered = (after / relative).read_text(encoding="utf-8")
     inventory = zlib.decompress((after / 'objects.inv').read_bytes().split(b'\n', 4)[4]).decode()
     for suffix, kind in (('Optional', 'class'), ('Optional.mode', 'property'),
                          ('Optional.step', 'method'), ('branch', 'function')):

@@ -62,11 +62,11 @@ def test_failed_job_retry_uses_eleven_old_and_one_new_shard(tmp_path):
     assert selected == {shard: (2 if shard == 2 else 1) for shard in range(12)}
     files = list((tmp_path / "selected").glob(".coverage.*"))
     assert len(files) == 12
-    assert (tmp_path / "selected/.coverage.shard-02.batch-001").read_text() == "2/2"
-    assert (tmp_path / "selected/.coverage.shard-03.batch-001").read_text() == "3/1"
+    assert (tmp_path / "selected/.coverage.shard-02.batch-001").read_text(encoding="utf-8") == "2/2"
+    assert (tmp_path / "selected/.coverage.shard-03.batch-001").read_text(encoding="utf-8") == "3/1"
     assert (tmp_path / "selected/spacr-xdist-ledger.shard-02.batch-001.json").is_file()
     receipt = json.loads(
-        (tmp_path / "selected/spacr-coverage-artifact-selection.json").read_text()
+        (tmp_path / "selected/spacr-coverage-artifact-selection.json").read_text(encoding="utf-8")
     )
     assert receipt["head_sha"] == SHA
     assert receipt["run_id"] == RUN_ID
@@ -86,7 +86,7 @@ def test_full_rerun_uses_only_new_shards_without_double_counting(tmp_path):
     assert len(list((tmp_path / "selected").glob(".coverage.*"))) == 12
     assert all(
         (tmp_path / "selected" / f".coverage.shard-{shard:02d}.batch-001")
-        .read_text() == f"{shard}/2"
+        .read_text(encoding="utf-8") == f"{shard}/2"
         for shard in range(12)
     )
 
@@ -109,9 +109,9 @@ def test_selector_refuses_missing_or_foreign_measurements(tmp_path, damage, mess
         artifacts[11].rmdir()
     elif damage == "wrong_source":
         identity = artifacts[2] / "spacr-coverage-source.shard-02.json"
-        value = json.loads(identity.read_text())
+        value = json.loads(identity.read_text(encoding="utf-8"))
         value["head_sha"] = "b" * 40
-        identity.write_text(json.dumps(value))
+        identity.write_text(json.dumps(value), encoding="utf-8")
     elif damage == "wrong_run":
         _artifact(source, 2, 2, run_id=RUN_ID + 1)
     elif damage == "future":
@@ -150,7 +150,7 @@ def test_selector_does_not_overwrite_an_existing_coverage_input(tmp_path):
 
     with pytest.raises(ValueError, match="must start empty"):
         _select(source, destination)
-    assert sentinel.read_text() == "old"
+    assert sentinel.read_text(encoding="utf-8") == "old"
 
 
 def test_workflow_binds_each_upload_and_selects_only_this_run():

@@ -52,21 +52,21 @@ def test_a_deck_becomes_slides_a_pdf_and_a_viewer_that_needs_no_server(
                         lambda pdf, n: ["spaCR", "What is spaCR?", "Try it"])
     out = tmp_path / "out"
     assert deck.main([str(pptx), "--out", str(out), "--width", "160"]) == 0
-    manifest = json.loads((out / "slides.json").read_text())
+    manifest = json.loads((out / "slides.json").read_text(encoding="utf-8"))
     assert manifest["count"] == 3
     assert [s["title"] for s in manifest["slides"]] == [
         "spaCR", "What is spaCR?", "Try it"]
     assert all((out / s["image"]).is_file() and (out / s["thumb"]).is_file()
                for s in manifest["slides"])
     assert (out / "spacr_deck.pdf").read_bytes().startswith(b"%PDF")
-    page = (out / "index.html").read_text()
+    page = (out / "index.html").read_text(encoding="utf-8")
     assert "__SLIDES__" not in page, "the slide list is written into the page"
     assert '"What is spaCR?"' in page
     assert "ArrowRight" in page and "touchstart" in page
 
 
 def test_the_viewer_loads_nothing_from_another_site():
-    page = (ROOT / "tools" / "readme_deck_viewer.html").read_text()
+    page = (ROOT / "tools" / "readme_deck_viewer.html").read_text(encoding="utf-8")
     assert "<script src" not in page and "<link" not in page
     assert page.count("__SLIDES__") == 1
 
@@ -100,7 +100,7 @@ def test_an_animated_gif_is_read_out_of_the_deck_with_its_place(tmp_path):
 
 def test_every_github_page_links_back_and_next_and_wraps(tmp_path):
     pages = deck.github_pages(tmp_path, ["One", "Two", "Three"])
-    text = [p.read_text() for p in pages]
+    text = [p.read_text(encoding="utf-8") for p in pages]
     assert 'href="03.md">← Back' in text[0] and 'href="02.md">Next →' in text[0]
     assert 'href="02.md">← Back' in text[2] and 'href="01.md">Next →' in text[2]
     assert 'src="../slides/slide_02.jpg"' in text[1]
@@ -118,11 +118,11 @@ def test_the_title_slide_is_restamped_with_the_version(tmp_path):
     (tmp_path / "slides.json").write_text(json.dumps({
         "slides": [{"image": "slides/slide_01.jpg", "thumb": "thumbs/slide_01.jpg"}],
         "title_line": {"x": 0.05, "y": 0.85, "w": 0.7, "h": 0.06, "size": 0.04,
-                       "colour": "#FFFFFF", "text": "spaCR {version}  ·  x"}}))
+                       "colour": "#FFFFFF", "text": "spaCR {version}  ·  x"}}), encoding="utf-8")
     assert deck.stamp_title(tmp_path, "9.8.7.6") == "spaCR 9.8.7.6  ·  x"
     drawn = Image.open(tmp_path / "slides" / "slide_01.jpg").convert("L")
     assert drawn.crop((0, 360, 800, 420)).getextrema()[1] > 128
-    assert json.loads((tmp_path / "slides.json").read_text())["version"] == "9.8.7.6"
+    assert json.loads((tmp_path / "slides.json").read_text(encoding="utf-8"))["version"] == "9.8.7.6"
     assert (tmp_path / "spacr_deck.pdf").is_file()
 
 
@@ -193,7 +193,7 @@ def test_a_bump_never_fails_on_the_deck(tmp_path, monkeypatch):
     shutil.copy(ROOT / "tools" / "build_readme_deck.py", root / "tools")
     deck_dir = root / "docs" / "source" / "_static" / "deck"
     deck_dir.mkdir(parents=True)
-    (deck_dir / "slides.json").write_text(json.dumps({"version": "1.0.0.0"}))
+    (deck_dir / "slides.json").write_text(json.dumps({"version": "1.0.0.0"}), encoding="utf-8")
     assert release.restamp_info_deck(root, "1.0.0.0") is None
     real_import = builtins.__import__
 

@@ -187,7 +187,7 @@ def test_select_only_then_pairs_from_scores_the_same_pairs(tmp_path, monkeypatch
     movie = _eval_movie(tmp_path / 'movie')
     checkpoint = tmp_path / 'model.pt'
     checkpoint.write_bytes(b'stand-in')
-    checkpoint.with_suffix('.pt.json').write_text(json.dumps({'movies': [str(tmp_path / 'training')]}))
+    checkpoint.with_suffix('.pt.json').write_text(json.dumps({'movies': [str(tmp_path / 'training')]}), encoding="utf-8")
     base = ['--checkpoint', str(checkpoint), '--movie', str(movie), '--sequences', '01',
             '--segmentation', 'GT', '--data-kind', 'synthetic']
     picked = tmp_path / 'picked'
@@ -198,7 +198,7 @@ def test_select_only_then_pairs_from_scores_the_same_pairs(tmp_path, monkeypatch
     monkeypatch.setattr(evaluate, 'checkpoint_predictors', refuse)
     assert evaluate.main(base + ['--gaps', '1', '--pairs-per-gap', '2', '--selection', 'hardest',
                                  '--candidates-per-gap', '5', '--select-only', '--out', str(picked)]) == 0
-    run = json.loads((picked / 'run.json').read_text())
+    run = json.loads((picked / 'run.json').read_text(encoding="utf-8"))
     assert not (picked / 'summary.json').exists()
     assert [pair['frame_numbers'] for pair in run['selected']] == [[1, 2], [2, 3]]
 
@@ -211,11 +211,11 @@ def test_select_only_then_pairs_from_scores_the_same_pairs(tmp_path, monkeypatch
     monkeypatch.setattr(evaluate, 'checkpoint_predictors', factory)
     scored = tmp_path / 'scored'
     assert evaluate.main(base + ['--pairs-from', str(picked / 'run.json'), '--out', str(scored)]) == 0
-    summary = json.loads((scored / 'summary.json').read_text())
+    summary = json.loads((scored / 'summary.json').read_text(encoding="utf-8"))
     assert [pair['frame_numbers'] for pair in summary['selected']] == \
         [pair['frame_numbers'] for pair in run['selected']]
     assert summary['selection'].startswith('reused from')
-    rows = [json.loads(line) for line in (scored / 'pairs.jsonl').read_text().splitlines()]
+    rows = [json.loads(line) for line in (scored / 'pairs.jsonl').read_text(encoding="utf-8").splitlines()]
     assert all('hardness' in row for row in rows)
     other = _eval_movie(tmp_path / 'other')
     with pytest.raises(ValueError, match='same movie'):

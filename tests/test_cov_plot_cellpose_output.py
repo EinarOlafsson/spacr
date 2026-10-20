@@ -407,7 +407,7 @@ def test_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz(tmp_path):
         stacks[f"s{i}.npz"] = arr
         _write_npz(tmp_path / f"s{i}.npz", arr)
     # decoys that must never be opened by np.load
-    (tmp_path / "readme.txt").write_text("not a stack")
+    (tmp_path / "readme.txt").write_text("not a stack", encoding="utf-8")
     (tmp_path / "field.tif").write_bytes(b"\x00\x01")
 
     _plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=2, nr=1)
@@ -422,7 +422,7 @@ def test_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz(tmp_path):
 def test_plot_4D_arrays_empty_directory_plots_nothing(tmp_path):
     from spacr.plot import _plot_4D_arrays
 
-    (tmp_path / "only.txt").write_text("nothing to plot")
+    (tmp_path / "only.txt").write_text("nothing to plot", encoding="utf-8")
     assert _plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=3, nr=1) is None
     assert plt.get_fignums() == []
 

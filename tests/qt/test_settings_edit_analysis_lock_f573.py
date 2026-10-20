@@ -25,7 +25,7 @@ def journal(tmp_path, monkeypatch):
 
 def events(record):
     path = rj._seen_log(record)
-    return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()] if path.exists() else []
 
 
 def tiny_screen(qtbot, source):
@@ -238,9 +238,9 @@ def test_invalid_barcode_pattern_and_tampered_lock_cannot_record_edits(qtbot, jo
     field._line_edit.editingFinished.emit()
     assert not events(record) and field.get_value() == "["
     path = rj._locks_root() / f"{record['lock_id']}.json"
-    data = json.loads(path.read_text())
+    data = json.loads(path.read_text(encoding="utf-8"))
     data["note"] = "altered"
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     model._widgets["n_jobs"].setText("3")
     model._widgets["n_jobs"].editingFinished.emit()
     assert not events(record)

@@ -982,7 +982,7 @@ class PairedFileTableWidget(QWidget):
         mime = event.mimeData()
         if not mime.hasUrls():
             return []
-        return [url.toLocalFile() for url in mime.urls() if url.isLocalFile()]
+        return [os.path.normpath(url.toLocalFile()) for url in mime.urls() if url.isLocalFile()]
 
     def dragEnterEvent(self, event):  # noqa: N802 - Qt name
         """Accept a drag carrying files this table can take.
@@ -1712,7 +1712,7 @@ class FilePathListWidget(QWidget):
         mime = event.mimeData()
         if not mime.hasUrls():
             return []
-        return [url.toLocalFile() for url in mime.urls() if url.isLocalFile()]
+        return [os.path.normpath(url.toLocalFile()) for url in mime.urls() if url.isLocalFile()]
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:  # noqa: N802
         """Accept a drag carrying file URLs.
@@ -1809,7 +1809,7 @@ class FilePathListWidget(QWidget):
                 FILE_KIND_FILTERS[self._kind])
         if not paths:
             return 0
-        self._last_directory = os.path.dirname(paths[0])
+        self._last_directory = os.path.dirname(os.path.normpath(paths[0]))
         return self.add_paths(paths)
 
     def pick_folder(self) -> int:
@@ -1821,7 +1821,7 @@ class FilePathListWidget(QWidget):
             self, f"{self._title} — choose a folder", self._start_directory())
         if not folder:
             return 0
-        self._last_directory = folder
+        self._last_directory = os.path.normpath(folder)
         return self.add_paths([folder])
 
     def _start_directory(self) -> str:

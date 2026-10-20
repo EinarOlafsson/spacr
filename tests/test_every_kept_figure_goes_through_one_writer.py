@@ -82,7 +82,7 @@ def _found() -> dict:
             continue
         lines = _savefig_calls(path.read_text(encoding="utf-8"))
         if lines:
-            out[str(path.relative_to(_spacr()))] = lines
+            out[path.relative_to(_spacr()).as_posix()] = lines
     return out
 
 

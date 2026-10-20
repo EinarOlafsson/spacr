@@ -128,9 +128,9 @@ def test_a_dm_root_that_announces_one_tag_too_many_still_reads(tmp_path):
 
 def _manifest(folder, manifest, listing=True):
     folder.mkdir(parents=True, exist_ok=True)
-    (folder / sra.CACHED_MANIFEST).write_text(json.dumps(manifest))
+    (folder / sra.CACHED_MANIFEST).write_text(json.dumps(manifest), encoding="utf-8")
     if listing:
-        (folder / sra.CACHED_LISTING).write_text("run_accession\n")
+        (folder / sra.CACHED_LISTING).write_text("run_accession\n", encoding="utf-8")
     return folder
 
 

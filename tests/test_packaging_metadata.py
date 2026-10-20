@@ -434,7 +434,12 @@ def test_every_claimed_python_version_has_a_ci_cell():
 
 _IMPORT_PROBE = textwrap.dedent(
     r"""
-    import builtins, json, os, runpy, socket, subprocess, sys, urllib.request
+    import builtins, json, os, platform, runpy, socket, subprocess, sys, urllib.request
+
+    # On Windows the stdlib asks the shell for the OS version the first time
+    # anything (setuptools included) calls platform.uname(); answer that once
+    # here so only work done by setup.py itself is caught below.
+    platform.uname()
 
     calls = []
 
@@ -1544,7 +1549,7 @@ def test_native_contrast_install_excludes_the_same_broken_qt_release():
     import shlex
     from packaging.requirements import Requirement
 
-    workflow = (WORKFLOWS / "startup-contrast-native.yml").read_text()
+    workflow = (WORKFLOWS / "startup-contrast-native.yml").read_text(encoding="utf-8")
     requirements = [Requirement(token)
                     for line in workflow.splitlines() if "pip install" in line
                     for token in shlex.split(line.strip())

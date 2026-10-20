@@ -307,7 +307,7 @@ def test_add_current_reports_a_callback_that_raises(screen,
 def test_importing_a_csv_adds_every_plate_in_it(screen, tmp_path,
                                                 monkeypatch):
     csv_path = tmp_path / "plates.csv"
-    csv_path.write_text("src,magnification\n/data/p1,20\n/data/p2,20\n")
+    csv_path.write_text("src,magnification\n/data/p1,20\n/data/p2,20\n", encoding="utf-8")
     monkeypatch.setattr(
         "PySide6.QtWidgets.QFileDialog.getOpenFileName",
         staticmethod(lambda *a, **k: (str(csv_path), "CSV files (*.csv)")))
@@ -340,7 +340,10 @@ def test_an_import_that_cannot_be_read_names_the_file(screen, tmp_path,
     screen._on_import()
 
     assert len(screen.queue()) == 0
-    assert any(str(missing) in str(args) for args in no_blocking_dialogs)
+    # Each argument as the user reads it, not the tuple's repr, which doubles
+    # every backslash of a Windows path.
+    assert any(str(missing) in " ".join(map(str, args))
+               for args in no_blocking_dialogs)
 
 
 def test_clear_finished_removes_only_the_finished_plates(screen, queue):

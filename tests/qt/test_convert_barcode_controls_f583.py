@@ -31,7 +31,7 @@ def inputs(tmp_path):
         (src / well).mkdir(parents=True)
         tifffile.imwrite(src / well / 'field01_C1.tif', np.arange(64, dtype=np.uint16).reshape(8, 8))
     records = tmp_path / 'records.csv'
-    records.write_text('barcode,well,strain\n0001,A01,RH\n')
+    records.write_text('barcode,well,strain\n0001,A01,RH\n', encoding="utf-8")
     return src, tmp_path / 'converted', records
 
 
@@ -56,7 +56,7 @@ def test_actual_controls_preview_and_convert_show_mismatch_report(qtbot, prefs, 
     assert not inputs[1].exists()
     assert screen.run_convert()
     receipt = inputs[1] / 'plate_barcode_linkage/complete.json'
-    assert json.loads(receipt.read_text())['mismatches'] == 1
+    assert json.loads(receipt.read_text(encoding="utf-8"))['mismatches'] == 1
     summary = screen._summary.toPlainText()
     assert 'well_not_in_lims' in summary and 'A02' in summary
     assert 'plate_map_lims.csv' in summary and 'plate_barcode_mismatches.csv' in summary
@@ -140,17 +140,17 @@ def test_inline_preflight_failure_preserves_existing_bundle(qtbot, prefs, inputs
     bundle = inputs[1] / 'plate_barcode_linkage'
     bundle.mkdir(parents=True)
     marker = bundle / 'keep.txt'
-    marker.write_text('existing')
+    marker.write_text('existing', encoding="utf-8")
     assert screen.preview() and not screen.can_convert()
     assert 'already exists' in screen._summary.toPlainText()
-    assert marker.read_text() == 'existing'
+    assert marker.read_text(encoding="utf-8") == 'existing'
     assert not list(inputs[1].glob('*.tif'))
 
 
 def test_summary_bounds_large_mismatch_preview(tmp_path, monkeypatch):
     bundle = tmp_path / 'bundle'
     bundle.mkdir()
-    (bundle / 'complete.json').write_text(json.dumps({'linked_wells': 0, 'mismatches': 120}))
+    (bundle / 'complete.json').write_text(json.dumps({'linked_wells': 0, 'mismatches': 120}), encoding="utf-8")
     pd.DataFrame({'kind': ['missing'] * 120, 'well': [f'A{i}' for i in range(120)]}).to_csv(
         bundle / 'plate_barcode_mismatches.csv', index=False)
     actual = pd.read_csv

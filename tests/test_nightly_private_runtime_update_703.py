@@ -23,11 +23,11 @@ def test_private_pip_plan_accepts_selected_nightly_dev_release(tmp_path, version
     prefix = tmp_path / 'private environment'
     python = prefix / 'bin/python'
     python.parent.mkdir(parents=True)
-    python.write_text('#!/bin/sh\nexit 0\n')
+    python.write_text('#!/bin/sh\nexit 0\n', encoding="utf-8")
     python.chmod(0o755)
     prefix.chmod(0o700)
     prefix.parent.chmod(0o700)
-    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n')
+    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n', encoding="utf-8")
     record = cleanup.InstallRecord(kind='environment', platform='linux', layout='pip', root=str(prefix),
                                    python=str(python), version='1.5.1.4', running=True)
     machine = cleanup._Machine(platform='linux', environ={'HOME': str(tmp_path / 'user')},
@@ -122,7 +122,7 @@ def test_real_offline_private_pip_nightly_update_requires_approval_and_keeps_old
     assert (prefix / 'unknown-user-folder/keep.bin').read_bytes() == b'not installer-owned data'
     journals = list(prefix.parent.glob('.spacr-runtime-update-*/transaction.json'))
     assert len(journals) == 1
-    state = json.loads(journals[0].read_text())
+    state = json.loads(journals[0].read_text(encoding="utf-8"))
     assert state['state'] == 'committed' and state['verified_version'] == version
     assert (Path(state['rollback_runtime']) / 'unknown-user-folder/keep.bin').read_bytes() == b'not installer-owned data'
 

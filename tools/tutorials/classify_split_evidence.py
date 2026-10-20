@@ -12,7 +12,7 @@ from prepare_classify_split import TRAIN_WELLS, TEST_WELLS, marker_profile, MARK
 
 def inspect_inputs(dataset):
     dataset = Path(dataset).resolve()
-    manifest = json.loads((dataset / 'tutorial_input_manifest.json').read_text())
+    manifest = json.loads((dataset / 'tutorial_input_manifest.json').read_text(encoding="utf-8"))
     if manifest.get('accepted') is not True or len(manifest.get('records', [])) != 64:
         raise ValueError('Expected the documented 64 unchanged example crops')
     database = Path(manifest['source_database'])
@@ -81,7 +81,7 @@ def inspect_finished(dataset):
         matches = list((dataset / 'model').rglob(filename))
         if len(matches) != 1:
             raise ValueError('Expected one fresh native split audit: ' + filename)
-        report = json.loads(matches[0].read_text())
+        report = json.loads(matches[0].read_text(encoding="utf-8"))
         check_native_audit(report, counts)
         reports[filename] = report
     return dict(accepted=True, scope='Preserved canonical inputs and native grouped boundary audits',
@@ -134,7 +134,7 @@ def check_predictions(rows, metric, truth):
 def inspect_metrics(dataset):
     dataset = Path(dataset).resolve()
     inspect_inputs(dataset)
-    manifest = json.loads((dataset / 'tutorial_input_manifest.json').read_text())
+    manifest = json.loads((dataset / 'tutorial_input_manifest.json').read_text(encoding="utf-8"))
     truth = {r['target']: r['infected'] - 1 for r in manifest['records'] if r['split'] == 'test'}
     predictions = list((dataset / 'model').rglob('*_test_acc.csv'))
     metrics = list((dataset / 'model').rglob('*_test_result.csv'))

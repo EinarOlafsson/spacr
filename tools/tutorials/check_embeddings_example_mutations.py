@@ -15,7 +15,7 @@ def run():
     tests = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(tests)
     source_path = ROOT / 'embeddings_example.py'
-    source = source_path.read_text()
+    source = source_path.read_text(encoding="utf-8")
     mutants = [
         ('existing_destination', '    if output.exists():', '    if False:',
          tests.test_existing_output_is_really_preserved, None),

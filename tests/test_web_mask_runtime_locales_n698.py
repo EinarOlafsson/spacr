@@ -23,7 +23,7 @@ def localized(request, monkeypatch):
     language = request.param
     monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
     review = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
-                         '2026-10-15-web-mask-generator.json').read_text())
+                         '2026-10-15-web-mask-generator.json').read_text(encoding="utf-8"))
     return language, {row['source']: row['translation'] for row in review['records']}
 
 

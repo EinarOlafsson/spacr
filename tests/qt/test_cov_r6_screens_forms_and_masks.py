@@ -348,14 +348,16 @@ def test_a_key_that_reaches_the_slot_number_is_always_a_slot(make_screen):
             checked += 1
     assert checked > 3
 
-    # And the try really is entered: a slot beyond the requested count is
-    # stepped over, while one inside it reports the change.
+    # Item 356 (2026-10-17): a slot's channel, inside the count or beyond
+    # it, is shown in place; only the count itself reshapes the form.
     current = {NUMBER_OF_ORGANELLES: 1, "organelleb_channel": None,
                "organelle_channel": None}
     assert screen._bulk_apply_changes_form_shape(
         {"organelleb_channel": 2}, current) is False
     assert screen._bulk_apply_changes_form_shape(
-        {"organelle_channel": 2}, current) is True
+        {"organelle_channel": 2}, current) is False
+    assert screen._bulk_apply_changes_form_shape(
+        {NUMBER_OF_ORGANELLES: 2}, current) is True
 
 
 # ---------------------------------------------------------------------------

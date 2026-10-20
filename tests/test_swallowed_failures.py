@@ -83,7 +83,7 @@ def test_module_defaults_reports_a_defaults_module_that_will_not_import(
 # 175 with the comment "Validate that the recorded settings exist and parse".
 # _read_settings swallows the parse error and returns {}, so the validation
 # is a no-op and the exported notebook's first code cell —
-# json.loads((RUN_DIR / 'settings.json').read_text()) — blows up in the
+# json.loads((RUN_DIR / 'settings.json').read_text(encoding="utf-8")) — blows up in the
 # user's face instead.
 # ---------------------------------------------------------------------------
 
@@ -95,9 +95,9 @@ def test_export_run_refuses_a_run_whose_settings_do_not_parse(tmp_path):
     run_dir.mkdir()
     (run_dir / "manifest.json").write_text(json.dumps({
         "app_key": "mask", "status": "ok", "start_utc": "2026-01-01T00:00:00",
-    }))
+    }), encoding="utf-8")
     # What a kill -9 mid-write leaves behind.
-    (run_dir / "settings.json").write_text('{"src": "/data/plate1",')
+    (run_dir / "settings.json").write_text('{"src": "/data/plate1",', encoding="utf-8")
 
     with pytest.raises(Exception):
         notebook_export.export_run(run_dir)
@@ -148,7 +148,7 @@ def test_batch_job_summary_does_not_report_complete_over_an_unreadable_stamp(
 def _run_folder(root: Path, name: str, manifest: str) -> Path:
     d = root / name
     d.mkdir(parents=True)
-    (d / "manifest.json").write_text(manifest)
+    (d / "manifest.json").write_text(manifest, encoding="utf-8")
     return d
 
 

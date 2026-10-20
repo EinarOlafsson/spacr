@@ -1125,7 +1125,7 @@ def generate_barcode_csv(dst: Path, names: Sequence[str],
             "one name per barcode sequence.")
     dst = Path(dst).absolute()
     dst.parent.mkdir(parents=True, exist_ok=True)
-    with open(dst, "w", newline="") as f:
+    with open(dst, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["name", "sequence"])
         for name, seq in zip(names, sequences):
@@ -1347,7 +1347,7 @@ def save_settings_csv(path: Path, settings: Dict[str, Any]) -> Path:
     """
     path = Path(path).absolute()
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", newline="") as f:
+    with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["Key", "Value"])
         for k, v in settings.items():

@@ -151,7 +151,7 @@ def inspect_project(project: Path, capture: Path, *, preview_capture=None,
             raise ValueError('Expected one distinct crop path per measured cell')
         expected_prefix = Path(recorded_project or '/home/olafsson/.cache/spacr/example_data/plate1')
         if recorded_project is not None:
-            settings = json.loads((capture / 'batch_settings.json').read_text())
+            settings = json.loads((capture / 'batch_settings.json').read_text(encoding="utf-8"))
             _check_recorded_source(settings['src'], expected_prefix)
         from PIL import Image
         for recorded in paths:
@@ -170,7 +170,7 @@ def inspect_project(project: Path, capture: Path, *, preview_capture=None,
     if hashlib.sha256(db.read_bytes()).hexdigest() != before_hash:
         raise ValueError('Database changed during read-only inspection')
     if preview_capture is not None:
-        proof = json.loads((Path(preview_capture) / 'scientific_acceptance.json').read_text())
+        proof = json.loads((Path(preview_capture) / 'scientific_acceptance.json').read_text(encoding="utf-8"))
         preview_result = _check_preview_sources(proof, source_hashes)
     else:
         preview_result = _check_legacy_preview(project, capture)
@@ -186,7 +186,7 @@ def inspect_project(project: Path, capture: Path, *, preview_capture=None,
 
 
 def _check_legacy_preview(project, capture):
-    live = json.loads((capture / 'live_variants.json').read_text())
+    live = json.loads((capture / 'live_variants.json').read_text(encoding="utf-8"))
     source = project / 'merged' / Path(live['source']).name
     if hashlib.sha256(np.load(source).tobytes()).hexdigest() != live['source_sha256']:
         raise ValueError('Live-preview source changed after capture')

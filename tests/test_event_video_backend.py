@@ -40,6 +40,7 @@ def test_invalid_crop_geometry_and_intensities_are_refused(source):
         backends._event_video_inputs(source, [0, 0, 0])
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize("mutation", ["bytes", "missing", "symlink"])
 def test_checkpoint_changes_cannot_reuse_verified_identity(tmp_path, monkeypatch, mutation):
     folder = _checkpoint(tmp_path, monkeypatch)

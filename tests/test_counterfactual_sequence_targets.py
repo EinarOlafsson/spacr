@@ -70,7 +70,7 @@ def test_valid_scalar_representations_match_exact_public_sequence_oracle(kind, g
     else:
         targets = _target(goal, kind)
     root = Path(__file__).parents[1] / 'features/data/564_sequence_target_identity_2026-10-15'
-    expected_rows = json.loads((root / 'valid-oracle.json').read_text())[f'class{goal}']
+    expected_rows = json.loads((root / 'valid-oracle.json').read_text(encoding="utf-8"))[f'class{goal}']
     crops = _crops()
     original = crops.clone()
     rows, frames = attribution._counterfactual_sequences(
@@ -85,6 +85,6 @@ def test_default_target_arithmetic_matches_exact_public_sequence_oracle():
     root = Path(__file__).parents[1] / 'features/data/564_sequence_target_identity_2026-10-15'
     rows, frames = attribution._counterfactual_sequences(
         _ReferenceScore(), _BothChannelEdit(), _crops(), targets=None, keep=1)
-    np.testing.assert_equal(rows, json.loads((root / 'valid-oracle.json').read_text())['default'])
+    np.testing.assert_equal(rows, json.loads((root / 'valid-oracle.json').read_text(encoding="utf-8"))['default'])
     with np.load(root / 'valid-oracle.npz') as expected:
         np.testing.assert_array_equal(frames, expected['default'])

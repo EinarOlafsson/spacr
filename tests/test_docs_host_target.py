@@ -21,7 +21,7 @@ NEW_URL = 'https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/'
 
 @pytest.fixture
 def workflow():
-    return yaml.safe_load((ROOT / '.github/workflows/docs.yml').read_text())
+    return yaml.safe_load((ROOT / '.github/workflows/docs.yml').read_text(encoding="utf-8"))
 
 
 def _resolve(workflow, tmp_path, space, url):
@@ -42,7 +42,7 @@ def _resolve(workflow, tmp_path, space, url):
                GITHUB_OUTPUT=str(output))
     result = subprocess.run([sys.executable, '-c', program], env=env,
                             capture_output=True, text=True, timeout=5)
-    values = dict(line.split('=', 1) for line in output.read_text().splitlines()) \
+    values = dict(line.split('=', 1) for line in output.read_text(encoding="utf-8").splitlines()) \
         if output.exists() else {}
     return result, values
 
@@ -85,6 +85,7 @@ def _publication_env(workflow, job, resolved):
     return result
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('configured', [False, True])
 def test_actual_publication_steps_share_the_resolved_target(
         workflow, tmp_path, configured):
@@ -109,15 +110,15 @@ def test_actual_publication_steps_share_the_resolved_target(
             print('nightly-sha')
         else:
             os.execvp(sys.argv[2], sys.argv[2:])
-    '''))
+    '''), encoding="utf-8")
     runner.chmod(0o755)
     captured = tmp_path / 'commands.jsonl'
     for branch in ('main', 'nightly'):
         site = tmp_path / 'channels' / f'docs-channel-{branch}'
         site.mkdir(parents=True)
-        (site / 'index.html').write_text(f'<html><body>{branch}</body></html>')
+        (site / 'index.html').write_text(f'<html><body>{branch}</body></html>', encoding="utf-8")
         (site / 'publication.json').write_text(json.dumps({
-            'branch': branch, 'commit': branch + '-sha'}))
+            'branch': branch, 'commit': branch + '-sha'}), encoding="utf-8")
     common = dict(os.environ, GITHUB_REPOSITORY='EinarOlafsson/spacr',
                   GITHUB_STEP_SUMMARY=str(tmp_path / 'summary'),
                   CAPTURED_COMMANDS=str(captured))
@@ -135,11 +136,11 @@ def test_actual_publication_steps_share_the_resolved_target(
                                  text=True, timeout=10)
             assert run.returncode == 0, run.stdout + run.stderr
     for folder in ('pages', 'space'):
-        receipt = json.loads((tmp_path / folder / 'channels.json').read_text())
+        receipt = json.loads((tmp_path / folder / 'channels.json').read_text(encoding="utf-8"))
         assert receipt['nightly_url'] == resolved['url']
-    redirect = (tmp_path / 'pages/nightly/index.html').read_text()
+    redirect = (tmp_path / 'pages/nightly/index.html').read_text(encoding="utf-8")
     assert resolved['url'] in redirect
-    commands = [json.loads(line)[3:] for line in captured.read_text().splitlines()]
+    commands = [json.loads(line)[3:] for line in captured.read_text(encoding="utf-8").splitlines()]
     assert [command[0] for command in commands] == [
         'assemble-main', 'assemble-nightly', 'upload-nightly',
         'verify-space-tree', 'verify-nightly']

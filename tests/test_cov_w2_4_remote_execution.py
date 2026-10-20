@@ -113,13 +113,24 @@ def test_a_timeout_message_names_the_time_that_was_actually_waited():
 def test_a_file_that_cannot_be_executed_is_reported_not_raised(tmp_path):
     """A profile pointing at a data file is an ordinary configuration slip."""
     not_a_program = tmp_path / "settings.json"
-    not_a_program.write_text("{}")
+    not_a_program.write_text("{}", encoding="utf-8")
 
     with pytest.raises(RemoteExecutionError) as caught:
         rx._run_command([str(not_a_program)])
 
     assert str(not_a_program) in str(caught.value)
-    assert "PermissionError" in str(caught.value)
+    # Windows refuses a data file with WinError 193, a plain OSError.
+    assert ("OSError" if os.name == "nt" else "PermissionError") in str(caught.value)
+
+
+def test_a_missing_program_is_named_exactly_as_the_profile_spells_it(tmp_path):
+    """A Windows path must reach the user with single backslashes, copyable as is."""
+    missing = tmp_path / "no such folder" / "program.exe"
+
+    with pytest.raises(RemoteExecutionError) as caught:
+        rx._run_command([str(missing)])
+
+    assert f"'{missing}'" in str(caught.value)
 
 
 # ---------------------------------------------------------------------------
@@ -244,7 +255,7 @@ def test_a_stored_status_this_version_does_not_know_becomes_unknown():
 
 def test_a_lock_that_cannot_be_opened_names_the_path(tmp_path):
     blocker = tmp_path / "blocker"
-    blocker.write_text("not a directory")
+    blocker.write_text("not a directory", encoding="utf-8")
 
     with pytest.raises(RemoteExecutionError, match="Could not open state lock"):
         with rx._file_lock(blocker / "sub" / "jobs.json.lock"):
@@ -270,7 +281,7 @@ def test_an_interpreter_with_no_fcntl_still_takes_the_lock(tmp_path,
 
 def test_a_state_file_that_is_not_json_names_it(tmp_path):
     path = tmp_path / "jobs.json"
-    path.write_text("{ this was edited by hand")
+    path.write_text("{ this was edited by hand", encoding="utf-8")
 
     with pytest.raises(RemoteExecutionError) as caught:
         JobStore(path).list()
@@ -278,15 +289,30 @@ def test_a_state_file_that_is_not_json_names_it(tmp_path):
     assert "JSONDecodeError" in str(caught.value)
 
 
+@pytest.mark.timeout(60)
 def test_a_state_file_that_cannot_be_written_names_it(tmp_path):
+    """Refused promptly: tempfile.mkstemp spun for minutes on a Windows deny ACL."""
+    import getpass
+    import subprocess
+
     unwritable = tmp_path / "read_only"
     unwritable.mkdir()
-    os.chmod(unwritable, 0o500)
+    # Windows ignores a folder's mode bits; an ACL deny is what refuses a new file there.
+    if os.name == "nt":
+        account = getpass.getuser()
+        subprocess.run(["icacls", str(unwritable), "/deny", f"{account}:(OI)(CI)(W)"],
+                       check=True, capture_output=True, timeout=30)
+    else:
+        os.chmod(unwritable, 0o500)
     try:
         with pytest.raises(RemoteExecutionError, match="Could not write"):
             rx._write_json_atomic(unwritable / "jobs.json", {"jobs": []})
     finally:
-        os.chmod(unwritable, 0o700)
+        if os.name == "nt":
+            subprocess.run(["icacls", str(unwritable), "/remove:d", account],
+                           check=True, capture_output=True, timeout=30)
+        else:
+            os.chmod(unwritable, 0o700)
 
 
 def test_a_failed_replace_leaves_no_temporary_file_behind(tmp_path,

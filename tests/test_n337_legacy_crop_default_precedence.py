@@ -14,7 +14,7 @@ def resolved_settings(boundary, source, tmp_path):
         return get_measure_crop_settings(dict(source))
     path = tmp_path / ('settings.' + boundary)
     if boundary == 'json':
-        path.write_text(json.dumps(source))
+        path.write_text(json.dumps(source), encoding="utf-8")
     else:
         with path.open('w', newline='') as stream:
             writer = csv.writer(stream)

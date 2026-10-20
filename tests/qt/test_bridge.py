@@ -70,7 +70,7 @@ def test_pipeline_worker_automatically_writes_manifest(
 
     manifests = list(_isolated_worker_journal.glob("*/manifest.json"))
     assert len(manifests) == 1
-    manifest = json.loads(manifests[0].read_text())
+    manifest = json.loads(manifests[0].read_text(encoding="utf-8"))
     assert manifest["app_key"] == "mask"
     assert manifest["status"] == "success"
     assert manifest["seeds"]["declared"]["random_seed"] == 17
@@ -94,7 +94,7 @@ def test_pipeline_worker_records_console_warnings(
 
     PipelineWorker(warns, {}, app_key="measure").run()
     manifest_path = next(_isolated_worker_journal.glob("*/manifest.json"))
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["warnings"] == ["WARNING: low object count"]
     assert "process_cpu_s" in manifest["performance"]
 

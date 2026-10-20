@@ -231,7 +231,7 @@ def test_each_rule_is_called_where_it_is_keyed(builder):
 
 def test_make_masks_parameter_rows_expose_help_but_not_setting_keys(builder):
     """Both local row helpers carry prose past a programmatic field key."""
-    tree = ast.parse((QT / "screens/make_masks.py").read_text())
+    tree = ast.parse((QT / "screens/make_masks.py").read_text(encoding="utf-8"))
     calls = [node for node in ast.walk(tree)
              if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
              and node.func.id == "row"]
@@ -282,7 +282,7 @@ def test_section_titles_are_extracted_without_persistence_keys(builder):
     """Both add_section implementations put their visible title after the widget."""
     for filename, parameter in (("widgets/collapsible_splitter.py", "name"),
                                 ("widgets/measurement_scan_panel.py", "title")):
-        tree = ast.parse((QT / filename).read_text())
+        tree = ast.parse((QT / filename).read_text(encoding="utf-8"))
         methods = [node for node in ast.walk(tree)
                    if isinstance(node, ast.FunctionDef) and node.name == "add_section"]
         assert len(methods) == 1
@@ -337,7 +337,7 @@ def test_spaceout_effect_row_prose_reaches_catalog_without_storage_keys(builder)
     from spacr.qt import preferences
     from spacr.qt.i18n import _ROWS, _TERM_ROWS
 
-    tree = ast.parse((QT / "preferences.py").read_text())
+    tree = ast.parse((QT / "preferences.py").read_text(encoding="utf-8"))
     registries = [node for node in ast.walk(tree)
                   if isinstance(node, ast.For) and isinstance(node.target, ast.Tuple)
                   and tuple(getattr(item, "id", None) for item in node.target.elts)

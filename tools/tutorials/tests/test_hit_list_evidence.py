@@ -66,7 +66,7 @@ def test_independent_filter_matches_actual_backend(example, options):
 def test_source_guard_follows_positive(example, kind):
     folder, genes, guides = example
     assert len(expected_hits(folder)) == 3
-    if kind == 'empty_genes': save(folder/'results_gene.csv', genes); (folder/'results_gene.csv').write_text(','.join(genes[0])+'\n')
+    if kind == 'empty_genes': save(folder/'results_gene.csv', genes); (folder/'results_gene.csv').write_text(','.join(genes[0])+'\n', encoding="utf-8")
     elif kind == 'duplicate_gene': genes.append(dict(genes[0])); save(folder/'results_gene.csv', genes)
     elif kind == 'duplicate_guide': guides.append(dict(guides[0])); save(folder/'results_grna.csv', guides)
     elif kind == 'guide_effect': guides[0]['coefficient']=9.; save(folder/'results_grna.csv', guides)

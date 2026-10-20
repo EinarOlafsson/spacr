@@ -1,6 +1,0 @@
-{
-  "initial_guard": "Ordinary reviewed loader rejected SV#0 because protected product literal Plaque Assay had been translated; captured tool transcript only, no retained raw failure log.",
-  "correction": "All9 targets retain exact protected product Plaque Assay and existing localized tab labels.",
-  "normal_result": "27 source/context/markup/semantic targets PASS via unchanged isolated ordinary reviewed_api_block_translations.",
-  "status": "Independent parent target peer pending; no new installed review rows, retirement or API writer; sourceprivate."
-}

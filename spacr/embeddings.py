@@ -1044,6 +1044,8 @@ def _cell_dino_model(spec: EmbeddingSpec, torch: Any):
                     after.st_size, after.st_mtime_ns):
                 raise EmbeddingError("Cell-DINO checkpoint changed during loading")
     except OSError as exc:
+        if os.path.isdir(path):
+            raise EmbeddingError("Cell-DINO checkpoint must be a regular file") from exc
         raise EmbeddingError(f"Cannot read Cell-DINO checkpoint: {exc}") from exc
     if not isinstance(state, dict) or not state or not all(
             isinstance(key, str) and isinstance(value, torch.Tensor)

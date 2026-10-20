@@ -214,7 +214,7 @@ def _direct_coordinator(monkeypatch, before_launch=None, error=None):
 
 
 def _journal(update):
-    return json.loads((_lock_dir(update.runtime) / 'journal.json').read_text())
+    return json.loads((_lock_dir(update.runtime) / 'journal.json').read_text(encoding="utf-8"))
 
 
 def test_launch_refuses_a_destination_whose_identity_changed(update, monkeypatch):
@@ -259,7 +259,7 @@ def test_verified_launch_publishes_desktop_ready_result(update, monkeypatch):
     assert run_update(update) == ('1.5.1.5', 'modeled output')
     assert launched == [([str(update.runtime.executable)], '1.5.1.5', True)]
     results = list(update.runtime.helper.glob('windows-update-result-*.json'))
-    assert [json.loads(path.read_text())['state'] for path in results] == ['desktop-ready']
+    assert [json.loads(path.read_text(encoding="utf-8"))['state'] for path in results] == ['desktop-ready']
     assert not _lock_dir(update.runtime).exists()
 
 
@@ -310,7 +310,7 @@ def test_plan_without_a_running_installer_reports_why(tmp_path):
                                        system=_linux_machine(tmp_path), spawn=lambda *a: spawned.append(a))
     assert plan['error'] == 'the running spaCR is not an installer-made copy'
     assert plan['command'] is None and spawned == []
-    assert json.loads((tmp_path / 'work' / 'plan.json').read_text())['error'] == plan['error']
+    assert json.loads((tmp_path / 'work' / 'plan.json').read_text(encoding="utf-8"))['error'] == plan['error']
 
 
 def _deb_record(tmp_path):
@@ -318,6 +318,7 @@ def _deb_record(tmp_path):
                                  root=str(tmp_path / 'opt' / 'spacr'), version='1.5.1.4', running=True)
 
 
+@pytest.mark.posix_only
 def test_frozen_debian_plan_uses_the_standalone_helper(tmp_path, monkeypatch):
     monkeypatch.setattr(cleanup.sys, 'frozen', True, raising=False)
     monkeypatch.setattr(cleanup, '_debian_update_commands',

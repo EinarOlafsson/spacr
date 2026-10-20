@@ -1,1 +1,0 @@
-This source-only reconciliation retires only the prior plain Website line warning: N687 clause8 expressly requires the badge plus one-line link, and its implementation receipt names the plain line. It does not close the separately recorded checkout-size, hosted PyPI/rendered acceptance or other release gates. No owner source, generated output, item or tracker changed.

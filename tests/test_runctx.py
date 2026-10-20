@@ -618,7 +618,7 @@ def test_a_skipping_run_logs_and_registers_under_one_id(
                 with attempt:
                     if unit == "A02":
                         raise ValueError("no cells found")
-                    output.write_text(f"{unit}\n")
+                    output.write_text(f"{unit}\n", encoding="utf-8")
         artifact = artifacts.open_registry(str(project)).register(
             module="measure", kind="object-crops", path=str(output),
             project=str(project), run_id=run.run_id,

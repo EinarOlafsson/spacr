@@ -182,7 +182,7 @@ def test_every_console_script_target_module_exists():
     from pathlib import Path
 
     setup_py = Path(__file__).resolve().parents[1] / "setup.py"
-    tree = ast.parse(setup_py.read_text())
+    tree = ast.parse(setup_py.read_text(encoding="utf-8"))
 
     scripts = []
     for node in ast.walk(tree):

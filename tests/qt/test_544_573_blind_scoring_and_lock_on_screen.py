@@ -495,7 +495,7 @@ def test_the_lock_dialog_locks_gate_files_and_the_gate_editor_says_so(
     editor.save_gates(str(strategy))
     text = editor._source.text()
     assert "differ from analysis lock" in text and "changed big" in text
-    assert json.loads(strategy.read_text())["gates"][0]["low"] == 150.0
+    assert json.loads(strategy.read_text(encoding="utf-8"))["gates"][0]["low"] == 150.0
     screen.close()
 
 

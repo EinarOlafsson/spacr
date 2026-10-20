@@ -1,9 +1,0 @@
-{
-  "reviewer": "Root coordinator",
-  "approved_scope": "One sentence in Icelandic structure-weight tooltip only",
-  "old": "Einsleitar hli\u00f0ranir \u00e1 gildum r\u00e1sa eru ekki refsiver\u00f0ar.",
-  "new": "Einsleitar hli\u00f0ranir \u00e1 gildum r\u00e1sa f\u00e1 ekkert v\u00e6gi \u00ed refsili\u00f0num.",
-  "old_draft_sha256": "815e1257e50660cea1182a426bc1b19dfa99c07aa47f8126d397f1baf50dcbc5",
-  "new_draft_sha256": "83ed925a204dfc3836d51c6383937bdd0137b3f43eb2c9d1c108ccf6816c5228",
-  "other_target_bytes_unchanged": true
-}

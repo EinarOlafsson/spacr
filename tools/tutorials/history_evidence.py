@@ -29,7 +29,7 @@ def read_record(root, run_id):
     if Path(run_id).name != run_id:
         raise ValueError('Expected a single run identity')
     folder = Path(root) / run_id
-    manifest = json.loads((folder / 'manifest.json').read_text())
+    manifest = json.loads((folder / 'manifest.json').read_text(encoding="utf-8"))
     raw = (folder / 'settings.json').read_bytes()
     if hashlib.sha256(raw).hexdigest() != manifest['settings_sha256']:
         raise ValueError('Recorded settings hash does not match the snapshot')

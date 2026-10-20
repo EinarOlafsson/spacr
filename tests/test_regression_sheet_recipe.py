@@ -52,14 +52,14 @@ def test_standalone_sheet_preserves_numeric_panels_and_complete_source(
             "    def find_spec(self, fullname, path=None, target=None):\n"
             "        if fullname == 'spacr' or fullname.startswith('spacr.'):\n"
             "            raise ImportError('standalone script must not import spaCR')\n"
-            "sys.meta_path.insert(0, RejectSpacr())\n")
+            "sys.meta_path.insert(0, RejectSpacr())\n", encoding="utf-8")
         environment = dict(os.environ, PYTHONPATH=str(blocker), MPLBACKEND="Agg")
         process = subprocess.run(
             [sys.executable, str(destination / "recreate_figure.py"), "png", "svg"],
             cwd=destination, env=environment, capture_output=True, text=True, timeout=60)
         assert process.returncode == 0, process.stdout + process.stderr
         assert (destination / "recreated.png").read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
-        assert "<svg" in (destination / "recreated.svg").read_text()
+        assert "<svg" in (destination / "recreated.svg").read_text(encoding="utf-8")
         namespace = {"__name__": "standalone_regression_sheet"}
         exec(compile(script, "recreate_figure.py", "exec", dont_inherit=True), namespace)
         restored = Figure()

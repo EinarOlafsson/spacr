@@ -29,6 +29,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from spacr.crops import (
     ALREADY_ANCHORED,
@@ -137,6 +138,22 @@ def test_both_anchors_are_recognised_and_the_rightmost_wins():
         "/new/exp/merged/f1.npy"
     assert reanchor_path("/old/x/data/p1/a.png", "/new/exp",
                          anchors=PATH_ANCHORS)[0] == "/new/exp/data/p1/a.png"
+
+
+def test_a_re_anchored_path_keeps_the_root_s_own_separator_spelling():
+    """A root picked as ``C:/lab/exp1`` must not come back half backslashed."""
+    assert reanchor_path(r"D:\old\exp1\data\p1\a.png", "C:/lab/exp1")[0] == \
+        "C:/lab/exp1/data/p1/a.png"
+    assert reanchor_path("/old/exp1/data/p1/a.png", "/new/exp1/")[0] == \
+        "/new/exp1/data/p1/a.png"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows separators and case rules")
+def test_a_windows_root_keeps_backslashes_and_ignores_case():
+    assert reanchor_path("/old/exp1/data/p1/a.png", "C:\\lab\\exp1")[0] == \
+        "C:\\lab\\exp1\\data\\p1\\a.png"
+    assert reanchor_path("C:\\Lab\\Exp1\\data\\p1\\a.png", "c:\\lab\\exp1") == (
+        "C:\\Lab\\Exp1\\data\\p1\\a.png", ALREADY_ANCHORED)
 
 
 def test_separator_and_component_helpers():

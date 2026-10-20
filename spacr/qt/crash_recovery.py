@@ -57,7 +57,7 @@ def _read_counter() -> int:
         counter that cannot be read is not evidence of a crash.
     """
     try:
-        with open(os.path.join(_folder(), _COUNTER)) as handle:
+        with open(os.path.join(_folder(), _COUNTER), encoding="utf-8") as handle:
             return max(0, int(handle.read().strip() or 0))
     except Exception:                                        # noqa: BLE001
         return 0
@@ -71,7 +71,7 @@ def _write_counter(value: int) -> None:
         continue over a bookkeeping file would be worse than losing it.
     """
     try:
-        with open(os.path.join(_folder(), _COUNTER), "w") as handle:
+        with open(os.path.join(_folder(), _COUNTER), "w", encoding="utf-8") as handle:
             handle.write(str(max(0, int(value))))
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not record the unclean-exit count", exc_info=True)
@@ -99,7 +99,7 @@ def note_that_a_launch_began() -> int:
             "crash detection is disabled: %s exists but is not a file, so "
             "spaCR can neither write nor clear its running marker", marker)
     try:
-        with open(marker, "w") as handle:
+        with open(marker, "w", encoding="utf-8") as handle:
             handle.write(str(os.getpid()))
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not write the running marker", exc_info=True)

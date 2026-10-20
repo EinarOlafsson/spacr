@@ -279,7 +279,7 @@ def test_a_ledger_is_valid_json_with_a_schema_version(tmp_path):
     log = CurationLog("mask.tif")
     log.append("paint", 3, n_changed=12, radius=2.0)
     path = log.write(tmp_path / "x.curation.json")
-    data = json.loads((tmp_path / "x.curation.json").read_text())
+    data = json.loads((tmp_path / "x.curation.json").read_text(encoding="utf-8"))
     assert data["schema_version"] == 1
     assert data["edits"][0]["kind"] == "paint"
     assert path.endswith("x.curation.json")

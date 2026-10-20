@@ -409,7 +409,7 @@ def _modules_reading_the_dark_palette() -> set:
     """
     found = set()
     for path in sorted(QT_ROOT.rglob("*.py")):
-        tree = ast.parse(path.read_text(), str(path))
+        tree = ast.parse(path.read_text(encoding="utf-8"), str(path))
         for node in ast.walk(tree):
             imported = (isinstance(node, ast.ImportFrom)
                         and (node.module or "").endswith("theme")
@@ -446,7 +446,7 @@ def test_the_deleted_home_screen_is_gone_and_unreferenced():
     assert not (QT_ROOT / "screens" / "startup.py").exists()
     offenders = []
     for path in sorted(QT_ROOT.rglob("*.py")):
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         if "screens.startup" in text or "screens import startup" in text:
             offenders.append(os.fspath(path))
     assert not offenders, f"still import the deleted Home screen: {offenders}"

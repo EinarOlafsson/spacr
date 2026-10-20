@@ -48,7 +48,7 @@ def journal(tmp_path, monkeypatch):
     for name in ("run_a", "run_b", "run_c"):
         folder = root / name
         (folder / "outputs").mkdir(parents=True)
-        (folder / "manifest.json").write_text("{}")
+        (folder / "manifest.json").write_text("{}", encoding="utf-8")
         made.append(folder)
     return root, made
 
@@ -80,7 +80,7 @@ def test_it_will_not_delete_anything_outside_the_journal(journal, tmp_path):
     root, _made = journal
     outsider = tmp_path / "precious"
     outsider.mkdir()
-    (outsider / "thesis.txt").write_text("years of work")
+    (outsider / "thesis.txt").write_text("years of work", encoding="utf-8")
 
     deleted, refused = delete_runs([outsider])
     assert deleted == 0
@@ -106,7 +106,7 @@ def test_a_traversal_climbing_out_of_the_journal_is_refused(journal,
     root, _made = journal
     outsider = tmp_path / "precious"
     outsider.mkdir()
-    (outsider / "thesis.txt").write_text("years of work")
+    (outsider / "thesis.txt").write_text("years of work", encoding="utf-8")
 
     hops = [".."] * len(root.resolve().relative_to(tmp_path.resolve()).parts)
     traversal = root.joinpath(*hops, outsider.name)
@@ -128,7 +128,7 @@ def test_a_symlink_pointing_out_of_the_journal_is_refused(journal, tmp_path):
     root, _made = journal
     outsider = tmp_path / "elsewhere"
     outsider.mkdir()
-    (outsider / "keep.txt").write_text("keep")
+    (outsider / "keep.txt").write_text("keep", encoding="utf-8")
     link = root / "looks_like_a_run"
     try:
         os.symlink(outsider, link)
@@ -228,7 +228,7 @@ def test_a_file_is_refused_rather_than_unlinked(journal):
     """A run is a DIRECTORY. Anything else is a mistake worth reporting."""
     root, _made = journal
     stray = root / "notes.txt"
-    stray.write_text("not a run")
+    stray.write_text("not a run", encoding="utf-8")
     deleted, refused = delete_runs([stray])
     assert deleted == 0
     assert refused and "not a run folder" in refused[0]

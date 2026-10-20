@@ -233,12 +233,20 @@ def test_phase_server_closes_listener_when_descriptor_cannot_be_created(tmp_path
     assert list(tmp_path.iterdir()) == []
 
 
+def _this_user():
+    """The desktop owner this process would report: its token SID on Windows, its uid elsewhere."""
+    return ic._windows_pip_acl(sys.executable)["user"] if os.name == "nt" else os.getuid()
+
+
+def _another_user():
+    return "S-1-5-21-1-2-3-4" if os.name == "nt" else os.getuid() + 1
+
+
 def _bind_desktop(monkeypatch, owner=None):
-    owner = os.getuid() if owner is None else owner
+    owner = _this_user() if owner is None else owner
     monkeypatch.setattr(ic, "_desktop_process_identity", lambda _pid: (owner, os.path.realpath(sys.executable)))
 
 
-@pytest.mark.skipif(os.name == "nt", reason="POSIX descriptor modes")
 def test_phase_client_refuses_a_descriptor_that_is_not_a_regular_file(tmp_path, monkeypatch):
     _bind_desktop(monkeypatch)
     folder = tmp_path / "descriptor"
@@ -247,9 +255,8 @@ def test_phase_client_refuses_a_descriptor_that_is_not_a_regular_file(tmp_path, 
         ic._UpdatePhaseClient(str(folder), 1234, sys.executable)
 
 
-@pytest.mark.skipif(os.name == "nt", reason="POSIX descriptor modes")
 def test_phase_client_refuses_a_descriptor_owned_by_another_user(tmp_path, monkeypatch):
-    _bind_desktop(monkeypatch, owner=os.getuid() + 1)
+    _bind_desktop(monkeypatch, owner=_another_user())
     endpoint = tmp_path / "phase"
     endpoint.write_text("4000:" + "a" * 64, encoding="ascii")
     endpoint.chmod(0o600)
@@ -257,7 +264,6 @@ def test_phase_client_refuses_a_descriptor_owned_by_another_user(tmp_path, monke
         ic._UpdatePhaseClient(str(endpoint), 1234, sys.executable)
 
 
-@pytest.mark.skipif(os.name == "nt", reason="POSIX descriptor modes")
 def test_phase_client_refuses_descriptor_replaced_after_inspection(tmp_path, monkeypatch):
     _bind_desktop(monkeypatch)
     endpoint = tmp_path / "phase"
@@ -275,7 +281,6 @@ def test_phase_client_refuses_descriptor_replaced_after_inspection(tmp_path, mon
         ic._UpdatePhaseClient(str(endpoint), 1234, sys.executable)
 
 
-@pytest.mark.skipif(os.name == "nt", reason="POSIX descriptor modes")
 @pytest.mark.parametrize("text", ["not-a-descriptor", "70000:" + "a" * 64])
 def test_phase_client_refuses_malformed_descriptor_contents(tmp_path, monkeypatch, text):
     _bind_desktop(monkeypatch)

@@ -179,7 +179,7 @@ def record_volcano(app,window,stage,captures,capture,settle,write_json,timeout):
         check('17_publication_size_settings')
         saved=work/'volcano_style.json';picker(action('Save style'),saved,'18_save_actual_style')
         wanted=json.loads(json.dumps(asdict(explorer.style())))
-        if json.loads(saved.read_text())!=wanted:raise ValueError('Saved JSON differs from actual Volcano settings')
+        if json.loads(saved.read_text(encoding="utf-8"))!=wanted:raise ValueError('Saved JSON differs from actual Volcano settings')
         fill(control('marker_size').lineEdit(),40);capture('19_temporary_marker_change')
         picker(action('Load style'),saved,'20_load_saved_style')
         if json.loads(json.dumps(asdict(explorer.style())))!=wanted:raise ValueError('Native Load style failed to restore exact style')

@@ -363,7 +363,7 @@ def test_adjust_cell_masks_non_npy_files_are_ignored(tmp_path):
     from spacr.utils import adjust_cell_masks
 
     folders = _write_triple(tmp_path, n_files=1)
-    (tmp_path / "parasite" / "notes.txt").write_text("ignore me")
+    (tmp_path / "parasite" / "notes.txt").write_text("ignore me", encoding="utf-8")
 
     adjust_cell_masks(folders["parasite"], folders["cell"], folders["nuclei"],
                       organelle_folder=None, overlap_threshold=5,
@@ -511,11 +511,11 @@ def test_process_masks_batch_size_one_and_non_npy_files(tmp_path):
     mask_dir, img_dir = _mask_image_folders(tmp_path, masks, images)
     # a non-.npy file whose counterpart does not exist in the image folder:
     # np.load would explode on it if the batch reader did not filter by suffix
-    (tmp_path / "masks" / "README.md").write_text("not a mask")
+    (tmp_path / "masks" / "README.md").write_text("not a mask", encoding="utf-8")
 
     process_masks(mask_dir, img_dir, channel=0, batch_size=1, n_clusters=2, plot=False)
 
-    assert (tmp_path / "masks" / "README.md").read_text() == "not a mask"
+    assert (tmp_path / "masks" / "README.md").read_text(encoding="utf-8") == "not a mask"
     for i in range(3):
         out = np.load(os.path.join(mask_dir, f"f{i}.npy"))
         assert set(np.unique(out)) == {0, 1, 2}

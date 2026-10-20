@@ -38,7 +38,7 @@ REVIEWED_UI_CONTENT_SHA256 = "e10495ddb859192ac68deda6c017eaa06e0ff3a58fd8587437
 def test_reviewed_ui_vocabulary_is_complete_and_pinned():
     """Every reviewed source must provide a nonblank value in every locale."""
     contract = json.loads((ROOT / "tests/data/release_contracts"
-                           / "reviewed_ui_vocabulary_arrivals_2026-10-15.json").read_text())
+                           / "reviewed_ui_vocabulary_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     arrivals, retired = contract["arrivals"], contract["retired"]
     assert len(arrivals) == 56
     assert set(retired) == {"SSH authentication was denied. Test the connection to try again."}

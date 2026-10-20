@@ -1,1 +1,0 @@
-windows-2022	Install the older release	2026-10-15T05:10:51.4810524Z {"ok": false, "error": "{'code': 'linked_metadata_folder', 'path': 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\spacr-install-4408\\\\previous-metadata'}"}

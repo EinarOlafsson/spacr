@@ -266,14 +266,14 @@ def test_the_writer_writes_canonical_names(tmp_path):
     """The deliberate half of the trade, pinned so it cannot drift back."""
     path = tmp_path / "out.csv"
     tabular.write_table(pd.DataFrame({"column_name": [1]}), path)
-    assert path.read_text().splitlines()[0] == "columnID"
+    assert path.read_text(encoding="utf-8").splitlines()[0] == "columnID"
 
 
 def test_the_writer_can_be_told_to_leave_a_foreign_header_alone(tmp_path):
     path = tmp_path / "out.csv"
     tabular.write_table(pd.DataFrame({"column_name": [1]}), path,
                         canonicalise=False)
-    assert path.read_text().splitlines()[0] == "column_name"
+    assert path.read_text(encoding="utf-8").splitlines()[0] == "column_name"
 
 
 def test_write_table_refuses_a_database_path_and_says_what_to_use(tmp_path):

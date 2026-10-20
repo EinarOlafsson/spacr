@@ -86,7 +86,7 @@ def test_db_object_conflict_uses_installed_reviewed_language(tmp_path, language,
     from pathlib import Path
 
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-mil-db-cardinality.json'
-    record = json.loads(review.read_text())['records'][0 if conflict == 'embedding' else 1]
+    record = json.loads(review.read_text(encoding="utf-8"))['records'][0 if conflict == 'embedding' else 1]
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     crops = [crop()]
     stored = [embedding()]

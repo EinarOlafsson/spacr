@@ -444,7 +444,7 @@ def main() -> int:
     app_screen_module._nvidia_smi_available = lambda: False
     from spacr.qt.walkthrough import mark_seen
 
-    catalog = json.loads(CATALOG.read_text())
+    catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     lessons = [lesson for lesson in catalog["lessons"]
                if lesson["number"] >= 37 and lesson["id"] not in SPECIALIZED]
     if args.only:
@@ -529,7 +529,7 @@ def main() -> int:
             "frames": frames,
         }
         (root / "geometry.json").write_text(
-            json.dumps(geometry, indent=2) + "\n")
+            json.dumps(geometry, indent=2) + "\n", encoding="utf-8")
         manifest = {
             "schema": 1,
             "lesson": lesson["id"],
@@ -539,7 +539,7 @@ def main() -> int:
             "states": list(frames),
         }
         (root.parent / "source_manifest.json").write_text(
-            json.dumps(manifest, indent=2) + "\n")
+            json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
         print(f"{number:02d}/{len(lessons)} {lesson['id']}", flush=True)
 
     window.close()

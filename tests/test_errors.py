@@ -486,7 +486,7 @@ def test_reading_a_db_that_does_not_exist_returns_nothing(tmp_path):
 
 def test_stamping_a_csv_writes_a_sibling_run_status_json(tmp_path):
     csv = tmp_path / 'rename_log.csv'
-    csv.write_text('Original File,Renamed TIFF\n')
+    csv.write_text('Original File,Renamed TIFF\n', encoding="utf-8")
 
     ledger = RunLedger('convert')
     ledger.record_failure('bad.tif', stage='tiff', exc=ValueError('not a TIFF'))
@@ -494,7 +494,7 @@ def test_stamping_a_csv_writes_a_sibling_run_status_json(tmp_path):
 
     assert sidecar == tmp_path / ('rename_log' + RUN_STATUS_SUFFIX)
     assert sidecar.is_file()
-    payload = json.loads(sidecar.read_text())
+    payload = json.loads(sidecar.read_text(encoding="utf-8"))
     assert isinstance(payload, list) and len(payload) == 1
     assert payload[0]['status'] == STATUS_PARTIAL
 
@@ -506,7 +506,7 @@ def test_stamping_a_csv_writes_a_sibling_run_status_json(tmp_path):
 
 def test_sidecar_stamps_accumulate(tmp_path):
     csv = tmp_path / 'log.csv'
-    csv.write_text('x\n')
+    csv.write_text('x\n', encoding="utf-8")
     RunLedger('first').stamp(csv)
     RunLedger('second').stamp(csv)
     assert [r['name'] for r in read_run_status(csv)] == ['first', 'second']
@@ -514,7 +514,7 @@ def test_sidecar_stamps_accumulate(tmp_path):
 
 def test_reading_a_sidecar_by_its_own_path_works(tmp_path):
     csv = tmp_path / 'log.csv'
-    csv.write_text('x\n')
+    csv.write_text('x\n', encoding="utf-8")
     sidecar = RunLedger('only').stamp(csv)
     assert [r['name'] for r in read_run_status(sidecar)] == ['only']
 
@@ -522,9 +522,9 @@ def test_reading_a_sidecar_by_its_own_path_works(tmp_path):
 def test_a_sidecar_holding_a_bare_object_is_upgraded_to_a_list(tmp_path):
     """Tolerate a hand-written or older single-object sidecar."""
     csv = tmp_path / 'log.csv'
-    csv.write_text('x\n')
+    csv.write_text('x\n', encoding="utf-8")
     sidecar = tmp_path / ('log' + RUN_STATUS_SUFFIX)
-    sidecar.write_text(json.dumps({'name': 'legacy', 'n_failed': 0}))
+    sidecar.write_text(json.dumps({'name': 'legacy', 'n_failed': 0}), encoding="utf-8")
 
     assert [r['name'] for r in read_run_status(csv)] == ['legacy']
     RunLedger('new').stamp(csv)
@@ -533,7 +533,7 @@ def test_a_sidecar_holding_a_bare_object_is_upgraded_to_a_list(tmp_path):
 
 def test_reading_an_unstamped_non_db_artifact_returns_nothing(tmp_path):
     csv = tmp_path / 'log.csv'
-    csv.write_text('x\n')
+    csv.write_text('x\n', encoding="utf-8")
     assert read_run_status(csv) == []
     assert run_is_complete(csv) is True
 
@@ -555,7 +555,7 @@ def test_to_json_writes_the_whole_ledger_and_makes_parent_dirs(tmp_path):
     ledger.record_success('b', stage='s')
 
     target = ledger.to_json(tmp_path / 'deep' / 'ledger.json')
-    payload = json.loads(target.read_text())
+    payload = json.loads(target.read_text(encoding="utf-8"))
     assert payload['name'] == 'json_run'
     assert payload['status'] == STATUS_PARTIAL
     assert payload['n_attempted'] == 2
@@ -1042,7 +1042,7 @@ def test_load_images_from_paths_reports_what_it_dropped(capsys, tmp_path):
     good = tmp_path / 'good.tif'
     tifffile.imwrite(str(good), np.ones((3, 3), np.uint16))
     corrupt = tmp_path / 'corrupt.tif'
-    corrupt.write_text('not a tiff')
+    corrupt.write_text('not a tiff', encoding="utf-8")
 
     out = load_images_from_paths({'fov': [str(good), str(corrupt)]})
 

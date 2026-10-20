@@ -594,7 +594,7 @@ def test_the_module_source_does_not_import_torch_or_cellpose():
     """Belt and braces: a lazy import inside a helper would still be a cost."""
     import spacr.diameter as D
 
-    source = Path(D.__file__).read_text()
+    source = Path(D.__file__).read_text(encoding="utf-8")
     for banned in ("import torch", "from torch", "import cellpose", "from cellpose",
                    "import tensorflow", "from tensorflow"):
         assert banned not in source, f"spacr/diameter.py contains {banned!r}"

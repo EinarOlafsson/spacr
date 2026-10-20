@@ -1,9 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "decision": "approved",
-  "patch_sha256": "3c134834a1d28804ca376db2bd5cf2953ec028ab9d61b8d793ae46cdf206ef84",
-  "source_sha256": "8f4b924ac64600d18c5b3c8466ae07d7ee5358e6071b226c57c1b42d2996952c",
-  "findings": "Exact existing strict-helper reuse, Torch0D unboxing and legacy bool0/1 retained; validates before model wrappers/device transfers/eval. Existing valid/defaultNone arithmetic/prose/signatures/tr unchanged.",
-  "evidence": "33 targeted checks and immutable prepatch valid-output oracle accepted; no new writer or API inventory required.",
-  "limits": "No training/scientific/native acceptance."
-}

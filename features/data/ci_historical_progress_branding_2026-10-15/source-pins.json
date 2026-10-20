@@ -1,7 +1,0 @@
-{
-  "base": "dd61cd9bd15d9a91ddeb4a158537bae0553a4851",
-  "path": "tests/test_the_name_is_spaCR.py",
-  "base_sha256": "1d8378b276ebb57d3e44be2b789c06a2b33e5875a9584085623fc8741a7c9706",
-  "proposed_sha256": "184c024050e4cc0e2a585f6f6f14bd164fd5a7ec4c9ecd71b6eac8937c101cd5",
-  "patch_sha256": "4adb1d10923c503d5861f6760498c22c2d8fbdf5f8bae9d7a788fb46e9d8c516"
-}

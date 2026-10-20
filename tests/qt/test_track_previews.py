@@ -1507,7 +1507,7 @@ def test_timelapse_rejects_an_unsupported_drop(qtbot, tmp_path):
     panel = TimelapsePreviewPanel()
     qtbot.addWidget(panel)
     doc = tmp_path / "notes.txt"
-    doc.write_text("x")
+    doc.write_text("x", encoding="utf-8")
     for handler in (panel.dragEnterEvent, panel.dragMoveEvent, panel.dropEvent):
         evt = _Evt(_mime_for(doc))
         handler(evt)
@@ -1541,7 +1541,7 @@ def test_motility_accepts_a_dropped_plate_folder(qtbot, plate_dir, tmp_path):
     # from cache instead of from a stat on the GUI thread.
     from spacr.qt import path_probe
     doc = tmp_path / "notes.txt"
-    doc.write_text("x")
+    doc.write_text("x", encoding="utf-8")
     path_probe.exists(str(doc), want_dir=True)
     qtbot.waitUntil(
         lambda: path_probe.known(str(doc), want_dir=True) is False,

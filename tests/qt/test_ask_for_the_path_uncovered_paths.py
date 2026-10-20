@@ -286,7 +286,7 @@ def test_a_folder_that_cannot_be_read_says_so_rather_than_raising(tmp_path):
 
 def test_any_file_will_do_when_no_suffix_is_named(tmp_path):
     """``a_folder_holding()`` asks only that the folder not be empty."""
-    (tmp_path / "notes.txt").write_text("anything")
+    (tmp_path / "notes.txt").write_text("anything", encoding="utf-8")
 
     assert ASK.a_folder_holding()(str(tmp_path)) is None
 

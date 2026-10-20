@@ -390,8 +390,8 @@ def test_find_bundles_is_newest_first(tmp_path):
     (second / EVALUATION_FILES["manifest"]).touch()
     # Explicit nanosecond mtimes make ordering deterministic on coarse FSes.
     import os
-    os.utime(first / EVALUATION_FILES["manifest"], ns=(1, 1))
-    os.utime(second / EVALUATION_FILES["manifest"], ns=(2, 2))
+    os.utime(first / EVALUATION_FILES["manifest"], ns=(10**9, 10**9))
+    os.utime(second / EVALUATION_FILES["manifest"], ns=(2 * 10**9, 2 * 10**9))
 
     found = find_evaluation_bundles(tmp_path)
     assert found == [

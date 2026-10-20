@@ -1,6 +1,7 @@
 """Native read-only installer inventory and unsupported-execution boundaries."""
 from pathlib import Path
 import json
+import os
 
 import pytest
 
@@ -23,6 +24,7 @@ def selected(preview):
             "snapshot_id": preview["snapshot_id"], "keys": ["news"]}
 
 
+@pytest.mark.posix_only
 def test_preview_actual_size_content_and_immutable_operation(cache):
     machine, folder, body = cache
     preview = ic.preview_optional_cleanup("fresh-operation", system=machine)
@@ -39,6 +41,7 @@ def test_preview_actual_size_content_and_immutable_operation(cache):
     assert (folder / "releases.json").read_bytes() == body
 
 
+@pytest.mark.posix_only
 def test_no_cross_process_lease_never_deletes_even_valid_fresh_choice(cache):
     machine, folder, body = cache
     preview = ic.preview_optional_cleanup("fresh-operation", system=machine)
@@ -66,6 +69,7 @@ def test_replayed_or_invalid_choices_cannot_authorize_cleanup(cache, change):
     assert (folder / "releases.json").read_bytes() == body
 
 
+@pytest.mark.posix_only
 def test_changed_native_file_refuses_stale_preview(cache):
     machine, folder, body = cache
     preview = ic.preview_optional_cleanup("fresh-operation", system=machine)
@@ -79,7 +83,8 @@ def test_changed_native_file_refuses_stale_preview(cache):
     assert (folder / "releases.json").read_bytes() == replacement
 
 
-@pytest.mark.parametrize("kind", ["external", "unknown", "symlink"])
+@pytest.mark.parametrize("kind", ["external", "unknown",
+                                  pytest.param("symlink", marks=pytest.mark.needs_symlink)])
 def test_unverified_roots_and_unknown_contents_are_not_inspected_as_owned(cache, tmp_path, kind):
     machine, folder, body = cache
     if kind == "external":
@@ -126,6 +131,7 @@ def test_blank_operation_is_rejected_before_filesystem_inspection(monkeypatch):
         ic.preview_optional_cleanup(" ")
 
 
+@pytest.mark.posix_only
 def test_directory_swap_before_scan_never_follows_foreign_symlink(cache, tmp_path, monkeypatch):
     machine, folder, body = cache
     foreign = tmp_path / "foreign"
@@ -176,7 +182,7 @@ def test_retained_paths_honor_external_overrides_xdg_and_relocation_without_scan
     relocated = tmp_path / "relocated-news"
     relocated.mkdir()
     (relocated / "user-file").write_bytes(b"retain")
-    (folder.parent / "cache_locations.json").write_text(json.dumps({"SPACR_NEWS_CACHE": str(relocated), "TORCH_HOME": "~/relocated-torch"}))
+    (folder.parent / "cache_locations.json").write_text(json.dumps({"SPACR_NEWS_CACHE": str(relocated), "TORCH_HOME": "~/relocated-torch"}), encoding="utf-8")
     machine.environ.update({"SPACR_BACKENDS_DIR": " ~/private-backends ", "XDG_CACHE_HOME": str(tmp_path / "xdg")})
     rows = {row["key"]: row for row in ic.preview_optional_cleanup("op", system=machine)["folders"]}
     assert rows["news"]["path"] == str(relocated) and rows["news"]["contents"] == ()
@@ -198,5 +204,22 @@ def test_sound_override_strips_whitespace_while_other_writer_paths_remain_raw(ca
     rows = {row["key"]: row for row in ic.preview_optional_cleanup("op", system=machine)["folders"]}
     assert rows["sounds"]["path"] == target
     assert rows["sounds"]["reason"] == "unverified"
-    assert rows["icons"]["path"] == str(Path(" " + target + " ").absolute())
+    raw = " " + target + " "
+    written = os.path.abspath(raw) if os.name == "nt" else str(Path(raw).absolute())
+    assert rows["icons"]["path"] == written
     assert not rows["sounds"]["selectable"] and not rows["icons"]["selectable"]
+
+
+def test_relocation_manifest_is_honoured_without_no_follow_directory_support(cache, tmp_path, monkeypatch):
+    machine, folder, body = cache
+    relocated = tmp_path / "relocated-news"
+    relocated.mkdir()
+    models = tmp_path / "relocated-models"
+    (folder.parent / "cache_locations.json").write_text(
+        json.dumps({"SPACR_NEWS_CACHE": str(relocated), "SPACR_MODEL_CACHE": str(models)}), encoding="utf-8")
+    monkeypatch.delattr(ic.os, "O_DIRECTORY", raising=False)
+    rows = {row["key"]: row for row in ic.preview_optional_cleanup("op", system=machine)["folders"]}
+    assert rows["news"]["path"] == str(relocated) and rows["news"]["reason"] == "unverified"
+    assert rows["models"]["path"] == str(models) and rows["models"]["reason"] == "protected"
+    assert not any(row["selectable"] for row in rows.values())
+    assert (folder / "releases.json").read_bytes() == body

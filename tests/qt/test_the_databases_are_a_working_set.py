@@ -11,6 +11,7 @@ is compared against what was in the files.
 """
 from __future__ import annotations
 
+import os
 import sqlite3
 
 import pandas as pd
@@ -193,7 +194,7 @@ def test_what_the_user_chose_about_a_collision_is_recorded(screen,
     chip._close.click()
 
     assert screen._merge_decision is not None
-    written = [json.loads(line) for line in log.read_text().splitlines()]
+    written = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
     outcomes = [record["outcome"] for record in written]
     assert "merged" in outcomes
     assert "resolved" in outcomes
@@ -320,9 +321,9 @@ def test_the_folder_join_is_the_one_get_db_paths_performs(tmp_path):
     from spacr.utils import get_db_paths
     from spacr.qt.widgets.database_set import database_for_source
 
-    roots = [str(tmp_path / "plate1"), str(tmp_path / "plate2") + "/"]
+    roots = [str(tmp_path / "plate1"), str(tmp_path / "plate2") + os.sep]
     assert [database_for_source(root, "folder") for root in roots] == \
-        get_db_paths([root.rstrip("/") for root in roots])
+        get_db_paths([root.rstrip(os.sep) for root in roots])
 
 
 def test_one_source_is_still_a_bare_string(qtbot, tmp_path):

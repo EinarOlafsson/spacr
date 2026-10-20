@@ -356,7 +356,7 @@ def test_the_manifest_records_what_moved_and_which_boxes_were_cut(folder):
     # Ordinary JSON, so recovery never needs this module.
     raw = json.loads(
         (folder / engine.RECROP_ARCHIVE_DIRNAME
-         / engine.RECROP_MANIFEST).read_text())
+         / engine.RECROP_MANIFEST).read_text(encoding="utf-8"))
     assert raw == manifest
 
 
@@ -375,7 +375,7 @@ def test_an_unreadable_manifest_does_not_stop_a_retirement(folder):
     """The files are the recovery; the manifest is the map to them."""
     archive = folder / engine.RECROP_ARCHIVE_DIRNAME
     archive.mkdir()
-    (archive / engine.RECROP_MANIFEST).write_text("{ not json")
+    (archive / engine.RECROP_MANIFEST).write_text("{ not json", encoding="utf-8")
     engine.retire_recropped_original(str(folder), "field_a.tif",
                                      children=["field_a__r00.tif"],
                                      boxes=[(10, 10, 90, 90)])
@@ -659,13 +659,13 @@ def test_restoring_skips_records_and_moves_it_cannot_honour(folder):
                                      boxes=[(10, 10, 90, 90)])
     archive = folder / engine.RECROP_ARCHIVE_DIRNAME
     manifest_path = archive / engine.RECROP_MANIFEST
-    records = json.loads(manifest_path.read_text())
+    records = json.loads(manifest_path.read_text(encoding="utf-8"))
     # A malformed pair (a record hand-trimmed in the JSON) and a move whose
     # archived file somebody has already deleted.
     record = next(r for r in records if r["original"] == "field_a.tif")
     record["moved"].append(["only-one-half"])
     (archive / "masks" / "field_a.tif").unlink()
-    manifest_path.write_text(json.dumps(records))
+    manifest_path.write_text(json.dumps(records), encoding="utf-8")
 
     restored = engine.restore_recropped_original(str(folder), "field_a.tif")
 

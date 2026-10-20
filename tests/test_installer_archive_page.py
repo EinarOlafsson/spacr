@@ -106,11 +106,11 @@ def test_audit_rejects_a_stale_site_even_when_repository_sources_are_consistent(
         shutil.copy(ROOT / f"docs/i18n/readme/README.{code}.rst", locales)
     old = [_release("v1.5.0.8", *ALL_THREE)]
     releases = [_release("v1.5.0.9", *ALL_THREE), *old]
-    before = {p: p.read_text() for p in [tmp_path / "README.rst", *locales.glob("*.rst")]}
+    before = {p: p.read_text(encoding="utf-8") for p in [tmp_path / "README.rst", *locales.glob("*.rst")]}
     helper.sync_published_installer_links(tmp_path, releases)
     assert helper.audit_installer_publication(tmp_path, releases) == []
     for path, text in before.items():
-        after = path.read_text()
+        after = path.read_text(encoding="utf-8")
         assert after.split(helper.README_BEGIN)[0] == text.split(helper.README_BEGIN)[0]
         assert after.split(helper.README_END)[1] == text.split(helper.README_END)[1]
     from docutils.core import publish_parts
@@ -127,17 +127,17 @@ def test_audit_rejects_a_stale_site_even_when_repository_sources_are_consistent(
 def test_archive_current_version_comes_from_published_assets_not_next_package(tmp_path):
     helper = _release_helper()
     setup = tmp_path / "setup.py"
-    setup.write_text('VERSION = "9.0.0"\n')
+    setup.write_text('VERSION = "9.0.0"\n', encoding="utf-8")
     output = tmp_path / "installers.rst"
     helper.write_installer_index(output, setup, [_release("v1.5.0.9", *ALL_THREE)])
-    assert "1.5.0.9 (current)" in output.read_text()
-    assert "9.0.0" not in output.read_text()
+    assert "1.5.0.9 (current)" in output.read_text(encoding="utf-8")
+    assert "9.0.0" not in output.read_text(encoding="utf-8")
 
 
 def test_published_sync_validates_every_translation_before_writing(tmp_path):
     helper = _release_helper()
     readme = tmp_path / "README.rst"
-    readme.write_text((ROOT / "README.rst").read_text())
+    readme.write_text((ROOT / "README.rst").read_text(encoding="utf-8"), encoding="utf-8")
     original = readme.read_bytes()
     with pytest.raises(FileNotFoundError):
         helper.sync_published_installer_links(tmp_path, [_release("v1.5.0.9", *ALL_THREE)])

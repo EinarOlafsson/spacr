@@ -28,7 +28,7 @@ import pytest
 def _ml_source() -> str:
     import spacr.ml
 
-    return pathlib.Path(spacr.ml.__file__).read_text()
+    return pathlib.Path(spacr.ml.__file__).read_text(encoding="utf-8")
 
 
 # --------------------------------------------------------------------------- #
@@ -164,7 +164,7 @@ def test_the_hit_rule_is_the_one_the_picture_uses():
     """A hit list that disagreed with the volcano would be the worst of both:
     the phenotype plot reporting genes the volcano does not mark."""
     source = pathlib.Path(
-        __import__("spacr.toxo", fromlist=["toxo"]).__file__).read_text()
+        __import__("spacr.toxo", fromlist=["toxo"]).__file__).read_text(encoding="utf-8")
 
     # VECTORISED on 2026-08-18 when the figure was restyled: the per-row
     # `(row['p_value'] <= 0.05) and (abs(row['coefficient']) >= abs(threshold))`

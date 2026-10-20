@@ -1,2 +1,0 @@
-{'path': '/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/two-track-lag-inspection.json', 'bytes': 19960, 'sha256': 'b7f901f4c6b3fc22e983e42563e9223f1f27a486b0adae7bb7d1eb54aa613a4b'}
-[{'voice': 'bm_fable', 'head_min': 0.8811689821949049, 'tail_min': 0.9923545179816933, 'head_lags_ms': [5.0], 'tail_lags_ms': [5.0], 'AAC_extra_duration': 0.0030000000000001137}, {'voice': 'zm_yunyang', 'head_min': 0.847048973041164, 'tail_min': 0.936058432275235, 'head_lags_ms': [0.0], 'tail_lags_ms': [0.0], 'AAC_extra_duration': 0.0309999999999917}]

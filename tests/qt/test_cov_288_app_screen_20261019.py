@@ -225,30 +225,48 @@ class TestRemovedRuns:
         assert ns._compare_panel is None
 
     def test_a_panel_that_cannot_forget_does_not_stop_the_others(self):
-        def refuse(_folder):
+        asked = []
+
+        def refuse(folder):
+            asked.append(("panel", folder))
             raise RuntimeError("busy")
 
-        def refuse_queue(_label):
+        def refuse_queue(label):
+            asked.append(("queue", label))
             raise RuntimeError("busy")
 
+        photo_key = os.path.abspath("/runs/b")
         ns = _ns(_results_panel=types.SimpleNamespace(forget_run=refuse),
-                 _compare_panel=None, _run_photographs={},
+                 _compare_panel=None, _run_photographs={photo_key: "still"},
                  _figure_queue=types.SimpleNamespace(forget_run=refuse_queue))
         AppScreen._on_runs_removed(ns, [{"folder": "/runs/b", "run": "B"}])
+        assert asked == [("panel", "/runs/b"), ("queue", "B")]
+        assert ns._run_photographs == {}
 
     def test_nothing_is_forgotten_without_a_panel_or_records(self):
-        AppScreen._on_runs_removed(types.SimpleNamespace(), [{"folder": "x"}])
-        AppScreen._on_runs_removed(
-            types.SimpleNamespace(_results_panel=object()), [])
+        bare = types.SimpleNamespace()
+        assert AppScreen._on_runs_removed(bare, [{"folder": "x"}]) is None
+        assert vars(bare) == {}
+        panel = object()
+        without_records = types.SimpleNamespace(_results_panel=panel,
+                                                _run_photographs={"x": 1})
+        assert AppScreen._on_runs_removed(without_records, []) is None
+        assert vars(without_records) == {"_results_panel": panel,
+                                         "_run_photographs": {"x": 1}}
 
     def test_a_loaded_run_change_survives_tabs_that_raise(self):
+        asked = []
+
         def refuse():
+            asked.append(len(asked))
             raise RuntimeError("no")
 
         ns = types.SimpleNamespace(
             _cell_montage=types.SimpleNamespace(clear=refuse, refresh=None),
             _scan_panel=types.SimpleNamespace(refresh_databases=refuse))
-        AppScreen._on_loaded_run_changed_refresh_tabs(ns)
+        assert AppScreen._on_loaded_run_changed_refresh_tabs(ns) is None
+        assert asked == [0, 1], "the measurements tab was not asked after " \
+            "the cells tab raised"
 
 
 class TestShowingATrial:
@@ -305,8 +323,11 @@ class TestShowingATrial:
         assert ns.shown == []
 
     def test_a_trial_with_no_panel_or_no_dict_is_ignored(self):
-        AppScreen._show_trial(self._screen(None), "not a record")
-        AppScreen._show_trial(self._screen(None), {"run": "T5"})
+        for record in ("not a record", {"run": "T5"}):
+            ns = self._screen(None)
+            assert AppScreen._show_trial(ns, record) is None
+            assert ns._console.stdout == [] and ns.shown == []
+            assert not hasattr(ns, "_pending_trial")
 
 
 class TestWorkspaceRestore:
@@ -341,8 +362,23 @@ class TestWorkspaceRestore:
 
         ns = types.SimpleNamespace(
             _console=types.SimpleNamespace(append_stdout=refuse))
-        AppScreen._say(ns, "hello")
-        AppScreen._say(types.SimpleNamespace(), "hello")
+        import logging
+
+        records = []
+        handler = logging.Handler()
+        handler.emit = records.append
+        aps.LOG.addHandler(handler)
+        level = aps.LOG.level
+        aps.LOG.setLevel(logging.INFO)
+        try:
+            AppScreen._say(ns, "hello")
+            AppScreen._say(types.SimpleNamespace(), "again")
+        finally:
+            aps.LOG.removeHandler(handler)
+            aps.LOG.setLevel(level)
+        logged = [r.getMessage() for r in records
+                  if r.levelno == logging.INFO]
+        assert logged == ["hello", "again"]
 
 
 class _Outcome(_Console):
@@ -542,14 +578,23 @@ class TestPermutationBanner:
 class TestGlyphWarmUp:
 
     def test_a_console_without_the_warm_up_is_left_alone(self):
-        AppScreen._warm_console_glyphs(types.SimpleNamespace(_console=None))
+        ns = types.SimpleNamespace(_console=None)
+        assert AppScreen._warm_console_glyphs(ns) is None
+        assert vars(ns) == {"_console": None}
+        plain = types.SimpleNamespace(_console=types.SimpleNamespace())
+        assert AppScreen._warm_console_glyphs(plain) is None
+        assert vars(plain._console) == {}
 
     def test_a_console_that_raises_runtime_error_is_not_fatal(self):
+        asked = []
+
         def refuse():
+            asked.append(True)
             raise RuntimeError("deleted")
 
-        AppScreen._warm_console_glyphs(types.SimpleNamespace(
-            _console=types.SimpleNamespace(warm_notice_glyphs=refuse)))
+        assert AppScreen._warm_console_glyphs(types.SimpleNamespace(
+            _console=types.SimpleNamespace(warm_notice_glyphs=refuse))) is None
+        assert asked == [True]
 
     def test_a_deleted_qt_console_is_not_warmed(self):
         from PySide6.QtCore import QObject
@@ -829,15 +874,22 @@ class TestSendingTheAnonymousReport:
 class TestSmallHelpers:
 
     def test_a_host_that_is_gone_has_no_arrivals_to_sweep(self):
+        asked, arrived = [], []
+
         class Gone:
             def children(self):
+                asked.append(True)
                 raise RuntimeError("deleted")
 
-        aps._LateCaptionTranslator._on_arrivals_in(
-            types.SimpleNamespace(), Gone())
+        translator = types.SimpleNamespace(_on_arrival=arrived.append)
+        assert aps._LateCaptionTranslator._on_arrivals_in(
+            translator, Gone()) is None
+        assert asked == [True] and arrived == []
 
     def test_a_viewport_with_no_split_has_no_floor_to_sync(self):
-        aps._RuntimeViewport._sync_floor(types.SimpleNamespace(_split=None))
+        ns = types.SimpleNamespace(_split=None)
+        assert aps._RuntimeViewport._sync_floor(ns) is None
+        assert vars(ns) == {"_split": None}
 
     def test_a_catalogue_that_cannot_be_read_means_no_animation(
             self, monkeypatch):

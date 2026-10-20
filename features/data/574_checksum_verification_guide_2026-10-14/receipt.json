@@ -1,9 +1,0 @@
-{
-  "scope": "Generated archive README verification guidance only; checksum format/validator unchanged",
-  "validation": "Executed exact README command in copied and referenced-image synthetic packages with spaces in paths; both pass initially and fail after manifest corruption",
-  "cases": 4,
-  "network_writes": false,
-  "new_prose": "tr() wrapped; English fallback until reviewed locale records exist",
-  "source_sha256": "7a1fb1533764663358b9c2ce495d6eaa829e4033ba07bbe57f30ff075054821e",
-  "harness_note": "First attempt imported installed source and found no new command; corrected PYTHONPATH to this private tree before all four final cases."
-}

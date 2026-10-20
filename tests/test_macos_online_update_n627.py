@@ -30,11 +30,11 @@ def installation(tmp_path, monkeypatch):
     uv = root / 'bootstrap/uv'
     for path in (python, uv):
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text('#!/bin/sh\nexit 0\n')
+        path.write_text('#!/bin/sh\nexit 0\n', encoding="utf-8")
         path.chmod(0o755)
-    (root / 'venv/pyvenv.cfg').write_text('include-system-site-packages = false\n')
+    (root / 'venv/pyvenv.cfg').write_text('include-system-site-packages = false\n', encoding="utf-8")
     kept = root / 'settings-to-preserve.json'
-    kept.write_text('{"retained": true}')
+    kept.write_text('{"retained": true}', encoding="utf-8")
     record = ic.InstallRecord(kind='installer', layout='macos-runtime', platform='macos',
                               root=str(root), python=str(python), version='1.5.0.1', running=True)
     machine = ic._Machine(platform='macos', environ={'HOME': str(tmp_path / 'user home')},
@@ -85,7 +85,7 @@ def test_plan_targets_exact_private_paths_without_installer_or_bootstrap(tmp_pat
                                '--upgrade', '--python', record.python, 'spacr']
     assert plan['command'][:2] == [record.python, '-I']
     assert plan['relaunch'] == [record.python, '-I', '-m', 'spacr.qt']
-    assert kept.read_text() == '{"retained": true}'
+    assert kept.read_text(encoding="utf-8") == '{"retained": true}'
 
 
 def test_upgrade_waits_verifies_then_relaunches_once(tmp_path, installation, monkeypatch):
@@ -108,7 +108,7 @@ def test_upgrade_waits_verifies_then_relaunches_once(tmp_path, installation, mon
                         spawn=lambda *args: events.append(('relaunch', args))) == 0
     assert [event[0] for event in events] == ['upgrade', 'check', 'verify', 'verify', 'wait', 'verify', 'verify', 'relaunch']
     assert kept.exists()
-    assert 'Verified spaCR 1.5.1.1' in Path(plan['log']).read_text()
+    assert 'Verified spaCR 1.5.1.1' in Path(plan['log']).read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize('failure', ['upgrade', 'probe', 'wrong_version', 'relaunch'])
@@ -131,7 +131,7 @@ def test_failure_is_logged_without_false_success_or_extra_launch(tmp_path, insta
                         system=machine, spawn=spawn) == 6
     assert len(calls) == (1 if failure == 'relaunch' else 0)
     assert kept.exists()
-    log = Path(plan['log']).read_text()
+    log = Path(plan['log']).read_text(encoding="utf-8")
     assert 'update stopped' in log and 'relaunch requested' not in log
     assert ic._FrozenUpdateHandshake(plan).status()['state'] == 'error'
 
@@ -192,7 +192,7 @@ def test_changed_plan_commands_cannot_select_another_environment(tmp_path, insta
     _, machine, _ = installation
     plan, path = make_plan(tmp_path, installation)
     plan['install'][5] = '/another/python'
-    path.write_text(json.dumps(plan))
+    path.write_text(json.dumps(plan), encoding="utf-8")
     assert ic._run_plan(str(path), system=machine, run=no_cleanup, spawn=no_cleanup) == 6
 
 
@@ -215,7 +215,7 @@ def test_native_launcher_runs_newer_existing_runtime_without_pinned_reinstall(tm
     python.parent.mkdir(parents=True)
     # The old application may have a lower package pin; an available runtime
     # is launched directly without asking any installer to restore that pin.
-    python.write_text('#!/bin/sh\nprintf "1.5.9\\n"\nprintf "%s\\n" "$@"\n')
+    python.write_text('#!/bin/sh\nprintf "1.5.9\\n"\nprintf "%s\\n" "$@"\n', encoding="utf-8")
     python.chmod(0o755)
     result = subprocess.run([str(binary), '--diagnostic'], env={**os.environ, 'HOME': str(home)},
                             check=True, capture_output=True, text=True)
@@ -232,7 +232,7 @@ def test_newer_stable_release_is_accepted_without_an_old_pin(tmp_path, installat
                         run=lambda argv: (0, _identity(observed) if '-c' in argv else 'updated'),
                         spawn=lambda *args: launches.append(args), system=machine) == 0
     assert len(launches) == 1
-    assert f'Verified spaCR {observed}' in Path(plan['log']).read_text()
+    assert f'Verified spaCR {observed}' in Path(plan['log']).read_text(encoding="utf-8")
 
 
 def test_ambiguous_online_records_refuse_instead_of_destructive_fallback(tmp_path, installation):
@@ -258,11 +258,11 @@ def test_real_private_executables_upgrade_verify_and_launch_in_order(tmp_path, i
                   + f'printf \"check\\n\" >> {quote(journal)}\nexit 0\nfi\n'
                   + f'printf "upgrade\\n" >> {quote(journal)}\n'
                   + f'printf "%s\\n" "$@" > {quote(argv_log)}\n'
-                  + f'printf "%s\\n" {shlex.quote(_identity("1.5.2"))} > {quote(state)}\n')
+                  + f'printf "%s\\n" {shlex.quote(_identity("1.5.2"))} > {quote(state)}\n', encoding="utf-8")
     Path(record.python).write_text('#!/bin/sh\nif [ "$1" = "-I" ] && [ "$2" = "-c" ]; then\n'
                                   + f'printf "verify\\n" >> {quote(journal)}\n'
                                   + f'cat {quote(state)}\nelse\n'
-                                  + f'printf "relaunch\\n" >> {quote(journal)}\nfi\n')
+                                  + f'printf "relaunch\\n" >> {quote(journal)}\nfi\n', encoding="utf-8")
     plan, path = make_plan(tmp_path, installation)
     approve_when_ready(monkeypatch, plan)
 
@@ -273,12 +273,12 @@ def test_real_private_executables_upgrade_verify_and_launch_in_order(tmp_path, i
 
     assert ic._run_plan(str(path), wait=wait, remove=no_cleanup, fetch=no_cleanup, system=machine) == 0
     deadline = time.monotonic() + 3
-    while 'relaunch' not in journal.read_text() and time.monotonic() < deadline:
+    while 'relaunch' not in journal.read_text(encoding="utf-8") and time.monotonic() < deadline:
         time.sleep(0.01)
-    assert journal.read_text().splitlines() == ['upgrade', 'check', 'verify', 'verify', 'wait', 'verify', 'verify', 'relaunch']
-    installed_args = argv_log.read_text().splitlines()
+    assert journal.read_text(encoding="utf-8").splitlines() == ['upgrade', 'check', 'verify', 'verify', 'wait', 'verify', 'verify', 'relaunch']
+    installed_args = argv_log.read_text(encoding="utf-8").splitlines()
     assert installed_args[:4] == ['pip', 'install', '--upgrade', '--python']
     assert installed_args[-1] == 'spacr' and installed_args[4] != record.python
     assert Path(installed_args[4]).parent.parent.parent.name.startswith('.spacr-runtime-update-')
-    assert json.loads(state.read_text())['version'] == '1.5.2'
-    assert kept.read_text() == '{"retained": true}'
+    assert json.loads(state.read_text(encoding="utf-8"))['version'] == '1.5.2'
+    assert kept.read_text(encoding="utf-8") == '{"retained": true}'

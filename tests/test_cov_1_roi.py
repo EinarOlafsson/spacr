@@ -106,7 +106,7 @@ def test_an_unwritable_roi_path_is_refused_at_the_call(tmp_path):
     every worker would fall back to measuring the whole field.
     """
     blocker = tmp_path / 'not-a-directory'
-    blocker.write_text('this is a file')
+    blocker.write_text('this is a file', encoding="utf-8")
     target = blocker / 'roi' / 'measure_roi.json'
 
     with pytest.raises(R.RoiError) as excinfo:

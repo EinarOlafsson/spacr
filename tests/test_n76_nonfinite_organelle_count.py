@@ -16,10 +16,10 @@ def test_nonfinite_count_uses_existing_slots_without_losing_answers(tmp_path, ra
     original = dict(settings)
     if boundary == "json-factory":
         path = tmp_path / "settings.json"
-        path.write_text(json.dumps(settings))
+        path.write_text(json.dumps(settings), encoding="utf-8")
         encoded = path.read_bytes()
         settings = defaults.set_default_settings_preprocess_generate_masks(
-            json.loads(path.read_text()))
+            json.loads(path.read_text(encoding="utf-8")))
         assert path.read_bytes() == encoded
     assert organelles.organelle_count(settings) == 2
     assert organelles.active_organelle_roles(settings) == ("organelle", "organelleb")

@@ -45,7 +45,7 @@ def main():
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     catalog_root = (args.stage or args.workspace) / 'catalog'
-    catalog = json.loads((catalog_root / 'lessons_en.json').read_text())
+    catalog = json.loads((catalog_root / 'lessons_en.json').read_text(encoding="utf-8"))
     expected = [l['id'] for l in catalog['lessons']]
     from build_navigation import build
     navigation = build(catalog)
@@ -60,7 +60,7 @@ def main():
         lesson['poster'] = f"{lesson['id']}/poster.jpg"
         lesson['silent'] = f"{lesson['id']}/video/{lesson['id']}_silent.mp4"
     media = (args.stage or args.workspace) / 'production'
-    source = (args.workspace / 'web/index.html').read_text()
+    source = (args.workspace / 'web/index.html').read_text(encoding="utf-8")
     media_url = '/' + str(media.relative_to(args.workspace))
     for attribute in ('production-root', 'audio-root', 'video4k-root'):
         source = re.sub(rf'data-{attribute}="[^"]*"', f'data-{attribute}="{media_url}"', source)
@@ -95,7 +95,7 @@ def main():
                 body='window.SPACR_TUTORIAL_NAVIGATION = ' + json.dumps(navigation) + ';',
                 content_type='application/javascript'))
             for path in catalog_root.glob('*.json'):
-                localized = json.loads(path.read_text())
+                localized = json.loads(path.read_text(encoding="utf-8"))
                 context.route('**/web/catalog/' + path.name + '*',
                               catalog_handler(localized))
             page = context.new_page()
@@ -159,7 +159,7 @@ def main():
         server.shutdown()
         server.server_close()
     evidence['passed'] = True
-    (args.output / 'navigation-checks.json').write_text(json.dumps(evidence, indent=2) + '\n')
+    (args.output / 'navigation-checks.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding="utf-8")
     print(json.dumps(evidence, indent=2))
 
 

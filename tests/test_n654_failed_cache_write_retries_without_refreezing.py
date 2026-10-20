@@ -34,7 +34,7 @@ def test_recovered_cache_write_reuses_generated_texts_and_keeps_blocking_bytes(t
         folder = tmp_path / f'run-{attempt}'
         record = journal._write_environment_lock(folder, packages)
         for key in names:
-            assert (folder / record[key]).read_text() == texts[key]
+            assert (folder / record[key]).read_text(encoding="utf-8") == texts[key]
         assert (blocked / 'keep.txt').read_bytes() == b'preserve the pre-existing directory'
         assert calls == ['pip', 'conda']
     preserved = store / 'preserved-blocker'
@@ -42,8 +42,8 @@ def test_recovered_cache_write_reuses_generated_texts_and_keeps_blocking_bytes(t
     folder = tmp_path / 'recovered-run'
     record = journal._write_environment_lock(folder, packages)
     for key, name in names.items():
-        assert (folder / record[key]).read_text() == texts[key]
-        assert (store / name).read_text() == texts[key]
+        assert (folder / record[key]).read_text(encoding="utf-8") == texts[key]
+        assert (store / name).read_text(encoding="utf-8") == texts[key]
     assert (preserved / 'keep.txt').read_bytes() == b'preserve the pre-existing directory'
     assert calls == ['pip', 'conda']
     monkeypatch.setattr(journal, '_ENV_LOCK_MEMO', {})

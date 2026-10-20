@@ -37,7 +37,7 @@ def job(tmp_path):
     (destination / 'conversion_map.run_status.json').write_text(json.dumps([{
         'run_id': 'positive-fixture', 'name': 'convert_to_yokogawa_plan',
         'status': 'complete', 'n_attempted': 4, 'n_succeeded': 4, 'n_failed': 0,
-        'failures': [], 'success_by_stage': {'convert': 4}}]))
+        'failures': [], 'success_by_stage': {'convert': 4}}]), encoding="utf-8")
     return dict(destination=str(destination), records=records, plate='plate1')
 
 
@@ -103,8 +103,8 @@ def test_duplicate_expected_channel_rejected(job):
     ('n_succeeded', 3), ('n_failed', 1)])
 def test_incomplete_ledger_rejected(job, key, value):
     path = Path(job['destination']) / 'conversion_map.run_status.json'
-    ledger = json.loads(path.read_text())
+    ledger = json.loads(path.read_text(encoding="utf-8"))
     ledger[0][key] = value
-    path.write_text(json.dumps(ledger))
+    path.write_text(json.dumps(ledger), encoding="utf-8")
     with pytest.raises(ValueError):
         verify_outputs(job)

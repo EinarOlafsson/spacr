@@ -54,6 +54,6 @@ def test_interrupted_network_write_preserves_settings_and_can_retry(tmp_path, mo
             assert applied == []
     assert len(partial_writes) == 2
     updater._write_network_config('http://new.example.invalid:8123', '')
-    assert json.loads(target.read_text())['proxy'] == 'http://new.example.invalid:8123'
+    assert json.loads(target.read_text(encoding="utf-8"))['proxy'] == 'http://new.example.invalid:8123'
     assert applied == [True]
     assert list(tmp_path.iterdir()) == [target]

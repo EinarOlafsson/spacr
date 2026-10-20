@@ -331,7 +331,7 @@ def process_rss() -> int:
     except Exception:
         pass
     try:
-        with open("/proc/self/statm", "r") as handle:
+        with open("/proc/self/statm", "r", encoding="utf-8") as handle:
             pages = int(handle.read().split()[1])
         return pages * os.sysconf("SC_PAGE_SIZE")
     except Exception:

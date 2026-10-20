@@ -97,7 +97,7 @@ def _plan(settings):
 
 def _calls(root):
     path = root / 'calls.log'
-    return [line.split() for line in path.read_text().splitlines()] if path.exists() else []
+    return [line.split() for line in path.read_text(encoding="utf-8").splitlines()] if path.exists() else []
 
 
 @pytest.mark.parametrize('value, expected', [
@@ -169,7 +169,7 @@ def test_parallel_batches_match_the_serial_run_and_write_each_field_once(
     assert sorted(name for _, name in calls) == [f'batch{index}.npz' for index in range(4)]
     assert len({pid for pid, _ in calls}) == 2
     assert cpu_workers == [(str(masks), 'cell', {})]
-    ledger = json.loads((masks / '.mask-workers-cell.json').read_text())
+    ledger = json.loads((masks / '.mask-workers-cell.json').read_text(encoding="utf-8"))
     assert ledger['status'] == 'finalized' and len(ledger['completed']) == 4
     assert settings['src'] == str(masks) and settings['cellpose_cell_channel'] == 0
     lines = [line for line in capsys.readouterr().out.splitlines() if line.startswith('[mask GPUs]')]
@@ -197,7 +197,7 @@ def test_an_interrupted_worker_resumes_only_unfinished_batches(tmp_path, cpu_wor
                    for path in (masks / 'cell_mask_stack').glob('*.npy')}
     first = [name for _, name in _calls(tmp_path)]
     assert 'batch3.npz' not in first
-    assert json.loads((masks / '.mask-workers-cell.json').read_text())['status'] == 'failed'
+    assert json.loads((masks / '.mask-workers-cell.json').read_text(encoding="utf-8"))['status'] == 'failed'
 
     settings.pop('fail_on')
     mw._generate_masks_in_parallel(str(masks), settings, 'cell', plan, segmenter=_segment)
@@ -254,7 +254,7 @@ def test_adjusted_cells_are_finalized_beside_raw_masks_with_provenance(tmp_path,
     assert all(path.read_bytes() == data for path, data in raw.items())
     adjusted = np.load(output / 'f0.npy')
     assert len(np.unique(adjusted)) == 2, 'the pathogen bridging both cells merged them'
-    record = json.loads((masks / '.adjusted-cell-mask-provenance.json').read_text())
+    record = json.loads((masks / '.adjusted-cell-mask-provenance.json').read_text(encoding="utf-8"))
     assert set(record['outputs']) == {'f0.npy', 'f1.npy'}
     assert set(record['raw_masks']['raw']) == {'cell', 'nucleus', 'pathogen'}
 

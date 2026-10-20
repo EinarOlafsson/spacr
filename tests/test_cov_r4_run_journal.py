@@ -19,6 +19,7 @@ of them may be silent about what the record now omits.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 from datetime import datetime, timedelta, timezone
@@ -27,6 +28,7 @@ from pathlib import Path
 import pytest
 
 from spacr import run_journal as RJ
+from tests.refused_access import refused
 
 
 @pytest.fixture
@@ -42,11 +44,11 @@ def _write_run(runs_dir, name, manifest, *, settings=None, settings_csv=None):
     """Lay out one run folder by hand, the way a finished run leaves one."""
     directory = runs_dir / name
     directory.mkdir()
-    (directory / "manifest.json").write_text(json.dumps(manifest))
+    (directory / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     if settings is not None:
-        (directory / "settings.json").write_text(settings)
+        (directory / "settings.json").write_text(settings, encoding="utf-8")
     if settings_csv is not None:
-        (directory / "settings.csv").write_text(settings_csv)
+        (directory / "settings.csv").write_text(settings_csv, encoding="utf-8")
     return directory
 
 
@@ -96,6 +98,7 @@ def test_a_flattened_key_that_repeats_a_nested_one_is_offered_once(tmp_path):
 # walking a source tree
 # ---------------------------------------------------------------------------
 
+@pytest.mark.needs_symlink
 def test_a_symlinked_file_in_a_source_folder_is_not_hashed(runs_dir, tmp_path):
     """``followlinks=False`` is only half the protection.
 
@@ -297,13 +300,11 @@ def test_a_changed_input_that_cannot_be_read_is_left_out_of_the_manifest(
         "src_file": str(readable),
         "model_path": str(sealed),
     }
-    try:
+    with contextlib.ExitStack() as unsealing:
         with RJ.open_run("mask", settings) as run:
             readable.write_bytes(b"r" * 4096)
             sealed.write_bytes(b"s" * 4096)
-            os.chmod(sealed, 0o000)
-    finally:
-        os.chmod(sealed, 0o600)
+            unsealing.enter_context(refused(sealed, 0o000, windows="read"))
 
     outputs = {Path(key).name for key in run.output_hashes}
     assert "readable.tif" in outputs, (

@@ -1,7 +1,0 @@
-{
-  "checked_at_utc": "2026-10-14T04:56:36.435486+00:00",
-  "source_ref": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
-  "actual_file_bindings_verified": 15,
-  "prior_portable_report_verified": true,
-  "scope": "Independent identity check of source-only cold Apply preflight; no performance, causal or native acceptance."
-}

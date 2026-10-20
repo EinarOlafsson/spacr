@@ -1,9 +1,0 @@
-{
-  "reviewer": "Original Root independent of Easy author",
-  "source_commit": "2d68797a9f9593183ad972426bdae616d1650390",
-  "accepted": true,
-  "source_proof": "all original assertion ASTs and outside-test AST exact; production app/ambient exact against receipt and final integration",
-  "scope": "two fixture inputs select no shared backdrop/free lock branch; installed failure/recovery collaborator and actual parent-owned backdrop unchanged",
-  "raw_evidence_verified": "baseline1FAIL5.72\u2192final1PASS3.78 and exit codes, no replay",
-  "limitations": "offscreen controlled collaborator; no real desktop/GL acceptance"
-}

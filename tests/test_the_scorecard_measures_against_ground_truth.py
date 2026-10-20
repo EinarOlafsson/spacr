@@ -461,7 +461,7 @@ def test_a_manifest_without_a_version_is_refused():
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / "m.json"
         path.write_text(json.dumps(
-            {"name": "x", "fields": [{"image": "a", "truth": "b"}]}))
+            {"name": "x", "fields": [{"image": "a", "truth": "b"}]}), encoding="utf-8")
         with pytest.raises(ValueError, match="version"):
             scorecard.load_holdout(path)
 

@@ -102,7 +102,7 @@ def test_python_download_matches_the_target_and_its_mirror_path(builder):
 def test_lock_pins_skip_options_comments_and_markers(builder, tmp_path):
     lock = tmp_path / "requirements.txt"
     lock.write_text("--index-url https://pypi.org/simple\n# comment\n"
-                    "numpy==2.1.0\ntorch==2.8.0+cpu ; sys_platform == 'linux'\n\n")
+                    "numpy==2.1.0\ntorch==2.8.0+cpu ; sys_platform == 'linux'\n\n", encoding="utf-8")
     assert builder.locked_pins(lock) == ["numpy==2.1.0", "torch==2.8.0+cpu"]
     wheels = tmp_path / "wheels"
     wheels.mkdir()
@@ -120,11 +120,12 @@ def test_test_data_keeps_whole_fields(builder, tmp_path):
     assert len(builder.select_test_fields([tmp_path / n for n in names], 0)) == 9
 
 
+@pytest.mark.posix_only
 def test_checksums_cover_every_file_but_themselves(builder, tmp_path):
     (tmp_path / "wheels").mkdir()
     (tmp_path / "wheels" / "a.whl").write_bytes(b"a")
-    (tmp_path / "bundle.json").write_text("{}")
-    sums = builder.write_checksums(tmp_path).read_text().splitlines()
+    (tmp_path / "bundle.json").write_text("{}", encoding="utf-8")
+    sums = builder.write_checksums(tmp_path).read_text(encoding="utf-8").splitlines()
     assert [line.split("  ")[1] for line in sums] == ["bundle.json", "wheels/a.whl"]
     result = subprocess.run(["sha256sum", "--check", "--quiet", "SHA256SUMS"],
                             cwd=tmp_path, capture_output=True, text=True)
@@ -134,16 +135,17 @@ def test_checksums_cover_every_file_but_themselves(builder, tmp_path):
 def test_mask_check_replaces_only_models_the_bundle_cannot_resolve(mask_check, tmp_path):
     settings = tmp_path / "gen_mask_settings.csv"
     settings.write_text("Key,Value\ncell_model_name,cpsam\n"
-                        "pathogen_model_name,<models>/cpsam_v2_toxo_r2\nsrc,<src>\n")
+                        "pathogen_model_name,<models>/cpsam_v2_toxo_r2\nsrc,<src>\n", encoding="utf-8")
     assert mask_check.model_overrides(settings, "cpsam") == ["pathogen_model_name=cpsam"]
 
 
+@pytest.mark.posix_only
 def test_unix_offline_dry_run_uses_the_bundle_and_never_downloads(tmp_path):
     installer = _unix_installer(tmp_path)
     bundle = tmp_path / "bundle"
     bundle.mkdir()
     (bundle / "bundle.json").write_text(json.dumps(
-        {"torch_backend": "cu126", "package_spec": "spacr[qt]==9.9.9"}, indent=2))
+        {"torch_backend": "cu126", "package_spec": "spacr[qt]==9.9.9"}, indent=2), encoding="utf-8")
     env = dict(os.environ, SPACR_TORCH_BACKEND="auto")
     result = subprocess.run(
         ["bash", str(installer), "--platform", "linux", "--dry-run", "--no-launch",
@@ -155,6 +157,7 @@ def test_unix_offline_dry_run_uses_the_bundle_and_never_downloads(tmp_path):
     assert not (tmp_path / "spacr").exists()
 
 
+@pytest.mark.posix_only
 def test_unix_offline_refuses_a_folder_that_is_not_a_bundle(tmp_path):
     installer = _unix_installer(tmp_path)
     result = subprocess.run(

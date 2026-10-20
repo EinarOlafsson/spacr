@@ -73,7 +73,7 @@ def test_cli_trains_scores_on_held_out_wells_and_rescores(tmp_path):
     subprocess.run([sys.executable, str(TOOL), "train", "--type", "pathogen",
                     "--db", str(database), "--out", str(model)],
                    check=True, capture_output=True, text=True, timeout=300)
-    card = json.loads(model.with_suffix(".scorecard.json").read_text())
+    card = json.loads(model.with_suffix(".scorecard.json").read_text(encoding="utf-8"))
     assert card["object_type"] == "pathogen"
     assert card["n_annotated"] == 50
     assert card["wells_held_out"] and all(w.startswith("plate1|")
@@ -87,7 +87,7 @@ def test_cli_trains_scores_on_held_out_wells_and_rescores(tmp_path):
     subprocess.run([sys.executable, str(TOOL), "score", "--model", str(model),
                     "--db", str(fresh), "--out", str(out)],
                    check=True, capture_output=True, text=True, timeout=300)
-    rescored = json.loads(out.read_text())
+    rescored = json.loads(out.read_text(encoding="utf-8"))
     assert rescored["n"] == 8 and rescored["roc_auc"] >= 0.9
 
 
@@ -312,7 +312,7 @@ def test_annotation_reader_uses_exact_reviewed_runtime_diagnostics(tmp_path, mon
             db.execute('UPDATE png_list SET real = 1 WHERE rowid = 1')
         databases.append(str(other))
         source = 'Annotated crop {path} has conflicting labels or acquisition identities.'
-    reviews = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-annotated-crop-integrity.json').read_text())
+    reviews = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-annotated-crop-integrity.json').read_text(encoding="utf-8"))
     target = next(row['translation'] for row in reviews['records'] if row['source'] == source)
     before = {Path(path): Path(path).read_bytes() for path in databases}
     with pytest.raises(ValueError) as error:

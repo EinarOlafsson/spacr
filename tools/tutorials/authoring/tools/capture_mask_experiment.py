@@ -221,7 +221,7 @@ class CaptureSession:
             "schema": 2,
             "frame_size": list(FRAME_SIZE),
             "frames": self.frames,
-        }, indent=2) + "\n")
+        }, indent=2) + "\n", encoding="utf-8")
 
 
 def set_combo(combo, text: str) -> None:
@@ -782,7 +782,7 @@ def main() -> int:
         "captures": sorted(capture.frames),
     }
     (OUTPUT.parent / "source_manifest.json").write_text(
-        json.dumps(manifest, indent=2) + "\n")
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
     panel.shutdown()
     window.close()

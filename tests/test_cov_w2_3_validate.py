@@ -733,7 +733,7 @@ def test_a_complete_investigate_hit_setup_raises_no_objection(tmp_path):
     satisfy it and no message that helps.
     """
     for name in ("measurements.db", "predictions.csv", "fractions.csv"):
-        (tmp_path / name).write_text("x")
+        (tmp_path / name).write_text("x", encoding="utf-8")
     results = tmp_path / "regression"
     results.mkdir()
 

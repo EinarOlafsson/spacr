@@ -100,7 +100,7 @@ def test_coordinate_conflict_uses_installed_reviewed_language(language, monkeypa
     from pathlib import Path
 
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-mil-coordinate-identity.json'
-    record = json.loads(review.read_text())['records'][0]
+    record = json.loads(review.read_text(encoding="utf-8"))['records'][0]
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     source = frame()
     source['_embedding_fingerprint'] = ['model-one'] * 4 + ['model-two'] * 4

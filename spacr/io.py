@@ -3470,6 +3470,11 @@ def _describe_processed_folder(folder):
     return '; '.join(parts), advice
 
 
+_SPACR_PLATE_FOLDERS = frozenset((
+    'settings', 'orig', 'stack', 'channel_stack', 'masks', 'merged',
+    'measurements', 'datasets', 'test'))
+
+
 def _no_stacks_error(src, requested_src, regex, metadata_type):
     """Build the error for a run that produced no field stack, naming the likely cause.
 
@@ -3495,8 +3500,14 @@ def _no_stacks_error(src, requested_src, regex, metadata_type):
             entries = sorted(_listdir_visible(subject))
         except OSError:
             entries = []
-    subdirs = [name for name in entries
-               if os.path.isdir(os.path.join(subject, name))][:6]
+    folders = [name for name in entries
+               if os.path.isdir(os.path.join(subject, name))]
+    own = [name for name in folders if name in _SPACR_PLATE_FOLDERS]
+    subdirs = [name for name in folders
+               if name not in _SPACR_PLATE_FOLDERS][:6]
+    other_files = [name for name in entries
+                   if os.path.isfile(os.path.join(subject, name))
+                   and not name.lower().endswith(_RAW_IMAGE_SUFFIXES)]
     subject_images = [name for name in entries
                       if name.lower().endswith(_RAW_IMAGE_SUFFIXES)]
     summary, advice = _describe_processed_folder(subject)
@@ -3514,6 +3525,23 @@ def _no_stacks_error(src, requested_src, regex, metadata_type):
         hint += (f" It holds no images but does hold sub-folders "
                  f"({', '.join(subdirs)}) — if those are plates, point "
                  f"src at one of them rather than at their parent.")
+    elif not summary:
+        hint += f' {subject} holds no image files at all'
+        if own:
+            hint += (f"; its only sub-folders ({', '.join(own)}) are "
+                     f"spaCR's own output, not plates (every run writes "
+                     f"settings/ first)")
+        hint += '.'
+        if other_files:
+            shown = ', '.join(other_files[:6])
+            more = ', …' if len(other_files) > 6 else ''
+            hint += (f' It does hold {len(other_files)} other file(s) '
+                     f'({shown}{more}), but spaCR reads only files ending in '
+                     f'{", ".join(_RAW_IMAGE_SUFFIXES)}; export or convert '
+                     f'the images to one of those formats.')
+        hint += (' Set src to the folder that directly holds the raw image '
+                 'files of one plate, or check that the images finished '
+                 'copying into this one.')
     return FileNotFoundError(
         f"No image stacks were produced from {src}. spaCR found "
         f"{len(images)} image file(s) directly in that folder.{hint}")
@@ -5813,11 +5841,11 @@ def _save_progress(dst, train_df, validation_df):
         df (pandas.DataFrame): The DataFrame to save.
         """
         if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 df.to_csv(f, index=True, header=True)
                 f.flush()
         else:
-            with open(file_path, 'a') as f:
+            with open(file_path, 'a', encoding='utf-8') as f:
                 df.to_csv(f, index=True, header=False)
                 f.flush()
                 
@@ -8288,6 +8316,65 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         train_loaders.crop_loading_policy = data.crop_loading_policy
         return train_loaders, val_loaders, train_fig
 
+def _no_training_crops_error(src, db_path, object_type, png_type):
+    """Build the error for a training set whose source has no crop rows at all.
+
+    Neither ``png_list`` nor the ``object_type`` measurement table gave a row,
+    so there is nothing to select classes from. The message says which of the
+    two the database lacks, or that there is no database, and what to change.
+
+    :param src: the source folder the user chose.
+    :param db_path: ``<src>/measurements/measurements.db``.
+    :param object_type: the object table the crop list falls back to.
+    :param png_type: the ``path_string`` the crops were filtered on.
+    :returns: a :class:`FileNotFoundError` when there is no database, else a
+        :class:`ValueError`.
+    """
+    import sqlite3
+
+    from .database_concurrency import connect as _connect_database
+
+    if os.path.isfile(src):
+        return FileNotFoundError(
+            f"No crops to train on: src is the file {src}, but Classify "
+            f"needs the plate folder that holds measurements/measurements.db. "
+            f"Set src to that plate folder.")
+    if not os.path.isfile(db_path):
+        return FileNotFoundError(
+            f"No crops to train on in {src}: there is no {db_path}. Classify "
+            f"builds its training set from the objects the Measure step "
+            f"recorded there. Set src to the plate folder Measure ran on (the "
+            f"folder that holds measurements/, not its parent or a "
+            f"sub-folder), or run Measure on this plate first.")
+    counts = {}
+    try:
+        conn = _connect_database(db_path, readonly=True)
+        try:
+            names = [row[0] for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")]
+            for name in ('png_list', object_type):
+                if name in names:
+                    quoted = name.replace('"', '""')
+                    counts[name] = conn.execute(
+                        f'SELECT COUNT(*) FROM "{quoted}"').fetchone()[0]
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        names = []
+
+    said = [f"'{name}' has {counts[name]} row(s)" if name in counts
+            else f"no '{name}' table" for name in ('png_list', object_type)]
+    present = ', '.join(sorted(names)) or 'none'
+    return ValueError(
+        f"No crops to train on in {src}: {db_path} has {said[0]} "
+        f"and {said[1]} (tables present: {present}). The crop "
+        f"type comes from path_string={png_type!r}, which reads the "
+        f"'{object_type}' objects. Run Measure on this plate with the "
+        f"{object_type} objects segmented, or set path_string to the crop "
+        f"type the project has, for example 'nucleus_png' for nucleus "
+        f"crops.")
+
+
 def generate_training_dataset(settings):
     """
     Build a balanced training/testing dataset from one of:
@@ -8615,6 +8702,8 @@ def generate_training_dataset(settings):
 
         object_type = crop_object_type(png_type)
         png_df = _load_png_table(db_path, object_type)
+        if png_df.empty or 'png_path' not in png_df.columns:
+            raise _no_training_crops_error(src, db_path, object_type, png_type)
 
         fixed_paths = [ _fix_path_under_src(src, p) for p in png_df['png_path'] ]
         png_df['png_path'] = fixed_paths
@@ -9103,7 +9192,7 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                 destination.append(item)
             print(split_report.summary())
             os.makedirs(dst, exist_ok=True)
-            with open(os.path.join(dst, '.spacr_split.json'), 'w') as handle:
+            with open(os.path.join(dst, '.spacr_split.json'), 'w', encoding="utf-8") as handle:
                 json.dump(split_report.to_dict(), handle, indent=2,
                           sort_keys=True)
 

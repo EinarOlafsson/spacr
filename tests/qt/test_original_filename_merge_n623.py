@@ -68,7 +68,7 @@ def test_single_table_popup_retains_rows_and_binds_replay_to_reviewed_mapping(
     reopened = MergeTablesDialog(str(database), initial_definition=saved, threaded=False)
     qtbot.addWidget(reopened)
     assert reopened.configuration()["original_filenames"] == saved["original_filenames"]
-    mapping.write_text(mapping.read_text().replace("drug_A", "other_condition"))
+    mapping.write_text(mapping.read_text(encoding="utf-8").replace("drug_A", "other_condition"), encoding="utf-8")
     reopened.validate_preview()
     assert not reopened.create.isEnabled()
     assert "changed" in reopened.preview_text.toPlainText().lower()
@@ -164,9 +164,9 @@ def test_programmatic_graph_merge_saves_the_bound_map_digest(qtbot, sources, tmp
                                       include="drug_A", exclude="", manual_rows=[])]
     screen.apply_condition_definition(conditions)
     screen.save_chart(str(chart))
-    invalid_chart = json.loads(chart.read_text())
+    invalid_chart = json.loads(chart.read_text(encoding="utf-8"))
     invalid_chart["condition_annotation"]["conditions"][0]["include"] = "["
-    chart.write_text(json.dumps(invalid_chart))
+    chart.write_text(json.dumps(invalid_chart), encoding="utf-8")
     # A same-name recipe may have been reviewed since the chart was saved.
     # Rejected condition rules must not overwrite it as a load side effect.
     prior = copy.deepcopy(bound)

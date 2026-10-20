@@ -92,7 +92,7 @@ def test_the_pipeline_never_reads_qsettings():
     # lookup for the environment snapshot and again in a comment saying not
     # to import it -- a substring search calls both a violation, which is
     # how this test failed on its first run.
-    tree = ast.parse(pathlib.Path(run_journal.__file__).read_text())
+    tree = ast.parse(pathlib.Path(run_journal.__file__).read_text(encoding="utf-8"))
     imported = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):

@@ -48,7 +48,7 @@ def _tree(root: Path) -> Path:
     for rel in ("nuc/a.tif", "nuc/b.tif", "cell/a.tif", "cell/deep/c.tif",
                 "top.tif", "nuc/masks/a.tif", "notes.txt"):
         _tif(src / rel, np.zeros((4, 4), np.uint16)) if rel.endswith(".tif") \
-            else (src / rel).write_text("x")
+            else (src / rel).write_text("x", encoding="utf-8")
     return src
 
 
@@ -93,6 +93,7 @@ def test_consolidation_output_is_a_new_unused_folder(tmp_path):
         fc.consolidate_folder(src, first.output, log=lambda _t: None)
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.skipif(not hasattr(os, "symlink"), reason="needs symlinks")
 def test_consolidation_skips_symlinks_and_lists_them(tmp_path):
     """A linked file and a linked folder are not copied, but are recorded."""
@@ -254,7 +255,7 @@ def _masked_folder(root: Path, shapes=((20, 30), (20, 30), (24, 24))):
         _tif(folder / cell, np.full(shape, 100 + i, np.uint16))
         _tif(folder / "masks" / (nuc[:-4] + ".tif"), np.full(shape, i + 1, np.uint16))
         _tif(folder / "masks" / (cell[:-4] + ".tif"), np.full(shape, i + 1, np.uint16))
-        (folder / "masks" / (cell[:-4] + ".tif.curation.json")).write_text("{}")
+        (folder / "masks" / (cell[:-4] + ".tif.curation.json")).write_text("{}", encoding="utf-8")
         channels[nuc], channels[cell] = 1, 2
     return folder, channels
 
@@ -313,7 +314,7 @@ def test_plan_apply_and_merge_write_the_pipelines_layout(tmp_path):
 
     assert len(result.merged) == 3
     from spacr.crops import MERGED_LAYOUT_SIDECAR
-    layout = json.loads((dest / "merged" / MERGED_LAYOUT_SIDECAR).read_text())
+    layout = json.loads((dest / "merged" / MERGED_LAYOUT_SIDECAR).read_text(encoding="utf-8"))
     assert layout["mask_plane_order"] == ["cell", "nucleus"]
     for path in result.merged:
         merged = np.load(path)

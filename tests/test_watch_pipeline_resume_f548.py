@@ -46,9 +46,9 @@ def test_populated_legacy_ledger_without_pipeline_preserves_unknown_provenance(t
     _images(tmp_path, 'A01')
     result = core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
     ledger_path = Path(result['ledger'])
-    ledger = json.loads(ledger_path.read_text())
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
     ledger.pop('pipeline')
-    ledger_path.write_text(json.dumps(ledger))
+    ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
     before = _bytes(tmp_path)
     with pytest.raises(ValueError, match='pipeline.*separate watch workspace'):
         core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
@@ -70,13 +70,13 @@ def test_changed_pipeline_refuses_failed_field_retry(tmp_path):
 def test_unchanged_pipeline_resumes_old_fields_and_processes_new_fields(tmp_path, pipeline):
     _images(tmp_path, 'A01')
     first = core._watch_folder_and_analyse(_settings(tmp_path, pipeline), Recorder())
-    prior = json.loads(Path(first['ledger']).read_text())['fields']['plate1_A01_0001_001']
+    prior = json.loads(Path(first['ledger']).read_text(encoding="utf-8"))['fields']['plate1_A01_0001_001']
     _images(tmp_path, 'A02')
     recorder = Recorder()
     result = core._watch_folder_and_analyse(_settings(tmp_path, pipeline), recorder)
     assert result['done'] == ['plate1_A01_0001_001', 'plate1_A02_0001_001']
     assert [call[0] for call in recorder.calls] == ['plate1_A02_0001_001']
-    ledger = json.loads(Path(result['ledger']).read_text())
+    ledger = json.loads(Path(result['ledger']).read_text(encoding="utf-8"))
     assert ledger['pipeline'] == pipeline
     assert ledger['fields']['plate1_A01_0001_001'] == prior
 
@@ -88,8 +88,8 @@ def test_empty_ledger_can_select_pipeline_without_old_results(tmp_path, old_pipe
     ledger = {'src': str(tmp_path), 'fields': {}}
     if old_pipeline is not None:
         ledger['pipeline'] = old_pipeline
-    (work / 'watch_ledger.json').write_text(json.dumps(ledger))
+    (work / 'watch_ledger.json').write_text(json.dumps(ledger), encoding="utf-8")
     _images(tmp_path, 'A01')
     result = core._watch_folder_and_analyse(_settings(tmp_path, 'mask_measure'), Recorder())
     assert result['done'] == ['plate1_A01_0001_001']
-    assert json.loads(Path(result['ledger']).read_text())['pipeline'] == 'mask_measure'
+    assert json.loads(Path(result['ledger']).read_text(encoding="utf-8"))['pipeline'] == 'mask_measure'

@@ -97,7 +97,7 @@ def test_no_signed_artifact_is_published_until_every_check_passes(
     package = tmp_path / 'spaCR.pkg'
     package.write_bytes(b'unsigned')
     receipt = package.with_suffix('.pkg.notarization.json')
-    receipt.write_text('stale old acceptance')
+    receipt.write_text('stale old acceptance', encoding="utf-8")
     calls = []
     def run(args, **kwargs):
         calls.append(args)
@@ -124,7 +124,7 @@ def test_no_signed_artifact_is_published_until_every_check_passes(
         assert record['submission_id'] == 'submission-123'
         assert record['stapled'] and record['gatekeeper_verified']
         assert package.read_bytes() == b'signed and stapled'
-        assert json.loads(receipt.read_text()) == record
+        assert json.loads(receipt.read_text(encoding="utf-8")) == record
         assert [a[2] if a[0] == 'xcrun' else a[0] for a in calls] == [
             'productsign', 'pkgutil', 'submit', 'staple', 'validate', 'spctl']
     assert not list(tmp_path.glob('.spacr-notary-*'))
@@ -145,6 +145,7 @@ def test_credentials_never_appear_in_timeout_or_tool_failure(monkeypatch):
     assert str(error.value) == 'security failed (exit 1)'
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('fail_import', [False, True])
 def test_ci_keychain_cleanup_restores_search_path_even_after_failed_import(
         monkeypatch, tmp_path, fail_import):
@@ -175,7 +176,7 @@ def test_ci_keychain_cleanup_restores_search_path_even_after_failed_import(
             signing.prepare_ci()
     else:
         signing.prepare_ci()
-    exports = dict(line.split('=', 1) for line in environment.read_text().splitlines())
+    exports = dict(line.split('=', 1) for line in environment.read_text(encoding="utf-8").splitlines())
     folder = Path(exports['SPACR_SIGNING_DIRECTORY'])
     assert not (folder / 'certificates.p12').exists()
     assert not any('private-cert' in v for v in exports.values())
@@ -215,7 +216,7 @@ def test_native_launcher_executes_private_python_with_exact_arguments(launcher, 
     home = tmp_path / 'a home with spaces'
     python = home / 'Library/Application Support/spaCR/venv/bin/python'
     python.parent.mkdir(parents=True)
-    python.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\nexit 7\n')
+    python.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\nexit 7\n', encoding="utf-8")
     python.chmod(0o755)
     args = ['--argument', 'a b', '$(touch forbidden-file)', '日本語']
     result = subprocess.run([str(launcher), *args], env={**os.environ, 'HOME': str(home)},

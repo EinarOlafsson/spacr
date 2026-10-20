@@ -356,7 +356,7 @@ def test_the_index_finds_a_repeat_written_to_another_folder(tmp_path, monkeypatc
         ([1], 1, False), ([2], 2, True)]
     assert found[0]["prior_figure_path"] == str(tmp_path / "a" / "first.png")
     assert found[0]["correlation"] >= plot._DUPLICATE_CORRELATION
-    lines = shared.read_text().splitlines()
+    lines = shared.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2
     assert (tmp_path / "a" / plot._INDEX_NAME).exists()
     assert (tmp_path / "b" / plot._INDEX_NAME).exists()
@@ -401,7 +401,7 @@ def test_the_index_skips_entries_it_cannot_verify(tmp_path, monkeypatch):
     old = _export(_figure(first), tmp_path / "old.png")
     sidecar = old + ".provenance.json"
     index = tmp_path / plot._INDEX_NAME
-    entry = json.loads(index.read_text().splitlines()[-1])
+    entry = json.loads(index.read_text(encoding="utf-8").splitlines()[-1])
     current = _figure([first[0], first[1][::-1] * 0.9])
     variants = []
     for change in ({"sidecar": None}, {"sidecar": str(tmp_path / "gone.json")},
@@ -413,13 +413,13 @@ def test_the_index_skips_entries_it_cannot_verify(tmp_path, monkeypatch):
                               if "figure" in variant and variant["figure"] != old
                               else str(tmp_path / f"f{n}.png")))
               for n, variant in enumerate(variants)]
-    index.write_text("\n".join(lines) + "\n")
+    index.write_text("\n".join(lines) + "\n", encoding="utf-8")
     report = _report(current, destination=str(tmp_path / "new.png"))
     assert not _findings(report, "cross_figure_index")
     big = dict(entry, figure=str(tmp_path / "huge.json"), sidecar=sidecar)
     (tmp_path / "huge.json").write_bytes(b"x")
     os.truncate(tmp_path / "huge.json", 257 * 1024 ** 2)
-    index.write_text(json.dumps(big) + "\n")
+    index.write_text(json.dumps(big) + "\n", encoding="utf-8")
     assert not _findings(_report(current, destination=str(tmp_path / "n.png")),
                          "cross_figure_index")
     record = json.loads(open(sidecar).read())
@@ -428,7 +428,7 @@ def test_the_index_skips_entries_it_cannot_verify(tmp_path, monkeypatch):
     with open(sidecar, "w") as handle:
         json.dump(record, handle)
     index.write_text(json.dumps(dict(entry, figure_sha256=record[
-        "figure_sha256"])) + "\n")
+        "figure_sha256"])) + "\n", encoding="utf-8")
     report = _report(current, destination=str(tmp_path / "m.png"))
     assert not _findings(report, "cross_figure_index")
     with open(sidecar, "w") as handle:
@@ -445,16 +445,16 @@ def test_index_candidates_need_a_signature_and_pass_the_texture_test(
     image = _field(140)
     _export(_figure([image]), tmp_path / "old.png")
     index = tmp_path / plot._INDEX_NAME
-    entry = json.loads(index.read_text())
+    entry = json.loads(index.read_text(encoding="utf-8"))
     entry["panels"].append("not a panel")
     entry["panels"][0]["hash"] = "zz"
-    index.write_text(json.dumps(entry) + "\n")
+    index.write_text(json.dumps(entry) + "\n", encoding="utf-8")
     blurred = cv2.GaussianBlur(image, (0, 0), 3)
     assert not _findings(_report(_figure([blurred]),
                                  destination=str(tmp_path / "n.png")),
                          "cross_figure_index")
     entry["panels"][0]["hash"] = None
-    index.write_text(json.dumps(entry) + "\n")
+    index.write_text(json.dumps(entry) + "\n", encoding="utf-8")
     monkeypatch.setattr(plot, "_INDEX_HAMMING", 64)
     assert not _findings(_report(_figure([blurred]),
                                  destination=str(tmp_path / "n.png")),
@@ -521,7 +521,7 @@ def test_the_index_stays_bounded_and_survives_unwritable_paths(tmp_path, monkeyp
     report["panels"] = report["panels"] * 200
     plot._record_in_index(report, tmp_path / "g.png", "s")
     blocker = tmp_path / "file"
-    blocker.write_text("")
+    blocker.write_text("", encoding="utf-8")
     monkeypatch.setenv(plot._INDEX_ENV, str(blocker / "index.jsonl"))
     plot._record_in_index({"panels": []}, tmp_path / "h.png", "s")
 

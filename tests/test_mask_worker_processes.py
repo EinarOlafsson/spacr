@@ -44,7 +44,7 @@ def _cpu_segmenter(src, settings, object_type, *, batch_paths, on_batch_done, ru
         if settings.get('duplicate'):
             on_batch_done(path)
     metadata['end'] = time.monotonic()
-    (Path(src) / f'worker-{selected}.json').write_text(json.dumps(metadata))
+    (Path(src) / f'worker-{selected}.json').write_text(json.dumps(metadata), encoding="utf-8")
     print(f'worker {selected} finished')
 
 
@@ -71,7 +71,7 @@ def test_processes_run_in_parallel_with_disjoint_inputs_and_private_environments
     assert os.environ == before
     assert result['total_batches'] == len(result['completed_batches']) == 4
     assert all(row['state'] == 'success' for row in result['workers'].values())
-    records = [json.loads(path.read_text()) for path in tmp_path.glob('worker-*.json')]
+    records = [json.loads(path.read_text(encoding="utf-8")) for path in tmp_path.glob('worker-*.json')]
     assert len({row['pid'] for row in records}) == 2
     assert os.getpid() not in {row['pid'] for row in records}
     assert {row['selected'] for row in records} == {'3', '7'}
@@ -175,11 +175,11 @@ def _cpu_overload_segmenter(src, settings, object_type, *, batch_paths,
     folder = Path(src)
     marker = folder / f'primary-{selected}'
     primary = not marker.exists()
-    marker.write_text('primary attempted')
+    marker.write_text('primary attempted', encoding="utf-8")
     retry = not primary
     if retry:
         assert all((folder / f'primary-{device}').exists() for device in ('7', '3'))
-        (folder / f'retry-start-{selected}').write_text(str(time.monotonic()))
+        (folder / f'retry-start-{selected}').write_text(str(time.monotonic()), encoding="utf-8")
     for index, path in enumerate(batch_paths):
         if primary and index == 1:
             raise MemoryError(f'primary buffer exhausted on {selected}')
@@ -190,7 +190,7 @@ def _cpu_overload_segmenter(src, settings, object_type, *, batch_paths,
         np.save(target, np.array([[0, 1], [1, 1]], dtype=np.uint16))
         on_batch_done(path)
     if retry:
-        (folder / f'retry-end-{selected}').write_text(str(time.monotonic()))
+        (folder / f'retry-end-{selected}').write_text(str(time.monotonic()), encoding="utf-8")
 
 
 def test_overloaded_mask_workers_retry_serially_after_all_primaries_without_repeating_saves(
@@ -206,8 +206,8 @@ def test_overloaded_mask_workers_retry_serially_after_all_primaries_without_repe
     for row in result['workers'].values():
         assert row['state'] == 'success' and row['attempts'] == 2
         assert 'MemoryError' in row['primary_error'] and 'Traceback' in row['primary_error']
-    assert float((tmp_path / 'retry-end-7').read_text()) <= float(
-        (tmp_path / 'retry-start-3').read_text())
+    assert float((tmp_path / 'retry-end-7').read_text(encoding="utf-8")) <= float(
+        (tmp_path / 'retry-start-3').read_text(encoding="utf-8"))
     retry_updates = [row for row in updates if any(
         worker['attempts'] == 2 for worker in row['workers'].values())]
     assert retry_updates and len(retry_updates[0]['completed_batches']) == 2

@@ -22,7 +22,7 @@ from verify_staged_lesson import Handler
 
 
 def verify(root):
-    source = (root / 'web/app_v2.js').read_text()
+    source = (root / 'web/app_v2.js').read_text(encoding="utf-8")
     catalog = read(root / 'web/catalog/lessons_en.json')['lessons']
     held = [lesson['id'] for lesson in catalog if lesson.get('status') == 'coming_soon']
     # With no real unavailable lesson, serve an in-memory probe (never written).
@@ -32,7 +32,7 @@ def verify(root):
     ready_count = sum(lesson.get('status') != 'coming_soon' for lesson in catalog) - (probe is not None)
     served = {}
     if probe:
-        js_text = (root / 'web/lesson_catalog.js').read_text()
+        js_text = (root / 'web/lesson_catalog.js').read_text(encoding="utf-8")
         js = parse_javascript(js_text)
         js['lessons'] = placeholder_probe(js['lessons'], probe)
         served['lesson_catalog.js'] = (js_text[:js_text.index('Object.freeze(') + len('Object.freeze(')]

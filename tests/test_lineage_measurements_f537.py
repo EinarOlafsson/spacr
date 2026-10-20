@@ -68,7 +68,7 @@ def test_post_measure_step_writes_separate_outputs_and_correct_segment_means(pro
     assert two['color_cell_intensity'] == np.mean(np.arange(5, 13) + 200)
     assert all('lineage_measured' in str(p) for p in result['paths'].values())
     report = json.loads((path.parent / 'lineage_measured' /
-                         (path.stem + '_measurement_source.json')).read_text())
+                         (path.stem + '_measurement_source.json')).read_text(encoding="utf-8"))
     assert report['matched_rows'] == len(pd.read_csv(path))
     assert len(report['measurement_values_sha256']) == 64
     for file, content in sources.items():
@@ -100,7 +100,7 @@ def test_filtered_measurement_rows_stay_missing_without_reindexing(project):
 def test_missing_or_ambiguous_provenance_is_rejected(project, bad):
     path, db, _, _, _ = project
     manifest = path.with_name(path.name + '.lineage_sources.json')
-    data = json.loads(manifest.read_text())
+    data = json.loads(manifest.read_text(encoding="utf-8"))
     if bad == 'missing':
         manifest.unlink()
     elif bad == 'changed_csv':
@@ -120,7 +120,7 @@ def test_missing_or_ambiguous_provenance_is_rejected(project, bad):
             frame['prcf'] = 'plate2_r1_c1_f1_t100'
         else:
             frame['frame'] = False
-        manifest.write_text(json.dumps(data))
+        manifest.write_text(json.dumps(data), encoding="utf-8")
     with pytest.raises(ValueError, match='lineage'):
         _measured_lineage_inputs(db, path, 'cell_intensity')
     assert not (path.parent / 'lineage_measured').exists()
@@ -196,14 +196,14 @@ def test_tracking_hook_invalid_calibration_publishes_nothing_new(project):
 def test_strict_manifest_json_rejects_ambiguous_or_invalid_values(project, malformed):
     path, db, _, _, _ = project
     manifest = path.with_name(path.name + '.lineage_sources.json')
-    data = manifest.read_text()
+    data = manifest.read_text(encoding="utf-8")
     if malformed == 'duplicate_json':
         data = data.replace('"version": 1,', '"version": 1, "version": 1,')
     elif malformed == 'nan_json':
         data = data.replace('"frame_interval_s": null', '"frame_interval_s": NaN')
     else:
         data = data.replace('"frame_interval_s": null', '"frame_interval_s": true')
-    manifest.write_text(data)
+    manifest.write_text(data, encoding="utf-8")
     with pytest.raises(ValueError, match='lineage'):
         _measured_lineage_inputs(db, path, 'cell_intensity')
 

@@ -142,7 +142,7 @@ def test_archive_target_is_exact_and_empty(example, tmp_path, change):
     if change == 'not-whole': plan.whole_project = False
     if change == 'missing-item': plan.items.pop()
     if change == 'duplicate-item': plan.items.append(plan.items[0])
-    if change == 'occupied-destination': (archive/'keep.txt').write_text('existing data')
+    if change == 'occupied-destination': (archive/'keep.txt').write_text('existing data', encoding="utf-8")
     if change == 'count': plan.total_files += 1
     if change == 'bytes': plan.total_bytes += 1
     with pytest.raises(ValueError, match='exact private project'):
@@ -180,7 +180,7 @@ def test_explicit_private_manager_source_copies_real_registry_without_rewriting(
         connection.executemany('INSERT INTO artifacts VALUES (?, ?, ?, ?)',
                                [(str(index), kind, 'measure', 'complete') for index, kind in
                                 enumerate(('measurements-db', 'crops', 'resource-log'))])
-    (source / 'measurement.csv').write_text('object,area\n1,20\n')
+    (source / 'measurement.csv').write_text('object,area\n1,20\n', encoding="utf-8")
     before = snapshot_source(source)
     prepared = prepare(stage, source=source)
     assert prepared['source'] == str(source)

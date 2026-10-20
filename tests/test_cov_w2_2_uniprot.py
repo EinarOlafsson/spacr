@@ -145,15 +145,15 @@ def test_a_cache_that_cannot_be_written_does_not_stop_the_answer(tmp_path):
     not be filed would make it a requirement.
     """
     blocked = tmp_path / "not_a_directory"
-    blocked.write_text("in the way")
+    blocked.write_text("in the way", encoding="utf-8")
     _write_cache(str(blocked), "key", [{"a": 1}])     # must not raise
-    assert blocked.read_text() == "in the way"
+    assert blocked.read_text(encoding="utf-8") == "in the way"
 
 
 def test_an_unreadable_cache_entry_is_a_miss_not_a_crash(tmp_path):
     """Truncated JSON reads as "not cached" and the fetch happens again."""
     path = tmp_path / "uniprot_key.json"
-    path.write_text("{not json")
+    path.write_text("{not json", encoding="utf-8")
     assert _read_cache(str(tmp_path), "key") is None
 
 
@@ -168,7 +168,7 @@ def test_a_cached_answer_is_returned_without_asking_uniprot(tmp_path,
     resolution = resolve("9606")
     key = f"tax_{resolution.taxon}_sp"
     (tmp_path / f"uniprot_{key}.json").write_text(
-        json.dumps([{"accession": "P04637", "gene_names": "TP53"}]))
+        json.dumps([{"accession": "P04637", "gene_names": "TP53"}]), encoding="utf-8")
 
     frame = fetch(resolution, cache_dir=str(tmp_path))
     assert list(frame["accession"]) == ["P04637"]
@@ -209,7 +209,7 @@ def test_every_page_is_followed_and_the_answer_is_cached(tmp_path,
     # and it is on disk, so the next run is offline
     cached = tmp_path / "uniprot_tax_9606_sp.json"
     assert cached.is_file()
-    assert len(json.loads(cached.read_text())) == 2
+    assert len(json.loads(cached.read_text(encoding="utf-8"))) == 2
 
 
 def test_an_empty_page_ends_the_paging(monkeypatch):

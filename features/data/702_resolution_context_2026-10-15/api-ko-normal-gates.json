@@ -1,8 +1,0 @@
-{
-  "source_sha256": "ebbc10861a150d010e85448b7937f3ae9861c73d9c3b7c12eabbc9ef08ee8460",
-  "old_file_sha256": "1b91a568cccc837d7fc83eb886966da6c967e8a283a1dafec913629928c28f9a",
-  "file_sha256": "3ffb603774048cdf221d69adfcbf9a794d1fa9f9e056443c508191478d7d9738",
-  "normal_api_block_valid": true,
-  "normal_reviewed_api_block_valid": true,
-  "change": "Only space after closing resume_checkpoint literal before Korean particle"
-}

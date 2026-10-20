@@ -16,7 +16,7 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
     stage, source = Path(stage).resolve(), Path(source).resolve()
     if not source.is_relative_to(stage / 'evaluation_runs'):
         raise ValueError('Only the private prepared tutorial bundle may be inspected')
-    prepared = json.loads((source / 'preparation.json').read_text())
+    prepared = json.loads((source / 'preparation.json').read_text(encoding="utf-8"))
     if not prepared['input_prepared'] or prepared['database_identity_audit']['passed']:
         raise ValueError('The known-overlap bundle was not prepared as documented')
     before = {str(p): sha(p) for p in source.rglob('*') if p.is_file()}

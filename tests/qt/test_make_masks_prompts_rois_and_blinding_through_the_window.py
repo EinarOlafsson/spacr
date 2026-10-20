@@ -359,7 +359,7 @@ def test_the_roi_menu_exports_through_its_file_dialogs(screen, tmp_path,
     assert np.array_equal(next(iter(back.values())), _roi_mask())
 
     blocker = tmp_path / "a_file"
-    blocker.write_text("x")
+    blocker.write_text("x", encoding="utf-8")
     _answer(monkeypatch, getSaveFileName=(str(blocker / "x.geojson"), ""))
     screen._on_export_field_rois("geojson")
     assert screen._status_label.text().startswith("Export failed")
@@ -375,7 +375,7 @@ def test_the_roi_menu_exports_through_its_file_dialogs(screen, tmp_path,
     coco = tmp_path / "coco.json"
     _answer(monkeypatch, getSaveFileName=(str(coco), ""))
     screen._on_export_all_rois("coco")
-    names = [i["file_name"] for i in json.loads(coco.read_text())["images"]]
+    names = [i["file_name"] for i in json.loads(coco.read_text(encoding="utf-8"))["images"]]
     assert names == ["img_00.tif"]
 
     _answer(monkeypatch, getExistingDirectory=str(blocker))
@@ -405,14 +405,14 @@ def test_the_roi_menu_imports_through_its_file_dialogs(screen, tmp_path,
     assert np.array_equal(screen._canvas.mask > 0, _roi_mask() > 0)
 
     broken = tmp_path / "broken.geojson"
-    broken.write_text("{not json")
+    broken.write_text("{not json", encoding="utf-8")
     _answer(monkeypatch, getOpenFileName=(str(broken), ""))
     screen._on_import_field_rois()
     assert screen._status_label.text().startswith("Import failed")
 
     empty = tmp_path / "empty.geojson"
     empty.write_text(json.dumps({"type": "FeatureCollection",
-                                 "features": []}))
+                                 "features": []}), encoding="utf-8")
     _answer(monkeypatch, getOpenFileName=(str(empty), ""))
     screen._status_label.setText("unchanged")
     screen._on_import_field_rois()
@@ -557,8 +557,8 @@ def test_imports_that_find_nothing_or_ids_too_big_for_the_mask(
     rois = tmp_path / "rois"
     rois.mkdir()
     empty = json.dumps({"type": "FeatureCollection", "features": []})
-    (rois / "img_00.geojson").write_text(empty)
-    (rois / "img_01.geojson").write_text(empty)
+    (rois / "img_00.geojson").write_text(empty, encoding="utf-8")
+    (rois / "img_01.geojson").write_text(empty, encoding="utf-8")
     screen._canvas.mask = np.zeros((IMG_N, IMG_N), np.uint16)
     assert screen.import_all_rois(str(rois), "geojson") == []
 

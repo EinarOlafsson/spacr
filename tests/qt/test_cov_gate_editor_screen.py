@@ -302,7 +302,7 @@ def test_a_file_that_is_not_a_strategy_is_reported_rather_than_raised(
     screen has to survive it with a sentence rather than a traceback out of
     a button press."""
     path = tmp_path / "not_gates.json"
-    path.write_text("{not json at all")
+    path.write_text("{not json at all", encoding="utf-8")
 
     assert screen.load_gates(str(path)) is False
     assert "could not load those gates" in screen._source.text()
@@ -313,7 +313,7 @@ def test_a_json_that_simply_has_no_gates_in_it_reports_the_zero(screen,
     """It loads -- a strategy with nothing in it is a legitimate file -- and
     the count is what says the user picked the wrong one."""
     path = tmp_path / "other.json"
-    path.write_text('{"something": "else"}')
+    path.write_text('{"something": "else"}', encoding="utf-8")
 
     assert screen.load_gates(str(path)) is True
     assert screen._source.text() == "0 gate(s) from other.json"
@@ -386,7 +386,7 @@ def test_a_filter_set_saved_against_another_plate_names_what_is_missing(
 
 def test_a_filter_file_that_cannot_be_read_is_reported(screen, tmp_path):
     path = tmp_path / "broken.json"
-    path.write_text("{not json at all")
+    path.write_text("{not json at all", encoding="utf-8")
 
     assert screen.load_filters(str(path)) == []
     assert "could not load that filter set" in screen._source.text()
@@ -537,7 +537,7 @@ def test_a_file_whose_tables_cannot_be_listed_names_it(screen, tmp_path):
     """A path that is not a database at all is an ordinary mis-drop, and the
     screen has to say which file it could not read."""
     bad = tmp_path / "notes.db"
-    bad.write_text("this is not sqlite")
+    bad.write_text("this is not sqlite", encoding="utf-8")
 
     screen.load_paths([str(bad)])
 
@@ -625,7 +625,7 @@ def test_a_csv_is_read_whole_because_the_sampling_is_done_in_sql(screen,
 def test_a_database_the_loader_cannot_open_names_the_file_not_the_path(
         screen, tmp_path):
     bad = tmp_path / "broken.db"
-    bad.write_text("not sqlite either")
+    bad.write_text("not sqlite either", encoding="utf-8")
 
     screen.load_path(str(bad))
 

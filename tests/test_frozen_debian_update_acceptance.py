@@ -41,16 +41,16 @@ def _deb(tmp_path: Path, version: str, files: dict, bulk: int = 0) -> Path:
     (stage / "DEBIAN").mkdir(parents=True)
     (stage / "DEBIAN" / "control").write_text(
         f"Package: spacr\nVersion: {version}\nArchitecture: all\n"
-        "Maintainer: test <t@example.org>\nDescription: fixture\n")
+        "Maintainer: test <t@example.org>\nDescription: fixture\n", encoding="utf-8")
     bundle = stage / "opt" / "spacr"
     bundle.mkdir(parents=True)
     for name, content in files.items():
         (bundle / name).parent.mkdir(parents=True, exist_ok=True)
-        (bundle / name).write_text(content)
+        (bundle / name).write_text(content, encoding="utf-8")
     for index in range(bulk):
         folder = bundle / "bulk" / f"{index // 500:03d}"
         folder.mkdir(parents=True, exist_ok=True)
-        (folder / f"{index}.txt").write_text(f"{version}-{index}\n")
+        (folder / f"{index}.txt").write_text(f"{version}-{index}\n", encoding="utf-8")
     (bundle / "link").symlink_to("spacr")
     out = tmp_path / f"spacr_{version}_all.deb"
     subprocess.run(["dpkg-deb", "--root-owner-group", "-Znone", "--build", str(stage), str(out)],
@@ -83,9 +83,9 @@ def test_compare_reports_a_changed_a_missing_and_a_stray_file(tmp_path):
     old = _deb(tmp_path, "1.0", {"spacr": "old\n", "data.txt": "d\n"})
     dpkg = driver.PrivateDpkg(tmp_path / "root")
     assert dpkg.run("-i", str(old))["exit"] == 0
-    (dpkg.root / "opt/spacr/spacr").write_text("tampered\n")
+    (dpkg.root / "opt/spacr/spacr").write_text("tampered\n", encoding="utf-8")
     (dpkg.root / "opt/spacr/data.txt").unlink()
-    (dpkg.root / "opt/spacr/stray.txt").write_text("left over\n")
+    (dpkg.root / "opt/spacr/stray.txt").write_text("left over\n", encoding="utf-8")
     verdict = driver.compare(driver.package_inventory(old), dpkg.root)
     assert not verdict["exact"]
     assert verdict["examples"] == {"missing": ["opt/spacr/data.txt"],

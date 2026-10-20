@@ -19,6 +19,8 @@ import os
 import pandas as pd
 import pytest
 
+from tests.refused_access import refused
+
 pytest.importorskip("PySide6")
 
 from spacr.qt.widgets.regression_results import (  # noqa: E402
@@ -33,7 +35,7 @@ def _run_folder(root, name, filenames=("results.csv",)):
     folder = root / name
     folder.mkdir(parents=True, exist_ok=True)
     for filename in filenames:
-        (folder / filename).write_text("gene,coefficient\na,1.0\n")
+        (folder / filename).write_text("gene,coefficient\na,1.0\n", encoding="utf-8")
     return folder
 
 
@@ -116,7 +118,7 @@ def test_the_walk_stops_once_the_candidate_limit_is_reached(tmp_path):
 def test_a_file_that_is_not_a_csv_is_not_a_results_table(tmp_path):
     """Handed a settings file, the tab must not try to read it as results."""
     other = tmp_path / "notes.txt"
-    other.write_text("hello")
+    other.write_text("hello", encoding="utf-8")
     assert find_results_tables(str(other)) == []
 
 
@@ -134,7 +136,7 @@ def test_the_summary_is_found_beside_the_table_the_walk_chose(tmp_path):
     from spacr.ml import SUMMARY_FILENAME
 
     folder = _run_folder(tmp_path, "run1")
-    (folder / SUMMARY_FILENAME).write_text(f"{SPACR_SUMMARY_HEADING}\nbody\n")
+    (folder / SUMMARY_FILENAME).write_text(f"{SPACR_SUMMARY_HEADING}\nbody\n", encoding="utf-8")
     assert find_summary_file(str(tmp_path)) == str(folder / SUMMARY_FILENAME)
 
 
@@ -146,7 +148,7 @@ def _write_summary(tmp_path, text):
     from spacr.ml import SUMMARY_FILENAME
 
     folder = _run_folder(tmp_path, "run1")
-    (folder / SUMMARY_FILENAME).write_text(text)
+    (folder / SUMMARY_FILENAME).write_text(text, encoding="utf-8")
     return folder
 
 
@@ -156,11 +158,8 @@ def test_a_summary_that_cannot_be_opened_reads_as_no_summary(tmp_path):
     from spacr.ml import SUMMARY_FILENAME
 
     path = folder / SUMMARY_FILENAME
-    os.chmod(path, 0o000)
-    try:
+    with refused(path, 0o000, windows="read"):
         assert _spacr_summary_text(str(folder)) == ""
-    finally:
-        os.chmod(path, 0o644)
 
 
 def test_a_file_written_before_spacr_had_its_own_summary_is_not_prepended(
@@ -493,7 +492,7 @@ def test_a_results_csv_that_pandas_cannot_parse_says_which_file(panel,
     """Naming the file is what turns a stack trace into something actionable."""
     folder = tmp_path / "run1"
     folder.mkdir()
-    (folder / "results.csv").write_text('a,b\n"unterminated,1\n2,3,4,5\n')
+    (folder / "results.csv").write_text('a,b\n"unterminated,1\n2,3,4,5\n', encoding="utf-8")
     assert panel.load(str(folder)) is False
     assert "Could not read" in panel._status
     assert "results.csv" in panel._status
@@ -549,7 +548,7 @@ def test_the_worker_reports_a_table_it_could_not_parse(tmp_path):
     """The GUI half only relays; the reading is all done out here."""
     folder = tmp_path / "run1"
     folder.mkdir()
-    (folder / "results.csv").write_text('a,b\n"unterminated,1\n2,3,4,5\n')
+    (folder / "results.csv").write_text('a,b\n"unterminated,1\n2,3,4,5\n', encoding="utf-8")
     outcome = RegressionResultsPanel._read_run(str(folder))
     assert outcome["error"].startswith("Could not read")
 

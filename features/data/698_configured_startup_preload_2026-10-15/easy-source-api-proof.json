@@ -1,9 +1,0 @@
-{
-  "source": "tools/web_mask_generator/service.py",
-  "source_sha256": "eeae54f58463373c1a2a494823866eb07723260846fec0dad2d9dc56d519fc32",
-  "only_existing_method_ast_changed": "ModelService.preload_default; registry import adds model_families only",
-  "no_adapter_cache_device_or_endpoint_changes": true,
-  "public_api_disposition": "Normal public_docstrings enumerates ROOT/spacr/*.py only; tools/web_mask_generator/service.py is outside the public API source root. No API review/artifact rows should be manufactured.",
-  "normal_api_tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
-  "normal_public_docstrings_source_sha256": "5c06bb58aa27fe69859f314f452372f08096e7b6810c339e9efdf60edc8718eb"
-}

@@ -107,7 +107,7 @@ class _Session:
         fields = tuple(sorted(str(item) for item in expected_fields))
         sidecar = next(iter(self.stack_by_field.values())).parent / \
             "channel_order.json"
-        assert json.loads(sidecar.read_text())["mask_channels"] == ["mask"]
+        assert json.loads(sidecar.read_text(encoding="utf-8"))["mask_channels"] == ["mask"]
         self.events.append(("finish", fields))
 
 
@@ -124,7 +124,7 @@ def _stack(tmp_path: Path):
     (merged / "channel_order.json").write_text(json.dumps({
         "image_channels": ["cell", "nucleus"],
         "mask_channels": [],
-    }))
+    }), encoding="utf-8")
     return PV.StackFile(
         field_id="A01_F001", path=path, shape=_raw().shape,
         channels=["cell", "nucleus"],
@@ -375,7 +375,7 @@ def test_run_v2_real_session_finishes_exact_fields_and_keeps_raw_intensity(
         assert np.array_equal(np.load(stack.path)[..., 0], original)
     record_path = plate / "illumination" / \
         "segmentation_application.json"
-    record = json.loads(record_path.read_text())
+    record = json.loads(record_path.read_text(encoding="utf-8"))
     assert record["application_state"] == "complete"
     assert record["completed_fields"] == sorted(
         stack.field_id for stack in stacks)

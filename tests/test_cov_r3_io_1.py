@@ -214,7 +214,7 @@ def test_a_folder_of_plates_is_named_as_the_likely_mistake(tmp_path, capsys,
     for plate in ("plate1", "plate2"):
         d = src / plate
         d.mkdir()
-        (d / "keep.txt").write_text("not an image")   # keep it non-empty
+        (d / "keep.txt").write_text("not an image", encoding="utf-8")   # keep it non-empty
 
     def _boom(*_a, **_k):
         raise RuntimeError("organiser found nothing to do")
@@ -326,7 +326,7 @@ def test_resume_refuses_an_unreadable_plane_layout_sidecar(tmp_path):
     _merge_src(root)
     merged = tmp_path / "merged"
     merged.mkdir()
-    (merged / MERGED_LAYOUT_SIDECAR).write_text("{not json at all")
+    (merged / MERGED_LAYOUT_SIDECAR).write_text("{not json at all", encoding="utf-8")
 
     with pytest.raises(ValueError) as excinfo:
         _load_and_concatenate_arrays(root, channels=[0, 1],
@@ -342,7 +342,7 @@ def test_resume_refuses_an_unreadable_plane_layout_sidecar(tmp_path):
     # The refusal came before any work: merged/ still holds only the sidecar,
     # still exactly as written.
     assert os.listdir(str(merged)) == [MERGED_LAYOUT_SIDECAR]
-    assert (merged / MERGED_LAYOUT_SIDECAR).read_text() == "{not json at all"
+    assert (merged / MERGED_LAYOUT_SIDECAR).read_text(encoding="utf-8") == "{not json at all"
 
 
 def test_a_failed_sidecar_write_leaves_no_half_written_temporary(tmp_path,

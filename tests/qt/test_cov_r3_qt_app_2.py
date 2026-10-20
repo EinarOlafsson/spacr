@@ -182,6 +182,7 @@ def test_on_macos_an_accepted_close_leaves_the_loop_without_asking_cocoa(win, mo
     call ``exit()`` and PySide crashed in its static destructors."""
     calls = []
     monkeypatch.setattr(app_mod.sys, "platform", "darwin")
+    monkeypatch.setattr(app_mod, "_an_event_loop_is_running", lambda: True)
     application = types.SimpleNamespace(
         quit=lambda: calls.append("quit"),
         closeAllWindows=lambda: calls.append("close all"),

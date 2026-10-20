@@ -193,7 +193,7 @@ def test_changed_retained_inputs_fail_closed_even_with_resealed_receipt(retained
         Path(read(r['render'])['output_log']['path']).write_bytes(b'changed')
     elif change == 'render_nonzero_footer':
         value = read(r['render'])
-        log = Path(value['output_log']['path']);log.write_text('Terminal exit status: 1\n')
+        log = Path(value['output_log']['path']);log.write_text('Terminal exit status: 1\n', encoding="utf-8")
         value['output_log'] = refresh.binding(log);write(r['render'], value);r['seal']()
     elif change == 'baseline_receipt':
         path = r['baseline'] / 'publication-receipt.json';value = read(path);value['readback']['passed'] = False
@@ -280,7 +280,7 @@ def test_finish_retained_path_keeps_frame_pts_decode_and_web_gates(retained, mon
     monkeypatch.setitem(sys.modules, 'prepare_web_media', SimpleNamespace(
         main=lambda: (r['root'] / 'poster.jpg').write_bytes(b'poster')))
     publisher = refresh.REPO / 'tools/tutorials/authoring/tools/publish_tutorials.py'
-    publisher.write_text('ENCODE_ARGS = []\n')
+    publisher.write_text('ENCODE_ARGS = []\n', encoding="utf-8")
     monkeypatch.setattr(finish, 'stage_one', lambda *args: {'accepted': True})
     if failure:
         with pytest.raises((ValueError, subprocess.CalledProcessError)):

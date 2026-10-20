@@ -113,7 +113,7 @@ def test_the_squeeze_is_reported_not_silent():
 def test_the_settings_panel_offers_beta(source):
     """Both option lists, or the user cannot choose it in the GUI."""
     import pathlib
-    text = pathlib.Path(source).read_text()
+    text = pathlib.Path(source).read_text(encoding="utf-8")
     line = next(l for l in text.splitlines()
                 if "'transform'" in l or '"transform"' in l)
     assert "beta" in line, line
@@ -181,6 +181,6 @@ def test_the_summary_reports_the_squeeze_where_the_transform_is_named():
     field would test the fixture, not the report.
     """
     import pathlib
-    text = pathlib.Path("spacr/regression_summary.py").read_text()
+    text = pathlib.Path("spacr/regression_summary.py").read_text(encoding="utf-8")
     assert "BETA_SQUEEZE_NOTE" in text, (
         "the summary names the transform but not what it did to the scale")

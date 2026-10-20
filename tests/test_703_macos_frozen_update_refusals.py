@@ -148,7 +148,7 @@ def test_an_image_that_is_not_one_read_only_mount_is_detached_and_refused(
     with pytest.raises(ValueError, match="actual read-only mount"):
         ic._run_macos_frozen_update(plan, run=native,
                                     download=lambda url, path: Path(path).write_bytes(IMAGE))
-    assert (target / "Contents" / "MacOS" / "spacr").read_text().endswith("1.5.1.0")
+    assert (target / "Contents" / "MacOS" / "spacr").read_text(encoding="utf-8").endswith("1.5.1.0")
 
 
 def test_an_image_changed_while_staged_and_a_failed_detach_are_both_reported(
@@ -186,7 +186,7 @@ def test_without_a_handoff_the_desktop_must_close_before_the_exchange(tmp_path, 
         ic._run_macos_frozen_update(plan, run=_payload_native(payload), wait=lambda pid: False,
                                     download=lambda url, path: Path(path).write_bytes(IMAGE),
                                     swap=_swap)
-    assert (target / "Contents" / "MacOS" / "spacr").read_text().endswith("1.5.1.0")
+    assert (target / "Contents" / "MacOS" / "spacr").read_text(encoding="utf-8").endswith("1.5.1.0")
 
 
 def test_a_relaunch_after_the_user_changed_is_refused_but_the_receipt_kept(monkeypatch):

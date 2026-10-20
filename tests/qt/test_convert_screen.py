@@ -261,7 +261,7 @@ def test_a_bad_source_path_is_reported_inline(screen, tmp_path):
 def test_a_source_folder_with_no_images_is_reported_inline(screen, tmp_path):
     root = tmp_path / "empty"
     root.mkdir()
-    (root / "readme.txt").write_text("no images here")
+    (root / "readme.txt").write_text("no images here", encoding="utf-8")
     screen.set_source(str(root))
     assert screen.preview() is True
     assert screen.preview_row_count() == 0

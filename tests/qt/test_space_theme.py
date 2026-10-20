@@ -305,7 +305,7 @@ class TestCache:
             self, tmp_path, monkeypatch):
         from spacr.qt import space
         blocker = tmp_path / "blocked"
-        blocker.write_text("I am a file, not a directory")
+        blocker.write_text("I am a file, not a directory", encoding="utf-8")
         monkeypatch.setenv(space.ENV_CACHE_DIR, str(blocker / "sub"))
         assert space.background_path(64, 64) is None
 
@@ -385,20 +385,20 @@ class TestOffline:
 
         # The credit survives a restart: it is on disk, not in memory.
         credits_file = space.imagery_dir() / space.CREDITS_FILE
-        assert json.loads(credits_file.read_text())["credit"] == record["credit"]
+        assert json.loads(credits_file.read_text(encoding="utf-8"))["credit"] == record["credit"]
 
     def test_credits_pointing_at_a_missing_file_are_ignored(self, cache_dir):
         from spacr.qt import space
         space.imagery_dir().mkdir(parents=True, exist_ok=True)
         (space.imagery_dir() / space.CREDITS_FILE).write_text(
-            json.dumps({"file": "gone.jpg", "credit": "NASA"}))
+            json.dumps({"file": "gone.jpg", "credit": "NASA"}), encoding="utf-8")
         assert space.read_credits() is None
         assert space.downloaded_background() is None
 
     def test_corrupt_credits_file_is_ignored(self, cache_dir):
         from spacr.qt import space
         space.imagery_dir().mkdir(parents=True, exist_ok=True)
-        (space.imagery_dir() / space.CREDITS_FILE).write_text("{not json")
+        (space.imagery_dir() / space.CREDITS_FILE).write_text("{not json", encoding="utf-8")
         assert space.read_credits() is None
 
     def test_nasa_entries_all_carry_a_credit(self):

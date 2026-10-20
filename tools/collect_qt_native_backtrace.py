@@ -404,12 +404,12 @@ def _ordinary_sessions(evidence: Path, workspace: Path, source_sha: str,
         lines.append("ordinary identity refused: checkout differs from dispatched SHA")
         return sessions
     digest = _sha256(executable)
-    boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+    boot = Path("/proc/sys/kernel/random/boot_id").read_text(encoding="utf-8").strip()
     for path in itertools.islice(evidence.glob("process-*.jsonl"), 2000):
         try:
             if path.is_symlink() or path.stat().st_size > 16384:
                 continue
-            records = [json.loads(row) for row in path.read_text().splitlines()]
+            records = [json.loads(row) for row in path.read_text(encoding="utf-8").splitlines()]
             if not records:
                 continue
             first = records[0]
@@ -489,7 +489,7 @@ def _ordinary_core(workspace: Path, evidence: Path, sessions: list[dict],
 
 def _record_core_route(workspace: Path, evidence: Path) -> None:
     """Record inherited core limits and the actual writable hosted capture route."""
-    pattern = Path("/proc/sys/kernel/core_pattern").read_text().strip()
+    pattern = Path("/proc/sys/kernel/core_pattern").read_text(encoding="utf-8").strip()
     soft, hard = resource.getrlimit(resource.RLIMIT_CORE)
     details = {"core_pattern": pattern, "core_limit_soft_bytes": soft,
                "core_limit_hard_bytes": hard, "core_limit_ceiling_bytes": MAX_CORE_BYTES}
@@ -512,7 +512,7 @@ def _record_core_route(workspace: Path, evidence: Path) -> None:
                        route_verified=writable and (soft == resource.RLIM_INFINITY or soft > 0))
     details["capture_guaranteed"] = False
     details["scope"] = "route preflight; core existence and ELF identity are checked after failure"
-    (evidence / "core-route.json").write_text(json.dumps(details, indent=2) + "\n")
+    (evidence / "core-route.json").write_text(json.dumps(details, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(details, sort_keys=True))
 
 

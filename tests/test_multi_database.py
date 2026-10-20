@@ -509,7 +509,7 @@ def test_a_merge_decision_is_written_down(tmp_path, colliding):
     log = tmp_path / "merge_decisions.jsonl"
     assert record_decision(decision, str(log)) == str(log)
 
-    written = [json.loads(line) for line in log.read_text().splitlines()]
+    written = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
     assert len(written) == 1
     record = written[0]
     assert record["outcome"] == "resolved"
@@ -521,18 +521,22 @@ def test_a_merge_decision_is_written_down(tmp_path, colliding):
     # Appended, not rewritten: two screens deciding at once must not lose one
     # of the two answers.
     record_decision(decision_for(plan, outcome="refused"), str(log))
-    assert len(log.read_text().splitlines()) == 2
+    assert len(log.read_text(encoding="utf-8").splitlines()) == 2
 
 
-def test_an_unwritable_decision_log_does_not_take_the_screen_down(colliding):
+def test_an_unwritable_decision_log_does_not_take_the_screen_down(colliding,
+                                                                  tmp_path):
     """An audit line is never worth failing a load for -- but the caller is
     told it was not kept, rather than being left to assume it was."""
     from spacr.multi_database import decision_for, record_decision
 
+    blocker = tmp_path / "a-file-not-a-folder"
+    blocker.write_text("", encoding="utf-8")
     plan = describe_merge(list(colliding), "cell")
     written = record_decision(decision_for(plan, outcome="refused"),
-                              "/proc/not/a/writable/place/merge.jsonl")
+                              str(blocker / "place" / "merge.jsonl"))
     assert written == ""
+    assert blocker.is_file()
 
 
 # --------------------------------------------------------------------------- #

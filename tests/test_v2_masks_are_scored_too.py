@@ -33,7 +33,7 @@ def _plate(tmp_path, fields=3, image_channels=("cell", "nucleus"),
         np.save(merged / f"stack_A01f{i + 1}.npy", stack)
     (merged / "channel_order.json").write_text(json.dumps({
         "image_channels": list(image_channels),
-        "mask_channels": list(mask_channels)}))
+        "mask_channels": list(mask_channels)}), encoding="utf-8")
     return merged
 
 
@@ -145,7 +145,7 @@ def test_an_undescribable_stack_is_flagged_rather_than_skipped(tmp_path):
     _plate(tmp_path, fields=1)
     merged = tmp_path / "merged"
     (merged / "channel_order.json").write_text(json.dumps({
-        "image_channels": ["a", "b", "c", "d"], "mask_channels": ["cell"]}))
+        "image_channels": ["a", "b", "c", "d"], "mask_channels": ["cell"]}), encoding="utf-8")
     result = _score_v2_masks(tmp_path, {"seg_qc": "report", "verbose": False})
     assert result is not None
     assert ["unreadable_mask"] == list(result["field_qcs"][0].flags)

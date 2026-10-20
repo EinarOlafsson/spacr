@@ -416,7 +416,7 @@ def test_string_src_is_listified_into_one_db_location(tmp_path, monkeypatch):
 
     assert settings["src"] == [str(tmp_path)]
     assert rec["locs"] == [os.path.join(str(tmp_path),
-                                        "measurements/measurements.db")]
+                                        "measurements", "measurements.db")]
     # verbose / limit settings are forwarded verbatim.
     assert rec["verbose"] is True
     assert rec["nuclei_limit"] == 7
@@ -456,8 +456,8 @@ def test_multi_src_list_produces_one_location_per_source(tmp_path, monkeypatch):
     analyze_class_proportion(_settings([src_a, src_b], save=True))
 
     assert rec["locs"] == [
-        os.path.join(str(src_a), "measurements/measurements.db"),
-        os.path.join(str(src_b), "measurements/measurements.db"),
+        os.path.join(str(src_a), "measurements", "measurements.db"),
+        os.path.join(str(src_b), "measurements", "measurements.db"),
     ]
     assert (src_a / "results" / "analyze_class_proportion"
             / "class_chi_squared_results.csv").is_file()

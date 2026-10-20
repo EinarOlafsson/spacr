@@ -172,7 +172,7 @@ def test_saved_mesh_and_editor_controls_restore_without_changing_the_boundary(sc
     screen.apply_settings(replace(screen._settings, anchor_density=4, show_anchors=False))
     path = tmp_path / 'strategy.json'
     screen.save_gates(str(path))
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     assert payload['editor_controls'] == {'anchor_density': 4, 'show_anchors': False}
     screen.gates.set_gates(GateSet())
     screen.apply_settings(GateEditorSettings())
@@ -184,7 +184,7 @@ def test_saved_mesh_and_editor_controls_restore_without_changing_the_boundary(sc
     assert not screen._settings_dialog._show_anchors.isChecked()
     assert np.array_equal(mesh.mask(screen._frame), screen.gates.gates.mask(screen._frame, 'box'))
     payload['editor_controls']['anchor_density'] = 0
-    path.write_text(json.dumps(payload))
+    path.write_text(json.dumps(payload), encoding="utf-8")
     assert not screen.load_gates(str(path))
     assert screen.gates.gates.get('box') == mesh
 
@@ -374,7 +374,7 @@ def test_invalid_saved_controls_cannot_replace_the_live_strategy(screen, tmp_pat
     path = tmp_path / 'invalid.json'
     data = GateSet([_box().rename('other')]).to_dict()
     data['editor_controls'] = controls
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     assert not screen.load_gates(str(path))
     assert screen.gates.gates.get('box') == _box()
     assert canvas.active_gate == 'box'

@@ -142,7 +142,7 @@ def test_setup_version_matches_expected():
     versioning (``1.4.1.1``) for polish batches — see the
     ``spacr-versioning`` memory rule. Both are valid here.
     """
-    setup_src = (PKG_ROOT.parent / "setup.py").read_text()
+    setup_src = (PKG_ROOT.parent / "setup.py").read_text(encoding="utf-8")
     for line in setup_src.splitlines():
         if line.strip().startswith("VERSION"):
             _, _, val = line.partition("=")

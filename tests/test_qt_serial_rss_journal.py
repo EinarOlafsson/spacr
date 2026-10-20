@@ -342,7 +342,7 @@ def test_ordinary_mode_records_unique_identity_without_rss_qt_or_fault_hooks(tmp
     assert len(journals) == (3 if workers else 1)
     pids = set()
     for path in journals:
-        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
         assert [row['event'] for row in rows] == (
             ['session_start'] if hard_exit else ['session_start', 'session_finish'])
         first = rows[0]

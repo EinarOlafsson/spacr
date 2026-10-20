@@ -88,7 +88,7 @@ def test_the_windows_hint_keeps_the_vendor_installer_and_registers_user_path():
 
 
 def test_native_verifier_pins_the_same_reviewed_path_registration():
-    script = (PROVIDERS_PY.parents[3] / "packaging/verify_claude_native_install.ps1").read_text()
+    script = (PROVIDERS_PY.parents[3] / "packaging/verify_claude_native_install.ps1").read_text(encoding="utf-8")
     setup = script.split("$PathSetup = @'\n", 1)[1].split("\n'@", 1)[0]
     assert setup == live_providers._CLAUDE_WINDOWS_PATH_SETUP
     assert "this verifier never repairs PATH" in script

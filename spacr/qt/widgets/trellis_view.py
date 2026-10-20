@@ -213,7 +213,10 @@ class TrellisCanvas(GraphCanvas):
             self._label_trellis_panel(ax, panel, result, palette)
 
         self._draw_legend(kind, palette)
-        self._figure.tight_layout(pad=0.7)
+        try:
+            self._figure.tight_layout(pad=0.7)
+        except (ValueError, np.linalg.LinAlgError):
+            pass
         self._canvas.draw_idle()
         self._notice.setText(self._trellis_notice(result))
         self.rendered.emit(result.data)

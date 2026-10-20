@@ -29,7 +29,6 @@ from tests.test_install_cleanup import (
     _nothing_here_reaches_this_computer as _nothing_here_reaches_this_computer,
 )
 
-pytestmark = pytest.mark.skipif(os.name == "nt", reason="POSIX launch folders")
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.realpath(spacr.__file__)))
 
@@ -130,6 +129,7 @@ def test_a_pip_launch_must_be_owned_by_exactly_the_updated_distribution(tmp_path
         assert _result(handshake)["state"] == "error"
 
 
+@pytest.mark.posix_only
 def test_a_launch_folder_must_stay_the_folder_that_was_checked(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="invalid update launch binding"):
         ic._UpdateLaunchHandshake(str(tmp_path), "E" * 64)
@@ -168,7 +168,7 @@ def test_a_helper_inside_the_doomed_copy_runs_the_bootstrap_uv_from_a_safe_copy(
         str(work / "plan.json"), machine)
     assert error is None
     copy = work / "uv"
-    assert copy.read_text() == uv.read_text()
+    assert copy.read_text(encoding="utf-8") == uv.read_text(encoding="utf-8")
     assert argv[:9] == [str(copy), "run", "--no-project", "--no-config", "--python",
                         "3.12", "--managed-python", "--", "python"]
     assert argv[9:] == ["-I", str(work / "install_cleanup.py"), "run-plan",
@@ -193,7 +193,7 @@ def test_on_a_real_computer_a_uv_on_path_outside_the_copy_is_used(tmp_path, monk
     root = tmp_path / "spacr"
     outside = tmp_path / "tools" / "uv"
     outside.parent.mkdir()
-    outside.write_text("uv")
+    outside.write_text("uv", encoding="utf-8")
     inside = root / "bin" / "uv"
     machine = ic._Machine(platform="linux", executable=str(root / "venv" / "bin" / "python"),
                           running_prefix=str(root / "venv"), which=lambda name: str(outside))

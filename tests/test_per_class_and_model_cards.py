@@ -324,7 +324,7 @@ def test_write_and_read_model_card_round_trip(tmp_path):
     assert D.read_model_card(str(weights))["classes"] == ["a", "b"]
     assert D.read_model_card(str(tmp_path / "absent.pth")) is None
 
-    markdown = (tmp_path / "m.card.md").read_text()
+    markdown = (tmp_path / "m.card.md").read_text(encoding="utf-8")
     assert "# Model card" in markdown
     assert "Confusion matrix" in markdown
     assert "grouped by well" in markdown

@@ -1,1 +1,0 @@
-Read-only original-contract reconciliation of the canonical85-row tracker against the pinned Claude handoff and item notes. No implementation, tests, remote checks, owner item edits or tracker edits occurred. A built/publication notice is distinguished from the original explicit acceptance clauses; the receipt identifies evidence to reuse or reconcile, without adding gates.

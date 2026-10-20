@@ -138,7 +138,7 @@ def test_download_error_keeps_completed_files_and_names_the_failed_field(sample)
 def test_default_foreground_readers_handle_bad_csv_counts_and_empty_yolo_files(sample, tmp_path):
     manifest = tmp_path / 'fields.csv'
     manifest.write_text('stem,name,n_objects\na.tif,,2\n,b.png,1\nempty,,0\n'
-                        'invalid,,not-a-number\nmissing,,\n,,3\n')
+                        'invalid,,not-a-number\nmissing,,\n,,3\n', encoding="utf-8")
     sample.remote['fields.csv'] = manifest
     assert md.foreground_stems(replace(sample.dataset, counts='fields.csv')) == {'a', 'b'}
     calls = []

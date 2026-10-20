@@ -21,7 +21,7 @@ def checker():
 def _data(folder):
     """Create the bundled-settings contract and an unchanged source marker."""
     (folder / 'settings').mkdir(parents=True)
-    (folder / 'settings/gen_mask_settings.csv').write_text('Key,Value\ncell_model_name,cpsam\n')
+    (folder / 'settings/gen_mask_settings.csv').write_text('Key,Value\ncell_model_name,cpsam\n', encoding="utf-8")
     (folder / 'input.tif').write_bytes(b'original acquisition marker')
     return folder
 
@@ -116,7 +116,7 @@ def test_cleaned_intermediates_require_valid_embedded_labels(
         elif fault in ('fractional', 'negative', 'nonfinite'):
             array[0, 0, 3] = {'fractional': 0.5, 'negative': -1, 'nonfinite': np.nan}[fault]
         if fault != 'missing_layout':
-            (merged / '.spacr_plane_layout.json').write_text(json.dumps(layout))
+            (merged / '.spacr_plane_layout.json').write_text(json.dumps(layout), encoding="utf-8")
         if fault in ('none', 'zero_labels'):
             array = array.astype(np.uint16)
         np.save(merged / 'field.npy', array)

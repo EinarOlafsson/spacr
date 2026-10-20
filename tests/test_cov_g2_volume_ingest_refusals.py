@@ -65,11 +65,11 @@ def _ingested(tmp_path):
 
 def test_a_damaged_receipt_is_refused_on_reuse(tmp_path):
     receipt = _ingested(tmp_path)
-    data = json.loads(receipt.read_text())
-    receipt.write_text(json.dumps(dict(data, version=2)))
+    data = json.loads(receipt.read_text(encoding="utf-8"))
+    receipt.write_text(json.dumps(dict(data, version=2)), encoding="utf-8")
     with pytest.raises(ValueError, match="unsupported format"):
         io._preprocess_volume_tiffs(_settings(tmp_path))
-    receipt.write_text(json.dumps(dict(data, stacks={})))
+    receipt.write_text(json.dumps(dict(data, stacks={})), encoding="utf-8")
     with pytest.raises(ValueError, match="receipt is incomplete"):
         io._preprocess_volume_tiffs(_settings(tmp_path))
 
@@ -104,7 +104,7 @@ def test_a_volume_that_changes_while_hashed_is_refused(tmp_path, monkeypatch):
 
 def test_an_oversized_receipt_is_refused(tmp_path):
     receipt = _ingested(tmp_path)
-    receipt.write_text(" " * (16 * 1024 * 1024 + 2))
+    receipt.write_text(" " * (16 * 1024 * 1024 + 2), encoding="utf-8")
     with pytest.raises(ValueError, match="exceeds 16 MiB"):
         io._preprocess_volume_tiffs(_settings(tmp_path))
 

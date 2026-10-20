@@ -87,7 +87,7 @@ def test_rows_to_mappings_and_write_csv(tmp_path):
     mappings = rows_to_mappings(rows)
     assert len(mappings) == 4
     csv_path = save_filename_map(tmp_path / "filename_map.csv", mappings)
-    text = Path(csv_path).read_text()
+    text = Path(csv_path).read_text(encoding="utf-8")
     assert "original_path" in text and "canonical" in text
     assert text.count("\n") == 5  # header + 4 rows
 
@@ -133,4 +133,4 @@ def test_metadata_panel_write_filename_map(qtbot, tmp_path):
     qtbot.addWidget(panel)
     out = panel.write_filename_map(tmp_path / "filename_map.csv")
     assert Path(out).is_file()
-    assert "canonical" in Path(out).read_text()
+    assert "canonical" in Path(out).read_text(encoding="utf-8")

@@ -68,7 +68,7 @@ def test_only_a_model_manifest_can_be_cellpose_sam():
 def test_a_corrupt_collection_cache_offline_is_no_collection(home):
     cache = mz._bioimageio_cache("bioimageio_children.json")
     cache.parent.mkdir(parents=True)
-    cache.write_text("{not json")
+    cache.write_text("{not json", encoding="utf-8")
     assert mz._bioimageio_payload(1.0, None, allow_network=False) == \
         (None, False)
     assert mz.bioimageio_entries(allow_network=False) == []
@@ -77,7 +77,7 @@ def test_a_corrupt_collection_cache_offline_is_no_collection(home):
 def test_a_sizes_cache_that_is_not_a_mapping_is_no_sizes(home):
     cache = mz._bioimageio_cache("bioimageio_weight_sizes.json")
     cache.parent.mkdir(parents=True)
-    cache.write_text(json.dumps([1, 2, 3]))
+    cache.write_text(json.dumps([1, 2, 3]), encoding="utf-8")
     assert mz._bioimageio_sizes() == {}
 
 
@@ -115,7 +115,7 @@ def test_a_weights_file_is_sized_by_what_the_server_says(
 
 
 def test_sizes_that_cannot_be_cached_are_still_returned(home, monkeypatch):
-    (home / ".spacr").write_text("a file where the cache folder goes")
+    (home / ".spacr").write_text("a file where the cache folder goes", encoding="utf-8")
     monkeypatch.setattr(mz, "_weights_size", lambda uri, timeout: 4321)
     sizes = mz._measure_bioimageio_weights(["https://x/w.pth"], {}, 1.0)
     assert sizes == {"https://x/w.pth": 4321}
@@ -139,7 +139,7 @@ def test_no_weights_source_is_no_address():
 def test_a_corrupt_community_cache_offline_lists_nothing(home):
     cache = home / ".spacr" / "community_models.json"
     cache.parent.mkdir(parents=True)
-    cache.write_text("{not json")
+    cache.write_text("{not json", encoding="utf-8")
     assert mz.community_entries(allow_network=False) == []
 
 
@@ -162,7 +162,7 @@ def test_community_folders_without_a_checkpoint_are_left_out(home,
     assert [row.name for row in rows] == ["model.pth"]
     assert rows[0].trained_by == "a spaCR user", "no submission record read"
     cached = json.loads((home / ".spacr" / "community_models.json")
-                        .read_text())
+                        .read_text(encoding="utf-8"))
     assert [r["folder"] for r in cached] == ["good"]
 
 

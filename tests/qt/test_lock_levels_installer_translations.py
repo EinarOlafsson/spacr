@@ -21,7 +21,7 @@ def locale(request, monkeypatch):
                      "2026-09-22-shared-ruler.json",
                      "2026-09-24-release-captions.json"):
         payload = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
-                              filename).read_text())
+                              filename).read_text(encoding="utf-8"))
         targets.update({row["source"]: row["translation"] for row in payload["records"]})
     return language, targets
 

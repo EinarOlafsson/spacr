@@ -56,7 +56,7 @@ def test_the_state_carries_the_module_and_its_settings():
 def test_the_state_is_verified_by_reading_it_back_not_by_the_write_returning():
     """"the write returned" and "the file parses" are different claims."""
     written = restart_state.save(module="mask", settings={"src": "/data"})
-    assert json.loads(written.read_text())["module"] == "mask"
+    assert json.loads(written.read_text(encoding="utf-8"))["module"] == "mask"
 
 
 def test_a_state_that_cannot_be_written_is_None_and_never_an_exception(

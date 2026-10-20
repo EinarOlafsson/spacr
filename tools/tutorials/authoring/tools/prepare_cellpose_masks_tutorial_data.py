@@ -65,7 +65,7 @@ def main() -> int:
     }
     (DESTINATION / "tutorial_settings.json").write_text(
         json.dumps(settings, indent=2) + "\n"
-    )
+    , encoding="utf-8")
     (DESTINATION / "source_manifest.json").write_text(
         json.dumps(
             {
@@ -77,7 +77,7 @@ def main() -> int:
             indent=2,
         )
         + "\n"
-    )
+    , encoding="utf-8")
     print(f"Prepared {len(source_images)} Cellpose fields in {DESTINATION}")
     print(f"Custom checkpoint: {CHECKPOINT}")
     return 0

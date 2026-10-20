@@ -575,7 +575,7 @@ def test_an_unreadable_source_is_skipped_counted_named_and_stamped(tmp_path):
 def test_a_folder_with_no_images_plans_empty_without_raising(tmp_path):
     root = tmp_path / "src"
     root.mkdir()
-    (root / "notes.txt").write_text("nothing to see")
+    (root / "notes.txt").write_text("nothing to see", encoding="utf-8")
     plan = cv.plan(cv.scan(str(root)))
     assert plan.ok
     assert len(plan) == 0
@@ -1353,7 +1353,7 @@ def test_a_plan_whose_sources_went_missing_is_a_setup_error(run1, tmp_path):
 def test_read_map_reports_an_unreadable_csv_as_a_configuration_error(
         tmp_path, monkeypatch):
     path = tmp_path / "map.csv"
-    path.write_text("target,source\na,b\n")
+    path.write_text("target,source\na,b\n", encoding="utf-8")
 
     def _boom(*_a, **_k):
         raise MemoryError("the file is 40 GB")

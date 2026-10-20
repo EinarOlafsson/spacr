@@ -1,7 +1,0 @@
-{
-  "README.txt": "4a484e382bf1e9bcc95979af3d3a0985c5118109a7a805933a1d0f246724114f",
-  "proposal.json": "557ef4febf6ecd3e262e346be1093b2d9285eed6eb3cc93db5962ecec0f7e6c2",
-  "test_700_remaining_client_paths.py.preimage": "ed37dfa47492acc7cd7cdc6c1b6e91df09535c401d8e1e20c736adc38aee43b7",
-  "test_700_remaining_client_paths.py.proposed": "4c1c5e7ad8fd679412ac18a52c0c8d79a07a93c49e536b1f15af65bc07504d5e",
-  "three-outcome-assertions.patch": "a6ec456249d4c7930119ddf08cbc761d9777d3b661e292763897c769d6b555d7"
-}

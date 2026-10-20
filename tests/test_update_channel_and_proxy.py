@@ -80,7 +80,7 @@ def test_the_bundled_notes_are_readable():
 
 def test_environment_proxy_and_ca_reach_every_downloader(tmp_path, monkeypatch):
     bundle = tmp_path / "corp.pem"
-    bundle.write_text("x")
+    bundle.write_text("x", encoding="utf-8")
     monkeypatch.setenv("HTTPS_PROXY", "http://proxy.example.org:3128")
     monkeypatch.setenv("REQUESTS_CA_BUNDLE", str(bundle))
     network = updater._apply_network_settings()
@@ -101,10 +101,10 @@ def test_environment_proxy_and_ca_reach_every_downloader(tmp_path, monkeypatch):
 
 def test_saved_choice_wins_and_clearing_it_restores_the_environment(tmp_path, monkeypatch):
     bundle = tmp_path / "corp.pem"
-    bundle.write_text("x")
+    bundle.write_text("x", encoding="utf-8")
     monkeypatch.setenv("HTTPS_PROXY", "http://env:1")
     updater._write_network_config("http://saved:2", str(bundle))
-    assert json.loads((tmp_path / "network.json").read_text())["proxy"] == "http://saved:2"
+    assert json.loads((tmp_path / "network.json").read_text(encoding="utf-8"))["proxy"] == "http://saved:2"
     assert os.environ["HTTPS_PROXY"] == "http://saved:2"
     assert os.environ["PIP_CERT"] == str(bundle)
     updater._write_network_config("", "")

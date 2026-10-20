@@ -22,6 +22,8 @@ Two groups, deliberately:
 """
 from __future__ import annotations
 
+import os
+
 import sys
 import types
 
@@ -85,7 +87,7 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
     # destroying real configuration again: if the store ever resolves outside
     # the temp directory, fail the test rather than write to it.
     resolved = store.fileName()
-    assert str(tmp_path) in resolved, (
+    assert str(tmp_path) in os.path.normpath(resolved), (
         f"QSettings isolation failed: {resolved} is outside {tmp_path}. "
         "Refusing to run — this fixture would otherwise write to the "
         "developer's real preferences.")

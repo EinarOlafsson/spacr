@@ -1,7 +1,0 @@
-{
-  "preflight_target": "00741a8491e2c9f78126d67b33142d038e133f61",
-  "scope": "Independent byte/size validation of held integration source bindings; no source/test edits or execution.",
-  "checked_bindings": 54,
-  "failed_bindings": [],
-  "passed": true
-}

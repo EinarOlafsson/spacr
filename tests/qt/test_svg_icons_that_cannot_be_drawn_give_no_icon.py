@@ -25,7 +25,7 @@ def cache(tmp_path, monkeypatch):
 
 def test_an_svg_qt_cannot_parse_decodes_to_nothing(tmp_path):
     path = tmp_path / "broken.svg"
-    path.write_text("this is not <svg at all")
+    path.write_text("this is not <svg at all", encoding="utf-8")
     assert iconset._load_rgba(str(path)) is None
 
 
@@ -34,7 +34,7 @@ def test_an_svg_with_no_size_is_drawn_at_the_working_size(tmp_path):
     sizeless SVG is rendered there rather than refused."""
     path = tmp_path / "empty.svg"
     path.write_text('<svg xmlns="http://www.w3.org/2000/svg" '
-                    'width="0.1" height="0.1"></svg>')
+                    'width="0.1" height="0.1"></svg>', encoding="utf-8")
     rgba = iconset._load_rgba(str(path))
     assert rgba is not None
     assert rgba.shape[:2] == (iconset.MAX_WORK_SIZE, iconset.MAX_WORK_SIZE)
@@ -44,7 +44,7 @@ def test_a_drawable_svg_decodes_to_rgba(tmp_path):
     path = tmp_path / "dot.svg"
     path.write_text('<svg xmlns="http://www.w3.org/2000/svg" width="16" '
                     'height="16"><circle cx="8" cy="8" r="6" fill="black"/>'
-                    '</svg>')
+                    '</svg>', encoding="utf-8")
     rgba = iconset._load_rgba(str(path))
     assert rgba is not None and rgba.shape[2] == 4
     assert rgba[..., 3].max() > 0

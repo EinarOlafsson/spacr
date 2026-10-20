@@ -1,9 +1,0 @@
-{
-  "actual_result": "17ownerPASS1optionalGradio module skip1.30s;0actual27locale callbacks executed",
-  "cause": "Base spacr environment has no optional Gradio; earlier real162 owning source receipt used existing private n698-web-runtime-20261014 environment",
-  "repair": "Use that same existing private runtime for callback owning tests, no package installs or source/assertion changes; enforce actual27/no-skips XML before audit",
-  "cancellation": "Wrapper unit stop terminated its shell/flock wrapper, but run_capped creates a separate systemd scope. Actual audit child941883 survived under user manager2134, finished and wrote intermediate-unjoined-audit-receipt.json. Internal normal full9audit returned0; normal refresh9833baseline1071added150retired29changed. Wrapper process exit unavailable (do not claim command exit0). The earlier aborted-only assumption is superseded by this direct process/receipt evidence.",
-  "aborted_audit_log_bytes": 0,
-  "log_retention": "New closure shell redirection truncated prior live audit stdout before detection; no reconstructed raw log asserted. Actual first JSON receipt preserved. End-to-end final closure already entered second audit, retained to obtain proper raw log/terminal exit rather than repeat cancellations.",
-  "actual_corrected_callbacks": "Existing private Gradio runtime44PASS7.26s; all27newlocalizedgraph/ZIP cases actually execute, plus17ownerextractor cases; no skips."
-}

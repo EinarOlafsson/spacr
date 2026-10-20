@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="4.406" timestamp="2026-10-15T14:40:55.631399-04:00" hostname="olafsson"><testcase classname="tests.qt.test_toggle_painter_finalization" name="test_painter_is_ended_even_when_a_paint_stage_raises[focus_rect]" time="3.365"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tests/qt/test_toggle_painter_finalization.py:64: in test_painter_is_ended_even_when_a_paint_stage_raises
-    with pytest.raises(RuntimeError, match="paint stage: " + fault):
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;</failure></testcase></testsuite></testsuites>

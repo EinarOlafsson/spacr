@@ -22,14 +22,14 @@ ACCEPTED_SERIAL_STEPS_SHA256 = 'b92bd79417c8328eca3233c1d51c522bec9e9aa87b9a2242
 def _workflow():
     """Read the dispatch definition without YAML 1.1 coercing the `on` key."""
     yaml = pytest.importorskip('yaml')
-    return yaml.load((REPO / '.github/workflows/qt-native-replay.yml').read_text(),
+    return yaml.load((REPO / '.github/workflows/qt-native-replay.yml').read_text(encoding="utf-8"),
                      Loader=yaml.BaseLoader)
 
 
 def _serial_workflow():
     """Read the registered serial workflow using the same YAML key policy."""
     yaml = pytest.importorskip('yaml')
-    return yaml.load((REPO / '.github/workflows/qt-serial-acceptance.yml').read_text(),
+    return yaml.load((REPO / '.github/workflows/qt-serial-acceptance.yml').read_text(encoding="utf-8"),
                      Loader=yaml.BaseLoader)
 
 
@@ -160,7 +160,7 @@ def test_pixel_context_requires_opt_in_and_never_runs_the_historical_replay():
     assert source['ref'] == 'ff1b2a487d378cfa804c3c1923fb834e0cc17dc2'
     assert source['persist-credentials'] == 'false'
     assert source['path'] == 'source'
-    context = json.loads((REPO / 'tools/qt_pixel_context_a744.json').read_text())
+    context = json.loads((REPO / 'tools/qt_pixel_context_a744.json').read_text(encoding="utf-8"))
     assert context['source_sha'] == source['ref']
     assert len(context['nodes']) == len(set(context['nodes'])) == 104
     assert list(dict.fromkeys(node.split('::', 1)[0] for node in context['nodes'])) == context['modules']
@@ -168,7 +168,7 @@ def test_pixel_context_requires_opt_in_and_never_runs_the_historical_replay():
     command = steps['One original 104-node worker context; capture only after failure']['run']
     assert 'qt_pixel_context_diagnostic.py" run' in command
     assert 'for attempt' not in command and 'continue-on-error' not in steps['One original 104-node worker context; capture only after failure']
-    driver = (REPO / 'tools/qt_pixel_context_diagnostic.py').read_text()
+    driver = (REPO / 'tools/qt_pixel_context_diagnostic.py').read_text(encoding="utf-8")
     assert '"actual_original_pytest_exit": original.returncode' in driver
     assert '"full_ci_acceptance": False' in driver
     assert '"retries": 0' in driver
@@ -201,6 +201,7 @@ def test_native_replay_retains_failure_and_bounded_core_capture():
         '${{ runner.temp }}/spacr-coverage-data/')
 
 
+@pytest.mark.posix_only
 def test_two_attempt_shell_stops_on_either_failure_and_separates_data(tmp_path):
     """A failed first or second replay keeps its failure and original receipt."""
     job = _workflow()['jobs']['replay']
@@ -236,10 +237,10 @@ python() {
                                 env={**os.environ, **environment},
                                 capture_output=True, text=True, timeout=10)
         assert result.returncode == expected_status, result.stderr
-        calls = (tmp_path / 'calls.txt').read_text().splitlines()
+        calls = (tmp_path / 'calls.txt').read_text(encoding="utf-8").splitlines()
         assert calls == [str(tmp_path / 'coverage' / f'attempt-{number}')
                          for number in range(1, expected_calls + 1)]
-        events = (receipt / 'attempts.txt').read_text().splitlines()
+        events = (receipt / 'attempts.txt').read_text(encoding="utf-8").splitlines()
         assert events[0] == f'attempt=1 status=started source={REPLAY_SOURCE}'
         assert events.count(f'attempt=1 status=success source={REPLAY_SOURCE}') == (
             0 if failing == 'attempt-1' else 1)
@@ -281,7 +282,7 @@ def test_safe_start_diagnostic_preserves_default_and_pixel_modes():
     assert source['ref'] == '83edc25dfda63e45191aa6b4b2833ddbb4b850ab'
     assert source['persist-credentials'] == 'false'
     assert source['path'] == 'source'
-    context = json.loads((REPO / 'tools/safe_start_83ed_context.json').read_text())
+    context = json.loads((REPO / 'tools/safe_start_83ed_context.json').read_text(encoding="utf-8"))
     assert context['source_sha'] == source['ref']
     assert context['original_expected_case_count'] == 580
     assert len(context['batch5_files']) == len(set(context['batch5_files'])) == 32
@@ -291,7 +292,7 @@ def test_safe_start_diagnostic_preserves_default_and_pixel_modes():
     assert 'safe_start_context_diagnostic.py" run' in command
     assert 'for attempt' not in command
     assert 'continue-on-error' not in steps['One original covered32-file context with child evidence']
-    driver = (REPO / 'tools/safe_start_context_diagnostic.py').read_text()
+    driver = (REPO / 'tools/safe_start_context_diagnostic.py').read_text(encoding="utf-8")
     ast.parse(driver)
     assert "'original_pytest_exit':original_exit" in driver
     assert "'full_ci_acceptance':False" in driver
@@ -311,6 +312,7 @@ def _sidecar(name):
     return module
 
 
+@pytest.mark.posix_only
 def test_safe_start_job_defers_runner_paths_until_runtime(tmp_path):
     """Job env cannot evaluate runner context; steps publish its actual paths."""
     job = _workflow()['jobs']['safe-start']
@@ -331,7 +333,7 @@ def test_safe_start_job_defers_runner_paths_until_runtime(tmp_path):
                                  'GITHUB_ENV': str(environment_file)},
                             capture_output=True, text=True, timeout=5)
     assert result.returncode == 0, result.stderr
-    assert environment_file.read_text().splitlines() == [
+    assert environment_file.read_text(encoding="utf-8").splitlines() == [
         f'NUMBA_CACHE_DIR={runtime_temp}/spacr-safe-start-numba',
         f'SPACR_QT_NATIVE_EVIDENCE_DIR={runtime_temp}/spacr-safe-start-native']
 
@@ -343,7 +345,7 @@ def test_child_capture_failure_preserves_original_call_and_outcome(
     """Broken evidence storage cannot replace the original result/exception."""
     sidecar = _sidecar('safe_child_evidence')
     launcher = tmp_path / 'launch_once.py'
-    launcher.write_text('original launcher')
+    launcher.write_text('original launcher', encoding="utf-8")
     monkeypatch.setenv('SPACR_SAFE_ORIGINAL_LAUNCHER_SHA',
                        hashlib.sha256(launcher.read_bytes()).hexdigest())
     monkeypatch.setenv('SPACR_SAFE_DIAGNOSTIC_DIR', str(tmp_path / 'evidence'))
@@ -392,6 +394,7 @@ def test_child_capture_failure_preserves_original_call_and_outcome(
     assert sidecar._errors
 
 
+@pytest.mark.posix_only
 def test_child_phase_write_failure_cannot_escape_the_profile_callback(
         tmp_path, monkeypatch):
     """A failing phase journal marks integrity without interrupting app code."""

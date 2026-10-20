@@ -109,7 +109,7 @@ def test_auto_range_axes_is_the_way_out_of_a_typed_limit(volcano, qtbot):
 def test_both_reset_actions_go_through_auto_range_axes():
     """Pinned on the source: a bare `plot.autoRange` re-introduces the bug."""
     import pathlib
-    text = pathlib.Path("spacr/qt/widgets/fast_plots.py").read_text()
+    text = pathlib.Path("spacr/qt/widgets/fast_plots.py").read_text(encoding="utf-8")
     assert "self.plot.autoRange)" not in text, (
         "a Reset view action still calls plot.autoRange directly")
     assert "lambda: self.plot.autoRange()" not in text

@@ -891,7 +891,7 @@ class TestDragAndDrop:
                                                           tmp_path):
         p = _panel(qtbot)
         doc = tmp_path / "notes.txt"
-        doc.write_text("x")
+        doc.write_text("x", encoding="utf-8")
         for handler in (p.dragEnterEvent, p.dragMoveEvent, p.dropEvent):
             ev = _Evt(_mime_for(doc))
             handler(ev)
@@ -916,7 +916,7 @@ class TestDragAndDrop:
                                                            tmp_path, gray_tif):
         p = _panel(qtbot)
         doc = tmp_path / "readme.md"
-        doc.write_text("x")
+        doc.write_text("x", encoding="utf-8")
         assert p._dropped_image_path(_Evt(_mime_for(doc, gray_tif))) == \
             str(gray_tif)
 

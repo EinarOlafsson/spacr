@@ -26,7 +26,7 @@ def test_two_runs_become_one_valid_study_with_two_screens(two_screens, tmp_path)
     pkg = rep._write_archive_study([first, second], tmp_path / "out",
                                    _form(first))
     assert rep._validate_archive_study(pkg) == []
-    study = next((pkg / "idr").glob("*-study.txt")).read_text()
+    study = next((pkg / "idr").glob("*-study.txt")).read_text(encoding="utf-8")
     assert "Study Screens Number\t2" in study
     assert study.count("Comment[IDR Screen Name]") == 2
     assert "/screenB" in study
@@ -91,7 +91,7 @@ def test_the_study_has_one_pagetab_over_every_screen(two_screens, tmp_path):
     pkg = rep._write_archive_study([first, second], tmp_path / "out",
                                    _form(first))
     pagetab = next((pkg / "biostudies").glob("*.pagetab.tsv"))
-    text = pagetab.read_text()
+    text = pagetab.read_text(encoding="utf-8")
     assert text.startswith("Submission")
     assert [b.split("\n")[0] for b in text.split("\n\n")].count("Study") == 1
     assert "Screen\tscreenA" in text and "Screen\tscreenB" in text
@@ -100,9 +100,9 @@ def test_the_study_has_one_pagetab_over_every_screen(two_screens, tmp_path):
     assert set(files["Screen"]) == {"screenA", "screenB"}
     assert all(f.startswith(s + "/") for f, s in zip(files["Files"],
                                                       files["Screen"]))
-    assert "biostudies/file_list.tsv" in (pkg / "checksums.md5").read_text()
+    assert "biostudies/file_list.tsv" in (pkg / "checksums.md5").read_text(encoding="utf-8")
 
-    pagetab.write_text(text.replace("Screen\tscreenB", "Screen\tscreenZ"))
+    pagetab.write_text(text.replace("Screen\tscreenB", "Screen\tscreenZ"), encoding="utf-8")
     problems = rep._validate_archive_study(pkg)
     assert any("Screen subsections" in p for p in problems)
     (pkg / "biostudies" / "file_list.tsv").unlink()

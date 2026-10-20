@@ -183,7 +183,7 @@ def test_a_missing_folder_is_not_an_error(tmp_path):
 def test_only_figures_are_collected(tmp_path):
     """The screen folder holds the count and score CSVs. Copying those into
     every run folder would double the inputs on disk."""
-    tmp_path.joinpath("counts.csv").write_text("a,b\n1,2\n")
+    tmp_path.joinpath("counts.csv").write_text("a,b\n1,2\n", encoding="utf-8")
     tmp_path.joinpath("figure.pdf").write_bytes(b"%PDF-1.4\n")
     tmp_path.joinpath("figure.PNG").write_bytes(b"\x89PNG\r\n")
     stamps = _figure_stamps([str(tmp_path)])
@@ -358,7 +358,7 @@ def test_a_set_fraction_threshold_still_draws_the_sweep(tmp_path, capsys):
 
     from spacr import ml
 
-    source = _pathlib.Path(ml.__file__).read_text()
+    source = _pathlib.Path(ml.__file__).read_text(encoding="utf-8")
     # The explanation is gone, because the thing it explained is gone.
     assert "sweep graph is not drawn" not in source
     # Both branches draw, and both keep what they drew with the run.

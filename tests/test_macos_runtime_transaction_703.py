@@ -78,7 +78,7 @@ def installation(tmp_path,monkeypatch):
     site=Path(subprocess.check_output([str(python),'-I','-c','import sysconfig; print(sysconfig.get_path("purelib"))'],text=True).strip())
     import packaging
     shutil.copytree(Path(packaging.__file__).parent,site/'packaging',ignore=shutil.ignore_patterns('__pycache__'))
-    assert (site/'spacr/qt.py').read_text()=='def main():\n    print("1.5.1.4")\n'
+    assert (site/'spacr/qt.py').read_text(encoding="utf-8")=='def main():\n    print("1.5.1.4")\n'
     identity=ic._retiring_runtime_identity(str(prefix))
     assert identity['verified'] is True and identity['version']=='1.5.1.4'
     assert Path(identity['module'])==(site/'spacr/__init__.py').resolve()
@@ -99,13 +99,14 @@ def _installer(tmp_path,wheel,*,fail_install=False,fail_check=False):
         +'if args[1]=="check" and failed_check: sys.exit(8)\n'
         +f'base={[sys.executable,"-I","-B","-m","pip"]!r}+["--python",python,"--isolated","--no-cache-dir"]\n'
         +f'command=base+(["check"] if args[1]=="check" else ["install","--no-index","--no-deps","--upgrade",{str(wheel)!r}])\n'
-        +'sys.exit(subprocess.run(command).returncode)\n')
+        +'sys.exit(subprocess.run(command).returncode)\n', encoding="utf-8")
     uv=tmp_path/'uv'
-    uv.write_text('#!/bin/sh\nexec '+shlex.quote(sys.executable)+' -I -B '+shlex.quote(str(script))+' "$@"\n')
+    uv.write_text('#!/bin/sh\nexec '+shlex.quote(sys.executable)+' -I -B '+shlex.quote(str(script))+' "$@"\n', encoding="utf-8")
     uv.chmod(0o755)
     return uv
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('failure',[None,'install','dependencies','import','final_identity','restart','stage_identity','stage_json','final_json','final_version','final_import'])
 def test_offline_staging_keeps_previous_runtime_and_rolls_back_after_activation(installation,tmp_path,failure):
     record,machine,prefix,_=installation
@@ -141,7 +142,7 @@ def test_offline_staging_keeps_previous_runtime_and_rolls_back_after_activation(
         version,output=ic._transactional_runtime_update(record,'1.5.1.5',command,machine=machine,runner=run,activate=None)
         assert version=='1.5.1.5' and 'Previous runtime retained' in output
         folders=list(prefix.parent.glob('.spacr-runtime-update-*'));assert len(folders)==1
-        state=json.loads((folders[0]/'transaction.json').read_text())
+        state=json.loads((folders[0]/'transaction.json').read_text(encoding="utf-8"))
         assert state['state']=='committed' and state['verified_version']=='1.5.1.5'
         assert _snapshot(Path(state['rollback_runtime']))==before
         assert (prefix/'my extra package data'/'original.bin').read_bytes()==b'keep exactly'
@@ -152,14 +153,15 @@ def test_offline_staging_keeps_previous_runtime_and_rolls_back_after_activation(
     assert installs and all(argv[argv.index('--python')+1]!=record.python for argv in installs)
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('unsupported',['system-site','conda','absolute-pth','editable','user-data','egg-link'])
 def test_unsupported_environment_is_refused_before_any_package_mutation(installation,unsupported,monkeypatch):
     record,machine,prefix,site=installation
-    if unsupported=='system-site':(prefix/'pyvenv.cfg').write_text('include-system-site-packages = true\n')
+    if unsupported=='system-site':(prefix/'pyvenv.cfg').write_text('include-system-site-packages = true\n', encoding="utf-8")
     elif unsupported=='conda':(prefix/'conda-meta').mkdir()
-    elif unsupported=='absolute-pth':(site/'old-path.pth').write_text(str(prefix)+'\n')
-    elif unsupported=='egg-link':(site/'linked.egg-link').write_text('/external/source\n')
-    elif unsupported=='editable':(site/'spacr-1.5.1.4.dist-info/direct_url.json').write_text('{"dir_info":{"editable":true}}')
+    elif unsupported=='absolute-pth':(site/'old-path.pth').write_text(str(prefix)+'\n', encoding="utf-8")
+    elif unsupported=='egg-link':(site/'linked.egg-link').write_text('/external/source\n', encoding="utf-8")
+    elif unsupported=='editable':(site/'spacr-1.5.1.4.dist-info/direct_url.json').write_text('{"dir_info":{"editable":true}}', encoding="utf-8")
     else:monkeypatch.setattr(ic,'_user_data',lambda machine:[str(prefix/'my extra package data')])
     before=_snapshot(prefix)
     with pytest.raises(ValueError):
@@ -169,6 +171,7 @@ def test_unsupported_environment_is_refused_before_any_package_mutation(installa
     assert not list(prefix.parent.glob('.spacr-runtime-update-*'))
 
 
+@pytest.mark.posix_only
 def test_unknown_target_is_refused_without_package_mutation(installation):
     record,machine,prefix,_=installation
     before=_snapshot(prefix)
@@ -179,6 +182,7 @@ def test_unknown_target_is_refused_without_package_mutation(installation):
     assert not list(prefix.parent.glob('.spacr-runtime-update-*'))
 
 
+@pytest.mark.posix_only
 def test_failed_restoration_keeps_original_bytes_journal_and_lock(installation,tmp_path,monkeypatch):
     record,machine,prefix,_=installation
     before=_snapshot(prefix)
@@ -197,7 +201,7 @@ def test_failed_restoration_keeps_original_bytes_journal_and_lock(installation,t
         ic._transactional_runtime_update(record,'1.5.1.5',[str(uv),'pip','install','--python',record.python,'spacr'],
             machine=machine,runner=run)
     folders=list(prefix.parent.glob('.spacr-runtime-update-*'));assert len(folders)==1
-    state=json.loads((folders[0]/'transaction.json').read_text())
+    state=json.loads((folders[0]/'transaction.json').read_text(encoding="utf-8"))
     assert state['state']=='verifying'
     assert _snapshot(Path(state['rollback_runtime']))==before
     assert (prefix.parent/'.venv.spacr-update-lock').is_dir()

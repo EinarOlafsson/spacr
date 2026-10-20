@@ -11,6 +11,7 @@ degrade to "state it and carry on" rather than to a crash, a blank page or
 a silently dropped section.
 """
 from __future__ import annotations
+import pytest
 
 import json
 import os
@@ -27,7 +28,7 @@ def _sidecar(src: Path, failures) -> Path:
     """Write a results CSV and the run-status sidecar that stamps it."""
     results = src / "results"
     results.mkdir(parents=True, exist_ok=True)
-    (results / "wells.csv").write_text("well,value\nA01,1\n")
+    (results / "wells.csv").write_text("well,value\nA01,1\n", encoding="utf-8")
     sidecar = results / "wells.run_status.json"
     sidecar.write_text(json.dumps({
         "run_id": "r1", "name": "measure", "status": "partial",
@@ -35,7 +36,7 @@ def _sidecar(src: Path, failures) -> Path:
         "failure_rate": 0.67, "started_utc": "", "stamped_utc": "",
         "failures": failures,
         "summary": "2 of 3 wells failed",
-    }))
+    }), encoding="utf-8")
     return sidecar
 
 
@@ -211,6 +212,7 @@ def test_annotations_in_a_view_are_listed_without_inventing_a_row_count(tmp_path
 # File inventory: an entry that is neither a directory nor a file
 # ---------------------------------------------------------------------------
 
+@pytest.mark.needs_symlink
 def test_a_dangling_symlink_is_counted_as_nothing_not_as_a_file(tmp_path):
     """Plate folders are full of symlinks into shared image stores, and a
     link whose target has been moved is neither a directory nor a file. It
@@ -222,7 +224,7 @@ def test_a_dangling_symlink_is_counted_as_nothing_not_as_a_file(tmp_path):
     src = tmp_path / "plate_links"
     (src / "sub").mkdir(parents=True)
     (src / "sub" / "f.bin").write_bytes(b"x" * 10)
-    (src / "real.txt").write_text("hello")
+    (src / "real.txt").write_text("hello", encoding="utf-8")
     os.symlink(str(src / "gone.tif"), str(src / "dangling.tif"))
     assert not (src / "dangling.tif").exists(), "the link must really dangle"
 
@@ -324,7 +326,7 @@ def test_asking_a_folder_for_a_pdf_writes_only_the_pdf(tmp_path):
     """
     src = tmp_path / "plate1"
     (src / "results").mkdir(parents=True)
-    (src / "results" / "wells.csv").write_text("well,value\nA01,1\n")
+    (src / "results" / "wells.csv").write_text("well,value\nA01,1\n", encoding="utf-8")
 
     out = tmp_path / "reports"
     written = R.build_report(src, out, fmt="pdf", run_dirs=[],

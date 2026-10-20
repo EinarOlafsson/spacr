@@ -40,8 +40,8 @@ def test_corrupt_cache_is_repaired_once_then_reused(tmp_path, monkeypatch, broke
         assert record['sha256'] == digest
         for key, name in names.items():
             assert record[key] == f'environment/{name}'
-            assert (folder / record[key]).read_text() == texts[key]
-            assert (store / name).read_text() == texts[key]
+            assert (folder / record[key]).read_text(encoding="utf-8") == texts[key]
+            assert (store / name).read_text(encoding="utf-8") == texts[key]
         assert calls == ['pip', 'conda']
 
 
@@ -53,7 +53,7 @@ def test_valid_pip_cache_without_conda_is_reused(tmp_path, monkeypatch):
     digest = journal._environment_digest(packages)
     store = root.parent / 'env_locks' / digest[:32]
     store.mkdir(parents=True)
-    (store / journal._PIP_LOCK_NAME).write_text('pkg==2\n')
+    (store / journal._PIP_LOCK_NAME).write_text('pkg==2\n', encoding="utf-8")
 
     def unexpected(*args):
         raise AssertionError('a valid cache must not rerun an environment command')
@@ -62,5 +62,5 @@ def test_valid_pip_cache_without_conda_is_reused(tmp_path, monkeypatch):
     monkeypatch.setattr(journal, '_conda_lock_text', unexpected)
     folder = tmp_path / 'run'
     record = journal._write_environment_lock(folder, packages)
-    assert (folder / record['pip']).read_text() == 'pkg==2\n'
+    assert (folder / record['pip']).read_text(encoding="utf-8") == 'pkg==2\n'
     assert record['conda'] is None

@@ -93,7 +93,7 @@ def test_an_empty_folder_is_refused_and_it_asks_again(monkeypatch, tmp_path):
 
 def test_a_file_is_not_a_folder(tmp_path):
     target = tmp_path / "a.txt"
-    target.write_text("x")
+    target.write_text("x", encoding="utf-8")
     assert "not a folder" in A.a_folder_holding(".tif")(str(target))
 
 

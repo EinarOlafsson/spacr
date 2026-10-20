@@ -15,7 +15,7 @@ def test_artifact_origin_rejects_source_and_symlink_escape(tmp_path):
     bundle = tmp_path / 'bundle'
     bundle.mkdir()
     source = tmp_path / 'checkout.py'
-    source.write_text('')
+    source.write_text('', encoding="utf-8")
     Controller._require_installed_origin(bundle / 'spacr' / '__init__.py', bundle)
     with pytest.raises(RuntimeError, match='outside the installed artifact'):
         Controller._require_installed_origin(source, bundle)
@@ -51,7 +51,7 @@ def test_macos_bundle_allows_resources_sibling_but_not_checkout_symlink(tmp_path
     for folder in (macos, frameworks, resources):
         folder.mkdir(parents=True)
     executable = macos / 'spacr'
-    executable.write_text('')
+    executable.write_text('', encoding="utf-8")
     root = Controller._installed_root(executable, frameworks, 'darwin')
     assert root == contents.parent
     Controller._require_installed_origin(resources / 'spacr' / '__init__.py', root)
@@ -117,7 +117,7 @@ def test_premature_quit_records_failure_instead_of_green(tmp_path):
     fake = SimpleNamespace(phase='running', record={'status': 'running'}, output=target)
     fake._write = lambda: Controller._write(fake)
     Controller._quitting(fake)
-    assert json.loads(target.read_text())['status'] == 'failed'
+    assert json.loads(target.read_text(encoding="utf-8"))['status'] == 'failed'
 
 
 def test_existing_successful_experiment_cannot_be_reused(tmp_path):
@@ -171,7 +171,7 @@ def test_source_ui_integration_runs_real_measurement(qapp, qtbot, monkeypatch, t
     controller = Controller(qapp, window, str(tmp_path / 'source-unit.json'))
     try:
         qtbot.waitUntil(lambda: bool(completed), timeout=300000)
-        record = json.loads((tmp_path / 'source-unit.json').read_text())
+        record = json.loads((tmp_path / 'source-unit.json').read_text(encoding="utf-8"))
         layout = record.get('layout', {})
         failure = {
             'analysis_status': record.get('analysis_status'),

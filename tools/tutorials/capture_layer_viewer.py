@@ -26,7 +26,7 @@ def record_layers(app, window, stage, captures, capture, settle, write_json, tim
     stage = Path(stage); parent = stage/'layer_viewer_runs'; parent.mkdir(exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix='real-field-',dir=parent))
     manifest = stage/'captures/foreign_release_v2/inputs.json'
-    source = next(r for r in json.loads(manifest.read_text())['records'] if r['neutral_stem']=='fov01')
+    source = next(r for r in json.loads(manifest.read_text(encoding="utf-8"))['records'] if r['neutral_stem']=='fov01')
     original = {str(manifest):file_bundle(manifest)}
     for key in ('source','image','mask'):
         path = Path(source[key]); original[str(path)] = file_bundle(path)

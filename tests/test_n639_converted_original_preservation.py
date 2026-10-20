@@ -1,6 +1,7 @@
 """Converted organize inputs retain every original and its recorded location."""
 import csv
 import errno
+import os
 from pathlib import Path
 
 import numpy as np
@@ -55,7 +56,8 @@ def test_duplicate_basename_originals_remain_byte_identical_and_manifested(tmp_p
         assert np.all(converted == value)
 
 
-@pytest.mark.parametrize("kind", ["regular", "symlink"])
+@pytest.mark.parametrize("kind", [
+    "regular", pytest.param("symlink", marks=pytest.mark.needs_symlink)])
 def test_existing_original_name_is_preserved(tmp_path, kind):
     source = _image(tmp_path / "input" / "field.tif")
     before = source.read_bytes()
@@ -129,9 +131,11 @@ def test_cross_device_move_fallback_preserves_original_bytes_and_mode(tmp_path, 
     assert len(attempted) == 1
     assert not source.exists()
     assert saved.read_bytes() == before
-    assert saved.stat().st_mode & 0o777 == 0o640
+    if os.name == "posix":
+        assert saved.stat().st_mode & 0o777 == 0o640
 
 
+@pytest.mark.posix_only
 def test_valid_unicode_source_basename_does_not_expand_private_directory_name(tmp_path):
     source = _image(tmp_path / "input" / ("🧬" * 62 + ".tif"))
     before = source.read_bytes()

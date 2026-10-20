@@ -1,6 +1,0 @@
-{
-  "reviewer": "Original Home root independent source peer",
-  "approved_source_sha256": "a0dbf4c24346126966177cd5ebe790fe03426bbc44dd6bc323e438d970fd1804",
-  "decision": "Approved exact proposal before application: only incomplete currently supported ANSI suffix retained; public stateless stripper unchanged. Decoder EOF queueing precedes closure flag; closure snapshot precedes queue drain to avoid fragmented output race. Existing EOF incomplete sequence policy flushes once.",
-  "scope": "Transport source only; no browser/network/vendor/native/whole N420 acceptance. Owning cohort and unchanged prose/signature/tr AST proof required separately."
-}

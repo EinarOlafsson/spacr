@@ -1,7 +1,0 @@
-2026-10-15T18:33:29.3157120Z ____________ test_the_checkout_size_in_the_readme_matches_the_tree _____________
-2026-10-15T18:33:29.3157856Z [gw0] linux -- Python 3.12.15 /opt/hostedtoolcache/Python/3.12.15/x64/bin/python
-2026-10-15T18:33:29.3158906Z tests/test_the_light_install_numbers_are_honest.py:139: in test_the_checkout_size_in_the_readme_matches_the_tree
-2026-10-15T18:33:29.3159671Z     assert drift < 0.15, (
-2026-10-15T18:33:29.3160435Z E   AssertionError: the README says the checkout is 3416 MB; the tracked tree is 4396 MB (22% out). Re-measure with packaging/measure_clone_forms.sh and update the README, including the date beside it.
-2026-10-15T18:33:29.3161223Z E   assert 0.22300584980278446 < 0.15
-2026-10-15T18:33:29.3161539Z =============================== warnings summary ===============================

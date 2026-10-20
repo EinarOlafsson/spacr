@@ -1,8 +1,0 @@
-{
-  "immutable_incoming": "1055f93c9a2f69a51c6d00f7825cc3b2564fa144",
-  "source_and_API_tool_bytes_exact_actual_census": true,
-  "historical_English_manifest_sha256": "02297213551624abce3d92fba8f5edcda0809da68b3d61104f4ffab4a830579e",
-  "current_English_manifest_sha256": "eb0291aa523a6693e9a719a11f793afcb8c409268ff69c5cfc9c0c99ba0897e3",
-  "both_owned_helper_checker_English_targets_absent": true,
-  "disposition": "Unrelated Home-B AI/Live API additions preserved; actual old canonical count is historical, no global current-count claim and no unnecessary collector repeat."
-}

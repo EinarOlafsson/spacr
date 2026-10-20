@@ -146,24 +146,28 @@ def test_every_installer_locale_has_the_new_keys():
     _renderer().catalogs()
 
 
+@pytest.mark.posix_only
 def test_dry_run_installs_wgpu_by_default(standalone, tmp_path):
     out = _dry_run(standalone, tmp_path, env_extra={"SPACR_GLIBC_VERSION": "2.39"})
     assert "wgpu 3D rendering: install" in out
     assert "glibc" not in out
 
 
+@pytest.mark.posix_only
 def test_dry_run_reports_without_wgpu(standalone, tmp_path):
     out = _dry_run(standalone, tmp_path, "--without-wgpu")
     assert "wgpu 3D rendering: skip (3D uses OpenGL, else the CPU)" in out
 
 
 @pytest.mark.parametrize("version", ("2.17", "2.27", "1.9"))
+@pytest.mark.posix_only
 def test_dry_run_skips_wgpu_on_old_glibc(standalone, tmp_path, version):
     out = _dry_run(standalone, tmp_path, env_extra={"SPACR_GLIBC_VERSION": version})
     assert f"wgpu needs glibc 2.28 or newer (this system has {version})" in out
     assert "wgpu 3D rendering: skip" in out
 
 
+@pytest.mark.posix_only
 def test_old_glibc_is_ignored_on_macos(standalone, tmp_path):
     out = _dry_run(standalone, tmp_path, platform="macos",
                    env_extra={"SPACR_GLIBC_VERSION": "2.17"})
@@ -192,6 +196,7 @@ def _fake_tools(tmp_path, getconf, ldd):
         ("exit 1", "echo 'musl libc (x86_64)' >&2; echo 'Version 1.2.4' >&2; exit 1", False),
     ),
 )
+@pytest.mark.posix_only
 def test_glibc_probe_reads_getconf_then_ldd(standalone, tmp_path, getconf, ldd, skipped):
     out = _dry_run(standalone, tmp_path, env_extra=_fake_tools(tmp_path, getconf, ldd))
     assert ("wgpu 3D rendering: skip" in out) is skipped
@@ -231,3 +236,48 @@ def test_an_update_cannot_silently_drop_the_without_wgpu_choice(tmp_path, monkey
 
     with pytest.raises(RuntimeError, match="without wgpu"):
         updater.upgrade_command(target_version="1.5.1.5")
+
+
+_UV_SAYS_ONLY_WGPU = (
+    "Using Python 3.12.13 environment at: /tmp/stage\n"
+    "Checked 171 packages in 6ms\n"
+    "Found 1 incompatibility\n"
+    "The package `spacr` requires `wgpu>=0.25,<0.33 ; python_full_version >= '3.11' and "
+    "platform_machine == 'x86_64'`, but it's not installed\n")
+
+
+def _the_installer_check(source: str) -> str:
+    """The Python one-liner an installer runs on a failed ``uv pip check``."""
+    start = source.index("import sys; from spacr.install_cleanup import _only_saved_wgpu_omission")
+    return source[start:source.index("else 1)", start) + len("else 1)")]
+
+
+@pytest.mark.parametrize("name", ["install_spacr_unix.sh", "install_spacr_windows.ps1"])
+def test_an_install_without_wgpu_accepts_only_uvs_missing_wgpu_diagnostic(name, tmp_path):
+    """2026-10-19 macOS acceptance: with the box ticked the installer always
+    stopped at "Validating the installation", because ``uv pip check`` reports
+    the wgpu it was told to leave out."""
+    import sys
+
+    code = _the_installer_check(_text(ONLINE / name))
+    log = tmp_path / "pip-check.txt"
+
+    def accepted(text, status=1):
+        log.write_text(text, encoding="utf-8")
+        return subprocess.run([sys.executable, "-I", "-c", code, str(status), str(log)],
+                              cwd=ROOT, env={**os.environ, "PYTHONPATH": str(ROOT)}).returncode == 0
+
+    assert accepted(_UV_SAYS_ONLY_WGPU)
+    assert not accepted(_UV_SAYS_ONLY_WGPU, status=2)
+    assert not accepted(_UV_SAYS_ONLY_WGPU.replace("Found 1 incompatibility", "Found 2 incompatibilities")
+                        + "The package `spacr` requires `numpy<2`, but it's not installed\n")
+    assert not accepted(_UV_SAYS_ONLY_WGPU.replace("`wgpu", "`torch"))
+
+
+def test_only_an_install_without_wgpu_may_pass_a_failed_pip_check():
+    sh = _text(ONLINE / "install_spacr_unix.sh")
+    block = sh[sh.index("spacr_say validating_install"):sh.index("import spacr, PySide6, torch")]
+    assert '[[ "$WITHOUT_WGPU" != "1" ]] ||' in block and 'exit "$pip_check_code"' in block
+    ps1 = _text(ONLINE / "install_spacr_windows.ps1")
+    block = ps1[ps1.index('"validating_install"'):ps1.index("import spacr, PySide6, torch")]
+    assert "if ($WithoutWgpu) {" in block and "if (-not $Accepted) {" in block

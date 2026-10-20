@@ -17,7 +17,7 @@ NOTEBOOKS = sorted(FOLDER.rglob("*.ipynb"))
 
 
 def _code(path):
-    cells = json.loads(path.read_text())["cells"]
+    cells = json.loads(path.read_text(encoding="utf-8"))["cells"]
     return ["".join(cell["source"]) for cell in cells if cell["cell_type"] == "code"]
 
 
@@ -34,7 +34,7 @@ def test_one_notebook_per_class_plus_the_generic_one():
 
 @pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda path: path.stem)
 def test_notebook_is_valid_json_with_parsable_code(path):
-    document = json.loads(path.read_text())
+    document = json.loads(path.read_text(encoding="utf-8"))
     assert document["nbformat"] == 4 and document["metadata"]["accelerator"] == "GPU"
     assert {cell["cell_type"] for cell in document["cells"]} == {"markdown", "code"}
     for source in _code(path):

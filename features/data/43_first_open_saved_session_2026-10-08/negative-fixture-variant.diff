@@ -1,5 +1,0 @@
---- fixed test fixture
-+++ private negative control
-@@
--    win = MainWindow(initial_app="__home__")
-+    win = MainWindow()

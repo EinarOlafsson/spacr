@@ -1,9 +1,0 @@
-{
-  "test_sha256": "395fa84719d727055fd6cb26a5ba389fbb055267ea113caf75ed19a5cbf86a72",
-  "all_original_assert_ASTs_identical": true,
-  "all_outside_target_function_AST_signatures_decorators_identical": true,
-  "production_bytes_unchanged": true,
-  "exact_root_approved_proposal": true,
-  "preserved": "4actionmatrix/downstreamforbidden/manifeststatuses/copiedfilecount+bytes/userUIstate/sourcebytes/cursor/retrynewfolder/partialmanifestretained",
-  "new_mock_matches_actual_source_seam": "copyfileobj(filein,fileout,length=0),partialbyteswrittenandflushedbeforeoriginalOSError"
-}

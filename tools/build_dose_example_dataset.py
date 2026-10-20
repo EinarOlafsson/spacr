@@ -162,7 +162,7 @@ def _regression(plate: pd.DataFrame, normalise: bool, out: Path) -> None:
                 "plate_normalisation": "dmso_median" if normalise else "none",
                 "dose_scale": "log10, 0.1-1 for 0.041-10 uM",
                 "plates": list(PLATES)}
-    (out / "settings.json").write_text(json.dumps(settings, indent=2))
+    (out / "settings.json").write_text(json.dumps(settings, indent=2), encoding="utf-8")
 
 
 def _training(plate: pd.DataFrame, root: Path) -> None:

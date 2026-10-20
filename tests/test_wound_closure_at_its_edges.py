@@ -102,7 +102,7 @@ def test_wells_and_conditions_of_what_is_not_there():
 def test_a_folder_with_nothing_to_measure_says_so(tmp_path, capsys):
     merged = tmp_path / "merged"
     merged.mkdir()
-    (merged / "notes.txt").write_text("not a frame")
+    (merged / "notes.txt").write_text("not a frame", encoding="utf-8")
     np.save(merged / "junk.npy", np.zeros((4, 4, 2)))
     summary = m._run_wound_closure(str(merged), _settings())
     assert summary.empty

@@ -70,7 +70,7 @@ def test_a_path_that_is_not_a_folder_plans_nothing(tmp_path):
 
 
 def test_a_folder_with_no_images_plans_nothing(tmp_path):
-    (tmp_path / "notes.txt").write_text("nothing here")
+    (tmp_path / "notes.txt").write_text("nothing here", encoding="utf-8")
     assert ip.plan_folder_extraction(tmp_path) == []
 
 

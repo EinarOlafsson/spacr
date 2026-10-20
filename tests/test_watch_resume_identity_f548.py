@@ -21,7 +21,7 @@ def _completed(folder):
 @pytest.mark.parametrize('replace', [False, True])
 def test_done_field_warns_on_identity_change_with_equal_size_mtime(tmp_path, capsys, replace):
     paths, ledger_path = _completed(tmp_path)
-    before = json.loads(ledger_path.read_text())['fields']
+    before = json.loads(ledger_path.read_text(encoding="utf-8"))['fields']
     result_path = tmp_path / 'spacr_watch/merged/plate1_A01_0001_001.npy'
     output_before = result_path.read_bytes()
     capsys.readouterr()
@@ -30,14 +30,14 @@ def test_done_field_warns_on_identity_change_with_equal_size_mtime(tmp_path, cap
     result = core._watch_folder_and_analyse(_fast(tmp_path), recorder)
     assert 'changed after it was analysed' in capsys.readouterr().out
     assert not recorder.calls and result['done'] == ['plate1_A01_0001_001']
-    after = json.loads(ledger_path.read_text())['fields']
+    after = json.loads(ledger_path.read_text(encoding="utf-8"))['fields']
     assert after == before  # previous input evidence must not be overwritten
     assert result_path.read_bytes() == output_before
 
 
 def test_unchanged_snapshot_resume_stays_quiet_without_pixel_reads(tmp_path, monkeypatch, capsys):
     _paths, ledger_path = _completed(tmp_path)
-    before = json.loads(ledger_path.read_text())['fields']
+    before = json.loads(ledger_path.read_text(encoding="utf-8"))['fields']
     capsys.readouterr()
 
     def no_decode(path):
@@ -48,17 +48,17 @@ def test_unchanged_snapshot_resume_stays_quiet_without_pixel_reads(tmp_path, mon
     recorder = Recorder()
     assert core._watch_folder_and_analyse(_fast(tmp_path), recorder)['done']
     assert not recorder.calls and 'changed after it was analysed' not in capsys.readouterr().out
-    assert json.loads(ledger_path.read_text())['fields'] == before
+    assert json.loads(ledger_path.read_text(encoding="utf-8"))['fields'] == before
 
 
 @pytest.mark.parametrize('changed', [False, True])
 def test_legacy_done_ledger_retains_size_mtime_policy(tmp_path, capsys, changed):
     paths, ledger_path = _completed(tmp_path)
-    ledger = json.loads(ledger_path.read_text())
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
     for entry in ledger['fields'].values():
         entry.pop('source_identity')
         entry.pop('snapshot_sha256')
-    ledger_path.write_text(json.dumps(ledger))
+    ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
     before = ledger['fields']
     capsys.readouterr()
     if changed:
@@ -69,4 +69,4 @@ def test_legacy_done_ledger_retains_size_mtime_policy(tmp_path, capsys, changed)
     output = capsys.readouterr().out
     assert ('changed after it was analysed' in output) == changed
     assert not recorder.calls
-    assert json.loads(ledger_path.read_text())['fields'] == before
+    assert json.loads(ledger_path.read_text(encoding="utf-8"))['fields'] == before

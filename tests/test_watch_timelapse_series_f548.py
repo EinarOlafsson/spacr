@@ -59,7 +59,7 @@ def test_mapped_series_waits_for_final_frame_then_matches_batch(tmp_path, real_p
     core.preprocess_generate_masks(dict(mask, src=str(batch)))
     measure_crop(dict(measure, src=str(batch / 'merged')))
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(measure))
+    recipe.write_text(json.dumps(measure), encoding="utf-8")
     watch_settings = dict(mask, **_fast(watched), watch_pipeline='mask_measure',
                           watch_measure_settings=str(recipe))
     first = core._watch_folder_and_analyse(watch_settings)
@@ -153,7 +153,7 @@ def test_mapped_series_runs_the_batch_iou_tracking_path(tmp_path, fake_model,
     batch_table = pd.read_csv(batch_tracks[0])
     pd.testing.assert_frame_equal(batch_table, pd.read_csv(watch_tracks[0]))
     pd.testing.assert_frame_equal(batch_table, pd.read_csv(combined_tracks[0]))
-    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     tracked = ledger['fields'][result['done'][0]]['collection_checkpoint']['artifacts']
     assert f'tracks/{combined_tracks[0].name}' in tracked
     assert sorted(batch_table['frame'].unique().tolist()) == [0, 1]
@@ -203,7 +203,7 @@ def test_series_resume_rejects_changed_provenance(tmp_path, change):
     for row in rows:
         assert (output / row['target']).is_file()
     measure = tmp_path / 'measure.json'
-    measure.write_text(json.dumps(dict(MEASURE, timelapse=True)))
+    measure.write_text(json.dumps(dict(MEASURE, timelapse=True)), encoding="utf-8")
     settings = dict(MASK, **_fast(output), timelapse=True,
                     watch_pipeline='mask_measure', watch_measure_settings=str(measure))
     recorder = Recorder()
@@ -217,7 +217,7 @@ def test_series_resume_rejects_changed_provenance(tmp_path, change):
         settings['normalize'] = False
     else:
         measure.write_text(json.dumps(dict(MEASURE, timelapse=True,
-                                           cell_min_size=1)))
+                                           cell_min_size=1)), encoding="utf-8")
     resumed = Recorder()
     with pytest.raises(ValueError, match='differ|changed'):
         core._watch_folder_and_analyse(settings, resumed)
@@ -255,7 +255,7 @@ def test_extra_or_changed_frame_cannot_mutate_a_committed_series(tmp_path, capsy
 def test_series_measure_recipe_must_keep_timepoint_identity(tmp_path):
     output, _rows_ = _converted_series(tmp_path)
     measure = tmp_path / 'measure.json'
-    measure.write_text(json.dumps(dict(MEASURE, timelapse=False)))
+    measure.write_text(json.dumps(dict(MEASURE, timelapse=False)), encoding="utf-8")
     settings = dict(MASK, **_fast(output), timelapse=True,
                     watch_pipeline='mask_measure', watch_measure_settings=str(measure))
     with pytest.raises(ValueError, match='Measure settings must enable timelapse'):
@@ -314,7 +314,7 @@ def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
         analysis(folder, recipe)
         tracks = Path(folder) / 'tracks'
         tracks.mkdir()
-        (tracks / track_name).write_text('frame,track_id\n0,1\n1,1\n')
+        (tracks / track_name).write_text('frame,track_id\n0,1\n1,1\n', encoding="utf-8")
 
     def fail_merge(*_args):
         """Interrupt collection after the track link but before the DB append."""
@@ -338,10 +338,10 @@ def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
         combined.write_bytes(b'conflicting combined tracks')
     elif damage == 'old_checkpoint':
         path = work / 'watch_ledger.json'
-        ledger = json.loads(path.read_text())
+        ledger = json.loads(path.read_text(encoding="utf-8"))
         del ledger['fields'][first['failed'][0]]['collection_checkpoint'][
             'artifacts'][f'tracks/{track_name}']
-        path.write_text(json.dumps(ledger))
+        path.write_text(json.dumps(ledger), encoding="utf-8")
     elif damage == 'linked_destination':
         (work / 'tracks').rename(work / 'tracks-kept')
         (work / 'tracks').symlink_to(work / 'tracks-kept', target_is_directory=True)
@@ -354,7 +354,7 @@ def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
             assert connection.execute('SELECT COUNT(*) FROM spacr_watch_fields').fetchone() == (1,)
     else:
         assert resumed['failed'] == first['failed']
-        assert 'Collection' in json.loads(Path(resumed['ledger']).read_text())[
+        assert 'Collection' in json.loads(Path(resumed['ledger']).read_text(encoding="utf-8"))[
             'fields'][first['failed'][0]]['error']
 
 
@@ -362,10 +362,10 @@ def test_track_collection_publishes_only_flat_csv_from_a_field(tmp_path):
     field, work = tmp_path / 'field', tmp_path / 'combined'
     tracks = field / 'tracks'
     tracks.mkdir(parents=True)
-    (tracks / 'trackpy_tracks_cell_field.csv').write_text('frame,track_id\n0,1\n')
-    (tracks / 'notes.txt').write_text('private tracking note')
+    (tracks / 'trackpy_tracks_cell_field.csv').write_text('frame,track_id\n0,1\n', encoding="utf-8")
+    (tracks / 'notes.txt').write_text('private tracking note', encoding="utf-8")
     (tracks / 'events').mkdir()
-    (tracks / 'events' / 'event.csv').write_text('event\ndivision\n')
+    (tracks / 'events' / 'event.csv').write_text('event\ndivision\n', encoding="utf-8")
     artifacts = core._watch_collection_artifacts(str(field))
     assert set(artifacts) == {'tracks/trackpy_tracks_cell_field.csv'}
     core._watch_validate_collection(str(field), str(work), artifacts,
@@ -383,7 +383,7 @@ def test_track_collection_refuses_linked_source_artifacts(tmp_path, kind):
     field.mkdir()
     outside = tmp_path / 'outside'
     outside.mkdir()
-    (outside / 'table.csv').write_text('frame,track_id\n0,1\n')
+    (outside / 'table.csv').write_text('frame,track_id\n0,1\n', encoding="utf-8")
     if kind == 'directory_link':
         (field / 'tracks').symlink_to(outside, target_is_directory=True)
     else:

@@ -128,7 +128,7 @@ def test_a_style_of_another_kind_is_refused_rather_than_half_applied(tmp_path):
 
 def test_a_file_that_is_not_a_style_is_refused(tmp_path):
     path = tmp_path / "notastyle.json"
-    path.write_text(json.dumps({"hello": 1}))
+    path.write_text(json.dumps({"hello": 1}), encoding="utf-8")
     with pytest.raises(ValueError):
         load_style(PretendStyle(), path)
 
@@ -139,7 +139,7 @@ def test_loading_is_forwards_compatible_in_both_directions(tmp_path):
     path = tmp_path / "future.json"
     path.write_text(json.dumps({
         "spacr_style_kind": "pretend",
-        "fields": {"grid": False, "a_field_from_2027": 12}}))
+        "fields": {"grid": False, "a_field_from_2027": 12}}), encoding="utf-8")
     style = PretendStyle()
     changed = load_style(style, path)
 
@@ -260,7 +260,7 @@ def test_the_save_entry_actually_writes_a_file(qtbot, prefs, tmp_path):
     menu.actions()[0].trigger()
 
     assert target.exists()
-    assert json.loads(target.read_text())["fields"]["line_width"] == 5.0
+    assert json.loads(target.read_text(encoding="utf-8"))["fields"]["line_width"] == 5.0
     assert said and str(target) in said[0]
 
 
@@ -286,7 +286,7 @@ def test_a_failed_load_says_why_instead_of_doing_nothing(qtbot, prefs,
     from PySide6.QtWidgets import QMenu, QWidget
 
     bad = tmp_path / "bad.json"
-    bad.write_text("not json at all")
+    bad.write_text("not json at all", encoding="utf-8")
     parent = QWidget()
     qtbot.addWidget(parent)
     menu = QMenu(parent)

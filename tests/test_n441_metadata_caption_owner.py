@@ -17,12 +17,12 @@ def extract_metadata(tmp_path, monkeypatch):
             'model_zoo.py', 'utils.py',
             'attribution.py', 'measure.py', 'channel_sorting.py', 'object_classifier.py', 'core.py',
             'psf_pipeline.py', '_lineage_trees.py', 'plot.py'):
-        (tmp_path / 'spacr' / name).write_text('')
+        (tmp_path / 'spacr' / name).write_text('', encoding="utf-8")
     monkeypatch.setattr(builder, 'ROOT', tmp_path)
     monkeypatch.setattr(builder, '_indirect_runtime_ui_sources', set)
     def extract(source, name='settings_model.py'):
         path = root / name
-        path.write_text(source)
+        path.write_text(source, encoding="utf-8")
         return set(builder.extract_static_ui_sources())
     return extract
 
@@ -89,7 +89,7 @@ def test_actual_metadata_field_exposes_all_ten_current_missing_templates(extract
     import ast
 
     path = Path(__file__).resolve().parents[1] / 'spacr/qt/screens/settings_model.py'
-    tree = ast.parse(path.read_text())
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     names = {'PROVISIONAL_SUFFIX', 'LOOKS_LIKE', 'RECONSTRUCTED_NOT_DOCUMENTED',
              'READING_THE_FOLDER', 'NO_IMAGES_IN_THE_FOLDER', 'ALL_FILES_PARSE',
              'SOME_FILES_PARSE', 'NOTHING_FITS', 'RANKING_HEADING', 'ONE_RANKING_ROW'}

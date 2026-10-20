@@ -71,6 +71,7 @@ def test_without_xdg_the_cache_falls_back_to_the_home_dot_cache(
     monkeypatch.delenv("SPACR_EXAMPLE_DATA", raising=False)
     monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "home"))
 
     where = ed.cache_folder()
 

@@ -63,7 +63,7 @@ def _focus_for(visual: str, geometry: dict) -> list[int] | None:
 def build_app_lesson(lesson: dict) -> None:
     lesson_root = PRODUCTION / lesson["id"]
     keyframes = lesson_root / "keyframes"
-    geometry = json.loads((keyframes / "geometry.json").read_text())
+    geometry = json.loads((keyframes / "geometry.json").read_text(encoding="utf-8"))
     frame_size = geometry.get("frame_size", [3840, 2160])
     scenes = []
     for source in lesson["scenes"]:
@@ -86,7 +86,7 @@ def build_app_lesson(lesson: dict) -> None:
         "size": frame_size,
         "lesson": lesson["id"],
         "scenes": scenes,
-    }, indent=2, ensure_ascii=False) + "\n")
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def build_hosted_app_lesson(lesson: dict) -> None:
@@ -99,7 +99,7 @@ def build_hosted_app_lesson(lesson: dict) -> None:
     """
     lesson_root = PRODUCTION / lesson["id"]
     keyframes = lesson_root / "keyframes"
-    geometry = json.loads((keyframes / "geometry.json").read_text())
+    geometry = json.loads((keyframes / "geometry.json").read_text(encoding="utf-8"))
     if geometry.get("frames"):
         raise RuntimeError(
             f"{lesson['id']} still has a standalone multi-frame capture; "
@@ -169,7 +169,7 @@ def build_hosted_app_lesson(lesson: dict) -> None:
         "lesson": lesson["id"],
         "host_app_key": lesson["host_app_key"],
         "scenes": scenes,
-    }, indent=2, ensure_ascii=False) + "\n")
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def build_home_lesson(lesson: dict) -> None:
@@ -178,7 +178,7 @@ def build_home_lesson(lesson: dict) -> None:
     keyframes = lesson_root / "keyframes"
     performance_4k = keyframes / "02_performance_4k.png"
     opened_4k = keyframes / "03_mask_open_4k.png"
-    geometry = json.loads((keyframes / "geometry.json").read_text())
+    geometry = json.loads((keyframes / "geometry.json").read_text(encoding="utf-8"))
     frame_size = geometry.get("frame_size", [3840, 2160])
     if frame_size != [3840, 2160]:
         raise RuntimeError(
@@ -224,12 +224,12 @@ def build_home_lesson(lesson: dict) -> None:
     (lesson_root / "scenes.json").write_text(json.dumps({
         "schema": 1, "fps": 30, "size": frame_size,
         "lesson": lesson["id"], "scenes": scenes,
-    }, indent=2, ensure_ascii=False) + "\n")
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def build_captured_lesson(lesson: dict) -> None:
     lesson_root = PRODUCTION / lesson["id"]
-    geometry = json.loads((lesson_root / "keyframes" / "geometry.json").read_text())
+    geometry = json.loads((lesson_root / "keyframes" / "geometry.json").read_text(encoding="utf-8"))
     frames = geometry.get("frames")
     if not isinstance(frames, dict):
         # The deep Batch Runner capture predates schema 2: every narrated
@@ -300,7 +300,7 @@ def build_captured_lesson(lesson: dict) -> None:
         "schema": 1, "fps": 30,
         "size": geometry.get("frame_size", [3840, 2160]),
         "lesson": lesson["id"], "scenes": scenes,
-    }, indent=2, ensure_ascii=False) + "\n")
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def build_api_lesson(lesson: dict) -> None:
@@ -325,13 +325,13 @@ def build_api_lesson(lesson: dict) -> None:
         "size": [3840, 2160],
         "lesson": lesson["id"],
         "scenes": scenes,
-    }, indent=2, ensure_ascii=False) + "\n")
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def build_intro_lesson(lesson: dict) -> None:
     lesson_root = PRODUCTION / lesson["id"]
     geometry_path = lesson_root / "keyframes" / "geometry.json"
-    geometry = json.loads(geometry_path.read_text())
+    geometry = json.loads(geometry_path.read_text(encoding="utf-8"))
     visual_scenes = geometry["scenes"]
     if len(visual_scenes) != len(lesson["scenes"]):
         raise RuntimeError(
@@ -358,7 +358,7 @@ def build_intro_lesson(lesson: dict) -> None:
         "size": geometry["frame_size"],
         "lesson": lesson["id"],
         "scenes": scenes,
-    }, indent=2, ensure_ascii=False) + "\n")
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def build_staged_lesson(lesson: dict) -> None:
@@ -366,9 +366,9 @@ def build_staged_lesson(lesson: dict) -> None:
     import hashlib
     lesson_root = PRODUCTION / lesson['id']
     authored = {key: value for key, value in lesson.items() if key != 'narration_voices'}
-    if json.loads((lesson_root / 'lesson.en.json').read_text()) != authored:
+    if json.loads((lesson_root / 'lesson.en.json').read_text(encoding="utf-8")) != authored:
         raise ValueError('Staged visuals and current English lesson disagree')
-    visual = json.loads((lesson_root / 'visual.json').read_text())
+    visual = json.loads((lesson_root / 'visual.json').read_text(encoding="utf-8"))
     expected = hashlib.sha256(json.dumps(authored, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     if visual.get('english_sha256') != expected or len(visual['scenes']) != len(authored['scenes']):
         raise ValueError('Staged visual geometry is not bound to current English')
@@ -380,7 +380,7 @@ def build_staged_lesson(lesson: dict) -> None:
         'schema': 1, 'fps': visual['fps'], 'size': visual['size'],
         'lesson': authored['id'], 'english_sha256': expected,
         'capture_source': visual['capture_source'], 'scenes': scenes,
-    }, ensure_ascii=False, indent=2) + '\n')
+    }, ensure_ascii=False, indent=2) + '\n', encoding="utf-8")
 
 
 def main() -> int:
@@ -390,7 +390,7 @@ def main() -> int:
         help="comma-separated lesson numbers, numeric ranges, or exact ids",
     )
     args = parser.parse_args()
-    catalog = json.loads(CATALOG.read_text())
+    catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     wanted = selected_lesson_ids(args.lessons, catalog["lessons"])
     for lesson in catalog["lessons"]:
         if lesson["id"] not in wanted:

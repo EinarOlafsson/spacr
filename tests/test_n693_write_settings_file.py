@@ -64,7 +64,7 @@ def test_the_file_round_trips_through_both_loaders(tmp_path):
     assert [row[0] for row in rows[1:]] == list(settings)
     assert load_settings_file(str(target)) == settings
     assert load_settings(str(target)) == settings
-    assert json.loads(target.with_suffix(".json").read_text()) == json.loads(
+    assert json.loads(target.with_suffix(".json").read_text(encoding="utf-8")) == json.loads(
         json.dumps(settings))
 
 

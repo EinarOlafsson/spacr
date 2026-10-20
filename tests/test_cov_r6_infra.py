@@ -331,7 +331,7 @@ def test_an_empty_stack_list_returns_before_cellpose_is_ever_loaded(
                                           batch_fields=1)
     assert returned is stacks
     sidecar = stacks[0].path.parent / "channel_order.json"
-    assert json.loads(sidecar.read_text())["mask_channels"] == ["mask"]
+    assert json.loads(sidecar.read_text(encoding="utf-8"))["mask_channels"] == ["mask"]
 
 
 # ---------------------------------------------------------------------------

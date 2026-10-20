@@ -59,7 +59,7 @@ def test_fixed_map_tzyx_preserves_every_original_plane_and_frame(tmp_path):
         assert content['filenames'].tolist() == [
             'plate1_A01_1_1.npy', 'plate1_A01_1_2.npy']
         assert np.isfinite(content['data']).all()
-    receipt = json.loads((source / 'stack/.spacr_volume_series_ingest.json').read_text())
+    receipt = json.loads((source / 'stack/.spacr_volume_series_ingest.json').read_text(encoding="utf-8"))
     assert receipt['axes'] == 'TZYXC'
     assert set(receipt['inputs']) == set(originals)
     assert set(receipt['stacks']) == {
@@ -155,7 +155,8 @@ def test_one_selected_channel_matches_its_position_in_reordered_output(tmp_path)
 
 
 @pytest.mark.parametrize('damage', [
-    'missing', 'extra', 'axes', 'linked', 'source_changed'])
+    'missing', 'extra', 'axes',
+    pytest.param('linked', marks=pytest.mark.needs_symlink), 'source_changed'])
 def test_native_tzyx_rejects_nonmatching_map_or_planes_before_outputs(tmp_path, damage):
     source, rows = _converted_series(tmp_path)
     target = source / rows[-1]['target']
@@ -504,7 +505,8 @@ def test_native_tzyx_rescale_failure_closes_private_stage(tmp_path, monkeypatch)
 
 @pytest.mark.parametrize('case', [
     'illumination', 'metadata', 'missing_map', 'only_t1', 'no_object',
-    'old_stack', 'linked_receipt', 'oversized_receipt',
+    'old_stack', pytest.param('linked_receipt', marks=pytest.mark.needs_symlink),
+    'oversized_receipt',
 ])
 def test_native_tzyx_preflight_refuses_unbound_or_unsupported_inputs(
         tmp_path, case):

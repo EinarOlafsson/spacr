@@ -121,11 +121,11 @@ class TestNotebookExport:
             "env":       {"spacr": "1.4.1.2",
                           "torch": "2.4.0",
                           "cellpose": "3.0.10"},
-        }))
+        }), encoding="utf-8")
         (run_dir / "settings.json").write_text(json.dumps({
             "src": "/tmp/dataset",
             "cell_channel": 0,
-        }))
+        }), encoding="utf-8")
         return run_dir
 
     def test_export_run_writes_valid_notebook(self, tmp_path):
@@ -133,7 +133,7 @@ class TestNotebookExport:
         out = notebook_export.export_run(
             run_dir, out_path=tmp_path / "out.ipynb")
         assert out.exists()
-        nb = json.loads(out.read_text())
+        nb = json.loads(out.read_text(encoding="utf-8"))
         # nbformat v4 shape
         assert nb["nbformat"] == 4
         assert "cells" in nb and len(nb["cells"]) >= 4
@@ -155,7 +155,7 @@ class TestNotebookExport:
         run_dir = self._make_run(tmp_path, "measure")
         out = notebook_export.export_run(
             run_dir, out_path=tmp_path / "measure.ipynb")
-        nb = json.loads(out.read_text())
+        nb = json.loads(out.read_text(encoding="utf-8"))
         code = "\n".join(
             "".join(c["source"])
             for c in nb["cells"] if c["cell_type"] == "code"
@@ -172,7 +172,7 @@ class TestNotebookExport:
         run_dir = self._make_run(tmp_path, "definitely_not_a_real_app")
         out = notebook_export.export_run(
             run_dir, out_path=tmp_path / "unknown.ipynb")
-        nb = json.loads(out.read_text())
+        nb = json.loads(out.read_text(encoding="utf-8"))
         code = "\n".join(
             "".join(c["source"])
             for c in nb["cells"] if c["cell_type"] == "code"
@@ -204,7 +204,7 @@ class TestCustomFeatures:
         (_redirect_features_dir / "myfeat.py").write_text(textwrap.dedent("""
             def asymmetry(mask, image):
                 return 0.5
-        """))
+        """), encoding="utf-8")
         feats = custom_features.discover_features()
         names = [f.name for f in feats]
         assert "asymmetry" in names
@@ -212,11 +212,11 @@ class TestCustomFeatures:
     def test_discover_ignores_private_and_underscore(self,
                                                       _redirect_features_dir):
         (_redirect_features_dir / "_private.py").write_text(
-            "def priv(mask, image): return 1\n")
+            "def priv(mask, image): return 1\n", encoding="utf-8")
         (_redirect_features_dir / "keep.py").write_text(
             "def _hidden(mask, image): return 1\n"
             "def public(mask, image): return 2\n"
-        )
+        , encoding="utf-8")
         feats = custom_features.discover_features()
         names = [f.name for f in feats]
         assert "priv" not in names
@@ -225,15 +225,15 @@ class TestCustomFeatures:
 
     def test_discover_skips_broken_file(self, _redirect_features_dir):
         (_redirect_features_dir / "broken.py").write_text(
-            "raise RuntimeError('bad file')\n")
+            "raise RuntimeError('bad file')\n", encoding="utf-8")
         (_redirect_features_dir / "good.py").write_text(
-            "def ok(mask, image): return 42\n")
+            "def ok(mask, image): return 42\n", encoding="utf-8")
         feats = custom_features.discover_features()
         assert any(f.name == "ok" for f in feats)
 
     def test_call_feature_scalar_result(self, _redirect_features_dir):
         (_redirect_features_dir / "s.py").write_text(
-            "def m(mask, image): return 7\n")
+            "def m(mask, image): return 7\n", encoding="utf-8")
         cf = custom_features.discover_features()[0]
         out = custom_features.call_feature(cf, [], [])
         assert out == {"m": 7}
@@ -243,13 +243,13 @@ class TestCustomFeatures:
         (_redirect_features_dir / "d.py").write_text(
             "def stats(mask, image):\n"
             "    return {'mean': 1.0, 'std': 0.5}\n"
-        )
+        , encoding="utf-8")
         cf = custom_features.discover_features()[0]
         out = custom_features.call_feature(cf, [], [])
         assert out == {"stats_mean": 1.0, "stats_std": 0.5}
 
     def test_call_feature_swallows_exception(self, _redirect_features_dir):
         (_redirect_features_dir / "e.py").write_text(
-            "def bad(mask, image): raise ValueError('nope')\n")
+            "def bad(mask, image): raise ValueError('nope')\n", encoding="utf-8")
         cf = custom_features.discover_features()[0]
         assert custom_features.call_feature(cf, [], []) == {}

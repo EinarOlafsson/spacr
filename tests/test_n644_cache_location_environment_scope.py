@@ -22,7 +22,7 @@ def metadata(tmp_path, monkeypatch):
 def test_unknown_metadata_field_is_not_installed_as_an_environment_variable(metadata, tmp_path):
     values = {'SPACR_NEWS_CACHE': str(tmp_path / 'news'),
               'SPACR_TEST_UNRELATED_FIELD': str(tmp_path / 'unrelated')}
-    metadata.write_text(json.dumps(values))
+    metadata.write_text(json.dumps(values), encoding="utf-8")
     original = metadata.read_bytes()
     assert rj._apply_cache_locations() == 1
     assert os.environ['SPACR_NEWS_CACHE'] == values['SPACR_NEWS_CACHE']
@@ -32,7 +32,7 @@ def test_unknown_metadata_field_is_not_installed_as_an_environment_variable(meta
 
 
 def test_only_unknown_metadata_is_preserved_but_has_no_runtime_effect(metadata, tmp_path):
-    metadata.write_text(json.dumps({'SPACR_TEST_UNRELATED_FIELD': str(tmp_path / 'opaque')}))
+    metadata.write_text(json.dumps({'SPACR_TEST_UNRELATED_FIELD': str(tmp_path / 'opaque')}), encoding="utf-8")
     original = metadata.read_bytes()
     assert rj._apply_cache_locations() == 0
     assert 'SPACR_TEST_UNRELATED_FIELD' not in os.environ
@@ -42,13 +42,13 @@ def test_only_unknown_metadata_is_preserved_but_has_no_runtime_effect(metadata, 
 @pytest.mark.parametrize('variable', [value for _key, _label, value in rj._CACHE_ROWS if value])
 def test_each_supported_cache_variable_still_applies(metadata, tmp_path, variable):
     target = str(tmp_path / 'relocated-cache')
-    metadata.write_text(json.dumps({variable: target}))
+    metadata.write_text(json.dumps({variable: target}), encoding="utf-8")
     assert rj._apply_cache_locations() == 1
     assert os.environ[variable] == target
 
 
 def test_external_environment_value_wins_over_recorded_cache_location(metadata, tmp_path, monkeypatch):
-    metadata.write_text(json.dumps({'TORCH_HOME': str(tmp_path / 'recorded')}))
+    metadata.write_text(json.dumps({'TORCH_HOME': str(tmp_path / 'recorded')}), encoding="utf-8")
     monkeypatch.setenv('TORCH_HOME', str(tmp_path / 'externally-selected'))
     original = metadata.read_bytes()
     assert rj._apply_cache_locations() == 0

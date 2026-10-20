@@ -254,7 +254,7 @@ def test_a_drop_on_the_empty_table_makes_a_channel(dialog, tmp_path):
 
 def test_non_images_are_left_out_and_named(dialog, tmp_path):
     note = tmp_path / "notes.txt"
-    note.write_text("x")
+    note.write_text("x", encoding="utf-8")
     dialog.add_column("channel")
     assert dialog.add_files(0, [note]) == []
     assert "notes.txt" in dialog.status.text()

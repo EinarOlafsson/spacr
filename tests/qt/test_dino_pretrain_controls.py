@@ -49,7 +49,7 @@ def test_existing_checkpoint_picker_cancel_dedup_and_no_computation(
     for name in ("_dino_pretrain", "_dino_encoder", "embed_array"):
         monkeypatch.setattr(emb, name, forbidden)
     path = tmp_path / "own.pt"
-    path.write_text("Path-only picker must not decode this file")
+    path.write_text("Path-only picker must not decode this file", encoding="utf-8")
     button = screen.findChild(QPushButton, "EmbeddingsDinoCheckpointButton")
     assert button is not None
     original = screen._foundation.currentData()

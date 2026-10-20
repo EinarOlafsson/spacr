@@ -470,7 +470,7 @@ def test_actual_worker_start_status_uses_its_reviewed_locale(
     source = 'Checking the selected model file…'
     review_path = (Path(__file__).parents[2] / 'docs/i18n/reviewed/runtime' / language /
                    '2026-10-15-n702-picker-file-check.json')
-    review = json.loads(review_path.read_text())
+    review = json.loads(review_path.read_text(encoding="utf-8"))
     assert review['language'] == language
     record, = [row for row in review['records']
                if row['source'] == source and row['table'] == 'ui']

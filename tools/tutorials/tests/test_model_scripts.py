@@ -11,9 +11,9 @@ LANGUAGES = {'es', 'fr', 'hi', 'it', 'pt-BR', 'ja', 'zh-CN', 'da', 'de', 'is', '
 
 @pytest.mark.parametrize('identity,scenes', [('21_model_compare', 6), ('22_model_zoo', 13)])
 def test_all_model_reviews_are_complete_and_bound_to_the_current_source(identity, scenes):
-    english = json.loads((ROOT / (identity + '.json')).read_text())
+    english = json.loads((ROOT / (identity + '.json')).read_text(encoding="utf-8"))
     digest = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-    reviews = [json.loads(path.read_text()) for path in (ROOT / 'reviews').glob(identity + '.*.json')]
+    reviews = [json.loads(path.read_text(encoding="utf-8")) for path in (ROOT / 'reviews').glob(identity + '.*.json')]
     assert len(reviews) == 13 and {item['language'] for item in reviews} == LANGUAGES
     assert len(english['scenes']) == scenes and english['host_app_key'] == 'make_masks'
     for review in reviews:

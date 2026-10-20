@@ -207,7 +207,7 @@ def main() -> int:
         "schema": 1,
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "app_key": "align",
-        "source_manifest": json.loads(SOURCE_MANIFEST.read_text()),
+        "source_manifest": json.loads(SOURCE_MANIFEST.read_text(encoding="utf-8")),
         "plan": {
             "tiles": len(plan.placements),
             "registered": plan.n_registered,
@@ -235,7 +235,7 @@ def main() -> int:
     }
     (output.parent / "source_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n"
-    )
+    , encoding="utf-8")
     screen.close()
     settle(app, 20)
     window.close()

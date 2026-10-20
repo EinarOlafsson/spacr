@@ -1020,13 +1020,13 @@ def test_convert_separate_files_skips_unmatched_and_wellless(tmp_path):
     folder = tmp_path / "raw"
     folder.mkdir()
     _tiny_tif(folder / "F1.tif")
-    (folder / "notes.txt").write_text("hello")
+    (folder / "notes.txt").write_text("hello", encoding="utf-8")
 
     regex = r"(W(?P<wellID>\d+))?F(?P<fieldID>\d+)\.tif"
     IO.convert_separate_files_to_yokogawa(str(folder), regex)
 
     assert list(folder.glob("plate*.tif")) == []
-    assert (folder / "rename_log.csv").read_text().strip() == ""
+    assert (folder / "rename_log.csv").read_text(encoding="utf-8").strip() == ""
 
 
 def test_convert_separate_files_overflows_onto_second_plate(tmp_path):

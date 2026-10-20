@@ -28,7 +28,7 @@ def _replacement(destination, foreign, kind):
         destination.write_bytes(foreign.read_bytes())
 
 
-@pytest.mark.parametrize("kind", ["regular", "symlink"])
+@pytest.mark.parametrize("kind", ["regular", pytest.param("symlink", marks=pytest.mark.needs_symlink)])
 def test_exclusive_creation_refusal_preserves_foreign_destination(transfer, monkeypatch, kind):
     source, destination, foreign = transfer
     original = source.read_bytes()
@@ -46,7 +46,8 @@ def test_exclusive_creation_refusal_preserves_foreign_destination(transfer, monk
     assert foreign.read_bytes() == b"unrelated existing bytes"
 
 
-@pytest.mark.parametrize("kind", ["regular", "symlink"])
+@pytest.mark.posix_only
+@pytest.mark.parametrize("kind", ["regular", pytest.param("symlink", marks=pytest.mark.needs_symlink)])
 def test_failed_copy_preserves_replacement_destination(transfer, monkeypatch, kind):
     source, destination, foreign = transfer
     original = source.read_bytes()
@@ -78,6 +79,7 @@ def test_failed_copy_removes_its_own_partial_destination(transfer, monkeypatch):
     assert foreign.read_bytes() == b"unrelated existing bytes"
 
 
+@pytest.mark.posix_only
 def test_successful_fallback_keeps_bytes_mode_and_move_semantics(transfer):
     source, destination, foreign = transfer
     source.chmod(0o640)

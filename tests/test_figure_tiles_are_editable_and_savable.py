@@ -89,7 +89,7 @@ def test_the_saved_file_carries_the_restyling(qtbot, figure, tmp_path):
     target = tmp_path / "styled.svg"
     save_figure_as(None, figure, str(target))
 
-    assert "EDITED IN THE MENU" in target.read_text(errors="ignore")
+    assert "EDITED IN THE MENU" in target.read_text(errors="ignore", encoding="utf-8")
 
 
 def test_a_cancelled_save_writes_nothing(qtbot, figure, monkeypatch, tmp_path):

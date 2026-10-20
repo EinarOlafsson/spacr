@@ -16,12 +16,12 @@ def dashboard(qtbot, qt_theme_applied, monkeypatch, tmp_path):
     project = tmp_path / 'project'
     project.mkdir()
     output = project / 'measurements.csv'
-    output.write_text('cell,area\n1,42\n')
+    output.write_text('cell,area\n1,42\n', encoding="utf-8")
     records = []
     for name in ('first', 'second', 'third'):
         directory = root / name
         directory.mkdir()
-        (directory / 'manifest.json').write_text('{}')
+        (directory / 'manifest.json').write_text('{}', encoding="utf-8")
         records.append(dict(run_id=name, dir=directory, app_key='measure',
                             status='success', settings={'src': str(project)}))
     monkeypatch.setattr(run_journal, 'runs_root', lambda: root)
@@ -66,7 +66,7 @@ def test_confirmation_defaults_to_cancel_and_deletes_only_selected_journals(
     expected_remaining = answer == history.QMessageBox.Cancel
     assert records[0]['dir'].exists() is expected_remaining
     assert records[2]['dir'].exists() is expected_remaining
-    assert output.read_text() == 'cell,area\n1,42\n'
+    assert output.read_text(encoding="utf-8") == 'cell,area\n1,42\n'
     assert widget._table.rowCount() == (3 if expected_remaining else 1)
 
 

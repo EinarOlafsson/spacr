@@ -15,7 +15,7 @@ def _tree(root: Path, files) -> Path:
     for relative, text in files.items():
         path = root / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text)
+        path.write_text(text, encoding="utf-8")
     return root
 
 
@@ -43,7 +43,7 @@ def test_collisions_are_numbered_case_insensitively(tmp_path):
 
 
 def test_an_existing_file_is_skipped_over(tmp_path):
-    (tmp_path / "exp.tif").write_text("x")
+    (tmp_path / "exp.tif").write_text("x", encoding="utf-8")
     path = fc.available_filename(tmp_path, "exp", ".tif", set(), {})
     assert path.name == "exp_2.tif"
 
@@ -167,7 +167,7 @@ def test_progress_is_reported_every_hundred_copies(tmp_path):
 def test_the_command_line_copies_and_reports_its_status(tmp_path, capsys):
     source = _tree(tmp_path / "src", {"a/1.tif": "1"})
     assert fc.main([str(source)]) == 0
-    assert (tmp_path / "src_renamed" / "src_a.tif").read_text() == "1"
+    assert (tmp_path / "src_renamed" / "src_a.tif").read_text(encoding="utf-8") == "1"
     assert "Copied: 1" in capsys.readouterr().out
     assert fc.main([str(tmp_path / "missing"), str(tmp_path / "o")]) == 1
     assert "Error:" in capsys.readouterr().err

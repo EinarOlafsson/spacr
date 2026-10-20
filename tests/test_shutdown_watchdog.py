@@ -115,7 +115,7 @@ def test_a_shutdown_that_never_ends_is_dumped_and_killed(tmp_path):
     """
     repo = str(__import__("pathlib").Path(__file__).resolve().parent.parent)
     script = tmp_path / "stalled_shutdown.py"
-    script.write_text(textwrap.dedent(_STALLED_SHUTDOWN.format(repo=repo)))
+    script.write_text(textwrap.dedent(_STALLED_SHUTDOWN.format(repo=repo)), encoding="utf-8")
 
     done = subprocess.run([sys.executable, str(script)],
                           capture_output=True, text=True, timeout=300)
@@ -156,13 +156,13 @@ def test_a_run_whose_interpreter_will_not_exit_still_reports_and_stops(
     for somebody to notice.
     """
     repo = str(__import__("pathlib").Path(__file__).resolve().parent.parent)
-    (tmp_path / "conftest.py").write_text(_LEAKY_CONFTEST.format(repo=repo))
-    (tmp_path / "test_leaks_a_thread.py").write_text(_LEAKY_TEST)
+    (tmp_path / "conftest.py").write_text(_LEAKY_CONFTEST.format(repo=repo), encoding="utf-8")
+    (tmp_path / "test_leaks_a_thread.py").write_text(_LEAKY_TEST, encoding="utf-8")
     # A real local config keeps pytest 8.0's rootdir inside this temporary
     # project. ``-c /dev/null`` makes that release use ``/dev`` as root and
     # walk back through all of ``/tmp`` while resolving the explicit test,
     # which can encounter unrelated root-only directories before collection.
-    (tmp_path / "pytest.ini").write_text("[pytest]\n")
+    (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
 
     env = dict(__import__("os").environ)
     env["SPACR_PYTEST_SHUTDOWN_WATCHDOG_S"] = "3"

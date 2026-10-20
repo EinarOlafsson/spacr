@@ -16,7 +16,7 @@ def ready(root):
     python = Path(service.environments._env_python(str(env)))
     python.parent.mkdir(parents=True, exist_ok=True)
     python.touch()
-    (env / service._OWNER).write_text(json.dumps({'app': 'parascape', 'ready': True}))
+    (env / service._OWNER).write_text(json.dumps({'app': 'parascape', 'ready': True}), encoding="utf-8")
     return env
 
 
@@ -54,7 +54,7 @@ def test_install_commands_only_put_packages_inside_owned_environment(tmp_path):
 def test_failed_or_cancelled_install_removes_only_its_environment_and_retains_log(tmp_path, failure):
     other = tmp_path/'my-project'
     other.mkdir()
-    (other/'keep.txt').write_text('keep')
+    (other/'keep.txt').write_text('keep', encoding="utf-8")
 
     def runner(argv, **kwargs):
         kwargs['on_line']('diagnostic from subprocess')
@@ -68,16 +68,16 @@ def test_failed_or_cancelled_install_removes_only_its_environment_and_retains_lo
         service.install_parascape(service.REPOSITORY, root=tmp_path, runner=runner, preflight=preflight)
     assert not (tmp_path/'parascape').exists()
     assert not (tmp_path/'parascape.lock').exists()
-    assert (other/'keep.txt').read_text() == 'keep'
-    assert 'diagnostic from subprocess' in (tmp_path/'parascape-install.log').read_text()
+    assert (other/'keep.txt').read_text(encoding="utf-8") == 'keep'
+    assert 'diagnostic from subprocess' in (tmp_path/'parascape-install.log').read_text(encoding="utf-8")
 
 
 def test_refuses_unowned_folder_and_live_install(tmp_path):
     (tmp_path/'parascape').mkdir()
-    (tmp_path/'parascape'/'keep').write_text('mine')
+    (tmp_path/'parascape'/'keep').write_text('mine', encoding="utf-8")
     with pytest.raises(service.environments._InstallFailed, match='not a spaCR-owned'):
         service.install_parascape(service.REPOSITORY, root=tmp_path, preflight=preflight)
-    assert (tmp_path/'parascape'/'keep').read_text() == 'mine'
+    assert (tmp_path/'parascape'/'keep').read_text(encoding="utf-8") == 'mine'
     service._claim(tmp_path)
     with pytest.raises(service.environments._InstallFailed, match='already being installed'):
         service.install_parascape(service.REPOSITORY, root=tmp_path, preflight=preflight)
@@ -90,10 +90,10 @@ def test_local_source_is_real_git_archive_of_committed_files_without_building_in
     source.mkdir()
     subprocess.run(['git', 'init', '-q', str(source)], check=True)
     (source/'parascape').mkdir()
-    (source/'parascape'/'app.py').write_text('committed')
+    (source/'parascape'/'app.py').write_text('committed', encoding="utf-8")
     subprocess.run(['git', '-C', str(source), 'add', '.'], check=True)
     subprocess.run(['git', '-C', str(source), '-c', 'user.name=Test', '-c', 'user.email=test@example.org', 'commit', '-qm', 'fixture'], check=True)
-    (source/'parascape'/'app.py').write_text('uncommitted stays untouched')
+    (source/'parascape'/'app.py').write_text('uncommitted stays untouched', encoding="utf-8")
     root = tmp_path/'apps'
 
     def runner(argv, **kwargs):
@@ -106,7 +106,7 @@ def test_local_source_is_real_git_archive_of_committed_files_without_building_in
         return 0, ['{"ok": true, "version": "fixture"}']
 
     service.install_parascape(source, root=root, runner=runner, preflight=preflight)
-    assert (source/'parascape'/'app.py').read_text() == 'uncommitted stays untouched'
+    assert (source/'parascape'/'app.py').read_text(encoding="utf-8") == 'uncommitted stays untouched'
     assert not list(source.glob('*.egg-info'))
     assert not list(root.glob('parascape-source-*'))
 
@@ -139,13 +139,13 @@ def test_real_subprocess_uses_environment_console_script_and_writes_launch_log(t
     subprocess.run([sys.executable, '-m', 'venv', '--without-pip', str(env)], check=True)
     python = service.environments._env_python(str(env))
     script = service.gui_command(env)
-    script.write_text(f'#!{python}\nimport sys; print("isolated:", sys.prefix)\n')
+    script.write_text(f'#!{python}\nimport sys; print("isolated:", sys.prefix)\n', encoding="utf-8")
     script.chmod(0o755)
-    (env/service._OWNER).write_text('{"app":"parascape","ready":true}')
+    (env/service._OWNER).write_text('{"app":"parascape","ready":true}', encoding="utf-8")
     monkeypatch.setenv('PYTHONPATH', '/should/not/be/used')
     process = service.launch_parascape(root=tmp_path)
     assert process.wait(timeout=15) == 0
-    assert 'isolated: ' + str(env) in (tmp_path/'parascape-launch.log').read_text()
+    assert 'isolated: ' + str(env) in (tmp_path/'parascape-launch.log').read_text(encoding="utf-8")
 
 
 def test_pre_cancelled_install_does_not_create_environment(tmp_path):
@@ -185,23 +185,23 @@ def test_invalid_source_fails_before_preflight_or_environment_creation(tmp_path,
 @pytest.mark.parametrize('record', ['[]', '{"app":"another-app","ready":true}', '{broken'])
 def test_invalid_ownership_never_launches_or_deletes_an_existing_folder(tmp_path, record):
     env = ready(tmp_path)
-    (env/service._OWNER).write_text(record)
+    (env/service._OWNER).write_text(record, encoding="utf-8")
     keep = env/'user-file'
-    keep.write_text('preserve')
+    keep.write_text('preserve', encoding="utf-8")
     assert not service.is_installed(tmp_path)
     with pytest.raises(RuntimeError, match='installed before'):
         service.launch_parascape(root=tmp_path, popen=lambda *args, **kwargs: pytest.fail('launched'))
     with pytest.raises(service.environments._InstallFailed, match='not a spaCR-owned'):
         service.install_parascape(service.REPOSITORY, root=tmp_path, preflight=preflight)
-    assert keep.read_text() == 'preserve'
-    assert (env/service._OWNER).read_text() == record
+    assert keep.read_text(encoding="utf-8") == 'preserve'
+    assert (env/service._OWNER).read_text(encoding="utf-8") == record
 
 
 def test_cancellation_during_preflight_preserves_existing_partial_environment(tmp_path):
     env = ready(tmp_path)
-    (env/service._OWNER).write_text('{"app":"parascape","ready":false}')
+    (env/service._OWNER).write_text('{"app":"parascape","ready":false}', encoding="utf-8")
     keep = env/'old-install'
-    keep.write_text('still here')
+    keep.write_text('still here', encoding="utf-8")
     cancel = threading.Event()
 
     def cancelled_preflight(*args):
@@ -212,17 +212,17 @@ def test_cancellation_during_preflight_preserves_existing_partial_environment(tm
         service.install_parascape(service.REPOSITORY, root=tmp_path, cancel=cancel,
                                   preflight=cancelled_preflight,
                                   runner=lambda *args, **kwargs: pytest.fail('command after cancellation'))
-    assert keep.read_text() == 'still here'
+    assert keep.read_text(encoding="utf-8") == 'still here'
     assert not (tmp_path/'parascape.lock').exists()
 
 
 def test_retry_replaces_only_owned_partial_environment_and_recovers_invalid_lock(tmp_path):
     env = ready(tmp_path)
-    (env/service._OWNER).write_text('{"app":"parascape","ready":false}')
-    (env/'old-install').write_text('partial')
-    (tmp_path/'parascape.lock').write_text('interrupted lock write')
+    (env/service._OWNER).write_text('{"app":"parascape","ready":false}', encoding="utf-8")
+    (env/'old-install').write_text('partial', encoding="utf-8")
+    (tmp_path/'parascape.lock').write_text('interrupted lock write', encoding="utf-8")
     outside = tmp_path/'project.txt'
-    outside.write_text('preserve')
+    outside.write_text('preserve', encoding="utf-8")
 
     def runner(argv, **kwargs):
         assert not (env/'old-install').exists()
@@ -234,7 +234,7 @@ def test_retry_replaces_only_owned_partial_environment_and_recovers_invalid_lock
 
     service.install_parascape(service.REPOSITORY, root=tmp_path, runner=runner, preflight=preflight)
     assert service.is_installed(tmp_path)
-    assert outside.read_text() == 'preserve'
+    assert outside.read_text(encoding="utf-8") == 'preserve'
     assert not (tmp_path/'parascape.lock').exists()
     assert not list(tmp_path.glob('parascape-source-*'))
 
@@ -319,7 +319,7 @@ def test_default_install_resolves_unpinned_pypi_package_not_a_same_named_folder(
     assert '--upgrade' in command
     assert command[command.index('--index-url') + 1] == 'https://pypi.org/simple'
     assert not any(command[0] == 'git' for command in calls)
-    record = json.loads((root/'parascape'/service._OWNER).read_text())
+    record = json.loads((root/'parascape'/service._OWNER).read_text(encoding="utf-8"))
     assert record['source'] == 'parascape'
     assert record['version'] == '0.42.0'
 
@@ -347,7 +347,7 @@ def test_update_check_reads_actual_environment_and_compatible_index(tmp_path, in
 
 def test_upgrade_ignores_developer_source_and_runs_pip_in_existing_environment(tmp_path, monkeypatch):
     env = ready(tmp_path)
-    (env/'preserve').write_text('keep')
+    (env/'preserve').write_text('keep', encoding="utf-8")
     monkeypatch.setenv('SPACR_PARASCAPE_SOURCE', service.REPOSITORY)
     calls = []
     def runner(argv, **kwargs):
@@ -358,14 +358,14 @@ def test_upgrade_ignores_developer_source_and_runs_pip_in_existing_environment(t
     assert len(calls) == 2
     assert calls[0][-1] == 'parascape>=0.0.1.0' and '--upgrade' in calls[0]
     assert calls[0][:4] == [service.environments._env_python(str(env)), '-I', '-m', 'pip']
-    assert (env/'preserve').read_text() == 'keep'
+    assert (env/'preserve').read_text(encoding="utf-8") == 'keep'
     assert service._record(env) == dict(app='parascape', ready=True, source='parascape', version='1.2')
     assert not (tmp_path/'parascape.lock').exists()
 
 
 def test_interrupted_upgrade_keeps_environment_and_allows_pip_retry(tmp_path):
     env = ready(tmp_path)
-    (env/'preserve').write_text('keep')
+    (env/'preserve').write_text('keep', encoding="utf-8")
     def cancelled(*args, **kwargs):
         raise service.environments._InstallCancelled('cancelled')
     with pytest.raises(service.environments._InstallCancelled):
@@ -403,7 +403,7 @@ def test_folder_left_under_the_former_name_is_neither_used_nor_touched(tmp_path)
     legacy = tmp_path / former
     (legacy / 'bin').mkdir(parents=True)
     (legacy / 'bin' / 'python').touch()
-    (legacy / f'.spacr-{former}.json').write_text(json.dumps({'app': former, 'ready': True}))
+    (legacy / f'.spacr-{former}.json').write_text(json.dumps({'app': former, 'ready': True}), encoding="utf-8")
     assert not service.is_installed(tmp_path)
 
     def runner(argv, **kwargs):

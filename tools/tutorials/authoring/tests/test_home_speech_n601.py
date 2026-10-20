@@ -14,9 +14,9 @@ import render_all_voices as renderer
 
 
 def lesson(identity, language):
-    source = json.loads((ROOT.parent / 'lessons' / (identity + '.json')).read_text())
+    source = json.loads((ROOT.parent / 'lessons' / (identity + '.json')).read_text(encoding="utf-8"))
     if language != 'en':
-        review = json.loads((ROOT.parent / 'lessons/reviews' / f'{identity}.{language}.json').read_text())
+        review = json.loads((ROOT.parent / 'lessons/reviews' / f'{identity}.{language}.json').read_text(encoding="utf-8"))
         assert len(review['scenes']) == len(source['scenes'])
         for scene, text in zip(source['scenes'], review['scenes']):
             scene['narration'] = text
@@ -76,7 +76,7 @@ def test_profile_identity_change_reuses_only_equal_sentence_plans():
     # The requested English live-TV repair changes the global profile identity.
     # Equal sentence plans remain reusable; altered speech must invalidate reuse.
     identity = '05_home'
-    historical = json.loads((Path(__file__).parent / 'fixtures' / 'home-n601-before.json').read_text())
+    historical = json.loads((Path(__file__).parent / 'fixtures' / 'home-n601-before.json').read_text(encoding="utf-8"))
     count = 0
     for language, (code, voices) in renderer.LANGUAGES.items():
         if identity == '05_home' and language in {'ja','zh-CN'}:

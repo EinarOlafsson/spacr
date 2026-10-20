@@ -91,6 +91,7 @@ from .crops import (
     to_cv2_bgr,
 )
 from . import settings as _settings_module
+from .logging_util import _legacy_text_encoding
 settings = _settings_module
 from . import measurement_schema as _measurement_schema
 MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
@@ -851,8 +852,8 @@ def _preload_matching_nvrtc():
     major = _cupy_wheel_cuda_major()
     if major is None:
         return None
-    layouts = (("cuda_nvrtc/lib", "cuda_runtime/include"),
-               (f"cu{major}/lib", f"cu{major}/include"))
+    layouts = ((os.path.join("cuda_nvrtc", "lib"), os.path.join("cuda_runtime", "include")),
+               (os.path.join(f"cu{major}", "lib"), os.path.join(f"cu{major}", "include")))
     roots = list(site.getsitepackages()) + [site.getusersitepackages()]
     for root in roots:
         for lib_dir, include_dir in layouts:
@@ -5304,7 +5305,7 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
                 f"Setting: cell_cycle_model {model_path} has no "
                 f"cell_cycle_phases.json beside it, so the order of its "
                 f"phases is unknown; use a model this step trained.")
-        with open(order_file) as handle:
+        with open(order_file, encoding=_legacy_text_encoding(order_file)) as handle:
             meta = json.load(handle)
         classes, size = list(meta['phases']), int(meta.get('crop_size', size))
         report['model'] = model_path
@@ -5362,7 +5363,7 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
                 f"Training the torch phase classifier produced no model "
                 f"({model_path!r}).")
         with open(os.path.join(os.path.dirname(model_path),
-                               'cell_cycle_phases.json'), 'w') as handle:
+                               'cell_cycle_phases.json'), 'w', encoding="utf-8") as handle:
             json.dump({'phases': classes, 'crop_size': size,
                        'channel': int(channel), 'split_group_by': level,
                        'split': split_report.to_dict()}, handle)
@@ -9007,6 +9008,76 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
 _MEASURE_WRITE_ENDPOINT = None
 
 
+_WORKER_THREAD_VARIABLES = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+                            "MKL_NUM_THREADS", "VECLIB_MAXIMUM_THREADS",
+                            "NUMEXPR_NUM_THREADS", "NUMBA_NUM_THREADS")
+
+
+@contextlib.contextmanager
+def _single_threaded_children():
+    """Start the pool's workers with one compute thread each.
+
+    Each Measure worker otherwise sizes its numpy/BLAS, numba, torch and
+    OpenCV thread pools to every core, so six workers on an eight-core Mac
+    ran some fifty threads and froze the machine. The libraries read these
+    variables when they are first imported, which in a spawned worker is
+    before any initializer runs, so they are set in this process for the
+    life of the pool and inherited by every worker it starts. Results do
+    not change: only how many threads compute them.
+    """
+    saved = {name: os.environ.get(name) for name in _WORKER_THREAD_VARIABLES}
+    try:
+        for name in _WORKER_THREAD_VARIABLES:
+            os.environ[name] = "1"
+        yield
+    finally:
+        for name, value in saved.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+
+
+def _limit_worker_threads():
+    """Hold an already-started worker's thread pools to one thread.
+
+    :returns: the limits now in force, by library.
+    """
+    import sys
+
+    for name in _WORKER_THREAD_VARIABLES:
+        os.environ[name] = "1"
+    applied = {}
+    try:
+        from threadpoolctl import threadpool_limits
+        threadpool_limits(limits=1)
+        applied["threadpoolctl"] = 1
+    except Exception:
+        pass
+    torch = sys.modules.get("torch")
+    if torch is not None:
+        try:
+            torch.set_num_threads(1)
+            applied["torch"] = 1
+        except Exception:
+            pass
+    cv2 = sys.modules.get("cv2")
+    if cv2 is not None:
+        try:
+            cv2.setNumThreads(0)
+            applied["cv2"] = 0
+        except Exception:
+            pass
+    return applied
+
+
+def _initialize_measure_worker(endpoint=None):
+    """Limit a Measure worker's threads and hand it its writer endpoint."""
+    _limit_worker_threads()
+    if endpoint is not None:
+        _initialize_measure_writer(endpoint)
+
+
 def _initialize_measure_writer(endpoint):
     """Give a spawned Measure worker only its bounded producer handles."""
     global _MEASURE_WRITE_ENDPOINT
@@ -9888,7 +9959,8 @@ def measure_crop(settings):
                                        'measurements', 'measurements.db')
                 worker_function = (_measure_crop_queued if queued_sqlite else
                                    _measure_crop_core)
-                pool_options = {}
+                pool_options = {'initializer': _initialize_measure_worker,
+                                'initargs': ()}
                 if queued_sqlite:
                     from .database_concurrency import _DatabaseWriteQueue
 
@@ -9897,7 +9969,7 @@ def measure_crop(settings):
                         lambda packet: _commit_measure_packet(db_path, packet),
                         write_callback, ram_gib=_measure_write_queue_budget(settings),
                         context=ctx)
-                    pool_options = {'initializer': _initialize_measure_writer,
+                    pool_options = {'initializer': _initialize_measure_worker,
                                     'initargs': (writer.endpoint,)}
 
                 try:
@@ -9906,8 +9978,9 @@ def measure_crop(settings):
                         psf_cancel = manager.Event() if psf_plan is not None else None
                         completed_jobs = set()
 
-                        with _parallel_pool(pool_jobs, context=ctx,
-                                            **pool_options) as pool:
+                        with _single_threaded_children(), _parallel_pool(
+                                pool_jobs, context=ctx,
+                                **pool_options) as pool:
                             if writer is not None:
                                 writer.start()
                                 writer_started = True

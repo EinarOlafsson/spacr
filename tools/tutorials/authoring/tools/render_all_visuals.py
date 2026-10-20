@@ -44,7 +44,7 @@ def main() -> int:
         timings = lesson_root / "audio" / "en" / "af_heart.json"
         native_timings = lesson_root / 'video' / 'native-live-timings.json'
         if native_timings.exists() or (scenes.exists() and any(
-                scene.get('clip') for scene in json.loads(scenes.read_text())['scenes'])):
+                scene.get('clip') for scene in json.loads(scenes.read_text(encoding="utf-8"))['scenes'])):
             sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
             from native_live_timing import checked_native_timing
             timings = checked_native_timing(ROOT, lesson_root.name)

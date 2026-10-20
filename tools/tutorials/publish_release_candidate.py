@@ -266,7 +266,7 @@ def drop_superseded_web_copies(pages_root, manifest):
 def retire_withdrawn_pages(root, pages_root, manifest):
     """Archive explicitly redirected lessons before removing their live copies."""
     withdrawn = manifest.get('withdrawn_lessons', [])
-    catalog = parse_javascript((root / 'web/lesson_catalog.js').read_text())
+    catalog = parse_javascript((root / 'web/lesson_catalog.js').read_text(encoding="utf-8"))
     active = {row['id'] for row in catalog['lessons']}
     aliases = catalog.get('lesson_aliases', {})
     if (len(withdrawn) != len(set(withdrawn)) or any(

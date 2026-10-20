@@ -14,11 +14,11 @@ def test_includes_wildcards_precedence_and_match_exec_are_passive(tmp_path):
     ssh = tmp_path / '.ssh'
     ssh.mkdir()
     (ssh / 'parts').mkdir()
-    (ssh / 'config').write_text('Include parts/*\nHost * !excluded\n User alice\n Port 2222\nHost excluded\n User bob\nMatch exec "touch SHOULD_NOT_EXIST"\n User wrong\n')
-    (ssh / 'parts/a').write_text('Host gl\n HostName greatlakes.example\n IdentityFile ~/.ssh/id_ed25519\n ProxyJump login\n ProxyCommand forbidden\n ControlMaster auto\n')
-    (ssh / 'known_hosts').write_text('public.example,second.example ssh-ed25519 PUBLIC\n|1|HASH|HASH ssh-ed25519 PUBLIC\n[ported.example]:2222 ssh-ed25519 PUBLIC\n')
+    (ssh / 'config').write_text('Include parts/*\nHost * !excluded\n User alice\n Port 2222\nHost excluded\n User bob\nMatch exec "touch SHOULD_NOT_EXIST"\n User wrong\n', encoding="utf-8")
+    (ssh / 'parts/a').write_text('Host gl\n HostName greatlakes.example\n IdentityFile ~/.ssh/id_ed25519\n ProxyJump login\n ProxyCommand forbidden\n ControlMaster auto\n', encoding="utf-8")
+    (ssh / 'known_hosts').write_text('public.example,second.example ssh-ed25519 PUBLIC\n|1|HASH|HASH ssh-ed25519 PUBLIC\n[ported.example]:2222 ssh-ed25519 PUBLIC\n', encoding="utf-8")
     system = tmp_path / 'system'
-    system.write_text('User system\nHost gl\n Port 22\n')
+    system.write_text('User system\nHost gl\n Port 22\n', encoding="utf-8")
     rows = {row['alias']: row for row in remote._discover_ssh_settings(home=tmp_path, environ={}, system_config=system)}
     assert set(rows) == {'gl', 'excluded', 'public.example', 'second.example', 'ported.example'}
     assert rows['gl']['user'] == 'alice'
@@ -36,14 +36,39 @@ def test_windows_userprofile_and_backslashes_survive(tmp_path):
     winhome = tmp_path / 'Windows'
     ssh = winhome / '.ssh'
     ssh.mkdir(parents=True)
-    (ssh / 'config').write_text('Host=win\n HostName host.example\n IdentityFile "C:\\Users\\Ada\\.ssh\\key"\n')
+    (ssh / 'config').write_text('Host=win\n HostName host.example\n IdentityFile "C:\\Users\\Ada\\.ssh\\key"\n', encoding="utf-8")
     rows = remote._discover_ssh_settings(home=tmp_path / 'other', environ={'USERPROFILE': str(winhome)}, system_config=tmp_path / 'missing')
     assert rows == [{'alias': 'win', 'config': str(ssh / 'config'), 'hostname': 'host.example',
                      'identityfile': r'C:\Users\Ada\.ssh\key', 'port': '22'}]
 
 
+def test_the_system_config_is_where_each_platforms_openssh_reads_it(tmp_path):
+    """Windows OpenSSH reads %PROGRAMDATA%\\ssh\\ssh_config, never /etc/ssh/ssh_config."""
+    assert remote._system_ssh_config({'PROGRAMDATA': str(tmp_path)}, windows=True) == tmp_path / 'ssh' / 'ssh_config'
+    assert remote._system_ssh_config({}, windows=True) == remote.Path(r'C:\ProgramData') / 'ssh' / 'ssh_config'
+    assert remote._system_ssh_config({'PROGRAMDATA': str(tmp_path)}, windows=False) == remote.Path('/etc/ssh/ssh_config')
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='the ProgramData system config is a Windows location')
+def test_windows_discovery_and_resolution_honour_the_programdata_system_config(tmp_path, monkeypatch):
+    programdata = tmp_path / 'ProgramData'
+    (programdata / 'ssh').mkdir(parents=True)
+    (programdata / 'ssh' / 'ssh_config').write_text('Host cluster\n HostName cluster.example\n User systemwide\n Port 2200\n', encoding="utf-8")
+    home = tmp_path / 'home'
+    (home / '.ssh').mkdir(parents=True)
+    (home / '.ssh' / 'known_hosts').write_text('cluster ssh-ed25519 PUBLIC\n', encoding="utf-8")
+    rows = {row['alias']: row for row in remote._discover_ssh_settings(home=home, environ={'PROGRAMDATA': str(programdata)})}
+    assert rows['cluster']['hostname'] == 'cluster.example'
+    assert rows['cluster']['user'] == 'systemwide'
+    assert rows['cluster']['port'] == '2200'
+    monkeypatch.setenv('PROGRAMDATA', str(programdata))
+    monkeypatch.setattr(remote.Path, 'home', classmethod(lambda cls: home))
+    resolved = remote._ssh_resolve('cluster', {})
+    assert (resolved['hostname'], resolved['user'], resolved['port']) == ('cluster.example', 'systemwide', '2200')
+
+
 def test_known_hosts_only_does_not_select_missing_config(tmp_path):
-    (tmp_path / 'known_hosts').write_text('@cert-authority host.example ssh-ed25519 PUBLIC\n')
+    (tmp_path / 'known_hosts').write_text('@cert-authority host.example ssh-ed25519 PUBLIC\n', encoding="utf-8")
     assert remote._discover_ssh_settings(tmp_path)[0]['config'] == ''
 
 
@@ -52,7 +77,7 @@ def test_bad_config_is_bounded_without_executing_it(tmp_path, kind):
     config = tmp_path / 'config'
     text = {'cycle': 'Include config\n', 'large': 'x' * (1024 * 1024 + 1),
             'private': '-----BEGIN OPENSSH PRIVATE KEY-----\n'}[kind]
-    config.write_text(text)
+    config.write_text(text, encoding="utf-8")
     with pytest.raises(remote.RemoteExecutionError):
         remote._discover_ssh_settings(tmp_path)
 
@@ -132,7 +157,7 @@ def ssh_fake(monkeypatch, tmp_path):
     state = SimpleNamespace(transports=[], channels=[], prompts=[], calls=[], host_ok=True, denied=False,
                             password_only=False, publickeys=[], key_ok=False, partial_key=False, encrypted=False, channel_factory=Channel, interactive=None)
     known = tmp_path / 'known_hosts'
-    known.write_text('fake-host ssh-ed25519 PUBLIC\n')
+    known.write_text('fake-host ssh-ed25519 PUBLIC\n', encoding="utf-8")
     monkeypatch.setattr(remote, '_ssh_config_directives', lambda paths: [])
     import socket
     monkeypatch.setattr(socket, 'create_connection', lambda address, timeout: state.calls.append(('socket', address)) or SimpleNamespace(close=lambda: None))
@@ -323,22 +348,22 @@ def test_output_status_and_timeout_do_not_retry_remote_commands(ssh_fake):
 
 
 def test_include_never_reads_conventional_private_key_files(tmp_path):
-    (tmp_path / 'config').write_text('Include *\n')
-    (tmp_path / 'id_ed25519').write_text('-----BEGIN OPENSSH PRIVATE KEY-----\nSECRET')
+    (tmp_path / 'config').write_text('Include *\n', encoding="utf-8")
+    (tmp_path / 'id_ed25519').write_text('-----BEGIN OPENSSH PRIVATE KEY-----\nSECRET', encoding="utf-8")
     # A dedicated include matches only the private file; reading it would reject its header.
-    (tmp_path / 'config').write_text('Include id_*\nHost public\nUser ada\n')
+    (tmp_path / 'config').write_text('Include id_*\nHost public\nUser ada\n', encoding="utf-8")
     assert remote._discover_ssh_settings(tmp_path)[0]['user'] == 'ada'
 
 
 def test_proxycommand_wins_when_it_appears_before_proxyjump(tmp_path):
-    (tmp_path / 'config').write_text('Host public\n ProxyCommand proxy %h\n ProxyJump later\n')
+    (tmp_path / 'config').write_text('Host public\n ProxyCommand proxy %h\n ProxyJump later\n', encoding="utf-8")
     row = remote._discover_ssh_settings(tmp_path)[0]
     assert row['proxycommand'] == 'proxy %h'
     assert 'proxyjump' not in row
 
 
 def test_nondefault_known_host_port_is_kept(tmp_path):
-    (tmp_path / 'known_hosts').write_text('[public.example]:2222 ssh-ed25519 PUBLIC\n')
+    (tmp_path / 'known_hosts').write_text('[public.example]:2222 ssh-ed25519 PUBLIC\n', encoding="utf-8")
     assert remote._discover_ssh_settings(tmp_path)[0]['port'] == '2222'
 
 
@@ -430,7 +455,7 @@ def test_key_plus_mfa_moves_to_challenge_before_offering_more_agent_keys(ssh_fak
 
 @pytest.mark.parametrize('assignment', ['User=ada', 'User =ada', 'User= ada', 'User = ada'])
 def test_openssh_assignment_spacing_is_equivalent(tmp_path, assignment):
-    (tmp_path / 'config').write_text('Host = alias\n '+assignment+'\n')
+    (tmp_path / 'config').write_text('Host = alias\n '+assignment+'\n', encoding="utf-8")
     assert remote._discover_ssh_settings(tmp_path)[0]['user'] == 'ada'
 
 
@@ -568,19 +593,26 @@ def test_discovery_never_opens_private_key_files(tmp_path, monkeypatch):
     ssh.mkdir()
     keys = [ssh / 'id_ed25519', ssh / 'greatlakes_key', tmp_path / 'elsewhere.pem']
     for key in keys:
-        key.write_text('-----BEGIN OPENSSH PRIVATE KEY-----\nSECRET\n')
+        key.write_text('-----BEGIN OPENSSH PRIVATE KEY-----\nSECRET\n', encoding="utf-8")
     (ssh / 'config').write_text('Host gl\n HostName greatlakes.arc-ts.umich.edu\n User ada\n'
                                 f' IdentityFile ~/.ssh/greatlakes_key\n IdentityFile {keys[2]}\n'
-                                'Host *\n IdentityFile ~/.ssh/id_ed25519\n')
-    (ssh / 'known_hosts').write_text('greatlakes.arc-ts.umich.edu ssh-ed25519 PUBLIC\n')
+                                'Host *\n IdentityFile ~/.ssh/id_ed25519\n', encoding="utf-8")
+    (ssh / 'known_hosts').write_text('greatlakes.arc-ts.umich.edu ssh-ed25519 PUBLIC\n', encoding="utf-8")
     opened = []
     real_open = io.open
 
     def recording_open(file, *args, **kwargs):
         opened.append(str(file))
         return real_open(file, *args, **kwargs)
+    real_path_open = remote.Path.open
+
+    def recording_path_open(self, *args, **kwargs):
+        opened.append(str(self))
+        return real_path_open(self, *args, **kwargs)
     monkeypatch.setattr(builtins, 'open', recording_open)
     monkeypatch.setattr(io, 'open', recording_open)
+    # Python before 3.11 binds Path.open to io.open at import, past the patch above.
+    monkeypatch.setattr(remote.Path, 'open', recording_path_open)
     rows = {row['alias']: row for row in remote._discover_ssh_settings(home=tmp_path, environ={}, system_config=tmp_path / 'none')}
     assert rows['gl']['identityfile'] == str(ssh / 'greatlakes_key')
     assert opened and not ({str(key) for key in keys} & set(opened))
@@ -599,7 +631,7 @@ def test_discovery_never_runs_ssh_or_any_local_command(tmp_path, monkeypatch):
     ssh = tmp_path / '.ssh'
     ssh.mkdir()
     (ssh / 'config').write_text('Match exec "ssh -G evil"\n User wrong\nHost gl\n HostName gl.example\n'
-                                ' ProxyCommand ssh -W %h:%p bastion\n')
+                                ' ProxyCommand ssh -W %h:%p bastion\n', encoding="utf-8")
     rows = remote._discover_ssh_settings(home=tmp_path, environ={}, system_config=tmp_path / 'none')
     assert rows[0]['proxycommand'] == 'ssh -W %h:%p bastion'
     assert 'user' not in rows[0]
@@ -616,7 +648,7 @@ def test_login_switches_must_be_real_booleans(field):
 
 def test_blank_and_comment_lines_in_a_config_are_skipped(tmp_path):
     config = tmp_path / 'config'
-    config.write_text('# cluster logins\n\nHost gl\n\n   # the login node\n HostName greatlakes.example\n')
+    config.write_text('# cluster logins\n\nHost gl\n\n   # the login node\n HostName greatlakes.example\n', encoding="utf-8")
     assert remote._ssh_config_directives([config]) == [(None, 'top'), ('host', ['gl']), ('hostname', ['greatlakes.example'])]
 
 
@@ -629,8 +661,8 @@ def test_an_unknown_internal_marker_leaves_the_host_scope_unchanged():
 def test_a_windows_profile_folder_that_is_the_home_folder_is_read_once(tmp_path):
     ssh = tmp_path / '.ssh'
     ssh.mkdir()
-    (ssh / 'config').write_text('Host gl\n HostName greatlakes.example\n')
-    (ssh / 'known_hosts').write_text('gl ssh-ed25519 PUBLIC\n')
+    (ssh / 'config').write_text('Host gl\n HostName greatlakes.example\n', encoding="utf-8")
+    (ssh / 'known_hosts').write_text('gl ssh-ed25519 PUBLIC\n', encoding="utf-8")
     rows = remote._discover_ssh_settings(home=tmp_path, environ={'USERPROFILE': str(tmp_path)},
                                          system_config=tmp_path / 'none')
     assert [row['alias'] for row in rows] == ['gl']
@@ -649,7 +681,7 @@ def test_known_hosts_keep_only_valid_ports_and_plain_host_names(tmp_path):
     ssh = tmp_path / '.ssh'
     ssh.mkdir()
     (ssh / 'known_hosts').write_text('[far.example]:99999 ssh-ed25519 PUBLIC\n'
-                                     'bad$host,[odd.example]:22x ssh-ed25519 PUBLIC\n')
+                                     'bad$host,[odd.example]:22x ssh-ed25519 PUBLIC\n', encoding="utf-8")
     rows = {row['alias']: row for row in remote._discover_ssh_settings(
         home=tmp_path, environ={}, system_config=tmp_path / 'none')}
     assert set(rows) == {'far.example', 'odd.example'}

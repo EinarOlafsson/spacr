@@ -1,7 +1,0 @@
-{
-  "original_sha256": "7dbd0cd39563df943820181b35fbd9b4807b147effee2ed8184098d7835ac5d1",
-  "proposed_sha256": "2030a63b4f38e4a34bfc732763a19ad9f786aef15ec94ca294905c5aaaff6a29",
-  "scope": "One documented private helper in existing module; optional calibration validation in existing settings preflight and direct wound series pixel scale. Exact optional None/empty and positive finite calculations unchanged, explicit0/nonfinite/nonpositive refuse before pixels/files. No calibration/segmentation/math/default/UI/model changes.",
-  "caption": "Wound calibration {name} must be a finite number greater than zero, or blank.",
-  "normal_gates": "Parent source peer before source apply; baseline/final actual preview/table/direct series refusal and valid controls, exact extractor ownership, nine reviewed runtime targets plus normal writer/audit/arrivals/callbacks, normal documented helper API eligibility; no untranslated source-only publication."
-}

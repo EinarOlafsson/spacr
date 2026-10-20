@@ -25,7 +25,7 @@ class Script:
 
 
 def configured_callbacks():
-    tree = ast.parse(CONF.read_text())
+    tree = ast.parse(CONF.read_text(encoding="utf-8"))
     names = {"setup", "_omit_unused_viewcode_catalog_version"}
     functions = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name in names]
     namespace = {

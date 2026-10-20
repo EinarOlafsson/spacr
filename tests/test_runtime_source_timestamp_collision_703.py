@@ -57,5 +57,5 @@ def test_changed_same_size_source_invalidates_old_cache_without_deleting_it(inst
                               capture_output=True, text=True, timeout=15)
     assert reopened.returncode == 0 and reopened.stdout.strip() == '1.5.1.5', reopened.stderr
     transaction = next(prefix.parent.glob('.spacr-runtime-update-*/transaction.json'))
-    state = json.loads(transaction.read_text())
+    state = json.loads(transaction.read_text(encoding="utf-8"))
     assert _snapshot(Path(state['rollback_runtime'])) == old_runtime

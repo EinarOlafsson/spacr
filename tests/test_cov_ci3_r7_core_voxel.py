@@ -13,7 +13,7 @@ from tests.test_watch_nested_f548 import _fast
 
 
 def _ledger(folder):
-    return json.loads((folder / 'spacr_watch' / 'watch_ledger.json').read_text())['fields']
+    return json.loads((folder / 'spacr_watch' / 'watch_ledger.json').read_text(encoding="utf-8"))['fields']
 
 
 def _ome_volume(path, **physical):
@@ -111,7 +111,7 @@ def test_vendor_measure_without_voxel_size_waits_for_the_file(tmp_path):
                 PhysicalSizeZ=0.4)
     measure = {key: value for key, value in MEASURE.items() if key != 'anisotropy'}
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(measure))
+    recipe.write_text(json.dumps(measure), encoding="utf-8")
     settings = dict(_bare_z_watch(tmp_path), watch_pipeline='mask_measure',
                     watch_measure_settings=str(recipe))
     received = []

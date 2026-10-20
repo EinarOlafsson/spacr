@@ -251,7 +251,7 @@ def test_the_real_mask_backdrop_uses_the_compatible_native_cache(qtbot, qapp, mo
                       window_size=[window.width(),window.height()],viewports=[[v.viewport().width(),v.viewport().height()] for v in views])
         destination = os.environ.get("PREVIEW_CACHE_NATIVE_OBSERVATION")
         if destination:
-            Path(destination).write_text(json.dumps(report,indent=2)+"\n")
+            Path(destination).write_text(json.dumps(report,indent=2)+"\n", encoding="utf-8")
         assert any(row["used_presentation"] for row in observations), report
         assert isinstance(backdrop._partial_frame[1], QImage)
         assert warm > 0

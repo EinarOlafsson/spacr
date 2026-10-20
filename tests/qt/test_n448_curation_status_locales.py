@@ -16,7 +16,7 @@ def test_actual_curation_status_callbacks_use_all_reviewed_sentences(
         qapp, monkeypatch, tmp_path, language):
     review_path = (Path(__file__).parents[2] / 'docs/i18n/reviewed/runtime' / language /
                    '2026-10-15-complete-curation-status.json')
-    review = json.loads(review_path.read_text())
+    review = json.loads(review_path.read_text(encoding="utf-8"))
     records = {row['source']: row for row in review['records']}
     assert set(records) == set(TEMPLATES.values())
     monkeypatch.setenv(i18n.ENV_LANGUAGE, language)

@@ -33,7 +33,7 @@ SCRIPT = REPO / "packaging" / "install_from_source.sh"
 
 def _sparse_lines():
     """The list as git would read it -- comments and blanks stripped."""
-    text = EXCLUDES.read_text()
+    text = EXCLUDES.read_text(encoding="utf-8")
     return [line.strip() for line in text.splitlines()
             if line.strip() and not line.strip().startswith("#")]
 
@@ -78,7 +78,7 @@ def test_every_exclusion_still_names_something_that_exists(line):
 
 def _embedded_lines():
     """The exclusion list baked into the script, as git would read it."""
-    body = SCRIPT.read_text()
+    body = SCRIPT.read_text(encoding="utf-8")
     start = body.index("cat <<'SPACR_EXCLUDES'\n") + len("cat <<'SPACR_EXCLUDES'\n")
     end = body.index("SPACR_EXCLUDES\n", start)
     return [ln for ln in body[start:end].splitlines() if ln.strip()]
@@ -111,7 +111,7 @@ def test_the_script_needs_no_second_network_request():
     """
     # CODE lines only. The comments explain the bug and naturally name
     # curl; matching the bare word would fail on its own explanation.
-    code = "\n".join(line for line in SCRIPT.read_text().splitlines()
+    code = "\n".join(line for line in SCRIPT.read_text(encoding="utf-8").splitlines()
                      if not line.lstrip().startswith("#"))
     assert "curl" not in code, (
         "the script fetches its exclusion list over the network again")
@@ -122,14 +122,14 @@ def test_the_script_needs_no_second_network_request():
 
 def test_the_script_prefers_the_file_when_run_from_a_checkout():
     """So editing the list is not silently ignored inside the repo."""
-    body = SCRIPT.read_text()
+    body = SCRIPT.read_text(encoding="utf-8")
     assert "source_install_excludes.txt" in body
     assert "sparse-checkout" in body
 
 
 def test_a_branch_that_does_not_exist_is_named_not_just_failed():
     """A bare git error does not tell the user what to type instead."""
-    body = SCRIPT.read_text()
+    body = SCRIPT.read_text(encoding="utf-8")
     assert "could not fetch branch" in body
     assert "ls-remote" in body, (
         "the error should list the branches that DO exist")
@@ -143,7 +143,7 @@ def test_the_script_asks_for_both_a_shallow_and_a_filtered_fetch():
     excluded blobs are never requested. Losing the filter would keep every
     test above passing while the download went back to full size.
     """
-    body = SCRIPT.read_text()
+    body = SCRIPT.read_text(encoding="utf-8")
     assert "--filter=blob:none" in body
     assert "--depth 1" in body
     assert "partialclonefilter" in body, \
@@ -157,7 +157,7 @@ def test_the_optional_flags_are_if_blocks_not_and_lists():
     exit silently at that line. Pinned because the short form is the
     natural thing to write and the failure is invisible.
     """
-    body = SCRIPT.read_text()
+    body = SCRIPT.read_text(encoding="utf-8")
     assert "set -eu" in body
     for flag in ("KEEP_TRANSLATIONS", "KEEP_TESTS", "KEEP_DOCS"):
         assert f'if [ "${flag}" = 1 ]' in body, \
@@ -166,9 +166,9 @@ def test_the_optional_flags_are_if_blocks_not_and_lists():
 
 def test_the_translation_catalogs_are_the_only_exclusion_that_costs_anything():
     """And the script offers a flag to put them back."""
-    body = SCRIPT.read_text()
+    body = SCRIPT.read_text(encoding="utf-8")
     assert "--with-translations" in body
-    assert "i18n_catalogs" in EXCLUDES.read_text()
+    assert "i18n_catalogs" in EXCLUDES.read_text(encoding="utf-8")
 
 
 def test_dropping_the_catalogs_leaves_the_ui_translated():
@@ -219,6 +219,7 @@ def test_the_fallback_is_what_makes_that_pass_and_not_luck():
 
 
 @pytest.mark.slow
+@pytest.mark.posix_only
 def test_the_script_produces_a_tree_that_imports_spacr():
     """End to end, against this very checkout.
 

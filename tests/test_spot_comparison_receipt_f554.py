@@ -26,14 +26,14 @@ def comparison(tmp_path, monkeypatch):
     database = tmp_path / 'measurements.db'
     database.write_bytes(b'recorded measurement input')
     library = tmp_path / 'library.csv'
-    library.write_text('barcode\nACGT\n')
+    library.write_text('barcode\nACGT\n', encoding="utf-8")
     envs = {}
     for name in ['spotnet', 'spotiflow']:
         env = tmp_path / name
         cache = env / ('models' if name == 'spotiflow' else 'home/.deepcell/models')
         cache.mkdir(parents=True)
         (cache / 'weights.bin').write_bytes(name.encode())
-        (env / 'spacr-backend.json').write_text('{}')
+        (env / 'spacr-backend.json').write_text('{}', encoding="utf-8")
         envs[name] = env
     monkeypatch.setattr(tool.SB, '_backend_state', lambda name: SimpleNamespace(env=str(envs[name])))
     monkeypatch.setattr(tool.SB, '_listen_to_workers', lambda *a: None)
@@ -64,7 +64,7 @@ def comparison(tmp_path, monkeypatch):
 def test_complete_cli_records_hashes_selectors_and_all_detectors(comparison):
     tool, args, out, source, seen, _ = comparison
     assert tool.main([*args, '--strict']) == 0
-    report = json.loads(out.read_text())
+    report = json.loads(out.read_text(encoding="utf-8"))
     assert report['acceptance']['complete'] is True
     assert seen == ['native', 'spotnet', 'spotiflow']
     assert report['provenance']['planes'] == [
@@ -86,7 +86,7 @@ def test_missing_backend_remains_exploratory_but_fails_acceptance(comparison, mo
         assert not seen and not out.exists()
     else:
         assert tool.main(args) == 0
-        assert json.loads(out.read_text())['spotiflow']['not_run'] == 'not installed'
+        assert json.loads(out.read_text(encoding="utf-8"))['spotiflow']['not_run'] == 'not installed'
 
 
 @pytest.mark.parametrize('failure', ['skipped', 'zero', 'changed', 'new_model'])
@@ -110,7 +110,7 @@ def test_incomplete_run_writes_explicit_failed_receipt(comparison, monkeypatch, 
 
     monkeypatch.setattr(tool, '_run', decode)
     assert tool.main([*args, '--strict']) == 2
-    report = json.loads(out.read_text())
+    report = json.loads(out.read_text(encoding="utf-8"))
     assert report['acceptance']['complete'] is False
     assert report['acceptance']['failures']
 
@@ -134,10 +134,10 @@ def test_existing_destination_or_input_alias_is_refused_before_decode(comparison
 def test_atomic_publish_collision_keeps_previous_file_and_cleans_scratch(tmp_path):
     tool = _tool()
     target = tmp_path / 'receipt.json'
-    target.write_text('previous')
+    target.write_text('previous', encoding="utf-8")
     with pytest.raises(FileExistsError):
         tool._write_strict_receipt(target, 'new')
-    assert target.read_text() == 'previous'
+    assert target.read_text(encoding="utf-8") == 'previous'
     assert list(tmp_path.iterdir()) == [target]
 
 
@@ -181,5 +181,5 @@ def test_spotiflow_threshold_and_model_reach_every_decode_call(comparison, monke
     assert tool.main([*args, '--spotiflow-threshold', '0.3', '--spotiflow-model', 'hybiss']) == 0
     tool.SB._spotiflow_spots(np.zeros((4, 4)), threshold=None, model=None)
     assert calls[-1] == {'threshold': 0.3, 'model': 'hybiss'}
-    report = json.loads(out.read_text())
+    report = json.loads(out.read_text(encoding="utf-8"))
     assert (report['spotiflow_threshold'], report['spotiflow_model']) == (0.3, 'hybiss')

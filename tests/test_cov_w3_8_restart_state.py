@@ -285,7 +285,7 @@ def test_an_unencodable_value_becomes_its_string(spacr_home):
 
     from pathlib import Path
 
-    assert restart_state._jsonable(Path("/data/x")) == "/data/x"
+    assert restart_state._jsonable(Path("/data/x")) == str(Path("/data/x"))
 
 
 def test_peek_returns_none_when_nothing_was_saved(spacr_home):

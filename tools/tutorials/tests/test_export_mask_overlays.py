@@ -23,7 +23,7 @@ def plotted():
 @pytest.fixture
 def source(tmp_path):
     folder = tmp_path / 'merged'; folder.mkdir()
-    (folder / '.spacr_plane_layout.json').write_text(json.dumps(LAYOUT))
+    (folder / '.spacr_plane_layout.json').write_text(json.dumps(LAYOUT), encoding="utf-8")
     array = np.zeros((24, 30, 7), dtype=np.uint16)
     for ch in range(4):
         array[..., ch] = np.arange(24 * 30, dtype=np.uint16).reshape(24, 30) * (ch + 1)
@@ -72,7 +72,7 @@ def test_metadata_is_not_a_numeric_image(source):
     marker, paths = source_files(folder)
     assert marker.name == '.spacr_plane_layout.json'
     assert [p.name for p in paths] == ['field.npy']
-    (folder / 'notes.json').write_text('{"not":"an image"}')
+    (folder / 'notes.json').write_text('{"not":"an image"}', encoding="utf-8")
     assert source_files(folder)[1] == paths
 
 
@@ -80,7 +80,7 @@ def test_wrong_layout_rejected_after_positive(source):
     folder, _ = source
     source_files(folder)
     wrong = dict(LAYOUT, mask_plane_order=['nucleus', 'cell', 'pathogen'])
-    (folder / '.spacr_plane_layout.json').write_text(json.dumps(wrong))
+    (folder / '.spacr_plane_layout.json').write_text(json.dumps(wrong), encoding="utf-8")
     with pytest.raises(ValueError): source_files(folder)
 
 

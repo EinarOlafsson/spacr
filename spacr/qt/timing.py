@@ -1017,7 +1017,7 @@ def write_report(path: str = "") -> str:
     target = path or os.environ.get("SPACR_TIMING_LOG", "") or os.path.join(
         os.getcwd(), "spacr-timing.log")
     try:
-        with open(target, "w") as handle:
+        with open(target, "w", encoding="utf-8") as handle:
             handle.write(report())
     except OSError:
         return ""

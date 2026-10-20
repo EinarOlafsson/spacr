@@ -93,7 +93,7 @@ def test_valid_finite_cut_still_classifies_declared_synthetic_signals(accepted_d
 @pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
 def test_installed_reviewed_language_at_classifier_refusal(accepted_database, language, monkeypatch):
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-viability-finite-threshold.json'
-    record = json.loads(review.read_text())['records'][0]
+    record = json.loads(review.read_text(encoding="utf-8"))['records'][0]
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     path, _ = accepted_database
     assert record['translation'] != SOURCE

@@ -118,7 +118,7 @@ def test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale():
     # Keep ASCII identifier boundaries while checking those genuine mentions.
     display_token = re.compile(r"(?<![A-Za-z0-9_])PyPI(?![A-Za-z0-9_])")
     english = {lesson['id']: lesson for lesson in _catalog('lessons', 'en')['lessons']}
-    compatibility = json.loads((CATALOG_DIR.parent / 'translation-compatibility.json').read_text())
+    compatibility = json.loads((CATALOG_DIR.parent / 'translation-compatibility.json').read_text(encoding="utf-8"))
     registered = {(row['lesson'], row['language']) for row in compatibility['entries']
                   if row['status'] == 'english_fallback' and row['reason']}
 
@@ -215,8 +215,8 @@ def test_localized_navigation_chrome_and_reviewed_copy_do_not_regress():
     navigation_path = CATALOG_DIR.parent / 'module_navigation.js'
     navigation = json.loads(re.search(
         r'window\.SPACR_TUTORIAL_NAVIGATION\s*=\s*Object\.freeze\((\{.*\})\);',
-        navigation_path.read_text(), re.DOTALL).group(1))
-    review = json.loads((ROOT / 'tools/tutorials/lessons/navigation_categories.review.json').read_text())
+        navigation_path.read_text(encoding="utf-8"), re.DOTALL).group(1))
+    review = json.loads((ROOT / 'tools/tutorials/lessons/navigation_categories.review.json').read_text(encoding="utf-8"))
     main = next(section for section in navigation['sections'] if section['id'] == 'main')
     assert [group['title'] for group in main['groups']] == review['source']
     assert set(navigation['labels']) == set(FULL_LOCALES + CAPTION_LOCALES)
@@ -241,9 +241,9 @@ def test_localized_navigation_chrome_and_reviewed_copy_do_not_regress():
         assert [navigation['labels'][locale][group['label_index']]
                 for group in main['groups']] == review['labels'][locale], locale
         dictionary_review = json.loads((ROOT / 'tools/tutorials/lessons/reviews'
-                                        / f'62_feature_dictionary.{locale}.json').read_text())
+                                        / f'62_feature_dictionary.{locale}.json').read_text(encoding="utf-8"))
         assert dictionary_review['english_sha256'] == hashlib.sha256(
-            json.dumps(json.loads((ROOT / 'tools/tutorials/lessons/62_feature_dictionary.json').read_text()),
+            json.dumps(json.loads((ROOT / 'tools/tutorials/lessons/62_feature_dictionary.json').read_text(encoding="utf-8")),
                        sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         assert dictionary_review['title'] == FEATURE_DICTIONARY_TITLES[locale], locale
         by_id = {lesson["id"]: lesson for lesson in lessons}

@@ -19,10 +19,10 @@ def test_docs_version_follows_checkout_even_when_installed_metadata_is_old(tmp_p
 
     monkeypatch.setattr(importlib.metadata, "version", lambda _name: "1.5.0.8")
     (tmp_path / "spacr").mkdir()
-    (tmp_path / "setup.py").write_text('VERSION = "1.5.1.0"\nraise RuntimeError("must not execute setup")\n')
-    (tmp_path / "spacr/_version.py").write_text('__version__ = "1.5.1.0"\n')
+    (tmp_path / "setup.py").write_text('VERSION = "1.5.1.0"\nraise RuntimeError("must not execute setup")\n', encoding="utf-8")
+    (tmp_path / "spacr/_version.py").write_text('__version__ = "1.5.1.0"\n', encoding="utf-8")
     assert source_version(tmp_path) == "1.5.1.0"
-    (tmp_path / "spacr/_version.py").write_text('__version__ = "1.5.0.9"\n')
+    (tmp_path / "spacr/_version.py").write_text('__version__ = "1.5.0.9"\n', encoding="utf-8")
     with pytest.raises(ValueError, match="versions disagree"):
         source_version(tmp_path)
 
@@ -54,7 +54,7 @@ def test_english_api_audit_rejects_changed_source_even_without_locales(tmp_path,
     source = "Return the measured intensity."
     sources = {"spacr.example": source}
     readme = tmp_path / "README.rst"
-    readme.write_text("English readme.\n")
+    readme.write_text("English readme.\n", encoding="utf-8")
     monkeypatch.setattr(builder, "README_SOURCE", readme)
     monkeypatch.setattr(builder, "API_DIR", tmp_path)
     record = {
@@ -63,7 +63,7 @@ def test_english_api_audit_rejects_changed_source_even_without_locales(tmp_path,
         "source_blocks_sha256": builder._source_block_hashes(source),
     }
     path = tmp_path / "en.json"
-    path.write_text(json.dumps({"schema": 2, "symbols": {"spacr.example": record}}))
+    path.write_text(json.dumps({"schema": 2, "symbols": {"spacr.example": record}}), encoding="utf-8")
     assert builder.audit(sources, ()) == 0
     assert builder.audit({"spacr.example": "Return a different measurement."}, ()) == 1
     assert builder.audit({**sources, "spacr.new_function": "New function."}, ()) == 1
@@ -85,7 +85,7 @@ def test_english_runtime_audit_rejects_changed_source_even_without_locales(tmp_p
         "MODULE_SUMMARIES": sources["module_summaries"],
         "SOURCE_HASHES": builder._source_hashes(sources),
     }
-    (tmp_path / "en.py").write_text("\n".join(f"{name} = {value!r}" for name, value in values.items()))
+    (tmp_path / "en.py").write_text("\n".join(f"{name} = {value!r}" for name, value in values.items()), encoding="utf-8")
     assert builder.audit(sources, ()) == 0
     sources["ui"] = {"Changed caption": "Changed caption"}
     assert builder.audit(sources, ()) == 1
@@ -112,11 +112,11 @@ def test_built_english_publication_declares_its_mode_and_current_api():
 
     root = Path(os.environ.get("SPACR_DOCS_BUILD_DIR", TOOLS.parent / "docs/_build/html"))
     from docs_version import source_version
-    assert f'spaCR {source_version(TOOLS.parent)} documentation' in (root / "index.html").read_text()
+    assert f'spaCR {source_version(TOOLS.parent)} documentation' in (root / "index.html").read_text(encoding="utf-8")
     for module in ("image_quality", "host_pathogen", "object", "timeflows_model"):
         page = root / "api/spacr" / module / "index.html"
         parser = Scripts()
-        parser.feed(page.read_text())
+        parser.feed(page.read_text(encoding="utf-8"))
         assert len(parser.api) == 1
         assert parser.api[0]["data-api-language"] == "english"
         assert parser.api[0]["data-api-catalog-version"]

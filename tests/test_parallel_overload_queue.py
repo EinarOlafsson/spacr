@@ -43,7 +43,7 @@ def _slow_echo(value):
 def _overload_then_invalid_in_child(folder):
     marker = Path(folder) / 'primary-error-recorded'
     if not marker.exists():
-        marker.write_text('failed once')
+        marker.write_text('failed once', encoding="utf-8")
         raise MemoryError('first overload at original calculation')
     raise ValueError('final invalid result at different calculation')
 
@@ -260,12 +260,12 @@ def _overloaded_field(arguments):
     directory = Path(directory)
     started = directory / f'primary-{identity}'
     if not started.exists():
-        started.write_text('primary')
+        started.write_text('primary', encoding="utf-8")
         if identity == 0:
             raise sqlite3.OperationalError('database is locked')
         return identity
     assert all((directory / f'primary-{index}').exists() for index in range(4))
-    (directory / 'final-retry').write_text('once')
+    (directory / 'final-retry').write_text('once', encoding="utf-8")
     return identity
 
 
@@ -274,7 +274,7 @@ def test_spawned_pool_retries_after_every_primary_task_and_preserves_order(tmp_p
     gate = _WorkerStartGate(clock=clock.read, sleep=clock.sleep)
     with _parallel_pool(2, context=multiprocessing.get_context('spawn'), gate=gate) as pool:
         assert pool.map(_overloaded_field, [(str(tmp_path), index) for index in range(4)]) == [0, 1, 2, 3]
-    assert (tmp_path / 'final-retry').read_text() == 'once'
+    assert (tmp_path / 'final-retry').read_text(encoding="utf-8") == 'once'
     assert clock.now == pytest.approx(10)
 
 
@@ -303,7 +303,7 @@ def test_async_map_waits_for_final_pass_and_preserves_order(tmp_path, method):
         assert result.get(timeout=20) == [0, 1, 2, 3]
         assert result.ready() and result.successful()
         assert callbacks == [[0, 1, 2, 3]]
-    assert (tmp_path / 'final-retry').read_text() == 'once'
+    assert (tmp_path / 'final-retry').read_text(encoding="utf-8") == 'once'
 
 
 def test_real_torch_loader_accepts_paced_context_and_keeps_seed_initializer():
@@ -411,7 +411,7 @@ def test_sequencing_final_failure_does_not_drop_later_deferred_chunks(tmp_path, 
     assert aborted == [True]
     assert len(list(tmp_path.rglob('*.pkl'))) == 1
     final_error = list(tmp_path.rglob('*.final-error.txt'))
-    assert len(final_error) == 1 and 'final invalid chunk' in final_error[0].read_text()
+    assert len(final_error) == 1 and 'final invalid chunk' in final_error[0].read_text(encoding="utf-8")
 
 
 def test_thread_pool_uses_the_same_final_queue_rule(tmp_path):
@@ -478,8 +478,8 @@ def test_sweep_final_retry_follows_all_primaries_keeps_one_csv_row_and_original_
         if identity == 1 and calls.count(1) == 1:
             folder = tmp_path / 'trial_0001'
             folder.mkdir()
-            (folder / 'error.txt').write_text('original complete traceback')
-            (folder / '_trial_result.json').write_text('original result')
+            (folder / 'error.txt').write_text('original complete traceback', encoding="utf-8")
+            (folder / '_trial_result.json').write_text('original result', encoding="utf-8")
             raise sqlite3.OperationalError('database is locked')
         if identity == 1 and second_failure:
             raise MemoryError('final failure')
@@ -497,8 +497,8 @@ def test_sweep_final_retry_follows_all_primaries_keeps_one_csv_row_and_original_
     assert result.iloc[0]['primary_error_type'] == 'OperationalError'
     assert result.iloc[0]['primary_error'] == 'database is locked'
     assert bool(result.iloc[0]['overload_retry'])
-    assert (tmp_path / 'trial_0001' / 'error.txt.primary').read_text() == 'original complete traceback'
-    assert (tmp_path / 'trial_0001' / '_trial_result.json.primary').read_text() == 'original result'
+    assert (tmp_path / 'trial_0001' / 'error.txt.primary').read_text(encoding="utf-8") == 'original complete traceback'
+    assert (tmp_path / 'trial_0001' / '_trial_result.json.primary').read_text(encoding="utf-8") == 'original result'
     saved = pd.read_csv(tmp_path / 'sweep_results.csv')
     assert saved['trial_id'].tolist() == [1, 2, 3]
     assert saved.iloc[0]['status'] == result.iloc[0]['status']
@@ -511,7 +511,7 @@ def test_contained_retry_cannot_read_the_previous_attempts_result(tmp_path, monk
     import subprocess
     from spacr import parameter_sweep as sweep
     result = tmp_path / '_trial_result.json'
-    result.write_text('{"status":"ok","trial_id":7}')
+    result.write_text('{"status":"ok","trial_id":7}', encoding="utf-8")
     monkeypatch.setattr(sweep, 'containment_available', lambda: False)
     monkeypatch.setattr(subprocess, 'run', lambda *_args, **_kw: SimpleNamespace(
         returncode=137, stderr='worker killed without result'))
@@ -529,15 +529,15 @@ def test_sweep_child_reports_explicit_overload_without_losing_original_traceback
     import json
     from spacr import ml, sweep_child
     settings, result = tmp_path / 'settings.json', tmp_path / 'result.json'
-    settings.write_text(json.dumps({'settings': {'src': str(tmp_path)}, 'trial_id': 4}))
+    settings.write_text(json.dumps({'settings': {'src': str(tmp_path)}, 'trial_id': 4}), encoding="utf-8")
     def fail(_settings):
         raise error
     monkeypatch.setattr(ml, 'perform_regression', fail)
     assert sweep_child.main([str(settings), str(result)]) == 0
-    row = json.loads(result.read_text())
+    row = json.loads(result.read_text(encoding="utf-8"))
     assert row['_overload'] is expected
     assert row['status'] == 'failed' and row['error_type'] == type(error).__name__
-    assert type(error).__name__ in (tmp_path / 'error.txt').read_text()
+    assert type(error).__name__ in (tmp_path / 'error.txt').read_text(encoding="utf-8")
 
 
 def test_finished_thread_pool_does_not_join_unused_paced_starts():

@@ -34,14 +34,14 @@ def fake_runner(root, calls, *, failure=None, version="3.9", external=False):
             return 1, ["download failed"]
         if "find" in argv:
             python.parent.mkdir(parents=True, exist_ok=True)
-            python.write_text("fake interpreter")
+            python.write_text("fake interpreter", encoding="utf-8")
             result = [str(python)]
         elif "-c" in argv:
             result = [version]
         elif "venv" in argv:
             env_python = Path(backend._env_python(argv[-1]))
             env_python.parent.mkdir(parents=True, exist_ok=True)
-            env_python.write_text("fake environment")
+            env_python.write_text("fake environment", encoding="utf-8")
             result = []
         elif "--selftest" in argv:
             result = ['{"ok": true, "python": "3.9", "packages": {}}']
@@ -86,7 +86,7 @@ def test_managed_python_is_private_verified_and_used_by_install(isolated, monkey
         assert not {"PYTHONPATH", "PYTHONHOME", "VIRTUAL_ENV"} & kwargs["env"].keys()
     assert state.record["interpreter"] == [str(managed / "python")]
     assert (0, 1, "Prepare compatible Python") in progress
-    log = (isolated / "cellprofiler.log").read_text()
+    log = (isolated / "cellprofiler.log").read_text(encoding="utf-8")
     assert "--no-bin" in log and "--selftest" in log
     assert not (isolated / "cellprofiler.lock").exists()
 
@@ -96,11 +96,11 @@ def test_failed_provision_preserves_existing_environment(isolated, failure):
     """No replacement starts while download, discovery or validation fails."""
     sentinel = isolated / "cellprofiler" / "existing.txt"
     sentinel.parent.mkdir()
-    sentinel.write_text("preserve me")
+    sentinel.write_text("preserve me", encoding="utf-8")
     with pytest.raises(backend._InstallFailed, match="download failed"):
         backend._install_backend("cellprofiler", runner=fake_runner(
             isolated, [], failure=failure), torch_index="")
-    assert sentinel.read_text() == "preserve me"
+    assert sentinel.read_text(encoding="utf-8") == "preserve me"
     assert not (isolated / "cellprofiler.lock").exists()
     assert not backend._read_marker(str(sentinel.parent))
 
@@ -122,7 +122,7 @@ def test_cancellation_preserves_existing_environment(isolated, phase):
     """Cancellation at each provisioning boundary never replaces the old env."""
     sentinel = isolated / "cellprofiler" / "existing.txt"
     sentinel.parent.mkdir()
-    sentinel.write_text("preserve")
+    sentinel.write_text("preserve", encoding="utf-8")
     cancel = threading.Event()
     calls = []
     base = fake_runner(isolated, calls)
@@ -140,7 +140,7 @@ def test_cancellation_preserves_existing_environment(isolated, phase):
     with pytest.raises(backend._InstallCancelled):
         backend._install_backend("cellprofiler", runner=run, cancel=cancel,
                                  torch_index="")
-    assert sentinel.read_text() == "preserve"
+    assert sentinel.read_text(encoding="utf-8") == "preserve"
     assert len(calls) == phase
     assert not (isolated / "cellprofiler.lock").exists()
 
@@ -177,12 +177,13 @@ def test_bundled_uv_precedes_path_and_other_backends_are_unchanged(tmp_path, mon
     assert backend._provisioning_uv(spec) == "/path/uv"
     uv = tmp_path / "bootstrap" / ("uv.exe" if os.name == "nt" else "uv")
     uv.parent.mkdir()
-    uv.write_text("test")
+    uv.write_text("test", encoding="utf-8")
     uv.chmod(0o755)
     assert backend._provisioning_uv(spec) == str(uv)
     assert backend._provisioning_uv(backend._spec("cellpose3")) is None
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize("cache_link", [False, True])
 def test_symlinked_managed_destination_is_refused_before_download(isolated, cache_link):
     """Existing links cannot redirect managed Python or its cache elsewhere."""
@@ -214,12 +215,12 @@ def test_failed_reinstall_keeps_finished_backend_usable(isolated):
     env = isolated / "cellprofiler"
     python = Path(backend._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("old Python")
+    python.write_text("old Python", encoding="utf-8")
     backend._write_marker(str(env), {"backend": "cellprofiler", "old": True})
     with pytest.raises(backend._InstallFailed):
         backend._install_backend("cellprofiler", reinstall=True,
                                  runner=fake_runner(isolated, [], failure=1))
-    assert python.read_text() == "old Python"
+    assert python.read_text(encoding="utf-8") == "old Python"
     assert backend._backend_state("cellprofiler").record["old"] is True
 
 

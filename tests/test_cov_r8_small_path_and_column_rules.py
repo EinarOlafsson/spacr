@@ -63,7 +63,7 @@ class TestChoosingACountPath:
         from pathlib import Path
 
         assert _first_usable_count_path(
-            {"count_data": Path("/tmp/counts.csv")}) == "/tmp/counts.csv"
+            {"count_data": Path("/tmp/counts.csv")}) == str(Path("/tmp/counts.csv"))
 
 
 class TestPrefixingAMergedColumn:

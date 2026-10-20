@@ -132,7 +132,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
     checkpoint = ROOT / "features/data/n676_api_link_metadata_completed_2026-10-15/checkpoint"
-    receipt = json.loads((checkpoint / "publication-receipt.json").read_text())
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text(encoding="utf-8"))
     cache_key = live._catalog_cache_key(receipt)
     assert f'src="lesson_catalog.js?v={cache_key}"' in (
         tutorial_root / "index.html"
@@ -264,7 +264,7 @@ def test_every_module_and_fold_has_a_route_or_an_explicit_tutorial_gap(catalog_l
         "each module or folded workflow must have exactly one lesson")
     folder = (ROOT / 'docs/source/_extra/tutorials' if catalog_loader is _tutorial_catalog
               else ROOT / 'tools/tutorials/release_candidate/web')
-    source = (folder / 'module_navigation.js').read_text()
+    source = (folder / 'module_navigation.js').read_text(encoding="utf-8")
     navigation = json.loads(source.split('Object.freeze(', 1)[1].rsplit(');', 1)[0])
     gaps = navigation['missing_tutorials']
     missing = {row['app_key'] for row in gaps}
@@ -469,7 +469,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     }
     assert pypi_scenes, "the installation lesson no longer names PyPI"
 
-    compatibility = json.loads((catalog_dir.parent / 'translation-compatibility.json').read_text())
+    compatibility = json.loads((catalog_dir.parent / 'translation-compatibility.json').read_text(encoding="utf-8"))
     registered = {(row['lesson'], row['language']) for row in compatibility['entries']
                   if row['status'] == 'english_fallback' and row['reason']}
     failures, spoken, fallback = [], [], []
@@ -504,14 +504,14 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
 
     published = _tutorial_catalog()
     checkpoint = ROOT / "features/data/n676_api_link_metadata_completed_2026-10-15/checkpoint"
-    receipt = json.loads((checkpoint / "publication-receipt.json").read_text())
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text(encoding="utf-8"))
     manifest_bytes = (checkpoint / "release-manifest.json").read_bytes()
     assert hashlib.sha256(manifest_bytes).hexdigest() == receipt["manifest_sha256"]
     readback = receipt["readback"]
     assert readback["passed"] is True
     assert readback["commit"] == receipt["commit"]
     assert readback["downloaded_sha256_matched"] == readback["files_expected"] == receipt["media_files"]
-    index = (catalog_dir.parent / "index.html").read_text()
+    index = (catalog_dir.parent / "index.html").read_text(encoding="utf-8")
     assert f'data-web-root="{receipt["media_root"]}"' in index
     manifest = json.loads(manifest_bytes)
     media_records = {row["path"]: row for row in manifest["files"]}
@@ -532,7 +532,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     # 07_mask and 08_measure were verified native publications on 2026-10-13:
     # 438464849 (07 r26b) and 52d5d99bf (08 r26), with dated publication
     # receipts under features/data/676_publication_2026-10-13_{07_mask,08_measure}.
-    native_ids = {"02_install_spacr", "04_platform_installers", "05_home", "07_mask", "08_measure", "09_annotate", "11_classify_ml", "14_make_masks", "15_image_umap", "20_cellpose_masks", "23_agreement", "28_training_runs", "32_align_stitch", "33_plate_viewer", "35_converter", "38_distributed_jobs", "39_classifier_evaluation", "43_illumination", "44_data_manager", "45_project_browser", "80_image_analysis_pathways", "82_toxoplasma"}
+    native_ids = {"02_install_spacr", "04_platform_installers", "05_home", "07_mask", "08_measure", "09_annotate", "11_classify_ml", "14_make_masks", "15_image_umap", "17_timelapse", "20_cellpose_masks", "23_agreement", "28_training_runs", "32_align_stitch", "33_plate_viewer", "35_converter", "38_distributed_jobs", "39_classifier_evaluation", "43_illumination", "44_data_manager", "45_project_browser", "54_qc_dashboard", "80_image_analysis_pathways", "82_toxoplasma"}
     original_ids = {"18_motility", "19_train_cellpose", "24_plaque",
                     "74_import_images", "85_host_pathogen", "87_alpha_features"}
     assert visual_references == {

@@ -33,7 +33,7 @@ def verify(web, output, *, mutate=False):
                                     ').forEach(([k,v]) => localStorage.setItem(k,v));')
                 if mutate:
                     # Mutate the actual served source, not a test-only model.
-                    source = (web / 'app_v2.js').read_text()
+                    source = (web / 'app_v2.js').read_text(encoding="utf-8")
                     broken = source.replace('lesson.status !== "coming_soon"', 'true', 1)
                     assert broken != source
                     ctx.route('**/app_v2.js*', lambda route: route.fulfill(body=broken, content_type='text/javascript'))

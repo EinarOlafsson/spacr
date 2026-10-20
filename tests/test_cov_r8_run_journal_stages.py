@@ -114,7 +114,7 @@ class TestTheLogTailItWrites:
         that does not end in a newline would run into it.
         """
         src = tmp_path / "app.log"
-        src.write_text("first line\nlast line without a newline")
+        src.write_text("first line\nlast line without a newline", encoding="utf-8")
         monkeypatch.setattr(rj, "log_path", lambda: src, raising=False)
         import spacr.logging_util as lu
 
@@ -123,7 +123,7 @@ class TestTheLogTailItWrites:
         run._record_stage("segment", state="done")
         run._snapshot_log_tail(n=10)
 
-        written = (run.dir / "log.txt").read_text()
+        written = (run.dir / "log.txt").read_text(encoding="utf-8")
         assert "last line without a newline\nFlowView stage" in written
 
     def test_nothing_to_write_writes_no_file_at_all(self, run, monkeypatch,
@@ -144,7 +144,7 @@ class TestTheLogTailItWrites:
         the exact inversion the docstring warns against.
         """
         src = tmp_path / "app.log"
-        src.write_text("a line\n")
+        src.write_text("a line\n", encoding="utf-8")
         import spacr.logging_util as lu
 
         monkeypatch.setattr(lu, "log_path", lambda: src)
@@ -178,7 +178,7 @@ def test_a_warnings_value_that_is_neither_a_list_nor_falsy_is_stringified(
         "status": "done",
         "start_utc": "2026-08-31T01:02:03",
         "warnings": "one warning, as a bare string",
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
     found = rj.search_runs()
     assert found, "the run was not found at all"
@@ -192,7 +192,7 @@ class TestTheFileWalkerSkippingAnExcludedRoot:
     def test_an_excluded_directory_yields_nothing(self, tmp_path):
         keep = tmp_path / "keep"
         keep.mkdir()
-        (keep / "a.txt").write_text("a")
+        (keep / "a.txt").write_text("a", encoding="utf-8")
         assert list(rj._iter_files(keep, [])) == [keep / "a.txt"]
         assert list(rj._iter_files(keep, [keep])) == [], (
             "an excluded root was walked anyway")
@@ -200,7 +200,7 @@ class TestTheFileWalkerSkippingAnExcludedRoot:
     def test_an_excluded_file_yields_nothing(self, tmp_path):
         """The guard is checked before the is_file() branch below it."""
         f = tmp_path / "a.txt"
-        f.write_text("a")
+        f.write_text("a", encoding="utf-8")
         assert list(rj._iter_files(f, [])) == [f]
         assert list(rj._iter_files(f, [f])) == []
 
@@ -208,7 +208,7 @@ class TestTheFileWalkerSkippingAnExcludedRoot:
         root = tmp_path / "project"
         inner = root / "nested"
         inner.mkdir(parents=True)
-        (inner / "a.txt").write_text("a")
+        (inner / "a.txt").write_text("a", encoding="utf-8")
         assert list(rj._iter_files(inner, [root])) == []
 
 
@@ -219,7 +219,7 @@ class TestARunFolderThatCannotBeRead:
     def _corrupt(root, name="2026-08-31_020000_bad__mask"):
         d = root / name
         d.mkdir()
-        (d / "manifest.json").write_text("{ this is not json")
+        (d / "manifest.json").write_text("{ this is not json", encoding="utf-8")
         return d
 
     @staticmethod
@@ -229,7 +229,7 @@ class TestARunFolderThatCannotBeRead:
         (d / "manifest.json").write_text(json.dumps({
             "app_key": "mask", "status": "done",
             "start_utc": "2026-08-31T01:00:00",
-        }))
+        }), encoding="utf-8")
         return d
 
     def test_recent_runs_keeps_the_readable_ones_and_says_why(
@@ -266,13 +266,13 @@ class TestTheSettingsCsvReader:
 
     def test_an_ordinary_settings_csv_is_read(self, tmp_path):
         p = tmp_path / "settings.csv"
-        p.write_text("Key,Value\ndiameter,30\nchannels,[0 1]\n")
+        p.write_text("Key,Value\ndiameter,30\nchannels,[0 1]\n", encoding="utf-8")
         got = rj._read_settings_csv(p)
         assert got == {"diameter": "30", "channels": "[0 1]"}
 
     def test_a_row_with_no_value_reads_as_empty(self, tmp_path):
         p = tmp_path / "settings.csv"
-        p.write_text("Key,Value\ndiameter\n")
+        p.write_text("Key,Value\ndiameter\n", encoding="utf-8")
         assert rj._read_settings_csv(p) == {"diameter": ""}
 
     def test_an_embedded_nul_byte_is_refused(self, tmp_path):
@@ -336,7 +336,7 @@ def test_a_module_outside_the_tallied_three_counts_only_as_a_run(
         (d / "manifest.json").write_text(json.dumps({
             "app_key": app, "status": "done",
             "start_utc": "2026-08-31T01:00:00",
-        }))
+        }), encoding="utf-8")
     totals = rj.journal_totals()
     assert totals["total_runs"] == 2
     assert totals["mask_runs"] == 1

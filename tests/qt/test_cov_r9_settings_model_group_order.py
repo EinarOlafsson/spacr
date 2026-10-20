@@ -30,12 +30,12 @@ TUPLES = ("cv_groups", "ml_groups", "shared_first", "shared_last")
 
 
 MODULE_PATH = inspect.getsourcefile(SM)
-MODULE_TREE = ast.parse(pathlib.Path(MODULE_PATH).read_text())
+MODULE_TREE = ast.parse(pathlib.Path(MODULE_PATH).read_text(encoding="utf-8"))
 
 
 def _rebuild_span():
     """The line range of the classifier screen's group rebuild."""
-    source = pathlib.Path(MODULE_PATH).read_text().splitlines()
+    source = pathlib.Path(MODULE_PATH).read_text(encoding="utf-8").splitlines()
     start = next(i for i, line in enumerate(source, 1)
                  if 'rebuilt = {"Classifier": ["classifier_family"]}' in line)
     ordered = max(i for i, line in enumerate(source, 1)
@@ -100,7 +100,7 @@ def _ordered_keys():
 
 
 def _rebuild_source():
-    lines = pathlib.Path(MODULE_PATH).read_text().splitlines()
+    lines = pathlib.Path(MODULE_PATH).read_text(encoding="utf-8").splitlines()
     lo, hi = SPAN
     return "\n".join(lines[lo - 1:hi])
 

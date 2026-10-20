@@ -47,7 +47,7 @@ def test_live_unsaved_edits_are_checked_and_successful_export_has_receipt(qtbot,
     screen.gates.set_gates(gates(250))
     screen.export_gates()
     assert "DEVIATION" in screen._source.text().upper()
-    assert json.loads(strategy.read_text())["gates"][0]["low"] == 150
+    assert json.loads(strategy.read_text(encoding="utf-8"))["gates"][0]["low"] == 150
     with sqlite3.connect(path) as db:
         rows = db.execute("SELECT gate_column, receipt_json FROM filter_export_provenance").fetchall()
         filters = pd.read_sql_query("SELECT * FROM filters", db)
@@ -105,9 +105,9 @@ def test_tampered_lock_is_recorded_without_claiming_verification(journal):
     gates().save(str(strategy))
     record = rj.lock_analysis({"src": str(folder)}, app_key="measure", gates=str(strategy))
     lock_path = rj._locks_root() / (record["lock_id"] + ".json")
-    altered = json.loads(lock_path.read_text())
+    altered = json.loads(lock_path.read_text(encoding="utf-8"))
     altered["locked_by"] = "edited"
-    lock_path.write_text(json.dumps(altered))
+    lock_path.write_text(json.dumps(altered), encoding="utf-8")
     result = GateEditorScreen._write_gates_checked(path, "cell", gates(), str(strategy))
     assert result[2][0]["status"] == "tampered"
 

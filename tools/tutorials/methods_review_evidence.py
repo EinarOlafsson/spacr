@@ -69,7 +69,7 @@ def inspect_review(proof, export_path):
     work = Path(proof['private_folder'])
     manifest_path = work / 'run_dir/manifest.json'
     gene_path = work / 'project/results/guide_permutation/results_gene.csv'
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     declared = manifest['seeds']['declared']
     digest = proof['digest']
     if digest['run']['seed_declared'] != declared:
@@ -88,7 +88,7 @@ def inspect_review(proof, export_path):
             if not math.isclose(float(hit[key]), float(row[source]), rel_tol=1e-10, abs_tol=1e-12):
                 raise ValueError('A displayed candidate value differs from the saved result')
     export_path = Path(export_path)
-    check_export(export_path.read_text(), proof['methods'], proof['results'], digest)
+    check_export(export_path.read_text(encoding="utf-8"), proof['methods'], proof['results'], digest)
     global_seed_recorded = any(key in declared for key in ('random_seed', 'seed'))
     seed = declared['guide_permutation_seed']
     # Missing provenance is not evidence that a different seed was never used.

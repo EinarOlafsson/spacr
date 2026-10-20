@@ -25,7 +25,7 @@ def test_default_generator_keeps_all_current_english_scripts_unchanged():
     for key in data['tutorials']:
         actual = translation.workflow.lesson_document(data, key)
         path = translation.ROOT / f'tools/tutorials/lessons/{key}.json'
-        assert actual == json.loads(path.read_text())
+        assert actual == json.loads(path.read_text(encoding="utf-8"))
 
 
 def test_shared_generator_preserves_every_scene_route_and_literal_identifier(inputs):
@@ -36,7 +36,7 @@ def test_shared_generator_preserves_every_scene_route_and_literal_identifier(inp
         scenes = translation.workflow.lesson_document(data, identity)['scenes']
         assert sum(scene['visual'] == 'module_host_pathogen' for scene in scenes) == 1
         assert len([scene for scene in scenes if scene['visual'] != 'module_host_pathogen']) == previous_count
-    authored = json.loads((translation.ROOT / 'tools/tutorials/lessons/80_image_analysis_pathways.json').read_text())
+    authored = json.loads((translation.ROOT / 'tools/tutorials/lessons/80_image_analysis_pathways.json').read_text(encoding="utf-8"))
     assert reviews['80_image_analysis_pathways']['scenes'] == [
         'Übersetzung: ' + scene['narration'] for scene in authored['scenes']]
     assert reviews['80_image_analysis_pathways']['english_sha256'] == translation.canonical_hash(authored)

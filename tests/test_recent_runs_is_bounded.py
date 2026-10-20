@@ -26,7 +26,7 @@ def journal(tmp_path, monkeypatch):
         (folder / "manifest.json").write_text(json.dumps({
             "app_key": "mask", "status": "ok",
             "start_utc": when.isoformat(), "elapsed_s": 1.0,
-        }))
+        }), encoding="utf-8")
     monkeypatch.setattr(run_journal, "runs_root", lambda: root)
     return root
 
@@ -64,7 +64,7 @@ class TestTheAnswerIsUnchanged:
         """Bounding the read must not change WHICH runs come back."""
         every = []
         for folder in journal.iterdir():
-            manifest = json.loads((folder / "manifest.json").read_text())
+            manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
             every.append((manifest["start_utc"], folder.name))
         every.sort(reverse=True)
         for limit in (1, 5, 10, 50):
@@ -84,7 +84,7 @@ class TestTheAnswerIsUnchanged:
     def test_a_corrupt_manifest_is_skipped_not_fatal(self, journal):
         """One unreadable folder must not empty Run History."""
         victim = sorted(journal.iterdir())[-1]
-        (victim / "manifest.json").write_text("{ not json")
+        (victim / "manifest.json").write_text("{ not json", encoding="utf-8")
         rows = run_journal.recent_runs(10)
         assert len(rows) == 10
         assert victim.name not in [r["dir"].name for r in rows]

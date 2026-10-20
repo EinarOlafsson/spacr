@@ -162,7 +162,12 @@ def test_the_rebuild_actually_calls_the_carry():
 
     from spacr.qt.app import MainWindow
 
+    # rebuild_app_screen breathes like a module open and does the rebuild in
+    # _rebuild_app_screen_in_steps; the call may sit in either.
     source = inspect.getsource(MainWindow.rebuild_app_screen)
+    steps = getattr(MainWindow, "_rebuild_app_screen_in_steps", None)
+    if steps is not None:
+        source += inspect.getsource(steps)
     assert "_carry_preview_state(old, fresh)" in source, (
         "rebuild_app_screen no longer carries the preview state, so a shaping "
         "edit empties the live preview again")

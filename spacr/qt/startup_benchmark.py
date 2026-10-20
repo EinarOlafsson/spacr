@@ -652,6 +652,52 @@ def maybe_start(app, window) -> Optional[Union[BenchmarkController, _Distributio
         app, window, keys, output, live_keys=_live_keys)
 
 
+_SMOKE_STACK_DUMP_SECONDS = 540
+_SMOKE_STACK_DUMP_ARMED = False
+
+
+def _arm_the_smoke_stack_dump(record):
+    """Write every thread's stack to the application log if the smoke still runs at 540 s.
+
+    The CI watchdog kills the application at 660 s, and a GUI thread blocked
+    inside one call never gets back to the 600-second check in the smoke's
+    ``_advance``, so without this a hang left no trace of where it stood.
+
+    Armed only in a distribution smoke run (``SPACR_DISTRIBUTION_SMOKE=1``).
+
+    :param record: the smoke receipt; the log's path is added to it.
+    :returns: the open log file the dump goes to, or ``None``.
+    """
+    global _SMOKE_STACK_DUMP_ARMED
+    import faulthandler
+
+    if os.environ.get('SPACR_DISTRIBUTION_SMOKE') != '1':
+        return None
+    try:
+        from .verbose_logger import current_log_file
+
+        path = current_log_file()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        handle = open(path, 'a', encoding='utf-8')
+        faulthandler.dump_traceback_later(
+            _SMOKE_STACK_DUMP_SECONDS, exit=False, file=handle)
+    except Exception:
+        return None
+    _SMOKE_STACK_DUMP_ARMED = True
+    record['stack_dump_log'] = str(path)
+    return handle
+
+
+def _cancel_the_smoke_stack_dump():
+    """Cancel the smoke's pending stack dump once it has an outcome."""
+    global _SMOKE_STACK_DUMP_ARMED
+    import faulthandler
+
+    if _SMOKE_STACK_DUMP_ARMED:
+        _SMOKE_STACK_DUMP_ARMED = False
+        faulthandler.cancel_dump_traceback_later()
+
+
 class _DistributionSmokeController(QObject):
     """Exercise an installed application's real Measure screen and Run action."""
 
@@ -670,8 +716,9 @@ class _DistributionSmokeController(QObject):
         self.record = {'schema': 'spacr-distribution-smoke-v1', 'status': 'running'}
         self.timer = QTimer(self)
         self.timer.setInterval(200)
-        self.timer.timeout.connect(self._advance)
+        self.timer.timeout.connect(self._tick)
         app.aboutToQuit.connect(self._quitting)
+        self._hang_log = _arm_the_smoke_stack_dump(self.record)
         self.timer.start()
         self._write()
 
@@ -738,6 +785,18 @@ class _DistributionSmokeController(QObject):
         if self.app.platformName() in ('offscreen', 'minimal'):
             raise RuntimeError('Native artifact acceptance requires the native Qt platform')
 
+    def _start_up_warm_running(self):
+        """Whether the start-up import warm is still running on its thread."""
+        app_module = sys.modules.get('spacr.qt.app')
+        running = getattr(app_module, '_settings_prewarm_running', None)
+        try:
+            if running is None or not running():
+                return False
+        except Exception:
+            return False
+        self.record['waited_for_start_up_warm'] = True
+        return True
+
     @staticmethod
     def _installed_root(executable, bundle_root, platform):
         """Permit macOS bundle siblings without widening other platforms' roots."""
@@ -756,6 +815,23 @@ class _DistributionSmokeController(QObject):
         """Resolve symlinks so an artifact cannot borrow a source checkout."""
         if not path.resolve().is_relative_to(root.resolve()):
             raise RuntimeError(f'Import outside the installed artifact: {path}')
+
+    def _tick(self):
+        """Record the phase, hold the first pass for the start-up warm, then advance.
+
+        The phase reaches the receipt before each step, so a step that never
+        returns leaves the phase it blocked in. The provenance check of the
+        first pass imports torch, NumPy and spaCR on this thread; it waits on
+        the event loop till the start-up warm thread is done importing, within
+        the same 600-second deadline.
+        """
+        if self.record.get('phase') != self.phase:
+            self.record['phase'] = self.phase
+            self._write()
+        if (self.phase == 'launch' and time.monotonic() - self.started <= 600
+                and self._start_up_warm_running()):
+            return
+        self._advance()
 
     def _advance(self):
         """Drive production widgets without replacing pipeline or worker callbacks."""
@@ -1447,11 +1523,13 @@ class _DistributionSmokeController(QObject):
         """Stop polling, write the receipt, and leave the real Qt event loop."""
         self.phase = 'finished'
         self.timer.stop()
+        _cancel_the_smoke_stack_dump()
         self._write()
         self.app.exit(code)
 
     def _quitting(self):
         """A premature user/application exit cannot become a successful smoke."""
+        _cancel_the_smoke_stack_dump()
         if self.phase == 'native-menu-quitting':
             menu = self.record.get('native_menu', {})
             if all(menu.get(key) for key in ('preferences_opened', 'preferences_closed', 'quit_dispatched')):

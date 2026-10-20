@@ -61,6 +61,7 @@ import pandas as pd
 from . import schema
 
 from .figures.style import ROLES, figure_style, theme_target
+from .logging_util import _legacy_text_encoding
 
 #: The app key this module registers its settings under.
 APP_KEY = "barcode_qc"
@@ -479,7 +480,7 @@ def _read_reference(reference) -> Dict[str, str]:
         table: Dict[str, str] = {}
         name = None
         chunks: List[str] = []
-        with open(path) as handle:
+        with open(path, encoding=_legacy_text_encoding(path)) as handle:
             for line in handle:
                 line = line.strip()
                 if not line:
@@ -1601,7 +1602,7 @@ def barcode_qc(settings: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         if not summary.empty:
             summary.to_csv(os.path.join(dst, "collision_summary.csv"),
                            index=False)
-        with open(os.path.join(dst, "threshold_recommendation.txt"), "w") as f:
+        with open(os.path.join(dst, "threshold_recommendation.txt"), "w", encoding="utf-8") as f:
             f.write(recommendation + "\n")
 
     if settings.get("plot", True):

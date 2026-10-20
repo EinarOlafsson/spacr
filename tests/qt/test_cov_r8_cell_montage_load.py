@@ -95,7 +95,7 @@ class TestTheRefusalsInOrder:
         from spacr.qt.widgets.cell_montage_view import load
 
         broken = tmp_path / "counts.csv"
-        broken.write_text("this is not a counts table\n")
+        broken.write_text("this is not a counts table\n", encoding="utf-8")
         result = load(_request(results_path="",
                                count_csvs=(str(broken),),
                                databases=(a_database,)))

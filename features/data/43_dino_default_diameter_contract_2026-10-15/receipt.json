@@ -1,7 +1,0 @@
-{
-  "source_sha256": "afc605f90501a9b9aafe036c6f0e9ddc0091c5ef967d173c7f1b82fd73c5cf3c",
-  "scope": "test expectation only: blank uses supplied magnification default30.0, explicit auto keeps None; retains explicit40 and original shapes/resample/threshold/probability assertions",
-  "baseline": "actual requested nodeFAIL; two separate hygiene checks alsoFAIL from remaining seventh fake, retained shared3FAIL30.92s log",
-  "final": "only changed DINO node1PASS4.80s",
-  "limits": "Injected backend only; no production change, real weights/model/training/GPU/scientific or fullCI acceptance."
-}

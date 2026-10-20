@@ -92,8 +92,12 @@ def build(catalog: dict) -> dict:
             if key in by_key:
                 raise ValueError(f'Duplicate tutorial route {key}')
             by_key[key] = lesson
-    from spacr.settings import _SPECIES_WITH_PUBLISHED_LESSONS
-    tiles = app.tiled_apps()
+    from spacr.settings import _SPECIES_WITH_PUBLISHED_LESSONS, _alpha_names
+    # Every lesson is recorded with Show alpha features and Show alpha species
+    # off, whatever this machine's preferences say: tiled_apps() follows the
+    # live preference, so an alpha tile it returns is left out here.
+    hidden = set(_alpha_names('apps')) - set(_SPECIES_WITH_PUBLISHED_LESSONS)
+    tiles = [row for row in app.tiled_apps() if row[0] not in hidden]
     # Alpha species whose lessons are still published keep their Home place
     # here until those lessons are retired (none since 2026-10-04).
     shown = {row[0] for row in tiles}

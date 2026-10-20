@@ -371,7 +371,7 @@ class _DatabaseWriteQueue:
         elif Path(path).exists():
             packet = pickle.loads(Path(path).read_bytes())
         elif marker.exists():
-            packet = json.loads(marker.read_text())
+            packet = json.loads(marker.read_text(encoding="utf-8"))
         else:
             raise FileNotFoundError(path)
         if packet.get('ticket') != ticket or packet.get('field') != field:
@@ -399,7 +399,7 @@ class _DatabaseWriteQueue:
             'error_type': type(error).__name__, 'error': str(error),
             'traceback': ''.join(traceback.format_exception(
                 type(error), error, error.__traceback__)),
-        }, indent=2) + '\n')
+        }, indent=2) + '\n', encoding="utf-8")
         seen = set()
         current = error
         while current is not None and id(current) not in seen:
@@ -449,7 +449,7 @@ class _DatabaseWriteQueue:
                             except BaseException:
                                 Path(temporary).unlink(missing_ok=True)
                                 raise
-                            flag.write_text(retry_path.name)
+                            flag.write_text(retry_path.name, encoding="utf-8")
                             deferred_count += 1
                     else:
                         self._on_result(field, ticket, error)

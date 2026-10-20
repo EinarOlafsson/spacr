@@ -18,7 +18,7 @@ def _writer(real, safe_mode):
 def test_native_ini_errors_are_reported_by_every_draft_writer(
         tmp_path, monkeypatch, safe_mode, operation):
     blocked = tmp_path / "blocked"
-    blocked.write_text("a file cannot hold an INI child")
+    blocked.write_text("a file cannot hold an INI child", encoding="utf-8")
     ini = blocked / "settings.ini"
     real = QSettings(str(ini), QSettings.IniFormat)
     real.setValue("sentinel", "keep")
@@ -41,7 +41,7 @@ def test_autosave_recovers_when_the_same_native_ini_path_becomes_writable(
     window._screens["regression"].apply_settings_dict({"fdr_alpha": 0.08})
     checkpoint = window._last_autosave
     blocked = tmp_path / "blocked"
-    blocked.write_text("a file cannot hold an INI child")
+    blocked.write_text("a file cannot hold an INI child", encoding="utf-8")
     ini = blocked / "settings.ini"
     stores = []
 

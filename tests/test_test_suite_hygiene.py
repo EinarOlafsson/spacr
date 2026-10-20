@@ -81,7 +81,7 @@ def _test_modules():
 
 
 def _rel(path):
-    return str(Path(path).relative_to(TESTS_DIR))
+    return Path(path).relative_to(TESTS_DIR).as_posix()
 
 
 def _parse(path):

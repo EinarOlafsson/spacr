@@ -107,7 +107,7 @@ def demo_package(tmp_path, monkeypatch):
     """Write the demo pipeline module and put it on the import path."""
     folder = tmp_path / "pkg"
     folder.mkdir()
-    (folder / "spacr_macro_demo.py").write_text(DEMO_MODULE)
+    (folder / "spacr_macro_demo.py").write_text(DEMO_MODULE, encoding="utf-8")
     monkeypatch.syspath_prepend(str(folder))
     return str(folder)
 
@@ -165,9 +165,9 @@ def registered_demo(demo_package):
 def make_inputs(root: Path) -> Path:
     """Create the demo module's inputs: three files of numbers."""
     root.mkdir(parents=True, exist_ok=True)
-    (root / "a.txt").write_text("1\n2\n3\n")
-    (root / "b.txt").write_text("10\n20\n")
-    (root / "c.txt").write_text("")
+    (root / "a.txt").write_text("1\n2\n3\n", encoding="utf-8")
+    (root / "b.txt").write_text("10\n20\n", encoding="utf-8")
+    (root / "c.txt").write_text("", encoding="utf-8")
     return root
 
 
@@ -246,7 +246,7 @@ class TestRoundTrip:
         run = run_through_the_gui_seam(
             registered_demo, {"src": str(src), "label": "x"},
             resolve_pipeline_entry(registered_demo))
-        source = Path(macro.macro_path(run.dir)).read_text()
+        source = Path(macro.macro_path(run.dir)).read_text(encoding="utf-8")
 
         assert "from spacr_macro_demo import run_demo" in source
         assert "run_demo(MACRO_DEMO_SETTINGS)" in source
@@ -420,7 +420,7 @@ class TestSettings:
             {"src": str(src), "scale": 7, "label": "changed"},
             resolve_pipeline_entry(registered_demo))
 
-        source = Path(macro.macro_path(run.dir)).read_text()
+        source = Path(macro.macro_path(run.dir)).read_text(encoding="utf-8")
         assert "'scale': 7," in source
         assert "'scale': 1," not in source, "the default leaked in"
 
@@ -438,7 +438,7 @@ class TestSettings:
             registered_demo, {"src": str(src)},
             resolve_pipeline_entry(registered_demo))
 
-        source = Path(macro.macro_path(run.dir)).read_text()
+        source = Path(macro.macro_path(run.dir)).read_text(encoding="utf-8")
         assert "'scale': 1,  # spaCR default" in source
         assert "'skip_empty': False,  # spaCR default" in source
 
@@ -640,14 +640,14 @@ class TestMachineReadable:
         source = macro.current_macro().source()
         path.write_text(
             source + "\n\nraise SystemExit('read_macro executed the file')\n"
-            "import os as _os; _os.remove(__file__)\n")
+            "import os as _os; _os.remove(__file__)\n", encoding="utf-8")
         record = macro.read_macro(path)
         assert record["modules"] == ["mask"]
         assert path.is_file()
 
     def test_a_file_that_is_not_a_macro_says_so(self, tmp_path):
         path = tmp_path / "plain.py"
-        path.write_text("x = 1\n")
+        path.write_text("x = 1\n", encoding="utf-8")
         with pytest.raises(macro.MacroError):
             macro.read_macro(path)
 
@@ -658,7 +658,7 @@ class TestMachineReadable:
         path = tmp_path / "future.py"
         path.write_text(macro.current_macro().source().replace(
             f"'schema': {macro.MACRO_SCHEMA},",
-            f"'schema': {macro.MACRO_SCHEMA + 99},"))
+            f"'schema': {macro.MACRO_SCHEMA + 99},"), encoding="utf-8")
         with pytest.raises(macro.MacroError, match="schema"):
             macro.read_macro(path)
 
@@ -751,7 +751,7 @@ class TestContracts:
                     f"{key}: no module at {base.with_suffix('.py')} "
                     f"nor {base / '__init__.py'}")
                 continue
-            tree = ast.parse(path.read_text())
+            tree = ast.parse(path.read_text(encoding="utf-8"))
             found = [node for node in tree.body
                      if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
                      and node.name == func]
@@ -800,7 +800,7 @@ class TestContracts:
         for path in root.rglob("*.py"):
             if path.name in ("macro.py",):
                 continue
-            text = path.read_text(errors="ignore")
+            text = path.read_text(errors="ignore", encoding="utf-8")
             if not any(hook in text for hook in hooks):
                 continue
             for node in ast.walk(ast.parse(text)):

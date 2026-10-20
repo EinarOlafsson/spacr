@@ -209,7 +209,7 @@ def test_the_font_list_is_built_in_a_child_only_when_missing(tmp_path,
     assert argv[1:] == ["-c", "import matplotlib.font_manager"]
     assert kwargs["stdout"] is subprocess.DEVNULL
     assert kwargs["stderr"] is subprocess.DEVNULL
-    (tmp_path / "fontlist-v390.json").write_text("{}")
+    (tmp_path / "fontlist-v390.json").write_text("{}", encoding="utf-8")
     assert A._start_the_font_cache_in_a_child() is None
     (tmp_path / "fontlist-v390.json").unlink()
     monkeypatch.setattr(A.sys, "frozen", True, raising=False)

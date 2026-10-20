@@ -165,7 +165,7 @@ def test_state_that_json_cannot_hold_becomes_text_rather_than_failing():
     out = _jsonable({"colour": Opaque(), "path": Path("/tmp/x"),
                      "seen": {3, 1, 2}, "pair": (1, 2)})
     assert out["colour"] == "<a QColor>"
-    assert out["path"] == "/tmp/x"
+    assert out["path"] == str(Path("/tmp/x"))
     assert out["seen"] == [1, 2, 3]
     assert out["pair"] == [1, 2]
     json.dumps(out)          # the point of the exercise
@@ -241,7 +241,7 @@ def test_only_strings_that_look_like_paths_are_stat_ed(tmp_path):
     list, which is the whole plot.
     """
     table = tmp_path / "coeffs.csv"
-    table.write_text("gene,coef\n")
+    table.write_text("gene,coef\n", encoding="utf-8")
 
     records = inventory({"volcano": {
         "genes": ["TP53", "BRCA1", "ROCK1"],
@@ -280,7 +280,7 @@ def test_a_missing_file_is_recorded_but_not_copied(tmp_path):
     ]}
     save(run, doc, mode="copy")
 
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     assert "copied" not in written["files"][0]
     assert "copied" not in written["files"][1]
     assert not (run / FILES_DIR).exists()
@@ -295,7 +295,7 @@ def test_a_file_over_the_limit_is_skipped_and_says_why(tmp_path):
     doc = collect({"images": {"stack": str(big)}}, saved="t")
     save(run, doc, mode="copy", copy_limit_mb=0.001)
 
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     record = written["files"][0]
     assert record["copied"] is None
     assert "over the 0.001 MB per-file limit" in record["skipped"]
@@ -314,7 +314,7 @@ def test_a_carried_file_is_copied_whatever_its_size(tmp_path):
         {"role": "figure", "path": str(figure)}]}}, saved="t")
     save(run, doc, mode="copy", copy_limit_mb=0.001)
 
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     copied = written["files"][0]["copied"]
     assert copied and copied.startswith(FILES_DIR)
     assert (run / copied).read_bytes() == b"y" * 4096
@@ -336,7 +336,7 @@ def test_a_copy_that_fails_is_recorded_rather_than_raised(tmp_path):
     figure.mkdir()           # same path, now a directory: copy2 refuses
 
     assert save(run, doc, mode="copy") is not None
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     record = written["files"][0]
     assert record["copied"] is None
     assert record["skipped"].startswith("could not copy: ")
@@ -348,7 +348,7 @@ def test_a_copy_that_fails_is_recorded_rather_than_raised(tmp_path):
 
 def test_a_document_that_is_not_json_reads_as_absent(tmp_path, caplog):
     """A truncated write is a warning and a None, not an exception."""
-    (tmp_path / DOC_NAME).write_text("{ truncated")
+    (tmp_path / DOC_NAME).write_text("{ truncated", encoding="utf-8")
     with caplog.at_level("WARNING"):
         assert load(tmp_path) is None
     assert DOC_NAME in caplog.text
@@ -357,7 +357,7 @@ def test_a_document_that_is_not_json_reads_as_absent(tmp_path, caplog):
 def test_a_document_holding_something_other_than_an_object_is_refused(
         tmp_path):
     """Valid JSON that is not a document is still not a document."""
-    (tmp_path / DOC_NAME).write_text("[1, 2, 3]")
+    (tmp_path / DOC_NAME).write_text("[1, 2, 3]", encoding="utf-8")
     assert load(tmp_path) is None
 
 
@@ -384,7 +384,7 @@ def test_a_document_can_be_named_directly_or_by_its_folder(tmp_path):
     assert by_folder == by_file
     # a sibling file in the same folder resolves to the document too
     sibling = tmp_path / "settings.csv"
-    sibling.write_text("a,b\n")
+    sibling.write_text("a,b\n", encoding="utf-8")
     assert load(sibling) == by_folder
 
 
@@ -395,12 +395,12 @@ def test_a_document_can_be_named_directly_or_by_its_folder(tmp_path):
 def test_a_file_that_changed_since_the_save_says_so(tmp_path):
     """Same path, different bytes, is `changed` -- not `present`."""
     table = tmp_path / "coeffs.csv"
-    table.write_text("gene,coef\nTP53,1.0\n")
+    table.write_text("gene,coef\nTP53,1.0\n", encoding="utf-8")
     doc = collect({"volcano": {"table": str(table)}}, saved="t")
 
     assert [e["state"] for e in check_files(doc)] == ["present"]
 
-    table.write_text("gene,coef\nTP53,9.9\n")
+    table.write_text("gene,coef\nTP53,9.9\n", encoding="utf-8")
     assert [e["state"] for e in check_files(doc)] == ["changed"]
 
 
@@ -807,7 +807,7 @@ def test_reference_mode_records_a_file_without_carrying_its_bytes(tmp_path):
     would be a surprise; `copy` is the mode that says to do that.
     """
     table = tmp_path / "coeffs.csv"
-    table.write_text("gene,coef\nTP53,1.0\n")
+    table.write_text("gene,coef\nTP53,1.0\n", encoding="utf-8")
     run = tmp_path / "run"
 
     doc = collect({"volcano": {"table": str(table)}}, saved="t")
@@ -855,7 +855,7 @@ def test_a_file_already_in_the_store_is_recorded_without_copying_it_again(
     assert stored_again[0].stat().st_mtime_ns == first_mtime, (
         "the file was copied over itself despite already being there")
 
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     assert written["files"][0]["copied"].endswith(stored[0].name)
 
 
@@ -881,6 +881,6 @@ def test_a_store_that_cannot_be_written_leaves_the_reason_in_the_document(
     doc = collect({"images": {"stack": str(source)}}, saved="t")
     save(run, doc, mode="copy")
 
-    record = json.loads((run / DOC_NAME).read_text())["files"][0]
+    record = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))["files"][0]
     assert record["copied"] is None
     assert "PermissionError" in record["skipped"]

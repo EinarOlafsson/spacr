@@ -338,6 +338,32 @@ def _already_current(window, app_key: str) -> bool:
     return current is not None and getattr(current, "app_key", None) == app_key
 
 
+def _dismiss_module_walkthroughs(window: QMainWindow, keep: str = "") -> None:
+    """Close the module walkthroughs open over ``window`` except ``keep``'s, without marking them seen.
+
+    Each first visit opens its module's walkthrough over the whole window, and nothing closed it when the
+    user moved on, so one module's tour stayed over the next screens (found on a Mac 2026-10-19). A tour
+    closed this way was not read, so it is offered again on the next visit. Pathway walkthroughs, which
+    move between modules on purpose, are not module walkthroughs and are left alone.
+
+    :param window: the main window.
+    :param keep: the module whose walkthrough may stay open; "" closes them all.
+    """
+    remaining = []
+    for overlay in list(getattr(window, "_module_walkthroughs", ())):
+        try:
+            key = overlay._walkthrough_app_key
+            if keep and key == keep and overlay.isVisible():
+                remaining.append(overlay)
+                continue
+            window.removeEventFilter(overlay)
+            overlay.close()
+            overlay.deleteLater()
+        except RuntimeError:
+            continue
+    window._module_walkthroughs = remaining
+
+
 def show_walkthrough(window: QMainWindow, app_key: str,
                      *, force: bool = True) -> Optional[_TourOverlay]:
     """Run ``app_key``'s walkthrough over ``window``.
@@ -377,7 +403,10 @@ def show_walkthrough(window: QMainWindow, app_key: str,
         )
         for step in steps
     ]
+    _dismiss_module_walkthroughs(window)
     overlay = _TourOverlay(window, tour, on_finish=_Seen(app_key).mark)
+    overlay._walkthrough_app_key = app_key
+    window._module_walkthroughs = [overlay]
     overlay.show()
     overlay.raise_()
     overlay.setFocus()
@@ -557,13 +586,17 @@ class _WalkthroughHandler(QObject):
         self._window = window
 
     def on_current_changed(self, _index: int) -> None:
-        """Offer the walkthrough the first time a module is opened."""
-        if getattr(self._window, "_pathway_walkthrough_active", False):
-            return
+        """Close another module's open walkthrough, then offer this one the first time it is opened."""
         try:
             screen = self._window._stack.currentWidget()
             app_key = str(getattr(screen, "app_key", "") or "")
         except Exception:
+            return
+        try:
+            _dismiss_module_walkthroughs(self._window, keep=app_key)
+        except Exception:
+            LOG.debug("could not close the previous module's walkthrough", exc_info=True)
+        if getattr(self._window, "_pathway_walkthrough_active", False):
             return
         if not app_key or was_seen(app_key):
             return

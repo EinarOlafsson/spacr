@@ -134,7 +134,7 @@ def main() -> int:
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
-    source = json.loads(SOURCE.read_text())
+    source = json.loads(SOURCE.read_text(encoding="utf-8"))
     for language in args.languages:
         target = OUTPUT / f"captions_{language}.json"
         if target.exists() and not args.force:
@@ -143,7 +143,7 @@ def main() -> int:
         localized = translate(
             source, language, args.model, args.batch_size, args.threads)
         target.write_text(
-            json.dumps(localized, indent=2, ensure_ascii=False) + "\n")
+            json.dumps(localized, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print(target, flush=True)
     return 0
 

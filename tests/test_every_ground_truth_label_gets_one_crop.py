@@ -134,6 +134,7 @@ def test_a_rerun_keeps_the_stacks_it_already_wrote(project, capsys):
     assert target.stat().st_mtime_ns == stamp
 
 
+@pytest.mark.needs_symlink
 def test_every_label_gets_one_crop_that_names_its_field_and_label(project):
     assert cropper.main(["--root", str(project), "--jobs", "1"]) == 0
     expected = {"pathogen": {("A01", "8", 9), ("A01", "8", 23),
@@ -155,6 +156,7 @@ def test_every_label_gets_one_crop_that_names_its_field_and_label(project):
         assert len(list(folder.rglob(f"{kind}_png/*.png"))) == len(labels)
 
 
+@pytest.mark.needs_symlink
 def test_the_sample_keeps_every_judgement_when_it_grows(project):
     cropper.main(["--root", str(project), "--jobs", "1", "--type", "nucleus"])
     (project / "cell").mkdir(exist_ok=True)

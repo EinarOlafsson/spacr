@@ -32,7 +32,7 @@ def installation(tmp_path, monkeypatch):
         'import sysconfig; print(sysconfig.get_path("purelib"))'], text=True).strip())
     import shutil
     shutil.copytree(Path(packaging.__file__).parent, site / 'packaging', ignore=shutil.ignore_patterns('__pycache__'))
-    assert (site / 'spacr/qt.py').read_text() == 'def main():\n    print("1.5.1.4")\n'
+    assert (site / 'spacr/qt.py').read_text(encoding="utf-8") == 'def main():\n    print("1.5.1.4")\n'
     identity = ic._retiring_runtime_identity(str(prefix))
     assert identity['verified'] is True and identity['version'] == '1.5.1.4'
     assert Path(identity['module']) == (site / 'spacr/__init__.py').resolve()
@@ -84,7 +84,7 @@ def test_real_pip_transaction_keeps_the_original_until_verified(installation, tm
         assert version == '1.5.1.5'
         transaction, = prefix.parent.glob('.spacr-runtime-update-*')
         assert _snapshot(transaction / 'runtime') == before
-        assert json.loads((transaction / 'transaction.json').read_text())['state'] == 'committed'
+        assert json.loads((transaction / 'transaction.json').read_text(encoding="utf-8"))['state'] == 'committed'
         output = subprocess.check_output([str(prefix / 'bin/spacr-probe')], text=True)
         assert output.strip() == '1.5.1.5'
         assert (prefix / 'unknown-user-folder/keep.bin').read_bytes() == b'not installer-owned data'

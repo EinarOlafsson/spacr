@@ -105,7 +105,7 @@ def test_figure_mode_boxes_every_well_and_writes_yolo_labels(panel, qtbot, tmp_p
     page = _png(tmp_path / "fig1.png", size=(50, 100))
     (tmp_path / "paper.json").write_text(json.dumps(
         {"key": "doi:10.1/x", "source": "doi", "doi": "10.1/x",
-         "title": "Plaques"}))
+         "title": "Plaques"}), encoding="utf-8")
     panel.set_mode(ppv.FIGURE_MODE)
     panel.load_source_async(str(tmp_path))
     upload = _Upload()
@@ -125,14 +125,14 @@ def test_figure_mode_boxes_every_well_and_writes_yolo_labels(panel, qtbot, tmp_p
     folder, kind = upload.calls[0]
     assert kind == "figures"
     assert sorted(p.name for p in (folder / "images").iterdir()) == ["fig1.png"]
-    lines = (folder / "labels" / "fig1.txt").read_text().split()
+    lines = (folder / "labels" / "fig1.txt").read_text(encoding="utf-8").split()
     assert len(lines) == 10 and lines[0] == "0"
     assert float(lines[1]) == pytest.approx(25 / 100)
-    meta = json.loads((folder / "meta" / "fig1.json").read_text())
+    meta = json.loads((folder / "meta" / "fig1.json").read_text(encoding="utf-8"))
     assert meta["paper"]["doi"] == "10.1/x"
     assert meta["provenance"] == {"proposed": 2, "kept": [], "moved": [0],
                                   "deleted": [1], "added": 1}
-    record = json.loads((folder / "contribution.json").read_text())
+    record = json.loads((folder / "contribution.json").read_text(encoding="utf-8"))
     assert record["licence"] == model_share.COMMUNITY_LICENCE
     assert record["repo"] == model_share.COMMUNITY_FIGURES_REPO
     assert record["boxes"] == 2
@@ -161,7 +161,7 @@ def test_plaque_mode_paints_every_plaque_and_writes_a_label_mask(panel, qtbot, t
     mask = tifffile.imread(str(folder / "masks" / "well.tif"))
     assert mask.shape == (60, 60) and mask.dtype == np.uint16
     assert set(np.unique(mask)) == {0, 1, 3}
-    meta = json.loads((folder / "meta" / "well.json").read_text())
+    meta = json.loads((folder / "meta" / "well.json").read_text(encoding="utf-8"))
     assert meta["provenance"] == {"kept": [], "edited": [1], "removed": [2],
                                   "added": 1}
     assert meta["objects"] == 2
@@ -293,10 +293,10 @@ def test_any_named_collection_gets_its_own_community_dataset(monkeypatch, tmp_pa
         "toxoplasma pv", [{"name": "cell.png", "source": str(image),
                            "labels": labels, "extra": {"channel": "GFP"}}],
         tmp_path / "out", consent={"licence": "CC BY 4.0"}, contribution_id="c1")
-    record = json.loads((folder / "contribution.json").read_text())
+    record = json.loads((folder / "contribution.json").read_text(encoding="utf-8"))
     assert record["repo"] == "einarolafsson/community_toxoplasma_pv"
     assert record["objects"] == 1 and record["layout"] == "masks"
-    meta = json.loads((folder / "meta" / "cell.json").read_text())
+    meta = json.loads((folder / "meta" / "cell.json").read_text(encoding="utf-8"))
     assert meta["channel"] == "GFP" and meta["provenance"]["added"] == 1
 
     made = {}
@@ -399,7 +399,7 @@ def test_a_whole_plaque_is_deleted_with_one_click_and_recorded(panel, qtbot, tmp
 
     assert dialog.upload()
     folder, _kind = upload.calls[0]
-    meta = json.loads((folder / "meta" / "well.json").read_text())
+    meta = json.loads((folder / "meta" / "well.json").read_text(encoding="utf-8"))
     assert meta["deleted_objects"] == [{"label": 2, "pixels": 100,
                                         "seeded": True}]
     assert meta["provenance"]["removed"] == [2]

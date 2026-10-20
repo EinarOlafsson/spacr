@@ -136,8 +136,8 @@ def _automatic_collection_paused():
     :func:`install`, could restore "enabled" after the policy had switched
     automatic collection off, and the collector then ran on whichever thread
     allocated next, the field-animation thread included. Pauses nest across
-    threads; the last one out re-enables collection only when it was enabled
-    before the first and the GUI-thread policy is not installed.
+    threads; the last one out puts collection back as it was before the
+    first, unless :func:`install` ran during the pause and took it over.
 
     :returns: a context manager; the body runs with automatic collection off.
     """
@@ -151,8 +151,7 @@ def _automatic_collection_paused():
     finally:
         with _PAUSE_LOCK:
             _PAUSE["depth"] -= 1
-            if (_PAUSE["depth"] == 0 and _PAUSE["resume"]
-                    and _timer is None):
+            if _PAUSE["depth"] == 0 and _PAUSE["resume"]:
                 gc.enable()
 
 

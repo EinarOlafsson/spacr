@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_native_smoke_jobs_cannot_borrow_the_build_checkout():
     yaml = pytest.importorskip('yaml')
-    workflow = yaml.safe_load((ROOT / '.github/workflows/frozen-installers.yml').read_text())
+    workflow = yaml.safe_load((ROOT / '.github/workflows/frozen-installers.yml').read_text(encoding="utf-8"))
     events = workflow.get('on', workflow.get(True))
     assert 'push' in events and events['push']['branches'] == ['nightly']
     assert 'workflow_dispatch' in events
@@ -36,12 +36,12 @@ def test_native_smoke_jobs_cannot_borrow_the_build_checkout():
 
 
 def test_windows_nsis_template_keeps_runtime_dollars_and_requires_actual_executable():
-    source = (ROOT / 'packaging/build_windows.ps1').read_text()
+    source = (ROOT / 'packaging/build_windows.ps1').read_text(encoding="utf-8")
     template = source.split("$Template = @'\n", 1)[1].split("\n'@", 1)[0]
     assert 'InstallDir "$PROGRAMFILES64\\spaCR"' in template
     assert 'SetOutPath "$INSTDIR"' in template
     assert 'CreateShortcut "$SMPROGRAMS\\spaCR.lnk" "$INSTDIR\\spacr.exe"' in template
-    assert '-RequireInstaller' in (ROOT / '.github/workflows/frozen-installers.yml').read_text()
+    assert '-RequireInstaller' in (ROOT / '.github/workflows/frozen-installers.yml').read_text(encoding="utf-8")
     assert 'if ($LASTEXITCODE -ne 0)' in source
     assert 'Join-Path $Source "spacr.exe"' in source
     assert 'RMDir /r "$INSTDIR"' not in template
@@ -63,7 +63,7 @@ def test_windows_nsis_template_keeps_runtime_dollars_and_requires_actual_executa
 
 def test_debian_xcb_shape_dependency_exists_on_builder_and_fresh_host():
     """Both clean targets failed to load Qt because libxcb-shape was absent."""
-    source = (ROOT / 'packaging/build_debian.sh').read_text()
+    source = (ROOT / 'packaging/build_debian.sh').read_text(encoding="utf-8")
     builder = re.search(r'needed=\((.*?)\)\nmissing=', source, re.S).group(1).split()
     depends = re.search(r'^Depends: (.+)$', source, re.M).group(1)
     runtime = {value.strip().split()[0] for value in depends.split(',')}
@@ -89,11 +89,11 @@ def _native_builds(tmp_path):
         (root / "dist").mkdir()
         payload = (platform + " disposable test bytes").encode()
         (root / "dist" / name).write_bytes(payload)
-        (root / "acceptance/source-commit.txt").write_text(commit + "\n")
-        (root / "acceptance/version.txt").write_text(version + "\n")
+        (root / "acceptance/source-commit.txt").write_text(commit + "\n", encoding="utf-8")
+        (root / "acceptance/version.txt").write_text(version + "\n", encoding="utf-8")
         recorded = "dist/" + name if platform == "debian" else name
-        (root / "acceptance/SHA256SUMS").write_text(hashlib.sha256(payload).hexdigest() + "  " + recorded + "\n")
-        (root / "acceptance/build.log").write_text("CI-only build output")
+        (root / "acceptance/SHA256SUMS").write_text(hashlib.sha256(payload).hexdigest() + "  " + recorded + "\n", encoding="utf-8")
+        (root / "acceptance/build.log").write_text("CI-only build output", encoding="utf-8")
     updater = f"spaCR-{version}-update.exe"
     root = source / "legacy-build-windows"
     (root / "dist" / updater).write_bytes(b"mandatory phase updater")
@@ -129,9 +129,9 @@ def test_frozen_release_collection_refuses_wrong_or_incomplete_builds_before_cop
     payload = root / "dist" / names[platform]
     manifest = root / "acceptance/SHA256SUMS"
     if fault == "source":
-        (root / "acceptance/source-commit.txt").write_text("b" * 40)
+        (root / "acceptance/source-commit.txt").write_text("b" * 40, encoding="utf-8")
     elif fault == "version":
-        (root / "acceptance/version.txt").write_text("1.5.1.4")
+        (root / "acceptance/version.txt").write_text("1.5.1.4", encoding="utf-8")
     elif fault == "checksum":
         payload.write_bytes(b"changed payload")
     elif fault == "missing":
@@ -139,7 +139,7 @@ def test_frozen_release_collection_refuses_wrong_or_incomplete_builds_before_cop
     elif fault == "extra":
         (root / "dist" / names[platform].replace(version, "1.5.1.4")).write_bytes(b"wrong version")
     else:
-        manifest.write_text(manifest.read_text() * 2)
+        manifest.write_text(manifest.read_text(encoding="utf-8") * 2, encoding="utf-8")
     destination = tmp_path / "public"
     with pytest.raises((ValueError, FileNotFoundError)):
         _release_helper().collect_frozen_installers(source, destination, version, commit)
@@ -160,7 +160,7 @@ def test_frozen_release_collection_never_clobbers_existing_asset(tmp_path):
 
 def test_release_waits_for_exact_source_native_acceptance_before_tagging_or_upload():
     yaml = pytest.importorskip("yaml")
-    release = yaml.safe_load((ROOT / ".github/workflows/release.yml").read_text())
+    release = yaml.safe_load((ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8"))
     jobs = release["jobs"]
     native = jobs["frozen-installers"]
     assert native["uses"] == "./.github/workflows/frozen-installers.yml"
@@ -185,7 +185,7 @@ def test_release_waits_for_exact_source_native_acceptance_before_tagging_or_uplo
 
 def test_reusable_native_build_and_verifiers_use_selected_commit_not_caller_sha():
     yaml = pytest.importorskip("yaml")
-    workflow = yaml.safe_load((ROOT / ".github/workflows/frozen-installers.yml").read_text())
+    workflow = yaml.safe_load((ROOT / ".github/workflows/frozen-installers.yml").read_text(encoding="utf-8"))
     events = workflow.get("on", workflow.get(True))
     assert events["workflow_call"]["inputs"] == {
         "source_ref": {"required": True, "type": "string"},
@@ -200,7 +200,7 @@ def test_reusable_native_build_and_verifiers_use_selected_commit_not_caller_sha(
         assert 'test "$(git rev-parse HEAD)" = "$SPACR_ACCEPTANCE_REF"' in commands
         assert 'test "$version" = "$SPACR_RELEASE_VERSION"' in commands
         assert '"$version" > acceptance/version.txt' in commands
-    source = (ROOT / ".github/workflows/frozen-installers.yml").read_text()
+    source = (ROOT / ".github/workflows/frozen-installers.yml").read_text(encoding="utf-8")
     assert "$env:GITHUB_SHA" not in source and '"$GITHUB_SHA"' not in source
     assert "-SourceCommit $env:SPACR_ACCEPTANCE_REF" in source
     assert '-e ACCEPTANCE_COMMIT="$SPACR_ACCEPTANCE_REF"' in source
@@ -208,7 +208,7 @@ def test_reusable_native_build_and_verifiers_use_selected_commit_not_caller_sha(
 
 
 def test_windows_native_verifier_keeps_default_and_explicit_commit_refusal(tmp_path):
-    source = (ROOT / "packaging/verify_claude_native_install.ps1").read_text()
+    source = (ROOT / "packaging/verify_claude_native_install.ps1").read_text(encoding="utf-8")
     assert "[string]$SourceCommit = $env:GITHUB_SHA" in source
     assert "$Proof.source_commit -ne $SourceCommit" in source
     powershell = shutil.which("pwsh")
@@ -216,9 +216,9 @@ def test_windows_native_verifier_keeps_default_and_explicit_commit_refusal(tmp_p
         pytest.skip("PowerShell is required to execute the native receipt guard")
     prefix = source.split("$Hint =", 1)[0]
     guard = tmp_path / "guard.ps1"
-    guard.write_text(prefix)
+    guard.write_text(prefix, encoding="utf-8")
     receipt = tmp_path / "smoke.json"
-    receipt.write_text('{"status":"passed","frozen":true,"qt_platform":"windows","source_commit":"selected"}')
+    receipt.write_text('{"status":"passed","frozen":true,"qt_platform":"windows","source_commit":"selected"}', encoding="utf-8")
     common = [powershell, "-NoProfile", "-NonInteractive", "-File", str(guard),
               "-NativeReceipt", str(receipt), "-Shell", "cmd", "-Output", str(tmp_path / "out")]
     import os
@@ -244,8 +244,8 @@ def test_release_cannot_publish_without_verified_mandatory_phase_windows_asset(t
         updater.write_bytes(b"unverified updater")
     else:
         checksum = root / "acceptance/SHA256SUMS"
-        checksum.write_text("".join(line for line in checksum.read_text().splitlines(keepends=True)
-                                   if updater.name not in line))
+        checksum.write_text("".join(line for line in checksum.read_text(encoding="utf-8").splitlines(keepends=True)
+                                   if updater.name not in line), encoding="utf-8")
     destination = tmp_path / "public"
     with pytest.raises((ValueError, FileNotFoundError)):
         _release_helper().collect_frozen_installers(source, destination, version, commit)
@@ -253,7 +253,7 @@ def test_release_cannot_publish_without_verified_mandatory_phase_windows_asset(t
 
 
 def test_windows_update_asset_requires_phase_flags_and_shares_the_built_payload():
-    source = (ROOT / "packaging/build_windows.ps1").read_text()
+    source = (ROOT / "packaging/build_windows.ps1").read_text(encoding="utf-8")
     assert source.count('@("-m", "PyInstaller",') == 1
     assert "!ifdef SPACR_UPDATE_ONLY" in source
     assert "/DSPACR_UPDATE_ONLY" in source
@@ -261,7 +261,7 @@ def test_windows_update_asset_requires_phase_flags_and_shares_the_built_payload(
     assert '${GetOptions} $R0 "/SPACRUPDATE="' in source
     assert '${GetOptions} $R0 "/SPACRPID="' in source
     assert '--phase-channel "$R1" --desktop-pid "$R2"' in source
-    workflow = (ROOT / ".github/workflows/frozen-installers.yml").read_text()
+    workflow = (ROOT / ".github/workflows/frozen-installers.yml").read_text(encoding="utf-8")
     assert 'dist/*.exe' in workflow
-    release = (ROOT / ".github/workflows/release.yml").read_text()
+    release = (ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8")
     assert "collect-frozen" in release and "release-assets/*" in release

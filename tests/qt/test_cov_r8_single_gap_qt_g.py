@@ -243,7 +243,7 @@ class TestReadingTheImageCredits:
 
         (tmp_path / "backdrop.jpg").write_bytes(b"\xff\xd8\xff")
         (tmp_path / space.CREDITS_FILE).write_text(json.dumps(
-            {"file": "backdrop.jpg", "title": "A nebula"}))
+            {"file": "backdrop.jpg", "title": "A nebula"}), encoding="utf-8")
 
         credits = space.read_credits()
         assert credits is not None and credits["title"] == "A nebula"
@@ -253,7 +253,7 @@ class TestReadingTheImageCredits:
         space = self._imagery(monkeypatch, tmp_path)
 
         (tmp_path / space.CREDITS_FILE).write_text(json.dumps(
-            {"file": "deleted.jpg", "title": "A nebula"}))
+            {"file": "deleted.jpg", "title": "A nebula"}), encoding="utf-8")
 
         assert space.read_credits() is None, (
             "an attribution was returned for an image that is not there")
@@ -271,7 +271,7 @@ class TestReadingTheImageCredits:
 
         for content in ("[1, 2, 3]", '"just a string"', "{}",
                         '{"title": "no file key"}'):
-            (tmp_path / space.CREDITS_FILE).write_text(content)
+            (tmp_path / space.CREDITS_FILE).write_text(content, encoding="utf-8")
             assert space.read_credits() is None, (
                 f"{content} was accepted as an attribution")
 

@@ -76,10 +76,12 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple
+from typing import (Any, Dict, Iterable, Iterator, List, Mapping, Optional,
+                    Set, Tuple)
 
 from .macro import begin_recording, finish_recording
 from .logging_util import _spacr_home
+from .logging_util import _legacy_text_encoding
 
 LOG = logging.getLogger("spacr.run_journal")
 
@@ -795,6 +797,8 @@ class Run:
         default_factory=dict, repr=False,
     )
     _start_cpu_s: float = field(default_factory=time.process_time, repr=False)
+    _owner: Optional[Dict[str, str]] = field(default=None, init=False,
+                                             repr=False)
     _ledgers: List[Dict[str, Any]] = field(default_factory=list, repr=False)
 
     def _note_ledger(self, ledger: Any) -> None:
@@ -1196,6 +1200,7 @@ class Run:
                 if self.end_ts else None),
             "elapsed_s":     elapsed,
             "status":        self.status,
+            **({"owner": dict(self._owner)} if self._owner else {}),
             "env":           self.environment,
             "environment_lock": self.environment_lock or None,
             "model_hashes":  self.model_hashes,
@@ -1229,7 +1234,7 @@ class Run:
             self.dir / "settings.json",
             json.dumps(self.settings, indent=2, default=str, sort_keys=True),
         )
-        with open(self.dir / "settings.csv", "w", newline="") as f:
+        with open(self.dir / "settings.csv", "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow(["Key", "Value"])
             for k, v in self.settings.items():
@@ -1344,6 +1349,84 @@ def _raise_if_incomplete(run: Run) -> None:
             f"Run incomplete: {summary}. Partial artifacts were retained.")
 
 
+_OWN_RUN_OWNER: Dict[int, Dict[str, str]] = {}
+
+
+def _run_owner() -> Optional[Dict[str, str]]:
+    """The process that opens a run, as the installer leases record an owner.
+
+    Process id, start stamp and host, plus the pid namespace on Linux, so a
+    run's manifest can later be judged by :func:`_run_owner_gone`. Measured
+    once per process. Never raises: a run opens without an owner rather than
+    not at all.
+
+    :returns: the owner record, or None when the start stamp is unreadable.
+    """
+    pid = os.getpid()
+    if pid not in _OWN_RUN_OWNER:
+        try:
+            from .install_cleanup import (_lease_host, _pid_namespace,
+                                          _process_started)
+
+            started = _process_started(pid) or ""
+            owner = {"pid": str(pid), "started": started,
+                     "host": _lease_host()}
+            if os.name != "nt":
+                owner["pidns"] = _pid_namespace()
+        except Exception:
+            LOG.debug("could not record the run owner", exc_info=True)
+            owner = {}
+        _OWN_RUN_OWNER[pid] = owner if owner.get("started") else {}
+    return dict(_OWN_RUN_OWNER[pid]) or None
+
+
+def _run_owner_gone(owner: Any) -> bool:
+    """True only when a running run's recorded owner is provably gone.
+
+    The owner must have been recorded on this host (and, on Linux, in this
+    pid namespace), and its process must be absent or carry another start
+    stamp of the same kind. A run from another host or container, an
+    unreadable process, this process, and a manifest from a version that
+    recorded no owner are never judged dead.
+
+    :param owner: the manifest's ``owner`` record.
+    :returns: whether the run can be shown as interrupted.
+    """
+    if not isinstance(owner, Mapping):
+        return False
+    try:
+        from .install_cleanup import (_lease_host, _pid_namespace,
+                                      _process_gone, _process_started)
+
+        pid = int(str(owner.get("pid", "")))
+        started = str(owner.get("started") or "")
+        if pid <= 0 or not started or pid == os.getpid():
+            return False
+        if str(owner.get("host") or "") != _lease_host():
+            return False
+        if os.name != "nt":
+            here = _pid_namespace()
+            if here == "unknown" or str(owner.get("pidns") or "") != here:
+                return False
+        if _process_gone(pid):
+            return True
+        now = _process_started(pid)
+    except Exception:
+        LOG.debug("could not judge a run owner", exc_info=True)
+        return False
+    if not now:
+        return False
+    return (now.partition(":")[0] == started.partition(":")[0]
+            and now != started)
+
+
+def _listed_status(manifest: Mapping[str, Any], status: str) -> str:
+    """The status Run History shows: ``interrupted`` for a dead owner's run."""
+    if status == "running" and _run_owner_gone(manifest.get("owner")):
+        return "interrupted"
+    return status
+
+
 @contextmanager
 def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     """Open a fresh run journal folder around a pipeline invocation.
@@ -1365,6 +1448,7 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     run = Run(app_key=app_key, settings=dict(settings or {}),
                 dir=_new_run_dir(app_key))
     run.environment = _env_snapshot()
+    run._owner = _run_owner()
     try:
         run.environment_lock = _write_environment_lock(
             run.dir, run.environment.get("packages") or {})
@@ -2076,7 +2160,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
         if not manifest_path.exists():
             continue
         try:
-            m = json.loads(manifest_path.read_text())
+            m = json.loads(manifest_path.read_text(encoding="utf-8"))
         except Exception as exc:
             LOG.warning("skipping run folder %s: its manifest.json could not "
                         "be read (%s)", d.name, exc)
@@ -2084,7 +2168,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
         all_entries.append({
             "dir":       d,
             "app_key":   m.get("app_key", "?"),
-            "status":    m.get("status", "?"),
+            "status":    _listed_status(m, m.get("status", "?")),
             "start_utc": m.get("start_utc", ""),
             "elapsed_s": m.get("elapsed_s"),
             "manifest":  m,
@@ -2147,6 +2231,7 @@ def search_runs(
                 if "no manifest.json (run may still be in flight)" in rec["errors"]
                 else "corrupt"
             )
+        current_status = _listed_status(manifest, current_status)
         if wanted_app and current_app.lower() != wanted_app:
             continue
         if wanted_status and current_status != wanted_status:
@@ -2280,7 +2365,7 @@ def _read_totals_cache():
     run count on the Home dashboard is worse than a slow one.
     """
     try:
-        raw = json.loads(_totals_cache_path().read_text())
+        raw = json.loads(_totals_cache_path().read_text(encoding="utf-8"))
         if int(raw.get("version", 0)) != _TOTALS_CACHE_VERSION:
             return None
         return {
@@ -2303,7 +2388,7 @@ def _write_totals_cache(totals, counted, models) -> None:
             "totals": dict(totals),
             "counted": sorted(counted),
             "models": sorted(models),
-        }))
+        }), encoding="utf-8")
         os.replace(tmp, path)
     except Exception:
         pass
@@ -2349,7 +2434,7 @@ def journal_totals() -> Dict[str, int]:
         if not manifest_path.exists():
             continue
         try:
-            m = json.loads(manifest_path.read_text())
+            m = json.loads(manifest_path.read_text(encoding="utf-8"))
         except Exception as exc:
             LOG.warning("run folder %s is not counted: its manifest.json "
                         "could not be read (%s)", d.name, exc)
@@ -2381,7 +2466,7 @@ def load_run_settings(run_dir: Path) -> Dict[str, Any]:
     run_dir = Path(run_dir)
     j = run_dir / "settings.json"
     if j.exists():
-        return json.loads(j.read_text())
+        return json.loads(j.read_text(encoding="utf-8"))
     c = run_dir / "settings.csv"
     if not c.exists():
         raise FileNotFoundError(f"no settings in {run_dir}")
@@ -2391,7 +2476,7 @@ def load_run_settings(run_dir: Path) -> Dict[str, Any]:
 def _read_settings_csv(path: Path) -> Dict[str, Any]:
     """Parse a ``Key,Value`` settings CSV into a plain dict."""
     out: Dict[str, Any] = {}
-    with open(path) as f:
+    with open(path, encoding=_legacy_text_encoding(path)) as f:
         for row in csv.reader(f):
             if any("\x00" in cell for cell in row):
                 raise csv.Error("embedded NUL byte in settings CSV")
@@ -2604,7 +2689,7 @@ def _read_run_record(ref: Any) -> Dict[str, Any]:
         rec["errors"].append("no manifest.json (run may still be in flight)")
     else:
         try:
-            m = json.loads(mp.read_text())
+            m = json.loads(mp.read_text(encoding="utf-8"))
             rec["manifest"] = m if isinstance(m, dict) else {}
             if not isinstance(m, dict):
                 rec["errors"].append(

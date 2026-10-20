@@ -1,5 +1,0 @@
-Actual imported source: /media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/__init__.py
-..                                                                       [100%]
-2 passed in 4.74s
-
-Terminal exit status: 0

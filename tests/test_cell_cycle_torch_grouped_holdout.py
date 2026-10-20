@@ -101,7 +101,7 @@ def test_actual_torch_dataset_and_trainer_use_requested_grouping(phase_case, req
     assert report['split']['train_cells'] == len(positions['train'])
     assert report['split']['test_cells'] == len(positions['test'])
     assert report['split']['total_groups'] == len(set(groups))
-    metadata = json.loads(Path(report['model']).with_name('cell_cycle_phases.json').read_text())
+    metadata = json.loads(Path(report['model']).with_name('cell_cycle_phases.json').read_text(encoding="utf-8"))
     assert metadata['split_group_by'] == expected
     assert metadata['split'] == report['split']
     assert captured['random_seed'] == 42
@@ -157,7 +157,7 @@ def test_saved_model_application_does_not_invent_new_split(phase_case, tmp_path)
     model.parent.mkdir()
     model.write_bytes(b'intercepted saved model')
     model.with_name('cell_cycle_phases.json').write_text(json.dumps(
-        {'phases': ['G1', 'S'], 'crop_size': 32}))
+        {'phases': ['G1', 'S'], 'crop_size': 32}), encoding="utf-8")
     settings['cell_cycle_model'] = str(model)
     settings['cv_group_by'] = 'not consulted for existing model'
     frame.loc[:, 'plateID'] = None
@@ -175,7 +175,7 @@ def test_actual_torch_holdout_refusal_uses_existing_reviewed_translation(phase_c
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     source = 'The requested acquisition groups cannot place every class in both training and held-out data.'
     reviews = Path(__file__).resolve().parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-14-cell-cycle-grouped-evaluation.json'
-    record = next(row for row in json.loads(reviews.read_text())['records'] if row['source'] == source)
+    record = next(row for row in json.loads(reviews.read_text(encoding="utf-8"))['records'] if row['source'] == source)
     assert record['source_sha256'] == hashlib.sha256(source.encode()).hexdigest()
     with pytest.raises(ValueError) as error:
         run()

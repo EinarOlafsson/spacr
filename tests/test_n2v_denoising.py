@@ -64,7 +64,7 @@ def test_one_model_per_channel_is_trained_on_the_runs_own_fields(tmp_path):
     for channel in (0, 1):
         path = tmp_path / "n2v" / f"channel_{channel}.ckpt"
         assert plan.checkpoints[channel] == str(path)
-        record = json.loads(path.with_suffix(".json").read_text())
+        record = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
         assert record["channel"] == channel
         assert record["fields"] == ["plate1_A01_1", "plate1_A02_1",
                                     "plate1_A03_1"]
@@ -152,7 +152,7 @@ def test_denoising_runs_before_the_chain_and_joins_the_record(tmp_path,
     out = session.correct(np.zeros((4, 4, 1)))
     assert order == ["n2v", "chain"] and out.max() == 1
     record = json.loads((tmp_path / "psf" /
-                         "segmentation_application.json").read_text())
+                         "segmentation_application.json").read_text(encoding="utf-8"))
     assert record["configuration"]["n2v"]["models"]["0"]["sha256"] == "ab"
 
 

@@ -656,7 +656,7 @@ def _v2_merged(root: Path, fields=("plate1_A01_1", "plate1_A01_2")) -> Path:
         np.save(path, stack)
         Path(_sidecar(path)).write_bytes(APPLEDOUBLE)
     (merged / "channel_order.json").write_text(json.dumps(
-        {"image_channels": ["cell"], "mask_channels": ["cell"]}))
+        {"image_channels": ["cell"], "mask_channels": ["cell"]}), encoding="utf-8")
     return merged
 
 
@@ -767,7 +767,7 @@ def test_a_v2_mask_run_on_a_macos_volume_completes(
     assert (plate / "merged" / f"._{stacks[0]}").exists(), (
         "the emulated volume wrote no sidecar beside the v2 stack, so this "
         "test is not exercising the scorecard's listing")
-    card = (plate / "qc" / "segmentation_qc_cell.csv").read_text()
+    card = (plate / "qc" / "segmentation_qc_cell.csv").read_text(encoding="utf-8")
     assert "._" not in card
 
 

@@ -39,7 +39,7 @@ def _write_stacks(root, raws):
     (merged / "channel_order.json").write_text(json.dumps({
         "image_channels": names,
         "mask_channels": [],
-    }))
+    }), encoding="utf-8")
     stacks = []
     for index, raw in enumerate(raws):
         field_id = f"A01_F{index + 1:03d}"

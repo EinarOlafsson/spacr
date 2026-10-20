@@ -117,6 +117,7 @@ def test_rollback_does_not_overwrite_foreign_package(ic):
     assert sum(command[1] == "--install" for command in runner.calls) == 1
 
 
+@pytest.mark.posix_only
 def test_prepared_archive_requires_exact_hash_and_fixed_release_url(ic, tmp_path):
     tmp_path.chmod(0o700)
     content = b"isolated fixture, not an installable package"
@@ -131,6 +132,7 @@ def test_prepared_archive_requires_exact_hash_and_fixed_release_url(ic, tmp_path
     assert Path(result["path"]).read_bytes() == content
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("digest", [None, "", "g" * 64, "a" * 63])
 def test_missing_or_invalid_hash_refuses_before_download(ic, tmp_path, digest):
     tmp_path.chmod(0o700)
@@ -142,6 +144,7 @@ def test_missing_or_invalid_hash_refuses_before_download(ic, tmp_path, digest):
     assert not list(tmp_path.iterdir())
 
 
+@pytest.mark.posix_only
 def test_bad_download_retained_without_installation(ic, tmp_path):
     tmp_path.chmod(0o700)
     def fetch(url, path):
@@ -153,6 +156,7 @@ def test_bad_download_retained_without_installation(ic, tmp_path):
     assert (tmp_path / "spacr_1.5.1.5_amd64.deb").read_bytes() == b"wrong"
 
 
+@pytest.mark.posix_only
 def test_symlink_archive_is_not_followed(ic, tmp_path):
     tmp_path.chmod(0o700)
     foreign = tmp_path / "foreign"
@@ -165,6 +169,7 @@ def test_symlink_archive_is_not_followed(ic, tmp_path):
     assert foreign.read_bytes() == b"foreign data"
 
 
+@pytest.mark.posix_only
 def test_existing_archive_refuses_before_fetch(ic, tmp_path):
     tmp_path.chmod(0o700)
     archive = tmp_path / "spacr_1.5.1.5_amd64.deb"
@@ -175,6 +180,7 @@ def test_existing_archive_refuses_before_fetch(ic, tmp_path):
     assert archive.read_bytes() == b"previous evidence"
 
 
+@pytest.mark.needs_symlink
 def test_frontend_lock_refuses_symlink_and_releases_after_failure(ic, tmp_path):
     lock = tmp_path / "lock"
     lock.write_bytes(b"")
@@ -205,11 +211,11 @@ def test_actual_private_dpkg_replacement_and_rollback(ic, tmp_path, reject_new_r
         (stage / "DEBIAN").mkdir(parents=True)
         (stage / "DEBIAN" / "control").write_text(
             f"Package: spacr\nVersion: {version}\nArchitecture: amd64\n"
-            "Maintainer: fixture <test@example.org>\nDescription: isolated fixture\n")
+            "Maintainer: fixture <test@example.org>\nDescription: isolated fixture\n", encoding="utf-8")
         bundle = stage / "opt" / "spacr"
         bundle.mkdir(parents=True)
-        (bundle / "spacr").write_text(version)
-        (bundle / ("old-only" if version.endswith("4") else "new-only")).write_text(version)
+        (bundle / "spacr").write_text(version, encoding="utf-8")
+        (bundle / ("old-only" if version.endswith("4") else "new-only")).write_text(version, encoding="utf-8")
         archive = tmp_path / f"spacr_{version}_amd64.deb"
         subprocess.run(["dpkg-deb", "--root-owner-group", "-Znone", "--build", str(stage), str(archive)],
                        check=True, capture_output=True, timeout=20)
@@ -224,7 +230,7 @@ def test_actual_private_dpkg_replacement_and_rollback(ic, tmp_path, reject_new_r
         result = subprocess.run(command, text=True, capture_output=True, timeout=20)
         return result.returncode, result.stdout + result.stderr
     def verify(version):
-        assert (database.root / "opt/spacr/spacr").read_text() == version
+        assert (database.root / "opt/spacr/spacr").read_text(encoding="utf-8") == version
         return not (reject_new_runtime and version == "1.5.1.5")
     arguments = (str(packages["1.5.1.5"]), str(packages["1.5.1.4"]), "1.5.1.4", "1.5.1.5")
     if reject_new_runtime:
@@ -238,6 +244,7 @@ def test_actual_private_dpkg_replacement_and_rollback(ic, tmp_path, reject_new_r
     assert database.status()["version"] == expected
 
 
+@pytest.mark.posix_only
 def test_privileged_runner_drops_inherited_environment(ic, monkeypatch):
     monkeypatch.setattr(ic.os, "geteuid", lambda: 0)
     observed = []
@@ -255,6 +262,7 @@ def test_privileged_runner_drops_inherited_environment(ic, monkeypatch):
     assert len(observed) == 1
 
 
+@pytest.mark.posix_only
 def test_desktop_probe_executes_only_as_nonroot_with_private_profile(ic, tmp_path, monkeypatch):
     root = tmp_path / "bundle"
     root.mkdir(mode=0o755)
@@ -289,6 +297,7 @@ def test_desktop_probe_executes_only_as_nonroot_with_private_profile(ic, tmp_pat
     assert len(observed) == 1
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("command", ["prepare-debian-root", "apply-debian-root"])
 def test_root_commands_refuse_unprivileged_execution_without_application_import(ic, command, capsys):
     ic.tr = ic._cleanup_translate
@@ -323,6 +332,7 @@ def test_root_dispatch_never_imports_application_even_for_invalid_version(ic, mo
     assert application_imports == []
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("authenticated", [None, "0", "1001", "01000"])
 def test_root_account_binding_refuses_missing_or_different_pkexec_identity(ic, monkeypatch, authenticated):
     monkeypatch.setattr(ic.os, "geteuid", lambda: 0)
@@ -336,6 +346,7 @@ def test_root_account_binding_refuses_missing_or_different_pkexec_identity(ic, m
 
 @pytest.mark.parametrize("failure", [None, "cancel", "checksum", "authorization", "receipt", "tampered",
     "old-desktop", "exited-desktop", "no-window"])
+@pytest.mark.posix_only
 def test_debian_handoff_requires_checksums_approval_and_verified_receipt(ic, tmp_path, monkeypatch, failure):
     tmp_path.chmod(0o700)
     helper = str(tmp_path / "spacr-update-helper")
@@ -454,19 +465,21 @@ def test_rollback_failure_retains_recovery_state(ic):
     assert states == ["installing", "recovery-required"]
 
 
+@pytest.mark.posix_only
 def test_journal_replacement_is_complete_private_and_retains_archives(ic, tmp_path):
     archive = tmp_path / "previous.deb"
     archive.write_bytes(b"retained rollback archive")
     for state in ("prepared", "installing", "restored"):
         ic._debian_write_journal(tmp_path, {"state": state, "rollback_archive": str(archive)})
         journal = tmp_path / "journal.json"
-        assert json.loads(journal.read_text()) == {"state": state, "rollback_archive": str(archive)}
+        assert json.loads(journal.read_text(encoding="utf-8")) == {"state": state, "rollback_archive": str(archive)}
         assert journal.stat().st_mode & 0o077 == 0
         assert archive.read_bytes() == b"retained rollback archive"
     assert not list(tmp_path.glob(".journal-*"))
 
 
-@pytest.mark.parametrize("fault", [None, "marker", "owner", "changed-version", "not-newer", "user-data", "other-copy"])
+@pytest.mark.parametrize("fault", [pytest.param(None, marks=pytest.mark.posix_only), "marker", "owner",
+                                   "changed-version", "not-newer", "user-data", "other-copy"])
 def test_marked_debian_planner_binds_package_helper_and_desktop(ic, monkeypatch, fault):
     monkeypatch.setattr(ic.sys, "frozen", True, raising=False)
     record = ic.InstallRecord(kind="installer", layout="linux-deb", platform="linux",
@@ -658,6 +671,7 @@ def privileged_debian_files(ic, tmp_path, monkeypatch):
         state=state, calls=calls, events=events, journals=journals, uid=native_os.getuid())
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("exit_code", [0, 17])
 def test_root_preparation_copies_trusted_bytes_and_uses_only_fixed_child_argv(ic, privileged_debian_files, exit_code):
     fixture = privileged_debian_files
@@ -682,6 +696,7 @@ def test_root_preparation_copies_trusted_bytes_and_uses_only_fixed_child_argv(ic
     assert fixture.events == ["lock-enter", "lock-exit", "copied-helper"]
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("fault", ["owner", "mode", "not-directory", "symlink"])
 def test_root_preparation_refuses_untrusted_system_staging(ic, privileged_debian_files, fault):
     fixture = privileged_debian_files
@@ -702,6 +717,7 @@ def test_root_preparation_refuses_untrusted_system_staging(ic, privileged_debian
     assert fixture.calls == []
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("fault", ["owner", "mode", "symlink", "wrong-helper", "package-owner", "changed-version"])
 def test_root_preparation_refuses_changed_installed_helper_identity(ic, privileged_debian_files, fault):
     fixture = privileged_debian_files
@@ -742,6 +758,7 @@ def privileged_debian_stage(ic, privileged_debian_files):
     return fixture
 
 
+@pytest.mark.posix_only
 def test_root_apply_records_archives_and_lock_before_verified_commit(ic, privileged_debian_stage):
     fixture = privileged_debian_stage
     result = ic._debian_apply_root_transaction(fixture.stage, "1.5.1.5", "1.5.1.4", fixture.uid)
@@ -750,7 +767,7 @@ def test_root_apply_records_archives_and_lock_before_verified_commit(ic, privile
         "download:spacr_1.5.1.4_amd64.deb", "journal:prepared", "lock-enter",
         "journal:installing", "install:1.5.1.5", "verify:1.5.1.5", "journal:committed", "lock-exit"]
     assert [data["state"] for data in fixture.journals] == ["preparing", "prepared", "installing", "committed"]
-    journal = json.loads((fixture.stage_path / "journal.json").read_text())
+    journal = json.loads((fixture.stage_path / "journal.json").read_text(encoding="utf-8"))
     assert journal == fixture.journals[-1]
     assert journal["desktop_uid"] == fixture.uid and journal["previous_version"] == "1.5.1.4"
     for key, version in (("replacement", "1.5.1.5"), ("rollback", "1.5.1.4")):
@@ -762,6 +779,7 @@ def test_root_apply_records_archives_and_lock_before_verified_commit(ic, privile
 
 @pytest.mark.parametrize("fault", ["wrong-root", "stage-owner", "stage-mode", "stage-symlink",
     "parent-owner", "parent-mode", "helper-owner", "helper-mode", "helper-symlink", "wrong-helper"])
+@pytest.mark.posix_only
 def test_root_apply_refuses_untrusted_stage_before_download_or_package_commands(ic, privileged_debian_stage, fault):
     fixture = privileged_debian_stage
     if fault == "wrong-root":
@@ -797,6 +815,7 @@ def test_root_apply_refuses_untrusted_stage_before_download_or_package_commands(
     assert fixture.events == [] and fixture.calls == [] and fixture.journals == []
 
 
+@pytest.mark.posix_only
 def test_root_apply_initial_journal_failure_stops_all_download_and_package_work(ic, privileged_debian_stage, monkeypatch):
     fixture = privileged_debian_stage
     def refused(stage, data):
@@ -828,6 +847,7 @@ def test_desktop_acknowledgment_controls_debian_rollback_and_retention(ic, start
     assert "committed" not in states
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("cancel", [False, True])
 def test_root_stages_verified_payload_before_restart_and_never_mutates_on_cancel(
         ic, privileged_debian_stage, monkeypatch, cancel):

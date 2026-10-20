@@ -1,7 +1,0 @@
-{
-  "decision": "ACCEPT",
-  "source": "Explicit parent/root peer message2026-10-15 received duringfinalcohort",
-  "patch_sha256": "4adb1d10923c503d5861f6760498c22c2d8fbdf5f8bae9d7a788fb46e9d8c516",
-  "findings": "Literalonepath/SHA pin justified by preservedraw-source evidence; missing/unreadable/drift fail evenifcorrectedbrand; allotherfileschecked; samebyteselsewhere/sibling/currentproductdocs fixtures meaningful; sevenbundleoutputs preserved",
-  "limits": "No broadening, no fullCI/native/packageacceptance; privatecommit afternecessaryfinitecohort"
-}

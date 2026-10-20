@@ -176,7 +176,7 @@ def v2_mask_source(merged_dir, object_type: str = "cell"):
     merged = os.fspath(merged_dir)
     sidecar = os.path.join(merged, "channel_order.json")
     try:
-        with open(sidecar) as handle:
+        with open(sidecar, encoding="utf-8") as handle:
             meta = json.load(handle)
     except (OSError, ValueError):
         return {}

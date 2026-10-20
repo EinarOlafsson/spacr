@@ -333,7 +333,7 @@ def save_filename_map(dst: Path,
     dst.parent.mkdir(parents=True, exist_ok=True)
     cols = ["original_path", "canonical", "plate", "well",
             "field", "channel", "time"]
-    with open(dst, "w", newline="") as f:
+    with open(dst, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(cols)
         for m in mappings:

@@ -152,7 +152,7 @@ def test_an_unreadable_active_run_id_falls_back_to_the_log_folder(
     def _explode():
         raise RuntimeError("no run context")
 
-    (tmp_path / "run-7.jsonl").write_text("{}\n")
+    (tmp_path / "run-7.jsonl").write_text("{}\n", encoding="utf-8")
     monkeypatch.setattr(runctx, "current_run_id", _explode)
     monkeypatch.setattr(runctx, "runs_log_dir", lambda: str(tmp_path))
     notes = []

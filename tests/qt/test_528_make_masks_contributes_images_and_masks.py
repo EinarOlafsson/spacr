@@ -118,7 +118,7 @@ def test_matched_folders_upload_to_community_name(qtbot, prefs, tmp_path):
     assert upload.calls == [(dialog.contribution_folder,
                              "community_hela_nuclei_dapi")]
     folder = dialog.contribution_folder
-    record = json.loads((folder / "contribution.json").read_text())
+    record = json.loads((folder / "contribution.json").read_text(encoding="utf-8"))
     assert record["repo"] == "einarolafsson/community_hela_nuclei_dapi"
     assert record["images"] == 3 and record["objects"] == 6
     assert record["notes"] == "20x widefield"
@@ -129,7 +129,7 @@ def test_matched_folders_upload_to_community_name(qtbot, prefs, tmp_path):
     assert (folder / "images" / "a.png").read_bytes() == \
         (images / "a.png").read_bytes()
     assert tifffile.imread(str(folder / "masks" / "b.tif")).max() == 2
-    meta = json.loads((folder / "meta" / "a.json").read_text())
+    meta = json.loads((folder / "meta" / "a.json").read_text(encoding="utf-8"))
     assert meta["dataset"] == "HeLa nuclei DAPI"
     assert meta["mask_file"] == "a.tif"
     assert "discussions/1" in dialog.status.text()

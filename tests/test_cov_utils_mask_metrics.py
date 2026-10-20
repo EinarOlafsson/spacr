@@ -44,7 +44,7 @@ def test_get_files_from_dir_filters_by_extension(tmp_path):
     from spacr.utils import get_files_from_dir
 
     for name in ("a.tif", "b.tif", "c.csv"):
-        (tmp_path / name).write_text("x")
+        (tmp_path / name).write_text("x", encoding="utf-8")
 
     tifs = get_files_from_dir(str(tmp_path), "*.tif")
     assert sorted(os.path.basename(p) for p in tifs) == ["a.tif", "b.tif"]
@@ -55,7 +55,7 @@ def test_get_files_from_dir_default_pattern_returns_everything(tmp_path):
     from spacr.utils import get_files_from_dir
 
     for name in ("a.tif", "c.csv"):
-        (tmp_path / name).write_text("x")
+        (tmp_path / name).write_text("x", encoding="utf-8")
     (tmp_path / "sub").mkdir()
 
     everything = get_files_from_dir(str(tmp_path))

@@ -31,7 +31,11 @@ import ast
 import ctypes
 import threading
 import ctypes.util
-import fcntl
+try:
+    import fcntl
+except ImportError:                       # Windows: byte-range locks through msvcrt
+    fcntl = None
+    import msvcrt
 import hashlib
 import importlib.util
 import json
@@ -1214,6 +1218,10 @@ def _opencc_runtime() -> tuple[str, Path]:
         packaged_config = packaged / "share" / "opencc" / "t2s.json"
         if libraries and packaged_config.is_file():
             return str(libraries[0]), packaged_config
+        # The Windows wheel ships a .pyd that exports none of the C entry
+        # points, so it is driven through the wheel's own converter class.
+        if packaged_config.is_file() and hasattr(_opencc_package, "OpenCC"):
+            return _OPENCC_PYTHON_ROUTE, packaged_config
     except Exception:                                        # noqa: BLE001
         pass
 
@@ -1225,7 +1233,8 @@ def _opencc_runtime() -> tuple[str, Path]:
     )
 
 
-_OPENCC_CONVERTERS: dict[tuple[str, str], tuple[object, int]] = {}
+_OPENCC_PYTHON_ROUTE = "opencc-python-wheel"
+_OPENCC_CONVERTERS: dict[tuple[str, str], tuple[object, int | None]] = {}
 _OPENCC_LOCK = threading.Lock()
 
 
@@ -1243,6 +1252,12 @@ def _opencc_converter(library_name: str, config_path: Path) -> tuple[object, int
         cached = _OPENCC_CONVERTERS.get(key)
         if cached is not None:
             return cached
+        if library_name == _OPENCC_PYTHON_ROUTE:
+            import opencc as _opencc_package
+
+            converter = _opencc_package.OpenCC(str(config_path))
+            _OPENCC_CONVERTERS[key] = (converter, None)
+            return converter, None
         library = ctypes.CDLL(library_name)
         library.opencc_open.argtypes = [ctypes.c_char_p]
         library.opencc_open.restype = ctypes.c_void_p
@@ -1270,6 +1285,8 @@ def _simplify_chinese_prose(value: str) -> str:
     def convert(fragment: str) -> str:
         if not fragment:
             return fragment
+        if handle is None:
+            return library.convert(fragment)
         encoded = fragment.encode("utf-8")
         pointer = library.opencc_convert_utf8(
             handle, encoded, len(encoded),
@@ -5277,10 +5294,18 @@ def _exclusive_cache_lock(path: Path):
     try:
         for _attempt in range(1200):
             try:
-                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                if fcntl is not None:
+                    fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                else:
+                    os.lseek(descriptor, 0, os.SEEK_SET)
+                    msvcrt.locking(descriptor, msvcrt.LK_NBLCK, 1)
                 acquired = True
                 break
             except BlockingIOError:
+                time.sleep(0.05)
+            except OSError:
+                if fcntl is not None:
+                    raise
                 time.sleep(0.05)
         if not acquired:
             raise TimeoutError(
@@ -5292,8 +5317,11 @@ def _exclusive_cache_lock(path: Path):
         yield
     finally:
         try:
-            if acquired:
+            if acquired and fcntl is not None:
                 fcntl.flock(descriptor, fcntl.LOCK_UN)
+            elif acquired:
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                msvcrt.locking(descriptor, msvcrt.LK_UNLCK, 1)
         finally:
             # Closing the descriptor also releases flock, including when an
             # injected/platform unlock error occurs above.

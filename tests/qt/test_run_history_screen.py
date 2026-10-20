@@ -41,7 +41,7 @@ def history_root(tmp_path, monkeypatch):
          "hash_inputs": True},
     ) as run:
         run.record_warning("class imbalance")
-        output.write_text("class,score\nA,0.9\n")
+        output.write_text("class,score\nA,0.9\n", encoding="utf-8")
     with pytest.raises(RuntimeError):
         with journal.open_run("measure", {"src": str(plate)}):
             raise RuntimeError("database locked")
@@ -112,7 +112,7 @@ def test_history_displays_recorded_lock_verdict_and_evidence(
     monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
     record = next(row for row in screen.records if row["app_key"] == "classify")
     path = record["dir"] / "manifest.json"
-    manifest = json.loads(path.read_text())
+    manifest = json.loads(path.read_text(encoding="utf-8"))
     recorded = {
         "status": status, "summary": "Recorded verdict, retained verbatim.",
         "lock_id": "lock-original", "sha256": "a" * 64,
@@ -121,7 +121,7 @@ def test_history_displays_recorded_lock_verdict_and_evidence(
         "deviations": [{"key": "threshold", "locked": 0.1, "now": 0.2}],
     }
     manifest["analysis_lock"] = recorded
-    path.write_text(json.dumps(manifest))
+    path.write_text(json.dumps(manifest), encoding="utf-8")
     screen.refresh()
     _select_module(screen, "classify")
 
@@ -161,7 +161,7 @@ def test_hashes_pane_is_empty_when_hashing_is_off(qtbot, qt_theme_applied,
     with journal.open_run(
         "classify", {"src": str(plate), "output_path": str(output)},
     ):
-        output.write_text("class,score\nA,0.9\n")
+        output.write_text("class,score\nA,0.9\n", encoding="utf-8")
 
     widget = RunHistoryScreen(threaded=False)
     qtbot.addWidget(widget)
@@ -174,7 +174,7 @@ def test_hashes_pane_is_empty_when_hashing_is_off(qtbot, qt_theme_applied,
     run_dir = next(
         path for path in root.iterdir() if path.name.endswith("__classify")
     )
-    manifest = json.loads((run_dir / "manifest.json").read_text())
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["input_hashing"] == "skipped"
     assert manifest["input_hashes"] == {}
     assert manifest["output_hashes"] == {}

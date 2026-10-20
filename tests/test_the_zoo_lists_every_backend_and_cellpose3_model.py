@@ -43,7 +43,7 @@ def _finish(tmp_path, name):
     env = tmp_path / "backends" / name
     python = Path(SB._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("")
+    python.write_text("", encoding="utf-8")
     SB._write_marker(str(env), {"backend": name})
     return env
 
@@ -193,7 +193,7 @@ def test_the_bioimageio_listing_offers_both_kinds_from_one_cache(tmp_path):
                                  {"alias": "", "manifest": _CYTO3["manifest"]},
                                  {"alias": "odd", "manifest": ["a list"]},
                                  {"alias": "unet", "manifest": {
-                                     "type": "model", "name": "UNet 2D"}}]))
+                                     "type": "model", "name": "UNet 2D"}}]), encoding="utf-8")
     rows = {e.key: e for e in zoo.bioimageio_entries()}
     assert set(rows) == {"bioimageio_cellpose_cyto3",
                          "bioimageio_cellpose_plant_nuclei_resnet",

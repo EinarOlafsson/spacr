@@ -29,7 +29,7 @@ def test_empty_scopes_never_overlap():
 def test_blinding_logs_skip_unreadable_lines():
     assert rj._blinding_events("never-started") == []
     log = rj._blinding_root() / "k1.log.jsonl"
-    log.write_text('{"event": "blinded"}\nnot json\n[1]\n')
+    log.write_text('{"event": "blinded"}\nnot json\n[1]\n', encoding="utf-8")
     assert rj._blinding_events("k1") == [{"event": "blinded"}]
     rj._close_blinding("no-such-key")
     assert rj._unblinding_times("") == []
@@ -50,15 +50,15 @@ def test_gate_payloads_reject_what_is_not_a_gate_set(tmp_path, monkeypatch):
 
     assert rj._gate_payload(_Broken()) is None
     big = tmp_path / "big.json"
-    big.write_text(json.dumps({"gates": []}))
+    big.write_text(json.dumps({"gates": []}), encoding="utf-8")
     monkeypatch.setattr(rj, "_GATE_FILE_MAX_BYTES", 1)
     assert rj._gate_payload(big) is None
     monkeypatch.setattr(rj, "_GATE_FILE_MAX_BYTES", 1 << 20)
     bad = tmp_path / "bad.json"
-    bad.write_text("{broken")
+    bad.write_text("{broken", encoding="utf-8")
     assert rj._gate_payload(bad) is None
     listed = tmp_path / "list.json"
-    listed.write_text("[1, 2]")
+    listed.write_text("[1, 2]", encoding="utf-8")
     assert rj._gate_payload(listed) is None
 
 
@@ -75,12 +75,12 @@ def test_an_added_gate_is_named():
 
 def test_unreadable_lock_files_are_skipped(tmp_path):
     root = rj._locks_root()
-    (root / "broken.json").write_text("{not json")
-    (root / "list.json").write_text("[1]")
+    (root / "broken.json").write_text("{not json", encoding="utf-8")
+    (root / "list.json").write_text("[1]", encoding="utf-8")
     assert rj._find_lock("measure", str(tmp_path)) is None
     gates = tmp_path / "gates.json"
-    gates.write_text(json.dumps({"gates": []}))
-    (root / "other.json").write_text(json.dumps({"gates": {}}))
+    gates.write_text(json.dumps({"gates": []}), encoding="utf-8")
+    (root / "other.json").write_text(json.dumps({"gates": {}}), encoding="utf-8")
     assert rj._gate_file_lock_notes(gates) == []
     assert rj._gate_file_lock_notes(tmp_path / "none.json") == []
 
@@ -108,5 +108,5 @@ def test_recorded_models_skip_unreadable_runs(monkeypatch, tmp_path):
     for name, manifest in (("r1", "{bad"), ("r2", json.dumps({"app_key": "mask"}))):
         folder = root / name
         folder.mkdir(parents=True, exist_ok=True)
-        (folder / "manifest.json").write_text(manifest)
+        (folder / "manifest.json").write_text(manifest, encoding="utf-8")
     assert rj._recorded_models("mask", str(tmp_path)) == {}

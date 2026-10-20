@@ -1,9 +1,0 @@
-bringing up nodes...
-bringing up nodes...
-
-...............................                                          [100%]
-================================ tests coverage ================================
-_______________ coverage: platform linux, python 3.12.13-final-0 _______________
-
-Coverage JSON written to file /mnt/wd4tb/scratch/n180-carried-file-restore-20261015/closure-coverage.json
-31 passed in 4.07s

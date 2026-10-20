@@ -98,7 +98,7 @@ def test_the_container_is_parented_once():
     """
     from pathlib import Path
 
-    source = Path(REPO, "spacr", "qt", "settings_search.py").read_text()
+    source = Path(REPO, "spacr", "qt", "settings_search.py").read_text(encoding="utf-8")
     assert "container = QWidget()" in source
     assert "container = QWidget(parent)" not in source
 

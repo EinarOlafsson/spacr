@@ -1,6 +1,0 @@
-{
-  "original_sha256": "f32c177776ce5fe5cba9f00f7c21f47d0d06af8edb4a35b25872b02d5a7674c5",
-  "proposed_sha256": "8f4b924ac64600d18c5b3c8466ae07d7ee5358e6071b226c57c1b42d2996952c",
-  "scope": "Parent-requested position: read n_classes and validate explicit scalar targets BEFORE device/wrapper/eval/crop conversions; preserve legacy bool0/1 and default/valid arithmetic. Existing strict helper/error reused, no new prose/helper/caption.",
-  "limits": "Software class-identity guard only; no scientific-quality or nativeGPU parity claim."
-}

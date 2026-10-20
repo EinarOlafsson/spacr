@@ -608,7 +608,7 @@ def _process_chunk_with_primary_overload(payload):
         handle.write(json.dumps(identity) + '\n')
     marker = folder / 'primary-overload.marker'
     if identity == '@r0' and not marker.exists():
-        marker.write_text('first primary failed')
+        marker.write_text('first primary failed', encoding="utf-8")
         raise MemoryError('injected first-chunk overload')
     return SEQ.process_chunk(payload)
 
@@ -633,7 +633,7 @@ def test_reader_final_overload_pass_preserves_every_real_barcode_count(
               SEQ.single_read_chunked_processing)
     reader(r1_file=r1, r2_file=r2, test=preview, **_run_kwargs(tmp_path, refs))
     attempts = [json.loads(line) for line in
-                (tmp_path / 'attempts.jsonl').read_text().splitlines()]
+                (tmp_path / 'attempts.jsonl').read_text(encoding="utf-8").splitlines()]
     assert attempts == (['@r0', '@r0'] if preview else ['@r0', '@r2', '@r4', '@r0'])
     expected = 2 if preview else 5
     assert pd.read_csv(tmp_path / 'uc.csv')['count'].sum() == expected

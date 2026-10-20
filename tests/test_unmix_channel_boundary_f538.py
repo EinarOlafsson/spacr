@@ -101,7 +101,7 @@ def test_unmix_refusal_uses_installed_reviewed_language_before_loading(plate, la
     import json
 
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-unmix-channel-boundary.json'
-    record = json.loads(review.read_text())['records'][0]
+    record = json.loads(review.read_text(encoding="utf-8"))['records'][0]
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     calls = []
     real_load = np.load

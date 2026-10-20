@@ -17,7 +17,7 @@ def record_preview(app, window, screen, root, captures, capture, settle, write_j
 
     merged = np.stack([np.load(root / f'merged/plate1_A01_1_{i}.npy') for i in range(1, 9)])
     import json
-    layout = json.loads((root / 'merged/.spacr_plane_layout.json').read_text())
+    layout = json.loads((root / 'merged/.spacr_plane_layout.json').read_text(encoding="utf-8"))
     if (merged.shape != (8, 256, 256, 4) or merged.dtype != np.uint16 or
             layout['intensity_channels'] != [0, 1] or
             layout['mask_dims'] != {'cell': 2, 'nucleus': 3}):

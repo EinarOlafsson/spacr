@@ -119,7 +119,7 @@ def test_local_figure_writer_survives_missing_preferences_and_failed_write(
     assert destination.exists() and destination.stat().st_size > 0
 
     blocked = tmp_path / "blocker"
-    blocked.write_text("a file")
+    blocked.write_text("a file", encoding="utf-8")
     assert fs.save_figure_as(None, figure, str(blocked / "bad.svg")) == ""
 
 

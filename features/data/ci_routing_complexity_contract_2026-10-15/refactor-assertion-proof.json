@@ -1,6 +1,0 @@
-{
-  "all_original_assertion_AST_preserved": true,
-  "assertions": 25,
-  "matrix": "Original2 batched \u00d72 fail_tail \u00d73 shard_index retained; same shim, input values, env and subprocess launch.",
-  "only_original_test_and_8_private_helpers_changed": true
-}

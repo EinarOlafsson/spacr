@@ -43,6 +43,7 @@ def _deaf_child(ready_path):
     """)]
 
 
+@pytest.mark.posix_only
 def test_a_child_that_ignores_sigterm_is_killed_after_the_grace_period(
         tmp_path, monkeypatch):
     """SIGTERM, five seconds, then SIGKILL -- and the queue is free again."""
@@ -87,4 +88,4 @@ def test_a_child_that_ignores_sigterm_is_killed_after_the_grace_period(
         f"the child ended with {process.returncode}, not by SIGKILL")
     assert elapsed >= 5.0, (
         "the child was killed without being given the chance to exit cleanly")
-    assert "cancelled safely" in log.read_text()
+    assert "cancelled safely" in log.read_text(encoding="utf-8")

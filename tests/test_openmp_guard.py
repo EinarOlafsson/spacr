@@ -67,6 +67,7 @@ class TestResidentRuntimes:
             self, path, expected):
         assert openmp_guard._looks_like_openmp(path) is expected
 
+    @pytest.mark.needs_symlink
     def test_returns_realpaths_without_duplicates(self, monkeypatch, tmp_path):
         real = tmp_path / "libomp.dylib"
         real.write_bytes(b"")
@@ -116,7 +117,8 @@ class TestResidentRuntimes:
 
         found = openmp_guard.resident_openmp_runtimes()
 
-        assert found == ["/opt/intel/libiomp5.so", "/usr/lib/libgomp.so.1"]
+        assert found == sorted(os.path.realpath(path) for path in (
+            "/opt/intel/libiomp5.so", "/usr/lib/libgomp.so.1"))
 
     def test_recognises_a_content_hashed_wheel_runtime(self, monkeypatch):
         """PyTorch's minimum-version wheel inserts a hash before ``.so``."""
@@ -124,7 +126,7 @@ class TestResidentRuntimes:
         monkeypatch.setattr(openmp_guard.sys, "platform", "linux")
         monkeypatch.setattr(openmp_guard, "_linux_images", lambda: [path])
 
-        assert openmp_guard.resident_openmp_runtimes() == [path]
+        assert openmp_guard.resident_openmp_runtimes() == [os.path.realpath(path)]
 
     def test_unknown_platform_reports_nothing(self, monkeypatch):
         monkeypatch.setattr(openmp_guard.sys, "platform", "win32")

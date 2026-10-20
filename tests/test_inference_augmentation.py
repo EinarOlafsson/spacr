@@ -170,7 +170,7 @@ def test_folder_and_tar_use_same_augmentation_and_save_diagnostics(tmp_path, mon
         assert archive[column].tolist() == folder[column].tolist()
     assert archive['cv_predictions'].tolist() == archive['predicted_label'].tolist()
     assert archive['tta_views'].tolist() == [4]
-    assert any('transform_agreement' in file.read_text() for file in tmp_path.rglob('*.csv'))
+    assert any('transform_agreement' in file.read_text(encoding="utf-8") for file in tmp_path.rglob('*.csv'))
     assert checkpoint.read_bytes() == b'local-augmentation-loader-fixture'
 
 

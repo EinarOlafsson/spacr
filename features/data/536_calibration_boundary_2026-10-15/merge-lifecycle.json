@@ -1,9 +1,0 @@
-{
-  "status": "Private final publication orchestration refused before staging/push, then necessary normal generated reconciliation authorized.",
-  "immutable_incoming_public": "7ca1994091554a6d9f16a2c628be868640307b86",
-  "first_chain": "Fetch immutable incoming, normalmerge succeeded; old whole-tested-catalog equality assertion failed on spacr/qt/i18n_catalogs/pt.py. set-euo stopped chain before proof copy/staging/commit/push.",
-  "observed_failure": "AssertionError: spacr/qt/i18n_catalogs/pt.py",
-  "reason": "Genuine published Home-B HintBar runtime source and reviewed-row additions/retirements occurred while F536 publication was held for CI. Whole tested catalog blobs must change; preserving every incoming source-current target and one exact owned row remains required.",
-  "raw_output_limit": "First command output was tool-returned/truncated and was not redirected to a raw file. This receipt records the actual observed assertion; no reconstructed full raw log claimed. Original proof script preserved separately.",
-  "followup": "Root authorized one necessary normal merged9writer/audit/arrival against actual pinned current source; no30owning/18localized checks repeated, no validator weakening."
-}

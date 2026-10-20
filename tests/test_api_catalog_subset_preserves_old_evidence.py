@@ -17,12 +17,12 @@ def test_scoped_api_writer_preserves_missing_baseline_and_old_model_inputs(tmp_p
               'license': 'historical-license',
               'symbols': {'spacr.previous_symbol': unrelated}}
     path = tmp_path / 'sv.json'
-    path.write_text(json.dumps(before))
+    path.write_text(json.dumps(before), encoding="utf-8")
     source = 'The updater verifies its actual application before restarting.'
     builder.write_language({'spacr.installer_update': source}, 'sv',
                            {'spacr.installer_update': 'Uppdateraren verifierar programmet före omstart.'},
                            preserve_other_symbols=True)
-    after = json.loads(path.read_text())
+    after = json.loads(path.read_text(encoding="utf-8"))
     assert after['symbols']['spacr.previous_symbol'] == unrelated
     assert {k: v for k, v in after.items() if k != 'symbols'} == {
         k: v for k, v in before.items() if k != 'symbols'}

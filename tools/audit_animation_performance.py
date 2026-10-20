@@ -125,7 +125,7 @@ def main(argv=None) -> int:
                         help="print ambient._GRAPHICS_COST rows from a --gpu receipt and exit")
     args = parser.parse_args(argv)
     if args.cost_table is not None:
-        print(cost_table(json.loads(args.cost_table.read_text())))
+        print(cost_table(json.loads(args.cost_table.read_text(encoding="utf-8"))))
         return 0
     root = str(Path(__file__).resolve().parents[1])
     if root not in sys.path:
@@ -166,7 +166,7 @@ def main(argv=None) -> int:
                                 "rate, compositor or native-display claim."),
               "rows": rows}
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2) + "\n")
+    args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

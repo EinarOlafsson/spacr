@@ -22,7 +22,7 @@ CONSUMERS = [
 def consumer_root(consumer, home):
     variable, source, symbol, constant = consumer
     path = Path(cleanup.__file__).parent / source
-    node = next(node for node in ast.parse(path.read_text()).body
+    node = next(node for node in ast.parse(path.read_text(encoding="utf-8")).body
                 if isinstance(node, ast.FunctionDef) and node.name == symbol)
     namespace = {'os': os, 'sys': sys, 'Path': Path,
                  '_spacr_home': lambda: home / '.spacr'}
@@ -40,8 +40,9 @@ def installation(tmp_path, monkeypatch, consumer, spelling):
     code = prefix / 'bin/python'
     code.parent.mkdir(parents=True)
     code.write_bytes(b'primary app code')
-    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n')
+    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n', encoding="utf-8")
     monkeypatch.setenv('HOME', str(home))
+    monkeypatch.setenv('USERPROFILE', str(home))
     monkeypatch.chdir(prefix)
     variable = consumer[0]
     configured = str(prefix / 'cache')
@@ -66,7 +67,7 @@ def installation(tmp_path, monkeypatch, consumer, spelling):
 
 
 @pytest.mark.parametrize('consumer', CONSUMERS, ids=lambda row: row[0])
-@pytest.mark.parametrize('spelling', ['absolute', 'relative', 'padded', 'home'])
+@pytest.mark.parametrize('spelling', ['absolute', 'relative', pytest.param('padded', marks=pytest.mark.posix_only), 'home'])
 def test_real_consumer_cache_survives_primary_app_retirement(tmp_path, monkeypatch, consumer, spelling):
     root, _prefix, code, _cache, payload, machine, record = installation(
         tmp_path, monkeypatch, consumer, spelling,
@@ -80,7 +81,7 @@ def test_real_consumer_cache_survives_primary_app_retirement(tmp_path, monkeypat
 
 
 @pytest.mark.parametrize('consumer', CONSUMERS, ids=lambda row: row[0])
-@pytest.mark.parametrize('spelling', ['absolute', 'relative', 'padded', 'home'])
+@pytest.mark.parametrize('spelling', ['absolute', 'relative', pytest.param('padded', marks=pytest.mark.posix_only), 'home'])
 def test_replacement_refuses_actual_consumer_cache_in_runtime(tmp_path, monkeypatch, consumer, spelling):
     _root, prefix, code, _cache, payload, machine, _record = installation(
         tmp_path, monkeypatch, consumer, spelling,
@@ -96,6 +97,7 @@ def test_unconfigured_cache_named_app_files_are_still_retired(tmp_path, monkeypa
         tmp_path, monkeypatch, CONSUMERS[0], 'absolute',
     )
     del machine.environ['SPACR_MODEL_CACHE']
+    monkeypatch.chdir(tmp_path)
     assert cleanup.remove_install(record, system=machine).ok
     assert not payload.exists() and not root.exists()
 
@@ -108,6 +110,7 @@ def test_external_direct_caches_do_not_keep_primary_app_or_enter_purge(tmp_path,
     outside = tmp_path / 'external-cache'
     for variable, *_rest in CONSUMERS:
         machine.environ[variable] = str(outside)
+    monkeypatch.chdir(tmp_path)
     assert cleanup.remove_install(record, system=machine).ok
     assert not root.exists()
     assert (outside / 'retained.bin').read_bytes() == b'user-configured cache bytes\x00\xff'

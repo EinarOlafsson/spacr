@@ -12,7 +12,7 @@ from spacr import embeddings as emb
 def test_installed_foundation_comparison_refusal(monkeypatch, language):
     path = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language
             / '2026-10-15-foundation-comparison-input.json')
-    expected = json.loads(path.read_text())['records'][0]['translation']
+    expected = json.loads(path.read_text(encoding="utf-8"))['records'][0]['translation']
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     crops = np.ones((4, 2, 2, 1), dtype=np.uint16)
     before = crops.copy()

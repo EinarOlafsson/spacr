@@ -1,8 +1,0 @@
-{
-  "old_sha256": "0b108e4c846dd74793bba07110c4d9f738f760858cc6706a6279bd258cae553b",
-  "proposed_sha256": "a0dbf4c24346126966177cd5ebe790fe03426bbc44dd6bc323e438d970fd1804",
-  "all_original_prose_signatures_symbols_unchanged": true,
-  "strip_terminal_codes_and_find_urls_entire_AST_unchanged": true,
-  "all_tr_calls_unchanged": true,
-  "scope": "One private regex/state; no new function/nested helper/module/source caption. No API prose inputs change."
-}

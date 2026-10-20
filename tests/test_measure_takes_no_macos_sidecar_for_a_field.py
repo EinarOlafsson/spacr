@@ -112,7 +112,7 @@ def test_measure_test_mode_samples_only_fields(tmp_path, capsys):
     merged.mkdir()
     np.save(merged / FIELD, np.zeros((8, 8, 5), np.uint16))
     _with_sidecar(merged)
-    (merged / ".spacr_plane_layout.json").write_text("{}")
+    (merged / ".spacr_plane_layout.json").write_text("{}", encoding="utf-8")
 
     settings = measure_test_mode({"src": str(merged), "test_mode": True,
                                   "test_nr": 3})

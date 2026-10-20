@@ -1,3 +1,0 @@
-Plate	Well	Characteristics [Organism]	Term Source 1 REF	Term Source 1 Accession	Characteristics [Cell Line]	Control Type	Quality Control	Channels
-plate1	E01	Homo sapiens	NCBITaxon	NCBITaxon_9606	HeLa		pass	
-plate1	E02	Homo sapiens	NCBITaxon	NCBITaxon_9606	HeLa		pass	

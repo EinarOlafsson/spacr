@@ -194,7 +194,7 @@ def test_install_is_validated_before_the_previous_environment_is_replaced():
     for path in (UNIX, WINDOWS):
         source = _text(path)
         assert "--relocatable" in source
-        check = source.index("pip check")
+        check = source.index("pip check" if path == UNIX else '@("pip", "check"')
         import_check = source.index("import spacr, PySide6, torch")
         activate = source.index("venv-previous")
         assert "-I" in source[:import_check]
@@ -693,7 +693,7 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert workflow.count("timeout-minutes: 30") == 2
     assert workflow.count("timeout-minutes: 50") == 1
     assert workflow.count("assert torch.version.cuda is None") == 2
-    assert "assert torch.backends.mps.is_available()" in workflow
+    assert "assert torch.backends.mps.is_built()" in workflow
     assert workflow.count("smoke_installed.py") == 3
     assert workflow.count("from spacr.updater import upgrade_command") == 3
     assert workflow.count("find_spec('pip') is None") == 3

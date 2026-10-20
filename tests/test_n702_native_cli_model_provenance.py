@@ -24,7 +24,7 @@ def test_actual_cli_journal_records_original_pin_and_effective_verified_model(tm
                     'cell_model_name': zoo._model_reference_from_record(request, raw)}}}
     original = deepcopy(settings)
     path = tmp_path / 'input-settings.json'
-    path.write_text(json.dumps(settings))
+    path.write_text(json.dumps(settings), encoding="utf-8")
     private_home = tmp_path / 'private-home'
     monkeypatch.setenv('SPACR_HOME', str(private_home))
     monkeypatch.setattr(run_journal, 'runs_root', lambda: tmp_path / 'runs')
@@ -57,10 +57,10 @@ def test_actual_cli_journal_records_original_pin_and_effective_verified_model(tm
     assert cli.main(['mask', '--settings', str(path), '--no-preflight']) == cli.EXIT_OK
     assert len(observed) == 1
     directory = observed[0]
-    recorded = json.loads((directory / 'settings.json').read_text())
+    recorded = json.loads((directory / 'settings.json').read_text(encoding="utf-8"))
     assert recorded == original
     assert cli.load_settings_file(str(directory / 'settings.csv')) == original
-    manifest = json.loads((directory / 'manifest.json').read_text())
+    manifest = json.loads((directory / 'manifest.json').read_text(encoding="utf-8"))
     assert manifest['status'] == 'success'
     actual = manifest['model_files']['cell_model_name']
     assert Path(actual['path']) == target.resolve()

@@ -1,7 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "proposal_sha256": "18d1ec11931d61050b20115ee5003276715f6f15e3b8751de00d312636160c32",
-  "decision": "approve exact _user_data spelling plus realpath protection expansion",
-  "scope": "Keep every configured spelling in original order; append resolved targets and deduplicate exact strings. Existing _refusal, recursive keep and final lease protection use expanded set. Global containment, symlink deletion and purge semantics remain unchanged.",
-  "required_acceptance": "Native aliases and parent aliases protect real user bytes; retargeting resolved per call; broken aliases and external targets retained; owning modeled OS/installer removal contracts checked. No actual Windows/macOS claim."
-}

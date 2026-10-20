@@ -112,7 +112,7 @@ def test_a_stopped_run_is_recorded_as_cancelled_and_not_as_failed(tmp_path,
         with run_journal.open_run("regression", {}) as run:
             raise PipelineCancelled("the user pressed Stop")
 
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["status"] == "cancelled"
     # The traceback is KEPT: where a long fit was interrupted is exactly what
     # a user asks afterwards.
@@ -131,7 +131,7 @@ def test_a_run_that_actually_broke_is_still_recorded_as_failed(tmp_path,
             raise ValueError("the design is not identifiable")
 
     assert json.loads(
-        (run.dir / "manifest.json").read_text())["status"] == "failed"
+        (run.dir / "manifest.json").read_text(encoding="utf-8"))["status"] == "failed"
 
 
 def test_the_folder_of_a_stopped_run_is_there_to_be_looked_at(tmp_path,

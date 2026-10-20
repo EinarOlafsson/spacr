@@ -17,7 +17,7 @@ def runtime(tmp_path, monkeypatch):
     internal = root / '_internal'
     metadata = internal / 'spacr-1.5.1.4.dist-info' / 'METADATA'
     metadata.parent.mkdir(parents=True)
-    metadata.write_text('Name: spacr\nVersion: 1.5.1.4\n')
+    metadata.write_text('Name: spacr\nVersion: 1.5.1.4\n', encoding="utf-8")
     executable = root / 'spacr.exe'
     executable.write_bytes(b'old executable')
     (internal / 'spacr-update-helper.exe').write_bytes(b'modeled independent helper')
@@ -71,10 +71,10 @@ def payload(root, version):
     (root / 'spacr.exe').write_bytes(('new executable ' + version).encode())
     metadata = root / '_internal' / ('spacr-' + version + '.dist-info') / 'METADATA'
     metadata.parent.mkdir(parents=True)
-    metadata.write_text('Name: spacr\nVersion: ' + version + '\n')
+    metadata.write_text('Name: spacr\nVersion: ' + version + '\n', encoding="utf-8")
     files = {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
              for p in root.rglob('*') if p.is_file()}
-    (root / 'spacr-payload.json').write_text(json.dumps({'schema': 1, 'version': version, 'files': files}))
+    (root / 'spacr-payload.json').write_text(json.dumps({'schema': 1, 'version': version, 'files': files}), encoding="utf-8")
     return root
 
 
@@ -83,7 +83,7 @@ def identity(argv):
     version = cleanup._frozen_windows_previous_version(root)
     Path(argv[-1]).write_text(json.dumps({'schema': 1, 'version': version, 'frozen': True,
         'executable': argv[0], 'bundle_root': str(root), 'import_root': str(root / '_internal'),
-        'module': str(root / '_internal' / 'spacr' / '__init__.py')}))
+        'module': str(root / '_internal' / 'spacr' / '__init__.py')}), encoding="utf-8")
     return 0, ''
 
 
@@ -99,7 +99,8 @@ def update(runtime, monkeypatch, tmp_path):
     expected = hashlib.sha256(installer_bytes).hexdigest()
     monkeypatch.setattr(cleanup, '_published_digest', lambda _url: expected)
     actions = []
-    monkeypatch.setattr(cleanup, '_desktop_process_identity', lambda _pid: (cleanup.os.getuid(), str(runtime.executable)))
+    owner = 'S-1-5-21-123' if cleanup.os.name == 'nt' else cleanup.os.getuid()
+    monkeypatch.setattr(cleanup, '_desktop_process_identity', lambda _pid: (owner, str(runtime.executable)))
     monkeypatch.setattr(cleanup, '_wait_for_exit', lambda _pid, **_kwargs: 'approved-exit' in actions)
     handshake = cleanup._WindowsPipHandshake(plan)
     real_ready = cleanup._WindowsPipHandshake.ready
@@ -173,7 +174,7 @@ def test_verified_nsis_update_keeps_data_and_relaunches_after_actual_identity(up
     assert not list((update.runtime.home / '.spacr/update-locks').iterdir())
     results = list(update.runtime.helper.glob('windows-update-result-*.json'))
     assert len(results) == 1
-    assert json.loads(results[0].read_text())['state'] == 'desktop-ready'
+    assert json.loads(results[0].read_text(encoding="utf-8"))['state'] == 'desktop-ready'
 
 
 @pytest.mark.parametrize("failure", ["old-version", "exited", "never-ready", "cannot-stop"])
@@ -210,7 +211,7 @@ def test_unconfirmed_windows_desktop_retains_recovery_and_cannot_report_success(
     assert not list(update.runtime.helper.glob("windows-update-result-*.json"))
     journals = list((update.runtime.home / ".spacr/update-locks").glob("*/journal.json"))
     assert len(journals) == 1
-    journal = json.loads(journals[0].read_text())
+    journal = json.loads(journals[0].read_text(encoding="utf-8"))
     assert journal["state"] == "desktop-unconfirmed"
     assert journal["pid"] == (100 if failure == "cannot-stop" else None)
     assert (update.runtime.root / "user-data/keep.csv").read_bytes() == b"unchanged user data"
@@ -240,7 +241,10 @@ def test_cancelled_uac_never_relaunches_or_changes_old_runtime(update):
     before = snapshot(update.runtime.root)
 
     def cancel(*_args, **_kwargs):
-        raise OSError(1223, 'modeled UAC declined')
+        declined = OSError(1223, 'modeled UAC declined')
+        if cleanup.os.name == 'nt':
+            declined.winerror = 1223
+        raise declined
 
     with pytest.raises(OSError) as error:
         run_update(update, install=cancel)
@@ -271,7 +275,7 @@ def test_failed_nsis_transaction_restores_old_bytes_and_never_relaunches(update)
     assert 'relaunch' not in update.actions
     locks = list((update.runtime.home / '.spacr/update-locks').iterdir())
     assert len(locks) == 1
-    assert json.loads((locks[0] / 'journal.json').read_text())['state'] == 'desktop-unconfirmed'
+    assert json.loads((locks[0] / 'journal.json').read_text(encoding="utf-8"))['state'] == 'desktop-unconfirmed'
 
 
 def test_live_installer_timeout_retains_lock_stage_and_journal(update):
@@ -286,7 +290,7 @@ def test_live_installer_timeout_retains_lock_stage_and_journal(update):
     assert Path(update.plan['fetch']['path']).is_file()
     locks = list((update.runtime.home / '.spacr/update-locks').iterdir())
     assert len(locks) == 1
-    assert json.loads((locks[0] / 'journal.json').read_text())['state'] == 'installer-uncertain'
+    assert json.loads((locks[0] / 'journal.json').read_text(encoding="utf-8"))['state'] == 'installer-uncertain'
     assert 'relaunch' not in update.actions
     with pytest.raises(FileExistsError):
         run_update(update)
@@ -304,11 +308,19 @@ def test_changed_destination_or_staged_installer_refused_after_approved_exit(upd
             update.runtime.executable.write_bytes(b'foreign new executable')
         elif change == 'version':
             metadata = next(update.runtime.internal.glob('*.dist-info/METADATA'))
-            metadata.write_text('Name: spacr\nVersion: 1.5.1.6\n')
+            metadata.write_text('Name: spacr\nVersion: 1.5.1.6\n', encoding="utf-8")
+        elif pinned:
+            with pytest.raises(PermissionError):
+                Path(update.plan['fetch']['path']).write_bytes(b'replaced after approval')
         else:
             Path(update.plan['fetch']['path']).write_bytes(b'replaced after approval')
         return True
 
+    pinned = change == 'stage' and cleanup.os.name == 'nt'
+    if pinned:
+        assert run_update(update, wait=mutate) == ('1.5.1.5', 'modeled NSIS completed')
+        assert update.actions == ['download', 'stage', 'approved-exit', 'install', 'relaunch']
+        return
     with pytest.raises((ValueError, FileNotFoundError)):
         run_update(update, wait=mutate)
     assert 'install' not in update.actions and 'relaunch' not in update.actions
@@ -326,9 +338,9 @@ def test_wrong_installed_runtime_or_receipt_is_not_relaunched(update, change):
     def wrong_identity(argv):
         code, output = identity(argv)
         path = Path(argv[-1])
-        result = json.loads(path.read_text())
+        result = json.loads(path.read_text(encoding="utf-8"))
         result['frozen'] = False
-        path.write_text(json.dumps(result))
+        path.write_text(json.dumps(result), encoding="utf-8")
         return code, output
 
     with pytest.raises((ValueError, OSError, RuntimeError)):
@@ -355,6 +367,7 @@ def test_downgrade_is_refused_before_helper_launch(runtime):
     assert snapshot(runtime.root) == before
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('entry', ['installer', 'root', 'internal'])
 def test_reparse_and_nonregular_boundaries_are_refused(update, tmp_path, entry):
     if entry == 'installer':
@@ -395,6 +408,7 @@ def test_configured_data_inside_payload_refuses_before_staging_or_after_approval
         assert update.actions == []
 
 
+@pytest.mark.needs_symlink
 def test_configured_cache_alias_into_payload_is_refused(update):
     location = update.runtime.internal / 'model-cache'
     location.mkdir()

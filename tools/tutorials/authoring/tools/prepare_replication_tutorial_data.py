@@ -85,7 +85,7 @@ def main() -> int:
         "conditions": {"c1": "vehicle", "c2": "inhibitor"},
         "pathogen_rows": len(pathogen_rows),
         "expected": expected,
-    }, indent=2) + "\n")
+    }, indent=2) + "\n", encoding="utf-8")
     print(DB)
     return 0
 

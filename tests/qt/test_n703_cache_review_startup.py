@@ -23,7 +23,7 @@ class SettingsStore:
 
     def sync(self):
         self.syncs += 1
-        self.path.write_text(json.dumps(self.values))
+        self.path.write_text(json.dumps(self.values), encoding="utf-8")
 
 
 class FinishedSignal:
@@ -141,7 +141,7 @@ def test_keep_after_displayed_choices_records_installation_and_then_shows_notice
     window._finish_cache_cleanup_review(reviewed=True)
     assert events == ["cache-preview", "report-notice", ("tour", 500)]
     assert store.values == {"installer/cache_reviewed_install": "1.5.1.5|profile-a"}
-    assert json.loads(store.path.read_text()) == store.values and store.syncs == 1
+    assert json.loads(store.path.read_text(encoding="utf-8")) == store.values and store.syncs == 1
     assert window._cache_cleanup_install_token is None and window._cache_cleanup_after is None
 
 

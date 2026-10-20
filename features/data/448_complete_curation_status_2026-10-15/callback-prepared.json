@@ -1,7 +1,0 @@
-{
-  "test": "tests/qt/test_n448_curation_status_locales.py",
-  "sha256": "eea9a0e0ff7260482876280a3e040897b946ce259628a2d2d8eee8944b7e37b6",
-  "review_file": "2026-10-15-n448-complete-curation-status.json",
-  "states": "9locales\u00d78complete current callback outcomes; all72 targets exercised by actual _advance_after_verdict/_StatusLabel",
-  "execution": "PREPARED ONLY; final16+9=25cases pending ordinary generated runtime catalogue closure. No injected translations or target acceptance manufactured."
-}

@@ -1,7 +1,0 @@
-Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/stage-tools/run_tool.py', 'tools/tutorials/finish_staged_visual.py', '--stage', '/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015', '--lesson', '05_home']
-Source: 87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9
-/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/production/05_home/poster.jpg
-05_home PASS 101992511 bytes 223.45 seconds
-05_home: complete master decode and PTS checks, normal poster and web copy; browser acceptance remains open
-
-Terminal exit status: 0

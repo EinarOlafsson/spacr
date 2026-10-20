@@ -228,9 +228,9 @@ def test_a_file_that_is_not_what_its_name_says_is_refused(tmp_path):
 def test_a_contribution_without_consent_or_licence_is_refused(tmp_path):
     def strip(folder):
         path = folder / "contribution.json"
-        record = json.loads(path.read_text())
+        record = json.loads(path.read_text(encoding="utf-8"))
         record.pop("consent")
-        path.write_text(json.dumps(record))
+        path.write_text(json.dumps(record), encoding="utf-8")
     assert "consent" in _broken(tmp_path, strip)
 
 
@@ -453,9 +453,9 @@ def test_the_client_refuses_an_oversized_folder_before_sending(tmp_path,
 
 
 def test_the_space_app_exposes_the_contribute_endpoint():
-    source = (SPACE / "app.py").read_text()
+    source = (SPACE / "app.py").read_text(encoding="utf-8")
     assert 'api_name="contribute"' in source
     assert 'api_name="upload"' in source
     assert "import contribution" in source
-    assert "create_pr=True" in (SPACE / "contribution.py").read_text()
+    assert "create_pr=True" in (SPACE / "contribution.py").read_text(encoding="utf-8")
     assert os.path.basename(space.__file__) == "contribution.py"

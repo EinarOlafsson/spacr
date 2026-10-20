@@ -13,7 +13,7 @@ def test_pending_and_failed_wand_status_is_localized(qtbot, monkeypatch, languag
 
     root = Path(__file__).resolve().parents[2]
     payload = json.loads((root / 'docs/i18n/reviewed/runtime' / language /
-                          '2026-09-22-wand-enhancement-status.json').read_text())
+                          '2026-09-22-wand-enhancement-status.json').read_text(encoding="utf-8"))
     targets = {row['source']: row['translation'] for row in payload['records']}
     monkeypatch.setattr(i18n, 'current_language', lambda: language)
     canvas = _MaskCanvas()

@@ -127,7 +127,7 @@ def write_catalogs(stage, web, *, model_promotions=(), barcode_promotion=False):
     for name, variable, data in [('lesson_catalog.js', 'SPACR_LESSON_CATALOG', js_catalog),
                                  ('module_navigation.js', 'SPACR_TUTORIAL_NAVIGATION', nav)]:
         (web / name).write_text('"use strict";\nwindow.' + variable + ' = Object.freeze('
-                               + json.dumps(data, ensure_ascii=False) + ');\n')
+                               + json.dumps(data, ensure_ascii=False) + ');\n', encoding="utf-8")
 
 
 def refresh_candidate_player(root):
@@ -200,11 +200,11 @@ def build(stage=DEFAULT_STAGE, *, baseline=None, model_promotions=(), barcode_pr
                 copy_checked(source, web / source.relative_to(published), records, root)
     # Relative roots make this an offline preview. Deployment must explicitly
     # replace them with an immutable uploaded media revision after the hold.
-    index = (web / 'index.html').read_text()
+    index = (web / 'index.html').read_text(encoding="utf-8")
     for attr, value in [('production-root', 'production'), ('audio-root', '../media_host'),
                         ('video4k-root', '../media_host')]:
         index = re.sub(rf'data-{attr}="[^"]*"', f'data-{attr}="{value}"', index)
-    (web / 'index.html').write_text(index)
+    (web / 'index.html').write_text(index, encoding="utf-8")
     records[:] = [r for r in records if r['path'] != 'web/index.html']
 
     write_catalogs(stage, web, model_promotions=model_promotions, barcode_promotion=barcode_promotion)

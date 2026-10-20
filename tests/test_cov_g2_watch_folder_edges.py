@@ -51,7 +51,7 @@ def test_unreadable_files_are_named_by_kind(tmp_path):
 
 def test_an_unreadable_ledger_is_set_aside_and_restarted(tmp_path, capsys):
     path = tmp_path / "watch_ledger.json"
-    path.write_text("{broken")
+    path.write_text("{broken", encoding="utf-8")
     ledger = core._watch_load_ledger(str(path), str(tmp_path))
     assert isinstance(ledger, dict)
     assert (tmp_path / "watch_ledger.json.unreadable").exists()
@@ -133,10 +133,10 @@ def test_a_conversion_map_with_repeated_or_zero_identifiers_is_refused(
     row = "plate1_A01_T0001F001L01A01Z01C01.tif,/raw/a.tif,plate1,A01,1,1,1,1,converted\n"
     (tmp_path / "conversion_map.csv").write_text(
         header.replace("status", "status,status") + row.replace(
-            "converted", "converted,converted"))
+            "converted", "converted,converted"), encoding="utf-8")
     with pytest.raises(ValueError):
         core._watch_map_manifest(str(tmp_path), {})
     (tmp_path / "conversion_map.csv").write_text(
-        header + row.replace(",1,1,1,1,", ",0,1,1,1,"))
+        header + row.replace(",1,1,1,1,", ",0,1,1,1,"), encoding="utf-8")
     with pytest.raises(ValueError):
         core._watch_map_manifest(str(tmp_path), {})

@@ -692,7 +692,7 @@ def test_loading_a_style_without_a_callback_still_applies_it(qapp, tmp_path,
         "spacr_style_kind": fs.GRAPH_STYLE_FILE_KIND,
         "general": {"palette": "muted"},
         "per_graph": {"volcano": {"dpi": 400}},
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(path), "")))
     applied = {}
@@ -935,7 +935,7 @@ def test_cancelling_the_figure_chooser_writes_nothing(qapp, figure, tmp_path,
 def test_a_raster_write_that_fails_reports_no_path(qapp, figure, tmp_path):
     """The PNG path goes through spacr.plot.save_figure, and it can fail too."""
     blocker = tmp_path / "blocker"
-    blocker.write_text("a file where a directory would have to be")
+    blocker.write_text("a file where a directory would have to be", encoding="utf-8")
     target = blocker / "figure.png"
 
     assert fs.save_figure_as(None, figure, str(target)) == ""
@@ -968,7 +968,7 @@ def test_a_vector_save_without_the_preference_store_uses_the_print_ground(
     written = fs.save_figure_as(None, figure, str(target))
 
     assert written == str(target)
-    body = target.read_text()
+    body = target.read_text(encoding="utf-8")
     assert body.startswith("<?xml"), "an SVG, not a raster renamed"
     root = ElementTree.fromstring(body)
     page = next(node for node in root.iter()
@@ -980,7 +980,7 @@ def test_a_vector_save_without_the_preference_store_uses_the_print_ground(
 def test_a_write_that_fails_reports_no_path(qapp, figure, tmp_path):
     """A save that cannot happen returns an empty string rather than raising."""
     blocker = tmp_path / "blocker"
-    blocker.write_text("a file where a directory would have to be")
+    blocker.write_text("a file where a directory would have to be", encoding="utf-8")
     target = blocker / "figure.svg"
 
     assert fs.save_figure_as(None, figure, str(target)) == ""
@@ -1026,7 +1026,7 @@ def test_a_pair_that_cannot_be_tested_is_dropped_and_the_rest_are_written(
 
         stats = tmp_path / "figure_stats.csv"
         assert written == [str(stats)]
-        body = stats.read_text()
+        body = stats.read_text(encoding="utf-8")
         assert "a" in body and "b" in body
         assert body.count("\n") == 2, "one comparison and one header row"
     finally:
@@ -1059,7 +1059,7 @@ def test_a_statistics_failure_does_not_cost_the_other_sidecars(tmp_path,
         assert written == [str(tmp_path / "figure.csv"),
                            str(tmp_path / "figure_legend.txt")]
         assert not (tmp_path / "figure_stats.csv").exists()
-        assert (tmp_path / "figure_legend.txt").read_text() == \
+        assert (tmp_path / "figure_legend.txt").read_text(encoding="utf-8") == \
             "What the figure shows.\n"
     finally:
         plt.close(figure)
@@ -1108,7 +1108,7 @@ def test_the_panel_saves_what_is_on_screen_not_what_is_stored(panel, tmp_path,
 
     _button_named(panel, "Save style…").click()
 
-    data = json.loads(target.read_text())
+    data = json.loads(target.read_text(encoding="utf-8"))
     assert data["spacr_style_kind"] == fs.GRAPH_STYLE_FILE_KIND
     assert data["general"]["palette"] == "muted"
 
@@ -1130,7 +1130,7 @@ def test_loading_a_style_fills_the_controls_and_not_the_store(panel, tmp_path,
         "spacr_style_kind": fs.GRAPH_STYLE_FILE_KIND,
         "general": {"palette": "pastel", "grid_width": 2.5},
         "per_graph": {},
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(path), "")))
 
@@ -1144,7 +1144,7 @@ def test_loading_a_style_fills_the_controls_and_not_the_store(panel, tmp_path,
 def test_a_file_that_is_not_a_house_style_warns_and_changes_nothing(
         panel, tmp_path, monkeypatch):
     path = tmp_path / "other.json"
-    path.write_text(json.dumps({"something": "else"}))
+    path.write_text(json.dumps({"something": "else"}), encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(path), "")))
     warnings = []

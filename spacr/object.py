@@ -1298,7 +1298,8 @@ def _mask_archive_arrays(path, *, native=False, workspace=None):
             if shutil.disk_usage(stage.name).free < member.file_size:
                 raise OSError(errno.ENOSPC,
                               tr('Native mask workspace needs more free disk space'), stage.name)
-            descriptor = os.open(target, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o600)
+            descriptor = os.open(target, os.O_RDWR | os.O_CREAT | os.O_EXCL
+                                 | getattr(os, 'O_BINARY', 0), 0o600)
             try:
                 _reserve_native_mask_file(descriptor, member.file_size)
                 os.lseek(descriptor, 0, os.SEEK_SET)
@@ -1511,7 +1512,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     channels = _segmentation_input_channels(
         channels, len(channels_to_extract), model)
     _note_the_diameter(settings, object_type)
-    count_loc = os.path.dirname(src)+'/measurements/measurements.db'
+    count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
 
@@ -1972,7 +1973,7 @@ def generate_cellpose_masks(src, settings, object_type):
     
     paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]    
     
-    count_loc = os.path.dirname(src)+'/measurements/measurements.db'
+    count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
     

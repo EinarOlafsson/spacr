@@ -17,7 +17,7 @@ def _map(tmp_path):
     from spacr.convert import MAP_FILENAME
 
     path = tmp_path / MAP_FILENAME
-    path.write_text("target,source\n")
+    path.write_text("target,source\n", encoding="utf-8")
     return path
 
 

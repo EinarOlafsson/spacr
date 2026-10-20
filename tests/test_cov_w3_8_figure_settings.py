@@ -279,7 +279,7 @@ def test_a_saved_style_round_trips(tmp_path):
     general, per_graph = fs.load_graph_style(str(target))
     assert general["font_size"] == 12
     assert per_graph["bar"]["grid_width"] == pytest.approx(0.6)
-    assert json.loads(target.read_text())
+    assert json.loads(target.read_text(encoding="utf-8"))
 
 
 # ---------------------------------------------------------------------------

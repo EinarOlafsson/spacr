@@ -167,7 +167,7 @@ def test_a_prefix_matches_when_nothing_is_exact(tmp_path):
     folder = tmp_path / "merged"
     folder.mkdir()
     (folder / "plate1_A01_1_0.npy").write_bytes(b"")
-    (folder / "notes.txt").write_text("ignored")
+    (folder / "notes.txt").write_text("ignored", encoding="utf-8")
 
     found = sd._stack_for(str(folder), "plate1_A01_1")
 

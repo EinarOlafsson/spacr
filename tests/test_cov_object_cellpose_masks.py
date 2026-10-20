@@ -826,7 +826,8 @@ def test_timelapse_writes_a_movie_tracks_and_records_timelapse_counts(
     assert len(fake_timelapse["movie"]) == 1
     movie = fake_timelapse["movie"][0]
     assert movie["n_frames"] == 3
-    assert movie["save_path"].endswith("movies/timelapse_nucleus_batch1.mp4")
+    assert Path(movie["save_path"]).as_posix().endswith(
+        "movies/timelapse_nucleus_batch1.mp4")
     assert movie["fps"] == 2
 
     assert len(fake_timelapse["trackpy"]) == 1

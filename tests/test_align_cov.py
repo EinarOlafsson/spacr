@@ -772,7 +772,7 @@ def test_scan_accepts_a_list_a_single_file_and_a_recursive_walk(tmp_path):
     nested.mkdir(parents=True)
     made = [_save(nested, f'plate1_B07_{k + 1:03d}.npy', _texture(16, 16, seed=k))
             for k in range(3)]
-    (root / 'notes.txt').write_text('ignore me')
+    (root / 'notes.txt').write_text('ignore me', encoding="utf-8")
 
     # 1. an explicit list — order is exactly as given
     listed = align.scan_tiles([made[2], made[0]], grid=(1, 2))

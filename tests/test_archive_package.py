@@ -136,7 +136,7 @@ def test_a_package_missing_what_the_templates_need_is_rejected(screen,
         in problems
 
     plates = pkg / "idr" / "drugscreen-screenA-plates.txt"
-    plates.write_text("Plate\tDirectory\nplate1\t.\n")
+    plates.write_text("Plate\tDirectory\nplate1\t.\n", encoding="utf-8")
     assert any("not on the plate list" in p for p in
                rep._validate_archive_package(pkg, verify_checksums=False))
 
@@ -151,7 +151,7 @@ def test_a_folder_without_images_cannot_be_packaged(tmp_path):
 
 def test_the_manifest_records_the_form_and_source(screen, tmp_path):
     pkg = rep._write_archive_package(screen, tmp_path / "out", _form(screen))
-    manifest = json.loads((pkg / "archive_manifest.json").read_text())
+    manifest = json.loads((pkg / "archive_manifest.json").read_text(encoding="utf-8"))
     assert manifest["source"] == str(screen.resolve())
     assert manifest["form"]["cell_line"] == "HeLa"
 
@@ -160,7 +160,7 @@ def test_unknown_publication_has_the_official_idr_row(screen, tmp_path):
     """IDR's parser requires the title row; an unknown title stays blank."""
     package = rep._write_archive_package(screen, tmp_path / "out", _form(screen))
     study_path = next((package / "idr").glob("*-study.txt"))
-    lines = study_path.read_text().splitlines()
+    lines = study_path.read_text(encoding="utf-8").splitlines()
     assert "Study Publication Title\t" in lines
     assert rep._archive_read_kv(study_path)["Study Publication Title"] == []
     assert rep._validate_archive_package(package) == []
@@ -169,7 +169,7 @@ def test_unknown_publication_has_the_official_idr_row(screen, tmp_path):
     # structure independently of the checksum failure caused by this mutation.
     study_path.write_text("\n".join(
         line for line in lines if not line.startswith("Study Publication Title\t")
-    ) + "\n")
+    ) + "\n", encoding="utf-8")
     assert "IDR study: 'Study Publication Title' row is missing" in (
         rep._validate_archive_package(package, verify_checksums=False)
     )

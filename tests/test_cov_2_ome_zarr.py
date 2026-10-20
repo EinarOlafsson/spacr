@@ -16,6 +16,7 @@ from __future__ import annotations
 import sys
 import types
 import zlib
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -172,7 +173,7 @@ def test_a_region_read_prefers_zarr_and_hands_it_the_right_slices(monkeypatch,
     through_zarr = image.read(0, region, prefer_zarr=True)
 
     assert [entry[0] for entry in log] == ["open", "getitem"]
-    assert log[0][1].endswith("img.zarr/0"), "zarr is opened on the level, not the group"
+    assert Path(log[0][1]).as_posix().endswith("img.zarr/0"), "zarr is opened on the level, not the group"
     assert log[1][1] == (slice(1, 3), slice(2, 4), slice(0, 8))
     assert isinstance(through_zarr, np.ndarray)
     np.testing.assert_array_equal(through_zarr, expected)

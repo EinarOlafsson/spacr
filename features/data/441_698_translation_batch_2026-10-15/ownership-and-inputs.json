@@ -1,9 +1,0 @@
-{
-  "scope": "Shared translation lane only; N44190 plus web-model-scale9 current runtime targets",
-  "authority": "Latest ownership notice reports no active Claude claim; translations explicitly unaffected. N698 code unchanged.",
-  "source": "public1f6d5190fc literal; exact9 drafts5a42ecf1108b +semantic peer7f0178eaff; actual normal99 readonly preflight source3d4422 PASS",
-  "reviewer_claim": "technical/semantic peer, not native-human review",
-  "generation_status": "not started; all ordinary loaders/foreign preservation/full audit/immutable arrivals required",
-  "owned_sources": 11,
-  "records": 99
-}

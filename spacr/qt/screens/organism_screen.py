@@ -194,7 +194,7 @@ class OrganismScreen(QWidget):
         self._diagram = OrganismDiagram(self.app_key, _IMAGES / self.organism["diagram"])
         column.addWidget(self._diagram)
         column.addWidget(self._paragraph(self.organism["diagram_note"]))
-        records = json.loads((_IMAGES / "organism_sources.json").read_text())
+        records = json.loads((_IMAGES / "organism_sources.json").read_text(encoding="utf-8"))
         record = next(row for row in records if row["file"] == self.organism["diagram"])
         swiss = "swissbiopics" in record["source_page"]
         credit = self._link(record["credit"] + (" · SwissBioPics" if swiss else ""),

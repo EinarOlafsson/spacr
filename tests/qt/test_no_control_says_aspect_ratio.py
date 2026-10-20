@@ -46,5 +46,5 @@ def test_the_sweep_would_see_one():
     import tempfile
     with tempfile.TemporaryDirectory() as tmp:
         probe = Path(tmp) / "probe.py"
-        probe.write_text('w.setToolTip("Keeps the " "aspect ratio.")\n')
+        probe.write_text('w.setToolTip("Keeps the " "aspect ratio.")\n', encoding="utf-8")
         assert list(_phrases(probe)) == ["probe.py:1"]

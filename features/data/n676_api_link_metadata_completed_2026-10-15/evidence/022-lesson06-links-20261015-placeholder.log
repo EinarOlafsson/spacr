@@ -1,6 +1,0 @@
-Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/run_tool.py', 'tools/tutorials/check_placeholder_mutations.py', '/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_']
-Source: 5430c0ceabbd9cf99a4f40ea3030eefa89c2bd87
-availability guard OBSERVED RED
-completion guard OBSERVED RED
-
-Terminal exit status: 0

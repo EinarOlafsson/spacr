@@ -1787,7 +1787,10 @@ def is_multiprocessing_process(process):
 
 def close_file_descriptors():
     """Close file descriptors from 3 up to the soft NOFILE limit."""
-    import resource
+    try:
+        import resource
+    except ImportError:
+        return
 
     soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
     for fd in range(3, soft):
@@ -5310,7 +5313,7 @@ def annotate_predictions(csv_loc):
         (``'screen'``/``'pc'``/``'nc'`` from the plate/well convention).
     """
     df = tabular.read_table(csv_loc, report=None)
-    df['filename'] = df['path'].apply(lambda x: x.split('/')[-1])
+    df['filename'] = df['path'].apply(lambda x: str(x).replace('\\', '/').split('/')[-1])
     df[['plateID', 'well', 'fieldID', 'object']] = df['filename'].str.split('_', expand=True)
     df['object'] = df['object'].str.replace('.png', '')
     
@@ -6645,7 +6648,7 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
 
         raise ModelZooError(tr(
             "Cellpose model {name} is not an installed stock name, an existing checkpoint or an exact model-zoo entry. Choose a listed model or provide its checkpoint; stock weights were not substituted.",
-            name=repr(name)) + "\n" + _model_resolution_context(
+            name=f"'{name}'") + "\n" + _model_resolution_context(
                 name, setting=field, kinds=("cellpose",)))
     elif name in LEGACY_CELLPOSE_MODELS:
         _report_cellpose_once(
@@ -7369,7 +7372,7 @@ def get_db_paths(src):
     """
     if isinstance(src, str):
         src = [src]
-    db_paths = [os.path.join(source, 'measurements/measurements.db') for source in src]
+    db_paths = [os.path.join(source, 'measurements', 'measurements.db') for source in src]
     return db_paths
 
 def get_sequencing_paths(src):
@@ -7384,7 +7387,7 @@ def get_sequencing_paths(src):
     """
     if isinstance(src, str):
         src = [src]
-    seq_paths = [os.path.join(source, 'sequencing/sequencing_data.csv') for source in src]
+    seq_paths = [os.path.join(source, 'sequencing', 'sequencing_data.csv') for source in src]
     return seq_paths
 
 def load_image_paths(c, visualize):

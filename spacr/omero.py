@@ -2565,6 +2565,20 @@ def export_tag_annotation(gateway: Any, target: Any, text: str, *,
         duplicates=plan.duplicates, reason=plan.reason)
 
 
+def _guess_upload_type(name: str, *, windows: Optional[bool] = None) -> Optional[str]:
+    """The mimetype an uploaded file is attached with, from its extension.
+
+    Windows adds the registry's content types to ``mimetypes``, where Excel
+    claims ``.csv`` as application/vnd.ms-excel; there a fresh table without
+    the registry is asked. Elsewhere the system table, ``/etc/mime.types``
+    included, keeps answering.
+    """
+    if windows is None:
+        windows = os.name == "nt"
+    table = mimetypes.MimeTypes() if windows else mimetypes
+    return table.guess_type(name)[0]
+
+
 def export_file_annotation(gateway: Any, target: Any,
                            path: Union[str, os.PathLike], *,
                            namespace: str = NS_FILE,
@@ -2597,7 +2611,7 @@ def export_file_annotation(gateway: Any, target: Any,
     if not local.is_file():
         raise OmeroError(f"{local} is not a file, so there is nothing to attach.")
 
-    guessed = mimetype or mimetypes.guess_type(local.name)[0] or "application/octet-stream"
+    guessed = (mimetype or _guess_upload_type(local.name) or "application/octet-stream")
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
     desc = description or f"spaCR {get_version()} results, written {stamp}"
 

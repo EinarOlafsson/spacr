@@ -852,7 +852,10 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
             if link:
                 if target.exists() or target.is_symlink():
                     target.unlink()
-                os.symlink(source, target)
+                try:
+                    os.symlink(source, target)
+                except (OSError, NotImplementedError):
+                    os.link(source, target)
                 linked += 1
                 saved += source.stat().st_size
             else:

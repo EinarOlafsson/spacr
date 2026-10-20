@@ -87,7 +87,7 @@ def test_checked_picture_export_records_the_actual_rendered_pixels(
     picture = a_picture(72, 48)
     path = tmp_path / f"field.{suffix}"
     assert picture_export.save_picture(picture, str(path), dpi=150)
-    report = json.loads((tmp_path / f"field.{suffix}.provenance.json").read_text())
+    report = json.loads((tmp_path / f"field.{suffix}.provenance.json").read_text(encoding="utf-8"))
     assert report["figure_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
     assert report["format"] == suffix
     panel, = report["panels"]

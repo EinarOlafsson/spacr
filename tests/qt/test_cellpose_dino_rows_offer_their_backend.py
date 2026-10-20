@@ -52,7 +52,7 @@ def _install(tmp_path):
     env = tmp_path / "backends" / "cellpose_dino"
     python = Path(SB._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("")
+    python.write_text("", encoding="utf-8")
     SB._write_marker(str(env), {"backend": "cellpose_dino"})
     return env
 

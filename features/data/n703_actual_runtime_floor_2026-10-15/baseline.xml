@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="4.684" timestamp="2026-10-15T01:41:04.810037-04:00" hostname="olafsson"><testcase classname="tests.test_current_runtime_floor_703" name="test_stale_mac_plan_cannot_downgrade_actual_newer_runtime" time="3.252"><failure message="AssertionError: A stale recorded version must not authorize an actual runtime downgrade&#10;assert 0 != 0">tests/test_current_runtime_floor_703.py:55: in test_stale_mac_plan_cannot_downgrade_actual_newer_runtime
-    assert code != 0, 'A stale recorded version must not authorize an actual runtime downgrade'
-E   AssertionError: A stale recorded version must not authorize an actual runtime downgrade
-E   assert 0 != 0</failure></testcase></testsuite></testsuites>

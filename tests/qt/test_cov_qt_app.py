@@ -1614,7 +1614,7 @@ def no_pipeline_runs(monkeypatch):
 def _write_settings_pack(root, app_key, rows):
     root.mkdir(parents=True, exist_ok=True)
     path = root / f"{app_key}_settings.csv"
-    path.write_text("\n".join(",".join(str(c) for c in r) for r in rows))
+    path.write_text("\n".join(",".join(str(c) for c in r) for r in rows), encoding="utf-8")
     return path
 
 

@@ -167,7 +167,7 @@ def test_each_page_has_the_reference_structure(key):
         assert app_key in {row[0] for row in app.APPS} | {"motility"}
         assert isinstance(preset, dict) and note.startswith("Opens ")
     records = {row["file"]: row for row in json.loads(
-        (_IMAGES / "organism_sources.json").read_text())}
+        (_IMAGES / "organism_sources.json").read_text(encoding="utf-8"))}
     record = records[guide["diagram"]]
     assert record["retrieved"] == "2026-10-03" and "2026_03" in record["modifications"]
     if key != "trypanosoma":

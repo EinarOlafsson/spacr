@@ -115,7 +115,7 @@ def _figure_folders(root: Path) -> Path:
         folder.mkdir(parents=True)
         imageio.imwrite(folder / "fig1.png",
                         np.full((32, 32, 3), 90, dtype=np.uint8))
-        (folder / PP.PAPER_FILE).write_text("{}")
+        (folder / PP.PAPER_FILE).write_text("{}", encoding="utf-8")
     return root / "papers"
 
 

@@ -462,7 +462,7 @@ def test_the_dialog_saves_labels_tracks_seeds_and_settings(qtbot, tmp_path):
     seeds = np.load(tmp_path / "sam2" / "movie_sam2_seeds.npz")
     assert seeds["frame_0"][6, 6] == 1
     settings = json.loads(
-        (tmp_path / "sam2" / "movie_sam2_settings.json").read_text())
+        (tmp_path / "sam2" / "movie_sam2_settings.json").read_text(encoding="utf-8"))
     assert settings["backward"] is True and settings["seeds"] == {"0": [1]}
     assert settings["movie"] == str(movie) and settings["frames"] == 4
     other = dialog.save(str(tmp_path / "elsewhere"))

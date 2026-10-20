@@ -303,11 +303,11 @@ def test_visualize_cellpose_masks_reuses_existing_results_dir(tmp_path):
     """An already-present results/ directory is reused (exist_ok=True)."""
     from spacr.plot import visualize_cellpose_masks
     (tmp_path / "results").mkdir()
-    (tmp_path / "results" / "keep.txt").write_text("keep me")
+    (tmp_path / "results" / "keep.txt").write_text("keep me", encoding="utf-8")
     masks = [_blob_mask(16, n=1), _blob_mask(16, n=1)]
     visualize_cellpose_masks(masks, titles=["a", "b"], filename="second",
                              save=True, src=str(tmp_path))
-    assert (tmp_path / "results" / "keep.txt").read_text() == "keep me"
+    assert (tmp_path / "results" / "keep.txt").read_text(encoding="utf-8") == "keep me"
     assert (tmp_path / "results" / "second.pdf").is_file()
 
 

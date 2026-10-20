@@ -88,7 +88,7 @@ class TestTheASTGuard:
             def use():
                 return VALUE
         """)
-        before = module.read_text()
+        before = module.read_text(encoding="utf-8")
 
         def sabotage(source, blocks):
             kept = [line for line in source.splitlines(keepends=True)
@@ -100,7 +100,7 @@ class TestTheASTGuard:
         with pytest.raises(esn.NoteExtractionError, match="same AST"):
             esn.process_file(module, tmp_path, tmp_path / "docs" / "notes",
                              execute=True)
-        assert module.read_text() == before, "the damaged file was written"
+        assert module.read_text(encoding="utf-8") == before, "the damaged file was written"
         assert not (tmp_path / "docs").exists(), "notes were written anyway"
 
     def test_a_truncated_string_is_caught_even_though_it_is_still_python(self):
@@ -152,7 +152,7 @@ class TestTheASTGuard:
                     + "#"
         ''')
         report = esn.process_file(module, tmp_path, tmp_path / "notes")
-        source = module.read_text()
+        source = module.read_text(encoding="utf-8")
         stripped = esn.strip_source(
             source, [b for b in report.blocks])
         assert esn.verify_ast(source, stripped)
@@ -170,7 +170,7 @@ class TestWhatIsNotAComment:
             OTHER = 'a # b'
             TRIPLE = '''line one # two'''
         """)
-        source = module.read_text()
+        source = module.read_text(encoding="utf-8")
         report = esn.process_file(module, tmp_path, tmp_path / "notes")
         stripped = esn.strip_source(source, report.blocks)
         assert '"count # of rows"' in stripped
@@ -194,7 +194,7 @@ class TestWhatIsNotAComment:
             # an ordinary note about nothing
             OTHER = 1
         """)
-        source = module.read_text()
+        source = module.read_text(encoding="utf-8")
         blocks, preserved = esn.collect_blocks("m.py", source)
         assert preserved["sphinx"] == 2
         stripped = esn.strip_source(source, [esn.classify(b) for b in blocks])
@@ -262,15 +262,15 @@ class TestWhatIsNotAComment:
                      else f"{directive}\nVALUE = 1\n")
         module = write(tmp_path, "m.py",
                        "# Measured at 12 ms before this change.\n" + protected)
-        before = module.read_text()
+        before = module.read_text(encoding="utf-8")
         notes = tmp_path / "notes"
         report = esn.process_file(module, tmp_path, notes, execute=True)
-        assert module.read_text() == protected
-        assert esn.verify_ast(before, module.read_text())
+        assert module.read_text(encoding="utf-8") == protected
+        assert esn.verify_ast(before, module.read_text(encoding="utf-8"))
         assert sum(report.preserved.values()) == 1
         assert [block.texts for block in report.blocks] == [
             ["# Measured at 12 ms before this change."]]
-        assert "Measured at 12 ms before this change." in (notes / "m.md").read_text()
+        assert "Measured at 12 ms before this change." in (notes / "m.md").read_text(encoding="utf-8")
 
     def test_execute_preserves_the_shebang_encoding_and_encoded_source(self, tmp_path):
         module = tmp_path / "m.py"
@@ -433,7 +433,7 @@ class TestTheNotesFile:
                 # Retried 3 times: the mount comes back within a second.
                 return None
         """)
-        source = module.read_text()
+        source = module.read_text(encoding="utf-8")
         blocks, _ = esn.collect_blocks("pkg/m.py", source)
         notes = esn.render_notes(
             "pkg/m.py", [esn.classify(b) for b in blocks])
@@ -490,12 +490,12 @@ class TestTheDryRun:
             # ---------------------------------------------------------------
             SIZE = 4096
         """)
-        before = module.read_text()
+        before = module.read_text(encoding="utf-8")
         notes_dir = tmp_path / "docs" / "notes"
         status = esn.run([tmp_path / "pkg"], tmp_path, notes_dir)
         out = capsys.readouterr().out
         assert status == 0
-        assert module.read_text() == before, "the module was edited"
+        assert module.read_text(encoding="utf-8") == before, "the module was edited"
         assert not notes_dir.exists(), "a notes file was created"
         assert "DRY RUN" in out
         assert "nothing was written" in out
@@ -541,12 +541,12 @@ class TestTheDryRun:
         notes_dir = tmp_path / "docs" / "notes"
         assert esn.run([tmp_path / "pkg"], tmp_path, notes_dir,
                        execute=True) == 0
-        assert "#" not in module.read_text()
+        assert "#" not in module.read_text(encoding="utf-8")
         assert ast.dump(ast.parse("SIZE = 4096\n")) == ast.dump(
-            ast.parse(module.read_text()))
+            ast.parse(module.read_text(encoding="utf-8")))
         note = notes_dir / "pkg" / "m.md"
         assert note.exists()
-        assert "4096" in note.read_text()
+        assert "4096" in note.read_text(encoding="utf-8")
 
     def test_a_missing_path_is_an_error_not_an_empty_report(self, tmp_path):
         assert esn.main(["--root", str(tmp_path), "nowhere"]) == 1
@@ -556,25 +556,25 @@ class TestTheDryRun:
         notes = tmp_path / "notes"
         esn.process_file(module, tmp_path, notes, execute=True)
         note_path = notes / "pkg" / "m.md"
-        previous = note_path.read_text()
-        module.write_text(module.read_text() + "# Second cost measured at 24 ms.\n")
+        previous = note_path.read_text(encoding="utf-8")
+        module.write_text(module.read_text(encoding="utf-8") + "# Second cost measured at 24 ms.\n", encoding="utf-8")
         esn.process_file(module, tmp_path, notes, execute=True)
-        combined = note_path.read_text()
+        combined = note_path.read_text(encoding="utf-8")
         assert combined.startswith(previous)
         assert combined.count("First cost measured at 12 ms.") == 1
         assert combined.count("Second cost measured at 24 ms.") == 1
-        assert module.read_text() == "X = 1\n"
+        assert module.read_text(encoding="utf-8") == "X = 1\n"
         esn.process_file(module, tmp_path, notes, execute=True)
-        assert note_path.read_text() == combined
+        assert note_path.read_text(encoding="utf-8") == combined
 
     def test_a_failed_notes_write_keeps_the_original_source(self, tmp_path):
         module = write(tmp_path, "pkg/m.py", "# Measured at 12 ms.\nX = 1\n")
-        before = module.read_text()
+        before = module.read_text(encoding="utf-8")
         notes = tmp_path / "notes"
-        notes.write_text("a file cannot contain a module's notes")
+        notes.write_text("a file cannot contain a module's notes", encoding="utf-8")
         with pytest.raises(OSError):
             esn.process_file(module, tmp_path, notes, execute=True)
-        assert module.read_text() == before
+        assert module.read_text(encoding="utf-8") == before
 
     def test_unsure_blocks_can_be_left_in_the_source(self, tmp_path):
         """``--unsure keep`` is the cautious run: only what the classifier
@@ -583,8 +583,8 @@ class TestTheDryRun:
             # Belt and braces
             value = compute(other)
         """)
-        source = module.read_text()
+        source = module.read_text(encoding="utf-8")
         report = esn.process_file(module, tmp_path, tmp_path / "notes",
                                   execute=True, unsure="keep")
         assert report.counts[esn.UNSURE] == 1
-        assert module.read_text() == source
+        assert module.read_text(encoding="utf-8") == source

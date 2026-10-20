@@ -89,7 +89,7 @@ def test_incomplete_pool_waits_for_unseen_members_then_runs_once(tmp_path, capsy
     second = core._watch_folder_and_analyse(_settings(watched), recorder)
     assert len(second['done']) == 3 and not second['failed'] and not second['incomplete']
     assert len(recorder.calls) == 1 and len(recorder.calls[0]) == 6
-    ledger = json.loads(Path(second['ledger']).read_text())
+    ledger = json.loads(Path(second['ledger']).read_text(encoding="utf-8"))
     spec = ledger['normalization_pool']
     assert spec['field_order'] == second['done']
     assert spec['batch_size'] == 2
@@ -113,7 +113,7 @@ def test_original_pixel_batch_normalization_masks_and_measurements_match(
     batch.mkdir()
     _arrive(source, batch, rows)
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(MEASURE))
+    recipe.write_text(json.dumps(MEASURE), encoding="utf-8")
     settings = _settings(watched, watch_measure_settings=str(recipe))
     settings['watch_pipeline'] = 'mask_measure'
     core.preprocess_generate_masks(dict(MASK, src=str(batch), batch_size=2,
@@ -122,7 +122,7 @@ def test_original_pixel_batch_normalization_masks_and_measurements_match(
     result = core._watch_folder_and_analyse(settings)
     assert len(result['done']) == 3 and not result['failed']
     combined = watched / 'spacr_watch'
-    ledger = json.loads(Path(result['ledger']).read_text())
+    ledger = json.loads(Path(result['ledger']).read_text(encoding="utf-8"))
     staged = combined / 'fields' / ledger['normalization_pool']['id']
     for name in sorted(path.name for path in (batch / 'merged').glob('*.npy')):
         np.testing.assert_array_equal(np.load(batch / 'merged' / name),
@@ -146,7 +146,7 @@ def test_interrupted_collection_resumes_one_cohort_without_reanalysis(
     source, watched, rows = _acquisition(tmp_path)
     _arrive(source, watched, rows)
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(MEASURE))
+    recipe.write_text(json.dumps(MEASURE), encoding="utf-8")
     settings = _settings(watched, watch_measure_settings=str(recipe))
     settings['watch_pipeline'] = 'mask_measure'
     analyse, append = core._watch_analyse_field, core._watch_merge_database
@@ -166,7 +166,7 @@ def test_interrupted_collection_resumes_one_cohort_without_reanalysis(
     else:
         assert len(core._watch_folder_and_analyse(settings, count)['failed']) == 3
     work = watched / 'spacr_watch'
-    ledger = json.loads((work / 'watch_ledger.json').read_text())
+    ledger = json.loads((work / 'watch_ledger.json').read_text(encoding="utf-8"))
     unit = ledger['normalization_cohorts'][ledger['normalization_pool']['id']]
     assert 'collection_checkpoint' in unit
     preserved = {path: (path.read_bytes(), path.stat().st_mtime_ns)
@@ -191,7 +191,7 @@ def test_changed_pool_provenance_refuses_resume_without_writing(tmp_path, change
     settings = _settings(watched)
     result = core._watch_folder_and_analyse(settings, CohortRecorder())
     path = Path(result['ledger'])
-    ledger = json.loads(path.read_text())
+    ledger = json.loads(path.read_text(encoding="utf-8"))
     if change == 'source':
         tifffile.imwrite(watched / rows[0]['target'], np.ones((64, 64), dtype=np.uint16))
     elif change == 'output':
@@ -207,7 +207,7 @@ def test_changed_pool_provenance_refuses_resume_without_writing(tmp_path, change
         settings['watch_normalization_pool'] = 'per_field'
     else:
         ledger['normalization_cohorts'][ledger['normalization_pool']['id']].pop('collection_checkpoint')
-        path.write_text(json.dumps(ledger))
+        path.write_text(json.dumps(ledger), encoding="utf-8")
     before = _bytes(watched)
     recorder = CohortRecorder()
     with pytest.raises(ValueError):
@@ -251,10 +251,10 @@ def test_cohort_checkpoint_completes_field_aliases_after_process_exit(tmp_path):
     recorder = CohortRecorder()
     result = core._watch_folder_and_analyse(settings, recorder)
     path = Path(result['ledger'])
-    ledger = json.loads(path.read_text())
+    ledger = json.loads(path.read_text(encoding="utf-8"))
     for entry in ledger['fields'].values():
         entry['status'] = 'waiting'
-    path.write_text(json.dumps(ledger))
+    path.write_text(json.dumps(ledger), encoding="utf-8")
     recovered = core._watch_folder_and_analyse(settings, recorder)
     assert recovered['done'] == result['done']
     assert recovered['incomplete'] == []
@@ -289,7 +289,7 @@ def test_stop_before_cohort_publication_restarts_from_original_images(
     assert len(recorder.calls) == (0 if boundary == 'snapshot' else 1)
     work = watched / 'spacr_watch'
     assert not (work / 'merged').exists()
-    ledger = json.loads((work / 'watch_ledger.json').read_text())
+    ledger = json.loads((work / 'watch_ledger.json').read_text(encoding="utf-8"))
     unit = ledger['normalization_cohorts'][ledger['normalization_pool']['id']]
     assert unit['status'] == 'interrupted' and 'collection_checkpoint' not in unit
     assert all(entry['status'] == 'interrupted' for entry in ledger['fields'].values())
@@ -328,7 +328,7 @@ def test_partial_analysis_never_publishes_a_smaller_pool(tmp_path):
     assert not result['done'] and len(result['failed']) == 3
     assert len(recorder.calls) == 1
     assert not (watched / 'spacr_watch/merged').exists()
-    ledger = json.loads(Path(result['ledger']).read_text())
+    ledger = json.loads(Path(result['ledger']).read_text(encoding="utf-8"))
     unit = ledger['normalization_cohorts'][ledger['normalization_pool']['id']]
     assert 'collection_checkpoint' not in unit
     assert 'partial outputs are not published' in unit['error']
@@ -358,7 +358,7 @@ def test_incomplete_cohort_provenance_preserves_results(tmp_path, damage):
     _arrive(source, watched, rows)
     result = core._watch_folder_and_analyse(_settings(watched), CohortRecorder())
     path = Path(result['ledger'])
-    ledger = json.loads(path.read_text())
+    ledger = json.loads(path.read_text(encoding="utf-8"))
     key = ledger['normalization_pool']['id']
     unit = ledger['normalization_cohorts'][key]
     if damage == 'hashes':
@@ -375,7 +375,7 @@ def test_incomplete_cohort_provenance_preserves_results(tmp_path, damage):
         next((watched / 'spacr_watch/fields' / key / 'merged').glob('*.npy')).unlink()
     else:
         ledger['normalization_cohorts']['unknown'] = {'status': 'waiting'}
-    path.write_text(json.dumps(ledger))
+    path.write_text(json.dumps(ledger), encoding="utf-8")
     before = _bytes(watched)
     with pytest.raises(ValueError):
         core._watch_folder_and_analyse(_settings(watched), CohortRecorder())

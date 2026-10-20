@@ -8,7 +8,7 @@ from test_player_holds_narration import served,CHROME,PAGE
 
 def reference_fixture(served,tmp_path,mutation=None):
     url,handler=served
-    script=(PAGE/'lesson_catalog.js').read_text()
+    script=(PAGE/'lesson_catalog.js').read_text(encoding="utf-8")
     catalog=json.loads(script[script.index('Object.freeze(')+len('Object.freeze('):script.rindex(');')])
     identity=url.split('lesson=')[1]
     lesson=next(row for row in catalog['lessons'] if row['id']==identity)
@@ -23,10 +23,10 @@ def reference_fixture(served,tmp_path,mutation=None):
     elif mutation=='native_unaccepted':
         reference.update(kind='native_visual_timing',native_live_video=True,coverage=dict(accepted=False))
     elif mutation=='unknown_kind':reference['kind']='unverified_visual_timing'
-    path=tmp_path/'original-visual-timings.json';path.write_text(json.dumps(reference))
+    path=tmp_path/'original-visual-timings.json';path.write_text(json.dumps(reference), encoding="utf-8")
     lesson['visual_timings']=f'{identity}/video/original-visual-timings.json'
     data=tmp_path/'legacy-catalog.js'
-    data.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');')
+    data.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');', encoding="utf-8")
     handler.routes.update({'/web/lesson_catalog.js':(data,'application/javascript'),
                            '/media_host/'+lesson['visual_timings']:(path,'application/json')})
     return url,reference,count

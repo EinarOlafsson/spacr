@@ -74,7 +74,7 @@ class TestRecordHash:
         m = _FakeModel(pretrained_model=None)
         with rj.open_run("mask", {"src": "/x"}) as run:
             PV._record_cellpose_hash(m, "cyto")
-        manifest = json.loads((run.dir / "manifest.json").read_text())
+        manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
         assert not manifest.get("model_hashes")
 
     def test_records_to_open_run(self, tmp_path, monkeypatch):
@@ -87,7 +87,7 @@ class TestRecordHash:
             PV._record_cellpose_hash(m, "cyto")
         # Manifest should now carry a model entry.
         import json
-        manifest = json.loads((run.dir / "manifest.json").read_text())
+        manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
         assert manifest.get("model_hashes")
 
     def test_no_open_run_returns(self, tmp_path, monkeypatch):
@@ -120,7 +120,7 @@ class TestRecordHash:
         monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
         with rj.open_run("mask", {"src": "/x"}) as run:
             PV._record_cellpose_hash(m, "cyto")
-        manifest = json.loads((run.dir / "manifest.json").read_text())
+        manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
         recorded = manifest.get("model_hashes")
         assert recorded, "the nested checkpoint was not recorded"
         # Recorded as "<filename>:<digest>" under the model name it was asked

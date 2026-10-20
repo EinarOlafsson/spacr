@@ -15,13 +15,13 @@ SOURCE = 'This installation could not be locked for removal. Nothing was removed
 
 
 def _installer(tmp_path, root):
-    text = (ROOT / 'packaging/online/install_spacr_unix.sh').read_text()
+    text = (ROOT / 'packaging/online/install_spacr_unix.sh').read_text(encoding="utf-8")
     block = text.split('# @SPACR_INSTALLER_LEASE_BEGIN@\n', 1)[1].split(
         '# @SPACR_INSTALLER_LEASE_END@', 1)[0]
     script = tmp_path / 'installer.sh'
     script.write_text('set -Eeuo pipefail\nPLATFORM=linux\n'
                       'spacr_say() { printf "%s\\n" "$*" >&2; }\n' + block +
-                      '\nprintf "ready\\n"\nread -r finish\n')
+                      '\nprintf "ready\\n"\nread -r finish\n', encoding="utf-8")
     return ['bash', str(script)], dict(os.environ, INSTALL_ROOT=str(root), HOME=str(tmp_path / 'home'))
 
 
@@ -30,11 +30,11 @@ def installation(tmp_path, monkeypatch):
     monkeypatch.setenv('SPACR_LANGUAGE', 'en')
     root = tmp_path / 'application'
     (root / 'venv/lib').mkdir(parents=True)
-    (root / 'venv/lib/spacr.py').write_text('original runtime')
+    (root / 'venv/lib/spacr.py').write_text('original runtime', encoding="utf-8")
     (root / 'cache').mkdir()
-    (root / 'cache/model').write_text('weights')
+    (root / 'cache/model').write_text('weights', encoding="utf-8")
     launcher = tmp_path / 'spacr'
-    launcher.write_text(str(root / 'venv/bin/python'))
+    launcher.write_text(str(root / 'venv/bin/python'), encoding="utf-8")
     machine = ic._Machine(platform='linux', fs_root=str(tmp_path),
                           environ={'HOME': str(tmp_path / 'home')}, running_prefix=None)
     record = ic.InstallRecord(kind='installer', layout='linux-online', platform='linux',
@@ -42,6 +42,7 @@ def installation(tmp_path, monkeypatch):
     return root, launcher, machine, record
 
 
+@pytest.mark.posix_only
 def test_real_active_installer_cannot_be_retired_from_another_root(installation, tmp_path):
     root, launcher, machine, record = installation
     command, environment = _installer(tmp_path, root)
@@ -55,16 +56,17 @@ def test_real_active_installer_cannot_be_retired_from_another_root(installation,
         assert not report.ok and not report.removed
         assert report.failed == [(str(root), SOURCE)]
         assert {path: path.read_bytes() for path in before} == before
-        assert launcher.read_text() == str(root / 'venv/bin/python')
+        assert launcher.read_text(encoding="utf-8") == str(root / 'venv/bin/python')
     finally:
         process.communicate('finish\n', timeout=10)
     assert process.returncode == 0
     report = ic.remove_install(record, system=machine)
     assert report.ok
     assert not (root / 'venv').exists() and not launcher.exists()
-    assert (root / 'cache/model').read_text() == 'weights'
+    assert (root / 'cache/model').read_text(encoding="utf-8") == 'weights'
 
 
+@pytest.mark.posix_only
 def test_installer_cannot_enter_between_retirement_check_and_actual_delete(installation, tmp_path, monkeypatch):
     root, launcher, machine, record = installation
     command, environment = _installer(tmp_path, root)
@@ -83,27 +85,27 @@ def test_installer_cannot_enter_between_retirement_check_and_actual_delete(insta
     assert attempts[0].returncode == 73
     assert 'already_running' in attempts[0].stderr
     assert not (root / 'venv').exists() and not launcher.exists()
-    assert (root / 'cache/model').read_text() == 'weights'
+    assert (root / 'cache/model').read_text(encoding="utf-8") == 'weights'
 
 
-@pytest.mark.parametrize('kind', ['directory', 'file', 'symlink'])
+@pytest.mark.parametrize('kind', ['directory', 'file', pytest.param('symlink', marks=pytest.mark.needs_symlink)])
 def test_existing_unknown_or_interrupted_outer_lease_is_preserved(installation, tmp_path, kind):
     root, launcher, machine, record = installation
     lease = root.parent / ('.' + root.name + '.spacr-installer-lock')
     if kind == 'directory':
         lease.mkdir()
-        (lease / 'evidence').write_text('retain')
+        (lease / 'evidence').write_text('retain', encoding="utf-8")
     elif kind == 'file':
-        lease.write_text('unknown owner')
+        lease.write_text('unknown owner', encoding="utf-8")
     else:
         target = tmp_path / 'user-file'
-        target.write_text('preserve')
+        target.write_text('preserve', encoding="utf-8")
         lease.symlink_to(target)
     before = lease.lstat()
     report = ic.remove_install(record, system=machine)
     assert not report.ok and not report.removed
     assert lease.lstat().st_ino == before.st_ino
-    assert (root / 'venv/lib/spacr.py').read_text() == 'original runtime'
+    assert (root / 'venv/lib/spacr.py').read_text(encoding="utf-8") == 'original runtime'
     assert launcher.exists()
 
 
@@ -111,10 +113,10 @@ def test_existing_private_update_lease_refuses_before_removal_and_releases_only_
     root, launcher, machine, record = installation
     lease = root / '.venv.spacr-update-lock'
     lease.mkdir()
-    (lease / 'journal').write_text('interrupted update proof')
+    (lease / 'journal').write_text('interrupted update proof', encoding="utf-8")
     report = ic.remove_install(record, system=machine)
     assert not report.ok and not report.removed
-    assert (lease / 'journal').read_text() == 'interrupted update proof'
+    assert (lease / 'journal').read_text(encoding="utf-8") == 'interrupted update proof'
     assert not (root.parent / ('.' + root.name + '.spacr-installer-lock')).exists()
     assert launcher.exists()
 
@@ -128,7 +130,7 @@ def test_selected_environment_cannot_uninstall_packages_during_private_update(in
     monkeypatch.setattr(ic, '_uninstall_from_environment', lambda *a: pytest.fail('pip must not run'))
     report = ic.remove_install(record, ticked=True, system=machine)
     assert not report.ok and not report.removed
-    assert (prefix / 'lib/spacr.py').read_text() == 'original runtime'
+    assert (prefix / 'lib/spacr.py').read_text(encoding="utf-8") == 'original runtime'
 
 
 def test_kept_or_running_root_does_not_try_to_take_its_own_update_lease(installation):
@@ -162,6 +164,7 @@ def test_empty_protected_user_or_shared_folder_is_not_removed_during_lease_relea
     assert report.failed or report.skipped
 
 
+@pytest.mark.needs_symlink
 def test_symlinked_record_does_not_remove_its_empty_user_directory_target(installation, tmp_path):
     _root, _launcher, machine, _record = installation
     target = tmp_path / 'unrelated empty folder'
@@ -197,23 +200,32 @@ def test_retirement_release_never_removes_a_replaced_outer_lease(installation, t
     lease = root.parent / ('.' + root.name + '.spacr-installer-lock')
     retained = tmp_path / 'previous-owned-lease'
     original = ic._delete
+    native_windows = platform == 'windows' and os.name == 'nt'
 
     def replace_during_delete(path, *args):
-        if path == str(root):
+        if path == str(root) and native_windows:
+            with pytest.raises(PermissionError):
+                lease.rename(retained)
+            assert lease.is_file() and not retained.exists()
+        elif path == str(root):
             lease.rename(retained)
             if platform == 'windows':
-                lease.write_text('other owner')
+                lease.write_text('other owner', encoding="utf-8")
             else:
                 lease.mkdir()
-                (lease / 'proof').write_text('other owner')
+                (lease / 'proof').write_text('other owner', encoding="utf-8")
         return original(path, *args)
 
     monkeypatch.setattr(ic, '_delete', replace_during_delete)
     report = ic.remove_install(record, system=machine)
     assert report.ok
+    if native_windows:
+        assert not lease.exists() and not retained.exists()
+        assert (root / 'cache/model').read_text(encoding="utf-8") == 'weights'
+        return
     assert retained.exists()
-    assert (lease.read_text() if platform == 'windows' else (lease / 'proof').read_text()) == 'other owner'
-    assert (root / 'cache/model').read_text() == 'weights'
+    assert (lease.read_text(encoding="utf-8") if platform == 'windows' else (lease / 'proof').read_text(encoding="utf-8")) == 'other owner'
+    assert (root / 'cache/model').read_text(encoding="utf-8") == 'weights'
 
 
 @pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
@@ -222,7 +234,7 @@ def test_actual_removal_refusal_uses_exact_reviewed_locale(installation, monkeyp
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     (root / '.venv.spacr-update-lock').mkdir()
     payload = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
-                          '2026-10-15-n703-retirement-lease.json').read_text())
+                          '2026-10-15-n703-retirement-lease.json').read_text(encoding="utf-8"))
     reviewed = payload['records'][0]
     assert reviewed['source'] == SOURCE
     assert reviewed['translation'] != SOURCE

@@ -97,7 +97,7 @@ def launcher_accepts_fresh(app_source):
     read it as a module name; their brand-new profiles have nothing to reopen.
     """
     try:
-        return "_OPEN_FRESH" in Path(app_source).read_text(errors="replace")
+        return "_OPEN_FRESH" in Path(app_source).read_text(errors="replace", encoding="utf-8")
     except OSError:
         return False
 
@@ -170,7 +170,7 @@ def verify_profile_starts_fresh(config_home):
     """
     path = Path(config_home) / "spacr" / "qt.conf"
     try:
-        text = path.read_text(errors="replace")
+        text = path.read_text(errors="replace", encoding="utf-8")
     except FileNotFoundError:
         return path
     section = None

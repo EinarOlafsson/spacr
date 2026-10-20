@@ -31,7 +31,7 @@ def test_open_run_creates_folder_with_settings(tmp_path):
     assert (run.dir / "settings.json").exists()
     assert (run.dir / "settings.csv").exists()
     assert (run.dir / "manifest.json").exists()
-    settings = json.loads((run.dir / "settings.json").read_text())
+    settings = json.loads((run.dir / "settings.json").read_text(encoding="utf-8"))
     assert settings["src"] == "/tmp/x"
     assert settings["n_epochs"] == 3
 
@@ -40,7 +40,7 @@ def test_manifest_records_env_and_success(tmp_path):
     from spacr.run_journal import open_run
     with open_run("measure", {"foo": 1}) as run:
         pass
-    m = json.loads((run.dir / "manifest.json").read_text())
+    m = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert m["app_key"] == "measure"
     assert m["status"] == "success"
     assert m["elapsed_s"] is not None
@@ -67,7 +67,7 @@ def test_stage_evidence_is_merged_into_manifest_and_log(tmp_path):
             metrics={"tables": 4},
         )
 
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["schema_version"] == 3
     assert manifest["stages"] == [
         {
@@ -93,7 +93,7 @@ def test_failed_run_records_traceback(tmp_path):
     with pytest.raises(RuntimeError):
         with open_run("mask", {}) as run:
             raise RuntimeError("boom")
-    m = json.loads((run.dir / "manifest.json").read_text())
+    m = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert ":ivar error_traceback:" in (type(run).__doc__ or "")
     assert "RuntimeError" in run.error_traceback
     assert m["status"] == "failed"
@@ -106,7 +106,7 @@ def test_record_model_hashes_file(tmp_path):
     ckpt.write_bytes(b"fake checkpoint bytes")
     with open_run("mask", {}) as run:
         run.record_model("cyto", ckpt)
-    m = json.loads((run.dir / "manifest.json").read_text())
+    m = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert "cyto" in m["model_hashes"]
     assert m["model_hashes"]["cyto"].startswith("cyto.pt:")
     # Fingerprint is deterministic
@@ -116,7 +116,7 @@ def test_record_model_hashes_file(tmp_path):
 def test_attach_output_copies_into_outputs_dir(tmp_path):
     from spacr.run_journal import open_run
     src = tmp_path / "some_result.csv"
-    src.write_text("a,b,c\n1,2,3\n")
+    src.write_text("a,b,c\n1,2,3\n", encoding="utf-8")
     with open_run("measure", {}) as run:
         dst = run.attach_output(src)
     assert dst is not None
@@ -198,12 +198,12 @@ def test_manifest_hashes_inputs_outputs_settings_seeds_and_packages(
 
     with rj.open_run("measure", settings) as run:
         # The crash-safe manifest exists before computation completes.
-        running = json.loads((run.dir / "manifest.json").read_text())
+        running = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
         assert running["status"] == "running"
         output.parent.mkdir()
-        output.write_text("score\n0.9\n")
+        output.write_text("score\n0.9\n", encoding="utf-8")
 
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     source_record = manifest["input_hashes"][str(source)]
     output_record = manifest["output_hashes"][str(output)]
     assert source_record["sha256"] == hashlib.sha256(
@@ -236,7 +236,7 @@ def test_modified_existing_file_is_recorded_as_output(tmp_path, monkeypatch):
                                  "hash_inputs": True}) as run:
         database.write_bytes(b"after, and a different size")
 
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert str(database) in manifest["input_hashes"]
     assert str(database) in manifest["output_hashes"]
 
@@ -295,7 +295,7 @@ def test_search_runs_filters_settings_outputs_warnings_and_failures(
                      "optimizer": "adamw", "hash_inputs": True},
     ) as run:
         run.record_warning("class imbalance detected")
-        output.write_text("class,score\nA,0.8\n")
+        output.write_text("class,score\nA,0.8\n", encoding="utf-8")
 
     with pytest.raises(RuntimeError):
         with rj.open_run("measure", {"src": str(source)}):
@@ -323,10 +323,10 @@ def test_search_runs_keeps_corrupt_and_inflight_folders_visible(
     monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
     inflight = tmp_path / "inflight"
     inflight.mkdir()
-    (inflight / "settings.json").write_text('{"src": "/plate"}')
+    (inflight / "settings.json").write_text('{"src": "/plate"}', encoding="utf-8")
     corrupt = tmp_path / "corrupt"
     corrupt.mkdir()
-    (corrupt / "manifest.json").write_text("{bad json")
+    (corrupt / "manifest.json").write_text("{bad json", encoding="utf-8")
 
     records = {record["run_id"]: record for record in rj.search_runs()}
     assert records["inflight"]["status"] == "running"

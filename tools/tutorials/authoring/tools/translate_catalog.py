@@ -119,11 +119,11 @@ def main() -> int:
               "catalog, preserving every reviewed existing lesson"))
     args = parser.parse_args()
 
-    source = json.loads(CATALOG.read_text())
+    source = json.loads(CATALOG.read_text(encoding="utf-8"))
     for language in args.languages:
         target = ROOT / "catalog" / f"lessons_{language}.json"
         if target.exists() and args.append_missing:
-            localized = json.loads(target.read_text())
+            localized = json.loads(target.read_text(encoding="utf-8"))
             source_ids = [lesson["id"] for lesson in source["lessons"]]
             current_ids = [lesson["id"] for lesson in localized["lessons"]]
             if current_ids != source_ids[:len(current_ids)]:
@@ -144,7 +144,7 @@ def main() -> int:
             localized["lessons"].extend(translated["lessons"])
             localized["language"] = language
             target.write_text(
-                json.dumps(localized, indent=2, ensure_ascii=False) + "\n")
+                json.dumps(localized, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
             print(f"appended {len(missing)} lessons to {target}", flush=True)
             continue
         if target.exists() and not args.force:
@@ -153,7 +153,7 @@ def main() -> int:
         localized = translate_language(source, language, args.batch_size,
                                        args.threads, args.device)
         target.write_text(
-            json.dumps(localized, indent=2, ensure_ascii=False) + "\n")
+            json.dumps(localized, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print(target, flush=True)
     return 0
 

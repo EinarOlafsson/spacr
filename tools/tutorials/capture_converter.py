@@ -112,14 +112,14 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
     })
     foreign_capture = stage / 'captures/foreign_release_v2'
     foreign_acceptance = foreign_capture / 'scientific_acceptance.json'
-    if not json.loads(foreign_acceptance.read_text())['accepted']:
+    if not json.loads(foreign_acceptance.read_text(encoding="utf-8"))['accepted']:
         raise RuntimeError('The real Foreign input capture was not accepted')
     # The completed capture currently calls this inputs.json. Accept the
     # explicit manifest name too, but never generate replacement inputs.
     input_manifest = foreign_capture / 'input_manifest.json'
     if not input_manifest.is_file():
         input_manifest = foreign_capture / 'inputs.json'
-    prior = json.loads(input_manifest.read_text())
+    prior = json.loads(input_manifest.read_text(encoding="utf-8"))
     records = prior['records']
     if (len(records) != 2 or {r['neutral_stem'] for r in records} != {'fov01', 'fov02'}
             or len({Path(r['image']).parent for r in records}) != 1):
@@ -323,7 +323,7 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
         if {p.name for p in destination.glob('*.tif')} != {r['target'] for r in rows}:
             raise RuntimeError('Unexpected or missing output TIFFs')
         run_status_path = map_path.with_suffix('.run_status.json')
-        run_status = json.loads(run_status_path.read_text())
+        run_status = json.loads(run_status_path.read_text(encoding="utf-8"))
         ledger_check = check_converter_run_status(
             run_status, operation='convert' if status == 'converted' else 'resume',
             planned_targets=[str(destination / row['target']) for row in expected.values()],

@@ -51,7 +51,7 @@ def test_real_tiffs_preserve_raw_values_z_and_channel_selection(tmp_path):
     assert settings['cellpose_nucleus_channel'] == 0
     assert src == str(tmp_path)
     assert {p.name: _digest(p) for p in (first, second)} == before
-    receipt = json.loads((tmp_path/'stack'/'.spacr_volume_ingest.json').read_text())
+    receipt = json.loads((tmp_path/'stack'/'.spacr_volume_ingest.json').read_text(encoding="utf-8"))
     assert receipt['axes'] == 'ZYXC' and receipt['channels'] == ['1', '2']
     assert len(receipt['inputs']) == 2
     # Reuse must verify both the original TIFF bytes and derived stack bytes.
@@ -121,13 +121,13 @@ def test_late_destination_collision_is_not_overwritten(tmp_path, monkeypatch):
     def late_directory(destination, *args, **kwargs):
         if str(destination) == str(tmp_path/'stack'):
             real_mkdir(destination)
-            (Path(destination)/'other.txt').write_text('unrelated')
+            (Path(destination)/'other.txt').write_text('unrelated', encoding="utf-8")
         return real_mkdir(destination, *args, **kwargs)
 
     monkeypatch.setattr(io.os, 'mkdir', late_directory)
     with pytest.raises(FileExistsError):
         io.preprocess_img_data(_settings(tmp_path))
-    assert (tmp_path/'stack'/'other.txt').read_text() == 'unrelated'
+    assert (tmp_path/'stack'/'other.txt').read_text(encoding="utf-8") == 'unrelated'
     assert path.exists() and not list(tmp_path.glob('.spacr-volume-*'))
 
 

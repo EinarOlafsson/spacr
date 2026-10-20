@@ -1,7 +1,0 @@
-commit 2427d57f17ad78d97cf81f18720c1cd9e0c7cc02
-Author:     Einar Olafsson <einar.olafsson@gmail.com>
-AuthorDate: Thu Oct 15 16:45:07 2026 -0400
-Commit:     Einar Olafsson <einar.olafsson@gmail.com>
-CommitDate: Thu Oct 15 16:45:07 2026 -0400
-
-    Fix narration seek race in retained tutorial intervals

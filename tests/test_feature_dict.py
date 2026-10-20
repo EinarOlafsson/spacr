@@ -595,7 +595,7 @@ def test_export_csv(measurements_db, tmp_path):
 def test_export_json(measurements_db, tmp_path):
     path, tables = measurements_db
     out = export_dictionary(path, tmp_path / "dict.json", fmt="json")
-    payload = json.loads(out.read_text())
+    payload = json.loads(out.read_text(encoding="utf-8"))
     assert payload["n_columns"] == sum(len(c) for c in tables.values())
     assert payload["n_unrecognised"] == 1
     assert len(payload["columns"]) == payload["n_columns"]
@@ -608,7 +608,7 @@ def test_export_json(measurements_db, tmp_path):
 def test_export_markdown(measurements_db, tmp_path):
     path, tables = measurements_db
     out = export_dictionary(path, tmp_path / "dict.md", fmt="md")
-    text = out.read_text()
+    text = out.read_text(encoding="utf-8")
     n_columns = sum(len(c) for c in tables.values())
     assert "# spaCR feature dictionary" in text
     assert str(path) in text
@@ -628,7 +628,7 @@ def test_export_markdown(measurements_db, tmp_path):
 def test_export_markdown_row_count(measurements_db, tmp_path):
     path, tables = measurements_db
     out = export_dictionary(path, tmp_path / "dict.md", fmt="md")
-    rows = [ln for ln in out.read_text().splitlines() if ln.startswith("| `")]
+    rows = [ln for ln in out.read_text(encoding="utf-8").splitlines() if ln.startswith("| `")]
     assert len(rows) == sum(len(c) for c in tables.values())
 
 
@@ -673,7 +673,7 @@ def test_export_markdown_escapes_pipes(tmp_path):
     with sqlite3.connect(path) as conn:
         conn.execute('CREATE TABLE t ("weird|name" REAL)')
     out = export_dictionary(path, tmp_path / "d.md", fmt="md")
-    text = out.read_text()
+    text = out.read_text(encoding="utf-8")
     assert "weird\\|name" in text
 
 
@@ -713,7 +713,7 @@ def test_import_pulls_no_heavy_dependencies():
 
 def test_module_source_declares_no_heavy_imports():
     """A cheap guard that survives even if the subprocess test is skipped."""
-    source = (REPO_ROOT / "spacr" / "feature_dict.py").read_text()
+    source = (REPO_ROOT / "spacr" / "feature_dict.py").read_text(encoding="utf-8")
     for banned in ("import torch", "import cellpose", "import skimage",
                    "from skimage", "import cv2", "import numpy"):
         assert banned not in source, f"feature_dict.py contains '{banned}'"

@@ -158,7 +158,7 @@ def test_valid_cell_cycle_integral_and_fucci_values_still_execute(tmp_path):
 @pytest.mark.parametrize('route', ['cycle', 'viability'])
 def test_installed_reviewed_language_at_actual_classifier_boundary(tmp_path, language, route, monkeypatch):
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-measured-channel-identity.json'
-    record = json.loads(review.read_text())['records'][0]
+    record = json.loads(review.read_text(encoding='utf-8'))['records'][0]
     path, target = write_case(tmp_path, route)
     config = base_config(route)
     config['cell_cycle_channel' if route == 'cycle' else 'viability_dead_channel'] = np.array(True)

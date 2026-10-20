@@ -65,13 +65,13 @@ def _site(tmp_path, monkeypatch, *, headers=True):
 
     lib = tmp_path / "nvidia" / "cuda_nvrtc" / "lib"
     lib.mkdir(parents=True)
-    (lib / "libnvrtc.so.12.alt.0").write_text("")
-    (lib / "libnvrtc.so.12.0").write_text("")
-    (lib / "libnvrtc.so.12.1").write_text("")
+    (lib / "libnvrtc.so.12.alt.0").write_text("", encoding="utf-8")
+    (lib / "libnvrtc.so.12.0").write_text("", encoding="utf-8")
+    (lib / "libnvrtc.so.12.1").write_text("", encoding="utf-8")
     include = tmp_path / "nvidia" / "cuda_runtime" / "include"
     include.mkdir(parents=True)
     if headers:
-        (include / "cuda_fp16.h").write_text("")
+        (include / "cuda_fp16.h").write_text("", encoding="utf-8")
     monkeypatch.setattr(sys, "platform", "linux")
     monkeypatch.setattr(M, "_cupy_wheel_cuda_major", lambda: 12)
     monkeypatch.setattr(site, "getsitepackages", lambda: [str(tmp_path)])

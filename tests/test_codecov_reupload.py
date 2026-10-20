@@ -31,8 +31,8 @@ def report(tmp_path):
         "checked": True, "status": "complete", "issues": [],
         "shard_count": 12, "shards_with_records": 12,
     }}
-    (original / "coverage.json").write_text(json.dumps(coverage))
-    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate))
+    (original / "coverage.json").write_text(json.dumps(coverage), encoding="utf-8")
+    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate), encoding="utf-8")
     return original, coverage, gate
 
 
@@ -40,9 +40,9 @@ def test_complete_measurement_can_be_uploaded_without_overriding_ratchet_failure
     original, coverage, _ = report
     regenerated = original.parent / "regenerated.json"
     coverage["meta"]["timestamp"] = "a later rendering of the same measurement"
-    regenerated.write_text(json.dumps(coverage))
+    regenerated.write_text(json.dumps(coverage), encoding="utf-8")
     assert verify_report(original, regenerated) == "7.16.2"
-    assert json.loads((original / "module-coverage-ratchet.json").read_text())["status"] == "fail"
+    assert json.loads((original / "module-coverage-ratchet.json").read_text(encoding="utf-8"))["status"] == "fail"
 
 
 @pytest.mark.parametrize("damage", ["missing_shard", "missing_issues", "unchecked"])
@@ -55,7 +55,7 @@ def test_missing_original_integrity_is_refused(report, damage):
         del integrity["issues"]
     else:
         integrity["checked"] = False
-    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate))
+    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate), encoding="utf-8")
     with pytest.raises(ValueError, match="integrity record is missing"):
         verify_report(original)
 
@@ -65,7 +65,7 @@ def test_existing_successful_combine_policy_discloses_incomplete_measurement(rep
     gate["status"] = "incomplete"
     gate["measurement_integrity"]["status"] = "incomplete"
     gate["measurement_integrity"]["issues"] = ["a coverage file was discarded"]
-    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate))
+    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate), encoding="utf-8")
     assert verify_report(original) == "7.16.2"
     output = capsys.readouterr().out
     assert "Original measurement integrity: incomplete" in output
@@ -85,19 +85,19 @@ def test_replay_must_preserve_all_measurements(report, damage):
     else:
         coverage["meta"]["version"] = "7.17.0"
     regenerated = original.parent / "regenerated.json"
-    regenerated.write_text(json.dumps(coverage))
+    regenerated.write_text(json.dumps(coverage), encoding="utf-8")
     with pytest.raises(ValueError, match="differs from the original"):
         verify_report(original, regenerated)
 
 
 def test_upload_mode_is_isolated_and_codecov_identity_is_original():
-    docs = yaml.safe_load((ROOT / ".github/workflows/docs.yml").read_text())
+    docs = yaml.safe_load((ROOT / ".github/workflows/docs.yml").read_text(encoding="utf-8"))
     upload = docs["jobs"]["upload-coverage"]
     assert upload["if"] == "github.event_name == 'workflow_dispatch' && inputs.mode == 'upload-coverage'"
     assert docs["jobs"]["resolve"]["if"] == "github.event_name != 'workflow_dispatch' || inputs.mode == 'publish'"
     assert docs["jobs"]["build"]["needs"] == "resolve"
     assert upload["with"]["source_run_id"] == "${{ inputs.coverage_run_id }}"
-    workflow = yaml.safe_load((ROOT / ".github/workflows/coverage-reupload.yml").read_text())
+    workflow = yaml.safe_load((ROOT / ".github/workflows/coverage-reupload.yml").read_text(encoding="utf-8"))
     steps = workflow["jobs"]["upload"]["steps"]
     codecov = next(step for step in steps if step.get("uses") == "codecov/codecov-action@v7")
     assert codecov["with"]["override_branch"] == "main"
@@ -111,7 +111,7 @@ def test_upload_mode_is_isolated_and_codecov_identity_is_original():
 @pytest.mark.skipif(shutil.which("node") is None, reason="Node is required to exercise the Actions resolver")
 @pytest.mark.parametrize("damage", [None, "nightly", "foreign", "pr", "unfinished", "diverged", "combine", "expired"])
 def test_actual_actions_resolver_refuses_wrong_source_and_missing_measurement(damage):
-    workflow = yaml.safe_load((ROOT / ".github/workflows/coverage-reupload.yml").read_text())
+    workflow = yaml.safe_load((ROOT / ".github/workflows/coverage-reupload.yml").read_text(encoding="utf-8"))
     script = workflow["jobs"]["upload"]["steps"][0]["with"]["script"]
     run = {
         "repository": {"full_name": "owner/repo"},

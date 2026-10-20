@@ -53,7 +53,7 @@ def planner(qtbot, monkeypatch, tmp_path, pilot_and_plan):
     screen = power.PowerScreen(threaded=False)
     qtbot.addWidget(screen)
     source = tmp_path / 'good.json'
-    source.write_text(json.dumps(pilot_and_plan[1]))
+    source.write_text(json.dumps(pilot_and_plan[1]), encoding="utf-8")
     assert screen._load_arrayed_plan(str(source))
     return screen
 
@@ -112,7 +112,7 @@ def test_actual_load_button_refuses_malformed_fields_without_partial_changes(
     if isinstance(bad, dict) and isinstance(bad.get('pilot'), dict):
         bad['pilot']['table'] = 'should never reach the working form'
     source = tmp_path / 'malformed.json'
-    source.write_text(json.dumps(bad))
+    source.write_text(json.dumps(bad), encoding="utf-8")
     monkeypatch.setattr(power.QFileDialog, 'getOpenFileName', lambda *_a, **_k: (str(source), ''))
     qtbot.mouseClick(planner._load_plan, Qt.LeftButton)
     assert _state(planner) == before
@@ -124,7 +124,7 @@ def test_actual_load_button_refuses_malformed_fields_without_partial_changes(
 def test_malformed_json_keeps_prior_snapshot(planner, tmp_path, text):
     before = _state(planner)
     path = tmp_path / 'malformed.json'
-    path.write_text(text)
+    path.write_text(text, encoding="utf-8")
     assert planner._load_arrayed_plan(str(path)) is False
     assert _state(planner) == before
 
@@ -140,7 +140,7 @@ def test_impossible_readout_means_preserve_working_state(
     plan = copy.deepcopy(pilot_and_plan[1])
     plan['design_inputs'].update(readout=readout, baseline=baseline, effect=effect)
     path = tmp_path / 'invalid-readout.json'
-    path.write_text(json.dumps(plan))
+    path.write_text(json.dumps(plan), encoding="utf-8")
     assert not planner._load_arrayed_plan(str(path))
     assert _state(planner) == before
 
@@ -168,7 +168,7 @@ def test_actual_plan_save_load_roundtrip_and_legacy_defaults(
     target = tmp_path / 'plan.json'
     monkeypatch.setattr(power.QFileDialog, 'getSaveFileName', lambda *_a, **_k: (str(target), ''))
     qtbot.mouseClick(planner._save_plan, Qt.LeftButton)
-    saved = json.loads(target.read_text())
+    saved = json.loads(target.read_text(encoding="utf-8"))
     expected = _state(planner)
     planner._plan_effect.setValue(-3)
     planner._pilot_path.setText('not this pilot')
@@ -177,13 +177,13 @@ def test_actual_plan_save_load_roundtrip_and_legacy_defaults(
     qtbot.mouseClick(planner._load_plan, Qt.LeftButton)
     assert _state(planner) == expected
     qtbot.mouseClick(planner._save_plan, Qt.LeftButton)
-    assert json.loads(target.read_text()) == saved
+    assert json.loads(target.read_text(encoding="utf-8")) == saved
     if readout == 'continuous':
         saved['design_inputs'].pop('readout')
         saved['pilot']['columns'].pop('condition')
         saved['variance_components'].pop('replicate_condition')
         saved['variance_components']['estimated'].pop('replicate_condition')
-        target.write_text(json.dumps(saved))
+        target.write_text(json.dumps(saved), encoding="utf-8")
         assert planner._load_arrayed_plan(str(target))
         assert planner._plan_readout.currentData() == 'continuous'
         assert planner._pilot_columns['condition'].currentText() == ''

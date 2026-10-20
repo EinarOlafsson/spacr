@@ -274,7 +274,7 @@ def test_a_settings_file_round_trips_auto(tmp_path, written):
 
     path = tmp_path / "mask_settings.csv"
     path.write_text(f"Key,Value\ncell_diameter,{written}\n"
-                    f"nucleus_diameter,\n")
+                    f"nucleus_diameter,\n", encoding="utf-8")
     module = resolve_module("mask")
     resolved = resolve_settings(module, str(path))
     assert resolved["cell_diameter"] == "auto"
@@ -353,7 +353,7 @@ def test_the_manifest_records_the_diameters_and_the_estimate(
                              min_size=15, default_diameter=60)
         _note_the_diameter(settings, "nucleus")
         run_dir = run.dir
-    manifest = json.loads((run_dir / "manifest.json").read_text())
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["diameters"] == {
         "cell": "120 px (magnification 20x default)",
         "nucleus": "auto (Cellpose estimated 60 px)",
@@ -421,7 +421,7 @@ def test_diameter_failures_are_localized_without_changing_the_fallback(
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     record_path = Path(__file__).resolve().parents[1] / (
         f'docs/i18n/reviewed/runtime/{language}/2026-10-14-diameter-diagnostics.json')
-    record = json.loads(record_path.read_text())['records'][diagnostic]
+    record = json.loads(record_path.read_text(encoding="utf-8"))['records'][diagnostic]
     values = {'setting': 'nucleus_diameter', 'value': repr('thirty'),
               'object_type': 'nucleus', 'error': 'disk unavailable'}
     if diagnostic == 0:

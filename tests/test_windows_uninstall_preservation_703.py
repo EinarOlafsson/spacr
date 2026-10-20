@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _put(path, text='private runtime fixture'):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text)
+    path.write_text(text, encoding="utf-8")
     return path
 
 
@@ -44,7 +44,9 @@ def test_only_the_installers_managed_python_and_stdlib_helper_are_copied(private
 
 
 @pytest.mark.parametrize('reason', ['shared-python', 'wrong-interpreter', 'wrong-prefix', 'inside-folder',
-                                    'nonempty-folder', 'linked-content', 'configured-data'])
+                                    'nonempty-folder',
+                                    pytest.param('linked-content', marks=pytest.mark.needs_symlink),
+                                    'configured-data'])
 def test_preparation_refuses_to_copy_unowned_or_linked_runtime(private_runtime, tmp_path, reason):
     root, base, work, machine = private_runtime
     if reason == 'shared-python':
@@ -80,14 +82,14 @@ def test_outside_guard_refuses_running_environment_before_discovery_or_deletion(
 
 
 def test_nsis_runs_noninteractive_outside_helper_then_removes_only_empty_root():
-    source = (ROOT / 'packaging/online/spacr_online_installer.nsi').read_text()
+    source = (ROOT / 'packaging/online/spacr_online_installer.nsi').read_text(encoding="utf-8")
     uninstall = source.split('Section "Uninstall"', 1)[1]
     assert 'RMDir /r "$INSTDIR"' not in uninstall
     assert 'RMDir /r "$SMPROGRAMS' not in uninstall
     assert 'File "uninstall_spacr_windows.ps1"' in uninstall
     assert '-NoProfile -NonInteractive -ExecutionPolicy Bypass' in uninstall
     assert uninstall.index('Pop $0') < uninstall.index('Abort') < uninstall.index('RMDir "$INSTDIR"')
-    script = (ROOT / 'packaging/online/uninstall_spacr_windows.ps1').read_text()
+    script = (ROOT / 'packaging/online/uninstall_spacr_windows.ps1').read_text(encoding="utf-8")
     assert script.index('SetAccessRuleProtection($true, $false)') < script.index('prepare-windows-uninstall')
     assert script.index('prepare-windows-uninstall') < script.index('& $OutsidePython')
     assert '--only-root $InstallRoot --require-outside' in script
@@ -104,7 +106,7 @@ def test_normal_nsis_renderer_includes_exact_reviewed_uninstall_message_in_every
     values = renderer.catalogs()
     text = renderer.render_nsis(values)
     for language, name in renderer.NSIS_LANGUAGE.items():
-        source = json.loads((ROOT / 'packaging/i18n' / (language + '.json')).read_text())['nsis_uninstall_failed']
+        source = json.loads((ROOT / 'packaging/i18n' / (language + '.json')).read_text(encoding="utf-8"))['nsis_uninstall_failed']
         expected = f'LangString SPACR_NSIS_UNINSTALL_FAILED ${{LANG_{name.upper()}}} "{renderer._nsis_escape(source)}"'
         assert expected in text
         if language != 'en':

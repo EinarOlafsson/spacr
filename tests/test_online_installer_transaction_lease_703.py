@@ -20,14 +20,14 @@ WINDOWS = ROOT / 'packaging/online/install_spacr_windows.ps1'
 
 
 def _lease_source():
-    return UNIX.read_text().split('# @SPACR_INSTALLER_LEASE_BEGIN@\n', 1)[1].split(
+    return UNIX.read_text(encoding="utf-8").split('# @SPACR_INSTALLER_LEASE_BEGIN@\n', 1)[1].split(
         '# @SPACR_INSTALLER_LEASE_END@', 1)[0]
 
 
 def _script(tmp_path, body):
     path = tmp_path / ('driver-' + str(len(list(tmp_path.glob('driver-*')))) + '.sh')
     path.write_text('set -Eeuo pipefail\nPLATFORM=linux\n'
-                    'spacr_say() { printf "%s\\n" "$*" >&2; }\n' + _lease_source() + body)
+                    'spacr_say() { printf "%s\\n" "$*" >&2; }\n' + _lease_source() + body, encoding="utf-8")
     return path
 
 
@@ -79,17 +79,17 @@ def test_second_real_installer_cannot_mutate_an_owned_root(tmp_path, owner):
     assert not (root.parent / ('.' + root.name + '.spacr-installer-lock')).exists()
     subsequent = _run(_script(tmp_path, 'printf installed > "$INSTALL_ROOT/verified"\n'), tmp_path, root)
     assert subsequent.returncode == 0
-    assert (root / 'verified').read_text() == 'installed'
+    assert (root / 'verified').read_text(encoding="utf-8") == 'installed'
 
 
 @needs_bash
 def test_real_exit_rollback_remains_exclusive_until_original_runtime_is_restored(tmp_path, owner):
     root = tmp_path / 'application'
     (root / 'venv').mkdir(parents=True)
-    (root / 'venv/version').write_text('previous')
+    (root / 'venv/version').write_text('previous', encoding="utf-8")
     (root / 'data').mkdir()
-    (root / 'data/output').write_text('science')
-    cleanup = UNIX.read_text().split('cleanup() {\n', 1)[1].split('\ntrap ', 1)[0]
+    (root / 'data/output').write_text('science', encoding="utf-8")
+    cleanup = UNIX.read_text(encoding="utf-8").split('cleanup() {\n', 1)[1].split('\ntrap ', 1)[0]
     body = '''
 VENV_DIR="$INSTALL_ROOT/venv"
 old_venv="$INSTALL_ROOT/.venv-previous-fixture"
@@ -120,11 +120,11 @@ exit 7
     blocked = _run(_script(tmp_path, 'printf wrong > "$INSTALL_ROOT/venv/version"\n'), tmp_path, root)
     assert blocked.returncode == 73
     assert not (root / 'venv').exists()
-    assert (root / '.venv-previous-fixture/version').read_text() == 'previous'
+    assert (root / '.venv-previous-fixture/version').read_text(encoding="utf-8") == 'previous'
     first.communicate('restore\n', timeout=10)
     assert first.returncode == 7
-    assert (root / 'venv/version').read_text() == 'previous'
-    assert (root / 'data/output').read_text() == 'science'
+    assert (root / 'venv/version').read_text(encoding="utf-8") == 'previous'
+    assert (root / 'data/output').read_text(encoding="utf-8") == 'science'
     assert not (root / '.venv.spacr-update-lock').exists()
 
 
@@ -135,7 +135,7 @@ def test_different_roots_can_install_concurrently(tmp_path, owner):
     second = _run(_script(tmp_path, 'printf success > "$INSTALL_ROOT/verified"\n'), tmp_path, root)
     assert second.returncode == 0
     assert first.poll() is None
-    assert (root / 'verified').read_text() == 'success'
+    assert (root / 'verified').read_text(encoding="utf-8") == 'success'
 
 
 @pytest.mark.parametrize('existing', ['outside', 'runtime'])
@@ -146,11 +146,11 @@ def test_existing_or_interrupted_lease_is_not_stolen_or_changed(tmp_path, existi
     lease = (root.parent / ('.' + root.name + '.spacr-installer-lock')
              if existing == 'outside' else root / '.venv.spacr-update-lock')
     lease.mkdir(mode=0o700)
-    (lease / 'unknown-evidence').write_text('preserve')
+    (lease / 'unknown-evidence').write_text('preserve', encoding="utf-8")
     before = lease.stat()
     result = _run(_script(tmp_path, 'printf wrong > "$INSTALL_ROOT/mutation"\n'), tmp_path, root)
     assert result.returncode == 73
-    assert (lease / 'unknown-evidence').read_text() == 'preserve'
+    assert (lease / 'unknown-evidence').read_text(encoding="utf-8") == 'preserve'
     assert (lease.stat().st_dev, lease.stat().st_ino) == (before.st_dev, before.st_ino)
     assert not (root / 'mutation').exists()
     if existing == 'runtime':
@@ -193,7 +193,7 @@ def test_failed_recovery_retains_both_leases_for_explicit_resolution(tmp_path):
 
 
 def test_gui_parent_returns_before_lease_and_only_the_backend_owns_it():
-    source = UNIX.read_text()
+    source = UNIX.read_text(encoding="utf-8")
     gui_route = source.index('if [[ "$PLATFORM" == "linux" && "${SPACR_INSTALL_GUI_CHILD:-0}" != "1" ]]')
     lease = source.index('# @SPACR_INSTALLER_LEASE_BEGIN@')
     assert gui_route < lease < source.index('touch "$INSTALL_LOG"')
@@ -204,7 +204,7 @@ def test_gui_parent_returns_before_lease_and_only_the_backend_owns_it():
 
 
 def test_windows_wrapper_acquires_exclusive_handles_before_logging_and_cleans_owned_handles_last():
-    source = WINDOWS.read_text()
+    source = WINDOWS.read_text(encoding="utf-8")
     assert '[System.IO.FileMode]::CreateNew' in source
     assert '[System.IO.FileShare]::None' in source
     assert 'Get-Process' not in source
@@ -222,14 +222,14 @@ def test_windows_wrapper_acquires_exclusive_handles_before_logging_and_cleans_ow
 @needs_bash
 def test_busy_refusal_reuses_actual_existing_installer_locales():
     for language in ['en', 'sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr']:
-        values = json.loads((ROOT / 'packaging/i18n' / (language + '.json')).read_text())
+        values = json.loads((ROOT / 'packaging/i18n' / (language + '.json')).read_text(encoding="utf-8"))
         assert values['already_running']
     assert 'spacr_say already_running' in _lease_source()
-    assert 'Get-SpacrInstallerMessage "already_running"' in WINDOWS.read_text()
+    assert 'Get-SpacrInstallerMessage "already_running"' in WINDOWS.read_text(encoding="utf-8")
 
 
 def test_nsis_bootstrap_files_are_private_to_this_installer_process():
-    source = (ROOT / 'packaging/online/spacr_online_installer.nsi').read_text()
+    source = (ROOT / 'packaging/online/spacr_online_installer.nsi').read_text(encoding="utf-8")
     section = source.split('SecSpaCR\n', 1)[1].split('SectionEnd', 1)[0]
     assert section.index('InitPluginsDir') < section.index('SetOutPath')
     assert '$TEMP\\spaCR-online-installer' not in section
@@ -239,7 +239,7 @@ def test_nsis_bootstrap_files_are_private_to_this_installer_process():
 
 
 def _identity_function():
-    source = UNIX.read_text()
+    source = UNIX.read_text(encoding="utf-8")
     start = source.index('spacr_installer_lease_identity() {\n')
     return source[start:source.index('\n}\n', start) + 3]
 
@@ -254,7 +254,7 @@ def test_lease_identity_uses_whichever_stat_is_on_path(tmp_path, flavor):
     fake = folder / 'stat'
     accepted = '-c' if flavor == 'gnu' else '-f'
     fake.write_text('#!/bin/sh\n[ "$1" = "' + accepted + '" ] && { printf "' + flavor + ':%s\\n" "$2"; exit 0; }\n'
-                    'echo "stat: illegal option" >&2\nexit 1\n')
+                    'echo "stat: illegal option" >&2\nexit 1\n', encoding="utf-8")
     fake.chmod(0o755)
     result = subprocess.run(['bash', '-c', _identity_function() + 'spacr_installer_lease_identity /lease\n'],
                             env=dict(os.environ, PATH=f"{folder}{os.pathsep}{os.environ['PATH']}"),

@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/tmp/spacr-implementation-20261001/f489-publication/support.py", line 14, in <module>
-    d=tables(r/f'spacr/qt/i18n_catalogs/{lang}.py');missing=[s for s in sources if not d['UI'].get(s) or d['SOURCE_HASHES'].get(('UI',s))!=en['SOURCE_HASHES'].get(('UI',s))];assert not missing,(lang,missing);coverage[lang]={'current_caption_entries':len(sources),'missing_or_stale':0}
-                                                                                                                                                                                     ^^^^^^^^^^^
-AssertionError: ('sv', ['Off'])

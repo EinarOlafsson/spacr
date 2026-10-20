@@ -106,9 +106,9 @@ def test_mihcsme_and_checksum_damage_is_named(package):
     if conditions.exists():
         pd.DataFrame({"x": [1]}).to_csv(conditions, sep="\t", index=False)
     sums = package / "checksums.md5"
-    lines = sums.read_text().splitlines()
+    lines = sums.read_text(encoding="utf-8").splitlines()
     kept = [line for line in lines if not line.endswith(".tif")]
-    sums.write_text("\n".join(kept + ["no-separator-line"]) + "\n")
+    sums.write_text("\n".join(kept + ["no-separator-line"]) + "\n", encoding="utf-8")
     text = _problems(package)
     assert "MIHCSME: sheet" in text
     assert "checksums: no checksum for" in text
@@ -133,7 +133,7 @@ def test_unparseable_wells_and_settings_are_skipped(tmp_path):
     assert rep._archive_well("plate1_A00_T0001F001.tif") is None
     settings = tmp_path / "settings"
     settings.mkdir()
-    (settings / "gen_mask_settings.csv").write_text("only\n1\n")
+    (settings / "gen_mask_settings.csv").write_text("only\n1\n", encoding="utf-8")
     (settings / "measure_crop_settings.csv").write_bytes(b"\xff\xfe\x00bad")
     assert rep._archive_settings(tmp_path) == {}
 
@@ -151,7 +151,7 @@ def study(screen, tmp_path):  # noqa: F811
 
 
 def test_a_study_manifest_that_is_not_json_is_reported(study):
-    (study / "study_manifest.json").write_text("{broken")
+    (study / "study_manifest.json").write_text("{broken", encoding="utf-8")
     assert "not readable JSON" in rep._validate_archive_study(study)[0]
 
 

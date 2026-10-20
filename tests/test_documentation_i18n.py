@@ -278,7 +278,9 @@ TOOLS = ROOT / "tools"
 # 2026-10-19: -1, FoldButton.paintEvent retired (native verdict-dot layer).
 # 2026-10-19 item 600: +0/-14, ChannelSortDialog and RegexWindow leave
 # spacr.qt.widgets.channel_sort_dialog; the example-set check stays.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_203
+# 2026-10-20 item 127: +0/-1, the deprecated spacr.regression_search shim
+# module leaves in 1.5.1.6.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_202
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",
@@ -1589,7 +1591,7 @@ def test_hits_tab_context_preserves_gui_raise_meaning():
     import build_documentation_i18n as builder
 
     changes = json.loads((ROOT / "tests/data/release_contracts"
-        / "411_help_api_changes_2026-10-18.json").read_text())
+        / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     source = builder.translatable_blocks(changes["added"][
         "spacr.qt.screens.regression.HitsOpener.press"])[0][1]
     contextual = builder._api_translation_source(source)
@@ -2236,7 +2238,7 @@ def test_github_summary_has_reviewed_domain_translations():
     )
 
     reviewed_sources = json.loads((ROOT / "tests/data/release_contracts"
-        / "readme_domain_review_sources_2026_10_09.json").read_text())
+        / "readme_domain_review_sources_2026_10_09.json").read_text(encoding="utf-8"))
     assert set(REVIEWED_README_BLOCKS) == set(reviewed_sources)
     all_languages = {
         "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
@@ -3108,10 +3110,10 @@ def test_translation_cache_atomically_removes_rejected_checkpoint(tmp_path):
     from build_i18n_catalogs import _merge_write_translation_cache
 
     path = tmp_path / "ko.json"
-    path.write_text(json.dumps({"api-block-v7\0Source": "Source"}))
+    path.write_text(json.dumps({"api-block-v7\0Source": "Source"}), encoding="utf-8")
     baseline = {"api-block-v7\0Source": "Source"}
     _merge_write_translation_cache(path, {}, baseline)
-    assert json.loads(path.read_text()) == {}
+    assert json.loads(path.read_text(encoding="utf-8")) == {}
     assert baseline == {}
 
 
@@ -3169,6 +3171,7 @@ def test_cache_lock_releases_descriptor_when_owner_stamp_fails(
         pass
 
 
+@__import__("pytest").mark.posix_only
 def test_cache_lock_closes_descriptor_when_explicit_unlock_fails(
     tmp_path, monkeypatch,
 ):
@@ -3191,6 +3194,7 @@ def test_cache_lock_closes_descriptor_when_explicit_unlock_fails(
         pass
 
 
+@__import__("pytest").mark.posix_only
 def test_atomic_catalog_writes_preserve_existing_mode(tmp_path):
     from build_documentation_i18n import _write_json
     from build_i18n_catalogs import _atomic_write_text
@@ -3250,14 +3254,14 @@ def test_runtime_audit_rejects_a_synthetic_missing_tooltip_translation(
     monkeypatch.setattr(builder, "reviewed_runtime_translations", lambda _: {})
     installer = tmp_path / "packaging/i18n"
     installer.mkdir(parents=True)
-    (installer / "sv.json").write_text(json.dumps(sources["installer"]))
+    (installer / "sv.json").write_text(json.dumps(sources["installer"]), encoding="utf-8")
     builder.write_english(sources)
     values = {"SETTING_LABELS": {}, "SETTING_TOOLTIPS": {
         "cell_diameter": "Celldiameter i pixlar."}, "CATEGORY_HELP": {},
         "UI": {}, "MODULE_SUMMARIES": {}, "SOURCE_HASHES": builder._source_hashes(sources),
         "SECONDARY_MODEL": builder.SECONDARY_MODEL, "SECONDARY_LICENSE": builder.SECONDARY_LICENSE}
     swedish = catalog_dir / "sv.py"
-    swedish.write_text("\n".join(f"{key} = {value!r}" for key, value in values.items()))
+    swedish.write_text("\n".join(f"{key} = {value!r}" for key, value in values.items()), encoding="utf-8")
     assert builder.audit(sources, ["sv"]) == 0
     with swedish.open("a") as handle:
         handle.write('\nSETTING_TOOLTIPS.pop("cell_diameter")\n')
@@ -3322,16 +3326,16 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "664_665_worker_api_arrivals_2026-10-08.json").read_text())
+        / "664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
     assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
     home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(home_ui_arrivals) == 10
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
     hidden_close = json.loads((ROOT / "tests/data/release_contracts"
-        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text(encoding="utf-8"))["API_arrivals"]
     assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
     assert {key: docs[key] for key in hidden_close} == hidden_close
     assert hidden_close.keys() <= home_ui_arrivals.keys()
@@ -3339,78 +3343,78 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     # contract, as in the extractor and docstring inventory tests; the ratchet
     # counts the surface before them.
     volume_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text())
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
     assert len(volume_arrivals) == 32
     assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
     # 2026-10-11: N685's four model-zoo helpers (9d48eefa6: default_version_index,
     # hf_repo_of, is_alternative, is_spacr_owned) are one named contract; the
     # ratchet is unchanged.
     zoo_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text())
+        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(zoo_arrivals) == 4
     assert {key: docs[key] for key in zoo_arrivals} == zoo_arrivals
     tem_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "690_tem_api_arrivals_2026-10-11.json").read_text())
+        / "690_tem_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(tem_arrivals) == 10
     assert {key: docs[key] for key in tem_arrivals} == tem_arrivals
     # F534's 22 spatial-submodule symbols (2026-10-11), one named contract.
     spatial_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "534_spatial_api_arrivals_2026-10-11.json").read_text())
+        / "534_spatial_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(spatial_arrivals) == 22
     assert {key: docs[key] for key in spatial_arrivals} == spatial_arrivals
     assert not spatial_arrivals.keys() & (zoo_arrivals.keys() | tem_arrivals.keys())
     zoo_arrivals = {**zoo_arrivals, **tem_arrivals, **spatial_arrivals}
     # N691's 4 MitoNet symbols in spacr.model_zoo (2026-10-11).
     mitonet_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "691_mitonet_api_arrivals_2026-10-11.json").read_text())
+        / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(mitonet_arrivals) == 4
     assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
     assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
     drawing_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "692_three_d_mask_drawing_api_arrivals_2026-10-11.json").read_text())
+        / "692_three_d_mask_drawing_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(drawing_arrivals) == 8
     assert {key: docs[key] for key in drawing_arrivals} == drawing_arrivals
     assert not drawing_arrivals.keys() & (zoo_arrivals.keys() | volume_arrivals.keys())
     zoo_arrivals = {**zoo_arrivals, **drawing_arrivals}
     apply_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "prefs_apply_api_arrivals_2026-10-12.json").read_text())
+        / "prefs_apply_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(apply_arrivals) == 8
     assert {key: docs[key] for key in apply_arrivals} == apply_arrivals
     assert not apply_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **apply_arrivals}
     a11y_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "655_accessibility_api_arrivals_2026-10-12.json").read_text())
+        / "655_accessibility_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(a11y_arrivals) == 15
     assert {key: docs[key] for key in a11y_arrivals} == a11y_arrivals
     assert not a11y_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **a11y_arrivals}
     in_container_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "673_volume_in_container_api_arrivals_2026-10-12.json").read_text())
+        / "673_volume_in_container_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(in_container_arrivals) == 2
     assert {key: docs[key] for key in in_container_arrivals} == in_container_arrivals
     assert not in_container_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **in_container_arrivals}
     export_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "693_export_settings_api_arrivals_2026-10-12.json").read_text())
+        / "693_export_settings_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(export_arrivals) == 3
     assert {key: docs[key] for key in export_arrivals} == export_arrivals
     assert not export_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **export_arrivals}
     response_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "144_regression_response_api_arrivals_2026-10-12.json").read_text())
+        / "144_regression_response_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(response_arrivals) == 3
     assert {key: docs[key] for key in response_arrivals} == response_arrivals
     assert not response_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **response_arrivals}
     splash_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "694_startup_splash_api_arrivals_2026-10-12.json").read_text())
+        / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(splash_arrivals) == 21
     assert {key: docs[key] for key in splash_arrivals} == splash_arrivals
     assert not splash_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **splash_arrivals}
     sequence_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text())
+        / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(sequence_arrivals) == 5
     assert {key: docs[key] for key in sequence_arrivals} == sequence_arrivals
     assert not sequence_arrivals.keys() & zoo_arrivals.keys()
@@ -3418,98 +3422,98 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     # 2026-10-12: spacr-tutorial opens the online lessons; the three
     # spacr.qt.tutorials arrivals are one named contract.
     tutorial_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"]
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"]
     assert len(tutorial_arrivals) == 3
     assert {key: docs[key] for key in tutorial_arrivals} == tutorial_arrivals
     assert not tutorial_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **tutorial_arrivals}
     # 2026-10-12: the model card viewer (WS) adds spacr.model_cards and spacr.qt.widgets.model_card_viewer; one named contract.
     model_card_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "model_cards_api_arrivals_2026-10-12.json").read_text())
+        / "model_cards_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(model_card_arrivals) == 27
     assert {key: docs[key] for key in model_card_arrivals} == model_card_arrivals
     assert not model_card_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **model_card_arrivals}
     # 2026-10-13: Mask Live filter debounce adds three methods and one constant; one named contract.
     debounce_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text())
+        / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
     assert len(debounce_arrivals) == 4
     assert {key: docs[key] for key in debounce_arrivals} == debounce_arrivals
     assert not debounce_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **debounce_arrivals}
     # 2026-10-13: ConsolePanel.warm_notice_glyphs (71a7563af) lays out the notice glyphs ahead of a first Run; one named contract.
     warm_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "console_warm_notice_glyphs_api_arrival_2026-10-13.json").read_text())
+        / "console_warm_notice_glyphs_api_arrival_2026-10-13.json").read_text(encoding="utf-8"))
     assert len(warm_arrivals) == 1
     assert {key: docs[key] for key in warm_arrivals} == warm_arrivals
     assert not warm_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **warm_arrivals}
     # 2026-10-13: Quitting with work in flight (retire_live_work) and the Preferences warm-up polish (_PreferencesWindow.event); one named contract.
     quit_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "quit_and_warmup_api_arrivals_2026-10-13.json").read_text())
+        / "quit_and_warmup_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
     assert len(quit_arrivals) == 3
     assert {key: docs[key] for key in quit_arrivals} == quit_arrivals
     assert not quit_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **quit_arrivals}
     # 2026-10-14: Item 700 client: anonymised error reports through spaCR's relay, the first-run notice and the hosted AI provider; one named contract.
     client700_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text())
+        / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(client700_arrivals) == 55
     assert {key: docs[key] for key in client700_arrivals} == client700_arrivals
     assert not client700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **client700_arrivals}
     # 2026-10-15: Item 700: spaCR AI summary scrubbing, saved explanations and question cache keys; one named contract.
     s700_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json").read_text())
+        / "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     assert len(s700_arrivals) == 20
     assert {key: docs[key] for key in s700_arrivals} == s700_arrivals
     assert not s700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **s700_arrivals}
     # 2026-10-15: Item 673: napari-like True 3D view (3-D volume rendering in spacr.layers and its ray helper); one named contract.
     n673_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text())
+        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     assert len(n673_arrivals) == 8
     assert {key: docs[key] for key in n673_arrivals} == n673_arrivals
     assert not n673_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n673_arrivals}
     # 2026-10-16: Item 673 speed follow-up: GPU volume renderer, render scale, surface finishes, magnifier cube and True 3D render settings; one named contract.
     n673g_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "673_true3d_gpu_api_arrivals_2026-10-16.json").read_text())
+        / "673_true3d_gpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
     assert len(n673g_arrivals) == 23
     assert {key: docs[key] for key in n673g_arrivals} == n673g_arrivals
     assert not n673g_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n673g_arrivals}
     # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
     n673w_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
     assert len(n673w_arrivals) == 20
     assert {key: docs[key] for key in n673w_arrivals} == n673w_arrivals
     assert not n673w_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n673w_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())
+        / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     assert len(s370_arrivals) == 3
     assert {key: docs[key] for key in s370_arrivals} == s370_arrivals
     assert not s370_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **s370_arrivals}
     # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
     note_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "install_cleanup_note_api_arrival_2026-10-14.json").read_text())
+        / "install_cleanup_note_api_arrival_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(note_arrivals) == 1
     assert {key: docs[key] for key in note_arrivals} == note_arrivals
     assert not note_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **note_arrivals}
     # 2026-10-13: Closing the model zoo picker or backend installer mid-download (BackendInstallDialog.done) and worker emits that survive a deleted receiver; one named contract.
     thread_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "thread_retire_api_arrivals_2026-10-13.json").read_text())
+        / "thread_retire_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
     assert len(thread_arrivals) == 3
     assert {key: docs[key] for key in thread_arrivals} == thread_arrivals
     assert not thread_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **thread_arrivals}
     # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
     dna_rain_arrivals = json.loads((ROOT / "tests/data"
-        / "release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
+        / "release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(dna_rain_arrivals) == 1
     assert {key: docs[key] for key in dna_rain_arrivals} == dna_rain_arrivals
     assert not dna_rain_arrivals.keys() & zoo_arrivals.keys()
@@ -3517,7 +3521,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     # 2026-10-12: the ParaScape launcher pins its minimum release and launches the console script; three arrivals.
     launcher_arrivals = json.loads((ROOT / "tests/data"
         / "release_contracts"
-        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text())
+        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(launcher_arrivals) == 3
     assert {key: docs[key] for key in launcher_arrivals} == launcher_arrivals
     assert not launcher_arrivals.keys() & zoo_arrivals.keys()
@@ -3540,7 +3544,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
-                              / filename).read_text())
+                              / filename).read_text(encoding="utf-8"))
         assert len(arrivals) == count
         assert {key: docs[key] for key in arrivals} == arrivals
         assert not arrivals.keys() & (
@@ -3549,7 +3553,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         )
         zoo_arrivals = {**zoo_arrivals, **arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
-        / "411_help_api_changes_2026-10-18.json").read_text())
+        / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]
     assert set(help_arrivals) == {
         "spacr.qt.preferences._count_store_moves.set_path",
@@ -3570,7 +3574,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         help_changes["changed"][publication_key]["before"] + "\n\n")
     zoo_arrivals = {**zoo_arrivals, **help_arrivals}
     approval_preferences_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text())
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
     assert set(approval_preferences_arrivals) == {
         "spacr.qt.ai.prompts.tool_approval_note",
         "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
@@ -3588,7 +3592,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     )
     zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
-        / "700_retired_setup_api_inverse_2026-10-15.json").read_text())
+        / "700_retired_setup_api_inverse_2026-10-15.json").read_text(encoding="utf-8"))
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"
     assert retirement["source_blob"] == "f86aef1b5123a1eae9c978011e0a54f9ff4dfd63"
     assert retirement["source_path"] == "docs/source/_static/i18n/api/en.json"
@@ -4721,7 +4725,7 @@ def test_visual_regeneration_keeps_reviewed_organism_heading_and_note(language):
     """The actual workflow producer uses the accepted live navigation text."""
     import importlib.util
     fixture = json.loads((ROOT / "tests/data/release_contracts"
-        / "readme_workflow_languages_2026_10_08.json").read_text())
+        / "readme_workflow_languages_2026_10_08.json").read_text(encoding="utf-8"))
     spec = importlib.util.spec_from_file_location(
         "readme_organism_visuals", ROOT / "packaging/generate_readme_visuals.py")
     assert spec is not None and spec.loader is not None
@@ -4777,7 +4781,7 @@ def test_readme_builder_reuses_the_same_source_bound_visual_targets():
     """The translation builder and visual producer share accepted target authority."""
     import build_documentation_i18n as builder
     fixture = json.loads((ROOT / "tests/data/release_contracts"
-        / "readme_workflow_languages_2026_10_08.json").read_text())
+        / "readme_workflow_languages_2026_10_08.json").read_text(encoding="utf-8"))
     sample = fixture["source_heading"] + "\n^^^^^^^^\n\n" + fixture["source_note"] + "\n\n" + fixture["source_hardware_legend"] + "\n"
     for language, expected in fixture["languages"].items():
         translated = builder._localize_workflow_alt_text(sample, language)

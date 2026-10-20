@@ -157,6 +157,8 @@ def test_no_paths_at_all_says_that_instead(screen):
 def test_a_tilde_path_is_expanded(tmp_path, monkeypatch):
     """The same expansion the readers do; GitHub issue #108 was this bug."""
     monkeypatch.setenv("HOME", str(tmp_path))
+    # Windows expands ~ from USERPROFILE.
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
     path = tmp_path / "scores.csv"
     pd.DataFrame({"a": [], "b": []}).to_csv(path, index=False)
     assert C.available("~/scores.csv") == ["a", "b"]

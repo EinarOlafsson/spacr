@@ -15,7 +15,7 @@ def test_reference_plate_runtime_lookup_and_refusal(language, tmp_path, monkeypa
 
     root = Path(__file__).resolve().parents[1]
     review_root = root / 'docs/i18n/reviewed/runtime' / language
-    reviews = [json.loads((review_root / filename).read_text()) for filename in (
+    reviews = [json.loads((review_root / filename).read_text(encoding="utf-8")) for filename in (
         '2026-10-15-f580-reference-plate.json',
         '2026-10-15-f580-session-controls-home-b.json',
     )]

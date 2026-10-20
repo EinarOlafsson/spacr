@@ -1,7 +1,0 @@
-{
-  "README.txt": "be49962dacde619ca4673a1e39f5db2976aac3db42db22083d4e4cc09c14d918",
-  "plan.json": "91acd3186e0de69914bb131edde35ba3faa21a6045b963f6b40a11a4a2932b77",
-  "predecessor-reconstruction.json": "0cc315f4f8ae062db6f07970f4ac8ed3aef84bb1f398e44a1d0ad149ec7d9c64",
-  "root-to-required-predecessor.patch": "d43cc4639ecc77732301ca7dd3f98c2a6932c9c94a6a8eafa97b3fb969a6ff06",
-  "inspect-ordered-patches.py": "0f86a9eab64c335dfc7a9ae723628f0792a458ca23ac9519088af5ab966a88bd"
-}

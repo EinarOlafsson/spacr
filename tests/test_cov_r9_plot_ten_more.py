@@ -15,7 +15,7 @@ import pytest
 
 from spacr import plot as P
 
-SOURCE = pathlib.Path(inspect.getsourcefile(P)).read_text()
+SOURCE = pathlib.Path(inspect.getsourcefile(P)).read_text(encoding="utf-8")
 
 
 def _between(start: str, end: str) -> str:

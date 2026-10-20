@@ -141,11 +141,11 @@ def test_micromanager_waits_for_its_metadata_then_matches_batch(tmp_path, real_p
         shutil.copy2(path, folder / path.name)
     first = core._watch_folder_and_analyse(_timelapse(watched))
     assert not first['done'] and not (watched / 'spacr_watch/fields').exists()
-    text = (source / 'metadata.txt').read_text()
-    (folder / 'metadata.txt').write_text(text[:len(text) // 2])
+    text = (source / 'metadata.txt').read_text(encoding="utf-8")
+    (folder / 'metadata.txt').write_text(text[:len(text) // 2], encoding="utf-8")
     second = core._watch_folder_and_analyse(_timelapse(watched))
     assert not second['done'] and not (watched / 'spacr_watch/fields').exists()
-    (folder / 'metadata.txt').write_text(text)
+    (folder / 'metadata.txt').write_text(text, encoding="utf-8")
     third = core._watch_folder_and_analyse(_timelapse(watched))
     assert not third['done'] and third['incomplete'] == ['acq_A01_1']
     for path in sorted(source.glob('*.tif'))[3:]:
@@ -169,12 +169,12 @@ def test_micromanager_frame_keys_without_file_names_use_the_naming_rule(tmp_path
         data[f'FrameKey-{t}-{c}-0'] = {'Channel': summary['ChNames'][c]}
     path = tmp_path / 'run_1' / 'Pos3' / 'metadata.txt'
     path.parent.mkdir(parents=True)
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     (field,) = core._watch_micromanager_fields(str(path), 'run_1/Pos3/metadata.txt')
     assert field['key'] == 'run1_A01_4' and field['reason'] is None
     assert field['planes'][(1, 0, 1)] == ('img_000000001_GFP_000.tif', ('page', 0))
     del data['FrameKey-1-1-0']
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     (field,) = core._watch_micromanager_fields(str(path), 'run_1/Pos3/metadata.txt')
     assert field['reason'] == '3 of 4 declared planes are listed'
 

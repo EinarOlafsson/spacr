@@ -11,7 +11,7 @@ def test_table_selection_runtime_tooltip(language):
 
     root = Path(__file__).resolve().parents[1]
     review = json.loads((root / 'docs/i18n/reviewed/runtime' / language /
-                         '2026-10-15-n594-table-selection.json').read_text())
+                         '2026-10-15-n594-table-selection.json').read_text(encoding="utf-8"))
     record, = review['records']
     assert setting_tooltip('tables', record['source'], language, 'ml_analyze') == record['translation']
     assert record['translation'] != record['source']

@@ -59,7 +59,7 @@ def test_numeric_line_standalone_uses_original_coordinates_and_rows(
         "    def find_spec(self, fullname, path=None, target=None):\n"
         "        if fullname == 'spacr' or fullname.startswith('spacr.'):\n"
         "            raise ImportError('standalone must not import spaCR')\n"
-        "sys.meta_path.insert(0, RejectSpacr())\n")
+        "sys.meta_path.insert(0, RejectSpacr())\n", encoding="utf-8")
     process = subprocess.run(
         [sys.executable, str(tmp_path / "standalone/recreate_figure.py"), "png", "svg"],
         cwd=tmp_path / "standalone",
@@ -67,7 +67,7 @@ def test_numeric_line_standalone_uses_original_coordinates_and_rows(
         capture_output=True, text=True, timeout=60)
     assert process.returncode == 0, process.stdout + process.stderr
     assert (tmp_path / "standalone/recreated.png").read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
-    assert "<svg" in (tmp_path / "standalone/recreated.svg").read_text()
+    assert "<svg" in (tmp_path / "standalone/recreated.svg").read_text(encoding="utf-8")
 
 
 def test_grouped_line_keeps_categorical_positions_and_group_summaries(monkeypatch):

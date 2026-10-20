@@ -150,7 +150,7 @@ def test_a_child_column_that_clashes_with_the_output_is_refused(tmp_path):
 
 def test_saved_definitions_from_another_database_are_refused(standard, tmp_path):
     sidecar = dt.sidecar_path(standard)
-    sidecar.write_text(json.dumps({"source": "/elsewhere.db", "definitions": {}}))
+    sidecar.write_text(json.dumps({"source": "/elsewhere.db", "definitions": {}}), encoding="utf-8")
     with pytest.raises(MergeError, match="different database"):
         dt.load_definitions(standard)
 

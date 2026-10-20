@@ -7,6 +7,7 @@ including their degenerate-geometry fallbacks.
 """
 from __future__ import annotations
 
+import os
 import sqlite3
 
 import numpy as np
@@ -87,20 +88,21 @@ def _collinear_points(n=5):
 def test_get_db_paths_and_sequencing_paths_wrap_scalar_and_list():
     from spacr.utils import get_db_paths, get_sequencing_paths
 
+    join = os.path.join
     single = get_db_paths("/root/exp")
-    assert single == ["/root/exp/measurements/measurements.db"]
+    assert single == [join("/root/exp", "measurements", "measurements.db")]
 
     multi = get_db_paths(["/a", "/b"])
     assert multi == [
-        "/a/measurements/measurements.db",
-        "/b/measurements/measurements.db",
+        join("/a", "measurements", "measurements.db"),
+        join("/b", "measurements", "measurements.db"),
     ]
 
     seq = get_sequencing_paths("/root/exp")
-    assert seq == ["/root/exp/sequencing/sequencing_data.csv"]
+    assert seq == [join("/root/exp", "sequencing", "sequencing_data.csv")]
     assert get_sequencing_paths(["/a", "/b"]) == [
-        "/a/sequencing/sequencing_data.csv",
-        "/b/sequencing/sequencing_data.csv",
+        join("/a", "sequencing", "sequencing_data.csv"),
+        join("/b", "sequencing", "sequencing_data.csv"),
     ]
 
 

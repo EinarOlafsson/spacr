@@ -59,9 +59,9 @@ def test_qt_only_skip_preserves_global_batches_and_every_eligible_command(
     qt = tests / "qt"
     qt.mkdir(parents=True)
     for name in ("a", "b", "c"):
-        (qt / f"test_{name}.py").write_text("def test_x(): pass\n")
+        (qt / f"test_{name}.py").write_text("def test_x(): pass\n", encoding="utf-8")
     for name in ("d", "e"):
-        (tests / f"test_{name}.py").write_text("def test_x(): pass\n")
+        (tests / f"test_{name}.py").write_text("def test_x(): pass\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(runner, "_timeout_plugin_available", lambda: True)
     calls = []
@@ -92,7 +92,7 @@ def test_qt_only_skip_preserves_global_batches_and_every_eligible_command(
 def test_qt_only_skip_refuses_a_marker_that_can_select_qt(
     tmp_path, monkeypatch, marker,
 ):
-    (tmp_path / "test_one.py").write_text("def test_x(): pass\n")
+    (tmp_path / "test_one.py").write_text("def test_x(): pass\n", encoding="utf-8")
     monkeypatch.setattr(runner.subprocess, "run", lambda *_a, **_kw: pytest.fail(
         "a rejected marker must not start pytest"))
     with pytest.raises(ValueError, match="requires a conjunction"):
@@ -201,7 +201,7 @@ def test_every_batch_runs_even_after_one_fails(monkeypatch, tmp_path):
     from tools import run_pytest_batches as runner
 
     for name in ("a", "b", "c", "d"):
-        (tmp_path / f"test_{name}.py").write_text("def test_x():\n    pass\n")
+        (tmp_path / f"test_{name}.py").write_text("def test_x():\n    pass\n", encoding="utf-8")
 
     ran = []
 
@@ -230,7 +230,7 @@ def test_the_summary_names_every_failing_batch(monkeypatch, tmp_path, capsys):
     from tools import run_pytest_batches as runner
 
     for name in ("a", "b", "c"):
-        (tmp_path / f"test_{name}.py").write_text("def test_x():\n    pass\n")
+        (tmp_path / f"test_{name}.py").write_text("def test_x():\n    pass\n", encoding="utf-8")
 
     seen = []
 
@@ -250,6 +250,7 @@ def test_the_summary_names_every_failing_batch(monkeypatch, tmp_path, capsys):
     assert "batch 2" in out and "batch 3" in out
 
 
+@pytest.mark.posix_only
 def test_a_batch_past_its_ceiling_is_killed_with_its_children(tmp_path):
     """--batch-timeout ends the controller AND anything it started."""
     import sys
@@ -266,7 +267,7 @@ def test_a_batch_past_its_ceiling_is_killed_with_its_children(tmp_path):
     result = runner._run_bounded([sys.executable, "-c", script], timeout=3)
     assert result.returncode == runner.BATCH_TIMED_OUT
     assert time.monotonic() - started < 60
-    child = int(marker.read_text())
+    child = int(marker.read_text(encoding="utf-8"))
     import os
     for _ in range(50):
         try:

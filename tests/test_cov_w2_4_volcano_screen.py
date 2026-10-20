@@ -86,7 +86,7 @@ def test_the_guide_level_table_wins_over_the_gene_level_one(tmp_path):
     _results_frame().to_csv(folder / "results.csv", index=False)
     _results_frame().to_csv(folder / "results_grna.csv", index=False)
     (folder / "guide_permutation_results_long.csv").write_text(
-        _results_frame().to_csv(index=False))
+        _results_frame().to_csv(index=False), encoding="utf-8")
     assert volcano.find_results_table(folder) == os.path.abspath(
         folder / "guide_permutation_results_long.csv")
 
@@ -94,7 +94,7 @@ def test_the_guide_level_table_wins_over_the_gene_level_one(tmp_path):
 def test_a_folder_of_the_wrong_csvs_holds_no_table(tmp_path):
     folder = tmp_path / "settings_only"
     folder.mkdir()
-    (folder / "settings.csv").write_text("key,value\n")
+    (folder / "settings.csv").write_text("key,value\n", encoding="utf-8")
     assert volcano.find_results_table(folder) is None
 
 
@@ -109,6 +109,7 @@ def test_a_user_expanded_tilde_reaches_the_same_table(monkeypatch,
                                                       results_folder):
     """``~/run`` and the absolute path must resolve to one file."""
     monkeypatch.setenv("HOME", str(results_folder.parent))
+    monkeypatch.setenv("USERPROFILE", str(results_folder.parent))
     assert volcano.find_results_table("~/run_2024") == os.path.abspath(
         results_folder / "results.csv")
 

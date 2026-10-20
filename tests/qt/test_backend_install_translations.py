@@ -18,7 +18,7 @@ def test_installer_and_backend_cards_use_current_reviews(
     from spacr.qt.widgets import model_zoo_picker as picker
 
     payload = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
-                          '2026-09-23-backend-installer.json').read_text())
+                          '2026-09-23-backend-installer.json').read_text(encoding="utf-8"))
     targets = {row['source']: row['translation'] for row in payload['records']}
     monkeypatch.setattr(i18n, 'current_language', lambda: language)
     environment = str(tmp_path / 'backend <isolated>')

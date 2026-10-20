@@ -21,7 +21,7 @@ from cellpose_apply_evidence import minimum_area_labels,require_pixels
 
 def prepare(stage):
     audit = json.loads((Path(__file__).parent / 'evidence' /
-        '2026-09-09_model_zoo_provenance_and_assembly_audit.json').read_text())
+        '2026-09-09_model_zoo_provenance_and_assembly_audit.json').read_text(encoding="utf-8"))
     # SPACR_TUTORIAL_MODEL_FIELDS keeps the verified crops inside the stage.
     source = Path(os.environ.get('SPACR_TUTORIAL_MODEL_FIELDS', str(stage.parent / 'derived/cellpose_masks')))
     parent = stage / 'cellpose_apply_runs'

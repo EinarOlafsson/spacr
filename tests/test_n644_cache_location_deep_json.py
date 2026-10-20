@@ -27,7 +27,7 @@ def test_over_deep_metadata_is_inert_and_preserves_raw_bytes_and_environment(
     deep = "[" * 10000 + "0" + "]" * 10000
     payload = deep if shape == "top-level" else (
         '{"' + ("ignored" if shape == "unknown-value" else "HF_HOME") + '":' + deep + '}')
-    record.write_text(payload)
+    record.write_text(payload, encoding="utf-8")
     original = record.read_bytes()
     if external:
         monkeypatch.setenv("HF_HOME", str(home / "external-hf"))
@@ -42,7 +42,7 @@ def test_over_deep_metadata_is_inert_and_preserves_raw_bytes_and_environment(
 
 def test_explicit_move_recovers_from_unsupported_deep_metadata(metadata, tmp_path):
     home, record = metadata
-    record.write_text('{"ignored":' + "[" * 10000 + "0" + "]" * 10000 + '}')
+    record.write_text('{"ignored":' + "[" * 10000 + "0" + "]" * 10000 + '}', encoding="utf-8")
     source = home / "news"
     source.mkdir()
     expected = b"actual private cache contents"
@@ -51,5 +51,5 @@ def test_explicit_move_recovers_from_unsupported_deep_metadata(metadata, tmp_pat
     assert target == tmp_path / "other-drive" / "spacr-news"
     assert (target / "cached.bin").read_bytes() == expected
     assert not source.exists()
-    assert json.loads(record.read_text()) == {"SPACR_NEWS_CACHE": str(target)}
+    assert json.loads(record.read_text(encoding="utf-8")) == {"SPACR_NEWS_CACHE": str(target)}
     assert os.environ["SPACR_NEWS_CACHE"] == str(target)

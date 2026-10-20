@@ -458,11 +458,11 @@ def _load(source) -> Dict[str, Any]:
         return load_run_settings(p)
     if p.suffix == ".json":
         import json
-        return json.loads(p.read_text())
+        return json.loads(p.read_text(encoding="utf-8"))
     if p.suffix == ".csv":
         import csv
         out: Dict[str, Any] = {}
-        with open(p) as f:
+        with open(p, encoding="utf-8") as f:
             for row in csv.reader(f):
                 if row and row[0] and row[0] != "Key":
                     out[row[0]] = row[1] if len(row) > 1 else ""

@@ -1,9 +1,0 @@
-{
-  "actual_44_test_source_pin": "498dbde3f75d781d99e7d042d5078747546a2994",
-  "tested_sha256": "d13928f9b51af1c2755f5fb623e31e4842b921530390de9dfbfb73073ba06298",
-  "final_sha256": "a2123aa7173cc5bad3cfe269497c5b5c926181a524e0f44935c8edd9111c9c86",
-  "all_function_and_class_ASTs_identical": true,
-  "exact_import_bindings_identical": true,
-  "change": "Normal Ruff import sorting and explicit demo-as-demo fixture reexport; no assertion/fixture body changes. Actual44notrerun for this static-equivalent import-only hygiene.",
-  "normal_ruff": "All checks passed"
-}

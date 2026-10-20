@@ -141,7 +141,7 @@ def test_unsupported_metadata_refused_without_fallback(tmp_path, case):
     path = tmp_path / convert.MAP_FILENAME
     settings = _fast(tmp_path)
     if case == 'schema':
-        path.write_text('target,channel\na.tif,1\n')
+        path.write_text('target,channel\na.tif,1\n', encoding="utf-8")
     elif case == 'symlink':
         path.rename(tmp_path / 'elsewhere.csv')
         path.symlink_to(tmp_path / 'elsewhere.csv')
@@ -187,7 +187,7 @@ def test_map_symlink_swap_at_open_is_not_followed(tmp_path, monkeypatch):
     _map(tmp_path)
     path = tmp_path / convert.MAP_FILENAME
     target = tmp_path / 'external.csv'
-    target.write_text('do not read this target')
+    target.write_text('do not read this target', encoding="utf-8")
     original_open = os.open
 
     def swap_then_open(name, flags, *args, **kwargs):
@@ -200,4 +200,4 @@ def test_map_symlink_swap_at_open_is_not_followed(tmp_path, monkeypatch):
     monkeypatch.setattr(os, 'open', swap_then_open)
     with pytest.raises(ValueError, match='conversion_map.csv'):
         core._watch_map_bytes(str(tmp_path))
-    assert target.read_text() == 'do not read this target'
+    assert target.read_text(encoding="utf-8") == 'do not read this target'

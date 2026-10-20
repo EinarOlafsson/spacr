@@ -1,9 +1,0 @@
-# N703 question flow preparation — 2026-10-14
-
-This reviewed preparation maps 33 current installer/update/first-launch question or lifetime records against 17 exact A744 source files. Independent current mechanical and macOS feasibility peers distinguish actual prompts, flags, catalog-only text, framework defaults and process ownership. The additive inventory corrections preserve the original evidence.
-
-The active future design is `proposed-macos-flow-and-English-corrected.json`: 13 proposed pages and 81 exact English records. A signed graphical controller must exist before target Python/PySide installation and remain outside replacement-owned paths for the full setup lifetime. Its host/distribution technology remains a Home decision. OS-owned authorization is separate from product choices; optional unsupported account setup is skippable without Terminal.
-
-Two scoped corrections preserve saved privacy values on update and require actual retained artifacts or a started restore from a verified previous baseline before factual recovery claims. The added neutral fallback makes neither retention nor success claims. All original 80 English texts are unchanged; original packets, correction delta, semantic peer and final semantic/mechanical receipts are preserved. Mechanical consistency passed 129 checks. These are source/proposal reviews, not observed installer behavior.
-
-Language, backend selection versus active runtime, optional accounts, narrow cleanup, preservation, retry/cancel and verified app-ready conditions are explicit. Home must approve the architecture/English and implement and validate native behavior. No installer, app, provider session, native GUI, package/system change or source/catalog edit occurred. Parent N703 completion is unchanged. The accompanying Git delivery receipt verifies all 39 N702 and seven #147 artifact blobs at their actual publication commits, without inferring runtime acceptance.

@@ -31,14 +31,14 @@ def _browser_frame(output: Path, stem: str, section: str = "") -> None:
         # a very long fragment jump.  Hide sibling chapters in a temporary
         # view of the same generated document so the requested real section is
         # at the top; the report itself is not modified.
-        html = REPORT_HTML.read_text()
+        html = REPORT_HTML.read_text(encoding="utf-8")
         focus_css = (
             "<style>.banner,nav.toc,footer.doc,"
             f"main>section.chapter:not(#{section})"
             "{display:none!important}main{padding-top:24px}</style>"
         )
         source = GENERATED / f"focused_{section}.html"
-        source.write_text(html.replace("</head>", focus_css + "</head>"))
+        source.write_text(html.replace("</head>", focus_css + "</head>"), encoding="utf-8")
     target = source.resolve().as_uri()
     path = output / f"{stem}.png"
     subprocess.run([
@@ -212,7 +212,7 @@ def main() -> int:
         "captures": sorted(capture.frames),
     }
     (output.parent / "source_manifest.json").write_text(
-        json.dumps(manifest, indent=2) + "\n")
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

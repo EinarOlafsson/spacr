@@ -1,7 +1,0 @@
-{
-  "status": "6 PASS in 2.57 seconds",
-  "test_file_sha256": "a524d47731d75f7a3bd40bb7c42fee4979713dabc43bb92a31aa459e69731099",
-  "actual_source_tree": "codex-n703-debian-adapter-20261015",
-  "scope": "Real QThread/manual cache review handlers, native Keep and selection, heartbeat, dedicated worker field, failure and closing drain. No automatic startup claim.",
-  "earlier_attempts": "Two precollection routing refusals; first direct run 3PASS/3FAIL from test modal restoration and parked-list fixture cleanup; retained raw evidence. Production app unchanged."
-}

@@ -2939,7 +2939,7 @@
       "path": "spacr/submodules.py",
       "literals": [
         "def analyze_endodyogeny(settings):",
-        "os.path.join(s, 'measurements/measurements.db')",
+        "os.path.join(s, 'measurements', 'measurements.db')",
         "df[volume_column] = df[area_column] ** 1.5",
         "'results', 'analyze_endodyogeny'",
         "'chi_squared_pairwise_results.csv'"

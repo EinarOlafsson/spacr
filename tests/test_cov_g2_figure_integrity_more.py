@@ -101,7 +101,7 @@ def _sidecar(folder, name, panels, *, schema=plot._PROVENANCE_SCHEMA,
     path = folder / (name + plot._PROVENANCE_SUFFIX)
     payload = {"schema": schema, "panels": panels,
                "figure_sha256": hash_file(str(figure_path), full=True) if figure else ""}
-    path.write_text(json.dumps(payload))
+    path.write_text(json.dumps(payload), encoding="utf-8")
     if figure and newer:
         later = os.stat(path).st_mtime + 10
         os.utime(figure_path, (later, later))
@@ -120,7 +120,7 @@ def test_prior_exports_are_filtered_before_they_are_compared(tmp_path):
     _sidecar(tmp_path, "newer.png", [panel], newer=True)
     _sidecar(tmp_path, "schema.png", [panel], schema="other")
     (tmp_path / ("broken.png")).write_bytes(b"x")
-    (tmp_path / ("broken.png" + plot._PROVENANCE_SUFFIX)).write_text("{not json")
+    (tmp_path / ("broken.png" + plot._PROVENANCE_SUFFIX)).write_text("{not json", encoding="utf-8")
     unseen = {"panel": 5, "displayed_sha256": "never", "source": []}
     findings = plot._prior_figure_findings([panel, unseen],
                                            str(tmp_path / "new.png"))

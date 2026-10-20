@@ -36,7 +36,7 @@ def test_a_grid_that_will_not_parse_is_treated_as_absent(tmp_path, monkeypatch):
     """
     from spacr import cell_montage
 
-    (tmp_path / cell_montage.EFFECTS_GRID_FILE).write_text("guide,area\ng1,0.5\n")
+    (tmp_path / cell_montage.EFFECTS_GRID_FILE).write_text("guide,area\ng1,0.5\n", encoding="utf-8")
 
     def refuse(*_args, **_kwargs):
         raise pd.errors.ParserError("unexpected end of file")
@@ -91,7 +91,7 @@ def test_a_file_path_is_read_from_its_own_folder(tmp_path):
     pd.DataFrame({"area": [0.5]}, index=["g1"]).to_csv(
         tmp_path / EFFECTS_GRID_FILE)
     results = tmp_path / "results.csv"
-    results.write_text("anything")
+    results.write_text("anything", encoding="utf-8")
 
     assert effects_grid_from_results(str(results)) is not None
 

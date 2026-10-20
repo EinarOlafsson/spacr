@@ -169,7 +169,7 @@ def test_failed_result_callback_is_reported_without_repeating_scientific_work(tm
         assert result.ready() and not result.successful()
     assert len(received) == 1
     assert [value for _pid, value in received[0]] == [17, 23]
-    assert [(tmp_path / f'{value}.txt').read_text() for value in [17, 23]] == ['calculated\n', 'calculated\n']
+    assert [(tmp_path / f'{value}.txt').read_text(encoding="utf-8") for value in [17, 23]] == ['calculated\n', 'calculated\n']
 
 
 def test_unordered_processing_preserves_original_invalid_error_after_primary_results():
@@ -197,7 +197,7 @@ def test_child_cancellation_keeps_its_original_reason_without_final_retry(tmp_pa
                 result.get(timeout=15)
         if operation != 'imap_unordered':
             assert result.ready() and not result.successful()
-    assert attempt.read_text() == 'primary\n'
+    assert attempt.read_text(encoding="utf-8") == 'primary\n'
 
 
 def test_parent_cancellation_joins_async_coordinator_without_success_callback():

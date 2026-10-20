@@ -75,15 +75,15 @@ def test_fast_and_qt_do_not_rebucket_files_before_batching(tmp_path, monkeypatch
 
 def test_fast_replay_names_and_refuses_a_batch_ci_skips(tiny_repo, tmp_path, capsys):
     workflow = tiny_repo / ".github/workflows/tests.yml"
-    source = workflow.read_text()
+    source = workflow.read_text(encoding="utf-8")
     workflow.write_text(source.replace(
         '--marker "not slow" --batch-size',
         '--marker "not qt and not slow" --skip-qt-only-batches --batch-size',
-    ))
+    ), encoding="utf-8")
     qt = tiny_repo / "tests/qt"
     qt.mkdir()
     for name in ("a", "b"):
-        (qt / f"test_{name}.py").write_text("def test_x(): pass\n")
+        (qt / f"test_{name}.py").write_text("def test_x(): pass\n", encoding="utf-8")
     base = ["--repo", str(tiny_repo), "--suite", "fast", "--shard", "0"]
     assert replay.main([*base, "--batch", "1", "--list"]) == 0
     assert "CI skips this automatically Qt-marked batch" in capsys.readouterr().out
@@ -175,7 +175,7 @@ def tiny_repo(tmp_path):
 test "$1" = "8G" || exit 97
 shift
 exec "$@"
-''')
+''', encoding="utf-8")
     (repo / ".github/workflows/tests.yml").write_text('''jobs:
   fast:
     steps:
@@ -187,16 +187,17 @@ exec "$@"
           SPACR_PYTEST_FILE_SHARD_COUNT: "1"
         run: |
           python tools/run_pytest_batches.py --marker "not slow" --batch-size 2 --workers 1 --per-test-timeout 0 --batch-timeout 60
-''')
-    (repo / "tests/test_a.py").write_text("def test_pass():\n    pass\n")
-    (repo / "tests/test_b.py").write_text("def test_failure_is_reported():\n    assert False, 'local diagnostic failure'\n")
-    (repo / "tests/test_c.py").write_text("def test_outside_selected_batch():\n    raise RuntimeError('must not run')\n")
+''', encoding="utf-8")
+    (repo / "tests/test_a.py").write_text("def test_pass():\n    pass\n", encoding="utf-8")
+    (repo / "tests/test_b.py").write_text("def test_failure_is_reported():\n    assert False, 'local diagnostic failure'\n", encoding="utf-8")
+    (repo / "tests/test_c.py").write_text("def test_outside_selected_batch():\n    raise RuntimeError('must not run')\n", encoding="utf-8")
     subprocess.run(["git", "init", "-q", str(repo)], check=True)
     subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
     subprocess.run(["git", "-C", str(repo), "-c", "user.name=Einar Olafsson", "-c", "user.email=test@localhost", "commit", "-qm", "Fixture"], check=True)
     return repo
 
 
+@pytest.mark.posix_only
 def test_real_failing_child_keeps_its_exit_live_log_and_exact_manifest(tiny_repo, tmp_path):
     output = tmp_path / "evidence"
     result = subprocess.run([
@@ -205,13 +206,13 @@ def test_real_failing_child_keeps_its_exit_live_log_and_exact_manifest(tiny_repo
     ], capture_output=True, text=True,
         env={**os.environ, "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"})
     assert result.returncode == 1, result.stdout + result.stderr
-    evidence = json.loads((output / "result.json").read_text())
+    evidence = json.loads((output / "result.json").read_text(encoding="utf-8"))
     assert evidence["exit_code"] == 1 and not evidence["source_changed"]
     assert evidence["failed_test_ids"] == ["tests/test_b.py::test_failure_is_reported"]
-    manifest = json.loads((output / "manifest.json").read_text())
+    manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
     assert [entry["path"] for entry in manifest["source"]["files"]] == ["tests/test_a.py", "tests/test_b.py"]
     assert manifest["scope"].startswith("one batch")
-    log = (output / "pytest.log").read_text()
+    log = (output / "pytest.log").read_text(encoding="utf-8")
     assert "local diagnostic failure" in log
     assert "must not run" not in log
     assert "FAILED tests/test_b.py" in result.stdout
@@ -229,7 +230,7 @@ def test_wrong_sha_and_missing_batch_refuse_to_run(tiny_repo, tmp_path):
 def test_exact_sha_refuses_dirty_source_and_output_inside_repo(tiny_repo, tmp_path):
     sha = subprocess.check_output(["git", "-C", str(tiny_repo), "rev-parse", "HEAD"], text=True).strip()
     base = [sys.executable, str(ROOT / "tools/replay_ci_batch.py"), "--repo", str(tiny_repo), "--suite", "fast", "--shard", "0"]
-    (tiny_repo / "tests/test_a.py").write_text("def test_changed():\n    pass\n")
+    (tiny_repo / "tests/test_a.py").write_text("def test_changed():\n    pass\n", encoding="utf-8")
     result = subprocess.run([*base, "--list", "--expect-sha", sha], capture_output=True, text=True)
     assert result.returncode == 2 and "clean source" in result.stderr
     result = subprocess.run([*base, "--list", "--expect-sha", sha, "--allow-dirty"], capture_output=True, text=True)
@@ -238,6 +239,7 @@ def test_exact_sha_refuses_dirty_source_and_output_inside_repo(tiny_repo, tmp_pa
     assert result.returncode == 2 and "outside the repository" in result.stderr
 
 
+@pytest.mark.posix_only
 def test_cleanup_timeout_keeps_an_interrupted_receipt(monkeypatch):
     from types import SimpleNamespace
 
@@ -257,7 +259,7 @@ def test_single_coverage_batch_uses_recovery_and_never_claims_shard_integrity(tm
     source = {"sha": "pinned"}
     (output / "manifest.json").write_text(json.dumps({
         "source": source, "helper_sha256": replay._hash(Path(replay.__file__)),
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(replay, "_identity", lambda *args: source)
     calls = []
 
@@ -273,6 +275,7 @@ def test_single_coverage_batch_uses_recovery_and_never_claims_shard_integrity(tm
     assert not list(output.rglob("*integrity*"))
 
 
+@pytest.mark.posix_only
 def test_interrupt_stops_a_child_even_in_a_separate_process_session(tiny_repo, tmp_path):
     marker = tmp_path / "sleeper.pid"
     (tiny_repo / "tests/test_a.py").write_text(
@@ -281,7 +284,7 @@ def test_interrupt_stops_a_child_even_in_a_separate_process_session(tiny_repo, t
         "    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'], start_new_session=True)\n"
         f"    open({str(marker)!r}, 'w').write(str(child.pid))\n"
         "    time.sleep(120)\n"
-    )
+    , encoding="utf-8")
     output = tmp_path / "interrupt-evidence"
     process = subprocess.Popen([
         sys.executable, str(ROOT / "tools/replay_ci_batch.py"), "--repo", str(tiny_repo),
@@ -297,10 +300,10 @@ def test_interrupt_stops_a_child_even_in_a_separate_process_session(tiny_repo, t
         process.send_signal(signal.SIGINT)
         stdout, _ = process.communicate(timeout=20)
         assert process.returncode == 130, stdout
-        receipt = json.loads((output / "result.json").read_text())
+        receipt = json.loads((output / "result.json").read_text(encoding="utf-8"))
         assert receipt["exit_code"] == 130 and receipt["cleanup_complete"] is True
-        status = Path(f"/proc/{marker.read_text()}/status")
-        assert not status.exists() or "State:\tZ" in status.read_text()
+        status = Path(f"/proc/{marker.read_text(encoding='utf-8')}/status")
+        assert not status.exists() or "State:\tZ" in status.read_text(encoding="utf-8")
     finally:
         if process.poll() is None:
             process.kill()

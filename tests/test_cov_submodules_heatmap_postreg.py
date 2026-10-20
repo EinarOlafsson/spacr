@@ -98,7 +98,7 @@ def _model_folder(tmp_path, names=("modelA", "modelB"), with_empty=True):
         # sub-folder without the CSV -> exercises the "No such file" branch
         (folder / "model_without_scores").mkdir()
         # a plain file -> exercises the os.path.isdir() guard
-        (folder / "stray.txt").write_text("not a folder\n")
+        (folder / "stray.txt").write_text("not a folder\n", encoding="utf-8")
     return folder, truth
 
 

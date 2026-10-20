@@ -47,7 +47,7 @@ def test_the_nan_comes_from_reading_a_real_settings_file(tmp_path):
     """The path that produced it, rather than a hand-made float."""
     path = tmp_path / "regression.csv"
     path.write_text("Key,Value\nregression_type,ols\nhinge_threshold,\n"
-                    "cov_type,\n")
+                    "cov_type,\n", encoding="utf-8")
 
     frame = pd.read_csv(path)
     settings = dict(zip(frame["Key"], frame["Value"]))

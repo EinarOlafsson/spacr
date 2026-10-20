@@ -17,7 +17,7 @@ def test_offline_stock_constructor_refusal_uses_selected_language(native_cache, 
     monkeypatch.setattr(utilities.cp_models, "CellposeModel", lambda **kwargs: pytest.fail("Uncached offline model reached constructor"))
     review = (Path(__file__).resolve().parents[1] / "docs/i18n/reviewed/runtime" / language
               / "2026-10-15-cellpose-stock-offline-refusal.json")
-    record = json.loads(review.read_text())["records"][0]
+    record = json.loads(review.read_text(encoding="utf-8"))["records"][0]
     with pytest.raises(zoo.ModelUnreadable) as error:
         utilities._choose_model("cpsam", device="cpu", object_type="cell")
     assert record["translation"] != record["source"]

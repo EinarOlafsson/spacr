@@ -16,7 +16,7 @@ def test_file_note_observes_edit_before_unblinding_and_keeps_it_a_deviation(jour
     now['time'] = '2026-10-01T10:01:00.000000Z'
     gates(200).save(str(strategy))
     assert 'a deviation' in rj._gate_file_lock_notes(strategy)[0]
-    events = [json.loads(line) for line in rj._seen_log(record).read_text().splitlines()]
+    events = [json.loads(line) for line in rj._seen_log(record).read_text(encoding="utf-8").splitlines()]
     assert len(events) == 1 and events[0]['utc'] == now['time']
     now['time'] = '2026-10-01T10:02:00.000000Z'
     rj.unblind(key['key_id'], reason='finished')
@@ -33,9 +33,9 @@ def test_matching_file_never_claims_match_to_a_tampered_lock(journal):  # noqa: 
     gates().save(str(strategy))
     record = rj.lock_analysis({'src': str(folder)}, app_key='measure', gates=str(strategy))
     path = rj._locks_root() / (record['lock_id'] + '.json')
-    altered = json.loads(path.read_text())
+    altered = json.loads(path.read_text(encoding="utf-8"))
     altered['locked_by'] = 'edited author'
-    path.write_text(json.dumps(altered))
+    path.write_text(json.dumps(altered), encoding="utf-8")
     note = rj._gate_file_lock_notes(strategy)[0]
     assert 'tampered' in note.lower()
     assert 'these gates match' not in note

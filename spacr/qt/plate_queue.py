@@ -22,6 +22,7 @@ mutation so a crash or restart doesn't lose the plan.
 """
 from __future__ import annotations
 
+from ..logging_util import _legacy_text_encoding
 import copy
 import json
 import logging
@@ -238,7 +239,7 @@ class PlateQueue:
             return
         try:
             payload = {"items": [self._serialise(i) for i in self._items]}
-            self._path.write_text(json.dumps(payload, indent=2))
+            self._path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         except Exception as e:
             LOG.warning("failed to persist queue: %s", e)
 
@@ -248,7 +249,7 @@ class PlateQueue:
             self._items = []
             return
         try:
-            payload = json.loads(self._path.read_text())
+            payload = json.loads(self._path.read_text(encoding="utf-8"))
         except Exception as e:
             LOG.warning("queue file unreadable, starting empty: %s", e)
             self._items = []
@@ -317,7 +318,7 @@ def import_plates_from_csv(csv_path: Any,
     if not csv_path.is_file():
         raise FileNotFoundError(csv_path)
     items: List[QueueItem] = []
-    with csv_path.open() as fh:
+    with csv_path.open(encoding=_legacy_text_encoding(csv_path)) as fh:
         rdr = csv.DictReader(fh)
         for row in rdr:
             src = (row.get("src") or "").strip()

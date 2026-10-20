@@ -2,8 +2,9 @@
 A SUGGEST BUTTON THAT LABELS THE REST
 ================================================================================
 
-Status:    REOPENED 2026-10-19 for #152 review feedback (PART 4), release 1.5.1.5.
-           Owner: annotate-suggest-v2 agent. Earlier status follows.
+Status:    DONE 2026-10-20 — Suggest v2 accepted by the maintainer (#152 closed);
+           the lesson re-record for the new toolbar controls moves to 676.
+           Earlier status follows.
 
 Status:    DONE 2026-09-10 (evidence a04c78970) — 379-C CLOSED 2026-09-10, AND NOT THE WAY IT WAS ASKED
            -- it needed measuring rather than building. The question was
@@ -391,4 +392,4 @@ driver objectNames keep working.
 2026-10-19 -- reopened with R1-R5 above.
 2026-10-19 -- R4 root cause: boosted trees kept sklearn's 20-row leaf, so ~15 training rows (10+10 labels, downsampled, 25% held out) grew no split and every crop got the prior; leaf now n/10 (2-20), class_weight=balanced, Suggest reweights instead of downsampling (61ff982e6).
 2026-10-19 -- R1-R3, R5 built: progress bar, Order control, Suggestion model window with CV scorecard + baseline, live thresholds; 9-locale records (see #152 commit). Remaining: maintainer confirmation on #152, tutorial lesson re-record for the new toolbar controls (spacr-d7).
-
+2026-10-20 -- DONE: maintainer accepted Suggest v2 and closed #152; the toolbar-lesson re-record is tracked under 676 (spacr-d7).

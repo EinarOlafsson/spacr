@@ -73,7 +73,7 @@ def plate_folder(tmp_path):
             for channel in (1, 2):
                 (folder / f"{well}_T0001F{field:03d}L01A01Z01C{channel:02d}.tif"
                  ).write_bytes(b"II*\x00")
-    (folder / "notes.txt").write_text("not an image")
+    (folder / "notes.txt").write_text("not an image", encoding="utf-8")
     return folder
 
 

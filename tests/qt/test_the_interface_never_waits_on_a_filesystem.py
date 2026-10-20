@@ -80,7 +80,7 @@ def test_the_truth_arrives_and_is_cached(tmp_path):
     """Optimism is temporary. A missing path is corrected once known."""
     missing = tmp_path / "not-here"
     present = tmp_path / "here"
-    present.write_text("x")
+    present.write_text("x", encoding="utf-8")
 
     assert path_probe.exists(missing) is True          # optimistic
     assert path_probe.exists(present) is True
@@ -99,7 +99,7 @@ def test_the_truth_arrives_and_is_cached(tmp_path):
 def test_isdir_is_cached_apart_from_exists(tmp_path):
     """A file exists and is not a directory; one answer must not be the other."""
     a_file = tmp_path / "f"
-    a_file.write_text("x")
+    a_file.write_text("x", encoding="utf-8")
     path_probe.exists(a_file)
     path_probe.isdir(a_file)
 
@@ -146,7 +146,7 @@ def test_the_hint_corrects_itself_once_the_probes_land(qtbot, tmp_path):
     from spacr.qt.widgets.file_list import FilePathListWidget
 
     present = tmp_path / "here"
-    present.write_text("x")
+    present.write_text("x", encoding="utf-8")
 
     widget = FilePathListWidget()
     qtbot.addWidget(widget)

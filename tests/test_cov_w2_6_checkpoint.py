@@ -30,7 +30,7 @@ def store(tmp_path):
 def test_a_path_is_recorded_as_its_text_not_its_repr():
     """A checkpoint is meant to be inspectable without importing the workflow
     that produced it, and `PosixPath('/data')` is not a path."""
-    assert cp.json_safe(Path("/data/plate1")) == "/data/plate1"
+    assert cp.json_safe(Path("/data/plate1")) == str(Path("/data/plate1"))
 
 
 def test_a_set_is_recorded_in_a_stable_order():
@@ -103,7 +103,7 @@ def test_two_equivalent_signatures_share_one_digest():
 def test_a_fresh_store_writes_a_document_that_names_its_boundary(tmp_path):
     store = cp.CheckpointStore(tmp_path / "run.json", workflow="mask",
                                signature="s" * 64, boundary="field")
-    payload = json.loads((tmp_path / "run.json").read_text())
+    payload = json.loads((tmp_path / "run.json").read_text(encoding="utf-8"))
     assert payload["boundary"] == "field"
     assert payload["workflow"] == "mask"
     assert payload["signature"] == "s" * 64      # a 64-char digest is kept
@@ -113,7 +113,7 @@ def test_a_fresh_store_writes_a_document_that_names_its_boundary(tmp_path):
 
 def test_a_completed_unit_is_on_disk_before_the_call_returns(store):
     store.mark("trial_1", {"score": 0.9}, meta={"round": 2})
-    payload = json.loads(store.path.read_text())
+    payload = json.loads(store.path.read_text(encoding="utf-8"))
     assert payload["completed"]["trial_1"] == {"score": 0.9}
     assert payload["meta"]["round"] == 2
     assert store.completed["trial_1"] == {"score": 0.9}
@@ -134,7 +134,7 @@ def test_returned_state_is_detached_at_every_nested_level(store):
 
     assert store.completed["trial_1"]["targets"] == ["one.tif"]
     assert store.meta["rounds"]["accepted"] == [1]
-    document = json.loads(store.path.read_text())
+    document = json.loads(store.path.read_text(encoding="utf-8"))
     assert document["completed"]["trial_1"]["targets"] == ["one.tif"]
     assert document["meta"]["rounds"]["accepted"] == [1]
 
@@ -173,7 +173,7 @@ def test_an_artifact_path_is_a_digest_not_the_unit_name(store):
 # --------------------------------------------------------------------------
 
 def _write(path, payload):
-    Path(path).write_text(json.dumps(payload))
+    Path(path).write_text(json.dumps(payload), encoding="utf-8")
 
 
 def test_a_checkpoint_from_a_future_format_is_refused_by_version(tmp_path):
@@ -224,7 +224,7 @@ def test_a_json_document_that_is_not_an_object_is_refused(tmp_path):
 
 def test_a_corrupt_checkpoint_says_to_keep_it_for_diagnosis(tmp_path):
     path = tmp_path / "run.json"
-    path.write_text("{not json")
+    path.write_text("{not json", encoding="utf-8")
     with pytest.raises(cp.CheckpointError, match="Keep it"):
         cp.CheckpointStore(path, workflow="w", signature="x" * 64,
                            boundary="field", resume=True)
@@ -294,7 +294,7 @@ def test_a_failed_mark_cannot_leak_into_a_later_successful_write(
     assert "failed_round" not in store.meta
     monkeypatch.setattr(os, "fsync", real_fsync)
     store.update(meta={"later": "durable"})
-    document = json.loads(store.path.read_text())
+    document = json.loads(store.path.read_text(encoding="utf-8"))
     assert "failed-trial" not in document["completed"]
     assert document["meta"] == {"later": "durable"}
 
@@ -315,7 +315,7 @@ def test_a_failed_update_restores_nested_meta_and_status(store, monkeypatch):
     assert store.status == "running"
     monkeypatch.setattr(os, "fsync", real_fsync)
     store.flush()
-    document = json.loads(store.path.read_text())
+    document = json.loads(store.path.read_text(encoding="utf-8"))
     assert document["meta"] == {"keep": {"values": [1]}}
     assert document["status"] == "running"
 
@@ -332,7 +332,7 @@ def test_updating_meta_alone_leaves_the_status_where_it_was(store):
 
     store.update(meta={"stage": "segmentation"})
 
-    document = json.loads(store.path.read_text())
+    document = json.loads(store.path.read_text(encoding="utf-8"))
     assert document["status"] == "running"
     assert document["meta"]["stage"] == "segmentation"
 
@@ -349,7 +349,7 @@ def test_a_failed_write_leaves_no_half_written_temporary_behind(store,
                  if p.name.endswith(".tmp")]
     assert leftovers == []
     # The previous, complete document is still readable.
-    assert json.loads(store.path.read_text())["status"] == "running"
+    assert json.loads(store.path.read_text(encoding="utf-8"))["status"] == "running"
 
 
 def test_a_temporary_that_cannot_be_removed_does_not_mask_the_real_failure(

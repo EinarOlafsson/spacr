@@ -67,7 +67,7 @@ def test_box_tools_work_fullscreen_without_optional_shortcut_labels(
     widget._set_mode(MODE_BOX)
     assert widget._on_save_boxes() == first / engine.YOLO_ANNOTATIONS_NAME
 
-    project = json.loads((first / engine.YOLO_ANNOTATIONS_NAME).read_text())
+    project = json.loads((first / engine.YOLO_ANNOTATIONS_NAME).read_text(encoding="utf-8"))
     assert project["classes"] == ["object", "rare"]
     assert project["images"]["a.tif"]["boxes"] == [[1, 12.0, 12.0, 32.0, 32.0]]
     assert not widget._boxes_dirty

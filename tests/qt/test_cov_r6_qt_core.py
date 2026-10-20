@@ -139,7 +139,7 @@ def test_a_patch_that_changes_nothing_does_not_rewrite_the_queue(tmp_path):
     # ... and one real change writes the whole snapshot back.
     queue.update(item.id, status=pq.Status.RUNNING)
     assert item.status is pq.Status.RUNNING
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     assert [row["status"] for row in payload["items"]] == ["running"]
 
 
@@ -158,7 +158,7 @@ def test_a_csv_cell_that_is_text_or_absent_is_carried_through_unconverted(
         "src,cell_size,note\n"
         "/plates/A,25,two channels\n"
         "/plates/B,30\n"
-        ",ignored,ignored\n")
+        ",ignored,ignored\n", encoding="utf-8")
 
     items = pq.import_plates_from_csv(
         csv_path, {"cell_size": 0, "note": "", "channels": [0, 1]},

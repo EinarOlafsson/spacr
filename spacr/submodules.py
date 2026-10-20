@@ -972,7 +972,7 @@ def analyze_percent_positive(settings):
     
     save_settings(settings, name='analyze_percent_positive', show=False)
     
-    df, _ = _read_and_merge_data(locs=[settings['src']+'/measurements/measurements.db'], 
+    df, _ = _read_and_merge_data(locs=[os.path.join(settings['src'], 'measurements', 'measurements.db')], 
                              tables=settings['tables'], 
                              verbose=True, 
                              nuclei_limit=None, 
@@ -1087,10 +1087,10 @@ def analyze_recruitment(settings):
 
     settings = get_analyze_recruitment_default_settings(settings=settings)
     
-    if settings['src'].endswith('/measurements.db'):
+    if settings['src'].replace('\\', '/').endswith('/measurements.db'):
         src_orig = settings['src']
         settings['src'] = os.path.dirname(settings['src'])
-        if settings['src'].endswith('/measurements'):
+        if settings['src'].replace('\\', '/').endswith('/measurements'):
             settings['src'] = os.path.dirname(settings['src'])
         else:
             src_mes = os.path.join(settings['src'], 'measurements')
@@ -1109,7 +1109,7 @@ def analyze_recruitment(settings):
     sns.color_palette("mako", as_cmap=True)
     print(f"channel:{settings['channel_of_interest']} = {settings['target']}")
     
-    df, _ = _read_and_merge_data(locs=[settings['src']+'/measurements/measurements.db'], 
+    df, _ = _read_and_merge_data(locs=[os.path.join(settings['src'], 'measurements', 'measurements.db')], 
                                  tables=['cell', 'nucleus', 'pathogen','cytoplasm'], 
                                  verbose=True, 
                                  nuclei_limit=settings['nuclei_limit'], 
@@ -2061,8 +2061,8 @@ def count_phenotypes(settings):
     """
     from .io import _read_db
 
-    if not settings['src'].endswith('/measurements/measurements.db'):
-        settings['src'] = os.path.join(settings['src'], 'measurements/measurements.db')
+    if not settings['src'].replace('\\', '/').endswith('/measurements/measurements.db'):
+        settings['src'] = os.path.join(settings['src'], 'measurements', 'measurements.db')
 
     df = _read_db(settings['src'], tables=['png_list'])[0]
 
@@ -2548,7 +2548,7 @@ def interpret_vision_model(settings=None):
         :returns: dataframe of merged object measurements.
         """
         df, _ = _read_and_merge_data(
-            locs=[settings['src']+'/measurements/measurements.db'], 
+            locs=[os.path.join(settings['src'], 'measurements', 'measurements.db')], 
             tables=settings['tables'], 
             verbose=True, 
             nuclei_limit=settings['nuclei_limit'], 
@@ -2848,7 +2848,7 @@ def analyze_endodyogeny(settings):
     if not isinstance(settings['src'], list):
         settings['src'] = [settings['src']]
 
-    locs = [os.path.join(s, 'measurements/measurements.db') for s in settings['src']]
+    locs = [os.path.join(s, 'measurements', 'measurements.db') for s in settings['src']]
 
     if 'png_list' not in settings['tables']:
         settings['tables'] = settings['tables'] + ['png_list']
@@ -3828,7 +3828,7 @@ def analyze_replication(settings):
 
     parasite_frames, cell_frames = [], []
     for index, source in enumerate(settings['src']):
-        location = os.path.join(source, 'measurements/measurements.db')
+        location = os.path.join(source, 'measurements', 'measurements.db')
         frame = _read_db(location, [parasite_table])[0]
         if settings['change_plate']:
             frame['plateID'] = f'plate{index + 1}'
@@ -5302,7 +5302,7 @@ def analyze_invasion(settings):
 
     parasite_frames, cell_frames = [], []
     for index, source in enumerate(settings['src']):
-        location = os.path.join(source, 'measurements/measurements.db')
+        location = os.path.join(source, 'measurements', 'measurements.db')
         frame = _read_db(location, [parasite_table])[0]
         if settings['change_plate']:
             frame['plateID'] = f'plate{index + 1}'
@@ -5615,7 +5615,7 @@ def analyze_class_proportion(settings):
     
     locs = []
     for s in settings['src']:
-        loc = os.path.join(s, 'measurements/measurements.db')
+        loc = os.path.join(s, 'measurements', 'measurements.db')
         locs.append(loc)
         
     if 'png_list' not in settings['tables']:

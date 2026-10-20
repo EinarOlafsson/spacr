@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="11.381" timestamp="2026-10-15T16:10:01.651440-04:00" hostname="olafsson"><testcase classname="tests.qt.test_activation_folds_into_classify" name="test_the_attribution_settings_arrive_and_the_host_never_had_them" time="9.431"><failure message="AssertionError: assert 29 == 25&#10; +  where 29 = len({'attribution_baseline', 'attribution_steps', 'cam_type', 'channels', 'correlation', 'counterfactual_checkpoint', ...})">tests/qt/test_activation_folds_into_classify.py:199: in test_the_attribution_settings_arrive_and_the_host_never_had_them
-    assert len(only_here) == 25
-E   AssertionError: assert 29 == 25
-E    +  where 29 = len({'attribution_baseline', 'attribution_steps', 'cam_type', 'channels', 'correlation', 'counterfactual_checkpoint', ...})</failure></testcase></testsuite></testsuites>

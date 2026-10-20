@@ -53,7 +53,7 @@ def _prepare(command, kwargs):
     (folder / 'invocation.json').write_text(json.dumps({
         'phase': str(command[3]), 'name': Path(str(command[4])).stem,
         'original_timeout': kwargs['timeout'], 'launcher': str(command[1]),
-        'source': str(command[2]), 'monotonic_start': time.monotonic()}, indent=2) + '\n')
+        'source': str(command[2]), 'monotonic_start': time.monotonic()}, indent=2) + '\n', encoding="utf-8")
     return folder
 
 
@@ -68,7 +68,7 @@ def _save_result(folder, result, timeout=False):
     else:
         receipt.update(returncode=result.returncode, result_unchanged=True)
     _capture('result', lambda: (folder / 'result.json').write_text(
-        json.dumps(receipt, indent=2) + '\n'))
+        json.dumps(receipt, indent=2) + '\n', encoding="utf-8"))
 
 
 def _run(*args, **kwargs):
@@ -96,7 +96,7 @@ def pytest_sessionfinish(session, exitstatus):
             base = Path(os.environ['SPACR_SAFE_DIAGNOSTIC_DIR'])
             base.mkdir(parents=True, exist_ok=True)
             (base / f'collector-integrity-parent-{os.getpid()}.json').write_text(
-                json.dumps({'errors': _errors}, indent=2) + '\n')
+                json.dumps({'errors': _errors}, indent=2) + '\n', encoding="utf-8")
         _capture('integrity-receipt', write_errors)
 
 

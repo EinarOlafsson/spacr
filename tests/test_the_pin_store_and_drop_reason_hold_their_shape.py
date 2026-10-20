@@ -30,7 +30,7 @@ def test_a_pin_file_that_is_not_a_mapping_loads_as_empty(tmp_path, content):
     from spacr.chaining import PinStore
 
     path = tmp_path / "pins.json"
-    path.write_text(content)
+    path.write_text(content, encoding="utf-8")
 
     store = PinStore(str(path))
 
@@ -45,7 +45,7 @@ def test_a_pin_file_of_the_wrong_inner_shape_keeps_only_what_it_can_read(tmp_pat
 
     path = tmp_path / "pins.json"
     path.write_text(json.dumps({"measure": {"src": "/data/plate1"},
-                                "mask": ["not", "a", "mapping"]}))
+                                "mask": ["not", "a", "mapping"]}), encoding="utf-8")
 
     store = PinStore(str(path))
 
@@ -58,7 +58,7 @@ def test_an_unreadable_pin_file_loads_as_empty(tmp_path):
     from spacr.chaining import PinStore
 
     path = tmp_path / "pins.json"
-    path.write_text("{not json at all")
+    path.write_text("{not json at all", encoding="utf-8")
 
     assert PinStore(str(path))._load() == {}
 

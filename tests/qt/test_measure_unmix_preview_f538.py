@@ -202,7 +202,7 @@ def test_unmixed_display_control_uses_source_bound_locale(qtbot, monkeypatch, la
     ]
     active = [record
               for path in (root / 'docs/i18n/reviewed/runtime' / language).glob('*.json')
-              for record in json.loads(path.read_text())['records']
+              for record in json.loads(path.read_text(encoding="utf-8"))['records']
               if record['table'] == 'ui' and record['source'] in sources]
     records = []
     for source in sources:

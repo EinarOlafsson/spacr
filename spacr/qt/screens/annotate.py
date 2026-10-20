@@ -137,7 +137,8 @@ from PySide6.QtWidgets import (
 from ..widgets.percentile_pair import (
     DECIMALS as PERCENTILE_DECIMALS)
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import _retire_table_cells, _spare_table_item
+from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
+                                      install_sorting)
 from ..i18n import tr
 from ..bridge import drain_thread
 from ..job_runner import JobRunner
@@ -181,6 +182,7 @@ from ..widgets.test_data_chooser import TestDataChooser  # noqa: F401
 #: numpy and nothing heavier -- both are already imported by the time this
 #: screen exists -- so this costs nothing at launch.
 from ...suggest import SUGGESTION_OFFSET
+from ...logging_util import _legacy_text_encoding
 
 LOG = logging.getLogger(__name__)
 
@@ -1758,6 +1760,7 @@ class _SuggestModelDialog(QDialog):
              tr("Class weight")])
         self._classes_table.verticalHeader().setVisible(False)
         self._classes_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        install_sorting(self._classes_table)
         layout.addWidget(self._classes_table)
         self._features = QPlainTextEdit(body)
         self._features.setObjectName("AnnotateSuggestModelFeatures")
@@ -1777,6 +1780,7 @@ class _SuggestModelDialog(QDialog):
              tr("Support")])
         self._scorecard.verticalHeader().setVisible(False)
         self._scorecard.setEditTriggers(QTableWidget.NoEditTriggers)
+        install_sorting(self._scorecard)
         layout.addWidget(self._scorecard)
         glossary = QLabel(tr(
             "Precision: of the crops the model calls a class, the share that "
@@ -1798,6 +1802,7 @@ class _SuggestModelDialog(QDialog):
         self._confusion = QTableWidget(0, 0, body)
         self._confusion.setObjectName("AnnotateSuggestConfusion")
         self._confusion.setEditTriggers(QTableWidget.NoEditTriggers)
+        install_sorting(self._confusion)
         layout.addWidget(self._confusion)
         self._histogram = _ProbabilityHistogram(body)
         layout.addWidget(self._histogram)
@@ -2049,6 +2054,8 @@ class _SuggestModelDialog(QDialog):
         table = self._classes_table
         _retire_table_cells(table)
         names = [str(c) for c in classes] or sorted(counts)
+        sorting = table.isSortingEnabled()
+        table.setSortingEnabled(False)
         table.setRowCount(len(names))
         for row, key in enumerate(names):
             n = int(counts.get(key, 0))
@@ -2056,6 +2063,7 @@ class _SuggestModelDialog(QDialog):
                      f"{float(weights.get(key, 0.0)):.2f}")
             for column, text in enumerate(cells):
                 table.setItem(row, column, _spare_table_item(table, text))
+        table.setSortingEnabled(sorting)
         self._features.setPlainText("\n".join(features))
 
     def _fill_scorecard(self, card: Dict[str, Any], classes) -> None:
@@ -2096,15 +2104,20 @@ class _SuggestModelDialog(QDialog):
                      f"{card['baseline_balanced_accuracy']:.2f}",
                      f"{card['baseline_f1_macro']:.2f}",
                      f"{int(card['n']):,}"))
+        sorting = table.isSortingEnabled()
+        table.setSortingEnabled(False)
         table.setRowCount(len(rows))
         for r, cells in enumerate(rows):
             for c, text in enumerate(cells):
                 table.setItem(r, c, _spare_table_item(table, text))
+        table.setSortingEnabled(sorting)
         matrix = card["confusion"]
         if confusion.columnCount() != len(names):
             confusion.setColumnCount(len(names))
             confusion.setHorizontalHeaderLabels(
                 [tr("Suggested {c}", c=n) for n in names])
+        confusion_sorting = confusion.isSortingEnabled()
+        confusion.setSortingEnabled(False)
         confusion.setRowCount(len(names))
         confusion.setVerticalHeaderLabels([tr("Labelled {c}", c=n)
                                            for n in names])
@@ -2112,6 +2125,7 @@ class _SuggestModelDialog(QDialog):
             for c in range(len(names)):
                 confusion.setItem(r, c, _spare_table_item(
                     confusion, f"{int(matrix[r][c]):,}"))
+        confusion.setSortingEnabled(confusion_sorting)
         oof = np.asarray(card["oof"], dtype=float)
         truth = np.asarray(card["truth"], dtype=int)
         values: Dict[str, Sequence[float]] = {}
@@ -3335,7 +3349,7 @@ def _read_example_settings(path) -> Dict[str, str]:
     if not path.is_file():
         return {}
     try:
-        with path.open(newline="") as handle:
+        with path.open(newline="", encoding=_legacy_text_encoding(path)) as handle:
             return {str(row[0]).strip(): str(row[1]).strip()
                     for row in csv.reader(handle)
                     if len(row) >= 2 and row[0] != "Key"}
@@ -4819,13 +4833,17 @@ class AnnotateScreen(QWidget):
         self._suggest_progress = QProgressBar()
         self._suggest_progress.setObjectName("AnnotateSuggestProgress")
         self._suggest_progress.setRange(0, _SuggestWorker.STEPS)
-        self._suggest_progress.setTextVisible(True)
-        self._suggest_progress.setMinimumWidth(220)
+        self._suggest_progress.setTextVisible(False)
+        self._suggest_progress.setMinimumWidth(160)
         self._suggest_progress.setToolTip(tr(
             "How far the suggestion run has got. The window stays usable "
             "while it runs; Cancel stops it at its next step."))
         self._suggest_progress.hide()
         row.addWidget(self._suggest_progress)
+        self._suggest_stage = QLabel()
+        self._suggest_stage.setObjectName("AnnotateSuggestStage")
+        self._suggest_stage.hide()
+        row.addWidget(self._suggest_stage)
 
         self._btn_suggest_model = QPushButton(tr("Suggestion model…"))
         self._btn_suggest_model.setObjectName("AnnotateSuggestModel")
@@ -7109,8 +7127,9 @@ class AnnotateScreen(QWidget):
         self._btn_suggest_cancel.setEnabled(True)
         self._btn_suggest_cancel.show()
         self._suggest_progress.setValue(0)
-        self._suggest_progress.setFormat(tr("Starting…"))
+        self._suggest_stage.setText(tr("Starting…"))
         self._suggest_progress.show()
+        self._suggest_stage.show()
         if self._suggest_model_dialog is not None:
             self._suggest_model_dialog.set_live(False, tr(
                 "A suggestion run is going; the thresholds apply to its "
@@ -7217,7 +7236,7 @@ class AnnotateScreen(QWidget):
         bar = self._suggest_progress
         bar.setRange(0, max(1, int(total)))
         bar.setValue(max(0, int(step) - 1))
-        bar.setFormat(stage_text)
+        self._suggest_stage.setText(stage_text)
 
     @Slot(int)
     def _on_suggest_scoring(self, count: int) -> None:
@@ -7225,7 +7244,7 @@ class AnnotateScreen(QWidget):
 
         :param count: the crops the round scored.
         """
-        self._suggest_progress.setFormat(tr(
+        self._suggest_stage.setText(tr(
             "Scoring {n} crops…", n=f"{int(count):,}"))
 
     @Slot()
@@ -7354,6 +7373,7 @@ class AnnotateScreen(QWidget):
             self._btn_suggest.setEnabled(True)
             self._btn_suggest_cancel.hide()
             self._suggest_progress.hide()
+            self._suggest_stage.hide()
         except RuntimeError:
             return
         dialog = self._suggest_model_dialog

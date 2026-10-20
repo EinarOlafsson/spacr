@@ -77,7 +77,7 @@ def _prepare_real_jobs() -> tuple[list[dict], list[Path]]:
             "resume": False,
         }
         settings_path = GENERATED / f"convert_job_{index:02d}.json"
-        settings_path.write_text(json.dumps(settings, indent=2) + "\n")
+        settings_path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
         settings_paths.append(settings_path)
         records.append({
             "job": index,
@@ -400,7 +400,7 @@ def main() -> int:
     }
     (output / "source_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n"
-    )
+    , encoding="utf-8")
     window.close()
     app.quit()
     return 0

@@ -56,7 +56,7 @@ def crops(n=6):
 def training_data(screen, tmp_path):
     screen.set_crops(crops())
     teacher = tmp_path / 'teacher.pt'
-    teacher.write_text('Inert trainer boundary; this file must never be decoded')
+    teacher.write_text('Inert trainer boundary; this file must never be decoded', encoding="utf-8")
     screen._select_dino_checkpoint(str(teacher))
     table = tmp_path / 'training.csv'
     with table.open('w', newline='') as output:

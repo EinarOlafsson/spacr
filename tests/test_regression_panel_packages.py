@@ -616,7 +616,7 @@ def test_invalid_figure_manifest_cannot_create_output(tmp_path, updates, message
 def test_unreadable_or_nonobject_manifest_cannot_create_output(tmp_path, content, message):
     path = tmp_path / 'manifest.json'
     if content is not None:
-        path.write_text(content)
+        path.write_text(content, encoding="utf-8")
     destination = tmp_path / 'not-written'
     with pytest.raises(ValueError, match=message):
         build_manifest_packages(path, _publication_artifacts(), destination)
@@ -701,7 +701,7 @@ def test_file_backed_artifact_preserves_values_and_declared_identity(tmp_path):
 def test_missing_or_unreadable_artifact_cannot_create_output(tmp_path, content, message):
     path = tmp_path / 'guides.csv'
     if content is not None:
-        path.write_text(content)
+        path.write_text(content, encoding="utf-8")
     artifacts = _publication_artifacts()
     artifacts['xgboost_grna'] = {'level': 'grna', 'phenotype': 'xgboost', 'path': path}
     destination = tmp_path / 'not-written'

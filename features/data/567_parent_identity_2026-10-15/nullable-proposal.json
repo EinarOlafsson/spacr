@@ -1,5 +1,0 @@
-{
-  "original_sha256": "bbc567418a666fd49d8a3aa099c66d71b3ee3af2fac7635022e5b1cbd95a0180",
-  "proposed_sha256": "b9f49af257f6c0dfb96c74d2a69e0a0f91667aff57a2d30568c2bad6a643cd63",
-  "reason": "Nullable Int64 Series.map internally float-promotes values with missing rows; explicit object boxing preserves native integer scalar values before existing approved scalar helper."
-}

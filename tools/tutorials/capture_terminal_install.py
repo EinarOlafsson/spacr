@@ -269,7 +269,7 @@ def typist(ctl):
             for item in sorted(inbox.glob('*.json')):
                 if item.name not in seen:
                     seen.add(item.name)
-                    pending = json.loads(item.read_text())['text'].encode()
+                    pending = json.loads(item.read_text(encoding="utf-8"))['text'].encode()
                     break
     os.waitpid(pid, 0)
     return 0
@@ -336,7 +336,7 @@ class Recorder:
 
     def prompts(self):
         path = self.ctl / 'prompts'
-        return path.read_text().split() if path.exists() else []
+        return path.read_text(encoding="utf-8").split() if path.exists() else []
 
     def transcript(self, offset=0):
         with (self.ctl / 'transcript.log').open('rb') as handle:
@@ -349,7 +349,7 @@ class Recorder:
     def send(self, text):
         self.sent += 1
         temporary = self.ctl / 'inbox' / f'{self.sent:05d}.part'
-        temporary.write_text(json.dumps({'text': text}))
+        temporary.write_text(json.dumps({'text': text}), encoding="utf-8")
         temporary.rename(temporary.with_suffix('.json'))
         # Wait until every character has been typed.
         time.sleep(0.2 + 0.02 * len(text))
@@ -455,7 +455,7 @@ class Recorder:
         while main is None:
             if time.monotonic() > deadline:
                 (self.capture / 'window_tree_at_timeout.txt').write_text(
-                    subprocess.check_output(['xwininfo', '-root', '-tree'], text=True))
+                    subprocess.check_output(['xwininfo', '-root', '-tree'], text=True), encoding="utf-8")
                 self.shot('99_gui_timeout', settle=0.5, evidence=True)
                 raise TimeoutError('The installed application did not open a window')
             if command and len(self.prompts()) > before:
@@ -565,8 +565,8 @@ def sandbox(run_dir, route, cwd, phase='install'):
         accounts.mkdir()
         uid, gid = os.getuid(), os.getgid()
         (accounts / 'passwd').write_text(
-            f'root:x:0:0:root:/root:/bin/bash\nuser:x:{uid}:{gid}:user:{NEUTRAL_HOME}:/bin/bash\n')
-        (accounts / 'group').write_text(f'root:x:0:\nuser:x:{gid}:\n')
+            f'root:x:0:0:root:/root:/bin/bash\nuser:x:{uid}:{gid}:user:{NEUTRAL_HOME}:/bin/bash\n', encoding="utf-8")
+        (accounts / 'group').write_text(f'root:x:0:\nuser:x:{gid}:\n', encoding="utf-8")
     args += ['--ro-bind', str(accounts / 'passwd'), '/etc/passwd',
              '--ro-bind', str(accounts / 'group'), '/etc/group']
     environment = dict(
@@ -787,7 +787,7 @@ def main():
         (ctl / 'bashrc').write_text(
             "PS1='\\w \\$ '\nHISTFILE=\n[ -f ~/.bashrc ] && . ~/.bashrc\n"
             "alias ls='ls --color=auto'\n"
-            "PROMPT_COMMAND='printf \"%s\\n\" \"$?\" >> \"$SPACR_CTL/prompts\"'\n")
+            "PROMPT_COMMAND='printf \"%s\\n\" \"$?\" >> \"$SPACR_CTL/prompts\"'\n", encoding="utf-8")
         env = dict(os.environ)
         for key, name in (('XDG_CONFIG_HOME', 'config'), ('XDG_DATA_HOME', 'data'),
                           ('XDG_CACHE_HOME', 'cache'), ('XDG_RUNTIME_DIR', 'runtime')):

@@ -110,3 +110,5 @@ HOW TO KNOW IT WORKED
   * the roles stay as measured above: exactly one Preferences, one Quit,
     one About, everything else NoRole, after every module that adds to the
     menus has done so.
+
+2026-10-19 — macOS acceptance (installed 1.5.1.5, Intel): the native application menu read "About __main__.py", "Hide __main__.py", "Quit __main__.py" because Qt takes those names from argv[0] (.../spacr/qt/__main__.py under python -m spacr.qt). launch() now hands Qt the application name as argv[0] on macOS; the same menu then reads About/Hide/Quit spaCR. "Force Quit python" (the process name) is not changed by this.

@@ -87,7 +87,7 @@ def test_runtime_changed_while_waiting_is_rechecked_under_actual_lease(installat
 def test_readonly_current_identity_allows_repairing_broken_old_qt(installation, tmp_path, monkeypatch):
     record, machine, prefix, site = installation
     old_qt = site / 'spacr/qt.py'
-    old_qt.write_text('raise RuntimeError("old Qt dependencies are broken")\n')
+    old_qt.write_text('raise RuntimeError("old Qt dependencies are broken")\n', encoding="utf-8")
     before = _snapshot(prefix)
     plan = _plan(record, machine, tmp_path)
     events = []
@@ -101,5 +101,5 @@ def test_readonly_current_identity_allows_repairing_broken_old_qt(installation, 
     identity = subprocess.run(cleanup._runtime_identity_command(record.python, '1.5.1.5'),
                               capture_output=True, text=True, timeout=15)
     assert identity.returncode == 0, identity.stderr
-    state = json.loads(next(prefix.parent.glob('.spacr-runtime-update-*/transaction.json')).read_text())
+    state = json.loads(next(prefix.parent.glob('.spacr-runtime-update-*/transaction.json')).read_text(encoding="utf-8"))
     assert _snapshot(Path(state['rollback_runtime'])) == before

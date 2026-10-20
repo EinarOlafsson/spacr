@@ -108,7 +108,7 @@ print(json.dumps(sorted(APP_META)))
 def test_stale_cell_metadata_cannot_change_the_manifest_callable():
     tool = _tool()
     notebook = json.loads(
-        (NOTEBOOKS / "04_classify_machine_learning.ipynb").read_text())
+        (NOTEBOOKS / "04_classify_machine_learning.ipynb").read_text(encoding="utf-8"))
     function_cell = next(
         cell for cell in notebook["cells"]
         if cell.get("metadata", {}).get("spacr", {}).get("generated")
@@ -210,7 +210,7 @@ def test_every_notebook_has_a_settings_surface():
 # ---------------------------------------------------------------------------
 
 def _generated(path):
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     for cell in notebook["cells"]:
         source = "".join(cell["source"])
         kind = cell.get("metadata", {}).get("spacr", {}).get("generated")
@@ -223,7 +223,7 @@ def _generated(path):
 
 def _generated_settings_cells(path):
     """Return all generated settings cells in execution order."""
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     return [
         "".join(cell["source"])
         for cell in notebook["cells"]
@@ -234,7 +234,7 @@ def _generated_settings_cells(path):
 
 
 def _generated_help(path):
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     for cell in notebook["cells"]:
         kind = cell.get("metadata", {}).get("spacr", {}).get("generated")
         if cell["cell_type"] == "markdown" and kind == "settings-help":
@@ -243,7 +243,7 @@ def _generated_help(path):
 
 
 def _generated_source(path, kind):
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     matches = [
         "".join(cell["source"])
         for cell in notebook["cells"]
@@ -290,7 +290,7 @@ def test_manifest_owns_exact_imports_and_run_calls(path):
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_all_outputs_and_execution_counts_are_cleared(path):
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     for cell in notebook["cells"]:
         if cell["cell_type"] == "code":
             assert cell.get("outputs") == []
@@ -336,7 +336,7 @@ def test_each_setting_is_declared_once_per_function(path):
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_organelle_separation_is_derived_from_the_actual_keys(path):
     tool = _tool()
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     cells = {
         cell.get("metadata", {}).get("spacr", {}).get("generated"):
             "".join(cell["source"])
@@ -379,7 +379,7 @@ def test_every_key_carries_a_description(path):
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_explanations_settings_and_call_are_consecutive_cells(path):
     """Readers meet prose, categorized values, and execution in that order."""
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     cells = notebook["cells"]
     help_index = next((i for i, cell in enumerate(cells)
                        if cell.get("metadata", {}).get("spacr", {}).get(
@@ -564,7 +564,7 @@ def test_mask_workflows_are_separate_and_scientifically_described():
         path = NOTEBOOKS / name
         assert tool.declared_functions(path) == functions
 
-    mask = json.loads((NOTEBOOKS / "01_generate_masks.ipynb").read_text())
+    mask = json.loads((NOTEBOOKS / "01_generate_masks.ipynb").read_text(encoding="utf-8"))
     overview = "".join(mask["cells"][0]["source"])
     assert "Generate per-object masks" in overview
     assert all(object_name in overview for object_name in (
@@ -614,7 +614,7 @@ def test_mask_workflows_are_separate_and_scientifically_described():
     "14_motility_assay.ipynb",
 ])
 def test_organelle_settings_have_a_separate_cell(name):
-    cells = json.loads((NOTEBOOKS / name).read_text())["cells"]
+    cells = json.loads((NOTEBOOKS / name).read_text(encoding="utf-8"))["cells"]
     general = next(cell for cell in cells
                    if cell.get("metadata", {}).get("spacr", {}).get(
                        "generated") == "settings")
@@ -632,7 +632,7 @@ def test_organelle_settings_have_a_separate_cell(name):
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_notebook_overviews_use_scientific_section_labels(path):
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     overview = "".join(notebook["cells"][0]["source"])
     assert "**Purpose.**" in overview
     assert "**Recommended use.**" in overview
@@ -644,7 +644,7 @@ def test_notebook_overviews_use_scientific_section_labels(path):
 def test_consolidated_notebooks_name_the_current_desktop_route():
     tool = _tool()
     for name, route in tool.NOTEBOOK_DESKTOP_ROUTES.items():
-        notebook = json.loads((NOTEBOOKS / name).read_text())
+        notebook = json.loads((NOTEBOOKS / name).read_text(encoding="utf-8"))
         overview = "".join(notebook["cells"][0]["source"])
         assert f"**Desktop route.** {route}" in overview
 
@@ -652,7 +652,7 @@ def test_consolidated_notebooks_name_the_current_desktop_route():
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding(
         path):
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     markdown = "\n".join(
         "".join(cell["source"])
         for cell in notebook["cells"]
@@ -679,7 +679,7 @@ def test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding(
 
 def test_volcano_overview_names_the_scientific_axes_and_actual_output():
     notebook = json.loads(
-        (NOTEBOOKS / "30_volcano_plot.ipynb").read_text())
+        (NOTEBOOKS / "30_volcano_plot.ipynb").read_text(encoding="utf-8"))
     overview = "".join(notebook["cells"][0]["source"])
     assert "negative log10-transformed p-values" in overview
     assert "configured dimensions and file format" in overview
@@ -696,7 +696,7 @@ def test_the_settings_dict_is_used_rather_than_decorative(path):
     source = _generated(path)
     if not source:
         pytest.skip("no generated cell")
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     names = [n for n in ("settings",) if f"{n} = {{" in source]
     if not names:
         pytest.skip("multi-function notebook names its dicts per function")
@@ -713,7 +713,7 @@ def test_the_settings_dict_is_used_rather_than_decorative(path):
 
 def test_tooltips_are_read_now_and_never_pasted():
     """Tooltip prose comes from the public source rather than a stale copy."""
-    source = TOOL.read_text()
+    source = TOOL.read_text(encoding="utf-8")
     assert "from spacr.settings import tooltips" in source or \
            "spacr.settings import tooltips" in source
 
@@ -735,7 +735,7 @@ def test_missing_setting_descriptions_fail_generation_instead_of_shipping_a_plac
 
 def test_the_registry_is_reused_rather_than_a_third_mapping():
     """Rule 1: the GUI and CLI already map module to defaults helper."""
-    assert "from spacr.cli import MODULES" in TOOL.read_text()
+    assert "from spacr.cli import MODULES" in TOOL.read_text(encoding="utf-8")
 
 
 def test_a_factoryless_function_says_where_its_keys_came_from():
@@ -795,5 +795,5 @@ def test_machine_sized_worker_defaults_are_rendered_as_expressions(dotted):
 
 def test_check_mode_is_what_the_drift_guard_calls():
     """--check is the contract; the guard above runs it as a subprocess."""
-    source = TOOL.read_text()
+    source = TOOL.read_text(encoding="utf-8")
     assert '"--check"' in source or "'--check'" in source

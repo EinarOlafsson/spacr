@@ -274,7 +274,7 @@ def test_cli_runs_checks_and_persists_truth_scope_and_completion(tmp_path, monke
     training, held, output, args = cli_setup(tmp_path, monkeypatch)
     assert tm.main(args) == 0
     assert output.exists()
-    metadata = json.loads(output.with_suffix('.pt.json').read_text())
+    metadata = json.loads(output.with_suffix('.pt.json').read_text(encoding="utf-8"))
     record = metadata['validation']
     assert record['enabled'] and record['reports'] == 3
     assert record['segmentation'] == 'GT' and record['pairs'] == 1
@@ -282,7 +282,7 @@ def test_cli_runs_checks_and_persists_truth_scope_and_completion(tmp_path, monke
     assert record['temporal_assignment'] == validation.temporal_assignment_policy()
     assert record['model_code_sha256'] == hashlib.sha256(Path(tm.__file__).read_bytes()).hexdigest()
     assert record['scoring_code_sha256'] == hashlib.sha256(Path(validation.__file__).read_bytes()).hexdigest()
-    events = [json.loads(line) for line in output.with_suffix('.pt.validation.jsonl').read_text().splitlines()]
+    events = [json.loads(line) for line in output.with_suffix('.pt.validation.jsonl').read_text(encoding="utf-8").splitlines()]
     assert events[0]['event'] == 'configuration'
     assert [(event['stage'], event['step']) for event in events[1:-1]] == [('initial', 0), ('head', 1), ('full', 1)]
     assert events[-1] == {'event': 'training_complete', 'updates': 2}
@@ -314,10 +314,10 @@ def test_cli_preserves_existing_validation_report_and_model(tmp_path, monkeypatc
     _, _, output, args = cli_setup(tmp_path, monkeypatch)
     output.write_bytes(b'original model')
     report = output.with_suffix('.pt.validation.jsonl')
-    report.write_text('original report')
+    report.write_text('original report', encoding="utf-8")
     with pytest.raises(FileExistsError):
         tm.main(args)
-    assert report.read_text() == 'original report'
+    assert report.read_text(encoding="utf-8") == 'original report'
     assert output.read_bytes() == b'original model'
 
 
@@ -337,7 +337,7 @@ def test_cli_failed_check_leaves_partial_log_without_complete_model(tmp_path, mo
         tm.main(args)
     assert not output.exists()
     assert not output.with_suffix('.pt.json').exists()
-    events = [json.loads(line) for line in output.with_suffix('.pt.validation.jsonl').read_text().splitlines()]
+    events = [json.loads(line) for line in output.with_suffix('.pt.validation.jsonl').read_text(encoding="utf-8").splitlines()]
     assert [event['event'] for event in events] == ['configuration', 'validation']
 
 
@@ -346,7 +346,7 @@ def test_zero_update_cli_can_record_an_initial_control_without_index_error(tmp_p
     args[args.index('--head-steps') + 1] = '0'
     args[args.index('--full-steps') + 1] = '0'
     assert tm.main(args) == 0
-    metadata = json.loads(output.with_suffix('.pt.json').read_text())
+    metadata = json.loads(output.with_suffix('.pt.json').read_text(encoding="utf-8"))
     assert metadata['final_loss'] is None and metadata['validation']['reports'] == 1
 
 

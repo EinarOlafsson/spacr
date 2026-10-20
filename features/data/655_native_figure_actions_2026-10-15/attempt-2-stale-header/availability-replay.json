@@ -1,9 +1,0 @@
-{
-  "memory_bytes": {
-    "MemTotal": 135000322048,
-    "MemAvailable": 90025218048
-  },
-  "desktop_idle": "(uint64 5465557,)",
-  "recording_encoding_processes": [],
-  "native_lane": "parent authorized; one actual reader run"
-}

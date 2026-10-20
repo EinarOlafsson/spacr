@@ -1,8 +1,0 @@
-{
-  "verdict": "ACCEPT",
-  "owner_commit": "5d1d8c5da5a3fdb956f11a9fe1f876fcc96477ef",
-  "twenty_exact_current_English_source_memberships": true,
-  "historical_counts_and_fingerprints": "Unchanged; strict named exact reviewed arrivals only",
-  "review": "Only existing test and curated source-text fixtures; all twenty normal nine-locale review/catalog bindings independently bound in owner provenance. Four stale source-prose values refreshed exactly, other fixture keys/values preserved. No production, tool, generated or global audit waiver.",
-  "test_reexecution": "None; original targeted pass evidence inspected."
-}

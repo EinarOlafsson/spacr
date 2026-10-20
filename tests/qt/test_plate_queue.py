@@ -45,7 +45,7 @@ class TestPlateQueue:
         q = PlateQueue(path=path)
         q.add(QueueItem.build("mask", {"src": "/tmp/a"}))
         assert path.exists()
-        payload = json.loads(path.read_text())
+        payload = json.loads(path.read_text(encoding="utf-8"))
         assert payload["items"][0]["app_key"] == "mask"
 
     def test_load_roundtrips(self, tmp_path):
@@ -82,7 +82,7 @@ class TestPlateQueue:
 
     def test_bad_queue_file_starts_empty(self, tmp_path):
         p = tmp_path / "corrupt.json"
-        p.write_text("{not valid json")
+        p.write_text("{not valid json", encoding="utf-8")
         q = PlateQueue(path=p)
         assert len(q) == 0
 

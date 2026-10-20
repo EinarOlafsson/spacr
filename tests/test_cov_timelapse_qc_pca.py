@@ -877,7 +877,7 @@ def test_qc_plot_failure_is_reported_not_raised(tmp_path, capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     blocker = tmp_path / "not_a_dir"
-    blocker.write_text("x")
+    blocker.write_text("x", encoding="utf-8")
 
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=1)
     settings = {}
@@ -885,7 +885,7 @@ def test_qc_plot_failure_is_reported_not_raised(tmp_path, capsys):
 
     assert col == "adjusted_infected"
     assert "Failed to save embedding QC plot" in capsys.readouterr().out
-    assert blocker.read_text() == "x"
+    assert blocker.read_text(encoding="utf-8") == "x"
 
 
 # ===========================================================================

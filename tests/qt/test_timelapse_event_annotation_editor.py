@@ -513,12 +513,12 @@ def test_saved_file_created_during_staging_is_not_overwritten(
 
     def concurrent_create(path):
         verified = original(path)
-        target.write_text("another writer owns this file\n")
+        target.write_text("another writer owns this file\n", encoding="utf-8")
         return verified
 
     monkeypatch.setattr(timelapse, "_event_read_annotations", concurrent_create)
     dialog._save()
-    assert target.read_text() == "another writer owns this file\n"
+    assert target.read_text(encoding="utf-8") == "another writer owns this file\n"
     assert "changed during save" in dialog._status.text()
     assert not list(target.parent.glob(".event-annotations-*.csv"))
     dialog.close()

@@ -96,11 +96,11 @@ def _collect_interleaved(tmp_path, extra_plugins=(),
     argv = [sys.executable, "-m", "pytest", "--co", "-q",
             "-p", "no:randomly", "-p", "no:cacheprovider"]
     for name, source in extra_plugins:
-        (plugin_dir / f"{name}.py").write_text(source)
+        (plugin_dir / f"{name}.py").write_text(source, encoding="utf-8")
         argv += ["-p", name]
     if disable_canonicaliser:
         (plugin_dir / "spacr_undo_directory_nodes.py").write_text(
-            _DISABLE_PLUGIN)
+            _DISABLE_PLUGIN, encoding="utf-8")
         argv += ["-p", "spacr_undo_directory_nodes"]
     env = dict(os.environ)
     env.setdefault("QT_QPA_PLATFORM", "offscreen")

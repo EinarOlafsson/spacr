@@ -17,7 +17,7 @@ from tests.test_watch_nested_f548 import _fast, _write
 
 def _ledger(folder):
     """Read every persisted field, including deferred copies and real failures."""
-    return json.loads((folder / 'spacr_watch/watch_ledger.json').read_text())['fields']
+    return json.loads((folder / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))['fields']
 
 
 def _change_pixels(path, value, replace=False):

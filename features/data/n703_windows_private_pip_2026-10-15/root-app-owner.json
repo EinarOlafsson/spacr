@@ -1,8 +1,0 @@
-{
-  "owner": "Original Home root",
-  "baseline_commit": "ecfd60fcf7039ec600e73eac4c706ea374b20773",
-  "baseline_source_sha256": "512630cb15f2c7f25d6b9d2cf5ef838c3374367ee373712ec45a4fab1c689561",
-  "target_source_sha256": "2d95805262e0aa04479e1575dd60d4aed54a367f9aed97bc8bca4b2a3a2fd113",
-  "scope": "Exact Windows caller adapter only: class selection and existing handshake/message/restart gates. Must integrate with actual Windows core class and owning checks; no standalone publication.",
-  "compile": "PASS; actual source-bound Qt acceptance delegated to core owner with real class"
-}

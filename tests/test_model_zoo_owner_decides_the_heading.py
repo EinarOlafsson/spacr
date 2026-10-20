@@ -66,7 +66,7 @@ def _mixed_owner_catalogue():
 @pytest.fixture
 def mixed(tmp_path):
     path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps(_mixed_owner_catalogue()))
+    path.write_text(json.dumps(_mixed_owner_catalogue()), encoding="utf-8")
     rows = mz.shared_catalogue(uri=path.as_uri(), block=True, force=True)
     return {row.key + ("@" + row.uri if row.key == "toxoplasma_plaque_v3"
                        else ""): row for row in rows}

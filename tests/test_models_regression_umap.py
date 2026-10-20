@@ -23,6 +23,7 @@ spaCR.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import numpy as np
@@ -337,7 +338,7 @@ def test_image_umap_end_to_end(real_writer_plate):
     # this database -- these are the identities the Annotate screen round-trips
     # on, so a re-anchored display path must not overwrite them.
     assert {r["db_png_path"] for r in payload["records"]} == set(png_paths)
-    assert {r["db_path"] for r in payload["records"]} == {
+    assert {os.path.normpath(r["db_path"]) for r in payload["records"]} == {
         str(root / "measurements" / "measurements.db")}
 
     # The scatter really carries one point per object rather than an empty

@@ -16,7 +16,7 @@ from spacr._mask_workers import _resolved_backend_model
 def _install(root, backend, record):
     env = root / backend
     env.mkdir(parents=True)
-    (env / sb._MARKER).write_text(json.dumps(record))
+    (env / sb._MARKER).write_text(json.dumps(record), encoding="utf-8")
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_a_stock_prefixed_model_is_signed_by_its_environment(root):
     assert identity['model'] == '2D_versatile_fluo'
     assert len(signature) == 64
     (root / 'stardist' / sb._MARKER).write_text(
-        json.dumps({'requirements': ['stardist==0.9.2']}))
+        json.dumps({'requirements': ['stardist==0.9.2']}), encoding="utf-8")
     _, changed, _ = _resolved_backend_model(settings, 'nucleus', root=root)
     assert changed != signature
 
@@ -48,7 +48,7 @@ def test_a_model_folder_is_signed_by_its_content(tmp_path, root):
     folder = tmp_path / 'my_stardist'
     folder.mkdir()
     (folder / 'weights.h5').write_bytes(b'one')
-    (folder / 'config.json').write_text('{}')
+    (folder / 'config.json').write_text('{}', encoding="utf-8")
     settings = {'nucleus_model_name': f'stardist:{folder}'}
     _, first, identity = _resolved_backend_model(settings, 'nucleus', root=root)
     assert identity['path'] == str(folder.resolve())
@@ -160,11 +160,11 @@ def test_dispatch_accepts_every_backend_with_a_contract(tmp_path, monkeypatch, c
 
     mw._generate_masks_in_parallel(str(masks), run, 'nucleus', plan, segmenter=_stub_segment)
 
-    calls = [line.split() for line in (masks.parent / 'calls.log').read_text().splitlines()]
+    calls = [line.split() for line in (masks.parent / 'calls.log').read_text(encoding="utf-8").splitlines()]
     assert sorted(name for _, name in calls) == [f'batch{i}.npz' for i in range(4)]
     assert {device for device, _ in calls} == {'0', '1'}
     assert len(list((masks / 'nucleus_mask_stack').glob('*.npy'))) == 8
-    ledger = json.loads((masks / '.mask-workers-nucleus.json').read_text())
+    ledger = json.loads((masks / '.mask-workers-nucleus.json').read_text(encoding="utf-8"))
     assert ledger['status'] == 'finalized' and len(ledger['completed']) == 4
     assert backend in capsys.readouterr().out
 

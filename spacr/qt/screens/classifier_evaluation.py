@@ -152,7 +152,7 @@ class _DropPathEdit(QLineEdit):
     def dropEvent(self, event: QDropEvent) -> None:
         """Place the first dropped local path in the field."""
         paths = [
-            url.toLocalFile()
+            str(Path(url.toLocalFile()))
             for url in event.mimeData().urls()
             if url.isLocalFile()
         ]

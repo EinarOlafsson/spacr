@@ -182,7 +182,7 @@ def test_the_command_it_names_is_one_that_exists():
     import pathlib
 
     setup = pathlib.Path(__file__).resolve().parents[2] / "setup.py"
-    assert "spacr-doctor=spacr.doctor:main" in setup.read_text()
+    assert "spacr-doctor=spacr.doctor:main" in setup.read_text(encoding="utf-8")
     assert "spacr-doctor" in GPU_DOCTOR_HINT
 
 

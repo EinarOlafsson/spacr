@@ -151,7 +151,7 @@ def test_the_guard_sees_an_unregistered_figure(tmp_path):
         "def draw(df):\n"
         "    fig, ax = plt.subplots()\n"
         "    ax.plot(df.x, df.y)\n"
-        "    return fig\n")
+        "    return fig\n", encoding="utf-8")
     (package / "good.py").write_text(
         "import matplotlib.pyplot as plt\n"
         "from spacr.figures.bundle import _register_figure_data\n"
@@ -160,7 +160,7 @@ def test_the_guard_sees_an_unregistered_figure(tmp_path):
         "        from matplotlib.figure import Figure\n"
         "        self.fig = Figure()\n"
         "    def draw(self, df):\n"
-        "        _register_figure_data(self.fig, df, x='x', y='y')\n")
+        "        _register_figure_data(self.fig, df, x='x', y='y')\n", encoding="utf-8")
     assert unregistered_sites(package) == [("bare.py", "draw", 3)]
 
 

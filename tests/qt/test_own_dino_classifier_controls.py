@@ -29,7 +29,7 @@ def training_data(screen, tmp_path, rows=None):
     crops = np.arange(6 * 4 * 4 * 3, dtype=np.uint16).reshape(6, 4, 4, 3)
     screen.set_crops(crops)
     checkpoint = tmp_path / 'teacher.pt'
-    checkpoint.write_text('Inert trainer boundary; this file must never be decoded')
+    checkpoint.write_text('Inert trainer boundary; this file must never be decoded', encoding="utf-8")
     screen._select_dino_checkpoint(str(checkpoint))
     table = tmp_path / 'training.csv'
     with table.open('w', newline='') as output:
@@ -162,7 +162,7 @@ def test_metadata_requires_explicit_groups_and_labelled_classes(screen, monkeypa
     if kind == 'one_class': rows = [('A',group) for _, group in rows]
     if kind == 'one_group': rows = [(label,'wellA') for label, _ in rows]
     _, _, table = training_data(screen, tmp_path, rows)
-    if kind == 'missing_columns': table.write_text('label,well\nA,a\n')
+    if kind == 'missing_columns': table.write_text('label,well\nA,a\n', encoding="utf-8")
     monkeypatch.setattr(backend, '_dino_finetune_classifier', lambda *a, **kw: pytest.fail('Invalid metadata reached trainer'))
     assert screen._train_dino_classifier(str(tmp_path/'new.pt'), table_path=str(table), source_channels='0') == ''
     assert not screen.is_busy()

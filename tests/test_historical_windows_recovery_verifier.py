@@ -57,7 +57,7 @@ def _run_verifier(case, monkeypatch):
             '--repair-version', '1.5.0.6', '--target-version', '1.5.0.7', '--output', str(output)])
         with pytest.raises(SystemExit) as stopped:
             runpy.run_path(str(TOOL), run_name='__main__')
-    return json.loads(output.read_text()), stopped.value.code
+    return json.loads(output.read_text(encoding="utf-8")), stopped.value.code
 
 
 @pytest.fixture
@@ -69,7 +69,7 @@ def verifier_only_case(tmp_path, monkeypatch):
     (evidence / 'original-bootstrap.ps1').write_bytes(BOOTSTRAP_BYTES)
     prefix = tmp_path / 'SpaCR/venv'
     python = prefix / 'Scripts/python.exe'
-    known = json.loads((ROOT / 'tools/historical_upgrade_sources.json').read_text())
+    known = json.loads((ROOT / 'tools/historical_upgrade_sources.json').read_text(encoding="utf-8"))
     states = []
     for version in ('1.5.0.1', '1.5.0.6', '1.5.0.7'):
         source_hashes = {row['path']: row['sha256'] for row in known.get(version, {}).get('files', [])}
@@ -89,7 +89,7 @@ def verifier_only_case(tmp_path, monkeypatch):
                 '--upgrade', '--python', str(python), 'spacr'], 'Upgrade finished. Restart spaCR to use it.')):
         _write_json(evidence / f'{name}.json', dict(passed=True, state=state, target_version='1.5.0.7',
             action_text='Check for updates', actual_subprocess_commands=[command], terminal_dialog=terminal))
-    (evidence / 'broken-gui.log').write_text('VERIFIER-ONLY FIXTURE: No module named pip\n')
+    (evidence / 'broken-gui.log').write_text('VERIFIER-ONLY FIXTURE: No module named pip\n', encoding="utf-8")
     # These observation/capture fields are emitted by the existing native workflow.
     observation = dict(status='failed', artifact_sha256=ARTIFACT_SHA, observed_tree_exited=True,
         deadline_minutes=40, command=[str(evidence / 'SpaCR-1.5.0.1-Windows-Online-Setup.exe'), '/S'],
@@ -123,7 +123,7 @@ def verifier_only_case(tmp_path, monkeypatch):
             '-InstallRoot', str(prefix.parent), '-Version', '1.5.0.1', '-TorchBackend', 'cpu'])
     _write_json(evidence / 'bootstrap-recovery/receipt.json', recovery)
     for name in ('stdout.txt', 'stderr.txt'):
-        (evidence / 'bootstrap-recovery' / name).write_text('VERIFIER-ONLY FIXTURE OUTPUT\n')
+        (evidence / 'bootstrap-recovery' / name).write_text('VERIFIER-ONLY FIXTURE OUTPUT\n', encoding="utf-8")
     case = SimpleNamespace(evidence=evidence, observation=observation, capture=capture,
         replay=replay, recovery=recovery, states=states)
     control, code = _run_verifier(case, monkeypatch)
@@ -242,7 +242,7 @@ def test_verifier_still_rejects_unpinned_artifact(verifier_only_case, monkeypatc
 def test_verifier_still_requires_real_help_update_command(verifier_only_case, monkeypatch):
     case = verifier_only_case
     path = case.evidence / 'fixed-gui.json'
-    gui = json.loads(path.read_text())
+    gui = json.loads(path.read_text(encoding="utf-8"))
     gui['actual_subprocess_commands'] = []
     _write_json(path, gui)
     receipt, code = _run_verifier(case, monkeypatch)

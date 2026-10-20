@@ -1,7 +1,0 @@
-{
-  "commit": "03647f0827274824ab26c361259dc022a858d342",
-  "old_forward_preprocessing_encoder_feature_normalization_body_ast_identical_to_new_features": true,
-  "original_forward_signature_and_docstring_retained": true,
-  "original_other_top_level_embeddings_nodes_identical": true,
-  "scope": "Classifier.forward now only returns self.head(self.features(images)); same training state/parameters/buffers, four prior gradient/reload cases passed"
-}

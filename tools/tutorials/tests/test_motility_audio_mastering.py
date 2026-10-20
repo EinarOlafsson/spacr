@@ -5,7 +5,7 @@ from pathlib import Path
 
 def namespace():
     path = Path(__file__).resolve().parents[1] / 'authoring/tools/render_all_voices.py'
-    tree = ast.parse(path.read_text())
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     names = {'LOUDNESS_FILTERS', 'MAX_RELEASE_TRUE_PEAK_DBFS', 'MASTERING_CONFIG'}
     nodes = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'mastering_config'
         or isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id in names for t in n.targets)]

@@ -69,7 +69,8 @@ def database_for_source(source: str, mode: str = "database") -> str:
         removed from the set behind the user's back.
     """
     if mode == "folder":
-        return os.path.join(str(source).rstrip(os.sep), *MEASUREMENTS_SUFFIX)
+        return os.path.join(str(source).rstrip(os.sep + (os.altsep or "")),
+                            *MEASUREMENTS_SUFFIX)
     return str(source)
 
 

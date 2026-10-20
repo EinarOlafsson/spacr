@@ -15,7 +15,7 @@ def test_actual_configured_startup_key_refusal_is_localized(language, monkeypatc
     source = 'Unknown provisioned model key: {key}'
     review_path = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language /
                    '2026-10-15-configured-startup-preload.json')
-    review = json.loads(review_path.read_text())
+    review = json.loads(review_path.read_text(encoding="utf-8"))
     record, = [row for row in review['records'] if row['source'] == source]
     assert review['language'] == language
     assert record['table'] == 'ui'

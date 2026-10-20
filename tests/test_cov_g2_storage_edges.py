@@ -106,7 +106,7 @@ def test_cache_refusals_and_relocation_guards(home, tmp_path, monkeypatch):  # n
     target_parent = tmp_path / "elsewhere"
     full = target_parent / "spacr-news"
     full.mkdir(parents=True)
-    (full / "keep").write_text("x")
+    (full / "keep").write_text("x", encoding="utf-8")
     with pytest.raises(ValueError, match="already holds files"):
         rj._relocate_cache("news", target_parent)
     moved = rj._relocate_cache("torch", tmp_path / "fresh")
@@ -163,6 +163,7 @@ def test_tree_stats_skips_a_file_removed_during_the_scan(tmp_path,
     assert size >= 4
 
 
+@pytest.mark.needs_symlink
 def test_clear_logs_refuses_a_file_replaced_by_a_link(home, tmp_path):  # noqa: F811
     """A plan cannot follow a changed log path outside spaCR's folder."""
     logs = Path(os.environ["SPACR_LOG_DIR"])
@@ -241,14 +242,14 @@ def test_clear_logs_deletes_only_recognised_closed_logs(home):  # noqa: F811
     verbose = _aged(logs / "spacr-debug.log.1", 60, size=300)
     run_log = _aged(logs / "runs" / "done123.jsonl", 60, size=400)
     unrelated = logs / "keep.txt"
-    unrelated.write_text("not a log")
+    unrelated.write_text("not a log", encoding="utf-8")
     plan = rj._clear_logs_plan()
     assert all(plan["groups"][group] for group in
                ("daily", "crash", "verbose", "run_logs"))
     deleted, emptied, freed, refused = rj._clear_logs(plan)
     assert (deleted, emptied, freed, refused) == (4, 0, 1000, [])
     assert not any(path.exists() for path in (daily, crash, verbose, run_log))
-    assert unrelated.read_text() == "not a log"
+    assert unrelated.read_text(encoding="utf-8") == "not a log"
 
 
 def test_clear_logs_plan_tolerates_an_unreadable_log_folder(home, monkeypatch):  # noqa: F811

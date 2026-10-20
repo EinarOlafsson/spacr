@@ -1,9 +1,0 @@
-{
-  "verdict": "ACCEPT",
-  "owner_commit": "5a0bdfc56d869425cedf06fad8f6b1e6ca3bf091",
-  "tested_source_exact_after_integration": true,
-  "all_unowned_AST_signatures_decorators_unchanged": true,
-  "review": "PNG actual returned private path/bytes/source removal assertions strengthened; N644 retains every assertion and checks all stat fields before its own reads. No production or guard edits.",
-  "source_sha256": "a1cc8d31f52be6be9414672f9b97519b3dbf53c08fcddf3bf7e7c859105d2333",
-  "test_reexecution": "None; meaningful owning before/after receipts inspected."
-}

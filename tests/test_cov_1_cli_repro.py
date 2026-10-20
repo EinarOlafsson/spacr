@@ -48,7 +48,7 @@ def test_a_run_can_be_named_by_its_basename(run_folder, monkeypatch):
     out = buf.getvalue()
     assert f"run:       {run_folder.name}" in out
     assert "app:       mask" in out
-    manifest = json.loads((run_folder / "manifest.json").read_text())
+    manifest = json.loads((run_folder / "manifest.json").read_text(encoding="utf-8"))
     assert f"n_settings:{manifest['n_settings']}" in out
 
 

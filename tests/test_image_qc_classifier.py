@@ -80,7 +80,7 @@ def test_classifier_flags_exclude_fields_without_touching_pixels(tmp_path, monke
     policy = dict(image_qc_mode='exclude', image_qc_classifier=True)
     assert screen_fields(tmp_path, policy) == ['blank.npy']
     assert excluded_fields(tmp_path) == {'blank.npy'}
-    report = json.loads((tmp_path / 'qc/image_quality.json').read_text())
+    report = json.loads((tmp_path / 'qc/image_quality.json').read_text(encoding="utf-8"))
     blank = next(row for row in report['fields'] if row['field'] == 'blank.npy')
     assert blank['reasons'] == ['channel 0: classifier_empty']
     assert blank['channels'][0]['p_empty'] == pytest.approx(0.9)

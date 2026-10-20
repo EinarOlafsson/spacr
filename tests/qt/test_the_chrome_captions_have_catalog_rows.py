@@ -173,7 +173,7 @@ def test_anomaly_percentile_header_is_bound_to_its_live_source():
     import ast
 
     path = Path(__file__).resolve().parents[2] / "spacr/qt/screens/control_chart.py"
-    tree = ast.parse(path.read_text())
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     columns = next(node.value for node in tree.body
                    if isinstance(node, ast.Assign)
                    and any(isinstance(target, ast.Name)

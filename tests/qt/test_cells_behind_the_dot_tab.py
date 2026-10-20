@@ -572,6 +572,10 @@ def test_real_merged_montage_notes_only_verified_overlapping_source_windows(
     from spacr import plot
 
     monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
+    # The checks below are about which notes are made, not how fast; the
+    # half-second production budget expires on a loaded runner first.
+    monkeypatch.setattr(plot, "_SOURCE_REGION_SECONDS", 60.0)
+    monkeypatch.setattr(plot, "_SPATIAL_SECONDS", 60.0)
     view, _root, db_path, _csv = _view(qtbot, tmp_path, with_png=False)
     with sqlite3.connect(db_path) as connection:
         for index in range(4):
@@ -623,9 +627,10 @@ def test_real_merged_montage_notes_only_verified_overlapping_source_windows(
     for name in {panel["source"][0]["path"] for panel in first["panels"]
                  if panel["source"]}:
         source = Path(name)
-        pixels = np.load(source, allow_pickle=False)
+        pixels = np.load(source, mmap_mode="r+", allow_pickle=False)
         pixels[0, 0, 0] += 1
-        np.save(source, pixels)
+        pixels.flush()
+        del pixels
     assert not any(finding["check"] == "cross_figure_source_region"
                    for finding in export("source-changed.png", 96)
                    ["integrity"]["findings"])
@@ -775,8 +780,8 @@ def test_each_plate_gets_its_own_crop_source(tmp_path):
 
 
 def test_experiment_root_and_channel_parsing():
-    assert experiment_root("/x/y/measurements/measurements.db") == "/x/y"
-    assert experiment_root("/x/y/measurements.db") == "/x/y"
+    assert experiment_root("/x/y/measurements/measurements.db") == os.path.abspath("/x/y")
+    assert experiment_root("/x/y/measurements.db") == os.path.abspath("/x/y")
     assert parse_channels("") is None
     assert parse_channels("0, 1;2") == (0, 1, 2)
     with pytest.raises(ValueError):
@@ -1067,11 +1072,17 @@ def test_a_merged_array_that_has_gone_missing_leaves_a_named_gap(qtbot,
     Dropping them would renumber the montage and quietly break the count rule
     the caption states; leaving them blank keeps `round(n x fraction)` true
     and puts the reason on the figure.
+
+    The field removed is r1_c1's, a well that carries GRA14. The test used
+    to remove whichever file ``os.listdir`` named first; on a file system
+    that listed r1_c4 first -- the well with no GRA14 cell, so none of its
+    crops is in the montage -- no gap could appear and the test failed.
     """
     root, db_path, results_csv = _screen(tmp_path, with_png=False)
-    for name in os.listdir(os.path.join(root, "merged")):
-        os.remove(os.path.join(root, "merged", name))
-        break                                  # one field gone, not all
+    merged = os.path.join(root, "merged")
+    gone = [name for name in sorted(os.listdir(merged)) if "_r1_c1_" in name]
+    assert len(gone) == 1, gone
+    os.remove(os.path.join(merged, gone[0]))
 
     view = CellMontageView(
         frame_provider=lambda: pd.read_csv(results_csv),

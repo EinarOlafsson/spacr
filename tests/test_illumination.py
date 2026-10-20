@@ -229,7 +229,7 @@ def write_segmentation_application(root, **changes):
     }
     record.update(changes)
     path = illumination / 'segmentation_application.json'
-    path.write_text(json.dumps(record, indent=2) + '\n')
+    path.write_text(json.dumps(record, indent=2) + '\n', encoding="utf-8")
     return merged, path, record
 
 
@@ -1073,7 +1073,7 @@ def _categories_in_the_settings_literal():
 
     import spacr.settings as S
 
-    tree = ast.parse(pathlib.Path(S.__file__).read_text())
+    tree = ast.parse(pathlib.Path(S.__file__).read_text(encoding="utf-8"))
     for node in ast.walk(tree):
         if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
             continue
@@ -2090,7 +2090,7 @@ def test_measure_input_guard_refuses_any_record_that_cannot_prove_raw_pixels(
 
 def test_measure_input_guard_fails_closed_on_malformed_provenance(tmp_path):
     merged, path, _record = write_segmentation_application(tmp_path / 'plate')
-    path.write_text('{broken')
+    path.write_text('{broken', encoding="utf-8")
 
     with pytest.raises(ill.IlluminationError, match='cannot verify'):
         ill.validate_measurement_illumination_inputs({
@@ -2098,7 +2098,7 @@ def test_measure_input_guard_fails_closed_on_malformed_provenance(tmp_path):
             'src': str(merged),
         })
 
-    path.write_text('[]')
+    path.write_text('[]', encoding="utf-8")
     with pytest.raises(ill.IlluminationError, match='not a JSON object'):
         ill.validate_measurement_illumination_inputs({
             'illumination_correction': True,

@@ -55,7 +55,7 @@ def test_new_acquisition_after_relocation_lands_only_in_new_model_cache(cache, t
     assert resolved.parent == relocated
     assert resolved.read_bytes() == data
     assert not (home / 'models').exists()
-    assert json.loads((home / 'cache_locations.json').read_text())['SPACR_MODEL_CACHE'] == str(relocated)
+    assert json.loads((home / 'cache_locations.json').read_text(encoding="utf-8"))['SPACR_MODEL_CACHE'] == str(relocated)
 
 
 def test_configured_model_root_survives_normal_cache_location_reapplication(cache, tmp_path, monkeypatch):

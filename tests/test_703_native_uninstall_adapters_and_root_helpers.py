@@ -35,9 +35,9 @@ from tests.test_uninstall_selection_703 import (
 
 __all__ = ["installation", "protected_macos"]
 
-pytestmark = pytest.mark.skipif(os.name == "nt", reason="POSIX descriptor fixtures")
 
 
+@pytest.mark.posix_only
 def test_the_macos_online_adapter_is_only_for_macos_and_protected_copies(protected_macos,
                                                                          monkeypatch):
     box, machine, preview, choice, records, helper = protected_macos
@@ -48,6 +48,7 @@ def test_the_macos_online_adapter_is_only_for_macos_and_protected_copies(protect
     assert ic._macos_native_uninstall_adapter(preview, records, machine) is None
 
 
+@pytest.mark.posix_only
 def test_the_macos_online_adapter_refuses_an_aliased_helper(protected_macos, monkeypatch):
     box, machine, preview, choice, records, helper = protected_macos
     real = os.path.realpath
@@ -57,6 +58,7 @@ def test_the_macos_online_adapter_refuses_an_aliased_helper(protected_macos, mon
         ic._macos_native_uninstall_adapter(preview, records, machine)
 
 
+@pytest.mark.posix_only
 def test_the_macos_online_adapter_refuses_extra_shortcuts_or_a_moved_launcher(protected_macos):
     box, machine, preview, choice, records, helper = protected_macos
     with_shortcut = [dataclasses.replace(record, shortcuts=(str(box.home / "Desktop" / "spaCR"),))
@@ -89,6 +91,7 @@ def test_a_user_owned_writable_frozen_app_needs_no_administrator(tmp_path):
     assert ic._macos_frozen_uninstall_adapter({"cleanup": []}, [record], machine) is None
 
 
+@pytest.mark.posix_only
 def test_a_protected_frozen_app_with_a_launcher_is_refused(tmp_path, monkeypatch):
     from tests.test_install_cleanup import Box
 
@@ -146,6 +149,7 @@ def debian(monkeypatch):
     return machine, state
 
 
+@pytest.mark.posix_only
 def test_the_debian_adapter_binds_the_package_helper_and_desktop(debian):
     machine, _state = debian
     adapter = ic._native_uninstall_adapter({"cleanup": []}, [_debian_record()], machine)
@@ -162,6 +166,7 @@ def test_the_debian_adapter_binds_the_package_helper_and_desktop(debian):
     ("marker-content", "uninstall-protocol.json"),
     ("no-pkexec", "graphical administrator authorization is unavailable"),
 ])
+@pytest.mark.posix_only
 def test_the_debian_adapter_refuses_what_it_cannot_bind(debian, problem, error):
     machine, state = debian
     records = [_debian_record()]
@@ -224,6 +229,7 @@ def debian_root(monkeypatch):
     return SimpleNamespace(events=events, answers=answers, call=call)
 
 
+@pytest.mark.posix_only
 def test_the_debian_root_helper_must_be_the_packaged_frozen_helper(debian_root, monkeypatch):
     monkeypatch.setattr(ic.sys, "executable", "/usr/bin/python3")
     with pytest.raises(ValueError, match="spacr-update-helper"):
@@ -231,6 +237,7 @@ def test_the_debian_root_helper_must_be_the_packaged_frozen_helper(debian_root, 
     assert debian_root.events == []
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("failing", ["--no-act", "--remove"])
 def test_a_failed_dpkg_step_stops_the_debian_uninstall(debian_root, failing):
     debian_root.answers[failing] = 1
@@ -277,6 +284,7 @@ def macos_root(monkeypatch):
     ("bad-identity", "installation changed"),
     ("keep-not-list", "installation changed"),
 ])
+@pytest.mark.posix_only
 def test_the_macos_root_helper_refuses_before_any_removal(macos_root, monkeypatch, problem,
                                                           error):
     arguments = {}
@@ -297,6 +305,7 @@ def test_the_macos_root_helper_refuses_before_any_removal(macos_root, monkeypatc
     assert bool(macos_root.identities) == (problem in {"bad-identity", "keep-not-list"})
 
 
+@pytest.mark.posix_only
 def test_the_descriptor_walk_refuses_special_files_and_non_directories(tmp_path):
     root = tmp_path / "spaCR.app"
     (root / "Contents").mkdir(parents=True)
@@ -306,7 +315,7 @@ def test_the_descriptor_walk_refuses_special_files_and_non_directories(tmp_path)
     with pytest.raises(ValueError, match="pipe"):
         ic._macos_uninstall_tree(str(root), ic._identity(str(root)), [], owner=os.getuid())
     single = tmp_path / "single-file"
-    single.write_text("x")
+    single.write_text("x", encoding="utf-8")
     with pytest.raises(ValueError, match="installation changed"):
         ic._macos_uninstall_tree(str(single), ic._identity(str(single)), [], owner=os.getuid())
 
@@ -315,12 +324,13 @@ def _plain_tree(tmp_path):
     root = tmp_path / "spaCR.app"
     payload = root / "Contents" / "payload"
     payload.parent.mkdir(parents=True)
-    payload.write_text("software")
+    payload.write_text("software", encoding="utf-8")
     for path in (root, root / "Contents"):
         path.chmod(0o755)
     return root, payload
 
 
+@pytest.mark.posix_only
 def test_a_directory_replaced_while_it_is_opened_is_refused(tmp_path, monkeypatch):
     root, payload = _plain_tree(tmp_path)
     identity = ic._identity(str(root))
@@ -333,9 +343,10 @@ def test_a_directory_replaced_while_it_is_opened_is_refused(tmp_path, monkeypatc
     monkeypatch.setattr(ic.os, "fstat", moved)
     with pytest.raises(ValueError, match="installation changed"):
         ic._macos_uninstall_tree(str(root), identity, [], apply=True, owner=os.getuid())
-    assert payload.read_text() == "software"
+    assert payload.read_text(encoding="utf-8") == "software"
 
 
+@pytest.mark.posix_only
 def test_a_file_replaced_between_check_and_removal_is_refused(tmp_path, monkeypatch):
     root, payload = _plain_tree(tmp_path)
     identity = ic._identity(str(root))
@@ -353,7 +364,7 @@ def test_a_file_replaced_between_check_and_removal_is_refused(tmp_path, monkeypa
     monkeypatch.setattr(ic.os, "stat", replaced)
     with pytest.raises(ValueError, match="installation changed"):
         ic._macos_uninstall_tree(str(root), identity, [], apply=True, owner=os.getuid())
-    assert payload.read_text() == "software"
+    assert payload.read_text(encoding="utf-8") == "software"
 
 
 class _Channel:
@@ -416,6 +427,7 @@ def test_the_windows_adapter_runs_through_its_own_native_path(monkeypatch):
     assert seen == [adapter]
 
 
+@pytest.mark.posix_only
 def test_an_authorization_process_that_ends_early_stops_and_cancels(installation, tmp_path,
                                                                     monkeypatch):
     events = []
@@ -427,6 +439,7 @@ def test_an_authorization_process_that_ends_early_stops_and_cancels(installation
     assert events == [["prepared"], "cancel"] and not process.terminated
 
 
+@pytest.mark.posix_only
 def test_a_native_helper_that_exits_with_failure_is_an_error(installation, tmp_path,
                                                              monkeypatch):
     events = []
@@ -437,6 +450,7 @@ def test_a_native_helper_that_exits_with_failure_is_an_error(installation, tmp_p
     assert events == [["prepared"], "ready", "closed", "activate", ["complete"]]
 
 
+@pytest.mark.posix_only
 def test_a_helper_inside_a_selected_path_or_without_an_interpreter_is_refused(
         installation, tmp_path, monkeypatch):
     from tests.test_uninstall_selection_703 import _preview_choice
@@ -453,6 +467,7 @@ def test_a_helper_inside_a_selected_path_or_without_an_interpreter_is_refused(
                                    workdir=str(tmp_path / "helper"), spawn=lambda *a: None)
 
 
+@pytest.mark.posix_only
 def test_an_administrator_debian_copy_is_refused_before_the_helper_starts(
         installation, tmp_path, monkeypatch):
     from tests.test_uninstall_selection_703 import _preview_choice
@@ -506,7 +521,10 @@ def test_a_running_windows_copy_prepares_its_own_uninstall_helper(installation, 
     assert plan["command"] == ["helper.exe", "-I", "module.py", "run-uninstall-plan",
                                str(helper / "plan.json")]
     assert spawned == [(plan["command"], None, str(helper))]
-    assert stat.S_IMODE(os.stat(helper / "helper").st_mode) == 0o700
+    if os.name == "nt":
+        assert ic._windows_pip_private_directory(str(helper / "helper")) == str(helper / "helper")
+    else:
+        assert stat.S_IMODE(os.stat(helper / "helper").st_mode) == 0o700
 
 
 def test_an_oversized_plan_file_is_refused(tmp_path):
@@ -522,13 +540,14 @@ def _approved(installation, tmp_path, native=None):
     path = tmp_path / "outside-helper" / "plan.json"
     if native is not None:
         plan["native"] = native
-        path.write_text(json.dumps(plan))
+        path.write_text(json.dumps(plan), encoding="utf-8")
     handshake = ic._FrozenUpdateHandshake(plan)
     handshake.ready()
     handshake.approve()
     return box, root, machine, plan, path
 
 
+@pytest.mark.posix_only
 def test_a_native_choice_that_changed_since_review_stops_the_plan(installation, tmp_path,
                                                                   monkeypatch):
     box, root, machine, plan, path = _approved(installation, tmp_path)
@@ -536,14 +555,14 @@ def test_a_native_choice_that_changed_since_review_stops_the_plan(installation, 
     with pytest.raises(ValueError, match="installation changed"):
         ic._run_uninstall_plan(str(path), system=machine, wait=lambda pid: True)
     assert (root / "venv" / "bin" / "python").exists()
-    readiness = json.loads((tmp_path / "outside-helper" / "readiness.json").read_text())
+    readiness = json.loads((tmp_path / "outside-helper" / "readiness.json").read_text(encoding="utf-8"))
     assert readiness["state"] == "error" and "installation changed" in readiness["error"]
 
 
 def _native_plan(installation, tmp_path, monkeypatch, remaining_change=None, delete_fails=False):
     leftover = tmp_path / "Desktop" / "spaCR.desktop"
     leftover.parent.mkdir(parents=True)
-    leftover.write_text("[Desktop Entry]")
+    leftover.write_text("[Desktop Entry]", encoding="utf-8")
     _box, root, _machine, _plan, _path = _prepared_helper(installation, tmp_path)
     native = {"adapter": "linux-deb-native", "roots": [str(root)],
               "remaining": [{"path": str(leftover),
@@ -565,19 +584,21 @@ def _native_plan(installation, tmp_path, monkeypatch, remaining_change=None, del
     return root, machine, path, leftover, ran
 
 
+@pytest.mark.posix_only
 def test_after_the_native_removal_only_the_reviewed_remainder_is_deleted(installation, tmp_path,
                                                                         monkeypatch):
     root, machine, path, leftover, ran = _native_plan(installation, tmp_path, monkeypatch)
     assert ic._run_uninstall_plan(str(path), system=machine, wait=lambda pid: True) == 0
     assert ran and not leftover.exists()
     assert (root / "venv" / "bin" / "python").exists()
-    assert json.loads((tmp_path / "outside-helper" / "result.json").read_text())["ok"]
+    assert json.loads((tmp_path / "outside-helper" / "result.json").read_text(encoding="utf-8"))["ok"]
 
 
 @pytest.mark.parametrize("problem, error", [
     ("changed", "installation changed"),
     ("undeletable", "Uninstall preparation stopped"),
 ])
+@pytest.mark.posix_only
 def test_a_changed_or_undeletable_remainder_stops_after_the_native_removal(
         installation, tmp_path, monkeypatch, problem, error):
     root, machine, path, leftover, ran = _native_plan(

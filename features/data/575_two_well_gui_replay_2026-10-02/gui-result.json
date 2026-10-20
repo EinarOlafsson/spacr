@@ -1,7 +1,0 @@
-{
-  "success": true,
-  "seconds": 83.31347358899802,
-  "journal": "/tmp/spacr-implementation-20261001/f575-two-well/run1/app-state/runs/2026-10-02_043706_e46ad6a6__measure",
-  "workflow": "/tmp/spacr-implementation-20261001/f575-two-well/run1/export/2026-10-02_043706_e46ad6a6__measure_snakemake/Snakefile",
-  "original_source_unchanged": true
-}

@@ -95,7 +95,7 @@ def test_every_qthread_in_the_qt_layer_is_covered():
     for path in root.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
         if "(QThread)" in text:
-            found.add(str(path))
+            found.add(path.as_posix())
     assert found == set(WORKER_MODULES), (
         f"QThread subclasses this test does not check: "
         f"{sorted(found - set(WORKER_MODULES))}; "

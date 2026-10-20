@@ -1,1094 +1,0 @@
-Command: ['/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_tool.py', 'tools/tutorials/publish_release_candidate.py', 'upload', '/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e', '--branch', 'n676-selective02-20261015', '--tag', 'n676-selective02-20261015-verified']
-Source: 14ecf9d1054e15194bb7b9ff01779af061fae875
-  hf upload einarolafsson/spacr-tutorials /media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/media_host . --repo-type dataset --revision n676-selective02-20261015 --commit-message Tutorial media for release candidate release-candidate-append-lxmwr53e --commit-description release-manifest.json sha256 98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439
-It seems you are trying to upload a large folder at once. This might take some time and then fail if the folder is too large. For such cases, it is recommended to upload in smaller batches or to use `HfApi().upload_large_folder(...)`/`hf upload-large-folder` instead. For more details, check out https://huggingface.co/docs/huggingface_hub/main/en/guides/upload#upload-a-large-folder.
-Start hashing 5369 files.
-Finished hashing 5369 files.
-Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
-New Data Upload               : |          |  0.00B /  0.00B            [A
-
-  ...hub/audio/en/af_aoede.m4a: 100%|██████████|  668kB /  668kB            [A[A
-
-  ...hub/audio/en/af_aoede.m4a: 100%|██████████|  668kB /  668kB            [A[AProcessing Files (1 / 247)    :   0%|          |  668kB / 1.08GB,   ???B/s  
-
-
-  ...thub/audio/ja/jm_kumo.m4a: 100%|██████████|  885kB /  885kB            [A[A[A
-
-
-
-  .../audio/en/bf_isabella.m4a: 100%|██████████|  684kB /  684kB            [A[A[A[A
-
-
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 2.81MB / 2.81MB            [A[A[A[A[A
-
-
-
-
-
-  ...sk/audio/ja/jf_nezumi.m4a: 100%|██████████| 2.06MB / 2.06MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...ithub/audio/en/af_sky.m4a: 100%|██████████|  683kB /  683kB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...asure/audio/en/af_sky.m4a: 100%|██████████| 1.87MB / 1.87MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...ers/audio/es/em_santa.m4a: 100%|██████████| 1.35MB / 1.35MB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...ask/audio/hi/hm_omega.m4a: 100%|██████████| 1.51MB / 1.51MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  ...ome/audio/en/af_aoede.m4a: 100%|██████████| 2.78MB / 2.78MB            [A[A[A[A[A[A[A[A[A[A[A
-
-  ...hub/audio/en/af_aoede.m4a: 100%|██████████|  668kB /  668kB            [A[A
-
-
-  ...thub/audio/ja/jm_kumo.m4a: 100%|██████████|  885kB /  885kB            [A[A[A
-
-
-
-  .../audio/en/bf_isabella.m4a: 100%|██████████|  684kB /  684kB            [A[A[A[A
-
-
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 2.81MB / 2.81MB            [A[A[A[A[A
-
-
-
-
-
-  ...sk/audio/ja/jf_nezumi.m4a: 100%|██████████| 2.06MB / 2.06MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...ithub/audio/en/af_sky.m4a: 100%|██████████|  683kB /  683kB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...asure/audio/en/af_sky.m4a: 100%|██████████| 1.87MB / 1.87MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...ers/audio/es/em_santa.m4a: 100%|██████████| 1.35MB / 1.35MB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...ask/audio/hi/hm_omega.m4a: 100%|██████████| 1.51MB / 1.51MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 293 files]               :  46%|████▋     |  629MB / 1.36GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (299 / 2758) :   8%|▊         |  641MB / 8.53GB,   ???B/s  
-
-  .../video/05_home_silent.mp4:  30%|██▉       |  152MB /  512MB            [A[A
-
-
-  ...sk/web/07_mask_silent.mp4: 100%|██████████| 38.3MB / 38.3MB            [A[A[A
-
-
-
-  ...me/web/05_home_silent.mp4: 100%|██████████| 83.3MB / 83.3MB            [A[A[A[A
-
-
-
-
-  .../video/07_mask_silent.mp4:  67%|██████▋   |  128MB /  192MB            [A[A[A[A[A
-
-
-
-
-
-  ...ask/audio/en/am_santa.m4a: 100%|██████████| 1.50MB / 1.50MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...udio/ja/jf_gongitsune.m4a: 100%|██████████| 2.67MB / 2.67MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...thub/audio/es/ef_dora.m4a: 100%|██████████|  675kB /  675kB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...pacr/audio/hi/hf_beta.m4a: 100%|██████████| 1.68MB / 1.68MB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...acr/audio/hi/hf_alpha.m4a: 100%|██████████| 1.94MB / 1.94MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 179 files]               :  50%|████▉     |  573MB / 1.15GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (475 / 2758) :  18%|█▊        | 1.52GB / 8.53GB,   ???B/s  
-
-  .../video/05_home_silent.mp4:  53%|█████▎    |  272MB /  512MB            [A[A
-
-
-  .../video/07_mask_silent.mp4: 100%|██████████|  192MB /  192MB            [A[A[A
-
-
-
-  ...11_classify_ml_silent.mp4: 100%|██████████| 33.1MB / 33.1MB            [A[A[A[A
-
-
-
-
-  ...11_classify_ml_silent.mp4:  76%|███████▋  |  144MB /  189MB            [A[A[A[A[A
-
-
-
-
-
-  ...eo/09_annotate_silent.mp4:  74%|███████▍  |  184MB /  247MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...deo/08_measure_silent.mp4:  68%|██████▊   |  208MB /  306MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...eb/09_annotate_silent.mp4: 100%|██████████| 64.1MB / 64.1MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...te/audio/en/bm_daniel.m4a: 100%|██████████| 1.59MB / 1.59MB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  .../audio/zh-CN/zm_yunxi.m4a: 100%|██████████|  753kB /  753kB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 87 files]                : 100%|█████████▉|  344MB /  345MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (563 / 2758) :  28%|██▊       | 2.41GB / 8.53GB,  232MB/s  
-
-  .../video/05_home_silent.mp4:  77%|███████▋  |  392MB /  512MB            [A[A
-
-
-  ...11_classify_ml_silent.mp4: 100%|██████████|  189MB /  189MB            [A[A[A
-
-
-
-  ...eo/09_annotate_silent.mp4: 100%|██████████|  247MB /  247MB            [A[A[A[A
-
-
-
-
-  ...deo/08_measure_silent.mp4: 100%|██████████|  306MB /  306MB            [A[A[A[A[A
-
-
-
-
-
-  ...ks/audio/ja/jf_nezumi.m4a: 100%|██████████| 8.67MB / 8.67MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  .../audio/ja/jf_tebukuro.m4a: 100%|██████████| 8.30MB / 8.30MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...asks/audio/en/am_echo.m4a: 100%|██████████| 5.78MB / 5.78MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████|  955kB /  955kB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...asks/audio/ja/jm_kumo.m4a: 100%|██████████| 7.12MB / 7.12MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 146 files]               :  56%|█████▌    |  572MB / 1.03GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (711 / 2758) :  39%|███▉      | 3.31GB / 8.53GB,  313MB/s  
-
-  .../video/05_home_silent.mp4: 100%|██████████|  512MB /  512MB            [A[A
-
-
-  .../15_image_umap_silent.mp4:  75%|███████▌  |  184MB /  245MB            [A[A[A
-
-
-
-  .../14_make_masks_silent.mp4:  70%|███████   |  224MB /  319MB            [A[A[A[A
-
-
-
-
-  .../14_make_masks_silent.mp4: 100%|██████████|  162MB /  162MB            [A[A[A[A[A
-
-
-
-
-
-  ...lity/audio/es/ef_dora.m4a: 100%|██████████| 1.18MB / 1.18MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...umap/audio/en/bf_lily.m4a: 100%|██████████| 1.28MB / 1.28MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...ility/audio/hi/hm_psi.m4a: 100%|██████████| 1.32MB / 1.32MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...s/audio/pt-BR/pm_alex.m4a: 100%|██████████| 5.64MB / 5.64MB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 1.02MB / 1.02MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 236 files]               :  78%|███████▊  |  492MB /  631MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (947 / 2758) :  49%|████▉     | 4.21GB / 8.53GB,  393MB/s  
-
-  .../15_image_umap_silent.mp4: 100%|██████████|  245MB /  245MB            [A[A
-
-
-  .../14_make_masks_silent.mp4: 100%|██████████|  319MB /  319MB            [A[A[A
-
-
-
-  ...25_recruitment_silent.mp4: 100%|██████████| 11.2MB / 11.2MB            [A[A[A[A
-
-
-
-
-  ...o/23_agreement_silent.mp4:  91%|█████████▏|  168MB /  184MB            [A[A[A[A[A
-
-
-
-
-
-  ...ent/audio/fr/ff_siwis.m4a: 100%|██████████| 1.73MB / 1.73MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████|  684kB /  684kB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...aque/audio/es/em_alex.m4a: 100%|██████████| 1.93MB / 1.93MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...sion/audio/es/em_alex.m4a: 100%|██████████| 1.37MB / 1.37MB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...s/audio/pt-BR/pm_alex.m4a: 100%|██████████| 1.03MB / 1.03MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 402 files]               : 100%|██████████|  573MB /  573MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (1352 / 2758):  59%|█████▉    | 5.07GB / 8.53GB,  465MB/s  
-
-  ...o/23_agreement_silent.mp4: 100%|██████████|  184MB /  184MB            [A[A
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████|  952kB /  952kB            [A[A[A
-
-
-
-  ...ion/audio/hi/hm_omega.m4a: 100%|██████████| 1.38MB / 1.38MB            [A[A[A[A
-
-
-
-
-  ...udio/ja/jf_gongitsune.m4a: 100%|██████████| 1.08MB / 1.08MB            [A[A[A[A[A
-
-
-
-
-
-  ...base/audio/hi/hf_beta.m4a: 100%|██████████|  393kB /  393kB            [A[A[A[A[A[A
-
-
-
-
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████|  928kB /  928kB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...ewer/audio/hi/hf_beta.m4a: 100%|██████████|  799kB /  799kB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...audio/zh-CN/zf_xiaoyi.m4a: 100%|██████████|  734kB /  734kB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...e/audio/pt-BR/pf_dora.m4a: 100%|██████████|  382kB /  382kB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 570 files]               :  90%|█████████ |  855MB /  947MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (1922 / 2758):  70%|██████▉   | 5.94GB / 8.53GB,  537MB/s  
-
-  ...3_illumination_silent.mp4: 100%|██████████|  188MB /  188MB            [A[A
-
-
-  ...tter/audio/ja/jm_kumo.m4a: 100%|██████████|  953kB /  953kB            [A[A[A
-
-
-
-  ...ethods_results_silent.mp4: 100%|██████████| 5.54MB / 5.54MB            [A[A[A[A
-
-
-
-
-  ...re/audio/it/im_nicola.m4a: 100%|██████████|  599kB /  599kB            [A[A[A[A[A
-
-
-
-
-
-  ...er/audio/ja/jf_nezumi.m4a: 100%|██████████|  958kB /  958kB            [A[A[A[A[A[A
-
-
-
-
-
-
-  .../audio/ja/jf_tebukuro.m4a: 100%|██████████|  928kB /  928kB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...rd/audio/it/im_nicola.m4a: 100%|██████████|  842kB /  842kB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...r/audio/pt-BR/pm_alex.m4a: 100%|██████████|  654kB /  654kB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...aph/audio/es/em_santa.m4a: 100%|██████████|  704kB /  704kB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 368 files]               : 100%|██████████|  789MB /  789MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2291 / 2758):  80%|███████▉  | 6.81GB / 8.53GB,  607MB/s  
-
-  ...udio/zh-CN/zf_xiaobei.m4a: 100%|██████████| 1.29MB / 1.29MB            [A[A
-
-
-  ...ort/audio/hi/hm_omega.m4a: 100%|██████████| 1.16MB / 1.16MB            [A[A[A
-
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 1.54MB / 1.54MB            [A[A[A[A
-
-
-
-
-  ...ary/audio/hi/hm_omega.m4a: 100%|██████████|  764kB /  764kB            [A[A[A[A[A
-
-
-
-
-
-  ...e/audio/pt-BR/pf_dora.m4a: 100%|██████████| 1.65MB / 1.65MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...s/audio/pt-BR/pm_alex.m4a: 100%|██████████| 1.45MB / 1.45MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████| 1.56MB / 1.56MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...hit/audio/en/af_heart.m4a: 100%|██████████| 1.83MB / 1.83MB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...audio/zh-CN/zf_xiaoyi.m4a: 100%|██████████|  532kB /  532kB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 288 files]               :  79%|███████▉  |  874MB / 1.10GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2577 / 2758):  90%|█████████ | 7.68GB / 8.53GB,  674MB/s  
-
-  ...inputs_outputs_silent.mp4:  75%|███████▍  |  128MB /  172MB            [A[A
-
-
-  ...inputs_outputs_silent.mp4: 100%|██████████| 86.1MB / 86.1MB            [A[A[A
-
-
-
-  ...audio/zh-CN/zf_xiaoyi.m4a: 100%|██████████| 9.92MB / 9.92MB            [A[A[A[A
-
-
-
-
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████|  718kB /  718kB            [A[A[A[A[A
-
-
-
-
-
-  ...s/audio/pt-BR/pm_alex.m4a: 100%|██████████| 1.12MB / 1.12MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...s/audio/pt-BR/pf_dora.m4a: 100%|██████████| 21.5MB / 21.5MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...ics/audio/hi/hf_alpha.m4a: 100%|██████████|  962kB /  962kB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████|  946kB /  946kB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████|  660kB /  660kB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 177 files]               : 100%|█████████▉|  588MB /  589MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2754 / 2758):  99%|█████████▉| 8.45GB / 8.53GB,  730MB/s  
-
-  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A
-
-
-  ...lysis_pathways_silent.mp4: 100%|██████████|  122MB /  122MB            [A[A[A
-
-
-
-  ...asma/audio/en/am_liam.m4a: 100%|██████████|  675kB /  675kB            [A[A[A[A
-
-
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 1.31MB / 1.31MB            [A[A[A[A[A
-
-
-
-
-
-  ...ogen/audio/it/if_sara.m4a: 100%|██████████| 1.30MB / 1.30MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...lasma/audio/hi/hm_psi.m4a: 100%|██████████|  752kB /  752kB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...ogen/audio/es/ef_dora.m4a: 100%|██████████| 1.35MB / 1.35MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...res/audio/hi/hm_omega.m4a: 100%|██████████| 2.39MB / 2.39MB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████| 1.26MB / 1.26MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  [+ 2 files]                 :   7%|▋         | 2.22MB / 31.1MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2755 / 2758): 100%|█████████▉| 8.49GB / 8.53GB,  717MB/s  
-New Data Upload               :   6%|▌         | 2.06MB / 37.4MB,  191kB/s  [A
-
-  ...inputs_outputs_silent.mp4:  98%|█████████▊|  168MB /  172MB            [A[A
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 1.31MB / 1.31MB            [A[A[A
-
-
-
-  ...ogen/audio/it/if_sara.m4a: 100%|██████████| 1.30MB / 1.30MB            [A[A[A[A
-
-
-
-
-  ...lasma/audio/hi/hm_psi.m4a: 100%|██████████|  752kB /  752kB            [A[A[A[A[A
-
-
-
-
-
-  ...ogen/audio/es/ef_dora.m4a: 100%|██████████| 1.35MB / 1.35MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...res/audio/hi/hm_omega.m4a: 100%|██████████| 2.39MB / 2.39MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████| 1.26MB / 1.26MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████|  536kB /  536kB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ..._install_spacr_silent.mp4:  51%|█████▏    | 7.14MB / 13.9MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  ..._install_spacr_silent.mp4:  51%|█████▏    | 8.58MB / 16.7MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2755 / 2758): 100%|█████████▉| 8.51GB / 8.53GB,  702MB/s  
-New Data Upload               :  51%|█████▏    | 19.2MB / 37.4MB, 1.77MB/s  [A
-
-  ...inputs_outputs_silent.mp4: 100%|█████████▉|  171MB /  172MB            [A[A
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 1.31MB / 1.31MB            [A[A[A
-
-
-
-  ...ogen/audio/it/if_sara.m4a: 100%|██████████| 1.30MB / 1.30MB            [A[A[A[A
-
-
-
-
-  ...lasma/audio/hi/hm_psi.m4a: 100%|██████████|  752kB /  752kB            [A[A[A[A[A
-
-
-
-
-
-  ...ogen/audio/es/ef_dora.m4a: 100%|██████████| 1.35MB / 1.35MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...res/audio/hi/hm_omega.m4a: 100%|██████████| 2.39MB / 2.39MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████| 1.26MB / 1.26MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████|  536kB /  536kB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ..._install_spacr_silent.mp4:  97%|█████████▋| 13.5MB / 13.9MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  ..._install_spacr_silent.mp4:  97%|█████████▋| 16.2MB / 16.7MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2755 / 2758): 100%|█████████▉| 8.53GB / 8.53GB,  688MB/s  
-New Data Upload               :  97%|█████████▋| 36.4MB / 37.4MB, 3.30MB/s  [A
-
-  ...inputs_outputs_silent.mp4: 100%|█████████▉|  172MB /  172MB            [A[A
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 1.31MB / 1.31MB            [A[A[A
-
-
-
-  ...ogen/audio/it/if_sara.m4a: 100%|██████████| 1.30MB / 1.30MB            [A[A[A[A
-
-
-
-
-  ...lasma/audio/hi/hm_psi.m4a: 100%|██████████|  752kB /  752kB            [A[A[A[A[A
-
-
-
-
-
-  ...ogen/audio/es/ef_dora.m4a: 100%|██████████| 1.35MB / 1.35MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...res/audio/hi/hm_omega.m4a: 100%|██████████| 2.39MB / 2.39MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████| 1.26MB / 1.26MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████|  536kB /  536kB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ..._install_spacr_silent.mp4:  99%|█████████▉| 13.8MB / 13.9MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  ..._install_spacr_silent.mp4:  99%|█████████▉| 16.6MB / 16.7MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2755 / 2758): 100%|█████████▉| 8.53GB / 8.53GB,  672MB/s  
-New Data Upload               :  99%|█████████▉| 37.1MB / 37.4MB, 3.29MB/s  [A
-
-  ...inputs_outputs_silent.mp4: 100%|██████████|  172MB /  172MB            [A[A
-
-
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 1.31MB / 1.31MB            [A[A[A
-
-
-
-  ...ogen/audio/it/if_sara.m4a: 100%|██████████| 1.30MB / 1.30MB            [A[A[A[A
-
-
-
-
-  ...lasma/audio/hi/hm_psi.m4a: 100%|██████████|  752kB /  752kB            [A[A[A[A[A
-
-
-
-
-
-  ...ogen/audio/es/ef_dora.m4a: 100%|██████████| 1.35MB / 1.35MB            [A[A[A[A[A[A
-
-
-
-
-
-
-  ...res/audio/hi/hm_omega.m4a: 100%|██████████| 2.39MB / 2.39MB            [A[A[A[A[A[A[A
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████| 1.26MB / 1.26MB            [A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████|  536kB /  536kB            [A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-  ..._install_spacr_silent.mp4: 100%|██████████| 13.9MB / 13.9MB            [A[A[A[A[A[A[A[A[A[A
-
-
-
-
-
-
-
-
-
-
-  ..._install_spacr_silent.mp4: 100%|██████████| 16.7MB / 16.7MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2758 / 2758): 100%|██████████| 8.53GB / 8.53GB,  657MB/s  
-New Data Upload               : 100%|██████████| 37.4MB / 37.4MB, 3.24MB/s  [AProcessing Files (2758 / 2758): 100%|██████████| 8.53GB / 8.53GB,  657MB/s  
-New Data Upload               : 100%|██████████| 37.4MB / 37.4MB, 3.24MB/s  
-  ...inputs_outputs_silent.mp4: 100%|██████████|  172MB /  172MB            
-  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 1.31MB / 1.31MB            
-  ...ogen/audio/it/if_sara.m4a: 100%|██████████| 1.30MB / 1.30MB            
-  ...lasma/audio/hi/hm_psi.m4a: 100%|██████████|  752kB /  752kB            
-  ...ogen/audio/es/ef_dora.m4a: 100%|██████████| 1.35MB / 1.35MB            
-  ...res/audio/hi/hm_omega.m4a: 100%|██████████| 2.39MB / 2.39MB            
-  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████| 1.26MB / 1.26MB            
-  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████|  536kB /  536kB            
-  ..._install_spacr_silent.mp4: 100%|██████████| 13.9MB / 13.9MB            
-  ..._install_spacr_silent.mp4: 100%|██████████| 16.7MB / 16.7MB            
-https://huggingface.co/datasets/einarolafsson/spacr-tutorials/tree/n676-selective02-20261015/.
-  read back 500/5369 files, 0.59 GB
-  read back 1000/5369 files, 2.41 GB
-  read back 1500/5369 files, 4.05 GB
-  read back 2000/5369 files, 4.71 GB
-  read back 2500/5369 files, 5.10 GB
-  read back 3000/5369 files, 5.45 GB
-  media host rate limit; retrying after 119s
-  media host rate limit; retrying after 119s
-  media host rate limit; retrying after 119s
-  media host rate limit; retrying after 119s
-  media host rate limit; retrying after 118s
-  media host rate limit; retrying after 118s
-  media host rate limit; retrying after 118s
-  media host rate limit; retrying after 118s
-  media host rate limit; retrying after 118s
-  media host rate limit; retrying after 118s
-  media host rate limit; retrying after 118s
-  media host rate limit; retrying after 118s
-  read back 3500/5369 files, 5.91 GB
-  read back 4000/5369 files, 6.45 GB
-  read back 4500/5369 files, 6.99 GB
-  read back 5000/5369 files, 7.97 GB
-  read back 5369/5369 files, 8.68 GB
-{"commit": "b62bcc2d85b3c54162485f7e6116cf04c0bf0dc3", "files_expected": 5369, "metadata_matched": 5369, "metadata_failures": [], "bytes_read_back": 8679855371, "downloaded_sha256_matched": 5369, "download_failures": [], "seconds": 394.7, "passed": true}
-PUBLISHED MEDIA https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b62bcc2d85b3c54162485f7e6116cf04c0bf0dc3
-
-Terminal exit status: 0

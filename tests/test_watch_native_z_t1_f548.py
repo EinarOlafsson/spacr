@@ -59,7 +59,7 @@ def test_raw_volume_channel_ten_keeps_numeric_position(tmp_path):
     assert stack.shape == (2, 8, 9, 10)
     for index in range(10):
         np.testing.assert_array_equal(stack[..., index], index + 1)
-    receipt = json.loads((tmp_path / 'stack/.spacr_volume_ingest.json').read_text())
+    receipt = json.loads((tmp_path / 'stack/.spacr_volume_ingest.json').read_text(encoding="utf-8"))
     assert receipt['channels'] == [str(index) for index in range(1, 11)]
 
 
@@ -74,7 +74,7 @@ def test_raw_volume_named_channels_keep_their_existing_order(tmp_path):
     settings = _raw_settings(tmp_path, metadata_type='custom',
                              custom_regex=pattern, channels=[0, 1])
     io.preprocess_img_data(settings)
-    receipt = json.loads((tmp_path / 'stack/.spacr_volume_ingest.json').read_text())
+    receipt = json.loads((tmp_path / 'stack/.spacr_volume_ingest.json').read_text(encoding="utf-8"))
     assert receipt['channels'] == ['alpha', 'beta']
     stack = np.load(next((tmp_path / 'stack').glob('*.npy')))
     np.testing.assert_array_equal(stack[..., 0], 10)
@@ -118,7 +118,7 @@ def test_native_z_t1_matches_raw_volume_batch_and_measure(tmp_path, fake_model,
     measure = dict(MEASURE, anisotropy=2)
     measure_crop(dict(measure, src=str(batch / 'merged')))
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(measure))
+    recipe.write_text(json.dumps(measure), encoding="utf-8")
     settings = dict(_mask(watched), **_fast(watched),
                     watch_pipeline='mask_measure',
                     watch_measure_settings=str(recipe))
@@ -147,7 +147,7 @@ def test_native_z_t1_matches_raw_volume_batch_and_measure(tmp_path, fake_model,
     for table in ('cell', 'nucleus'):
         assert _rows(batch / 'measurements/measurements.db', table) == _rows(
             watched / 'spacr_watch/measurements/measurements.db', table)
-    artifacts = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())[
+    artifacts = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))[
         'fields'][result['done'][0]]['collection_checkpoint']['artifacts']
     assert len([name for name in artifacts if name.startswith('.watch_planar/')]) == 6
     for channel in (1, 2):
@@ -172,7 +172,7 @@ def test_native_z_collection_resume_binds_both_inputs(tmp_path, monkeypatch,
         first = core._watch_folder_and_analyse(settings, recorder)
     assert len(first['failed']) == len(recorder.calls) == 1
     field = watched / 'spacr_watch' / 'fields' / first['failed'][0]
-    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     assert ledger['fields'][first['failed'][0]]['collection_checkpoint']['artifacts']
     if damage == 'linked_planar':
         planar = field / '.watch_planar'
@@ -189,7 +189,7 @@ def test_native_z_collection_resume_binds_both_inputs(tmp_path, monkeypatch,
         assert len(resumed['done']) == 1 and not resumed['failed']
     else:
         assert resumed['failed'] == first['failed'] and not resumed['done']
-        saved = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+        saved = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
         expected = ('Collection planar snapshots' if damage == 'linked_planar'
                     else 'Collection native Z inputs changed')
         assert expected in saved['fields'][first['failed'][0]]['error']
@@ -268,7 +268,7 @@ def test_native_z_checkpoint_refuses_missing_or_changed_analysis_inputs(
     result = core._watch_folder_and_analyse(settings, analyse)
     assert len(result['failed']) == len(recorder.calls) == 1
     assert not result['done']
-    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     entry = ledger['fields'][result['failed'][0]]
     assert 'Collection native Z input' in entry['error']
     assert 'collection_checkpoint' not in entry
@@ -291,7 +291,7 @@ def test_native_z_inputs_alone_cannot_complete_an_analysis(tmp_path, output):
 
     result = core._watch_folder_and_analyse(settings, analyse)
     assert len(result['failed']) == 1 and not result['done']
-    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     entry = ledger['fields'][result['failed'][0]]
     assert 'no completed analysis artifacts' in entry['error']
     assert 'collection_checkpoint' not in entry
@@ -308,7 +308,7 @@ def test_native_z_nested_map_snapshots_keep_relative_source_identity(tmp_path):
     result = core._watch_folder_and_analyse(
         dict(_mask(watched), **_fast(watched)), Recorder())
     assert len(result['done']) == 1 and not result['failed']
-    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     snapshots = ledger['fields'][result['done'][0]]['snapshot_sha256']
     assert set(snapshots) == {f'incoming/{row["target"]}' for row in rows}
 
@@ -339,7 +339,7 @@ def test_stop_during_volume_staging_rebuilds_fresh_inputs(
     key = 'plate1_A01_0001_001'
     field = watched / 'spacr_watch' / 'fields' / key
     assert len(list(field.glob('*.tif'))) == stop_after
-    first = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    first = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     assert first['fields'][key]['status'] == 'interrupted'
     recorder = Recorder()
     resumed = core._watch_folder_and_analyse(settings, recorder)
@@ -398,7 +398,7 @@ def test_native_z_preflight_refuses_unsafe_layouts(tmp_path, change):
         elif change == 'measure_time':
             measure.update(anisotropy=2, timelapse=True)
         recipe = tmp_path / 'measure.json'
-        recipe.write_text(json.dumps(measure))
+        recipe.write_text(json.dumps(measure), encoding="utf-8")
         settings.update(watch_pipeline='mask_measure',
                         watch_measure_settings=str(recipe))
     elif change == 'illumination':

@@ -124,8 +124,8 @@ def test_shown_the_tab_saves_and_the_run_is_announced(qtbot, prefs,
     webhook.setText("https://hooks.slack.com/services/T0/B0/zz9secret")
     dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
 
-    assert "zz9secret" not in (tmp_path / "notify.ini").read_text()
-    assert "zz9secret" in secret_file.read_text()
+    assert "zz9secret" not in (tmp_path / "notify.ini").read_text(encoding="utf-8")
+    assert "zz9secret" in secret_file.read_text(encoding="utf-8")
     assert prefs._saved_notification_secrets() == {"slack_webhook"}
     config = prefs._run_notification_config()
     assert config["slack"] is True and config["desktop"] is False
@@ -228,7 +228,7 @@ def test_new_channels_save_reopen_reset_and_forget_without_changing_recipients(
     assert config["email_to"] == "first@lab.example, second@lab.example"
     assert prefs._saved_notification_secrets() == {*fields, "slack_webhook"}
     for secret_name, (_, value) in fields.items():
-        assert value not in (tmp_path / "notify.ini").read_text()
+        assert value not in (tmp_path / "notify.ini").read_text(encoding="utf-8")
         assert run_journal._load_notify_secret(secret_name) == value
     assert run_journal._load_notify_secret("slack_webhook") == \
         "http://127.0.0.1/existing-slack-secret"

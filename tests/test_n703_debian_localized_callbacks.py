@@ -21,11 +21,11 @@ PROMPT_SOURCE = (
 @pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "ko", "hi", "is", "fr"])
 def test_debian_localized_refusal_and_cancelled_authorization_prompt(monkeypatch, tmp_path, language):
     reviewed = Path(__file__).parents[1] / "docs/i18n/reviewed/runtime" / language / "2026-10-15-debian-update-transaction.json"
-    rows = json.loads(reviewed.read_text())["records"]
+    rows = json.loads(reviewed.read_text(encoding="utf-8"))["records"]
     targets = {row["source"]: row["translation"] for row in rows}
     native = Path(__file__).parents[1] / "docs/i18n/reviewed/runtime" / language / "2026-10-16-n703-native-operations.json"
     targets.update({row["source"]: row["translation"]
-                    for row in json.loads(native.read_text())["records"]})
+                    for row in json.loads(native.read_text(encoding="utf-8"))["records"]})
     assert targets[METADATA_SOURCE] != METADATA_SOURCE and targets[PROMPT_SOURCE] != PROMPT_SOURCE
     store = QSettings(str(tmp_path / "isolated-language.ini"), QSettings.IniFormat)
     monkeypatch.setattr(preferences, "_settings", lambda: store)

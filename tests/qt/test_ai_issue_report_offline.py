@@ -147,9 +147,9 @@ def test_build_report_body_carries_no_credentials(monkeypatch, tmp_path):
     )
     log = tmp_path / "spacr.log"
     log.write_text("INFO starting\nDEBUG ANTHROPIC_API_KEY="
-                   "sk-ant-api03-LOGLEAK000111222\n")
+                   "sk-ant-api03-LOGLEAK000111222\n", encoding="utf-8")
     monkeypatch.setattr(ir, "log_tail",
-                        lambda *a, **k: ir.sanitize_path(log.read_text()))
+                        lambda *a, **k: ir.sanitize_path(log.read_text(encoding="utf-8")))
 
     report = ir.build_report(
         tb, active_app="mask",
@@ -319,7 +319,7 @@ def test_log_tail_returns_only_the_last_n_lines(tmp_path, monkeypatch):
     from spacr.qt.ai import issue_report as ir
     monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "home"))
     p = tmp_path / "spacr.log"
-    p.write_text("".join(f"line {i}\n" for i in range(100)))
+    p.write_text("".join(f"line {i}\n" for i in range(100)), encoding="utf-8")
     out = ir.log_tail(n_lines=5, log_path=p)
     assert out == "line 95\nline 96\nline 97\nline 98\nline 99\n"
 
@@ -331,7 +331,7 @@ def test_log_tail_sanitizes_home_paths_and_secrets(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", staticmethod(lambda: home))
     p = tmp_path / "spacr.log"
     p.write_text(f"opened {home}/data/run.db\n"
-                 "auth token=ghp_LOGTAILLEAK0123456789\n")
+                 "auth token=ghp_LOGTAILLEAK0123456789\n", encoding="utf-8")
     out = ir.log_tail(log_path=p)
     assert str(home) not in out
     assert "<DB>" in out
@@ -349,7 +349,7 @@ def test_log_tail_resolves_the_default_path_from_logging_util(tmp_path,
     from spacr.qt.ai import issue_report as ir
 
     p = tmp_path / "default.log"
-    p.write_text("from the default location\n")
+    p.write_text("from the default location\n", encoding="utf-8")
     monkeypatch.setattr(logging_util, "log_path", lambda: p)
     assert ir.log_tail() == "from the default location\n"
 

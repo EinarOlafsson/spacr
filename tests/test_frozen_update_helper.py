@@ -69,6 +69,7 @@ def test_helper_environment_drops_parent_python_and_restores_loader_path(tmp_pat
     assert machine.environ == original
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize("escape", ["workdir", "symlink", "plan"])
 def test_helper_refuses_paths_that_do_not_survive_removal(tmp_path, monkeypatch, escape):
     """Both symlinks and direct nested work folders must fail before copying."""
@@ -106,6 +107,7 @@ def test_helper_refuses_mac_resources_workdir_even_without_discovery_record(tmp_
     assert not work.exists()
 
 
+@pytest.mark.needs_symlink
 def test_helper_canonicalizes_aliased_doomed_root(tmp_path, monkeypatch):
     """A symlinked installation record still owns its actual directory."""
     machine, record, bundle, name = _frozen(tmp_path, monkeypatch)
@@ -119,6 +121,7 @@ def test_helper_canonicalizes_aliased_doomed_root(tmp_path, monkeypatch):
     assert not (work / name).exists()
 
 
+@pytest.mark.needs_symlink
 def test_helper_rejects_symlinked_plan_outside_private_folder(tmp_path, monkeypatch):
     """Lexically nested plan paths cannot redirect the surviving helper outside."""
     machine, record, _, _ = _frozen(tmp_path, monkeypatch)
@@ -145,6 +148,7 @@ def test_helper_does_not_fold_case_on_a_case_sensitive_filesystem(tmp_path, monk
     assert command is None and "outside its bundle" in error
 
 
+@pytest.mark.needs_symlink
 def test_helper_returns_canonical_plan_path(tmp_path, monkeypatch):
     """A safe alias resolves once before it becomes detached process argv."""
     machine, record, _, _ = _frozen(tmp_path, monkeypatch)
@@ -191,7 +195,7 @@ def test_frozen_family_cannot_fall_back_to_online_replacement(tmp_path, layout, 
         cleanup._reinstall_steps(record, "1.5.1.1", str(tmp_path / "update"), machine)
     path = tmp_path / "plan.json"
     path.write_text(json.dumps({"records": [asdict(record)], "pid": 123,
-                                "version": "1.5.1.1", "log": str(tmp_path / "update.log")}))
+                                "version": "1.5.1.1", "log": str(tmp_path / "update.log")}), encoding="utf-8")
 
     def forbidden(*args, **kwargs):
         """No wait, fetch, removal, installation or relaunch is authorized."""
@@ -199,13 +203,13 @@ def test_frozen_family_cannot_fall_back_to_online_replacement(tmp_path, layout, 
 
     assert cleanup._run_plan(str(path), system=machine, wait=forbidden, fetch=forbidden,
                              remove=forbidden, run=forbidden, spawn=forbidden) == 2
-    assert "nothing was changed" in (tmp_path / "update.log").read_text()
+    assert "nothing was changed" in (tmp_path / "update.log").read_text(encoding="utf-8")
 
 
 def test_bundle_builds_helper_from_existing_stdlib_entry_and_embeds_it():
     """The helper must be an independent EXE containing binaries and stdlib."""
     spec = Path(__file__).resolve().parents[1] / "packaging/spacr.spec"
-    tree = ast.parse(spec.read_text())
+    tree = ast.parse(spec.read_text(encoding="utf-8"))
     assignments = {node.targets[0].id: node.value for node in tree.body
                    if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)}
     analysis = assignments["helper_analysis"]
@@ -228,7 +232,7 @@ def test_bundle_builds_helper_from_existing_stdlib_entry_and_embeds_it():
 ])
 def test_every_helper_builder_requires_the_environment_reset_bootloader(path):
     """PyInstaller introduced the public independent-extraction flag in 6.10."""
-    source = (Path(__file__).resolve().parents[1] / path).read_text()
+    source = (Path(__file__).resolve().parents[1] / path).read_text(encoding="utf-8")
     assert "pyinstaller>=6.10,<7" in source
     assert "pyinstaller>=6,<7" not in source
 
@@ -249,7 +253,7 @@ def test_native_workflow_requires_copied_helper_after_actual_removal(job, step_n
     import yaml
 
     workflow = Path(__file__).resolve().parents[1] / ".github/workflows/frozen-installers.yml"
-    steps = yaml.safe_load(workflow.read_text())["jobs"][job]["steps"]
+    steps = yaml.safe_load(workflow.read_text(encoding="utf-8"))["jobs"][job]["steps"]
     assert not any("actions/setup-python" in step.get("uses", "") for step in steps)
     step = next(item for item in steps if item.get("name") == step_name)
     assert not step.get("continue-on-error", False)
@@ -278,7 +282,7 @@ def test_spec_rejects_old_bootloaders_even_when_dependency_install_is_skipped(ve
     """Preprovisioned builders must not silently omit the helper isolation mechanism."""
     from packaging.version import Version
     spec = Path(__file__).resolve().parents[1] / "packaging/spacr.spec"
-    tree = ast.parse(spec.read_text())
+    tree = ast.parse(spec.read_text(encoding="utf-8"))
     guard = next(node for node in tree.body if isinstance(node, ast.If)
                  and "PYINSTALLER_VERSION" in ast.unparse(node.test))
     code = compile(ast.Module(body=[guard], type_ignores=[]), str(spec), "exec")
@@ -297,7 +301,7 @@ def test_native_helper_shell_blocks_parse_without_running_installers():
     if bash is None:
         pytest.skip("bash is required to parse the POSIX native smoke programs")
     workflow = Path(__file__).resolve().parents[1] / ".github/workflows/frozen-installers.yml"
-    jobs = yaml.safe_load(workflow.read_text())["jobs"]
+    jobs = yaml.safe_load(workflow.read_text(encoding="utf-8"))["jobs"]
     checked = 0
     for name in ("smoke-frozen", "smoke-debian"):
         for step in jobs[name]["steps"]:
@@ -337,12 +341,12 @@ def test_actual_frozen_helper_runs_after_copy_without_source_or_python(tmp_path)
     assert "run-plan" in completed.stdout and "install_cleanup" in completed.stdout
     plan = tmp_path / "refused-plan.json"
     sentinel = tmp_path / "analysis.txt"
-    sentinel.write_text("preserve unrelated data")
+    sentinel.write_text("preserve unrelated data", encoding="utf-8")
     plan.write_text(json.dumps({"frozen_application": True, "records": [], "pid": os.getpid(),
-                                "version": "1.5.1.1", "log": str(tmp_path / "refusal.log")}))
+                                "version": "1.5.1.1", "log": str(tmp_path / "refusal.log")}), encoding="utf-8")
     refused = subprocess.run([str(target), "run-plan", str(plan)], cwd=tmp_path, env=environment,
                              capture_output=True, text=True, timeout=60)
     assert refused.returncode == 2, refused.stdout + refused.stderr
-    assert "nothing was changed" in (tmp_path / "refusal.log").read_text()
-    assert sentinel.read_text() == "preserve unrelated data"
+    assert "nothing was changed" in (tmp_path / "refusal.log").read_text(encoding="utf-8")
+    assert sentinel.read_text(encoding="utf-8") == "preserve unrelated data"
     assert source.is_file(), "the supplied native artifact must remain untouched"

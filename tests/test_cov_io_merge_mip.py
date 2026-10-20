@@ -163,7 +163,7 @@ def test_concatenate_channel_batches_split_output_files(tmp_path):
     src.mkdir(parents=True)
     for i in range(5):
         _write_npy_stack(src / f"plate1_A01_{i}.npy", (3, 3, 2), i)
-    (src / "ignored.txt").write_text("not an npy")
+    (src / "ignored.txt").write_text("not an npy", encoding="utf-8")
 
     out = _concatenate_channel(str(src), channels=[0, 1], randomize=False,
                                timelapse=False, batch_size=2)

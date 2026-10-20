@@ -177,7 +177,7 @@ class TestTheTerminalCommand:
         import re
 
         root = pathlib.Path(__file__).resolve().parents[2]
-        entries = (root / "setup.py").read_text()
+        entries = (root / "setup.py").read_text(encoding="utf-8")
         assert re.search(r"spacr-server\s*=\s*spacr\.qt:run_without_setup",
                          entries)
 

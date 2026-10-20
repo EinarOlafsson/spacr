@@ -306,7 +306,7 @@ class TestCustomFeatures:
 
     def test_discover_skips_single_param_function(self, _fd):
         # Function with <2 params is skipped (lines 105-107).
-        (_fd / "one.py").write_text("def only_mask(mask): return 1\n")
+        (_fd / "one.py").write_text("def only_mask(mask): return 1\n", encoding="utf-8")
         from spacr.custom_features import discover_features
         assert not any(f.name == "only_mask" for f in discover_features())
 
@@ -314,15 +314,15 @@ class TestCustomFeatures:
         # A symbol imported (not defined) in the file is skipped (93-99).
         (_fd / "imp.py").write_text(
             "from math import hypot\n"
-            "def local_feat(mask, image): return 1.0\n")
+            "def local_feat(mask, image): return 1.0\n", encoding="utf-8")
         from spacr.custom_features import discover_features
         names = [f.name for f in discover_features()]
         assert "hypot" not in names
         assert "local_feat" in names
 
     def test_discover_handles_broken_module(self, _fd):
-        (_fd / "boom.py").write_text("raise RuntimeError('x')\n")
-        (_fd / "ok.py").write_text("def good(mask, image): return 2\n")
+        (_fd / "boom.py").write_text("raise RuntimeError('x')\n", encoding="utf-8")
+        (_fd / "ok.py").write_text("def good(mask, image): return 2\n", encoding="utf-8")
         from spacr.custom_features import discover_features
         assert any(f.name == "good" for f in discover_features())
 
@@ -338,7 +338,7 @@ class TestNotebookExport:
         from spacr.notebook_export import export_run
         run_dir = tmp_path / "20260101_000000_x__mask"
         run_dir.mkdir()
-        (run_dir / "settings.json").write_text("{}")
+        (run_dir / "settings.json").write_text("{}", encoding="utf-8")
         out = export_run(run_dir, out_path=tmp_path / "nb.ipynb")
         assert out.exists()
 
@@ -347,8 +347,8 @@ class TestNotebookExport:
         from spacr.notebook_export import export_run
         run_dir = tmp_path / "20260101_000000_x__mask"
         run_dir.mkdir()
-        (run_dir / "manifest.json").write_text("{bad json")
-        (run_dir / "settings.json").write_text('{"src": "/tmp/x"}')
+        (run_dir / "manifest.json").write_text("{bad json", encoding="utf-8")
+        (run_dir / "settings.json").write_text('{"src": "/tmp/x"}', encoding="utf-8")
         out = export_run(run_dir, out_path=tmp_path / "nb.ipynb")
         assert out.exists()
 
@@ -360,7 +360,7 @@ class TestNotebookExport:
         ``_read_settings`` under the comment "Validate that the recorded
         settings exist and parse", and while that call swallowed the parse
         error the validation was a no-op: the notebook was written with
-        ``json.loads((RUN_DIR / 'settings.json').read_text())`` as its first
+        ``json.loads((RUN_DIR / 'settings.json').read_text(encoding="utf-8"))`` as its first
         code cell, so the failure moved off the export — where it can be
         reported — and into the user's notebook, on cell 1 of a file they had
         just been told was produced.
@@ -370,9 +370,9 @@ class TestNotebookExport:
         from spacr.notebook_export import export_run
         run_dir = tmp_path / "20260101_000000_x__mask"
         run_dir.mkdir()
-        (run_dir / "manifest.json").write_text('{"app_key": "mask"}')
+        (run_dir / "manifest.json").write_text('{"app_key": "mask"}', encoding="utf-8")
         # What a kill -9 mid-write leaves behind.
-        (run_dir / "settings.json").write_text("{also bad")
+        (run_dir / "settings.json").write_text("{also bad", encoding="utf-8")
 
         with pytest.raises(json.JSONDecodeError):
             export_run(run_dir, out_path=tmp_path / "nb.ipynb")
@@ -383,8 +383,8 @@ class TestNotebookExport:
         from spacr.notebook_export import export_run
         run_dir = tmp_path / "20260101_000000_x__measure"
         run_dir.mkdir()
-        (run_dir / "manifest.json").write_text('{"app_key": "measure"}')
-        (run_dir / "settings.json").write_text('{"src": "/tmp/x"}')
+        (run_dir / "manifest.json").write_text('{"app_key": "measure"}', encoding="utf-8")
+        (run_dir / "settings.json").write_text('{"src": "/tmp/x"}', encoding="utf-8")
         out = export_run(run_dir)
         assert out.name == "notebook.ipynb"
 
@@ -405,7 +405,7 @@ class TestEdgeLines:
     def test_disk_savings_counts_sidecars(self, tmp_path):
         # A present filename_map.csv is added (117-118).
         from spacr._v1_v2_bridge import report_disk_savings
-        (tmp_path / "filename_map.csv").write_text("a,b\n1,2\n")
+        (tmp_path / "filename_map.csv").write_text("a,b\n1,2\n", encoding="utf-8")
         out = report_disk_savings(tmp_path, [])
         assert out["v2_bytes"] > 0
 
@@ -416,7 +416,7 @@ class TestEdgeLines:
         monkeypatch.setattr(CF, "features_dir", lambda: d)
         # CONSTANT is public + non-callable → skipped (line 93).
         (d / "c.py").write_text(
-            "CONSTANT = 42\ndef feat(mask, image): return 1\n")
+            "CONSTANT = 42\ndef feat(mask, image): return 1\n", encoding="utf-8")
         names = [f.name for f in CF.discover_features()]
         assert "CONSTANT" not in names and "feat" in names
 
@@ -429,7 +429,7 @@ class TestEdgeLines:
         # Re-export a C builtin (len) — inspect.signature raises for it,
         # and its __module__ ('builtins') != the module, so it's skipped.
         (d / "b.py").write_text(
-            "mylen = len\ndef feat(mask, image): return 1\n")
+            "mylen = len\ndef feat(mask, image): return 1\n", encoding="utf-8")
         names = [f.name for f in CF.discover_features()]
         assert "mylen" not in names and "feat" in names
 
@@ -444,13 +444,13 @@ class TestEdgeLines:
 
         from spacr.notebook_export import _read_settings
         assert _read_settings(tmp_path) == {}          # no file at all
-        (tmp_path / "settings.json").write_text("{not valid")
+        (tmp_path / "settings.json").write_text("{not valid", encoding="utf-8")
         with pytest.raises(json.JSONDecodeError):
             _read_settings(tmp_path)
 
     def test_read_manifest_corrupt_json_returns_empty(self, tmp_path):
         from spacr.notebook_export import _read_manifest
-        (tmp_path / "manifest.json").write_text("{bad")
+        (tmp_path / "manifest.json").write_text("{bad", encoding="utf-8")
         assert _read_manifest(tmp_path) == {}
 
     def test_lt_non_string_returns_false(self):
@@ -477,10 +477,10 @@ class TestDefensiveInjection:
         import json
         from spacr.notebook_export import export_run
         run_dir = tmp_path / "20260101_000000_x__mask"; run_dir.mkdir()
-        (run_dir / "manifest.json").write_text('{"app_key": "mask"}')
-        (run_dir / "settings.json").write_text('{"src": "/tmp/x"}')
+        (run_dir / "manifest.json").write_text('{"app_key": "mask"}', encoding="utf-8")
+        (run_dir / "settings.json").write_text('{"src": "/tmp/x"}', encoding="utf-8")
         out = export_run(run_dir, out_path=tmp_path / "nb.ipynb")
-        nb = json.loads(out.read_text())
+        nb = json.loads(out.read_text(encoding="utf-8"))
         code = "\n".join("".join(c["source"]) for c in nb["cells"]
                           if c["cell_type"] == "code")
         assert "masks" in code.lower()
@@ -503,7 +503,7 @@ class TestDefensiveInjection:
         # exists()=True but stat() raises → except: pass (_v1_v2 117-118).
         from spacr import _v1_v2_bridge as B
         sidecar = tmp_path / "filename_map.csv"
-        sidecar.write_text("a\n")
+        sidecar.write_text("a\n", encoding="utf-8")
         real_stat = Path.stat
         def _boom(self, *a, **k):
             if self.name == "filename_map.csv":
@@ -519,7 +519,7 @@ class TestDefensiveInjection:
         from spacr import custom_features as CF
         d = tmp_path / "f"; d.mkdir()
         monkeypatch.setattr(CF, "features_dir", lambda: d)
-        (d / "x.py").write_text("def feat(mask, image): return 1\n")
+        (d / "x.py").write_text("def feat(mask, image): return 1\n", encoding="utf-8")
         monkeypatch.setattr(importlib.util, "spec_from_file_location",
                             lambda *a, **k: None)
         assert CF.discover_features() == []
@@ -531,7 +531,7 @@ class TestDefensiveInjection:
         from spacr import custom_features as CF
         d = tmp_path / "f"; d.mkdir()
         monkeypatch.setattr(CF, "features_dir", lambda: d)
-        (d / "s.py").write_text("def feat(mask, image): return 1\n")
+        (d / "s.py").write_text("def feat(mask, image): return 1\n", encoding="utf-8")
         real_sig = inspect.signature
         def _boom(obj, *a, **k):
             raise ValueError("no signature")
@@ -552,7 +552,7 @@ class TestDefensiveInjection:
             "    @property\n"
             "    def __module__(self): raise RuntimeError('x')\n"
             "weird = _Bad()\n"
-            "def feat(mask, image): return 2\n")
+            "def feat(mask, image): return 2\n", encoding="utf-8")
         names = [f.name for f in CF.discover_features()]
         # 'weird' is skipped (module attr raises); 'feat' survives.
         assert "weird" not in names

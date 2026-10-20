@@ -69,7 +69,7 @@ def test_secondary_controls_and_relationships_are_localized(
     from spacr.qt.screens.make_masks import MakeMasksScreen
 
     payload = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
-                          '2026-09-23-secondary-objects.json').read_text())
+                          '2026-09-23-secondary-objects.json').read_text(encoding="utf-8"))
     targets = {row['source']: row['translation'] for row in payload['records']}
     monkeypatch.setattr(i18n, 'current_language', lambda: language)
     images, primary_folder = tmp_path / 'images', tmp_path / 'primary'

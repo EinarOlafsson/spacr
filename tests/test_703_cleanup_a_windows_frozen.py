@@ -105,7 +105,7 @@ def test_windows_pip_helper_requires_an_outside_base_interpreter(runtime, monkey
     empty.mkdir()
     helper = tmp_path / "outside helper"
     helper.mkdir()
-    (helper / "spacr_helper.py").write_text("")
+    (helper / "spacr_helper.py").write_text("", encoding="utf-8")
     monkeypatch.setattr(cleanup.sys, "base_prefix", str(empty))
     ran = []
     monkeypatch.setattr(cleanup, "_run", lambda *args, **kwargs: ran.append(args) or (0, "{}"))
@@ -193,7 +193,7 @@ def test_windows_transaction_refuses_command_for_another_release(runtime, monkey
         _transaction(runtime, monkeypatch, runner, install=install)
     assert runner.commands == [] and snapshot(runtime.prefix) == before
     root, = runtime.prefix.parent.glob(".spacr-windows-update-*")
-    assert json.loads((root / "transaction.json").read_text())["state"] == "staging_failed"
+    assert json.loads((root / "transaction.json").read_text(encoding="utf-8"))["state"] == "staging_failed"
 
 
 def test_windows_transaction_refuses_stage_whose_timestamp_cannot_move(runtime, monkeypatch):
@@ -223,9 +223,9 @@ def test_windows_transaction_journals_an_unstoppable_new_desktop(runtime, monkey
     with pytest.raises(cleanup._UpdateLaunchStillRunning):
         _transaction(runtime, monkeypatch, PackageRunner(runtime), activate=still_running)
     root, = runtime.prefix.parent.glob(".spacr-windows-update-*")
-    journal = json.loads((root / "transaction.json").read_text())
+    journal = json.loads((root / "transaction.json").read_text(encoding="utf-8"))
     assert (journal["state"], journal["launch_pid"]) == ("launch_unconfirmed", 4321)
-    assert (runtime.package / "__init__.py").read_text() == '__version__ = "1.5.1.5"\n'
+    assert (runtime.package / "__init__.py").read_text(encoding="utf-8") == '__version__ = "1.5.1.5"\n'
     assert not _lock(runtime).exists()
 
 
@@ -243,7 +243,7 @@ def test_windows_rollback_stops_when_the_stage_name_was_reused(runtime, monkeypa
         _transaction(runtime, monkeypatch, reuse)
     root, = runtime.prefix.parent.glob(".spacr-windows-update-*")
     assert snapshot(root / "previous") == before
-    assert (runtime.package / "__init__.py").read_text() == '__version__ = "1.5.1.5"\n'
+    assert (runtime.package / "__init__.py").read_text(encoding="utf-8") == '__version__ = "1.5.1.5"\n'
     assert _lock(runtime).exists()
 
 
@@ -326,9 +326,9 @@ def _posix_runtime(tmp_path, version="1.0.0"):
     prefix = base / "private" / "venv"
     (prefix / "bin").mkdir(parents=True)
     python = prefix / "bin" / "python"
-    python.write_text("#!/bin/sh\n")
+    python.write_text("#!/bin/sh\n", encoding="utf-8")
     python.chmod(0o755)
-    (prefix / "pyvenv.cfg").write_text("include-system-site-packages = false\n")
+    (prefix / "pyvenv.cfg").write_text("include-system-site-packages = false\n", encoding="utf-8")
     for directory in (prefix, prefix.parent):
         directory.chmod(0o755)
     record = cleanup.InstallRecord(kind="environment", layout="venv", platform="linux", root=str(prefix),
@@ -347,12 +347,14 @@ def test_pip_commands_refuse_records_that_are_not_running_environments(tmp_path)
                                           types.SimpleNamespace(platform="freebsd"))
 
 
+@pytest.mark.posix_only
 def test_pip_commands_refuse_updater_folder_inside_environment(tmp_path):
     record, machine, prefix, _base = _posix_runtime(tmp_path)
     with pytest.raises(ValueError, match="outside the installed environment"):
         cleanup._pip_environment_commands(record, "2.0.0", str(prefix / "updater"), machine)
 
 
+@pytest.mark.posix_only
 def test_pip_commands_without_recorded_version_and_with_newer_runtime(tmp_path):
     record, machine, prefix, base = _posix_runtime(tmp_path)
     install, relaunch = cleanup._pip_environment_commands(replace(record, version=None), "2.0.0",
@@ -378,6 +380,7 @@ def _pip_plan(record, machine, base):
             "install": install, "relaunch": relaunch, "fetch": None}
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("change", ["frozen", "install"])
 def test_pip_update_refuses_frozen_or_altered_plans(tmp_path, change):
     record, machine, _prefix, base = _posix_runtime(tmp_path)
@@ -392,6 +395,7 @@ def test_pip_update_refuses_frozen_or_altered_plans(tmp_path, change):
     assert ran == []
 
 
+@pytest.mark.posix_only
 def test_pip_update_rechecks_interpreter_identity_after_shutdown(tmp_path, monkeypatch):
     record, machine, _prefix, base = _posix_runtime(tmp_path)
     plan = _pip_plan(record, machine, base)
@@ -426,7 +430,7 @@ def test_pip_update_rechecks_interpreter_identity_after_shutdown(tmp_path, monke
 def _manifest(root, version):
     files = {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
              for path in root.rglob("*") if path.is_file() and path.name != "spacr-payload.json"}
-    (root / "spacr-payload.json").write_text(json.dumps({"schema": 1, "version": version, "files": files}))
+    (root / "spacr-payload.json").write_text(json.dumps({"schema": 1, "version": version, "files": files}), encoding="utf-8")
 
 
 def test_frozen_payload_refuses_oversized_manifest(tmp_path):
@@ -437,6 +441,7 @@ def test_frozen_payload_refuses_oversized_manifest(tmp_path):
         cleanup._frozen_windows_payload(root, "2.0.0")
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("name", ["c:stream.dll", "back\\slash.dll"])
 def test_frozen_payload_refuses_names_windows_would_resolve_elsewhere(tmp_path, name):
     root = payload(tmp_path / "bundle", "2.0.0", manifest=False)
@@ -463,7 +468,7 @@ def test_frozen_identity_refuses_an_oversized_receipt(tmp_path):
     root = payload(tmp_path / "bundle", "2.0.0")
 
     def oversized(argv):
-        Path(argv[-1]).write_text(json.dumps({"padding": "x" * 20000}))
+        Path(argv[-1]).write_text(json.dumps({"padding": "x" * 20000}), encoding="utf-8")
         return 0, ""
 
     with pytest.raises(ValueError, match="frozen_application_identity_unverified"):
@@ -481,6 +486,7 @@ def test_previous_frozen_version_refuses_internal_without_executable(tmp_path):
         cleanup._frozen_windows_previous_version(tmp_path)
 
 
+@pytest.mark.needs_symlink
 def test_previous_frozen_version_refuses_linked_executable(tmp_path):
     target = tmp_path / "elsewhere.exe"
     target.write_bytes(b"exe")
@@ -503,13 +509,13 @@ def test_previous_frozen_version_ignores_foreign_distributions_and_requires_one(
     root = tmp_path / "install"
     foreign = root / "_internal" / "spacr_plugin-3.0.dist-info" / "METADATA"
     foreign.parent.mkdir(parents=True)
-    foreign.write_text("Name: spacr-plugin\nVersion: 3.0\n")
+    foreign.write_text("Name: spacr-plugin\nVersion: 3.0\n", encoding="utf-8")
     (root / "spacr.exe").write_bytes(b"exe")
     with pytest.raises(ValueError, match="previous_frozen_application_identity_unverified"):
         cleanup._frozen_windows_previous_version(root)
     own = root / "_internal" / "spacr-1.5.1.4.dist-info" / "METADATA"
     own.parent.mkdir()
-    own.write_text("Name: spacr\nVersion: 1.5.1.4\n")
+    own.write_text("Name: spacr\nVersion: 1.5.1.4\n", encoding="utf-8")
     assert cleanup._frozen_windows_previous_version(root) == "1.5.1.4"
 
 
@@ -518,10 +524,11 @@ def test_frozen_install_into_a_new_folder_has_no_previous_payload(tmp_path):
     destination = tmp_path / "Programs" / "spaCR"
     result = cleanup._install_frozen_windows(source, destination, "2.0.0", run=identity)
     assert result == {"ok": True, "version": "2.0.0", "previous_runtime": None}
-    assert (destination / "spacr.exe").read_text() == "2.0.0"
+    assert (destination / "spacr.exe").read_text(encoding="utf-8") == "2.0.0"
     assert not list(destination.parent.glob(".spacr-*"))
 
 
+@pytest.mark.needs_symlink
 def test_frozen_install_refuses_linked_destination_parent(tmp_path):
     source = payload(tmp_path / "download", "2.0.0")
     real = tmp_path / "real"
@@ -552,7 +559,7 @@ def test_frozen_install_refuses_installed_uninstaller_that_is_not_a_file(tmp_pat
     (old / "spacr-uninstaller.json").mkdir()
     with pytest.raises(ValueError, match="frozen_uninstaller_candidate_invalid"):
         cleanup._install_frozen_windows(source, old, "1.5.1.5", run=identity)
-    assert (old / "spacr.exe").read_text() == "1.5.1.4"
+    assert (old / "spacr.exe").read_text(encoding="utf-8") == "1.5.1.4"
 
 
 def test_frozen_install_refuses_uninstaller_changed_while_copying(tmp_path, monkeypatch):
@@ -574,11 +581,11 @@ def test_frozen_install_stops_when_installed_application_changes_during_approval
     source, old = _installed(tmp_path)
 
     def changed():
-        (old / "spacr.exe").write_text("1.5.1.4 modified by another process")
+        (old / "spacr.exe").write_text("1.5.1.4 modified by another process", encoding="utf-8")
 
     with pytest.raises(ValueError, match="changed during staging"):
         cleanup._install_frozen_windows(source, old, "1.5.1.5", run=identity, before_activate=changed)
-    assert (old / "spacr.exe").read_text() == "1.5.1.4 modified by another process"
+    assert (old / "spacr.exe").read_text(encoding="utf-8") == "1.5.1.4 modified by another process"
     assert not list(old.parent.glob(".spacr-frozen-install-*"))
 
 
@@ -591,9 +598,9 @@ def test_frozen_install_retains_backup_that_changed_after_activation(tmp_path):
 
     result = cleanup._install_frozen_windows(source, old, "1.5.1.5", run=identity, after_activate=added_to_backup)
     backup = Path(result["previous_runtime"])
-    assert (backup / "spacr.exe").read_text() == "1.5.1.4"
+    assert (backup / "spacr.exe").read_text(encoding="utf-8") == "1.5.1.4"
     assert (backup / "_internal" / "late.dll").read_bytes() == b"unexpected"
-    assert (old / "spacr.exe").read_text() == "1.5.1.5"
+    assert (old / "spacr.exe").read_text(encoding="utf-8") == "1.5.1.5"
 
 
 def test_frozen_install_retains_known_backup_when_it_cannot_be_removed(tmp_path, monkeypatch):
@@ -605,8 +612,8 @@ def test_frozen_install_retains_known_backup_when_it_cannot_be_removed(tmp_path,
     monkeypatch.setattr(cleanup, "shutil", _Proxy(shutil, rmtree=refuse))
     result = cleanup._install_frozen_windows(source, old, "1.5.1.5", run=identity)
     backup = Path(result["previous_runtime"])
-    assert (backup / "spacr.exe").read_text() == "1.5.1.4"
-    assert (old / "spacr.exe").read_text() == "1.5.1.5"
+    assert (backup / "spacr.exe").read_text(encoding="utf-8") == "1.5.1.4"
+    assert (old / "spacr.exe").read_text(encoding="utf-8") == "1.5.1.5"
 
 
 def test_frozen_install_keeps_lock_and_recovery_when_restoration_fails(tmp_path, monkeypatch):
@@ -615,7 +622,7 @@ def test_frozen_install_keeps_lock_and_recovery_when_restoration_fails(tmp_path,
     def wrong_identity(argv):
         if Path(argv[0]).parent != old.resolve():
             return identity(argv)
-        Path(argv[-1]).write_text(json.dumps({"schema": 1, "frozen": True, "version": "0.0.1"}))
+        Path(argv[-1]).write_text(json.dumps({"schema": 1, "frozen": True, "version": "0.0.1"}), encoding="utf-8")
         return 0, ""
 
     def replace_file(origin, target):
@@ -627,6 +634,6 @@ def test_frozen_install_keeps_lock_and_recovery_when_restoration_fails(tmp_path,
     with pytest.raises(ValueError, match="frozen_application_identity_mismatch"):
         cleanup._install_frozen_windows(source, old, "1.5.1.5", run=wrong_identity)
     transaction, = old.parent.glob(".spacr-frozen-install-*")
-    assert (transaction / "previous" / "spacr.exe").read_text() == "1.5.1.4"
+    assert (transaction / "previous" / "spacr.exe").read_text(encoding="utf-8") == "1.5.1.4"
     assert (old.parent / ".installed.spacr-install-lock").is_dir()
     assert not (old / "spacr.exe").exists()

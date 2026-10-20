@@ -23,9 +23,9 @@ def main():
     parser.add_argument('--device',choices=('cuda','cpu'),default='cuda',
         help='The device the native capture ran on; CPU recordings (CUDA hidden) are checked on the CPU')
     args=parser.parse_args()
-    proof=json.loads((args.capture/'scientific_acceptance.json').read_text())
+    proof=json.loads((args.capture/'scientific_acceptance.json').read_text(encoding="utf-8"))
     work=Path(proof['private_folder'])
-    settings=json.loads((args.capture/'configured_settings.json').read_text())
+    settings=json.loads((args.capture/'configured_settings.json').read_text(encoding="utf-8"))
     expected=dict(model_name='cpsam',custom_model=None,normalize=True,
         percentiles=[2,99],diameter=30,CP_prob=0,flow_threshold=.4,
         rescale=False,resample=False,fill_in=False,resize=False,invert=False,
@@ -83,7 +83,7 @@ def main():
         differs_from_batch=not np.array_equal(mask,tifffile.imread(work/'masks/cell_pair_02.tif')),
         meaning='Matches raw-image Cellpose defaults, not the Apply preprocessing settings.')
     result['accepted']=True
-    (args.capture/'independent_reference.json').write_text(json.dumps(result,indent=2)+'\n')
+    (args.capture/'independent_reference.json').write_text(json.dumps(result,indent=2)+'\n', encoding="utf-8")
     print(json.dumps(result,indent=2))
     return 0
 

@@ -33,7 +33,7 @@ RECIPE = ROOT / "conda-forge" / "recipe" / "recipe.yaml"
 
 def _setup_entry_points() -> dict:
     """``{command: target}`` from setup.py's console_scripts."""
-    source = (ROOT / "setup.py").read_text()
+    source = (ROOT / "setup.py").read_text(encoding="utf-8")
     block = re.search(r"'console_scripts'\s*:\s*\[(.*?)\]", source, re.S)
     assert block, "setup.py no longer declares console_scripts this way"
     return dict(re.findall(r"'([A-Za-z0-9_-]+)\s*=\s*([A-Za-z0-9_.]+:[A-Za-z0-9_]+)'",
@@ -48,7 +48,7 @@ def _recipe_entry_points():
     then nothing to drift. What must never happen is a recipe that declares
     a LIST which disagrees with setup.py.
     """
-    text = RECIPE.read_text()
+    text = RECIPE.read_text(encoding="utf-8")
     block = re.search(r"entry_points:\s*\n((?:\s+-\s+.*\n)+)", text)
     if not block:
         return None

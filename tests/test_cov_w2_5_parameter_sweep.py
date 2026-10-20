@@ -425,7 +425,7 @@ def test_the_parallel_sweep_writes_a_row_per_trial(tmp_path, small_space,
 
     assert list(results["status"]) == ["ok", "ok"]
     assert (tmp_path / "out" / "sweep_results.csv").is_file()
-    trials = json.loads((tmp_path / "out" / "sweep_trials.json").read_text())
+    trials = json.loads((tmp_path / "out" / "sweep_trials.json").read_text(encoding="utf-8"))
     assert len(trials) == 2
     out = capsys.readouterr().out
     assert "2 trials across" in out

@@ -1018,7 +1018,8 @@ def process_file(
                 previous = note_path.read_text(encoding="utf-8")
                 notes = previous + "\n\n---\n\n" + notes
             note_path.write_text(notes, encoding="utf-8")
-        path.write_text(stripped, encoding=encoding)
+        newline = "\r\n" if b"\r\n" in path.read_bytes() else "\n"
+        path.write_bytes(stripped.replace("\n", newline).encode(encoding))
     return report
 
 

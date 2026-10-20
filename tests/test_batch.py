@@ -1037,6 +1037,18 @@ def test_subprocess_runner_honours_the_cli_exit_code_contract(tmp_path):
     assert "exit code 2" in text
 
 
+def test_the_log_header_names_the_interpreter_by_file_name_only(tmp_path):
+    """The command line at the top of a job log must not carry the interpreter path (it holds the home directory)."""
+    settings = _settings_csv(tmp_path, "mask.csv",
+                             src=str(tmp_path / "does-not-exist"), cell_channel=0)
+    job = Job(module="mask", settings=settings, id="h")
+    log = tmp_path / "h.log"
+    batch.subprocess_runner(job, settings, str(log))
+    header = [line for line in log.read_text(encoding="utf-8").splitlines() if "-m spacr.cli mask" in line][0]
+    assert header.startswith("# " + os.path.basename(sys.executable) + " -m spacr.cli mask")
+    assert os.path.dirname(sys.executable) not in header
+
+
 # ---------------------------------------------------------------------------
 # the import must stay cheap
 # ---------------------------------------------------------------------------

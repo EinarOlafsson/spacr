@@ -56,7 +56,7 @@ def test_actual_button_exports_full_display_pixels_and_provenance(
     qtbot.waitUntil(lambda: not widget._export_running, timeout=10000)
     assert thread_ids['write'] != threading.get_ident()
     assert thread_ids['publish'] == threading.get_ident()
-    manifest = json.loads((destination / 'provenance.json').read_text())
+    manifest = json.loads((destination / 'provenance.json').read_text(encoding="utf-8"))
     assert manifest['crop_count'] == len(expected)
     assert manifest['display_primaries'] == primaries
     assert manifest['crop_settings']['channels'] == [0, 1, 0]
@@ -81,18 +81,18 @@ def test_existing_destinations_are_never_replaced(tmp_path, kind):
     if kind in {'empty', 'populated'}:
         destination.mkdir()
         if kind == 'populated':
-            (destination / 'keep').write_text('original')
+            (destination / 'keep').write_text('original', encoding="utf-8")
     elif kind == 'file':
-        destination.write_text('original')
+        destination.write_text('original', encoding="utf-8")
     else:
         destination.symlink_to(tmp_path / 'missing')
     result = mp._write_preview_crop_export(destination, [_entry()], {}, 'rgb', threading.Event())
     assert 'error' in result
     assert destination.is_symlink() if kind == 'symlink' else destination.exists()
     if kind == 'file':
-        assert destination.read_text() == 'original'
+        assert destination.read_text(encoding="utf-8") == 'original'
     if kind == 'populated':
-        assert (destination / 'keep').read_text() == 'original'
+        assert (destination / 'keep').read_text(encoding="utf-8") == 'original'
     assert not list(tmp_path.glob('.spacr-preview-*'))
 
 
@@ -172,7 +172,7 @@ def test_duplicate_source_basenames_keep_distinct_crops(tmp_path):
     destination = tmp_path / 'export'
     result = mp._write_preview_crop_export(destination, [first, second], {}, 'rgb', threading.Event())
     mp._publish_preview_crop_export(result)
-    records = json.loads((destination / 'provenance.json').read_text())['crops']
+    records = json.loads((destination / 'provenance.json').read_text(encoding="utf-8"))['crops']
     assert len({r['file'] for r in records}) == 2
     assert len({r['source_path'] for r in records}) == 2
     assert len({r['rgb_pixels_sha256'] for r in records}) == 2

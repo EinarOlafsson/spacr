@@ -549,9 +549,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Home の現在の全モジュールを左から右へ確認し、Mask で共通の操作項目を学びます。その後、ナビゲーション、ヘルプ、表示を調整します。",
+      "description": "Home の概要とカテゴリタブを確認し、次に Mask を使ってモジュール共通の操作を学び、ナビゲーション、ヘルプ、外観を調整します。",
       "objectives": [
-        "現在の Core、Data、Tools の各行にあるすべてのモジュールを確認する。",
+        "Home、Core、Data、Tools、Organism の各タブを使ってモジュールを見つけます。",
         "Mask を使って共通の設定、プレビュー、操作、出力を確認する。",
         "Home に戻り、検索を使い、パネルを配置する。",
         "表示とパフォーマンスの設定を選ぶ。"
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home が出発点です。各行を左から右へ読みます。Core、Data、Tools の順です。各タイルは対応するモジュールを開きます。左のサイドバーにも同じ項目があり、Home でこの一覧に戻れます。",
+          "narration": "Home が出発点です。概要では、モジュールが Core、Data、Tools、Organism に分類されています。カテゴリタブで表示を絞り込めます。各タイルを開くと、その名前のモジュールが開きます。サイドバーにも同じアクセス経路があり、Home を選ぶと概要に戻ります。",
           "hold_after": 0.7,
-          "speech_text": "ホーム が出発点です。各行を左から右へ読みます。Core、Data、Tools の順です。各タイルは対応するモジュールを開きます。左のサイドバーにも同じ項目があり、ホーム でこの一覧に戻れます。"
+          "speech_text": "ホーム が出発点です。概要では、モジュールが Core、Data、Tools、Organism に分類されています。カテゴリタブで表示を絞り込めます。各タイルを開くと、その名前のモジュールが開きます。サイドバーにも同じアクセス経路があり、ホーム を選ぶと概要に戻ります。"
         },
         {
           "visual": "home_module_mask",
@@ -599,6 +599,18 @@
             "09_annotate"
           ],
           "speech_text": "Annotate では物体の切り抜き画像を確認し、見直したラベルを例に記録できます。"
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。"
         },
         {
           "visual": "home_module_map_barcodes",
@@ -707,6 +719,18 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder は測定表からグラフを作ります。列やグループ分けを設定できます。"
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Organism の行には Toxoplasma があります。生物のガイド、操作できる図、利用できる解析への入口を開きます。別の Toxoplasma チュートリアルでこのページを説明します。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "Organism の行には Toxoplasma があります。生物のガイド、操作できる図、利用できる解析への入口を開きます。別の Toxoplasma チュートリアルでこのページを説明します。"
         },
         {
           "visual": "06_mask_host",
@@ -875,12 +899,6 @@
             1500
           ],
           "speech_text": "Prune nowは、確認せずに削除することはありません。実行フォルダーに短い例の上限を設定すると、各フォルダーで削除する対象を一覧にして返答を待ちます。Cancelをクリックすれば何も削除されません。"
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Spaceout モードでは、Preferences に spaCR field の八つの独立した効果の操作が表示されます。それぞれを別々にオンまたはオフにできます。通常の外観や設定画面のアニメーションも調整できます。Apply で変更を試し、Keep で採用し、Revert で前の選択に戻します。",
-          "hold_after": 0.7,
-          "speech_text": "Spaceout モードでは、Preferences に スペーカー field の八つの独立した効果の操作が表示されます。それぞれを別々にオンまたはオフにできます。通常の外観や設定画面のアニメーションも調整できます。Apply で変更を試し、Keep で採用し、Revert で前の選択に戻します。"
         }
       ],
       "narration_voices": {
@@ -977,13 +995,12 @@
             650
           ],
           "narration": "spaCRをインストールしたPython環境を有効にします。表示されているコマンドでspacrをインポートし、バージョンを表示します。後で同じ実行を再現できるよう、バージョンは解析メモに残しておきましょう。",
-          "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
           "hold_after": 0.7,
-          "speech_text": "スペーカーをインストールしたPython環境を有効にします。表示されているコマンドでスペーカーをインポートし、バージョンを表示します。後で同じ実行を再現できるよう、バージョンは解析メモに残しておきましょう。"
+          "speech_text": "スペーカーをインストールしたPython環境を有効にします。表示されているコマンドでスペーカーをインポートし、バージョンを表示します。後で同じ実行を再現できるよう、バージョンは解析メモに残しておきましょう。",
+          "related_lessons": [
+            "02_install_spacr",
+            "04_platform_installers"
+          ]
         },
         {
           "visual": "02_list",
@@ -1006,12 +1023,12 @@
             900
           ],
           "narration": "spacr-runをダッシュ ダッシュ describeに続けてregressionを付けて実行します。必須の入力、既定値、関数名を読みます。ここでは、バッチコマンドがspacr.mlのperform_regressionを呼び出しています。その関数をAPIリファレンスで開き、引数と返される結果を確認します。",
+          "hold_after": 0.7,
+          "speech_text": "スペーカー-runをダッシュ ダッシュ describeに続けてregressionを付けて実行します。必須の入力、既定値、関数名を読みます。ここでは、バッチコマンドがスペーカー.mlのperform_regressionを呼び出しています。その関数をAPIリファレンスで開き、引数と返される結果を確認します。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "スペーカー-runをダッシュ ダッシュ describeに続けてregressionを付けて実行します。必須の入力、既定値、関数名を読みます。ここでは、バッチコマンドがスペーカー.mlのperform_regressionを呼び出しています。その関数をAPIリファレンスで開き、引数と返される結果を確認します。"
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1046,12 +1063,12 @@
             900
           ],
           "narration": "解析を実行するには、ダッシュ ダッシュ dry-runを付けずに同じコマンドを実行します。コマンドが終わるまでコンソールを見守り、その後、そのモジュールのチュートリアルとAPIページに書かれた出力を確認します。設定ファイル、入力の表、パッケージのバージョン、コンソールのログは、結果と一緒に保管してください。",
+          "hold_after": 0.7,
+          "speech_text": "解析を実行するには、ダッシュ ダッシュ dry-runを付けずに同じコマンドを実行します。コマンドが終わるまでコンソールを見守り、その後、そのモジュールのチュートリアルとAPIページに書かれた出力を確認します。設定ファイル、入力の表、パッケージのバージョン、コンソールのログは、結果と一緒に保管してください。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "解析を実行するには、ダッシュ ダッシュ dry-runを付けずに同じコマンドを実行します。コマンドが終わるまでコンソールを見守り、その後、そのモジュールのチュートリアルとAPIページに書かれた出力を確認します。設定ファイル、入力の表、パッケージのバージョン、コンソールのログは、結果と一緒に保管してください。"
+          ]
         }
       ],
       "narration_voices": {
@@ -3140,9 +3157,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "次元削減の方法としてUMAPを選びます。各点は、二つの座標で描かれた一つの物体を表します。線形の射影や特徴量の負荷量が欲しいときは、リンクされたツールでPCAを試せます。",
+          "narration": "次元削減の方法としてUMAPを選びます。各点は、二つの座標で描かれた一つの物体を表します。",
           "hold_after": 0.7,
-          "speech_text": "次元削減の方法としてユーマップを選びます。各点は、二つの座標で描かれた一つの物体を表します。線形の射影や特徴量の負荷量が欲しいときは、リンクされたツールでPCAを試せます。"
+          "speech_text": "次元削減の方法としてユーマップを選びます。各点は、二つの座標で描かれた一つの物体を表します。"
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3199,20 +3216,38 @@
           "speech_text": "別の点をクリックして、その切り出し画像と比べます。サイドバーには、選択範囲へのラベル付けと、クラスターのラベルを広げる機能もあります。これらの操作は注釈を保存するので、適用する前に目的のラベルと選択範囲を選びます。"
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "選んだ特徴量を直接比べるには、Image UMAPのヘッダーからImage Scatterを開きます。線形の射影にはPCAを開きます。それぞれの入力設定と保存される出力については、リンク先のチュートリアルに進みます。",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "完成した埋め込みを確認し、選んだ物体の切り抜き画像を比較します。入力の測定値、選んだ設定、保存した結果をまとめて保管し、各点を元のデータにたどれるようにします。",
           "hold_after": 0.7,
-          "speech_text": "選んだ特徴量を直接比べるには、Image ユーマップのヘッダーからImage Scatterを開きます。線形の射影にはPCAを開きます。それぞれの入力設定と保存される出力については、リンク先のチュートリアルに進みます。"
+          "speech_text": "完成した埋め込みを確認し、選んだ物体の切り抜き画像を比較します。入力の測定値、選んだ設定、保存した結果をまとめて保管し、各点を元のデータにたどれるようにします。"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3561,7 +3596,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4016,7 +4074,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Sourceの中のmasksサブフォルダーを開きます。各画像には、同じ名前のマスクのTIFFがあります。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。",
+          "narration": "Source内のmasksサブフォルダーには、各画像に対応する同じ名前のマスクのTIFFが入っています。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。",
           "focus": [
             1000,
             450,
@@ -4024,17 +4082,17 @@
             640
           ],
           "hold_after": 0.7,
-          "speech_text": "Sourceの中のmasksサブフォルダーを開きます。各画像には、同じ名前のマスクのTIFFがあります。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。"
+          "speech_text": "Source内のmasksサブフォルダーには、各画像に対応する同じ名前のマスクのTIFFが入っています。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。"
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Live previewをオンにし、画像の選択で一枚選びます。Live settingsを開き、チャネルと正規化の設定を確認します。必要ならConsoleとSystemを折りたたんで、プレビューの表示領域を広げます。",
+          "narration": "プレビューの表示領域を広げるため、ほかの結果カードを折りたたみます。Live previewをオンにし、画像の選択で一枚選びます。付属のサンプル画像を探して選びます。",
           "hold_after": 0.7,
-          "speech_text": "Live previewをオンにし、画像の選択で一枚選びます。Live settingsを開き、チャネルと正規化の設定を確認します。必要ならConsoleとSystemを折りたたんで、プレビューの表示領域を広げます。"
+          "speech_text": "プレビューの表示領域を広げるため、ほかの結果カードを折りたたみます。Live previewをオンにし、画像の選択で一枚選びます。付属のサンプル画像を探して選びます。"
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "プレビューを、バッチで保存されたマスクと比べます。この例ではプレビューとApplyの処理経路が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。",
+          "narration": "Live settingsでチャネルと正規化を確認してから、プレビューを実行します。プレビューとApplyではこれらの画像の処理が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。",
           "focus": [
             1000,
             1160,
@@ -4042,11 +4100,11 @@
             610
           ],
           "hold_after": 0.7,
-          "speech_text": "プレビューを、バッチで保存されたマスクと比べます。この例ではプレビューとApplyの処理経路が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。"
+          "speech_text": "Live settingsでチャネルと正規化を確認してから、プレビューを実行します。プレビューとApplyではこれらの画像の処理が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。"
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。接している物体やぼやけた境界を確認し、その後縮小して視野全体をチェックします。",
+          "narration": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。拡大した表示で、接している物体やぼやけた境界を確認します。",
           "focus": [
             1010,
             1280,
@@ -4054,7 +4112,7 @@
             455
           ],
           "hold_after": 0.7,
-          "speech_text": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。接している物体やぼやけた境界を確認し、その後縮小して視野全体をチェックします。"
+          "speech_text": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。拡大した表示で、接している物体やぼやけた境界を確認します。"
         },
         {
           "visual": "22_native_filter_reduces_objects",
@@ -4093,7 +4151,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4534,7 +4615,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5763,7 +5867,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6509,7 +6636,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6664,7 +6814,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6980,7 +7153,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7595,7 +7791,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7839,7 +8058,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8912,7 +9154,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9106,7 +9371,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -10622,7 +10910,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

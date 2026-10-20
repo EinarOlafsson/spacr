@@ -40,7 +40,7 @@ def test_gui_never_publishes_incomplete_result(
     artifact = tmp_path / "partial.csv"
 
     def pipeline(settings):
-        artifact.write_text("measured,42\n")
+        artifact.write_text("measured,42\n", encoding="utf-8")
         _ledger(failed)
         if ending == "exit":
             raise SystemExit(0)
@@ -56,14 +56,14 @@ def test_gui_never_publishes_incomplete_result(
     worker.run()
     expected = "cancelled" if ending == "cancel" else (
         "failed" if failed else "success")
-    manifest = json.loads(next(private_runs.glob("*/manifest.json")).read_text())
+    manifest = json.loads(next(private_runs.glob("*/manifest.json")).read_text(encoding="utf-8"))
     assert manifest["status"] == expected
     assert finished == [expected == "success"]
     assert results == ([{"rows": 42}] if ending == "return" and not failed else [])
     assert bool(errors) == (expected == "failed")
     if errors:
         assert "PartialRunError" in errors[0]
-    assert artifact.read_text() == "measured,42\n"
+    assert artifact.read_text(encoding="utf-8") == "measured,42\n"
 
 
 def test_later_clean_stage_and_explicit_success_cannot_hide_failure(private_runs):
@@ -72,18 +72,18 @@ def test_later_clean_stage_and_explicit_success_cannot_hide_failure(private_runs
             _ledger()
             _ledger(0)
             run.set_status("success")
-    assert json.loads((run.dir / "manifest.json").read_text())["status"] == "failed"
+    assert json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))["status"] == "failed"
 
 
 @pytest.mark.parametrize("failed", [0, 1])
 def test_cli_exit_status_tracks_finalized_ledger(monkeypatch, private_runs, tmp_path, failed):
     settings = tmp_path / "settings.json"
-    settings.write_text("{}")
+    settings.write_text("{}", encoding="utf-8")
     monkeypatch.setattr(cli, "resolve_settings", lambda *args: {})
     monkeypatch.setattr(cli, "import_entry", lambda module: lambda settings: _ledger(failed))
     code = cli.main(["measure", "--settings", str(settings), "--no-preflight"])
     assert code == (cli.EXIT_RUNTIME if failed else cli.EXIT_OK)
-    manifest = json.loads(next(private_runs.glob("*/manifest.json")).read_text())
+    manifest = json.loads(next(private_runs.glob("*/manifest.json")).read_text(encoding="utf-8"))
     assert manifest["status"] == ("failed" if failed else "success")
 
 
@@ -113,7 +113,7 @@ def test_real_snakemake_does_not_touch_done_after_partial_run(private_runs, tmp_
         "cli.resolve_settings = lambda *args: {}\n"
         "cli.import_entry = lambda module: pipeline\n"
         "raise SystemExit(cli.main(sys.argv[1:] + ['--no-preflight']))\n"
-    )
+    , encoding="utf-8")
     workflow = tmp_path / "workflow"
     snakefile = cli_repro._export_workflow(
         run.dir, workflow, "snakemake",
@@ -125,11 +125,11 @@ def test_real_snakemake_does_not_touch_done_after_partial_run(private_runs, tmp_
         text=True, capture_output=True, timeout=90,
         env={**os.environ, "PYTHONPATH": str(Path(__file__).resolve().parents[2])},
     )
-    (tmp_path / "snakemake.log").write_text(result.stdout + result.stderr)
+    (tmp_path / "snakemake.log").write_text(result.stdout + result.stderr, encoding="utf-8")
     assert result.returncode != 0, result.stdout + result.stderr
-    job_logs = "\n".join(p.read_text() for p in (workflow / "logs").glob("*.log"))
+    job_logs = "\n".join(p.read_text(encoding="utf-8") for p in (workflow / "logs").glob("*.log"))
     assert "PartialRunError" in job_logs, job_logs
     assert not list((workflow / "done").glob("*.ok"))
-    assert (tmp_path / "partial.csv").read_text() == "measured,42\n"
-    manifest = json.loads(next((tmp_path / "child-runs").glob("*/manifest.json")).read_text())
+    assert (tmp_path / "partial.csv").read_text(encoding="utf-8") == "measured,42\n"
+    manifest = json.loads(next((tmp_path / "child-runs").glob("*/manifest.json")).read_text(encoding="utf-8"))
     assert manifest["status"] == "failed"

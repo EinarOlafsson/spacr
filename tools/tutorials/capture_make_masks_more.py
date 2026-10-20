@@ -84,7 +84,7 @@ def record_curation(app, window, screen, captures, capture, settle, write_json, 
         raise RuntimeError('Keep/Discard did not write csv/keep_discard.csv')
     with ledger.open(newline='') as handle:
         rows = list(csv.DictReader(handle))
-    text = ledger.read_text()
+    text = ledger.read_text(encoding="utf-8")
     if Path(first).stem not in text or Path(second).stem not in text:
         raise RuntimeError('The verdict ledger does not name both fields')
     write_json(captures / 'curation_acceptance.json', {

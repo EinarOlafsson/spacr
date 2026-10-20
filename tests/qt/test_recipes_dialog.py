@@ -343,7 +343,7 @@ def test_import_adopts_a_shared_file_into_the_store(dialog, mask_screen,
         "app_key": "mask",
         "spacr_version": "1.3.6",
         "settings": {"n_jobs": 3},
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(incoming), "")))
 
@@ -363,7 +363,7 @@ def test_an_imported_file_with_no_module_adopts_this_one(dialog, tmp_path,
         "spacr_recipe": R.FORMAT_VERSION,
         "name": "Bare",
         "settings": {"n_jobs": 2},
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(incoming), "")))
 
@@ -382,7 +382,7 @@ def test_importing_another_modules_recipe_is_refused_by_name(
         "name": "Measure setup",
         "app_key": "measure",
         "settings": {"n_jobs": 1},
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(incoming), "")))
 
@@ -397,7 +397,7 @@ def test_importing_another_modules_recipe_is_refused_by_name(
 def test_importing_something_that_is_not_a_recipe_is_refused(
         dialog, tmp_path, monkeypatch, warnings):
     incoming = tmp_path / "package.json"
-    incoming.write_text('{"name": "something", "version": "1.0.0"}')
+    incoming.write_text('{"name": "something", "version": "1.0.0"}', encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(incoming), "")))
 
@@ -419,7 +419,7 @@ def test_importing_a_settings_csv_accepts_the_pipeline_header(
         dialog, tmp_path, monkeypatch):
     """A run's settings file becomes a named template through the screen reader."""
     incoming = tmp_path / "plate_settings.csv"
-    incoming.write_text("setting_key,setting_value\nn_jobs,6\n")
+    incoming.write_text("setting_key,setting_value\nn_jobs,6\n", encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(incoming), "")))
 
@@ -434,7 +434,7 @@ def test_importing_a_settings_csv_accepts_the_pipeline_header(
 def test_a_settings_csv_imports_without_a_screen_reader(tmp_path):
     """The reusable parser still accepts a run CSV outside a module screen."""
     incoming = tmp_path / "standalone.csv"
-    incoming.write_text("Key,Value\nn_jobs,4\n")
+    incoming.write_text("Key,Value\nn_jobs,4\n", encoding="utf-8")
 
     recipe = R._recipe_from_settings_csv(str(incoming), "mask")
 
@@ -816,7 +816,7 @@ def test_the_watcher_shrugs_at_a_window_whose_stack_went_away(qtbot):
 def test_a_recipe_file_with_no_settings_block_is_refused(tmp_path):
     path = tmp_path / "empty.json"
     path.write_text(json.dumps({"spacr_recipe": R.FORMAT_VERSION,
-                                "name": "Nothing", "app_key": "mask"}))
+                                "name": "Nothing", "app_key": "mask"}), encoding="utf-8")
     with pytest.raises(ValueError, match="no settings"):
         R.load_recipe(str(path))
 
@@ -824,7 +824,7 @@ def test_a_recipe_file_with_no_settings_block_is_refused(tmp_path):
 def test_a_format_version_that_is_not_a_number_is_refused(tmp_path):
     path = tmp_path / "odd.json"
     path.write_text(json.dumps({"spacr_recipe": "1", "name": "Odd",
-                                "settings": {}}))
+                                "settings": {}}), encoding="utf-8")
     with pytest.raises(ValueError, match="newer than this spaCR"):
         R.load_recipe(str(path))
 

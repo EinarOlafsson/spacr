@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Farðu yfir allar núverandi einingar á Home frá vinstri til hægri. Lærðu síðan á sameiginleg stjórntæki með Mask og stilltu leiðsögn, hjálp og útlit.",
+      "description": "Skoðaðu Home-yfirlitið og flokkaflipana, kynntu þér síðan sameiginlegar stjórnir eininga með Mask og stilltu leiðsögn, hjálp og útlit.",
       "objectives": [
-        "Þekkja allar einingarnar í núverandi röðunum Core, Data og Tools.",
+        "Finndu einingar með flipunum Home, Core, Data, Tools og Organism.",
         "Nota Mask til að þekkja sameiginlegar stillingar, forskoðanir, aðgerðir og niðurstöður.",
         "Fara aftur á Home, nota leit og raða spjöldum.",
         "Velja stillingar fyrir útlit og afköst."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er upphafspunkturinn. Lestu hverja röð frá vinstri til hægri: Core, Data og Tools. Hver reitur opnar sína einingu. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
+          "narration": "Home er upphafspunkturinn. Yfirlitið flokkar einingar undir Core, Data, Tools og Organism. Flokkafliparnir þrengja sýnina. Hver reitur opnar eininguna sem hann er nefndur eftir. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
           "hold_after": 0.7
         },
         {
@@ -534,6 +534,17 @@
           ],
           "related_lessons": [
             "09_annotate"
+          ]
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify þjálfar líkan á yfirförnum merkingum og gefur öðrum hlutum stig út frá útskurðsmyndum eða mældum eiginleikum.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
           ]
         },
         {
@@ -633,6 +644,17 @@
           ],
           "related_lessons": [
             "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Röðin Organism inniheldur Toxoplasma. Hún opnar leiðarvísi um lífveruna, gagnvirka teikningu og tiltækar Toxoplasma-greiningar. Sérstök Toxoplasma-kennsla fer yfir þessa síðu.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
           ]
         },
         {
@@ -784,11 +806,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Í Spaceout-ham inniheldur Preferences spaCR field-stjórntæki fyrir átta óháð áhrif. Kveiktu eða slökktu á hverju fyrir sig. Venjuleg stjórntæki fyrir útlit og hreyfimyndir stillingagluggans eru áfram tiltæk. Apply forskoðar breytingu, Keep samþykkir hana og Revert endurheimtir fyrra val.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -885,12 +902,11 @@
             650
           ],
           "narration": "Virkjaðu Python-umhverfið sem þú settir spaCR upp í. Fluttu inn spacr og prentaðu útgáfu þess með skipuninni sem sést. Geymdu útgáfuna með greiningarglósunum svo þú getir endurtekið sömu keyrslu síðar.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "02_list",
@@ -912,11 +928,11 @@
             900
           ],
           "narration": "Keyrðu spacr-run --describe regression. Lestu nauðsynleg inntök, sjálfgefin gildi og heiti fallsins. Hér kallar runuskipunin á perform_regression í spacr.ml. Opnaðu það fall í API-tilvísuninni til að lesa stika þess og niðurstöðurnar sem það skilar.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "05_report_api",
@@ -949,11 +965,11 @@
             900
           ],
           "narration": "Til að framkvæma greininguna keyrirðu sömu skipun án --dry-run. Fylgstu með stjórnborðinu þar til skipuninni lýkur og skoðaðu svo úttakið sem lýst er í kennslu og API-síðu einingarinnar. Geymdu stillingaskrána, inntakstöflurnar, útgáfu pakkans og annál stjórnborðsins með niðurstöðunum.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -2877,7 +2893,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Veldu UMAP sem smækkunaraðferð. Hver punktur táknar hlut með tveimur hnitum á grafinu. Þú getur kannað PCA með tengdu tóli þess þegar þú vilt línulegt ofanvarp og hleðslur eiginleika.",
+          "narration": "Veldu UMAP sem smækkunaraðferð. Hver punktur táknar hlut með tveimur hnitum á grafinu.",
           "hold_after": 0.7
         },
         {
@@ -2926,19 +2942,37 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Opnaðu Image Scatter úr haus Image UMAP til að bera valda eiginleika beint saman, eða opnaðu PCA fyrir línulegt ofanvarp. Haltu áfram með tengdu kennsluefnin til að sjá inntaksstillingar þeirra og vistað úttak.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Skoðaðu fullgerðu vörpunina og berðu saman myndútskurði valinna hluta. Geymdu inntaksmælingarnar, valdar stillingar og vistaðar niðurstöður saman svo hægt sé að rekja hvern punkt til uppruna síns.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3263,7 +3297,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3690,7 +3747,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Opnaðu undirmöppuna masks í Source. Hver mynd hefur TIFF-grímu með sama stofni skráarheitis. Skoðaðu myndritin við hlið upprunalegu myndanna og taktu eftir hlutum sem misstust og samrunnum frumum. Flæðispjaldið sýnir stefnurnar sem líkanið notar við aðgreininguna.",
+          "narration": "Undirmappan masks í Source inniheldur TIFF-grímu með sama stofni skráarheitis fyrir hverja mynd. Skoðaðu myndritin við hlið upprunalegu myndanna og taktu eftir hlutum sem misstust og samrunnum frumum. Flæðispjaldið sýnir stefnurnar sem líkanið notar við aðgreininguna.",
           "focus": [
             1000,
             450,
@@ -3701,12 +3758,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Kveiktu á Live preview og veldu mynd með myndavalinu. Opnaðu Live settings og athugaðu stýringar fyrir rás og stöðlun. Leggðu saman Console og System til að gefa forskoðuninni meira pláss ef þörf er á.",
+          "narration": "Leggðu saman hin niðurstöðuspjöldin til að gefa forskoðuninni meira pláss. Kveiktu á Live preview og veldu mynd með myndavalinu. Flettu að meðfylgjandi dæmamynd.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Berðu forskoðunina saman við vistuðu grímuna úr rununni. Forskoðunin og Apply nota ólíkar vinnsluleiðir í þessu dæmi, svo mörk og fjöldi geta verið ólík. Skoðaðu vistuðu TIFF-skrárnar þegar þú metur hvort úttak rununnar henti til mælinga.",
+          "narration": "Athugaðu rás og stöðlun í Live settings og keyrðu síðan forskoðunina. Forskoðunin og Apply vinna þessar myndir á ólíkan hátt, svo mörk og fjöldi geta verið ólík. Skoðaðu vistuðu TIFF-skrárnar þegar þú metur hvort úttak rununnar henti til mælinga.",
           "focus": [
             1000,
             1160,
@@ -3717,7 +3774,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Notaðu músarhjólið til að stækka svæði á báðum forskoðunarflötunum. Skoðaðu hluti sem snertast og dauf mörk og þysjaðu svo út til að athuga allt sjónsviðið.",
+          "narration": "Notaðu músarhjólið til að stækka svæði á báðum forskoðunarflötunum. Skoðaðu hluti sem snertast og dauf mörk í stækkuðu myndinni.",
           "focus": [
             1010,
             1280,
@@ -3760,7 +3817,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4172,7 +4252,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5324,7 +5427,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6023,7 +6149,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6168,7 +6317,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6464,7 +6636,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7039,7 +7234,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7269,7 +7487,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8279,7 +8520,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8462,7 +8726,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9886,7 +10173,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

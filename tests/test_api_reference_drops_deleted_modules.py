@@ -186,6 +186,7 @@ def test_the_documentation_build_treats_every_sphinx_warning_as_an_error():
     assert 'exit "$rc"' in script
 
 
+@pytest.mark.posix_only
 def test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit(tmp_path):
     """Execute the workflow body against a Sphinx stub that fails late."""
     import os

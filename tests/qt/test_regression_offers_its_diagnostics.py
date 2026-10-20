@@ -47,7 +47,7 @@ def _write_run(root, name="run1", note=None):
     folder.mkdir(parents=True)
     (folder / "residuals.png").write_bytes(b"")
     if note:
-        (folder / "residual_panels_not_available.txt").write_text(note)
+        (folder / "residual_panels_not_available.txt").write_text(note, encoding="utf-8")
     return folder
 
 

@@ -58,10 +58,10 @@ def test_download_without_a_button_still_reports_its_outcome(
 def test_destination_skips_both_existing_files_and_folders(tmp_path):
     images = tmp_path / "images"
     (tmp_path / "images_spacr").mkdir()
-    (tmp_path / "images_spacr_2").write_text("existing project marker")
+    (tmp_path / "images_spacr_2").write_text("existing project marker", encoding="utf-8")
     assert demo._fresh_destination(str(images) + "/") == str(tmp_path / "images_spacr_3")
     assert not (tmp_path / "images_spacr_3").exists()
-    assert (tmp_path / "images_spacr_2").read_text() == "existing project marker"
+    assert (tmp_path / "images_spacr_2").read_text(encoding="utf-8") == "existing project marker"
 
 
 @pytest.mark.parametrize("wrapped", [False, True])

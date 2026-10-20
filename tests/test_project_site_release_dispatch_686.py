@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def job():
-    workflow = yaml.safe_load((ROOT / '.github/workflows/release.yml').read_text())
+    workflow = yaml.safe_load((ROOT / '.github/workflows/release.yml').read_text(encoding="utf-8"))
     return workflow['jobs']['refresh-project-site']
 
 
@@ -31,6 +31,7 @@ def test_refresh_is_post_publication_and_does_not_gate_the_release(job):
 
 
 @pytest.mark.parametrize('token,status', [('', 0), ('test-token', 0), ('test-token', 1)])
+@pytest.mark.posix_only
 def test_actual_step_skips_missing_credentials_and_sends_one_release_event(
         job, tmp_path, token, status):
     executable = tmp_path / 'gh'
@@ -39,7 +40,7 @@ import json, os, sys
 from pathlib import Path
 Path(os.environ['DISPATCH_LOG']).write_text(json.dumps(sys.argv[1:]))
 sys.exit(int(os.environ['DISPATCH_STATUS']))
-''')
+''', encoding="utf-8")
     executable.chmod(0o755)
     summary = tmp_path / 'summary'
     request = tmp_path / 'request.json'
@@ -52,15 +53,15 @@ sys.exit(int(os.environ['DISPATCH_STATUS']))
     if not token:
         assert result.returncode == 0
         assert not request.exists()
-        assert 'SITE_DISPATCH_TOKEN' in summary.read_text()
+        assert 'SITE_DISPATCH_TOKEN' in summary.read_text(encoding="utf-8")
     else:
         assert result.returncode == status
-        assert json.loads(request.read_text()) == [
+        assert json.loads(request.read_text(encoding="utf-8")) == [
             'api', '--method', 'POST', 'repos/EinarOlafsson/site-src/dispatches',
             '-f', 'event_type=spacr-release', '-f', 'client_payload[version]=1.5.1.5',
             '-f', 'client_payload[tag]=v1.5.1.5']
         if status:
             assert not summary.exists()
         else:
-            assert 'requested rebuild' in summary.read_text()
-            assert 'publication is verified by the site workflow' in summary.read_text()
+            assert 'requested rebuild' in summary.read_text(encoding="utf-8")
+            assert 'publication is verified by the site workflow' in summary.read_text(encoding="utf-8")

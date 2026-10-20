@@ -2412,10 +2412,10 @@ def write_model_card(model_path, card, *, markdown=True):
     stem = os.path.splitext(os.path.abspath(str(model_path)))[0]
     json_path = stem + MODEL_CARD_SUFFIX
     os.makedirs(os.path.dirname(json_path) or '.', exist_ok=True)
-    with open(json_path, 'w') as handle:
+    with open(json_path, 'w', encoding="utf-8") as handle:
         _json.dump(json_safe(card), handle, indent=2, sort_keys=True)
     if markdown:
-        with open(stem + MODEL_CARD_MD_SUFFIX, 'w') as handle:
+        with open(stem + MODEL_CARD_MD_SUFFIX, 'w', encoding='utf-8') as handle:
             handle.write(format_model_card(card))
     return json_path
 
@@ -2431,7 +2431,7 @@ def read_model_card(model_path):
     json_path = stem + MODEL_CARD_SUFFIX
     if not os.path.isfile(json_path):
         return None
-    with open(json_path) as handle:
+    with open(json_path, encoding="utf-8") as handle:
         return _json.load(handle)
 
 
