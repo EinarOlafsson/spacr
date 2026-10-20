@@ -49,7 +49,7 @@ import os
 from typing import List, Optional
 
 import pandas as pd
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QDoubleSpinBox, QFileDialog,
     QFormLayout, QHBoxLayout, QHeaderView, QLabel, QPlainTextEdit,
@@ -170,6 +170,9 @@ class OutliersScreen(QWidget):
         self._path: Optional[str] = None
         self._result = None
         self._objects: Optional[pd.DataFrame] = None
+        self._scan_token = 0
+        self._filling = False
+        self._waiting_result = None
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
 
@@ -520,8 +523,16 @@ class OutliersScreen(QWidget):
             return
         self._source.setText(f"scanning {len(frame):,} objects — "
                              f"{spec.describe()}…")
+        self._scan_token += 1
+        token = self._scan_token
         self._jobs.submit(lambda f=frame, s=spec: detect_outliers(f, s),
-                          self._on_scanned)
+                          lambda result, t=token: self._deliver_scan(t, result))
+
+    def _deliver_scan(self, token: int, result) -> None:
+        """Show a scan's result unless a later scan or a close superseded it."""
+        if token != self._scan_token or not _alive(self):
+            return
+        self._on_scanned(result)
 
     def _on_scanned(self, result) -> None:
         """Show a finished scan. GUI thread only."""
@@ -529,9 +540,22 @@ class OutliersScreen(QWidget):
         frame = self._frame
         if frame is None:  # pragma: no cover - the frame cannot vanish mid-job
             return
-        self._objects = result.object_frame(frame)
-        self._fill_object_table(result)
-        self._fill_well_table(result)
+        if not _alive(self):
+            return
+        if self._filling:
+            self._waiting_result = result
+            return
+        self._filling = True
+        try:
+            self._objects = result.object_frame(frame)
+            self._fill_object_table(result)
+            self._fill_well_table(result)
+        finally:
+            self._filling = False
+        waiting, self._waiting_result = self._waiting_result, None
+        if waiting is not None:
+            QTimer.singleShot(0, self, lambda r=waiting: self._on_scanned(r))
+            return
         self.report.setPlainText(result.report())
         self._export.setEnabled(True)
         self.tabs.setTabText(
@@ -617,6 +641,8 @@ class OutliersScreen(QWidget):
 
         :param event: the Qt close event.
         """
+        self._scan_token += 1
+        self._waiting_result = None
         self._jobs.shutdown()
         super().closeEvent(event)
 
@@ -629,6 +655,8 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
     ``str``. Booleans render as ``yes`` / ``no``, because ``True`` in a column
     called ``outlier`` reads as a header rather than a value at a glance.
     """
+    if not _alive(table) or not _alive(table.model()):
+        return
     rows, columns = len(frame), len(frame.columns)
     sorting = table.isSortingEnabled()
     table.setSortingEnabled(False)
@@ -638,16 +666,12 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
         table.clearSelection()
         if columns < had_columns or rows < had_rows:
             spare = _spare_items(table)
-            table.model().blockSignals(True)
-            try:
-                for row in range(had_rows):
-                    for column in range(had_columns):
-                        if row >= rows or column >= columns:
-                            item = table.takeItem(row, column)
-                            if item is not None:
-                                spare.append(item)
-            finally:
-                table.model().blockSignals(False)
+            for row in range(had_rows):
+                for column in range(had_columns):
+                    if row >= rows or column >= columns:
+                        item = table.takeItem(row, column)
+                        if item is not None:
+                            spare.append(item)
         table.setColumnCount(columns)
         table.setRowCount(rows)
         table.setHorizontalHeaderLabels([str(c) for c in frame.columns])
@@ -672,6 +696,17 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
     finally:
         table.setUpdatesEnabled(True)
         table.setSortingEnabled(sorting)
+
+
+def _alive(obj) -> bool:
+    """Whether ``obj`` still has its C++ object behind it."""
+    if obj is None:
+        return False
+    try:
+        import shiboken6
+        return bool(shiboken6.isValid(obj))
+    except Exception:                                        # noqa: BLE001
+        return False
 
 
 def _cell(value) -> str:
