@@ -106,6 +106,7 @@ import pandas as pd
 
 from . import schema
 from .checkpoint import CheckpointStore, fingerprint
+from .portable_paths import _long_path, _plain_path
 from .cancellation import checkpoint as cancellation_checkpoint
 from .errors import ConfigurationError, RunLedger
 from .tiff_io import write_tiff
@@ -954,7 +955,8 @@ def _iter_files(src: str, extensions: Sequence[str]) -> List[Tuple[str, Tuple[st
     """Yield ``(abs path, relative path parts)`` for every image under ``src``."""
     found: List[Tuple[str, Tuple[str, ...]]] = []
     exts = tuple(e.lower() for e in extensions)
-    for dirpath, dirnames, filenames in os.walk(src):
+    for dirpath, dirnames, filenames in os.walk(_long_path(src, always=True)):
+        dirpath = _plain_path(dirpath)
         dirnames[:] = sorted(d for d in dirnames if not d.startswith('.'))
         for name in sorted(filenames):
             if name.startswith('.'):
@@ -1051,7 +1053,7 @@ def _describe_tiff(path: str) -> Dict[str, Any]:
     """Read a TIFF's dimensions from its header — no pixel data."""
     import tifffile
 
-    with tifffile.TiffFile(path) as handle:
+    with tifffile.TiffFile(_long_path(path)) as handle:
         series = handle.series[0]
         shape = tuple(int(s) for s in series.shape)
         axes = str(series.axes or '')
@@ -1067,7 +1069,7 @@ def _describe_plain(path: str) -> Dict[str, Any]:
     """Read a PNG/JPEG/BMP's dimensions via Pillow — no pixel decode."""
     from PIL import Image
 
-    with Image.open(path) as image:
+    with Image.open(_long_path(path)) as image:
         width, height = image.size
         mode = image.mode
     n_c = {'L': 1, 'I': 1, 'I;16': 1, 'F': 1, 'LA': 2,
@@ -2177,7 +2179,7 @@ def _read_tiff(source: SourceImage) -> np.ndarray:
     """Read the first TIFF series and normalize its axes to ``(T,Z,C,Y,X)``."""
     import tifffile
 
-    with tifffile.TiffFile(source.path) as handle:
+    with tifffile.TiffFile(_long_path(source.path)) as handle:
         array = handle.series[0].asarray()
         axes = str(handle.series[0].axes or '')
     return _to_5d(array, axes, source.t, source.z, source.n_channels)
@@ -2187,7 +2189,7 @@ def _read_plain(source: SourceImage) -> np.ndarray:
     """Read a Pillow image as channel-first color or single-channel 5-D data."""
     from PIL import Image
 
-    with Image.open(source.path) as image:
+    with Image.open(_long_path(source.path)) as image:
         array = np.array(image)
     if array.ndim == 3:
         array = np.moveaxis(array, -1, 0)
@@ -2324,14 +2326,15 @@ def _atomic_write(path: str, array: np.ndarray) -> None:
     "already exists, skip" check would treat as done.
     """
     folder = os.path.dirname(path) or '.'
-    handle, temp = tempfile.mkstemp(prefix=_TMP_PREFIX, suffix='.tif', dir=folder)
+    handle, temp = tempfile.mkstemp(prefix=_TMP_PREFIX, suffix='.tif',
+                                    dir=_long_path(folder))
     os.close(handle)
     try:
         _imwrite(temp, array)
-        os.replace(temp, path)
+        os.replace(_long_path(temp), _long_path(path))
     except BaseException:
         try:
-            os.unlink(temp)
+            os.unlink(_long_path(temp))
         except OSError:
             pass
         raise
@@ -2386,10 +2389,10 @@ def _valid_converted_tiff(path: str) -> bool:
     not load its pixels into memory.
     """
     try:
-        if os.path.getsize(path) < 8:
+        if os.path.getsize(_long_path(path)) < 8:
             return False
         import tifffile
-        with tifffile.TiffFile(path) as handle:
+        with tifffile.TiffFile(_long_path(path)) as handle:
             if not handle.pages:
                 return False
             shape = tuple(int(value) for value in handle.series[0].shape)
@@ -2445,7 +2448,7 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
                 f'The destination {dst} is the folder the images are being '
                 f'read from. Convert into a new folder so the originals stay '
                 f'untouched and the output can be re-scanned.')
-    os.makedirs(dst, exist_ok=True)
+    os.makedirs(_long_path(dst), exist_ok=True)
 
     run = ledger if ledger is not None else RunLedger('convert_to_yokogawa_plan')
     checkpoint_target = (
@@ -2515,7 +2518,7 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
             array = _read_source(source)
             for mapping in pending_group:
                 target = os.path.join(dst, mapping.target)
-                if os.path.exists(target) and not overwrite:
+                if os.path.exists(_long_path(target)) and not overwrite:
                     if not resume or _valid_converted_tiff(target):
                         result.existing.append(mapping)
                         continue

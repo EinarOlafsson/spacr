@@ -67,6 +67,8 @@ from typing import Any, Dict, Iterator, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 
+from .portable_paths import _long_path
+
 LOG = logging.getLogger("spacr.mask_io")
 
 PathLike = Union[str, os.PathLike, Path]
@@ -126,9 +128,9 @@ def _overwrite_mapped_npy_in_place(path: Path, mask: np.ndarray) -> bool:
     np.save(buffer, mask)
     payload = buffer.getvalue()
     try:
-        if os.path.getsize(path) != len(payload):
+        if os.path.getsize(_long_path(path)) != len(payload):
             return False
-        with open(path, "r+b") as handle:
+        with open(_long_path(path), "r+b") as handle:
             handle.write(payload)
             handle.flush()
             os.fsync(handle.fileno())
@@ -176,7 +178,7 @@ def save_mask(path: PathLike, mask: np.ndarray,
     elif fmt == "npy":
         p = p.with_suffix(".npy")
         try:
-            np.save(str(p), mask)
+            np.save(_long_path(str(p)), mask)
         except OSError:
             if not _overwrite_mapped_npy_in_place(p, mask):
                 raise
@@ -211,7 +213,7 @@ def load_mask(path: PathLike) -> np.ndarray:
         ])
 
     for c in candidates:
-        if c.is_file():
+        if Path(_long_path(c)).is_file():
             return _read_one(c)
     raise FileNotFoundError(f"no mask found for {path!r} (tried "
                               f"{[str(c.name) for c in candidates]})")
@@ -227,9 +229,9 @@ def _read_one(p: Path) -> np.ndarray:
     """
     if p.suffix.lower() in (".tif", ".tiff"):
         import tifffile
-        arr = tifffile.imread(str(p))
+        arr = tifffile.imread(_long_path(str(p)))
     elif p.suffix.lower() == ".npy":
-        arr = np.load(str(p), allow_pickle=False)
+        arr = np.load(_long_path(str(p)), allow_pickle=False)
     else:
         raise ValueError(f"unsupported mask extension: {p}")
     return _as_uint16_mask(arr)

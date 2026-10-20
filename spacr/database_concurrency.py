@@ -255,17 +255,9 @@ def _extended_length_path(path, *, windows=None):
     :param windows: whether to use the Windows spelling; this system by default.
     :returns: the absolute extended-length path on Windows, else ``path``.
     """
-    path = os.fspath(path)
-    if not (os.name == 'nt' if windows is None else windows):
-        return path
-    import ntpath
+    from .portable_paths import _long_path
 
-    if path.startswith('\\\\?\\'):
-        return path
-    absolute = ntpath.abspath(path) if os.name == 'nt' else ntpath.normpath(path)
-    if absolute.startswith('\\\\'):
-        return '\\\\?\\UNC\\' + absolute[2:]
-    return '\\\\?\\' + absolute
+    return os.fspath(_long_path(os.fspath(path), always=True, windows=windows))
 
 
 @dataclass(frozen=True)

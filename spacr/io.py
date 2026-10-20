@@ -54,6 +54,7 @@ from .errors import RunLedger
 from .image_colors import read_image_rgb
 from .classification_pixels import DECLARED_UINT8, read_classification_image, validate_policy
 from .tiff_io import write_tiff
+from .portable_paths import _long_path
 
 LOG = logging.getLogger(__name__)
 
@@ -1105,7 +1106,7 @@ def load_images_from_paths(images_by_key):
         for path in paths:
             with ledger.item(path, stage='load',
                              echo=f"Error loading image from {path}"):
-                with Image.open(path) as img:
+                with Image.open(_long_path(path)) as img:
                     images_dict[key].append(np.array(img))
 
     ledger.finalize()
@@ -1139,7 +1140,7 @@ def _stack_field_stems(stack_path):
     :param stack_path: a ``stack/`` folder; a missing one holds no fields.
     :returns: set of file names without the ``.npy`` extension.
     """
-    if not os.path.isdir(stack_path):
+    if not os.path.isdir(_long_path(stack_path)):
         return set()
     return {os.path.splitext(name)[0] for name in _listdir_visible(stack_path)
             if name.endswith('.npy')}
@@ -1260,7 +1261,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         start = time.time()
         output_filename = stem + '.tif'
         new_file = os.path.join(stack_path, stem + '.npy')
-        if os.path.exists(new_file):
+        if os.path.exists(_long_path(new_file)):
             print(f'WARNING: A file with the same name already exists at location {new_file}')
             channels_seen.update(key[3] for key in keys)
             continue
@@ -1291,7 +1292,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             planes.append(np.expand_dims(mip, axis=2))
         if planes:
             checkpoint()
-            os.makedirs(stack_path, exist_ok=True)
+            os.makedirs(_long_path(stack_path), exist_ok=True)
             _save_array_atomic(new_file, np.concatenate(planes, axis=2))
         else:
             print(f"No valid channels to merge for file {output_filename}")
@@ -1310,13 +1311,13 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             to_move = [filename for filename in _listdir_visible(src)
                        if os.path.splitext(filename)[1] in img_format]
         if to_move:
-            os.makedirs(orig_path, exist_ok=True)
+            os.makedirs(_long_path(orig_path), exist_ok=True)
         for filename in to_move:
             move = os.path.join(orig_path, filename)
-            if os.path.exists(move):
+            if os.path.exists(_long_path(move)):
                 print(f'WARNING: A file with the same name already exists at location {move}')
             else:
-                shutil.move(os.path.join(src, filename), move)
+                shutil.move(_long_path(os.path.join(src, filename)), _long_path(move))
     else:
         print('save_original_images is off: each raw image that went into a '
               'verified field stack in stack/ is deleted from the source '
@@ -1329,7 +1330,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 if path not in in_a_stack:
                     continue
                 try:
-                    os.remove(path)
+                    os.remove(_long_path(path))
                 except OSError as e:
                     print(f"Warning: could not delete original image {filename}: {e}")
     files_processed = 0
@@ -2058,12 +2059,12 @@ def _replace_atomically(output_path, write, prefix='.spacr_tmp_'):
     """
     output_path = os.fspath(output_path)
     directory = os.path.dirname(output_path) or '.'
-    os.makedirs(directory, exist_ok=True)
+    os.makedirs(_long_path(directory), exist_ok=True)
     while True:
         temporary = os.path.join(
             directory, f'{prefix}{os.urandom(8).hex()}{_PARTIAL_SUFFIX}')
         try:
-            opened = open(temporary, 'xb')
+            opened = open(_long_path(temporary), 'xb')
         except FileExistsError:
             continue
         break
@@ -2072,10 +2073,10 @@ def _replace_atomically(output_path, write, prefix='.spacr_tmp_'):
             write(handle)
             handle.flush()
             os.fsync(handle.fileno())
-        os.replace(temporary, output_path)
+        os.replace(_long_path(temporary), _long_path(output_path))
     except BaseException:
         try:
-            os.remove(temporary)
+            os.remove(_long_path(temporary))
         except OSError:
             pass
         raise
@@ -5288,7 +5289,7 @@ def _listdir_visible(folder):
         dot-files.
     :raises OSError: whatever :func:`os.listdir` raises for ``folder``.
     """
-    return [name for name in os.listdir(folder) if not name.startswith('.')]
+    return [name for name in os.listdir(_long_path(folder)) if not name.startswith('.')]
 
 
 def _save_array_atomic(output_path, array):
@@ -5327,8 +5328,8 @@ def _load_array_any(path):
     """
     if path.endswith(('.tif', '.tiff')):
         import tifffile
-        return tifffile.imread(path)
-    return np.load(path, allow_pickle=False)
+        return tifffile.imread(_long_path(path))
+    return np.load(_long_path(path), allow_pickle=False)
 
 
 def _load_and_concatenate_arrays(

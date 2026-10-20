@@ -37,6 +37,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
+from .portable_paths import _long_path
+
 __all__ = [
     "AXES",
     "MARKERS",
@@ -208,9 +210,11 @@ def infer_layout(root, *, sample: int = 400,
         populated ``unplaced``, which the caller is expected to show.
     """
     root = Path(root)
+    walked = Path(_long_path(root, always=True))
     paths = []
-    for path in sorted(root.rglob("*")):
-        if path.is_file() and path.suffix.lower() in extensions:
+    for found in sorted(walked.rglob("*")):
+        if found.is_file() and found.suffix.lower() in extensions:
+            path = root / found.relative_to(walked)
             paths.append(path)
             if len(paths) >= sample:
                 break
@@ -333,9 +337,9 @@ def read_axes_inside(path) -> InsideFile:
 
     path = Path(path)
     if path.suffix.lower() not in (".tif", ".tiff"):
-        return InsideFile(pages=1 if path.is_file() else 0)
+        return InsideFile(pages=1 if Path(_long_path(path)).is_file() else 0)
     try:
-        with tifffile.TiffFile(str(path)) as handle:
+        with tifffile.TiffFile(_long_path(str(path))) as handle:
             pages = len(handle.pages)
             series = handle.series[0] if handle.series else None
             axes = (series.axes or "") if series is not None else ""
@@ -809,7 +813,7 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
             "this plan is not ready to import:\n  " + "\n  ".join(problems))
 
     destination = Path(destination)
-    destination.mkdir(parents=True, exist_ok=True)
+    Path(_long_path(destination)).mkdir(parents=True, exist_ok=True)
     result = ImportResult(destination=destination)
     written = linked = saved = 0
     skipped: Dict[str, str] = {}
@@ -848,21 +852,22 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
                             f"{used[name]}; an axis is missing")
             continue
         target = destination / name
+        source_io, target_io = Path(_long_path(source)), Path(_long_path(target))
         try:
             if link:
-                if target.exists() or target.is_symlink():
-                    target.unlink()
+                if target_io.exists() or target_io.is_symlink():
+                    target_io.unlink()
                 try:
-                    os.symlink(source, target)
+                    os.symlink(source_io, target_io)
                 except (OSError, NotImplementedError):
-                    os.link(source, target)
+                    os.link(source_io, target_io)
                 linked += 1
-                saved += source.stat().st_size
+                saved += source_io.stat().st_size
             else:
-                shutil.copy2(source, target)
+                shutil.copy2(source_io, target_io)
         except (OSError, NotImplementedError):
             try:
-                shutil.copy2(source, target)
+                shutil.copy2(source_io, target_io)
             except OSError as exc:
                 skipped[rel] = f"could not write {name}: {exc}"
                 continue
