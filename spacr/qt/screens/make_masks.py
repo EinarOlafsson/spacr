@@ -17417,6 +17417,9 @@ class MakeMasksScreen(QWidget):
         :param kind: what happened, as the curation ledger names it.
         """
         self._refresh_secondary_report()
+        timer = getattr(self, "_field_timer", None)
+        if timer is not None:
+            timer.touch()
         if int(n_changed) <= 0:
             return None
         if kind != "filter":
@@ -23187,6 +23190,7 @@ class MakeMasksScreen(QWidget):
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         self._log = self._open_ledger(filename)
+        self._start_field_timer(filename, mask)
         manual = next((edit.detail for edit in reversed(self._log.edits)
                        if 'manual_ids' in edit.detail), {})
         key = self._manual_mask_key(mask)
@@ -23219,6 +23223,33 @@ class MakeMasksScreen(QWidget):
         self._show_session_notice()
         self._magnifier.refresh()
         self._refresh_lineage_rows()
+
+    def _start_field_timer(self, filename: str, mask) -> None:
+        """Start timing the field just loaded (see :mod:`..curation_timing`)."""
+        try:
+            from ..curation_timing import FieldTimer
+
+            self._field_timer = FieldTimer(
+                os.path.join(self._folder or "", filename), mask,
+                len(self._log) if self._log is not None else 0)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("could not start the field timer", exc_info=True)
+            self._field_timer = None
+
+    def _log_field_visit(self, decision: str, mask=None) -> None:
+        """Append this field's row to ``curate_timing.csv``; never raises."""
+        try:
+            timer = getattr(self, "_field_timer", None)
+            if self._queue is None or timer is None:
+                return
+            from ..curation_timing import log_visit
+
+            if mask is None:
+                mask = self._canvas.mask
+            log_visit(self._queue.folder, timer, decision, mask,
+                      len(self._log) if self._log is not None else 0)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("could not log the curation timing", exc_info=True)
 
     def _open_ledger(self, filename: str) -> CurationLog:
         """The ledger for one field, ready to be appended to.
@@ -23471,6 +23502,7 @@ class MakeMasksScreen(QWidget):
             LOG.warning("could not record %s as skipped", stem, exc_info=True)
             self._warn(tr("Skip failed"), str(exc))
             return
+        self._log_field_visit("skip")
         judged = os.path.basename(filename)
         was = self._current_index
         self._move_next(save_mask=False)
@@ -23512,6 +23544,7 @@ class MakeMasksScreen(QWidget):
             filename = self._image_files[self._current_index]
             objects = int(np.count_nonzero(np.unique(self._canvas.mask)))
             self._note_curated(filename, n_objects=objects)
+            self._log_field_visit("save")
             path = engine.mask_save_path(self._folder, filename,
                                          **self._layout_kwargs())
             _wait_for_mask_writes(path)
@@ -23547,6 +23580,7 @@ class MakeMasksScreen(QWidget):
             previous=(self._last_saved_mask, self._lineage_format, self._lineage_dirty),
             deliver=self._deliver_mask_write)
         self._last_saved_mask = np.array(mask, copy=True)
+        self._log_field_visit("save", mask)
         self._lineage = lineage
         self._lineage_format = lineage is not None
         self._lineage_dirty = False
