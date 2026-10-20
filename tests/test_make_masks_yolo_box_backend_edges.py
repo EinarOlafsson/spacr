@@ -63,6 +63,7 @@ def test_corrupt_project_ledger_is_never_replaced(tmp_path, ledger):
     assert path.read_bytes() == before
 
 
+@pytest.mark.needs_symlink
 def test_export_refuses_bad_paths_symlinks_and_corrupt_class_metadata(tmp_path):
     boxes = [(0, 0, 0, 10, 10)]
     classes = ["object"]

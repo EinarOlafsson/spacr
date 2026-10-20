@@ -502,7 +502,10 @@ def test_index_query_survives_a_bad_panel_signature(tmp_path, monkeypatch):
 
 
 def test_the_index_stays_bounded_and_survives_unwritable_paths(tmp_path, monkeypatch):
-    monkeypatch.setattr(plot, "_INDEX_LIMIT", 4096)
+    # 8 KiB, not 4: an entry longer than an eighth of the limit is dropped,
+    # and an entry names two absolute paths, which under a Windows temp
+    # folder alone run past 512 bytes.
+    monkeypatch.setattr(plot, "_INDEX_LIMIT", 8192)
     report = {"figure_sha256": "a" * 64, "created": "now",
               "panels": [{"panel": 0, "displayed_sha256": "b" * 64,
                           "index_hash": "0" * 16,
@@ -511,11 +514,11 @@ def test_the_index_stays_bounded_and_survives_unwritable_paths(tmp_path, monkeyp
     for _ in range(40):
         plot._record_in_index(report, figure, str(figure) + ".json")
     index = tmp_path / plot._INDEX_NAME
-    assert index.stat().st_size <= 4096
+    assert index.stat().st_size <= 8192
     entries = plot._read_figure_index(str(index))
     assert len(entries) == 1 and entries[0]["panels"][0]["sources"] == ["/x"]
     with open(index, "ab") as handle:
-        handle.write(b"x" * 5000 + b"\n")
+        handle.write(b"x" * 10000 + b"\n")
     assert plot._read_figure_index(str(index)) == []
     assert plot._read_figure_index(str(tmp_path / "missing")) == []
     report["panels"] = report["panels"] * 200

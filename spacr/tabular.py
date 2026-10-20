@@ -57,6 +57,7 @@ module to get canonical names and must not import torch.
 from __future__ import annotations
 
 import os
+import re
 import sqlite3
 from contextlib import contextmanager
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -877,11 +878,88 @@ def _postgres_connect(dsn: str):
     return psycopg.connect(dsn.strip())
 
 
+_WINDOWS_FOLDER_FORBIDDEN = frozenset('<>:"|?*')
+
+
+def _windows_forbids(char: str) -> bool:
+    """Whether Windows refuses ``char`` anywhere in a folder name."""
+    return char in _WINDOWS_FOLDER_FORBIDDEN or ord(char) < 32
+
+
+def _parquet_windows_folder_name(table: str) -> str:
+    """The spelling of ``table``'s folder that Windows can create.
+
+    Windows refuses ``< > : " | ? *``, control characters and a trailing dot
+    or space in a folder name; each is written as ``%XX``. Every name Windows
+    already accepted, ``%`` included, is its own folder, as it always was.
+    """
+    encoded = ''.join(f'%{ord(char):02X}' if _windows_forbids(char) else char
+                      for char in table)
+    if encoded and encoded[-1] in '. ':
+        encoded = encoded[:-1] + f'%{ord(encoded[-1]):02X}'
+    return encoded
+
+
+def _parquet_folder_name(table: str, *, windows: Optional[bool] = None) -> str:
+    """The folder this system gives ``table`` in a Parquet store.
+
+    POSIX keeps every table in the folder of its own name, exactly as stores
+    have always been written; Windows uses
+    :func:`_parquet_windows_folder_name`, which is the same folder for every
+    name Windows could already create.
+    """
+    if os.name == 'nt' if windows is None else windows:
+        return _parquet_windows_folder_name(table)
+    return table
+
+
+def _parquet_table_name(folder: str) -> str:
+    """The table a store folder holds.
+
+    A folder is read as an escaped name only when it is exactly the Windows
+    spelling of a name Windows forbids; every other folder is its own table.
+    """
+    table = re.sub(r'%([0-9A-Fa-f]{2})',
+                   lambda match: chr(int(match.group(1), 16)), folder)
+    if table != folder and _parquet_windows_folder_name(table) == folder:
+        return table
+    return folder
+
+
+def _parquet_table_folder(store: str, table: str) -> str:
+    """The folder of ``table``: this system's spelling, or the other system's.
+
+    A store copied between Windows and POSIX keeps its tables: when this
+    system's folder is absent and the other spelling exists, that is used.
+    """
+    native = os.path.join(store, _parquet_folder_name(table))
+    if os.path.isdir(native):
+        return native
+    for other in (table, _parquet_windows_folder_name(table)):
+        candidate = os.path.join(store, other)
+        if candidate == native:
+            continue
+        try:
+            if os.path.isdir(candidate):
+                return candidate
+        except (OSError, ValueError):
+            pass
+    return native
+
+
+def _parquet_verbatim_folder(store: str, table: str) -> bool:
+    """Whether ``table`` also has a folder of its own unescaped name."""
+    try:
+        return os.path.isdir(os.path.join(store, table))
+    except (OSError, ValueError):
+        return False
+
+
 def _parquet_parts(store: str, table: str) -> List[str]:
     """The active Parquet parts, using a published snapshot when one exists."""
     if table in ('.', '..') or '/' in table or '\\' in table:
         raise ValueError(f'Invalid Parquet table name: {table!r}')
-    folder = os.path.join(store, table)
+    folder = _parquet_table_folder(store, table)
     if not os.path.isdir(folder):
         return []
     manifest = _parquet_manifest(folder)
@@ -1003,8 +1081,15 @@ def _store_tables(db: Any, backend: str) -> Tuple[str, ...]:
         store = resolve_path(db)
         if not os.path.isdir(store):
             return ()
-        return tuple(sorted(name for name in os.listdir(store)
-                            if _parquet_parts(store, name)))
+        names = []
+        for folder in os.listdir(store):
+            table = _parquet_table_name(folder)
+            if (table != folder and not _parquet_verbatim_folder(store, table)
+                    and _parquet_parts(store, table)):
+                names.append(table)
+            elif _parquet_parts(store, folder):
+                names.append(folder)
+        return tuple(sorted(set(names)))
     query = ("SELECT table_name FROM information_schema.tables "
              "WHERE table_schema = current_schema() "
              "AND table_type = 'BASE TABLE'")
@@ -1124,7 +1209,7 @@ def _store_write(frame: pd.DataFrame, db: Any, backend: str, table: str,
             raise ValueError(f'Invalid Parquet table name: {table!r}')
         store = resolve_path(db)
         with _parquet_store_lock(store):
-            folder = os.path.join(store, table)
+            folder = _parquet_table_folder(store, table)
             manifest = _parquet_manifest(folder) if os.path.isdir(folder) else None
             previous = _parquet_parts(store, table)
             if previous and if_exists == 'fail':
