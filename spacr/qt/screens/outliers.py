@@ -49,7 +49,7 @@ import os
 from typing import List, Optional
 
 import pandas as pd
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QDoubleSpinBox, QFileDialog,
     QFormLayout, QHBoxLayout, QHeaderView, QLabel, QPlainTextEdit,
@@ -57,6 +57,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
+from .. import _after
 from ..job_runner import JobRunner
 from ..theme import (RADIUS, SPACING, block_surface, register_widget_qss)
 from ..widgets.measurements_example import EXAMPLE_TABLE, install_test_data_button
@@ -554,7 +555,7 @@ class OutliersScreen(QWidget):
             self._filling = False
         waiting, self._waiting_result = self._waiting_result, None
         if waiting is not None:
-            QTimer.singleShot(0, self, lambda r=waiting: self._on_scanned(r))
+            _after(0, self, lambda r=waiting: self._on_scanned(r))
             return
         self.report.setPlainText(result.report())
         self._export.setEnabled(True)

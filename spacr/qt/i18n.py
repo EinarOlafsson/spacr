@@ -4805,8 +4805,10 @@ def install_dialog_translation(app) -> None:
     if app is None or getattr(app, "_spacr_dialog_i18n_filter", None) is not None:
         return
     try:
-        from PySide6.QtCore import QEvent, QObject, QTimer
+        from PySide6.QtCore import QEvent, QObject
         from PySide6.QtWidgets import QDialog
+
+        from . import _after
     except Exception:
         return
 
@@ -4841,9 +4843,8 @@ def install_dialog_translation(app) -> None:
                 language = current_language() if once else None
                 if once and watched.property(_TRANSLATED_FOR) == language:
                     return False
-                QTimer.singleShot(
-                    0, watched,
-                    lambda dialog=watched: _translate_shown_dialog(dialog))
+                _after(0, watched,
+                       lambda dialog=watched: _translate_shown_dialog(dialog))
             return False
 
     event_filter = _DialogTranslationFilter(app)
