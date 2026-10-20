@@ -26,10 +26,19 @@ from PySide6.QtTest import QTest
 
 @pytest.fixture(scope="module")
 def help_index_rows():
-    """The real index, built once. About a second; 11,000 rows."""
+    """The real index, built once. About a second; 11,000 rows.
+
+    Built with Alpha modules shown, as every test here sees the window: the
+    sandbox's per-test fallback (``tests/qt/conftest.py``) is set up only
+    after a module-scoped fixture like this one has run, and the shipped
+    default hides Alpha modules such as External Masks.
+    """
+    from spacr.qt import preferences
     from spacr.qt.help_index import build_index
 
-    return build_index()
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(preferences, "DEFAULT_SHOW_ALPHA", True)
+        return build_index()
 
 
 def test_enabled_object_helpers_have_search_rows_local_prose_and_exact_links():
