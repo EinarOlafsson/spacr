@@ -132,7 +132,7 @@ def run(folder, output, *, count=16, policy='per_channel', device='cpu'):
               'verification': check, 'gui_workflow_completed': False,
               'biology_validated': False, 'stain_mapping_verified': False,
               'artifacts': {path.name: digest(path) for path in sorted(output.iterdir())}}
-    (output / 'run.json').write_text(json.dumps(report, indent=2) + '\n', encoding="utf-8")
+    (output / 'run.json').write_text(json.dumps(report, indent=2) + '\n')
     print(f'Vectors: {result.values.shape}; saved and independently reopened', flush=True)
     print(f'Weights SHA256: {entry.sha256}', flush=True)
     print(frame.iloc[:3, :5].to_string(index=False), flush=True)
