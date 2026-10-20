@@ -24,6 +24,7 @@ class Images(HTMLParser):
     def __init__(self):
         super().__init__()
         self.images = []
+        self.sources = []
         self.links = []
         self.image_targets = {}
         self.target = None
@@ -33,6 +34,8 @@ class Images(HTMLParser):
         if tag == "img":
             self.images.append(values)
             self.image_targets[values["src"]] = self.target
+        if tag == "source":
+            self.sources.append(values)
         if tag == "a" and "href" in values:
             self.target = values["href"]
             self.links.append(values["href"])
@@ -59,8 +62,14 @@ def test_packaged_readme_renders_all_original_images(metadata):
         **renderer.SETTINGS, "raw_enabled": True,
     })["fragment"])
     converted.feed(html)
+    desktop = [i for i in converted.images
+               if i.get("class") == "hide-below-desktop"]
+    converted.images = [i for i in converted.images
+                        if i.get("class") != "hide-below-desktop"]
     assert len(converted.images) == len(original.images) > 30
     assert [i.get("alt") for i in converted.images] == [i.get("alt") for i in original.images]
+    assert [i["src"].split("/main/")[-1] for i in desktop] == [
+        s["srcset"] for s in original.sources]
     assert all(i["src"].startswith("https://") for i in converted.images)
     assert all(re.match(r"(?:https?://|mailto:|#)", link) for link in converted.links)
     restored = packaged["long_description"].replace(
@@ -70,7 +79,7 @@ def test_packaged_readme_renders_all_original_images(metadata):
         "https://raw.githubusercontent.com/EinarOlafsson/spacr/main/", "").replace(
         "https://github.com/EinarOlafsson/spacr/blob/main/", "")
     # Only GitHub's raw HTML changes shape for PyPI: icon cells and the
-    # phone/desktop pictures become RST images (the phone drawing). Every
+    # phone/desktop pictures become RST images (both drawings). Every
     # code block and every line outside the raw HTML stays intact.
     def kept(text):
         text = re.sub(r"(?m)^\.\. (?:\|[^|\n]+\| )?raw:: html\n\n(?:   [^\n]*\n?)+",
@@ -78,7 +87,8 @@ def test_packaged_readme_renders_all_original_images(metadata):
         text = re.sub(r"(?m)^\.\. (?:\|[^|\n]+\| )?image::[^\n]*\n(?:   :[^\n]*\n?)*",
                       "", text)
         return [line for line in text.splitlines()
-                if line.strip() and not line.startswith("| ")]
+                if line.strip() and line.strip() != "|"
+                and not line.startswith("| ")]
     assert kept(restored) == kept(original_normalized)
     assert "raw:: html" not in packaged["long_description"]
     assert {i["alt"]: i["src"].split("/main/")[-1] for i in converted.images} == {
