@@ -3,6 +3,14 @@
   "note": "Upstream 60172283ca: CollapsibleSplitter.rebalance docstring.",
   "records": [
     {
+      "context": "The question belongs to this dialog while it is open. Owned by the main window, it opened as that window's sheet behind the modal Preferences, and on macOS neither Keep nor Revert could be clicked (acceptance 2026-10-20); only Enter reached it.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply_the_scales_live#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The question belongs to this dialog while it is open. Owned by the main window, it opened as that window's sheet behind the modal Preferences, and on macOS neither Keep nor Revert could be clicked (acceptance 2026-10-20); only Enter reached it.",
+      "source_sha256": "cc7e9c8c2935529c8b8d19ab4021b9625d7e076ec5cf8feb6b7879f66aa11f44",
+      "translation": "在此对话框打开期间，该询问归属于此对话框。如果由主窗口拥有，它会作为该窗口的表单（sheet）出现在模态的 Preferences 后面，在 macOS 上 Keep 和 Revert 都无法点击（验收 2026-10-20）；只有 Enter 能作用于它。"
+    },
+    {
       "context": "Worked out in the pixels the panes are drawn at, because a heading and a wrapped row are measured in them; only a remembered size is kept in 100 % units, and is scaled here.",
       "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.rebalance#2",
       "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
