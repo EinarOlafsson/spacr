@@ -4627,6 +4627,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
     paths.add(ROOT / "spacr" / "run_journal.py")
+    paths.add(ROOT / "spacr" / "ml.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):

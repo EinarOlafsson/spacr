@@ -9208,9 +9208,21 @@ class AppScreen(QWidget):
         from ..verbose_logger import log_button_press
         entry = resolve_pipeline_entry(self.app_key)
         if entry is None:
+            from ..bridge import _entry_import_error
+
+            failure = _entry_import_error(self.app_key)
             log_button_press(
                 f"{self.app_key}.Run",
-                {"result": "not_runnable"})
+                {"result": "not_runnable" if failure is None else "import_failed",
+                 **({} if failure is None else {"error": failure})})
+            if failure is not None:
+                QMessageBox.warning(
+                    self, tr("Could not load the pipeline"),
+                    tr("The '{app}' pipeline could not be loaded: {error}\n\n"
+                       "The log has the full error.",
+                       app=self.app_key, error=failure[:400]),
+                )
+                return
             QMessageBox.information(
                 self, tr("Not runnable"),
                 tr("The '{app}' app is interactive-only in this Qt build. "

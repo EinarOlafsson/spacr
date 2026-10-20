@@ -149,11 +149,13 @@ def _xgboost_classifier():
     except Exception as error:
         reason = next((line.strip() for line in str(error).splitlines() if line.strip()),
                       type(error).__name__)
-        raise RuntimeError(
-            "XGBoost could not be loaded on this computer "
-            f"({reason[:200]}). On macOS install or update the "
-            "OpenMP runtime it needs (`brew install libomp` or `brew upgrade libomp`), "
-            "or choose another model such as gradient_boosting or random_forest."
+        from .qt.i18n import tr
+
+        raise RuntimeError(tr(
+            "XGBoost could not be loaded on this computer ({reason}). On macOS "
+            "install or update the OpenMP runtime it needs (`brew install libomp` "
+            "or `brew upgrade libomp`), or choose another model such as "
+            "gradient_boosting or random_forest.", reason=reason[:200])
         ) from error
     return XGBClassifier
 

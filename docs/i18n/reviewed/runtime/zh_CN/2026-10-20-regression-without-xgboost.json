@@ -1,0 +1,35 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "A local regression output directory is required for PostgreSQL counts.",
+      "source": "A local regression output directory is required for PostgreSQL counts.",
+      "source_sha256": "de8c9cb80859f8e3f5b67d27bc83bc683ffa87333b1d269d53790d755dd7d269",
+      "table": "ui",
+      "translation": "使用 PostgreSQL 计数时需要一个本地回归输出目录。"
+    },
+    {
+      "key": "Could not load the pipeline",
+      "source": "Could not load the pipeline",
+      "source_sha256": "c06539707d7f17d3bd5674b411422206a451f877ec8a76e765bfc557d4f546f5",
+      "table": "ui",
+      "translation": "无法加载流程"
+    },
+    {
+      "key": "The '{app}' pipeline could not be loaded: {error}\n\nThe log has the full error.",
+      "source": "The '{app}' pipeline could not be loaded: {error}\n\nThe log has the full error.",
+      "source_sha256": "627fd273983903368e773534d6fe62b346a3efd09b403626887a641e339f9571",
+      "table": "ui",
+      "translation": "无法加载“{app}”流程：{error}\n\n日志中有完整的错误信息。"
+    },
+    {
+      "key": "XGBoost could not be loaded on this computer ({reason}). On macOS install or update the OpenMP runtime it needs (`brew install libomp` or `brew upgrade libomp`), or choose another model such as gradient_boosting or random_forest.",
+      "source": "XGBoost could not be loaded on this computer ({reason}). On macOS install or update the OpenMP runtime it needs (`brew install libomp` or `brew upgrade libomp`), or choose another model such as gradient_boosting or random_forest.",
+      "source_sha256": "28a9afdb5c0d22f21928872d133aec905998b4f58ae66abcc63fc183bcd92f57",
+      "table": "ui",
+      "translation": "无法在此计算机上加载 XGBoost（{reason}）。在 macOS 上，请安装或更新它所需的 OpenMP 运行库（`brew install libomp` 或 `brew upgrade libomp`），或选择其他模型，例如 gradient_boosting 或 random_forest。"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

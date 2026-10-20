@@ -1,0 +1,35 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "A local regression output directory is required for PostgreSQL counts.",
+      "source": "A local regression output directory is required for PostgreSQL counts.",
+      "source_sha256": "de8c9cb80859f8e3f5b67d27bc83bc683ffa87333b1d269d53790d755dd7d269",
+      "table": "ui",
+      "translation": "PostgreSQL गणनाओं के लिए रिग्रेशन की एक स्थानीय आउटपुट डायरेक्टरी आवश्यक है।"
+    },
+    {
+      "key": "Could not load the pipeline",
+      "source": "Could not load the pipeline",
+      "source_sha256": "c06539707d7f17d3bd5674b411422206a451f877ec8a76e765bfc557d4f546f5",
+      "table": "ui",
+      "translation": "पाइपलाइन लोड नहीं हो सकी"
+    },
+    {
+      "key": "The '{app}' pipeline could not be loaded: {error}\n\nThe log has the full error.",
+      "source": "The '{app}' pipeline could not be loaded: {error}\n\nThe log has the full error.",
+      "source_sha256": "627fd273983903368e773534d6fe62b346a3efd09b403626887a641e339f9571",
+      "table": "ui",
+      "translation": "'{app}' पाइपलाइन लोड नहीं हो सकी: {error}\n\nपूरी त्रुटि लॉग में है।"
+    },
+    {
+      "key": "XGBoost could not be loaded on this computer ({reason}). On macOS install or update the OpenMP runtime it needs (`brew install libomp` or `brew upgrade libomp`), or choose another model such as gradient_boosting or random_forest.",
+      "source": "XGBoost could not be loaded on this computer ({reason}). On macOS install or update the OpenMP runtime it needs (`brew install libomp` or `brew upgrade libomp`), or choose another model such as gradient_boosting or random_forest.",
+      "source_sha256": "28a9afdb5c0d22f21928872d133aec905998b4f58ae66abcc63fc183bcd92f57",
+      "table": "ui",
+      "translation": "इस कंप्यूटर पर XGBoost लोड नहीं हो सका ({reason})। macOS पर इसके लिए आवश्यक OpenMP रनटाइम इंस्टॉल या अपडेट करें (`brew install libomp` या `brew upgrade libomp`), या कोई दूसरा मॉडल चुनें, जैसे gradient_boosting या random_forest।"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}
