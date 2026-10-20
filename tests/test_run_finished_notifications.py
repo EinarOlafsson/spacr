@@ -21,7 +21,6 @@ import json
 import logging
 import os
 import socketserver
-import stat
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -29,6 +28,7 @@ import pytest
 
 from spacr import run_journal
 from spacr.errors import PartialRunError, RunLedger
+from tests.refused_access import only_the_owner_can_read_the_file
 
 
 class _FakeSmtp(socketserver.ThreadingTCPServer):
@@ -489,7 +489,7 @@ def test_a_secret_without_a_keyring_goes_to_a_mode_600_file(tmp_path,
     monkeypatch.setattr(run_journal, "_notify_keyring", lambda: None)
 
     assert run_journal._store_notify_secret("ntfy_token", "tk-1") == "file"
-    assert stat.S_IMODE(os.stat(path).st_mode) == 0o600
+    assert only_the_owner_can_read_the_file(path)
     assert json.loads(path.read_text(encoding="utf-8")) == {"ntfy_token": "tk-1"}
     assert run_journal._load_notify_secret("ntfy_token") == "tk-1"
     assert run_journal._load_notify_secret("smtp_password") == ""
@@ -539,3 +539,22 @@ def test_the_message_reads_as_a_short_summary():
         "https://hooks.slack.com/*** failed"
     with pytest.raises(ValueError):
         run_journal._notify_http_post("file:///etc/passwd", b"", {})
+
+@pytest.mark.skipif(os.name != "nt", reason="mode 600 already covers this on POSIX")
+def test_a_secret_file_in_a_shared_folder_is_still_private_on_windows(
+        tmp_path, monkeypatch):
+    """A new Windows file inherits its folder's ACL; a portable or lab-drive
+    folder that admits the Users group must not hand them the secret."""
+    import subprocess
+
+    shared = tmp_path / "shared"
+    shared.mkdir()
+    subprocess.run(["icacls", str(shared), "/grant", "*S-1-5-32-545:(OI)(CI)R"],
+                   check=True, capture_output=True, timeout=30)
+    path = shared / "notification_secrets.json"
+    monkeypatch.setattr(run_journal, "_notify_secrets_path", lambda: path)
+    monkeypatch.setattr(run_journal, "_notify_keyring", lambda: None)
+
+    assert run_journal._store_notify_secret("ntfy_token", "tk-1") == "file"
+    assert only_the_owner_can_read_the_file(path)
+    assert run_journal._load_notify_secret("ntfy_token") == "tk-1"

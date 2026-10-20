@@ -13,7 +13,6 @@ import io
 import json
 import logging
 import sqlite3
-import stat
 import zipfile
 from pathlib import Path
 
@@ -22,6 +21,7 @@ import pytest
 
 from spacr import report as rep
 from tests.zenodo_fake import FakeZenodo
+from tests.refused_access import only_the_owner_can_read_the_file
 
 TOKEN = "s3cret-zenodo-token"
 
@@ -170,7 +170,7 @@ def test_the_token_is_kept_in_a_mode_600_file_without_a_keyring(monkeypatch):
     monkeypatch.setattr(run_journal, "_notify_keyring", lambda: None)
     assert rep._store_zenodo_token(TOKEN, sandbox=True) == "file"
     token_file = rep._zenodo_token_path()
-    assert stat.S_IMODE(token_file.stat().st_mode) == 0o600
+    assert only_the_owner_can_read_the_file(token_file)
     assert rep._load_zenodo_token(sandbox=True) == TOKEN
     assert rep._load_zenodo_token(sandbox=False) == ""
     assert rep._store_zenodo_token("", sandbox=True) == "forgotten"

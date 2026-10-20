@@ -185,9 +185,9 @@ def _private_directory(path):
 
 @contextmanager
 def _cache_lease(cache):
-    import fcntl
     if os.name != "posix":
         _refuse("managed_platform_unsupported")
+    import fcntl
     cache = Path(cache).absolute()
     if cache.exists() and not (cache / ".owner.json").exists() and any(cache.iterdir()):
         _refuse("cache_foreign_directory")

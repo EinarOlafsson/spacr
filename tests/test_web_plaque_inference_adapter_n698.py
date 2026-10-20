@@ -141,7 +141,7 @@ def test_production_loader_delegates_to_the_existing_desktop_loader(monkeypatch)
     marker = object()
     monkeypatch.setitem(sys.modules, "spacr.submodules", types.SimpleNamespace(_plaque_cellpose_model=lambda path, digest=None: seen.append(path) or marker))
     assert plaque._load_model(Path("/operator/model.CP_model")) is marker
-    assert seen == ["/operator/model.CP_model"]
+    assert seen == [str(Path("/operator/model.CP_model"))]
 
 
 def test_no_tuple_flow_output_does_not_create_placeholder_arrays(job, monkeypatch):

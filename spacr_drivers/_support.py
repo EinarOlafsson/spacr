@@ -113,7 +113,7 @@ def require(root, required, what=""):
             f"against a copy somewhere else.")
     missing = [pattern for pattern in required if not _matches(root, pattern)]
     if missing:
-        listed = "\n".join(f"  {root / pattern}" for pattern in missing)
+        listed = "\n".join(f"  {os.path.join(str(root), pattern)}" for pattern in missing)
         raise MissingData(
             f"{subject} at {root} is missing {len(missing)} of "
             f"{len(required)} inputs this run reads:\n{listed}\n"
@@ -222,7 +222,7 @@ def settings_file(root, candidates, what=""):
         path = (root / candidate).resolve()
         if path.is_file():
             return path
-    listed = "\n".join(f"  {(root / c)}" for c in candidates)
+    listed = "\n".join(f"  {os.path.join(str(root), c)}" for c in candidates)
     raise MissingData(
         f"no settings file for {what or 'this run'} under {root}; looked for:"
         f"\n{listed}\nPass one as the second argument to use a settings file "

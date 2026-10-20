@@ -28,10 +28,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import ntpath
 import os
+import posixpath
 import re
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, Dict, List, Optional
 
 from .run_journal import load_run_settings, open_run, runs_root
@@ -100,6 +102,31 @@ def _workflow_image(manifest: Dict[str, Any]) -> str:
     return f"{_WORKFLOW_IMAGE}:cpu"
 
 
+def _recorded_windows_path(text: str) -> bool:
+    """Whether a recorded path is spelled for Windows: a backslash or a drive."""
+    return "\\" in text or bool(re.match(r"^[A-Za-z]:", text))
+
+
+def _recorded_path(text: str):
+    """A recorded path in its own spelling, normalised but never re-spelled.
+
+    A workflow runs where its recorded paths exist, usually a Linux cluster,
+    so an export made on Windows must not turn ``/outputs`` into
+    ``\\outputs``; a path recorded on Windows keeps its backslashes.
+    """
+    if _recorded_windows_path(text):
+        return PureWindowsPath(ntpath.normpath(text))
+    return PurePosixPath(posixpath.normpath(text))
+
+
+def _absolute_recorded(text: str):
+    """:func:`_recorded_path`, made absolute against this machine only if it is relative."""
+    path = _recorded_path(text)
+    if path.is_absolute():
+        return path
+    return _recorded_path(os.path.abspath(text))
+
+
 def _workflow_plates(settings: Dict[str, Any],
                      plates: Optional[List[str]] = None, *,
                      module: str = "") -> Dict[str, Dict[str, Any]]:
@@ -152,37 +179,38 @@ def _workflow_plates(settings: Dict[str, Any],
             for key in ("dst", "dst_root"):
                 destination = settings.get(key)
                 if isinstance(destination, str) and destination:
-                    jobs[plate_id][key] = str(Path(destination) / plate_id)
+                    jobs[plate_id][key] = str(_recorded_path(destination) / plate_id)
             file_outputs = {key: settings.get(key)
                             for key in _WORKFLOW_FILE_OUTPUTS.get(module, ())}
             map_name = settings.get("map_name")
             if module == "convert" and isinstance(map_name, str) and map_name:
-                map_path = Path(os.path.normpath(map_name))
+                map_path = _recorded_path(map_name)
                 if map_path.is_absolute() or map_path.parts[:1] == ("..",):
                     original_root = settings.get("dst") or (
                         os.path.normpath(os.path.abspath(source)) + "_yokogawa")
-                    file_outputs["map_name"] = os.path.normpath(os.path.join(
-                        os.path.abspath(str(original_root)), map_name))
+                    file_outputs["map_name"] = str(_recorded_path(str(
+                        _absolute_recorded(str(original_root)) / map_name)))
             for key, destination in file_outputs.items():
                 if not isinstance(destination, str) or not destination:
                     continue
-                path = Path(os.path.normpath(destination))
-                roots = [(Path(os.path.abspath(settings[root]) if key == "map_name"
-                               else os.path.normpath(settings[root])), root)
+                spelled = _recorded_path
+                path = _recorded_path(destination)
+                roots = [(_absolute_recorded(settings[root]) if key == "map_name"
+                          else _recorded_path(settings[root]), root)
                          for root in ("dst", "dst_root")
                          if isinstance(settings.get(root), str) and settings[root]]
                 for root, root_key in sorted(roots, key=lambda row: len(row[0].parts),
                                              reverse=True):
                     try:
                         relative = path.relative_to(root)
-                    except ValueError:
+                    except (TypeError, ValueError):
                         continue
-                    jobs[plate_id][key] = str(Path(jobs[plate_id][root_key]) / relative)
+                    jobs[plate_id][key] = str(spelled(jobs[plate_id][root_key]) / relative)
                     break
                 else:
                     jobs[plate_id][key] = str(path.parent / plate_id / path.name)
                 if key == "map_name":
-                    jobs[plate_id][key] = os.path.abspath(jobs[plate_id][key])
+                    jobs[plate_id][key] = str(_absolute_recorded(jobs[plate_id][key]))
     return jobs
 
 

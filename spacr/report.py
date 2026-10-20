@@ -1378,7 +1378,10 @@ def _embed_figure(path: Path, max_px: int) -> Tuple[Optional[bytes], str, str]:
     try:
         raw = path.read_bytes()
     except OSError as exc:
-        return None, "", f"unreadable ({exc.__class__.__name__})"
+        kind = exc.__class__.__name__
+        if path.is_dir():
+            kind = IsADirectoryError.__name__
+        return None, "", f"unreadable ({kind})"
     if not raw:
         return None, "", "empty file"
     try:
@@ -1410,7 +1413,7 @@ def _embed_figure(path: Path, max_px: int) -> Tuple[Optional[bytes], str, str]:
 def _figure_title(path: Path, src: Path) -> str:
     """A caption: the path relative to ``src`` when possible."""
     try:
-        return str(path.relative_to(src))
+        return path.relative_to(src).as_posix()
     except ValueError:
         return path.name
 
@@ -2994,7 +2997,7 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
     write_table(plate_rows, idr / f"{slug}-screenA-plates.txt",
                 canonicalise=False, sep="\t")
 
-    image_rel = [str(p.relative_to(src)) for p in images]
+    image_rel = [p.relative_to(src).as_posix() for p in images]
     listed = [f"data/{r}" for r in image_rel] if copy_images else image_rel
     suffixes = sorted({p.suffix.lower().lstrip(".") for p in images})
     protocols = [

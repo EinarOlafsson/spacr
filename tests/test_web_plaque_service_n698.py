@@ -9,6 +9,7 @@ import pytest
 import tifffile
 
 from tools.web_mask_generator import plaque, service
+from tests.refused_access import only_the_owner_can_open
 
 
 @pytest.fixture
@@ -38,7 +39,7 @@ def test_private_copy_is_cleaned_after_successful_delivery(setup):
         staged_input = calls[0]["input_file"]
         assert output.read_bytes() == b"completed result"
         assert staged_input.read_bytes() == before
-        assert output.parent.stat().st_mode & 0o777 == 0o700
+        assert only_the_owner_can_open(output.parent)
         assert calls[0]["model_id"] == "toxoplasma_plaque_v4"
         assert calls[0]["effective_settings"] == {"diameter": 52}
     assert not output.exists() and not staged_input.exists()

@@ -49,3 +49,56 @@ def refused(path, posix_mode: int, *, windows: str):
         yield
     finally:
         os.chmod(path, before)
+
+_SHARED_PRINCIPALS = ("Everyone", "BUILTIN\\Users", "Authenticated Users",
+                      "NT AUTHORITY\\INTERACTIVE", "Guests")
+
+
+def only_the_owner_can_open(path) -> bool:
+    """Whether ``path`` is private to its owner -- POSIX ``0o700``, or on
+    Windows an ACL that grants no shared group (Everyone, Users,
+    Authenticated Users, Interactive, Guests). Windows ignores mode bits, so
+    checking ``st_mode`` there proves nothing either way.
+    """
+    path = str(path)
+    if os.name != "nt":
+        return os.stat(path).st_mode & 0o777 == 0o700
+    listing = subprocess.run(["icacls", path], capture_output=True, text=True,
+                             check=True, timeout=30).stdout
+    return not any(principal.casefold() in listing.casefold()
+                   for principal in _SHARED_PRINCIPALS)
+
+def only_the_owner_can_read_the_file(path) -> bool:
+    """A secret file is private: POSIX mode 600, or on Windows an ACL with no
+    inherited entry and no shared group in it."""
+    path = str(path)
+    if os.name != "nt":
+        return os.stat(path).st_mode & 0o777 == 0o600
+    listing = subprocess.run(["icacls", path], capture_output=True, text=True,
+                             check=True, timeout=30).stdout
+    return "(I)" not in listing and not any(
+        principal.casefold() in listing.casefold()
+        for principal in _SHARED_PRINCIPALS)
+
+def refuse(path, posix_mode: int, *, windows: str) -> None:
+    """The first half of :func:`refused`, for a test that restores with :func:`allow`."""
+    path = str(path)
+    if os.name == "nt":
+        subprocess.run(["icacls", path, "/deny",
+                        f"{getpass.getuser()}:{_WINDOWS_RIGHTS[windows]}"],
+                       check=True, capture_output=True, timeout=30)
+    else:
+        os.chmod(path, posix_mode)
+
+
+def allow(path, posix_mode: int) -> None:
+    """Undo :func:`refuse`; quiet, because it runs in a ``finally``."""
+    path = str(path)
+    try:
+        if os.name == "nt":
+            subprocess.run(["icacls", path, "/remove:d", getpass.getuser()],
+                           capture_output=True, timeout=30)
+        else:
+            os.chmod(path, posix_mode)
+    except (OSError, subprocess.SubprocessError):
+        pass

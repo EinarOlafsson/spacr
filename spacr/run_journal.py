@@ -660,6 +660,19 @@ def _setting_path_candidates(
     return candidates
 
 
+def _is_link_or_unreadable(path: Path) -> bool:
+    """Whether a walk should pass ``path`` by: a symlink, or an entry it may not stat.
+
+    Windows refuses ``lstat`` on entries the account may not open, with an
+    access-denied error that ``Path.is_symlink`` raises rather than answers,
+    so one protected file used to abort the whole inventory.
+    """
+    try:
+        return path.is_symlink()
+    except OSError:
+        return True
+
+
 def _iter_files(path: Path, excluded_roots: Iterable[Path]) -> Iterator[Path]:
     """Yield regular files below ``path`` in deterministic order."""
     try:
@@ -696,12 +709,12 @@ def _iter_files(path: Path, excluded_roots: Iterable[Path]) -> Iterator[Path]:
         dirnames[:] = sorted(
             name for name in dirnames
             if name not in _IGNORED_TREE_NAMES
-            and not (root_path / name).is_symlink()
+            and not _is_link_or_unreadable(root_path / name)
             and not excluded(root_path / name)
         )
         for name in sorted(filenames):
             candidate = root_path / name
-            if not candidate.is_symlink() and not excluded(candidate):
+            if not _is_link_or_unreadable(candidate) and not excluded(candidate):
                 yield candidate
 
 
@@ -1065,7 +1078,10 @@ class Run:
         if path.is_dir():
             return path
         if output_only or _is_output_key(key):
-            return path.parent
+            parent = path.parent
+            if parent == Path(parent.anchor):
+                return None
+            return parent
         return None
 
     def _capture_initial_provenance(self) -> None:
@@ -1483,6 +1499,39 @@ def _read_notify_secret_file(path: Optional[Path] = None) -> Dict[str, str]:
         return {}
 
 
+def _restrict_to_owner(path: Path) -> None:
+    """Make ``path`` readable by its owner alone on Windows, before it holds a secret.
+
+    Windows ignores mode bits: a new file inherits its folder's ACL, so a
+    secret file under a shared portable folder or a lab drive was readable by
+    every account the folder admits. Inheritance is removed and the current
+    account is the only one granted access. Elsewhere mode 600 already says
+    this and nothing is done.
+
+    :param path: the empty file just created.
+    :raises OSError: when the ACL cannot be set; the secret is then not written.
+    """
+    if os.name != "nt":
+        return
+    import subprocess
+
+    user = os.environ.get("USERNAME") or ""
+    domain = os.environ.get("USERDOMAIN") or ""
+    account = f"{domain}\\{user}" if domain and user else user
+    if not account:
+        raise OSError("the current Windows account could not be named")
+    try:
+        result = subprocess.run(
+            ["icacls", str(path), "/inheritance:r", "/grant:r", f"{account}:F"],
+            capture_output=True, text=True, timeout=30,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise OSError(f"could not make {path} private: {exc}") from exc
+    if result.returncode != 0:
+        raise OSError(f"could not make {path} private: "
+                      f"{(result.stderr or result.stdout).strip()}")
+
+
 def _write_notify_secret_file(values: Dict[str, str],
                               path: Optional[Path] = None) -> None:
     """Write a secret file readable by its owner only (mode 600).
@@ -1508,6 +1557,7 @@ def _write_notify_secret_file(values: Dict[str, str],
                          os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            _restrict_to_owner(temporary)
             json.dump(kept, handle)
         os.chmod(temporary, 0o600)
         os.replace(temporary, path)
@@ -2504,8 +2554,17 @@ def values_equal(a: Any, b: Any) -> bool:
     to a ``repr`` comparison for exotic values whose ``__eq__`` refuses
     to produce a bool (numpy-style elementwise comparison, etc.) — and
     to "not equal" if that also fails. A settings comparison must
-    never be the thing that raises.
+    never be the thing that raises. A :class:`~pathlib.Path` and a string
+    naming the same path are equal under the platform's own path rules, so
+    ``Path('/tmp/x')`` matches ``'/tmp/x'`` on Windows too.
     """
+    if (isinstance(a, Path) and isinstance(b, (str, Path))
+            or isinstance(b, Path) and isinstance(a, str)):
+        try:
+            if Path(a) == Path(b):
+                return True
+        except Exception:
+            pass
     try:
         return bool(_normalize_value(a) == _normalize_value(b))
     except Exception:

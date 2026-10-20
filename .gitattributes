@@ -19,6 +19,8 @@ instructions/00_INDEX.txt merge=spacr-index
 # on a file nobody changed.
 features/data/** -text
 docs/source/_extra/** -text
+docs/i18n/reviewed/** -text
+tools/setting_animation_templates/** -text
 tools/repair/*.commit -text
 
 # PACKAGE DATA IS BYTES. Everything under spacr/resources ships in the wheel

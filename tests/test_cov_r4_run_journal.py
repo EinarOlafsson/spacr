@@ -474,3 +474,25 @@ def test_a_scalar_warnings_field_is_still_surfaced(runs_dir):
 
     assert by_id[_run_name(0)]["warnings"] == ["cellpose: no masks found"]
     assert by_id[_run_name(1)]["warnings"] == []
+
+def test_an_output_at_the_top_of_a_drive_does_not_inventory_the_whole_drive():
+    """`dst="/outputs"` before it exists has the filesystem root as its parent,
+    and walking that inventoried the whole disk -- on Windows it then died on
+    the first protected file under C:\\."""
+    top = Path(Path.cwd().anchor)
+    assert RJ.Run._inventory_root("dst", top / "spacr-not-made-yet", True) is None
+    assert RJ.Run._inventory_root("dst", top / "a" / "b", True) == top / "a"
+
+
+def test_an_entry_the_walk_may_not_stat_is_passed_by(tmp_path, monkeypatch):
+    (tmp_path / "kept.txt").write_text("k", encoding="utf-8")
+    (tmp_path / "refused.txt").write_text("r", encoding="utf-8")
+    real = Path.is_symlink
+
+    def refusing(self):
+        if self.name == "refused.txt":
+            raise PermissionError(13, "Access is denied")
+        return real(self)
+
+    monkeypatch.setattr(Path, "is_symlink", refusing)
+    assert [p.name for p in RJ._iter_files(tmp_path, ())] == ["kept.txt"]

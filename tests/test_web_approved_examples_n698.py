@@ -8,6 +8,7 @@ import requests
 import tifffile
 
 from tools.web_mask_generator.examples import ExampleStore
+from tests.refused_access import only_the_owner_can_open
 
 
 @pytest.fixture
@@ -62,7 +63,7 @@ def test_random_approved_image_checks_bytes_headers_credit_and_cleanup(source, t
         assert example['source']['credit'] == 'Example attribution'
         assert example['source']['source_url'].startswith('https://huggingface.co/datasets/owner/public-tests/blob/' + 'a' * 40)
         assert example['description']['series'][0]['shape'] == [5, 7]
-        assert path.parent.stat().st_mode & 0o777 == 0o700
+        assert only_the_owner_can_open(path.parent)
     assert not path.exists() and not list(tmp_path.iterdir())
     assert called[0] == ('https://huggingface.co/datasets/owner/public-tests/resolve/' + 'a' * 40 + '/test/image.tif', {'stream': True, 'timeout': (10, 30)}, False)
     assert called[-2:] == ['response closed', 'session closed']
