@@ -1,8 +1,8 @@
 APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
 
-Status: BLOCKED 2026-10-11 — workflow wired into release.yml; open: the
-        maintainer's one-time "make spacr-sif public" after the first publish,
-        and the cluster check (a CPU partition plus a GPU node with --nv).
+Status: BLOCKED ON MAINTAINER 2026-10-20 — 1.5.1.5 SIFs published and
+        public; open: the cluster check (a CPU partition plus a GPU node
+        with --nv).
         Built and alpha-gated; --nv Mask+Measure passed 2026-10-04.
 
 Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external points left: workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (a cluster). --nv Mask+Measure passed 2026-10-04.
@@ -192,3 +192,4 @@ MAINTAINER CHECKLIST
 
 2026-10-11 (Home, wiring): maintainer approved wiring the Apptainer workflow into releases. release.yml now has job apptainer-images after container-images: needs [bump, container-images], if always() && needs.container-images.result == 'success', permissions contents: read + packages: write, uses ./.github/workflows/apptainer-images.yml with release_version ${{ needs.bump.outputs.version }} and publish: true (inputs checked against its workflow_call). apptainer-images.yml header now says it is called from release.yml. packaging/apptainer/README.md: "Nothing is published yet" replaced by a "Published images" section (oras://ghcr.io/einarolafsson/spacr-sif:<version>-cpu and -cuda12.4; package must be public for anonymous pulls; settings link https://github.com/users/EinarOlafsson/packages/container/spacr-sif/settings, which exists after the first publish). New test test_the_release_publishes_the_sifs_after_the_docker_images in tests/test_the_apptainer_image_is_the_docker_image.py. actionlint 1.7.12 clean on release.yml, apptainer-images.yml, docker-images.yml; 343 workflow/release/apptainer tests pass. Checklist steps 1, 2 and 7 done; the next release (or a hand dispatch from main) publishes the SIFs.
 Status still open for the maintainer: (a) once after the first publish, make spacr-sif public at the settings link above (Change visibility -> Public; check it is linked to EinarOlafsson/spacr), then an anonymous `apptainer pull oras://ghcr.io/einarolafsson/spacr-sif:<version>-cpu`; (b) cluster check: spacr_slurm.sh on one CPU partition (no --gres/--nv) and one GPU node with --nv; paste job IDs, rc and measurements.db row counts here.
+2026-10-20 (Home): 1.5.1.5 published spacr-sif:1.5.1.5-cpu and -cuda12.4 (Apptainer run 39362919126); the maintainer made the package public, and an anonymous GHCR token lists both tags (HTTP 200). Remaining: the maintainer's Slurm CPU and --nv check with spacr_slurm.sh.
