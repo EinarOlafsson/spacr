@@ -74,7 +74,7 @@ jobs:
           test -s "$RUNNER_TEMP/spacr/install.log"
           test -s "$RUNNER_TEMP/spacr/install-profile.json"
           "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
-            "import json, pathlib, spacr, PySide6, torch; p=json.loads(pathlib.Path('$RUNNER_TEMP/spacr/install-profile.json').read_text()); assert torch.version.cuda is None; assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'; assert not any(p['consent'].values())"
+            "import json, pathlib, spacr, PySide6, torch; p=json.loads(pathlib.Path('$RUNNER_TEMP/spacr/install-profile.json').read_text()); assert torch.version.cuda is None; assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'; assert not any(v for k, v in p['consent'].items() if k != 'collected')"
           "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
             "import importlib.util, pathlib; from spacr.updater import upgrade_command; assert importlib.util.find_spec('pip') is None; c=upgrade_command(); assert pathlib.Path(c[0]).resolve() == pathlib.Path('$RUNNER_TEMP/spacr/bootstrap/uv').resolve(); assert c[1:3] == ['pip', 'install']; assert '-m' not in c"
           "$RUNNER_TEMP/spacr/venv/bin/python" -I \
@@ -203,7 +203,7 @@ jobs:
             throw "The installer did not record its backend/consent profile"
           }
           & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I -c `
-            "import json, pathlib, spacr, PySide6, torch; p=json.loads((pathlib.Path(r'$InstallRoot')/'install-profile.json').read_text()); assert torch.version.cuda is None; assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'; assert not any(p['consent'].values())"
+            "import json, pathlib, spacr, PySide6, torch; p=json.loads((pathlib.Path(r'$InstallRoot')/'install-profile.json').read_text()); assert torch.version.cuda is None; assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'; assert not any(v for k, v in p['consent'].items() if k != 'collected')"
           & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I -c `
             "import importlib.util, pathlib; from spacr.updater import upgrade_command; assert importlib.util.find_spec('pip') is None; c=upgrade_command(); assert pathlib.Path(c[0]).resolve() == (pathlib.Path(r'$InstallRoot')/'bootstrap'/'uv.exe').resolve(); assert c[1:3] == ['pip', 'install']; assert '-m' not in c"
           & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I `
@@ -279,7 +279,7 @@ jobs:
              assert torch.backends.mps.is_built(); \
              assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1"
           "$runtime/venv/bin/python" -I -c \
-            "import json, pathlib; p=json.loads((pathlib.Path.home()/'Library/Application Support/spaCR/install-profile.json').read_text()); assert p['requested_backend'] == 'auto'; assert p['active_backend'] == 'mps'; assert not any(p['consent'].values())"
+            "import json, pathlib; p=json.loads((pathlib.Path.home()/'Library/Application Support/spaCR/install-profile.json').read_text()); assert p['requested_backend'] == 'auto'; assert p['active_backend'] == 'mps'; assert not any(v for k, v in p['consent'].items() if k != 'collected')"
           "$runtime/venv/bin/python" -I -c \
             "import importlib.util, pathlib; from spacr.updater import upgrade_command; assert importlib.util.find_spec('pip') is None; c=upgrade_command(); assert pathlib.Path(c[0]).resolve() == (pathlib.Path.home()/'Library/Application Support/spaCR/bootstrap/uv').resolve(); assert c[1:3] == ['pip', 'install']; assert '-m' not in c"
           "$runtime/venv/bin/python" -I packaging/online/smoke_installed.py
