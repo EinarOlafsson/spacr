@@ -7369,7 +7369,7 @@ def get_db_paths(src):
     """
     if isinstance(src, str):
         src = [src]
-    db_paths = [os.path.join(source, 'measurements/measurements.db') for source in src]
+    db_paths = [os.path.join(source, 'measurements', 'measurements.db') for source in src]
     return db_paths
 
 def get_sequencing_paths(src):
@@ -7384,7 +7384,7 @@ def get_sequencing_paths(src):
     """
     if isinstance(src, str):
         src = [src]
-    seq_paths = [os.path.join(source, 'sequencing/sequencing_data.csv') for source in src]
+    seq_paths = [os.path.join(source, 'sequencing', 'sequencing_data.csv') for source in src]
     return seq_paths
 
 def load_image_paths(c, visualize):

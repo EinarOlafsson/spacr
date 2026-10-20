@@ -63,17 +63,22 @@ def clustered():
 # what hardware answered
 # ---------------------------------------------------------------------------
 
-@pytest.mark.posix_only
 def test_free_memory_on_a_device_that_cannot_be_asked_reads_as_zero(
         monkeypatch):
     """Zero means "no budget can be proved", which blocks the large-fit check."""
+    import psutil
+
     _block_torch(monkeypatch)
     assert MG.available_memory("cuda:0") == 0
 
     def no_sysconf(name):
         raise OSError("sysconf is not available here")
 
-    monkeypatch.setattr(os, "sysconf", no_sysconf)
+    def no_psutil():
+        raise OSError("psutil cannot read memory here")
+
+    monkeypatch.setattr(os, "sysconf", no_sysconf, raising=False)
+    monkeypatch.setattr(psutil, "virtual_memory", no_psutil)
     assert MG.available_memory("cpu") == 0
 
 
@@ -81,7 +86,28 @@ def test_free_cpu_memory_is_pages_times_page_size():
     """The CPU figure is read off the machine, not estimated."""
     free = MG.available_memory("cpu")
     assert free > 0
-    assert free == int(os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE"))
+    try:
+        pages = os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE")
+    except (AttributeError, ValueError, OSError):
+        import psutil
+
+        assert free <= psutil.virtual_memory().total
+    else:
+        assert free == int(pages)
+
+
+def test_free_cpu_memory_falls_back_to_psutil_without_sysconf_pages(monkeypatch):
+    """Windows and macOS have no SC_AVPHYS_PAGES; psutil still answers."""
+    import psutil
+    from types import SimpleNamespace
+
+    def no_sysconf(name):
+        raise ValueError("unrecognized configuration name")
+
+    monkeypatch.setattr(os, "sysconf", no_sysconf, raising=False)
+    monkeypatch.setattr(psutil, "virtual_memory",
+                        lambda: SimpleNamespace(available=7 * 1024 ** 3))
+    assert MG.available_memory("cpu") == 7 * 1024 ** 3
 
 
 def test_free_cuda_memory_comes_from_the_driver(monkeypatch):

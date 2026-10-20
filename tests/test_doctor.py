@@ -328,7 +328,7 @@ def test_checkout_root_gives_up_when_the_start_cannot_be_resolved(monkeypatch):
 
 def test_editable_url_target_reads_a_pep610_record(tmp_path):
     payload = json.dumps(
-        {"dir_info": {"editable": True}, "url": f"file://{tmp_path}"}
+        {"dir_info": {"editable": True}, "url": tmp_path.resolve().as_uri()}
     )
     assert doctor._editable_url_target(payload) == tmp_path.resolve()
 
@@ -424,7 +424,7 @@ def test_editable_target_ignores_distributions_it_cannot_read(monkeypatch, tmp_p
 
         def read_text(self, _name):
             return json.dumps(
-                {"dir_info": {"editable": True}, "url": f"file://{tmp_path}"}
+                {"dir_info": {"editable": True}, "url": tmp_path.resolve().as_uri()}
             )
 
     class Broken:
@@ -772,9 +772,10 @@ def test_duplicate_installs_fails_and_says_which_one_wins(ctx, monkeypatch):
     )
     row = doctor.check_duplicate_installs(ctx)
     assert row.status == FAIL
-    assert "/a/spacr wins" in row.message
+    first, second = str(Path("/a/spacr")), str(Path("/b/spacr"))
+    assert f"{first} wins" in row.message
     assert "pip uninstall -y spacr" in row.fix
-    assert row.details == ("  1. /a/spacr", "  2. /b/spacr")
+    assert row.details == (f"  1. {first}", f"  2. {second}")
 
 
 def test_duplicate_installs_skips_when_nothing_is_importable(ctx, monkeypatch):

@@ -249,7 +249,7 @@ def test_all_explainers_disabled_returns_an_empty_output_dict(tmp_path,
 
     assert out == {}
     # the DB location and the object-count caps are derived from settings
-    assert rec["locs"] == [str(src) + "/measurements/measurements.db"]
+    assert rec["locs"] == [os.path.join(str(src), "measurements", "measurements.db")]
     assert rec["tables"] == ["cell", "nucleus", "pathogen", "cytoplasm"]
     assert rec["verbose"] is True
     assert rec["nuclei_limit"] == 100 and rec["pathogen_limit"] == 100

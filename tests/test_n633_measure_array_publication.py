@@ -56,7 +56,8 @@ def test_failed_publication_keeps_transport_and_cleans_private_stage(
     assert sorted(p.name for p in tmp_path.iterdir()) == ["field.npz"]
 
 
-@pytest.mark.parametrize("foreign", ["regular", "dangling-link"])
+@pytest.mark.parametrize("foreign", [
+    "regular", pytest.param("dangling-link", marks=pytest.mark.needs_symlink)])
 def test_concurrent_target_creation_never_overwrites_foreign_leaf(
         tmp_path, monkeypatch, foreign):
     archive, _ = _transport(tmp_path)
@@ -97,6 +98,7 @@ def test_success_preserves_array_dtype_shape_values_and_umask_mode(tmp_path, key
     assert loaded.dtype == values.dtype
     assert loaded.shape == values.shape
     assert np.array_equal(loaded, values)
-    assert target.stat().st_mode & 0o777 == 0o640
+    if os.name == "posix":
+        assert target.stat().st_mode & 0o777 == 0o640
     assert not archive.exists()
     assert sorted(p.name for p in tmp_path.iterdir()) == ["field.npy"]

@@ -129,6 +129,12 @@ def available_memory(device: str = "cpu") -> int:
     try:
         return int(os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE"))
     except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        import psutil
+
+        return int(psutil.virtual_memory().available)
+    except Exception:                                            # noqa: BLE001
         return 0
 
 

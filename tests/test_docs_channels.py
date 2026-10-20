@@ -695,7 +695,7 @@ def test_configure_loads_the_compat_extension_without_shadowing_branch_tools(tmp
     publisher_tools = str(Path(__file__).resolve().parents[1] / 'tools')
     assert namespace['extensions'] == ['docs_publication_compat']
     assert sys.path == before
-    assert sys.modules['docs_publication_compat'].__file__ == publisher_tools + '/docs_publication_compat.py'
+    assert Path(sys.modules['docs_publication_compat'].__file__) == Path(publisher_tools, 'docs_publication_compat.py')
 
 
 def test_nightly_directory_links_name_their_index_for_the_static_space(tmp_path):

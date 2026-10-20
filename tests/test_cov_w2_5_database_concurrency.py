@@ -269,7 +269,7 @@ def test_a_platform_with_no_proc_mounts_falls_back_rather_than_giving_up(
     import psutil
     from types import SimpleNamespace
     monkeypatch.setattr(psutil, "disk_partitions",
-                        lambda all=False: [SimpleNamespace(mountpoint="/",
+                        lambda all=False: [SimpleNamespace(mountpoint=tmp_path.resolve().anchor,
                                                            fstype="apfs")])
     assert dc.filesystem_type(tmp_path) == "apfs"
     assert dc.wal_is_safe_here(tmp_path) is True
