@@ -719,3 +719,21 @@ def test_count_phenotypes_does_not_litter_cwd(tmp_path, monkeypatch):
 
     assert (tmp_path / "measurements" / "phenotype_counts.csv").exists()
     assert not (tmp_path / "src").exists()
+
+
+def test_segmenting_a_plaque_folder_without_images_builds_no_model(tmp_path, monkeypatch):
+    """A source with no plaque image segments nothing and never loads Cellpose."""
+    import spacr.submodules as SUB
+
+    src = tmp_path / "plate"
+    src.mkdir()
+    (src / "notes.txt").write_text("not an image", encoding="utf-8")
+    (src / "nested.tif").mkdir()
+    dst = tmp_path / "plate" / "masks"
+
+    def no_model(_path):
+        raise AssertionError("a folder with no images must not build the model")
+
+    monkeypatch.setattr(SUB, "_plaque_cellpose_model", no_model)
+    assert SUB._segment_plaque_folder({"src": str(src), "dst": str(dst)}, "model") == 0
+    assert dst.is_dir() and list(dst.iterdir()) == []
