@@ -151,6 +151,9 @@ def plan(stage, identity):
 
 def checked_native_timing(stage, identity):
     """Return an accepted visual sidecar only when every input still matches."""
+    if (stage / 'production' / identity / 'published-native-edit.json').exists():
+        from published_native_edit import checked_edited_native_timing
+        return checked_edited_native_timing(stage, identity)
     if (stage / 'production' / identity / 'published-native-reuse.json').exists():
         from published_native_reuse import checked_published_native_timing
         return checked_published_native_timing(stage, identity)

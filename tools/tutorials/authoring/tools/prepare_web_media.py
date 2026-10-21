@@ -39,11 +39,15 @@ def main() -> int:
             missing.append(lesson.name)
             continue
         scenes = json.loads(scenes_path.read_text(encoding="utf-8"))
-        if scenes.get("kind") == "published_native_intervals":
+        if scenes.get("kind") in {"published_native_intervals", "edited_published_native_intervals"}:
             # Reuse has no raw image paths. Validate its real source/voice bindings
             # before extracting the actual first decoded master frame.
-            from published_native_reuse import checked_published_native_timing
-            checked_published_native_timing(PRODUCTION.parent, lesson.name)
+            if scenes['kind'] == 'edited_published_native_intervals':
+                from published_native_edit import checked_edited_native_timing
+                checked_edited_native_timing(PRODUCTION.parent, lesson.name)
+            else:
+                from published_native_reuse import checked_published_native_timing
+                checked_published_native_timing(PRODUCTION.parent, lesson.name)
             first_frame = subprocess.run([
                 "ffmpeg", "-nostdin", "-v", "error", "-threads", "2",
                 "-i", str(video), "-frames:v", "1", "-f", "image2pipe",
