@@ -506,9 +506,11 @@ def maybe_show_tour(window: QMainWindow,
     """Show the tour if it hasn't been seen (or if ``force=True``).
 
     :param window: the MainWindow to overlay.
-    :param force: skip the "seen" check and show anyway.
-    :returns: the overlay widget (already visible) or None if the
-        tour was skipped because it had been seen.
+    :param force: skip the "seen" check; an active pathway walkthrough still suppresses
+        the tour.
+    :returns: the overlay widget (already visible), or ``None`` when a pathway
+        walkthrough is active or the tour was already seen and ``force``
+        is false.
     """
     if getattr(window, "_pathway_walkthrough_active", False):
         return None

@@ -614,8 +614,7 @@ def _themed_array(stamp, theme: str):
 def themed_array(path: str, theme: Optional[str] = None):
     """Re-inked ``(h, w, 4)`` uint8 array for ``path``, or ``None``.
 
-    :param path: path to the icon artwork (PNG or SVG); its modification
-        time and size key both the in-memory and the on-disk cache.
+    :param path: path to the icon artwork (PNG or SVG); its modification time and size invalidate the in-memory cache. The on-disk cache key uses the source content digest, theme and cache version.
     """
     return _themed_array(_file_stamp(path), theme or active_theme())
 

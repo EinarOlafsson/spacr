@@ -233,8 +233,8 @@ def is_present(folder, expected: int = SAMPLE_SIZE) -> bool:
     of it rather than opening a folder with four fields in it and saying nothing.
 
     :param folder: the sample folder.
-    :param expected: how many pairs a complete sample has.
-    :returns: whether that many image/mask pairs are there.
+    :param expected: minimum number of image/mask pairs, or images alone when the sample has no masks directory.
+    :returns: whether at least that many image/mask pairs are present, or at least that many images when there is no masks directory.
     """
     folder = Path(folder)
     if not folder.is_dir():

@@ -193,8 +193,11 @@ def scaled_for(source: Any, target: Any, width: SizeLike,
     will be shown on (anything :func:`device_ratio` understands); the size
     is a side length, a ``(w, h)`` pair, a ``QSize``, or two arguments.
 
-    The result is rendered at ``size * ratio`` real pixels and carries that
-    ratio, so it lays out at ``size`` and draws at full panel resolution.
+    The requested logical bounds are converted to ``size * ratio`` device-pixel
+    bounds. The ``aspect`` mode controls the scaled picture's dimensions; by
+    default it fits within those bounds while preserving aspect ratio. The
+    result carries the device pixel ratio so it lays out at its
+    corresponding logical size.
 
     A null or missing source comes back untouched -- a caller that already
     checks ``isNull()`` keeps its own answer, and one that does not is no

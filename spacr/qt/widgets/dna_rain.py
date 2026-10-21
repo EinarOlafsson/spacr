@@ -649,10 +649,11 @@ class DnaRainEngine:
         """Step the simulation by ``dt`` seconds.
 
         :param dt: elapsed time in seconds.
-        :returns: ``(column index, first row, last row)`` spans that
-            changed, already clipped to the canvas. Columns whose
-            integer row did not move contribute nothing — that is the
-            whole point of quantising to cells.
+        :returns: ``(column index, first row, last row)`` spans that changed,
+            already clipped to the canvas. A column contributes nothing when
+            its rounded strip position in pixels is unchanged and it has not
+            respawned; movement within an integer row can still produce a
+            changed span.
         """
         self.frames += 1
         rows = self.n_rows

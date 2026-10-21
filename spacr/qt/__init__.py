@@ -460,8 +460,9 @@ def run(argv: list[str] | None = None) -> int:
               (e.g. `spacr-qt mask`).
 
     Returns:
-        The exit code returned by `QApplication.exec()`, or ``1`` when the
-        required Qt dependency cannot be imported.
+        The exit code returned by `QApplication.exec()`, ``0`` for a
+        version-only invocation, or ``1`` when the required Qt dependency
+        cannot be imported.
     """
     _prefer_a_context_the_shaders_can_run_on()
     _give_offscreen_qt_the_windows_fonts()

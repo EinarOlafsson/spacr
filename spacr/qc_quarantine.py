@@ -245,9 +245,10 @@ def quarantine_field(
     :raises FileNotFoundError: when the merged array is already gone.
     :raises FileExistsError: rather than overwriting an existing quarantine.
 
-    If the sidecar cannot be written, the array is moved back before the
-    exception is raised.  An unaudited quarantine is never reported as a
-    successful operation.
+    If the sidecar cannot be written, the function attempts to move the array back
+    before raising. If rollback also fails, ``QuarantineError`` reports that the field
+    could not be restored. An unaudited quarantine is never reported as a successful
+    operation.
     """
     merged = _merged_dir(merged_dir)
     stem = _field_stem(field)

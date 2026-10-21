@@ -1477,12 +1477,15 @@ def evaluate_predictions(
     :param classes: display names for the columns, in column order. Defaults
         to ``class_0 ... class_n``; a length that disagrees with the
         probability columns is refused.
-    :param fold_ids: which held-out fold each sample came from. REQUIRED for
-        temperature calibration and unused otherwise -- the temperature is
-        fitted per held-out fold so no sample is calibrated on itself, which
-        needs at least two distinct folds.
-    :param calibration_method: ``'none'`` (default) or ``'temperature'``.
-        Anything else is refused rather than silently ignored.
+    :param fold_ids: held-out fold identity per sample. Supplied identities
+        must match the sample count and are retained in the predictions table
+        even without calibration; omitted identities are stored as zero.
+        Temperature calibration requires at least two distinct folds and attempts
+        to fit each fold's temperature using predictions from the other folds.
+    :param calibration_method: ``'temperature'`` for cross-fitted calibration;
+        ``'none'`` (default), ``'off'``, ``'false'``, ``None`` or an empty string
+        leave probabilities uncalibrated. String comparisons ignore case and
+        surrounding whitespace; unknown method names are refused.
     :param calibration_bins: bin count for the expected-calibration-error
         estimate. More bins resolve the reliability curve better and make
         each bin noisier.

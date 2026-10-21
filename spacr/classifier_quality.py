@@ -233,8 +233,10 @@ def rogan_gladen(observed: float, sensitivity: float, specificity: float, *,
     :param n: the number of cells, if the standard error is wanted. The
         correction inflates variance by ``1 / (se + sp - 1)^2``.
 
-    The result includes the unclipped denominator, a clipping indicator, and
-    variance inflation. Correction is unusable when ``se + sp`` is one.
+    A usable result includes the unclipped denominator, a clipping indicator, and
+    variance inflation. When ``se + sp - 1`` is nonfinite or has absolute value below
+    ``1e-9``, only ``corrected`` (NaN), ``denominator`` and ``usable`` (0.0) are
+    returned.
     """
     se, sp = float(sensitivity), float(specificity)
     denominator = se + sp - 1.0

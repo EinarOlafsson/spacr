@@ -62,9 +62,10 @@ def module_hint_text(widget: QWidget) -> str:
     switch retranslates it rather than translating a translation.
 
     :param widget: the hovered widget; its module name and summary Qt
-        properties are read. ``None`` or a deleted widget gives ``""``, and a
-        line longer than :data:`MAX_HINT_CHARS` is cut at a word with an
-        ellipsis.
+        properties are read. ``None`` or a deleted widget gives ``""``.
+        With a nonempty summary, a line longer than :data:`MAX_HINT_CHARS`
+        is shortened at the last space in that prefix, when available, and
+        an ellipsis is appended. With no summary, the name is returned unchanged.
     """
     if widget is None:
         return ""

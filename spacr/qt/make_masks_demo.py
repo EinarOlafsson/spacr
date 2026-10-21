@@ -179,10 +179,7 @@ def listed_files(folder) -> List[str]:
     """Every file the dataset's ``manifest.csv`` says a complete copy holds.
 
     :param folder: where the dataset was unpacked.
-    :returns: paths relative to ``folder``, each image followed by its
-        ground-truth mask, in manifest order. Empty when there is no readable
-        manifest, or when any row names no image, so that an incomplete or
-        unrecognised folder is never mistaken for the dataset.
+    :returns: paths relative to ``folder``, each image followed by its ground-truth mask when the row names one, in manifest order. Empty when there is no readable manifest or any row names no image. This function lists manifest paths without checking whether those files exist.
     """
     manifest = Path(folder) / MANIFEST_NAME
     try:

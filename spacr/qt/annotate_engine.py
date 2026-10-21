@@ -555,8 +555,9 @@ def filter_bound(value) -> Optional[float]:
     """Parse a filter bound, returning ``None`` for empty or invalid input.
 
     :param value: user-entered bound, typically a number or numeric string;
-        ``None``, a blank string, anything ``float()`` rejects and NaN all
-        give ``None``.
+        ``None``, a blank string, conversions rejected by ``float()`` with
+        ``TypeError`` or ``ValueError``, and NaN all give ``None``. Other
+        conversion exceptions can propagate.
     """
     if value is None:
         return None

@@ -33,7 +33,10 @@ def notify(title: str, body: str = "",
     :param title: short headline.
     :param body: optional longer body text.
     :param app_name: sender name shown alongside the notification.
-    :returns: True iff a backend accepted the request.
+    :returns: True when a Linux/macOS notification task starts or the Windows
+        notifier call returns without raising; this does not confirm acceptance
+        or display. False when no supported backend is available or synchronous
+        setup fails.
     """
     system = platform.system()
     try:

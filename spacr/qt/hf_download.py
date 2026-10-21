@@ -966,13 +966,15 @@ def download_toxo_mito_demo(parent,
     :param parent: any QWidget — the progress dialog parents to this.
     :param dest: local directory that will hold ``plate1/`` and
         ``settings/`` subfolders.
-    :param on_done: callback fired on completion or cancellation with
-        ``(result, error_message)``. ``result`` is ``None`` on failure /
-        cancel; otherwise the two local paths.
+    :param on_done: callback fired on completion or cancellation with ``(result,
+        error_message)``. ``result`` is ``None`` on worker-reported
+        failure or cancellation, otherwise a :class:`DownloadResult`
+        containing the local dataset and settings paths.
 
-    Nothing is returned — the callback carries the outcome. Errors and
-    cancellations are non-fatal: they just call ``on_done`` with a
-    ``None`` result and an explanatory string.
+    Nothing is returned; the callback carries the worker outcome.
+    Worker-reported errors and cancellations call ``on_done`` with a
+    ``None`` result and an explanatory string. Destination creation and
+    dialog setup happen before the worker starts and can raise directly.
     """
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)

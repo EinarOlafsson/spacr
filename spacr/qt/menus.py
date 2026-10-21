@@ -44,7 +44,8 @@ def set_menu_role(action: Any, role: str = "none") -> Any:
     Raises
     ------
     ValueError
-        If ``role`` is not supported.
+        If ``role`` is not supported and QtGui was imported successfully.
+        If QtGui cannot be imported, ``action`` is returned unchanged.
     """
     try:
         from PySide6.QtGui import QAction

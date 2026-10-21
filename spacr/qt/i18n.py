@@ -3752,9 +3752,10 @@ def tr(text: object, /, language: Optional[str] = None,
        **values: object) -> str:
     """Translate one English UI string.
 
-    Missing entries intentionally remain English. Keyword values are applied
-    with ``str.format`` *after* translation, allowing catalogs to reorder
-    placeholders safely.
+    Exact catalog matches are tried first, followed by composite-label and
+    conservative term translation. The source remains English when none
+    applies. Keyword values are applied with ``str.format`` *after*
+    translation, allowing catalogs to reorder placeholders safely.
 
     :param text: the English UI string, converted with ``str``.
     :param language: language code; ``None`` uses the current language.

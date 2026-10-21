@@ -1662,11 +1662,14 @@ def control_chart(frame: pd.DataFrame,
                   ) -> ControlChartResult:
     """Chart ``spec``'s control value plate by plate over run order.
 
-    The whole policy is in the module docstring; the short version is that one
-    point is drawn per plate in run order, sigma comes from short-term
-    variation and never from the SD of the series, the limits are estimated
-    from a stated baseline and applied forward, and every rule that fires is
+    The whole policy is in the module docstring; the short version is
+    that one point is drawn per plate in run order, sigma comes from
+    the selected estimator, the limits are estimated from a stated
+    baseline and applied forward, and every rule that fires is
     reported by number, in words, and with the plates it fired on.
+    Automatic estimator selection uses within-plate subgroup variation
+    when a plate has multiple control wells, and moving ranges
+    otherwise.
 
     :param frame: the per-well table holding the spec's value, plate, order and
         control columns.

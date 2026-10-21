@@ -66,9 +66,7 @@ def module_summary(
 
     :param app_key: module key selecting the reviewed summary in
         ``MODULE_SUMMARIES``.
-    :param english: the English summary, returned for English and as the last
-        fallback; a reviewed translation is used only when this text's SHA-256
-        matches the hash recorded at review time.
+    :param english: the English summary, returned for English and as the last fallback. The built-in reviewed summary is used only when this text's SHA-256 matches its recorded hash; otherwise the external summary catalog and exact UI catalogs are tried before returning the English text.
     """
     from .i18n import _exact_translation, current_language, normalize_language
 
