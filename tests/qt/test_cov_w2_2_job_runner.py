@@ -291,7 +291,10 @@ def test_a_completion_arriving_after_the_runner_is_gone_is_silent(qapp):
     doomed = JobRunner(app_key="testing")
     shiboken6.delete(doomed)
 
+    doomed._set_busy(True)
+    assert doomed.is_busy()
     doomed._relay(1, True)
+    assert not doomed.is_busy()
 
     # SILENT, and asserted where the noise would appear: the guard exists
     # because the exception surfaces inside Qt's event loop rather than

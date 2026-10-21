@@ -909,6 +909,21 @@ jobs:
         if: hashFiles('docs/translation_reviews_revision.json') != ''
         run: python tools/bootstrap_translation_reviews.py fetch
 
+      - name: Assemble pinned API catalogs before pytest
+        env:
+          CUDA_VISIBLE_DEVICES: ""
+          QT_QPA_PLATFORM: offscreen
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo -n -E systemd-run --scope --quiet \
+            -p MemoryMax=8G -p MemorySwapMax=0 \
+            /usr/sbin/runuser -u "$(id -un)" -- /usr/bin/env \
+            "PATH=$PATH" "HOME=$HOME" "PYTHONPATH=$GITHUB_WORKSPACE" \
+            "CUDA_VISIBLE_DEVICES=" "QT_QPA_PLATFORM=offscreen" \
+            "OMP_NUM_THREADS=1" "MKL_NUM_THREADS=1" "OPENBLAS_NUM_THREADS=1" \
+            python tools/build_documentation_i18n.py --assemble
+
       - name: Run tests at minimum direct versions
         env:
           SPACR_PYTEST_FILE_SHARD_INDEX: ${{ matrix.shard }}

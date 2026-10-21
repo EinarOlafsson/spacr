@@ -296,6 +296,7 @@ def test_current_source_ci_restores_public_inputs_before_translation_readers(wor
 @pytest.mark.parametrize(("job", "reader"), [
     ("fast", "Run fast tests"),
     ("coverage-shards", "Run coverage shard in bounded batches"),
+    ("minimum-dependencies", "Run tests at minimum direct versions"),
 ])
 def test_api_catalog_preparation_precedes_pytest_without_bypassing_readers(job, reader):
     import yaml

@@ -22,9 +22,6 @@ from urllib.parse import urlsplit
 
 import pytest
 
-#: Item 710: the API catalogs are assembled for the session, not committed.
-pytestmark = pytest.mark.usefixtures("api_catalogs")
-
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "docs" / "source" / "_static" / "api_i18n.js"
 CONF = ROOT / "docs" / "source" / "conf.py"
@@ -429,7 +426,7 @@ def test_autoapi_emits_only_canonical_module_members():
                for path in generators)
 
 
-def test_english_catalog_keys_are_exactly_joinable():
+def test_english_catalog_keys_are_exactly_joinable(api_catalogs):
     payload = json.loads(ENGLISH_CATALOG.read_text(encoding="utf-8"))
     symbols = payload["symbols"]
 
@@ -683,7 +680,7 @@ setTimeout(() => {
     assert not any(path.endswith("zh_CN.json") for path, _query in requests)
 
 
-def test_every_complete_real_catalog_renders_through_the_browser_selector():
+def test_every_complete_real_catalog_renders_through_the_browser_selector(api_catalogs):
     """Render the full source union, accounting for named reviewed arrivals."""
     assert CHROME, (
         "Chrome/Chromium is required for the exhaustive API-catalog gate; "
@@ -772,6 +769,10 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
         payload = json.loads((ROOT / "tests/data/release_contracts" / filename).read_text(encoding="utf-8"))
         payload = payload.get("added", payload.get("API_arrivals", payload))
         assert payload
+        if filename == "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json":
+            retired_writer = "spacr.qt.preferences._count_store_writes.write"
+            assert payload.pop(retired_writer) == "Forward to Qt, then forget what was remembered."
+            assert retired_writer not in docs and retired_writer not in catalog
         assert {key: docs[key] for key in payload} == payload
         documented_arrivals.update(payload)
     rename = json.loads((ROOT / "tests/data/release_contracts"
@@ -781,8 +782,28 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
         key for key in catalog
         if bytes.fromhex("73746172706c617374").decode() in key.lower()
     }
-    assert len(catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
-               - documented_arrivals.keys()) == REAL_SYMBOL_COUNT
+    retired_baseline = {
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog",
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel",
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected",
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.current_sets",
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.mask_roles",
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.parsed",
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan",
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.refresh",
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.selected_names",
+        "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex",
+        "spacr.qt.widgets.channel_sort_dialog.RegexWindow",
+        "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex",
+        "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect",
+        "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test",
+        "spacr.qt.widgets.fold_strip.FoldButton.paintEvent",
+        "spacr.regression_search",
+    }
+    assert len(retired_baseline) == 16
+    assert not retired_baseline & (live | catalog)
+    assert len((catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
+                - documented_arrivals.keys()) | retired_baseline) == REAL_SYMBOL_COUNT
     assert len(catalog) == len(symbols)
     expected_count = len(symbols)
 
