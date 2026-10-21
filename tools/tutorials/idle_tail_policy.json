@@ -234,7 +234,7 @@
           "visual": "01_module",
           "source_start": 0.0,
           "source_end": 25.2,
-          "idle_tail_start": 10.0
+          "idle_tail_start": 8.0
         },
         {
           "visual": "org_organize_popup",
@@ -246,55 +246,55 @@
           "visual": "02_cached_load",
           "source_start": 70.16666666666667,
           "source_end": 94.46666666666667,
-          "idle_tail_start": 10.0
+          "idle_tail_start": 4.0
         },
         {
           "visual": "03_data_ready",
           "source_start": 94.46666666666667,
           "source_end": 120.83333333333334,
-          "idle_tail_start": 13.0
+          "idle_tail_start": 9.5
         },
         {
           "visual": "03b_object_table",
           "source_start": 120.83333333333334,
           "source_end": 163.13333333333333,
-          "idle_tail_start": 22.6
+          "idle_tail_start": 10.5
         },
         {
           "visual": "04_live_image",
           "source_start": 163.13333333333333,
           "source_end": 184.0,
-          "idle_tail_start": 18.1
+          "idle_tail_start": 6.0
         },
         {
           "visual": "07_preview_result",
           "source_start": 203.7,
           "source_end": 226.83333333333331,
-          "idle_tail_start": 14.6
+          "idle_tail_start": 3.0
         },
         {
           "visual": "09_filters_after",
           "source_start": 226.83333333333331,
           "source_end": 252.79999999999998,
-          "idle_tail_start": 18.6
+          "idle_tail_start": 5.0
         },
         {
           "visual": "10_filters_restored",
           "source_start": 252.79999999999998,
           "source_end": 281.8333333333333,
-          "idle_tail_start": 16.1
+          "idle_tail_start": 3.0
         },
         {
           "visual": "run_23_batch_finished",
           "source_start": 341.2,
           "source_end": 371.2,
-          "idle_tail_start": 14.0
+          "idle_tail_start": 1.0
         },
         {
           "visual": "run_25_mask_figure_02",
           "source_start": 371.2,
           "source_end": 411.4,
-          "idle_tail_start": 18.3
+          "idle_tail_start": 2.5
         }
       ]
     },
