@@ -2,7 +2,9 @@
 UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
 ================================================================================
 
-Status:    OPEN 2026-10-20 — old-package installer profile compatibility repaired locally; native upgrade, uninstall and lease acceptance remain
+Status:    DONE 2026-10-21 — maintainer accepted the native macOS installer
+           matrix and automated in-app update validation as sufficient;
+           Windows/Linux native acceptance remains on hold.
 Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
            reopen an old version. Replace obsolete application installations,
            preserve cache and temporary/user files unless cleanup is required
@@ -946,3 +948,4 @@ Acceptance: focused old-package profile/renderer compatibility cases, source and
 The current universal online pkg builds natively, is non-relocatable, carries the AppKit first-run window and all10 locales, has matching1.5.1.5 metadata, and its x86_64/arm64 app passes deep ad-hoc signature verification. The outer local pkg is unsigned because Developer ID credentials are not configured.
 Old-to-new desktop acceptance remains open: this Mac and the current candidate are both1.5.1.5, so a newer published candidate is required to prove version replacement/relaunch without weakening identity checks. Native VoiceOver/human acceptance belongs to655; Windows/Linux and full release gates remain separate.
 2026-10-21 — Maintainer accepted native VoiceOver under655 and placed the remaining Windows/Linux acceptance on hold; do not pursue those platform lanes until explicitly resumed. The newer-candidate macOS replacement gate above remains accurately recorded.
+2026-10-21 — DONE at maintainer-accepted scope: the native macOS installer matrix plus automated in-app update, rollback, interruption, identity and restart validation satisfy703. The maintainer explicitly waives a second newer-candidate in-app run; Windows/Linux acceptance stays on hold and does not keep this item open.
