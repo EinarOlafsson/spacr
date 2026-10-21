@@ -122,6 +122,9 @@ def test_an_unreachable_archive_is_reported_not_raised(qtbot, tmp_path, monkeypa
         raise OSError("no route to host")
 
     monkeypatch.setattr(mod, "runs_for", boom)
+    # No cached read set either: a machine that has downloaded one before
+    # would answer from it and never ask the archive.
+    monkeypatch.setattr(mod, "_cached_runs", lambda: ())
     p = mod.SraPicker(tmp_path)
     qtbot.addWidget(p)
     assert not p._download.isEnabled()

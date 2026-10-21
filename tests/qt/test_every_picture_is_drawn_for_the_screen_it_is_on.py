@@ -647,7 +647,7 @@ def _scaled_call_sites() -> dict:
             if not (svg_size or size_geometry):
                 lines.append(node.lineno)
         if lines:
-            found[str(path.relative_to(QT_ROOT))] = sorted(lines)
+            found[path.relative_to(QT_ROOT).as_posix()] = sorted(lines)
     assert not unreadable, (
         "a file under spacr/qt does not parse, so this sweep cannot say"
         " whether it scales a picture: " + "; ".join(unreadable))

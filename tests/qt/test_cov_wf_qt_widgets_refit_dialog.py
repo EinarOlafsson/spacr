@@ -22,6 +22,8 @@ promises are made on paths the ordinary click-through never reaches:
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -120,7 +122,7 @@ def test_no_usable_count_path_explains_and_disables_the_refit(qtbot):
 
     assert "no usable count data path" in blank._notice.text()
     assert blank_button.isEnabled() is False
-    assert real._notice.text() == "Writes to /data/screen/results/ols."
+    assert real._notice.text() == f"Writes to {os.path.normpath('/data/screen/results/ols')}."
     assert real_button.isEnabled() is True
 
 
@@ -140,13 +142,13 @@ def test_a_later_usable_count_path_preserves_notes_and_destination(qtbot):
 
     assert "does not read alpha=0.3" in text
     assert "reset to default" in text
-    assert "Writes to /data/second/results/ols." in text
+    assert f"Writes to {os.path.normpath('/data/second/results/ols')}." in text
     assert dialog.findChild(QDialogButtonBox).button(
         QDialogButtonBox.Ok).isEnabled() is True
 
     named = _dialog(qtbot, dict(_RUNNABLE, alpha=0.3))
     assert "does not read alpha=0.3" in named._notice.text()
-    assert "Writes to /data/screen/results/ols." in named._notice.text()
+    assert f"Writes to {os.path.normpath('/data/screen/results/ols')}." in named._notice.text()
 
 
 # ------------------------------------------------------- a missing OK button
@@ -174,7 +176,7 @@ def test_the_notice_is_still_written_when_the_ok_button_has_been_taken_away(
     dialog._fdr_alpha.setValue(0.01)
 
     assert "significance level 0.05 -> 0.01" in dialog._notice.text()
-    assert "Writes to /data/screen/results/ols." in dialog._notice.text()
+    assert f"Writes to {os.path.normpath('/data/screen/results/ols')}." in dialog._notice.text()
 
 
 def test_the_notice_is_still_written_when_the_button_box_has_been_reparented(

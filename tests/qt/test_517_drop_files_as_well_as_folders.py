@@ -234,8 +234,10 @@ def test_plaque_takes_one_dropped_file_without_copying(plaque_screen,
     assert src.name.startswith("plaque_selection_")
     listed = sorted(src.iterdir())
     assert [p.name for p in listed] == ["p2.png"]
-    assert listed[0].resolve() == p2.resolve()
-    assert listed[0].is_symlink() or os.path.samefile(listed[0], p2)
+    # A link, not a copy: a symlink, or a hard link where symlinks need a
+    # privilege (Windows) -- the same file either way.
+    assert os.path.samefile(listed[0], p2)
+    assert not listed[0].is_symlink() or listed[0].resolve() == p2.resolve()
     assert said == []
 
 
@@ -268,7 +270,7 @@ def test_plaque_takes_a_mix_of_files_and_folders(plaque_screen, tmp_path,
     src = Path(_src(plaque_screen))
     names = sorted(p.name for p in src.iterdir())
     assert names == ["b_p1.png", "p1.png", "p2.png"]
-    assert (src / "b_p1.png").resolve() == same_name.resolve()
+    assert os.path.samefile(src / "b_p1.png", same_name)
     assert said == []
 
 

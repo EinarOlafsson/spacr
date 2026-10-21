@@ -31,7 +31,7 @@ def test_plan_container_extraction_enumerates_fields_channels_times():
     assert len(rows) == 3 * 2 * 2
     r = rows[0]
     assert r["well"] == "plate1_A01"
-    assert r["original"] == "/data/movie.nd2"
+    assert r["original"] == str(Path("/data/movie.nd2"))
     assert r["canonical"] == "plate1_A01_T0001F001L01C01.tif"
     # last row reflects the max indices
     assert rows[-1]["canonical"] == "plate1_A01_T0002F003L01C02.tif"

@@ -497,8 +497,13 @@ def test_a_zoo_model_not_downloaded_is_greyed_and_downloads_on_click(
                   if not path.name.startswith(".")]
         assert len(landed) == 1, made._status_label.text()
         landed = landed[0]
-        assert landed.read_bytes() == Path(entry.uri[len("file://"):]
-                                           ).read_bytes()
+        # A file URI back to a path the way the OS spells it: on Windows
+        # file:///C:/x is C:\x, not "/C:/x".
+        from urllib.parse import urlparse
+        from urllib.request import url2pathname
+
+        assert landed.read_bytes() == Path(
+            url2pathname(urlparse(entry.uri).path)).read_bytes()
         assert box.currentData() is not None
         assert Path(box.currentData()).resolve() == landed.resolve()
         assert made._magnifier_context()["model_name"] == box.currentData()

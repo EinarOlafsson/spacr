@@ -182,7 +182,7 @@ def _make_screen(app_key=None, host=None):
         def dropEvent(self, event):  # noqa: N802 - Qt name
             """Load the first dropped folder that holds results."""
             for url in event.mimeData().urls():
-                if url.isLocalFile() and self.load(url.toLocalFile()):
+                if url.isLocalFile() and self.load(os.path.normpath(url.toLocalFile())):
                     break
             event.acceptProposedAction()
 

@@ -37,7 +37,7 @@ class TestTheDocumentationDot:
 
         dot = InfoLink(Path("/docs/api/mask.html"))
         qtbot.addWidget(dot)
-        assert dot.url() == "/docs/api/mask.html"
+        assert dot.url() == str(Path("/docs/api/mask.html"))
         assert isinstance(dot.url(), str)
 
     def test_the_destination_can_be_changed_without_rebuilding(self, qtbot):

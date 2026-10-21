@@ -28,6 +28,8 @@ fails minutes after the click.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 from spacr.model_zoo import _mask_model_kinds
 
 #: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
@@ -69,8 +71,11 @@ def installed_cellpose3(tmp_path):
     is ever run from this directory.
     """
     env = tmp_path / "backend-environments" / SB._CELLPOSE3
-    (env / "bin").mkdir(parents=True, exist_ok=True)
-    (env / "bin" / "python").write_text("", encoding="utf-8")
+    # Where this system's environments keep their interpreter
+    # (Scripts\python.exe on Windows, bin/python elsewhere).
+    interpreter = Path(SB._env_python(str(env)))
+    interpreter.parent.mkdir(parents=True, exist_ok=True)
+    interpreter.write_text("", encoding="utf-8")
     SB._write_marker(str(env), {"backend": SB._CELLPOSE3, "protocol": 1})
     assert SB._backend_state(SB._CELLPOSE3).ready, "the stand-in is not read"
     return str(env)

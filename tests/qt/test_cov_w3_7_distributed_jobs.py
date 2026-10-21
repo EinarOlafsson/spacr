@@ -13,6 +13,7 @@ and the two modal dialogs are answered by the test rather than by a person.
 from __future__ import annotations
 
 from collections import deque
+import os
 
 import pytest
 
@@ -434,7 +435,7 @@ def test_the_local_record_folder_is_opened_only_when_there_is_one(screen,
     job = _submitted(screen, tmp_path)
     screen._open_local_record()
     assert len(opened) == 1
-    assert opened[0].toLocalFile().rstrip("/") == \
+    assert os.path.normpath(opened[0].toLocalFile()) == \
         str(dj.Path(job.settings_path).parent)
 
 

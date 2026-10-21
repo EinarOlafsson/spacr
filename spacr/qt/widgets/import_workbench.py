@@ -230,7 +230,8 @@ class ImportWorkbench(QWidget):
 
         :param event: the Qt drop event.
         """
-        paths = [url.toLocalFile() for url in event.mimeData().urls()]
+        paths = [os.path.normpath(url.toLocalFile())
+                 for url in event.mimeData().urls() if url.toLocalFile()]
         self.add_files(paths)
         event.acceptProposedAction()
 

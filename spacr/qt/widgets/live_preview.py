@@ -2306,7 +2306,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         for url in mime.urls():
             if not url.isLocalFile():
                 continue
-            p = url.toLocalFile()
+            p = os.path.normpath(url.toLocalFile())
             if Path(p).suffix.lower() in self._DND_EXTS:
                 return p
         return None

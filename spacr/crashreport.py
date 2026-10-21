@@ -1031,6 +1031,7 @@ _HOST_RE = re.compile(
     + "|".join(_TOP_LEVEL_DOMAINS) + r")\b(?!\.\w)")
 _WINDOWS_PATH_RE = re.compile(r"(?<![\w<])[A-Za-z]:[\\/][^\s'\"<>|]*")
 _UNC_PATH_RE = re.compile(r"\\\\[^\s'\"<>|]+")
+_ROOTED_WINDOWS_PATH_RE = re.compile(r"(?<![\w<.:\\/])\\[^\s'\"<>\\|][^\s'\"<>|]*")
 _POSIX_PATH_RE = re.compile(r"(?<![\w<.:/])~?/[^\s'\"<>/][^\s'\"<>]*")
 _FILE_NAME_RE = re.compile(
     r"(?i)(?<![\w<])[\w\-.]*\w\.(?:" + "|".join(_FILE_EXTENSIONS)
@@ -1439,6 +1440,7 @@ def scrub_public_text(text: Any, limit: int = MAX_MESSAGE_CHARS,
         value = re.sub(re.escape(home) + r"[^\s'\"<>]*", "<PATH>", value)
     value = _UNC_PATH_RE.sub("<PATH>", value)
     value = _WINDOWS_PATH_RE.sub("<PATH>", value)
+    value = _ROOTED_WINDOWS_PATH_RE.sub("<PATH>", value)
     value = _POSIX_PATH_RE.sub("<PATH>", value)
     value = _UUID_RE.sub("<TOKEN>", value)
     value = _HEX_RE.sub("<TOKEN>", value)

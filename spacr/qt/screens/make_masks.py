@@ -311,6 +311,26 @@ FOLD_HOSTS = {MASK_FOLDER_KEY: "train_cellpose"}
 _HEADLESS_PLATFORMS = ("offscreen", "minimal", "minimalegl", "vnc")
 
 
+def _stream_sha256(stream) -> str:
+    """The SHA-256 of a binary stream read to its end, as hex.
+
+    ``hashlib.file_digest`` exists from Python 3.11; spaCR runs on 3.9 and
+    3.10 as well, where calling it raised ``AttributeError`` in every check
+    that used it.
+
+    :param stream: the source file opened for binary reading.
+    :returns: the lowercase hexadecimal SHA-256 digest.
+    """
+    import hashlib
+
+    if hasattr(hashlib, "file_digest"):
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+    digest = hashlib.sha256()
+    for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+        digest.update(chunk)
+    return digest.hexdigest()
+
+
 def is_headless() -> bool:
     """Return True when no interactive display is attached to this process.
 
@@ -6279,16 +6299,16 @@ def _detect_puncta_snapshot(request):
     source = request['source']
 
     with open(source.path, 'rb') as stream:
-        if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
+        if _stream_sha256(stream) != source.sha256:
             raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
     with responsive_gui():
         labels, candidates = cpu_modes.puncta(request['image'], source.labels,
                                               request['params'], measurements=True)
     with open(source.image_path, 'rb') as stream:
-        if hashlib.file_digest(stream, 'sha256').hexdigest() != request['image_sha256']:
+        if _stream_sha256(stream) != request['image_sha256']:
             raise ValueError(tr('The source image changed during puncta detection. Reload it and repeat detection.'))
     with open(source.path, 'rb') as stream:
-        if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
+        if _stream_sha256(stream) != source.sha256:
             raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
     return labels, candidates
 
@@ -21679,7 +21699,7 @@ class MakeMasksScreen(QWidget):
         if not np.all(np.isfinite(image)):
             raise ValueError(tr('The puncta channel contains non-finite intensities.'))
         with open(path, 'rb') as stream:
-            digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+            digest = _stream_sha256(stream)
         after = os.stat(path)
         if (revision.st_mtime_ns, revision.st_size) != (after.st_mtime_ns, after.st_size):
             raise ValueError(tr('The source image changed while being read. Reload it and repeat detection.'))
@@ -23669,18 +23689,18 @@ class MakeMasksScreen(QWidget):
             for path, expected in ((image_path, snapshot['image_sha256']),
                                    (snapshot['parent']['path'], snapshot['parent']['sha256'])):
                 with open(path, 'rb') as stream:
-                    if hashlib.file_digest(stream, 'sha256').hexdigest() != expected:
+                    if _stream_sha256(stream) != expected:
                         self._warn(tr('Centre measurements not saved'), tr('The source image or parent mask changed. Reload and repeat detection.'))
                         return None
             with open(mask_path, 'rb') as stream:
-                mask_sha256 = hashlib.file_digest(stream, 'sha256').hexdigest()
+                mask_sha256 = _stream_sha256(stream)
             for suffix in ('.csv', '.json'):
                 descriptor, path = tempfile.mkstemp(prefix='.puncta-', suffix=suffix, dir=os.path.dirname(mask_path))
                 pending.append(path)
                 os.close(descriptor)
             write_table(snapshot['candidates'], pending[0], canonicalise=False)
             with open(pending[0], 'rb') as stream:
-                csv_sha256 = hashlib.file_digest(stream, 'sha256').hexdigest()
+                csv_sha256 = _stream_sha256(stream)
             receipt = {key: value for key, value in snapshot.items() if key not in ('labels', 'candidates')}
             receipt.update(schema=1, mask_path=os.path.realpath(mask_path), mask_sha256=mask_sha256,
                            csv_path=os.path.realpath(base + '.csv'), csv_sha256=csv_sha256,

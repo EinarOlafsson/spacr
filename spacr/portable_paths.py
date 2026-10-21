@@ -611,6 +611,8 @@ def _describe_missing_paths(paths: Iterable[str], exists=None) -> List[str]:
         if not isinstance(path, str) or exists(path):
             continue
         parent = os.path.dirname(os.path.normpath(path))
+        if os.sep == "\\" and "/" in path and "\\" not in path:
+            parent = parent.replace("\\", "/")
         if parent and exists(parent):
             note = tr("its parent folder {parent} exists, so check the last "
                       "folder name for a typo", parent=parent)

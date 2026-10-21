@@ -8,6 +8,8 @@ import shlex
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from PySide6.QtCore import Qt
 
 
@@ -55,6 +57,7 @@ def test_main_window_and_loading_cover_are_opaque(qapp, qtbot, monkeypatch):
     assert cover.autoFillBackground()
 
 
+@pytest.mark.posix_only
 def test_frozen_desktop_launch_ignores_an_older_path_installation(tmp_path):
     root = tmp_path / "installed package"
     packaged = root / "opt" / "spacr" / "spacr"

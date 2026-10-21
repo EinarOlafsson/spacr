@@ -987,7 +987,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         for url in mime.urls():
             if not url.isLocalFile():
                 continue
-            text = url.toLocalFile()
+            text = os.path.normpath(url.toLocalFile()) if url.toLocalFile() else ""
             if text and path_probe.exists(text, default=True, want_dir=True):
                 return text
         return None

@@ -99,4 +99,4 @@ class TestTheFieldItself:
         row = _PathRow()
         qtbot.addWidget(row)
         row.setText(Path("/tmp/x.csv"))
-        assert row.text() == "/tmp/x.csv"
+        assert row.text() == str(Path("/tmp/x.csv"))
