@@ -349,13 +349,13 @@ class QCDashboardScreen(QWidget):
         return tuple(out)
 
     def refresh(self, *, force: bool = False) -> bool:
-        """Re-read the verdicts, entirely off the GUI thread.
+        """Re-read the verdicts through the job runner.
 
-        The parse and the two decisions in front of it -- "is this a
-        folder?" and "has anything changed?" -- all run on the worker,
-        because both decisions touch the disk at a path the user typed.
-        `os.path.isdir` is one call, and `_fingerprint` is a
-        `find_scorecards` listing plus a stat per artifact.
+        By default, the parse and the two decisions in front of it -- "is this
+        a folder?" and "has anything changed?" -- all run on the worker, because
+        both decisions touch the disk at a path the user typed. `os.path.isdir`
+        is one call, and `_fingerprint` is a `find_scorecards` listing plus a
+        stat per artifact. An unthreaded screen performs the same work inline.
 
         Measured on one workstation: a single
         `os.path.exists` under `/nas_mnt`, an `autofs` mount whose share was

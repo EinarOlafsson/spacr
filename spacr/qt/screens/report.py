@@ -439,7 +439,8 @@ class ReportScreen(QWidget):
         Re-collects rather than reusing the scan, so the file reflects the
         folder as it is now and the figure cap as it is now.
 
-        :returns: True when the job was started (or, unthreaded, ran).
+        :returns: True when the job was started; unthreaded, True only when the report
+            callable and its completion handler return without raising.
         """
         raw = self._path_edit.text().strip()
         if not raw:

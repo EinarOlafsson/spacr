@@ -361,7 +361,8 @@ class RunHistoryScreen(QWidget):
         self.refresh()
 
     def refresh(self) -> None:
-        """Reload every run record without blocking the GUI thread."""
+        """Reload run records on a worker thread by default, or inline when
+        constructed with ``threaded=False``."""
         if self._busy:
             return
         self._busy = True
