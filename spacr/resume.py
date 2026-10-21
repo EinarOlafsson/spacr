@@ -1490,12 +1490,12 @@ class SettingsComparison:
     is mostly schema noise, and the one change that matters drowns in it.
 
     :ivar changed: material differences — these block the resume.
-    :ivar drift: cosmetic differences (worker counts, plotting) that
-        cannot alter a measured number.
+    :ivar drift: differences for shared keys classified as cosmetic by the supplied key
+        set.
     :ivar env: package/platform differences. Reported, never blocking.
     :ivar only_in_recorded: keys the old run had and this one does not.
-    :ivar only_in_current: keys this run has and the old one did not,
-        with an inert (null/empty) value.
+    :ivar only_in_current: keys present only in the current settings that are classified
+        as cosmetic or environmental, or whose values normalize to ``None`` or ``()``.
     :ivar same: count of keys that agree.
     """
 
@@ -1625,17 +1625,14 @@ def compare_settings(recorded: Mapping[str, Any],
                      ) -> SettingsComparison:
     """Bucket the difference between two settings dicts by consequence.
 
-    A key is **material** unless it is explicitly known to be cosmetic.
-    That direction is deliberate: an unrecognised new setting that
-    changed will block the resume, which is the outcome one wants to be
-    wrong in. The alternative — allow-listing the settings that matter —
-    silently permits every knob nobody thought of.
+    For keys present in both mappings, values considered equal count toward ``same``.
+    Otherwise, keys in ``ENV_SETTINGS`` are recorded as environment differences, keys in
+    ``cosmetic`` as cosmetic drift, and all others as material changes.
 
-    A key present on only one side is schema drift and does not block,
-    *unless* it appears only in the current settings with a real
-    (non-null) value: enabling ``organelle_channel`` on the resume run
-    genuinely changes what is measured even though the old run never
-    recorded the key.
+    Keys present only in ``recorded`` do not block resume. A key present only in
+    ``current`` is classified as material unless it is in ``cosmetic`` or
+    ``ENV_SETTINGS``, or its value normalizes to ``None`` or ``()``. The non-blocking
+    current-only keys are returned in ``only_in_current``.
 
     :param recorded: settings read back from the previous run.
     :param current: the settings this run is about to use.
@@ -1689,13 +1686,13 @@ def check_settings_compatible(recorded: Mapping[str, Any],
                               source: str = '',
                               cosmetic: Iterable[str] = COSMETIC_SETTINGS,
                               ) -> SettingsComparison:
-    """Raise :class:`ResumeRefused` when resuming would mix two datasets.
+    """Raise :class:`ResumeRefused` when the settings comparison reports material changes.
 
-    The fields already on disk were produced under ``recorded``. If
-    ``current`` differs in anything that affects the numbers, appending
-    new fields to them yields a table that is half one experiment and
-    half another, with no column marking the boundary, so the resume is
-    refused and the error names every material difference.
+    Call :func:`compare_settings` with ``recorded``, ``current`` and ``cosmetic``.
+    Return the comparison when its ``blocks_resume`` value is false; otherwise raise
+    :class:`ResumeRefused` naming the reported material changes. Environment
+    differences, cosmetic differences and non-blocking schema differences do not trigger
+    this refusal.
 
     :param recorded: settings read back from the previous run.
     :param current: the settings this run would use.

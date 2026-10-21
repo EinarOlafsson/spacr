@@ -300,19 +300,19 @@ _BARE_PATH_RE = re.compile(
 
 
 def strip_report_paths(text: str) -> str:
-    """Remove file/folder names from an already sanitised report.
+    """Replace recognized path-like text in an already sanitised report.
 
-    The ordinary sanitizer abbreviates the home directory so a traceback is
-    still useful. Public reports default to the stricter form: traceback file
-    fields, quoted path values and remaining absolute path-like tokens become
-    ``<PATH>``. The preview lets the user restore the useful names before
-    sending; with issue reporting set to 'always' there is no preview, so
-    what this leaves behind is what gets published.
+    The ordinary sanitizer abbreviates the home directory so a traceback is still
+    useful. This helper then applies patterns for traceback file fields, quoted path
+    values and remaining absolute path-like tokens, replacing recognized paths with
+    ``<PATH>``. Callers use it for the stricter public-report form; it does not call
+    :func:`sanitize_path`, display a preview or send a report. Unrecognized names can
+    remain.
 
     A path can contain a space, and a rule that stops a path at the first
     whitespace publishes the rest of it. ``/Volumes/Lab Drive/Patient 042``
-    came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive
-    - Karolinska Institutet\\Screens`` kept the institution and the
+    came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive -
+    Karolinska Institutet\\Screens`` kept the institution and the
     screen — the two operating systems whose own folders have spaces in
     them. A UNC path was not a path at all: nothing here started at
     ``\\\\``. The LAST component of an unquoted path has no separator after
@@ -341,16 +341,18 @@ def strip_report_paths(text: str) -> str:
 
 
 def public_report(report: Dict[str, str]) -> Dict[str, str]:
-    """The report as it is sent when nobody reviews it first.
+    """Prepare the path-stripped title and body of a report.
 
-    The preview opens with "Remove file and folder names" switched on, so
-    what a reviewer sends by default is the body after
-    :func:`strip_report_paths`. A report filed automatically gets that same
-    body. The title is stripped as well: it quotes the exception line, and
-    that line can carry a file name.
+    The preview defaults to removing file and folder names, and automatic reporting uses
+    this helper to prepare that form. Apply :func:`strip_report_paths` to the title and
+    body after converting their values to strings; copy the fingerprint as a string.
+    Missing fields default to empty strings, and other fields are omitted. This helper
+    does not send the report or check user approval.
 
     :param report: a report from :func:`build_report`.
-    :returns: ``title``, ``body`` and ``fingerprint``, ready to post.
+    :returns: A new mapping containing the string fields ``title``, ``body`` and
+        ``fingerprint``. Path removal is limited to the patterns supported by
+        :func:`strip_report_paths`.
     """
     return {
         "title": strip_report_paths(str(report.get("title", ""))),
@@ -732,16 +734,17 @@ def _post_report(report: Dict[str, str]) -> Dict[str, str]:
 
 
 def submit_report(report: Dict[str, str]) -> str:
-    """Submit one payload the user has already approved in the preview.
+    """Submit an approved payload through the API, with browser-form fallback.
 
-    :param report: the approved payload with ``title`` and ``body`` keys, plus
-        ``fingerprint`` for the duplicate search when a GitHub sign-in posts
-        it through the API. Without a sign-in, or when posting fails, the
-        title and body are put into a pre-filled issue URL that is opened in
-        the browser.
-    :returns: the filed issue's URL, the pre-filled ``issues/new`` URL, or
-        the transport refusal message when network use is refused (inside a
-        test run).
+    :param report: The approved payload with ``title`` and ``body`` keys, plus
+        ``fingerprint`` for the duplicate search when a token is available. Callers
+        prepare any required redaction before calling. If API posting does not yield a
+        URL, construct a pre-filled issue URL and request that the browser open it. This
+        helper does not display an approval preview or apply :func:`public_report`.
+    :returns: The API result URL, the pre-filled ``issues/new`` URL, or a transport
+        refusal message. Returning the browser-form URL does not mean the browser
+        accepted it or an issue was filed. Errors constructing that fallback URL can
+        propagate.
     """
     try:
         from . import github_auth
@@ -760,21 +763,24 @@ def submit_report(report: Dict[str, str]) -> str:
 
 
 def file_without_review(report: Dict[str, str]) -> Dict[str, str]:
-    """File a report automatically, for issue reporting set to 'always'.
+    """Attempt automatic API reporting without opening a browser.
 
-    Runs on a worker thread: resolving the sign-in can run ``gh auth
-    token``, and posting waits on api.github.com.
+    Runs synchronously on the calling thread: resolving a token can run ``gh auth
+    token``, and GitHub API calls can block while waiting for responses. Callers choose
+    where to run it.
 
-    It never opens a browser. The browser form is a prompt the user
-    answers, and 'always' is the choice not to be prompted. So without a
-    GitHub sign-in it files nothing and says so.
+    This helper is used for issue reporting set to 'always', but does not enforce that
+    setting. A transport refusal produces :data:`REFUSED`, and no available token
+    produces :data:`SIGNED_OUT`. Otherwise attempt an API post or a comment on an
+    existing issue; no browser form is opened.
 
     :param report: the payload to post, already passed through
         :func:`public_report`.
-    :returns: ``{"status": ..., "url": ..., "detail": ...}`` with a status
-        of :data:`FILED`, :data:`SEEN_AGAIN` (a comment on the open issue
-        with the same fingerprint), :data:`SIGNED_OUT`, :data:`REFUSED`
-        (inside a test run) or :data:`FAILED`. Never raises.
+    :returns: A mapping with ``status`` and optional ``url`` or ``detail`` fields.
+        Status is :data:`FILED`, :data:`SEEN_AGAIN` (a successful comment on an existing
+        issue with the same fingerprint), :data:`SIGNED_OUT`, :data:`REFUSED` or
+        :data:`FAILED`. Caught :class:`Exception` instances are converted to
+        :data:`FAILED` with an exception description.
     """
     try:
         from . import github_auth

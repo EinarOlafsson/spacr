@@ -1,11 +1,10 @@
 328 — A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
 ==================================================
 
-Status:    VALIDATED 2026-10-21 — current semantic README remainder and light-
-           install shell explanations are translated and source-bound across
-           all nine languages; generated acceptance passes. Root must publish
-           nightly and verify the authorized README-output promotion to main
-           before whole-item completion.
+Status:    DONE 2026-10-21 — reviewed README/light-install prose and normal
+           generated outputs are published on nightly cf43d0569b and on main
+           6c20ddd7b2 with the maintainer-approved13 support files. All source,
+           semantic, command, generation and publication acceptance is complete.
 Owner:     Codex release_ci_takeover; feature_takeover peers semantics and
            external authoring, and root integrates/publishes. Public review
            inputs are pinned; no migration hold remains.
@@ -516,3 +515,7 @@ VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.
 2026-10-21 — Current-source completion binds the historical draft remainder to 31 semantic units, plus three new light-install prose units and the revised introduction, across all nine languages. Peer-approved records also update the current tracked checkout to 720 MB (754641577 Git blob bytes on published c4fc613478, rounded under the existing MB label); historical transfers, all executable commands and existing install/launch proof remain unchanged. External records are published at f49ca80263fb5561fa12596603b794c585960810 and normally pinned/bootstrapped; five source/binding/measurement guards and ten command/prose contracts pass. Final generated acceptance and nightly publication remain pending.
 
 2026-10-21 — The normal README writer completed all 1700 images; 46 focused checks pass, including exact nine-locale bindings, every SVG/panel alternative text, source currency, no stray images, protected commands/URLs/markup/technical terms and retained semantic safeguards. Three legacy guards now read the same structured prose on both sides; the URL guard additionally requires the exact existing locale-specific Mask route. Actual English/Hindi/Chinese browser previews passed visual peer review; no product policy, install behavior, timeout or assertion was weakened. Root retains final nightly publication and authorized output-only main promotion before completion.
+
+2026-10-21 — Maintainer explicitly approves prepared main commit6c20ddd7b2, extending the prior output-only exception to its13 concrete source/review/validation support paths. Publish that exact reviewed commit after confirming main still matches prepared base d3c9dcb7b2; retain26 passing checks and1265 MB main measurement without regenerating unchanged outputs. Root owns remote publication and item/index closure.
+
+2026-10-21 — Published the exact approved main commit6c20ddd7b27e7fe1076394b2e2dea986d478524c after confirming its prepared base was unchanged; remote main readback verifies. Nightlycf43d0569b and main now carry coherent reviewed source/output/validation changes, with46 nightly and26 main checks retained, plus the honest720/1265 MB respective tracked checkout measurements. Whole item328 is complete.
