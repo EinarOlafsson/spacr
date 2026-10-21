@@ -424,7 +424,4 @@ blocks:
     1). <https://www.researchsquare.com/article/rs-7368254/v1>`_'
   marker: citing-papers
 - h2: Acknowledgments
-- p: spaCR builds on open scientific software including NumPy, pandas, scikit-image,
-    scikit-learn, Cellpose, PyTorch and Qt. See the `translation model attribution
-    <docs/i18n/TRANSLATION_MODELS.md>`_ for the models used to prepare the multilingual
-    documentation and interface catalogs.
+- p: spaCR builds on open scientific software including NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch and Qt.

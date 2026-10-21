@@ -387,6 +387,4 @@ blocks:
   - '`spaCR: CRISPR-Cas9 스크린의 공간 현상 분석 (프리 프린트 버전 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_'
   marker: citing-papers
 - h2: 감사의 말
-- p: spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한
-    개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <docs/i18n/TRANSLATION_MODELS.md>`_
-    문서에서 확인할 수 있습니다.
+- p: spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다.

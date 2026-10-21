@@ -35,6 +35,79 @@ import re
 from html import unescape
 
 from setuptools import setup, find_packages
+from setuptools.command.build_py import build_py as _build_py
+from setuptools.command.sdist import sdist as _sdist
+
+
+def project_runtime_catalogs(root):
+    """Omit development provenance from copied distribution catalogs only.
+
+    Repository catalogs keep the fields used by generation audits. Runtime
+    translations and source hashes are independent of these literal fields.
+    Replacing staged files also preserves sources hard-linked by sdist.
+    Already projected catalogs need no change when building from an sdist.
+    """
+    import ast
+    import os
+    from pathlib import Path
+    import tempfile
+
+    folder = Path(root) / "spacr" / "qt" / "i18n_catalogs"
+    fields = {"MODEL", "LICENSE", "SECONDARY_MODEL", "SECONDARY_LICENSE",
+              "NORMALIZER"}
+    for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
+        path = folder / (language + ".py")
+        if not path.is_file():
+            continue
+        source = path.read_text(encoding="utf-8")
+        lines = source.splitlines(keepends=True)
+        removed = set()
+        for node in ast.parse(source).body:
+            if not (isinstance(node, ast.Assign) and len(node.targets) == 1
+                    and isinstance(node.targets[0], ast.Name)
+                    and node.targets[0].id in fields):
+                continue
+            if (not isinstance(node.value, ast.Constant)
+                    or not isinstance(node.value.value, str)
+                    or node.lineno != node.end_lineno
+                    or lines[node.lineno - 1].strip() != ast.get_source_segment(source, node)):
+                raise ValueError("Expected literal catalog provenance: " + str(path))
+            removed.update(range(node.lineno - 1, node.end_lineno))
+        if not removed:
+            continue
+        projected = "".join(line for index, line in enumerate(lines)
+                            if index not in removed)
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                    mode="w", encoding="utf-8", newline="", dir=path.parent,
+                    prefix="." + path.name + ".", delete=False) as stream:
+                temporary = stream.name
+                stream.write(projected)
+            os.chmod(temporary, path.stat().st_mode)
+            os.replace(temporary, path)
+        finally:
+            if temporary is not None and os.path.exists(temporary):
+                os.unlink(temporary)
+
+
+class RuntimeCatalogBuild(_build_py):
+    """Project copied packages before setuptools byte-compiles them."""
+
+    def build_packages(self):
+        """Copy packages normally, then omit development-only catalog fields."""
+        super().build_packages()
+        project_runtime_catalogs(self.build_lib)
+
+
+class RuntimeCatalogSdist(_sdist):
+    """Keep development provenance in git, outside the release source tree."""
+
+    def make_release_tree(self, base_dir, files):
+        """Project only the complete copied source-distribution tree."""
+        super().make_release_tree(base_dir, files)
+        project_runtime_catalogs(base_dir)
+
 
 def pypi_readme(source):
     """Preserve the GitHub README while resolving its repository-relative URLs.
@@ -292,6 +365,7 @@ VERSION = "1.5.1.5"
 name = "spacr"
 
 setup(
+    cmdclass={"build_py": RuntimeCatalogBuild, "sdist": RuntimeCatalogSdist},
     name=name,
     version=VERSION,
     description="Spatial phenotype analysis of CRISPR screens (spaCR)",

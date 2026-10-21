@@ -636,4 +636,4 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/acknowledgments.desktop.svg"><img src="../../readme_images/zh_CN/acknowledgments.svg" alt="致谢. spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅翻译模型署名。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/acknowledgments.desktop.svg"><img src="../../readme_images/zh_CN/acknowledgments.svg" alt="致谢. spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。"></picture></a></div>

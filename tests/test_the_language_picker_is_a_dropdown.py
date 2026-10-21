@@ -277,7 +277,8 @@ def test_the_menu_offers_only_exact_language_routes_without_review_claims():
     assert "review" not in menu.casefold()
     assert "native-speaker" not in menu.casefold()
     assert "English is the source text" in text
-    assert "[TRANSLATION_MODELS.md](../TRANSLATION_MODELS.md)" in text
+    assert "TRANSLATION_MODELS" not in text
+    assert "COVERAGE.md" not in text
 
 
 def test_the_page_and_the_readmes_are_regenerated_not_hand_written(

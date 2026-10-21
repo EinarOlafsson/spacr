@@ -636,4 +636,4 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/acknowledgments.desktop.svg"><img src="../../readme_images/sv/acknowledgments.svg" alt="Tack. spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se information om översättningsmodellerna för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna."></picture></a></div>
+   <div><a href="../../readme_text/sv/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/acknowledgments.desktop.svg"><img src="../../readme_images/sv/acknowledgments.svg" alt="Tack. spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt."></picture></a></div>

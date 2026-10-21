@@ -433,7 +433,4 @@ blocks:
     <https://www.researchsquare.com/article/rs-7368254/v1>`_'
   marker: citing-papers
 - h2: Tack
-- p: spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image,
-    scikit-learn, Cellpose, PyTorch och Qt. Se `information om översättningsmodellerna
-    <docs/i18n/TRANSLATION_MODELS.md>`_ för modellerna som användes till den flerspråkiga
-    dokumentationen och gränssnittskatalogerna.
+- p: spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt.

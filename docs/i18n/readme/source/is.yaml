@@ -424,6 +424,4 @@ blocks:
     <https://www.researchsquare.com/article/rs-7368254/v1>`_'
   marker: citing-papers
 - h2: Þakkir
-- p: spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image,
-    scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <docs/i18n/TRANSLATION_MODELS.md>`_
-    fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.
+- p: spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt.

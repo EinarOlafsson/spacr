@@ -451,7 +451,4 @@ blocks:
     1). <https://www.researchsquare.com/article/rs-7368254/v1>`_'
   marker: citing-papers
 - h2: Remerciements
-- p: spaCR repose sur des logiciels scientifiques ouverts, notamment NumPy, pandas,
-    scikit-image, scikit-learn, Cellpose, PyTorch et Qt. Consultez l’`attribution
-    des modèles de traduction <docs/i18n/TRANSLATION_MODELS.md>`_ pour connaître
-    les modèles utilisés dans la documentation multilingue et les catalogues de l’interface.
+- p: spaCR repose sur des logiciels scientifiques ouverts, notamment NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch et Qt.

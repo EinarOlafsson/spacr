@@ -636,4 +636,4 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/acknowledgments.desktop.svg"><img src="../../readme_images/is/acknowledgments.svg" alt="Þakkir. spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá upplýsingar um þýðingarlíkön fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa."></picture></a></div>
+   <div><a href="../../readme_text/is/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/acknowledgments.desktop.svg"><img src="../../readme_images/is/acknowledgments.svg" alt="Þakkir. spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt."></picture></a></div>

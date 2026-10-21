@@ -1095,8 +1095,7 @@ def _language_picker_page() -> str:
     followed a link to reach the languages should not have to click a second
     time to see them. Collapsing it is still theirs to do.
 
-    The table offers language routes. Source English remains authoritative;
-    translation-model attribution is linked separately.
+    The table offers language routes. Source English remains authoritative.
     """
     rows = []
     for language in _languages():
@@ -1125,10 +1124,7 @@ def _language_picker_page() -> str:
         "language is one click from the right one.",
         "",
         "English is the source text: where a translation and the English",
-        "README disagree, the English one is right. Translation model",
-        "attribution and licenses are listed in",
-        "[TRANSLATION_MODELS.md](../TRANSLATION_MODELS.md), and the measured",
-        "per-locale coverage in [COVERAGE.md](../COVERAGE.md).",
+        "README disagree, the English one is right.",
         "",
         "The front page carries a single link to this page rather than the",
         "menu itself because `README.rst` is reStructuredText: GitHub renders",

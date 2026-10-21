@@ -25,10 +25,7 @@ Every spaCR README links here, so a reader who lands in the wrong
 language is one click from the right one.
 
 English is the source text: where a translation and the English
-README disagree, the English one is right. Translation model
-attribution and licenses are listed in
-[TRANSLATION_MODELS.md](../TRANSLATION_MODELS.md), and the measured
-per-locale coverage in [COVERAGE.md](../COVERAGE.md).
+README disagree, the English one is right.
 
 The front page carries a single link to this page rather than the
 menu itself because `README.rst` is reStructuredText: GitHub renders

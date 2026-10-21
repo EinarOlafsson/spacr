@@ -362,5 +362,4 @@ blocks:
   - '`spaCR: CRISPR-Cas9 筛选的空间现象分析(预印版本 1)。 <https://www.researchsquare.com/article/rs-7368254/v1>`_'
   marker: citing-papers
 - h2: 致谢
-- p: spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch
-    和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <docs/i18n/TRANSLATION_MODELS.md>`_。
+- p: spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。

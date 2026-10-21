@@ -636,4 +636,4 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. raw:: html
 
-   <div><a href="../../readme_text/fr/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/acknowledgments.desktop.svg"><img src="../../readme_images/fr/acknowledgments.svg" alt="Remerciements. spaCR repose sur des logiciels scientifiques ouverts, notamment NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch et Qt. Consultez l’attribution des modèles de traduction pour connaître les modèles utilisés dans la documentation multilingue et les catalogues de l’interface."></picture></a></div>
+   <div><a href="../../readme_text/fr/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/acknowledgments.desktop.svg"><img src="../../readme_images/fr/acknowledgments.svg" alt="Remerciements. spaCR repose sur des logiciels scientifiques ouverts, notamment NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch et Qt."></picture></a></div>
