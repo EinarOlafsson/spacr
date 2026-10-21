@@ -332,15 +332,32 @@ class TestCustomFeatures:
 # ---------------------------------------------------------------------------
 
 class TestNotebookExport:
-    def test_missing_manifest_and_settings_are_tolerated(self, tmp_path):
-        # A run dir with NO manifest/settings → the readers return {}
-        # (lines 50, 53-54, 60, 63-64) and export still works.
+    @pytest.mark.parametrize("missing", ["run_dir", "manifest.json", "settings.json"])
+    @pytest.mark.parametrize("existing_destination", [False, True])
+    def test_missing_required_inputs_refuse_export_without_touching_destination(
+            self, tmp_path, missing, existing_destination):
         from spacr.notebook_export import export_run
-        run_dir = tmp_path / "20260101_000000_x__mask"
-        run_dir.mkdir()
-        (run_dir / "settings.json").write_text("{}", encoding="utf-8")
-        out = export_run(run_dir, out_path=tmp_path / "nb.ipynb")
-        assert out.exists()
+
+        run_dir = tmp_path / "run"
+        if missing != "run_dir":
+            run_dir.mkdir()
+            for name in ("manifest.json", "settings.json"):
+                if name != missing:
+                    (run_dir / name).write_text("{}", encoding="utf-8")
+        destination = tmp_path / "exports" / "custom.ipynb"
+        previous = b"existing notebook must survive"
+        if existing_destination:
+            destination.parent.mkdir()
+            destination.write_bytes(previous)
+
+        with pytest.raises(FileNotFoundError):
+            export_run(run_dir, out_path=destination)
+
+        assert not (run_dir / "notebook.ipynb").exists()
+        if existing_destination:
+            assert destination.read_bytes() == previous
+        else:
+            assert not destination.parent.exists()
 
     def test_a_corrupt_manifest_is_tolerated(self, tmp_path):
         """The manifest only decorates the summary cell; the export stands."""
@@ -377,6 +394,20 @@ class TestNotebookExport:
         with pytest.raises(json.JSONDecodeError):
             export_run(run_dir, out_path=tmp_path / "nb.ipynb")
         assert not (tmp_path / "nb.ipynb").exists()
+
+    def test_settings_read_error_preserves_existing_destination(self, tmp_path):
+        from spacr.notebook_export import export_run
+
+        run_dir = tmp_path / "run"
+        run_dir.mkdir()
+        (run_dir / "manifest.json").write_text("{}", encoding="utf-8")
+        (run_dir / "settings.json").mkdir()
+        destination = tmp_path / "existing.ipynb"
+        destination.write_bytes(b"existing notebook")
+
+        with pytest.raises(OSError):
+            export_run(run_dir, out_path=destination)
+        assert destination.read_bytes() == b"existing notebook"
 
     def test_default_out_path(self, tmp_path):
         # out_path=None defaults to <run_dir>/notebook.ipynb (line 224).

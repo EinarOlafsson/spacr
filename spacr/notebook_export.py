@@ -182,6 +182,10 @@ def export_run(run_dir: Any,
     run_dir = Path(run_dir)
     if not run_dir.is_dir():
         raise FileNotFoundError(f"no such run folder: {run_dir}")
+    for name in ("manifest.json", "settings.json"):
+        required = run_dir / name
+        if not required.exists():
+            raise FileNotFoundError(required)
     manifest = _read_manifest(run_dir)
     _read_settings(run_dir)
     app_key = manifest.get("app_key", "unknown")
