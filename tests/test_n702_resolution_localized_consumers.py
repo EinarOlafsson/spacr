@@ -7,9 +7,6 @@ import urllib.request
 
 import pytest
 
-#: Item 710: the API catalogs are assembled for the session, not committed.
-pytestmark = pytest.mark.usefixtures("api_catalogs")
-
 from spacr import model_zoo as zoo
 from spacr import utils
 
@@ -83,7 +80,7 @@ def test_actual_native_download_logs_localized_context(publisher, monkeypatch, l
 
 
 @pytest.mark.parametrize('language', ('en', 'ko'))
-def test_actual_train_model_help_retains_precise_failure_contract(language):
+def test_actual_train_model_help_retains_precise_failure_contract(language, api_catalogs):
     from spacr.qt.help_index import build_index, search
     from spacr.qt.help_search import api_url, local_docstring
 
@@ -99,6 +96,6 @@ def test_actual_train_model_help_retains_precise_failure_contract(language):
         assert '?lang=ko' in url
     else:
         assert '?lang=ko' not in url
-    payload = json.loads((ROOT / 'docs/source/_static/i18n/api' / (language + '.json')).read_text(encoding="utf-8"))
+    payload = json.loads((api_catalogs / (language + '.json')).read_text(encoding="utf-8"))
     assert 'custom_model_path' in payload['symbols'][symbol]['text']
     assert 'resume_checkpoint' in payload['symbols'][symbol]['text']
