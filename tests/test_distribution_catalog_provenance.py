@@ -12,6 +12,11 @@ import sys
 import tarfile
 import zipfile
 
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
+
 import pytest
 import setuptools
 
@@ -99,16 +104,34 @@ def test_projection_refuses_to_discard_executable_provenance(
     assert list(folder.iterdir()) == [target]
 
 
-def _build(project, command, output):
+def _build_environment(project, destination):
     result = subprocess.run(
-        [sys.executable, "setup.py", command, "--dist-dir", str(output)],
+        [sys.executable, "-m", "venv", str(destination)],
+        text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        timeout=120, check=False)
+    assert result.returncode == 0, result.stdout[-12000:]
+    python = destination / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    with (project / "pyproject.toml").open("rb") as stream:
+        requirements = tomllib.load(stream)["build-system"]["requires"]
+    result = subprocess.run(
+        [str(python), "-I", "-m", "pip", "install", "build", *requirements],
+        text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        timeout=120, check=False)
+    assert result.returncode == 0, result.stdout[-12000:]
+    return str(python)
+
+
+def _build(project, kind, output, python):
+    result = subprocess.run(
+        [python, "-I", "-m", "build", "--no-isolation", "--" + kind,
+         "--outdir", str(output)],
         cwd=project, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         timeout=120, check=False)
     assert result.returncode == 0, result.stdout[-12000:]
 
 
 def test_real_wheel_and_wheel_from_sdist_have_identical_runtime_catalogs(tmp_path):
-    """Use the real setup commands and catalogs without unrelated scientific code."""
+    """Use the declared backend and real catalogs without unrelated scientific code."""
     project = tmp_path / "project"
     project.mkdir()
     for name in ("setup.py", "_spacr_catalog_build.py", "pyproject.toml", "MANIFEST.in",
@@ -130,14 +153,15 @@ def test_real_wheel_and_wheel_from_sdist_have_identical_runtime_catalogs(tmp_pat
     direct = tmp_path / "direct"
     source_dist = tmp_path / "source-dist"
     rebuilt = tmp_path / "rebuilt"
-    _build(project, "sdist", source_dist)
-    _build(project, "bdist_wheel", direct)
+    python = _build_environment(project, tmp_path / "backend")
+    _build(project, "sdist", source_dist, python)
+    _build(project, "wheel", direct, python)
     for relative, digest in originals.items():
         assert hashlib.sha256((project / relative).read_bytes()).hexdigest() == digest
     with tarfile.open(next(source_dist.glob("*.tar.gz"))) as archive:
         archive.extractall(tmp_path / "unpacked", filter="data")
     unpacked = next((tmp_path / "unpacked").iterdir())
-    _build(unpacked, "bdist_wheel", rebuilt)
+    _build(unpacked, "wheel", rebuilt, python)
 
     with zipfile.ZipFile(next(direct.glob("*.whl"))) as first, \
             zipfile.ZipFile(next(rebuilt.glob("*.whl"))) as second:

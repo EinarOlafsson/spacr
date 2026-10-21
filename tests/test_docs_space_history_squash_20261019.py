@@ -94,12 +94,13 @@ def test_the_workflow_squashes_before_it_uploads():
 
 
 def _failed_cleanup_api(status, message):
-    import httpx
     from huggingface_hub.errors import HfHubHTTPError
 
     api = _Api(990_000_000, 40, ["served"], [("served", 5), ("orphan", 7)])
-    response = httpx.Response(status, text=message,
-                              request=httpx.Request("POST", "https://huggingface.co/api/spaces/o/s/lfs-files/batch"))
+    response = SimpleNamespace(
+        status_code=status, text=message, headers={},
+        request=SimpleNamespace(method="POST", headers={},
+                                url="https://huggingface.co/api/spaces/o/s/lfs-files/batch"))
     error = HfHubHTTPError("synthetic provider refusal", response=response)
 
     def refuse(space, files, **kwargs):
