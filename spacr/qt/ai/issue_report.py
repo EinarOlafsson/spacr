@@ -1,21 +1,22 @@
 """
 Error reports filed as issues on the public spaCR GitHub repository.
 
-A failed run is reported in one of two ways, chosen by the "One-click issue
-filing" preference (:func:`spacr.qt.preferences.get_issue_prompt_mode`):
+These helpers build reports for automatic filing with a GitHub sign-in or submission
+after an editable preview. Callers decide whether and when to report; anonymous relay
+reporting is handled separately.
 
-* ``'always'``, the default: :func:`file_without_review` files the report as
-  soon as the run has failed. It sends :func:`public_report`, the same
-  redaction the preview applies by default, and it never opens a browser.
-  Filing needs a GitHub sign-in (the ``gh`` CLI or ``GITHUB_TOKEN``). Without
-  one, nothing is sent.
-* ``'ask'``: the report opens in an editable preview, and
-  :func:`submit_report` sends it only after the Send click. Without a
-  sign-in it opens a pre-filled GitHub form in the browser.
+* ``'always'``: the caller can pass the report produced by :func:`public_report` to :func:`file_without_review`
+  for automatic filing without a browser. This requires a GitHub sign-in; without one,
+  nothing is sent. Eligibility checks, duplicate-memory checks and any wait for an AI
+  answer are handled by the caller.
+* ``'ask'``: the user can open an editable preview and approve it before
+  :func:`submit_report` is called. Without a sign-in, or if API posting fails,
+  submission opens a pre-filled GitHub form in the browser.
 
-Both paths build the report with :func:`build_report`, and both look for an
-open issue carrying the same traceback fingerprint before they open a new
-one. spaCR never stores a durable GitHub token itself.
+Both paths can use :func:`build_report`. With a GitHub sign-in, posting searches for an
+open issue with the same traceback fingerprint and attempts to comment there. A failed
+search or comment can lead to a new issue instead. This module does not persist GitHub
+tokens.
 """
 from __future__ import annotations
 
@@ -217,14 +218,16 @@ def sanitize_path(s: str) -> str:
 
 
 def sanitize_settings(settings: Dict[str, Any]) -> Dict[str, Any]:
-    """Return a copy of ``settings`` with paths + DB names sanitized.
+    """Return a shallow settings copy with selected strings sanitized.
 
-    Values whose *key* names a credential (``api_key``, ``GITHUB_TOKEN``,
-    ``password``, …) are dropped entirely — the key name is enough of a
-    hint that the value must never reach a public issue.
+    Top-level values whose string key names a credential (``api_key``, ``GITHUB_TOKEN``,
+    ``password``, …) are replaced by :data:`REDACTED`; their keys remain. Other string
+    values and direct string elements of lists pass through :func:`sanitize_path`.
+    Nested mappings and other values are not recursively sanitized.
 
     :param settings: any pipeline settings dict.
-    :returns: sanitized copy safe to include in a public issue.
+    :returns: a shallow copy with the redactions described above; arbitrary nested data
+        is not guaranteed safe for a public issue.
     """
     out: Dict[str, Any] = {}
     for k, v in (settings or {}).items():
@@ -417,9 +420,9 @@ def fingerprint_of(traceback_text: str) -> str:
     """The fingerprint :func:`build_report` gives this traceback.
 
     :param traceback_text: the raw traceback.
-    :returns: six hex characters, without building the report. The
-        automatic filer checks this against what it has filed before, so a
-        repeated crash costs no log copy and no network call.
+    :returns: six hex characters, without building the report, copying a log or making a
+        network call. Callers can use this key to check their remembered reports before
+        doing that work; this function does not itself remember or suppress reports.
     """
     return _traceback_hash(sanitize_traceback(traceback_text))
 
@@ -459,9 +462,9 @@ def save_log_bundle(fingerprint: str,
                     n_lines: int = LOG_BUNDLE_LINES) -> Optional[Path]:
     """Write the log tail to a file beside the report and return its path.
 
-    The public issue names this path instead of carrying the log itself.
-    More lines are kept here than an issue would carry, because the
-    file is not limited by the length of a URL.
+    The report builder can include this local path instead of the log contents; stricter
+    public redaction may replace the path. The file is not constrained by the issue URL
+    length limit.
 
     :param fingerprint: the traceback hash, so one report's log is easy
         to match to the issue that names it.
@@ -533,7 +536,7 @@ def build_report(
     include_log_tail: bool = True,
     ai_response: str = "",
 ) -> Dict[str, str]:
-    """Build a ``(title, body)`` pair for a pre-filled GitHub issue.
+    """Build a report mapping containing a title, body and traceback fingerprint.
 
     :param traceback_text: full traceback text (as caught by
         :func:`traceback.format_exc`).
@@ -541,11 +544,12 @@ def build_report(
         fired (``"mask"`` / ``"measure"`` / …).
     :param settings: the pipeline settings dict in play, if any.
         Sanitised before inclusion.
-    :param include_log_tail: also attach the last N log lines.
-    :param ai_response: spaCR AI's analysis of this same error, when the AI
-        is switched on and has already answered. Sanitised and length-capped
-        like everything else here, and clearly marked as machine-generated:
-        it is a lead for whoever reads the report, not a finding.
+    :param include_log_tail: attempt to save a sanitized local log tail and include its
+        local path in the body. The log contents are not attached to the public issue.
+    :param ai_response: spaCR AI's analysis of this same error, when available. It
+        passes through :func:`sanitize_path` and is shortened after
+        :data:`AI_ANALYSIS_MAX_CHARS` characters, with a truncation note added. It is
+        marked as unreviewed machine-generated advice rather than a diagnosis.
     :returns: dict with keys ``title``, ``body`` and ``fingerprint``,
         ready to be
         URL-encoded onto ``issues/new``.
@@ -633,13 +637,14 @@ def issue_url(title: str, body: str, label: str = ISSUE_LABEL,
                repo: str = REPO) -> str:
     """Build the ``https://github.com/<repo>/issues/new?…`` URL.
 
-    The URL is truncated to ~7.5 KB so it fits GitHub's parser limit;
-    an ellipsis and a note are appended to the body when it is clipped.
+    If the estimated URL-encoded length exceeds :data:`MAX_URL_LEN`, shorten the body
+    and append a truncation note. The title, repository and label are not shortened, so
+    unusually large values can still exceed that limit.
 
     :param title: URL-encodable issue title.
     :param body: markdown body; may be truncated.
-    :param label: label to attach (created lazily by GitHub if it
-        doesn't already exist).
+    :param label: label requested in the pre-filled form; this helper does not create
+        it.
     :param repo: ``owner/name`` slug.
     :returns: fully-quoted ``https://github.com/…`` URL.
     """
@@ -786,10 +791,10 @@ def file_issue(
 ) -> str:
     """Legacy end-to-end helper retained for API callers and tests.
 
-    The GUI does not call this directly: it builds the payload, displays an
-    editable preview, then passes the approved mapping to
-    :func:`submit_report`. Headless callers invoking this function are the
-    report-specific affirmative action themselves.
+    This function builds a report and immediately passes it to :func:`submit_report`; it
+    does not show a preview or apply :func:`public_report`. GUI callers handle preview
+    approval or automatic-filing decisions separately. A headless caller is responsible
+    for deciding whether this report may be submitted.
 
     :param traceback_text: full traceback text, passed to
         :func:`build_report`, which sanitises it and derives the issue title

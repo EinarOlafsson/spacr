@@ -1,29 +1,29 @@
 """Generate the Methods and Results sections through the AI console's providers.
 
-:mod:`spacr.methods_export` builds the run digest, writes the prompt, and
-checks a draft's numbers against the digest. This module is the half that
-talks to a model, and it does not open a second client: it uses
-the same :class:`spacr.qt.ai.providers.ChatProvider` objects the AI console
-already streams through, so a user who authenticated once has authenticated
-for this too, and a provider added there is available here the same day.
+:mod:`spacr.methods_export` builds the run digest, writes the prompt and checks
+generated sections. This module uses the :class:`spacr.qt.ai.providers.ChatProvider`
+interface shared with the AI console. Automatic selection considers configured vendor
+CLI providers and excludes the hosted relay; callers can also pass a provider
+explicitly. Configuration checks do not establish that authentication or a model request
+will succeed.
 
 The module has two behaviours:
 
-**A draft that invents a number is not returned as a draft.** The model's
-output goes straight into :func:`spacr.methods_export.check_draft`. If it
-carries a figure that is not in the digest — or if the Methods section drops
-one of the caveats the run recorded — the draft is marked ``ok=False``, the
-offending numbers are named in :attr:`ManuscriptDraft.problems`, the model's
-text is preserved in :attr:`ManuscriptDraft.rejected` so a human can look at
-it, and the sections handed back are the deterministic ones from the digest.
-Every number in a returned section therefore appears in the digest.
+**Generated sections are checked before acceptance.** The split reply is passed to
+:func:`spacr.methods_export.check_draft`, which checks recognized number tokens against
+the digest and looks for the recorded caveat phrases in Methods. If either verdict
+fails, ``ok=False``, :attr:`ManuscriptDraft.problems` describes the failures,
+:attr:`ManuscriptDraft.rejected` retains the reply and the deterministic renderers
+supply the returned sections. These checks do not establish scientific accuracy or
+verify every possible numerical claim; the fallback sections are not passed through this
+check.
 
-**A missing provider does not raise.** :func:`availability`
-says exactly what is missing and what to type to fix it, and
-:func:`generate_sections` returns a complete draft anyway — the deterministic
-renderers need no model at all. A user with no CLI installed still gets their
-methods section, written by spaCR's deterministic renderer instead of by a
-model.
+**No configured vendor provider triggers a deterministic fallback.**
+:func:`availability` reports candidates or setup guidance, and :func:`generate_sections`
+uses the digest renderers when discovery finds no candidate. Caught streaming errors,
+empty replies and rejected drafts also use this fallback. Discovery outside the guarded
+calls, prompt construction, verification and fallback rendering can still raise
+exceptions.
 """
 from __future__ import annotations
 
@@ -54,13 +54,14 @@ RESULTS_HEADING = "## Results"
 
 @dataclass(frozen=True)
 class Availability:
-    """Whether a model can be reached, and what to do when it cannot.
+    """Recorded vendor-provider configuration status and setup guidance.
 
-    :param ok: at least one provider is installed and logged in.
-    :param providers: the names of the ones that are.
-    :param message: one paragraph for the user. When ``ok`` is False it names
-        every provider, whether its CLI is installed, and the command to
-        install or log in.
+    :param ok: at least one non-hosted provider passed the configuration checks used by
+        :func:`availability`; this does not confirm authentication or model access.
+    :param providers: the names of the non-hosted providers that passed those checks.
+    :param message: status or setup guidance for the user. It can contain several lines;
+        discovery failures can produce an error message instead of a complete provider
+        list.
     """
 
     ok: bool
@@ -68,15 +69,18 @@ class Availability:
     message: str = ""
 
     def __bool__(self) -> bool:
-        """True when a model can be reached."""
+        """Return the recorded ``ok`` flag without checking model access."""
         return self.ok
 
 
 def availability() -> Availability:
-    """Report which AI providers are usable, and how to fix it if none are.
+    """Report configured vendor AI candidates or available setup guidance.
 
-    Never raises and never touches the network: :meth:`ChatProvider.is_installed`
-    is a ``PATH`` lookup and :meth:`is_logged_in` is best-effort.
+    Current vendor checks inspect local CLI availability rather than making a model
+    request. Initial configured-provider discovery failures are converted into an
+    unavailable status, and a failed provider-list lookup yields no setup rows. Later
+    provider-property and installation checks are not guarded and can raise; a
+    configured candidate is not proof of a successful login.
     """
     try:
         ready = [provider for provider in configured_providers()
@@ -117,15 +121,17 @@ def availability() -> Availability:
 def split_sections(text: str) -> Tuple[str, str]:
     """Split a model's reply into ``(methods, results)``.
 
-    Tolerant of the usual drift — a preamble before the first heading, a
-    different heading level, a stray sign-off — because a reply that is
-    otherwise correct must not be discarded over a hash mark. Anything before
-    the Methods heading is dropped; anything after the Results heading is
-    kept as part of Results.
+    Search case-insensitively for ``## methods`` and ``## results``, falling back to ``#
+    methods`` and ``# results`` respectively. Text before the selected Methods heading
+    is discarded; text after the selected Results heading remains in Results. If Results
+    precedes Methods, return only Methods; if only Results is found, return only
+    Results. The selected heading lines are removed, but other text such as a sign-off
+    remains.
 
     :param text: the model's whole reply.
-    :returns: the two sections, each without its heading. Either may be
-        ``""`` when the model did not produce it.
+    :returns: the two sections without their selected heading lines. A section can be
+        ``""`` when its heading is absent, its body is empty or the heading order
+        excludes it.
     """
     body = str(text or "")
     lower = body.lower()
@@ -214,19 +220,23 @@ def generate_sections(digest: Mapping[str, Any], *,
                       provider: Optional[ChatProvider] = None,
                       model: Optional[str] = None,
                       stream=None) -> ManuscriptDraft:
-    """Ask a model for the two sections; refuse a draft that invents a number.
+    """Request two model-written sections and use digest renderers when generation or the
+    draft checks fail.
 
-    :param digest: the run digest — see :func:`spacr.methods_export.build_digest`.
-        It is the model's ONLY input; raw data never reaches it.
-    :param provider: the provider to use. Defaults to the first configured
-        one; with none configured the deterministic renderer answers and the
-        draft says so.
+    :param digest: the run digest — see :func:`spacr.methods_export.build_digest`. It is
+        serialized into the user prompt; this function does not remove raw or sensitive
+        values supplied in the mapping.
+    :param provider: the provider to use. When omitted, select the first configured
+        non-hosted candidate from :func:`availability`; when none is found, use the
+        deterministic renderers. An explicitly supplied provider bypasses discovery.
     :param model: optional model override passed to the provider.
     :param stream: optional callable invoked with each chunk as it arrives,
         for a live view. Exceptions from it are ignored — a UI that fails to
         paint must not lose the generation.
-    :returns: a :class:`ManuscriptDraft`. **Always** carries usable sections:
-        the model's when they passed, spaCR's own when they did not.
+    :returns: a :class:`ManuscriptDraft` containing accepted model sections or
+        deterministic fallback sections. Errors in discovery outside the guarded calls,
+        prompt construction, verification or fallback rendering can propagate instead of
+        returning a draft.
     """
     if provider is None:
         state = availability()

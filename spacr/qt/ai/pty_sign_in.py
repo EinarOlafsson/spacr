@@ -1,15 +1,13 @@
-"""Sign in to an AI command-line tool without leaving spaCR.
+"""Run a command-line sign-in flow inside a spaCR dialog.
 
-The goal is a tool installed, logged in and marked READY with no terminal
-used. The Claude, GPT and Gemini command-line tools sign in by conversation -- a web
-page to confirm in, sometimes a code to paste back -- and they only hold that
-conversation with a TERMINAL, which is why spaCR used to open one. A
-pseudo-terminal is a terminal as far as the tool can tell, so the sign-in is
-run on one here, inside a small window: the web page the tool prints is
-opened, what it asks is shown, and the answer is typed into a box and sent.
+The dialog runs the supplied command on a pseudo-terminal, shows its output and sends
+text entered by the user. It automatically opens the first detected sign-in URL in a
+browser; later URLs can be opened manually. A successful command exit is not an
+independent check that a tool is installed, authenticated or ready for a model request.
 
-POSIX only (Linux, macOS), where a pseudo-terminal is part of the standard
-library. On Windows the caller falls back to opening a terminal, as before.
+Availability depends on :func:`pty_available`, which checks POSIX and whether the
+pseudo-terminal module can be imported. Callers decide what to do when it is
+unavailable; this module does not provide a Windows terminal fallback.
 """
 from __future__ import annotations
 
@@ -47,9 +45,10 @@ _spawn = subprocess.Popen
 
 
 def pty_available() -> bool:
-    """Whether a sign-in can run on a pseudo-terminal here.
+    """Check for POSIX and an importable pseudo-terminal module.
 
-    :returns: True on Linux and macOS.
+    :returns: ``True`` when running on POSIX and importing the pseudo-terminal module
+        succeeds; no terminal allocation or sign-in is attempted.
     """
     if os.name != "posix":
         return False
@@ -63,19 +62,21 @@ def pty_available() -> bool:
 
 
 def strip_terminal_codes(text: str) -> str:
-    """``text`` without colour, cursor and title escape sequences.
+    """Remove supported terminal escape sequences from ``text`` and normalize
+    carriage-return output.
 
     :param text: raw terminal output.
-    :returns: what a reader would see.
+    :returns: text after the supported substitutions, not a complete rendering of a
+        terminal screen.
     """
     return _ANSI.sub("", text).replace("\r\n", "\n").replace("\r", "\n")
 
 
 def find_urls(text: str) -> List[str]:
-    """Every web address in ``text``, in order, without trailing punctuation.
+    """Find HTTP(S) URL matches in ``text`` in encounter order.
 
     :param text: terminal output, escape sequences removed.
-    :returns: the addresses.
+    :returns: the matched addresses, with trailing ``).,;]`` characters removed.
     """
     return [url.rstrip(").,;]") for url in _URL.findall(text)]
 
@@ -129,9 +130,10 @@ class PtySession:
         self._output_closed = True
 
     def read(self) -> str:
-        """Everything the command has written since the last call.
+        """Drain the currently queued output and return the cleaned text available so far.
 
-        :returns: the text, escape sequences removed.
+        :returns: the drained text after terminal-code cleanup. Incomplete escape or
+            carriage-return data can remain buffered for a later read.
         """
         closed = getattr(self, "_output_closed", False)
         parts = []
@@ -165,11 +167,12 @@ class PtySession:
         return self.proc.poll()
 
     def stop(self) -> None:
-        """Reap the command, stop its process group and close the terminal.
+        """Request termination of the session process group and attempt terminal cleanup.
 
-        Launchers can leave a child holding the terminal after they exit.
-        The group belongs to this session, so cancellation also ends those
-        children. Repeated teardown cannot close a reused file descriptor.
+        Launchers can leave children in the session process group after they exit.
+        Teardown targets that group, but does not guarantee that every child has
+        stopped, including children that leave it; errors can propagate. A flag skips
+        subsequent teardown attempts so they cannot close a reused file descriptor.
         """
         if self._stopped:
             return
