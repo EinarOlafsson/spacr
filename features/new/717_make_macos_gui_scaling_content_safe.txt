@@ -1,0 +1,38 @@
+================================================================================
+MAKE MACOS GUI SCALING CONTENT-SAFE
+================================================================================
+
+Status:    OPEN
+Requested: maintainer, 2026-10-21 — prevent clipped text, controls, icons and popup content at every supported scale
+Priority:  P1
+Owner:     Codex macOS GUI lane — implementation and focused validation
+
+SCOPE
+Make scaling resilient throughout the Qt GUI, with macOS as the immediate
+acceptance platform. Text must receive enough space or adapt instead of being
+cut off, including Home's bottom help and module buttons such as Live, 3D and
+AI. Button icons must retain their intended proportion to their button as GUI
+scale changes and must never be clipped.
+
+Popup windows must initially fit their useful content on the available screen,
+including the usual content of tabbed dialogs, while remaining freely
+resizable. Content that cannot reasonably fit must be scrollable. macOS boolean
+controls must retain a clean ring or borderless silhouette, never bracket-like
+edges, and must not become oversized at particular GUI scales.
+
+Every tooltip API link must display exactly "API". A shown tooltip must remain
+visible while the pointer is still over its source or the tooltip itself. The
+default GUI and font scales, including the reset-to-default action, are 90%.
+
+ACCEPTANCE
+- A representative scale matrix covers the supported GUI/font range and finds
+  no clipped Home help, module-button text or module-button icons.
+- Dialog startup sizing uses content and available-screen bounds; dialogs stay
+  resizable and oversized/tabbed content remains reachable by scrolling.
+- macOS boolean controls render at stable proportions without bracket-like
+  perimeter artifacts across the scale matrix.
+- Tooltip API captions are exactly "API" and tooltip lifetime tests prove a
+  tooltip cannot time out while its source or tooltip remains hovered.
+- Fresh preferences and the global reset action select 90% GUI and font scales.
+
+2026-10-21 — Registered before implementation from direct macOS testing; Windows/Linux acceptance remains separately owned.
