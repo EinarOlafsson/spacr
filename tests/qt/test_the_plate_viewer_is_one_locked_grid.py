@@ -48,6 +48,29 @@ NARROW, WIDE = 700, 1400
 
 
 @pytest.fixture
+def _geometry_at_design_scale(qapp):
+    """Keep saved and active zoom local to raw-pixel geometry checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
+@pytest.fixture
 def picker(qtbot, qt_theme_applied):
     widget = PlateMapPicker(layout=96)
     qtbot.addWidget(widget)
@@ -145,7 +168,7 @@ class TestTheLabelsAreLockedToTheWells:
 
         assert not adrift, f"letters off their rows at {width} px: {adrift}"
 
-    def test_a_label_stays_one_cell_from_the_plate_at_any_width(self, picker):
+    def test_a_label_stays_one_cell_from_the_plate_at_any_width(self, _geometry_at_design_scale, picker):
         """The failure this is aimed at: the labels keep their register with
         the wells while being pushed a window's width away from them, which
         is three things near each other rather than one grid."""
@@ -161,7 +184,7 @@ class TestTheLabelsAreLockedToTheWells:
         _sized(picker, WIDE)
         assert gap() == step
 
-    def test_the_numbers_stay_one_cell_above_the_plate_too(self, picker):
+    def test_the_numbers_stay_one_cell_above_the_plate_too(self, _geometry_at_design_scale, picker):
         step = WELL_SIDE + picker._grid.verticalSpacing()
 
         def gap():
@@ -174,7 +197,7 @@ class TestTheLabelsAreLockedToTheWells:
         _sized(picker, WIDE)
         assert gap() == step
 
-    def test_no_well_moves_relative_to_any_other(self, picker):
+    def test_no_well_moves_relative_to_any_other(self, _geometry_at_design_scale, picker):
         """700 px of extra window must not put one pixel between two
         wells."""
         def step():
@@ -224,7 +247,7 @@ class TestTheLabelsAreLockedToTheWells:
 
         assert not clipped, f"headers wider than their cell: {clipped}"
 
-    def test_the_lock_survives_a_layout_change(self, picker):
+    def test_the_lock_survives_a_layout_change(self, _geometry_at_design_scale, picker):
         """A rebuilt grid keeps no stretch from the one before it, or the
         spare space is left sitting in the middle of the new plate."""
         picker.ask_for_layout(1536)
@@ -255,7 +278,7 @@ class TestAWellIsASquare:
         assert not oblong, f"rectangles at {width} px: {oblong}"
 
     @pytest.mark.parametrize("width", [NARROW, WIDE])
-    def test_a_well_is_the_same_square_at_either_size(self, picker, width):
+    def test_a_well_is_the_same_square_at_either_size(self, _geometry_at_design_scale, picker, width):
         """The grid takes the space it needs and leaves the rest, rather
         than dividing whatever it is given."""
         _sized(picker, width)
@@ -264,7 +287,7 @@ class TestAWellIsASquare:
         assert (well.width(), well.height()) == (WELL_SIDE, WELL_SIDE)
 
     @pytest.mark.parametrize("layout", [6, 96, 1536])
-    def test_every_layout_is_squares(self, qtbot, qt_theme_applied, layout):
+    def test_every_layout_is_squares(self, _geometry_at_design_scale, qtbot, qt_theme_applied, layout):
         widget = PlateMapPicker(layout=layout)
         qtbot.addWidget(widget)
         widget.resize(WIDE, 900)
@@ -274,7 +297,7 @@ class TestAWellIsASquare:
         assert all(well.width() == well.height() == WELL_SIDE
                    for well in widget._wells.values())
 
-    def test_a_blanket_button_rule_cannot_stretch_the_plate(self, qtbot,
+    def test_a_blanket_button_rule_cannot_stretch_the_plate(self, _geometry_at_design_scale, qtbot,
                                                             qapp):
         """Where the 22 x 40 well came from, and why the square is stated in
         each cell's OWN sheet rather than through ``setFixedSize``.
@@ -307,7 +330,7 @@ class TestAWellIsASquare:
             qapp.setStyleSheet(was)
 
     def test_the_plate_can_be_scrolled_to_when_it_outgrows_the_window(
-            self, qtbot, qt_theme_applied):
+            self, _geometry_at_design_scale, qtbot, qt_theme_applied):
         """Keeping the square costs width, and the wells that no longer fit
         have to be reachable rather than squeezed."""
         widget = PlateMapPicker(layout=1536)

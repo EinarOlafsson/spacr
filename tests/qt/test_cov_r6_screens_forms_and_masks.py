@@ -68,7 +68,29 @@ def _pixels(qimg):
 
 
 @pytest.fixture
-def canvas(qtbot, qt_theme_applied):
+def _unit_pixel_scale(monkeypatch, _restore_font_scale):
+    """Measure this file's literal pixels at an explicit unit scale."""
+    from spacr.qt import gui_scale, preferences
+
+    store = preferences._settings()
+    keys = (preferences._KEY_FONT_SCALE, preferences._KEY_GUI_SCALE)
+    saved = [(key, store.contains(key), store.value(key, None)) for key in keys]
+    preferences.set_font_scale(1.0)
+    preferences.set_gui_scale(1.0)
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            yield
+        finally:
+            for key, present, value in saved:
+                if present:
+                    store.setValue(key, value)
+                else:
+                    store.remove(key)
+
+
+@pytest.fixture
+def canvas(_unit_pixel_scale, qtbot, qt_theme_applied):
     """A canvas at a known size over a black field, so marks show up."""
     widget = _MaskCanvas()
     qtbot.addWidget(widget)

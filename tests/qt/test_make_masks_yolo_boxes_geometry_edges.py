@@ -9,6 +9,29 @@ from PySide6.QtGui import QImage, QMouseEvent
 from spacr.qt.screens.make_masks import MODE_BOX, MODE_BRUSH, _MaskCanvas
 
 
+@pytest.fixture
+def _geometry_at_design_scale(qapp):
+    """Keep saved and active zoom local to raw-pixel geometry checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
 def _event(kind, point, *, button=Qt.LeftButton, buttons=Qt.LeftButton,
            modifiers=Qt.NoModifier):
     """Deliver a local-position mouse event without relying on screen scale."""
@@ -52,7 +75,7 @@ def _pixel(canvas, x, y):
 
 
 @pytest.fixture
-def canvas(qtbot, qt_theme_applied):
+def canvas(_geometry_at_design_scale, qtbot, qt_theme_applied):
     """Own a 64-pixel field letterboxed inside a wider Qt canvas."""
     widget = _MaskCanvas()
     qtbot.addWidget(widget)

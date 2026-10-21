@@ -7,7 +7,7 @@ pytest.importorskip("PySide6")
 from PySide6.QtCore import QSettings, Qt
 from PySide6.QtWidgets import QApplication, QLabel
 
-from spacr.qt import preferences, theme
+from spacr.qt import gui_scale, preferences, theme
 from spacr.qt.widgets import home
 
 
@@ -65,7 +65,7 @@ def test_system_refresh_keeps_selected_text_size(qtbot, qapp, tmp_path,
                         for key, value in scaled.items()}
             assert actual == expected
             assert store.value("prefs/home_aside_text", type=float) == percent / 100
-            assert page._aside.width() >= page._aside.minimumWidth()
+            assert page._aside.width() >= gui_scale._actual_minimum_size(page._aside).width()
         page._homeAsideTextSlider.setValue(100)
         _settle()
         qtbot.mouseClick(page._system._refresh, Qt.LeftButton)

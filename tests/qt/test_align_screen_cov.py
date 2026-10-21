@@ -53,6 +53,28 @@ def _texture(height, width, seed=0, sigma=1.5):
     return (smooth * 30000 + 1000).astype(np.uint16)
 
 
+@pytest.fixture
+def _unit_pixel_scale(monkeypatch, _restore_font_scale):
+    """Measure this file's literal pixels at an explicit unit scale."""
+    from spacr.qt import gui_scale, preferences
+
+    store = preferences._settings()
+    keys = (preferences._KEY_FONT_SCALE, preferences._KEY_GUI_SCALE)
+    saved = [(key, store.contains(key), store.value(key, None)) for key in keys]
+    preferences.set_font_scale(1.0)
+    preferences.set_gui_scale(1.0)
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            yield
+        finally:
+            for key, present, value in saved:
+                if present:
+                    store.setValue(key, value)
+                else:
+                    store.remove(key)
+
+
 @pytest.fixture(scope="module")
 def tile_folder(tmp_path_factory):
     """A real 2x2 grid of 128x128 tiles stepped 100 px."""
@@ -157,7 +179,7 @@ def collect_job_finished(screen):
 # ---------------------------------------------------------------------------
 
 def test_the_layout_paints_a_registered_tile_in_the_accent_colour(
-        screen, tile_folder):
+        _unit_pixel_scale, screen, tile_folder):
     """The drawn pixels, not just the rectangles, are asserted."""
     _configure(screen, tile_folder)
     assert screen.build_plan() is True
@@ -260,7 +282,8 @@ def test_a_canvas_with_no_area_draws_nothing_instead_of_dividing_by_zero(
     assert _near(_colour_at(image, QPoint(6, 6)), _panel_colour())
 
 
-def test_tiny_tiles_are_drawn_without_a_label(qtbot, qt_theme_applied):
+def test_tiny_tiles_are_drawn_without_a_label(
+        _unit_pixel_scale, qtbot, qt_theme_applied):
     """Below 26x14 px the field number is skipped rather than clipped."""
     tiles = [align_mod.Tile(path=f"t{k}.npy", index=k, plate="p", well="B07",
                             field=k + 1, shape=(10, 10, 1))
