@@ -4087,7 +4087,7 @@ API_ENTRIES = (
     ('spacr.qt.ai.issue_report.open_issue_in_browser', "Open ``url`` in the user's default browser."),
     ('spacr.qt.ai.issue_report.public_report', 'The report as it is sent when nobody reviews it first.'),
     ('spacr.qt.ai.issue_report.redact_identity', 'Replace eligible local login and host name matches with placeholders.'),
-    ('spacr.qt.ai.issue_report.redact_secrets', 'Strip anything that looks like an API key / access token.'),
+    ('spacr.qt.ai.issue_report.redact_secrets', 'Replace substrings matched by the supported credential patterns.'),
     ('spacr.qt.ai.issue_report.sanitize_path', 'Apply literal home-string replacement and pattern-based redaction.'),
     ('spacr.qt.ai.issue_report.sanitize_settings', 'Return a shallow settings copy with selected strings sanitized.'),
     ('spacr.qt.ai.issue_report.sanitize_traceback', 'Sanitise a full traceback string via :func:`sanitize_path`.'),

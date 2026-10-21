@@ -75,15 +75,20 @@ _SECRET_KEY_RE = re.compile(
 
 
 def redact_secrets(s: str) -> str:
-    """Strip anything that looks like an API key / access token.
+    """Replace substrings matched by the supported credential patterns.
 
-    The issue body is posted to a PUBLIC GitHub repo, so a token that
-    survived into a traceback, a settings value or a log line would be
-    leaked to the world (and, for GitHub PATs, instantly revoked).
+    Apply the case-sensitive vendor patterns in ``_TOKEN_PATTERNS``, then the
+    case-insensitive ``_BEARER_RE`` and ``_ASSIGN_RE`` patterns. Vendor patterns use
+    fixed prefixes, character sets and minimum lengths. The Bearer pattern requires at
+    least ``8`` token characters, and the assignment pattern at least ``6`` value
+    characters. Bearer replacement preserves the matched scheme and whitespace;
+    assignment replacement preserves its prefix and quote delimiter. Unrecognized or
+    too-short text can remain. This function does not post reports, check credentials
+    with a service or revoke tokens.
 
     :param s: arbitrary text.
-    :returns: the same text with credential-shaped substrings replaced
-        by :data:`REDACTED`.
+    :returns: The input after the supported pattern substitutions, with matched
+        credential text replaced by :data:`REDACTED`.
     """
     if not s:
         return s
