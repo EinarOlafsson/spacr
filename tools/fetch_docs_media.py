@@ -157,19 +157,38 @@ def fetch(group: str = "deck", root: Path = ROOT) -> Dict[str, Path]:
 
 
 def check(group: str = "deck", root: Path = ROOT) -> Iterable[str]:
-    """Name every pinned file that is missing or differs in the tree.
+    """Check raw pins and the deck's verified release-title projection.
 
     :param group: the pin group.
     :param root: the repository root.
     :returns: the problems found.
     """
-    spec = _group(load_pin(root / "docs" / "media_revision.json"), group)
+    import tempfile
+
+    pin = root / "docs" / "media_revision.json"
+    spec = _group(load_pin(pin), group)
+    shown = _deck_version(root) if group == "deck" else None
+    projected_pdf = (shown and spec.get("version") and shown != spec["version"])
     for tree_path, record in spec["files"].items():
         target = root / tree_path
         if not target.is_file():
             yield f"{tree_path}: not fetched"
-        elif sha256(target) != record["sha256"]:
-            yield f"{tree_path}: differs from the pin"
+            continue
+        expected = record["sha256"]
+        provenance = "the pin"
+        if projected_pdf and tree_path == "docs/source/_static/deck/spacr_deck.pdf":
+            with tempfile.TemporaryDirectory(prefix="spacr-deck-check-") as directory:
+                pdf = Path(directory) / "spacr_deck.pdf"
+                shutil.copyfile(media_path(tree_path, group, pin), pdf)
+                if sha256(pdf) != record["sha256"]:
+                    raise RuntimeError(f"{tree_path}: cached source differs from the pin")
+                if not _restamp_pdf(root, pdf):
+                    yield f"{tree_path}: could not verify the release-title projection"
+                    continue
+                expected = sha256(pdf)
+                provenance = f"the verified {shown} deck projection"
+        if sha256(target) != expected:
+            yield f"{tree_path}: differs from {provenance}"
 
 
 def publish(group: str = "deck", root: Path = ROOT, message: Optional[str] = None) -> Optional[str]:

@@ -93,7 +93,119 @@ def test_fetch_restamps_the_title_page_after_a_version_bump(tmp_path, monkeypatc
     assert pdf.read_bytes() != hosted.read_bytes()
     after = PdfReader(pdf)
     assert len(after.pages) == 2 and after.pages[0].images
-    assert list(media.check("deck", root)) == [f"{DECK}/spacr_deck.pdf: differs from the pin"]
+    before = pdf.read_bytes()
+    assert list(media.check("deck", root)) == []
+    assert pdf.read_bytes() == before
+
+
+def test_projected_pdf_bytes_are_deterministic_despite_pillow_timestamps(tmp_path):
+    import os
+    import sys
+
+    root, hosted, _media = _fake_root(tmp_path, "1.0", "1.1")
+    first, second = tmp_path / "first.pdf", tmp_path / "second.pdf"
+    shutil.copyfile(hosted, first)
+    shutil.copyfile(hosted, second)
+    script = """
+import importlib.util
+import sys
+import time
+from pathlib import Path
+import PIL.PdfImagePlugin
+clock = time.gmtime
+PIL.PdfImagePlugin.time.gmtime = lambda *args: clock(int(sys.argv[4]))
+spec = importlib.util.spec_from_file_location('projection_media', sys.argv[1])
+media = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(media)
+assert media._restamp_pdf(Path(sys.argv[2]), Path(sys.argv[3]))
+"""
+    for target, timestamp, seed in ((first, "0", "1"), (second, "1700000000", "2")):
+        result = subprocess.run([
+            sys.executable, "-c", script, str(ROOT / "tools/fetch_docs_media.py"),
+            str(root), str(target), timestamp], capture_output=True, text=True,
+            env=dict(os.environ, PYTHONHASHSEED=seed), timeout=30)
+        assert result.returncode == 0, result.stdout + result.stderr
+    assert first.read_bytes() == second.read_bytes()
+
+
+@pytest.mark.parametrize("damage", ["raw", "title", "missing", "extra",
+                                    "remaining", "bytes", "source-title"])
+def test_projected_check_rejects_damage_and_stale_pages_without_repairing_them(
+        tmp_path, monkeypatch, damage):
+    import io
+    from PIL import Image
+    from pypdf import PdfReader, PdfWriter
+
+    root, hosted, media = _fake_root(tmp_path, "1.0", "1.1")
+    original = hosted.read_bytes()
+    pin = root / "docs/media_revision.json"
+    original_pin = pin.read_bytes()
+    monkeypatch.setattr(media, "media_path", lambda *args, **kwargs: hosted)
+    media.fetch("deck", root)
+    pdf = root / DECK / "spacr_deck.pdf"
+    if damage == "raw":
+        pdf.write_bytes(original)
+    elif damage == "title":
+        assert _tool("build_readme_deck").replace_first_page(
+            pdf, Image.new("RGB", (320, 180), "blue"))
+    elif damage == "bytes":
+        pdf.write_bytes(pdf.read_bytes() + b"\nunexpected trailing content")
+    elif damage == "source-title":
+        Image.new("RGB", (320, 180), "blue").save(root / DECK / "slides/slide_01.jpg")
+    else:
+        reader = PdfReader(io.BytesIO(pdf.read_bytes()))
+        writer = PdfWriter()
+        writer.add_page(reader.pages[0])
+        if damage == "remaining":
+            writer.add_blank_page(319, 180)
+        elif damage == "extra":
+            writer.add_page(reader.pages[1])
+            writer.add_blank_page(320, 180)
+        with pdf.open("wb") as handle:
+            writer.write(handle)
+    damaged = pdf.read_bytes()
+    assert list(media.check("deck", root)) == [
+        f"{DECK}/spacr_deck.pdf: differs from the verified 1.1 deck projection"]
+    assert pdf.read_bytes() == damaged
+    assert hosted.read_bytes() == original
+    assert pin.read_bytes() == original_pin
+
+
+def test_projected_check_still_verifies_the_raw_cached_source(tmp_path, monkeypatch):
+    import huggingface_hub
+
+    root, hosted, media = _fake_root(tmp_path, "1.0", "1.1")
+    monkeypatch.setattr(huggingface_hub, "hf_hub_download",
+                        lambda *args, **kwargs: str(hosted))
+    media.fetch("deck", root)
+    hosted.write_bytes(hosted.read_bytes() + b"tampered raw cache")
+    with pytest.raises(RuntimeError, match="does not match the pin"):
+        list(media.check("deck", root))
+
+
+def test_projection_verification_cannot_fall_back_when_the_renderer_is_unavailable(
+        tmp_path, monkeypatch):
+    root, hosted, media = _fake_root(tmp_path, "1.0", "1.1")
+    monkeypatch.setattr(media, "media_path", lambda *args, **kwargs: hosted)
+    media.fetch("deck", root)
+    monkeypatch.setattr(media, "_restamp_pdf", lambda *args: False)
+    assert list(media.check("deck", root)) == [
+        f"{DECK}/spacr_deck.pdf: could not verify the release-title projection"]
+
+
+def test_other_media_groups_keep_exact_raw_pin_semantics(tmp_path, monkeypatch):
+    root, hosted, media = _fake_root(tmp_path, "1.0", "1.1")
+    pin = root / "docs/media_revision.json"
+    data = json.loads(pin.read_text())
+    data["groups"]["other"] = data["groups"].pop("deck")
+    pin.write_text(json.dumps(data))
+    monkeypatch.setattr(media, "media_path", lambda *args, **kwargs: hosted)
+    media.fetch("other", root)
+    pdf = root / DECK / "spacr_deck.pdf"
+    assert pdf.read_bytes() == hosted.read_bytes()
+    assert list(media.check("other", root)) == []
+    assert media._restamp_pdf(root, pdf)
+    assert list(media.check("other", root)) == [f"{DECK}/spacr_deck.pdf: differs from the pin"]
 
 
 def test_check_names_a_missing_file(tmp_path):
