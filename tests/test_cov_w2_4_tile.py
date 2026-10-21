@@ -15,11 +15,41 @@ Three groups, each of which is a thing a user sees go wrong when it breaks:
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
+
+import pytest
 
 from PySide6.QtCore import QEvent, QPointF, QSize, Qt
 from PySide6.QtGui import QEnterEvent, QIcon, QPixmap
 
 from spacr.qt.widgets.tile import HTile, Tile, _TileButton
+
+
+@contextmanager
+def _at_design_scale():
+    """Measure designed geometry without inheriting or leaking saved zoom."""
+    from spacr.qt import preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    try:
+        preferences.set_font_scale(1.0)
+        preferences.set_gui_scale(1.0)
+        yield
+    finally:
+        for key in keys:
+            if key in previous:
+                settings.setValue(key, previous[key])
+            else:
+                settings.remove(key)
+
+
+@pytest.fixture(autouse=True)
+def _geometry_at_design_scale(qapp):
+    with _at_design_scale():
+        yield
 
 
 def _icon(colour=Qt.red, side=32):
@@ -31,6 +61,21 @@ def _icon(colour=Qt.red, side=32):
 # ---------------------------------------------------------------------------
 # _TileButton
 # ---------------------------------------------------------------------------
+
+def test_design_scale_isolates_and_restores_saved_zoom(qtbot):
+    from spacr.qt import preferences
+
+    preferences.set_font_scale(0.7)
+    preferences.set_gui_scale(1.2)
+    with _at_design_scale():
+        assert preferences.get_font_scale() == 1.0
+        assert preferences.get_gui_scale() == 1.0
+        button = _TileButton(64)
+        qtbot.addWidget(button)
+        assert button.iconSize() == QSize(64, 64)
+    assert preferences.get_font_scale() == 0.7
+    assert preferences.get_gui_scale() == 1.2
+
 
 def test_the_animated_property_drives_the_icon_size(qtbot):
     button = _TileButton(64)

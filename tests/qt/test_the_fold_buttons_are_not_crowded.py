@@ -8,6 +8,8 @@ that raises the button edge and forgets the gap fails.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -22,6 +24,33 @@ WAS_BUTTON_PX, WAS_ICON_PX, WAS_GAP_PX = 34, 20, 6
 #: A narrow window. A masthead also carries a title and the Live and AI
 #: buttons, so the strip may not take the whole width at this size.
 NARROW_PX = 900
+
+
+@contextmanager
+def _at_design_scale():
+    """Measure designed geometry without inheriting or leaking saved zoom."""
+    from spacr.qt import preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    try:
+        preferences.set_font_scale(1.0)
+        preferences.set_gui_scale(1.0)
+        yield
+    finally:
+        for key in keys:
+            if key in previous:
+                settings.setValue(key, previous[key])
+            else:
+                settings.remove(key)
+
+
+@pytest.fixture(autouse=True)
+def _geometry_at_design_scale(qapp):
+    with _at_design_scale():
+        yield
 
 
 def _strip(count):
