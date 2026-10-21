@@ -430,13 +430,14 @@ def fingerprint_of(traceback_text: str) -> str:
 
 def log_tail(n_lines: int = LOG_TAIL_LINES,
               log_path: Optional[Path] = None) -> str:
-    """Return the last ``n_lines`` of ``~/.spacr/logs/spacr.log`` (or
-    a custom path), sanitized.
+    """Read selected lines from the supplied or configured log file.
 
-    :param n_lines: how many trailing lines to include.
+    :param n_lines: Number of trailing lines; zero selects all lines, and ``-k`` skips
+        the first ``k`` lines.
     :param log_path: override for the log file path.
-    :returns: sanitised last-N-lines block or ``""`` if the file is
-        absent or unreadable.
+    :returns: Selected lines processed by :func:`sanitize_path`, or ``""`` if resolving
+        the configured path or reading the file fails. The entire file is read as UTF-8
+        with invalid bytes replaced before selecting lines.
     """
     if log_path is None:
         try:

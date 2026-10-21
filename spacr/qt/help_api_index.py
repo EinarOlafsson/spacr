@@ -4083,7 +4083,7 @@ API_ENTRIES = (
     ('spacr.qt.ai.issue_report.fingerprint_of', 'The fingerprint :func:`build_report` gives this traceback.'),
     ('spacr.qt.ai.issue_report.issue_url', 'Build the ``https://github.com/<repo>/issues/new?…`` URL.'),
     ('spacr.qt.ai.issue_report.log_bundle_dir', "Where a report's log copy is written."),
-    ('spacr.qt.ai.issue_report.log_tail', 'Return the last ``n_lines`` of ``~/.spacr/logs/spacr.log`` (or a custom path), sanitized.'),
+    ('spacr.qt.ai.issue_report.log_tail', 'Read selected lines from the supplied or configured log file.'),
     ('spacr.qt.ai.issue_report.open_issue_in_browser', "Open ``url`` in the user's default browser."),
     ('spacr.qt.ai.issue_report.public_report', 'The report as it is sent when nobody reviews it first.'),
     ('spacr.qt.ai.issue_report.redact_identity', "Replace this computer's login and host names with placeholders."),
