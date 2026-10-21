@@ -1819,6 +1819,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in timelapse_arrivals} == timelapse_arrivals
     assert not timelapse_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **timelapse_arrivals}
+    thumbnail_close_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "thumbnail_popup_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
+    assert set(thumbnail_close_arrivals) == {
+        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
+    }
+    assert {key: docs[key] for key in thumbnail_close_arrivals} == thumbnail_close_arrivals
+    assert not thumbnail_close_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **thumbnail_close_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]

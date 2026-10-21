@@ -3582,17 +3582,30 @@ class OrganizeForMeasureDialog(QDialog):
             self._thumb_requested.pop(old, None)
         self.table.viewport().update()
 
+    def closeEvent(self, event) -> None:
+        """Request thumbnail shutdown when the popup closes, including while hidden."""
+        self._stop_thumbs()
+        super().closeEvent(event)
+
     def _stop_thumbs(self) -> None:
-        """Stop polling and end thumbnail threads before destroying the popup."""
+        """Stop polling, request thumbnail cancellation, and drain or park unfinished workers."""
+        if self._thumb_closed:
+            return
+        from ..bridge import drain_thread
+
         self._thumb_closed = True
         self._thumb_poll.stop()
         self._thumb_kick.stop()
         self._sort_token += 1
         self._sort_jobs.shutdown()
-        for worker in self._thumb_workers:
-            if worker.isRunning():
-                worker.stop()
-                worker.wait(5000)
+        for worker in list(self._thumb_workers):
+            try:
+                if worker.isRunning():
+                    worker.stop()
+                    worker.setParent(None)
+                    drain_thread(worker, timeout_ms=5000)
+            except RuntimeError:
+                pass
 
     def _refresh_table(self) -> None:
         """Fill the table from the rows, empty cells flagged.

@@ -1771,9 +1771,9 @@ def ensure_rendered(theme: SoundTheme, names: Iterable[str],
     """Make sure each named sound exists on disk, rendering what is missing.
 
     A file already in the theme's folder is trusted: the folder name is the
-    fingerprint of everything that decides its contents. Folders left by an
-    earlier fingerprint of the same theme are removed once the current one
-    is in use.
+    fingerprint of everything that decides its contents. When this call
+    renders at least one missing sound, it attempts to remove folders left
+    by earlier fingerprints of the same theme.
 
     :param theme: the sound set.
     :param names: stems from :func:`sound_names`.
@@ -1781,7 +1781,9 @@ def ensure_rendered(theme: SoundTheme, names: Iterable[str],
     :param sr: sample rate.
     :param should_stop: polled between sounds; returning True abandons the
         rest, so a render can be cancelled at the next file boundary.
-    :returns: stem -> path, for every file that exists afterwards.
+    :returns: stem -> path for requested sounds processed before cancellation
+        stops the loop, including files already cached and sounds rendered
+        by this call.
     """
     folder = theme_cache_dir(theme, root, sr)
     ready: Dict[str, Path] = {}
