@@ -506,7 +506,9 @@ _SPECS = {
     _CELLPOSE3: _BackendSpec(
         name=_CELLPOSE3, label="Cellpose 3", module="cellpose",
         probe=("cellpose.models",), distribution="cellpose",
-        requirements=("cellpose==3.1.1.3", "packaging"),
+        requirements=("cellpose==3.1.1.3", "packaging",
+                      "numba<0.63; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+                      "numpy<2; sys_platform == 'darwin' and platform_machine == 'x86_64'"),
         torch=("torch",), python=((3, 9), (3, 12)),
         licence="BSD-3-Clause",
         licence_note=(
@@ -1562,9 +1564,16 @@ def _stale_requirements(name, record=None, root=None):
     if not isinstance(listed, list):
         return []
     have = {_requirement_name(item) for item in listed}
-    return [item for item in (spec.requirements + spec.built_here
-                              + spec.without_dependencies)
-            if _requirement_name(item) not in have]
+    missing = []
+    for item in spec.requirements + spec.built_here + spec.without_dependencies:
+        if ";" in item:
+            from packaging.requirements import Requirement
+            marker = Requirement(item).marker
+            if marker is not None and not marker.evaluate():
+                continue
+        if _requirement_name(item) not in have:
+            missing.append(item)
+    return missing
 
 
 #: ``name -> interpreters`` found for it, once per process.

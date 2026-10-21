@@ -63,6 +63,22 @@ range, network/package/weight access and sufficient disk space are required.
 If unavailable, keep the real not-installable reason; do not change pins,
 claim support by construction or modify spaCR's own environment to force it.
 
+Current Mac-specific dependency repair (2026-10-21): a real isolated Cellpose3
+install on Intel macOS selected Numba0.68/llvmlite0.50 source distributions and
+failed on missing OpenMP/LLVM. Upstream Numba0.62 release notes identify0.62.x
+as the last Intel-Mac binary series. The Mac session owns a platform-marked
+Numba compatibility bound for this isolated Cellpose3 dependency only, retaining
+Cellpose3.1.1.3 and all other platform/model/scientific acceptance. Do not install
+a system compiler/LLVM toolchain or change spaCR's environment to force a build.
+Verify the marked plan and retry the actual isolated installer, self-test and
+tiny CPU production-adapter inference; retain any subsequent distinct failure.
+The bounded Numba retry installed0.62.1/llvmlite0.45.1 and passed import
+self-test, but real CPU adapter inference failed with "Numpy is not available"
+after Torch2.2.2 reported its NumPy1.x/_ARRAY_API incompatibility with installed
+NumPy2.0.2. Add the separately justified Intel-Mac-only NumPy<2 compatibility
+bound, then require actual production reinstall/self-test/inference rather than
+accepting the earlier successful import as runtime proof.
+
 1. Open the real Model Zoo/backend installation control for Cellpose 3,
    DINOCell and SAMCell. Confirm the installed/installable/not-installable
    state and reason before each attempt. Inspect the displayed dependency plan
@@ -445,3 +461,4 @@ VERIFIED 2026-10-04: 5 referenced test files pass on nightly 85c3e41c2 (CPU, off
 
 2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
 No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.
+2026-10-21 — Intel macOS26.6.1/Python3.12.15 on9ee263b9c0 plus the scoped dependency repair: real isolated Cellpose3.1.1.3 install/self-test and production CPU adapter inference PASS after Darwin+x86_64-only numba<0.63 and numpy<2 bounds. Actual torch2.2.2/NumPy1.26.4/Numba0.62.1/llvmlite0.45.1; cached nuclei weights yield64×64 uint16 labels0/1/2 and remain unchanged, with no weight download or main-environment package changes. Twelve final effective-plan/old-record checks pass, with earlier install/self-test checks retained; inactive bounds do not affect other platforms. Model Zoo GUI install/cancel/uninstall and the other Mac backends remain unverified; Linux acceptance and held scientific scorecards are unchanged.
