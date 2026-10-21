@@ -29,12 +29,18 @@ SECONDS = 10
 
 
 @pytest.fixture
-def clock(monkeypatch):
+def clock(monkeypatch, tmp_path):
     """A clock the test moves by hand, and a fresh store and memory."""
     now = [1000.0]
     monkeypatch.setattr(prefs, "_store_clock", lambda: now[0])
     monkeypatch.setattr(prefs, "_STORE", threading.local())
     monkeypatch.setattr(prefs, "_REMEMBERED", {})
+    path = str(tmp_path / "paint-preferences.ini")
+    store = QSettings(path, QSettings.IniFormat)
+    store.setValue("test/file-backed-store", True)
+    store.sync()
+    monkeypatch.setattr(prefs, "_store_args",
+                        lambda org, app: (path, QSettings.IniFormat))
     return now
 
 
@@ -112,8 +118,6 @@ def test_safe_mode_is_not_answered_from_memory(clock, monkeypatch):
     assert prefs.get_reduce_motion() is False
 
 
-@pytest.mark.skipif(not sys.platform.startswith("linux"),
-                    reason="the native store is an INI file only on Linux")
 def test_another_process_write_is_seen_within_a_second(clock):
     prefs.set_reduce_motion(False)
     prefs._settings().sync()
