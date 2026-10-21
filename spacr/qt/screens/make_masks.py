@@ -12512,8 +12512,8 @@ class _VolumeStage(QWidget):
         if state is not None:
             x0, x1, y0, y1 = state.rect
             rows, columns = state.picked.shape
-            column = int((x - x0) / max(x1 - x0, 1e-9) * columns)
-            row = int((y1 - y) / max(y1 - y0, 1e-9) * rows)
+            column = int(np.floor((x - x0) / max(x1 - x0, 1e-9) * columns))
+            row = int(np.floor((y1 - y) / max(y1 - y0, 1e-9) * rows))
             if 0 <= row < rows and 0 <= column < columns:
                 label = int(state.picked[row, column])
         if not label:

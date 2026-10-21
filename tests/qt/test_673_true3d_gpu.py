@@ -37,6 +37,23 @@ from .test_673_napari_true3d import _settle, _spheres, _wait_render, screen, vie
 __all__ = ["screen", "view"]
 
 
+@pytest.mark.parametrize(('x', 'y', 'expected'), [
+    (9.999, 35, 0), (15, 40.001, 0), (9.999, 40.001, 0),
+    (30.001, 35, 0), (15, 19.999, 0),
+    (10.001, 39.999, 7), (29.999, 20.001, 10),
+    (10, 35, 7), (15, 40, 7), (30, 35, 0), (15, 20, 0),
+])
+def test_volume_picking_respects_the_rendered_pixel_grid(x, y, expected):
+    from types import SimpleNamespace
+
+    stage = SimpleNamespace(
+        _render_state=SimpleNamespace(
+            rect=(10, 30, 20, 40), picked=np.array([[7, 8], [9, 10]])),
+        _labels=SimpleNamespace(findData=lambda label: -1),
+        _say=lambda message: None)
+    assert mm._VolumeStage.pick_at(stage, x, y) == expected
+
+
 def _gl_context():
     """An offscreen OpenGL context for the GPU renderer, or skip the test.
 
