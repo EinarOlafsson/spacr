@@ -1,0 +1,45 @@
+SOFTWARE JOURNAL REVIEW PREPARATION AND APPROVAL-GATED CLEANUP PROPOSALS
+
+Status:    IN PROGRESS — approved P2/P3 migrations and P6 R1/R2 implementation
+Requested: maintainer, 2026-10-20 (P2/P3/P4/P6/P7 approvals)
+Owner:     Codex feature_takeover migrations/item/index; root peer and P6 R1/R2
+Related:   N112 editorial correctness; N710 repository slimming; N714 agent-document home
+
+REQUIREMENTS
+Prepare exact tracked-file lists and destinations for historical session records,
+editable translation reviews and remaining bulky non-tutorial assets. Reuse existing
+HF pins/migrations, preserve runtime/offline translations and scientific provenance.
+The maintainer subsequently approved the exact P2/P3 migration lists and P6 R1/R2
+changes recorded below. Execute only those scopes; nine conditional P2 proposals,
+fifteen historical translation inputs and all other proposed changes remain in
+place. No history rewrite, force push or journal submission is authorized.
+
+Review code organization, duplication, interfaces, error handling and test quality;
+produce source-bound findings and individually approvable refactors without moving
+or reorganizing code. Preserve existing behavior and accepted scientific results.
+
+Prepare reviewer-readiness checklists and submission-material drafts for BMC
+Bioinformatics Software article and JOSS from their current official requirements.
+Use actual project metadata, published artifacts and test results; mark missing
+scientific evidence, authorship approval and native acceptance rather than inventing
+claims. Keep required journal AI-use disclosures accurate and preserve development
+AI-use provenance in the maintainer's local untracked log. No submission/publication
+is authorized. Work-owned tutorials remain excluded.
+
+ACCEPTANCE
+Deliver the exact candidate file lists, proposed destinations/reasons and concrete
+code-review findings with separate approval boundaries. Provide journal-specific
+checklists and drafts with cited requirements, reproducible example/install steps,
+license/citation metadata and explicit missing inputs. Obtain maintainer decisions
+before any unapproved migration/refactor or submission. Approved P2/P3 require
+byte-preserving external publication, pinned consumer/bootstrap integration and
+focused validation; P6 retains all assertions and technical behavior. P1 and editorial work are
+implemented in their existing owning items rather than duplicated here.
+
+2026-10-20 — Registered approved preparation and approval boundaries before work; root owns the finite deliverables and journal-source verification.
+
+2026-10-20 — Maintainer approves P2 exact25 dated records into PRIVATE spacr-development-archive; retain nine conditional proposals. P3 exact6472 production review sources/companions may migrate to public spacr-translations with immutable pins/build bootstrap; retain15 historical inputs.
+2026-10-20 — Maintainer approves P6R1 explicit catalog-reading fixtures/isolated mutation outputs and P6R2 comment-only historical narration cleanup, preserving all assertions/baselines/technical rationale and private removed-text log; root implements, feature_takeover owns migration integration.
+
+2026-10-20 — Maintainer approved execution: P2 exact25 dated records move to PRIVATE EinarOlafsson/spacr-development-archive; nine conditional proposals stay. P3 exact6472 production review sources/companions move to PUBLIC EinarOlafsson/spacr-translations with immutable pins and normal local/build/CI bootstrap; fifteen historical inputs stay. feature_takeover owns migrations and this item/index; root peers/integrates and owns approved P6 R1/R2 changes. Acceptance requires byte/history preservation, working references/private archive index, preserved translations/embedded retirements/HF API pin, focused consumer checks, generation and verified publication. P4/P7 drafts remain preparation-only; no scientific/assets/Work tutorial moves or history rewrite.
+2026-10-20 — P2 archive published PRIVATE at caeda2d25fbffe70f9b88ba9d688cc8d65ed6468; remote readback preserves all25 bytes and original history assertions pass3 privately. Normal current review report now labels reviewed API blocks per100public symbols without bogus remainder;9locale/37adjacent/12index public checks pass, with one pre-existing report-only COVERAGE incompatibility retained. Nine proposals/15historical inputs stay; P3/public pin and final N715 publication remain.

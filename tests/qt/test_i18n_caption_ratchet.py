@@ -116,7 +116,7 @@ COMPACT_CAPTION_SHA256 = (
 # is: it covered Icelandic, Swedish and German, the three locales the
 # maintainer reads.  The other six are still machine-drafted and technically
 # reviewed.  The README says exactly that, and the coverage is recorded in
-# docs/i18n/REVIEW_SCOPE_2026-09-04.md.
+# docs/i18n/REVIEW_SCOPE.md.
 #
 # The counts follow the catalogs, never the reverse.  UI and MODULE_SUMMARIES
 # are the manifest catching up with canonical; SETTING_LABELS and

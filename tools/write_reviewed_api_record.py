@@ -11,8 +11,8 @@ There are two ways out and only one of them is honest. Rewriting the English
 until a model can follow it degrades the page every English reader sees, and
 moves the source hash so the other eight languages go stale on that symbol
 too. Writing the translation by hand fixes ONE locale, leaves the English
-alone, and needs no rebuild. `REVIEW_SCOPE_2026-09-04.md` records the
-precedent: `spacr.ops_accel#4` in Portuguese and the `ops_gpu` tooltip in
+alone, and needs no rebuild. The private archive index at
+`spacr/resources/AI/archive-index.md` retains the historical review precedent: `spacr.ops_accel#4` in Portuguese and the `ops_gpu` tooltip in
 Simplified Chinese.
 
 The record has to be exactly right or the builder refuses it, and the two

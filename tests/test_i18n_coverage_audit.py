@@ -134,7 +134,7 @@ def live_review_scope():
     import build_i18n_catalogs as runtime_builder
 
     docs = api_builder.public_docstrings()
-    report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE_2026-09-04.md").read_text(
+    report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE.md").read_text(
         encoding="utf-8",
     )
     sources = runtime_builder.canonical_sources()
@@ -216,9 +216,10 @@ def test_written_review_scope_matches_current_source_bound_evidence(
         f"| {display} | {runtime_count:,} | "
         f"{runtime_count / runtime_total:.2%} | "
         f"{runtime_total - runtime_count:,} | "
-        f"{api_count:,} | {api_count / api_total:.2%} | "
-        f"{api_total - api_count:,} |"
+        f"{api_count:,} | {api_total:,} | "
+        f"{100 * api_count / api_total:.2f} |"
     )
+    assert "Public API symbols | Reviewed blocks per 100 symbols" in report
     assert row in report, (language, row)
 
     # Checked on normalized whitespace: both sentences wrap in the file, and a
@@ -227,7 +228,7 @@ def test_written_review_scope_matches_current_source_bound_evidence(
     flowed = " ".join(report.split())
     assert (
         "this is an evidence report and not a certificate that every sentence "
-        "was read by a fluent speaker" in flowed
+        "was read by a fluent speaker" in flowed.casefold()
     )
     # PIN THE DISTINCTION, NOT THE STATE OF IT. This asserted the literal
     # "Mechanical source coverage is NOT complete" until 2026-09-10, when
@@ -246,29 +247,3 @@ def test_written_review_scope_matches_current_source_bound_evidence(
         "Mechanical coverage means every source has A translation. It does "
         "not mean a speaker of the language has read it" in flowed
     )
-
-
-def test_superseded_review_scope_is_kept_unedited_as_history():
-    """The 08-30 report is history and may be superseded but never rewritten.
-
-    Its numbers stopped describing the tree the moment the tree moved, which is
-    exactly why the live assertions above were lifted off it.  What it must
-    keep doing is saying what was true ON ITS OWN DATE, so the claims made at
-    the 2026-08-30 gate remain auditable.
-    """
-    report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE_2026-08-30.md").read_text(
-        encoding="utf-8",
-    )
-    assert "84 x 9 = 756 reviewed source/target pairs" in report
-    assert "not a certificate that every sentence was read" in report
-    assert (
-        "exhaustive frontend coverage, not exhaustive semantic review"
-        in report
-    )
-    assert "2,516 required parameters" in report
-    assert "1,818 public callables" in report
-    assert (
-        "16358cdf4cae5c8fe5a27303d2b7e1f1de8349c205c519b91f65f2fbc5384fcf"
-        in report
-    )
-    assert "must not be closed" in report

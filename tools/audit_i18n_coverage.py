@@ -198,11 +198,11 @@ def main() -> int:
             "Repeated sources are deduplicated by those loaders. These are "
             "source-bound technical review counts, not native-speaker approval "
             "or fully reviewed API pages. The historical API block-count/symbol-count "
-            "ratio is retained for comparison; it is not the percentage of "
-            "complete pages reviewed.",
+            "ratio is expressed as reviewed blocks per 100 public API symbols. "
+            "It is not a percentage of complete pages reviewed.",
             "",
             f"| Language | Reviewed runtime records | Of {runtime_total:,} | "
-            f"Remainder | Reviewed API blocks | Of {api_total:,} | Remainder |",
+            "Remainder | Reviewed API blocks | Public API symbols | Reviewed blocks per 100 symbols |",
             "|---|---:|---:|---:|---:|---:|---:|",
         ]
         for language in LANGUAGES:
@@ -212,20 +212,19 @@ def main() -> int:
                 f"| {DISPLAY[language]} | {runtime_count:,} | "
                 f"{runtime_count / runtime_total:.2%} | "
                 f"{runtime_total - runtime_count:,} | {api_count:,} | "
-                f"{api_count / api_total:.2%} | {api_total - api_count:,} |"
+                f"{api_total:,} | {100 * api_count / api_total:.2f} |"
             )
-        path = ROOT / "docs" / "i18n" / "REVIEW_SCOPE_2026-09-04.md"
-        original = path.read_text(encoding="utf-8")
-        before, marker, previous = original.partition("## Reviewed evidence, per locale\n")
-        if not marker:
-            raise ValueError(f"missing reviewed-evidence section: {path}")
-        old_section, historical_marker, history = previous.partition("*Re-measured ")
-        if not historical_marker or "| Language |" not in old_section:
-            raise ValueError(f"missing reviewed-evidence history: {path}")
-        before = before.replace("**Current checkpoint — 2026-09-27:**",
-                                "**Historical checkpoint — 2026-09-27:**")
-        path.write_text(before + "\n".join(lines) + "\n\n" + historical_marker + history,
-                        encoding="utf-8")
+        path = ROOT / "docs" / "i18n" / "REVIEW_SCOPE.md"
+        introduction = (
+            "# Current localization review scope\n\n"
+            "This is an evidence report and not a certificate that every sentence "
+            "was read by a fluent speaker.\n\n"
+            "Mechanical coverage means every source has A translation. It does "
+            "not mean a speaker of the language has read it.\n\n"
+            "Historical dated reports are retained in the private development "
+            "archive linked from spacr/resources/AI/archive-index.md.\n\n"
+        )
+        path.write_text(introduction + "\n".join(lines) + "\n", encoding="utf-8")
         print(path)
     report = build_report()
     if args.write:

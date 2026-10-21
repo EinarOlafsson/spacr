@@ -208,3 +208,9 @@ Coordination checklist:
 
 2026-10-20 — Phase 4 purge list spares the 73 kept features/data files, the in-git deck, tools/readme_deck/images and the 38 live Notebooks/; maintainer accepted clone <= 1.0 GiB and tree <= 700 MB; mirror re-measure on 7fc574ee9d: 987 MiB pack, 695 MB tree. Waits for the tutorial lane to move 311 MB of tutorial media (prerequisites above), then the maintainer's go.
 2026-10-20 — Phase 3 API catalogs: catalogs (181,774,852 bytes) leave git; memory pinned at spacr-tutorials 958fe3e95328 (after 678 batch 5); --assemble in docs.yml and the api_catalogs test fixture; README checkout size 958 MB. Remaining: WS tutorial media, phase 4 on the maintainer's go.
+
+2026-10-20 — Maintainer approved P1 operational-agent documents into spacr/resources/AI, with root discovery pointers and distribution exclusions; N714 owns that implementation.
+2026-10-20 — P2/P3/P4 approve exact archive/translation/asset migration proposals only; do not move or upload those candidates before per-list approval. Phase4history rewriting also remains held for explicit approval.
+2026-10-20 — N715 prepares reviewer materials for BMC Bioinformatics Software article/JOSS and concrete migration/refactor proposals; native tutorials remain Work-owned and excluded.
+
+2026-10-20 — Maintainer now approves exact25 dated records to PRIVATE EinarOlafsson/spacr-development-archive and exact6472 production translation review sources/companions to PUBLIC EinarOlafsson/spacr-translations with immutable pins/bootstrap. N715 owns implementation; nine conditional proposals and15 historical translation inputs stay. No source-history rewrite, scientific/assets moves or Work tutorial ownership change; P4 recommends keeping all22 remaining asset candidates in place.
