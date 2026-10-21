@@ -137,3 +137,40 @@ def test_model_panel_uses_home_tile_transparency(diagram):
     color = diagram.artwork.panel_color()
     assert color.getRgb()[:3] == (0, 0, 0)
     assert color.alpha() == round(255 * panel_alpha(resolve_effective_theme(), 'tile', get_pane_opacity()))
+
+
+@pytest.mark.parametrize("gui_scale", [0.75, 0.9, 1.25])
+def test_caption_measurement_is_applied_once_at_each_gui_scale(
+        qtbot, qt_theme_applied, gui_scale):
+    from spacr.qt import gui_scale as scaling, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    scaling.install_scaling_layer()
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(scaling, "_SCALE", gui_scale)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(gui_scale)
+            root = Path(__file__).resolve().parents[2]
+            diagram = OrganismDiagram(
+                "toxoplasma", root / "spacr/resources/images/organism_apicomplexa.svg")
+            qtbot.addWidget(diagram)
+            diagram.resize(360, 850)
+            diagram.show()
+            qtbot.waitUntil(lambda: diagram._layout_width == diagram.width())
+            measured_row, measured = diagram._reserved_heights(diagram.width())
+            assert diagram._model_row.height() == measured_row
+            assert diagram.caption.height() == measured
+            for code in ("", *dict.fromkeys(diagram.labels.values()), ""):
+                diagram.artwork.hovered.emit(code)
+                assert diagram.caption.height() == measured
+                assert diagram.caption.heightForWidth(diagram.caption.width()) <= measured
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
