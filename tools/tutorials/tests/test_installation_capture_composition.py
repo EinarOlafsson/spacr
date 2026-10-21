@@ -54,3 +54,24 @@ def test_invalid_role_or_source_is_rejected_before_writing(tmp_path, failure):
     output = tmp_path / 'result'
     with pytest.raises(ValueError): compose(lesson, plan, output)
     assert not output.exists()
+
+
+def test_current_ui_keeps_feature_narration_and_requires_verified_clip(tmp_path):
+    source, lesson, plan = fixture(tmp_path)
+    video = source / 'clip.mp4'
+    video.write_bytes(b'fixture-only-video')
+    video_sha = hashlib.sha256(video.read_bytes()).hexdigest()
+    receipt = source / 'clip.capture.json'
+    receipt.write_text(json.dumps({'sha256': video_sha, 'full_decode_passed': True,
+                                  'audio_streams': 0, 'size': [3840, 2160]}))
+    frames = json.loads((source / 'frames.json').read_text())
+    frames['original']['clip'] = {'video': video.name, 'sha256': video_sha,
+        'receipt': receipt.name, 'receipt_sha256': hashlib.sha256(receipt.read_bytes()).hexdigest()}
+    (source / 'frames.json').write_text(json.dumps(frames))
+    plan['scenes']['current']['kind'] = 'current_nightly'
+    output = tmp_path / 'result'
+    compose(lesson, plan, output)
+    assert (output / 'current.mp4').read_bytes() == video.read_bytes()
+    assert lesson['scenes'][0]['narration'] == 'Published package output.'
+    proof = json.loads((output / 'provenance.json').read_text())
+    assert proof['frame_origins']['current']['kind'] == 'current_nightly'

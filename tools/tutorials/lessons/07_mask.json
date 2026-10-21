@@ -71,7 +71,7 @@
     },
     {
       "visual": "run_20_batch_settings",
-      "narration": "For a quick first run, this recording points Source at centred crops of two example fields; with your own data, turn on Test mode and choose a few test images instead. Keep Plot on, check the per-object diameters and flow thresholds, keep Save on under Quality Control, then click Run.",
+      "narration": "For a quick first run, use centred crops of two example fields as Source. With your own data, turn on Test mode and choose a few test images. Keep Plot on, check the per-object diameters and flow thresholds, keep Save on under Quality Control, then click Run.",
       "hold_after": 0.7
     },
     {

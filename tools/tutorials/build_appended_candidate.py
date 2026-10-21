@@ -431,7 +431,7 @@ def selected_visual_timing(stage, identity, baseline, retained_ids):
 
 def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(),
           host_web=False, migrate_web=(), retain_narration=(), retain_visual_timing=(), withdraw=(), candidate_root=None,
-          hardlink_preserved=False):
+          hardlink_preserved=False, idle_tail_policy=None):
     """Create a new private candidate; never upload or modify the published tree.
 
     ``withdraw`` unlists published lessons: they leave every catalog, the
@@ -594,6 +594,9 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     if link_lessons:
         js_catalog = synchronize_links({'lessons_en.json': js_catalog}, link_lessons)['lessons_en.json']
     js_catalog = mark_hosted_web(js_catalog, [*(identities if host_web else ()), *migrate_web])
+    from idle_tail_policy import bind_policy, load_policy
+    js_catalog['lessons'] = bind_policy(load_policy(REPO, idle_tail_policy), records, js_catalog['lessons'],
+                                       lambda path: read(root / path))
     nav = navigation(catalogs['lessons_en.json'])
     for lesson in lessons:
         host = lesson.get('host_app_key')
@@ -679,6 +682,8 @@ if __name__ == '__main__':
                         help='Move a preserved lesson\'s verified web copy onto the media host')
     parser.add_argument('--refresh-links', action='append', default=[],
                         help='Update only chapter destinations; require unchanged prose and preserve media')
+    parser.add_argument('--idle-tail-policy', type=Path,
+                        help='Explicit source-bound idle-tail policy (default: canonical idle_tail_policy.json)')
     parser.add_argument('--withdraw', action='append', default=[],
                         help='Unlist a published lesson from the catalogs, player and candidate media')
     args = parser.parse_args()
@@ -687,4 +692,4 @@ if __name__ == '__main__':
           host_web=args.host_web, migrate_web=args.migrate_web, retain_narration=args.retain_narration,
           retain_visual_timing=args.retain_visual_timing,
           withdraw=args.withdraw, candidate_root=args.candidate_root,
-          hardlink_preserved=args.hardlink_preserved_media)
+          hardlink_preserved=args.hardlink_preserved_media, idle_tail_policy=args.idle_tail_policy)

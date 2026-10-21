@@ -17,7 +17,8 @@ def cards():
         ('00_install_routes', 'Install spaCR: choose one route', [
             ('Python virtual environment', 'Python 3.12 → .venv → pip install spacr'),
             ('Conda environment with the PyPI package', 'Conda → spacr-pip → pip install spacr'),
-            ('Conda environment with the conda-forge package', 'Conda → spacr-conda → conda-forge')],
+            ('Conda environment with the conda-forge package', 'Conda → spacr-conda → conda-forge'),
+            ('Docker container for command-line pipelines', 'Docker → versioned image → mounted data')],
          'Choose one route. Conda-forge packages cannot be installed into a Python virtual environment.'),
         ('pip_03_install', 'Install with pip in the active environment', [
             ('Upgrade pip first', 'pip install --upgrade pip'),
@@ -26,7 +27,7 @@ def cards():
         ('pip_04_check', 'Verify the installed pip package', [
             ('Print the version and package path', 'python -c "import spacr; print(spacr.__version__); print(spacr.__file__)"'),
             ('Check installed dependency requirements', 'python -m pip check')],
-         'Keep the installed version with your analysis notes. A nightly source checkout may have newer interface features.'),
+         'Keep the installed version and package path with your analysis notes.'),
         ('pip_06_update', 'Update a pip installation', [
             ('Close spaCR and activate its environment', 'pip install --upgrade spacr'),
             ('Check dependencies after the update', 'python -m pip check')],
@@ -53,11 +54,11 @@ def cards():
         ('conda_01_create', 'Install from conda-forge in a new Conda environment', [
             ('Solve Python and spaCR together', 'conda create -n spacr-conda -c conda-forge python=3.12 spacr'),
             ('Use a different name if this environment already exists', 'Review Conda’s package plan before accepting it')],
-         'This is a Conda environment, not .venv. The channel release can differ from PyPI and nightly.'),
+         'Review the package plan, then activate the Conda environment before launching spaCR.'),
         ('conda_02_plan', 'Review the conda-forge package plan', [
             ('Conda lists the selected package versions and downloads', 'Review the plan, then accept Conda’s own prompt'),
             ('Wait for download and installation completion', 'A solved plan alone is not a completed installation')],
-         'Instruction reference, not a reconstructed package plan or terminal output.'),
+         'Review the listed packages and downloads before confirming the installation.'),
         ('conda_03_activate', 'Activate and check the conda-forge installation', [
             ('Activate the environment you created', 'conda activate spacr-conda'),
             ('Check the installed version and channel', 'conda list spacr'),
@@ -106,14 +107,16 @@ def main():
     spec.loader.exec_module(style)
     prepared = []
     for name, title, rows, note in selected:
-        image, draw = style.canvas(title, 'Command reference — not recorded terminal output')
+        image, draw = style.canvas(title, 'Installation and environment commands')
         draw.rounded_rectangle(style.box((150, 190, 1770, 925)), radius=style.scaled(19),
                                fill=style.PANEL, outline=style.PANEL_LINE, width=2)
         for index, (label, command) in enumerate(rows):
             if (draw.textlength(command, font=style.COMMAND) > style.scaled(1500)
                     or draw.textlength(label, font=style.SMALL) > style.scaled(1500)):
                 raise ValueError(f'Instruction would be clipped: {name}')
-            top = 235 + index * 168
+            top = 235 + index * (136 if len(rows) > 3 else 168)
+            if top + 53 + style.COMMAND.size / style.SCALE > 805:
+                raise ValueError(f'Instruction would overlap the note: {name}')
             style.draw_text(draw, (200, top), label, style.SMALL, style.MUTED)
             style.draw_text(draw, (200, top + 53), command, style.COMMAND, style.TEXT)
         if draw.textlength(note, font=style.SMALL) > style.scaled(1430):

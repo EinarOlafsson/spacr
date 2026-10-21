@@ -1,13 +1,14 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
+  "english_sha256": "9a5903f6420c4973ec878cb4f830c334588a936a0170f19a8d932573ed8381b8",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "ja",
   "title": "Mask：画像をセグメンテーションして結果を確認する",
@@ -18,6 +19,7 @@
     "セグメンテーションを実行し、その図を確認して、統合された出力を見つける。"
   ],
   "prerequisite": "Maskを開き、Load test dataを選びます。自分の画像では、ファイル名が一貫していてチャネルがわかっている元フォルダーを用意します。この例では、核のチャネル0、細胞のチャネル1、病原体のチャネル2に加え、追加の強度チャネル3を使います。",
+  "section": "Core",
   "scenes": [
     "HomeからMaskを開きます。このモジュールでは、顕微鏡画像の細胞、核、病原体の輪郭を取ります。この手順では二次元の画像を処理します。Time、三次元、OPSのワークフローには、それぞれ専用のチュートリアルがあります。",
     "画像が複数のフォルダーに散らばっている場合や、Maskが読めない名前になっている場合は、Input & Metadataの上部にあるOrganize imagesをクリックします。各チャネルに列を割り当て、フォルダーをドロップするか正規表現で指定し、各行が一つの完全な視野になっていることを確認します。Applyは画像をYokogawa形式の名前で一つのフォルダーに移動し、Sourceをそこに設定します。チャネルはすでに入力されています。",
@@ -29,7 +31,7 @@
     "プレビューが終わったら、輪郭を画像と比べます。見落とされたオブジェクトや、隣り合うオブジェクトが一つにつながっていないかを確認します。ステータス行に見つかったオブジェクトの数が表示されます。",
     "最小面積のフィルターを使うと、指定したピクセル数より小さい物体を隠せます。値を上げると、小さなラベルがプレビューから消えます。このフィルターは既存のマスクの結果を更新するので、サイズの下限をすばやく比べられます。",
     "最小面積をゼロに戻すと、すべてのオブジェクトが戻ります。モデルが誤ったスケールでオブジェクトを分けたりつなげたりする場合は、Diameterを変えてプレビューを再実行し、数だけでなく境界も確認します。バッチ実行の前に、使いたい設定に戻しておきます。",
-    "手早く最初の実行を行うため、この録画ではSourceを二つの例のフィールドの中央を切り出した画像に向けています。自分のデータでは、代わりにTest modeをオンにしてテスト画像をいくつか選びます。Plotはオンのままにし、オブジェクトごとの直径とフローしきい値を確認し、Quality ControlのSaveをオンのままにしてから、Runをクリックします。",
+    "最初に短い実行を試すには、例の二つの視野の中央を切り出した画像をSourceに指定します。自分のデータでは、Test modeをオンにしてテスト画像をいくつか選びます。Plotはオンのままにし、オブジェクトごとの直径とフローしきい値を確認し、Quality ControlのSaveをオンのままにしてから、Runをクリックします。",
     "実行が終わると、図の一覧にプロットが並びます。最後の図では、核、細胞、病原体それぞれの輪郭がそのチャネル上に描かれ、右側には統合したオブジェクトが表示されます。各図で、小さなオブジェクト、接している細胞、見落とされた領域を確認します。",
     "ほかの図には、各チャネルと、モデルが生成したマスクとフローの配列が表示されます。実行するとmergedフォルダーに画像の強度と最終的なオブジェクトのラベルが書き出され、配列の横にプレーン配置のメタデータが置かれるので、Measureは各チャネルとマスクを識別できます。入力、設定、マスク、品質レポートをまとめて保管し、Measureに進んでオブジェクトの特徴と切り出し画像を抽出します。"
   ]

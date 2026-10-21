@@ -3,16 +3,15 @@
 
 Captions always retain the official spellings ``spaCR`` and ``PyPI``. TTS
 engines receive reviewed spoken forms instead. The English ``spaCR`` form
-follows the user's reference recording ("spacer"). English ``PyPI`` is the
-single syllable "pype", with the vowel and final consonant of "pipe". It is
-never ``PyPy``, ``pypie``, a sequence of letters, or two paused syllables.
+follows the user's reference recording ("spacer"). English ``PyPI`` says
+"pie pee eye", including the final I requested in the 2026-10-21 review.
 """
 from __future__ import annotations
 
 import re
 
 
-PRONUNCIATION_VERSION = "2026-10-08-live-tv-v12"
+PRONUNCIATION_VERSION = "2026-10-21-pypi-yokogawa-v13"
 
 
 BRAND_SPEECH = {
@@ -35,7 +34,7 @@ BRAND_SPEECH = {
 }
 
 PYPI_SPEECH = {
-    "en": "[pype](/pˈIp/)",
+    "en": "[pie pee eye](/pˌI pˌi ˈI/)",
     "es": "paip",
     "fr": "païpe",
     "hi": "पाइप",
@@ -81,7 +80,7 @@ _PYPI_ALIAS_SEPARATOR = rf"{_PYPI_ALIAS_SEPARATOR_CHAR}+"
 _REJECTED_PYPI_ALIAS = re.compile(
     # "pie pee" / "pie-pee" / "pypee" / "piepee" are the 2026-08 two-syllable
     # spelling that 27 retired lesson 01 voices carried (item 447).
-    rf"(?<!\w)(?:(?:pypi|pypie|pypee|piepee)|"
+    rf"(?<!\w)(?:(?:pypi|pypie|pype|pypee|piepee)|"
     rf"(?:pie|pai|paj|pæ|paï){_PYPI_ALIAS_SEPARATOR}p"
     rf"(?:{_PYPI_ALIAS_SEPARATOR_CHAR}*(?:ee|[ieí]))?|"
     rf"p{_PYPI_ALIAS_SEPARATOR}y{_PYPI_ALIAS_SEPARATOR}p"
@@ -275,7 +274,7 @@ def spoken_form(
             (r"\bUltrack\b", "ull track"),
             (r"\bHeLa\b", "hee lah"),
             (r"\bsiRNA\b", "sigh R N A"),
-            (r"\bYokogawa\b", "yoh koh gah wah"),
+            (r"\bYokogawa\b", "[Yokogawa](/jˌOkOɡˈɑwə/)"),
             (r"\bOOF\b", "O O F"),
             (r"\bCPSAM\b", "C P sam"),
             (r"\bGrad[- ]CAM\b", "grad cam"),
@@ -374,11 +373,14 @@ def assert_pronunciation_safe(display_text: str, speech_text: str) -> None:
         if exact_count != display_count:
             raise ValueError(
                 "Every displayed PyPI occurrence must use exactly one "
-                "reviewed, single-syllable pype spoken form"
+                "reviewed spoken form"
             )
-        if _REJECTED_PYPI_ALIAS.search(speech_text):
+        unreviewed = speech_text
+        for form in set(_APPROVED_PYPI_FORMS):
+            unreviewed = unreviewed.replace(form, "")
+        if _REJECTED_PYPI_ALIAS.search(unreviewed):
             raise ValueError(
                 "PyPI narration must not contain PyPy, pypie, literal PyPI, "
                 "or a "
-                "split, paused, hyphenated, or letter-by-letter alias"
+                "unreviewed alias in addition to its approved spoken form"
             )

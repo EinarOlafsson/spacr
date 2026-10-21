@@ -1,98 +1,28 @@
 {
   "lesson": "05_home",
-  "english_sha256": "a168511c74295aa129bbf56b9d2dba08075be182498cf3633a0b392c6515e5c3",
+  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised Animation scene from the current English source",
-    "reviewer": "claude-opus-5.5",
-    "date": "2026-10-10",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Scene 33 revised: Field ripples is now a strength slider (zero turns ripples and automatic popup waves off) with a separate Click ripples switch (N684 controls, spacr/qt/preferences.py). Other scenes and metadata retained verbatim. UI labels stay in English as shown in the recording.",
-    "revised_scenes": [
-      33
-    ],
-    "previous_english_sha256": "89546d10a2a3a01f87c2541a2426da2250a870c22f40312fd15ec8df775c8852",
-    "previous_review_sha256": "80ce71a245a9247ec30eed424f92b527615595f0704d4293ed58bc9266145046",
-    "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
-      "reviewer": "claude-opus-5.5",
-      "date": "2026-10-10",
-      "independent_peer_review": false,
-      "native_speaker_signoff": false,
-      "listening_review": false,
-      "scope": "Scenes 5 and 14 (Classify, QC) revised for N678 factual wording; the other 37 scene narrations, title, description, objectives and prerequisite retained verbatim. UI labels stay in English as shown in the recording.",
-      "revised_scenes": [
-        5,
-        14
-      ],
-      "previous_english_sha256": "67da3c4d65eee7091e7d8ba764f507e7ef0378961461df0a968764391afcdb99",
-      "previous_review_sha256": "15d1475e2a53243698e1d5e80c6b1b532ca7ea977b4159966903b792a1aee93c",
-      "previous_review": {
-        "kind": "Technical source-bound editorial review; no native-speaker signoff",
-        "date": "2026-10-08",
-        "translator": "Current English module traversal and shared controls translated; unchanged utility and Preferences paragraphs retained.",
-        "independent_peer_review": false,
-        "native_speaker_signoff": false,
-        "listening_review": false,
-        "scope": "Every current module in left-to-right Home order, generic Mask controls and actual Spaceout effects;14 unchanged utility/Preferences narrations, title and prerequisite retained. UI labels follow actual English-language footage.",
-        "previous_english_sha256": "48f8dd9132a7484c878fb1d003b5e5c9db5c640b726c04c9be56e4b1041bf4ca",
-        "previous_review_sha256": "69ebc24573681cfe6bd37f0cbec8dce5548c57e60179ed231c0637e7b726fb69",
-        "previous_review": {
-          "kind": "Technical source-bound editorial review; no native-speaker signoff",
-          "date": "2026-10-08",
-          "translator": "Current English controls and previous reviewed translation retained; one animation scene revised.",
-          "independent_peer_review": false,
-          "native_speaker_signoff": false,
-          "listening_review": false,
-          "scope": "Only scene18 narration revised for independent settings-window controls and Field ripples;23 scene narrations and all lesson metadata preserved.",
-          "previous_review": {
-            "kind": "AI technical review (Codex), no native-speaker signoff",
-            "translator": "Prior reviewed scene translations retained; Codex translated and technically reviewed the four current Preferences/Apply scenes.",
-            "date": "2026-10-08",
-            "independent_peer_review": false,
-            "native_speaker_signoff": false,
-            "listening_review": false,
-            "scope": "Exactly two revised narrations and two new Apply/Keep scenes; 20 prior narrations and metadata preserved. UI control names follow the actual English-language capture.",
-            "previous_review": {
-              "kind": "AI technical review (Codex), no native-speaker signoff",
-              "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
-              "date": "2026-10-05",
-              "independent_peer_review": false,
-              "native_speaker_signoff": false,
-              "listening_review": false,
-              "scope": "Core, Data and Tools rows follow the visible left-to-right module order; all other scene translations retained.",
-              "previous_review": {
-                "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-                "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-                "date": "2026-09-30",
-                "independent_peer_review": false,
-                "native_speaker_signoff": false,
-                "listening_review": false
-              },
-              "previous_english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac"
-            },
-            "previous_english_sha256": "df01cfbd41c345bfed5ea9e8afa738a1d5dd9ffc534f6157b02218ccb45e3ee2",
-            "previous_review_sha256": "6eaab252c960899d55089735e548e46b1f46e59ddaccdfb7a5ab25f00ad8492b"
-          }
-        }
-      }
-    }
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "hi",
   "title": "Home स्क्रीन और नेविगेशन",
-  "description": "Home के सभी मौजूदा मॉड्यूल बाएँ से दाएँ देखें। फिर Mask से साझा नियंत्रण सीखें और नेविगेशन, सहायता तथा रूप बदलें।",
+  "description": "Home के प्रत्येक मॉड्यूल को बाएँ से दाएँ देखें, फिर Mask से मॉड्यूल के साझा नियंत्रण सीखें और नेविगेशन, सहायता तथा रूप-रंग की सेटिंग्स बदलें।",
   "objectives": [
-    "मौजूदा Core, Data, Tools और Organism पंक्तियों के हर मॉड्यूल की पहचान करना।",
+    "Core, Data, Tools और Organism पंक्तियों के प्रत्येक मॉड्यूल को पहचानें।",
     "Mask से साझा सेटिंग, पूर्वावलोकन, कार्रवाइयों और परिणामों को पहचानना।",
     "Home पर लौटना, खोज का उपयोग करना और पैनल व्यवस्थित करना।",
     "रूप और प्रदर्शन की सेटिंग चुनना।"
   ],
   "prerequisite": "spaCR इंस्टॉल करें और डेस्कटॉप ऐप्लिकेशन खोलें।",
+  "section": "spaCR",
   "scenes": [
-    "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data, Tools और Organism। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।",
+    "Home शुरुआत का स्थान है। प्रत्येक पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data, Tools और Organism। हर टाइल अपने नाम वाला मॉड्यूल खोलती है। साइडबार में भी यही रास्ते हैं और Home इस मुख्य दृश्य पर वापस लाता है।",
     "Mask माइक्रोस्कोपी चित्रों से वस्तुओं के मास्क बनाता है। विश्लेषण मॉड्यूलों के साझा नियंत्रण देखने के लिए इसे बाद में थोड़ी देर खोलेंगे।",
     "Measure चित्रों और मास्क को मिलाकर वस्तुओं के माप और कटे हुए चित्र निकालता है। इसकी माप तालिकाएँ चित्रों को आगे के विश्लेषणों से जोड़ती हैं।",
     "Annotate में वस्तुओं के कटे चित्र देखकर उदाहरणों के लिए जाँचे हुए लेबल दर्ज कर सकते हैं।",
@@ -100,16 +30,16 @@
     "Map Barcodes अनुक्रमण डेटा पढ़कर गाइड या बारकोड की गिनती और पहचान करता है।",
     "Regression प्रयोग के समूहों को बनाए रखते हुए फीनोटाइप स्कोर को गाइड की गिनती से जोड़ता है।",
     "Import आने वाली माइक्रोस्कोपी फ़ाइलों और मेटाडेटा को परियोजना की संरचना के लिए तैयार करता है।",
-    "Embeddings वस्तुओं के कटे चित्रों को खोज और तुलना के लिए संख्यात्मक विशेषताओं में बदलता है।",
+    "Embeddings, वस्तुओं के इमेज क्रॉप को संख्यात्मक विशेषताओं में बदलता है, ताकि उनका अन्वेषण और तुलना की जा सके।",
     "Run Compare सहेजे गए रन के परिणाम एक साथ लाता है ताकि उनके अंतर देख सकें।",
-    "Experiment Design प्रयोग से पहले स्थितियों, वेल और नमूनों की पहचान की व्यवस्था करता है।",
+    "Experiment Design में प्रयोग से पहले स्थितियाँ, वेल और नमूनों की पहचान तय की जाती है।",
     "Power / Design तुलना की योजना बनाते समय नमूना आकार और सांख्यिकीय शक्ति की मान्यताओं को जाँचता है।",
-    "Dose-Response अलग-अलग सांद्रताओं पर प्रतिक्रिया को फिट करता है और चुने हुए मापन तथा नियंत्रणों को स्पष्ट रखता है।",
-    "QC किसी प्रोजेक्ट की सहेजी गई गुणवत्ता रिपोर्टों की सूची दिखाता है और जो रिपोर्ट गायब हैं, उन्हें चिह्नित करता है।",
+    "Dose Response अलग-अलग सांद्रताओं पर प्रतिक्रियाओं को फिट करता है और चुने गए प्रतिक्रिया माप तथा नियंत्रणों को स्पष्ट रखता है।",
+    "QC प्रोजेक्ट की सहेजी गई गुणवत्ता रिपोर्टें सूचीबद्ध करता है और जो रिपोर्टें नहीं हैं उन्हें चिह्नित करता है।",
     "Make Masks में हाथ से मास्क बनाकर उनकी जाँच कर सकते हैं या चित्र-मास्क के जोड़े तैयार कर सकते हैं।",
     "Align & Stitch संगत चित्र टाइलों को जोड़कर उनकी ज्यामिति दर्ज करता है।",
     "Image UMAP वस्तुओं की विशेषताओं का प्रक्षेपण करता है ताकि समान वस्तुएँ खोजकर प्रतिनिधि कटे चित्र देख सकें।",
-    "Gate Editor वास्तविक डेटा कॉलम पर चयन निर्धारित करता है। गेट को लेबल में बदलने से पहले चुनी गई वस्तुओं की जाँच करें।",
+    "Gate Editor वास्तविक डेटा स्तंभों पर चयन निर्धारित करता है। किसी चयन को लेबल में बदलने से पहले चुनी गई वस्तुओं की समीक्षा करें।",
     "Graph Builder माप तालिकाओं से ग्राफ बनाता है, जिनके कॉलम और समूह चुन सकते हैं।",
     "Organism पंक्ति में Toxoplasma है। यह जीव की जानकारी, संवादात्मक चित्र और उपलब्ध Toxoplasma परीक्षणों के रास्ते खोलता है। अलग Toxoplasma ट्यूटोरियल इस पेज को समझाता है।",
     "Mask को विश्लेषण मॉड्यूल के सामान्य उदाहरण के रूप में खोलें। यहाँ स्क्रीन की व्यवस्था सीखते हैं, विभाजन प्रक्रिया पूरी नहीं करते। बाईं तरफ सेटिंग, दाईं तरफ कंसोल और प्रगति, और नीचे क्रियाएँ हैं। इनपुट डेटा होने पर Live मॉड्यूल का पूर्वावलोकन खोलता है।",
@@ -127,9 +57,9 @@
     "मुख्य पृष्ठभूमि और उसका पैलेट चुनने के लिए Animation पर क्लिक करें। Animation colours, Custom colours के मुख्य और सहायक रंग तय करता है; Animation background एक अलग पृष्ठभूमि चुनता है, और Theme colour पृष्ठ के थीम वाले रंग को वापस लाता है। Detail रेंडरिंग का रिज़ॉल्यूशन नियंत्रित करता है। Speed, Size और Density गति और तत्वों की संख्या बदलते हैं। Mouse gravity radius माउस के प्रभाव की सीमा तय करता है; शून्य इसे बंद करता है। Dot blinking सफेद चमक नियंत्रित करता है। Field ripples क्लिक करने, कंटेनर खोलने या बंद करने, पॉपअप और विंडो को स्क्रीन के किनारे जमाने से बनने वाली तरंगों की तीव्रता तय करता है, जो माउस के आकर्षण से स्वतंत्र है; शून्य पर तरंगें बंद हो जाती हैं, पॉपअप की स्वचालित तरंगें भी। Click ripples तय करता है कि पृष्ठभूमि पर क्लिक करने से तरंग निकले या नहीं। Popup wave frequency तय करता है कि खुले पॉपअप से spaCR field में प्रति मिनट कितनी तरंगें फैलें। Settings animation speed, Settings animation size, Settings animation detail और Settings animation density केवल Settings backdrop को बदलते हैं। Settings backdrop darkness फ़ॉर्म के पाठ की पठनीयता नियंत्रित करता है।",
     "Preferences खुला रखते हुए अपने बदलावों का पूर्वावलोकन करने के लिए Apply पर क्लिक करें। एक अलग प्रश्न लागू सेटिंग्स के लिए Keep या Revert चुनने को कहता है। Revert पिछली सेटिंग्स वापस लाता है; आपके संपादित नियंत्रण उपलब्ध रहते हैं ताकि आप उन्हें बदल सकें या फिर से लागू कर सकें।",
     "Keep लागू सेटिंग्स स्वीकार करता है और Preferences खुला रखता है। किसी दूसरे टैब में बदलाव करते रहें, या जब आप मौजूदा मान रखना और विंडो बंद करना चाहें तो Save पर क्लिक करें।",
-    "Modules टैब पर Session तय करता है कि शुरू होने पर spaCR आखिरी मॉड्यूल, सेटिंग और फ़ोल्डर फिर से खोले या नहीं; यह रिकॉर्डिंग नए सिरे से शुरू होती है। Update channel स्थिर रिलीज़ या रात्रि बिल्ड चुनता है, और Proxy तथा Certificate bundle से संस्थागत प्रॉक्सी के पीछे भी डाउनलोड काम करते हैं।",
+    "Modules टैब में Session तय करता है कि शुरू होने पर spaCR पिछला मॉड्यूल, सेटिंग्स और फ़ोल्डर दोबारा खोलेगा या नहीं। Update channel स्थिर रिलीज़ या रात्रि बिल्ड चुनता है, और Proxy तथा Certificate bundle से संस्थागत प्रॉक्सी के पीछे भी डाउनलोड काम करते हैं।",
     "Storage टैब तय करता है कि spaCR अपने दैनिक लॉग, रन लॉग और रन फ़ोल्डर कितने समय तक रखे, और हर एक की आकार सीमा। उसके नीचे कैश सूची दिखाती है कि मॉडल और डाउनलोड कहाँ रखे हैं, हर कैश के लिए Clear और Move के साथ।",
     "Prune now बिना पूछे कभी कुछ नहीं हटाता। रन फ़ोल्डर के लिए एक छोटी उदाहरण सीमा के साथ, यह बताता है कि हर फ़ोल्डर में क्या हटाया जाएगा और जवाब का इंतज़ार करता है। Cancel पर क्लिक करें, तो कुछ नहीं हटता।",
-    "Spaceout मोड में Preferences के spaCR field नियंत्रण आठ स्वतंत्र प्रभावों के लिए हैं। हर प्रभाव अलग से चालू या बंद करें। रूप और सेटिंग विंडो के ऐनिमेशन के सामान्य नियंत्रण उपलब्ध रहते हैं। Apply बदलाव का पूर्वावलोकन दिखाता है, Keep स्वीकार करता है और Revert पिछला चुनाव बहाल करता है।"
+    "Spaceout मोड में, Preferences में आठ स्वतंत्र प्रभावों के लिए spaCR फ़ील्ड नियंत्रण मिलते हैं। हर प्रभाव को अलग-अलग चालू या बंद करें। रूप-रंग और सेटिंग्स विंडो के सामान्य एनीमेशन नियंत्रण उपलब्ध रहते हैं; Apply बदलाव का पूर्वावलोकन दिखाता है, Keep उसे स्वीकार करता है और Revert पिछला विकल्प वापस लाता है।"
   ]
 }

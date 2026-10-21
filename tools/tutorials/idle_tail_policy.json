@@ -1,0 +1,200 @@
+{
+  "schema": 1,
+  "lessons": [
+    {
+      "lesson": "04_platform_installers",
+      "master_sha256": "eb353f10bd81dbcba6f7f76761ccc286de7cc6d1575dc3155a45bec54d486d40",
+      "visual_timing_sha256": "c97206b1ba30afa90784e67d5b127d903c407b165a14b5b77538ad80c45a6a91",
+      "scenes": [
+        {
+          "visual": "08_official_release",
+          "source_start": 0.0,
+          "source_end": 19.733333333333334,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "09_windows_guidance",
+          "source_start": 19.733333333333334,
+          "source_end": 39.0,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "10_macos_guidance",
+          "source_start": 39.0,
+          "source_end": 63.96666666666667,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "11_linux_commands",
+          "source_start": 63.96666666666667,
+          "source_end": 92.0,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "02_installer_backend",
+          "source_start": 92.0,
+          "source_end": 107.8,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "03_installed_versions",
+          "source_start": 107.8,
+          "source_end": 120.2,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "07_privacy_keep_off",
+          "source_start": 120.2,
+          "source_end": 143.1,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "14_current_nightly_performance",
+          "source_start": 143.1,
+          "source_end": 176.33333333333331,
+          "idle_tail_start": 13.0
+        },
+        {
+          "visual": "13_current_nightly_home",
+          "source_start": 176.33333333333331,
+          "source_end": 206.0333333333333,
+          "idle_tail_start": 13.5
+        },
+        {
+          "visual": "05_doctor",
+          "source_start": 206.0333333333333,
+          "source_end": 235.33333333333331,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "12_logs_and_versions",
+          "source_start": 235.33333333333331,
+          "source_end": 260.2,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "15_uninstall_windows",
+          "source_start": 260.2,
+          "source_end": 283.3333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "16_uninstall_macos",
+          "source_start": 283.3333333333333,
+          "source_end": 314.43333333333334,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "17_uninstall_linux",
+          "source_start": 314.43333333333334,
+          "source_end": 341.23333333333335,
+          "idle_tail_start": 0
+        }
+      ]
+    },
+    {
+      "lesson": "07_mask",
+      "master_sha256": "aec77fb857ef93ca34dc1fef5248c830a0ff04a7111dc7d4bd01ab8f06470a3d",
+      "visual_timing_sha256": "8770843ee390cd6b54b76d958ffbc157ccb812c054d2fff1f2c7ec117cd6caef",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 25.2,
+          "idle_tail_start": 10.0
+        },
+        {
+          "visual": "org_organize_popup",
+          "source_start": 25.2,
+          "source_end": 70.16666666666667,
+          "idle_tail_start": 42.6
+        },
+        {
+          "visual": "02_cached_load",
+          "source_start": 70.16666666666667,
+          "source_end": 94.46666666666667,
+          "idle_tail_start": 10.0
+        },
+        {
+          "visual": "03_data_ready",
+          "source_start": 94.46666666666667,
+          "source_end": 120.83333333333334,
+          "idle_tail_start": 13.0
+        },
+        {
+          "visual": "03b_object_table",
+          "source_start": 120.83333333333334,
+          "source_end": 163.13333333333333,
+          "idle_tail_start": 22.6
+        },
+        {
+          "visual": "04_live_image",
+          "source_start": 163.13333333333333,
+          "source_end": 184.0,
+          "idle_tail_start": 18.1
+        },
+        {
+          "visual": "07_preview_result",
+          "source_start": 203.7,
+          "source_end": 226.83333333333331,
+          "idle_tail_start": 14.6
+        },
+        {
+          "visual": "09_filters_after",
+          "source_start": 226.83333333333331,
+          "source_end": 252.79999999999998,
+          "idle_tail_start": 18.6
+        },
+        {
+          "visual": "10_filters_restored",
+          "source_start": 252.79999999999998,
+          "source_end": 281.8333333333333,
+          "idle_tail_start": 16.1
+        },
+        {
+          "visual": "run_23_batch_finished",
+          "source_start": 341.2,
+          "source_end": 371.2,
+          "idle_tail_start": 14.0
+        },
+        {
+          "visual": "run_25_mask_figure_02",
+          "source_start": 371.2,
+          "source_end": 411.4,
+          "idle_tail_start": 18.3
+        }
+      ]
+    },
+    {
+      "lesson": "21_model_compare",
+      "master_sha256": "6ebcad0ce7895197a141c561d432b2fd2a7cf098e14821c8934e4c5125485f50",
+      "visual_timing_sha256": "01febfd12973d5c2c3d87b192837879210e23e139e643c8998a1e797967f6bd2",
+      "scenes": [
+        {
+          "visual": "api_00_inputs",
+          "source_start": 50.06666666666666,
+          "source_end": 73.73333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "source_start": 73.73333333333333,
+          "source_end": 105.4,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "source_start": 105.4,
+          "source_end": 128.6,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "api_03_outputs",
+          "source_start": 128.6,
+          "source_end": 152.86666666666667,
+          "idle_tail_start": 0
+        }
+      ]
+    }
+  ]
+}

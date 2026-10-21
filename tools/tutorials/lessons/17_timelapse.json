@@ -88,7 +88,7 @@
     },
     {
       "visual": "05_setting_timelapse_frame_limits",
-      "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+      "narration": "For a full run on your own images, set Source and the intensity channels in Mask. Here, import the settings of the small synthetic eight-frame example. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
       "hold_after": 0.7,
       "focus": [
         340,

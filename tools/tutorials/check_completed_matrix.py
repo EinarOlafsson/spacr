@@ -82,6 +82,42 @@ def reconcile_browser(report, lesson, language, voice, caption, audio_hash, scen
         raise ValueError('Invalid or unsynchronised browser clocks')
 
 
+def reconcile_english_catalog(translated, english, inventory):
+    """Allow only the normal complete planned-voice declaration as metadata."""
+    compared, authored = dict(translated), dict(english)
+    for item in (compared, authored):
+        if 'narration_voices' in item:
+            declared = item.pop('narration_voices')
+            if not isinstance(declared, dict) or declared != inventory:
+                raise ValueError('English planned voices differ from the normal fifty-voice matrix')
+    if compared != authored:
+        raise ValueError('Staged English differs from the rendered lesson')
+
+
+def reconcile_visual_sources(stage, lesson_id, english):
+    """Keep raw frame checks strict; reuse only a fully bound published master."""
+    stage = Path(stage).resolve()
+    folder = stage / 'production' / lesson_id
+    specification = folder / 'scenes.json'
+    interval_mode = (specification.is_file() and
+        read(specification).get('kind') == 'published_native_intervals')
+    reuse_record = folder / 'published-native-reuse.json'
+    if interval_mode or reuse_record.exists():
+        if not interval_mode or not reuse_record.is_file():
+            raise ValueError('Published-native reuse needs its explicit intervals and source record')
+        from native_live_timing import checked_native_timing
+        timing = read(checked_native_timing(stage, lesson_id))
+        return timing['published_native_reuse']
+    visual = read(folder / 'visual.json')
+    if len(visual['scenes']) != len(english['scenes']):
+        raise ValueError('Visual scene count differs')
+    for scene in visual['scenes']:
+        path = (folder / scene['image']).resolve()
+        if not path.is_relative_to(stage) or digest(path) != scene['capture_sha256']:
+            raise ValueError('The captured image changed or leaves staging')
+    return None
+
+
 def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None, retained_from=None):
     if retained_from is not None and not retained_narration:
         raise ValueError('Use retained-from only with retained-narration')
@@ -110,11 +146,7 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             raise ValueError('Catalog identity or scene count differs')
         translated = matches[0]
         if language == 'en':
-            compared = dict(translated)
-            if retained_narration:
-                compared.pop('narration_voices', None)
-            if compared != english:
-                raise ValueError('Staged English differs from the rendered lesson')
+            reconcile_english_catalog(translated, english, inventory)
         elif not retained_narration:
             review = read(folder / f'review.{language}.json')
             if (review.get('english_sha256') != canonical or review.get('lesson') != lesson_id
@@ -142,13 +174,7 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
         reconcile_browser(read(path), lesson_id, language, voice, caption,
                           hashes[(language, voice)], len(english['scenes']))
         browser.append({'case': tag, 'report_sha256': digest(path)})
-    visual = read(folder / 'visual.json')
-    if len(visual['scenes']) != len(english['scenes']):
-        raise ValueError('Visual scene count differs')
-    for scene in visual['scenes']:
-        path = (folder / scene['image']).resolve()
-        if not path.is_relative_to(stage) or digest(path) != scene['capture_sha256']:
-            raise ValueError('The captured image changed or leaves staging')
+    reuse = reconcile_visual_sources(stage, lesson_id, english)
     master = folder / 'video' / f'{lesson_id}_silent.mp4'
     probe = json.loads(subprocess.check_output([
         'ffprobe', '-v', 'error', '-show_entries',
@@ -159,7 +185,7 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             or [streams[0]['width'], streams[0]['height']] != [3840, 2160]
             or streams[0]['r_frame_rate'] != '30/1'):
         raise ValueError('Expected the single silent 4K/30 master')
-    return {'lesson': lesson_id, 'passed': True, 'canonical_english_sha256': canonical,
+    result = {'lesson': lesson_id, 'passed': True, 'canonical_english_sha256': canonical,
             'scene_count': len(english['scenes']), 'unique_final_tracks': len(tracks),
             'tracks': [{'language': key[0], 'voice': key[1], 'sha256': value}
                        for key, value in sorted(tracks.items())],
@@ -168,6 +194,9 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             'scope': 'Final artifact reconciliation, not a new decode, editorial or listening review',
             'retained_narration': retention,
             'native_speaker_signoff': False, 'human_listening_review': False, 'published': False}
+    if reuse is not None:
+        result['published_native_reuse'] = reuse
+    return result
 
 
 def main(argv=None):

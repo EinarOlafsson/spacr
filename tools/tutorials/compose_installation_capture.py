@@ -53,9 +53,8 @@ def compose(lesson, plan, destination):
         if kind == 'reference_guidance' and not str(original.get('kind', '')).startswith('generated_'):
             raise ValueError('A reference card must retain its explicit generated-guidance identity')
         if kind == 'current_nightly':
-            narrated = [row['narration'] for row in lesson['scenes'] if row['visual'] == visual]
-            if not all('nightly' in text.lower() for text in narrated) or not original.get('clip'):
-                raise ValueError('Current UI needs genuine footage and an explicit nightly qualifier')
+            if not original.get('clip'):
+                raise ValueError('Current UI needs genuine verified footage')
         source_key = str(source)
         if source_key not in inputs:
             inputs[source_key] = {'capture': source_key,

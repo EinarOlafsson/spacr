@@ -52,12 +52,12 @@
     },
     {
       "visual": "14_current_nightly_performance",
-      "narration": "In the current nightly interface, open Preferences and choose Performance. Select a profile for your computer. Laptop uses fewer resources; higher profiles allow more caching and background work. Start with a modest profile if memory is limited.",
+      "narration": "Open Preferences and choose Performance. Select a profile for your computer. Laptop uses fewer resources; higher profiles allow more caching and background work. Start with a modest profile if memory is limited.",
       "hold_after": 0.7
     },
     {
       "visual": "13_current_nightly_home",
-      "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Organism. Continue to Home screen and navigation for the current modules.",
+      "narration": "Home groups the modules into Core, Data, Tools and Organism. Continue to Home screen and navigation to find the module for your next task.",
       "related_lessons": [
         "05_home"
       ],
@@ -65,7 +65,7 @@
     },
     {
       "visual": "05_doctor",
-      "narration": "Run spacr-doctor from the installed runtime if startup or a file format needs attention. In this recorded CPU installation, the backend check passes and the GPU probe is skipped. The warning says the optional CZI reader is missing; install that extra only if you need CZI files.",
+      "narration": "Run spacr-doctor from the installed runtime if startup or a file format needs attention. Check the backend result and whether the GPU probe ran. If the warning identifies a missing optional CZI reader, install that extra only when you need CZI files.",
       "hold_after": 0.7
     },
     {

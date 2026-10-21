@@ -1,13 +1,14 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
+  "english_sha256": "9a5903f6420c4973ec878cb4f830c334588a936a0170f19a8d932573ed8381b8",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "de",
   "title": "Mask: Bilder segmentieren und Ergebnisse prüfen",
@@ -18,6 +19,7 @@
     "Die Segmentierung ausführen, ihre Abbildungen prüfen und die zusammengeführten Ausgaben finden."
   ],
   "prerequisite": "Öffnen Sie Mask und wählen Sie Load test data. Bereiten Sie für eigene Bilder einen Quellordner mit einheitlichen Dateinamen und bekannten Kanälen vor. Dieses Beispiel verwendet Kernkanal 0, Zellkanal 1 und Pathogenkanal 2 sowie einen zusätzlichen Intensitätskanal 3.",
+  "section": "Core",
   "scenes": [
     "Öffnen Sie von Home aus Mask. Mit diesem Modul umranden Sie Zellen, Kerne und Pathogene in Mikroskopbildern. Diese Anleitung verarbeitet zweidimensionale Bilder. Die Workflows für Time, 3D und OPS haben eigene Tutorials.",
     "Wenn Ihre Bilder über mehrere Ordner verteilt sind oder Namen tragen, die Mask nicht lesen kann, klicken Sie oben in Input & Metadata auf Bilder ordnen. Geben Sie jedem Kanal eine Spalte, indem Sie seinen Ordner hineinziehen oder eine Regex verwenden, und prüfen Sie, dass jede Zeile ein vollständiges Bildfeld ist. Apply verschiebt die Bilder in einen Ordner mit Yokogawa-Namen und richtet Source darauf aus, mit bereits eingetragenen Kanälen.",
@@ -29,7 +31,7 @@
     "Wenn die Vorschau fertig ist, vergleichen Sie die Umrisse mit dem Bild. Achten Sie auf übersehene Objekte und auf benachbarte Objekte, die zu einem verschmolzen sind. Die Statuszeile meldet, wie viele Objekte gefunden wurden.",
     "Blenden Sie mit dem Mindestflächenfilter Objekte aus, die kleiner als die gewählte Pixelzahl sind. Ein höherer Wert entfernt kleine Labels aus der Vorschau. Dieser Filter aktualisiert ein vorhandenes Maskenergebnis, sodass Sie Größengrenzen schnell vergleichen können.",
     "Setzen Sie die Mindestfläche wieder auf null, um alle Objekte zurückzuholen. Wenn das Modell Objekte im falschen Maßstab teilt oder verbindet, ändern Sie Diameter und führen Sie die Vorschau erneut aus; prüfen Sie dabei die Grenzen ebenso wie die Anzahl. Stellen Sie vor dem Batch-Lauf die gewünschten Einstellungen wieder her.",
-    "Für einen schnellen ersten Lauf richtet diese Aufnahme Source auf zentrierte Ausschnitte zweier Beispielfelder; bei Ihren eigenen Daten schalten Sie stattdessen Test mode ein und wählen einige Testbilder. Lassen Sie Plot an, prüfen Sie die objektbezogenen Durchmesser und Flow-Schwellen, lassen Sie Save unter Quality Control an und klicken Sie dann auf Run.",
+    "Verwenden Sie für einen schnellen ersten Lauf zentrierte Bildausschnitte zweier Beispiel-Bildfelder als Source. Aktivieren Sie bei eigenen Daten Test mode und wählen Sie einige Testbilder. Lassen Sie Plot an, prüfen Sie die objektbezogenen Durchmesser und Flow-Schwellen, lassen Sie Save unter Quality Control an und klicken Sie dann auf Run.",
     "Wenn der Lauf fertig ist, füllt sich die Abbildungsliste mit seinen Plots. Die letzte Abbildung zeichnet die Umrisse jedes Objekts auf seinem eigenen Kanal, Kerne, Zellen und Pathogene, und rechts die kombinierten Objekte. Prüfen Sie in jeder Abbildung kleine Objekte, sich berührende Zellen und übersehene Bereiche.",
     "Die übrigen Abbildungen zeigen jeden Kanal sowie die Masken- und Flow-Arrays, die das Modell erzeugt hat. Der Lauf schreibt einen merged-Ordner mit den Bildintensitäten und den endgültigen Objektlabels und legt die Metadaten zum Ebenenlayout neben die Arrays, damit Measure jeden Kanal und jede Maske erkennt. Bewahren Sie Eingaben, Einstellungen, Masken und Qualitätsberichte zusammen auf und fahren Sie dann mit Measure fort, um Objektmerkmale und Ausschnitte zu extrahieren."
   ]

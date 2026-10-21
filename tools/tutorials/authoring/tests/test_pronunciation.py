@@ -18,7 +18,7 @@ from pronunciation import (
 
 
 def test_pronunciation_profile_has_a_stable_version() -> None:
-    assert PRONUNCIATION_VERSION == "2026-10-08-live-tv-v12"
+    assert PRONUNCIATION_VERSION == "2026-10-21-pypi-yokogawa-v13"
 
 
 def test_english_hardware_terms_stay_cohesive() -> None:
@@ -42,7 +42,7 @@ def test_spacr_pronunciation_is_unchanged() -> None:
     assert speech == "spacer"
 
 
-def test_pypi_is_one_continuous_word_in_every_language() -> None:
+def test_pypi_has_reviewed_speech_in_every_language() -> None:
     for language in (
             "en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN",
             "de", "sv", "is", "nb", "ko", "da"):
@@ -50,7 +50,7 @@ def test_pypi_is_one_continuous_word_in_every_language() -> None:
         assert PYPI_SPEECH[language] in speech
         assert_pronunciation_safe("Install spaCR from PyPI.", speech)
 
-    assert PYPI_SPEECH["en"] == "[pype](/pˈIp/)"
+    assert PYPI_SPEECH["en"] == "[pie pee eye](/pˌI pˌi ˈI/)"
 
 
 def test_pypi_guard_rejects_hyphenated_and_letter_by_letter_aliases() -> None:
@@ -69,16 +69,16 @@ def test_pypi_guard_rejects_hyphenated_and_letter_by_letter_aliases() -> None:
 def test_pypi_guard_requires_one_exact_token_per_display_occurrence() -> None:
     assert_pronunciation_safe(
         "Install from PyPI, then verify PyPI metadata.",
-        "Install from [pype](/pˈIp/), then verify [pype](/pˈIp/) metadata.",
+        "Install from [pie pee eye](/pˌI pˌi ˈI/), then verify [pie pee eye](/pˌI pˌi ˈI/) metadata.",
     )
     for speech in (
-            "Install from [pype](/pˈIp/) [pype](/pˈIp/) [pype](/pˈIp/).",
-            "Install from [pype](/pˈIp/)."):
+            "Install from [pie pee eye](/pˌI pˌi ˈI/) [pie pee eye](/pˌI pˌi ˈI/) [pie pee eye](/pˌI pˌi ˈI/).",
+            "Install from [pie pee eye](/pˌI pˌi ˈI/)."):
         try:
             assert_pronunciation_safe(
                 "Install from PyPI, then verify PyPI metadata.", speech)
         except ValueError as error:
-            assert "pype" in str(error)
+            assert "PyPI" in str(error)
         else:  # pragma: no cover - guard failure
             raise AssertionError(
                 "PyPI display/speech occurrence mismatch was accepted: "
@@ -86,10 +86,10 @@ def test_pypi_guard_requires_one_exact_token_per_display_occurrence() -> None:
             )
 
 
-def test_pype_token_does_not_join_the_following_word() -> None:
+def test_pypi_token_does_not_join_the_following_word() -> None:
     for speech in (
-            "[pype](/pˈIp/) provides a package",
-            "[pype](/pˈIp/) package"):
+            "[pie pee eye](/pˌI pˌi ˈI/) provides a package",
+            "[pie pee eye](/pˌI pˌi ˈI/) package"):
         assert_pronunciation_safe("PyPI provides a package", speech)
 
 
@@ -110,10 +110,10 @@ def test_pypi_visual_spec_uses_the_exact_spoken_token() -> None:
         except ValueError:
             failures.append(index)
             continue
-    assert not failures, f"visual scenes without exact pype: {failures}"
+    assert not failures, f"visual scenes without exact reviewed PyPI speech: {failures}"
 
 
-def test_every_narrated_catalog_uses_one_exact_pype_per_display_token() -> None:
+def test_every_narrated_catalog_uses_one_exact_alias_per_display_token() -> None:
     root = Path(__file__).resolve().parents[1]
     display = re.compile(r"(?<!\w)PyPI(?!\w)")
     failures = []
@@ -305,3 +305,18 @@ def test_live_tv_pronunciation_in_both_english_dialects():
         assert speech.count("(/lˈIv/)") == 2
         assert display == "Watch the live preview. Live animation continues."
         assert_pronunciation_safe(display, speech)
+
+
+def test_yokogawa_uses_one_phoneme_override_in_both_dialects() -> None:
+    display = "Yokogawa names and Yokogawa-named folders."
+    for dialect in ("us", "uk"):
+        speech = spoken_form(display, "en", dialect=dialect)
+        assert speech == ("[Yokogawa](/jˌOkOɡˈɑwə/) names and "
+                          "[Yokogawa](/jˌOkOɡˈɑwə/)-named folders.")
+    assert display == "Yokogawa names and Yokogawa-named folders."
+
+
+def test_obsolete_pypi_alias_cannot_hide_beside_the_reviewed_alias() -> None:
+    import pytest
+    with pytest.raises(ValueError):
+        assert_pronunciation_safe("PyPI", "[pype](/pˈIp/)")

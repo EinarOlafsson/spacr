@@ -12,6 +12,7 @@ import functools
 import hashlib
 import http.server
 import json
+import math
 import re
 import threading
 import sys
@@ -96,70 +97,107 @@ def check_native_boundary_playback(page, visual, spoken):
 
 
 def check_complete_native_trace(trace, events, visual, spoken, index, final=False):
-    """Check measured wall/video/audio clocks, including the real recorded tail."""
-    scene = visual['scenes'][index]
-    speech = spoken['scenes'][index]
+    """Check actual sound gaps and only the selected voice's planned idle seek."""
+    scene, speech = visual['scenes'][index], spoken['scenes'][index]
     start, end = float(scene['speech_start']), float(scene['scene_end'])
-    audio_end = float(speech['speech_end'])
-    tail_start = start + audio_end - float(speech['speech_start'])
-    if end - tail_start < .8:
-        raise AssertionError('Complete native check needs a measurable narration tail')
-    if len(trace) < 20 or events:
-        raise AssertionError({'insufficient_trace_or_video_interruption': events})
+    audio_start, audio_end = float(speech['speech_start']), float(speech['speech_end'])
+    last_sound = float(speech['sentences'][-1]['audible_end'])
+    following = None if final else spoken['scenes'][index + 1]
+    next_sound = None if final else float(following['sentences'][0]['audible_start'])
+    next_lead = 0 if final else next_sound - float(following['speech_start'])
+    cut_at = start + last_sound - audio_start + 1 - next_lead
+    fence = scene.get('idle_tail_start')
+    planned_cut = (type(fence) in (int, float) and math.isfinite(fence)
+                   and 0 <= fence <= min(audio_end - audio_start, cut_at - start) and cut_at < end)
+    if len(trace) < 20 or last_sound > audio_end or next_lead < 0:
+        raise AssertionError('Insufficient or malformed sound-boundary trace')
+    seeks = [event for event in events if event['type'] == 'seeking']
+    if len(seeks) != int(planned_cut):
+        raise AssertionError({'missing_or_unplanned_seek': events, 'expected_idle_cut': planned_cut})
+    for event in seeks:
+        if abs(event['video'] - end) > .15:
+            raise AssertionError({'idle_seek_wrong_destination': event, 'expected': end})
+    starts = [event for event in events if event['type'] == 'idle-cut']
+    if len(starts) > int(planned_cut) or any(event['audio'] < audio_end for event in starts):
+        raise AssertionError({'unfinished_or_duplicate_idle_transition': starts})
+    # Decoder events are permitted only around the one planned idle transition.
+    # The independently measured sound gap below still rejects a long stall.
+    for event in events:
+        if event['type'] in ('seeking', 'idle-cut'):
+            continue
+        if (event['type'] not in ('pause', 'waiting', 'stalled') or not seeks
+                or 'wall' not in event or abs(event['wall'] - seeks[0].get('wall', -1e9)) > 500):
+            raise AssertionError({'unplanned_video_interruption': event})
     for row in trace:
-        if (row['rate'] != 1 or row['audioRate'] != 1 or row['error']
-                or row['seeking'] or row['correcting']):
-            raise AssertionError({'invalid_complete_native_clock': row})
-        if row['video'] < end - .15 and (row['videoPaused'] or row['videoEnded']):
-            raise AssertionError({'native_video_stopped_before_boundary': row})
-    # Sampling jitter is allowed; skipping the native tail, even via a seek that
-    # finishes between samples, is not. Measure against the independent wall clock.
-    for left, right in zip(trace, trace[1:]):
+        quiet_only_rate = (not final and planned_cut and audio_end <= row['audio']
+                           <= float(following['speech_start']) - .05
+                           and .0625 <= row['audioRate'] <= 1)
+        if row['rate'] != 1 or (row['audioRate'] != 1 and not quiet_only_rate) or row['error']:
+            raise AssertionError({'invalid_native_clock': row})
+        if row['videoPaused'] and not row['videoEnded'] and not (row['seeking'] or row['correcting']):
+            quiet_hold = (planned_cut and seeks and abs(row['video'] - end) < .15
+                          and 0 <= row['wall'] - seeks[0].get('wall', -1e9) <= 1150)
+            if not quiet_hold:
+                raise AssertionError({'unplanned_video_pause': row})
+    settled = [row for row in trace if not row['seeking'] and not row['correcting']]
+    for left, right in zip(settled, settled[1:]):
+        crossed = left['video'] < end - .15 and right['video'] >= end - .15
+        if crossed and planned_cut:
+            if not seeks:
+                raise AssertionError('Video jumped without a planned seek event')
+            continue
         elapsed = (right['wall'] - left['wall']) / 1000
-        expected_elapsed = min(elapsed, max(0, end - left['video'])) if right['videoEnded'] else elapsed
-        if abs((right['video'] - left['video']) - expected_elapsed) >= .25:
-            raise AssertionError({'native_video_jump_or_stall': [left, right]})
-    first = trace[0]
-    for row in trace[1:]:
-        elapsed = (row['wall'] - first['wall']) / 1000
-        expected_elapsed = min(elapsed, max(0, end - first['video'])) if row['videoEnded'] else elapsed
-        if abs((row['video'] - first['video']) - expected_elapsed) >= .5:
-            raise AssertionError({'native_video_not_running_at_wall_clock_speed': row})
-    tail = [row for row in trace if tail_start + .35 < row['video'] < end - .2]
-    if len(tail) < 5 or tail[-1]['video'] - tail[0]['video'] < .2:
-        raise AssertionError('Recorded tail was skipped or not observed')
-    if any(not row['audioPaused'] or abs(row['audio'] - audio_end) >= .35 for row in tail):
-        raise AssertionError({'narration_not_held_at_speech_end': tail})
-    if max(row['audio'] for row in tail) - min(row['audio'] for row in tail) > .1:
-        raise AssertionError('Narration advanced during the native tail')
-    before = [row for row in trace if row['video'] < tail_start - .15 and not row['audioPaused']]
-    if not before:
-        raise AssertionError('Narration was not observed playing before its tail')
+        expected = min(elapsed, max(0, end - left['video'])) if right['videoEnded'] else elapsed
+        if abs(right['video'] - left['video'] - expected) >= .25:
+            raise AssertionError({'unplanned_video_jump_or_stall': [left, right]})
+    # A completed actual speech clip must be observed BEFORE any automatic seek.
+    if planned_cut:
+        before_seek = [row for row in settled if row['video'] < end - .15
+                       and row['wall'] <= seeks[0].get('wall', -1e9)]
+        if not any(row['audio'] >= audio_end for row in before_seek) and not starts:
+            raise AssertionError('Idle seek occurred before actual complete speech was observed')
+    def crossing(threshold, upper=None):
+        for left, right in zip(trace, trace[1:]):
+            if (left['seeking'] or right['seeking'] or left['correcting'] or right['correcting']
+                    or (upper is not None and right['audio'] >= upper)):
+                continue
+            delta = right['audio'] - left['audio']
+            wall = (right['wall'] - left['wall']) / 1000
+            if left['audio'] <= threshold <= right['audio'] and 0 < delta <= wall + .1:
+                return left['wall'] + (threshold - left['audio']) / delta * (right['wall'] - left['wall'])
+        raise AssertionError('Actual audible boundary was not continuously observed')
+    last_wall = crossing(last_sound, None if final else float(following['speech_start']))
     if final:
-        if not any(row['videoEnded'] and abs(row['video'] - end) < .15 for row in trace):
-            raise AssertionError('Final native EOF was skipped or never reached')
+        ending = next((row for row in trace if row['videoEnded'] and abs(row['video'] - end) < .15), None)
+        if ending is None:
+            raise AssertionError('Real final video EOF was not observed')
+        next_wall = ending['wall']
     else:
-        following = spoken['scenes'][index + 1]
-        resumed = [row for row in trace if end + .25 < row['video'] < end + 1.4
+        next_wall = crossing(next_sound)
+        resumed = [row for row in settled if end + .15 < row['video'] < end + 1.4
                    and not row['audioPaused']]
         if len(resumed) < 5:
-            raise AssertionError('Next narration did not resume at the visual boundary')
+            raise AssertionError('Next narration did not resume after its planned visual transition')
         for row in resumed:
             expected = float(following['speech_start']) + row['video'] - end
             if abs(row['audio'] - expected) >= .5:
                 raise AssertionError({'next_narration_wrong_offset': row, 'expected': expected})
+    gap = (next_wall - last_wall) / 1000
+    if planned_cut and not .85 <= gap <= 1.15:
+        raise AssertionError({'actual_sound_gap_outside_policy': gap, 'planned_idle_cut': planned_cut})
     return {'checked_boundary_after_scene': index + 1, 'trace': trace,
-            'selected_visual_tail_observed': True,
-            'recorded_tail_observed': scene.get('native_live_video') is True,
-            'narration_paused_for_recorded_tail': scene.get('native_live_video') is True,
-            'next_narration_resumed': not final,
-            'final_visual_eof_observed': final,
-            'final_native_eof_observed': final and scene.get('native_live_video') is True,
-            'actual_video_speed': 1, 'native_animation_stretched_or_looped': False}
+        'selected_visual_tail_observed': True, 'recorded_tail_observed': True,
+        'entire_recorded_tail_played': not planned_cut,
+        'narration_paused_for_recorded_tail': not planned_cut,
+        'idle_padding_skipped': planned_cut, 'actual_sound_gap_seconds': gap,
+        'actual_speech_end_observed_before_idle_seek': True,
+        'next_narration_resumed': not final, 'final_visual_eof_observed': final,
+        'final_native_eof_observed': final and scene.get('native_live_video') is True,
+        'actual_video_speed': 1, 'native_animation_stretched_or_looped': False}
 
 
 def check_complete_native_boundary_playback(page, visual, spoken):
-    """Observe uninterrupted native video, narration rest/resume, and final EOF."""
+    """Observe complete speech, one-second idle cuts, and actual final EOF."""
     preserve = visual.get('preserve_visual_intervals') is True
     candidates = [i for i in range(len(visual['scenes']) - 1)
                   if visual['scenes'][i].get('native_live_video')
@@ -177,8 +215,8 @@ def check_complete_native_boundary_playback(page, visual, spoken):
         scene, speech = visual['scenes'][current], spoken['scenes'][current]
         speech_length = float(speech['speech_end']) - float(speech['speech_start'])
         target = float(scene['speech_start']) + max(0, speech_length - .7)
-        # One explicit test setup seek is allowed before observation. During the
-        # measured tail/boundary interval all video seeks and pauses are failures.
+        # Setup seek precedes observation; only the independently planned
+        # idle transition may seek during the measured interval.
         page.evaluate("""async target => {
             elements.video.pause();
             elements.video.currentTime = target;
@@ -199,10 +237,17 @@ def check_complete_native_boundary_playback(page, visual, spoken):
             window.__completeNativeObserve=true;
             if (!window.__completeNativeListeners) {
                 window.__completeNativeListeners=true;
+                const begin = beginNativeIdleTransition;
+                beginNativeIdleTransition = (cut,state,clock,index) => {
+                    if (window.__completeNativeObserve)
+                        window.__completeNativeEvents.push({type:'idle-cut',wall:performance.now(),
+                            video:elements.video.currentTime,audio:elements.audio.currentTime});
+                    return begin(cut,state,clock,index);
+                };
                 for (const type of ['seeking','pause','waiting','stalled'])
                     elements.video.addEventListener(type, () => {
-                        if (window.__completeNativeObserve && !elements.video.ended)
-                            window.__completeNativeEvents.push({type,video:elements.video.currentTime});
+                        if (window.__completeNativeObserve && (type === 'seeking' || !elements.video.ended))
+                            window.__completeNativeEvents.push({type,video:elements.video.currentTime,wall:performance.now(),audio:elements.audio.currentTime});
                     });
             }
             window.__completeNativeTimer=setInterval(() => window.__completeNativeTrace.push({
