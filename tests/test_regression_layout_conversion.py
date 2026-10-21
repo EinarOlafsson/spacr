@@ -123,6 +123,57 @@ def test_partial_long_signature_is_refused_instead_of_guessed_wide():
         raise AssertionError("partial long table was silently treated as wide")
 
 
+@pytest.mark.parametrize("count_column", ["column_name", "grna_name"])
+@pytest.mark.parametrize("layout", ["auto", "long"])
+def test_misconfigured_count_identifier_names_the_setting_and_actual_headers(
+        tmp_path, monkeypatch, count_column, layout):
+    from spacr.ml import load_regression_input_pairs
+    from spacr.regression_failure import describe_failure
+    from spacr.tabular import write_table
+
+    monkeypatch.setenv("SPACR_LANGUAGE", "en")
+    count_path = tmp_path / "counts.csv"
+    score_path = tmp_path / "scores.csv"
+    write_table(pd.DataFrame({
+        "row_name": ["r1"], "column_name": ["c1"],
+        "grna_name": ["g1"], "count": [7],
+    }), count_path, canonicalise=False)
+    write_table(pd.DataFrame({
+        "plateID": ["plate1"], "rowID": ["r1"],
+        "columnID": ["c1"], "score": [0.5],
+    }), score_path)
+    counts, _scores, _audit = load_regression_input_pairs([
+        {"score": str(score_path), "count": str(count_path)},
+    ])
+    before = counts.copy(deep=True)
+    assert {"rowID", "columnID", "grna_name", "count"} <= set(counts.columns)
+    assert "column_name" not in counts.columns
+
+    with pytest.raises(ValueError) as caught:
+        normalise_count_table_layout(
+            counts, layout=layout, count_column=count_column,
+        )
+
+    text = str(caught.value)
+    assert f"count_value_column={count_column!r}" in text
+    assert "count_grna_column='grna'" in text
+    assert "numeric read-count column" in text
+    assert "not a guide name or a row, column or plate identifier" in text
+    available = text.split("Available columns after reading", 1)[1]
+    actual_columns = ["grna" if name == "grna_name" else name
+                      for name in counts.columns]
+    assert all(repr(name) in available for name in actual_columns)
+    assert repr(count_column) not in available
+    assert "do not switch" in text and "bypass this check" in text
+    assert isinstance(caught.value.__cause__, ValueError)
+    pd.testing.assert_frame_equal(counts, before)
+
+    report = describe_failure(caught.value, include_traceback=False)
+    advice = report.split("WHAT TO CHANGE", 1)[1]
+    assert "count_value_column" in advice and "numeric read counts" in advice
+    assert "no recorded remedy" not in advice
+
+
 def test_wide_fixed_effect_path_has_one_row_per_well_and_fits_ols():
     frame = _long_fractions()
     y, design, metadata = _wide_fixed_effect_design(

@@ -125,6 +125,34 @@ class _PublicCallable:
     accepts_arbitrary_keywords: bool = False
 
 
+def _posix_update_prepared_key_move(entries, docs=None):
+    """Apply only the reviewed same-body move in the October 17 contract."""
+    import json
+    from pathlib import Path
+
+    move = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "posix_online_update_prepared_api_key_move_2026-10-21.json").read_text(encoding="utf-8"))
+    assert move == {
+        "old_symbol": "spacr.install_cleanup._run_macos_online_update.prepared",
+        "new_symbol": "spacr.install_cleanup._run_posix_online_update.prepared",
+        "docstring": "Offer Restart only after the replacement passes its staged checks.",
+        "docstring_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+    }
+    old, new = move["old_symbol"], move["new_symbol"]
+    assert hashlib.sha256(move["docstring"].encode("utf-8")).hexdigest() == move["docstring_sha256"]
+    assert entries[old] == move["docstring"]
+    assert new not in entries
+    if docs is not None:
+        assert old not in docs
+        assert docs[new] == move["docstring"]
+    renamed = dict(entries)
+    renamed[new] = renamed.pop(old)
+    assert len(renamed) == len(entries)
+    assert renamed.keys() - entries.keys() == {new}
+    assert entries.keys() - renamed.keys() == {old}
+    return renamed
+
+
 def _documented_functions():
     """``(path, node, docstring)`` for every function carrying ``:param:``."""
     root = pathlib.Path(__file__).resolve().parent.parent / "spacr"
@@ -2773,8 +2801,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
                      "thumbnail_popup_close_api_arrival_2026-10-21.json"):
-        contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text(encoding="utf-8")))
+        entries = json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            entries = _posix_update_prepared_key_move(entries)
+        contract_arrivals |= set(entries)
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
     # registers the three spacr.qt.tutorials arrivals and the removed
     # renderer, which was never in this inventory (*/qt/tutorial/* is ignored).
@@ -4719,6 +4750,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            additions = _posix_update_prepared_key_move(additions, docs)
         assert len(additions) == expected_count
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()
@@ -5230,8 +5263,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
                      "thumbnail_popup_close_api_arrival_2026-10-21.json"):
-        contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text(encoding="utf-8")))
+        entries = json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            entries = _posix_update_prepared_key_move(entries)
+        contract_callables |= set(entries)
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
@@ -5301,8 +5337,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
                      "thumbnail_popup_close_api_arrival_2026-10-21.json"):
-        arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text(encoding="utf-8")))
+        entries = json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            entries = _posix_update_prepared_key_move(entries)
+        arrival_callables |= set(entries)
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])

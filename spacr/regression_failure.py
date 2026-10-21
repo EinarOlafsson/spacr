@@ -67,6 +67,19 @@ def _remedy(error: BaseException) -> str:
         string.
     """
     text = f"{type(error).__name__}: {error}".lower()
+    if ("independent-variable table has " in text
+            or "long independent-variable table lacks:" in text):
+        from .qt.i18n import tr
+
+        return tr(
+            "In Regression, check count_grna_column and count_value_column "
+            "against the count table's available columns. The guide column "
+            "contains guide identifiers; the value column must contain numeric "
+            "read counts, not guide names or well, row, column or plate "
+            "identifiers. For long input, choose the actual read-count header "
+            "and keep the long layout; do not use wide layout to hide a "
+            "missing long-table column."
+        )
     for needle, advice in REMEDIES:
         if needle in text:
             return advice
