@@ -3,7 +3,7 @@ WITH SOUND ON, REOPENING PREFERENCES HANGS spaCR UNTIL IT IS FORCE QUIT
 ================================================================================
 
 Status:    IN PROGRESS 2026-10-21 — sound-shutdown repair 62ae8d023f is
-           published; physical Mac sound/Preferences acceptance remains open.
+           published; native Mac runtime passes, audible confirmation remains open.
            The 2026-09-19 fix (6ee1deb64) is retained.
            REGRESSION from the same day's item 427 (the sound engine).
            Every Qt Multimedia object is on the GUI thread now and the
@@ -448,3 +448,4 @@ Repeated shutdown now checks actual thread retirement: a parked live renderer st
 Initial drain/cancellation/player cleanup, documented return contract and audio defaults remain unchanged; repeated calls do not redrain.
 Two focused cases pass2.89s: controlled parked-thread repeats through shutdown_sound and the existing normal real-QThread cleanup, using fake audio.
 Root owns final peer, integration/publication; original native-desktop preferences acceptance remains open.
+2026-10-21 — Native Cocoa source62f709b6f/macOS26.6.1 Intel, Conda spacr Python3.12.15, MacBook Pro Speakers: spaceout sound enabled before launch,0.08 volume, real engine available;10 populated Preferences reopens visit2 tabs and alternate Save/Cancel, then menu Quit exits0 without captured thread warnings. Same-profile relaunch/reopen/quit also exits0. Isolated profile only; audible playback is NOT human-confirmed, so that gate remains open.
