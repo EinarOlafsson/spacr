@@ -259,7 +259,6 @@ def _the_spacr_frame(path: str) -> str:
         return ""
     global _SPACR_ROOT, _LIBRARY_DIRS
     if _SPACR_ROOT is None:
-        import os
         import sysconfig
 
         try:
