@@ -48,4 +48,4 @@ ACCEPTANCE
 2026-10-21 — Default GUI/font/reset scale is 90%; all visible and accessible setting API captions are exactly "API", with hovered tooltip lifetime retained.
 2026-10-21 — Popup startup sizing now preserves content size within 90% of the available screen, remains resizable and scrolls overflow; custom toggles suppress native checkbox perimeter geometry.
 2026-10-21 — 503 text-fit and 55 icon/action-row checks pass across scale/language matrices; 482 dialog/default/tooltip checks pass after repairing macOS isolated-profile coverage.
-2026-10-21 — Native Cocoa launch at 90% on a 1440x870 laptop window passed and exited cleanly; Windows/Linux acceptance remains separately owned.
+2026-10-21 — Native Cocoa launch at90% on1440x870 passed and exited cleanly; font-change refitting uses the existing event handler, preserving the API inventory.122 affected Home layout checks and3 API inventory checks pass. Windows/Linux acceptance remains separately owned.

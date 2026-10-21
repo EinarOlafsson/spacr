@@ -94,14 +94,6 @@ class ModuleHintBar(QLabel):
             int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft), text).height()
         self.setFixedHeight(max(1, height) + 10)
 
-    def changeEvent(self, event):             # noqa: N802 - Qt naming
-        """Refit the strip after font, style or application-font changes."""
-        super().changeEvent(event)
-        if event.type() in (QEvent.Type.FontChange, QEvent.Type.StyleChange,
-                            QEvent.Type.ApplicationFontChange):
-            self._fit_height()
-
-
     def event(self, event):                     # noqa: N802 - Qt naming
         """Consume tooltip requests; this bar replaces the tooltip.
 
@@ -124,7 +116,11 @@ class ModuleHintBar(QLabel):
         if event.type() == QEvent.Type.ToolTip:
             event.accept()
             return True
-        return super().event(event)
+        handled = super().event(event)
+        if event.type() in (QEvent.Type.FontChange, QEvent.Type.StyleChange,
+                            QEvent.Type.ApplicationFontChange):
+            self._fit_height()
+        return handled
 
     @property
     def module_key(self) -> str:
