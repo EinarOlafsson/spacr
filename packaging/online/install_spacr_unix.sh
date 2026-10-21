@@ -899,6 +899,14 @@ rm -rf "$stage_venv"
 
 stage_python="$stage_venv/bin/python"
 
+# CVXOPT's newer macOS wheels can require a newer OS than this machine.
+# Select the newest compatible wheel instead of compiling against external
+# SuiteSparse headers, including when system dependencies are skipped.
+binary_args=()
+if [[ "$PLATFORM" == "macos" ]]; then
+    binary_args=(--only-binary=cvxopt)
+fi
+
 # Skipping wgpu at resolve time, not uninstalling it afterwards: an override
 # whose marker never holds removes wgpu from the resolution, so a glibc that
 # would otherwise send uv to the wgpu source release never sees it. Nothing
@@ -918,6 +926,7 @@ if [[ -n "$OFFLINE_BUNDLE" ]]; then
         --offline --no-index \
         --find-links "$OFFLINE_BUNDLE/wheels" \
         ${override_args[@]+"${override_args[@]}"} \
+        ${binary_args[@]+"${binary_args[@]}"} \
         -r "$OFFLINE_BUNDLE/requirements.txt"
 else
     "$UV_BIN" pip install \
@@ -925,6 +934,7 @@ else
         --compile-bytecode \
         --torch-backend "$TORCH_BACKEND" \
         ${override_args[@]+"${override_args[@]}"} \
+        ${binary_args[@]+"${binary_args[@]}"} \
         "$PACKAGE_SPEC" \
         "${RESOLVER_GUARDS[@]}"
 fi

@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -145,6 +146,51 @@ def test_bootstraps_use_tls_and_select_acceleration_by_default():
     assert "--torch-backend $TorchBackend" in windows
     assert "qt,zernike,btrack,czi" not in unix
     assert "qt,zernike,btrack,czi" not in windows
+
+
+@needs_bash
+@pytest.mark.parametrize("platform", ["linux", "macos"])
+@pytest.mark.parametrize("offline", [False, True])
+def test_unix_package_resolution_uses_compatible_mac_cvxopt_wheels(tmp_path, platform, offline):
+    source = _text(UNIX)
+    commands = source[source.index("binary_args=()"):
+                      source.index("spacr_say validating_install")]
+    arguments = tmp_path / "resolved-arguments"
+    fake_uv = tmp_path / "uv"
+    fake_uv.write_text(
+        "#!/bin/sh\n"
+        "printf '%s\\n' \"$@\" > \"$UV_ARGS_LOG\"\n",
+        encoding="utf-8",
+    )
+    fake_uv.chmod(0o755)
+    bindings = {
+        "PLATFORM": platform, "UV_BIN": str(fake_uv),
+        "UV_ARGS_LOG": str(arguments), "work_dir": str(tmp_path),
+        "WITHOUT_WGPU": "1", "stage_python": str(tmp_path / "python"),
+        "OFFLINE_BUNDLE": str(tmp_path / "bundle") if offline else "",
+        "TORCH_BACKEND": "cpu", "PACKAGE_SPEC": "spacr[qt]",
+    }
+    script = "\n".join(f"export {key}={shlex.quote(value)}"
+                       for key, value in bindings.items())
+    script += '\nRESOLVER_GUARDS=("numba>=0.60,<1.0" "llvmlite>=0.43,<1.0")'
+    script += "\nspacr_say() { :; }\n" + commands
+    subprocess.run(["bash", "-eu", "-c", script], check=True,
+                   capture_output=True, text=True, timeout=10)
+    args = arguments.read_text(encoding="utf-8").splitlines()
+    assert args[:2] == ["pip", "install"]
+    assert ("--only-binary=cvxopt" in args) is (platform == "macos")
+    assert "--override" in args
+    assert args[args.index("--override") + 1] == str(tmp_path / "without-wgpu-overrides.txt")
+    assert "--python" in args and str(tmp_path / "python") in args
+    assert "--compile-bytecode" in args
+    if offline:
+        assert "--offline" in args and "--no-index" in args
+        assert args[args.index("--find-links") + 1] == str(tmp_path / "bundle/wheels")
+        assert args[args.index("-r") + 1] == str(tmp_path / "bundle/requirements.txt")
+    else:
+        assert args[args.index("--torch-backend") + 1] == "cpu"
+        assert "spacr[qt]" in args
+        assert "numba>=0.60,<1.0" in args and "llvmlite>=0.43,<1.0" in args
 
 
 def test_online_installers_default_to_the_core_package_and_keep_overrides():

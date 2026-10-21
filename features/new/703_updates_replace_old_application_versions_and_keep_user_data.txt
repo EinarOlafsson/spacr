@@ -13,6 +13,18 @@ publishes nightly. Do not roll production back, weaken tests/ratchets, run the
 whole suite, or infer a main-branch failure. Newer-release Linux acceptance
 remains pending the actual published artifact.
 
+HOSTED MAC ARM CURRENT-INSTALL DEPENDENCY FOLLOW-UP — 2026-10-21
+Nightly Mac ARM job119524565286 on8a4c6b56810 passes the installed1.5.0.7
+health probe, then fails current installation before any staged upgrade or
+removal acceptance: cvxopt1.3.3 builds from source on macOS14 and cannot find
+umfpack.h under --skip-system-deps. The dependency owner verified that its
+cp312 ARM wheel needs macOS15;1.3.2 has a macOS11+ wheel. N718's retained
+worker owns the Mac-only online/offline binary resolver option and its tests.
+Preserve N703 profile/staging/verification/restart/rollback guards and prior
+Mac Intel/Linux acceptance. After the fix is published, consume actual
+exact-source hosted installation/update/removal results; this failure proves
+no main-branch defect and does not justify repeating blocked native trials.
+
 Status:    IN PROGRESS — native macOS scope remains accepted; current-source
            Linux staged update and native acceptance are ready for publication.
            A newer released artifact is still needed for current-source version replacement.
@@ -1108,3 +1120,5 @@ Old-to-new desktop acceptance remains open: this Mac and the current candidate a
 2026-10-21 — Final cc5f4f5bd2 wheelbc26f329 actual installer/readback and646 GUI/CLI cleanup pass; all owned native jobs finish. Root owns integrated publication; accepted Mac scope remains closed and unrelated Windows scope remains held.
 
 2026-10-21 — Hosted old-nightly9d48020f289 fixture repair877b9da98c1 distinguishes explicitly constructed supported historical plans from current linux-online-uv-v1; preserves legacy actions, current valid CPU choices and missing/corrupt-choice refusals. Linux stage/cancel wrappers now assert real committed identity or unchanged active runtime/data. All20 affected updater/privacy/hygiene cases pass; production code is unchanged. Root publishes this repair; native Mac acceptance remains retained and actual current-source newer-version Linux replacement still awaits the released artifact.
+
+2026-10-21 — Nightly Mac ARM job119524565286/on8a4 passes old1.5.0.7 health, then current installation fails on cvxopt1.3.3 source-build missing umfpack.h before staged upgrade/removal. N718's Mac-only online/offline CVXOPT binary-selection fix retains defaults and all staging guards. Exact pinned uv0.11.32 controls resolve367 packages: before macOS14 selects1.3.3 source, after it selects compatible1.3.2 wheel, and macOS15 retains1.3.3 wheel; eight owning checks pass. Exact-source hosted staged-upgrade/removal acceptance remains pending root publication. Prior native Mac Intel/Linux results remain valid; no main-branch failure, new update acceptance or removal acceptance is inferred.
