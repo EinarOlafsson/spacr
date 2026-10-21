@@ -720,7 +720,10 @@ _SPECS = {
         name=_SAMCELL, label="SAMCell", module="samcell",
         probe=("samcell.model", "samcell.pipeline"),
         distribution="samcell",
-        requirements=("samcell==1.2.0", "matplotlib>=3.3.0"),
+        requirements=(
+            "samcell==1.2.0", "matplotlib>=3.3.0",
+            "numpy<2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+            "transformers<5; sys_platform == 'darwin' and platform_machine == 'x86_64'"),
         torch=("torch",), python=((3, 9), (3, 14)), licence="MIT",
         licence_note=(
             "SAMCell 1.2.0 is MIT (Copyright 2025 Saahil Sanganeriya). It "

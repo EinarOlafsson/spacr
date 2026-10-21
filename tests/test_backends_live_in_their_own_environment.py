@@ -536,6 +536,49 @@ def test_samcell_installs_its_unconditionally_imported_plotting_dependency():
     assert "samcell==1.2.0" in dependencies
 
 
+@pytest.mark.parametrize("platform,machine,expected", [
+    ("darwin", "x86_64", ["samcell==1.2.0", "matplotlib>=3.3.0", "numpy<2", "transformers<5"]),
+    ("darwin", "arm64", ["samcell==1.2.0", "matplotlib>=3.3.0"]),
+    ("linux", "x86_64", ["samcell==1.2.0", "matplotlib>=3.3.0"]),
+    ("win32", "AMD64", ["samcell==1.2.0", "matplotlib>=3.3.0"]),
+])
+def test_samcell_uses_compatible_dependencies_only_on_the_intel_mac_plan(
+        platform, machine, expected):
+    from packaging.requirements import Requirement
+
+    spec = SB._SPECS["samcell"]
+    steps = SB._install_plan(spec, "/b/samcell", ("/own/python",))
+    assert steps[3].argv[-len(spec.requirements):] == spec.requirements
+    effective = []
+    for text in spec.requirements:
+        requirement = Requirement(text)
+        if requirement.marker is None or requirement.marker.evaluate(
+                {"sys_platform": platform, "platform_machine": machine}):
+            effective.append(requirement.name + str(requirement.specifier))
+    assert effective == expected
+
+
+@pytest.mark.parametrize("platform,machine,missing", [
+    ("darwin", "x86_64", True), ("darwin", "arm64", False),
+    ("linux", "x86_64", False), ("win32", "AMD64", False),
+])
+def test_samcell_ignores_inactive_bounds_in_install_records(
+        _sandboxed_backends, monkeypatch, platform, machine, missing):
+    import packaging.markers
+
+    environment = packaging.markers.default_environment()
+    environment.update(sys_platform=platform, platform_machine=machine)
+    monkeypatch.setattr(packaging.markers, "default_environment", lambda: environment)
+    record = {"requirements": ["samcell==1.2.0", "matplotlib>=3.3.0"],
+              "packages": {"samcell": "1.2.0", "matplotlib": "3.11.2",
+                           "numpy": "2.5.4", "transformers": "5.20.2"}}
+    _finished_env(_sandboxed_backends, name="samcell", record=record)
+    state = SB._backend_state("samcell")
+    assert state.ready and not state.in_process
+    assert SB._stale_requirements("samcell", state.record) == (
+        list(SB._SPECS["samcell"].requirements[2:]) if missing else [])
+
+
 def test_every_module_an_adapter_imports_is_in_its_self_test():
     """Item 423's lesson, held for every backend: the self-test imports what
     the adapter imports.

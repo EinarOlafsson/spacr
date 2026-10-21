@@ -79,6 +79,23 @@ NumPy2.0.2. Add the separately justified Intel-Mac-only NumPy<2 compatibility
 bound, then require actual production reinstall/self-test/inference rather than
 accepting the earlier successful import as runtime proof.
 
+The separate real Intel-Mac SAMCell install selected SAMCell1.2.0,
+Torch2.2.2, NumPy2.5.4 and Transformers5.20.2, then failed its production
+self-test: Torch reported the NumPy1.x/_ARRAY_API incompatibility;
+Transformers disabled Torch because it required>=2.6, and importing SAMCell's
+SamMaskDecoder ended with NameError "nn". The installer removed the failed
+test-owned environment; no checkpoint/backbone download or inference ran.
+This Mac follow-up owns a bounded compatibility repair for SAMCell's isolated
+Intel-Mac plan only: NumPy<2 and Transformers<5, retaining SAMCell1.2.0 and
+every other platform plan. Transformers4.57.6's official setup.py declares
+Torch>=2.2 and NumPy>=1.17, and its SAM implementation retains the imported
+SamMaskDecoder/SamVisionConfig names. Verify marker-aware effective plans and
+installed-state checks, then require the actual production reinstall/self-test
+and one tiny CPU adapter inference with official weights/backbone scoped to
+the test-owned environment. The proposed bounds are not runtime acceptance;
+retain any subsequent distinct failure rather than forcing a binary build,
+changing spaCR's environment or bypassing model-access/security checks.
+
 1. Open the real Model Zoo/backend installation control for Cellpose 3,
    DINOCell and SAMCell. Confirm the installed/installable/not-installable
    state and reason before each attempt. Inspect the displayed dependency plan
@@ -459,7 +476,6 @@ Windows/macOS and comparative scorecard acceptance are not claimed.
 
 VERIFIED 2026-10-04: 5 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
 
-2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
-No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.
+2026-10-21 — Intel macOS26.6.1/Python3.12.15, source06c085562e for installation and27ea747fe0 for inference plus the scoped SAMCell dependency repair: the real production isolated reinstall/self-test and CPU adapter inference PASS after Darwin+x86_64-only NumPy<2 and Transformers<5 bounds. Actual SAMCell1.2.0/Torch2.2.2/NumPy1.26.4/Transformers4.57.6; eight effective-platform/old-record checks pass. One256×256 synthetic plane yields uint16 labels0/1/2 in473.536s including first official downloads, with normal exit0 and worker shutdown. The375,043,010-byte generalist checkpoint and facebook/sam-vit-base revision70c1a07f894ebb5b307fd9eaaee97b9dfc16068f remain inside the explicit test-owned backend environment; no main-environment/user-cache changes. The original NumPy ABI/Transformers5 self-test failure and cleanup are retained, not counted as a pass. SAMCell GUI lifecycle, Windows/ARM acceptance and held scientific scorecards remain separate; this is runtime plumbing proof, not comparative accuracy or whole-item closure.
 2026-10-21 — Intel macOS26.6.1/Python3.12.15 on9ee263b9c0 plus the scoped dependency repair: real isolated Cellpose3.1.1.3 install/self-test and production CPU adapter inference PASS after Darwin+x86_64-only numba<0.63 and numpy<2 bounds. Actual torch2.2.2/NumPy1.26.4/Numba0.62.1/llvmlite0.45.1; cached nuclei weights yield64×64 uint16 labels0/1/2 and remain unchanged, with no weight download or main-environment package changes. Twelve final effective-plan/old-record checks pass, with earlier install/self-test checks retained; inactive bounds do not affect other platforms. Model Zoo GUI install/cancel/uninstall and the other Mac backends remain unverified; Linux acceptance and held scientific scorecards are unchanged.
 2026-10-21 — Native Cocoa on2a43db5068, Intel macOS26.6.1/Python3.12.15: real Model Zoo controls confirm installed Cellpose3, BSD licence and cyto/cyto2/cyto3/nuclei rows; Use this model returns cellpose3:nuclei. GUI Uninstall removes only the explicit test-owned environment; Install then Cancel during actual environment creation leaves no partial environment and restores an actionable row; final GUI Install completes the production CPU self-test and refreshes picker/backend dropdown to installed. Actual Cellpose3.1.1.3/torch2.2.2/NumPy1.26.4, cached user weights unchanged, no weight downloads or main-environment changes; normal exit0. Input was synthetic Qt input on real Cocoa, not physical trackpad validation. Other Mac backends and held scientific scorecards remain separate; no whole-item expansion or completion is claimed.
