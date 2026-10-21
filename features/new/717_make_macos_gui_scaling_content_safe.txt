@@ -2,10 +2,10 @@
 MAKE MACOS GUI SCALING CONTENT-SAFE
 ================================================================================
 
-Status:    DONE 2026-10-21 — macOS/laptop scale, dialog, toggle, icon and tooltip acceptance passed
+Status:    DONE 2026-10-21 — native macOS acceptance and final-source runtime/API catalog closure complete
 Requested: maintainer, 2026-10-21 — prevent clipped text, controls, icons and popup content at every supported scale
 Priority:  P1
-Owner:     Codex macOS GUI lane — implementation and focused validation
+Owner:     Codex macOS GUI lane — native implementation/acceptance; Home — shared runtime/API catalog closure
 
 SCOPE
 Make scaling resilient throughout the Qt GUI, with macOS as the immediate
@@ -48,4 +48,4 @@ ACCEPTANCE
 2026-10-21 — Default GUI/font/reset scale is 90%; all visible and accessible setting API captions are exactly "API", with hovered tooltip lifetime retained.
 2026-10-21 — Popup startup sizing now preserves content size within 90% of the available screen, remains resizable and scrolls overflow; custom toggles suppress native checkbox perimeter geometry.
 2026-10-21 — 503 text-fit and 55 icon/action-row checks pass across scale/language matrices; 482 dialog/default/tooltip checks pass after repairing macOS isolated-profile coverage.
-2026-10-21 — Native Cocoa launch at90% on1440x870 passed and exited cleanly; font-change refitting uses the existing event handler, preserving the API inventory.122 affected Home layout checks and3 API inventory checks pass. Windows/Linux acceptance remains separately owned.
+2026-10-21 — Native Cocoa launch at90% on1440x870 passed and exited cleanly; font-change refitting uses the existing event handler, preserving the API inventory.122 affected Home layout checks and3 API inventory checks pass. Windows/Linux acceptance remains separately owned. Home catalog closure validates two runtime captions, two existing API blocks and the identical POSIX callback move; the removed changeEvent arrival is excluded. Reviews3214ea7/HFd1796ba, 17 final checks and all-ten-byte reproduction pass; native acceptance is retained and publication remains pending.

@@ -235,21 +235,41 @@ def normalise_count_table_layout(
     if (guide_column == "grna" and "grna" not in frame.columns
             and "grna_name" in frame.columns):
         frame = frame.rename(columns={"grna_name": "grna"})
-    resolved = (
-        infer_regression_layout(
-            frame, predictor_column=guide_column, value_column=count_column
-        )
-        if wanted == "auto" else wanted
-    )
-    if resolved == "long":
-        missing = [
-            name for name in (guide_column, count_column)
-            if name not in frame.columns
-        ]
-        if missing:
-            raise ValueError(
-                "Long independent-variable table lacks: " + ", ".join(missing)
+    try:
+        resolved = (
+            infer_regression_layout(
+                frame, predictor_column=guide_column, value_column=count_column
             )
+            if wanted == "auto" else wanted
+        )
+        if resolved == "long":
+            missing = [
+                name for name in (guide_column, count_column)
+                if name not in frame.columns
+            ]
+            if missing:
+                raise ValueError(
+                    "Long independent-variable table lacks: " + ", ".join(missing)
+                )
+    except ValueError as error:
+        from .qt.i18n import tr
+
+        available = ", ".join(repr(str(name)) for name in frame.columns[:20])
+        if len(frame.columns) > 20:
+            available += ", ..."
+        raise ValueError(tr(
+            "{error}\nCheck the Regression input column settings: "
+            "count_grna_column={guide_column!r} must name the guide identifier, "
+            "and count_value_column={count_column!r} must name the numeric "
+            "read-count column for each guide in each well, not a guide name "
+            "or a row, column or plate identifier. Available columns after "
+            "reading (up to 20): {available}. Select the actual read-count "
+            "header for long input; do not switch a table with guide identifiers "
+            "to wide layout to bypass this check.",
+            error=str(error), guide_column=guide_column,
+            count_column=count_column, available=available,
+        )) from error
+    if resolved == "long":
         result = frame.rename(
             columns={guide_column: "grna", count_column: "count"}
         ).copy()

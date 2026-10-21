@@ -1318,7 +1318,7 @@ def refresh_the_windows() -> int:
 
 
 def reset_every_scale(parent=None) -> bool:
-    """Put GUI scale, font scale and every preview scale back to 100 %, now.
+    """Restore the 90 % GUI and font defaults and request preview-scale resets.
 
     The backup way out of a scale too small to read: ``Ctrl+Alt+0``. It
     needs no reading and no answer.

@@ -83,6 +83,34 @@ _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
     # Item 511's Mask bound-row map, on nightly 88a0ee002 (2026-09-26).
     "spacr.qt.widgets.live_preview.BOUND_ROWS",
 })
+def _posix_update_prepared_key_move(entries, docs=None):
+    """Apply only the reviewed same-body move in the October 17 contract."""
+    import json
+    from pathlib import Path
+
+    move = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "posix_online_update_prepared_api_key_move_2026-10-21.json").read_text(encoding="utf-8"))
+    assert move == {
+        "old_symbol": "spacr.install_cleanup._run_macos_online_update.prepared",
+        "new_symbol": "spacr.install_cleanup._run_posix_online_update.prepared",
+        "docstring": "Offer Restart only after the replacement passes its staged checks.",
+        "docstring_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+    }
+    old, new = move["old_symbol"], move["new_symbol"]
+    assert hashlib.sha256(move["docstring"].encode("utf-8")).hexdigest() == move["docstring_sha256"]
+    assert entries[old] == move["docstring"]
+    assert new not in entries
+    if docs is not None:
+        assert old not in docs
+        assert docs[new] == move["docstring"]
+    renamed = dict(entries)
+    renamed[new] = renamed.pop(old)
+    assert len(renamed) == len(entries)
+    assert renamed.keys() - entries.keys() == {new}
+    assert entries.keys() - renamed.keys() == {old}
+    return renamed
+
+
 def _spatial_arrivals() -> dict[str, str]:
     """F534's 22 documented symbols, one named contract (2026-10-11).
 
@@ -1710,6 +1738,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-10-17: Item 703: background update staging, the native update/uninstall helpers and the Preferences uninstall entry; one named contract.
     n703_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "703_background_update_and_uninstall_api_arrivals_2026-10-17.json").read_text(encoding="utf-8"))
+    n703_arrivals = _posix_update_prepared_key_move(n703_arrivals, docs)
     assert len(n703_arrivals) == 17
     assert {key: docs[key] for key in n703_arrivals} == n703_arrivals
     assert not n703_arrivals.keys() & zoo_arrivals.keys()

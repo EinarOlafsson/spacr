@@ -90,6 +90,34 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 
+def _posix_update_prepared_key_move(entries, docs=None):
+    """Apply only the reviewed same-body move in the October 17 contract."""
+    import json
+    from pathlib import Path
+
+    move = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "posix_online_update_prepared_api_key_move_2026-10-21.json").read_text(encoding="utf-8"))
+    assert move == {
+        "old_symbol": "spacr.install_cleanup._run_macos_online_update.prepared",
+        "new_symbol": "spacr.install_cleanup._run_posix_online_update.prepared",
+        "docstring": "Offer Restart only after the replacement passes its staged checks.",
+        "docstring_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+    }
+    old, new = move["old_symbol"], move["new_symbol"]
+    assert hashlib.sha256(move["docstring"].encode("utf-8")).hexdigest() == move["docstring_sha256"]
+    assert entries[old] == move["docstring"]
+    assert new not in entries
+    if docs is not None:
+        assert old not in docs
+        assert docs[new] == move["docstring"]
+    renamed = dict(entries)
+    renamed[new] = renamed.pop(old)
+    assert len(renamed) == len(entries)
+    assert renamed.keys() - entries.keys() == {new}
+    assert entries.keys() - renamed.keys() == {old}
+    return renamed
+
+
 def test_runtime_catalog_cli_pins_imports_to_its_own_checkout(tmp_path):
     """A foreign editable checkout must not supply runtime source strings."""
     foreign_root = tmp_path / "foreign-checkout"
@@ -3292,6 +3320,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
+        if filename == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            arrivals = _posix_update_prepared_key_move(arrivals, docs)
         assert len(arrivals) == count
         assert {key: docs[key] for key in arrivals} == arrivals
         assert not arrivals.keys() & (

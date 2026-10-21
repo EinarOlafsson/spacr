@@ -4664,6 +4664,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
     paths.add(ROOT / "spacr" / "run_journal.py")
+    paths.add(ROOT / "spacr" / "regression_layout.py")
+    paths.add(ROOT / "spacr" / "regression_failure.py")
     paths.add(ROOT / "spacr" / "ml.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
@@ -4772,6 +4774,30 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 constants[statement.target.id] = statement.value
         if helper_module == "screens/settings_model.py":
             found.update(_metadata_type_status_sources(tree, constants))
+        if helper_module == "shortcuts.py":
+            for statement in tree.body:
+                if not (
+                    isinstance(statement, ast.AnnAssign)
+                    and isinstance(statement.target, ast.Name)
+                    and statement.target.id == "SHORTCUTS"
+                    and isinstance(statement.value, ast.List)
+                ):
+                    continue
+                for shortcut in statement.value.elts:
+                    if not (
+                        isinstance(shortcut, ast.Call)
+                        and isinstance(shortcut.func, ast.Name)
+                        and shortcut.func.id == "ShortcutSpec"
+                        and len(shortcut.args) >= 2
+                        and isinstance(shortcut.args[0], ast.Constant)
+                        and shortcut.args[0].value == "Ctrl+Alt+0"
+                        and isinstance(shortcut.args[1], ast.Constant)
+                        and isinstance(shortcut.args[1].value, str)
+                    ):
+                        continue
+                    value = shortcut.args[1].value
+                    if _looks_translatable(value):
+                        found.add(value.strip())
         if helper_module == "widgets/model_zoo_picker.py":
             mapping = constants.get("_SOURCE_TOOLTIPS")
             if isinstance(mapping, ast.Dict):
