@@ -405,8 +405,10 @@ def iteration_budget(depth: float, base: int = 300,
     :param depth: the depth in decades.
     :param base: iterations at depth 0, and the minimum.
     :param per_decade: iterations added per decade of depth.
-    :param ceiling: the maximum.
-    :returns: at least ``base`` and at most ``ceiling``.
+    :param ceiling: the upper clamp before the ``base`` minimum is applied; a value
+        below ``base`` does not lower the result below ``base``.
+    :returns: at least ``int(base)``; at most ``int(ceiling)`` when that ceiling
+        is not below ``int(base)``.
 
     DEEPER NEEDS MORE. Near the boundary the escape time grows with
     magnification, so a fixed budget draws the deep frames as solid interior

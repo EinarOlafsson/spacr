@@ -478,11 +478,12 @@ def resolved_quality(requested: str, backend: str,
 
 def resolved_cpu_threads(settings: Settings,
                          hardware: HardwareProfile) -> int:
-    """How many Numba workers to take, leaving the application some.
+    """Resolve the number of Numba worker threads for the backdrop.
 
-    Capped at 24 because beyond that the scheduling overhead grows for this
-    image size, and capped below the machine's count because a backdrop that
-    takes every core starves the run the user actually cares about.
+    The available thread count is capped at 24 and by the machine and Numba
+    limits. Automatic sizing reserves capacity when more than one thread is
+    available; an explicit ``cpu_threads`` setting may use every available
+    thread.
 
     :param settings: backdrop settings; a non-None ``cpu_threads`` is used,
         clamped to the threads available, instead of the automatic choice.

@@ -94,7 +94,7 @@ class _ThumbWorker(QThread):
 
 
 class ExampleSetsDialog(QDialog):
-    """Three sets side by side -- every channel and its mask -- and a question."""
+    """Show up to three example sets, one row per set, with channels in columns."""
 
     def __init__(self, folder: str, sets: Dict[cs.SetKey, Dict[int, str]],
                  masks_dir: Optional[str] = None, parent=None):

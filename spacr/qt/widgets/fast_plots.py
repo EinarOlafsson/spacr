@@ -376,14 +376,17 @@ def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
     Parameters
     ----------
     name : str
-        Field name. Colour-related suffixes select the colour editor.
+        Field name. Colour-related suffixes select the colour editor for
+        string values or suitable fallbacks.
     value : Any
-        Current value. Its runtime type takes precedence when it is not
-        ``None``.
+        Current value. Its runtime type determines the editor when no
+        truthy choices are supplied and it is not ``None``.
     choices : collection, optional
-        Allowed values for a closed selection.
+        Allowed values for a closed selection; when truthy, these select
+        a choice or multi-selection editor before other type checks.
     declared : str, optional
-        Type annotation used when ``value`` is ``None``.
+        Type annotation used when ``value`` is ``None``, and to detect a
+        string sequence for a closed selection.
 
     Returns
     -------

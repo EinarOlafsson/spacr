@@ -1,8 +1,10 @@
 SELF-SUPERVISED PRETRAINING (DINO) ON THE USER'S OWN UNLABELLED CROPS
 
-Status: DONE (alpha) 2026-09-28 (evidence dfe642354)
+Status: BLOCKED ON MAINTAINER 2026-10-21 — software delivered; original numerical acceptance needs reliable access to the designated NAS backup or the recovered original records.
+Previous software status: DONE (alpha) 2026-09-28 (evidence dfe642354)
 VERIFIED 2026-10-04: test_dino_pretraining, qt/test_dino_pretrain_alpha_gate pass (nightly 85c3e41c2, CPU).
-Owner: item-561 branch. Proposed from the 2026-09-26 deep-learning/GPU list.
+Owner: Codex maintainer-input coordinator and retained benchmark-recovery worker.
+Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
@@ -194,3 +196,9 @@ Initial SDK/history/environment/harness failures remain recorded, not hidden.
 Evidence:561_classifier_* /561_combined_api_* /561_strict_api_arrival_acceptance_*.
 
 2026-10-15 Original independent original-contract reconciliation: all original software uses (resumable pretraining, embeddings/UMAP, fine-tuned classifier, existing-checkpoint/epochs/progress) match current tested publication receipts. No new human-label/multiseed/held-out-plate requirement is imposed. The historical kNN improvement remains recorded, but its primary scorecard_64px.csv/32px and benchmark log were not found in the named local scratch roots or published packets. Original dfe6423548 records prose only; bounded NAS inventory does not map these scratch roots. Independent whole-item numerical acceptance therefore remains unverified pending recovery of existing scorecard and source/input/model identities; no result falsification, artifact destruction, new training or scientific claim inferred.
+
+2026-10-21 — Maintainer identifies /nas_mnt/data/sync/ as the only backup; records truly absent there are deleted. Recovery is read-only and limited to that root.
+Original targets: scorecard_64px.csv / scorecard_32px.csv, bench.py, original training logs and matching checkpoint/crop identities; no originals recovered.
+The full-root filename query reached its 900-second bound while waiting on NFS RPCs; coverage was incomplete, so it does not establish absence or deletion.
+A separate complete .stversions query including timestamped filename variants returned no matches or errors; no NAS writes, model loading, training or GPU use occurred.
+Numerical acceptance remains blocked on reliable NAS traversal or the actual original records; software acceptance is retained and no surrogate result or new human-label requirement is introduced.

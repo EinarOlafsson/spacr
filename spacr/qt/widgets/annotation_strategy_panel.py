@@ -481,11 +481,9 @@ class AnnotationStrategyPanel(QWidget):
         self._refresh_controls()
 
     def reason(self) -> str:
-        """Return the reason the selected strategy cannot run, or ``''``.
+        """Return the current preflight refusal reason, or ``''`` when none is reported.
 
-        The check uses the loaded rows and current controls, so unsupported
-        data are identified when the strategy is selected rather than after
-        a model fit has started.
+        Check the loaded rows and current controls for the selected strategy requirements. An unexpected exception from the requirement check is logged and treated as no reported refusal, so an empty result does not establish that fitting will succeed.
         """
         if self._running:
             return "A strategy is already running."

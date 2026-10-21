@@ -613,12 +613,9 @@ class PivotPanel(QWidget):
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Point the panel at a table.
 
-        Axis columns the new table does not have are dropped rather than
-        carried over — a pivot half-resolved against the wrong frame would
-        group by fewer keys than the wells claim.
+        For a non-None table, axis columns it does not have are dropped rather than carried over — a pivot half-resolved against the wrong frame would group by fewer keys than the wells claim.
 
-        :param frame: the table to pivot, or None; axis columns it lacks are
-            removed from the wells.
+        :param frame: the table to pivot, or None; a non-None table removes axis columns it lacks from the wells, while None preserves them.
         """
         self._frame = frame
         self.well.set_frame(frame)

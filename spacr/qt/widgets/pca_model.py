@@ -641,10 +641,7 @@ class PCAResult:
                      components: Optional[int] = None) -> pd.DataFrame:
         """``source``'s surviving rows with ``PC1…PCk`` columns added.
 
-        Every original column is kept, which is the whole point: it is what
-        lets the scores plot colour by ``gene``, facet by ``plateID`` and
-        publish a real object-key selection when a cluster is brushed. The
-        Graph Builder then draws it with no knowledge that it is a PCA.
+        Original columns are retained except that existing ``PC1…PCk`` columns are replaced by the computed scores. Keeping the other columns lets the scores plot colour by ``gene``, facet by ``plateID`` and publish a real object-key selection when a cluster is brushed. The Graph Builder then draws it with no knowledge that it is a PCA.
 
         :param source: the same frame :func:`pca` was given; its surviving rows
             are taken by position.

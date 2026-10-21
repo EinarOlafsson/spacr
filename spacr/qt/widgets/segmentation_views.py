@@ -106,10 +106,13 @@ def per_object(value) -> Arrays:
 def to_rgb8(image) -> Optional[np.ndarray]:
     """``image`` as ``H x W x 3`` ``uint8``, or ``None`` for nothing drawable.
 
-    A ``uint8`` picture passes through untouched. Anything else is stretched
-    from its own minimum to its own maximum: the default for an owner that
-    did not normalise, and no more than that, because normalisation is the
-    owner's business (the live preview has percentiles for it).
+    A ``uint8`` picture keeps its channel values while being converted to
+    RGB: grayscale is repeated across three channels, extra channels are
+    dropped after the first three, and missing channels are filled with
+    zeros. Other dtypes are stretched from their own minimum to their own
+    maximum: the default for an owner that did not normalise, because
+    normalisation is the owner's business (the live preview has percentiles
+    for it).
 
     :param image: ``H x W``, ``H x W x 1`` or ``H x W x C`` in any dtype.
     """

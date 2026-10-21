@@ -35,9 +35,9 @@ from ..dialogs import detach_from_window_manager
 class MetadataColumnDialog(QDialog):
     """Resolve every missing canonical column in one editable table.
 
-    :param request: the canonical columns still unresolved, and the candidates
-        offered for each. Held as :attr:`request`, so a caller reads the
-        user's choices back off the same object it passed in.
+    :param request: the canonical columns still unresolved, and the candidates offered for
+        each. Held as :attr:`request`; the user's choices are returned
+        separately by :meth:`decision`.
     :param parent: parent widget.
     """
 

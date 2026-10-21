@@ -1485,11 +1485,10 @@ _catalogue_this_screen()
 def open_setup_if_needed(parent=None) -> Optional[SetupSlides]:
     """Show the setup slides when the recorded setup state requires them.
 
-    The centralized :func:`spacr.qt.setup_screen.should_open` check prevents
-    independent callers from opening duplicate dialogs during one launch, and
-    :func:`spacr.qt.terms.needs_agreement` adds the one condition a default
-    cannot satisfy: terms that have never been accepted, or that have been
-    rewritten since they were.
+    The centralized :func:`spacr.qt.setup_screen.should_open` check compares
+    the answered setup version with the running version.
+    :func:`spacr.qt.terms.needs_agreement` additionally requests setup when
+    the terms have never been accepted or have changed since acceptance.
     """
     from ..setup_screen import should_open, skipped_on_purpose
     from ..terms import needs_agreement

@@ -1,19 +1,15 @@
 """Add a local model to the zoo, and optionally share it on Hugging Face.
 
-spaCR ships no built-in token. Uploading to one account from every user's
-machine would mean shipping a write token inside spaCR. A write token can
-also rewrite and delete every model in that account, and anyone who installs
-spaCR could read it out of the package. So the upload
-uses the token belonging to whoever is running it:
+Direct model sharing uses the token belonging to whoever is running it. spaCR
+ships no built-in write token:
 
   - `huggingface-cli login`, or the HF_TOKEN / HUGGING_FACE_HUB_TOKEN
     environment variable.
 
-It publishes to :data:`SHARE_REPO` when that token may write there -- the
-owner can grant that per person in the repository's settings -- and otherwise
-to the uploader's own namespace, which always works and is never destructive
-to somebody else. Either way the model card carries the same table, so a
-shared model is readable in the same terms as a bundled one.
+Direct model sharing selects :data:`SHARE_REPO` when repository lookup and
+account lookup succeed. If either lookup fails, it tries the uploader's own
+namespace. This selection does not verify write permission; creation or upload
+can still fail. Either destination receives the same model-card table.
 """
 from __future__ import annotations
 
@@ -295,7 +291,8 @@ path = model_zoo.install(entry, dest="~/spacr_models")
 
 
 def target_repo(token: str) -> Tuple[str, bool]:
-    """Where this token may publish: the shared repo, or its own namespace.
+    """Select the shared repository or the token owner's namespace without
+    verifying write permission.
 
     :param token: Hugging Face access token; it decides whether the shared
         repository is reachable and, if not, whose namespace is used.

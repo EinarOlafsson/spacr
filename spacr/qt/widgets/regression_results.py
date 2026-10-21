@@ -138,8 +138,9 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
     Parameters
     ----------
     path : path-like
-        Results CSV, run directory, or parent directory to search. A CSV is
-        returned directly; missing paths and non-CSV files return no matches.
+        Results CSV, run directory, or parent directory to search. An explicit
+        CSV is returned first, followed by recognised result tables beside it;
+        missing paths and non-CSV files return no matches.
     max_depth : int, default=MAX_SEARCH_DEPTH
         Maximum directory depth to descend below ``path``. The root directory
         is still inspected when this value is zero.
@@ -151,10 +152,11 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
     Returns
     -------
     list of str
-        Recognised result-table paths. Run directories are ordered by the
-        newest modification time among their tables. Within a run,
-        ``results.csv`` precedes the gene and gRNA views according to
-        :data:`RESULT_FILENAMES`.
+        Recognised result-table paths. For directory searches, runs are ordered
+        by the newest modification time among their tables, and tables within
+        each run follow :data:`RESULT_FILENAMES`. An explicitly supplied CSV
+        stays first, followed by its recognised siblings in that same filename
+        order.
     """
     if not path:
         return []

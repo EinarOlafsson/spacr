@@ -427,9 +427,7 @@ def to_settings_fragment(design: PlateDesign,
     :param table: its assignment; computed if omitted.
     :param key: which settings family to fill -- ``"treatment"``,
         ``"cell"`` or ``"pathogen"``.
-    :returns: ``{"expressible": bool, "reason": str, "settings": {...}}``.
-        ``settings`` holds ``<key>s`` and ``<key>_plate_metadata`` plus
-        ``positive_control``/``negative_control`` when those roles are used.
+    :returns: ``{"expressible": bool, "reason": str, "settings": {...}}``. ``settings`` holds ``treatments``, ``cell_types`` or ``pathogen_types`` according to ``key``, together with ``<key>_plate_metadata`` and ``positive_control_id``/``negative_control_id`` when those roles are used.
     """
     if table is None:
         table = assign_wells(design)

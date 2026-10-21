@@ -118,9 +118,10 @@ def load_test_data(screen, *, ask=None) -> Dict[str, str]:
     :param screen: a screen :func:`install_test_data_button` was called on.
     :param ask: replaces :func:`spacr.qt.hf_download.download_annotate_example`,
         with the same ``(parent, destination, on_done)`` signature. For tests.
-    :returns: ``{"folder": ..., "db": ...}`` when the plate was handed over
-        before returning -- always, when it was already cached -- and an
-        empty mapping while a download is still running or after it failed.
+    :returns: ``{"folder": ..., "db": ...}`` when the plate was handed over before
+        returning, including successful reuse of a cached plate; an
+        empty mapping while a download is still running, after download
+        failure, or when the screen's callback raises.
     """
     folder = example_measurements_folder()
     database = folder / _DB_RELATIVE

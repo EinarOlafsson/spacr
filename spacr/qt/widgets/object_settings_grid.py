@@ -11,13 +11,7 @@ the view over it. Because of this split the stored keys never change, so no
 settings file, notebook, tutorial or ``spacr-run`` invocation needs migrating;
 only the presentation differs.
 
-The table shape allows an arbitrary number of organelles. The number of
-organelles a run may declare is not fixed. In a flat vocabulary each new
-organelle is twenty new settings that every tooltip table and translation
-catalog has to include; here it is one column, and the number of questions
-does not change. :meth:`ObjectSettingsGrid.add_organelle` adds one, and it
-starts a new organelle from the first one's answers rather than from a global
-default.
+The table shape supports multiple organelles up to the slot limit. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to include; here it is one column, and the number of questions does not change. :meth:`ObjectSettingsGrid.add_organelle` adds one, and it retains stored answers for that slot or seeds a missing slot from the preceding organelle.
 
 The view enforces two rules; breaking either would corrupt a settings file
 rather than only display it wrongly:
@@ -1503,7 +1497,7 @@ class ObjectSettingsGrid(QWidget):
         return ""
 
     def add_organelle(self) -> bool:
-        """Add the next organelle column, seeded from the first one.
+        """Add the next organelle column, retaining its stored answers or seeding a missing slot from the preceding organelle.
 
         :returns: False when there is no slot left, with the reason on screen
             rather than as an exception into a GUI slot.

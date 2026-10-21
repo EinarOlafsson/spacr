@@ -2,7 +2,8 @@
 
 The accent follows the corner nearest the pointer. All visual effects are
 decorative: if a blur, background, or accent cannot be painted, the card
-continues to display its questions and save their answers.
+continues to host the question controls. The setup dialog collects and
+saves their answers through :mod:`spacr.qt.setup_screen`.
 """
 from __future__ import annotations
 

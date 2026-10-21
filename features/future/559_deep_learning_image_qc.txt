@@ -1,8 +1,8 @@
 DEEP-LEARNING IMAGE QC: OUT-OF-FOCUS, SATURATION, DEBRIS, EMPTY FIELDS
 
-Status: IN PROGRESS 2026-10-21 — public real-image QC dataset search and
-        pinned Hugging Face weights with local caching. Built and alpha-gated;
-        real-data precision/recall acceptance remains required.
+Status: BLOCKED 2026-10-21 — pinned weights delivery is complete; independent
+        real-data QC acceptance fails on available brightfield bubble data.
+        Expert-labelled saturation/empty/artifact subsets remain unavailable.
 
 Previous status (superseded 2026-10-04): DONE 2026-10-03 (alpha-gated); only external points left: real debris/bubble/saturation/empty labels (maintainer annotation) and shipped weights (maintainer package-data decision).
 Owner: Codex maintainer-input coordinator and retained F559 workers.
@@ -186,7 +186,8 @@ those expert labels. Source-bound plan and entrypoints are in
 data/maintainer_annotation_reconciliation_2026-10-14/. No new labels, images,
 model inference/training or GPU actions; whole-item acceptance remains open.
 
-2026-10-21 — Maintainer has no existing QC images/labels; search primary public datasets for real debris/bubble/saturation/empty labels and verify licensing before use.
-Distribution approved: immutable-revision Hugging Face download from einarolafsson/models (DATASET), cached locally; preserve explicit model overrides and restricted loading.
-Acceptance retains real labelled precision/recall against the current rules plus quarantine behavior; synthetic defects or blur-only truth do not close all-class acceptance.
-Delivered pinned synthetic built-in weights at HF f9a020c5e8cc0457bd81858d90cb9847ab412856 with verified atomic caching; 15 focused tests pass. Public labelled-data evaluation remains open; no real-QC-pretraining claim.
+2026-10-21 — Maintainer has no QC images/labels and requests online data search; approved immutable Hugging Face download/local caching, delivered with explicit overrides and restricted loading (15 tests pass).
+Published existing synthetic built-in checkpoint unchanged at HF f9a020c5e8cc0457bd81858d90cb9847ab412856; this is not real-QC-pretrained or scientifically validated.
+Downloaded MIT AutoQC-Bench (S-BIAD2133): 148 real brightfield images/48 expert masks, 52,947,274 B. No-training CPU baseline and independent row-level peer find 80/100 good images falsely flagged and 0/10 real bubbles detected as bubbles.
+This out-of-domain result fails bubble acceptance; comparison uses untuned default rules, not tuned rules. Saturation/empty/debris truth and a model meeting the original real-data precision/recall gate remain open.
+With explicit approval, posted https://github.com/NIB-SI/HCS-proc/issues/1 for the existing RTgill manual labels/matching frames; 121 GB archive untouched. Await actual data/retraining validation; no GPU, invented labels or scientific-success claim.

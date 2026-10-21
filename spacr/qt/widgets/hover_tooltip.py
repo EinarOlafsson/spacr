@@ -562,11 +562,10 @@ class HoverTooltip(QFrame):
         :param html: rich-text body; empty strings are ignored. A trailing
             documentation link is moved out of the prose and into the **API**
             word at the foot of the popup.
-        :param animation: a :class:`spacr.setting_animations.SettingAnimation`
-            to play beside the text, or ``None`` for text only. Left out, it
-            is derived from the anchor's ``settingKey`` property — every
-            caller that attaches setting help already sets that, so none of
-            them had to change.
+        :param animation: a :class:`spacr.setting_animations.SettingAnimation` to play
+            beside the text, or ``None`` for text only. When omitted,
+            lookup uses the anchor's ``settingAnimationKey`` property if
+            nonempty, otherwise its setting key.
         :param immediate: show now for an explicit click or an already delayed
             hover callback; ordinary hover callers leave this false.
         """

@@ -147,7 +147,7 @@ class Folder:
             self._listeners.append(callback)
 
     def set_shut(self, shut: bool, *, by_user: bool = True) -> bool:
-        """Open or close the fold, reporting whether anything moved.
+        """Open or close the fold and return its new shut state.
 
         :param shut: True to close it.
         :param by_user: False when the program folds it on the user's behalf

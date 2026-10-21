@@ -545,7 +545,8 @@ class CascadeEngine:
                dream: float, iterations: int, pointer_x: float = 0.0,
                pointer_y: float = 0.0, pull: float = 0.0,
                push: float = 0.0) -> np.ndarray:
-        """One frame, four spatial samples per pixel.
+        """Render one frame with ``max(1, int(self.samples))`` squared spatial
+        samples per pixel.
 
         THE POINTER ARGUMENTS ARE NOT OPTIONAL IN PRACTICE. The worker
         passes all ten positionally to whichever engine the pattern chose,

@@ -71,15 +71,17 @@ def reflow_shape(count: int,
     answer is 3x3, not 9x1, because comparing nine embeddings side by side
     is the entire reason the view exists.
 
-    Columns are capped by ``min_cell`` and by ``count``. When the result
-    does not fit vertically the grid scrolls -- it does not shrink cells
-    below the size at which a figure stops being readable, because an
-    unreadable grid is not a cheaper version of a readable one.
+    Columns are capped by ``min_cell`` and by ``count``, with at least one
+    column for a nonempty grid. The layout scores vertical overflow rather
+    than shrinking cells to fit the height. A container narrower than
+    ``min_cell`` still produces one column, whose cell width can be below
+    that minimum.
 
     :param count: how many figures are in the grid.
     :param width: usable container width in pixels.
     :param height: usable container height in pixels.
-    :param min_cell: narrowest cell worth drawing.
+    :param min_cell: preferred minimum cell width; a narrower container still uses
+        one column.
     :param aspect: cell width divided by cell height.
     :param spacing: gap between cells in pixels.
     :returns: ``(columns, rows, cell_width)``. ``(0, 0, 0)`` for no figures.

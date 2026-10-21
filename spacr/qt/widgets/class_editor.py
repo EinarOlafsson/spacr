@@ -347,10 +347,7 @@ class ClassEditorWidget(QWidget):
         ``classify_classes.normalize_settings`` would skip its
         legacy-translation branch, so the class names would be lost.
 
-        :param value: a mapping of class name to ``{column, value,
-            random_complement}``, a legacy list or tuple of class names, or
-            the text of either; anything else leaves the table empty.
-            Malformed entries are skipped.
+        :param value: a mapping of class name to ``{column, value, random_complement}``, a legacy list or tuple of class names, or the text of either; other input types leave the table empty. Non-mapping entries in a mapping are skipped, as are mapping rules rejected with ``ClassDefinitionError``. Legacy names are constructed without that exception handler, so invalid names can raise.
         """
         self._rules = []
         if isinstance(value, str):

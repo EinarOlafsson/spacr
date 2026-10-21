@@ -327,9 +327,11 @@ def track_metrics(points, calibration: Calibration, min_length: int = 3):
     displacement over path length. Velocity is ``v_px_per_frame * factor``
     and carries :attr:`Calibration.unit`.
 
-    Tracks shorter than ``min_length`` frames are kept in the table and
-    flagged ``too_short`` rather than silently dropped, so the length
-    distribution plot can show what the cutoff is discarding.
+    Tracks with at least two observations and at least one finite step are kept
+    even when shorter than ``min_length`` frames, and are flagged
+    ``too_short`` so the length distribution plot can show what the cutoff
+    is discarding. Single-observation tracks and tracks without a finite
+    step are skipped.
 
     :param points: point table as returned by :func:`build_point_table`, one
         row per object per frame.

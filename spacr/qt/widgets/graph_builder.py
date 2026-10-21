@@ -738,12 +738,12 @@ class GraphCanvas(LinkedView, QWidget):
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Point the canvas at a table.
 
-        Channels naming a column the new table does not have are emptied
-        rather than carried over: a spec that half-resolves would draw a chart
-        of fewer variables than the zones claim.
+        For a non-None table, channels naming a column it does not have are
+        emptied rather than carried over. Passing None removes the table while
+        preserving channel assignments.
 
-        :param frame: the table to plot, or None for no table; channels naming
-            a column it lacks are emptied.
+        :param frame: the table to plot, or None for no table; missing-column
+            channels are emptied only when a table is supplied.
         """
         self._take_frame(frame)
         self.render_now()
