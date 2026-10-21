@@ -1171,7 +1171,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "For en rask første kjøring peker dette opptaket Source mot sentrerte utsnitt av to eksempelfelt; med dine egne data slår du heller på Test mode og velger noen få testbilder. La Plot være på, sjekk diameter og flytterskler per objekt, la Save under Quality Control være på, og klikk så Run.",
+          "narration": "For en rask første kjøring bruker du bildeutsnitt fra midten av to eksempelsynsfelt som Source. Slå på Test mode og velg noen testbilder når du bruker egne data. La Plot være på, sjekk diameter og flytterskler per objekt, la Save under Quality Control være på, og klikk så Run.",
           "hold_after": 0.7
         },
         {

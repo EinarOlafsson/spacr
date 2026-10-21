@@ -1171,7 +1171,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Fyrir fljótlega fyrstu keyrslu beinir þessi upptaka Source að miðjubútum úr tveimur dæmasviðum; með þínum eigin gögnum kveikirðu frekar á Test mode og velur nokkrar prófmyndir. Hafðu Plot á, athugaðu þvermál og flæðimörk hvers hlutar, hafðu Save á undir Quality Control og smelltu svo á Run.",
+          "narration": "Notaðu miðjuútskurði úr tveimur dæmismyndsviðum sem Source fyrir fljótlega fyrstu keyrslu. Með eigin gögnum skaltu kveikja á Test mode og velja nokkrar prófunarmyndir. Hafðu Plot á, athugaðu þvermál og flæðimörk hvers hlutar, hafðu Save á undir Quality Control og smelltu svo á Run.",
           "hold_after": 0.7
         },
         {

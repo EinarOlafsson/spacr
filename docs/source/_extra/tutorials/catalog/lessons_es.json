@@ -1290,9 +1290,9 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Para una primera ejecución rápida, esta grabación apunta Source a recortes centrados de dos campos de ejemplo; con sus propios datos, active Test mode y elija unas pocas imágenes de prueba. Deje Plot activado, revise los diámetros y umbrales de flujo por objeto, deje Save activado en Quality Control y haga clic en Run.",
+          "narration": "Para una primera ejecución rápida, usa como Source recortes centrados de dos campos de ejemplo. Con tus propios datos, activa Test mode y elige algunas imágenes de prueba. Deje Plot activado, revise los diámetros y umbrales de flujo por objeto, deje Save activado en Quality Control y haga clic en Run.",
           "hold_after": 0.7,
-          "speech_text": "Para una primera ejecución rápida, esta grabación apunta Source a recortes centrados de dos campos de ejemplo; con sus propios datos, active Test mode y elija unas pocas imágenes de prueba. Deje Plot activado, revise los diámetros y umbrales de flujo por objeto, deje Save activado en Quality Control y haga clic en Run."
+          "speech_text": "Para una primera ejecución rápida, usa como Source recortes centrados de dos campos de ejemplo. Con tus propios datos, activa Test mode y elige algunas imágenes de prueba. Deje Plot activado, revise los diámetros y umbrales de flujo por objeto, deje Save activado en Quality Control y haga clic en Run."
         },
         {
           "visual": "run_23_batch_finished",

@@ -1171,7 +1171,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Til en hurtig første kørsel peger denne optagelse Source på centrerede udsnit af to eksempelfelter; med dine egne data slår du i stedet Test mode til og vælger nogle få testbilleder. Lad Plot være slået til, kontroller diametre og flow-tærskler pr. objekt, lad Save under Quality Control være slået til, og klik derefter på Run.",
+          "narration": "Brug centrerede billedudsnit fra to eksempelsynsfelter som Source til en hurtig første kørsel. Slå Test mode til, og vælg nogle testbilleder, når du bruger egne data. Lad Plot være slået til, kontroller diametre og flow-tærskler pr. objekt, lad Save under Quality Control være slået til, og klik derefter på Run.",
           "hold_after": 0.7
         },
         {

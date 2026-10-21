@@ -1290,9 +1290,9 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Para uma primeira execução rápida, esta gravação aponta Source para recortes centrais de dois campos de exemplo; com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run.",
+          "narration": "Para uma primeira execução rápida, use como Source recortes centrados de dois campos de exemplo. Com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run.",
           "hold_after": 0.7,
-          "speech_text": "Para uma primeira execução rápida, esta gravação aponta Source para recortes centrais de dois campos de exemplo; com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run."
+          "speech_text": "Para uma primeira execução rápida, use como Source recortes centrados de dois campos de exemplo. Com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run."
         },
         {
           "visual": "run_23_batch_finished",

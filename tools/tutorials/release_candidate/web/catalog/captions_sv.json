@@ -1171,7 +1171,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "För en snabb första körning pekar den här inspelningen Source mot centrerade utsnitt av två exempelfält; med dina egna data slår du i stället på Test mode och väljer några testbilder. Låt Plot vara på, kontrollera diametrar och flödeströsklar per objekt, låt Save under Quality Control vara på och klicka sedan på Run.",
+          "narration": "För en snabb första körning använder du centrerade bildutsnitt från två exempelsynfält som Source. Aktivera Test mode och välj några testbilder när du använder egna data. Låt Plot vara på, kontrollera diametrar och flödeströsklar per objekt, låt Save under Quality Control vara på och klicka sedan på Run.",
           "hold_after": 0.7
         },
         {

@@ -1171,7 +1171,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "빠른 첫 실행을 위해 이 녹화에서는 Source를 예제 필드 두 개의 가운데를 잘라낸 이미지로 지정합니다. 자신의 데이터에서는 대신 Test mode를 켜고 테스트 이미지 몇 장을 고르세요. Plot은 켜 두고, 객체별 지름과 흐름 임계값을 확인하고, Quality Control의 Save를 켜 둔 다음 Run을 클릭하세요.",
+          "narration": "빠른 첫 실행에는 두 예제 시야의 중앙을 잘라낸 이미지를 Source로 사용하세요. 자신의 데이터에서는 Test mode를 켜고 테스트 이미지 몇 장을 선택하세요. Plot은 켜 두고, 객체별 지름과 흐름 임계값을 확인하고, Quality Control의 Save를 켜 둔 다음 Run을 클릭하세요.",
           "hold_after": 0.7
         },
         {

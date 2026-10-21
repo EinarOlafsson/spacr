@@ -1290,9 +1290,9 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "为了快速完成第一次运行，本录制把 Source 指向两个示例视野的中心裁剪图像；处理您自己的数据时，请改为打开 Test mode 并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。",
+          "narration": "为了快速进行首次运行，将两个示例视野的居中裁剪图像设为Source。使用自己的数据时，打开Test mode并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。",
           "hold_after": 0.7,
-          "speech_text": "为了快速完成第一次运行，本录制把 Source 指向两个示例视野的中心裁剪图像；处理您自己的数据时，请改为打开 Test mode 并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。"
+          "speech_text": "为了快速进行首次运行，将两个示例视野的居中裁剪图像设为Source。使用自己的数据时，打开Test mode并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。"
         },
         {
           "visual": "run_23_batch_finished",

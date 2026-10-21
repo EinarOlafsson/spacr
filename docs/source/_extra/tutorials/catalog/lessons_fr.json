@@ -1290,9 +1290,9 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Pour un premier essai rapide, cet enregistrement fait pointer Source vers des découpes centrées de deux champs d’exemple ; avec vos propres données, activez plutôt Test mode et choisissez quelques images de test. Laissez Plot activé, vérifiez les diamètres et les seuils de flux par objet, laissez Save activé dans Quality Control, puis cliquez sur Run.",
+          "narration": "Pour une première exécution rapide, utilisez comme Source des recadrages centrés de deux champs d’exemple. Avec vos propres données, activez Test mode et choisissez quelques images de test. Laissez Plot activé, vérifiez les diamètres et les seuils de flux par objet, laissez Save activé dans Quality Control, puis cliquez sur Run.",
           "hold_after": 0.7,
-          "speech_text": "Pour un premier essai rapide, cet enregistrement fait pointer Source vers des découpes centrées de deux champs d’exemple ; avec vos propres données, activez plutôt Test mode et choisissez quelques images de test. Laissez Plot activé, vérifiez les diamètres et les seuils de flux par objet, laissez Save activé dans Quality Control, puis cliquez sur Run."
+          "speech_text": "Pour une première exécution rapide, utilisez comme Source des recadrages centrés de deux champs d’exemple. Avec vos propres données, activez Test mode et choisissez quelques images de test. Laissez Plot activé, vérifiez les diamètres et les seuils de flux par objet, laissez Save activé dans Quality Control, puis cliquez sur Run."
         },
         {
           "visual": "run_23_batch_finished",

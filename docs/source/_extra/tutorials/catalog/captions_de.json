@@ -1171,7 +1171,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Für einen schnellen ersten Lauf richtet diese Aufnahme Source auf zentrierte Ausschnitte zweier Beispielfelder; bei Ihren eigenen Daten schalten Sie stattdessen Test mode ein und wählen einige Testbilder. Lassen Sie Plot an, prüfen Sie die objektbezogenen Durchmesser und Flow-Schwellen, lassen Sie Save unter Quality Control an und klicken Sie dann auf Run.",
+          "narration": "Verwenden Sie für einen schnellen ersten Lauf zentrierte Bildausschnitte zweier Beispiel-Bildfelder als Source. Aktivieren Sie bei eigenen Daten Test mode und wählen Sie einige Testbilder. Lassen Sie Plot an, prüfen Sie die objektbezogenen Durchmesser und Flow-Schwellen, lassen Sie Save unter Quality Control an und klicken Sie dann auf Run.",
           "hold_after": 0.7
         },
         {

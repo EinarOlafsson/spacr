@@ -1290,9 +1290,9 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Per una prima esecuzione rapida, questa registrazione punta Source su ritagli centrati di due campi di esempio; con i tuoi dati, attiva invece Test mode e scegli alcune immagini di prova. Lascia attivo Plot, controlla i diametri e le soglie di flusso per oggetto, lascia attivo Save in Quality Control, poi fai clic su Run.",
+          "narration": "Per una prima esecuzione rapida, usa come Source ritagli centrati di due campi di esempio. Con i tuoi dati, attiva Test mode e scegli alcune immagini di prova. Lascia attivo Plot, controlla i diametri e le soglie di flusso per oggetto, lascia attivo Save in Quality Control, poi fai clic su Run.",
           "hold_after": 0.7,
-          "speech_text": "Per una prima esecuzione rapida, questa registrazione punta Source su ritagli centrati di due campi di esempio; con i tuoi dati, attiva invece Test mode e scegli alcune immagini di prova. Lascia attivo Plot, controlla i diametri e le soglie di flusso per oggetto, lascia attivo Save in Quality Control, poi fai clic su Run."
+          "speech_text": "Per una prima esecuzione rapida, usa come Source ritagli centrati di due campi di esempio. Con i tuoi dati, attiva Test mode e scegli alcune immagini di prova. Lascia attivo Plot, controlla i diametri e le soglie di flusso per oggetto, lascia attivo Save in Quality Control, poi fai clic su Run."
         },
         {
           "visual": "run_23_batch_finished",
