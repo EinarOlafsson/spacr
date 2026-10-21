@@ -4151,3 +4151,9 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 2026-10-18 — accessibility_implementation + accessibility_acceptance own Coverage7 job117710076500's stale ConsolePanel test calls: remove only the two deleted saved=True arguments, retaining deleted-heading/absent-bar setup and exact answer identity/content assertions. The supported N700 product signature and API outputs remain unchanged. The sole affected node passes (1 passed,4.73s); peer-reviewed root publication remains.
 
 2026-10-19 — Re-verified on nightly fbdf6d825: Terms 4.3 is the deliberate current version and tests/test_packaging_metadata.py already pins 4.3 (152 passed with the 700 console tests); the ConsolePanel test calls carry no saved=True; no hosted Chrome 60 s timeout appears in the 6ac71ea23 release logs. Release run 39245216287 had no failed job when last checked; N43 stays open pending its result.
+
+2026-10-21 — Codex easy-task lane reproduced MAIN run39596859787 shard1/job119211197219's stale menu test (1 failed,1.14s).
+Ported only the published nightly neutral-menu test and owning producer function; original disclosure was preserved privately first.
+Four affected checks pass0.92s; the owning producer exactly matches the existing1106-byte MAIN page without rendering or writes.
+Ten exact language names/routes, menu shape, English authority and unrelated assertions remain; generated outputs are unchanged.
+Root owns final peer, MAIN approval and publication; broader hosted acceptance remains open.
