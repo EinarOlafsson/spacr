@@ -18,6 +18,8 @@ the slides still ask the same questions and write the same answers.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import importlib
 
 import pytest
@@ -26,6 +28,29 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QPointF, QRectF, Qt                    # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
+
+
+@contextmanager
+def _at_design_scale():
+    """Keep saved and active zoom local to designed-coordinate checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
 
 
 @pytest.fixture(scope="module")
@@ -41,7 +66,8 @@ def own_config(tmp_path, monkeypatch):
     from spacr.qt import preferences
 
     importlib.reload(preferences)
-    yield
+    with _at_design_scale():
+        yield
     importlib.reload(preferences)
 
 

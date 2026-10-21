@@ -8,11 +8,42 @@ press somewhere else, and a drag that lets go on the side it started from.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import pytest
 from PySide6.QtCore import QPoint, Qt
 from PySide6.QtTest import QTest
 
 from spacr.qt.widgets.toggle import Toggle
+
+
+@contextmanager
+def _at_design_scale():
+    """Keep saved and active zoom local to designed-coordinate checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
+@pytest.fixture(autouse=True)
+def _geometry_at_design_scale(qapp):
+    with _at_design_scale():
+        yield
 
 
 @pytest.fixture
@@ -130,6 +161,8 @@ def test_a_labelled_switch_asks_for_room_for_the_track_and_the_text(qtbot):
     toggle = Toggle("Timelapse")
     qtbot.addWidget(toggle)
     plain = QCheckBox("Timelapse")
+    plain.setObjectName(toggle.objectName())
+    plain.setStyleSheet(toggle.styleSheet())
     qtbot.addWidget(plain)
 
     assert toggle.sizeHint().width() >= (

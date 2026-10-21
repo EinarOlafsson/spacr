@@ -6,6 +6,8 @@ timer.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import statistics
 
 import pytest
@@ -28,6 +30,65 @@ DT = 1.0 / 24.0
 # letter of the spaCR splice, which is spelled down the column rather
 # than packed into a single cell.
 ALLOWED = set(BASES) | set(SPACR_TOKEN)
+
+
+@contextmanager
+def _at_design_scale():
+    """Keep saved and active zoom local to designed-coordinate checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
+@pytest.fixture(autouse=True)
+def _geometry_at_design_scale(qapp):
+    with _at_design_scale():
+        yield
+
+
+@pytest.mark.parametrize("previous_live", [0.8, None])
+def test_design_scale_restores_active_and_saved_zoom(qtbot, previous_live):
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    preferences.set_font_scale(0.7)
+    preferences.set_gui_scale(1.2)
+    with pytest.MonkeyPatch.context() as ambient:
+        ambient.setattr(gui_scale, "_SCALE", previous_live)
+        with _at_design_scale():
+            assert gui_scale.current_scale() == 1.0
+            assert preferences.get_font_scale() == 1.0
+            assert preferences.get_gui_scale() == 1.0
+            widget = QWidget()
+            qtbot.addWidget(widget)
+            widget.resize(640, 480)
+            assert (widget.width(), widget.height()) == (640, 480)
+        assert gui_scale.current_scale() == previous_live
+        assert preferences.get_font_scale() == 0.7
+        assert preferences.get_gui_scale() == 1.2
+        settings.remove("prefs/font_scale")
+        settings.remove("prefs/gui_scale")
+        with _at_design_scale():
+            assert preferences.get_font_scale() == 1.0
+            assert preferences.get_gui_scale() == 1.0
+        assert not settings.contains("prefs/font_scale")
+        assert not settings.contains("prefs/gui_scale")
+        assert gui_scale.current_scale() == previous_live
 
 
 def make_widget(qtbot, **kwargs):

@@ -1,6 +1,8 @@
 """N684: animation defaults, ripple controls, click-ripple suppression and Dynamic animation."""
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -15,12 +17,41 @@ from spacr.qt.widgets import ambient
 from spacr.qt.widgets.toggle import Toggle
 
 
+@contextmanager
+def _at_design_scale():
+    """Keep saved and active zoom local to designed-coordinate checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
 @pytest.fixture(autouse=True)
 def store(tmp_path, monkeypatch):
     settings = QSettings(str(tmp_path / "n684.ini"), QSettings.IniFormat)
     monkeypatch.setattr(prefs, "_settings", lambda: settings)
     monkeypatch.setattr(ambient.AmbientWidget, "_start_producer", lambda self: None)
     return settings
+
+
+@pytest.fixture(autouse=True)
+def _geometry_at_design_scale(store, qapp):
+    with _at_design_scale():
+        yield
 
 
 class _Handle:
