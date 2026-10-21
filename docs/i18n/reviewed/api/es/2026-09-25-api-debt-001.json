@@ -1066,7 +1066,9 @@
       "source_sha256": "48ca8f1be0ee90c3e4987ecd9f057e84034c5f20a15878cf47fc2a982b276f46",
       "context": "flat settings names such as ``\"cell_min_area\"``; names that do not start with a known object followed by ``_`` are skipped.",
       "translation": "nombres de ajuste planos como ``\"cell_min_area\"``; se omiten los nombres que no empiezan por un objeto conocido seguido de ``_``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-20 N112 finite semantic sample: stale fixed counts, incomplete settings-key examples or obsolete cross-reference replaced by exact-source root-peer-reviewed 2026-10-20-112-semantic-sample-object-table-links.json. Original source/context/translation retained."
     },
     {
       "label": "spacr.object_settings_table.questions#2",
@@ -1074,7 +1076,9 @@
       "source_sha256": "a3921a465c655d43c8302f1ed4b447f501f713a624d04e2ff36161ec2f4dfcbe",
       "context": "flat settings names such as ``\"cell_diameter\"``; names that do not start with a known object followed by ``_`` are skipped.",
       "translation": "nombres de ajuste planos como ``\"cell_diameter\"``; se omiten los nombres que no empiezan por un objeto conocido seguido de ``_``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-20 N112 finite semantic sample: stale fixed counts, incomplete settings-key examples or obsolete cross-reference replaced by exact-source root-peer-reviewed 2026-10-20-112-semantic-sample-object-table-links.json. Original source/context/translation retained."
     },
     {
       "label": "spacr.object_settings_table.to_table#3",

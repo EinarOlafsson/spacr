@@ -1132,7 +1132,9 @@
       "source_sha256": "48ca8f1be0ee90c3e4987ecd9f057e84034c5f20a15878cf47fc2a982b276f46",
       "context": "flat settings names such as ``\"cell_min_area\"``; names that do not start with a known object followed by ``_`` are skipped.",
       "translation": "समतल सेटिंग नाम, जैसे ``\"cell_min_area\"``; जो नाम किसी ज्ञात ऑब्जेक्ट और उसके बाद ``_`` से शुरू नहीं होते, छोड़ दिए जाते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-20 N112 finite semantic sample: stale fixed counts, incomplete settings-key examples or obsolete cross-reference replaced by exact-source root-peer-reviewed 2026-10-20-112-semantic-sample-object-table-links.json. Original source/context/translation retained."
     },
     {
       "label": "spacr.object_settings_table.questions#2",
@@ -1140,7 +1142,9 @@
       "source_sha256": "a3921a465c655d43c8302f1ed4b447f501f713a624d04e2ff36161ec2f4dfcbe",
       "context": "flat settings names such as ``\"cell_diameter\"``; names that do not start with a known object followed by ``_`` are skipped.",
       "translation": "समतल सेटिंग नाम, जैसे ``\"cell_diameter\"``; जो नाम किसी ज्ञात ऑब्जेक्ट और उसके बाद ``_`` से शुरू नहीं होते, छोड़ दिए जाते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-20 N112 finite semantic sample: stale fixed counts, incomplete settings-key examples or obsolete cross-reference replaced by exact-source root-peer-reviewed 2026-10-20-112-semantic-sample-object-table-links.json. Original source/context/translation retained."
     },
     {
       "label": "spacr.object_settings_table.to_table#3",

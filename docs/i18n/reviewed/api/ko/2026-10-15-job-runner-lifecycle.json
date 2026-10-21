@@ -11,7 +11,9 @@
       "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
       "previous_same_source_indexes": [],
       "translation": "결과 전달과 스레드 참조 정리는 서로 독립적입니다. :meth:`cancel` 메서드는 대기 중인 전달을 즉시 지우므로 늦게 도착한 완료 알림은 ``job_finished`` 신호를 내보내지 않습니다. 종료된 스레드의 정리 순회는 이와 별개로 스레드 참조를 계속 해제합니다.",
-      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_reason": "2026-10-20 N112 finite semantic sample: stale fixed counts, incomplete settings-key examples or obsolete cross-reference replaced by exact-source root-peer-reviewed 2026-10-20-112-semantic-sample-object-table-links.json. Original source/context/translation retained."
     },
     {
       "label": "spacr.qt.job_runner#7",

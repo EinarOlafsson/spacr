@@ -3,7 +3,7 @@
 Screens such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen``
 previously each had their own copy of this logic, and the copies differed: two
 connected ``thread.finished`` to a *closure*, which never retires the job (see
-:meth:`_retire_finished_jobs`). This module implements the rules once, for any
+``JobRunner._retire_finished_jobs``). This module implements the rules once, for any
 screen that moves work off the GUI thread.
 
 The rules:
@@ -24,7 +24,7 @@ The rules:
 * A strong reference to both the QThread and the worker must be held until
   ``thread.finished``. A QThread garbage-collected while running aborts the
   process.
-* Result delivery and thread retirement are separate. :meth:`cancel`
+* Result delivery and thread retirement are separate. :meth:`JobRunner.cancel`
   clears pending deliveries immediately; a late completion then emits no
   ``job_finished`` signal. The finished-thread sweep still releases the
   thread references independently.

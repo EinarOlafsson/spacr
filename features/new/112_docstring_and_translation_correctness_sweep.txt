@@ -1,6 +1,6 @@
-Status:    OPEN 2026-10-20 — mechanical guards and bounded correctness
-           corrections delivered; the wider semantic review remains open.
-           Original mechanical results and subsequent deliveries follow.
+Status:    OPEN 2026-10-20 — mechanical guards and a finite semantic sample
+           delivered; actual built-HTML link acceptance remains pending.
+           The unreviewed semantic remainder is recorded below.
 Requested: 2026-08-15 - "add to instructions, do a sweep of the docstrings
            and translations make sure everything is correct."
 
@@ -348,3 +348,5 @@ Evidence: data/ci_callable_documentation_contracts_2026-10-15/.
 
 2026-10-20 — Codex feature_takeover owns the bounded JobRunner signal-delivery prose repair: the module still calls signal re-emission the only safe route although submit now connects a bound GUI-thread QObject receiver directly. Correct that paragraph against the actual connection, retain worker/GUI thread distinctions and all lifecycle behavior; review nine locale targets and regenerate the owning API/Help artifacts normally. This does not close the wider semantic sweep; root peers and publishes.
 2026-10-20 — Delivered the corrected JobRunner paragraph and nine exact-source targets after root technical/language peer review; normal scoped generation retains seven other paragraphs and all 13,604 unrelated symbols per locale, with no decoding. Seven owning checks pass; executable AST, source history and Help summary are unchanged. Normal api_memory publication pins fb6e35c716b6217d5664354935a3bb88e08a16b3; the wider semantic review remains open.
+2026-10-20 — Codex feature_takeover continues the original semantic sample: 47 callable docstrings, three module introductions and one class description in install_profile, qt.job_runner and object_settings_table. Correct the two keys-parameter descriptions that exclude accepted suffix/legacy keys and replace the object-table introduction's obsolete fixed setting/object counts and per-slot setting count; retain runtime behavior, prior JobRunner targets and unrelated prose. Also replace the unrendered private retirement-method and organelle-limit links with literals and qualify the public cancellation link; root peers 54 exact locale targets across six changed blocks before normal scoped generation. The package-wide semantic remainder is not certified.
+2026-10-20 — Delivered six corrected source blocks and 54 root-peer-reviewed locale targets: all 47 documented callables in the three selected modules, their three introductions and one class description were sampled (51 units); other module prose and localized paragraphs remain semantically unreviewed. Ten original mechanical checks pass; seven prior writer checks remain valid; the consumer-map coherence check passes. Normal API memory pins cef31d504aabe631aaf243f7b20e8fa2cb4f16e1; source AST/history/Help summaries and 13,601 unrelated records per locale remain exact. The normal consumer map corrects only line references; genuine built-HTML link acceptance remains pending.

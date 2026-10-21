@@ -3740,7 +3740,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "flat settings names such as ``\"cell_min_area\"``; names that do not start with a known object followed by ``_`` are skipped.",
       "source_sha256": "48ca8f1be0ee90c3e4987ecd9f057e84034c5f20a15878cf47fc2a982b276f46",
-      "translation": "flache Einstellungsnamen wie ``\"cell_min_area\"``; Namen, die nicht mit einem bekannten Objekt gefolgt von ``_`` beginnen, werden übersprungen."
+      "translation": "flache Einstellungsnamen wie ``\"cell_min_area\"``; Namen, die nicht mit einem bekannten Objekt gefolgt von ``_`` beginnen, werden übersprungen.",
+      "retired": true,
+      "retired_reason": "2026-10-20 N112 finite semantic sample: stale fixed counts, incomplete settings-key examples or obsolete cross-reference replaced by exact-source root-peer-reviewed 2026-10-20-112-semantic-sample-object-table-links.json. Original source/context/translation retained."
     },
     {
       "context": "flat settings names such as ``\"cell_diameter\"``; names that do not start with a known object followed by ``_`` are skipped.",
@@ -3748,7 +3750,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "flat settings names such as ``\"cell_diameter\"``; names that do not start with a known object followed by ``_`` are skipped.",
       "source_sha256": "a3921a465c655d43c8302f1ed4b447f501f713a624d04e2ff36161ec2f4dfcbe",
-      "translation": "flache Einstellungsnamen wie ``\"cell_diameter\"``; Namen, die nicht mit einem bekannten Objekt gefolgt von ``_`` beginnen, werden übersprungen."
+      "translation": "flache Einstellungsnamen wie ``\"cell_diameter\"``; Namen, die nicht mit einem bekannten Objekt gefolgt von ``_`` beginnen, werden übersprungen.",
+      "retired": true,
+      "retired_reason": "2026-10-20 N112 finite semantic sample: stale fixed counts, incomplete settings-key examples or obsolete cross-reference replaced by exact-source root-peer-reviewed 2026-10-20-112-semantic-sample-object-table-links.json. Original source/context/translation retained."
     },
     {
       "context": "a flat settings key-value mapping, e.g. Mask's settings; it is only read.",

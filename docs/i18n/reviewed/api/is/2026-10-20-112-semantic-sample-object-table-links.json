@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical translation review with independent root technical/language peer; no native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.object_settings_table#1",
+      "source": "Per-object settings repeat questions for each object type -- ``cell_diameter``, ``nucleus_diameter``, ``pathogen_diameter`` and ``organelle_diameter``, for example. The table puts each question in one row and each object type in one column.",
+      "context": "Per-object settings repeat questions for each object type -- ``cell_diameter``, ``nucleus_diameter``, ``pathogen_diameter`` and ``organelle_diameter``, for example. The table puts each question in one row and each object type in one column.",
+      "source_sha256": "721dcad208f9ff25a9c2bea09889acd11cb8c57f9e7efa2f72549c927bb73dc1",
+      "translation": "Stillingar fyrir hvern hlut endurtaka spurningar fyrir hverja gerð hluta -- til dæmis ``cell_diameter``, ``nucleus_diameter``, ``pathogen_diameter`` og ``organelle_diameter``. Taflan setur hverja spurningu í eina röð og hverja gerð hluta í einn dálk.",
+      "review_basis": "Independent root technical/language peer approved exact source/target after direct read. Actual per-object table behavior and suffix/legacy settings keys checked. Organelle limit uses the named literal, avoiding stale26 (actual702) and an unrendered AutoAPI data target. Shared JobRunner completion semantics, private helper literal and qualified public cancellation target checked. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.object_settings_table#2",
+      "source": "The organelle count is variable, up to ``spacr.organelle_types.MAX_ORGANELLES``. Each added slot repeats the primary organelle's settings. In the table an additional organelle adds a column while the question rows stay the same.",
+      "context": "The organelle count is variable, up to ``spacr.organelle_types.MAX_ORGANELLES``. Each added slot repeats the primary organelle's settings. In the table an additional organelle adds a column while the question rows stay the same.",
+      "source_sha256": "3b03c07ab365c31b312b788f97f7563834d4135204bde874e6b4a7c40a57ecf8",
+      "translation": "Fjöldi frumulíffæra er breytilegur, allt að ``spacr.organelle_types.MAX_ORGANELLES``. Hvert viðbótarhólf endurtekur stillingar fyrsta frumulíffærisins. Í töflunni bætir frumulíffæri við dálki en spurningaraðirnar haldast óbreyttar.",
+      "review_basis": "Independent root technical/language peer approved exact source/target after direct read. Actual per-object table behavior and suffix/legacy settings keys checked. Organelle limit uses the named literal, avoiding stale26 (actual702) and an unrendered AutoAPI data target. Shared JobRunner completion semantics, private helper literal and qualified public cancellation target checked. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.object_settings_table.questions#2",
+      "source": "flat settings names such as ``\"cell_diameter\"``, ``\"remove_background_cell\"``, ``\"remove_background_organelle_2\"`` and ``\"adjust_cells\"``. Unsupported names are skipped.",
+      "context": "flat settings names such as ``\"cell_diameter\"``, ``\"remove_background_cell\"``, ``\"remove_background_organelle_2\"`` and ``\"adjust_cells\"``. Unsupported names are skipped.",
+      "source_sha256": "d3c2ed1e76a1baa3f324232758f36d6886d78303ffc7d86be9d679ea2fd7da47",
+      "translation": "heiti stillinga á flötu sniði, svo sem ``\"cell_diameter\"``, ``\"remove_background_cell\"``, ``\"remove_background_organelle_2\"``, ``\"adjust_cells\"``. Heitum sem ekki eru studd er sleppt.",
+      "review_basis": "Independent root technical/language peer approved exact source/target after direct read. Actual per-object table behavior and suffix/legacy settings keys checked. Organelle limit uses the named literal, avoiding stale26 (actual702) and an unrendered AutoAPI data target. Shared JobRunner completion semantics, private helper literal and qualified public cancellation target checked. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.object_settings_table.families#1",
+      "source": "flat settings names such as ``\"cell_min_area\"``, ``\"remove_background_cell\"``, ``\"remove_background_organelle_2\"`` and ``\"adjust_cells\"``. Unsupported names are skipped.",
+      "context": "flat settings names such as ``\"cell_min_area\"``, ``\"remove_background_cell\"``, ``\"remove_background_organelle_2\"`` and ``\"adjust_cells\"``. Unsupported names are skipped.",
+      "source_sha256": "3333e57d5a66dee52ebb1cccc2028e7f42dfcd568047fb86e01f190381133d65",
+      "translation": "heiti stillinga á flötu sniði, svo sem ``\"cell_min_area\"``, ``\"remove_background_cell\"``, ``\"remove_background_organelle_2\"``, ``\"adjust_cells\"``. Heitum sem ekki eru studd er sleppt.",
+      "review_basis": "Independent root technical/language peer approved exact source/target after direct read. Actual per-object table behavior and suffix/legacy settings keys checked. Organelle limit uses the named literal, avoiding stale26 (actual702) and an unrendered AutoAPI data target. Shared JobRunner completion semantics, private helper literal and qualified public cancellation target checked. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.job_runner#1",
+      "source": "Screens such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen`` previously each had their own copy of this logic, and the copies differed: two connected ``thread.finished`` to a *closure*, which never retires the job (see ``JobRunner._retire_finished_jobs``). This module implements the rules once, for any screen that moves work off the GUI thread.",
+      "context": "Application views such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen`` previously each had their own copy of this logic, and the copies differed: two connected ``thread.finished`` to a *closure*, which never retires the job (see ``JobRunner._retire_finished_jobs``). This module implements the rules once, for any application view that moves work off the main GUI execution path.",
+      "source_sha256": "753e7bc490534404a760110fedcc475ac1e26b75dcbf4dddc2ea97b29f49f944",
+      "translation": "Skjáir á borð við ``DbBrowserScreen``, ``PlateViewScreen`` og ``ReportScreen`` höfðu áður hver sína útfærslu á þessari rökfræði og útfærslurnar voru ólíkar: tvær þeirra tengdu ``thread.finished`` við *fallslokun (closure)* sem gengur aldrei frá verkinu eftir að því lýkur (sjá ``JobRunner._retire_finished_jobs``). Þessi eining útfærir reglurnar á einum stað fyrir alla skjái sem færa vinnu af GUI-þræðinum.",
+      "review_basis": "Independent root technical/language peer approved exact source/target after direct read. Actual per-object table behavior and suffix/legacy settings keys checked. Organelle limit uses the named literal, avoiding stale26 (actual702) and an unrendered AutoAPI data target. Shared JobRunner completion semantics, private helper literal and qualified public cancellation target checked. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.job_runner#6",
+      "source": "Result delivery and thread retirement are separate. :meth:`JobRunner.cancel` clears pending deliveries immediately; a late completion then emits no ``job_finished`` signal. The finished-thread sweep still releases the thread references independently.",
+      "context": "Result delivery and independent execution path retirement are separate. :meth:`JobRunner.cancel` clears pending deliveries immediately; a late completion then emits no ``job_finished`` signal. The finished-independent execution path sweep still releases the independent execution path references independently.",
+      "source_sha256": "de2351347d653a46f994796ec7a4b86f4e5181b372fc93abae3cb47bcaac506e",
+      "translation": "Afhending niðurstaðna og losun þráðatilvísana eru aðskildar. :meth:`JobRunner.cancel` hreinsar afhendingar í bið strax; síðbúin verklok senda þá ekkert ``job_finished`` merki. Yfirferð lokinna þráða losar áfram tilvísanir í þræðina óháð þessu.",
+      "review_basis": "Independent root technical/language peer approved exact source/target after direct read. Actual per-object table behavior and suffix/legacy settings keys checked. Organelle limit uses the named literal, avoiding stale26 (actual702) and an unrendered AutoAPI data target. Shared JobRunner completion semantics, private helper literal and qualified public cancellation target checked. No native-speaker signoff."
+    }
+  ]
+}

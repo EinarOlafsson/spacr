@@ -9,7 +9,9 @@
       "context": "Application views such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen`` previously each had their own copy of this logic, and the copies differed: two connected ``thread.finished`` to a *closure*, which never retires the job (see :meth:`_retire_finished_jobs`). This module implements the rules once, for any application view that moves work off the main GUI execution path.",
       "source_sha256": "4196eb0fc3448452ffdd1474fa6d9fcd1aec512183f979623d9cb2875f6ddd83",
       "translation": "Skjáir á borð við ``DbBrowserScreen``, ``PlateViewScreen`` og ``ReportScreen`` höfðu áður hver sína útfærslu á þessari rökfræði og útfærslurnar voru ólíkar: tvær þeirra tengdu ``thread.finished`` við *fallslokun (closure)* sem gengur aldrei frá verkinu eftir að því lýkur (sjá :meth:`_retire_finished_jobs`). Þessi eining útfærir reglurnar á einum stað fyrir alla skjái sem færa vinnu af GUI-þræðinum.",
-      "review_basis": "AI technical correction of an identified retained translation error, checked against the unchanged English and implementation. Independent technical peer requested; no human/native-speaker claim."
+      "review_basis": "AI technical correction of an identified retained translation error, checked against the unchanged English and implementation. Independent technical peer requested; no human/native-speaker claim.",
+      "retired": true,
+      "retired_reason": "2026-10-20 N112 finite semantic sample: stale fixed counts, incomplete settings-key examples or obsolete cross-reference replaced by exact-source root-peer-reviewed 2026-10-20-112-semantic-sample-object-table-links.json. Original source/context/translation retained."
     },
     {
       "label": "spacr.qt.job_runner#4",

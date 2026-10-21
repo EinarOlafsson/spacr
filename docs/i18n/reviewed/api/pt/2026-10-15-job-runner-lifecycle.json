@@ -11,7 +11,9 @@
       "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
       "previous_same_source_indexes": [],
       "translation": "A entrega de resultados e a liberação das referências às threads são separadas. :meth:`cancel` limpa imediatamente as entregas pendentes; uma conclusão tardia não emite o sinal ``job_finished``. A varredura de threads concluídas continua liberando suas referências de forma independente.",
-      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      "review_basis": "Exact-source technical translation review of inline versus threaded execution, pending deliveries versus retained thread references, immediate cancellation bookkeeping and late failure signals, success and failure return values, parked-thread lifetime, shared wait deadlines and successful shutdown counts. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_reason": "2026-10-20 N112 finite semantic sample: stale fixed counts, incomplete settings-key examples or obsolete cross-reference replaced by exact-source root-peer-reviewed 2026-10-20-112-semantic-sample-object-table-links.json. Original source/context/translation retained."
     },
     {
       "label": "spacr.qt.job_runner#7",
