@@ -2,6 +2,139 @@
   "schema": 1,
   "lessons": [
     {
+      "lesson": "02_install_spacr",
+      "master_sha256": "331e12e22e6118223af0310f75d8ceb32fc4ce45409d12756331d087f02c7dae",
+      "visual_timing_sha256": "714e5fe2c65e72dd1813ce123d4883354e0ab651c9caec95e0b547024916f847",
+      "scenes": [
+        {
+          "visual": "00_install_routes",
+          "source_start": 0.0,
+          "source_end": 26.4,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_01_create_venv",
+          "source_start": 26.4,
+          "source_end": 45.3,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_02_activate_venv",
+          "source_start": 45.3,
+          "source_end": 74.23333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_03_install",
+          "source_start": 74.23333333333333,
+          "source_end": 97.5,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_04_check",
+          "source_start": 97.5,
+          "source_end": 111.26666666666667,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_05_launch",
+          "source_start": 111.26666666666667,
+          "source_end": 132.73333333333332,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_conda_01_create",
+          "source_start": 132.73333333333332,
+          "source_end": 155.79999999999998,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_conda_02_install",
+          "source_start": 155.79999999999998,
+          "source_end": 182.96666666666664,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_01_create",
+          "source_start": 182.96666666666664,
+          "source_end": 207.86666666666665,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_02_plan",
+          "source_start": 207.86666666666665,
+          "source_end": 220.46666666666664,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_03_activate",
+          "source_start": 220.46666666666664,
+          "source_end": 241.59999999999997,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "docker_01_install",
+          "source_start": 241.59999999999997,
+          "source_end": 270.26666666666665,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "docker_02_image_check",
+          "source_start": 270.26666666666665,
+          "source_end": 295.26666666666665,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "source_start": 295.26666666666665,
+          "source_end": 329.0333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "docker_04_gpu",
+          "source_start": 329.0333333333333,
+          "source_end": 359.0333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "06_current_home",
+          "source_start": 359.0333333333333,
+          "source_end": 419.0333333333333,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "pip_06_update",
+          "source_start": 419.0333333333333,
+          "source_end": 443.96666666666664,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_04_update",
+          "source_start": 443.96666666666664,
+          "source_end": 472.56666666666666,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_07_uninstall",
+          "source_start": 472.56666666666666,
+          "source_end": 496.8333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_08_remove_environment",
+          "source_start": 496.8333333333333,
+          "source_end": 524.1333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_05_uninstall",
+          "source_start": 524.1333333333333,
+          "source_end": 553.8,
+          "idle_tail_start": 0
+        }
+      ]
+    },
+    {
       "lesson": "04_platform_installers",
       "master_sha256": "eb353f10bd81dbcba6f7f76761ccc286de7cc6d1575dc3155a45bec54d486d40",
       "visual_timing_sha256": "c97206b1ba30afa90784e67d5b127d903c407b165a14b5b77538ad80c45a6a91",
