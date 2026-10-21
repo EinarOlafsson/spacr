@@ -1,6 +1,8 @@
 """Organism pages preserve assay routes and keep proposals inert."""
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import hashlib
 import json
 
@@ -54,6 +56,35 @@ COMING_SOON = {
 }
 
 
+@contextmanager
+def _at_design_scale():
+    """Keep saved and active zoom local to designed-coordinate checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
+@pytest.fixture
+def _geometry_at_design_scale(qapp, qt_theme_applied):
+    with _at_design_scale():
+        yield
+
+
 def test_home_offers_three_organisms_and_keeps_all_assay_registry_keys():
     # 634: every organism page but Toxoplasma waits for Show alpha species.
     assert [row[0] for row in app.section_members(app.SECTION_ASSAYS)] == [
@@ -64,6 +95,7 @@ def test_home_offers_three_organisms_and_keeps_all_assay_registry_keys():
 
 
 @pytest.mark.parametrize("key", ORGANISMS)
+@pytest.mark.usefixtures("_geometry_at_design_scale")
 def test_each_organism_has_home_tiles_and_a_credited_cell_diagram(
         qtbot, qt_theme_applied, key):
     screen = OrganismScreen(key)
@@ -235,6 +267,7 @@ def test_diagram_selectors_highlight_real_groups_and_disclose_shared_shapes(qtbo
     assert _diagram_svg(diagram.artwork.source) == baseline
 
 
+@pytest.mark.usefixtures("_geometry_at_design_scale")
 def test_divider_drag_resizes_text_and_reflows_tiles_without_width_button(qtbot, qt_theme_applied):
     screen = OrganismScreen("toxoplasma")
     qtbot.addWidget(screen)

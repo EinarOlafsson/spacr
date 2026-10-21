@@ -1,10 +1,10 @@
-"""A new user on a small screen starts at 75 % GUI and 75 % font.
+"""Fresh profiles use 90 % GUI and font scales on every screen.
 
-The maintainer, 2026-10-20: a primary screen whose available geometry is
-under about 1600 logical pixels wide -- a 13-inch 1440 x 900 MacBook -- is
-small. Only a profile with no stored scale gets the smaller default; a
-scale someone chose is never replaced. The screen is mocked: the offscreen
-platform's own screen is invented and deliberately not measured.
+The maintainer's 2026-10-21 scaling policy supersedes the earlier small-screen
+75 % and large-screen 100 % defaults. A stored choice is never replaced;
+unreadable values fall back to 90 %, and Reset to defaults restores the
+effective values without storing them. Mocked laptop, wide and invented
+screens verify that screen geometry does not change this policy.
 """
 from __future__ import annotations
 
@@ -44,20 +44,20 @@ def screen(monkeypatch, qapp):
     return use
 
 
-def test_a_13_inch_laptop_starts_at_75_percent(private_store, screen):
+def test_a_13_inch_laptop_starts_at_90_percent(private_store, screen):
     from spacr.qt import preferences
 
     screen(1440, 875)
-    assert preferences.get_gui_scale() == pytest.approx(0.75)
-    assert preferences.get_font_scale() == pytest.approx(0.75)
+    assert preferences.get_gui_scale() == pytest.approx(0.9)
+    assert preferences.get_font_scale() == pytest.approx(0.9)
 
 
-def test_a_1920_wide_screen_starts_at_100_percent(private_store, screen):
+def test_a_1920_wide_screen_starts_at_90_percent(private_store, screen):
     from spacr.qt import preferences
 
     screen(1920, 1040)
-    assert preferences.get_gui_scale() == pytest.approx(1.0)
-    assert preferences.get_font_scale() == pytest.approx(1.0)
+    assert preferences.get_gui_scale() == pytest.approx(0.9)
+    assert preferences.get_font_scale() == pytest.approx(0.9)
 
 
 @pytest.mark.parametrize("stored", [1.0, 1.25, 0.5])
@@ -80,18 +80,18 @@ def test_an_unreadable_stored_scale_reads_as_the_screen_default(private_store, s
     store.setValue("prefs/font_scale", "not a number")
     store.sync()
     screen(1440, 875)
-    assert preferences.get_gui_scale() == pytest.approx(0.75)
-    assert preferences.get_font_scale() == pytest.approx(0.75)
+    assert preferences.get_gui_scale() == pytest.approx(0.9)
+    assert preferences.get_font_scale() == pytest.approx(0.9)
 
 
-def test_an_invented_screen_keeps_100_percent(private_store, monkeypatch, qapp):
+def test_an_invented_screen_uses_90_percent(private_store, monkeypatch, qapp):
     from spacr.qt import preferences
 
     monkeypatch.setattr(QGuiApplication, "platformName", staticmethod(lambda: "offscreen"))
     monkeypatch.setattr(QGuiApplication, "primaryScreen",
                         staticmethod(lambda: _Screen(800, 600)))
-    assert preferences.get_gui_scale() == pytest.approx(1.0)
-    assert preferences.get_font_scale() == pytest.approx(1.0)
+    assert preferences.get_gui_scale() == pytest.approx(0.9)
+    assert preferences.get_font_scale() == pytest.approx(0.9)
 
 
 def test_preferences_show_the_effective_scale_and_reset_to_it(private_store, screen, qtbot):
@@ -103,11 +103,13 @@ def test_preferences_show_the_effective_scale_and_reset_to_it(private_store, scr
     qtbot.addWidget(dialog)
     gui = dialog.findChild(QSlider, "GuiScale")
     font = dialog.findChild(QSlider, "FontScale")
-    assert (gui.value(), font.value()) == (75, 75)
+    assert (gui.value(), font.value()) == (90, 90)
 
     gui.setValue(140)
     font.setValue(130)
     dialog.findChild(QPushButton, "PreferencesReset").click()
-    assert (gui.value(), font.value()) == (75, 75)
+    assert (gui.value(), font.value()) == (90, 90)
     assert QSettings(private_store, QSettings.IniFormat).value("prefs/gui_scale") is None
-    assert preferences.get_gui_scale() == pytest.approx(0.75)
+    assert QSettings(private_store, QSettings.IniFormat).value("prefs/font_scale") is None
+    assert preferences.get_gui_scale() == pytest.approx(0.9)
+    assert preferences.get_font_scale() == pytest.approx(0.9)

@@ -4832,19 +4832,11 @@ def _set_layout_decision(record: dict) -> None:
 def _screen_default_scale() -> float:
     """The GUI and font scale a profile with no stored choice starts at.
 
-    A profile on a small screen starts at 75 % GUI and 75 % font. Small
-    means the primary screen's available geometry is under 1600 logical
-    pixels wide, which takes in a 13-inch 1440 x 900 laptop and leaves out
-    a 1920-wide display. A scale someone
-    has stored is never replaced: the getters ask this only when the store
-    holds no value, and Reset to defaults reads the getters against an
-    empty store, so it lands here too.
+    A profile with no stored choice starts at 90 % GUI and 90 % font on
+    every platform and screen size. Stored choices are preserved; Reset
+    to defaults reads the getters against an empty store and uses 90 % too.
 
-    Without a running application, or on Qt's offscreen and minimal
-    platforms, whose screens are invented, there is no screen to measure
-    and the default stays 100 %.
-
-    :returns: 0.75 on a small primary screen, otherwise 1.0.
+    :returns: 0.9.
     """
     return DEFAULT_GUI_SCALE
 
