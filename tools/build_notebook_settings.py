@@ -5,8 +5,8 @@ Each generated section has a readable Markdown reference, one or more
 categorized settings cells, and the function call that consumes those
 settings. Descriptions come from the live spaCR tooltip table or the
 function's scientific-Python docstring; they are never copied into executable
-code. Organelle configuration is isolated in its own cell because that surface
-is substantially larger than the other segmentation groups. A regeneration
+code. Only essential overrides appear as editable code; current defaults
+load programmatically and advanced fields open in real clickable groups. A regeneration
 test keeps notebooks synchronized with API changes.
 
 Usage::
@@ -79,6 +79,7 @@ SECTION_TITLE = "## 3. Settings and API reference"
 HELP_CELL_KIND = "settings-help"
 SETTINGS_CELL_KIND = "settings"
 ADVANCED_CELL_KIND = "settings-advanced"
+EDITOR_CELL_KIND = "settings-editor"
 ORGANELLE_CELL_KIND = "settings-organelle"
 FUNCTION_HELP_CELL_KIND = "function-help"
 IMPORT_CELL_KIND = "function-import"
@@ -1153,10 +1154,12 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
         SECTION_TITLE,
         "",
         "Start with the essential settings below. Expand a reference group "
-        "to read its parameters. Advanced and organelle code cells start "
-        "collapsed in JupyterLab and Notebook 7: click their ellipsis to edit "
-        "them. Run all settings cells before the analysis cell, including "
-        "collapsed cells. Required settings must be supplied. "
+        "to read its parameters. Advanced and organelle settings are "
+        "available inside the closed Advanced settings editor after running "
+        "the setup cells. Click Advanced settings, then a group; edit values "
+        "and Apply changes, or Reset group. Static/exported views hide all "
+        "advanced defaults in the clickable reference groups. You may also "
+        "put selected changes in the empty advanced_overrides dictionary. Required settings must be supplied. "
         "Optional settings retain the displayed default when unchanged. "
         "Conditionally required settings are necessary only for the indicated "
         "analysis branch. Defaults and descriptions are generated from the "
@@ -1178,7 +1181,7 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
             ])
         if any(_is_organelle_key(key) for key in keys):
             lines.extend([
-                "> Organelle parameters are placed in a separate code cell "
+                "> Organelle parameters are available inside the advanced editor "
                 "to keep the primary segmentation configuration readable.",
                 "",
             ])
@@ -1188,9 +1191,21 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
                 "both functions operate on the same dataset.",
                 "",
             ])
+        essentials = [key for key in keys
+                      if _essential_setting(dotted, shape, key, keys)
+                      and not _is_organelle_key(key)]
+        lines.extend(["", "#### Essential inputs", ""])
+        for key in essentials:
+            description = _markdown_text(tooltip_for(key, shape, docs))
+            status = _status_label(_setting_status(dotted, shape, key, keys))
+            lines.append(f"- **`{key}`** *({status.lower()})* — {description}")
+        lines.extend(["", "<details>", "<summary>Advanced settings reference — click to expand</summary>", ""])
         for organelle in (False, True):
             for category, members in _category_groups(
                     keys, organelle=organelle, dotted=dotted):
+                members = [key for key in members if key not in essentials]
+                if not members:
+                    continue
                 lines.extend(["", "<details>",
                               f"<summary>{_markdown_text(category)} "
                               f"({len(members)} settings)</summary>",
@@ -1204,8 +1219,10 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
                     status = _status_label(
                         _setting_status(dotted, shape, key, keys))
                     lines.append(
-                        f"- **`{key}`** *({status.lower()})* — {description}")
+                        f"- **`{key}`** *({status.lower()})* — {description} "
+                        f"Default: `{_literal(keys[key], dotted=dotted, key=key)}`.")
                 lines.extend(["", "</details>"])
+        lines.extend(["", "</details>"])
     lines.extend([
         "",
         "## 4. Run",
@@ -1276,23 +1293,179 @@ def _essential_setting(dotted: str, shape: str, key: str,
                        keys: Dict[str, Any]) -> bool:
     """Keep required inputs and common run choices visible on first opening."""
     return (_setting_status(dotted, shape, key, keys) != "optional"
-            or key in {"src", "dst", "channels", "batch_size", "n_jobs",
-                       "save", "plot", "model_name", "model_path"})
+            or key in {"src", "channels", "folders", "csv", "cv_csv"})
 
 
-def render_settings_cells(
-    entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]],
-) -> List[Tuple[str, str]]:
-    """Return ``[(generated_kind, source), ...]`` for editable settings."""
-    rendered = [(SETTINGS_CELL_KIND, render_cell(entries, advanced=False))]
-    advanced = render_cell(entries, advanced=True)
-    if advanced:
-        rendered.append((ADVANCED_CELL_KIND, advanced))
-    if any(_is_organelle_key(key)
-           for _dotted, _shape, keys, _docs in entries for key in keys):
-        rendered.append((ORGANELLE_CELL_KIND,
-                         render_cell(entries, organelle=True)))
-    return rendered
+def _runtime_defaults(dotted: str, shape: str, keys: Dict[str, Any], name: str) -> str:
+    """Load the current API defaults without displaying their complete literal."""
+    function = resolve(dotted)
+    lines = []
+    if shape == "factory":
+        factory = _factory_from_registry(dotted) or _settings_factory(function)
+        lines.extend([f"from {factory.__module__} import {factory.__name__} as _defaults",
+                      f"{name} = dict(_defaults({{}}))"])
+        raw = keys_from_factory(factory)
+        if set(raw) - set(keys):
+            from spacr.settings import categories, timelapse_settings
+            time_keys = set(timelapse_settings) | set(categories["4D Settings (Beta)"]) | {"timelapse"}
+            lines.extend([
+                "from spacr.settings import categories, timelapse_settings, motility_settings, motility_advanced_settings",
+                "_time_keys = set(timelapse_settings) | set(categories['4D Settings (Beta)']) | {'timelapse'}",
+                "_motility_keys = set(motility_settings) | set(motility_advanced_settings) | {'motility_analysis'}",
+            ])
+            hidden = "_motility_keys" if set(keys) & time_keys else "_time_keys | _motility_keys"
+            if _module_from_registry(dotted).key == "motility":
+                hidden = "_time_keys | {'motility_analysis'}"
+            lines.append(f"{name} = {{key: value for key, value in {name}.items() if key not in ({hidden})}}")
+        for key, value in _REQUIRED_SURFACE_DEFAULTS.get(dotted, {}).items():
+            lines.append(f"{name}.setdefault({key!r}, {value!r})")
+    elif shape == "signature":
+        lines.extend(["import inspect", f"from {dotted.rpartition('.')[0]} import {dotted.rpartition('.')[2]} as _function",
+                      f"{name} = {{key: None if parameter.default is inspect.Parameter.empty else parameter.default",
+                      "            for key, parameter in inspect.signature(_function).parameters.items()",
+                      "            if parameter.kind not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)}"])
+    else:
+        lines.extend(["import ast, inspect, textwrap", "from typing import Any, Dict",
+                      inspect.getsource(keys_from_source).rstrip(),
+                      f"from {dotted.rpartition('.')[0]} import {dotted.rpartition('.')[2]} as _function",
+                      f"{name} = keys_from_source(_function)"])
+    lines.extend(["import copy", f"_defaults_{name} = copy.deepcopy({name})"])
+    return "\n".join(lines)
+
+
+_ADVANCED_EDITOR = r"""import ast
+import copy
+from pprint import pformat
+from IPython.display import display
+
+def show_advanced_settings(values, essential, defaults=None):
+    try:
+        import ipywidgets as widgets
+    except ImportError:
+        print("Expand an advanced reference group for keys/defaults; edit advanced_overrides above.")
+        return None
+    from spacr.settings import categories
+    panels = []
+    titles = []
+    remaining = set(values) - set(essential)
+    groups = []
+    for title, members in categories.items():
+        selected = [key for key in members if key in remaining]
+        if selected:
+            remaining.difference_update(selected)
+            groups.append((title, selected))
+    groups.append(("Additional settings", sorted(remaining)))
+    for title, members in groups:
+        if not members:
+            continue
+        original = copy.deepcopy({key: (defaults or values)[key] for key in members})
+        editor = widgets.Textarea(value=pformat({key: values[key] for key in members}, sort_dicts=False),
+                                  layout=widgets.Layout(width="100%", height="260px"))
+        apply = widgets.Button(description="Apply changes")
+        reset = widgets.Button(description="Reset group")
+        message = widgets.Output()
+        def update(_button, editor=editor, message=message, members=tuple(members), values=values):
+            with message:
+                message.clear_output()
+                try:
+                    candidate = ast.literal_eval(editor.value)
+                    if not isinstance(candidate, dict) or set(candidate) != set(members):
+                        raise ValueError("Keep the displayed setting names; edit their values only.")
+                    for key, value in candidate.items():
+                        previous = values[key]
+                        if previous is not None and value is not None and not isinstance(value, type(previous)):
+                            if not (isinstance(previous, float) and isinstance(value, (int, float))):
+                                raise ValueError(f"{key}: preserve its value type or use None.")
+                except (ValueError, SyntaxError, TypeError) as error:
+                    print(error)
+                else:
+                    values.update(candidate)
+                    print("Changes applied to the settings used by the run cell.")
+        def restore(_button, editor=editor, original=original, values=values, message=message):
+            values.update(copy.deepcopy(original))
+            editor.value = pformat(original, sort_dicts=False)
+            with message:
+                message.clear_output()
+                print("Group defaults restored.")
+        apply.on_click(update)
+        reset.on_click(restore)
+        panels.append(widgets.VBox([editor, widgets.HBox([apply, reset]), message]))
+        titles.append(title)
+    groups_widget = widgets.Accordion(children=panels, selected_index=None)
+    for index, title in enumerate(titles):
+        groups_widget.set_title(index, title)
+    advanced = widgets.Accordion(children=[groups_widget], selected_index=None)
+    advanced.set_title(0, "Advanced settings — click to expand")
+    display(advanced)
+    return advanced
+"""
+
+
+_ADVANCED_EDITOR += r"""
+
+def show_workflow_settings_editor(settings, module):
+    import json
+    import ipywidgets as widgets
+    from spacr.cli import apply_overrides, SettingsError
+    editor = widgets.Textarea(value=json.dumps(settings, indent=2, default=str),
+                              layout=widgets.Layout(width="100%", height="300px"))
+    apply_button = widgets.Button(description="Apply settings")
+    messages = widgets.Output()
+    editable_module = module
+    editable_settings = settings
+
+    def apply_settings(_button, editor=editor, messages=messages,
+                       editable_module=editable_module, editable_settings=editable_settings):
+        with messages:
+            messages.clear_output()
+            try:
+                values = json.loads(editor.value)
+                if not isinstance(values, dict):
+                    raise ValueError("Settings must be a JSON object.")
+                if set(values) != set(editable_settings):
+                    raise ValueError("Keep the current setting names; edit their values only.")
+                candidate = dict(editable_settings)
+                changed = [f"{key}={value!r}" if not isinstance(value, str)
+                           else f"{key}={value}" for key, value in values.items()
+                           if value != editable_settings[key]]
+                apply_overrides(candidate, changed, editable_module)
+            except (ValueError, TypeError, SettingsError) as error:
+                print(error)
+            else:
+                editable_settings.update(candidate)
+                print("Settings applied. Review them before enabling the run cell.")
+
+    apply_button.on_click(apply_settings)
+    advanced = widgets.Accordion(children=[widgets.VBox([editor, apply_button, messages])])
+    advanced.set_title(0, "Advanced settings — click to expand")
+    advanced.selected_index = None
+    display(advanced)
+    return advanced, editor, apply_button
+"""
+
+
+def render_settings_cells(entries) -> List[Tuple[str, str]]:
+    """Keep only essential overrides in code; edit advanced values on demand."""
+    primary = []
+    overrides = []
+    editors = ["try:\n    from _spacr_notebook_widgets import show_advanced_settings\nexcept ImportError:\n    show_advanced_settings = None\n    print('Optional editor helper unavailable; use the advanced reference and advanced_overrides.')"]
+    for dotted, shape, keys, _docs in entries:
+        name = setting_name(dotted, entries)
+        primary.append(_runtime_defaults(dotted, shape, keys, name))
+        essential = [key for key in keys if _essential_setting(dotted, shape, key, keys)
+                     and not _is_organelle_key(key)]
+        override_name = "advanced_overrides" if len(entries) == 1 else f"{name}_overrides"
+        overrides.extend([f"{override_name} = {{}}", f"{name}.update({override_name})"])
+        editors.append(f"{name}_editor = (show_advanced_settings({name}, {essential!r}, _defaults_{name})\n                   if show_advanced_settings is not None else None)")
+    editable = render_cell(entries, advanced=False)
+    for dotted, *_rest in entries:
+        name = setting_name(dotted, entries)
+        editable = editable.replace(f"{name} = {{", f"{name}.update({{")
+    editable = "\n".join("})" if line == "}" else line for line in editable.splitlines())
+    primary.append(editable)
+    return [(SETTINGS_CELL_KIND, "\n\n".join(primary)),
+            (ADVANCED_CELL_KIND, "\n".join(overrides)),
+            (EDITOR_CELL_KIND, "\n".join(editors))]
 
 
 def _as_source(text: str) -> List[str]:
@@ -1656,7 +1829,7 @@ def _mark_generated(cell: dict, kind: str) -> None:
     """Mark a cell as generator-owned without adding prose to executable code."""
     cell.setdefault("id", f"spacr-{kind}")
     metadata = cell.setdefault("metadata", {})
-    if kind in {ADVANCED_CELL_KIND, ORGANELLE_CELL_KIND}:
+    if kind in {ADVANCED_CELL_KIND, ORGANELLE_CELL_KIND, EDITOR_CELL_KIND}:
         metadata.setdefault("jupyter", {})["source_hidden"] = True
         tags = metadata.setdefault("tags", [])
         if "advanced-settings" not in tags:
@@ -1778,16 +1951,22 @@ def render_notebook_index() -> str:
                   "run the environment check first.",
                   "2. Edit essential inputs. Expand a parameter reference group "
                   "for descriptions and required/conditional status.",
-                  "3. Advanced and organelle settings are ordinary Python cells "
-                  "with Jupyter's `source_hidden` metadata. JupyterLab and "
-                  "Notebook 7 show an ellipsis that expands them. Other viewers "
-                  "may show their source instead. Every setting remains editable.",
-                  "4. Run all configuration cells in order, including collapsed "
-                  "cells, then run the analysis cell. Restart the kernel and "
+                  "3. Advanced defaults and descriptions are inside closed HTML "
+                  "details groups. Click the reference to expand them. Run the "
+                  "configuration cells to display the optional Advanced settings "
+                  "editor, then click a category, Apply changes, or Reset group. "
+                  "Only the essential input overrides appear in the code; full "
+                  "defaults are loaded from the current public API.",
+                  "4. Run all configuration cells in order, then run the analysis cell. Restart the kernel and "
                   "run all cells when changing workflows or restoring defaults.",
                   "", "HTML parameter groups are clickable in compatible "
-                  "notebook viewers. Plain text and exported formats can still "
-                  "read their contents. No notebook extension is required.", "",
+                  "notebook viewers and HTML exports. The advanced content stays hidden "
+                  "until clicked, even if the viewer ignores cell-collapse metadata.",
+                  "", "Keep [_spacr_notebook_widgets.py](_spacr_notebook_widgets.py) "
+                  "beside a downloaded notebook for the optional category editors. "
+                  "The complete Notebooks folder includes it, including the old "
+                  "addresses. Without this helper or widgets, use the clickable "
+                  "reference and edit advanced_overrides in plain Python.", "",
                   "The browser optionally uses ipywidgets for a workflow picker "
                   "and an advanced-settings editor. Without widgets, edit the "
                   "Python variables shown in the same notebook. Analysis is "
@@ -1861,43 +2040,13 @@ Expand the accordion, edit the JSON, and click **Apply settings**. No analysis r
 from this editor. Unknown keys or invalid values are rejected without changing the
 current settings. Plain Python also works: `settings['src'] = '/path/to/plate'`.
 """), "browser-editor-help"),
-        _code_cell(_as_source(r"""import json
-from spacr.cli import apply_overrides, SettingsError
-
-if module_picker is not None:
-    editor = widgets.Textarea(value=json.dumps(settings, indent=2, default=str),
-                              layout=widgets.Layout(width="100%", height="300px"))
-    apply_button = widgets.Button(description="Apply settings")
-    messages = widgets.Output()
-    editable_module = module
-    editable_settings = settings
-
-    def apply_settings(_button, editor=editor, messages=messages,
-                       editable_module=editable_module, editable_settings=editable_settings):
-        with messages:
-            messages.clear_output()
-            try:
-                values = json.loads(editor.value)
-                if not isinstance(values, dict):
-                    raise ValueError("Settings must be a JSON object.")
-                if set(values) != set(editable_settings):
-                    raise ValueError("Keep the current setting names; edit their values only.")
-                candidate = dict(editable_settings)
-                changed = [f"{key}={value!r}" if not isinstance(value, str)
-                           else f"{key}={value}" for key, value in values.items()
-                           if value != editable_settings[key]]
-                apply_overrides(candidate, changed, editable_module)
-            except (ValueError, TypeError, SettingsError) as error:
-                print(error)
-            else:
-                editable_settings.update(candidate)
-                print("Settings applied. Review them before enabling the run cell.")
-
-    apply_button.on_click(apply_settings)
-    advanced = widgets.Accordion(children=[widgets.VBox([editor, apply_button, messages])])
-    advanced.set_title(0, "Advanced settings — click to expand")
-    advanced.selected_index = None
-    display(advanced)
+        _code_cell(_as_source(r"""if module_picker is not None:
+    try:
+        from _spacr_notebook_widgets import show_workflow_settings_editor
+    except ImportError:
+        print("Optional editor helper unavailable; edit settings or overrides in Python.")
+    else:
+        advanced, editor, apply_button = show_workflow_settings_editor(settings, module)
 else:
     print("Edit settings directly, or edit overrides and rerun the configuration cell.")
 """), "browser-editor"),
@@ -2036,7 +2185,9 @@ def main(argv=None) -> int:
             written.append(path.name)
 
     additional = [(BROWSER_FILENAME, render_workflow_browser()),
-                  ("README.md", render_notebook_index())]
+                  ("README.md", render_notebook_index()),
+                  ("_spacr_notebook_widgets.py", _ADVANCED_EDITOR),
+                  ("legacy/_spacr_notebook_widgets.py", _ADVANCED_EDITOR)]
     for name in LEGACY_WORKFLOWS:
         additional.append((f"legacy/{name}", render_legacy_notebook(name, root)))
     for name, content in additional:

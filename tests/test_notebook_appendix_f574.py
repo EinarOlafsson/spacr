@@ -26,7 +26,7 @@ def test_regeneration_layout_keeps_archive_after_measurement():
     cells = copy.deepcopy(notebook["cells"])
     kind = helpers["_cell_kind"]
     help_cell = next(cell for cell in cells if kind(cell) == "settings-help")
-    settings = [cell for cell in cells if kind(cell) in ("settings", "settings-advanced", "settings-organelle")]
+    settings = [cell for cell in cells if kind(cell) in ("settings", "settings-advanced", "settings-organelle", "settings-editor")]
     run = next(cell for cell in cells if kind(cell) == "function-run")
     helpers["_place_generated_cells"](cells, help_cell, settings)
     helpers["_place_run_cell"](cells, settings[-1], run)

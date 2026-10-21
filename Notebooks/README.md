@@ -82,10 +82,12 @@ The browser offers every entry below, including workflows without a dedicated gu
 
 1. Select the Python environment in which spaCR is installed; run the environment check first.
 2. Edit essential inputs. Expand a parameter reference group for descriptions and required/conditional status.
-3. Advanced and organelle settings are ordinary Python cells with Jupyter's `source_hidden` metadata. JupyterLab and Notebook 7 show an ellipsis that expands them. Other viewers may show their source instead. Every setting remains editable.
-4. Run all configuration cells in order, including collapsed cells, then run the analysis cell. Restart the kernel and run all cells when changing workflows or restoring defaults.
+3. Advanced defaults and descriptions are inside closed HTML details groups. Click the reference to expand them. Run the configuration cells to display the optional Advanced settings editor, then click a category, Apply changes, or Reset group. Only the essential input overrides appear in the code; full defaults are loaded from the current public API.
+4. Run all configuration cells in order, then run the analysis cell. Restart the kernel and run all cells when changing workflows or restoring defaults.
 
-HTML parameter groups are clickable in compatible notebook viewers. Plain text and exported formats can still read their contents. No notebook extension is required.
+HTML parameter groups are clickable in compatible notebook viewers and HTML exports. The advanced content stays hidden until clicked, even if the viewer ignores cell-collapse metadata.
+
+Keep [_spacr_notebook_widgets.py](_spacr_notebook_widgets.py) beside a downloaded notebook for the optional category editors. The complete Notebooks folder includes it, including the old addresses. Without this helper or widgets, use the clickable reference and edit advanced_overrides in plain Python.
 
 The browser optionally uses ipywidgets for a workflow picker and an advanced-settings editor. Without widgets, edit the Python variables shown in the same notebook. Analysis is opt-in, so running its setup cells does not launch a pipeline.
 

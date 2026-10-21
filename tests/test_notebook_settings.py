@@ -298,7 +298,7 @@ def test_all_outputs_and_execution_counts_are_cleared(path):
             assert cell.get("execution_count") is None
 
 
-def _settings_keys_by_variable(path):
+def _explicit_settings_keys_by_variable(path):
     found = {}
     for source in _generated_settings_cells(path):
         for statement in ast.parse(source).body:
@@ -324,9 +324,18 @@ def _settings_keys_by_variable(path):
     return found
 
 
+def _settings_keys_by_variable(path):
+    namespace = {}
+    for source in _generated_settings_cells(path):
+        exec(source, namespace)
+    entries = [(item, None, None, None) for item in _tool().declared_functions(path)]
+    return {name: list(namespace[name]) for dotted, *_rest in entries
+            for name in [_tool().setting_name(dotted, entries)]}
+
+
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_each_setting_is_declared_once_per_function(path):
-    by_variable = _settings_keys_by_variable(path)
+    by_variable = _explicit_settings_keys_by_variable(path)
     assert by_variable
     for variable, keys in by_variable.items():
         duplicates = sorted(key for key, count in Counter(keys).items()
@@ -344,12 +353,13 @@ def test_organelle_separation_is_derived_from_the_actual_keys(path):
         for cell in notebook["cells"]
     }
     primary = cells["settings"]
-    organelle = cells.get("settings-organelle", "")
     primary_names = set(re.findall(r"^\s*'([^']+)':", primary, re.M))
-    organelle_names = set(re.findall(r"^\s*'([^']+)':", organelle, re.M))
     assert not {key for key in primary_names if tool._is_organelle_key(key)}
-    assert all(tool._is_organelle_key(key) for key in organelle_names)
-    assert bool(organelle_names) == ("settings-organelle" in cells)
+    for names in _settings_keys_by_variable(path).values():
+        for key in names:
+            if tool._is_organelle_key(key):
+                assert f"**`{key}`**" in _generated_help(path)
+
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
@@ -373,6 +383,7 @@ def test_every_key_carries_a_description(path):
             keys.extend(key.value for key in value.keys
                         if isinstance(key, ast.Constant)
                         and isinstance(key.value, str))
+    keys = [key for names in _settings_keys_by_variable(path).values() for key in names]
     undescribed = [key for key in keys if f"**`{key}`**" not in help_text]
     assert not undescribed, f"{path.name}: no description for {undescribed}"
 
@@ -394,7 +405,7 @@ def test_explanations_settings_and_call_are_consecutive_cells(path):
     settings_cells = []
     while cursor < len(cells) and cells[cursor].get(
             "metadata", {}).get("spacr", {}).get("generated") in {
-                "settings", "settings-advanced", "settings-organelle"}:
+                "settings", "settings-advanced", "settings-organelle", "settings-editor"}:
         assert cells[cursor]["cell_type"] == "code"
         settings_cells.append(cells[cursor])
         cursor += 1
@@ -405,6 +416,8 @@ def test_explanations_settings_and_call_are_consecutive_cells(path):
         "generated") == "function-run"
 
     for settings_cell in settings_cells:
+        if settings_cell["metadata"]["spacr"]["generated"] != "settings":
+            continue
         source = "".join(settings_cell["source"])
         statuses = {
             "# Required settings",
@@ -494,52 +507,45 @@ def test_cli_requirements_drive_the_structured_notebook_statuses():
 def _setting_categories(path):
     categories = {}
     current = ""
-    status_headings = {
-        "Required settings", "Conditionally required settings",
-        "Optional settings",
-    }
-    for source in _generated_settings_cells(path):
-        for line in source.splitlines():
-            comment = re.match(r"^    # (.+)$", line)
-            if comment and comment.group(1) not in status_headings:
-                current = comment.group(1)
-                continue
-            setting = re.match(r"^    '([^']+)':", line)
-            if setting:
-                categories[setting.group(1)] = current
+    for line in _generated_help(path).splitlines():
+        if line.startswith("#### "):
+            current = line[5:]
+        match = re.match(r"^- \*\*`([^`]+)`", line)
+        if match:
+            categories[match.group(1)] = current
     return categories
 
 
-def test_key_inputs_use_the_current_curated_desktop_headings():
+def test_key_inputs_are_essential_and_advanced_groups_keep_curated_headings():
     expected = {
         "04_classify_machine_learning.ipynb": {
-            "positive_control_id": "Labels & Classes",
+            "positive_control_id": "Essential inputs",
             "n_estimators": "Classifier & Validation",
         },
         "05_map_barcodes.ipynb": {
-            "grna_csv": "Barcode References",
-            "regex": "Read Parsing",
+            "grna_csv": "Essential inputs",
+            "regex": "Essential inputs",
         },
         "06_regression.ipynb": {
-            "score_data": "Input Tables",
-            "count_data": "Input Tables",
-            "dependent_variable": "Response",
+            "score_data": "Essential inputs",
+            "count_data": "Essential inputs",
+            "dependent_variable": "Essential inputs",
         },
         "09_apply_cellpose.ipynb": {
-            "model_name": "Model",
+            "model_name": "Essential inputs",
             "CP_prob": "Detection Thresholds",
         },
         "11_activation_maps.ipynb": {
-            "model_path": "Model & Data",
+            "model_path": "Essential inputs",
             "target_layer": "Attribution Method",
         },
         "24_interpret_vision_model.ipynb": {
-            "db_path": "Source & provenance",
+            "db_path": "Essential inputs",
             "surrogate_model": "Surrogate & validation",
         },
         "26_sequencing_stats.ipynb": {
-            "count_data": "Reference & Count Tables",
-            "target_grnas_per_well": "Well Expectations",
+            "count_data": "Essential inputs",
+            "target_grnas_per_well": "Essential inputs",
         },
     }
     for name, headings in expected.items():
@@ -619,16 +625,14 @@ def test_organelle_settings_have_a_separate_cell(name):
     general = next(cell for cell in cells
                    if cell.get("metadata", {}).get("spacr", {}).get(
                        "generated") == "settings")
-    organelle = next(cell for cell in cells
-                     if cell.get("metadata", {}).get("spacr", {}).get(
-                         "generated") == "settings-organelle")
     general_source = "".join(general["source"])
-    organelle_source = "".join(organelle["source"])
-    assert "'organelle_channel'" not in general_source
-    assert "'organelle_channel'" in organelle_source
-    assert "'number_of_organelles'" not in general_source
-    assert "'number_of_organelles'" in organelle_source
-    assert ".update({" in organelle_source
+    help_text = _generated_help(NOTEBOOKS / name)
+    assert "'organelle_channel':" not in general_source
+    assert "'number_of_organelles':" not in general_source
+    assert "**`organelle_channel`**" in help_text
+    assert "**`number_of_organelles`**" in help_text
+    assert "<summary>Advanced settings reference" in help_text
+
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
@@ -698,7 +702,7 @@ def test_the_settings_dict_is_used_rather_than_decorative(path):
     if not source:
         pytest.skip("no generated cell")
     notebook = json.loads(path.read_text(encoding="utf-8"))
-    names = [n for n in ("settings",) if f"{n} = {{" in source]
+    names = [n for n in ("settings",) if f"{n} = " in source]
     if not names:
         pytest.skip("multi-function notebook names its dicts per function")
     code = "\n".join("".join(c["source"]) for c in notebook["cells"]
@@ -860,6 +864,7 @@ def test_browser_and_index_cover_the_actual_registry_and_give_direct_api_links()
 
 
 def test_browser_setup_and_editor_are_safe_and_preserve_rejected_settings(monkeypatch):
+    monkeypatch.syspath_prepend(str(NOTEBOOKS))
     pytest.importorskip("ipywidgets")
     from spacr.cli import MODULES, resolve_settings
 
@@ -977,3 +982,74 @@ def test_original_notebook_addresses_use_current_generated_workflows(name):
                 exec("".join(cell["source"]), values)
         assert set(values["settings"]) == set(tool.keys_from_signature(
             tool.resolve("spacr.io.prepare_cellpose_dataset")))
+
+
+def test_guided_advanced_editor_is_closed_edits_run_settings_and_resets_defaults():
+    pytest.importorskip("ipywidgets")
+    namespace = {}
+    helper = NOTEBOOKS / "_spacr_notebook_widgets.py"
+    assert helper.read_text(encoding="utf-8") == _tool()._ADVANCED_EDITOR
+    exec(helper.read_text(encoding="utf-8"), namespace)
+    values = {"src": "/plate", "channels": [0, 1], "batch_size": 8,
+              "plot": False, "organelle_channel": None}
+    defaults = dict(values, batch_size=16)
+    widget = namespace["show_advanced_settings"](values, ["src", "channels"], defaults)
+    assert widget.selected_index is None
+    groups = widget.children[0]
+    assert groups.selected_index is None
+    found = []
+    for panel in groups.children:
+        shown = ast.literal_eval(panel.children[0].value)
+        found.extend(shown)
+        if "batch_size" in shown:
+            chosen = panel
+    assert set(found) == {"batch_size", "plot", "organelle_channel"}
+    assert len(found) == len(set(found))
+    editor, buttons, _message = chosen.children
+    apply, reset = buttons.children
+    prior = dict(values)
+    editor.value = "not a dictionary"
+    apply.click()
+    assert values == prior
+    reset.click()
+    assert values["batch_size"] == 16
+    edits = ast.literal_eval(editor.value)
+    edits["batch_size"] = "not a number"
+    editor.value = repr(edits)
+    apply.click()
+    assert values["batch_size"] == 16
+    edits["batch_size"] = 32
+    editor.value = repr(edits)
+    apply.click()
+    assert values["batch_size"] == 32
+    assert values["src"] == "/plate" and values["channels"] == [0, 1]
+    reset.click()
+    assert values["batch_size"] == 16
+    for panel in groups.children:
+        for child in panel.children:
+            child.close()
+        panel.close()
+    groups.close()
+    widget.close()
+
+
+def test_static_references_hide_nonessential_values_without_cell_metadata():
+    soup_module = pytest.importorskip("bs4")
+    markdown = pytest.importorskip("nbconvert.filters.markdown")
+    tool = _tool()
+    for path in ALL:
+        soup = soup_module.BeautifulSoup(markdown.markdown2html(_generated_help(path)), "html.parser")
+        for dotted in tool.declared_functions(path):
+            shape, keys = tool.notebook_surface(tool.resolve(dotted), dotted, notebook_name=path.name)
+            for key in keys:
+                node = next(item for item in soup.select("strong code")
+                            if item.get_text() == key
+                            and item.find_previous("h3").get("id") == dotted)
+                essential = tool._essential_setting(dotted, shape, key, keys) and not tool._is_organelle_key(key)
+                hidden = any("open" not in details.attrs for details in node.find_parents("details"))
+                assert hidden is not essential, (path.name, key)
+    mask = NOTEBOOKS / "01_generate_masks.ipynb"
+    assert set(_explicit_settings_keys_by_variable(mask)["settings"]) == {
+        "src", "channels", "cell_channel", "nucleus_channel", "pathogen_channel"}
+    code = "\n".join(_generated_settings_cells(mask))
+    assert "'n_jobs':" not in code and "'cell_diameter':" not in code
