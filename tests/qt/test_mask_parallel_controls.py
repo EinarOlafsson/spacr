@@ -54,6 +54,19 @@ def test_with_two_gpus_the_list_follows_the_switch(qtbot, monkeypatch):
     assert not indices.isEnabled()
 
 
+def test_a_built_gpu_list_is_usable_before_its_parallel_switch(qtbot, monkeypatch):
+    panel, _parallel, indices = _panel(qtbot, monkeypatch, 2)
+    monkeypatch.setattr(panel, "_built_control",
+                        lambda key: indices if key == "mask_gpu_indices" else None)
+    indices.setEnabled(False)
+    indices.setProperty(NOTE, "Waiting for controls")
+
+    panel._refresh_mask_gpu_enablement()
+
+    assert indices.isEnabled()
+    assert not indices.property(NOTE)
+
+
 def test_the_defaults_leave_the_feature_off(qtbot, monkeypatch):
     panel, parallel, indices = _panel(qtbot, monkeypatch, 2)
     assert panel._read_widget(parallel) is False
