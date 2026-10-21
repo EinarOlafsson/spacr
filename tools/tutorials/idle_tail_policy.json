@@ -185,13 +185,13 @@
           "visual": "14_current_nightly_performance",
           "source_start": 143.1,
           "source_end": 176.33333333333331,
-          "idle_tail_start": 13.0
+          "idle_tail_start": 11.3
         },
         {
           "visual": "13_current_nightly_home",
           "source_start": 176.33333333333331,
           "source_end": 206.0333333333333,
-          "idle_tail_start": 13.5
+          "idle_tail_start": 1.0
         },
         {
           "visual": "05_doctor",
