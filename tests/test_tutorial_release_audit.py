@@ -420,37 +420,22 @@ def test_navigation_places_existing_lessons_once_under_current_home_and_hosts():
             assert navigation["routes"][lesson["id"]]["host_app_key"] == expected_hosts[key]
 
 
-def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
-    """Speak PyPI as the reviewed "pype" form in every narration language.
+def test_pypi_preserves_the_final_i_and_reviewed_language_forms():
+    """Keep the final English I requested in the 2026-10-21 review.
 
-    THE RULE is the renderer's own pronunciation module,
-    ``PRONUNCIATION_VERSION = "2026-10-08-live-tv-v12"``: English ``PyPI`` is
-    "the single syllable 'pype', with the vowel and final consonant of 'pipe'.
-    It is never PyPy, pypie, a sequence of letters, or two paused syllables",
-    and each narration language has a reviewed form in ``PYPI_SPEECH``.
-
-    This test used to be ``test_every_spoken_pypi_is_the_single_word_pypie``.
-    It pinned "pypie" from 2026-08-26, two days BEFORE that rule, and went red
-    when the refreshed catalogs of candidate 8738b_pd were published into this
-    tree. Asked through the question tool on 2026-09-15, the maintainer
-    answered '"pype" (Recommended)': keep the narration and update this test to
-    the 08-28 rule. Nothing is re-rendered.
-
-    Only catalogs that carry ``speech_text`` for these scenes are read. The
-    English catalog no longer does for lesson 01; English speech lives in the
-    hosted timing sidecars, where the renderer's gate applies the same rule.
-    Every translated narration language must still carry it.
+    Preserve the other languages' approved speech forms and validate both
+    published narration catalogs and their immutable media bindings.
     """
     rule = _load("tutorial_pronunciation",
                  "tools/tutorials/authoring/tools/pronunciation.py")
-    assert rule.PRONUNCIATION_VERSION == "2026-10-08-live-tv-v12"
-    assert rule.PYPI_SPEECH["en"] == "[pype](/pˈIp/)"
-    for retired in ("pypie", "PyPie", "PyPI", "P Y P I", "P-Y-P-I", "pie pi",
+    assert rule.PRONUNCIATION_VERSION == "2026-10-21-pypi-yokogawa-v13"
+    assert rule.PYPI_SPEECH["en"] == "[pie pee eye](/pˌI pˌi ˈI/)"
+    for retired in ("pype", "pypie", "PyPie", "PyPI", "P Y P I", "P-Y-P-I", "pie pi",
                     "pie pee", "Pie Pee", "pie-pee", "pypee", "PyPee",
                     "piepee", "on pie pee shows"):
         assert rule._REJECTED_PYPI_ALIAS.search(retired), retired
     for approved in rule.PYPI_SPEECH.values():
-        assert not rule._REJECTED_PYPI_ALIAS.search(approved), approved
+        rule.assert_pronunciation_safe("PyPI", approved)
 
     catalog_dir = (
         ROOT / "docs" / "source" / "_extra" / "tutorials" / "catalog"
@@ -495,12 +480,14 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
         form = rule.PYPI_SPEECH[language]
         for index, expected_count in pypi_scenes.items():
             speech = speeches[index] or ""
-            if (speech.count(form) != expected_count
-                    or rule._REJECTED_PYPI_ALIAS.search(speech)
-                    or "pypie" in speech.casefold()):
+            try:
+                rule.assert_pronunciation_safe(lesson["scenes"][index]["narration"], speech)
+            except ValueError:
+                failures.append(f"{path.name}:scene-{index + 1}")
+            if speech.count(form) != expected_count or "pypie" in speech.casefold():
                 failures.append(f"{path.name}:scene-{index + 1}")
     assert set(spoken) | set(fallback) >= {"es", "fr", "hi", "it", "ja", "pt-BR", "zh-CN"}
-    assert not failures, f"PyPI speech is not the reviewed 'pype' form: {failures}"
+    assert not failures, f"PyPI speech differs from its reviewed language form: {failures}"
 
     published = _tutorial_catalog()
     checkpoint = ROOT / "features/data/n676_api_link_metadata_completed_2026-10-15/checkpoint"
@@ -515,6 +502,8 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     assert f'data-web-root="{receipt["media_root"]}"' in index
     manifest = json.loads(manifest_bytes)
     media_records = {row["path"]: row for row in manifest["files"]}
+    idle_policy = _load("tutorial_idle_tail_policy", "tools/tutorials/idle_tail_policy.py")
+    idle_policy.validate_catalog_policy(manifest["files"], published["lessons"])
     visual_references = {}
     for lesson in published["lessons"]:
         lesson.pop("poster", None)
@@ -523,6 +512,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
         # (build_appended_candidate --host-web): a publication field like
         # poster/silent, not narration, so lessons_en.json does not carry it.
         lesson.pop("web", None)
+        lesson.pop("native_idle_tails", None)
         visual = lesson.pop("visual_timings", None)
         if visual is not None:
             visual_references[lesson["id"]] = visual
