@@ -2,15 +2,26 @@
 MAKE MASKS BUTTONS IN TITLED GROUPS AROUND THE IMAGE, WITH COLLAPSIBLE BARS
 ================================================================================
 
-Status:    BLOCKED ON MAINTAINER — implementation, tests and translated
-           outputs complete on nightly; only the maintainer's native layout
-           check remains (tutorial re-recordings belong to lane 676).
+Status:    BLOCKED ON MAINTAINER — layout/tests/translations and native Mac
+           theme-icon repair complete; physical/small-display acceptance
+           remains (tutorial re-recordings belong to lane 676).
 Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
            spacr/qt/preferences.py (Plugins tab), spacr/qt/screens/
            settings_model.py and app_screen.py (vvvv), spacr/qt/theme.py
            (group card style).
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
+
+Completed Mac follow-up (2026-10-21): the German native dark-to-light layout
+check retains pale folded-module icons against the light button plates.
+The existing icon resolver already re-inks correctly for each theme, but
+existing FoldButtons retain their constructed QIcons. Verify the actual
+Preferences refresh route reproduces it; refresh these icons through the existing
+owner-window theme refresh when the theme changes, preserving proportional size,
+module identity, fallback initial and checked/maturity behavior. The Mac lane
+retains18 passing focused fold checks, bidirectional icon-pixel regressions and
+a real Cocoa confirmation; retain passed geometry and separate unresolved
+physical/display acceptance.
 
 Follow spacr/resources/AI/MAC_HANDOFF.md and finish running N703/N646 first.
 The Mac session owns real-display layout/input acceptance and Mac-specific
@@ -229,4 +240,4 @@ Acceptance: main-window minimum size ≤ 1280×680 with Make Masks and every mod
 2026-10-18 — Fixed: main-window minimum 1200×720 → 1200×640 (opens at 1200×720 as before); launch, Restore and screen/work-area changes fit the window inside the available geometry. Below 1500 px Make Masks folds its side column (not remembered; arrow reopens), so TOOLS/IO no longer clip and the image gets ~157 px at 1280×680. 1920×1080 geometry unchanged. Remaining: maintainer native recheck at 1280×720; other module screens with content minima above 1280×680 (power, tabulate, foreign, batch, investigate_hit, profiler, train_compare, data_manager, gate_editor, dose_response, graph_builder) are a separate follow-up.
 2026-10-18 — Follow-up done: batch, data_manager, dose_response, foreign, gate_editor, graph_builder, investigate_hit, plate_view, power, profiler, tabulate and train_compare scroll inside their page when the page is below 1500×900 logical px and smaller than their content; at or above that, layout and pixels are unchanged (1920×1050 compared before/after). Every module screen now fits 1280×680 and 1366×728 unsqueezed; DPR-2 test included. Remaining: maintainer native recheck at 1280×720.
 
-2026-10-21 — Native Cocoa630816166a/macOS26.6.1 Intel at90%GUI/font: four actual client-window cases1280x720/1366x768 in dark/light pass groups/buttons/footer/tab geometry and programmatic bar/title fold-reopen; canvas858x248/919x296. Actual display1440x900/work1440x870/DPR2, not changed display modes. First-run overlays obscure screenshots (tour readability repair in717); physical input, restart persistence,3D, long-language and actual smaller-display acceptance remain open. Prior tests and Linux/Work ownership are retained.
+2026-10-21 — Native Cocoa/macOS26.6.1 Intel at90%GUI/font: retained English and new German four-case client-window1280x720/1366x768 dark/light checks pass groups/buttons/footer/tabs and programmatic fold-reopen. German canvas858x204/919x296; unobscured native captures reviewed. Preferences theme refresh now re-inks existing FoldButton icons, preserving geometry/module/check state; both theme directions reproduce before and18 fold checks pass after, with native light icons corrected. Normal close exits0 with646's repair. Actual display1440x900/work1440x870/DPR2, not smaller display modes; physical input, restart persistence and3D remain open. Prior tests and Linux/Work ownership retained.

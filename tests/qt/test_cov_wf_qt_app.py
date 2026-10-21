@@ -485,9 +485,21 @@ def test_closing_the_window_quits_the_application_exactly_once(win,
 
     monkeypatch.setattr(app_mod, "QApplication", _StubQApplication)
     monkeypatch.setattr(app_mod, "_an_event_loop_is_running", lambda: True)
+    from PySide6.QtCore import QTimer
+    queued = []
+    monkeypatch.setattr(QTimer, "singleShot",
+                        lambda delay, callback: queued.append((delay, callback)))
     first = QCloseEvent()
     win.closeEvent(first)
     assert first.isAccepted() is True
+    if sys.platform == "darwin":
+        assert quits.names() == ["closeAllWindows"]
+        assert len(queued) == 1
+        delay, leave = queued.pop()
+        assert delay == 0
+        leave()
+    else:
+        assert queued == []
     # macOS leaves the loop without asking Cocoa to terminate (app._end_the_event_loop).
     ended = ["closeAllWindows", "exit"] if sys.platform == "darwin" else ["quit"]
     assert quits.names() == ended
