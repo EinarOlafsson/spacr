@@ -20,12 +20,14 @@ caller's job timeout.
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import sys
 import textwrap
 from pathlib import Path
 
+import pytest
 import yaml
 
 
@@ -77,7 +79,39 @@ def _caller_timeouts_in_seconds() -> list[int]:
     ]
 
 
-def test_a_test_that_overruns_prints_a_stack_naming_itself(tmp_path):
+@pytest.fixture
+def unrelated_pytest_environment(monkeypatch, tmp_path):
+    metadata = tmp_path / "unrelated_probe_plugin-0.0.dist-info"
+    metadata.mkdir()
+    (metadata / "METADATA").write_text(
+        "Metadata-Version: 2.1\nName: unrelated-probe-plugin\nVersion: 0.0\n",
+        encoding="utf-8",
+    )
+    (metadata / "entry_points.txt").write_text(
+        "[pytest11]\nunrelated_probe = unrelated_probe_plugin\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "unrelated_probe_plugin.py").write_text(
+        "raise AssertionError('an unrelated plugin entered the builtin probe')\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("PYTHONPATH", os.pathsep.join(
+        part for part in (str(tmp_path), os.environ.get("PYTHONPATH", "")) if part
+    ))
+    monkeypatch.setenv("PYTEST_ADDOPTS", "--unrelated-parent-option")
+    monkeypatch.setenv("PYTEST_PLUGINS", "unrelated_explicit_parent_plugin")
+    monkeypatch.delenv("PYTEST_DISABLE_PLUGIN_AUTOLOAD", raising=False)
+
+
+def _probe_environment():
+    environment = dict(os.environ, PYTEST_DISABLE_PLUGIN_AUTOLOAD="1")
+    environment.pop("PYTEST_ADDOPTS", None)
+    environment.pop("PYTEST_PLUGINS", None)
+    return environment
+
+
+def test_a_test_that_overruns_prints_a_stack_naming_itself(
+        tmp_path, unrelated_pytest_environment):
     """The dump has to identify the wedged test, not just report a timeout.
 
     A bare "Timeout!" line would leave the reader exactly where the silent job
@@ -105,7 +139,8 @@ def test_a_test_that_overruns_prints_a_stack_naming_itself(tmp_path):
             "-p", "no:cacheprovider", "-p", "no:randomly",
             "-q", "--no-header",
         ],
-        cwd=tmp_path, capture_output=True, text=True, timeout=180,
+        cwd=tmp_path, env=_probe_environment(), capture_output=True, text=True,
+        timeout=180,
     )
     output = result.stdout + result.stderr
 
@@ -113,7 +148,7 @@ def test_a_test_that_overruns_prints_a_stack_naming_itself(tmp_path):
     assert "test_takes_longer_than_the_threshold" in output, output[-2000:]
 
 
-def test_the_overrunning_test_still_passes(tmp_path):
+def test_the_overrunning_test_still_passes(tmp_path, unrelated_pytest_environment):
     """A slow test must not become a failure just because it was reported.
 
     The threshold has to be safe to set on a suite whose slowest legitimate
@@ -133,7 +168,8 @@ def test_the_overrunning_test_still_passes(tmp_path):
             "-p", "no:cacheprovider", "-p", "no:randomly",
             "-q", "--no-header",
         ],
-        cwd=tmp_path, capture_output=True, text=True, timeout=180,
+        cwd=tmp_path, env=_probe_environment(), capture_output=True, text=True,
+        timeout=180,
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
