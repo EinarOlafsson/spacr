@@ -1856,6 +1856,17 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
+    thumbnail_close = json.loads((ROOT / "tests/data/release_contracts"
+        / "thumbnail_hidden_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
+    assert set(thumbnail_close) == {
+        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
+    }
+    assert {symbol: docs[symbol] for symbol in thumbnail_close} == thumbnail_close
+    assert not thumbnail_close.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **thumbnail_close}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "

@@ -3587,6 +3587,17 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
+    thumbnail_close = json.loads((ROOT / "tests/data/release_contracts"
+        / "thumbnail_hidden_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
+    assert set(thumbnail_close) == {
+        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
+    }
+    assert {symbol: docs[symbol] for symbol in thumbnail_close} == thumbnail_close
+    assert not thumbnail_close.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **thumbnail_close}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
         / "700_retired_setup_api_inverse_2026-10-15.json").read_text(encoding="utf-8"))
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"

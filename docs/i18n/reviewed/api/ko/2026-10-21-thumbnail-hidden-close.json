@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent#0",
+      "source": "Request thumbnail shutdown when the popup closes, including while hidden.",
+      "source_sha256": "1808ef3cadb3cca5ff7e815bbbaa0f95fdbc81053e32bb46c5b1fd5c559aa363",
+      "context": "Request thumbnail shutdown when the popup closes, including while hidden.",
+      "translation": "팝업이 숨겨진 상태에서도 닫힐 때 썸네일 작업 스레드의 종료를 요청합니다."
+    }
+  ],
+  "review_method": "AI technical authoring and independent AI technical/language peer review against exact Qt helper and thumbnail shutdown implementations and source/context bindings. Only demonstrated contract and companion-translation defects changed. No human or native-speaker signoff."
+}

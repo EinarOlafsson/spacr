@@ -2962,6 +2962,21 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         assert not item.accepts_arbitrary_keywords
         assert item.docstring == approval_preferences[symbol]
     contract_arrivals |= approval_parameters.keys()
+    thumbnail_close = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts" / "thumbnail_hidden_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
+    assert set(thumbnail_close) == {
+        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
+    }
+    assert not thumbnail_close.keys() & contract_arrivals
+    thumbnail_item = by_symbol[next(iter(thumbnail_close))]
+    assert thumbnail_item.parameters == thumbnail_item.accepted_documented_parameters == {"event"}
+    assert thumbnail_item.required_parameters == {"event"}
+    assert thumbnail_item.category == "method" and thumbnail_item.exposure == "autoapi"
+    assert thumbnail_item.variant_count == 1
+    assert thumbnail_item.docless_variant_count == thumbnail_item.constructor_prose_variant_count == 0
+    assert not thumbnail_item.accepts_arbitrary_keywords
+    assert thumbnail_item.docstring == thumbnail_close[thumbnail_item.symbol]
+    contract_arrivals |= thumbnail_close.keys()
     assert contract_arrivals & by_symbol.keys()
     callables = [item for item in callables if item.symbol not in contract_arrivals]
     by_symbol = {item.symbol: item for item in callables}
@@ -4817,6 +4832,20 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
     )
     zoo_additions = {**zoo_additions, **approval_preferences}
+    thumbnail_close = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts" / "thumbnail_hidden_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
+    assert set(thumbnail_close) == {
+        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
+    }
+    assert {symbol: docs[symbol] for symbol in thumbnail_close} == thumbnail_close
+    assert {symbol: rendered_documented_callables[symbol] for symbol in thumbnail_close} == thumbnail_close
+    assert not thumbnail_close.keys() & (
+        hidden_close.keys() | home_ui_arrivals.keys() | worker_additions.keys()
+        | private_additions.keys() | radius_symbols | channel_additions.keys()
+        | scn_additions.keys() | popup_additions.keys() | background_additions.keys()
+        | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
+    )
+    zoo_additions = {**zoo_additions, **thumbnail_close}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -5231,6 +5260,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= help_arrivals.keys()
     assert not approval_callables & contract_callables
     contract_callables |= approval_callables
+    assert not thumbnail_close.keys() & contract_callables
+    contract_callables |= thumbnail_close.keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -5301,6 +5332,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= help_arrivals.keys()
     assert not approval_callables & arrival_callables
     arrival_callables |= approval_callables
+    assert not thumbnail_close.keys() & arrival_callables
+    arrival_callables |= thumbnail_close.keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     assert len(rendered_documented_callables.keys() - yolo_callables

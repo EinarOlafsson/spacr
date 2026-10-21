@@ -4178,3 +4178,9 @@ Full tracked-content measurement confirms the old1265MB claim came from a sparse
 All17 affected pytest cases pass3.41s;2 existing pure domain/history guards pass and3 real measurement regressions pass0.77s. Original three menu/model failures reproduce before the fix (3 failed,3.08s).
 Normal README generation completes1700 images; numeric English/nine-locale source/review hashes and their generated text/SVG/README outputs agree, with no historical metrics, commands, model scores or unrelated images changed.
 Root owns final peer, MAIN publication and current-source hosted acceptance; unrelated native thumbnail failures and three earlier chaining timeouts are not claimed fixed by this patch.
+
+2026-10-21 — MAIN native thumbnail-close repair requests cancellation on hidden close and drains or parks unfinished workers; retained nine Qt checks cover cancellation and deferred deletion.
+Normal MAIN API/Help generation adds one closeEvent key to 13,607 prior English records and each locale, preserving every unrelated record and catalog metadata.
+Nine exact reviewed targets retain their published AI author/peer provenance; no human or native-speaker approval is claimed.
+Focused API/arrival/Help validation: 5 passed; 9 pre-existing locale compatibility cases remain report-only XFAIL. Existing ratchet ceilings and timeout/skip assertions are unchanged.
+Root owns MAIN review/publication and corrected-source hosted acceptance; no whole-nightly catalog import or full translation audit is claimed.

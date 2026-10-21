@@ -173,3 +173,90 @@ def test_thumbnail_loading_is_limited_to_visible_rows(qtbot, tmp_path):
     dialog.table.scrollToBottom()
     qtbot.waitUntil(lambda: last in dialog.delegate.pixmaps)
     dialog.close()
+
+
+@pytest.fixture
+def blocked_thumbnail_dialog(qtbot, monkeypatch, source):
+    import threading
+
+    from PySide6.QtCore import QCoreApplication, QEvent, QThread
+    from shiboken6 import isValid
+
+    started, release = threading.Event(), threading.Event()
+
+    def blocked_thumbnail(path, size=96):
+        started.set()
+        release.wait(5)
+        return np.ones((8, 8), np.uint8)
+
+    monkeypatch.setattr(cs, "thumbnail", blocked_thumbnail)
+    folder, _image, _mask = source
+    dialog = OrganizeForMeasureDialog()
+    dialog.columns = [_Column("channel")]
+    dialog.rows = [[str(folder / "field.tif")]]
+    dialog.row_keys = [None]
+    worker = None
+    try:
+        dialog._set_view("image", remember=False)
+        qtbot.waitUntil(started.is_set)
+        worker = dialog._thumb_workers[0]
+        yield dialog, worker, release
+    finally:
+        release.set()
+        if worker is not None and isValid(worker):
+            worker.stop()
+            assert QThread.wait(worker, 3000)
+        if isValid(dialog):
+            dialog._stop_thumbs()
+            dialog.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        from spacr.qt.bridge import prune_parked_threads
+        prune_parked_threads()
+
+
+def test_hidden_dialog_close_stops_thumbnail_worker(
+        blocked_thumbnail_dialog, monkeypatch):
+    dialog, worker, release = blocked_thumbnail_dialog
+    original_stop = worker.stop
+    stopped = []
+
+    def stop():
+        stopped.append(True)
+        original_stop()
+        release.set()
+
+    monkeypatch.setattr(worker, "stop", stop)
+    assert not dialog.isVisible()
+    dialog.close()
+    assert dialog._thumb_closed
+    assert stopped == [True]
+    assert not worker.isRunning()
+
+
+def test_slow_thumbnail_worker_survives_dialog_deletion(
+        blocked_thumbnail_dialog, monkeypatch):
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+
+    from spacr.qt import bridge
+
+    dialog, worker, _release = blocked_thumbnail_dialog
+    waits = []
+
+    def timed_out_wait(timeout):
+        waits.append(timeout)
+        return False
+
+    monkeypatch.setattr(worker, "wait", timed_out_wait)
+    dialog.close()
+    assert dialog._thumb_closed
+    dialog._stop_thumbs()
+    assert waits == [5000]
+    assert worker.isRunning()
+    assert worker.parent() is None
+    assert any(thread is worker for thread, _owner in bridge._PARKED_THREADS)
+    dialog.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not isValid(dialog)
+    assert isValid(worker)
+    assert worker.isRunning()

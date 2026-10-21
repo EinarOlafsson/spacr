@@ -165834,6 +165834,16 @@
         "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
       ]
     },
+    "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "1808ef3cadb3cca5ff7e815bbbaa0f95fdbc81053e32bb46c5b1fd5c559aa363"
+      ],
+      "source_sha256": "1808ef3cadb3cca5ff7e815bbbaa0f95fdbc81053e32bb46c5b1fd5c559aa363",
+      "text": "Begär att miniatyrbildstrådarna avslutas när popupfönstret stängs, även när det är dolt.",
+      "translation_source_blocks_sha256": [
+        "1808ef3cadb3cca5ff7e815bbbaa0f95fdbc81053e32bb46c5b1fd5c559aa363"
+      ]
+    },
     "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets": {
       "source_blocks_sha256": [
         "de00bf943a71e8f1ecc988e5eff7126ce2c3eb10dab495a4ee72cba4a4870a40",

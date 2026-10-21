@@ -10626,6 +10626,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column', 'Add a channel or mask column at the end.'),
     ('spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_files', 'Put dropped files and folders into a column, and match the rows.'),
     ('spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.auto_regex', 'Propose a regex, put it in custom_regex, and sort by it.'),
+    ('spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent', 'Request thumbnail shutdown when the popup closes, including while hidden.'),
     ('spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.detect_sets', "Match the columns' files by name, order and size, and check three."),
     ('spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.prepare_plan', 'Build the plan from the table, or None while rows are incomplete.'),
     ('spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.remove_column', 'Remove a column and its files from the table.'),
