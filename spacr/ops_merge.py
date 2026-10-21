@@ -192,12 +192,9 @@ def match_cells(source: np.ndarray, target: np.ndarray, *,
                 gpu: bool = True) -> np.ndarray:
     """Pair cells one-to-one, keeping only mutual nearest neighbours.
 
-    Ambiguous pairs are dropped, not assigned. A pair survives only when each
-    cell is the other's nearest and they are within ``threshold``. Two cells
-    competing for the same partner both lose. A wrongly matched cell gives a
-    real phenotype the wrong barcode and corrupts every statistic computed from
-    it, whereas a dropped cell costs only statistical power that more cells can
-    recover.
+    A pair survives only when each cell is the other's nearest and they are
+    within ``threshold``. When several cells choose the same partner, only
+    that partner's nearest cell can survive.
 
     :param source: ``(N, 2)`` centroids.
     :param target: ``(M, 2)`` centroids.
@@ -209,8 +206,8 @@ def match_cells(source: np.ndarray, target: np.ndarray, *,
     :param gpu: run the two nearest-neighbour searches on a GPU when one is
         usable. A well carries tens of thousands of nuclei on each side and the
         search is done twice, once in each direction;
-        `spacr.ops_accel.nearest_neighbours` chunks it so the working set does
-        not grow with the well.
+        `spacr.ops_accel.nearest_neighbours` processes source points in chunks
+        against the full target set.
     :returns: ``(K, 2)`` array of ``(source_index, target_index)`` pairs.
     """
     from .ops_accel import nearest_neighbours

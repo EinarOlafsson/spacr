@@ -198,9 +198,10 @@ def section_states(
 
     :param contributors: ``{name: provider-or-object}``. A callable value is
         called; anything else is used directly.
-    :returns: ``(sections, problems)``. A provider that raises or returns no
-        usable state is omitted and described in ``problems``; other sections
-        are still collected.
+    :returns: ``(sections, problems)``. Values that are ``None``, including results
+        from a callable provider, are silently omitted. Other providers that
+        raise or offer no usable state are omitted and described in
+        ``problems``; other sections are still collected.
 
     The providers are widgets in the GUI, and a run journal saves from the
     worker thread that ran the pipeline. So when the GUI has installed a

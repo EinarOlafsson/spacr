@@ -127,8 +127,8 @@ def surface_distance_transform(mask, spacing=None):
     The result is zero inside an object. `distance_transform_edt` measures
     distance to the nearest zero, so it is run on the inverted mask: the
     result is 0 on any labelled pixel and grows outward. A lookup at another
-    object's centroid is therefore the distance to the nearest surface of
-    this type, and two touching objects have a distance of 0.
+    object's centroid measures distance from that point to the nearest
+    labelled pixel; it is zero only if that point lies inside the target mask.
     """
     from scipy.ndimage import distance_transform_edt
 

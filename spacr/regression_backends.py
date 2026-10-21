@@ -190,8 +190,9 @@ def backend_status(name, regression_type=None) -> dict:
     """Whether a backend is choosable right now, and the reason if not.
 
     :param name: backend name or label.
-    :param regression_type: what the user is asking it to fit. ``None``
-        skips the compatibility half of the question.
+    :param regression_type: requested regression family. ``None`` means the family
+        will be chosen from the response, so backends restricted to particular
+        families are disabled.
     :returns: ``{name, label, device, enabled, reason, short_reason, url,
         summary, cost, differs, pip}``. ``reason`` is ``''`` when enabled -- a
         disabled entry always carries the sentence that says why, and it is

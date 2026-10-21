@@ -15,7 +15,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
     (source_root / "qt").mkdir(parents=True)
     for filename in (
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
-        "install_cleanup.py", "doctor.py", "updater.py",
+        "install_cleanup.py", "data_manager.py", "doctor.py", "updater.py",
         "settings.py", "object.py", "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py",
@@ -648,3 +648,35 @@ SHORTCUTS: List[ShortcutSpec] = [
 '''
     assert extract_backend_sources("qt/unrelated_shortcuts.py", source) == set()
     assert extract_backend_sources("qt/widgets/shortcuts.py", source) == set()
+
+
+def test_pruning_failure_caption_has_exact_backend_owner(extract_backend_sources):
+    caption = "Eligibility checks could not be completed; keep this artifact."
+    source = f'''
+def is_prunable(path, registry):
+    try:
+        return _regenerable_reason(path, registry)
+    except Exception:
+        from .qt.i18n import tr
+        return tr({caption!r})
+'''
+    assert extract_backend_sources("data_manager.py", source) == {caption}
+    assert extract_backend_sources("data_manager.py", "") == set()
+    assert extract_backend_sources("unregistered_backend.py", source) == set()
+
+
+def test_pruning_owner_excludes_unrelated_and_nested_scopes(extract_backend_sources):
+    source = '''
+METADATA = tr("A data registry constant is not this pruning status.")
+def unrelated():
+    def is_prunable():
+        return tr("A nested same-name helper is not this status.")
+    return tr("An unrelated data-management caption.")
+class Other:
+    def is_prunable(self):
+        return tr("A same-name method is not this status.")
+def is_prunable(path, registry):
+    """Owner documentation does not become a caption."""
+    return "An internal unwrapped reason."
+'''
+    assert extract_backend_sources("data_manager.py", source) == set()

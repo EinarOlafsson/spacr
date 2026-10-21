@@ -116,7 +116,7 @@ def _payload() -> dict:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Run ``spacr-plugins`` and return a shell exit code.
 
-    :param argv: arguments without the program name; ``sys.argv`` when None.
+    :param argv: arguments without the program name; ``sys.argv[1:]`` when None.
     """
     args = build_parser().parse_args(argv)
     if args.command not in ("list", "doctor"):

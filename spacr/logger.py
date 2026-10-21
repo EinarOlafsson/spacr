@@ -30,7 +30,7 @@ def configure_logger(
     :param name: Logger name to fetch or create. Default ``"spacr"``.
     :param log_file_name: file name under the user's home for the first file
         handler installed for ``name``. Later calls keep that file.
-    :param level: Logging level applied to the logger and its handlers.
+    :param level: Logging level applied to the logger and handlers installed by this function.
     :param stream: When True, also attach a stderr stream handler.
     :returns: Configured ``logging.Logger`` instance.
     """

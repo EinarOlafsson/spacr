@@ -354,7 +354,9 @@ def percentile_pair(value, default=DEFAULT_PERCENTILES) -> Tuple[float, float]:
     :param value: two numbers or a string representation separated by spaces,
         commas or semicolons.
     :param default: range returned when two numeric values cannot be parsed.
-    :returns: two floats in ascending order, clipped to ``[0, 100]``.
+    :returns: two floats. Parsed values are sorted in ascending order and clipped
+        to ``[0, 100]``; fallback values from ``default`` are converted to
+        floats without sorting or clipping.
 
     This parser treats the values as percentiles rather than channel indices;
     numeric values such as ``0``, ``1`` and ``2`` therefore retain their

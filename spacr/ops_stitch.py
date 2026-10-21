@@ -196,10 +196,10 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
                 **kwargs) -> StitchedWell:
     """Register a well's tiles against each other and solve their positions.
 
-    One well at a time, and one tile pair at a time within it. ``tiles`` is
-    normally a callable, because 333 tiles of 1480 px is 2.9 GB and nothing
-    here needs two of them resident: the caller decides what to keep and what
-    to re-read.
+    One well at a time, and one tile pair at a time within it. With a
+    callable ``tiles``, this function need not hold the whole well in memory.
+    The caller decides what to cache and what to re-read; its cache may still
+    retain tile arrays.
 
     :param tiles: ``site -> 2-D array``, or a callable taking a site.
     :param layout: the well model. None fits the circle to ``sites`` or,

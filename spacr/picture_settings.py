@@ -372,8 +372,9 @@ def to_crop_settings(picture) -> Dict[str, object]:
     :param picture: the annotator-named settings, as
         :class:`spacr.qt.widgets.picture_settings_dialog.PictureSettingsDialog`
         returns them.
-    :returns: a mapping in the crop layer's own vocabulary, carrying only what
-        this mode actually uses and only what is set.
+    :returns: a mapping in the crop layer's own vocabulary, with applicable set
+        values plus mode-derived settings such as ``stream_method`` for
+        streaming inputs.
     """
     try:
         items = dict(picture or {})

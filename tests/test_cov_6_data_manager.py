@@ -444,6 +444,66 @@ def crops_artifact(project):
     return root, registry, artifact
 
 
+@pytest.mark.parametrize("failure_at", [1, 2], ids=["primary", "shared"])
+def test_fingerprint_failure_keeps_registered_data_and_allows_a_safe_plan(
+        crops_artifact, monkeypatch, failure_at):
+    root, registry, artifact = crops_artifact
+    sibling = registry.register(
+        module=artifact.module, kind=artifact.kind, path=artifact.path,
+        role="shared-registration", inputs=artifact.inputs)
+    group = (artifact, sibling)
+    assert artifact.artifact_id != sibling.artifact_id
+    assert DM.is_prunable(artifact, root=root, registry=registry, group=group) == ""
+    real_fingerprint = DM.content_fingerprint
+    original = real_fingerprint(artifact.path)
+    rows = registry.by_project(root)
+    calls = []
+
+    def refused_fingerprint(path):
+        if path == artifact.path:
+            calls.append(path)
+            if len(calls) == failure_at:
+                raise PermissionError("private diagnostic must not be exposed")
+        return real_fingerprint(path)
+
+    monkeypatch.setattr(DM, "content_fingerprint", refused_fingerprint)
+    reason = DM.is_prunable(artifact, root=root, registry=registry, group=group)
+    assert reason and "keep" in reason.lower()
+    assert "private diagnostic" not in reason
+    assert len(calls) == failure_at
+    calls.clear()
+
+    plan = DM.plan_prune(root, registry=registry, kinds=[ports.CROPS])
+    assert not plan.candidates
+    assert any(entry.path == artifact.path and entry.reason == reason
+               for entry in plan.kept)
+    result = DM.prune(plan, confirm=plan.token, registry=registry)
+    assert not result.removed_paths
+    assert real_fingerprint(artifact.path) == original
+    assert registry.by_project(root) == rows
+
+
+@pytest.mark.parametrize("failure_at", [1, 2], ids=["primary", "shared"])
+@pytest.mark.parametrize("control", [KeyboardInterrupt, SystemExit])
+def test_pruning_eligibility_does_not_swallow_process_control(
+        crops_artifact, monkeypatch, failure_at, control):
+    root, registry, artifact = crops_artifact
+    sibling = dataclasses.replace(artifact, artifact_id="shared-registration")
+    real_fingerprint = DM.content_fingerprint
+    calls = []
+
+    def interrupted_fingerprint(path):
+        calls.append(path)
+        if len(calls) == failure_at:
+            raise control()
+        return real_fingerprint(path)
+
+    monkeypatch.setattr(DM, "content_fingerprint", interrupted_fingerprint)
+    with pytest.raises(control):
+        DM.is_prunable(artifact, root=root, registry=registry,
+                       group=(artifact, sibling))
+
+
 @pytest.mark.needs_symlink
 def test_an_artifact_reached_through_a_symlink_is_never_pruned(crops_artifact):
     """``rmtree`` through a link deletes storage the project does not own."""

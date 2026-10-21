@@ -126,19 +126,16 @@ def distance_to_infected(cell_mask, infected_labels: Iterable[int], *,
     :param spacing: voxel size, so the distances carry physical units.
     :returns: ``label`` and ``distance_to_infected``, one row per cell.
 
-    An infected cell reads 0 and its immediate neighbour reads one pixel
-    step, not 0. The field is zero on every infected pixel and grows
-    outward, so a cell that shares a border with an infected one has its
-    nearest pixel one step away: the minimum over that cell is 1. Only a
-    cell whose own pixels are infected reads 0.
+    With unit spacing, an infected cell reads 0 and its immediate neighbour
+    reads one pixel step, not 0. The field is zero on every infected pixel and
+    grows outward, so a cell that shares a border with an infected one has its
+    nearest pixel one step away: the minimum over that cell is 1. Only a cell
+    whose own pixels are infected reads 0.
 
-    `surface_distance_transform`'s docstring says "two touching objects
-    come out at 0", and that is true of the case it describes -- reading
-    the field at a point INSIDE the other object, which is what an
-    overlapping or contained object gives. Two disjoint labels that merely
-    abut do not overlap, so they do not. A threshold expressed in cell
-    diameters is far larger than one pixel either way, so a value of 1 for
-    an adjacent cell is expected.
+    `surface_distance_transform` is zero at points inside the target mask,
+    including overlaps or contained objects. Two disjoint labels that merely
+    share a border do not overlap, so an adjacent cell remains one pixel step
+    away. With ``spacing``, that step carries the supplied physical units.
 
     Every distance is ``inf`` when the image has no infected cell, rather
     than 0 or NaN: infinity keeps `distance <= reach` False for every

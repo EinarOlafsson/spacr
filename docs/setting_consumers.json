@@ -4886,7 +4886,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 2566,
+    "line": 2568,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -11019,7 +11019,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 2646,
+    "line": 2648,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -11250,7 +11250,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_source",
-    "line": 3531,
+    "line": 3533,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "resolve_crop_source"
@@ -13056,7 +13056,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dialate_png_ratios",
-    "line": 2667,
+    "line": 2669,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -13103,7 +13103,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dialate_pngs",
-    "line": 2661,
+    "line": 2663,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -27993,7 +27993,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 2678,
+    "line": 2680,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -28499,7 +28499,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize_by",
-    "line": 2696,
+    "line": 2698,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -29796,7 +29796,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 2566,
+    "line": 2568,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -30618,7 +30618,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_type",
-    "line": 1220,
+    "line": 1222,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "extract_crop"
@@ -32346,7 +32346,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 2566,
+    "line": 2568,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -34072,7 +34072,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 2566,
+    "line": 2568,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -34913,7 +34913,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 2566,
+    "line": 2568,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -35754,7 +35754,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 2566,
+    "line": 2568,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -38148,7 +38148,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 2566,
+    "line": 2568,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -41361,7 +41361,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_size",
-    "line": 2651,
+    "line": 2653,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -49417,7 +49417,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3518,
+    "line": 3520,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "resolve_crop_source"
@@ -49867,7 +49867,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 815,
+    "line": 816,
     "module": "spacr.macro",
     "nested": false,
     "qualname": "_project_root"
@@ -58795,7 +58795,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 2692,
+    "line": 2694,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"

@@ -641,7 +641,7 @@ def database_tables(db: Any, *, migrate: bool = False) -> Tuple[str, ...]:
 
 def table_columns(source: Any, *, table: Optional[str] = None,
                   canonicalise: bool = True) -> Tuple[str, ...]:
-    """The column names a table would be read with, without reading it.
+    """The column names a table would be read with, using a schema or header when possible.
 
     The CSV button and the SQL column list show what the
     run will see -- ``columnID``, never ``column_name`` -- and they get that

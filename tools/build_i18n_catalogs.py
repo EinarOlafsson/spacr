@@ -4650,6 +4650,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "object.py")
     paths.add(ROOT / "spacr" / "remote_execution.py")
     paths.add(ROOT / "spacr" / "install_cleanup.py")
+    paths.add(ROOT / "spacr" / "data_manager.py")
     paths.add(ROOT / "spacr" / "doctor.py")
     paths.add(ROOT / "spacr" / "updater.py")
     paths.add(ROOT / "spacr" / "model_zoo.py")
@@ -4681,6 +4682,10 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
+        if path == source_root / "data_manager.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "is_prunable"]
         if path == source_root / "model_zoo.py":
             # Shared acquisition diagnostics and curated scorecard display
             # text own captions; unrelated metadata and backend prose do not.

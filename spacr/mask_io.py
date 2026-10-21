@@ -196,7 +196,7 @@ def load_mask(path: PathLike) -> np.ndarray:
     (``foo``) — in the stem case, tif → tiff → npy is tried and the
     first extant file is loaded.
 
-    :returns: uint16 2-D array. Shape unchanged.
+    :returns: uint16 array with the stored shape and rank unchanged.
     :raises FileNotFoundError: when no matching file exists.
     :raises ValueError: stored labels cannot be represented exactly as uint16.
     """
