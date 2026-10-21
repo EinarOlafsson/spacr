@@ -17,9 +17,25 @@ def plan_intervals(english,original,tracks,edit,bindings):
             or edit['visual_timing_sha256']!=bindings['timing']['sha256']):
         raise ValueError('Reviewed edit is not bound to this published source')
     if len(tracks)!=50:raise ValueError('Every current voice must be checked')
-    edits={row['visual']:row for row in edit['scenes']}
-    if not edits or len(edits)!=len(edit['scenes']):raise ValueError('Missing or duplicate edit scenes')
-    if set(edits)-{s['visual'] for s in original['scenes']}:raise ValueError('Unknown edited scene')
+    edits={}
+    for selected in edit['scenes']:
+        matches=[i for i,source in enumerate(original['scenes']) if source['visual']==selected['visual']]
+        if 'source_scene' in selected:
+            number=selected['source_scene']
+            if type(number) is not int or not 1<=number<=len(original['scenes']) or number-1 not in matches:
+                raise ValueError('Edited source scene index/visual changed')
+            index=number-1
+        elif len(matches)==1:index=matches[0]
+        else:raise ValueError('Unknown or ambiguous edited visual requires source_scene')
+        source=original['scenes'][index]
+        start,end,duration=(float(source[k]) for k in ('speech_start','scene_end','duration'))
+        if (source.get('scene',index+1)!=index+1 or not all(math.isfinite(v) for v in (start,end,duration))
+                or start<0 or duration<=0 or abs(end-start-duration)>1e-8
+                or any(abs(v*30-round(v*30))>1e-5 for v in (start,end))):
+            raise ValueError('Edited source scene clock changed')
+        if index in edits:raise ValueError('Duplicate edited source scene')
+        edits[index]=selected
+    if not edits:raise ValueError('Missing edit scenes')
     rows=[];cursor=0
     for index,(source,authored) in enumerate(zip(original['scenes'],english['scenes'])):
         source_frames=round(source['duration']*30)
@@ -32,10 +48,11 @@ def plan_intervals(english,original,tracks,edit,bindings):
             if not math.isfinite(span) or not math.isfinite(duration) or not 0<span<=duration:
                 raise ValueError('Invalid current voice speech interval')
             spans.append(span);durations.append(duration)
-        selected=edits.get(source['visual'])
+        selected=edits.get(index)
         keep=[[0,source_frames]];idle=[];setup=None
         if selected is not None:
             required={'visual','keep_frames','confirmed_idle_frames','final_result_frame'}
+            if 'source_scene' in selected:required.add('source_scene')
             setup_fields={'omitted_setup_frames','omitted_setup_reason'}
             has_setup=bool(set(selected)&setup_fields)
             if (set(selected)!=(required|setup_fields if has_setup else required)
@@ -168,10 +185,16 @@ def edited_policy(root,identity,timing,bindings):
                        'visual_timings':bindings['timing']['path'].removeprefix('media_host/')}
         verified=bind_policy({'schema':1,'lessons':selected},list(bindings.values()),
                              [source_lesson],lambda _:original)
-        inherited={e['visual']:e['idle_tail_start'] for e in verified[0]['native_idle_tails']['scenes']}
+        for fence in verified[0]['native_idle_tails']['scenes']:
+            matches=[i for i,source in enumerate(original['scenes'])
+                     if source['visual']==fence['visual']
+                     and abs(source['speech_start']-fence['source_start'])<=1e-7
+                     and abs(source['scene_end']-fence['source_end'])<=1e-7]
+            if len(matches)!=1:raise ValueError('Inherited fence source scene clock is ambiguous or changed')
+            inherited[matches[0]]=fence['idle_tail_start']
     fences=[]
-    for row in timing['scenes']:
-        fence=row['kept_frames']/30 if row['edited'] else inherited.get(row['visual'])
+    for index,row in enumerate(timing['scenes']):
+        fence=row['kept_frames']/30 if row['edited'] else inherited.get(index)
         if fence is not None:
             fences.append(dict(visual=row['visual'],source_start=row['speech_start'],
                                source_end=row['scene_end'],idle_tail_start=fence))

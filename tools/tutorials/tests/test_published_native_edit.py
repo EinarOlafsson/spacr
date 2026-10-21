@@ -231,3 +231,70 @@ def test_reviewed_setup_omissions_reject_incomplete_or_dishonest_partition(sourc
         del row['omitted_setup_frames'];del row['omitted_setup_reason'];row['confirmed_idle_frames']=[]
     elif fault=='too_long':args[2][0]['scenes'][0]['speech_end']=1.99
     with pytest.raises(ValueError):edit.plan_intervals(*args)
+
+
+@pytest.fixture
+def repeated_source_plan(source_plan):
+    args=deepcopy(source_plan)
+    args[0]['scenes'][1]['visual']='organize'
+    args[1]['scenes'][1]['visual']='organize'
+    args[3]['scenes'][0]['source_scene']=1
+    return args
+
+
+def test_repeated_visual_edits_resolve_by_source_scene_and_preserve_other_instance(repeated_source_plan):
+    args=repeated_source_plan
+    row=deepcopy(args[3]['scenes'][0]);row['source_scene']=2
+    args[3]['scenes'].append(row)
+    rows=edit.plan_intervals(*args)
+    assert [r['source_start_frame'] for r in rows]==[0,300]
+    assert all(r['edited'] and r['source_keep_frames']==[[0,30],[240,270]] for r in rows)
+    args[3]['scenes'].pop(0)
+    rows=edit.plan_intervals(*args)
+    assert not rows[0]['edited'] and rows[1]['edited']
+
+
+def test_optional_source_scene_preserves_legacy_unique_plan_objects(source_plan):
+    expected=edit.plan_intervals(*source_plan)
+    args=deepcopy(source_plan);args[3]['scenes'][0]['source_scene']=1
+    assert edit.plan_intervals(*args)==expected
+
+
+@pytest.mark.parametrize('fault',['missing_index','zero','out_of_range','bool','fractional','wrong_visual',
+                                  'duplicate','clock_duration','clock_fractional','clock_number'])
+def test_repeat_identity_rejects_ambiguous_invalid_duplicate_and_changed_source_clock(repeated_source_plan,fault):
+    args=repeated_source_plan;row=args[3]['scenes'][0]
+    if fault=='missing_index':del row['source_scene']
+    elif fault=='zero':row['source_scene']=0
+    elif fault=='out_of_range':row['source_scene']=3
+    elif fault=='bool':row['source_scene']=True
+    elif fault=='fractional':row['source_scene']=1.0
+    elif fault=='wrong_visual':row['visual']='unknown'
+    elif fault=='duplicate':args[3]['scenes'].append(deepcopy(row))
+    elif fault=='clock_duration':args[1]['scenes'][0]['duration']=9
+    elif fault=='clock_fractional':args[1]['scenes'][0].update(speech_start=.01,scene_end=10.01)
+    elif fault=='clock_number':args[1]['scenes'][0]['scene']=2
+    with pytest.raises(ValueError):edit.plan_intervals(*args)
+
+
+def test_inherited_repeat_fences_use_original_clock_and_index_after_prior_edit(retained_stage,monkeypatch):
+    from stage_lesson import write,read
+    from check_completed_matrix import digest
+    stage,root,baseline,repo=retained_stage;monkeypatch.setattr(edit,'REPO',repo)
+    path=baseline/'media_host/05_home/video/native-live-timings.json'
+    original=read(path);a,b=original['scenes']
+    b['visual']=a['visual'];write(path,original)
+    bindings={name:{'path':f'media_host/05_home/video/{file}','sha256':digest(baseline/f'media_host/05_home/video/{file}')}
+              for name,file in [('master','05_home_silent.mp4'),('timing','native-live-timings.json')]}
+    fences=[dict(visual=s['visual'],source_start=s['speech_start'],source_end=s['scene_end'],idle_tail_start=f)
+            for s,f in zip(original['scenes'],[.5,1.5])]
+    write(repo/'tools/tutorials/idle_tail_policy.json',{'schema':1,'lessons':[dict(lesson='05_home',
+        master_sha256=bindings['master']['sha256'],visual_timing_sha256=bindings['timing']['sha256'],scenes=fences)]})
+    write(root/edit.RECORD,{'baseline_root':str(baseline)})
+    (root/'video').mkdir(exist_ok=True);write(root/'video/native-live-timings.json',{})
+    (root/'video/05_home_silent.mp4').write_bytes(b'explicit nonmedia edited fixture')
+    timing={'scenes':[dict(visual=a['visual'],speech_start=0,scene_end=2,edited=True,kept_frames=30),
+                      dict(visual=b['visual'],speech_start=2,scene_end=5,edited=False)]}
+    result=edit.edited_policy(root,'05_home',timing,bindings)['lessons'][0]['scenes']
+    assert [f['idle_tail_start'] for f in result]==[1,1.5]
+    assert [f['source_start'] for f in result]==[0,2]
