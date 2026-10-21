@@ -441,7 +441,7 @@ def test_an_archived_installer_installs_its_own_version(script, pattern):
 
 @pytest.mark.network
 def test_download_entry_points_match_the_published_release_catalog():
-    """Detect stale sources and a deployed site lagging the published assets."""
+    """Check prepared source links and the actual published archive/site."""
     import urllib.error
     import urllib.request
     helper = _release_helper()
@@ -459,7 +459,7 @@ def test_download_entry_points_match_the_published_release_catalog():
         pytest.fail(f"Publication endpoint answered {error.code}: {error.url}")
     except OSError as error:
         pytest.skip(f"Publication endpoints unreachable: {error}")
-    errors = helper.audit_installer_publication(ROOT, releases, site_html=html)
+    errors = helper.audit_installer_sources(ROOT, releases, site_html=html)
     assert not errors, "\n".join(errors)
 
 
@@ -490,3 +490,87 @@ def test_every_link_on_the_page_is_live():
             pytest.fail(f"{url} answered {error.code}")
         except OSError as error:                          # no network
             pytest.skip(f"GitHub unreachable: {error}")
+
+
+@pytest.fixture
+def prepared_installer_source(tmp_path):
+    import shutil
+    helper = _release_helper()
+    releases = [_release("v1.5.1.5", *ALL_THREE)]
+    (tmp_path / "setup.py").write_text('VERSION = "1.5.1.6"\n', encoding="utf-8")
+    paths = [Path("README.rst"), *(Path("docs/i18n/readme") / f"README.{code}.rst"
+                                  for code in helper.LOCALIZED_README_CODES)]
+    for relative in paths:
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, path)
+        helper._replace_readme_block(path, helper._readme_links("1.5.1.6", "main"))
+    archive = tmp_path / helper.INSTALLER_INDEX_PATH
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    archive.write_text(helper.render_installer_index(releases, "1.5.1.5"), encoding="utf-8")
+    from docutils.core import publish_parts
+    html = publish_parts(archive.read_text(encoding="utf-8"), writer_name="html")["html_body"]
+    return helper, tmp_path, releases, html
+
+
+def test_prepublication_sources_require_candidate_links_and_actual_published_history(
+        prepared_installer_source):
+    helper, root, releases, html = prepared_installer_source
+    before = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+    assert helper.audit_installer_sources(root, releases, site_html=html) == []
+    published_errors = helper.audit_installer_publication(root, releases, site_html=html)
+    assert len(published_errors) == 60
+    assert sum("Missing published installer:" in error for error in published_errors) == 30
+    assert sum("Unexpected or stale installer:" in error for error in published_errors) == 30
+    assert all(path.read_bytes() == content for path, content in before.items())
+
+
+@pytest.mark.parametrize("fault", ["stale", "other-language", "malformed", "duplicate", "host"])
+def test_prepublication_source_checks_reject_invalid_candidate_downloads(
+        prepared_installer_source, fault):
+    helper, root, releases, html = prepared_installer_source
+    path = root / ("docs/i18n/readme/README.fr.rst" if fault == "other-language" else "README.rst")
+    text = path.read_text(encoding="utf-8")
+    if fault in ("stale", "other-language"):
+        text = text.replace("1.5.1.6", "1.5.1.5" if fault == "stale" else "1.5.1.7")
+    elif fault == "malformed":
+        text = text.replace("/v1.5.1.6/spaCR-1.5.1.6-", "/v1.5.1.6/spaCR-1.5.1.5-", 1)
+    elif fault == "duplicate":
+        suffix = "Linux-x86_64-Online.run"
+        match = helper._installer_url_pattern(suffix).search(text)
+        text = text.replace(helper.README_END, match.group(0) + "\n" + helper.README_END)
+    else:
+        text = text.replace("https://github.com/EinarOlafsson/spacr/releases/download/",
+                            "https://github.com/other/spacr/releases/download/", 1)
+    path.write_text(text, encoding="utf-8")
+    errors = helper.audit_installer_sources(root, releases, site_html=html)
+    assert errors
+    assert all(str(path) in error for error in errors)
+
+
+@pytest.mark.parametrize("destination", ["archive", "site"])
+def test_prepublication_sources_do_not_excuse_missing_published_assets(
+        prepared_installer_source, destination):
+    helper, root, releases, html = prepared_installer_source
+    url = releases[0]["assets"][0]["browser_download_url"]
+    if destination == "archive":
+        path = root / helper.INSTALLER_INDEX_PATH
+        path.write_text(path.read_text(encoding="utf-8").replace(url, url.replace("1.5.1.5", "1.5.1.4")), encoding="utf-8")
+    else:
+        html = html.replace(url, url.replace("v1.5.1.5/", "v1.5.1.4/"))
+    errors = helper.audit_installer_sources(root, releases, site_html=html)
+    assert any("Missing published installer: " + url in error for error in errors)
+    assert all((str(root / helper.INSTALLER_INDEX_PATH) if destination == "archive"
+                else "Public website:") in error for error in errors)
+
+
+@pytest.mark.parametrize("candidate", ["1.5.1.5", "1.5.1.4"])
+def test_nonfuture_sources_keep_the_strict_published_readme_requirement(
+        prepared_installer_source, candidate):
+    helper, root, releases, html = prepared_installer_source
+    (root / "setup.py").write_text(f'VERSION = "{candidate}"\n', encoding="utf-8")
+    assert helper.audit_installer_sources(root, releases, site_html=html) == (
+        helper.audit_installer_publication(root, releases, site_html=html))
+    assert len(helper.audit_installer_sources(root, releases, site_html=html)) == 60
+    helper.sync_published_installer_links(root, releases)
+    assert helper.audit_installer_sources(root, releases, site_html=html) == []
