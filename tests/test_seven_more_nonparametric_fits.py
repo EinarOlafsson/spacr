@@ -141,6 +141,41 @@ def test_the_methods_that_need_scaling_scale_and_say_so(bent):
         assert "standardised" in NP.smooth(x, y, method=method).note
 
 
+@pytest.mark.parametrize("supports_rng", [False, True])
+def test_kernel_preserves_old_constructors_and_seeds_new_rngs(
+        monkeypatch, supports_rng):
+    from statsmodels.nonparametric import kernel_regression
+
+    calls = []
+
+    class Model:
+        def fit(self, points):
+            calls.append(("fit", points.copy()))
+            return points * 2, np.zeros_like(points)
+
+    def old_constructor(endog, exog, var_type):
+        calls.append(("constructor", endog.copy(), exog.copy(), var_type))
+        return Model()
+
+    def new_constructor(endog, exog, var_type, *, rng):
+        assert isinstance(rng, np.random.RandomState)
+        assert rng.randint(0, 100000) == np.random.RandomState(0).randint(0, 100000)
+        return old_constructor(endog, exog, var_type)
+
+    monkeypatch.setattr(kernel_regression, "KernelReg",
+                        new_constructor if supports_rng else old_constructor)
+    x = np.array([3.0, 1.0, 2.0, 4.0])
+    y = x * 5
+    curve = NP.smooth(x, y, method="kernel")
+
+    _, endog, exog, var_type = calls[0]
+    assert var_type == "c"
+    np.testing.assert_array_equal(endog, np.sort(y))
+    np.testing.assert_allclose(exog, (np.sort(x) - x.mean()) / x.std())
+    np.testing.assert_allclose(curve.y, calls[1][1] * 2)
+    assert "standardised" in curve.note
+
+
 # --- C: the agreement check ------------------------------------------------
 
 
