@@ -889,6 +889,12 @@ def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
     assert "libxcb-icccm4" in workflow
     assert "libxcb-keysyms1" in workflow
     assert "Verify Qt xcb plugin dependencies resolve" in workflow
+    header_name = "Install GLContext build headers (Linux ARM64)"
+    headers = workflow.split("- name: " + header_name, 1)[1].split("- name:", 1)[0]
+    assert "if: runner.os == 'Linux' && runner.arch == 'ARM64'" in headers
+    assert "sudo apt-get install --no-install-recommends -y libx11-dev" in headers
+    assert "||" not in headers
+    assert workflow.index(header_name) < workflow.index("Install and smoke the exact wheel and sdist")
     assert '["ldd", str(plugin)]' in workflow
     assert 'assert "not found" not in result.stdout' in workflow
     assert 'assert DEFAULT_PATTERN == "orbit"' in workflow

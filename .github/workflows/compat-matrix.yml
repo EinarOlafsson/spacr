@@ -815,6 +815,10 @@ jobs:
               echo "skip: $pkg not available on this release"
           done
 
+      - name: Install GLContext build headers (Linux ARM64)
+        if: runner.os == 'Linux' && runner.arch == 'ARM64'
+        run: sudo apt-get install --no-install-recommends -y libx11-dev
+
       - name: Install OpenMP runtime (macOS only)
         if: runner.os == 'macOS'
         shell: bash

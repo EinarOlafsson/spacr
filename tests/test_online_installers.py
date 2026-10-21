@@ -193,6 +193,53 @@ def test_unix_package_resolution_uses_compatible_mac_cvxopt_wheels(tmp_path, pla
         assert "numba>=0.60,<1.0" in args and "llvmlite>=0.43,<1.0" in args
 
 
+@needs_bash
+@pytest.mark.parametrize("architecture", ["aarch64", "x86_64"])
+@pytest.mark.parametrize("manager,build_packages,runtime", [
+    ("apt-get", ("build-essential", "libx11-dev"), "libegl1"),
+    ("dnf", ("gcc-c++", "libX11-devel"), "mesa-libEGL"),
+    ("zypper", ("gcc-c++", "libX11-devel"), "Mesa-libEGL1"),
+    ("pacman", ("base-devel", "libx11"), "libglvnd"),
+])
+def test_linux_arm_installer_provisions_compiler_and_x11_headers(
+        tmp_path, architecture, manager, build_packages, runtime):
+    args = _linux_system_dependency_arguments(tmp_path, architecture, manager)
+    assert runtime in args
+    assert "ffmpeg" in args
+    for package in build_packages:
+        assert (package in args) is (architecture == "aarch64")
+
+
+def _linux_system_dependency_arguments(tmp_path, architecture, manager, *, skip=False):
+    source = _text(UNIX)
+    function = "install_linux_system_dependencies() {" + source.split(
+        "install_linux_system_dependencies() {", 1)[1].split("\n}\n", 1)[0] + "\n}"
+    commands = tmp_path / "commands"
+    commands.mkdir()
+    scripts = {
+        "id": "#!/bin/sh\nprintf '0\\n'\n",
+        "uname": "#!/bin/sh\nprintf '%s\\n' \"$TEST_ARCHITECTURE\"\n",
+        manager: "#!/bin/sh\nprintf '%s\\0' \"$@\" >> \"$SYSTEM_PACKAGE_ARGS\"\n",
+    }
+    for name, script in scripts.items():
+        command = commands / name
+        command.write_text(script, encoding="utf-8")
+        command.chmod(0o755)
+    captured = tmp_path / "package-arguments"
+    env = dict(os.environ, PATH=str(commands), TEST_ARCHITECTURE=architecture,
+               SYSTEM_PACKAGE_ARGS=str(captured))
+    script = 'PLATFORM=linux\nSKIP_SYSTEM_DEPS=' + ("1" if skip else "0")
+    script += "\nspacr_say() { :; }\n" + function + "\ninstall_linux_system_dependencies"
+    subprocess.run([shutil.which("bash"), "-eu", "-c", script], env=env,
+                   check=True, capture_output=True, text=True, timeout=10)
+    return captured.read_text(encoding="utf-8").split("\0") if captured.exists() else []
+
+
+@needs_bash
+def test_linux_arm_installer_retains_explicit_system_dependency_skip(tmp_path):
+    assert _linux_system_dependency_arguments(tmp_path, "aarch64", "apt-get", skip=True) == []
+
+
 def test_online_installers_default_to_the_core_package_and_keep_overrides():
     """Qt ships in core; package-spec inputs still allow explicit extras."""
     unix = _text(UNIX)

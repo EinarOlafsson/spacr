@@ -96,6 +96,30 @@ saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer.
 ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering``
 line. See :ref:`wgpu-3d-rendering`.
 
+Linux ARM64 build requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Linux ARM64 environments build ModernGL's GLContext backend from source. This
+requires a C++ compiler and the X11 development headers. The Unix installer's
+normal system-dependency step installs these packages on ARM64:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Package manager
+     - Build packages
+   * - APT
+     - ``build-essential libx11-dev``
+   * - DNF or Zypper
+     - ``gcc-c++ libX11-devel``
+   * - Pacman
+     - ``base-devel libx11``
+
+When using ``--skip-system-deps`` or installing with ``pip`` directly, provide
+these build packages beforehand alongside the required desktop runtime
+libraries. The managed Python already includes its own Python headers; for a
+system Python, provide that interpreter's development headers as well.
+
 Updating
 --------
 

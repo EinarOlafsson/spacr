@@ -516,8 +516,15 @@ install_linux_system_dependencies() {
         fi
     fi
 
+    local arm_build=0
+    local build_deps=()
+    case "$(uname -m)" in
+        aarch64|arm64|ARM64) arm_build=1 ;;
+    esac
+
     spacr_say installing_linux_deps
     if command -v apt-get >/dev/null 2>&1; then
+        [[ "$arm_build" == "0" ]] || build_deps=(build-essential libx11-dev)
         "${elevate[@]}" apt-get update
         "${elevate[@]}" apt-get install --no-install-recommends -y \
             libegl1 libgl1 libxkbcommon0 libdbus-1-3 libpulse0 \
@@ -525,21 +532,28 @@ install_linux_system_dependencies() {
             libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 \
             libxcb-sync1 libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 \
             libxkbcommon-x11-0 libnss3 libxcomposite1 libxcursor1 \
-            libxdamage1 libxi6 libxtst6 libsm6 libxext6 libxrender1 ffmpeg
+            libxdamage1 libxi6 libxtst6 libsm6 libxext6 libxrender1 ffmpeg \
+            ${build_deps[@]+"${build_deps[@]}"}
     elif command -v dnf >/dev/null 2>&1; then
+        [[ "$arm_build" == "0" ]] || build_deps=(gcc-c++ libX11-devel)
         "${elevate[@]}" dnf install -y \
             mesa-libGL mesa-libEGL libxkbcommon libxkbcommon-x11 \
             libxcb xcb-util-cursor xcb-util-image xcb-util-keysyms \
-            xcb-util-renderutil dbus-libs pulseaudio-libs nss ffmpeg
+            xcb-util-renderutil dbus-libs pulseaudio-libs nss ffmpeg \
+            ${build_deps[@]+"${build_deps[@]}"}
     elif command -v zypper >/dev/null 2>&1; then
+        [[ "$arm_build" == "0" ]] || build_deps=(gcc-c++ libX11-devel)
         "${elevate[@]}" zypper --non-interactive install \
             Mesa-libGL1 Mesa-libEGL1 libxkbcommon0 libxkbcommon-x11-0 \
-            libxcb1 libpulse0 libnss3 ffmpeg
+            libxcb1 libpulse0 libnss3 ffmpeg \
+            ${build_deps[@]+"${build_deps[@]}"}
     elif command -v pacman >/dev/null 2>&1; then
+        [[ "$arm_build" == "0" ]] || build_deps=(base-devel libx11)
         "${elevate[@]}" pacman -S --needed --noconfirm \
             libglvnd libxkbcommon-x11 libxcb xcb-util-cursor \
             xcb-util-image xcb-util-keysyms xcb-util-renderutil \
-            dbus libpulse nss ffmpeg
+            dbus libpulse nss ffmpeg \
+            ${build_deps[@]+"${build_deps[@]}"}
     else
         spacr_say unknown_package_manager
     fi
