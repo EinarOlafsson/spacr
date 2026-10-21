@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QHBoxLayout, QLabel,
 
 from ...screen_data import (SCREEN_ASSETS, ScreenAsset, human_size,
                             total_size)
+from ..i18n import tr
 
 LOG = logging.getLogger("spacr.qt.screen_data_picker")
 
@@ -66,9 +67,7 @@ class ScreenDataPicker(QDialog):
         self.setMinimumWidth(scaled_px(520))
         self._folder = folder
         self._kind = kind
-        from ...screen_data import published_archives
-
-        self._published = published_archives()
+        self._published = None
         outer = QVBoxLayout(self)
 
         advice = QLabel(self.ADVICE.get(kind, self.ADVICE[None]))
@@ -120,6 +119,40 @@ class ScreenDataPicker(QDialog):
         outer.addWidget(buttons)
         self._refresh_total()
 
+        from ...screen_data import published_archives
+        from ..job_runner import JobRunner
+
+        self._inventory_jobs = JobRunner(self, user_visible=False)
+        self.finished.connect(self._cancel_inventory)
+        self._inventory_jobs.submit(published_archives, self._set_published)
+
+    def _cancel_inventory(self) -> None:
+        """Cancel delivery and park an unfinished lookup without waiting."""
+        self._inventory_jobs.shutdown(0)
+
+    def _set_published(self, published) -> None:
+        """Apply a lookup result to rows and selection on the GUI thread."""
+        self._published = published
+        blocked = self._list.blockSignals(True)
+        try:
+            for item in self._items():
+                asset = item.data(Qt.UserRole)
+                item.setText(self._text_for(asset))
+                missing = self._is_missing_upstream(asset)
+                flags = item.flags()
+                item.setFlags(flags & ~Qt.ItemIsEnabled if missing
+                              else flags | Qt.ItemIsEnabled)
+                if missing:
+                    item.setSelected(False)
+                    item.setCheckState(Qt.Unchecked)
+                    item.setToolTip(tr("Not published yet — nothing to download."))
+                if self._is_present(asset):
+                    item.setToolTip(tr("Already downloaded. Tick it to fetch it "
+                                       "again, which replaces the copy on disk."))
+        finally:
+            self._list.blockSignals(blocked)
+        self._refresh_total()
+
 
     def _text_for(self, asset: ScreenAsset) -> str:
         """Compose one asset's row.
@@ -136,7 +169,7 @@ class ScreenDataPicker(QDialog):
             note = " — already downloaded"
         else:
             note = ""
-        return f"{asset.label}    {human_size(asset.bytes)}{note}"
+        return f"{tr(asset.label)}    {human_size(asset.bytes)}{tr(note)}"
 
     def _is_missing_upstream(self, asset: ScreenAsset) -> bool:
         """Whether the hub does not have this piece.
@@ -205,12 +238,12 @@ class ScreenDataPicker(QDialog):
         """
         chosen = self.chosen()
         if not chosen:
-            self._total.setText("Nothing selected.")
+            self._total.setText(tr("Nothing selected."))
             self._download.setEnabled(False)
             return
         self._total.setText(
-            f"{len(chosen)} item(s), {human_size(total_size(chosen))} to "
-            f"download.")
+            tr(f"{len(chosen)} item(s), {human_size(total_size(chosen))} to "
+               f"download."))
         self._download.setEnabled(True)
 
     def chosen(self) -> List[ScreenAsset]:

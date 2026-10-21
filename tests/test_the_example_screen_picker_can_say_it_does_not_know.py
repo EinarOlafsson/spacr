@@ -7,11 +7,9 @@ an empty set greys every row out, while None leaves them enabled and says the
 list could not be checked.  Collapsing the second into the first gives a user
 on a hotel network a picker that offers nothing and explains nothing.
 
-The hub is never contacted here.  ``huggingface_hub`` is replaced with a
-module whose ``HfApi`` does what a real one does in each of the three cases,
-including the older releases whose ``list_repo_files`` has no ``timeout``
-parameter -- spaCR supports those and calls again without it, which is a
-retry that can itself fail.
+The hub is never contacted here. Fake metadata responses preserve the three
+outcomes, and the installed client's real request path checks that the
+timeout reaches its transport rather than an unsupported API keyword.
 """
 from __future__ import annotations
 
@@ -23,13 +21,19 @@ import pytest
 from spacr import screen_data
 
 
-def _hub(monkeypatch, list_repo_files):
-    """Install a fake ``huggingface_hub`` whose HfApi lists what we say."""
+def _hub(monkeypatch, inventory):
+    """Install a fake metadata endpoint with the supported timeout signature."""
     module = types.ModuleType("huggingface_hub")
 
     class HfApi:
-        def list_repo_files(self, repo, **kwargs):
-            return list_repo_files(repo, **kwargs)
+        def repo_info(self, repo, *, repo_type, timeout):
+            names = inventory(repo, repo_type=repo_type, timeout=timeout)
+            return types.SimpleNamespace(siblings=(
+                None if names is None else
+                [types.SimpleNamespace(rfilename=name) for name in names]))
+
+        def list_repo_files(self, *args, **kwargs):
+            pytest.fail("inventory must not fall back to an unbounded file listing")
 
     module.HfApi = HfApi
     monkeypatch.setitem(sys.modules, "huggingface_hub", module)
@@ -65,40 +69,22 @@ def test_a_hub_that_does_not_answer_is_none_and_not_an_empty_set(monkeypatch):
     assert screen_data.published_archives("some/repo") is None
 
 
-def test_an_older_hub_without_a_timeout_is_asked_again_without_one(monkeypatch):
-    """TypeError from the keyword, not from the network: retry, do not give up.
-
-    ``list_repo_files`` gained ``timeout`` partway through huggingface_hub's
-    history.  An installation on the older release would otherwise report
-    every screen as unpublished, and the picker would offer nothing.
-    """
+def test_a_client_error_does_not_retry_without_the_timeout(monkeypatch):
     calls = []
 
-    def older(repo, **kwargs):
+    def refuse(repo, **kwargs):
         calls.append(kwargs)
-        if "timeout" in kwargs:
-            raise TypeError("unexpected keyword argument 'timeout'")
-        return ["plate1.tar"]
+        raise TypeError("invalid metadata response")
 
-    _hub(monkeypatch, older)
+    _hub(monkeypatch, refuse)
 
-    assert screen_data.published_archives("some/repo") == {"plate1.tar"}
-    assert [("timeout" in kw) for kw in calls] == [True, False]
+    assert screen_data.published_archives("some/repo", timeout=0.25) is None
+    assert calls == [{"repo_type": "dataset", "timeout": 0.25}]
 
 
-def test_a_retry_that_fails_too_is_still_i_do_not_know(monkeypatch):
-    """The second call can fail for the first call's real reason.
-
-    An offline host raises TypeError from neither -- but a host that is BOTH
-    on an old huggingface_hub AND offline reaches the retry and fails there,
-    and the answer is still None rather than a traceback out of a dialog.
-    """
-    def older_and_offline(repo, **kwargs):
-        if "timeout" in kwargs:
-            raise TypeError("unexpected keyword argument 'timeout'")
-        raise OSError("Network is unreachable")
-
-    _hub(monkeypatch, older_and_offline)
+@pytest.mark.parametrize("siblings", [None, [None]])
+def test_missing_or_malformed_inventory_is_unknown_not_a_known_empty_repo(monkeypatch, siblings):
+    _hub(monkeypatch, lambda repo, **kwargs: siblings)
 
     assert screen_data.published_archives("some/repo") is None
 
@@ -113,15 +99,17 @@ def test_no_huggingface_hub_at_all_is_i_do_not_know(monkeypatch):
 def test_the_timeout_is_passed_so_a_slow_network_cannot_hold_the_dialog(
     monkeypatch,
 ):
-    """A picker that waits on a default socket timeout looks frozen."""
-    seen = {}
+    from huggingface_hub import hf_api
 
-    def record(repo, **kwargs):
-        seen.update(kwargs)
-        return []
+    seen = []
 
-    _hub(monkeypatch, record)
-    screen_data.published_archives("some/repo", timeout=0.25)
+    class Session:
+        def get(self, url, *, headers, timeout, params):
+            seen.append((url, timeout))
+            raise TimeoutError("bounded metadata request expired")
 
-    assert seen["timeout"] == 0.25
-    assert seen["repo_type"] == "dataset"
+    monkeypatch.setattr(hf_api, "get_session", lambda: Session())
+    assert screen_data.published_archives("some/repo", timeout=0.25) is None
+    assert len(seen) == 1
+    assert seen[0][0].endswith("/api/datasets/some/repo")
+    assert seen[0][1] == 0.25

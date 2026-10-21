@@ -18,6 +18,13 @@ from spacr.screen_data import (SCREEN_ASSETS, SCREEN_REPO, assets_for,
                                human_size, total_size)
 
 
+@pytest.fixture(autouse=True)
+def offline_inventory(monkeypatch):
+    from spacr import screen_data
+
+    monkeypatch.setattr(screen_data, "published_archives", lambda: None)
+
+
 # ---------------------------------------------------------------------------
 # The manifest
 # ---------------------------------------------------------------------------
@@ -84,10 +91,11 @@ def test_an_empty_data_folder_is_not_a_download(tmp_path):
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def picker(qapp, tmp_path):
+def picker(qtbot, qapp, tmp_path):
     from spacr.qt.widgets.screen_data_picker import ScreenDataPicker
 
     made = ScreenDataPicker(folder=tmp_path)
+    qtbot.waitUntil(lambda: not made._inventory_jobs._jobs)
     yield made
     made.close()
     made.deleteLater()
@@ -314,25 +322,24 @@ def test_the_chosen_archives_are_what_is_fetched(qapp, tmp_path):
 # committed to an eight-gigabyte download.
 
 
-def _picker_with(qapp, tmp_path, published, kind=None):
+def _picker_with(qtbot, qapp, tmp_path, published, kind=None):
     from spacr.qt.widgets import screen_data_picker as module
 
-    original = module.__dict__.get("published_archives")
-    made = None
     import spacr.screen_data as screen_data
     saved = screen_data.published_archives
     screen_data.published_archives = lambda *a, **k: published
     try:
         made = module.ScreenDataPicker(folder=tmp_path, kind=kind)
+        qtbot.waitUntil(lambda: not made._inventory_jobs.is_busy())
         return made
     finally:
         screen_data.published_archives = saved
 
 
-def test_an_unpublished_piece_is_disabled(qapp, tmp_path):
+def test_an_unpublished_piece_is_disabled(qtbot, qapp, tmp_path):
     from PySide6.QtCore import Qt
 
-    made = _picker_with(qapp, tmp_path, {"plate1-measurements.tar"})
+    made = _picker_with(qtbot, qapp, tmp_path, {"plate1-measurements.tar"})
     try:
         by_name = {made._list.item(i).data(Qt.UserRole).archive:
                    made._list.item(i) for i in range(made._list.count())}
@@ -344,8 +351,8 @@ def test_an_unpublished_piece_is_disabled(qapp, tmp_path):
         qapp.processEvents()
 
 
-def test_an_unpublished_piece_says_so(qapp, tmp_path):
-    made = _picker_with(qapp, tmp_path, {"plate1-measurements.tar"})
+def test_an_unpublished_piece_says_so(qtbot, qapp, tmp_path):
+    made = _picker_with(qtbot, qapp, tmp_path, {"plate1-measurements.tar"})
     try:
         texts = [made._list.item(i).text() for i in range(made._list.count())]
         assert any("not published yet" in t for t in texts)
@@ -355,9 +362,9 @@ def test_an_unpublished_piece_says_so(qapp, tmp_path):
         qapp.processEvents()
 
 
-def test_an_unpublished_piece_is_never_chosen(qapp, tmp_path):
+def test_an_unpublished_piece_is_never_chosen(qtbot, qapp, tmp_path):
     """What cannot be fetched must not be promised."""
-    made = _picker_with(qapp, tmp_path, {"plate1-measurements.tar"})
+    made = _picker_with(qtbot, qapp, tmp_path, {"plate1-measurements.tar"})
     try:
         made._tick_kind("crops")
         assert made.chosen() == []
@@ -367,17 +374,192 @@ def test_an_unpublished_piece_is_never_chosen(qapp, tmp_path):
         qapp.processEvents()
 
 
-def test_a_lookup_that_failed_leaves_every_row_offered(qapp, tmp_path):
+def test_a_lookup_that_failed_leaves_every_row_offered(qtbot, qapp, tmp_path):
     """None means "could not tell" -- offline, or the hub did not answer --
     and is deliberately not the same as "nothing is published". Treating it as
     an absence would grey out every row and explain nothing."""
     from PySide6.QtCore import Qt
 
-    made = _picker_with(qapp, tmp_path, None)
+    made = _picker_with(qtbot, qapp, tmp_path, None)
     try:
         assert all(made._list.item(i).flags() & Qt.ItemIsEnabled
                    for i in range(made._list.count()))
     finally:
+        made.close()
+        made.deleteLater()
+        qapp.processEvents()
+
+
+def test_an_answered_empty_inventory_disables_every_row(qtbot, qapp, tmp_path):
+    from PySide6.QtCore import Qt
+
+    made = _picker_with(qtbot, qapp, tmp_path, set())
+    try:
+        assert not any(item.flags() & Qt.ItemIsEnabled for item in made._items())
+        made._tick_kind("measurements")
+        assert made.chosen() == []
+        assert not made._download.isEnabled()
+    finally:
+        made.close()
+        made.deleteLater()
+        qapp.processEvents()
+
+
+def test_slow_inventory_leaves_construction_and_events_responsive_then_updates_on_gui(
+        qtbot, qapp, tmp_path, monkeypatch):
+    import threading
+
+    from PySide6.QtCore import QThread, QTimer, Qt
+    from spacr import screen_data
+    from spacr.qt.widgets.screen_data_picker import ScreenDataPicker
+
+    entered, release, finished = threading.Event(), threading.Event(), threading.Event()
+    worker_threads, deliveries = [], []
+
+    def inventory():
+        worker_threads.append(QThread.currentThread())
+        entered.set()
+        try:
+            release.wait(5)
+            return {"plate1-measurements.tar"}
+        finally:
+            finished.set()
+
+    class Picker(ScreenDataPicker):
+        def _set_published(self, published):
+            deliveries.append(QThread.currentThread())
+            super()._set_published(published)
+
+    monkeypatch.setattr(screen_data, "published_archives", inventory)
+    made = Picker(folder=tmp_path)
+    try:
+        qtbot.waitUntil(entered.is_set)
+        assert not finished.is_set()
+        assert worker_threads[0] != qapp.thread()
+        heartbeat = []
+        QTimer.singleShot(0, lambda: heartbeat.append(True))
+        qtbot.waitUntil(lambda: bool(heartbeat))
+        assert not finished.is_set()
+        made._tick_kind("crops")
+        assert made.chosen() == assets_for("crops")
+        assert made._download.isEnabled()
+        release.set()
+        qtbot.waitUntil(lambda: not made._inventory_jobs.is_busy())
+        assert deliveries == [qapp.thread()]
+        assert made.chosen() == []
+        assert not made._download.isEnabled()
+        assert made._total.text() == "Nothing selected."
+        enabled = [item.data(Qt.UserRole).archive for item in made._items()
+                   if item.flags() & Qt.ItemIsEnabled]
+        assert enabled == ["plate1-measurements.tar"]
+    finally:
+        release.set()
+        qtbot.waitUntil(finished.is_set)
+        qtbot.waitUntil(lambda: not made._inventory_jobs._jobs)
+        made.close()
+        made.deleteLater()
+        qapp.processEvents()
+
+
+def test_closing_during_inventory_never_waits_or_delivers_to_the_deleted_picker(
+        qtbot, qapp, tmp_path, monkeypatch):
+    import threading
+    import time
+
+    import shiboken6
+    from spacr import screen_data
+    from spacr.qt.bridge import prune_parked_threads, thread_has_stopped
+    from spacr.qt.widgets.screen_data_picker import ScreenDataPicker
+
+    entered, release, finished = threading.Event(), threading.Event(), threading.Event()
+    delivered = []
+
+    def inventory():
+        entered.set()
+        try:
+            release.wait(5)
+            return set()
+        finally:
+            finished.set()
+
+    class Picker(ScreenDataPicker):
+        def _set_published(self, published):
+            delivered.append(published)
+            super()._set_published(published)
+
+    monkeypatch.setattr(screen_data, "published_archives", inventory)
+    made = Picker(folder=tmp_path)
+    try:
+        made.show()
+        qtbot.waitUntil(entered.is_set)
+        threads = [thread for thread, _worker in made._inventory_jobs._jobs.values()]
+        started = time.monotonic()
+        made.close()
+        assert time.monotonic() - started < 0.5
+        assert not finished.is_set()
+        assert made._inventory_jobs.pending_jobs() == 0
+        assert not made._inventory_jobs.is_busy()
+        shiboken6.delete(made)
+        release.set()
+        qtbot.waitUntil(finished.is_set)
+        qtbot.waitUntil(lambda: all(thread_has_stopped(thread) for thread in threads))
+        qapp.processEvents()
+        assert delivered == []
+    finally:
+        release.set()
+        qtbot.waitUntil(finished.is_set)
+        if shiboken6.isValid(made):
+            made.close()
+            made.deleteLater()
+        qapp.processEvents()
+        prune_parked_threads()
+
+
+@pytest.mark.parametrize("downloaded", [False, True])
+def test_inventory_delivery_preserves_the_active_translated_rows_and_tooltips(
+        qtbot, qapp, tmp_path, monkeypatch, downloaded):
+    import threading
+
+    from PySide6.QtCore import Qt
+    from spacr import screen_data
+    from spacr.qt import i18n
+    from spacr.qt.widgets.screen_data_picker import ScreenDataPicker
+
+    entered, release = threading.Event(), threading.Event()
+
+    def inventory():
+        entered.set()
+        release.wait(5)
+        return set()
+
+    if downloaded:
+        (tmp_path / "measurements").mkdir()
+        (tmp_path / "measurements/measurements.db").write_bytes(b"present")
+    monkeypatch.setattr(screen_data, "published_archives", inventory)
+    monkeypatch.setattr(i18n, "current_language", lambda: "fr")
+    made = ScreenDataPicker(folder=tmp_path)
+    try:
+        qtbot.waitUntil(entered.is_set)
+        i18n.retranslate_widget_tree(made, "fr")
+        release.set()
+        qtbot.waitUntil(lambda: not made._inventory_jobs.is_busy())
+        assert made._total.text() == i18n.tr("Nothing selected.", "fr")
+        assert made._total.text() != "Nothing selected."
+        for item in made._items():
+            asset = item.data(Qt.UserRole)
+            source = f"{asset.label}    {human_size(asset.bytes)} — not published yet"
+            expected = (f"{i18n.tr(asset.label, 'fr')}    {human_size(asset.bytes)}"
+                        f"{i18n.tr(' — not published yet', 'fr')}")
+            assert item.text() == expected
+            assert item.text() != source
+            tooltip = ("Already downloaded. Tick it to fetch it again, which replaces the copy on disk."
+                       if made._is_present(asset)
+                       else "Not published yet — nothing to download.")
+            assert item.toolTip() == i18n.tr(tooltip, "fr")
+            assert item.toolTip() != tooltip
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not made._inventory_jobs._jobs)
         made.close()
         made.deleteLater()
         qapp.processEvents()
