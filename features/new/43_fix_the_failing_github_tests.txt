@@ -4163,3 +4163,9 @@ MAIN coverage3/job119211197320 reproduces three card/README failures (3 failed,2
 All16 owning card checks pass2.19s, including existing SVG/font/metrics/README/source agreement; generated card and README outputs are unchanged. No GPU, weights or protected jobs are used; both fixes already exist on nightly.
 Three hosted chaining timeouts remain observed but unreproduced: original5/15s assertions pass locally (three cases), and owning source/tests match nightly. No timeout increase or speculative threading change is included.
 Root owns independent peer, concrete MAIN approval/publication and the unresolved hosted timing follow-up; broader CI acceptance remains open.
+
+2026-10-21 — Codex easy-task lane ports the tested destroyed-runner repair onto MAIN624efd129c, preserving all prior history.
+Qt2/job119211197017's real-QtPdf pending-count failure reproduced on6c20 (1 failed,5.87s); only nightly's weak-reference cleanup and destroyed connection are added.
+JobRunner source is byte-identical to reviewed13118b4d71; retain three passing lifetime, late-relay and GUI-delivery checks (4.30s).
+Existing assertions/timeouts and unrelated source/prose remain unchanged; no test/generator rerun or GPU/host changes.
+Root owns concrete MAIN approval and publication; the separate hosted chaining timeouts and broader CI acceptance remain open.
