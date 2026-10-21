@@ -3146,6 +3146,8 @@ def _watch_windows_change_ns(*, path=None, descriptor=None):
     from ctypes import wintypes
 
     class _BasicInfo(ctypes.Structure):
+        """``FILE_BASIC_INFO``: the four NTFS times and the attribute bits."""
+
         _fields_ = [('creation', ctypes.c_int64), ('access', ctypes.c_int64),
                     ('write', ctypes.c_int64), ('change', ctypes.c_int64),
                     ('attributes', wintypes.DWORD)]
