@@ -819,7 +819,8 @@ def test_tracker_extras_follow_their_upstream_python_ranges():
         "ultrack": (
             'python_version >= "3.10" and python_version < "3.14" and '
             '(sys_platform != "darwin" or platform_machine != "x86_64" '
-            'or python_version < "3.13")'
+            'or python_version < "3.13") and (sys_platform != "linux" or '
+            'platform_machine == "x86_64" or platform_machine == "AMD64")'
         ),
     }
     for name, marker in expected.items():

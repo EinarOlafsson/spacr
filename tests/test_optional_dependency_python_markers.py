@@ -128,3 +128,31 @@ def test_default_native_backends_follow_actual_mac_wheel_boundaries():
                        platform_machine="AMD64", platform_release="10")
     for name in ("pyfixest", "faiss-cpu", "btrack"):
         assert requirements[name].marker.evaluate(environment)
+
+
+def test_ultrack_profiles_follow_higra_native_platform_availability():
+    tree = ast.parse((ROOT / "setup.py").read_text(encoding="utf-8"))
+    values = next(ast.literal_eval(node.value) for node in tree.body
+                  if isinstance(node, ast.Assign)
+                  and any(getattr(target, "id", "") == "dependencies"
+                          for target in node.targets))
+    default = next(Requirement(value) for value in values
+                   if canonicalize_name(Requirement(value).name) == "ultrack")
+    profiles = (default, _requirement("ultrack", "ultrack"),
+                _requirement("all", "ultrack"))
+    environment = default_environment()
+    environment.update(python_version="3.11", python_full_version="3.11.17")
+    for system, platform, machine, available in (
+            ("Linux", "linux", "aarch64", False),
+            ("Linux", "linux", "arm64", False),
+            ("Linux", "linux", "x86_64", True),
+            ("Linux", "linux", "AMD64", True),
+            ("Darwin", "darwin", "arm64", True),
+            ("Darwin", "darwin", "x86_64", True),
+            ("Windows", "win32", "AMD64", True)):
+        environment.update(platform_system=system, sys_platform=platform,
+                           platform_machine=machine)
+        for requirement in profiles:
+            assert requirement.marker is not None
+            assert requirement.marker.evaluate(environment) is available, (
+                str(requirement), environment)

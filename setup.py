@@ -366,7 +366,7 @@ dependencies = [
     'torchcam<1.0,>=0.5; python_version >= "3.11" and (sys_platform != "darwin" or platform_machine != "x86_64")',
     'trackastra<1.0,>=0.5; (python_version >= "3.10" and (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13")) and python_version >= "3.10"',
     'transformers<6,>=4.40; python_version >= "3.10"',
-    'ultrack<1.0,>=0.6; (python_version >= "3.10" and python_version < "3.14" and (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13")) and python_version >= "3.10"',
+    'ultrack<1.0,>=0.6; (python_version >= "3.10" and python_version < "3.14" and (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13")) and python_version >= "3.10" and (sys_platform != "linux" or platform_machine == "x86_64" or platform_machine == "AMD64")',
     'zarr<4,>=2.16; python_version >= "3.10"',
 ]
 
@@ -447,7 +447,9 @@ setup(
         'ultrack': [
             'ultrack>=0.6,<1.0; python_version >= "3.10" and '
             'python_version < "3.14" and (sys_platform != "darwin" or '
-            'platform_machine != "x86_64" or python_version < "3.13")',
+            'platform_machine != "x86_64" or python_version < "3.13") and '
+            '(sys_platform != "linux" or platform_machine == "x86_64" or '
+            'platform_machine == "AMD64")',
         ],
         'attribution': ['torchcam>=0.4.0,<1.0'],
         'gpu': [
@@ -533,7 +535,9 @@ setup(
             'or python_version < "3.13")',
             'ultrack>=0.6,<1.0; python_version >= "3.10" and '
             'python_version < "3.14" and (sys_platform != "darwin" or '
-            'platform_machine != "x86_64" or python_version < "3.13")',
+            'platform_machine != "x86_64" or python_version < "3.13") and '
+            '(sys_platform != "linux" or platform_machine == "x86_64" or '
+            'platform_machine == "AMD64")',
             'catboost>=1.2,<2.0',
             'lightgbm>=4.0,<5.0',
             'ultralytics>=8.0,<9',

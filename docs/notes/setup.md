@@ -169,7 +169,7 @@ newer-interpreter tests passing that release.
 | [trackastra](https://pypi.org/pypi/trackastra/json) | 0.5.6 | `>=3.10` | 0.5.6 | default, all, trackastra | `<1.0,>=0.5`. Promote with existing Intel Mac Torch marker retained; configuration import verified without downloading weights. |
 | [trackpy](https://pypi.org/pypi/trackpy/json) | 0.7 | `>=3.8` | 0.7 | default | `<1.0,>=0.6.2`. Retain existing floor and API-family guard admitting latest compatible stable. |
 | [transformers](https://pypi.org/pypi/transformers/json) | 5.20.2 | `>=3.10.0` | 5.20.2 | default, foundation | `<6,>=4.40`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
-| [ultrack](https://pypi.org/pypi/ultrack/json) | 0.8.0 | `<3.14,>=3.11` | 0.7.2 | default, all, ultrack | `<1.0,>=0.6`. Promote Python >=3.10,<3.14; latest Requires-Python excludes 3.14. Joint Python 3.10 solve uses 0.6.3 with Zarr 2; Python 3.12 uses 0.8. |
+| [ultrack](https://pypi.org/pypi/ultrack/json) | 0.8.0 | `<3.14,>=3.11` | 0.7.2 | default, all, ultrack | `<1.0,>=0.6`. Promote Python >=3.10,<3.14 on Higra-supported platforms. Linux requires x86_64/AMD64: Higra has no Linux ARM distribution or sdist. Mac ARM and Windows remain enabled. Joint Python 3.10 solve uses 0.6.3 with Zarr 2; Python 3.12 uses 0.8. |
 | [ultralytics](https://pypi.org/pypi/ultralytics/json) | 8.4.183 | `>=3.8` | 8.4.183 | all, papers, plaque | `<9,>=8.0` / `<9,>=8.4`. Keep extra: requires full opencv-python, which collides with core headless cv2 distribution. |
 | [umap-learn](https://pypi.org/pypi/umap-learn/json) | 0.5.12 | `>=3.9` | 0.5.12 | default, umap | `<1.0,>=0.5.11`. Retain existing floor and API-family guard admitting latest compatible stable. |
 | [vispy](https://pypi.org/pypi/vispy/json) | 0.17.0 | `>=3.10` | 0.17.0 | default, all, fractal | `<1.0,>=0.14`. Retain existing floor and API-family guard admitting latest compatible stable. |
@@ -178,6 +178,23 @@ newer-interpreter tests passing that release.
 | [xenon](https://pypi.org/pypi/xenon/json) | 0.9.3 | `unspecified` | 0.9.3 | dev | `<1,>=0.9`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
 | [xgboost](https://pypi.org/pypi/xgboost/json) | 3.4.1 | `>=3.12` | 3.2.0 | default | `<4,>=2.0.3`. Retain existing floor and API-family guard admitting latest compatible stable. |
 | [zarr](https://pypi.org/pypi/zarr/json) | 3.4.1 | `>=3.12` | 2.18.3 | default, zarr | `<4,>=2.16`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+
+### Linux ARM64 dependency correction (2026-10-21)
+
+Hosted Ubuntu 24.04 ARM64/Python 3.11 job 119488634092 failed the wheel
+`[qt,dev,zernike]` installation because Ultrack requires Higra >=0.6.10.
+[Higra's official release metadata](https://pypi.org/pypi/higra/json) publishes
+Linux x86_64, macOS x86_64/ARM64 and Windows x86_64 wheels, with no Linux ARM
+wheel or source distribution. Ultrack therefore follows Higra's Linux x86_64
+architecture limit in the default, named and aggregate profiles. This preserves
+Mac ARM64, Windows and x86 Linux installations and all existing core bounds.
+
+The corrected default plus `qt,dev,zernike` requirements resolve 376 packages for
+`aarch64-manylinux_2_39`, CPython 3.11.17, matching the hosted Ubuntu 24.04 image,
+with CPU Torch. This uses the actual ordinary-install source policy: Mahotas
+may build from its source release, as in the hosted job. A separate wheel-only
+claim would be false for that ARM profile. Nine owning marker/profile checks
+pass. Native ARM execution remains for hosted CI; this is target resolution.
 
 ### Target-platform default resolution
 
