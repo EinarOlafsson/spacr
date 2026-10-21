@@ -137,7 +137,7 @@
     {
       "lesson": "04_platform_installers",
       "master_sha256": "eb353f10bd81dbcba6f7f76761ccc286de7cc6d1575dc3155a45bec54d486d40",
-      "visual_timing_sha256": "c97206b1ba30afa90784e67d5b127d903c407b165a14b5b77538ad80c45a6a91",
+      "visual_timing_sha256": "b2f76c008abf021ecae123f40bb0b92be855e32c99f625cfecef82fd15a3b50a",
       "scenes": [
         {
           "visual": "08_official_release",
