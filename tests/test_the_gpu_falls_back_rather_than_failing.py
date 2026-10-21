@@ -200,8 +200,7 @@ class TestTheFallbackActuallyRuns:
 
 
 class TestThePackagingPromotion:
-    """220: pyfixest, glum and gpytorch are core, gated where torch already
-    gates."""
+    """Runtime backends follow the approved conditional-default metadata."""
 
     @staticmethod
     def _core():
@@ -217,20 +216,77 @@ class TestThePackagingPromotion:
     def test_it_is_a_core_dependency(self, package):
         assert package in self._core()
 
+    @classmethod
+    def _core_requirements(cls):
+        import ast
+        from packaging.requirements import Requirement
+
+        return {Requirement(value).name: Requirement(value)
+                for value in ast.literal_eval("[" + cls._core() + "]")}
+
     @pytest.mark.parametrize("package", ["pyfixest", "glum", "gpytorch"])
-    def test_it_is_gated_at_the_floor_torch_already_imposes(self, package):
-        """They add no interpreter constraint spaCR did not already have: a
-        3.9 install does without them and still runs."""
-        import re
+    def test_it_follows_the_approved_interpreter_and_platform_gates(self, package):
+        from packaging.markers import default_environment
 
-        core = self._core()
-        line = [l for l in core.splitlines() if package in l and "'" in l]
-        assert line, package
-        assert 'python_version >= "3.10"' in line[0], line[0]
+        requirement = self._core_requirements()[package]
+        assert requirement.marker is not None
+        environment = default_environment()
+        for version in ("3.9", "3.10", "3.11", "3.12", "3.14"):
+            environment.update(python_version=version,
+                               python_full_version=version + ".0")
+            for platform, system, machine in (
+                    ("linux", "Linux", "x86_64"),
+                    ("linux", "Linux", "aarch64"),
+                    ("win32", "Windows", "AMD64"),
+                    ("darwin", "Darwin", "arm64"),
+                    ("darwin", "Darwin", "x86_64")):
+                environment.update(sys_platform=platform, platform_system=system,
+                                   platform_machine=machine)
+                expected = version != "3.9" and not (
+                    package == "pyfixest" and platform == "darwin"
+                    and version == "3.10")
+                assert requirement.marker.evaluate(environment) is expected, (
+                    package, environment)
 
-    @pytest.mark.parametrize("package", ["numpyro", "pymer4"])
-    def test_the_two_that_stay_extras_stay_extras(self, package):
-        """numpyro drags 88 MB of jax and needs >=3.12; pymer4 needs R,
-        which pip cannot install at any gate."""
-        core = self._core()
-        assert f"'{package}" not in core, f"{package} became core"
+    def test_numpyro_is_a_conditional_default_and_retains_its_extra(self):
+        """This checks declarations, without importing or running a sampler."""
+        import ast
+        from pathlib import Path
+        from packaging.markers import default_environment
+        from packaging.requirements import Requirement
+
+        core = self._core_requirements()
+        environment = default_environment()
+        tree = ast.parse(Path("setup.py").read_text(encoding="utf-8"))
+        extras = next(ast.literal_eval(keyword.value)
+                      for node in ast.walk(tree)
+                      if isinstance(node, ast.Call)
+                      and getattr(node.func, "id", "") == "setup"
+                      for keyword in node.keywords
+                      if keyword.arg == "extras_require")
+        alias = {Requirement(value).name: Requirement(value)
+                 for value in extras["numpyro"]}
+        assert set(alias) == {"numpyro", "jax"}
+        for name in ("numpyro", "jax"):
+            requirement = core[name]
+            assert str(requirement.marker) == 'python_version >= "3.10"'
+            assert alias[name].specifier == requirement.specifier
+            assert alias[name].marker is None
+            for version in ("3.9", "3.10", "3.12", "3.14"):
+                environment.update(python_version=version,
+                                   python_full_version=version + ".0")
+                for platform, system, machine in (
+                        ("linux", "Linux", "x86_64"),
+                        ("linux", "Linux", "aarch64"),
+                        ("win32", "Windows", "AMD64"),
+                        ("darwin", "Darwin", "arm64"),
+                        ("darwin", "Darwin", "x86_64")):
+                    environment.update(sys_platform=platform,
+                                       platform_system=system,
+                                       platform_machine=machine)
+                    assert requirement.marker.evaluate(environment) is (
+                        version != "3.9"), (name, environment)
+
+    def test_the_external_R_backend_stays_outside_core(self):
+        """pymer4 needs R, which pip cannot install at any gate."""
+        assert "'pymer4" not in self._core(), "pymer4 became core"
