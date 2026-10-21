@@ -9,10 +9,11 @@ screen that moves work off the GUI thread.
 The rules:
 
 * ``PipelineWorker.finished`` is emitted **on the worker thread**. A closure
-  connected to it is invoked there. Touching a widget from it is undefined
-  behaviour. The only safe thing a slot on that signal may do is re-emit a
-  ``Signal`` whose receiver is a bound method of a GUI-thread object -- Qt
-  then queues the call onto the GUI thread.
+  connected to it is invoked there and must not touch widgets. Connecting
+  the signal to a bound method of a GUI-thread QObject lets Qt queue the
+  call onto the GUI thread; this runner uses ``_worker_finished`` for that
+  delivery. A worker-thread slot can also relay a ``Signal`` to such a
+  receiver without touching widgets itself.
 * ``QThread.finished`` must be connected to a **bound method of a GUI-thread
   QObject**, never a closure. PySide6 makes the QThread itself the receiver
   for a closure, and :func:`spacr.qt.bridge.make_thread` connects

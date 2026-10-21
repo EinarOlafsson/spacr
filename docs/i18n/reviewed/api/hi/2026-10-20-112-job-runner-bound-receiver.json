@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical translation review with independent root technical/language peer; no native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.job_runner#3",
+      "source": "``PipelineWorker.finished`` is emitted **on the worker thread**. A closure connected to it is invoked there and must not touch widgets. Connecting the signal to a bound method of a GUI-thread QObject lets Qt queue the call onto the GUI thread; this runner uses ``_worker_finished`` for that delivery. A worker-thread slot can also relay a ``Signal`` to such a receiver without touching widgets itself.",
+      "context": "``PipelineWorker.finished`` is emitted **on the background execution unit**. A closure connected to it is invoked there and must not touch widgets. Connecting the signal to a bound method of a main GUI execution path QObject lets Qt schedule the call onto the main GUI execution path; this runner uses ``_worker_finished`` for that delivery. A background execution unit slot can also relay a ``Signal`` to such a receiver without touching widgets itself.",
+      "source_sha256": "e5ccb4a522eca236d3de492a4ba556ec854bfc3c2fcdcad58f1a1f0b7f646afd",
+      "translation": "``PipelineWorker.finished`` **वर्कर थ्रेड पर** उत्सर्जित होता है। उससे जुड़ा क्लोज़र वहीं बुलाया जाता है और उसे विजेटों को छूना नहीं चाहिए। सिग्नल को GUI थ्रेड के QObject की बाउंड विधि से जोड़ने पर Qt कॉल को GUI थ्रेड की प्रतीक्षा सूची में डाल सकता है; यह रनर उस डिलीवरी के लिए ``_worker_finished`` का उपयोग करता है। वर्कर थ्रेड का स्लॉट स्वयं विजेटों को छुए बिना ऐसे रिसीवर तक ``Signal`` भी पहुँचा सकता है।",
+      "review_basis": "Independent root technical/language peer approved exact source e5ccb4a522eca236d3de492a4ba556ec854bfc3c2fcdcad58f1a1f0b7f646afd and nine targets; German explicitly preserves the prohibition on widget access, beyond mutation. Worker-thread signal emission, queued bound GUI-thread QObject receiver, actual _worker_finished delivery and optional relay checked against current source; no native-speaker signoff."
+    }
+  ]
+}

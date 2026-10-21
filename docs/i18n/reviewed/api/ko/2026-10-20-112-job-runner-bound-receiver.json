@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical translation review with independent root technical/language peer; no native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.job_runner#3",
+      "source": "``PipelineWorker.finished`` is emitted **on the worker thread**. A closure connected to it is invoked there and must not touch widgets. Connecting the signal to a bound method of a GUI-thread QObject lets Qt queue the call onto the GUI thread; this runner uses ``_worker_finished`` for that delivery. A worker-thread slot can also relay a ``Signal`` to such a receiver without touching widgets itself.",
+      "context": "``PipelineWorker.finished`` is emitted **on the background execution unit**. A closure connected to it is invoked there and must not touch widgets. Connecting the signal to a bound method of a main GUI execution path QObject lets Qt schedule the call onto the main GUI execution path; this runner uses ``_worker_finished`` for that delivery. A background execution unit slot can also relay a ``Signal`` to such a receiver without touching widgets itself.",
+      "source_sha256": "e5ccb4a522eca236d3de492a4ba556ec854bfc3c2fcdcad58f1a1f0b7f646afd",
+      "translation": "``PipelineWorker.finished`` 는 **작업 스레드에서** 방출됩니다. 여기에 연결된 클로저는 그 스레드에서 호출되며 위젯에 접근해서는 안 됩니다. 신호를 GUI 스레드에 속한 QObject의 바인딩된 메서드에 연결하면 Qt가 호출을 GUI 스레드의 큐에 넣을 수 있습니다. 이 실행기는 해당 전달에 ``_worker_finished`` 를 사용합니다. 작업 스레드의 슬롯은 직접 위젯에 접근하지 않고 이러한 수신자에게 ``Signal`` 을 중계할 수도 있습니다.",
+      "review_basis": "Independent root technical/language peer approved exact source e5ccb4a522eca236d3de492a4ba556ec854bfc3c2fcdcad58f1a1f0b7f646afd and nine targets; German explicitly preserves the prohibition on widget access, beyond mutation. Worker-thread signal emission, queued bound GUI-thread QObject receiver, actual _worker_finished delivery and optional relay checked against current source; no native-speaker signoff."
+    }
+  ]
+}

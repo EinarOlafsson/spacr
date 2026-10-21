@@ -1,6 +1,6 @@
-Status:    DONE 2026-08-15 — Both reproduced failures fixed; four mechanical
-           guards added; the permanently-skipped link test now runs in CI.
-           See RESULT at the end.
+Status:    OPEN 2026-10-20 — mechanical guards and bounded correctness
+           corrections delivered; the wider semantic review remains open.
+           Original mechanical results and subsequent deliveries follow.
 Requested: 2026-08-15 - "add to instructions, do a sweep of the docstrings
            and translations make sure everything is correct."
 
@@ -345,3 +345,6 @@ eligibility proves no new rendered API or runtime targets. The original zero
 undocumented-callable gate passes on its exact tested source (27,364callables);
 this is not a new blanket scientific, global API-review or release claim.
 Evidence: data/ci_callable_documentation_contracts_2026-10-15/.
+
+2026-10-20 — Codex feature_takeover owns the bounded JobRunner signal-delivery prose repair: the module still calls signal re-emission the only safe route although submit now connects a bound GUI-thread QObject receiver directly. Correct that paragraph against the actual connection, retain worker/GUI thread distinctions and all lifecycle behavior; review nine locale targets and regenerate the owning API/Help artifacts normally. This does not close the wider semantic sweep; root peers and publishes.
+2026-10-20 — Delivered the corrected JobRunner paragraph and nine exact-source targets after root technical/language peer review; normal scoped generation retains seven other paragraphs and all 13,604 unrelated symbols per locale, with no decoding. Seven owning checks pass; executable AST, source history and Help summary are unchanged. Normal api_memory publication pins fb6e35c716b6217d5664354935a3bb88e08a16b3; the wider semantic review remains open.
