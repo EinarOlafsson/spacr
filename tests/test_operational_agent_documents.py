@@ -1,10 +1,9 @@
-"""Agent discovery stays usable without shipping operational documents."""
+"""Operational instructions live only in their canonical, unpackaged folder."""
 from __future__ import annotations
 
 import ast
 import os
 from pathlib import Path
-import re
 
 from setuptools import Distribution
 from setuptools._distutils.filelist import FileList
@@ -14,38 +13,19 @@ ROOT = Path(__file__).resolve().parents[1]
 AI = ROOT / "spacr" / "resources" / "AI"
 
 
-def _local_links(path):
-    return {
-        (path.parent / target.split("#", 1)[0]).resolve()
-        for target in re.findall(r"\]\(([^)]+)\)", path.read_text())
-        if not re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", target)
-    }
+def test_agent_instructions_exist_only_in_the_canonical_folder():
+    assert (AI / "AGENTS.md").is_file()
+    assert "spacr/resources/AI/HANDOFF.md" in (AI / "AGENTS.md").read_text()
+    assert not (ROOT / "AGENTS.md").exists()
+    assert not (ROOT / "CLAUDE.md").exists()
+    assert not list((ROOT / "features").glob("HANDOFF*.md"))
 
 
-def test_root_agent_discovery_reaches_canonical_rules_and_handoff():
-    expected = {AI / "AGENTS.md", AI / "HANDOFF.md"}
-    for name in ("AGENTS.md", "CLAUDE.md"):
-        reached = set()
-        frontier = {ROOT / name}
-        for _ in range(3):
-            following = set()
-            for path in frontier:
-                assert path.is_file(), path
-                links = _local_links(path)
-                reached.update(links)
-                following.update(p for p in links if p.parent != AI)
-            frontier = following - reached.intersection(frontier)
-        assert expected <= reached, name
-
-
-def test_old_handoff_links_forward_to_the_complete_canonical_documents():
+def test_canonical_handoffs_retain_complete_documents():
     canonical = set(AI.glob("HANDOFF*.md"))
     assert len(canonical) >= 4
     for target in canonical:
-        pointer = ROOT / "features" / target.name
-        assert pointer.is_file()
-        assert _local_links(pointer) == {target}
-        assert len(pointer.read_text()) < len(target.read_text())
+        assert len(target.read_text()) > 1000, target
     assert "CURRENT HANDOFF FOR CODEX AND OTHER AGENTS" in (AI / "HANDOFF.md").read_text()
 
 

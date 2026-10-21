@@ -188,8 +188,8 @@ def test_the_date_alone_does_not_make_it_stale():
 def test_the_index_points_at_the_handoff():
     """A new session reads the index; the traps are in the handoff."""
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
-    assert "HANDOFF.md" in text
-    assert (INSTRUCTIONS / "HANDOFF.md").exists()
+    assert "spacr/resources/AI/HANDOFF.md" in text
+    assert (INSTRUCTIONS.parent / "spacr/resources/AI/HANDOFF.md").exists()
 
 
 def test_an_open_status_line_does_not_contradict_its_own_body():
