@@ -1,11 +1,12 @@
 DEEP-LEARNING IMAGE QC: OUT-OF-FOCUS, SATURATION, DEBRIS, EMPTY FIELDS
 
-Status: BLOCKED 2026-10-03 — maintainer annotation of real
-        debris/bubble/saturation/empty labels and his package-data decision on
-        shipped weights. Built and alpha-gated.
+Status: IN PROGRESS 2026-10-21 — public real-image QC dataset search and
+        pinned Hugging Face weights with local caching. Built and alpha-gated;
+        real-data precision/recall acceptance remains required.
 
 Previous status (superseded 2026-10-04): DONE 2026-10-03 (alpha-gated); only external points left: real debris/bubble/saturation/empty labels (maintainer annotation) and shipped weights (maintainer package-data decision).
-Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+Owner: Codex maintainer-input coordinator and retained F559 workers.
+Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
@@ -184,3 +185,8 @@ decision. Synthetic cases and existing blur/editor/card checks do not supply
 those expert labels. Source-bound plan and entrypoints are in
 data/maintainer_annotation_reconciliation_2026-10-14/. No new labels, images,
 model inference/training or GPU actions; whole-item acceptance remains open.
+
+2026-10-21 — Maintainer has no existing QC images/labels; search primary public datasets for real debris/bubble/saturation/empty labels and verify licensing before use.
+Distribution approved: immutable-revision Hugging Face download from einarolafsson/models (DATASET), cached locally; preserve explicit model overrides and restricted loading.
+Acceptance retains real labelled precision/recall against the current rules plus quarantine behavior; synthetic defects or blur-only truth do not close all-class acceptance.
+Delivered pinned synthetic built-in weights at HF f9a020c5e8cc0457bd81858d90cb9847ab412856 with verified atomic caching; 15 focused tests pass. Public labelled-data evaluation remains open; no real-QC-pretraining claim.
