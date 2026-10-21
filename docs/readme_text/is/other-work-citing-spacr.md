@@ -1,1 +1,1 @@
-## Aðrir verk sem heitir spaCR
+## Önnur verk sem vísa til spaCR

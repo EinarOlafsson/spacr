@@ -96,7 +96,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/spacr.desktop.svg"><img src="../../readme_images/is/spacr.svg" alt="spaCR. Rýmisbundin svipgerðargreining á CRISPR-skimunum. spaCR aðgreinir og mælir stakar frumur í smásjármyndum, samþættir svipgerðir einstakra viðfanga við magn leiðarsameinda sem fæst úr raðgreiningu og metur hvaða gen tengjast svipgerðarbreytingum. Út frá plötumyndum og FASTQ-röðum býr það til mælingar fyrir hvert viðfang, þjálfaða flokkara, áhrifamat fyrir hverja leiðarsameind og hvert gen og forgangsraðaðan lista yfir niðurstöður. Segmingu, mæling, notkun og flokksmiðju mótmælur virkar einnig án sekkunararms. Make Masks leiðréttir skiptingargrímur og merkir sjálfstæða rétthyrninga með flokkamerkjum með Box verkfærinu fyrir YOLO-útflutning. Rammarnir halda eigin merkjum og sögu án þess að breyta upprunamyndum eða grímum. Hvert verkfæri er útskýrt í eiginleikahandbókinni. Myndir, grímur og myndúrklippur eru skrár á diski. Mælingar, merkingar og spár líkana eru töflur í SQLite-gagnagrunni verkefnisins, measurements.db. Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa."></picture></a></div>
+   <div><a href="../../readme_text/is/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/spacr.desktop.svg"><img src="../../readme_images/is/spacr.svg" alt="spaCR. Rýmisbundin svipgerðargreining á CRISPR-skimunum. spaCR aðgreinir og mælir stakar frumur í smásjármyndum, samþættir svipgerðir einstakra viðfanga við magn leiðarsameinda sem fæst úr raðgreiningu og metur hvaða gen tengjast svipgerðarbreytingum. Út frá plötumyndum og FASTQ-röðum býr það til mælingar fyrir hvert viðfang, þjálfaða flokkara, áhrifamat fyrir hverja leiðarsameind og hvert gen og forgangsraðaðan lista yfir niðurstöður. Einingarnar fyrir aðgreiningu, mælingar, merkingar og flokkun má einnig nota án raðgreiningarhluta. Make Masks leiðréttir skiptingargrímur og merkir sjálfstæða rétthyrninga með flokkamerkjum með Box verkfærinu fyrir YOLO-útflutning. Rammarnir halda eigin merkjum og sögu án þess að breyta upprunamyndum eða grímum. Hvert verkfæri er útskýrt í eiginleikahandbókinni. Myndir, grímur og myndúrklippur eru skrár á diski. Mælingar, merkingar og spár líkana eru töflur í SQLite-gagnagrunni verkefnisins, measurements.db. Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa."></picture></a></div>
 
 .. raw:: html
 
@@ -111,7 +111,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/hardware-support.desktop.svg"><img src="../../readme_images/is/hardware-support.svg" alt="Hardware aðstoð."></picture></a></div>
+   <div><a href="../../readme_text/is/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/hardware-support.desktop.svg"><img src="../../readme_images/is/hardware-support.svg" alt="Vélbúnaðarstuðningur."></picture></a></div>
 
 .. spacr-hardware-begin
 
@@ -136,7 +136,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application.desktop.svg"><img src="../../readme_images/is/desktop-application.svg" alt="Skjáborðsforrit. Þessir uppbyggingar búnir eigin Python. Conda er ekki nauðsynlegt."></picture></a></div>
+   <div><a href="../../readme_text/is/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application.desktop.svg"><img src="../../readme_images/is/desktop-application.svg" alt="Skjáborðsforrit. Uppsetningarforritin innihalda eigið Python-umhverfi. Conda er ekki nauðsynlegt."></picture></a></div>
 
 .. spacr-installer-links-begin
 
@@ -165,7 +165,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application-3.desktop.svg"><img src="../../readme_images/is/desktop-application-3.svg" alt="Á macOS, opna .pkg. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja System Settings → Privacy &amp; Security → Open Anyway. Leiðbeiningar um uppsetningu, uppfærslu, enduruppsetningu, fjarlægingu, notkun án nettengingar og bilanagreiningu eru í nýjustu uppsetningarleiðbeiningunum á nightly (á ensku). Í kerfiskröfunum eru ráðleggingar um vinnustöðvar og netþjóna og töflur um GPU-samhæfi."></picture></a></div>
+   <div><a href="../../readme_text/is/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application-3.desktop.svg"><img src="../../readme_images/is/desktop-application-3.svg" alt="Á macOS skaltu opna .pkg skrána. Núverandi beta-útgáfa hefur ekki fengið notarization-staðfestingu frá Apple. Ef Gatekeeper stöðvar hana skaltu velja System Settings → Privacy &amp; Security → Open Anyway. Leiðbeiningar um uppsetningu, uppfærslu, enduruppsetningu, fjarlægingu, notkun án nettengingar og bilanagreiningu eru í nýjustu uppsetningarleiðbeiningunum á nightly (á ensku). Í kerfiskröfunum eru ráðleggingar um vinnustöðvar og netþjóna og töflur um GPU-samhæfi."></picture></a></div>
 
 .. raw:: html
 
@@ -194,7 +194,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/pypi-installation-3.desktop.svg"><img src="../../readme_images/is/pypi-installation-3.svg" alt="Opinlegri samsetningar eru settar sérstakt, t.d. spacr[zarr], spacr[omero],spacr[napari] og spacr[czi,nd2,lif]. Sjá uppsetningarleiðbeiningarnar (nightly, á ensku) fyrir fullkomna útgáfur og Python-version samskipti tól."></picture></a></div>
+   <div><a href="../../readme_text/is/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/pypi-installation-3.desktop.svg"><img src="../../readme_images/is/pypi-installation-3.svg" alt="Valfrjálsar samþættingar eru settar upp sérstaklega, til dæmis spacr[zarr], spacr[omero], spacr[napari] og spacr[czi,nd2,lif]. Heildarlisti yfir viðbætur og tafla yfir samhæfi Python-útgáfa eru í uppsetningarleiðbeiningunum (nightly, á ensku)."></picture></a></div>
 
 .. raw:: html
 
@@ -243,27 +243,25 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-from-source-light.desktop.svg"><img src="../../readme_images/is/install-from-source-light.svg" alt="Uppsetning frá frumkóða (létt). Þátttakendur þurfa útgáfusöguna; veldu einn af kostunum hér fyrir neðan ef þú vilt aðeins keyra spaCR. Mælingar á nightly við 05302fd5c þann 2026-10-07 með packaging/measure_clone_forms.sh:"></picture></a></div>
+   <div><a href="../../readme_text/is/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-from-source-light.desktop.svg"><img src="../../readme_images/is/install-from-source-light.svg" alt="Uppsetning frá frumkóða (létt). Þátttakendur þurfa útgáfusöguna; veldu einn af kostunum hér fyrir neðan ef þú vilt aðeins keyra spaCR. Mælingar á nightly við 05302fd5c þann 2026-10-07 með packaging/measure_clone_forms.sh. Grunn klónun: 2048 MB sótt á 140 s. Aðeins nýjasta breytingin er varðveitt, svo eldri saga er ekki aðgengileg með git log, git blame eða git bisect. git pull virkar en klónunin helst grunn; git fetch --unshallow sækir alla söguna."></picture></a></div>
 
 .. code-block:: bash
 
-   # One commit instead of every version: 2048 MB downloaded, 140 s.
-   # No history, so no git log, no git blame and no git bisect.
-   # git pull still works, but stays shallow until git fetch --unshallow.
    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
    cd spacr && pip install -e .
 
-   # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-   # No history, docs, tests, tools, features or example data.
-   # --with-docs, --with-tests and --with-translations put those back;
-   # --dir, --branch, --no-install and --help do the obvious things.
-   # packaging/source_install_excludes.txt lists every skipped path.
+.. raw:: html
+
+   <div><a href="../../readme_text/is/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-from-source-light-2.desktop.svg"><img src="../../readme_images/is/install-from-source-light-2.svg" alt="Aðeins keyrsluskrár: 104 MB á diski á 6 s (Git: 38 MB; skrár: 66 MB). Sleppt er sögu, docs, tests, tools, features, dæmigögnum og ítarlegri þýðingum viðmótsins. --with-docs, --with-tests og --with-translations halda eftir samsvarandi leiðbeiningum, prófum og þýðingum. Grunnþýðingar viðmótsins eru áfram tiltækar."></picture></a></div>
+
+.. code-block:: bash
+
    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
    sh install_spacr.sh --branch nightly
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-from-source-light-2.desktop.svg"><img src="../../readme_images/is/install-from-source-light-2.svg" alt="Full klónun nightly sótti 9.25 GiB. Að bæta --filter=blob:none við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í nightly taka 4657 MB í vinnueintakinu (mælt 2026-10-15), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."></picture></a></div>
+   <div><a href="../../readme_text/is/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-from-source-light-3.desktop.svg"><img src="../../readme_images/is/install-from-source-light-3.svg" alt="--dir velur slóð klónunarinnar; --branch velur grein eða merki; --no-install sækir án þess að setja upp; --help sýnir valkostina. packaging/source_install_excludes.txt telur upp allar slóðir sem er sleppt. Full klónun nightly sótti 9.25 GiB. Að bæta --filter=blob:none við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í main taka 1265 MB í vinnueintakinu (mælt 2026-10-21), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."></picture></a></div>
 
 .. raw:: html
 
@@ -406,7 +404,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/other-resources.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources.desktop.svg"><img src="../../readme_images/is/other-resources.svg" alt="Öll aðrar auðlindir."></picture></a></div>
+   <div><a href="../../readme_text/is/other-resources.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources.desktop.svg"><img src="../../readme_images/is/other-resources.svg" alt="Önnur hjálpargögn."></picture></a></div>
 
 .. raw:: html
 
@@ -414,27 +412,23 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources-2-2.desktop.svg"><img src="../../readme_images/is/other-resources-2-2.svg" alt="Python API snemma byrjun — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster."></picture></a></div>
+   <div><a href="../../readme_text/is/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources-2-2.desktop.svg"><img src="../../readme_images/is/other-resources-2-2.svg" alt="Flýtileiðbeiningar fyrir Python API — keyra og sannreyna vinnslur úr skriftum, vinnubókum eða reikniklasa."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources-2-3.desktop.svg"><img src="../../readme_images/is/other-resources-2-3.svg" alt="Leikstjóri — hæfileika, fullnægjandi og valfrjáls tengsl."></picture></a></div>
+   <div><a href="../../readme_text/is/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources-2-3.desktop.svg"><img src="../../readme_images/is/other-resources-2-3.svg" alt="Leiðbeiningar um eiginleika — virkni, þroskastig og valfrjálsar samþættingar."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources-2-4.desktop.svg"><img src="../../readme_images/is/other-resources-2-4.svg" alt="Heilluð API reference — stuðlað innfangspunktur eftir verkefni, með fullkomna mótum tengslum einn hærra."></picture></a></div>
+   <div><a href="../../readme_text/is/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources-2-4.desktop.svg"><img src="../../readme_images/is/other-resources-2-4.svg" alt="Valin API-tilvísun — studdir inngangspunktar eftir verkefnum; heildartilvísun fyrir einingar er einu stigi neðar."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources-2-5.desktop.svg"><img src="../../readme_images/is/other-resources-2-5.svg" alt="Sjálf tungumál og þýðingu leiðbeining — samskipti tungumál, kontext hjálp og vísindaleg útleiðslu."></picture></a></div>
+   <div><a href="../../readme_text/is/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-resources-2-5.desktop.svg"><img src="../../readme_images/is/other-resources-2-5.svg" alt="Leiðbeiningar um tungumál og þýðingar — viðmótstungumál, samhengishjálp og stefna um vísindalegar niðurstöður."></picture></a></div>
 
 .. raw:: html
 
    <div><a href="../../readme_text/is/language-translation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/language-translation.desktop.svg"><img src="../../readme_images/is/language-translation.svg" alt="Tungumál og þýðingar. Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir spaCR → Stillingar → Tungumál án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá stefnu um samhengishjálp."></picture></a></div>
-
-.. raw:: html
-
-   <div><a href="../../readme_text/is/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/language-translation-2.desktop.svg"><img src="../../readme_images/is/language-translation-2.svg" alt="Nín ekki Engleska sögu eru stutt og tæknilegt endurskoðað í stað þess að lesa end til end af heimilum tala. Sjáðu skammt skrá sem tungumálir hafa haft mannleg útgang og hvert orð eftir á Englesku eftir ákvörðun."></picture></a></div>
 
 .. raw:: html
 
@@ -472,14 +466,14 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/model-zoo.desktop.svg"><img src="../../readme_images/is/model-zoo.svg" alt="Líkanasafn. spaCR skipar listan af þjálfað mönnunum og snúa þeim á eftirspurn. Opna Mönnun Zoo frá heimaskjólum til að skoða og setja upp þá, eða nefna key í setningarfilenni - pathogen_model: toxoplasma_pv_v1 - og mönnin er hlaðið niður og checksum-verified fyrsta sinn sem það er nauðsynlegt."></picture></a></div>
+   <div><a href="../../readme_text/is/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/model-zoo.desktop.svg"><img src="../../readme_images/is/model-zoo.svg" alt="Líkanasafn. spaCR inniheldur skrá yfir þjálfuð líkön og sækir þau eftir þörfum. Opnaðu Model Zoo á upphafsskjánum til að skoða og setja upp líkön, eða tilgreindu líkanalykil í stillingaskrá, til dæmis pathogen_model: toxoplasma_pv_v1. Líkanið er sótt og staðfest með gátsummu þegar fyrst er þörf á því. Hver birt færsla hefur SHA-256-gátsummu. Færslu án gátsummu er hafnað, þar sem annars væri ekki hægt að greina ófullkomna eða útskipta líkanaskrá frá upprunalegu skránni."></picture></a></div>
 
 .. spacr-model-zoo-begin
 
 .. raw:: html
 
    <div><a href="../../models/README.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/heading.svg"><img src="../../models/cards/heading.phone.svg" alt="Default models · held-out scores"></picture></a></div>
-   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/live_cell_v1.svg"><img src="../../models/cards/live_cell_v1.phone.svg" alt="Score card of Live cells v1 (live_cell_v1, default): F1 0.694 on 2,199 held-out fields against 0.738 for stock cpsam_v2. On the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
 
 .. raw:: html
 
@@ -495,7 +489,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/is/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/is/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/is/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/is/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/generated-model-zoo-2-link-3.desktop.svg"><img src="../../readme_images/is/generated-model-zoo-2-link-3.svg" alt="live_cell_v1"></picture></a></div>
 
 .. raw:: html
 
@@ -513,15 +507,15 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/is/diagnosing-performance-2.svg" alt="Spara til ~/.spacr/reports og trúa leiðinni. --quick skiptir lengri skilyrði; --out PATH setur staðsetningu. Les engin verkefnisgögn. Mælir tímann sem innflutningur, töluleg söfn, gerð glugga og hreyfimyndir taka og greinir frá x86_64-hermun á Apple Silicon og BLAS-útfærslu NumPy."></picture></a></div>
+   <div><a href="../../readme_text/is/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/is/diagnosing-performance-2.svg" alt="Vistar í ~/.spacr/reports og prentar slóðina. --quick sleppir lengri afkastaprófunum; --out PATH tilgreinir vistunarstað. Les engin verkefnisgögn. Mælir tímann sem innflutningur, töluleg söfn, gerð glugga og hreyfimyndir taka og greinir frá x86_64-hermun á Apple Silicon og BLAS-útfærslu NumPy."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/command-line-reference.desktop.svg"><img src="../../readme_images/is/command-line-reference.svg" alt="Orðlinna reference. Öll beint hér að neðan er sett með pip install spacr. Allir samþykkir --help."></picture></a></div>
+   <div><a href="../../readme_text/is/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/command-line-reference.desktop.svg"><img src="../../readme_images/is/command-line-reference.svg" alt="Yfirlit yfir skipanalínu. Allar skipanirnar hér fyrir neðan eru settar upp með pip install spacr og styðja --help."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/launching-the-application.desktop.svg"><img src="../../readme_images/is/launching-the-application.svg" alt="Að byrja við umsókn."></picture></a></div>
+   <div><a href="../../readme_text/is/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/launching-the-application.desktop.svg"><img src="../../readme_images/is/launching-the-application.svg" alt="Ræsa forritið."></picture></a></div>
 
 .. code-block:: bash
 
@@ -531,7 +525,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/is/when-spacr-will-not-start.svg" alt="Þegar spaCR mun ekki byrja."></picture></a></div>
+   <div><a href="../../readme_text/is/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/is/when-spacr-will-not-start.svg" alt="Þegar spaCR ræsist ekki."></picture></a></div>
 
 .. code-block:: bash
 
@@ -544,7 +538,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/running-modules-headlessly.desktop.svg"><img src="../../readme_images/is/running-modules-headlessly.svg" alt="Að hlaupa modúlum án heiðar. Engin Qt, engin sýning — fyrir klúster, þjónusta og CI."></picture></a></div>
+   <div><a href="../../readme_text/is/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/running-modules-headlessly.desktop.svg"><img src="../../readme_images/is/running-modules-headlessly.svg" alt="Keyra einingar án grafísks viðmóts. Án Qt og skjás — fyrir reikniklasa, netþjóna og CI."></picture></a></div>
 
 .. code-block:: bash
 
@@ -561,7 +555,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/inspecting-a-run.desktop.svg"><img src="../../readme_images/is/inspecting-a-run.svg" alt="Skoða keyrslu. Hver rán er skráður á ~/.spacr/runs með settum sínum, hashed inntölum, úttökum, varningar, útgáfur og frönum."></picture></a></div>
+   <div><a href="../../readme_text/is/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/inspecting-a-run.desktop.svg"><img src="../../readme_images/is/inspecting-a-run.svg" alt="Skoða keyrslu. Hver keyrsla er skráð í ~/.spacr/runs með stillingum, tætigildum inntaksgagna, úttökum, viðvörunum, útgáfum og upphafsgildum slembitalna."></picture></a></div>
 
 .. code-block:: bash
 
@@ -570,7 +564,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/is/auditing-data-and-installation.svg" alt="Ákvarðanir gögnum og uppsetningu."></picture></a></div>
+   <div><a href="../../readme_text/is/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/is/auditing-data-and-installation.svg" alt="Yfirfara gögn og uppsetningu."></picture></a></div>
 
 .. code-block:: bash
 
@@ -588,7 +582,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/environment-2.desktop.svg"><img src="../../readme_images/is/environment-2.svg" alt="Rotating logs eru skrifað í ~/.spacr/logs/spacr.log. Sættu þessar skál á bug-report."></picture></a></div>
+   <div><a href="../../readme_text/is/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/environment-2.desktop.svg"><img src="../../readme_images/is/environment-2.svg" alt="Annálar með reglulegri skráaskiptingu eru skrifaðir í ~/.spacr/logs/spacr.log. Láttu þá skrá fylgja villutilkynningu."></picture></a></div>
 
 .. raw:: html
 
@@ -596,7 +590,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/licensing.desktop.svg"><img src="../../readme_images/is/licensing.svg" alt="Leyfi. spaCR er frelsað undir BSD 3-Klausur leyfi. Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði fyrir leyfi — sjá Tilvísun í spaCR hér neðan."></picture></a></div>
+   <div><a href="../../readme_text/is/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/licensing.desktop.svg"><img src="../../readme_images/is/licensing.svg" alt="Leyfi. spaCR er gefið út undir BSD3-Clause-leyfinu. Ef spaCR nýttist við birt verk er tilvísun vel þegin, en hún er ekki skilyrði leyfisins; sjá Tilvísun í spaCR hér fyrir neðan."></picture></a></div>
 
 .. raw:: html
 
@@ -612,7 +606,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/is/other-work-citing-spacr.svg" alt="Aðrir verk sem heitir spaCR."></picture></a></div>
+   <div><a href="../../readme_text/is/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/is/other-work-citing-spacr.svg" alt="Önnur verk sem vísa til spaCR."></picture></a></div>
 
 .. spacr-citing-papers-begin
 
@@ -640,4 +634,4 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/acknowledgments.desktop.svg"><img src="../../readme_images/is/acknowledgments.svg" alt="Þakkir. spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá upplýsingar um þýðingarlíkön fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa."></picture></a></div>
+   <div><a href="../../readme_text/is/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/acknowledgments.desktop.svg"><img src="../../readme_images/is/acknowledgments.svg" alt="Þakkir. spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt."></picture></a></div>

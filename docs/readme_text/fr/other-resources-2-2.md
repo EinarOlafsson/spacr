@@ -1,1 +1,1 @@
-- [Python API démarrage rapide](<../../source/python_api.rst>) — lancez et validez des pipelines à partir de scripts, de cahiers ou d'un cluster.
+- [Prise en main de l’API Python](<../../source/python_api.rst>) — exécuter et valider des pipelines à partir de scripts, de notebooks ou d’un cluster.

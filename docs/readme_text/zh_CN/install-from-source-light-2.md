@@ -1,1 +1,1 @@
-nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ` --filter=blob:none ` 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 4657 MB（2026-10-15 测得），不含 Git 历史。下载大小和耗时随分支而变化。
+仅运行时文件：6 s 内在磁盘上保存 104 MB（Git：38 MB；文件：66 MB）。不包含历史、docs、tests、tools、features、示例数据或扩展界面翻译。` --with-docs `、` --with-tests ` 和 ` --with-translations ` 分别保留相应的文档、测试和翻译。精简界面翻译仍然可用。

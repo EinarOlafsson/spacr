@@ -1,1 +1,1 @@
-- [Språk- och översättningsguide](<../../source/localization.rst>) – gränssnittsspråk, kontextuell hjälp och policy för vetenskaplig output.
+- [Språk- och översättningsguide](<../../source/localization.rst>) — gränssnittsspråk, kontextuell hjälp och policy för vetenskapliga resultat.

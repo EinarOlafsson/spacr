@@ -1,3 +1,3 @@
 ### Application de bureau
 
-Les installateurs regroupent leur propre Python. Conda n'est pas nécessaire.
+Les programmes d’installation incluent leur propre environnement Python. Conda n’est pas nécessaire.

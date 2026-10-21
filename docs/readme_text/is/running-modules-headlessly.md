@@ -1,3 +1,3 @@
-## Að hlaupa modúlum án heiðar
+## Keyra einingar án grafísks viðmóts
 
-Engin Qt, engin sýning — fyrir klúster, þjónusta og CI.
+Án Qt og skjás — fyrir reikniklasa, netþjóna og CI.

@@ -1,3 +1,3 @@
 ### Skjáborðsforrit
 
-Þessir uppbyggingar búnir eigin Python. Conda er ekki nauðsynlegt.
+Uppsetningarforritin innihalda eigið Python-umhverfi. Conda er ekki nauðsynlegt.

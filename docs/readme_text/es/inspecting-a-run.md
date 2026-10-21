@@ -1,3 +1,3 @@
 ## Inspeccionar una ejecución
 
-Cada ejecución se lleva a cabo a ` ~/.spacr/runs ` con sus ajustes, entradas de hashed, salidas, advertencias, versiones y semillas.
+Cada ejecución se registra en ` ~/.spacr/runs ` con su configuración, los hashes de las entradas, las salidas, las advertencias, las versiones y las semillas aleatorias.

@@ -1,5 +1,5 @@
 ## 라이선스
 
-spaCR is released under the [BSD 3 클래스 라이센스](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>).
+spaCR는 [BSD 3-Clause 라이선스](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>)로 배포됩니다.
 
-spaCR이 출판된 작품에 기여한 경우, 인용문이 평가되고 라이센스의 조건이 아닙니다. - 아래의 \`spaCR 인용\`\_을 참조하십시오.
+spaCR가 출판물에 기여했다면 인용해 주시면 감사하겠습니다. 인용은 라이선스의 조건이 아닙니다. 아래의 spaCR 인용을 참조하십시오.

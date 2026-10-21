@@ -1,3 +1,3 @@
-### 命令线参考
+### 命令行参考
 
-下面的每个命令都以 ` pip install spacr ` 安装,所有命令都会接受 ` --help `。
+下列命令均通过 ` pip install spacr ` 安装，并支持 ` --help `。

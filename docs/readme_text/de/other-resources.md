@@ -1,1 +1,1 @@
-## Sonstige Mittel
+## Weitere Ressourcen

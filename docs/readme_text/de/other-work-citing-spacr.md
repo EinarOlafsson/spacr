@@ -1,1 +1,1 @@
-## Sonstige Arbeiten unter Angabe von spaCR
+## Weitere Arbeiten, die spaCR zitieren

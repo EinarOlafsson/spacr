@@ -1,3 +1,3 @@
 ### Référence en ligne de commande
 
-Chaque commande ci-dessous est installée par ` pip install spacr `. Tous acceptent ` --help `.
+Toutes les commandes ci-dessous sont installées par ` pip install spacr ` et acceptent ` --help `.

@@ -1,1 +1,1 @@
-- [Python API 빠른 시작](<../../source/python_api.rst>) - 스크립트, 노트북 또는 클러스터에서 튜브를 실행하고 검증합니다.
+- [Python API 빠른 시작](<../../source/python_api.rst>) — 스크립트, 노트북 또는 클러스터에서 처리 파이프라인을 실행하고 검증합니다.

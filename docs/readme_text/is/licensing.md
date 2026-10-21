@@ -1,5 +1,5 @@
 ## Leyfi
 
-spaCR er frelsað undir [BSD 3-Klausur leyfi](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>).
+spaCR er gefið út undir [BSD3-Clause-leyfinu](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>).
 
-Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði fyrir leyfi — sjá Tilvísun í spaCR hér neðan.
+Ef spaCR nýttist við birt verk er tilvísun vel þegin, en hún er ekki skilyrði leyfisins; sjá Tilvísun í spaCR hér fyrir neðan.

@@ -96,7 +96,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/spacr.desktop.svg"><img src="../../readme_images/de/spacr.svg" alt="spaCR. Räumliche Phänotypanalyse von CRISPR-Screens. spaCR segmentiert und vermisst einzelne Zellen in Mikroskopiebildern, integriert Phänotypen einzelner Objekte mit sequenzierungsbasierten Guide-Häufigkeiten und schätzt, welche Gene mit phänotypischen Veränderungen assoziiert sind. Ausgehend von Plattenbildern und FASTQ-Reads erzeugt es Messungen pro Objekt, trainierte Klassifikatoren, Effektschätzungen pro Guide und Gen sowie eine Rangliste der Treffer. Die Segmentierungs-, Mess-, Anmerkungs- und Klassifizierungsmodule laufen auch ohne Sequenzierungsarm. Make Masks korrigiert Segmentierungsmasken und annotiert mit dem Werkzeug Box unabhängige Rechtecke mit Klassenlabels für den YOLO-Export. Die Rechtecke behalten ihre eigenen Labels und ihren Verlauf, ohne Quellbilder oder Masken zu ändern. Einzelheiten zu jedem Werkzeug stehen im Funktionsleitfaden. Bilder, Masken und Bildausschnitte sind Dateien auf der Festplatte. Messungen, Annotationen und Modellvorhersagen sind Tabellen in der SQLite-Datenbank measurements.db des Projekts. Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster."></picture></a></div>
+   <div><a href="../../readme_text/de/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/spacr.desktop.svg"><img src="../../readme_images/de/spacr.svg" alt="spaCR. Räumliche Phänotypanalyse von CRISPR-Screens. spaCR segmentiert und vermisst einzelne Zellen in Mikroskopiebildern, integriert Phänotypen einzelner Objekte mit sequenzierungsbasierten Guide-Häufigkeiten und schätzt, welche Gene mit phänotypischen Veränderungen assoziiert sind. Ausgehend von Plattenbildern und FASTQ-Reads erzeugt es Messungen pro Objekt, trainierte Klassifikatoren, Effektschätzungen pro Guide und Gen sowie eine Rangliste der Treffer. Die Module für Segmentierung, Messung, Annotation und Klassifizierung können auch ohne einen Sequenzierungsteil verwendet werden. Make Masks korrigiert Segmentierungsmasken und annotiert mit dem Werkzeug Box unabhängige Rechtecke mit Klassenlabels für den YOLO-Export. Die Rechtecke behalten ihre eigenen Labels und ihren Verlauf, ohne Quellbilder oder Masken zu ändern. Einzelheiten zu jedem Werkzeug stehen im Funktionsleitfaden. Bilder, Masken und Bildausschnitte sind Dateien auf der Festplatte. Messungen, Annotationen und Modellvorhersagen sind Tabellen in der SQLite-Datenbank measurements.db des Projekts. Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster."></picture></a></div>
 
 .. raw:: html
 
@@ -136,7 +136,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/desktop-application.desktop.svg"><img src="../../readme_images/de/desktop-application.svg" alt="Desktopanwendung. Die Installateure bündeln ihre eigenen Python. Conda ist nicht erforderlich."></picture></a></div>
+   <div><a href="../../readme_text/de/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/desktop-application.desktop.svg"><img src="../../readme_images/de/desktop-application.svg" alt="Desktopanwendung. Die Installationsprogramme enthalten eine eigene Python-Umgebung. Conda ist nicht erforderlich."></picture></a></div>
 
 .. spacr-installer-links-begin
 
@@ -165,7 +165,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/desktop-application-3.desktop.svg"><img src="../../readme_images/de/desktop-application-3.svg" alt="Öffnen Sie auf macOS das .pkg. Die aktuelle Beta wird nicht beglaubigt; wenn Gatekeeper sie blockiert, wählen Sie Systemeinstellungen → Datenschutz &amp; Sicherheit → Öffnen Sie trotzdem. Anleitungen zur Installation, Aktualisierung, Neuinstallation, Deinstallation, zum Offlinebetrieb und zur Fehlerbehebung finden Sie in der aktuellen Installationsanleitung auf nightly (Englisch). Die Systemanforderungen enthalten Empfehlungen für Arbeitsstationen und Server sowie Tabellen zur GPU-Kompatibilität."></picture></a></div>
+   <div><a href="../../readme_text/de/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/desktop-application-3.desktop.svg"><img src="../../readme_images/de/desktop-application-3.svg" alt="Öffnen Sie unter macOS die Datei .pkg. Die aktuelle Beta ist nicht notarisiert. Wenn Gatekeeper sie blockiert, wählen Sie Systemeinstellungen → Datenschutz &amp; Sicherheit → Dennoch öffnen. Anleitungen zur Installation, Aktualisierung, Neuinstallation, Deinstallation, zum Offlinebetrieb und zur Fehlerbehebung finden Sie in der aktuellen Installationsanleitung auf nightly (Englisch). Die Systemanforderungen enthalten Empfehlungen für Arbeitsstationen und Server sowie Tabellen zur GPU-Kompatibilität."></picture></a></div>
 
 .. raw:: html
 
@@ -194,7 +194,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/pypi-installation-3.desktop.svg"><img src="../../readme_images/de/pypi-installation-3.svg" alt="Optional integrations are installed separately, for example spacr[zarr], spacr[omero], spacr[napari] and spacr[czi,nd2,lif]. See the Installationsanleitung (nightly, Englisch) for the complete extras and Python-version compatibility table."></picture></a></div>
+   <div><a href="../../readme_text/de/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/pypi-installation-3.desktop.svg"><img src="../../readme_images/de/pypi-installation-3.svg" alt="Optionale Integrationen werden separat installiert, zum Beispiel spacr[zarr], spacr[omero], spacr[napari] und spacr[czi,nd2,lif]. Die vollständige Liste der Extras und die Kompatibilitätstabelle für Python-Versionen finden Sie in der Installationsanleitung (nightly, Englisch)."></picture></a></div>
 
 .. raw:: html
 
@@ -243,27 +243,25 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/install-from-source-light.desktop.svg"><img src="../../readme_images/de/install-from-source-light.svg" alt="Installation aus dem Quellcode (schlank). Mitwirkende benötigen die Versionshistorie; um spaCR nur auszuführen, wählen Sie eine der folgenden Optionen. Messungen von nightly bei 05302fd5c am 2026-10-07 mit packaging/measure_clone_forms.sh:"></picture></a></div>
+   <div><a href="../../readme_text/de/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/install-from-source-light.desktop.svg"><img src="../../readme_images/de/install-from-source-light.svg" alt="Installation aus dem Quellcode (schlank). Mitwirkende benötigen die Versionshistorie; um spaCR nur auszuführen, wählen Sie eine der folgenden Optionen. Messungen von nightly bei 05302fd5c am 2026-10-07 mit packaging/measure_clone_forms.sh. Flacher Klon: 2048 MB in 140 s heruntergeladen. Nur der neueste Commit bleibt erhalten; ältere Historie steht git log, git blame und git bisect daher nicht zur Verfügung. git pull funktioniert, der Klon bleibt jedoch flach; git fetch --unshallow lädt die vollständige Historie."></picture></a></div>
 
 .. code-block:: bash
 
-   # One commit instead of every version: 2048 MB downloaded, 140 s.
-   # No history, so no git log, no git blame and no git bisect.
-   # git pull still works, but stays shallow until git fetch --unshallow.
    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
    cd spacr && pip install -e .
 
-   # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-   # No history, docs, tests, tools, features or example data.
-   # --with-docs, --with-tests and --with-translations put those back;
-   # --dir, --branch, --no-install and --help do the obvious things.
-   # packaging/source_install_excludes.txt lists every skipped path.
+.. raw:: html
+
+   <div><a href="../../readme_text/de/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/install-from-source-light-2.desktop.svg"><img src="../../readme_images/de/install-from-source-light-2.svg" alt="Nur Laufzeitdateien: 104 MB auf dem Datenträger in 6 s (Git: 38 MB; Dateien: 66 MB). Historie, docs, tests, tools, features, Beispieldaten und erweiterte Oberflächenübersetzungen werden ausgelassen. --with-docs, --with-tests und --with-translations behalten die entsprechende Dokumentation, Tests und Übersetzungen bei. Die kompakten Oberflächenübersetzungen bleiben verfügbar."></picture></a></div>
+
+.. code-block:: bash
+
    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
    sh install_spacr.sh --branch nightly
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/install-from-source-light-2.desktop.svg"><img src="../../readme_images/de/install-from-source-light-2.svg" alt="Der vollständige nightly-Klon lud 9.25 GiB herunter. --filter=blob:none zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 4657 MB (gemessen am 2026-10-15), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab."></picture></a></div>
+   <div><a href="../../readme_text/de/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/install-from-source-light-3.desktop.svg"><img src="../../readme_images/de/install-from-source-light-3.svg" alt="--dir wählt den Pfad des Klons; --branch wählt einen Branch oder Tag; --no-install lädt die Dateien ohne Installation; --help zeigt die Optionen. packaging/source_install_excludes.txt führt alle ausgelassenen Pfade auf. Der vollständige nightly-Klon lud 9.25 GiB herunter. --filter=blob:none zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von main belegen im ausgecheckten Arbeitsverzeichnis 1265 MB (gemessen am 2026-10-21), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab."></picture></a></div>
 
 .. raw:: html
 
@@ -406,7 +404,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/other-resources.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources.desktop.svg"><img src="../../readme_images/de/other-resources.svg" alt="Sonstige Mittel."></picture></a></div>
+   <div><a href="../../readme_text/de/other-resources.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources.desktop.svg"><img src="../../readme_images/de/other-resources.svg" alt="Weitere Ressourcen."></picture></a></div>
 
 .. raw:: html
 
@@ -414,27 +412,23 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources-2-2.desktop.svg"><img src="../../readme_images/de/other-resources-2-2.svg" alt="Python API Schnellstart — Pipelines aus Skripten, Notebooks oder einem Cluster ausführen und validieren."></picture></a></div>
+   <div><a href="../../readme_text/de/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources-2-2.desktop.svg"><img src="../../readme_images/de/other-resources-2-2.svg" alt="Python-API-Schnellstart — Pipelines aus Skripten, Notebooks oder auf einem Cluster ausführen und validieren."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources-2-3.desktop.svg"><img src="../../readme_images/de/other-resources-2-3.svg" alt="Funktionsleitfaden — Fähigkeiten, Reife und optionale Integrationen."></picture></a></div>
+   <div><a href="../../readme_text/de/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources-2-3.desktop.svg"><img src="../../readme_images/de/other-resources-2-3.svg" alt="Funktionsleitfaden — Fähigkeiten, Reifegrad und optionale Integrationen."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources-2-4.desktop.svg"><img src="../../readme_images/de/other-resources-2-4.svg" alt="Kuratierte API Referenz — unterstützte Eingabepunkte nach Aufgabe, wobei das komplette Modul eine Ebene tiefer verweist."></picture></a></div>
+   <div><a href="../../readme_text/de/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources-2-4.desktop.svg"><img src="../../readme_images/de/other-resources-2-4.svg" alt="Kuratierte API-Referenz — unterstützte Einstiegspunkte nach Aufgabe; die vollständige Modulreferenz liegt eine Ebene tiefer."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources-2-5.desktop.svg"><img src="../../readme_images/de/other-resources-2-5.svg" alt="Sprach- und Übersetzungshandbuch — Schnittstellensprachen, kontextbezogene Hilfe und Politik der wissenschaftlichen Ergebnisse."></picture></a></div>
+   <div><a href="../../readme_text/de/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-resources-2-5.desktop.svg"><img src="../../readme_images/de/other-resources-2-5.svg" alt="Sprach- und Übersetzungsleitfaden — Oberflächensprachen, kontextbezogene Hilfe und Richtlinien für wissenschaftliche Ausgaben."></picture></a></div>
 
 .. raw:: html
 
    <div><a href="../../readme_text/de/language-translation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/language-translation.desktop.svg"><img src="../../readme_images/de/language-translation.svg" alt="Sprache und Übersetzung. Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter spaCR → Einstellungen → Sprache, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die Richtlinie zur Kontexthilfe."></picture></a></div>
-
-.. raw:: html
-
-   <div><a href="../../readme_text/de/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/language-translation-2.desktop.svg"><img src="../../readme_images/de/language-translation-2.svg" alt="Die neun nicht-englischen Kataloge werden von einem Muttersprachler maschinengefertigt und technisch überarbeitet, anstatt zu Ende zu lesen. Die Überprüfungsspielraum Aufzeichnungen, welche Sprachen einen menschlichen Pass hatten und jeder Begriff auf Englisch durch Entscheidung übrig geblieben ist."></picture></a></div>
 
 .. raw:: html
 
@@ -472,14 +466,14 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/model-zoo.desktop.svg"><img src="../../readme_images/de/model-zoo.svg" alt="Modellzoo. spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage ab. Öffnen Sie Model Zoo vom Home-Bildschirm, um sie zu durchsuchen und zu installieren, oder benennen Sie einen Schlüssel in einer Einstellungsdatei -- pathogen_model: toxoplasma_pv_v1 -- und das Modell wird heruntergeladen und Checksummen-verifiziert, wenn es zum ersten Mal benötigt wird. Jeder veröffentlichte Eintrag trägt eine SHA-256; ein Eintrag ohne einen wird abgelehnt, anstatt installiert, weil ein verkürzter oder ersetzter Checkpoint nicht vom realen angezeigt werden kann."></picture></a></div>
+   <div><a href="../../readme_text/de/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/model-zoo.desktop.svg"><img src="../../readme_images/de/model-zoo.svg" alt="Modellzoo. spaCR enthält einen Katalog trainierter Modelle und lädt sie bei Bedarf herunter. Öffnen Sie Model Zoo auf der Startseite, um Modelle zu durchsuchen und zu installieren, oder geben Sie einen Modellschlüssel in einer Einstellungsdatei an, etwa pathogen_model: toxoplasma_pv_v1. Das Modell wird bei der ersten Verwendung heruntergeladen und anhand seiner Prüfsumme verifiziert. Jeder veröffentlichte Eintrag enthält eine SHA-256-Prüfsumme. Ein Eintrag ohne Prüfsumme wird abgelehnt, da eine unvollständige oder ausgetauschte Checkpoint-Datei sonst nicht vom Original unterschieden werden kann."></picture></a></div>
 
 .. spacr-model-zoo-begin
 
 .. raw:: html
 
    <div><a href="../../models/README.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/heading.svg"><img src="../../models/cards/heading.phone.svg" alt="Default models · held-out scores"></picture></a></div>
-   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/live_cell_v1.svg"><img src="../../models/cards/live_cell_v1.phone.svg" alt="Score card of Live cells v1 (live_cell_v1, default): F1 0.694 on 2,199 held-out fields against 0.738 for stock cpsam_v2. On the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
 
 .. raw:: html
 
@@ -495,7 +489,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/de/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/de/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/de/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/de/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/generated-model-zoo-2-link-3.desktop.svg"><img src="../../readme_images/de/generated-model-zoo-2-link-3.svg" alt="live_cell_v1"></picture></a></div>
 
 .. raw:: html
 
@@ -513,11 +507,11 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/de/diagnosing-performance-2.svg" alt="Speichert auf ~/.spacr/reports und druckt den Pfad. --quick überspringt die längeren Benchmarks; --out PATH setzt den Speicherort. Liest keine Projektdaten. Misst die Dauer von Importen, numerischen Bibliotheksoperationen, Fensteraufbau und Animation und meldet x86_64-Emulation auf Apple Silicon sowie die BLAS-Implementierung von NumPy."></picture></a></div>
+   <div><a href="../../readme_text/de/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/de/diagnosing-performance-2.svg" alt="Speichert unter ~/.spacr/reports und gibt den Pfad aus. --quick überspringt die längeren Leistungstests; --out PATH legt den Speicherort fest. Liest keine Projektdaten. Misst die Dauer von Importen, numerischen Bibliotheksoperationen, Fensteraufbau und Animation und meldet x86_64-Emulation auf Apple Silicon sowie die BLAS-Implementierung von NumPy."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/command-line-reference.desktop.svg"><img src="../../readme_images/de/command-line-reference.svg" alt="Befehlszeilenreferenz. Jeder Befehl unten wird von pip install spacr installiert. Alle von ihnen akzeptieren --help."></picture></a></div>
+   <div><a href="../../readme_text/de/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/command-line-reference.desktop.svg"><img src="../../readme_images/de/command-line-reference.svg" alt="Befehlszeilenreferenz. Alle folgenden Befehle werden mit pip install spacr installiert und unterstützen --help."></picture></a></div>
 
 .. raw:: html
 
@@ -544,7 +538,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/running-modules-headlessly.desktop.svg"><img src="../../readme_images/de/running-modules-headlessly.svg" alt="Laufende Module ohne grafische Oberfläche. Kein Qt, kein Display — für Cluster, Server und CI."></picture></a></div>
+   <div><a href="../../readme_text/de/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/running-modules-headlessly.desktop.svg"><img src="../../readme_images/de/running-modules-headlessly.svg" alt="Module ohne grafische Oberfläche ausführen. Kein Qt, kein Display — für Cluster, Server und CI."></picture></a></div>
 
 .. code-block:: bash
 
@@ -561,7 +555,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/inspecting-a-run.desktop.svg"><img src="../../readme_images/de/inspecting-a-run.svg" alt="Einen Lauf untersuchen. Jeder Lauf wird mit seinen Einstellungen, Hash-Eingängen, Ausgängen, Warnungen, Versionen und Samen auf ~/.spacr/runs tagebucht."></picture></a></div>
+   <div><a href="../../readme_text/de/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/inspecting-a-run.desktop.svg"><img src="../../readme_images/de/inspecting-a-run.svg" alt="Einen Lauf untersuchen. Jeder Lauf wird unter ~/.spacr/runs mit Einstellungen, Hashwerten der Eingaben, Ausgaben, Warnungen, Versionen und Zufallsstartwerten protokolliert."></picture></a></div>
 
 .. code-block:: bash
 
@@ -570,7 +564,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/de/auditing-data-and-installation.svg" alt="Prüfungsdaten und Installation."></picture></a></div>
+   <div><a href="../../readme_text/de/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/de/auditing-data-and-installation.svg" alt="Daten und Installation prüfen."></picture></a></div>
 
 .. code-block:: bash
 
@@ -588,7 +582,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/environment-2.desktop.svg"><img src="../../readme_images/de/environment-2.svg" alt="Drehprotokolle werden auf ~/.spacr/logs/spacr.log geschrieben. Fügen Sie diese Datei einem Fehlerbericht bei."></picture></a></div>
+   <div><a href="../../readme_text/de/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/environment-2.desktop.svg"><img src="../../readme_images/de/environment-2.svg" alt="Rotierende Protokolle werden nach ~/.spacr/logs/spacr.log geschrieben. Fügen Sie diese Datei einem Fehlerbericht bei."></picture></a></div>
 
 .. raw:: html
 
@@ -596,7 +590,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/licensing.desktop.svg"><img src="../../readme_images/de/licensing.svg" alt="Lizenz. spaCR is released under the BSD 3-Clause-Lizenz. Wenn spaCR zu veröffentlichten Arbeiten beigetragen hat, wird ein Zitat geschätzt und ist keine Bedingung der Lizenz — siehe spaCR zitieren unten."></picture></a></div>
+   <div><a href="../../readme_text/de/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/licensing.desktop.svg"><img src="../../readme_images/de/licensing.svg" alt="Lizenz. spaCR wird unter der BSD3-Clause-Lizenz veröffentlicht. Wenn spaCR zu einer Veröffentlichung beigetragen hat, freuen wir uns über eine Quellenangabe. Sie ist keine Bedingung der Lizenz; siehe unten unter spaCR zitieren."></picture></a></div>
 
 .. raw:: html
 
@@ -612,7 +606,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/de/other-work-citing-spacr.svg" alt="Sonstige Arbeiten unter Angabe von spaCR."></picture></a></div>
+   <div><a href="../../readme_text/de/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/de/other-work-citing-spacr.svg" alt="Weitere Arbeiten, die spaCR zitieren."></picture></a></div>
 
 .. spacr-citing-papers-begin
 
@@ -640,4 +634,4 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/acknowledgments.desktop.svg"><img src="../../readme_images/de/acknowledgments.svg" alt="Danksagung. spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der Attribution der Übersetzungsmodelle aufgeführt."></picture></a></div>
+   <div><a href="../../readme_text/de/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/acknowledgments.desktop.svg"><img src="../../readme_images/de/acknowledgments.svg" alt="Danksagung. spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt."></picture></a></div>

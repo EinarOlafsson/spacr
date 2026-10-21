@@ -1,1 +1,1 @@
-- [特色引导 RNA](<../../source/features.rst>) - 能力、成熟度和可选集成。
+- [功能指南](<../../source/features.rst>) — 功能、成熟度及可选集成。

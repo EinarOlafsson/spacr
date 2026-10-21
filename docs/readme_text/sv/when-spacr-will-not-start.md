@@ -1,1 +1,1 @@
-## När spaCR inte kommer att starta
+## När spaCR inte startar

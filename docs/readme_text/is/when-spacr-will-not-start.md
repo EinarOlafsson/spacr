@@ -1,1 +1,1 @@
-## Þegar spaCR mun ekki byrja
+## Þegar spaCR ræsist ekki

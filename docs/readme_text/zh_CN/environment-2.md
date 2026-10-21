@@ -1,1 +1,1 @@
-旋转日志写为 ` ~/.spacr/logs/spacr.log `. 将此文件添加到错误报告中。
+日志以轮转方式写入 ` ~/.spacr/logs/spacr.log `。请将该文件附在错误报告中。

@@ -1,0 +1,3 @@
+` --dir ` escolhe o caminho do clone; ` --branch ` seleciona uma ramificação ou tag; ` --no-install ` baixa sem instalar; ` --help ` mostra as opções. ` packaging/source_install_excludes.txt ` lista todos os caminhos omitidos.
+
+O clone completo de nightly baixou 9.25 GiB. Adicionar ` --filter=blob:none ` ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de main ocupam 1265 MB na cópia de trabalho (medidos em 2026-10-21), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo.

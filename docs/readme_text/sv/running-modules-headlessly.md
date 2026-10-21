@@ -1,3 +1,3 @@
-## Drivmoduler utan grafiskt gränssnitt
+## Köra moduler utan grafiskt gränssnitt
 
-Ingen Qt, ingen visning – för kluster, servrar och CI.
+Utan Qt eller bildskärm — för kluster, servrar och CI.

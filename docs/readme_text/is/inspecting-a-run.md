@@ -1,3 +1,3 @@
 ## Skoða keyrslu
 
-Hver rán er skráður á ` ~/.spacr/runs ` með settum sínum, hashed inntölum, úttökum, varningar, útgáfur og frönum.
+Hver keyrsla er skráð í ` ~/.spacr/runs ` með stillingum, tætigildum inntaksgagna, úttökum, viðvörunum, útgáfum og upphafsgildum slembitalna.

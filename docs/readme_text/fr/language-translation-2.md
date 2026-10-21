@@ -1,1 +1,0 @@
-Les neuf catalogues non anglais sont rédigés par machine et revus techniquement plutôt que lus fin à fin par un locuteur natif. Le [portée de l ' examen](<../../i18n/REVIEW_SCOPE_2026-09-04.md>) enregistre quelles langues ont eu un passage humain et chaque terme laissé en anglais par décision.

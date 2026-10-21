@@ -1,3 +1,3 @@
 ### Aplicativo para desktop
 
-Os instaladores empacotam seus próprios Python. Conda não é necessário.
+Os instaladores incluem seu próprio ambiente Python. Não é necessário usar Conda.

@@ -96,7 +96,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/spacr.desktop.svg"><img src="../../readme_images/hi/spacr.svg" alt="spaCR. CRISPR स्क्रीनिंग का स्थानिक फीनोटाइप विश्लेषण। spaCR माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रति-वस्तु फीनोटाइप को अनुक्रमण से प्राप्त गाइड प्रचुरता के साथ एकीकृत करता है और अनुमान लगाता है कि कौन-से जीन फीनोटाइपिक परिवर्तनों से जुड़े हैं। प्लेट छवियों और FASTQ रीड से शुरू करके, यह प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव अनुमान तथा प्राथमिकता के अनुसार क्रमित हिट सूची बनाता है। segmentation, measurement, annotation और classification modules भी एक sequencing arm के बिना चलता है। Make Masks सेगमेंटेशन मास्क सुधारता है और YOLO निर्यात के लिए Box टूल से स्वतंत्र, क्लास-लेबल वाले आयतों का एनोटेशन करता है। ये बॉक्स स्रोत इमेज या मास्क बदले बिना अपने लेबल और इतिहास रखते हैं। हर टूल का विवरण सुविधा गाइड में देखें। छवियाँ, मास्क और क्रॉप डिस्क पर फ़ाइलें हैं। मापन, एनोटेशन और मॉडल पूर्वानुमान परियोजना के SQLite डेटाबेस measurements.db में तालिकाएँ हैं। यह डेस्कटॉप एप्लिकेशन के रूप में, या वर्कस्टेशन, सर्वर या क्लस्टर पर हेडलेस रूप में चलता है।"></picture></a></div>
+   <div><a href="../../readme_text/hi/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/spacr.desktop.svg"><img src="../../readme_images/hi/spacr.svg" alt="spaCR. CRISPR स्क्रीनिंग का स्थानिक फीनोटाइप विश्लेषण। spaCR माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रति-वस्तु फीनोटाइप को अनुक्रमण से प्राप्त गाइड प्रचुरता के साथ एकीकृत करता है और अनुमान लगाता है कि कौन-से जीन फीनोटाइपिक परिवर्तनों से जुड़े हैं। प्लेट छवियों और FASTQ रीड से शुरू करके, यह प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव अनुमान तथा प्राथमिकता के अनुसार क्रमित हिट सूची बनाता है। विभाजन, मापन, एनोटेशन और वर्गीकरण के मॉड्यूल अध्ययन में अनुक्रमण वाला भाग न होने पर भी चल सकते हैं। Make Masks सेगमेंटेशन मास्क सुधारता है और YOLO निर्यात के लिए Box टूल से स्वतंत्र, क्लास-लेबल वाले आयतों का एनोटेशन करता है। ये बॉक्स स्रोत इमेज या मास्क बदले बिना अपने लेबल और इतिहास रखते हैं। हर टूल का विवरण सुविधा गाइड में देखें। छवियाँ, मास्क और क्रॉप डिस्क पर फ़ाइलें हैं। मापन, एनोटेशन और मॉडल पूर्वानुमान परियोजना के SQLite डेटाबेस measurements.db में तालिकाएँ हैं। यह डेस्कटॉप एप्लिकेशन के रूप में, या वर्कस्टेशन, सर्वर या क्लस्टर पर हेडलेस रूप में चलता है।"></picture></a></div>
 
 .. raw:: html
 
@@ -136,7 +136,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application.desktop.svg"><img src="../../readme_images/hi/desktop-application.svg" alt="डेस्कटॉप एप्लिकेशन. इंस्टॉलर अपने स्वयं के Python को जोड़ते हैं. कॉन्डा की आवश्यकता नहीं है."></picture></a></div>
+   <div><a href="../../readme_text/hi/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application.desktop.svg"><img src="../../readme_images/hi/desktop-application.svg" alt="डेस्कटॉप एप्लिकेशन. इंस्टॉलर में अपना Python परिवेश शामिल होता है। Conda की आवश्यकता नहीं है।"></picture></a></div>
 
 .. spacr-installer-links-begin
 
@@ -165,7 +165,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application-3.desktop.svg"><img src="../../readme_images/hi/desktop-application-3.svg" alt="macOS पर, .pkg खोलें. वर्तमान बीटा नोटिस नहीं किया गया है; यदि Gatekeeper इसे ब्लॉक करता है, तो सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा → किसी भी तरह से खोलें का चयन करें. इंस्टॉलेशन, अपडेट, दोबारा इंस्टॉल करने, अनइंस्टॉल करने, ऑफ़लाइन उपयोग और समस्या निवारण के निर्देशों के लिए nightly शाखा की वर्तमान इंस्टॉलेशन गाइड (अंग्रेज़ी में) देखें। वर्कस्टेशन और सर्वर संबंधी सुझावों तथा GPU संगतता तालिकाओं के लिए सिस्टम आवश्यकताएँ देखें।"></picture></a></div>
+   <div><a href="../../readme_text/hi/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application-3.desktop.svg"><img src="../../readme_images/hi/desktop-application-3.svg" alt="macOS पर .pkg खोलें। वर्तमान बीटा को Apple का नोटरीकरण नहीं मिला है। यदि Gatekeeper उसे रोकता है, तो सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा → फिर भी खोलें चुनें। इंस्टॉलेशन, अपडेट, दोबारा इंस्टॉल करने, अनइंस्टॉल करने, ऑफ़लाइन उपयोग और समस्या निवारण के निर्देशों के लिए nightly शाखा की वर्तमान इंस्टॉलेशन गाइड (अंग्रेज़ी में) देखें। वर्कस्टेशन और सर्वर संबंधी सुझावों तथा GPU संगतता तालिकाओं के लिए सिस्टम आवश्यकताएँ देखें।"></picture></a></div>
 
 .. raw:: html
 
@@ -194,7 +194,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/pypi-installation-3.desktop.svg"><img src="../../readme_images/hi/pypi-installation-3.svg" alt="वैकल्पिक एकीकरण अलग से स्थापित किए जाते हैं, उदाहरण के लिए spacr[zarr], spacr[omero],spacr[napari] और spacr[czi,nd2,lif]. पूर्ण अतिरिक्त और Python संस्करण संगतता तालिका में स्थापना गाइड (nightly, अंग्रेज़ी में) देखें."></picture></a></div>
+   <div><a href="../../readme_text/hi/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/pypi-installation-3.desktop.svg"><img src="../../readme_images/hi/pypi-installation-3.svg" alt="वैकल्पिक एकीकरण अलग से इंस्टॉल किए जाते हैं, जैसे spacr[zarr], spacr[omero], spacr[napari] और spacr[czi,nd2,lif]। अतिरिक्त पैकेजों की पूरी सूची और Python संस्करणों की संगतता तालिका के लिए स्थापना गाइड (nightly, अंग्रेज़ी में) देखें।"></picture></a></div>
 
 .. raw:: html
 
@@ -243,27 +243,25 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-from-source-light.desktop.svg"><img src="../../readme_images/hi/install-from-source-light.svg" alt="सोर्स कोड से इंस्टॉलेशन (हल्का). योगदानकर्ताओं को संस्करण इतिहास चाहिए; केवल spaCR चलाने के लिए नीचे दिए विकल्पों में से चुनें। nightly के 05302fd5c कमिट की माप 2026-10-07 को packaging/measure_clone_forms.sh से की गई:"></picture></a></div>
+   <div><a href="../../readme_text/hi/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-from-source-light.desktop.svg"><img src="../../readme_images/hi/install-from-source-light.svg" alt="सोर्स कोड से इंस्टॉलेशन (हल्का). योगदानकर्ताओं को संस्करण इतिहास चाहिए; केवल spaCR चलाने के लिए नीचे दिए विकल्पों में से चुनें। nightly के 05302fd5c कमिट की माप 2026-10-07 को packaging/measure_clone_forms.sh से की गई. सीमित इतिहास वाला क्लोन: 140 s में 2048 MB डाउनलोड। केवल नवीनतम कमिट रखा जाता है, इसलिए git log, git blame और git bisect में पुराना इतिहास उपलब्ध नहीं होता। git pull काम करता है, लेकिन इतिहास सीमित रहता है; git fetch --unshallow पूरा इतिहास लाता है।"></picture></a></div>
 
 .. code-block:: bash
 
-   # One commit instead of every version: 2048 MB downloaded, 140 s.
-   # No history, so no git log, no git blame and no git bisect.
-   # git pull still works, but stays shallow until git fetch --unshallow.
    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
    cd spacr && pip install -e .
 
-   # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-   # No history, docs, tests, tools, features or example data.
-   # --with-docs, --with-tests and --with-translations put those back;
-   # --dir, --branch, --no-install and --help do the obvious things.
-   # packaging/source_install_excludes.txt lists every skipped path.
+.. raw:: html
+
+   <div><a href="../../readme_text/hi/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-from-source-light-2.desktop.svg"><img src="../../readme_images/hi/install-from-source-light-2.svg" alt="केवल रनटाइम फ़ाइलें: 6 s में डिस्क पर 104 MB (Git: 38 MB; फ़ाइलें: 66 MB)। इतिहास, docs, tests, tools, features, उदाहरण डेटा और इंटरफ़ेस के विस्तृत अनुवाद छोड़ दिए जाते हैं। --with-docs, --with-tests और --with-translations क्रमशः दस्तावेज़, परीक्षण और अनुवाद बनाए रखते हैं। इंटरफ़ेस के संक्षिप्त अनुवाद उपलब्ध रहते हैं।"></picture></a></div>
+
+.. code-block:: bash
+
    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
    sh install_spacr.sh --branch nightly
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-from-source-light-2.desktop.svg"><img src="../../readme_images/hi/install-from-source-light-2.svg" alt="nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में --filter=blob:none जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। nightly की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 4657 MB लेती हैं (2026-10-15 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"></picture></a></div>
+   <div><a href="../../readme_text/hi/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-from-source-light-3.desktop.svg"><img src="../../readme_images/hi/install-from-source-light-3.svg" alt="--dir क्लोन का पथ चुनता है; --branch शाखा या टैग चुनता है; --no-install बिना इंस्टॉल किए डाउनलोड करता है; --help विकल्प दिखाता है। packaging/source_install_excludes.txt में छोड़े गए सभी पथ दिए गए हैं। nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में --filter=blob:none जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। main की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 1265 MB लेती हैं (2026-10-21 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"></picture></a></div>
 
 .. raw:: html
 
@@ -414,27 +412,23 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-resources-2-2.desktop.svg"><img src="../../readme_images/hi/other-resources-2-2.svg" alt="Python API त्वरित प्रारंभ - स्क्रिप्ट, नोटबुक या एक क्लस्टर से पाइपलाइन चलाएं और वैध करें।"></picture></a></div>
+   <div><a href="../../readme_text/hi/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-resources-2-2.desktop.svg"><img src="../../readme_images/hi/other-resources-2-2.svg" alt="Python API त्वरित प्रारंभ — स्क्रिप्ट, नोटबुक या क्लस्टर से पाइपलाइन चलाएँ और मान्य करें।"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-resources-2-3.desktop.svg"><img src="../../readme_images/hi/other-resources-2-3.svg" alt="सुविधा गाइड — क्षमताओं, परिपक्वता और वैकल्पिक एकीकरण।"></picture></a></div>
+   <div><a href="../../readme_text/hi/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-resources-2-3.desktop.svg"><img src="../../readme_images/hi/other-resources-2-3.svg" alt="सुविधाओं की गाइड — क्षमताएँ, परिपक्वता और वैकल्पिक एकीकरण।"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-resources-2-4.desktop.svg"><img src="../../readme_images/hi/other-resources-2-4.svg" alt="शुद्ध API संदर्भ - कार्य के आधार पर समर्थित प्रवेश बिंदु, पूर्ण मॉड्यूल संदर्भ एक स्तर गहरा है।"></picture></a></div>
+   <div><a href="../../readme_text/hi/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-resources-2-4.desktop.svg"><img src="../../readme_images/hi/other-resources-2-4.svg" alt="चयनित API संदर्भ — कार्य के अनुसार समर्थित प्रवेश बिंदु; सभी मॉड्यूल का संदर्भ एक स्तर नीचे है।"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-resources-2-5.desktop.svg"><img src="../../readme_images/hi/other-resources-2-5.svg" alt="भाषा और अनुवाद गाइड — इंटरफ़ेस भाषाएं, संदर्भ सहायता और वैज्ञानिक-आउटपुट नीति।"></picture></a></div>
+   <div><a href="../../readme_text/hi/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-resources-2-5.desktop.svg"><img src="../../readme_images/hi/other-resources-2-5.svg" alt="भाषा और अनुवाद गाइड — इंटरफ़ेस की भाषाएँ, संदर्भगत सहायता और वैज्ञानिक आउटपुट की नीति।"></picture></a></div>
 
 .. raw:: html
 
    <div><a href="../../readme_text/hi/language-translation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/language-translation.desktop.svg"><img src="../../readme_images/hi/language-translation.svg" alt="भाषा और अनुवाद. इंटरफ़ेस नेविगेशन और प्राथमिकताओं में दस भाषाओं का समर्थन करता है। AI और LIVE नियंत्रण, मॉड्यूल विवरण और समीक्षित संदर्भ सहायता भी अनुवादित हैं। पुनः आरंभ किए बिना spaCR → प्राथमिकताएँ → भाषा में भाषा बदलें। लॉग, पथ, डेटाबेस मान और मापन कभी अनुवादित नहीं होते; वैज्ञानिक आउटपुट मानक अंग्रेज़ी में रहता है। संदर्भ-सहायता नीति देखें।"></picture></a></div>
-
-.. raw:: html
-
-   <div><a href="../../readme_text/hi/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/language-translation-2.desktop.svg"><img src="../../readme_images/hi/language-translation-2.svg" alt="नौ गैर-अंग्रेजी कैटलॉग मशीन-ड्राइंग और तकनीकी रूप से समीक्षा के बजाय एक स्वदेशी वक्ता द्वारा समाप्त पढ़ने के लिए. समीक्षा स्कोप रिकॉर्ड जिन भाषाओं ने एक मानव पास किया है और प्रत्येक शब्द अंग्रेजी में छोड़ दिया है निर्णय द्वारा."></picture></a></div>
 
 .. raw:: html
 
@@ -472,14 +466,14 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/model-zoo.desktop.svg"><img src="../../readme_images/hi/model-zoo.svg" alt="मॉडल लाइब्रेरी. spaCR प्रशिक्षित मॉडलों का एक कैटलॉग भेजता है और उन्हें मांग पर पकड़ता है. होम स्क्रीन से ब्राउज़ करने और स्थापित करने के लिए मॉडल Zoo खोलें, या सेटिंग्स फ़ाइल में एक कुंजी नामित करें - pathogen_model: toxoplasma_pv_v1 - और मॉडल को डाउनलोड किया जाता है और पहली बार जांच की जाती है. प्रत्येक प्रकाशित प्रविष्टि में एक SHA-256 होता है; एक के बिना एक प्रविष्ट को अस्वीकार कर दिया जाता है, बल्कि स्थापित किया जा सकता है, क्योंकि एक ट्रिगर या प्रतिस्थापित चेकपॉइंट को वास्तविक से नहीं बताया जा सकता।"></picture></a></div>
+   <div><a href="../../readme_text/hi/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/model-zoo.desktop.svg"><img src="../../readme_images/hi/model-zoo.svg" alt="मॉडल लाइब्रेरी. spaCR में प्रशिक्षित मॉडलों की सूची शामिल है और आवश्यकता होने पर उन्हें डाउनलोड किया जाता है। मॉडल देखने और इंस्टॉल करने के लिए होम स्क्रीन पर Model Zoo खोलें या सेटिंग्स फ़ाइल में मॉडल की कुंजी दें, जैसे pathogen_model: toxoplasma_pv_v1। पहली बार आवश्यकता होने पर मॉडल डाउनलोड होता है और उसके चेकसम की पुष्टि की जाती है। प्रत्येक प्रकाशित प्रविष्टि में SHA-256 चेकसम होता है। चेकसम के बिना प्रविष्टि अस्वीकार की जाती है, क्योंकि अन्यथा अधूरी या बदली हुई मॉडल फ़ाइल को मूल फ़ाइल से अलग नहीं पहचाना जा सकता।"></picture></a></div>
 
 .. spacr-model-zoo-begin
 
 .. raw:: html
 
    <div><a href="../../models/README.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/heading.svg"><img src="../../models/cards/heading.phone.svg" alt="Default models · held-out scores"></picture></a></div>
-   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/live_cell_v1.svg"><img src="../../models/cards/live_cell_v1.phone.svg" alt="Score card of Live cells v1 (live_cell_v1, default): F1 0.694 on 2,199 held-out fields against 0.738 for stock cpsam_v2. On the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
 
 .. raw:: html
 
@@ -495,7 +489,7 @@
 
 .. raw:: html
 
-   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/hi/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/hi/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/hi/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/hi/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-model-zoo-2-link-3.desktop.svg"><img src="../../readme_images/hi/generated-model-zoo-2-link-3.svg" alt="live_cell_v1"></picture></a></div>
 
 .. raw:: html
 
@@ -513,15 +507,15 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/hi/diagnosing-performance-2.svg" alt="~/.spacr/reports पर बचत करें और मार्ग प्रिंट करें. --quick लंबे संदर्भ संकेतों को स्काइप करता है; --out PATH स्थान निर्धारित करता है. प्रोजेक्ट का कोई डेटा नहीं पढ़ता। इम्पोर्ट, संख्यात्मक लाइब्रेरी, विंडो निर्माण और एनीमेशन में लगने वाला समय मापता है, और Apple Silicon पर x86_64 इम्यूलेशन तथा NumPy के BLAS कार्यान्वयन की जानकारी देता है।"></picture></a></div>
+   <div><a href="../../readme_text/hi/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/hi/diagnosing-performance-2.svg" alt="रिपोर्ट ~/.spacr/reports में सहेजी जाती है और उसका पथ दिखाया जाता है। --quick लंबे प्रदर्शन परीक्षणों को छोड़ देता है; --out PATH स्थान तय करता है। प्रोजेक्ट का कोई डेटा नहीं पढ़ता। इम्पोर्ट, संख्यात्मक लाइब्रेरी, विंडो निर्माण और एनीमेशन में लगने वाला समय मापता है, और Apple Silicon पर x86_64 इम्यूलेशन तथा NumPy के BLAS कार्यान्वयन की जानकारी देता है।"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/command-line-reference.desktop.svg"><img src="../../readme_images/hi/command-line-reference.svg" alt="कमांड लाइन संदर्भ. नीचे दिए गए प्रत्येक कमांड को pip install spacr द्वारा स्थापित किया जाता है. उनमें से सभी --help को स्वीकार करते हैं."></picture></a></div>
+   <div><a href="../../readme_text/hi/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/command-line-reference.desktop.svg"><img src="../../readme_images/hi/command-line-reference.svg" alt="कमांड लाइन संदर्भ. नीचे के सभी कमांड pip install spacr से इंस्टॉल होते हैं और --help स्वीकार करते हैं।"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/launching-the-application.desktop.svg"><img src="../../readme_images/hi/launching-the-application.svg" alt="आवेदन शुरू करने के लिए."></picture></a></div>
+   <div><a href="../../readme_text/hi/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/launching-the-application.desktop.svg"><img src="../../readme_images/hi/launching-the-application.svg" alt="ऐप्लिकेशन शुरू करना."></picture></a></div>
 
 .. code-block:: bash
 
@@ -544,7 +538,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/running-modules-headlessly.desktop.svg"><img src="../../readme_images/hi/running-modules-headlessly.svg" alt="मॉड्यूल बेहोश रूप से चलाएं. कोई Qt, कोई डिस्प्ले नहीं - क्लस्टर, सर्वर और सीआई के लिए।"></picture></a></div>
+   <div><a href="../../readme_text/hi/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/running-modules-headlessly.desktop.svg"><img src="../../readme_images/hi/running-modules-headlessly.svg" alt="ग्राफ़िकल इंटरफ़ेस के बिना मॉड्यूल चलाना. Qt या डिस्प्ले की आवश्यकता नहीं — क्लस्टर, सर्वर और CI के लिए।"></picture></a></div>
 
 .. code-block:: bash
 
@@ -561,7 +555,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/inspecting-a-run.desktop.svg"><img src="../../readme_images/hi/inspecting-a-run.svg" alt="किसी रन की जाँच. प्रत्येक रन ~/.spacr/runs में रिकॉर्ड किया जाता है, जिसमें इसकी सेटिंग्स, हैश किए गए इनपुट, आउटपुट्स, चेतावनी, संस्करण और बीज होते हैं।"></picture></a></div>
+   <div><a href="../../readme_text/hi/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/inspecting-a-run.desktop.svg"><img src="../../readme_images/hi/inspecting-a-run.svg" alt="किसी रन की जाँच. हर रन की सेटिंग्स, इनपुट के हैश, आउटपुट, चेतावनियाँ, संस्करण और यादृच्छिक बीज ~/.spacr/runs में दर्ज किए जाते हैं।"></picture></a></div>
 
 .. code-block:: bash
 
@@ -570,7 +564,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/hi/auditing-data-and-installation.svg" alt="डेटा की जांच और स्थापना."></picture></a></div>
+   <div><a href="../../readme_text/hi/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/hi/auditing-data-and-installation.svg" alt="डेटा और इंस्टॉलेशन की जाँच."></picture></a></div>
 
 .. code-block:: bash
 
@@ -588,7 +582,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/environment-2.desktop.svg"><img src="../../readme_images/hi/environment-2.svg" alt="रूटिंग लॉग ~/.spacr/logs/spacr.log में लिखे जाते हैं. उस फ़ाइल को एक बग रिपोर्ट में जोड़ें."></picture></a></div>
+   <div><a href="../../readme_text/hi/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/environment-2.desktop.svg"><img src="../../readme_images/hi/environment-2.svg" alt="रोटेशन वाले लॉग ~/.spacr/logs/spacr.log में लिखे जाते हैं। उस फ़ाइल को बग रिपोर्ट के साथ जोड़ें।"></picture></a></div>
 
 .. raw:: html
 
@@ -596,7 +590,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/licensing.desktop.svg"><img src="../../readme_images/hi/licensing.svg" alt="लाइसेंस. spaCR is released under the BSD 3 क्लास लाइसेंस. यदि spaCR प्रकाशित कार्य में योगदान देता है, तो एक उद्धरण का मूल्यांकन किया जाता है और लाइसेंस की शर्त नहीं है - नीचे spaCR का संदर्भ देखें।"></picture></a></div>
+   <div><a href="../../readme_text/hi/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/licensing.desktop.svg"><img src="../../readme_images/hi/licensing.svg" alt="लाइसेंस. spaCR BSD 3-Clause लाइसेंस के अंतर्गत जारी किया जाता है। यदि spaCR ने आपके प्रकाशित कार्य में योगदान दिया है, तो उसका संदर्भ देना सराहनीय है, लेकिन यह लाइसेंस की शर्त नहीं है; नीचे spaCR का संदर्भ देखें।"></picture></a></div>
 
 .. raw:: html
 
@@ -612,7 +606,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/hi/other-work-citing-spacr.svg" alt="अन्य कार्य उद्धरण spaCR."></picture></a></div>
+   <div><a href="../../readme_text/hi/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/hi/other-work-citing-spacr.svg" alt="spaCR का संदर्भ देने वाले अन्य कार्य."></picture></a></div>
 
 .. spacr-citing-papers-begin
 
@@ -640,4 +634,4 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/acknowledgments.desktop.svg"><img src="../../readme_images/hi/acknowledgments.svg" alt="आभार. spaCR NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch और Qt सहित मुक्त वैज्ञानिक सॉफ़्टवेयर पर आधारित है। बहुभाषी दस्तावेज़ और इंटरफ़ेस कैटलॉग तैयार करने में उपयोग किए गए मॉडल के लिए अनुवाद मॉडल श्रेय देखें।"></picture></a></div>
+   <div><a href="../../readme_text/hi/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/acknowledgments.desktop.svg"><img src="../../readme_images/hi/acknowledgments.svg" alt="आभार. spaCR NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch और Qt सहित मुक्त वैज्ञानिक सॉफ़्टवेयर पर आधारित है।"></picture></a></div>

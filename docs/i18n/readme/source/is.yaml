@@ -99,7 +99,7 @@ blocks:
     hvaða gen tengjast svipgerðarbreytingum. Út frá plötumyndum og FASTQ-röðum býr
     það til mælingar fyrir hvert viðfang, þjálfaða flokkara, áhrifamat fyrir hverja
     leiðarsameind og hvert gen og forgangsraðaðan lista yfir niðurstöður.
-- p: Segmingu, mæling, notkun og flokksmiðju mótmælur virkar einnig án sekkunararms.
+- p: Einingarnar fyrir aðgreiningu, mælingar, merkingar og flokkun má einnig nota án raðgreiningarhluta.
 - p: Make Masks leiðréttir skiptingargrímur og merkir sjálfstæða rétthyrninga með
     flokkamerkjum með **Box** verkfærinu fyrir YOLO-útflutning. Rammarnir halda eigin
     merkjum og sögu án þess að breyta upprunamyndum eða grímum.
@@ -114,7 +114,7 @@ blocks:
     python -m pip install spacr
     spacr
   lang: bash
-- h2: Hardware aðstoð
+- h2: Vélbúnaðarstuðningur
 - generated: hardware
   details:
   - 'Auto: True 3D í Make Masks reynir tiltæka bakenda í þessari röð: Linux: Vulkan → OpenGL
@@ -146,15 +146,16 @@ blocks:
 - p: '`Docker-leiðbeiningarnar (nightly, á ensku) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     fjalla um uppsetningu skjákorts, tengingu gagnamappa og skipanir fyrir vinnslurnar.'
 - h3: Skjáborðsforrit
-- p: Þessir uppbyggingar búnir eigin Python. Conda er ekki nauðsynlegt.
+- p: Uppsetningarforritin innihalda eigið Python-umhverfi. Conda er ekki nauðsynlegt.
 - generated: installer-links
 - p: 'Í Linux skaltu gera skrána sem var sótt keyranlega og keyra hana:'
 - code: |-
     chmod +x SpaCR-*-Linux-x86_64-Online.run
     ./SpaCR-*-Linux-x86_64-Online.run
   lang: bash
-- p: Á macOS, opna ``.pkg``. Núverandi beta er ekki notarið; ef Gatekeeper blokkir
-    það, velja **System Settings → Privacy & Security → Open Anyway**.
+- p: Á macOS skaltu opna ``.pkg`` skrána. Núverandi beta-útgáfa hefur ekki fengið notarization-staðfestingu
+    frá Apple. Ef Gatekeeper stöðvar hana skaltu velja **System Settings → Privacy & Security
+    → Open Anyway**.
 - p: Leiðbeiningar um uppsetningu, uppfærslu, enduruppsetningu, fjarlægingu, notkun
     án nettengingar og bilanagreiningu eru í `nýjustu uppsetningarleiðbeiningunum
     á nightly (á ensku) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_.
@@ -180,10 +181,9 @@ blocks:
     python -m pip install spacr
     spacr-run --list
   lang: bash
-- p: Opinlegri samsetningar eru settar sérstakt, t.d. ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]``
-    og ``spacr[czi,nd2,lif]``. Sjá `uppsetningarleiðbeiningarnar (nightly, á ensku)
-    <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
-    fyrir fullkomna útgáfur og Python-version samskipti tól.
+- p: Valfrjálsar samþættingar eru settar upp sérstaklega, til dæmis ``spacr[zarr]``, ``spacr[omero]``,
+    ``spacr[napari]`` og ``spacr[czi,nd2,lif]``. Heildarlisti yfir viðbætur og tafla yfir
+    samhæfi Python-útgáfa eru í `uppsetningarleiðbeiningunum (nightly, á ensku) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_.
 - h3: Uppsetning með conda-forge
 - p: 'Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsforritsins
     upp í virka umhverfinu:'
@@ -217,29 +217,31 @@ blocks:
 - p: Settu upp aftur þegar háðir pakkar eða inngangspunktar breytast. Breytingar
     á Python-kóða taka gildi beint; ``spacr-doctor`` sýnir hvaða uppsetning er virk.
 - h3: Uppsetning frá frumkóða (létt)
-- p: 'Þátttakendur þurfa útgáfusöguna; veldu einn af kostunum hér fyrir neðan ef
-    þú vilt aðeins keyra spaCR. Mælingar á ``nightly`` við ``05302fd5c`` þann 2026-10-07
-    með ``packaging/measure_clone_forms.sh``::'
+- p: Þátttakendur þurfa útgáfusöguna; veldu einn af kostunum hér fyrir neðan ef þú vilt aðeins
+    keyra spaCR. Mælingar á ``nightly`` við ``05302fd5c`` þann 2026-10-07 með ``packaging/measure_clone_forms.sh``.
+- p: 'Grunn klónun: 2048 MB sótt á 140 s. Aðeins nýjasta breytingin er varðveitt, svo eldri
+    saga er ekki aðgengileg með ``git log``, ``git blame`` eða ``git bisect``. ``git pull``
+    virkar en klónunin helst grunn; ``git fetch --unshallow`` sækir alla söguna.'
 - code: |-
-    # One commit instead of every version: 2048 MB downloaded, 140 s.
-    # No history, so no git log, no git blame and no git bisect.
-    # git pull still works, but stays shallow until git fetch --unshallow.
     git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
-
-    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-    # No history, docs, tests, tools, features or example data.
-    # --with-docs, --with-tests and --with-translations put those back;
-    # --dir, --branch, --no-install and --help do the obvious things.
-    # packaging/source_install_excludes.txt lists every skipped path.
+  lang: bash
+- p: 'Aðeins keyrsluskrár: 104 MB á diski á 6 s (Git: 38 MB; skrár: 66 MB). Sleppt er sögu,
+    docs, tests, tools, features, dæmigögnum og ítarlegri þýðingum viðmótsins. ``--with-docs``,
+    ``--with-tests`` og ``--with-translations`` halda eftir samsvarandi leiðbeiningum, prófum
+    og þýðingum. Grunnþýðingar viðmótsins eru áfram tiltækar.'
+- code: |-
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
   lang: bash
-- p: 'Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna
-    klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir
-    ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki
-    mælt. Útgáfustýrðu skrárnar í nightly taka 4657 MB í vinnueintakinu (mælt 2026-10-15),
-    án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein.'
+- p: '``--dir`` velur slóð klónunarinnar; ``--branch`` velur grein eða merki; ``--no-install``
+    sækir án þess að setja upp; ``--help`` sýnir valkostina. ``packaging/source_install_excludes.txt``
+    telur upp allar slóðir sem er sleppt.'
+- p: 'Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið
+    minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti
+    sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar
+    í main taka 1265 MB í vinnueintakinu (mælt 2026-10-21), án Git-sögunnar. Stærð og tími
+    niðurhals eru mismunandi eftir grein.'
 - h2: Skipanalínuskipanir
 - code: |-
     spacr                                      # launch the Qt application
@@ -276,28 +278,24 @@ blocks:
 - generated: workflow
 - p: 'Allar einingar sem eiga reit á upphafsskjánum, í sömu röð og þar: fyrst sex
     einingar vinnslukeðjunnar, síðan hinar. Veldu reit til að opna API-síðu einingarinnar.'
-- h2: Öll aðrar auðlindir
+- h2: Önnur hjálpargögn
 - list:
-  - '`Gagnvirkt kennsluefni <https://einarolafsson.github.io/spacr/tutorials/>`_
-    — leiðsögn um verkferla frá uppsetningu til rannsóknar á niðurstöðum skimunar.'
-  - '`Python API snemma byrjun <docs/source/python_api.rst>`_ — hlaupa og staðfest
-    pipelines frá skriptum, notebooks eða klúster.'
-  - '`Leikstjóri <docs/source/features.rst>`_ — hæfileika, fullnægjandi og valfrjáls
-    tengsl.'
-  - '`Heilluð API reference <https://einarolafsson.github.io/spacr/api/index.html>`_
-    — stuðlað innfangspunktur eftir verkefni, með fullkomna mótum tengslum einn hærra.'
-  - '`Sjálf tungumál og þýðingu leiðbeining <docs/source/localization.rst>`_ — samskipti
-    tungumál, kontext hjálp og vísindaleg útleiðslu.'
+  - '`Gagnvirkt kennsluefni <https://einarolafsson.github.io/spacr/tutorials/>`_ — leiðsögn
+    um verkferla frá uppsetningu til rannsóknar á niðurstöðum skimunar.'
+  - '`Flýtileiðbeiningar fyrir Python API <docs/source/python_api.rst>`_ — keyra og sannreyna
+    vinnslur úr skriftum, vinnubókum eða reikniklasa.'
+  - '`Leiðbeiningar um eiginleika <docs/source/features.rst>`_ — virkni, þroskastig og valfrjálsar
+    samþættingar.'
+  - '`Valin API-tilvísun <https://einarolafsson.github.io/spacr/api/index.html>`_ — studdir
+    inngangspunktar eftir verkefnum; heildartilvísun fyrir einingar er einu stigi neðar.'
+  - '`Leiðbeiningar um tungumál og þýðingar <docs/source/localization.rst>`_ — viðmótstungumál,
+    samhengishjálp og stefna um vísindalegar niðurstöður.'
 - h2: Tungumál og þýðingar
 - p: Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar,
     lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál
     undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi
     og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá
     `stefnu um samhengishjálp <docs/source/localization.rst#contextual-help>`_.
-- p: Nín ekki Engleska sögu eru stutt og tæknilegt endurskoðað í stað þess að lesa
-    end til end af heimilum tala. `Sjáðu skammt <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_
-    skrá sem tungumálir hafa haft mannleg útgang og hvert orð eftir á Englesku eftir
-    ákvörðun.
 - h2: Hreyfimyndaleiðbeiningar fyrir stillingar
 - p: Stillingar með sjónræna skýringu bjóða upp á **Animation**-stýringu í verkfæraábendingunni.
     Skoðaðu `myndasafn stillingahreyfimynda <https://einarolafsson.github.io/spacr/setting_animations.html>`_
@@ -332,29 +330,32 @@ blocks:
        :alt: Opna bioRxiv-forprentið
        :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 - h2: Líkanasafn
-- p: 'spaCR skipar listan af þjálfað mönnunum og snúa þeim á eftirspurn. Opna **Mönnun
-    Zoo** frá heimaskjólum til að skoða og setja upp þá, eða nefna key í setningarfilenni
-    - ``pathogen_model: toxoplasma_pv_v1`` - og mönnin er hlaðið niður og checksum-verified
-    fyrsta sinn sem það er nauðsynlegt.'
+- p: 'spaCR inniheldur skrá yfir þjálfuð líkön og sækir þau eftir þörfum. Opnaðu **Model Zoo**
+    á upphafsskjánum til að skoða og setja upp líkön, eða tilgreindu líkanalykil í stillingaskrá,
+    til dæmis ``pathogen_model: toxoplasma_pv_v1``. Líkanið er sótt og staðfest með gátsummu
+    þegar fyrst er þörf á því. Hver birt færsla hefur SHA-256-gátsummu. Færslu án gátsummu
+    er hafnað, þar sem annars væri ekki hægt að greina ófullkomna eða útskipta líkanaskrá
+    frá upprunalegu skránni.'
 - generated: model-zoo
 - h3: Greining á afköstum
 - p: 'Búðu til vélbúnaðarskýrslu og hengdu hana við mál um afköst::'
 - code: python tools/spacr_hardware_report.py
   lang: bash
-- p: Spara til ``~/.spacr/reports`` og trúa leiðinni. ``--quick`` skiptir lengri
-    skilyrði; ``--out PATH`` setur staðsetningu.
+- p: Vistar í ``~/.spacr/reports`` og prentar slóðina. ``--quick`` sleppir lengri afkastaprófunum;
+    ``--out PATH`` tilgreinir vistunarstað.
 - p: Les engin verkefnisgögn. Mælir tímann sem innflutningur, töluleg söfn, gerð
     glugga og hreyfimyndir taka og greinir frá x86_64-hermun á Apple Silicon og BLAS-útfærslu
     NumPy.
-- h3: Orðlinna reference
-- p: Öll beint hér að neðan er sett með ``pip install spacr``. Allir samþykkir ``--help``.
-- h2: Að byrja við umsókn
+- h3: Yfirlit yfir skipanalínu
+- p: Allar skipanirnar hér fyrir neðan eru settar upp með ``pip install spacr`` og styðja
+    ``--help``.
+- h2: Ræsa forritið
 - code: |-
     spacr              # the desktop application
     spacr-tutorial     # the interactive tutorial library
     spacr-server       # no first-run setup screen, for unattended launches
   lang: bash
-- h2: Þegar spaCR mun ekki byrja
+- h2: Þegar spaCR ræsist ekki
 - code: |-
     spacr-doctor       # diagnose the installation and say how to fix it
     safespacr          # the least spaCR that can still change a setting
@@ -365,8 +366,8 @@ blocks:
     bakgrunni, hreyfimyndum, ítarlegri skráningu og forhleðslu. Notaðu það þegar
     vistuð stilling kemur í veg fyrir að forritið ræsist. Stillingar sem vistaðar
     eru í öruggum ham eru skrifaðar eins og venjulega og haldast.'
-- h2: Að hlaupa modúlum án heiðar
-- p: Engin Qt, engin sýning — fyrir klúster, þjónusta og CI.
+- h2: Keyra einingar án grafísks viðmóts
+- p: Án Qt og skjás — fyrir reikniklasa, netþjóna og CI.
 - code: |-
     spacr-run --list                              # modules with a headless entry
     spacr-run --describe MODULE                   # what a module consumes and produces
@@ -378,13 +379,13 @@ blocks:
 - p: '``validate`` les sömu stillingar og keyrslan myndi lesa og telur upp hvert
     vandamál, til dæmis stillingu sem vantar eða slóð sem er ekki til, ásamt lagfæringu.'
 - h2: Skoða keyrslu
-- p: Hver rán er skráður á ``~/.spacr/runs`` með settum sínum, hashed inntölum, úttökum,
-    varningar, útgáfur og frönum.
+- p: Hver keyrsla er skráð í ``~/.spacr/runs`` með stillingum, tætigildum inntaksgagna, úttökum,
+    viðvörunum, útgáfum og upphafsgildum slembitalna.
 - code: |-
     spacr-repro RUN_DIR        # replay a recorded run from its journal
     spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
   lang: bash
-- h2: Ákvarðanir gögnum og uppsetningu
+- h2: Yfirfara gögn og uppsetningu
 - code: |-
     spacr-db-audit DB      # SQLite health, integrity, locking, reader/writer probe
     spacr-leakage          # classifier train/test leakage audit
@@ -393,8 +394,8 @@ blocks:
 - h2: Umhverfi
 - code: 'SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch'
   lang: bash
-- p: Rotating logs eru skrifað í ``~/.spacr/logs/spacr.log``. Sættu þessar skál á
-    bug-report.
+- p: Annálar með reglulegri skráaskiptingu eru skrifaðir í ``~/.spacr/logs/spacr.log``. Láttu
+    þá skrá fylgja villutilkynningu.
 - h2: Framlög og aðstoð
 - p: Sendu villutilkynningar og afmarkaðar óskir um eiginleika í gegnum `GitHub-mál
     <https://github.com/EinarOlafsson/spacr/issues>`_. Þegar bilun er tilkynnt skal
@@ -402,9 +403,9 @@ blocks:
     viðeigandi hluta úr annálnum. ``spacr-doctor`` safnar flestum þessara upplýsinga;
     láttu vélbúnaðarskýrsluna fylgja þegar tilkynnt er um afkastavandamál.
 - h2: Leyfi
-- p: spaCR er frelsað undir `BSD 3-Klausur leyfi <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
-- p: Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði fyrir
-    leyfi — sjá `Tilvísun í spaCR`_ hér neðan.
+- p: spaCR er gefið út undir `BSD3-Clause-leyfinu <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+- p: Ef spaCR nýttist við birt verk er tilvísun vel þegin, en hún er ekki skilyrði leyfisins;
+    sjá `Tilvísun í spaCR`_ hér fyrir neðan.
 - h2: Kennsluefni
 - p: '`Gagnvirka spaCR-kennslusafnið <https://einarolafsson.github.io/spacr/tutorials/>`_
     leiðir þig í gegnum uppsetningu og notkun eininganna. Hver kennslustund tilgreinir
@@ -415,7 +416,7 @@ blocks:
     skilur EAF1 sem *T. gondii* modulator ESCRT subversion.
 - p: '`Bioregl fyrirframskrift <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_
     · `Programvarparkíf <https://doi.org/10.5281/zenodo.21343316>`_'
-- h2: Aðrir verk sem heitir spaCR
+- h2: Önnur verk sem vísa til spaCR
 - list:
   - '`Metabolic adaptability og næringssvopning í Toxoplasma gondii: innsýn frá innihaldskortum
     mutantum. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_'
@@ -428,6 +429,4 @@ blocks:
     <https://www.researchsquare.com/article/rs-7368254/v1>`_'
   marker: citing-papers
 - h2: Þakkir
-- p: spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image,
-    scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <docs/i18n/TRANSLATION_MODELS.md>`_
-    fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.
+- p: spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt.

@@ -96,7 +96,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/spacr.desktop.svg"><img src="../../readme_images/zh_CN/spacr.svg" alt="spaCR. CRISPR 筛选的空间表型分析。 spaCR 对显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ 读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。 分区、测量、标记和分类模块也没有序列手臂运行。 Make Masks 修正分割掩膜，并使用 Box 工具标注带类别标签的独立矩形以进行 YOLO 导出。框保留自己的标签和历史记录，不会更改原始图像或掩膜。 各工具的说明见 功能指南。 图像、掩膜和裁剪图像块是磁盘上的文件。测量值、标注和模型预测是项目 SQLite 数据库 measurements.db 中的表。 可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/spacr.desktop.svg"><img src="../../readme_images/zh_CN/spacr.svg" alt="spaCR. CRISPR 筛选的空间表型分析。 spaCR 对显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ 读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。 分割、测量、标注和分类模块也可用于不包含测序部分的研究。 Make Masks 修正分割掩膜，并使用 Box 工具标注带类别标签的独立矩形以进行 YOLO 导出。框保留自己的标签和历史记录，不会更改原始图像或掩膜。 各工具的说明见 功能指南。 图像、掩膜和裁剪图像块是磁盘上的文件。测量值、标注和模型预测是项目 SQLite 数据库 measurements.db 中的表。 可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。"></picture></a></div>
 
 .. raw:: html
 
@@ -136,7 +136,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application.svg" alt="桌面应用程序. 安装器包装自己的 Python. Conda 不需要。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application.svg" alt="桌面应用程序. 安装程序自带 Python 环境，无需安装 Conda。"></picture></a></div>
 
 .. spacr-installer-links-begin
 
@@ -165,7 +165,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application-3.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application-3.svg" alt="在 macOS 中,打开 .pkg. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 系统设置 → 隐私和安全 → 打开 无论如何。 有关安装、更新、重新安装、卸载、离线使用和故障排查的说明，请参阅 nightly 分支上的当前安装指南（英文）。有关工作站和服务器的配置建议以及 GPU 兼容性表，请参阅 系统要求。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application-3.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application-3.svg" alt="在 macOS 上打开 .pkg 文件。当前测试版尚未通过 Apple 公证；如果 Gatekeeper 阻止打开，请选择 系统设置 → 隐私与安全性 → 仍要打开。 有关安装、更新、重新安装、卸载、离线使用和故障排查的说明，请参阅 nightly 分支上的当前安装指南（英文）。有关工作站和服务器的配置建议以及 GPU 兼容性表，请参阅 系统要求。"></picture></a></div>
 
 .. raw:: html
 
@@ -194,7 +194,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/pypi-installation-3.desktop.svg"><img src="../../readme_images/zh_CN/pypi-installation-3.svg" alt="可选集成单独安装,例如 spacr[zarr]、 spacr[omero]、spacr[napari] 和 spacr[czi,nd2,lif]. 查看完整的附件和 Python 版本兼容性表的 安装指南（nightly，英文）。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/pypi-installation-3.desktop.svg"><img src="../../readme_images/zh_CN/pypi-installation-3.svg" alt="可选集成需单独安装，例如 spacr[zarr]、spacr[omero]、spacr[napari] 和 spacr[czi,nd2,lif]。完整的可选依赖列表及 Python 版本兼容性表见 安装指南（nightly，英文）。"></picture></a></div>
 
 .. raw:: html
 
@@ -243,27 +243,25 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light.svg" alt="从源代码安装（精简版）. 贡献者需要版本历史；如果只需运行 spaCR，可选择下列方式。测量于 2026-10-07 对 nightly 的 05302fd5c 提交进行，使用 packaging/measure_clone_forms.sh:"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light.svg" alt="从源代码安装（精简版）. 贡献者需要版本历史；如果只需运行 spaCR，可选择下列方式。测量于 2026-10-07 对 nightly 的 05302fd5c 提交进行，使用 packaging/measure_clone_forms.sh. 浅克隆：在 140 s 内下载了 2048 MB。仅保留最新提交，因此 git log、git blame 和 git bisect 无法访问更早的历史。git pull 仍可使用，但克隆仍为浅克隆；运行 git fetch --unshallow 可获取完整历史。"></picture></a></div>
 
 .. code-block:: bash
 
-   # One commit instead of every version: 2048 MB downloaded, 140 s.
-   # No history, so no git log, no git blame and no git bisect.
-   # git pull still works, but stays shallow until git fetch --unshallow.
    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
    cd spacr && pip install -e .
 
-   # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-   # No history, docs, tests, tools, features or example data.
-   # --with-docs, --with-tests and --with-translations put those back;
-   # --dir, --branch, --no-install and --help do the obvious things.
-   # packaging/source_install_excludes.txt lists every skipped path.
+.. raw:: html
+
+   <div><a href="../../readme_text/zh_CN/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="仅运行时文件：6 s 内在磁盘上保存 104 MB（Git：38 MB；文件：66 MB）。不包含历史、docs、tests、tools、features、示例数据或扩展界面翻译。--with-docs、--with-tests 和 --with-translations 分别保留相应的文档、测试和翻译。精简界面翻译仍然可用。"></picture></a></div>
+
+.. code-block:: bash
+
    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
    sh install_spacr.sh --branch nightly
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 4657 MB（2026-10-15 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-3.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-3.svg" alt="--dir 选择克隆路径；--branch 选择分支或标签；--no-install 仅下载、不安装；--help 列出选项。packaging/source_install_excludes.txt 列出了所有被跳过的路径。 nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。main 的版本控制文件检出后占用 1265 MB（2026-10-21 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
 
 .. raw:: html
 
@@ -414,27 +412,23 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-2.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-2.svg" alt="Python API 快速启动 - 从脚本、笔记本或集群运行和验证流程。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-2.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-2.svg" alt="Python API 快速入门 — 从脚本、笔记本或集群运行并验证处理流程。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-3.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-3.svg" alt="特色引导 RNA - 能力、成熟度和可选集成。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-3.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-3.svg" alt="功能指南 — 功能、成熟度及可选集成。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-4.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-4.svg" alt="清理 API 参考 - 按任务支持输入点,完整的模块参考一个级别更深。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-4.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-4.svg" alt="精选 API 参考 — 按任务列出支持的入口，下一层提供完整的模块参考。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-5.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-5.svg" alt="语言与翻译引导 RNA — 界面语言、上下文帮助和科学输出政策。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-5.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-5.svg" alt="语言与翻译指南 — 界面语言、上下文帮助及科学输出政策。"></picture></a></div>
 
 .. raw:: html
 
    <div><a href="../../readme_text/zh_CN/language-translation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/language-translation.desktop.svg"><img src="../../readme_images/zh_CN/language-translation.svg" alt="语言与翻译. 界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 spaCR → 首选项 → 语言 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 上下文帮助政策。"></picture></a></div>
-
-.. raw:: html
-
-   <div><a href="../../readme_text/zh_CN/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/language-translation-2.desktop.svg"><img src="../../readme_images/zh_CN/language-translation-2.svg" alt="The nine non-English catalogs are machine-drafted and technically reviewed rather than read end to end by a native speaker. The 评论范围 records which languages have had a human pass and every term left in English by decision."></picture></a></div>
 
 .. raw:: html
 
@@ -472,14 +466,14 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/model-zoo.desktop.svg"><img src="../../readme_images/zh_CN/model-zoo.svg" alt="模型库. spaCR ships a catalogue of trained models and fetches them on demand. Open Model Zoo from the home screen to browse and install them, or name a key in a settings file -- pathogen_model: toxoplasma_pv_v1 -- and the model is downloaded and checksum-verified the first time it is needed. Every published entry carries a SHA-256; an entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one."></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/model-zoo.desktop.svg"><img src="../../readme_images/zh_CN/model-zoo.svg" alt="模型库. spaCR 提供训练好的模型目录，并按需下载模型。在主页打开 Model Zoo 可浏览和安装模型；也可在设置文件中指定模型键，例如 pathogen_model: toxoplasma_pv_v1。首次需要时，程序会下载模型并验证其校验和。每个已发布条目都带有 SHA-256 校验和；缺少校验和的条目会被拒绝安装，否则无法区分不完整或被替换的模型文件与原始文件。"></picture></a></div>
 
 .. spacr-model-zoo-begin
 
 .. raw:: html
 
    <div><a href="../../models/README.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/heading.svg"><img src="../../models/cards/heading.phone.svg" alt="Default models · held-out scores"></picture></a></div>
-   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/live_cell_v1.svg"><img src="../../models/cards/live_cell_v1.phone.svg" alt="Score card of Live cells v1 (live_cell_v1, default): F1 0.694 on 2,199 held-out fields against 0.738 for stock cpsam_v2. On the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
 
 .. raw:: html
 
@@ -495,7 +489,7 @@
 
 .. raw:: html
 
-   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-2-link-3.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-2-link-3.svg" alt="live_cell_v1"></picture></a></div>
 
 .. raw:: html
 
@@ -513,15 +507,15 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/zh_CN/diagnosing-performance-2.svg" alt="节省到 ~/.spacr/reports 并打印路径. --quick 将更长的基准标志; --out PATH 设置位置。 不读取项目数据。测量导入、数值库运算、窗口构建和动画的耗时，并报告 Apple Silicon 上的 x86_64 仿真情况以及 NumPy 使用的 BLAS 实现。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/zh_CN/diagnosing-performance-2.svg" alt="报告保存在 ~/.spacr/reports 并输出其路径。--quick 跳过耗时较长的性能测试；--out PATH 指定保存位置。 不读取项目数据。测量导入、数值库运算、窗口构建和动画的耗时，并报告 Apple Silicon 上的 x86_64 仿真情况以及 NumPy 使用的 BLAS 实现。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/command-line-reference.desktop.svg"><img src="../../readme_images/zh_CN/command-line-reference.svg" alt="命令线参考. 下面的每个命令都以 pip install spacr 安装,所有命令都会接受 --help。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/command-line-reference.desktop.svg"><img src="../../readme_images/zh_CN/command-line-reference.svg" alt="命令行参考. 下列命令均通过 pip install spacr 安装，并支持 --help。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/launching-the-application.desktop.svg"><img src="../../readme_images/zh_CN/launching-the-application.svg" alt="启动申请."></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/launching-the-application.desktop.svg"><img src="../../readme_images/zh_CN/launching-the-application.svg" alt="启动应用程序."></picture></a></div>
 
 .. code-block:: bash
 
@@ -531,7 +525,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/zh_CN/when-spacr-will-not-start.svg" alt="当 spaCR 不开始时."></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/zh_CN/when-spacr-will-not-start.svg" alt="spaCR 无法启动时."></picture></a></div>
 
 .. code-block:: bash
 
@@ -544,7 +538,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/running-modules-headlessly.desktop.svg"><img src="../../readme_images/zh_CN/running-modules-headlessly.svg" alt="无图形界面发运行模块. 没有 Qt,没有显示器 - 用于集群、服务器和CI。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/running-modules-headlessly.desktop.svg"><img src="../../readme_images/zh_CN/running-modules-headlessly.svg" alt="无图形界面运行模块. 无需 Qt 或显示器，适用于集群、服务器和 CI。"></picture></a></div>
 
 .. code-block:: bash
 
@@ -561,7 +555,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/inspecting-a-run.desktop.svg"><img src="../../readme_images/zh_CN/inspecting-a-run.svg" alt="检查一次运行. 每个运行记录为 ~/.spacr/runs 与其设置,加密输入,输出,警告,版本和种子。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/inspecting-a-run.desktop.svg"><img src="../../readme_images/zh_CN/inspecting-a-run.svg" alt="检查一次运行. 每次运行的设置、输入哈希、输出、警告、版本和随机种子均记录在 ~/.spacr/runs 中。"></picture></a></div>
 
 .. code-block:: bash
 
@@ -588,7 +582,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/environment-2.desktop.svg"><img src="../../readme_images/zh_CN/environment-2.svg" alt="旋转日志写为 ~/.spacr/logs/spacr.log. 将此文件添加到错误报告中。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/environment-2.desktop.svg"><img src="../../readme_images/zh_CN/environment-2.svg" alt="日志以轮转方式写入 ~/.spacr/logs/spacr.log。请将该文件附在错误报告中。"></picture></a></div>
 
 .. raw:: html
 
@@ -596,7 +590,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing.desktop.svg"><img src="../../readme_images/zh_CN/licensing.svg" alt="许可. spaCR is released under the BSD 3 条款许可证. 如果 spaCR 有助于发表作品,则引用被评估,并且不符合许可的条件,请参见下面的 引用 spaCR。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing.desktop.svg"><img src="../../readme_images/zh_CN/licensing.svg" alt="许可. spaCR 以 BSD 三条款许可证 发布。 如果 spaCR 对您的已发表研究有所帮助，我们欢迎引用，但引用不是许可证的条件；请参阅下方的 引用 spaCR。"></picture></a></div>
 
 .. raw:: html
 
@@ -612,7 +606,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr.svg" alt="其他作品引用 spaCR."></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr.svg" alt="引用 spaCR 的其他研究."></picture></a></div>
 
 .. spacr-citing-papers-begin
 
@@ -640,4 +634,4 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/acknowledgments.desktop.svg"><img src="../../readme_images/zh_CN/acknowledgments.svg" alt="致谢. spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅翻译模型署名。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/acknowledgments.desktop.svg"><img src="../../readme_images/zh_CN/acknowledgments.svg" alt="致谢. spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。"></picture></a></div>

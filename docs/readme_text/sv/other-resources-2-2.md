@@ -1,1 +1,1 @@
-- [Snabbstart Python API](<../../source/python_api.rst>) – kör och validera arbetsflöden från skript, anteckningsböcker eller ett kluster.
+- [Snabbstart för Python-API:t](<../../source/python_api.rst>) — kör och validera bearbetningsflöden från skript, anteckningsböcker eller ett kluster.

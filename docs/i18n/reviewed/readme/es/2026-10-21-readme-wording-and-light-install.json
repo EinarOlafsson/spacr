@@ -1,0 +1,223 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_method": "AI-assisted technical and language review against the exact English source. No human or native-speaker signoff. Preserve executable commands, option names, links, numeric claims and product policy; replace identified mistranslations and move shell explanations into localized prose.",
+  "records": [
+    {
+      "label": "readme-wording-2026-10-21-6",
+      "source_sha256": "c3f957ee0d65842447dd7c7b79edac7ed1c7af5bd3d3a4629827fec7e6dd1702",
+      "source": "The segmentation, measurement, annotation and classification modules also run without a sequencing arm.",
+      "translation": "Los módulos de segmentación, medición, anotación y clasificación también se pueden usar sin un componente de secuenciación."
+    },
+    {
+      "label": "readme-wording-2026-10-21-13",
+      "source_sha256": "f3b000a5616e2ff9f6a019c632d47ed1eb18772e001be7b079e67f8349f7d6ea",
+      "source": "Hardware support",
+      "translation": "Soporte de hardware"
+    },
+    {
+      "label": "readme-wording-2026-10-21-19",
+      "source_sha256": "a127806f0647a999c2ae043c486af61c9d1cb563349e07643a54916c167c8178",
+      "source": "The `Docker guide (nightly, English) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_ covers GPU setup, data mounts and pipeline commands.",
+      "translation": "La `guía de Docker (nightly, en inglés) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_ explica la configuración de la GPU, el montaje de datos y los comandos de los flujos de procesamiento."
+    },
+    {
+      "label": "readme-wording-2026-10-21-21",
+      "source_sha256": "08452dd2c87efb667dc4b12da15eab7a68c2d80c3a67058155068d73a9762bc0",
+      "source": "The installers bundle their own Python. Conda is not required.",
+      "translation": "Los instaladores incluyen su propio entorno de Python. No se necesita Conda."
+    },
+    {
+      "label": "readme-wording-2026-10-21-25",
+      "source_sha256": "bdcd4ea97ba611f2a263e0e9c67fda6b93076dcac39417cd11f984ba22eb1016",
+      "source": "On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper blocks it, choose **System Settings → Privacy & Security → Open Anyway**.",
+      "translation": "En macOS, abra el archivo ``.pkg``. La beta actual no está notarizada; si Gatekeeper la bloquea, seleccione **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**."
+    },
+    {
+      "label": "readme-wording-2026-10-21-26",
+      "source_sha256": "2ef113cfc565f54e530d449d9acf3ac5f909dd474dfd2b53f2a9406f2c1ee85e",
+      "source": "For installation, updates, reinstallation, uninstallation, offline use and troubleshooting, see the `current nightly installer guide (English) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_. See `system requirements <docs/source/system_requirements.rst>`_ for workstation and server recommendations and GPU compatibility tables.",
+      "translation": "Para obtener instrucciones de instalación, actualización, reinstalación, desinstalación, uso sin conexión y solución de problemas, consulte la `guía de instalación actual de nightly (en inglés) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_. Consulte los `requisitos del sistema <docs/source/system_requirements.rst>`_ para ver recomendaciones sobre estaciones de trabajo y servidores y tablas de compatibilidad de GPU."
+    },
+    {
+      "label": "readme-wording-2026-10-21-33",
+      "source_sha256": "aa1d79550f17d7fe503d0e2c023c6f723badb52429fe8c052c4410f8dd43d271",
+      "source": "Optional integrations are installed separately, for example ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` and ``spacr[czi,nd2,lif]``. See the `installation guide (nightly, English) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_ for the complete extras and Python-version compatibility table.",
+      "translation": "Las integraciones opcionales se instalan por separado, por ejemplo ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` y ``spacr[czi,nd2,lif]``. Consulte la `guía de instalación (nightly, en inglés) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_ para ver la lista completa de extras y la tabla de compatibilidad de versiones de Python."
+    },
+    {
+      "label": "readme-wording-2026-10-21-62",
+      "source_sha256": "e69760843d3013232dcfe37d430ed9da7b252d6896dbf349b29fed7436e264fe",
+      "source": "Other resources",
+      "translation": "Otros recursos"
+    },
+    {
+      "label": "readme-wording-2026-10-21-71",
+      "source_sha256": "66c8a8676174fc53ee2e949f166f0458ee767bbcf620848d690ab7f04c078fd1",
+      "source": "Model zoo",
+      "translation": "Biblioteca de modelos"
+    },
+    {
+      "label": "readme-wording-2026-10-21-72",
+      "source_sha256": "f1e7a23a657596c5ceb6f914da39208f513e9c8d47fae11577914f1dd94a93e2",
+      "source": "spaCR ships a catalogue of trained models and fetches them on demand. Open **Model Zoo** from the home screen to browse and install them, or name a key in a settings file -- ``pathogen_model: toxoplasma_pv_v1`` -- and the model is downloaded and checksum-verified the first time it is needed. Every published entry carries a SHA-256; an entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one.",
+      "translation": "spaCR incluye un catálogo de modelos entrenados y los descarga cuando se necesitan. Abra **Model Zoo** desde la pantalla de inicio para explorar e instalar modelos, o indique una clave en un archivo de configuración, como ``pathogen_model: toxoplasma_pv_v1``. El modelo se descarga y se verifica mediante su suma de comprobación la primera vez que se necesita. Cada entrada publicada incluye una suma SHA-256. Las entradas sin ella se rechazan, ya que, de lo contrario, no se podría distinguir un archivo de modelo incompleto o sustituido del original."
+    },
+    {
+      "label": "readme-wording-2026-10-21-77",
+      "source_sha256": "b311c54ddac9a6bf8642423fb2e9312ab0f610733c91494b76880eb62a2ef841",
+      "source": "Saves to ``~/.spacr/reports`` and prints the path. ``--quick`` skips the longer benchmarks; ``--out PATH`` sets the location.",
+      "translation": "Guarda el informe en ``~/.spacr/reports`` y muestra la ruta. ``--quick`` omite las pruebas de rendimiento más largas; ``--out PATH`` establece la ubicación."
+    },
+    {
+      "label": "readme-wording-2026-10-21-79",
+      "source_sha256": "46014ea8b6c44500ec61f1bfeb2eebe2dc8fcbdfbe50d61ff866bc3c5c569e5b",
+      "source": "Command-line reference",
+      "translation": "Referencia de la línea de órdenes"
+    },
+    {
+      "label": "readme-wording-2026-10-21-80",
+      "source_sha256": "66ab7df1e944c22230e272bb0bd77869a7b1323bbff13f5918ba7d5d500701ff",
+      "source": "Every command below is installed by ``pip install spacr``. All of them accept ``--help``.",
+      "translation": "Cada comando de abajo está instalado por ``pip install spacr``. Todos aceptan ``--help``."
+    },
+    {
+      "label": "readme-wording-2026-10-21-81",
+      "source_sha256": "74c9611512178a4ef5c44427c9ef2d579b2d85e1d4665829e307c12bbe4f6743",
+      "source": "Launching the application",
+      "translation": "Lanzamiento de la aplicación"
+    },
+    {
+      "label": "readme-wording-2026-10-21-83",
+      "source_sha256": "1072d83f252471883cafedc54d933dba33a7cf42bed57a9c817a5b5a8acb952f",
+      "source": "When spaCR will not start",
+      "translation": "Cuando spaCR no se inicia"
+    },
+    {
+      "label": "readme-wording-2026-10-21-85",
+      "source_sha256": "e534e3ae61b5683af908396936d6012bfa924119029ed2409466015e272488c4",
+      "source": "``spacr-doctor`` prints one line per check, with a command to run for each failure. It also reports which ``spacr`` is on the path.",
+      "translation": "``spacr-doctor`` imprime una línea por comprobación, con un comando para ejecutar por cada fallo. También informa qué ``spacr`` está en la ruta."
+    },
+    {
+      "label": "readme-wording-2026-10-21-87",
+      "source_sha256": "b2266ca98a076c9aca9022441fc2b992a9de01e5b656b5e957f61db0dbc21800",
+      "source": "Running modules headlessly",
+      "translation": "Ejecutar módulos sin interfaz gráfica"
+    },
+    {
+      "label": "readme-wording-2026-10-21-88",
+      "source_sha256": "7ecf46d275ad20e877aef42c3594b0aaf6c79ae6e5b9a01b06fd6ad9599cd97a",
+      "source": "No Qt, no display — for clusters, servers and CI.",
+      "translation": "Sin Qt ni pantalla — para clústeres, servidores y CI."
+    },
+    {
+      "label": "readme-wording-2026-10-21-91",
+      "source_sha256": "940ae51279e228e2141f267f688b88568be075d2e23045b4f33b71ceeafc37ff",
+      "source": "Inspecting a run",
+      "translation": "Inspeccionar una ejecución"
+    },
+    {
+      "label": "readme-wording-2026-10-21-92",
+      "source_sha256": "23d3dfe0ffebe46564247dd21250dd16406ca3a65232f045870bdbbba6589621",
+      "source": "Every run is journalled to ``~/.spacr/runs`` with its settings, hashed inputs, outputs, warnings, versions and seeds.",
+      "translation": "Cada ejecución se registra en ``~/.spacr/runs`` con su configuración, los hashes de las entradas, las salidas, las advertencias, las versiones y las semillas aleatorias."
+    },
+    {
+      "label": "readme-wording-2026-10-21-94",
+      "source_sha256": "358d7684e2277a6b3c1df67185273dd946fc6eae0e1dead6e8bee160cc40fa0a",
+      "source": "Auditing data and installation",
+      "translation": "Auditar los datos y la instalación"
+    },
+    {
+      "label": "readme-wording-2026-10-21-96",
+      "source_sha256": "9e471951a1b4106e54be128a21112b02914fe98cc79b2c92b49ee80c5464487c",
+      "source": "Environment",
+      "translation": "Entorno"
+    },
+    {
+      "label": "readme-wording-2026-10-21-98",
+      "source_sha256": "ddb5198b1ebc4e3b7f2b4ce5a070265b305405f06d21c84c2537cd89ed43e453",
+      "source": "Rotating logs are written to ``~/.spacr/logs/spacr.log``. Attach that file to a bug report.",
+      "translation": "Los registros con rotación se guardan en ``~/.spacr/logs/spacr.log``. Adjunte ese archivo al informe de errores."
+    },
+    {
+      "label": "readme-wording-2026-10-21-102",
+      "source_sha256": "ec89934dda05418cb3447afe12f2b99b071feff64a29afee55c7a189ed1164f6",
+      "source": "spaCR is released under the `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.",
+      "translation": "spaCR se distribuye bajo la `licencia BSD3-Clause <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_."
+    },
+    {
+      "label": "readme-wording-2026-10-21-103",
+      "source_sha256": "b897a1705b39fd2d6000415b2fb901dea1ec9d76b0c7e16825990d1c67e762fd",
+      "source": "If spaCR contributed to published work, a citation is appreciated and is not a condition of the licence — see `Citing spaCR`_ below.",
+      "translation": "Si spaCR contribuyó a un trabajo publicado, se agradece una cita, aunque no es una condición de la licencia; véase `Citar spaCR`_ más abajo."
+    },
+    {
+      "label": "readme-wording-2026-10-21-110",
+      "source_sha256": "005c07796d787a278252c959cdcd6d4d15b164908e45981dd246c0411fa18ec2",
+      "source": "Other work citing spaCR",
+      "translation": "Otros trabajos citando spaCR"
+    },
+    {
+      "label": "readme-wording-2026-10-21-113",
+      "source_sha256": "41fdf532291f8f2fa4264e1b6276a2cbc68c93491ba097ccfb9d7fd8bc4cba43",
+      "source": "spaCR builds on open scientific software including NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch and Qt.",
+      "translation": "spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt."
+    },
+    {
+      "label": "readme-wording-2026-10-21-46",
+      "source_sha256": "f19f447e2c5ccba75f78e4524ede4d337c84cb6a72c5bf95d2bb897450709973",
+      "source": "Contributors need history; to run spaCR, choose below. Measurements: ``nightly`` at ``05302fd5c`` on 2026-10-07, using ``packaging/measure_clone_forms.sh``.",
+      "translation": "Los colaboradores necesitan el historial de versiones; para ejecutar spaCR, elija una de las opciones siguientes. Mediciones de ``nightly`` en ``05302fd5c`` el 2026-10-07, realizadas con ``packaging/measure_clone_forms.sh``."
+    },
+    {
+      "label": "readme-wording-2026-10-21-47",
+      "source_sha256": "81280ee25278f98782d7bae60ceec85b7b021d6e903d4a34a3657e1cba7b6eaf",
+      "source": "Shallow clone: 2048 MB downloaded in 140 s. Only the latest commit is kept, so older history is unavailable to ``git log``, ``git blame`` and ``git bisect``. ``git pull`` works but stays shallow; ``git fetch --unshallow`` retrieves the full history.",
+      "translation": "Clon superficial: 2048 MB descargados en 140 s. Solo se conserva el último commit, por lo que ``git log``, ``git blame`` y ``git bisect`` no tienen acceso al historial anterior. ``git pull`` funciona, pero el clon sigue siendo superficial; ``git fetch --unshallow`` obtiene el historial completo."
+    },
+    {
+      "label": "readme-wording-2026-10-21-49",
+      "source_sha256": "058ef4d675fc8a7c5970d15fa349678bb7b20dd823d10a95c81a49738b42780f",
+      "source": "Runtime-only checkout: 104 MB on disk in 6 s (Git: 38 MB; files: 66 MB). It omits history, docs, tests, tools, features, example data and extended interface translations. ``--with-docs``, ``--with-tests`` and ``--with-translations`` retain the corresponding documentation, tests and translations. The compact interface translations remain available.",
+      "translation": "Solo archivos de ejecución: 104 MB en disco en 6 s (Git: 38 MB; archivos: 66 MB). Se omiten el historial, docs, tests, tools, features, los datos de ejemplo y las traducciones ampliadas de la interfaz. ``--with-docs``, ``--with-tests`` y ``--with-translations`` conservan la documentación, las pruebas y las traducciones correspondientes. Las traducciones compactas de la interfaz siguen disponibles."
+    },
+    {
+      "label": "readme-wording-2026-10-21-51",
+      "source_sha256": "362206cfb0b3fb96192cdb1ec80290519174edf9d2a59583064054abea8f39f9",
+      "source": "``--dir`` chooses the checkout path; ``--branch`` selects a branch or tag; ``--no-install`` fetches without installing; ``--help`` lists the options. ``packaging/source_install_excludes.txt`` lists every skipped path.",
+      "translation": "``--dir`` elige la ruta del clon; ``--branch`` selecciona una rama o etiqueta; ``--no-install`` descarga sin instalar; ``--help`` muestra las opciones. ``packaging/source_install_excludes.txt`` enumera todas las rutas omitidas."
+    },
+    {
+      "label": "readme-main-tracked-checkout-size-2026-10-21",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 1265 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "9a5665f181eed85ad7a2a92f18bc70c1a9cf7d52011644568aa765911e715890",
+      "translation": "El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none`` al clon superficial no reduce la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Git no informa de las descargas diferidas de objetos, por lo que no se midió un total de descarga. Los archivos versionados de main ocupan 1265 MB en la copia de trabajo (medidos el 2026-10-21), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama."
+    },
+    {
+      "label": "readme-resource-2026-10-21-1",
+      "source_sha256": "62aa60e6dfbb673c2362c141224908c10d40a565b13a5256fd302877a5a72a1f",
+      "source": "`Python API quickstart <docs/source/python_api.rst>`_ — run and validate pipelines from scripts, notebooks or a cluster.",
+      "translation": "`Inicio rápido de la API de Python <docs/source/python_api.rst>`_ — ejecute y valide flujos de procesamiento desde scripts, cuadernos o un clúster."
+    },
+    {
+      "label": "readme-resource-2026-10-21-2",
+      "source_sha256": "9dfcdc5fa582147e33e85103e72f24cafd3ac0f0681f509891323a8282c7a9b1",
+      "source": "`Feature guide <docs/source/features.rst>`_ — capabilities, maturity and optional integrations.",
+      "translation": "`Guía de funciones <docs/source/features.rst>`_ — capacidades, madurez e integraciones opcionales."
+    },
+    {
+      "label": "readme-resource-2026-10-21-3",
+      "source_sha256": "87ab94d085fed7f6598ec826e0060d2bbb1611eaff605a18853f451c0d35d669",
+      "source": "`Curated API reference <https://einarolafsson.github.io/spacr/api/index.html>`_ — supported entry points by task, with the complete module reference one level deeper.",
+      "translation": "`Referencia seleccionada de la API <https://einarolafsson.github.io/spacr/api/index.html>`_ — puntos de entrada compatibles por tarea, con la referencia completa de los módulos un nivel más abajo."
+    },
+    {
+      "label": "readme-resource-2026-10-21-4",
+      "source_sha256": "2785e60599056b09be4cc3db19a72c02dde4b0b2019021a1af7c15e73a8fa8a3",
+      "source": "`Language & translation guide <docs/source/localization.rst>`_ — interface languages, contextual help and scientific-output policy.",
+      "translation": "`Guía de idiomas y traducción <docs/source/localization.rst>`_ — idiomas de la interfaz, ayuda contextual y política de resultados científicos."
+    }
+  ]
+}

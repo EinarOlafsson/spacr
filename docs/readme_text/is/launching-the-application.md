@@ -1,1 +1,1 @@
-## Að byrja við umsókn
+## Ræsa forritið

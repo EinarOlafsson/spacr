@@ -1,3 +1,3 @@
 ### Desktopanwendung
 
-Die Installateure bündeln ihre eigenen Python. Conda ist nicht erforderlich.
+Die Installationsprogramme enthalten eine eigene Python-Umgebung. Conda ist nicht erforderlich.

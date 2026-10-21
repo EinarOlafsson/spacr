@@ -99,8 +99,8 @@ blocks:
     y estima qué genes están asociados con cambios fenotípicos. A partir de imágenes
     de placas y lecturas FASTQ, produce mediciones por objeto, clasificadores entrenados,
     estimaciones del efecto por guía y por gen y una lista ordenada de resultados.
-- p: Los módulos de segmentación, medición, anotación y clasificación también funcionan
-    sin un brazo de secuenciación.
+- p: Los módulos de segmentación, medición, anotación y clasificación también se pueden usar
+    sin un componente de secuenciación.
 - p: Make Masks corrige máscaras de segmentación y anota rectángulos independientes
     con etiquetas de clase mediante la herramienta **Box** para exportarlos a YOLO.
     Los recuadros conservan sus propias etiquetas e historial sin modificar las imágenes
@@ -153,7 +153,7 @@ blocks:
     explica la configuración de la GPU, el montaje de datos y los comandos de los
     flujos de procesamiento.
 - h3: Aplicación de escritorio
-- p: Los instaladores agrupan sus propios Python. No se requiere Conda.
+- p: Los instaladores incluyen su propio entorno de Python. No se necesita Conda.
 - generated: installer-links
 - p: 'En Linux, marque el archivo descargado como ejecutable y ejecútelo:'
 - code: |-
@@ -191,10 +191,10 @@ blocks:
     python -m pip install spacr
     spacr-run --list
   lang: bash
-- p: Optional integrations are installed separately, for example ``spacr[zarr]``,
-    ``spacr[omero]``, ``spacr[napari]`` y ``spacr[czi,nd2,lif]``. See the `Guía de
-    instalación (nightly, en inglés) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
-    for the complete extras y Python-version compatibility table.
+- p: Las integraciones opcionales se instalan por separado, por ejemplo ``spacr[zarr]``, ``spacr[omero]``,
+    ``spacr[napari]`` y ``spacr[czi,nd2,lif]``. Consulte la `guía de instalación (nightly,
+    en inglés) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
+    para ver la lista completa de extras y la tabla de compatibilidad de versiones de Python.
 - h3: Instalación con conda-forge
 - p: 'El paquete oficial de conda-forge instala spaCR y sus dependencias de escritorio
     en el entorno activo:'
@@ -229,30 +229,35 @@ blocks:
     en el código Python se aplican directamente; ``spacr-doctor`` identifica la instalación
     activa.
 - h3: Instalación desde el código fuente (ligera)
-- p: 'Los colaboradores necesitan el historial de versiones; para ejecutar spaCR,
-    elija una de las opciones siguientes. Mediciones de ``nightly`` en ``05302fd5c``
-    el 2026-10-07, realizadas con ``packaging/measure_clone_forms.sh``::'
+- p: Los colaboradores necesitan el historial de versiones; para ejecutar spaCR, elija una
+    de las opciones siguientes. Mediciones de ``nightly`` en ``05302fd5c`` el 2026-10-07,
+    realizadas con ``packaging/measure_clone_forms.sh``.
+- p: 'Clon superficial: 2048 MB descargados en 140 s. Solo se conserva el último commit, por
+    lo que ``git log``, ``git blame`` y ``git bisect`` no tienen acceso al historial anterior.
+    ``git pull`` funciona, pero el clon sigue siendo superficial; ``git fetch --unshallow``
+    obtiene el historial completo.'
 - code: |-
-    # One commit instead of every version: 2048 MB downloaded, 140 s.
-    # No history, so no git log, no git blame and no git bisect.
-    # git pull still works, but stays shallow until git fetch --unshallow.
     git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
-
-    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-    # No history, docs, tests, tools, features or example data.
-    # --with-docs, --with-tests and --with-translations put those back;
-    # --dir, --branch, --no-install and --help do the obvious things.
-    # packaging/source_install_excludes.txt lists every skipped path.
+  lang: bash
+- p: 'Solo archivos de ejecución: 104 MB en disco en 6 s (Git: 38 MB; archivos: 66 MB). Se
+    omiten el historial, docs, tests, tools, features, los datos de ejemplo y las traducciones
+    ampliadas de la interfaz. ``--with-docs``, ``--with-tests`` y ``--with-translations``
+    conservan la documentación, las pruebas y las traducciones correspondientes. Las traducciones
+    compactas de la interfaz siguen disponibles.'
+- code: |-
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
   lang: bash
-- p: 'El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none``
-    al clon superficial no reduce la copia de trabajo: su almacén de objetos Git
-    aún ocupa 2032 MB. Git no informa de las descargas diferidas de objetos, por
-    lo que no se midió un total de descarga. Los archivos versionados de nightly
-    ocupan 4657 MB en la copia de trabajo (medidos el 2026-10-15), sin el historial
-    de Git. El tamaño y la duración de la descarga varían según la rama.'
+- p: '``--dir`` elige la ruta del clon; ``--branch`` selecciona una rama o etiqueta; ``--no-install``
+    descarga sin instalar; ``--help`` muestra las opciones. ``packaging/source_install_excludes.txt``
+    enumera todas las rutas omitidas.'
+- p: 'El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none`` al clon
+    superficial no reduce la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB.
+    Git no informa de las descargas diferidas de objetos, por lo que no se midió un total
+    de descarga. Los archivos versionados de main ocupan 1265 MB en la copia de trabajo (medidos
+    el 2026-10-21), sin el historial de Git. El tamaño y la duración de la descarga varían
+    según la rama.'
 - h2: Comandos de línea de comandos
 - code: |-
     spacr                                      # launch the Qt application
@@ -292,18 +297,17 @@ blocks:
     los demás. Seleccione una tarjeta para abrir la página de API del módulo.'
 - h2: Otros recursos
 - list:
-  - '`Tutoriales interactivos <https://einarolafsson.github.io/spacr/tutorials/>`_
-    — flujos de trabajo guiados desde la instalación hasta la investigación de resultados
-    positivos.'
-  - '`Inicio rápido Python API <docs/source/python_api.rst>`_ — ejecutar y validar
-    flujos de trabajo desde scripts, cuadernos o un clúster.'
-  - '`Guía de características <docs/source/features.rst>`_ — capacidades, madurez
-    e integraciones opcionales.'
-  - '`Referencia comisariada API <https://einarolafsson.github.io/spacr/api/index.html>`_
-    — puntos de entrada soportados por tarea, con el módulo completo de referencia
-    un nivel más profundo.'
-  - '`Guía de idioma y traducción <docs/source/localization.rst>`_ — lenguajes de
-    interfaz, ayuda contextual y política de salida científica.'
+  - '`Tutoriales interactivos <https://einarolafsson.github.io/spacr/tutorials/>`_ — flujos
+    de trabajo guiados desde la instalación hasta la investigación de resultados positivos.'
+  - '`Inicio rápido de la API de Python <docs/source/python_api.rst>`_ — ejecute y valide
+    flujos de procesamiento desde scripts, cuadernos o un clúster.'
+  - '`Guía de funciones <docs/source/features.rst>`_ — capacidades, madurez e integraciones
+    opcionales.'
+  - '`Referencia seleccionada de la API <https://einarolafsson.github.io/spacr/api/index.html>`_
+    — puntos de entrada compatibles por tarea, con la referencia completa de los módulos un
+    nivel más abajo.'
+  - '`Guía de idiomas y traducción <docs/source/localization.rst>`_ — idiomas de la interfaz,
+    ayuda contextual y política de resultados científicos.'
 - h2: Idioma y traducción
 - p: La interfaz admite diez idiomas en la navegación y las preferencias. Los controles
     AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también
@@ -311,10 +315,6 @@ blocks:
     Los registros, las rutas, los valores de la base de datos y las mediciones nunca
     se traducen; los resultados científicos permanecen en inglés canónico. Consulte
     la `política de ayuda contextual <docs/source/localization.rst#contextual-help>`_.
-- p: Los nueve catálogos no ingleses son redactados por máquina y revisados técnicamente
-    en lugar de leer de extremo a extremo por un hablante nativo. Los registros `ámbito
-    de aplicación de la revisión <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ que los
-    idiomas han tenido un pase humano y cada término dejado en inglés por decisión.
 - h2: Guía animada de ajustes
 - p: Los ajustes con una explicación visual incluyen un control **Animación** en
     su información emergente. Consulte la `galería de animaciones de ajustes <https://einarolafsson.github.io/spacr/setting_animations.html>`_
@@ -349,21 +349,21 @@ blocks:
        :alt: Abrir la prepublicación de bioRxiv
        :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 - h2: Biblioteca de modelos
-- p: 'spaCR envía un catálogo de modelos entrenados y los trae a pedido. Abra **Model
-    Zoo** desde la pantalla de inicio para navegar e instalarlos, o nombre una clave
-    en un archivo de configuración -- ``pathogen_model: toxoplasma_pv_v1`` -- y el
-    modelo se descarga y comprueba la primera vez que es necesario. Cada entrada
-    publicada lleva un SHA-256; una entrada sin uno se rechaza en lugar de instalarse,
-    porque un puesto de control truncado o sustituido no se puede decir desde el
-    real.'
+- p: 'spaCR incluye un catálogo de modelos entrenados y los descarga cuando se necesitan.
+    Abra **Model Zoo** desde la pantalla de inicio para explorar e instalar modelos, o indique
+    una clave en un archivo de configuración, como ``pathogen_model: toxoplasma_pv_v1``. El
+    modelo se descarga y se verifica mediante su suma de comprobación la primera vez que se
+    necesita. Cada entrada publicada incluye una suma SHA-256. Las entradas sin ella se rechazan,
+    ya que, de lo contrario, no se podría distinguir un archivo de modelo incompleto o sustituido
+    del original.'
 - generated: model-zoo
 - h3: Diagnóstico del rendimiento
 - p: 'Genere un informe de hardware y adjúntelo a una incidencia relacionada con
     el rendimiento::'
 - code: python tools/spacr_hardware_report.py
   lang: bash
-- p: Guarda en ``~/.spacr/reports`` e imprime la ruta. ``--quick`` omite los parámetros
-    de referencia más largos; ``--out PATH`` establece la ubicación.
+- p: Guarda el informe en ``~/.spacr/reports`` y muestra la ruta. ``--quick`` omite las pruebas
+    de rendimiento más largas; ``--out PATH`` establece la ubicación.
 - p: No lee datos del proyecto. Mide el tiempo de las importaciones, las bibliotecas
     numéricas, la creación de ventanas y la animación, e informa de la emulación
     x86_64 en Apple Silicon y de la implementación de BLAS que usa NumPy.
@@ -376,7 +376,7 @@ blocks:
     spacr-tutorial     # the interactive tutorial library
     spacr-server       # no first-run setup screen, for unattended launches
   lang: bash
-- h2: Cuando spaCR no se iniciará
+- h2: Cuando spaCR no se inicia
 - code: |-
     spacr-doctor       # diagnose the installation and say how to fix it
     safespacr          # the least spaCR that can still change a setting
@@ -387,8 +387,8 @@ blocks:
     el fondo, las animaciones, el registro detallado y la precarga. Úselo cuando
     una preferencia guardada impide el inicio. Las preferencias guardadas en modo
     seguro se escriben normalmente y se conservan.'
-- h2: Módulos de ejecución sin interfaz gráfica
-- p: No Qt, no display — para clusters, servidores e IC.
+- h2: Ejecutar módulos sin interfaz gráfica
+- p: Sin Qt ni pantalla — para clústeres, servidores y CI.
 - code: |-
     spacr-run --list                              # modules with a headless entry
     spacr-run --describe MODULE                   # what a module consumes and produces
@@ -400,13 +400,13 @@ blocks:
 - p: '``validate`` lee la misma configuración que leería la ejecución y enumera cada
     problema, como un ajuste ausente o una ruta que no existe, junto con una solución.'
 - h2: Inspeccionar una ejecución
-- p: Cada ejecución se lleva a cabo a ``~/.spacr/runs`` con sus ajustes, entradas
-    de hashed, salidas, advertencias, versiones y semillas.
+- p: Cada ejecución se registra en ``~/.spacr/runs`` con su configuración, los hashes de las
+    entradas, las salidas, las advertencias, las versiones y las semillas aleatorias.
 - code: |-
     spacr-repro RUN_DIR        # replay a recorded run from its journal
     spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
   lang: bash
-- h2: Datos de auditoría e instalación
+- h2: Auditar los datos y la instalación
 - code: |-
     spacr-db-audit DB      # SQLite health, integrity, locking, reader/writer probe
     spacr-leakage          # classifier train/test leakage audit
@@ -415,8 +415,8 @@ blocks:
 - h2: Entorno
 - code: 'SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch'
   lang: bash
-- p: Los registros de rotación se escriben en ``~/.spacr/logs/spacr.log``. Adjuntar
-    ese archivo a un informe de fallo.
+- p: Los registros con rotación se guardan en ``~/.spacr/logs/spacr.log``. Adjunte ese archivo
+    al informe de errores.
 - h2: Contribuciones y soporte
 - p: Envíe informes de errores y solicitudes de funciones concretas mediante `GitHub
     Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Al informar de un fallo,
@@ -425,9 +425,9 @@ blocks:
     la mayor parte de esta información; incluya el informe de hardware cuando notifique
     problemas de rendimiento.
 - h2: Licencia
-- p: spaCR se libera bajo el `Licencia de 3-clausura BSD <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
-- p: Si spaCR contribuyó al trabajo publicado, una citación es apreciada y no es
-    una condición de la licencia — véase `Citar spaCR`_ a continuación.
+- p: spaCR se distribuye bajo la `licencia BSD3-Clause <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+- p: Si spaCR contribuyó a un trabajo publicado, se agradece una cita, aunque no es una condición
+    de la licencia; véase `Citar spaCR`_ más abajo.
 - h2: Tutoriales
 - p: La `biblioteca de tutoriales interactivos de spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_
     ofrece guías de instalación y uso de los módulos. Cada lección indica la narración
@@ -451,7 +451,4 @@ blocks:
     1). <https://www.researchsquare.com/article/rs-7368254/v1>`_'
   marker: citing-papers
 - h2: Agradecimientos
-- p: spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image,
-    scikit-learn, Cellpose, PyTorch y Qt. Consulte la `atribución de los modelos
-    de traducción <docs/i18n/TRANSLATION_MODELS.md>`_ para conocer los modelos utilizados
-    en la documentación multilingüe y los catálogos de la interfaz.
+- p: spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt.

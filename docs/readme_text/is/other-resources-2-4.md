@@ -1,1 +1,1 @@
-- [Heilluð API reference](<https://einarolafsson.github.io/spacr/api/index.html>) — stuðlað innfangspunktur eftir verkefni, með fullkomna mótum tengslum einn hærra.
+- [Valin API-tilvísun](<https://einarolafsson.github.io/spacr/api/index.html>) — studdir inngangspunktar eftir verkefnum; heildartilvísun fyrir einingar er einu stigi neðar.

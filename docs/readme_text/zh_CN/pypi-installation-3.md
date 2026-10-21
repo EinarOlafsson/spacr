@@ -1,1 +1,1 @@
-可选集成单独安装,例如 ` spacr[zarr] `、 ` spacr[omero] `、` spacr[napari] ` 和 ` spacr[czi,nd2,lif] `. 查看完整的附件和 Python 版本兼容性表的 [安装指南（nightly，英文）](<https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>)。
+可选集成需单独安装，例如 ` spacr[zarr] `、` spacr[omero] `、` spacr[napari] ` 和 ` spacr[czi,nd2,lif] `。完整的可选依赖列表及 Python 版本兼容性表见 [安装指南（nightly，英文）](<https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>)。

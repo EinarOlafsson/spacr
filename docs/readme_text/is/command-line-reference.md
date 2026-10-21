@@ -1,3 +1,3 @@
-### Orðlinna reference
+### Yfirlit yfir skipanalínu
 
-Öll beint hér að neðan er sett með ` pip install spacr `. Allir samþykkir ` --help `.
+Allar skipanirnar hér fyrir neðan eru settar upp með ` pip install spacr ` og styðja ` --help `.

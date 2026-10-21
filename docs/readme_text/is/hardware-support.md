@@ -1,1 +1,1 @@
-## Hardware aðstoð
+## Vélbúnaðarstuðningur

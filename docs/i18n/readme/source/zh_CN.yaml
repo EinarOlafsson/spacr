@@ -96,7 +96,7 @@ blocks:
 - p: '**CRISPR 筛选的空间表型分析。**'
 - p: spaCR 对显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ
     读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。
-- p: 分区、测量、标记和分类模块也没有序列手臂运行。
+- p: 分割、测量、标注和分类模块也可用于不包含测序部分的研究。
 - p: Make Masks 修正分割掩膜，并使用 **Box** 工具标注带类别标签的独立矩形以进行 YOLO 导出。框保留自己的标签和历史记录，不会更改原始图像或掩膜。
 - p: 各工具的说明见 `功能指南 <docs/source/features.rst>`_。
 - p: 图像、掩膜和裁剪图像块是磁盘上的文件。测量值、标注和模型预测是项目 SQLite 数据库 ``measurements.db`` 中的表。
@@ -134,15 +134,14 @@ blocks:
 - p: '`Docker 指南（nightly，英文） <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     介绍了 GPU 设置、数据挂载和处理流程命令。'
 - h3: 桌面应用程序
-- p: 安装器包装自己的 Python. Conda 不需要。
+- p: 安装程序自带 Python 环境，无需安装 Conda。
 - generated: installer-links
 - p: 在 Linux 上，将下载的文件设为可执行文件并运行：
 - code: |-
     chmod +x SpaCR-*-Linux-x86_64-Online.run
     ./SpaCR-*-Linux-x86_64-Online.run
   lang: bash
-- p: 在 macOS 中,打开 ``.pkg``. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 **系统设置 → 隐私和安全 →
-    打开 无论如何**。
+- p: 在 macOS 上打开 ``.pkg`` 文件。当前测试版尚未通过 Apple 公证；如果 Gatekeeper 阻止打开，请选择 **系统设置 → 隐私与安全性 → 仍要打开**。
 - p: 有关安装、更新、重新安装、卸载、离线使用和故障排查的说明，请参阅 `nightly 分支上的当前安装指南（英文） <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_。有关工作站和服务器的配置建议以及
     GPU 兼容性表，请参阅 `系统要求 <docs/source/system_requirements.rst>`_。
 - h3: 使用 PyPI 安装
@@ -162,8 +161,8 @@ blocks:
     python -m pip install spacr
     spacr-run --list
   lang: bash
-- p: 可选集成单独安装,例如 ``spacr[zarr]``、 ``spacr[omero]``、``spacr[napari]`` 和 ``spacr[czi,nd2,lif]``.
-    查看完整的附件和 Python 版本兼容性表的 `安装指南（nightly，英文） <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_。
+- p: 可选集成需单独安装，例如 ``spacr[zarr]``、``spacr[omero]``、``spacr[napari]`` 和 ``spacr[czi,nd2,lif]``。完整的可选依赖列表及
+    Python 版本兼容性表见 `安装指南（nightly，英文） <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_。
 - h3: 使用 conda-forge 安装
 - p: 官方 conda-forge 软件包会将 spaCR 及其桌面应用依赖项安装到当前环境中：
 - code: |-
@@ -192,26 +191,23 @@ blocks:
   lang: bash
 - p: 依赖项或入口点变化时才需重新安装。Python 代码修改会直接生效； ``spacr-doctor`` 可确定当前使用的安装。
 - h3: 从源代码安装（精简版）
-- p: '贡献者需要版本历史；如果只需运行 spaCR，可选择下列方式。测量于 2026-10-07 对 ``nightly`` 的 ``05302fd5c``
-    提交进行，使用 ``packaging/measure_clone_forms.sh``::'
+- p: 贡献者需要版本历史；如果只需运行 spaCR，可选择下列方式。测量于 2026-10-07 对 ``nightly`` 的 ``05302fd5c`` 提交进行，使用 ``packaging/measure_clone_forms.sh``.
+- p: 浅克隆：在 140 s 内下载了 2048 MB。仅保留最新提交，因此 ``git log``、``git blame`` 和 ``git bisect`` 无法访问更早的历史。``git
+    pull`` 仍可使用，但克隆仍为浅克隆；运行 ``git fetch --unshallow`` 可获取完整历史。
 - code: |-
-    # One commit instead of every version: 2048 MB downloaded, 140 s.
-    # No history, so no git log, no git blame and no git bisect.
-    # git pull still works, but stays shallow until git fetch --unshallow.
     git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
-
-    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-    # No history, docs, tests, tools, features or example data.
-    # --with-docs, --with-tests and --with-translations put those back;
-    # --dir, --branch, --no-install and --help do the obvious things.
-    # packaging/source_install_excludes.txt lists every skipped path.
+  lang: bash
+- p: 仅运行时文件：6 s 内在磁盘上保存 104 MB（Git：38 MB；文件：66 MB）。不包含历史、docs、tests、tools、features、示例数据或扩展界面翻译。``--with-docs``、``--with-tests``
+    和 ``--with-translations`` 分别保留相应的文档、测试和翻译。精简界面翻译仍然可用。
+- code: |-
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
   lang: bash
-- p: nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 不会缩小检出文件：其 Git 对象存储仍占用
-    2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 4657 MB（2026-10-15 测得），不含
-    Git 历史。下载大小和耗时随分支而变化。
+- p: '``--dir`` 选择克隆路径；``--branch`` 选择分支或标签；``--no-install`` 仅下载、不安装；``--help`` 列出选项。``packaging/source_install_excludes.txt``
+    列出了所有被跳过的路径。'
+- p: nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git
+    不报告按需延迟获取的对象，因此没有测得下载总量。main 的版本控制文件检出后占用 1265 MB（2026-10-21 测得），不含 Git 历史。下载大小和耗时随分支而变化。
 - h2: 命令行入口
 - code: |-
     spacr                                      # launch the Qt application
@@ -243,17 +239,13 @@ blocks:
 - h2: 其他资源
 - list:
   - '`交互式教程 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 从安装到筛选命中结果分析的引导式工作流程。'
-  - '`Python API 快速启动 <docs/source/python_api.rst>`_ - 从脚本、笔记本或集群运行和验证流程。'
-  - '`特色引导 RNA <docs/source/features.rst>`_ - 能力、成熟度和可选集成。'
-  - '`清理 API 参考 <https://einarolafsson.github.io/spacr/api/index.html>`_ - 按任务支持输入点,完整的模块参考一个级别更深。'
-  - '`语言与翻译引导 RNA <docs/source/localization.rst>`_ — 界面语言、上下文帮助和科学输出政策。'
+  - '`Python API 快速入门 <docs/source/python_api.rst>`_ — 从脚本、笔记本或集群运行并验证处理流程。'
+  - '`功能指南 <docs/source/features.rst>`_ — 功能、成熟度及可选集成。'
+  - '`精选 API 参考 <https://einarolafsson.github.io/spacr/api/index.html>`_ — 按任务列出支持的入口，下一层提供完整的模块参考。'
+  - '`语言与翻译指南 <docs/source/localization.rst>`_ — 界面语言、上下文帮助及科学输出政策。'
 - h2: 语言与翻译
 - p: 界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言**
     中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <docs/source/localization.rst#contextual-help>`_。
-- p: The nine non-English catalogs are machine-drafted and technically reviewed rather
-    than read end to end by a native speaker. The `评论范围 <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_
-    records which languages have had a human pass and every term left in English
-    by decision.
 - h2: 动画设置指南
 - p: 带有视觉说明的设置会在工具提示中提供 **Animation** 控件。浏览 `设置动画图库 <https://einarolafsson.github.io/spacr/setting_animations.html>`_
     或 `设置动画注册表 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_。
@@ -287,37 +279,33 @@ blocks:
        :alt: 打开 bioRxiv 预印本
        :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 - h2: 模型库
-- p: 'spaCR ships a catalogue of trained models and fetches them on demand. Open
-    **Model Zoo** from the home screen to browse and install them, or name a key
-    in a settings file -- ``pathogen_model: toxoplasma_pv_v1`` -- and the model is
-    downloaded and checksum-verified the first time it is needed. Every published
-    entry carries a SHA-256; an entry without one is refused rather than installed,
-    because a truncated or substituted checkpoint cannot be told from the real one.'
+- p: 'spaCR 提供训练好的模型目录，并按需下载模型。在主页打开 **Model Zoo** 可浏览和安装模型；也可在设置文件中指定模型键，例如 ``pathogen_model:
+    toxoplasma_pv_v1``。首次需要时，程序会下载模型并验证其校验和。每个已发布条目都带有 SHA-256 校验和；缺少校验和的条目会被拒绝安装，否则无法区分不完整或被替换的模型文件与原始文件。'
 - generated: model-zoo
 - h3: 性能诊断
 - p: '生成硬件报告并将其附到性能相关问题中::'
 - code: python tools/spacr_hardware_report.py
   lang: bash
-- p: 节省到 ``~/.spacr/reports`` 并打印路径. ``--quick`` 将更长的基准标志; ``--out PATH`` 设置位置。
+- p: 报告保存在 ``~/.spacr/reports`` 并输出其路径。``--quick`` 跳过耗时较长的性能测试；``--out PATH`` 指定保存位置。
 - p: 不读取项目数据。测量导入、数值库运算、窗口构建和动画的耗时，并报告 Apple Silicon 上的 x86_64 仿真情况以及 NumPy 使用的 BLAS
     实现。
-- h3: 命令线参考
-- p: 下面的每个命令都以 ``pip install spacr`` 安装,所有命令都会接受 ``--help``。
-- h2: 启动申请
+- h3: 命令行参考
+- p: 下列命令均通过 ``pip install spacr`` 安装，并支持 ``--help``。
+- h2: 启动应用程序
 - code: |-
     spacr              # the desktop application
     spacr-tutorial     # the interactive tutorial library
     spacr-server       # no first-run setup screen, for unattended launches
   lang: bash
-- h2: 当 spaCR 不开始时
+- h2: spaCR 无法启动时
 - code: |-
     spacr-doctor       # diagnose the installation and say how to fix it
     safespacr          # the least spaCR that can still change a setting
   lang: bash
 - p: '``spacr-doctor`` 每项检查输出一行，并为每个失败项给出一条可运行的命令。它还会报告路径上的是哪个 ``spacr``。'
 - p: '``safespacr`` 以默认值读取每项偏好设置，并关闭背景、动画、详细日志和预加载。当已保存的偏好设置导致程序无法启动时使用它。在安全模式下保存的偏好设置会正常写入并保留。'
-- h2: 无图形界面发运行模块
-- p: 没有 Qt,没有显示器 - 用于集群、服务器和CI。
+- h2: 无图形界面运行模块
+- p: 无需 Qt 或显示器，适用于集群、服务器和 CI。
 - code: |-
     spacr-run --list                              # modules with a headless entry
     spacr-run --describe MODULE                   # what a module consumes and produces
@@ -328,7 +316,7 @@ blocks:
   lang: bash
 - p: '``validate`` 读取运行时会读取的同一组设置，并列出每个问题（例如缺少的设置或不存在的路径）及其修复方法。'
 - h2: 检查一次运行
-- p: 每个运行记录为 ``~/.spacr/runs`` 与其设置,加密输入,输出,警告,版本和种子。
+- p: 每次运行的设置、输入哈希、输出、警告、版本和随机种子均记录在 ``~/.spacr/runs`` 中。
 - code: |-
     spacr-repro RUN_DIR        # replay a recorded run from its journal
     spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
@@ -342,13 +330,13 @@ blocks:
 - h2: 环境
 - code: 'SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch'
   lang: bash
-- p: 旋转日志写为 ``~/.spacr/logs/spacr.log``. 将此文件添加到错误报告中。
+- p: 日志以轮转方式写入 ``~/.spacr/logs/spacr.log``。请将该文件附在错误报告中。
 - h2: 贡献与支持
 - p: 请通过 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ 提交错误报告和范围明确的功能请求。报告故障时，请提供
     spaCR 版本、操作系统、Python 版本、模块设置和相关日志片段。``spacr-doctor`` 会收集其中的大部分信息；报告性能问题时还应附上硬件报告。
 - h2: 许可
-- p: spaCR is released under the `BSD 3 条款许可证 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
-- p: 如果 spaCR 有助于发表作品,则引用被评估,并且不符合许可的条件,请参见下面的 `引用 spaCR`_。
+- p: spaCR 以 `BSD 三条款许可证 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 发布。
+- p: 如果 spaCR 对您的已发表研究有所帮助，我们欢迎引用，但引用不是许可证的条件；请参阅下方的 `引用 spaCR`_。
 - h2: 教程
 - p: '`spaCR 交互式教程库 <https://einarolafsson.github.io/spacr/tutorials/>`_ 提供安装和模块使用的分步教程。每节课程均列出可用的旁白和语言。'
 - h2: 引用 spaCR
@@ -356,7 +344,7 @@ blocks:
 - p: Olafsson EB, *et al.* 一张以图像为基础的 CRISPR 筛选将 EAF1 定义为 *T. gondii* ESCRT 模块化器。
 - p: '`生物Rxiv 预印 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_
     · `软件档案 <https://doi.org/10.5281/zenodo.21343316>`_'
-- h2: 其他作品引用 spaCR
+- h2: 引用 spaCR 的其他研究
 - list:
   - '`代谢适应性和Toxoplasma gondii中的营养素挖掘:从吸入路径缺乏突变物的见解。 <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_'
   - '`IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity.
@@ -366,5 +354,4 @@ blocks:
   - '`spaCR: CRISPR-Cas9 筛选的空间现象分析(预印版本 1)。 <https://www.researchsquare.com/article/rs-7368254/v1>`_'
   marker: citing-papers
 - h2: 致谢
-- p: spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch
-    和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <docs/i18n/TRANSLATION_MODELS.md>`_。
+- p: spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。

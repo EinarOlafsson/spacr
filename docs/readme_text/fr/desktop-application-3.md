@@ -1,3 +1,3 @@
-Sur macOS, ouvrez le ` .pkg `. La bêta actuelle n'est pas notariée; si Gatekeeper le bloque, choisissez <strong>Paramètres du système → Confidentialité et sécurité → Ouvrez de toute façon</strong>.
+Sur macOS, ouvrez le fichier ` .pkg `. La version bêta actuelle n’est pas notariée. Si Gatekeeper la bloque, choisissez <strong>Réglages Système → Confidentialité et sécurité → Ouvrir quand même</strong>.
 
 Pour les instructions d’installation, de mise à jour, de réinstallation, de désinstallation, d’utilisation hors ligne et de dépannage, consultez le [guide d’installation actuel de nightly (en anglais)](<https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>). Consultez la [configuration requise](<../../source/system_requirements.rst>) pour les recommandations concernant les stations de travail et les serveurs ainsi que les tableaux de compatibilité GPU.

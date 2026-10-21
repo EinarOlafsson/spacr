@@ -1,5 +1,5 @@
 ## लाइसेंस
 
-spaCR is released under the [BSD 3 क्लास लाइसेंस](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>).
+spaCR [BSD 3-Clause लाइसेंस](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>) के अंतर्गत जारी किया जाता है।
 
-यदि spaCR प्रकाशित कार्य में योगदान देता है, तो एक उद्धरण का मूल्यांकन किया जाता है और लाइसेंस की शर्त नहीं है - नीचे spaCR का संदर्भ देखें।
+यदि spaCR ने आपके प्रकाशित कार्य में योगदान दिया है, तो उसका संदर्भ देना सराहनीय है, लेकिन यह लाइसेंस की शर्त नहीं है; नीचे spaCR का संदर्भ देखें।

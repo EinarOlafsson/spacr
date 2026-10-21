@@ -96,7 +96,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/spacr.desktop.svg"><img src="../../readme_images/ko/spacr.svg" alt="spaCR. CRISPR 스크리닝의 공간 표현형 분석. spaCR는 현미경 영상에서 단일 세포를 분할하고 측정하며, 객체별 표현형을 시퀀싱에서 산출한 가이드 풍부도와 통합하고, 어떤 유전자가 표현형 변화와 연관되는지 추정합니다. 플레이트 영상과 FASTQ 리드에서 시작하여 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 추정치, 우선순위가 지정된 히트 목록을 생성합니다. 분류, 측정, 기록 및 분류 모듈은 또한 순서 팔없이 실행됩니다. Make Masks는 분할 마스크를 수정하고 YOLO 내보내기를 위해 Box 도구로 클래스 라벨이 있는 독립적인 사각형을 주석 처리합니다. 박스는 원본 이미지나 마스크를 변경하지 않고 자체 라벨과 편집 이력을 유지합니다. 각 도구에 대한 설명은 기능 가이드 문서를 참조하십시오. 이미지, 마스크, 크롭은 디스크에 있는 파일입니다. 측정값, 주석, 모델 예측은 프로젝트의 SQLite 데이터베이스 measurements.db에 있는 테이블입니다. 데스크톱 애플리케이션으로 실행되거나 워크스테이션, 서버 또는 클러스터에서 헤드리스로 실행됩니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/spacr.desktop.svg"><img src="../../readme_images/ko/spacr.svg" alt="spaCR. CRISPR 스크리닝의 공간 표현형 분석. spaCR는 현미경 영상에서 단일 세포를 분할하고 측정하며, 객체별 표현형을 시퀀싱에서 산출한 가이드 풍부도와 통합하고, 어떤 유전자가 표현형 변화와 연관되는지 추정합니다. 플레이트 영상과 FASTQ 리드에서 시작하여 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 추정치, 우선순위가 지정된 히트 목록을 생성합니다. 분할, 측정, 주석 및 분류 모듈은 시퀀싱 단계가 없는 연구에서도 실행할 수 있습니다. Make Masks는 분할 마스크를 수정하고 YOLO 내보내기를 위해 Box 도구로 클래스 라벨이 있는 독립적인 사각형을 주석 처리합니다. 박스는 원본 이미지나 마스크를 변경하지 않고 자체 라벨과 편집 이력을 유지합니다. 각 도구에 대한 설명은 기능 가이드 문서를 참조하십시오. 이미지, 마스크, 크롭은 디스크에 있는 파일입니다. 측정값, 주석, 모델 예측은 프로젝트의 SQLite 데이터베이스 measurements.db에 있는 테이블입니다. 데스크톱 애플리케이션으로 실행되거나 워크스테이션, 서버 또는 클러스터에서 헤드리스로 실행됩니다."></picture></a></div>
 
 .. raw:: html
 
@@ -136,7 +136,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/desktop-application.desktop.svg"><img src="../../readme_images/ko/desktop-application.svg" alt="데스크톱 애플리케이션. 설치자는 자신의 Python을 묶습니다.Conda는 필요하지 않습니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/desktop-application.desktop.svg"><img src="../../readme_images/ko/desktop-application.svg" alt="데스크톱 애플리케이션. 설치 프로그램에는 자체 Python 환경이 포함되어 있습니다. Conda는 필요하지 않습니다."></picture></a></div>
 
 .. spacr-installer-links-begin
 
@@ -243,27 +243,25 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-from-source-light.desktop.svg"><img src="../../readme_images/ko/install-from-source-light.svg" alt="소스 코드에서 설치 (경량). 기여자는 버전 이력이 필요합니다. spaCR를 실행하기만 하려면 아래 방법 중 하나를 선택하세요. packaging/measure_clone_forms.sh 를 사용하여 2026-10-07에 nightly 의 05302fd5c 커밋을 측정했습니다:"></picture></a></div>
+   <div><a href="../../readme_text/ko/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-from-source-light.desktop.svg"><img src="../../readme_images/ko/install-from-source-light.svg" alt="소스 코드에서 설치 (경량). 기여자는 버전 이력이 필요합니다. spaCR를 실행하기만 하려면 아래 방법 중 하나를 선택하세요. packaging/measure_clone_forms.sh 를 사용하여 2026-10-07에 nightly 의 05302fd5c 커밋을 측정했습니다. 얕은 클론: 140 s 동안 2048 MB를 다운로드했습니다. 최신 커밋만 보존하므로 git log, git blame, git bisect에서 이전 이력을 사용할 수 없습니다. git pull은 작동하지만 이력은 계속 얕게 유지되며, git fetch --unshallow로 전체 이력을 가져올 수 있습니다."></picture></a></div>
 
 .. code-block:: bash
 
-   # One commit instead of every version: 2048 MB downloaded, 140 s.
-   # No history, so no git log, no git blame and no git bisect.
-   # git pull still works, but stays shallow until git fetch --unshallow.
    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
    cd spacr && pip install -e .
 
-   # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-   # No history, docs, tests, tools, features or example data.
-   # --with-docs, --with-tests and --with-translations put those back;
-   # --dir, --branch, --no-install and --help do the obvious things.
-   # packaging/source_install_excludes.txt lists every skipped path.
+.. raw:: html
+
+   <div><a href="../../readme_text/ko/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-from-source-light-2.desktop.svg"><img src="../../readme_images/ko/install-from-source-light-2.svg" alt="런타임 파일만 받기: 6 s 동안 디스크에 104 MB 저장(Git: 38 MB; 파일: 66 MB). 이력, docs, tests, tools, features, 예제 데이터 및 확장 인터페이스 번역을 제외합니다. --with-docs, --with-tests, --with-translations는 각각 문서, 테스트, 번역을 유지합니다. 기본 인터페이스 번역은 계속 사용할 수 있습니다."></picture></a></div>
+
+.. code-block:: bash
+
    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
    sh install_spacr.sh --branch nightly
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-from-source-light-2.desktop.svg"><img src="../../readme_images/ko/install-from-source-light-2.svg" alt="nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 --filter=blob:none을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 4657 MB를 차지합니다(2026-10-15 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-from-source-light-3.desktop.svg"><img src="../../readme_images/ko/install-from-source-light-3.svg" alt="--dir은 클론 경로를, --branch는 브랜치나 태그를 선택합니다. --no-install은 설치 없이 가져오며, --help는 옵션을 표시합니다. packaging/source_install_excludes.txt에 제외된 모든 경로가 나열되어 있습니다. nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 --filter=blob:none을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. main의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 1265 MB를 차지합니다(2026-10-21 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."></picture></a></div>
 
 .. raw:: html
 
@@ -414,27 +412,23 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-resources-2-2.desktop.svg"><img src="../../readme_images/ko/other-resources-2-2.svg" alt="Python API 빠른 시작 - 스크립트, 노트북 또는 클러스터에서 튜브를 실행하고 검증합니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-resources-2-2.desktop.svg"><img src="../../readme_images/ko/other-resources-2-2.svg" alt="Python API 빠른 시작 — 스크립트, 노트북 또는 클러스터에서 처리 파이프라인을 실행하고 검증합니다."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-resources-2-3.desktop.svg"><img src="../../readme_images/ko/other-resources-2-3.svg" alt="특징 가이드 - 능력, 성숙성 및 선택적 통합."></picture></a></div>
+   <div><a href="../../readme_text/ko/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-resources-2-3.desktop.svg"><img src="../../readme_images/ko/other-resources-2-3.svg" alt="기능 안내서 — 기능, 성숙도 및 선택적 통합 기능을 설명합니다."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-resources-2-4.desktop.svg"><img src="../../readme_images/ko/other-resources-2-4.svg" alt="정리된 API 참조 - 작업에 따라 지원되는 입력 포인트, 전체 모듈 참조 1 레벨 더 깊습니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-resources-2-4.desktop.svg"><img src="../../readme_images/ko/other-resources-2-4.svg" alt="선별된 API 참조 — 작업별로 지원되는 진입점을 설명하며 전체 모듈 참조는 한 단계 아래에 있습니다."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-resources-2-5.desktop.svg"><img src="../../readme_images/ko/other-resources-2-5.svg" alt="언어 &amp; 번역 가이드 - 인터페이스 언어, 컨텍스트 지원 및 과학 출력 정책."></picture></a></div>
+   <div><a href="../../readme_text/ko/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-resources-2-5.desktop.svg"><img src="../../readme_images/ko/other-resources-2-5.svg" alt="언어 및 번역 안내서 — 인터페이스 언어, 문맥 도움말 및 과학적 출력 정책을 설명합니다."></picture></a></div>
 
 .. raw:: html
 
    <div><a href="../../readme_text/ko/language-translation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/language-translation.desktop.svg"><img src="../../readme_images/ko/language-translation.svg" alt="언어 및 번역. 인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 spaCR → 환경 설정 → 언어 메뉴에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. 상황별 도움말 정책 문서를 참조하세요."></picture></a></div>
-
-.. raw:: html
-
-   <div><a href="../../readme_text/ko/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/language-translation-2.desktop.svg"><img src="../../readme_images/ko/language-translation-2.svg" alt="영어가 아닌 9개의 카탈로그는 기계적으로 작성되고 기술적으로 검토되며, 원주민 연설자에 의해 끝까지 읽기보다는 검토 범위 기록은 언어가 인간의 통로를 가졌으며 각 용어는 결정에 따라 영어로 남아 있습니다."></picture></a></div>
 
 .. raw:: html
 
@@ -472,14 +466,14 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/model-zoo.desktop.svg"><img src="../../readme_images/ko/model-zoo.svg" alt="모델 라이브러리. spaCR는 훈련 된 모델의 카탈로그를 배치하고 수요에 따라 그들을 잡습니다. 모델 동물원 홈 화면에서 탐색하고 설치하거나 설정을 파일에 키를 지정하십시오 - pathogen_model: toxoplasma_pv_v1 - 그리고 모델이 다운로드되고 처음으로 필요합니다. 각 게시 된 입력은 SHA-256을 가지고; 하나가없는 입력은 설치되지 않고 거부됩니다, 왜냐하면 흔들리거나 대체 된 체크 포인트가 실제로 말할 수 없기 때문에."></picture></a></div>
+   <div><a href="../../readme_text/ko/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/model-zoo.desktop.svg"><img src="../../readme_images/ko/model-zoo.svg" alt="모델 라이브러리. spaCR는 학습된 모델의 목록을 제공하며 필요할 때 모델을 다운로드합니다. 홈 화면의 Model Zoo를 열어 모델을 찾아 설치하거나 설정 파일에 pathogen_model: toxoplasma_pv_v1 같은 모델 키를 지정하십시오. 처음 필요할 때 모델을 다운로드하고 체크섬으로 검증합니다. 게시된 모든 항목에는 SHA-256 체크섬이 있으며, 체크섬이 없으면 설치를 거부합니다. 그렇지 않으면 불완전하거나 교체된 모델 파일을 원본과 구별할 수 없기 때문입니다."></picture></a></div>
 
 .. spacr-model-zoo-begin
 
 .. raw:: html
 
    <div><a href="../../models/README.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/heading.svg"><img src="../../models/cards/heading.phone.svg" alt="Default models · held-out scores"></picture></a></div>
-   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/live_cell_v1.svg"><img src="../../models/cards/live_cell_v1.phone.svg" alt="Score card of Live cells v1 (live_cell_v1, default): F1 0.694 on 2,199 held-out fields against 0.738 for stock cpsam_v2. On the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v4.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_pv_v4.svg"><img src="../../models/cards/toxoplasma_pv_v4.phone.svg" alt="Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2. F1 0.761 against stock cpsam_v2&#x27;s 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040."></picture></a><a href="../../models/toxoplasma_plaque_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_plaque_v5.svg"><img src="../../models/cards/toxoplasma_plaque_v5.phone.svg" alt="Score card of Plaques v5 (toxoplasma_plaque_v5, default): F1 0.816 on 153 held-out fields against 0.227 for stock cpsam_v2. F1 0.816 against stock cpsam_v2&#x27;s 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178."></picture></a><a href="../../models/toxoplasma_well_detector_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_well_detector_v3.svg"><img src="../../models/cards/toxoplasma_well_detector_v3.phone.svg" alt="Score card of Plaque wells v3 (toxoplasma_well_detector_v3, default): mAP50 0.994 on 73 held-out images. Stock was not evaluated in this run; see the named incumbent comparison on the model card."></picture></a><a href="../../models/toxoplasma_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_cellmask_v1.svg"><img src="../../models/cards/toxoplasma_from_cellmask_v1.phone.svg" alt="Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2. F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/nuclei_from_cellmask_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/nuclei_from_cellmask_v1.svg"><img src="../../models/cards/nuclei_from_cellmask_v1.phone.svg" alt="Score card of Nuclei from cell mask v1 (nuclei_from_cellmask_v1, default): F1 0.888 on 453 held-out fields against 0.201 for stock cpsam_v2. F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5."></picture></a><a href="../../models/cell_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/cell_from_hoechst_v1.svg"><img src="../../models/cards/cell_from_hoechst_v1.phone.svg" alt="Score card of Cells from Hoechst v1 (cell_from_hoechst_v1, default): F1 0.870 on 451 held-out fields against 0.301 for stock cpsam_v2. F1 0.870 against stock cpsam_v2&#x27;s 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569."></picture></a><a href="../../models/toxoplasma_from_hoechst_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../models/cards/toxoplasma_from_hoechst_v1.svg"><img src="../../models/cards/toxoplasma_from_hoechst_v1.phone.svg" alt="Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2. F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5."></picture></a></div>
 
 .. raw:: html
 
@@ -495,7 +489,7 @@
 
 .. raw:: html
 
-   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-3.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-3.svg" alt="live_cell_v1"></picture></a></div>
 
 .. raw:: html
 
@@ -513,15 +507,15 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/ko/diagnosing-performance-2.svg" alt="~/.spacr/reports로 저장하고 경로를 인쇄합니다. --quick는 더 긴 좌표를 스키; --out PATH는 위치를 설정합니다. 프로젝트 데이터를 읽지 않습니다. 가져오기, 수치 라이브러리, 창 구성 및 애니메이션에 걸리는 시간을 측정하고 Apple Silicon의 x86_64 에뮬레이션과 NumPy의 BLAS 구현 정보를 보고합니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/ko/diagnosing-performance-2.svg" alt="~/.spacr/reports에 저장하고 경로를 출력합니다. --quick은 오래 걸리는 성능 검사를 생략하며, --out PATH는 저장 위치를 지정합니다. 프로젝트 데이터를 읽지 않습니다. 가져오기, 수치 라이브러리, 창 구성 및 애니메이션에 걸리는 시간을 측정하고 Apple Silicon의 x86_64 에뮬레이션과 NumPy의 BLAS 구현 정보를 보고합니다."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/command-line-reference.desktop.svg"><img src="../../readme_images/ko/command-line-reference.svg" alt="명령선 참조. Every command below is installed by pip install spacr. All of them accept --help."></picture></a></div>
+   <div><a href="../../readme_text/ko/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/command-line-reference.desktop.svg"><img src="../../readme_images/ko/command-line-reference.svg" alt="명령줄 참조. 아래의 모든 명령은 pip install spacr로 설치되며 --help를 지원합니다."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/launching-the-application.desktop.svg"><img src="../../readme_images/ko/launching-the-application.svg" alt="신청을 시작하는 방법."></picture></a></div>
+   <div><a href="../../readme_text/ko/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/launching-the-application.desktop.svg"><img src="../../readme_images/ko/launching-the-application.svg" alt="애플리케이션 시작."></picture></a></div>
 
 .. code-block:: bash
 
@@ -531,7 +525,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/ko/when-spacr-will-not-start.svg" alt="spaCR 시작하지 않을 때."></picture></a></div>
+   <div><a href="../../readme_text/ko/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/ko/when-spacr-will-not-start.svg" alt="spaCR가 시작되지 않을 때."></picture></a></div>
 
 .. code-block:: bash
 
@@ -544,7 +538,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/running-modules-headlessly.desktop.svg"><img src="../../readme_images/ko/running-modules-headlessly.svg" alt="모듈을 끊임없이 실행하는 방법. Qt 없으며, 클러스터, 서버 및 CI를 위한 디스플레이가 없습니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/running-modules-headlessly.desktop.svg"><img src="../../readme_images/ko/running-modules-headlessly.svg" alt="그래픽 인터페이스 없이 모듈 실행. Qt와 디스플레이 없이 실행 — 클러스터, 서버 및 CI용."></picture></a></div>
 
 .. code-block:: bash
 
@@ -561,7 +555,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/inspecting-a-run.desktop.svg"><img src="../../readme_images/ko/inspecting-a-run.svg" alt="실행 살펴보기. 각 라운드는 ~/.spacr/runs로 기록되며 설정, 해시된 입력, 출력, 경고, 버전 및 씨앗이 있습니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/inspecting-a-run.desktop.svg"><img src="../../readme_images/ko/inspecting-a-run.svg" alt="실행 살펴보기. 각 실행의 설정, 입력 해시, 출력, 경고, 버전 및 난수 시드를 ~/.spacr/runs에 기록합니다."></picture></a></div>
 
 .. code-block:: bash
 
@@ -570,7 +564,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/ko/auditing-data-and-installation.svg" alt="데이터 검토 및 설치."></picture></a></div>
+   <div><a href="../../readme_text/ko/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/ko/auditing-data-and-installation.svg" alt="데이터 및 설치 상태 점검."></picture></a></div>
 
 .. code-block:: bash
 
@@ -588,7 +582,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/environment-2.desktop.svg"><img src="../../readme_images/ko/environment-2.svg" alt="회전 기록은 ~/.spacr/logs/spacr.log로 작성됩니다.이 파일을 오류 보고서에 붙여 넣으십시오."></picture></a></div>
+   <div><a href="../../readme_text/ko/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/environment-2.desktop.svg"><img src="../../readme_images/ko/environment-2.svg" alt="로그 파일은 ~/.spacr/logs/spacr.log에 순환 저장됩니다. 버그 보고서에 이 파일을 첨부하십시오."></picture></a></div>
 
 .. raw:: html
 
@@ -596,7 +590,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing.desktop.svg"><img src="../../readme_images/ko/licensing.svg" alt="라이선스. spaCR is released under the BSD 3 클래스 라이센스. spaCR이 출판된 작품에 기여한 경우, 인용문이 평가되고 라이센스의 조건이 아닙니다. - 아래의 `spaCR 인용`_을 참조하십시오."></picture></a></div>
+   <div><a href="../../readme_text/ko/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing.desktop.svg"><img src="../../readme_images/ko/licensing.svg" alt="라이선스. spaCR는 BSD 3-Clause 라이선스로 배포됩니다. spaCR가 출판물에 기여했다면 인용해 주시면 감사하겠습니다. 인용은 라이선스의 조건이 아닙니다. 아래의 spaCR 인용을 참조하십시오."></picture></a></div>
 
 .. raw:: html
 
@@ -612,7 +606,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/ko/other-work-citing-spacr.svg" alt="다른 작품은 spaCR을 인용합니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/ko/other-work-citing-spacr.svg" alt="spaCR를 인용한 다른 연구."></picture></a></div>
 
 .. spacr-citing-papers-begin
 
@@ -640,4 +634,4 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/acknowledgments.desktop.svg"><img src="../../readme_images/ko/acknowledgments.svg" alt="감사의 말. spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 번역 모델 표기 문서에서 확인할 수 있습니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/acknowledgments.desktop.svg"><img src="../../readme_images/ko/acknowledgments.svg" alt="감사의 말. spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다."></picture></a></div>

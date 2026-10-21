@@ -1,1 +1,1 @@
-- [清理 API 参考](<https://einarolafsson.github.io/spacr/api/index.html>) - 按任务支持输入点,完整的模块参考一个级别更深。
+- [精选 API 参考](<https://einarolafsson.github.io/spacr/api/index.html>) — 按任务列出支持的入口，下一层提供完整的模块参考。

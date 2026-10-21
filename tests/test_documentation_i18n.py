@@ -2223,7 +2223,7 @@ def test_old_readme_measurement_reviews_are_retained_without_becoming_current():
     assert len(RETIRED_README_EVIDENCE_BLOCKS[old]) == 9
     assert old not in REVIEWED_README_EVIDENCE_BLOCKS
     current = next(source for source in REVIEWED_README_EVIDENCE_BLOCKS
-                   if "The nightly tracked tree" in source)
+                   if "The main tracked tree" in source)
     assert len(REVIEWED_README_EVIDENCE_BLOCKS[current]) == 9
 
 

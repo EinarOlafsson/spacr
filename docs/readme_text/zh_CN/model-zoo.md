@@ -1,3 +1,3 @@
 ## 模型库
 
-spaCR ships a catalogue of trained models and fetches them on demand. Open <strong>Model Zoo</strong> from the home screen to browse and install them, or name a key in a settings file -- ` pathogen_model: toxoplasma_pv_v1 ` -- and the model is downloaded and checksum-verified the first time it is needed. Every published entry carries a SHA-256; an entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one.
+spaCR 提供训练好的模型目录，并按需下载模型。在主页打开 <strong>Model Zoo</strong> 可浏览和安装模型；也可在设置文件中指定模型键，例如 ` pathogen_model: toxoplasma_pv_v1 `。首次需要时，程序会下载模型并验证其校验和。每个已发布条目都带有 SHA-256 校验和；缺少校验和的条目会被拒绝安装，否则无法区分不完整或被替换的模型文件与原始文件。

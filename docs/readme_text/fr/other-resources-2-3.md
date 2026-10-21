@@ -1,1 +1,1 @@
-- [Guide des caractéristiques](<../../source/features.rst>) — capacités, maturité et intégrations optionnelles.
+- [Guide des fonctionnalités](<../../source/features.rst>) — capacités, maturité et intégrations facultatives.

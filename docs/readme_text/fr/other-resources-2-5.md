@@ -1,1 +1,1 @@
-- [Guide de la langue et de la traduction](<../../source/localization.rst>) — langages d'interface, aide contextuelle et politique d'output scientifique.
+- [Guide des langues et de la traduction](<../../source/localization.rst>) — langues de l’interface, aide contextuelle et politique des résultats scientifiques.
