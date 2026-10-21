@@ -210,6 +210,32 @@ def _later_cohort_retirements(language: str, reviewed: dict[str, str]) -> set[st
     return retired
 
 
+def _superseded_enhancement_sources(language, reviewed):
+    """Retain the one published display toggle replaced by explicit Apply."""
+    document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                           "2026-09-22-enhancement-and-scale.json").read_text(encoding="utf-8"))
+    superseded = document["superseded_records"]
+    assert len(superseded) == 1
+    entry = superseded[0]
+    assert set(entry) == {"reason", "record"}
+    assert entry["reason"] == (
+        "479: explicit Apply now gates enhancements for display and detection; "
+        "Compare previews configured settings. Original reviewed text retained verbatim.")
+    source = "Show the enhanced image"
+    record = entry["record"]
+    assert record == {
+        "key": source,
+        "source": source,
+        "source_sha256": "c7e42861b48c38362b9cad0b778a53a42db6ab9330912bf469583ff32f199f5d",
+        "table": "ui",
+        "translation": {"sv": "Visa den förbättrade bilden",
+                        "fr": "Afficher l’image améliorée"}[language],
+    }
+    assert hashlib.sha256(source.encode()).hexdigest() == record["source_sha256"]
+    assert source not in reviewed
+    return {source}
+
+
 def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     """Reconcile later accepted records without changing historical counts."""
     sources: set[str] = set()
@@ -268,14 +294,17 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                                f"2026-09-22-{filename}.json").read_text(encoding="utf-8"))
         added = {record["source"] for record in document["records"]}
-        assert len(document["records"]) == len(added) == expected
+        superseded = (_superseded_enhancement_sources(language, reviewed)
+                      if filename == "enhancement-and-scale" else set())
+        assert len(document["records"]) == len(added)
+        assert len(added | superseded) == len(added) + len(superseded) == expected
         assert added <= reviewed.keys()
         if filename == "form-labels-a":
             # The UI row reuses an already reviewed setting-label source.
             assert "Crop size" in added
             added.remove("Crop size")
-        assert not added & sources
-        sources.update(added)
+        assert not (added | superseded) & sources
+        sources.update(added | superseded)
     assert len(sources) + len(panel_retired) == (259 if language == "sv" else 258)
     report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text(encoding="utf-8"))["languages"][language]
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
@@ -1115,7 +1144,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) == 609  # 618 -> 617 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 600b (2026-09-29): -1, the Features tooltip retired.  # 625 -> 619 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 619 -> 618, Make Masks layout captions retired and added.  # 617 -> 609 on 2026-10-17 (item 678 Home app-text retirements)
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('sv', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('sv', all_reviewed)) == 1662  # 1671 -> 1670 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1678 -> 1672 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1672 -> 1671, Make Masks layout captions retired and added.  # 1670 -> 1662 on 2026-10-17 (item 678 Home app-text retirements)
+    assert len((all_reviewed.keys() | _superseded_enhancement_sources("sv", all_reviewed)) - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('sv', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('sv', all_reviewed)) == 1662  # 1671 -> 1670 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1678 -> 1672 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1672 -> 1671, Make Masks layout captions retired and added.  # 1670 -> 1662 on 2026-10-17 (item 678 Home app-text retirements)
     assert not published_retired & current_values
     for source, translated in all_reviewed.items():
         assert source in current_values
@@ -1393,7 +1422,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) + len(base_retired) == 334  # 335 -> 334 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 338 -> 335 on 2026-10-11 (N678 retirements)
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) == 603  # 612 -> 611 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 600b (2026-09-29): -1, the Features tooltip retired.  # 619 -> 613 on 2026-10-11 (N678 retirements)  # 611 -> 603 on 2026-10-17 (item 678 Home app-text retirements)
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('fr', all_reviewed)) == 1655  # 1664 -> 1663 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1671 -> 1665 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1665 -> 1664, Make Masks layout captions retired and added.  # 1663 -> 1655 on 2026-10-17 (item 678 Home app-text retirements)
+    assert len((all_reviewed.keys() | _superseded_enhancement_sources("fr", all_reviewed)) - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('fr', all_reviewed)) == 1655  # 1664 -> 1663 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1671 -> 1665 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1665 -> 1664, Make Masks layout captions retired and added.  # 1663 -> 1655 on 2026-10-17 (item 678 Home app-text retirements)
     assert not published_retired & current_values
     for source, translated in all_reviewed.items():
         assert source in current_values
