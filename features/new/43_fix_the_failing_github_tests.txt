@@ -1,5 +1,16 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT HOSTED LINUX UPDATE FIXTURE REPAIR — 2026-10-21
+Acceptance coordinator and retained installer worker own only the 16 failures
+in Minimum 1 job119485807319 on old nightly9d48020f289: seed real valid saved
+installer choices; align current upgrade/helper/privacy-refusal contracts and
+make the two Linux wrapper tests assert actual outcomes. Preserve guarded
+staging, all meaningful actions, safe refusals, data and hygiene assertions.
+Use the smallest failing cohort under the existing CPU cap; root peers and
+publishes nightly. Do not roll production back, weaken tests/ratchets, run the
+whole suite, or infer a main-branch failure. Newer-release Linux acceptance
+remains pending the actual published artifact.
+
 Status:    OPEN 2026-10-21 — corrected-source run39561748445 completes all12
            coverage shards above90%; its aggregate leaves make_masks.py with29
            uncovered branches against the unchanged28 ceiling. release_ci_takeover
@@ -4227,3 +4238,5 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 2026-10-21 — obsolete_repo_cleanup owns four actual nightly9d480 Coverage11 job119485807787 kernel-diagnostic failures: statsmodels0.15 warns when KernelReg receives its implicit legacy RNG default. Select an explicit seeded legacy RandomState only when the supported constructor exposes rng, preserving older statsmodels compatibility, bandwidth/scaling/curve assertions and strict warnings. Validate the existing four cases plus old/new constructor forwarding against the actual0.15 wheel; Night-only unless the frozen Main graph actually requires this API. All four real0.15 failures and both constructor forwarding controls pass4.73s; actual legacy0.14.2 smoothing passes1.83s. The changed module has no setting-consumer map entries or translated runtime-caption calls; all callable/class signatures and docstrings are unchanged. Root retains hosted acceptance; N43 remains open.
 
 2026-10-21 — feature_takeover with retained Qt workers owns the nine Coverage 11 fold-strip/tile geometry failures: isolate interface/font scale in owning pixel-contract fixtures, preserve production scaling and every existing geometry assertion, verify the nine failures plus a nondefault-to-100% isolation control, then publish through root. The scoped fixtures now restore prior raw settings or key absence; all ten owning cases pass in 3.57 s, with production code and original assertions unchanged. Full release CI remains OPEN.
+
+2026-10-21 — Old-nightly9d48020f289 Minimum1 job119485807319 updater failures repaired in877b9da98c1: explicit supported historical-plan fixtures retain wait/download/install/verify/retire assertions; current staged Linux fixtures retain valid CPU choices/refusals and assert real transaction/cancel outcomes. Purge fake handles the actual cache argument in an isolated profile; safe generic refusal and unchanged hygiene pass. All20 affected cases pass; no production rollback, guard bypass, ratchet exemption or assertion weakening. Root owns publication/hosted acceptance; no main-branch failure is inferred.

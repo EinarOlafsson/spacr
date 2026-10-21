@@ -132,5 +132,6 @@ def test_absent_archived_helper_source_returns_a_plan_error_without_spawning(tmp
     plan = cleanup.start_update_helper([record], "1.5.1.1", workdir=str(tmp_path / "helper"),
                                        system=machine, spawn=no_spawn)
     assert plan["command"] is None
-    assert "standalone updater source is unavailable" in plan["error"]
+    assert plan["error"] == "This installation cannot stage a verified update. Nothing was changed."
+    assert str(root) not in plan["error"]
     assert marker.read_text(encoding="utf-8") == "preserve"

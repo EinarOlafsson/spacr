@@ -47,11 +47,21 @@ def test_linux_plan_preserves_cpu_and_optional_dependency_choices(tmp_path, inst
 
 def test_linux_stages_before_shutdown_then_relaunches(tmp_path, installation, monkeypatch):
     shared_upgrade(tmp_path, installation, monkeypatch)
+    record, _, kept = installation
+    journals = list(Path(record.root).glob(".spacr-runtime-update-*/transaction.json"))
+    assert len(journals) == 1
+    committed = json.loads(journals[0].read_text(encoding="utf-8"))
+    assert committed["state"] == "committed" and committed["verified_version"] == "1.5.1.1"
+    assert kept.exists() and Path(record.python).is_file()
 
 
 @pytest.mark.parametrize("cancel_at", ["before_ready", "after_ready", "while_waiting"])
 def test_linux_cancel_preserves_active_environment(tmp_path, installation, monkeypatch, cancel_at):
+    record, _, kept = installation
+    original = Path(record.python).read_bytes()
     shared_cancel(tmp_path, installation, monkeypatch, cancel_at)
+    assert Path(record.python).read_bytes() == original and kept.exists()
+    assert not list(Path(record.root).glob(".spacr-runtime-update-*"))
 
 
 @pytest.mark.parametrize("missing", ["bootstrap/uv", "venv/bin/python"])

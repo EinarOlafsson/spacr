@@ -2,6 +2,17 @@
 UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
 ================================================================================
 
+CURRENT HOSTED LINUX UPDATE FIXTURE REPAIR — 2026-10-21
+Acceptance coordinator and retained installer worker own only the 16 failures
+in Minimum 1 job119485807319 on old nightly9d48020f289: seed real valid saved
+installer choices; align current upgrade/helper/privacy-refusal contracts and
+make the two Linux wrapper tests assert actual outcomes. Preserve guarded
+staging, all meaningful actions, safe refusals, data and hygiene assertions.
+Use the smallest failing cohort under the existing CPU cap; root peers and
+publishes nightly. Do not roll production back, weaken tests/ratchets, run the
+whole suite, or infer a main-branch failure. Newer-release Linux acceptance
+remains pending the actual published artifact.
+
 Status:    IN PROGRESS — native macOS scope remains accepted; current-source
            Linux staged update and native acceptance are ready for publication.
            A newer released artifact is still needed for current-source version replacement.
@@ -1095,3 +1106,5 @@ Old-to-new desktop acceptance remains open: this Mac and the current candidate a
 2026-10-21 — Current-source GUI same-version reinstall preserves five files, byte-identical Qt settings and CPU torch; ff22a3fb16 stages Linux updates with existing POSIX identity/Restart/rollback machinery and safe missing-profile refusal;28 focused checks pass.
 2026-10-21 — Repaired wheel8a8e6579 native xcb/Xvfb1.5.1.5 same-version Restart passes atomic activation, authenticated new interpreter/module/version and visible Home; all files/preferences/CPU choice and rollback survive. Normal check correctly reports no newer release; current-source old→new replacement awaits a newer artifact.
 2026-10-21 — Final cc5f4f5bd2 wheelbc26f329 actual installer/readback and646 GUI/CLI cleanup pass; all owned native jobs finish. Root owns integrated publication; accepted Mac scope remains closed and unrelated Windows scope remains held.
+
+2026-10-21 — Hosted old-nightly9d48020f289 fixture repair877b9da98c1 distinguishes explicitly constructed supported historical plans from current linux-online-uv-v1; preserves legacy actions, current valid CPU choices and missing/corrupt-choice refusals. Linux stage/cancel wrappers now assert real committed identity or unchanged active runtime/data. All20 affected updater/privacy/hygiene cases pass; production code is unchanged. Root publishes this repair; native Mac acceptance remains retained and actual current-source newer-version Linux replacement still awaits the released artifact.

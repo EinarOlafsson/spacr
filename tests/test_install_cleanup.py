@@ -824,7 +824,8 @@ def test_legacy_desktop_update_refuses_before_starting_an_interactive_installer(
         records, "9.9.9", pid=4242, workdir=str(workdir), system=machine,
         spawn=lambda argv, env, cwd: spawned.append((argv, env, cwd)))
 
-    assert plan["steps"] == ["wait", "fetch", "install", "verify", "retire", "relaunch"]
+    assert plan["steps"] == ["wait", "upgrade", "verify", "relaunch"]
+    assert plan["adapter"] == "linux-online-uv-v1"
     assert plan["pid"] == 4242
     assert json.loads((workdir / "plan.json").read_text(encoding="utf-8")) == json.loads(json.dumps(plan))
     assert plan["command"] is None and not spawned
@@ -907,19 +908,31 @@ def test_unknown_windows_layout_still_refuses_to_stage(tmp_path):
 
 
 def _helper_plan(tmp_path, box=None):
-    """Retain explicit historical plan coverage without making the GUI produce one."""
+    """Build the supported pre-adapter plan for legacy dispatcher coverage."""
     box = box or Box(tmp_path / "box")
     box.add_user_data()
     root, machine, records = _running_desktop(box)
-    plan = ic.start_update_helper(records, "9.9.9", pid=4242,
-                           workdir=str(tmp_path / "helper"), system=machine,
-                           spawn=lambda *args: None)
+    (root / "install-profile.json").write_text(json.dumps({
+        "schema": 1, "requested_backend": "cpu", "active_backend": "cpu",
+        "without_wgpu": False}), encoding="utf-8")
+    workdir = tmp_path / "helper"
+    workdir.mkdir(mode=0o700)
     running, = [record for record in records if record.running]
-    plan["fetch"], plan["install"], plan["relaunch"] = ic._reinstall_steps(
-        running, "9.9.9", plan["workdir"], machine)
-    plan["error"] = None
-    (tmp_path / "helper" / "plan.json").write_text(json.dumps(plan), encoding="utf-8")
-    return box, root, machine, str(tmp_path / "helper" / "plan.json")
+    fetch, install, relaunch = ic._reinstall_steps(
+        running, "9.9.9", str(workdir), machine)
+    plan = {
+        "schema": 1,
+        "steps": ["wait", "fetch", "install", "verify", "retire", "relaunch"],
+        "pid": 4242, "version": "9.9.9",
+        "records": [dataclasses.asdict(record) for record in records],
+        "ticked": [], "workdir": str(workdir),
+        "log": str(box.home / ".spacr" / "logs" / "update.log"),
+        "fetch": fetch, "install": install, "relaunch": relaunch,
+        "command": None, "error": None, "frozen_application": False,
+    }
+    path = workdir / "plan.json"
+    path.write_text(json.dumps(plan), encoding="utf-8")
+    return box, root, machine, str(path)
 
 
 def _verified_result(argv):
