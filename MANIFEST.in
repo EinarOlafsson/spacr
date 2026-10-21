@@ -165,3 +165,7 @@ include spacr/resources/model_cards/*.json
 prune spacr/resources/AI
 exclude AGENTS.md CLAUDE.md
 exclude features/HANDOFF*.md
+
+# Editorial review inputs are external build inputs, not installed product data.
+prune docs/i18n/reviewed
+prune docs/i18n/retired

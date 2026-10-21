@@ -188,6 +188,10 @@ jobs:
             HOME="$reference_home" XDG_CONFIG_HOME="$reference_home/config" \
               tools/run_capped.sh 4G python tools/build_make_masks_reference.py
           fi
+      - name: Restore pinned translation review inputs
+        if: hashFiles('docs/translation_reviews_revision.json') != ''
+        run: python tools/bootstrap_translation_reviews.py fetch
+
       - name: Assemble the API catalogs from the pinned translation memory
         run: |
           if grep -q '"api_memory"' docs/media_revision.json 2>/dev/null; then

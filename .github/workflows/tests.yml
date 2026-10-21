@@ -192,6 +192,10 @@ jobs:
           print("low-core defaults, UMAP API, and btrack native library: OK")
           PY
 
+      - name: Restore pinned translation review inputs
+        if: hashFiles('docs/translation_reviews_revision.json') != ''
+        run: python tools/bootstrap_translation_reviews.py fetch
+
       - name: Run fast tests
         env:
           SPACR_PYTEST_FILE_SHARD_INDEX: ${{ matrix.shard }}
@@ -410,6 +414,10 @@ jobs:
             "coverage>=7.10,<8" \
             "pytest-cov>=7,<8"
           python -m pip check
+
+      - name: Restore pinned translation review inputs
+        if: hashFiles('docs/translation_reviews_revision.json') != ''
+        run: python tools/bootstrap_translation_reviews.py fetch
 
       - name: Bind coverage artifact to this run and source
         env:
@@ -866,6 +874,10 @@ jobs:
               pass
           print("minimum dependency profile: OK")
           PY
+
+      - name: Restore pinned translation review inputs
+        if: hashFiles('docs/translation_reviews_revision.json') != ''
+        run: python tools/bootstrap_translation_reviews.py fetch
 
       - name: Run tests at minimum direct versions
         env:

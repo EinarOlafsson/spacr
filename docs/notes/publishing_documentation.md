@@ -59,8 +59,8 @@ Every build refreshes and checks its English manifests. Missing, stale and
 incompatible localized entries are registered in a JSON artifact and in the
 published `translation-compatibility.json`, with the source commit. A locale
 whose API source contracts do not match is omitted from the built payload;
-the browser falls back to English. The source translation is retained in Git
-for repair. Translation completion is never a publication prerequisite.
+the browser falls back to English. Editable source review records are retained in the pinned public translation
+repository for repair. Translation completion is never a publication prerequisite.
 
 Named acceptance tests of the real translation corpus are advisory. They still
 run and retain full failure diagnostics in `.translation-reports/*.json`,
@@ -129,3 +129,12 @@ and request URLs are omitted. A 403 at an early read boundary does not prove
 that the commit endpoint was reached. Check the reported boundary before
 adjusting the selected Space permissions. The original run38743415875 predates
 this field and cannot identify its failing boundary retrospectively.
+
+## Translation review source inputs
+
+Before local source checks or documentation generation, run
+`python tools/bootstrap_translation_reviews.py fetch`. The Docs and source-test
+workflows restore the same immutable public Git inputs before their readers.
+No private development-archive access is required. Offline cache use, preserved
+local edits and external review authoring are described in
+[the translation input guide](../i18n/TRANSLATION_INPUTS.md).

@@ -83,6 +83,18 @@ STATIC_API_DIR = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
 API_DIR = STATIC_API_DIR
 REVIEWED_API_DIR = ROOT / "docs" / "i18n" / "reviewed" / "api"
 REVIEWED_README_DIR = ROOT / "docs" / "i18n" / "reviewed" / "readme"
+_DEFAULT_REVIEW_DIRECTORIES = (REVIEWED_API_DIR, REVIEWED_README_DIR)
+_REVIEW_HELP_ONLY = __name__ == "__main__" and bool({"-h", "--help"}.intersection(sys.argv[1:]))
+if __name__ == "__main__" and not _REVIEW_HELP_ONLY:
+    from bootstrap_translation_reviews import ensure_review_inputs
+    ensure_review_inputs(ROOT)
+
+
+def _ensure_review_inputs(directory):
+    if directory in _DEFAULT_REVIEW_DIRECTORIES and not _REVIEW_HELP_ONLY:
+        from bootstrap_translation_reviews import ensure_review_inputs
+        ensure_review_inputs(ROOT, offline=True)
+
 README_SOURCE = ROOT / "README.rst"
 
 # A cache entry is meaningful only for the exact English text sent to the
@@ -3589,6 +3601,7 @@ REVIEWED_README_HEADINGS.update({
 
 def _load_reviewed_readme_evidence() -> dict[str, dict[str, str]]:
     """Load source-bound human review for post-release README blocks."""
+    _ensure_review_inputs(REVIEWED_README_DIR)
     reviewed: dict[str, dict[str, str]] = {}
     for path in sorted(REVIEWED_README_DIR.glob("*/*.json")):
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -6012,6 +6025,7 @@ def _assemble_one(item: tuple[Mapping[str, str], str]) -> str:
 
 def _assembly_inputs(docs: Mapping[str, str], languages: Iterable[str]) -> str:
     """A digest of everything the assembled catalogs are built from."""
+    _ensure_review_inputs(REVIEWED_API_DIR)
     digest = hashlib.sha256()
     pin = ROOT / "docs" / "media_revision.json"
     group = json.loads(pin.read_text(encoding="utf-8"))["groups"][API_MEMORY_GROUP]
@@ -6093,6 +6107,7 @@ def reviewed_api_block_translations(
     exact symbol/block, canonical hash, and current reviewed model context;
     any drift is a hard error rather than a silently promoted translation.
     """
+    _ensure_review_inputs(REVIEWED_API_DIR)
     directory = REVIEWED_API_DIR / language
     if not directory.is_dir():
         return {}

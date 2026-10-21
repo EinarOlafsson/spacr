@@ -900,6 +900,10 @@ jobs:
           python -I -c "import spacr.io, spacr.measure, spacr.utils, spacr.timelapse; print('core modules import')"
           python -I -c "import numpy; print('numpy', numpy.__version__)"
 
+      - name: Restore pinned translation review inputs
+        if: hashFiles('docs/translation_reviews_revision.json') != ''
+        run: python tools/bootstrap_translation_reviews.py fetch
+
       - name: Packaging + smoke subset (decides this cell)
         shell: bash
         env:

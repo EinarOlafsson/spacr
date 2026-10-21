@@ -191,6 +191,10 @@ jobs:
       # running. The ceiling sits above the faulthandler threshold so the
       # in-process dump gets its chance first, and far below every job
       # timeout so the shard still finishes and prints a summary.
+      - name: Restore pinned translation review inputs
+        if: hashFiles('docs/translation_reviews_revision.json') != ''
+        run: python tools/bootstrap_translation_reviews.py fetch
+
       - name: Run ${{ inputs.suite_name }} tests
         env:
           SPACR_PYTEST_FILE_SHARD_INDEX: ${{ inputs.file_shard_index }}
