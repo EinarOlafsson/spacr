@@ -191,9 +191,9 @@
     },
     {
       "label": "readme-main-tracked-checkout-size-2026-10-21",
-      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 1265 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch.",
-      "source_sha256": "9a5665f181eed85ad7a2a92f18bc70c1a9cf7d52011644568aa765911e715890",
-      "translation": "Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de main occupent 1265 MB dans la copie de travail (mesurés le 2026-10-21), hors historique Git. La taille et la durée du téléchargement varient selon la branche."
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 5059 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "5f4839a724ec3aaeb9fb2b8d55fc9446c3d3949d1bb8ea2fb44b3f5e2776e9e1",
+      "translation": "Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de main occupent 5059 MB dans la copie de travail (mesurés le 2026-10-21), hors historique Git. La taille et la durée du téléchargement varient selon la branche."
     },
     {
       "label": "readme-resource-2026-10-21-1",

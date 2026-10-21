@@ -191,9 +191,9 @@
     },
     {
       "label": "readme-main-tracked-checkout-size-2026-10-21",
-      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 1265 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch.",
-      "source_sha256": "9a5665f181eed85ad7a2a92f18bc70c1a9cf7d52011644568aa765911e715890",
-      "translation": "nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में ``--filter=blob:none`` जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। main की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 1265 MB लेती हैं (2026-10-21 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 5059 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "5f4839a724ec3aaeb9fb2b8d55fc9446c3d3949d1bb8ea2fb44b3f5e2776e9e1",
+      "translation": "nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में ``--filter=blob:none`` जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। main की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 5059 MB लेती हैं (2026-10-21 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"
     },
     {
       "label": "readme-resource-2026-10-21-1",

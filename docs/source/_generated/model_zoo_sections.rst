@@ -508,8 +508,8 @@ Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r8 <https://hugging
 
 SHA-256 ``a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c``.
 
-Live cell v1 (phase, brightfield, DIC)
---------------------------------------
+Live cell v1 (phase, brightfield, DIC; alternative)
+---------------------------------------------------
 
 **Architecture.** Cellpose-SAM (cpsam_v2)
 
@@ -517,6 +517,7 @@ Live cell v1 (phase, brightfield, DIC)
 
 **Measured.** on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell
 
+* an optional alternative: stock Cellpose-SAM (cpsam_v2) stays the default for label-free and live-cell segmentation
 * TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell and YeaZ, so its score there is partly memorisation. On the datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, QPI, Revvity, yeast microstructures) this model scores F1 0.960 against 0.885
 * it does NOT replace stock on LIVECell-style Incucyte phase: 0.671 against 0.724 there, and it missed its own pre-registered promotion bar
 * by modality at IoU 0.5: brightfield 0.964 (stock 0.912), DIC +0.026 over stock, phase 0.689 (stock 0.735)

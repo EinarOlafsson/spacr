@@ -704,9 +704,13 @@ def test_the_readme_lists_the_default_model_of_each_family():
     assert "Older models: " in source
     assert 'alt="Older models."' in drawn
 
-    for key in ("toxoplasma_pv", "toxoplasma_plaque", "live_cell"):
+    for key in ("toxoplasma_pv", "toxoplasma_plaque"):
         family = next(f for f in cards.families(published) if f["stem"] == key)
         assert family["status"][cards.key_of(family["default"])] == "default"
+    # 2026-10-20: stock Cellpose-SAM stays the label-free default, so the
+    # live_cell family has none of its own; live_cell_v1 is an alternative.
+    family = next(f for f in cards.families(published) if f["stem"] == "live_cell")
+    assert family["status"]["live_cell_v1"] == "alternative"
 
     import os
 

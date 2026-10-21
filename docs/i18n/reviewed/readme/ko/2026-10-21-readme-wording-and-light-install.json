@@ -191,9 +191,9 @@
     },
     {
       "label": "readme-main-tracked-checkout-size-2026-10-21",
-      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 1265 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch.",
-      "source_sha256": "9a5665f181eed85ad7a2a92f18bc70c1a9cf7d52011644568aa765911e715890",
-      "translation": "nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``\\ 을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. main의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 1265 MB를 차지합니다(2026-10-21 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 5059 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "5f4839a724ec3aaeb9fb2b8d55fc9446c3d3949d1bb8ea2fb44b3f5e2776e9e1",
+      "translation": "nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``\\ 을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. main의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 5059 MB를 차지합니다(2026-10-21 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."
     },
     {
       "label": "readme-resource-2026-10-21-1",

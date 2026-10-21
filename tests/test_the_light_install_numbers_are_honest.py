@@ -39,6 +39,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+import sys
 
 import pytest
 
@@ -74,6 +75,25 @@ def _section(title: str = SECTION) -> str:
     return body
 
 
+def _tracked_sizes() -> dict[str, int]:
+    """Measure every tracked path, refusing an incomplete working tree."""
+    out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z"],
+                         capture_output=True, check=True)
+    sizes = {}
+    for name in out.stdout.split(b"\0"):
+        if not name:
+            continue
+        path = os.fsdecode(name)
+        try:
+            sizes[path] = (REPO / path).stat().st_size
+        except OSError as error:
+            raise RuntimeError(
+                f"Cannot measure tracked path {path!r}; restore a full checkout "
+                "without missing or sparse-excluded files before measuring."
+            ) from error
+    return sizes
+
+
 def _tracked_bytes() -> int:
     """Apparent size of every tracked file, which is what a checkout costs.
 
@@ -81,32 +101,14 @@ def _tracked_bytes() -> int:
     the number in the README came from a fresh clone, so this has to be the
     same kind of number.
     """
-    out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z"],
-                         capture_output=True)
-    total = 0
-    for name in out.stdout.split(b"\0"):
-        if not name:
-            continue
-        try:
-            total += (REPO / os.fsdecode(name)).stat().st_size
-        except OSError:
-            pass
-    return total
+    return sum(_tracked_sizes().values())
 
 
 def _exclusions():
     """Each excluded path from the list, with what it weighs today."""
     lines = [ln.strip() for ln in EXCLUDES.read_text(encoding="utf-8").splitlines()
              if ln.strip() and not ln.strip().startswith("#")]
-    out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z"],
-                         capture_output=True)
-    names = [os.fsdecode(n) for n in out.stdout.split(b"\0") if n]
-    sizes = {}
-    for n in names:
-        try:
-            sizes[n] = (REPO / n).stat().st_size
-        except OSError:
-            pass
+    sizes = _tracked_sizes()
     for line in lines[1:]:                      # lines[0] is the `/*`
         prefix = line.lstrip("!").lstrip("/")
         yield line, sum(v for k, v in sizes.items() if k.startswith(prefix))
@@ -115,6 +117,48 @@ def _exclusions():
 def _git_checkout_or_skip():
     if shutil.which("git") is None or not (REPO / ".git").exists():
         pytest.skip("not a git checkout")
+
+
+@pytest.mark.parametrize("missing", ["deleted", "sparse"])
+def test_checkout_measurement_refuses_missing_tracked_files(tmp_path, monkeypatch, missing):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    kept = repo / "kept.txt"
+    kept.write_bytes(b"always checked out\n")
+    omitted = repo / "omitted" / "hidden.txt"
+    omitted.parent.mkdir()
+    omitted.write_bytes(b"this tracked content must be counted\n")
+    subprocess.run(["git", "init", "--quiet", str(repo)], check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(repo), "add", "."], check=True, capture_output=True)
+    subprocess.run([
+        "git", "-C", str(repo), "-c", "user.name=Checkout test",
+        "-c", "user.email=checkout-test@example.invalid", "commit", "--quiet",
+        "-m", "Track measurement fixtures",
+    ], check=True, capture_output=True)
+    exclusions = tmp_path / "excludes.txt"
+    exclusions.write_text("/*\n!omitted/\n", encoding="utf-8")
+    monkeypatch.setattr(sys.modules[__name__], "REPO", repo)
+    monkeypatch.setattr(sys.modules[__name__], "EXCLUDES", exclusions)
+    assert _tracked_bytes() == kept.stat().st_size + omitted.stat().st_size
+    assert dict(_exclusions()) == {"!omitted/": omitted.stat().st_size}
+
+    if missing == "deleted":
+        omitted.unlink()
+    else:
+        subprocess.run([
+            "git", "-C", str(repo), "sparse-checkout", "set", "--no-cone", "/kept.txt",
+        ], check=True, capture_output=True)
+    assert not omitted.exists()
+    with pytest.raises(RuntimeError, match=r"omitted/hidden\.txt.*full checkout"):
+        _tracked_bytes()
+    with pytest.raises(RuntimeError, match=r"omitted/hidden\.txt.*full checkout"):
+        list(_exclusions())
+
+
+def test_checkout_measurement_refuses_a_failed_git_listing(tmp_path, monkeypatch):
+    monkeypatch.setattr(sys.modules[__name__], "REPO", tmp_path)
+    with pytest.raises(subprocess.CalledProcessError):
+        _tracked_bytes()
 
 
 def test_the_checkout_size_in_the_readme_matches_the_tree():

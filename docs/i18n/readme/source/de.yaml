@@ -256,7 +256,7 @@ blocks:
     Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher
     umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde
     keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von main belegen im
-    ausgecheckten Arbeitsverzeichnis 1265 MB (gemessen am 2026-10-21), ohne Git-Historie.
+    ausgecheckten Arbeitsverzeichnis 5059 MB (gemessen am 2026-10-21), ohne Git-Historie.
     Downloadgröße und Dauer hängen vom Branch ab.'
 - h2: Befehle für die Kommandozeile
 - code: |-

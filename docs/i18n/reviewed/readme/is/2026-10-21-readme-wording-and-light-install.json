@@ -191,9 +191,9 @@
     },
     {
       "label": "readme-main-tracked-checkout-size-2026-10-21",
-      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 1265 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch.",
-      "source_sha256": "9a5665f181eed85ad7a2a92f18bc70c1a9cf7d52011644568aa765911e715890",
-      "translation": "Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í main taka 1265 MB í vinnueintakinu (mælt 2026-10-21), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 5059 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "5f4839a724ec3aaeb9fb2b8d55fc9446c3d3949d1bb8ea2fb44b3f5e2776e9e1",
+      "translation": "Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í main taka 5059 MB í vinnueintakinu (mælt 2026-10-21), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."
     },
     {
       "label": "readme-resource-2026-10-21-1",

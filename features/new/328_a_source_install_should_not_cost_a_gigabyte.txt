@@ -521,3 +521,9 @@ English; closing that means moving them into prose in README.rst, not
 translating shell comments.
 
 VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.
+
+2026-10-21 — Corrected only the current MAIN checkout clause: the original sparse preparation missed tracked files; full6c20 HEAD totals5305183243bytes (5059.417MiB), matching hosted5059MB.
+All nine current source-bound translations and the owning fixture now say5059 under the existing MB-label/MiB basis; historical transport figures,2026-10-21 date and executable commands remain unchanged.
+Measurement now refuses missing/sparse tracked files or failed Git listing; its3 real regressions pass0.77s and the original15% tolerance is unchanged.
+Normal generation completes1700 images;17 owning pytest cases pass3.41s and both existing full-domain/history guards pass, including all nine bindings and actual full-tree size.
+Prior installation/launch acceptance is retained; independent review and root MAIN publication complete this reopened measurement correction, without changing nightly’s separately measured720MB clause.

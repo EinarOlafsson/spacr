@@ -240,7 +240,7 @@ blocks:
 - p: 'Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið
     minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti
     sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar
-    í main taka 1265 MB í vinnueintakinu (mælt 2026-10-21), án Git-sögunnar. Stærð og tími
+    í main taka 5059 MB í vinnueintakinu (mælt 2026-10-21), án Git-sögunnar. Stærð og tími
     niðurhals eru mismunandi eftir grein.'
 - h2: Skipanalínuskipanir
 - code: |-
