@@ -17,11 +17,20 @@ _ORDER = {"not_run": 0, "passed": 1, "skipped": 2, "failed": 3}
 
 def pytest_configure(config):
     global _RECORD, _SESSION
+    _RECORD = None
+    _SESSION = None
     directory = os.environ.get("SPACR_TEST_COUNT_DIR")
     if not directory:
         return
-    _SESSION = (os.environ["SPACR_TEST_COUNT_SESSION"]
-                if hasattr(config, "workerinput") else uuid.uuid4().hex)
+    if hasattr(config, "workerinput"):
+        _SESSION = os.environ["SPACR_TEST_COUNT_SESSION"]
+    else:
+        owner = os.environ.get("SPACR_TEST_COUNT_OWNER_PID")
+        if owner is not None and owner != str(os.getpid()):
+            os.environ.pop("SPACR_TEST_COUNT_DIR", None)
+            return
+        _SESSION = uuid.uuid4().hex
+        os.environ["SPACR_TEST_COUNT_OWNER_PID"] = str(os.getpid())
     os.environ["SPACR_TEST_COUNT_SESSION"] = _SESSION
     _RECORD = Path(directory).absolute() / f"{_SESSION}-{os.getpid()}.jsonl"
     _RECORD.parent.mkdir(parents=True, exist_ok=True)
