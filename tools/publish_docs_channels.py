@@ -417,7 +417,9 @@ def squash_nightly_if_needed(site: Path, space: str = NIGHTLY_SPACE, api=None) -
     Run before :func:`upload_nightly`. Squashing rewrites the history to the
     current site; the large files only earlier sites referenced still count
     against the quota until they are deleted, so the ones the current tree
-    does not reference are deleted as well. The token comes from
+    does not reference are deleted as well. A missing-object cleanup refusal
+    is reported as unconfirmed; the following upload and deployment checks
+    still enforce quota and publication success. The token comes from
     ``HF_TOKEN`` and is never printed.
 
     :returns: what was measured and done, for the job log.
@@ -443,7 +445,19 @@ def squash_nightly_if_needed(site: Path, space: str = NIGHTLY_SPACE, api=None) -
     orphans = [item for item in api.list_lfs_files(space, repo_type="space")
                if item.file_oid not in served]
     if orphans:
-        api.permanently_delete_lfs_files(space, orphans, repo_type="space")
+        from huggingface_hub.errors import HfHubHTTPError
+        try:
+            api.permanently_delete_lfs_files(space, orphans, repo_type="space")
+        except HfHubHTTPError as error:
+            response = getattr(error, "response", None)
+            message = str(getattr(response, "text", ""))
+            if (getattr(response, "status_code", None) != 404
+                    or "Some LFS files not found" not in message):
+                raise
+            result.update(squashed=True, cleanup="unconfirmed-missing-lfs",
+                          deleted_files=None, deleted_bytes=None,
+                          requested_files=len(orphans))
+            return result
     result.update(squashed=True, deleted_files=len(orphans),
                   deleted_bytes=sum(int(item.size) for item in orphans))
     return result
