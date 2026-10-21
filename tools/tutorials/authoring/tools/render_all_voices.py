@@ -300,6 +300,7 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
             ('Embeddings', 'エンベディングス', '嵌入特征'),
             ('Power / Design', 'パワー アンド デザイン', '功效与设计'),
             ('Dose-Response', 'ドーズ レスポンス', '剂量反应'),
+            ('Dose Response', 'ドーズ レスポンス', '剂量反应'),
             ('Align and Stitch', 'アライン アンド スティッチ', '对齐与拼接'),
             ('Explain CV Model', 'エクスプレイン シー ブイ モデル', '解释计算机视觉模型'),
             ('Feature Explorer', 'フィーチャー エクスプローラー', '特征浏览器'),
