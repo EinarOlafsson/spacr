@@ -309,6 +309,41 @@ def test_a_completion_arriving_after_the_runner_is_gone_is_silent(qapp):
     assert errors == []
 
 
+def test_a_runner_destroyed_mid_job_forgets_the_delivery_it_can_no_longer_make(
+        qapp, qtbot):
+    """Qt drops a dead runner's completion slot, so its pending record goes too.
+
+    The Figure Queue's PDF render outlived its widget on a slow runner
+    (Qt shard 2, 2026-10-20): the runner reported one pending, busy job
+    forever, because the completion that would have cleared it was never
+    delivered.
+    """
+    from spacr.qt.bridge import thread_has_stopped
+
+    release = threading.Event()
+    doomed = JobRunner(app_key="testing")
+    assert doomed.submit(lambda: release.wait(10), lambda _result: None)
+    threads = [pair[0] for pair in doomed._jobs.values()]
+    assert doomed.pending_jobs() == 1 and doomed.is_busy()
+
+    shiboken6.delete(doomed)
+    assert doomed.pending_jobs() == 0
+    assert not doomed.is_busy()
+
+    release.set()
+    qtbot.waitUntil(lambda: all(thread_has_stopped(t) for t in threads),
+                    timeout=10000)
+    qapp.processEvents()
+    assert doomed.pending_jobs() == 0
+
+
+def test_forgetting_the_deliveries_of_a_collected_runner_does_nothing():
+    """The destroyed hook holds only a weak reference, which may be dead."""
+    from spacr.qt.job_runner import _forget_deliveries
+
+    assert _forget_deliveries(lambda: None) is None
+
+
 # ---------------------------------------------------------------------------
 # what travels between the threads
 # ---------------------------------------------------------------------------

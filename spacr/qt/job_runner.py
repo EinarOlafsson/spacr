@@ -107,6 +107,23 @@ def shutdown_all(timeout_ms: int = SHUTDOWN_BUDGET_MS) -> int:
     return asked
 
 
+def _forget_deliveries(runner_ref) -> None:
+    """Drop a destroyed runner's pending deliveries and its busy flag.
+
+    A worker's completion is a bound slot of the runner, which Qt drops once
+    the runner is destroyed; without this the runner's Python half would keep
+    reporting a pending, busy job that can never be delivered. Only Python
+    state is touched, so it is safe while the C++ object is being destroyed.
+
+    :param runner_ref: a weak reference to the runner.
+    """
+    runner = runner_ref()
+    if runner is None:
+        return
+    runner._pending.clear()
+    runner._busy = False
+
+
 class JobRunner(QObject):
     """Run callables off the GUI thread; deliver their results on it.
 
@@ -166,6 +183,8 @@ class JobRunner(QObject):
         self._generation = 0
         self._busy = False
         self._settled.connect(self._on_settled)
+        self.destroyed.connect(
+            lambda *_args, runner=weakref.ref(self): _forget_deliveries(runner))
 
 
     def submit(self, fn: Callable[[], Any],
