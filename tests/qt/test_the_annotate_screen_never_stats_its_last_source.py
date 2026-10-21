@@ -219,6 +219,39 @@ def test_closing_releases_the_screen_from_a_process_wide_signal(
     path_probe.probes.answered.emit(str(last), True)
 
 
+def test_an_already_queued_probe_answer_is_ignored_after_the_screen_closes(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    """Disconnecting cannot retract a probe answer already posted to Qt."""
+    from PySide6.QtCore import Qt
+    from spacr.qt import prefs
+
+    last = tmp_path / "queued-probe"
+    last.mkdir()
+    prefs.set_last_source("annotate", str(last))
+    screen = _screen(qtbot)
+    landed = screen._path_probe_landed
+    applied = []
+    delivered = []
+    monkeypatch.setattr(screen, "_apply_suggested_source", lambda: applied.append(True))
+
+    def queued_answer(path, answer):
+        delivered.append(screen._closing)
+        landed(path, answer)
+
+    path_probe.probes.answered.connect(queued_answer, Qt.QueuedConnection)
+    try:
+        path_probe.probes.answered.emit(str(last), True)
+        assert not delivered
+        applied.clear()
+        screen.close()
+        assert screen._closing and screen._path_probe_landed is None
+        qtbot.waitUntil(lambda: bool(delivered))
+        assert all(delivered), "the queued answer was delivered before close began"
+        assert applied == [], "a queued probe applied a source to a closing screen"
+    finally:
+        path_probe.probes.answered.disconnect(queued_answer)
+
+
 # ---------------------------------------------------------------------------
 # The sibling sites: everywhere else this screen hands a user's path to
 # something that stats it on the GUI thread.
