@@ -366,3 +366,9 @@ The automated equivalent, for any machine, is:
         tests/qt/test_sound_on_does_not_wedge_the_preferences_dialog.py
 
 VERIFIED 2026-10-04: test_sound_on_does_not_wedge_the_preferences_dialog passes; the QtMultimedia thread pins skip on this box (libbrotlidec mismatch, environmental); 2 referenced test files pass.
+
+2026-10-21 — Scoped shutdown repair; owner: release_ci_takeover/easy_n79 with retained G1 finder.
+Repeated shutdown now checks actual thread retirement: a parked live renderer still reports False, becoming True only after it stops.
+Initial drain/cancellation/player cleanup, documented return contract and audio defaults remain unchanged; repeated calls do not redrain.
+Two focused cases pass2.89s: controlled parked-thread repeats through shutdown_sound and the existing normal real-QThread cleanup, using fake audio.
+Root owns final peer, integration/publication; original native-desktop preferences acceptance remains open.
