@@ -1,1 +1,1 @@
-- [Handbok för funktioner](<../../source/features.rst>) – kapacitet, mognad och valfria integrationer.
+- [Funktionsguide](<../../source/features.rst>) — funktioner, mognadsgrad och valfria integrationer.

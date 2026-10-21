@@ -4,7 +4,7 @@
 
 spaCR segmenterar och mäter enskilda celler i mikroskopibilder, integrerar fenotyper per objekt med sekvenseringshärledd guideförekomst och uppskattar vilka gener som är associerade med fenotypiska förändringar. Med plattbilder och FASTQ-läsningar som utgångspunkt producerar programmet mätningar per objekt, tränade klassificerare, effektskattningar per guide och gen samt en rangordnad träfflista.
 
-Segmenterings-, mät-, annoterings- och klassificeringsmodulerna körs även utan en sekvensarm.
+Modulerna för segmentering, mätning, annotering och klassificering kan också köras utan någon sekvenseringsdel.
 
 Make Masks korrigerar segmenteringsmasker och annoterar oberoende, klassmärkta rektanglar med verktyget <strong>Box</strong> för YOLO-export. Rutorna har egna etiketter och egen historik utan att ändra källbilder eller masker.
 

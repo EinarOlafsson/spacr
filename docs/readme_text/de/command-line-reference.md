@@ -1,3 +1,3 @@
 ### Befehlszeilenreferenz
 
-Jeder Befehl unten wird von ` pip install spacr ` installiert. Alle von ihnen akzeptieren ` --help `.
+Alle folgenden Befehle werden mit ` pip install spacr ` installiert und unterstützen ` --help `.

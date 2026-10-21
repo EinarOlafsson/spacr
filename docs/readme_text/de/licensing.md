@@ -1,5 +1,5 @@
 ## Lizenz
 
-spaCR is released under the [BSD 3-Clause-Lizenz](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>).
+spaCR wird unter der [BSD3-Clause-Lizenz](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>) veröffentlicht.
 
-Wenn spaCR zu veröffentlichten Arbeiten beigetragen hat, wird ein Zitat geschätzt und ist keine Bedingung der Lizenz — siehe spaCR zitieren unten.
+Wenn spaCR zu einer Veröffentlichung beigetragen hat, freuen wir uns über eine Quellenangabe. Sie ist keine Bedingung der Lizenz; siehe unten unter spaCR zitieren.

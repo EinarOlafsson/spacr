@@ -1,0 +1,3 @@
+` --dir ` elige la ruta del clon; ` --branch ` selecciona una rama o etiqueta; ` --no-install ` descarga sin instalar; ` --help ` muestra las opciones. ` packaging/source_install_excludes.txt ` enumera todas las rutas omitidas.
+
+El clon completo de nightly descargó 9.25 GiB. Añadir ` --filter=blob:none ` al clon superficial no reduce la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Git no informa de las descargas diferidas de objetos, por lo que no se midió un total de descarga. Los archivos versionados de nightly ocupan 720 MB en la copia de trabajo (medidos el 2026-10-21), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama.

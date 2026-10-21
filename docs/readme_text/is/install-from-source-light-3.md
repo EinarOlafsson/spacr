@@ -1,0 +1,3 @@
+` --dir ` velur slóð klónunarinnar; ` --branch ` velur grein eða merki; ` --no-install ` sækir án þess að setja upp; ` --help ` sýnir valkostina. ` packaging/source_install_excludes.txt ` telur upp allar slóðir sem er sleppt.
+
+Full klónun nightly sótti 9.25 GiB. Að bæta ` --filter=blob:none ` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í nightly taka 720 MB í vinnueintakinu (mælt 2026-10-21), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein.

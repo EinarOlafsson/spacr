@@ -636,3 +636,79 @@ def test_both_source_install_sections_read_as_reviewed_prose_in_every_language()
         localized = readme_words(LOCALIZED / f"README.{language}.rst")
         left = [fragment for fragment in fragments if fragment in localized]
         assert not left, f"{language} still carries the model draft: {left}"
+
+
+@pytest.mark.parametrize("language", ("en", *LANGUAGES))
+def test_light_install_explanations_are_localized_prose_beside_unchanged_commands(language):
+    """Translated choices and limitations belong outside executable shell recipes."""
+    import yaml
+
+    english = yaml.safe_load((REPO / "packaging/readme_source.yaml").read_text())
+    source = (REPO / "packaging/readme_source.yaml" if language == "en" else
+              LOCALIZED / "source" / f"{language}.yaml")
+    blocks = yaml.safe_load(source.read_text())["blocks"]
+    start = english["blocks"].index({"h3": SECTION})
+    stop = next(index for index in range(start + 1, len(blocks)) if "h2" in blocks[index])
+    section = blocks[start + 1:stop]
+    recipes = [block["code"] for block in section if "code" in block]
+    assert recipes == [
+        "git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git\n"
+        "cd spacr && pip install -e .",
+        "curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh "
+        "-o install_spacr.sh\nsh install_spacr.sh --branch nightly",
+    ]
+    assert all(not line.lstrip().startswith("#") for recipe in recipes for line in recipe.splitlines())
+    prose = " ".join(block["p"] for block in section if "p" in block)
+    for protected in (
+            "2048", "140", "104", "38", "66", "--unshallow", "git log", "git blame",
+            "git bisect", "git pull", "--with-docs", "--with-tests", "--with-translations",
+            "--dir", "--branch", "--no-install", "--help", "packaging/source_install_excludes.txt"):
+        assert protected in prose, (language, protected)
+    for index, block in enumerate(section):
+        if "code" in block:
+            assert index > 0 and "p" in section[index - 1], language
+
+
+def test_every_current_readme_prose_heading_and_list_has_all_nine_source_bound_targets():
+    """A new semantic README unit cannot silently fall back to an unreviewed draft."""
+    import sys
+    import yaml
+
+    tools = str(REPO / "tools")
+    if tools not in sys.path:
+        sys.path.insert(0, tools)
+    from build_documentation_i18n import REVIEWED_README_BLOCKS, REVIEWED_README_HEADINGS
+
+    reviewed = {**REVIEWED_README_BLOCKS, **REVIEWED_README_HEADINGS}
+    english = yaml.safe_load((REPO / "packaging/readme_source.yaml").read_text())["blocks"]
+    localized = {language: yaml.safe_load(
+        (LOCALIZED / "source" / f"{language}.yaml").read_text())["blocks"]
+        for language in LANGUAGES}
+    paper_title = (
+        "Olafsson EB, *et al.* A pooled image-based CRISPR screen identifies EAF1 "
+        "as a *T. gondii* modulator of ESCRT subversion.")
+    unit_count = 0
+    for index, block in enumerate(english):
+        key = next(iter(block))
+        if key not in {"h2", "h3", "p", "list"} or block.get("marker") == "citing-papers":
+            continue
+        items = block[key] if key == "list" else [block[key]]
+        for item, value in enumerate(items):
+            source = re.sub(r"\s+", " ", value).strip()
+            if source.endswith("::"):
+                source = source[:-2].rstrip()
+            if key == "p" and (source == paper_title or not re.sub(
+                    r"`[^`]+ <[^>]+>`_", "", source).replace(r"\xa0", "").strip(" ·\u00a0")):
+                continue
+            assert source in reviewed, source
+            assert set(reviewed[source]) == set(LANGUAGES), source
+            for language in LANGUAGES:
+                target = localized[language][index][key]
+                if key == "list":
+                    target = target[item]
+                target = re.sub(r"\s+", " ", target).strip()
+                if target.endswith("::"):
+                    target = target[:-2].rstrip()
+                assert target == reviewed[source][language], (language, source)
+            unit_count += 1
+    assert unit_count > 0

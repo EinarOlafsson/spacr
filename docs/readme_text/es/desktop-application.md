@@ -1,3 +1,3 @@
 ### Aplicación de escritorio
 
-Los instaladores agrupan sus propios Python. No se requiere Conda.
+Los instaladores incluyen su propio entorno de Python. No se necesita Conda.

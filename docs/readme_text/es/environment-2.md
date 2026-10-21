@@ -1,1 +1,1 @@
-Los registros de rotación se escriben en ` ~/.spacr/logs/spacr.log `. Adjuntar ese archivo a un informe de fallo.
+Los registros con rotación se guardan en ` ~/.spacr/logs/spacr.log `. Adjunte ese archivo al informe de errores.

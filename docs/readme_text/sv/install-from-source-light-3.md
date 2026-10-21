@@ -1,0 +1,3 @@
+` --dir ` väljer klonens sökväg; ` --branch ` väljer gren eller tagg; ` --no-install ` hämtar utan att installera; ` --help ` visar alternativen. ` packaging/source_install_excludes.txt ` listar alla utelämnade sökvägar.
+
+Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ` --filter=blob:none ` till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 720 MB (uppmätt 2026-10-21), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.

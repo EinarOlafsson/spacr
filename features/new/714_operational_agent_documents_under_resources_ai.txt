@@ -2,7 +2,7 @@
 OPERATIONAL AGENT RULES AND HANDOFFS UNDER spacr/resources/AI
 ================================================================================
 
-Status:    DONE 2026-10-20 — accepted native-boundary closure for this nightly delivery 2026-10-20 — native resource boundary repaired and root peer accepted
+Status:    DONE 2026-10-20 — accepted native-boundary closure for this nightly delivery; native resource boundary repaired and root peer accepted
 Requested: maintainer, 2026-10-20 — approved moving tracked agent rules and
            handoffs into spacr/resources/AI, retaining discovery pointers and
            excluding these operational documents from installed distributions.

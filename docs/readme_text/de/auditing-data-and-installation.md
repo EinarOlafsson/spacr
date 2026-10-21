@@ -1,1 +1,1 @@
-## Prüfungsdaten und Installation
+## Daten und Installation prüfen

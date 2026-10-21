@@ -4,7 +4,7 @@
 
 spaCR segmente et mesure les cellules individuelles dans des images de microscopie, intègre les phénotypes par objet à l’abondance des guides dérivée du séquençage et estime quels gènes sont associés aux changements phénotypiques. À partir d’images de plaques et de lectures FASTQ, il produit des mesures par objet, des classificateurs entraînés, des estimations d’effet par guide et par gène, ainsi qu’une liste de résultats classée.
 
-Les modules de segmentation, de mesure, d'annotation et de classification fonctionnent également sans bras de séquençage.
+Les modules de segmentation, de mesure, d’annotation et de classification fonctionnent aussi sans composante de séquençage.
 
 Make Masks corrige les masques de segmentation et annote des rectangles indépendants avec des étiquettes de classe grâce à l’outil <strong>Box</strong> pour l’export YOLO. Les rectangles conservent leurs propres étiquettes et leur historique sans modifier les images ni les masques sources.
 

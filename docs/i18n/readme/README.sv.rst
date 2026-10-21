@@ -96,7 +96,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/spacr.desktop.svg"><img src="../../readme_images/sv/spacr.svg" alt="spaCR. Rumslig fenotypanalys av CRISPR-screeningar. spaCR segmenterar och mäter enskilda celler i mikroskopibilder, integrerar fenotyper per objekt med sekvenseringshärledd guideförekomst och uppskattar vilka gener som är associerade med fenotypiska förändringar. Med plattbilder och FASTQ-läsningar som utgångspunkt producerar programmet mätningar per objekt, tränade klassificerare, effektskattningar per guide och gen samt en rangordnad träfflista. Segmenterings-, mät-, annoterings- och klassificeringsmodulerna körs även utan en sekvensarm. Make Masks korrigerar segmenteringsmasker och annoterar oberoende, klassmärkta rektanglar med verktyget Box för YOLO-export. Rutorna har egna etiketter och egen historik utan att ändra källbilder eller masker. Se funktionsguiden för varje verktyg. Bilder, masker och bildutsnitt är filer på disk. Mätningar, annoteringar och modellprediktioner är tabeller i projektets SQLite-databas measurements.db. Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster."></picture></a></div>
+   <div><a href="../../readme_text/sv/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/spacr.desktop.svg"><img src="../../readme_images/sv/spacr.svg" alt="spaCR. Rumslig fenotypanalys av CRISPR-screeningar. spaCR segmenterar och mäter enskilda celler i mikroskopibilder, integrerar fenotyper per objekt med sekvenseringshärledd guideförekomst och uppskattar vilka gener som är associerade med fenotypiska förändringar. Med plattbilder och FASTQ-läsningar som utgångspunkt producerar programmet mätningar per objekt, tränade klassificerare, effektskattningar per guide och gen samt en rangordnad träfflista. Modulerna för segmentering, mätning, annotering och klassificering kan också köras utan någon sekvenseringsdel. Make Masks korrigerar segmenteringsmasker och annoterar oberoende, klassmärkta rektanglar med verktyget Box för YOLO-export. Rutorna har egna etiketter och egen historik utan att ändra källbilder eller masker. Se funktionsguiden för varje verktyg. Bilder, masker och bildutsnitt är filer på disk. Mätningar, annoteringar och modellprediktioner är tabeller i projektets SQLite-databas measurements.db. Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster."></picture></a></div>
 
 .. raw:: html
 
@@ -136,7 +136,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/desktop-application.desktop.svg"><img src="../../readme_images/sv/desktop-application.svg" alt="Skrivbordsprogram. Installatörerna buntar ihop sina egna Python. Conda krävs inte."></picture></a></div>
+   <div><a href="../../readme_text/sv/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/desktop-application.desktop.svg"><img src="../../readme_images/sv/desktop-application.svg" alt="Skrivbordsprogram. Installationsprogrammen innehåller en egen Python-miljö. Conda behövs inte."></picture></a></div>
 
 .. spacr-installer-links-begin
 
@@ -165,7 +165,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/desktop-application-3.desktop.svg"><img src="../../readme_images/sv/desktop-application-3.svg" alt="På macOS, öppna .pkg. Nuvarande beta notariseras inte. Om Gatekeeper blockerar den, välj Systeminställningar → Integritet &amp; Säkerhet → Öppna ändå. För installation, uppdatering, ominstallation, avinstallation, offlineanvändning och felsökning, se den aktuella installationsguiden på nightly (engelska). Se systemkraven för rekommendationer om arbetsstationer och servrar samt tabeller över GPU-kompatibilitet."></picture></a></div>
+   <div><a href="../../readme_text/sv/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/desktop-application-3.desktop.svg"><img src="../../readme_images/sv/desktop-application-3.svg" alt="På macOS, öppna .pkg. Den nuvarande betaversionen är inte notariserad. Om Gatekeeper blockerar den, välj Systeminställningar → Integritet &amp; Säkerhet → Öppna ändå. För installation, uppdatering, ominstallation, avinstallation, offlineanvändning och felsökning, se den aktuella installationsguiden på nightly (engelska). Se systemkraven för rekommendationer om arbetsstationer och servrar samt tabeller över GPU-kompatibilitet."></picture></a></div>
 
 .. raw:: html
 
@@ -194,7 +194,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/pypi-installation-3.desktop.svg"><img src="../../readme_images/sv/pypi-installation-3.svg" alt="Optional integrations are installed separately, for example spacr[zarr], spacr[omero], spacr[napari] and spacr[czi,nd2,lif]. See the installationsguide (nightly, engelska) for the complete extras and Python-version compatibility table."></picture></a></div>
+   <div><a href="../../readme_text/sv/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/pypi-installation-3.desktop.svg"><img src="../../readme_images/sv/pypi-installation-3.svg" alt="Valfria integrationer installeras separat, till exempel spacr[zarr], spacr[omero], spacr[napari] och spacr[czi,nd2,lif]. Den fullständiga listan över tillägg och tabellen över kompatibla Python-versioner finns i installationsguiden (nightly, engelska)."></picture></a></div>
 
 .. raw:: html
 
@@ -243,27 +243,25 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light.desktop.svg"><img src="../../readme_images/sv/install-from-source-light.svg" alt="Installation från källkod (lättviktig). Bidragsgivare behöver versionshistoriken; välj ett alternativ nedan om du bara vill köra spaCR. Mätningarna gäller nightly vid 05302fd5c den 2026-10-07 och gjordes med packaging/measure_clone_forms.sh:"></picture></a></div>
+   <div><a href="../../readme_text/sv/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light.desktop.svg"><img src="../../readme_images/sv/install-from-source-light.svg" alt="Installation från källkod (lättviktig). Bidragsgivare behöver versionshistoriken; välj ett alternativ nedan om du bara vill köra spaCR. Mätningarna gäller nightly vid 05302fd5c den 2026-10-07 och gjordes med packaging/measure_clone_forms.sh. Ytlig klon: 2048 MB hämtades på 140 s. Endast den senaste incheckningen behålls, så äldre historik är inte tillgänglig för git log, git blame eller git bisect. git pull fungerar men klonen förblir ytlig; git fetch --unshallow hämtar hela historiken."></picture></a></div>
 
 .. code-block:: bash
 
-   # One commit instead of every version: 2048 MB downloaded, 140 s.
-   # No history, so no git log, no git blame and no git bisect.
-   # git pull still works, but stays shallow until git fetch --unshallow.
    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
    cd spacr && pip install -e .
 
-   # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-   # No history, docs, tests, tools, features or example data.
-   # --with-docs, --with-tests and --with-translations put those back;
-   # --dir, --branch, --no-install and --help do the obvious things.
-   # packaging/source_install_excludes.txt lists every skipped path.
+.. raw:: html
+
+   <div><a href="../../readme_text/sv/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light-2.desktop.svg"><img src="../../readme_images/sv/install-from-source-light-2.svg" alt="Enbart körningsfiler: 104 MB på disk på 6 s (Git: 38 MB; filer: 66 MB). Historik, docs, tests, tools, features, exempeldata och utökade gränssnittsöversättningar utelämnas. --with-docs, --with-tests och --with-translations behåller motsvarande dokumentation, tester och översättningar. De kompakta gränssnittsöversättningarna finns kvar."></picture></a></div>
+
+.. code-block:: bash
+
    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
    sh install_spacr.sh --branch nightly
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light-2.desktop.svg"><img src="../../readme_images/sv/install-from-source-light-2.svg" alt="Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till --filter=blob:none till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 958 MB (uppmätt 2026-10-20), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."></picture></a></div>
+   <div><a href="../../readme_text/sv/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light-3.desktop.svg"><img src="../../readme_images/sv/install-from-source-light-3.svg" alt="--dir väljer klonens sökväg; --branch väljer gren eller tagg; --no-install hämtar utan att installera; --help visar alternativen. packaging/source_install_excludes.txt listar alla utelämnade sökvägar. Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till --filter=blob:none till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 720 MB (uppmätt 2026-10-21), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."></picture></a></div>
 
 .. raw:: html
 
@@ -414,19 +412,19 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/other-resources-2-2.desktop.svg"><img src="../../readme_images/sv/other-resources-2-2.svg" alt="Snabbstart Python API – kör och validera arbetsflöden från skript, anteckningsböcker eller ett kluster."></picture></a></div>
+   <div><a href="../../readme_text/sv/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/other-resources-2-2.desktop.svg"><img src="../../readme_images/sv/other-resources-2-2.svg" alt="Snabbstart för Python-API:t — kör och validera bearbetningsflöden från skript, anteckningsböcker eller ett kluster."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/other-resources-2-3.desktop.svg"><img src="../../readme_images/sv/other-resources-2-3.svg" alt="Handbok för funktioner – kapacitet, mognad och valfria integrationer."></picture></a></div>
+   <div><a href="../../readme_text/sv/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/other-resources-2-3.desktop.svg"><img src="../../readme_images/sv/other-resources-2-3.svg" alt="Funktionsguide — funktioner, mognadsgrad och valfria integrationer."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/other-resources-2-4.desktop.svg"><img src="../../readme_images/sv/other-resources-2-4.svg" alt="Kurerad API referens – understödda ingångspunkter för uppgift, med den fullständiga modulreferensen en nivå djupare."></picture></a></div>
+   <div><a href="../../readme_text/sv/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/other-resources-2-4.desktop.svg"><img src="../../readme_images/sv/other-resources-2-4.svg" alt="Utvald API-referens — stödda ingångspunkter ordnade efter uppgift, med den fullständiga modulreferensen en nivå djupare."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/other-resources-2-5.desktop.svg"><img src="../../readme_images/sv/other-resources-2-5.svg" alt="Språk- och översättningsguide – gränssnittsspråk, kontextuell hjälp och policy för vetenskaplig output."></picture></a></div>
+   <div><a href="../../readme_text/sv/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/other-resources-2-5.desktop.svg"><img src="../../readme_images/sv/other-resources-2-5.svg" alt="Språk- och översättningsguide — gränssnittsspråk, kontextuell hjälp och policy för vetenskapliga resultat."></picture></a></div>
 
 .. raw:: html
 
@@ -468,7 +466,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/model-zoo.desktop.svg"><img src="../../readme_images/sv/model-zoo.svg" alt="Modellbibliotek. spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Öppna Modellzoo från startskärmen för att bläddra och installera dem, eller namnge en nyckel i en inställningsfil -- pathogen_model: toxoplasma_pv_v1 -- och modellen laddas ner och kontrolleras första gången den behövs. Varje publicerad post innehåller en SHA-256; en post utan en nekas snarare än installeras, eftersom en trunkerad eller ersatt kontrollpunkt inte kan meddelas från den verkliga."></picture></a></div>
+   <div><a href="../../readme_text/sv/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/model-zoo.desktop.svg"><img src="../../readme_images/sv/model-zoo.svg" alt="Modellbibliotek. spaCR innehåller en katalog över tränade modeller och hämtar dem vid behov. Öppna Model Zoo från startskärmen för att bläddra bland och installera modellerna, eller ange en modellnyckel i en inställningsfil, till exempel pathogen_model: toxoplasma_pv_v1. Modellen laddas då ned och verifieras med en kontrollsumma första gången den behövs. Varje publicerad post har en SHA-256-kontrollsumma. En post utan kontrollsumma nekas, eftersom en ofullständig eller utbytt modellfil annars inte kan skiljas från den riktiga."></picture></a></div>
 
 .. spacr-model-zoo-begin
 
@@ -509,7 +507,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/sv/diagnosing-performance-2.svg" alt="Sparar till ~/.spacr/reports och skriver ut sökvägen. --quick hoppar över de längre riktmärkena; --out PATH anger platsen. Läser inga projektdata. Mäter tiden för importer, numeriska bibliotek, fönsterkonstruktion och animering, och rapporterar x86_64-emulering på Apple Silicon samt NumPys BLAS."></picture></a></div>
+   <div><a href="../../readme_text/sv/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/sv/diagnosing-performance-2.svg" alt="Sparar i ~/.spacr/reports och skriver ut sökvägen. --quick hoppar över de längre prestandatesterna; --out PATH anger platsen. Läser inga projektdata. Mäter tiden för importer, numeriska bibliotek, fönsterkonstruktion och animering, och rapporterar x86_64-emulering på Apple Silicon samt NumPys BLAS."></picture></a></div>
 
 .. raw:: html
 
@@ -517,7 +515,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/launching-the-application.desktop.svg"><img src="../../readme_images/sv/launching-the-application.svg" alt="Lansering av ansökan."></picture></a></div>
+   <div><a href="../../readme_text/sv/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/launching-the-application.desktop.svg"><img src="../../readme_images/sv/launching-the-application.svg" alt="Starta programmet."></picture></a></div>
 
 .. code-block:: bash
 
@@ -527,7 +525,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/sv/when-spacr-will-not-start.svg" alt="När spaCR inte kommer att starta."></picture></a></div>
+   <div><a href="../../readme_text/sv/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/sv/when-spacr-will-not-start.svg" alt="När spaCR inte startar."></picture></a></div>
 
 .. code-block:: bash
 
@@ -540,7 +538,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/running-modules-headlessly.desktop.svg"><img src="../../readme_images/sv/running-modules-headlessly.svg" alt="Drivmoduler utan grafiskt gränssnitt. Ingen Qt, ingen visning – för kluster, servrar och CI."></picture></a></div>
+   <div><a href="../../readme_text/sv/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/running-modules-headlessly.desktop.svg"><img src="../../readme_images/sv/running-modules-headlessly.svg" alt="Köra moduler utan grafiskt gränssnitt. Utan Qt eller bildskärm — för kluster, servrar och CI."></picture></a></div>
 
 .. code-block:: bash
 
@@ -557,7 +555,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/inspecting-a-run.desktop.svg"><img src="../../readme_images/sv/inspecting-a-run.svg" alt="Inspektera en körning. Varje körning är journaliserad till ~/.spacr/runs med dess inställningar, hashade ingångar, utgångar, varningar, versioner och frön."></picture></a></div>
+   <div><a href="../../readme_text/sv/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/inspecting-a-run.desktop.svg"><img src="../../readme_images/sv/inspecting-a-run.svg" alt="Inspektera en körning. Varje körning journalförs i ~/.spacr/runs med inställningar, hashvärden för indata, utdata, varningar, versioner och slumpfrön."></picture></a></div>
 
 .. code-block:: bash
 
@@ -592,7 +590,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/licensing.desktop.svg"><img src="../../readme_images/sv/licensing.svg" alt="Licens. spaCR frisätts under BSD 3-Clause-licens. Om spaCR bidrog till publicerade verk uppskattas en hänvisning och är inte ett villkor för licensen – se Citera spaCR nedan."></picture></a></div>
+   <div><a href="../../readme_text/sv/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/licensing.desktop.svg"><img src="../../readme_images/sv/licensing.svg" alt="Licens. spaCR ges ut under licensen BSD3-Clause. Om spaCR bidrog till publicerade verk uppskattas en hänvisning och är inte ett villkor för licensen – se Citera spaCR nedan."></picture></a></div>
 
 .. raw:: html
 

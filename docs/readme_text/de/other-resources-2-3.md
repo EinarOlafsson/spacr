@@ -1,1 +1,1 @@
-- [Funktionsleitfaden](<../../source/features.rst>) — Fähigkeiten, Reife und optionale Integrationen.
+- [Funktionsleitfaden](<../../source/features.rst>) — Fähigkeiten, Reifegrad und optionale Integrationen.

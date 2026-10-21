@@ -1,0 +1,3 @@
+` --dir ` choisit le chemin du clone ; ` --branch ` sélectionne une branche ou une étiquette ; ` --no-install ` télécharge sans installer ; ` --help ` affiche les options. ` packaging/source_install_excludes.txt ` répertorie tous les chemins omis.
+
+Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ` --filter=blob:none ` au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de nightly occupent 720 MB dans la copie de travail (mesurés le 2026-10-21), hors historique Git. La taille et la durée du téléchargement varient selon la branche.

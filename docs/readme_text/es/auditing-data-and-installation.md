@@ -1,1 +1,1 @@
-## Datos de auditoría e instalación
+## Auditar los datos y la instalación

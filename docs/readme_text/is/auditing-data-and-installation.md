@@ -1,1 +1,1 @@
-## Ákvarðanir gögnum og uppsetningu
+## Yfirfara gögn og uppsetningu

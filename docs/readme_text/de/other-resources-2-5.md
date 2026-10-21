@@ -1,1 +1,1 @@
-- [Sprach- und Übersetzungshandbuch](<../../source/localization.rst>) — Schnittstellensprachen, kontextbezogene Hilfe und Politik der wissenschaftlichen Ergebnisse.
+- [Sprach- und Übersetzungsleitfaden](<../../source/localization.rst>) — Oberflächensprachen, kontextbezogene Hilfe und Richtlinien für wissenschaftliche Ausgaben.

@@ -1,3 +1,3 @@
-## Módulos em execução sem interface gráfica
+## Executar módulos sem interface gráfica
 
-No Qt, no display para clusters, servidores e CI.
+Sem Qt nem tela — para clusters, servidores e CI.

@@ -3019,7 +3019,6 @@ _SCOPE_SOURCE = (
     "independently."
 )
 _TAGLINE_SOURCE = "**Spatial phenotype analysis of CRISPR screens.**"
-_ATTRIBUTION_SOURCE = "translation model attribution"
 _STORAGE_SOURCE = (
     "Images, masks, crops, measurements, annotations, predictions, barcodes "
     "and well identifiers live in one SQLite project, so a number in a "
@@ -3064,17 +3063,6 @@ REVIEWED_README_BLOCKS = {
         "is": "**Rýmisbundin svipgerðargreining á CRISPR-skimunum.**",
         "fr": "**Analyse spatiale des phénotypes de criblages CRISPR.**",
     },
-    _ATTRIBUTION_SOURCE: {
-        "sv": "Information om översättningsmodellerna",
-        "de": "Angaben zu den Übersetzungsmodellen",
-        "es": "Información sobre los modelos de traducción",
-        "zh_CN": "翻译模型说明",
-        "pt": "Informações sobre os modelos de tradução",
-        "hi": "अनुवाद मॉडल की जानकारी",
-        "ko": "번역 모델 정보",
-        "is": "Upplýsingar um þýðingarlíkön",
-        "fr": "Informations sur les modèles de traduction",
-    },
     _STORAGE_SOURCE: {
         "sv": "Bilder, masker, bildutsnitt, mätningar, annoteringar, prediktioner, streckkoder och brunnsidentifierare lagras i ett enda SQLite-projekt, så ett värde i ett resultat kan spåras tillbaka till objektet det kom från.",
         "de": "Bilder, Masken, Bildausschnitte, Messungen, Annotationen, Vorhersagen, Barcodes und Well-Kennungen liegen in einem einzigen SQLite-Projekt. Dadurch lässt sich ein Ergebniswert bis zu seinem Ursprungsobjekt zurückverfolgen.",
@@ -3108,12 +3096,6 @@ _LANGUAGE_SUPPORT_SOURCE = (
     "English. See the `contextual-help policy "
     "<docs/source/localization.rst#contextual-help>`_."
 )
-_ACKNOWLEDGMENTS_SOURCE = (
-    "spaCR builds on open scientific software including NumPy, pandas, "
-    "scikit-image, scikit-learn, Cellpose, PyTorch and Qt. See the `translation "
-    "model attribution <docs/i18n/TRANSLATION_MODELS.md>`_ for the models used "
-    "to prepare the multilingual documentation and interface catalogs."
-)
 _ANIMATION_SOURCE = (
     "Settings with a visual explanation offer an **Animation** control in "
     "their tooltip. Browse the `setting animation gallery "
@@ -3143,17 +3125,6 @@ REVIEWED_README_BLOCKS.update({
         "pt": "As configurações com uma explicação visual oferecem um controle **Animation** na dica de ferramenta. Consulte a `galeria de animações de configurações <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou o `registro de animações de configurações <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
         "sv": "Inställningar med en visuell förklaring har kontrollen **Animation** i verktygstipset. Bläddra i `galleriet med inställningsanimationer <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eller `registret över inställningsanimationer <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
         "zh_CN": "带有视觉说明的设置会在工具提示中提供 **Animation** 控件。浏览 `设置动画图库 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 或 `设置动画注册表 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_。",
-    },
-    _ACKNOWLEDGMENTS_SOURCE: {
-        "de": "spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der `Attribution der Übersetzungsmodelle <docs/i18n/TRANSLATION_MODELS.md>`_ aufgeführt.",
-        "es": "spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt. Consulte la `atribución de los modelos de traducción <docs/i18n/TRANSLATION_MODELS.md>`_ para conocer los modelos utilizados en la documentación multilingüe y los catálogos de la interfaz.",
-        "fr": "spaCR repose sur des logiciels scientifiques ouverts, notamment NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch et Qt. Consultez l’`attribution des modèles de traduction <docs/i18n/TRANSLATION_MODELS.md>`_ pour connaître les modèles utilisés dans la documentation multilingue et les catalogues de l’interface.",
-        "hi": "spaCR NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch और Qt सहित मुक्त वैज्ञानिक सॉफ़्टवेयर पर आधारित है। बहुभाषी दस्तावेज़ और इंटरफ़ेस कैटलॉग तैयार करने में उपयोग किए गए मॉडल के लिए `अनुवाद मॉडल श्रेय <docs/i18n/TRANSLATION_MODELS.md>`_ देखें।",
-        "is": "spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <docs/i18n/TRANSLATION_MODELS.md>`_ fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.",
-        "ko": "spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <docs/i18n/TRANSLATION_MODELS.md>`_ 문서에서 확인할 수 있습니다.",
-        "pt": "O spaCR utiliza software científico aberto, incluindo NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch e Qt. Consulte a `atribuição dos modelos de tradução <docs/i18n/TRANSLATION_MODELS.md>`_ para ver os modelos usados na documentação multilíngue e nos catálogos da interface.",
-        "sv": "spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se `information om översättningsmodellerna <docs/i18n/TRANSLATION_MODELS.md>`_ för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna.",
-        "zh_CN": "spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <docs/i18n/TRANSLATION_MODELS.md>`_。",
     },
 })
 

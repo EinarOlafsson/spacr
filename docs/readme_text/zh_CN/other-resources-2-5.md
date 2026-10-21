@@ -1,1 +1,1 @@
-- [语言与翻译引导 RNA](<../../source/localization.rst>) — 界面语言、上下文帮助和科学输出政策。
+- [语言与翻译指南](<../../source/localization.rst>) — 界面语言、上下文帮助及科学输出政策。

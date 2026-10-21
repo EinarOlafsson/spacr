@@ -1,1 +1,1 @@
-Rotating logs eru skrifað í ` ~/.spacr/logs/spacr.log `. Sættu þessar skál á bug-report.
+Annálar með reglulegri skráaskiptingu eru skrifaðir í ` ~/.spacr/logs/spacr.log `. Láttu þá skrá fylgja villutilkynningu.

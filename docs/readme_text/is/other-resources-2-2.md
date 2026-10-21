@@ -1,1 +1,1 @@
-- [Python API snemma byrjun](<../../source/python_api.rst>) — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.
+- [Flýtileiðbeiningar fyrir Python API](<../../source/python_api.rst>) — keyra og sannreyna vinnslur úr skriftum, vinnubókum eða reikniklasa.

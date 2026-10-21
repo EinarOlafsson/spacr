@@ -1,1 +1,1 @@
-- [Inicio rápido Python API](<../../source/python_api.rst>) — ejecutar y validar flujos de trabajo desde scripts, cuadernos o un clúster.
+- [Inicio rápido de la API de Python](<../../source/python_api.rst>) — ejecute y valide flujos de procesamiento desde scripts, cuadernos o un clúster.

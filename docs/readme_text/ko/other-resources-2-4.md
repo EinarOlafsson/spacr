@@ -1,1 +1,1 @@
-- [정리된 API 참조](<https://einarolafsson.github.io/spacr/api/index.html>) - 작업에 따라 지원되는 입력 포인트, 전체 모듈 참조 1 레벨 더 깊습니다.
+- [선별된 API 참조](<https://einarolafsson.github.io/spacr/api/index.html>) — 작업별로 지원되는 진입점을 설명하며 전체 모듈 참조는 한 단계 아래에 있습니다.

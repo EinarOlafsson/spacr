@@ -96,7 +96,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/spacr.desktop.svg"><img src="../../readme_images/pt/spacr.svg" alt="spaCR. Análise espacial de fenótipos em triagens CRISPR. O spaCR segmenta e mede células individuais em imagens de microscopia, integra fenótipos por objeto à abundância de guias derivada do sequenciamento e estima quais genes estão associados a alterações fenotípicas. A partir de imagens de placas e leituras FASTQ, ele produz medições por objeto, classificadores treinados, estimativas de efeito por guia e por gene e uma lista de resultados classificada. Os módulos de segmentação, medição, anotação e classificação também são executados sem um braço de sequenciamento. Make Masks corrige máscaras de segmentação e anota retângulos independentes com rótulos de classe usando a ferramenta Box para exportação YOLO. Os retângulos mantêm seus próprios rótulos e histórico sem alterar as imagens ou máscaras de origem. Consulte o guia de funcionalidades para conhecer cada ferramenta. Imagens, máscaras e recortes são arquivos em disco. Medições, anotações e previsões do modelo são tabelas do banco de dados SQLite measurements.db do projeto. É executado como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster."></picture></a></div>
+   <div><a href="../../readme_text/pt/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/spacr.desktop.svg"><img src="../../readme_images/pt/spacr.svg" alt="spaCR. Análise espacial de fenótipos em triagens CRISPR. O spaCR segmenta e mede células individuais em imagens de microscopia, integra fenótipos por objeto à abundância de guias derivada do sequenciamento e estima quais genes estão associados a alterações fenotípicas. A partir de imagens de placas e leituras FASTQ, ele produz medições por objeto, classificadores treinados, estimativas de efeito por guia e por gene e uma lista de resultados classificada. Os módulos de segmentação, medição, anotação e classificação também podem ser usados sem um componente de sequenciamento. Make Masks corrige máscaras de segmentação e anota retângulos independentes com rótulos de classe usando a ferramenta Box para exportação YOLO. Os retângulos mantêm seus próprios rótulos e histórico sem alterar as imagens ou máscaras de origem. Consulte o guia de funcionalidades para conhecer cada ferramenta. Imagens, máscaras e recortes são arquivos em disco. Medições, anotações e previsões do modelo são tabelas do banco de dados SQLite measurements.db do projeto. É executado como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster."></picture></a></div>
 
 .. raw:: html
 
@@ -136,7 +136,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/desktop-application.desktop.svg"><img src="../../readme_images/pt/desktop-application.svg" alt="Aplicativo para desktop. Os instaladores empacotam seus próprios Python. Conda não é necessário."></picture></a></div>
+   <div><a href="../../readme_text/pt/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/desktop-application.desktop.svg"><img src="../../readme_images/pt/desktop-application.svg" alt="Aplicativo para desktop. Os instaladores incluem seu próprio ambiente Python. Não é necessário usar Conda."></picture></a></div>
 
 .. spacr-installer-links-begin
 
@@ -194,7 +194,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/pypi-installation-3.desktop.svg"><img src="../../readme_images/pt/pypi-installation-3.svg" alt="As integrações opcionais são instaladas separadamente, por exemplo spacr[zarr], spacr[omero],spacr[napari] e spacr[czi,nd2,lif]. Veja a tabela de compatibilidade guia de instalação (nightly, em inglês) para os extras completos e ?Python-versão."></picture></a></div>
+   <div><a href="../../readme_text/pt/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/pypi-installation-3.desktop.svg"><img src="../../readme_images/pt/pypi-installation-3.svg" alt="As integrações opcionais são instaladas separadamente, por exemplo spacr[zarr], spacr[omero], spacr[napari] e spacr[czi,nd2,lif]. Consulte o guia de instalação (nightly, em inglês) para ver a lista completa de extras e a tabela de compatibilidade das versões do Python."></picture></a></div>
 
 .. raw:: html
 
@@ -243,27 +243,25 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/install-from-source-light.desktop.svg"><img src="../../readme_images/pt/install-from-source-light.svg" alt="Instalação a partir do código-fonte (leve). Colaboradores precisam do histórico de versões; para executar o spaCR, escolha uma das opções abaixo. Medições de nightly em 05302fd5c no dia 2026-10-07, feitas com packaging/measure_clone_forms.sh:"></picture></a></div>
+   <div><a href="../../readme_text/pt/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/install-from-source-light.desktop.svg"><img src="../../readme_images/pt/install-from-source-light.svg" alt="Instalação a partir do código-fonte (leve). Colaboradores precisam do histórico de versões; para executar o spaCR, escolha uma das opções abaixo. Medições de nightly em 05302fd5c no dia 2026-10-07, feitas com packaging/measure_clone_forms.sh. Clone superficial: 2048 MB baixados em 140 s. Apenas o commit mais recente é mantido; assim, o histórico anterior não está disponível para git log, git blame e git bisect. git pull funciona, mas o clone continua superficial; git fetch --unshallow obtém o histórico completo."></picture></a></div>
 
 .. code-block:: bash
 
-   # One commit instead of every version: 2048 MB downloaded, 140 s.
-   # No history, so no git log, no git blame and no git bisect.
-   # git pull still works, but stays shallow until git fetch --unshallow.
    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
    cd spacr && pip install -e .
 
-   # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
-   # No history, docs, tests, tools, features or example data.
-   # --with-docs, --with-tests and --with-translations put those back;
-   # --dir, --branch, --no-install and --help do the obvious things.
-   # packaging/source_install_excludes.txt lists every skipped path.
+.. raw:: html
+
+   <div><a href="../../readme_text/pt/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/install-from-source-light-2.desktop.svg"><img src="../../readme_images/pt/install-from-source-light-2.svg" alt="Somente arquivos de execução: 104 MB em disco em 6 s (Git: 38 MB; arquivos: 66 MB). São omitidos o histórico, docs, tests, tools, features, os dados de exemplo e as traduções ampliadas da interface. --with-docs, --with-tests e --with-translations mantêm a documentação, os testes e as traduções correspondentes. As traduções compactas da interface continuam disponíveis."></picture></a></div>
+
+.. code-block:: bash
+
    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
    sh install_spacr.sh --branch nightly
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/install-from-source-light-2.desktop.svg"><img src="../../readme_images/pt/install-from-source-light-2.svg" alt="O clone completo de nightly baixou 9.25 GiB. Adicionar --filter=blob:none ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de nightly ocupam 958 MB na cópia de trabalho (medidos em 2026-10-20), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo."></picture></a></div>
+   <div><a href="../../readme_text/pt/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/install-from-source-light-3.desktop.svg"><img src="../../readme_images/pt/install-from-source-light-3.svg" alt="--dir escolhe o caminho do clone; --branch seleciona uma ramificação ou tag; --no-install baixa sem instalar; --help mostra as opções. packaging/source_install_excludes.txt lista todos os caminhos omitidos. O clone completo de nightly baixou 9.25 GiB. Adicionar --filter=blob:none ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de nightly ocupam 720 MB na cópia de trabalho (medidos em 2026-10-21), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo."></picture></a></div>
 
 .. raw:: html
 
@@ -414,19 +412,19 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/other-resources-2-2.desktop.svg"><img src="../../readme_images/pt/other-resources-2-2.svg" alt="Python API início rápido — run and validate pipelines from scripts, notebooks or a cluster."></picture></a></div>
+   <div><a href="../../readme_text/pt/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/other-resources-2-2.desktop.svg"><img src="../../readme_images/pt/other-resources-2-2.svg" alt="Início rápido da API Python — execute e valide fluxos de processamento a partir de scripts, notebooks ou de um cluster."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/other-resources-2-3.desktop.svg"><img src="../../readme_images/pt/other-resources-2-3.svg" alt="Guia de funcionalidades capacidades, maturidade e integrações opcionais."></picture></a></div>
+   <div><a href="../../readme_text/pt/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/other-resources-2-3.desktop.svg"><img src="../../readme_images/pt/other-resources-2-3.svg" alt="Guia de funcionalidades — recursos, maturidade e integrações opcionais."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/other-resources-2-4.desktop.svg"><img src="../../readme_images/pt/other-resources-2-4.svg" alt="Referência API com curadoria — supported entry points by task, with the complete module reference one level deeper."></picture></a></div>
+   <div><a href="../../readme_text/pt/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/other-resources-2-4.desktop.svg"><img src="../../readme_images/pt/other-resources-2-4.svg" alt="Referência selecionada da API — pontos de entrada compatíveis organizados por tarefa, com a referência completa dos módulos um nível abaixo."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/other-resources-2-5.desktop.svg"><img src="../../readme_images/pt/other-resources-2-5.svg" alt="Guia de idiomas e tradução linguagens de interface, ajuda contextual e política de saída científica."></picture></a></div>
+   <div><a href="../../readme_text/pt/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/other-resources-2-5.desktop.svg"><img src="../../readme_images/pt/other-resources-2-5.svg" alt="Guia de idiomas e tradução — idiomas da interface, ajuda contextual e política de resultados científicos."></picture></a></div>
 
 .. raw:: html
 
@@ -468,7 +466,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/model-zoo.desktop.svg"><img src="../../readme_images/pt/model-zoo.svg" alt="Biblioteca de modelos. spaCR envia um catálogo de modelos treinados e os busca sob demanda. Abra Modelo Zoo da tela inicial para navegar e instalá-los, ou nomeie uma chave em um arquivo de configurações - pathogen_model: toxoplasma_pv_v1 - e o modelo é baixado e verificado na primeira vez que é necessário. Cada entrada publicada carrega um SHA-256; uma entrada real sem um é recusada em vez de instalada, porque um truncado não pode ser informado"></picture></a></div>
+   <div><a href="../../readme_text/pt/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/model-zoo.desktop.svg"><img src="../../readme_images/pt/model-zoo.svg" alt="Biblioteca de modelos. O spaCR inclui um catálogo de modelos treinados e os baixa quando necessário. Abra Model Zoo na tela inicial para explorar e instalar modelos, ou indique uma chave no arquivo de configurações, como pathogen_model: toxoplasma_pv_v1. O modelo é baixado e verificado pela soma de verificação na primeira vez em que é necessário. Cada entrada publicada contém uma soma SHA-256. Entradas sem essa soma são recusadas, pois, sem ela, não seria possível distinguir um arquivo de modelo incompleto ou substituído do original."></picture></a></div>
 
 .. spacr-model-zoo-begin
 
@@ -509,11 +507,11 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/pt/diagnosing-performance-2.svg" alt="Salva em ~/.spacr/reports e imprime o caminho. --quick pula os benchmarks mais longos; --out PATH define a localização. Não lê dados do projeto. Mede o tempo de importações, bibliotecas numéricas, criação de janelas e animação, e informa a emulação x86_64 no Apple Silicon e a implementação de BLAS usada pelo NumPy."></picture></a></div>
+   <div><a href="../../readme_text/pt/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/pt/diagnosing-performance-2.svg" alt="Salva em ~/.spacr/reports e mostra o caminho. --quick ignora os testes de desempenho mais longos; --out PATH define o local. Não lê dados do projeto. Mede o tempo de importações, bibliotecas numéricas, criação de janelas e animação, e informa a emulação x86_64 no Apple Silicon e a implementação de BLAS usada pelo NumPy."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/command-line-reference.desktop.svg"><img src="../../readme_images/pt/command-line-reference.svg" alt="Referência da linha de comando. Cada comando abaixo é instalado por pip install spacr. Todos eles aceitam --help."></picture></a></div>
+   <div><a href="../../readme_text/pt/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/command-line-reference.desktop.svg"><img src="../../readme_images/pt/command-line-reference.svg" alt="Referência da linha de comando. Todos os comandos abaixo são instalados por pip install spacr e aceitam --help."></picture></a></div>
 
 .. raw:: html
 
@@ -527,7 +525,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/pt/when-spacr-will-not-start.svg" alt="Quando spaCR não será iniciado."></picture></a></div>
+   <div><a href="../../readme_text/pt/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/pt/when-spacr-will-not-start.svg" alt="Quando o spaCR não inicia."></picture></a></div>
 
 .. code-block:: bash
 
@@ -540,7 +538,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/running-modules-headlessly.desktop.svg"><img src="../../readme_images/pt/running-modules-headlessly.svg" alt="Módulos em execução sem interface gráfica. No Qt, no display para clusters, servidores e CI."></picture></a></div>
+   <div><a href="../../readme_text/pt/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/running-modules-headlessly.desktop.svg"><img src="../../readme_images/pt/running-modules-headlessly.svg" alt="Executar módulos sem interface gráfica. Sem Qt nem tela — para clusters, servidores e CI."></picture></a></div>
 
 .. code-block:: bash
 
@@ -557,7 +555,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/inspecting-a-run.desktop.svg"><img src="../../readme_images/pt/inspecting-a-run.svg" alt="Inspecionar uma execução. Cada execução é registrada para ~/.spacr/runs com suas configurações, entradas hashed, saídas, avisos, versões e sementes."></picture></a></div>
+   <div><a href="../../readme_text/pt/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/inspecting-a-run.desktop.svg"><img src="../../readme_images/pt/inspecting-a-run.svg" alt="Inspecionar uma execução. Cada execução é registrada em ~/.spacr/runs com suas configurações, hashes das entradas, saídas, avisos, versões e sementes aleatórias."></picture></a></div>
 
 .. code-block:: bash
 
@@ -566,7 +564,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/pt/auditing-data-and-installation.svg" alt="Auditoria de dados e instalação."></picture></a></div>
+   <div><a href="../../readme_text/pt/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/pt/auditing-data-and-installation.svg" alt="Auditoria dos dados e da instalação."></picture></a></div>
 
 .. code-block:: bash
 
@@ -592,7 +590,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/licensing.desktop.svg"><img src="../../readme_images/pt/licensing.svg" alt="Licença. spaCR é lançado sob o Licença BSD 3-Clause. Se spaCR contribuiu para o trabalho publicado, uma citação é apreciada e não é uma condição da licença veja Como citar o spaCR abaixo."></picture></a></div>
+   <div><a href="../../readme_text/pt/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/licensing.desktop.svg"><img src="../../readme_images/pt/licensing.svg" alt="Licença. O spaCR é distribuído sob a licença BSD3-Clause. Se o spaCR contribuiu para um trabalho publicado, agradecemos uma citação, mas ela não é uma condição da licença; veja Como citar o spaCR abaixo."></picture></a></div>
 
 .. raw:: html
 

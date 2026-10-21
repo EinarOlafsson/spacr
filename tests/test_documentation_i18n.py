@@ -4546,7 +4546,7 @@ def test_readme_builder_reuses_the_same_source_bound_visual_targets():
 def test_localized_readme_inline_markup_is_balanced_and_tight():
     canonical = readme_words()
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
-        text = path.read_text(encoding="utf-8")
+        text = readme_words(path)
         for marker in ("**", "``"):
             assert text.count(marker) == canonical.count(marker)
             marked_text = text.split(marker)[1::2]
@@ -4615,7 +4615,13 @@ def test_localized_readmes_preserve_urls_code_and_table_shape():
     )
     canonical_code = code_pattern.findall(canonical)
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
-        text = path.read_text(encoding="utf-8")
+        text = readme_words(path)
+        language = path.stem.removeprefix("README.")
+        locale = "zh-CN" if language == "zh_CN" else language
+        canonical_mask = "https://einarolafsson.github.io/projects/spacr/#mask-generator"
+        localized_mask = f"https://einarolafsson.github.io/projects/spacr/{locale}/#mask-generator"
+        assert text.count(localized_mask) == canonical.count(canonical_mask), language
+        text = text.replace(localized_mask, canonical_mask)
         assert sorted(re.findall(r"https?://[^\s>`]+", text)) == canonical_urls
         assert code_pattern.findall(text) == canonical_code
         assert len(re.findall(r"(?m)^   \* - ", text)) == len(
@@ -4663,7 +4669,7 @@ def test_localized_readmes_have_as_many_sections_as_the_english_one():
     for path in sorted((ROOT / "docs" / "i18n" / "readme").glob(
             "README.*.rst")):
         titles = [m.group("title") for m in _HEADING.finditer(
-            path.read_text(encoding="utf-8"))]
+            readme_words(path))]
         assert len(titles) == len(expected), (
             f"{path.name} has {len(titles)} sections and README.rst "
             f"{len(expected)}; English titles still in it: "

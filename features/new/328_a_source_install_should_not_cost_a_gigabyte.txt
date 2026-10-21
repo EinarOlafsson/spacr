@@ -1,25 +1,14 @@
 328 — A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
 ==================================================
 
-Status:    DONE 2026-09-19 — AND WHAT IT ASKED FOR IS ALL BUILT; what is
-           left is translation quality that was never this item's, and it
-           is listed rather than implied. README.rst has both light forms,
-           measured, with their limits, and the launch test passes
-           (2026-09-15); the nine translated READMEs now carry both
-           source-install sections as reviewed prose, and the README names
-           the real default branch, ``main``.
-           TWO OF THE THREE ENTRIES UNDER "LEFT, NOT THIS ITEM'S" ARE NOW
-           CLOSED (last trailing note): the maintainer's 2026-09-16 badge
-           edits are carried into all nine with reviewed alt text, and
-           docs/i18n/COVERAGE.md is regenerated -- a snapshot of the tree it
-           was generated from, so it is re-run rather than hand-merged
-           whenever this file is rebased. The third stands -- 45
-           README blocks are still the translation model's draft in all
-           nine languages, which is the consolidated translation pass, not
-           this item. So: 100% of what was asked, and the file says plainly
-           where the nine READMEs are still only machine-quality.
-           See the dated sections below; the last two say what the
-           translations are and are not.
+Status:    VALIDATED 2026-10-21 — current semantic README remainder and light-
+           install shell explanations are translated and source-bound across
+           all nine languages; generated acceptance passes. Root must publish
+           nightly and verify the authorized README-output promotion to main
+           before whole-item completion.
+Owner:     Codex release_ci_takeover; feature_takeover peers semantics and
+           external authoring, and root integrates/publishes. Public review
+           inputs are pinned; no migration hold remains.
 
 ASKED FOR (2026-08-31)
 ----------------------
@@ -521,3 +510,9 @@ English; closing that means moving them into prose in README.rst, not
 translating shell comments.
 
 VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.
+
+2026-10-20 — Maintainer Progress List continuation: finish the historical 45 README draft blocks and translate light-install costs/limits as real prose instead of English shell comments. Bind existing current-source translations before changing them, retain honest dated measurements, exact commands/resources and accepted install/launch proof; root peers semantic targets and normal final generation, and owns one nightly publication. P3 reviewed/retired input migration is held by feature_takeover; no broad new audit or duplicate install/CI runs.
+
+2026-10-21 — Current-source completion binds the historical draft remainder to 31 semantic units, plus three new light-install prose units and the revised introduction, across all nine languages. Peer-approved records also update the current tracked checkout to 720 MB (754641577 Git blob bytes on published c4fc613478, rounded under the existing MB label); historical transfers, all executable commands and existing install/launch proof remain unchanged. External records are published at f49ca80263fb5561fa12596603b794c585960810 and normally pinned/bootstrapped; five source/binding/measurement guards and ten command/prose contracts pass. Final generated acceptance and nightly publication remain pending.
+
+2026-10-21 — The normal README writer completed all 1700 images; 46 focused checks pass, including exact nine-locale bindings, every SVG/panel alternative text, source currency, no stray images, protected commands/URLs/markup/technical terms and retained semantic safeguards. Three legacy guards now read the same structured prose on both sides; the URL guard additionally requires the exact existing locale-specific Mask route. Actual English/Hindi/Chinese browser previews passed visual peer review; no product policy, install behavior, timeout or assertion was weakened. Root retains final nightly publication and authorized output-only main promotion before completion.

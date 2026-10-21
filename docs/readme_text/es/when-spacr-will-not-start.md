@@ -1,1 +1,1 @@
-## Cuando spaCR no se iniciará
+## Cuando spaCR no se inicia

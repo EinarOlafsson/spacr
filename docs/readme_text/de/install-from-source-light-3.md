@@ -1,0 +1,3 @@
+` --dir ` wählt den Pfad des Klons; ` --branch ` wählt einen Branch oder Tag; ` --no-install ` lädt die Dateien ohne Installation; ` --help ` zeigt die Optionen. ` packaging/source_install_excludes.txt ` führt alle ausgelassenen Pfade auf.
+
+Der vollständige nightly-Klon lud 9.25 GiB herunter. ` --filter=blob:none ` zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 720 MB (gemessen am 2026-10-21), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab.

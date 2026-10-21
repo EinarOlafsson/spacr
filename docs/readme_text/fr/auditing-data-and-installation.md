@@ -1,1 +1,1 @@
-## Audit des données et installation
+## Vérification des données et de l’installation

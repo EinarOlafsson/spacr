@@ -1,1 +1,1 @@
-- [Referência API com curadoria](<https://einarolafsson.github.io/spacr/api/index.html>) — supported entry points by task, with the complete module reference one level deeper.
+- [Referência selecionada da API](<https://einarolafsson.github.io/spacr/api/index.html>) — pontos de entrada compatíveis organizados por tarefa, com a referência completa dos módulos um nível abaixo.

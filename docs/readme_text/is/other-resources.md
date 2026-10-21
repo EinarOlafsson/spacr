@@ -1,1 +1,1 @@
-## Öll aðrar auðlindir
+## Önnur hjálpargögn

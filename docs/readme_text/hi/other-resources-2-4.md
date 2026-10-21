@@ -1,1 +1,1 @@
-- [शुद्ध API संदर्भ](<https://einarolafsson.github.io/spacr/api/index.html>) - कार्य के आधार पर समर्थित प्रवेश बिंदु, पूर्ण मॉड्यूल संदर्भ एक स्तर गहरा है।
+- [चयनित API संदर्भ](<https://einarolafsson.github.io/spacr/api/index.html>) — कार्य के अनुसार समर्थित प्रवेश बिंदु; सभी मॉड्यूल का संदर्भ एक स्तर नीचे है।
