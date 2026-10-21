@@ -154,10 +154,13 @@ def _is_a_heading(match: "re.Match", line: str) -> bool:
 def markdown_lines(text: str) -> List[tuple]:
     """Lay an AI answer's Markdown out as lines a console block can show.
 
-    A ``**Heading**`` (or ``# Heading``) that opens a line becomes a bold
-    line of its own and its text the next line; numbered and bulleted steps
-    keep a line each. An answer that arrived as one run-on line is broken
-    before its headings and steps first.
+    Recognized ``**Heading**`` or ``# Heading`` headings are emitted as a bold
+    line, with any remaining text on the next line. For a line that starts
+    directly with a bold span, it counts as a heading if no text follows it,
+    it is followed by a dash or colon, the span contains at least two words,
+    or its text ends in ``?`` or ``:``. Numbered and bulleted steps keep a
+    line each; single-line answers are first split at the supported heading
+    and step patterns.
 
     :param text: the answer.
     :returns: ``[(line, bold), ...]``; ``line`` keeps any inline ``**bold**``

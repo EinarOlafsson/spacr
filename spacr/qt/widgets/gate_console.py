@@ -129,16 +129,18 @@ register_widget_qss(QSS_NAME, _console_qss, replace=True)
 def evaluate(expression: str, frame: Optional[pd.DataFrame]) -> str:
     """Answer one question about ``frame``.
 
-    The frame is in scope as ``df``, and every column as itself, so
-    ``area.mean()`` and ``df['area'].mean()`` both work -- the first is what
-    people type.
+    The frame is in scope as ``df``. A column is also exposed under its string
+    name only if that name is an identifier and does not collide with the
+    reserved ``df``, ``pd`` or ``np`` entries. For an exposed ``area`` column,
+    ``area.mean()`` and ``df['area'].mean()`` both work.
 
     Errors come back as text rather than exceptions: this is a question box,
     and a typo is a normal thing to do in one.
 
-    :param expression: a Python expression, stripped; empty returns ``""``.
-        It is evaluated with ``df``, ``pd``, ``np`` and every column whose
-        name is an identifier in scope, and a restricted set of builtins.
+    :param expression: A Python expression, stripped; empty returns ``""``. It
+        is evaluated with ``df``, ``pd`` and ``np``, a restricted set of
+        builtins, and columns whose string names pass ``str.isidentifier``
+        without replacing those three existing entries.
     :param frame: the table to question; ``None`` or an empty frame returns
         ``"no table loaded"``.
     """
