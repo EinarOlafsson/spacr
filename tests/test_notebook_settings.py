@@ -42,7 +42,8 @@ pytestmark = pytest.mark.skipif(
     not TOOL.exists() or not NOTEBOOKS.is_dir(),
     reason="run from a source checkout")
 
-ALL = sorted(NOTEBOOKS.glob("*.ipynb")) if NOTEBOOKS.is_dir() else []
+ALL = sorted(path for path in NOTEBOOKS.glob("*.ipynb")
+             if path.name != "00_workflow_browser.ipynb") if NOTEBOOKS.is_dir() else []
 
 
 def test_manifest_is_the_exact_maintained_notebook_inventory():
@@ -229,7 +230,7 @@ def _generated_settings_cells(path):
         for cell in notebook["cells"]
         if cell["cell_type"] == "code"
         and cell.get("metadata", {}).get("spacr", {}).get("generated")
-        in {"settings", "settings-organelle"}
+        in {"settings", "settings-advanced", "settings-organelle"}
     ]
 
 
@@ -393,7 +394,7 @@ def test_explanations_settings_and_call_are_consecutive_cells(path):
     settings_cells = []
     while cursor < len(cells) and cells[cursor].get(
             "metadata", {}).get("spacr", {}).get("generated") in {
-                "settings", "settings-organelle"}:
+                "settings", "settings-advanced", "settings-organelle"}:
         assert cells[cursor]["cell_type"] == "code"
         settings_cells.append(cells[cursor])
         cursor += 1
@@ -797,3 +798,182 @@ def test_check_mode_is_what_the_drift_guard_calls():
     """--check is the contract; the guard above runs it as a subprocess."""
     source = TOOL.read_text(encoding="utf-8")
     assert '"--check"' in source or "'--check'" in source
+
+
+def test_collapsed_configuration_preserves_every_current_setting_and_default():
+    tool = _tool()
+    for path in ALL:
+        notebook = json.loads(path.read_text(encoding="utf-8"))
+        actual_keys = _settings_keys_by_variable(path)
+        namespace = {}
+        for source in _generated_settings_cells(path):
+            exec(source, namespace)
+        for dotted in tool.declared_functions(path):
+            _shape, expected = tool.notebook_surface(
+                tool.resolve(dotted), dotted, notebook_name=path.name)
+            name = tool.setting_name(dotted, [(item, None, None, None)
+                                             for item in tool.declared_functions(path)])
+            assert set(actual_keys[name]) == set(expected), (path.name, dotted)
+            expected_values = {}
+            for key, value in expected.items():
+                literal = tool._literal(value, dotted=dotted, key=key)
+                expected_values[key] = eval(literal)
+            assert namespace[name] == expected_values, (path.name, dotted)
+        for cell in notebook["cells"]:
+            kind = cell.get("metadata", {}).get("spacr", {}).get("generated")
+            if kind in {"settings-advanced", "settings-organelle"}:
+                assert cell["metadata"]["jupyter"]["source_hidden"] is True
+            if kind == "settings":
+                assert not cell["metadata"].get("jupyter", {}).get("source_hidden")
+
+
+def test_current_notebooks_validate_and_collapsible_reference_renders():
+    nbformat = pytest.importorskip("nbformat")
+    markdown = pytest.importorskip("nbconvert.filters.markdown")
+    for path in [*ALL, NOTEBOOKS / "00_workflow_browser.ipynb"]:
+        notebook = nbformat.read(path, as_version=4)
+        nbformat.validate(notebook)
+        for cell in notebook.cells:
+            if cell.cell_type == "code":
+                ast.parse(cell.source)
+        assert len({cell.id for cell in notebook.cells}) == len(notebook.cells)
+    rendered = markdown.markdown2html(_generated_help(ALL[0]))
+    assert "<details>" in rendered and "<summary>" in rendered
+    assert "<strong><code>src</code></strong>" in rendered
+
+
+def test_browser_and_index_cover_the_actual_registry_and_give_direct_api_links():
+    from spacr.cli import MODULES
+
+    tool = _tool()
+    browser = NOTEBOOKS / tool.BROWSER_FILENAME
+    assert browser.is_file()
+    assert {path.name for path in NOTEBOOKS.glob("*.ipynb")} == (
+        set(tool.NOTEBOOK_SPECS) | {tool.BROWSER_FILENAME})
+    index = (NOTEBOOKS / "README.md").read_text(encoding="utf-8")
+    assert index == tool.render_notebook_index()
+    for key, module in MODULES.items():
+        assert f"| `{key}` |" in index
+        assert tool.api_url(module.entry.replace(":", ".")) in index
+    for filename in tool.NOTEBOOK_SPECS:
+        assert f"]({filename})" in index
+
+
+def test_browser_setup_and_editor_are_safe_and_preserve_rejected_settings(monkeypatch):
+    pytest.importorskip("ipywidgets")
+    from spacr.cli import MODULES, resolve_settings
+
+    browser = json.loads(_tool().render_workflow_browser())
+    namespace = {}
+    for cell in browser["cells"]:
+        if cell["cell_type"] == "code":
+            exec("".join(cell["source"]), namespace)
+    assert namespace["RUN_WORKFLOW"] is False
+    assert namespace["settings"] == resolve_settings(MODULES["measure"], None)
+    assert namespace["advanced"].selected_index is None
+    assert set(value for _label, value in namespace["module_picker"].options) == set(MODULES)
+    before = dict(namespace["settings"])
+    namespace["editor"].value = '{"unrecognized_setting": 1}'
+    namespace["apply_button"].click()
+    assert namespace["settings"] == before
+    invalid = dict(before, batch_size="not a number")
+    namespace["editor"].value = json.dumps(invalid, default=str)
+    namespace["apply_button"].click()
+    assert namespace["settings"] == before
+    edits = dict(before, src="/a/plate", channels=[0, 1])
+    namespace["editor"].value = json.dumps(edits, default=str)
+    namespace["apply_button"].click()
+    assert namespace["settings"]["src"] == "/a/plate"
+    assert namespace["settings"]["channels"] == [0, 1]
+    assert set(namespace["settings"]) == set(before)
+    namespace["module_picker"].close()
+    namespace["advanced"].close()
+
+
+def test_browser_works_without_optional_widgets(monkeypatch):
+    import builtins
+
+    original = builtins.__import__
+
+    def without_widgets(name, *args, **kwargs):
+        if name == "ipywidgets":
+            raise ImportError("optional notebook widgets absent")
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", without_widgets)
+    namespace = {}
+    for cell in json.loads(_tool().render_workflow_browser())["cells"]:
+        if cell["cell_type"] == "code":
+            exec("".join(cell["source"]), namespace)
+    assert namespace["module_picker"] is None
+    assert namespace["settings"]
+    assert namespace["RUN_WORKFLOW"] is False
+
+
+def test_advanced_cell_generation_preserves_existing_notebook_tags():
+    tool = _tool()
+    cell = {"metadata": {"tags": ["parameters", "hide-output"]}}
+    tool._mark_generated(cell, tool.ADVANCED_CELL_KIND)
+    tool._mark_generated(cell, tool.ADVANCED_CELL_KIND)
+    assert cell["metadata"]["tags"] == ["parameters", "hide-output", "advanced-settings"]
+    assert cell["metadata"]["jupyter"]["source_hidden"] is True
+
+
+@pytest.mark.parametrize("name", [
+    "1_spacr_generate_masks.ipynb",
+    "2_spacr_generate_mesurments_crop_images.ipynb",
+    "3a_spacr_machine_learning.ipynb",
+    "3b_spacr_computer_vision.ipynb",
+    "4_spacr_map_barecodes.ipynb",
+    "5_spacr_train_cellpose.ipynb",
+])
+def test_original_notebook_addresses_use_current_generated_workflows(name):
+    import copy
+    from spacr.settings import surviving_setting_name
+
+    nbformat = pytest.importorskip("nbformat")
+    tool = _tool()
+    path = NOTEBOOKS / "legacy" / name
+    notebook = json.loads(path.read_text(encoding="utf-8"))
+    nbformat.validate(nbformat.from_dict(notebook))
+    assert notebook["metadata"]["spacr"]["canonical_workflows"] == list(tool.LEGACY_WORKFLOWS[name])
+    assert len({cell["id"] for cell in notebook["cells"]}) == len(notebook["cells"])
+    assert notebook["metadata"]["kernelspec"]["name"] == "python3"
+    for canonical in tool.LEGACY_WORKFLOWS[name]:
+        actual = []
+        for cell in notebook["cells"]:
+            if cell.get("metadata", {}).get("spacr", {}).get("canonical_notebook") != canonical:
+                continue
+            copied = copy.deepcopy(cell)
+            copied.pop("id")
+            actual.append(copied)
+        expected = json.loads((NOTEBOOKS / canonical).read_text(encoding="utf-8"))["cells"]
+        for cell in expected:
+            cell.pop("id")
+            cell.setdefault("metadata", {}).setdefault("spacr", {})["canonical_notebook"] = canonical
+        assert actual == expected
+    for cell in notebook["cells"]:
+        if cell["cell_type"] != "code":
+            continue
+        source = "".join(cell["source"])
+        tree = ast.parse(source)
+        assert not cell["outputs"] and cell["execution_count"] is None
+        assert "/home/olafsson" not in source
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Dict):
+                for key in node.keys:
+                    if isinstance(key, ast.Constant) and isinstance(key.value, str):
+                        assert not surviving_setting_name(key.value), (name, key.value)
+    if name == "5_spacr_train_cellpose.ipynb":
+        preparation = [cell for cell in notebook["cells"]
+                       if cell.get("metadata", {}).get("spacr", {}).get("generated", "").startswith("legacy-preparation")]
+        sources = "\n".join("".join(cell["source"]) for cell in preparation)
+        assert "prepare_cellpose_dataset(**settings)" in sources
+        assert tool.api_url("spacr.io.prepare_cellpose_dataset") in sources
+        values = {}
+        for cell in preparation:
+            kind = tool._cell_kind(cell)
+            if kind in {"legacy-preparation-settings", "legacy-preparation-settings-advanced"}:
+                exec("".join(cell["source"]), values)
+        assert set(values["settings"]) == set(tool.keys_from_signature(
+            tool.resolve("spacr.io.prepare_cellpose_dataset")))

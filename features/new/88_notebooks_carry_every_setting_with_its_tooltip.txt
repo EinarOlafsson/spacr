@@ -2,7 +2,7 @@
 EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
 ================================================================================
 
-Status:    DONE 2026-08-13
+Status:    DONE 2026-10-21 — all38 notebooks regenerate current settings, friendly controls and complete workflow navigation
 Requested: 2026-08-13 - "Add to instructions to make sure that all notebooks
            contain all settings for the functions (at least the main
            functions) and classes they use, with tooltips for each setting"
@@ -11,8 +11,9 @@ Requested: 2026-08-13 - "Add to instructions to make sure that all notebooks
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-All 30 shipped notebooks are generated from the same settings factories,
-signatures, and registered tooltips used by spaCR. A drift test regenerates
+The 31 guided notebooks are generated from the same settings factories,
+signatures, and registered tooltips used by spaCR. A generated workflow browser
+also exposes every current CLI registry entry, with optional notebook widgets. A drift test regenerates
 and compares them, so new or changed settings cannot silently disappear from
 the notebook interface.
 
@@ -164,3 +165,9 @@ DECISIONS, with the reasons:
 settings.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_notebook_settings.py).
+
+2026-10-21 — Maintainer requests all maintained notebooks refreshed from current APIs/settings, compact essential controls with clickable/collapsible advanced groups, removal of obsolete settings, all current functionality discoverable through notebook/API/docs navigation, and useful supported Jupyter features. Owner: obsolete_repo_cleanup alone; update the existing producer and regenerate, preserve every applicable setting/tooltip and runnable calls, validate schema/generator/owning notebook contracts plus safe lightweight examples; commit and root nightly publication complete this scope. No GPU, heavy scientific runs, extra notebook agents or hand-edited generated notebooks.
+2026-10-21 — Implemented producer-owned compact essential settings, collapsed advanced/organelle code cells and clickable grouped references in31 guided notebooks; added an opt-in live33-workflow browser with optional typed widget editor and generated navigation/API links. All applicable settings/defaults remain exact and unique, with no retired spellings; schema/Python/HTML/widget rollback/no-widget checks pass. Retained400 owning passes plus repaired drift and5 new contracts (406 total); fatal-lint/diff checks pass. Root peer and nightly publication remain; heavy analyses and native notebook frontend acceptance are not claimed.
+2026-10-21 — All six original notebook addresses now regenerate current canonical workflow cells: ML/CV retain regression, CV retains links to the integrated dataset/train/TAR/inference APIs, and Cellpose retains signature-generated dataset preparation. Removed obsolete aliases/personal paths/stale kernel metadata without moving or deleting notebooks; advanced-cell generation preserves custom tags. Seven additional legacy/tag contracts pass; retained prior406 notebook/12 index results, strict schemas/ASTs, exact stage-cell/default preservation and fatal lint. Root integration/publication remain.
+
+2026-10-21 — Root accepts all38 regenerated notebooks:413 owning notebook checks and12 index checks pass, with independent schema/ID/Python/output review. Current settings, tooltips, advanced groups,33-workflow navigation and six original addresses are covered; no scientific heavy-run or native-frontend performance claim is made. Published with this completed implementation.

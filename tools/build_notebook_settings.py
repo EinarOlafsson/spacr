@@ -78,6 +78,7 @@ SECTION_TITLE = "## 3. Settings and API reference"
 #: Metadata values used to find generated cells without putting prose in code.
 HELP_CELL_KIND = "settings-help"
 SETTINGS_CELL_KIND = "settings"
+ADVANCED_CELL_KIND = "settings-advanced"
 ORGANELLE_CELL_KIND = "settings-organelle"
 FUNCTION_HELP_CELL_KIND = "function-help"
 IMPORT_CELL_KIND = "function-import"
@@ -85,6 +86,18 @@ RUN_CELL_KIND = "function-run"
 
 #: Root of the published sphinx-autoapi tree.
 API_BASE = "https://einarolafsson.github.io/spacr/api"
+BROWSER_FILENAME = "00_workflow_browser.ipynb"
+
+LEGACY_WORKFLOWS = {
+    "1_spacr_generate_masks.ipynb": ("01_generate_masks.ipynb",),
+    "2_spacr_generate_mesurments_crop_images.ipynb": ("02_measure_and_crop.ipynb",),
+    "3a_spacr_machine_learning.ipynb": ("04_classify_machine_learning.ipynb",
+                                           "06_regression.ipynb"),
+    "3b_spacr_computer_vision.ipynb": ("03_classify_computer_vision.ipynb",
+                                          "06_regression.ipynb"),
+    "4_spacr_map_barecodes.ipynb": ("05_map_barcodes.ipynb",),
+    "5_spacr_train_cellpose.ipynb": ("08_train_cellpose.ipynb",),
+}
 
 
 @dataclass(frozen=True)
@@ -1139,12 +1152,15 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
     lines = [
         SECTION_TITLE,
         "",
-        "Review the parameter definitions here, then edit the values in the "
-        "categorized code cells below. Required settings must be supplied. "
+        "Start with the essential settings below. Expand a reference group "
+        "to read its parameters. Advanced and organelle code cells start "
+        "collapsed in JupyterLab and Notebook 7: click their ellipsis to edit "
+        "them. Run all settings cells before the analysis cell, including "
+        "collapsed cells. Required settings must be supplied. "
         "Optional settings retain the displayed default when unchanged. "
         "Conditionally required settings are necessary only for the indicated "
         "analysis branch. Defaults and descriptions are generated from the "
-        "installed spaCR version so that the notebook remains aligned with "
+        "spaCR source used to generate this notebook, keeping it aligned with "
         "the public API.",
     ]
     for dotted, shape, keys, docs in entries:
@@ -1175,7 +1191,10 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
         for organelle in (False, True):
             for category, members in _category_groups(
                     keys, organelle=organelle, dotted=dotted):
-                lines.extend(["", f"#### {category}", ""])
+                lines.extend(["", "<details>",
+                              f"<summary>{_markdown_text(category)} "
+                              f"({len(members)} settings)</summary>",
+                              "", f"#### {category}", ""])
                 for key in members:
                     description = _markdown_text(
                         tooltip_for(key, shape, docs))
@@ -1186,6 +1205,7 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
                         _setting_status(dotted, shape, key, keys))
                     lines.append(
                         f"- **`{key}`** *({status.lower()})* — {description}")
+                lines.extend(["", "</details>"])
     lines.extend([
         "",
         "## 4. Run",
@@ -1202,6 +1222,7 @@ def render_cell(
     entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]],
     *,
     organelle: bool = False,
+    advanced: Optional[bool] = None,
 ) -> str:
     """Build one categorized settings cell.
 
@@ -1212,10 +1233,19 @@ def render_cell(
     for index, (dotted, shape, keys, _docs) in enumerate(entries):
         groups = _category_groups(
             keys, organelle=organelle, dotted=dotted)
+        if advanced is not None:
+            groups = [(title, [key for key in members
+                               if (_essential_setting(dotted, shape, key, keys)
+                                   is not advanced)])
+                      for title, members in groups]
+            groups = [(title, members) for title, members in groups if members]
+        if advanced and not groups:
+            continue
         if organelle and not groups:
             continue
         name = setting_name(dotted, entries)
-        lines.append(f"{name}.update({{" if organelle else f"{name} = {{")
+        update = organelle or advanced
+        lines.append(f"{name}.update({{" if update else f"{name} = {{")
         for group_index, (category, members) in enumerate(groups):
             if group_index:
                 lines.append("")
@@ -1236,17 +1266,28 @@ def render_cell(
                         value = f"{first_name}['src']"
                     lines.append(
                         f"    {key!r}: {value},")
-        lines.append("})" if organelle else "}")
+        lines.append("})" if update else "}")
         if index != len(entries) - 1:
             lines.append("")
     return "\n".join(lines)
+
+
+def _essential_setting(dotted: str, shape: str, key: str,
+                       keys: Dict[str, Any]) -> bool:
+    """Keep required inputs and common run choices visible on first opening."""
+    return (_setting_status(dotted, shape, key, keys) != "optional"
+            or key in {"src", "dst", "channels", "batch_size", "n_jobs",
+                       "save", "plot", "model_name", "model_path"})
 
 
 def render_settings_cells(
     entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]],
 ) -> List[Tuple[str, str]]:
     """Return ``[(generated_kind, source), ...]`` for editable settings."""
-    rendered = [(SETTINGS_CELL_KIND, render_cell(entries))]
+    rendered = [(SETTINGS_CELL_KIND, render_cell(entries, advanced=False))]
+    advanced = render_cell(entries, advanced=True)
+    if advanced:
+        rendered.append((ADVANCED_CELL_KIND, advanced))
     if any(_is_organelle_key(key)
            for _dotted, _shape, keys, _docs in entries for key in keys):
         rendered.append((ORGANELLE_CELL_KIND,
@@ -1491,8 +1532,8 @@ def rebuild(path: Path) -> Optional[str]:
     # exposes organelle settings.
     live_kinds = {kind for kind, _source in rendered_settings}
     for cell in list(cells):
-        if (_cell_kind(cell) == ORGANELLE_CELL_KIND
-                and ORGANELLE_CELL_KIND not in live_kinds):
+        if (_cell_kind(cell) in {ORGANELLE_CELL_KIND, ADVANCED_CELL_KIND}
+                and _cell_kind(cell) not in live_kinds):
             cells.remove(cell)
 
     _remove_legacy_setup(cells, help_cell)
@@ -1615,6 +1656,11 @@ def _mark_generated(cell: dict, kind: str) -> None:
     """Mark a cell as generator-owned without adding prose to executable code."""
     cell.setdefault("id", f"spacr-{kind}")
     metadata = cell.setdefault("metadata", {})
+    if kind in {ADVANCED_CELL_KIND, ORGANELLE_CELL_KIND}:
+        metadata.setdefault("jupyter", {})["source_hidden"] = True
+        tags = metadata.setdefault("tags", [])
+        if "advanced-settings" not in tags:
+            tags.append("advanced-settings")
     spacr_metadata = metadata.setdefault("spacr", {})
     spacr_metadata.update({
         "generated": kind,
@@ -1705,6 +1751,247 @@ def _insertion_point(cells: List[dict]) -> int:
 # Entry point
 # ---------------------------------------------------------------------------
 
+
+def render_notebook_index() -> str:
+    """Build navigation from maintained lessons and the live workflow registry."""
+    from spacr.cli import MODULES
+
+    lines = ["# spaCR notebooks", "",
+             "Start with [the workflow browser](00_workflow_browser.ipynb) to "
+             "choose any registered headless workflow, inspect its current "
+             "defaults, or reuse settings saved by the desktop application.", "",
+             "## Guided workflows", "", "| Notebook | Purpose |",
+             "|---|---|"]
+    for name, spec in NOTEBOOK_SPECS.items():
+        lines.append(f"| [{spec.overview[0]}]({name}) | {spec.overview[1]} |")
+    lines.extend(["", "## All registered workflows", "",
+                  "The browser offers every entry below, including workflows "
+                  "without a dedicated guided notebook. Its dropdown and "
+                  "settings come from the installed version at execution time.",
+                  "", "| Workflow | Purpose | Public API |", "|---|---|---|"])
+    for key, module in sorted(MODULES.items()):
+        dotted = module.entry.replace(":", ".")
+        lines.append(f"| `{key}` | {module.summary} | "
+                     f"[`{dotted}`]({api_url(dotted)}) |")
+    lines.extend(["", "## Edit, inspect and run", "",
+                  "1. Select the Python environment in which spaCR is installed; "
+                  "run the environment check first.",
+                  "2. Edit essential inputs. Expand a parameter reference group "
+                  "for descriptions and required/conditional status.",
+                  "3. Advanced and organelle settings are ordinary Python cells "
+                  "with Jupyter's `source_hidden` metadata. JupyterLab and "
+                  "Notebook 7 show an ellipsis that expands them. Other viewers "
+                  "may show their source instead. Every setting remains editable.",
+                  "4. Run all configuration cells in order, including collapsed "
+                  "cells, then run the analysis cell. Restart the kernel and "
+                  "run all cells when changing workflows or restoring defaults.",
+                  "", "HTML parameter groups are clickable in compatible "
+                  "notebook viewers. Plain text and exported formats can still "
+                  "read their contents. No notebook extension is required.", "",
+                  "The browser optionally uses ipywidgets for a workflow picker "
+                  "and an advanced-settings editor. Without widgets, edit the "
+                  "Python variables shown in the same notebook. Analysis is "
+                  "opt-in, so running its setup cells does not launch a pipeline.",
+                  "", "## Desktop tools and additional interfaces", "",
+                  "Interactive mask drawing/lineage curation, annotation, "
+                  "cluster profiles and other desktop tools use the "
+                  "[graphical workflows](https://einarolafsson.github.io/spacr/workflows.html). "
+                  "The [complete API](https://einarolafsson.github.io/spacr/api/) "
+                  "covers additional public functions; `spacr-run --help` lists "
+                  "management commands such as archive export and validation.",
+                  "", "- [Python guide](https://einarolafsson.github.io/spacr/python_api.html)",
+                  "- [Tutorials](https://einarolafsson.github.io/spacr/tutorials/)",
+                  "- [Jupyter cell metadata](https://nbformat.readthedocs.io/en/latest/format_description.html#cell-metadata)",
+                  "- [Widget containers](https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20List.html#Container/Layout-widgets)",
+                  "", "Notebooks under `legacy/` retain their original URLs but are "
+                  "also regenerated with current settings and APIs. Combined "
+                  "ML/CV examples retain their regression stage; the Cellpose "
+                  "example retains optional image/mask dataset preparation.", ""])
+    return "\n".join(lines)
+
+
+def render_workflow_browser() -> str:
+    """Generate an opt-in workflow browser using spaCR's current CLI registry."""
+    cells = [
+        _markdown_cell(_as_source("""# Browse every spaCR workflow
+
+Choose a workflow, inspect its requirements, and edit its settings before running.
+This notebook uses the installed workflow registry rather than a copied list.
+[Guided notebooks](README.md) · [Python guide](https://einarolafsson.github.io/spacr/python_api.html)
+
+## 1. Choose a workflow
+Run this cell first. Widgets are optional; without them, edit `module_key` below.
+Selecting a different workflow requires rerunning the configuration cells.
+"""), "browser-introduction"),
+        _code_cell(_as_source(r"""from spacr.version import version_str
+from spacr.cli import MODULES, resolve_module, resolve_settings
+from IPython.display import Markdown, display
+
+print("spaCR", version_str)
+module_key = "measure"
+module_picker = None
+try:
+    import ipywidgets as widgets
+except ImportError:
+    print("Optional picker unavailable; edit module_key above.")
+else:
+    module_picker = widgets.Dropdown(
+        options=[(f"{key}: {row.summary}", key) for key, row in sorted(MODULES.items())],
+        value=module_key, description="Workflow:", layout=widgets.Layout(width="100%"))
+    display(module_picker)
+"""), "browser-picker"),
+        _markdown_cell(_as_source("""## 2. Configure the selected workflow
+`settings_file` can point to a CSV or JSON file saved by spaCR, or stay `None`.
+`overrides` uses the same typed `key=value` syntax as `spacr-run --set`.
+Set required paths and channels here. Rerunning this cell restores current defaults.
+"""), "browser-config-help"),
+        _code_cell(_as_source(r"""module = resolve_module(module_picker.value if module_picker is not None else module_key)
+settings_file = None
+overrides = []  # Example: ["src=/absolute/path/to/plate", "channels=[0,1]"]
+settings = resolve_settings(module, settings_file, overrides)
+dotted = module.entry.replace(":", ".")
+api_url = "https://einarolafsson.github.io/spacr/api/" + module.module_name.replace(".", "/") + "/index.html#" + dotted
+display(Markdown(f"### {module.key}: {module.summary}\n\n[Public API]({api_url})"))
+print("Required inputs:", *module.requires, sep="\n- ")
+print("Writes:", *module.writes, sep="\n- ")
+print(f"{len(settings)} current settings loaded. Edit overrides above or settings below.")
+"""), "browser-settings"),
+        _markdown_cell(_as_source("""### Advanced settings editor (optional)
+Expand the accordion, edit the JSON, and click **Apply settings**. No analysis runs
+from this editor. Unknown keys or invalid values are rejected without changing the
+current settings. Plain Python also works: `settings['src'] = '/path/to/plate'`.
+"""), "browser-editor-help"),
+        _code_cell(_as_source(r"""import json
+from spacr.cli import apply_overrides, SettingsError
+
+if module_picker is not None:
+    editor = widgets.Textarea(value=json.dumps(settings, indent=2, default=str),
+                              layout=widgets.Layout(width="100%", height="300px"))
+    apply_button = widgets.Button(description="Apply settings")
+    messages = widgets.Output()
+    editable_module = module
+    editable_settings = settings
+
+    def apply_settings(_button, editor=editor, messages=messages,
+                       editable_module=editable_module, editable_settings=editable_settings):
+        with messages:
+            messages.clear_output()
+            try:
+                values = json.loads(editor.value)
+                if not isinstance(values, dict):
+                    raise ValueError("Settings must be a JSON object.")
+                if set(values) != set(editable_settings):
+                    raise ValueError("Keep the current setting names; edit their values only.")
+                candidate = dict(editable_settings)
+                changed = [f"{key}={value!r}" if not isinstance(value, str)
+                           else f"{key}={value}" for key, value in values.items()
+                           if value != editable_settings[key]]
+                apply_overrides(candidate, changed, editable_module)
+            except (ValueError, TypeError, SettingsError) as error:
+                print(error)
+            else:
+                editable_settings.update(candidate)
+                print("Settings applied. Review them before enabling the run cell.")
+
+    apply_button.on_click(apply_settings)
+    advanced = widgets.Accordion(children=[widgets.VBox([editor, apply_button, messages])])
+    advanced.set_title(0, "Advanced settings — click to expand")
+    advanced.selected_index = None
+    display(advanced)
+else:
+    print("Edit settings directly, or edit overrides and rerun the configuration cell.")
+"""), "browser-editor"),
+        _markdown_cell(_as_source("""## 3. Run only when ready
+This cell is disabled by default. Inspect the public API and required inputs first;
+then set `RUN_WORKFLOW = True`. Pipelines may write files, download models, or require
+optional packages and substantial compute. Use **Kernel → Interrupt** to interrupt
+and **Kernel → Restart** before switching between incompatible scientific backends.
+"""), "browser-run-help"),
+        _code_cell(_as_source(r"""RUN_WORKFLOW = False
+if RUN_WORKFLOW:
+    from importlib import import_module
+    function = getattr(import_module(module.module_name), module.func_name)
+    result = function(settings if module.call_style == "settings" else settings["src"])
+else:
+    print("No analysis started. Configure inputs and enable RUN_WORKFLOW when ready.")
+"""), "browser-run"),
+    ]
+    for cell in cells:
+        if _cell_kind(cell) == "browser-editor":
+            cell["metadata"]["jupyter"] = {"source_hidden": True}
+    notebook = {"cells": cells, "metadata": {
+        "kernelspec": {"display_name": "Python 3 (spaCR)", "language": "python", "name": "python3"},
+        "language_info": {"name": "python"},
+        "spacr": {"generated_by": "tools/build_notebook_settings.py", "workflow_browser": True}},
+        "nbformat": 4, "nbformat_minor": 5}
+    return json.dumps(notebook, indent=1, ensure_ascii=False) + "\n"
+
+
+def render_legacy_notebook(name: str, root: Path) -> str:
+    """Keep old notebook URLs usable with current generated workflow cells."""
+    import copy
+
+    workflows = LEGACY_WORKFLOWS[name]
+    links = " · ".join(f"[{NOTEBOOK_SPECS[item].overview[0]}](../{item})"
+                       for item in workflows)
+    intro = ("# Current workflows at the original notebook address\n\n"
+             "This notebook is refreshed from the maintained workflow examples: "
+             f"{links}. Configure each stage's inputs before running it. "
+             "Saved settings and API calls below use current names and defaults.\n\n"
+             "[All workflows](../README.md) · "
+             "[Workflow browser](../00_workflow_browser.ipynb)")
+    cells = [_markdown_cell(_as_source(intro), "legacy-navigation")]
+    if name == "3b_spacr_computer_vision.ipynb":
+        helpers = ("spacr.io.generate_training_dataset", "spacr.deep_spacr.train_test_model",
+                   "spacr.io.generate_dataset", "spacr.deep_spacr.apply_model_to_tar")
+        cells.append(_markdown_cell(_as_source(
+            "The integrated classification workflow below replaces the old "
+            "separate dataset, training, TAR-export and inference cells. "
+            "Their public APIs remain available for custom pipelines:\n\n" +
+            "\n".join(f"- [`{dotted}`]({api_url(dotted)})" for dotted in helpers)),
+            "legacy-classification-apis"))
+    if name == "5_spacr_train_cellpose.ipynb":
+        dotted = "spacr.io.prepare_cellpose_dataset"
+        function = resolve(dotted)
+        shape, keys = surface(function, dotted)
+        entries = [(dotted, shape, keys, param_docs(function))]
+        cells.extend([
+            _markdown_cell(_as_source("## Prepare image/mask pairs (optional)\n\n"
+                "For sibling image folders with matching `masks/` folders, "
+                "this helper copies pairs into `cellpose_dataset/train` and "
+                "`cellpose_dataset/test`. The training stage below must point "
+                "at those prepared folders; it does not infer this path. "
+                "Skip the preparation cells if your train/validation pairs "
+                "are already organized."), "legacy-preparation"),
+            _markdown_cell(_as_source(_render_function_section(entries)), "legacy-preparation-api"),
+            _code_cell(_as_source(_render_import_cell(entries)), "legacy-preparation-import"),
+            _markdown_cell(_as_source(render_help(entries)), "legacy-preparation-help"),
+        ])
+        for kind, source in render_settings_cells(entries):
+            cell = _code_cell(_as_source(source), f"legacy-preparation-{kind}")
+            if kind != SETTINGS_CELL_KIND:
+                cell["metadata"]["jupyter"] = {"source_hidden": True}
+            cells.append(cell)
+        cells.append(_code_cell(_as_source(_render_run_cell(entries)), "legacy-preparation-run"))
+    for canonical in workflows:
+        notebook = json.loads((root / canonical).read_text(encoding="utf-8"))
+        for cell in copy.deepcopy(notebook["cells"]):
+            cell.setdefault("metadata", {}).setdefault("spacr", {})[
+                "canonical_notebook"] = canonical
+            cells.append(cell)
+    for index, cell in enumerate(cells):
+        cell["id"] = f"spacr-original-{index}"
+    metadata = copy.deepcopy(notebook["metadata"])
+    metadata["kernelspec"] = {"display_name": "Python 3 (spaCR)", "language": "python", "name": "python3"}
+    metadata.setdefault("language_info", {}).pop("version", None)
+    metadata.setdefault("spacr", {}).pop("notebook_spec", None)
+    metadata["spacr"].pop("desktop_route", None)
+    metadata.setdefault("spacr", {}).update({"legacy_address": name,
+                                             "canonical_workflows": list(workflows)})
+    result = {"cells": cells, "metadata": metadata, "nbformat": 4, "nbformat_minor": 5}
+    _clear_code_outputs(cells)
+    return json.dumps(result, indent=1, ensure_ascii=False) + "\n"
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--check", action="store_true",
@@ -1715,9 +2002,9 @@ def main(argv=None) -> int:
     root = Path(args.notebooks)
     present = {path.name for path in root.glob("*.ipynb")}
     expected = set(NOTEBOOK_SPECS)
-    if present != expected:
+    if present - {BROWSER_FILENAME} != expected:
         missing = sorted(expected - present)
-        unexpected = sorted(present - expected)
+        unexpected = sorted(present - expected - {BROWSER_FILENAME})
         if missing:
             print("missing maintained notebooks:")
             for name in missing:
@@ -1729,6 +2016,8 @@ def main(argv=None) -> int:
         return 1
     stale, written, skipped = [], [], []
     for path in sorted(root.glob("*.ipynb")):
+        if path.name == BROWSER_FILENAME:
+            continue
         try:
             new_text = rebuild(path)
         except Exception as exc:
@@ -1745,6 +2034,20 @@ def main(argv=None) -> int:
         else:
             path.write_text(new_text, encoding="utf-8")
             written.append(path.name)
+
+    additional = [(BROWSER_FILENAME, render_workflow_browser()),
+                  ("README.md", render_notebook_index())]
+    for name in LEGACY_WORKFLOWS:
+        additional.append((f"legacy/{name}", render_legacy_notebook(name, root)))
+    for name, content in additional:
+        path = root / name
+        if path.is_file() and path.read_text(encoding="utf-8") == content:
+            continue
+        if args.check:
+            stale.append(name)
+        else:
+            path.write_text(content, encoding="utf-8")
+            written.append(name)
 
     if skipped:
         print(f"no settings surface, left alone: {len(skipped)}")
