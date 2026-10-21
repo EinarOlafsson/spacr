@@ -2,12 +2,14 @@
 A FREE WEBSITE FOR spaCR AND THE MAINTAINER'S OTHER PROJECTS, WITH RICH EFFECTS
 ================================================================================
 
-Status:    BLOCKED ON MAINTAINER — release rebuild wired; private-site token
-           and current idle-laptop performance acceptance remain.
+Status:    IN PROGRESS — laptop performance accepted qualitatively; release/site-sync verification remains.
+           The dispatch secret exists; no measured FPS is claimed.
 Requested: 2026-10-10 — "I'd like to have a free webpage for spacr and my other
            projects. I'd like the page to be able to have cooler effects than
            GitHub allows me to have."
-Owner:     Home (build); WS (translations and copy, once the layout settles)
+Owner:     Maintainer-input coordinator (site/release verification); Mac Codex
+           session (remaining native Mac/browser acceptance); root release
+           owner (upstream release repair and publication).
 Related:   README deck; docs Pages budget (WS note 2026-10-10: the combined
            docs site is 960 of 996 MB); N684 animation; N674 field relief
 
@@ -177,7 +179,7 @@ This closes publication of these repairs. Current mobile Lighthouse thresholds
 and physical mid-range laptop60fps acceptance remain OPEN; full item PARTIAL.
 
 2026-10-15 — Release workflow now requests the site rebuild after PyPI/GitHub publication and final metadata;19 related checks pass.
-BLOCKED ON MAINTAINER: create a fine-grained token restricted to EinarOlafsson/site-src with Contents read/write; save it as SITE_DISPATCH_TOKEN in spacr Settings → Secrets and variables → Actions.
+Superseded 2026-10-21: SITE_DISPATCH_TOKEN already exists in repository secret metadata; no token creation or disclosure is requested. Its effective permissions still require an actual eligible dispatch.
 GitHub permission reference: https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event ; never commit or paste the token.
 After main promotion/release, confirm refresh-project-site and site production/Pages success; check published version, three installer links and DOI.
 On an idle physical mid-range laptop, verify normal unpaused hardware-rendered pointer/scroll interaction at60fps and current mobile Lighthouse≥90/95,<1MB; retain hardware/browser results. Home GPU was not used.
@@ -185,3 +187,85 @@ On an idle physical mid-range laptop, verify normal unpaused hardware-rendered p
 2026-10-16 — Same two website agents own completion: website_release + website_acceptance; incorporate Claude's published site changes and retain valid prior checks rather than repeating them.
 Current spaCR mobile check passed97 performance/100 accessibility/775,267bytes; finish actionable integration/publication work, identifying credential or physical-device gates precisely.
 Coordinate any shared docs/site3D column with the still-running wgpu owner; do not replace unpublished owner work or treat a blocker report as item completion.
+
+--------------------------------------------------------------------------------
+MAC SESSION HANDOFF — CURRENT ACCEPTANCE AND RELEASE/SITE DEPENDENCY
+--------------------------------------------------------------------------------
+
+The maintainer's "laptop performance is good!" is accepted qualitative
+performance evidence. It is not a measured 60 fps result. Do not repeat a
+laptop performance benchmark, Lighthouse run or previously passing browser
+matrix simply to reassure this session. Retain the valid mobile scores and
+browser checks above. No new Mac result is claimed by these instructions.
+
+Prepare and identify the actual source first:
+  1. Read spacr/resources/AI/AGENTS.md, MAC_HANDOFF.md in the same directory
+     and the current handoff on the Mac. Preserve shared checkouts and
+     unpublished work. Fetch origin/nightly; use a clean owned Mac checkout/
+     worktree under the canonical Mac-local worktree exception and follow
+     fast-forward-only update rules. Record the exact inspected commit, Apple
+     Silicon/Intel model, macOS version and Safari/Chrome version. Do not claim installed
+     release acceptance from a newer source checkout or an older app bundle.
+  2. Open https://einarolafsson.github.io/projects/spacr/ in the actual Mac
+     browser. The public site is built from EinarOlafsson/site-src, not from
+     this spaCR checkout. Record the public deployment commit/run when a
+     publication-dependent check is performed. No protected-page password or
+     token belongs in a report, item note or terminal output.
+
+Only finish native Mac checks that are not already accepted:
+  3. With normal browser settings, confirm the public spaCR page, navigation,
+     install/docs/tutorial links, pointer/scroll interaction and pause toggle
+     work in the Mac browser. The prior laptop-performance acceptance stands;
+     report a concrete Mac-only failure if encountered, rather than running
+     another performance measurement. If a Mac-only rendering/accessibility
+     issue is found, fix it in an owned site-src branch, retain an exact
+     reproduction, and have the site owner review/publish the correction.
+  4. If a native Mac reduced-motion or disabled-WebGL path has not yet been
+     checked, check that path once: macOS Reduce Motion must leave static
+     content and usable controls; disabling WebGL must leave a readable page
+     with the fallback. Restore the browser/OS preference after the check.
+     Do not overwrite the existing passing functional tests with a fresh
+     broad audit. Physical Safari behavior is not proved by Linux headless
+     Chrome or SwiftShader, and a source preview is not public deployment.
+
+Release synchronization is an upstream dependency, not a missing-token task:
+  5. The actual 2026-10-20 release run
+     https://github.com/EinarOlafsson/spacr/actions/runs/39355725517
+     failed before website synchronization. Both Apptainer checkout jobs
+     failed, and macOS frozen/native-command acceptance failed. GitHub release
+     publication, release-metadata and refresh-project-site were SKIPPED. That
+     run neither executed a site dispatch nor demonstrated a token-permission
+     failure. Root's release/CI lane owns these upstream repairs; do not
+     duplicate it, restart its CI, invent a site configuration fix or request
+     a new SITE_DISPATCH_TOKEN. Already published frozen-installer repairs
+     must be included in the next accepted release source.
+  6. After the release owner actually publishes an accepted release and its
+     final metadata, inspect the eligible refresh-project-site job. PASS for
+     this part requires its dispatch to succeed and the matching site-src
+     production build/public Pages deployment to succeed. If dispatch alone
+     fails, report its exact job/error to the site owner; secret existence
+     alone is not proof of access. An hourly/daily site refresh may update
+     the page, but does not prove that release-triggered dispatch worked.
+  7. Compare the newly served public version and installer destinations with
+     the actual PyPI version and GitHub release assets, and compare the DOI
+     with that release's authoritative metadata. Open the Mac installer link;
+     check the other platform links without running foreign installers on the
+     Mac. Do not equate a PyPI-only version or an unpublished artifact with a
+     complete GitHub release. The current package/source version and latest
+     published release both read 1.5.1.5; distinguish their actual commits/
+     artifact bytes rather than assuming a new 1.5.1.6 release. Use the
+     accepted version actually published after root's release gate.
+
+Minimal return in this item: date; inspected source and public deployment/run;
+Mac model/macOS/browser; previously unverified native checks performed and
+PASS/FAIL; public version/three installer destinations/DOI comparison; any
+exact remaining upstream job or Mac-only failure. Keep the dated trailing note
+within five lines; put detailed fixes/steps in this section. Site/browser
+acceptance does not validate installer/update/uninstall behavior (their owning
+items cover it). Item 655 is outside this handoff; do not implement or reopen it, and preserve
+separately recorded acceptance.
+
+2026-10-21 — Maintainer accepts laptop performance qualitatively: "laptop performance is good!" No measured FPS was supplied or invented; do not repeat that acceptance merely for reassurance.
+SITE_DISPATCH_TOKEN exists in repository secret metadata, so the old instruction to create it is superseded; this alone does not verify its permissions or an actual site refresh.
+Input coordinator/retained site worker owns the actual release/site-sync failure and current published version/installer/DOI checks; distinguish an upstream release-build failure from a site-sync failure.
+The Mac session owns any remaining physical Mac/browser checks and Mac-specific fixes; preserve existing valid mobile/browser checks and report only actual new measurements.

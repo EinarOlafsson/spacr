@@ -10,6 +10,64 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
            settings_model.py and app_screen.py (vvvv), spacr/qt/theme.py
            (group card style).
 
+MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
+
+Follow spacr/resources/AI/MAC_HANDOFF.md and finish running N703/N646 first.
+The Mac session owns real-display layout/input acceptance and Mac-specific
+repairs. Root retains Linux/general CI and Work retains current-layout
+recordings 14/42/46/79 and the related lesson checks. Do not implement or reopen F655 here. Start
+from fresh origin/nightly in the permitted Mac-local worktree and confirm the
+actual launched app uses that HEAD/interpreter/spacr.__file__; record installed
+version, macOS, hardware and display scaling. A 1.5.1.5 label is not proof of
+current nightly. Preserve existing collapse/preferences before changing them.
+
+1. Use actual display/work-area sizes corresponding to 1280x720 and 1366x768,
+   and 1920x1080 where available, in light and dark themes. Record logical
+   screen and available geometry, Retina device-pixel ratio and menu/Dock
+   reservations. Do not substitute physical screenshot pixels for Qt logical
+   size or claim a resolution that the Mac display cannot provide. Keep the
+   window within its available work area (the original small-screen targets
+   were about 1280x680 and 1366x728 usable pixels; Mac reservations may differ).
+2. Launch and restore the main window after saving a larger window geometry,
+   then move between available displays/scales if hardware permits. Window
+   edges and essential controls must remain reachable; restored geometry must
+   clamp to the current available screen. At small size, scroll/collapse must
+   reach all controls without shrinking them unusably. Check the selected
+   existing module screens for reachability, recording which were actually
+   opened; no claim of all-module native acceptance from Make Masks alone.
+3. In Make Masks inspect TOOLS/ANNOTATION/IO/NAVIGATION groups, wrapped tools,
+   Open File / Folder and its 2D/3D file menu, Keep and Save mask menus. Open a
+   real 2D image and then a 3D volume. The editable image index plus filename
+   must sit together at the container's bottom-left OUTSIDE image pixels,
+   with no duplicate row. Edit the index and verify navigation. In Blind mode
+   verify neither visible filename nor a stale tooltip reveals identity.
+4. Switch Mask/Flows and volume views. Flows stays an ordinary content tab;
+   Reset zoom/Ruler remain beside the tabs, fully visible with top edges
+   aligned, and work in the appropriate view. They and image identity must
+   not be embedded in Flows. Check the default 1 px brush, menu-based Save on
+   navigation, and Edit-menu Undo/Redo rather than expecting retired buttons.
+5. Fold/reopen settings, top bar, bottom bar and title; close/restart and
+   verify persisted states. At narrow width the side column may temporarily
+   auto-fold: its handle must reopen it without corrupting saved preference.
+   Check the smaller centred collapse arrows with mouse and trackpad. Fold
+   Shortcut list, Console/AI chat and System independently and confirm their
+   order/persistence. A reachable chat control does not require credentials,
+   paid AI calls or network interaction for layout acceptance.
+6. Repeat critical geometry with a supported translated language containing
+   longer labels, then restore the original language. Check text is readable,
+   controls are neither clipped nor overlapped, and normal 1920x1080 layout
+   remains unchanged. Missing physical display/scale combinations remain
+   explicitly untested; screenshots/offscreen tests do not close native feel.
+
+Pass requires full reachability at the tested small available geometries,
+correct footer/tab/tool placement, native input and restart persistence, with
+no regression at the tested large size. Record source/runtime, each actual
+logical size/DPR/theme/language, outcomes and any Mac-specific fix/retest in
+this item. Prior position acceptance and automated geometry checks are kept;
+the outstanding 1280x720 native recheck is not silently converted to PASS.
+Do not duplicate root's in-progress thumbnail lifetime/main-API repair or
+claim that native layout acceptance completes hosted CI or Work tutorials.
+
 --------------------------------------------------------------------------------
 2026-10-16 — the maintainer's request
 --------------------------------------------------------------------------------
@@ -170,3 +228,6 @@ Retain index-based navigation, filenames, reset/ruler behavior, collapse persist
 Acceptance: main-window minimum size ≤ 1280×680 with Make Masks and every module screen; saved/restored geometry clamped to the screen's available geometry; every control reachable by scroll or collapse; 1920×1080 layout unchanged. Owner: Claude Home.
 2026-10-18 — Fixed: main-window minimum 1200×720 → 1200×640 (opens at 1200×720 as before); launch, Restore and screen/work-area changes fit the window inside the available geometry. Below 1500 px Make Masks folds its side column (not remembered; arrow reopens), so TOOLS/IO no longer clip and the image gets ~157 px at 1280×680. 1920×1080 geometry unchanged. Remaining: maintainer native recheck at 1280×720; other module screens with content minima above 1280×680 (power, tabulate, foreign, batch, investigate_hit, profiler, train_compare, data_manager, gate_editor, dose_response, graph_builder) are a separate follow-up.
 2026-10-18 — Follow-up done: batch, data_manager, dose_response, foreign, gate_editor, graph_builder, investigate_hit, plate_view, power, profiler, tabulate and train_compare scroll inside their page when the page is below 1500×900 logical px and smaller than their content; at or above that, layout and pixels are unchanged (1920×1050 compared before/after). Every module screen now fits 1280×680 and 1366×728 unsqueezed; DPR-2 test included. Remaining: maintainer native recheck at 1280×720.
+
+2026-10-21 — Mac session owns the detailed current-nightly native checks and Mac-specific fixes above; run N703/N646 first via the canonical Mac handoff.
+Record actual build/runtime and per-case results here; prior automation/history is retained, and Linux/general CI plus Work tutorials remain separate.

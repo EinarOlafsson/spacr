@@ -2,7 +2,9 @@
 WITH SOUND ON, REOPENING PREFERENCES HANGS spaCR UNTIL IT IS FORCE QUIT
 ================================================================================
 
-Status:    DONE 2026-09-19 (evidence 6ee1deb64) — in the same day it was filed and reported.
+Status:    IN PROGRESS 2026-10-21 — sound-shutdown repair 62ae8d023f is
+           published; physical Mac sound/Preferences acceptance remains open.
+           The 2026-09-19 fix (6ee1deb64) is retained.
            REGRESSION from the same day's item 427 (the sound engine).
            Every Qt Multimedia object is on the GUI thread now and the
            audio thread renders only; the connection is paid once, on an
@@ -18,7 +20,8 @@ Requested: 2026-09-19, by the maintainer, in these words:
               preferences then i get the wait force quit option and i have to
               force quit"
 
-Owner:     Claude (spacr/qt/sound.py).
+Owner:     Mac Codex session (physical sound/Preferences acceptance);
+           easy_n79/root retain the published sound-shutdown repair context.
 
 --------------------------------------------------------------------------------
 WHAT WAS MEASURED HERE
@@ -364,6 +367,79 @@ EXACT STEPS FOR THE MAINTAINER (the one thing still open)
 The automated equivalent, for any machine, is:
     CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen python -m pytest -q \
         tests/qt/test_sound_on_does_not_wedge_the_preferences_dialog.py
+
+--------------------------------------------------------------------------------
+MAC SESSION HANDOFF — PHYSICAL SOUND AND PREFERENCES ACCEPTANCE
+--------------------------------------------------------------------------------
+
+The original thread-affinity repair and its existing passing tests remain
+valid. They do not prove current physical Mac audio, Preferences reopening or
+native shutdown. Root has published the scoped general sound-shutdown repair
+62ae8d023f; easy_n79 retains its implementation context. The Mac session must
+not reimplement that same fix or overwrite its branch.
+
+Source/version preconditions:
+  1. Read spacr/resources/AI/AGENTS.md, MAC_HANDOFF.md in the same directory,
+     and the current handoff. Use the latest accepted nightly source including
+     published sound-shutdown fix 62ae8d023f. Use a clean owned Mac checkout/
+     worktree under the canonical Mac-local worktree exception and follow
+     fast-forward-only update rules. Record its exact commit. The current
+     package/source version and latest release are both 1.5.1.5, so version
+     text alone cannot establish that this later fix is in an installed app.
+     For installed-build acceptance, record its actual .app path, About
+     version/source and whether its artifact includes the fix. An older
+     same-version .app does not validate newer source.
+  2. Use the real logged-in macOS desktop and an audible local output device
+     (built-in speakers or connected headphones). Record Mac model,
+     Apple Silicon/Intel, macOS version and output route. Offscreen Qt,
+     Linux/PipeWire, null audio, remote audio and synthesis-only tests do not
+     satisfy this gate. Use a normal safe listening volume.
+  3. Start that exact source from its usual environment with
+         python -m spacr.qt
+     so the terminal log is available. For an installed .app, launch its actual
+     Contents/MacOS executable from Terminal rather than assuming a different
+     installed copy was used. Do not guess another session's environment or
+     change the user's normal settings without restoring them afterwards.
+
+Native procedure and pass criteria:
+  4. Open Preferences, enable Sound, enable the music bed if it is normally
+     used, and Save. Wait for initial rendering/device connection to settle.
+     Confirm an actual sound is audible; a running thread or a successful WAV
+     write alone is not playback. Preserve any device warm-up timing already
+     emitted by the application; do not invent a latency threshold/result.
+  5. Reopen Preferences ten times. On each opening verify all tabs are fully
+     populated, visit at least two tabs, and alternate Save and Cancel.
+     Keep sound enabled throughout this reproduction. PASS requires no empty
+     Preferences frame, frozen controls, macOS beachball/hang or forced quit,
+     and no cross-thread QSocketNotifier/Qt Multimedia warnings in the log.
+     The older GNOME prompts and Linux QSettings recovery path above are
+     historical workstation instructions, not Mac-specific commands.
+  6. Quit normally with sound enabled using the application menu or Cmd-Q.
+     Confirm the actual process exits and audio stops, with no native crash,
+     abort, lingering spaCR sound process or "QThread: Destroyed while thread
+     'spacr-sound' is still running" warning. Relaunch the same app once to
+     confirm ordinary startup is still usable. Do not force-kill a successful
+     shutdown or treat a window disappearing as proof the process has exited.
+
+If a check fails, record the exact step and source/version, output route,
+warning/traceback and whether the GUI/process is still alive. Before forcing
+quit, use Activity Monitor's Sample Process (or an already available debugger)
+to capture where the actual spaCR process is waiting; do not guess a PID by
+selecting an unrelated Python process. A new physical Mac defect belongs to
+this Mac lane; a recurrence of the existing general shutdown failure goes to
+easy_n79/root with the source identity. If settings recovery is needed, first
+identify the real QSettings("spacr", "qt") storage on this Mac and change only
+sound/enabled while spaCR is stopped; do not copy ~/.config/spacr/qt.conf from
+the Linux example or erase the user's preferences.
+
+Minimal return in this item: date; commit/.app path/version; Mac/macOS/output
+route; audible playback PASS/FAIL; ten populated reopenings and Save/Cancel
+PASS/FAIL; normal exit/relaunch PASS/FAIL; exact warning or blocker if any.
+Write no new evidence packet. Keep the dated trailing update to at most five
+lines. Retain valid prior automated results; no full-suite rerun is required
+for a native acceptance report. Item 655 is outside this sound check; do not implement or reopen it.
+Preserve separately recorded acceptance. No physical Mac result has been performed by this Linux
+session, and no whole-item completion is claimed by this handoff.
 
 VERIFIED 2026-10-04: test_sound_on_does_not_wedge_the_preferences_dialog passes; the QtMultimedia thread pins skip on this box (libbrotlidec mismatch, environmental); 2 referenced test files pass.
 

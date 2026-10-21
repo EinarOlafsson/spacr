@@ -67,6 +67,114 @@ ACCEPTANCE
   detection, preservation, rollback and launcher resolution.
 
 --------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+CURRENT MAC SESSION: INSTALL, UPDATE, RESTART AND LEGACY RECOVERY
+--------------------------------------------------------------------------------
+
+Accepted scope: the maintainer accepted 703 on 2026-10-21 after the Mac
+session's native installer matrix and automated update/rollback/identity/restart
+validation (published acceptance 3a45ba05c053). The second newer-candidate
+in-app run is explicitly waived. The procedure below is retained for actual
+regressions, not a new gate or a reason to repeat accepted tests. Continue
+with outstanding 646 work instead. Windows/Linux native acceptance is on
+hold until explicitly resumed; Home general CI is separate.
+
+Owner: the maintainer's Mac session owns any newly demonstrated Mac-specific
+regression; root retains general CI. Preserve the latest accepted scope.
+Start here, together with 646, before the 3D, layout or audio items. Read
+spacr/resources/AI/MAC_HANDOFF.md and the Mac worktree exception in AGENTS.md.
+
+Source and artifact identity
+  * Fetch origin/nightly into an owned Mac worktree. Preserve the maintainer's
+    checkout and any other session's work. Record the actual tested commit,
+    macOS version/build and Intel/Apple Silicon architecture.
+  * At this handoff, setup.py VERSION and spacr/_version.py both say 1.5.1.5;
+    GitHub's latest published release is v1.5.1.5, published 2026-10-20.
+    1.5.1.6 is not published. Re-read these values after fetching. A newer
+    nightly commit can contain different code with the SAME version string.
+  * Verify the launched application's Help > About, bundle path, actual
+    interpreter, spacr.__file__ and installed distribution version. A plist,
+    successful installer exit or a terminal importing the source checkout
+    does not establish which code the desktop application ran.
+  * The supported local package build is
+      bash packaging/online/build_macos_online.sh
+    It reads setup.py and writes
+    dist/online/spaCR-<actual-version>-macOS-Universal-Online.pkg. Run builds
+    asynchronously. Signing is governed by macos_signing.py: no credentials
+    yields an explicitly unsigned development artifact; partial credentials
+    fail. Do not claim signing/notarization or bypass a failed signing gate.
+  * The online package normally requests the published package version. To
+    exercise unpublished runtime fixes, use an explicitly identified current
+    candidate wheel/source through the installer's supported --package-spec
+    route and verify its actual installed module bytes. Merely rebuilding a
+    same-version launcher does not put nightly runtime code into the app.
+    Do not substitute a terminal-only install for testing the native GUI.
+
+1. Establish controlled old and new installations
+  Use disposable installations and test-owned data, not the only working
+  installation or real user images. Record one actually older version, such
+  as 1.5.1.4, and the target candidate/release identity. Also retain the
+  existing older-profile case 1.5.0.7. Put distinct sentinel files in the
+  relevant preferences/model/cache/log locations and one unrelated environment.
+  Launch the old desktop icon and establish its actual interpreter/version.
+  Installing over an already-current version is a separate reinstall test;
+  it is not evidence that an upgrade selected and launched a newer version.
+
+2. Exercise the required user-facing flow
+  From the relevant installed app, choose Help > Check for updates/Update;
+  also exercise the current desktop installer against the older installation.
+  One Install/Update action must stage/install in the background, keep the
+  interface responsive, then offer Restart. Restart must show the spaCR
+  startup window and main window of the verified requested new version.
+  There must be no remove-old-app question, manual icon relaunch, terminal
+  interrogation or final relaunch into the old runtime. Verify sentinel data
+  is retained during ordinary updates and that inherited pins or cached
+  wheels cannot silently select an older version.
+  The maintainer has waived repeating the newer-candidate in-app run for
+  current acceptance. If a later concrete regression needs that route and
+  no newer target exists, record the limitation; do not fabricate a version
+  bump, call an already-current response an actual upgrade, or change public
+  release metadata merely to manufacture a test.
+
+3. Cancel, failure and recovery checks
+  Cancel Restart and confirm the old application remains usable. Exercise an
+  owned staging/permission or unavailable-package failure and confirm failure
+  is reported without retiring the working install or claiming success.
+  Preserve existing valid native lease proofs. If current lease changes or
+  an untested route require it, interrupt only a test-owned installer during
+  its package child: a second install must refuse while that child is live,
+  then permit takeover after it exits, removing only dead staging state.
+  Do not kill unrelated jobs or manually remove a live lease to get a pass.
+
+4. Complete the existing Intel Mac/legacy matrix, without redoing valid work
+  Existing requirements cover 1.4.9.9, 1.5.0.1, 1.5.0.4-1.5.0.9,
+  1.5.1.0 and 1.5.1.2-1.5.1.4. The October 18 native records are retained;
+  rerun affected paths when the current installer/profile/runtime changes
+  invalidate them, and identify any genuinely outstanding matrix cases.
+  Old releases remain immutable. Known old 1.5.0.5 duplicate-wheel and Intel
+  1.4.9.9 llvmlite installation failures are not fixed by editing their wheels;
+  verify that the current installer can recover their existing remnants.
+  Keep a stray/backup spaCR.app present for the relocation case: the current
+  package must install /Applications/spaCR.app, not a Spotlight-visible backup.
+  Verify the newest application's detected older installations include the
+  historical online, /Applications and conda cases where those actually exist.
+
+5. Handoff into 646's uninstall checks
+  Test current/all/older-only/ticked installations, cleanup category opt-out,
+  exact path preview and installer-window Uninstall. Package-only removal
+  from a shared Python/Conda environment must not remove that environment.
+
+Pass/reporting boundary
+  Record at most five dated trailing lines here: tested commit/artifact and
+  old/new versions, OS/architecture, actual launcher/interpreter/module, which
+  update/restart/reinstall/recovery paths passed or failed, and exact remaining
+  blocker. Existing ~/.spacr/logs/update.log and ~/spacr-uninstall-report.txt
+  can diagnose an actual failure; no new evidence packet is requested.
+  Mac results do not establish Windows/Linux or full hosted CI. Those native
+  platform lanes are on hold and do not reopen the accepted 703 scope. Do not
+  implement or reopen 655 here; preserve separately recorded acceptance.
+
 2026-10-13 21:00 EDT — HOME SOURCE AUDIT, NOT NATIVE ACCEPTANCE
 --------------------------------------------------------------------------------
 

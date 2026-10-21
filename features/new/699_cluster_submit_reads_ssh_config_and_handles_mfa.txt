@@ -196,3 +196,6 @@ already on nightly (no unpushed 699 branch differs from it). Added on top:
 Remaining (maintainer): a real Great Lakes login with Kerberos password +
 Okta push, then a job submit and status poll without another prompt; ideally
 also one Windows machine for the %USERPROFILE%\.ssh discovery.
+
+2026-10-21 — Maintainer response: current Great Lakes SSH/Okta tests have not run. Existing software/tests remain delivered; real authentication, submission and status polling are not accepted yet.
+Real Kerberos password plus Okta, then one submit/status poll without another prompt, remains a maintainer/cluster-account action; routine approval is not a successful login result.
