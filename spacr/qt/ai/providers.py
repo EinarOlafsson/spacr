@@ -1,18 +1,18 @@
 """
-Provider abstraction — one class per AI vendor. Each shells out to
-the vendor's own coding-agent CLI so authentication piggy-backs on
-the user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team,
-Google account) — no separate API billing.
+AI chat providers through vendor command-line tools or spaCR's hosted relay. The vendor
+providers invoke the user's installed CLI; authentication and account usage follow that
+CLI's configuration.
 
 * Anthropic Claude → the `claude` CLI ("Claude Code")
 * OpenAI ChatGPT   → the `codex`  CLI
 * Google Gemini    → the `gemini` CLI
 
-A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks
-spaCR's relay, which answers with a free hosted model, and it is the default
-when none of the three is installed and signed in (:func:`default_provider`).
+A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay
+for hosted advice. It is the default while network access is allowed unless a configured
+vendor CLI is explicitly preferred (:func:`default_provider`). Configuration checks do
+not guarantee that a request will succeed or that quota remains.
 
-Each provider::
+Each vendor-CLI provider::
 
     is_installed()   — is the CLI on PATH?
     is_logged_in()   — best-effort check; falls back to "assume yes if
@@ -20,10 +20,9 @@ Each provider::
                        the first stream chunk).
     stream_chat()    — spawn the CLI subprocess, yield stdout chunks.
 
-Conversation context is carried by concatenating the full message
-history into each prompt (simplest approach that works uniformly
-across all three CLIs). For subscription users token count is not a
-concern.
+For ordinary vendor-CLI requests, conversation history is flattened into one prompt with
+role labels. An approved Claude session resume sends the newest message with the saved
+session id instead. These vendor-CLI prompts have no size limit enforced by this module.
 
 How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds
 one row per way of installing it on each operating system, and both the
@@ -320,12 +319,12 @@ def github_cli() -> GitHubCli:
 
 
 class ChatProvider(CommandLineTool, ABC):
-    """Abstract base for AI chat providers that shell out to a vendor CLI.
+    """Common interface for vendor-CLI and hosted AI chat providers.
 
     Subclasses set the ``name``/``label``/``cli_name``/``install_hint``/
     ``login_command`` class attributes and implement :meth:`stream_chat`.
 
-    :ivar name: short id ("claude" / "codex" / "gemini").
+    :ivar name: short id ("claude" / "codex" / "gemini" / "spacr_hosted").
     :ivar label: human-readable label shown in the UI.
     :ivar cli_name: executable expected on ``PATH``.
     :ivar install_hint: shell one-liner suggested for installation, built
@@ -354,18 +353,20 @@ class ChatProvider(CommandLineTool, ABC):
         return self.is_installed()
 
     def is_configured(self) -> bool:
-        """Return True when the CLI is both installed and logged in."""
+        """Return True when the install and best-effort login checks pass. The default login
+        check assumes an installed CLI is signed in."""
         return self.is_installed() and self.is_logged_in()
 
     def source_of_key(self) -> str:
-        """Compat string for the old KeysDialog — now describes the
-        CLI's install/login state."""
+        """Compatibility text for the old KeysDialog, reporting whether the CLI is installed and
+        where it was found; it does not verify sign-in."""
         if not self.is_installed():
             return "CLI not installed"
         return f"CLI found at {shutil.which(self.cli_name)}"
 
     def cancel_stream(self) -> None:
-        """Kill the running subprocess (if any).
+        """Request termination of the running subprocess, if any, with bounded waits and a kill
+        attempt after a timeout.
 
         Terminating the process is what unblocks a stream that is waiting
         on stdout; a Python flag is only checked between chunks, and the
@@ -413,8 +414,8 @@ _FAILURE_TAIL_CHARS = 400
 
 
 class ProviderFailed(RuntimeError):
-    """A provider CLI exited with a non-zero status, so what it printed is an
-    error message and not an answer.
+    """A provider request failed. For a vendor CLI, a non-zero exit status means its output
+    is an error message rather than an answer.
 
     The three vendor CLIs report a failure the way any command-line tool does:
     a line on stdout or stderr, then a non-zero exit. A signed-out ``claude``
@@ -562,7 +563,8 @@ def _discard_stream(proc: subprocess.Popen) -> None:
 
 
 def terminate_all_streams() -> int:
-    """Terminate active provider subprocesses and release their readers.
+    """Request termination of active provider subprocesses and retain uncertain processes
+    for a later retry.
 
     :returns: Number of subprocesses for which termination was requested.
     """
@@ -810,7 +812,7 @@ def _result_object(line: str) -> Optional[Dict]:
 
 
 def tool_rule(denial: Dict) -> str:
-    """The ``--allowedTools`` rule that allows exactly one denied tool call.
+    """Build a ``--allowedTools`` rule from a denied tool call.
 
     A shell command is allowed as written, ``Bash(gh auth status)``; a web
     fetch for its host; any other tool by its name.
@@ -923,7 +925,7 @@ HOSTED_PROVIDER_NAME = "spacr_hosted"
 
 
 class HostedProviderRefused(ProviderFailed):
-    """spaCR's relay gave no advice: its free daily limit, or no connection.
+    """The hosted request gave no advice because of a quota, network or other relay error.
 
     A :class:`ProviderFailed`, so the console writes the message as it
     stands after "[AI error]".
@@ -991,12 +993,12 @@ def _hosted_request(messages: List[Dict]) -> Tuple[Dict, str]:
 def question_cache_key(messages: List[Dict]) -> str:
     """The key a fresh question's answer is saved under on this computer.
 
-    Only the first question of a conversation is saved, and only when the
-    question and whatever was pasted with it (console context, code,
-    traceback) stay within
-    :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters. The
-    key is :func:`spacr.crashreport.question_key` of the question and the
-    active app; it is the same for every provider.
+    Only a conversation consisting of a single user message is eligible. A message
+    containing ``Traceback (most recent call last)`` is excluded even when short. The
+    original message, including console context, code and active-app metadata, must fit
+    within :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters.
+    :func:`spacr.crashreport.question_key` validates and hashes the cleaned question and
+    active app; the key does not depend on the provider.
 
     :param messages: conversation history as ``{role, content}`` dicts.
     :returns: the key, or ``""`` when the answer must not be saved.
@@ -1024,11 +1026,11 @@ def question_cache_key(messages: List[Dict]) -> str:
 class HostedProvider(ChatProvider):
     """spaCR's hosted assistant: advice from spaCR's relay, no account needed.
 
-    It sends only what :func:`_hosted_request` keeps, the anonymised error
-    summary and the question, to the relay's ``/diagnose`` route through
-    :func:`spacr.crashreport.diagnose_remotely`. The answer is generated
-    advice and is labelled as such. It is the provider used when no vendor
-    CLI is installed and signed in (:func:`default_provider`), and it is
+    It sends only what :func:`_hosted_request` keeps, the anonymised error summary and
+    the question, to the relay's ``/diagnose`` route through
+    :func:`spacr.crashreport.diagnose_remotely`. The answer is generated advice and is
+    labelled as such. It is the default while network access is allowed unless a
+    configured vendor CLI is explicitly preferred (:func:`default_provider`). It is
     unavailable when the network is forbidden
     (:func:`spacr.crashreport.network_allowed`).
     """
@@ -1082,8 +1084,8 @@ class HostedProvider(ChatProvider):
         :param system: ignored; the relay holds spaCR's own prompt.
         :param model: ignored; the relay chooses its free model.
         :returns: iterator yielding the answer.
-        :raises HostedProviderRefused: with a message that says the free
-            daily limit is reached, or that the relay could not be reached.
+        :raises HostedProviderRefused: when the request is refused because of a quota, a
+            forbidden or unavailable network, or another relay error.
         """
         from ... import crashreport
         from ..i18n import tr
@@ -1229,10 +1231,12 @@ def hosted_provider() -> HostedProvider:
 
 
 def configured_providers() -> List[ChatProvider]:
-    """Return the providers that can answer now, spaCR AI (free) first.
+    """Return providers that pass configuration checks, spaCR AI (free) first.
 
-    The hosted provider leads whenever the network is allowed, since it is
-    the default; a vendor CLI follows when it is installed and logged in.
+    The hosted provider leads whenever the network is allowed. A vendor CLI follows when
+    its install and best-effort login checks pass; the current vendor classes treat an
+    executable on ``PATH`` as configured. These checks do not confirm relay capacity or
+    a working authenticated CLI session.
     """
     ready = [_HOSTED] if _HOSTED.is_configured() else []
     return ready + [p for p in _PROVIDERS if p.is_configured()]
@@ -1242,9 +1246,11 @@ def default_provider(preferred: str = "") -> Optional[ChatProvider]:
     """Return the provider the AI switch uses.
 
     :param preferred: the provider Preferences names, or ``""``.
-    :returns: ``preferred`` when it can answer; otherwise spaCR AI (free);
-        otherwise, with the network forbidden, the first vendor CLI that is
-        installed and logged in; ``None`` when nothing can answer.
+    :returns: the matching ``preferred`` provider from :func:`configured_providers`;
+        otherwise the first provider in that list, or ``None`` if it is empty. The
+        hosted provider leads while the network is allowed; otherwise vendor CLIs are
+        considered in their registered order. This is a configuration choice, not a
+        guarantee of authentication, remaining quota or request success.
     """
     ready = configured_providers()
     for p in ready:
@@ -1278,13 +1284,16 @@ def effective_provider_name(preferred: str = "") -> str:
 
 
 def apply_provider_choice(name: str) -> bool:
-    """Save a provider choice and use it at once in every open console.
+    """Save a provider choice and try to apply it to open consoles.
 
-    A vendor CLI that is not installed and signed in is saved but not
-    applied; the consoles keep spaCR AI (free) until it is set up.
+    The choice is saved even when its configuration checks fail. Open consoles are given
+    the chosen provider when those checks pass, otherwise the fallback from
+    :func:`default_provider`, which can be another vendor CLI or ``None`` when the
+    network is forbidden. Exceptions while updating consoles are ignored.
 
     :param name: a name from :data:`PROVIDER_CHOICES`.
-    :returns: whether the chosen provider can answer now.
+    :returns: whether the chosen provider passed configuration checks, regardless of
+        whether updating every console succeeded.
     """
     from ..preferences import set_preferred_provider
 
@@ -1310,11 +1319,11 @@ def write_report_summary(summary: Dict, provider: Optional[ChatProvider],
                          timeout: Optional[float] = None) -> str:
     """Have the user's own AI summarise an anonymised report, or return ``""``.
 
-    The provider is given :func:`spacr.crashreport.ai_summary_prompt` and
-    nothing else. It runs on a thread of its own and is stopped after
-    ``timeout`` seconds; a failure, a timeout or an empty answer gives
-    ``""``, and the report is then filed without a summary. Blocks, so call
-    it off the GUI thread.
+    The provider is given :func:`spacr.crashreport.ai_summary_prompt` as a single user
+    message, and a worker thread collects its reply. If the worker is still running
+    after ``timeout`` seconds, cancellation is requested and ``""`` is returned; a
+    provider exception or an empty reply also gives ``""``. Blocks, so call it off the
+    GUI thread.
 
     :param summary: a summary from :func:`spacr.crashreport.public_summary`.
     :param provider: a vendor CLI provider, or ``None``.
@@ -1360,12 +1369,13 @@ def write_report_summary(summary: Dict, provider: Optional[ChatProvider],
 
 
 def with_ai_summary(summary: Dict, provider: Optional[ChatProvider]) -> Dict:
-    """Return the report with the AI summary its provider allows.
+    """Prepare a report to request or include an AI summary.
 
-    spaCR AI (free) asks the relay to write it (``summarize: true``, charged
-    to the user's light-model allowance). A vendor CLI writes it here
-    (:func:`write_report_summary`) and it travels as ``ai_summary``. With
-    no provider, or when the CLI gives nothing, the report is unchanged.
+    For spaCR AI (free), set ``summarize: true`` so report submission can request a
+    relay-written summary; this function does not contact the relay itself. A vendor CLI
+    writes the summary here (:func:`write_report_summary`) and a non-empty result is
+    included as ``ai_summary``. With no provider, or when the CLI gives no text, the
+    copied report data is unchanged.
 
     :param summary: a summary from :func:`spacr.crashreport.public_summary`.
     :param provider: the active provider, or ``None``.
@@ -1385,27 +1395,30 @@ def with_ai_summary(summary: Dict, provider: Optional[ChatProvider]) -> Dict:
 
 def explain_failure(summary: Dict, provider: Optional[ChatProvider],
                     timeout: Optional[float] = None) -> Dict:
-    """Have the active AI explain a failure once, for the console and the issue.
+    """Return a cached explanation or request one from the selected provider.
 
-    spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised
-    summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI
+    After a local cache miss, spaCR AI (free) asks the relay's ``/diagnose`` with the
+    anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI
     answers :func:`spacr.crashreport.ai_summary_prompt` here
-    (:func:`write_report_summary`). The same text is shown in the console
-    and sent as the report's ``ai_summary``, so a failure costs one AI call.
-    Blocks, so call it off the GUI thread.
+    (:func:`write_report_summary`). The returned text can be used for the console and
+    the report's ``ai_summary``. After a local miss, this function attempts one provider
+    request; a relay reply can itself be cached. Blocks, so call it off the GUI thread.
 
     :param summary: a summary from :func:`spacr.crashreport.public_summary`.
     :param provider: the active provider, or ``None``.
     :param timeout: seconds a vendor CLI may take; defaults to
         :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.
-    :returns: ``{"text": explanation or "", "tier": "best"|"light"|"",
-        "refused": "" or "quota"|"network"|"error"|"none"}``, plus
-        ``"saved": "local"`` when the answer was saved on this computer
-        (no AI call, no network) or ``"relay"`` when the relay reused one.
+    :returns: ``{"text": explanation or "", "tier": "best"|"light"|"", "refused": "" or
+        "quota"|"network"|"error"|"none"}``. A local cache hit or a completed provider
+        call also includes ``"cause"``. ``"saved"`` is ``"local"`` for a local hit,
+        ``"relay"`` for reused non-empty relay advice, or ``""`` for a fresh hosted
+        reply; other branches omit it.
 
-    An error explained before is not explained again: the answer saved on
-    this computer (:func:`spacr.crashreport.saved_explanation`) comes first,
-    for every provider, and each new answer is saved.
+    With no provider, return ``"refused": "none"`` without consulting the local cache.
+    Otherwise a valid explanation from :func:`spacr.crashreport.saved_explanation` is
+    reused before any request, for every provider. Cache entries can expire or be
+    evicted, and failed saves are ignored, so the same error can require another
+    request.
     """
     from ... import crashreport
 
