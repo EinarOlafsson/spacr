@@ -293,6 +293,37 @@ def test_current_source_ci_restores_public_inputs_before_translation_readers(wor
     assert steps[restore]["if"] == "hashFiles('docs/translation_reviews_revision.json') != ''"
 
 
+@pytest.mark.parametrize(("job", "reader"), [
+    ("fast", "Run fast tests"),
+    ("coverage-shards", "Run coverage shard in bounded batches"),
+])
+def test_api_catalog_preparation_precedes_pytest_without_bypassing_readers(job, reader):
+    import yaml
+
+    document = yaml.safe_load((ROOT / ".github/workflows/tests.yml").read_text())
+    steps = document["jobs"][job]["steps"]
+    names = [step.get("name") for step in steps]
+    preparation = "Assemble pinned API catalogs before pytest"
+    assert names.count(preparation) == 1
+    index = names.index(preparation)
+    assert names.index("Restore pinned translation review inputs") < index < names.index(reader)
+    assert steps[index] == {
+        "name": preparation,
+        "env": {"CUDA_VISIBLE_DEVICES": "", "QT_QPA_PLATFORM": "offscreen"},
+        "shell": "bash",
+        "run": "\n".join((
+            "set -euo pipefail",
+            "sudo -n -E systemd-run --scope --quiet \\",
+            "  -p MemoryMax=8G -p MemorySwapMax=0 \\",
+            "  /usr/sbin/runuser -u \"$(id -un)\" -- /usr/bin/env \\",
+            "  \"PATH=$PATH\" \"HOME=$HOME\" \"PYTHONPATH=$GITHUB_WORKSPACE\" \\",
+            "  \"CUDA_VISIBLE_DEVICES=\" \"QT_QPA_PLATFORM=offscreen\" \\",
+            "  \"OMP_NUM_THREADS=1\" \"MKL_NUM_THREADS=1\" \"OPENBLAS_NUM_THREADS=1\" \\",
+            "  python tools/build_documentation_i18n.py --assemble",
+        )) + "\n",
+    }
+
+
 def test_isolated_review_directories_bypass_canonical_bootstrap(tmp_path, monkeypatch):
     import sys
     monkeypatch.syspath_prepend(str(ROOT / "tools"))
