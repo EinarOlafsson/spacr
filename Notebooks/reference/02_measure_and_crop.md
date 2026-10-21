@@ -451,4 +451,3 @@ spacr-run archive-package --src /path/to/run --out /path/to/archive-exports --me
 The metadata file is a JSON object with the same fields as `archive_metadata` below. Fields omitted from that object use saved run settings and archive defaults; `plate_map` can name a local plate-map table. The default organism is Homo sapiens: verify it for your screen. Use `spacr-run archive-package --help` for command options.
 
 Exit status zero means the generated package passes spaCR's local template and checksum checks. It does not mean acceptance by IDR or BioStudies. External curation, ontology accessions beyond the organism, and multi-screen study assembly remain pending. If post-write checks fail, the package remains available for inspection and the cell raises an error. The optional Excel workbook requires openpyxl; TSV metadata is always written.
-

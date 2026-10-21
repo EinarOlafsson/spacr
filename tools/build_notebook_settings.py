@@ -2369,7 +2369,7 @@ def main(argv=None) -> int:
                           + "\n\n" + render_reference([(dotted, shape, keys, param_docs(function))]) + "\n")
         if name == "02_measure_and_crop.ipynb":
             reference += "\n## Optional archive export (alpha)\n\n" + ARCHIVE_HELP + "\n"
-        additional.append((f"reference/{Path(name).stem}.md", reference))
+        additional.append((f"reference/{Path(name).stem}.md", reference.rstrip() + "\n"))
     for name in [BROWSER_FILENAME, *NOTEBOOK_SPECS]:
         additional.append((f"colab/{name}", render_colab_notebook(name, root)))
     additional.append(("colab/README.md", "# spaCR on Colab\n\n[Choose a workflow](../README.md). Open its Colab link, connect a runtime, then run Setup explicitly.\n"))
