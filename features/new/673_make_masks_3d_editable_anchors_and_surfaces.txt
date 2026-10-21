@@ -25,6 +25,13 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+Current measured readback follow-up: native Intel-Mac phase timing identifies
+two synchronous GPU buffer reads per frame (RGB and picked IDs). The Mac lane
+will test one combined readback after both copies in the same command encoder,
+without changing rays, resolution, samples, label IDs or interaction behavior.
+Require exact colour/picking transport checks, real Metal frame comparison and
+a focused native drag comparison; retain unmet30–60FPS/physical-input gates.
+
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
 The Mac Codex session owns physical-Mac runtime/UI acceptance and any Mac-
@@ -302,11 +309,8 @@ Real-display acceptance remains with the maintainer: each available backend and 
 
 2026-10-19 — macOS acceptance (Intel MacBook Pro, Iris Plus, Retina, 1.5.1.5 installer build, real display): Metal 30 fps dragging, picks agree with the render 19/20. OpenGL was offered but always drew on the CPU because PyOpenGL (needed by VisPy 3-D textures) was not declared; 537b53690 now installs PyOpenGL; with it OpenGL drags at 24 fps. CPU: every mouse move cancelled the frame being drawn, so a drag showed no new picture until release; a newer interactive request of the same content now lets the running CPU frame finish and the newest finished frame is shown (preview, content change or leaving still cancel). Linux/Windows backends remain with the maintainer.
 
-2026-10-21 — Maintainer response: the current 3D viewer has not been tested; earlier recorded Intel Mac measurements are retained, not treated as acceptance of the current build.
-The Mac session owns current Metal/OpenGL/CPU rendering, picking, dragging and installer/doctor checks; Linux/Windows backend acceptance remains separate.
-
-2026-10-21 — Mac session owns the detailed current-nightly native checks and Mac-specific fixes above; run N703/N646 first via the canonical Mac handoff.
-Record actual build/runtime and per-case results here; prior automation/history is retained, and Linux/general CI plus Work tutorials remain separate.
+2026-10-21 — Maintainer response: the current 3D viewer has not been tested; earlier recorded Intel Mac measurements are retained, not treated as acceptance of the current build. The Mac session owns current native checks and Mac-specific repairs above, after N703/N646; Linux/Windows acceptance, general CI and Work tutorials remain separate.
 2026-10-21 — Current Cocoa source 7884c4a1f on Intel Iris Plus/macOS26.6.1: Metal20.13FPS, OpenGL26.03FPS on64×256×256 at100% render scale; both below30–60FPS target. Native benchmark reached its240s watchdog while rebuilding selected-object anchors on the GUI thread; Mac lane is repairing repeated anchor work without reducing handles or changing geometry.
 2026-10-21 — 62f709b6f reuses handles for unchanged immutable geometry/density/axis order;20 focused redraw/stale-anchor/edit checks pass. Focused native Metal run completes all20 picks and cleanly exits in46s;23.73FPS,19/20 agree with the pre-selection snapshot (selection can redraw it), so exact current-frame picking and30–60FPS remain open; no physical edit acceptance is inferred.
 2026-10-21 — Pixel picking now floors coordinates instead of truncating toward zero, so points just left of or above the rendered volume cannot select its first pixel. All11 exact interior/edge cases pass, including3 previously false outside picks. Rotated physical-input and30–60FPS acceptance remain open.
+2026-10-21 — Batched colour/picking readback preserves exact pixels and uint32 label IDs with one synchronized GPU read per frame. Four transport/buffer checks and the real Metal-versus-CPU rendering/finish/lens case pass. Same instrumented Cocoa/Intel Iris Plus64×256×256/100% drag comparison improves18.95→23.59FPS and interactive-render median17.47→14.52ms; all20 picks match the rendered frame, exit0/errors[]. This focused run remains below30–60FPS and does not establish physical-input editing acceptance.

@@ -380,6 +380,77 @@ def _layers(rendering="mip", labels_rendering="surface", finish="matte"):
     return channel, masks
 
 
+@pytest.mark.parametrize("size", [None, (4, 7), (1, 2)])
+def test_wgpu_reads_colour_and_picking_from_one_completed_frame(size):
+    rays = VolumeRays(origin=(0, 0, 0), across=(0, 0, 1), down=(0, 1, 0),
+                      depth=(1, 0, 0), shape=(2, 3, 2))
+    height, width = size or (2, 3)
+    colour = np.arange(height * width * 4, dtype=np.uint8).reshape(height, width, 4)
+    codes = np.array([0, 3, 9, 65536, 2**31, 2**32-1], dtype=np.uint32).reshape(2, 3)
+    packed = np.zeros((2, 3, 2), dtype=np.uint32)
+    packed[..., 0] = codes
+    buffers, copies, reads, events = {}, [], [], []
+
+    def buffer(name, count, readable):
+        buffers[name] = types.SimpleNamespace(name=name, data=bytearray(count))
+        return buffers[name]
+
+    def dispatch(compute, name, params, resources, groups):
+        if name == "clear":
+            resources[1].data[:] = packed.tobytes()
+        if name == "pack":
+            resources[1].data[:] = colour.tobytes()
+
+    class Encoder:
+        def begin_compute_pass(self):
+            return types.SimpleNamespace(end=lambda: events.append("end"))
+
+        def copy_buffer_to_buffer(self, source, source_offset, target, target_offset, count):
+            assert events == ["end"]
+            copies.append((source.name, target.name, target_offset, count))
+            target.data[target_offset:target_offset+count] = source.data[source_offset:source_offset+count]
+
+        def finish(self):
+            return self
+
+    def read_buffer(resource):
+        assert events[-1] == "submit"
+        reads.append(resource.name)
+        return memoryview(resource.data)
+
+    renderer = object.__new__(layers.WGPUVolumeRenderer)
+    renderer._device = types.SimpleNamespace(
+        create_command_encoder=Encoder,
+        queue=types.SimpleNamespace(submit=lambda commands: events.append("submit"),
+                                    read_buffer=read_buffer))
+    renderer._buffer = buffer
+    renderer._dispatch = dispatch
+    renderer._forget_unused = lambda: None
+    rgb, picked = renderer.render([], rays, size=size)
+    assert reads == ["readback"]
+    assert copies == [("picture", "readback", 0, colour.nbytes),
+                      ("pick", "readback", colour.nbytes, packed.nbytes)]
+    assert np.array_equal(rgb, colour[..., :3]) and rgb.dtype == np.uint8
+    assert np.array_equal(picked, codes) and picked.dtype == np.int64
+
+
+def test_wgpu_readable_buffers_can_receive_the_combined_gpu_copy(monkeypatch):
+    flags = types.SimpleNamespace(STORAGE=1, COPY_SRC=2, COPY_DST=4)
+    monkeypatch.setitem(sys.modules, "wgpu", types.SimpleNamespace(BufferUsage=flags))
+    allocated = []
+
+    def create_buffer(**kwargs):
+        allocated.append(kwargs)
+        return types.SimpleNamespace(destroy=lambda: None)
+
+    renderer = object.__new__(layers.WGPUVolumeRenderer)
+    renderer._buffers = {}
+    renderer._device = types.SimpleNamespace(create_buffer=create_buffer)
+    held = renderer._buffer("readback", 80, True)
+    assert renderer._buffer("readback", 80, True) is held
+    assert allocated == [{"size": 80, "usage": flags.STORAGE | flags.COPY_SRC | flags.COPY_DST}]
+
+
 def test_wgpu_frames_match_the_cpu_for_every_rendering_finish_and_lens():
     gpu = _wgpu_context()
     rays = _rays()
