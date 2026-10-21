@@ -512,7 +512,7 @@ def assign_wells(names: Sequence[str], *,
     2. The plate format is chosen by :func:`plate_format_for_names`: 384
        unless a claimed address or the sheer number of names needs the
        1536, in which case rows run to ``AF`` and columns to 48.
-    3. Every remaining name is sorted with :func:`_natural_key` and handed
+    3. Every remaining name is sorted with ``_natural_key`` and handed
        the next free id of that plate, skipping any id claimed in step 1.
 
     All three are deterministic — the same folder names always produce the

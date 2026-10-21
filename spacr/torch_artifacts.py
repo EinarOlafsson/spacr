@@ -256,9 +256,9 @@ def load_model_artifact(
     :param map_location: forwarded to :func:`torch.load`. The ``cpu`` default
         lets a GPU-trained checkpoint load on a machine without a GPU; an
         unrecognised device string raises ``RuntimeError`` from torch.
-    :param model: ``None`` rebuilds the architecture from the recorded
-        config -- a legacy bare state dict records none, so ``maxvit_t`` is
-        assumed silently. A module passed here is loaded in place and
+    :param model: ``None`` rebuilds the architecture from the recorded config. Legacy
+        mappings with a ``model`` or ``state_dict`` entry use ``maxvit_t``
+        when ``model_name`` is absent; a bare state dict is rejected. A module passed here is loaded in place and
         returned as the same object; for legacy full-module files it is
         ignored and the file's own module comes back.
     :param strict: forwarded to ``load_state_dict``; ``True`` raises

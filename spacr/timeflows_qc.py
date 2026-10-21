@@ -381,7 +381,7 @@ def frame_interval_summary(timestamps=None, frame_interval=None,
 
     :param timestamps: acquisition time of each frame, in any one unit. Two
         frames are the minimum that says anything.
-    :param frame_interval: a stated interval, used when no timestamps are
+    :param frame_interval: a stated interval, used when fewer than two timestamps are
         given. It is reported as stated and never contradicts a measurement.
     :param tolerance: absolute spread between the largest and smallest
         interval that still counts as constant.

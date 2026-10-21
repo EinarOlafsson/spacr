@@ -180,7 +180,7 @@ def control_recovery(results: pd.DataFrame, settings: Mapping[str, Any]) -> dict
     Returns
     -------
     dict
-        Control presence, rank, percentile, effect, and significance fields.
+        Control presence, rank, percentile, and significance fields.
     """
     out: dict[str, Any] = {}
     if results is None or not len(results):

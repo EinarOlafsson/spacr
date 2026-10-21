@@ -42,8 +42,9 @@ def v2_channels_from_settings(settings: Dict[str, Any]
 
     :param settings: v1 settings carrying object-channel assignments.
 
-    Order is fixed: nucleus, cell, pathogen, organelle. Missing,
-    ``None``, and non-integer assignments are skipped. The top-level
+    Order is fixed: nucleus, cell, pathogen, organelle. Missing and ``None`` assignments are skipped. Other values are
+    converted with ``int()``; conversions raising ``TypeError`` or
+    ``ValueError`` are skipped. The top-level
     ``channels`` sequence is used only when none of those named assignments
     survives; its generated names preserve each value's original position.
     With neither usable form, the four-channel default is ``[0, 1, 2, 3]``.

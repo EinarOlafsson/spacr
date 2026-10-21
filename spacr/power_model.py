@@ -971,20 +971,14 @@ def _fit_numpyro_nuts(
     tau0: float,
     standardize: bool,
     max_tree_depth: int,
+    target_accept: float,
 ) -> Tuple[np.ndarray, np.ndarray, bool, Dict[str, Any]]:
     """Exact NUTS via numpyro, when the user has installed it.
 
     Same model as :func:`_fit_torch_advi`, same non-centred
-    parameterisation, sampled rather than optimised.  Convergence is
-    judged the way it should be: zero divergent transitions and every
-    R-hat below 1.01.
-
-    .. warning::
-       numpyro is not installed in spaCR's own test environment, so this
-       code path is exercised by its callers' contract tests only (backend
-       resolution, error text) and not by a real sample.  Check the first
-       fit you run through it against the torch backend before trusting
-       it.
+    parameterisation, sampled rather than optimised.  The convergence
+    flag reports zero divergent transitions; it does not check R-hat
+    or effective sample size.
 
     :returns: ``(beta_draws, intercept_draws, converged, diagnostics)``.
     """
@@ -994,72 +988,79 @@ def _fit_numpyro_nuts(
     import numpyro.distributions as dist
     from numpyro.infer import MCMC, NUTS
 
-    X_np, col_means, col_scales, identified = _prepare_design(model_data, standardize)
-    n_wells, n_genes = X_np.shape
-    baseline = max(float(model_data.Npositive.sum()), 0.5) / max(
-        float(model_data.Ntotal.sum()), 1.0
-    )
-    mu0 = float(np.log(min(max(baseline, 1e-8), 1.0)))
+    try:
+        from jax import enable_x64
+    except ImportError:
+        from jax.experimental import enable_x64
 
-    X = jnp.asarray(X_np)
-    y = jnp.asarray(model_data.Npositive)
-    log_offset = jnp.log(jnp.asarray(model_data.Ntotal, dtype=jnp.float64))
-
-    def model():
-        """Define the regularized-horseshoe Poisson model for NumPyro NUTS."""
-        z = numpyro.sample("z", dist.Normal(0.0, 1.0).expand([n_genes]))
-        lam = numpyro.sample(
-            "lam", dist.StudentT(df_local, 0.0, 1.0).expand([n_genes]).mask(False)
+    with enable_x64():
+        X_np, col_means, col_scales, identified = _prepare_design(model_data, standardize)
+        n_wells, n_genes = X_np.shape
+        baseline = max(float(model_data.Npositive.sum()), 0.5) / max(
+            float(model_data.Ntotal.sum()), 1.0
         )
-        lam = jnp.abs(lam)
-        tau = jnp.abs(numpyro.sample("tau", dist.StudentT(df_global, 0.0, tau0)))
-        c2 = numpyro.sample(
-            "c2", dist.InverseGamma(df_slab / 2.0, (df_slab / 2.0) * scale_slab ** 2)
+        mu0 = float(np.log(min(max(baseline, 1e-8), 1.0)))
+
+        X = jnp.asarray(X_np)
+        y = jnp.asarray(model_data.Npositive)
+        log_offset = jnp.log(jnp.asarray(model_data.Ntotal, dtype=jnp.float64))
+
+        def model():
+            """Define the regularized-horseshoe Poisson model for NumPyro NUTS."""
+            z = numpyro.sample("z", dist.Normal(0.0, 1.0).expand([n_genes]))
+            lam = numpyro.sample(
+                "lam", dist.FoldedDistribution(dist.StudentT(df_local, 0.0, 1.0)).expand([n_genes])
+            )
+            tau = numpyro.sample(
+                "tau", dist.FoldedDistribution(dist.StudentT(df_global, 0.0, tau0))
+            )
+            c2 = numpyro.sample(
+                "c2", dist.InverseGamma(df_slab / 2.0, (df_slab / 2.0) * scale_slab ** 2)
+            )
+            lam_tilde = jnp.sqrt(c2 * lam ** 2 / (c2 + tau ** 2 * lam ** 2))
+            beta = numpyro.deterministic("beta", z * tau * lam_tilde)
+            intercept = numpyro.sample("intercept", dist.StudentT(3.0, mu0, 2.5))
+            eta = intercept + X @ beta + log_offset
+            numpyro.sample("obs", dist.Poisson(jnp.exp(eta)), obs=y)
+
+        kernel = NUTS(model, max_tree_depth=max_tree_depth, target_accept_prob=target_accept)
+        mcmc = MCMC(
+            kernel,
+            num_warmup=int(n_warmup),
+            num_samples=int(n_samples),
+            num_chains=int(n_chains),
+            progress_bar=False,
         )
-        lam_tilde = jnp.sqrt(c2 * lam ** 2 / (c2 + tau ** 2 * lam ** 2))
-        beta = numpyro.deterministic("beta", z * tau * lam_tilde)
-        intercept = numpyro.sample("intercept", dist.StudentT(3.0, mu0, 2.5))
-        eta = intercept + X @ beta + log_offset
-        numpyro.sample("obs", dist.Poisson(jnp.exp(eta)), obs=y)
+        started = time.perf_counter()
+        mcmc.run(jax.random.PRNGKey(int(seed)))
+        elapsed = time.perf_counter() - started
 
-    kernel = NUTS(model, max_tree_depth=max_tree_depth)
-    mcmc = MCMC(
-        kernel,
-        num_warmup=int(n_warmup),
-        num_samples=int(n_samples),
-        num_chains=int(n_chains),
-        progress_bar=False,
-    )
-    started = time.perf_counter()
-    mcmc.run(jax.random.PRNGKey(int(seed)))
-    elapsed = time.perf_counter() - started
+        samples = mcmc.get_samples()
+        beta_draws = np.array(samples["beta"], dtype=np.float64, copy=True)
+        intercept_draws = np.asarray(samples["intercept"], dtype=np.float64).ravel()
 
-    samples = mcmc.get_samples()
-    beta_draws = np.asarray(samples["beta"], dtype=np.float64)
-    intercept_draws = np.asarray(samples["intercept"], dtype=np.float64).ravel()
+        extra = mcmc.get_extra_fields(group_by_chain=False)
+        n_divergent = int(np.sum(np.asarray(extra.get("diverging", np.zeros(1)))))
+        converged = n_divergent == 0
 
-    extra = mcmc.get_extra_fields(group_by_chain=False)
-    n_divergent = int(np.sum(np.asarray(extra.get("diverging", np.zeros(1)))))
-    converged = n_divergent == 0
-
-    beta_draws[:, ~identified] = np.nan
-    diagnostics = {
-        "n_divergent": n_divergent,
-        "n_warmup": int(n_warmup),
-        "n_samples": int(n_samples),
-        "n_chains": int(n_chains),
-        "tau0": float(tau0),
-        "seconds": elapsed,
-        "beta_scale": (
-            "per standard deviation of log10expression"
-            if standardize
-            else "per unit log10expression"
-        ),
-        "column_means": col_means,
-        "column_scales": col_scales,
-        "n_unidentified": int((~identified).sum()),
-    }
-    return beta_draws, intercept_draws, converged, diagnostics
+        beta_draws[:, ~identified] = np.nan
+        diagnostics = {
+            "n_divergent": n_divergent,
+            "n_warmup": int(n_warmup),
+            "n_samples": int(n_samples),
+            "n_chains": int(n_chains),
+            "tau0": float(tau0),
+            "seconds": elapsed,
+            "beta_scale": (
+                "per standard deviation of log10expression"
+                if standardize
+                else "per unit log10expression"
+            ),
+            "column_means": col_means,
+            "column_scales": col_scales,
+            "n_unidentified": int((~identified).sum()),
+        }
+        return beta_draws, intercept_draws, converged, diagnostics
 
 
 def _fit_pymc_nuts(
@@ -1082,8 +1083,8 @@ def _fit_pymc_nuts(
     Same model and parameterisation as :func:`_fit_torch_advi`.
 
     .. warning::
-       PyMC is not installed in spaCR's own test environment; see the
-       matching warning on :func:`_fit_numpyro_nuts`.
+       Real PyMC sampling is not covered by the NumPyro backend tests.
+       Check its sampling diagnostics before interpreting a fit.
 
     :returns: ``(beta_draws, intercept_draws, converged, diagnostics)``.
     """
@@ -1215,7 +1216,7 @@ def fit_model(
     :param n_samples: NUTS post-warmup draws per chain (numpyro/pymc).
     :param n_chains: NUTS chains (numpyro/pymc).
     :param max_tree_depth: NUTS max tree depth (numpyro); the R uses 12.
-    :param target_accept: NUTS target acceptance (pymc).
+    :param target_accept: NUTS target acceptance (numpyro/pymc).
     :returns: :class:`PowerFit`.
     :raises PowerFitError: on an unusable design, an unavailable named
         backend, or a diverged optimisation.
@@ -1290,6 +1291,7 @@ def fit_model(
             tau0=tau0,
             standardize=standardize,
             max_tree_depth=max_tree_depth,
+            target_accept=target_accept,
         )
         method = "nuts"
     else:

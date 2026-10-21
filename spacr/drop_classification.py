@@ -363,7 +363,7 @@ def _spacr_output_of(folder: str, merged: str) -> DropClassification:
 
 
 def classify_drop(paths: Iterable) -> DropClassification:
-    """Say what a drop on Make Masks is, without asking or opening anything.
+    """Classify a Make Masks drop without prompting or opening an editor.
 
     :param paths: the dropped files and folders, in drop order.
     :returns: a :class:`DropClassification`.

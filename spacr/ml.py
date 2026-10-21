@@ -5703,7 +5703,7 @@ def normalize_regression_input_pairs(settings):
     the migration is reported so the invisible legacy assumption is visible.
 
     :param settings: regression settings dictionary. ``paired_data`` is read
-        when present, otherwise the legacy ``score_data`` and ``count_data``
+        when nonempty, otherwise the legacy ``score_data`` and ``count_data``
         lists; the dictionary is updated in place with the normalised
         ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.
     :returns: ``(pairs, migrated)``, where ``migrated`` is ``True`` when the

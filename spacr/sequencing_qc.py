@@ -253,8 +253,7 @@ def starvation_cutoff(per_well: pd.DataFrame, min_reads: int = 0,
     :returns: the cutoff as a float. A well is starved when its read
         total is **strictly below** it.
     :raises ValueError: on a negative ``min_reads`` or a
-        ``starved_read_fraction`` outside ``(0, 1]`` — both would mark either
-        no well or every well.
+        ``starved_read_fraction`` outside ``(0, 1]``.
     """
     if min_reads < 0:
         raise ValueError(f"min_reads must not be negative; got {min_reads!r}.")
