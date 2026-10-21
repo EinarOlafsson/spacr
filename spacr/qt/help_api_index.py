@@ -2275,7 +2275,7 @@ API_ENTRIES = (
     ('spacr.install_cleanup._transactional_runtime_update.note', 'Persist the current update phase in the transaction journal using an atomic file replacement.'),
     ('spacr.install_cleanup._uninstall_data_candidates.expand', "Expand the configured user's leading home marker."),
     ('spacr.install_cleanup.apply_optional_cleanup', "Apply a fresh selected-cache action under the application's live run guard."),
-    ('spacr.install_cleanup.find_old_installs', 'Find every spaCR installation on this computer.'),
+    ('spacr.install_cleanup.find_old_installs', 'Find supported spaCR installations in registered or known locations.'),
     ('spacr.install_cleanup.preview_optional_cleanup', 'Inspect dedicated caches and offer selection only under a live run guard.'),
     ('spacr.install_cleanup.preview_optional_cleanup.normalized', "Return an absolute display path using the writer's tilde rule."),
     ('spacr.install_cleanup.preview_optional_cleanup.retained_path', 'Resolve a retained cache path with external override precedence.'),

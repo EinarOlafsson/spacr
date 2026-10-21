@@ -640,13 +640,15 @@ def _env_python(prefix: str) -> Optional[str]:
 
 
 def find_old_installs(*, system=None) -> List[InstallRecord]:
-    """Find every spaCR installation on this computer.
+    """Find supported spaCR installations in registered or known locations.
 
-    Installer-made copies come first, then environments the user made, then
-    editable source checkouts. Every layout any released installer used is
-    looked for: the Windows online and offline installers, the Linux and
-    macOS online installers, the macOS application bundle, and the Debian
-    package.
+    Installer-made copies come first, then discovered user environments, then
+    their editable source checkouts. Discovery checks locations used by supported
+    Windows online and offline installers, Linux and macOS online installers,
+    macOS application bundles and Debian packages, as well as registered conda
+    environments, conventional environment folders and the running interpreter.
+    It does not search the entire filesystem for unregistered environments or
+    source checkouts.
 
     :param system: the computer to look at; ``None`` means this one. Tests
         pass a stand-in over a temporary directory.
