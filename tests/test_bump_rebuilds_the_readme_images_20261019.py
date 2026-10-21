@@ -172,3 +172,113 @@ def test_invalid_installer_readmes_refuse_the_bump_before_any_write_or_render(
     assert {path: path.read_bytes() for path in paths} == before
     assert rendered == []
     assert last.exists() == (defect != "missing")
+
+
+def _prepared_release_tree(tmp_path, release):
+    root = _tree(tmp_path, recipe=False)
+    readmes = _installer_readmes(root, release)
+    facade = root / "spacr" / "_version.py"
+    facade.parent.mkdir()
+    facade.write_text('__version__ = "1.5.1.0"\n', encoding="utf-8")
+    sources = [root / "packaging/readme_source.yaml", *(
+        root / "docs/i18n/readme/source" / f"{code}.yaml"
+        for code in release.LOCALIZED_README_CODES)]
+    for path in [*sources, *(root / path for path in release.DOCKER_TAG_PAGES)]:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("docker run ghcr.io/einarolafsson/spacr:1.5.1.0\n",
+                        encoding="utf-8")
+    deck = root / "docs/source/_static/deck/slides.json"
+    deck.parent.mkdir(parents=True)
+    deck.write_text(json.dumps({"version": "1.5.1.0"}), encoding="utf-8")
+    tool = root / "tools/build_readme_images.py"
+    tool.parent.mkdir()
+    tool.write_text("import sys\nfrom pathlib import Path\n"
+                    "assert sys.argv[1:] == ['--check']\n"
+                    "raise SystemExit(int(Path('stale-images').exists()))\n",
+                    encoding="utf-8")
+    return root, readmes, facade, sources, deck
+
+
+@pytest.mark.parametrize("stale", ["installer", "docker", "deck", "images",
+                                   "facade", "citation"])
+def test_same_version_resume_keeps_normal_preparation_for_stale_inputs(
+        tmp_path, monkeypatch, stale):
+    release = _release()
+    root, readmes, facade, sources, deck = _prepared_release_tree(tmp_path, release)
+    if stale == "installer":
+        path = readmes[release.LOCALIZED_README_CODES[-1]]
+        path.write_text(path.read_text(encoding="utf-8").replace(
+            "1.5.1.0", "1.5.0.9"), encoding="utf-8")
+    elif stale == "docker":
+        sources[-1].write_text("docker run ghcr.io/einarolafsson/spacr:1.5.0.9\n",
+                               encoding="utf-8")
+    elif stale == "deck":
+        deck.write_text(json.dumps({"version": "1.5.0.9"}), encoding="utf-8")
+    elif stale == "images":
+        (root / "stale-images").touch()
+    elif stale == "facade":
+        facade.write_text('__version__ = "1.5.0.9"\n', encoding="utf-8")
+    else:
+        path = root / "CITATION.cff"
+        path.write_text(path.read_text(encoding="utf-8").replace(
+            'version: "1.5.1.0"', 'version: "1.5.0.9"'), encoding="utf-8")
+    called = []
+    monkeypatch.setattr(release, "BUMP_ARTEFACT_STEPS", (
+        lambda path, version: called.append(("deck", path, version)),
+        lambda path, version: called.append(("images", path, version))))
+    assert release.bump_release(
+        root / "setup.py", root / "CITATION.cff", "1.5.1.0",
+        package_version_path=facade, allow_current=True) == "1.5.1.0"
+    assert called == [("deck", root, "1.5.1.0"),
+                      ("images", root, "1.5.1.0")]
+    assert release.verify_release_metadata(
+        root / "setup.py", root / "CITATION.cff",
+        package_version_path=facade) == "1.5.1.0"
+    assert all(release._updated_readme_text(path, "1.5.1.0") ==
+               path.read_text(encoding="utf-8") for path in readmes.values())
+    assert all(release.docker_tag_versions(path.read_text(encoding="utf-8")) ==
+               {"1.5.1.0"} for path in release.docker_tag_pages(root))
+
+
+def test_prepared_current_release_resumes_in_a_real_lean_process_without_writes(tmp_path):
+    import os
+    import shutil
+    import subprocess
+    import venv
+
+    lean = tmp_path / "lean"
+    venv.EnvBuilder(with_pip=False).create(lean)
+    dependencies = tmp_path / "dependencies"
+    dependencies.mkdir()
+    for name in ("packaging", "yaml"):
+        spec = importlib.util.find_spec(name)
+        assert spec is not None and spec.submodule_search_locations
+        shutil.copytree(next(iter(spec.submodule_search_locations)), dependencies / name)
+    interpreter = lean / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    script = """
+import importlib.util
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+assert importlib.util.find_spec('PySide6') is None
+spec = importlib.util.spec_from_file_location('lean_release', root / 'packaging/release.py')
+release = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(release)
+def forbidden(*args, **kwargs):
+    raise AssertionError('A prepared current release must not write or rerender')
+Path.write_text = Path.write_bytes = forbidden
+release.BUMP_ARTEFACT_STEPS = (forbidden,)
+sys.argv = ['release.py', 'bump', '--allow-current', release.read_version(root / 'setup.py')]
+raise SystemExit(release.main())
+"""
+    environment = dict(os.environ, PYTHONPATH=os.pathsep.join((str(dependencies), str(ROOT))),
+                       PYTHONDONTWRITEBYTECODE="1")
+    before = subprocess.check_output(
+        ["git", "diff", "--binary", "--no-ext-diff", "--no-renames"], cwd=ROOT)
+    result = subprocess.run([str(interpreter), "-c", script, str(ROOT)], cwd=ROOT,
+                            env=environment, capture_output=True, text=True, timeout=60)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.strip() == _release().read_version(ROOT / "setup.py")
+    assert result.stderr == ""
+    assert subprocess.check_output(
+        ["git", "diff", "--binary", "--no-ext-diff", "--no-renames"], cwd=ROOT) == before

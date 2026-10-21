@@ -414,6 +414,12 @@ def bump_release(
             for path in (readme, *_localized_readmes(readme, None))
         }
 
+    if (allow_current and new == current == package_version == citation_version
+            and package_version_path is not None and readme_updates
+            and _prepared_release_is_current(setup_path.parent, new, readme_updates)):
+        return verify_release_metadata(
+            setup_path, citation_path, package_version_path=package_version_path)
+
     setup_path.write_text(updated_setup, encoding="utf-8")
     citation_path.write_text(citation_text, encoding="utf-8")
     if package_version_path is not None:
@@ -467,6 +473,46 @@ def docker_tag_pages(root: Path) -> tuple[Path, ...]:
 def docker_tag_versions(text: str) -> set[str]:
     """Return the image versions ``text`` advertises."""
     return {match.group(1) for match in DOCKER_TAG_PATTERN.finditer(text)}
+
+
+def _prepared_release_is_current(
+    root: Path, version: str, readme_updates: dict[Path, str],
+) -> bool:
+    """Check a prebuilt release before a same-version resume writes anything.
+
+    Metadata equality alone does not establish freshness: the ten installer
+    projections, Docker sources, deck and ordinary README check must agree.
+    A stale or incomplete tree keeps the normal preparation path.
+    """
+    import json
+    import subprocess
+
+    if any(path.read_text(encoding="utf-8") != text
+           for path, text in readme_updates.items()):
+        return False
+    deck = root / "docs" / "source" / "_static" / "deck" / "slides.json"
+    try:
+        shown = json.loads(deck.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    if not isinstance(shown, dict) or shown.get("version") != version:
+        return False
+    try:
+        for path in docker_tag_pages(root):
+            text = path.read_text(encoding="utf-8")
+            if (not docker_tag_versions(text)
+                    or DOCKER_TAG_PATTERN.sub(
+                        lambda match: f"{DOCKER_IMAGE}:{version}", text) != text):
+                return False
+    except OSError:
+        return False
+    tool = root / "tools" / "build_readme_images.py"
+    if not tool.is_file():
+        return False
+    result = subprocess.run(
+        [sys.executable, str(tool), "--check"], cwd=str(root),
+        capture_output=True, text=True)
+    return result.returncode == 0
 
 
 def sync_docker_tags(root: Path, version: str) -> list[Path]:
