@@ -494,3 +494,4 @@ wrapper/flock termination preserved; it is not reported as a passing audit.
 
 2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
 No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.
+2026-10-21 — Startup workers now force SPACR_ISOLATED_PROFILE=1 and an owned SPACR_HOME;23 protocol checks pass, including a real QSettings subprocess proving writes stay inside the worker profile. HOME-only macOS diagnostic results are not fresh-profile acceptance; corrected native cold/warm run is in progress.

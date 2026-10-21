@@ -12,6 +12,32 @@ import pytest
 from tools import spacr_startup_benchmark as driver
 
 
+def test_benchmark_worker_keeps_native_settings_inside_its_profile(tmp_path, monkeypatch):
+    pytest.importorskip("PySide6.QtCore")
+    real_home = tmp_path / "normal-spacr-home"
+    monkeypatch.setenv("SPACR_HOME", str(real_home))
+    profile = tmp_path / "benchmark-profile"
+    profile.mkdir()
+    environment = driver._worker_environment(
+        profile, tmp_path / "result.json", "cold", 10, False)
+    assert environment["SPACR_ISOLATED_PROFILE"] == "1"
+    assert environment["SPACR_HOME"] == str(profile / ".spacr")
+    completed = subprocess.run(
+        [sys.executable, "-c", (
+            "from pathlib import Path\n"
+            "import sys\n"
+            "from spacr.qt.preferences import _settings\n"
+            "store = _settings()\n"
+            "Path(store.fileName()).resolve().relative_to(Path(sys.argv[1]).resolve())\n"
+            "store.setValue('benchmark/isolated_probe', 'owned')\n"
+            "store.sync()\n"
+            "assert Path(store.fileName()).is_file()\n"
+        ), str(profile)],
+        env=environment, cwd=str(profile), capture_output=True, text=True, timeout=30)
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert not real_home.exists()
+
+
 def _run_cli(tmp_path: Path, *arguments: str,
              qt_platform: Optional[str] = None) -> subprocess.CompletedProcess:
     output = tmp_path / "release.json"
