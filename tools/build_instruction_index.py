@@ -338,7 +338,7 @@ def render(today: str = "") -> str:
         "and",
         "re-deriving it later costs the same as deriving it once.",
         "",
-        "READ features/HANDOFF.md FIRST. It carries the traps, what needs "
+        "READ spacr/resources/AI/HANDOFF.md FIRST. It carries the traps, what needs "
         "the",
         "maintainer, and the standing rules.",
         "",

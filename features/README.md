@@ -1,5 +1,8 @@
 # spaCR features
 
+Agent rules and dated handoffs live in [spacr/resources/AI](../spacr/resources/AI/);
+read the [current handoff](../spacr/resources/AI/HANDOFF.md) before working.
+
 Two lists, and **neither one blocks a release**.
 
 | | what it holds |

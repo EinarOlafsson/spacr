@@ -160,3 +160,8 @@ prune docs/resources
 exclude docs/*.html docs/*.js docs/*.inv docs/.buildinfo
 # The nine 3-page model cards (scores, facts, about), the offline fallback of the Model Zoo card viewer.
 include spacr/resources/model_cards/*.json
+
+# Repository-only agent instructions and handoffs are not product resources.
+prune spacr/resources/AI
+exclude AGENTS.md CLAUDE.md
+exclude features/HANDOFF*.md
