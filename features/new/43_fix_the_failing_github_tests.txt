@@ -4157,3 +4157,9 @@ Ported only the published nightly neutral-menu test and owning producer function
 Four affected checks pass0.92s; the owning producer exactly matches the existing1106-byte MAIN page without rendering or writes.
 Ten exact language names/routes, menu shape, English authority and unrelated assertions remain; generated outputs are unchanged.
 Root owns final peer, MAIN approval and publication; broader hosted acceptance remains open.
+
+2026-10-21 — MAIN coverage0/job119211197244 exposes an outdated QApplication source lookup; the existing normalized application arguments and native-dialog ordering are correct. The published nightly one-line locator retains all ordering assertions; three owning checks pass0.66s.
+MAIN coverage3/job119211197320 reproduces three card/README failures (3 failed,2.14s). Align only the live-cell alternative marker/note and owning family/default/card/index handling with the already-published stock-default policy; retain all model scores and other defaults.
+All16 owning card checks pass2.19s, including existing SVG/font/metrics/README/source agreement; generated card and README outputs are unchanged. No GPU, weights or protected jobs are used; both fixes already exist on nightly.
+Three hosted chaining timeouts remain observed but unreproduced: original5/15s assertions pass locally (three cases), and owning source/tests match nightly. No timeout increase or speculative threading change is included.
+Root owns independent peer, concrete MAIN approval/publication and the unresolved hosted timing follow-up; broader CI acceptance remains open.

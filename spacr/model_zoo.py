@@ -840,7 +840,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "sha256":
             "7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090",
         "metrics": {'n_train': '6,778 fields, 14 datasets', 'train_objects': 'not recorded', 'n_test': '2,199 fields', 'test_objects': 'not recorded', 'cv': 'no (acquisition-grouped train/valid/test)', 'f1': '0.694 all / 0.960 on datasets stock never saw', 'aji': 'not recorded', 'dice': 'not recorded', 'stock_f1': '0.738 all / 0.885 on datasets stock never saw', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '37 (stopped by the maintainer)'},
-        "display_name": "Live cell v1 (phase, brightfield, DIC)",
+        "display_name": "Live cell v1 (phase, brightfield, DIC; alternative)",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "11,007 transmitted-light fields from 14 public datasets, "
                    "split by acquisition 6,778 train / 2,030 validation / "
@@ -859,6 +859,8 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         ),
         "trained_by": "einarolafsson",
         "notes": (
+            "an optional alternative: stock Cellpose-SAM (cpsam_v2) stays the "
+            "default for label-free and live-cell segmentation",
             "TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell "
             "and YeaZ, so its score there is partly memorisation. On the "
             "datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, "
