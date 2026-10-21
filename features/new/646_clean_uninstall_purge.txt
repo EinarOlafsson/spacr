@@ -129,6 +129,13 @@ Preconditions
    Native GUI, packaged uninstaller and a mocked Python backend are different
    routes; a fixture pass alone does not establish a native uninstaller pass.
 
+Current Mac packaged-shell repair: --dry-run must list the exact software and
+optional purge targets without removing anything. Unknown options and a refused
+or failed purge must stop before software removal. /usr/local/bin/spacr is
+removable only when it is the exact symlink to spaCR's installed launcher;
+regular files and links to other programs remain untouched. The Mac session
+owns this repair, focused generated-script regressions and native follow-up.
+
 Pass/reporting boundary
   In at most five dated trailing lines record commit/artifact, macOS version
   and architecture, tested scopes/routes, cleanup opt-out and sentinel results,
@@ -137,8 +144,8 @@ Pass/reporting boundary
   Uninstall.exe /PURGE or Linux; retain the existing portable checks and mark
   those remaining native platform checks honestly.
 
-2026-10-21 — Mac0473a4a09f/macOS26.6.1 Intel: native Cocoa Preferences discovery/current/all/older/default-Cancel passes, protected source stays kept,630x716 dialog fits1440x870 and normal quit exits0 (no helper ran). Separately, real released1.5.1.5 wheel installed into a disposable venv is discovered and removed by the actual current backend/pip with selected logs; Python/pip25.0.1, opted-out models and unrelated sentinel survive, console launchers are gone, result ok=true/failed=[]. Native confirmed GUI/helper, full installer purge and clickable packaged routes remain open; Windows held.
-2026-10-21 — cc5f4f5bd2 adds verified installer-cache registration/discovery, isolated packaged-helper imports, strict inactive committed-backup/dead-lock cleanup and uninstall/onboarding coordination; focused ownership/live/forged/opt-out/identity/cancellation regressions pass without weakening guards.
-2026-10-21 — Home Ubuntu24.04.5 x86_64 genuine online GUI Cancel/older-shared removal/cache opt-out/default-all purge and packaged CLI purge/no-purge pass. Final wheelbc26f329 installed sources match; native xcb/Xvfb desktop/helper exit0 and production default-purge result ok=true/failed=[] are observed.
+2026-10-21 — Mac Cocoa630816166a/macOS26.6.1 Intel: Preferences Cancel and real confirmed ticked-old-environment/helper removal pass; selected logs are deleted, pip/Python, opted-out models and unrelated sentinel survive, console launchers are gone, result ok=true/failed=[]. Restart identifies the kept interpreter and exact nightly source; a settled normal Quit exits0. An earlier immediate automated Quit left an idle event loop (not claimed resolved). Full native installer purge/clickable removal remains open; Windows held.
+2026-10-21 — Packaged Mac shell now honors --dry-run, refuses unknown options, stops on refused/failed purge and removes only the exact owned launcher symlink; focused shell regressions cover those guards. Current unsigned Universal development pkg builds successfully; its extracted, unmodified script's native --dry-run and --purge --dry-run both exit0 with app/support/link identities unchanged. This is preview acceptance, not destructive package removal or notarized release acceptance.
+2026-10-21 — Home Ubuntu24.04.5 x86_64 genuine online GUI Cancel/older-shared removal/cache opt-out/default-all purge and packaged CLI purge/no-purge pass. Final wheelbc26f329 installed sources match; native xcb/Xvfb desktop/helper exit0 and production default-purge result ok=true/failed=[] are observed. cc5f4f5bd2 retains verified installer-cache registration/discovery, isolated helper imports, guarded inactive-backup/dead-lock cleanup and onboarding coordination with focused regressions.
 2026-10-21 — Default purge removes runtime/private Python/bootstrap/launchers, real UV cache and all eight selected data categories; opt-out preserves chosen data. Unknown-file bytes, shared idna/environment/HF/cache and unrelated sentinels survive; real qhx1kpmz rollback is removed by the final helper, with no lock before/after.
 2026-10-21 — Released1.5.1.5 Debian dpkg removal preserves five data sentinels; this does not establish current online GUI or macOS/Windows behavior. Owned native jobs finished and Linux source is published in 6ad7c7a633. The normal API collector also renames _run_macos_online_update.prepared to _run_posix_online_update.prepared; its identical source and nine locale bindings now pass normal generated closure (reviews3214ea7/HFd1796ba, final stock reproduction). Native macOS/Windows uninstall acceptance remains open.

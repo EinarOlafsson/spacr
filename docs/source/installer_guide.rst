@@ -320,6 +320,9 @@ Native and command-line alternatives
 * **macOS:** run
   ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This
   removes the application, command launcher and system installer support.
+  Add ``--dry-run`` to preview the software paths without removing anything.
+  The command launcher is removed only if it is spaCR's exact installed
+  symlink; unrelated files and links are kept.
   Remove ``~/Library/Application Support/spaCR`` separately to delete the
   per-user private runtime.
 * **Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the
@@ -348,6 +351,8 @@ your projects, are never touched.
 
 * **Windows:** run ``%LOCALAPPDATA%\spaCR\Uninstall.exe /PURGE``.
 * **macOS:** run ``uninstall-spacr.sh --purge`` as above.
+  Add ``--dry-run`` to preview both software and data removal. A refused or
+  failed purge stops the uninstall before the application is removed.
 * **Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``.
 * **Any install, before uninstalling:** ``python -m spacr.install_cleanup
   purge`` (add ``--dry-run`` to list only).
