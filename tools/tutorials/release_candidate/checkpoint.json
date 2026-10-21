@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-mjql0dp9",
-  "manifest_sha256": "165ed3174709ee27bf0d2a89950569cc492a39a559b8d63d2a1b6502aaf3ca4e",
+  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-gepajonr",
+  "manifest_sha256": "8c48d6c9f6a3cd5b0a11deee201ec3b2fa766029be5cb7d7e0157f8635284c61",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -9,8 +9,8 @@
     },
     {
       "path": "web/app_v2.js",
-      "sha256": "d221b60cdbd6d489602f592e01536b6819f07109f5fd10675bdfeb147de11237",
-      "bytes": 103289
+      "sha256": "6f2ed715d9c0c70d15a2114cc271b977d13b40e2ffbc5a3a3a4eb77512882286",
+      "bytes": 116129
     },
     {
       "path": "web/catalog/captions_da.json",
@@ -259,13 +259,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "5a03938eba19e6d7f3d714fec5563aa61ac6aac1f8448e44c991401f190fa588",
-      "bytes": 15675
+      "sha256": "9f9fc6a0ebfa6bef6fd249ef535f82cb20b06cc3b3e10cb9269c7f572938ccc6",
+      "bytes": 15667
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "34f894b164e170053453aa8dabee8db03ebf23585fba205d05c38c6e4f267c4b",
-      "bytes": 538234
+      "sha256": "2d1c0520efd18a63a0f8fb0baaba3c8e57f3169655bc73ed7bf2105da382ac24",
+      "bytes": 542334
     },
     {
       "path": "web/logo_spacr.png",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "015a960392a233dd55733ff3a3053dd2a501b1d9a5aecf4b76a9188efe863d35",
+      "sha256": "6026d015fc14e11e817627832aa1e631acb364172a7e62cd37497ea0372ebf05",
       "bytes": 17171
     },
     {
@@ -714,17 +714,17 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "165ed3174709ee27bf0d2a89950569cc492a39a559b8d63d2a1b6502aaf3ca4e",
-      "bytes": 1382949
+      "sha256": "8c48d6c9f6a3cd5b0a11deee201ec3b2fa766029be5cb7d7e0157f8635284c61",
+      "bytes": 1382943
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "ae223f44fbdd2d5e32fcc0fe8d8afb58a9b7bd4d9c6c2b172f96159209dd3fac",
-      "bytes": 127546
+      "sha256": "04de75e13a69439f2b20904e265809f3fde8d7791a8f9c65fc3f4085155d8d8e",
+      "bytes": 127510
     },
     {
       "path": "placeholder-mutation-checks.json",
-      "sha256": "abfcd412d6f28850313f996f45de3d56884e175392cb80f4ed8a76962772fbc6",
+      "sha256": "65c11f29f7396f44aa2faf2250fed1e640e9ac0150831f42807f799bdf4e5531",
       "bytes": 510
     }
   ],
@@ -737,10 +737,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "n676-ws-21-model-compare-20261021b",
-    "tag": "n676-ws-21-model-compare-20261021b-verified",
-    "commit": "f3d60dc19d1d2efa3f16e38e0169fdb07ec508fb",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f3d60dc19d1d2efa3f16e38e0169fdb07ec508fb"
+    "branch": "n676-ws-01-pypi-github-20261021pronunciation1",
+    "tag": "n676-ws-01-pypi-github-20261021pronunciation1-verified",
+    "commit": "c816dd69f26ef86bd7d0dc2642ab9845c1a80992",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/c816dd69f26ef86bd7d0dc2642ab9845c1a80992"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }

@@ -165,6 +165,8 @@ let toastTimer = null;
 let openCustomSelect = null;
 let languageRequest = 0;
 let narrationRequest = 0;
+let nativeIdleTransition = null;
+let nativeIdleTransitionTimer = null;
 let captionLanguageRequest = 0;
 let narrationAudioAvailable = false;
 let narrationFetchController = null;
@@ -260,11 +262,12 @@ function updateCaptionCueStyle() {
 
 function updateCaptionTrackMode() {
   if (!elements.captionTrack?.track) return;
-  const showing = captionSettings.enabled && Boolean(captionUrl);
+  const showing = captionSettings.enabled && Boolean(captionUrl) && !nativeIdleTransition;
   elements.captionTrack.track.mode = showing ? "showing" : "disabled";
 }
 
 function syncCaptionPreferenceFromNativeControls() {
+  if (nativeIdleTransition) return;
   if (!captionUrl || !elements.captionTrack?.track) return;
   const enabled = elements.captionTrack.track.mode === "showing";
   if (captionSettings.enabled === enabled) return;
@@ -1106,7 +1109,9 @@ async function loadReadyLesson() {
 }
 
 async function loadNarration(resume = true, outerCurrent = () => true) {
+  cancelNativeIdleTransition();
   if (!isPlayable(activeLesson)) { updateComingSoon(); return; }
+  nativeIdlePauseClock = null;
   const request = ++narrationRequest;
   const isCurrent = () => request === narrationRequest && outerCurrent();
   const wasPlaying = resume && (!elements.video.paused ||
@@ -1349,12 +1354,11 @@ function mapTiming(seconds, fromTimings, toTimings) {
   const sourceEnd = Number(located.scene.scene_end) || sourceStart;
   const targetStart = Number(target.speech_start) || 0;
   const targetEnd = Number(target.scene_end) || targetStart;
-  if (completeNativePlayback() ||
+  if ((visualTimings?.preserve_visual_intervals === true &&
+      visualTimings?.native_live_video === true) ||
       located.scene.native_live_video || target.native_live_video) {
-    // Complete native playback (complete clips or preserved intervals) runs
-    // the picture at speed 1 in every scene, stills included, so speech maps
-    // by elapsed time there too. Ordinary native playback skips unused tails;
-    // preserved playback holds speech.
+    // Preserved intervals and native footage map speech by elapsed time.
+    // Ordinary native playback skips unused tails; preserved playback holds speech.
     const elapsed = Math.max(0, seconds - sourceStart);
     return targetStart + Math.min(elapsed, Math.max(0, targetEnd - targetStart - 0.001));
   }
@@ -1433,10 +1437,196 @@ function narrationHoldApplies() {
     !videoParkedForNarration && !narratedPlaybackCompleted;
 }
 
-// Only newly verified complete-clip timelines use the picture as the clock.
-// Speech is never stretched. It rests after its actual speech boundary while
-// every remaining recorded frame plays, then starts at the next visual scene.
+// Native pictures keep their recorded speed. Padding after actual completed
+// speech can be skipped; the selected voice owns the pause deadline.
+// Native scene padding ends for the selected voice after speech, rather
+// than making every shorter voice wait for the longest captured hold.
+function nativeIdleTailCut(visuals, audio, index, maxGap = 1) {
+  const visual = visuals?.scenes?.[index];
+  const spoken = audio?.scenes?.[index];
+  const next = audio?.scenes?.[index + 1];
+  const nextVisual = visuals?.scenes?.[index + 1];
+  const sentences = spoken?.sentences;
+  const nextSentences = next?.sentences;
+  const final = index === audio?.scenes?.length - 1 && index === visuals?.scenes?.length - 1;
+  if (!visual || !Array.isArray(sentences) || !sentences.length ||
+      (!final && (!nextVisual || !Array.isArray(nextSentences) || !nextSentences.length))) return null;
+  // Only an explicit source-bound safe idle fence permits a picture cut.
+  const protectedEnd = visual.idle_tail_start;
+  if (typeof protectedEnd !== "number" || !Number.isFinite(protectedEnd) || protectedEnd < 0) return null;
+  const start = Number(spoken.speech_start);
+  const end = Number(spoken.speech_end);
+  const last = Number(sentences[sentences.length - 1].audible_end);
+  const nextStart = final ? end : Number(next.speech_start);
+  const nextSound = final ? end : Number(nextSentences[0].audible_start);
+  const visualStart = Number(visual.speech_start);
+  const visualEnd = Number(visual.scene_end);
+  const nextVideo = final ? visualEnd : Number(nextVisual.speech_start);
+  if (![start, end, last, nextStart, nextSound, visualStart, visualEnd, nextVideo, maxGap]
+      .every(Number.isFinite) || maxGap <= 0 || last < start || end < last ||
+      nextSound < nextStart || nextStart < end || visualEnd <= visualStart) return null;
+  const cutElapsed = last - start + maxGap - (nextSound - nextStart);
+  // Preserve the entire speech clip including its conservative quiet edge,
+  // every protected action, and the next sentence's original leading audio.
+  if (protectedEnd > end - start || cutElapsed < end - start || cutElapsed < protectedEnd ||
+      cutElapsed >= visualEnd - visualStart) return null;
+  return { at: visualStart + cutElapsed, next: nextVideo, final };
+}
+
+function nativeIdleTailReady(state) {
+  return state.sameTrack && state.sameScene && !state.loadPending &&
+    !state.audioSeeking && !state.videoSeeking && !state.videoPaused &&
+    !state.pictureLoading && !state.explicitSeek && state.readyState >= 3 &&
+    state.bufferedSpeechEnd && Number.isFinite(state.audioTime) &&
+    Number.isFinite(state.speechEnd) && state.audioTime >= state.speechEnd;
+}
+
+let nativeIdlePauseClock = null;
+
+function nativeIdleTailWait(previous, state, now, maxGap = 1) {
+  if (!nativeIdleTailReady(state) || !Number.isFinite(now) ||
+      !Number.isFinite(state.lastSound) || !Number.isFinite(state.nextLead) ||
+      state.lastSound > state.speechEnd || state.nextLead < 0) {
+    return { clock: null, ready: false };
+  }
+  // Anchor the first OBSERVED completion of this actual loaded speech clip.
+  // A late/buffered voice must not inherit a deadline from the video clock.
+  const clock = previous?.key === state.key ? previous
+    : { key: state.key, completedAt: now };
+  const quietAlreadyHeard = state.speechEnd - state.lastSound;
+  const remaining = Math.max(0, maxGap - quietAlreadyHeard - state.nextLead);
+  return { clock, ready: now >= clock.completedAt + remaining * 1000 };
+}
+
+function currentNativeIdleTailState(spoken, index, seek) {
+  let bufferedSpeechEnd = false;
+  const end = Number(spoken.speech_end);
+  for (let i = 0; i < elements.audio.buffered.length; i += 1) {
+    if (elements.audio.buffered.start(i) <= end && elements.audio.buffered.end(i) >= end) {
+      bufferedSpeechEnd = true;
+      break;
+    }
+  }
+  const next = audioTimings.scenes[index + 1];
+  return {
+    key: `${activeLesson.id}/${narrationRequest}/${audioTimings.language}/${audioTimings.voice}/${index}`,
+    lastSound: Number(spoken.sentences?.at(-1)?.audible_end),
+    nextLead: next ? Number(next.sentences?.[0]?.audible_start) - Number(next.speech_start) : 0,
+    sameTrack: audioTimings?.voice === elements.voice.value &&
+      audioTimings?.language === elements.language.value &&
+      !!narrationObjectUrl && elements.audio.currentSrc === narrationObjectUrl,
+    sameScene: completeNativeSceneIndex === index,
+    loadPending: narrationLoadPending,
+    audioSeeking: elements.audio.seeking,
+    videoSeeking: elements.video.seeking || videoClockCorrectionPending,
+    videoPaused: elements.video.paused,
+    pictureLoading: videoIsLoading(),
+    explicitSeek: seek,
+    readyState: elements.audio.readyState,
+    bufferedSpeechEnd,
+    audioTime: elements.audio.currentTime,
+    speechEnd: end
+  };
+}
+
+function cancelNativeIdleTransition() {
+  if (nativeIdleTransitionTimer !== null) clearTimeout(nativeIdleTransitionTimer);
+  nativeIdleTransitionTimer = null;
+  nativeIdleTransition = null;
+  nativeIdlePauseClock = null;
+  elements.audio.playbackRate = 1;
+  updateCaptionTrackMode();
+}
+
+function scheduleNativeIdleTransition() {
+  if (!nativeIdleTransition) return;
+  if (nativeIdleTransitionTimer !== null) clearTimeout(nativeIdleTransitionTimer);
+  const remaining = nativeIdleTransition.resumeAt - performance.now();
+  nativeIdleTransitionTimer = setTimeout(() => {
+    nativeIdleTransitionTimer = null;
+    serviceNativeIdleTransition();
+  }, nativeIdleTransition.final && remaining > 0 ? remaining : 16);
+}
+
+function nativeIdleQuietRate(audioTime, quietEnd, now, endAt) {
+  // Only post-clip silence is elastic. Return to ordinary speed before the
+  // next complete speech clip, preserving its entire conservative lead.
+  const reserve = 0.1;
+  const source = quietEnd - audioTime - reserve;
+  const wall = (endAt - now) / 1000 - reserve;
+  return source <= 0 || wall <= 0 ? 1 : clamp(source / wall, 0.0625, 1);
+}
+
+function serviceNativeIdleTransition() {
+  const transition = nativeIdleTransition;
+  if (!transition) return;
+  if (transition.request !== narrationRequest || transition.lesson !== activeLesson?.id ||
+      transition.voice !== elements.voice.value || transition.language !== elements.language.value ||
+      narrationLoadPending || !narrationObjectUrl || elements.audio.currentSrc !== narrationObjectUrl) {
+    cancelNativeIdleTransition();
+    return;
+  }
+  if (!transition.final && elements.audio.currentTime < transition.quietEnd) {
+    elements.audio.playbackRate = nativeIdleQuietRate(elements.audio.currentTime,
+      transition.quietEnd, performance.now(), transition.resumeAt);
+    scheduleNativeIdleTransition();
+    return;
+  }
+  elements.audio.playbackRate = 1;
+  if (transition.final) elements.audio.pause();
+  if ((transition.final && performance.now() < transition.resumeAt) || videoClockCorrectionPending ||
+      videoIsLoading() || (!transition.final &&
+        (elements.audio.seeking || elements.audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA))) {
+    scheduleNativeIdleTransition();
+    return;
+  }
+  nativeIdleTransition = null;
+  if (nativeIdleTransitionTimer !== null) clearTimeout(nativeIdleTransitionTimer);
+  nativeIdleTransitionTimer = null;
+  completeNativeSceneIndex = transition.scene;
+  completeNativeNarrationWaiting = transition.final;
+  updateCaptionTrackMode();
+  if (transition.final) {
+    videoHeldForAudio = false;
+    resumeAfterAudioHold = false;
+    elements.loading.classList.add("hidden");
+    playVideoWithoutNarrationSync();
+  } else {
+    // The same audio stream is already playing: no device restart can add
+    // an unmeasured pause or swallow the next word.
+    releaseVideoForAudio();
+  }
+}
+
+function beginNativeIdleTransition(cut, state, clock, index) {
+  if (nativeIdleTransition || !nativeIdleTailReady(state) || (!cut.final && elements.audio.paused)) return;
+  const quietHeard = state.speechEnd - state.lastSound;
+  const finalFrame = cut.final ? 1 / Number(visualTimings.fps || 30) : 0;
+  nativeIdleTransition = {
+    request: narrationRequest, lesson: activeLesson.id,
+    voice: elements.voice.value, language: elements.language.value,
+    scene: cut.final ? index : index + 1, final: cut.final,
+    quietEnd: cut.final ? state.speechEnd : Number(audioTimings.scenes[index + 1].speech_start),
+    resumeAt: clock.completedAt + Math.max(0, 1 - quietHeard - state.nextLead - finalFrame) * 1000
+  };
+  // Decode the next picture during the quiet window, after the entire actual
+  // speech clip. Continuous audio avoids variable pause/play device latency.
+  completeNativeNarrationWaiting = true;
+  if (cut.final) elements.audio.pause();
+  else elements.audio.playbackRate = nativeIdleQuietRate(elements.audio.currentTime,
+    nativeIdleTransition.quietEnd, performance.now(), nativeIdleTransition.resumeAt);
+  holdVideoForAudio();
+  updateCaptionTrackMode();
+  // Stay inside the first next-scene frame when its fractional media clock
+  // rounds down, otherwise scene synchronization can replay the previous clip.
+  const destination = cut.final ? Math.max(0, elements.video.duration - finalFrame)
+    : (cut.next + 1 / 90000) / timingDuration(visualTimings, elements.video.duration) * elements.video.duration;
+  setVideoTimeWithoutNarrationSeek(destination);
+  scheduleNativeIdleTransition();
+}
+
 function syncCompleteNativeNarration(seek = false) {
+  if (nativeIdleTransition) { serviceNativeIdleTransition(); return; }
   if (narrationLoadPending || !completeNativePlayback() || !narrationAudioAvailable ||
       elements.voice.value === "silent" || !elements.video.duration ||
       !elements.audio.duration || !audioTimings) return;
@@ -1449,14 +1639,29 @@ function syncCompleteNativeNarration(seek = false) {
   const located = timingScene(visualTimings, visualTime);
   const spoken = located && audioTimings.scenes?.[located.index];
   if (!spoken) return;
+  const idleCut = nativeIdleTailCut(visualTimings, audioTimings, located.index);
+  const idleState = currentNativeIdleTailState(spoken, located.index, seek);
+  const idleWait = nativeIdleTailWait(nativeIdlePauseClock, idleState, performance.now());
+  nativeIdlePauseClock = idleWait.clock;
+  const protectedEnd = Number(located.scene.required_action_end || 0);
+  // A final cut decodes the real last frame, then plays it to actual EOF.
+  // Do not schedule that same transition again during its remaining frame.
+  const finalFramePending = idleCut?.final &&
+    visualTime >= timingDuration(visualTimings, elements.video.duration) - 1 / Number(visualTimings.fps || 30) - 0.000001;
+  if (idleCut && idleWait.clock && !finalFramePending && (idleCut.final || !elements.audio.paused) && visualTime >= Number(located.scene.speech_start) + protectedEnd) {
+    beginNativeIdleTransition(idleCut, idleState, idleWait.clock, located.index);
+    return;
+  }
   const start = Number(spoken.speech_start) || 0;
   const end = Number(spoken.speech_end);
   if (!Number.isFinite(end) || end < start) return;
   const changed = completeNativeSceneIndex !== located.index;
   if (changed || seek) {
     completeNativeSceneIndex = located.index;
-    const elapsed = Math.max(0, visualTime - Number(located.scene.speech_start));
-    const target = seek ? Math.min(start + elapsed, end) : start;
+    // Hybrid masters contain both native clips and ordinary held cards.
+    // A viewer seek must invert the same per-scene mapping used to seek the
+    // picture; only native scenes map by unscaled elapsed time.
+    const target = seek ? Math.min(audioTimeFromVideo(elements.video.currentTime), end) : start;
     if (Math.abs(elements.audio.currentTime - target) > 0.015) {
       elements.audio.currentTime = Math.min(target, elements.audio.duration);
     }
@@ -1494,6 +1699,7 @@ function audioNeedsData() {
 }
 
 function releaseVideoForAudio() {
+  if (nativeIdleTransition) return;
   if (!videoHeldForAudio || !resumeAfterAudioHold || narrationLoadPending || audioNeedsData()) return;
   if (narrationAudioAvailable && elements.voice.value !== "silent" &&
       elements.audio.paused && !completeNativeNarrationWaiting) return;
@@ -1605,6 +1811,37 @@ function startNativeFrameSync() {
   nativeFrameSyncHandle = requestAnimationFrame(tick);
 }
 
+function boundNativeIdleTimings(reference, lesson, timingSha) {
+  const result = { ...reference, scenes: reference.scenes.map(scene => {
+    const copy = { ...scene };
+    delete copy.idle_tail_start;
+    return copy;
+  }) };
+  const policy = lesson.native_idle_tails;
+  if (!policy) return result;
+  // The normal candidate validates this master hash against actual media bytes;
+  // the browser additionally binds the small timing document it just loaded.
+  if (policy.schema !== 1 || policy.lesson !== lesson.id ||
+      !/^[0-9a-f]{64}$/.test(policy.master_sha256 || "") ||
+      policy.visual_timing_sha256 !== timingSha || !Array.isArray(policy.scenes)) return result;
+  const fences = new Map();
+  for (const fence of policy.scenes) {
+    const matches = result.scenes.filter(scene => scene.visual === fence.visual);
+    if (matches.length !== 1 || fences.has(fence.visual)) return result;
+    const scene = matches[0];
+    if (![fence.source_start, fence.source_end, fence.idle_tail_start].every(value =>
+        typeof value === "number" && Number.isFinite(value)) ||
+        Math.abs(fence.source_start - Number(scene.speech_start)) > 1e-7 ||
+        Math.abs(fence.source_end - Number(scene.scene_end)) > 1e-7 ||
+        fence.idle_tail_start < 0 || fence.idle_tail_start >= fence.source_end - fence.source_start) return result;
+    fences.set(fence.visual, fence.idle_tail_start);
+  }
+  for (const scene of result.scenes) {
+    if (fences.has(scene.visual)) scene.idle_tail_start = fences.get(scene.visual);
+  }
+  return result;
+}
+
 async function loadLessonDetail(isCurrent = () => true) {
   if (!isCurrent()) return;
   elements.chapters.innerHTML = `<div class="detail-empty">Loading chapters…</div>`;
@@ -1615,11 +1852,16 @@ async function loadLessonDetail(isCurrent = () => true) {
       response = await fetch(defaultTimingSource());
     }
     if (!response.ok) throw new Error("timings unavailable");
-    const timings = await response.json();
+    const timingText = await response.text();
+    const timings = JSON.parse(timingText);
+    let referenceText = timingText;
     let referenceTimings = timings;
     if (requestedSource !== visualTimingSource()) {
       const referenceResponse = await fetch(visualTimingSource());
-      if (referenceResponse.ok) referenceTimings = await referenceResponse.json();
+      if (referenceResponse.ok) {
+        referenceText = await referenceResponse.text();
+        referenceTimings = JSON.parse(referenceText);
+      }
       else if (activeLesson.visual_timings) throw new Error("native visual timings unavailable");
     }
     if (activeLesson.visual_timings) {
@@ -1635,8 +1877,11 @@ async function loadLessonDetail(isCurrent = () => true) {
       }
     }
     if (!isCurrent()) return;
+    const referenceHash = Array.from(new Uint8Array(await crypto.subtle.digest(
+      "SHA-256", new TextEncoder().encode(referenceText))), byte => byte.toString(16).padStart(2, "0")).join("");
+    if (!isCurrent()) return;
     audioTimings = timings;
-    visualTimings = referenceTimings;
+    visualTimings = boundNativeIdleTimings(referenceTimings, activeLesson, referenceHash);
     completeNativeSceneIndex = null;
     completeNativeNarrationWaiting = false;
     configureMediaSync();
@@ -1858,6 +2103,7 @@ function renderTranscript() {
 }
 
 function seekTo(audioSeconds) {
+  cancelNativeIdleTransition();
   if (completeNativePlayback()) {
     completeNativeSceneIndex = null;
     completeNativeNarrationWaiting = false;
@@ -2170,6 +2416,7 @@ elements.video.addEventListener("pause", () => {
     programmaticVideoPausePending = false;
     return;
   }
+  cancelNativeIdleTransition();
   videoHeldForAudio = false;
   resumeAfterAudioHold = false;
   // A sparse phone tick can still reach natural EOF before parking; that
@@ -2183,8 +2430,11 @@ elements.video.addEventListener("pause", () => {
     saveWatchPosition();
   }
 });
+elements.video.addEventListener("pause", () => { nativeIdlePauseClock = null; });
 elements.video.addEventListener("seeking", () => {
+  nativeIdlePauseClock = null;
   if (!videoClockCorrectionPending) {
+    cancelNativeIdleTransition();
     videoCatchingUpToNarration = false;
     videoParkedForNarration = false;
     narratedPlaybackCompleted = false;
@@ -2262,6 +2512,7 @@ elements.audio.addEventListener("loadedmetadata", () => {
   }
 });
 elements.audio.addEventListener("error", () => {
+  cancelNativeIdleTransition();
   // Loading errors are handled by loadNarration while availability is false.
   // This catches a deferred phone decoder failure after the player is ready.
   if (!narrationAudioAvailable || !elements.audio.getAttribute("src")) return;
@@ -2278,6 +2529,10 @@ elements.video.addEventListener("canplay", () => {
   if (!narrationLoadPending && !videoHeldForAudio) elements.loading.classList.add("hidden");
 });
 elements.video.textTracks?.addEventListener?.("change", syncCaptionPreferenceFromNativeControls);
+document.addEventListener("visibilitychange", () => {
+  // A throttled background timer must never carry a quiet-only rate into speech.
+  if (document.hidden) cancelNativeIdleTransition();
+});
 elements.voice.addEventListener("change", switchVoice);
 elements.language.addEventListener("change", switchLanguage);
 elements.captionLanguage.addEventListener("change", switchCaptionLanguage);
