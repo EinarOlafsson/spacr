@@ -41,7 +41,8 @@ def test_on_demand_quality_classifier_cache_follows_same_model_relocation(cache,
     home, _entry, _raw, data = cache
     original = home / 'models'
     original.mkdir()
-    filename = f'image_qc_classifier_v{image_quality._QC_MODEL_VERSION}.pt'
+    filename = (f'image_qc_classifier_v{image_quality._QC_MODEL_VERSION}_'
+                f'{image_quality._QC_WEIGHTS_SHA256}.pt')
     (original / filename).write_bytes(data)
     relocated = journal._relocate_cache('models', tmp_path / 'other-drive')
     assert image_quality._builtin_qc_model_path() == relocated / filename
