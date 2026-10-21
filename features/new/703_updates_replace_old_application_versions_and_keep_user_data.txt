@@ -2,9 +2,9 @@
 UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
 ================================================================================
 
-Status:    DONE 2026-10-21 — maintainer accepted the native macOS installer
-           matrix and automated in-app update validation as sufficient;
-           Windows/Linux native acceptance remains on hold.
+Status:    IN PROGRESS — native macOS scope remains accepted; the maintainer
+           resumed Linux on Home and current Linux-online staging is missing.
+           Retained installer worker owns the staged Linux update repair.
 Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
            reopen an old version. Replace obsolete application installations,
            preserve cache and temporary/user files unless cleanup is required
@@ -14,6 +14,37 @@ Owner:     Home (updater/installers); Work (translations/tutorial 04);
            native Windows/macOS/Linux validation lane
 Related:   spacr/updater.py, spacr/install_cleanup.py, packaging/online/,
            frozen desktop packaging, N627 (never downgrade a newer runtime)
+
+--------------------------------------------------------------------------------
+HOME LINUX ACCEPTANCE — EXPLICITLY RESUMED 2026-10-21
+--------------------------------------------------------------------------------
+
+The maintainer explicitly requires real Linux installation acceptance on the
+Home host. Current start_update_helper refuses Linux-online installations
+because no verified staged adapter exists. The retained installer worker owns
+this actual product gap: reuse existing POSIX stage/identity/restart/rollback
+machinery, retain the old working runtime and user files until replacement is
+verified, preserve explicit CPU/backend profile choices, and never restore the
+old remove-and-update/delete-root fallback. Native acceptance must exercise
+the repaired current-source Linux button flow, not infer it from an older
+released updater or installer-only reinstall. This newly resumed Linux scope
+reopens the current goal's item while preserving the accepted Mac decision. The acceptance coordinator owns install/update/reinstall/uninstall
+through installed desktop/runtime paths; this resumes Linux only and preserves
+703's recorded Mac acceptance and the Mac session's ownership. The newly
+resumed Linux scope is in progress; Windows stays held.
+Use disposable owned installation roots, launchers, profiles and desktop
+entries. Protect the working host app, all user data and unrelated jobs.
+Run actual native installer/application/helper processes, identify their
+version/interpreter/module and requested target, and distinguish a no-op from
+a real upgrade. Check background install/update, restart into the intended
+version, same-version reinstall, default data preservation, uninstall defaults
+and category opt-outs with unrelated sentinels. An isolated Linux user/mount
+namespace may shield the real profile while exercising production paths;
+record that isolation and any genuine native-display limitation. No GPU,
+mocked-success claims, fabricated version bump or changed public release.
+Retain valid prior tests and run affected regressions only for actual repairs.
+Record actual outcomes and any missing route/prerequisite in at most five
+dated trailing lines; root owns integration/publication of resulting fixes.
 
 --------------------------------------------------------------------------------
 REQUIREMENTS
@@ -77,8 +108,9 @@ session's native installer matrix and automated update/rollback/identity/restart
 validation (published acceptance 3a45ba05c053). The second newer-candidate
 in-app run is explicitly waived. The procedure below is retained for actual
 regressions, not a new gate or a reason to repeat accepted tests. Continue
-with outstanding 646 work instead. Windows/Linux native acceptance is on
-hold until explicitly resumed; Home general CI is separate.
+with outstanding 646 work instead. Windows native acceptance remains on hold.
+The later explicit Home Linux acceptance section resumes Linux separately;
+Home general CI is separate.
 
 Owner: the maintainer's Mac session owns any newly demonstrated Mac-specific
 regression; root retains general CI. Preserve the latest accepted scope.
@@ -1057,3 +1089,9 @@ The current universal online pkg builds natively, is non-relocatable, carries th
 Old-to-new desktop acceptance remains open: this Mac and the current candidate are both1.5.1.5, so a newer published candidate is required to prove version replacement/relaunch without weakening identity checks. Native VoiceOver/human acceptance belongs to655; Windows/Linux and full release gates remain separate.
 2026-10-21 — Maintainer accepted native VoiceOver under655 and placed the remaining Windows/Linux acceptance on hold; do not pursue those platform lanes until explicitly resumed. The newer-candidate macOS replacement gate above remains accurately recorded.
 2026-10-21 — DONE at maintainer-accepted scope: the native macOS installer matrix plus automated in-app update, rollback, interruption, identity and restart validation satisfy703. The maintainer explicitly waives a second newer-candidate in-app run; Windows/Linux acceptance stays on hold and does not keep this item open.
+
+2026-10-21 — Home Ubuntu24.04.5 x86_64 native online1.5.1.4 installation/desktop and released1.5.1.5 update/restart pass; that legacy updater loses the inside-root file and CPU-wheel choice while preserving four external data sentinels. No GPU compute or current-source equivalence is claimed.
+Released1.5.1.5 frozen Debian actual private-root dpkg install/reinstall/removal, launcher/frozen identity and physical startup/Home pass; five profile/output sentinels survive, without claiming host privileged integration or a nonexistent older frozen upgrade.
+Current65a7a6f3 source wheel GUI same-version reinstall restores torch2.14.1+cpu and preserves all five file sentinels and byte-identical saved Qt settings; the actually installed module bytes match that candidate.
+ff22a3fb16 adds Linux-only staged POSIX update/Restart with verified identity, CPU-profile preservation, missing-profile refusal and rollback; all28 focused Linux/Qt/shared-Mac checks pass. Root owns publication.
+The repaired wheel8a8e6579 actual native xcb/Xvfb same-version1.5.1.5 flow passes Restart, atomic activation, retained rollback and authenticated new desktop identity/visible Home; all five files, preferences and CPU choice survive. This does not invent a newer release or physical rendering/performance acceptance; remaining Linux uninstall work belongs to646.

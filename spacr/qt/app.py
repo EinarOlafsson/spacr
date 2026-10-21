@@ -5472,7 +5472,7 @@ class MainWindow(QMainWindow):
                    error=self._removal_reason_text(
                        str(plan.get("error")))))
             return
-        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
+        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "linux-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
             from PySide6.QtCore import QTimer
             from PySide6.QtWidgets import QProgressDialog
 

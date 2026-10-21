@@ -5341,6 +5341,19 @@ def _macos_online_version(value):
     return parts + (0,) * (4 - len(parts))
 
 
+def _linux_online_update_record(records, *, system=None, strict=False):
+    """Find the running non-frozen Linux online environment without cleanup."""
+    machine = system or _Machine()
+    if machine.platform != "linux" or getattr(sys, "frozen", False):
+        return None
+    candidates = [record for record in records if record.kind == "installer"
+                  and record.running and record.platform == "linux"
+                  and record.layout == "linux-online"]
+    if strict and len(candidates) != 1:
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed."))
+    return candidates[0] if candidates else None
+
+
 def _runtime_requested_version(value):
     """Validate canonical PEP440 text before constructing a private package command."""
     import re
@@ -5525,6 +5538,19 @@ def _macos_online_commands(record, version, workdir):
     probe = _runtime_identity_command(python, version, minimum=package == "spacr")
     relaunch = [python, "-I", "-m", "spacr.qt"]
     return install, probe, relaunch
+
+
+def _linux_online_commands(record, version, workdir):
+    """Reuse private POSIX uv commands and the saved Linux installer choices."""
+    from importlib import import_module
+    from pathlib import Path
+
+    if import_module("spacr.install_profile").read_profile(Path(record.root) / "install-profile.json") is None:
+        raise ValueError(tr("The saved installation choices could not be read. Nothing was changed."))
+    try:
+        return _macos_online_commands(record, version, workdir)
+    except (OSError, ValueError) as error:
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed.")) from error
 
 
 def _runtime_exchange(first, second):
@@ -6138,13 +6164,25 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     The actual paths are rechecked after shutdown; uv or Python found on PATH
     is never substituted.
     """
+    return _run_posix_online_update(plan, machine, _macos_online_update_record,
+                                    _macos_online_commands, wait=wait, run=run, spawn=spawn)
+
+
+def _run_linux_online_update(plan, machine, *, wait=None, run=None, spawn=None):
+    """Stage and verify the Linux runtime before authenticated Restart."""
+    return _run_posix_online_update(plan, machine, _linux_online_update_record,
+                                    _linux_online_commands, wait=wait, run=run, spawn=spawn)
+
+
+def _run_posix_online_update(plan, machine, lookup, commands, *, wait=None, run=None, spawn=None):
+    """Use the shared POSIX transaction without replacing an installation root."""
     records = [_record_from_json(data) for data in plan["records"]]
-    record = _macos_online_update_record(records, system=machine, strict=True)
+    record = lookup(records, system=machine, strict=True)
     if record is None or plan.get("frozen_application"):
-        raise ValueError("this update requires a running non-frozen macOS online environment")
-    install, probe, relaunch = _macos_online_commands(record, plan["version"], plan["workdir"])
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed."))
+    install, probe, relaunch = commands(record, plan["version"], plan["workdir"])
     if plan.get("fetch") is not None or plan.get("install") != install or plan.get("relaunch") != relaunch:
-        raise ValueError("the macOS online update commands differ from the approved environment")
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed."))
     current = _retiring_runtime_identity(os.path.dirname(os.path.dirname(record.python)))
     if current is None:
         raise ValueError("previous_runtime_identity_unverified")
@@ -6158,7 +6196,7 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
         """Offer Restart only after the replacement passes its staged checks."""
         handshake.ready()
         handshake.wait_for_shutdown(wait)
-        if _macos_online_commands(record, plan["version"], plan["workdir"]) != (install, probe, relaunch):
+        if commands(record, plan["version"], plan["workdir"]) != (install, probe, relaunch):
             raise ValueError(tr("The saved installation choices changed while preparing the update. Nothing was changed."))
 
     return _transactional_runtime_update(
@@ -8365,21 +8403,26 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                 plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
         except (OSError, ValueError) as error:
             plan["error"] = str(error)
-    elif _macos_online_update_record(records, system=machine) is not None:
-        plan["adapter"] = "macos-online-uv-v1"
+    elif (_macos_online_update_record(records, system=machine) is not None
+          or _linux_online_update_record(records, system=machine) is not None):
+        linux_online = machine.platform == "linux"
+        lookup = _linux_online_update_record if linux_online else _macos_online_update_record
+        commands = _linux_online_commands if linux_online else _macos_online_commands
+        plan["adapter"] = "linux-online-uv-v1" if linux_online else "macos-online-uv-v1"
         plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
         plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
                              "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
         try:
-            running = _macos_online_update_record(records, system=machine, strict=True)
-            plan["install"], _probe, plan["relaunch"] = _macos_online_commands(
+            running = lookup(records, system=machine, strict=True)
+            plan["install"], _probe, plan["relaunch"] = commands(
                 running, str(version), workdir)
             _FrozenUpdateHandshake(plan)
             with open(__file__, "rb") as source, open(module, "wb") as copy:
                 copy.write(source.read())
             plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
         except (OSError, ValueError) as error:
-            plan["error"] = f"could not prepare the macOS environment update: {error}. Nothing was removed."
+            plan["error"] = (tr("This installation cannot stage a verified update. Nothing was changed.")
+                             if linux_online else f"could not prepare the macOS environment update: {error}. Nothing was removed.")
     elif _windows_online_update_record(records, system=machine) is not None:
         plan["adapter"] = "windows-online-uv-v1"
         plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
@@ -8635,10 +8678,11 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return code
 
     planned_records = [_record_from_json(data) for data in plan["records"]]
-    if plan.get("adapter") in {"macos-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
+    if plan.get("adapter") in {"macos-online-uv-v1", "linux-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
         try:
             operation = (_run_pip_environment_update if plan["adapter"] in {"pip-private-posix-v1", "pip-private-windows-v1"}
                          else _run_windows_online_update if plan["adapter"] == "windows-online-uv-v1"
+                         else _run_linux_online_update if plan["adapter"] == "linux-online-uv-v1"
                          else _run_macos_online_update)
             with _preparation_heartbeat(plan, windows=plan["adapter"] in {"pip-private-windows-v1",
                                                                           "windows-online-uv-v1"}):
