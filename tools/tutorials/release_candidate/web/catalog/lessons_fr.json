@@ -448,24 +448,24 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Dans l’interface nightly actuelle, ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée.",
+          "narration": "Ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée.",
           "hold_after": 0.7,
-          "speech_text": "Dans l’interface nightly actuelle, ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée."
+          "speech_text": "Ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée."
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Cet enregistrement installe spaCR version un point cinq point un point trois. Les versions publiées peuvent présenter une ancienne disposition de Home. Voici Home dans la version nightly actuelle, avec Core, Data, Tools et Organism. Poursuivez avec Home screen and navigation pour découvrir les modules actuels.",
+          "narration": "Home regroupe les modules dans Core, Data, Tools et Organism. Poursuivez avec Home screen and navigation pour trouver le module de votre prochaine tâche.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Cet enregistrement installe spakeur version un point cinq point un point trois. Les versions publiées peuvent présenter une ancienne disposition de Home. Voici Home dans la version nightly actuelle, avec Core, Data, Tools et Organism. Poursuivez avec Home screen and navigation pour découvrir les modules actuels."
+          "speech_text": "Home regroupe les modules dans Core, Data, Tools et Organism. Poursuivez avec Home screen and navigation pour trouver le module de votre prochaine tâche."
         },
         {
           "visual": "05_doctor",
-          "narration": "Exécutez spacr-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Dans cette installation CPU enregistrée, la vérification du backend réussit et le test GPU est ignoré. L’avertissement indique que le lecteur CZI facultatif manque ; installez cet extra uniquement si vous avez besoin de fichiers CZI.",
+          "narration": "Exécutez spacr-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Vérifiez le résultat du backend et si le contrôle du GPU a été exécuté. Si l’avertissement signale l’absence du lecteur CZI facultatif, installez ce supplément uniquement si vous avez besoin de fichiers CZI.",
           "hold_after": 0.7,
-          "speech_text": "Exécutez spakeur-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Dans cette installation CPU enregistrée, la vérification du backend réussit et le test GPU est ignoré. L’avertissement indique que le lecteur CZI facultatif manque ; installez cet extra uniquement si vous avez besoin de fichiers CZI."
+          "speech_text": "Exécutez spakeur-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Vérifiez le résultat du backend et si le contrôle du GPU a été exécuté. Si l’avertissement signale l’absence du lecteur CZI facultatif, installez ce supplément uniquement si vous avez besoin de fichiers CZI."
         },
         {
           "visual": "12_logs_and_versions",

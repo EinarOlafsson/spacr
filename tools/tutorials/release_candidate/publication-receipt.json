@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-ws-02-install-spacr-20261021docker1",
+  "branch": "n676-ws-04-platform-installers-20261021narration1",
   "base_commit": "d1796ba23736d8f266c7cd27e6b956fe96ace0ec",
-  "commit": "2dffbec95e4e4c5e49a373473f4be345b60b6eed",
-  "tag": "n676-ws-02-install-spacr-20261021docker1-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/2dffbec95e4e4c5e49a373473f4be345b60b6eed",
-  "manifest_sha256": "6388dff3e5f5cbceae96906ad652a14c1d1d932c4fb3bf956e02b96b74a0570c",
+  "commit": "293cb8604c922f43a3f367b9f2ff79583b921ee4",
+  "tag": "n676-ws-04-platform-installers-20261021narration1-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/293cb8604c922f43a3f367b9f2ff79583b921ee4",
+  "manifest_sha256": "ea91ba33de3dcfaf3c4de85b72eb7dfd1468e844b0531396570f8cf95508d71b",
   "media_files": 6448,
-  "media_bytes": 14115765323,
+  "media_bytes": 14111830390,
   "readback": {
-    "commit": "2dffbec95e4e4c5e49a373473f4be345b60b6eed",
+    "commit": "293cb8604c922f43a3f367b9f2ff79583b921ee4",
     "files_expected": 6448,
     "metadata_matched": 6448,
     "metadata_failures": [],
-    "bytes_read_back": 14115765323,
+    "bytes_read_back": 14111830390,
     "downloaded_sha256_matched": 6448,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -1982,31 +1982,32 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 554.5,
+    "seconds": 516.6,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "81233d2f762356bc7f4b6632cae39a6eebf3fbc072b51cacdd9f19c6e043c142",
-    "candidate_index_sha256": "413c1b10d534d920e0b7e801c14aa55e9d3fb683cbb288606250d7e3ed7b00ef",
-    "cache_key": "n676-ws-02-install-spacr-20261021docker1-verified",
+    "index_sha256": "01bbca8b9ff6da6bf82d60665880ff8cfa5ed3bece0b5241b816486376eede32",
+    "candidate_index_sha256": "5577129450a9cee26e931e0a853c4346cdd3d3528b8b828d5250d03606c51897",
+    "cache_key": "n676-ws-04-platform-installers-20261021narration1-verified",
     "unchanged_versioned_assets": [
+      "app_v2.js",
       "styles.css",
       "voice_catalog.js"
     ],
     "versioned_assets": {
       "app_v2.js": "n676-ws-02-install-spacr-20261021docker1-verified",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-ws-02-install-spacr-20261021docker1-verified",
-      "module_navigation.js": "n676-ws-02-install-spacr-20261021docker1-verified",
+      "lesson_catalog.js": "n676-ws-04-platform-installers-20261021narration1-verified",
+      "module_navigation.js": "n676-ws-04-platform-installers-20261021narration1-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-0i87wesz/retired-pages",
+      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-946a3l3k/retired-pages",
       "files": []
     },
     "ready": 84,

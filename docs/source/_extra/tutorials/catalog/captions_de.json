@@ -391,12 +391,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Öffnen Sie in der aktuellen Nightly-Oberfläche Preferences und wählen Sie Performance. Wählen Sie ein Profil für Ihren Computer. Laptop benötigt weniger Ressourcen; höhere Profile erlauben mehr Zwischenspeicherung und Hintergrundarbeit. Beginnen Sie bei knappem Speicher mit einem sparsamen Profil.",
+          "narration": "Öffnen Sie Preferences und wählen Sie Performance. Wählen Sie ein Profil für Ihren Computer. Laptop benötigt weniger Ressourcen; höhere Profile erlauben mehr Zwischenspeicherung und Hintergrundarbeit. Beginnen Sie bei knappem Speicher mit einem sparsamen Profil.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Diese Aufnahme installiert spaCR Version eins Punkt fünf Punkt eins Punkt drei. Veröffentlichte Versionen können ein älteres Home-Layout zeigen. Hier sehen Sie Home im aktuellen Nightly-Build mit Core, Data, Tools und Organism. Die aktuellen Module erklärt Home screen and navigation.",
+          "narration": "Home gruppiert die Module in Core, Data, Tools und Organism. Fahren Sie mit Home screen and navigation fort, um das Modul für Ihre nächste Aufgabe zu finden.",
           "related_lessons": [
             "05_home"
           ],
@@ -404,7 +404,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus der installierten Laufzeitumgebung aus, wenn der Start oder ein Dateiformat Probleme bereitet. In dieser aufgezeichneten CPU-Installation besteht die Backend-Prüfung, und die GPU-Prüfung wird übersprungen. Die Warnung weist auf den fehlenden optionalen CZI-Leser hin; installieren Sie dieses Extra nur, wenn Sie CZI-Dateien benötigen.",
+          "narration": "Führen Sie spacr-doctor aus der installierten Laufzeitumgebung aus, wenn der Start oder ein Dateiformat Probleme bereitet. Prüfen Sie das Backend-Ergebnis und ob die GPU-Prüfung ausgeführt wurde. Falls die Warnung einen fehlenden optionalen CZI-Reader meldet, installieren Sie diese Erweiterung nur, wenn Sie CZI-Dateien benötigen.",
           "hold_after": 0.7
         },
         {

@@ -391,12 +391,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Öppna Preferences i det aktuella nightly-gränssnittet och välj Performance. Välj en profil för din dator. Laptop använder färre resurser; högre profiler tillåter mer cache och bakgrundsarbete. Börja med en måttlig profil om minnet är begränsat.",
+          "narration": "Öppna Preferences och välj Performance. Välj en profil för din dator. Laptop använder färre resurser; högre profiler tillåter mer cache och bakgrundsarbete. Börja med en måttlig profil om minnet är begränsat.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Den här inspelningen installerar spaCR version ett punkt fem punkt ett punkt tre. Publicerade versioner kan visa en äldre Home-layout. Här visas Home i den aktuella nightly-versionen, med Core, Data, Tools och Organism. Fortsätt till Home screen and navigation för de aktuella modulerna.",
+          "narration": "Home grupperar modulerna i Core, Data, Tools och Organism. Fortsätt till Home screen and navigation för att hitta modulen för din nästa uppgift.",
           "related_lessons": [
             "05_home"
           ],
@@ -404,7 +404,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "Kör spacr-doctor från den installerade körmiljön om uppstart eller ett filformat behöver åtgärdas. I den här inspelade CPU-installationen godkänns backend-kontrollen och GPU-kontrollen hoppas över. Varningen säger att den valfria CZI-läsaren saknas; installera bara det tillägget om du behöver CZI-filer.",
+          "narration": "Kör spacr-doctor från den installerade körmiljön om uppstart eller ett filformat behöver åtgärdas. Kontrollera backend-resultatet och om GPU-kontrollen har körts. Om varningen anger att den valfria CZI-läsaren saknas, installera tillägget bara om du behöver CZI-filer.",
           "hold_after": 0.7
         },
         {

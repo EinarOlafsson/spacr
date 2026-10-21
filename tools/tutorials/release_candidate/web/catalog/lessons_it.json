@@ -448,24 +448,24 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Nell’interfaccia nightly attuale, apri Preferences e scegli Performance. Seleziona un profilo per il tuo computer. Laptop usa meno risorse; i profili superiori consentono più cache e lavoro in background. Inizia con un profilo moderato se la memoria è limitata.",
+          "narration": "Apri Preferences e scegli Performance. Seleziona un profilo per il tuo computer. Laptop usa meno risorse; i profili superiori consentono più cache e lavoro in background. Inizia con un profilo moderato se la memoria è limitata.",
           "hold_after": 0.7,
-          "speech_text": "Nell’interfaccia nightly attuale, apri Preferences e scegli Performance. Seleziona un profilo per il tuo computer. Laptop usa meno risorse; i profili superiori consentono più cache e lavoro in background. Inizia con un profilo moderato se la memoria è limitata."
+          "speech_text": "Apri Preferences e scegli Performance. Seleziona un profilo per il tuo computer. Laptop usa meno risorse; i profili superiori consentono più cache e lavoro in background. Inizia con un profilo moderato se la memoria è limitata."
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Questa registrazione installa spaCR versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Organism. Prosegui con Home screen and navigation per conoscere i moduli attuali.",
+          "narration": "Home raggruppa i moduli in Core, Data, Tools e Organism. Prosegui con Home screen and navigation per trovare il modulo adatto alla prossima attività.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Questa registrazione installa spàker versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Organism. Prosegui con Home screen and navigation per conoscere i moduli attuali."
+          "speech_text": "Home raggruppa i moduli in Core, Data, Tools e Organism. Prosegui con Home screen and navigation per trovare il modulo adatto alla prossima attività."
         },
         {
           "visual": "05_doctor",
-          "narration": "Esegui spacr-doctor dall’ambiente installato se l’avvio o un formato di file richiede attenzione. In questa installazione CPU registrata, il controllo del backend passa e la verifica della GPU viene saltata. L’avviso segnala che manca il lettore CZI opzionale; installa questo extra solo se ti servono file CZI.",
+          "narration": "Esegui spacr-doctor dall’ambiente installato se l’avvio o un formato di file richiede attenzione. Controlla il risultato del backend e se è stato eseguito il controllo della GPU. Se l’avviso segnala che manca il lettore CZI opzionale, installa quel componente aggiuntivo solo se ti servono file CZI.",
           "hold_after": 0.7,
-          "speech_text": "Esegui spàker-doctor dall’ambiente installato se l’avvio o un formato di file richiede attenzione. In questa installazione CPU registrata, il controllo del backend passa e la verifica della GPU viene saltata. L’avviso segnala che manca il lettore CZI opzionale; installa questo extra solo se ti servono file CZI."
+          "speech_text": "Esegui spàker-doctor dall’ambiente installato se l’avvio o un formato di file richiede attenzione. Controlla il risultato del backend e se è stato eseguito il controllo della GPU. Se l’avviso segnala che manca il lettore CZI opzionale, installa quel componente aggiuntivo solo se ti servono file CZI."
         },
         {
           "visual": "12_logs_and_versions",

@@ -448,24 +448,24 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "在当前每夜开发版界面中，打开 Preferences 并选择 Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。",
+          "narration": "打开Preferences，选择Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。",
           "hold_after": 0.7,
-          "speech_text": "在当前每夜开发版界面中，打开 Preferences 并选择 Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。"
+          "speech_text": "打开Preferences，选择Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。"
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Organism。请继续观看主页与导航教程，了解当前的模块。",
+          "narration": "Home将模块分为Core、Data、Tools和Organism。接着查看Home画面与导航教程，找到下一项任务所需的模块。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "这段录像安装的是 斯佩克尔 一点五点一点三版。已发布的版本可能显示较旧的 主页 布局。这里展示的是当前每夜开发版的 主页，包含 Core、Data、Tools 和 Organism。请继续观看主页与导航教程，了解当前的模块。"
+          "speech_text": "主页将模块分为Core、Data、Tools和Organism。接着查看主页画面与导航教程，找到下一项任务所需的模块。"
         },
         {
           "visual": "05_doctor",
-          "narration": "如果启动或文件格式需要处理，请从安装的运行环境执行 spacr-doctor。在这段录像的 CPU 安装中，后端检查通过，GPU 检查被跳过。警告说明缺少可选的 CZI 读取器；只有需要 CZI 文件时，才安装这个额外组件。",
+          "narration": "如果启动或文件格式需要处理，请从安装的运行环境执行 spacr-doctor。检查后端结果，并确认是否执行了GPU检测。如果警告提示缺少可选的CZI读取器，仅在需要CZI文件时安装此扩展。",
           "hold_after": 0.7,
-          "speech_text": "如果启动或文件格式需要处理，请从安装的运行环境执行 斯佩克尔-doctor。在这段录像的 CPU 安装中，后端检查通过，GPU 检查被跳过。警告说明缺少可选的 CZI 读取器；只有需要 CZI 文件时，才安装这个额外组件。"
+          "speech_text": "如果启动或文件格式需要处理，请从安装的运行环境执行 斯佩克尔-doctor。检查后端结果，并确认是否执行了GPU检测。如果警告提示缺少可选的CZI读取器，仅在需要CZI文件时安装此扩展。"
         },
         {
           "visual": "12_logs_and_versions",

@@ -391,12 +391,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "현재 nightly 인터페이스에서 Preferences를 열고 Performance를 선택하세요. 컴퓨터에 맞는 프로필을 선택하세요. Laptop은 적은 자원을 사용하며, 상위 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 제한되어 있다면 자원 사용이 적은 프로필로 시작하세요.",
+          "narration": "Preferences를 열고 Performance를 선택하세요. 컴퓨터에 맞는 프로필을 선택하세요. Laptop은 적은 자원을 사용하며, 상위 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 제한되어 있다면 자원 사용이 적은 프로필로 시작하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "이 녹화에서는 spaCR 버전 일 점 오 점 일 점 삼을 설치합니다. 정식 배포 버전에는 이전 Home 배치가 표시될 수 있습니다. 여기에는 Core, Data, Tools, Organism이 있는 현재 nightly 빌드의 Home이 표시됩니다. 현재 모듈은 홈 화면과 탐색 튜토리얼에서 확인하세요.",
+          "narration": "Home은 모듈을 Core, Data, Tools, Organism으로 묶어 보여 줍니다. 다음 작업에 필요한 모듈을 찾으려면 Home 화면과 탐색 수업으로 이동하세요.",
           "related_lessons": [
             "05_home"
           ],
@@ -404,7 +404,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "시작이나 파일 형식에 문제가 있다면 설치된 런타임에서 spacr-doctor를 실행하세요. 이 녹화의 CPU 설치에서는 백엔드 검사가 통과하고 GPU 검사는 생략됩니다. 경고는 선택 사항인 CZI 리더가 없다는 뜻입니다. CZI 파일이 필요한 경우에만 이 추가 패키지를 설치하세요.",
+          "narration": "시작이나 파일 형식에 문제가 있다면 설치된 런타임에서 spacr-doctor를 실행하세요. 백엔드 결과와 GPU 검사가 실행되었는지 확인하세요. 선택 사항인 CZI 리더가 없다는 경고가 나오면 CZI 파일이 필요할 때만 그 추가 기능을 설치하세요.",
           "hold_after": 0.7
         },
         {

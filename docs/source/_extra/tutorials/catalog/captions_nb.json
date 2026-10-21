@@ -391,12 +391,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Åpne Preferences i det nåværende nightly-grensesnittet, og velg Performance. Velg en profil for datamaskinen din. Laptop bruker færre ressurser; høyere profiler tillater mer mellomlagring og bakgrunnsarbeid. Start med en moderat profil hvis minnet er begrenset.",
+          "narration": "Åpne Preferences og velg Performance. Velg en profil for datamaskinen din. Laptop bruker færre ressurser; høyere profiler tillater mer mellomlagring og bakgrunnsarbeid. Start med en moderat profil hvis minnet er begrenset.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Dette opptaket installerer spaCR versjon én punkt fem punkt én punkt tre. Publiserte versjoner kan vise et eldre Home-oppsett. Her vises Home i den nåværende nightly-versjonen, med Core, Data, Tools og Organism. Fortsett med Home screen and navigation for de nåværende modulene.",
+          "narration": "Home grupperer modulene i Core, Data, Tools og Organism. Fortsett til Home screen and navigation for å finne modulen til neste oppgave.",
           "related_lessons": [
             "05_home"
           ],
@@ -404,7 +404,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "Kjør spacr-doctor fra det installerte kjøremiljøet hvis oppstart eller et filformat trenger oppmerksomhet. I denne innspilte CPU-installasjonen består backend-kontrollen, og GPU-kontrollen hoppes over. Advarselen sier at den valgfrie CZI-leseren mangler; installer dette tillegget bare hvis du trenger CZI-filer.",
+          "narration": "Kjør spacr-doctor fra det installerte kjøremiljøet hvis oppstart eller et filformat trenger oppmerksomhet. Kontroller backend-resultatet og om GPU-sjekken ble kjørt. Hvis advarselen sier at den valgfrie CZI-leseren mangler, installer tillegget bare hvis du trenger CZI-filer.",
           "hold_after": 0.7
         },
         {

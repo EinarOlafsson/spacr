@@ -243,3 +243,5 @@ Docker (02), Yokogawa (07/14), focused prose (02/04/05/07/17) and 13-language re
 Remaining native idle boundaries need editorial review. Captures stay held; preserve original stages/logs and restart AF3 when the campaign ends.
 
 2026-10-21 — Lesson02 publishes Docker installation guidance and feature-focused narration through normal50-voice/media/browser verification. Existing installation footage and held command cards remain distinguished by normal source metadata; item676 stays open.
+
+2026-10-21 — Lesson04 publishes feature-focused installation narration using its verified unchanged mixed master and original14 scene intervals. Normal50-voice QA, decode/PTS/poster/web, reviewed source-bound idle cuts and actualbrowser/publication checks pass. No new raw capture or app-source changes; item676 stays open.

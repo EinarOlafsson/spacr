@@ -391,12 +391,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Opnaðu Preferences í núverandi nightly-viðmóti og veldu Performance. Veldu snið fyrir tölvuna þína. Laptop notar færri tilföng; hærri snið leyfa meira skyndiminni og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað.",
+          "narration": "Opnaðu Preferences og veldu Performance. Veldu snið fyrir tölvuna þína. Laptop notar færri tilföng; hærri snið leyfa meira skyndiminni og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Organism. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
+          "narration": "Home flokkar einingarnar í Core, Data, Tools og Organism. Haltu áfram í Home screen and navigation til að finna eininguna fyrir næsta verkefni.",
           "related_lessons": [
             "05_home"
           ],
@@ -404,7 +404,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "Keyrðu spacr-doctor úr uppsetta keyrsluumhverfinu ef ræsing eða skráarsnið þarfnast athugunar. Í þessari upptöku af CPU-uppsetningu stenst bakendaprófunin og GPU-prófuninni er sleppt. Viðvörunin segir að valfrjálsan CZI-lesara vanti; settu aðeins upp þá viðbót ef þú þarft CZI-skrár.",
+          "narration": "Keyrðu spacr-doctor úr uppsetta keyrsluumhverfinu ef ræsing eða skráarsnið þarfnast athugunar. Athugaðu niðurstöðu bakendans og hvort GPU-prófunin var keyrð. Ef viðvörunin segir að valfrjálsan CZI-lesara vanti skaltu aðeins setja viðbótina upp ef þú þarft CZI-skrár.",
           "hold_after": 0.7
         },
         {

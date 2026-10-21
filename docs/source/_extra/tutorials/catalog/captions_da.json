@@ -391,12 +391,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Åbn Preferences i den aktuelle nightly-grænseflade, og vælg Performance. Vælg en profil til din computer. Laptop bruger færre ressourcer; højere profiler tillader mere caching og baggrundsarbejde. Start med en beskeden profil, hvis hukommelsen er begrænset.",
+          "narration": "Åbn Preferences, og vælg Performance. Vælg en profil til din computer. Laptop bruger færre ressourcer; højere profiler tillader mere caching og baggrundsarbejde. Start med en beskeden profil, hvis hukommelsen er begrænset.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Denne optagelse installerer spaCR version et punkt fem punkt et punkt tre. Udgivne versioner kan vise et ældre Home-layout. Her vises Home i den aktuelle nightly-version med Core, Data, Tools og Organism. Fortsæt med Home screen and navigation for de aktuelle moduler.",
+          "narration": "Home grupperer modulerne i Core, Data, Tools og Organism. Fortsæt til Home screen and navigation for at finde modulet til din næste opgave.",
           "related_lessons": [
             "05_home"
           ],
@@ -404,7 +404,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "Kør spacr-doctor fra den installerede runtime, hvis opstart eller et filformat kræver opmærksomhed. I denne optagede CPU-installation består backend-kontrollen, og GPU-kontrollen springes over. Advarslen siger, at den valgfrie CZI-læser mangler; installer kun denne ekstra pakke, hvis du har brug for CZI-filer.",
+          "narration": "Kør spacr-doctor fra den installerede runtime, hvis opstart eller et filformat kræver opmærksomhed. Kontrollér resultatet fra backend, og om GPU-kontrollen blev kørt. Hvis advarslen siger, at den valgfrie CZI-læser mangler, skal du kun installere tilføjelsen, hvis du har brug for CZI-filer.",
           "hold_after": 0.7
         },
         {
