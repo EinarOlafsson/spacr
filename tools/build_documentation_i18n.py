@@ -5996,6 +5996,14 @@ def assemble_api_catalog(docs: Mapping[str, str], language: str) -> dict[str, ob
     return {**{k: v for k, v in memory.items() if k != "symbols"}, "symbols": symbols}
 
 
+
+def _initialize_api_assembly(api_dir: str, reviewed_api_dir: str) -> None:
+    """Give spawned assembly workers the caller's explicit catalog paths."""
+    global API_DIR, REVIEWED_API_DIR
+    API_DIR = Path(api_dir)
+    REVIEWED_API_DIR = Path(reviewed_api_dir)
+
+
 def _assemble_one(item: tuple[Mapping[str, str], str]) -> str:
     docs, language = item
     _write_json(API_DIR / f"{language}.json", assemble_api_catalog(docs, language))
@@ -6063,7 +6071,10 @@ def assemble_api_catalogs(
         import multiprocessing
         from concurrent.futures import ProcessPoolExecutor
 
-        with ProcessPoolExecutor(jobs, mp_context=multiprocessing.get_context("fork")) as pool:
+        with ProcessPoolExecutor(
+                jobs, mp_context=multiprocessing.get_context("spawn"),
+                initializer=_initialize_api_assembly,
+                initargs=(str(API_DIR.resolve()), str(REVIEWED_API_DIR.resolve()))) as pool:
             list(pool.map(_assemble_one, work))
     else:
         for item in work:
