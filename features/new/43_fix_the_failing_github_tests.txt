@@ -1,6 +1,11 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
-Status:    OPEN 2026-10-08 — fresh protected53ab run37807749125 has a
+Status:    OPEN 2026-10-20 — latest source repairs are published; full older-source
+           run39521220327 covers661 modules above90%, with28 historical ratchet
+           regressions. Root and release_ci_takeover own disjoint missing paths,
+           preserving assertions and ceilings; corrected-source hosted green remains.
+
+Previous status (superseded 2026-10-20):    OPEN 2026-10-08 — fresh protected53ab run37807749125 has a
            real guide Chrome60s timeout;21jobs currentlyPASS,5active.
            Exact-source node passes locally; hosted cause is unproved.
            Failed-only coverage artifact retry defect repaired and selected-
