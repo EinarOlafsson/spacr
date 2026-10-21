@@ -14,6 +14,28 @@ from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 from spacr.qt.widgets import ambient
 
 
+@pytest.fixture
+def _unit_pixel_scale(monkeypatch, _restore_font_scale):
+    """Measure this file's literal pixels at an explicit unit scale."""
+    from spacr.qt import gui_scale, preferences
+
+    store = preferences._settings()
+    keys = (preferences._KEY_FONT_SCALE, preferences._KEY_GUI_SCALE)
+    saved = [(key, store.contains(key), store.value(key, None)) for key in keys]
+    preferences.set_font_scale(1.0)
+    preferences.set_gui_scale(1.0)
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            yield
+        finally:
+            for key, present, value in saved:
+                if present:
+                    store.setValue(key, value)
+                else:
+                    store.remove(key)
+
+
 def _widget(qtbot, family="impulse_lens"):
     widget = ambient.AmbientWidget(theme=f"data_art_{family}", palette="spacr",
                                    background="#101418", fps=60, seed=42,
@@ -25,7 +47,8 @@ def _widget(qtbot, family="impulse_lens"):
     return widget
 
 
-def test_overrunning_real_shader_keeps_clock_pointer_and_clicks_moving(qtbot, monkeypatch):
+def test_overrunning_real_shader_keeps_clock_pointer_and_clicks_moving(
+        _unit_pixel_scale, qtbot, monkeypatch):
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(360, 240)

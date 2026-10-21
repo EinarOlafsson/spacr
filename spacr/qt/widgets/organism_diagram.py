@@ -554,11 +554,29 @@ class OrganismDiagram(QWidget):
             return cached[1]
         artwork_width = max(1, (width - scaled_px(10)) * 0.55)
         row = min(scaled_px(560), max(scaled_px(360), round(artwork_width * 1.25 + 24)))
-        metrics = self.caption.fontMetrics()
-        locations = {"", *self.labels.values()}
-        heights = [metrics.boundingRect(QRect(0, 0, max(1, width), 100000), Qt.TextWordWrap,
-                                       self._description_text(code)).height()
-                   for code in locations]
+        self.caption.ensurePolished()
+        probe = QLabel(self.caption)
+        try:
+            probe.hide()
+            probe.setObjectName(self.caption.objectName())
+            probe.setStyleSheet(self.caption.styleSheet())
+            probe.setFont(self.caption.font())
+            probe.setTextFormat(self.caption.textFormat())
+            probe.setWordWrap(self.caption.wordWrap())
+            probe.setAlignment(self.caption.alignment())
+            probe.setTextInteractionFlags(self.caption.textInteractionFlags())
+            probe.setFrameStyle(self.caption.frameStyle())
+            probe.setMargin(self.caption.margin())
+            probe.setIndent(self.caption.indent())
+            probe.setContentsMargins(self.caption.contentsMargins())
+            probe.ensurePolished()
+            locations = {"", *self.labels.values()}
+            heights = []
+            for code in locations:
+                probe.setText(self._description_text(code))
+                heights.append(probe.heightForWidth(max(1, width)))
+        finally:
+            probe.deleteLater()
         answer = (row, max(heights) + scaled_px(6))
         self._reserved_cache = (width, answer)
         return answer
@@ -575,8 +593,12 @@ class OrganismDiagram(QWidget):
             return
         self._layout_width = self.width()
         row, caption = self._reserved_heights(self.width())
-        self._model_row.setFixedHeight(row)
-        self.caption.setFixedHeight(caption)
+        from ..gui_scale import _set_actual_dim
+
+        _set_actual_dim(self._model_row, "minh", row)
+        _set_actual_dim(self._model_row, "maxh", row)
+        _set_actual_dim(self.caption, "minh", caption)
+        _set_actual_dim(self.caption, "maxh", caption)
         self.layout().activate()
 
     def changeEvent(self, event) -> None:

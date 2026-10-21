@@ -55,6 +55,9 @@ def prefs_sandbox(qapp, tmp_path, monkeypatch):
     ff.invalidate_field_fade()
     prefs.set_theme_choice("dark")
     prefs.set_font_scale(1.0)
+    prefs.set_gui_scale(1.0)
+    from spacr.qt import gui_scale
+    monkeypatch.setattr(gui_scale, "_SCALE", 1.0)
     yield store
     ff.uninstall_field_fade(qapp)
     ff.invalidate_field_fade()

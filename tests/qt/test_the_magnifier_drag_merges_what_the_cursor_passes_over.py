@@ -26,6 +26,8 @@ one image pixel of mouse travel is 6.25 widget pixels.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import threading
 import time
 from pathlib import Path
@@ -48,6 +50,29 @@ PIXMAP_N = 400
 MARGIN_X = (CANVAS_W - PIXMAP_N) // 2
 SCALE = PIXMAP_N / IMG_N
 SIZE = 32
+
+
+@contextmanager
+def _at_design_scale():
+    """Keep saved and active zoom local to designed-coordinate checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
 
 
 def paint(rects: dict, shape=SHAPE, dtype=np.int32) -> np.ndarray:
@@ -299,19 +324,20 @@ def fields(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def screen(qtbot, qt_theme_applied, fields: Path):
-    made = mm.MakeMasksScreen()
-    qtbot.addWidget(made)
-    assert made._open_folder(str(fields))
-    made._canvas.resize(CANVAS_W, CANVAS_H)
-    made._canvas.refresh()
-    assert made._canvas.pixmap().width() == PIXMAP_N, "geometry assumption broke"
-    made._min_area.setValue(0)
-    made._mag_size.setValue(SIZE)
-    assert QApplication.startDragDistance() > SCALE, (
-        "one image pixel of travel must stay under the drag distance")
-    yield made
-    made._magnifier.close()
-    made.close_folded()
+    with _at_design_scale():
+        made = mm.MakeMasksScreen()
+        qtbot.addWidget(made)
+        assert made._open_folder(str(fields))
+        made._canvas.resize(CANVAS_W, CANVAS_H)
+        made._canvas.refresh()
+        assert made._canvas.pixmap().width() == PIXMAP_N, "geometry assumption broke"
+        made._min_area.setValue(0)
+        made._mag_size.setValue(SIZE)
+        assert QApplication.startDragDistance() > SCALE, (
+            "one image pixel of travel must stay under the drag distance")
+        yield made
+        made._magnifier.close()
+        made.close_folded()
 
 
 def switch_on(screen, stub, save="zoom") -> None:

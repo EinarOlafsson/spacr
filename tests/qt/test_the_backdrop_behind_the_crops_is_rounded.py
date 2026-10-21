@@ -65,6 +65,28 @@ def _declared_rule(app) -> tuple:
 
 
 @pytest.fixture
+def _unit_pixel_scale(monkeypatch, _restore_font_scale):
+    """Measure this file's literal pixels at an explicit unit scale."""
+    from spacr.qt import gui_scale, preferences
+
+    store = preferences._settings()
+    keys = (preferences._KEY_FONT_SCALE, preferences._KEY_GUI_SCALE)
+    saved = [(key, store.contains(key), store.value(key, None)) for key in keys]
+    preferences.set_font_scale(1.0)
+    preferences.set_gui_scale(1.0)
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            yield
+        finally:
+            for key, present, value in saved:
+                if present:
+                    store.setValue(key, value)
+                else:
+                    store.remove(key)
+
+
+@pytest.fixture
 def annotate_screen(qtbot, qt_theme_applied, monkeypatch):
     """The screen, showing its grid page rather than the empty state."""
     from spacr.qt import ai as ai_module
@@ -81,7 +103,7 @@ def annotate_screen(qtbot, qt_theme_applied, monkeypatch):
 
 
 def test_the_backdrop_rounds_at_the_radius_the_theme_declares(
-        annotate_screen, qt_theme_applied):
+        _unit_pixel_scale, annotate_screen, qt_theme_applied):
     """The corner is the theme's ``md``, and measurably not ``sm`` or ``lg``."""
     from spacr.qt.theme import RADIUS
 

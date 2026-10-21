@@ -22,6 +22,29 @@ def qapp():
     return QApplication.instance() or QApplication([])
 
 
+@pytest.fixture
+def _geometry_at_design_scale(qapp):
+    """Keep saved and active zoom local to raw-pixel geometry checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
 def _painted_run(image, coords):
     """Return the first and last index along ``coords`` whose pixel is painted."""
     hits = [i for i, (x, y) in enumerate(coords) if QColor(image.pixel(x, y)).alpha() > 0
@@ -30,7 +53,8 @@ def _painted_run(image, coords):
 
 
 @pytest.mark.parametrize("size", [(640, 420), (920, 620)])
-def test_each_active_edge_shows_a_centred_half_length_line(qapp, size):
+def test_each_active_edge_shows_a_centred_half_length_line(
+        _geometry_at_design_scale, qapp, size):
     from spacr.qt.widgets.glass import _ResizeEdgeHint
 
     w, h = size

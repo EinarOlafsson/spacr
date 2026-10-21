@@ -30,6 +30,29 @@ N_CROPS = 400
 
 
 @pytest.fixture
+def _geometry_at_design_scale(qapp):
+    """Keep saved and active zoom local to raw-pixel geometry checks."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
+@pytest.fixture
 def many_crops(tmp_path: Path) -> Path:
     """An experiment folder with more crops than any window here fits."""
     src = tmp_path / "expt"
@@ -199,7 +222,8 @@ def test_the_first_crop_stays_when_the_page_resizes(screen, qtbot):
     assert screen._page_paths[0][0] == first
 
 
-def test_the_console_opens_inside_a_768_pixel_window(screen, qtbot):
+def test_the_console_opens_inside_a_768_pixel_window(
+        _geometry_at_design_scale, screen, qtbot):
     """The window does not grow when the console opens at 1366 x 768.
 
     The crop pane used to inherit the empty state's 321 px minimum, and the

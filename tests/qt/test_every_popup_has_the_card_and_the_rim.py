@@ -30,6 +30,28 @@ from PySide6.QtWidgets import (QApplication, QComboBox,       # noqa: E402
                                QDialog, QLabel, QVBoxLayout)
 
 
+@pytest.fixture
+def _unit_pixel_scale(monkeypatch, _restore_font_scale):
+    """Measure this file's literal pixels at an explicit unit scale."""
+    from spacr.qt import gui_scale, preferences
+
+    store = preferences._settings()
+    keys = (preferences._KEY_FONT_SCALE, preferences._KEY_GUI_SCALE)
+    saved = [(key, store.contains(key), store.value(key, None)) for key in keys]
+    preferences.set_font_scale(1.0)
+    preferences.set_gui_scale(1.0)
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            yield
+        finally:
+            for key, present, value in saved:
+                if present:
+                    store.setValue(key, value)
+                else:
+                    store.remove(key)
+
+
 @pytest.fixture(scope="module")
 def app():
     return QApplication.instance() or QApplication([])
@@ -219,7 +241,7 @@ def test_the_containers_are_cleared_but_the_controls_are_not(glassed):
         dialog.deleteLater()
 
 
-def test_the_rim_has_room_to_be_seen(glassed):
+def test_the_rim_has_room_to_be_seen(_unit_pixel_scale, glassed):
     """A dialog's contents run to its edges, so without this the card's
     border is under a tab bar or a button and the light travels behind
     them."""

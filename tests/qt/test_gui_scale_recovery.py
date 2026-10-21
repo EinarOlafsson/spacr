@@ -66,6 +66,7 @@ def test_a_failed_window_refresh_does_not_stop_other_windows(qtbot):
 
 
 def test_closing_scale_question_restores_settings_even_if_callback_fails(qtbot, qt_theme_applied):
+    previous = (prefs.get_gui_scale(), prefs.get_font_scale())
     answers, destroyed = [], []
 
     def notify(kept):
@@ -78,9 +79,9 @@ def test_closing_scale_question_restores_settings_even_if_callback_fails(qtbot, 
     dialog.close()
     qtbot.waitUntil(lambda: bool(destroyed))
     assert answers == [False]
-    assert prefs.get_gui_scale() == pytest.approx(1.0)
-    assert prefs.get_font_scale() == pytest.approx(1.0)
-    assert gui_scale.current_scale() == pytest.approx(1.0)
+    assert prefs.get_gui_scale() == pytest.approx(previous[0])
+    assert prefs.get_font_scale() == pytest.approx(previous[1])
+    assert gui_scale.current_scale() == pytest.approx(previous[0])
 
 
 @pytest.mark.parametrize("keep", [False, True])
