@@ -7255,10 +7255,8 @@ class MainWindow(QMainWindow):
             QTimer.singleShot(int(_DATA_LIBRARIES_AFTER_S * 1000),
                               _import_the_data_libraries_off_the_gui_thread)
         if built_now and key in _ENTRY_PRELOADED_FOR:
-            from PySide6.QtCore import QTimer
-
-            QTimer.singleShot(int(_ENTRY_PRELOAD_AFTER_S * 1000),
-                              lambda k=key: _preload_the_pipeline_entry(k))
+            _after(int(_ENTRY_PRELOAD_AFTER_S * 1000), self,
+                   lambda k=key: _preload_the_pipeline_entry(k))
         if key in self._visit_order:
             self._visit_order.remove(key)
         self._visit_order.append(key)
