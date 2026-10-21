@@ -1,0 +1,51 @@
+================================================================================
+AUDIT DEPENDENCY BOUNDS AND MODERNIZE DEFAULT DEPENDENCIES
+================================================================================
+
+Status:    IN PROGRESS 2026-10-21 — dependency audit and isolated latest-version trials
+Requested: maintainer, 2026-10-21
+Priority:  P1
+Owner:     Codex dependency audit worker — end-to-end implementation and validation; root — integration/publication
+
+SCOPE
+Audit every dependency declared by setup.py, including extras and environment
+markers, against its current stable releases and actual spaCR compatibility.
+Prioritize modern dependencies and Python 3.10 and newer. Python 3.9 support
+is not required; broad compatibility with old dependency releases is not a
+priority. Do not spend the task extending support for obsolete environments.
+
+Use authoritative package metadata to establish current versions, Python and
+platform support, and dependency constraints. Attempt an isolated spaCR install
+with the newest stable dependency versions together. Diagnose concrete resolver,
+import and behavior failures; fix spaCR compatibility where practical before
+retaining a restriction or stepping back a dependency. A successful resolver
+alone does not establish scientific/runtime compatibility.
+
+Review each existing lower and upper bound. Remove unnecessary upper caps or
+raise them when actual tests justify it. Keep necessary floors and caps with a
+specific compatibility reason. Where the newest dependency does not support
+Python 3.10, use valid interpreter markers or compatible resolution without
+sacrificing Python 3.10 merely to claim a newest-version installation.
+
+Review every optional dependency. Promote it to the normal installation when
+it does not restrict supported Python versions or compatible core dependencies
+such as Cellpose, NumPy, pandas and PyTorch. Keep optional packages whose actual
+constraints conflict, and document the concrete reason rather than habit.
+
+ACCEPTANCE
+- Every setup.py dependency and extra is accounted for, with current authoritative
+  release/Requires-Python/constraint information and an explicit bounds decision.
+- A real clean latest-first installation is exercised with imports and the
+  smallest meaningful owning behavior tests; concrete failures are fixed or
+  justify the exact retained downgrade/cap. Never weaken tests to permit upgrades.
+- Python 3.10 remains supported and newer supported stable interpreters are
+  checked with available real environments/CI. State actual tested versions and
+  platform gaps; do not claim unexecuted Windows/macOS/GPU acceptance.
+- Optional-to-default promotions are actually resolved and tested together with
+  core dependencies. Packaging metadata, relevant installer/CI/recipe consumers
+  and normal generated outputs remain consistent with the final declarations.
+- Changes run in disposable environments/worktrees; preserve host installations,
+  other sessions and GPU restrictions. Commit descriptive changes and publish to
+  nightly once the integrated result passes its relevant checks.
+
+2026-10-21 — Registered before implementation. Reuse the existing Windows integration worker as the sole dependency-audit worker; retain its earlier blocked cleanup ownership and context. Root and the release coordinator coordinate setup.py changes with the active release preparation.
