@@ -22,6 +22,7 @@ from __future__ import annotations
 import math
 from typing import Dict, Optional
 from .. import _after
+from ..gui_scale import _set_actual_dim
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import (
@@ -270,7 +271,9 @@ class HintBar(QLabel):
         inner.addWidget(self._view)
         self._view.setAccessibleName(default)
         self._view.setPlainText(default)
-        self.setFixedHeight(self._minimum_help_height())
+        height = self._minimum_help_height()
+        _set_actual_dim(self, "minh", height)
+        _set_actual_dim(self, "maxh", height)
 
     def _minimum_help_height(self) -> int:
         """Leave four painted text rows and the resize edge visible."""
@@ -314,7 +317,9 @@ class HintBar(QLabel):
     def _set_manual_height(self, height: int) -> None:
         """Bound a drag by actual space above the footer."""
         wanted = max(self._minimum_help_height(), int(height))
-        self.setFixedHeight(min(wanted, self._maximum_help_height()))
+        bounded = min(wanted, self._maximum_help_height())
+        _set_actual_dim(self, "minh", bounded)
+        _set_actual_dim(self, "maxh", bounded)
         self._manual_height = self.height()
 
     def showEvent(self, event) -> None:
@@ -324,8 +329,9 @@ class HintBar(QLabel):
         """
         super().showEvent(event)
         self._sync_help_font()
-        self.setFixedHeight(max(self._minimum_help_height(),
-                                self._manual_height or 0))
+        height = max(self._minimum_help_height(), self._manual_height or 0)
+        _set_actual_dim(self, "minh", height)
+        _set_actual_dim(self, "maxh", height)
         if self._manual_height is not None:
             _after(0, self, lambda: self._set_manual_height(
                 self._manual_height) if self.isVisible() else None)
@@ -355,8 +361,10 @@ class HintBar(QLabel):
         if event.type() in (QEvent.FontChange, QEvent.ApplicationFontChange,
                             QEvent.StyleChange):
             self._sync_help_font()
-            self.setFixedHeight(max(self._minimum_help_height(),
-                                    getattr(self, "_manual_height", None) or 0))
+            height = max(self._minimum_help_height(),
+                         getattr(self, "_manual_height", None) or 0)
+            _set_actual_dim(self, "minh", height)
+            _set_actual_dim(self, "maxh", height)
 
     def _sync_help_font(self) -> None:
         """Paint the help at the strip's font size despite inherited editor rules."""

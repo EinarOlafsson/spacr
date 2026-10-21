@@ -290,3 +290,62 @@ def test_nothing_in_preferences_pops_a_floating_tooltip(qtbot):
 
     # And the help was MOVED, not merely deleted.
     assert len(getattr(bar, "_hints", {})) > 100
+
+
+@pytest.mark.parametrize("scale", (0.75, 1.25))
+def test_measured_help_heights_fit_and_persist_at_nondefault_zoom(
+        qtbot, qt_theme_applied, monkeypatch, scale):
+    from spacr.qt import gui_scale
+
+    settings = P._settings()
+    keys = ("prefs/gui_scale", "prefs/font_scale", P._KEY_PREFERENCES_HELP_HEIGHT)
+    previous = {key: settings.value(key) for key in keys if settings.contains(key)}
+    gui_scale.install_scaling_layer()
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", scale)
+        try:
+            P.set_gui_scale(scale)
+            P.set_font_scale(1.0)
+            settings.remove(P._KEY_PREFERENCES_HELP_HEIGHT)
+            dlg = P.PreferencesDialog(None)
+            qtbot.addWidget(dlg)
+            dlg.show()
+            QApplication.processEvents()
+            bar = dlg.findChild(HintBar)
+            view = bar.findChild(QTextEdit, "HintBarText")
+            bar.setText("First line.\nSecond line.\nThird line.\nFourth line.")
+            QApplication.processEvents()
+            assert bar.height() == bar._minimum_help_height()
+            assert view.verticalScrollBar().maximum() == 0
+
+            original_font = bar.font()
+            larger = bar.font()
+            larger.setPointSize(larger.pointSize() + 3)
+            bar.setFont(larger)
+            QApplication.processEvents()
+            assert bar.height() == bar._minimum_help_height()
+            assert view.verticalScrollBar().maximum() == 0
+            bar.setFont(original_font)
+            QApplication.processEvents()
+
+            target = bar.height() + 20
+            bar._set_manual_height(target)
+            QApplication.processEvents()
+            assert bar.height() == bar._manual_height == target
+            bar.helpHeightCommitted.emit(bar.height())
+            assert int(settings.value(P._KEY_PREFERENCES_HELP_HEIGHT)) == target
+            dlg.close()
+            reopened = P.PreferencesDialog(None)
+            qtbot.addWidget(reopened)
+            reopened.show()
+            QApplication.processEvents()
+            restored = reopened.findChild(HintBar)
+            assert restored.height() == target
+            assert restored._manual_height == target
+            reopened.close()
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)

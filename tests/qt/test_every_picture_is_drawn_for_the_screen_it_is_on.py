@@ -15,7 +15,8 @@ headline numbers come from a REAL Qt process running at a REAL ratio:
 :data:`_BATTERY` is executed twice under ``QT_SCALE_FACTOR=1`` and
 ``QT_SCALE_FACTOR=2``, builds the actual :class:`~spacr.qt.widgets.home.HomePage`,
 the actual mask canvas, the actual figure strip, and reports what is on the
-widgets. Nothing in that subprocess is patched.
+widgets. Its preferences use a disposable store with explicit 100 % font
+and GUI scales; widget rendering and device-ratio handling are not patched.
 
 The two ratios answer the two halves of the claim: at 2 the pictures carry
 twice the pixels and still occupy the same space, and at 1 every number is
@@ -68,14 +69,22 @@ QT_ROOT = Path(__file__).resolve().parents[2] / "spacr" / "qt"
 
 _BATTERY = r'''
 import json
+import tempfile
 
 import numpy as np
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication, QLabel
 
 app = QApplication([])
+from spacr.qt import preferences
 from spacr.qt.hidpi import device_ratio, logical_size
+
+_preferences_home = tempfile.TemporaryDirectory(prefix="spacr-hidpi-preferences-")
+_preferences_store = QSettings(_preferences_home.name + "/qt.ini", QSettings.IniFormat)
+preferences._settings = lambda: _preferences_store
+preferences.set_font_scale(1.0)
+preferences.set_gui_scale(1.0)
 
 
 def lg(pixmap):

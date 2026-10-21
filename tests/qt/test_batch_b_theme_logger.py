@@ -69,6 +69,8 @@ class TestScaledPx:
         """The main-window sidebar should widen when font scale is
         150 % so labels don't get clipped."""
         self._fake_settings(monkeypatch, 1.5)
+        from spacr.qt import gui_scale
+        monkeypatch.setattr(gui_scale, "_SCALE", 1.0)
         from spacr.qt.app import Sidebar
         bar = Sidebar()
         qtbot.addWidget(bar)
