@@ -36,6 +36,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from packaging.markers import default_environment
 from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 from packaging.version import Version
@@ -111,9 +112,15 @@ def _declared() -> dict[str, Requirement]:
     selected = list(core)
     for extra in FLOOR_EXTRAS:
         selected.extend(extras[extra])
+    environment = default_environment()
+    environment.update(python_version="3.9", python_full_version="3.9.25",
+                       sys_platform="linux", platform_system="Linux",
+                       platform_machine="x86_64")
     declared: dict[str, Requirement] = {}
     for value in selected:
         requirement = Requirement(value)
+        if requirement.marker and not requirement.marker.evaluate(environment):
+            continue
         declared.setdefault(canonicalize_name(requirement.name), requirement)
     return declared
 

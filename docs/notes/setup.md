@@ -5,6 +5,225 @@ The module itself carries no comments now, so this file is where its reasons liv
 
 Entries are grouped by the function or class they sat in and carry the line they came from. Line numbers are from the state of the module when the notes were taken, so they drift; the quoted code line is the durable anchor.
 
+## Current dependency decisions (2026-10-21)
+
+This section supersedes the historical bounds and optional-package decisions below.
+All 127 unique distributions declared in `setup.py` were checked against official
+PyPI release JSON, including every extra and interpreter marker. The linked
+release metadata supplies `Requires-Python`, `Requires-Dist` and wheel filenames.
+“3.10 latest” means interpreter-compatible release metadata, not a promise that
+all such releases resolve together. Dependencies shared by extras are listed once;
+the roles column accounts for every named extra. Named extras for promoted
+features remain aliases. Development/build/test tools remain in `dev`.
+
+The policy remains newest compatible versions, with the existing lower bounds
+preserved as API/minimum-profile promises. A next-major or next-minor API-family
+guard is retained when it admits the current stable release; it is not evidence
+that an unpublished release fails. Every guard blocking a published stable
+release was widened and exercised, except the concrete exclusions below.
+Unbounded packages remain unbounded. No lockfile or duplicate transitive caps were
+added. The existing Python 3.9 metadata/minimum job is untouched; qualification
+in this audit targets Python 3.10 and newer.
+
+Clean Linux CPU installations exercised CPython 3.10.22, 3.12.14 and 3.14.7.
+The exact latest-all trial exposed RAPIDS/Numba, DINOCell pins, Lifelines/pandas,
+and OMERO/Ice build conflicts. A second joint solve let GPyTorch select mpmath
+1.3.0 and aiobotocore select botocore without imposing project caps. Thirty-eight
+compatible runtime feature distributions are now default dependencies on their
+qualified interpreters. Their default set resolves together with NumPy 2,
+current Cellpose and CPU Torch. Python 3.10 resolves older releases using upstream
+`Requires-Python` and joint constraints, including Ultrack 0.6.3/VisPy 0.16.2/Zarr
+2.18.3; this is preferable to dropping Python 3.10.
+
+Native Windows/macOS, microscope/OMERO/cloud credentials, speech models and GPU
+execution were not exercised. Existing CI owns those native platform runs.
+CPU installers still select CPU Torch before installing the package; newly
+promoted features add no CUDA backend. CUDA-feature, DirectML and incompatible
+Intel-extension packages remain explicit extras. The already-core full XGBoost
+wheel carries NCCL on Linux; retaining it preserves existing GPU algorithms.
+This audit executes only CPU inference and never initializes CUDA.
+Full OpenCV and its dependents remain optional because [OpenCV documents a
+single cv2 distribution per environment](https://pypi.org/project/opencv-python-headless/).
+The [Intel extension retirement guidance](https://intel.github.io/intel-extension-for-pytorch/latest/)
+recommends standard Torch. Qt's precise 6.12.0 exclusion preserves the earlier
+Python 3.10 fatal painter reproduction (commit `621bf7433fb3`), despite small
+newer-interpreter tests passing that release.
+
+| Distribution / official metadata | Latest stable | Requires-Python | 3.10 latest | Declaration roles | Bounds decision |
+| --- | --- | --- | --- | --- | --- |
+| [adjustText](https://pypi.org/pypi/adjustText/json) | 1.4.0 | `unspecified` | 1.4.0 | default | `<2.0,>=1.2.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [adlfs](https://pypi.org/pypi/adlfs/json) | 2026.8.0 | `>=3.10` | 2026.8.0 | default, cloud | `>=2023.1`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [aiohttp](https://pypi.org/pypi/aiohttp/json) | 3.14.5 | `>=3.10` | 3.14.5 | default, cloud | `<4,>=3.8`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [anndata](https://pypi.org/pypi/anndata/json) | 0.13.4 | `>=3.12` | 0.11.4 | default, all, anndata | `<0.14,>=0.10`. Promote; raise minor-family cap to <0.14 after 0.13 export/HDF5 round-trips with pandas 3. |
+| [biopython](https://pypi.org/pypi/biopython/json) | 1.88 | `>=3.10` | 1.88 | default | `<2.0,>=1.80`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [botocore](https://pypi.org/pypi/botocore/json) | 1.43.116 | `>=3.10` | 1.43.116 | default, cloud | `<2,>=1.29`. Promote; keep broad <2; aiobotocore/s3fs select compatible botocore. No duplicate spaCR pin. |
+| [bottleneck](https://pypi.org/pypi/bottleneck/json) | 1.6.0 | `>=3.10` | 1.6.0 | default | `<2.0,>=1.3.6`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [btrack](https://pypi.org/pypi/btrack/json) | 0.7.0 | `>=3.9` | 0.7.0 | default, all, btrack | `<1.0,>=0.7.0`. Promote; on Mac Python 3.14 require Darwin >=24 (macOS 15): transitive CVXOPT has no older-system cp314 wheel. Other default platforms/interpreters unchanged. |
+| [captum](https://pypi.org/pypi/captum/json) | 0.9.0 | `>=3.10` | 0.9.0 | default | `<1.0,>=0.7.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [catboost](https://pypi.org/pypi/catboost/json) | 1.2.10 | `unspecified` | 1.2.10 | default, all, boosting | `<2.0,>=1.2`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [cellpose](https://pypi.org/pypi/cellpose/json) | 4.2.1.1 | `unspecified` | 4.2.1.1 | default | `<5.0,>=4.0.7`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [cloudpickle](https://pypi.org/pypi/cloudpickle/json) | 3.1.2 | `>=3.8` | 3.1.2 | default | `<4,>=3.1.2`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [cucim-cu12](https://pypi.org/pypi/cucim-cu12/json) | 26.10.0 | `>=3.11` | 26.2.1 | gpu | `>=24.0`. Keep CUDA extra: CUDA 12 native stack; RAPIDS 26.10 also requires Numba <0.65, conflicting with newest 0.68. |
+| [cuml-cu12](https://pypi.org/pypi/cuml-cu12/json) | 26.10.0 | `>=3.11` | 26.2.0 | rapids | `>=25.2`. Keep CUDA extra: CUDA 12 native stack; RAPIDS 26.10 requires Numba <0.65, conflicting with newest 0.68. |
+| [cupy-cuda12x](https://pypi.org/pypi/cupy-cuda12x/json) | 14.2.0 | `>=3.10` | 14.2.0 | gpu, rapids | `>=13.0`. Keep CUDA extra: CUDA 12 runtime required; excluded from the CPU installation. |
+| [cycler](https://pypi.org/pypi/cycler/json) | 0.12.1 | `>=3.8` | 0.12.1 | default | `<1,>=0.10`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [czifile](https://pypi.org/pypi/czifile/json) | 2026.10.14 | `>=3.12` | 2019.7.2.2 | default, all, czi | `unbounded`. Remain unbounded; upstream Python/dependency metadata selects compatible stable. |
+| [dinocell](https://pypi.org/pypi/dinocell/json) | 0.74 | `unspecified` | 0.74 | dinocell | `<1.0,>=0.74`. Keep extra: exact Cellpose 4.0.9 / NumPy 2.4.3 / Torch 2.10.0 / Hub 1.7.1 pins contradict newest core. |
+| [docutils](https://pypi.org/pypi/docutils/json) | 0.23 | `>=3.9` | 0.23 | dev | `<0.24,>=0.20.1`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [duckdb](https://pypi.org/pypi/duckdb/json) | 2.0.0 | `>=3.11.0` | 1.5.6 | default, databases | `<3,>=1.1`. Promote; raise API-family guard to <3 after DuckDB 2 Parquet/backend comparisons. |
+| [faiss-cpu](https://pypi.org/pypi/faiss-cpu/json) | 1.15.1 | `>=3.10` | 1.15.1 | default, search | `<2,>=1.7.4`. Promote; on Mac Python 3.14 require Darwin >=23 (macOS 14), matching available cp314 wheel deployment tags. Other default platforms/interpreters unchanged. |
+| [fastremap](https://pypi.org/pypi/fastremap/json) | 1.21.0 | `<4.0,>=3.9` | 1.21.0 | default | `>=1.14.1`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [fsspec](https://pypi.org/pypi/fsspec/json) | 2026.9.0 | `>=3.10` | 2026.9.0 | default, cloud | `>=2023.1`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [gcsfs](https://pypi.org/pypi/gcsfs/json) | 2026.10.1 | `>=3.10` | 2026.10.1 | default, cloud | `>=2023.1`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [glum](https://pypi.org/pypi/glum/json) | 3.4.1 | `>=3.10` | 3.4.1 | default, glum | `<4,>=3.1.2`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [gputil](https://pypi.org/pypi/gputil/json) | 1.4.0 | `unspecified` | 1.4.0 | default | `<2.0,>=1.4.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [gpytorch](https://pypi.org/pypi/gpytorch/json) | 1.15.2 | `>=3.10` | 1.15.2 | default, gpytorch | `<2,>=1.11`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [huggingface-hub](https://pypi.org/pypi/huggingface-hub/json) | 2.2.0 | `>=3.10.0` | 2.2.0 | default | `<3,>=0.25`. Raise cap to <3; saved login now uses supported get_token API; real saved-file regression passes with Hub 2.2. |
+| [hypothesis](https://pypi.org/pypi/hypothesis/json) | 6.170.5 | `>=3.11` | 6.168.5 | dev | `<7,>=6.100`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [imageio](https://pypi.org/pypi/imageio/json) | 2.38.1 | `>=3.11` | 2.38.0 | default | `<3.0,>=2.34.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [intel-extension-for-pytorch](https://pypi.org/pypi/intel-extension-for-pytorch/json) | 2.8.0 | `unspecified` | 2.8.0 | intel-gpu | `>=2.1`. Keep vendor extra: 2.8 extension ABI targets Torch 2.8, not tested CPU Torch 2.14.1; upstream recommends plain Torch. |
+| [IPython](https://pypi.org/pypi/IPython/json) | 9.17.1 | `>=3.11` | 8.39.0 | default | `<10,>=8.18.1`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [ipywidgets](https://pypi.org/pypi/ipywidgets/json) | 8.1.9 | `>=3.7` | 8.1.9 | default | `<9.0,>=8.1.2`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [jax](https://pypi.org/pypi/jax/json) | 0.12.0 | `>=3.12` | 0.6.2 | default, numpyro | `<1.0,>=0.4`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [joblib](https://pypi.org/pypi/joblib/json) | 1.6.0 | `>=3.10` | 1.6.0 | default | `<2.0,>=1.2`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [keyring](https://pypi.org/pypi/keyring/json) | 25.7.0 | `>=3.9` | 25.7.0 | default, notify | `<27,>=23.0`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [lifelines](https://pypi.org/pypi/lifelines/json) | 0.30.3 | `>=3.11` | 0.30.0 | survival | `<1,>=0.27`. Keep extra: latest pandas <3 requirement contradicts default pandas 3; do not downgrade core. |
+| [liffile](https://pypi.org/pypi/liffile/json) | 2026.10.14 | `>=3.12` | 2025.5.10 | default, vendor-watch | `>=2025.1.25`. Promote Python >=3.10 using upstream interpreter filtering: 2025.5.10 on 3.10, current on >=3.12. |
+| [lightgbm](https://pypi.org/pypi/lightgbm/json) | 4.7.0 | `>=3.10` | 4.7.0 | default, all, boosting | `<5.0,>=4.0`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [llvmlite](https://pypi.org/pypi/llvmlite/json) | 0.50.0 | `>=3.10` | 0.50.0 | default | `<0.46,>=0.43` / `<1.0,>=0.43`. Retain Intel Mac <0.46: 0.46+ has no macOS x86_64 wheel; normal profile admits 0.50. |
+| [lxml](https://pypi.org/pypi/lxml/json) | 6.1.3 | `>=3.8` | 6.1.3 | default | `>=5.1.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [mahotas](https://pypi.org/pypi/mahotas/json) | 1.4.19 | `>=3.10` | 1.4.19 | default, all, zernike | `<2.0,>=1.4.13` / `<2.0,>=1.4.19`. Promote >=1.4.19: new cp313/cp314 wheels remove the old marker; real Zernike calculation verified. |
+| [markdown-it-py](https://pypi.org/pypi/markdown-it-py/json) | 4.2.0 | `>=3.10` | 4.2.0 | dev | `<5,>=2.2`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [matplotlib](https://pypi.org/pypi/matplotlib/json) | 3.11.2 | `>=3.11` | 3.10.9 | default | `<4.0,>=3.8.3`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [matplotlib_venn](https://pypi.org/pypi/matplotlib_venn/json) | 1.1.2 | `unspecified` | 1.1.2 | default | `<2.0,>=1.1`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [moderngl](https://pypi.org/pypi/moderngl/json) | 5.13.0 | `>=3.7` | 5.13.0 | default, flow-gpu | `<6,>=5.12`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [mpmath](https://pypi.org/pypi/mpmath/json) | 1.4.1 | `>=3.9` | 1.4.1 | default | `<2,>=1.3`. Keep broad <2; GPyTorch itself selects <=1.3.0. No duplicate spaCR cap. |
+| [mrcfile](https://pypi.org/pypi/mrcfile/json) | 1.5.4 | `unspecified` | 1.5.4 | default, all, tem | `<2,>=1.5`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [mypy](https://pypi.org/pypi/mypy/json) | 2.4.0 | `>=3.10` | 2.4.0 | dev | `<3,>=1.11`. Keep dev; raise API-family guard to <3 to admit current 2.x. |
+| [napari](https://pypi.org/pypi/napari/json) | 0.9.2 | `>=3.11` | 0.7.1 | default, napari | `<1.0,>=0.5`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [natsort](https://pypi.org/pypi/natsort/json) | 8.4.0 | `>=3.7` | 8.4.0 | default | `<9.0,>=8.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [nd2](https://pypi.org/pypi/nd2/json) | 0.12.0 | `>=3.10` | 0.12.0 | default, vendor-watch | `<1,>=0.10`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [nd2reader](https://pypi.org/pypi/nd2reader/json) | 3.3.1 | `>=3.6` | 3.3.1 | default, all, nd2 | `<4.0,>=3.3.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [numba](https://pypi.org/pypi/numba/json) | 0.68.0 | `>=3.10` | 0.68.0 | default | `<0.63,>=0.60` / `<1.0,>=0.60`. Retain Intel Mac <0.63 wheel boundary; normal profile admits 0.68. |
+| [numcodecs](https://pypi.org/pypi/numcodecs/json) | 0.17.1 | `>=3.12` | 0.13.1 | default, zarr | `<1,>=0.12`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [numexpr](https://pypi.org/pypi/numexpr/json) | 2.14.2 | `>=3.11` | 2.14.1 | default | `<3.0,>=2.8.4`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [numpy](https://pypi.org/pypi/numpy/json) | 2.5.4 | `>=3.12` | 2.2.6 | default | `<2.0,>=1.26.4` / `<3.0,>=1.26.4`. Retain <3 API-family guard; Intel Mac <2 below Python 3.13 is coupled to available Torch/OpenCV wheels. Latest 2.5.4 exercised. |
+| [numpyro](https://pypi.org/pypi/numpyro/json) | 0.22.0 | `>=3.11` | 0.20.0 | default, numpyro | `<1.0,>=0.13`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [nvidia-ml-py](https://pypi.org/pypi/nvidia-ml-py/json) | 13.615.71 | `unspecified` | 13.615.71 | default | `<14,>=11.450.51`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [omero-py](https://pypi.org/pypi/omero-py/json) | 5.23.0 | `>=3.10` | 5.23.0 | omero | `<6,>=5.17`. Keep extra: ZeroC Ice <3.7 builds fail on CPython 3.12 (removed eval.h); not an installable modern default. |
+| [opencv-python](https://pypi.org/pypi/opencv-python/json) | 5.0.0.93 | `>=3.6` | 5.0.0.93 | full | `unbounded`. Keep alternate full extra: owns the same cv2 files as core headless OpenCV; upstream forbids co-installation. |
+| [opencv-python-headless](https://pypi.org/pypi/opencv-python-headless/json) | 5.0.0.93 | `>=3.6` | 5.0.0.93 | default, headless | `<4.12,>=4.9.0.80` / `<6.0,>=4.9.0.80`. Raise normal cap to <6 after OpenCV 5 imports/behavior; retain Intel Mac <4.12 to avoid NumPy 2-only wheel dependency. |
+| [openpyxl](https://pypi.org/pypi/openpyxl/json) | 3.1.5 | `>=3.8` | 3.1.5 | default | `<4.0,>=3.1`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [packaging](https://pypi.org/pypi/packaging/json) | 26.3 | `>=3.9` | 26.3 | default | `>=21.3`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [pandas](https://pypi.org/pypi/pandas/json) | 3.0.6 | `>=3.11` | 2.3.3 | default | `<4.0,>=2.2.1`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [paramiko](https://pypi.org/pypi/paramiko/json) | 5.1.0 | `>=3.9` | 5.1.0 | default | `<6,>=3.5`. Raise API-family guard to <6; 5.1 imports in clean modern default. |
+| [patsy](https://pypi.org/pypi/patsy/json) | 1.0.3 | `>=3.6` | 1.0.3 | default | `<2.0,>=0.5.6`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [pdfplumber](https://pypi.org/pypi/pdfplumber/json) | 0.11.10 | `>=3.8` | 0.11.10 | default, papers | `<1,>=0.11`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [pillow](https://pypi.org/pypi/pillow/json) | 13.0.0 | `>=3.11` | 12.3.0 | default | `<14,>=10.2.0`. Raise API-family guard to <14 after 13.0 imports and image/attribution behavior. |
+| [pingouin](https://pypi.org/pypi/pingouin/json) | 0.7.0 | `>=3.11` | 0.6.1 | dev | `<2.0,>=0.5.5`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [piper-tts](https://pypi.org/pypi/piper-tts/json) | 1.8.0 | `>=3.9` | 1.8.0 | default, all, tutorial | `<2,>=1.2`. Promote; retain Intel Mac Python 3.14 exclusion. Mac arm64 Python 3.14 requires Darwin >=23 (macOS 14) for ONNX Runtime wheels. Import checked without synthesis/model download. |
+| [protobuf](https://pypi.org/pypi/protobuf/json) | 7.36.2 | `>=3.10` | 7.36.2 | default | `>=5.28.3`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [psutil](https://pypi.org/pypi/psutil/json) | 7.2.2 | `>=3.6` | 7.2.2 | default | `<8,>=5.9.8`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [psycopg](https://pypi.org/pypi/psycopg/json) | 3.3.6 | `>=3.10` | 3.3.6 | default, databases | `<4,>=3.1`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [pyarrow](https://pypi.org/pypi/pyarrow/json) | 26.0.0 | `>=3.11` | 25.0.1 | default, dev | `<27,>=14.0.2`. Promote runtime Parquet backend from dev; raise guard to <27 after PyArrow 26 Parquet round-trips. |
+| [pycromanager](https://pypi.org/pypi/pycromanager/json) | 1.0.2 | `>=3.6` | 1.0.2 | default, microscope | `<2,>=0.28`. Promote; raise API-family guard to <2; installed 1.0 adapter imports without requiring microscope connection. |
+| [pyfixest](https://pypi.org/pypi/pyfixest/json) | 0.60.0 | `>=3.10` | 0.60.0 | default, pyfixest | `<1,>=0.40.1`. Retain bounds; exclude default only on Mac Python 3.10 because no compatible Mac cp310 wheel exists at or above the API floor. Keep the optional compiler-install alias. |
+| [pylibCZIrw](https://pypi.org/pypi/pylibCZIrw/json) | 6.1.0 | `<3.15,>=3.9` | 6.1.0 | default, all, czi | `<7.0,>=5.0.0`. Promote below Python 3.14 except Intel Mac: no cp314 or macOS x86_64 wheels in 6.1 release. |
+| [pymc](https://pypi.org/pypi/pymc/json) | 6.3.2 | `>=3.12` | 5.26.0 | default, pymc | `<7,>=5.10`. Promote; raise API-family guard to <7 after PyMC 6 compiled normal log-density check; compatible 5.x resolves on Python 3.10. |
+| [PyOpenGL](https://pypi.org/pypi/PyOpenGL/json) | 3.1.10 | `unspecified` | 3.1.10 | default | `<4,>=3.1.7`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [pypdf](https://pypi.org/pypi/pypdf/json) | 6.21.2 | `>=3.9` | 6.21.2 | default | `<7.0,>=6.16.1`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [pypdfium2](https://pypi.org/pypi/pypdfium2/json) | 5.14.0 | `>=3.6` | 5.14.0 | dev | `<6,>=5.13.0`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [pyqtgraph](https://pypi.org/pypi/pyqtgraph/json) | 0.14.0 | `>=3.10` | 0.14.0 | default, all, qt | `<1,>=0.13.3`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [PySide6](https://pypi.org/pypi/PySide6/json) | 6.12.0 | `<3.16,>=3.10` | 6.12.0 | default, all, flowview, qt, tutorial | `!=6.12.0,<7,>=6.6`. Retain only !=6.12.0 and <7: Python 3.10 painter fatal reference-loss reproduction; 10,000-frame 6.11.2 control passes. 6.12.1 remains allowed. |
+| [pytest](https://pypi.org/pypi/pytest/json) | 9.1.1 | `>=3.10` | 9.1.1 | dev | `<10,>=8.0`. Keep dev; raise API-family guard to <10 after pytest 9 runs. |
+| [pytest-qt](https://pypi.org/pypi/pytest-qt/json) | 4.5.0 | `>=3.9` | 4.5.0 | dev | `<5,>=4.4`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [pytest-xdist](https://pypi.org/pypi/pytest-xdist/json) | 3.8.0 | `>=3.9` | 3.8.0 | dev | `<4,>=3.6.1`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [PyWavelets](https://pypi.org/pypi/PyWavelets/json) | 1.10.0 | `>=3.12` | 1.8.0 | default | `<2,>=1.4`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [qtawesome](https://pypi.org/pypi/qtawesome/json) | 1.4.2 | `>=3.7` | 1.4.2 | default, all, qt, tutorial | `<2,>=1.3`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [rapidocr-onnxruntime](https://pypi.org/pypi/rapidocr-onnxruntime/json) | 1.4.4 | `<3.13,>=3.6` | 1.4.4 | papers | `<2,>=1.3`. Keep extra: requires full opencv-python; additionally latest supports Python <3.13. |
+| [rdkit](https://pypi.org/pypi/rdkit/json) | 2026.9.1 | `unspecified` | 2026.9.1 | default, chem | `>=2023.3`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [readlif](https://pypi.org/pypi/readlif/json) | 0.6.6 | `<4.0,>=3.9` | 0.6.6 | default, all, lif | `unbounded`. Remain unbounded; upstream Python/dependency metadata selects compatible stable. |
+| [readme-renderer](https://pypi.org/pypi/readme-renderer/json) | 46.0 | `>=3.10` | 46.0 | dev | `<47,>=43`. Keep dev; raise guard to <47 to admit current 46. |
+| [requests](https://pypi.org/pypi/requests/json) | 2.34.2 | `>=3.10` | 2.34.2 | default | `<3.0,>=2.28`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [ruff](https://pypi.org/pypi/ruff/json) | 0.17.1 | `>=3.7` | 0.17.1 | dev | `<1,>=0.9`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [s3fs](https://pypi.org/pypi/s3fs/json) | 2026.9.0 | `>=3.10` | 2026.9.0 | default, cloud | `>=2023.1`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [samcell](https://pypi.org/pypi/samcell/json) | 1.2.0 | `>=3.8` | 1.2.0 | default, samcell | `<2.0,>=1.2`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [scikit-image](https://pypi.org/pypi/scikit-image/json) | 0.26.0 | `>=3.11` | 0.25.2 | default | `<0.28,>=0.22.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [scikit-learn](https://pypi.org/pypi/scikit-learn/json) | 1.9.1 | `>=3.11` | 1.7.2 | default | `<2.0,>=1.5.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [scikit-posthocs](https://pypi.org/pypi/scikit-posthocs/json) | 0.17.1 | `>=3.9` | 0.17.1 | default | `<0.20,>=0.10.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [scipy](https://pypi.org/pypi/scipy/json) | 1.18.1 | `>=3.12` | 1.15.3 | default | `<2.0,>=1.12.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [seaborn](https://pypi.org/pypi/seaborn/json) | 0.13.2 | `>=3.8` | 0.13.2 | default | `<1.0,>=0.13.2`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [shap](https://pypi.org/pypi/shap/json) | 0.54.1 | `>=3.12` | 0.49.1 | default | `<1.0,>=0.47.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [statsmodels](https://pypi.org/pypi/statsmodels/json) | 0.15.0 | `>=3.10` | 0.15.0 | default | `<0.16,>=0.14.0`. Raise minor-family cap to <0.16 after actual 0.15 OLS/WLS and alternate-backend numeric comparisons. |
+| [tables](https://pypi.org/pypi/tables/json) | 3.11.1 | `>=3.11` | 3.10.1 | default | `<4.0,>=3.8.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [tensorboard](https://pypi.org/pypi/tensorboard/json) | 2.21.0 | `>=3.9` | 2.21.0 | default | `<3.0,>=2.21`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [threadpoolctl](https://pypi.org/pypi/threadpoolctl/json) | 3.7.0 | `>=3.9` | 3.7.0 | default, sweep | `<4,>=3.0`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [tifffile](https://pypi.org/pypi/tifffile/json) | 2026.10.15 | `>=3.12` | 2025.5.10 | default | `>=2023.4.12`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [timm](https://pypi.org/pypi/timm/json) | 1.0.30 | `>=3.8` | 1.0.30 | default, embeddings | `<2.0,>=0.9`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [tomli](https://pypi.org/pypi/tomli/json) | 2.5.0 | `>=3.8` | 2.5.0 | dev | `>=2.0`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [torch](https://pypi.org/pypi/torch/json) | 2.14.1 | `>=3.10` | 2.14.1 | default | `<3.0,>=2.0`. Keep <3 and Intel Mac wheel marker; CPU index profile preserved; real CPU inference verified. |
+| [torch-directml](https://pypi.org/pypi/torch-directml/json) | none (0.2.5.dev240914 dev only) | `>=3.7` | none | directml | `>=0.2`. Keep Windows-only vendor extra: no stable release; published development wheel pins the older Torch/torchvision pair. |
+| [torchcam](https://pypi.org/pypi/torchcam/json) | 0.5.0 | `<4,>=3.11` | 0.4.0 | default, attribution | `<1.0,>=0.4.0` / `<1.0,>=0.5`. Promote >=0.5 on Python >=3.11: 0.5 supports NumPy 2; Python 3.10-compatible 0.4 requires NumPy <2 and stays optional. |
+| [torchvision](https://pypi.org/pypi/torchvision/json) | 0.29.1 | `!=3.14.1,>=3.10` | 0.29.1 | default | `<1.0,>=0.15`. Keep <1 and Intel Mac wheel marker; upstream exact Torch pairing controls selection; real CPU NMS verified. |
+| [tqdm](https://pypi.org/pypi/tqdm/json) | 4.70.1 | `>=3.8` | 4.70.1 | default | `>=4.65.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [trackastra](https://pypi.org/pypi/trackastra/json) | 0.5.6 | `>=3.10` | 0.5.6 | default, all, trackastra | `<1.0,>=0.5`. Promote with existing Intel Mac Torch marker retained; configuration import verified without downloading weights. |
+| [trackpy](https://pypi.org/pypi/trackpy/json) | 0.7 | `>=3.8` | 0.7 | default | `<1.0,>=0.6.2`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [transformers](https://pypi.org/pypi/transformers/json) | 5.20.2 | `>=3.10.0` | 5.20.2 | default, foundation | `<6,>=4.40`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [ultrack](https://pypi.org/pypi/ultrack/json) | 0.8.0 | `<3.14,>=3.11` | 0.7.2 | default, all, ultrack | `<1.0,>=0.6`. Promote Python >=3.10,<3.14; latest Requires-Python excludes 3.14. Joint Python 3.10 solve uses 0.6.3 with Zarr 2; Python 3.12 uses 0.8. |
+| [ultralytics](https://pypi.org/pypi/ultralytics/json) | 8.4.183 | `>=3.8` | 8.4.183 | all, papers, plaque | `<9,>=8.0` / `<9,>=8.4`. Keep extra: requires full opencv-python, which collides with core headless cv2 distribution. |
+| [umap-learn](https://pypi.org/pypi/umap-learn/json) | 0.5.12 | `>=3.9` | 0.5.12 | default, umap | `<1.0,>=0.5.11`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [vispy](https://pypi.org/pypi/vispy/json) | 0.17.0 | `>=3.10` | 0.17.0 | default, all, fractal | `<1.0,>=0.14`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [wgpu](https://pypi.org/pypi/wgpu/json) | 0.32.0 | `>=3.11` | 0.31.0 | default | `<0.33,>=0.25` / `<=0.31.0,>=0.25`. Keep existing >=3.10 core marker: latest >=3.11, upstream selects 0.31 on Python 3.10; no GPU initialization. |
+| [win10toast](https://pypi.org/pypi/win10toast/json) | 0.9 | `unspecified` | 0.9 | default, all, qt, tutorial | `>=0.9`. Keep Windows-only core marker; no Linux import claim. |
+| [xenon](https://pypi.org/pypi/xenon/json) | 0.9.3 | `unspecified` | 0.9.3 | dev | `<1,>=0.9`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
+| [xgboost](https://pypi.org/pypi/xgboost/json) | 3.4.1 | `>=3.12` | 3.2.0 | default | `<4,>=2.0.3`. Retain existing floor and API-family guard admitting latest compatible stable. |
+| [zarr](https://pypi.org/pypi/zarr/json) | 3.4.1 | `>=3.12` | 2.18.3 | default, zarr | `<4,>=2.16`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+
+### Target-platform default resolution
+
+The final active defaults were resolved with uv 0.13.4 using its documented
+[`--python-platform` / `--python-version` target support](https://docs.astral.sh/uv/concepts/resolution/),
+CPU Torch, `--only-binary :all:` and the existing pure-Python exceptions.
+Two additional pure-Python exceptions are necessary for the Python 3.10
+Ultrack/Zarr graph: [websocket 0.2.1](https://pypi.org/pypi/websocket/0.2.1/json)
+and [asciitree 0.3.3](https://pypi.org/pypi/asciitree/0.3.3/json).
+Their official sdists were inspected: no C/C++/Cython sources or extension-module
+build declarations, only Python/data copied by setuptools. This does not exempt
+compiled dependencies such as gevent or greenlet from the wheel requirement.
+
+| Target / minimum system | Python 3.10.22 | Python 3.12.14 | Python 3.14.7 |
+| --- | --- | --- | --- |
+| Windows x86_64 | resolves | resolves | resolves |
+| macOS 13 arm64 | resolves | resolves | resolves; Faiss, Piper and btrack optional |
+| macOS 14 arm64 | same profile (inferred from macOS 13) | same profile (inferred from macOS 13) | resolves; btrack optional |
+| macOS 15 arm64 | same profile (inferred from macOS 13) | same profile (inferred from macOS 13) | resolves; all three native features default |
+| macOS 13 Intel | resolves | resolves | existing core fails: Numba <0.63 has no cp314 wheel |
+
+The Mac Python 3.14 deployment limits follow official
+[CVXOPT cp314 wheel tags](https://pypi.org/pypi/cvxopt/1.3.3/json),
+[Faiss wheel tags](https://pypi.org/pypi/faiss-cpu/1.15.1/json), and
+[ONNX Runtime wheel tags](https://pypi.org/pypi/onnxruntime/1.31.0/json).
+
+The Intel Python 3.14 failure was reproduced with the pre-promotion core, so it
+is an existing unsupported wheel combination rather than a new restriction.
+No Intel Python 3.14 success is claimed. All compatible Python 3.10 core
+NumPy/pandas/Cellpose profiles remain resolvable. Intel Mac selects Torch 2.2.2,
+NumPy 1.26.4 and compatible JAX/PyMC through the preserved wheel/core constraints.
+The Linux Python 3.10 compiled-wheel policy also resolves with these exceptions.
+
+For the Darwin-release markers, the project requirements were evaluated against
+the complete target environment before passing the active requirements to uv.
+`MACOSX_DEPLOYMENT_TARGET` selects matching wheel deployment tags. This avoids
+assuming uv's generic Darwin target supplies a real machine's kernel release.
+The exact defaults remain enabled on newer Mac systems; aliases permit explicit
+native builds on older systems. These are resolver checks, not native execution
+or GUI/scientific acceptance on Windows or macOS.
+
+## Historical decisions
+
+The following notes retain the context of earlier implementations. Current
+declarations and the dated decisions above take precedence.
+
 ## Module level
 
 ### lines 1-29

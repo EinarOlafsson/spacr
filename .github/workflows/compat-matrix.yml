@@ -404,7 +404,7 @@ jobs:
         # build. That is the entire point: a user without a C++ toolchain must
         # be able to `pip install spacr` on 3.13.
         #
-        # Three core dependencies are exempted by --no-binary, and the reason
+        # Pure Python dependencies are exempted by --no-binary, and the reason
         # is not "they were in the way". trackpy, matplotlib-venn and gputil
         # publish an sdist and no wheel AT ALL, on any Python — trackpy's
         # newest wheel is 0.3.3, matplotlib-venn and GPUtil have never shipped
@@ -413,6 +413,11 @@ jobs:
         # on every version has always done. Excluding them keeps this step
         # asking the question that matters (does anything need a COMPILER)
         # instead of a question with a known, harmless answer.
+        #
+        # Ultrack/Zarr on Python 3.10 also select websocket 0.2.1 and
+        # asciitree 0.3.3. Their official sdists contain only Python and data;
+        # setup.py declares no extension modules. gevent/greenlet remain
+        # wheel-required. This exception never permits compiled source builds.
         #
         # If you add a package here, prove it is pure Python first. A wheel-less
         # package with a C extension is exactly the failure this step exists to
@@ -429,7 +434,7 @@ jobs:
           set +e
           out=$(python -m pip install --dry-run \
                   --only-binary :all: \
-                  --no-binary trackpy,matplotlib-venn,gputil \
+                  --no-binary trackpy,matplotlib-venn,gputil,websocket,asciitree \
                   --extra-index-url https://download.pytorch.org/whl/cpu \
                   . 2>&1)
           rc=$?
@@ -443,31 +448,27 @@ jobs:
           echo "$out" | grep -oE "Would install .*" | tr ' ' '\n' | grep -E "^numpy-" || true
           echo "OK: every compiled package in the core+qt graph has a compatible wheel."
 
-      - name: optional native features must NOT be in the core resolve
-        # The two packages whose absence from the core install is what makes
-        # 3.13 work. If either reappears in `dependencies`, the step above
-        # would still pass on a runner that has gcc -- it would just silently
-        # start compiling. This step names them, so the regression is legible
-        # instead of showing up as a slow build.
+      - name: Runtime features honor interpreter and hardware markers
         run: |
-          python - <<'PY'
-          import ast, pathlib, re, sys
+          python - <<'PYTHON'
+          import ast, pathlib, sys
+          from packaging.requirements import Requirement
           tree = ast.parse(pathlib.Path("setup.py").read_text(encoding="utf-8"))
-          deps = next(
-              ast.literal_eval(n.value)
-              for n in tree.body
-              if isinstance(n, ast.Assign)
-              and any(getattr(t, "id", None) == "dependencies" for t in n.targets)
-          )
-          names = {re.split(r"[<>=!~;\[ ]", d.strip())[0].lower() for d in deps}
-          back = sorted({"mahotas", "torchcam", "pylibczirw", "btrack"} & names)
-          if back:
-              print(f"::error::{back} is back in setup.py's core dependencies. "
-                    f"One or more optional native features would re-break "
-                    f"the newest supported Python.")
-              sys.exit(1)
-          print("OK: optional native features are extras-only.")
-          PY
+          deps = next(ast.literal_eval(n.value) for n in tree.body
+                      if isinstance(n, ast.Assign)
+                      and any(getattr(t, "id", None) == "dependencies" for t in n.targets))
+          active = {r.name.lower() for r in map(Requirement, deps)
+                    if r.marker is None or r.marker.evaluate()}
+          assert not active & {"cuml-cu12", "cucim-cu12", "cupy-cuda12x",
+                               "intel-extension-for-pytorch", "torch-directml"}
+          if sys.version_info >= (3, 14):
+              assert "pylibczirw" not in active
+          if sys.version_info >= (3, 10):
+              assert {"btrack", "mahotas", "catboost", "lightgbm"} <= active
+          if sys.version_info >= (3, 11):
+              assert "torchcam" in active
+          print("Runtime feature and CPU profile markers OK")
+          PYTHON
 
       - name: Install the core graph and import spaCR
         # The dry-run above proves that the graph resolves without a compiler;
@@ -481,29 +482,27 @@ jobs:
             "torch>=2.0,<3.0" "torchvision>=0.15,<1.0"
           python -m pip install \
             --only-binary :all: \
-            --no-binary trackpy,matplotlib-venn,gputil \
+            --no-binary trackpy,matplotlib-venn,gputil,websocket,asciitree \
             --extra-index-url https://download.pytorch.org/whl/cpu .
           python - <<'PY'
           import importlib.metadata as metadata
           import spacr
 
           assert spacr.__version__
-          absent = []
-          for distribution in (
-              "trackastra", "ultrack", "torchcam", "mahotas",
-              "pylibCZIrw", "btrack", "catboost", "lightgbm",
-          ):
+          from packaging.requirements import Requirement
+          for raw in metadata.requires("spacr"):
+              requirement = Requirement(raw)
+              if requirement.marker and not requirement.marker.evaluate({"extra": ""}):
+                  continue
+              installed = metadata.version(requirement.name)
+              assert requirement.specifier.contains(installed), (str(requirement), installed)
+          for distribution in ("cuml-cu12", "cucim-cu12", "cupy-cuda12x",
+                               "intel-extension-for-pytorch", "torch-directml"):
               try:
                   metadata.version(distribution)
               except metadata.PackageNotFoundError:
-                  absent.append(distribution)
-          assert len(absent) == 8, (
-              "an extras-only distribution leaked into the core install: "
-              + ", ".join(sorted(set((
-                  "trackastra", "ultrack", "torchcam", "mahotas",
-                  "pylibCZIrw", "btrack", "catboost", "lightgbm",
-              )) - set(absent)))
-          )
+                  continue
+              raise AssertionError(f"{distribution} leaked into the CPU default install")
           print("core-only import OK", spacr.__version__)
           PY
 

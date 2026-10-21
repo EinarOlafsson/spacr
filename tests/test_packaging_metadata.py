@@ -876,9 +876,10 @@ def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
         "- name: Install the core graph and import spaCR", 1
     )[1].split("python - <<'PY'", 1)[0]
     assert "--only-binary :all:" in install_step
-    assert "--no-binary trackpy,matplotlib-venn,gputil" in install_step
+    assert "--no-binary trackpy,matplotlib-venn,gputil,websocket,asciitree" in install_step
     assert "import spacr" in workflow
-    assert "an extras-only distribution leaked into the core install" in workflow
+    assert "leaked into the CPU default install" in workflow
+    assert 'metadata.requires("spacr")' in workflow
 
     assert "fractal-runtime:" in workflow
     assert '".[fractal]"' in workflow
@@ -1291,16 +1292,23 @@ def test_a_package_split_by_marker_covers_every_platform():
 
 
 def test_native_features_are_optional_on_python_314():
-    """Native feature dependencies must not become core requirements."""
-    core = {_name_of(spec) for spec in _core_dependencies()}
+    """CZI stays excluded without wheels; the qualified btrack backend is core."""
+    from packaging.markers import default_environment
+    from packaging.requirements import Requirement
+
+    environment = default_environment()
+    environment.update(python_version="3.14", python_full_version="3.14.7",
+                       sys_platform="linux", platform_system="Linux",
+                       platform_machine="x86_64")
+    core = [Requirement(spec) for spec in _core_dependencies()]
+    active = {r.name.lower() for r in core
+              if r.marker is None or r.marker.evaluate(environment)}
+    assert "pylibczirw" not in active
+    assert "btrack" in active
+    assert "mahotas" in active
     extras = _extras()
-    for package, extra in (("pylibczirw", "czi"), ("btrack", "btrack")):
-        assert package not in core, (
-            f"{package} is a core dependency again; that blocks Python 3.14"
-        )
-        assert package in {_name_of(spec) for spec in extras[extra]}, (
-            f"{extra!r} no longer provides its optional {package} dependency"
-        )
+    assert "pylibczirw" in {_name_of(spec) for spec in extras["czi"]}
+    assert "btrack" in {_name_of(spec) for spec in extras["btrack"]}
 
 
 def test_every_extra_is_non_empty_and_well_formed():
@@ -1319,33 +1327,41 @@ def test_every_extra_is_non_empty_and_well_formed():
 
 
 def test_extras_do_not_contradict_the_core_pins():
-    """A package may appear in both core and an extra — several do, on
-    purpose, because spacr/io.py and spacr/measure.py still import the format
-    readers at module scope — but the two copies must be the *same* pin.
-    Two different pins for one package is a resolver conflict waiting for the
-    day the core copy is removed.
-    """
+    """Feature aliases may have broader markers; simultaneously active ranges must intersect."""
+    from packaging.markers import default_environment
     from packaging.requirements import Requirement
-
-    def _shape(spec):
-        """Compare what pip compares, not the whitespace: 'a>=1, <2' and
-        'a>=1,<2' are the same pin and must not be reported as a conflict."""
-        r = Requirement(spec)
-        return (set(str(s) for s in r.specifier), r.marker is None or str(r.marker),
-                sorted(r.extras))
+    from packaging.specifiers import SpecifierSet
+    from packaging.version import Version
 
     core = {}
-    for s in _core_dependencies():
-        core.setdefault(_name_of(s), []).append(s)
-    problems = []
+    for raw in _core_dependencies():
+        core.setdefault(_name_of(raw), []).append(Requirement(raw))
     for extra, specs in _extras().items():
-        for spec in specs:
-            n = _name_of(spec)
-            if n in core and _shape(spec) not in [_shape(c) for c in core[n]]:
-                problems.append((extra, spec, core[n]))
-    assert not problems, (
-        "extra and core declare different pins for the same package: " + str(problems)
-    )
+        for raw in specs:
+            alias = Requirement(raw)
+            for required in core.get(_name_of(raw), ()):
+                for version in ("3.9", "3.10", "3.11", "3.12", "3.13", "3.14"):
+                    for system, platform, machine in (("Linux", "linux", "x86_64"),
+                            ("Windows", "win32", "AMD64"),
+                            ("Darwin", "darwin", "arm64"),
+                            ("Darwin", "darwin", "x86_64")):
+                        environment = default_environment()
+                        environment.update(python_version=version,
+                            python_full_version=version+".0", platform_system=system,
+                            sys_platform=platform, platform_machine=machine)
+                        if any(r.marker and not r.marker.evaluate(environment)
+                               for r in (alias, required)):
+                            continue
+                        combined = SpecifierSet(str(alias.specifier)+","+str(required.specifier))
+                        candidates = {Version("0"), Version("1")}
+                        for spec in combined:
+                            if "*" in spec.version:
+                                continue
+                            value = Version(spec.version)
+                            candidates.add(value)
+                            candidates.add(Version(f"{value.major}.{value.minor}.{value.micro+1}"))
+                        assert any(v in combined for v in candidates), (
+                            extra, raw, str(required), environment)
 
 
 def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
