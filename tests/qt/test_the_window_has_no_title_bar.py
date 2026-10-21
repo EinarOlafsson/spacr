@@ -31,6 +31,29 @@ from PySide6.QtWidgets import QToolButton
 
 
 @pytest.fixture
+def _geometry_at_design_scale():
+    """Keep saved and active zoom local to the icon's literal pixels."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
+@pytest.fixture
 def window(qapp):
     from spacr.qt.app import MainWindow
 
@@ -150,7 +173,8 @@ def test_the_minus_minimises(window, qapp):
     ("FullScreenToggle", "#3C82DC"),   # blue: the accent for a live control
     ("MinimiseWindow", "#3C82DC"),     # blue too, on the user's instruction
 ])
-def test_each_button_lights_in_its_own_colour(window, qapp, name, colour):
+def test_each_button_lights_in_its_own_colour(
+        _geometry_at_design_scale, window, qapp, name, colour):
     """The MARK lights, not a plate behind it.
 
     Rewritten on 2026-08-23: "i meant the x itself not the background of
