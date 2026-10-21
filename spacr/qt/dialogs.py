@@ -560,7 +560,25 @@ def open_at_its_natural_size(dialog) -> bool:
     dialog.setProperty(OPENS_AT, None)
     if floor is None:
         return False
-    dialog.resize(dialog.size().expandedTo(floor))
+    from PySide6.QtGui import QGuiApplication
+
+    wanted = dialog.size().expandedTo(floor)
+    try:
+        screen = dialog.screen() or QGuiApplication.primaryScreen()
+        if screen is not None:
+            available = screen.availableGeometry().size()
+            wanted.setWidth(min(wanted.width(),
+                                max(SMALLEST, int(available.width() * 0.9))))
+            wanted.setHeight(min(wanted.height(),
+                                 max(SMALLEST, int(available.height() * 0.9))))
+    except (AttributeError, RuntimeError):
+        pass
+    try:
+        from .gui_scale import _resize_actual
+
+        _resize_actual(dialog, wanted)
+    except (ImportError, RuntimeError):
+        dialog.resize(wanted)
     return True
 
 
@@ -603,12 +621,13 @@ def make_the_window_resizable(dialog) -> bool:
             child.ensurePolished()
         dialog.layout().activate()
         floor = window_floor(dialog)
+        opening = dialog.sizeHint().expandedTo(floor)
         stuck = is_stuck_at_its_contents(dialog)
         lowered = drop_the_explicit_floor(dialog)
         if stuck and not _already_scrolls(dialog.layout()):
             lowered = let_the_content_scroll(dialog) or lowered
         if lowered:
-            dialog.setProperty(OPENS_AT, floor)
+            dialog.setProperty(OPENS_AT, opening)
         give_it_a_size_grip(dialog)
         return True
     except Exception:                       # noqa: BLE001

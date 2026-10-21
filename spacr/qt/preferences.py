@@ -608,7 +608,8 @@ FONT_SCALE_MAX = 2.00
 #: interface — spacing, tiles, dots and icons move with the type, so calling it
 #: a font setting undersells what the control does.
 #:
-#: 100% IS THE DEFAULT, and the reason it was 150% is worth keeping: spaCR's
+#: 90% IS THE DEFAULT. The reason this used to be 100%, after starting at
+#: 150%, is worth keeping: spaCR's
 #: natural size was laid out on a 1080p display, and on a 4K panel driven at
 #: 1x everything read small.
 #:
@@ -622,14 +623,14 @@ FONT_SCALE_MAX = 2.00
 #:
 #: The 4K case is a preference a user on that display sets once. The laptop
 #: case was everybody, silently, by default.
-DEFAULT_FONT_SCALE = 1.0
+DEFAULT_FONT_SCALE = 0.9
 
 #: The whole-GUI scale's bounds and default (item 471): the same 10 % to
 #: 200 % as Zoom, so the two sliders read alike. Applied live by the
 #: scaling layer in :mod:`spacr.qt.gui_scale`, which says how.
 GUI_SCALE_MIN = 0.10
 GUI_SCALE_MAX = 2.00
-DEFAULT_GUI_SCALE = 1.0
+DEFAULT_GUI_SCALE = 0.9
 
 #: What the GUI scale row says it is, including the way back.
 GUI_SCALE_TIP = (
@@ -639,7 +640,7 @@ GUI_SCALE_TIP = (
     "asks whether to keep it; with no answer it goes back by itself after "
     "15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives "
     "half-size controls with text the usual size. Ctrl+Alt+0 puts GUI "
-    "scale and font scale back to 100 % from anywhere.")
+    "scale and font scale back to their 90 % defaults from anywhere.")
 
 VALID_CB_MODES = ("off", "deuteranopia", "protanopia", "tritanopia")
 DEFAULT_CB_MODE = "off"
@@ -841,54 +842,81 @@ _STORE_GENERATION = [0]
 _REMEMBERED = {}
 
 
-def _count_store_writes() -> None:
-    """Make every ``QSettings`` write in this process bump the generation.
+class _CountsItsWrites:
+    """Mixed into this module's preference stores: each write bumps the generation.
 
-    Idempotent. Every store on one file in this process shares Qt's copy,
-    so a write through any of them, here or in another module, changes
-    what a remembered getter would answer.
+    The Shiboken ``QSettings`` type itself is never changed. Its
+    ``setValue``, ``remove`` and ``clear`` used to be replaced on the type
+    (2026-10-18), and the released 1.5.1.5 then crashed now and again on
+    macOS inside ``Sbk_QSettings_Init`` with a null function pointer
+    (2026-10-20). Only stores opened by :func:`_real_store` count their
+    writes; every getter :func:`_remembered` keeps reads keys written only
+    through them.
     """
-    for name in ("setValue", "remove", "clear"):
-        original = getattr(QSettings, name)
-        if getattr(original, "_spacr_counts_writes", False):
-            continue
 
-        def write(self, *args, _original=original):
-            """Forward to Qt, then forget what was remembered."""
-            try:
-                return _original(self, *args)
-            finally:
-                _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+    def setValue(self, *args):
+        """Write through Qt, then give the store a new generation."""
+        try:
+            return super().setValue(*args)
+        finally:
+            _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
 
-        write._spacr_counts_writes = True
-        setattr(QSettings, name, write)
+    def remove(self, *args):
+        """Remove through Qt, then give the store a new generation."""
+        try:
+            return super().remove(*args)
+        finally:
+            _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+
+    def clear(self, *args):
+        """Clear through Qt, then give the store a new generation."""
+        try:
+            return super().clear(*args)
+        finally:
+            _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
 
 
-_count_store_writes()
+_COUNTING_CLASSES = {}
+
+
+def _counting_class(base):
+    """The subclass of ``base`` with :class:`_CountsItsWrites` mixed in.
+
+    :param base: ``QSettings`` or a test's subclass of it; any other
+        factory a test put in its place is returned as it is.
+    :returns: the subclass, made once per ``base``.
+    """
+    if not isinstance(base, type):
+        return base
+    counting = _COUNTING_CLASSES.get(base)
+    if counting is None:
+        counting = type(base)("_CountedPreferenceStore", (_CountsItsWrites, base),
+                        {"__doc__": _CountsItsWrites.__doc__})
+        _COUNTING_CLASSES[base] = counting
+    return counting
 
 
 def _real_store() -> QSettings:
-    """This thread's preference store, reread when another process wrote it.
+    """This thread's preference store, kept open and resynchronised once a second.
 
-    Every ``QSettings`` on one file in this process shares Qt's copy of it,
-    so a value set through any of them is already visible here. A write from
-    another process changes the file; that is checked at most once every
-    :data:`_STORE_WATCH_SECONDS` per thread and reloaded with ``sync``,
-    which is what opening a new store would do.
+    One store is opened per thread and kept; a paint or a tick never opens
+    one. Every ``QSettings`` on one file in this process shares Qt's copy
+    of it, so a value set through any of them is already visible here. A
+    write from another process is picked up by ``sync`` at most every
+    :data:`_STORE_WATCH_SECONDS` per thread: when the file changed, or on
+    every look for a store with no file to watch (the macOS preferences
+    daemon, the Windows registry). The store is reopened only when its
+    folder moves or ``QSettings`` is replaced.
     """
     args = _store_args(_ORG, _APP)
     store = getattr(_STORE, "store", None)
     if (store is None or _STORE.args != args
             or _STORE.moves != _STORE_MOVES[0]
-            or type(store) is not QSettings):
-        store = QSettings(*args)
-        state = _store_file_state(store)
-        if state is None:
-            _STORE.store = None
-            return store
+            or getattr(_STORE, "base", None) is not QSettings):
+        store = _counting_class(QSettings)(*args)
         _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
-        _STORE.store, _STORE.args = store, args
-        _STORE.moves, _STORE.state = _STORE_MOVES[0], state
+        _STORE.store, _STORE.args, _STORE.base = store, args, QSettings
+        _STORE.moves, _STORE.state = _STORE_MOVES[0], _store_file_state(store)
         _STORE.checked = _store_clock()
         return store
     now = _store_clock()
@@ -896,12 +924,9 @@ def _real_store() -> QSettings:
         return store
     _STORE.checked = now
     state = _store_file_state(store)
-    if state is None:
-        _STORE.store = None
-        return QSettings(*args)
-    if state != _STORE.state:
+    if state is None or state != _STORE.state:
         store.sync()
-        _STORE.state = _store_file_state(store)
+        _STORE.state = state if state is None else _store_file_state(store)
         _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
     return store
 
@@ -917,9 +942,6 @@ def _watch_store() -> None:
     if now - getattr(_STORE, "checked", float("-inf")) < _STORE_WATCH_SECONDS:
         return
     _real_store()
-    if getattr(_STORE, "store", None) is None:
-        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
-        _STORE.checked = now
 
 
 def _store_context() -> tuple:
@@ -12801,8 +12823,12 @@ _KEY_RIM_LENGTH = "rim/length_px"
 _KEY_RIM_LENGTH_FRACTION = "rim/length_fraction"
 
 
+@_remembered
 def _rim_length_fraction() -> float:
-    """Read relative rim length, retaining the appearance of legacy pixels."""
+    """Read relative rim length, retaining the appearance of legacy pixels.
+
+    Remembered: every setup card's accent asks for it on each frame.
+    """
     import math
     raw = _settings().value(_KEY_RIM_LENGTH_FRACTION, None)
     if raw is None:

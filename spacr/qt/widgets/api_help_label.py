@@ -215,7 +215,7 @@ class ApiHelpLabel(QLabel):
             return html
 
         from ..i18n import tr
-        caption = escape(tr("Open spaCR API documentation", self._language))
+        caption = escape(tr("API", self._language))
         href = escape(self._url_override, quote=True)
         link = f'<a href="{href}">{caption}</a>'
         return f"{body}<br>{link}" if body else link

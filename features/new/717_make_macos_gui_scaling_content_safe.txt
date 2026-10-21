@@ -1,0 +1,51 @@
+================================================================================
+MAKE MACOS GUI SCALING CONTENT-SAFE
+================================================================================
+
+Status:    DONE 2026-10-21 — macOS/laptop scale, dialog, toggle, icon and tooltip acceptance passed
+Requested: maintainer, 2026-10-21 — prevent clipped text, controls, icons and popup content at every supported scale
+Priority:  P1
+Owner:     Codex macOS GUI lane — implementation and focused validation
+
+SCOPE
+Make scaling resilient throughout the Qt GUI, with macOS as the immediate
+acceptance platform. Text must receive enough space or adapt instead of being
+cut off, including Home's bottom help and module buttons such as Live, 3D and
+AI. Button icons must retain their intended proportion to their button as GUI
+scale changes and must never be clipped.
+
+Popup windows must initially fit their useful content on the available screen,
+including the usual content of tabbed dialogs, while remaining freely
+resizable. Content that cannot reasonably fit must be scrollable. macOS boolean
+controls must retain a clean ring or borderless silhouette, never bracket-like
+edges, and must not become oversized at particular GUI scales.
+
+Every tooltip API link must display exactly "API". A shown tooltip must remain
+visible while the pointer is still over its source or the tooltip itself. The
+default GUI and font scales, including the reset-to-default action, are 90%.
+
+PROGRESS
+Requirement                         State
+Text and module controls fit        DONE
+Dialogs fit, resize and scroll      DONE
+macOS boolean controls render clean DONE
+Icons remain proportional           DONE
+API tooltips persist while hovered  DONE
+GUI and font defaults are 90%       DONE
+
+ACCEPTANCE
+- A representative scale matrix covers the supported GUI/font range and finds
+  no clipped Home help, module-button text or module-button icons.
+- Dialog startup sizing uses content and available-screen bounds; dialogs stay
+  resizable and oversized/tabbed content remains reachable by scrolling.
+- macOS boolean controls render at stable proportions without bracket-like
+  perimeter artifacts across the scale matrix.
+- Tooltip API captions are exactly "API" and tooltip lifetime tests prove a
+  tooltip cannot time out while its source or tooltip remains hovered.
+- Fresh preferences and the global reset action select 90% GUI and font scales.
+
+2026-10-21 — Registered before implementation from direct macOS testing; Windows/Linux acceptance remains separately owned.
+2026-10-21 — Default GUI/font/reset scale is 90%; all visible and accessible setting API captions are exactly "API", with hovered tooltip lifetime retained.
+2026-10-21 — Popup startup sizing now preserves content size within 90% of the available screen, remains resizable and scrolls overflow; custom toggles suppress native checkbox perimeter geometry.
+2026-10-21 — 503 text-fit and 55 icon/action-row checks pass across scale/language matrices; 482 dialog/default/tooltip checks pass after repairing macOS isolated-profile coverage.
+2026-10-21 — Native Cocoa launch at90% on1440x870 passed and exited cleanly; font-change refitting uses the existing event handler, preserving the API inventory.122 affected Home layout checks and3 API inventory checks pass. Windows/Linux acceptance remains separately owned.

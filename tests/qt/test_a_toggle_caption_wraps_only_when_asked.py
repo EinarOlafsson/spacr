@@ -45,3 +45,13 @@ def test_a_wrapping_toggle_grows_to_fit_its_caption_and_paints_it(qtbot):
     one_line = wrapped.fontMetrics().height() + 4
     assert wrapped.heightForWidth(180) > one_line
     assert _ink_right_of_the_switch(wrapped) > 0
+
+
+def test_a_toggle_suppresses_the_native_checkbox_indicator(qtbot):
+    """The custom ring is the only perimeter, including on macOS styles."""
+    toggle = Toggle("Preview")
+    qtbot.addWidget(toggle)
+
+    assert toggle.objectName() == "SpacrToggle"
+    assert "indicator" in toggle.styleSheet()
+    assert "width: 0px" in toggle.styleSheet()

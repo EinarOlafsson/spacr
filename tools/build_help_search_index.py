@@ -359,7 +359,8 @@ def preference_entries() -> List[Tuple[str, str, str, str]]:
             "XDG_DATA_HOME": os.path.join(sandbox, "data"),
             "XDG_CACHE_HOME": os.path.join(sandbox, "cache"),
             "QT_QPA_PLATFORM": "offscreen",
-            "PYTHONPATH": str(ROOT),
+            "PYTHONPATH": (str(ROOT) + os.pathsep
+                           + environment.get("PYTHONPATH", "")),
         })
         completed = subprocess.run(
             [sys.executable, str(Path(__file__).resolve()),

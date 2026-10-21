@@ -75,9 +75,9 @@ def raw(widget, name: str):
 # The preference
 # ---------------------------------------------------------------------------
 
-def test_the_range_is_ten_to_two_hundred_and_the_default_is_one_hundred():
+def test_the_range_is_ten_to_two_hundred_and_the_default_is_ninety():
     assert (prefs.GUI_SCALE_MIN, prefs.GUI_SCALE_MAX) == (0.10, 2.00)
-    assert prefs.DEFAULT_GUI_SCALE == 1.0
+    assert prefs.DEFAULT_GUI_SCALE == 0.9
     prefs.set_gui_scale(0.01)
     assert prefs.get_gui_scale() == pytest.approx(0.10)
     prefs.set_gui_scale(9)
@@ -368,7 +368,7 @@ def _dialog(qtbot):
 def test_preferences_offers_it_beside_font_scale(qtbot, qt_theme_applied):
     dialog, slider, font_slider = _dialog(qtbot)
     assert (slider.minimum(), slider.maximum()) == (10, 200)
-    assert slider.value() == 100
+    assert slider.value() == 90
     assert dialog.findChild(QPushButton, "GuiScaleRestart") is None, (
         "nothing restarts any more")
     tip = prefs.PREFERENCE_TIPS["GUI scale"].lower()
@@ -395,8 +395,8 @@ def test_moving_the_slider_applies_it_and_asks(qtbot, qt_theme_applied):
     assert question, "a change of scale asks whether to keep it"
     question[0].revert_button.click()
     qtbot.waitUntil(
-        lambda: gui_scale.current_scale() == pytest.approx(1.0), timeout=5000)
-    assert slider.value() == 100, "Revert puts the slider back too"
+        lambda: gui_scale.current_scale() == pytest.approx(0.9), timeout=5000)
+    assert slider.value() == 90, "Revert puts the slider back too"
 
 
 def test_the_reset_key_is_declared_and_clashes_with_nothing():
@@ -413,9 +413,9 @@ def test_the_reset_key_puts_every_scale_back_without_a_restart(
     prefs.set_font_scale(0.4)
     gui_scale.set_gui_scale_live(0.3)
     assert gui_scale.reset_every_scale(None)
-    assert prefs.get_gui_scale() == pytest.approx(1.0)
-    assert prefs.get_font_scale() == pytest.approx(1.0)
-    assert gui_scale.current_scale() == pytest.approx(1.0)
+    assert prefs.get_gui_scale() == pytest.approx(0.9)
+    assert prefs.get_font_scale() == pytest.approx(0.9)
+    assert gui_scale.current_scale() == pytest.approx(0.9)
 
 
 def test_the_figure_dpi_follows_both_scales(qtbot, qt_theme_applied):

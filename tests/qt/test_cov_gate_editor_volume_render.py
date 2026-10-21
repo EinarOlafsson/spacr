@@ -526,6 +526,39 @@ def _box(name="kept", **bounds):
     return BoxGate(name=name, **fields)
 
 
+def test_volume_redraw_reuses_handles_but_density_and_edits_refresh_them(volume, monkeypatch):
+    from spacr.qt.widgets.gate_spec import EditableVolumeGate
+
+    mesh = EditableVolumeGate.from_gate(_box())
+    original = EditableVolumeGate.anchors
+    calls = []
+
+    def sampled(gate, density):
+        calls.append((gate, density))
+        return original(gate, density)
+
+    monkeypatch.setattr(EditableVolumeGate, "anchors", sampled)
+    before = volume._volume_handles(mesh)
+    for _ in range(10):
+        repeated = volume._volume_handles(mesh)
+        assert [role for role, _ in repeated] == [role for role, _ in before]
+        np.testing.assert_array_equal([point for _, point in repeated],
+                                      [point for _, point in before])
+    assert len(calls) == 1
+
+    volume._anchor_density = 3
+    denser = volume._volume_handles(mesh)
+    assert len(calls) == 2
+    assert len(denser) > len(before)
+    edited = mesh.moved_vertices(range(len(mesh.vertices)), (10, 2, 1))
+    moved = volume._volume_handles(edited)
+    assert len(calls) == 3
+    assert [role for role, _ in moved] == [role for role, _ in denser]
+    np.testing.assert_allclose(np.asarray([point for _, point in moved])
+                               - np.asarray([point for _, point in denser]),
+                               np.broadcast_to((10, 2, 1), (len(moved), 3)))
+
+
 def _edges_of(axes):
     """The line segments drawn in the volume, as (x, y, z) triples."""
     out = []

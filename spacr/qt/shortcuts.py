@@ -10,7 +10,7 @@ The default window-wide actions include:
     F1            Show the shortcuts cheat sheet
     ?             Use the active screen's help action, or show the cheat sheet
     Ctrl+P        Open Preferences
-    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %
+    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to defaults
     Ctrl+/        Toggle the active module's AI Console
     Ctrl+End      Jump to the newest console line
     F11           Toggle full screen
@@ -110,7 +110,7 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+B",       "Blank the background",   "Background"),
     ShortcutSpec("Z + scroll",   "Resize the interface text",
                  "Background"),
-    ShortcutSpec("Ctrl+Alt+0",   "Reset GUI scale and font scale to 100%",
+    ShortcutSpec("Ctrl+Alt+0",   "Reset GUI scale and font scale to 90%",
                  "Navigation"),
     ShortcutSpec("F11",          "Full screen",            "Actions"),
     ShortcutSpec("Ctrl+Shift+H", "Search spaCR from the Help bar", "Help"),

@@ -15,8 +15,95 @@ from __future__ import annotations
 
 import builtins
 import os
+import json
+import subprocess
+import sys
+from types import SimpleNamespace
 
 import pytest
+
+
+@pytest.fixture
+def native_manager(monkeypatch, tmp_path):
+    from spacr import figure_font
+
+    known = str(tmp_path / 'known.ttf')
+    core = str(tmp_path / 'core.ttf')
+    custom = str(tmp_path / 'custom.otf')
+    directory = str(tmp_path / 'directory.ttf')
+    afm = str(tmp_path / 'directory.afm')
+    manager = SimpleNamespace(ttflist=[SimpleNamespace(fname=known)], afmlist=[],
+                              __version__='test')
+    manager.addfont = lambda path: (
+        manager.afmlist if path.endswith('.afm') else manager.ttflist
+    ).append(SimpleNamespace(fname=path))
+    writes, imports, probes = [], [], []
+    fonts = SimpleNamespace(
+        fontManager=manager, X11FontDirectories=['x11'], OSXFontDirectories=['mac'],
+        _get_fontconfig_fonts=lambda: [custom],
+        findSystemFonts=lambda **kw: [afm if kw['fontext'] == 'afm' else directory],
+        json_dump=lambda obj, path: writes.append((obj, path)))
+    root = SimpleNamespace(__version__='3.11.2', get_cachedir=lambda: str(tmp_path))
+    monkeypatch.setitem(sys.modules, 'matplotlib', root)
+    monkeypatch.delitem(sys.modules, 'matplotlib.font_manager', raising=False)
+    monkeypatch.setattr(sys, 'platform', 'darwin')
+    monkeypatch.delenv('MPL_IGNORE_SYSTEM_FONTS', raising=False)
+    original = builtins.__import__
+
+    def importing(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == 'matplotlib' and 'font_manager' in (fromlist or ()):
+            imports.append(os.environ.get('MPL_IGNORE_SYSTEM_FONTS'))
+            if getattr(root, 'fail_import', False):
+                raise ImportError('unavailable renderer')
+            return SimpleNamespace(font_manager=fonts)
+        return original(name, globals, locals, fromlist, level)
+
+    def probe(*args, **kwargs):
+        probes.append(args)
+        return json.dumps([known, core, core])
+
+    monkeypatch.setattr(builtins, '__import__', importing)
+    monkeypatch.setattr(subprocess, 'check_output', probe)
+    return SimpleNamespace(module=figure_font, fonts=fonts, root=root, manager=manager,
+                           writes=writes, imports=imports, probes=probes,
+                           expected={known, core, custom, directory, afm})
+
+
+def test_native_discovery_keeps_coretext_directory_and_fontconfig_fonts(native_manager):
+    case = native_manager
+    assert case.module._figure_font_manager() is case.fonts
+    paths = [entry.fname for entry in [*case.manager.ttflist, *case.manager.afmlist]]
+    assert set(paths) == case.expected
+    assert len(paths) == len(set(paths))
+    assert case.imports == ['1']
+    assert 'MPL_IGNORE_SYSTEM_FONTS' not in os.environ
+    assert len(case.writes) == 1
+    assert case.writes[0][1].name == 'fontlist-vtest.json'
+
+
+@pytest.mark.parametrize('reason', ['missing_api', 'old_matplotlib', 'optout'])
+def test_native_discovery_falls_back_without_hiding_fonts(native_manager, monkeypatch, reason):
+    case = native_manager
+    if reason == 'missing_api':
+        def unavailable(*args, **kwargs):
+            raise subprocess.TimeoutExpired('osascript', 3)
+        monkeypatch.setattr(subprocess, 'check_output', unavailable)
+    elif reason == 'old_matplotlib':
+        case.root.__version__ = '3.10.0'
+    else:
+        monkeypatch.setenv('MPL_IGNORE_SYSTEM_FONTS', 'user-choice')
+    assert case.module._figure_font_manager() is case.fonts
+    assert not case.writes
+    assert case.imports == ['user-choice' if reason == 'optout' else None]
+    assert os.environ.get('MPL_IGNORE_SYSTEM_FONTS') == (
+        'user-choice' if reason == 'optout' else None)
+
+
+def test_a_failed_native_font_import_restores_the_discovery_setting(native_manager):
+    native_manager.root.fail_import = True
+    with pytest.raises(ImportError, match='unavailable renderer'):
+        native_manager.module._figure_font_manager()
+    assert 'MPL_IGNORE_SYSTEM_FONTS' not in os.environ
 
 
 @pytest.fixture
@@ -141,16 +228,7 @@ def _font_manager_where(monkeypatch, cold, *, ttflist, addfont=None):
 
     module = types.ModuleType("matplotlib.font_manager")
     module.fontManager = _FontManager()
-    real_import = builtins.__import__
-
-    def patched(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "matplotlib" and "font_manager" in (fromlist or ()):
-            shim = types.ModuleType("matplotlib")
-            shim.font_manager = module
-            return shim
-        return real_import(name, globals, locals, fromlist, level)
-
-    monkeypatch.setattr(builtins, "__import__", patched)
+    monkeypatch.setattr(cold, "_figure_font_manager", lambda: module)
     return module.fontManager
 
 

@@ -1360,7 +1360,8 @@ class SoundEngine(QObject):
         :returns: True when the thread has stopped.
         """
         if self._closed:
-            return True
+            from .bridge import thread_has_stopped
+            return thread_has_stopped(self._thread)
         self._closed = True
         self._hover_timer.stop()
         self._hover_target = None

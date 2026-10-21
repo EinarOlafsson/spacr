@@ -119,6 +119,8 @@ def _worker_environment(home: Path, output: Path, label: str,
         "HOME": str(home),
         "XDG_CACHE_HOME": str(home / ".cache"),
         "XDG_CONFIG_HOME": str(home / ".config"),
+        "SPACR_ISOLATED_PROFILE": "1",
+        "SPACR_HOME": str(home / ".spacr"),
         "MPLBACKEND": "Agg",
         "PYTHONDONTWRITEBYTECODE": "1",
         # The child starts in its isolated HOME, so an inherited editable

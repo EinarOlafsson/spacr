@@ -698,8 +698,7 @@ class ObjectSettingsGrid(QWidget):
         self._help_api = _LinkWord(API_MARK, "HoverTooltipApiLink",
                                    self._help_links)
         self._help_api.setAccessibleName("API")
-        self._help_api.setAccessibleDescription(
-            "Open spaCR API documentation for this setting.")
+        self._help_api.setAccessibleDescription("API")
         self._help_api.clicked.connect(self._open_help_api)
         self._help_anim = _LinkWord(ANIMATION_MARK,
                                     "HoverTooltipAnimationLink",

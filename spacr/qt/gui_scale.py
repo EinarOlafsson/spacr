@@ -1191,7 +1191,9 @@ def reset_every_scale(parent=None) -> bool:
     :param parent: unused; kept so a shortcut can pass its window.
     :returns: ``True``.
     """
-    _apply_scales(1.0, 1.0)
+    from .preferences import DEFAULT_FONT_SCALE, DEFAULT_GUI_SCALE
+
+    _apply_scales(DEFAULT_GUI_SCALE, DEFAULT_FONT_SCALE)
     try:
         from .widgets.preview_scale import reset_all_preview_scales
 

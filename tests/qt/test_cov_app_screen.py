@@ -270,7 +270,7 @@ class TestWidgetConstruction:
             assert isinstance(lbl, QLabel)
             assert hint, "empty plain hint"
             assert "<a href=" in scr._html_tip_map[lbl]
-            assert "Open spaCR API documentation" in scr._html_tip_map[lbl]
+            assert ">API<" in scr._html_tip_map[lbl]
             assert "https://" in hint
 
         # And no API link dot beside the field. There was one per setting

@@ -2939,6 +2939,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     approval_preferences = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
+    assert approval_preferences.pop("spacr.qt.preferences._count_store_writes.write")
+    assert "spacr.qt.preferences._count_store_writes.write" not in by_symbol
     approval_parameters = {
         "spacr.qt.ai.prompts.tool_approval_note": ({"provider_name"}, "function"),
         "spacr.qt.ai.providers.ClaudeCliProvider.allow_once": (
@@ -2947,7 +2949,6 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "spacr.qt.ai.providers.tool_rule": ({"denial"}, "function"),
     }
     assert approval_preferences.keys() - approval_parameters.keys() == {
-        "spacr.qt.preferences._count_store_writes.write",
         "spacr.qt.preferences._remembered.read",
     }
     assert approval_preferences.keys() & by_symbol.keys() == approval_parameters.keys()
@@ -4806,12 +4807,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     approval_preferences = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
+    assert approval_preferences.pop("spacr.qt.preferences._count_store_writes.write")
+    assert "spacr.qt.preferences._count_store_writes.write" not in docs
     assert set(approval_preferences) == {
         "spacr.qt.ai.prompts.tool_approval_note",
         "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
         "spacr.qt.ai.providers.describe_tool_call",
         "spacr.qt.ai.providers.tool_rule",
-        "spacr.qt.preferences._count_store_writes.write",
         "spacr.qt.preferences._remembered.read",
     }
     assert {key: docs[key] for key in approval_preferences} == approval_preferences

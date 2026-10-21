@@ -366,3 +366,4 @@ The automated equivalent, for any machine, is:
         tests/qt/test_sound_on_does_not_wedge_the_preferences_dialog.py
 
 VERIFIED 2026-10-04: test_sound_on_does_not_wedge_the_preferences_dialog passes; the QtMultimedia thread pins skip on this box (libbrotlidec mismatch, environmental); 2 referenced test files pass.
+2026-10-21 — Ported62ae8d023f: repeated shutdown reports the actual sound thread state. Native nightly62f709b6f/macOS26.6.1 Intel, MacBook Pro Speakers, isolated spaceout profile:10 populated Preferences reopens alternate Save/Cancel with sound enabled; normal quit and same-profile relaunch/reopen/quit exit0 without captured thread warnings. Main port additionally passes a source-verified Cocoa launch/Preferences Save/audio-available/normal-quit smoke. Audible playback remains human-unconfirmed.

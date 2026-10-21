@@ -1840,12 +1840,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **help_arrivals}
     approval_preferences_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
+    assert approval_preferences_arrivals.pop("spacr.qt.preferences._count_store_writes.write")
+    assert "spacr.qt.preferences._count_store_writes.write" not in docs
     assert set(approval_preferences_arrivals) == {
         "spacr.qt.ai.prompts.tool_approval_note",
         "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
         "spacr.qt.ai.providers.describe_tool_call",
         "spacr.qt.ai.providers.tool_rule",
-        "spacr.qt.preferences._count_store_writes.write",
         "spacr.qt.preferences._remembered.read",
     }
     assert {key: docs[key] for key in approval_preferences_arrivals} == (

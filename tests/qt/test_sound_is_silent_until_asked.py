@@ -704,6 +704,35 @@ class TestTheAudioThread:
             "Qt Multimedia was reached off the GUI thread")
         assert not any(_same(t, audio) for t in threads)
 
+    def test_repeated_shutdown_reports_a_renderer_that_is_still_running(
+            self, make_engine, monkeypatch):
+        from types import SimpleNamespace
+
+        from spacr.qt import bridge
+
+        running = {"value": True}
+        thread = SimpleNamespace(isRunning=lambda: running["value"])
+        engine = make_engine(threaded=False)
+        engine._thread = thread
+        drains = []
+
+        def park(actual_thread, renderer, timeout_ms):
+            drains.append((actual_thread, renderer, timeout_ms))
+            return False
+
+        monkeypatch.setattr(bridge, "drain_thread", park)
+        monkeypatch.setattr(snd, "_ENGINE", engine)
+        assert engine.shutdown(0) is False
+        assert engine.closed is True
+        assert thread.isRunning() is True
+        assert snd.shutdown_sound(0) is False
+        assert engine.shutdown(0) is False
+        assert drains == [(thread, engine._renderer, 0)]
+
+        running["value"] = False
+        assert engine.shutdown(0) is True
+        assert drains == [(thread, engine._renderer, 0)]
+
     def test_quitting_ends_the_thread_and_lets_go_of_every_effect(
             self, make_engine, sink, qtbot, monkeypatch):
         # Exercise real queued rendering, analysis and shutdown without making

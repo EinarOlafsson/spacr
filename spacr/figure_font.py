@@ -62,6 +62,72 @@ def bundled_faces() -> List[str]:
             if name.lower().endswith((".ttf", ".otf"))]
 
 
+def _figure_font_manager():
+    """Load the complete font list without macOS's slow system-profiler scan."""
+    import json
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    import matplotlib
+
+    try:
+        version = tuple(int(part) for part in matplotlib.__version__.split('.')[:2])
+    except (AttributeError, ValueError):
+        version = (0, 0)
+    native = None
+    if (sys.platform == 'darwin' and version >= (3, 11)
+            and 'matplotlib.font_manager' not in sys.modules
+            and not os.environ.get('MPL_IGNORE_SYSTEM_FONTS')):
+        script = (
+            'ObjC.import("CoreText"); ObjC.import("Foundation"); '
+            'var urls=ObjC.castRefToObject($.CTFontManagerCopyAvailableFontURLs()).js; '
+            'JSON.stringify(urls.map(function(url){return url.path.js;}));')
+        try:
+            paths = json.loads(subprocess.check_output(
+                ['/usr/bin/osascript', '-l', 'JavaScript', '-e', script],
+                text=True, timeout=3))
+            if (isinstance(paths, list) and paths
+                    and all(isinstance(path, str) and os.path.isabs(path) for path in paths)):
+                native = set(paths)
+        except (OSError, ValueError, subprocess.SubprocessError):
+            pass
+    previous = os.environ.get('MPL_IGNORE_SYSTEM_FONTS')
+    if native is not None:
+        os.environ['MPL_IGNORE_SYSTEM_FONTS'] = '1'
+    try:
+        from matplotlib import font_manager
+    finally:
+        if native is not None:
+            if previous is None:
+                os.environ.pop('MPL_IGNORE_SYSTEM_FONTS', None)
+            else:
+                os.environ['MPL_IGNORE_SYSTEM_FONTS'] = previous
+    if native is not None:
+        native.update(str(path) for path in font_manager._get_fontconfig_fonts())
+        folders = [*font_manager.X11FontDirectories, *font_manager.OSXFontDirectories]
+        for extension in ('ttf', 'afm'):
+            native.update(font_manager.findSystemFonts(fontpaths=folders, fontext=extension))
+        manager = font_manager.fontManager
+        known = {entry.fname for entry in [*manager.ttflist, *manager.afmlist]}
+        added = False
+        for path in sorted(native - known):
+            if Path(path).suffix.lower() not in {'.ttf', '.ttc', '.otf', '.afm'}:
+                continue
+            try:
+                manager.addfont(path)
+                added = True
+            except Exception:
+                continue
+        if added:
+            try:
+                cache = Path(matplotlib.get_cachedir()) / f'fontlist-v{manager.__version__}.json'
+                font_manager.json_dump(manager, cache)
+            except Exception:
+                pass
+    return font_manager
+
+
 def use_open_sans_for_figures() -> bool:
     """Register the bundled faces with Matplotlib's font manager.
 
@@ -76,7 +142,7 @@ def use_open_sans_for_figures() -> bool:
         return _resolved
 
     try:
-        from matplotlib import font_manager
+        font_manager = _figure_font_manager()
     except Exception:
         return False
 
