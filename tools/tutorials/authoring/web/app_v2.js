@@ -1391,7 +1391,12 @@ function updateSceneSyncRate(audioSeconds) {
   const referenceDuration = Number(reference.scene_end) - Number(reference.speech_start);
   const referenceTotal = timingDuration(visualTimings, elements.video.duration);
   if (selectedDuration <= 0 || referenceDuration <= 0 || referenceTotal <= 0) return;
-  syncRate = completeNativePlayback() || reference.native_live_video ? 1
+  // Complete native masters can also contain held-image cards. Their clocks
+  // still use the same duration ratio as mapTiming; only preserved intervals
+  // and actual native footage must remain at their recorded speed.
+  const elapsedMapping = (visualTimings.preserve_visual_intervals === true &&
+    visualTimings.native_live_video === true) || reference.native_live_video;
+  syncRate = elapsedMapping ? 1
     : elements.video.duration / referenceTotal * referenceDuration / selectedDuration;
   programmedVideoRate = clamp(syncRate, 0.0625, 16);
   elements.video.defaultPlaybackRate = programmedVideoRate;
