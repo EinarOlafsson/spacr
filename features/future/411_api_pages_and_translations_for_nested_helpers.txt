@@ -29,8 +29,8 @@ Owner:     THE ROOT CODEX SESSION, working in /mnt/firecuda2/codex/repo/spacr.
            SESSION STARTS 411 WORK. They will answer questions and review.
 
 CODEX: THIS WHOLE FILE IS YOUR BRIEF. Read it top to bottom before the first
-edit, then features/HANDOFF.md and
-features/325_two_sessions_one_repo_working_protocol.temp. Every file:line below
+edit, then spacr/resources/AI/AGENTS.md and
+spacr/resources/AI/HANDOFF.md. Every file:line below
 was read on nightly at a2e11294e (2026-09-15). Re-check a line before you rely
 on it; line numbers drift.
 
@@ -362,19 +362,26 @@ on it; line numbers drift.
       and its 24 helpers.
 
 ================================================================================
-8. WORKING RULES -- TREE, OWNERSHIP, GIT, MACHINE
+8. HISTORICAL WORKING RULES -- TREE, OWNERSHIP, GIT, MACHINE
 ================================================================================
+
+  The working rules below record the original 2026-09-15 brief and are
+  superseded by spacr/resources/AI/AGENTS.md and spacr/resources/AI/HANDOFF.md.
+  The retired two-session protocol survives only in Git history; its old
+  ownership, claim channel, Git and machine rules are not current instructions.
+  Technical implementation requirements and acceptance history remain intact.
 
   TREE. Work only in /mnt/firecuda2/codex/repo/spacr. The Claude tree is
   /mnt/firecuda2/Claude/repo/spacr. Run `git worktree list` before the first
-  commit, and if you are in the wrong tree, stop (325 section 1). In any
-  ad-hoc check, assert the tree you imported:
+  commit, and if you are in the wrong tree, stop (retired two-session protocol
+  section 1, in Git history). In any ad-hoc check, assert the tree you imported:
       import spacr; assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
   (HANDOFF section 3 explains why a check that trusts its invocation lied
   four times.)
 
-  OWNERSHIP FOR 411. 325 gives docs/** (templates, conf.py, reviewed records)
-  to the Claude sessions, and makes tools/** claim-before-edit. FOR THIS ITEM
+  OWNERSHIP FOR 411. The retired two-session protocol gave docs/** (templates,
+  conf.py, reviewed records) to the Claude sessions, and made tools/**
+  claim-before-edit. FOR THIS ITEM
   ONLY, the maintainer's assignment gives you these paths:
       docs/source/conf.py                     (the slice switch, the Jinja hook)
       docs/source/_autoapi_templates/**       (function.rst, method.rst)
@@ -387,8 +394,8 @@ on it; line numbers drift.
       tests/test_api_i18n_frontend.py, tests/test_docstring_correctness.py,
       tests/test_nested_functions_are_documented.py,
       tests/test_i18n_coverage_audit.py, and new tests you add
-  Before the first edit, write the claim in 325 section 5 (date, "411", these
-  paths). .github/** is shared: announce there before touching docs.yml.
+  The original claim channel was section 5 of the retired two-session
+  protocol (Git history); current coordination follows the canonical handoff.
 
   DON'T TOUCH, because others are editing them now:
       spacr/spacrops.py and the OPS settings/tests      (item 372, Claude home)
@@ -411,7 +418,7 @@ on it; line numbers drift.
       catalog rebuild for 1.5.0.8. Both rewrite the same nine catalog files a
       slice writes, and interleaving them has already nearly reverted 92
       translated paragraphs once. The home session writes a dated "PHASE B MAY
-      START" line in this file and in 325 section 5 when both have landed.
+      START" line in this file and the retired protocol section 5 (Git history).
       Until you see it, keep to Phase A.
 
   SLICE ORDER. Start with ONE small module (2-4 helpers) to prove the whole
@@ -439,12 +446,12 @@ on it; line numbers drift.
     10. Commit with EXPLICIT PATHS (HANDOFF 0c: `git commit -F -` without
         paths commits whatever is in the index); pull --rebase; push. Never
         --force or --force-with-lease on nightly. On a rebase conflict, stop
-        and write it in 325 section 5.
+        and use the current canonical handoff for coordination.
     11. Add a SLICE LOG line below, and watch the docs job on that push to the
         end. If it is red, revert the slice.
 
   COMMITS: author Einar Olafsson only. No AI attribution: no Co-Authored-By,
-  no "Generated with" (325; HANDOFF section 6).
+  no "Generated with" (historical protocol and HANDOFF section 6).
 
   MACHINE. The box has 125 GB of RAM, shared with two Claude sessions and the
   maintainer's desktop. The maintainer's rule: nothing may take the machine

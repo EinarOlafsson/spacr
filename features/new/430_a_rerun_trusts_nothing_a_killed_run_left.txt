@@ -35,9 +35,10 @@ Requested: GitHub #118 and #124, both filed 2026-09-17 by jak18015, spaCR
 
            On 2026-09-19 the maintainer decided that the Codex-lane fixes for
            the Sept-17 mask issues go ahead ("Fix them, post a notice").
-           Section 5 of features/325_two_sessions_one_repo_working_protocol.temp
-           records it and names spacr/core.py (+ io.py) for #118/#124. The
-           fix is in spacr/io.py; after review spacr/core.py gained one call,
+           Section 5 of the retired two-session protocol, preserved in Git
+           history, records it and names spacr/core.py (+ io.py) for
+           #118/#124. The fix is in spacr/io.py; after review spacr/core.py
+           gained one call,
            the archive check on the preprocess-off path.
 Owner:     home, unit rerun-processed-folder.
 

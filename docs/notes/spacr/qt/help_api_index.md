@@ -11,10 +11,8 @@ python tools/build_help_search_index.py --check   # fail if it is stale
 ## Why it is a Python module and not a data file
 
 `find_packages` ships a `.py` under `spacr/` with no entry in `setup.py` or
-`MANIFEST.in`. A `.json` or `.txt` beside it needs both, and `MANIFEST.in`
-and `setup.py` are announce-before-you-touch files under
-`features/325_two_sessions_one_repo_working_protocol.temp`. A generated module
-costs one import — measured at 69 ms for 1.3 MB, and it happens on the index
+`MANIFEST.in`. A `.json` or `.txt` beside it needs entries in both. A generated
+module costs one import — measured at 69 ms for 1.3 MB, and it happens on the index
 worker, not the GUI thread.
 
 ## What is in it

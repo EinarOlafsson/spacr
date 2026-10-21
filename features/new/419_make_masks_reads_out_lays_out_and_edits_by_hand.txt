@@ -428,7 +428,7 @@ Also: the Mask backend dropdown gained a fourth row, Cellpose 3, because it
 reads INSTALLABLE_BACKENDS and item 423 added that backend. Point 3's own
 list of backends is not otherwise changed.
 
-Noted in features/325_two_sessions_one_repo_working_protocol.temp §5.
+Noted in the retired two-session protocol §5 (preserved in Git history).
 --------------------------------------------------------------------------------
 2026-09-19 — POINTS 4-6 BUILT (PART B OF THREE), BRANCH home/419-part-b
 --------------------------------------------------------------------------------

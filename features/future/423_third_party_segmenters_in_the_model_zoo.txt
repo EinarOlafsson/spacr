@@ -370,7 +370,7 @@ PackageInstall and CheckpointDownload are untouched.
 Seven of 419's install tests were rewritten to drive the dialog, and two
 new ones assert that neither control runs pip against spaCR's own
 environment. Everything is recorded in
-features/325_two_sessions_one_repo_working_protocol.temp §5 and in 419's
+the retired two-session protocol §5 (preserved in Git history) and in 419's
 own file, so the session that built it can reverse this if the maintainer
 prefers.
 
