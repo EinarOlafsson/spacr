@@ -252,3 +252,161 @@ def test_cleanup_that_changed_after_review_is_not_deleted(installation):
     with pytest.raises(ValueError, match="cleanup paths changed"):
         ic._apply_uninstall_records(preview, selection, [], cleanup, machine)
     assert logs.with_name("logs-old").joinpath("today.log").exists()
+
+
+@pytest.fixture
+def uv_cache_installation(tmp_path):
+    box = Box(tmp_path)
+    root = linux_online(box, "1.5.1.5")
+    box.write(root / "cache/CACHEDIR.TAG", "Signature: 8a477f597d28d172789f06886806bc55\n")
+    box.write(root / "keep-user-file.txt", "user-owned")
+    return box, root, _machine(box, running_prefix=str(root / "venv"))
+
+
+def test_legacy_online_uv_cache_is_previewed_and_purgeable_without_registration(uv_cache_installation):
+    box, root, machine = uv_cache_installation
+    cache = str(root / "cache")
+    assert ("caches", cache, True) in ic._uninstall_data_candidates(machine)
+    preview = ic._uninstall_preview("cache-preview", system=machine)
+    row = next(row for row in preview["cleanup"] if row["path"] == cache)
+    assert row["selectable"] and row["category"] == "caches" and row["identity"]
+    assert cache in ic._purge_targets(machine)
+    assert str(root) not in ic._purge_targets(machine)
+    assert not (box.home / ".spacr" / ic._CACHE_LOCATIONS_FILE).exists()
+
+
+@pytest.mark.parametrize("selected", [False, True])
+def test_confirmed_uninstall_respects_uv_cache_optout_and_unknown_user_files(uv_cache_installation, selected):
+    box, root, machine = uv_cache_installation
+    preview = ic._uninstall_preview("cache-choice", system=machine)
+    choice = ic._uninstall_selection(preview, categories=["caches"] if selected else [])
+    outcome = ic._apply_uninstall_selection(preview, choice, system=machine, after_shutdown=True)
+    assert outcome["ok"]
+    assert (root / "cache").exists() is not selected
+    assert (root / "keep-user-file.txt").read_text() == "user-owned"
+    assert not (root / "venv").exists()
+
+
+def test_cli_purge_deletes_verified_uv_cache_but_preserves_unknown_data(uv_cache_installation):
+    box, root, machine = uv_cache_installation
+    assert ic._purge_command(machine, yes=True) == 0
+    assert not (root / "cache").exists()
+    assert (root / "venv").is_dir()
+    assert (root / "keep-user-file.txt").read_text() == "user-owned"
+
+
+def test_installer_cache_registration_merges_existing_locations_atomically(uv_cache_installation):
+    box, root, machine = uv_cache_installation
+    manifest = box.write(box.home / ".spacr" / ic._CACHE_LOCATIONS_FILE,
+                         json.dumps({"SPACR_MODEL_CACHE": "/kept/spacr-models", "other": "kept"}))
+    assert ic._register_installer_cache(str(root), system=machine) == str(root / "cache")
+    assert json.loads(manifest.read_text()) == {
+        "SPACR_MODEL_CACHE": "/kept/spacr-models", "other": "kept",
+        "SPACR_INSTALLER_CACHE": str(root / "cache")}
+    assert sorted(path.name for path in manifest.parent.iterdir()) == [ic._CACHE_LOCATIONS_FILE]
+
+
+@pytest.mark.parametrize("problem", ["cache_link", "tag_link", "bootstrap_link", "missing_tag", "bad_tag", "bad_metadata", "editable", "malformed_url", "malformed_url_directory", "tag_fifo", "metadata_fifo", "url_fifo", "url_link", "running", "shared"])
+def test_unverified_linked_or_shared_cache_is_never_authorized(uv_cache_installation, tmp_path, problem):
+    box, root, machine = uv_cache_installation
+    cache = root / "cache"
+    outside = tmp_path / "shared-data"
+    outside.mkdir()
+    sentinel = box.write(outside / "keep.txt", "untouched")
+    if problem == "cache_link":
+        cache.rename(outside / "original-cache")
+        cache.symlink_to(outside / "original-cache", target_is_directory=True)
+    elif problem in {"tag_link", "bootstrap_link"}:
+        path = cache / "CACHEDIR.TAG" if problem == "tag_link" else root / "bootstrap/uv"
+        target = outside / path.name
+        target.write_bytes(path.read_bytes())
+        path.unlink()
+        path.symlink_to(target)
+    elif problem == "missing_tag":
+        (cache / "CACHEDIR.TAG").unlink()
+    elif problem == "bad_tag":
+        (cache / "CACHEDIR.TAG").write_text("not a UV cache")
+    elif problem == "bad_metadata":
+        metadata = next((root / "venv").rglob("METADATA"))
+        metadata.write_text("Name: unrelated\nVersion: 1.5.1.5\n")
+    elif problem == "editable":
+        metadata = next((root / "venv").rglob("METADATA"))
+        metadata.with_name("direct_url.json").write_text(json.dumps(
+            {"dir_info": {"editable": True}, "url": "file:///not-an-installer"}))
+    elif problem == "malformed_url_directory":
+        metadata = next((root / "venv").rglob("METADATA"))
+        metadata.with_name("direct_url.json").write_text('{"dir_info": []}')
+    elif problem == "malformed_url":
+        metadata = next((root / "venv").rglob("METADATA"))
+        metadata.with_name("direct_url.json").write_text("[]")
+    elif problem in {"url_fifo", "url_link"}:
+        path = next((root / "venv").rglob("METADATA")).with_name("direct_url.json")
+        if problem == "url_fifo":
+            os.mkfifo(path)
+        else:
+            target = box.write(outside / "direct_url.json", "{}")
+            path.symlink_to(target)
+    elif problem in {"tag_fifo", "metadata_fifo"}:
+        path = cache / "CACHEDIR.TAG" if problem == "tag_fifo" else next((root / "venv").rglob("METADATA"))
+        path.unlink()
+        os.mkfifo(path)
+    elif problem == "running":
+        machine.running_prefix = str(cache / "active-python")
+    elif problem == "shared":
+        machine.environ["HF_HOME"] = str(cache / "shared-models")
+    assert str(cache) not in ic._verified_installer_caches(machine)
+    assert str(cache) not in ic._purge_targets(machine)
+    with pytest.raises(ValueError, match="unverified_installer_cache"):
+        ic._register_installer_cache(str(root), system=machine)
+    assert sentinel.read_text() == "untouched"
+
+
+@pytest.mark.parametrize("content", ["{broken", "[]"])
+def test_registration_refuses_malformed_registry_without_overwriting(uv_cache_installation, content):
+    box, root, machine = uv_cache_installation
+    manifest = box.write(box.home / ".spacr" / ic._CACHE_LOCATIONS_FILE, content)
+    with pytest.raises(ValueError):
+        ic._register_installer_cache(str(root), system=machine)
+    assert manifest.read_text() == content
+
+
+def test_registration_refuses_linked_registry_and_forged_entry_cannot_authorize(uv_cache_installation, tmp_path):
+    box, root, machine = uv_cache_installation
+    foreign = box.write(tmp_path / "shared/spacr-sensitive/keep.txt", "preserved")
+    manifest = box.write(box.home / ".spacr" / ic._CACHE_LOCATIONS_FILE,
+                         json.dumps({ic._INSTALLER_CACHE_KEY: str(foreign.parent)}))
+    assert str(foreign.parent) not in ic._purge_targets(machine)
+    assert all(path != str(foreign.parent) for _category, path, _owned in ic._uninstall_data_candidates(machine))
+    original = manifest.read_bytes()
+    moved = manifest.with_name("real-registry.json")
+    manifest.rename(moved)
+    manifest.symlink_to(moved)
+    with pytest.raises(OSError):
+        ic._register_installer_cache(str(root), system=machine)
+    assert moved.read_bytes() == original and foreign.read_text() == "preserved"
+
+
+def test_general_cli_remove_purge_captures_cache_before_runtime_metadata_disappears(uv_cache_installation, monkeypatch):
+    box, root, machine = uv_cache_installation
+    monkeypatch.setattr(ic, "_Machine", lambda **kwargs: machine)
+    assert ic._main(["remove", "--purge", "--yes"]) == 0
+    assert not (root / "venv").exists()
+    assert not (root / "cache").exists()
+    assert (root / "keep-user-file.txt").read_text() == "user-owned"
+
+
+def test_cli_purge_refuses_replaced_installer_cache_after_confirmation(uv_cache_installation):
+    box, root, machine = uv_cache_installation
+    cache = root / "cache"
+    captured = [(str(cache), ic._uninstall_path_state(str(cache)))]
+
+    def replace_at_confirmation(prompt):
+        cache.rename(root / "original-cache")
+        cache.mkdir()
+        box.write(cache / "keep.txt", "replacement")
+        return "purge"
+
+    assert ic._purge_command(machine, ask=replace_at_confirmation, installer_caches=captured) == 1
+    assert (cache / "keep.txt").read_text() == "replacement"
+    assert (root / "original-cache/CACHEDIR.TAG").exists()
+    assert (root / "keep-user-file.txt").read_text() == "user-owned"

@@ -2,7 +2,7 @@
 CLEAN UNINSTALL PURGE
 ================================================================================
 
-Status:    BLOCKED ON MAINTAINER — software delivered; native macOS/Windows uninstall acceptance remains.
+Status:    IN PROGRESS — Linux repairs and native acceptance ready for publication; native macOS/Windows uninstall acceptance remains.
 Previous software delivery: DONE 2026-10-04.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
@@ -24,6 +24,57 @@ DONE NOTE
   (Linux, macOS) and Uninstall.exe /PURGE (NSIS). Docs:
   docs/source/installer_guide.rst. Tests use temp homes.
   Left: not exercised on real Windows/macOS uninstallers (CPU-only Linux run).
+
+--------------------------------------------------------------------------------
+HOME LINUX ACCEPTANCE — EXPLICITLY RESUMED 2026-10-21
+--------------------------------------------------------------------------------
+
+Current confirmed gap: the private online installer's UV cache at its verified
+installation root/cache is not offered by GUI or CLI purge. The retained
+uninstall worker owns cache registration for new installers and strictly
+ownership-verified legacy discovery, using the existing caches/artifacts
+category. Offer only actual installer-owned paths; reject linked/escaping or
+unverified folders and preserve arbitrary cache folders and unknown user files.
+Default full purge must preview and remove this selected owned cache; opting
+out must retain it. Exercise both actual GUI and packaged CLI routes, keep
+identity-bound preview/selection revalidation, and preserve unrelated/shared
+cache data. Coordinate install_cleanup.py ownership after the accepted staged
+Linux update freezes; these cleanup repairs do not reopen valid update proofs.
+
+The actual post-update uninstall also leaves an inactive committed POSIX
+rollback runtime; its update lock is removed when the helper finishes.
+Full/default-all cleanup must offer and remove only strictly validated managed
+backups and any genuinely dead-owned locks under the
+existing temporary category, using existing transaction/runtime/lease identity
+checks. Keep the update adapter unchanged. Never delete by filename prefix:
+live, uncommitted, malformed, forged or unowned state and unknown user files
+must remain protected. The retained pair owns this follow-up; verify actual
+final post-update purge removes the eligible old runtime/owned stale lock,
+while opt-out and live/forged controls preserve them as required.
+
+Native default-all uninstall also exposes a startup-onboarding/modal overlap.
+The acceptance coordinator owns the smallest GUI coordination repair: preserve
+confirmation/cancellation and helper authorization, keep startup notices from
+blocking the active uninstall, then retry the actual native full-purge route.
+
+The maintainer explicitly requires real Linux installation acceptance on the
+Home host. The acceptance coordinator owns install/update/reinstall/uninstall
+through installed desktop/runtime paths; this resumes Linux only and preserves
+703's recorded Mac acceptance and the Mac session's ownership. The newly
+resumed Linux scope is in progress; Windows stays held.
+Use disposable owned installation roots, launchers, profiles and desktop
+entries. Protect the working host app, all user data and unrelated jobs.
+Run actual native installer/application/helper processes, identify their
+version/interpreter/module and requested target, and distinguish a no-op from
+a real upgrade. Check background install/update, restart into the intended
+version, same-version reinstall, default data preservation, uninstall defaults
+and category opt-outs with unrelated sentinels. An isolated Linux user/mount
+namespace may shield the real profile while exercising production paths;
+record that isolation and any genuine native-display limitation. No GPU,
+mocked-success claims, fabricated version bump or changed public release.
+Retain valid prior tests and run affected regressions only for actual repairs.
+Record actual outcomes and any missing route/prerequisite in at most five
+dated trailing lines; root owns integration/publication of resulting fixes.
 
 --------------------------------------------------------------------------------
 CURRENT MAC SESSION: NATIVE UNINSTALL AND CLEANUP ACCEPTANCE
@@ -86,5 +137,8 @@ Pass/reporting boundary
   Uninstall.exe /PURGE or Linux; retain the existing portable checks and mark
   those remaining native platform checks honestly.
 
-2026-10-21 — Maintainer response: current macOS uninstall changes are not tested yet. Software delivery is retained; native macOS/Windows purge acceptance is not established.
-The Mac session owns real macOS GUI/installer uninstall scopes and cleanup opt-out checks; root retains non-Mac acceptance. Preserve unrelated environments and data.
+2026-10-21 — Maintainer resumed Linux/Home acceptance; Mac session retains macOS GUI/installer acceptance and Windows remains untested. These native gates prevent whole-item completion; preserve unrelated environments/data.
+2026-10-21 — cc5f4f5bd2 adds verified installer-cache registration/discovery, isolated packaged-helper imports, strict inactive committed-backup/dead-lock cleanup and uninstall/onboarding coordination; focused ownership/live/forged/opt-out/identity/cancellation regressions pass without weakening guards.
+2026-10-21 — Home Ubuntu24.04.5 x86_64 genuine online GUI Cancel/older-shared removal/cache opt-out/default-all purge and packaged CLI purge/no-purge pass. Final wheelbc26f329 installed sources match; native xcb/Xvfb desktop/helper exit0 and production default-purge result ok=true/failed=[] are observed.
+2026-10-21 — Default purge removes runtime/private Python/bootstrap/launchers, real UV cache and all eight selected data categories; opt-out preserves chosen data. Unknown-file bytes, shared idna/environment/HF/cache and unrelated sentinels survive; real qhx1kpmz rollback is removed by the final helper, with no lock before/after.
+2026-10-21 — Released1.5.1.5 Debian actual dpkg removal preserves five data sentinels; this does not establish current online GUI or macOS/Windows behavior. All owned native jobs finish; root owns integrated publication, while native macOS/Windows uninstall acceptance remains open.

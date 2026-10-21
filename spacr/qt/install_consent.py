@@ -869,6 +869,11 @@ class _UninstallCoordinator(QObject):
         if getattr(self.window, "_uninstall_coordinator", None) is self:
             self.window._uninstall_coordinator = None
             self.window._approve_uninstall_close = None
+            if (getattr(self.window, "_installer_onboarding_pending", False)
+                    and not self.close_after_cancel and not self.approved
+                    and not getattr(self.window, "_closing", False)):
+                self.window._installer_onboarding_pending = False
+                QTimer.singleShot(0, self.window._maybe_offer_installation_cache_review)
         self.progress.deleteLater()
         if self.close_after_cancel:
             QTimer.singleShot(0, self.window.close)

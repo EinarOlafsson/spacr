@@ -164,7 +164,7 @@ def test_both_update_paths_prune_before_they_stage():
         'tempfile.mkdtemp(prefix=".spacr-windows-update-"')
 
 
-def test_uninstall_lists_retained_copies_under_temporary_files(tmp_path):
+def test_uninstall_does_not_authorize_an_unjournaled_runtime_prefix_directory(tmp_path):
     from tests.test_install_cleanup import Box, linux_online
 
     box = Box(tmp_path)
@@ -174,7 +174,7 @@ def test_uninstall_lists_retained_copies_under_temporary_files(tmp_path):
     copy.chmod(0o700)
     preview = ic._uninstall_preview("lists-copies", system=box.machine("linux"))
     rows = [row for row in preview["cleanup"] if row["path"] == str(copy)]
-    assert rows and rows[0]["category"] == "temporary" and rows[0]["selectable"]
+    assert not rows or all(not row["selectable"] for row in rows)
 
 
 @pytest.mark.parametrize("family", ["windows-private-pip", "windows-online-uv"])

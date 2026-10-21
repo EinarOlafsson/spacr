@@ -280,3 +280,38 @@ def test_keeping_the_running_installation_starts_with_its_data_kept(qtbot, previ
     dialog._scope.setCurrentIndex(dialog._scope.findData("all"))
     assert dialog.choices()["categories"] == list(install_cleanup._UNINSTALL_CATEGORIES)
     assert dialog._kept_note.isHidden()
+
+
+@pytest.mark.parametrize("phase", ["_maybe_offer_installation_cache_review", "_continue_installer_onboarding"])
+def test_startup_onboarding_waits_for_uninstall_confirmation(qtbot, monkeypatch, phase):
+    from spacr.qt.app import MainWindow
+
+    window, owner = coordinator(qtbot)
+    notices = []
+    resumed = []
+    window._maybe_offer_installation_cache_review = lambda: resumed.append(True)
+    monkeypatch.setattr(consent, "maybe_show_anonymous_report_notice", lambda parent: notices.append(parent))
+    getattr(MainWindow, phase)(window)
+    assert window._installer_onboarding_pending
+    assert notices == []
+    owner.cancel()
+    qtbot.waitUntil(lambda: resumed == [True])
+    assert window._uninstall_coordinator is None
+    assert not window._installer_onboarding_pending
+
+
+@pytest.mark.parametrize("closing", ["approved", "close_after_cancel", "window_closing"])
+def test_onboarding_does_not_resume_during_uninstall_shutdown(qtbot, closing):
+    window, owner = coordinator(qtbot)
+    resumed = []
+    window._installer_onboarding_pending = True
+    window._maybe_offer_installation_cache_review = lambda: resumed.append(True)
+    if closing == "window_closing":
+        window._closing = True
+    else:
+        setattr(owner, closing, True)
+    owner._finish()
+    from PySide6.QtWidgets import QApplication
+
+    QApplication.processEvents()
+    assert resumed == []

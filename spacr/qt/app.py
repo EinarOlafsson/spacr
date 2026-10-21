@@ -5860,6 +5860,9 @@ class MainWindow(QMainWindow):
         """Show the report notice after cache review, then resume the tour timer."""
         if self._closing:
             return
+        if getattr(self, "_uninstall_coordinator", None) is not None:
+            self._installer_onboarding_pending = True
+            return
         from .install_consent import maybe_show_anonymous_report_notice
 
         notice = maybe_show_anonymous_report_notice(self)
@@ -5886,6 +5889,9 @@ class MainWindow(QMainWindow):
         A failed preview is not recorded as reviewed. The Help action remains
         available after keeping files or reviewing the current release.
         """
+        if getattr(self, "_uninstall_coordinator", None) is not None:
+            self._installer_onboarding_pending = True
+            return
         from spacr.install_profile import read_profile
         from .install_consent import _settings
 

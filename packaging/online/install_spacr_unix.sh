@@ -1084,7 +1084,7 @@ for arg in "\$@"; do
         for other in "\$@"; do
             [ "\$other" = "--yes" ] && yes_flag="--yes"
         done
-        "$VENV_DIR/bin/python" -m spacr.install_cleanup purge \$yes_flag || true
+        "$VENV_DIR/bin/python" -I -m spacr.install_cleanup purge \$yes_flag || true
     fi
 done
 # SPACR_UNINSTALL_PATH $LAUNCHER
@@ -1097,6 +1097,9 @@ fi
 swap_started=0
 metadata_touched=0
 rm -rf "$old_venv"
+if [[ "$PLATFORM" == "linux" ]]; then
+    "$cleanup_python" -I "$cleanup_module" register-installer-cache --install-root "$INSTALL_ROOT" || true
+fi
 echo
 spacr_say installed
 if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then

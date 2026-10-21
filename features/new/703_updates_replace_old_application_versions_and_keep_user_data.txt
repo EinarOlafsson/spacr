@@ -2,9 +2,9 @@
 UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
 ================================================================================
 
-Status:    IN PROGRESS — native macOS scope remains accepted; the maintainer
-           resumed Linux on Home and current Linux-online staging is missing.
-           Retained installer worker owns the staged Linux update repair.
+Status:    IN PROGRESS — native macOS scope remains accepted; current-source
+           Linux staged update and native acceptance are ready for publication.
+           A newer released artifact is still needed for current-source version replacement.
 Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
            reopen an old version. Replace obsolete application installations,
            preserve cache and temporary/user files unless cleanup is required
@@ -1090,8 +1090,8 @@ Old-to-new desktop acceptance remains open: this Mac and the current candidate a
 2026-10-21 — Maintainer accepted native VoiceOver under655 and placed the remaining Windows/Linux acceptance on hold; do not pursue those platform lanes until explicitly resumed. The newer-candidate macOS replacement gate above remains accurately recorded.
 2026-10-21 — DONE at maintainer-accepted scope: the native macOS installer matrix plus automated in-app update, rollback, interruption, identity and restart validation satisfy703. The maintainer explicitly waives a second newer-candidate in-app run; Windows/Linux acceptance stays on hold and does not keep this item open.
 
-2026-10-21 — Home Ubuntu24.04.5 x86_64 native online1.5.1.4 installation/desktop and released1.5.1.5 update/restart pass; that legacy updater loses the inside-root file and CPU-wheel choice while preserving four external data sentinels. No GPU compute or current-source equivalence is claimed.
-Released1.5.1.5 frozen Debian actual private-root dpkg install/reinstall/removal, launcher/frozen identity and physical startup/Home pass; five profile/output sentinels survive, without claiming host privileged integration or a nonexistent older frozen upgrade.
-Current65a7a6f3 source wheel GUI same-version reinstall restores torch2.14.1+cpu and preserves all five file sentinels and byte-identical saved Qt settings; the actually installed module bytes match that candidate.
-ff22a3fb16 adds Linux-only staged POSIX update/Restart with verified identity, CPU-profile preservation, missing-profile refusal and rollback; all28 focused Linux/Qt/shared-Mac checks pass. Root owns publication.
-The repaired wheel8a8e6579 actual native xcb/Xvfb same-version1.5.1.5 flow passes Restart, atomic activation, retained rollback and authenticated new desktop identity/visible Home; all five files, preferences and CPU choice survive. This does not invent a newer release or physical rendering/performance acceptance; remaining Linux uninstall work belongs to646.
+2026-10-21 — Home Ubuntu24.04.5 x86_64: real online1.5.1.4→released1.5.1.5 installation/update/restart passes; that legacy updater loses the inside-root file and CPU-wheel choice but retains four external sentinels. This is not current-source acceptance.
+2026-10-21 — Released1.5.1.5 Debian private-root dpkg install/reinstall/removal, frozen identity, native startup/Home and five retained data sentinels pass; no privileged host integration or nonexistent older frozen upgrade is claimed.
+2026-10-21 — Current-source GUI same-version reinstall preserves five files, byte-identical Qt settings and CPU torch; ff22a3fb16 stages Linux updates with existing POSIX identity/Restart/rollback machinery and safe missing-profile refusal;28 focused checks pass.
+2026-10-21 — Repaired wheel8a8e6579 native xcb/Xvfb1.5.1.5 same-version Restart passes atomic activation, authenticated new interpreter/module/version and visible Home; all files/preferences/CPU choice and rollback survive. Normal check correctly reports no newer release; current-source old→new replacement awaits a newer artifact.
+2026-10-21 — Final cc5f4f5bd2 wheelbc26f329 actual installer/readback and646 GUI/CLI cleanup pass; all owned native jobs finish. Root owns integrated publication; accepted Mac scope remains closed and unrelated Windows scope remains held.
