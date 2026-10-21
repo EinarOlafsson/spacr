@@ -49,6 +49,7 @@ class Flash:
         self._widget = widget
         self._duration = int(duration_ms)
         self._active = False
+        self._generation = 0
 
     @property
     def active(self) -> bool:
@@ -64,7 +65,11 @@ class Flash:
         """
         self._active = True
         self._widget.update()
-        QTimer.singleShot(self._duration, self._end)
+        self._generation += 1
+        generation = self._generation
+        QTimer.singleShot(
+            self._duration,
+            lambda: self._end() if generation == self._generation else None)
 
     def _end(self) -> None:
         """Clear the highlight and repaint, if the widget still exists.
@@ -73,6 +78,7 @@ class Flash:
         raises on a deleted C++ object, and by then there is nothing to repaint
         either way.
         """
+        self._generation += 1
         self._active = False
         try:
             self._widget.update()
