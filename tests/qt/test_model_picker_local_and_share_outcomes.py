@@ -217,3 +217,16 @@ def test_failed_preferences_fall_back_without_hiding_the_picker(monkeypatch):
     assert module.remembered_sources() == tuple(model_zoo.DEFAULT_ZOO_SOURCES)
     module._remember_model_dir("/local/models")
     module._remember_sources(("spaCR",))
+
+
+def test_sharing_reads_the_saved_token_with_the_current_hub_api(tmp_path, monkeypatch):
+    """Hub 1+ removed HfFolder; an existing saved login must still be found."""
+    from huggingface_hub import constants
+
+    for name in ("HF_TOKEN", "HUGGING_FACE_HUB_TOKEN", "HUGGINGFACEHUB_API_TOKEN"):
+        monkeypatch.delenv(name, raising=False)
+    path = tmp_path / "token"
+    path.write_text("hf_test_saved_login", encoding="utf-8")
+    monkeypatch.setattr(constants, "HF_TOKEN_PATH", str(path))
+
+    assert model_share.find_token() == "hf_test_saved_login"

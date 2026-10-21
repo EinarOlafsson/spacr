@@ -212,9 +212,9 @@ def find_token() -> Optional[str]:
         if value:
             return value.strip()
     try:
-        from huggingface_hub import HfFolder
+        from huggingface_hub import get_token
 
-        return HfFolder.get_token()
+        return get_token()
     except Exception:                                        # noqa: BLE001
         return None
 
