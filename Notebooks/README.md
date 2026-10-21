@@ -4,39 +4,39 @@ Start with [the workflow browser](00_workflow_browser.ipynb) to choose any regis
 
 ## Guided workflows
 
-| Notebook | Purpose |
-|---|---|
-| [Generate masks](01_generate_masks.ipynb) | Generate per-object masks for cells, nuclei, pathogens, and organelles from microscopy images. |
-| [Generate and track timelapse masks](01b_generate_timelapse_masks.ipynb) | Generate masks from time-series microscopy images and link selected objects across consecutive frames. |
-| [Measure objects and crop images](02_measure_and_crop.ipynb) | Compute per-object morphology, intensity, and spatial measurements from merged image-mask arrays, with optional object-centred crops. |
-| [Classify images with a neural network](03_classify_computer_vision.ipynb) | Train a convolutional image classifier from labelled object crops and apply it to the experimental dataset. |
-| [Classify objects from measured features](04_classify_machine_learning.ipynb) | Fit a supervised tabular classifier to per-object measurements and apply it to the full dataset. |
-| [Map sequencing reads to microplate wells](05_map_barcodes.ipynb) | Process amplicon sequencing reads and quantify guide-RNA assignments for each microplate well. |
-| [Estimate genotype-phenotype associations](06_regression.ipynb) | Estimate guide- or gene-level effects by modelling phenotype scores as a function of guide abundance. |
-| [Embed object images](07_image_umap.ipynb) | Compute a two-dimensional embedding of single-object images or features and display representative objects in embedding space. |
-| [Train a Cellpose model](08_train_cellpose.ipynb) | Fine-tune a Cellpose segmentation model using annotated microscopy images and corresponding reference masks. |
-| [Apply a Cellpose model](09_apply_cellpose.ipynb) | Apply a pretrained or custom Cellpose model to a microscopy image collection. |
-| [Evaluate a Cellpose model](10_test_cellpose.ipynb) | Compare predicted masks with reference masks using per-image segmentation metrics. |
-| [Generate activation maps](11_activation_maps.ipynb) | Estimate the image regions contributing to a trained classifier's predictions using saliency or activation-mapping methods. |
-| [Quantify molecular recruitment](12_recruitment.ipynb) | Quantify fluorescent-marker enrichment at a pathogen or vacuole relative to the surrounding cellular compartment. |
-| [Analyze a plaque assay](13_plaque_assay.ipynb) | Segment plaques and quantify plaque number and area for each image or well. |
-| [Analyze object motility](14_motility_assay.ipynb) | Generate and track time-series masks, then quantify trajectory, velocity, displacement, and infection-related quality control. |
-| [Quantify intracellular replication](15_replication.ipynb) | Estimate intracellular parasite number per vacuole and compare count distributions across experimental groups. |
-| [Quantify invasion](16_invasion.ipynb) | Classify pathogens as intracellular or extracellular using differential-staining measurements and summarize invasion efficiency. |
-| [Quantify endodyogeny](17_endodyogeny.ipynb) | Classify intracellular replication states from pathogen size and summarize their frequencies across experimental groups. |
-| [Estimate percent positive](18_percent_positive.ipynb) | Classify objects relative to an intensity threshold and estimate the positive fraction for each experimental unit. |
-| [Count annotated phenotypes](19_count_phenotypes.ipynb) | Count objects assigned to each annotation or predicted phenotype class within experimental groups. |
-| [Analyze activation maps](20_activation_analysis.ipynb) | Aggregate image-attribution maps and compare attribution summaries across model classes. |
-| [Transfer knowledge between models](21_model_knowledge_transfer.ipynb) | Train a student image classifier using predictions from one or more teacher models. |
-| [Fuse compatible models](22_model_fusion.ipynb) | Combine parameters from compatible trained image-classifier checkpoints using a specified aggregation method. |
-| [Compare sequencing reads with phenotype scores](23_compare_reads_to_scores.ipynb) | Join per-well guide abundance with imaging-derived phenotype scores and quantify their association. |
-| [Interpret a vision-model score](24_interpret_vision_model.ipynb) | Model vision-classifier outputs using measured morphology and intensity features to identify associated quantitative attributes. |
-| [Generate score heatmaps](25_score_heatmap.ipynb) | Arrange per-well phenotype scores in microplate coordinates and compare score tables when multiple inputs are supplied. |
-| [Evaluate sequencing quality](26_sequencing_stats.ipynb) | Summarize sequencing depth, read quality, consensus, and guide-count distributions. |
-| [Analyze regression results](27_post_regression_analysis.ipynb) | Derive downstream guide correlations, ranked findings, and figures from a completed regression analysis. |
-| [Analyze gene-ontology enrichment](28_go_term_enrichment.ipynb) | Test whether a selected gene set is enriched for annotated gene ontology categories. |
-| [Plot gene phenotypes](29_gene_phenotype_plots.ipynb) | Display selected gene-level phenotype estimates relative to the screen-wide distribution. |
-| [Generate a volcano plot](30_volcano_plot.ipynb) | Display effect estimates against negative log10-transformed p-values and annotate selected findings. |
+| Notebook | Colab | Purpose |
+|---|---|---|
+| [Generate masks](01_generate_masks.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/01_generate_masks.ipynb) | Generate per-object masks for cells, nuclei, pathogens, and organelles from microscopy images. |
+| [Generate and track timelapse masks](01b_generate_timelapse_masks.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/01b_generate_timelapse_masks.ipynb) | Generate masks from time-series microscopy images and link selected objects across consecutive frames. |
+| [Measure objects and crop images](02_measure_and_crop.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/02_measure_and_crop.ipynb) | Compute per-object morphology, intensity, and spatial measurements from merged image-mask arrays, with optional object-centred crops. |
+| [Classify images with a neural network](03_classify_computer_vision.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/03_classify_computer_vision.ipynb) | Train a convolutional image classifier from labelled object crops and apply it to the experimental dataset. |
+| [Classify objects from measured features](04_classify_machine_learning.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/04_classify_machine_learning.ipynb) | Fit a supervised tabular classifier to per-object measurements and apply it to the full dataset. |
+| [Map sequencing reads to microplate wells](05_map_barcodes.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/05_map_barcodes.ipynb) | Process amplicon sequencing reads and quantify guide-RNA assignments for each microplate well. |
+| [Estimate genotype-phenotype associations](06_regression.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/06_regression.ipynb) | Estimate guide- or gene-level effects by modelling phenotype scores as a function of guide abundance. |
+| [Embed object images](07_image_umap.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/07_image_umap.ipynb) | Compute a two-dimensional embedding of single-object images or features and display representative objects in embedding space. |
+| [Train a Cellpose model](08_train_cellpose.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/08_train_cellpose.ipynb) | Fine-tune a Cellpose segmentation model using annotated microscopy images and corresponding reference masks. |
+| [Apply a Cellpose model](09_apply_cellpose.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/09_apply_cellpose.ipynb) | Apply a pretrained or custom Cellpose model to a microscopy image collection. |
+| [Evaluate a Cellpose model](10_test_cellpose.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/10_test_cellpose.ipynb) | Compare predicted masks with reference masks using per-image segmentation metrics. |
+| [Generate activation maps](11_activation_maps.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/11_activation_maps.ipynb) | Estimate the image regions contributing to a trained classifier's predictions using saliency or activation-mapping methods. |
+| [Quantify molecular recruitment](12_recruitment.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/12_recruitment.ipynb) | Quantify fluorescent-marker enrichment at a pathogen or vacuole relative to the surrounding cellular compartment. |
+| [Analyze a plaque assay](13_plaque_assay.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/13_plaque_assay.ipynb) | Segment plaques and quantify plaque number and area for each image or well. |
+| [Analyze object motility](14_motility_assay.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/14_motility_assay.ipynb) | Generate and track time-series masks, then quantify trajectory, velocity, displacement, and infection-related quality control. |
+| [Quantify intracellular replication](15_replication.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/15_replication.ipynb) | Estimate intracellular parasite number per vacuole and compare count distributions across experimental groups. |
+| [Quantify invasion](16_invasion.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/16_invasion.ipynb) | Classify pathogens as intracellular or extracellular using differential-staining measurements and summarize invasion efficiency. |
+| [Quantify endodyogeny](17_endodyogeny.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/17_endodyogeny.ipynb) | Classify intracellular replication states from pathogen size and summarize their frequencies across experimental groups. |
+| [Estimate percent positive](18_percent_positive.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/18_percent_positive.ipynb) | Classify objects relative to an intensity threshold and estimate the positive fraction for each experimental unit. |
+| [Count annotated phenotypes](19_count_phenotypes.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/19_count_phenotypes.ipynb) | Count objects assigned to each annotation or predicted phenotype class within experimental groups. |
+| [Analyze activation maps](20_activation_analysis.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/20_activation_analysis.ipynb) | Aggregate image-attribution maps and compare attribution summaries across model classes. |
+| [Transfer knowledge between models](21_model_knowledge_transfer.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/21_model_knowledge_transfer.ipynb) | Train a student image classifier using predictions from one or more teacher models. |
+| [Fuse compatible models](22_model_fusion.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/22_model_fusion.ipynb) | Combine parameters from compatible trained image-classifier checkpoints using a specified aggregation method. |
+| [Compare sequencing reads with phenotype scores](23_compare_reads_to_scores.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/23_compare_reads_to_scores.ipynb) | Join per-well guide abundance with imaging-derived phenotype scores and quantify their association. |
+| [Interpret a vision-model score](24_interpret_vision_model.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/24_interpret_vision_model.ipynb) | Model vision-classifier outputs using measured morphology and intensity features to identify associated quantitative attributes. |
+| [Generate score heatmaps](25_score_heatmap.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/25_score_heatmap.ipynb) | Arrange per-well phenotype scores in microplate coordinates and compare score tables when multiple inputs are supplied. |
+| [Evaluate sequencing quality](26_sequencing_stats.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/26_sequencing_stats.ipynb) | Summarize sequencing depth, read quality, consensus, and guide-count distributions. |
+| [Analyze regression results](27_post_regression_analysis.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/27_post_regression_analysis.ipynb) | Derive downstream guide correlations, ranked findings, and figures from a completed regression analysis. |
+| [Analyze gene-ontology enrichment](28_go_term_enrichment.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/28_go_term_enrichment.ipynb) | Test whether a selected gene set is enriched for annotated gene ontology categories. |
+| [Plot gene phenotypes](29_gene_phenotype_plots.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/29_gene_phenotype_plots.ipynb) | Display selected gene-level phenotype estimates relative to the screen-wide distribution. |
+| [Generate a volcano plot](30_volcano_plot.ipynb) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/30_volcano_plot.ipynb) | Display effect estimates against negative log10-transformed p-values and annotate selected findings. |
 
 ## All registered workflows
 
@@ -78,26 +78,14 @@ The browser offers every entry below, including workflows without a dedicated gu
 | `train_only` | The training stage alone: train / evaluate on an existing dataset folder. | [`spacr.deep_spacr.train_test_model`](https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html#spacr.deep_spacr.train_test_model) |
 | `umap` | Embed single-object images with UMAP and plot them as image glyphs. | [`spacr.core.generate_image_umap`](https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap) |
 
-## Edit, inspect and run
+## Use a notebook
 
-1. Select the Python environment in which spaCR is installed; run the environment check first.
-2. Edit essential inputs. Expand a parameter reference group for descriptions and required/conditional status.
-3. Advanced defaults and descriptions are inside closed HTML details groups. Click the reference to expand them. Run the configuration cells to display the optional Advanced settings editor, then click a category, Apply changes, or Reset group. Only the essential input overrides appear in the code; full defaults are loaded from the current public API.
-4. Run all configuration cells in order, then run the analysis cell. Restart the kernel and run all cells when changing workflows or restoring defaults.
+Choose the standard notebook for Jupyter or its **Colab** link for native forms. Both load current defaults, keep essential inputs short, and open advanced controls and Help only on demand.
 
-HTML parameter groups are clickable in compatible notebook viewers and HTML exports. The advanced content stays hidden until clicked, even if the viewer ignores cell-collapse metadata.
+Colab Setup installs the published PyPI package only when explicitly enabled. Drive mounting, upload, model downloads and analysis require explicit actions. Inspect runtime compatibility before enabling Run; hosted resources and optional backends vary.
 
-Keep [_spacr_notebook_widgets.py](_spacr_notebook_widgets.py) beside a downloaded notebook for the optional category editors. The complete Notebooks folder includes it, including the old addresses. Without this helper or widgets, use the clickable reference and edit advanced_overrides in plain Python.
-
-The browser optionally uses ipywidgets for a workflow picker and an advanced-settings editor. Without widgets, edit the Python variables shown in the same notebook. Analysis is opt-in, so running its setup cells does not launch a pipeline.
+Download the Notebooks folder for local use, including the companion helper and reference/ pages. Without widgets, edit advanced_overrides in Python and open the linked reference. The legacy examples have been replaced by the standard and Colab sets.
 
 ## Desktop tools and additional interfaces
 
-Interactive mask drawing/lineage curation, annotation, cluster profiles and other desktop tools use the [graphical workflows](https://einarolafsson.github.io/spacr/workflows.html). The [complete API](https://einarolafsson.github.io/spacr/api/) covers additional public functions; `spacr-run --help` lists management commands such as archive export and validation.
-
-- [Python guide](https://einarolafsson.github.io/spacr/python_api.html)
-- [Tutorials](https://einarolafsson.github.io/spacr/tutorials/)
-- [Jupyter cell metadata](https://nbformat.readthedocs.io/en/latest/format_description.html#cell-metadata)
-- [Widget containers](https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20List.html#Container/Layout-widgets)
-
-Notebooks under `legacy/` retain their original URLs but are also regenerated with current settings and APIs. Combined ML/CV examples retain their regression stage; the Cellpose example retains optional image/mask dataset preparation.
+[Desktop workflows](https://einarolafsson.github.io/spacr/workflows.html) · [Complete API](https://einarolafsson.github.io/spacr/api/) · [Python guide](https://einarolafsson.github.io/spacr/python_api.html) · [Tutorials](https://einarolafsson.github.io/spacr/tutorials/)

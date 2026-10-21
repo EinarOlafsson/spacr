@@ -103,3 +103,97 @@ def show_workflow_settings_editor(settings, module):
     advanced.selected_index = None
     display(advanced)
     return advanced, editor, apply_button
+
+
+def show_help_menu(reference):
+    """Load and display only a requested section, never on initial display."""
+    try:
+        import ipywidgets as widgets
+        from IPython.display import Markdown, display
+    except ImportError:
+        print("Open the linked reference for help.")
+        return None
+    picker = widgets.Dropdown(options=[("Choose help…", ""),
+        ("Workflow and outputs", "overview"), ("API calls", "api"),
+        ("Essential inputs", "essential"), ("All parameter groups", "parameters")],
+        description="Help:", layout=widgets.Layout(width="95%"))
+    button = widgets.Button(description="Show selected help")
+    clear = widgets.Button(description="Close help")
+    output = widgets.Output()
+
+    def show(_):
+        if not picker.value:
+            return
+        with output:
+            output.clear_output()
+            try:
+                from pathlib import Path
+                path = Path(reference)
+                if path.is_file():
+                    text = path.read_text(encoding="utf-8")
+                else:
+                    from urllib.request import urlopen
+                    url = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/Notebooks/"
+                           + reference.removeprefix("../"))
+                    text = urlopen(url, timeout=20).read().decode("utf-8")
+                import re
+                sections = re.split(r"(?m)^(?=## )", text)
+                if picker.value == "overview":
+                    selected = [sections[0]] + [part for part in sections if part.startswith("## Outputs")]
+                elif picker.value == "api":
+                    selected = [part for part in sections if part.startswith("## 2.")]
+                elif picker.value == "essential":
+                    parameters = next(part for part in sections if part.startswith("## 3."))
+                    selected = []
+                    for function in parameters.split("\n### ")[1:]:
+                        heading, _, body = function.partition("\n")
+                        essential = body.partition("#### Essential inputs")[2].partition("<details>")[0]
+                        selected.append("### " + heading + "\n\n" + essential)
+                else:
+                    selected = [part for part in sections if part.startswith("## 3.")]
+                display(Markdown("\n\n".join(selected)))
+            except (OSError, ValueError, StopIteration) as error:
+                print(f"Help unavailable: {error}. Open the linked reference instead.")
+
+    button.on_click(show)
+    clear.on_click(lambda _: output.clear_output())
+    panel = widgets.Accordion(children=[widgets.VBox([picker, widgets.HBox([button, clear]), output])])
+    panel.set_title(0, "Help — click to choose a topic")
+    panel.selected_index = None
+    display(panel)
+    return panel
+
+
+def preview_outputs(folder, limit=12):
+    """List a bounded set of output files; preview only an explicitly chosen file."""
+    from pathlib import Path
+    import ipywidgets as widgets
+    from IPython.display import display, FileLink, Image
+    root = Path(folder).expanduser()
+    if not root.is_dir():
+        raise ValueError("Choose an existing output folder.")
+    files = []
+    for path in root.rglob("*"):
+        if path.is_file():
+            files.append(path)
+        if len(files) >= limit:
+            break
+    picker = widgets.Dropdown(options=[(str(path.relative_to(root)), str(path)) for path in files], description="Output:")
+    button = widgets.Button(description="Preview / link")
+    output = widgets.Output()
+
+    def preview(_):
+        if not picker.value:
+            return
+        path = Path(picker.value)
+        with output:
+            output.clear_output()
+            if path.stat().st_size <= 5_000_000 and path.suffix.lower() in {".png", ".jpg", ".jpeg"}:
+                display(Image(filename=str(path), width=640))
+            elif path.stat().st_size <= 5_000_000 and path.suffix.lower() == ".csv":
+                import pandas as pd
+                display(pd.read_csv(path, nrows=10))
+            display(FileLink(str(path)))
+    button.on_click(preview)
+    display(widgets.VBox([picker, button, output]))
+    return picker, button, output
