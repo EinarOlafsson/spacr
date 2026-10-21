@@ -147,7 +147,7 @@ def test_the_value_hint_goes_quiet_when_the_file_is_not_a_database(
     assert "c1" in working._values.placeholderText()
 
     not_a_db = tmp_path / "notes.txt"
-    not_a_db.write_text("this is not a database")
+    not_a_db.write_text("this is not a database", encoding="utf-8")
     broken = _dialog(qtbot, not_a_db, project)
     placeholder_before = broken._values.placeholderText()
 

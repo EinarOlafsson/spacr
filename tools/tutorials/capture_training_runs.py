@@ -500,7 +500,7 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
                               'diff_headers': panel.diff_headers(), 'diff_rows': panel.diff_rows()})
 
         # Every input is pre-existing. No recipe, checkpoint loader or trainer is called.
-        audit = json.loads(AUDIT.read_text())
+        audit = json.loads(AUDIT.read_text(encoding="utf-8"))
         tree_before = _tree_state()
         for relative in tree_before:
             path = SOURCE / relative
@@ -513,7 +513,7 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
         manifest_path = SOURCE / 'manifest.json'
         if originals[str(manifest_path)]['sha256'] != audit['original_capture_provenance']['input_manifest']['sha256']:
             raise RuntimeError('The original synthetic-data disclosure manifest changed')
-        manifest = json.loads(manifest_path.read_text())
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         if manifest.get('disclosure') != 'Synthetic progress logs; no model was trained.':
             raise RuntimeError('The original synthetic-data disclosure is missing')
         for name, relative in RUNS.items():

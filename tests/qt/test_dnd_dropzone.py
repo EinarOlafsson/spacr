@@ -628,7 +628,7 @@ def test_alternative_pick_that_fails_to_apply_warns(zone, tmp_path, msgbox):
 def _write_settings_csv(path, rows, key_col="Key", val_col="Value"):
     lines = [f"{key_col},{val_col}"]
     lines += [f"{k},{v}" for k, v in rows]
-    path.write_text("\n".join(lines) + "\n")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
 
 
@@ -724,7 +724,7 @@ def test_apply_settings_csv_warns_when_columns_are_unusable(tmp_path, msgbox):
     every other rejected drop reports, and still names both shapes.
     """
     csv = tmp_path / "wrong.csv"
-    csv.write_text("alpha,beta\n1,2\n")
+    csv.write_text("alpha,beta\n1,2\n", encoding="utf-8")
     screen = FakeScreen()
     _apply_settings_csv(csv, screen)
     assert screen.applied == []

@@ -31,8 +31,8 @@ def report(tmp_path):
         "checked": True, "status": "complete", "issues": [],
         "shard_count": 12, "shards_with_records": 12,
     }}
-    (original / "coverage.json").write_text(json.dumps(coverage))
-    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate))
+    (original / "coverage.json").write_text(json.dumps(coverage), encoding="utf-8")
+    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate), encoding="utf-8")
     return original, coverage, gate
 
 
@@ -40,7 +40,7 @@ def test_complete_measurement_can_be_uploaded_without_overriding_ratchet_failure
     original, coverage, _ = report
     regenerated = original.parent / "regenerated.json"
     coverage["meta"]["timestamp"] = "a later rendering of the same measurement"
-    regenerated.write_text(json.dumps(coverage))
+    regenerated.write_text(json.dumps(coverage), encoding="utf-8")
     assert verify_report(original, regenerated) == "7.16.2"
     assert json.loads((original / "module-coverage-ratchet.json").read_text(encoding="utf-8"))["status"] == "fail"
 
@@ -55,7 +55,7 @@ def test_missing_original_integrity_is_refused(report, damage):
         del integrity["issues"]
     else:
         integrity["checked"] = False
-    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate))
+    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate), encoding="utf-8")
     with pytest.raises(ValueError, match="integrity record is missing"):
         verify_report(original)
 
@@ -65,7 +65,7 @@ def test_existing_successful_combine_policy_discloses_incomplete_measurement(rep
     gate["status"] = "incomplete"
     gate["measurement_integrity"]["status"] = "incomplete"
     gate["measurement_integrity"]["issues"] = ["a coverage file was discarded"]
-    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate))
+    (original / "module-coverage-ratchet.json").write_text(json.dumps(gate), encoding="utf-8")
     assert verify_report(original) == "7.16.2"
     output = capsys.readouterr().out
     assert "Original measurement integrity: incomplete" in output
@@ -85,7 +85,7 @@ def test_replay_must_preserve_all_measurements(report, damage):
     else:
         coverage["meta"]["version"] = "7.17.0"
     regenerated = original.parent / "regenerated.json"
-    regenerated.write_text(json.dumps(coverage))
+    regenerated.write_text(json.dumps(coverage), encoding="utf-8")
     with pytest.raises(ValueError, match="differs from the original"):
         verify_report(original, regenerated)
 

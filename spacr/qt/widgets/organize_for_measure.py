@@ -3583,7 +3583,10 @@ class OrganizeForMeasureDialog(QDialog):
         self.table.viewport().update()
 
     def closeEvent(self, event) -> None:
-        """Request thumbnail shutdown when the popup closes, including while hidden."""
+        """Request thumbnail shutdown when the popup closes, including while hidden.
+
+        :param event: the close event forwarded to the base dialog after requesting thumbnail shutdown.
+        """
         self._stop_thumbs()
         super().closeEvent(event)
 

@@ -35,6 +35,7 @@ def _count(db, table):
         return connection.execute(f'select count(*) from "{table}"').fetchone()[0]
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("answer", ["raises", "no_neighbourhood"])
 def test_a_bystander_block_that_cannot_answer_costs_only_its_columns(
         tmp_path, drawn, monkeypatch, capfd, answer):

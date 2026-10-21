@@ -1,7 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "approved": "production.patch plus nullable-proposal.patch",
-  "scope": "Scalar parent conversion only; force object boxing before map to preserve nullable signed64 integer identities.",
-  "evidence": "Four actual original failures; retain failed initial candidate cohort and supported-policy controls.",
-  "limitations": "No inference/biological acceptance; unsupported beyond-signed64 legacy wrap is not a required compatibility promise."
-}

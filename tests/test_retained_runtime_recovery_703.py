@@ -10,6 +10,8 @@ from spacr import install_cleanup as ic
 from tests.test_pip_runtime_transaction_703 import installation
 from tests.test_macos_runtime_transaction_703 import _snapshot, _wheel
 
+pytestmark = pytest.mark.posix_only
+
 
 @pytest.fixture
 def updated(installation, tmp_path):
@@ -51,9 +53,9 @@ def test_recovery_refuses_changed_or_busy_state_without_mutation(updated, tmp_pa
     prefix, transaction, machine, _original, run = updated
     path = transaction
     if change == 'current-source':
-        (prefix / 'unexpected-source.py').write_text('new source')
+        (prefix / 'unexpected-source.py').write_text('new source', encoding="utf-8")
     elif change == 'retained-source':
-        (transaction / 'runtime' / 'unexpected-source.py').write_text('new source')
+        (transaction / 'runtime' / 'unexpected-source.py').write_text('new source', encoding="utf-8")
     elif change == 'directory-identity':
         retained = transaction / 'runtime'
         retained.rename(transaction / 'previous-runtime')
@@ -72,7 +74,7 @@ def test_recovery_refuses_changed_or_busy_state_without_mutation(updated, tmp_pa
         journal = transaction / 'transaction.json'
         data = json.loads(journal.read_text(encoding="utf-8"))
         data['schema'] = 1
-        journal.write_text(json.dumps(data))
+        journal.write_text(json.dumps(data), encoding="utf-8")
     elif change == 'existing-lock':
         (prefix.parent / ('.' + prefix.name + '.spacr-update-lock')).mkdir()
     before = _snapshot(prefix.parent)

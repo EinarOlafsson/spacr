@@ -1,24 +1,24 @@
 """
 AI Console for the spacr Qt GUI.
 
-Three providers (Anthropic Claude, OpenAI, Google Gemini) behind a
-common streaming `ChatProvider` interface. API keys are pulled from
-env vars first (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY` /
-`GOOGLE_API_KEY`), then from the OS keyring under service name
-`spacr-qt-ai`.
+The AI console shares a streaming `ChatProvider` interface across the spaCR hosted relay
+and the Anthropic Claude, OpenAI Codex and Google Gemini command-line tools. Vendor
+tools use their own authentication; this package does not retrieve API keys from the OS
+keyring. Provider configuration checks select candidates and do not guarantee a working
+authenticated session.
 
 Public entry points::
 
     list_providers()           -> [ChatProvider, ...]
     get_provider(name)         -> ChatProvider | None
-    configured_providers()     -> [ChatProvider, ...] (only ones with a key)
+    configured_providers()     -> [ChatProvider, ...] (hosted when allowed, then configured CLIs)
     default_system_prompt()    -> str (spacr-aware assistant persona)
     error_explainer_prompt()   -> str (system prompt for the "Explain error" flow)
-    availability()             -> Availability (which providers are usable, and
-                                  what to type when none are)
-    generate_sections(digest)  -> ManuscriptDraft (the paper's Methods and
-                                  Results, with every number checked back
-                                  against the run digest)
+    availability()             -> Availability (configured vendor candidates
+                                  and setup guidance)
+    generate_sections(digest)  -> ManuscriptDraft (generated sections checked
+                                  against the digest, or deterministic
+                                  fallback sections)
 """
 from __future__ import annotations
 

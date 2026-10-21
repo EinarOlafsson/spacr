@@ -349,11 +349,11 @@ def test_an_unreadable_roi_is_refused_rather_than_ignored(tmp_path):
     with pytest.raises(R.RoiError, match='does not exist'):
         R.RoiSet.load(str(tmp_path / 'nope.json'))
     junk = tmp_path / 'junk.json'
-    junk.write_text('not json')
+    junk.write_text('not json', encoding="utf-8")
     with pytest.raises(R.RoiError, match='could not be read'):
         R.RoiSet.load(str(junk))
     listy = tmp_path / 'list.json'
-    listy.write_text('[]')
+    listy.write_text('[]', encoding="utf-8")
     with pytest.raises(R.RoiError, match='not an ROI'):
         R.RoiSet.load(str(listy))
 

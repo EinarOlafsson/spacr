@@ -457,3 +457,12 @@ def test_the_drift_filter_spares_a_track_just_under_its_threshold(
     assert set(points["cellID"]) == {2}
     assert len(points) == 5
     assert panel._summary.n_tracks == 1
+
+
+@pytest.mark.parametrize("channels_last", [False, True])
+def test_motility_reads_the_selected_plane_in_both_merged_layouts(channels_last):
+    """The real orientation helper keeps the selected plane's pixel values."""
+    planes = np.arange(6 * 12 * 14, dtype=np.uint16).reshape(6, 12, 14)
+    merged = np.moveaxis(planes, 0, -1) if channels_last else planes
+
+    np.testing.assert_array_equal(module._plane(merged, 4, n_channels=3), planes[4])

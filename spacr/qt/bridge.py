@@ -1952,6 +1952,8 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
     """
     from .verbose_logger import log_call
 
+    _ENTRY_IMPORT_ERRORS.pop(app_key, None)
+
     def _ret(fn):
         """Tag the entry point with its app key and its settings check."""
         return _tag(app_key, _say_what_is_wrong_with_the_settings(app_key, fn))
@@ -2054,10 +2056,33 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
                     f"Plugin entry point {plugin_app.entrypoint!r} is not callable"
                 )
             return _ret(log_call(entry))
-    except Exception:
+    except Exception as error:
         LOG.exception("Could not resolve pipeline entry for %s", app_key)
+        _ENTRY_IMPORT_ERRORS[app_key] = error
         return None
     return None
+
+
+_ENTRY_IMPORT_ERRORS: Dict[str, BaseException] = {}
+
+
+def _entry_import_error(app_key: str) -> Optional[str]:
+    """The first line of the error that stopped ``app_key``'s pipeline from loading.
+
+    :func:`resolve_pipeline_entry` returns ``None`` both for an app with no
+    pipeline and for one whose module failed to import. The second used to
+    read as "interactive-only in this Qt build" (Regression on a Mac whose
+    XGBoost could not load, 2026-10-20); the Run button now shows this.
+
+    :param app_key: the app key handed to :func:`resolve_pipeline_entry`.
+    :returns: the error's first non-empty line, or ``None`` when the last
+        resolution of ``app_key`` raised nothing.
+    """
+    error = _ENTRY_IMPORT_ERRORS.get(app_key)
+    if error is None:
+        return None
+    return next((line.strip() for line in str(error).splitlines() if line.strip()),
+                type(error).__name__)
 
 
 #: The module each built-in app's entry point is imported from, as

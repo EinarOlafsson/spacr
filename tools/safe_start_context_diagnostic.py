@@ -28,7 +28,7 @@ def collector_integrity(children, pytest_log):
                     break
                 previous = chunk[-len(COLLECTOR_ERROR_MARKER):]
     for path in children.glob('**/collector-integrity-*.json'):
-        record = json.loads(path.read_text())
+        record = json.loads(path.read_text(encoding="utf-8"))
         if record.get('errors'):
             issues.append('Collector integrity errors in ' + path.name)
     for phase in ('broken', 'safe', 'repaired'):
@@ -45,7 +45,7 @@ def collector_integrity(children, pytest_log):
         if not journal.is_file() or not faults.is_file():
             issues.append('Missing child phase/stack evidence for ' + phase)
             continue
-        boot = [json.loads(line) for line in journal.read_text().splitlines()
+        boot = [json.loads(line) for line in journal.read_text(encoding="utf-8").splitlines()
                 if json.loads(line).get('event') == 'child_boot']
         if len(boot) != 1 or not boot[0].get('coverage_active'):
             issues.append('Missing covered child boot receipt for ' + phase)
@@ -57,7 +57,7 @@ parser.add_argument('mode',choices=['bind','run'])
 parser.add_argument('--context',type=Path,required=True)
 parser.add_argument('--evidence',type=Path,required=True)
 args=parser.parse_args()
-context=json.loads(args.context.read_text())
+context=json.loads(args.context.read_text(encoding="utf-8"))
 evidence=args.evidence.resolve();evidence.mkdir(parents=True,exist_ok=True)
 root=Path.cwd().resolve(); workflow_sha=os.environ.get('GITHUB_SHA')
 def guard():
@@ -77,7 +77,7 @@ if args.mode=='bind':
     assert actual==required and qVersion()=='6.12.0'
     assert sys.version_info[:3]==(3,12,15)
     payload={'source':guard(),'workflow_sha':workflow_sha,'runtime':actual,'qt':qVersion(),'python':sys.version,'diagnostic_only':True,'full_ci_acceptance':False}
-    (evidence/'source-and-runtime.json').write_text(json.dumps(payload,indent=2)+'\n')
+    (evidence/'source-and-runtime.json').write_text(json.dumps(payload,indent=2)+'\n', encoding="utf-8")
     sys.exit(0)
 assert (evidence/'source-and-runtime.json').exists()
 before=guard(); env=os.environ.copy();env['GITHUB_SHA']=context['source_sha'];env['COVERAGE_FILE']=str(evidence/'coverage'/'.coverage');env['SPACR_SAFE_DIAGNOSTIC_DIR']=str(evidence/'children');env['SPACR_SAFE_ORIGINAL_LAUNCHER_SHA']=context['original_launcher_sha256'];env['SPACR_HOME']=str(evidence/'app-home');env['XDG_CONFIG_HOME']=str(evidence/'config');env['XDG_CACHE_HOME']=str(evidence/'cache');env['SPACR_LOG_DIR']=str(evidence/'logs');env['SPACR_TEST_COUNT_DIR']=str(evidence/'counts');env['PYTEST_DISABLE_PLUGIN_AUTOLOAD']='1';env['PYTEST_ADDOPTS']='';env['PYTHONDONTWRITEBYTECODE']='1'
@@ -87,7 +87,7 @@ for name in ['coverage','children','app-home','config','cache','logs','counts','
 command=[sys.executable,'-m','pytest',*context['batch5_files'],'-m','not gui','-n','2','--dist=loadfile','--cov=spacr','--cov-branch','--cov-report=','--cov-config=.coveragerc','--timeout=600','--timeout-method=thread','--max-worker-restart=0','-o','faulthandler_timeout=900','-o',f'cache_dir={evidence}/pytest-cache','--basetemp',str(evidence/'pytest-temp'),'--junitxml',str(evidence/'junit.xml'),'-v','--tb=short','-rA']
 for plugin in ['_hypothesis_pytestplugin','platformdirs.pytest_plugin','pytestqt.plugin','anyio.pytest_plugin','xdist.plugin','xdist.looponfail','pytest_timeout','pytest_cov.plugin','tools.pytest_plugins.qt_serial_rss_journal','safe_child_evidence']:
     command.extend(['-p',plugin])
-(evidence/'launch.json').write_text(json.dumps({'source_sha':context['source_sha'],'workflow_sha':workflow_sha,'command':command,'original_batch':{'coverage_shard':9,'batch':5,'files':32},'retries':0,'full_ci_acceptance':False},indent=2)+'\n')
+(evidence/'launch.json').write_text(json.dumps({'source_sha':context['source_sha'],'workflow_sha':workflow_sha,'command':command,'original_batch':{'coverage_shard':9,'batch':5,'files':32},'retries':0,'full_ci_acceptance':False},indent=2)+'\n', encoding="utf-8")
 with (evidence/'pytest.log').open('w') as out:
     process=subprocess.Popen(command,env=env,stdout=out,stderr=subprocess.STDOUT,start_new_session=True)
     timed_out=False
@@ -118,4 +118,4 @@ except Exception as exc:
     integrity.append('Unreadable collector integrity evidence: ' + type(exc).__name__)
 status=original_exit if original_exit else (2 if integrity or timed_out else 0)
 receipt={'source_before':before,'source_after':after,'workflow_sha':workflow_sha,'original_pytest_exit':original_exit,'diagnostic_exit':status,'batch_timeout':timed_out,'integrity_issues':integrity,'case_count':len(cases),'target_case_count':len(target),'target_outcomes':[{'name':c.attrib.get('name'),'failed':c.find('failure') is not None,'error':c.find('error') is not None,'skipped':c.find('skipped') is not None} for c in target],'full_ci_acceptance':False,'diagnostic_only':True}
-(evidence/'terminal.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(receipt),flush=True);sys.exit(status)
+(evidence/'terminal.json').write_text(json.dumps(receipt,indent=2)+'\n', encoding="utf-8");print(json.dumps(receipt),flush=True);sys.exit(status)

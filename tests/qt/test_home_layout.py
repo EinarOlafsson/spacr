@@ -92,9 +92,15 @@ def home(request, qapp, qt_theme_applied):
     on the page as ``testBuildFontScale`` so a test that measures with
     ``scaled_px`` can put it back first.
     """
+    from spacr.qt import preferences as _prefs
     from spacr.qt.preferences import get_font_scale
     from spacr.qt.theme import stylesheet
 
+    # Alpha tiles are off for a new user; these tests lay out every tile.
+    # Module scope builds this before the per-test seed in conftest runs.
+    _prefs_patch = pytest.MonkeyPatch()
+    _prefs_patch.setattr(_prefs, "DEFAULT_SHOW_ALPHA", True)
+    request.addfinalizer(_prefs_patch.undo)
     theme = request.param
     qss = stylesheet(theme)
 
@@ -240,8 +246,10 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
     for key in ("plasmodium", "candida", "trypanosoma", "leishmania",
                 "giardia", "virus", "mammalian"):
         assert app_stage(key) == "alpha", key
-    assert len(staged) == 37, (
-        f"{len(staged)} apps staged, not 37 — if that is intended, say so "
+    # 37 -> 33 on 2026-10-20, -4, intended: Make Masks, Analyze Plaques,
+    # Replication and Image UMAP were signed off stable for the paper.
+    assert len(staged) == 33, (
+        f"{len(staged)} apps staged, not 33 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 

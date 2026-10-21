@@ -122,7 +122,7 @@ def test_vendor_z_and_t_watches_default_their_volumetric_recipe(tmp_path):
     assert core._watch_vendor_recipe({**base, 't_stack': True, 't_axis_order': 'ZTYX'})[1] == {
         'z_segmentation_mode': 'volumetric'}
     assert core._watch_vendor_recipe({**base, 'z_stack': False})[1] == {}
-    (tmp_path / 'conversion_map.csv').write_text('target,source\n')
+    (tmp_path / 'conversion_map.csv').write_text('target,source\n', encoding="utf-8")
     assert core._watch_vendor_recipe(base)[1] == {}
 
 

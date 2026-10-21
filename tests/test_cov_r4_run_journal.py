@@ -19,6 +19,7 @@ of them may be silent about what the record now omits.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 from datetime import datetime, timedelta, timezone
@@ -27,6 +28,7 @@ from pathlib import Path
 import pytest
 
 from spacr import run_journal as RJ
+from tests.refused_access import refused
 
 
 @pytest.fixture
@@ -42,11 +44,11 @@ def _write_run(runs_dir, name, manifest, *, settings=None, settings_csv=None):
     """Lay out one run folder by hand, the way a finished run leaves one."""
     directory = runs_dir / name
     directory.mkdir()
-    (directory / "manifest.json").write_text(json.dumps(manifest))
+    (directory / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     if settings is not None:
-        (directory / "settings.json").write_text(settings)
+        (directory / "settings.json").write_text(settings, encoding="utf-8")
     if settings_csv is not None:
-        (directory / "settings.csv").write_text(settings_csv)
+        (directory / "settings.csv").write_text(settings_csv, encoding="utf-8")
     return directory
 
 
@@ -96,6 +98,7 @@ def test_a_flattened_key_that_repeats_a_nested_one_is_offered_once(tmp_path):
 # walking a source tree
 # ---------------------------------------------------------------------------
 
+@pytest.mark.needs_symlink
 def test_a_symlinked_file_in_a_source_folder_is_not_hashed(runs_dir, tmp_path):
     """``followlinks=False`` is only half the protection.
 
@@ -297,13 +300,11 @@ def test_a_changed_input_that_cannot_be_read_is_left_out_of_the_manifest(
         "src_file": str(readable),
         "model_path": str(sealed),
     }
-    try:
+    with contextlib.ExitStack() as unsealing:
         with RJ.open_run("mask", settings) as run:
             readable.write_bytes(b"r" * 4096)
             sealed.write_bytes(b"s" * 4096)
-            os.chmod(sealed, 0o000)
-    finally:
-        os.chmod(sealed, 0o600)
+            unsealing.enter_context(refused(sealed, 0o000, windows="read"))
 
     outputs = {Path(key).name for key in run.output_hashes}
     assert "readable.tif" in outputs, (
@@ -473,3 +474,46 @@ def test_a_scalar_warnings_field_is_still_surfaced(runs_dir):
 
     assert by_id[_run_name(0)]["warnings"] == ["cellpose: no masks found"]
     assert by_id[_run_name(1)]["warnings"] == []
+
+def test_an_output_at_the_top_of_a_drive_does_not_inventory_the_whole_drive():
+    """`dst="/outputs"` before it exists has the filesystem root as its parent,
+    and walking that inventoried the whole disk -- on Windows it then died on
+    the first protected file under C:\\."""
+    top = Path(Path.cwd().anchor)
+    assert RJ.Run._inventory_root("dst", top / "spacr-not-made-yet", True) is None
+    assert RJ.Run._inventory_root("dst", top / "a" / "b", True) == top / "a"
+
+
+def test_an_entry_the_walk_may_not_stat_is_passed_by(tmp_path, monkeypatch):
+    (tmp_path / "kept.txt").write_text("k", encoding="utf-8")
+    (tmp_path / "refused.txt").write_text("r", encoding="utf-8")
+    real = Path.is_symlink
+
+    def refusing(self):
+        if self.name == "refused.txt":
+            raise PermissionError(13, "Access is denied")
+        return real(self)
+
+    monkeypatch.setattr(Path, "is_symlink", refusing)
+    assert [p.name for p in RJ._iter_files(tmp_path, ())] == ["kept.txt"]
+
+
+@pytest.mark.posix_only
+def test_only_the_filesystem_root_stops_being_an_inventory_root(tmp_path):
+    """POSIX: "/" is refused as an output parent; real output folders still walk."""
+    assert RJ.Run._inventory_root("dst", Path("/spacr-not-made-yet"), True) is None
+    assert RJ.Run._inventory_root("dst", Path("/"), True) == Path("/")
+    existing = tmp_path / "outputs"
+    existing.mkdir()
+    assert RJ.Run._inventory_root("dst", existing, True) == existing
+    assert RJ.Run._inventory_root("dst", existing / "not-yet", True) == existing
+    assert RJ.Run._inventory_root("dst", tmp_path / "new-out", False) == tmp_path
+    assert RJ.Run._inventory_root("src", tmp_path / "input.tif", False) is None
+    assert RJ.Run._inventory_root("dst", Path("/tmp/spacr-new"), True) == Path("/tmp")
+
+
+def test_values_equal_compares_paths_as_before_off_windows():
+    assert RJ.values_equal(Path("/tmp/x"), "/tmp/x")
+    assert RJ.values_equal("a", "a") and not RJ.values_equal("a", "b")
+    if os.name != "nt":
+        assert RJ._same_windows_path(Path("/tmp/x"), "/tmp/x") is False

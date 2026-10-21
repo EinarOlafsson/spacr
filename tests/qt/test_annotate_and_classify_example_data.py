@@ -40,9 +40,9 @@ def unpacked(tmp_path):
     connection.commit()
     connection.close()
     (tmp_path / "settings" / "annotate_settings.csv").write_text(
-        f"Key,Value\nsrc,{DATASET_PLACEHOLDER}/measurements.db\n")
+        f"Key,Value\nsrc,{DATASET_PLACEHOLDER}/measurements.db\n", encoding="utf-8")
     (tmp_path / "settings" / "classify_settings.csv").write_text(
-        f"Key,Value\nsrc,{DATASET_PLACEHOLDER}\n")
+        f"Key,Value\nsrc,{DATASET_PLACEHOLDER}\n", encoding="utf-8")
     return tmp_path
 
 

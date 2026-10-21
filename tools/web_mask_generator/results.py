@@ -81,7 +81,7 @@ def _publish_staged_zip(stage, destination):
             for path in sorted(stage.rglob("*")):
                 if path.is_file():
                     archive.write(path, path.relative_to(stage).as_posix())
-        with open(pending, "rb") as handle:
+        with open(pending, "r+b") as handle:
             os.fsync(handle.fileno())
         os.replace(pending, destination)
         pending = None

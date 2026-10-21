@@ -564,7 +564,9 @@ def prepare(image: np.ndarray, chain: Chain, *, cancel=None,
         handing on the image as far as the chain got.
     :returns: ``image`` itself when nothing is switched on -- so a detector
         reading an untouched field reads the very array and not a float
-        copy -- and otherwise a new float32 array of the same shape.
+        copy -- and otherwise a float32 array of the same shape. The result
+        may share input storage when enabled steps are skipped or return
+        their input.
     """
     def check():
         """Stop between enhancement stages when the supplied callback or event is cancelled."""

@@ -100,8 +100,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    spec = json.loads(args.scenes.read_text())
-    timing_spec = json.loads(args.timings.read_text())
+    spec = json.loads(args.scenes.read_text(encoding="utf-8"))
+    timing_spec = json.loads(args.timings.read_text(encoding="utf-8"))
     scenes = spec["scenes"]
     timings = timing_spec["scenes"]
     if len(scenes) != len(timings):

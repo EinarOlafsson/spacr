@@ -143,8 +143,8 @@ blocks:
   - '**Docker**: kommandoradens bearbetningsflöden i en Linux-container, från CPU-avbildningen
     eller avbildningen för NVIDIA-GPU:er:'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
   lang: bash
 - p: '`Docker-guiden (nightly, engelska) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     beskriver GPU-inställning, montering av data och kommandon för bearbetningsflödena.'
@@ -246,7 +246,7 @@ blocks:
 - p: 'Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none``
     till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande
     2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes.
-    De versionshanterade filerna i main ger en utcheckning på 5059 MB (uppmätt 2026-10-21),
+    De versionshanterade filerna i main ger en utcheckning på 735 MB (uppmätt 2026-10-21),
     utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.'
 - h2: Kommandoradskommandon
 - code: |-

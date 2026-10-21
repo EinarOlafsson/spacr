@@ -55,7 +55,7 @@ def test_real_convert_map_accepts_exact_nested_companions_and_resumes(converted,
     ledger = json.loads(Path(result['ledger']).read_text(encoding="utf-8"))
     assert ledger['conversion_map_sha256'] == hashlib.sha256(before[watched / convert.MAP_FILENAME]).hexdigest()
     recorded = {name for entry in ledger['fields'].values() for name in entry['files']}
-    assert recorded == {str(path.relative_to(watched)) for path in paths}
+    assert recorded == {path.relative_to(watched).as_posix() for path in paths}
     assert core._watch_folder_and_analyse(_fast(watched), recorder)['done'] == result['done']
     assert len(recorder.calls) == 2
     assert all(path.read_bytes() == content for path, content in before.items())
@@ -94,7 +94,7 @@ def test_nested_map_real_preprocessing_and_measure_equal_flat_batch(converted, t
     core.preprocess_generate_masks(dict(MASK, src=str(batch)))
     measure_crop(dict(MEASURE, src=str(batch / 'merged')))
     settings = tmp_path / 'measure.json'
-    settings.write_text(json.dumps(MEASURE))
+    settings.write_text(json.dumps(MEASURE), encoding="utf-8")
     result = core.preprocess_generate_masks(dict(
         MASK, **_fast(watched), watch_pipeline='mask_measure',
         watch_measure_settings=str(settings)))

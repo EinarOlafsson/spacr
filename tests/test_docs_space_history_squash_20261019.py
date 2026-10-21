@@ -91,3 +91,43 @@ def test_the_workflow_squashes_before_it_uploads():
     squash = text.index("publish_docs_channels.py squash-nightly-if-needed")
     upload = text.index("publish_docs_channels.py upload-nightly")
     assert squash < upload
+
+
+def _failed_cleanup_api(status, message):
+    from huggingface_hub.errors import HfHubHTTPError
+
+    api = _Api(990_000_000, 40, ["served"], [("served", 5), ("orphan", 7)])
+    response = SimpleNamespace(
+        status_code=status, text=message, headers={},
+        request=SimpleNamespace(method="POST", headers={},
+                                url="https://huggingface.co/api/spaces/o/s/lfs-files/batch"))
+    error = HfHubHTTPError("synthetic provider refusal", response=response)
+
+    def refuse(space, files, **kwargs):
+        assert [item.file_oid for item in files] == ["orphan"]
+        raise error
+
+    api.permanently_delete_lfs_files = refuse
+    return api, error
+
+
+def test_missing_lfs_cleanup_is_explicitly_unconfirmed_without_claiming_deletion(site):
+    api, _ = _failed_cleanup_api(404, "Some LFS files not found")
+    result = publisher.squash_nightly_if_needed(site, "o/s", api=api)
+    assert result["squashed"] is True
+    assert result["cleanup"] == "unconfirmed-missing-lfs"
+    assert result["deleted_files"] is None and result["deleted_bytes"] is None
+    assert result["requested_files"] == 1
+    assert result["incoming_bytes"] == 1000
+    assert "synthetic provider refusal" not in repr(result)
+
+
+@pytest.mark.parametrize("status,message", [
+    (401, "Some LFS files not found"), (403, "Some LFS files not found"),
+    (429, "Some LFS files not found"), (500, "Some LFS files not found"),
+    (404, "Repository not found"), (404, "Unknown deletion error")])
+def test_other_cleanup_errors_still_fail_publication(site, status, message):
+    api, error = _failed_cleanup_api(status, message)
+    with pytest.raises(type(error)) as caught:
+        publisher.squash_nightly_if_needed(site, "o/s", api=api)
+    assert caught.value is error

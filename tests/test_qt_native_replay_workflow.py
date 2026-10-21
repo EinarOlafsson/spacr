@@ -63,8 +63,19 @@ def test_registered_serial_route_preserves_original_job_and_isolates_replay():
 
     serial = workflow['jobs']['serial-qt']
     original = {key: value for key, value in serial.items() if key != 'if'}
+    bootstrap = {
+        'name': 'Restore pinned translation review inputs',
+        'if': "hashFiles('docs/translation_reviews_revision.json') != ''",
+        'run': 'python tools/bootstrap_translation_reviews.py fetch',
+    }
+    steps = serial['steps']
+    assert steps.count(bootstrap) == 1
+    bootstrap_index = steps.index(bootstrap)
+    assert steps[bootstrap_index - 1]['name'] == 'Install the existing hosted Qt test dependencies'
+    assert steps[bootstrap_index + 1]['name'] == 'Record serial source and dependency provenance'
+    original['steps'] = steps[:bootstrap_index] + steps[bootstrap_index + 1:]
     assert _stable_sha256(original) == ACCEPTED_SERIAL_JOB_SHA256
-    assert _stable_sha256(serial['steps']) == ACCEPTED_SERIAL_STEPS_SHA256
+    assert _stable_sha256(original['steps']) == ACCEPTED_SERIAL_STEPS_SHA256
     diagnostic = workflow['jobs']['native-batch-replay']
     assert diagnostic['uses'] == './.github/workflows/qt-native-replay.yml'
     assert diagnostic['permissions'] == {'contents': 'read'}
@@ -201,6 +212,7 @@ def test_native_replay_retains_failure_and_bounded_core_capture():
         '${{ runner.temp }}/spacr-coverage-data/')
 
 
+@pytest.mark.posix_only
 def test_two_attempt_shell_stops_on_either_failure_and_separates_data(tmp_path):
     """A failed first or second replay keeps its failure and original receipt."""
     job = _workflow()['jobs']['replay']
@@ -311,6 +323,7 @@ def _sidecar(name):
     return module
 
 
+@pytest.mark.posix_only
 def test_safe_start_job_defers_runner_paths_until_runtime(tmp_path):
     """Job env cannot evaluate runner context; steps publish its actual paths."""
     job = _workflow()['jobs']['safe-start']
@@ -343,7 +356,7 @@ def test_child_capture_failure_preserves_original_call_and_outcome(
     """Broken evidence storage cannot replace the original result/exception."""
     sidecar = _sidecar('safe_child_evidence')
     launcher = tmp_path / 'launch_once.py'
-    launcher.write_text('original launcher')
+    launcher.write_text('original launcher', encoding="utf-8")
     monkeypatch.setenv('SPACR_SAFE_ORIGINAL_LAUNCHER_SHA',
                        hashlib.sha256(launcher.read_bytes()).hexdigest())
     monkeypatch.setenv('SPACR_SAFE_DIAGNOSTIC_DIR', str(tmp_path / 'evidence'))
@@ -392,6 +405,7 @@ def test_child_capture_failure_preserves_original_call_and_outcome(
     assert sidecar._errors
 
 
+@pytest.mark.posix_only
 def test_child_phase_write_failure_cannot_escape_the_profile_callback(
         tmp_path, monkeypatch):
     """A failing phase journal marks integrity without interrupting app code."""

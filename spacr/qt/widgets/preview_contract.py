@@ -307,9 +307,7 @@ class LivePreviewContract:
     def preview_stale(self, token: Any) -> bool:
         """True when a result carrying ``token`` has been superseded.
 
-        :param token: the preview generation a result was started under, as
-            :meth:`preview_token` returned it; ``None`` or a value that is not
-            an integer is never stale.
+        :param token: the preview generation a result was started under, as :meth:`preview_token` returned it; compared after conversion with ``int()``. ``None`` and values whose conversion raises ``TypeError`` or ``ValueError`` are never stale.
         """
         if token is None:
             return False

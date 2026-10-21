@@ -30,7 +30,7 @@ def test_preferences_save_the_channel_proxy_and_bundle(qtbot, tmp_path):
     from PySide6.QtWidgets import QComboBox, QFormLayout, QLineEdit
 
     bundle = tmp_path / "corp.pem"
-    bundle.write_text("x")
+    bundle.write_text("x", encoding="utf-8")
     from spacr.qt.widgets.hint_bar import HintBar
 
     dlg = P.PreferencesDialog(None)

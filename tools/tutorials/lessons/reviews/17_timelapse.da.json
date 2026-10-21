@@ -1,13 +1,14 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
+  "english_sha256": "6be5750bbd2c866e956fcdb45c7f5ba63d8609b03056b5241f89ea7ceb47b9a3",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "da",
   "title": "Timelapse",
@@ -18,6 +19,7 @@
     "Opsætte en Mask-kørsel for tidsserier og finde dens sporede output."
   ],
   "prerequisite": "Download og udpak SYNTHETIC_timelapse_preview.zip. Undervisningseksemplet indeholder otte billedrammer med cellebilleder og matchende labelbilleder. Til en fuld Mask-kørsel på dine egne data forbereder du tidsordnede mikroskopibilleder og noterer optagelsesintervallet.",
+  "section": "Core",
   "scenes": [
     "Åbn Mask fra Home, slå Time til i Actions-rækken, og slå Timelapse til for at aktivere sporing. Timelapse forbinder objekter på tværs af på hinanden følgende billeder. Først prøver vi det linkede eksempel i Track preview, og derefter gennemgår vi indstillingerne til din egen billedserie.",
     "Download og udpak eksempelarkivet nedenfor, og klik derefter på Track preview til højre for overskriften Actions. Arkivet indeholder en billedsekvens og en matchende maskesekvens med otte billedrammer. Hold begge mapper samlet, så du kan vælge billeder og labels, der hører sammen.",
@@ -26,7 +28,7 @@
     "Sæt overlapstærsklen til 0,1, og klik på Run preview. Tærsklen styrer, hvor meget tilstødende masker skal overlappe for at blive forbundet. Undersøg de farvede objektidentiteter og oversigten over sporlængder. Eksemplet giver seksten spor, der strækker sig over alle otte billedrammer.",
     "Justér overlapstærsklen, hvis objekter deles op i korte spor eller forbindes med de forkerte naboer. En højere tærskel kræver mere overlap. Når du har ændret den, venter du, til forhåndsvisningen er færdig, og klikker på Re-link for at undersøge den endelige værdi. Bladr gennem flere billedrammer, før du accepterer resultatet.",
     "Brug skyderen for billedrammer til at følge det samme objekt gennem sekvensen. Play ændrer, hvor hurtigt du ser billedrammerne. Notér det faktiske optagelsesinterval separat til senere hastighedsmålinger.",
-    "Til en fuld kørsel på dine egne billeder angiver du Source og intensitetskanalerne i Mask. Denne optagelse importerer indstillingerne for en lille syntetisk sekvens med otte billedrammer. Hold hvert synsfelts tidspunkter i rækkefølge. Rammegrænser bruger en start og en udelukket slutning: 0 til 8 vælger de første otte billedrammer.",
+    "Til en fuld kørsel på dine egne billeder angiver du Source og intensitetskanalerne i Mask. Her importerer du indstillingerne til det lille syntetiske eksempel med otte billeder. Hold hvert synsfelts tidspunkter i rækkefølge. Rammegrænser bruger en start og en udelukket slutning: 0 til 8 vælger de første otte billedrammer.",
     "Vælg det objekt, der skal spores, og sporingstilstanden. Overlapstilstanden iou forbinder objekter ved hjælp af deres masker i tilstødende billedrammer. Undersøg først en kort sekvens, og vælg en tilstand, der passer til, hvor langt dine objekter bevæger sig mellem billedrammerne.",
     "Slå Keep original images til for at beholde inputbillederne under oprydningen i pipelinen. Angiv segmenteringsmodel og kanaler til dine data, og kontrollér forhåndsvisningen, før du behandler hele sekvensen.",
     "Slå Plot til for at undersøge de genererede figurer, og klik derefter på Run. Følg forløbet i konsollen, og vent, til kørslen er færdig. Begynd med en kort sekvens, så du kan kontrollere masker og sporidentiteter, før du behandler et større eksperiment.",

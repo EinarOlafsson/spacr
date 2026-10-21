@@ -21,7 +21,7 @@ from spacr import io as IO
 
 def test_is_dir_empty(tmp_path):
     assert IO._is_dir_empty(str(tmp_path)) is True
-    (tmp_path / "f.txt").write_text("x")
+    (tmp_path / "f.txt").write_text("x", encoding="utf-8")
     assert IO._is_dir_empty(str(tmp_path)) is False
 
 
@@ -29,7 +29,7 @@ def test_delete_empty_subdirectories(tmp_path):
     (tmp_path / "empty1").mkdir()
     (tmp_path / "empty2" / "nested_empty").mkdir(parents=True)
     (tmp_path / "full").mkdir()
-    (tmp_path / "full" / "f.txt").write_text("x")
+    (tmp_path / "full" / "f.txt").write_text("x", encoding="utf-8")
     IO.delete_empty_subdirectories(str(tmp_path))
     assert not (tmp_path / "empty1").exists()
     assert (tmp_path / "full").exists()

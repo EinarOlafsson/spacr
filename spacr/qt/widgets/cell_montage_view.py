@@ -571,9 +571,7 @@ def no_score_refusal(score_csvs, troubles=()) -> str:
 def load(request: MontageRequest, *, progress=None, cancelled=None) -> MontageLoad:
     """Select the objects behind one coefficient and cut their crops.
 
-    **Runs on a worker thread and touches no widget.** Every failure comes
-    back as :attr:`MontageLoad.error` rather than as an exception, because the
-    caller is a tab that must stay on screen and say why.
+    **Intended for a worker thread; execution stays on the calling thread.** This function does not start a thread. Expected data refusals are returned through :attr:`MontageLoad.error`, and caught ``CancelledError`` becomes a cancellation result. Other exceptions from loading or callbacks can propagate.
 
     :param request: what to draw.
     :param progress: optional callback receiving stage text on the calling

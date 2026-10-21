@@ -83,6 +83,34 @@ _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
     # Item 511's Mask bound-row map, on nightly 88a0ee002 (2026-09-26).
     "spacr.qt.widgets.live_preview.BOUND_ROWS",
 })
+def _posix_update_prepared_key_move(entries, docs=None):
+    """Apply only the reviewed same-body move in the October 17 contract."""
+    import json
+    from pathlib import Path
+
+    move = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "posix_online_update_prepared_api_key_move_2026-10-21.json").read_text(encoding="utf-8"))
+    assert move == {
+        "old_symbol": "spacr.install_cleanup._run_macos_online_update.prepared",
+        "new_symbol": "spacr.install_cleanup._run_posix_online_update.prepared",
+        "docstring": "Offer Restart only after the replacement passes its staged checks.",
+        "docstring_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+    }
+    old, new = move["old_symbol"], move["new_symbol"]
+    assert hashlib.sha256(move["docstring"].encode("utf-8")).hexdigest() == move["docstring_sha256"]
+    assert entries[old] == move["docstring"]
+    assert new not in entries
+    if docs is not None:
+        assert old not in docs
+        assert docs[new] == move["docstring"]
+    renamed = dict(entries)
+    renamed[new] = renamed.pop(old)
+    assert len(renamed) == len(entries)
+    assert renamed.keys() - entries.keys() == {new}
+    assert entries.keys() - renamed.keys() == {old}
+    return renamed
+
+
 def _spatial_arrivals() -> dict[str, str]:
     """F534's 22 documented symbols, one named contract (2026-10-11).
 
@@ -377,8 +405,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # recommended_workers, run_sweep, run_sweep_parallel, summarise_sweep,
     # the Qt screen module, and its register function. The retired entries are
     # regression_search.SearchSpace, build_trials, run_search and
-    # summarise_search; the regression_search module itself remains as a
-    # compatibility explanation. Enumerated rather than merely counted: this
+    # summarise_search; the regression_search module itself remained as a
+    # compatibility shim until item 127 removed it on 2026-10-19.
+    # Enumerated rather than merely counted: this
     # ratchet is only useful if a bump names what it admitted and retired.
     # +73/-0 on the 2026-08-16 merge of the two concurrent sessions. Both
     # sides added public surface and neither retired any, so this is a pure
@@ -1465,7 +1494,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # (AiToggleLabel.paintEvent, also retired, was a 2026-10-15 arrival.)
     # 2026-10-19 item 600: -14 with ChannelSortDialog and RegexWindow
     # (spacr.qt.widgets.channel_sort_dialog) deleted.
-    expected = 13_175
+    # 2026-10-20 item 127: -1, the spacr.regression_search shim module left.
+    expected = 13_174
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
@@ -1708,6 +1738,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-10-17: Item 703: background update staging, the native update/uninstall helpers and the Preferences uninstall entry; one named contract.
     n703_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "703_background_update_and_uninstall_api_arrivals_2026-10-17.json").read_text(encoding="utf-8"))
+    n703_arrivals = _posix_update_prepared_key_move(n703_arrivals, docs)
     assert len(n703_arrivals) == 17
     assert {key: docs[key] for key in n703_arrivals} == n703_arrivals
     assert not n703_arrivals.keys() & zoo_arrivals.keys()
@@ -1817,6 +1848,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in timelapse_arrivals} == timelapse_arrivals
     assert not timelapse_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **timelapse_arrivals}
+    thumbnail_close_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "thumbnail_popup_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
+    assert set(thumbnail_close_arrivals) == {
+        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
+    }
+    assert {key: docs[key] for key in thumbnail_close_arrivals} == thumbnail_close_arrivals
+    assert not thumbnail_close_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **thumbnail_close_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]
@@ -1857,17 +1896,6 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
-    thumbnail_close = json.loads((ROOT / "tests/data/release_contracts"
-        / "thumbnail_hidden_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
-    assert set(thumbnail_close) == {
-        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
-    }
-    assert {symbol: docs[symbol] for symbol in thumbnail_close} == thumbnail_close
-    assert not thumbnail_close.keys() & (
-        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
-        | home_ui_arrivals.keys() | volume_arrivals.keys()
-    )
-    zoo_arrivals = {**zoo_arrivals, **thumbnail_close}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1916,7 +1944,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_175
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_174
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

@@ -127,8 +127,8 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. code-block:: bash
 
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
 
 .. raw:: html
 
@@ -144,13 +144,13 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Hämta spaCR 1.5.1.5 för Windows 10/11"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Hämta spaCR 1.5.1.6 för Windows 10/11"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Hämta spaCR 1.5.1.5 för macOS 11+ (Intel och Apple Silicon)"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Hämta spaCR 1.5.1.6 för macOS 11+ (Intel och Apple Silicon)"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Hämta spaCR 1.5.1.5 för 64-bitars Linux"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Hämta spaCR 1.5.1.6 för 64-bitars Linux"></a>
 
 .. spacr-installer-links-end
 
@@ -261,7 +261,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light-3.desktop.svg"><img src="../../readme_images/sv/install-from-source-light-3.svg" alt="--dir väljer klonens sökväg; --branch väljer gren eller tagg; --no-install hämtar utan att installera; --help visar alternativen. packaging/source_install_excludes.txt listar alla utelämnade sökvägar. Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till --filter=blob:none till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i main ger en utcheckning på 5059 MB (uppmätt 2026-10-21), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."></picture></a></div>
+   <div><a href="../../readme_text/sv/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light-3.desktop.svg"><img src="../../readme_images/sv/install-from-source-light-3.svg" alt="--dir väljer klonens sökväg; --branch väljer gren eller tagg; --no-install hämtar utan att installera; --help visar alternativen. packaging/source_install_excludes.txt listar alla utelämnade sökvägar. Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till --filter=blob:none till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i main ger en utcheckning på 735 MB (uppmätt 2026-10-21), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."></picture></a></div>
 
 .. raw:: html
 

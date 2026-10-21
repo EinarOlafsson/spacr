@@ -16,14 +16,14 @@ def test_private_receipt_and_exact_installer_bytes_are_required(monkeypatch, tmp
     value = dict(accepted=True, installer=str(installer),
                  sha256=hashlib.sha256(installer.read_bytes()).hexdigest())
     receipt = root / 'receipt.json'
-    receipt.write_text(json.dumps(value))
+    receipt.write_text(json.dumps(value), encoding="utf-8")
     assert verified_installer(tmp_path, receipt)[0] == installer
 
     unaccepted = dict(value, accepted=False)
-    receipt.write_text(json.dumps(unaccepted))
+    receipt.write_text(json.dumps(unaccepted), encoding="utf-8")
     with pytest.raises(ValueError, match='exact checksum-verified'):
         verified_installer(tmp_path, receipt)
-    receipt.write_text(json.dumps(value))
+    receipt.write_text(json.dumps(value), encoding="utf-8")
     installer.write_bytes(installer.read_bytes() + b'# changed\n')
     with pytest.raises(ValueError, match='exact checksum-verified'):
         verified_installer(tmp_path, receipt)
@@ -31,10 +31,10 @@ def test_private_receipt_and_exact_installer_bytes_are_required(monkeypatch, tmp
     outside = tmp_path / 'other.run'
     outside.write_bytes(installer.read_bytes())
     escaped = dict(value, installer=str(outside), sha256=hashlib.sha256(outside.read_bytes()).hexdigest())
-    receipt.write_text(json.dumps(escaped))
+    receipt.write_text(json.dumps(escaped), encoding="utf-8")
     with pytest.raises(ValueError, match='exact checksum-verified'):
         verified_installer(tmp_path, receipt)
     other_receipt = tmp_path / 'other-receipt.json'
-    other_receipt.write_text(json.dumps(escaped))
+    other_receipt.write_text(json.dumps(escaped), encoding="utf-8")
     with pytest.raises(ValueError, match='private release-verification'):
         verified_installer(tmp_path, other_receipt)

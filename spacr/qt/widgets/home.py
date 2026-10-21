@@ -1292,7 +1292,7 @@ class TotalsPanel(Panel):
             pass
         for name in names:
             try:
-                entry = json.loads((root / name / "manifest.json").read_text())
+                entry = json.loads((root / name / "manifest.json").read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 continue
             if str(entry.get("start_utc") or "") <= since:

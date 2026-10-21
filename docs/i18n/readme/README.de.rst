@@ -127,8 +127,8 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. code-block:: bash
 
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
 
 .. raw:: html
 
@@ -144,13 +144,13 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Windows 10/11: spaCR 1.5.1.5 herunterladen"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Windows 10/11: spaCR 1.5.1.6 herunterladen"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="macOS 11+ (Intel und Apple Silicon): spaCR 1.5.1.5 herunterladen"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="macOS 11+ (Intel und Apple Silicon): spaCR 1.5.1.6 herunterladen"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="64-Bit-Linux: spaCR 1.5.1.5 herunterladen"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="64-Bit-Linux: spaCR 1.5.1.6 herunterladen"></a>
 
 .. spacr-installer-links-end
 
@@ -261,7 +261,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/install-from-source-light-3.desktop.svg"><img src="../../readme_images/de/install-from-source-light-3.svg" alt="--dir wählt den Pfad des Klons; --branch wählt einen Branch oder Tag; --no-install lädt die Dateien ohne Installation; --help zeigt die Optionen. packaging/source_install_excludes.txt führt alle ausgelassenen Pfade auf. Der vollständige nightly-Klon lud 9.25 GiB herunter. --filter=blob:none zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von main belegen im ausgecheckten Arbeitsverzeichnis 5059 MB (gemessen am 2026-10-21), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab."></picture></a></div>
+   <div><a href="../../readme_text/de/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/install-from-source-light-3.desktop.svg"><img src="../../readme_images/de/install-from-source-light-3.svg" alt="--dir wählt den Pfad des Klons; --branch wählt einen Branch oder Tag; --no-install lädt die Dateien ohne Installation; --help zeigt die Optionen. packaging/source_install_excludes.txt führt alle ausgelassenen Pfade auf. Der vollständige nightly-Klon lud 9.25 GiB herunter. --filter=blob:none zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von main belegen im ausgecheckten Arbeitsverzeichnis 735 MB (gemessen am 2026-10-21), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab."></picture></a></div>
 
 .. raw:: html
 

@@ -166,7 +166,7 @@ def record_plate_retention(app, window, screen, stage, captures, capture,
                                          expected_sha256=SOURCE_SHA256)
         proof['source'] = original
         independent = source_wells(private / 'measurements.db')
-        baseline = json.loads((AUTHOR / 'production' / LESSON / 'source_manifest.json').read_text())
+        baseline = json.loads((AUTHOR / 'production' / LESSON / 'source_manifest.json').read_text(encoding="utf-8"))
         if baseline['source_sha256_before'] != SOURCE_SHA256 or baseline['source_sha256_after'] != SOURCE_SHA256:
             raise ValueError('The old recording used a different source')
         folds = [w for w in screen.findChildren(FoldButton)

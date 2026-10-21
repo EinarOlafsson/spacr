@@ -14,6 +14,7 @@ on:
       - ".github/workflows/update-removes-older-installs.yml"
       - "spacr/install_cleanup.py"
       - "packaging/online/**"
+      - "tools/check_windows_installer_child_leases_703.py"
   workflow_dispatch:
     inputs:
       old_version:
@@ -138,3 +139,16 @@ jobs:
           print(json.dumps(installers, indent=2))
           assert len(installers) == 1, installers
           assert installers[0]["version"] == version, (installers, version)
+
+
+  windows-child-leases:
+    name: Windows native child leases (Job Object, CIM, ToolHelp32)
+    runs-on: windows-2022
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Kill real pip children and verify native lease refusal and takeover
+        run: python -I tools/check_windows_installer_child_leases_703.py

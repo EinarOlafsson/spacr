@@ -60,6 +60,38 @@ def _held_save(monkeypatch):
     return release, threads
 
 
+def test_a_reader_timeout_leaves_the_pending_mask_write_intact(tmp_path):
+    path = tmp_path / "mask.tif"
+    other = tmp_path / "other.tif"
+    entered, release = threading.Event(), threading.Event()
+    labels = np.array([[0, 7], [7, 0]], dtype=np.uint16)
+    request = {"paths": {str(path)}}
+
+    def held_write(_request):
+        entered.set()
+        assert release.wait(10)
+        tifffile.imwrite(path, labels)
+        return str(path)
+
+    mm._queue_mask_write(request, held_write)
+    try:
+        assert entered.wait(10)
+        assert mm._mask_writes_pending(path)
+        assert not mm._wait_for_mask_writes(path, timeout=0)
+        assert mm._wait_for_mask_writes(other, timeout=0)
+        assert not request["done"].is_set()
+        assert not path.exists()
+    finally:
+        release.set()
+        assert request["done"].wait(10)
+
+    assert mm._wait_for_mask_writes(path, timeout=1)
+    assert not mm._mask_writes_pending(path)
+    assert request["error"] is None
+    assert request["result"] == str(path)
+    np.testing.assert_array_equal(tifffile.imread(path), labels)
+
+
 def test_a_fast_save_is_written_by_the_writer_and_reported_at_once(opened, monkeypatch):
     screen, folder = opened
     threads = []

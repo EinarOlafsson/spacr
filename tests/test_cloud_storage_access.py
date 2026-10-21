@@ -51,22 +51,22 @@ def _write_plate(root: Path) -> dict:
     """
     rng = np.random.default_rng(550)
     root.mkdir(parents=True)
-    (root / ".zgroup").write_text(json.dumps({"zarr_format": 2}))
+    (root / ".zgroup").write_text(json.dumps({"zarr_format": 2}), encoding="utf-8")
     (root / ".zattrs").write_text(json.dumps({"plate": {
         "name": "screen_1", "version": "0.4",
         "rows": [{"name": "A"}, {"name": "B"}],
         "columns": [{"name": "1"}, {"name": "2"}, {"name": "3"}],
         "wells": [{"path": f"{r}/{c}", "rowIndex": ri, "columnIndex": ci}
-                  for r, c, ri, ci in WELLS]}}))
+                  for r, c, ri, ci in WELLS]}}), encoding="utf-8")
     arrays = {}
     for row, column, _, _ in WELLS:
         (root / row).mkdir(exist_ok=True)
-        (root / row / ".zgroup").write_text(json.dumps({"zarr_format": 2}))
+        (root / row / ".zgroup").write_text(json.dumps({"zarr_format": 2}), encoding="utf-8")
         well = root / row / column
         well.mkdir()
-        (well / ".zgroup").write_text(json.dumps({"zarr_format": 2}))
+        (well / ".zgroup").write_text(json.dumps({"zarr_format": 2}), encoding="utf-8")
         (well / ".zattrs").write_text(json.dumps(
-            {"well": {"images": [{"path": f} for f in FIELDS]}}))
+            {"well": {"images": [{"path": f} for f in FIELDS]}}), encoding="utf-8")
         for field in FIELDS:
             data = rng.integers(0, 4000, size=SHAPE, dtype=np.uint16)
             write_ome_zarr(
@@ -78,7 +78,7 @@ def _write_plate(root: Path) -> dict:
             attrs_path = well / field / ".zattrs"
             attrs = json.loads(attrs_path.read_text(encoding="utf-8"))
             attrs["multiscales"][0]["axes"][1].pop("unit")
-            attrs_path.write_text(json.dumps(attrs))
+            attrs_path.write_text(json.dumps(attrs), encoding="utf-8")
             arrays[(f"{row}{column}", field)] = data
     return arrays
 

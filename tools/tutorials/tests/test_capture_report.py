@@ -195,7 +195,7 @@ def test_rejects_source_bytes_changed(source):
 
 def test_rejects_source_file_added(source):
     before = report.snapshot_source(source)
-    (source / 'extra.txt').write_text('unexpected')
+    (source / 'extra.txt').write_text('unexpected', encoding="utf-8")
     with pytest.raises(RuntimeError, match='source file set or bytes changed'):
         report.require_unchanged(before, report.snapshot_source(source))
 
@@ -334,7 +334,7 @@ def test_changed_private_database_is_never_exempt(source):
 
 def test_new_private_csv_is_never_exempt(source):
     before = report.snapshot_source(source)
-    (source / 'results/new.csv').write_text('id,value\n1,2\n')
+    (source / 'results/new.csv').write_text('id,value\n1,2\n', encoding="utf-8")
     with pytest.raises(RuntimeError, match='material file set or bytes changed'):
         report.verify_private_sqlite_changes(source, before, report.snapshot_source(source))
 

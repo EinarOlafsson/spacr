@@ -30,9 +30,9 @@ def _catalog_cache_key(receipt: dict) -> str:
 
 
 EXPECTED_CACHE_KEY = _catalog_cache_key(json.loads(
-    (ROOT / "tools/tutorials/release_candidate/publication-receipt.json").read_text()))
+    (ROOT / "tools/tutorials/release_candidate/publication-receipt.json").read_text(encoding="utf-8")))
 EXPECTED_VOICE_KEY = "20260811-50-voices"
-EXPECTED_APP_KEY = re.search(r'app_v2\.js\?v=([^"\s]+)', (LOCAL / 'index.html').read_text())[1]
+EXPECTED_APP_KEY = re.search(r'app_v2\.js\?v=([^"\s]+)', (LOCAL / 'index.html').read_text(encoding="utf-8"))[1]
 RETIRED_VOICES = {"af_alloy", "af_kore", "af_nicole", "af_nova"}
 
 
@@ -80,7 +80,7 @@ def source_equivalent_assets(remote: dict[str, bytes]) -> dict[str, bytes]:
                           for path in (LOCAL / 'production').rglob('*')
                           if path.is_file() and path.suffix.lower() in {'.mp4', '.jpg', '.jpeg', '.png', '.webp'}}
         assert set(manifest) == expected_paths
-        receipt = json.loads((ROOT / 'tools/tutorials/release_candidate/publication-receipt.json').read_text())
+        receipt = json.loads((ROOT / 'tools/tutorials/release_candidate/publication-receipt.json').read_text(encoding="utf-8"))
         hosted = receipt['media_root'].rstrip('/') + '/'
         for relative, destination in manifest.items():
             path = LOCAL / 'production' / relative
@@ -111,7 +111,7 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
     index = remote["index.html"].decode("utf-8")
     voices_source = remote["voice_catalog.js"].decode("utf-8")
     catalog = _catalog_payload(remote["lesson_catalog.js"].decode("utf-8"))
-    local_catalog = _catalog_payload((LOCAL / "lesson_catalog.js").read_text())
+    local_catalog = _catalog_payload((LOCAL / "lesson_catalog.js").read_text(encoding="utf-8"))
     expected_scenes = sum(len(lesson["scenes"]) for lesson in local_catalog["lessons"])
     languages, voices = _voice_inventory(voices_source)
     lessons = catalog["lessons"]

@@ -236,7 +236,7 @@ def test_a_field_folder_that_is_not_there_reports_inline(screen, tmp_path):
 def test_a_field_folder_with_no_images_reports_inline(screen, tmp_path):
     empty = tmp_path / "empty"
     empty.mkdir()
-    (empty / "notes.txt").write_text("nothing here")
+    (empty / "notes.txt").write_text("nothing here", encoding="utf-8")
     assert screen.set_fields_source(str(empty)) is False
     assert "no readable field" in screen.status_text()
     assert screen.last_error
@@ -540,7 +540,7 @@ def test_a_corrupt_checkpoint_reports_the_filename_inline(screen, tmp_path,
                                                           fields):
     bad = tmp_path / "models" / "cellpose_model" / "broken.CP_model"
     os.makedirs(bad.parent, exist_ok=True)
-    bad.write_text("<html>404 Not Found</html>")
+    bad.write_text("<html>404 Not Found</html>", encoding="utf-8")
     screen.set_entries([zoo.entry_from_file(bad)])
     screen.select(0)
     screen.set_segment_fn(fake_segment)

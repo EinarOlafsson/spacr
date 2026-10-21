@@ -62,7 +62,7 @@ jobs:
           REQUESTED_VERSION: ${{ inputs.version }}
           BEFORE_SHA: ${{ github.event.before }}
         run: |
-          python -m pip install "packaging>=24"
+          python -m pip install "packaging>=24" pillow fonttools brotli uharfbuzz pyyaml pypdf
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             version=$(python packaging/release.py bump \
               --allow-current "$REQUESTED_VERSION")
@@ -94,6 +94,16 @@ jobs:
               release_required=false
             fi
           fi
+          python tools/build_readme_images.py --check
+          python - "$version" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+
+          manifest = Path("docs/source/_static/deck/slides.json")
+          if json.loads(manifest.read_text(encoding="utf-8"))["version"] != sys.argv[1]:
+              raise SystemExit("The info deck does not match the release version")
+          PY
           python packaging/release.py verify >/dev/null
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
@@ -108,7 +118,7 @@ jobs:
         run: |
           git config user.name "Einar Olafsson"
           git config user.email "einar.olafsson@gmail.com"
-          git add setup.py CITATION.cff spacr/_version.py README.rst packaging/readme_source.yaml docs/i18n/readme docs/source/installer_guide.rst packaging/apptainer/README.md
+          git add -u -- setup.py CITATION.cff spacr/_version.py README.rst packaging/readme_source.yaml docs/i18n/readme docs/readme_images docs/readme_text docs/readme_assets docs/source/_static/deck docs/source/_generated/hardware_table.rst docs/source/installer_guide.rst packaging/apptainer/README.md
           if git diff --cached --quiet; then
             echo "Release metadata already declares $VERSION; continuing idempotently."
           else
@@ -143,6 +153,30 @@ jobs:
         run: |
           echo "branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  source-ci:
+    name: Require green CI for the final release commit
+    if: needs.bump.outputs.release_required == 'true'
+    needs: bump
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.bump.outputs.commit_sha }}
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pyyaml
+      - name: Reuse or dispatch exact-source Tests, Docs and Compatibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
+          RELEASE_BRANCH: ${{ needs.bump.outputs.branch }}
+        run: python tools/require_release_source_ci.py --sha "$RELEASE_SHA" --branch "$RELEASE_BRANCH"
 
   package:
     name: Build and validate PyPI distributions
@@ -209,8 +243,8 @@ jobs:
 
   publish-pypi:
     name: Publish to PyPI
-    if: needs.bump.outputs.pypi_exists != 'true'
-    needs: [bump, package]
+    if: needs.source-ci.result == 'success' && needs.bump.outputs.pypi_exists != 'true'
+    needs: [bump, package, source-ci]
     runs-on: ubuntu-24.04
     environment:
       name: pypi
@@ -225,27 +259,43 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   verify-pypi:
-    name: Verify release is available on PyPI
+    name: Verify PyPI carries the exact release source
     if: >-
       always() &&
       needs.bump.result == 'success' &&
       needs.package.result == 'success' &&
+      needs.source-ci.result == 'success' &&
       (needs.publish-pypi.result == 'success' ||
        needs.publish-pypi.result == 'skipped')
-    needs: [bump, package, publish-pypi]
+    needs: [bump, package, source-ci, publish-pypi]
     runs-on: ubuntu-24.04
     steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.bump.outputs.commit_sha }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: pypi-distributions
+          path: dist
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install packaging
       - name: Wait for the immutable PyPI release
         env:
           VERSION: ${{ needs.bump.outputs.version }}
+          RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
         run: |
           for attempt in $(seq 1 18); do
             status=$(curl --proto '=https' --tlsv1.2 --silent \
-              --retry 3 --retry-all-errors --output /dev/null \
+              --retry 3 --retry-all-errors --output "$RUNNER_TEMP/pypi-release.json" \
               --write-out '%{http_code}' \
               "https://pypi.org/pypi/spacr/$VERSION/json")
             if [ "$status" = "200" ]; then
-              echo "spacr $VERSION is available on PyPI."
+              python packaging/release.py verify-pypi-source \
+                --wheel-dir dist --pypi-json "$RUNNER_TEMP/pypi-release.json" \
+                --version "$VERSION" --source-commit "$RELEASE_SHA"
+              echo "spacr $VERSION on PyPI matches release source $RELEASE_SHA."
               exit 0
             fi
             echo "Attempt $attempt/18: PyPI returned HTTP $status; retrying."
@@ -276,14 +326,15 @@ jobs:
     if: >-
       always() &&
       needs.bump.result == 'success' &&
+      needs.source-ci.result == 'success' &&
       needs.verify-pypi.result == 'success' &&
       needs.bump.outputs.release_required == 'true'
-    needs: [bump, verify-pypi]
+    needs: [bump, verify-pypi, source-ci]
     uses: ./.github/workflows/online-installers.yml
     with:
       source_ref: ${{ needs.bump.outputs.commit_sha }}
       target_branch: ${{ needs.bump.outputs.branch }}
-      publish_to_repository: true
+      publish_to_repository: false
     secrets: inherit
 
   frozen-installers:
@@ -296,7 +347,7 @@ jobs:
     needs: [bump, installers]
     uses: ./.github/workflows/frozen-installers.yml
     with:
-      source_ref: ${{ needs.installers.outputs.release_commit }}
+      source_ref: ${{ needs.bump.outputs.commit_sha }}
       release_version: ${{ needs.bump.outputs.version }}
 
   container-images:
@@ -309,8 +360,8 @@ jobs:
     # and the release has to call it -- the way it calls online-installers.
     #
     # IT CANNOT GATE THE RELEASE, AND IS NOT WIRED AS THOUGH IT COULD. The
-    # images are built from the commit the release tags, which is the one
-    # `installers` produces -- and by then publish-pypi has already made the
+    # images are built from the exact bumped commit the release tags, and
+    # by then publish-pypi has already made the
     # version immutable on PyPI. A failed build or a failed smoke check
     # therefore fails this run and publishes no image, while github-release
     # still ships the installers that did build. Withholding the release
@@ -328,7 +379,7 @@ jobs:
       packages: write
     uses: ./.github/workflows/docker-images.yml
     with:
-      source_ref: ${{ needs.installers.outputs.release_commit }}
+      source_ref: ${{ needs.bump.outputs.commit_sha }}
       release_version: ${{ needs.bump.outputs.version }}
       publish: true
 
@@ -337,11 +388,14 @@ jobs:
     # Item 586. The SIFs are built FROM the Docker images container-images
     # has just pushed, so this runs only when that job succeeded. Like it, it
     # cannot gate the release: PyPI is already immutable by then, and a
-    # failure here publishes no SIF and costs nothing else.
+    # failure here publishes no SIF and costs nothing else. apptainer-images.yml
+    # checks out the release tag, which github-release creates, so it also
+    # waits for that job.
     if: >-
       always() &&
-      needs.container-images.result == 'success'
-    needs: [bump, container-images]
+      needs.container-images.result == 'success' &&
+      needs.github-release.result == 'success'
+    needs: [bump, container-images, github-release]
     permissions:
       contents: read
       packages: write
@@ -355,20 +409,21 @@ jobs:
     if: >-
       always() &&
       needs.bump.result == 'success' &&
+      needs.source-ci.result == 'success' &&
       needs.package.result == 'success' &&
       (needs.publish-pypi.result == 'success' ||
        needs.publish-pypi.result == 'skipped') &&
       needs.verify-pypi.result == 'success' &&
       needs.installers.result == 'success' &&
       needs.frozen-installers.result == 'success'
-    needs: [bump, package, publish-pypi, verify-pypi, installers, frozen-installers]
+    needs: [bump, package, source-ci, publish-pypi, verify-pypi, installers, frozen-installers]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ needs.installers.outputs.release_commit }}
+          ref: ${{ needs.bump.outputs.commit_sha }}
           fetch-depth: 0
       - uses: actions/download-artifact@v8
         with:
@@ -390,7 +445,7 @@ jobs:
           path: frozen-assets
       - name: Verify and select exact native release payloads
         env:
-          RELEASE_SHA: ${{ needs.installers.outputs.release_commit }}
+          RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
           VERSION: ${{ needs.bump.outputs.version }}
         run: >-
           python packaging/release.py collect-frozen
@@ -403,7 +458,7 @@ jobs:
       - name: Tag exact release commit
         env:
           RELEASE_TAG: ${{ needs.bump.outputs.tag }}
-          RELEASE_SHA: ${{ needs.installers.outputs.release_commit }}
+          RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
         run: |
           git config user.name "Einar Olafsson"
           git config user.email "einar.olafsson@gmail.com"
@@ -422,7 +477,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.bump.outputs.tag }}
-          RELEASE_SHA: ${{ needs.installers.outputs.release_commit }}
+          RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
           VERSION: ${{ needs.bump.outputs.version }}
         run: |
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
@@ -434,6 +489,22 @@ jobs:
               --generate-notes \
               --verify-tag
           fi
+
+  installer-repository-sync:
+    name: Store published installers and refresh repository links
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.github-release.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    needs: [bump, github-release, release-notes, release-metadata]
+    uses: ./.github/workflows/online-installers.yml
+    with:
+      source_ref: ${{ needs.bump.outputs.branch }}
+      target_branch: ${{ needs.bump.outputs.branch }}
+      publish_to_repository: true
+      collect_only: true
+    secrets: inherit
 
   release-notes:
     name: Refresh the bundled release notes

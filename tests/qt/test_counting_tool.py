@@ -219,7 +219,7 @@ def test_a_write_that_fails_says_so_instead_of_raising(qtbot,
     canvas = _canvas(qtbot)
     panel = _panel(qtbot, canvas)
     blocked = tmp_path / "blocked"
-    blocked.write_text("not a directory")
+    blocked.write_text("not a directory", encoding="utf-8")
     assert panel.write(str(blocked / "counts.csv")) is None
     assert "Could not write" in panel.total.text()
 

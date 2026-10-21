@@ -1,5 +1,0 @@
-{
-  "initial_guard_sha256": "d066ff9901cb5042ebd224dba8cc9deb058c21cca1696f91f7bbb667ae064dc4",
-  "proposed_final_sha256": "ebb6b3d8faf237c1ee207a1d649cef859c9fb66ae1c750489a17839f72846bab",
-  "scope": "Move sole existing manual parser call immediately after local tabular import, before listing/reading DB; all other statements preserve exact order. Invalid cutoff error now precedes database/content errors; no DB migration on invalid cutoff."
-}

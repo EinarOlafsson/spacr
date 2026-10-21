@@ -1,6 +1,8 @@
 """Figures are drawn in Open Sans, the face spaCR ships -- not DejaVu Sans."""
 from __future__ import annotations
 
+import os
+
 import matplotlib
 matplotlib.use("Agg")
 
@@ -9,7 +11,7 @@ from spacr import figure_font
 
 def test_the_faces_ship_with_the_package():
     """Light for body, Regular for titles -- both must be present."""
-    names = {p.rsplit("/", 1)[-1] for p in figure_font.bundled_faces()}
+    names = {os.path.basename(p) for p in figure_font.bundled_faces()}
     assert "OpenSans-Light.ttf" in names
     assert "OpenSans-Regular.ttf" in names
 

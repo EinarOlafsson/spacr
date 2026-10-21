@@ -1,6 +1,0 @@
-Command: ["/home/carruthers/anaconda3/envs/spacr/bin/python", "-c", "import sys;from pathlib import Path;R=Path('/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015');sys.path[:0]=[str(R),str(R/'tools/tutorials'),str(R/'tools/tutorials/tests')];sys.meta_path[:]=[f for f in sys.meta_path if '__editable__' not in (getattr(f,'__module__','') or type(f).__module__)];import spacr;assert Path(spacr.__file__).resolve()==R/'spacr/__init__.py';import pytest;raise SystemExit(pytest.main(sys.argv[1:]))", "-q", "-o", "addopts=", "--basetemp", "/tmp/y14c-8pto55h3/pytest", "--junitxml", "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/focused-tests-r1.xml", "tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py", "tools/tutorials/tests/test_capture_yolo_expected_field.py"]
-Private root: /tmp/y14c-8pto55h3
-........                                                                 [100%]
-8 passed in 3.51s
-
-Terminal exit status: 0

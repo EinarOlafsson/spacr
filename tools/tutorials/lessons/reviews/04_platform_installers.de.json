@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "8a8a2d3adae812475a9731d196357380bf772eeff3052f0e89798416bbbfd824",
+  "english_sha256": "b0be0faf45c61792dcc20205e4e02e82ef34a1997ff8c987f43657655fdf885c",
   "review": {
-    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
-    "translator": "Codex AI, direct source-bound technical translation",
-    "date": "2026-10-08",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "de",
   "title": "spaCR mit einem Desktop-Installer installieren",
@@ -20,6 +20,7 @@
     "Die Anwendung mit der Funktion des Betriebssystems oder dem mitgelieferten Deinstallationswerkzeug entfernen."
   ],
   "prerequisite": "Laden Sie den offiziellen Installer für Ihr Betriebssystem herunter und planen Sie Speicherplatz für die Anwendung und ihre wissenschaftlichen Abhängigkeiten ein.",
+  "section": "spaCR",
   "scenes": [
     "Öffnen Sie das offizielle spaCR-Release auf GitHub und laden Sie unter Assets den Installer für Ihr Betriebssystem herunter. Diese Online-Installer laden während der Einrichtung die Python-Laufzeit und die wissenschaftlichen Pakete herunter.",
     "Führen Sie unter Windows das Setup-Programm aus und folgen Sie den Anweisungen. Lassen Sie die automatische Beschleunigung ausgewählt, um die auf Ihrem Computer erkannte unterstützte Hardware zu nutzen, oder wählen Sie den reinen CPU-Betrieb, wenn Sie diesen benötigen.",
@@ -28,9 +29,9 @@
     "Nach der Einrichtung hält das Installationsprofil das gewählte Backend fest. Sehen Sie dort nach, wenn Sie prüfen möchten, ob die Laufzeit die CPU oder einen unterstützten Beschleuniger verwendet.",
     "Prüfen Sie die installierte spaCR-Version. Notieren Sie sie bei Ihren Analysenotizen, besonders wenn Sie die Anwendung später aktualisieren.",
     "Die Einrichtung fragt nach dem optionalen Teilen von Diagnosedaten und der Einrichtung eines Kontos. Antworten Sie nur bei den gewünschten Optionen mit y; n, die Voreinstellung, lässt jede Option ausgeschaltet. Der Windows-Installer zeigt dieselben Auswahlmöglichkeiten als Kontrollkästchen.",
-    "Öffnen Sie in der aktuellen Nightly-Oberfläche Preferences und wählen Sie Performance. Wählen Sie ein Profil für Ihren Computer. Laptop benötigt weniger Ressourcen; höhere Profile erlauben mehr Zwischenspeicherung und Hintergrundarbeit. Beginnen Sie bei knappem Speicher mit einem sparsamen Profil.",
-    "Diese Aufnahme installiert spaCR Version eins Punkt fünf Punkt eins Punkt drei. Veröffentlichte Versionen können ein älteres Home-Layout zeigen. Hier sehen Sie Home im aktuellen Nightly-Build mit Core, Data, Tools und Organism. Die aktuellen Module erklärt Home screen and navigation.",
-    "Führen Sie spacr-doctor aus der installierten Laufzeitumgebung aus, wenn der Start oder ein Dateiformat Probleme bereitet. In dieser aufgezeichneten CPU-Installation besteht die Backend-Prüfung, und die GPU-Prüfung wird übersprungen. Die Warnung weist auf den fehlenden optionalen CZI-Leser hin; installieren Sie dieses Extra nur, wenn Sie CZI-Dateien benötigen.",
+    "Öffnen Sie Preferences und wählen Sie Performance. Wählen Sie ein Profil für Ihren Computer. Laptop benötigt weniger Ressourcen; höhere Profile erlauben mehr Zwischenspeicherung und Hintergrundarbeit. Beginnen Sie bei knappem Speicher mit einem sparsamen Profil.",
+    "Home gruppiert die Module in Core, Data, Tools und Organism. Fahren Sie mit Home screen and navigation fort, um das Modul für Ihre nächste Aufgabe zu finden.",
+    "Führen Sie spacr-doctor aus der installierten Laufzeitumgebung aus, wenn der Start oder ein Dateiformat Probleme bereitet. Prüfen Sie das Backend-Ergebnis und ob die GPU-Prüfung ausgeführt wurde. Falls die Warnung einen fehlenden optionalen CZI-Reader meldet, installieren Sie diese Erweiterung nur, wenn Sie CZI-Dateien benötigen.",
     "Bei Installationsproblemen finden Sie install.log und install-profile.json im Installationsverzeichnis. Prüfen Sie die Protokolle, bevor Sie sie mit einer Supportanfrage teilen. Geben Sie Ihr Betriebssystem und Ihre spaCR-Version an, damit sich das Problem leichter diagnostizieren lässt.",
     "Schließen Sie unter Windows spaCR und öffnen Sie Settings, dann Apps und Installed apps. Wählen Sie spaCR und Uninstall. Die installierte ausführbare Uninstall-Datei startet denselben Entfernungsvorgang. Bewahren Sie Ihre Projektordner separat auf.",
     "Schließen Sie unter macOS spaCR und führen Sie das mitgelieferte Skript uninstall-spacr in Library/Application Support/spaCR aus. Es entfernt die Anwendung und ihre systemweiten Starter. Die benutzereigene Laufzeit in Ihrer eigenen Library/Application Support/spaCR ist separat; entfernen Sie sie nur, wenn Sie auch diese Laufzeit löschen möchten.",

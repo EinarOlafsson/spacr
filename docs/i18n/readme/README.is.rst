@@ -127,8 +127,8 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. code-block:: bash
 
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
 
 .. raw:: html
 
@@ -144,13 +144,13 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Sækja spaCR 1.5.1.5 fyrir Windows 10/11"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Sækja spaCR 1.5.1.6 fyrir Windows 10/11"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Sækja spaCR 1.5.1.5 fyrir macOS 11+ (Intel og Apple Silicon)"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Sækja spaCR 1.5.1.6 fyrir macOS 11+ (Intel og Apple Silicon)"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Sækja spaCR 1.5.1.5 fyrir 64-bita Linux"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Sækja spaCR 1.5.1.6 fyrir 64-bita Linux"></a>
 
 .. spacr-installer-links-end
 
@@ -261,7 +261,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-from-source-light-3.desktop.svg"><img src="../../readme_images/is/install-from-source-light-3.svg" alt="--dir velur slóð klónunarinnar; --branch velur grein eða merki; --no-install sækir án þess að setja upp; --help sýnir valkostina. packaging/source_install_excludes.txt telur upp allar slóðir sem er sleppt. Full klónun nightly sótti 9.25 GiB. Að bæta --filter=blob:none við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í main taka 5059 MB í vinnueintakinu (mælt 2026-10-21), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."></picture></a></div>
+   <div><a href="../../readme_text/is/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-from-source-light-3.desktop.svg"><img src="../../readme_images/is/install-from-source-light-3.svg" alt="--dir velur slóð klónunarinnar; --branch velur grein eða merki; --no-install sækir án þess að setja upp; --help sýnir valkostina. packaging/source_install_excludes.txt telur upp allar slóðir sem er sleppt. Full klónun nightly sótti 9.25 GiB. Að bæta --filter=blob:none við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Git tilkynnir ekki um hluti sem eru sóttir síðar eftir þörfum, svo heildarniðurhal var ekki mælt. Útgáfustýrðu skrárnar í main taka 735 MB í vinnueintakinu (mælt 2026-10-21), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein."></picture></a></div>
 
 .. raw:: html
 

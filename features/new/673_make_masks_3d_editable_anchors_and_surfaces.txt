@@ -4,7 +4,7 @@
 
 Status:    IN PROGRESS — unchanged editing handles are reused; current-frame picking, accelerated FPS and physical interaction acceptance remain
 Requested: 2026-10-08
-Owner:     Mac Codex session (current Mac runtime/UI and Mac-specific fixes); other platform acceptance remains separate
+Owner:     Mac Codex session (current Mac runtime/UI and Mac-specific fixes); root (Linux/general CI/publication); other platform acceptance remains separate
 Depends:   N672 validated gate anchor and surface editing logic
 
 WHAT THE STATE IS
@@ -22,6 +22,88 @@ Apply edited geometry to the actual mask voxels and preserve the original image 
 HOW TO KNOW IT WORKED
 
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
+
+MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+
+Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
+running N703 installer/runtime and N646 work first, then this native 3D check.
+The Mac Codex session owns physical-Mac runtime/UI acceptance and any Mac-
+specific repair. Root retains Linux/general CI and publication coordination;
+Linux Vulkan/OpenGL/CPU and Windows Vulkan/Direct3D12/OpenGL/CPU acceptance
+remain separate. F655 is outside this work: do not implement or reopen it; preserve
+separately recorded acceptance.
+
+Preconditions and build identity:
+1. Read the current canonical AGENTS.md and MAC_HANDOFF.md under
+   spacr/resources/AI. Use the Mac-local worktree allowed there, based on
+   freshly fetched origin/nightly; preserve existing changes and do not reset
+   a shared checkout. Do not run an older installed release by accident.
+2. Record git rev-parse HEAD and git rev-parse origin/nightly, the running
+   interpreter, spacr.__file__, installed distribution version, macOS version,
+   CPU/GPU model, display resolution, available logical work area and Retina
+   scaling. Check the actual app process uses that source/environment. The
+   currently verified package/release label is 1.5.1.5; a nightly build may
+   share that label, so the label alone never establishes source identity.
+3. Use a real Cocoa display, not QT_QPA_PLATFORM=offscreen or screenshots as
+   a substitute. Complete N703's current installer/doctor checks first and
+   record the available renderer dependencies; do not assume wgpu/Metal or
+   PyOpenGL is installed merely because the menu names a backend.
+4. Prepare a small labelled 3D image with known object IDs, expected voxels,
+   spatial axes and anisotropic spacing, plus the real FIB-SEM example for
+   responsiveness. Keep untouched originals and save edits to a disposable
+   output directory. Record the input shape, axes, spacing and object IDs.
+
+Native workflow and pass criteria:
+1. Make Masks -> Open File / Folder menu -> Open file (2D or 3D). The volume
+   must open in the existing Mask container, not a separate legacy editor.
+   Check Default, Orthogonal and True 3D views, slice index/total, Z-wheel
+   mode and Page Up/Down against the known sections and physical orientation.
+2. In True 3D select Auto, then each actually available Metal, OpenGL and CPU
+   backend. Record the selected backend AND the status line's actual renderer
+   or fallback reason. Auto should use available supported acceleration and
+   fall back safely when unavailable; silently drawing on CPU does not count
+   as Metal/OpenGL acceptance. Unsupported backends are reported unavailable,
+   never passed. Do not add Vulkan/Direct3D to macOS just to fill a checklist.
+3. On each usable backend orbit, pan and wheel-zoom the real volume for a
+   sustained drag. Record observed FPS, delay/jumps, render scale and dataset
+   size; the requested accelerated-drag target remains 30-60 fps. Check that
+   coarse motion frames sharpen after release and CPU keeps showing finished
+   frames while moving rather than remaining frozen until release. Report an
+   unmet target as remaining work; do not lower it to match a measurement.
+4. Pick known isolated and overlapping objects from rotated views, including
+   near edges and after zoom/pan. Record correct/total picks and any wrong ID
+   with its view/backend; selection must match the visible object, not merely
+   produce a highlight. Earlier 19/20 picks are not current acceptance.
+5. Vary image/channel visibility, opacity, contrast and rendering mode, Masks
+   opacity/Surface or Translucent, and surface finish. Image and masks must
+   stay aligned; changing one layer must not unexpectedly change another.
+   Toggle axes/grid, move the slice plane and exercise M magnifier plus its
+   displayed resize/zoom modifiers; returning to normal must restore the view.
+6. In anchor Edit mode change anchor density/visibility, move individual edge
+   and depth anchors, select multiple surfaces and drag/wheel them together.
+   Rotate before editing; distinguish view Spin from deformation. Make a
+   nonuniform depth edit, not just a 2D extrusion. Draw a new object and delete
+   one; Paint/Erase on a tilted slice must affect the intended slice/voxels.
+7. Undo/redo each edit and verify exact expected voxel membership and object
+   labels on the small known volume. Save/reopen through Make Masks and check
+   image shape, axis order, voxel spacing, dtype and label identity. Refused
+   invalid geometry must leave the previous valid mask intact. Reopen a 2D
+   image and check Brush, Box and normal navigation remain usable.
+8. Change backend and render scale, restart the same build, and confirm saved
+   choices. Close/reopen after rendering/editing without a native abort or
+   hanging worker. A native failure requires the exact action, traceback/native
+   crash report and smallest reproducer, then a Mac-specific fix and rerun of
+   affected checks only; do not duplicate root's thumbnail-close repair.
+
+Record the minimal result here: tested source/runtime identity, hardware and
+logical display geometry; each backend's actual renderer, FPS and pick count;
+voxel/save/undo results; failures/fixes and untested cases. A dated summary
+must distinguish PASS, FAIL and unavailable hardware from old measurements.
+The Oct 19 Intel Mac Metal 30 fps/OpenGL 24 fps/picks 19/20 observations remain historical
+only: the maintainer explicitly has NOT tested the current 3D build. Do not
+mark the whole item DONE until the remaining platform acceptance is resolved.
+No receipt files, new benchmark suites, full-suite runs or tutorial recording
+are required for this handoff; current-layout tutorials retain their lane.
 
 2026-10-08 — Registered the user's follow-on request. This is open work, not implemented functionality. Complete and validate N672 before porting its editing logic to Make Masks. Workstation retains API/docs/translations/tutorials and GPU ownership.
 
@@ -219,5 +301,15 @@ Real-display acceptance remains with the maintainer: each available backend and 
 2026-10-16 — BLOCKED ON MAINTAINER: check picking and dragging FPS on Linux Vulkan/OpenGL/CPU, Windows Vulkan/Direct3D12/OpenGL/CPU, macOS Metal/OpenGL/CPU, plus opt-out installer/doctor behavior.
 
 2026-10-19 — macOS acceptance (Intel MacBook Pro, Iris Plus, Retina, 1.5.1.5 installer build, real display): Metal 30 fps dragging, picks agree with the render 19/20. OpenGL was offered but always drew on the CPU because PyOpenGL (needed by VisPy 3-D textures) was not declared; 537b53690 now installs PyOpenGL; with it OpenGL drags at 24 fps. CPU: every mouse move cancelled the frame being drawn, so a drag showed no new picture until release; a newer interactive request of the same content now lets the running CPU frame finish and the newest finished frame is shown (preview, content change or leaving still cancel). Linux/Windows backends remain with the maintainer.
+
+2026-10-21 — Maintainer response: the current 3D viewer has not been tested; earlier recorded Intel Mac measurements are retained, not treated as acceptance of the current build.
+The Mac session owns current Metal/OpenGL/CPU rendering, picking, dragging and installer/doctor checks; Linux/Windows backend acceptance remains separate.
+
+2026-10-21 — Mac session owns the detailed current-nightly native checks and Mac-specific fixes above; run N703/N646 first via the canonical Mac handoff.
+Record actual build/runtime and per-case results here; prior automation/history is retained, and Linux/general CI plus Work tutorials remain separate.
+2026-10-21 — Current Cocoa source 7884c4a1f on Intel Iris Plus/macOS26.6.1: Metal20.13FPS, OpenGL26.03FPS on64×256×256 at100% render scale; both below30–60FPS target. Native benchmark reached its240s watchdog while rebuilding selected-object anchors on the GUI thread; Mac lane is repairing repeated anchor work without reducing handles or changing geometry.
+2026-10-21 — 62f709b6f reuses handles for unchanged immutable geometry/density/axis order;20 focused redraw/stale-anchor/edit checks pass. Focused native Metal run completes all20 picks and cleanly exits in46s;23.73FPS,19/20 agree with the pre-selection snapshot (selection can redraw it), so exact current-frame picking and30–60FPS remain open; no physical edit acceptance is inferred.
+
 2026-10-21 — Native nightly62f709b6f/macOS26.6.1 Intel Iris Plus: repeated immutable-mesh handle sampling repaired;20 regression checks pass and focused Metal benchmark exits normally in46s with20 picks.23.73FPS remains below30–60FPS;19/20 picks agree with the pre-selection snapshot, so current-frame picking and physical editing remain unverified. This change is ported to main without claiming main-native acceptance.
+
 2026-10-21 — Pixel picking now floors coordinates instead of truncating toward zero, so points just left of or above the rendered volume cannot select its first pixel. All11 exact interior/edge cases pass, including3 previously false outside picks. Rotated physical-input and30–60FPS acceptance remain open.

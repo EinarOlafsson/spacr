@@ -469,7 +469,7 @@ def zoomed_animation(
     size: int,
     target: float = TARGET_FILL,
 ) -> Optional[ZoomedAnimation]:
-    """Load, measure and zoom one animation — cached per ``(path, size)``.
+    """Load, measure and zoom one animation, cached by the supplied arguments.
 
     Decoding a GIF and scanning every frame costs tens of milliseconds; doing
     it per animation tick would be absurd, and doing it per hover would make
@@ -481,9 +481,7 @@ def zoomed_animation(
         ``int``.
     :param target: share of the output square the content should span;
         converted to ``float``.
-    :returns: ``None`` when the file cannot be decoded, so a missing or
-        corrupt asset degrades to a text-only tooltip instead of raising into
-        the event loop.
+    :returns: The zoomed animation, or ``None`` if decoding raises ``OSError`` or ``ValueError`` or produces no frames. Size/target conversion and zoom processing occur outside that exception handler and can raise.
     """
     try:
         frames, delays = read_frames(path)

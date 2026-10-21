@@ -2517,7 +2517,8 @@ def choose_model(parent: Optional[QWidget] = None,
 
     :param parent: the widget opening the dialog.
     :param kinds: restrict to these model kinds.
-    :returns: a local filesystem path, or ``None`` when cancelled.
+    :returns: the chosen model setting, which may be a local filesystem path or a
+        backend-prefixed name or path; ``None`` when cancelled.
     """
     dialog = ModelZooPicker(kinds=kinds, parent=parent)
     if dialog.exec() == QDialog.Accepted:

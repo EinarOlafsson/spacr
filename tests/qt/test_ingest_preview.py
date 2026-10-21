@@ -31,7 +31,7 @@ def test_plan_container_extraction_enumerates_fields_channels_times():
     assert len(rows) == 3 * 2 * 2
     r = rows[0]
     assert r["well"] == "plate1_A01"
-    assert r["original"] == "/data/movie.nd2"
+    assert r["original"] == str(Path("/data/movie.nd2"))
     assert r["canonical"] == "plate1_A01_T0001F001L01C01.tif"
     # last row reflects the max indices
     assert rows[-1]["canonical"] == "plate1_A01_T0002F003L01C02.tif"
@@ -64,6 +64,57 @@ def test_plan_folder_extraction_empty(tmp_path):
     from spacr.qt.ingest_preview import plan_folder_extraction
     assert plan_folder_extraction(tmp_path) == []
     assert plan_folder_extraction(tmp_path / "missing") == []
+
+
+@pytest.mark.parametrize("paths, expected", [
+    (["plate1/A01/field01/ch1.tif", "plate1/A01/field01/ch2.tif"],
+     [("A01", 1, 1), ("A01", 1, 2)]),
+    (["plate1/B07/field12/channel3/ch4.tif",
+      "plate1/B07/field12/channel3/image.tif"],
+     [("B07", 12, 4), ("B07", 12, 3)]),
+    (["plate1/B07/image_a.tif", "plate1/B07/image_b.tif"],
+     [("B07", 1, 1), ("B07", 2, 1)]),
+    (["plate1/B07/field12/image.tif"], [("B07", 12, 1)]),
+    (["plate1/field12/ch3.tif", "plate1/field12/ch4.tif"],
+     [("A01", 12, 3), ("A02", 12, 4)]),
+])
+def test_folder_import_preserves_known_axes_and_maps_only_missing_ones(
+        tmp_path, paths, expected):
+    import csv
+
+    from spacr.qt.dnd_handlers import scan_folder_structure
+    from spacr.qt.folder_metadata import detect_folder_metadata, save_filename_map
+    from spacr.qt.ingest_preview import plan_folder_extraction, rows_to_mappings
+
+    root = tmp_path / "B09" / "dataset"
+    files = []
+    for relative in paths:
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"II*\x00")
+        files.append(path)
+
+    report = scan_folder_structure(root)
+    assert report["error"] == ""
+    rows = report["rows"]
+    assert [(row["well"], row["field"], row["channel"]) for row in rows] == expected
+    assert len({row["canonical"] for row in rows}) == len(files)
+    assert [row["canonical"] for row in rows] == [
+        f"plate1_{well}_F{field:03d}_C{channel:02d}.tif"
+        for well, field, channel in expected]
+    assert plan_folder_extraction(
+        root, files=reversed(files), template=detect_folder_metadata(root)) == rows
+
+    mappings = rows_to_mappings(rows)
+    csv_path = save_filename_map(tmp_path / "filename_map.csv", mappings)
+    with csv_path.open(encoding="utf-8", newline="") as stream:
+        saved = list(csv.DictReader(stream))
+    assert saved == [
+        {"original_path": row["original"], "canonical": row["canonical"],
+         "plate": row["plate"], "well": row["well"],
+         "field": str(row["field"]), "channel": str(row["channel"]),
+         "time": str(row["time"])}
+        for row in rows]
 
 
 def test_summarize_rows():

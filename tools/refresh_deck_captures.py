@@ -54,10 +54,10 @@ def refresh(source, specification, output):
                 matches[0].text = new
             for picture in change.get("pictures", []):
                 capture = Path(picture["capture"])
-                provenance = json.loads((capture / "provenance.json").read_text())
+                provenance = json.loads((capture / "provenance.json").read_text(encoding="utf-8"))
                 if not provenance.get("completed_capture") or provenance.get("app_source_modified"):
                     raise ValueError("A completed, unmodified native capture is required")
-                inventory = json.loads((capture / "frames.json").read_text())
+                inventory = json.loads((capture / "frames.json").read_text(encoding="utf-8"))
                 frame = inventory[picture["frame"]]
                 image = (capture / frame["image"]).resolve()
                 if not image.is_relative_to(capture.resolve()):
@@ -119,7 +119,7 @@ def refresh(source, specification, output):
                "slide_count": specification["slide_count"], "changed_members": sorted(replacements),
                "untouched_members_verified": len(members) - len(replacements), "captures": captures,
                "original_unchanged": True, "capture_pixels_unchanged": True, "published": False}
-    output.with_suffix(".refresh.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    output.with_suffix(".refresh.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     return receipt
 
 
@@ -129,7 +129,7 @@ def main():
     parser.add_argument("specification", type=Path)
     parser.add_argument("output", type=Path)
     args = parser.parse_args()
-    result = refresh(args.source, json.loads(args.specification.read_text()), args.output)
+    result = refresh(args.source, json.loads(args.specification.read_text(encoding="utf-8")), args.output)
     print(f"Refreshed {len(result['captures'])} native captures; preserved {result['untouched_members_verified']} unrelated members")
 
 

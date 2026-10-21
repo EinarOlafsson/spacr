@@ -46,6 +46,57 @@ Shape:     DINOcell and SAMcell appear in the Model Zoo and the Model Zoo
            installed installs it and makes it usable, without the user leaving
            the GUI.
 
+MAC SESSION: EXISTING REAL ISOLATED-BACKEND INSTALL FOLLOW-UP
+
+Linux acceptance and real Linux Cellpose 3/DINOCell/SAMCell evidence remain
+accepted. macOS install/runtime proof is still a separate existing follow-up;
+this does not reopen Linux or require a new comparative scorecard. This item
+stays ALPHA: preserve Show alpha features gating and exclude it from ordinary
+Work tutorials. Follow spacr/resources/AI/MAC_HANDOFF.md; do not reopen accepted
+N703/F655/N686 work or change the independent 404/405 scientific acceptance.
+
+Preconditions: record fresh origin/nightly HEAD and actual app module/Python/
+version, macOS/architecture and the backend row's current plan/licence. Use a
+writable test-owned SPACR_BACKENDS_DIR or disposable Mac profile, preserving
+existing environments/caches. A supported Python in each backend's declared
+range, network/package/weight access and sufficient disk space are required.
+If unavailable, keep the real not-installable reason; do not change pins,
+claim support by construction or modify spaCR's own environment to force it.
+
+1. Open the real Model Zoo/backend installation control for Cellpose 3,
+   DINOCell and SAMCell. Confirm the installed/installable/not-installable
+   state and reason before each attempt. Inspect the displayed dependency plan
+   and licence; do not treat project-published scores as spaCR measurements.
+2. For each actually installable backend press Install, watch progress and
+   verify the app remains usable. Confirm the resulting interpreter and
+   packages are inside that backend's isolated environment, not spaCR's live
+   environment. Record actual versions and any platform/wheel error. Retain
+   the install log's relevant error, not a stand-in success or forced fallback.
+3. Run the existing backend self-test, then one small already-defined image
+   through the actual production adapter from the Model Zoo/Mask generation
+   or supported Make Masks mode. Verify returned masks have the expected
+   image shape and sensible integer labels, and that logs identify the
+   intended isolated backend/model/device. A successful import alone is not
+   inference, and Cellpose 4/cpsam fallback is not Cellpose 3 acceptance. Use
+   CPU when supported; do not add an MPS/GPU requirement or train a model.
+4. For Cellpose 3 check cyto/cyto2/cyto3/nuclei availability in the consuming
+   backend-aware picker, and that Use this model supplies the chosen name.
+   Do not put a Cellpose 3 checkpoint in a Cellpose 4-only consumer. A real
+   external checkpoint download is tested only if already available/needed;
+   do not add a bulk model-download or comparative-accuracy campaign.
+5. Exercise Cancel on a test-owned install and confirm actionable state after
+   failure/cancellation. Uninstall only the test backend via the app, verify
+   its isolated directory is removed and open controls refresh their state;
+   reinstall one tested backend to confirm it becomes usable without stale
+   cached workers/models. Preserve every non-test environment and user file.
+
+Record per backend the source/runtime identity, plan/actual package versions,
+install/self-test/production-inference/cancel/uninstall result, device and any
+missing prerequisite. Existing Linux passes and alpha status remain unchanged.
+A Mac install success is not scientific scorecard validation, Windows proof
+or automatic whole-item closure. No new tests, tutorial capture or global
+installer redesign is requested by this handoff.
+
 --------------------------------------------------------------------------------
 WHAT IT IS FOR
 --------------------------------------------------------------------------------
@@ -370,7 +421,7 @@ PackageInstall and CheckpointDownload are untouched.
 Seven of 419's install tests were rewritten to drive the dialog, and two
 new ones assert that neither control runs pip against spaCR's own
 environment. Everything is recorded in
-features/325_two_sessions_one_repo_working_protocol.temp §5 and in 419's
+the retired two-session protocol §5 (preserved in Git history) and in 419's
 own file, so the session that built it can reverse this if the maintainer
 prefers.
 
@@ -391,3 +442,6 @@ backend tests pass. This closes the old never-installed-SAMCell statement;
 Windows/macOS and comparative scorecard acceptance are not claimed.
 
 VERIFIED 2026-10-04: 5 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
+No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.

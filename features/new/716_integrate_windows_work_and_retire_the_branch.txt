@@ -1,0 +1,37 @@
+================================================================================
+INTEGRATE WINDOWS WORK AND RETIRE THE BRANCH
+================================================================================
+
+Status:    DONE 2026-10-21 — integrated Windows work and retired its remote branch
+Requested: maintainer, 2026-10-21 — merge the Windows work into nightly, then delete the Windows branch
+Priority:  P1
+Owner:     Codex Windows integration worker — implementation/validation; root — publication and branch retirement
+
+SCOPE
+Integrate all work from origin/windows-paths-20261019 while preserving newer
+nightly and Mac changes. The initially inspected tip is
+19a05df80ea09684d9c41961d5dc23e66f1b9c22. Initial Git patch comparison found
+21 patch-equivalent commits and six different patches; different patches do
+not imply that all their product changes are absent. Bounded comparison of
+the six patches' 136 paths found 57 exact tip blobs already in nightly,
+78 differing paths and one absent test. Reconcile genuinely absent changes;
+retain subsequent correctness fixes and existing native acceptance gates.
+
+ACCEPTANCE
+- All Windows work is integrated or its newer equivalent is preserved;
+  current nightly/Mac work is retained without reverting later corrections.
+- Focused owning tests validate the actual integrated changes. Regenerate
+  affected outputs with their normal tools; do not weaken tests or ratchets.
+- Root reviews and publishes the integrated result to nightly.
+- After publication, root checks the actual current remote Windows tip for
+  newly added unique work, verifies preservation, then deletes only
+  origin/windows-paths-20261019. Keep the branch while any work is unintegrated.
+- Completion requires integration, validation, publication and branch retirement.
+  This item does not introduce blanket native-Windows acceptance requirements;
+  separately owned item gates and maintainer holds remain in force.
+
+2026-10-21 — Registered before implementation. Initial bounded six-patch comparison distinguishes missing hunks from already integrated behaviors; publication and branch retirement are root controlled.
+2026-10-21 — Integrated missing Windows Qt/path/privacy/test-fixture changes; retained newer portable-store, private-staging, NTFS/watch, spool, font and update-recovery equivalents. Kept the working motility orientation import instead of the Windows patch’s nonexistent helper import; added real layout/hash/cache-race regressions.
+2026-10-21 — Focused acceptance retains 523 initial passes plus two corrected real-file hashing cases and two real motility layouts (527 unique behavioral passes, two expected skips); 16 generated/public-doc contracts pass. Normal API, flow, consumer, Help and feature-index tools completed; root review, nightly publication and remote-tip-checked branch retirement remain.
+
+2026-10-21 — Root retained current Mac/notebook/native fixes, regenerated the final consumer map, and preserved the original Windows ancestry after reviewing all six differing patches. Publish nightly and retire the unchanged19a05df80e Windows tip together in one atomic, deletion-lease-protected transaction; acceptance is complete only after that transaction succeeds.

@@ -93,13 +93,13 @@ def _run_that_stalls_in(tmp_path, hook, marker, args, body, env_extra):
     # /dev/null`` as ``/dev`` and then attempts to collect system-managed
     # entries such as ``/dev/::tmp``; collection can fail before the loop-end
     # watchdog is ever armed, which tests the filesystem instead of teardown.
-    (tmp_path / "pytest.ini").write_text("[pytest]\n")
+    (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
     (tmp_path / "conftest.py").write_text(
-        _SUITE_CONFTEST.format(repo=REPO))
+        _SUITE_CONFTEST.format(repo=REPO), encoding="utf-8")
     (tmp_path / "stalling_plugin.py").write_text(
         _BLOCKING_PLUGIN.format(marker=marker, hook=hook, args=args,
-                                body=body))
-    (tmp_path / "test_one.py").write_text(_ONE_TEST)
+                                body=body), encoding="utf-8")
+    (tmp_path / "test_one.py").write_text(_ONE_TEST, encoding="utf-8")
 
     env = dict(os.environ)
     env[SHUTDOWN_WATCHDOG_ENV] = str(BUDGET_S)
@@ -297,7 +297,7 @@ def _qapp_probe(tmp_path, extra):
     pytest.importorskip("PySide6")
     script = tmp_path / "qapp_probe.py"
     script.write_text(
-        textwrap.dedent(_QAPP_PROBE.format(repo=REPO, extra=extra)))
+        textwrap.dedent(_QAPP_PROBE.format(repo=REPO, extra=extra)), encoding="utf-8")
 
     done = subprocess.run([sys.executable, str(script)], capture_output=True,
                           text=True, timeout=PATIENCE_S)

@@ -102,7 +102,7 @@ def colors_for_labels(labels: Optional[Sequence[int]], count: int, *,
     :param count: number of points to colour.
     :param cmap: a colour map from :func:`available_colormaps`; ``"spaCR"`` is
         the native palette.
-    :param alpha: point opacity, clipped to 0.05-1.0.
+    :param alpha: point opacity, clipped to 0.05-1.0, for unlabeled points and nonnegative cluster labels. Noise points and the fallback for mismatched label shape retain their palette opacity.
     """
     opacity = int(round(255.0 * float(np.clip(alpha, 0.05, 1.0))))
     if labels is None:

@@ -146,8 +146,8 @@ blocks:
   - '**Docker**: die Kommandozeilen-Pipelines in einem Linux-Container, mit dem CPU-Image
     oder dem Image für NVIDIA-GPUs:'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
   lang: bash
 - p: Die `Docker-Anleitung (nightly, Englisch) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     beschreibt die GPU-Einrichtung, das Einbinden von Daten und die Pipeline-Befehle.
@@ -256,7 +256,7 @@ blocks:
     Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher
     umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde
     keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von main belegen im
-    ausgecheckten Arbeitsverzeichnis 5059 MB (gemessen am 2026-10-21), ohne Git-Historie.
+    ausgecheckten Arbeitsverzeichnis 735 MB (gemessen am 2026-10-21), ohne Git-Historie.
     Downloadgröße und Dauer hängen vom Branch ab.'
 - h2: Befehle für die Kommandozeile
 - code: |-

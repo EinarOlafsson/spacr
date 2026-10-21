@@ -50,7 +50,7 @@ def _journal(root, names, start):
         folder = root / name
         folder.mkdir()
         (folder / "manifest.json").write_text(json.dumps(
-            {"app_key": "mask", "start_utc": start(i)}))
+            {"app_key": "mask", "start_utc": start(i)}), encoding="utf-8")
 
 
 def test_the_totals_window_opens_only_the_runs_inside_it(tmp_path, monkeypatch):

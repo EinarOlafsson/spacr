@@ -1,21 +1,22 @@
 """
 Error reports filed as issues on the public spaCR GitHub repository.
 
-A failed run is reported in one of two ways, chosen by the "One-click issue
-filing" preference (:func:`spacr.qt.preferences.get_issue_prompt_mode`):
+These helpers build reports for automatic filing with a GitHub sign-in or submission
+after an editable preview. Callers decide whether and when to report; anonymous relay
+reporting is handled separately.
 
-* ``'always'``, the default: :func:`file_without_review` files the report as
-  soon as the run has failed. It sends :func:`public_report`, the same
-  redaction the preview applies by default, and it never opens a browser.
-  Filing needs a GitHub sign-in (the ``gh`` CLI or ``GITHUB_TOKEN``). Without
-  one, nothing is sent.
-* ``'ask'``: the report opens in an editable preview, and
-  :func:`submit_report` sends it only after the Send click. Without a
-  sign-in it opens a pre-filled GitHub form in the browser.
+* ``'always'``: the caller can pass the report produced by :func:`public_report` to :func:`file_without_review`
+  for automatic filing without a browser. This requires a GitHub sign-in; without one,
+  nothing is sent. Eligibility checks, duplicate-memory checks and any wait for an AI
+  answer are handled by the caller.
+* ``'ask'``: the user can open an editable preview and approve it before
+  :func:`submit_report` is called. Without a sign-in, or if API posting fails,
+  submission opens a pre-filled GitHub form in the browser.
 
-Both paths build the report with :func:`build_report`, and both look for an
-open issue carrying the same traceback fingerprint before they open a new
-one. spaCR never stores a durable GitHub token itself.
+Both paths can use :func:`build_report`. With a GitHub sign-in, posting searches for an
+open issue with the same traceback fingerprint and attempts to comment there. A failed
+search or comment can lead to a new issue instead. This module does not persist GitHub
+tokens.
 """
 from __future__ import annotations
 
@@ -74,15 +75,20 @@ _SECRET_KEY_RE = re.compile(
 
 
 def redact_secrets(s: str) -> str:
-    """Strip anything that looks like an API key / access token.
+    """Replace substrings matched by the supported credential patterns.
 
-    The issue body is posted to a PUBLIC GitHub repo, so a token that
-    survived into a traceback, a settings value or a log line would be
-    leaked to the world (and, for GitHub PATs, instantly revoked).
+    Apply the case-sensitive vendor patterns in ``_TOKEN_PATTERNS``, then the
+    case-insensitive ``_BEARER_RE`` and ``_ASSIGN_RE`` patterns. Vendor patterns use
+    fixed prefixes, character sets and minimum lengths. The Bearer pattern requires at
+    least ``8`` token characters, and the assignment pattern at least ``6`` value
+    characters. Bearer replacement preserves the matched scheme and whitespace;
+    assignment replacement preserves its prefix and quote delimiter. Unrecognized or
+    too-short text can remain. This function does not post reports, check credentials
+    with a service or revoke tokens.
 
     :param s: arbitrary text.
-    :returns: the same text with credential-shaped substrings replaced
-        by :data:`REDACTED`.
+    :returns: The input after the supported pattern substitutions, with matched
+        credential text replaced by :data:`REDACTED`.
     """
     if not s:
         return s
@@ -176,17 +182,18 @@ def _identity_words() -> List[tuple]:
 
 
 def redact_identity(s: str) -> str:
-    """Replace this computer's login and host names with placeholders.
+    """Replace eligible local login and host name matches with placeholders.
 
-    A home folder is already shortened to ``~`` by :func:`sanitize_path`. The
-    login name can still appear elsewhere: another folder named after the
-    user, a permission error, an ``owner`` setting. The host name can appear
-    in a network path or a connection error. Each is replaced wherever it
-    stands as a whole word, in any letter case.
+    Candidate names come from ``_identity_words``; names shorter than three characters,
+    all-digit names and entries in ``_GENERIC_NAMES`` are omitted. Matches are
+    case-insensitive and blocked if either adjacent character matches ``[A-Za-z0-9]``
+    under ``re.IGNORECASE``; underscores do not block them. Home-string substitution is
+    handled separately by :func:`sanitize_path`.
 
     :param s: arbitrary text.
-    :returns: the text with :data:`USER_PLACEHOLDER` and
-        :data:`HOST_PLACEHOLDER` in place of those names.
+    :returns: The input with eligible matches replaced by :data:`USER_PLACEHOLDER` or
+        :data:`HOST_PLACEHOLDER`; excluded names and other unmatched identifiers are
+        unchanged.
     """
     if not s:
         return s
@@ -197,17 +204,18 @@ def redact_identity(s: str) -> str:
 
 
 def sanitize_path(s: str) -> str:
-    """Replace absolute paths pointing inside ``$HOME`` with ``~/``.
+    """Apply literal home-string replacement and pattern-based redaction.
 
-    Also collapses any string that looks like an on-disk ``*.db`` path
-    down to ``<DB>`` so lab / patient / experiment identifiers embedded
-    in a filename don't leak, replaces this computer's login and host names
-    through :func:`redact_identity`, and redacts credential-shaped substrings
-    via :func:`redact_secrets`.
+    Replace exact, case-sensitive occurrences of ``str(Path.home())`` with ``~``
+    wherever they occur; no path boundaries are checked. Replace substrings matching the
+    case-sensitive database-path regex with ``<DB>``: a slash or backslash, one or more
+    characters other than whitespace or single/double quotes, then ``.db`` and a regex
+    word boundary. Finally apply :func:`redact_identity` and :func:`redact_secrets`.
+    These substitutions do not guarantee removal of every identifier or credential.
 
     :param s: arbitrary text.
-    :returns: text with home-relative paths abbreviated and DB paths,
-        login and host names and secrets redacted.
+    :returns: The text after the literal home-string replacement and the database,
+        identity and credential-pattern substitutions.
     """
     home = str(Path.home())
     s = s.replace(home, "~")
@@ -217,14 +225,16 @@ def sanitize_path(s: str) -> str:
 
 
 def sanitize_settings(settings: Dict[str, Any]) -> Dict[str, Any]:
-    """Return a copy of ``settings`` with paths + DB names sanitized.
+    """Return a shallow settings copy with selected strings sanitized.
 
-    Values whose *key* names a credential (``api_key``, ``GITHUB_TOKEN``,
-    ``password``, …) are dropped entirely — the key name is enough of a
-    hint that the value must never reach a public issue.
+    Top-level values whose string key names a credential (``api_key``, ``GITHUB_TOKEN``,
+    ``password``, …) are replaced by :data:`REDACTED`; their keys remain. Other string
+    values and direct string elements of lists pass through :func:`sanitize_path`.
+    Nested mappings and other values are not recursively sanitized.
 
     :param settings: any pipeline settings dict.
-    :returns: sanitized copy safe to include in a public issue.
+    :returns: a shallow copy with the redactions described above; arbitrary nested data
+        is not guaranteed safe for a public issue.
     """
     out: Dict[str, Any] = {}
     for k, v in (settings or {}).items():
@@ -290,19 +300,19 @@ _BARE_PATH_RE = re.compile(
 
 
 def strip_report_paths(text: str) -> str:
-    """Remove file/folder names from an already sanitised report.
+    """Replace recognized path-like text in an already sanitised report.
 
-    The ordinary sanitizer abbreviates the home directory so a traceback is
-    still useful. Public reports default to the stricter form: traceback file
-    fields, quoted path values and remaining absolute path-like tokens become
-    ``<PATH>``. The preview lets the user restore the useful names before
-    sending; with issue reporting set to 'always' there is no preview, so
-    what this leaves behind is what gets published.
+    The ordinary sanitizer abbreviates the home directory so a traceback is still
+    useful. This helper then applies patterns for traceback file fields, quoted path
+    values and remaining absolute path-like tokens, replacing recognized paths with
+    ``<PATH>``. Callers use it for the stricter public-report form; it does not call
+    :func:`sanitize_path`, display a preview or send a report. Unrecognized names can
+    remain.
 
     A path can contain a space, and a rule that stops a path at the first
     whitespace publishes the rest of it. ``/Volumes/Lab Drive/Patient 042``
-    came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive
-    - Karolinska Institutet\\Screens`` kept the institution and the
+    came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive -
+    Karolinska Institutet\\Screens`` kept the institution and the
     screen — the two operating systems whose own folders have spaces in
     them. A UNC path was not a path at all: nothing here started at
     ``\\\\``. The LAST component of an unquoted path has no separator after
@@ -331,16 +341,18 @@ def strip_report_paths(text: str) -> str:
 
 
 def public_report(report: Dict[str, str]) -> Dict[str, str]:
-    """The report as it is sent when nobody reviews it first.
+    """Prepare the path-stripped title and body of a report.
 
-    The preview opens with "Remove file and folder names" switched on, so
-    what a reviewer sends by default is the body after
-    :func:`strip_report_paths`. A report filed automatically gets that same
-    body. The title is stripped as well: it quotes the exception line, and
-    that line can carry a file name.
+    The preview defaults to removing file and folder names, and automatic reporting uses
+    this helper to prepare that form. Apply :func:`strip_report_paths` to the title and
+    body after converting their values to strings; copy the fingerprint as a string.
+    Missing fields default to empty strings, and other fields are omitted. This helper
+    does not send the report or check user approval.
 
     :param report: a report from :func:`build_report`.
-    :returns: ``title``, ``body`` and ``fingerprint``, ready to post.
+    :returns: A new mapping containing the string fields ``title``, ``body`` and
+        ``fingerprint``. Path removal is limited to the patterns supported by
+        :func:`strip_report_paths`.
     """
     return {
         "title": strip_report_paths(str(report.get("title", ""))),
@@ -417,9 +429,9 @@ def fingerprint_of(traceback_text: str) -> str:
     """The fingerprint :func:`build_report` gives this traceback.
 
     :param traceback_text: the raw traceback.
-    :returns: six hex characters, without building the report. The
-        automatic filer checks this against what it has filed before, so a
-        repeated crash costs no log copy and no network call.
+    :returns: six hex characters, without building the report, copying a log or making a
+        network call. Callers can use this key to check their remembered reports before
+        doing that work; this function does not itself remember or suppress reports.
     """
     return _traceback_hash(sanitize_traceback(traceback_text))
 
@@ -427,13 +439,14 @@ def fingerprint_of(traceback_text: str) -> str:
 
 def log_tail(n_lines: int = LOG_TAIL_LINES,
               log_path: Optional[Path] = None) -> str:
-    """Return the last ``n_lines`` of ``~/.spacr/logs/spacr.log`` (or
-    a custom path), sanitized.
+    """Read selected lines from the supplied or configured log file.
 
-    :param n_lines: how many trailing lines to include.
+    :param n_lines: Number of trailing lines; zero selects all lines, and ``-k`` skips
+        the first ``k`` lines.
     :param log_path: override for the log file path.
-    :returns: sanitised last-N-lines block or ``""`` if the file is
-        absent or unreadable.
+    :returns: Selected lines processed by :func:`sanitize_path`, or ``""`` if resolving
+        the configured path or reading the file fails. The entire file is read as UTF-8
+        with invalid bytes replaced before selecting lines.
     """
     if log_path is None:
         try:
@@ -459,9 +472,9 @@ def save_log_bundle(fingerprint: str,
                     n_lines: int = LOG_BUNDLE_LINES) -> Optional[Path]:
     """Write the log tail to a file beside the report and return its path.
 
-    The public issue names this path instead of carrying the log itself.
-    More lines are kept here than an issue would carry, because the
-    file is not limited by the length of a URL.
+    The report builder can include this local path instead of the log contents; stricter
+    public redaction may replace the path. The file is not constrained by the issue URL
+    length limit.
 
     :param fingerprint: the traceback hash, so one report's log is easy
         to match to the issue that names it.
@@ -533,7 +546,7 @@ def build_report(
     include_log_tail: bool = True,
     ai_response: str = "",
 ) -> Dict[str, str]:
-    """Build a ``(title, body)`` pair for a pre-filled GitHub issue.
+    """Build a report mapping containing a title, body and traceback fingerprint.
 
     :param traceback_text: full traceback text (as caught by
         :func:`traceback.format_exc`).
@@ -541,11 +554,12 @@ def build_report(
         fired (``"mask"`` / ``"measure"`` / …).
     :param settings: the pipeline settings dict in play, if any.
         Sanitised before inclusion.
-    :param include_log_tail: also attach the last N log lines.
-    :param ai_response: spaCR AI's analysis of this same error, when the AI
-        is switched on and has already answered. Sanitised and length-capped
-        like everything else here, and clearly marked as machine-generated:
-        it is a lead for whoever reads the report, not a finding.
+    :param include_log_tail: attempt to save a sanitized local log tail and include its
+        local path in the body. The log contents are not attached to the public issue.
+    :param ai_response: spaCR AI's analysis of this same error, when available. It
+        passes through :func:`sanitize_path` and is shortened after
+        :data:`AI_ANALYSIS_MAX_CHARS` characters, with a truncation note added. It is
+        marked as unreviewed machine-generated advice rather than a diagnosis.
     :returns: dict with keys ``title``, ``body`` and ``fingerprint``,
         ready to be
         URL-encoded onto ``issues/new``.
@@ -633,13 +647,14 @@ def issue_url(title: str, body: str, label: str = ISSUE_LABEL,
                repo: str = REPO) -> str:
     """Build the ``https://github.com/<repo>/issues/new?…`` URL.
 
-    The URL is truncated to ~7.5 KB so it fits GitHub's parser limit;
-    an ellipsis and a note are appended to the body when it is clipped.
+    If the estimated URL-encoded length exceeds :data:`MAX_URL_LEN`, shorten the body
+    and append a truncation note. The title, repository and label are not shortened, so
+    unusually large values can still exceed that limit.
 
     :param title: URL-encodable issue title.
     :param body: markdown body; may be truncated.
-    :param label: label to attach (created lazily by GitHub if it
-        doesn't already exist).
+    :param label: label requested in the pre-filled form; this helper does not create
+        it.
     :param repo: ``owner/name`` slug.
     :returns: fully-quoted ``https://github.com/…`` URL.
     """
@@ -719,16 +734,17 @@ def _post_report(report: Dict[str, str]) -> Dict[str, str]:
 
 
 def submit_report(report: Dict[str, str]) -> str:
-    """Submit one payload the user has already approved in the preview.
+    """Submit an approved payload through the API, with browser-form fallback.
 
-    :param report: the approved payload with ``title`` and ``body`` keys, plus
-        ``fingerprint`` for the duplicate search when a GitHub sign-in posts
-        it through the API. Without a sign-in, or when posting fails, the
-        title and body are put into a pre-filled issue URL that is opened in
-        the browser.
-    :returns: the filed issue's URL, the pre-filled ``issues/new`` URL, or
-        the transport refusal message when network use is refused (inside a
-        test run).
+    :param report: The approved payload with ``title`` and ``body`` keys, plus
+        ``fingerprint`` for the duplicate search when a token is available. Callers
+        prepare any required redaction before calling. If API posting does not yield a
+        URL, construct a pre-filled issue URL and request that the browser open it. This
+        helper does not display an approval preview or apply :func:`public_report`.
+    :returns: The API result URL, the pre-filled ``issues/new`` URL, or a transport
+        refusal message. Returning the browser-form URL does not mean the browser
+        accepted it or an issue was filed. Errors constructing that fallback URL can
+        propagate.
     """
     try:
         from . import github_auth
@@ -747,21 +763,24 @@ def submit_report(report: Dict[str, str]) -> str:
 
 
 def file_without_review(report: Dict[str, str]) -> Dict[str, str]:
-    """File a report automatically, for issue reporting set to 'always'.
+    """Attempt automatic API reporting without opening a browser.
 
-    Runs on a worker thread: resolving the sign-in can run ``gh auth
-    token``, and posting waits on api.github.com.
+    Runs synchronously on the calling thread: resolving a token can run ``gh auth
+    token``, and GitHub API calls can block while waiting for responses. Callers choose
+    where to run it.
 
-    It never opens a browser. The browser form is a prompt the user
-    answers, and 'always' is the choice not to be prompted. So without a
-    GitHub sign-in it files nothing and says so.
+    This helper is used for issue reporting set to 'always', but does not enforce that
+    setting. A transport refusal produces :data:`REFUSED`, and no available token
+    produces :data:`SIGNED_OUT`. Otherwise attempt an API post or a comment on an
+    existing issue; no browser form is opened.
 
     :param report: the payload to post, already passed through
         :func:`public_report`.
-    :returns: ``{"status": ..., "url": ..., "detail": ...}`` with a status
-        of :data:`FILED`, :data:`SEEN_AGAIN` (a comment on the open issue
-        with the same fingerprint), :data:`SIGNED_OUT`, :data:`REFUSED`
-        (inside a test run) or :data:`FAILED`. Never raises.
+    :returns: A mapping with ``status`` and optional ``url`` or ``detail`` fields.
+        Status is :data:`FILED`, :data:`SEEN_AGAIN` (a successful comment on an existing
+        issue with the same fingerprint), :data:`SIGNED_OUT`, :data:`REFUSED` or
+        :data:`FAILED`. Caught :class:`Exception` instances are converted to
+        :data:`FAILED` with an exception description.
     """
     try:
         from . import github_auth
@@ -786,10 +805,10 @@ def file_issue(
 ) -> str:
     """Legacy end-to-end helper retained for API callers and tests.
 
-    The GUI does not call this directly: it builds the payload, displays an
-    editable preview, then passes the approved mapping to
-    :func:`submit_report`. Headless callers invoking this function are the
-    report-specific affirmative action themselves.
+    This function builds a report and immediately passes it to :func:`submit_report`; it
+    does not show a preview or apply :func:`public_report`. GUI callers handle preview
+    approval or automatic-filing decisions separately. A headless caller is responsible
+    for deciding whether this report may be submitted.
 
     :param traceback_text: full traceback text, passed to
         :func:`build_report`, which sanitises it and derives the issue title

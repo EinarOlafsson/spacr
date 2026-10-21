@@ -221,9 +221,11 @@ def auto_filed_url(fingerprint: str) -> str:
 def remember_auto_filed(fingerprint: str, url: str) -> None:
     """Record that a report with this fingerprint was filed automatically.
 
-    The same crash is then never filed twice from this profile, however
-    many times the run is repeated. The oldest entries are dropped beyond
-    :data:`AUTO_FILED_LIMIT`.
+    Callers can use a non-empty stored URL to avoid filing the same fingerprint again
+    while it remains in this profile. Remembering an existing fingerprint moves it to
+    the newest position; entries beyond :data:`AUTO_FILED_LIMIT` are dropped oldest
+    first. An evicted or cleared entry no longer prevents another filing; malformed or
+    non-mapping stored data is treated as an empty history.
 
     :param fingerprint: the report's fingerprint.
     :param url: the issue it was filed as, or commented on.

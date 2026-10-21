@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.merge_tables import MAX, MEAN, MIN, SUM
+from spacr.merge_tables import FIRST, MAX, MEAN, MIN, SUM
 
 
 @pytest.fixture
@@ -59,6 +59,29 @@ def test_existing_overrides_are_shown(qtbot, frame):
     dialog = AggregationRulesDialog(frame, overrides={"area": MEAN})
     qtbot.addWidget(dialog)
     assert dialog._boxes["area"].currentText() == MEAN
+
+
+@pytest.mark.parametrize("column, default", [("label", FIRST), ("area", SUM)])
+def test_choices_and_restores_follow_the_column_dtype(qtbot, frame, column, default):
+    from spacr.qt.widgets.aggregation_rules import AggregationRulesDialog
+
+    dialog = AggregationRulesDialog(frame)
+    qtbot.addWidget(dialog)
+    seen = []
+    dialog.rules_changed.connect(seen.append)
+    box = dialog._boxes[column]
+    assert box.currentText() == default
+    assert dialog.overrides() == {}
+
+    box.setCurrentText(MEAN)
+    assert box.currentText() == MEAN
+    assert dialog.overrides() == {column: MEAN}
+    assert seen == [{column: MEAN}]
+
+    box.setCurrentText(default)
+    assert box.currentText() == default
+    assert dialog.overrides() == {}
+    assert seen == [{column: MEAN}, {}]
 
 
 def test_the_list_can_be_filtered(qtbot, frame):

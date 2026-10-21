@@ -21,6 +21,6 @@ def test_sentence_reuse_is_bound_to_speech_voice_speed_and_verified_pcm(tmp_path
     for key, value in [('speech_text', 'different'), ('voice', 'af_sky'), ('speed', .9),
                        ('runtime', {'model_sha256': 'changed'})]:
         assert not cached_sentence(tmp_path, {**inputs, key: value}, synthesize, np)[2]
-    original = next(path for path in tmp_path.glob('*.json') if inputs['speech_text'] in path.read_text())
+    original = next(path for path in tmp_path.glob('*.json') if inputs['speech_text'] in path.read_text(encoding="utf-8"))
     original.with_suffix('.npy').write_bytes(b'corrupt')
     assert not cached_sentence(tmp_path, inputs, synthesize, np)[2]

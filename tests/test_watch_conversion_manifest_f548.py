@@ -135,13 +135,14 @@ def test_bad_manifest_fails_before_watch_outputs(tmp_path, case):
     assert not (tmp_path / 'spacr_watch').exists()
 
 
-@pytest.mark.parametrize('case', ['schema', 'symlink', 'large', 'incompatible_pattern'])
+@pytest.mark.parametrize('case', ['schema', pytest.param('symlink', marks=pytest.mark.needs_symlink), 'large',
+                                  'incompatible_pattern'])
 def test_unsupported_metadata_refused_without_fallback(tmp_path, case):
     _map(tmp_path)
     path = tmp_path / convert.MAP_FILENAME
     settings = _fast(tmp_path)
     if case == 'schema':
-        path.write_text('target,channel\na.tif,1\n')
+        path.write_text('target,channel\na.tif,1\n', encoding="utf-8")
     elif case == 'symlink':
         path.rename(tmp_path / 'elsewhere.csv')
         path.symlink_to(tmp_path / 'elsewhere.csv')
@@ -187,7 +188,7 @@ def test_map_symlink_swap_at_open_is_not_followed(tmp_path, monkeypatch):
     _map(tmp_path)
     path = tmp_path / convert.MAP_FILENAME
     target = tmp_path / 'external.csv'
-    target.write_text('do not read this target')
+    target.write_text('do not read this target', encoding="utf-8")
     original_open = os.open
 
     def swap_then_open(name, flags, *args, **kwargs):

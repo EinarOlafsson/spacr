@@ -101,7 +101,7 @@ def _fake_runner(objects):
 def test_the_step_writes_cellprofiler_objects_keyed_by_spacr_ids(tmp_path):
     settings, db = _project(tmp_path)
     pipeline = tmp_path / "p.cppipe"
-    pipeline.write_text("CellProfiler Pipeline: http://www.cellprofiler.org\n")
+    pipeline.write_text("CellProfiler Pipeline: http://www.cellprofiler.org\n", encoding="utf-8")
     settings["cellprofiler_pipeline"] = str(pipeline)
     runner = _fake_runner({
         "Nuclei": [(10.0, 10.0, 1, 64.0), (30.0, 30.0, 2, 64.0),
@@ -170,7 +170,7 @@ def test_the_worker_uses_only_the_java_in_its_own_environment(tmp_path,
     assert "JAVA_HOME" not in SB._worker_env(SB._CELLPROFILER, str(env))
     home = env / "jdk" / "jdk-11.0.1+1"
     (home / "bin").mkdir(parents=True)
-    (home / "bin" / "javac").write_text("")
+    (home / "bin" / "javac").write_text("", encoding="utf-8")
     environ = SB._worker_env(SB._CELLPROFILER, str(env))
     assert environ["JAVA_HOME"] == str(home)
     assert environ["PATH"].startswith(str(home / "bin"))

@@ -1,9 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "owner_commit": "2b54f51f4de4042ccf7cb28a991e83ba363f4f5c",
-  "tool_sha256": "386f195b13ff334e54828c6333bc43ebca1d0b4afb5cc8307e805a8f2521ae93",
-  "patch_sha256": "5313b590daba19c94b66f56ae0f41b52001eb94be1c29b677af7a879da2bcaae",
-  "decision": "approve exact two requested AST caption owners",
-  "scope": "Add _lineage_trees.py explicit path and top-level FunctionDef _lineage_explicit_parents whitelist; add _viability_manual to existing measure allowlist. Preserve every prior owner, AST literal-only extraction, no imports/evaluation and no guard/scientific/API/catalog changes.",
-  "owner_evidence": "46 boundary checks PASS1.53s; both requested positives failed before1.18s. Actual source collection/ordinary loaders/source/context/target/hash preservation gates remain required in coherent batch."
-}

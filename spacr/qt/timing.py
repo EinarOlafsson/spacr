@@ -259,7 +259,6 @@ def _the_spacr_frame(path: str) -> str:
         return ""
     global _SPACR_ROOT, _LIBRARY_DIRS
     if _SPACR_ROOT is None:
-        import os
         import sysconfig
 
         try:
@@ -280,7 +279,7 @@ def _the_spacr_frame(path: str) -> str:
                 dirs.append(got + os.sep)
         _LIBRARY_DIRS = tuple(dirs)
     if _SPACR_ROOT and path.startswith(_SPACR_ROOT):
-        return path[len(_SPACR_ROOT):]
+        return path[len(_SPACR_ROOT):].replace(os.sep, "/")
     if "/spacr/" not in path:
         return ""
     if _LIBRARY_DIRS and path.startswith(_LIBRARY_DIRS):

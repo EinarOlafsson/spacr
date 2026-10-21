@@ -12,6 +12,8 @@ leave a dialog unable to close.
 """
 from __future__ import annotations
 
+import os
+
 import json
 import logging
 
@@ -32,7 +34,7 @@ def store(qapp, tmp_path, monkeypatch):
     settings = QSettings(str(tmp_path / "spacr-qt.ini"), QSettings.IniFormat)
     monkeypatch.setattr(prefs, "_settings", lambda: settings)
     resolved = prefs._settings().fileName()
-    assert str(tmp_path) in resolved, resolved
+    assert str(tmp_path) in os.path.normpath(resolved), resolved
     return settings
 
 

@@ -32,17 +32,17 @@ def test_only_a_complete_private_installation_is_accepted(recorder, tmp_path):
     root = tmp_path / 'installation_runs' / 'verified'
     root.mkdir(parents=True)
     receipt = dict(accepted=True, steps=[dict(returncode=0, completed=True) for _ in range(6)])
-    (root / 'receipt.json').write_text(json.dumps(receipt))
+    (root / 'receipt.json').write_text(json.dumps(receipt), encoding="utf-8")
     assert recorder.installation(tmp_path, root)[1] == root / 'venv'
     outside = tmp_path / 'other_environment'
     outside.mkdir()
-    (outside / 'receipt.json').write_text(json.dumps(receipt))
+    (outside / 'receipt.json').write_text(json.dumps(receipt), encoding="utf-8")
     with pytest.raises(ValueError, match='Only a private'):
         recorder.installation(tmp_path, outside)
     for modified in [dict(receipt, accepted=False), dict(receipt, steps=receipt['steps'][:-1]),
                      dict(receipt, steps=receipt['steps'][:-1] + [dict(returncode=1, completed=True)]),
                      dict(receipt, steps=receipt['steps'][:-1] + [dict(returncode=0, completed=False)])]:
-        (root / 'receipt.json').write_text(json.dumps(modified))
+        (root / 'receipt.json').write_text(json.dumps(modified), encoding="utf-8")
         with pytest.raises(ValueError, match='six successful'):
             recorder.installation(tmp_path, root)
 
@@ -51,12 +51,12 @@ def test_conda_uses_its_own_five_step_receipt_and_prefix(recorder, tmp_path):
     root = tmp_path / 'installation_runs' / 'conda'
     root.mkdir(parents=True)
     receipt = dict(accepted=True, steps=[dict(returncode=0, completed=True) for _ in range(5)])
-    (root / 'receipt.json').write_text(json.dumps(receipt))
+    (root / 'receipt.json').write_text(json.dumps(receipt), encoding="utf-8")
     assert recorder.installation(tmp_path, root, 'conda')[1] == root / 'env'
     with pytest.raises(ValueError, match='six successful'):
         recorder.installation(tmp_path, root, 'pip')
     receipt['steps'].append(dict(returncode=0, completed=True))
-    (root / 'receipt.json').write_text(json.dumps(receipt))
+    (root / 'receipt.json').write_text(json.dumps(receipt), encoding="utf-8")
     with pytest.raises(ValueError, match='five successful'):
         recorder.installation(tmp_path, root, 'conda')
 
@@ -80,7 +80,7 @@ def test_linux_installer_requires_its_three_steps_and_actual_runtime(recorder, t
     root.mkdir(parents=True)
     receipt = dict(accepted=True, installer_tag='v1.5.0.5',
                    steps=[dict(returncode=0, completed=True) for _ in range(3)])
-    (root / 'receipt.json').write_text(json.dumps(receipt))
+    (root / 'receipt.json').write_text(json.dumps(receipt), encoding="utf-8")
     assert recorder.installation(tmp_path, root, 'linux_installer')[1] == root / 'runtime/venv'
     assert recorder.installed_version(receipt, 'linux_installer') == '1.5.0.5'
     with pytest.raises(ValueError, match='five successful'):
@@ -88,7 +88,7 @@ def test_linux_installer_requires_its_three_steps_and_actual_runtime(recorder, t
     for modified in [dict(receipt, accepted=False), dict(receipt, steps=receipt['steps'][:-1]),
                      dict(receipt, steps=receipt['steps'][:-1] + [dict(returncode=1, completed=True)]),
                      dict(receipt, steps=receipt['steps'][:-1] + [dict(returncode=0, completed=False)])]:
-        (root / 'receipt.json').write_text(json.dumps(modified))
+        (root / 'receipt.json').write_text(json.dumps(modified), encoding="utf-8")
         with pytest.raises(ValueError, match='three successful'):
             recorder.installation(tmp_path, root, 'linux_installer')
 
@@ -99,10 +99,10 @@ def test_linux_commands_read_the_actual_profile_and_launcher(recorder, tmp_path)
     prefix = tmp_path / 'runtime/venv'
     prefix.mkdir(parents=True)
     (prefix.parent / 'install-profile.json').write_text(json.dumps(
-        dict(requested_backend='auto', active_backend='cuda')))
+        dict(requested_backend='auto', active_backend='cuda')), encoding="utf-8")
     launcher = tmp_path / 'bin/spacr'
     launcher.parent.mkdir()
-    launcher.write_text(f'#!/bin/sh\nexec "{prefix}/bin/python" -m spacr.qt "$@"\n')
+    launcher.write_text(f'#!/bin/sh\nexec "{prefix}/bin/python" -m spacr.qt "$@"\n', encoding="utf-8")
     rows = recorder.commands('linux_installer', '1.5.0.5', prefix)
     assert len(rows) == 5
     assert rows[1][0] == '02_installer_backend'

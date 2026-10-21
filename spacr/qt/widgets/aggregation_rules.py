@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QTreeWidget, QTreeWidgetItem, QVBoxLayout,
 )
 
-from ...merge_tables import AGGREGATIONS, aggregation_for, aggregation_plan
+from ...merge_tables import AGGREGATIONS, aggregation_plan
 from ..theme import SPACING
 from .sortable_table import install_sorting, tree_item
 
@@ -91,6 +91,7 @@ class AggregationRulesDialog(QDialog):
             are applied on top, so a row the user has changed opens on their
             answer rather than on the inferred one.
         """
+        self._default_plan = aggregation_plan(frame)
         plan = aggregation_plan(frame, overrides=self._overrides)
         for column, how in sorted(plan.items()):
             item = tree_item([str(column), ""])
@@ -110,8 +111,7 @@ class AggregationRulesDialog(QDialog):
         rule already said is not an override, and keeping it would pin today's
         default forever.
         """
-        default = aggregation_for(
-            column, numeric=True)
+        default = self._default_plan[column]
         if value == default:
             self._overrides.pop(column, None)
         else:

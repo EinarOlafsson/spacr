@@ -10,6 +10,7 @@ import functools
 import importlib as _importlib
 import inspect
 import logging
+import contextlib
 import os
 import sys
 import threading
@@ -298,7 +299,13 @@ class _CrampedScroll(QScrollArea):
             _after(0, self, self._fit_content)
 
     def _fit_content(self) -> None:
-        """Fill the screen, or keep the content's minimum and scroll."""
+        """Fill the screen, or keep the content's minimum and scroll.
+
+        Every size here is measured from the laid-out screen, so the content
+        is resized in those pixels, not scaled again by the GUI scale.
+        """
+        from .gui_scale import _resize_actual
+
         self._fit_pending = False
         content = self.widget()
         if content is None:
@@ -310,7 +317,7 @@ class _CrampedScroll(QScrollArea):
             self.setHorizontalScrollBarPolicy(off)
             self.setVerticalScrollBarPolicy(off)
             if content.size() != size:
-                content.resize(size)
+                _resize_actual(content, size)
             return
         need = content.minimumSizeHint().expandedTo(content.minimumSize())
         bar = self.verticalScrollBar().sizeHint().width()
@@ -326,7 +333,7 @@ class _CrampedScroll(QScrollArea):
         self.setVerticalScrollBarPolicy(as_needed if tall else off)
         target = QSize(max(room_w, need.width()), max(room_h, need.height()))
         if content.size() != target:
-            content.resize(target)
+            _resize_actual(content, target)
 
 
 def _scroll_when_cramped(screen: QWidget) -> bool:
@@ -520,6 +527,36 @@ _DATA_LIBRARIES = ("pandas", "matplotlib.figure", "spacr.train_compare",
 _DATA_LIBRARIES_AFTER_S = 1.0
 
 _DATA_LIBRARIES_STARTED = False
+
+#: Screens whose pipeline module is imported in the background soon after
+#: the screen first opens, so that Run finds it imported. Mask's is
+#: ``spacr.core`` -- torch, cellpose and about 2,900 modules -- and its
+#: import at the Run click starved the backdrop for a second (tutorial 07,
+#: 2026-10-17). The maintainer accepted the cost: about 1 GB more memory
+#: once Mask has opened, whether or not it is run.
+_ENTRY_PRELOADED_FOR = frozenset({"mask"})
+#: Seconds after the screen is on show; after the data libraries
+#: (:data:`_DATA_LIBRARIES_AFTER_S`) so the two imports do not overlap.
+_ENTRY_PRELOAD_AFTER_S = 3.0
+
+
+def _preload_the_pipeline_entry(app_key: str):
+    """Start importing ``app_key``'s pipeline module on a worker thread.
+
+    The same import a Run starts
+    (:func:`spacr.qt.bridge._import_the_entry_off_the_gui_thread`): off the
+    GUI thread, under the heavy-import lock, once per process. Nothing
+    happens when the module is imported already or a Run is importing it.
+
+    :returns: the importing thread, or ``None`` when there is nothing to do.
+    """
+    try:
+        from .bridge import _import_the_entry_off_the_gui_thread
+
+        return _import_the_entry_off_the_gui_thread(app_key)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not preload the %s pipeline", app_key, exc_info=True)
+        return None
 
 
 def _import_the_data_libraries_off_the_gui_thread():
@@ -1395,10 +1432,6 @@ APP_STAGE = {
     "train_compare":   STAGE_ALPHA,
     "run_history":     STAGE_ALPHA,
     "report":          STAGE_ALPHA,
-    "make_masks":      STAGE_BETA,
-    "analyze_plaques": STAGE_BETA,
-    "replication":     STAGE_BETA,
-    "umap":            STAGE_BETA,
 }
 
 for _row in _BUILTIN_APPS:
@@ -3024,6 +3057,23 @@ def _a_modal_dialog_is_open() -> bool:
     return _Application.activeModalWidget() is not None
 
 
+def _an_event_loop_is_running() -> bool:
+    """Whether this thread is inside an event loop that ``exit(0)`` would end.
+
+    ``exit()`` also marks the application as quitting, and every event loop
+    started after that returns at once until ``exec`` runs again. A window
+    closed with no loop running -- a test's teardown -- has nothing to leave,
+    and exiting there stopped every later wait and timer in the process (all
+    49 thread and timer tests after the first closed main window failed on
+    macOS, 2026-10-20). Inside ``exec`` the level is at least one.
+
+    :returns: true while an event loop runs on this thread.
+    """
+    from PySide6.QtCore import QThread
+
+    return QThread.currentThread().loopLevel() > 0
+
+
 def _end_the_event_loop(app) -> None:
     """End the session after the main window accepted its close.
 
@@ -3042,6 +3092,8 @@ def _end_the_event_loop(app) -> None:
     if leave is None:
         app.quit()
         return
+    if not _an_event_loop_is_running():
+        return
     if getattr(app, "_spacr_leaving", False):
         return
     try:
@@ -3052,6 +3104,11 @@ def _end_the_event_loop(app) -> None:
     if close_all is not None:
         close_all()
     leave(0)
+
+
+#: Seconds of work between two breaths while a screen is rebuilt in place
+#: (:meth:`MainWindow._breathing_like_an_open`).
+REBUILD_BREATH_AFTER_S = 0.05
 
 
 class MainWindow(QMainWindow):
@@ -4354,6 +4411,9 @@ class MainWindow(QMainWindow):
         app_menu.insertAction(quit_action, minimise)
         app_menu.insertAction(quit_action, maximise)
         app_menu.insertAction(quit_action, self._act_borderless)
+        reset = getattr(self, "_act_reset_layout", None)
+        if reset is not None:
+            app_menu.insertAction(quit_action, reset)
         app_menu.insertSeparator(quit_action)
 
     def _build_window_menu(self, bar):
@@ -4456,6 +4516,16 @@ class MainWindow(QMainWindow):
         menu.addAction(act_jobs)
         self._act_jobs = act_jobs
 
+        act_reset_layout = QAction(tr("Reset this module's layout"), self)
+        act_reset_layout.setObjectName("ResetModuleLayoutAction")
+        act_reset_layout.setStatusTip(tr(
+            "Open this module's collapsed panels and return every pane to "
+            "its default size. Other modules keep their layout."))
+        act_reset_layout.setMenuRole(QAction.MenuRole.NoRole)
+        act_reset_layout.triggered.connect(self._reset_current_layout)
+        menu.addAction(act_reset_layout)
+        self._act_reset_layout = act_reset_layout
+
         act_close = QAction(tr("Close window"), self)
         act_close.setStatusTip(tr("Close the main window. spaCR quits with it."))
         act_close.triggered.connect(self.close)
@@ -4480,6 +4550,24 @@ class MainWindow(QMainWindow):
         self._act_quit_here = act_quit_here
 
         return menu
+
+    def _reset_current_layout(self, *_args) -> int:
+        """Put the module on screen back to its default layout.
+
+        Every collapsible container in it opens, every pane returns to the
+        size it opens at, and what was remembered for them is forgotten, so
+        the next launch starts from the defaults too. Other modules keep
+        theirs.
+
+        :returns: how many panes were reset.
+        """
+        from .widgets.collapsible_splitter import _reset_layout_under
+
+        screen = (self._stack.currentWidget()
+                  if hasattr(self, "_stack") else None)
+        if screen is None:
+            return 0
+        return _reset_layout_under(screen)
 
     def _show_jobs_dock(self, *_args):
         """Open the Jobs dock on the right edge, building it on first use.
@@ -5384,7 +5472,7 @@ class MainWindow(QMainWindow):
                    error=self._removal_reason_text(
                        str(plan.get("error")))))
             return
-        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
+        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "linux-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
             from PySide6.QtCore import QTimer
             from PySide6.QtWidgets import QProgressDialog
 
@@ -5772,6 +5860,9 @@ class MainWindow(QMainWindow):
         """Show the report notice after cache review, then resume the tour timer."""
         if self._closing:
             return
+        if getattr(self, "_uninstall_coordinator", None) is not None:
+            self._installer_onboarding_pending = True
+            return
         from .install_consent import maybe_show_anonymous_report_notice
 
         notice = maybe_show_anonymous_report_notice(self)
@@ -5798,6 +5889,9 @@ class MainWindow(QMainWindow):
         A failed preview is not recorded as reviewed. The Help action remains
         available after keeping files or reviewing the current release.
         """
+        if getattr(self, "_uninstall_coordinator", None) is not None:
+            self._installer_onboarding_pending = True
+            return
         from spacr.install_profile import read_profile
         from .install_consent import _settings
 
@@ -6815,13 +6909,65 @@ class MainWindow(QMainWindow):
         one is built from scratch rather than reusing widgets that belong to
         a shape that no longer applies.
         """
+        if _a_modal_dialog_is_open():
+            self._after_the_modal_closes("rebuild_app_screen", key, values)
+            return
+        with self._breathing_like_an_open():
+            self._rebuild_app_screen_in_steps(key, values)
+
+    @contextlib.contextmanager
+    def _breathing_like_an_open(self):
+        """Let heavy GUI work inside take the breaths of a module open.
+
+        For :meth:`rebuild_app_screen` and for a caller that does more work
+        on the rebuilt screen straight after it (a settings pack applied
+        to it). Inside an open already, the open's breathing is used and
+        left on.
+        """
+        from . import screens as _screens_package
+        from .i18n import ui_language_resolved_once
+        from .preferences import _one_store
+
+        import time as _time
+
+        if getattr(self, "_opening_a_screen", False):
+            yield
+            return
+        self._opening_a_screen = True
+        every = _screens_package.BREATH_AFTER_S
+        _screens_package.BREATH_AFTER_S = min(every, REBUILD_BREATH_AFTER_S)
+        _screens_package._start_breathing_while_a_window_opens(
+            _time.perf_counter())
+        try:
+            with ui_language_resolved_once(), _one_store():
+                yield
+        finally:
+            self._opening_a_screen = False
+            _screens_package.BREATH_AFTER_S = every
+            _screens_package._stop_breathing_while_a_window_opens()
+
+    def _rebuild_app_screen_in_steps(self, key: str, values=None) -> None:
+        """Build ``key``'s screen again, with breaths between its steps.
+
+        A rebuild runs the same heavy steps as a first open -- build, theme,
+        join the stack, translate, show -- and used to run them in one
+        piece: Mask's "Load test data" applies a settings pack that changes
+        the form's shape, and the whole rebuild was one freeze of about
+        0.4 s with the backdrop stopped. The steps are now separated by the
+        breaths a module open takes (:meth:`_breathe_while_opening`), so
+        the longest freeze is the longest single step. User input is held
+        back during a breath and navigation waits, exactly as for an open.
+
+        A rebuild that runs inside an open (a font-scale rebuild) breathes
+        under that open and leaves its breathing on when it returns.
+
+        :param key: the app whose screen is to be rebuilt.
+        :param values: settings to apply to the new screen.
+        """
         import gc
 
         from .screens.app_screen import AppScreen
 
-        if _a_modal_dialog_is_open():
-            self._after_the_modal_closes("rebuild_app_screen", key, values)
-            return
         gc.unfreeze()
         old = self._screens.get(key)
         old_preset_owned = {}
@@ -6843,16 +6989,21 @@ class MainWindow(QMainWindow):
         finally:
             AppScreen.values_the_next_screen_is_built_for = previous_build_values
 
+        self._breathe_while_opening()
         try:
             self._theme_screen(fresh, key)
         except Exception:                                    # noqa: BLE001
             LOG.exception("Could not theme the rebuilt %s screen", key)
+        self._breathe_while_opening(force=True)
+        fresh.ensurePolished()
+        self._breathe_while_opening(force=True)
         try:
             from .i18n import retranslate_widget_tree
 
             retranslate_widget_tree(fresh)
         except Exception:                                    # noqa: BLE001
             LOG.exception("Could not translate the rebuilt %s screen", key)
+        self._breathe_while_opening()
         try:
             from .screens.settings_model import retarget_field_tooltips
 
@@ -6875,7 +7026,11 @@ class MainWindow(QMainWindow):
         self._a_page_joined_the_stack(fresh)
         self._stack.addWidget(fresh)
         self._drop_a_redundant_screen_backdrop(fresh)
+        self._breathe_while_opening()
+        fresh.ensurePolished()
+        self._breathe_while_opening(force=True)
         self._stack.setCurrentWidget(fresh)
+        self._breathe_while_opening(force=True)
         if old is not None:
             try:
                 if old.close() is False:
@@ -7105,6 +7260,9 @@ class MainWindow(QMainWindow):
 
             QTimer.singleShot(int(_DATA_LIBRARIES_AFTER_S * 1000),
                               _import_the_data_libraries_off_the_gui_thread)
+        if built_now and key in _ENTRY_PRELOADED_FOR:
+            _after(int(_ENTRY_PRELOAD_AFTER_S * 1000), self,
+                   lambda k=key: _preload_the_pipeline_entry(k))
         if key in self._visit_order:
             self._visit_order.remove(key)
         self._visit_order.append(key)
@@ -8206,7 +8364,7 @@ def _install_crash_dump():
     try:
         os.makedirs(folder, exist_ok=True)
         path = os.path.join(folder, CRASH_DUMP_NAME)
-        handle = open(path, "a", buffering=1)
+        handle = open(path, "a", buffering=1, encoding="utf-8")
         handle.write(f"\n=== spaCR started (pid {os.getpid()}) ===\n")
         faulthandler.enable(file=handle, all_threads=True)
         globals()["_CRASH_DUMP_FILE"] = handle
@@ -8312,6 +8470,28 @@ def _module_source_mentions_pyside(original, module) -> bool:
 _HEAVY_WARM_GATE = threading.Event()
 _HEAVY_WARM_AFTER_HOME_MS = 1500
 _HEAVY_WARM_FROM = "spacr.settings_advisor"
+_SETTINGS_PREWARM_THREAD: Optional[threading.Thread] = None
+
+
+def _heavy_warm_allowed() -> bool:
+    """Whether the start-up warm may import the numerical stack on its thread.
+
+    Not in a frozen build or a distribution smoke run: there the GUI thread
+    imports torch, NumPy and spaCR itself while the warm thread would be
+    importing pandas, SciPy, Matplotlib, scikit-image and numba, and two
+    threads importing the same native stack through PyInstaller's frozen
+    importer hung the macOS .dmg smoke on its first pass (release run
+    39355725517). Those modules are then imported where they are first used.
+    """
+    if getattr(sys, "frozen", False):
+        return False
+    return os.environ.get("SPACR_DISTRIBUTION_SMOKE", "").strip() != "1"
+
+
+def _settings_prewarm_running() -> bool:
+    """Whether the start-up settings warm thread is still importing."""
+    alive = getattr(_SETTINGS_PREWARM_THREAD, "is_alive", None)
+    return bool(alive is not None and alive())
 
 
 def _open_the_heavy_warm_after_home() -> None:
@@ -8352,10 +8532,11 @@ def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
         :func:`_open_the_heavy_warm_after_home` opens the gate; the default
         imports everything at once, for callers that join the thread.
     """
-    global _HEAVY_WARM_GATE
+    global _HEAVY_WARM_GATE, _SETTINGS_PREWARM_THREAD
     _importlib.import_module("spacr.qt.path_probe")
     gate = _HEAVY_WARM_GATE = threading.Event()
-    if not wait_for_home:
+    heavy = _heavy_warm_allowed()
+    if not wait_for_home or not heavy:
         gate.set()
 
     def warm():
@@ -8375,6 +8556,10 @@ def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
                         "skimage.data", "skimage.draw", "skimage.filters",
                         "skimage.measure", "skimage.morphology"):
                 if mod == _HEAVY_WARM_FROM:
+                    if not heavy:
+                        LOG.info("start-up warm leaves the numerical stack "
+                                 "to its first use (frozen build or smoke run)")
+                        break
                     gate.wait(60)
                     try:
                         from .widgets.ambient import _import_numba
@@ -8387,6 +8572,7 @@ def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
 
     thread = threading.Thread(target=warm, name="spacr-prewarm", daemon=True)
+    _SETTINGS_PREWARM_THREAD = thread
     thread.start()
     return thread
 

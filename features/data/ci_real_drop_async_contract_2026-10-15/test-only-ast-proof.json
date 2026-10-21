@@ -1,8 +1,0 @@
-{
-  "test_sha256": "acb138a27755424fdfc7bc0cf013c2106d5f1a6cdd89defdcba7b1043add2af9",
-  "exact_approved_proposal": true,
-  "all_original_assert_ASTs_preserved": true,
-  "other_module_AST_signature_decorators_identical": true,
-  "production_changed": false,
-  "new_checks": "Actual contents_changed signal; scanner terminal; exactsinglefilename; pendingqueue empty;1snormalwaits noCIbudgetchange."
-}

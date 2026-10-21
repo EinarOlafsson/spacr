@@ -338,6 +338,9 @@ _QC_BUILTIN_FIELDS = 2400
 _QC_BUILTIN_EPOCHS = 12
 _QC_FINE_TUNE_EPOCHS = 15
 _QC_MODEL_VERSION = 1
+_QC_WEIGHTS_REVISION = 'f9a020c5e8cc0457bd81858d90cb9847ab412856'
+_QC_WEIGHTS_SHA256 = 'a77fc686b841ad00513469674c13b07408639721987a6541885d8661f24c30d1'
+_QC_WEIGHTS_FILE = 'image_qc/v1/image_qc_classifier_v1.pt'
 _QC_BUILTIN_CUTOFFS = {'out_of_focus': 0.9, 'saturated': 0.5, 'debris': 0.95,
                        'bubble': 0.75, 'empty': 0.5}
 _QC_LABEL_ALIASES = {'good': (), 'ok': (), 'pass': (), 'blur': ('out_of_focus',),
@@ -347,10 +350,25 @@ _QC_LABEL_ALIASES = {'good': (), 'ok': (), 'pass': (), 'blur': ('out_of_focus',)
 
 
 def _builtin_qc_model_path():
-    """Where the built-in classifier is cached after it is first trained."""
+    """Where the immutable published built-in checkpoint is cached locally."""
     from .model_zoo import _model_cache_root
 
-    return _model_cache_root() / f'image_qc_classifier_v{_QC_MODEL_VERSION}.pt'
+    return _model_cache_root() / f'image_qc_classifier_v{_QC_MODEL_VERSION}_{_QC_WEIGHTS_SHA256}.pt'
+
+
+def _acquire_builtin_qc_model():
+    """Acquire the pinned synthetic checkpoint through the verified zoo cache."""
+    from .model_zoo import ModelEntry, _ensure_catalogue_model_file
+
+    entry = ModelEntry(
+        key='image_qc_classifier_v1', name=_builtin_qc_model_path().name,
+        kind='classifier', source='remote', version=str(_QC_MODEL_VERSION),
+        uri=('https://huggingface.co/datasets/einarolafsson/models/resolve/'
+             f'{_QC_WEIGHTS_REVISION}/{_QC_WEIGHTS_FILE}'),
+        sha256=_QC_WEIGHTS_SHA256, size_bytes=327810,
+        trained_on='Synthetic planted-defect fields; not real-QC-pretrained or validated',
+        trained_by='spaCR built-in synthetic training')
+    return _ensure_catalogue_model_file(entry)
 
 
 def _best_focus_plane(plane):
@@ -648,10 +666,15 @@ def _save_qc_model(model, path, source):
 
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name('.' + path.name + '.part')
-    torch.save(dict(version=_QC_MODEL_VERSION, classes=list(_QC_CLASSES), source=str(source),
-                    state=model.state_dict()), temporary)
-    os.replace(temporary, path)
+    with tempfile.NamedTemporaryFile(dir=path.parent, prefix='.' + path.name + '.',
+                                     suffix='.part', delete=False) as handle:
+        temporary = Path(handle.name)
+    try:
+        torch.save(dict(version=_QC_MODEL_VERSION, classes=list(_QC_CLASSES), source=str(source),
+                        state=model.state_dict()), temporary)
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
     return path
 
 
@@ -672,14 +695,7 @@ def _base_qc_model(policy):
     """The saved model named by the policy, or the cached built-in one."""
     if policy['image_qc_classifier_model']:
         return _load_qc_model(policy['image_qc_classifier_model'])
-    path = _builtin_qc_model_path()
-    if path.is_file():
-        model = _load_qc_model(path)
-    else:
-        print('Image quality: training the built-in classifier on synthetic fields '
-              '(once, on the CPU; about a few minutes)...')
-        model = _train_builtin_qc_model()
-        _save_qc_model(model, path, 'built-in synthetic planted defects')
+    model = _load_qc_model(_acquire_builtin_qc_model())
     model.qc_cutoffs = dict(_QC_BUILTIN_CUTOFFS)
     return model
 

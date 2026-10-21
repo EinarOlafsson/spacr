@@ -1,6 +1,6 @@
 CLUSTER RUNS DOWNLOAD A MISSING ZOO MODEL AUTOMATICALLY
 
-Status:    COMPLETE — resolver/pins/log/offline/guide accepted; cross-node shared-cache lock (heartbeat + stale reclaim) and exact offline command BUILT 2026-10-15 (Claude Home); real-cluster check left to maintainer (steps in last note).
+Status:    BLOCKED ON MAINTAINER — software delivered; current real-cluster shared-cache, crash-recovery and offline acceptance are untested.
 Requested: maintainer, 2026-10-13: "when using run if the like with athe
            cluster, if a user puts in a version of a model thatisnt on the
            cluster it should be automatically downloaded. now it just fails
@@ -830,3 +830,6 @@ separate; no new real-cluster/GPU/scientific gate is invented for this item.
        spacr-run mask --settings settings.csv with an empty cache. Copy the
        last line of the error, run it on the login node, rerun the job: it
        must start without downloading.
+
+2026-10-21 — Maintainer response: current real-cluster concurrent-download tests have not run. Resolver, pinned download, offline and local concurrency checks remain delivered.
+Real shared-cache four-task coalescing, interrupted-download stale recovery and offline-command acceptance remain unverified; routine approval is not a physical cluster result.

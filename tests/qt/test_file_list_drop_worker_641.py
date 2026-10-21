@@ -34,7 +34,7 @@ def _folder(tmp_path, name='selected'):
     folder = tmp_path / name
     folder.mkdir()
     for name in ('b.csv', 'ignore.png', 'a.csv'):
-        (folder / name).write_text('value\n1\n')
+        (folder / name).write_text('value\n1\n', encoding="utf-8")
     (folder / 'not-a-file.csv').mkdir()
     path_probe.prime(str(folder), True, want_dir=True)
     return folder
@@ -82,7 +82,7 @@ def test_clear_or_replacement_discards_inflight_drop(listing, tmp_path, qtbot, m
     folder = _folder(tmp_path)
     entered, release, _ = _gate(monkeypatch, folder)
     replacement = tmp_path / 'chosen.csv'
-    replacement.write_text('value\n2\n')
+    replacement.write_text('value\n2\n', encoding="utf-8")
     try:
         assert _drop(listing, [folder])
         qtbot.waitUntil(entered.is_set)
@@ -243,7 +243,7 @@ def test_a_drop_expands_folders_in_place_and_keeps_files_as_given(listing, tmp_p
     from spacr.qt import dnd_handlers
     folder = _folder(tmp_path)
     loose = tmp_path / 'loose.csv'
-    loose.write_text('value\n3\n')
+    loose.write_text('value\n3\n', encoding="utf-8")
     monkeypatch.setattr(dnd_handlers, '_scanner_for', lambda owner: _InlineScanner())
     changes = []
     listing.contents_changed.connect(lambda: changes.append(listing.paths()))
@@ -259,7 +259,7 @@ def test_a_walk_that_breaks_keeps_what_it_found_and_frees_the_queue(listing, tmp
     from spacr.qt import dnd_handlers
     folder = _folder(tmp_path)
     first = tmp_path / 'first.csv'
-    first.write_text('value\n1\n')
+    first.write_text('value\n1\n', encoding="utf-8")
 
     def broken(path, kind):
         raise RuntimeError('the folder walk failed')

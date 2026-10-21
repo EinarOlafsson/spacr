@@ -1,5 +1,0 @@
-tests/test_ci_suite_classification.py:280: error: Library stubs not installed for "yaml"  [import-untyped]
-tests/test_ci_suite_classification.py:280: note: Hint: "python3 -m pip install types-PyYAML"
-tests/test_ci_suite_classification.py:280: note: (or run "mypy --install-types" to install all missing stub packages)
-tests/test_ci_suite_classification.py:280: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
-tests/test_ci_suite_classification.py:319: error: Need type annotation for "assigned" (hint: "assigned: list[<type>] = ...")  [var-annotated]

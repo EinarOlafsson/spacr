@@ -67,7 +67,7 @@ def _finished_env(root, name="cellpose3", record=None):
     env = Path(root) / name
     python = Path(SB._env_python(str(env)))
     python.parent.mkdir(parents=True, exist_ok=True)
-    python.write_text("")
+    python.write_text("", encoding="utf-8")
     SB._write_marker(str(env), record or {"backend": name})
     return env
 
@@ -117,7 +117,7 @@ def test_a_live_lock_means_installing_and_a_dead_one_does_not(
     lock = root / "cellpose3.lock"
     lock.write_text(json.dumps({"pid": os.getpid(),
                                 "host": socket.gethostname(),
-                                "started": "noon"}))
+                                "started": "noon"}), encoding="utf-8")
     state = SB._backend_state("cellpose3")
     assert state.state == SB._INSTALLING and "noon" in state.reason
 
@@ -130,7 +130,7 @@ def test_a_lock_from_another_computer_is_believed(_sandboxed_backends,
     root = _sandboxed_backends
     root.mkdir(parents=True)
     (root / "cellpose3.lock").write_text(json.dumps(
-        {"pid": 1, "host": "not-" + socket.gethostname()}))
+        {"pid": 1, "host": "not-" + socket.gethostname()}), encoding="utf-8")
     monkeypatch.setattr(SB, "_pid_alive", lambda pid: False)
     assert SB._backend_state("cellpose3").state == SB._INSTALLING
 
@@ -140,13 +140,13 @@ def test_a_lock_from_another_computer_is_believed(_sandboxed_backends,
 def test_a_damaged_lock_is_no_lock(_sandboxed_backends, content):
     root = _sandboxed_backends
     root.mkdir(parents=True)
-    (root / "cellpose3.lock").write_text(content)
+    (root / "cellpose3.lock").write_text(content, encoding="utf-8")
     assert SB._backend_state("cellpose3").state == SB._INSTALLABLE
 
 
 def test_a_damaged_marker_is_no_install(_sandboxed_backends):
     env = _finished_env(_sandboxed_backends)
-    (env / SB._MARKER).write_text("[]")
+    (env / SB._MARKER).write_text("[]", encoding="utf-8")
     assert SB._read_marker(str(env)) is None
 
 
@@ -367,13 +367,13 @@ def test_a_plain_torch_version_uses_the_build_it_states(monkeypatch, tmp_path):
     monkeypatch.delenv(SB._TORCH_INDEX_ENV, raising=False)
     monkeypatch.setattr(metadata, "version", lambda name: "2.6.0")
     monkeypatch.setattr(importlib.util, "find_spec", lambda name: spec)
-    (folder / "version.py").write_text("__version__ = '2.6.0+cu124'\n")
+    (folder / "version.py").write_text("__version__ = '2.6.0+cu124'\n", encoding="utf-8")
     assert SB._torch_index_url() == SB._TORCH_WHEELS + "cu124"
     (folder / "version.py").write_text(
-        "__version__ = '2.6.0'\ncuda: Optional[str] = '12.8'\n")
+        "__version__ = '2.6.0'\ncuda: Optional[str] = '12.8'\n", encoding="utf-8")
     assert SB._torch_index_url() == SB._TORCH_WHEELS + "cu128"
     (folder / "version.py").write_text(
-        "__version__ = '2.6.0'\ncuda: Optional[str] = None\n")
+        "__version__ = '2.6.0'\ncuda: Optional[str] = None\n", encoding="utf-8")
     assert SB._torch_index_url() is None
 
 
@@ -612,6 +612,14 @@ def test_cancel_stops_the_command_and_what_it_started(tmp_path):
     child = int(marker.read_text(encoding="utf-8"))
     deadline = time.monotonic() + 10
     while time.monotonic() < deadline:
+        if os.name == "nt":
+            # os.kill(pid, 0) is TerminateProcess on Windows, not a probe.
+            import psutil
+
+            if not psutil.pid_exists(child):
+                break
+            time.sleep(0.1)
+            continue
         try:
             os.kill(child, 0)
         except ProcessLookupError:
@@ -643,6 +651,7 @@ class _Proc:
         return -9
 
 
+@pytest.mark.posix_only
 def test_kill_tree_escalates_when_asking_is_not_enough(monkeypatch):
     sent = []
     monkeypatch.setattr(SB.os, "killpg", lambda pid, sig: sent.append(sig))
@@ -652,6 +661,7 @@ def test_kill_tree_escalates_when_asking_is_not_enough(monkeypatch):
     SB._kill_tree(_Proc(exited=True))
 
 
+@pytest.mark.posix_only
 def test_kill_tree_survives_a_process_that_is_already_gone(monkeypatch):
     sent = []
 
@@ -708,7 +718,7 @@ def _fake_runner(record, fail_at=None, hello=None, cancel_at=None):
         if argv[1:3] == ("-m", "venv"):
             python = Path(SB._env_python(argv[3]))
             python.parent.mkdir(parents=True)
-            python.write_text("")
+            python.write_text("", encoding="utf-8")
         on_line(f"line from step {index}")
         if index == fail_at:
             return 1, ["pip said:", "ERROR: no matching distribution"]
@@ -760,7 +770,7 @@ def test_a_blocked_install_leaves_no_folder_and_releases_its_lock(
 def test_an_unfinished_folder_is_replaced_not_reused(_sandboxed_backends):
     leftover = _sandboxed_backends / "cellpose3" / "leftover.txt"
     leftover.parent.mkdir(parents=True)
-    leftover.write_text("old")
+    leftover.write_text("old", encoding="utf-8")
     SB._install_backend("cellpose3", runner=_fake_runner([]),
                         preflight=_no_preflight, torch_index="")
     assert not leftover.exists()
@@ -835,7 +845,7 @@ def test_a_second_install_is_refused_while_one_runs(_sandboxed_backends):
 def test_a_stale_lock_is_taken_over(_sandboxed_backends, monkeypatch):
     root = _sandboxed_backends
     root.mkdir(parents=True)
-    (root / "cellpose3.lock").write_text(json.dumps({"pid": 1}))
+    (root / "cellpose3.lock").write_text(json.dumps({"pid": 1}), encoding="utf-8")
     monkeypatch.setattr(SB, "_pid_alive", lambda pid: pid == os.getpid())
     SB._acquire_lock(str(root), "cellpose3")
     assert json.loads((root / "cellpose3.lock").read_text(encoding="utf-8"))["pid"] == \
@@ -863,7 +873,7 @@ def test_a_lock_lost_in_a_race_or_unwritable_is_refused(_sandboxed_backends,
 
 def test_a_backends_folder_that_cannot_exist_blocks_the_install(tmp_path):
     blocker = tmp_path / "file"
-    blocker.write_text("in the way")
+    blocker.write_text("in the way", encoding="utf-8")
     with pytest.raises(SB._InstallBlocked, match="cannot create"):
         SB._acquire_lock(str(blocker / "backends"), "cellpose3")
 
@@ -905,7 +915,7 @@ def test_a_read_only_file_is_made_writable_and_removed(tmp_path, monkeypatch):
     env = root / "env"
     env.mkdir(parents=True)
     stubborn = env / "stubborn"
-    stubborn.write_text("x")
+    stubborn.write_text("x", encoding="utf-8")
     handlers = []
     real = SB.shutil.rmtree
 
@@ -921,7 +931,7 @@ def test_a_read_only_file_is_made_writable_and_removed(tmp_path, monkeypatch):
     assert handlers and not env.exists()
     monkeypatch.setattr(SB.sys, "version_info", (3, 11, 0))
     env.mkdir()
-    stubborn.write_text("x")
+    stubborn.write_text("x", encoding="utf-8")
     SB._remove_tree(str(env), str(root))
     assert not env.exists()
 
@@ -1383,10 +1393,10 @@ def fake_env(tmp_path_factory):
         check=True, capture_output=True, text=True, timeout=120
     ).stdout.strip())
     (purelib / "torch").mkdir()
-    (purelib / "torch" / "__init__.py").write_text(_STUB_TORCH)
+    (purelib / "torch" / "__init__.py").write_text(_STUB_TORCH, encoding="utf-8")
     (purelib / "cellpose").mkdir()
-    (purelib / "cellpose" / "__init__.py").write_text("")
-    (purelib / "cellpose" / "models.py").write_text(_STUB_MODELS)
+    (purelib / "cellpose" / "__init__.py").write_text("", encoding="utf-8")
+    (purelib / "cellpose" / "models.py").write_text(_STUB_MODELS, encoding="utf-8")
     SB._write_marker(str(env), {"backend": "cellpose3"})
     return root
 
@@ -1793,7 +1803,7 @@ def test_nearest_existing_climbs_to_a_folder_that_is_there(tmp_path,
                                                          monkeypatch):
     assert SB._nearest_existing(str(tmp_path / "a" / "b")) == str(tmp_path)
     monkeypatch.setattr(SB.os.path, "exists", lambda path: False)
-    assert SB._nearest_existing("/no/drive") == "/"
+    assert SB._nearest_existing("/no/drive") == os.path.abspath("/")
 
 
 def test_under_cellpose3_an_objects_model_name_is_read_as_it_was_written(

@@ -70,6 +70,7 @@ from itertools import islice
 from typing import Dict, Iterable, Iterator, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
+from .logging_util import _legacy_text_encoding
 
 __all__ = [
     "AS_GIVEN",
@@ -344,7 +345,7 @@ def load_barcode_table(path, name=None, role=None):
     """
     path = str(path)
     sequences: Dict[str, str] = {}
-    with open(path, newline="") as handle:
+    with open(path, newline="", encoding=_legacy_text_encoding(path)) as handle:
         reader = csv.DictReader(handle)
         fields = [column.strip().lower() for column in (reader.fieldnames or [])]
         if "sequence" not in fields:
@@ -397,7 +398,7 @@ def _open_text(path):
     path = str(path)
     if path.endswith(".gz"):
         return gzip.open(path, "rt")
-    return open(path, "rt")
+    return open(path, "rt", encoding="utf-8")
 
 
 def iter_fastq_reads(path, limit=None):

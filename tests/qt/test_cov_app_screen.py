@@ -734,7 +734,7 @@ class TestImportSettings:
     def test_import_of_a_non_settings_csv_warns_and_changes_nothing(
             self, qtbot, monkeypatch, tmp_path):
         path = tmp_path / "wrong.csv"
-        path.write_text("alpha,beta\n1,2\n")
+        path.write_text("alpha,beta\n1,2\n", encoding="utf-8")
         monkeypatch.setattr(QFileDialog, "getOpenFileName",
                             staticmethod(lambda *a, **k: (str(path), "")))
         seen = []

@@ -53,6 +53,8 @@ the next person "simplifying" the two roles back into one.
 """
 from __future__ import annotations
 
+import os
+
 import collections
 
 import pytest
@@ -171,7 +173,7 @@ def _isolated_qsettings(monkeypatch, tmp_path):
     from spacr.qt import settings_search
     monkeypatch.setattr(settings_search, "_settings", lambda: store,
                         raising=False)
-    assert str(tmp_path) in store.fileName(), (
+    assert str(tmp_path) in os.path.normpath(store.fileName()), (
         "QSettings isolation failed; refusing to write to real preferences")
     return store
 

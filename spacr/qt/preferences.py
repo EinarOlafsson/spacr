@@ -101,7 +101,7 @@ Values:
   on the right. Fields are **exempt from** ``pane_opacity`` while this is
   on — see :func:`get_field_fade_enabled` and
   :mod:`spacr.qt.widgets.field_fade`.
-* ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control
+* ``show_alpha`` (default ``False``) / ``show_beta`` (default ``True``): bool. Control
   whether modules and settings at that maturity are shown. Stable features
   are always visible.
 * ``sound/music_file``: str, default ``""``. A WAV of the user's own that
@@ -945,15 +945,25 @@ def _watch_store() -> None:
 
 
 def _store_context() -> tuple:
-    """Everything besides the stored values that a remembered answer used."""
+    """Everything besides the stored values that a remembered answer used.
+
+    Whether an application exists is part of it: the screen-aware scale
+    default (:func:`_screen_default_scale`) has no screen to measure before
+    there is one, so an answer remembered earlier is not reused after.
+    """
     try:
         from .theme import spaceout_enabled
         spaceout = spaceout_enabled()
     except Exception:
         spaceout = None
+    try:
+        from PySide6.QtGui import QGuiApplication
+        screened = QGuiApplication.instance() is not None
+    except Exception:
+        screened = False
     environ = os.environ
     return (_STORE_GENERATION[0], _STORE_MOVES[0], _SAFE_MODE, _ORG, _APP,
-            QSettings, _real_store, spaceout,
+            QSettings, _real_store, spaceout, screened,
             environ.get("SPACR_PORTABLE"), environ.get("SPACR_LAUNCHER_DIR"),
             environ.get("SPACR_HOME"))
 
@@ -4819,14 +4829,51 @@ def _set_layout_decision(record: dict) -> None:
         return
 
 
+def _screen_default_scale() -> float:
+    """The GUI and font scale a profile with no stored choice starts at.
+
+    A profile on a small screen starts at 75 % GUI and 75 % font. Small
+    means the primary screen's available geometry is under 1600 logical
+    pixels wide, which takes in a 13-inch 1440 x 900 laptop and leaves out
+    a 1920-wide display. A scale someone
+    has stored is never replaced: the getters ask this only when the store
+    holds no value, and Reset to defaults reads the getters against an
+    empty store, so it lands here too.
+
+    Without a running application, or on Qt's offscreen and minimal
+    platforms, whose screens are invented, there is no screen to measure
+    and the default stays 100 %.
+
+    :returns: 0.75 on a small primary screen, otherwise 1.0.
+    """
+    return DEFAULT_GUI_SCALE
+
+
+def _stored_font_scale():
+    """The font scale the store holds, or None when it holds none.
+
+    :returns: the stored value as a float, or None when it is absent or
+        unreadable.
+    """
+    raw = _settings().value(_KEY_FONT_SCALE, None)
+    if raw is None:
+        return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return None
+
+
 @_remembered
 def get_font_scale() -> float:
-    """Return the saved UI font scale, clamped to supported bounds."""
-    try:
-        raw = float(_settings().value(_KEY_FONT_SCALE,
-                                        DEFAULT_FONT_SCALE))
-    except (TypeError, ValueError):
-        raw = DEFAULT_FONT_SCALE
+    """Return the UI font scale, clamped to supported bounds.
+
+    The stored choice when there is one; otherwise the screen-aware
+    default of :func:`_screen_default_scale`.
+    """
+    raw = _stored_font_scale()
+    if raw is None:
+        raw = _screen_default_scale()
     return max(FONT_SCALE_MIN, min(FONT_SCALE_MAX, raw))
 
 
@@ -4933,15 +4980,17 @@ def set_dock_width(width: int) -> None:
 
 
 def get_gui_scale() -> float:
-    """Return the saved whole-GUI scale, clamped to supported bounds.
+    """Return the whole-GUI scale, clamped to supported bounds.
 
-    Applied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale`
+    The stored choice when there is one; otherwise the screen-aware
+    default of :func:`_screen_default_scale`. Applied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale`
     and live by :func:`spacr.qt.gui_scale.set_gui_scale_live`.
     """
+    stored = _settings().value(_KEY_GUI_SCALE, None)
     try:
-        raw = float(_settings().value(_KEY_GUI_SCALE, DEFAULT_GUI_SCALE))
+        raw = _screen_default_scale() if stored is None else float(stored)
     except (TypeError, ValueError):
-        raw = DEFAULT_GUI_SCALE
+        raw = _screen_default_scale()
     return max(GUI_SCALE_MIN, min(GUI_SCALE_MAX, raw))
 
 
@@ -6108,12 +6157,12 @@ def set_db_browser_editable(on: bool) -> None:
 
 
 
-DEFAULT_SHOW_ALPHA = True
+DEFAULT_SHOW_ALPHA = False
 DEFAULT_SHOW_BETA = True
 
 
 def get_show_alpha() -> bool:
-    """Whether Alpha modules and settings are visible (default: ``True``)."""
+    """Whether Alpha modules and settings are visible (default: ``False``)."""
     return _as_bool(_settings().value(_KEY_SHOW_ALPHA, DEFAULT_SHOW_ALPHA),
                     DEFAULT_SHOW_ALPHA)
 
@@ -10316,13 +10365,19 @@ class PreferencesDialog:
                     return
 
         def _apply_the_scales_live() -> None:
-            """Apply the two scales now and ask whether to keep them."""
+            """Apply the two scales now and ask whether to keep them.
+
+            The question belongs to this dialog while it is open. Owned by
+            the main window, it opened as that window's sheet behind the
+            modal Preferences, and on macOS neither Keep nor Revert could
+            be clicked (acceptance 2026-10-20); only Enter reached it.
+            """
             gui = gui_scale_slider.value() / 100.0
             font = scale_slider.value() / 100.0
             if (abs(gui - get_gui_scale()) < 1e-9
                     and abs(font - get_font_scale()) < 1e-9):
                 return
-            owner = parent if parent is not None else dlg
+            owner = dlg if dlg.isVisible() or parent is None else parent
             change_scales(owner, gui=gui, font=font,
                           on_done=_put_the_sliders_back)
 

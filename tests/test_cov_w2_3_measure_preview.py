@@ -210,7 +210,7 @@ def _urls(paths):
 def test_a_drag_of_something_unsupported_is_refused(panel, tmp_path):
     """Only the suffixes this panel can read are accepted."""
     stray = tmp_path / "notes.txt"
-    stray.write_text("nothing to preview")
+    stray.write_text("nothing to preview", encoding="utf-8")
     mime = _urls([stray])
 
     enter = QDragEnterEvent(QPoint(1, 1), Qt.CopyAction, mime,

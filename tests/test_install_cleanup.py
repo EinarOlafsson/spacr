@@ -457,8 +457,16 @@ def _installers(records):
 # Find, then delete: every layout, every tag
 # ---------------------------------------------------------------------------
 
+_POSIX_SIMULATIONS = ("linux-deb", "macos-disk-image", "macos-package")
+
+
+def _layout_params(names):
+    return [pytest.param(name, marks=pytest.mark.posix_only) if name in _POSIX_SIMULATIONS
+            else name for name in names]
+
+
 @pytest.mark.parametrize("tag", TAGS)
-@pytest.mark.parametrize("name", sorted(LAYOUTS))
+@pytest.mark.parametrize("name", _layout_params(sorted(LAYOUTS)))
 def test_every_released_layout_is_found_and_removed_down_to_user_data(
         tmp_path, name, tag):
     box = Box(tmp_path)
@@ -470,7 +478,7 @@ def test_every_released_layout_is_found_and_removed_down_to_user_data(
     installers = _installers(ic.find_old_installs(system=machine))
 
     assert layout in {r.layout for r in installers}, installers
-    assert str(root) in {r.root for r in installers}, installers
+    assert os.path.normcase(str(root)) in {os.path.normcase(r.root) for r in installers}, installers
     if name != "windows-offline":          # PyInstaller keeps no readable version
         assert tag in {r.version for r in installers}, installers
 
@@ -485,8 +493,8 @@ def test_every_released_layout_is_found_and_removed_down_to_user_data(
         assert box.registry.values("Software\\spacr\\qt") == {"theme": "dark"}
 
 
-@pytest.mark.parametrize("name", ["windows-online", "windows-offline",
-                                  "linux-online", "macos-package"])
+@pytest.mark.parametrize("name", _layout_params(["windows-online", "windows-offline",
+                                                 "linux-online", "macos-package"]))
 def test_a_1_5_0_1_whose_own_uninstaller_is_missing_is_removed_all_the_same(
         tmp_path, name):
     box = Box(tmp_path)
@@ -497,7 +505,8 @@ def test_a_1_5_0_1_whose_own_uninstaller_is_missing_is_removed_all_the_same(
     assert not list(tmp_path.rglob("uninstall-spacr.sh"))
     machine = box.machine(platform)
 
-    [record] = [r for r in ic.find_old_installs(system=machine) if r.root == str(root)]
+    [record] = [r for r in ic.find_old_installs(system=machine)
+                if os.path.normcase(r.root) == os.path.normcase(str(root))]
     assert "its own uninstaller is missing" in record.notes
     for other in _installers(ic.find_old_installs(system=machine)):
         assert ic.remove_install(other, system=machine).ok
@@ -909,7 +918,7 @@ def _helper_plan(tmp_path, box=None):
     plan["fetch"], plan["install"], plan["relaunch"] = ic._reinstall_steps(
         running, "9.9.9", plan["workdir"], machine)
     plan["error"] = None
-    (tmp_path / "helper" / "plan.json").write_text(json.dumps(plan))
+    (tmp_path / "helper" / "plan.json").write_text(json.dumps(plan), encoding="utf-8")
     return box, root, machine, str(tmp_path / "helper" / "plan.json")
 
 
@@ -956,7 +965,7 @@ def test_the_helper_reports_failed_retirement_after_verified_install_without_rel
     other = ic.InstallRecord(kind='installer', layout='linux-online', platform='linux',
                               root=str(box.home / 'spacr obsolete'))
     data['records'].append(dataclasses.asdict(other))
-    Path(plan).write_text(json.dumps(data))
+    Path(plan).write_text(json.dumps(data), encoding="utf-8")
     events = []
     def run(argv):
         events.append('verify' if '-c' in argv else 'install')
@@ -1008,6 +1017,7 @@ def _clean_environment(**extra):
     return env
 
 
+@pytest.mark.posix_only
 def test_the_command_line_removes_installer_copies_and_leaves_environments(tmp_path):
     box = Box(tmp_path)
     box.add_user_data()
@@ -1020,7 +1030,7 @@ def test_the_command_line_removes_installer_copies_and_leaves_environments(tmp_p
         [sys.executable, "-I", ic.__file__, "remove", "--root", str(box.fs),
          "--keep", str(log)],
         capture_output=True, text=True, timeout=120,
-        env=_clean_environment(HOME=str(box.home)))
+        env=_clean_environment(HOME=str(box.home), USERPROFILE=str(box.home)))
 
     assert done.returncode == 0, done.stdout + done.stderr
     assert str(root) in done.stdout
@@ -1081,6 +1091,7 @@ def _standalone_unix_installer(tmp_path):
     return renderer, installer
 
 
+@pytest.mark.posix_only
 def test_the_rendered_unix_installer_carries_the_module_verbatim(tmp_path):
     renderer, installer = _standalone_unix_installer(tmp_path)
     text = installer.read_text(encoding="utf-8")
@@ -1092,6 +1103,7 @@ def test_the_rendered_unix_installer_carries_the_module_verbatim(tmp_path):
     subprocess.run(["bash", "-n", str(installer)], check=True)
 
 
+@pytest.mark.posix_only
 def test_the_unix_installer_keeps_old_copies_when_staging_fails(tmp_path):
     box = Box(tmp_path / "box")
     box.add_user_data()
@@ -1595,7 +1607,7 @@ def test_a_registration_naming_another_folder_is_not_this_copys_to_delete(tmp_pa
     machine = box.machine("windows")
 
     [record] = _installers(ic.find_old_installs(system=machine))
-    assert record.root == str(root) and record.registrations == ()
+    assert os.path.normcase(record.root) == os.path.normcase(str(root)) and record.registrations == ()
     assert ic.remove_install(record, system=machine).ok
 
     assert not (root / "venv").exists()
@@ -1621,6 +1633,7 @@ def test_a_redirected_desktop_is_searched_for_the_old_shortcut(tmp_path):
     assert not link.exists() and redirected.is_dir()
 
 
+@pytest.mark.posix_only
 def test_start_menu_entries_of_another_spacr_are_left_alone(tmp_path):
     box = Box(tmp_path)
     root = windows_online(box, "1.5.0.1")
@@ -1642,6 +1655,7 @@ def test_start_menu_entries_of_another_spacr_are_left_alone(tmp_path):
 # macOS and Linux finder edges
 # ---------------------------------------------------------------------------
 
+@pytest.mark.posix_only
 def test_a_mac_app_with_a_damaged_info_plist_is_still_found_and_removed(tmp_path):
     box = Box(tmp_path)
     app = macos_disk_image(box, "1.5.0.5")
@@ -1654,6 +1668,7 @@ def test_a_mac_app_with_a_damaged_info_plist_is_still_found_and_removed(tmp_path
     assert not app.exists()
 
 
+@pytest.mark.posix_only
 def test_the_mac_support_folder_left_after_the_app_was_binned_is_removed(tmp_path):
     box = Box(tmp_path)
     support = macos_package(box, "1.5.0.5")
@@ -2350,11 +2365,13 @@ def test_the_command_line_without_a_command_prints_its_help(capsys):
     assert "run-plan" in capsys.readouterr().out
 
 
+@pytest.mark.posix_only
 def test_the_command_line_lists_what_it_finds(tmp_path, monkeypatch, capsys):
     box = Box(tmp_path)
     root = linux_online(box, "1.5.0.1")
     prefix = _conda_env(box, "analysis")
     monkeypatch.setenv("HOME", str(box.home))
+    monkeypatch.setenv("USERPROFILE", str(box.home))
 
     assert ic._main(["find", "--root", str(box.fs)]) == 0
     text = capsys.readouterr().out
@@ -2367,6 +2384,7 @@ def test_the_command_line_lists_what_it_finds(tmp_path, monkeypatch, capsys):
         ("installer", str(root)), ("environment", str(prefix))]
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("denied", [False, True])
 def test_the_command_line_exit_code_says_whether_every_old_copy_went(
         tmp_path, monkeypatch, capsys, denied):
@@ -2375,6 +2393,7 @@ def test_the_command_line_exit_code_says_whether_every_old_copy_went(
     prefix = _conda_env(box, "analysis")
     launcher = box.home / ".local" / "bin" / "spacr"
     monkeypatch.setenv("HOME", str(box.home))
+    monkeypatch.setenv("USERPROFILE", str(box.home))
     real_unlink = os.unlink
 
     def unlink(path, *args, **kwargs):

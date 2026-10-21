@@ -169,7 +169,7 @@ def test_a_recipe_for_another_module_is_refused(mask_screen, qtbot):
 
 def test_an_arbitrary_json_file_is_not_a_recipe(tmp_path):
     path = tmp_path / "package.json"
-    path.write_text('{"name": "something", "version": "1.0.0"}')
+    path.write_text('{"name": "something", "version": "1.0.0"}', encoding="utf-8")
     with pytest.raises(ValueError, match="not a spaCR settings template"):
         load_recipe(str(path))
 
@@ -181,7 +181,7 @@ def test_a_newer_format_is_refused_with_both_numbers(tmp_path):
         "name": "From the future",
         "app_key": "mask",
         "settings": {"n_jobs": 1},
-    }))
+    }), encoding="utf-8")
     with pytest.raises(ValueError, match="newer than this spaCR"):
         load_recipe(str(path))
 
@@ -254,7 +254,7 @@ def test_an_exported_file_is_readable_by_a_fresh_process(mask_screen,
     """Sharing a recipe is sending a file, so the file has to stand alone."""
     recipe = capture_recipe(mask_screen, "Shared")
     shared = tmp_path / "shared.json"
-    shared.write_text(json.dumps(recipe.to_json(), indent=2, default=str))
+    shared.write_text(json.dumps(recipe.to_json(), indent=2, default=str), encoding="utf-8")
 
     reloaded = load_recipe(str(shared))
     assert reloaded.name == "Shared"

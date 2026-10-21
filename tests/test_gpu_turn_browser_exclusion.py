@@ -37,8 +37,8 @@ def _scheduler(tmp_path, pid, *, blocked=False, unreadable=False):
     directory = home / '.spacr' / 'gpu'
     directory.mkdir(parents=True)
     clock = tmp_path / 'clock'
-    clock.write_text('1000')
-    (directory / 'last_release').write_text('1000')
+    clock.write_text('1000', encoding="utf-8")
+    (directory / 'last_release').write_text('1000', encoding="utf-8")
     query_log = tmp_path / 'queries'
     binary = tmp_path / 'bin'
     binary.mkdir()
@@ -64,7 +64,7 @@ def _scheduler(tmp_path, pid, *, blocked=False, unreadable=False):
                           'exit 1\n')
     for name, source in programs.items():
         path = binary / name
-        path.write_text('#!/bin/sh\n' + source)
+        path.write_text('#!/bin/sh\n' + source, encoding="utf-8")
         path.chmod(0o700)
     environment = {key: value for key, value in os.environ.items()
                    if key not in {'GPU_IDLE_S', 'GPU_GAP_S', 'GPU_POLL_S'}}

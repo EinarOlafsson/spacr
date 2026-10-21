@@ -127,8 +127,8 @@
 
 .. code-block:: bash
 
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
 
 .. raw:: html
 
@@ -144,13 +144,13 @@
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="下载适用于 Windows 10/11 的 spaCR 1.5.1.5"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="下载适用于 Windows 10/11 的 spaCR 1.5.1.6"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR 1.5.1.5"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR 1.5.1.6"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="下载适用于 64 位 Linux 的 spaCR 1.5.1.5"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="下载适用于 64 位 Linux 的 spaCR 1.5.1.6"></a>
 
 .. spacr-installer-links-end
 
@@ -261,7 +261,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-3.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-3.svg" alt="--dir 选择克隆路径；--branch 选择分支或标签；--no-install 仅下载、不安装；--help 列出选项。packaging/source_install_excludes.txt 列出了所有被跳过的路径。 nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。main 的版本控制文件检出后占用 5059 MB（2026-10-21 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-3.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-3.svg" alt="--dir 选择克隆路径；--branch 选择分支或标签；--no-install 仅下载、不安装；--help 列出选项。packaging/source_install_excludes.txt 列出了所有被跳过的路径。 nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。main 的版本控制文件检出后占用 735 MB（2026-10-21 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
 
 .. raw:: html
 

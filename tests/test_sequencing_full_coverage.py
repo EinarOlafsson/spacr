@@ -608,7 +608,7 @@ def _process_chunk_with_primary_overload(payload):
         handle.write(json.dumps(identity) + '\n')
     marker = folder / 'primary-overload.marker'
     if identity == '@r0' and not marker.exists():
-        marker.write_text('first primary failed')
+        marker.write_text('first primary failed', encoding="utf-8")
         raise MemoryError('injected first-chunk overload')
     return SEQ.process_chunk(payload)
 

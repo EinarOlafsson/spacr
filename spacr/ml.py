@@ -125,13 +125,39 @@ from sklearn.metrics import classification_report, precision_recall_curve
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, braycurtis
-from xgboost import XGBClassifier
-
 from . import frame_handoff, schema, tabular
 from .openmp_guard import single_threaded_openmp, guarded_n_jobs
 from .plot import save_figure
 
 LOG = logging.getLogger("spacr.ml")
+
+
+def _xgboost_classifier():
+    """Import ``XGBClassifier`` when the XGBoost model is chosen, not with this module.
+
+    XGBoost loads a native OpenMP runtime. On macOS its wheel needs a recent
+    ``libomp`` and failed to load against Homebrew's 18.1.8
+    (``___kmpc_dispatch_deinit`` missing); imported at the top, that failure
+    took every function here with it, and Regression said it could only run
+    in the Tk GUI (macOS acceptance 2026-10-20).
+
+    :returns: the ``xgboost.XGBClassifier`` class.
+    :raises RuntimeError: XGBoost cannot be loaded; says what to do instead.
+    """
+    try:
+        from xgboost import XGBClassifier
+    except Exception as error:
+        reason = next((line.strip() for line in str(error).splitlines() if line.strip()),
+                      type(error).__name__)
+        from .qt.i18n import tr
+
+        raise RuntimeError(tr(
+            "XGBoost could not be loaded on this computer ({reason}). On macOS "
+            "install or update the OpenMP runtime it needs (`brew install libomp` "
+            "or `brew upgrade libomp`), or choose another model such as "
+            "gradient_boosting or random_forest.", reason=reason[:200])
+        ) from error
+    return XGBClassifier
 
 _FLOWVIEW_TRUE_VALUES = frozenset({"1", "on", "true", "yes"})
 
@@ -9540,7 +9566,7 @@ def ml_analysis(
     elif model_type == 'gradient_boosting':
         model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)
     elif model_type == 'xgboost':
-        model = XGBClassifier(
+        model = _xgboost_classifier()(
             reg_alpha=reg_alpha,
             reg_lambda=reg_lambda,
             learning_rate=learning_rate,

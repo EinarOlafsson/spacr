@@ -1,3 +1,0 @@
-{
-  "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent": "Request thumbnail shutdown when the popup closes, including while hidden."
-}

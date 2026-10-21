@@ -274,6 +274,141 @@ def _get_dim(widget, key: str) -> int:
     return actual
 
 
+def _actual_minimum_height(widget) -> int:
+    """``widget``'s minimum height in the pixels it is drawn at now.
+
+    The patched :meth:`QWidget.minimumHeight` answers in 100 % units, which
+    is right for a value code wrote and wrong for one measured from a laid
+    out widget, such as a ``minimumSizeHint`` or a ``heightForWidth``.
+
+    :param widget: the widget to read.
+    :returns: the minimum height Qt is enforcing.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    getter = _ORIGINAL.get((QWidget, "minimumHeight"))
+    return int(getter(widget) if getter is not None else widget.minimumHeight())
+
+
+def _actual_minimum_size(widget):
+    """``widget``'s minimum size in the pixels it is drawn at now.
+
+    :param widget: the widget to read.
+    :returns: the ``QSize`` Qt is enforcing, not the 100 % record.
+    """
+    from PySide6.QtCore import QSize
+    from PySide6.QtWidgets import QWidget
+
+    getter = _ORIGINAL.get((QWidget, "minimumWidth"))
+    width = getter(widget) if getter is not None else widget.minimumWidth()
+    return QSize(int(width), _actual_minimum_height(widget))
+
+
+def _set_actual_minimum_height(widget, height: int) -> None:
+    """Hold ``widget`` at least ``height`` pixels tall at the current scale.
+
+    For a height MEASURED from widgets already drawn at the GUI scale.
+    Passing it to :meth:`QWidget.setMinimumHeight` would scale it a second
+    time: at 75 % a pane that needs 196 px got a floor of 147, and the
+    Actions buttons were cut to half their height (the macOS distribution
+    smoke at 1440 x 870, 2026-10-20). The 100 % record is kept, rounded up,
+    so a later change of scale starts from a floor that still fits.
+
+    :param widget: the widget to hold.
+    :param height: the minimum, in the pixels it is drawn at now.
+    """
+    _set_actual_dim(widget, "minh", height)
+
+
+def _set_actual_dim(widget, key: str, value: int) -> None:
+    """Set one minimum or maximum of ``widget`` in the pixels it is drawn at.
+
+    The counterpart of :func:`_set_actual_minimum_height` for every
+    dimension the layer scales. A collapsed pane's heading is measured from
+    its font at the scale in force, and handing that height to
+    :meth:`QWidget.setMaximumHeight` scaled it once more: at 75 % the Mask
+    module's folded Actions and System headings were held at three
+    quarters of their own height, their titles cut to a few pixels, with
+    no way left to click them open.
+
+    :param widget: the widget to hold.
+    :param key: ``"minh"``, ``"minw"``, ``"maxh"`` or ``"maxw"``.
+    :param value: the size, in the pixels it is drawn at now. Qt's "no
+        maximum" is kept as it is.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    value = max(0, min(QWIDGETSIZE_MAX, int(value)))
+    setter = _ORIGINAL.get((QWidget, _DIMS[key][0]))
+    if setter is None:
+        getattr(widget, _DIMS[key][0])(value)
+        return
+    factor = _factor_for(widget)
+    if factor == 1.0 or value >= QWIDGETSIZE_MAX:
+        base = value
+    else:
+        base = int(math.ceil(value / factor))
+    _store(widget, "_gs_geo")[key] = base
+    _store(widget, "_gs_geo_set")[key] = value
+    setter(widget, value)
+
+
+def _resize_actual(widget, size) -> None:
+    """Resize ``widget`` to ``size``, given in the pixels it is drawn at.
+
+    For a size measured from the laid-out screen, such as the room a scroll
+    area has. :meth:`QWidget.resize` would scale it again: at 50 % a
+    cramped module screen's content filled half its scroll area.
+
+    :param widget: the widget to resize.
+    :param size: a ``QSize`` in drawn pixels.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    resize = _ORIGINAL.get((QWidget, "resize"))
+    if resize is None:
+        widget.resize(size)
+        return
+    resize(widget, int(size.width()), int(size.height()))
+
+
+def _actual_sizes(splitter) -> list:
+    """``splitter``'s sizes in the pixels they are drawn at.
+
+    :param splitter: a ``QSplitter``.
+    :returns: one size per child.
+    """
+    from PySide6.QtWidgets import QSplitter
+
+    getter = _ORIGINAL.get((QSplitter, "sizes"), QSplitter.sizes)
+    return [int(v) for v in getter(splitter)]
+
+
+def _set_actual_sizes(splitter, sizes) -> None:
+    """Lay ``splitter`` out at ``sizes``, given in the pixels it is drawn at.
+
+    The 100 % record that a later change of scale re-applies is kept in
+    step, as :meth:`QSplitter.setSizes` keeps it.
+
+    :param splitter: a ``QSplitter``.
+    :param sizes: one size per child, in drawn pixels.
+    """
+    from PySide6.QtWidgets import QSplitter
+
+    actual = [max(0, int(v)) for v in sizes]
+    setter = _ORIGINAL.get((QSplitter, "setSizes"))
+    if setter is None:
+        splitter.setSizes(actual)
+        return
+    factor = _factor_for(splitter)
+    try:
+        splitter._gs_sizes = ([int(round(v / factor)) if v > 0 else v
+                               for v in actual], list(actual))
+    except (AttributeError, TypeError):
+        pass
+    setter(splitter, actual)
+
+
 def _install_widget_setters() -> None:
     """Replace ``QWidget``'s size setters and getters."""
     from PySide6.QtCore import QSize
@@ -1183,7 +1318,7 @@ def refresh_the_windows() -> int:
 
 
 def reset_every_scale(parent=None) -> bool:
-    """Put GUI scale, font scale and every preview scale back to 100 %, now.
+    """Restore the 90 % GUI and font defaults and request preview-scale resets.
 
     The backup way out of a scale too small to read: ``Ctrl+Alt+0``. It
     needs no reading and no answer.

@@ -67,6 +67,7 @@ def test_a_summary_lists_a_failure_without_inventing_an_omission():
     assert report.problems == ["doctor.txt"] and report.omitted == []
 
 
+@pytest.mark.posix_only
 def test_a_report_that_could_not_be_written_keeps_quiet_and_defers(
         logs, tmp_path, monkeypatch, capsys):
     """A bundle that never landed must not be announced to the user.

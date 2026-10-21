@@ -152,4 +152,4 @@ def _capture_original_failure(item, call):
         metadata["field_after_assertion"] = {"class": type(field).__name__,
             "geometry": list(field.geometry().getRect()), "window_origin": [point.x(), point.y()],
             "opaque_attribute": field.testAttribute(Qt.WA_OpaquePaintEvent)}
-    (dest / "capture.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    (dest / "capture.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")

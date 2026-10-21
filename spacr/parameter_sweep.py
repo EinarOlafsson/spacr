@@ -610,7 +610,7 @@ def be_polite() -> None:
     except (OSError, AttributeError):
         pass
     try:
-        with open(f"/proc/{os.getpid()}/oom_score_adj", "w") as handle:
+        with open(f"/proc/{os.getpid()}/oom_score_adj", "w", encoding="utf-8") as handle:
             handle.write("800")
     except OSError:
         pass
@@ -695,7 +695,7 @@ def free_memory_gb() -> float:
         check that blocks every run on it.
     """
     try:
-        with open("/proc/meminfo") as handle:
+        with open("/proc/meminfo", encoding="utf-8") as handle:
             for line in handle:
                 if line.startswith("MemAvailable:"):
                     return int(line.split()[1]) / 1e6
@@ -750,7 +750,7 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
     out_path = os.path.join(folder, "_trial_result.json")
     if os.path.exists(out_path):
         os.remove(out_path)
-    with open(settings_path, "w") as handle:
+    with open(settings_path, "w", encoding="utf-8") as handle:
         json.dump(payload, handle, default=str)
 
     child = [sys.executable, "-m", "spacr.sweep_child", settings_path, out_path]
@@ -782,7 +782,7 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
 
     if os.path.exists(out_path):
         try:
-            with open(out_path) as handle:
+            with open(out_path, encoding="utf-8") as handle:
                 result = json.load(handle)
         except Exception:
             pass

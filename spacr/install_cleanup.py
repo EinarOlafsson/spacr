@@ -31,9 +31,10 @@ A pip or conda environment the user made is listed but never deleted; the
 spaCR package is uninstalled from it only when the caller says it was ticked.
 An editable source checkout is reported and left alone.
 
-The module uses only the standard library and imports nothing from spaCR, so
-an installer can run it with its bootstrapped Python before any spaCR exists,
-and a helper process can run a copy of it after the running spaCR has closed::
+The module requires only the standard library and imports no spaCR code at startup, so
+an installer can run it with its bootstrapped Python before spaCR is installed. Cleanup
+message translation may use spaCR's catalog when available, with English fallback
+otherwise. A helper process can run a copy after the running spaCR has closed::
 
     python -I install_cleanup.py find [--json]
     python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]
@@ -132,12 +133,15 @@ class InstallRecord:
 
 @dataclass
 class RemovalReport:
-    """What :func:`remove_install` did with one installation.
+    """Recorded outcomes of installation removal and cleanup.
 
-    :param record: the installation this report is about.
-    :param removed: every path, registry entry and package that was removed.
-    :param failed: ``(item, reason)`` for everything that could not be removed.
-    :param skipped: ``(item, reason)`` for everything left in place on purpose.
+    :param record: the installation this report is about, or ``None`` for cleanup not
+        associated with one installation.
+    :param removed: paths, registry entries and packages recorded as removed. Removing a
+        directory need not record each contained path.
+    :param failed: recorded ``(item, reason)`` pairs for removal failures.
+    :param skipped: recorded ``(item, reason)`` pairs for items intentionally left in
+        place.
     """
 
     record: InstallRecord
@@ -147,7 +151,8 @@ class RemovalReport:
 
     @property
     def ok(self) -> bool:
-        """Whether nothing failed."""
+        """Whether this report has no recorded failures. Skipped or retained items alone do not
+        make this false."""
         return not self.failed
 
 
@@ -571,9 +576,13 @@ def _dist_version(dist_info: str) -> Optional[str]:
     :param dist_info: the directory.
     """
     try:
-        with open(os.path.join(dist_info, "METADATA"), encoding="utf-8",
-                  errors="replace") as handle:
-            for line in handle:
+        descriptor = os.open(os.path.join(dist_info, "METADATA"),
+                             os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) |
+                             getattr(os, "O_NONBLOCK", 0))
+        with os.fdopen(descriptor, encoding="utf-8", errors="replace") as handle:
+            if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+                return None
+            for line in handle.read(65536).splitlines():
                 if line.startswith("Version:"):
                     return line.split(":", 1)[1].strip() or None
                 if not line.strip():
@@ -607,8 +616,9 @@ def _editable_source(dist_info: str) -> Optional[str]:
         return None
     url = str(record.get("url") or "")
     if url.startswith("file://"):
-        from urllib.parse import unquote, urlparse
-        return unquote(urlparse(url).path) or url
+        from urllib.parse import urlparse
+        from urllib.request import url2pathname
+        return url2pathname(urlparse(url).path) or url
     return url or None
 
 
@@ -639,13 +649,15 @@ def _env_python(prefix: str) -> Optional[str]:
 
 
 def find_old_installs(*, system=None) -> List[InstallRecord]:
-    """Find every spaCR installation on this computer.
+    """Find supported spaCR installations in registered or known locations.
 
-    Installer-made copies come first, then environments the user made, then
-    editable source checkouts. Every layout any released installer used is
-    looked for: the Windows online and offline installers, the Linux and
-    macOS online installers, the macOS application bundle, and the Debian
-    package.
+    Installer-made copies come first, then discovered user environments, then
+    their editable source checkouts. Discovery checks locations used by supported
+    Windows online and offline installers, Linux and macOS online installers,
+    macOS application bundles and Debian packages, as well as registered conda
+    environments, conventional environment folders and the running interpreter.
+    It does not search the entire filesystem for unregistered environments or
+    source checkouts.
 
     :param system: the computer to look at; ``None`` means this one. Tests
         pass a stand-in over a temporary directory.
@@ -701,7 +713,7 @@ def _windows_desktops(machine: _Machine) -> List[str]:
         if value:
             for name in ("USERPROFILE", "HOMEDRIVE", "HOMEPATH", "OneDrive"):
                 value = value.replace(f"%{name}%", machine.env(name))
-            folders.insert(0, value)
+            folders.insert(0, os.path.normpath(value))
     return folders
 
 
@@ -1215,8 +1227,280 @@ def _delete(path: str, keep: Sequence[str], report: RemovalReport,
     report.removed.append(path)
 
 
+def _retired_update_roots(machine):
+    """Known Linux online roots, including a default root left after uninstall."""
+    if machine.platform != "linux":
+        return []
+    roots = [os.path.join(machine.xdg("XDG_DATA_HOME", os.path.join(".local", "share")), "spacr"),
+             os.path.join(machine.home, ".local", "share", "spacr")]
+    roots.extend(record.root for record in _find_unix_online(machine) if record.layout == "linux-online")
+    return _dedupe(roots)
+
+
+def _retired_runtime_in_use(path, machine):
+    """Refuse a same-user executable, command or readable working directory inside the runtime.
+
+    An unresolved relative Python/spaCR command or relative pathname fails closed. An unrelated
+    command does not become a runtime candidate solely because its working directory is unreadable.
+    """
+    if machine.running_prefix and _inside(machine.running_prefix, path):
+        return True
+    try:
+        processes = os.listdir("/proc")
+    except OSError:
+        return True
+    for pid in processes:
+        if not pid.isdecimal():
+            continue
+        entry = os.path.join("/proc", pid)
+        try:
+            if os.stat(entry).st_uid != os.geteuid():
+                continue
+            with open(os.path.join(entry, "cmdline"), "rb") as stream:
+                command = stream.read(65536).split(b"\0", 1)[0].decode(errors="replace")
+            if not command:
+                continue
+            try:
+                executable = os.readlink(os.path.join(entry, "exe"))
+            except PermissionError:
+                executable = None
+            try:
+                cwd = os.readlink(os.path.join(entry, "cwd"))
+            except PermissionError:
+                cwd = None
+            if executable and _inside(executable.removesuffix(" (deleted)"), path):
+                return True
+            if os.path.isabs(command):
+                if _inside(command, path):
+                    return True
+            elif cwd is None or executable is None:
+                if "/" in command or os.path.basename(command).lower().startswith(("python", "spacr")):
+                    return True
+            elif _inside(os.path.join(cwd, command), path):
+                return True
+            if cwd and _inside(cwd.removesuffix(" (deleted)"), path):
+                return True
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+        except OSError:
+            return True
+    return False
+
+
+def _retired_update_data(machine, *, held_root=None):
+    """Authorize only unchanged committed POSIX backups and provably dead owned update locks."""
+    found = []
+    for root in _retired_update_roots(machine):
+        try:
+            _uninstall_path_state(root)
+            details = os.lstat(root)
+            if not stat.S_ISDIR(details.st_mode) or details.st_uid != os.geteuid():
+                continue
+            lock = os.path.join(root, ".venv.spacr-update-lock")
+            installer_lock = os.path.join(os.path.dirname(root), "." + os.path.basename(root) + ".spacr-installer-lock")
+            if held_root != root:
+                if any(os.path.lexists(path) and not _lease_owner_dead(path) for path in (lock, installer_lock)):
+                    continue
+                if os.path.lexists(lock):
+                    _uninstall_path_state(lock)
+                    found.append(lock)
+            prefix = os.path.join(root, "venv")
+            for transaction in _runtime_transaction_folders(root):
+                state = _runtime_transaction_journal(transaction, prefix, "posix-runtime")
+                if state is None:
+                    continue
+                state = state[0]
+                backup = os.path.join(transaction, "runtime")
+                journal = os.path.join(transaction, "transaction.json")
+                if (state.get("state") != "committed"
+                        or not isinstance(state.get("verified_version"), str)
+                        or not state["verified_version"]
+                        or not isinstance(state.get("new_inventory"), dict) or not state["new_inventory"]
+                        or not isinstance(state.get("new_identity"), list) or len(state["new_identity"]) != 2
+                        or any(isinstance(value, bool) or not isinstance(value, int) for value in state["new_identity"])
+                        or state["new_identity"] == state.get("old_identity")
+                        or not isinstance(state.get("owner"), dict)
+                        or not isinstance(state["owner"].get("started"), str)
+                        or not state["owner"]["started"] or not _transaction_owner_gone(state)
+                        or set(os.listdir(transaction)) != {"runtime", "transaction.json"}):
+                    continue
+                for path in (transaction, journal, backup):
+                    _uninstall_path_state(path)
+                    details = os.lstat(path)
+                    if details.st_uid != os.geteuid() or (path != backup and stat.S_IMODE(details.st_mode) & 0o077):
+                        raise ValueError("unverified_retired_update")
+                details = os.lstat(backup)
+                if (not stat.S_ISDIR(details.st_mode) or [details.st_dev, details.st_ino] != state.get("old_identity")
+                        or not isinstance(state.get("old_inventory"), dict) or not state["old_inventory"]
+                        or _retired_runtime_in_use(backup, machine)
+                        or _runtime_recovery_inventory(backup) != state["old_inventory"]
+                        or state["old_inventory"].get("bin/python", {}).get("kind") not in {"file", "symlink"}
+                        or state["old_inventory"].get("pyvenv.cfg", {}).get("kind") != "file"
+                        or not _env_version(backup)):
+                    continue
+                found.append(transaction)
+        except (OSError, ValueError, TypeError, AttributeError):
+            continue
+    return _dedupe(found)
+
+
+def _delete_retired_update(path, keep, report, machine):
+    """Revalidate selected retired data while holding the existing installer and runtime leases."""
+    root = os.path.dirname(path)
+    if not (os.path.basename(path).startswith(".spacr-runtime-update-")
+            or os.path.basename(path) == ".venv.spacr-update-lock"):
+        return False
+    if root not in _retired_update_roots(machine):
+        report.failed.append((path, tr("The cleanup paths changed. Review the uninstall paths again.")))
+        return True
+    if not os.path.lexists(path):
+        return True
+    if path not in _retired_update_data(machine):
+        report.failed.append((path, tr("The cleanup paths changed. Review the uninstall paths again.")))
+        return True
+    lock = os.path.join(root, ".venv.spacr-update-lock")
+    record = InstallRecord("installer", "linux-online", "linux", root)
+    try:
+        with _removal_transaction_lease(record, machine):
+            if path != lock:
+                if path not in _retired_update_data(machine, held_root=root):
+                    raise ValueError("unverified_retired_update")
+                _delete(path, keep, report, tr("Permission denied. These files were kept."))
+        if path == lock:
+            report.removed.append(path)
+    except (OSError, ValueError):
+        report.failed.append((path, tr("The cleanup paths changed. Review the uninstall paths again.")))
+    return True
+
+
 _CACHE_LOCATIONS_FILE = "cache_locations.json"
+_INSTALLER_CACHE_KEY = "SPACR_INSTALLER_CACHE"
 _SETTINGS_REGISTRY_KEY = "Software\\spacr\\qt"
+
+
+def _verified_installer_caches(machine):
+    """Return only unlinked UV caches inside verified Linux online installations."""
+    if machine.platform != "linux":
+        return []
+    found = []
+    for record in _find_unix_online(machine):
+        if record.layout != "linux-online" or not record.version or not record.python:
+            continue
+        root = record.root
+        cache = os.path.join(root, "cache")
+        try:
+            for path in (root, cache, os.path.join(root, "bootstrap", "uv")):
+                _uninstall_path_state(path)
+            if not os.path.isdir(cache) or not os.path.isfile(os.path.join(root, "bootstrap", "uv")):
+                continue
+            distributions = _distributions(os.path.join(root, "venv"))
+            if not distributions:
+                continue
+            for path in distributions:
+                direct_url = os.path.join(path, "direct_url.json")
+                try:
+                    _uninstall_path_state(direct_url)
+                    descriptor = os.open(direct_url, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+                except FileNotFoundError:
+                    pass
+                else:
+                    with os.fdopen(descriptor, encoding="utf-8") as stream:
+                        details = os.fstat(stream.fileno())
+                        if not stat.S_ISREG(details.st_mode) or details.st_size > 65536:
+                            raise ValueError("unverified_installer_metadata")
+                        direct = json.loads(stream.read(65537))
+                    if not isinstance(direct, dict):
+                        raise ValueError("unverified_installer_metadata")
+                    directory = direct.get("dir_info", {})
+                    if not isinstance(directory, dict) or directory.get("editable"):
+                        raise ValueError("unverified_installer_metadata")
+                metadata = os.path.join(path, "METADATA")
+                _uninstall_path_state(metadata)
+                descriptor = os.open(metadata, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+                with os.fdopen(descriptor, encoding="utf-8") as stream:
+                    if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+                        raise ValueError("unverified_installer_metadata")
+                    header = stream.read(65536).split("\n\n", 1)[0]
+                fields = dict(line.split(":", 1) for line in header.splitlines() if ":" in line)
+                if (fields.get("Name", "").strip().lower().replace("_", "-") not in
+                        {name.lower().replace("_", "-") for name in _DISTRIBUTIONS}
+                        or fields.get("Version", "").strip() != record.version):
+                    raise ValueError("unverified_installer_metadata")
+            tag = os.path.join(cache, "CACHEDIR.TAG")
+            _uninstall_path_state(tag)
+            descriptor = os.open(tag, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+            with os.fdopen(descriptor, "rb") as stream:
+                if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+                    continue
+                if not stream.read(128).startswith(b"Signature: 8a477f597d28d172789f06886806bc55"):
+                    continue
+        except (OSError, ValueError, TypeError, AttributeError):
+            continue
+        protected = [machine.running_prefix] if machine.running_prefix else []
+        for variable in ("HF_HOME", "TORCH_HOME", "CELLPOSE_LOCAL_MODELS_PATH"):
+            value = machine.env(variable).strip()
+            if value:
+                if value == "~" or value.startswith("~/"):
+                    value = machine.home + value[1:]
+                protected.append(os.path.abspath(value))
+        if any(_inside(cache, path) or _inside(path, cache) for path in protected):
+            continue
+        found.append(cache)
+    return _dedupe(found)
+
+
+def _register_installer_cache(root, *, system=None):
+    """Atomically merge one verified installer cache without trusting registry paths."""
+    machine = system or _Machine()
+    cache = os.path.join(os.path.abspath(root), "cache")
+    if cache not in _verified_installer_caches(machine):
+        raise ValueError("unverified_installer_cache")
+    home = machine.env("SPACR_HOME") or os.path.join(machine.home, ".spacr")
+    if home == "~" or home.startswith("~/"):
+        home = machine.home + home[1:]
+    home = os.path.abspath(home)
+    parent = home
+    while not os.path.exists(parent):
+        parent = os.path.dirname(parent)
+    _uninstall_path_state(parent)
+    os.makedirs(home, mode=0o700, exist_ok=True)
+    expected = _uninstall_path_state(home)
+    directory = os.open(home, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    temporary = ".cache-locations-" + os.urandom(16).hex()
+    try:
+        details = os.fstat(directory)
+        if [details.st_dev, details.st_ino] != expected[0][1:3]:
+            raise ValueError("changed_cache_registry")
+        try:
+            descriptor = os.open(_CACHE_LOCATIONS_FILE, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                                 dir_fd=directory)
+        except FileNotFoundError:
+            locations = {}
+        else:
+            with os.fdopen(descriptor, encoding="utf-8") as stream:
+                details = os.fstat(stream.fileno())
+                if not stat.S_ISREG(details.st_mode) or details.st_size > 1024 * 1024:
+                    raise ValueError("invalid_cache_registry")
+                locations = json.load(stream)
+            if not isinstance(locations, dict):
+                raise ValueError("invalid_cache_registry")
+        locations[_INSTALLER_CACHE_KEY] = cache
+        descriptor = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                             0o600, dir_fd=directory)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump(locations, stream, indent=2, sort_keys=True)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, _CACHE_LOCATIONS_FILE, src_dir_fd=directory, dst_dir_fd=directory)
+        os.fsync(directory)
+    finally:
+        try:
+            os.unlink(temporary, dir_fd=directory)
+        except FileNotFoundError:
+            pass
+        os.close(directory)
+    return cache
 
 
 def _relocated_caches(machine: _Machine) -> List[str]:
@@ -1238,7 +1522,9 @@ def _relocated_caches(machine: _Machine) -> List[str]:
     except (OSError, ValueError):
         return []
     found = []
-    for value in (data.values() if isinstance(data, dict) else ()):
+    for key, value in (data.items() if isinstance(data, dict) else ()):
+        if key == _INSTALLER_CACHE_KEY:
+            continue
         folder = str(value or "")
         name = os.path.basename(os.path.normpath(folder)).lower() if folder else ""
         if name.startswith("spacr-"):
@@ -1255,8 +1541,9 @@ def _purge_targets(machine: _Machine) -> List[str]:
     preferences file, a backends folder named by ``SPACR_BACKENDS_DIR`` and
     every cache spaCR relocated. Shared
     caches such as Hugging Face's and Torch's own folders, shared system
-    folders, anything that is not named after spaCR and the folder of the
-    running interpreter are never included. Only existing paths come back.
+    folders and the folder of the running interpreter are never included.
+    Paths not named after spaCR are included only for independently verified
+    installer-owned UV caches. Only existing paths come back.
 
     :param machine: the computer.
     """
@@ -1286,6 +1573,9 @@ def _purge_targets(machine: _Machine) -> List[str]:
         if any(_inside(path, kept) for kept in chosen):
             continue
         chosen = [kept for kept in chosen if not _inside(kept, path)] + [path]
+    for path in _verified_installer_caches(machine) + _retired_update_data(machine):
+        if not any(_inside(path, kept) for kept in chosen):
+            chosen.append(path)
     return chosen
 
 
@@ -1316,7 +1606,8 @@ def _purge(machine: _Machine, targets: Optional[Sequence[str]] = None) -> Remova
     report = RemovalReport(record=None)
     keep = [machine.running_prefix] if machine.running_prefix else []
     for path in (_purge_targets(machine) if targets is None else targets):
-        _delete(path, keep, report, "permission denied; delete it by hand")
+        if not _delete_retired_update(path, keep, report, machine):
+            _delete(path, keep, report, "permission denied; delete it by hand")
     registry = machine.registry
     if registry is not None and (registry.values(_SETTINGS_REGISTRY_KEY)
                                  or registry.subkeys(_SETTINGS_REGISTRY_KEY)):
@@ -1338,7 +1629,8 @@ def _ask_on_terminal(prompt: str) -> Optional[str]:
 
 
 def _purge_command(machine: _Machine, *, yes: bool = False, dry_run: bool = False,
-                   ask: Callable[[str], Optional[str]] = _ask_on_terminal) -> int:
+                   ask: Callable[[str], Optional[str]] = _ask_on_terminal,
+                   installer_caches=()) -> int:
     """List what a purge deletes, ask, and delete it.
 
     Nothing is deleted unless ``yes`` is given or the person types
@@ -1353,6 +1645,9 @@ def _purge_command(machine: _Machine, *, yes: bool = False, dry_run: bool = Fals
         was not confirmed, ``1`` when something could not be deleted.
     """
     targets = _purge_targets(machine)
+    for path, identity in installer_caches:
+        if _exists(path) and not any(_inside(path, parent) for parent in targets):
+            targets.append(path)
     registry = machine.registry
     has_settings = registry is not None and bool(
         registry.values(_SETTINGS_REGISTRY_KEY)
@@ -1375,6 +1670,15 @@ def _purge_command(machine: _Machine, *, yes: bool = False, dry_run: bool = Fals
         if answer.strip().lower() != "purge":
             print("Nothing was deleted.")
             return 3
+    for path, identity in installer_caches:
+        if not _exists(path):
+            continue
+        try:
+            if _uninstall_path_state(path) != identity:
+                raise ValueError("cleanup paths changed")
+        except (OSError, ValueError):
+            print(tr("The cleanup paths changed. Review the uninstall paths again."))
+            return 1
     report = _purge(machine, targets)
     for item in report.removed:
         print(f"  removed: {item}")
@@ -1892,8 +2196,9 @@ def remove_install(record: InstallRecord, *, ticked: bool = False,
 
     :param record: an installation from :func:`find_old_installs`.
     :param ticked: whether the user ticked this environment for removal.
-    :param keep: paths to leave in place, such as the log of the install
-        that is about to start.
+    :param keep: paths to preserve while removing installer-made copies, such as the log
+        of the install that is about to start. This does not prevent package
+        uninstallation from an explicitly ticked user environment.
     :param system: the computer; ``None`` means this one.
     :returns: what was removed, what could not be, and why.
     """
@@ -2116,6 +2421,8 @@ def _uninstall_data_candidates(machine):
         ("downloads", os.path.join(home, "spacr-demos")),
         ("downloads", os.path.join(home, "spacr-tutorials")),
     ))
+    candidates.extend(("caches", path, True) for path in _verified_installer_caches(machine))
+    candidates.extend(("temporary", path, True) for path in _retired_update_data(machine))
     variables = {
         "SPACR_MODEL_CACHE": "models", "SPACR_BACKENDS_DIR": "models",
         "SPACR_LOG_DIR": "logs", "SPACR_PLUGIN_HOME": "other",
@@ -2223,7 +2530,7 @@ def _uninstall_preview(operation_id, *, system=None):
                         "selectable": not reason, "reason": reason})
     listed = {row["path"] for row in cleanup}
     for record in records:
-        if record.kind != "installer":
+        if record.kind != "installer" or machine.platform == "linux":
             continue
         for path in _runtime_transaction_folders(record.root):
             if path in listed:
@@ -2355,7 +2662,7 @@ def _apply_uninstall_records(preview, selection, records, cleanup, machine):
     for row in cleanup:
         if row["path"].startswith("registry:"):
             _delete_registry_tree(machine.registry, _SETTINGS_REGISTRY_KEY, data)
-        else:
+        elif not _delete_retired_update(row["path"], keep, data, machine):
             _delete(row["path"], keep, data, tr("Permission denied. These files were kept."))
     return {"ok": data.ok, "reports": [asdict(item) for item in reports], "cleanup": asdict(data)}
 
@@ -2891,7 +3198,10 @@ def _uninstall_frozen_windows(request, root, endpoint, desktop_pid, desktop_exec
     if os.path.normcase(executable) != os.path.normcase(os.path.realpath(desktop_executable)):
         raise ValueError(tr("The running desktop could not be identified."))
     _installer_metadata_folder(request, "windows_uninstall_request", windows=True)
-    _windows_pip_private_access(request, owner_sid=owner, private_read=True)
+    try:
+        _windows_pip_private_access(request, owner_sid=owner, private_read=True)
+    except ValueError as error:
+        raise ValueError("invalid_windows_uninstall_request") from error
     before = os.lstat(request)
     if not stat.S_ISREG(before.st_mode) or before.st_size > 65536:
         raise ValueError("invalid_windows_uninstall_request")
@@ -3059,18 +3369,23 @@ def run_update_sequence(install: Callable[[], object], *,
                         records: Optional[Sequence[InstallRecord]] = None,
                         ticked: Iterable[str] = (), keep: Sequence[str] = (),
                         find=None, remove=None, system=None):
-    """Remove old installations; install only if every installer-made copy is gone.
+    """Attempt removal; install if installer-made removal reports contain no failures.
 
-    Every installer-made copy is removed, the spaCR package is uninstalled
-    from each ticked environment, and only then is ``install`` called. When an
-    installer-made copy could not be removed, ``install`` is not called at
-    all, and the reports say what stopped it.
+    Call the remover for each supplied or discovered installation. The default remover
+    attempts removal of installer-made copies, uninstalls spaCR only from ticked user
+    environments and skips source checkouts; protected paths or whole roots can remain.
+    After all removal calls return, call ``install`` unless an installer-made record has
+    a report whose ``ok`` value is false. Skipped or retained items alone, and failures
+    reported for user environments, do not block the callback. Removal or installation
+    exceptions propagate to the caller.
 
     :param install: zero-argument callable that installs the new version.
     :param records: installations already found; :func:`find_old_installs`
         is called when ``None``.
     :param ticked: roots of the environments the user ticked.
-    :param keep: paths removal must leave in place.
+    :param keep: paths passed to the remover's ``keep`` argument. The default remover
+        applies them to installer-made copy removal, not package uninstallation in
+        ticked user environments.
     :param find: replaces :func:`find_old_installs`.
     :param remove: replaces :func:`remove_install`.
     :param system: the computer; ``None`` means this one.
@@ -5098,7 +5413,10 @@ class _UpdatePhaseClient(_UpdatePhaseChannel):
                 or getattr(before, "st_file_attributes", 0) & 0x400):
             raise ValueError(tr("The operation authorization descriptor is not private."))
         if os.name == "nt":
-            _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+            try:
+                _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+            except ValueError as error:
+                raise ValueError(tr("The operation authorization descriptor is not private.")) from error
         elif before.st_uid != owner or stat.S_IMODE(before.st_mode) & 0o077:
             raise ValueError(tr("The operation authorization descriptor is not private."))
         descriptor = os.open(endpoint, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
@@ -5109,7 +5427,10 @@ class _UpdatePhaseClient(_UpdatePhaseChannel):
                     or os.name != "nt" and (actual.st_uid != owner or stat.S_IMODE(actual.st_mode) & 0o077)):
                 raise ValueError(tr("The operation authorization descriptor is not private."))
             if os.name == "nt":
-                _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+                try:
+                    _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+                except ValueError as error:
+                    raise ValueError(tr("The operation authorization descriptor is not private.")) from error
             endpoint_text = stream.read(129)
         match = re.fullmatch(r"([1-9][0-9]{0,4}):([a-f0-9]{64})", endpoint_text)
         if match is None or int(match[1]) > 65535:
@@ -5318,6 +5639,19 @@ def _macos_online_version(value):
     return parts + (0,) * (4 - len(parts))
 
 
+def _linux_online_update_record(records, *, system=None, strict=False):
+    """Find the running non-frozen Linux online environment without cleanup."""
+    machine = system or _Machine()
+    if machine.platform != "linux" or getattr(sys, "frozen", False):
+        return None
+    candidates = [record for record in records if record.kind == "installer"
+                  and record.running and record.platform == "linux"
+                  and record.layout == "linux-online"]
+    if strict and len(candidates) != 1:
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed."))
+    return candidates[0] if candidates else None
+
+
 def _runtime_requested_version(value):
     """Validate canonical PEP440 text before constructing a private package command."""
     import re
@@ -5504,17 +5838,31 @@ def _macos_online_commands(record, version, workdir):
     return install, probe, relaunch
 
 
+def _linux_online_commands(record, version, workdir):
+    """Reuse private POSIX uv commands and the saved Linux installer choices."""
+    from importlib import import_module
+    from pathlib import Path
+
+    if import_module("spacr.install_profile").read_profile(Path(record.root) / "install-profile.json") is None:
+        raise ValueError(tr("The saved installation choices could not be read. Nothing was changed."))
+    try:
+        return _macos_online_commands(record, version, workdir)
+    except (OSError, ValueError) as error:
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed.")) from error
+
+
 def _runtime_exchange(first, second):
     """Atomically exchange two runtime directories, with no missing-prefix gap."""
     import ctypes
 
-    library = ctypes.CDLL(None, use_errno=True)
     left, right = os.fsencode(first), os.fsencode(second)
     if sys.platform == "darwin":
+        library = ctypes.CDLL(None, use_errno=True)
         operation = library.renamex_np
         operation.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
         arguments = (left, right, 2)
     elif sys.platform.startswith("linux"):
+        library = ctypes.CDLL(None, use_errno=True)
         operation = library.renameat2
         operation.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
         arguments = (-100, left, -100, right, 2)
@@ -5770,9 +6118,11 @@ def _prune_runtime_transactions(prefix, family, *, live=False, inventory=None):
     ones. Only a copy whose journal says "committed" is removed; one rolling back, awaiting launch
     confirmation, unknown or unreadable is kept, as is the newest committed one. A copy whose update
     failed or was cancelled before the live runtime was retired (``staging_failed``, ``cancelled``, about
-    2.3 GB of staged runtime) is always removed. With ``live`` the committed copies
-    are pruned only when the newest transaction of all is committed and its new runtime is the one now
-    installed, by directory identity and content. The caller holds the runtime lease. Nothing outside the
+    2.3 GB of staged runtime) is always removed. A Windows copy whose folder holds no retired runtime is
+    only a staged one: once its staging owner is gone it is removed when rolled back or still staging, even
+    when the installed runtime has since been replaced by another update or a reinstall. With ``live`` the
+    committed copies are pruned only when the newest transaction of all (on Windows, of those not being
+    removed) is committed and its new runtime is the one now installed, by directory identity and content. The caller holds the runtime lease. Nothing outside the
     runtime's own folder is touched and no link is followed.
 
     :param prefix: the runtime directory the transactions replaced.
@@ -5795,15 +6145,20 @@ def _prune_runtime_transactions(prefix, family, *, live=False, inventory=None):
         live_identity = [details.st_dev, details.st_ino]
     except OSError:
         live_identity = None
+    windows = family != "posix-runtime"
     abandoned = [row for row in journals if row[2].get("state") in _ABANDONED_TRANSACTION_STATES
-                 and not (family != "posix-runtime" and os.path.lexists(os.path.join(row[1], child)))]
+                 and not (windows and os.path.lexists(os.path.join(row[1], child)))]
     abandoned += [row for row in journals if row[2].get("state") in _STAGING_TRANSACTION_STATES
-                  and live_identity is not None and row[2].get("old_identity") == live_identity
-                  and not (family != "posix-runtime" and os.path.lexists(os.path.join(row[1], child)))
+                  and (windows or (live_identity is not None and row[2].get("old_identity") == live_identity))
+                  and not (windows and os.path.lexists(os.path.join(row[1], child)))
+                  and _transaction_owner_gone(row[2])]
+    abandoned += [row for row in journals if windows and row[2].get("state") == "rolled_back"
+                  and not os.path.lexists(os.path.join(row[1], child))
                   and _transaction_owner_gone(row[2])]
     committed = [row for row in journals if row[2].get("state") == "committed"]
     candidates = list(abandoned)
-    if len(committed) >= 2 and _newest_copy_is_live(prefix, family, journals, live, inventory):
+    remaining = [row for row in journals if row not in abandoned] if windows else journals
+    if len(committed) >= 2 and _newest_copy_is_live(prefix, family, remaining, live, inventory):
         candidates.extend(committed[:-1])
     return _remove_runtime_copies(parent, candidates)
 
@@ -6012,7 +6367,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                         and int(details.st_mtime) == int(old.st_mtime)
                         and _macos_digest(path) != previous["sha256"]):
                     os.utime(path, ns=(details.st_atime_ns, (int(old.st_mtime) + 2) * 1_000_000_000),
-                             follow_symlinks=False)
+                             **({"follow_symlinks": False} if os.utime in os.supports_follow_symlinks else {}))
                     if int(os.stat(path).st_mtime) == int(old.st_mtime):
                         raise OSError(errno.EIO, os.strerror(errno.EIO), path)
         code, imported = runner([staged_python, "-I", "-c", "import spacr.qt"])
@@ -6107,13 +6462,25 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     The actual paths are rechecked after shutdown; uv or Python found on PATH
     is never substituted.
     """
+    return _run_posix_online_update(plan, machine, _macos_online_update_record,
+                                    _macos_online_commands, wait=wait, run=run, spawn=spawn)
+
+
+def _run_linux_online_update(plan, machine, *, wait=None, run=None, spawn=None):
+    """Stage and verify the Linux runtime before authenticated Restart."""
+    return _run_posix_online_update(plan, machine, _linux_online_update_record,
+                                    _linux_online_commands, wait=wait, run=run, spawn=spawn)
+
+
+def _run_posix_online_update(plan, machine, lookup, commands, *, wait=None, run=None, spawn=None):
+    """Use the shared POSIX transaction without replacing an installation root."""
     records = [_record_from_json(data) for data in plan["records"]]
-    record = _macos_online_update_record(records, system=machine, strict=True)
+    record = lookup(records, system=machine, strict=True)
     if record is None or plan.get("frozen_application"):
-        raise ValueError("this update requires a running non-frozen macOS online environment")
-    install, probe, relaunch = _macos_online_commands(record, plan["version"], plan["workdir"])
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed."))
+    install, probe, relaunch = commands(record, plan["version"], plan["workdir"])
     if plan.get("fetch") is not None or plan.get("install") != install or plan.get("relaunch") != relaunch:
-        raise ValueError("the macOS online update commands differ from the approved environment")
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed."))
     current = _retiring_runtime_identity(os.path.dirname(os.path.dirname(record.python)))
     if current is None:
         raise ValueError("previous_runtime_identity_unverified")
@@ -6127,7 +6494,7 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
         """Offer Restart only after the replacement passes its staged checks."""
         handshake.ready()
         handshake.wait_for_shutdown(wait)
-        if _macos_online_commands(record, plan["version"], plan["workdir"]) != (install, probe, relaunch):
+        if commands(record, plan["version"], plan["workdir"]) != (install, probe, relaunch):
             raise ValueError(tr("The saved installation choices changed while preparing the update. Nothing was changed."))
 
     return _transactional_runtime_update(
@@ -8334,21 +8701,26 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                 plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
         except (OSError, ValueError) as error:
             plan["error"] = str(error)
-    elif _macos_online_update_record(records, system=machine) is not None:
-        plan["adapter"] = "macos-online-uv-v1"
+    elif (_macos_online_update_record(records, system=machine) is not None
+          or _linux_online_update_record(records, system=machine) is not None):
+        linux_online = machine.platform == "linux"
+        lookup = _linux_online_update_record if linux_online else _macos_online_update_record
+        commands = _linux_online_commands if linux_online else _macos_online_commands
+        plan["adapter"] = "linux-online-uv-v1" if linux_online else "macos-online-uv-v1"
         plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
         plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
                              "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
         try:
-            running = _macos_online_update_record(records, system=machine, strict=True)
-            plan["install"], _probe, plan["relaunch"] = _macos_online_commands(
+            running = lookup(records, system=machine, strict=True)
+            plan["install"], _probe, plan["relaunch"] = commands(
                 running, str(version), workdir)
             _FrozenUpdateHandshake(plan)
             with open(__file__, "rb") as source, open(module, "wb") as copy:
                 copy.write(source.read())
             plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
         except (OSError, ValueError) as error:
-            plan["error"] = f"could not prepare the macOS environment update: {error}. Nothing was removed."
+            plan["error"] = (tr("This installation cannot stage a verified update. Nothing was changed.")
+                             if linux_online else f"could not prepare the macOS environment update: {error}. Nothing was removed.")
     elif _windows_online_update_record(records, system=machine) is not None:
         plan["adapter"] = "windows-online-uv-v1"
         plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
@@ -8604,10 +8976,11 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return code
 
     planned_records = [_record_from_json(data) for data in plan["records"]]
-    if plan.get("adapter") in {"macos-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
+    if plan.get("adapter") in {"macos-online-uv-v1", "linux-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
         try:
             operation = (_run_pip_environment_update if plan["adapter"] in {"pip-private-posix-v1", "pip-private-windows-v1"}
                          else _run_windows_online_update if plan["adapter"] == "windows-online-uv-v1"
+                         else _run_linux_online_update if plan["adapter"] == "linux-online-uv-v1"
                          else _run_macos_online_update)
             with _preparation_heartbeat(plan, windows=plan["adapter"] in {"pip-private-windows-v1",
                                                                           "windows-online-uv-v1"}):
@@ -9029,6 +9402,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         prog="install_cleanup",
         description="Find, and remove, older spaCR installations.")
     commands = parser.add_subparsers(dest="command")
+    cache_registration = commands.add_parser("register-installer-cache", help=argparse.SUPPRESS)
+    cache_registration.add_argument("--install-root", required=True)
     frozen_windows = commands.add_parser("install-frozen-windows", help=argparse.SUPPRESS)
     frozen_windows.add_argument("--source", required=True)
     frozen_windows.add_argument("--destination", required=True)
@@ -9084,6 +9459,14 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     metadata.add_argument("--folder", required=True)
     metadata.add_argument("--paths", nargs="*")
     args = parser.parse_args(argv)
+    if args.command == "register-installer-cache":
+        try:
+            cache = _register_installer_cache(args.install_root)
+        except Exception as error:
+            print(json.dumps({"registered": False, "error": str(error)}), file=sys.stderr)
+            return 1
+        print(json.dumps({"registered": True, "cache": cache}))
+        return 0
     if args.command == "run-uninstall-plan":
         try:
             return _run_uninstall_plan(args.plan)
@@ -9222,6 +9605,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     print(f"Finding older spaCR installations: {len(records)} found.")
     for line in _format_records(records):
         print(line)
+    installer_caches = ([(path, _uninstall_path_state(path))
+                         for path in _verified_installer_caches(machine)] if args.purge else [])
     reports, _result = run_update_sequence(
         lambda: 0, records=[r for r in records if r.kind == "installer"],
         keep=[os.path.abspath(k) for k in args.keep], system=machine)
@@ -9231,7 +9616,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         print("An older spaCR could not be removed, so nothing new was installed.")
         return 1
     if args.purge:
-        return _purge_command(machine, yes=args.yes)
+        return _purge_command(machine, yes=args.yes, installer_caches=installer_caches)
     return 0
 
 
@@ -9367,19 +9752,25 @@ def preview_optional_cleanup(operation_id, *, system=None, guard=None):
     cache_home = normalized(cache_home)
     locations = {}
     try:
-        home_fd = _optional_cleanup_directory(cache_home)
-        try:
-            descriptor = os.open(_CACHE_LOCATIONS_FILE, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=home_fd)
-            with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
-                details = os.fstat(stream.fileno())
-                if stat.S_ISREG(details.st_mode) and details.st_size <= 1_048_576:
-                    raw = stream.read(1_048_577)
-                    data = json.loads(raw) if len(raw) <= 1_048_576 else None
-                    if isinstance(data, dict):
-                        locations = {key: value for key, value in data.items()
-                                     if isinstance(value, str) and value.strip() and "\x00" not in value}
-        finally:
-            os.close(home_fd)
+        if hasattr(os, "O_DIRECTORY") and hasattr(os, "O_NOFOLLOW"):
+            home_fd = _optional_cleanup_directory(cache_home)
+            try:
+                descriptor = os.open(_CACHE_LOCATIONS_FILE, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=home_fd)
+            finally:
+                os.close(home_fd)
+        else:
+            manifest = os.path.join(cache_home, _CACHE_LOCATIONS_FILE)
+            if os.path.islink(cache_home) or os.path.islink(manifest):
+                raise ValueError("link")
+            descriptor = os.open(manifest, os.O_RDONLY | getattr(os, "O_BINARY", 0))
+        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+            details = os.fstat(stream.fileno())
+            if stat.S_ISREG(details.st_mode) and details.st_size <= 1_048_576:
+                raw = stream.read(1_048_577)
+                data = json.loads(raw) if len(raw) <= 1_048_576 else None
+                if isinstance(data, dict):
+                    locations = {key: value for key, value in data.items()
+                                 if isinstance(value, str) and value.strip() and "\x00" not in value}
     except (OSError, ValueError, RecursionError):
         pass
 

@@ -152,7 +152,7 @@ def test_legends_and_the_figure_folder_follow_the_source(panel, tmp_path):
     assert panel._folder() is None
 
     (tmp_path / LEGENDS_FILE).write_text(
-        "file,legend\nfig1.png,Plaques at 7 days\n")
+        "file,legend\nfig1.png,Plaques at 7 days\n", encoding="utf-8")
     panel._src = str(tmp_path)
     assert panel._legend_for("fig1") == "Plaques at 7 days"
     assert panel._legend_for("fig2") == ""

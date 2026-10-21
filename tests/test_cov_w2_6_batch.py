@@ -220,7 +220,7 @@ def test_a_queue_file_that_cannot_be_read_says_so_in_a_sentence(tmp_path,
                                                                 monkeypatch):
     """An unattended runner should fail with a sentence, never a traceback."""
     path = tmp_path / "queue.json"
-    path.write_text("{}")
+    path.write_text("{}", encoding="utf-8")
     real = Path.read_text
 
     def _refuse(self, *args, **kwargs):
@@ -545,7 +545,7 @@ def test_the_in_process_runner_honours_a_sys_exit_from_the_cli(tmp_path,
 def test_a_run_status_sidecar_beside_the_plate_is_an_artifact(tmp_path):
     src = Path(_plate(tmp_path))
     sidecar = src / f"mask{batch.RUN_STATUS_SUFFIX}"
-    sidecar.write_text("{}")
+    sidecar.write_text("{}", encoding="utf-8")
     found = [p.name for p in batch._status_artifacts({"src": str(src)})]
     assert sidecar.name in found
 
@@ -555,7 +555,7 @@ def test_an_artifact_with_no_new_stamp_contributes_nothing(tmp_path,
     """A measurements.db accumulates one row per stage, so 'what did THIS
     job record' is the difference, not the total."""
     src = Path(_plate(tmp_path))
-    (src / "mask.run_status.json").write_text("{}")
+    (src / "mask.run_status.json").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(batch, "_status_artifacts",
                         lambda settings: [src / "mask.run_status.json"])
     monkeypatch.setattr(batch, "read_run_status",
@@ -572,7 +572,7 @@ def test_a_stamp_that_attempted_nothing_is_empty_not_complete(tmp_path,
     re-run, and a stage that attempted no items has not earned it."""
     src = Path(_plate(tmp_path))
     artifact = src / "mask.run_status.json"
-    artifact.write_text("{}")
+    artifact.write_text("{}", encoding="utf-8")
     monkeypatch.setattr(batch, "_status_artifacts",
                         lambda settings: [artifact])
     monkeypatch.setattr(batch, "read_run_status",
@@ -589,7 +589,7 @@ def test_a_log_that_is_not_there_has_no_tail(tmp_path):
 
 def test_a_usage_failure_with_nothing_in_the_log_still_names_itself(tmp_path):
     log = tmp_path / "empty.log"
-    log.write_text("\n\n")
+    log.write_text("\n\n", encoding="utf-8")
     kind, message = batch.classify_failure(batch.EXIT_USAGE, str(log))
     assert kind == "ConfigurationError"
     assert "exit code 2" in message
@@ -602,7 +602,7 @@ def test_a_usage_failure_with_nothing_in_the_log_still_names_itself(tmp_path):
 def _ok_runner(code=0, text=""):
     def runner(job, settings_path, log_path):
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text(text)
+        Path(log_path).write_text(text, encoding="utf-8")
         return code
     return runner
 
@@ -639,7 +639,7 @@ def test_a_job_whose_settings_went_missing_fails_without_being_run(tmp_path):
     def runner(job, settings_path, log_path):
         ran.append(job.id)
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text("")
+        Path(log_path).write_text("", encoding="utf-8")
         return 0
 
     result = run_queue(queue, runner=runner, echo=False, force=True)
@@ -705,7 +705,7 @@ def test_ctrl_c_during_a_job_marks_it_interrupted_and_halts_the_rest(
 
     def runner(job, settings_path, log_path):
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text("")
+        Path(log_path).write_text("", encoding="utf-8")
         if job.id == "mask-1":
             raise KeyboardInterrupt
         return 0
@@ -787,7 +787,7 @@ def test_a_job_that_was_running_when_the_machine_died_is_resumed(tmp_path):
     def runner(job, settings_path, log_path):
         ran.append(job.override_args)
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text("")
+        Path(log_path).write_text("", encoding="utf-8")
         return 0
 
     result = resume_queue(path, runner=runner, echo=False)
@@ -833,7 +833,7 @@ def test_a_job_that_was_still_running_when_the_queue_halted_is_not_run(
 
     def runner(job, settings_path, log_path):
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(log_path).write_text("RuntimeError: the share went away\n")
+        Path(log_path).write_text("RuntimeError: the share went away\n", encoding="utf-8")
         return 1
 
     result = run_queue(queue, runner=runner, on_error="stop", echo=False)

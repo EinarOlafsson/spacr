@@ -230,7 +230,7 @@ def test_a_contribution_without_consent_or_licence_is_refused(tmp_path):
         path = folder / "contribution.json"
         record = json.loads(path.read_text(encoding="utf-8"))
         record.pop("consent")
-        path.write_text(json.dumps(record))
+        path.write_text(json.dumps(record), encoding="utf-8")
     assert "consent" in _broken(tmp_path, strip)
 
 

@@ -178,7 +178,7 @@ class TestSquareDrawsInsteadOfRaising:
         _choose(dialog.graph_shape, "square")
         out = tmp_path / "volcano.svg"
         dialog.save(str(out))
-        head = out.read_text(errors="replace")[:600]
+        head = out.read_text(errors="replace", encoding="utf-8")[:600]
         found = re.search(r'width="([\d.]+)mm"\s+height="([\d.]+)mm"', head)
 
         assert found, head[:200]

@@ -351,8 +351,8 @@ def test_recorded_lock_evidence_is_visible_even_when_comparison_is_blocked(
         }
         directory = root / run.run_id
         directory.mkdir()
-        (directory / "settings.json").write_text("{}")
-        (directory / "manifest.json").write_text(json.dumps({"analysis_lock": recorded}))
+        (directory / "settings.json").write_text("{}", encoding="utf-8")
+        (directory / "manifest.json").write_text(json.dumps({"analysis_lock": recorded}), encoding="utf-8")
         expected[side] = {"run_id": run.run_id, "analysis_lock": recorded}
 
     result = view.compare()
@@ -385,8 +385,8 @@ def test_legacy_comparison_does_not_borrow_a_prefix_match_or_infer_a_verdict(
             (b.run_id, {"status": "success"})):
         directory = root / name
         directory.mkdir()
-        (directory / "settings.json").write_text("{}")
-        (directory / "manifest.json").write_text(json.dumps(manifest))
+        (directory / "settings.json").write_text("{}", encoding="utf-8")
+        (directory / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     compared.compare()
 
     evidence = json.loads(compared._environment.toPlainText())
@@ -707,8 +707,8 @@ def test_the_dialog_reads_a_settings_csv_off_disk(qapp, qtbot, tmp_path):
 
     before = tmp_path / "a.csv"
     after = tmp_path / "b.csv"
-    before.write_text("Key,Value\ncell_diameter,30\n")
-    after.write_text("Key,Value\ncell_diameter,45\n")
+    before.write_text("Key,Value\ncell_diameter,30\n", encoding="utf-8")
+    after.write_text("Key,Value\ncell_diameter,45\n", encoding="utf-8")
 
     dialog = SettingsDiffDialog(before, after)
     qtbot.addWidget(dialog)
@@ -742,7 +742,7 @@ def test_lock_evidence_carries_an_unreadable_or_damaged_manifest(
     monkeypatch.setattr(journal, "runs_root", lambda: tmp_path)
     (tmp_path / "damaged").mkdir()
     (tmp_path / "damaged" / "manifest.json").write_text(
-        json.dumps({"analysis_lock": "not a record"}))
+        json.dumps({"analysis_lock": "not a record"}), encoding="utf-8")
     evidence = screen._recorded_lock_evidence(RunRef("damaged"))
     assert evidence["analysis_lock"] is None
     assert any("settings" in error for error in evidence["manifest_errors"])

@@ -83,8 +83,8 @@ def composite(layers: Sequence[Layer],
               shape: Optional[Tuple[int, int]] = None) -> Optional[np.ndarray]:
     """Lay the ticked ``layers`` over a black canvas, bottom first.
 
-    :param layers: bottom of the stack first. Unticked layers and layers
-        of another size than the first are skipped.
+    :param layers: bottom of the stack first. Unticked layers and layers whose size differs
+        from the canvas are skipped.
     :param shape: the canvas size; the first ticked layer's when omitted.
     :returns: ``H x W x 3`` ``uint8``, or ``None`` when nothing is ticked.
     """

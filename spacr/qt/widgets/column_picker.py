@@ -134,8 +134,11 @@ def resolve_db_path(path: str) -> str:
     database itself, so all three resolve here rather than in each caller.
 
     :param path: file, run folder, or measurements folder.
-    :returns: absolute path to a ``.db`` file (existence not guaranteed —
-        a file path is returned as given so the caller can report it).
+    :returns: absolute, user-expanded candidate path. For an existing directory,
+        search for an existing file at its
+        ``measurements/measurements.db`` then ``measurements.db``; if
+        neither exists, return the former candidate. Other inputs are
+        returned without checking existence or a ``.db`` extension.
     :raises ValueError: when ``path`` is empty.
     """
     text = "" if path is None else str(path).strip()

@@ -35,7 +35,9 @@ def write_tiff(path: TiffPath, array: np.ndarray, **kwargs: Any) -> None:
     """
     kwargs.setdefault("photometric", DEFAULT_PHOTOMETRIC)
     kwargs.setdefault("planarconfig", DEFAULT_PLANARCONFIG)
-    tifffile.imwrite(path, np.asarray(array), **kwargs)
+    from .portable_paths import _long_path
+
+    tifffile.imwrite(_long_path(path), np.asarray(array), **kwargs)
 
 
 __all__ = [

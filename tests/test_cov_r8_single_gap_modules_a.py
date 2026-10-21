@@ -212,7 +212,7 @@ class TestTheClimbNeverRepeatsItself:
 
     def test_a_file_is_climbed_from_its_folder(self, tmp_path):
         f = tmp_path / "plate.csv"
-        f.write_text("x\n")
+        f.write_text("x\n", encoding="utf-8")
 
         from spacr.portable_paths import candidate_roots
 

@@ -41,13 +41,13 @@ def _micromanager(folder):
     (folder / 'metadata.txt').write_text(json.dumps({
         'Summary': {'Frames': 2, 'ChNames': ['DAPI']},
         'FrameKey-0-0-0': {'FileName': 't0.tif'},
-        'FrameKey-1-0-0': {'FileName': 't1.tif'}}))
+        'FrameKey-1-0-0': {'FileName': 't1.tif'}}), encoding="utf-8")
 
 
 def test_two_companions_with_one_field_key_both_wait(tmp_path):
     for folder in ('x_1', 'x1'):
         _micromanager(tmp_path / folder)
-    names = [f'{folder}/{member}' for folder in ('x_1', 'x1')
+    names = [os.path.join(folder, member) for folder in ('x_1', 'x1')
              for member in ('metadata.txt', 't0.tif', 't1.tif')]
     context = _context(tmp_path, _seen(*names))
     groups = core._watch_vendor_groups(context, 100.0)
@@ -168,7 +168,7 @@ def test_saved_record_of_another_stack_ingest_is_refused(tmp_path):
     ledger = json.loads((tmp_path / 'spacr_watch' / 'watch_ledger.json').read_text(encoding="utf-8"))
     assert ledger['vendor_stacks'] == 'timelapse'
     ledger['vendor_stacks'] = 'volume'
-    (tmp_path / 'spacr_watch' / 'watch_ledger.json').write_text(json.dumps(ledger))
+    (tmp_path / 'spacr_watch' / 'watch_ledger.json').write_text(json.dumps(ledger), encoding="utf-8")
     recorder = Recorder()
     with pytest.raises(ValueError, match='made with a different stack ingest'):
         core._watch_folder_and_analyse(

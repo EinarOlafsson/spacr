@@ -23,11 +23,11 @@ def test_private_pip_plan_accepts_selected_nightly_dev_release(tmp_path, version
     prefix = tmp_path / 'private environment'
     python = prefix / 'bin/python'
     python.parent.mkdir(parents=True)
-    python.write_text('#!/bin/sh\nexit 0\n')
+    python.write_text('#!/bin/sh\nexit 0\n', encoding="utf-8")
     python.chmod(0o755)
     prefix.chmod(0o700)
     prefix.parent.chmod(0o700)
-    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n')
+    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n', encoding="utf-8")
     record = cleanup.InstallRecord(kind='environment', platform='linux', layout='pip', root=str(prefix),
                                    python=str(python), version='1.5.1.4', running=True)
     machine = cleanup._Machine(platform='linux', environ={'HOME': str(tmp_path / 'user')},

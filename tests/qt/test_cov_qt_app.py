@@ -385,13 +385,12 @@ EXPECTED_STAGES = {
     # folded onto a host and lost its registry row, and a maturity is a
     # property of a tile. What their buttons light up in now comes from
     # the host's own fold record, checked in the fold tests.
-    "make_masks": "beta",
+    # Make Masks, Analyze Plaques, Replication and Image UMAP were beta
+    # until 2026-10-20 and are stable now, so they read the default.
     # A stage is a property of a tile on Home, so a key folded out of the
     # registry drops out of this ledger with its row. What the button
     # lights in afterwards is recorded in the host's fold fallback, and
     # `test_the_switch_lights_in_the_stage_the_tile_LIT` holds it there.
-    "analyze_plaques": "beta",
-    "replication": "beta", "umap": "beta",
 }
 
 
@@ -458,7 +457,9 @@ def test_every_app_carries_the_maturity_it_was_given():
     # demotions.
     # 33 -> 38: the five 634 alpha organism pages (eb2201537).
     # 38 -> 37 alpha, 6 -> 7 stable: Toxoplasma is not an alpha species.
-    assert counts == {"alpha": 36, "beta": 4, "stable": 8}
+    # 4 -> 0 beta, 8 -> 12 stable on 2026-10-20: Make Masks, Analyze
+    # Plaques, Replication and Image UMAP were signed off for the paper.
+    assert counts == {"alpha": 36, "beta": 0, "stable": 12}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -824,6 +825,12 @@ def test_no_shipping_sidebar_label_is_clipped(qtbot, qapp, qt_theme_applied):
 
 @pytest.fixture(scope="module")
 def home_page(qapp, qt_theme_applied):
+    # Alpha tiles are off for a new user (DEFAULT_SHOW_ALPHA is False) and
+    # this page is built at module scope, before conftest's per-test
+    # fixture raises the fallback, so raise it here for the page's life.
+    from spacr.qt import preferences as _prefs
+    patch = pytest.MonkeyPatch()
+    patch.setattr(_prefs, "DEFAULT_SHOW_ALPHA", True)
     page = make_home_page()  # the page MainWindow ships
     page.resize(1500, 950)
     page.show()
@@ -832,6 +839,7 @@ def home_page(qapp, qt_theme_applied):
     page.hide()
     page.deleteLater()
     qapp.processEvents()
+    patch.undo()
 
 
 def test_home_renders_one_tile_per_app_under_every_section_heading(home_page):
@@ -1614,7 +1622,7 @@ def no_pipeline_runs(monkeypatch):
 def _write_settings_pack(root, app_key, rows):
     root.mkdir(parents=True, exist_ok=True)
     path = root / f"{app_key}_settings.csv"
-    path.write_text("\n".join(",".join(str(c) for c in r) for r in rows))
+    path.write_text("\n".join(",".join(str(c) for c in r) for r in rows), encoding="utf-8")
     return path
 
 

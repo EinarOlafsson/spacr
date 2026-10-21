@@ -68,8 +68,8 @@ it, including synchronized playback in the next lesson. The completed package
 subsequently passed the unchanged full-player checks; earlier failed logs and
 candidates were retained.
 
-The remaining app/data requests are recorded in the agreed coordination
-channel, now `features/325_two_sessions_one_repo_working_protocol.temp`.
+The remaining app/data requests were recorded in the then-agreed coordination
+channel, the retired two-session protocol preserved in Git history.
 No application, Qt, API-translation or coverage source was changed for these
 tutorials. Do not erase the remaining Investigate Hit hold merely to make the
 count zero; the real-data reader still raises `KeyError: 'prcfo'`.

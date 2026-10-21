@@ -1,5 +1,0 @@
-Command: ['/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/stage_visual_overlay.py', 'overlay']
-Source: 75fb711a6cce0efa7db779f612e7bc968234644b
-{"receipt": {"path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/retained-visual-refresh.json", "bytes": 4303, "sha256": "1d8d85c0e428d7d09e0e4fe53dbe52d1ca61d35fbdb97f9b0879eafd994f1e8c"}, "timing": {"path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/video/native-live-timings.json", "bytes": 27713, "sha256": "813a5e275ba32c54198180aedd5673176ea92e96f9b40cdb4dd4d858158b4286"}, "master": {"path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/video/02_install_spacr_silent.mp4", "bytes": 16691502, "sha256": "66cf9ffb8082c18ff0201949e65e2d835df5b8e16e8fffb41963d49b56490cc7"}}
-
-Terminal exit status: 0

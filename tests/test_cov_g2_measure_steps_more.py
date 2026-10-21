@@ -83,7 +83,7 @@ def test_cellprofiler_overlaps_refuse_bad_masks_and_non_arrays(tmp_path,
 def test_a_cellprofiler_run_that_imports_nothing_says_so(tmp_path, monkeypatch,
                                                          capsys):
     pipeline = tmp_path / "p.cppipe"
-    pipeline.write_text("pipeline")
+    pipeline.write_text("pipeline", encoding="utf-8")
     db = tmp_path / "plate" / "measurements" / "measurements.db"
     db.parent.mkdir(parents=True)
     monkeypatch.setattr(m, "_cellprofiler_export", lambda *a: [])
@@ -115,7 +115,7 @@ def test_a_measure_run_reaches_barcodes_cellprofiler_and_a_backend(tmp_path,
     monkeypatch.setattr(m, "_copy_to_measurement_backend",
                         lambda db, settings: steps.append("backend"))
     pipeline = tmp_path / "p.cppipe"
-    pipeline.write_text("x")
+    pipeline.write_text("x", encoding="utf-8")
     m.measure_crop(measure_settings(
         merged, viability=False, n_jobs=1, plate_barcode_source="records.csv",
         cellprofiler_pipeline=str(pipeline), measurement_backend="parquet"))

@@ -1,8 +1,0 @@
-{
-  "original_all_regexes_constants_exact": true,
-  "all_existing_tests_and_other_helpers_ast_exact": true,
-  "only_existing_function_changed": "_offenders exact SHA preflight+onepath skip",
-  "new_fixture_cases": 16,
-  "bundle_all8files_sha_exact_preserved": true,
-  "file_sha256": "184c024050e4cc0e2a585f6f6f14bd164fd5a7ec4c9ecd71b6eac8937c101cd5"
-}

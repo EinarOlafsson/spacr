@@ -31,7 +31,7 @@ def probe(monkeypatch, tmp_path):
 def receipt(tmp_path):
     paths = list(tmp_path.glob('installation_runs/*/receipt.json'))
     assert len(paths) == 1
-    return json.loads(paths[0].read_text())
+    return json.loads(paths[0].read_text(encoding="utf-8"))
 
 
 def test_all_six_successful_steps_are_required(probe, tmp_path):

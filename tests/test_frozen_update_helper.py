@@ -69,6 +69,7 @@ def test_helper_environment_drops_parent_python_and_restores_loader_path(tmp_pat
     assert machine.environ == original
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize("escape", ["workdir", "symlink", "plan"])
 def test_helper_refuses_paths_that_do_not_survive_removal(tmp_path, monkeypatch, escape):
     """Both symlinks and direct nested work folders must fail before copying."""
@@ -106,6 +107,7 @@ def test_helper_refuses_mac_resources_workdir_even_without_discovery_record(tmp_
     assert not work.exists()
 
 
+@pytest.mark.needs_symlink
 def test_helper_canonicalizes_aliased_doomed_root(tmp_path, monkeypatch):
     """A symlinked installation record still owns its actual directory."""
     machine, record, bundle, name = _frozen(tmp_path, monkeypatch)
@@ -119,6 +121,7 @@ def test_helper_canonicalizes_aliased_doomed_root(tmp_path, monkeypatch):
     assert not (work / name).exists()
 
 
+@pytest.mark.needs_symlink
 def test_helper_rejects_symlinked_plan_outside_private_folder(tmp_path, monkeypatch):
     """Lexically nested plan paths cannot redirect the surviving helper outside."""
     machine, record, _, _ = _frozen(tmp_path, monkeypatch)
@@ -145,6 +148,7 @@ def test_helper_does_not_fold_case_on_a_case_sensitive_filesystem(tmp_path, monk
     assert command is None and "outside its bundle" in error
 
 
+@pytest.mark.needs_symlink
 def test_helper_returns_canonical_plan_path(tmp_path, monkeypatch):
     """A safe alias resolves once before it becomes detached process argv."""
     machine, record, _, _ = _frozen(tmp_path, monkeypatch)
@@ -191,7 +195,7 @@ def test_frozen_family_cannot_fall_back_to_online_replacement(tmp_path, layout, 
         cleanup._reinstall_steps(record, "1.5.1.1", str(tmp_path / "update"), machine)
     path = tmp_path / "plan.json"
     path.write_text(json.dumps({"records": [asdict(record)], "pid": 123,
-                                "version": "1.5.1.1", "log": str(tmp_path / "update.log")}))
+                                "version": "1.5.1.1", "log": str(tmp_path / "update.log")}), encoding="utf-8")
 
     def forbidden(*args, **kwargs):
         """No wait, fetch, removal, installation or relaunch is authorized."""
@@ -337,9 +341,9 @@ def test_actual_frozen_helper_runs_after_copy_without_source_or_python(tmp_path)
     assert "run-plan" in completed.stdout and "install_cleanup" in completed.stdout
     plan = tmp_path / "refused-plan.json"
     sentinel = tmp_path / "analysis.txt"
-    sentinel.write_text("preserve unrelated data")
+    sentinel.write_text("preserve unrelated data", encoding="utf-8")
     plan.write_text(json.dumps({"frozen_application": True, "records": [], "pid": os.getpid(),
-                                "version": "1.5.1.1", "log": str(tmp_path / "refusal.log")}))
+                                "version": "1.5.1.1", "log": str(tmp_path / "refusal.log")}), encoding="utf-8")
     refused = subprocess.run([str(target), "run-plan", str(plan)], cwd=tmp_path, env=environment,
                              capture_output=True, text=True, timeout=60)
     assert refused.returncode == 2, refused.stdout + refused.stderr

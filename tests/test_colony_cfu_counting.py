@@ -512,7 +512,13 @@ def test_the_published_colony_detector_is_fetched_by_its_zoo_key(
     asked = []
     monkeypatch.setattr(model_zoo, "open_uri", lambda uri, **kw: (
         asked.append(uri) or iter([payload])))
+    # The headless (spacr-run) path, as every other download test pins it: a Qt
+    # test earlier in the same worker leaves the session QApplication, which
+    # makes this thread the GUI thread, where a missing checkpoint is refused.
+    monkeypatch.setattr(model_zoo, "_on_the_qt_gui_thread", lambda: False)
     monkeypatch.setenv("HOME", str(tmp_path))
+    # Windows expands ~ from USERPROFILE.
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
     path = submodules._resolve_detector_weights(
         "colony_yolo11n_makrai_v1", "colony_detector")
     assert asked == [entry.uri]

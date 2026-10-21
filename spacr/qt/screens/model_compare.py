@@ -55,7 +55,10 @@ Design notes:
 """
 from __future__ import annotations
 
+import ast
+import io
 import os
+import tokenize
 from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import numpy as np
@@ -135,8 +138,30 @@ def parse_extra(text: str) -> Dict[str, Any]:
     :returns: the parsed mapping.
     :raises ValueError: on a fragment with no ``=`` in it, naming the fragment.
     """
+    source = str(text or "")
+    offsets = [0]
+    for line in source.splitlines(keepends=True):
+        offsets.append(offsets[-1] + len(line))
+    chunks = []
+    start = 0
+    depth = 0
+    try:
+        for token in tokenize.generate_tokens(io.StringIO(source).readline):
+            if token.type != tokenize.OP:
+                continue
+            if token.string in ("(", "[", "{"):
+                depth += 1
+            elif token.string in (")", "]", "}"):
+                depth -= 1
+            elif token.string in (",", ";") and depth == 0:
+                end = offsets[token.start[0] - 1] + token.start[1]
+                chunks.append(source[start:end])
+                start = end + 1
+    except (tokenize.TokenError, IndentationError) as error:
+        raise ValueError(str(error)) from error
+    chunks.append(source[start:])
     out: Dict[str, Any] = {}
-    for chunk in str(text or "").replace(";", ",").split(","):
+    for chunk in chunks:
         chunk = chunk.strip()
         if not chunk:
             continue
@@ -156,6 +181,11 @@ def _coerce(raw: str) -> Any:
         return low == "true"
     if low in ("none", "null", ""):
         return None
+    try:
+        return ast.literal_eval(raw)
+    except (ValueError, SyntaxError) as error:
+        if raw.startswith(("[", "(", "{")) or raw.lstrip("rRuUbBfF").startswith(("'", '"')):
+            raise ValueError(str(error)) from error
     try:
         return int(raw)
     except ValueError:

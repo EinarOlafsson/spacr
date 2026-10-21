@@ -164,6 +164,9 @@ def _pyqtgraph_ready(create: bool = True) -> tuple:
             if not os.environ.get("DISPLAY") and not os.environ.get(
                     "WAYLAND_DISPLAY"):
                 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+            from ..qt import _give_offscreen_qt_the_windows_fonts
+
+            _give_offscreen_qt_the_windows_fonts()
             _APPLICATION = QApplication.instance() or QApplication([])
         except Exception as error:                             # noqa: BLE001
             return False, f"no QApplication could be started: {error}"

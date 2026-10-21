@@ -24,6 +24,7 @@ import pandas as pd
 import pytest
 
 from spacr import regression_summary as RS
+from tests.refused_access import refused
 from spacr.regression_summary import (
     COMPUTED, NOT_APPLICABLE, RunSummary, SummaryField, SummarySection,
 )
@@ -194,11 +195,8 @@ def test_a_regression_data_csv_that_cannot_be_read_is_a_note_not_a_crash(
     folder.mkdir()
     path = folder / "regression_data.csv"
     path.write_bytes(b"\x00\x01\x02")
-    os.chmod(path, 0o000)
-    try:
+    with refused(path, 0o000, windows="read"):
         frame, note = RS._read_fitted_table(str(folder))
-    finally:
-        os.chmod(path, 0o644)
     assert frame is None
     assert "could not be read" in note
     assert str(path) in note
@@ -715,7 +713,7 @@ def test_an_unreadable_previous_summary_does_not_stop_the_write(tmp_path,
     folder = tmp_path / "run"
     folder.mkdir()
     path = folder / RS._summary_filename()
-    path.write_text("an earlier statsmodels summary")
+    path.write_text("an earlier statsmodels summary", encoding="utf-8")
 
     real_open = builtins.open
 

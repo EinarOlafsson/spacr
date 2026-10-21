@@ -246,3 +246,9 @@ D. PySide6, qtawesome and pyqtgraph are CORE dependencies. The wheel coverage
    and a cluster install carries the wheel and never loads it.
 
 VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
+
+2026-10-21 follow-up, priority: next scoped repair; owner: Codex easy-task lane; shipped A-D retained.
+The shared clear/copy Flash now restarts its full duration and ignores older timeouts;
+an explicit end also disarms its pending callback. Normal expiry and retrigger deadlines are tested.
+Focused Qt cohort: nine initial passes retained where unaffected; all three callback/exception cases pass on final source (1.69 s).
+Root accepted source, regression and final-source validation; this delivery publishes the scoped repair and retains the completed A–D contract.

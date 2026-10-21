@@ -24,7 +24,7 @@ class TestHashingTheInputFiles:
         from spacr import classifier_evaluation as C
 
         path = tmp_path / "table.csv"
-        path.write_text("a,b\n1,2\n")
+        path.write_text("a,b\n1,2\n", encoding="utf-8")
 
         digest, error = C._content_sha256(str(path))
 
@@ -51,7 +51,7 @@ class TestHashingTheInputFiles:
         from spacr import classifier_evaluation as C
 
         path = tmp_path / "table.csv"
-        path.write_text("x\n")
+        path.write_text("x\n", encoding="utf-8")
         for target in (str(path), str(tmp_path / "gone.csv"), str(tmp_path)):
             digest, error = C._content_sha256(target)
             assert bool(digest) != bool(error), (

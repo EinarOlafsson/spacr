@@ -1,8 +1,0 @@
-{
-  "initial_actual": "exit2 collection ModuleNotFoundError, no localizedcallback cases executed",
-  "repair": "Explicittests namespace fixture import matches existingpublished N698locale test convention; explicitselfalias preservesfixture discovery and lint",
-  "old_sha256": "21df3806d0890d61d3580f142bc9f5ea9b8420f365468a59d0955c0bdaba0771",
-  "new_sha256": "6d8a452592e6250f348027d2dc84087510f111d19205fc9dd510740d6f73ff84",
-  "all_other_AST_exact": true,
-  "source_inputs_unchanged": "53d9b366baf372e31b1d9de550419e0207299a306ebb822e2c0d14ad284ddcab"
-}

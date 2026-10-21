@@ -27,9 +27,9 @@ from tests.test_install_cleanup import (
     _nothing_here_reaches_this_computer as _nothing_here_reaches_this_computer,
 )
 from tests.test_uninstall_selection_703 import (
-    _prepared_helper,
     installation,
     protected_windows,
+    windows_uninstall_plan,
 )
 
 __all__ = ["installation", "protected_windows"]
@@ -50,7 +50,7 @@ def test_the_native_adapter_binds_the_reviewed_root_menu_and_remaining_shortcuts
     root, request, _project, kept, shortcut = protected_windows
     desktop_link = tmp_path / "Desktop" / "spaCR.lnk"
     desktop_link.parent.mkdir()
-    desktop_link.write_text(str(root))
+    desktop_link.write_text(str(root), encoding="utf-8")
     preview = {"cleanup": [{"path": str(kept)}, {"path": "registry:Software\\spacr\\qt"},
                            {"path": str(tmp_path / "elsewhere")}]}
     adapter = ic._windows_native_uninstall_adapter(
@@ -78,7 +78,7 @@ def test_the_native_adapter_refuses_a_marker_it_does_not_know(protected_windows,
     root, _request, *_ = protected_windows
     path = root / "_internal" / "spacr-uninstall-protocol.json"
     path.write_text(" " * 1100 if marker == "oversized"
-                    else json.dumps({"schema": 1, "adapter": "windows-frozen-uninstall-v2"}))
+                    else json.dumps({"schema": 1, "adapter": "windows-frozen-uninstall-v2"}), encoding="utf-8")
     with pytest.raises(ValueError, match="invalid_windows_uninstall_protocol"):
         ic._windows_native_uninstall_adapter({"cleanup": []}, [_record(root)], _machine(tmp_path))
 
@@ -106,6 +106,7 @@ def test_the_native_scope_refuses_a_request_that_no_longer_matches(protected_win
     assert project.read_text(encoding="utf-8") == "unrelated" and (root / "spacr.exe").exists()
 
 
+@pytest.mark.posix_only
 def test_a_special_file_is_never_taken_for_a_system_owned_path(tmp_path, monkeypatch):
     fifo = tmp_path / "pipe"
     os.mkfifo(fifo)
@@ -246,13 +247,12 @@ def _windows_plan(installation, tmp_path, monkeypatch, *, events, authorize,
                   fail_cancel=False, executable=None):
     from contextlib import nullcontext
 
-    _box, _root, machine, plan, _calls = _prepared_helper(installation, tmp_path)
-    handshake = ic._FrozenUpdateHandshake(plan)
+    plan, handshake, desktop = windows_uninstall_plan(installation, tmp_path)
     uninstaller = tmp_path / "Uninstall.exe"
     uninstaller.write_bytes(b"native")
     adapter = {"uninstaller": str(uninstaller), "request": {"targets": []},
                "uninstaller_sha256": ic._macos_digest(str(uninstaller)),
-               "desktop_executable": executable or machine.executable}
+               "desktop_executable": executable or desktop}
     monkeypatch.setattr(ic, "_windows_pip_private_access", lambda *a, **k: None)
     monkeypatch.setattr(ic, "_windows_frozen_installer_pin", lambda *a: nullcontext())
     monkeypatch.setattr(ic, "_windows_authorized_process", authorize)
@@ -320,7 +320,7 @@ def frozen_windows_helper(protected_windows, tmp_path, monkeypatch):
     staged.parent.mkdir()
     staged.write_bytes((root / "_internal/spacr-update-helper.exe").read_bytes())
     request_path = tmp_path / "private-request.json"
-    request_path.write_text(json.dumps(request))
+    request_path.write_text(json.dumps(request), encoding="utf-8")
     desktop = str(root / "spacr.exe")
     monkeypatch.setattr(ic, "_windows_process_elevated", lambda: True)
     monkeypatch.setattr(ic.sys, "frozen", True, raising=False)
@@ -372,13 +372,32 @@ def test_the_outside_root_helper_refuses_before_touching_any_file(
     elif problem == "other-desktop":
         desktop = str(helper.root / "other.exe")
     elif problem == "oversized-request":
-        helper.request_path.write_text(" " * 70000)
+        helper.request_path.write_text(" " * 70000, encoding="utf-8")
     elif problem == "helper-inside":
         monkeypatch.setattr(ic.sys, "executable", str(helper.root / "_internal" / "h.exe"))
     else:
         helper.staged.write_bytes(b"a different helper")
     with pytest.raises(ValueError, match=error):
         helper.call(desktop_executable=desktop)
+    assert (helper.root / "spacr.exe").exists() and helper.events == []
+
+
+_REAL_PRIVATE_ACCESS = ic._windows_pip_private_access
+
+
+def test_a_request_owned_by_another_user_is_refused_as_an_uninstall_request(
+        frozen_windows_helper, monkeypatch):
+    helper = frozen_windows_helper
+    if os.name != "nt":
+        mine = "S-1-5-21-1000"
+        monkeypatch.setattr(ic, "_windows_pip_acl", lambda path: {
+            "owner": mine, "user": mine, "has_dacl": True,
+            "rules": [{"sid": mine, "type": 0, "rights": 0x1F01FF, "propagation": 0}]})
+    monkeypatch.setattr(ic, "_windows_pip_private_access", _REAL_PRIVATE_ACCESS)
+    monkeypatch.setattr(ic, "_desktop_process_identity",
+                        lambda pid: ("S-1-5-21-1-2-3-4", str(helper.root / "spacr.exe")))
+    with pytest.raises(ValueError, match="^invalid_windows_uninstall_request$"):
+        helper.call()
     assert (helper.root / "spacr.exe").exists() and helper.events == []
 
 
@@ -401,7 +420,7 @@ def test_the_helper_keeps_opted_out_folders_and_reports_a_folder_it_cannot_remov
     helper = frozen_windows_helper
     keep_dir = helper.root / "_internal" / "spacr-1.5.0.7.dist-info"
     helper.request["targets"][0]["keep"].append(str(keep_dir))
-    helper.request_path.write_text(json.dumps(helper.request))
+    helper.request_path.write_text(json.dumps(helper.request), encoding="utf-8")
     real_rmdir = os.rmdir
     attempted = []
 

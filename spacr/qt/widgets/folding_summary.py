@@ -37,8 +37,10 @@ DOCUMENT_HEADING = "spaCR RUN SUMMARY"
 def split_sections(text: str) -> Tuple[str, List[Tuple[str, str]]]:
     """Split ``text`` into the preamble and its ``(heading, body)`` sections.
 
-    :param text: the whole summary text; a heading is a line underlined by
-        ``-`` or ``=`` of the same length. None counts as empty.
+    :param text: the whole summary text; a heading is a nonempty line followed by
+        a nonempty line consisting only of ``-`` or only of ``=``, with equal
+        lengths after stripping whitespace. The document title
+        ``spaCR RUN SUMMARY`` is excluded. ``None`` counts as empty.
     :returns: everything before the first section, then the sections. A text
         with no headings comes back as ``(text, [])`` -- which is the signal
         to show it unchanged.

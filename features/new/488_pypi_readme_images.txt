@@ -46,8 +46,8 @@ publication of1.5.1.0. The maintainer retains the version/main release step.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_pypi_readme_images.py pass.
 
-2026-10-21 — Maintainer release priority: release_ci_takeover owns minimal main-compatible responsive PyPI metadata and root owns publication.
-2026-10-21 — Preserve canonical README/GitHub/language outputs and existing main packaging; project only responsive image rows, exact40-hex release-source URLs and built-artifact acceptance gates.
-2026-10-21 — Acceptance: actual main sdist→wheel metadata equality, strict Twine/rendering checks and desktop/mobile preview; published1.5.1.6 remains required before whole-item closure.
-
-2026-10-21 — Actual main sdist→wheel build, strict Twine and17 artifact checks pass; actual wheel HTML shows121 loaded images with no overflow in desktop780px/phone360px columns. Main-compatible producer preserves other packaging; published1.5.1.6 acceptance remains.
+2026-10-21 — Maintainer reopens1.5.1.6 PyPI layout acceptance; release_ci_takeover owns canonical-source/build-time adaptation and root owns publication, preserving GitHub and all ten language outputs.
+2026-10-21 — Published1.5.1.5 lacks the later responsive conversion; actual PyPI CSS previews load all121 visible images at780px desktop/360px phone with no overflow.
+2026-10-21 — Release URLs bind the actual checked-out full40-hex source commit; ordinary builds retain the main fallback. Actual nightly and compatible main sdist→wheel metadata, strict Twine and17 artifact checks pass;11 focused URL checks retain absolute external destinations.
+2026-10-21 — Main941cfcd41e publishes the minimal compatible projection; full-source promotion now preserves current nightly packaging, with final README measurement/source pin and same-source CI still required.
+2026-10-21 — Actual published1.5.1.6 metadata, images, destinations and rendered page remain required before whole-item completion; no release upload is claimed.

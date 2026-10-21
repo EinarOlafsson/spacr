@@ -65,9 +65,9 @@ def _fake_features(tool, monkeypatch, tmp_path, strays):
     for folder in tool.SCANNED:
         (root / folder).mkdir(parents=True)
         (root / folder / f"900_{folder}_item.txt").write_text(
-            "=" * 80 + f"\nA {folder.upper()} ITEM\n" + "=" * 80 + "\n")
+            "=" * 80 + f"\nA {folder.upper()} ITEM\n" + "=" * 80 + "\n", encoding="utf-8")
     for name in strays:
-        (root / name).write_text("a ledger file nothing indexes\n")
+        (root / name).write_text("a ledger file nothing indexes\n", encoding="utf-8")
     monkeypatch.setattr(tool, "INSTRUCTIONS", root)
     monkeypatch.setattr(tool, "INDEX", root / "00_INDEX.txt")
     return root
@@ -126,7 +126,7 @@ def test_the_list_is_globbed_on_every_run_and_not_pinned(monkeypatch,
     assert "07_known_bugs_not_fixed.txt" in before
     assert "a_tenth_file_nobody_indexed.txt" not in before
 
-    (root / "a_tenth_file_nobody_indexed.txt").write_text("filed today\n")
+    (root / "a_tenth_file_nobody_indexed.txt").write_text("filed today\n", encoding="utf-8")
     after = _header(tool.render(today="2026-09-14"))
     assert "a_tenth_file_nobody_indexed.txt" in after, (
         "a file added to features/ top level is not in the header, so the "
@@ -153,7 +153,7 @@ def test_a_new_top_level_file_now_makes_the_committed_index_stale(monkeypatch,
     committed = tool.render(today="2026-09-14")
     assert body(tool.render(today="2099-01-01")) == body(committed)
 
-    (root / "a_file_left_behind_by_a_rename.txt").write_text("stale copy\n")
+    (root / "a_file_left_behind_by_a_rename.txt").write_text("stale copy\n", encoding="utf-8")
     assert body(tool.render(today="2026-09-14")) != body(committed), (
         "a top-level file came and went without the index noticing, which is "
         "the state item 398 recorded: 'nothing counts these eleven'")

@@ -2,7 +2,8 @@
 CLEAN UNINSTALL PURGE
 ================================================================================
 
-Status:    DONE 2026-10-04.
+Status:    IN PROGRESS — Linux repairs and native acceptance ready for publication; native macOS/Windows uninstall acceptance remains.
+Previous software delivery: DONE 2026-10-04.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -23,3 +24,121 @@ DONE NOTE
   (Linux, macOS) and Uninstall.exe /PURGE (NSIS). Docs:
   docs/source/installer_guide.rst. Tests use temp homes.
   Left: not exercised on real Windows/macOS uninstallers (CPU-only Linux run).
+
+--------------------------------------------------------------------------------
+HOME LINUX ACCEPTANCE — EXPLICITLY RESUMED 2026-10-21
+--------------------------------------------------------------------------------
+
+Current confirmed gap: the private online installer's UV cache at its verified
+installation root/cache is not offered by GUI or CLI purge. The retained
+uninstall worker owns cache registration for new installers and strictly
+ownership-verified legacy discovery, using the existing caches/artifacts
+category. Offer only actual installer-owned paths; reject linked/escaping or
+unverified folders and preserve arbitrary cache folders and unknown user files.
+Default full purge must preview and remove this selected owned cache; opting
+out must retain it. Exercise both actual GUI and packaged CLI routes, keep
+identity-bound preview/selection revalidation, and preserve unrelated/shared
+cache data. Coordinate install_cleanup.py ownership after the accepted staged
+Linux update freezes; these cleanup repairs do not reopen valid update proofs.
+
+The actual post-update uninstall also leaves an inactive committed POSIX
+rollback runtime; its update lock is removed when the helper finishes.
+Full/default-all cleanup must offer and remove only strictly validated managed
+backups and any genuinely dead-owned locks under the
+existing temporary category, using existing transaction/runtime/lease identity
+checks. Keep the update adapter unchanged. Never delete by filename prefix:
+live, uncommitted, malformed, forged or unowned state and unknown user files
+must remain protected. The retained pair owns this follow-up; verify actual
+final post-update purge removes the eligible old runtime/owned stale lock,
+while opt-out and live/forged controls preserve them as required.
+
+Native default-all uninstall also exposes a startup-onboarding/modal overlap.
+The acceptance coordinator owns the smallest GUI coordination repair: preserve
+confirmation/cancellation and helper authorization, keep startup notices from
+blocking the active uninstall, then retry the actual native full-purge route.
+
+The maintainer explicitly requires real Linux installation acceptance on the
+Home host. The acceptance coordinator owns install/update/reinstall/uninstall
+through installed desktop/runtime paths; this resumes Linux only and preserves
+703's recorded Mac acceptance and the Mac session's ownership. The newly
+resumed Linux scope is in progress; Windows stays held.
+Use disposable owned installation roots, launchers, profiles and desktop
+entries. Protect the working host app, all user data and unrelated jobs.
+Run actual native installer/application/helper processes, identify their
+version/interpreter/module and requested target, and distinguish a no-op from
+a real upgrade. Check background install/update, restart into the intended
+version, same-version reinstall, default data preservation, uninstall defaults
+and category opt-outs with unrelated sentinels. An isolated Linux user/mount
+namespace may shield the real profile while exercising production paths;
+record that isolation and any genuine native-display limitation. No GPU,
+mocked-success claims, fabricated version bump or changed public release.
+Retain valid prior tests and run affected regressions only for actual repairs.
+Record actual outcomes and any missing route/prerequisite in at most five
+dated trailing lines; root owns integration/publication of resulting fixes.
+
+--------------------------------------------------------------------------------
+CURRENT MAC SESSION: NATIVE UNINSTALL AND CLEANUP ACCEPTANCE
+--------------------------------------------------------------------------------
+
+Owner: the maintainer's Mac session, coordinated with 703. Read the current
+spacr/resources/AI/MAC_HANDOFF.md first. Use the newest fetched nightly source
+and identify the actually launched module/interpreter, not just its version
+label. Current source and latest published release both say 1.5.1.5 at this
+handoff; same-version builds can differ. Preserve root's general CI and other
+platform work. Do not implement or reopen accessibility item 655 here;
+preserve its separately recorded acceptance.
+
+Preconditions
+  Use disposable, explicitly spaCR-owned installations and test data. Prepare
+  a current application, one detected older application/runtime and, where
+  available, a spaCR package in a shared Conda/Python environment. Put distinct
+  sentinel files in cleanup categories and in an unrelated environment. Keep
+  user images and unrelated environments outside every removal preview.
+
+1. Open Preferences > Performance > Uninstall… from the newest application.
+   Verify current version, all detected versions, Older versions only and
+   Ticked installations scopes, with a version/path and per-installation tick
+   for each verified installation. Unverified entries must not offer unsafe
+   removal. Selecting an older installation must not select the running one.
+2. Inspect the popup's independently selectable caches, models, logs, settings,
+   history, temporary files, downloaded artifacts and other spaCR-owned data.
+   Verify the documented defaults for the selected scope: full removal offers
+   cleanup, while older-only/ticked removal that keeps the running application
+   preserves its data by default. Explicitly opt out of at least one category.
+   The preview must show the exact software/data paths before confirmation.
+3. Cancel before confirmation: nothing should be removed. Then remove only a
+   selected old installation. Verify the chosen install is gone, the current
+   application/launcher still work, unticked categories remain and unrelated
+   environments/data remain unchanged. If the application restarts after a
+   removal that kept it, verify the actual running version/path again.
+4. For a shared Conda/Python environment, remove the spaCR package and owned
+   launcher only; the environment and unrelated packages must survive. Test
+   Older versions only against the actual discovered older online/pkg/conda
+   cases, without inventing installations or deleting unrelated aliases.
+5. Exercise the native desktop installer's clickable Uninstall spaCR… entry.
+   It must use the same category choices, preview and removal backend as the
+   application. Confirm expected admin prompts remain in the native UI and
+   are only for the requested operation; no terminal questionnaire is allowed.
+6. In a final disposable case, remove the current/all test installations with
+   cleanup enabled. The GUI may close, but the helper must complete, report
+   the result, remove only previewed targets, and leave opted-out categories
+   and unrelated sentinels. Check for orphaned app/runtime/launcher entries.
+   /usr/local/bin/spacr may be removed only if it is the spaCR-owned symlink.
+7. Check the packaged macOS uninstall-spacr.sh --purge route where applicable:
+   preview/dry-run first, then explicitly confirm only the disposable scope.
+   Native GUI, packaged uninstaller and a mocked Python backend are different
+   routes; a fixture pass alone does not establish a native uninstaller pass.
+
+Pass/reporting boundary
+  In at most five dated trailing lines record commit/artifact, macOS version
+  and architecture, tested scopes/routes, cleanup opt-out and sentinel results,
+  and any exact remaining failure. Reuse the normal uninstall report rather
+  than creating receipts. A successful macOS run does not validate Windows
+  Uninstall.exe /PURGE or Linux; retain the existing portable checks and mark
+  those remaining native platform checks honestly.
+
+2026-10-21 — Maintainer resumed Linux/Home acceptance; Mac session retains macOS GUI/installer acceptance and Windows remains untested. These native gates prevent whole-item completion; preserve unrelated environments/data.
+2026-10-21 — cc5f4f5bd2 adds verified installer-cache registration/discovery, isolated packaged-helper imports, strict inactive committed-backup/dead-lock cleanup and uninstall/onboarding coordination; focused ownership/live/forged/opt-out/identity/cancellation regressions pass without weakening guards.
+2026-10-21 — Home Ubuntu24.04.5 x86_64 genuine online GUI Cancel/older-shared removal/cache opt-out/default-all purge and packaged CLI purge/no-purge pass. Final wheelbc26f329 installed sources match; native xcb/Xvfb desktop/helper exit0 and production default-purge result ok=true/failed=[] are observed.
+2026-10-21 — Default purge removes runtime/private Python/bootstrap/launchers, real UV cache and all eight selected data categories; opt-out preserves chosen data. Unknown-file bytes, shared idna/environment/HF/cache and unrelated sentinels survive; real qhx1kpmz rollback is removed by the final helper, with no lock before/after.
+2026-10-21 — Released1.5.1.5 Debian dpkg removal preserves five data sentinels; this does not establish current online GUI or macOS/Windows behavior. Owned native jobs finished and Linux source is published in 6ad7c7a633. The normal API collector also renames _run_macos_online_update.prepared to _run_posix_online_update.prepared; its identical source and nine locale bindings now pass normal generated closure (reviews3214ea7/HFd1796ba, final stock reproduction). Native macOS/Windows uninstall acceptance remains open.

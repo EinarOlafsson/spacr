@@ -83,8 +83,8 @@ def test_a_file_not_named_as_a_tile_is_not_indexed(tmp_path):
     tile = tmp_path / "c1" / "10X_c1_A1_DAPI_Site-0.tif"
     _tile(tile, np.zeros((8, 8)))
     _tile(tmp_path / "c1" / "A1_overview.tif", np.zeros((8, 8)))
-    (tmp_path / "c1" / "10X_c1_A1_DAPI_Site-0.txt").write_text("exposure 200 ms")
-    (tmp_path / "notes.csv").write_text("well,comment\nB2,empty\n")
+    (tmp_path / "c1" / "10X_c1_A1_DAPI_Site-0.txt").write_text("exposure 200 ms", encoding="utf-8")
+    (tmp_path / "notes.csv").write_text("well,comment\nB2,empty\n", encoding="utf-8")
 
     assert ops_engine._index_tiles(str(tmp_path)) == {
         "A1": {1: {0: {"DAPI": str(tile)}}}}

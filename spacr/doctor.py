@@ -400,10 +400,11 @@ def _editable_url_target(raw: Optional[str]) -> Optional[Path]:
     url = payload.get("url", "")
     if not url.startswith("file://"):
         return None
-    from urllib.parse import unquote, urlparse
+    from urllib.parse import urlparse
+    from urllib.request import url2pathname
 
     try:
-        return Path(unquote(urlparse(url).path)).resolve()
+        return Path(url2pathname(urlparse(url).path)).resolve()
     except OSError:
         return None
 
@@ -889,6 +890,30 @@ def check_console_scripts(ctx: Context) -> Result:
     )
 
 
+def _macos_launcher_starts(script: Path, prefix: Path) -> bool:
+    """Whether ``script`` is the macOS app launcher that starts the runtime at ``prefix``.
+
+    The macOS package links ``/usr/local/bin/spacr`` to the native launcher
+    inside ``spaCR.app``, which runs the per-user runtime in
+    ``~/Library/Application Support/spaCR/venv``. That command is outside the
+    runtime's own ``bin`` yet starts exactly this environment, so it must not
+    read as a second installation (macOS acceptance, 2026-10-19).
+
+    :param script: the resolved command found on ``PATH``.
+    :param prefix: the resolved ``sys.prefix`` of this interpreter.
+    :returns: true only on macOS, for a ``spaCR.app/Contents/MacOS/spaCR``
+        launcher and the per-user runtime it starts.
+    """
+    if sys.platform != "darwin":
+        return False
+    if script.name != "spaCR" or script.parent.name != "MacOS" or script.parent.parent.name != "Contents":
+        return False
+    if not script.parent.parent.parent.name.endswith(".app"):
+        return False
+    runtime = (Path.home() / "Library" / "Application Support" / "spaCR" / "venv").resolve()
+    return prefix == runtime
+
+
 @_register("PATH")
 def check_command_on_path(ctx: Context) -> Result:
     """Check that the ``spacr`` command on ``PATH`` belongs to the running Python environment.
@@ -914,6 +939,13 @@ def check_command_on_path(ctx: Context) -> Result:
         )
     script = Path(located).resolve()
     prefix = Path(sys.prefix).resolve()
+    if _macos_launcher_starts(script, prefix):
+        return Result(
+            "PATH",
+            PASS,
+            f"`spacr` on PATH is the spaCR app launcher ({script}), which starts "
+            f"this runtime ({prefix}).",
+        )
     if prefix not in script.parents:
         return Result(
             "PATH",
@@ -1017,6 +1049,38 @@ def check_display(ctx: Context) -> Result:
             "export QT_QPA_PLATFORM=offscreen   # or render off-screen"
         ),
     )
+
+
+@_register("offscreen fonts")
+def _check_offscreen_fonts(ctx: Context) -> Optional[Result]:
+    """On Windows, whether off-screen Qt has a font folder to draw text with.
+
+    The offscreen platform plugin reads fonts only from ``QT_QPA_FONTDIR`` on
+    Windows, so ``QT_QPA_PLATFORM=offscreen`` alone renders every family as
+    one fallback face. No row is added elsewhere, or without offscreen.
+    """
+    from .qt import _windows_font_folder
+    from .qt.i18n import tr
+
+    windows = sys.platform.startswith("win")
+    platform = os.environ.get("QT_QPA_PLATFORM", "")
+    if not windows or not platform.strip().lower().startswith("offscreen"):
+        return None
+    chosen = os.environ.get("QT_QPA_FONTDIR", "")
+    if chosen and os.path.isdir(chosen):
+        return Result("offscreen fonts", PASS,
+                      tr("Off-screen Qt reads its fonts from {folder}.", folder=chosen))
+    fonts = _windows_font_folder(windows=True) or "%WINDIR%\\Fonts"
+    fix = (f"set QT_QPA_FONTDIR={fonts}\n"
+           f"$env:QT_QPA_FONTDIR = \"{fonts}\"")
+    if chosen:
+        return Result("offscreen fonts", WARN, tr(
+            "QT_QPA_FONTDIR={folder} is not a folder, so off-screen Qt has no "
+            "fonts and draws all text in one fallback face.", folder=chosen), fix=fix)
+    return Result("offscreen fonts", WARN, tr(
+        "QT_QPA_PLATFORM={platform}: on Windows, off-screen Qt has no fonts "
+        "unless QT_QPA_FONTDIR names a font folder, so all text is drawn in one "
+        "fallback face.", platform=platform), fix=fix)
 
 
 #: Modules spaCR imports during a run, and the distribution that provides each

@@ -1,8 +1,0 @@
-{
-  "pid": 3064656,
-  "affinity": [
-    0
-  ],
-  "cuda_visible_devices": "",
-  "qt_platform": "offscreen"
-}

@@ -30,11 +30,11 @@ def installation(tmp_path, monkeypatch):
     uv = root / 'bootstrap/uv'
     for path in (python, uv):
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text('#!/bin/sh\nexit 0\n')
+        path.write_text('#!/bin/sh\nexit 0\n', encoding="utf-8")
         path.chmod(0o755)
-    (root / 'venv/pyvenv.cfg').write_text('include-system-site-packages = false\n')
+    (root / 'venv/pyvenv.cfg').write_text('include-system-site-packages = false\n', encoding="utf-8")
     kept = root / 'settings-to-preserve.json'
-    kept.write_text('{"retained": true}')
+    kept.write_text('{"retained": true}', encoding="utf-8")
     record = ic.InstallRecord(kind='installer', layout='macos-runtime', platform='macos',
                               root=str(root), python=str(python), version='1.5.0.1', running=True)
     machine = ic._Machine(platform='macos', environ={'HOME': str(tmp_path / 'user home')},
@@ -192,7 +192,7 @@ def test_changed_plan_commands_cannot_select_another_environment(tmp_path, insta
     _, machine, _ = installation
     plan, path = make_plan(tmp_path, installation)
     plan['install'][5] = '/another/python'
-    path.write_text(json.dumps(plan))
+    path.write_text(json.dumps(plan), encoding="utf-8")
     assert ic._run_plan(str(path), system=machine, run=no_cleanup, spawn=no_cleanup) == 6
 
 
@@ -215,7 +215,7 @@ def test_native_launcher_runs_newer_existing_runtime_without_pinned_reinstall(tm
     python.parent.mkdir(parents=True)
     # The old application may have a lower package pin; an available runtime
     # is launched directly without asking any installer to restore that pin.
-    python.write_text('#!/bin/sh\nprintf "1.5.9\\n"\nprintf "%s\\n" "$@"\n')
+    python.write_text('#!/bin/sh\nprintf "1.5.9\\n"\nprintf "%s\\n" "$@"\n', encoding="utf-8")
     python.chmod(0o755)
     result = subprocess.run([str(binary), '--diagnostic'], env={**os.environ, 'HOME': str(home)},
                             check=True, capture_output=True, text=True)
@@ -258,11 +258,11 @@ def test_real_private_executables_upgrade_verify_and_launch_in_order(tmp_path, i
                   + f'printf \"check\\n\" >> {quote(journal)}\nexit 0\nfi\n'
                   + f'printf "upgrade\\n" >> {quote(journal)}\n'
                   + f'printf "%s\\n" "$@" > {quote(argv_log)}\n'
-                  + f'printf "%s\\n" {shlex.quote(_identity("1.5.2"))} > {quote(state)}\n')
+                  + f'printf "%s\\n" {shlex.quote(_identity("1.5.2"))} > {quote(state)}\n', encoding="utf-8")
     Path(record.python).write_text('#!/bin/sh\nif [ "$1" = "-I" ] && [ "$2" = "-c" ]; then\n'
                                   + f'printf "verify\\n" >> {quote(journal)}\n'
                                   + f'cat {quote(state)}\nelse\n'
-                                  + f'printf "relaunch\\n" >> {quote(journal)}\nfi\n')
+                                  + f'printf "relaunch\\n" >> {quote(journal)}\nfi\n', encoding="utf-8")
     plan, path = make_plan(tmp_path, installation)
     approve_when_ready(monkeypatch, plan)
 

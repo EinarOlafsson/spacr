@@ -122,7 +122,7 @@ def test_the_run_log_in_the_bundle_is_the_file_runctx_wrote(logs, tmp_path):
 
     report = cr.collect(run_id, checkout=str(tmp_path))
 
-    on_disk = open(runctx.run_log_path(run_id), encoding="utf-8").read()
+    on_disk = open(runctx.run_log_path(run_id), encoding="utf-8", newline="").read()
     assert report.sections[f"run-{run_id}.jsonl"] == on_disk
     assert "the failing line" in report.sections["run-problems.txt"]
     assert report.run_id == run_id
@@ -385,7 +385,7 @@ def test_a_huge_log_is_tailed_and_the_bundle_says_how_much_went(logs,
     """
     monkeypatch.setattr(cr, "MAX_LOG_BYTES", 4096)
     line = "x" * 99 + "\n"
-    (logs / "spacr.log").write_text(line * 500, encoding="utf-8")   # 50 kB
+    (logs / "spacr.log").write_bytes((line * 500).encode("utf-8"))   # 50 kB
 
     report = cr.collect(checkout=str(tmp_path))
 
@@ -491,6 +491,7 @@ def test_with_no_destination_it_lands_in_the_log_directory(logs, tmp_path):
     assert os.path.dirname(written) == str(logs.resolve())
 
 
+@pytest.mark.posix_only
 def test_the_command_returns_one_rather_than_raising_when_it_cannot_write(
         logs, tmp_path, capsys):
     """A crash reporter that traceback'd on a read-only output directory would

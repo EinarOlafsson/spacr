@@ -121,7 +121,7 @@ def encode_live_clip(clip: dict, root: Path, duration: float, output: Path,
     receipt_path = root / clip['receipt']
     if hashlib.sha256(receipt_path.read_bytes()).hexdigest() != clip['receipt_sha256']:
         raise ValueError(f'Capture receipt changed after staging: {receipt_path}')
-    receipt = json.loads(receipt_path.read_text())
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     if (receipt.get('sha256') != clip['sha256']
             or not receipt.get('full_decode_passed')
             or receipt.get('audio_streams') != 0):
@@ -222,7 +222,7 @@ def concat(parts: list[Path], output: Path, listing: Path) -> None:
         frames.append((count, rate))
     lines = [f"file '{part.as_posix()}'\nduration {duration}\n"
              for part, duration in zip(parts, concat_durations(frames))]
-    listing.write_text("".join(lines))
+    listing.write_text("".join(lines), encoding="utf-8")
     run([
         "ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0",
         "-i", str(listing), "-an", "-c", "copy", "-movflags", "+faststart",
@@ -260,8 +260,8 @@ def main() -> int:
                         help="H.264 quality: lower values preserve more native detail (default: 18)")
     args = parser.parse_args()
 
-    spec = json.loads(args.scenes.read_text())
-    timing = json.loads(args.timings.read_text())
+    spec = json.loads(args.scenes.read_text(encoding="utf-8"))
+    timing = json.loads(args.timings.read_text(encoding="utf-8"))
     if timing.get('native_live_video') and not timing.get('coverage', {}).get('accepted'):
         raise ValueError('Native footage does not cover every offered narration track')
     if len(spec["scenes"]) != len(timing["scenes"]):

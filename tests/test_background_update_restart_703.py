@@ -45,7 +45,7 @@ def test_restart_is_offered_only_after_real_staged_install_and_verification(
         if decision == "cancel":
             raise RuntimeError("Restart cancelled")
         if decision == "changed-runtime":
-            (prefix / "external-change.txt").write_text("Keep this newer change")
+            (prefix / "external-change.txt").write_text("Keep this newer change", encoding="utf-8")
 
     options = dict(machine=machine, before_activate=offer_restart,
                    activate=launched.append)

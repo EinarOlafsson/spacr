@@ -374,7 +374,7 @@ def test_source_player_receipt_rejects_drift(tmp_path, mutation):
     elif mutation == "cache_key":
         source = json.loads(receipt.read_text(encoding="utf-8"))
         index = tutorials / "index.html"
-        index.write_text(index.read_text(encoding="utf-8").replace(source["cache_key"], "old-cache"))
+        index.write_text(index.read_text(encoding="utf-8").replace(source["cache_key"], "old-cache"), encoding="utf-8")
     else:
         with (checkpoint / "release-manifest.json").open("a") as stream:
             stream.write("\n")
@@ -484,10 +484,10 @@ def tiny_library(tmp_path):
     extra = tmp_path / "_extra"
     tutorials = extra / "tutorials"
     tutorials.mkdir(parents=True)
-    (tutorials / "voice_catalog.js").write_text(VOICE_CATALOG_JS)
-    (tutorials / "index.html").write_text("<p>player</p>")
+    (tutorials / "voice_catalog.js").write_text(VOICE_CATALOG_JS, encoding="utf-8")
+    (tutorials / "index.html").write_text("<p>player</p>", encoding="utf-8")
     (tutorials / "catalog").mkdir()
-    (tutorials / "catalog" / "captions_de.json").write_text("{}")
+    (tutorials / "catalog" / "captions_de.json").write_text("{}", encoding="utf-8")
     voices = {"en": ["af_heart", "am_puck", "bf_lily"],
               "ja": ["jf_alpha", "jm_kumo"]}
     for lesson in ("07_mask", "08_measure"):
@@ -500,7 +500,7 @@ def tiny_library(tmp_path):
             folder.mkdir(parents=True)
             for voice in ids:
                 (folder / f"{voice}.m4a").write_bytes(b"\0" * 128)
-                (folder / f"{voice}.json").write_text("{}")
+                (folder / f"{voice}.json").write_text("{}", encoding="utf-8")
     return extra
 
 

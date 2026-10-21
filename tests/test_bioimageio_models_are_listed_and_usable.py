@@ -104,6 +104,8 @@ COLLECTION = [CYTO3, MUSCLE, STANDIN, SAM, DINO, ODD, NOTEBOOK, UNET]
 def _sandboxed(tmp_path, monkeypatch):
     """Own home, so no real cache counts, and no backend environments."""
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    # Path.home() reads USERPROFILE, not HOME, on Windows.
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "home"))
     monkeypatch.setenv(SB._ROOT_ENV, str(tmp_path / "backends"))
     return tmp_path
 
@@ -112,12 +114,12 @@ def _cache(tmp_path, payload=COLLECTION, age_hours=0.0, sizes=None):
     folder = tmp_path / "home" / ".spacr"
     folder.mkdir(parents=True, exist_ok=True)
     cache = folder / "bioimageio_children.json"
-    cache.write_text(json.dumps(payload))
+    cache.write_text(json.dumps(payload), encoding="utf-8")
     if age_hours:
         then = time.time() - age_hours * 3600
         os.utime(cache, (then, then))
     if sizes is not None:
-        (folder / "bioimageio_weight_sizes.json").write_text(json.dumps(sizes))
+        (folder / "bioimageio_weight_sizes.json").write_text(json.dumps(sizes), encoding="utf-8")
     return cache
 
 
@@ -273,7 +275,7 @@ def test_an_unreachable_bioimageio_falls_back_to_the_stale_list(
 def test_a_refresh_fetches_the_collection_and_measures_the_weights(
         tmp_path, monkeypatch):
     served = tmp_path / "served.json"
-    served.write_text(json.dumps(COLLECTION))
+    served.write_text(json.dumps(COLLECTION), encoding="utf-8")
     asked = []
 
     def measure(uri, timeout):

@@ -209,7 +209,6 @@ _DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     "volcano_style",
     "guide_concordance",
     "regression_diagnostics",
-    "regression_search",
     "metadata_resolution",
     "multi_database",
     "measurement_scan",

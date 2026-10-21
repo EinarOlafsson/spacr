@@ -428,7 +428,7 @@ def test_collisions_read_the_projects_fasta_and_csv_references_alike(
 
 def test_a_reference_missing_its_columns_is_refused(tmp_path):
     bad = tmp_path / "row.csv"
-    bad.write_text("barcode,label\nAAAA,r1\n")
+    bad.write_text("barcode,label\nAAAA,r1\n", encoding="utf-8")
     with pytest.raises(ValueError, match="missing column"):
         QC.barcode_collisions({"row": str(bad)})
 
@@ -815,7 +815,7 @@ def test_gini_is_defined_at_the_edges_and_refuses_negative_reads():
 def test_a_fasta_reference_survives_blank_lines_and_wrapped_sequences(
         tmp_path):
     path = tmp_path / "row.fasta"
-    path.write_text(">r1 first row barcode\nAAAA\nCCCC\n\n>r2\nGGGGTTTT\n")
+    path.write_text(">r1 first row barcode\nAAAA\nCCCC\n\n>r2\nGGGGTTTT\n", encoding="utf-8")
     assert QC._read_reference(str(path)) == {"r1": "AAAACCCC",
                                              "r2": "GGGGTTTT"}
 

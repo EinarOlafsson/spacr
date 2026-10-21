@@ -38,9 +38,9 @@ def test_real_driver_resumes_only_wells_with_requested_reads(
     results = out / 'results'
     results.mkdir(parents=True)
     design = tmp_path / 'design.csv'
-    design.write_text('dialout,sgRNA,prefix_length\n0,ACGTACGT,4\n')
+    design.write_text('dialout,sgRNA,prefix_length\n0,ACGTACGT,4\n', encoding="utf-8")
     for well in ('B1', 'B2'):
-        (results / f'{well}.json').write_text(json.dumps(_record(well, stored, reported)))
+        (results / f'{well}.json').write_text(json.dumps(_record(well, stored, reported)), encoding="utf-8")
     b1_before = (results / 'B1.json').read_bytes()
     db = out / 'measurements.db'
     with sqlite3.connect(db) as conn:

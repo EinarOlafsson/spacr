@@ -1,6 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "proposal_sha256": "86be29ed2578566fd5f0d74edd627402a11f67a2fbe0fe9e67ddbec7d8a46070",
-  "decision": "Approve exact local preserved-path mapping.",
-  "scope": "Map only already-preserved paths lexically contained in resolved installation root back into record.root spelling; tuple snapshot prevents extending iteration. relpath containment guarded, originals retained. No global containment/delete/purge/symlink behavior change. Necessary remaining installer-parent alias and relevant removal/lease checks required; no rerun190 unchanged."
-}

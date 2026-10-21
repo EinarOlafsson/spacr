@@ -162,10 +162,10 @@ def test_a_refit_writes_somewhere_new(tmp_path):
     """The run on screen survives. This is the whole reason the re-fit was
     asked for -- to compare two models -- and an overwrite destroys it."""
     counts = tmp_path / "counts.csv"
-    counts.write_text("x\n")
+    counts.write_text("x\n", encoding="utf-8")
     taken = tmp_path / "results" / "rlm"
     taken.mkdir(parents=True)
-    (taken / "results.csv").write_text("a\n")
+    (taken / "results.csv").write_text("a\n", encoding="utf-8")
 
     settings, _notes = refit.refit_settings(
         _base(count_data=[str(counts)]), regression_type="rlm")

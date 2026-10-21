@@ -39,10 +39,10 @@ def _write_run(runs_dir, name, manifest, *, log_text=None):
     """Lay out one run folder by hand, the way a finished run leaves one."""
     directory = runs_dir / name
     directory.mkdir()
-    (directory / "manifest.json").write_text(json.dumps(manifest))
-    (directory / "settings.json").write_text(json.dumps({"app_key": "mask"}))
+    (directory / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    (directory / "settings.json").write_text(json.dumps({"app_key": "mask"}), encoding="utf-8")
     if log_text is not None:
-        (directory / "log.txt").write_text(log_text)
+        (directory / "log.txt").write_text(log_text, encoding="utf-8")
     return directory
 
 
@@ -264,7 +264,7 @@ def test_an_unresolvable_exclusion_still_lets_the_walk_run(tmp_path):
     resolved the walk falls back to comparing them unresolved, which is
     strictly less accurate and infinitely better than no inventory at all.
     """
-    (tmp_path / "a.txt").write_text("one")
+    (tmp_path / "a.txt").write_text("one", encoding="utf-8")
 
     found = list(RJ._iter_files(tmp_path, [Path("bad\x00root")]))
 
@@ -289,6 +289,7 @@ def test_a_path_that_is_neither_a_file_nor_a_folder_yields_nothing(tmp_path):
 # file records
 # ---------------------------------------------------------------------------
 
+@pytest.mark.posix_only
 def test_a_file_that_cannot_be_read_gets_no_record(tmp_path):
     """A file that stats but will not open produces no provenance record.
 
@@ -356,7 +357,7 @@ def test_recording_an_output_hashes_it_when_hashing_is_on(runs_dir, tmp_path):
     get the digest.
     """
     result = tmp_path / "table.csv"
-    result.write_text("a,b\n1,2\n")
+    result.write_text("a,b\n1,2\n", encoding="utf-8")
 
     with RJ.open_run("measure", {"hash_inputs": True}) as run:
         run.record_output(result, setting_key="dst")
@@ -369,7 +370,7 @@ def test_recording_an_output_hashes_it_when_hashing_is_on(runs_dir, tmp_path):
 def test_recording_an_output_is_free_when_hashing_is_off(runs_dir, tmp_path):
     """The default is off, and off means nothing is read."""
     result = tmp_path / "table.csv"
-    result.write_text("a,b\n1,2\n")
+    result.write_text("a,b\n1,2\n", encoding="utf-8")
 
     with RJ.open_run("measure", {}) as run:
         run.record_output(result)
@@ -377,6 +378,7 @@ def test_recording_an_output_is_free_when_hashing_is_off(runs_dir, tmp_path):
     assert run.output_hashes == {}
 
 
+@pytest.mark.posix_only
 def test_a_file_in_a_recorded_folder_that_will_not_hash_is_named(runs_dir,
                                                                  tmp_path):
     """One unreadable file in an input folder is reported, not skipped.
@@ -422,6 +424,7 @@ def test_an_empty_input_folder_is_reported_as_holding_nothing(runs_dir,
                for w in run.provenance_warnings)
 
 
+@pytest.mark.posix_only
 def test_a_path_that_cannot_even_be_expanded_is_reported(runs_dir):
     """``record_input`` swallows whatever the path layer throws.
 
@@ -456,6 +459,7 @@ def test_an_output_folder_that_was_never_created_inventories_nothing(runs_dir,
     assert run.provenance_warnings == []
 
 
+@pytest.mark.posix_only
 def test_an_output_file_that_cannot_be_hashed_is_named_in_the_warnings(
         runs_dir, tmp_path):
     """A new output that will not open is reported, not silently dropped.
@@ -471,8 +475,8 @@ def test_an_output_file_that_cannot_be_hashed_is_named_in_the_warnings(
     try:
         with RJ.open_run("measure", {"dst": str(destination / "table.csv"),
                                      "hash_inputs": True}):
-            (destination / "table.csv").write_text("a,b\n1,2\n")
-            blocked.write_text("secret")
+            (destination / "table.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+            blocked.write_text("secret", encoding="utf-8")
             os.chmod(blocked, 0o000)
     finally:
         os.chmod(blocked, 0o644)
@@ -649,6 +653,7 @@ def test_a_legacy_run_has_its_warnings_read_out_of_the_log(runs_dir):
     assert "all done" not in record["warnings"]
 
 
+@pytest.mark.posix_only
 def test_a_log_that_cannot_be_read_is_reported_rather_than_skipped(runs_dir):
     """An unreadable log is itself worth showing in the history row.
 

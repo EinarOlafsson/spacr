@@ -86,7 +86,7 @@ def test_exact_existing_and_online_routes_are_preserved(offline, monkeypatch, tm
         catalogue = tmp_path / 'explicit-catalogue.json'
         catalogue.write_text(json.dumps([{
             'key': entry.key, 'name': entry.name, 'kind': entry.kind,
-            'path': str(checkpoint)}]))
+            'path': str(checkpoint)}]), encoding="utf-8")
         monkeypatch.setenv(zoo.CATALOGUE_ENV_VAR, str(catalogue))
         monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs:
                             pytest.fail('Offline local declaration consulted providers'))

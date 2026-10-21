@@ -1,9 +1,0 @@
-{
-  "stage": "Registration-only proposal, production untouched; full providers/settings restore remains the required test",
-  "source_sha256": "10dea5c68963d4b9aafcf065a37c69f91da89a8d08fc71a870cd45b52d4543a7",
-  "proposed_sha256": "af0b2f1cd503be4f8e6a2cc93c928ef30c03b5a6d788634325eb200444a9f1cd",
-  "scope": "Only register_workspace/unregister_workspace plus documented top-class private current-built helper; no new nested callback/helper/API prose/caption",
-  "baseline": "Actual AppScreen(umap) with real selected SQLite, workspace.collect(workspace.providers()) contains settings only;1FAIL4.68s",
-  "safety": "Helper reads model attribute then controls.built(src), never controls.get/__getitem__/build; returns only actual current DatabaseSetWidget, not a captured old control",
-  "next": "After approval apply only registration, rerun actual full copy/relocation/restore test including settings to prove or refute settings replay erasure. No core dispatch edit until exact ordering proposal reviewed."
-}

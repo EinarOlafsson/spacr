@@ -55,7 +55,7 @@ def prepare(stage, input_root=None):
                         z_handling='keep', plate_naming='index', overwrite=False,
                         preview_only=False, resume=False)
         path = root / f'convert_job_{number:02d}.json'
-        path.write_text(json.dumps(settings, indent=2) + '\n')
+        path.write_text(json.dumps(settings, indent=2) + '\n', encoding="utf-8")
         jobs.append({'number': number, 'source': str(source), 'destination': str(destination),
                      'settings_file': str(path), 'settings': settings, 'records': records,
                      'plate': 'source-02' if number == 2 else 'plate1'})
@@ -111,7 +111,7 @@ def verify_outputs(job):
                         'map_fields_checked': len(expected)})
     from capture_converter import check_converter_run_status
     ledger_path = mapping.with_suffix('.run_status.json')
-    ledger = json.loads(ledger_path.read_text())
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
     ledger_check = check_converter_run_status(
         ledger, operation='convert', planned_targets=sorted(expected_names),
         verified_outputs={entry['target']: entry for entry in checked},

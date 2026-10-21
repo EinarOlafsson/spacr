@@ -222,7 +222,7 @@ def _saved(tmp_path):
 def test_sidecar_with_non_volume_geometry_is_refused(tmp_path):
     session, sidecar, record = _saved(tmp_path)
     record['geometry'] = GateSet([BoxGate.from_limits('900', ('X', 'Y', 'Z'), [(0, 2)] * 3)]).to_dict()
-    sidecar.write_text(json.dumps(record))
+    sidecar.write_text(json.dumps(record), encoding="utf-8")
     with pytest.raises(ValueError, match='invalid object geometry'):
         engine.load_volume_image_and_mask(str(tmp_path), 'source.tif')
 
@@ -234,7 +234,7 @@ def test_sidecar_with_non_volume_geometry_is_refused(tmp_path):
 def test_sidecar_with_invalid_anchor_controls_is_refused(tmp_path, controls):
     session, sidecar, record = _saved(tmp_path)
     record['editor_controls'] = controls
-    sidecar.write_text(json.dumps(record))
+    sidecar.write_text(json.dumps(record), encoding="utf-8")
     with pytest.raises(ValueError, match='anchor controls are invalid'):
         engine.load_volume_image_and_mask(str(tmp_path), 'source.tif')
 

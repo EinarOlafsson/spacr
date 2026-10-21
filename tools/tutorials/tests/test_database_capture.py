@@ -223,7 +223,7 @@ def test_exact_full_export_preserves_float_ids_unicode_nulls_and_quoted_csv(data
     assert proof['full_object_identities_exact'] and proof['all_values_exact']
     assert proof['sha256'] == hashlib.sha256(exported.read_bytes()).hexdigest()
     assert len(proof['ordered_identity_sha256']) == 64
-    assert '1.0' in exported.read_text()
+    assert '1.0' in exported.read_text(encoding="utf-8")
 
 
 def test_visible_projection_with_full_identity_is_also_verified(database, tmp_path):
@@ -279,7 +279,7 @@ def test_original_byte_or_sidecar_changes_are_detected(database, change):
 
 def test_retained_eight_sentence_mapping_matches_real_catalog_without_expansion():
     catalog_path = Path(__file__).resolve().parents[3] / 'docs/source/_extra/tutorials/catalog/lessons_en.json'
-    catalog = json.loads(catalog_path.resolve().read_text())
+    catalog = json.loads(catalog_path.resolve().read_text(encoding="utf-8"))
     original = deepcopy(catalog)
     result = recorder.retained_scene_mapping(catalog)
     assert result['english_sha256'] == recorder.ENGLISH_SHA256

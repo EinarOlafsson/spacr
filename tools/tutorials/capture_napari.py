@@ -160,7 +160,7 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
         after=fill_object(2,18,before,'10_refill_before_import')
         front_spacr();click(panel.take_button)
         check_mask(tifffile.imread(mask_path),after)
-        first=json.loads(log_path.read_text())
+        first=json.loads(log_path.read_text(encoding="utf-8"))
         if len(first['edits'])!=1 or corrected!=[str(mask_path)]:raise ValueError('One import did not record exactly one correction')
         entry=first['edits'][0]
         if (entry['n_changed']!=int(np.count_nonzero(after!=before))
@@ -185,7 +185,7 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
             snapshot('12c_same_viewer_import_result',status=panel.status.toPlainText(),
                 requested_pixels=int(np.count_nonzero(same_session!=after)),
                 pixels_not_saved=int(np.count_nonzero(disk!=same_session)),
-                saved_second_edit=saved_second,ledger=json.loads(log_path.read_text()))
+                saved_second_edit=saved_second,ledger=json.loads(log_path.read_text(encoding="utf-8")))
             if saved_second:after=same_session
         proof['same_session_second_edit_saved']=saved_second
         click(panel.close_button)
@@ -198,7 +198,7 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,
             raise ValueError('Reopening did not separate the editable labels from the saved baseline')
         again=fill_object(4,20,after,'13_reopened_second_correction')
         front_spacr();click(panel.take_button)
-        second=json.loads(log_path.read_text());check_mask(tifffile.imread(mask_path),again)
+        second=json.loads(log_path.read_text(encoding="utf-8"));check_mask(tifffile.imread(mask_path),again)
         if len(second['edits'])!=(3 if saved_second else 2) or second['edits'][0]!=first['edits'][0]:
             raise ValueError('Reopening and saving failed to preserve the previous correction history')
         entry=second['edits'][-1]

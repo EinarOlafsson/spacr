@@ -111,7 +111,7 @@ def test_training_curve_zip_recreates_fold_bands_and_selected_lines(
                 "    def find_spec(self, fullname, path=None, target=None):\n"
                 "        if fullname == 'spacr' or fullname.startswith('spacr.'):\n"
                 "            raise ImportError('standalone must not import spaCR')\n"
-                "sys.meta_path.insert(0, RejectSpacr())\n")
+                "sys.meta_path.insert(0, RejectSpacr())\n", encoding="utf-8")
             edited.to_csv(tmp_path / 'standalone/data.csv', index=False)
             process = subprocess.run(
                 [sys.executable, str(tmp_path / 'standalone/recreate_figure.py'),

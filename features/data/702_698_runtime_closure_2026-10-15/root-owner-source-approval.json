@@ -1,9 +1,0 @@
-{
-  "kind": "Record of parent independent source review communicated through collaboration; not an executed test by Hard",
-  "reviewer": "root",
-  "owner_commit": "1ce2bcad83",
-  "adopted_commit": "8c0a85d1fbb36d6008baf6c84ccfe322297ea721",
-  "source_sha256": "59f054abd841ec80f833614416782edb86c2267c8e76749e35ef8d1a0fe4f809",
-  "approval": "FINAL extractor1ce2bcad83 READY fromHomeB (userrelay); rootindependent source/test diff ACCEPT: soleprodselector adds exact_choose alongsideexisting_resolve; class/nested/unrelatednegative preserved, oldnegative renamedbecauselegitowner.49PASS1.46 rawowner evidence, no rerunneeded.",
-  "limits": "Hard did not rerun the owning49; generator owner logs and actual root source review are distinct source-bound evidence."
-}

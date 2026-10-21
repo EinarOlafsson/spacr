@@ -36,7 +36,7 @@ def main() -> int:
         if not scenes_path.exists() or not video.exists():
             missing.append(lesson.name)
             continue
-        scenes = json.loads(scenes_path.read_text())
+        scenes = json.loads(scenes_path.read_text(encoding="utf-8"))
         source = lesson / scenes["scenes"][0]["image"]
         image = Image.open(source).convert("RGB")
         image.save(lesson / "poster.jpg", quality=88, optimize=True,

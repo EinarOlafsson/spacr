@@ -17,7 +17,7 @@ def cached_sentence(directory: Path, inputs: dict, synthesize, np):
     metadata = directory / f'{key}.json'
     if pcm.exists() and metadata.exists():
         try:
-            record = json.loads(metadata.read_text())
+            record = json.loads(metadata.read_text(encoding="utf-8"))
             data = pcm.read_bytes()
             if record['inputs'] == inputs and record['sha256'] == hashlib.sha256(data).hexdigest():
                 audio = np.load(pcm, allow_pickle=False)
@@ -38,7 +38,7 @@ def cached_sentence(directory: Path, inputs: dict, synthesize, np):
                   'samples': len(audio), 'phonemes': phonemes}
         temporary.replace(pcm)
         pending = directory / f'.{key}.{os.getpid()}.json'
-        pending.write_text(json.dumps(record, ensure_ascii=False, sort_keys=True) + '\n')
+        pending.write_text(json.dumps(record, ensure_ascii=False, sort_keys=True) + '\n', encoding="utf-8")
         pending.replace(metadata)
     finally:
         temporary.unlink(missing_ok=True)

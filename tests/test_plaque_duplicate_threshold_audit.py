@@ -25,7 +25,7 @@ def corpus(tmp_path):
                         "pixels": [131, 97],
                         "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
     manifest = tmp_path / "manifest.json"
-    manifest.write_text(json.dumps({"arms": {"test": {"figures": figures}}}))
+    manifest.write_text(json.dumps({"arms": {"test": {"figures": figures}}}), encoding="utf-8")
     return manifest, images, tmp_path / "output.json"
 
 
@@ -58,7 +58,9 @@ def test_real_encodings_are_measured_without_changing_the_sources(corpus, monkey
     assert all(path.read_bytes() == content for path, content in before.items())
 
 
-@pytest.mark.parametrize("target", ["manifest", "image", "symlink", "hardlink"])
+@pytest.mark.parametrize("target", [
+    "manifest", "image", pytest.param("symlink", marks=pytest.mark.needs_symlink),
+    "hardlink"])
 def test_output_cannot_overwrite_an_input(corpus, monkeypatch, target):
     manifest, images, output = corpus
     source = next(images.rglob("*.png"))
@@ -91,14 +93,15 @@ def test_altered_or_missing_sources_leave_existing_evidence_intact(corpus, monke
     else:
         data["arms"]["other"] = {"figures": [dict(
             data["arms"]["test"]["figures"][0], sha256="different")]}
-    manifest.write_text(json.dumps(data))
-    output.write_text("prior measurement\n")
+    manifest.write_text(json.dumps(data), encoding="utf-8")
+    output.write_text("prior measurement\n", encoding="utf-8")
     with pytest.raises(SystemExit) as exc:
         invoke(monkeypatch, corpus)
     assert exc.value.code == 2
     assert output.read_text(encoding="utf-8") == "prior measurement\n"
 
 
+@pytest.mark.needs_symlink
 def test_symlink_cannot_import_an_image_outside_the_source_root(corpus, monkeypatch):
     manifest, images, output = corpus
     source = next(images.rglob("*.png"))

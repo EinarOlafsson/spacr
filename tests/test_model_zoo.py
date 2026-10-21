@@ -136,16 +136,16 @@ def zoo_tree(tmp_path):
         "classes": "['nc', 'pc']",
     })
     (run / "train.csv").write_text(
-        "epoch,accuracy,loss\n1,0.60,0.9\n2,0.80,0.4\n")
+        "epoch,accuracy,loss\n1,0.60,0.9\n2,0.80,0.4\n", encoding="utf-8")
     (run / "validation.csv").write_text(
-        "epoch,accuracy,loss\n1,0.55,1.0\n2,0.75,0.5\n")
+        "epoch,accuracy,loss\n1,0.55,1.0\n2,0.75,0.5\n", encoding="utf-8")
 
     # Not models. None of these may appear in a listing.
-    (root / "notes.txt").write_text("hello")
+    (root / "notes.txt").write_text("hello", encoding="utf-8")
     (root / "montage.png").write_bytes(b"\x89PNG\r\n\x1a\n")
     np.save(root / "cell_mask.npy", masks_two_objects())
     write_settings(root / "settings" / "unrelated.csv", {"a": 1})
-    (cellpose / "README").write_text("read me")
+    (cellpose / "README").write_text("read me", encoding="utf-8")
     return root
 
 
@@ -257,8 +257,8 @@ def test_an_extensionless_file_is_a_model_only_if_it_looks_like_one(tmp_path):
     """
     models = tmp_path / "models"
     write_checkpoint(models / "cpsam")
-    (models / "README").write_text("not a model")
-    (models / "train.log").write_text("epoch 1")
+    (models / "README").write_text("not a model", encoding="utf-8")
+    (models / "train.log").write_text("epoch 1", encoding="utf-8")
     names = {e.name for e in zoo.discover_local(tmp_path)}
     assert names == {"cpsam"}
 
@@ -569,7 +569,7 @@ def test_a_file_that_is_not_a_checkpoint_names_the_file(tmp_path):
     """The default failure is a torch KeyError on a state-dict key, which names
     nothing the user chose and reads like a spaCR bug."""
     path = tmp_path / "not_a_model.CP_model"
-    path.write_text("<html>404 Not Found</html>")
+    path.write_text("<html>404 Not Found</html>", encoding="utf-8")
     with pytest.raises(zoo.ModelUnreadable) as excinfo:
         zoo.inspect_checkpoint(path)
     message = str(excinfo.value)
@@ -624,7 +624,7 @@ def test_a_git_lfs_pointer_is_listed_but_flagged(tmp_path):
     120-byte text pointer where the weights should be."""
     path = tmp_path / "models" / "cellpose_model" / "lfs.CP_model"
     os.makedirs(path.parent, exist_ok=True)
-    path.write_text("version https://git-lfs.github.com/spec/v1\noid sha256:…\n")
+    path.write_text("version https://git-lfs.github.com/spec/v1\noid sha256:…\n", encoding="utf-8")
     entry = zoo.entry_from_file(path)
     assert any("Git LFS pointer" in n for n in entry.notes)
     with pytest.raises(zoo.ModelUnreadable, match="lfs.CP_model"):
@@ -708,7 +708,7 @@ def test_a_catalogue_file_is_read_and_its_hashes_are_what_make_it_useful(tmp_pat
         "size_bytes": 10,
         "trained_on": "HeLa, 60x, confluent monolayer",
         "trained_by": "A. Researcher, 2026-02",
-    }]}))
+    }]}), encoding="utf-8")
     entry, = zoo.load_catalogue_file(path)
     assert entry.sha256 == "ab" * 32           # normalised to lowercase
     # A promise about bytes that are not here yet — not "verified", and not
@@ -719,7 +719,7 @@ def test_a_catalogue_file_is_read_and_its_hashes_are_what_make_it_useful(tmp_pat
 
 def test_a_broken_catalogue_file_names_itself(tmp_path):
     path = tmp_path / "bad.json"
-    path.write_text("[1, 2, 3]")
+    path.write_text("[1, 2, 3]", encoding="utf-8")
     with pytest.raises(zoo.ModelZooError, match="bad.json"):
         zoo.load_catalogue_file(path)
     with pytest.raises(zoo.ModelZooError, match="no such catalogue file"):
@@ -730,7 +730,7 @@ def test_the_catalogue_picks_up_a_configured_catalogue_file(tmp_path,
                                                             monkeypatch):
     path = tmp_path / "zoo.json"
     path.write_text(json.dumps([{"name": "extra.CP_model", "sha256": "c" * 64,
-                                 "trained_on": "u2os 20x"}]))
+                                 "trained_on": "u2os 20x"}]), encoding="utf-8")
     monkeypatch.setenv(zoo.CATALOGUE_ENV_VAR, str(path))
     names = {e.name for e in zoo.catalogue()}
     assert "extra.CP_model" in names
@@ -853,7 +853,7 @@ def test_benchmark_scores_every_field_with_seg_qc(tmp_path):
 
 def test_benchmark_refuses_a_checkpoint_that_is_not_one(tmp_path):
     path = tmp_path / "m.CP_model"
-    path.write_text("not a checkpoint")
+    path.write_text("not a checkpoint", encoding="utf-8")
     entry = zoo.entry_from_file(path)
 
     def never(*_a, **_k):

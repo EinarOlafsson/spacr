@@ -2,7 +2,7 @@
 EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
 ================================================================================
 
-Status:    DONE 2026-08-13
+Status:    DONE 2026-10-21 — compact standard notebooks and native Colab forms; all long help opt-in
 Requested: 2026-08-13 - "Add to instructions to make sure that all notebooks
            contain all settings for the functions (at least the main
            functions) and classes they use, with tooltips for each setting"
@@ -11,8 +11,9 @@ Requested: 2026-08-13 - "Add to instructions to make sure that all notebooks
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-All 30 shipped notebooks are generated from the same settings factories,
-signatures, and registered tooltips used by spaCR. A drift test regenerates
+The 31 guided notebooks are generated from the same settings factories,
+signatures, and registered tooltips used by spaCR. A generated workflow browser
+also exposes every current CLI registry entry, with optional notebook widgets. A drift test regenerates
 and compares them, so new or changed settings cannot silently disappear from
 the notebook interface.
 
@@ -164,3 +165,13 @@ DECISIONS, with the reasons:
 settings.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_notebook_settings.py).
+
+2026-10-21 — Maintainer requests all maintained notebooks refreshed from current APIs/settings, compact essential controls with clickable/collapsible advanced groups, removal of obsolete settings, all current functionality discoverable through notebook/API/docs navigation, and useful supported Jupyter features. Owner: obsolete_repo_cleanup alone; update the existing producer and regenerate, preserve every applicable setting/tooltip and runnable calls, validate schema/generator/owning notebook contracts plus safe lightweight examples; commit and root nightly publication complete this scope. No GPU, heavy scientific runs, extra notebook agents or hand-edited generated notebooks.
+2026-10-21 — Implemented producer-owned compact essential settings, collapsed advanced/organelle code cells and clickable grouped references in31 guided notebooks; added an opt-in live33-workflow browser with optional typed widget editor and generated navigation/API links. All applicable settings/defaults remain exact and unique, with no retired spellings; schema/Python/HTML/widget rollback/no-widget checks pass. Retained400 owning passes plus repaired drift and5 new contracts (406 total); fatal-lint/diff checks pass. Root peer and nightly publication remain; heavy analyses and native notebook frontend acceptance are not claimed. All six original notebook addresses now regenerate current canonical workflow cells: ML/CV retain regression, CV retains links to the integrated dataset/train/TAR/inference APIs, and Cellpose retains signature-generated dataset preparation. Removed obsolete aliases/personal paths/stale kernel metadata without moving or deleting notebooks; advanced-cell generation preserves custom tags. Seven additional legacy/tag contracts pass; retained prior406 notebook/12 index results, strict schemas/ASTs, exact stage-cell/default preservation and fatal lint. Root integration/publication remain.
+
+2026-10-21 — Root accepts all38 regenerated notebooks:413 owning notebook checks and12 index checks pass, with independent schema/ID/Python/output review. Current settings, tooltips, advanced groups,33-workflow navigation and six original addresses are covered; no scientific heavy-run or native-frontend performance claim is made. Published with this completed implementation.
+
+2026-10-21 — Maintainer reopens: all notebooks must actually hide nonessential settings until clicked, including rendered/exported views; source_hidden metadata alone is insufficient. obsolete_repo_cleanup alone owns minimal visible inputs, genuine clickable advanced controls/reference, all38 current notebook paths/settings/defaults, producer regeneration and concrete rendered-UI checks before root publication.
+2026-10-21 — Ready: all38 notebooks load current defaults programmatically; Generate Masks shows only5 essential inputs, with no advanced literal/settings/helper wall. Closed HTML groups and nested category editors provide apply/invalid-input/reset behavior; real Chrome HTML-export clicks prove hidden→visible without any cell-collapse metadata. Two small generated companion helpers keep code short and plain-Python fallback usable. 415 owning notebook checks and12 index checks pass; root independently inspected the metadata-free rendered view and producer changes. Normal generation, final drift/helper checks and nightly publication complete this scope.
+
+2026-10-21 — Maintainer reopens: hide ALL long overview/settings/essential/API/function explanations behind explicit help controls or linked generated references, without relying on Markdown HTML or cell metadata. obsolete_repo_cleanup alone owns producer-generated compact standard notebooks plus a new Colab set with native forms, opt-in setup/data/run/output controls and current complete settings; explicitly replace/delete the six legacy notebooks. Validate schemas, forms/code, live lightweight controls and the initial rendered view; signed-in Colab acceptance is separate and must not be claimed without testing. Root integrates and publishes after review. Ready:32 compact standard notebooks +32 native-form Colab notebooks replace legacy;31 generated references retain current tooltips/APIs and optional preparation/classification guidance. Retained443 owning passes plus one new output-preview case (444 distinct), native-form/safe-off gates and real clicked Help/advanced behavior; metadata-free Chrome export confirms no hidden prose is exposed. Root independently verified all64 notebooks/511 Python cells, empty outputs/unique IDs, actual compact Chrome view and native form metadata. Normal generation and nightly publication complete; signed-in Colab execution and heavy scientific runs are not claimed. Post-publication follow-up normalizes reference EOF in the producer (one affected page; drift1pass), confirms the published helper SHA matches Colab, and verifies the real signed-out public Colab page displays native compact forms/TOC with code hidden and only5 essential mask fields; no runtime was connected or cells executed.

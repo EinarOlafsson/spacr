@@ -46,10 +46,10 @@ def online(tmp_path, monkeypatch):
     (base / 'python.exe').write_bytes(b'MZ uv-managed interpreter')
     (base / 'Lib').mkdir()
     (venv / 'pyvenv.cfg').write_text('home = ' + str(base) + '\ninclude-system-site-packages = false\n'
-                                     'relocatable = true\n')
+                                     'relocatable = true\n', encoding="utf-8")
     package = venv / 'Lib' / 'site-packages' / 'spacr'
     package.mkdir(parents=True)
-    (package / '__init__.py').write_text('__version__ = "1.5.1.5"\n')
+    (package / '__init__.py').write_text('__version__ = "1.5.1.5"\n', encoding="utf-8")
     (root / 'bootstrap').mkdir()
     (root / 'bootstrap' / 'uv.exe').write_bytes(b'MZ pinned uv')
     (root / 'cache').mkdir()
@@ -151,7 +151,7 @@ def test_the_detached_helper_reads_saved_choices_without_importing_spacr(online,
 
 
 def test_unreadable_saved_choices_refuse(online):
-    (online.root / 'install-profile.json').write_text('{"schema": 1}')
+    (online.root / 'install-profile.json').write_text('{"schema": 1}', encoding="utf-8")
     with pytest.raises(ValueError, match='saved installation choices'):
         commands(online)
 
@@ -205,7 +205,7 @@ class UvRunner:
             assert target.name == 'staged'
             if self.failure == 'install':
                 return 1, 'modeled resolver error: spacr==1.5.1.7 not found'
-            (target / 'Lib/site-packages/spacr/__init__.py').write_text('__version__ = "1.5.1.6"\n')
+            (target / 'Lib/site-packages/spacr/__init__.py').write_text('__version__ = "1.5.1.6"\n', encoding="utf-8")
             if self.failure == 'absolute_script':
                 (target / 'Scripts' / 'spacr.exe').write_bytes(b'MZ #!' + str(target).encode('utf-8'))
             return 0, 'staged package installed'
@@ -265,7 +265,7 @@ def test_a_failed_uv_update_leaves_or_restores_the_exact_runtime(online, failure
 
 
 def test_a_runtime_that_is_not_relocatable_is_never_swapped(online):
-    (online.venv / 'pyvenv.cfg').write_text('home = x\ninclude-system-site-packages = false\n')
+    (online.venv / 'pyvenv.cfg').write_text('home = x\ninclude-system-site-packages = false\n', encoding="utf-8")
     before = snapshot(online.venv)
     with pytest.raises(ValueError, match='windows_entrypoint_verification_failed'):
         transaction(online)
@@ -273,7 +273,7 @@ def test_a_runtime_that_is_not_relocatable_is_never_swapped(online):
 
 
 def test_a_running_installer_lease_refuses_the_update(online):
-    (online.root / '.venv.spacr-update-lock').write_text('pid=4100\nstarted=filetime:1\nhost=WINHOST\ntree=1\n')
+    (online.root / '.venv.spacr-update-lock').write_text('pid=4100\nstarted=filetime:1\nhost=WINHOST\ntree=1\n', encoding="utf-8")
     before = snapshot(online.venv)
     with pytest.raises(OSError):
         transaction(online)
@@ -284,9 +284,9 @@ def test_a_running_installer_lease_refuses_the_update(online):
 def _recovery(root, name, state, stamp, family='windows-online-uv'):
     folder = root / ('.spacr-windows-update-' + name)
     (folder / 'previous' / 'Lib').mkdir(parents=True)
-    (folder / 'previous' / 'Lib' / 'x.py').write_text('x')
+    (folder / 'previous' / 'Lib' / 'x.py').write_text('x', encoding="utf-8")
     journal = folder / 'transaction.json'
-    journal.write_text(json.dumps({'family': family, 'state': state, 'prefix': str(root / 'venv')}))
+    journal.write_text(json.dumps({'family': family, 'state': state, 'prefix': str(root / 'venv')}), encoding="utf-8")
     os.utime(journal, (stamp, stamp))
     return folder
 
@@ -306,7 +306,7 @@ def test_pruning_keeps_only_the_newest_committed_recovery_copy(online):
 def test_pruning_removes_a_link_inside_a_copy_without_entering_it(online, tmp_path):
     keep = tmp_path / 'outside' / 'keep.txt'
     keep.parent.mkdir()
-    keep.write_text('must survive')
+    keep.write_text('must survive', encoding="utf-8")
     old = _recovery(online.root, 'a', 'committed', 1_000)
     _recovery(online.root, 'b', 'committed', 2_000)
     link = old / 'previous' / 'link'

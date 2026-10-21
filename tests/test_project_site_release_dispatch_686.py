@@ -31,6 +31,7 @@ def test_refresh_is_post_publication_and_does_not_gate_the_release(job):
 
 
 @pytest.mark.parametrize('token,status', [('', 0), ('test-token', 0), ('test-token', 1)])
+@pytest.mark.posix_only
 def test_actual_step_skips_missing_credentials_and_sends_one_release_event(
         job, tmp_path, token, status):
     executable = tmp_path / 'gh'
@@ -39,7 +40,7 @@ import json, os, sys
 from pathlib import Path
 Path(os.environ['DISPATCH_LOG']).write_text(json.dumps(sys.argv[1:]))
 sys.exit(int(os.environ['DISPATCH_STATUS']))
-''')
+''', encoding="utf-8")
     executable.chmod(0o755)
     summary = tmp_path / 'summary'
     request = tmp_path / 'request.json'

@@ -829,7 +829,7 @@ def test_load_fields_reads_npy_tif_and_npz(tmp_path):
     folder.mkdir()
     np.save(folder / "b_field.npy", np.full((10, 10), 3, np.uint16))
     imageio.imwrite(folder / "a_field.tif", np.full((10, 10), 5, np.uint16))
-    (folder / "notes.txt").write_text("ignore me")
+    (folder / "notes.txt").write_text("ignore me", encoding="utf-8")
 
     names, images = load_fields(str(folder), n_fields=5)
     assert names == ["a_field", "b_field"]

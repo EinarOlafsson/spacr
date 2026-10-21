@@ -1,6 +1,0 @@
-{
-  "original_sha256": "f32c177776ce5fe5cba9f00f7c21f47d0d06af8edb4a35b25872b02d5a7674c5",
-  "proposed_sha256": "fbf0837876f312574cf2b9a6aa80352259360f2eb4bfd90da5c3bae751640ff9",
-  "scope": "Only validate explicit per-crop target scalar identities using existing strict class helper, before code/scoring/decode selection. Torch0D scalars unboxed; boolean binary targets retain original0/1 conversion. Default targets None and interpolation/scoring/generator math unchanged. No new helper/string/doc/API target.",
-  "limits": "Class identity software contract only; no generator/scientific accuracy/nativeGPU parity claim."
-}

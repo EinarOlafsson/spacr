@@ -179,7 +179,7 @@ def main(argv=None) -> int:
     work = Path(tempfile.mkdtemp(prefix="vacuous-"))
     (work / "vacuous_plugin.py").write_text(
         PLUGIN.format(accessor=a.accessor, module=module, owner=owner,
-                      attr=attr))
+                      attr=attr), encoding="utf-8")
     out = work / "sites.json"
 
     env = dict(os.environ)
@@ -203,7 +203,7 @@ def main(argv=None) -> int:
               "pytest died before any test ran", file=sys.stderr)
         return 1
 
-    sites = json.loads(out.read_text())
+    sites = json.loads(out.read_text(encoding="utf-8"))
     empty_only, mixed, full = [], [], []
     for key, seen in sites.items():
         name = key.replace(str(ROOT) + os.sep, "")

@@ -486,7 +486,7 @@ def test_reading_a_db_that_does_not_exist_returns_nothing(tmp_path):
 
 def test_stamping_a_csv_writes_a_sibling_run_status_json(tmp_path):
     csv = tmp_path / 'rename_log.csv'
-    csv.write_text('Original File,Renamed TIFF\n')
+    csv.write_text('Original File,Renamed TIFF\n', encoding="utf-8")
 
     ledger = RunLedger('convert')
     ledger.record_failure('bad.tif', stage='tiff', exc=ValueError('not a TIFF'))
@@ -506,7 +506,7 @@ def test_stamping_a_csv_writes_a_sibling_run_status_json(tmp_path):
 
 def test_sidecar_stamps_accumulate(tmp_path):
     csv = tmp_path / 'log.csv'
-    csv.write_text('x\n')
+    csv.write_text('x\n', encoding="utf-8")
     RunLedger('first').stamp(csv)
     RunLedger('second').stamp(csv)
     assert [r['name'] for r in read_run_status(csv)] == ['first', 'second']
@@ -514,7 +514,7 @@ def test_sidecar_stamps_accumulate(tmp_path):
 
 def test_reading_a_sidecar_by_its_own_path_works(tmp_path):
     csv = tmp_path / 'log.csv'
-    csv.write_text('x\n')
+    csv.write_text('x\n', encoding="utf-8")
     sidecar = RunLedger('only').stamp(csv)
     assert [r['name'] for r in read_run_status(sidecar)] == ['only']
 
@@ -522,9 +522,9 @@ def test_reading_a_sidecar_by_its_own_path_works(tmp_path):
 def test_a_sidecar_holding_a_bare_object_is_upgraded_to_a_list(tmp_path):
     """Tolerate a hand-written or older single-object sidecar."""
     csv = tmp_path / 'log.csv'
-    csv.write_text('x\n')
+    csv.write_text('x\n', encoding="utf-8")
     sidecar = tmp_path / ('log' + RUN_STATUS_SUFFIX)
-    sidecar.write_text(json.dumps({'name': 'legacy', 'n_failed': 0}))
+    sidecar.write_text(json.dumps({'name': 'legacy', 'n_failed': 0}), encoding="utf-8")
 
     assert [r['name'] for r in read_run_status(csv)] == ['legacy']
     RunLedger('new').stamp(csv)
@@ -533,7 +533,7 @@ def test_a_sidecar_holding_a_bare_object_is_upgraded_to_a_list(tmp_path):
 
 def test_reading_an_unstamped_non_db_artifact_returns_nothing(tmp_path):
     csv = tmp_path / 'log.csv'
-    csv.write_text('x\n')
+    csv.write_text('x\n', encoding="utf-8")
     assert read_run_status(csv) == []
     assert run_is_complete(csv) is True
 
@@ -763,7 +763,9 @@ def test_errors_module_only_imports_the_stdlib_database_sibling():
     makes run-status writes transactional without importing an analysis stack.
     Its cooperative cancellation dependency must also remain standard-library-only.
     The queued writer may import its retry policy lazily inside its worker;
-    importing errors must never load that analysis dependency.
+    importing errors must never load that analysis dependency. Its Windows
+    spool spelling comes lazily from ``portable_paths``, whose module level is
+    standard-library-only and whose own sibling imports stay inside functions.
     """
     import ast
     import pkgutil
@@ -802,10 +804,12 @@ def test_errors_module_only_imports_the_stdlib_database_sibling():
                                 'tensorflow', 'skimage', 'cv2'})
 
     import spacr.cancellation as cancellation_module
+    import spacr.portable_paths as portable_paths_module
 
     for module, allowed_siblings in (
-        (concurrency_module, {'cancellation', 'runctx'}),
+        (concurrency_module, {'cancellation', 'runctx', 'portable_paths'}),
         (cancellation_module, set()),
+        (portable_paths_module, {'qt.i18n'}),
     ):
         with open(module.__file__, encoding='utf-8') as handle:
             module_tree = ast.parse(handle.read())
@@ -836,6 +840,17 @@ def test_errors_module_only_imports_the_stdlib_database_sibling():
                         assert enclosing.name == '_run'
                         assert isinstance(parents[enclosing], ast.ClassDef)
                         assert parents[enclosing].name == '_DatabaseWriteQueue'
+                    if module is concurrency_module and node.module == 'portable_paths':
+                        enclosing = parents[node]
+                        while not isinstance(enclosing, ast.FunctionDef):
+                            assert enclosing in parents, 'dependency must stay lazy'
+                            enclosing = parents[enclosing]
+                        assert enclosing.name == '_extended_length_path'
+                    if module is portable_paths_module:
+                        enclosing = parents[node]
+                        while not isinstance(enclosing, ast.FunctionDef):
+                            assert enclosing in parents, 'dependency must stay lazy'
+                            enclosing = parents[enclosing]
                 else:
                     module_imports.add((node.module or '').split('.')[0])
         assert siblings <= allowed_siblings, (
@@ -1042,7 +1057,7 @@ def test_load_images_from_paths_reports_what_it_dropped(capsys, tmp_path):
     good = tmp_path / 'good.tif'
     tifffile.imwrite(str(good), np.ones((3, 3), np.uint16))
     corrupt = tmp_path / 'corrupt.tif'
-    corrupt.write_text('not a tiff')
+    corrupt.write_text('not a tiff', encoding="utf-8")
 
     out = load_images_from_paths({'fov': [str(good), str(corrupt)]})
 

@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "8a8a2d3adae812475a9731d196357380bf772eeff3052f0e89798416bbbfd824",
+  "english_sha256": "b0be0faf45c61792dcc20205e4e02e82ef34a1997ff8c987f43657655fdf885c",
   "review": {
-    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
-    "translator": "Codex AI, direct source-bound technical translation",
-    "date": "2026-10-08",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "ja",
   "title": "デスクトップインストーラーでspaCRをインストールする",
@@ -20,6 +20,7 @@
     "OSの機能または付属の削除手順でアプリケーションをアンインストールします。"
   ],
   "prerequisite": "お使いのOS用の公式インストーラーをダウンロードし、アプリケーションと科学計算用の依存関係のための空き容量を確保してください。",
+  "section": "spaCR",
   "scenes": [
     "GitHubでspaCRの公式リリースを開き、Assetsから、お使いのOS用のインストーラーをダウンロードします。これらのオンラインインストーラーは、セットアップ中にPythonランタイムと科学計算用パッケージをダウンロードします。",
     "Windowsでは、セットアッププログラムを実行して案内に従います。コンピューターで検出された対応ハードウェアを使うには、自動アクセラレーションを選択したままにします。必要であれば、CPUのみでの動作を選びます。",
@@ -28,9 +29,9 @@
     "セットアップ後、インストールプロファイルに選択されたバックエンドが記録されます。ランタイムがCPUと対応アクセラレーターのどちらを使っているか確かめたいときに確認します。",
     "インストールされたspaCRのバージョンを確認します。特に後でアプリケーションを更新するときのために、解析メモに残しておきましょう。",
     "セットアップでは、診断情報の任意の共有とアカウント設定について尋ねられます。希望するオプションにだけyと答えます。既定のnでは、それぞれがオフのままになります。Windowsのインストーラーでは、同じ選択肢がチェックボックスで表示されます。",
-    "現在のナイトリー版の画面でPreferencesを開き、Performanceを選びます。お使いのコンピューターに合うプロファイルを選んでください。Laptopは使うリソースが少なく、上位のプロファイルではキャッシュとバックグラウンド処理をより多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。",
-    "この録画では、spaCRのバージョン一・五・一・三をインストールしています。公開済みのバージョンでは、Homeの配置が古い場合があります。ここに示すのは現在のナイトリービルドのHomeで、Core、Data、Tools、Organismがあります。現在のモジュールについては、ホーム画面とナビゲーションのチュートリアルに進んでください。",
-    "起動やファイル形式に問題があれば、インストールされたランタイムからspacr-doctorを実行します。この録画のCPUインストールでは、バックエンドのチェックは合格し、GPUのチェックはスキップされています。警告は、オプションのCZIリーダーがないことを示しています。CZIファイルが必要な場合だけ、この追加パッケージをインストールしてください。",
+    "Preferencesを開いてPerformanceを選びます。お使いのコンピューターに合うプロファイルを選んでください。Laptopは使うリソースが少なく、上位のプロファイルではキャッシュとバックグラウンド処理をより多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。",
+    "Homeでは、モジュールがCore、Data、Tools、Organismに分類されています。次の作業に使うモジュールを探すには、Home画面とナビゲーションのレッスンに進みます。",
+    "起動やファイル形式に問題があれば、インストールされたランタイムからspacr-doctorを実行します。バックエンドの結果と、GPUのチェックが実行されたかを確認します。オプションのCZIリーダーがないという警告が出た場合は、CZIファイルが必要なときだけ追加パッケージをインストールします。",
     "インストールで問題が起きたときは、インストールフォルダーにあるinstall ドット logとinstall-profile ドット jsonを探します。サポートを依頼する際に共有する前に、ログの内容を確認してください。問題を診断しやすいように、OSとspaCRのバージョンも添えましょう。",
     "WindowsではspaCRを閉じ、Settings、Apps、Installed appsの順に開きます。spaCRを選択し、Uninstallを選びます。インストールされたUninstall実行ファイルからも同じ削除処理を開始できます。プロジェクトのフォルダーは別に保管してください。",
     "macOSではspaCRを閉じ、LibraryスラッシュApplication SupportスラッシュspaCRに付属するuninstall-spacrスクリプトを実行します。アプリケーションとシステムのランチャーが削除されます。自分のLibraryスラッシュApplication SupportスラッシュspaCRにあるユーザー別のランタイムは別物です。そのランタイムも破棄したい場合にだけ削除してください。",

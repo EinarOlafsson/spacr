@@ -116,11 +116,7 @@ def arrow_scale(result: PCAResult, kx: int, ky: int,
                 fill: float = ARROW_FILL) -> float:
     """The one constant every arrow and the unit circle are multiplied by.
 
-    Scores are in standardised-feature units and correlations are in ``[-1,
-    1]``; there is no conversion between them, so a biplot has to pick a
-    display scale. It is picked once, from the drawn axes, so that the longest
-    arrow spans ``fill`` of the shorter half-range — and applied to the circle
-    too, so the circle shows the scale on screen.
+    Scores use the feature scaling chosen for the decomposition and correlations are in ``[-1, 1]``; there is no conversion between them, so a biplot has to pick a display scale. It is picked once, from the drawn axes, so that the longest arrow spans ``fill`` of the shorter half-range — and applied to the circle too, so the circle shows the scale on screen.
 
     Returns 0.0 when there is nothing to scale (no finite limits, or every
     correlation zero), which callers read as "draw no arrows".

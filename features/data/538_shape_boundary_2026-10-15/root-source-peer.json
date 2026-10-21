@@ -1,9 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "decision": "approve exact two minimum-dimensionality guards",
-  "source_sha256": "b2efb304ae31a12f4ba0208a2295962f6eb95a22e86e1963ad1a53a04121b479",
-  "before_sha256": "4b7e4d9e5385cdbbf67224bb0af1f6625f5611bb6b5131ec34d1e38fafe3285d",
-  "caption": "Spectral unmixing requires images with an explicit channel axis and at least three dimensions.",
-  "proof": "Removing exactly the two reviewed guards recovers every original source byte. Apply guard precedes float32 allocation and indexing; control guard precedes channel-axis lookup. No upper bound, single explicit channel and arbitrary leading axes retained. No matrix math/API prose/settings/source rewrite. Runtime/locale checks separately required.",
-  "counterexample_read": "Actual synthetic 2D controls accepted as columns; valid-plan 2D application changed first two spatial columns. Valid YXC/ZYXC/5D and C1 controls reported unchanged."
-}

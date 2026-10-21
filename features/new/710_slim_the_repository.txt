@@ -2,8 +2,8 @@
 SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI
 ================================================================================
 
-Status:    in progress — phase 1 done (HF evidence mirror verified);
-           phases 2-4 wait for the 1.5.1.5 release.
+Status:    in progress — phases 1-2, the phase 3 deck and API catalogs
+           done; WS tutorial media and phase 4 remain.
 Requested: maintainer, 2026-10-18 (question tool, main session). Approved
            steps: "Move features/data to HF", "Move tutorial media + deck
            renders", "Build generated catalogs in CI", "Rewrite history
@@ -29,9 +29,10 @@ Phase 3: tutorial media and deck renders from HF; API catalogs built in CI.
 Phase 4: git filter-repo over all history, one force-push, everyone re-clones.
 
 ACCEPTANCE
-Fresh `git clone` of origin downloads at most 0.8 GiB (measured on a
-mirror with all sixteen purge paths: 744 MiB). The nightly tree is at most
-600 MB (measured after the same rewrite: 543 MB), spacr/resources unchanged.
+Fresh `git clone` of origin downloads at most 1.0 GiB and the nightly tree
+is at most 700 MB (maintainer, 2026-10-20, replacing 0.8 GiB / 600 MB: the
+deck pictures stay in git; corrected purge list measured 971 MiB pack and
+678 MB tree), spacr/resources unchanged.
 features/data keeps only files a test, tool, workflow or the package reads;
 every removed file is byte-identical on the HF dataset at its original path.
 Docs CI builds API catalogs, tutorial media and the deck from pinned HF
@@ -96,11 +97,13 @@ lesson publication target): docs/source/_extra/tutorials/production/**
 (87 MB), examples/** (77 MB), catalog/** (13 MB), tools/tutorials/
 release_candidate/** (115 MB). Player code stays in git (*.js, styles.css,
 fonts/, logo, notice, translation-compatibility.json).
-Home-owned, moving to einarolafsson/spacr-tutorials under deck/:
-docs/source/_static/deck/spacr_deck.pdf, slides/, anim/, thumbs/,
-title_base.jpg and tools/readme_deck/images/ (69 MB). Keep deck/index.html,
-slides.json and pages/*.md; pages switch their ../slides/ links to the Pages
-URL so the GitHub README keeps working.
+Home-owned deck (coordinator 2026-10-20: deck only; API catalogs wait for
+678 batch 4, tutorial media stays with WS). Site must stay byte-identical
+and files tests/tools read stay in git, so only spacr_deck.pdf and anim/
+(69.8 MB) move to einarolafsson/spacr-tutorials deck/. slides/ (README cover
+and the GitHub pages/*.md show them), thumbs/, title_base.jpg, index.html,
+slides.json, pages/ stay, as do tools/readme_deck/images/ (scripts/build.js
+inputs). Version bumps restamp the PDF title page at fetch time.
 Docs build: a pin file (docs/media_revision.json: repo, revision sha, per
 file sha256) and a tool tools/fetch_docs_media.py that runs
 `hf download ... --revision <sha> --local-dir` into the docs tree and
@@ -110,29 +113,33 @@ budget, test_tutorial_release_audit, test_alpha_deck_registry,
 test_spacr_logo, 14 tools/tutorials/tests) read through the same fetcher,
 cached under ~/.cache, and fail rather than skip when the pin is unfetched.
 
-PHASE 3c — API i18n catalogs built in CI (Home)
-The ten docs/source/_static/i18n/api/*.json are both output and translation
-memory: reusable_api_translations() reads the committed catalog to avoid
-re-running opus-mt/madlad, so they cannot simply be regenerated in CI.
-Plan: store translation memory as text keyed by source hash (60% of each
-catalog is derivable hashes) in the HF dataset einarolafsson/spacr-tutorials
-under i18n/api/, pinned in docs/i18n/api_memory.json; build_documentation_i18n
-gains --assemble (no model: English docstrings + memory + docs/i18n/reviewed
-overlays -> catalogs) used by docs.yml after --sources-only; translation runs
-on Home/WS upload new memory and bump the pin. Tests reading committed
-catalogs change to an api_catalog(language) fixture that assembles them:
-test_built_nested_helper_api (3 reads), test_english_documentation_
-publication (en.json byte comparison), test_example_pack_published_
-translations, test_mask_filter_api_translations, test_n702_resolution_
-localized_consumers, test_documentation_i18n (direct reads), test_docs_
-channels; tools publish_docs_channels, report_translation_compatibility,
-build_help_search_index read the assembled output. Tests that monkeypatch
-API_DIR to tmp_path are unchanged.
+PHASE 3c — API i18n catalogs built in CI (Home, done 2026-10-20)
+The ten docs/source/_static/i18n/api/*.json (181,774,852 bytes) are no longer
+committed. Only ~45% of translated blocks have reviewed records (sv: 22,616
+of 50,604), so the model output is kept as translation memory: the nine
+locale catalogs, whole, in einarolafsson/spacr-tutorials i18n/api/, pinned
+with sha256 in docs/media_revision.json (group api_memory).
+`python tools/build_documentation_i18n.py --assemble` fetches the memory,
+applies the committed reviewed records, keeps stale records, drops deleted
+symbols and writes en.json; it reproduced all ten committed catalogs and
+api_source_history.json byte for byte. docs.yml runs it before
+--sources-only; a local docs build runs the same command (CONTRIBUTING).
+A translation run still writes the catalogs, then `python
+tools/fetch_docs_media.py publish --group api_memory` uploads them and moves
+the pin. Tests that read the real catalogs use the session fixture
+api_catalogs (tests/conftest.py), which assembles once per set of inputs and
+fails when the memory cannot be fetched. spacr/qt/i18n_catalogs and
+spacr/qt/help_api_index.py stay committed (the app and the wheel read them).
 
 PHASE 4 — history rewrite (Home, after phases 2-3 are on main and nightly)
 Measured on /mnt/wd4tb/scratch/repo-slim/rewrite.git (bare clone of the
 mirror, heads and tags only; filter-repo 26 s, 1.7 GB RSS): 11.26 GiB ->
-744 MiB pack, nightly tree 543 MB. The first eight purge paths alone give
+744 MiB pack, nightly tree 543 MB (re-measured 2026-10-20 with the corrected
+list on nightly 7492e7d80d: 11.47 GiB -> 971 MiB pack, nightly tree 678 MB;
+again on 033cb0ac17 after the catalogs left: 11.52 GiB -> 986 MiB pack,
+nightly tree 694 MB (filter-repo 27 s, 2.1 GB RSS),
+within the 1.0 GiB / 700 MB acceptance; the deck pictures, readme_deck
+images and kept evidence stay). The first eight purge paths alone give
 1.19 GiB; the last eight are folders already deleted from the tree, whose
 purge also drops them from old release tags (maintainer: "Yes, purge them
 too", 2026-10-18). Command, on a fresh mirror clone:
@@ -142,13 +149,39 @@ too", 2026-10-18). Command, on a fresh mirror clone:
   git remote add origin git@github.com:EinarOlafsson/spacr.git
   git push --force origin 'refs/heads/*:refs/heads/*' 'refs/tags/*:refs/tags/*'
   (not --mirror: refs/pull/* are read-only on GitHub)
-purge-paths.txt: features/data/, docs/source/_static/i18n/,
-docs/source/_extra/tutorials/production/, .../examples/, .../catalog/,
-docs/source/_static/deck/, tools/readme_deck/images/,
-tools/tutorials/release_candidate/, datasets/, notebooks/, Notebooks/,
-docs/_build/, docs/.doctrees/, docs/source/_build/, False.pdf, spacr/models/.
-(The keep-list must already live under tests/data/evidence, deck pages and
-index must be outside the purged folder, i.e. move them first.)
+purge-paths.txt (corrected 2026-10-20, /mnt/wd4tb/scratch/repo-slim/
+purge-paths-20261020.txt): regex:^features/data/(?!(?:<the 73 kept
+paths>)$), docs/source/_static/i18n/, docs/source/_extra/tutorials/
+production/, .../examples/, .../catalog/, docs/source/_static/deck/
+spacr_deck.pdf, docs/source/_static/deck/anim/, tools/tutorials/
+release_candidate/, datasets/, notebooks/, regex:^Notebooks/(?!(?:<the 38
+current notebooks>)$), docs/_build/,
+docs/.doctrees/, docs/source/_build/, False.pdf, spacr/models/. The kept
+features/data files, the in-git deck (slides, thumbs, pages, viewer,
+title_base.jpg, slides.json) and tools/readme_deck/images/ are not purged.
+Regenerate both regexes from `git ls-files features/data` and `git ls-files
+Notebooks` just before the run. Notebooks/ is live (38 notebooks read by
+test_notebook_appendix_f574, test_cli_archive_package_f574 and the source
+install keep-list); only its deleted paths (225 MB of history) are purged.
+
+PHASE 4 PREREQUISITES (origin/nightly 7fc574ee9d, 2026-10-20)
+Purge paths that still match files in the current tree, all still read, so
+the rewrite waits until each has moved out of git:
+- docs/source/_extra/tutorials/production/ 95.5 MB (354 files): docs site
+  (conf.py stages it via html_extra_path), tools/tutorials publishers.
+- docs/source/_extra/tutorials/examples/ 76.7 MB (33): docs site,
+  tools/tutorials (16 files) and 4 tools/tutorials/tests.
+- docs/source/_extra/tutorials/catalog/ 13.5 MB (14): docs site,
+  tools/tutorials (16 files) and 3 tools/tutorials/tests.
+- tools/tutorials/release_candidate/ 125.1 MB (150): test_docs_channels,
+  test_docs_media_budget, test_tutorial_release_audit, publish_docs_channels,
+  verify_tutorial_live and 5 tools/tutorials scripts.
+All four (311 MB) are tutorial media: the tutorial lane (Codex on WS) moves
+them to HF einarolafsson/spacr-tutorials behind a pin, with their readers,
+as phase 3b says. Every other purge path matches nothing in the current
+tree (features/data and Notebooks only through their sparing regexes), so
+Home has nothing left to move. Once the four are out, the tree is the
+measured 695 MB.
 Coordination checklist:
 - Announce in features/HANDOFF.md and to Claude WS; freeze pushes; every
   session pushes or archives its branches as patches first.
@@ -169,6 +202,20 @@ Coordination checklist:
 - Documentation links to raw.githubusercontent paths under features/data or
   _extra/tutorials switch to HF URLs before the rewrite.
 
-2026-10-18 — Registered (bdc360004). Inventory, secret/PII scan, HF staging and mirror rewrite measured (11.26 GiB -> 1.19 GiB approved paths, 744 MiB with deleted folders).
-2026-10-18 — Keep-list validated in a throwaway clone with the 22,797 files removed: the 43-file cohort gives the same 4 pre-existing nightly failures plus only the README checkout-size test. Remaining: phases 2-4 after 1.5.1.5.
-2026-10-18 — Private HF dataset einarolafsson/spacr-evidence uploaded and verified (a9971ff7634d); maintainer approved purging the eight already-deleted folders, now in the phase 4 list (744 MiB measured).
+2026-10-18 — Registered (bdc360004): inventory, secret/PII scan, keep-list validated in a throwaway clone, private HF dataset einarolafsson/spacr-evidence uploaded and verified (a9971ff7634d); maintainer approved purging the eight already-deleted folders.
+2026-10-20 — Phase 2: keep-list re-derived on 850c2e30a3 (same 73 files, kept in place); 33 changed n676 files uploaded (spacr-evidence 1f6fb59e90cd); 22,797 files (4,097,622,132 bytes) removed after hash check (5400e02335). README checkout size re-measured to 1178 MB (a95558196a).
+2026-10-20 — Phase 3 deck: spacr_deck.pdf and anim/ (69,793,628 bytes) pinned in docs/media_revision.json at spacr-tutorials 64ff46ea4409; tools/fetch_docs_media.py fetches/checks/publishes, docs.yml fetches before Sphinx, deck builder --publish and refresh_alpha_deck bump the pin. Remaining: API catalogs, WS tutorial media, phase 4.
+
+2026-10-20 — Phase 4 purge list spares the 73 kept features/data files, the in-git deck, tools/readme_deck/images and the 38 live Notebooks/; maintainer accepted clone <= 1.0 GiB and tree <= 700 MB; mirror re-measure on 7fc574ee9d: 987 MiB pack, 695 MB tree. Waits for the tutorial lane to move 311 MB of tutorial media (prerequisites above), then the maintainer's go.
+2026-10-20 — Phase 3 API catalogs: catalogs (181,774,852 bytes) leave git; memory pinned at spacr-tutorials 958fe3e95328 (after 678 batch 5); --assemble in docs.yml and the api_catalogs test fixture; README checkout size 958 MB. Remaining: WS tutorial media, phase 4 on the maintainer's go.
+
+2026-10-20 — Maintainer approved P1 operational-agent documents into spacr/resources/AI, with root discovery pointers and distribution exclusions; N714 owns that implementation.
+2026-10-20 — P2/P3/P4 approve exact archive/translation/asset migration proposals only; do not move or upload those candidates before per-list approval. Phase4history rewriting also remains held for explicit approval.
+2026-10-20 — N715 prepares reviewer materials for BMC Bioinformatics Software article/JOSS and concrete migration/refactor proposals; native tutorials remain Work-owned and excluded.
+
+2026-10-20 — Maintainer now approves exact25 dated records to PRIVATE EinarOlafsson/spacr-development-archive and exact6472 production translation review sources/companions to PUBLIC EinarOlafsson/spacr-translations with immutable pins/bootstrap. N715 owns implementation; nine conditional proposals and15 historical translation inputs stay. No source-history rewrite, scientific/assets moves or Work tutorial ownership change; P4 recommends keeping all22 remaining asset candidates in place.
+
+2026-10-21 — N715 P2 PRIVATE archive caeda2d is published with exact25 bytes and current report contracts retained. P3 PUBLIC spacr-translations c6e35dc272953229a722ff13431fc0bc7e7032a6 independently preserves exact6472 approved inputs; immutable source pin/bootstrap and external authoring workflow are validated by exact remote readback, real offline hydration, focused interruption/source-reader checks and normal9locale assembly; root accepted for integrated nightly publication. Existing generated API catalog bytes/HF pin stay; nine proposals/15historical translation inputs/22scientific assets remain, with no history rewrite or Work-lane changes.
+
+2026-10-21 — Maintainer requests removal of obsolete unused files/folders, including rtd_trigger.txt and .virtual_documents; obsolete-cleanup owns this ready cleanup before remaining external phases. Trace current consumers/packaging/docs first; delete confirmed leftovers without moving or archiving assets, changing live runtime inputs, or taking over root-owned AI instruction consolidation. Acceptance: related checks, normal index, commit and nightly publication.
+2026-10-21 — Removed the empty RTD trigger, two unreferenced Jupyter-LSP shadow exports and the superseded docs bootstrap that overwrote maintained Sphinx inputs; virtual exports are ignored. Preserved consumed example data/settings, CSS fonts and the host Syncthing marker. Normal index regenerated unchanged; 50 focused index/docs-logo/container checks pass. Nightly publication remains pending; broader tutorial/history phases remain open.

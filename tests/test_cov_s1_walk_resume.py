@@ -184,7 +184,7 @@ def test_a_hand_edited_checkpoint_entry_is_skipped_not_fatal(tmp_path):
     store.finish()
     document = json.loads((tmp_path / "walk.json").read_text(encoding="utf-8"))
     document["completed"]["hand-edited"] = "not a record"
-    (tmp_path / "walk.json").write_text(json.dumps(document))
+    (tmp_path / "walk.json").write_text(json.dumps(document), encoding="utf-8")
 
     loaded = _checkpoint(tmp_path, resume=True).load()
 

@@ -20,6 +20,7 @@ def snapshot(folder):
             for path in folder.rglob("*") if path.is_file()}
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize("location", ["same", "nested", "source_alias", "leaf_alias"])
 def test_source_overlap_is_rejected_before_creating_or_overwriting_files(source, tmp_path, location):
     before = snapshot(source)
@@ -41,6 +42,7 @@ def test_source_overlap_is_rejected_before_creating_or_overwriting_files(source,
     assert sorted(path.name for path in source.iterdir()) == sorted(before)
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize("existing_kind", ["folder", "file", "dangling_symlink"])
 def test_existing_destination_is_preserved(source, tmp_path, existing_kind):
     out = tmp_path / "exports"

@@ -68,7 +68,7 @@ def test_folders_that_are_not_there_are_named(tmp_path):
 def test_a_folder_with_no_images_has_no_pairs(tmp_path):
     images = tmp_path / "images"
     (images / "masks").mkdir(parents=True)
-    (images / "masks" / "README.txt").write_text("labels go here")
+    (images / "masks" / "README.txt").write_text("labels go here", encoding="utf-8")
     with pytest.raises(ValueError, match="No paired training images"):
         sub._cellpose_training_pairs(images)
 

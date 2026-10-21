@@ -127,8 +127,8 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. code-block:: bash
 
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
 
 .. raw:: html
 
@@ -144,13 +144,13 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.5 para Windows 10/11"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.6 para Windows 10/11"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.5 para macOS 11+ (Intel e Apple Silicon)"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.6 para macOS 11+ (Intel e Apple Silicon)"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.5 para Linux de 64 bits"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.6 para Linux de 64 bits"></a>
 
 .. spacr-installer-links-end
 
@@ -261,7 +261,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/install-from-source-light-3.desktop.svg"><img src="../../readme_images/pt/install-from-source-light-3.svg" alt="--dir escolhe o caminho do clone; --branch seleciona uma ramificação ou tag; --no-install baixa sem instalar; --help mostra as opções. packaging/source_install_excludes.txt lista todos os caminhos omitidos. O clone completo de nightly baixou 9.25 GiB. Adicionar --filter=blob:none ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de main ocupam 5059 MB na cópia de trabalho (medidos em 2026-10-21), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo."></picture></a></div>
+   <div><a href="../../readme_text/pt/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/install-from-source-light-3.desktop.svg"><img src="../../readme_images/pt/install-from-source-light-3.svg" alt="--dir escolhe o caminho do clone; --branch seleciona uma ramificação ou tag; --no-install baixa sem instalar; --help mostra as opções. packaging/source_install_excludes.txt lista todos os caminhos omitidos. O clone completo de nightly baixou 9.25 GiB. Adicionar --filter=blob:none ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de main ocupam 735 MB na cópia de trabalho (medidos em 2026-10-21), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo."></picture></a></div>
 
 .. raw:: html
 

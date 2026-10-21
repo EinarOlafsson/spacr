@@ -1,13 +1,14 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
+  "english_sha256": "6be5750bbd2c866e956fcdb45c7f5ba63d8609b03056b5241f89ea7ceb47b9a3",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "es",
   "title": "Timelapse",
@@ -18,6 +19,7 @@
     "Configurar una ejecución de Mask para series temporales y encontrar sus salidas de seguimiento."
   ],
   "prerequisite": "Descarga y extrae SYNTHETIC_timelapse_preview.zip. El ejemplo didáctico contiene ocho fotogramas de imágenes de células y las imágenes de etiquetas correspondientes. Para una ejecución completa de Mask con tus propios datos, prepara imágenes de microscopía ordenadas en el tiempo y anota el intervalo de adquisición.",
+  "section": "Core",
   "scenes": [
     "Desde Home, abra Mask, active Time en la fila Actions y encienda Timelapse para activar el seguimiento. Timelapse enlaza objetos a lo largo de imágenes consecutivas. Primero probaremos el ejemplo enlazado en Track preview y después revisaremos los ajustes para procesar su propia secuencia de imágenes.",
     "Descarga y extrae el archivo de ejemplo que aparece abajo y haz clic en Track preview, a la derecha del encabezado Actions. El archivo contiene una secuencia de imágenes y una secuencia de máscaras correspondiente de ocho fotogramas. Mantén juntas ambas carpetas para poder seleccionar las imágenes y las etiquetas que se corresponden.",
@@ -26,7 +28,7 @@
     "Pon el umbral de solapamiento en cero coma uno y haz clic en Run preview. Este umbral controla cuánto deben solaparse las máscaras contiguas para enlazarse. Revisa las identidades de objeto coloreadas y el resumen de longitudes de trayectoria. El ejemplo produce dieciséis trayectorias que abarcan los ocho fotogramas.",
     "Ajusta el umbral de solapamiento si los objetos se dividen en trayectorias cortas o se enlazan con vecinos equivocados. Un umbral más alto exige más solapamiento. Después de cambiarlo, espera a que termine la vista previa y haz clic en Re-link para revisar el valor final. Recorre varios fotogramas antes de aceptar el resultado.",
     "Usa el control deslizante de fotogramas para seguir el mismo objeto a lo largo de la secuencia. Play cambia la velocidad a la que ves los fotogramas. Guarda aparte el intervalo de adquisición real para medir velocidades más adelante.",
-    "Para una ejecución completa con tus propias imágenes, define Source y los canales de intensidad en Mask. Esta grabación importa los ajustes de una pequeña secuencia sintética de ocho fotogramas. Mantén en orden los puntos temporales de cada campo. Los límites de fotogramas usan un inicio y un final excluido: de cero a ocho selecciona los ocho primeros fotogramas.",
+    "Para una ejecución completa con tus propias imágenes, define Source y los canales de intensidad en Mask. Aquí, importa la configuración del pequeño ejemplo sintético de ocho fotogramas. Mantén en orden los puntos temporales de cada campo. Los límites de fotogramas usan un inicio y un final excluido: de cero a ocho selecciona los ocho primeros fotogramas.",
     "Elige el objeto que quieres seguir y el modo de seguimiento. El modo de solapamiento, iou, enlaza objetos usando sus máscaras en fotogramas contiguos. Revisa primero una secuencia corta y elige un modo adecuado a cuánto se desplazan tus objetos entre fotogramas.",
     "Activa Keep original images para conservar las imágenes de entrada durante la limpieza del flujo de trabajo. Define el modelo de segmentación y los canales para tus datos, y revisa la vista previa antes de procesar la secuencia completa.",
     "Activa Plot para revisar las figuras generadas y haz clic en Run. Sigue el progreso en la consola y espera a que termine. Empieza con una secuencia corta para poder comprobar las máscaras y las identidades de las trayectorias antes de procesar un experimento más grande.",

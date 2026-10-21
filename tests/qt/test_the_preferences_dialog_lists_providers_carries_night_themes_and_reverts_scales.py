@@ -233,6 +233,28 @@ def test_a_reverted_scale_puts_the_sliders_back(private_store, qtbot,
     assert f"{start}%" in shown
 
 
+def test_the_keep_question_belongs_to_the_open_preferences_dialog(
+        private_store, qtbot, monkeypatch):
+    """2026-10-20 macOS: owned by the main window, the question opened as
+    that window's sheet behind the modal Preferences and could not be
+    clicked; it belongs to Preferences while Preferences is open."""
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt import gui_scale
+
+    owners = []
+    monkeypatch.setattr(gui_scale, "change_scales",
+                        lambda owner, **_k: owners.append(owner))
+    main = QWidget()
+    qtbot.addWidget(main)
+    dialog = prefs.PreferencesDialog(main)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    font_slider = dialog.findChild(QSlider, "FontScale")
+    font_slider.setValue(font_slider.value() + 10)
+    dialog.findChild(QTimer, "ScaleSettle").timeout.emit()
+    assert owners == [dialog]
+
+
 def test_an_unchanged_scale_is_not_applied_again(private_store, qtbot,
                                                  monkeypatch):
     from spacr.qt import gui_scale

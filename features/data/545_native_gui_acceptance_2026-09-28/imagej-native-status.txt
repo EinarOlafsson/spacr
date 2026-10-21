@@ -1,3 +1,0 @@
-version=1.54p
-count=8
-batch_mode=false

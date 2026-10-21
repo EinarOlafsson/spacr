@@ -15,7 +15,7 @@ def test_artifact_origin_rejects_source_and_symlink_escape(tmp_path):
     bundle = tmp_path / 'bundle'
     bundle.mkdir()
     source = tmp_path / 'checkout.py'
-    source.write_text('')
+    source.write_text('', encoding="utf-8")
     Controller._require_installed_origin(bundle / 'spacr' / '__init__.py', bundle)
     with pytest.raises(RuntimeError, match='outside the installed artifact'):
         Controller._require_installed_origin(source, bundle)
@@ -51,7 +51,7 @@ def test_macos_bundle_allows_resources_sibling_but_not_checkout_symlink(tmp_path
     for folder in (macos, frameworks, resources):
         folder.mkdir(parents=True)
     executable = macos / 'spacr'
-    executable.write_text('')
+    executable.write_text('', encoding="utf-8")
     root = Controller._installed_root(executable, frameworks, 'darwin')
     assert root == contents.parent
     Controller._require_installed_origin(resources / 'spacr' / '__init__.py', root)

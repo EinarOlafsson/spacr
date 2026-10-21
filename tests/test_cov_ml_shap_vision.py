@@ -520,7 +520,7 @@ def test_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatc
     # object_label was populated from the 'object' column and 'o'-stripped
     assert merged["object_label"].tolist() == [str(i) for i in range(1, len(grid) + 1)]
     # the DB location handed to the merge helper is derived from src
-    assert rec["locs"] == [str(src) + "/measurements/measurements.db"]
+    assert rec["locs"] == [os.path.join(str(src), "measurements", "measurements.db")]
     assert rec["tables"] == ["cell"]
     assert rec["nuclei_limit"] == 1000 and rec["pathogen_limit"] == 1000
 

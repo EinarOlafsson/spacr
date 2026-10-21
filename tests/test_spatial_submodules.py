@@ -299,6 +299,7 @@ def test_xenium_reads_are_counted_into_the_cells_and_join_measure(xenium_run):
 
 
 
+@pytest.mark.needs_symlink
 def test_zero_qv_map_retires_verified_analyses_and_keeps_other_outputs(tmp_path, monkeypatch):
     import hashlib
     import pathlib
@@ -332,9 +333,9 @@ def test_zero_qv_map_retires_verified_analyses_and_keeps_other_outputs(tmp_path,
                    for name in other["files"].values()}
     output = pathlib.Path(first["output"])
     user_file = output / "user-notes.csv"
-    user_file.write_text("keep,my notes\n")
+    user_file.write_text("keep,my notes\n", encoding="utf-8")
     changed = pathlib.Path(first["files"]["infection"])
-    changed.write_text(changed.read_text(encoding="utf-8") + "user edited this former output\n")
+    changed.write_text(changed.read_text(encoding="utf-8") + "user edited this former output\n", encoding="utf-8")
     linked = pathlib.Path(first["files"]["region_summary"])
     linked.unlink()
     linked.symlink_to(user_file)
@@ -387,7 +388,7 @@ def test_zero_qv_map_keeps_unverified_outputs(tmp_path, monkeypatch, prior_state
     report_path = pathlib.Path(first["output"]) / "spatial_map_report.json"
     report = json.loads(report_path.read_text(encoding="utf-8"))
     outside = dst / "outside.csv"
-    outside.write_text("preserve me\n")
+    outside.write_text("preserve me\n", encoding="utf-8")
     if prior_state == "legacy":
         report.pop("analysis_output_ownership")
     elif prior_state == "malformed":
@@ -398,7 +399,7 @@ def test_zero_qv_map_keeps_unverified_outputs(tmp_path, monkeypatch, prior_state
     elif prior_state == "duplicate":
         report["analysis_output_ownership"]["runs"].append(
             dict(report["analysis_output_ownership"]["runs"][0]))
-    report_path.write_text(json.dumps(report))
+    report_path.write_text(json.dumps(report), encoding="utf-8")
     if prior_state == "oversized":
         with report_path.open("a") as handle:
             handle.write(" " * (1024 * 1024) + "not JSON")
@@ -420,6 +421,7 @@ def test_zero_qv_map_keeps_unverified_outputs(tmp_path, monkeypatch, prior_state
 
 
 
+@pytest.mark.needs_symlink
 def test_zero_qv_map_replaces_report_symlink_without_touching_target(tmp_path):
     import pathlib
 

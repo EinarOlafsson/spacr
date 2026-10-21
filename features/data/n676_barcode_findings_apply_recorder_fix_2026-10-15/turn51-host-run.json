@@ -1,7 +1,0 @@
-{
-  "app_exit_code": 0,
-  "recorder_rc": null,
-  "failure": "Traceback (most recent call last):\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py\", line 646, in driver\n    outcome['rc'] = capture_refresh.main()\n                    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_refresh.py\", line 1366, in main\n    record_search(app, screen, stage, captures, capture, settle, write_json, args.timeout,\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                  reference_source=args.barcode_reference_source)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_barcode_search.py\", line 222, in record_search\n    raise RuntimeError('The recorded findings still clip ' + role)\nRuntimeError: The recorded findings still clip row\n",
-  "clips": {},
-  "gate_failed": []
-}

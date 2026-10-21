@@ -50,8 +50,8 @@ def compose(stage=DEFAULT_STAGE):
     paint=proof['checks']['05_practice_disk_not_a_real_object']
     first=painted_disk(baseline,paint['actual_centre'],paint['radius'],paint['label']).astype(np.uint16)
     check_mask(tifffile.imread(work/'checkpoint-before-reopen/mask.tif'),first)
-    first_log=json.loads((work/'checkpoint-before-reopen/mask.tif.curation.json').read_text())
-    second_log=json.loads((work/'checkpoint-after-second-save/mask.tif.curation.json').read_text())
+    first_log=json.loads((work/'checkpoint-before-reopen/mask.tif.curation.json').read_text(encoding="utf-8"))
+    second_log=json.loads((work/'checkpoint-after-second-save/mask.tif.curation.json').read_text(encoding="utf-8"))
     if first_log!=proof['checks']['07_saved_mask_and_ledger']['ledger'] or second_log!=proof['checks']['10_second_session_saved_history']['ledger']:
         raise ValueError('Protected ledgers differ from the actual recorded sessions')
     if sha(work/'mask.tif')!=sha(work/'checkpoint-after-second-save/mask.tif'):

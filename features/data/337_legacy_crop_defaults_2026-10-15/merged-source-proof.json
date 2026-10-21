@@ -1,8 +1,0 @@
-{
-  "public_base": "1d90f7c921b",
-  "function_identity": {
-    "spacr/cli.py:_under_todays_names": "Exact tested AST retained after full public1d90 merge",
-    "spacr/settings.py:get_measure_crop_settings": "Exact tested AST retained after full public1d90 merge"
-  },
-  "no_unchanged_native_rerun": true
-}

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.748" timestamp="2026-10-15T01:11:13.880473-04:00" hostname="olafsson"><testcase classname="tests.test_nightly_private_runtime_update_703" name="test_private_pip_plan_accepts_selected_nightly_dev_release" time="0.400"><failure message="AssertionError: unsupported macOS online update version&#10;assert 'unsupported macOS online update version' is None">tests/test_nightly_private_runtime_update_703.py:24: in test_private_pip_plan_accepts_selected_nightly_dev_release
-    assert plan['error'] is None, plan['error']
-E   AssertionError: unsupported macOS online update version
-E   assert 'unsupported macOS online update version' is None</failure></testcase></testsuite></testsuites>

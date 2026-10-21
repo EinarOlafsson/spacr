@@ -11,6 +11,7 @@ import yaml
     ('transient', 2, True), ('unavailable', 3, False),
     ('invalid_reference', 1, False), ('missing_output', 1, False),
 ])
+@pytest.mark.posix_only
 def test_strict_build_retries_only_inventory_fetch_failure(tmp_path, mode, attempts, success):
     root = Path(__file__).resolve().parents[1]
     workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text(encoding="utf-8"))
@@ -19,7 +20,7 @@ def test_strict_build_retries_only_inventory_fetch_failure(tmp_path, mode, attem
     script = script.replace('/tmp/sphinx', str(tmp_path / 'sphinx'))
     (tmp_path / 'tools').mkdir()
     capped = tmp_path / 'tools/run_capped.sh'
-    capped.write_text('#!/bin/sh\ncase "$*" in *version) echo 1.5.0.9 ;; esac\n')
+    capped.write_text('#!/bin/sh\ncase "$*" in *version) echo 1.5.0.9 ;; esac\n', encoding="utf-8")
     capped.chmod(0o755)
     binary = tmp_path / 'bin'
     binary.mkdir()
@@ -43,7 +44,7 @@ if [ "$MODE" != missing_output ]; then
   touch docs/_build/html/index.html
 fi
 exit 0
-''')
+''', encoding="utf-8")
     sphinx.chmod(0o755)
     result = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', script],
                             cwd=tmp_path, capture_output=True, text=True,

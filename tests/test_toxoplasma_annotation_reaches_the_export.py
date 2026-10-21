@@ -307,7 +307,7 @@ def test_a_users_own_column_beats_the_bundle(tmp_path):
     from spacr.hits import build_hit_list
 
     mine = tmp_path / "mine.csv"
-    mine.write_text("Gene ID,gene_name\nTGME49_201180,my own name\n")
+    mine.write_text("Gene ID,gene_name\nTGME49_201180,my own name\n", encoding="utf-8")
     hits = build_hit_list({"gene": _gene_frame(), "__source__": "(test)"},
                           metadata_files=[str(mine)], toxoplasma=True)
     frame = hits.to_frame()

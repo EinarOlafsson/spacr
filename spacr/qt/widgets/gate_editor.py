@@ -4421,9 +4421,9 @@ class _ClusterSettingsDialog(QDialog):
 class GateEditorPanel(QWidget):
     """Canvas, tools and hierarchy: the whole gating surface.
 
-    :meth:`publish` is the point of the screen — it turns the selected gate
-    into a :class:`~spacr.selection.DataFilter` clause and pushes it onto the
-    shared filter, so every open view narrows to the gated population.
+    :meth:`publish` publishes the objects inside the selected gate as a shared
+    selection. Other linked views highlight those objects; objects outside the
+    gate remain visible.
 
     :param parent: parent widget.
     :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this

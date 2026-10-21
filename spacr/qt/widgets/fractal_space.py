@@ -22,6 +22,27 @@ from typing import Final
 
 import numpy as np
 
+
+def _use_spacrs_kernel_cache() -> None:
+    """Point numba's kernel cache at spaCR's folder before anything is decorated."""
+    try:
+        from spacr.logging_util import _numba_cache_folder
+    except Exception:
+        return
+    _numba_cache_folder()
+
+
+def _prime_kernels() -> None:
+    """Have the kernel cache filled by a helper process before a first compile."""
+    try:
+        from spacr.qt.widgets.ambient import _prime_before_first_kernel
+    except Exception:
+        return
+    _prime_before_first_kernel()
+
+
+_use_spacrs_kernel_cache()
+
 try:
     from numba import njit, prange
 except Exception:
@@ -899,6 +920,7 @@ class SpaceEngine:
         nudges the flight's heading, so the field slides the way a camera
         pans and every star stays a point.
         """
+        _prime_kernels()
         offset_x = float(pointer_x) * float(pull) * 0.22 - float(push) * float(pointer_x) * 0.35
         offset_y = float(pointer_y) * float(pull) * 0.22 - float(push) * float(pointer_y) * 0.35
         frame = render_space_frame(

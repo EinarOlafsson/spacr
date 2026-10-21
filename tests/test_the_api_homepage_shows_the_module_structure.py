@@ -241,7 +241,7 @@ def test_svg_module_icons_preserve_solid_ink_and_transparency(generator, tmp_pat
     source = tmp_path / "organism_plasmodium.svg"
     source.write_text(
         '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">'
-        '<circle cx="50" cy="50" r="25" fill="black"/></svg>')
+        '<circle cx="50" cy="50" r="25" fill="black"/></svg>', encoding="utf-8")
     monkeypatch.setattr(generator, "ICON_DIR", tmp_path)
     icon = generator._app_icon("plasmodium", 100)
     assert icon.getpixel((50, 50)) == (255, 255, 255, 255)

@@ -391,7 +391,7 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
 
     try:
         previous = stage / CAPTURE_RELATIVE
-        documents = {name: json.loads((previous / name).read_text()) for name in
+        documents = {name: json.loads((previous / name).read_text(encoding="utf-8")) for name in
                      ('scientific_acceptance.json', 'provenance.json', 'output_evidence.json')}
         if (documents['scientific_acceptance.json'].get('accepted') is not True
                 or documents['provenance.json'].get('completed_capture') is not True
@@ -469,7 +469,7 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
             raise RuntimeError('Report generation did not write exactly the selected HTML file')
         if sorted(destination.iterdir()) != [output]:
             raise RuntimeError('Unexpected output files were generated')
-        html_evidence = verify_html(output.read_text(), summary, facts)
+        html_evidence = verify_html(output.read_text(encoding="utf-8"), summary, facts)
         check_copies()
         capture('09_actual_report_written')
         capture('10_open_control_not_yet_invoked')

@@ -127,8 +127,8 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. code-block:: bash
 
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
 
 .. raw:: html
 
@@ -144,13 +144,13 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Windows-Online-Setup.exe"><img src="docs/readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.5 for Windows 10/11"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="docs/readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.6 for Windows 10/11"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-macOS-Universal-Online.pkg"><img src="docs/readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.5 for macOS 11+ (Intel and Apple silicon)"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="docs/readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.6 for macOS 11+ (Intel and Apple silicon)"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run"><img src="docs/readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.5 for 64-bit Linux"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="docs/readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.6 for 64-bit Linux"></a>
 
 .. spacr-installer-links-end
 
@@ -261,7 +261,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="docs/readme_text/en/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/install-from-source-light-3.desktop.svg"><img src="docs/readme_images/en/install-from-source-light-3.svg" alt="--dir chooses the checkout path; --branch selects a branch or tag; --no-install fetches without installing; --help lists the options. packaging/source_install_excludes.txt lists every skipped path. The full nightly clone downloaded 9.25 GiB. Adding --filter=blob:none to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 5059 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch."></picture></a></div>
+   <div><a href="docs/readme_text/en/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/install-from-source-light-3.desktop.svg"><img src="docs/readme_images/en/install-from-source-light-3.svg" alt="--dir chooses the checkout path; --branch selects a branch or tag; --no-install fetches without installing; --help lists the options. packaging/source_install_excludes.txt lists every skipped path. The full nightly clone downloaded 9.25 GiB. Adding --filter=blob:none to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The main tracked tree is a 735 MB checkout (measured 2026-10-21), excluding Git history. Download sizes and times vary with the branch."></picture></a></div>
 
 .. raw:: html
 

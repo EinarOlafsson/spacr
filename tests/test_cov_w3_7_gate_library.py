@@ -15,6 +15,7 @@ import pytest
 
 from spacr import gate_library
 from spacr.gate_library import GateLibraryError
+from tests.refused_access import refused
 
 
 GATES = {"gates": [{"column": "area", "low": 10, "high": 900},
@@ -71,13 +72,9 @@ def test_a_read_only_library_reports_the_write_failure(project):
     """A directory the user cannot write leaves no partial file behind."""
     gate_library.save(project, "first", GATES)
     directory = gate_library.library_dir(project)
-    mode = os.stat(directory).st_mode
-    os.chmod(directory, stat.S_IRUSR | stat.S_IXUSR)
-    try:
+    with refused(directory, stat.S_IRUSR | stat.S_IXUSR, windows="write"):
         with pytest.raises(GateLibraryError, match="cannot write"):
             gate_library.save(project, "second", GATES)
-    finally:
-        os.chmod(directory, mode)
     # The half-written temporary file was cleaned up, so the library still
     # lists exactly what it did before.
     assert gate_library.list_strategies(project) == ["first"]

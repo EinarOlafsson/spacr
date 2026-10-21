@@ -24,7 +24,7 @@ def digest(path):
 
 
 def write(path, value):
-    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n')
+    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n', encoding="utf-8")
 
 
 def stamp(seconds):
@@ -52,7 +52,7 @@ def main():
             folder = stage / 'app-state/runs' / f'tutorial-prune-example-{number}'
             folder.mkdir(parents=True)
             note = folder / 'README.txt'
-            note.write_text('Disposable Storage prune demonstration; no analysis results.\n')
+            note.write_text('Disposable Storage prune demonstration; no analysis results.\n', encoding="utf-8")
             old = time.time() - 30 * 86400
             os.utime(note, (old, old))
             os.utime(folder, (old, old))
@@ -92,8 +92,8 @@ def main():
                         '--capture-child'], check=True, timeout=180)
     from stage_lesson import stage_lesson
     lesson_path = REPO / 'tools/tutorials/lessons/05_home.json'
-    lesson = json.loads(lesson_path.read_text())
-    frames = json.loads((stage / 'captures/home/frames.json').read_text())
+    lesson = json.loads(lesson_path.read_text(encoding="utf-8"))
+    frames = json.loads((stage / 'captures/home/frames.json').read_text(encoding="utf-8"))
     focus = {scene['visual']: None for scene in lesson['scenes']}
     # The prior fragment used a larger standalone dialog. Bind this capture's
     # actual dialog bounds rather than cropping it with the old fixed rectangle.
@@ -115,7 +115,7 @@ def main():
                       'frames': {name: frame['sha256'] for name, frame in frames.items()}}})
     stage_lesson(lesson_path, 'home', stage, check_only=True, focus_map=focus_path)
     stage_lesson(lesson_path, 'home', stage, focus_map=focus_path)
-    visual = json.loads((stage / 'production/05_home/visual.json').read_text())
+    visual = json.loads((stage / 'production/05_home/visual.json').read_text(encoding="utf-8"))
     from PIL import Image
     output = stage / 'review'
     output.mkdir()
@@ -144,8 +144,8 @@ def main():
                          'review_frame_sha256': digest(output / filename), 'focus': geometry.get('focus')})
         elapsed = round(elapsed + duration, 1)
     concat.append(f"file '{filename}'")
-    (output / 'frames.concat').write_text('\n'.join(concat) + '\n')
-    (output / 'home-provisional.en.vtt').write_text('\n'.join(captions))
+    (output / 'frames.concat').write_text('\n'.join(concat) + '\n', encoding="utf-8")
+    (output / 'home-provisional.en.vtt').write_text('\n'.join(captions), encoding="utf-8")
     subprocess.run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-nostdin', '-y',
                     '-filter_threads', '1', '-f', 'concat', '-safe', '1', '-i', 'frames.concat',
                     '-vf', 'fps=10', '-t', str(elapsed), '-c:v', 'libx264', '-threads', '1',
@@ -163,7 +163,7 @@ def main():
         '<style>body{background:#161719;color:white;font:18px sans-serif}video{width:100%;max-height:85vh}</style>'
         '<p>Private silent review. Caption timing is provisional; no narration or publication acceptance.</p>'
         '<video controls><source src="home-silent.mp4"><track default kind="captions" srclang="en" '
-        'label="Provisional English" src="home-provisional.en.vtt"></video>')
+        'label="Provisional English" src="home-provisional.en.vtt"></video>', encoding="utf-8")
     write(output / 'receipt.json', {'accepted_stage': True, 'published': False, 'scene_count': len(timeline),
           'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
           'source_sha256': {p: digest(REPO / p) for p in ('tools/tutorials/lessons/05_home.json',

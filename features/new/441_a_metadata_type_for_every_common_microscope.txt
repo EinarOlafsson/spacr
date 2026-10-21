@@ -2,7 +2,8 @@
 THE MASK MODULE KNOWS TWO MICROSCOPES, AND BOTH OF THEM ARE YOKOGAWA
 ================================================================================
 
-Status:    DONE 2026-09-19 — Built, tested and pushed to nightly.
+Status:    OPEN 2026-10-21 — repair detected folder metadata being replaced by synthetic channel IDs.
+Previous status: DONE 2026-09-19 — Built, tested and pushed to nightly.
            The trailing notes at the end of this file are the current
            state; they list what was confirmed, what is provisional,
            and what is left.
@@ -462,3 +463,8 @@ and provenance checks PASS5/0.62s, zero skips/network events; all ten catalogs
 remain byte-identical. These are staged overlapping checks, not39 distinct
 cases. See data/441_scanr_sourced_stems_2026-10-15/ and
 data/441_combined_evos_scanr_acceptance_2026-10-15/.
+
+2026-10-21 — Ready data-integrity regression; priority: easy-task lane, owner: release_ci_takeover/easy_n79 with retained G3 finder. Preserve detected folder well/field/channel identities and stable fallback only for missing axes.
+The real folder-preview/import collision for plate1/A01/field01/{ch1.tif,ch2.tif} is repaired using existing recognizers and filename-channel priority; original microscope regexes and have_channel prose are unchanged.
+All 15 focused checks pass (3.47 s), including scan→preview→CSV identity, distinct canonical names, reversed input and missing-axis behavior; independent source/test peers accepted.
+Prior vendor-corpus and translation obligations remain open; this bounded regression repair does not complete the item.

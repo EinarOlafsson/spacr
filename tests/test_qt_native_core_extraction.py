@@ -358,7 +358,7 @@ def test_only_current_unfinished_owned_sessions_are_eligible(tmp_path, defect):
     elif defect == 'malformed':
         text = 'partial invalid json'
     journal = evidence / 'process-3456-123.jsonl'
-    journal.write_text(text)
+    journal.write_text(text, encoding="utf-8")
     if defect == 'symlink':
         target = tmp_path / 'external.jsonl'
         journal.rename(target)
@@ -388,11 +388,11 @@ def test_reused_pid_is_refused_even_when_newer_session_matches(tmp_path, second_
 
     executable, evidence, first = _identity(tmp_path)
     second = {**first, 'time_ns': first['time_ns'] + 1, 'process_start_ticks': '456'}
-    (evidence / 'process-first.jsonl').write_text(json.dumps(first) + '\n')
+    (evidence / 'process-first.jsonl').write_text(json.dumps(first) + '\n', encoding="utf-8")
     text = json.dumps(second) + '\n'
     if second_finished:
         text += json.dumps({'event': 'session_finish', 'exitstatus': 0}) + '\n'
-    (evidence / 'process-second.jsonl').write_text(text)
+    (evidence / 'process-second.jsonl').write_text(text, encoding="utf-8")
     lines = []
     assert not collector._ordinary_sessions(evidence, tmp_path, 'source', 'source', executable, lines)
     assert 'ambiguous_process_pids_refused=[3456]' in lines
@@ -428,7 +428,7 @@ def test_extracted_core_is_removed_after_gdb_success_or_timeout(tmp_path, monkey
     executable, evidence, session = _identity(tmp_path)
     temporary = tmp_path / 'qt-native-owned.elf'
     temporary.write_bytes(_native_note_core(3456, executable))
-    (evidence / 'process-3456.jsonl').write_text(json.dumps(session) + '\n')
+    (evidence / 'process-3456.jsonl').write_text(json.dumps(session) + '\n', encoding="utf-8")
     monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
     monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
     monkeypatch.setenv('GITHUB_SHA', 'source')
@@ -484,7 +484,7 @@ def test_refused_debugger_environment_removes_extracted_core_and_finishes_report
     executable, evidence, session = _identity(tmp_path)
     temporary = tmp_path / 'qt-native-owned.elf'
     temporary.write_bytes(_native_note_core(3456, executable))
-    (evidence / 'process-3456.jsonl').write_text(json.dumps(session) + '\n')
+    (evidence / 'process-3456.jsonl').write_text(json.dumps(session) + '\n', encoding="utf-8")
     monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
     monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
     monkeypatch.setenv('GITHUB_SHA', 'source')
@@ -801,7 +801,7 @@ def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, mon
     executable, evidence, session = _identity(tmp_path)
     core = evidence / 'core.3456'
     core.write_bytes(_native_note_core(3456, executable))
-    (evidence / 'file-rss.jsonl').write_text(json.dumps(session) + '\n')
+    (evidence / 'file-rss.jsonl').write_text(json.dumps(session) + '\n', encoding="utf-8")
     monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
     monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
     monkeypatch.setenv('GITHUB_SHA', 'source')

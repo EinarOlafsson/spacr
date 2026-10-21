@@ -8,6 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 from tests.conftest import _automatic_ci_markers, _ci_file_shard
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -396,6 +398,7 @@ def _assert_torch_routing_assignment(tmp_path, step, node, filename, original_no
     assert all(assigned.count(item) == 1 for item in original_nodes)
 
 
+@pytest.mark.posix_only
 def test_torch_heartbeat_runs_once_serially_and_its_failure_blocks_ci(tmp_path):
     filename = (
         "tests/qt/test_torch_libraries_map_without_the_interpreter_lock_"

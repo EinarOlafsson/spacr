@@ -465,13 +465,17 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # 664 -> 662 on 2026-10-15, +0/-2: the first-run setup no longer
     # offers AI providers or GitHub sign-in, so the provider marks and the
     # install-and-sign-in panel it drew them with left the package.
+    # 662 -> 661 on 2026-10-19, +0/-1, item 127: the deprecated
+    # spacr/regression_search.py shim left the package in 1.5.1.6 (its
+    # baseline entry retired with --retire-module).
     retired_since_608 = {'spacr/qt/tutorial/engine.py',
                          'spacr/qt/tutorial/scripts.py',
                          'spacr/qt/widgets/cli_setup_panel.py',
-                         'spacr/qt/widgets/provider_marks.py'}
+                         'spacr/qt/widgets/provider_marks.py',
+                         'spacr/regression_search.py'}
     assert not retired_since_608 & shipped
     assert (len(shipped) == 608 + len(added_since_608)
-            - len(retired_since_608) == 662)
+            - len(retired_since_608) == 661)
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -879,7 +883,8 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # returns 664. Moved with the workflow in one commit.
     # 664 -> 662 on 2026-10-15: the setup screen's provider marks and
     # install-and-sign-in panel left the package, the same -2 as `shipped`.
-    assert "--expected-file-count 662" in combine_script
+    # Item 127 retired regression_search.py on 2026-10-19; discovery proves 661.
+    assert "--expected-file-count 661" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

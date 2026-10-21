@@ -31,7 +31,7 @@ STDLIB = set(sys.stdlib_module_names)
 
 def _third_party_imports(path: pathlib.Path) -> set[str]:
     try:
-        tree = ast.parse(path.read_text(errors="replace"))
+        tree = ast.parse(path.read_text(errors="replace", encoding="utf-8"))
     except (OSError, SyntaxError):
         return {"<unreadable>"}
     names: set[str] = set()
@@ -51,7 +51,7 @@ def main() -> int:
                     help="commit the JSON was measured on; defaults to HEAD")
     args = ap.parse_args()
 
-    data = json.loads(pathlib.Path(args.coverage_json).read_text())["files"]
+    data = json.loads(pathlib.Path(args.coverage_json).read_text(encoding="utf-8"))["files"]
     at = args.measured_at or "HEAD"
 
     def _git(*a: str) -> str:

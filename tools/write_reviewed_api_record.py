@@ -11,8 +11,8 @@ There are two ways out and only one of them is honest. Rewriting the English
 until a model can follow it degrades the page every English reader sees, and
 moves the source hash so the other eight languages go stale on that symbol
 too. Writing the translation by hand fixes ONE locale, leaves the English
-alone, and needs no rebuild. `REVIEW_SCOPE_2026-09-04.md` records the
-precedent: `spacr.ops_accel#4` in Portuguese and the `ops_gpu` tooltip in
+alone, and needs no rebuild. The private archive index at
+`spacr/resources/AI/archive-index.md` retains the historical review precedent: `spacr.ops_accel#4` in Portuguese and the `ops_gpu` tooltip in
 Simplified Chinese.
 
 The record has to be exactly right or the builder refuses it, and the two
@@ -177,9 +177,11 @@ def runtime_record(table: str, key: str, translation: str) -> dict:
     }
 
 
-def write(language: str, name: str, entries: Sequence[dict]) -> Path:
+def write(language: str, name: str, entries: Sequence[dict], *, review_root: Optional[Path] = None) -> Path:
     """Merge ``entries`` into a reviewed file, replacing same-label rows."""
     lane = REVIEWED_RUNTIME if "table" in entries[0] else REVIEWED
+    if review_root is not None:
+        lane = Path(review_root) / ("runtime" if "table" in entries[0] else "api")
     folder = lane / language
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / f"{name}.json"
@@ -213,6 +215,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--translation-file", type=Path)
     parser.add_argument("--name", default="hand-written",
                         help="file stem under the language folder")
+    parser.add_argument("--review-root", type=Path,
+                        help="docs/i18n/reviewed in an editable spacr-translations checkout")
     parser.add_argument("--show", action="store_true",
                         help="print the source block and exit, translating "
                              "nothing -- use this first")
@@ -239,13 +243,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     entry = (runtime_record(args.table, args.key, text) if runtime_lane
              else record(args.label, text))
-    path = write(args.language, args.name, [entry])
+    if (REPO / "docs/translation_reviews_revision.json").exists() and args.review_root is None:
+        parser.error("Use --review-root pointing to docs/i18n/reviewed in your editable spacr-translations checkout")
+    path = write(args.language, args.name, [entry], review_root=args.review_root)
     print(f"wrote {path}")
     print(f"  label  {entry.get('label') or entry['table'] + '/' + entry['key']}")
     print(f"  sha    {entry['source_sha256'][:16]}...")
     print(f"  source {entry['source'][:70]}...")
     checker = ("check_reviewed_runtime_evidence" if runtime_lane
                else "check_reviewed_api_evidence")
+    if args.review_root is not None:
+        print("Commit the external review/manifest, update the source pin and bootstrap before verification.")
     print(f"\nVerify with: python tools/{checker}.py")
     return 0
 

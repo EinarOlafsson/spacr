@@ -89,7 +89,7 @@ def verifier_only_case(tmp_path, monkeypatch):
                 '--upgrade', '--python', str(python), 'spacr'], 'Upgrade finished. Restart spaCR to use it.')):
         _write_json(evidence / f'{name}.json', dict(passed=True, state=state, target_version='1.5.0.7',
             action_text='Check for updates', actual_subprocess_commands=[command], terminal_dialog=terminal))
-    (evidence / 'broken-gui.log').write_text('VERIFIER-ONLY FIXTURE: No module named pip\n')
+    (evidence / 'broken-gui.log').write_text('VERIFIER-ONLY FIXTURE: No module named pip\n', encoding="utf-8")
     # These observation/capture fields are emitted by the existing native workflow.
     observation = dict(status='failed', artifact_sha256=ARTIFACT_SHA, observed_tree_exited=True,
         deadline_minutes=40, command=[str(evidence / 'SpaCR-1.5.0.1-Windows-Online-Setup.exe'), '/S'],
@@ -123,7 +123,7 @@ def verifier_only_case(tmp_path, monkeypatch):
             '-InstallRoot', str(prefix.parent), '-Version', '1.5.0.1', '-TorchBackend', 'cpu'])
     _write_json(evidence / 'bootstrap-recovery/receipt.json', recovery)
     for name in ('stdout.txt', 'stderr.txt'):
-        (evidence / 'bootstrap-recovery' / name).write_text('VERIFIER-ONLY FIXTURE OUTPUT\n')
+        (evidence / 'bootstrap-recovery' / name).write_text('VERIFIER-ONLY FIXTURE OUTPUT\n', encoding="utf-8")
     case = SimpleNamespace(evidence=evidence, observation=observation, capture=capture,
         replay=replay, recovery=recovery, states=states)
     control, code = _run_verifier(case, monkeypatch)

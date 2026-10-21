@@ -9,11 +9,12 @@ from spacr import install_cleanup as cleanup
 from spacr import updater
 
 
+@pytest.mark.posix_only
 def test_current_debian_package_is_recognized_as_the_running_frozen_app(tmp_path):
     """dpkg's new /opt layout must enter the installer-helper path."""
     root = tmp_path / "opt" / "spacr"
     root.mkdir(parents=True)
-    (root / "spacr").write_text("frozen app fixture")
+    (root / "spacr").write_text("frozen app fixture", encoding="utf-8")
     packages = SimpleNamespace(version=lambda name: "1.5.1.0" if name == "spacr" else None,
                                owns=lambda name, path: name == "spacr" and path == str(root / "spacr"))
     machine = cleanup._Machine(
@@ -27,11 +28,12 @@ def test_current_debian_package_is_recognized_as_the_running_frozen_app(tmp_path
     assert records[0].registrations == ("deb:spacr",)
 
 
+@pytest.mark.posix_only
 def test_legacy_stdeb_layout_is_retained_despite_an_unowned_opt_directory(tmp_path):
     """A python3-spacr record cannot acquire another package's /opt directory."""
     root = tmp_path / "opt" / "spacr"
     root.mkdir(parents=True)
-    (root / "spacr").write_text("unrelated frozen fixture")
+    (root / "spacr").write_text("unrelated frozen fixture", encoding="utf-8")
     legacy = tmp_path / "usr/lib/python3/dist-packages/spacr"
     packages = SimpleNamespace(version=lambda name: "1.5.0.1" if name == "python3-spacr" else None)
     machine = cleanup._Machine(
@@ -47,7 +49,7 @@ def test_spacr_package_name_alone_does_not_own_a_foreign_opt_directory(tmp_path)
     """A legacy package named spacr also needs an actual dpkg file witness."""
     root = tmp_path / "opt/spacr"
     root.mkdir(parents=True)
-    (root / "spacr").write_text("unowned application")
+    (root / "spacr").write_text("unowned application", encoding="utf-8")
     packages = SimpleNamespace(version=lambda name: "1.5.0.1" if name == "spacr" else None,
                                owns=lambda name, path: False)
     machine = cleanup._Machine(platform="linux", environ={}, fs_root=str(tmp_path),
@@ -117,7 +119,7 @@ def test_absent_archived_helper_source_returns_a_plan_error_without_spawning(tmp
     root = tmp_path / "installed"
     root.mkdir()
     marker = root / "analysis.txt"
-    marker.write_text("preserve")
+    marker.write_text("preserve", encoding="utf-8")
     record = cleanup.InstallRecord(kind="installer", layout="linux-online", platform="linux",
                                    root=str(root), running=True)
     machine = cleanup._Machine(environ={}, fs_root=str(tmp_path), executable=str(root / "spacr"))

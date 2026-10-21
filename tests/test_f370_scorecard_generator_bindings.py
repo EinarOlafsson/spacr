@@ -63,7 +63,7 @@ def test_generator_refuses_changed_packaged_card(monkeypatch, tmp_path):
     card["scores"]["rows"][0]["this"] = .999
     resource = model_zoo._CURATED_SCORECARD_BINDINGS[declaration["key"]]["resource"]
     import json
-    (tmp_path / resource).write_text(json.dumps(card))
+    (tmp_path / resource).write_text(json.dumps(card), encoding="utf-8")
     monkeypatch.setattr(model_cards, "_CARD_DIR", tmp_path)
     assert build_score_cards.rescored(declaration) == declaration
 

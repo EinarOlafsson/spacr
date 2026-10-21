@@ -95,6 +95,9 @@ def main():
     parser.add_argument('--batch-size', type=int, default=2)
     parser.add_argument('--device', choices=('cpu', 'cuda'), default='cpu',
                         help='Use CUDA only when no other tutorial GPU writer is active')
+    parser.add_argument("--baseline-english", type=Path, help="Translate only source changes against an actual English baseline")
+    parser.add_argument("--baseline-catalogs", type=Path, help="Reviewed localized catalogs aligned to the English baseline")
+    parser.add_argument("--sentence-alignments", type=Path, help="Exact baseline-bound localized sentence segmentation; text cannot change")
     args = parser.parse_args()
     if not 1 <= args.threads <= 4 or not 1 <= args.batch_size <= 4:
         parser.error('Keep this background draft pass to 1–4 threads and 1–4 strings per batch')
@@ -103,6 +106,14 @@ def main():
         if not torch.cuda.is_available():
             parser.error('CUDA requested but unavailable; no silent device fallback')
         torch.cuda.set_per_process_memory_fraction(0.15, 0)
+    if args.baseline_english:
+        if not args.baseline_catalogs:
+            parser.error('--baseline-english requires --baseline-catalogs')
+        from translate_sentence_delta import run_delta
+        run_delta(args, spoken, captions)
+        return
+    elif args.baseline_catalogs:
+        parser.error('--baseline-catalogs requires --baseline-english')
     english = args.stage / 'catalog/lessons_en.json'
     source = read(english)
     selected = set(args.lessons)

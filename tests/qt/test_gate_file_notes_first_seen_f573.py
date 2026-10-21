@@ -35,7 +35,7 @@ def test_matching_file_never_claims_match_to_a_tampered_lock(journal):  # noqa: 
     path = rj._locks_root() / (record['lock_id'] + '.json')
     altered = json.loads(path.read_text(encoding="utf-8"))
     altered['locked_by'] = 'edited author'
-    path.write_text(json.dumps(altered))
+    path.write_text(json.dumps(altered), encoding="utf-8")
     note = rj._gate_file_lock_notes(strategy)[0]
     assert 'tampered' in note.lower()
     assert 'these gates match' not in note

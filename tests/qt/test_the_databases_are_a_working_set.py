@@ -11,6 +11,7 @@ is compared against what was in the files.
 """
 from __future__ import annotations
 
+import os
 import sqlite3
 
 import pandas as pd
@@ -320,9 +321,9 @@ def test_the_folder_join_is_the_one_get_db_paths_performs(tmp_path):
     from spacr.utils import get_db_paths
     from spacr.qt.widgets.database_set import database_for_source
 
-    roots = [str(tmp_path / "plate1"), str(tmp_path / "plate2") + "/"]
+    roots = [str(tmp_path / "plate1"), str(tmp_path / "plate2") + os.sep]
     assert [database_for_source(root, "folder") for root in roots] == \
-        get_db_paths([root.rstrip("/") for root in roots])
+        get_db_paths([root.rstrip(os.sep) for root in roots])
 
 
 def test_one_source_is_still_a_bare_string(qtbot, tmp_path):

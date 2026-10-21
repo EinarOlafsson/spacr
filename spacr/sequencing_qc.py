@@ -61,6 +61,7 @@ import pandas as pd
 from . import schema
 
 from .figures.style import ROLES, figure_style, theme_target
+from .logging_util import _legacy_text_encoding
 
 #: The app key this module registers its settings under.
 APP_KEY = "barcode_qc"
@@ -479,7 +480,7 @@ def _read_reference(reference) -> Dict[str, str]:
         table: Dict[str, str] = {}
         name = None
         chunks: List[str] = []
-        with open(path) as handle:
+        with open(path, encoding=_legacy_text_encoding(path)) as handle:
             for line in handle:
                 line = line.strip()
                 if not line:

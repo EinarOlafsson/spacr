@@ -2,7 +2,11 @@
 ONE ANCHOR, ONE COPY OF EACH COLUMN, AND THE RIGHT AGGREGATION FOR EACH KIND
 ================================================================================
 
-Status:    DONE 2026-08-11 — Supersedes the "drop policy" half of instruction
+Status:    DONE 2026-10-21 — aggregation choices and default restoration use
+           the same dtype-aware baseline displayed in the editor.
+Owner:     release_ci_takeover / easy_n79; root accepted integration and publication.
+
+Previous status: DONE 2026-08-11 — Supersedes the "drop policy" half of instruction
            77 (3c), which asked a smaller question. Multi-organelle cytoplasm
            subtraction remains separately tracked by instruction 76.
 Requested: 2026-08-11 — "here is what i want instead. when i merge tables and
@@ -498,3 +502,6 @@ Graph Builder and Gate Editor integration are tracked in N613 and N41. Catalog,
 API-generation and tutorial-publication integration remain in N615.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_merge_duplicate_columns.py).
+
+2026-10-21 — Reopen only the aggregation-editor regression found during N112: the shown plan infers each column dtype, but _on_changed assumes numeric=True. For a text column, selecting its numeric-style rule can silently discard an explicit choice, and restoring inferred first can retain a redundant override. Keep inferred defaults from the same input schema, preserve explicit choices and remove an override when restored to its true default. release_ci_takeover owns this next small task after the console delivery; root peers, related Qt regression checks, normal index and one nightly publication. Preserve accepted backend/API/tutorial scope; no new captions or broad retesting.
+2026-10-21 — Editor now retains explicit mean for text columns and removes overrides when restoring actual text/numeric defaults. Real Qt choice, restore and signal regression cases pass with all nine owning tests; no user strings, signatures or generated API inputs changed. Root accepted the isolated fix and retained earlier backend acceptance; this delivery publishes the completed item.

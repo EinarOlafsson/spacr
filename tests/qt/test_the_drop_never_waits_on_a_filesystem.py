@@ -196,7 +196,7 @@ def _drop(widget, paths):
 
 
 def _settings_csv(path):
-    path.write_text("Key,Value\nsrc,/plate01\nnr,3\n")
+    path.write_text("Key,Value\nsrc,/plate01\nnr,3\n", encoding="utf-8")
     return path
 
 

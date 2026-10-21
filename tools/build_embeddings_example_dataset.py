@@ -113,7 +113,8 @@ def build(destination: Path) -> Path:
         rows.append({"crop_filename": filename, "label": label})
     with tempfile.TemporaryDirectory(prefix="spacr-embeddings-example-") as temp:
         labels = Path(temp) / "labels.csv"
-        write_table(pd.DataFrame(rows), labels, index=False, canonicalise=False)
+        write_table(pd.DataFrame(rows), labels, index=False, canonicalise=False,
+                    lineterminator="\n")
         members["labels.csv"] = labels.read_bytes()
     members["README.txt"] = README.encode("utf-8")
     with destination.open("wb") as output:

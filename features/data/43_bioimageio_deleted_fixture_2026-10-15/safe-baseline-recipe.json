@@ -1,5 +1,0 @@
-{
-  "original_sha256": "986af8bfd3eb7b3b87bee5f3d109d13a15680cc4ff943b900f06d1620493e719",
-  "harness_sha256": "7a74c400fdc83c37c466f5f71782957c9da0cbbbd4c5745ef8bc5dcd153b5848",
-  "harness": "After original actual local fixture fetch/delete, replace discovery with exact controlled local row and replace fetch with refusal tripwire. Preserve original FileNotFoundError expectation. Demonstrates attempted acquisition without network/model decode."
-}

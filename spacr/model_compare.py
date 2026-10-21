@@ -1225,9 +1225,11 @@ def compare_models(images: Sequence[np.ndarray],
                    ) -> ComparisonReport:
     """Run two models over the same fields and compare what they produced.
 
-    Each model is loaded once and run over every field, A first, then B — one
-    model in memory at a time, and the per-model wall clock in the report is
-    therefore a fair (if small-sample) comparison of their cost.
+    The default backend loads one model for each call and processes every
+    field, A first, then B. The report times each backend call and
+    materialization of its returned masks, including default-backend model
+    loading but excluding subsequent mask conversion, QC and comparison.
+    A supplied ``segment_fn`` controls its own model loading and reuse.
 
     The segmentation call is an argument: the Model Zoo can hand in a different
     backend, and a test can hand in a stub, so nothing about this function

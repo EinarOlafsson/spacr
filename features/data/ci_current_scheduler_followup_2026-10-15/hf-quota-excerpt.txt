@@ -1,9 +1,0 @@
-Run 38819608264, source b51fb194bb183990ab25c981d70e3030063bf9ac
-Job 116721148285: Publish nightly documentation to the Hugging Face Space
-Step: Upload one complete site and verify its public deployment
-
-2026-10-15T23:13:28.2029970Z ##[error]Hugging Face refused einarolafsson/spacr-docs-nightly: its storage limit is reached. See features/new/689_* for the maintainer steps.
-2026-10-15T23:13:28.2060806Z 403 Forbidden: Storage limit reached for this space (Max: 1 GB).
-2026-10-15T23:13:28.2559167Z ##[error]Process completed with exit code 1.
-
-Excerpt preserves exact retrieved log message text and UTC event timestamps; repetitive job/step prefixes omitted above.

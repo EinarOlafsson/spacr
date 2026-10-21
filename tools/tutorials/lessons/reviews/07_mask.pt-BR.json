@@ -1,13 +1,14 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
+  "english_sha256": "9a5903f6420c4973ec878cb4f830c334588a936a0170f19a8d932573ed8381b8",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "pt-BR",
   "title": "Mask: segmentar imagens e inspecionar os resultados",
@@ -18,6 +19,7 @@
     "Executar a segmentação, inspecionar suas figuras e encontrar as saídas combinadas."
   ],
   "prerequisite": "Abra Mask e escolha Load test data. Para suas próprias imagens, prepare uma pasta de origem com nomes de arquivo consistentes e canais conhecidos. Este exemplo usa o canal de núcleos 0, o canal de células 1 e o canal de patógenos 2, com um canal de intensidade adicional 3.",
+  "section": "Core",
   "scenes": [
     "Na tela Home, abra Mask. Use este módulo para contornar células, núcleos e patógenos em imagens de microscópio. Este passo a passo processa imagens bidimensionais. Os fluxos de Time, tridimensional e OPS têm tutoriais próprios.",
     "Se suas imagens estão espalhadas em várias pastas ou têm nomes que o Mask não consegue ler, clique em Organizar imagens no topo de Input & Metadata. Dê a cada canal uma coluna, soltando a pasta dele ou com uma expressão regular, e confira se cada linha é um campo completo. Apply move as imagens para uma pasta com nomes no padrão Yokogawa e aponta Source para ela, com os canais já preenchidos.",
@@ -29,7 +31,7 @@
     "Quando a prévia terminar, compare os contornos com a imagem. Procure objetos não detectados e objetos vizinhos unidos em um só. A linha de status informa quantos objetos foram encontrados.",
     "Use o filtro de área mínima para esconder objetos menores que o número de pixels escolhido. Aumentá-lo remove rótulos pequenos da pré-visualização. Esse filtro atualiza um resultado de máscara já existente, então você pode comparar limites de tamanho rapidamente.",
     "Volte a área mínima para zero para trazer todos os objetos de volta. Se o modelo divide ou une objetos na escala errada, altere Diameter e execute a prévia de novo, verificando as bordas além da contagem. Restaure as configurações desejadas antes da execução em lote.",
-    "Para uma primeira execução rápida, esta gravação aponta Source para recortes centrais de dois campos de exemplo; com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run.",
+    "Para uma primeira execução rápida, use como Source recortes centrados de dois campos de exemplo. Com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run.",
     "Quando a execução termina, a lista de figuras se enche com seus gráficos. A última figura desenha os contornos de cada objeto sobre o próprio canal, núcleos, células e patógenos, e à direita os objetos combinados. Verifique em cada figura objetos pequenos, células que se tocam e regiões não detectadas.",
     "As outras figuras mostram cada canal e os arrays de máscara e de fluxo que o modelo produziu. A execução grava uma pasta merged com as intensidades da imagem e os rótulos finais dos objetos, e guarda ao lado dos arrays os metadados da disposição dos planos para que Measure identifique cada canal e máscara. Mantenha juntos as entradas, as configurações, as máscaras e os relatórios de qualidade, e siga para Measure para extrair características e recortes dos objetos."
   ]

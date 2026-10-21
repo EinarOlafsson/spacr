@@ -8,6 +8,8 @@ import pytest
 
 from spacr import install_cleanup as ic
 
+pytestmark = pytest.mark.posix_only
+
 
 @pytest.fixture
 def caches(tmp_path):

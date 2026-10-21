@@ -13,7 +13,7 @@ def test_pip_routes_use_plain_package_command_and_correct_activation():
         assert 'pip install spacr' in commands
         assert commands.index(activation)<commands.index('pip install spacr')
         assert not any('spacr[qt]' in command for command in commands)
-    lesson=json.loads((Path(__file__).resolve().parents[1]/'lessons/02_install_spacr.json').read_text())
+    lesson=json.loads((Path(__file__).resolve().parents[1]/'lessons/02_install_spacr.json').read_text(encoding="utf-8"))
     assert lesson['scenes'][2]['visual']=='pip_02_activate_venv'
     assert 'Activate dot venv' in lesson['scenes'][2]['narration']
     assert 'Qt dependencies' in lesson['scenes'][3]['narration']

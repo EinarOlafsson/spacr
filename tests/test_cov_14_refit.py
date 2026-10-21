@@ -90,7 +90,7 @@ def test_an_unparseable_settings_file_is_passed_over(monkeypatch, tmp_path):
 
     run = tmp_path / "regression_1"
     run.mkdir()
-    (run / refit.SETTINGS_NAMES[0]).write_text("not,a,settings,table\n")
+    (run / refit.SETTINGS_NAMES[0]).write_text("not,a,settings,table\n", encoding="utf-8")
 
     def _explode(path):
         raise ValueError("malformed settings")
@@ -106,7 +106,7 @@ def test_a_parseable_settings_file_is_returned(monkeypatch, tmp_path):
 
     run = tmp_path / "regression_1"
     run.mkdir()
-    (run / refit.SETTINGS_NAMES[0]).write_text("key,value\n")
+    (run / refit.SETTINGS_NAMES[0]).write_text("key,value\n", encoding="utf-8")
 
     monkeypatch.setattr(utils, "load_settings",
                         lambda path: {"regression_type": "ols"},

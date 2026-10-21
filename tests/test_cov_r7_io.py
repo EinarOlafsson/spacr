@@ -65,7 +65,7 @@ def test_a_movie_group_exists_only_because_a_frame_was_put_in_it(
     # ... plus files the regex cannot parse, and a non-npy file. Neither may
     # create a group of its own.
     np.save(src / "not_a_field_stem.npy", np.zeros((8, 8, 2), np.float32))
-    (src / "plate1_A01_f3_1.txt").write_text("not an array")
+    (src / "plate1_A01_f3_1.txt").write_text("not an array", encoding="utf-8")
 
     calls = []
 

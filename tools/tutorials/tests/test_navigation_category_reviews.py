@@ -12,7 +12,7 @@ from build_navigation import CATEGORY_REVIEW, LABELS, build, category_labels
 
 def test_actual_hierarchy_routes_have_reviewed_labels_without_changing_lessons():
     catalog_path = Path(__file__).resolve().parents[3] / 'docs/source/_extra/tutorials/catalog/lessons_en.json'
-    catalog = json.loads(catalog_path.read_text())
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
     original = deepcopy(catalog)
     navigation = build(catalog)
     main = next(section for section in navigation['sections'] if section['id'] == 'main')
@@ -32,7 +32,7 @@ def test_actual_hierarchy_routes_have_reviewed_labels_without_changing_lessons()
                                    'missing_locale', 'empty_label', 'truncated_locale',
                                    'changed_english', 'invented_signoff'])
 def test_incomplete_or_stale_category_review_refuses_generation(tmp_path, failure):
-    review = json.loads(CATEGORY_REVIEW.read_text())
+    review = json.loads(CATEGORY_REVIEW.read_text(encoding="utf-8"))
     source = list(review['source'])
     if failure == 'new_category':
         source.append('New category')
@@ -51,6 +51,6 @@ def test_incomplete_or_stale_category_review_refuses_generation(tmp_path, failur
     else:
         review['review_kind'] = 'Native-speaker approved'
     path = tmp_path / 'review.json'
-    path.write_text(json.dumps(review, ensure_ascii=False))
+    path.write_text(json.dumps(review, ensure_ascii=False), encoding="utf-8")
     with pytest.raises(ValueError):
         category_labels(source, path)

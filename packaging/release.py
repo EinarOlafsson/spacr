@@ -406,16 +406,26 @@ def bump_release(
             citation_text = _replace_citation_field(
                 citation_text, "doi", ZENODO_CONCEPT_DOI, citation_path)
 
+    readme = setup_path.parent / "README.rst"
+    readme_updates = {}
+    if readme.is_file():
+        readme_updates = {
+            path: _updated_readme_text(path, new)
+            for path in (readme, *_localized_readmes(readme, None))
+        }
+
     setup_path.write_text(updated_setup, encoding="utf-8")
     citation_path.write_text(citation_text, encoding="utf-8")
     if package_version_path is not None:
         package_version_path.write_text(updated_package, encoding="utf-8")
+    # Rewrite versioned sources before their generated images. A tree without
+    # the README (a test fixture, an sdist) has no pages to update.
+    for path, text in readme_updates.items():
+        path.write_text(text, encoding="utf-8")
+    if readme.is_file():
+        sync_docker_tags(setup_path.parent, new)
     for step in BUMP_ARTEFACT_STEPS:
         step(setup_path.parent, new)
-    # The images are pushed by the release this bump starts; a tree without
-    # the README (a test fixture, an sdist) has no pages to update.
-    if (setup_path.parent / "README.rst").is_file():
-        sync_docker_tags(setup_path.parent, new)
     return verify_release_metadata(
         setup_path,
         citation_path,
@@ -493,9 +503,9 @@ def restamp_info_deck(root: Path, version: str) -> str | None:
     version line is drawn onto the kept picture instead
     (``tools/build_readme_deck.py``). Nothing happens in a tree without the
     deck, when the deck already shows ``version`` (a rerun, or CI's own bump
-    step after the maintainer bumped), or where Pillow is not installed --
-    the release job's version step installs only packaging tools, and a
-    picture must never be what stops a release.
+    step after the maintainer bumped), or where Pillow is not installed.
+    Local callers retain that optional-render fallback; release preparation
+    installs the renderer dependencies and checks its generated outputs.
 
     :param root: the repository root.
     :param version: the release being bumped to.
@@ -564,7 +574,7 @@ def rebuild_readme_images(root: Path, version: str) -> bool:
               f"python tools/build_readme_images.py where they are.",
               file=sys.stderr)
         return False
-    result = subprocess.run([sys.executable, str(tool)], cwd=str(root),
+    result = subprocess.run([sys.executable, str(tool), "--refresh-generated"], cwd=str(root),
                             capture_output=True, text=True)
     if result.returncode:
         print(f"README images: tools/build_readme_images.py failed "
@@ -1185,6 +1195,50 @@ class MetadataNotReady(RuntimeError):
     """A release exists but a service has not published what it mints yet."""
 
 
+def verify_pypi_source(wheel_dir: Path, published, version: str, source_commit: str) -> str:
+    """Match PyPI to the validated wheel's immutable source-pinned description.
+
+    Wheel timestamps and archive bytes are deliberately outside this check.
+    The package gate already validates the description against the checkout;
+    this comparison prevents a resume from adopting another source's upload.
+    """
+    from email import message_from_string
+    import zipfile
+
+    if PROJECT_RELEASE_PATTERN.fullmatch(version) is None:
+        raise ValueError("Expected a numeric release version")
+    if re.fullmatch(r"[0-9a-f]{40}", source_commit) is None:
+        raise ValueError("Expected a full lowercase release source SHA")
+    wheels = list(wheel_dir.glob("*.whl"))
+    if len(wheels) != 1:
+        raise ValueError("Expected exactly one validated release wheel")
+    with zipfile.ZipFile(wheels[0]) as wheel:
+        names = [name for name in wheel.namelist()
+                 if name.endswith(".dist-info/METADATA")]
+        if len(names) != 1:
+            raise ValueError("Expected exactly one wheel METADATA entry")
+        metadata = message_from_string(wheel.read(names[0]).decode("utf-8"))
+    if (metadata.get_all("Name") != ["spacr"]
+            or metadata.get_all("Version") != [version]
+            or metadata.get_all("Description-Content-Type") != ["text/x-rst"]):
+        raise ValueError("Validated wheel package, version or description type differs")
+    description = metadata.get_payload()
+    if not isinstance(description, str):
+        raise ValueError("Validated wheel has no text description")
+    pins = set(re.findall(
+        r"https://(?:raw\.githubusercontent\.com/EinarOlafsson/spacr|"
+        r"github\.com/EinarOlafsson/spacr/blob)/([0-9a-fA-F]{40})/",
+        description))
+    if pins != {source_commit}:
+        raise ValueError("Validated wheel description lacks the exact release source pin")
+    info = published.get("info") if isinstance(published, dict) else None
+    if not isinstance(info, dict) or info.get("name") != "spacr" or info.get("version") != version:
+        raise ValueError("Published PyPI package or version differs")
+    if info.get("description") != description:
+        raise ValueError("Published PyPI description differs from the validated source wheel")
+    return source_commit
+
+
 def fetch_json(url: str):
     """GET ``url`` and decode it as JSON (the only network access here)."""
     import json
@@ -1439,6 +1493,13 @@ def main() -> int:
         help="facade version literal verified against release metadata",
     )
 
+    pypi_parser = subparsers.add_parser(
+        "verify-pypi-source", help="verify PyPI matches the exact validated source wheel")
+    pypi_parser.add_argument("--wheel-dir", type=Path, required=True)
+    pypi_parser.add_argument("--pypi-json", type=Path, required=True)
+    pypi_parser.add_argument("--version", required=True)
+    pypi_parser.add_argument("--source-commit", required=True)
+
     collect_parser = subparsers.add_parser("collect")
     collect_parser.add_argument("--source", type=Path, default=Path("dist/online"))
     collect_parser.add_argument(
@@ -1526,6 +1587,11 @@ def main() -> int:
             args.citation,
             package_version_path=args.package_version,
         ))
+    elif args.command == "verify-pypi-source":
+        import json
+        print(verify_pypi_source(
+            args.wheel_dir, json.loads(args.pypi_json.read_text(encoding="utf-8")),
+            args.version, args.source_commit))
     elif args.command == "index":
         import json
         releases = (

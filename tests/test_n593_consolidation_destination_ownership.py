@@ -52,6 +52,7 @@ def test_arrival_after_name_selection_is_preserved(tmp_path, monkeypatch, arriva
     assert result.rows[0][1:3] == ('', 'error')
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('replacement', ['file', 'symlink'])
 def test_failed_copy_never_cleans_a_replaced_destination(tmp_path, monkeypatch, replacement):
     source, original = source_tree(tmp_path)
@@ -116,6 +117,7 @@ def test_arriving_file_is_not_deleted_when_copy_errors_before_open(tmp_path, mon
     assert original.read_bytes() == b'original microscopy bytes'
 
 
+@pytest.mark.posix_only
 def test_replacement_at_metadata_seam_preserves_bytes_and_is_not_accepted(tmp_path, monkeypatch):
     source, original = source_tree(tmp_path)
     selected = []

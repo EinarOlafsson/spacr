@@ -146,24 +146,28 @@ def test_every_installer_locale_has_the_new_keys():
     _renderer().catalogs()
 
 
+@pytest.mark.posix_only
 def test_dry_run_installs_wgpu_by_default(standalone, tmp_path):
     out = _dry_run(standalone, tmp_path, env_extra={"SPACR_GLIBC_VERSION": "2.39"})
     assert "wgpu 3D rendering: install" in out
     assert "glibc" not in out
 
 
+@pytest.mark.posix_only
 def test_dry_run_reports_without_wgpu(standalone, tmp_path):
     out = _dry_run(standalone, tmp_path, "--without-wgpu")
     assert "wgpu 3D rendering: skip (3D uses OpenGL, else the CPU)" in out
 
 
 @pytest.mark.parametrize("version", ("2.17", "2.27", "1.9"))
+@pytest.mark.posix_only
 def test_dry_run_skips_wgpu_on_old_glibc(standalone, tmp_path, version):
     out = _dry_run(standalone, tmp_path, env_extra={"SPACR_GLIBC_VERSION": version})
     assert f"wgpu needs glibc 2.28 or newer (this system has {version})" in out
     assert "wgpu 3D rendering: skip" in out
 
 
+@pytest.mark.posix_only
 def test_old_glibc_is_ignored_on_macos(standalone, tmp_path):
     out = _dry_run(standalone, tmp_path, platform="macos",
                    env_extra={"SPACR_GLIBC_VERSION": "2.17"})
@@ -192,6 +196,7 @@ def _fake_tools(tmp_path, getconf, ldd):
         ("exit 1", "echo 'musl libc (x86_64)' >&2; echo 'Version 1.2.4' >&2; exit 1", False),
     ),
 )
+@pytest.mark.posix_only
 def test_glibc_probe_reads_getconf_then_ldd(standalone, tmp_path, getconf, ldd, skipped):
     out = _dry_run(standalone, tmp_path, env_extra=_fake_tools(tmp_path, getconf, ldd))
     assert ("wgpu 3D rendering: skip" in out) is skipped
@@ -243,7 +248,7 @@ _UV_SAYS_ONLY_WGPU = (
 
 def _the_installer_check(source: str) -> str:
     """The Python one-liner an installer runs on a failed ``uv pip check``."""
-    start = source.index("import sys; from spacr.install_cleanup import _only_saved_wgpu_omission")
+    start = source.index("import runpy, sys; only=runpy.run_path(sys.argv[1])")
     return source[start:source.index("else 1)", start) + len("else 1)")]
 
 
@@ -259,7 +264,7 @@ def test_an_install_without_wgpu_accepts_only_uvs_missing_wgpu_diagnostic(name, 
 
     def accepted(text, status=1):
         log.write_text(text, encoding="utf-8")
-        return subprocess.run([sys.executable, "-I", "-c", code, str(status), str(log)],
+        return subprocess.run([sys.executable, "-I", "-c", code, str(ROOT / "spacr" / "install_cleanup.py"), str(status), str(log)],
                               cwd=ROOT, env={**os.environ, "PYTHONPATH": str(ROOT)}).returncode == 0
 
     assert accepted(_UV_SAYS_ONLY_WGPU)

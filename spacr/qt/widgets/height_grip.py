@@ -160,8 +160,8 @@ class HeightGrip(QWidget):
         Public because it implements the resize, and a test that drives it
         directly is testing the clamp rather than Qt's event delivery.
 
-        :param height: wanted height in device pixels, clamped between the
-            grip's minimum and maximum and applied with ``setFixedHeight``.
+        :param height: wanted height in logical pixels, clamped between the grip's
+            minimum and maximum and applied with ``setFixedHeight``.
         """
         from ..preferences import get_font_scale
 

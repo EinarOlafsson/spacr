@@ -250,37 +250,31 @@ class TestThreePreviewGuards:
             "an empty note no longer capitalises to nothing, so the guard "
             "protects against something else")
 
-    def test_a_refit_with_no_destination_is_refused_rather_than_offered(self):
-        """THE PIN, for the ``where is None`` arm in refit_dialog.
-
-        ``destination`` answers None when no count-data path resolves or
-        the results folder cannot be created. This USED to fall through
-        and show the changes alone, on the reasoning that "Writes to
-        None." is worse than saying nothing about where -- and it was,
-        but the alternative was worse still: the notice a user saw in
-        that arm claimed the re-fit would repeat the run they were
-        looking at, with the button live to start a real one. So the arm
-        now refuses, disables OK, and says which path to check.
-
-        The half that has not changed is the one this test is named for:
-        "Writes to None." is never appended, because the None case
-        returns before the line that appends it.
-        """
+    def test_a_refit_with_no_destination_is_refused_rather_than_offered(self, qtbot, tmp_path):
+        """Unknown destinations refuse a real re-fit; usable ones name its path."""
         pytest.importorskip("PySide6")
-        from spacr.qt.widgets import refit_dialog as R
+        import os
+        from PySide6.QtWidgets import QDialogButtonBox
+        from spacr.qt.widgets.refit_dialog import RefitDialog
+        from spacr.refit import destination
 
-        source = inspect.getsource(R)
-        assert "where = destination(settings)" in source
-        assert "if where is None:" in source
-        assert 'lines.append(f"Writes to {where}.")' in source
+        unavailable = RefitDialog({"regression_type": "ols",
+                                   "count_data": ["postgresql://example.invalid/counts"]})
+        qtbot.addWidget(unavailable)
+        button = unavailable.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok)
+        assert not button.isEnabled()
+        notice = unavailable._notice.text()
+        assert "The output folder cannot be worked out" in notice
+        assert "so the re-fit is not offered. Check the count data path." in notice
+        assert "Writes to " not in notice and "Nothing to change" not in notice
 
-        # The refusal comes BEFORE the "Writes to" line, which is what
-        # keeps None out of it, and it disables the button on the way.
-        refusal = source.index("The output folder cannot be worked out")
-        writes = source.index('lines.append(f"Writes to {where}.")')
-        assert refusal < writes
-        assert "so the re-fit is not offered. Check the count data path." \
-            in source
-        assert source.index("self._ok(False)", refusal) < writes, (
-            "the no-destination arm leaves OK enabled, so a re-fit the "
-            "dialog cannot describe can still be started")
+        counts = tmp_path / "counts.csv"
+        counts.write_text("well,count\na1,1\n", encoding="utf-8")
+        available = RefitDialog({"regression_type": "ols", "count_data": [str(counts)]})
+        qtbot.addWidget(available)
+        button = available.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok)
+        assert button.isEnabled()
+        target = destination(available.settings()[0])
+        assert target is not None
+        assert f"Writes to {os.path.normpath(target)}." in available._notice.text()
+        assert "cannot be worked out" not in available._notice.text()

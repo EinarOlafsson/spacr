@@ -265,7 +265,7 @@ def test_file_list_widgets(qtbot, accessible, tmp_path):
     files = []
     for i in range(4):
         path = tmp_path / f"p{i}.csv"
-        path.write_text("a\n1\n")
+        path.write_text("a\n1\n", encoding="utf-8")
         files.append(str(path))
     listing = fl.FilePathListWidget(kind="csv")
     qtbot.addWidget(listing)

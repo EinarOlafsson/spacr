@@ -5413,26 +5413,181 @@ def _numba_cache_directory():
     so frozen and read-only installs work. An unwritable folder means no
     cache, silently.
     """
-    import os
-    from pathlib import Path
+    from ...logging_util import _numba_cache_folder
+
+    return _numba_cache_folder()
+
+
+_PRIME_LOCK = threading.Lock()
+_PRIME_TIMEOUT_S = 240
+_PRECOMPILED_KERNELS = frozenset((
+    "spacr.qt.widgets.ambient._scatter_packed_grains",
+    "spacr.qt.widgets.ambient._scatter_subpixel_grains",
+    "spacr.qt.widgets.ambient._blend_colored_words",
+    "spacr.qt.widgets.ambient._scatter_colored_grains",
+    "spacr.qt.widgets.ambient._warp_satin_columns",
+    "spacr.qt.widgets.fractal_cascade.render_into",
+    "spacr.qt.widgets.fractal_space._object_color",
+    "spacr.qt.widgets.fractal_space.sample_space",
+    "spacr.qt.widgets.fractal_space.render_space_frame",
+    "spacr.qt.widgets.fractal_space._add_galaxies",
+    "spacr.qt.widgets.fractal_travel._render_into",
+    "spacr.qt.widgets.fractal_travel._blend_temporal",
+    "spacr.qt.widgets.fractal_travel._blend_weighted",
+))
+_PRECOMPILE_EXCLUDED = {
+    "spacr.qt.widgets.fractal_space._hash2":
+        "inline='always': compiled into its callers, never called alone",
+    "spacr.qt.widgets.fractal_space._atlas_texel":
+        "inline='always': compiled into _add_galaxies, never called alone",
+}
+_PRIMED_SOURCES = ("ambient", "fractal_cascade", "fractal_space",
+                   "fractal_travel")
+
+
+def _on_a_worker_thread() -> bool:
+    """Whether the caller is a thread other than the interpreter's main one."""
+    import threading as _threads
+
+    return _threads.current_thread() is not _threads.main_thread()
+
+
+def _priming_allowed() -> bool:
+    """Whether kernels may be compiled in a helper process.
+
+    Not in a frozen build, whose executable is the application rather than
+    an interpreter, and not in a distribution smoke run.
+    """
+    if getattr(sys, "frozen", False):
+        return False
+    return os.environ.get("SPACR_DISTRIBUTION_SMOKE", "").strip() != "1"
+
+
+def _primed_marker(folder):
+    """The file that says this source and numba have filled ``folder``."""
+    import hashlib
 
     try:
-        configured = os.environ.get("NUMBA_CACHE_DIR", "").strip()
-        if configured:
-            folder = Path(configured).expanduser()
-        else:
-            from ...logging_util import _spacr_home
-            folder = _spacr_home() / "cache" / "numba"
-        folder.mkdir(parents=True, exist_ok=True)
-        if not os.access(folder, os.W_OK):
-            return None
-        os.environ["NUMBA_CACHE_DIR"] = str(folder)
-        import sys
-        if "numba.core.config" in sys.modules:
-            sys.modules["numba.core.config"].CACHE_DIR = str(folder)
-        return folder
+        import importlib.metadata as metadata
+        numba_version = metadata.version("numba")
     except Exception:
-        return None
+        numba_version = "?"
+    here = os.path.dirname(os.path.abspath(__file__))
+    stamp = f"{numba_version}|{sys.version_info[:2]}"
+    for name in _PRIMED_SOURCES:
+        path = os.path.join(here, name + ".py")
+        stat = os.stat(path)
+        stamp += f"|{path}|{stat.st_mtime_ns}|{stat.st_size}"
+    digest = hashlib.sha256(stamp.encode("utf-8")).hexdigest()[:16]
+    return folder / f"spacr-ambient-primed-{digest}"
+
+
+def _prime_kernel_cache() -> int:
+    """Compile every ambient kernel into the on-disk cache, in this process.
+
+    Run by :func:`_prime_in_helper_process` in a child interpreter, so the
+    compiler's hold on the interpreter lock is that process's and not the
+    application's.
+
+    :returns: ``0`` when the cache was filled, ``1`` otherwise.
+    """
+    folder = _numba_cache_directory()
+    if folder is None:
+        return 1
+    _warm_packed_scatter()
+    _SATIN_COMPILER._warm()
+    if _PACKED_SCATTER is None or _SATIN_COMPILER.kernel is None:
+        return 1
+    try:
+        _prime_fractal_kernels()
+    except Exception:
+        LOG.debug("the fractal kernels did not compile", exc_info=True)
+        return 1
+    try:
+        _primed_marker(folder).touch()
+    except OSError:
+        return 1
+    return 0
+
+
+def _prime_fractal_kernels() -> None:
+    """Render one tiny frame of every night-theme engine, as the app calls it.
+
+    The arguments have the types the fractal worker sends, so the cached
+    signatures are the ones the application asks for.
+    """
+    from .fractal_cascade import CascadeEngine
+    from .fractal_space import SpaceEngine, _add_galaxies, _galaxies_at
+    from .fractal_space import _galaxy_atlas, render_space_frame
+    from .fractal_travel import OrbitEngine
+
+    for samples in (1, 2, 3):
+        for engine in (CascadeEngine(1), SpaceEngine(1), OrbitEngine(1)):
+            engine.samples = samples
+            for _frame in range(samples * samples + 1):
+                engine.render(8, 6, 0.25, 1.0, 0.5, 8, 0.0, 0.0, 0.0, 0.0)
+    frame = render_space_frame(8, 6, 0.25, 1.0, 0.0, 0.0, 1)
+    _add_galaxies(frame, 0.25, 0.0, 0.0, _galaxies_at(0.25, 1.0),
+                  _galaxy_atlas())
+
+
+_PRIMED_ONCE = threading.Event()
+
+
+def _prime_before_first_kernel() -> None:
+    """Fill the kernel cache once, from a render worker, before it compiles.
+
+    The night-theme engines call this at the top of every render; after the
+    first call it is one flag test.
+    """
+    if _PRIMED_ONCE.is_set():
+        return
+    _PRIMED_ONCE.set()
+    try:
+        if _on_a_worker_thread():
+            _prime_in_helper_process()
+    except Exception:
+        LOG.debug("the kernel cache could not be filled", exc_info=True)
+
+
+def _prime_in_helper_process() -> bool:
+    """Fill the kernel cache from a child interpreter unless it is filled.
+
+    Called on a compile thread, never on the GUI thread: waiting for the
+    child releases the interpreter lock, and the application then loads the
+    kernels from the cache instead of compiling them itself.
+
+    :returns: whether the cache is known to be filled for this source.
+    """
+    if not _priming_allowed():
+        return False
+    folder = _numba_cache_directory()
+    if folder is None:
+        return False
+    with _PRIME_LOCK:
+        marker = _primed_marker(folder)
+        if marker.exists():
+            return True
+        import subprocess
+        from pathlib import Path
+
+        package_parent = str(Path(__file__).resolve().parents[3])
+        env = dict(os.environ)
+        env["NUMBA_CACHE_DIR"] = str(folder)
+        env["PYTHONPATH"] = os.pathsep.join(
+            p for p in (package_parent, env.get("PYTHONPATH", "")) if p)
+        env.setdefault("QT_QPA_PLATFORM", "offscreen")
+        code = ("import sys; from spacr.qt.widgets.ambient import "
+                "_prime_kernel_cache; sys.exit(_prime_kernel_cache())")
+        try:
+            subprocess.run([sys.executable, "-c", code], env=env,
+                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL, timeout=_PRIME_TIMEOUT_S,
+                           check=False)
+        except Exception:
+            LOG.debug("the kernel cache helper did not run", exc_info=True)
+            return False
+        return marker.exists()
 
 
 def _compiled_kernel(function):
@@ -5462,6 +5617,8 @@ def _warm_packed_scatter():
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER_STARTED = False
         return
+    if _on_a_worker_thread():
+        _prime_in_helper_process()
     try:
         np = _numpy()
         flat = np.zeros(1, dtype=np.uint32)
@@ -5643,6 +5800,8 @@ class _SatinCompiler:
             with self.lock:
                 self.started = False
             return
+        if _on_a_worker_thread():
+            _prime_in_helper_process()
         try:
             np = _numpy()
             kernel = _compiled_kernel(_warp_satin_columns)

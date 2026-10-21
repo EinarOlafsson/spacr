@@ -1,7 +1,0 @@
-{
-  "status": "EXPECTED_GUARDED_REFUSAL_NO_COLLECTOR",
-  "attempt": "Ordinary _translation_candidate_valid on draft records with canonical_sources guard; the first contextualizer requested reviewed_runtime_translations -> canonical_sources.",
-  "collector_calls_executed": 0,
-  "normal_candidate_pass_claimed": false,
-  "remaining": "Normal ordinary review/candidate acceptance requires actual coordinated canonical context; no fake context or gate bypass used."
-}

@@ -27,11 +27,13 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
-#: What the published Mask pack carries that matters here: the template
-#: token for `src`, and object channels that reshape the form.
+#: What a Mask pack carries that matters here: the template token for `src`,
+#: object channels, and an organelle count that reshapes the form. Since item
+#: 356 channels are shown in place; only a new `number_of_organelles` rebuilds,
+#: and the rebuild is what retires the screen the button was on.
 MASK_PACK = [("src", "<src>"), ("channels", "[0, 1, 2, 3]"),
              ("cell_channel", "1"), ("nucleus_channel", "0"),
-             ("pathogen_channel", "2")]
+             ("pathogen_channel", "2"), ("number_of_organelles", "1")]
 
 
 def _write_pack(folder, name, rows):

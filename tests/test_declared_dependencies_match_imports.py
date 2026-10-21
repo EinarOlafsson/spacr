@@ -111,6 +111,7 @@ SETUP_PY = REPO_ROOT / "setup.py"
 _PLATFORM_ONLY_STDLIB = frozenset({
     "msilib", "msvcrt", "nt", "winreg", "winsound",    # Windows
     "fcntl", "grp", "posix", "pwd", "termios",         # POSIX
+    "resource",                                        # POSIX; found on Windows 2026-10-20
 })
 
 
@@ -143,6 +144,7 @@ STDLIB_MODULE_NAMES = _stdlib_module_names()
 IMPORT_TO_DIST = {
     "Bio": "biopython",
     "GPUtil": "gputil",
+    # PyOpenGL is imported as `OpenGL` (VisPy's 3D-texture volume renderer).
     "OpenGL": "PyOpenGL",
     "PIL": "pillow",
     "PySide6": "PySide6",
@@ -291,7 +293,7 @@ def _imports() -> dict[str, set[str]]:
     """
     found: dict[str, set[str]] = {}
     for path in sorted(PKG.rglob("*.py")):
-        rel = str(path.relative_to(REPO_ROOT))
+        rel = path.relative_to(REPO_ROOT).as_posix()
         if not _is_censused(rel):
             continue
         tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"),
@@ -319,7 +321,7 @@ def _isolated_declaration(mod, files, tree=None):
     """Verify a dependency is pinned, probed, and imported only by its worker."""
     from packaging.requirements import Requirement
 
-    assert files == {str(BACKEND_SOURCE.relative_to(REPO_ROOT))}
+    assert files == {BACKEND_SOURCE.relative_to(REPO_ROOT).as_posix()}
     if tree is None:
         tree = ast.parse(BACKEND_SOURCE.read_text(encoding="utf-8"))
     def probed(fields):
@@ -407,7 +409,7 @@ def test_every_third_party_import_is_a_declared_dependency():
 def test_isolated_dependencies_cannot_bypass_the_host_census(mutation):
     """The isolated declaration is accepted only while its safety claims hold."""
     tree = ast.parse(BACKEND_SOURCE.read_text(encoding="utf-8"))
-    files = {str(BACKEND_SOURCE.relative_to(REPO_ROOT))}
+    files = {BACKEND_SOURCE.relative_to(REPO_ROOT).as_posix()}
     spec = next(node for node in ast.walk(tree)
                 if isinstance(node, ast.Call)
                 and any(kw.arg == "module" and isinstance(kw.value, ast.Constant)
@@ -450,7 +452,7 @@ def _module_scope_imports() -> dict[str, set[str]]:
     fail rather than degrading a single feature."""
     found: dict[str, set[str]] = {}
     for path in sorted(PKG.rglob("*.py")):
-        rel = str(path.relative_to(REPO_ROOT))
+        rel = path.relative_to(REPO_ROOT).as_posix()
         if not _is_censused(rel):
             continue
         tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"),

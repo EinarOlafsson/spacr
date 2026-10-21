@@ -1648,8 +1648,8 @@ class TestTheScreenFoldersAboveARun:
             os.path.join("results", "run_1")) == ["results"]
         assert AppScreen._screen_folders_above(
             os.path.join("/data", "screen", "results", "run_1")) == [
-                os.path.join("/data", "screen", "results"),
-                os.path.join("/data", "screen")]
+                os.path.normpath(os.path.join("/data", "screen", "results")),
+                os.path.normpath(os.path.join("/data", "screen"))]
 
 
 # -- the publication sheet ----------------------------------------------------

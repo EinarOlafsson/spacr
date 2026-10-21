@@ -49,9 +49,9 @@ def test_unchanged_private_copy_preserves_pixels_and_binds_sha256(tmp_path, nest
     result = core._watch_folder_and_analyse(_fast(tmp_path), recorder)
     assert len(result['done']) == len(recorder.calls) == 1
     entry = _ledger(tmp_path)[result['done'][0]]
-    assert set(entry['snapshot_sha256']) == {str(p.relative_to(tmp_path)) for p in paths}
+    assert set(entry['snapshot_sha256']) == {p.relative_to(tmp_path).as_posix() for p in paths}
     for path, content in before.items():
-        name = str(path.relative_to(tmp_path))
+        name = path.relative_to(tmp_path).as_posix()
         assert entry['snapshot_sha256'][name] == hashlib.sha256(content).hexdigest()
         assert entry['source_identity'][name] == core._watch_file_identity(path)
         staged = tmp_path / 'spacr_watch/fields' / result['done'][0] / path.name
@@ -60,7 +60,8 @@ def test_unchanged_private_copy_preserves_pixels_and_binds_sha256(tmp_path, nest
     assert len(recorder.calls) == 1
 
 
-@pytest.mark.parametrize('replacement', [False, True])
+@pytest.mark.parametrize('replacement', [
+    False, pytest.param(True, marks=pytest.mark.posix_only)])
 def test_mutation_during_copy_retries_without_analyzing_stale_bytes(tmp_path, monkeypatch, replacement):
     paths = [_write(tmp_path, _name('A01', c), c) for c in (1, 2)]
     target = paths[0]
@@ -246,7 +247,7 @@ def test_growing_source_copy_never_reads_beyond_observed_size_plus_one(tmp_path,
     assert sum(read_sizes) == 65 and target.stat().st_size == 64
 
 
-@pytest.mark.parametrize('replacement', ['symlink', 'directory'])
+@pytest.mark.parametrize('replacement', [pytest.param('symlink', marks=pytest.mark.needs_symlink), 'directory'])
 def test_replacement_between_listing_and_stat_discards_stale_observation(tmp_path, monkeypatch, replacement):
     folder = tmp_path / 'watched'
     path = _write(folder, _name('A01', 1), 1)

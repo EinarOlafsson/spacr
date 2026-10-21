@@ -56,7 +56,7 @@ def verify_preview(pixmap,path,caption,wanted_key):
     from PySide6.QtGui import QImage
     if caption!=wanted_key:raise ValueError('Image Scatter hover caption differs from object')
     if pixmap is None or pixmap.isNull():raise ValueError('Image Scatter hover image missing')
-    marker=json.loads((Path(path).parent/'.spacr_crop_format.json').read_text())
+    marker=json.loads((Path(path).parent/'.spacr_crop_format.json').read_text(encoding="utf-8"))
     if marker.get('spacr_crop_format')!=3 or marker.get('channel_order')!='declared_rgb':
         raise ValueError('Tutorial crop oracle requires declared RGB format3')
     with Image.open(path) as src:

@@ -156,19 +156,20 @@ def _automatic_collection_paused():
 
 
 def collect_once() -> int:
-    """Run at most one generation's collection, CPython's own policy.
+    """Collect the oldest due generation, or service an explicit full-cleanup
+    request.
 
-    The interpreter collects generation *n* when that generation's count
-    passes its threshold, youngest first, and collecting a generation also
-    clears the younger ones. Reproducing that here -- rather than calling a
-    full ``gc.collect()`` on every tick -- is what keeps the cost the same as
-    it was before this module existed. A full sweep every second would walk
-    every live numpy array in the process.
+    Without an explicit cleanup request, collection is deferred during a heavy
+    import or busy-worker deferral. Otherwise, generations are checked in
+    order 2, 1, 0, and ``gc.collect(generation)`` is called for the first
+    whose count exceeds its saved threshold (or its current threshold when
+    none was saved). No collection is requested when none is due.
 
     Explicit worker cleanup requests take precedence and collect all
     generations, even below their normal thresholds.
 
-    :returns: the generation collected, or ``-1`` when nothing was due.
+    :returns: the generation collected, or ``-1`` when none is due or ordinary
+        collection is deferred.
     """
     if _requested.is_set():
         _requested.clear()

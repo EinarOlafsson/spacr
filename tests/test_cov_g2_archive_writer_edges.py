@@ -22,7 +22,7 @@ def _settings(folder, rows, name="a.csv"):
 def test_settings_skip_one_column_and_unreadable_tables_and_keep_values(tmp_path):
     _settings(tmp_path, {"experiment": "exp1"}, "a.csv")
     _settings(tmp_path, {"experiment": ""}, "b.csv")
-    (tmp_path / "settings" / "c.csv").write_text("only\n1\n")
+    (tmp_path / "settings" / "c.csv").write_text("only\n1\n", encoding="utf-8")
     (tmp_path / "settings" / "d.csv").write_bytes(b"\x00\xff\xfe\x00garbage")
     assert rep._archive_settings(tmp_path)["experiment"] == "exp1"
 

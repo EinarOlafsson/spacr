@@ -390,6 +390,46 @@ def _prefer_a_context_the_shaders_can_run_on() -> None:
     os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 
+def _windows_font_folder(environ=None, *, windows=None) -> str:
+    """The system font folder of a Windows ``environ``, or ``""`` elsewhere.
+
+    :param environ: the environment to read; this process's by default.
+    :param windows: whether to answer for Windows; this system by default.
+    :returns: ``%WINDIR%\\Fonts`` (or ``%SystemRoot%\\Fonts``), else ``""``.
+    """
+    import ntpath
+
+    environ = os.environ if environ is None else environ
+    if not (os.name == "nt" if windows is None else windows):
+        return ""
+    root = environ.get("WINDIR") or environ.get("SystemRoot") or ""
+    return ntpath.join(root, "Fonts") if root else ""
+
+
+def _give_offscreen_qt_the_windows_fonts(environ=None, *, windows=None) -> str:
+    """Point off-screen Qt on Windows at the system fonts, before Qt starts.
+
+    The offscreen platform plugin reads fonts only from ``QT_QPA_FONTDIR``
+    (or Qt's own ``lib/fonts``), never from the Windows font service, so on
+    Windows its font database is empty and every family renders as one
+    fallback face. Linux and macOS find their fonts without it. A folder the
+    caller already chose is kept.
+
+    :param environ: the environment to update; this process's by default.
+    :param windows: whether to act as on Windows; this system by default.
+    :returns: the folder now set, or ``""`` when nothing was changed.
+    """
+    environ = os.environ if environ is None else environ
+    platform = str(environ.get("QT_QPA_PLATFORM", "")).strip().lower()
+    if not platform.startswith("offscreen") or environ.get("QT_QPA_FONTDIR"):
+        return ""
+    folder = _windows_font_folder(environ, windows=windows)
+    if not folder or not os.path.isdir(folder):
+        return ""
+    environ["QT_QPA_FONTDIR"] = folder
+    return folder
+
+
 def run_without_setup(argv: list[str] | None = None) -> int:
     """Launch the GUI without the first-run setup screen.
 
@@ -420,10 +460,12 @@ def run(argv: list[str] | None = None) -> int:
               (e.g. `spacr-qt mask`).
 
     Returns:
-        The exit code returned by `QApplication.exec()`, or ``1`` when the
-        required Qt dependency cannot be imported.
+        The exit code returned by `QApplication.exec()`, ``0`` for a
+        version-only invocation, or ``1`` when the required Qt dependency
+        cannot be imported.
     """
     _prefer_a_context_the_shaders_can_run_on()
+    _give_offscreen_qt_the_windows_fonts()
     if argv is None:
         argv = sys.argv[1:]
 

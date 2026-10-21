@@ -36,7 +36,7 @@ class PrimaryMaskSource:
     :param primary_class: primary object class, for example ``nucleus``.
     :param secondary_class: distinct output object class, for example ``cell``.
     :param sha256: checksum of the source file actually read.
-    :param labels: owned, read-only uint16 primary labels matching the image.
+    :param labels: owned, read-only uint16 or uint32 primary labels matching the image.
     """
 
     path: str
@@ -98,7 +98,8 @@ def read_primary_source(source, image_path, shape, output_path, *,
     :param secondary_class: distinct nonempty name of the output class.
     :param bound_image: field for which an explicit file was chosen. Required
         for file sources; ignored for folders that resolve each field by name.
-    :returns: immutable :class:`PrimaryMaskSource` with read-only uint16 labels.
+    :returns: immutable :class:`PrimaryMaskSource` with read-only uint16 or
+        uint32 labels.
     :raises ValueError: ambiguous/missing pairing, incompatible classes, shape,
         labels, field binding, output alias or a source changed during reading.
     :raises OSError: an input cannot be read.

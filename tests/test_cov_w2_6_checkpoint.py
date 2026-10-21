@@ -30,7 +30,7 @@ def store(tmp_path):
 def test_a_path_is_recorded_as_its_text_not_its_repr():
     """A checkpoint is meant to be inspectable without importing the workflow
     that produced it, and `PosixPath('/data')` is not a path."""
-    assert cp.json_safe(Path("/data/plate1")) == "/data/plate1"
+    assert cp.json_safe(Path("/data/plate1")) == str(Path("/data/plate1"))
 
 
 def test_a_set_is_recorded_in_a_stable_order():
@@ -173,7 +173,7 @@ def test_an_artifact_path_is_a_digest_not_the_unit_name(store):
 # --------------------------------------------------------------------------
 
 def _write(path, payload):
-    Path(path).write_text(json.dumps(payload))
+    Path(path).write_text(json.dumps(payload), encoding="utf-8")
 
 
 def test_a_checkpoint_from_a_future_format_is_refused_by_version(tmp_path):
@@ -224,7 +224,7 @@ def test_a_json_document_that_is_not_an_object_is_refused(tmp_path):
 
 def test_a_corrupt_checkpoint_says_to_keep_it_for_diagnosis(tmp_path):
     path = tmp_path / "run.json"
-    path.write_text("{not json")
+    path.write_text("{not json", encoding="utf-8")
     with pytest.raises(cp.CheckpointError, match="Keep it"):
         cp.CheckpointStore(path, workflow="w", signature="x" * 64,
                            boundary="field", resume=True)

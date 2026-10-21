@@ -5,7 +5,7 @@ MAKE MASKS: EACH NEW DISCONNECTED BRUSH STROKE IS A NEW OBJECT LABEL
 Status:    built; nine-language translations current; release pending
 Requested: maintainer, 2026-10-13: "in make mask when using the brush tool,
            each new disconnected brush stroke should be a new object label."
-Owner:     Home (build); WS (tutorial lesson 14 brush clips, translations)
+Owner:     Mac Codex session (native Mac acceptance/fixes); root (general CI/release); WS/Work (lesson14)
 Related:   Make Masks editor brush tool (spacr/qt/screens/make_masks.py),
            wand/divide/merge tools, undo stack, lesson 14 drawing clips 07-08.
 
@@ -39,6 +39,53 @@ ACCEPTANCE
 - Undo after each case restores the previous mask byte-for-byte.
 - Saved masks and the object table show the new objects; tests cover 2-D
   and 3-D.
+
+MAC SESSION: NATIVE BRUSH STROKES, MODIFIERS AND LABEL ROUNDTRIP
+
+Use spacr/resources/AI/MAC_HANDOFF.md and finish running N703/N646 first.
+The Mac session owns physical-Mac editing acceptance and Mac-specific repairs;
+root owns general CI/release and Work owns fresh lesson 14 publication. Do not
+record tutorials here or implement/reopen F655. Use fresh origin/nightly,
+verify the actual app's HEAD/interpreter/spacr.__file__/installed version and
+record macOS, hardware, display scale and input device. The 1.5.1.5 label alone
+cannot distinguish current nightly from an older installed release.
+
+1. Open a disposable small 2D field with an inspectable label mask, select
+   Brush, and draw two strokes with a clear gap. They must immediately have
+   different object IDs/colours. A stroke starting on an object or first
+   touching it must extend its ID. Check corner contact counts as 8-connected
+   but a one-pixel background gap does not. A stroke touching two objects
+   extends the first one encountered and never silently merges their IDs.
+2. With Brush active hold Shift and paint across a gap: the previous/current
+   object ID must continue. Hold Option (Qt Alt) and drag to pan without
+   painting. With a different tool, check Shift-drag still pans as documented.
+   Use an actual Mac keyboard and mouse/trackpad, not synthesized events; log
+   any OS gesture conflict or modifier mismatch with the active tool. Native
+   help/shortcut hints must describe the Brush exception accurately.
+3. Erase must remove pixels without allocating an object. Undo/redo each
+   disconnected, touching and Shift-continuation stroke using Edit-menu
+   actions, then the actual displayed Mac shortcuts; verify exact arrays,
+   dtype and IDs rather than only a similar image. Repeated strokes in the
+   same spot must not create extra labels from stationary mouse events.
+4. Save/reopen the mask and inspect its label IDs and object table. Shift-
+   continued disconnected pieces must keep their shared ID. Open a binary 255
+   mask with two separated components: the first brush edit numbers connected
+   components, and a bridging stroke must not silently merge the two objects.
+5. Open a small known 3D volume. Repeat separate/connecting/Shift strokes on
+   one section and beside an object in the immediately adjacent section:
+   adjacency is 26-connected across sections. Check first/last sections do not
+   wrap around and a gap beyond that neighbourhood creates a new ID. The
+   selected object must follow the committed stroke. Undo/redo and save/reopen
+   must retain exact labels, spacing and axes; switching back to 2D must not
+   retain a stale volume-edit callback or change2D brush behavior.
+
+Pass requires the stated label rules and native modifiers, exact undo/save
+identity and responsive input without a native crash. Record source/runtime,
+input device, tested 2D/3D cases and IDs, modifier outcome, failures/fixes and
+untested cases in this item. Retain the 235 merged checks and original 1.35
+paint-gate pass without claiming they establish current native behavior or
+new Mac performance/model-quality acceptance. Recheck only affected behavior
+following a fix; do not loosen performance assertions or rerun the whole suite.
 
 --------------------------------------------------------------------------------
 BUILT 2026-10-13 (Home, branch feat-697-brush-labels on makemasks-paint; not
@@ -139,3 +186,6 @@ brush/volume helpers. Source stayed byte-identical during the owning run.
 
 2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
 No new tutorial/native acceptance or release claim; those remain with their existing owners.
+
+2026-10-21 — Mac session owns the detailed current-nightly native checks and Mac-specific fixes above; run N703/N646 first via the canonical Mac handoff.
+Record actual build/runtime and per-case results here; prior automation/history is retained, and Linux/general CI plus Work tutorials remain separate.

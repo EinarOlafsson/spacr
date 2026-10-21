@@ -123,9 +123,11 @@ def test_home_preferences_and_quit_come_first(window):
     # 2026-08-31: "add maximize minimize to the spacr menue above quit".
     # They are the SAME two QActions the Window submenu holds, added to a
     # second menu rather than rebuilt. The Borderless window switch joined
-    # them above Quit with the startup sequence (item 695, 2026-10-12).
-    assert texts[:6] == ["Home", "Preferences…", "Minimise", "Maximise",
-                         "Borderless window", "Quit"], texts[:7]
+    # them above Quit with the startup sequence (item 695, 2026-10-12), and
+    # "Reset this module's layout" with the collapsed-heading fix (60172283ca).
+    assert texts[:7] == ["Home", "Preferences…", "Minimise", "Maximise",
+                         "Borderless window", "Reset this module's layout",
+                         "Quit"], texts[:8]
     assert "All apps" not in texts, (
         "the drawer toggle is back in the menu; it was removed because the "
         "name does not say what it does")

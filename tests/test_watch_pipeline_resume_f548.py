@@ -1,5 +1,6 @@
 """Watch resume cannot silently mix mask and measurement pipeline outputs."""
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -21,9 +22,22 @@ def _images(folder, well):
 
 
 def _bytes(folder):
-    """Snapshot acquired and output file contents for preservation assertions."""
-    return {str(path.relative_to(folder)): path.read_bytes()
-            for path in folder.rglob('*') if path.is_file()}
+    """Snapshot acquired and output file contents for preservation assertions.
+
+    Keys are POSIX-relative. On Windows the walk uses the extended-length form,
+    because the Measure write spool sits past the 260-character path limit.
+    """
+    root = _walkable(folder)
+    return {path.relative_to(root).as_posix(): path.read_bytes()
+            for path in root.rglob('*') if path.is_file()}
+
+
+def _walkable(folder):
+    """``folder`` in a form whose whole tree can be listed on this platform."""
+    folder = Path(folder).resolve()
+    if os.name == 'nt' and not str(folder).startswith('\\\\?\\'):
+        return Path('\\\\?\\' + str(folder))
+    return folder
 
 
 @pytest.mark.parametrize('first,second', [
@@ -48,7 +62,7 @@ def test_populated_legacy_ledger_without_pipeline_preserves_unknown_provenance(t
     ledger_path = Path(result['ledger'])
     ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
     ledger.pop('pipeline')
-    ledger_path.write_text(json.dumps(ledger))
+    ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
     before = _bytes(tmp_path)
     with pytest.raises(ValueError, match='pipeline.*separate watch workspace'):
         core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
@@ -88,7 +102,7 @@ def test_empty_ledger_can_select_pipeline_without_old_results(tmp_path, old_pipe
     ledger = {'src': str(tmp_path), 'fields': {}}
     if old_pipeline is not None:
         ledger['pipeline'] = old_pipeline
-    (work / 'watch_ledger.json').write_text(json.dumps(ledger))
+    (work / 'watch_ledger.json').write_text(json.dumps(ledger), encoding="utf-8")
     _images(tmp_path, 'A01')
     result = core._watch_folder_and_analyse(_settings(tmp_path, 'mask_measure'), Recorder())
     assert result['done'] == ['plate1_A01_0001_001']

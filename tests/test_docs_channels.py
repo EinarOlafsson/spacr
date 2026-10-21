@@ -21,12 +21,12 @@ def hosted_checkpoint(tmp_path, content, commit='a' * 40, hosted_content=None):
     manifest.write_text(json.dumps({'files': [
         {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data),
          'path': prefix + 'lesson/video.mp4'}
-        for prefix, data in (('web/production/', content), ('media_host/', hosted_content))]}))
+        for prefix, data in (('web/production/', content), ('media_host/', hosted_content))]}), encoding="utf-8")
     (checkpoint / 'publication-receipt.json').write_text(json.dumps({
         'commit': commit, 'media_root': MEDIA_ROOT + commit,
         'manifest_sha256': hashlib.sha256(manifest.read_bytes()).hexdigest(),
         'readback': {'passed': True, 'commit': commit, 'files_expected': 1,
-                     'downloaded_sha256_matched': 1, 'metadata_matched': 1}}))
+                     'downloaded_sha256_matched': 1, 'metadata_matched': 1}}), encoding="utf-8")
     return checkpoint
 
 
@@ -36,7 +36,7 @@ def test_verified_hosted_videos_reduce_size_and_preserve_each_channel_revision(t
     main = site(tmp_path, 'main', b'old video')
     nightly = site(tmp_path, 'nightly', b'new video')
     report = tmp_path / 'report.json'
-    report.write_text('{"api": {}}')
+    report.write_text('{"api": {}}', encoding="utf-8")
     for branch, root, content, revision in (
             ('main', main, b'old video', 'a' * 40),
             ('nightly', nightly, b'new video', 'b' * 40)):
@@ -63,7 +63,7 @@ def test_unverified_or_changed_video_stays_local(tmp_path):
     receipt_path = checkpoint / 'publication-receipt.json'
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     receipt['readback']['downloaded_sha256_matched'] = 0
-    receipt_path.write_text(json.dumps(receipt))
+    receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
     assert verified_video_hosts(root, checkpoint) == {}
     assert video.exists()
 
@@ -71,7 +71,7 @@ def test_unverified_or_changed_video_stays_local(tmp_path):
 def test_tampered_host_proof_cannot_redirect_a_video(tmp_path):
     main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
     proof = {'lesson/video.mp4': {'sha256': 'wrong', 'url': 'https://wrong.example/video'}}
-    (nightly / 'tutorials/verified-video-hosts.json').write_text(json.dumps(proof))
+    (nightly / 'tutorials/verified-video-hosts.json').write_text(json.dumps(proof), encoding="utf-8")
     with pytest.raises(ValueError, match='hosted video proof differs'):
         assemble_nightly(nightly, tmp_path / 'space')
 
@@ -79,20 +79,20 @@ def test_tampered_host_proof_cannot_redirect_a_video(tmp_path):
 def site(tmp_path, branch, video=b'same recording'):
     root = tmp_path / branch
     root.mkdir()
-    (root / 'index.html').write_text(f'<body>{branch}</body>')
-    (root / 'publication.json').write_text(json.dumps({'branch': branch, 'commit': branch + '-sha'}))
+    (root / 'index.html').write_text(f'<body>{branch}</body>', encoding="utf-8")
+    (root / 'publication.json').write_text(json.dumps({'branch': branch, 'commit': branch + '-sha'}), encoding="utf-8")
     tutorial = root / 'tutorials'
     media = tutorial / 'production/lesson'
     media.mkdir(parents=True)
     (media / 'video.mp4').write_bytes(video)
     (media / 'poster.jpg').write_bytes(b'poster')
     (tutorial / 'index.html').write_text('<body><header>Fixed toolbar</header><main id="lesson-content">Player</main>'
-                                       '<script src="app_v2.js?v=unchanged-source"></script></body>')
+                                       '<script src="app_v2.js?v=unchanged-source"></script></body>', encoding="utf-8")
     (tutorial / 'app_v2.js').write_text('"use strict";\n'
         'const video = `${PRODUCTION_ROOT}/${lesson.silent}`;\n'
         'const poster = `${PRODUCTION_ROOT}/${activeLesson.poster}`;\n'
-        f'const AUDIO_ROOT = "https://media.example/{branch}-revision";')
-    (tutorial / 'lesson_catalog.js').write_text(branch + ' lessons')
+        f'const AUDIO_ROOT = "https://media.example/{branch}-revision";', encoding="utf-8")
+    (tutorial / 'lesson_catalog.js').write_text(branch + ' lessons', encoding="utf-8")
     return root
 
 
@@ -167,7 +167,7 @@ def test_live_audit_recognizes_only_the_publishers_asset_changes(tmp_path, monke
     assemble_nightly(nightly, output)
     receipt = tmp_path / 'tools/tutorials/release_candidate/publication-receipt.json'
     receipt.parent.mkdir(parents=True)
-    receipt.write_text(json.dumps({'media_root': 'https://example.invalid/immutable'}))
+    receipt.write_text(json.dumps({'media_root': 'https://example.invalid/immutable'}), encoding="utf-8")
     monkeypatch.setattr(live, 'ROOT', tmp_path)
     monkeypatch.setattr(live, 'LOCAL', nightly / 'tutorials')
     monkeypatch.setattr(live, 'EXPECTED_APP_KEY', 'unchanged-source')
@@ -207,7 +207,7 @@ def test_channel_receipt_counts_every_published_byte(tmp_path, branch, previous_
     from publish_docs_channels import site_size
     source = site(tmp_path, branch)
     if previous_receipt:
-        (source / 'channels.json').write_text('{"obsolete": "' + 'x' * 1000 + '"}')
+        (source / 'channels.json').write_text('{"obsolete": "' + 'x' * 1000 + '"}', encoding="utf-8")
     output = tmp_path / 'published'
     assemble = assemble_main if branch == 'main' else assemble_nightly
     receipt = assemble(source, output)
@@ -255,7 +255,7 @@ def test_old_nightly_pages_urls_redirect_to_the_same_space_path(tmp_path):
 
 def test_an_existing_404_page_keeps_its_content_and_gains_the_redirect(tmp_path):
     main = site(tmp_path, 'main')
-    (main / '404.html').write_text('<html><head><title>Lost</title></head><body>Lost</body></html>')
+    (main / '404.html').write_text('<html><head><title>Lost</title></head><body>Lost</body></html>', encoding="utf-8")
     pages = tmp_path / 'pages'
     assemble_main(main, pages)
     text = (pages / '404.html').read_text(encoding="utf-8")
@@ -443,6 +443,8 @@ def test_nightly_verification_waits_for_the_actual_homepage_bytes(tmp_path, monk
     'host-script', 'wrong-variable', 'extra-variable', 'invalid-id', 'uppercase-id',
     'duplicate', 'misplaced', 'truncated', 'trailing', 'large-trailing',
     'other-script', 'changed-prefix', 'changed-body', 'foreign-host', 'lookalike-host',
+    'host-script-and-card', 'card-only', 'card-foreign-image', 'card-duplicate',
+    'card-after-head', 'card-changed-tag',
 ])
 def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
         tmp_path, monkeypatch, state):
@@ -458,6 +460,13 @@ def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
               b'"651dd0c2e956b4858bd2f10e"}};</script>')
     assert len(script) == 101
     hosted = index.replace(b'<head>', b'<head>' + script, 1)
+    card = (b'<meta property="og:title" content="spaCR nightly documentation">'
+            b'<meta property="og:description" content="Nightly preview">'
+            b'<meta property="og:image" content="https://cdn-thumbnails.huggingface.co/'
+            b'social-thumbnails/spaces/einarolafsson/spacr-docs-nightly.png">'
+            b'<meta name="twitter:card" content="summary_large_image">'
+            b'<meta name="twitter:image" content="https://cdn-thumbnails.huggingface.co/'
+            b'social-thumbnails/spaces/einarolafsson/spacr-docs-nightly.png">')
     url = publisher.NIGHTLY_URL
     if state == 'wrong-variable':
         hosted = hosted.replace(b'SPACE_CREATOR_USER_ID', b'SPACE_UNRECOGNIZED_ID')
@@ -487,12 +496,27 @@ def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
         url = 'https://example.com/'
     elif state == 'lookalike-host':
         url = 'https://docs.static.hf.space.example.com/'
+    elif state == 'host-script-and-card':
+        hosted = hosted.replace(b'</head>', card + b'</head>', 1)
+    elif state == 'card-only':
+        hosted = index.replace(b'</head>', card + b'</head>', 1)
+    elif state == 'card-foreign-image':
+        hosted = hosted.replace(b'</head>', card.replace(
+            b'cdn-thumbnails.huggingface.co', b'thumbnails.example.com', 1) + b'</head>', 1)
+    elif state == 'card-duplicate':
+        hosted = hosted.replace(b'</head>', card + card + b'</head>', 1)
+    elif state == 'card-after-head':
+        hosted = hosted.replace(script, script + card, 1)
+    elif state == 'card-changed-tag':
+        hosted = hosted.replace(b'</head>', card.replace(
+            b'twitter:card', b'twitter:site', 1) + b'</head>', 1)
     read_sizes = []
 
     class Homepage(io.BytesIO):
         def read(self, size=-1):
             read_sizes.append(size)
-            assert 0 < size <= len(index) + len(script) + 1
+            assert 0 < size <= (len(index) + len(script)
+                                + publisher._HF_STATIC_SOCIAL_BYTES + 1)
             return super().read(size)
 
     def fetch(request, timeout):
@@ -502,7 +526,7 @@ def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
         return io.BytesIO((space / name).read_bytes())
 
     monkeypatch.setattr(publisher, 'urlopen', fetch)
-    if state == 'host-script':
+    if state in ('host-script', 'host-script-and-card', 'card-only'):
         assert publisher.verify_nightly(space, url=url, attempts=1, interval=0) == 'nightly-sha'
     else:
         with pytest.raises(RuntimeError, match='public index.html does not match'):
@@ -515,10 +539,10 @@ def test_incompatible_catalog_is_registered_and_english_is_publishable(tmp_path)
     catalogs = root / '_static/i18n/api'
     catalogs.mkdir(parents=True)
     for language in ('en', 'es', 'de'):
-        (catalogs / f'{language}.json').write_text('{}')
+        (catalogs / f'{language}.json').write_text('{}', encoding="utf-8")
     report = tmp_path / 'report.json'
     report.write_text(json.dumps({'api': {'es': {'source_compatible': False, 'issues': ['stale']},
-                                           'de': {'source_compatible': True, 'issues': []}}}))
+                                           'de': {'source_compatible': True, 'issues': []}}}), encoding="utf-8")
     prepare(root, report, 'main', 'current-sha')
     assert json.loads((catalogs / 'es.json').read_text(encoding="utf-8"))['unavailable'] is True
     assert (catalogs / 'en.json').exists()
@@ -568,7 +592,7 @@ def test_cli_reports_null_api_text_as_incompatible_without_blocking_english(
         record = {**source, 'text': text,
                   'translation_source_blocks_sha256': ['block']}
         (api_dir / f'{language}.json').write_text(json.dumps(
-            {'schema': 2, 'symbols': {'current': record}}))
+            {'schema': 2, 'symbols': {'current': record}}), encoding="utf-8")
     sources = {name: {} for name in ('setting_labels', 'setting_tooltips',
                                      'categories', 'ui', 'module_summaries')}
     docs = SimpleNamespace(MODEL_SPECS={'es': None}, public_docstrings=lambda: {},
@@ -618,10 +642,10 @@ def test_report_only_pytest_policy_preserves_english_and_code_failures(tmp_path)
     assert not advisory('tests/test_documentation_i18n.py',
                         'test_documentation_api_catalog_inventory_and_hashes_are_current', {'language': 'en'})
     assert not advisory('tests/test_api_i18n_frontend.py', 'test_stale_translation_falls_back')
-    (tmp_path / 'pytest.ini').write_text('[pytest]\n')
+    (tmp_path / 'pytest.ini').write_text('[pytest]\n', encoding="utf-8")
     (tmp_path / 'test_external_i18n_catalogs.py').write_text(
         'def test_external_runtime_catalogs_have_exact_current_source_keys():\n'
-        '    raise KeyError("missing translated Next caption")\n')
+        '    raise KeyError("missing translated Next caption")\n', encoding="utf-8")
     env = {**os.environ, 'PYTHONPATH': str(Path(__file__).resolve().parents[1])}
     command = [sys.executable, '-m', 'pytest', '-q', '-p', 'tools.pytest_translation_compatibility']
     result = subprocess.run(command, cwd=tmp_path, env=env, text=True, capture_output=True)
@@ -632,7 +656,7 @@ def test_report_only_pytest_policy_preserves_english_and_code_failures(tmp_path)
     record = json.loads(records[0].read_text(encoding="utf-8"))
     assert record['blocking'] is False
     assert 'missing translated Next caption' in record['diagnostics']
-    (tmp_path / 'test_english.py').write_text('def test_english_build():\n    assert False, "broken English"\n')
+    (tmp_path / 'test_english.py').write_text('def test_english_build():\n    assert False, "broken English"\n', encoding="utf-8")
     result = subprocess.run(command, cwd=tmp_path, env=env, text=True, capture_output=True)
     assert result.returncode == 1
     assert '1 failed' in result.stdout
@@ -645,8 +669,8 @@ def test_cli_allows_bad_translations_but_requires_good_english(tmp_path, monkeyp
 
     api_dir = tmp_path / 'docs/source/_static/i18n/api'
     api_dir.mkdir(parents=True)
-    (api_dir / 'en.json').write_text(json.dumps({'symbols': {'current': {'text': 'Current'}}}))
-    (api_dir / 'es.json').write_text(json.dumps({'schema': 2, 'symbols': {}}))
+    (api_dir / 'en.json').write_text(json.dumps({'symbols': {'current': {'text': 'Current'}}}), encoding="utf-8")
+    (api_dir / 'es.json').write_text(json.dumps({'schema': 2, 'symbols': {}}), encoding="utf-8")
     sources = {'setting_labels': {}, 'setting_tooltips': {}, 'categories': {},
                'ui': {'Next': 'Next'}, 'module_summaries': {}}
     docs = SimpleNamespace(MODEL_SPECS={'es': None}, public_docstrings=lambda: {},
@@ -686,7 +710,7 @@ def test_configure_loads_the_compat_extension_without_shadowing_branch_tools(tmp
     from publish_docs_channels import main
     config = tmp_path / 'docs/source/conf.py'
     config.parent.mkdir(parents=True)
-    config.write_text('extensions = []\n')
+    config.write_text('extensions = []\n', encoding="utf-8")
     before = list(sys.path)
     monkeypatch.delitem(sys.modules, 'docs_publication_compat', raising=False)
     assert main(['configure', '--root', str(tmp_path)]) == 0
@@ -695,7 +719,7 @@ def test_configure_loads_the_compat_extension_without_shadowing_branch_tools(tmp
     publisher_tools = str(Path(__file__).resolve().parents[1] / 'tools')
     assert namespace['extensions'] == ['docs_publication_compat']
     assert sys.path == before
-    assert sys.modules['docs_publication_compat'].__file__ == publisher_tools + '/docs_publication_compat.py'
+    assert Path(sys.modules['docs_publication_compat'].__file__) == Path(publisher_tools, 'docs_publication_compat.py')
 
 
 def test_nightly_directory_links_name_their_index_for_the_static_space(tmp_path):
@@ -706,7 +730,7 @@ def test_nightly_directory_links_name_their_index_for_the_static_space(tmp_path)
         '<body><a href="../../tutorials/#lesson=09_annotate">Lesson</a>'
         '<a href="../../tutorials/">All</a><a href="../../missing/">Gone</a>'
         '<a href="https://example.org/docs/">Out</a><a href="#top">Top</a>'
-        "<a href='/tutorials/?x=1'>Root</a></body>")
+        "<a href='/tutorials/?x=1'>Root</a></body>", encoding="utf-8")
     space = tmp_path / 'space'
     receipt = assemble_nightly(nightly, space)
     text = (space / 'api/spacr/index.html').read_text(encoding="utf-8")

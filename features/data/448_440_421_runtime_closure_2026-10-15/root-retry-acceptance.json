@@ -1,7 +1,0 @@
-{
-  "decision": "ACCEPT necessary retry after independently approved single French target correction",
-  "driver_sha256": "2b8dee580ad4fdbb9081ee7374a7af47199e7dce293be687809ac18064b0fa67",
-  "approved_inputs_sha256": "61f5a971cfc2d2943dd5cc60135a6b1186684006efc65b7248b0e4ae62227db4",
-  "retirement_resume": "Full immutable approved originals+exact row hashes and exact derived postimages, all9validated before anymutation; archives never overwritten. No target/source/candidate/arrival gates changed.",
-  "prior_failure": "attempt1/receipt.json"
-}

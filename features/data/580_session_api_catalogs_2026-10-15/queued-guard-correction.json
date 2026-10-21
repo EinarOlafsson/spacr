@@ -1,5 +1,0 @@
-{
-  "waiter_pid": 2056619,
-  "childless_before_termination": true,
-  "reason": "Bind the no-full-API-collector guard to actual public_docstrings name before execution; no producer had started."
-}

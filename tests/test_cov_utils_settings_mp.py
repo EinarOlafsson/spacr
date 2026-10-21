@@ -20,7 +20,12 @@ Everything here is offline and side-effect free:
 from __future__ import annotations
 
 import os
-import resource
+import sys
+
+try:
+    import resource
+except ImportError:
+    resource = None
 
 import numpy as np
 import pandas as pd
@@ -345,7 +350,7 @@ def test_save_settings_survives_unwritable_src(tmp_path, capsys):
     from spacr.utils import save_settings
 
     bogus = tmp_path / "not_a_dir.txt"
-    bogus.write_text("i am a file\n")
+    bogus.write_text("i am a file\n", encoding="utf-8")
 
     # Must not raise.
     assert save_settings({"src": str(bogus)}, name="settings") is None
@@ -559,6 +564,22 @@ def test_is_multiprocessing_process_matches_substring():
 # close_file_descriptors
 # ---------------------------------------------------------------------------
 
+def test_close_file_descriptors_is_a_no_op_without_the_resource_module(monkeypatch):
+    """Windows has no ``resource`` module; the sweep must not raise there."""
+    import spacr.utils as U
+
+    calls = []
+    monkeypatch.setitem(sys.modules, "resource", None)
+    monkeypatch.setattr(U.os, "close", lambda fd: calls.append(fd))
+    try:
+        U.close_file_descriptors()
+    finally:
+        monkeypatch.undo()
+
+    assert calls == []
+
+
+@pytest.mark.posix_only
 def test_close_file_descriptors_sweeps_3_to_soft_limit(monkeypatch):
     """Every fd in [3, soft) is closed; an already-closed fd is ignored."""
     import spacr.utils as U
@@ -582,6 +603,7 @@ def test_close_file_descriptors_sweeps_3_to_soft_limit(monkeypatch):
     assert closed == [3, 5]
 
 
+@pytest.mark.posix_only
 def test_close_file_descriptors_noop_when_soft_limit_is_three(monkeypatch):
     """soft == 3 -> nothing to sweep, os.close is never called."""
     import spacr.utils as U
@@ -699,7 +721,7 @@ def test_check_mask_folder_counts_only_npy(tmp_path, capsys):
         # Masks are whole arrays: an empty mask is not counted (2026-09-19).
         np.save(masks / f"{i}.npy", np.zeros((4, 4), np.uint16))
     # Clutter that must not be counted.
-    (masks / "notes.txt").write_text("hi")
+    (masks / "notes.txt").write_text("hi", encoding="utf-8")
     (stack / "preview.png").write_bytes(b"")
 
     assert check_mask_folder(str(src), "cell_mask_stack") is False

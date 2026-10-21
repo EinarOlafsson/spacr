@@ -304,7 +304,7 @@ def test_every_text_suffix_skips_the_table_listing(screen, tmp_path,
     monkeypatch.setattr(fe, "table_names", watched)
 
     target = tmp_path / f"features{suffix}"
-    target.write_text("condition,cell_area\na,10\nb,12\n")
+    target.write_text("condition,cell_area\na,10\nb,12\n", encoding="utf-8")
 
     screen.load_path(str(target))
 

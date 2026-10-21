@@ -36,6 +36,34 @@ import re
 from html import unescape
 
 from setuptools import setup, find_packages
+from setuptools.command.build_py import build_py as _build_py
+from setuptools.command.sdist import sdist as _sdist
+
+from pathlib import Path
+import runpy
+
+project_runtime_catalogs = runpy.run_path(
+    str(Path(__file__).resolve().parent / "_spacr_catalog_build.py")
+)["project_runtime_catalogs"]
+
+
+class RuntimeCatalogBuild(_build_py):
+    """Project copied packages before setuptools byte-compiles them."""
+
+    def build_packages(self):
+        """Copy packages normally, then omit development-only catalog fields."""
+        super().build_packages()
+        project_runtime_catalogs(self.build_lib)
+
+
+class RuntimeCatalogSdist(_sdist):
+    """Keep development provenance in git, outside the release source tree."""
+
+    def make_release_tree(self, base_dir, files):
+        """Project only the complete copied source-distribution tree."""
+        super().make_release_tree(base_dir, files)
+        project_runtime_catalogs(base_dir)
+
 
 def pypi_readme(source):
     """Preserve the GitHub README while resolving its repository-relative URLs.
@@ -206,6 +234,10 @@ def long_description_for(readme, root=None):
     return pypi_readme(readme)
 
 
+
+
+
+
 with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = long_description_for(fh.read())
 
@@ -300,10 +332,11 @@ dependencies = [
     'protobuf>=5.28.3',
 ]
 
-VERSION = "1.5.1.5"
+VERSION = "1.5.1.6"
 name = "spacr"
 
 setup(
+    cmdclass={"build_py": RuntimeCatalogBuild, "sdist": RuntimeCatalogSdist},
     name=name,
     version=VERSION,
     description="Spatial phenotype analysis of CRISPR screens (spaCR)",
@@ -311,6 +344,7 @@ setup(
     long_description_content_type='text/x-rst',
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
+    exclude_package_data={'spacr': ['resources/AI/*', 'resources/AI/**/*']},
     package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/module_workflows.json', 'resources/data/*', 'resources/model_cards/*.json', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/organism_*.svg', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/splash/*.jpg', 'resources/splash/*.json', 'resources/setting_animations/*.json', 'resources/plate_templates/*.json', 'resources/setting_animations/gifs/*.gif'],},
     data_files=(
         [

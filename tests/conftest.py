@@ -197,6 +197,129 @@ os.environ["SPACR_PYTEST_SESSION"] = "1"
 # inert now and cleared before any test module is imported.
 os.environ.pop("SPACR_ALLOW_GITHUB_WRITES", None)
 
+# A TEST THAT MOVES HOME MOVES IT ON WINDOWS TOO.
+#
+# Dozens of tests sandbox the user's home with `monkeypatch.setenv("HOME",
+# tmp_path)`. On Windows, `Path.home()` and `os.path.expanduser` read
+# USERPROFILE and ignore HOME, so those tests read and WROTE the developer's
+# real home: a fake 19-byte colony detector landed in the real
+# `~/.spacr/models` on 2026-10-20, and cached bioimage.io listings leaked in
+# the other direction. Mirroring HOME into USERPROFILE, through the same
+# monkeypatch so it is undone with it, gives every such test the sandbox it
+# asked for. A test that has already pointed USERPROFILE somewhere of its
+# own is left alone.
+if os.name == "nt":
+    _REAL_USERPROFILE = os.environ.get("USERPROFILE")
+    _monkeypatch_setenv = pytest.MonkeyPatch.setenv
+
+    def _setenv_moving_the_windows_home_too(self, name, value, prepend=None):
+        _monkeypatch_setenv(self, name, value, prepend)
+        if (name == "HOME" and prepend is None
+                and os.environ.get("USERPROFILE") == _REAL_USERPROFILE):
+            _monkeypatch_setenv(self, "USERPROFILE", str(value))
+
+    pytest.MonkeyPatch.setenv = _setenv_moving_the_windows_home_too
+
+
+# OFFSCREEN QT ON WINDOWS HAS NO FONTS UNLESS IT IS TOLD WHERE THEY ARE.
+#
+# The offscreen platform plugin reads fonts through FreeType from
+# QT_QPA_FONTDIR (or Qt's own lib/fonts), not from the Windows font service,
+# so on Windows its font database is EMPTY: every family falls back to one
+# built-in face, "Open Sans", "Segoe UI" and "Arial" render identical pixels,
+# and every test that measures ink, colour or growth of text fails or passes
+# for the wrong reason (found natively 2026-10-20: 0 families; with the
+# system font folder, 174). Linux's offscreen plugin uses fontconfig and
+# needs nothing. Set before any QApplication exists, and inherited by every
+# child a test starts.
+if (os.name == "nt"
+        and os.environ.get("QT_QPA_PLATFORM", "offscreen").startswith("offscreen")
+        and not os.environ.get("QT_QPA_FONTDIR")):
+    _windows_root = os.environ.get("WINDIR") or os.environ.get("SystemRoot") or ""
+    _windows_fonts = os.path.join(_windows_root, "Fonts")
+    if _windows_root and os.path.isdir(_windows_fonts):
+        os.environ["QT_QPA_FONTDIR"] = _windows_fonts
+        # FreeType keeps every face it opens as a C stdio stream, and the
+        # system font folder holds ~540 files: the C runtime's default
+        # ceiling of 512 streams was exhausted, after which numpy could not
+        # open a FILE* to write any TIFF ("_fdopen failed") and Qt logged
+        # "Failed to create FreeType font engine". One process-wide raise of
+        # that ceiling, in the runtime Qt and numpy share.
+        try:
+            import ctypes
+
+            ctypes.cdll.ucrtbase._setmaxstdio(8192)
+        except (OSError, AttributeError):
+            pass
+
+
+# WHERE THE NATIVE QSETTINGS STORE CANNOT BE MOVED, NOTHING MAY USE IT.
+#
+# The sandbox further down redirects every QSettings format with `setPath`.
+# On Linux that moves `QSettings("spacr", "qt")`; on Windows it is the
+# registry and on macOS CFPreferences, and neither moves. There the suite
+# shared the developer's REAL store: `HKCU\Software\spacr\qt\recent` filled
+# with pytest tmp paths, tests that `.clear()` the store to start clean
+# erased the developer's preferences, and a value one test wrote failed
+# another (found natively on Windows 2026-10-20). So, before spaCR or any
+# test module is imported, `QtCore.QSettings` becomes a subclass that builds
+# every NativeFormat store as an IniFormat one, which `setPath` does move.
+# Asked by probing, not by naming operating systems: on a platform where the
+# native store follows `setPath`, nothing is replaced.
+def _native_qsettings_follow_set_path() -> bool:
+    try:
+        from PySide6 import QtCore
+    except Exception:
+        return True
+    # The probe must leave the native path where it found it: the real-store
+    # snapshot in pytest_configure reads it, and a probe left pointing at its
+    # deleted folder would make that guard watch the wrong file.
+    before = QtCore.QSettings("spacr-native-probe", "probe").fileName()
+    original = (os.path.dirname(os.path.dirname(before))
+                if os.path.isabs(before) and not before.startswith("\\") else None)
+    probe = tempfile.mkdtemp(prefix="spacr-qsettings-probe-")
+    try:
+        QtCore.QSettings.setPath(QtCore.QSettings.NativeFormat,
+                                 QtCore.QSettings.UserScope, probe)
+        where = QtCore.QSettings("spacr-native-probe", "probe").fileName()
+        try:
+            return Path(where).resolve().is_relative_to(Path(probe).resolve())
+        except (OSError, ValueError):
+            return False
+    finally:
+        if original is not None:
+            QtCore.QSettings.setPath(QtCore.QSettings.NativeFormat,
+                                     QtCore.QSettings.UserScope, original)
+        import shutil as _probe_shutil
+        _probe_shutil.rmtree(probe, ignore_errors=True)
+
+
+if not _native_qsettings_follow_set_path():
+    from PySide6 import QtCore as _QtCore
+
+    _NativeQSettings = _QtCore.QSettings
+
+    class _QSettingsThatSetPathMoves(_NativeQSettings):
+        """``QSettings`` with every NativeFormat store built as IniFormat."""
+
+        def __init__(self, *args, **kwargs):
+            native, ini = _NativeQSettings.NativeFormat, _NativeQSettings.IniFormat
+            if args and isinstance(args[0], str) and not (
+                    len(args) > 1 and isinstance(args[1], _NativeQSettings.Format)):
+                args = (ini, _NativeQSettings.UserScope) + args
+            elif args and isinstance(args[0], _NativeQSettings.Scope):
+                args = (ini,) + args
+            elif args and args[0] == native and len(args) > 2:
+                args = (ini,) + args[1:]
+            elif (not args or isinstance(args[0], _QtCore.QObject)) and not kwargs \
+                    and _NativeQSettings.defaultFormat() == native:
+                app = _QtCore.QCoreApplication
+                args = (ini, _NativeQSettings.UserScope, app.organizationName(),
+                        app.applicationName()) + args
+            super().__init__(*args, **kwargs)
+
+    _QtCore.QSettings = _QSettingsThatSetPathMoves
+
 # Make the in-tree spacr importable without an editable install.
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
@@ -1224,11 +1347,32 @@ def pytest_runtest_setup(item):
     carries `@pytest.mark.gpu`, and a guard written into each file is a
     guard the next file will not have.
     """
+    if item.get_closest_marker("posix_only") is not None and os.name == "nt":
+        pytest.skip("exercises a POSIX-only code path or API")
+    if item.get_closest_marker("needs_symlink") is not None and not _symlinks_available():
+        pytest.skip("creating a symbolic link needs a privilege this account lacks")
     if item.get_closest_marker("gpu") is None:
         return
     trouble = _no_room_on_the_gpu()
     if trouble:
         pytest.skip(trouble)
+
+
+_SYMLINKS = []
+
+
+def _symlinks_available() -> bool:
+    """Whether this process may create a symbolic link (Windows needs Developer Mode or a privilege)."""
+    if not _SYMLINKS:
+        import tempfile
+
+        with tempfile.TemporaryDirectory(prefix="spacr-symlink-probe-") as folder:
+            try:
+                os.symlink(folder, os.path.join(folder, "link"), target_is_directory=True)
+                _SYMLINKS.append(True)
+            except (OSError, NotImplementedError):
+                _SYMLINKS.append(False)
+    return _SYMLINKS[0]
 
 
 # ---------------------------------------------------------------------------
@@ -3050,3 +3194,27 @@ def _the_flowview_collector_is_put_back():
         give_back_an_untraced_process(after)
         return
     restore_flowview_trace_to(after, snapshot)
+
+
+@pytest.fixture(scope="session")
+def api_catalogs():
+    """The API catalogs, assembled for this session (item 710).
+
+    They are no longer committed: ``tools/build_documentation_i18n.py
+    --assemble`` builds them from the pinned translation memory and the
+    reviewed records, and a test that reads the real catalogs reads that
+    build. Assembled once per set of inputs and reused while the inputs are
+    unchanged; a lock keeps parallel workers from building it twice. A
+    memory that cannot be fetched fails the test rather than skipping it.
+    """
+    from filelock import FileLock
+
+    tools = str(Path(__file__).resolve().parents[1] / "tools")
+    if tools not in sys.path:
+        sys.path.insert(0, tools)
+    import build_documentation_i18n as builder
+
+    builder.STATIC_API_DIR.mkdir(parents=True, exist_ok=True)
+    with FileLock(str(builder.STATIC_API_DIR.parent / ".api-assemble.lock")):
+        builder.assemble_api_catalogs(if_stale=True)
+    return builder.STATIC_API_DIR

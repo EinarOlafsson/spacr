@@ -511,6 +511,27 @@ def _portable_root_for(raw: str, launcher: str) -> Optional[Path]:
     return None
 
 
+def _legacy_text_encoding(path: Any) -> str:
+    """The encoding to read a text file spaCR or the user wrote earlier with.
+
+    Files written by older spaCR on Windows used the locale code page
+    (``cp1252``); current spaCR writes UTF-8. A file that decodes as UTF-8 is
+    read as UTF-8, and one that does not is read as ``cp1252``.
+
+    :param path: the file to probe.
+    :returns: ``"utf-8"`` or ``"cp1252"``.
+    """
+    try:
+        with open(path, encoding="utf-8") as probe:
+            while probe.read(1 << 20):
+                pass
+    except UnicodeDecodeError:
+        return "cp1252"
+    except OSError:
+        return "utf-8"
+    return "utf-8"
+
+
 def _spacr_home() -> Path:
     """Return the folder spaCR keeps settings, caches, logs and runs in.
 
@@ -527,6 +548,34 @@ def _spacr_home() -> Path:
         return root / _PORTABLE_DATA
     return Path.home() / ".spacr"
 
+
+
+def _numba_cache_folder():
+    """Point numba's on-disk kernel cache at spaCR's folder, and return it.
+
+    ``NUMBA_CACHE_DIR`` wins when the user set it; otherwise the folder is
+    ``cache/numba`` under :func:`_spacr_home`, never beside the package
+    source, so frozen and read-only installs keep their kernels. numba picks
+    a kernel's cache location when ``cache=True`` decorates it, so this runs
+    before any spaCR module that decorates kernels imports numba. An
+    unwritable folder returns ``None`` and leaves numba as it was.
+    """
+    try:
+        configured = os.environ.get("NUMBA_CACHE_DIR", "").strip()
+        if configured:
+            folder = Path(configured).expanduser()
+        else:
+            folder = _spacr_home() / "cache" / "numba"
+        folder.mkdir(parents=True, exist_ok=True)
+        if not os.access(folder, os.W_OK):
+            return None
+        os.environ["NUMBA_CACHE_DIR"] = str(folder)
+        config = sys.modules.get("numba.core.config")
+        if config is not None:
+            config.CACHE_DIR = str(folder)
+        return folder
+    except Exception:
+        return None
 
 def _apply_portable_mode() -> Optional[Path]:
     """Point every per-user folder at the portable data folder, if enabled.

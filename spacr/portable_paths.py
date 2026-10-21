@@ -33,6 +33,60 @@ _SIBLINGS: Tuple[str, ...] = ("measurements", "results", "settings", "merged",
 _MAX_CLIMB = 2
 
 
+#: Paths at least this long take the extended-length spelling on Windows.
+#: MAX_PATH is 260 for a file and 248 for a folder that is created; staying
+#: under 240 leaves room for the temporary siblings atomic writes add.
+_WINDOWS_PATH_ROOM = 240
+
+
+def _long_path(path, *, always: bool = False, windows: Optional[bool] = None):
+    """``path`` as Windows opens it past MAX_PATH; ``path`` itself elsewhere.
+
+    With long paths disabled (the Windows default) a file below a deep folder,
+    such as a Leica Matrix Screener ``slide--/chamber--/field--/image--``
+    tree, cannot be opened, listed or created. The ``\\\\?\\`` form (``\\\\?\\UNC\\``
+    for a share) lifts that limit. Only paths that need it are respelled, so
+    ordinary Windows paths and every POSIX path reach the file call unchanged.
+
+    :param path: a str or path-like; anything else is returned as it is.
+    :param always: respell even a short path, for a walk whose entries may
+        be deeper than the root.
+    :param windows: whether to act as on Windows; this system by default.
+    :returns: the extended-length string, or ``path`` unchanged.
+    """
+    if not (os.name == "nt" if windows is None else windows):
+        return path
+    if not isinstance(path, (str, os.PathLike)):
+        return path
+    text = os.fspath(path)
+    if not isinstance(text, str) or text.startswith("\\\\?\\"):
+        return path
+    import ntpath
+
+    absolute = ntpath.abspath(text) if os.name == "nt" else ntpath.normpath(text)
+    if not always and len(absolute) < _WINDOWS_PATH_ROOM:
+        return path
+    if absolute.startswith("\\\\"):
+        return "\\\\?\\UNC\\" + absolute[2:]
+    return "\\\\?\\" + absolute
+
+
+def _plain_path(path, *, windows: Optional[bool] = None):
+    """:func:`_long_path` undone, for paths that are recorded or shown.
+
+    :param path: a path a walk under a :func:`_long_path` root produced.
+    :param windows: whether to act as on Windows; this system by default.
+    :returns: the ordinary spelling, or ``path`` unchanged.
+    """
+    if not (os.name == "nt" if windows is None else windows) or not isinstance(path, str):
+        return path
+    if path.startswith("\\\\?\\UNC\\"):
+        return "\\\\" + path[8:]
+    if path.startswith("\\\\?\\"):
+        return path[4:]
+    return path
+
+
 def _parts(path: str) -> List[str]:
     """``path`` split into components, separator-agnostic."""
     return [p for p in str(path).replace("\\", "/").split("/") if p]
@@ -557,6 +611,8 @@ def _describe_missing_paths(paths: Iterable[str], exists=None) -> List[str]:
         if not isinstance(path, str) or exists(path):
             continue
         parent = os.path.dirname(os.path.normpath(path))
+        if os.sep == "\\" and "/" in path and "\\" not in path:
+            parent = parent.replace("\\", "/")
         if parent and exists(parent):
             note = tr("its parent folder {parent} exists, so check the last "
                       "folder name for a typo", parent=parent)

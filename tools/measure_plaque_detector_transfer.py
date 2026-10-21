@@ -309,7 +309,7 @@ def fetch_figure_images(pmcid: str, dest: Path,
     have = sorted(p for p in dest.glob("*") if p.suffix.lower() in IMG_EXT)
     if have and marker.is_file():
         try:
-            if marker.read_text().strip() == SELECTION_RULE:
+            if marker.read_text(encoding="utf-8").strip() == SELECTION_RULE:
                 return have
         except OSError:
             pass
@@ -342,7 +342,7 @@ def fetch_figure_images(pmcid: str, dest: Path,
                 out.append(target)
     except zipfile.BadZipFile:
         return []
-    marker.write_text(f"{SELECTION_RULE}\n")
+    marker.write_text(f"{SELECTION_RULE}\n", encoding="utf-8")
     time.sleep(sleep)
     return sorted(out)
 
@@ -394,7 +394,7 @@ def stage_sample(args: argparse.Namespace) -> None:
     exclude = set()
     sources = []
     for path in args.exclude_pmcids or []:
-        text = Path(path).read_text(errors="ignore")
+        text = Path(path).read_text(errors="ignore", encoding="utf-8")
         found = PMCID_RE.findall(text)
         exclude.update(found)
         sources.append({"path": str(path),
@@ -415,7 +415,7 @@ def stage_sample(args: argparse.Namespace) -> None:
     }
     target = Path(args.out) / "papers.json"
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(out, indent=2))
+    target.write_text(json.dumps(out, indent=2), encoding="utf-8")
     print(f"sampled {len(papers)} papers, {len(exclude)} PMC ids excluded "
           f"-> {target}")
 
@@ -426,7 +426,7 @@ def stage_figures(args: argparse.Namespace) -> None:
     :param args: parsed command line.
     """
     root = Path(args.out)
-    papers = json.loads((root / "papers.json").read_text())["papers"]
+    papers = json.loads((root / "papers.json").read_text(encoding="utf-8"))["papers"]
     records: List[Dict[str, Any]] = []
     seen_hashes: Dict[str, str] = {}
     for paper in papers:
@@ -464,7 +464,7 @@ def stage_figures(args: argparse.Namespace) -> None:
             kept += 1
         print(f"{pmcid}: {kept} figures")
     target = root / "figures.json"
-    target.write_text(json.dumps({"figures": records}, indent=2))
+    target.write_text(json.dumps({"figures": records}, indent=2), encoding="utf-8")
     print(f"{len(records)} figures from {len(papers)} papers -> {target}")
 
 
@@ -700,7 +700,7 @@ def stage_detect(args: argparse.Namespace) -> None:
     import spacr
     import spacr.plaque as plaque
 
-    figures = json.loads((root / "figures.json").read_text())["figures"]
+    figures = json.loads((root / "figures.json").read_text(encoding="utf-8"))["figures"]
     models = _detector_paths([m.strip() for m in args.models.split(",") if
                               m.strip()], root / "models")
     plaque._load_detector = functools.lru_cache(maxsize=4)(
@@ -775,7 +775,7 @@ def stage_detect(args: argparse.Namespace) -> None:
         "yolo_config_dir": os.environ.get("YOLO_CONFIG_DIR"),
         "device": "cuda" if args.gpu else "cpu",
         "seconds": round(time.time() - started, 1),
-        "figures": records}, indent=2))
+        "figures": records}, indent=2), encoding="utf-8")
     counts = {key: sum(len(r.get("boxes", {}).get(key, [])) for r in records)
               for key in models}
     print(f"{len(records)} figures, boxes per model {counts} -> {target}")
@@ -787,7 +787,7 @@ def _blank_labels(root: Path) -> Dict[str, Any]:
     :param root: the output directory holding ``detections.json``.
     :returns: the label skeleton.
     """
-    detections = json.loads((root / "detections.json").read_text())
+    detections = json.loads((root / "detections.json").read_text(encoding="utf-8"))
     figures = []
     for record in detections["figures"]:
         if record.get("unreadable"):
@@ -839,11 +839,11 @@ def stage_score(args: argparse.Namespace) -> None:
     labels_path = Path(args.labels) if args.labels else root / "labels.json"
     if not labels_path.exists():
         skeleton = _blank_labels(root)
-        labels_path.write_text(json.dumps(skeleton, indent=2))
+        labels_path.write_text(json.dumps(skeleton, indent=2), encoding="utf-8")
         raise SystemExit(f"wrote an empty label file to {labels_path}; "
                          f"fill it in from the overlays and run score again")
-    labels = json.loads(labels_path.read_text())
-    detections = json.loads((root / "detections.json").read_text())
+    labels = json.loads(labels_path.read_text(encoding="utf-8"))
+    detections = json.loads((root / "detections.json").read_text(encoding="utf-8"))
     by_key = {r["key"]: r for r in detections["figures"]}
     totals: Dict[str, Dict[str, Any]] = {}
     unjudged: List[str] = []
@@ -958,8 +958,8 @@ def stage_score(args: argparse.Namespace) -> None:
     (root / "result.json").write_text(json.dumps({
         "summary": summary, "figures": figure_rows,
         "unjudged": unjudged, "models": detections.get("models"),
-        "conf": detections.get("conf")}, indent=2))
-    (root / "result.md").write_text(table + "\n")
+        "conf": detections.get("conf")}, indent=2), encoding="utf-8")
+    (root / "result.md").write_text(table + "\n", encoding="utf-8")
     print(f"\n-> {root / 'result.json'} and {root / 'result.md'}")
 
 

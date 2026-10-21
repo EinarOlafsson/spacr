@@ -149,7 +149,7 @@ def record_outliers(app, window, stage, captures, capture, settle, write_json, t
                     if not equal:raise ValueError('Exported CSV cell differs from actual scan')
             files[suffix]=dict(path=str(path),rows=len(actual),columns=len(frame.columns),sha256=_digest(path))
         report=work/(name+'_report.txt')
-        if report.read_text()!=panel.result.report()+'\n':raise ValueError('Exported report differs')
+        if report.read_text(encoding="utf-8")!=panel.result.report()+'\n':raise ValueError('Exported report differs')
         files['report']=dict(path=str(report),sha256=_digest(report))
         proof.setdefault('exports',{})[name]=files;capture(name+'_complete')
 

@@ -260,7 +260,7 @@ class AnonymousReportNotice(QDialog):
             "spaCR AI is free with no account, within a daily share of "
             "spaCR's free capacity: about {best} questions a day on the best "
             "model, then {light} more on a lighter model. Connect your own "
-            "Claude, Codex or Gemini CLI for unlimited use.",
+            "Claude, Codex or Gemini CLI to use your own provider account.",
             reports=crashreport.REPORTS_PER_DAY,
             best=crashreport.AI_BEST_PER_DAY,
             light=crashreport.AI_LIGHT_PER_DAY,
@@ -869,6 +869,11 @@ class _UninstallCoordinator(QObject):
         if getattr(self.window, "_uninstall_coordinator", None) is self:
             self.window._uninstall_coordinator = None
             self.window._approve_uninstall_close = None
+            if (getattr(self.window, "_installer_onboarding_pending", False)
+                    and not self.close_after_cancel and not self.approved
+                    and not getattr(self.window, "_closing", False)):
+                self.window._installer_onboarding_pending = False
+                QTimer.singleShot(0, self.window._maybe_offer_installation_cache_review)
         self.progress.deleteLater()
         if self.close_after_cancel:
             QTimer.singleShot(0, self.window.close)

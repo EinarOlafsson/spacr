@@ -1,3 +1,0 @@
-macos-14	Install the older release	2026-10-15T05:10:34.9913710Z packaging/online/install_spacr_unix.sh: line 724: identity_args[@]: unbound variable
-macos-14	The finder sees exactly that install	2026-10-15T05:10:39.4850140Z AssertionError: [{'kind': 'installer', 'layout': 'macos-online', 'platform': 'macos', 'root': '/Users/runner/.local/share/spacr', 'version': None, 'launchers': [], 'shortcuts': [], 'menu_entries': [], 'registrations': [], 'python': None, 'running': False, 'needs_admin': False, 'notes': []}]
-macos-14	The finder sees exactly that install	2026-10-15T05:10:39.4855520Z     "version": null,

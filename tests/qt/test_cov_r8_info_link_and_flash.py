@@ -37,7 +37,7 @@ class TestTheDocumentationDot:
 
         dot = InfoLink(Path("/docs/api/mask.html"))
         qtbot.addWidget(dot)
-        assert dot.url() == "/docs/api/mask.html"
+        assert dot.url() == str(Path("/docs/api/mask.html"))
         assert isinstance(dot.url(), str)
 
     def test_the_destination_can_be_changed_without_rebuilding(self, qtbot):
@@ -65,6 +65,45 @@ class TestTheDocumentationDot:
 
 
 class TestTheFlashOutlivingItsWidget:
+
+    @pytest.mark.parametrize("retrigger", [False, True])
+    def test_only_the_latest_deadline_ends_the_flash(self, qtbot, monkeypatch, retrigger):
+        from types import SimpleNamespace
+
+        from PySide6.QtWidgets import QWidget
+
+        import spacr.qt.widgets.flash as flash_module
+
+        scheduled = []
+        monkeypatch.setattr(flash_module, "QTimer", SimpleNamespace(
+            singleShot=lambda delay, callback: scheduled.append((delay, callback))))
+        widget = QWidget()
+        qtbot.addWidget(widget)
+        repaints = []
+        update = widget.update
+
+        def repaint():
+            repaints.append(flash.active)
+            update()
+
+        monkeypatch.setattr(widget, "update", repaint)
+        flash = Flash(widget)
+        flash.trigger()
+        assert flash.active is True
+        assert repaints == [True]
+        assert scheduled[0][0] == flash_module.FLASH_MS
+
+        if retrigger:
+            flash.trigger()
+            assert repaints == [True, True]
+            assert scheduled[1][0] == flash_module.FLASH_MS
+            scheduled[0][1]()
+            assert flash.active is True
+            assert repaints == [True, True]
+
+        scheduled[-1][1]()
+        assert flash.active is False
+        assert repaints == ([True, True, False] if retrigger else [True, False])
 
     def test_a_flash_ends_by_repainting_a_live_widget(self, qtbot):
         """The ordinary path, so the guard below is visibly a guard."""

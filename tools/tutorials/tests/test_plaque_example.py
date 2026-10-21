@@ -12,7 +12,7 @@ from build_plaque_example import build_archive
 def source_fixture(tmp_path):
     source = tmp_path/'source'; source.mkdir(); (source/'masks').mkdir()
     records = [{'file': f'{n}.tif'} for n in range(4)]
-    (source/'manifest.json').write_text(json.dumps({'records': records}))
+    (source/'manifest.json').write_text(json.dumps({'records': records}), encoding="utf-8")
     for row in records:
         (source/row['file']).write_bytes(b'image-'+row['file'].encode())
         (source/'masks'/row['file']).write_bytes(b'mask-'+row['file'].encode())
@@ -41,6 +41,6 @@ def test_archive_refuses_a_traversal_in_manifest(tmp_path):
     assert build_archive(source, tmp_path/'valid.zip')['synthetic']
     records = [{'file': n} for n in ('../outside.tif', '1.tif', '2.tif', '3.tif')]
     (tmp_path/'outside.tif').write_bytes(b'real outside file')
-    (source/'manifest.json').write_text(json.dumps({'records': records}))
+    (source/'manifest.json').write_text(json.dumps({'records': records}), encoding="utf-8")
     with pytest.raises(ValueError, match='plain TIFF'):
         build_archive(source, tmp_path/'invalid.zip')

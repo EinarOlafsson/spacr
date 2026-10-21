@@ -158,7 +158,7 @@ def test_native_rename_failure_preserves_cache_preferences_and_empty_target(
     if existing_target:
         target.mkdir(mode=0o700)
         original_mode = stat.S_IMODE(target.stat().st_mode)
-    record.write_text(json.dumps({'SPACR_MODEL_CACHE': str(source.parent / 'other-models')}, indent=2) + '\n')
+    record.write_text(json.dumps({'SPACR_MODEL_CACHE': str(source.parent / 'other-models')}, indent=2) + '\n', encoding="utf-8")
     manifest_before = record.read_bytes()
     source_before = {path.name: path.read_bytes() for path in source.iterdir()}
     env_before = {env: os.environ.get(env) for _key, _label, env in journal._CACHE_ROWS if env}
@@ -197,7 +197,7 @@ def test_metadata_failure_preserves_preexisting_private_destination(location, mo
     target = parent / 'spacr-news'
     target.mkdir(mode=0o700, parents=True)
     mode_before = stat.S_IMODE(target.stat().st_mode)
-    record.write_text(json.dumps({'SPACR_MODEL_CACHE': str(source.parent / 'other-models')}) + '\n')
+    record.write_text(json.dumps({'SPACR_MODEL_CACHE': str(source.parent / 'other-models')}) + '\n', encoding="utf-8")
     manifest_before = record.read_bytes()
     source_before = {path.name: path.read_bytes() for path in source.iterdir()}
     env_before = os.environ['SPACR_NEWS_CACHE']

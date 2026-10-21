@@ -435,7 +435,7 @@ class TestQueue:
         old = sorted(cr._queue_dir().glob("*.json"))[0]
         entry = json.loads(old.read_text(encoding="utf-8"))
         entry["queued_at"] = time.time() - cr.QUEUE_RETENTION_S - 60
-        old.write_text(json.dumps(entry))
+        old.write_text(json.dumps(entry), encoding="utf-8")
         assert [s["message"] for s in cr.queued_summaries()] == ["new"]
         assert cr.QUEUE_RETENTION_S == 7 * 24 * 3600
 
@@ -679,3 +679,15 @@ class TestDynamicAllowanceAndModes:
             traceback_text="spacr.errors.ConfigurationError: x") == \
             "user_error"
         assert _summary()["kind"] == "fault"
+
+def test_a_drive_relative_windows_path_is_scrubbed():
+    """`\\lab-share\\plate1` -- a rooted path without a drive letter, which is
+    how Windows prints the parent of `/lab-share/plate1` -- once went out
+    in an issue report untouched."""
+    from spacr import crashreport
+
+    text = crashreport.scrub_public_text(
+        "src does not exist (its parent folder \\secret-lab-700\\plate1 does "
+        "not exist either)")
+    assert "secret-lab-700" not in text
+    assert "<PATH>" in text

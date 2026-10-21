@@ -5,6 +5,7 @@ scaling that cannot be done. Each ends in a named refusal or a table that
 says what it could and could not decide."""
 from __future__ import annotations
 
+import os
 import sqlite3
 
 import numpy as np
@@ -63,7 +64,7 @@ def test_time_courses_are_keyed_per_time_point():
 
 
 def test_the_measured_fields_skip_what_is_not_a_field(tmp_path):
-    (tmp_path / "notes.txt").write_text("x")
+    (tmp_path / "notes.txt").write_text("x", encoding="utf-8")
     np.save(tmp_path / "junk.npy", np.zeros(2))
     np.save(tmp_path / "plate1_A01_1.npy", np.zeros(2))
     fields = m._measured_fields({"src": str(tmp_path)})
@@ -166,7 +167,7 @@ def test_morphology_reads_the_first_channel_and_draws_its_log_cut(tmp_path):
         db, {"channels": [0, 1, 2], "nucleus_channel": ""}, plot=True)
     assert report["method"] == "morphology"
     assert set(table["viability_state"]) <= {"live", "dead"}
-    figures = {name.split("/")[-1].split(".")[0]
+    figures = {os.path.basename(name).split(".")[0]
                for name in report["figures"]}
     assert any(name.startswith("viability_thresholds_p1") for name in figures)
     with sqlite3.connect(db) as conn:
@@ -276,7 +277,7 @@ def test_figures_skip_a_plate_map_that_draws_nothing(tmp_path, monkeypatch):
         db, {"channels": [0, 1, 2], "viability_dead_channel": 1}, plot=False)
     written = m._save_viability_figures(db, table, report["wells"],
                                         report["qc"], {}, {})
-    assert [p.rsplit("/", 1)[-1].split(".")[0] for p in written] == [
+    assert [os.path.basename(p).split(".")[0] for p in written] == [
         "viability_controls"]
 
 

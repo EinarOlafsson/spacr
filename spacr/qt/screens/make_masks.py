@@ -311,6 +311,26 @@ FOLD_HOSTS = {MASK_FOLDER_KEY: "train_cellpose"}
 _HEADLESS_PLATFORMS = ("offscreen", "minimal", "minimalegl", "vnc")
 
 
+def _stream_sha256(stream) -> str:
+    """The SHA-256 of a binary stream read to its end, as hex.
+
+    ``hashlib.file_digest`` exists from Python 3.11; spaCR runs on 3.9 and
+    3.10 as well, where calling it raised ``AttributeError`` in every check
+    that used it.
+
+    :param stream: the source file opened for binary reading.
+    :returns: the lowercase hexadecimal SHA-256 digest.
+    """
+    import hashlib
+
+    if hasattr(hashlib, "file_digest"):
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+    digest = hashlib.sha256()
+    for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+        digest.update(chunk)
+    return digest.hexdigest()
+
+
 def is_headless() -> bool:
     """Return True when no interactive display is attached to this process.
 
@@ -6279,16 +6299,16 @@ def _detect_puncta_snapshot(request):
     source = request['source']
 
     with open(source.path, 'rb') as stream:
-        if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
+        if _stream_sha256(stream) != source.sha256:
             raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
     with responsive_gui():
         labels, candidates = cpu_modes.puncta(request['image'], source.labels,
                                               request['params'], measurements=True)
     with open(source.image_path, 'rb') as stream:
-        if hashlib.file_digest(stream, 'sha256').hexdigest() != request['image_sha256']:
+        if _stream_sha256(stream) != request['image_sha256']:
             raise ValueError(tr('The source image changed during puncta detection. Reload it and repeat detection.'))
     with open(source.path, 'rb') as stream:
-        if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
+        if _stream_sha256(stream) != source.sha256:
             raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
     return labels, candidates
 
@@ -17413,6 +17433,9 @@ class MakeMasksScreen(QWidget):
         :param kind: what happened, as the curation ledger names it.
         """
         self._refresh_secondary_report()
+        timer = getattr(self, "_field_timer", None)
+        if timer is not None:
+            timer.touch()
         if int(n_changed) <= 0:
             return None
         if kind != "filter":
@@ -21676,7 +21699,7 @@ class MakeMasksScreen(QWidget):
         if not np.all(np.isfinite(image)):
             raise ValueError(tr('The puncta channel contains non-finite intensities.'))
         with open(path, 'rb') as stream:
-            digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+            digest = _stream_sha256(stream)
         after = os.stat(path)
         if (revision.st_mtime_ns, revision.st_size) != (after.st_mtime_ns, after.st_size):
             raise ValueError(tr('The source image changed while being read. Reload it and repeat detection.'))
@@ -23183,6 +23206,7 @@ class MakeMasksScreen(QWidget):
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         self._log = self._open_ledger(filename)
+        self._start_field_timer(filename, mask)
         manual = next((edit.detail for edit in reversed(self._log.edits)
                        if 'manual_ids' in edit.detail), {})
         key = self._manual_mask_key(mask)
@@ -23215,6 +23239,33 @@ class MakeMasksScreen(QWidget):
         self._show_session_notice()
         self._magnifier.refresh()
         self._refresh_lineage_rows()
+
+    def _start_field_timer(self, filename: str, mask) -> None:
+        """Start timing the field just loaded (see :mod:`spacr.curation_queue`)."""
+        try:
+            from ...curation_queue import _FieldTimer
+
+            self._field_timer = _FieldTimer(
+                os.path.join(self._folder or "", filename), mask,
+                len(self._log) if self._log is not None else 0)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("could not start the field timer", exc_info=True)
+            self._field_timer = None
+
+    def _log_field_visit(self, decision: str, mask=None) -> None:
+        """Append this field's row to ``curate_timing.csv``; never raises."""
+        try:
+            timer = getattr(self, "_field_timer", None)
+            if self._queue is None or timer is None:
+                return
+            from ...curation_queue import _log_field_visit as log_visit
+
+            if mask is None:
+                mask = self._canvas.mask
+            log_visit(self._queue.folder, timer, decision, mask,
+                      len(self._log) if self._log is not None else 0)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("could not log the curation timing", exc_info=True)
 
     def _open_ledger(self, filename: str) -> CurationLog:
         """The ledger for one field, ready to be appended to.
@@ -23467,6 +23518,7 @@ class MakeMasksScreen(QWidget):
             LOG.warning("could not record %s as skipped", stem, exc_info=True)
             self._warn(tr("Skip failed"), str(exc))
             return
+        self._log_field_visit("skip")
         judged = os.path.basename(filename)
         was = self._current_index
         self._move_next(save_mask=False)
@@ -23508,6 +23560,7 @@ class MakeMasksScreen(QWidget):
             filename = self._image_files[self._current_index]
             objects = int(np.count_nonzero(np.unique(self._canvas.mask)))
             self._note_curated(filename, n_objects=objects)
+            self._log_field_visit("save")
             path = engine.mask_save_path(self._folder, filename,
                                          **self._layout_kwargs())
             _wait_for_mask_writes(path)
@@ -23543,6 +23596,7 @@ class MakeMasksScreen(QWidget):
             previous=(self._last_saved_mask, self._lineage_format, self._lineage_dirty),
             deliver=self._deliver_mask_write)
         self._last_saved_mask = np.array(mask, copy=True)
+        self._log_field_visit("save", mask)
         self._lineage = lineage
         self._lineage_format = lineage is not None
         self._lineage_dirty = False
@@ -23635,18 +23689,18 @@ class MakeMasksScreen(QWidget):
             for path, expected in ((image_path, snapshot['image_sha256']),
                                    (snapshot['parent']['path'], snapshot['parent']['sha256'])):
                 with open(path, 'rb') as stream:
-                    if hashlib.file_digest(stream, 'sha256').hexdigest() != expected:
+                    if _stream_sha256(stream) != expected:
                         self._warn(tr('Centre measurements not saved'), tr('The source image or parent mask changed. Reload and repeat detection.'))
                         return None
             with open(mask_path, 'rb') as stream:
-                mask_sha256 = hashlib.file_digest(stream, 'sha256').hexdigest()
+                mask_sha256 = _stream_sha256(stream)
             for suffix in ('.csv', '.json'):
                 descriptor, path = tempfile.mkstemp(prefix='.puncta-', suffix=suffix, dir=os.path.dirname(mask_path))
                 pending.append(path)
                 os.close(descriptor)
             write_table(snapshot['candidates'], pending[0], canonicalise=False)
             with open(pending[0], 'rb') as stream:
-                csv_sha256 = hashlib.file_digest(stream, 'sha256').hexdigest()
+                csv_sha256 = _stream_sha256(stream)
             receipt = {key: value for key, value in snapshot.items() if key not in ('labels', 'candidates')}
             receipt.update(schema=1, mask_path=os.path.realpath(mask_path), mask_sha256=mask_sha256,
                            csv_path=os.path.realpath(base + '.csv'), csv_sha256=csv_sha256,

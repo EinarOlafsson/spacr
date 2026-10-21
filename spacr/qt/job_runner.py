@@ -3,16 +3,17 @@
 Screens such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen``
 previously each had their own copy of this logic, and the copies differed: two
 connected ``thread.finished`` to a *closure*, which never retires the job (see
-:meth:`_retire_finished_jobs`). This module implements the rules once, for any
+``JobRunner._retire_finished_jobs``). This module implements the rules once, for any
 screen that moves work off the GUI thread.
 
 The rules:
 
 * ``PipelineWorker.finished`` is emitted **on the worker thread**. A closure
-  connected to it is invoked there. Touching a widget from it is undefined
-  behaviour. The only safe thing a slot on that signal may do is re-emit a
-  ``Signal`` whose receiver is a bound method of a GUI-thread object -- Qt
-  then queues the call onto the GUI thread.
+  connected to it is invoked there and must not touch widgets. Connecting
+  the signal to a bound method of a GUI-thread QObject lets Qt queue the
+  call onto the GUI thread; this runner uses ``_worker_finished`` for that
+  delivery. A worker-thread slot can also relay a ``Signal`` to such a
+  receiver without touching widgets itself.
 * ``QThread.finished`` must be connected to a **bound method of a GUI-thread
   QObject**, never a closure. PySide6 makes the QThread itself the receiver
   for a closure, and :func:`spacr.qt.bridge.make_thread` connects
@@ -23,7 +24,7 @@ The rules:
 * A strong reference to both the QThread and the worker must be held until
   ``thread.finished``. A QThread garbage-collected while running aborts the
   process.
-* Result delivery and thread retirement are separate. :meth:`cancel`
+* Result delivery and thread retirement are separate. :meth:`JobRunner.cancel`
   clears pending deliveries immediately; a late completion then emits no
   ``job_finished`` signal. The finished-thread sweep still releases the
   thread references independently.

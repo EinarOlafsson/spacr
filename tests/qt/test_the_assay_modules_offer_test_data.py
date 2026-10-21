@@ -49,7 +49,7 @@ def _unpack_a_published_copy(folder: Path, key: str, *, src=None) -> Path:
             path = folder / name
             path.parent.mkdir(parents=True, exist_ok=True)
             if not path.exists():
-                path.write_text('{}')
+                path.write_text('{}', encoding="utf-8")
     with (folder / "settings" / f"{key}_settings.csv").open(
             "w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)

@@ -152,7 +152,9 @@ def parse_values(text: str, kind: str, name: str) -> List[Any]:
     """Parse a comma-separated list of values for one parameter.
 
     :param text: the raw field contents, e.g. ``"5, 15, 50"``.
-    :param kind: ``'int'``, ``'float'`` or ``'str'``.
+    :param kind: ``'int'`` and ``'float'`` convert numeric values; ``'metric'``
+        validates against the available UMAP metrics. Other values,
+        including ``'str'``, retain text.
     :param name: parameter name, used in the error message.
     :returns: the parsed values, in the order given.
     :raises ValueError: with a sentence the panel shows inline when a value

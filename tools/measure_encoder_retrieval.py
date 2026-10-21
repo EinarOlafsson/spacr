@@ -262,10 +262,10 @@ def build_index(args: argparse.Namespace) -> None:
     merged[["prcfo", "well", "row_name", "column_name", "crop_path"]].to_csv(
         out / "index.csv", index=False)
     np.save(out / "panel.npy", values)
-    (out / "panel_columns.txt").write_text("\n".join(panel.columns) + "\n")
+    (out / "panel_columns.txt").write_text("\n".join(panel.columns) + "\n", encoding="utf-8")
 
     report["input_scale"] = _input_scale(merged["crop_path"].tolist(), expected, args)
-    (out / "index_report.json").write_text(json.dumps(report, indent=1))
+    (out / "index_report.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     per_col = merged.groupby("column_name").agg(objects=("prcfo", "size"),
                                                 wells=("well", "nunique"))
     log(f"index: {len(merged)} objects, {report['wells']} wells, "
@@ -306,7 +306,7 @@ def load_index(out: Path):
     if not (out / "index.csv").exists():
         raise SystemExit(f"no index under {out}; run --stages index first")
     index = pd.read_csv(out / "index.csv", dtype=str)
-    report = json.loads((out / "index_report.json").read_text())
+    report = json.loads((out / "index_report.json").read_text(encoding="utf-8"))
     if index_digest(index["prcfo"].tolist()) != report["index_digest"]:
         raise SystemExit("index.csv does not match index_report.json")
     return index, report
@@ -329,7 +329,7 @@ def build_folds(args: argparse.Namespace) -> None:
               "seed": args.seed, "grouped_by": "well",
               "splitter": "sklearn.model_selection.StratifiedGroupKFold(shuffle=True)"}
     if manifest_path.exists():
-        have = json.loads(manifest_path.read_text())
+        have = json.loads(manifest_path.read_text(encoding="utf-8"))
         if {k: have.get(k) for k in wanted} == wanted:
             log(f"folds: reusing {folds_dir} (digest {report['index_digest']})")
             return
@@ -371,7 +371,7 @@ def build_folds(args: argparse.Namespace) -> None:
                             wells_a=int(len(set(groups[y == 0]))),
                             wells_b=int(len(set(groups[y == 1]))),
                             test_sizes=np.bincount(test_fold).tolist()))
-    manifest_path.write_text(json.dumps({**wanted, "contrasts": summary}, indent=1))
+    manifest_path.write_text(json.dumps({**wanted, "contrasts": summary}, indent=1), encoding="utf-8")
     log(f"folds: wrote {len(summary)} contrasts to {folds_dir}")
 
 
@@ -558,7 +558,7 @@ def embed(args: argparse.Namespace, name: str) -> None:
     cache_path = emb_dir / f"{name}.npy"
     partial_path = emb_dir / f"{name}.partial.json"
     if meta_path.exists():
-        meta = json.loads(meta_path.read_text())
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
         if meta.get("index_digest") == digest and cache_path.exists():
             log(f"embed {name}: cache is complete for digest {digest}; skipping")
             return
@@ -579,7 +579,7 @@ def embed(args: argparse.Namespace, name: str) -> None:
 
     start, values = 0, None
     if partial_path.exists() and cache_path.exists():
-        partial = json.loads(partial_path.read_text())
+        partial = json.loads(partial_path.read_text(encoding="utf-8"))
         if partial.get("index_digest") == digest:
             start = int(partial["done"])
             values = np.load(cache_path, mmap_mode="r+")
@@ -604,7 +604,7 @@ def embed(args: argparse.Namespace, name: str) -> None:
             columns = result.columns
             done = s + len(stack)
             values.flush()
-            partial_path.write_text(json.dumps({"index_digest": digest, "done": done}))
+            partial_path.write_text(json.dumps({"index_digest": digest, "done": done}), encoding="utf-8")
             if (s // args.chunk) % 10 == 0 or done == n:
                 rate = (done - start) / max(time.time() - t0, 1e-9)
                 log(f"embed {name}: {done}/{n}  {rate:.0f} crops/s")
@@ -626,7 +626,7 @@ def embed(args: argparse.Namespace, name: str) -> None:
         "host": platform.node(), "finished": time.strftime("%Y-%m-%d %H:%M:%S"),
     }
     del values
-    meta_path.write_text(json.dumps(meta, indent=1))
+    meta_path.write_text(json.dumps(meta, indent=1), encoding="utf-8")
     partial_path.unlink(missing_ok=True)
     log(f"embed {name}: {meta['dims']} dims in {seconds:.0f}s "
         f"({meta['crops_per_second']} crops/s, peak GPU {peak:.2f} GiB)")
@@ -645,13 +645,13 @@ def features_for(out: Path, name: str, digest: str) -> np.ndarray:
     if name == "panel":
         return np.load(out / "panel.npy")
     if name == "panel3ch":
-        columns = (out / "panel_columns.txt").read_text().split()
+        columns = (out / "panel_columns.txt").read_text(encoding="utf-8").split()
         keep = [i for i, c in enumerate(columns) if "channel_3" not in c]
         return np.load(out / "panel.npy")[:, keep]
     meta_path = out / "embeddings" / f"{name}.json"
     if not meta_path.exists():
         raise SystemExit(f"no finished embedding for {name}; run --stages embed")
-    meta = json.loads(meta_path.read_text())
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
     if meta["index_digest"] != digest:
         raise SystemExit(f"{name}: embedding cache was made for another index")
     return np.load(out / "embeddings" / f"{name}.npy")
@@ -687,7 +687,7 @@ def evaluate(args: argparse.Namespace, names: Sequence[str]) -> None:
     out = Path(args.out)
     index, report = load_index(out)
     digest = report["index_digest"]
-    manifest = json.loads((out / "folds" / "manifest.json").read_text())
+    manifest = json.loads((out / "folds" / "manifest.json").read_text(encoding="utf-8"))
     if manifest["index_digest"] != digest:
         raise SystemExit("folds were made for another index; rebuild them")
 

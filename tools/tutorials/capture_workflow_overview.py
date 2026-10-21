@@ -25,8 +25,8 @@ def record_overview(app, window, captures, capture, settle, write_json,
                          '81_sequencing_pathways'):
         raise ValueError('This recorder has not validated that workflow lesson')
     lesson_path = root / 'tools/tutorials/lessons' / (lesson_id + '.json')
-    data = json.loads(map_path.read_text())
-    lesson = json.loads(lesson_path.read_text())
+    data = json.loads(map_path.read_text(encoding="utf-8"))
+    lesson = json.loads(lesson_path.read_text(encoding="utf-8"))
     keys = data['tutorials'][lesson['id']]['modules']
     expected = ['home', *('module_' + key for key in keys), 'home_summary']
     if lesson_id == '80_image_analysis_pathways':

@@ -42,11 +42,11 @@ def make_run(root: Path, run_id: str, settings=None, *, app_key="mask",
     d = root / run_id
     (d / "outputs").mkdir(parents=True, exist_ok=True)
     if settings_text is not None:
-        (d / "settings.json").write_text(settings_text)
+        (d / "settings.json").write_text(settings_text, encoding="utf-8")
     elif write_settings:
-        (d / "settings.json").write_text(json.dumps(settings or {}, indent=2))
+        (d / "settings.json").write_text(json.dumps(settings or {}, indent=2), encoding="utf-8")
     if manifest_text is not None:
-        (d / "manifest.json").write_text(manifest_text)
+        (d / "manifest.json").write_text(manifest_text, encoding="utf-8")
     elif write_manifest:
         (d / "manifest.json").write_text(json.dumps({
             "app_key": app_key, "start_utc": start_utc,
@@ -54,7 +54,7 @@ def make_run(root: Path, run_id: str, settings=None, *, app_key="mask",
             "env": ENV_A if env is None else env,
             "model_hashes": {}, "n_settings": len(settings or {}),
             "traceback": None,
-        }, indent=2))
+        }, indent=2), encoding="utf-8")
     return d
 
 
@@ -347,7 +347,7 @@ def test_corrupt_settings_json_falls_back_to_settings_csv(_isolated_runs):
     root = _isolated_runs
     a = make_run(root, "r_a__mask", {"n": 1, "src": "/x"})
     b = make_run(root, "r_b__mask", settings_text="{oops")
-    (b / "settings.csv").write_text("Key,Value\nn,2\nsrc,/x\n")
+    (b / "settings.csv").write_text("Key,Value\nn,2\nsrc,/x\n", encoding="utf-8")
     d = diff_runs(a, b)
     assert [c["key"] for c in d["changed"]] == ["n"]
     assert d["same"] == 1
@@ -362,7 +362,7 @@ def test_settings_csv_only_run_is_read(_isolated_runs):
     root = _isolated_runs
     a = make_run(root, "r_a__mask", {"n": 1, "src": "/x", "flag": True})
     b = make_run(root, "r_b__mask", write_settings=False)
-    (b / "settings.csv").write_text("Key,Value\nn,2\nsrc,/x\nflag,True\n")
+    (b / "settings.csv").write_text("Key,Value\nn,2\nsrc,/x\nflag,True\n", encoding="utf-8")
     d = diff_runs(a, b)
     assert [c["key"] for c in d["changed"]] == ["n"]
     assert d["same"] == 2          # src and flag survive the CSV round-trip
@@ -373,7 +373,7 @@ def test_corrupt_settings_json_and_corrupt_csv(_isolated_runs, monkeypatch):
     root = _isolated_runs
     a = make_run(root, "r_a__mask", {"n": 1})
     b = make_run(root, "r_b__mask", settings_text="{oops")
-    (b / "settings.csv").write_text("Key,Value\nn,2\n")
+    (b / "settings.csv").write_text("Key,Value\nn,2\n", encoding="utf-8")
 
     def _boom(path):
         raise RuntimeError("csv is toast")

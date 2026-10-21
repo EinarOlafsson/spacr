@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "8a8a2d3adae812475a9731d196357380bf772eeff3052f0e89798416bbbfd824",
+  "english_sha256": "b0be0faf45c61792dcc20205e4e02e82ef34a1997ff8c987f43657655fdf885c",
   "review": {
-    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
-    "translator": "Codex AI, direct source-bound technical translation",
-    "date": "2026-10-08",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "ko",
   "title": "데스크톱 설치 프로그램으로 spaCR 설치하기",
@@ -20,6 +20,7 @@
     "운영 체제의 기능이나 함께 제공된 제거 도구로 애플리케이션을 제거합니다."
   ],
   "prerequisite": "운영 체제에 맞는 공식 설치 프로그램을 내려받고, 애플리케이션과 과학 계산 의존성을 위한 공간을 확보하세요.",
+  "section": "spaCR",
   "scenes": [
     "GitHub에서 spaCR 공식 릴리스를 열고 Assets 아래에서 운영 체제에 맞는 설치 프로그램을 내려받으세요. 이 온라인 설치 프로그램은 설정 중에 Python 런타임과 과학 계산 패키지를 내려받습니다.",
     "Windows에서는 설치 프로그램을 실행하고 안내를 따르세요. 컴퓨터에서 감지된 지원 하드웨어를 사용하려면 자동 가속을 선택한 상태로 두고, 필요하다면 CPU 전용 실행을 선택하세요.",
@@ -28,9 +29,9 @@
     "설정이 끝나면 설치 프로필에 선택된 백엔드가 기록됩니다. 런타임이 CPU를 쓰는지 지원 가속기를 쓰는지 확인하고 싶을 때 이 기록을 보세요.",
     "설치된 spaCR 버전을 확인하세요. 특히 나중에 애플리케이션을 업데이트할 때를 대비해 분석 노트와 함께 기록해 두세요.",
     "설정 과정에서 선택적 진단 정보 공유와 계정 설정 여부를 묻습니다. 원하는 옵션에만 y로 답하세요. 기본값인 n은 각 옵션을 꺼 둡니다. Windows 설치 프로그램은 같은 선택지를 체크박스로 보여 줍니다.",
-    "현재 nightly 인터페이스에서 Preferences를 열고 Performance를 선택하세요. 컴퓨터에 맞는 프로필을 선택하세요. Laptop은 적은 자원을 사용하며, 상위 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 제한되어 있다면 자원 사용이 적은 프로필로 시작하세요.",
-    "이 녹화에서는 spaCR 버전 일 점 오 점 일 점 삼을 설치합니다. 정식 배포 버전에는 이전 Home 배치가 표시될 수 있습니다. 여기에는 Core, Data, Tools, Organism이 있는 현재 nightly 빌드의 Home이 표시됩니다. 현재 모듈은 홈 화면과 탐색 튜토리얼에서 확인하세요.",
-    "시작이나 파일 형식에 문제가 있다면 설치된 런타임에서 spacr-doctor를 실행하세요. 이 녹화의 CPU 설치에서는 백엔드 검사가 통과하고 GPU 검사는 생략됩니다. 경고는 선택 사항인 CZI 리더가 없다는 뜻입니다. CZI 파일이 필요한 경우에만 이 추가 패키지를 설치하세요.",
+    "Preferences를 열고 Performance를 선택하세요. 컴퓨터에 맞는 프로필을 선택하세요. Laptop은 적은 자원을 사용하며, 상위 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 제한되어 있다면 자원 사용이 적은 프로필로 시작하세요.",
+    "Home은 모듈을 Core, Data, Tools, Organism으로 묶어 보여 줍니다. 다음 작업에 필요한 모듈을 찾으려면 Home 화면과 탐색 수업으로 이동하세요.",
+    "시작이나 파일 형식에 문제가 있다면 설치된 런타임에서 spacr-doctor를 실행하세요. 백엔드 결과와 GPU 검사가 실행되었는지 확인하세요. 선택 사항인 CZI 리더가 없다는 경고가 나오면 CZI 파일이 필요할 때만 그 추가 기능을 설치하세요.",
     "설치에 문제가 있으면 설치 디렉터리에서 install.log와 install-profile.json을 찾으세요. 지원 요청에 공유하기 전에 로그를 검토하세요. 문제를 진단하기 쉽도록 운영 체제와 spaCR 버전도 함께 알려 주세요.",
     "Windows에서는 spaCR을 닫고 Settings, Apps, Installed apps를 차례로 여세요. spaCR과 Uninstall을 선택하세요. 설치된 Uninstall 실행 파일로도 같은 제거 절차를 시작할 수 있습니다. 프로젝트 폴더는 별도로 보관하세요.",
     "macOS에서는 spaCR을 닫고 Library/Application Support/spaCR에 함께 제공된 uninstall-spacr 스크립트를 실행하세요. 애플리케이션과 시스템 실행기를 제거합니다. 사용자 자신의 Library/Application Support/spaCR에 있는 사용자별 런타임은 별개입니다. 그 런타임도 없애려는 경우에만 제거하세요.",

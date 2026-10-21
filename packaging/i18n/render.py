@@ -182,6 +182,7 @@ def embed_unix(source: Path, output: Path, version: str) -> None:
     embedded = f"{begin}\n{messages}\n{end}"
     rendered = text[:start] + embedded + text[finish:]
     rendered = embed_cleanup_module(rendered)
+    rendered = _embed_profile_module(rendered)
     rendered = rendered.replace("@SPACR_VERSION@", version)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(rendered, encoding="utf-8")
@@ -214,6 +215,30 @@ def embed_cleanup_module(text: str, module: Path | None = None) -> str:
     )
     finish += len(CLEANUP_END)
     return f"{text[:start]}{CLEANUP_BEGIN}\n{body}\n{CLEANUP_END}{text[finish:]}"
+
+
+def _embed_profile_module(text: str) -> str:
+    """Carry the current profile writer without relying on the target version."""
+    begin = "# @SPACR_PROFILE_MODULE_BEGIN@"
+    end = "# @SPACR_PROFILE_MODULE_END@"
+    delimiter = "SPACR_PROFILE_PY"
+    start = text.find(begin)
+    finish = text.find(end)
+    if start < 0 and finish < 0:
+        return text
+    if start < 0 or finish < start:
+        raise ValueError("installer has unbalanced profile-module markers")
+    source = (ROOT / "spacr" / "install_profile.py").read_text(encoding="utf-8")
+    if delimiter in source.splitlines():
+        raise ValueError(f"{delimiter} would end the here-document early")
+    body = (
+        "spacr_write_profile_module() {\n"
+        f"    cat > \"$1\" <<'{delimiter}'\n"
+        f"{source.rstrip()}\n{delimiter}\n"
+        "}"
+    )
+    finish += len(end)
+    return f"{text[:start]}{begin}\n{body}\n{end}{text[finish:]}"
 
 
 def main() -> int:

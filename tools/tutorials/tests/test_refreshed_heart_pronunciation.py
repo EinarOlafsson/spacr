@@ -16,7 +16,7 @@ TARGET = 'Here the request was auto and the selected backend is CUDA on NVIDIA h
 
 
 def lesson(language='en'):
-    catalog = json.loads((ROOT / 'release_candidate/web/catalog' / f'lessons_{language}.json').read_text())
+    catalog = json.loads((ROOT / 'release_candidate/web/catalog' / f'lessons_{language}.json').read_text(encoding="utf-8"))
     return next(item for item in catalog['lessons'] if item['id'] == '04_platform_installers')
 
 
@@ -105,7 +105,7 @@ def test_release_verifier_does_not_reuse_a_different_voices_cached_plan(tmp_path
     # cache key must actually collide, not pass because their speeds differ.
     assert renderer.resolve_voice_speed(voices[0]) == renderer.resolve_voice_speed(voices[1])
     path = tmp_path / 'lessons_en.json'
-    path.write_text(json.dumps({'lessons': [lesson_speaking_target()]}))
+    path.write_text(json.dumps({'lessons': [lesson_speaking_target()]}), encoding="utf-8")
     specs = verifier.supported_track_specs(production=tmp_path, catalog_path=path,
                                           languages={'en': ('a', list(voices))})
     by_voice = {spec.voice: spec for spec in specs}
@@ -121,11 +121,11 @@ def test_candidate_uses_its_own_heart_audio_and_all_native_sentence_cues():
     sentence by sentence against the lesson it narrates."""
     repair = ROOT / 'audio_repairs/platform-heart-refreshed-20260912'
     retired = hashlib.sha256((repair / 'af_heart.m4a').read_bytes()).hexdigest()
-    manifest = json.loads((ROOT / 'release_candidate/release-manifest.json').read_text())
+    manifest = json.loads((ROOT / 'release_candidate/release-manifest.json').read_text(encoding="utf-8"))
     path = 'media_host/04_platform_installers/audio/en/af_heart.m4a'
     record = next(item for item in manifest['files'] if item['path'] == path)
     assert record['sha256'] != retired
-    report = json.loads((ROOT / 'release_candidate/candidate-browser-checks.json').read_text())
+    report = json.loads((ROOT / 'release_candidate/candidate-browser-checks.json').read_text(encoding="utf-8"))
     case = next(item for item in report['ready_playback_cases'] if item['lesson'] == '04_platform_installers')
     assert case['passed'] is True and case['audio_sha256'] == record['sha256']
     sentences = [s['text'] for scene in plans(lesson(), 'en', 'af_heart') for s in scene['sentences']]

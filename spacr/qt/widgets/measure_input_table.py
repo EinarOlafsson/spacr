@@ -16,6 +16,7 @@ shows what it says.
 """
 from __future__ import annotations
 
+import os
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import Qt, QTimer, Signal
@@ -682,8 +683,8 @@ def _dropped_paths(event) -> List[str]:
     mime = event.mimeData() if hasattr(event, 'mimeData') else None
     if mime is None or not mime.hasUrls():
         return []
-    return [local for local in (url.toLocalFile() for url in mime.urls())
-            if local]
+    return [os.path.normpath(local) for local in
+            (url.toLocalFile() for url in mime.urls()) if local]
 
 
 def files_under(paths: Sequence[str]) -> List[str]:

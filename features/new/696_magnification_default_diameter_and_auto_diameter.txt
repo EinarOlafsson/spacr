@@ -12,8 +12,8 @@ Requested: maintainer, 2026-10-13: "in older versions of spacr we had an
            typing in auto in the object settings. and now the user cannot type
            in auto because the field gets a px suffix. remove that and make
            sure auto and 0 are equivalent and possible to type in."
-Owner:     Home (build); WS (translations, tutorial re-record if the object
-           settings layout changes)
+Owner:     Mac Codex session (native Mac acceptance/fixes); root (general CI/release);
+           WS/Work (current-layout tutorial publication)
 Related:   spacr/utils.py _get_diam (2*mag+80 cell, 2*mag+120 cell_large,
            0.75*mag+45 nucleus, mag pathogen), _get_object_settings,
            spacr/object.py default_diameter (V1's Cellpose-SAM call does not
@@ -65,6 +65,57 @@ ACCEPTANCE
   call; both survive save/load and export/import.
 - No suffix blocks typing; the unit is still visible.
 - Tests cover the GUI field, settings files, CLI and the preview/run parity.
+
+MAC SESSION: NATIVE DIAMETER FIELD AND PREVIEW ACCEPTANCE
+
+Follow spacr/resources/AI/MAC_HANDOFF.md; complete running N703/N646 first.
+The Mac session owns the current native UI/runtime check and Mac-specific
+repairs; root retains general CI/release and Work retains current-layout
+recording/publication. F655 is outside this handoff; do not implement or reopen it. Use fresh origin/nightly in the
+permitted Mac-local worktree and launch that environment on a real display.
+Record HEAD, origin/nightly SHA, interpreter, spacr.__file__, installed version,
+macOS/hardware and display scale. Current nightly and release can both say
+1.5.1.5; verify source identity rather than relying on the version label.
+
+1. Open the Mask object-settings grid and the Make Masks Live preview. Clear
+   explicit diameter values before testing defaults. At magnification 20,
+   expect cell 120/nucleus 60/pathogen 20 px; at 40 expect 160/75/40. Defaults must
+   follow magnification until the user supplies an explicit positive value.
+   Check default styling, Diameter (px) label/tooltips and readable layout on
+   Retina; no px suffix may prevent free text input.
+2. Using the native keyboard, select the entire value and enter 0, auto and
+   Auto separately, commit by Enter and by focus change, and reopen the field.
+   Each explicit automatic value must round-trip as canonical auto. Enter a
+   positive value, then change magnification: it must remain explicit. Clear
+   it: blank/None restores the magnification default, NOT automatic estimation.
+   This current blank-versus-auto behavior supersedes the original request's
+   claim that blank and auto must be equivalent; do not undo that distinction.
+3. Try a negative value and nonnumeric text other than auto. Refusal must be
+   visible and leave the prior valid setting intact. Verify selection, cursor,
+   focus and clipboard entry work with the actual Mac input method; use the
+   shortcut shown by the native UI rather than assuming Control/Command.
+4. Switch cell/nucleus/pathogen in Live preview and repeat blank, auto/0 and
+   a positive value. In Timelapse preview check explicit 500 px and a
+   magnification-derived 520 px value are displayed and retained without the
+   old 400 px clamp. Confirm the preview and configured run resolve the same
+   diameter and object/model; do not infer parity from similar mask appearance.
+5. Save/export settings, reload/import into the same build, and inspect the
+   canonical value and resolved display. Blank must stay blank/default and0
+   must stay auto; changing magnification after reload must preserve that rule.
+   Inspect a dry-run plan/journal for the resolved diameter. If exercising an
+   already available supported model on one small field, verify Cellpose 3 auto
+   requests size estimation, while Cellpose-SAM auto means native scale because
+   it has no size model. Do not invent an estimated size for Cellpose-SAM or
+   start training/model downloads merely to complete the UI check. Missing
+   runtime/model access is recorded separately from passed field behavior.
+
+Pass requires usable native editing, exact canonical/default values, no
+clamping and preview/run/settings agreement on the tested source. Record the
+build/platform, entered and stored values, preview/model path, export/import
+and journal outcome, plus any Mac fix and affected retest. Existing235 checks
+and the unmodified 1.35 paint gate remain retained evidence, not fresh Mac
+acceptance. No whole-item DONE claim follows from this native subset: hosted
+CI/release and Work tutorials remain with their owners.
 
 --------------------------------------------------------------------------------
 2026-10-13 - BUILT (Home, worktree feat-696-auto-diameter; not pushed, ships
@@ -171,3 +222,6 @@ not establish a fix. No native model-quality/GPU acceptance is claimed.
 
 2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
 No new tutorial/native acceptance or release claim; those remain with their existing owners.
+
+2026-10-21 — Mac session owns the detailed current-nightly native checks and Mac-specific fixes above; run N703/N646 first via the canonical Mac handoff.
+Record actual build/runtime and per-case results here; prior automation/history is retained, and Linux/general CI plus Work tutorials remain separate.

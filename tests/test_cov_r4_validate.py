@@ -35,7 +35,7 @@ def plate(tmp_path):
             folder = root / sub
             folder.mkdir(exist_ok=True)
             if shape == "empty":
-                (folder / "readme.txt").write_text("no arrays here")
+                (folder / "readme.txt").write_text("no arrays here", encoding="utf-8")
             else:
                 np.save(folder / "field_0.npy", np.zeros(shape, dtype=np.uint16))
         for filename in raw:

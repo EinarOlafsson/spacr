@@ -840,9 +840,10 @@ def score_masks(
         stack, a ``{name: mask}`` mapping, or a sequence of 2-D masks.
     :param object_type: what was segmented.
     :param thresholds: any key of :data:`QC_DEFAULTS`.
-    :returns: one :class:`FieldQC` per field, in field-name order. An empty
-        list when the source holds no mask — that is not an error, it is what a
-        run with ``save=False`` looks like.
+    :returns: one :class:`FieldQC` per field, in source iteration order. Directory filenames
+        are sorted; mappings and sequences retain their input order. An empty list when
+        the source holds no mask — that is not an error, it is what a run with
+        ``save=False`` looks like.
     """
     th = _resolve(thresholds)
     out: List[FieldQC] = []

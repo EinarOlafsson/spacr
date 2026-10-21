@@ -1,5 +1,0 @@
-Command: ['/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_tool.py', 'tools/tutorials/publish_release_candidate.py', 'record', '/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e']
-Source: 14ecf9d1054e15194bb7b9ff01779af061fae875
-HOLD LIFTED in /media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/checkpoint.json
-
-Terminal exit status: 0

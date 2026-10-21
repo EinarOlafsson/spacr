@@ -158,7 +158,7 @@ class TestItNeverBreaksIcons:
                                                             monkeypatch,
                                                             tmp_path):
         blocker = tmp_path / "not-a-dir"
-        blocker.write_text("this is a file, not a directory")
+        blocker.write_text("this is a file, not a directory", encoding="utf-8")
         monkeypatch.setenv(iconset.ENV_ICON_CACHE, str(blocker / "icons"))
         iconset._themed_array.cache_clear()
         assert iconset.themed_array(icon, "dark") is not None

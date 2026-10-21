@@ -12,6 +12,7 @@ from spacr.qt.screens.make_masks import MODE_BOX, MODE_DRAW, MakeMasksScreen
 
 
 @pytest.mark.parametrize('layout', ['nested', 'sibling'])
+@pytest.mark.needs_symlink
 def test_linked_images_curate_save_and_resume_without_box_popups(
         qtbot, qt_theme_applied, tmp_path, monkeypatch, layout):
     """An unannotated source link must not interrupt an ordinary mask queue."""
@@ -71,6 +72,7 @@ def test_linked_images_curate_save_and_resume_without_box_popups(
         resumed.close()
 
 
+@pytest.mark.needs_symlink
 def test_linked_source_with_box_ledger_still_warns(
         qtbot, qt_theme_applied, tmp_path, monkeypatch):
     """An existing box project keeps its source confinement warning."""
@@ -80,7 +82,7 @@ def test_linked_source_with_box_ledger_still_warns(
     imageio.imwrite(source, np.zeros((64, 64), dtype=np.uint16))
     (folder / 'field.tif').symlink_to(source)
     (folder / engine.YOLO_ANNOTATIONS_NAME).write_text(
-        '{"version":1,"classes":["object"],"images":{}}')
+        '{"version":1,"classes":["object"],"images":{}}', encoding="utf-8")
     warnings = []
     monkeypatch.setattr(MakeMasksScreen, '_warn',
                         lambda self, title, message: warnings.append((title, message)))
@@ -378,3 +380,21 @@ def test_unreadable_next_image_clears_the_previous_fields_boxes(opened):
     widget._set_mode(MODE_BOX)
     assert widget._canvas.mode == MODE_DRAW
     assert widget._on_save_boxes() is None
+
+
+@pytest.mark.parametrize("legacy_python", [False, True])
+def test_mask_snapshot_hashes_match_on_python_without_file_digest(
+        monkeypatch, legacy_python, tmp_path):
+    """The older-Python fallback hashes every byte of a real mask source file."""
+    import hashlib
+
+    from spacr.qt.screens.make_masks import _stream_sha256
+
+    data = b"prefix" + bytes(range(256)) * 8193
+    path = tmp_path / "mask.bin"
+    path.write_bytes(data)
+    if legacy_python:
+        monkeypatch.delattr(hashlib, "file_digest", raising=False)
+    with path.open("rb") as stream:
+        assert _stream_sha256(stream) == hashlib.sha256(data).hexdigest()
+        assert stream.read() == b""

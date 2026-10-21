@@ -882,7 +882,7 @@ def main(argv):
     outdir = argv[1] if len(argv) > 1 else default_outdir(__file__)
     rc = emit_groups(outdir, GROUPS,
                      "group_trellis_gate_feature_napari.py")
-    with open(os.path.join(outdir, "napari_bridge", "CONCEPTS.md"), "a") as fh:
+    with open(os.path.join(outdir, "napari_bridge", "CONCEPTS.md"), "a", encoding="utf-8") as fh:
         fh.write(TRADEMARK_NOTE)
     return rc
 

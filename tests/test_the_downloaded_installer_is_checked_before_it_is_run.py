@@ -58,6 +58,7 @@ def _serve(monkeypatch, asset: bytes, sums: object):
     monkeypatch.setattr(urllib.request, "urlopen", _urlopen)
 
 
+@pytest.mark.posix_only
 def test_a_download_that_matches_is_kept_and_made_executable(tmp_path,
                                                              monkeypatch):
     target = tmp_path / "installer.run"

@@ -51,11 +51,11 @@ def test_explicit_pairs_take_precedence_over_legacy_paths():
 def test_real_cli_dry_run_reads_no_tables_creates_no_output_and_imports_no_model(tmp_path):
     scores = tmp_path / 'scores.csv'
     counts = tmp_path / 'counts.csv'
-    scores.write_text('plateID,rowID,columnID,pred\np1,r1,c1,0.5\n')
-    counts.write_text('plateID,rowID,columnID,grna,count\np1,r1,c1,g1,50\n')
+    scores.write_text('plateID,rowID,columnID,pred\np1,r1,c1,0.5\n', encoding="utf-8")
+    counts.write_text('plateID,rowID,columnID,grna,count\np1,r1,c1,g1,50\n', encoding="utf-8")
     output = tmp_path / 'new-output'
     settings_file = tmp_path / 'settings.csv'
-    with settings_file.open('w', newline='') as handle:
+    with settings_file.open('w', newline='', encoding='utf-8') as handle:
         csv.writer(handle).writerows([['setting_key', 'setting_value'], ['src', str(output)]])
     arguments = ['regression', '--settings', str(settings_file), '--dry-run', '--set', 'src=' + str(output),
                  '--set', 'paired_data=' + json.dumps([dict(score=str(scores), count=str(counts))]),
@@ -66,7 +66,7 @@ def test_real_cli_dry_run_reads_no_tables_creates_no_output_and_imports_no_model
         "assert 'spacr.ml' not in sys.modules\n"
         "assert 'torch' not in sys.modules\n"
     )
-    result = subprocess.run([sys.executable, '-c', script], text=True,
+    result = subprocess.run([sys.executable, '-c', script], text=True, encoding='utf-8',
                             capture_output=True, timeout=45,
                             env=dict(os.environ, HOME=str(tmp_path), XDG_CONFIG_HOME=str(tmp_path / 'config')))
     assert result.returncode == 0, result.stdout + result.stderr

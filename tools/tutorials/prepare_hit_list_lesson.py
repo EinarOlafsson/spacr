@@ -37,8 +37,8 @@ def prepare():
     for record in proof['exports'].values():
         if sha(record['path']) != record['sha256']: raise ValueError('A native export changed')
     values = dict(csv=check_rows(read_rows(proof['exports']['csv']['path']), chosen),
-        markdown=check_markdown(Path(proof['exports']['md']['path']).read_text(), chosen),
-        html=check_html(Path(proof['exports']['html']['path']).read_text(), chosen))
+        markdown=check_markdown(Path(proof['exports']['md']['path']).read_text(encoding="utf-8"), chosen),
+        html=check_html(Path(proof['exports']['html']['path']).read_text(encoding="utf-8"), chosen))
     for name in ('hit_list_companion.py', 'hit_list_README.txt'):
         contents['README.txt' if name.endswith('.txt') else name] = (root / name).read_bytes()
     contents['source_manifest.json'] = (json.dumps(dict(original_sha256=proof['private_input_hashes'],

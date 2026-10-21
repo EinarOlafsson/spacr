@@ -117,7 +117,7 @@ def test_running_checkpoint_after_process_exit_is_recoverable(tmp_path, monkeypa
     path = tmp_path / 'spacr_watch/watch_ledger.json'
     ledger = json.loads(path.read_text(encoding="utf-8"))
     ledger['fields']['plate1_A01_0001_001']['status'] = 'running'
-    path.write_text(json.dumps(ledger))
+    path.write_text(json.dumps(ledger), encoding="utf-8")
     assert core._watch_folder_and_analyse(_settings(tmp_path, 'mask_measure'), analysis)['done']
     assert analysis.calls == 1
 

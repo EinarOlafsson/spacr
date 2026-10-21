@@ -50,7 +50,8 @@ def test_explicit_file_is_bound_to_one_field_even_if_next_field_has_same_shape(t
         read_primary_source(source, image.with_name('next.tif'), labels.shape, output, bound_image=image)
 
 
-@pytest.mark.parametrize('alias', ['same', 'symbolic', 'hard'])
+@pytest.mark.parametrize('alias', [
+    'same', pytest.param('symbolic', marks=pytest.mark.needs_symlink), 'hard'])
 def test_primary_destination_alias_is_refused_without_writing(tmp_path, alias):
     source, image, output, labels = _files(tmp_path)
     before = source.read_bytes()

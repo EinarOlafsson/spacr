@@ -15,6 +15,8 @@ fixture is that the path it resolves to really is inside ``tmp_path``.
 """
 from __future__ import annotations
 
+import os
+
 import gc
 
 import pytest
@@ -41,7 +43,7 @@ def prefs_sandbox(qapp, tmp_path, monkeypatch):
     # The guard this whole file depends on. If it ever fails, every test
     # below is writing to the real user's configuration.
     resolved = prefs._settings().fileName()
-    assert str(tmp_path) in resolved, resolved
+    assert str(tmp_path) in os.path.normpath(resolved), resolved
 
     # Complete only because tests/qt/conftest.py's
     # `_widget_qss_registrars_loaded` has already filled the registry. Taken

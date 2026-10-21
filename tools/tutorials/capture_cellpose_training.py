@@ -26,7 +26,7 @@ def record_training(app, window, stage, captures, capture, settle, write_json, t
     import torch
 
     stage=Path(stage);source=stage/'derived/train_cellpose_corrected'
-    manifest=json.loads((source/'source_manifest.json').read_text())
+    manifest=json.loads((source/'source_manifest.json').read_text(encoding="utf-8"))
     if manifest['image_channel']!=1 or manifest['mask_plane']!=4:
         raise ValueError('The verified cell-compartment preparation is required')
     parent=stage/'cellpose_training_runs';parent.mkdir(exist_ok=True)
@@ -66,7 +66,7 @@ def record_training(app, window, stage, captures, capture, settle, write_json, t
         panels=[p for p in window.findChildren(CellposeWorkbenchScreen) if p.isVisible()]
         if len(panels)!=1:raise ValueError('The actual Cellpose Workbench did not open')
         panel=panels[0];screen=panel.train_screen;capture('02_actual_train_tab')
-        requested=json.loads((source/'tutorial_settings.json').read_text())
+        requested=json.loads((source/'tutorial_settings.json').read_text(encoding="utf-8"))
         requested.update(src=str(work),model_name='tutorial_cells_two_epoch_demo',n_epochs=2)
         if settings_override:
             requested.update({k:v for k,v in settings_override.items() if k!='src'})

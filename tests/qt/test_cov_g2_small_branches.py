@@ -31,8 +31,8 @@ def test_a_barcode_bundle_with_no_mismatches_shows_only_the_summary(tmp_path):
     from spacr.qt.screens.convert import _barcode_summary
 
     (tmp_path / "complete.json").write_text(json.dumps(
-        {"linked_wells": 96, "mismatches": 0}))
-    (tmp_path / "plate_barcode_mismatches.csv").write_text("well,barcode\n")
+        {"linked_wells": 96, "mismatches": 0}), encoding="utf-8")
+    (tmp_path / "plate_barcode_mismatches.csv").write_text("well,barcode\n", encoding="utf-8")
     text = _barcode_summary({"bundle": tmp_path})
     assert "96" in text and "\n\n" not in text
     assert _barcode_summary(None) == ""

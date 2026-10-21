@@ -10,6 +10,9 @@ import pytest
 
 SCRIPT = Path(__file__).parents[1] / 'packaging/apptainer/spacr_slurm.sh'
 
+# Runs the Slurm wrapper with bash against a shebang-executed fake apptainer.
+pytestmark = pytest.mark.posix_only
+
 
 def _run_wrapper(tmp_path, *, separate=True, linked=False, missing=False, absolute=False):
     """Use a fake Apptainer to enforce explicit settings-directory visibility."""
@@ -17,7 +20,7 @@ def _run_wrapper(tmp_path, *, separate=True, linked=False, missing=False, absolu
     work.mkdir()
     plate = tmp_path / 'plate one'
     plate.mkdir()
-    (work / 'plates.txt').write_text(str(plate) + '\n')
+    (work / 'plates.txt').write_text(str(plate) + '\n', encoding="utf-8")
     mask_folder = tmp_path / 'mask settings'
     measure_folder = tmp_path / 'measure settings' if separate else mask_folder
     mask_folder.mkdir()
@@ -25,9 +28,9 @@ def _run_wrapper(tmp_path, *, separate=True, linked=False, missing=False, absolu
         measure_folder.mkdir()
     mask = mask_folder / 'mask.csv'
     measure = measure_folder / 'measure.csv'
-    mask.write_text('Key,Value\ncell_channel,1\n')
+    mask.write_text('Key,Value\ncell_channel,1\n', encoding="utf-8")
     if not missing:
-        measure.write_text('Key,Value\ncell_channel,1\n')
+        measure.write_text('Key,Value\ncell_channel,1\n', encoding="utf-8")
     mask_argument = os.path.relpath(mask, work)
     measure_argument = os.path.relpath(measure, work)
     if absolute:
@@ -49,7 +52,7 @@ def _run_wrapper(tmp_path, *, separate=True, linked=False, missing=False, absolu
         'settings = pathlib.Path(args[args.index("--settings") + 1])\n'
         'binds = args[args.index("--bind") + 1].split(",")\n'
         'if not settings.is_absolute() or str(settings.resolve().parent) not in binds:\n'
-        '    raise SystemExit("settings target is not explicitly visible in container")\n')
+        '    raise SystemExit("settings target is not explicitly visible in container")\n', encoding="utf-8")
     executable.chmod(0o755)
     environment = dict(os.environ, PATH=str(fake) + os.pathsep + os.environ['PATH'],
                        F586_CALLS=str(calls), MASK_SETTINGS=mask_argument,
@@ -65,6 +68,7 @@ def _run_wrapper(tmp_path, *, separate=True, linked=False, missing=False, absolu
 @pytest.mark.parametrize('separate,linked,absolute', [
     (True, False, False), (False, False, False), (True, True, False), (True, False, True),
 ])
+@pytest.mark.needs_symlink
 def test_both_settings_directories_are_visible(tmp_path, separate, linked, absolute):
     result, calls, mask, measure, plate = _run_wrapper(
         tmp_path, separate=separate, linked=linked, absolute=absolute)

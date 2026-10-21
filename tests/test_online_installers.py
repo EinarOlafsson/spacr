@@ -206,7 +206,7 @@ def test_bootstraps_persist_the_requested_and_actual_backend_for_doctor():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
     for source in (unix, windows):
-        assert "spacr.install_profile" in source
+        assert "install_profile.py" in source
         assert "install-profile.json" in source
         assert "requested" in source
         assert "detected" in source
@@ -226,7 +226,7 @@ def test_installer_consent_is_optional_off_by_default_and_persisted():
         assert "ShareDiagnostics" in source or "SHARE_DIAGNOSTICS=0" in source
         assert "ReportIssues" in source or "REPORT_ISSUES=0" in source
         assert "SignInNow" not in source and "SIGN_IN_NOW" not in source and "sign-in-now" not in source
-        assert "spacr.install_profile" in source
+        assert "install_profile.py" in source
     assert "Page custom ConsentPage ConsentPageLeave" in nsis
     assert "off by default" not in nsis
     assert "public GitHub issues by spaCR" not in nsis
@@ -707,16 +707,12 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert 'find dist/online -name \'*macOS*Online.pkg\'' in macos_job
     assert "packaging/release.py version" not in macos_job
     collect_job = workflow[workflow.index("  collect:"):]
-    # THE GATE IS THE INPUT ALONE, and this assertion is re-pointed rather
-    # than relaxed. It used to require
-    # `github.event_name == 'workflow_call' && inputs.publish_to_repository`,
-    # which pinned a condition that could never be true: inside a reusable
-    # workflow github.event_name is the CALLER's event, so release.yml's call
-    # reports `workflow_dispatch` or `push`. collect was skipped on every
-    # release, release_commit came back empty, and the tag step ran
-    # `git tag -a <tag> ""`. The test agreed with the workflow and both were
-    # wrong, which is why 1.5.0.5 was the release that found it.
-    assert "if: ${{ inputs.publish_to_repository }}" in collect_job
+    # A reusable workflow sees its caller's event, not 'workflow_call'.
+    # Explicit collection must run even when its builders were skipped;
+    # ordinary collection still requires every builder to succeed.
+    assert "always() && !cancelled() && inputs.publish_to_repository" in collect_job
+    assert "inputs.collect_only || (needs.linux.result == 'success'" in collect_job
+    assert "needs.windows.result == 'success' && needs.macos.result == 'success'" in collect_job
     assert "github.event_name == 'workflow_call'" not in collect_job
     assert "github.event_name == 'workflow_dispatch' ||" not in collect_job
 
@@ -733,7 +729,7 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "refusing to infer a release from rewritten history" in workflow
     assert "VERSION remains $version" in workflow
     assert "python packaging/release.py verify" in workflow
-    assert "git add setup.py CITATION.cff spacr/_version.py" in workflow
+    assert "git add -u -- setup.py CITATION.cff spacr/_version.py" in workflow
     commit_step = workflow.split("- name: Commit version increment", 1)[1].split(
         "\n      - name:", 1)[0]
     staged_paths = next(line.strip().split()[2:] for line in commit_step.splitlines()
@@ -763,10 +759,10 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "needs.bump.outputs.pypi_exists != 'true'" in workflow
     assert "verify-pypi:" in workflow
     assert "https://pypi.org/pypi/spacr/$VERSION/json" in workflow
-    assert "needs: [bump, package, publish-pypi]" in workflow
-    assert "needs: [bump, verify-pypi]" in workflow
+    assert "needs: [bump, package, source-ci, publish-pypi]" in workflow
+    assert "needs: [bump, verify-pypi, source-ci]" in workflow
     assert (
-        "needs: [bump, package, publish-pypi, verify-pypi, installers, frozen-installers]"
+        "needs: [bump, package, source-ci, publish-pypi, verify-pypi, installers, frozen-installers]"
         in workflow
     )
     # The installer stage cannot start until PyPI has returned HTTP 200.

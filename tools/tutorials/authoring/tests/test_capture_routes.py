@@ -141,11 +141,11 @@ def test_capture_failure_report_survives_failure_and_clears_on_success(
     catalog = tmp_path / "catalog"
     catalog.mkdir()
     report = catalog / "capture_failures.json"
-    report.write_text("stale\n")
+    report.write_text("stale\n", encoding="utf-8")
     failures = [{"lesson": "48_hit_list", "error": "failed"}]
 
     assert module.finish_capture_batch(failures) == report
-    assert json.loads(report.read_text()) == failures
+    assert json.loads(report.read_text(encoding="utf-8")) == failures
 
     assert module.finish_capture_batch([]) is None
     assert not report.exists()

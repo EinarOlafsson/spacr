@@ -125,6 +125,34 @@ class _PublicCallable:
     accepts_arbitrary_keywords: bool = False
 
 
+def _posix_update_prepared_key_move(entries, docs=None):
+    """Apply only the reviewed same-body move in the October 17 contract."""
+    import json
+    from pathlib import Path
+
+    move = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "posix_online_update_prepared_api_key_move_2026-10-21.json").read_text(encoding="utf-8"))
+    assert move == {
+        "old_symbol": "spacr.install_cleanup._run_macos_online_update.prepared",
+        "new_symbol": "spacr.install_cleanup._run_posix_online_update.prepared",
+        "docstring": "Offer Restart only after the replacement passes its staged checks.",
+        "docstring_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+    }
+    old, new = move["old_symbol"], move["new_symbol"]
+    assert hashlib.sha256(move["docstring"].encode("utf-8")).hexdigest() == move["docstring_sha256"]
+    assert entries[old] == move["docstring"]
+    assert new not in entries
+    if docs is not None:
+        assert old not in docs
+        assert docs[new] == move["docstring"]
+    renamed = dict(entries)
+    renamed[new] = renamed.pop(old)
+    assert len(renamed) == len(entries)
+    assert renamed.keys() - entries.keys() == {new}
+    assert entries.keys() - renamed.keys() == {old}
+    return renamed
+
+
 def _documented_functions():
     """``(path, node, docstring)`` for every function carrying ``:param:``."""
     root = pathlib.Path(__file__).resolve().parent.parent / "spacr"
@@ -132,7 +160,7 @@ def _documented_functions():
         if path.name in LEGACY_MODULES:
             continue
         try:
-            tree = ast.parse(path.read_text(errors="replace"))
+            tree = ast.parse(path.read_text(errors="replace", encoding="utf-8"))
         except SyntaxError:
             continue
         for node in ast.walk(tree):
@@ -1017,7 +1045,7 @@ def _source_module_infos(root: pathlib.Path) -> list[dict]:
         if exposure is None:
             continue
         try:
-            tree = ast.parse(path.read_text(errors="replace"))
+            tree = ast.parse(path.read_text(errors="replace", encoding="utf-8"))
         except SyntaxError:
             continue
         imports = _imported_names(
@@ -2771,9 +2799,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "reviewed_api_surface_arrivals_2026-10-15.json",
                      "561_classifier_api_arrivals_2026-10-15.json",
                      "180_session_figure_api_arrivals_2026-10-15.json",
-                     "712_timelapse_test_data_api_arrivals_2026-10-18.json"):
-        contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text(encoding="utf-8")))
+                     "712_timelapse_test_data_api_arrivals_2026-10-18.json",
+                     "thumbnail_popup_close_api_arrival_2026-10-21.json"):
+        entries = json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            entries = _posix_update_prepared_key_move(entries)
+        contract_arrivals |= set(entries)
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
     # registers the three spacr.qt.tutorials arrivals and the removed
     # renderer, which was never in this inventory (*/qt/tutorial/* is ignored).
@@ -2963,21 +2995,6 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         assert not item.accepts_arbitrary_keywords
         assert item.docstring == approval_preferences[symbol]
     contract_arrivals |= approval_parameters.keys()
-    thumbnail_close = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "thumbnail_hidden_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
-    assert set(thumbnail_close) == {
-        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
-    }
-    assert not thumbnail_close.keys() & contract_arrivals
-    thumbnail_item = by_symbol[next(iter(thumbnail_close))]
-    assert thumbnail_item.parameters == thumbnail_item.accepted_documented_parameters == {"event"}
-    assert thumbnail_item.required_parameters == {"event"}
-    assert thumbnail_item.category == "method" and thumbnail_item.exposure == "autoapi"
-    assert thumbnail_item.variant_count == 1
-    assert thumbnail_item.docless_variant_count == thumbnail_item.constructor_prose_variant_count == 0
-    assert not thumbnail_item.accepts_arbitrary_keywords
-    assert thumbnail_item.docstring == thumbnail_close[thumbnail_item.symbol]
-    contract_arrivals |= thumbnail_close.keys()
     assert contract_arrivals & by_symbol.keys()
     callables = [item for item in callables if item.symbol not in contract_arrivals]
     by_symbol = {item.symbol: item for item in callables}
@@ -4729,9 +4746,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
         ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
+        ("thumbnail_popup_close_api_arrival_2026-10-21.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            additions = _posix_update_prepared_key_move(additions, docs)
         assert len(additions) == expected_count
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()
@@ -4834,26 +4854,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
     )
     zoo_additions = {**zoo_additions, **approval_preferences}
-    thumbnail_close = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "thumbnail_hidden_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
-    assert set(thumbnail_close) == {
-        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
-    }
-    assert {symbol: docs[symbol] for symbol in thumbnail_close} == thumbnail_close
-    assert {symbol: rendered_documented_callables[symbol] for symbol in thumbnail_close} == thumbnail_close
-    assert not thumbnail_close.keys() & (
-        hidden_close.keys() | home_ui_arrivals.keys() | worker_additions.keys()
-        | private_additions.keys() | radius_symbols | channel_additions.keys()
-        | scn_additions.keys() | popup_additions.keys() | background_additions.keys()
-        | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
-    )
-    zoo_additions = {**zoo_additions, **thumbnail_close}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) == 13139
+               - zoo_additions.keys()) == 13138
+    # 2026-10-20: 13,139 -> 13,138, item 127: the spacr.regression_search
+    # shim module left in 1.5.1.6.
     # 2026-10-19: 13,154 -> 13,153, FoldButton.paintEvent retired (native
     # verdict-dot layer).
     # 2026-10-15 item 700: 13,182 -> 13,154, the 28 first-run setup symbols
@@ -5253,17 +5261,19 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "reviewed_api_surface_arrivals_2026-10-15.json",
                      "561_classifier_api_arrivals_2026-10-15.json",
                      "180_session_figure_api_arrivals_2026-10-15.json",
-                     "712_timelapse_test_data_api_arrivals_2026-10-18.json"):
-        contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text(encoding="utf-8")))
+                     "712_timelapse_test_data_api_arrivals_2026-10-18.json",
+                     "thumbnail_popup_close_api_arrival_2026-10-21.json"):
+        entries = json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            entries = _posix_update_prepared_key_move(entries)
+        contract_callables |= set(entries)
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
     contract_callables |= help_arrivals.keys()
     assert not approval_callables & contract_callables
     contract_callables |= approval_callables
-    assert not thumbnail_close.keys() & contract_callables
-    contract_callables |= thumbnail_close.keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -5325,17 +5335,19 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "reviewed_api_surface_arrivals_2026-10-15.json",
                      "561_classifier_api_arrivals_2026-10-15.json",
                      "180_session_figure_api_arrivals_2026-10-15.json",
-                     "712_timelapse_test_data_api_arrivals_2026-10-18.json"):
-        arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text(encoding="utf-8")))
+                     "712_timelapse_test_data_api_arrivals_2026-10-18.json",
+                     "thumbnail_popup_close_api_arrival_2026-10-21.json"):
+        entries = json.loads((pathlib.Path(__file__).resolve().parent
+            / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            entries = _posix_update_prepared_key_move(entries)
+        arrival_callables |= set(entries)
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
     arrival_callables |= help_arrivals.keys()
     assert not approval_callables & arrival_callables
     arrival_callables |= approval_callables
-    assert not thumbnail_close.keys() & arrival_callables
-    arrival_callables |= thumbnail_close.keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     assert len(rendered_documented_callables.keys() - yolo_callables

@@ -553,7 +553,7 @@ def scaled_font_sheet(sheet: str, ratio: float) -> str:
     widgets built later inside the container follow without being visited.
 
     :param sheet: the sheet the container inherits.
-    :param ratio: the multiplier; 1.0 gives the same sizes back.
+    :param ratio: the multiplier. Pixel sizes are rounded to whole pixels with a minimum of 1 px; point sizes are rounded to two decimals with a minimum of 0.75 pt. Even 1.0 can therefore change fractional or below-minimum sizes.
     """
     lines = []
     for selector, size, unit in font_size_rules(sheet):

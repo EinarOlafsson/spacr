@@ -82,7 +82,7 @@ class TestPlateQueue:
 
     def test_bad_queue_file_starts_empty(self, tmp_path):
         p = tmp_path / "corrupt.json"
-        p.write_text("{not valid json")
+        p.write_text("{not valid json", encoding="utf-8")
         q = PlateQueue(path=p)
         assert len(q) == 0
 

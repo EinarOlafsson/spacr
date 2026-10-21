@@ -96,7 +96,7 @@ def test_a_second_instance_does_not_count_the_first_ones_marker(
     monkeypatch.setattr(cr, "_folder", lambda: str(tmp_path))
     proc = _hold(os.path.join(cr._locks_folder(), cr._INSTANCE_LOCK_NAME))
     try:
-        (tmp_path / cr._MARKER).write_text("1")
+        (tmp_path / cr._MARKER).write_text("1", encoding="utf-8")
         assert cr.note_that_a_launch_began() == 0
         assert cr._OTHER_INSTANCE["pid"] == proc.pid
         cr.note_a_clean_shutdown()

@@ -29,7 +29,7 @@ def _installed(root):
     env = Path(root) / "spotiflow"
     python = Path(SB._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("")
+    python.write_text("", encoding="utf-8")
     SB._write_marker(str(env), {"backend": "spotiflow"})
     return env
 

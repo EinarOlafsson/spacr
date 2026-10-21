@@ -147,7 +147,7 @@ def test_native_series_collection_stop_resumes_without_repeating_inference(
         'plate1_A01_1_1.npy', 'plate1_A01_1_2.npy'}
 
 
-@pytest.mark.parametrize('kind', ['orphan', 'linked_reserved', 'hidden_output'])
+@pytest.mark.parametrize('kind', ['orphan', pytest.param('linked_reserved', marks=pytest.mark.needs_symlink), 'hidden_output'])
 def test_native_series_resume_excludes_only_regular_reserved_mask_workspace(
         tmp_path, fake_model, monkeypatch, kind):
     source, _rows = _converted_series(tmp_path)
@@ -216,7 +216,7 @@ def test_two_native_series_scope_convert_rows_and_time_outputs_by_field(
 @pytest.mark.parametrize('damage', [
     'map', 'plane', 'receipt', 'receipt_digest', 'receipt_oversize',
     'missing_frame', 'extra_plane', 'missing_stack', 'missing_masks',
-    'missing_stack_frame', 'linked_mask_folder',
+    'missing_stack_frame', pytest.param('linked_mask_folder', marks=pytest.mark.needs_symlink),
 ])
 def test_native_series_checkpoint_rejects_changed_staging_without_reanalysis(
         tmp_path, fake_model, monkeypatch, damage):
@@ -234,17 +234,17 @@ def test_native_series_checkpoint_rejects_changed_staging_without_reanalysis(
             core._watch_folder_and_analyse(_watch(source))
     field = next((source / 'spacr_watch/fields').iterdir())
     if damage == 'map':
-        (field / convert.MAP_FILENAME).write_text('changed map')
+        (field / convert.MAP_FILENAME).write_text('changed map', encoding="utf-8")
     elif damage == 'plane':
         name = rows[0]['target']
         (field / name).write_bytes(b'changed plane')
     elif damage == 'receipt':
-        (field / 'stack/.spacr_volume_series_ingest.json').write_text('{}')
+        (field / 'stack/.spacr_volume_series_ingest.json').write_text('{}', encoding="utf-8")
     elif damage == 'receipt_digest':
         path = field / 'stack/.spacr_volume_series_ingest.json'
         receipt = json.loads(path.read_text(encoding="utf-8"))
         receipt['stacks']['plate1_A01_1_1.npy'] = '0' * 64
-        path.write_text(json.dumps(receipt))
+        path.write_text(json.dumps(receipt), encoding="utf-8")
     elif damage == 'receipt_oversize':
         (field / 'stack/.spacr_volume_series_ingest.json').write_bytes(
             b'x' * (16 * 1024 * 1024 + 1))
@@ -332,7 +332,7 @@ def test_native_series_restart_discards_partial_private_ingest_before_checkpoint
         (field / 'stack').mkdir()
         (field / 'masks').mkdir()
         (field / 'stack/.spacr_volume_series_ingest.json').write_text(
-            '{"version": 1, "interrupted": true}')
+            '{"version": 1, "interrupted": true}', encoding="utf-8")
         (field / 'masks/partial.npz').write_bytes(b'partial publication')
         raise KeyboardInterrupt('interrupted before collection checkpoint')
 

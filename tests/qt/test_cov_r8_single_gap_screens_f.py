@@ -178,7 +178,7 @@ class TestListingTheTablesInASource:
         from spacr.qt.screens.graph_builder import GraphBuilderScreen
 
         csv = tmp_path / "plate.csv"
-        csv.write_text("a,b\n1,2\n")
+        csv.write_text("a,b\n1,2\n", encoding="utf-8")
 
         screen = GraphBuilderScreen(threaded=False)
         qtbot.addWidget(screen)

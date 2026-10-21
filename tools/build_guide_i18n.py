@@ -1046,7 +1046,24 @@ def build(language: str, output: Path, inventory: Path,
     if warnings_are_errors:
         command += ["-W", "--keep-going"]
     command += [str(SOURCE_DIR), str(output)]
-    return subprocess.call(command, env=_env(language, inventory), cwd=ROOT)
+    for attempt in range(1, 4):
+        result = subprocess.run(command, env=_env(language, inventory), cwd=ROOT,
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                text=True)
+        print(result.stdout, end="")
+        inventory_failed = re.search(
+            r"(?m)^(?:WARNING: failed to reach any of the inventories"
+            r"|intersphinx inventory .*not fetchable)", result.stdout)
+        other_warnings = any(
+            not warning.startswith(("failed to reach any of the inventories",
+                                    "inventory for external cross-reference not found:"))
+            for warning in re.findall(r"(?m)^.*\bWARNING: (.*)$", result.stdout))
+        if (result.returncode != 1 or attempt == 3 or not inventory_failed
+                or other_warnings
+                or re.search(r"(?m)^(?:.*\bERROR:|Traceback|Exception occurred)", result.stdout)):
+            return result.returncode
+        print(f"{language}: retrying unavailable external API inventory "
+              f"(attempt {attempt} of 3)")
 
 
 def main(argv: list[str] | None = None) -> int:

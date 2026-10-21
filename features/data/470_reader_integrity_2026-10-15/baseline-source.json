@@ -1,6 +1,0 @@
-{
-  "commit": "6241a7378cb7f985e0f6d3cbbfc385916717cf25",
-  "path": "spacr/object_classifier.py",
-  "sha256": "395dd6339b7259359727cecdc5fa31fd5d6f1be0357670f11a2d5d3c376275c8",
-  "method": "Actual committed _annotated_real_crops AST executed in existing module globals for before-only regression; production source never overwritten"
-}

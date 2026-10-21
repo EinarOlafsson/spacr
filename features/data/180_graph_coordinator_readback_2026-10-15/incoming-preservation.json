@@ -1,7 +1,0 @@
-{
-  "incoming": "1b62f722da3",
-  "merge": "eadb2f6d037",
-  "incoming_runtime_catalogs_and_arrivals_preserved": true,
-  "resolution": "Only handwritten HANDOFF and N180 dated notes conflicted; both owners notes preserved. No generated conflicts or manual generated-file editing.",
-  "source_graph_hashes_and_13_api_records": "Verified exact by combined readback after merge; all unrelated incoming API retained."
-}

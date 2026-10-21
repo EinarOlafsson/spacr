@@ -27,12 +27,12 @@ def test_uninstall_answers_both_real_conda_prompts():
 def test_retry_rejects_other_installation_states(tmp_path, unsafe):
     environment = tmp_path / 'home/miniforge3/envs/spacr-pip'
     (environment / 'conda-meta').mkdir(parents=True)
-    (environment / 'conda-meta/history').write_text('retained completed removal transaction')
+    (environment / 'conda-meta/history').write_text('retained completed removal transaction', encoding="utf-8")
     proof = {'phases': {'uninstall': {'returncode': 1}}}
     if unsafe == 'existing-package':
         (environment / 'lib/python3.12/site-packages/spacr').mkdir(parents=True)
     elif unsafe == 'conda-packages':
-        (environment / 'conda-meta/python.json').write_text('{}')
+        (environment / 'conda-meta/python.json').write_text('{}', encoding="utf-8")
     elif unsafe == 'no-failed-phase':
         proof['phases']['uninstall']['returncode'] = 0
     elif unsafe == 'symlink':

@@ -206,7 +206,7 @@ def _stardist_folder(folder, ndim=3):
     (folder / 'config.json').write_text(json.dumps({
         'n_dim': ndim, 'axes': 'ZYXC' if ndim == 3 else 'YXC',
         'n_channel_in': 1,
-    }))
+    }), encoding="utf-8")
     return 'stardist:' + str(folder)
 
 

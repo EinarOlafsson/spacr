@@ -25,7 +25,7 @@ def test_a_single_source_becomes_a_string():
     from spacr.api import _source_value
 
     assert _source_value("/data/plate1") == "/data/plate1"
-    assert _source_value(Path("/data/plate1")) == "/data/plate1"
+    assert _source_value(Path("/data/plate1")) == str(Path("/data/plate1"))
 
 
 def test_several_sources_become_a_list_of_strings():
@@ -39,7 +39,7 @@ def test_several_sources_become_a_list_of_strings():
 
     out = _source_value([Path("/data/plate1"), "/data/plate2"])
 
-    assert out == ["/data/plate1", "/data/plate2"]
+    assert out == [str(Path("/data/plate1")), "/data/plate2"]
     assert all(isinstance(item, str) for item in out)
 
 

@@ -237,13 +237,13 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
             raise ValueError('Continuing repeated the first successful job')
         record('15_completed_real_queue')
         proof['outputs'] = [verify_outputs(job) for job in inputs['jobs']]
-        proof['saved_final'] = json.loads(queue_path.read_text())
+        proof['saved_final'] = json.loads(queue_path.read_text(encoding="utf-8"))
         saved = bt.load_queue(queue_path)
         if saved.ids != screen.queue().ids or any(j.status != bt.STATUS_SUCCESS for j in saved):
             raise ValueError('The persisted final queue differs from the successful GUI')
         for job in screen.queue():
             select(job.id)
-            if not screen.log_text().strip() or 'exit code 0' not in Path(job.log_path).read_text():
+            if not screen.log_text().strip() or 'exit code 0' not in Path(job.log_path).read_text(encoding="utf-8"):
                 raise ValueError('A successful row lacks the real subprocess log')
             record('16_log_' + job.id)
         proof['first_job_not_repeated'] = True

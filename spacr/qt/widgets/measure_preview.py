@@ -1687,7 +1687,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 url.isLocalFile()
                 and Path(url.toLocalFile()).suffix.lower() in _SUPPORTED
             ):
-                return url.toLocalFile()
+                return os.path.normpath(url.toLocalFile())
         return None
 
     def dragEnterEvent(self, event):  # noqa: N802

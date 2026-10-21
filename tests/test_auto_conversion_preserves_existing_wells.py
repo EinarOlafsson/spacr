@@ -17,8 +17,8 @@ def test_existing_converted_images_refuse_before_any_write(tmp_path, existing, h
     tifffile.imwrite(tmp_path / "a_raw.tif", np.full((8, 8), 7, np.uint16))
     tifffile.imwrite(tmp_path / existing, np.full((8, 8), 42, np.uint16))
     if has_log:
-        (tmp_path / "rename_log.csv").write_text("Original File,Renamed TIFF\nprevious.tif," + existing + "\n")
-        (tmp_path / "rename_log.run_status.json").write_text('{"previous": true}')
+        (tmp_path / "rename_log.csv").write_text("Original File,Renamed TIFF\nprevious.tif," + existing + "\n", encoding="utf-8")
+        (tmp_path / "rename_log.run_status.json").write_text('{"previous": true}', encoding="utf-8")
     before = {path.name: path.read_bytes() for path in tmp_path.iterdir()}
 
     with pytest.raises(ValueError, match="already contains converted images") as error:

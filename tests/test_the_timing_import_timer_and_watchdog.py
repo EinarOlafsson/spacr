@@ -85,7 +85,7 @@ def test_an_import_slower_than_the_floor_is_recorded_with_its_name(
     """End to end: install, import a genuinely slow module, read it back."""
     monkeypatch.setattr(timing, "IMPORT_FLOOR_MS", 1.0)
     module = tmp_path / "a_deliberately_slow_module.py"
-    module.write_text("import time\ntime.sleep(0.02)\nVALUE = 1\n")
+    module.write_text("import time\ntime.sleep(0.02)\nVALUE = 1\n", encoding="utf-8")
     monkeypatch.syspath_prepend(str(tmp_path))
 
     timing._install_import_timer()
@@ -104,7 +104,7 @@ def test_an_import_under_the_floor_is_not_recorded(timing, loader_restored,
     """There are thousands of them; a report listing all of them is unreadable."""
     monkeypatch.setattr(timing, "IMPORT_FLOOR_MS", 10_000.0)
     module = tmp_path / "an_instant_module.py"
-    module.write_text("VALUE = 1\n")
+    module.write_text("VALUE = 1\n", encoding="utf-8")
     monkeypatch.syspath_prepend(str(tmp_path))
 
     timing._install_import_timer()

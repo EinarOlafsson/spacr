@@ -213,7 +213,9 @@ def _env_says_no_splash() -> bool:
 def mosaic_splash_wanted() -> bool:
     """Whether the loading cover shows the photomosaic.
 
-    :returns: ``False`` when :data:`NO_SPLASH_ENV` is set, otherwise ``True``.
+    :returns: ``False`` when :data:`NO_SPLASH_ENV` has a nonempty value other than
+        ``0``, ``false``, ``no`` or ``off`` (case-insensitive, with
+        surrounding whitespace ignored); otherwise ``True``.
     """
     return not _env_says_no_splash()
 

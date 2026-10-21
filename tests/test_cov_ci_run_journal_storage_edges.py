@@ -48,7 +48,7 @@ def test_running_run_and_open_log_protection_survive_unreadable_paths(
 def test_prune_planning_skips_an_entry_whose_type_cannot_be_read(
         tmp_path, monkeypatch):
     candidate = tmp_path / "spacr-20200101.log"
-    candidate.write_text("old log")
+    candidate.write_text("old log", encoding="utf-8")
     monkeypatch.setattr(journal, "_prune_root", lambda _kind: tmp_path)
     monkeypatch.setattr(journal, "_protected_storage", set)
 
@@ -64,7 +64,7 @@ def test_prune_planning_skips_an_entry_whose_type_cannot_be_read(
 def test_prune_refuses_an_entry_that_cannot_be_resolved(
         tmp_path, monkeypatch):
     candidate = tmp_path / "spacr-20200101.log"
-    candidate.write_text("keep")
+    candidate.write_text("keep", encoding="utf-8")
     _unresolvable(monkeypatch, candidate)
     monkeypatch.setattr(journal, "_prune_root", lambda _kind: tmp_path)
     monkeypatch.setattr(journal, "_protected_storage", set)
@@ -100,7 +100,7 @@ def test_failed_run_deletion_stays_a_refusal_in_the_prune_result(
 def test_unreadable_log_types_are_excluded_from_clear_plans(
         tmp_path, monkeypatch):
     candidate = tmp_path / "r1.jsonl"
-    candidate.write_text("keep")
+    candidate.write_text("keep", encoding="utf-8")
     monkeypatch.setattr(journal, "_prune_root", lambda _kind: tmp_path)
 
     def unreadable(_kind, _entry):
@@ -115,7 +115,7 @@ def test_unreadable_log_types_are_excluded_from_clear_plans(
 def test_a_log_that_becomes_unreadable_is_refused_during_clear(
         tmp_path, monkeypatch):
     candidate = tmp_path / "spacr-20200101.log"
-    candidate.write_text("keep")
+    candidate.write_text("keep", encoding="utf-8")
     monkeypatch.setattr(journal, "_prune_root", lambda _kind: tmp_path)
     monkeypatch.setattr(journal, "_protected_storage", set)
     original = Path.stat
@@ -140,8 +140,8 @@ def test_cache_clear_reports_one_busy_child_and_removes_a_free_one(
     folder = tmp_path / "cache"
     folder.mkdir()
     busy, free = folder / "busy.bin", folder / "free.bin"
-    busy.write_text("keep")
-    free.write_text("remove")
+    busy.write_text("keep", encoding="utf-8")
+    free.write_text("remove", encoding="utf-8")
     monkeypatch.setattr(journal, "_cache_folder", lambda _key: folder)
     monkeypatch.setattr(journal, "_cache_refusal", lambda _folder: None)
     original = Path.unlink
@@ -223,7 +223,7 @@ def test_the_journal_loads_where_the_os_has_no_fork_hooks(monkeypatch):
 
     from spacr import errors
 
-    monkeypatch.delattr(os, "register_at_fork")
+    monkeypatch.delattr(os, "register_at_fork", raising=False)
     monkeypatch.setattr(errors, "_FINALIZE_LISTENERS", [])
     spec = importlib.util.spec_from_file_location(
         "spacr._run_journal_without_fork_hooks", journal.__file__)

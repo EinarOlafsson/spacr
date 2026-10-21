@@ -118,7 +118,7 @@ def test_the_title_slide_is_restamped_with_the_version(tmp_path):
     (tmp_path / "slides.json").write_text(json.dumps({
         "slides": [{"image": "slides/slide_01.jpg", "thumb": "thumbs/slide_01.jpg"}],
         "title_line": {"x": 0.05, "y": 0.85, "w": 0.7, "h": 0.06, "size": 0.04,
-                       "colour": "#FFFFFF", "text": "spaCR {version}  ·  x"}}))
+                       "colour": "#FFFFFF", "text": "spaCR {version}  ·  x"}}), encoding="utf-8")
     assert deck.stamp_title(tmp_path, "9.8.7.6") == "spaCR 9.8.7.6  ·  x"
     drawn = Image.open(tmp_path / "slides" / "slide_01.jpg").convert("L")
     assert drawn.crop((0, 360, 800, 420)).getextrema()[1] > 128
@@ -193,7 +193,7 @@ def test_a_bump_never_fails_on_the_deck(tmp_path, monkeypatch):
     shutil.copy(ROOT / "tools" / "build_readme_deck.py", root / "tools")
     deck_dir = root / "docs" / "source" / "_static" / "deck"
     deck_dir.mkdir(parents=True)
-    (deck_dir / "slides.json").write_text(json.dumps({"version": "1.0.0.0"}))
+    (deck_dir / "slides.json").write_text(json.dumps({"version": "1.0.0.0"}), encoding="utf-8")
     assert release.restamp_info_deck(root, "1.0.0.0") is None
     real_import = builtins.__import__
 

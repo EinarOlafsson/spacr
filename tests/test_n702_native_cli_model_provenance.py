@@ -24,7 +24,7 @@ def test_actual_cli_journal_records_original_pin_and_effective_verified_model(tm
                     'cell_model_name': zoo._model_reference_from_record(request, raw)}}}
     original = deepcopy(settings)
     path = tmp_path / 'input-settings.json'
-    path.write_text(json.dumps(settings))
+    path.write_text(json.dumps(settings), encoding="utf-8")
     private_home = tmp_path / 'private-home'
     monkeypatch.setenv('SPACR_HOME', str(private_home))
     monkeypatch.setattr(run_journal, 'runs_root', lambda: tmp_path / 'runs')

@@ -12,7 +12,7 @@ from pipeline_graph_data import verify_graph
 @pytest.fixture
 def example(tmp_path):
     path = tmp_path/'actual.txt'
-    path.write_text('actual artifact')
+    path.write_text('actual artifact', encoding="utf-8")
     row = dict(artifact_id='one', project=str(tmp_path), kind='crops', role='crops',
                module='measure', path=str(path), run_id='real', settings_hash='digest',
                spacr_version='1.5.0.4', created_utc='2026-09-09T00:00:00Z', created_ns=1,

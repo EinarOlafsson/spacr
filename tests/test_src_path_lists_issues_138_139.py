@@ -99,9 +99,11 @@ def test_macos_volumes_paths():
 
 def test_home_is_expanded():
     home = os.path.expanduser("~")
-    assert parse("['~/a', '~/b']") == [os.path.join(home, "a"),
-                                       os.path.join(home, "b")]
-    assert parse("~/a") == [os.path.join(home, "a")]
+    assert home != "~"
+    assert parse("['~/a', '~/b']") == [os.path.expanduser("~/a"),
+                                       os.path.expanduser("~/b")]
+    assert parse("~/a") == [os.path.expanduser("~/a")]
+    assert os.path.normpath(parse("~/a")[0]) == os.path.join(home, "a")
 
 
 @pytest.mark.parametrize("value, expected", [

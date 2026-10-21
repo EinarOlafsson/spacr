@@ -132,6 +132,7 @@ def test_the_definition_needs_no_root_step():
 
 
 @pytest.mark.parametrize("section", ["environment", "runscript", "test"])
+@pytest.mark.posix_only
 def test_each_script_section_is_posix_sh(section, tmp_path):
     """Apptainer runs these with /bin/sh; a bashism fails only on the node."""
     script = tmp_path / f"{section}.sh"
@@ -160,6 +161,7 @@ def _entrypoint(tmp_path: Path, **extra: str) -> tuple[Path, str]:
 
 @pytest.mark.parametrize("variable", ["APPTAINER_CONTAINER",
                                       "SINGULARITY_CONTAINER"])
+@pytest.mark.posix_only
 def test_under_apptainer_nothing_is_linked_into_the_real_home(
         variable, tmp_path):
     """A link to an image-only /models would outlive the container."""
@@ -179,6 +181,7 @@ def test_the_entrypoint_hands_a_bound_models_folder_to_cellpose():
         assert "CELLPOSE_LOCAL_MODELS_PATH" in text
 
 
+@pytest.mark.posix_only
 def test_the_image_libraries_come_before_the_nv_bound_host_libraries(tmp_path):
     """--nv binds a host libEGL that can need a newer glibc than the image's.
 
@@ -200,6 +203,7 @@ def test_the_image_libraries_come_before_the_nv_bound_host_libraries(tmp_path):
     assert set(entries[:-1]) == set(libdirs)
 
 
+@pytest.mark.posix_only
 def test_the_slurm_recipe_is_a_valid_array_job():
     """The batch recipe parses, uses the GPU flag and caps the workers."""
     script = APPTAINER_DIR / "spacr_slurm.sh"
@@ -233,7 +237,9 @@ def _workflow(path: Path) -> dict:
 
 
 def test_the_release_publishes_the_sifs_after_the_docker_images():
-    """release.yml calls apptainer-images once container-images succeeded."""
+    """release.yml calls apptainer-images once container-images and github-release succeeded.
+
+    apptainer-images.yml checks out the release tag, which github-release creates."""
     release = _workflow(RELEASE_WORKFLOW)
     jobs = release["jobs"]
     names = list(jobs)
@@ -241,10 +247,11 @@ def test_the_release_publishes_the_sifs_after_the_docker_images():
     assert names.index("apptainer-images") > names.index("container-images")
     job = jobs["apptainer-images"]
     assert job["uses"] == "./.github/workflows/apptainer-images.yml"
-    assert set(job["needs"]) == {"bump", "container-images"}
+    assert set(job["needs"]) == {"bump", "container-images", "github-release"}
     condition = " ".join(job["if"].split())
     assert "always()" in condition
     assert "needs.container-images.result == 'success'" in condition
+    assert "needs.github-release.result == 'success'" in condition
     assert job["permissions"] == {"contents": "read", "packages": "write"}
     assert job["with"]["publish"] is True
     assert job["with"]["release_version"] == "${{ needs.bump.outputs.version }}"

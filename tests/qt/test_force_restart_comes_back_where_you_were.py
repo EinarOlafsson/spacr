@@ -76,9 +76,9 @@ def test_settings_that_are_not_json_survive_the_trip(tmp_path):
                        settings={"src": Path("/data"), "channels": (0, 1, 2),
                                  "nested": {"a": {"b": Path("/x")}}})
     settings = restart_state.peek()["settings"]
-    assert settings["src"] == "/data"
+    assert settings["src"] == str(Path("/data"))
     assert settings["channels"] == [0, 1, 2]
-    assert settings["nested"]["a"]["b"] == "/x"
+    assert settings["nested"]["a"]["b"] == str(Path("/x"))
 
 
 def test_the_state_is_taken_not_read_so_it_cannot_reopen_forever():

@@ -73,8 +73,20 @@ def validate(root, *, include_hosted_media=False, require_browser=False):
         checked += 1
     # Without a lesson_catalog.js nothing may claim a hosted web copy.
     player_catalog = root / 'web/lesson_catalog.js'
-    require_consistent_web_hosting(manifest['files'], parse_javascript(
-        player_catalog.read_text())['lessons'] if player_catalog.is_file() else [])
+    player_lessons = parse_javascript(player_catalog.read_text(encoding='utf-8'))['lessons'] if player_catalog.is_file() else []
+    require_consistent_web_hosting(manifest['files'], player_lessons)
+    from idle_tail_policy import validate_catalog_policy
+    def idle_timing(path):
+        source = root / path
+        if source.is_file():
+            expected = next(record for record in manifest['files'] if record['path'] == path)
+            if source.stat().st_size != expected['bytes'] or digest(source) != expected['sha256']:
+                raise ValueError('Idle-tail timing bytes differ from the manifest')
+            return read(source)
+        if include_hosted_media:
+            raise ValueError('Full candidate is missing its idle-tail timing document')
+        return None  # Explicit thin checkpoint: schema and immutable hashes only.
+    validate_catalog_policy(manifest['files'], player_lessons, idle_timing)
     actual_web = {p.relative_to(root).as_posix() for p in (root / 'web').rglob('*') if p.is_file()}
     if actual_web != {p for p in seen if p.startswith('web/')}:
         raise ValueError('Unrecorded or missing website files')

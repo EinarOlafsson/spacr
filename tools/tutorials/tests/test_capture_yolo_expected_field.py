@@ -11,7 +11,7 @@ DRIVER = Path(__file__).resolve().parents[1] / 'capture_make_masks.py'
 
 
 def actual_waiter(screen, settle, clock=time, timeout=1.0):
-    tree = ast.parse(DRIVER.read_text())
+    tree = ast.parse(DRIVER.read_text(encoding="utf-8"))
     tour = next(node for node in tree.body
                 if isinstance(node, ast.FunctionDef) and node.name == 'record_yolo_boxes')
     ready = next(node for node in tour.body

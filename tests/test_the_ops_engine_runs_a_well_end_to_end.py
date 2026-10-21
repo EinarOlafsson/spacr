@@ -481,7 +481,7 @@ def test_two_wells_with_stored_reads_resume_without_rerunning(engine_run,
         (results / f"{well}.json").write_text(json.dumps({
             "plate": settings["plate"], "well": well, "complete": True,
             "settings": {"ops_store_reads": True}, "report": report,
-            "row": driver.well_row(report)}, default=str))
+            "row": driver.well_row(report)}, default=str), encoding="utf-8")
 
     rerun = []
 
@@ -492,7 +492,7 @@ def test_two_wells_with_stored_reads_resume_without_rerunning(engine_run,
 
     monkeypatch.setattr(ops_engine, "run_ops", run_again)
     design = tmp_path / "design.csv"
-    design.write_text("dialout,sgRNA,prefix_length\n0,ACGTACGT,4\n")
+    design.write_text("dialout,sgRNA,prefix_length\n0,ACGTACGT,4\n", encoding="utf-8")
     code = driver.main([
         "--plate", str(tmp_path / settings["plate"]), "--design", str(design),
         "--out", str(out), "--wells", "A1", "A2", "--no-gpu",

@@ -145,6 +145,22 @@ PROMOTIONS: Dict[str, Tuple[str, str]] = {
               "197 tests and 465 assertions across five files, and the only "
               "module in the Design section — but one commit old with no "
               "documentation."),
+    "make_masks": ("stable",
+                   "83 test files and about 5,100 assertions, the curation "
+                   "and Cellpose workbench the paper's masks were made in, "
+                   "and its own tutorial lessons."),
+    "analyze_plaques": ("stable",
+                        "38 test files and about 1,460 assertions, the "
+                        "plaque pipeline and model behind the paper's "
+                        "plaque readout, and tutorial lessons."),
+    "replication": ("stable",
+                    "2 dedicated test files and about 230 assertions, a "
+                    "headless pipeline entry behind the screen, and the "
+                    "parasites-per-vacuole readout used in the paper."),
+    "umap": ("stable",
+             "32 test files and about 1,190 assertions over the Image UMAP "
+             "screen and its embedding library, used for the paper's "
+             "phenotype maps."),
 }
 
 #: app key -> (stage it already has, why that is right). The apps that were

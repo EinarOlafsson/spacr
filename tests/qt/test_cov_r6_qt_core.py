@@ -158,7 +158,7 @@ def test_a_csv_cell_that_is_text_or_absent_is_carried_through_unconverted(
         "src,cell_size,note\n"
         "/plates/A,25,two channels\n"
         "/plates/B,30\n"
-        ",ignored,ignored\n")
+        ",ignored,ignored\n", encoding="utf-8")
 
     items = pq.import_plates_from_csv(
         csv_path, {"cell_size": 0, "note": "", "channels": [0, 1]},

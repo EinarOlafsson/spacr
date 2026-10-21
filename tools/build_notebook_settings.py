@@ -5,8 +5,8 @@ Each generated section has a readable Markdown reference, one or more
 categorized settings cells, and the function call that consumes those
 settings. Descriptions come from the live spaCR tooltip table or the
 function's scientific-Python docstring; they are never copied into executable
-code. Organelle configuration is isolated in its own cell because that surface
-is substantially larger than the other segmentation groups. A regeneration
+code. Only essential overrides appear as editable code; current defaults
+load programmatically and advanced fields open in real clickable groups. A regeneration
 test keeps notebooks synchronized with API changes.
 
 Usage::
@@ -78,6 +78,8 @@ SECTION_TITLE = "## 3. Settings and API reference"
 #: Metadata values used to find generated cells without putting prose in code.
 HELP_CELL_KIND = "settings-help"
 SETTINGS_CELL_KIND = "settings"
+ADVANCED_CELL_KIND = "settings-advanced"
+EDITOR_CELL_KIND = "settings-editor"
 ORGANELLE_CELL_KIND = "settings-organelle"
 FUNCTION_HELP_CELL_KIND = "function-help"
 IMPORT_CELL_KIND = "function-import"
@@ -85,6 +87,21 @@ RUN_CELL_KIND = "function-run"
 
 #: Root of the published sphinx-autoapi tree.
 API_BASE = "https://einarolafsson.github.io/spacr/api"
+BROWSER_FILENAME = "00_workflow_browser.ipynb"
+ARCHIVE_HELP = """## Optional: build a local archive package (alpha)
+
+After reviewing the measurements, edit the metadata below and set `build_archive = True` to write one screen's MIHCSME/REMBI, IDR and BioStudies files, file lists and checksums. The package destination must be outside the run folder; existing destinations are never overwritten. Images stay in their original location unless `copy_images` is enabled. Nothing is uploaded.
+
+This cell uses the same public command-line entry point as:
+
+```sh
+spacr-run archive-package --src /path/to/run --out /path/to/archive-exports --metadata archive-metadata.json
+```
+
+The metadata file is a JSON object with the same fields as `archive_metadata` below. Fields omitted from that object use saved run settings and archive defaults; `plate_map` can name a local plate-map table. The default organism is Homo sapiens: verify it for your screen. Use `spacr-run archive-package --help` for command options.
+
+Exit status zero means the generated package passes spaCR's local template and checksum checks. It does not mean acceptance by IDR or BioStudies. External curation, ontology accessions beyond the organism, and multi-screen study assembly remain pending. If post-write checks fail, the package remains available for inspection and the cell raises an error. The optional Excel workbook requires openpyxl; TSV metadata is always written.
+"""
 
 
 @dataclass(frozen=True)
@@ -1133,19 +1150,17 @@ def _status_label(status: str) -> str:
     }[status]
 
 
-def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
+def render_reference(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
                 ) -> str:
-    """Build the Markdown reference shown above the settings cell."""
+    """Build the complete external reference, opened only on request."""
     lines = [
         SECTION_TITLE,
         "",
-        "Review the parameter definitions here, then edit the values in the "
-        "categorized code cells below. Required settings must be supplied. "
-        "Optional settings retain the displayed default when unchanged. "
-        "Conditionally required settings are necessary only for the indicated "
-        "analysis branch. Defaults and descriptions are generated from the "
-        "installed spaCR version so that the notebook remains aligned with "
-        "the public API.",
+        "This linked reference contains the full generated setting descriptions. "
+        "Return to the notebook to edit essential inputs or open Advanced settings. "
+        "Required inputs must be supplied; conditional inputs apply only to the indicated branch. "
+        "Unchanged optional values use the installed API defaults. Descriptions and "
+        "displayed defaults reflect the spaCR source used to generate this reference.",
     ]
     for dotted, shape, keys, docs in entries:
         lines.extend([
@@ -1162,7 +1177,7 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
             ])
         if any(_is_organelle_key(key) for key in keys):
             lines.extend([
-                "> Organelle parameters are placed in a separate code cell "
+                "> Organelle parameters are available inside the advanced editor "
                 "to keep the primary segmentation configuration readable.",
                 "",
             ])
@@ -1172,10 +1187,25 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
                 "both functions operate on the same dataset.",
                 "",
             ])
+        essentials = [key for key in keys
+                      if _essential_setting(dotted, shape, key, keys)
+                      and not _is_organelle_key(key)]
+        lines.extend(["", "#### Essential inputs", ""])
+        for key in essentials:
+            description = _markdown_text(tooltip_for(key, shape, docs))
+            status = _status_label(_setting_status(dotted, shape, key, keys))
+            lines.append(f"- **`{key}`** *({status.lower()})* — {description}")
+        lines.extend(["", "<details>", "<summary>Advanced settings reference — click to expand</summary>", ""])
         for organelle in (False, True):
             for category, members in _category_groups(
                     keys, organelle=organelle, dotted=dotted):
-                lines.extend(["", f"#### {category}", ""])
+                members = [key for key in members if key not in essentials]
+                if not members:
+                    continue
+                lines.extend(["", "<details>",
+                              f"<summary>{_markdown_text(category)} "
+                              f"({len(members)} settings)</summary>",
+                              "", f"#### {category}", ""])
                 for key in members:
                     description = _markdown_text(
                         tooltip_for(key, shape, docs))
@@ -1185,13 +1215,16 @@ def render_help(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
                     status = _status_label(
                         _setting_status(dotted, shape, key, keys))
                     lines.append(
-                        f"- **`{key}`** *({status.lower()})* — {description}")
+                        f"- **`{key}`** *({status.lower()})* — {description} "
+                        f"Default: `{_literal(keys[key], dotted=dotted, key=key)}`.")
+                lines.extend(["", "</details>"])
+        lines.extend(["", "</details>"])
     lines.extend([
         "",
         "## 4. Run",
         "",
-        "After editing the settings cell, run the function cell immediately "
-        "below it. Long operations report progress through spaCR's logging "
+        "Return to the notebook, configure inputs, and run its analysis cell only "
+        "when ready. Long operations report progress through spaCR's logging "
         "system; set `SPACR_LOG_LEVEL=DEBUG` before starting Jupyter for more "
         "detail.",
     ])
@@ -1202,6 +1235,7 @@ def render_cell(
     entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]],
     *,
     organelle: bool = False,
+    advanced: Optional[bool] = None,
 ) -> str:
     """Build one categorized settings cell.
 
@@ -1212,10 +1246,19 @@ def render_cell(
     for index, (dotted, shape, keys, _docs) in enumerate(entries):
         groups = _category_groups(
             keys, organelle=organelle, dotted=dotted)
+        if advanced is not None:
+            groups = [(title, [key for key in members
+                               if (_essential_setting(dotted, shape, key, keys)
+                                   is not advanced)])
+                      for title, members in groups]
+            groups = [(title, members) for title, members in groups if members]
+        if advanced and not groups:
+            continue
         if organelle and not groups:
             continue
         name = setting_name(dotted, entries)
-        lines.append(f"{name}.update({{" if organelle else f"{name} = {{")
+        update = organelle or advanced
+        lines.append(f"{name}.update({{" if update else f"{name} = {{")
         for group_index, (category, members) in enumerate(groups):
             if group_index:
                 lines.append("")
@@ -1236,22 +1279,189 @@ def render_cell(
                         value = f"{first_name}['src']"
                     lines.append(
                         f"    {key!r}: {value},")
-        lines.append("})" if organelle else "}")
+        lines.append("})" if update else "}")
         if index != len(entries) - 1:
             lines.append("")
     return "\n".join(lines)
 
 
-def render_settings_cells(
-    entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]],
-) -> List[Tuple[str, str]]:
-    """Return ``[(generated_kind, source), ...]`` for editable settings."""
-    rendered = [(SETTINGS_CELL_KIND, render_cell(entries))]
-    if any(_is_organelle_key(key)
-           for _dotted, _shape, keys, _docs in entries for key in keys):
-        rendered.append((ORGANELLE_CELL_KIND,
-                         render_cell(entries, organelle=True)))
-    return rendered
+def _essential_setting(dotted: str, shape: str, key: str,
+                       keys: Dict[str, Any]) -> bool:
+    """Keep required inputs and common run choices visible on first opening."""
+    return (_setting_status(dotted, shape, key, keys) != "optional"
+            or key in {"src", "channels", "folders", "csv", "cv_csv"})
+
+
+def _runtime_defaults(dotted: str, shape: str, keys: Dict[str, Any], name: str) -> str:
+    """Load the current API defaults without displaying their complete literal."""
+    function = resolve(dotted)
+    lines = []
+    if shape == "factory":
+        factory = _factory_from_registry(dotted) or _settings_factory(function)
+        lines.extend([f"from {factory.__module__} import {factory.__name__} as _defaults",
+                      f"{name} = dict(_defaults({{}}))"])
+        raw = keys_from_factory(factory)
+        if set(raw) - set(keys):
+            from spacr.settings import categories, timelapse_settings
+            time_keys = set(timelapse_settings) | set(categories["4D Settings (Beta)"]) | {"timelapse"}
+            lines.extend([
+                "from spacr.settings import categories, timelapse_settings, motility_settings, motility_advanced_settings",
+                "_time_keys = set(timelapse_settings) | set(categories['4D Settings (Beta)']) | {'timelapse'}",
+                "_motility_keys = set(motility_settings) | set(motility_advanced_settings) | {'motility_analysis'}",
+            ])
+            hidden = "_motility_keys" if set(keys) & time_keys else "_time_keys | _motility_keys"
+            if _module_from_registry(dotted).key == "motility":
+                hidden = "_time_keys | {'motility_analysis'}"
+            lines.append(f"{name} = {{key: value for key, value in {name}.items() if key not in ({hidden})}}")
+        for key, value in _REQUIRED_SURFACE_DEFAULTS.get(dotted, {}).items():
+            lines.append(f"{name}.setdefault({key!r}, {value!r})")
+    elif shape == "signature":
+        lines.extend(["import inspect", f"from {dotted.rpartition('.')[0]} import {dotted.rpartition('.')[2]} as _function",
+                      f"{name} = {{key: None if parameter.default is inspect.Parameter.empty else parameter.default",
+                      "            for key, parameter in inspect.signature(_function).parameters.items()",
+                      "            if parameter.kind not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)}"])
+    else:
+        lines.extend(["import ast, inspect, textwrap", "from typing import Any, Dict",
+                      inspect.getsource(keys_from_source).rstrip(),
+                      f"from {dotted.rpartition('.')[0]} import {dotted.rpartition('.')[2]} as _function",
+                      f"{name} = keys_from_source(_function)"])
+    lines.extend(["import copy", f"_defaults_{name} = copy.deepcopy({name})"])
+    return "\n".join(lines)
+
+
+_ADVANCED_EDITOR = r"""import ast
+import copy
+from pprint import pformat
+from IPython.display import display
+
+def show_advanced_settings(values, essential, defaults=None):
+    try:
+        import ipywidgets as widgets
+    except ImportError:
+        print("Expand an advanced reference group for keys/defaults; edit advanced_overrides above.")
+        return None
+    from spacr.settings import categories
+    panels = []
+    titles = []
+    remaining = set(values) - set(essential)
+    groups = []
+    for title, members in categories.items():
+        selected = [key for key in members if key in remaining]
+        if selected:
+            remaining.difference_update(selected)
+            groups.append((title, selected))
+    groups.append(("Additional settings", sorted(remaining)))
+    for title, members in groups:
+        if not members:
+            continue
+        original = copy.deepcopy({key: (defaults or values)[key] for key in members})
+        editor = widgets.Textarea(value=pformat({key: values[key] for key in members}, sort_dicts=False),
+                                  layout=widgets.Layout(width="100%", height="260px"))
+        apply = widgets.Button(description="Apply changes")
+        reset = widgets.Button(description="Reset group")
+        message = widgets.Output()
+        def update(_button, editor=editor, message=message, members=tuple(members), values=values):
+            with message:
+                message.clear_output()
+                try:
+                    candidate = ast.literal_eval(editor.value)
+                    if not isinstance(candidate, dict) or set(candidate) != set(members):
+                        raise ValueError("Keep the displayed setting names; edit their values only.")
+                    for key, value in candidate.items():
+                        previous = values[key]
+                        if previous is not None and value is not None and not isinstance(value, type(previous)):
+                            if not (isinstance(previous, float) and isinstance(value, (int, float))):
+                                raise ValueError(f"{key}: preserve its value type or use None.")
+                except (ValueError, SyntaxError, TypeError) as error:
+                    print(error)
+                else:
+                    values.update(candidate)
+                    print("Changes applied to the settings used by the run cell.")
+        def restore(_button, editor=editor, original=original, values=values, message=message):
+            values.update(copy.deepcopy(original))
+            editor.value = pformat(original, sort_dicts=False)
+            with message:
+                message.clear_output()
+                print("Group defaults restored.")
+        apply.on_click(update)
+        reset.on_click(restore)
+        panels.append(widgets.VBox([editor, widgets.HBox([apply, reset]), message]))
+        titles.append(title)
+    groups_widget = widgets.Accordion(children=panels, selected_index=None)
+    for index, title in enumerate(titles):
+        groups_widget.set_title(index, title)
+    advanced = widgets.Accordion(children=[groups_widget], selected_index=None)
+    advanced.set_title(0, "Advanced settings — click to expand")
+    display(advanced)
+    return advanced
+"""
+
+
+_ADVANCED_EDITOR += r"""
+
+def show_workflow_settings_editor(settings, module):
+    import json
+    import ipywidgets as widgets
+    from spacr.cli import apply_overrides, SettingsError
+    editor = widgets.Textarea(value=json.dumps(settings, indent=2, default=str),
+                              layout=widgets.Layout(width="100%", height="300px"))
+    apply_button = widgets.Button(description="Apply settings")
+    messages = widgets.Output()
+    editable_module = module
+    editable_settings = settings
+
+    def apply_settings(_button, editor=editor, messages=messages,
+                       editable_module=editable_module, editable_settings=editable_settings):
+        with messages:
+            messages.clear_output()
+            try:
+                values = json.loads(editor.value)
+                if not isinstance(values, dict):
+                    raise ValueError("Settings must be a JSON object.")
+                if set(values) != set(editable_settings):
+                    raise ValueError("Keep the current setting names; edit their values only.")
+                candidate = dict(editable_settings)
+                changed = [f"{key}={value!r}" if not isinstance(value, str)
+                           else f"{key}={value}" for key, value in values.items()
+                           if value != editable_settings[key]]
+                apply_overrides(candidate, changed, editable_module)
+            except (ValueError, TypeError, SettingsError) as error:
+                print(error)
+            else:
+                editable_settings.update(candidate)
+                print("Settings applied. Review them before enabling the run cell.")
+
+    apply_button.on_click(apply_settings)
+    advanced = widgets.Accordion(children=[widgets.VBox([editor, apply_button, messages])])
+    advanced.set_title(0, "Advanced settings — click to expand")
+    advanced.selected_index = None
+    display(advanced)
+    return advanced, editor, apply_button
+"""
+
+
+def render_settings_cells(entries) -> List[Tuple[str, str]]:
+    """Keep only essential overrides in code; edit advanced values on demand."""
+    primary = []
+    overrides = []
+    editors = ["try:\n    from _spacr_notebook_widgets import show_advanced_settings\nexcept ImportError:\n    show_advanced_settings = None\n    print('Optional editor helper unavailable; use the advanced reference and advanced_overrides.')"]
+    for dotted, shape, keys, _docs in entries:
+        name = setting_name(dotted, entries)
+        primary.append(_runtime_defaults(dotted, shape, keys, name))
+        essential = [key for key in keys if _essential_setting(dotted, shape, key, keys)
+                     and not _is_organelle_key(key)]
+        override_name = "advanced_overrides" if len(entries) == 1 else f"{name}_overrides"
+        overrides.extend([f"{override_name} = {{}}", f"{name}.update({override_name})"])
+        editors.append(f"{name}_editor = (show_advanced_settings({name}, {essential!r}, _defaults_{name})\n                   if show_advanced_settings is not None else None)")
+    editable = render_cell(entries, advanced=False)
+    for dotted, *_rest in entries:
+        name = setting_name(dotted, entries)
+        editable = editable.replace(f"{name} = {{", f"{name}.update({{")
+    editable = "\n".join("})" if line == "}" else line for line in editable.splitlines())
+    primary.append(editable)
+    return [(SETTINGS_CELL_KIND, "\n\n".join(primary)),
+            (ADVANCED_CELL_KIND, "\n".join(overrides)),
+            (EDITOR_CELL_KIND, "\n".join(editors))]
 
 
 def _as_source(text: str) -> List[str]:
@@ -1260,7 +1470,7 @@ def _as_source(text: str) -> List[str]:
     return [line + "\n" for line in lines[:-1]] + [lines[-1]]
 
 
-def _render_overview(spec: NotebookSpec) -> str:
+def _render_full_overview(spec: NotebookSpec) -> str:
     """Return the reviewed scientific overview for ``spec``."""
     title, purpose, use, outputs = spec.overview
     lines = [
@@ -1285,6 +1495,21 @@ def _render_overview(spec: NotebookSpec) -> str:
         "configured source directory unless an explicit output path is set.",
     ])
     return "\n".join(lines)
+
+
+def _render_overview(spec: NotebookSpec) -> str:
+    """Keep the first view short in every frontend, including Colab."""
+    return (f"# {spec.overview[0]}\n\n"
+            f"[Help and parameter reference](reference/{Path(spec.filename).stem}.md) · "
+            "[All notebooks](README.md) · "
+            f"[Open in Colab](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/{spec.filename})")
+
+
+def render_help(entries) -> str:
+    """Only links appear initially; full descriptions are explicitly opt-in."""
+    links = " · ".join(f"[API: {dotted.rsplit('.', 1)[1]}]({api_url(dotted)})"
+                       for dotted, *_rest in entries)
+    return f"{SECTION_TITLE}\n\nEdit the inputs below. Run the optional editor for closed Advanced settings and Help menus.\n\n{links}"
 
 
 def _render_function_section(entries) -> str:
@@ -1350,18 +1575,11 @@ def _refresh_notebook_prose(spec: NotebookSpec, notebook: dict,
             continue
         source = "".join(cell.get("source", []))
         if source.startswith("## 1. Check the install") or source.startswith(
-                "## 1. Verify the environment"):
-            cell["source"] = _as_source("\n".join([
-                "## 1. Verify the environment",
-                "",
-                "The following cell reports the installed spaCR version. "
-                "Import errors must be resolved before the analysis cells "
-                "are executed. GPU acceleration is optional and depends on "
-                "the selected workflow and installed computational backend.",
-            ]))
+                "## 1. Verify the environment") or source.startswith("## 1. Environment"):
+            cell["source"] = _as_source("## 1. Environment\n\nRun the version check before configuring inputs.")
         elif (("function" in source and "this notebook runs" in source)
-              or source.startswith("## 2. API entry point")):
-            cell["source"] = _as_source(_render_function_section(entries))
+              or _cell_kind(cell) == FUNCTION_HELP_CELL_KIND):
+            cell["source"] = _as_source("## 2. API\n\n" + " · ".join(f"[{dotted.rsplit('.', 1)[1]}]({api_url(dotted)})" for dotted, *_ in entries))
             _mark_generated(cell, FUNCTION_HELP_CELL_KIND)
             metadata = cell.setdefault("metadata", {}).setdefault(
                 "spacr", {})
@@ -1369,24 +1587,8 @@ def _refresh_notebook_prose(spec: NotebookSpec, notebook: dict,
             metadata["app_keys"] = list(spec.app_keys)
             metadata["desktop_route"] = spec.desktop_route
         elif source.startswith("## Where the output went") or source.startswith(
-                "## Outputs and next steps"):
-            outputs = spec.overview[3]
-            cell["source"] = _as_source("\n".join([
-                "## Outputs and next steps",
-                "",
-                outputs,
-                "",
-                "Output directories remain associated with the source dataset, "
-                "which preserves plate-level provenance across subsequent "
-                "spaCR workflows.",
-                "",
-                "### Related documentation",
-                "",
-                "- [Graphical workflow tutorials]"
-                "(https://einarolafsson.github.io/spacr/tutorials/)",
-                "- [Python API reference]"
-                "(https://einarolafsson.github.io/spacr/python_api.html)",
-            ]))
+                "## Outputs and next steps") or source.startswith("## Outputs\n"):
+            cell["source"] = _as_source("## Outputs\n\n[Output locations and next steps](reference/" + Path(spec.filename).stem + ".md#outputs-and-next-steps)")
 
 
 # ---------------------------------------------------------------------------
@@ -1410,7 +1612,7 @@ def rebuild(path: Path) -> Optional[str]:
     spec = NOTEBOOK_SPECS.get(path.name)
     if spec is None:
         return None
-    notebook = json.loads(path.read_text())
+    notebook = json.loads(path.read_text(encoding="utf-8"))
     notebook_metadata = notebook.setdefault("metadata", {}).setdefault(
         "spacr", {})
     notebook_metadata.update({
@@ -1487,12 +1689,16 @@ def rebuild(path: Path) -> Optional[str]:
             help_cell["source"] = help_source
             _mark_generated(help_cell, HELP_CELL_KIND)
 
+    for cell in cells:
+        if cell.get("cell_type") == "markdown" and cell.get("metadata", {}).get("spacr", {}).get("feature") == 574:
+            cell["source"] = _as_source("## Optional archive export (alpha)\n\n[Archive instructions](reference/02_measure_and_crop.md#optional-archive-export-alpha)")
+
     # Remove a formerly generated organelle cell when a function no longer
     # exposes organelle settings.
     live_kinds = {kind for kind, _source in rendered_settings}
     for cell in list(cells):
-        if (_cell_kind(cell) == ORGANELLE_CELL_KIND
-                and ORGANELLE_CELL_KIND not in live_kinds):
+        if (_cell_kind(cell) in {ORGANELLE_CELL_KIND, ADVANCED_CELL_KIND}
+                and _cell_kind(cell) not in live_kinds):
             cells.remove(cell)
 
     _remove_legacy_setup(cells, help_cell)
@@ -1502,6 +1708,9 @@ def rebuild(path: Path) -> Optional[str]:
     run_cell = _ensure_run_cell(cells, ordered_settings[-1], entries)
     _place_run_cell(cells, ordered_settings[-1], run_cell)
     _place_import_cell(cells, import_cell)
+    editor_cell = next(cell for cell in cells if _cell_kind(cell) == EDITOR_CELL_KIND)
+    editor_cell["source"] = _as_source("".join(editor_cell["source"]) +
+        "\ntry:\n    from _spacr_notebook_widgets import show_help_menu\nexcept ImportError:\n    pass\nelse:\n    help_menu = show_help_menu(" + repr("reference/" + path.stem + ".md") + ")")
     _clear_code_outputs(cells)
     return json.dumps(notebook, indent=1, ensure_ascii=False) + "\n"
 
@@ -1615,6 +1824,11 @@ def _mark_generated(cell: dict, kind: str) -> None:
     """Mark a cell as generator-owned without adding prose to executable code."""
     cell.setdefault("id", f"spacr-{kind}")
     metadata = cell.setdefault("metadata", {})
+    if kind in {ADVANCED_CELL_KIND, ORGANELLE_CELL_KIND, EDITOR_CELL_KIND}:
+        metadata.setdefault("jupyter", {})["source_hidden"] = True
+        tags = metadata.setdefault("tags", [])
+        if "advanced-settings" not in tags:
+            tags.append("advanced-settings")
     spacr_metadata = metadata.setdefault("spacr", {})
     spacr_metadata.update({
         "generated": kind,
@@ -1705,6 +1919,390 @@ def _insertion_point(cells: List[dict]) -> int:
 # Entry point
 # ---------------------------------------------------------------------------
 
+
+def render_notebook_index() -> str:
+    """Build navigation from maintained lessons and the live workflow registry."""
+    from spacr.cli import MODULES
+
+    lines = ["# spaCR notebooks", "",
+             "Start with [the workflow browser](00_workflow_browser.ipynb) to "
+             "choose any registered headless workflow, inspect its current "
+             "defaults, or reuse settings saved by the desktop application.", "",
+             "## Guided workflows", "", "| Notebook | Colab | Purpose |",
+             "|---|---|---|"]
+    for name, spec in NOTEBOOK_SPECS.items():
+        lines.append(f"| [{spec.overview[0]}]({name}) | [Open](https://colab.research.google.com/github/EinarOlafsson/spacr/blob/nightly/Notebooks/colab/{name}) | {spec.overview[1]} |")
+    lines.extend(["", "## All registered workflows", "",
+                  "The browser offers every entry below, including workflows "
+                  "without a dedicated guided notebook. Its dropdown and "
+                  "settings come from the installed version at execution time.",
+                  "", "| Workflow | Purpose | Public API |", "|---|---|---|"])
+    for key, module in sorted(MODULES.items()):
+        dotted = module.entry.replace(":", ".")
+        lines.append(f"| `{key}` | {module.summary} | "
+                     f"[`{dotted}`]({api_url(dotted)}) |")
+    lines.extend(["", "## Use a notebook", "",
+                  "Choose the standard notebook for Jupyter or its **Colab** link for native forms. "
+                  "Both load current defaults, keep essential inputs short, and open advanced controls and Help only on demand.", "",
+                  "Colab Setup installs the published PyPI package only when explicitly enabled. "
+                  "Drive mounting, upload, model downloads and analysis require explicit actions. "
+                  "Inspect runtime compatibility before enabling Run; hosted resources and optional backends vary.", "",
+                  "Download the Notebooks folder for local use, including the companion helper and reference/ pages. "
+                  "Without widgets, edit advanced_overrides in Python and open the linked reference. "
+                  "The legacy examples have been replaced by the standard and Colab sets.", "",
+                  "## Desktop tools and additional interfaces", "",
+                  "[Desktop workflows](https://einarolafsson.github.io/spacr/workflows.html) · "
+                  "[Complete API](https://einarolafsson.github.io/spacr/api/) · "
+                  "[Python guide](https://einarolafsson.github.io/spacr/python_api.html) · "
+                  "[Tutorials](https://einarolafsson.github.io/spacr/tutorials/)", ""])
+    return "\n".join(lines)
+
+
+def render_workflow_browser() -> str:
+    """Generate an opt-in workflow browser using spaCR's current CLI registry."""
+    cells = [
+        _markdown_cell(_as_source("""# Browse every spaCR workflow
+
+Choose a workflow, configure inputs, then explicitly enable Run.
+[Guided notebooks](README.md) · [Python guide](https://einarolafsson.github.io/spacr/python_api.html)
+
+## 1. Choose a workflow
+Choose, then rerun configuration after changing workflow.
+"""), "browser-introduction"),
+        _code_cell(_as_source(r"""from spacr.version import version_str
+from spacr.cli import MODULES, resolve_module, resolve_settings
+from IPython.display import Markdown, display
+
+print("spaCR", version_str)
+module_key = "measure"
+module_picker = None
+try:
+    import ipywidgets as widgets
+except ImportError:
+    print("Optional picker unavailable; edit module_key above.")
+else:
+    module_picker = widgets.Dropdown(
+        options=[(f"{key}: {row.summary}", key) for key, row in sorted(MODULES.items())],
+        value=module_key, description="Workflow:", layout=widgets.Layout(width="100%"))
+    display(module_picker)
+"""), "browser-picker"),
+        _markdown_cell(_as_source("""## 2. Configure the selected workflow
+Load saved CSV/JSON settings or edit typed `key=value` overrides.
+"""), "browser-config-help"),
+        _code_cell(_as_source(r"""module = resolve_module(module_picker.value if module_picker is not None else module_key)
+settings_file = None
+overrides = []  # Example: ["src=/absolute/path/to/plate", "channels=[0,1]"]
+settings = resolve_settings(module, settings_file, overrides)
+dotted = module.entry.replace(":", ".")
+api_url = "https://einarolafsson.github.io/spacr/api/" + module.module_name.replace(".", "/") + "/index.html#" + dotted
+display(Markdown(f"### {module.key}: {module.summary}\n\n[Public API]({api_url})"))
+print("Required inputs:", *module.requires, sep="\n- ")
+print("Writes:", *module.writes, sep="\n- ")
+print(f"{len(settings)} current settings loaded. Edit overrides above or settings below.")
+"""), "browser-settings"),
+        _markdown_cell(_as_source("""### Advanced settings editor (optional)
+Click Advanced settings, edit, then Apply settings. Analysis stays off.
+"""), "browser-editor-help"),
+        _code_cell(_as_source(r"""if module_picker is not None:
+    try:
+        from _spacr_notebook_widgets import show_workflow_settings_editor
+    except ImportError:
+        print("Optional editor helper unavailable; edit settings or overrides in Python.")
+    else:
+        advanced, editor, apply_button = show_workflow_settings_editor(settings, module)
+else:
+    print("Edit settings directly, or edit overrides and rerun the configuration cell.")
+"""), "browser-editor"),
+        _markdown_cell(_as_source("""## 3. Run only when ready
+Enable only after configuring inputs; analysis may write files or download models.
+"""), "browser-run-help"),
+        _code_cell(_as_source(r"""RUN_WORKFLOW = False
+if RUN_WORKFLOW:
+    from importlib import import_module
+    function = getattr(import_module(module.module_name), module.func_name)
+    result = function(settings if module.call_style == "settings" else settings["src"])
+else:
+    print("No analysis started. Configure inputs and enable RUN_WORKFLOW when ready.")
+"""), "browser-run"),
+    ]
+    for cell in cells:
+        if _cell_kind(cell) == "browser-editor":
+            cell["metadata"]["jupyter"] = {"source_hidden": True}
+    notebook = {"cells": cells, "metadata": {
+        "kernelspec": {"display_name": "Python 3 (spaCR)", "language": "python", "name": "python3"},
+        "language_info": {"name": "python"},
+        "spacr": {"generated_by": "tools/build_notebook_settings.py", "workflow_browser": True}},
+        "nbformat": 4, "nbformat_minor": 5}
+    return json.dumps(notebook, indent=1, ensure_ascii=False) + "\n"
+
+
+def notebook_entries(spec):
+    """Resolve a maintained workflow once against current source."""
+    entries = []
+    for dotted in spec.callables:
+        function = resolve(dotted)
+        shape, keys = notebook_surface(function, dotted, notebook_name=spec.filename)
+        entries.append((dotted, shape, keys, param_docs(function)))
+    return entries
+
+
+_ADVANCED_EDITOR += r'''
+
+def show_help_menu(reference):
+    """Load and display only a requested section, never on initial display."""
+    try:
+        import ipywidgets as widgets
+        from IPython.display import Markdown, display
+    except ImportError:
+        print("Open the linked reference for help.")
+        return None
+    picker = widgets.Dropdown(options=[("Choose help…", ""),
+        ("Workflow and outputs", "overview"), ("API calls", "api"),
+        ("Essential inputs", "essential"), ("All parameter groups", "parameters")],
+        description="Help:", layout=widgets.Layout(width="95%"))
+    button = widgets.Button(description="Show selected help")
+    clear = widgets.Button(description="Close help")
+    output = widgets.Output()
+
+    def show(_):
+        if not picker.value:
+            return
+        with output:
+            output.clear_output()
+            try:
+                from pathlib import Path
+                path = Path(reference)
+                if path.is_file():
+                    text = path.read_text(encoding="utf-8")
+                else:
+                    from urllib.request import urlopen
+                    url = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/Notebooks/"
+                           + reference.removeprefix("../"))
+                    text = urlopen(url, timeout=20).read().decode("utf-8")
+                import re
+                sections = re.split(r"(?m)^(?=## )", text)
+                if picker.value == "overview":
+                    selected = [sections[0]] + [part for part in sections if part.startswith("## Outputs")]
+                elif picker.value == "api":
+                    selected = [part for part in sections if part.startswith("## 2.")]
+                elif picker.value == "essential":
+                    parameters = next(part for part in sections if part.startswith("## 3."))
+                    selected = []
+                    for function in parameters.split("\n### ")[1:]:
+                        heading, _, body = function.partition("\n")
+                        essential = body.partition("#### Essential inputs")[2].partition("<details>")[0]
+                        selected.append("### " + heading + "\n\n" + essential)
+                else:
+                    selected = [part for part in sections if part.startswith("## 3.")]
+                display(Markdown("\n\n".join(selected)))
+            except (OSError, ValueError, StopIteration) as error:
+                print(f"Help unavailable: {error}. Open the linked reference instead.")
+
+    button.on_click(show)
+    clear.on_click(lambda _: output.clear_output())
+    panel = widgets.Accordion(children=[widgets.VBox([picker, widgets.HBox([button, clear]), output])])
+    panel.set_title(0, "Help — click to choose a topic")
+    panel.selected_index = None
+    display(panel)
+    return panel
+
+
+def preview_outputs(folder, limit=12):
+    """List a bounded set of output files; preview only an explicitly chosen file."""
+    from pathlib import Path
+    import ipywidgets as widgets
+    from IPython.display import display, FileLink, Image
+    root = Path(folder).expanduser()
+    if not root.is_dir():
+        raise ValueError("Choose an existing output folder.")
+    files = []
+    for path in root.rglob("*"):
+        if path.is_file():
+            files.append(path)
+        if len(files) >= limit:
+            break
+    picker = widgets.Dropdown(options=[(str(path.relative_to(root)), str(path)) for path in files], description="Output:")
+    button = widgets.Button(description="Preview / link")
+    output = widgets.Output()
+
+    def preview(_):
+        if not picker.value:
+            return
+        path = Path(picker.value)
+        with output:
+            output.clear_output()
+            if path.stat().st_size <= 5_000_000 and path.suffix.lower() in {".png", ".jpg", ".jpeg"}:
+                display(Image(filename=str(path), width=640))
+            elif path.stat().st_size <= 5_000_000 and path.suffix.lower() == ".csv":
+                import pandas as pd
+                display(pd.read_csv(path, nrows=10))
+            display(FileLink(str(path)))
+    button.on_click(preview)
+    display(widgets.VBox([picker, button, output]))
+    return picker, button, output
+'''
+
+
+def _colab_form(source, title, kind):
+    cell = _code_cell(_as_source(f"#@title {title}\n" + source), kind)
+    cell["metadata"]["cellView"] = "form"
+    return cell
+
+
+def _colab_input(variable, value):
+    """Use native forms with Python raw input only for compound/nullable values."""
+    if isinstance(value, bool):
+        form = {"type": "boolean"}
+    elif isinstance(value, str):
+        form = {"type": "string"}
+    elif isinstance(value, int):
+        form = {"type": "integer"}
+    elif isinstance(value, float):
+        form = {"type": "number"}
+    else:
+        form = {"type": "raw"}
+    return f"{variable} = {value!r} #@param {json.dumps(form)}"
+
+
+def render_colab_notebook(name, root):
+    """Mirror current workflows using native Colab forms and explicit actions."""
+    import copy
+    import hashlib
+
+    notebook = json.loads((root / name).read_text(encoding="utf-8"))
+    spec = NOTEBOOK_SPECS.get(name)
+    title = spec.overview[0] if spec else "Browse every spaCR workflow"
+    github = "https://github.com/EinarOlafsson/spacr/blob/nightly/Notebooks/"
+    help_link = github + (f"reference/{Path(name).stem}.md" if spec else "README.md")
+    cells = [_markdown_cell(_as_source(
+        f"# {title}\n\n[Standard notebook]({github}{name}) · [Help]({help_link}) · "
+        f"[All workflows]({github}README.md)\n\n"
+        "[Setup](#setup) · [Data](#data) · [Inputs](#inputs) · [Advanced](#advanced) · [Run](#run) · [Outputs](#outputs)"), "colab-navigation")]
+    digest = hashlib.sha256(_ADVANCED_EDITOR.encode()).hexdigest()
+    setup = '''INSTALL_SPACR = False #@param {"type":"boolean"}
+PACKAGE = "spacr" #@param {"type":"string"}
+if INSTALL_SPACR:
+    import subprocess, sys
+    if PACKAGE != "spacr" and not (PACKAGE.startswith("spacr==") and all(c.isdigit() or c == "." for c in PACKAGE[7:])):
+        raise ValueError("Use spacr or spacr==<published version>.")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", PACKAGE, "ipywidgets"])
+from importlib.metadata import version
+print("spaCR", version("spacr"))
+from google.colab import output
+output.enable_custom_widget_manager()
+'''
+    cells.append(_colab_form(setup, "1. Setup (check Install only when needed)", "colab-setup"))
+    helper = f'''from pathlib import Path
+from urllib.request import urlopen
+import hashlib
+helper = Path("_spacr_notebook_widgets.py")
+expected = {digest!r}
+if not helper.is_file() or hashlib.sha256(helper.read_bytes()).hexdigest() != expected:
+    payload = urlopen("https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/Notebooks/_spacr_notebook_widgets.py", timeout=30).read()
+    if hashlib.sha256(payload).hexdigest() != expected:
+        raise RuntimeError("Notebook/helper versions differ. Reopen the latest notebook before continuing.")
+    helper.write_bytes(payload)
+'''
+    cells.append(_colab_form(helper, "2. Load matching notebook controls", "colab-helper"))
+    data = '''DATA_SOURCE = "Existing runtime path" #@param ["Existing runtime path", "Google Drive", "Upload files"]
+DATA_PATH = "/content/data" #@param {"type":"string"}
+if DATA_SOURCE == "Google Drive":
+    from google.colab import drive
+    drive.mount("/content/drive")
+elif DATA_SOURCE == "Upload files":
+    from google.colab import files
+    from pathlib import Path
+    destination = Path(DATA_PATH)
+    destination.mkdir(parents=True, exist_ok=True)
+    for filename, payload in files.upload().items():
+        (destination / Path(filename).name).write_bytes(payload)
+print("Set workflow paths below to your data location:", DATA_PATH)
+'''
+    cells.append(_colab_form(data, "3. Data (Drive/upload only when selected)", "colab-data"))
+    if spec:
+        entries = notebook_entries(spec)
+        cells.append(_colab_form(_render_import_cell(entries), "4. Load workflow", IMPORT_CELL_KIND))
+        defaults = "\n\n".join(_runtime_defaults(dotted, shape, keys, setting_name(dotted, entries))
+                                  for dotted, shape, keys, _ in entries)
+        cells.append(_colab_form(defaults, "5. Load current defaults", "colab-defaults"))
+        for index, (dotted, shape, keys, _docs) in enumerate(entries):
+            settings_name = setting_name(dotted, entries)
+            essentials = [key for key in keys if _essential_setting(dotted, shape, key, keys) and not _is_organelle_key(key)]
+            fields, updates = [], []
+            for key in essentials:
+                variable = f"stage_{index + 1}_{key}"
+                value = keys[key]
+                if key == "src":
+                    fields.append(_colab_input(variable, '/content/data'))
+                else:
+                    literal = _literal(value, dotted=dotted, key=key)
+                    try:
+                        value = ast.literal_eval(literal)
+                    except (ValueError, SyntaxError):
+                        value = None
+                    fields.append(_colab_input(variable, value))
+                updates.append(f"{key!r}: {variable}")
+            fields.append(f"{settings_name}.update({{{', '.join(updates)}}})")
+            cells.append(_colab_form("\n".join(fields), f"6.{index + 1} Essential inputs — {dotted.rsplit('.', 1)[1]}", f"colab-inputs-{index}"))
+        editor = next(source for kind, source in render_settings_cells(entries) if kind == EDITOR_CELL_KIND)
+        editor += f"\nfrom _spacr_notebook_widgets import show_help_menu\nhelp_menu = show_help_menu('reference/{Path(name).stem}.md')"
+        cells.append(_colab_form(editor, "7. Optional Advanced settings and Help (closed until clicked)", EDITOR_CELL_KIND))
+        run = "RUN_WORKFLOW = False #@param {\"type\":\"boolean\"}\nif RUN_WORKFLOW:\n" + textwrap.indent(_render_run_cell(entries), "    ") + '\nelse:\n    print("No analysis started. Configure inputs before enabling Run.")'
+        cells.append(_colab_form(run, "8. Run (may write files or download models)", RUN_CELL_KIND))
+    else:
+        for original in notebook["cells"]:
+            if original["cell_type"] != "code":
+                continue
+            cell = copy.deepcopy(original)
+            source = "".join(cell["source"])
+            kind = _cell_kind(cell)
+            if kind == "browser-picker":
+                from spacr.cli import MODULES
+                source = source.replace('module_key = "measure"', 'module_key = "measure" #@param ' + json.dumps(sorted(MODULES)))
+            if kind == "browser-settings":
+                source = source.replace("settings_file = None", 'settings_file = None #@param {"type":"raw"}')
+                source = source.replace('overrides = []  # Example: ["src=/absolute/path/to/plate", "channels=[0,1]"]', 'overrides = [] #@param {"type":"raw"}')
+            if kind == "browser-run":
+                source = source.replace("RUN_WORKFLOW = False", 'RUN_WORKFLOW = False #@param {"type":"boolean"}')
+            cells.append(_colab_form(source, kind.replace("browser-", "").title(), kind))
+    preview = '''PREVIEW_OUTPUTS = False #@param {"type":"boolean"}
+OUTPUT_FOLDER = "/content/data" #@param {"type":"string"}
+if PREVIEW_OUTPUTS:
+    from _spacr_notebook_widgets import preview_outputs
+    output_picker, preview_button, output_display = preview_outputs(OUTPUT_FOLDER)
+'''
+    cells.append(_colab_form(preview, "9. Inspect outputs (bounded list; preview only on click)", "colab-preview"))
+    download = '''DOWNLOAD_FILE = False #@param {"type":"boolean"}
+FILE_PATH = "" #@param {"type":"string"}
+if DOWNLOAD_FILE:
+    from pathlib import Path
+    path = Path(FILE_PATH).expanduser()
+    if not path.is_file():
+        raise ValueError("Choose an existing output file.")
+    from google.colab import files
+    files.download(str(path))
+'''
+    cells.append(_colab_form(download, "10. Download one selected output (optional)", "colab-download"))
+    headings = {"colab-setup": "Setup", "colab-data": "Data", IMPORT_CELL_KIND: "Inputs",
+                "browser-picker": "Inputs", EDITOR_CELL_KIND: "Advanced", "browser-editor": "Advanced",
+                RUN_CELL_KIND: "Run", "browser-run": "Run", "colab-preview": "Outputs"}
+    organized = []
+    for cell in cells:
+        heading = headings.get(_cell_kind(cell))
+        if heading:
+            organized.append(_markdown_cell(_as_source("## " + heading), "colab-section-" + heading.lower()))
+        organized.append(cell)
+    cells = organized
+    for index, cell in enumerate(cells):
+        cell["id"] = f"spacr-colab-{index}"
+    metadata = copy.deepcopy(notebook["metadata"])
+    metadata["colab"] = {"name": name, "toc_visible": True}
+    metadata.setdefault("spacr", {})["colab_source"] = name
+    result = {"cells": cells, "metadata": metadata, "nbformat": 4, "nbformat_minor": 5}
+    _clear_code_outputs(cells)
+    return json.dumps(result, indent=1, ensure_ascii=False) + "\n"
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--check", action="store_true",
@@ -1715,9 +2313,9 @@ def main(argv=None) -> int:
     root = Path(args.notebooks)
     present = {path.name for path in root.glob("*.ipynb")}
     expected = set(NOTEBOOK_SPECS)
-    if present != expected:
+    if present - {BROWSER_FILENAME} != expected:
         missing = sorted(expected - present)
-        unexpected = sorted(present - expected)
+        unexpected = sorted(present - expected - {BROWSER_FILENAME})
         if missing:
             print("missing maintained notebooks:")
             for name in missing:
@@ -1729,6 +2327,8 @@ def main(argv=None) -> int:
         return 1
     stale, written, skipped = [], [], []
     for path in sorted(root.glob("*.ipynb")):
+        if path.name == BROWSER_FILENAME:
+            continue
         try:
             new_text = rebuild(path)
         except Exception as exc:
@@ -1738,13 +2338,51 @@ def main(argv=None) -> int:
         if new_text is None:
             skipped.append(path.name)
             continue
-        if new_text == path.read_text():
+        if new_text == path.read_text(encoding="utf-8"):
             continue
         if args.check:
             stale.append(path.name)
         else:
-            path.write_text(new_text)
+            path.write_text(new_text, encoding="utf-8")
             written.append(path.name)
+
+    additional = [(BROWSER_FILENAME, render_workflow_browser()),
+                  ("README.md", render_notebook_index()),
+                  ("_spacr_notebook_widgets.py", _ADVANCED_EDITOR)]
+    for name, spec in NOTEBOOK_SPECS.items():
+        entries = notebook_entries(spec)
+        reference = (_render_full_overview(spec) + "\n\n" + _render_function_section(entries)
+                     + "\n\n" + render_reference(entries) + "\n\n## Outputs and next steps\n\n"
+                     + spec.overview[3] + "\n")
+        if name == "03_classify_computer_vision.ipynb":
+            helpers = ("spacr.io.generate_training_dataset", "spacr.deep_spacr.train_test_model",
+                       "spacr.io.generate_dataset", "spacr.deep_spacr.apply_model_to_tar")
+            reference += "\n## Custom classification stages\n\n" + "\n".join(
+                f"- [`{dotted}`]({api_url(dotted)})" for dotted in helpers) + "\n"
+        if name == "08_train_cellpose.ipynb":
+            dotted = "spacr.io.prepare_cellpose_dataset"
+            function = resolve(dotted)
+            shape, keys = surface(function, dotted)
+            reference += ("\n## Optional dataset preparation\n\n"
+                          "Prepare matching image/mask folders before training; point the essential train/validation paths at the resulting dataset.\n\n"
+                          + _render_function_section([(dotted, shape, keys, param_docs(function))])
+                          + "\n\n" + render_reference([(dotted, shape, keys, param_docs(function))]) + "\n")
+        if name == "02_measure_and_crop.ipynb":
+            reference += "\n## Optional archive export (alpha)\n\n" + ARCHIVE_HELP + "\n"
+        additional.append((f"reference/{Path(name).stem}.md", reference.rstrip() + "\n"))
+    for name in [BROWSER_FILENAME, *NOTEBOOK_SPECS]:
+        additional.append((f"colab/{name}", render_colab_notebook(name, root)))
+    additional.append(("colab/README.md", "# spaCR on Colab\n\n[Choose a workflow](../README.md). Open its Colab link, connect a runtime, then run Setup explicitly.\n"))
+    for name, content in additional:
+        path = root / name
+        if path.is_file() and path.read_text(encoding="utf-8") == content:
+            continue
+        if args.check:
+            stale.append(name)
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+            written.append(name)
 
     if skipped:
         print(f"no settings surface, left alone: {len(skipped)}")

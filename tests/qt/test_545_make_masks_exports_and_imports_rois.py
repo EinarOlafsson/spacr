@@ -8,6 +8,7 @@ Preferences -> "Show alpha features" is on.
 from __future__ import annotations
 
 import json
+import os
 
 import imageio.v2 as imageio
 import numpy as np
@@ -100,7 +101,7 @@ def test_every_field_exports_and_imports(screen, tmp_path):
 
     out = tmp_path / "geo"
     written = screen.export_all_rois(str(out), "geojson")
-    assert sorted(p.split("/")[-1] for p in written) == ["f0.geojson",
+    assert sorted(os.path.basename(p) for p in written) == ["f0.geojson",
                                                        "f2.geojson"]
     coco = tmp_path / "all.json"
     screen.export_all_rois(str(coco), "coco")

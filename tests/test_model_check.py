@@ -94,7 +94,7 @@ def test_no_classes_defined_is_reported_rather_than_assumed():
 
 def test_a_file_that_is_not_a_model_says_so(tmp_path):
     path = tmp_path / "notes.txt"
-    path.write_text("this is not a model")
+    path.write_text("this is not a model", encoding="utf-8")
     report = check_model({"custom_model_path": str(path),
                           "classes": _classes()})
     assert not report.ok

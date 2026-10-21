@@ -918,3 +918,5 @@ Windows/macOS and performance acceptance need other operating systems and a
 real display, and are tracked in 284 and 380.
 
 VERIFIED 2026-10-04: 16 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-20 — macOS 1.5.1.5 bug: Mask's folded Actions/System were unrecoverable at 75 % (heading max scaled twice, titles cut, restored each launch). Fixed: collapsed headings sized from font metrics in drawn px at every GUI/font scale and re-measured live; min = heading; dragging a handle opens a folded pane; damaged saved sizes repaired on load; cramped screens resized in drawn px; Help > Window > "Reset this module's layout"; smoke layout pass collapses every container and fails on a cut heading. Remains: native Mac check.

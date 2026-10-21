@@ -15,7 +15,7 @@ def _tree(root: Path, files) -> Path:
     for relative, text in files.items():
         path = root / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text)
+        path.write_text(text, encoding="utf-8")
     return root
 
 
@@ -43,7 +43,7 @@ def test_collisions_are_numbered_case_insensitively(tmp_path):
 
 
 def test_an_existing_file_is_skipped_over(tmp_path):
-    (tmp_path / "exp.tif").write_text("x")
+    (tmp_path / "exp.tif").write_text("x", encoding="utf-8")
     path = fc.available_filename(tmp_path, "exp", ".tif", set(), {})
     assert path.name == "exp_2.tif"
 

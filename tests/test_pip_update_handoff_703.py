@@ -12,6 +12,8 @@ from tests.test_pip_runtime_transaction_703 import installation
 from tests.test_macos_runtime_transaction_703 import _snapshot, _wheel
 from tests.test_macos_online_update_n627 import desktop_boundary
 
+pytestmark = pytest.mark.posix_only
+
 
 @pytest.fixture(autouse=True)
 def _private_owner_permissions(installation):
@@ -104,7 +106,7 @@ def test_unsupported_environment_refuses_before_any_update(installation, tmp_pat
         (prefix / 'conda-meta').mkdir()
     elif reason == 'system-site':
         # The helper rejects shared packages before readiness, not in the fast GUI preparation.
-        (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = true\n')
+        (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = true\n', encoding="utf-8")
     elif reason == 'windows':
         machine.platform = 'windows'
         records = [replace(record, platform='windows')]

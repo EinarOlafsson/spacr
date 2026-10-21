@@ -123,7 +123,7 @@ def test_requested_tool_modules_receive_real_drop_events(
     report = tmp_path / "report"
     report.mkdir()
     settings_csv = tmp_path / "mask_settings.csv"
-    settings_csv.write_text("Key,Value\nsrc,/plate\n")
+    settings_csv.write_text("Key,Value\nsrc,/plate\n", encoding="utf-8")
 
     cases = [
         ("foreign", images, [("set_images", str(images))]),
@@ -158,7 +158,7 @@ def test_plate_queue_drop_adds_multiple_plates_with_settings_at_once(
         settings = plate / "settings"
         settings.mkdir(parents=True)
         (settings / "mask_settings.csv").write_text(
-            "Key,Value\ncell_channel,2\n")
+            "Key,Value\ncell_channel,2\n", encoding="utf-8")
         plates.append(plate)
 
     owner = _zone(qtbot, "queue")
@@ -188,7 +188,7 @@ def test_format_converter_rejection_prints_reason_and_action_to_console(
             return None
 
     bad = tmp_path / "notes.txt"
-    bad.write_text("not microscopy")
+    bad.write_text("not microscopy", encoding="utf-8")
     owner = _zone(qtbot, "convert")
     owner._console = Console()
     monkeypatch.setattr(dnd_module, "QMessageBox", MessageBox)

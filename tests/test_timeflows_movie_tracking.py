@@ -187,7 +187,7 @@ def test_select_only_then_pairs_from_scores_the_same_pairs(tmp_path, monkeypatch
     movie = _eval_movie(tmp_path / 'movie')
     checkpoint = tmp_path / 'model.pt'
     checkpoint.write_bytes(b'stand-in')
-    checkpoint.with_suffix('.pt.json').write_text(json.dumps({'movies': [str(tmp_path / 'training')]}))
+    checkpoint.with_suffix('.pt.json').write_text(json.dumps({'movies': [str(tmp_path / 'training')]}), encoding="utf-8")
     base = ['--checkpoint', str(checkpoint), '--movie', str(movie), '--sequences', '01',
             '--segmentation', 'GT', '--data-kind', 'synthetic']
     picked = tmp_path / 'picked'

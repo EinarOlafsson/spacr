@@ -1,14 +1,13 @@
 """
 API key store — LEGACY.
 
-The AI Console now shells out to the vendor coding-agent CLIs
-(claude / codex / gemini), each of which authenticates against the
-user's chat subscription instead of a metered API key. Nothing in
-the Qt GUI uses API keys anymore.
+The AI console uses vendor command-line tools and a hosted relay rather than retrieving
+keys through this module. Vendor authentication and account usage follow each tool's own
+configuration; this stub does not establish how a vendor account is billed.
 
-The module is kept as a thin stub so any external code that imported
-`spacr.qt.ai.keys` doesn't break — every function returns "not
-configured".
+This module remains as a compatibility stub for code importing `spacr.qt.ai.keys`.
+``get_key`` returns ``None``, ``set_key`` returns ``False``, ``delete_key`` returns
+``None``, and ``source_of`` returns a descriptive compatibility label.
 """
 from __future__ import annotations
 
@@ -19,7 +18,7 @@ SERVICE_NAME = "spacr-qt-ai"
 
 
 def get_key(provider: str) -> Optional[str]:
-    """Always None — the CLI-based providers don't take API keys.
+    """Return ``None``; this compatibility stub does not retrieve a provider key.
 
     :param provider: AI provider name; accepted for API compatibility and
         ignored.
@@ -28,7 +27,7 @@ def get_key(provider: str) -> Optional[str]:
 
 
 def set_key(provider: str, key: str) -> bool:
-    """No-op — CLI-based providers do not store API keys. Always ``False``.
+    """Ignore the supplied key and return ``False``.
 
     :param provider: AI provider name; accepted for API compatibility and
         ignored.
@@ -39,7 +38,7 @@ def set_key(provider: str, key: str) -> bool:
 
 
 def delete_key(provider: str) -> None:
-    """No-op — CLI-based providers do not store API keys.
+    """Return ``None`` without changing a credential store.
 
     :param provider: AI provider name; accepted for API compatibility and
         ignored.

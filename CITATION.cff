@@ -29,13 +29,13 @@ contact:
   - family-names: "Olafsson"
     given-names: "Einar B."
     orcid: "https://orcid.org/0000-0002-3388-061X"
-version: "1.5.1.5"
-date-released: "2026-10-18"
+version: "1.5.1.6"
+date-released: "2026-10-21"
 doi: "10.5281/zenodo.21343316"
 identifiers:
   - type: doi
     value: "10.5281/zenodo.21343316"
-    description: "Version DOI: pending for spaCR 1.5.1.5. Zenodo mints it after the GitHub release; until then this is the concept DOI."
+    description: "Version DOI: pending for spaCR 1.5.1.6. Zenodo mints it after the GitHub release; until then this is the concept DOI."
   - type: doi
     value: "10.5281/zenodo.21343316"
     description: "Concept DOI: all versions of spaCR. Resolves to the most recent release."

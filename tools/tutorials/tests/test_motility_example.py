@@ -17,7 +17,7 @@ def source(tmp_path):
     for i in range(1, 9):
         np.save(root / f'merged/plate1_A01_1_{i}.npy', np.full((256, 256, 4), i, np.uint16))
     (root / 'merged/.spacr_plane_layout.json').write_text(json.dumps({
-        'intensity_channels': [0, 1], 'mask_dims': {'cell': 2, 'nucleus': 3}}))
+        'intensity_channels': [0, 1], 'mask_dims': {'cell': 2, 'nucleus': 3}}), encoding="utf-8")
     (root / 'old.db').write_bytes(b'existing old database, must not be packaged')
     (root / 'merged/old.npy').write_bytes(b'unselected existing input')
     return root
@@ -68,9 +68,9 @@ def test_external_file_that_really_exists_cannot_replace_input(source, tmp_path)
 def test_wrong_plane_sidecar_is_rejected_after_the_real_good_one(source, tmp_path, key, value):
     build_archive(source, tmp_path / 'good.zip')
     path = source / 'merged/.spacr_plane_layout.json'
-    mapping = json.loads(path.read_text())
+    mapping = json.loads(path.read_text(encoding="utf-8"))
     mapping[key] = value
-    path.write_text(json.dumps(mapping))
+    path.write_text(json.dumps(mapping), encoding="utf-8")
     with pytest.raises(ValueError, match='mapping'):
         build_archive(source, tmp_path / 'bad.zip')
 

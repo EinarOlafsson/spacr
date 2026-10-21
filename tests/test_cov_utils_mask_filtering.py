@@ -606,7 +606,7 @@ def test_run_test_mode_also_samples_raw_images_beside_orig(tmp_path):
 def test_run_test_mode_with_no_matching_files(tmp_path):
     src = tmp_path / "empty_plate"
     src.mkdir()
-    (src / "README.txt").write_text("nothing to see")
+    (src / "README.txt").write_text("nothing to see", encoding="utf-8")
     out = U._run_test_mode(str(src), U._get_regex("cellvoyager", "tif"))
     assert os.path.isdir(out)
     assert os.listdir(out) == []

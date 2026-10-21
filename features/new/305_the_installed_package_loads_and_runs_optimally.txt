@@ -36,6 +36,50 @@ make broken packaging look healthy. "Optimally" means within explicit budgets,
 with no known avoidable measured hotspot left unexplained; it does not mean an
 unsupported claim of a theoretical optimum.
 
+MAC SESSION: EXISTING OPTIONAL INSTALLED-ARTIFACT/NATIVE FOLLOW-UP
+
+N305 remains DONE on the maintainer's recorded acceptance. These instructions
+make the existing optional Mac artifact/native follow-up actionable; they do
+not revoke that acceptance, impose a new release gate or reopen the full
+machine/GPU matrix. Follow spacr/resources/AI/MAC_HANDOFF.md, preserve accepted
+N703/F655/N686 scope and finish any outstanding N646 work first.
+
+Preconditions: use an owned Mac worktree with freshly fetched origin/nightly.
+Identify the exact candidate/frozen source SHA, wheel and sdist filenames,
+versions and artifact hashes; an artifact called 1.5.1.5 need not contain the
+same source as another 1.5.1.5 build. Record macOS, Intel/Apple Silicon, Python,
+Qt, display/DPR and the running executable/module path. If the requested
+frozen artifacts are not available, state that missing fact and continue the
+other Mac work; do not invent a release or substitute an editable checkout.
+
+1. Use separate disposable environments for the wheel and sdist. Install
+   each actual artifact, then run from outside the source tree with checkout
+   paths absent from PYTHONPATH. Verify spacr.__file__ resolves into that
+   environment's site-packages and package/distribution/CLI versions agree.
+   Keep the source checkout launch separate from installed-artifact results.
+2. Drive the existing installed smoke and public entry points, including
+   spacr-run --version/--list, Home and the existing small Measure example.
+   Check packaged settings, fonts/icons and required runtime resources through
+   those operations; do not create a new inventory or benchmark harness.
+3. For the optional native timing trace, reuse the existing startup driver's
+   --release-acceptance path on a quiet real Cocoa display. Use its current
+   --help for artifact/profile options, not Linux scratch paths from history.
+   It requires two fresh cold/warm processes sharing only its isolated cache;
+   do not use --offscreen/--record-only or inherit a headless Qt platform.
+   Record first painted usable Home, per-module readiness, worst event-loop
+   gap and RSS, using the same trace as N641 where source/artifact agree.
+4. Keep the existing 5 s Home/10 s module/500 ms stall comparisons visible without
+   changing thresholds or treating constructor return as readiness. Preserve
+   a nonzero result and the failing module/action. If launch, import or a
+   packaged operation fails, record the actual traceback and installed module
+   path against that frozen artifact, not an unrelated source-tree traceback.
+
+Record only the tested artifact/source/runtime identity, wheel/sdist functional
+outcomes, native trace scope and failures/untested prerequisites here in at
+most five dated lines. An optional follow-up failure is reported accurately;
+it does not silently cancel the maintainer's DONE decision. No new full-matrix,
+GPU, profiling or release-publication requirement is added by this section.
+
 --------------------------------------------------------------------------------
 MEASURED 2026-08-28 — CURRENT DEFECTS
 --------------------------------------------------------------------------------
@@ -528,3 +572,6 @@ data/candidate_1514_b51_cprofile_diagnostic_2026-10-15/. Original real-display,
 frozen-platform and representative pipeline acceptance remain open.
 2026-10-18 — macOS launch cost: style sheets named "Segoe UI", missing on macOS, so Qt populated every font alias at startup (120-780 ms per launch on the Intel MacBook). theme.QSS_FONT_FAMILY names Segoe UI on Windows only; theme and console sheets use it. 1560 theme/font/console checks pass on macOS (one pre-existing nightly failure: fill_ai_entry(saved=) after 87911b7bc).
 2026-10-18 — Claude Home integrated db91df334 into nightly: theme.QSS_FONT_FAMILY names Segoe UI on Windows only, removing the macOS font-alias scan at launch.
+
+2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
+No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.

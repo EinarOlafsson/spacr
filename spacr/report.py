@@ -669,7 +669,7 @@ def _load_journal_runs(src: Path, run_dirs: Optional[Sequence[Any]],
         manifest: Dict[str, Any] = {}
         settings: Dict[str, Any] = {}
         try:
-            raw = (Path(run_dir) / "manifest.json").read_text()
+            raw = (Path(run_dir) / "manifest.json").read_text(encoding="utf-8")
             loaded = json.loads(raw)
             manifest = loaded if isinstance(loaded, dict) else {}
         except (OSError, ValueError):
@@ -1206,7 +1206,7 @@ def _collect_segmentation_qc(src: Path, artifacts: Dict[str, Any],
     verdicts: Dict[str, str] = {}
     for flags_path in artifacts.get("qc_flags") or []:
         try:
-            payload = json.loads(flags_path.read_text())
+            payload = json.loads(flags_path.read_text(encoding="utf-8"))
             if isinstance(payload, dict) and payload.get("object_type"):
                 verdicts[str(payload["object_type"])] = str(payload.get("verdict") or "")
         except (OSError, ValueError):
@@ -1378,7 +1378,10 @@ def _embed_figure(path: Path, max_px: int) -> Tuple[Optional[bytes], str, str]:
     try:
         raw = path.read_bytes()
     except OSError as exc:
-        return None, "", f"unreadable ({exc.__class__.__name__})"
+        kind = exc.__class__.__name__
+        if path.is_dir():
+            kind = IsADirectoryError.__name__
+        return None, "", f"unreadable ({kind})"
     if not raw:
         return None, "", "empty file"
     try:
@@ -1410,7 +1413,7 @@ def _embed_figure(path: Path, max_px: int) -> Tuple[Optional[bytes], str, str]:
 def _figure_title(path: Path, src: Path) -> str:
     """A caption: the path relative to ``src`` when possible."""
     try:
-        return str(path.relative_to(src))
+        return path.relative_to(src).as_posix()
     except ValueError:
         return path.name
 
@@ -2994,7 +2997,7 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
     write_table(plate_rows, idr / f"{slug}-screenA-plates.txt",
                 canonicalise=False, sep="\t")
 
-    image_rel = [str(p.relative_to(src)) for p in images]
+    image_rel = [p.relative_to(src).as_posix() for p in images]
     listed = [f"data/{r}" for r in image_rel] if copy_images else image_rel
     suffixes = sorted({p.suffix.lower().lstrip(".") for p in images})
     protocols = [
@@ -3298,7 +3301,7 @@ def _validate_archive_package(pkg: Any, *, verify_checksums: bool = True
     pkg = Path(str(pkg)).expanduser()
     problems: List[str] = []
     try:
-        manifest = json.loads((pkg / "archive_manifest.json").read_text())
+        manifest = json.loads((pkg / "archive_manifest.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return [f"{pkg} has no readable archive_manifest.json"]
     slug = manifest.get("slug", "")

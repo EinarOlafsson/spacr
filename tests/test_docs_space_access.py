@@ -171,6 +171,7 @@ def test_actual_workflow_isolates_access_check_from_all_build_and_deploy_jobs():
     assert 'HF_TOKEN' not in probe['steps'][-1]['run']
 
 
+@pytest.mark.posix_only
 def test_actual_workflow_does_not_mask_failed_access_check_behind_tee(tmp_path):
     root = Path(__file__).resolve().parents[1]
     workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text(encoding="utf-8"))
@@ -179,7 +180,7 @@ def test_actual_workflow_does_not_mask_failed_access_check_behind_tee(tmp_path):
     tools = tmp_path / 'tools'
     tools.mkdir()
     runner = tools / 'run_capped.sh'
-    runner.write_text('#!/bin/bash\nprintf \'{"error":"PermissionError"}\\n\' >&2\nexit 7\n')
+    runner.write_text('#!/bin/bash\nprintf \'{"error":"PermissionError"}\\n\' >&2\nexit 7\n', encoding="utf-8")
     runner.chmod(0o755)
     result = subprocess.run(['bash', '-c', step['run']], cwd=tmp_path,
                             env=dict(os.environ, HF_TOKEN='private-test-sentinel',

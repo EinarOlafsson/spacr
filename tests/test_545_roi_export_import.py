@@ -359,7 +359,7 @@ def test_format_detection_and_bad_input(tmp_path):
     assert mask_io.roi_format("x.json") == "coco"
     assert mask_io.roi_format("x", "qupath") == "geojson"
     geo = tmp_path / "qupath.json"
-    geo.write_text(json.dumps({"type": "FeatureCollection", "features": []}))
+    geo.write_text(json.dumps({"type": "FeatureCollection", "features": []}), encoding="utf-8")
     assert mask_io.roi_format(geo) == "geojson"
     with pytest.raises(ValueError):
         mask_io.roi_format("x.txt")

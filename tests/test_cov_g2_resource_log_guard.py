@@ -119,7 +119,7 @@ def test_the_sample_input_is_found_in_a_list_of_sources(tmp_path):
 
 def test_a_huge_folder_is_not_walked_to_the_end(tmp_path, monkeypatch):
     for index in range(5):
-        (tmp_path / f"f{index}.txt").write_text("x")
+        (tmp_path / f"f{index}.txt").write_text("x", encoding="utf-8")
     monkeypatch.setattr(rl, "_SAMPLE_WALK_LIMIT", 2)
     assert rl._sample_input_file(str(tmp_path), (".npy",)) is None
 

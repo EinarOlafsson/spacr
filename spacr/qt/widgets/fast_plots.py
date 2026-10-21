@@ -376,14 +376,17 @@ def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
     Parameters
     ----------
     name : str
-        Field name. Colour-related suffixes select the colour editor.
+        Field name. Colour-related suffixes select the colour editor for
+        string values or suitable fallbacks.
     value : Any
-        Current value. Its runtime type takes precedence when it is not
-        ``None``.
+        Current value. Its runtime type determines the editor when no
+        truthy choices are supplied and it is not ``None``.
     choices : collection, optional
-        Allowed values for a closed selection.
+        Allowed values for a closed selection; when truthy, these select
+        a choice or multi-selection editor before other type checks.
     declared : str, optional
-        Type annotation used when ``value`` is ``None``.
+        Type annotation used when ``value`` is ``None``, and to detect a
+        string sequence for a closed selection.
 
     Returns
     -------
@@ -650,7 +653,7 @@ def save_style(style, path) -> str:
     payload = {"spacr_style_kind": style_kind(style),
                "fields": style_as_dict(style)}
     target.write_text(json.dumps(payload, indent=2, sort_keys=True,
-                                 default=str))
+                                 default=str), encoding="utf-8")
     return str(target)
 
 
@@ -668,7 +671,7 @@ def load_style(style, path, on_change=None) -> list:
     from pathlib import Path
 
     try:
-        payload = json.loads(Path(str(path)).read_text())
+        payload = json.loads(Path(str(path)).read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise ValueError(f"{path} is not a readable style file: {exc}") from exc
     if not isinstance(payload, dict) or "fields" not in payload:

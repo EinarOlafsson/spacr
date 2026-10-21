@@ -318,6 +318,7 @@ def _deb_record(tmp_path):
                                  root=str(tmp_path / 'opt' / 'spacr'), version='1.5.1.4', running=True)
 
 
+@pytest.mark.posix_only
 def test_frozen_debian_plan_uses_the_standalone_helper(tmp_path, monkeypatch):
     monkeypatch.setattr(cleanup.sys, 'frozen', True, raising=False)
     monkeypatch.setattr(cleanup, '_debian_update_commands',

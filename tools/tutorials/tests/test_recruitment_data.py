@@ -87,7 +87,7 @@ def test_exact_rows_schemas_arrays_and_provenance_are_preserved(source, tmp_path
     manifest = prepare_subset(source, destination, fields=FIELDS)
     assert '?mode=ro&immutable=1' in connections[0][0]
     assert connections[0][1]['uri'] is True
-    assert json.loads((destination / 'provenance.json').read_text()) == manifest
+    assert json.loads((destination / 'provenance.json').read_text(encoding="utf-8")) == manifest
     assert manifest['source_database_sha256'] == before['measurements/measurements.db']
     subset_database = destination / 'measurements' / 'measurements.db'
     assert manifest['subset_database_sha256'] == digest(subset_database)
@@ -204,11 +204,11 @@ def test_source_and_existing_destinations_are_never_overwritten(source, tmp_path
     existing = tmp_path / 'existing'
     existing.mkdir()
     sentinel = existing / 'precious.txt'
-    sentinel.write_text('preserve me')
+    sentinel.write_text('preserve me', encoding="utf-8")
     for destination in (source, existing):
         with pytest.raises(FileExistsError):
             prepare_subset(source, destination, fields=FIELDS)
-    assert sentinel.read_text() == 'preserve me'
+    assert sentinel.read_text(encoding="utf-8") == 'preserve me'
     with pytest.raises(ValueError, match='outside the source'):
         prepare_subset(source, source / 'subset', fields=FIELDS)
     assert not (source / 'subset').exists()

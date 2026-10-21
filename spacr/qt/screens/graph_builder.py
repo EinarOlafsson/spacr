@@ -143,9 +143,11 @@ def read_table(path: str, table: Optional[str] = None,
     :param path: CSV, TSV, text, or SQLite database path. Delimited files are
         read directly; every other suffix is opened as SQLite in read-only
         mode.
-    :param limit: optional row cap, applied in SQL. The chart's own large-data
-        policy handles size once the frame is in memory; this is only for the
-        case where the *file* is too big to read at all.
+    :param limit: optional row cap. Delimited-file readers apply it while reading;
+        ordinary SQLite tables use SQL LIMIT. Named derived tables are
+        evaluated first and then truncated in memory, so this cap does not
+        bound their evaluation cost. The chart's separate large-data policy
+        applies after loading.
     """
     if str(path).lower().endswith((".csv", ".tsv", ".txt")):
         sep = "\t" if str(path).lower().endswith(".tsv") else ","

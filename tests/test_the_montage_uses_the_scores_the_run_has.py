@@ -61,7 +61,7 @@ def test_without_scores_it_still_refuses(screen):
 def test_the_refusal_names_both_places_it_looked(screen, tmp_path):
     """"Run Classify" is wrong advice when the user has the scores loaded."""
     empty = tmp_path / "nothing.csv"
-    empty.write_text("a,b\n1,2\n")
+    empty.write_text("a,b\n1,2\n", encoding="utf-8")
 
     with pytest.raises(MissingScores) as raised:
         load_montage_objects(screen["db"], scores=[str(empty)])

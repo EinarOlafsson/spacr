@@ -359,7 +359,8 @@ class TestDailyAllowanceDisplay:
             "quota", "global", "2026-10-15T00:00:00Z")
         assert text.startswith("spaCR's free AI capacity is used up for "
                                f"today. Try again after {self._when()}.")
-        assert "unlimited use" in text
+        assert "use your own provider account" in text
+        assert "unlimited" not in text
 
     def test_global_429_from_the_relay(self, relay):
         relay.answers = [(429, {"refused": "quota", "scope": "global"})]

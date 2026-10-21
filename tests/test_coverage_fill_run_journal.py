@@ -40,7 +40,7 @@ def test_pkg_version():
 
 def test_open_run_success(runs_dir, tmp_path):
     ckpt = tmp_path / "cyto.pth"; ckpt.write_bytes(b"model-weights")
-    out_file = tmp_path / "result.csv"; out_file.write_text("a,b\n1,2\n")
+    out_file = tmp_path / "result.csv"; out_file.write_text("a,b\n1,2\n", encoding="utf-8")
     with RJ.open_run("mask", {"src": "/data", "diameter": 30}) as run:
         run.record_model("cellpose_cyto", str(ckpt))
         dst = run.attach_output(str(out_file))
@@ -83,7 +83,7 @@ def test_attach_output_dir(runs_dir, tmp_path):
 def _write_manifest(runs_dir, name, **fields):
     d = runs_dir / name
     d.mkdir()
-    (d / "manifest.json").write_text(json.dumps(fields))
+    (d / "manifest.json").write_text(json.dumps(fields), encoding="utf-8")
     return d
 
 
@@ -97,9 +97,9 @@ def test_journal_totals(runs_dir):
     _write_manifest(runs_dir, "r4__classify", app_key="classify",
                     models=[{"sha256": "legacy999"}])   # back-compat list
     # a non-dir and a bad manifest are ignored
-    (runs_dir / "loose.txt").write_text("x")
+    (runs_dir / "loose.txt").write_text("x", encoding="utf-8")
     bad = runs_dir / "r5__mask"; bad.mkdir()
-    (bad / "manifest.json").write_text("{not json")
+    (bad / "manifest.json").write_text("{not json", encoding="utf-8")
 
     totals = RJ.journal_totals()
     assert totals["total_runs"] == 4
@@ -130,14 +130,14 @@ def test_recent_runs(runs_dir):
 
 def test_load_run_settings_json(tmp_path):
     d = tmp_path / "run"; d.mkdir()
-    (d / "settings.json").write_text(json.dumps({"src": "/data", "diam": 30}))
+    (d / "settings.json").write_text(json.dumps({"src": "/data", "diam": 30}), encoding="utf-8")
     out = RJ.load_run_settings(d)
     assert out["src"] == "/data"
 
 
 def test_load_run_settings_csv_fallback(tmp_path):
     d = tmp_path / "run"; d.mkdir()
-    (d / "settings.csv").write_text("Key,Value\nsrc,/data\ndiam,30\n")
+    (d / "settings.csv").write_text("Key,Value\nsrc,/data\ndiam,30\n", encoding="utf-8")
     out = RJ.load_run_settings(d)
     assert out["src"] == "/data" and out["diam"] == "30"
 

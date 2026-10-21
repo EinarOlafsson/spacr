@@ -1,13 +1,14 @@
 """GitHub authentication + direct issue creation for spaCR.
 
-Lets users file approved issues WITHOUT a browser round-trip. A token is
-resolved from the ``GITHUB_TOKEN`` / ``GH_TOKEN`` environment or the GitHub
-CLI (``gh auth token``). spaCR does not capture or persist credentials; the
-official CLI owns interactive login and its platform credential store.
+Supports issue filing through the GitHub REST API without a browser round-trip. Token
+resolution checks the process-only compatibility token first, then ``GITHUB_TOKEN``,
+then ``GH_TOKEN``, and finally the GitHub CLI (``gh auth token``). This module does not
+persist tokens; a compatibility token can be held in process memory. The official CLI
+manages its own interactive sign-in and credential storage.
 
-When a token is available, :func:`create_issue` POSTs straight to the GitHub
-REST API and returns the created issue's URL. When none is available the caller
-falls back to opening the pre-filled ``issues/new`` URL in the browser.
+With a token, :func:`create_issue` attempts a GitHub REST API request and returns a
+success flag with a URL or error. With no token it returns failure; it does not open a
+browser. Callers decide whether to fall back to a pre-filled ``issues/new`` URL.
 
 Public API::
 
@@ -75,8 +76,9 @@ def set_stored_token(token: str) -> None:
 def _env_token() -> str:
     """Read a GitHub token from the environment.
 
-    :returns: the token, or ``""`` when none is set -- checked before the
-        stored one so a CI run can override what a developer saved.
+    :returns: the first non-empty ``GITHUB_TOKEN`` or ``GH_TOKEN`` value, or ``""`` when
+        neither is set. :func:`resolve_token` consults the process-only compatibility
+        token before this helper.
     """
     for var in ("GITHUB_TOKEN", "GH_TOKEN"):
         v = os.environ.get(var, "").strip()
@@ -199,12 +201,11 @@ def find_issue_by_fingerprint(repo: str, fingerprint: str
 
     Returns
     -------
-    search_completed : bool
-        ``True`` when GitHub returned a search result, including no matches.
-        ``False`` when authentication is unavailable or the search fails.
-    issue : dict or None
-        First matching issue, or ``None`` when no issue was found or the
-        search could not be completed.
+    search_completed : bool ``True`` when GitHub returned a search result, including no
+    matches. ``False`` when no token is available, test transport is refused or a caught
+    search error occurs. Token resolution and request construction occur outside the
+    request handler and can raise. issue : dict or None First matching issue, or
+    ``None`` when none was found or the search could not be completed.
     """
     if _transport_refusal():
         return False, None
@@ -239,7 +240,10 @@ def comment_on_issue(repo: str, number: int, body: str) -> Tuple[bool, str]:
     :param repo: ``owner/name`` slug.
     :param number: the issue number.
     :param body: markdown comment body.
-    :returns: ``(True, comment_html_url)`` on success, else ``(False, error)``.
+    :returns: ``(True, comment_html_url)`` on success, or ``(False, error)`` for a
+        missing token, refused transport or a caught request/response error. Token
+        resolution, serialization and request construction can raise before that
+        handler.
     """
     refusal = _transport_refusal()
     if refusal:
@@ -276,8 +280,12 @@ def create_issue(repo: str, title: str, body: str,
     :param repo: ``owner/name`` slug.
     :param title: issue title.
     :param body: markdown body.
-    :param labels: labels to attach (created lazily by GitHub if new).
-    :returns: ``(True, issue_html_url)`` on success, else ``(False, error)``.
+    :param labels: label names to include in the request; this function does not create
+        labels. Applying labels requires push access to the repository, and GitHub can
+        silently ignore them otherwise.
+    :returns: ``(True, issue_html_url)`` on success, or ``(False, error)`` for a missing
+        token, refused transport or a caught request/response error. Token resolution,
+        serialization and request construction can raise before that handler.
     """
     refusal = _transport_refusal()
     if refusal:

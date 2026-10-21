@@ -255,7 +255,7 @@ def test_worker_capture_reaches_real_sqlite_without_changing_pipeline_or_pixels(
     np.save(source, np.stack((cp * 100, cp * 17), axis=-1))
     source_bytes = source.read_bytes()
     pipeline_path = tmp_path / 'example.cppipe'
-    pipeline_path.write_text('original pipeline')
+    pipeline_path.write_text('original pipeline', encoding="utf-8")
     database = tmp_path / 'measurements' / 'measurements.db'
     database.parent.mkdir()
 

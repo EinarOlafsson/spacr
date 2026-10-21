@@ -126,7 +126,7 @@ def test_changed_map_and_output_collisions_are_rejected(tmp_path):
     path = csv_map(tmp_path, [modern()])
     frame = pd.DataFrame({"prcf": ["plate1_r1_c1_f1"]})
     _, report = enrich(frame, path)
-    path.write_text(path.read_text(encoding="utf-8") + "\n")
+    path.write_text(path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
     with pytest.raises(ValueError, match="changed"):
         enrich(frame, path, expected_sha256=report["sha256"])
     for column in ("original_filename", "original_path"):

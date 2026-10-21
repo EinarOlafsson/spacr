@@ -146,8 +146,8 @@ blocks:
   - '**Docker**: los flujos de procesamiento de línea de comandos en un contenedor
     Linux, con la imagen para CPU o la imagen para GPU NVIDIA:'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
   lang: bash
 - p: La `guía de Docker (nightly, en inglés) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     explica la configuración de la GPU, el montaje de datos y los comandos de los
@@ -255,7 +255,7 @@ blocks:
 - p: 'El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none`` al clon
     superficial no reduce la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB.
     Git no informa de las descargas diferidas de objetos, por lo que no se midió un total
-    de descarga. Los archivos versionados de main ocupan 5059 MB en la copia de trabajo (medidos
+    de descarga. Los archivos versionados de main ocupan 735 MB en la copia de trabajo (medidos
     el 2026-10-21), sin el historial de Git. El tamaño y la duración de la descarga varían
     según la rama.'
 - h2: Comandos de línea de comandos

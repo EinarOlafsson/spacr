@@ -104,7 +104,7 @@ def main():
             write(root / 'receipt.json', receipt)
         print(f'{name}: exit {result.returncode}, {row["elapsed_seconds"]}s', flush=True)
         if result.returncode:
-            print(log.read_text(errors='replace')[-4000:] + errors.read_text(errors='replace')[-2000:], flush=True)
+            print(log.read_text(errors='replace', encoding="utf-8")[-4000:] + errors.read_text(errors='replace', encoding="utf-8")[-2000:], flush=True)
             raise RuntimeError(f'{name} failed; do not claim this route is verified')
         return log
 
@@ -112,7 +112,7 @@ def main():
               '-c', 'conda-forge', '--strict-channel-priority', '--no-default-packages',
               '--solver', 'libmamba', '--json', '--yes', 'python=3.12', f'spacr={version}']
     plan_path = run('01_solve', create + ['--dry-run'], 900)
-    receipt['plan'] = accepted_plan(json.loads(plan_path.read_text()), shutil.disk_usage(stage).free)
+    receipt['plan'] = accepted_plan(json.loads(plan_path.read_text(encoding="utf-8")), shutil.disk_usage(stage).free)
     if receipt['plan']['version'] != version:
         raise ValueError('The solver changed the requested release')
     write(root / 'receipt.json', receipt)

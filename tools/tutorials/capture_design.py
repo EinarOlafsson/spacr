@@ -164,8 +164,8 @@ def record_design(app, window, screen, stage, captures, capture, settle, write_j
     exported = {row['well']: {'condition': row['condition'], 'role': row['role']} for row in rows}
     if len(rows) != 24 or exported != original or {row['plateID'] for row in rows} != {'tutorial_plan'}:
         raise RuntimeError('Exported well assignments differ from the displayed plan')
-    design = json.loads(files['plate_map.json'].read_text())
-    fragment = json.loads(files['plate_map_settings.json'].read_text())
+    design = json.loads(files['plate_map.json'].read_text(encoding="utf-8"))
+    fragment = json.loads(files['plate_map_settings.json'].read_text(encoding="utf-8"))
     if design['seed'] != 42 or design['wells_available'] != 60 or fragment['expressible']:
         raise RuntimeError('The saved design or non-expressible random-layout warning changed')
     capture('12_real_export_complete')

@@ -15292,9 +15292,6 @@ number_of_organelles
 | :py:func:`~spacr.organelle_types.organelle_slot_is_active`
 |     :py:func:`~spacr.organelle_types.active_organelle_roles`
 |         :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
-| ``_bulk_apply_changes_form_shape``
-|     :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
-|     ``update(...)  [UNRESOLVED]``
 | ``_infer_legacy_organelle_count``
 |     :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``

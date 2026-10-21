@@ -22,6 +22,9 @@ from pathlib import Path
 
 import pytest
 
+#: Item 710: the API catalogs are assembled for the session, not committed.
+pytestmark = pytest.mark.usefixtures("api_catalogs")
+
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "spacr"
 CATALOG_DIR = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
@@ -82,11 +85,18 @@ def catalog_paths() -> list[Path]:
 def test_the_api_catalogs_cover_english_and_the_translated_languages():
     """The rule below is only worth anything if it reads the real payload."""
     names = {path.stem for path in catalog_paths()}
+    assert names == set(CATALOG_LANGUAGES)
     assert "en" in names
     assert len(names) >= 10, f"only found catalogs for {sorted(names)}"
 
 
-@pytest.mark.parametrize("path", catalog_paths(), ids=lambda p: p.stem)
+#: The ten catalogs, named rather than globbed: they are assembled for the
+#: session after collection (item 710), so a glob here would find none.
+CATALOG_LANGUAGES = ("de", "en", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN")
+
+
+@pytest.mark.parametrize("path", [CATALOG_DIR / f"{language}.json" for language in CATALOG_LANGUAGES],
+                         ids=lambda p: p.stem)
 def test_no_api_catalog_documents_a_module_that_was_deleted(path):
     """A deleted module's docstrings must leave the localization payload.
 
@@ -186,6 +196,7 @@ def test_the_documentation_build_treats_every_sphinx_warning_as_an_error():
     assert 'exit "$rc"' in script
 
 
+@pytest.mark.posix_only
 def test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit(tmp_path):
     """Execute the workflow body against a Sphinx stub that fails late."""
     import os

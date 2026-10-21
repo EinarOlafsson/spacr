@@ -220,15 +220,18 @@ def peek() -> Optional[Dict[str, Any]]:
 
 
 def take() -> Optional[Dict[str, Any]]:
-    """Consume and return a recent restart record.
+    """Read a pending restart record and attempt to remove its file.
 
-    The saved file is removed before this function returns, including when
-    the record is invalid or older than :data:`MAX_AGE_SECONDS`.
+    Attempt to remove the saved file after reading it, including when no valid
+    dictionary was read. A failed removal does not prevent a dictionary from being
+    returned. A dictionary is rejected as expired only when its parseable ``saved``
+    timestamp is older than :data:`MAX_AGE_SECONDS`; missing or invalid timestamps are
+    not treated as expired.
 
     Returns
     -------
-    dict or None
-        A recent restart record, or ``None`` when none is available.
+    dict or None A readable saved dictionary not known to be expired, or ``None`` if no
+        such dictionary is available.
     """
     document = peek()
     discard()

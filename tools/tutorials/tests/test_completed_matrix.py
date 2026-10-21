@@ -90,6 +90,6 @@ def test_real_preserved_voice_inventory_is_read_without_import():
 
 def test_missing_inventory_is_rejected(tmp_path):
     path = tmp_path / 'renderer.py'
-    path.write_text('LANGUAGES = {}')
+    path.write_text('LANGUAGES = {}', encoding="utf-8")
     with pytest.raises(ValueError, match='matrix changed'):
         voice_matrix(path)

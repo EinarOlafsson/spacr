@@ -1,6 +1,0 @@
-{
-  "original_sha256": "986af8bfd3eb7b3b87bee5f3d109d13a15680cc4ff943b900f06d1620493e719",
-  "proposed_sha256": "99c20b168d1003e44efd0bc629a07f7799cf26481904bd6976a85d167bd2ca73",
-  "scope": "only unavailable/deleted provider test fixture, retain original exception/message expectation and add missing-file assertion",
-  "baseline_harness": "Block zoo.fetch only after original fixture localfetch completes; actual original expected exception then fails on attempted reacquisition without network. Do not run original live provider route."
-}

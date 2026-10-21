@@ -132,7 +132,7 @@ def test_a_missing_metadata_file_is_skipped_not_fatal(screen, capsys, tmp_path):
     with the coefficients already computed and written.
     """
     empty = tmp_path / 'empty_metadata.csv'
-    empty.write_text('')
+    empty.write_text('', encoding="utf-8")
 
     output = ml.perform_regression(parametric_settings(
         screen, metadata_files=[str(tmp_path / 'not_here.csv'), str(empty)]))
@@ -150,7 +150,7 @@ def test_a_metadata_path_that_cannot_be_stat_ed_is_skipped(screen, monkeypatch,
     whose results are already on disk.
     """
     unreadable = tmp_path / 'unreadable.csv'
-    unreadable.write_text('Gene ID\nTGGT1_000000\n')
+    unreadable.write_text('Gene ID\nTGGT1_000000\n', encoding="utf-8")
     real_getsize = os.path.getsize
 
     def hostile(path):

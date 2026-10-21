@@ -33,7 +33,7 @@ class Response(io.BytesIO):
 def specimen(tmp_path, monkeypatch):
     root = tmp_path / "source"
     root.mkdir()
-    (root / "bound.py").write_text("source-bound fixture\n")
+    (root / "bound.py").write_text("source-bound fixture\n", encoding="utf-8")
     monkeypatch.setattr(p, "SOURCE_FILES", ("bound.py",))
     contents = {"family_v1": b"first exact checkpoint", "family_v2": b"second exact checkpoint"}
     rows = [{"family": "family", "key": key, "kind": "cellpose", "repo_type": "model",
@@ -69,6 +69,7 @@ def rewrite(s):
     s.path.write_bytes(p._encoded(s.manifest))
 
 
+@pytest.mark.posix_only
 def test_actual_complete_files_and_source_receipt_then_verified_restart_without_network(specimen, monkeypatch):
     s = specimen
     paths = p.provision_models(s.path, s.cache, root=s.root)
@@ -109,7 +110,7 @@ def test_invalid_manifest_refuses_before_network_or_cache_mutation(specimen, cha
     elif change == "size_limit":
         s.manifest["models"][0]["bytes"] = p.MAX_MODEL_BYTES + 1
     elif change == "source":
-        (s.root / "bound.py").write_text("changed actual source\n")
+        (s.root / "bound.py").write_text("changed actual source\n", encoding="utf-8")
     else:
         s.manifest["schema"] = True
     rewrite(s)
@@ -120,13 +121,14 @@ def test_invalid_manifest_refuses_before_network_or_cache_mutation(specimen, cha
 
 def test_duplicate_json_fields_refuse_before_network(specimen):
     s = specimen
-    s.path.write_text('{"schema":1,"schema":1}')
+    s.path.write_text('{"schema":1,"schema":1}', encoding="utf-8")
     with pytest.raises(p.ProvisioningError, match="duplicate_json_key"):
         p.provision_models(s.path, s.cache, root=s.root)
     assert s.calls == [] and not s.cache.exists()
 
 
 @pytest.mark.parametrize("fault", ["truncated", "oversized", "hash", "declared_size", "redirect", "timeout"])
+@pytest.mark.posix_only
 def test_failed_second_download_preserves_first_bytes_and_never_publishes_partial_paths(specimen, monkeypatch, fault):
     s = specimen
 
@@ -156,6 +158,7 @@ def test_failed_second_download_preserves_first_bytes_and_never_publishes_partia
 
 
 @pytest.mark.parametrize("fault", ["corrupt", "symlink", "foreign_receipt", "foreign_entry"])
+@pytest.mark.posix_only
 def test_existing_foreign_or_corrupt_cache_is_not_overwritten(specimen, monkeypatch, fault):
     s = specimen
     paths = p.provision_models(s.path, s.cache, root=s.root)
@@ -179,7 +182,7 @@ def test_existing_foreign_or_corrupt_cache_is_not_overwritten(specimen, monkeypa
     assert other.read_bytes() == b"unrelated preserved data"
 
 
-@pytest.mark.parametrize("fault", ["foreign_root", "root_symlink", "no_space", "deadline"])
+@pytest.mark.parametrize("fault", ["foreign_root", pytest.param("root_symlink", marks=pytest.mark.needs_symlink), "no_space", "deadline"])
 def test_root_capacity_and_deadline_refusals_do_not_download(specimen, monkeypatch, fault):
     s = specimen
     if fault == "foreign_root":
@@ -199,6 +202,7 @@ def test_root_capacity_and_deadline_refusals_do_not_download(specimen, monkeypat
         assert not (s.cache / ".lease").exists()
 
 
+@pytest.mark.posix_only
 def test_real_other_process_cannot_take_an_active_cache_lease(specimen):
     s = specimen
     script = '''
@@ -317,6 +321,7 @@ def test_generator_accepts_only_verified_public_metadata_and_is_deterministic(sp
 @pytest.mark.parametrize("filename,kind,suffix", [("weights/published_detector.pt", "detector", ".pt"),
                                                  ("weights/published_cpsam", "cellpose", ""),
                                                  ("weights/legacy.CP_model", "cellpose", ".CP_model")])
+@pytest.mark.posix_only
 def test_provisioned_paths_retain_the_real_loader_format(specimen, monkeypatch, filename, kind, suffix):
     s = specimen
     s.manifest["models"][0]["filename"] = filename
@@ -349,3 +354,12 @@ def test_provisioned_paths_retain_the_real_loader_format(specimen, monkeypatch, 
     assert path.suffix == suffix
     assert path.read_bytes() == s.contents["family_v1"]
     assert json.loads((namespace(s) / "paths.json").read_bytes())["models"] == paths
+
+@pytest.mark.skipif(os.name == "posix", reason="the refusal is for systems without POSIX file locks")
+def test_managed_provisioning_refuses_plainly_where_it_is_unsupported(tmp_path):
+    """No fcntl on Windows: the managed cache says so, not ModuleNotFoundError."""
+    with pytest.raises(p.ProvisioningError) as refused:
+        with p._cache_lease(tmp_path / "cache"):
+            pass
+    assert "managed_platform_unsupported" in str(refused.value)
+    assert not (tmp_path / "cache").exists()

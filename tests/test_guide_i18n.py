@@ -98,7 +98,7 @@ def test_changed_english_becomes_stale_and_is_not_published(tmp_path):
     guide.export_worklist("sv", work, locale_dir=locale)
     rows = json.loads(work.read_text(encoding="utf-8"))
     strings = tmp_path / "strings.json"
-    strings.write_text(json.dumps(["Tryck på **Spara mask**.", "Oförändrad."]))
+    strings.write_text(json.dumps(["Tryck på **Spara mask**.", "Oförändrad."]), encoding="utf-8")
     applied, rejected = guide.import_worklist("sv", work, strings, locale_dir=locale)
     assert (applied, rejected) == (2, [])
     assert len(rows) == 2
@@ -129,7 +129,7 @@ def test_import_refuses_a_translation_for_an_old_msgid(tmp_path):
     guide.update_language("sv", pot, locale)
     work = tmp_path / "work.json"
     work.write_text(json.dumps([{"domain": "page", "msgid": "Gone text.",
-                                 "msgstr": "Borta."}]))
+                                 "msgstr": "Borta."}]), encoding="utf-8")
     applied, rejected = guide.import_worklist("sv", work, locale_dir=locale)
     assert applied == 0 and rejected and "stale msgid" in rejected[0]
 
@@ -144,10 +144,10 @@ def test_sphinx_renders_a_changed_message_in_english_and_marks_it(tmp_path):
         locale_dirs = ['locale/']
         gettext_compact = False
         translation_progress_classes = True
-    """))
+    """), encoding="utf-8")
     (source / "index.rst").write_text(
         "Title edited\n============\n\nFirst paragraph.\n\n"
-        "Second paragraph, now edited.\n")
+        "Second paragraph, now edited.\n", encoding="utf-8")
     messages = source / "locale/sv/LC_MESSAGES"
     messages.mkdir(parents=True)
     (messages / "index.po").write_text(textwrap.dedent('''
@@ -311,7 +311,7 @@ def test_fixed_runtime_defect_switches_the_guides_to_the_app_name(tmp_path, monk
     catalog.get("Train").string = "Träna"
     guide.write_catalog(locale / "sv/LC_MESSAGES/cellpose_training.po", catalog)
     (glossary / "sv.defects.json").write_text(json.dumps(
-        {"schema": 1, "language": "sv", "defects": {"Train": "railway train"}}))
+        {"schema": 1, "language": "sv", "defects": {"Train": "railway train"}}), encoding="utf-8")
 
     app = {"Train": "Tåg"}
     monkeypatch.setattr(guide, "runtime_ui_name", lambda name, language: app.get(name))

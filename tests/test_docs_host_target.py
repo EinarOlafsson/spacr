@@ -85,6 +85,7 @@ def _publication_env(workflow, job, resolved):
     return result
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('configured', [False, True])
 def test_actual_publication_steps_share_the_resolved_target(
         workflow, tmp_path, configured):
@@ -109,15 +110,15 @@ def test_actual_publication_steps_share_the_resolved_target(
             print('nightly-sha')
         else:
             os.execvp(sys.argv[2], sys.argv[2:])
-    '''))
+    '''), encoding="utf-8")
     runner.chmod(0o755)
     captured = tmp_path / 'commands.jsonl'
     for branch in ('main', 'nightly'):
         site = tmp_path / 'channels' / f'docs-channel-{branch}'
         site.mkdir(parents=True)
-        (site / 'index.html').write_text(f'<html><body>{branch}</body></html>')
+        (site / 'index.html').write_text(f'<html><body>{branch}</body></html>', encoding="utf-8")
         (site / 'publication.json').write_text(json.dumps({
-            'branch': branch, 'commit': branch + '-sha'}))
+            'branch': branch, 'commit': branch + '-sha'}), encoding="utf-8")
     common = dict(os.environ, GITHUB_REPOSITORY='EinarOlafsson/spacr',
                   GITHUB_STEP_SUMMARY=str(tmp_path / 'summary'),
                   CAPTURED_COMMANDS=str(captured))

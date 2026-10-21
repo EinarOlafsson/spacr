@@ -2,12 +2,14 @@
 
 ### Upgrading
 
+- The frozen macOS `.dmg` runs on Apple silicon (arm64) only. On an Intel Mac, install spaCR with the universal online `.pkg` installer instead.
 - If you go back to 1.5.1.5 after an interrupted 1.5.1.6 installation, 1.5.1.5 reports that another installer holds the installation, because it cannot read the newer lock. If no spaCR installer is running, remove the locks, then retry:
   - macOS: `~/Library/Application Support/.spaCR.spacr-installer-lock`, `~/Library/Application Support/spaCR/.venv.spacr-update-lock` and `~/Library/Application Support/spaCR/.installing` (folders).
   - Linux: `~/.local/share/.spacr.spacr-installer-lock` and `~/.local/share/spacr/.venv.spacr-update-lock` (folders; under `$XDG_DATA_HOME` when it is set).
   - Windows: `%LOCALAPPDATA%\.spaCR.spacr-installer-lock` and `%LOCALAPPDATA%\spaCR\.venv.spacr-update-lock` (files).
   - A folder of the same name ending in `.takeover` beside any of them can go too.
   For an installation in another folder, the locks sit beside and inside that folder under the same names.
+- `spacr.regression_search` was removed; import from `spacr.parameter_sweep` (`SweepSpace`, `run_sweep`, `run_sweep_parallel`, `summarise_sweep`, `DEFAULT_SWEEP_SPACE`).
 
 ### Improved
 

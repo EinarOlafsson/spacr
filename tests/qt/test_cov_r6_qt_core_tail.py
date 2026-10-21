@@ -869,3 +869,31 @@ class TestHomeCandidateSixWithoutItsLogo:
                     sys.modules.pop(name, None)
                 else:
                     sys.modules[name] = module
+
+
+def test_a_failed_icon_cache_replace_removes_its_temporary_and_keeps_the_cache(
+        tmp_path, monkeypatch):
+    """A Windows sharing violation must leave the old icon and no .part file."""
+    from spacr.qt import iconset
+
+    path = tmp_path / "icons" / "one.png"
+    old = np.zeros((4, 4, 4), dtype=np.uint8)
+    old[..., 3] = 255
+    iconset._write_cached_icon(path, old)
+    saved = path.read_bytes()
+    updated = old.copy()
+    updated[..., 0] = 200
+    attempted = []
+
+    def sharing_violation(source, destination):
+        attempted.append(source)
+        assert source.is_file()
+        raise PermissionError("another writer has the cached icon open")
+
+    monkeypatch.setattr(iconset.os, "replace", sharing_violation)
+    iconset._write_cached_icon(path, updated)
+
+    assert len(attempted) == 1
+    assert path.read_bytes() == saved
+    assert not attempted[0].exists()
+    assert sorted(child.name for child in path.parent.iterdir()) == [path.name]

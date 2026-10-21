@@ -269,7 +269,9 @@ def open_parascape(parent=None, *, root=None):
 
     :param parent: organism page requesting the launch.
     :param root: optional external-application folder.
-    :returns: child process, or None if cancelled or launch failed.
+    :returns: child process, or None if installation or a requested upgrade is
+        cancelled or unsuccessful, or the initial launch fails. Skipping or
+        cancelling only the update check still opens the installed app.
     """
     root = service.apps_root(root)
     if not service.is_installed(root):

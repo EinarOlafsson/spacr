@@ -29,9 +29,9 @@ def test_threaded_buttons_discover_sidecar_fill_map_and_report_mismatch(
         (src / well).mkdir(parents=True)
         tifffile.imwrite(src / well / 'field01_C1.tif', pixels)
     sidecar = src / 'barcode.txt'
-    sidecar.write_text('0001\n')
+    sidecar.write_text('0001\n', encoding="utf-8")
     records = tmp_path / 'samples.csv'
-    records.write_text('barcode,well,strain,compound\n0001,A01,RH,DMSO\n')
+    records.write_text('barcode,well,strain,compound\n0001,A01,RH,DMSO\n', encoding="utf-8")
     source_hashes = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
                      for p in [records, *src.rglob('*')] if p.is_file()}
     observed = []
@@ -106,4 +106,4 @@ def test_threaded_buttons_discover_sidecar_fill_map_and_report_mismatch(
             'pixels_preserved': True, 'summary': summary,
             'output_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                               for p in [*converted, *bundle.iterdir()] if p.is_file()},
-        }, indent=2) + '\n')
+        }, indent=2) + '\n', encoding="utf-8")

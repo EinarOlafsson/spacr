@@ -67,7 +67,7 @@ def reveal_support(table, settle):
 
 def prepare(stage,existing=None,*,input_root=None):
     stage=Path(stage).resolve()
-    settings=json.loads((stage/'captures/regression_release/batch_settings.json').read_text())
+    settings=json.loads((stage/'captures/regression_release/batch_settings.json').read_text(encoding="utf-8"))
     if len(settings['paired_data'])!=4:
         raise ValueError('Expected the four already-verified Regression input pairs')
     names=set();sources={}

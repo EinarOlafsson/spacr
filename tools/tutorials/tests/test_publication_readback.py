@@ -22,7 +22,7 @@ def readback_case(tmp_path, monkeypatch):
     relative = media.relative_to(tmp_path / 'media_host').as_posix()
     record = dict(path='media_host/' + relative, bytes=len(data),
                   sha256=hashlib.sha256(data).hexdigest())
-    (tmp_path / 'release-manifest.json').write_text(json.dumps(dict(files=[record])))
+    (tmp_path / 'release-manifest.json').write_text(json.dumps(dict(files=[record])), encoding="utf-8")
     entry = type('RepoFile', (), {} )()
     entry.path, entry.size, entry.lfs = relative, len(data), None
     entry.blob_id = publication.git_blob_id(media)

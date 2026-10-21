@@ -20,16 +20,16 @@ def catalogs(tmp_path):
     new = copy.deepcopy(old)
     new['lessons'][1]['scenes'] = [{'narration': 'Refreshed'}, {'narration': 'Second'}]
     for name in CATALOGS:
-        (baseline / name).write_text(json.dumps(old))
-        (stage / 'catalog' / name).write_text(json.dumps(new))
+        (baseline / name).write_text(json.dumps(old), encoding="utf-8")
+        (stage / 'catalog' / name).write_text(json.dumps(new), encoding="utf-8")
     return baseline, stage
 
 
 def change_spanish(stage, edit):
     path = stage / 'catalog/lessons_es.json'
-    data = json.loads(path.read_text())
+    data = json.loads(path.read_text(encoding="utf-8"))
     edit(data['lessons'])
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
 
 
 def test_selected_refresh_and_unchanged_specialist_pass(catalogs):
@@ -78,9 +78,9 @@ def test_visual_only_allows_actual_legacy_caption_shape_without_rewriting(catalo
     for name in CATALOGS:
         if name.startswith('captions_'):
             for path in [baseline / name, stage / 'catalog' / name]:
-                value = json.loads(path.read_text())
+                value = json.loads(path.read_text(encoding="utf-8"))
                 value['lessons'][0].pop('number')
-                path.write_text(json.dumps(value))
+                path.write_text(json.dumps(value), encoding="utf-8")
     proof = audit(*catalogs, {'changed', 'kept'}, visual_only={'kept'})
     assert proof['visual_only_lesson_ids'] == ['kept']
     assert proof['retained_count'] == 0

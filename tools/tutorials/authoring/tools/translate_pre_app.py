@@ -497,12 +497,12 @@ def translate_batch(tokenizer, model, strings: list[str], target_code: str,
 
 def update_narrated_catalog(language: str, localized_lessons: list[dict]) -> Path:
     path = CATALOG / f"lessons_{language}.json"
-    catalog = json.loads(path.read_text()) if path.exists() else {
+    catalog = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {
         "schema": 1, "language": language, "series": [], "lessons": []}
     by_id = {lesson["id"]: lesson for lesson in catalog["lessons"]}
     for lesson in localized_lessons:
         by_id[lesson["id"]] = lesson
-    source_order = json.loads((CATALOG / "lessons_en.json").read_text())["lessons"]
+    source_order = json.loads((CATALOG / "lessons_en.json").read_text(encoding="utf-8"))["lessons"]
     catalog["lessons"] = [by_id[item["id"]] for item in source_order
                           if item["id"] in by_id]
     source_by_id = {lesson["id"]: lesson for lesson in source_order}
@@ -516,14 +516,14 @@ def update_narrated_catalog(language: str, localized_lessons: list[dict]) -> Pat
         for number, title in enumerate(SERIES_TITLES[language], start=1)
     ]
     catalog["language"] = language
-    path.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n")
+    path.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return path
 
 
 def update_caption_catalog(language: str, localized_lessons: list[dict]) -> Path:
     path = CATALOG / f"captions_{language}.json"
     if path.exists():
-        catalog = json.loads(path.read_text())
+        catalog = json.loads(path.read_text(encoding="utf-8"))
     else:
         catalog = {"schema": 1, "language": language,
                    "source_language": "en", "lessons": []}
@@ -534,10 +534,10 @@ def update_caption_catalog(language: str, localized_lessons: list[dict]) -> Path
             "scenes": [{"narration": scene["narration"]}
                        for scene in lesson["scenes"]],
         }
-    source_order = json.loads((CATALOG / "lessons_en.json").read_text())["lessons"]
+    source_order = json.loads((CATALOG / "lessons_en.json").read_text(encoding="utf-8"))["lessons"]
     catalog["lessons"] = [by_id[item["id"]] for item in source_order
                           if item["id"] in by_id]
-    path.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n")
+    path.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return path
 
 
@@ -559,7 +559,7 @@ def main() -> int:
         help=("rebuild requested lessons only from maintained human-reviewed "
               "localizations, without loading a translation model"))
     args = parser.parse_args()
-    english = json.loads((CATALOG / "lessons_en.json").read_text())
+    english = json.loads((CATALOG / "lessons_en.json").read_text(encoding="utf-8"))
     if args.lessons:
         requested = set(args.lessons)
         sources = [lesson for lesson in english["lessons"]

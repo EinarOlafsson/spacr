@@ -1,5 +1,0 @@
-Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/stage-tools/run_tool.py', 'tools/tutorials/adopt_source_bound_tracks.py', '--source', '/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015', '--target', '/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015', '--lessons', '05_home', '--receipt', '/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-adopt.json']
-Source: 87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9
-Copied 50 normally verified source-bound tracks
-
-Terminal exit status: 0

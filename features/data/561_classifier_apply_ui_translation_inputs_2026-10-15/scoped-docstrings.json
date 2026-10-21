@@ -1,8 +1,0 @@
-{
-  "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": "Whether crop loading, embedding, training or classifier application is in flight.\n\nIncludes the training and application runners until their workers have retired,\neven after their final results have reached the screen.",
-  "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.finished": "Retain outputs only for the still-current, uncancelled crop selection.",
-  "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.work": "Apply the actual artifact to unchanged full raw channel-last crops.",
-  "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.finished": "Report the exported snapshot only while its source result is current.",
-  "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.work": "Write every output column with saved class names and channel provenance.",
-  "spacr.qt.screens.embeddings.EmbeddingsScreen._show_classifier_application.show_view": "Render the selected real output without rerunning or changing the model."
-}

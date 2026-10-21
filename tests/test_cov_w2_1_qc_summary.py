@@ -16,6 +16,7 @@ import pandas as pd
 import pytest
 
 from spacr.qt.widgets import qc_summary as qc
+from tests.refused_access import refused
 
 
 def _write_json(path, payload):
@@ -223,11 +224,8 @@ def test_a_database_that_will_not_open_is_an_error_card(tmp_path):
     """An unreadable file is reported, not raised."""
     db = _db(tmp_path / "measurements" / "measurements.db",
              {"cell": pd.DataFrame({"area": [1.0]})})
-    os.chmod(db, 0o000)
-    try:
+    with refused(db, 0o000, windows="read"):
         card = qc._read_units(str(tmp_path))
-    finally:
-        os.chmod(db, 0o644)
 
     assert card.verdict == "error"
     assert "Could not open measurements.db" in card.headline

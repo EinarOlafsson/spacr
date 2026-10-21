@@ -110,7 +110,7 @@ def _linux_images() -> List[str]:
     to :func:`resident_openmp_runtimes`, which converts them to unknown.
     """
     paths = []
-    with open("/proc/self/maps", "r") as handle:
+    with open("/proc/self/maps", "r", encoding="utf-8") as handle:
         for line in handle:
             parts = line.rstrip("\n").split(None, 5)
             if len(parts) == 6 and parts[5].startswith("/"):

@@ -27,7 +27,7 @@ def _lease_source():
 def _script(tmp_path, body):
     path = tmp_path / ('driver-' + str(len(list(tmp_path.glob('driver-*')))) + '.sh')
     path.write_text('set -Eeuo pipefail\nPLATFORM=linux\n'
-                    'spacr_say() { printf "%s\\n" "$*" >&2; }\n' + _lease_source() + body)
+                    'spacr_say() { printf "%s\\n" "$*" >&2; }\n' + _lease_source() + body, encoding="utf-8")
     return path
 
 
@@ -86,9 +86,9 @@ def test_second_real_installer_cannot_mutate_an_owned_root(tmp_path, owner):
 def test_real_exit_rollback_remains_exclusive_until_original_runtime_is_restored(tmp_path, owner):
     root = tmp_path / 'application'
     (root / 'venv').mkdir(parents=True)
-    (root / 'venv/version').write_text('previous')
+    (root / 'venv/version').write_text('previous', encoding="utf-8")
     (root / 'data').mkdir()
-    (root / 'data/output').write_text('science')
+    (root / 'data/output').write_text('science', encoding="utf-8")
     cleanup = UNIX.read_text(encoding="utf-8").split('cleanup() {\n', 1)[1].split('\ntrap ', 1)[0]
     body = '''
 VENV_DIR="$INSTALL_ROOT/venv"
@@ -146,7 +146,7 @@ def test_existing_or_interrupted_lease_is_not_stolen_or_changed(tmp_path, existi
     lease = (root.parent / ('.' + root.name + '.spacr-installer-lock')
              if existing == 'outside' else root / '.venv.spacr-update-lock')
     lease.mkdir(mode=0o700)
-    (lease / 'unknown-evidence').write_text('preserve')
+    (lease / 'unknown-evidence').write_text('preserve', encoding="utf-8")
     before = lease.stat()
     result = _run(_script(tmp_path, 'printf wrong > "$INSTALL_ROOT/mutation"\n'), tmp_path, root)
     assert result.returncode == 73
@@ -254,7 +254,7 @@ def test_lease_identity_uses_whichever_stat_is_on_path(tmp_path, flavor):
     fake = folder / 'stat'
     accepted = '-c' if flavor == 'gnu' else '-f'
     fake.write_text('#!/bin/sh\n[ "$1" = "' + accepted + '" ] && { printf "' + flavor + ':%s\\n" "$2"; exit 0; }\n'
-                    'echo "stat: illegal option" >&2\nexit 1\n')
+                    'echo "stat: illegal option" >&2\nexit 1\n', encoding="utf-8")
     fake.chmod(0o755)
     result = subprocess.run(['bash', '-c', _identity_function() + 'spacr_installer_lease_identity /lease\n'],
                             env=dict(os.environ, PATH=f"{folder}{os.pathsep}{os.environ['PATH']}"),

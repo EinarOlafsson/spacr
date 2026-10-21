@@ -839,7 +839,7 @@ def _outputs(module: str, settings: Mapping[str, Any]) -> Tuple[str, ...]:
             return ()
         found: List[str] = []
         for port in module_ports(module).produces:
-            target = os.path.join(root, port.path) if port.path else root
+            target = os.path.normpath(os.path.join(root, port.path)) if port.path else root
             if target not in found and os.path.exists(target):
                 found.append(target)
         return tuple(found)

@@ -124,11 +124,11 @@ def main(argv=None) -> int:
             for language in builder.MODEL_SPECS:
                 report[name][language] = audit_record(builder, sources, (language,))
     api_dir = root / "docs/source/_static/i18n/api"
-    english = json.loads((api_dir / "en.json").read_text())
+    english = json.loads((api_dir / "en.json").read_text(encoding="utf-8"))
     for language in docs.MODEL_SPECS:
         row = report["api"].setdefault(language, {})
         try:
-            payload = json.loads((api_dir / f"{language}.json").read_text())
+            payload = json.loads((api_dir / f"{language}.json").read_text(encoding="utf-8"))
             row["issues"] = api_issues(english, payload)
             row["source_compatible"] = not row["issues"]
         except (OSError, ValueError, AttributeError) as error:
@@ -145,14 +145,14 @@ def main(argv=None) -> int:
         try:
             path = root / "spacr/qt/i18n_catalogs" / f"{language}.py"
             namespace = {}
-            exec(compile(path.read_text(), str(path), "exec"), namespace)
+            exec(compile(path.read_text(encoding="utf-8"), str(path), "exec"), namespace)
             row["issues"] = runtime_issues(tables, namespace, runtime._source_hashes(sources))
             row["source_compatible"] = not row["issues"]
         except Exception as error:
             row.update(source_compatible=False, issues=[{
                 "kind": "unreadable_catalog", "error": str(error)}])
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    args.output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     incompatible = sum(not row["source_compatible"] for row in report["api"].values())
     print(f"Registered {incompatible} incompatible API locales in {args.output}; report-only.")
     summary = os.environ.get("GITHUB_STEP_SUMMARY")

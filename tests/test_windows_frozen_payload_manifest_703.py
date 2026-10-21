@@ -64,6 +64,7 @@ def test_existing_manifest_is_not_overwritten(tmp_path):
     assert manifest.read_bytes() == b"original ownership record"
 
 
+@pytest.mark.needs_symlink
 def test_linked_payload_is_refused_and_target_is_preserved(tmp_path):
     source = _payload(tmp_path)
     unrelated = tmp_path / "user-data"

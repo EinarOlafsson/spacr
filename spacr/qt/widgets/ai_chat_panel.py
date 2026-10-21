@@ -774,11 +774,9 @@ class AIChatPanel(QWidget):
         return self._thread is not None
 
     def shutdown(self) -> None:
-        """Cancel any active stream and block until its QThread exits.
+        """Request cancellation and drain current and retired streaming threads.
 
-        Must run before the panel is destroyed — otherwise Python drops
-        the last reference to a running QThread and Qt aborts with
-        ``QThread: Destroyed while thread '' is still running``.
+        Call before the panel is destroyed so a running QThread keeps an owner. The active stream's thread is passed to the drain helper with a 3000 ms wait and each retired thread with a 1000 ms wait. Threads still running after those waits are parked by the helper rather than terminated; this method does not guarantee that every thread has exited when it returns.
 
         Never terminates a thread: see
         :func:`spacr.qt.bridge.drain_thread` and the note in

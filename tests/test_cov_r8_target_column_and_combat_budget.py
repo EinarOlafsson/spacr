@@ -58,7 +58,7 @@ class TestTheTargetColumnIsRequired:
 
     def test_a_map_that_is_not_a_map_at_all_is_refused_too(self, tmp_path):
         path = tmp_path / "shopping.csv"
-        path.write_text("bread,milk\n1,2\n")
+        path.write_text("bread,milk\n1,2\n", encoding="utf-8")
 
         with pytest.raises(cv.ConfigurationError, match="not a spaCR"):
             cv.read_map(str(path))

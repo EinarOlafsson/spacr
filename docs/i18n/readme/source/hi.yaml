@@ -144,8 +144,8 @@ blocks:
   - '**Docker**: Linux कंटेनर में कमांड-लाइन पाइपलाइन, CPU इमेज या NVIDIA GPU इमेज
     से:'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
   lang: bash
 - p: '`Docker गाइड (nightly, अंग्रेज़ी में) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     में GPU सेटअप, डेटा माउंट और पाइपलाइन कमांड बताए गए हैं।'
@@ -248,7 +248,7 @@ blocks:
 - p: 'nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में ``--filter=blob:none``
     जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता
     पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया।
-    main की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 5059 MB लेती हैं (2026-10-21 को मापी गईं),
+    main की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 735 MB लेती हैं (2026-10-21 को मापी गईं),
     जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।'
 - h2: कमांड-लाइन प्रवेश बिंदु
 - code: |-

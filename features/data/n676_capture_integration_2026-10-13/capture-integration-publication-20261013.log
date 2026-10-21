@@ -1,5 +1,0 @@
-Worktree first on sys.path; CUDA empty; Qt offscreen; capped8G; sequential workers=1
-........s.........................................                       [100%]
-=========================== short test summary info ============================
-SKIPPED [1] tests/test_tutorial_release_audit.py:356: Node.js is required to execute the player route contract
-49 passed, 1 skipped in 2.34s

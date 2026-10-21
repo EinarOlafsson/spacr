@@ -310,12 +310,11 @@ def _resolve(symbol: str):
     return None
 
 
-def test_the_release_contract_names_what_arrived_and_what_left(capsys):
+def test_the_release_contract_names_what_arrived_and_what_left(capsys, api_catalogs):
     import inspect
 
     contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
-    manifest = json.loads((REPO / "docs" / "source" / "_static" / "i18n"
-                           / "api" / "en.json").read_text(encoding="utf-8"))
+    manifest = json.loads((api_catalogs / "en.json").read_text(encoding="utf-8"))
     setup = (REPO / "setup.py").read_text(encoding="utf-8")
 
     assert contract["console_script"] in setup

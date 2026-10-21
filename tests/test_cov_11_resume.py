@@ -41,8 +41,14 @@ from spacr.resume import (
     run_already_complete,
     validate_merged_field,
 )
+from tests.refused_access import refused
 
 _MAGIC = b'\x93NUMPY'
+
+
+def _unreadable(path):
+    """Refuse reads of ``path`` on every platform."""
+    return refused(path, 0o000, windows="read")
 
 
 # ---------------------------------------------------------------------------
@@ -141,11 +147,8 @@ def test_a_field_that_cannot_be_opened_is_pending_not_done(tmp_path):
     """
     path = tmp_path / "unreadable.npy"
     np.save(path, np.zeros((4, 4, 3), dtype="uint16"))
-    path.chmod(0o000)
-    try:
+    with _unreadable(path):
         ok, reason = validate_merged_field(str(path))
-    finally:
-        path.chmod(0o644)
 
     assert ok is False
     assert reason == REASON_UNREADABLE
@@ -424,7 +427,7 @@ def test_an_unreadable_run_stamp_means_go_and_check_the_files(monkeypatch):
 def test_a_run_journal_folder_yields_the_settings_it_recorded(tmp_path):
     """A journal directory is one of the three shapes a resume can read."""
     (tmp_path / "settings.json").write_text(
-        json.dumps({"cell_mask_dim": 4, "channels": [0, 1]}))
+        json.dumps({"cell_mask_dim": 4, "channels": [0, 1]}), encoding="utf-8")
 
     recorded = read_recorded_settings(str(tmp_path))
 
@@ -438,7 +441,7 @@ def test_a_journal_folder_that_cannot_be_read_is_no_information(tmp_path):
     Treating it as a match would let a resume continue across a settings
     change it never saw.
     """
-    (tmp_path / "settings.json").write_text("{not json at all")
+    (tmp_path / "settings.json").write_text("{not json at all", encoding="utf-8")
 
     assert read_recorded_settings(str(tmp_path)) == {}
 
@@ -446,19 +449,16 @@ def test_a_journal_folder_that_cannot_be_read_is_no_information(tmp_path):
 def test_a_settings_csv_that_cannot_be_opened_is_no_information(tmp_path):
     """Same rule for the CSV shape `save_settings` writes."""
     path = tmp_path / "measure_crop_settings.csv"
-    path.write_text("Key,Value\ncell_mask_dim,4\n")
-    path.chmod(0o000)
-    try:
+    path.write_text("Key,Value\ncell_mask_dim,4\n", encoding="utf-8")
+    with _unreadable(path):
         assert read_recorded_settings(str(path)) == {}
-    finally:
-        path.chmod(0o644)
 
 
 @pytest.mark.parametrize("body", ["{not json", ""])
 def test_a_settings_json_that_will_not_parse_is_no_information(tmp_path, body):
     """A truncated settings.json must not silently authorise a resume."""
     path = tmp_path / "settings.json"
-    path.write_text(body)
+    path.write_text(body, encoding="utf-8")
 
     assert read_recorded_settings(str(path)) == {}
 

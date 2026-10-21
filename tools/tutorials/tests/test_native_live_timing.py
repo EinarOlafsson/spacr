@@ -5,6 +5,7 @@ import sys
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1] / 'authoring' / 'tools'))
 from native_live_timing import longest_scene_timing
 
 
@@ -24,6 +25,7 @@ def test_native_reference_uses_each_scenes_longest_voice_without_time_warp():
     assert result['scenes'][1]['speech_start']==1.9
     assert result['total_duration']==4
     assert result['playback_speed']==1 and not result['looped_or_stretched']
+    assert 'complete_native_clips' not in result
 
 
 def test_native_reference_rounds_up_to_sufficient_whole_frames():
@@ -32,6 +34,17 @@ def test_native_reference_rounds_up_to_sufficient_whole_frames():
         assert scene['duration']>=scene['longest_narration_duration']
         assert scene['duration']-scene['longest_narration_duration']<1/30
         assert scene['duration']*30==pytest.approx(round(scene['duration']*30))
+
+
+def test_native_reference_preserves_complete_source_and_apply_actions_after_short_speech():
+    tracks = [{'scenes': [{'duration': 14.8}, {'duration': 26.933333333333334}]}]
+    result = longest_scene_timing(lesson(), tracks, {0, 1},
+                                 native_durations={0: 812 / 30, 1: 1743 / 30})
+    assert result['scenes'][0]['duration'] == 812 / 30
+    assert result['scenes'][1]['speech_start'] == 812 / 30
+    assert result['scenes'][1]['duration'] == 1743 / 30
+    assert result['total_duration'] == pytest.approx(2555 / 30)
+    assert result['playback_speed'] == 1 and not result['looped_or_stretched']
 
 
 @pytest.mark.parametrize('tracks', [[],[{'scenes':[]}],
@@ -51,11 +64,12 @@ def frozen_native_stage(tmp_path):
     root.mkdir(parents=True)
     def write(path,value):
         path.parent.mkdir(parents=True,exist_ok=True)
-        path.write_text(json.dumps(value,ensure_ascii=False))
+        path.write_text(json.dumps(value,ensure_ascii=False), encoding="utf-8")
     write(root/'lesson.en.json',authored)
     video=root/'recorded.mp4';video.write_bytes(b'explicit nonmedia unit fixture')
     receipt=root/'recorded.capture.json'
     write(receipt,{'sha256':sha256(video),'duration':3.0,
+                  'encoded_fps':'30/1','frames':[{'pts': index} for index in range(90)],
                   'full_decode_passed':True,'audio_streams':0})
     write(root/'scenes.json',{'fps':30,'scenes':[{'clip':{
         'video':video.name,'receipt':receipt.name,'sha256':sha256(video),
@@ -88,8 +102,10 @@ def test_native_acceptance_requires_all_fifty_current_tracks(frozen_native_stage
     from native_live_timing import plan
     stage,root=frozen_native_stage;result=plan(stage,'05_home')
     assert result['coverage']['accepted']
+    assert result['complete_native_clips'] is True
     assert result['coverage']['track_count']==50
     assert len(result['source_tracks'])==50
+    assert result['scenes'][0]['duration']==3.0
     (root/'audio/en/af_heart.m4a').unlink()
     with pytest.raises(FileNotFoundError):plan(stage,'05_home')
 
@@ -100,21 +116,22 @@ def test_changed_native_inputs_and_duration_gaps_fail_closed(frozen_native_stage
     from native_live_timing import plan,checked_native_timing,sha256
     stage,root=frozen_native_stage;accepted=plan(stage,'05_home')
     sidecar=root/'video/native-live-timings.json';sidecar.parent.mkdir()
-    sidecar.write_text(json.dumps(accepted));assert checked_native_timing(stage,'05_home')==sidecar
+    sidecar.write_text(json.dumps(accepted), encoding="utf-8");assert checked_native_timing(stage,'05_home')==sidecar
     if mutation=='audio':(root/'audio/en/af_heart.m4a').write_bytes(b'changed')
-    elif mutation=='receipt':(root/'recorded.capture.json').write_text('{}')
+    elif mutation=='receipt':(root/'recorded.capture.json').write_text('{}', encoding="utf-8")
     elif mutation=='source':
-        path=stage/'catalog/lessons_en.json';value=json.loads(path.read_text())
-        value['lessons'][0]['scenes'][0]['narration']='A changed instruction.';path.write_text(json.dumps(value))
+        path=stage/'catalog/lessons_en.json';value=json.loads(path.read_text(encoding="utf-8"))
+        value['lessons'][0]['scenes'][0]['narration']='A changed instruction.';path.write_text(json.dumps(value), encoding="utf-8")
     elif mutation=='fingerprint':
-        path=root/'audio/en/af_heart.json';value=json.loads(path.read_text())
-        value['render_fingerprint']='changed';path.write_text(json.dumps(value))
+        path=root/'audio/en/af_heart.json';value=json.loads(path.read_text(encoding="utf-8"))
+        value['render_fingerprint']='changed';path.write_text(json.dumps(value), encoding="utf-8")
     else:
-        path=root/'recorded.capture.json';value=json.loads(path.read_text())
-        value['duration']=1;path.write_text(json.dumps(value))
-        path=root/'scenes.json';value=json.loads(path.read_text())
+        path=root/'recorded.capture.json';value=json.loads(path.read_text(encoding="utf-8"))
+        value['duration']=1;path.write_text(json.dumps(value), encoding="utf-8")
+        value['frames']=value['frames'][:30];path.write_text(json.dumps(value), encoding="utf-8")
+        path=root/'scenes.json';value=json.loads(path.read_text(encoding="utf-8"))
         value['scenes'][0]['clip']['receipt_sha256']=sha256(root/'recorded.capture.json')
-        path.write_text(json.dumps(value))
+        path.write_text(json.dumps(value), encoding="utf-8")
         assert not plan(stage,'05_home')['coverage']['accepted']
     with pytest.raises(ValueError):checked_native_timing(stage,'05_home')
 

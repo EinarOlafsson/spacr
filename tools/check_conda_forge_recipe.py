@@ -114,7 +114,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.recipe:
-        recipe_text = Path(args.recipe).read_text()
+        recipe_text = Path(args.recipe).read_text(encoding="utf-8")
         where = args.recipe
     else:
         with urllib.request.urlopen(RECIPE_URL, timeout=60) as response:
@@ -137,8 +137,8 @@ def main() -> int:
     broken = {name: target for name, target in declared.items()
               if target.split(":")[0] not in available}
     source = (setup_py_in_sdist(Path(args.sdist)) if args.sdist
-              else (ROOT / "setup.py").read_text())
-    ours = setup_entry_points(source or (ROOT / "setup.py").read_text())
+              else (ROOT / "setup.py").read_text(encoding="utf-8"))
+    ours = setup_entry_points(source or (ROOT / "setup.py").read_text(encoding="utf-8"))
     absent = {k: v for k, v in ours.items() if k not in declared}
     disagree = {k: (ours[k], declared[k])
                 for k in set(ours) & set(declared) if ours[k] != declared[k]}

@@ -93,7 +93,7 @@ def test_fields_already_there_run_once_each_and_nothing_else_runs(tmp_path):
     for well in ("A01", "A02"):
         for channel in (1, 2):
             _write(tmp_path, _name(well, channel))
-    (tmp_path / "notes.txt").write_text("not an image")
+    (tmp_path / "notes.txt").write_text("not an image", encoding="utf-8")
     recorder = Recorder()
     result = core._watch_folder_and_analyse(_settings(tmp_path), recorder)
     keys = [call[0] for call in recorder.calls]
@@ -393,7 +393,7 @@ def test_files_copied_in_one_by_one_give_the_batch_runs_results(
     measure_crop(dict(MEASURE, src=str(batch / "merged")))
 
     settings_file = tmp_path / "measure_settings.json"
-    settings_file.write_text(json.dumps(MEASURE))
+    settings_file.write_text(json.dumps(MEASURE), encoding="utf-8")
     watched = tmp_path / "watched"
     watched.mkdir()
     arrivals = {}

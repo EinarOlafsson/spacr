@@ -12,7 +12,7 @@ spec.loader.exec_module(data)
 
 
 def csv(path, text):
-    path.write_text(text)
+    path.write_text(text, encoding="utf-8")
     return path
 
 

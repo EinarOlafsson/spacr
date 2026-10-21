@@ -261,7 +261,7 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
     capture('yolo_13_saved_boxes')
     labels = folder / (Path(filename).stem + '.txt')
     picker(screen._btn_export_yolo, labels, 'yolo_14_export_picker', save=True)
-    exported = [line.split() for line in labels.read_text().splitlines()]
+    exported = [line.split() for line in labels.read_text(encoding="utf-8").splitlines()]
     if len(exported) != len(saved_boxes):
         raise RuntimeError('The exported YOLO row count differs from the visible boxes')
     for fields, (class_id, x0, y0, x1, y1) in zip(exported, saved_boxes):
@@ -271,7 +271,7 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
                 list(map(float, fields[1:])), expected, rtol=0, atol=1e-6):
             raise RuntimeError('The YOLO export does not contain normalized full-image XYWH')
     classes = folder / '.classes.json'
-    if 'demonstration' not in json.dumps(json.loads(classes.read_text())):
+    if 'demonstration' not in json.dumps(json.loads(classes.read_text(encoding="utf-8"))):
         raise RuntimeError('YOLO export omitted the stable class-name companion')
     capture('yolo_15_exported')
     next_filename = screen._image_files[screen._current_index + 1]

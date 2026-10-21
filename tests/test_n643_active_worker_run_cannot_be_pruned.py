@@ -25,7 +25,7 @@ def private_journal(tmp_path, monkeypatch):
         monkeypatch.setattr(journal.Run, name, lambda self: None)
     monkeypatch.setattr(journal.Run, '_write_settings', lambda self: None)
     monkeypatch.setattr(journal.Run, '_write_manifest',
-                        lambda self: (self.dir / 'manifest.json').write_text(json.dumps({'status': self.status})))
+                        lambda self: (self.dir / 'manifest.json').write_text(json.dumps({'status': self.status}), encoding="utf-8"))
     from spacr import workspace
     monkeypatch.setattr(workspace, 'save_for_run', lambda *args, **kwargs: None)
     return tmp_path

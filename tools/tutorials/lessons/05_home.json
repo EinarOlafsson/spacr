@@ -348,7 +348,7 @@
     },
     {
       "visual": "13e_session_updates",
-      "narration": "On the Modules tab, Session decides whether spaCR reopens the last module, settings and folder when it starts; this recording starts fresh. Update channel chooses stable releases or nightly builds, and Proxy and Certificate bundle let downloads work behind an institutional proxy.",
+      "narration": "On the Modules tab, Session decides whether spaCR reopens the last module, settings and folder when it starts. Update channel chooses stable releases or nightly builds, and Proxy and Certificate bundle let downloads work behind an institutional proxy.",
       "hold_after": 0.7,
       "focus": [
         1310,

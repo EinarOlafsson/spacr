@@ -76,10 +76,12 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple
+from typing import (Any, Dict, Iterable, Iterator, List, Mapping, Optional,
+                    Set, Tuple)
 
 from .macro import begin_recording, finish_recording
 from .logging_util import _spacr_home
+from .logging_util import _legacy_text_encoding
 
 LOG = logging.getLogger("spacr.run_journal")
 
@@ -660,6 +662,19 @@ def _setting_path_candidates(
     return candidates
 
 
+def _is_link_or_unreadable(path: Path) -> bool:
+    """Whether a walk should pass ``path`` by: a symlink, or an entry it may not stat.
+
+    Windows refuses ``lstat`` on entries the account may not open, with an
+    access-denied error that ``Path.is_symlink`` raises rather than answers,
+    so one protected file used to abort the whole inventory.
+    """
+    try:
+        return path.is_symlink()
+    except OSError:
+        return True
+
+
 def _iter_files(path: Path, excluded_roots: Iterable[Path]) -> Iterator[Path]:
     """Yield regular files below ``path`` in deterministic order."""
     try:
@@ -696,12 +711,12 @@ def _iter_files(path: Path, excluded_roots: Iterable[Path]) -> Iterator[Path]:
         dirnames[:] = sorted(
             name for name in dirnames
             if name not in _IGNORED_TREE_NAMES
-            and not (root_path / name).is_symlink()
+            and not _is_link_or_unreadable(root_path / name)
             and not excluded(root_path / name)
         )
         for name in sorted(filenames):
             candidate = root_path / name
-            if not candidate.is_symlink() and not excluded(candidate):
+            if not _is_link_or_unreadable(candidate) and not excluded(candidate):
                 yield candidate
 
 
@@ -795,6 +810,8 @@ class Run:
         default_factory=dict, repr=False,
     )
     _start_cpu_s: float = field(default_factory=time.process_time, repr=False)
+    _owner: Optional[Dict[str, str]] = field(default=None, init=False,
+                                             repr=False)
     _ledgers: List[Dict[str, Any]] = field(default_factory=list, repr=False)
 
     def _note_ledger(self, ledger: Any) -> None:
@@ -1065,7 +1082,10 @@ class Run:
         if path.is_dir():
             return path
         if output_only or _is_output_key(key):
-            return path.parent
+            parent = path.parent
+            if parent == Path(parent.anchor):
+                return None
+            return parent
         return None
 
     def _capture_initial_provenance(self) -> None:
@@ -1196,6 +1216,7 @@ class Run:
                 if self.end_ts else None),
             "elapsed_s":     elapsed,
             "status":        self.status,
+            **({"owner": dict(self._owner)} if self._owner else {}),
             "env":           self.environment,
             "environment_lock": self.environment_lock or None,
             "model_hashes":  self.model_hashes,
@@ -1344,6 +1365,84 @@ def _raise_if_incomplete(run: Run) -> None:
             f"Run incomplete: {summary}. Partial artifacts were retained.")
 
 
+_OWN_RUN_OWNER: Dict[int, Dict[str, str]] = {}
+
+
+def _run_owner() -> Optional[Dict[str, str]]:
+    """The process that opens a run, as the installer leases record an owner.
+
+    Process id, start stamp and host, plus the pid namespace on Linux, so a
+    run's manifest can later be judged by :func:`_run_owner_gone`. Measured
+    once per process. Never raises: a run opens without an owner rather than
+    not at all.
+
+    :returns: the owner record, or None when the start stamp is unreadable.
+    """
+    pid = os.getpid()
+    if pid not in _OWN_RUN_OWNER:
+        try:
+            from .install_cleanup import (_lease_host, _pid_namespace,
+                                          _process_started)
+
+            started = _process_started(pid) or ""
+            owner = {"pid": str(pid), "started": started,
+                     "host": _lease_host()}
+            if os.name != "nt":
+                owner["pidns"] = _pid_namespace()
+        except Exception:
+            LOG.debug("could not record the run owner", exc_info=True)
+            owner = {}
+        _OWN_RUN_OWNER[pid] = owner if owner.get("started") else {}
+    return dict(_OWN_RUN_OWNER[pid]) or None
+
+
+def _run_owner_gone(owner: Any) -> bool:
+    """True only when a running run's recorded owner is provably gone.
+
+    The owner must have been recorded on this host (and, on Linux, in this
+    pid namespace), and its process must be absent or carry another start
+    stamp of the same kind. A run from another host or container, an
+    unreadable process, this process, and a manifest from a version that
+    recorded no owner are never judged dead.
+
+    :param owner: the manifest's ``owner`` record.
+    :returns: whether the run can be shown as interrupted.
+    """
+    if not isinstance(owner, Mapping):
+        return False
+    try:
+        from .install_cleanup import (_lease_host, _pid_namespace,
+                                      _process_gone, _process_started)
+
+        pid = int(str(owner.get("pid", "")))
+        started = str(owner.get("started") or "")
+        if pid <= 0 or not started or pid == os.getpid():
+            return False
+        if str(owner.get("host") or "") != _lease_host():
+            return False
+        if os.name != "nt":
+            here = _pid_namespace()
+            if here == "unknown" or str(owner.get("pidns") or "") != here:
+                return False
+        if _process_gone(pid):
+            return True
+        now = _process_started(pid)
+    except Exception:
+        LOG.debug("could not judge a run owner", exc_info=True)
+        return False
+    if not now:
+        return False
+    return (now.partition(":")[0] == started.partition(":")[0]
+            and now != started)
+
+
+def _listed_status(manifest: Mapping[str, Any], status: str) -> str:
+    """The status Run History shows: ``interrupted`` for a dead owner's run."""
+    if status == "running" and _run_owner_gone(manifest.get("owner")):
+        return "interrupted"
+    return status
+
+
 @contextmanager
 def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     """Open a fresh run journal folder around a pipeline invocation.
@@ -1365,6 +1464,7 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     run = Run(app_key=app_key, settings=dict(settings or {}),
                 dir=_new_run_dir(app_key))
     run.environment = _env_snapshot()
+    run._owner = _run_owner()
     try:
         run.environment_lock = _write_environment_lock(
             run.dir, run.environment.get("packages") or {})
@@ -1483,6 +1583,73 @@ def _read_notify_secret_file(path: Optional[Path] = None) -> Dict[str, str]:
         return {}
 
 
+def _restrict_to_owner(path: Path, *, folder: bool = False) -> None:
+    """Make ``path`` readable by its owner alone on Windows, before it holds a secret.
+
+    Windows ignores mode bits: a new file inherits its folder's ACL, so a
+    secret file under a shared portable folder or a lab drive was readable by
+    every account the folder admits. Inheritance is removed and the current
+    account is the only one granted access. Elsewhere mode 600 already says
+    this and nothing is done.
+
+    :param path: the empty file, or the empty staging folder, just created.
+    :param folder: grant the owner a folder entry its new files inherit.
+    :raises OSError: when the ACL cannot be set; the secret is then not written.
+    """
+    if os.name != "nt":
+        return
+    import subprocess
+
+    from .qt.i18n import tr
+
+    user = os.environ.get("USERNAME") or ""
+    domain = os.environ.get("USERDOMAIN") or ""
+    account = f"{domain}\\{user}" if domain and user else user
+    if not account:
+        raise OSError(tr("The current Windows account could not be named, so "
+                         "the secret was not saved."))
+    try:
+        result = subprocess.run(
+            ["icacls", str(path), "/inheritance:r", "/grant:r",
+             f"{account}:(OI)(CI)F" if folder else f"{account}:F"],
+            capture_output=True, text=True, timeout=30,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise OSError(tr("Could not make {path} private, so the secret was not "
+                         "saved: {error}", path=path, error=exc)) from exc
+    if result.returncode != 0:
+        raise OSError(tr("Could not make {path} private, so the secret was not "
+                         "saved: {error}", path=path,
+                         error=(result.stderr or result.stdout).strip()))
+
+
+def _private_secret_staging(path: Path) -> Path:
+    """The folder a secret's temporary file is created in.
+
+    On Windows a file created beside ``path`` takes the folder's ACL at the
+    moment it exists, and an account the folder admits can open it then and
+    keep reading through that handle after the ACL is narrowed. The file is
+    therefore created inside a new folder that is private before anything is
+    put in it. Elsewhere it is ``path``'s own folder, as it always was.
+
+    :param path: the secret file to be written.
+    :raises OSError: when the private folder cannot be made.
+    """
+    if os.name != "nt":
+        return path.parent
+    staging = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}.d")
+    staging.mkdir()
+    try:
+        _restrict_to_owner(staging, folder=True)
+    except BaseException:
+        try:
+            staging.rmdir()
+        except OSError:
+            pass
+        raise
+    return staging
+
+
 def _write_notify_secret_file(values: Dict[str, str],
                               path: Optional[Path] = None) -> None:
     """Write a secret file readable by its owner only (mode 600).
@@ -1503,11 +1670,13 @@ def _write_notify_secret_file(values: Dict[str, str],
             pass
         return
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}")
-    descriptor = os.open(str(temporary),
-                         os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    staging = _private_secret_staging(path)
+    temporary = staging / f".{path.name}.{uuid.uuid4().hex[:8]}"
     try:
+        descriptor = os.open(str(temporary),
+                             os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            _restrict_to_owner(temporary)
             json.dump(kept, handle)
         os.chmod(temporary, 0o600)
         os.replace(temporary, path)
@@ -1517,6 +1686,12 @@ def _write_notify_secret_file(values: Dict[str, str],
         except OSError:
             pass
         raise
+    finally:
+        if staging != path.parent:
+            try:
+                staging.rmdir()
+            except OSError:
+                pass
 
 
 def _store_notify_secret(name: str, value: str) -> str:
@@ -2076,7 +2251,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
         if not manifest_path.exists():
             continue
         try:
-            m = json.loads(manifest_path.read_text())
+            m = json.loads(manifest_path.read_text(encoding="utf-8"))
         except Exception as exc:
             LOG.warning("skipping run folder %s: its manifest.json could not "
                         "be read (%s)", d.name, exc)
@@ -2084,7 +2259,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
         all_entries.append({
             "dir":       d,
             "app_key":   m.get("app_key", "?"),
-            "status":    m.get("status", "?"),
+            "status":    _listed_status(m, m.get("status", "?")),
             "start_utc": m.get("start_utc", ""),
             "elapsed_s": m.get("elapsed_s"),
             "manifest":  m,
@@ -2147,6 +2322,7 @@ def search_runs(
                 if "no manifest.json (run may still be in flight)" in rec["errors"]
                 else "corrupt"
             )
+        current_status = _listed_status(manifest, current_status)
         if wanted_app and current_app.lower() != wanted_app:
             continue
         if wanted_status and current_status != wanted_status:
@@ -2280,7 +2456,7 @@ def _read_totals_cache():
     run count on the Home dashboard is worse than a slow one.
     """
     try:
-        raw = json.loads(_totals_cache_path().read_text())
+        raw = json.loads(_totals_cache_path().read_text(encoding="utf-8"))
         if int(raw.get("version", 0)) != _TOTALS_CACHE_VERSION:
             return None
         return {
@@ -2303,7 +2479,7 @@ def _write_totals_cache(totals, counted, models) -> None:
             "totals": dict(totals),
             "counted": sorted(counted),
             "models": sorted(models),
-        }))
+        }), encoding="utf-8")
         os.replace(tmp, path)
     except Exception:
         pass
@@ -2349,7 +2525,7 @@ def journal_totals() -> Dict[str, int]:
         if not manifest_path.exists():
             continue
         try:
-            m = json.loads(manifest_path.read_text())
+            m = json.loads(manifest_path.read_text(encoding="utf-8"))
         except Exception as exc:
             LOG.warning("run folder %s is not counted: its manifest.json "
                         "could not be read (%s)", d.name, exc)
@@ -2381,7 +2557,7 @@ def load_run_settings(run_dir: Path) -> Dict[str, Any]:
     run_dir = Path(run_dir)
     j = run_dir / "settings.json"
     if j.exists():
-        return json.loads(j.read_text())
+        return json.loads(j.read_text(encoding="utf-8"))
     c = run_dir / "settings.csv"
     if not c.exists():
         raise FileNotFoundError(f"no settings in {run_dir}")
@@ -2391,7 +2567,7 @@ def load_run_settings(run_dir: Path) -> Dict[str, Any]:
 def _read_settings_csv(path: Path) -> Dict[str, Any]:
     """Parse a ``Key,Value`` settings CSV into a plain dict."""
     out: Dict[str, Any] = {}
-    with open(path) as f:
+    with open(path, encoding=_legacy_text_encoding(path)) as f:
         for row in csv.reader(f):
             if any("\x00" in cell for cell in row):
                 raise csv.Error("embedded NUL byte in settings CSV")
@@ -2494,6 +2670,24 @@ def _normalize_str(s: str, depth: int = 0) -> Any:
     return t
 
 
+def _same_windows_path(a: Any, b: Any) -> bool:
+    """On Windows, whether a :class:`~pathlib.Path` and a string name one path.
+
+    ``str(Path('/tmp/x'))`` is ``'\\tmp\\x'`` there, so a recorded string
+    and the Path it was read back as compared unequal. POSIX keeps the
+    comparison :func:`values_equal` always made.
+    """
+    if os.name != "nt":
+        return False
+    if not (isinstance(a, Path) and isinstance(b, (str, Path))
+            or isinstance(b, Path) and isinstance(a, str)):
+        return False
+    try:
+        return Path(a) == Path(b)
+    except Exception:
+        return False
+
+
 def values_equal(a: Any, b: Any) -> bool:
     """True when ``a`` and ``b`` mean the same thing.
 
@@ -2506,6 +2700,8 @@ def values_equal(a: Any, b: Any) -> bool:
     to "not equal" if that also fails. A settings comparison must
     never be the thing that raises.
     """
+    if _same_windows_path(a, b):
+        return True
     try:
         return bool(_normalize_value(a) == _normalize_value(b))
     except Exception:
@@ -2604,7 +2800,7 @@ def _read_run_record(ref: Any) -> Dict[str, Any]:
         rec["errors"].append("no manifest.json (run may still be in flight)")
     else:
         try:
-            m = json.loads(mp.read_text())
+            m = json.loads(mp.read_text(encoding="utf-8"))
             rec["manifest"] = m if isinstance(m, dict) else {}
             if not isinstance(m, dict):
                 rec["errors"].append(

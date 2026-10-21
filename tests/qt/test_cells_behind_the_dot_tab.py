@@ -572,6 +572,10 @@ def test_real_merged_montage_notes_only_verified_overlapping_source_windows(
     from spacr import plot
 
     monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
+    # The checks below are about which notes are made, not how fast; the
+    # half-second production budget expires on a loaded runner first.
+    monkeypatch.setattr(plot, "_SOURCE_REGION_SECONDS", 60.0)
+    monkeypatch.setattr(plot, "_SPATIAL_SECONDS", 60.0)
     view, _root, db_path, _csv = _view(qtbot, tmp_path, with_png=False)
     with sqlite3.connect(db_path) as connection:
         for index in range(4):
@@ -623,9 +627,10 @@ def test_real_merged_montage_notes_only_verified_overlapping_source_windows(
     for name in {panel["source"][0]["path"] for panel in first["panels"]
                  if panel["source"]}:
         source = Path(name)
-        pixels = np.load(source, allow_pickle=False)
+        pixels = np.load(source, mmap_mode="r+", allow_pickle=False)
         pixels[0, 0, 0] += 1
-        np.save(source, pixels)
+        pixels.flush()
+        del pixels
     assert not any(finding["check"] == "cross_figure_source_region"
                    for finding in export("source-changed.png", 96)
                    ["integrity"]["findings"])
@@ -775,8 +780,8 @@ def test_each_plate_gets_its_own_crop_source(tmp_path):
 
 
 def test_experiment_root_and_channel_parsing():
-    assert experiment_root("/x/y/measurements/measurements.db") == "/x/y"
-    assert experiment_root("/x/y/measurements.db") == "/x/y"
+    assert experiment_root("/x/y/measurements/measurements.db") == os.path.abspath("/x/y")
+    assert experiment_root("/x/y/measurements.db") == os.path.abspath("/x/y")
     assert parse_channels("") is None
     assert parse_channels("0, 1;2") == (0, 1, 2)
     with pytest.raises(ValueError):

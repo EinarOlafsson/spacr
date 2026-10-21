@@ -103,7 +103,12 @@ def test_failed_save_preserves_existing_destination_and_setting(
         def cancelWriting(self):
             self.cancelled = True
             self.file.cancelWriting()
-            self.file.close()
+            # Destroy it now, as the product's own local QSaveFile is on
+            # return: on Windows the cancelled write is a NAMED temporary
+            # (Linux uses an unnamed O_TMPFILE), removed only by the destructor,
+            # and the `saves` list would otherwise keep it on disk.
+            import shiboken6
+            shiboken6.delete(self.file)
 
     if failure == "resource":
         import importlib.resources

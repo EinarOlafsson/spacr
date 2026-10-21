@@ -20,7 +20,8 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py",
         "_lineage_trees.py",
-        "utils.py", "channel_sorting.py",
+        "utils.py", "channel_sorting.py", "run_journal.py", "ml.py",
+        "regression_layout.py", "regression_failure.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -593,3 +594,57 @@ class SetReport:
         """Documentation is not a status caption."""
         return "Unwrapped internal detail."
 ''') == set()
+
+
+@pytest.mark.parametrize("filename,owner,caption", [
+    ('regression_layout.py', 'normalise_count_table_layout', '{error}\nCheck the Regression input column settings: count_grna_column={guide_column!r} must name the guide identifier, and count_value_column={count_column!r} must name the numeric read-count column for each guide in each well, not a guide name or a row, column or plate identifier. Available columns after reading (up to 20): {available}. Select the actual read-count header for long input; do not switch a table with guide identifiers to wide layout to bypass this check.'),
+    ('regression_failure.py', '_remedy', "In Regression, check count_grna_column and count_value_column against the count table's available columns. The guide column contains guide identifiers; the value column must contain numeric read counts, not guide names or well, row, column or plate identifiers. For long input, choose the actual read-count header and keep the long layout; do not use wide layout to hide a missing long-table column."),
+])
+def test_regression_count_guidance_enters_only_registered_backend_files(
+        extract_backend_sources, filename, owner, caption):
+    source = f"def {owner}():\n    return tr({caption!r})\n"
+    assert extract_backend_sources(filename, source) == {caption}
+    assert extract_backend_sources(filename, "") == set()
+    assert extract_backend_sources("unregistered_backend.py", source) == set()
+
+
+def test_reset_shortcut_action_has_exact_top_level_owner(extract_backend_sources):
+    caption = "Restore both interface scales from the reset shortcut."
+    source = f'''
+SHORTCUTS: List[ShortcutSpec] = [
+    ShortcutSpec("Ctrl+Alt+0", {caption!r}, "Unrelated category caption."),
+    ShortcutSpec("Ctrl+0", "Another shortcut action stays outside this owner."),
+]
+'''
+    assert extract_backend_sources("qt/shortcuts.py", source) == {caption}
+
+
+def test_reset_shortcut_owner_excludes_nested_and_nonliteral_declarations(
+        extract_backend_sources):
+    source = '''
+ACTION = "An indirect reset label is not this literal owner."
+OTHER: List[ShortcutSpec] = [ShortcutSpec("Ctrl+Alt+0", "A different table.")]
+def unrelated():
+    SHORTCUTS: List[ShortcutSpec] = [ShortcutSpec("Ctrl+Alt+0", "A nested table.")]
+class Unrelated:
+    SHORTCUTS: List[ShortcutSpec] = [ShortcutSpec("Ctrl+Alt+0", "A class table.")]
+SHORTCUTS: List[ShortcutSpec] = [
+    ShortcutSpec("Ctrl+0", "A different key."),
+    ShortcutSpec("Ctrl+Alt+0", ACTION),
+    ShortcutSpec("Ctrl+Alt+0", f"A dynamic label {ACTION}."),
+    OtherShortcutSpec("Ctrl+Alt+0", "A different constructor."),
+    other.ShortcutSpec("Ctrl+Alt+0", "An attribute constructor."),
+]
+SHORTCUTS = [ShortcutSpec("Ctrl+Alt+0", "An unannotated table.")]
+'''
+    assert extract_backend_sources("qt/shortcuts.py", source) == set()
+
+
+def test_reset_shortcut_owner_excludes_other_files(extract_backend_sources):
+    source = '''
+SHORTCUTS: List[ShortcutSpec] = [
+    ShortcutSpec("Ctrl+Alt+0", "A same-name table in an unrelated module."),
+]
+'''
+    assert extract_backend_sources("qt/unrelated_shortcuts.py", source) == set()
+    assert extract_backend_sources("qt/widgets/shortcuts.py", source) == set()

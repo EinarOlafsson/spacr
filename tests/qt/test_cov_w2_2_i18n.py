@@ -898,6 +898,7 @@ def test_a_shown_dialog_is_translated_by_the_filter(qapp):
 
         label = QLabel(source, dialog)
         dialog.show()
+        qapp.processEvents()
         assert label.text() == tr(source, "en")
     finally:
         dialog.close()

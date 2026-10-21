@@ -1,7 +1,0 @@
-{
-  "spacr/qt/widgets/model_zoo_picker.py": "e7be182ee8b91fe5e2480746be7c73434afacc318e25df0e44d4cccc5678963b",
-  "spacr/qt/screens/app_screen.py": "f879152886099f39be43d3435e00399de644a7230532fc3b0a1fcf438400b444",
-  "spacr/model_zoo.py": "4703612184e6c9e16239ff6c43110c2dd574fd23f1ec48b7a61e6032e352f67b",
-  "tests/qt/test_n702_picker_verified_reference.py": "79327cd53bb527346e44212a18ca6924270b168c4d0164ef12dada39451d4127",
-  "patch_sha256": "cdefa3f4bb87d7836f539805012702a620a36fda7a73e8f28dde87be7698f175"
-}

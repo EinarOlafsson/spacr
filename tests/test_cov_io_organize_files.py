@@ -67,7 +67,7 @@ def test_load_images_from_paths_skips_unreadable_paths(tmp_path, capsys):
     good = tmp_path / "good.tif"
     expected = _write(good, 4242, shape=(3, 5))
     corrupt = tmp_path / "corrupt.tif"
-    corrupt.write_text("this is definitely not a TIFF")
+    corrupt.write_text("this is definitely not a TIFF", encoding="utf-8")
     missing = tmp_path / "not_there.tif"
 
     out = load_images_from_paths({"fov": [str(good), str(corrupt), str(missing)],
@@ -94,7 +94,7 @@ def test_rename_survives_one_corrupt_raw_image(tmp_path):
     src.mkdir()
     _write(src / _cv_name(well="A01", chan="01"), 11)
     _write(src / _cv_name(well="A01", chan="02"), 12)
-    (src / _cv_name(well="A02", chan="01")).write_text("truncated file")
+    (src / _cv_name(well="A02", chan="01")).write_text("truncated file", encoding="utf-8")
     _write(src / _cv_name(well="A02", chan="02"), 22)
 
     _rename_and_organize_image_files(

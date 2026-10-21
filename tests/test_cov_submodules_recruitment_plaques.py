@@ -185,7 +185,7 @@ def test_analyze_recruitment_writes_csvs_and_exact_ratios(tmp_path, recruitment_
 
     # The DB location analyze_recruitment asked for.
     assert recruitment_env["read_calls"][0]["locs"] == [
-        str(src) + "/measurements/measurements.db"]
+        os.path.join(str(src), "measurements", "measurements.db")]
     assert recruitment_env["read_calls"][0]["tables"] == [
         "cell", "nucleus", "pathogen", "cytoplasm"]
 
@@ -235,8 +235,10 @@ def test_analyze_recruitment_moves_loose_db_into_measurements(tmp_path,
     src = tmp_path / "plate"
     src.mkdir()
     loose_db = src / "measurements.db"
-    with sqlite3.connect(loose_db) as con:
-        con.execute("CREATE TABLE t (a INTEGER)")
+    con = sqlite3.connect(loose_db)
+    con.execute("CREATE TABLE t (a INTEGER)")
+    con.commit()
+    con.close()
 
     settings = _base_settings(loose_db)
     analyze_recruitment(settings)
@@ -561,7 +563,7 @@ def test_analyze_plaques_masks_false_reads_existing_masks(tmp_path, plaque_env):
     img_a = _write_label_tif(masks / "a.tif")
     _write_label_tif(masks / "b.tif", blobs=((20, 20, 5),))
     # Decoys that must be ignored: wrong extension and a directory.
-    (masks / "notes.txt").write_text("ignore me")
+    (masks / "notes.txt").write_text("ignore me", encoding="utf-8")
     (masks / "sub.tif").mkdir()
 
     settings = {"src": str(src), "masks": False}
@@ -685,7 +687,7 @@ def test_count_phenotypes_pivots_counts_per_well(tmp_path, monkeypatch):
     settings = {"src": str(tmp_path), "annotation_column": "value"}
     assert SUB.count_phenotypes(settings) is None
     assert settings["src"] == os.path.join(str(tmp_path),
-                                           "measurements/measurements.db")
+                                           "measurements", "measurements.db")
 
     out_csv = tmp_path / "measurements" / "phenotype_counts.csv"
     assert out_csv.exists()
@@ -717,3 +719,21 @@ def test_count_phenotypes_does_not_litter_cwd(tmp_path, monkeypatch):
 
     assert (tmp_path / "measurements" / "phenotype_counts.csv").exists()
     assert not (tmp_path / "src").exists()
+
+
+def test_segmenting_a_plaque_folder_without_images_builds_no_model(tmp_path, monkeypatch):
+    """A source with no plaque image segments nothing and never loads Cellpose."""
+    import spacr.submodules as SUB
+
+    src = tmp_path / "plate"
+    src.mkdir()
+    (src / "notes.txt").write_text("not an image", encoding="utf-8")
+    (src / "nested.tif").mkdir()
+    dst = tmp_path / "plate" / "masks"
+
+    def no_model(_path):
+        raise AssertionError("a folder with no images must not build the model")
+
+    monkeypatch.setattr(SUB, "_plaque_cellpose_model", no_model)
+    assert SUB._segment_plaque_folder({"src": str(src), "dst": str(dst)}, "model") == 0
+    assert dst.is_dir() and list(dst.iterdir()) == []

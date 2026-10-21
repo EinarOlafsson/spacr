@@ -35,6 +35,27 @@ from typing import Final, Literal, Optional
 
 import numpy as np
 
+
+def _use_spacrs_kernel_cache() -> None:
+    """Point numba's kernel cache at spaCR's folder before anything is decorated."""
+    try:
+        from spacr.logging_util import _numba_cache_folder
+    except Exception:
+        return
+    _numba_cache_folder()
+
+
+def _prime_kernels() -> None:
+    """Have the kernel cache filled by a helper process before a first compile."""
+    try:
+        from spacr.qt.widgets.ambient import _prime_before_first_kernel
+    except Exception:
+        return
+    _prime_before_first_kernel()
+
+
+_use_spacrs_kernel_cache()
+
 try:
     from numba import config as numba_config, njit, prange, set_num_threads
 except Exception:                                            # pragma: no cover
@@ -457,11 +478,12 @@ def resolved_quality(requested: str, backend: str,
 
 def resolved_cpu_threads(settings: Settings,
                          hardware: HardwareProfile) -> int:
-    """How many Numba workers to take, leaving the application some.
+    """Resolve the number of Numba worker threads for the backdrop.
 
-    Capped at 24 because beyond that the scheduling overhead grows for this
-    image size, and capped below the machine's count because a backdrop that
-    takes every core starves the run the user actually cares about.
+    The available thread count is capped at 24 and by the machine and Numba
+    limits. Automatic sizing reserves capacity when more than one thread is
+    available; an explicit ``cpu_threads`` setting may use every available
+    thread.
 
     :param settings: backdrop settings; a non-None ``cpu_threads`` is used,
         clamped to the threads available, instead of the automatic choice.
@@ -880,6 +902,7 @@ class OrbitEngine:
         :param pointer_x: horizontal pointer influence, 0 for none.
         :returns: the rendered frame.
         """
+        _prime_kernels()
         set_num_threads(self.thread_count)
         self._ensure_size(width, height)
         samples = self._ring_samples

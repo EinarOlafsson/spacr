@@ -320,8 +320,9 @@ class ExplorerSpec:
     """What to rank, against what, by which statistic.
 
     :param label: the column holding the class or condition.
-    :param features: the columns to rank. Empty means *every* continuous
-        column.
+    :param features: the columns to rank. Empty uses :func:`candidate_features`:
+        numeric measurements, including discrete counts and booleans,
+        excluding the label and columns classified as unplottable.
     :param statistic: one of :data:`STATISTICS`.
     :param top: how many to keep in :attr:`ExplorerResult.scores`. The rest are
         counted, not silently dropped.

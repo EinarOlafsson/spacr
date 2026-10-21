@@ -1,8 +1,0 @@
-{
-  "status": "ACCEPT",
-  "reviewed_commit": "fb1e02dd62",
-  "source_sha256": "aeb7cb6c60c0caca5f115047454197dc3640b53dde759dcd2def98514f25e52c",
-  "proof": "Restoring precisely _Thumb.keyPressEvent restores entire original module AST including workspace/crop/measurement methods. Focus and original click/accept flow preserved; only Enter+KeypadModifier alone accepted.",
-  "evidence_reviewed": "Actual provenance dialog missing before;18PASS3.98s includes realvisible detail/objectdata, unchanged DataFrame/crop values, modifiers/Tab/names/focus. No replay.",
-  "limits": "No wholeN655/nativebridge/reader/otherOS claim; no API/caption or globalartifact change."
-}

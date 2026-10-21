@@ -96,9 +96,9 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     foreign_capture = stage / 'captures/foreign_release_v2'
     manifest_path = foreign_capture / 'inputs.json'
     acceptance_path = foreign_capture / 'scientific_acceptance.json'
-    if json.loads(acceptance_path.read_text()).get('accepted') is not True:
+    if json.loads(acceptance_path.read_text(encoding="utf-8")).get('accepted') is not True:
         raise RuntimeError('The preserved Foreign input capture was not accepted')
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     records = private_input_records(manifest, stage, input_root)
     by_name = {record['neutral_stem']: record for record in records}
     if (len(records) != 2 or set(by_name) != {'fov01', 'fov02'}

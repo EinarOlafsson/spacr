@@ -21,6 +21,8 @@ to make pages out of. What these tests protect:
 """
 from __future__ import annotations
 
+import os
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -143,7 +145,7 @@ def test_closing_a_folded_page_keeps_the_module_it_held(
 
     assert opener.open() is folded
     assert (folded._settings_model.collect()["count_data"]
-            == ["/tmp/reads.csv"])
+            == [os.path.abspath("/tmp/reads.csv")])
     assert pages.count() == 2
 
 

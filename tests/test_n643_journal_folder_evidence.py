@@ -22,7 +22,8 @@ def root(tmp_path, monkeypatch):
 def old(folder):
     moment = time.time() - 90 * 86400
     for path in sorted(folder.rglob('*'), reverse=True):
-        os.utime(path, (moment, moment), follow_symlinks=False)
+        os.utime(path, (moment, moment),
+                 **({"follow_symlinks": False} if os.utime in os.supports_follow_symlinks else {}))
     os.utime(folder, (moment, moment))
     return folder
 
@@ -30,7 +31,7 @@ def old(folder):
 def manifest(folder, **overrides):
     data = {'app_key': 'mask', 'start_utc': '2020-01-01T00:00:00+00:00', 'status': 'success'}
     data.update(overrides)
-    (folder / 'manifest.json').write_text(json.dumps(data))
+    (folder / 'manifest.json').write_text(json.dumps(data), encoding="utf-8")
 
 
 @pytest.mark.parametrize('name', ['unrelated-notebooks', '2020-01-01_000000_abcdef12__mask'])
@@ -86,9 +87,9 @@ def test_invalid_or_unknown_manifest_is_preserved(root, payload):
     if isinstance(payload, dict):
         manifest(folder, **payload)
         if not payload:
-            (folder / 'manifest.json').write_text('{}')
+            (folder / 'manifest.json').write_text('{}', encoding="utf-8")
     else:
-        (folder / 'manifest.json').write_text(json.dumps(payload))
+        (folder / 'manifest.json').write_text(json.dumps(payload), encoding="utf-8")
     old(folder)
     assert journal._prune_plan('run_folders', 30, 0)['delete'] == []
     assert folder.exists()
@@ -98,7 +99,7 @@ def test_invalid_or_unknown_manifest_is_preserved(root, payload):
 def test_oversized_journal_marker_is_preserved(root, marker):
     folder = journal._new_run_dir('mask')
     payload = {'app_key': 'mask', 'start_utc': '2020-01-01', 'status': 'success', 'padding': 'x' * (1024 * 1024)}
-    (folder / marker).write_text(json.dumps(payload))
+    (folder / marker).write_text(json.dumps(payload), encoding="utf-8")
     old(folder)
     assert journal._prune_plan('run_folders', 30, 0)['delete'] == []
 
@@ -116,16 +117,17 @@ def test_native_settings_bootstrap_with_empty_outputs_and_real_environment_is_el
     journal.Run(app_key='mask', settings={}, dir=folder)._write_settings()
     environment = folder / 'environment'
     environment.mkdir()
-    (environment / 'requirements-lock.txt').write_text('spacr==1.5.1.4\n')
+    (environment / 'requirements-lock.txt').write_text('spacr==1.5.1.4\n', encoding="utf-8")
     old(folder)
     assert journal._prune(journal._prune_plan('run_folders', 30, 0))[0] == 1
 
 
+@pytest.mark.needs_symlink
 def test_symlinked_manifest_does_not_turn_unknown_folder_into_a_journal(root):
     folder = root / 'private-data'
     folder.mkdir()
     marker = root.parent / 'external-manifest.json'
-    marker.write_text(json.dumps({'app_key': 'mask', 'start_utc': '2020-01-01', 'status': 'success'}))
+    marker.write_text(json.dumps({'app_key': 'mask', 'start_utc': '2020-01-01', 'status': 'success'}), encoding="utf-8")
     (folder / 'manifest.json').symlink_to(marker)
     old(folder)
     assert journal._prune_plan('run_folders', 30, 0)['delete'] == []
@@ -138,7 +140,7 @@ def test_invalidated_manifest_after_planning_is_not_deleted(root):
     manifest(folder)
     old(folder)
     plan = journal._prune_plan('run_folders', 30, 0)
-    (folder / 'manifest.json').write_text('{}')
+    (folder / 'manifest.json').write_text('{}', encoding="utf-8")
     old(folder)
     deleted, freed, refused = journal._prune(plan)
     assert (deleted, freed) == (0, 0)
@@ -202,10 +204,11 @@ def test_native_bootstrap_with_populated_unknown_contents_is_preserved(root, chi
     assert journal._prune_plan('run_folders', 30, 0)['delete'] == []
 
 
+@pytest.mark.needs_symlink
 def test_a_bootstrap_folder_holding_a_symlink_is_preserved(root, tmp_path):
     folder = journal._new_run_dir('mask')
     outside = tmp_path / 'outside-settings.json'
-    outside.write_text('{}')
+    outside.write_text('{}', encoding="utf-8")
     (folder / 'settings.json').symlink_to(outside)
     old(folder)
     assert journal._journal_prune_evidence(folder) is False
@@ -215,7 +218,7 @@ def test_a_bootstrap_folder_holding_a_symlink_is_preserved(root, tmp_path):
 
 def test_a_run_name_that_is_a_file_or_an_impossible_date_is_not_evidence(root):
     as_file = root / '2026-01-02_030405_0123abcd__mask'
-    as_file.write_text('not a folder')
+    as_file.write_text('not a folder', encoding="utf-8")
     assert journal._journal_prune_evidence(as_file) is False
     impossible = root / '2026-13-45_030405_0123abcd__mask'
     impossible.mkdir()

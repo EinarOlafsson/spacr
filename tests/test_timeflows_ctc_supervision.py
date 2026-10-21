@@ -150,8 +150,8 @@ def test_duplicate_frame_numbers_are_rejected_before_reading_pixels(tmp_path, mo
 
 def test_slice_mask_names_cannot_overwrite_whole_frame_annotations(tmp_path):
     _movie(tmp_path, "valid")
-    (tmp_path / "01_ST/SEG/man_seg_999_000.tif").write_text("a slice, not a full frame")
-    (tmp_path / "01/t_notes_001.tif").write_text("not a full frame")
+    (tmp_path / "01_ST/SEG/man_seg_999_000.tif").write_text("a slice, not a full frame", encoding="utf-8")
+    (tmp_path / "01/t_notes_001.tif").write_text("not a full frame", encoding="utf-8")
     assert len(tm.ctc_pairs(str(tmp_path))) == 2
 
 

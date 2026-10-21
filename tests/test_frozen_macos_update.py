@@ -301,7 +301,7 @@ def test_restart_recovers_when_journal_publication_was_interrupted(tmp_path, mon
             cleanup._macos_tree(str(staged)), run=verify, swap=_swap)
     partials = list(transaction.glob("journal-*.next"))
     assert len(partials) == 1 and partials[0].read_text(encoding="utf-8") == '{"partial":'
-    (transaction / "journal.next").write_text("older interrupted publication")
+    (transaction / "journal.next").write_text("older interrupted publication", encoding="utf-8")
     monkeypatch.setattr(cleanup.json, "dump", original_dump)
     for _ in range(2):
         receipt = cleanup._macos_recover_user_bundle(str(transaction), run=_native, swap=_swap)
@@ -359,7 +359,7 @@ def test_committed_update_reports_cleanup_and_verified_desktop_outcomes(tmp_path
     if os.geteuid() == 0:
         pytest.skip("the actual replacement fixture must belong to its normal user")
     target = _bundle(tmp_path / "spaCR.app", "1.5.1.0")
-    (target / "analysis.csv").write_text("preserve")
+    (target / "analysis.csv").write_text("preserve", encoding="utf-8")
     other = _bundle(tmp_path / "Other spaCR.app", "1.5.1.0")
     other_before = cleanup._macos_tree(str(other))
     payload = _bundle(tmp_path / "payload.app", "1.5.1.1")
@@ -406,7 +406,7 @@ def test_committed_update_reports_cleanup_and_verified_desktop_outcomes(tmp_path
         if argv[0] == "/usr/bin/ditto":
             shutil.copytree(argv[-2], argv[-1], symlinks=True)
             if staged_change:
-                (Path(argv[-1]) / "unverified.txt").write_text("not the mounted payload")
+                (Path(argv[-1]) / "unverified.txt").write_text("not the mounted payload", encoding="utf-8")
             return ""
         if argv[:2] == ["/usr/bin/hdiutil", "detach"]:
             if detach_failure:
@@ -571,11 +571,11 @@ def test_helper_reports_missing_release_without_waiting_for_gui_exit(tmp_path, m
 
     plan = _readiness_plan(tmp_path)
     target = _bundle(tmp_path / "spaCR.app", "1.5.1.0")
-    (target / "analysis.csv").write_text("preserved")
+    (target / "analysis.csv").write_text("preserved", encoding="utf-8")
     plan["records"] = [cleanup.asdict(cleanup.InstallRecord(
         "installer", "macos-app", "macos", str(target), running=True))]
     path = Path(plan["workdir"]) / "plan.json"
-    path.write_text(json.dumps(plan))
+    path.write_text(json.dumps(plan), encoding="utf-8")
     monkeypatch.setattr(cleanup, "_published_digest", lambda url: None)
     assert cleanup._run_plan(str(path), system=SimpleNamespace(platform="macos"),
         wait=lambda pid: pytest.fail("missing release closed the GUI")) == 6
@@ -625,7 +625,7 @@ def test_helper_preserves_committed_receipt_when_launchservices_rejects(tmp_path
     plan_path, log = tmp_path / "plan.json", tmp_path / "update.log"
     plan = _readiness_plan(tmp_path)
     plan["log"] = str(log)
-    plan_path.write_text(json.dumps(plan))
+    plan_path.write_text(json.dumps(plan), encoding="utf-8")
     receipt = {"state": "committed", "backup": "/retained/previous.app", "journal": "/retained/journal.json",
                "relaunch": {"status": "failed", "error": "LaunchServices rejection"}}
     monkeypatch.setattr(cleanup, "_run_macos_frozen_update", lambda *args, **kwargs: receipt)
@@ -640,7 +640,7 @@ def test_frozen_helper_requires_the_gui_readiness_protocol(tmp_path, monkeypatch
     plan = _readiness_plan(tmp_path)
     del plan["handshake"]
     path = tmp_path / "plan.json"
-    path.write_text(json.dumps(plan))
+    path.write_text(json.dumps(plan), encoding="utf-8")
     monkeypatch.setattr(cleanup, "_run_macos_frozen_update",
                         lambda *a, **k: pytest.fail("a handshakeless plan reached replacement"))
     assert cleanup._run_plan(str(path), system=SimpleNamespace(platform="macos")) == 6
@@ -805,7 +805,7 @@ def test_helper_cli_recovers_real_user_journal_and_keeps_state_on_launch_failure
     journal = transaction / "journal.json"
     data = json.loads(journal.read_text(encoding="utf-8"))
     data["state"] = state
-    journal.write_text(json.dumps(data))
+    journal.write_text(json.dumps(data), encoding="utf-8")
     calls = []
 
     def native(argv, **options):

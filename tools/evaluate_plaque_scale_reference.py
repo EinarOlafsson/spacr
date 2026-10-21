@@ -35,7 +35,7 @@ def main():
     args = parser.parse_args()
     if args.output.resolve() in {args.image.resolve(), args.reference.resolve()}:
         parser.error("output must differ from image and reference")
-    reference = json.loads(args.reference.read_text())
+    reference = json.loads(args.reference.read_text(encoding="utf-8"))
     image_bytes = args.image.read_bytes()
     image_hash = hashlib.sha256(image_bytes).hexdigest()
     if image_hash not in reference["accepted_file_sha256"]:
@@ -68,7 +68,7 @@ def main():
                               "One published figure; no corpus-wide accuracy claim",
                               "No plaque segmentation or biological comparison"]}
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(result, indent=2) + "\n")
+    args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"calibrated_regions": result["calibrated_regions"],
                       "total_regions": len(regions), "seconds": result["seconds"]}))
 

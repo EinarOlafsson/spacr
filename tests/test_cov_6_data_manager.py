@@ -23,6 +23,7 @@ import pytest
 
 from spacr import data_manager as DM
 from spacr import ports
+from tests.refused_access import refused
 from tests.test_data_manager import build_project, register_pipeline
 
 
@@ -40,11 +41,8 @@ def unreadable_dir(project):
     root, registry = project
     locked = os.path.join(root, "locked")
     os.makedirs(locked)
-    os.chmod(locked, 0o000)
-    try:
+    with refused(locked, 0o000, windows="read"):
         yield root, registry, locked
-    finally:
-        os.chmod(locked, 0o755)
 
 
 # ---------------------------------------------------------------------------
@@ -54,7 +52,7 @@ def unreadable_dir(project):
 def test_scanning_something_that_is_not_a_folder_says_so(tmp_path):
     """A file path where a project was meant would otherwise scan as empty."""
     lonely = tmp_path / "notes.txt"
-    lonely.write_text("not a project")
+    lonely.write_text("not a project", encoding="utf-8")
     with pytest.raises(DM.DataManagerError) as excinfo:
         DM.scan_project(str(lonely))
     assert "nothing to measure" in str(excinfo.value)
@@ -90,6 +88,7 @@ def test_a_file_that_cannot_be_stat_ed_is_an_error_not_a_crash(
     assert any("epoch_10.pth" in problem for problem in usage.errors)
 
 
+@pytest.mark.needs_symlink
 def test_a_symlinked_file_is_recorded_and_never_counted(project):
     """Its bytes belong to whatever it points at, which may not be ours."""
     root, registry = project
@@ -132,6 +131,7 @@ def test_a_kind_with_no_bytes_and_no_artifacts_is_left_out_of_the_report(
     assert empty.label not in DM.format_usage(padded)
 
 
+@pytest.mark.needs_symlink
 def test_the_usage_report_names_missing_artifacts_links_and_unreadable_paths(
         unreadable_dir):
     """Three ways a project disagrees with its registry, in one report."""
@@ -162,6 +162,7 @@ def test_enumerating_a_path_that_is_not_there_is_empty_not_an_error(tmp_path):
     assert DM._enumerate(str(tmp_path / "gone")) == []
 
 
+@pytest.mark.needs_symlink
 def test_a_symlinked_folder_enumerates_as_nothing(tmp_path):
     """Following it is how a recursive delete leaves the project."""
     real = tmp_path / "shared"
@@ -336,14 +337,14 @@ def test_a_path_that_survives_its_own_deletion_is_reported(project,
 def test_a_ledger_nobody_can_parse_starts_a_new_one(tmp_path):
     """Losing the record about to be written is worse than losing the old."""
     ledger = tmp_path / DM.ARCHIVE_LEDGER_NAME
-    ledger.write_text("{ this was half-written when the box went down")
+    ledger.write_text("{ this was half-written when the box went down", encoding="utf-8")
     assert DM._read_ledger(str(ledger)) == []
 
 
 def test_a_ledger_that_is_not_a_list_is_wrapped_in_one(tmp_path):
     """An older single-record file still has to be carried forward."""
     ledger = tmp_path / DM.ARCHIVE_LEDGER_NAME
-    ledger.write_text(json.dumps({"archived_utc": "2020-01-01T00:00:00Z"}))
+    ledger.write_text(json.dumps({"archived_utc": "2020-01-01T00:00:00Z"}), encoding="utf-8")
     assert DM._read_ledger(str(ledger)) == [
         {"archived_utc": "2020-01-01T00:00:00Z"}]
 
@@ -351,7 +352,7 @@ def test_a_ledger_that_is_not_a_list_is_wrapped_in_one(tmp_path):
 def test_archiving_something_that_is_not_a_folder_says_so(tmp_path):
     """The same refusal as a scan, before a destination is even considered."""
     lonely = tmp_path / "notes.txt"
-    lonely.write_text("not a project")
+    lonely.write_text("not a project", encoding="utf-8")
     with pytest.raises(DM.DataManagerError) as excinfo:
         DM.plan_archive(str(lonely), str(tmp_path / "archive"))
     assert "is not a folder" in str(excinfo.value)
@@ -443,6 +444,7 @@ def crops_artifact(project):
     return root, registry, artifact
 
 
+@pytest.mark.needs_symlink
 def test_an_artifact_reached_through_a_symlink_is_never_pruned(crops_artifact):
     """``rmtree`` through a link deletes storage the project does not own."""
     root, registry, artifact = crops_artifact

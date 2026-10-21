@@ -557,7 +557,7 @@ class TestTheDryRun:
         esn.process_file(module, tmp_path, notes, execute=True)
         note_path = notes / "pkg" / "m.md"
         previous = note_path.read_text(encoding="utf-8")
-        module.write_text(module.read_text(encoding="utf-8") + "# Second cost measured at 24 ms.\n")
+        module.write_text(module.read_text(encoding="utf-8") + "# Second cost measured at 24 ms.\n", encoding="utf-8")
         esn.process_file(module, tmp_path, notes, execute=True)
         combined = note_path.read_text(encoding="utf-8")
         assert combined.startswith(previous)
@@ -571,7 +571,7 @@ class TestTheDryRun:
         module = write(tmp_path, "pkg/m.py", "# Measured at 12 ms.\nX = 1\n")
         before = module.read_text(encoding="utf-8")
         notes = tmp_path / "notes"
-        notes.write_text("a file cannot contain a module's notes")
+        notes.write_text("a file cannot contain a module's notes", encoding="utf-8")
         with pytest.raises(OSError):
             esn.process_file(module, tmp_path, notes, execute=True)
         assert module.read_text(encoding="utf-8") == before

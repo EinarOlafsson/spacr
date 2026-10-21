@@ -28,6 +28,7 @@ import glob
 import json
 import os
 import random
+import re
 import shutil
 import sqlite3
 import tarfile
@@ -156,11 +157,12 @@ def _point_png_list_at(project):
         rows = conn.execute("SELECT png_path FROM png_list").fetchall()
         if not rows:
             return
-        marker = os.sep + "data" + os.sep
         first = rows[0][0]
-        if marker not in first:
+        # Either separator: a Windows run records "/" as readily as "\\".
+        marker = re.search(r"[\\/]data[\\/]", first)
+        if marker is None:
             return
-        old_root = first.split(marker)[0]
+        old_root = first[:marker.start()]
         if os.path.abspath(old_root) == os.path.abspath(project):
             return
         conn.execute("UPDATE png_list SET png_path = ? || "
@@ -1058,7 +1060,7 @@ def test_marking_a_folder_that_cannot_be_written_warns_instead_of_raising(tmp_pa
     # fails, and failing a whole training run over a 300-byte sidecar helps
     # nobody -- but it must not be silent either.
     blocked = tmp_path / "afile"
-    blocked.write_text("not a directory")
+    blocked.write_text("not a directory", encoding="utf-8")
     assert mark_crop_output_folder(str(blocked)) is None
     assert "could not stamp the crop format" in capsys.readouterr().out
 

@@ -692,7 +692,7 @@ def test_loading_a_style_without_a_callback_still_applies_it(qapp, tmp_path,
         "spacr_style_kind": fs.GRAPH_STYLE_FILE_KIND,
         "general": {"palette": "muted"},
         "per_graph": {"volcano": {"dpi": 400}},
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(path), "")))
     applied = {}
@@ -935,7 +935,7 @@ def test_cancelling_the_figure_chooser_writes_nothing(qapp, figure, tmp_path,
 def test_a_raster_write_that_fails_reports_no_path(qapp, figure, tmp_path):
     """The PNG path goes through spacr.plot.save_figure, and it can fail too."""
     blocker = tmp_path / "blocker"
-    blocker.write_text("a file where a directory would have to be")
+    blocker.write_text("a file where a directory would have to be", encoding="utf-8")
     target = blocker / "figure.png"
 
     assert fs.save_figure_as(None, figure, str(target)) == ""
@@ -980,7 +980,7 @@ def test_a_vector_save_without_the_preference_store_uses_the_print_ground(
 def test_a_write_that_fails_reports_no_path(qapp, figure, tmp_path):
     """A save that cannot happen returns an empty string rather than raising."""
     blocker = tmp_path / "blocker"
-    blocker.write_text("a file where a directory would have to be")
+    blocker.write_text("a file where a directory would have to be", encoding="utf-8")
     target = blocker / "figure.svg"
 
     assert fs.save_figure_as(None, figure, str(target)) == ""
@@ -1130,7 +1130,7 @@ def test_loading_a_style_fills_the_controls_and_not_the_store(panel, tmp_path,
         "spacr_style_kind": fs.GRAPH_STYLE_FILE_KIND,
         "general": {"palette": "pastel", "grid_width": 2.5},
         "per_graph": {},
-    }))
+    }), encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(path), "")))
 
@@ -1144,7 +1144,7 @@ def test_loading_a_style_fills_the_controls_and_not_the_store(panel, tmp_path,
 def test_a_file_that_is_not_a_house_style_warns_and_changes_nothing(
         panel, tmp_path, monkeypatch):
     path = tmp_path / "other.json"
-    path.write_text(json.dumps({"something": "else"}))
+    path.write_text(json.dumps({"something": "else"}), encoding="utf-8")
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: (str(path), "")))
     warnings = []

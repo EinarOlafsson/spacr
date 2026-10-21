@@ -1,9 +1,0 @@
-{
-  "input_head": "410a02f0bfa392362a1f08219ec671f41b4e98b6",
-  "approved_proposal_sha256": "fb29f20b6c5564cb1dcf3f3c5ebb9fccf24d4353109e1b9d8829bf2f4775480e",
-  "production_sha256": {
-    "spacr/qt/screens/annotate.py": "37f6c5b631cff5bbea8b73752851fae971b4fb779db147fd8f27159a1586da5e",
-    "spacr/qt/path_probe.py": "7a617ca9623c977c14f00801a78290d8a9bff0667d8217c2c7772022050178e4"
-  },
-  "test_preimage_sha256": "6d9608d79a7e02a61dcc9fc8b415735b5b539797d0f015b7b7eca46be29770b6"
-}

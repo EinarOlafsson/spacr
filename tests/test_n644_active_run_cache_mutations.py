@@ -19,7 +19,7 @@ def cache(tmp_path, monkeypatch):
     folder.mkdir()
     (folder / 'kept.json').write_bytes(b'important cache bytes')
     metadata = state / 'cache_locations.json'
-    metadata.write_text('{"unrelated": "preserve-me"}')
+    metadata.write_text('{"unrelated": "preserve-me"}', encoding="utf-8")
     monkeypatch.setenv('SPACR_HOME', str(state))
     monkeypatch.delenv('SPACR_NEWS_CACHE', raising=False)
     monkeypatch.setattr(rj, '_spacr_home', lambda: state)

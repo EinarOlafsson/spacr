@@ -127,8 +127,8 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. code-block:: bash
 
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
 
 .. raw:: html
 
@@ -144,13 +144,13 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Windows 10/11 : télécharger spaCR 1.5.1.5"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Windows 10/11 : télécharger spaCR 1.5.1.6"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="macOS 11+ (Intel et Apple Silicon) : télécharger spaCR 1.5.1.5"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="macOS 11+ (Intel et Apple Silicon) : télécharger spaCR 1.5.1.6"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Linux 64 bits : télécharger spaCR 1.5.1.5"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Linux 64 bits : télécharger spaCR 1.5.1.6"></a>
 
 .. spacr-installer-links-end
 
@@ -261,7 +261,7 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. raw:: html
 
-   <div><a href="../../readme_text/fr/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/install-from-source-light-3.desktop.svg"><img src="../../readme_images/fr/install-from-source-light-3.svg" alt="--dir choisit le chemin du clone ; --branch sélectionne une branche ou une étiquette ; --no-install télécharge sans installer ; --help affiche les options. packaging/source_install_excludes.txt répertorie tous les chemins omis. Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter --filter=blob:none au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de main occupent 5059 MB dans la copie de travail (mesurés le 2026-10-21), hors historique Git. La taille et la durée du téléchargement varient selon la branche."></picture></a></div>
+   <div><a href="../../readme_text/fr/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/install-from-source-light-3.desktop.svg"><img src="../../readme_images/fr/install-from-source-light-3.svg" alt="--dir choisit le chemin du clone ; --branch sélectionne une branche ou une étiquette ; --no-install télécharge sans installer ; --help affiche les options. packaging/source_install_excludes.txt répertorie tous les chemins omis. Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter --filter=blob:none au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de main occupent 735 MB dans la copie de travail (mesurés le 2026-10-21), hors historique Git. La taille et la durée du téléchargement varient selon la branche."></picture></a></div>
 
 .. raw:: html
 

@@ -139,6 +139,6 @@ def test_a_queue_of_one_folder_opens_it_and_of_no_images_warns(screen,  # noqa: 
     monkeypatch.setattr(screen, "_warn", lambda title, text: warned.append(title))
     assert screen._open_queue([str(tmp_path)]) is True
     notes = tmp_path / "notes.txt"
-    notes.write_text("x")
+    notes.write_text("x", encoding="utf-8")
     assert screen._open_queue([str(notes), str(tmp_path / "gone.tif")]) is False
     assert opened == [str(tmp_path)] and warned == ["No images"]

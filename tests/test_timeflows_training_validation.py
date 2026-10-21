@@ -298,6 +298,7 @@ def test_cli_rejects_duplicate_frames_before_writing_outputs(tmp_path, monkeypat
     assert not list(tmp_path.glob('result*'))
 
 
+@pytest.mark.needs_symlink
 def test_cli_rejects_training_movie_alias_and_orphan_validation_interval(tmp_path, monkeypatch):
     training, _, output, args = cli_setup(tmp_path, monkeypatch)
     alias = tmp_path / 'alias'
@@ -314,7 +315,7 @@ def test_cli_preserves_existing_validation_report_and_model(tmp_path, monkeypatc
     _, _, output, args = cli_setup(tmp_path, monkeypatch)
     output.write_bytes(b'original model')
     report = output.with_suffix('.pt.validation.jsonl')
-    report.write_text('original report')
+    report.write_text('original report', encoding="utf-8")
     with pytest.raises(FileExistsError):
         tm.main(args)
     assert report.read_text(encoding="utf-8") == 'original report'

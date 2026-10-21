@@ -18,9 +18,10 @@ from tests.test_frozen_macos_update import _protected_script
 
 
 @pytest.mark.parametrize("decision", ["confirmed", "cancel", "failed", "retain", "disconnect"])
+@pytest.mark.posix_only
 def test_actual_pipe_bridge_preserves_or_restores_payload_at_fixed_checkpoints(tmp_path, monkeypatch, decision):
     payload = tmp_path / "payload"
-    payload.write_text("old")
+    payload.write_text("old", encoding="utf-8")
     journal = tmp_path / "journal"
     checkpoint = re.search(r"(?ms)^phase_checkpoint\(\) \{\n.*?^\}\n", ic._MACOS_PROTECTED_TRANSACTION).group()
     script = "set -eu\nphased=1\nphase=prepared\n"
@@ -98,6 +99,7 @@ def test_trusted_installed_helper_refuses_user_modification_before_authorization
 
 
 @pytest.mark.parametrize("supported", [True, False])
+@pytest.mark.posix_only
 def test_authorization_requires_capability_and_quotes_private_descriptor_as_data(tmp_path, monkeypatch, supported):
     helper = "/Applications/spaCR.app/Contents/Frameworks/spacr-update-helper"
     monkeypatch.setattr(ic, "_macos_frozen_trusted_helper", lambda: helper)
@@ -122,6 +124,7 @@ def test_authorization_requires_capability_and_quotes_private_descriptor_as_data
 
 
 @pytest.mark.parametrize("code", [0, 6])
+@pytest.mark.posix_only
 def test_success_cleans_only_the_finished_helper_stage_and_failure_retains_it(tmp_path, monkeypatch, code):
     monkeypatch.setattr(ic, "_macos_frozen_trusted_helper", lambda: "/trusted/helper")
     monkeypatch.setattr(ic, "_macos_native", lambda argv: json.dumps({"schema": 1, "commands": ["apply-macos-root"]}))
@@ -207,6 +210,7 @@ def test_privileged_dispatch_binds_root_copy_real_desktop_and_published_release(
 
 
 @pytest.mark.parametrize("cancel", [False, True])
+@pytest.mark.posix_only
 def test_protected_gui_path_stages_before_restart_and_confirms_one_new_desktop(tmp_path, monkeypatch, cancel):
     target = "/Applications/spaCR.app"
     executable = target + "/Contents/MacOS/spacr"

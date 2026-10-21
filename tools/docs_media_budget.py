@@ -199,7 +199,7 @@ def plan(extra: Path | None = None,
     Both file lists are absolute and sorted, so a caller can diff two plans.
     """
     extra = extra or extra_root()
-    catalog = parse_voice_catalog(voice_catalog_path(extra).read_text())
+    catalog = parse_voice_catalog(voice_catalog_path(extra).read_text(encoding="utf-8"))
     keep = published_voices(catalog, per_language)
     published: List[Path] = []
     dropped: List[Path] = []
@@ -270,7 +270,7 @@ def stage(dest: Path, extra: Path | None = None,
         # reachable from there. The catalog must continue to list every hosted
         # voice even though no narration is duplicated in the staged tree.
         if path == catalog_source and not NARRATION_HOST:
-            target.write_text(filter_voice_catalog(path.read_text(), keep))
+            target.write_text(filter_voice_catalog(path.read_text(encoding="utf-8"), keep), encoding="utf-8")
             continue
         try:
             os.link(path, target)

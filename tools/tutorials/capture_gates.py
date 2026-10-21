@@ -178,7 +178,7 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     saved = work / 'gates.json'
     strategy = screen.gates.gates.to_dict()
     file_dialog(screen._save_gates, saved, '09_save_strategy', save=True)
-    if json.loads(saved.read_text()) != strategy:
+    if json.loads(saved.read_text(encoding="utf-8")) != strategy:
         raise RuntimeError('The saved strategy differs from the actual gate')
     QTest.mouseClick(screen.gates.tree._remove, Qt.LeftButton)
     settle(0.5)

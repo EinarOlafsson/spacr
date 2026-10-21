@@ -89,7 +89,7 @@ def test_a_second_process_loads_the_kernels_from_the_user_cache(tmp_path):
 
 def test_an_unwritable_cache_folder_falls_back_to_compiling(tmp_path):
     blocker = tmp_path / "file"
-    blocker.write_text("x")
+    blocker.write_text("x", encoding="utf-8")
     result = _run(tmp_path, {"NUMBA_CACHE_DIR": str(blocker / "sub")})
     assert result["ready"] and result["compiled"]
     assert result["dir"] == "None"

@@ -157,7 +157,7 @@ def test_saved_model_application_does_not_invent_new_split(phase_case, tmp_path)
     model.parent.mkdir()
     model.write_bytes(b'intercepted saved model')
     model.with_name('cell_cycle_phases.json').write_text(json.dumps(
-        {'phases': ['G1', 'S'], 'crop_size': 32}))
+        {'phases': ['G1', 'S'], 'crop_size': 32}), encoding="utf-8")
     settings['cell_cycle_model'] = str(model)
     settings['cv_group_by'] = 'not consulted for existing model'
     frame.loc[:, 'plateID'] = None

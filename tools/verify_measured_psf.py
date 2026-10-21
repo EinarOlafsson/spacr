@@ -27,7 +27,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('folder', type=Path, help='Local Zenodo files and zenodo-record.json; derived outputs are written here.')
     root = parser.parse_args().folder
-    record = json.loads((root / 'zenodo-record.json').read_text())
+    record = json.loads((root / 'zenodo-record.json').read_text(encoding="utf-8"))
     files = {item['key']: item for item in record['files']}
     image_path = root / '30x1000_FS-025_FW-60_AC-170-04.tif'
     psf_path = root / 'psf-200nm.tif'
@@ -145,7 +145,7 @@ def main():
             'This validates a CPU 3D measured-PSF application; it does not revalidate every GUI or establish applicability to another microscope.',
         ],
     }
-    (root / 'measured-application-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+    (root / 'measured-application-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding="utf-8")
     print(json.dumps({'seconds': elapsed, 'shape': result.image.shape, 'status': 'passed'}), flush=True)
 
 

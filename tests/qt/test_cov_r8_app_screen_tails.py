@@ -164,66 +164,39 @@ class TestRaisingTheResultsTab:
 
 
 class TestTheFormShapeDecision:
-    """`_bulk_apply_changes_form_shape` -- does this change need a rebuild?"""
+    """`_bulk_apply_changes_form_shape` -- does this change need a rebuild?
 
-    def test_an_unnumbered_organelle_role_is_skipped(self, screen,
-                                                     monkeypatch):
-        """`organelle_number` raises ValueError on a role with no number.
+    Item 356 as the maintainer extended it on 2026-10-17: a settings file
+    follows the rule a typed value does. Only `number_of_organelles` adds
+    or removes rows; a channel or organelle-slot switch is shown in place.
+    """
 
-        Only `organelle`, `organelleb`, ... `organellez` carry a slot
-        number. A role outside that set cannot be governed by the target
-        count, so it is skipped -- rather than taking the whole shape
-        decision down with a ValueError raised deep inside a loop.
-
-        Driven by naming a role the numberer refuses. `object_of_setting`
-        and `object_switch_keys` are module-level here, so the key can be
-        routed to that role without inventing a settings vocabulary.
-        """
+    def test_an_object_switch_never_reshapes_the_form(self, screen):
+        """A changed channel, for a named object or a counted slot."""
         from spacr.organelle_types import NUMBER_OF_ORGANELLES
 
-        monkeypatch.setattr(mod, "object_of_setting",
-                            lambda _key: "not_a_numbered_slot")
-        monkeypatch.setattr(mod, "object_switch_keys",
-                            lambda _role: {"some_switch"})
+        current = {NUMBER_OF_ORGANELLES: 2, "nucleus_channel": None,
+                   "organelle_channel": 1, "organelleb_channel": None}
+        for settings in ({"nucleus_channel": 0}, {"organelle_channel": 3},
+                         {"organelleb_channel": 2}):
+            assert screen._bulk_apply_changes_form_shape(
+                settings, current) is False, settings
 
-        current = {NUMBER_OF_ORGANELLES: 2, "some_switch": "before"}
-        settings = {"some_switch": "after"}
-        # The value DIFFERS, so without the skip this would report True.
-        assert screen._bulk_apply_changes_form_shape(settings, current) is \
-            False, ("a role with no slot number decided the form's shape")
-
-    def test_a_numbered_role_over_the_target_count_is_skipped(self, screen,
-                                                              monkeypatch):
-        """The neighbouring `continue`: a slot beyond the active count.
-
-        A switch for organelle 5 cannot change the shape of a form that
-        is showing two organelles.
-        """
+    def test_a_new_organelle_count_reshapes_the_form(self, screen):
         from spacr.organelle_types import NUMBER_OF_ORGANELLES
 
-        monkeypatch.setattr(mod, "object_of_setting",
-                            lambda _key: "organellee")     # slot 5
-        monkeypatch.setattr(mod, "object_switch_keys",
-                            lambda _role: {"some_switch"})
+        current = {NUMBER_OF_ORGANELLES: 1, "organelle_channel": 1}
+        assert screen._bulk_apply_changes_form_shape(
+            {NUMBER_OF_ORGANELLES: 2}, current) is True
+        assert screen._bulk_apply_changes_form_shape(
+            {NUMBER_OF_ORGANELLES: 1}, current) is False
 
-        current = {NUMBER_OF_ORGANELLES: 2, "some_switch": "before"}
-        settings = {"some_switch": "after"}
-        assert screen._bulk_apply_changes_form_shape(settings, current) is \
-            False
-
-    def test_a_numbered_role_within_the_count_does_change_the_shape(
-            self, screen, monkeypatch):
-        """And the positive side, so the two skips are visibly skips."""
+    def test_a_form_without_an_organelle_count_is_never_reshaped(self, screen):
         from spacr.organelle_types import NUMBER_OF_ORGANELLES
 
-        monkeypatch.setattr(mod, "object_of_setting",
-                            lambda _key: "organelle")      # slot 1
-        monkeypatch.setattr(mod, "object_switch_keys",
-                            lambda _role: {"some_switch"})
-
-        current = {NUMBER_OF_ORGANELLES: 2, "some_switch": "before"}
-        settings = {"some_switch": "after"}
-        assert screen._bulk_apply_changes_form_shape(settings, current) is True
+        assert screen._bulk_apply_changes_form_shape(
+            {NUMBER_OF_ORGANELLES: 2, "nucleus_channel": 0},
+            {"nucleus_channel": None}) is False
 
     def test_an_identical_settings_dict_needs_no_new_shape(self, screen):
         current = {"cell_diameter": 30}

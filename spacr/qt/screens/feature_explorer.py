@@ -211,14 +211,16 @@ class FeatureExplorerScreen(QWidget):
             self.load_path(path)
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
-        """Read a CSV or one table of a measurement database, off the GUI
-        thread.
+        """Read a text table or one measurement-database table through the job
+        runner. Database table names are listed synchronously; table data are
+        read on a worker thread by default, or inline when the screen is
+        unthreaded.
 
         :param path: a ``.csv``, ``.tsv`` or ``.txt`` table, or any other file
             treated as a measurement database whose table names fill the
             table picker.
-        :param table: the database table to read; ``None`` reads the table
-            currently chosen in the picker.
+        :param table: the database table to read; ``None`` uses the first listed table
+            after the picker is rebuilt.
         """
         self._path = path
         names: List[str] = []

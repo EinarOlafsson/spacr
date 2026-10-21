@@ -49,8 +49,8 @@ def _only(outcome) -> Result:
 def _make_checkout(root: Path) -> Path:
     """Build the minimum directory shape ``_checkout_root`` recognises."""
     (root / "spacr").mkdir(parents=True)
-    (root / "spacr" / "__init__.py").write_text("")
-    (root / "setup.py").write_text("from setuptools import setup\n")
+    (root / "spacr" / "__init__.py").write_text("", encoding="utf-8")
+    (root / "setup.py").write_text("from setuptools import setup\n", encoding="utf-8")
     return root
 
 
@@ -298,8 +298,8 @@ def test_checkout_root_walks_up_to_the_clone(tmp_path):
 def test_checkout_root_accepts_a_pyproject_only_clone(tmp_path):
     root = tmp_path / "modern"
     (root / "spacr").mkdir(parents=True)
-    (root / "spacr" / "__init__.py").write_text("")
-    (root / "pyproject.toml").write_text("[project]\n")
+    (root / "spacr" / "__init__.py").write_text("", encoding="utf-8")
+    (root / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
     assert doctor._checkout_root(root) == root
 
 
@@ -328,7 +328,7 @@ def test_checkout_root_gives_up_when_the_start_cannot_be_resolved(monkeypatch):
 
 def test_editable_url_target_reads_a_pep610_record(tmp_path):
     payload = json.dumps(
-        {"dir_info": {"editable": True}, "url": f"file://{tmp_path}"}
+        {"dir_info": {"editable": True}, "url": tmp_path.resolve().as_uri()}
     )
     assert doctor._editable_url_target(payload) == tmp_path.resolve()
 
@@ -424,7 +424,7 @@ def test_editable_target_ignores_distributions_it_cannot_read(monkeypatch, tmp_p
 
         def read_text(self, _name):
             return json.dumps(
-                {"dir_info": {"editable": True}, "url": f"file://{tmp_path}"}
+                {"dir_info": {"editable": True}, "url": tmp_path.resolve().as_uri()}
             )
 
     class Broken:
@@ -462,7 +462,7 @@ def test_importable_spacr_dirs_finds_the_editable_install_not_just_sys_path():
 def test_importable_spacr_dirs_reports_a_shadowing_copy(tmp_path, monkeypatch):
     shadow = tmp_path / "shadow"
     (shadow / "spacr").mkdir(parents=True)
-    (shadow / "spacr" / "__init__.py").write_text("")
+    (shadow / "spacr" / "__init__.py").write_text("", encoding="utf-8")
     monkeypatch.syspath_prepend(str(shadow))
     found = doctor._importable_spacr_dirs()
     assert (shadow / "spacr").resolve() in found
@@ -504,7 +504,7 @@ def test_importable_spacr_dirs_uses_cwd_for_the_empty_sys_path_entry(
     import importlib.util
 
     (tmp_path / "spacr").mkdir()
-    (tmp_path / "spacr" / "__init__.py").write_text("")
+    (tmp_path / "spacr" / "__init__.py").write_text("", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(importlib.util, "find_spec", lambda _name: None)
     monkeypatch.setattr(doctor.sys, "path", [""])
@@ -772,9 +772,10 @@ def test_duplicate_installs_fails_and_says_which_one_wins(ctx, monkeypatch):
     )
     row = doctor.check_duplicate_installs(ctx)
     assert row.status == FAIL
-    assert "/a/spacr wins" in row.message
+    first, second = str(Path("/a/spacr")), str(Path("/b/spacr"))
+    assert f"{first} wins" in row.message
     assert "pip uninstall -y spacr" in row.fix
-    assert row.details == ("  1. /a/spacr", "  2. /b/spacr")
+    assert row.details == (f"  1. {first}", f"  2. {second}")
 
 
 def test_duplicate_installs_skips_when_nothing_is_importable(ctx, monkeypatch):
@@ -922,12 +923,34 @@ def test_path_check_fails_when_another_environment_shadows_it(
 ):
     other = tmp_path / "other-env" / "bin" / "spacr"
     other.parent.mkdir(parents=True)
-    other.write_text("#!/bin/sh\n")
+    other.write_text("#!/bin/sh\n", encoding="utf-8")
     monkeypatch.setattr(doctor.shutil, "which", lambda name: str(other))
     row = doctor.check_command_on_path(ctx)
     assert row.status == FAIL
     assert "different installation" in row.message
     assert str(Path(sys.executable).parent) in row.fix
+
+
+def test_path_check_accepts_the_macos_app_launcher_for_its_own_runtime(ctx, tmp_path, monkeypatch):
+    """2026-10-19 macOS acceptance: every pkg install reported FAIL PATH, because
+    /usr/local/bin/spacr is the spaCR.app launcher rather than a script in the
+    runtime's bin, and told the user to edit PATH."""
+    launcher = tmp_path / "Applications" / "spaCR.app" / "Contents" / "MacOS" / "spaCR"
+    launcher.parent.mkdir(parents=True)
+    launcher.write_text("launcher")
+    runtime = tmp_path / "Library" / "Application Support" / "spaCR" / "venv"
+    runtime.mkdir(parents=True)
+    monkeypatch.setattr(doctor.Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.setattr(doctor.shutil, "which", lambda name: str(launcher))
+    monkeypatch.setattr(doctor.sys, "prefix", str(runtime))
+    monkeypatch.setattr(doctor.sys, "platform", "darwin")
+    assert doctor.check_command_on_path(ctx).status == PASS
+
+    monkeypatch.setattr(doctor.sys, "prefix", str(tmp_path / "other-env"))
+    assert doctor.check_command_on_path(ctx).status == FAIL
+    monkeypatch.setattr(doctor.sys, "prefix", str(runtime))
+    monkeypatch.setattr(doctor.sys, "platform", "linux")
+    assert doctor.check_command_on_path(ctx).status == FAIL
 
 
 def test_path_check_warns_when_no_command_is_on_path(ctx, monkeypatch):
@@ -1032,6 +1055,71 @@ def test_display_check_warns_headless_and_offers_the_headless_runner(
     assert row.status == WARN
     assert "spacr-run --list" in row.fix
     assert "QT_QPA_PLATFORM=offscreen" in row.fix
+
+
+def test_offscreen_fonts_add_no_row_away_from_windows(ctx, monkeypatch):
+    monkeypatch.setattr(doctor.sys, "platform", "linux")
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    monkeypatch.delenv("QT_QPA_FONTDIR", raising=False)
+    assert doctor._check_offscreen_fonts(ctx) is None
+
+
+def test_offscreen_fonts_add_no_row_for_the_windows_desktop(ctx, monkeypatch):
+    monkeypatch.setattr(doctor.sys, "platform", "win32")
+    monkeypatch.delenv("QT_QPA_PLATFORM", raising=False)
+    assert doctor._check_offscreen_fonts(ctx) is None
+
+
+def test_offscreen_on_windows_without_a_font_folder_warns_with_the_setting(
+    ctx, monkeypatch
+):
+    monkeypatch.setattr(doctor.sys, "platform", "win32")
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    monkeypatch.delenv("QT_QPA_FONTDIR", raising=False)
+    monkeypatch.setenv("WINDIR", r"C:\Windows")
+    row = doctor._check_offscreen_fonts(ctx)
+    assert row.status == WARN
+    assert "QT_QPA_FONTDIR" in row.message
+    assert "set QT_QPA_FONTDIR=C:\\Windows\\Fonts" in row.fix
+    assert '$env:QT_QPA_FONTDIR = "C:\\Windows\\Fonts"' in row.fix
+
+
+def test_offscreen_on_windows_with_a_missing_font_folder_warns(ctx, monkeypatch, tmp_path):
+    monkeypatch.setattr(doctor.sys, "platform", "win32")
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    monkeypatch.setenv("QT_QPA_FONTDIR", str(tmp_path / "missing"))
+    row = doctor._check_offscreen_fonts(ctx)
+    assert row.status == WARN and str(tmp_path / "missing") in row.message
+    assert "QT_QPA_FONTDIR=" in row.fix
+
+
+def test_offscreen_on_windows_with_a_font_folder_passes(ctx, monkeypatch, tmp_path):
+    monkeypatch.setattr(doctor.sys, "platform", "win32")
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    monkeypatch.setenv("QT_QPA_FONTDIR", str(tmp_path))
+    row = doctor._check_offscreen_fonts(ctx)
+    assert row.status == PASS and str(tmp_path) in row.message
+
+
+def test_offscreen_qt_gets_the_windows_fonts_only_on_windows(monkeypatch):
+    import spacr.qt as qt
+    from spacr.qt import _give_offscreen_qt_the_windows_fonts
+
+    root = "C:\\Windows"
+    monkeypatch.setattr(qt.os.path, "isdir", lambda path: path == "C:\\Windows\\Fonts")
+    environ = {"QT_QPA_PLATFORM": "offscreen", "WINDIR": root}
+    assert _give_offscreen_qt_the_windows_fonts(environ, windows=False) == ""
+    assert "QT_QPA_FONTDIR" not in environ
+    folder = _give_offscreen_qt_the_windows_fonts(environ, windows=True)
+    assert folder == "C:\\Windows\\Fonts" == environ["QT_QPA_FONTDIR"]
+    assert _give_offscreen_qt_the_windows_fonts({"QT_QPA_PLATFORM": "offscreen"},
+                                                windows=True) == ""
+    chosen = {"QT_QPA_PLATFORM": "offscreen", "WINDIR": root, "QT_QPA_FONTDIR": "D:\\mine"}
+    assert _give_offscreen_qt_the_windows_fonts(chosen, windows=True) == ""
+    assert chosen["QT_QPA_FONTDIR"] == "D:\\mine"
+    desktop = {"QT_QPA_PLATFORM": "windows", "WINDIR": root}
+    assert _give_offscreen_qt_the_windows_fonts(desktop, windows=True) == ""
+    assert "QT_QPA_FONTDIR" not in desktop
 
 
 # ---------------------------------------------------------------------------
@@ -1356,11 +1444,11 @@ def test_declared_pins_check_catches_environment_yaml_contradicting_setup_py(
     root = _make_checkout(tmp_path / "clone")
     (root / "setup.py").write_text(
         "dependencies = ['cellpose>=4.0,<5.0', 'numpy>=1.26.4,<3.0']\n"
-    )
+    , encoding="utf-8")
     (root / "environment.yaml").write_text(
         "name: spacr\ndependencies:\n  - python=3.9.19\n  - pip:\n"
         "      - cellpose==3.0.11\n      - numpy==1.26.4\n"
-    )
+    , encoding="utf-8")
     row = doctor.check_declared_pins(Context(checkout=root))
     assert row.status == WARN
     assert row.details == (
@@ -1372,8 +1460,8 @@ def test_declared_pins_check_catches_environment_yaml_contradicting_setup_py(
 
 def test_declared_pins_check_passes_when_the_two_files_agree(tmp_path):
     root = _make_checkout(tmp_path / "clone")
-    (root / "setup.py").write_text("dependencies = ['cellpose>=4.0,<5.0']\n")
-    (root / "environment.yaml").write_text("  - pip:\n      - cellpose==4.0.7\n")
+    (root / "setup.py").write_text("dependencies = ['cellpose>=4.0,<5.0']\n", encoding="utf-8")
+    (root / "environment.yaml").write_text("  - pip:\n      - cellpose==4.0.7\n", encoding="utf-8")
     row = doctor.check_declared_pins(Context(checkout=root))
     assert row.status == PASS
 
@@ -1392,8 +1480,8 @@ def test_declared_pins_check_skips_without_both_files(tmp_path):
 
 def test_declared_pins_check_skips_an_unreadable_dependency_list(tmp_path):
     root = _make_checkout(tmp_path / "clone")
-    (root / "setup.py").write_text("something_else = ['cellpose>=4.0']\n")
-    (root / "environment.yaml").write_text("  - cellpose==3.0.11\n")
+    (root / "setup.py").write_text("something_else = ['cellpose>=4.0']\n", encoding="utf-8")
+    (root / "environment.yaml").write_text("  - cellpose==3.0.11\n", encoding="utf-8")
     row = doctor.check_declared_pins(Context(checkout=root))
     assert row.status == SKIP
     assert "Could not read the dependency list" in row.message
@@ -1401,23 +1489,23 @@ def test_declared_pins_check_skips_an_unreadable_dependency_list(tmp_path):
 
 def test_declared_pins_check_ignores_packages_setup_py_does_not_name(tmp_path):
     root = _make_checkout(tmp_path / "clone")
-    (root / "setup.py").write_text("dependencies = ['cellpose>=4.0,<5.0']\n")
-    (root / "environment.yaml").write_text("  - pytorch==1.0.0\n")
+    (root / "setup.py").write_text("dependencies = ['cellpose>=4.0,<5.0']\n", encoding="utf-8")
+    (root / "environment.yaml").write_text("  - pytorch==1.0.0\n", encoding="utf-8")
     assert doctor.check_declared_pins(Context(checkout=root)).status == PASS
 
 
 def test_setup_dependency_parser_survives_every_shape_of_bad_input(tmp_path):
     broken = tmp_path / "broken.py"
-    broken.write_text("def (:\n")
+    broken.write_text("def (:\n", encoding="utf-8")
     assert doctor._parse_setup_dependencies(broken) == {}
     assert doctor._parse_setup_dependencies(tmp_path / "absent.py") == {}
 
     indirect = tmp_path / "indirect.py"
-    indirect.write_text("dependencies = some_other_name\n")
+    indirect.write_text("dependencies = some_other_name\n", encoding="utf-8")
     assert doctor._parse_setup_dependencies(indirect) == {}
 
     mixed = tmp_path / "mixed.py"
-    mixed.write_text("other = 1\ndependencies = [1, '!!!', 'numpy>=2']\n")
+    mixed.write_text("other = 1\ndependencies = [1, '!!!', 'numpy>=2']\n", encoding="utf-8")
     assert doctor._parse_setup_dependencies(mixed) == {"numpy": ">=2"}
 
 
@@ -1430,7 +1518,7 @@ def test_environment_pin_parser_reads_conda_and_pip_spellings(tmp_path):
     path.write_text(
         "dependencies:\n  - python=3.9.19\n  - pip:\n"
         "      - cellpose==3.0.11\n      - some-git-dep\n      - '-e .'\n"
-    )
+    , encoding="utf-8")
     assert doctor._parse_environment_pins(path) == {
         "python": "3.9.19",
         "cellpose": "3.0.11",
@@ -1691,7 +1779,7 @@ def test_settings_check_fails_when_the_file_is_missing(tmp_path):
 
 def test_settings_check_warns_without_an_app_key(tmp_path):
     path = tmp_path / "settings.csv"
-    path.write_text("setting_key,setting_value\nsrc,/tmp\n")
+    path.write_text("setting_key,setting_value\nsrc,/tmp\n", encoding="utf-8")
     row = _only(doctor.check_settings(Context(settings=path)))
     assert row.status == WARN
     assert "--app measure" in row.fix
@@ -1699,7 +1787,7 @@ def test_settings_check_warns_without_an_app_key(tmp_path):
 
 def test_settings_check_fails_when_the_file_cannot_be_read(tmp_path):
     path = tmp_path / "settings.json"
-    path.write_text("{not valid json at all")
+    path.write_text("{not valid json at all", encoding="utf-8")
     row = _only(doctor.check_settings(Context(settings=path, app="measure")))
     assert row.status == FAIL
     assert "could not be read" in row.message
@@ -1713,7 +1801,7 @@ def test_settings_check_reports_a_combination_that_cannot_work(tmp_path):
         f"src,{tmp_path}\n"
         "normalize,True\n"
         "normalize_by,bogus\n"
-    )
+    , encoding="utf-8")
     rows = _rows(doctor.check_settings(Context(settings=path, app="measure")))
     assert any(row.status == FAIL and "normalize" in row.message for row in rows)
     assert all(row.fix for row in rows), "every problem must carry a fix"
@@ -1723,7 +1811,7 @@ def test_settings_check_passes_a_clean_configuration(tmp_path, monkeypatch):
     from spacr import validate
 
     path = tmp_path / "settings.csv"
-    path.write_text("setting_key,setting_value\nsrc,/tmp\n")
+    path.write_text("setting_key,setting_value\nsrc,/tmp\n", encoding="utf-8")
     monkeypatch.setattr(validate, "validate_settings", lambda *_a: [])
     row = _only(doctor.check_settings(Context(settings=path, app="measure")))
     assert row.status == PASS
@@ -1735,7 +1823,7 @@ def test_settings_check_renders_a_dataset_level_warning_without_a_key(
     from spacr import validate
 
     path = tmp_path / "settings.csv"
-    path.write_text("setting_key,setting_value\nsrc,/tmp\n")
+    path.write_text("setting_key,setting_value\nsrc,/tmp\n", encoding="utf-8")
     monkeypatch.setattr(
         validate,
         "validate_settings",

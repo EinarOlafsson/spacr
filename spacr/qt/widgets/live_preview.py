@@ -395,11 +395,12 @@ and keeping every run would hold them all in memory."""
 
 
 def load_preview_image(path: Path) -> np.ndarray:
-    """Read *path* into a nonempty (H, W) or (H, W, C) numeric array.
+    """Read *path* with NumPy, tifffile or PIL, depending on its suffix.
 
-    Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy``
-    stacks are memory mapped without loading pickled objects. Raises
-    :class:`FileNotFoundError` if the path is bad.
+    Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy`` stacks
+    are memory mapped without loading pickled objects and must contain a
+    nonempty (H, W) or (H, W, C) numeric array. Raises
+    :class:`FileNotFoundError` when the path is not a file.
 
     :param path: image file path (``str`` or :class:`~pathlib.Path`);
         ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.
@@ -2305,7 +2306,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         for url in mime.urls():
             if not url.isLocalFile():
                 continue
-            p = url.toLocalFile()
+            p = os.path.normpath(url.toLocalFile())
             if Path(p).suffix.lower() in self._DND_EXTS:
                 return p
         return None

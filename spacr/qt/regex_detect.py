@@ -200,19 +200,24 @@ def _group_names(pattern: str) -> tuple:
 def auto_detect_regex(
     filenames: Sequence[str],
 ) -> Tuple[Optional[str], str, int]:
-    """Return the best-fitting regex for a set of filenames.
+    """Select a regex for a set of filenames.
 
     Strategy:
 
     1. Try every :data:`BUILTIN_REGEXES` pattern; if one matches every
        file it wins immediately.
     2. Otherwise pick the built-in that matches the MOST files (>=50 %).
-    3. If nothing crosses the 50 % bar, synthesise a fresh regex from
-       the common shape of the sample (see :func:`_synthesise_regex`).
+    3. Below 50 % coverage, try ``spacr.regex_infer.propose`` and return
+       the first proposal with recognised metadata groups and more matches
+       than the best built-in.
+    4. Otherwise try ``_synthesise_regex``. Keep the best built-in if
+       synthesis fails, cannot compile, or matches fewer files. Equal match
+       counts favour the synthesised pattern.
 
     :param filenames: sample filenames to fit against.
     :returns: ``(pattern_or_None, label, n_matches)``.
-        ``pattern_or_None`` is None only when synthesis also fails.
+        ``pattern_or_None`` is None for an empty sample or when no pattern
+        can be selected.
     """
     n = len(filenames)
     if n == 0:

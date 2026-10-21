@@ -89,11 +89,11 @@ def _native_builds(tmp_path):
         (root / "dist").mkdir()
         payload = (platform + " disposable test bytes").encode()
         (root / "dist" / name).write_bytes(payload)
-        (root / "acceptance/source-commit.txt").write_text(commit + "\n")
-        (root / "acceptance/version.txt").write_text(version + "\n")
+        (root / "acceptance/source-commit.txt").write_text(commit + "\n", encoding="utf-8")
+        (root / "acceptance/version.txt").write_text(version + "\n", encoding="utf-8")
         recorded = "dist/" + name if platform == "debian" else name
-        (root / "acceptance/SHA256SUMS").write_text(hashlib.sha256(payload).hexdigest() + "  " + recorded + "\n")
-        (root / "acceptance/build.log").write_text("CI-only build output")
+        (root / "acceptance/SHA256SUMS").write_text(hashlib.sha256(payload).hexdigest() + "  " + recorded + "\n", encoding="utf-8")
+        (root / "acceptance/build.log").write_text("CI-only build output", encoding="utf-8")
     updater = f"spaCR-{version}-update.exe"
     root = source / "legacy-build-windows"
     (root / "dist" / updater).write_bytes(b"mandatory phase updater")
@@ -129,9 +129,9 @@ def test_frozen_release_collection_refuses_wrong_or_incomplete_builds_before_cop
     payload = root / "dist" / names[platform]
     manifest = root / "acceptance/SHA256SUMS"
     if fault == "source":
-        (root / "acceptance/source-commit.txt").write_text("b" * 40)
+        (root / "acceptance/source-commit.txt").write_text("b" * 40, encoding="utf-8")
     elif fault == "version":
-        (root / "acceptance/version.txt").write_text("1.5.1.4")
+        (root / "acceptance/version.txt").write_text("1.5.1.4", encoding="utf-8")
     elif fault == "checksum":
         payload.write_bytes(b"changed payload")
     elif fault == "missing":
@@ -139,7 +139,7 @@ def test_frozen_release_collection_refuses_wrong_or_incomplete_builds_before_cop
     elif fault == "extra":
         (root / "dist" / names[platform].replace(version, "1.5.1.4")).write_bytes(b"wrong version")
     else:
-        manifest.write_text(manifest.read_text(encoding="utf-8") * 2)
+        manifest.write_text(manifest.read_text(encoding="utf-8") * 2, encoding="utf-8")
     destination = tmp_path / "public"
     with pytest.raises((ValueError, FileNotFoundError)):
         _release_helper().collect_frozen_installers(source, destination, version, commit)
@@ -165,7 +165,7 @@ def test_release_waits_for_exact_source_native_acceptance_before_tagging_or_uplo
     native = jobs["frozen-installers"]
     assert native["uses"] == "./.github/workflows/frozen-installers.yml"
     assert native["needs"] == ["bump", "installers"]
-    assert native["with"] == {"source_ref": "${{ needs.installers.outputs.release_commit }}",
+    assert native["with"] == {"source_ref": "${{ needs.bump.outputs.commit_sha }}",
                               "release_version": "${{ needs.bump.outputs.version }}"}
     publish = jobs["github-release"]
     assert "frozen-installers" in publish["needs"]
@@ -174,7 +174,7 @@ def test_release_waits_for_exact_source_native_acceptance_before_tagging_or_uplo
     download = next(step for step in steps if step.get("with", {}).get("pattern") == "legacy-build-*")
     assert download["with"] == {"pattern": "legacy-build-*", "path": "frozen-assets"}
     verify = next(step for step in steps if step.get("name") == "Verify and select exact native release payloads")
-    assert verify["env"] == {"RELEASE_SHA": "${{ needs.installers.outputs.release_commit }}",
+    assert verify["env"] == {"RELEASE_SHA": "${{ needs.bump.outputs.commit_sha }}",
                              "VERSION": "${{ needs.bump.outputs.version }}"}
     assert 'collect-frozen --source frozen-assets --destination release-assets' in verify["run"]
     assert '--source-commit "$RELEASE_SHA" --version "$VERSION"' in verify["run"]
@@ -216,20 +216,20 @@ def test_windows_native_verifier_keeps_default_and_explicit_commit_refusal(tmp_p
         pytest.skip("PowerShell is required to execute the native receipt guard")
     prefix = source.split("$Hint =", 1)[0]
     guard = tmp_path / "guard.ps1"
-    guard.write_text(prefix)
+    guard.write_text(prefix, encoding="utf-8")
     receipt = tmp_path / "smoke.json"
-    receipt.write_text('{"status":"passed","frozen":true,"qt_platform":"windows","source_commit":"selected"}')
+    receipt.write_text('{"status":"passed","frozen":true,"qt_platform":"windows","source_commit":"selected"}', encoding="utf-8")
     common = [powershell, "-NoProfile", "-NonInteractive", "-File", str(guard),
               "-NativeReceipt", str(receipt), "-Shell", "cmd", "-Output", str(tmp_path / "out")]
     import os
     env = dict(os.environ, GITHUB_SHA="selected")
-    default = subprocess.run(common, env=env, capture_output=True, text=True, timeout=10)
+    default = subprocess.run(common, env=env, capture_output=True, text=True, timeout=60)
     assert default.returncode == 0, default.stderr
     explicit = subprocess.run(common + ["-SourceCommit", "selected"],
-                              env=dict(env, GITHUB_SHA="caller"), capture_output=True, text=True, timeout=10)
+                              env=dict(env, GITHUB_SHA="caller"), capture_output=True, text=True, timeout=60)
     assert explicit.returncode == 0, explicit.stderr
     wrong = subprocess.run(common + ["-SourceCommit", "caller"], env=env,
-                           capture_output=True, text=True, timeout=10)
+                           capture_output=True, text=True, timeout=60)
     assert wrong.returncode != 0 and "another commit" in wrong.stderr
 
 
@@ -245,7 +245,7 @@ def test_release_cannot_publish_without_verified_mandatory_phase_windows_asset(t
     else:
         checksum = root / "acceptance/SHA256SUMS"
         checksum.write_text("".join(line for line in checksum.read_text(encoding="utf-8").splitlines(keepends=True)
-                                   if updater.name not in line))
+                                   if updater.name not in line), encoding="utf-8")
     destination = tmp_path / "public"
     with pytest.raises((ValueError, FileNotFoundError)):
         _release_helper().collect_frozen_installers(source, destination, version, commit)

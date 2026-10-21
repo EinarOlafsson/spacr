@@ -54,6 +54,7 @@ from .errors import RunLedger
 from .image_colors import read_image_rgb
 from .classification_pixels import DECLARED_UINT8, read_classification_image, validate_policy
 from .tiff_io import write_tiff
+from .portable_paths import _long_path
 
 LOG = logging.getLogger(__name__)
 
@@ -1105,7 +1106,7 @@ def load_images_from_paths(images_by_key):
         for path in paths:
             with ledger.item(path, stage='load',
                              echo=f"Error loading image from {path}"):
-                with Image.open(path) as img:
+                with Image.open(_long_path(path)) as img:
                     images_dict[key].append(np.array(img))
 
     ledger.finalize()
@@ -1139,7 +1140,7 @@ def _stack_field_stems(stack_path):
     :param stack_path: a ``stack/`` folder; a missing one holds no fields.
     :returns: set of file names without the ``.npy`` extension.
     """
-    if not os.path.isdir(stack_path):
+    if not os.path.isdir(_long_path(stack_path)):
         return set()
     return {os.path.splitext(name)[0] for name in _listdir_visible(stack_path)
             if name.endswith('.npy')}
@@ -1260,7 +1261,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         start = time.time()
         output_filename = stem + '.tif'
         new_file = os.path.join(stack_path, stem + '.npy')
-        if os.path.exists(new_file):
+        if os.path.exists(_long_path(new_file)):
             print(f'WARNING: A file with the same name already exists at location {new_file}')
             channels_seen.update(key[3] for key in keys)
             continue
@@ -1291,7 +1292,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             planes.append(np.expand_dims(mip, axis=2))
         if planes:
             checkpoint()
-            os.makedirs(stack_path, exist_ok=True)
+            os.makedirs(_long_path(stack_path), exist_ok=True)
             _save_array_atomic(new_file, np.concatenate(planes, axis=2))
         else:
             print(f"No valid channels to merge for file {output_filename}")
@@ -1310,13 +1311,13 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             to_move = [filename for filename in _listdir_visible(src)
                        if os.path.splitext(filename)[1] in img_format]
         if to_move:
-            os.makedirs(orig_path, exist_ok=True)
+            os.makedirs(_long_path(orig_path), exist_ok=True)
         for filename in to_move:
             move = os.path.join(orig_path, filename)
-            if os.path.exists(move):
+            if os.path.exists(_long_path(move)):
                 print(f'WARNING: A file with the same name already exists at location {move}')
             else:
-                shutil.move(os.path.join(src, filename), move)
+                shutil.move(_long_path(os.path.join(src, filename)), _long_path(move))
     else:
         print('save_original_images is off: each raw image that went into a '
               'verified field stack in stack/ is deleted from the source '
@@ -1329,7 +1330,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 if path not in in_a_stack:
                     continue
                 try:
-                    os.remove(path)
+                    os.remove(_long_path(path))
                 except OSError as e:
                     print(f"Warning: could not delete original image {filename}: {e}")
     files_processed = 0
@@ -2058,12 +2059,12 @@ def _replace_atomically(output_path, write, prefix='.spacr_tmp_'):
     """
     output_path = os.fspath(output_path)
     directory = os.path.dirname(output_path) or '.'
-    os.makedirs(directory, exist_ok=True)
+    os.makedirs(_long_path(directory), exist_ok=True)
     while True:
         temporary = os.path.join(
             directory, f'{prefix}{os.urandom(8).hex()}{_PARTIAL_SUFFIX}')
         try:
-            opened = open(temporary, 'xb')
+            opened = open(_long_path(temporary), 'xb')
         except FileExistsError:
             continue
         break
@@ -2072,10 +2073,10 @@ def _replace_atomically(output_path, write, prefix='.spacr_tmp_'):
             write(handle)
             handle.flush()
             os.fsync(handle.fileno())
-        os.replace(temporary, output_path)
+        os.replace(_long_path(temporary), _long_path(output_path))
     except BaseException:
         try:
-            os.remove(temporary)
+            os.remove(_long_path(temporary))
         except OSError:
             pass
         raise
@@ -3470,6 +3471,11 @@ def _describe_processed_folder(folder):
     return '; '.join(parts), advice
 
 
+_SPACR_PLATE_FOLDERS = frozenset((
+    'settings', 'orig', 'stack', 'channel_stack', 'masks', 'merged',
+    'measurements', 'datasets', 'test'))
+
+
 def _no_stacks_error(src, requested_src, regex, metadata_type):
     """Build the error for a run that produced no field stack, naming the likely cause.
 
@@ -3495,8 +3501,14 @@ def _no_stacks_error(src, requested_src, regex, metadata_type):
             entries = sorted(_listdir_visible(subject))
         except OSError:
             entries = []
-    subdirs = [name for name in entries
-               if os.path.isdir(os.path.join(subject, name))][:6]
+    folders = [name for name in entries
+               if os.path.isdir(os.path.join(subject, name))]
+    own = [name for name in folders if name in _SPACR_PLATE_FOLDERS]
+    subdirs = [name for name in folders
+               if name not in _SPACR_PLATE_FOLDERS][:6]
+    other_files = [name for name in entries
+                   if os.path.isfile(os.path.join(subject, name))
+                   and not name.lower().endswith(_RAW_IMAGE_SUFFIXES)]
     subject_images = [name for name in entries
                       if name.lower().endswith(_RAW_IMAGE_SUFFIXES)]
     summary, advice = _describe_processed_folder(subject)
@@ -3514,6 +3526,23 @@ def _no_stacks_error(src, requested_src, regex, metadata_type):
         hint += (f" It holds no images but does hold sub-folders "
                  f"({', '.join(subdirs)}) — if those are plates, point "
                  f"src at one of them rather than at their parent.")
+    elif not summary:
+        hint += f' {subject} holds no image files at all'
+        if own:
+            hint += (f"; its only sub-folders ({', '.join(own)}) are "
+                     f"spaCR's own output, not plates (every run writes "
+                     f"settings/ first)")
+        hint += '.'
+        if other_files:
+            shown = ', '.join(other_files[:6])
+            more = ', …' if len(other_files) > 6 else ''
+            hint += (f' It does hold {len(other_files)} other file(s) '
+                     f'({shown}{more}), but spaCR reads only files ending in '
+                     f'{", ".join(_RAW_IMAGE_SUFFIXES)}; export or convert '
+                     f'the images to one of those formats.')
+        hint += (' Set src to the folder that directly holds the raw image '
+                 'files of one plate, or check that the images finished '
+                 'copying into this one.')
     return FileNotFoundError(
         f"No image stacks were produced from {src}. spaCR found "
         f"{len(images)} image file(s) directly in that folder.{hint}")
@@ -3854,8 +3883,8 @@ def _preprocess_mapped_volume_series(settings):
                                      | getattr(os, 'O_NONBLOCK', 0))
                             with os.fdopen(os.open(path, flags), 'rb') as handle:
                                 info = os.fstat(handle.fileno())
-                                opened = [info.st_dev, info.st_ino, info.st_size,
-                                          info.st_mtime_ns, info.st_ctime_ns]
+                                opened = core._watch_stat_identity(
+                                    info, descriptor=handle.fileno())
                                 if opened != inputs[name]['identity']:
                                     raise ValueError(f'Native T-by-Z input changed: {name}')
                                 with tifffile.TiffFile(handle, name=path) as image:
@@ -3863,8 +3892,8 @@ def _preprocess_mapped_volume_series(settings):
                                         raise ValueError(f'Native T-by-Z input must be one YX plane: {name}')
                                     plane = image.series[0].asarray()
                                 info = os.fstat(handle.fileno())
-                                if [info.st_dev, info.st_ino, info.st_size,
-                                    info.st_mtime_ns, info.st_ctime_ns] != opened:
+                                if core._watch_stat_identity(
+                                        info, descriptor=handle.fileno()) != opened:
                                     raise ValueError(f'Native T-by-Z input changed: {name}')
                             if (plane.ndim != 2 or plane.dtype.kind not in 'uif'
                                     or not np.isfinite(plane).all()):
@@ -5260,7 +5289,7 @@ def _listdir_visible(folder):
         dot-files.
     :raises OSError: whatever :func:`os.listdir` raises for ``folder``.
     """
-    return [name for name in os.listdir(folder) if not name.startswith('.')]
+    return [name for name in os.listdir(_long_path(folder)) if not name.startswith('.')]
 
 
 def _save_array_atomic(output_path, array):
@@ -5299,8 +5328,8 @@ def _load_array_any(path):
     """
     if path.endswith(('.tif', '.tiff')):
         import tifffile
-        return tifffile.imread(path)
-    return np.load(path, allow_pickle=False)
+        return tifffile.imread(_long_path(path))
+    return np.load(_long_path(path), allow_pickle=False)
 
 
 def _load_and_concatenate_arrays(
@@ -8288,6 +8317,65 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         train_loaders.crop_loading_policy = data.crop_loading_policy
         return train_loaders, val_loaders, train_fig
 
+def _no_training_crops_error(src, db_path, object_type, png_type):
+    """Build the error for a training set whose source has no crop rows at all.
+
+    Neither ``png_list`` nor the ``object_type`` measurement table gave a row,
+    so there is nothing to select classes from. The message says which of the
+    two the database lacks, or that there is no database, and what to change.
+
+    :param src: the source folder the user chose.
+    :param db_path: ``<src>/measurements/measurements.db``.
+    :param object_type: the object table the crop list falls back to.
+    :param png_type: the ``path_string`` the crops were filtered on.
+    :returns: a :class:`FileNotFoundError` when there is no database, else a
+        :class:`ValueError`.
+    """
+    import sqlite3
+
+    from .database_concurrency import connect as _connect_database
+
+    if os.path.isfile(src):
+        return FileNotFoundError(
+            f"No crops to train on: src is the file {src}, but Classify "
+            f"needs the plate folder that holds measurements/measurements.db. "
+            f"Set src to that plate folder.")
+    if not os.path.isfile(db_path):
+        return FileNotFoundError(
+            f"No crops to train on in {src}: there is no {db_path}. Classify "
+            f"builds its training set from the objects the Measure step "
+            f"recorded there. Set src to the plate folder Measure ran on (the "
+            f"folder that holds measurements/, not its parent or a "
+            f"sub-folder), or run Measure on this plate first.")
+    counts = {}
+    try:
+        conn = _connect_database(db_path, readonly=True)
+        try:
+            names = [row[0] for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")]
+            for name in ('png_list', object_type):
+                if name in names:
+                    quoted = name.replace('"', '""')
+                    counts[name] = conn.execute(
+                        f'SELECT COUNT(*) FROM "{quoted}"').fetchone()[0]
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        names = []
+
+    said = [f"'{name}' has {counts[name]} row(s)" if name in counts
+            else f"no '{name}' table" for name in ('png_list', object_type)]
+    present = ', '.join(sorted(names)) or 'none'
+    return ValueError(
+        f"No crops to train on in {src}: {db_path} has {said[0]} "
+        f"and {said[1]} (tables present: {present}). The crop "
+        f"type comes from path_string={png_type!r}, which reads the "
+        f"'{object_type}' objects. Run Measure on this plate with the "
+        f"{object_type} objects segmented, or set path_string to the crop "
+        f"type the project has, for example 'nucleus_png' for nucleus "
+        f"crops.")
+
+
 def generate_training_dataset(settings):
     """
     Build a balanced training/testing dataset from one of:
@@ -8615,6 +8703,8 @@ def generate_training_dataset(settings):
 
         object_type = crop_object_type(png_type)
         png_df = _load_png_table(db_path, object_type)
+        if png_df.empty or 'png_path' not in png_df.columns:
+            raise _no_training_crops_error(src, db_path, object_type, png_type)
 
         fixed_paths = [ _fix_path_under_src(src, p) for p in png_df['png_path'] ]
         png_df['png_path'] = fixed_paths
@@ -9103,7 +9193,7 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                 destination.append(item)
             print(split_report.summary())
             os.makedirs(dst, exist_ok=True)
-            with open(os.path.join(dst, '.spacr_split.json'), 'w') as handle:
+            with open(os.path.join(dst, '.spacr_split.json'), 'w', encoding="utf-8") as handle:
                 json.dump(split_report.to_dict(), handle, indent=2,
                           sort_keys=True)
 

@@ -1,5 +1,10 @@
 # spaCR features
 
+Agent rules and dated handoffs live in [spacr/resources/AI](../spacr/resources/AI/);
+read the [current handoff](../spacr/resources/AI/HANDOFF.md) before working.
+
+Dated development snapshots are mapped in the [private archive index](../spacr/resources/AI/archive-index.md).
+
 Two lists, and **neither one blocks a release**.
 
 | | what it holds |

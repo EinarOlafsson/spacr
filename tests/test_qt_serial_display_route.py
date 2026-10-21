@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "tools" / "run_qt_serial_acceptance.sh"
 
@@ -86,6 +88,7 @@ def test_serial_rejects_an_offscreen_app_before_pytest_collection(tmp_path):
     assert order.read_text(encoding="utf-8").splitlines() == ["application"]
 
 
+@pytest.mark.posix_only
 def test_serial_shell_guards_the_hard_limits_and_display_preflight():
     script = RUNNER.read_text(encoding="utf-8")
     assert '"$memory_max" != "12884901888"' in script

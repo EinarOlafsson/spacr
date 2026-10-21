@@ -2038,7 +2038,7 @@ def test_missing_file_reports_inline(screen, tmp_path):
 
 def test_non_sqlite_file_reports_inline(screen, tmp_path):
     junk = tmp_path / "notadb.db"
-    junk.write_text("this is a CSV, not a database\n1,2,3\n" * 100)
+    junk.write_text("this is a CSV, not a database\n1,2,3\n" * 100, encoding="utf-8")
     assert screen.set_database(str(junk)) is False
     assert "not a SQLite database" in screen.status_text()
     assert screen.last_error

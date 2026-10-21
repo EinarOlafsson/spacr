@@ -243,11 +243,11 @@ class TestTheChannelOrderSidecar:
 
     def test_a_stage_with_stacks_updates_the_sidecar(self, tmp_path):
         sidecar = tmp_path / "channel_order.json"
-        sidecar.write_text(json.dumps({"channels": ["dapi", "gfp"]}))
+        sidecar.write_text(json.dumps({"channels": ["dapi", "gfp"]}), encoding="utf-8")
 
         meta = json.loads(sidecar.read_text(encoding="utf-8"))
         meta["mask_channels"] = ["cell_mask"]
-        sidecar.write_text(json.dumps(meta, indent=2))
+        sidecar.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
         assert json.loads(sidecar.read_text(encoding="utf-8"))["mask_channels"] == \
             ["cell_mask"]

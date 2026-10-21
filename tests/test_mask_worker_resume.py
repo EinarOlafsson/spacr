@@ -199,7 +199,7 @@ def test_corrupt_receipt_is_refused(tmp_path):
         ledger.verified()
     payload = json.loads(ledger.store.path.read_text(encoding="utf-8"))
     payload['completed']['unknown.npz'] = {}
-    ledger.store.path.write_text(json.dumps(payload))
+    ledger.store.path.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(ValueError, match='unknown archive'):
         _ledger(tmp_path, records)
 

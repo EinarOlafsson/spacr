@@ -167,7 +167,7 @@ def test_the_fraction_reader_reports_both_failures_from_the_live_path(
     """
     from spacr import cell_montage as cm
 
-    husks = [node for node in ast.walk(ast.parse(open(cmv.__file__).read()))
+    husks = [node for node in ast.walk(ast.parse(open(cmv.__file__, encoding="utf-8").read()))
              if isinstance(node, ast.Try)
              and len(node.body) == 1 and isinstance(node.body[0], ast.Pass)]
     assert not husks, (

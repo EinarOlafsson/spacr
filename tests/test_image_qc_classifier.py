@@ -127,7 +127,7 @@ def test_builtin_cutoffs_move_to_the_threshold_and_fine_tuning_drops_them(
                     [0.91, 0.6, 0.96, 0.70, 0.5]], np.float32)
     plain = iq._qc_network()
     assert iq._calibrated_qc(plain, raw) is raw
-    monkeypatch.setattr(iq, '_builtin_qc_model_path', lambda: tmp_path / 'm.pt')
+    monkeypatch.setattr(iq, '_acquire_builtin_qc_model', lambda: tmp_path / 'm.pt')
     iq._save_qc_model(iq._qc_network(), tmp_path / 'm.pt', 'test')
     builtin = iq._base_qc_model(iq.quality_policy({'image_qc_classifier': True}))
     assert builtin.qc_cutoffs == iq._QC_BUILTIN_CUTOFFS
@@ -137,3 +137,111 @@ def test_builtin_cutoffs_move_to_the_threshold_and_fine_tuning_drops_them(
     at_cut = np.array([[iq._QC_BUILTIN_CUTOFFS[c] for c in iq._QC_CLASSES]],
                       np.float32)
     np.testing.assert_allclose(iq._calibrated_qc(builtin, at_cut), 0.5, atol=1e-5)
+
+
+def test_explicit_checkpoint_skips_builtin_download(tmp_path, monkeypatch):
+    path = iq._save_qc_model(iq._qc_network(), tmp_path / 'custom.pt', 'user')
+    monkeypatch.setattr(iq, '_acquire_builtin_qc_model', lambda: pytest.fail('built-in selected'))
+    model = iq._base_qc_model(iq.quality_policy({'image_qc_classifier_model': str(path)}))
+    assert not hasattr(model, 'qc_cutoffs')
+
+
+@pytest.mark.parametrize('version,classes', [(2, iq._QC_CLASSES), (1, iq._QC_CLASSES[::-1])])
+def test_checkpoint_refuses_version_and_class_order(tmp_path, version, classes):
+    import torch
+
+    path = tmp_path / 'wrong.pt'
+    torch.save(dict(version=version, classes=list(classes), state={}), path)
+    with pytest.raises(ValueError, match='not an image-quality classifier'):
+        iq._load_qc_model(path)
+
+
+def test_model_save_preserves_destination_and_cleans_partial_on_failure(tmp_path, monkeypatch):
+    import torch
+
+    path = tmp_path / 'model.pt'
+    path.write_bytes(b'previous checkpoint')
+
+    def fail(saved, temporary):
+        temporary.write_bytes(b'partial')
+        raise OSError('disk full')
+
+    monkeypatch.setattr(torch, 'save', fail)
+    with pytest.raises(OSError, match='disk full'):
+        iq._save_qc_model(iq._qc_network(), path, 'test')
+    assert path.read_bytes() == b'previous checkpoint'
+    assert list(tmp_path.iterdir()) == [path]
+
+
+def _pinned_fixture(tmp_path, monkeypatch):
+    import hashlib
+    from spacr import model_zoo as zoo
+
+    path = iq._save_qc_model(iq._qc_network(), tmp_path / 'fixture.pt', 'fixture')
+    payload = path.read_bytes()
+    monkeypatch.setattr(iq, '_QC_WEIGHTS_SHA256', hashlib.sha256(payload).hexdigest())
+    monkeypatch.setenv('SPACR_MODEL_CACHE', str(tmp_path / 'cache'))
+    monkeypatch.delenv('SPACR_MODEL_DOWNLOAD', raising=False)
+    monkeypatch.setattr(zoo, '_on_the_qt_gui_thread', lambda: False)
+    return zoo, payload
+
+
+def test_pinned_default_download_is_immutable_verified_and_cached_offline(tmp_path, monkeypatch):
+    zoo, payload = _pinned_fixture(tmp_path, monkeypatch)
+    seen = []
+
+    def stream(uri, **kwargs):
+        seen.append(uri)
+        return [payload], len(payload)
+
+    monkeypatch.setattr(zoo, 'open_uri', stream)
+    model = iq._base_qc_model(iq.quality_policy({}))
+    assert model.qc_cutoffs == iq._QC_BUILTIN_CUTOFFS
+    assert seen == [('https://huggingface.co/datasets/einarolafsson/models/resolve/'
+                     f'{iq._QC_WEIGHTS_REVISION}/{iq._QC_WEIGHTS_FILE}')]
+    cached = iq._builtin_qc_model_path()
+    assert cached.read_bytes() == payload
+    monkeypatch.setenv('SPACR_MODEL_DOWNLOAD', '0')
+    assert iq._acquire_builtin_qc_model() == cached
+    assert len(seen) == 1
+    cached.write_bytes(b'corrupt')
+    with pytest.raises(zoo.ModelUnreadable, match='disabled'):
+        iq._acquire_builtin_qc_model()
+
+
+def test_pinned_default_rejects_wrong_hash_without_legacy_cache_fallback(tmp_path, monkeypatch):
+    zoo, payload = _pinned_fixture(tmp_path, monkeypatch)
+    cached = iq._builtin_qc_model_path()
+    cached.parent.mkdir()
+    legacy = cached.parent / 'image_qc_classifier_v1.pt'
+    legacy.write_bytes(payload)
+    monkeypatch.setattr(zoo, 'open_uri', lambda uri, **kwargs: ([b'wrong'], 5))
+    with pytest.raises(zoo.ChecksumMismatch):
+        iq._acquire_builtin_qc_model()
+    assert not cached.exists()
+    assert legacy.read_bytes() == payload
+    assert not list(cached.parent.glob('*.part'))
+
+
+def test_concurrent_pinned_downloads_install_once(tmp_path, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    import threading
+
+    zoo, payload = _pinned_fixture(tmp_path, monkeypatch)
+    arrivals = threading.Barrier(2)
+    seen = []
+
+    def stream(uri, **kwargs):
+        seen.append(uri)
+        return [payload], len(payload)
+
+    def acquire():
+        arrivals.wait(timeout=10)
+        return iq._acquire_builtin_qc_model()
+
+    monkeypatch.setattr(zoo, 'open_uri', stream)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first, second = list(pool.map(lambda _: acquire(), range(2)))
+    assert first == second == iq._builtin_qc_model_path()
+    assert first.read_bytes() == payload
+    assert len(seen) == 1

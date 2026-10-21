@@ -1,8 +1,0 @@
-{
-  "reviewer": "Original Home root",
-  "source": "/mnt/wd4tb/spacr-worktrees/codex-n644-deep-cache-metadata-20261015/spacr/run_journal.py",
-  "before_sha256": "5be9f4f337ee82b5db65ecefa61129a8c97e80ab35ea5fe72aedd2411611e6af",
-  "after_sha256": "8644c01c92dda0c3a85bde5bd86be45a6206d12637103b61ae870fb305bd1deb",
-  "decision": "approve exact RecursionError addition in _read_cache_locations exception tuple",
-  "scope": "Malformed cache metadata follows existing empty-mapping fallback. All other source bytes, API prose, allowlist, environment and relocation behavior unchanged. Runtime acceptance remains bound to owner baseline/final receipts; no startup failure claim."
-}

@@ -2,12 +2,12 @@
 A FREE WEBSITE FOR spaCR AND THE MAINTAINER'S OTHER PROJECTS, WITH RICH EFFECTS
 ================================================================================
 
-Status:    BLOCKED ON MAINTAINER — release rebuild wired; private-site token
-           and current idle-laptop performance acceptance remain.
+Status:    DONE — published site, current release facts, retained mobile/browser
+           checks and maintainer-accepted laptop performance complete the scope.
 Requested: 2026-10-10 — "I'd like to have a free webpage for spacr and my other
            projects. I'd like the page to be able to have cooler effects than
            GitHub allows me to have."
-Owner:     Home (build); WS (translations and copy, once the layout settles)
+Owner:     Complete; release owner maintains future release synchronization.
 Related:   README deck; docs Pages budget (WS note 2026-10-10: the combined
            docs site is 960 of 996 MB); N684 animation; N674 field relief
 
@@ -177,7 +177,7 @@ This closes publication of these repairs. Current mobile Lighthouse thresholds
 and physical mid-range laptop60fps acceptance remain OPEN; full item PARTIAL.
 
 2026-10-15 — Release workflow now requests the site rebuild after PyPI/GitHub publication and final metadata;19 related checks pass.
-BLOCKED ON MAINTAINER: create a fine-grained token restricted to EinarOlafsson/site-src with Contents read/write; save it as SITE_DISPATCH_TOKEN in spacr Settings → Secrets and variables → Actions.
+Superseded 2026-10-21: SITE_DISPATCH_TOKEN already exists in repository secret metadata; no token creation or disclosure is requested. Its effective permissions still require an actual eligible dispatch.
 GitHub permission reference: https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event ; never commit or paste the token.
 After main promotion/release, confirm refresh-project-site and site production/Pages success; check published version, three installer links and DOI.
 On an idle physical mid-range laptop, verify normal unpaused hardware-rendered pointer/scroll interaction at60fps and current mobile Lighthouse≥90/95,<1MB; retain hardware/browser results. Home GPU was not used.
@@ -185,3 +185,35 @@ On an idle physical mid-range laptop, verify normal unpaused hardware-rendered p
 2026-10-16 — Same two website agents own completion: website_release + website_acceptance; incorporate Claude's published site changes and retain valid prior checks rather than repeating them.
 Current spaCR mobile check passed97 performance/100 accessibility/775,267bytes; finish actionable integration/publication work, identifying credential or physical-device gates precisely.
 Coordinate any shared docs/site3D column with the still-running wgpu owner; do not replace unpublished owner work or treat a blocker report as item completion.
+
+--------------------------------------------------------------------------------
+ACCEPTED WEBSITE SCOPE AND FUTURE RELEASE MAINTENANCE
+--------------------------------------------------------------------------------
+
+The current site is complete at the maintainer-accepted scope. Retain the
+published real-browser, reduced-motion, no-WebGL, privacy and first-view
+checks above, the spaCR mobile result of 97 performance / 100 accessibility
+and 775,267 bytes, and the current all-ten-locale 1.5.1.5 version, installer
+and DOI checks. The maintainer's "laptop performance is good!" accepts laptop
+performance qualitatively; no measured 60 fps result is claimed. No additional
+Safari matrix or future version publication is an acceptance gate for this
+item. Do not repeat these checks merely to reassure a new session.
+
+The release-triggered site refresh remains implemented for future releases.
+SITE_DISPATCH_TOKEN exists; never disclose it. The 2026-10-20 release run
+https://github.com/EinarOlafsson/spacr/actions/runs/39355725517 failed upstream
+and skipped refresh-project-site, so it demonstrated no site-dispatch failure.
+The Apptainer caller ordering was already corrected by c3911a7e30 to wait for
+the GitHub release that creates the tag. The release/CI owner retains upstream
+release work; it does not reopen the delivered website. The existing scheduled
+site build also refreshes release facts without manual site edits. If a future
+eligible dispatch actually fails, fix that concrete failure in the release
+lane rather than requesting another token or duplicating a known repair.
+
+Other projects' new content still waits for the maintainer's material, as
+explicitly excluded above. Installer/update/uninstall acceptance belongs to
+its own items. Item 655 is outside this website handoff; do not reopen it.
+
+2026-10-21 — DONE at maintainer-accepted scope: all ten live spaCR locales show 1.5.1.5 with current installer links and DOI; existing publication, privacy, reduced-motion/no-WebGL and mobile97/100/775,267-byte checks stand.
+Maintainer accepts laptop performance qualitatively ("laptop performance is good!"); no measured FPS is claimed and no new Safari or future-release gate is imposed.
+The dispatch secret exists; the old failed release skipped site refresh upstream, and its Apptainer tag-ordering repair is already published. Future release maintenance remains with the release owner, not an unfinished website requirement.

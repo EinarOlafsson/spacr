@@ -72,6 +72,10 @@ jobs:
           python -m pip list --format=freeze | grep -Ei \
             '^(numpy|scipy|torch|torchvision|cellpose|mahotas|PySide6|pandas|pytest|pytest-timeout)=' || true
 
+      - name: Restore pinned translation review inputs
+        if: hashFiles('docs/translation_reviews_revision.json') != ''
+        run: python tools/bootstrap_translation_reviews.py fetch
+
       - name: Record serial source and dependency provenance
         run: |
           python - <<'PY'

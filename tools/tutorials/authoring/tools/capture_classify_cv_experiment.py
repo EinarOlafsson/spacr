@@ -500,7 +500,7 @@ def main() -> int:
     }
     (output.parent / "source_manifest.json").write_text(
         json.dumps(manifest, indent=2, default=str) + "\n"
-    )
+    , encoding="utf-8")
     screen.close()
     settle(app, 40)
     window.close()

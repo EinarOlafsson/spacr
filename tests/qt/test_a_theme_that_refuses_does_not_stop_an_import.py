@@ -45,7 +45,7 @@ def test_the_list_matches_what_the_package_actually_does():
 
     root = pathlib.Path(__file__).resolve().parents[2] / "spacr" / "qt"
     found = {
-        f"spacr.qt.{path.relative_to(root).with_suffix('')}".replace("/", ".")
+        f"spacr.qt.{path.relative_to(root).with_suffix('').as_posix()}".replace("/", ".")
         for path in root.rglob("*.py")
         if "_register_widget_qss(" in path.read_text(encoding="utf-8")
     }

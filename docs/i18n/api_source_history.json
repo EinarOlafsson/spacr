@@ -1,45 +1,4 @@
 {
   "schema": 1,
-  "sources": {
-    "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297": {
-      "source_blocks_sha256": [
-        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
-        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
-      ],
-      "source_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
-      "text": "Paint the label and its cached outline while it has keyboard focus.\n\n:param event: paint request, passed to QLabel before drawing the outline."
-    },
-    "0710df7f403cb5357c20a1a67e2adef7afa3df16a3285a504f523da0e3227a92": {
-      "source_blocks_sha256": [
-        "50e972271dea387c5fba81151e0a4585ac58f85597d60adb36a8ef8e5fe02857",
-        "33df2767f5b4c7dc50824bff9cb8aaf8994abe9400c2ca9d811bec9df095cdfd",
-        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
-      ],
-      "source_sha256": "0710df7f403cb5357c20a1a67e2adef7afa3df16a3285a504f523da0e3227a92",
-      "text": "Draw the folded module's icon, and its maturity as a rim colour.\n\nThe colour carries information, so it is drawn rather than left to a\nstylesheet: alpha and beta modules are marked, and a reader who\ncannot distinguish the hues still gets the tooltip.\n\n:param event: the Qt paint event."
-    },
-    "40ffbcd0cc92ebb7fa5a1e2d037bd42c19a813a0d2ef35fee6256d0dba1d91f4": {
-      "source_blocks_sha256": [
-        "65f4368521a698c22915ab79ef37486844105d0ce8ebbaf2ba9be48934893aa9",
-        "74592b7583c043f62c368606ffcf692990657ed2b158ef7eeead40c3412c1ffa",
-        "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
-        "496082281022ae9e84a078c38a740bfadd6d5fdc5a6c4c56aba2f3c27434812d",
-        "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
-        "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
-        "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
-        "f2a0782310323264fda94ede0b8ad10a73d9556a6d6920ddc410176d9057d735",
-        "7c9ecb2fb9908014d596f6c4700049d5bfc0a5a825f11572156472c4bfe21818",
-        "e28ff7179d0185de46de73bafa6bf0f879215c0b7151b774741c7c4e7af2c515"
-      ],
-      "source_sha256": "40ffbcd0cc92ebb7fa5a1e2d037bd42c19a813a0d2ef35fee6256d0dba1d91f4",
-      "text": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.\n\nThe default window-wide actions include:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Open the corresponding app-registry entry if visible\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1            Show the shortcuts cheat sheet\n    ?             Use the active screen's help action, or show the cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %\n    Ctrl+/        Toggle the active module's AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n\n:func:`install` creates the bindings returned by :func:`installed`.\nOther actions in :data:`SHORTCUTS` are bound by the main window's menus;\nthe scroll gesture uses an event filter. Screen-owned bindings are included\nby :func:`mapped`, with their scope and saved overrides. Escape handling\nbelongs to the active screen, overlay or dialog rather than a binding\ninstalled here.\n\nDeclared window-wide key sequences can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate\neditable rows and saved overrides, applied to both existing and new screens."
-    },
-    "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355": {
-      "source_blocks_sha256": [
-        "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355"
-      ],
-      "source_sha256": "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355",
-      "text": "Forward to Qt, then forget what was remembered."
-    }
-  }
+  "sources": {}
 }

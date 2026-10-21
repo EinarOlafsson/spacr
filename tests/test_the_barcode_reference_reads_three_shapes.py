@@ -31,7 +31,7 @@ def test_a_fasta_is_read_record_by_record(tmp_path):
     from spacr.sequencing_qc import _read_reference
 
     fasta = tmp_path / "library.fasta"
-    fasta.write_text(">g1 some description\nacgt\nAACC\n>g2\ntttt\n")
+    fasta.write_text(">g1 some description\nacgt\nAACC\n>g2\ntttt\n", encoding="utf-8")
 
     assert _read_reference(str(fasta)) == {"g1": "ACGTAACC", "g2": "TTTT"}
 
@@ -59,7 +59,7 @@ def test_a_fasta_with_no_records_reads_as_empty(tmp_path, content):
     from spacr.sequencing_qc import _read_reference
 
     fasta = tmp_path / "empty.fasta"
-    fasta.write_text(content)
+    fasta.write_text(content, encoding="utf-8")
 
     assert _read_reference(str(fasta)) == {}
 
@@ -74,6 +74,6 @@ def test_a_fasta_with_a_header_and_no_sequence_still_records_the_name(tmp_path):
     from spacr.sequencing_qc import _read_reference
 
     fasta = tmp_path / "truncated.fasta"
-    fasta.write_text(">g1\n")
+    fasta.write_text(">g1\n", encoding="utf-8")
 
     assert _read_reference(str(fasta)) == {"g1": ""}

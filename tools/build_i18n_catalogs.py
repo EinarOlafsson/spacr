@@ -76,8 +76,22 @@ _REVIEWED_UI_MODULE = importlib.util.module_from_spec(_REVIEWED_UI_SPEC)
 _REVIEWED_UI_SPEC.loader.exec_module(_REVIEWED_UI_MODULE)
 REVIEWED_UI_TRANSLATIONS = _REVIEWED_UI_MODULE.REVIEWED_UI_TRANSLATIONS
 
+_REVIEW_INPUTS_MODULE = sys.modules.get("bootstrap_translation_reviews")
+if _REVIEW_INPUTS_MODULE is None:
+    _REVIEW_INPUTS_SPEC = importlib.util.spec_from_file_location(
+        "bootstrap_translation_reviews", ROOT / "tools" / "bootstrap_translation_reviews.py",
+    )
+    if _REVIEW_INPUTS_SPEC is None or _REVIEW_INPUTS_SPEC.loader is None:
+        raise ImportError("could not load tools/bootstrap_translation_reviews.py")
+    _REVIEW_INPUTS_MODULE = importlib.util.module_from_spec(_REVIEW_INPUTS_SPEC)
+    sys.modules[_REVIEW_INPUTS_SPEC.name] = _REVIEW_INPUTS_MODULE
+    _REVIEW_INPUTS_SPEC.loader.exec_module(_REVIEW_INPUTS_MODULE)
+
 CATALOG_DIR = ROOT / "spacr" / "qt" / "i18n_catalogs"
 REVIEWED_RUNTIME_DIR = ROOT / "docs" / "i18n" / "reviewed" / "runtime"
+_DEFAULT_REVIEWED_RUNTIME_DIR = REVIEWED_RUNTIME_DIR
+if __name__ == "__main__" and not {"-h", "--help"}.intersection(sys.argv[1:]):
+    _REVIEW_INPUTS_MODULE.ensure_review_inputs(ROOT)
 
 MODEL_SPECS = {
     "sv": ("Helsinki-NLP/opus-mt-en-sv", "en-sv", "Apache-2.0", ""),
@@ -1218,6 +1232,10 @@ def _opencc_runtime() -> tuple[str, Path]:
         packaged_config = packaged / "share" / "opencc" / "t2s.json"
         if libraries and packaged_config.is_file():
             return str(libraries[0]), packaged_config
+        # The Windows wheel ships a .pyd that exports none of the C entry
+        # points, so it is driven through the wheel's own converter class.
+        if packaged_config.is_file() and hasattr(_opencc_package, "OpenCC"):
+            return _OPENCC_PYTHON_ROUTE, packaged_config
     except Exception:                                        # noqa: BLE001
         pass
 
@@ -1229,7 +1247,8 @@ def _opencc_runtime() -> tuple[str, Path]:
     )
 
 
-_OPENCC_CONVERTERS: dict[tuple[str, str], tuple[object, int]] = {}
+_OPENCC_PYTHON_ROUTE = "opencc-python-wheel"
+_OPENCC_CONVERTERS: dict[tuple[str, str], tuple[object, int | None]] = {}
 _OPENCC_LOCK = threading.Lock()
 
 
@@ -1247,6 +1266,12 @@ def _opencc_converter(library_name: str, config_path: Path) -> tuple[object, int
         cached = _OPENCC_CONVERTERS.get(key)
         if cached is not None:
             return cached
+        if library_name == _OPENCC_PYTHON_ROUTE:
+            import opencc as _opencc_package
+
+            converter = _opencc_package.OpenCC(str(config_path))
+            _OPENCC_CONVERTERS[key] = (converter, None)
+            return converter, None
         library = ctypes.CDLL(library_name)
         library.opencc_open.argtypes = [ctypes.c_char_p]
         library.opencc_open.restype = ctypes.c_void_p
@@ -1274,6 +1299,8 @@ def _simplify_chinese_prose(value: str) -> str:
     def convert(fragment: str) -> str:
         if not fragment:
             return fragment
+        if handle is None:
+            return library.convert(fragment)
         encoded = fragment.encode("utf-8")
         pointer = library.opencc_convert_utf8(
             handle, encoded, len(encoded),
@@ -1646,11 +1673,11 @@ _SEMANTIC_BAD_TARGETS: Mapping[str, Mapping[str, str]] = {
     },
     "gate": {
         "fr": r"\b(?:portes?|fermetures?)\b",
-        "hi": r"(?:द्वार|दरवाज़[ाे]|दरवाज[ाे])",
+        "hi": r"(?:द्वार(?!\s*\((?:gate|gating)\))|दरवाज़[ाे]|दरवाज[ाे])",
         "ko": r"(?<![가-힣])문(?:들)?(?![가-힣])",
         "is": r"\b(?:hlið\w*|hurð\w*|dyr)\b",
-        "zh_CN": r"(?<!部)(?<!入)(?<!专)(?<!类)(?<!出)门(?!控|槛|户|口|类|窗|外)",
-        "pt": r"\b(?:portas?|portões?)\b",
+        "zh_CN": r"(?<!部)(?<!入)(?<!专)(?<!类)(?<!出)门(?!控|槛|户|口|类|窗|外|限)",
+        "pt": r"\b(?:portas?|portões?|portão)\b",
     },
     "power": {
         "fr": r"\bpouvoirs?\b",
@@ -1658,7 +1685,7 @@ _SEMANTIC_BAD_TARGETS: Mapping[str, Mapping[str, str]] = {
         "ko": r"(?:권력|권한|전력)",
         "is": r"\b(?:vald|völd|yfirráð|orka|afl)\b",
         "zh_CN": r"(?:权力|权势|权限|电力|功率)",
-        "pt": r"\bpoder(?:es)?\b",
+        "pt": r"\bpoder(?:es)?\b(?!\s+(?:estatístico|do teste|de detecção|amostral))",
     },
     "dictionary": {
         "fr": r"\b(?:dictées?|dictations?)\b",
@@ -2106,6 +2133,18 @@ _SCIENTIFIC_WELL_BAD_TARGET = {
 }
 
 
+#: Fixed adverbial and conjunctive expressions that contain the bad
+#: "well" word but never stand for a plate well, so a sentence that also
+#: names a plate well may still use them.
+_WELL_IDIOMS = {
+    "fr": r"\b(?:si bien que|bien que|bien entendu|bien sûr|aussi bien|"
+          r"eh bien|bien plus|bien moins|bien avant|bien après|bien souvent)\b",
+    "es": r"\b(?:si bien|más bien|bien sea|bien entendido|así como también)\b",
+    "pt": r"\b(?:bem como|bem-sucedid[ao]s?|bem definid[ao]s?|bem mais|"
+          r"bem menos|bem antes|bem depois)\b",
+}
+
+
 def _context_prose(text: str) -> str:
     """Hide hard API literals while retaining offsets for proximity tests."""
     return _CONTEXT_HARD_PROTECT_RE.sub(
@@ -2305,11 +2344,21 @@ def _semantic_false_friends(
     bad_well_word = _SCIENTIFIC_WELL_BAD_TARGET.get(language)
     if bad_well_word:
         total_well, noun_well = _english_well_sense_counts(source_text)
+        compound_adverbs = len(re.findall(
+            r"(?i)(?<![A-Za-z])well-(?:[a-z]+ed|known|kept|made|built|done|"
+            r"suited|worn|written|grown|understood|chosen|thought)\b",
+            source_text,
+        ))
+        noun_well = max(0, noun_well - compound_adverbs)
         allowed_adverbs = total_well - noun_well
         if (
             noun_well
-            and len(re.findall(bad_well_word, target_text, re.I))
-                > allowed_adverbs
+            and len(re.findall(
+                bad_well_word,
+                re.sub(_WELL_IDIOMS.get(language, r"(?!)"), " ", target_text,
+                       flags=re.I),
+                re.I,
+            )) > allowed_adverbs
         ):
             failures.append("scientific-well-as-adverb")
 
@@ -2319,7 +2368,8 @@ def _semantic_false_friends(
         and re.search(
             r"\b(?:CRISPR|pooled|genome[- ]wide|gRNAs?|genes?|genotypes?|"
             r"hits?|phenotypes?|libraries?|widefield|assay|regression|"
-            r"classification|screening)\b",
+            r"classification|screening|wells?|plates?|guides?|barcodes?|"
+            r"sequencing|image-based|screen-level|count_data)\b",
             source_text,
             re.I,
         )
@@ -2801,7 +2851,7 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
         (r"\bcrops?\b", r"作物", "图像裁剪"),
         (_COMPUTE_RUN_SOURCE, r"赛跑", "运行"),
         (_UI_SCREEN_SOURCE, r"筛选", "界面"),
-        (r"\bgates?\b", r"门(?!控)", "门控"),
+        (r"\bgates?\b", r"门(?!控|限)", "门控"),
         (r"\bwells?\b", r"井", "孔"),
     ),
     "pt": (
@@ -2818,7 +2868,7 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
         (r"\bcrops?\b", r"\bcultura\b", "recorte"),
         (_COMPUTE_RUN_SOURCE, r"\bcorridas\b", "execuções"),
         (_COMPUTE_RUN_SOURCE, r"\bcorrida\b", "execução"),
-        (r"\bpower\b", r"\b[Pp]oder(?:es)?\b", "potência"),
+        (r"\bpower\b", r"\b[Pp]oder(?:es)?\b(?!\s+(?:estatístico|do teste|de detecção|amostral))", "potência"),
         (_UI_SCREEN_SOURCE, r"\btriagens\b", "telas"),
         (_UI_SCREEN_SOURCE, r"\btriagem\b", "tela"),
         (r"\b(?:gates?|gating|gated)\b", r"\b[Pp]ortões\b", "gates"),
@@ -2998,7 +3048,7 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
         (_UI_SCREEN_SOURCE, r"स्क्रीनिंग", "स्क्रीन"),
         (r"\bgates?\b", r"दरवाजे", "गेट"),
         (r"\bgates?\b", r"दरवाजा", "गेट"),
-        (r"\bgates?\b", r"द्वार", "गेट"),
+        (r"\bgates?\b", r"द्वार(?!\s*\((?:gate|gating)\))", "गेट"),
         (r"\bwells?\b", r"कुआँ", "वेल"),
     ),
     "ko": (
@@ -4613,6 +4663,10 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "_lineage_trees.py")
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
+    paths.add(ROOT / "spacr" / "run_journal.py")
+    paths.add(ROOT / "spacr" / "regression_layout.py")
+    paths.add(ROOT / "spacr" / "regression_failure.py")
+    paths.add(ROOT / "spacr" / "ml.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4638,6 +4692,12 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
+        if path == source_root / "run_journal.py":
+            # Only the Windows owner-only secret refusal is catalogued here;
+            # the module's other captions reach the catalog through the GUI.
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "_restrict_to_owner"]
         if path == source_root / "utils.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
@@ -4714,6 +4774,30 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 constants[statement.target.id] = statement.value
         if helper_module == "screens/settings_model.py":
             found.update(_metadata_type_status_sources(tree, constants))
+        if helper_module == "shortcuts.py":
+            for statement in tree.body:
+                if not (
+                    isinstance(statement, ast.AnnAssign)
+                    and isinstance(statement.target, ast.Name)
+                    and statement.target.id == "SHORTCUTS"
+                    and isinstance(statement.value, ast.List)
+                ):
+                    continue
+                for shortcut in statement.value.elts:
+                    if not (
+                        isinstance(shortcut, ast.Call)
+                        and isinstance(shortcut.func, ast.Name)
+                        and shortcut.func.id == "ShortcutSpec"
+                        and len(shortcut.args) >= 2
+                        and isinstance(shortcut.args[0], ast.Constant)
+                        and shortcut.args[0].value == "Ctrl+Alt+0"
+                        and isinstance(shortcut.args[1], ast.Constant)
+                        and isinstance(shortcut.args[1].value, str)
+                    ):
+                        continue
+                    value = shortcut.args[1].value
+                    if _looks_translatable(value):
+                        found.add(value.strip())
         if helper_module == "widgets/model_zoo_picker.py":
             mapping = constants.get("_SOURCE_TOOLTIPS")
             if isinstance(mapping, ast.Dict):
@@ -5127,6 +5211,8 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
     longer passes the current syntax, semantic, script, and exact-copy gates
     is therefore a hard error.
     """
+    if REVIEWED_RUNTIME_DIR == _DEFAULT_REVIEWED_RUNTIME_DIR:
+        _REVIEW_INPUTS_MODULE.ensure_review_inputs(ROOT, offline=True)
     directory = REVIEWED_RUNTIME_DIR / language
     if not directory.is_dir():
         return {}
@@ -7815,9 +7901,7 @@ def write_language(
     path = CATALOG_DIR / f"{language}.py"
     text = (
         f'"""spaCR localization catalog for {language}.\n\n'
-        f"Drafted with {model_id} ({license_name}) and corrected by spaCR's "
-        f"technical-context review. Rejected tails may use {SECONDARY_MODEL} "
-        f"({SECONDARY_LICENSE}). Generated by tools/build_i18n_catalogs.py.\n"
+        "Maintained with tools/build_i18n_catalogs.py.\n"
         '"""\n\n'
         + f'MODEL = {model_id!r}\nLICENSE = {license_name!r}\n'
         + f'SECONDARY_MODEL = {SECONDARY_MODEL!r}\n'

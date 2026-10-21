@@ -1,7 +1,0 @@
-{
-  "pid": 601062,
-  "cmd": "flock /mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock tools/run_capped.sh 6G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly --tb=short tests/qt/test_655_clear_figures_focus.py --junitxml=/mnt/wd4tb/scratch/n655-clear-focus-20261015/before.xml ",
-  "children": "",
-  "wait": "locks_lock_inode_wait",
-  "reason": "Coordinator authorized capped2G/thread1 light baseline exception after exact queued-copy cancellation."
-}

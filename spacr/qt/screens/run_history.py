@@ -508,6 +508,7 @@ class RunHistoryScreen(QWidget):
             "success": palette["success"],
             "failed": palette["error"],
             "running": palette["warning"],
+            "interrupted": palette["error"],
             "corrupt": palette["error"],
         }
         for record in self.records:

@@ -199,7 +199,7 @@ class FilenameMapper:
             "metadata_type": self.metadata_type,
             "regex":         self.regex,
             "n_records":     len(self.records),
-        }, indent=2))
+        }, indent=2), encoding="utf-8")
         return path
 
     @classmethod
@@ -210,7 +210,7 @@ class FilenameMapper:
         """
         path = Path(path)
         recs: List[FilenameRecord] = []
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 recs.append(FilenameRecord(
                     original_path=row["original_path"],
@@ -221,7 +221,7 @@ class FilenameMapper:
                 ))
         meta_path = path.with_suffix(".json")
         if meta_path.exists():
-            meta = json.loads(meta_path.read_text())
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
             return cls(recs, meta.get("metadata_type", "?"),
                         meta.get("regex", ""))
         return cls(recs, "?", "")
@@ -386,7 +386,7 @@ def stream_originals_to_stack(
         "image_channels": list(channel_names),
         "mask_channels":  [],
         "shape_H_W_C":    "final shape is (H, W, C_image + C_mask)",
-    }, indent=2))
+    }, indent=2), encoding="utf-8")
 
     mapper.save_csv(src / "filename_map.csv")
     LOG.info("wrote %d field stacks under %s + filename_map.csv",
@@ -792,9 +792,9 @@ def stream_masks_from_stack(
 
     sidecar = stacks[0].path.parent / "channel_order.json"
     try:
-        meta = json.loads(sidecar.read_text())
+        meta = json.loads(sidecar.read_text(encoding="utf-8"))
         meta["mask_channels"] = [mask_channel_name]
-        sidecar.write_text(json.dumps(meta, indent=2))
+        sidecar.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     except Exception as exc:
         LOG.warning("channel_order.json at %s was not updated with "
                     "mask_channels=%r (%s); readers of this stack will "

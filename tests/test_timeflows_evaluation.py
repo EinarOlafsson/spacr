@@ -138,6 +138,7 @@ def test_false_successor_links_are_counted_but_missing_annotations_are_not():
     assert [row['label'] for row in censored] == [91]
 
 
+@pytest.mark.needs_symlink
 def test_holdout_check_rejects_aliases_and_missing_provenance(tmp_path):
     training = tmp_path / 'training'
     training.mkdir()
@@ -155,7 +156,7 @@ def test_real_cli_writes_only_complete_reports_with_explicit_scope(tmp_path, mon
     movie = _movie(tmp_path / 'heldout')
     checkpoint = tmp_path / 'model.pt'
     checkpoint.write_bytes(b'checkpoint stand-in')
-    checkpoint.with_suffix('.pt.json').write_text(json.dumps({'movies': [str(tmp_path / 'training')]}))
+    checkpoint.with_suffix('.pt.json').write_text(json.dumps({'movies': [str(tmp_path / 'training')]}), encoding="utf-8")
     before = {path: evaluate.digest(path) for path in movie.rglob('*.tif')}
 
     def factory(path, device, seed, precision):

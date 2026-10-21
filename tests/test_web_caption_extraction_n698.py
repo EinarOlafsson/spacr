@@ -43,7 +43,7 @@ def nested_owner():
 def test_web_extractor_excludes_unowned_files_and_noncaption_data(web_sources):
     builder, write, root = web_sources
     write("not_an_owner.py", 'tr("An unowned sibling caption.")')
-    (root / "tools" / "other.py").write_text('tr("An unrelated tool caption.")')
+    (root / "tools" / "other.py").write_text('tr("An unrelated tool caption.")', encoding="utf-8")
     write("service.py", '''
 """An internal module description is not a web caption."""
 METADATA = {"key": "A model fact is not a translated caption."}
@@ -104,9 +104,9 @@ def test_web_sources_join_production_inventory_before_compact_filtering(web_sour
         "attribution.py", "measure.py", "channel_sorting.py", "utils.py",
         "object_classifier.py", "core.py",
         "psf_pipeline.py",
-        "_lineage_trees.py",
+        "_lineage_trees.py", "run_journal.py", "ml.py",
     ):
-        (source_root / filename).write_text("")
+        (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "_indirect_runtime_ui_sources", set)
     from spacr.qt import i18n
     monkeypatch.setitem(i18n._ROWS, "Compact web caption", ())

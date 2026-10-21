@@ -19,7 +19,7 @@ from tests.test_cov_12_ml_reporting import long_guide_frame
 def test_a_qc_folder_that_cannot_be_written_is_reported_not_raised(
         tmp_path, capsys):
     blocked = tmp_path / "results"
-    blocked.write_text("a file where the results folder should be")
+    blocked.write_text("a file where the results folder should be", encoding="utf-8")
     report = ml._report_exchangeability(
         long_guide_frame(row_effect=0.0, seed=0), "score",
         {"guide_permutation_block": "plateID",

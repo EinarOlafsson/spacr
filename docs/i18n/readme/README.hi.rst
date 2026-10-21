@@ -127,8 +127,8 @@
 
 .. code-block:: bash
 
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
 
 .. raw:: html
 
@@ -144,13 +144,13 @@
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Windows 10/11 के लिए spaCR 1.5.1.5 डाउनलोड करें"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Windows 10/11 के लिए spaCR 1.5.1.6 डाउनलोड करें"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="macOS 11+ (Intel और Apple Silicon) के लिए spaCR 1.5.1.5 डाउनलोड करें"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="macOS 11+ (Intel और Apple Silicon) के लिए spaCR 1.5.1.6 डाउनलोड करें"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="64-बिट Linux के लिए spaCR 1.5.1.5 डाउनलोड करें"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="64-बिट Linux के लिए spaCR 1.5.1.6 डाउनलोड करें"></a>
 
 .. spacr-installer-links-end
 
@@ -261,7 +261,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-from-source-light-3.desktop.svg"><img src="../../readme_images/hi/install-from-source-light-3.svg" alt="--dir क्लोन का पथ चुनता है; --branch शाखा या टैग चुनता है; --no-install बिना इंस्टॉल किए डाउनलोड करता है; --help विकल्प दिखाता है। packaging/source_install_excludes.txt में छोड़े गए सभी पथ दिए गए हैं। nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में --filter=blob:none जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। main की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 5059 MB लेती हैं (2026-10-21 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"></picture></a></div>
+   <div><a href="../../readme_text/hi/install-from-source-light-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-from-source-light-3.desktop.svg"><img src="../../readme_images/hi/install-from-source-light-3.svg" alt="--dir क्लोन का पथ चुनता है; --branch शाखा या टैग चुनता है; --no-install बिना इंस्टॉल किए डाउनलोड करता है; --help विकल्प दिखाता है। packaging/source_install_excludes.txt में छोड़े गए सभी पथ दिए गए हैं। nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में --filter=blob:none जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। main की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 735 MB लेती हैं (2026-10-21 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"></picture></a></div>
 
 .. raw:: html
 

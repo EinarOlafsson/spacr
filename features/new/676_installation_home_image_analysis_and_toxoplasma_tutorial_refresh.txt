@@ -4,7 +4,7 @@ INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
 
 Status:    in progress
 Requested: 2026-10-08
-Owner:     Workstation tutorial agent; workstation root integration and publication;
+Owner:     Codex workstation tutorial lane; integration and publication;
            API/docs/runtime agents supporting current source and translations;
            Home owns the actual Home Organism category and module layout.
 Related:   N615 tutorial publication, N649 Edit menu, N667 inline help,
@@ -224,3 +224,20 @@ data/n676_selective04_independent_source_peer_2026-10-15/ and
 data/ci_current_publication_selector04_2026-10-15/.
 
 2026-10-16 — Landed707/59ce785b443 requires Work/tutorial lane to re-record14/42/46/79 and check05/19–22/54/57/80 for old Make Masks clips; use current layout and fresh capture under existing lane ownership.
+
+2026-10-20 — Maintainer transfers item 676 workstation tutorials to Codex.
+Re-record GUI lessons on the current app; gate each part, publish passes end to end.
+Dry-run driver fixes and fresh retakes before 86/87; send freeze/crash stacks to Home.
+Lock commits; push only HEAD:nightly; deletion needs approval; restart AF3 on completion.
+
+2026-10-21 — Maintainer prioritizes published narration/media edits; Codex owns.
+Shorten narration gaps longer than 1 second to 1 second between actual sounds across all tutorials/voices; preserve every spoken word, captions and essential GUI actions.
+Correct Yokogawa pronunciation in the watched Mask generation tutorial and PyPI in Tutorial 1; add Docker installation to Tutorial 2.
+Remove irrelevant nightly/publication-status disclaimers; teach each feature factually and directly without changing its purpose.
+Use existing footage for these edits; further retakes are held while the maintainer clarifies their remaining scope. Validate and publish the revised media normally.
+
+2026-10-21 — Codex implements edits to existing narration and footage; item 676 remains open.
+Tutorial 1 PyPI is corrected in 24 English voices; 26 other-language audio tracks are unchanged. Normal 50-voice QA/onsets and 84-route candidate/pinned-host playback pass.
+Source-bound idle cuts preserve speech and demonstrated actions; the Mask example measures 1.03 s. Reviewed scenes in04/07/21 have explicit protection boundaries.
+Docker (02), Yokogawa (07/14), focused prose (02/04/05/07/17) and 13-language reviews are prepared; their revised media still need delivery.
+Remaining native idle boundaries need editorial review. Captures stay held; preserve original stages/logs and restart AF3 when the campaign ends.

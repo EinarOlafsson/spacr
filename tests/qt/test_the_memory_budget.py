@@ -23,6 +23,11 @@ def test_a_session_that_opens_no_deep_learning_module_never_imports_torch(
     makes the result depend on which tests ran in that worker first.  The
     subprocess still drives the real window and navigation path; it merely
     gives the session-under-test its own import state.
+
+    Mask's pipeline preload (8b49f2638b) deliberately imports torch three
+    seconds after Mask first opens, which a slow runner reached while still
+    navigating; it is switched off here so the session measures navigation
+    alone, and ``test_mask_preloads_its_pipeline.py`` covers the preload.
     """
     repo = Path(__file__).resolve().parents[2]
     settings_root = tmp_path / "qsettings"
@@ -41,7 +46,9 @@ def test_a_session_that_opens_no_deep_learning_module_never_imports_torch(
         import spacr
         assert Path(spacr.__file__).resolve().is_relative_to(
             Path({str(repo)!r}).resolve())
+        import spacr.qt.app as app_module
         from spacr.qt.app import MainWindow
+        app_module._ENTRY_PRELOADED_FOR = frozenset()
         app = QApplication.instance() or QApplication([])
         win = MainWindow()
         win.show()

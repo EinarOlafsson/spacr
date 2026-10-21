@@ -16,7 +16,7 @@ PLAYER=REPO/'docs/source/_extra/tutorials/app_v2.js'
 
 
 def names(value):
-    source=PLAYER.read_text()
+    source=PLAYER.read_text(encoding="utf-8")
     function=source[source.index('function tutorialExampleFiles('):source.index('\nfunction updateGuide(')]
     script=function+'\nconsole.log(JSON.stringify(tutorialExampleFiles(JSON.parse(process.argv[1]))));'
     result=subprocess.run(['node','-e',script,json.dumps(value)],text=True,capture_output=True,check=True)

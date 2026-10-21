@@ -2,19 +2,23 @@
 RESOLVE ALL OPEN GITHUB ISSUES; THE ITEM REOPENS WHENEVER ISSUES ARE ADDED
 ================================================================================
 
-Status:    OPEN — 2 open GitHub issues
+Status:    OPEN — 1 open GitHub issue
 Requested: maintainer, 2026-10-18 — "make an item that resolves all GitHub
            issues and gets reactivated every time issues are added, currently
            there are 4"
-Owner:     Claude Home
+Owner:     Codex root + widgets_g5 (regression input handling)
+Priority:  Release-blocking failures first; diagnose the active regression report now
 
 WHAT TO BUILD
-Fix every open issue on github.com/EinarOlafsson/spacr with tests, one commit
-per issue whose body says "Fixes #N". Nightly is not the default branch, so
+Fix every open issue on github.com/EinarOlafsson/spacr with necessary tests
+and a descriptive commit for each repair. Commit messages must describe the
+actual change without issue or feature-file numbers, following AGENTS rule 34.
+Nightly is not the default branch, so
 also comment on the issue with the fix commit, and close it once the fix is on
 nightly and verified, naming the commit and when it reaches a release.
-Where an issue needs a product decision, build the clear parts and put the
-open decision to the maintainer.
+While the maintainer is away, diagnose and fix newly opened reports without
+asking questions; missing facts block only the dependent issue. Do not infer
+the reporter's table contents from an AI summary or silently weaken validation.
 
 This item never finishes for good. The workflow .github/workflows/issues-item.yml
 runs on every issue opened, reopened, closed, deleted or transferred (and on
@@ -22,19 +26,25 @@ demand), and tools/sync_open_issues_item.py rewrites the Status line and the
 block below from the GitHub API, then commits only this file to nightly. With
 no open issues the Status reads DONE; a new issue turns it back to OPEN.
 
+CURRENT AUTHORIZED SCOPE (2026-10-21)
+Issue #157 reports a regression independent-variable table with grna but no
+configured column_name; a second occurrence names grna_name instead. Inspect
+the actual report, caller and layout validation before deciding whether input
+handling or actionable guidance needs repair. Keep malformed or ambiguous
+tables rejected. widgets_g5 owns an isolated implementation, focused tests,
+normal generated outputs and a ready commit; root owns publication, the issue
+comment and closure after verification on nightly.
+
 ACCEPTANCE
 Every issue in the block below is fixed on nightly with tests and closed.
 The block and Status match the GitHub issue list (pull requests excluded);
 running the tool twice changes nothing.
 
 --- OPEN ISSUES (auto) ---
-#155 [user-report] KeyError in classify_merged: 'png_path' (spacr-first-responder[bot], 2026-10-19)
-#156 [user-report] FileNotFoundError in mask: No image stacks were produced from <PATH> spaCR found 0 image file(s) directly … (spacr-first-responder[bot], 2026-10-19)
+#157 [user-report] ValueError in regression: Independent-variable table has 'grna' but not 'column_name'. A long table needs… (spacr-first-responder[bot], 2026-10-21)
 --- END OPEN ISSUES ---
 
-2026-10-18 — Registered with the sync tool and the issues workflow; four issues open (#146, #147, #150, #152).
-2026-10-18 — #146 (093ad790e) and #150 (9d8b49418) closed: item 696 already accepted 0/auto and float diameters; regression tests and the "an int" fix text added. #147 closed (9470f0466): Claude tool calls blocked for approval now get an Allow once / Don't allow dialog and a resumed session; other CLIs are told to hand over the command.
-2026-10-18 — #152: 4f0ff7e02 fixed the key matching and restores earlier suggestions after a failed round; maintainer then asked for chosen tables (own row, parent cell via parent key), feature classes by channel/family, and a scope of on-screen, all or chosen pages frozen at opening, remembered per database. Built as the Suggest menu's "Choose tables, features and images…" dialog (see the #152 commit); open until the maintainer confirms.
-2026-10-18 — The issues workflow fires only once issues-item.yml is on main (GitHub runs issue-event and dispatch workflows from the default branch), so the block updates automatically after the next release merge; before then run the tool by hand.
-2026-10-18 — #153 closed (03ef89e85): user error (missing src, every object channel None); the refusal now names each channel setting and the acquired indices from channels.
+2026-10-18 — Registered with the sync tool and the issues workflow. #146 (093ad790e) and #150 (9d8b49418) closed: item 696 already accepted 0/auto and float diameters; regression tests and the "an int" fix text added. #147 closed (9470f0466): Claude tool calls blocked for approval now get an Allow once / Don't allow dialog and a resumed session; other CLIs are told to hand over the command. #153 closed (03ef89e85): user error; the refusal names each channel setting and the acquired indices. #152: 4f0ff7e02 fixed the key matching and restores earlier suggestions after a failed round; maintainer then asked for chosen tables (own row, parent cell via parent key), feature classes by channel/family, and a scope of on-screen, all or chosen pages frozen at opening, remembered per database. Built as the Suggest menu's "Choose tables, features and images…" dialog (see the #152 commit); open until the maintainer confirms. The issues workflow fires only once issues-item.yml is on main (GitHub runs issue-event and dispatch workflows from the default branch), so the block updates automatically after the next release merge; before then run the tool by hand.
 2026-10-19 — #154 (keep_original_images defaulted to False, so a finished run deleted orig/): both original-image flags now default to True, cleanup and the save_original_images=False path log what they delete, the tooltip and its nine reviewed translations follow, regression tests added; reply to the issue is the maintainer's.
+2026-10-20 — #155 (Classify on a source with no png_list rows and no cell rows died with KeyError 'png_path') now refuses naming the missing database or empty table and what to change; #156 (user error: src held no images, only spaCR's own settings/) no longer calls settings/ a possible plate, names unreadable files and says where src must point. Regression tests added; draft replies await the maintainer.
+2026-10-21 — #157 now names the actual read-count column/settings and available headers while preserving strict numeric validation; both captions have nine reviewed translations. Eighteen behavior/owner checks, three shortcut-owner checks and the final 17 catalog/source checks pass; all ten pinned API catalogs reproduce byte-for-byte (reviews3214ea7, HFd1796ba). Root owns nightly publication, the GitHub reply and closure; other open issues remain tracked above.

@@ -327,7 +327,7 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
             # own console; the completed run's evidence is in the earlier
             # recording. The process ends here without waiting for the run.
             text = console_text()
-            inventory = json.loads((stage / 'runtime_inventory.json').read_text())
+            inventory = json.loads((stage / 'runtime_inventory.json').read_text(encoding="utf-8"))
             proof.update(accepted=True, scope='Run-start frame only: real Run press and live console',
                          console_at_frame=text[-4000:],
                          false_src_error_absent='src is missing' not in text,
@@ -382,7 +382,7 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
     if not database.is_file() or not reports:
         raise RuntimeError('The run wrote no measurements.db or OPS report')
     tables = independent_tables(database)
-    report_values = {p.parent.name: json.loads(p.read_text()) for p in reports}
+    report_values = {p.parent.name: json.loads(p.read_text(encoding="utf-8")) for p in reports}
     facts = barcode_facts(database, library)
     proof['outputs'] = {'database': str(database), 'tables': tables,
                         'reports': {k: {'path': str(destination / k / 'ops_report.json'),
@@ -397,7 +397,7 @@ def record_walkthrough(app, window, stage, captures, capture, settle, write_json
         if tables.get(required, {}).get('rows', 0) < 1:
             raise RuntimeError('The run wrote no rows to ' + required)
     proof['inputs_unchanged'] = all(_digest(folder / p) == v['sha256']
-                                    for p, v in json.loads((captures / 'input_manifest.json').read_text())['files'].items())
+                                    for p, v in json.loads((captures / 'input_manifest.json').read_text(encoding="utf-8"))['files'].items())
     if not proof['inputs_unchanged']:
         raise RuntimeError('The run changed a downloaded input file')
     write_json(captures / 'scientific_acceptance.json', proof)

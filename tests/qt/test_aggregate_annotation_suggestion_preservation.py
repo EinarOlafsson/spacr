@@ -52,3 +52,14 @@ def test_missing_or_malformed_slot_never_invents_a_class_or_judgement(screen):
     assert screen._suggestion_tip(0) == ""
 
 
+def test_database_set_aside_preserves_sqlite_companions_and_reports_missing_source(tmp_path):
+    database = tmp_path / "measurements.db"
+    database.write_bytes(b"database")
+    for suffix in ("-wal", "-shm"):
+        database.with_name(database.name + suffix).write_bytes(suffix.encode())
+    target = annotate._set_aside_example_database(database)
+    assert target.read_bytes() == b"database"
+    assert not database.exists()
+    for suffix in ("-wal", "-shm"):
+        assert target.with_name(target.name + suffix).read_bytes() == suffix.encode()
+    assert annotate._set_aside_example_database(database) is None

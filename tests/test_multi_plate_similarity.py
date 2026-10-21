@@ -92,6 +92,7 @@ def test_a_requested_crop_kind_filters_both_plates_without_reassigning_owners(tm
             [first, second], image_type="not-a-crop", feature_kind="embeddings")
 
 
+@pytest.mark.needs_symlink
 def test_a_symlink_to_the_same_database_is_not_another_plate(tmp_path):
     first, _ = _plate(tmp_path, "plate1")
     alias = tmp_path / "same-plate.db"

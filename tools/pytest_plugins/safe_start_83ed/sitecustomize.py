@@ -59,7 +59,7 @@ def _initialize():
             note('child_python_atexit_started')
             if _errors:
                 (evidence / 'collector-integrity-child.json').write_text(
-                    json.dumps({'errors': _errors}, indent=2) + '\n')
+                    json.dumps({'errors': _errors}, indent=2) + '\n', encoding="utf-8")
         except Exception as exc:
             _error('child-integrity-receipt', exc)
 

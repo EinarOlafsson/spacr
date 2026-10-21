@@ -42,7 +42,8 @@ pytestmark = pytest.mark.skipif(
     not TOOL.exists() or not NOTEBOOKS.is_dir(),
     reason="run from a source checkout")
 
-ALL = sorted(NOTEBOOKS.glob("*.ipynb")) if NOTEBOOKS.is_dir() else []
+ALL = sorted(path for path in NOTEBOOKS.glob("*.ipynb")
+             if path.name != "00_workflow_browser.ipynb") if NOTEBOOKS.is_dir() else []
 
 
 def test_manifest_is_the_exact_maintained_notebook_inventory():
@@ -229,17 +230,13 @@ def _generated_settings_cells(path):
         for cell in notebook["cells"]
         if cell["cell_type"] == "code"
         and cell.get("metadata", {}).get("spacr", {}).get("generated")
-        in {"settings", "settings-organelle"}
+        in {"settings", "settings-advanced", "settings-organelle"}
     ]
 
 
 def _generated_help(path):
-    notebook = json.loads(path.read_text(encoding="utf-8"))
-    for cell in notebook["cells"]:
-        kind = cell.get("metadata", {}).get("spacr", {}).get("generated")
-        if cell["cell_type"] == "markdown" and kind == "settings-help":
-            return "".join(cell["source"])
-    return ""
+    """The complete generated reference is deliberately outside initial cells."""
+    return (NOTEBOOKS / "reference" / f"{path.stem}.md").read_text(encoding="utf-8")
 
 
 def _generated_source(path, kind):
@@ -297,7 +294,7 @@ def test_all_outputs_and_execution_counts_are_cleared(path):
             assert cell.get("execution_count") is None
 
 
-def _settings_keys_by_variable(path):
+def _explicit_settings_keys_by_variable(path):
     found = {}
     for source in _generated_settings_cells(path):
         for statement in ast.parse(source).body:
@@ -323,9 +320,18 @@ def _settings_keys_by_variable(path):
     return found
 
 
+def _settings_keys_by_variable(path):
+    namespace = {}
+    for source in _generated_settings_cells(path):
+        exec(source, namespace)
+    entries = [(item, None, None, None) for item in _tool().declared_functions(path)]
+    return {name: list(namespace[name]) for dotted, *_rest in entries
+            for name in [_tool().setting_name(dotted, entries)]}
+
+
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_each_setting_is_declared_once_per_function(path):
-    by_variable = _settings_keys_by_variable(path)
+    by_variable = _explicit_settings_keys_by_variable(path)
     assert by_variable
     for variable, keys in by_variable.items():
         duplicates = sorted(key for key, count in Counter(keys).items()
@@ -343,12 +349,13 @@ def test_organelle_separation_is_derived_from_the_actual_keys(path):
         for cell in notebook["cells"]
     }
     primary = cells["settings"]
-    organelle = cells.get("settings-organelle", "")
     primary_names = set(re.findall(r"^\s*'([^']+)':", primary, re.M))
-    organelle_names = set(re.findall(r"^\s*'([^']+)':", organelle, re.M))
     assert not {key for key in primary_names if tool._is_organelle_key(key)}
-    assert all(tool._is_organelle_key(key) for key in organelle_names)
-    assert bool(organelle_names) == ("settings-organelle" in cells)
+    for names in _settings_keys_by_variable(path).values():
+        for key in names:
+            if tool._is_organelle_key(key):
+                assert f"**`{key}`**" in _generated_help(path)
+
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
@@ -372,6 +379,7 @@ def test_every_key_carries_a_description(path):
             keys.extend(key.value for key in value.keys
                         if isinstance(key, ast.Constant)
                         and isinstance(key.value, str))
+    keys = [key for names in _settings_keys_by_variable(path).values() for key in names]
     undescribed = [key for key in keys if f"**`{key}`**" not in help_text]
     assert not undescribed, f"{path.name}: no description for {undescribed}"
 
@@ -393,7 +401,7 @@ def test_explanations_settings_and_call_are_consecutive_cells(path):
     settings_cells = []
     while cursor < len(cells) and cells[cursor].get(
             "metadata", {}).get("spacr", {}).get("generated") in {
-                "settings", "settings-organelle"}:
+                "settings", "settings-advanced", "settings-organelle", "settings-editor"}:
         assert cells[cursor]["cell_type"] == "code"
         settings_cells.append(cells[cursor])
         cursor += 1
@@ -404,6 +412,8 @@ def test_explanations_settings_and_call_are_consecutive_cells(path):
         "generated") == "function-run"
 
     for settings_cell in settings_cells:
+        if settings_cell["metadata"]["spacr"]["generated"] != "settings":
+            continue
         source = "".join(settings_cell["source"])
         statuses = {
             "# Required settings",
@@ -493,52 +503,45 @@ def test_cli_requirements_drive_the_structured_notebook_statuses():
 def _setting_categories(path):
     categories = {}
     current = ""
-    status_headings = {
-        "Required settings", "Conditionally required settings",
-        "Optional settings",
-    }
-    for source in _generated_settings_cells(path):
-        for line in source.splitlines():
-            comment = re.match(r"^    # (.+)$", line)
-            if comment and comment.group(1) not in status_headings:
-                current = comment.group(1)
-                continue
-            setting = re.match(r"^    '([^']+)':", line)
-            if setting:
-                categories[setting.group(1)] = current
+    for line in _generated_help(path).splitlines():
+        if line.startswith("#### "):
+            current = line[5:]
+        match = re.match(r"^- \*\*`([^`]+)`", line)
+        if match:
+            categories[match.group(1)] = current
     return categories
 
 
-def test_key_inputs_use_the_current_curated_desktop_headings():
+def test_key_inputs_are_essential_and_advanced_groups_keep_curated_headings():
     expected = {
         "04_classify_machine_learning.ipynb": {
-            "positive_control_id": "Labels & Classes",
+            "positive_control_id": "Essential inputs",
             "n_estimators": "Classifier & Validation",
         },
         "05_map_barcodes.ipynb": {
-            "grna_csv": "Barcode References",
-            "regex": "Read Parsing",
+            "grna_csv": "Essential inputs",
+            "regex": "Essential inputs",
         },
         "06_regression.ipynb": {
-            "score_data": "Input Tables",
-            "count_data": "Input Tables",
-            "dependent_variable": "Response",
+            "score_data": "Essential inputs",
+            "count_data": "Essential inputs",
+            "dependent_variable": "Essential inputs",
         },
         "09_apply_cellpose.ipynb": {
-            "model_name": "Model",
+            "model_name": "Essential inputs",
             "CP_prob": "Detection Thresholds",
         },
         "11_activation_maps.ipynb": {
-            "model_path": "Model & Data",
+            "model_path": "Essential inputs",
             "target_layer": "Attribution Method",
         },
         "24_interpret_vision_model.ipynb": {
-            "db_path": "Source & provenance",
+            "db_path": "Essential inputs",
             "surrogate_model": "Surrogate & validation",
         },
         "26_sequencing_stats.ipynb": {
-            "count_data": "Reference & Count Tables",
-            "target_grnas_per_well": "Well Expectations",
+            "count_data": "Essential inputs",
+            "target_grnas_per_well": "Essential inputs",
         },
     }
     for name, headings in expected.items():
@@ -565,7 +568,7 @@ def test_mask_workflows_are_separate_and_scientifically_described():
         assert tool.declared_functions(path) == functions
 
     mask = json.loads((NOTEBOOKS / "01_generate_masks.ipynb").read_text(encoding="utf-8"))
-    overview = "".join(mask["cells"][0]["source"])
+    overview = _generated_help(NOTEBOOKS / "01_generate_masks.ipynb")
     assert "Generate per-object masks" in overview
     assert all(object_name in overview for object_name in (
         "cells", "nuclei", "pathogens", "organelles"))
@@ -618,22 +621,20 @@ def test_organelle_settings_have_a_separate_cell(name):
     general = next(cell for cell in cells
                    if cell.get("metadata", {}).get("spacr", {}).get(
                        "generated") == "settings")
-    organelle = next(cell for cell in cells
-                     if cell.get("metadata", {}).get("spacr", {}).get(
-                         "generated") == "settings-organelle")
     general_source = "".join(general["source"])
-    organelle_source = "".join(organelle["source"])
-    assert "'organelle_channel'" not in general_source
-    assert "'organelle_channel'" in organelle_source
-    assert "'number_of_organelles'" not in general_source
-    assert "'number_of_organelles'" in organelle_source
-    assert ".update({" in organelle_source
+    help_text = _generated_help(NOTEBOOKS / name)
+    assert "'organelle_channel':" not in general_source
+    assert "'number_of_organelles':" not in general_source
+    assert "**`organelle_channel`**" in help_text
+    assert "**`number_of_organelles`**" in help_text
+    assert "<summary>Advanced settings reference" in help_text
+
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_notebook_overviews_use_scientific_section_labels(path):
     notebook = json.loads(path.read_text(encoding="utf-8"))
-    overview = "".join(notebook["cells"][0]["source"])
+    overview = _generated_help(path)
     assert "**Purpose.**" in overview
     assert "**Recommended use.**" in overview
     assert "**Primary outputs.**" in overview
@@ -645,7 +646,7 @@ def test_consolidated_notebooks_name_the_current_desktop_route():
     tool = _tool()
     for name, route in tool.NOTEBOOK_DESKTOP_ROUTES.items():
         notebook = json.loads((NOTEBOOKS / name).read_text(encoding="utf-8"))
-        overview = "".join(notebook["cells"][0]["source"])
+        overview = _generated_help(NOTEBOOKS / name)
         assert f"**Desktop route.** {route}" in overview
 
 
@@ -680,7 +681,7 @@ def test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding(
 def test_volcano_overview_names_the_scientific_axes_and_actual_output():
     notebook = json.loads(
         (NOTEBOOKS / "30_volcano_plot.ipynb").read_text(encoding="utf-8"))
-    overview = "".join(notebook["cells"][0]["source"])
+    overview = _generated_help(NOTEBOOKS / "30_volcano_plot.ipynb")
     assert "negative log10-transformed p-values" in overview
     assert "configured dimensions and file format" in overview
 
@@ -697,7 +698,7 @@ def test_the_settings_dict_is_used_rather_than_decorative(path):
     if not source:
         pytest.skip("no generated cell")
     notebook = json.loads(path.read_text(encoding="utf-8"))
-    names = [n for n in ("settings",) if f"{n} = {{" in source]
+    names = [n for n in ("settings",) if f"{n} = " in source]
     if not names:
         pytest.skip("multi-function notebook names its dicts per function")
     code = "\n".join("".join(c["source"]) for c in notebook["cells"]
@@ -727,7 +728,7 @@ def test_signature_parameters_fall_back_to_live_tooltips():
 def test_missing_setting_descriptions_fail_generation_instead_of_shipping_a_placeholder():
     tool = _tool()
     with pytest.raises(ValueError, match="has no API or tooltip description"):
-        tool.render_help([
+        tool.render_reference([
             ("spacr.unknown.function", "signature",
              {"definitely_undocumented_key": None}, {}),
         ])
@@ -747,7 +748,7 @@ def test_a_factoryless_function_says_where_its_keys_came_from():
     tool = _tool()
     entries = [("spacr.submodules.count_phenotypes", "source",
                 {"src": None}, {})]
-    rendered = tool.render_help(entries)
+    rendered = tool.render_reference(entries)
     assert "does not yet expose a settings factory" in rendered
 
 
@@ -797,3 +798,308 @@ def test_check_mode_is_what_the_drift_guard_calls():
     """--check is the contract; the guard above runs it as a subprocess."""
     source = TOOL.read_text(encoding="utf-8")
     assert '"--check"' in source or "'--check'" in source
+
+
+def test_collapsed_configuration_preserves_every_current_setting_and_default():
+    tool = _tool()
+    for path in ALL:
+        notebook = json.loads(path.read_text(encoding="utf-8"))
+        actual_keys = _settings_keys_by_variable(path)
+        namespace = {}
+        for source in _generated_settings_cells(path):
+            exec(source, namespace)
+        for dotted in tool.declared_functions(path):
+            _shape, expected = tool.notebook_surface(
+                tool.resolve(dotted), dotted, notebook_name=path.name)
+            name = tool.setting_name(dotted, [(item, None, None, None)
+                                             for item in tool.declared_functions(path)])
+            assert set(actual_keys[name]) == set(expected), (path.name, dotted)
+            expected_values = {}
+            for key, value in expected.items():
+                literal = tool._literal(value, dotted=dotted, key=key)
+                expected_values[key] = eval(literal)
+            assert namespace[name] == expected_values, (path.name, dotted)
+        for cell in notebook["cells"]:
+            kind = cell.get("metadata", {}).get("spacr", {}).get("generated")
+            if kind in {"settings-advanced", "settings-organelle"}:
+                assert cell["metadata"]["jupyter"]["source_hidden"] is True
+            if kind == "settings":
+                assert not cell["metadata"].get("jupyter", {}).get("source_hidden")
+
+
+def test_current_notebooks_validate_and_collapsible_reference_renders():
+    nbformat = pytest.importorskip("nbformat")
+    markdown = pytest.importorskip("nbconvert.filters.markdown")
+    for path in [*ALL, NOTEBOOKS / "00_workflow_browser.ipynb"]:
+        notebook = nbformat.read(path, as_version=4)
+        nbformat.validate(notebook)
+        for cell in notebook.cells:
+            if cell.cell_type == "code":
+                ast.parse(cell.source)
+        assert len({cell.id for cell in notebook.cells}) == len(notebook.cells)
+    rendered = markdown.markdown2html(_generated_help(ALL[0]))
+    assert "<details>" in rendered and "<summary>" in rendered
+    assert "<strong><code>src</code></strong>" in rendered
+
+
+def test_browser_and_index_cover_the_actual_registry_and_give_direct_api_links():
+    from spacr.cli import MODULES
+
+    tool = _tool()
+    browser = NOTEBOOKS / tool.BROWSER_FILENAME
+    assert browser.is_file()
+    assert {path.name for path in NOTEBOOKS.glob("*.ipynb")} == (
+        set(tool.NOTEBOOK_SPECS) | {tool.BROWSER_FILENAME})
+    index = (NOTEBOOKS / "README.md").read_text(encoding="utf-8")
+    assert index == tool.render_notebook_index()
+    for key, module in MODULES.items():
+        assert f"| `{key}` |" in index
+        assert tool.api_url(module.entry.replace(":", ".")) in index
+    for filename in tool.NOTEBOOK_SPECS:
+        assert f"]({filename})" in index
+
+
+def test_browser_setup_and_editor_are_safe_and_preserve_rejected_settings(monkeypatch):
+    monkeypatch.syspath_prepend(str(NOTEBOOKS))
+    pytest.importorskip("ipywidgets")
+    from spacr.cli import MODULES, resolve_settings
+
+    browser = json.loads(_tool().render_workflow_browser())
+    namespace = {}
+    for cell in browser["cells"]:
+        if cell["cell_type"] == "code":
+            exec("".join(cell["source"]), namespace)
+    assert namespace["RUN_WORKFLOW"] is False
+    assert namespace["settings"] == resolve_settings(MODULES["measure"], None)
+    assert namespace["advanced"].selected_index is None
+    assert set(value for _label, value in namespace["module_picker"].options) == set(MODULES)
+    before = dict(namespace["settings"])
+    namespace["editor"].value = '{"unrecognized_setting": 1}'
+    namespace["apply_button"].click()
+    assert namespace["settings"] == before
+    invalid = dict(before, batch_size="not a number")
+    namespace["editor"].value = json.dumps(invalid, default=str)
+    namespace["apply_button"].click()
+    assert namespace["settings"] == before
+    edits = dict(before, src="/a/plate", channels=[0, 1])
+    namespace["editor"].value = json.dumps(edits, default=str)
+    namespace["apply_button"].click()
+    assert namespace["settings"]["src"] == "/a/plate"
+    assert namespace["settings"]["channels"] == [0, 1]
+    assert set(namespace["settings"]) == set(before)
+    namespace["module_picker"].close()
+    namespace["advanced"].close()
+
+
+def test_browser_works_without_optional_widgets(monkeypatch):
+    import builtins
+
+    original = builtins.__import__
+
+    def without_widgets(name, *args, **kwargs):
+        if name == "ipywidgets":
+            raise ImportError("optional notebook widgets absent")
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", without_widgets)
+    namespace = {}
+    for cell in json.loads(_tool().render_workflow_browser())["cells"]:
+        if cell["cell_type"] == "code":
+            exec("".join(cell["source"]), namespace)
+    assert namespace["module_picker"] is None
+    assert namespace["settings"]
+    assert namespace["RUN_WORKFLOW"] is False
+
+
+def test_advanced_cell_generation_preserves_existing_notebook_tags():
+    tool = _tool()
+    cell = {"metadata": {"tags": ["parameters", "hide-output"]}}
+    tool._mark_generated(cell, tool.ADVANCED_CELL_KIND)
+    tool._mark_generated(cell, tool.ADVANCED_CELL_KIND)
+    assert cell["metadata"]["tags"] == ["parameters", "hide-output", "advanced-settings"]
+    assert cell["metadata"]["jupyter"]["source_hidden"] is True
+
+
+def test_guided_advanced_editor_is_closed_edits_run_settings_and_resets_defaults():
+    pytest.importorskip("ipywidgets")
+    namespace = {}
+    helper = NOTEBOOKS / "_spacr_notebook_widgets.py"
+    assert helper.read_text(encoding="utf-8") == _tool()._ADVANCED_EDITOR
+    exec(helper.read_text(encoding="utf-8"), namespace)
+    values = {"src": "/plate", "channels": [0, 1], "batch_size": 8,
+              "plot": False, "organelle_channel": None}
+    defaults = dict(values, batch_size=16)
+    widget = namespace["show_advanced_settings"](values, ["src", "channels"], defaults)
+    assert widget.selected_index is None
+    groups = widget.children[0]
+    assert groups.selected_index is None
+    found = []
+    for panel in groups.children:
+        shown = ast.literal_eval(panel.children[0].value)
+        found.extend(shown)
+        if "batch_size" in shown:
+            chosen = panel
+    assert set(found) == {"batch_size", "plot", "organelle_channel"}
+    assert len(found) == len(set(found))
+    editor, buttons, _message = chosen.children
+    apply, reset = buttons.children
+    prior = dict(values)
+    editor.value = "not a dictionary"
+    apply.click()
+    assert values == prior
+    reset.click()
+    assert values["batch_size"] == 16
+    edits = ast.literal_eval(editor.value)
+    edits["batch_size"] = "not a number"
+    editor.value = repr(edits)
+    apply.click()
+    assert values["batch_size"] == 16
+    edits["batch_size"] = 32
+    editor.value = repr(edits)
+    apply.click()
+    assert values["batch_size"] == 32
+    assert values["src"] == "/plate" and values["channels"] == [0, 1]
+    reset.click()
+    assert values["batch_size"] == 16
+    for panel in groups.children:
+        for child in panel.children:
+            child.close()
+        panel.close()
+    groups.close()
+    widget.close()
+
+
+def test_initial_markdown_has_no_parameter_wall_even_without_html_support():
+    tool = _tool()
+    for path in ALL:
+        notebook = json.loads(path.read_text())
+        markdown = "\n".join("".join(cell["source"]) for cell in notebook["cells"] if cell["cell_type"] == "markdown")
+        assert "<details>" not in markdown and "<summary>" not in markdown
+        assert "**`src`**" not in markdown
+        assert "**Purpose.**" not in markdown
+        assert "Conditionally required settings" not in markdown
+        assert len(markdown) < 1700, (path.name, len(markdown))
+        assert f"reference/{path.stem}.md" in markdown
+        reference = _generated_help(path)
+        for dotted in tool.declared_functions(path):
+            shape, keys = tool.notebook_surface(tool.resolve(dotted), dotted, notebook_name=path.name)
+            for key in keys:
+                assert f"**`{key}`**" in reference
+        assert "show_help_menu" in _generated_source(path, "settings-editor")
+    mask = NOTEBOOKS / "01_generate_masks.ipynb"
+    assert set(_explicit_settings_keys_by_variable(mask)["settings"]) == {
+        "src", "channels", "cell_channel", "nucleus_channel", "pathogen_channel"}
+    code = "\n".join(_generated_settings_cells(mask))
+    assert "'n_jobs':" not in code and "'cell_diameter':" not in code
+
+
+@pytest.mark.parametrize("name", ["00_workflow_browser.ipynb", *[path.name for path in ALL]])
+def test_colab_mirrors_current_workflows_with_native_forms_and_no_hidden_help_wall(name):
+    import hashlib
+    nbformat = pytest.importorskip("nbformat")
+    tool = _tool()
+    path = NOTEBOOKS / "colab" / name
+    notebook = nbformat.read(path, as_version=4)
+    nbformat.validate(notebook)
+    assert notebook.metadata.spacr.colab_source == name
+    assert notebook.metadata.colab.toc_visible is True
+    assert len({cell.id for cell in notebook.cells}) == len(notebook.cells)
+    markdown = "\n".join(cell.source for cell in notebook.cells if cell.cell_type == "markdown")
+    assert len(markdown) < 1050 and "<details>" not in markdown
+    assert all(f"## {section}" in markdown for section in ("Setup", "Data", "Inputs", "Advanced", "Run", "Outputs"))
+    kinds = {}
+    for cell in notebook.cells:
+        if cell.cell_type != "code":
+            continue
+        ast.parse(cell.source)
+        assert cell.metadata.cellView == "form"
+        assert cell.source.startswith("#@title ")
+        assert cell.execution_count is None and not cell.outputs
+        kinds[cell.metadata.spacr.generated] = cell.source
+    assert 'INSTALL_SPACR = False #@param' in kinds["colab-setup"]
+    assert '[sys.executable, "-m", "pip", "install", PACKAGE, "ipywidgets"]' in kinds["colab-setup"]
+    assert hashlib.sha256(tool._ADVANCED_EDITOR.encode()).hexdigest() in kinds["colab-helper"]
+    assert 'DATA_SOURCE = "Existing runtime path" #@param' in kinds["colab-data"]
+    assert 'PREVIEW_OUTPUTS = False #@param' in kinds["colab-preview"]
+    assert 'DOWNLOAD_FILE = False #@param' in kinds["colab-download"]
+    run = kinds["function-run"] if name != tool.BROWSER_FILENAME else kinds["browser-run"]
+    assert 'RUN_WORKFLOW = False #@param' in run
+    # These cells must run harmlessly even without Colab, inputs, or pipeline imports.
+    exec(run, {})
+    exec(kinds['colab-preview'], {})
+    exec(kinds['colab-download'], {})
+    if name == tool.BROWSER_FILENAME:
+        return
+    entries = tool.notebook_entries(tool.NOTEBOOK_SPECS[name])
+    expected_fields = []
+    namespace = {}
+    exec(kinds["colab-defaults"], namespace)
+    for index, (dotted, shape, keys, _docs) in enumerate(entries):
+        source = kinds[f"colab-inputs-{index}"]
+        essential = [key for key in keys if tool._essential_setting(dotted, shape, key, keys) and not tool._is_organelle_key(key)]
+        form_lines = [line for line in source.splitlines() if "#@param" in line]
+        assert len(form_lines) == len(essential)
+        assert {line.partition(" = ")[0] for line in form_lines} == {f"stage_{index + 1}_{key}" for key in essential}
+        expected_fields.extend(essential)
+        exec(source, namespace)
+        settings = namespace[tool.setting_name(dotted, entries)]
+        assert set(settings) == set(keys)
+        for key in essential:
+            assert settings[key] == namespace[f"stage_{index + 1}_{key}"]
+    assert "show_advanced_settings" in kinds["settings-editor"]
+    assert "show_help_menu" in kinds["settings-editor"]
+
+
+def test_legacy_is_replaced_by_two_current_sets_and_colab_navigation():
+    tool = _tool()
+    assert not (NOTEBOOKS / "legacy").exists()
+    expected = set(tool.NOTEBOOK_SPECS) | {tool.BROWSER_FILENAME}
+    assert {path.name for path in (NOTEBOOKS / "colab").glob("*.ipynb")} == expected
+    index = (NOTEBOOKS / "README.md").read_text()
+    for name in tool.NOTEBOOK_SPECS:
+        assert f"blob/nightly/Notebooks/colab/{name}" in index
+    assert "legacy/_spacr_notebook_widgets" not in TOOL.read_text()
+
+
+def test_help_menu_is_closed_and_does_not_load_or_display_help_until_clicked(tmp_path, monkeypatch):
+    pytest.importorskip("ipywidgets")
+    namespace = {}
+    exec(_tool()._ADVANCED_EDITOR, namespace)
+    source = tmp_path / "help.md"
+    source.write_text("# Overview\n\nLong workflow details\n\n## 2. API\n\nCall details\n\n## 3. Settings\n\nParameter details")
+    import IPython.display
+    displayed = []
+    monkeypatch.setattr(IPython.display, "display", displayed.append)
+    panel = namespace["show_help_menu"](str(source))
+    assert panel.selected_index is None
+    assert displayed == [panel]
+    picker, buttons, output = panel.children[0].children
+    assert picker.value == "" and not output.outputs
+    picker.value = "api"
+    buttons.children[0].click()
+    assert len(displayed) == 2
+    assert displayed[-1].data.strip() == "## 2. API\n\nCall details"
+    assert "Long workflow details" not in displayed[-1].data
+    panel.close()
+
+
+def test_output_preview_is_bounded_and_reads_selected_csv_only_on_click(tmp_path, monkeypatch):
+    pytest.importorskip("ipywidgets")
+    import IPython.display
+    import pandas as pd
+    source = tmp_path / "measurements.csv"
+    source.write_text("value\n" + "\n".join(str(value) for value in range(30)))
+    namespace = {}
+    exec(_tool()._ADVANCED_EDITOR, namespace)
+    displayed = []
+    monkeypatch.setattr(IPython.display, "display", displayed.append)
+    picker, button, output = namespace["preview_outputs"](str(tmp_path), limit=1)
+    assert len(picker.options) == 1
+    assert len(displayed) == 1 and not output.outputs
+    button.click()
+    frames = [value for value in displayed if isinstance(value, pd.DataFrame)]
+    assert len(frames) == 1 and frames[0]["value"].tolist() == list(range(10))
+    assert displayed[-1].path == str(source)
+    picker.close()
+    button.close()
+    output.close()

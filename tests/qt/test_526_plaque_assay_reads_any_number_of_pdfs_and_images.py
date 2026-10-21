@@ -45,7 +45,7 @@ def _pdf(path: Path) -> Path:
 def _folder_of_papers(folder: Path, n: int = 10) -> list:
     """``n`` PDFs and three files Plaque Assay has no use for."""
     pdfs = [_pdf(folder / f"plate_{index:02d}.pdf") for index in range(1, n + 1)]
-    (folder / "readme.txt").write_text("notes")
+    (folder / "readme.txt").write_text("notes", encoding="utf-8")
     (folder / "results.xlsx").write_bytes(b"PK\x03\x04")
     (folder / "methods.docx").write_bytes(b"PK\x03\x04")
     return pdfs
@@ -121,7 +121,7 @@ def reader(monkeypatch):
             raise RuntimeError("the PDF has no pages")
         dest = Path(dest)
         _png(dest / "figure_1.png", value=10 + len(calls))
-        (dest / PP.PAPER_FILE).write_text(json.dumps({"key": dest.name}))
+        (dest / PP.PAPER_FILE).write_text(json.dumps({"key": dest.name}), encoding="utf-8")
         return {"folder": str(dest), "paper": dest.name, "figures": 1,
                 "with_legend": 0, "licence": "CC BY", "text_layer": 0}
 
@@ -269,7 +269,7 @@ def test_loose_pdfs_dropped_with_other_files_are_read_and_the_rest_ignored(
     second = _pdf(tmp_path / "b" / "one.pdf")
     third = _pdf(tmp_path / "a" / "two.pdf")
     note = tmp_path / "a" / "notes.txt"
-    note.write_text("x")
+    note.write_text("x", encoding="utf-8")
     _drop(figure_screen, [first, note, second, third])
     _read_all(figure_screen, 3)
     assert said["refusals"] == []
@@ -288,8 +288,8 @@ def test_any_number_of_images_with_other_files(qtbot, qt_theme_applied,
     folder = tmp_path / "wells"
     for index in range(12):
         _png(folder / f"well_{index:02d}.png", value=20 + index)
-    (folder / "plate_map.txt").write_text("x")
-    (folder / "run.log").write_text("x")
+    (folder / "plate_map.txt").write_text("x", encoding="utf-8")
+    (folder / "run.log").write_text("x", encoding="utf-8")
     _drop(screen, [folder])
     assert said["refusals"] == []
     assert _src(screen) == str(folder)
@@ -300,7 +300,7 @@ def test_any_number_of_images_with_other_files(qtbot, qt_theme_applied,
 def test_a_file_that_is_neither_is_still_refused_alone(
         figure_screen, tmp_path, said):
     note = tmp_path / "notes.txt"
-    note.write_text("x")
+    note.write_text("x", encoding="utf-8")
     _drop(figure_screen, [note])
     assert len(said["refusals"]) == 1
     assert "Plaque Assay reads" in said["refusals"][0][1]
@@ -310,7 +310,7 @@ def test_figure_mode_reads_a_folder_of_papers_paper_by_paper(tmp_path):
     folder = tmp_path / "plates"
     for name in ("b_paper", "a_paper"):
         _png(folder / name / "figure_1.png")
-        (folder / name / PP.PAPER_FILE).write_text("{}")
+        (folder / name / PP.PAPER_FILE).write_text("{}", encoding="utf-8")
     _png(folder / "loose.png")
     (folder / "not_a_paper").mkdir()
     _png(folder / "not_a_paper" / "x.png")
@@ -332,7 +332,7 @@ def test_the_figure_run_measures_every_paper_into_one_database(
     folder = tmp_path / "plates"
     for name in ("p1", "p2", "p3"):
         _png(folder / name / "figure_1.png")
-        (folder / name / PP.PAPER_FILE).write_text("{}")
+        (folder / name / PP.PAPER_FILE).write_text("{}", encoding="utf-8")
     seen = []
 
     def measure(src, dst, **kwargs):

@@ -375,6 +375,6 @@ def test_a_list_of_plates_seeds_from_the_first():
 def test_a_file_that_is_not_a_database_resolves_to_nothing(tmp_path):
     """A source box holding some other file must not be handed to sqlite."""
     stray = tmp_path / "settings.csv"
-    stray.write_text("a,b\n1,2\n")
+    stray.write_text("a,b\n1,2\n", encoding="utf-8")
 
     assert image_umap.measurements_database(str(stray)) == ""

@@ -21,7 +21,7 @@ def catalogue(tmp_path):
     rows = [_row("fam_v1", contents["fam_v1"]),
             _row("det_v1", contents["det_v1"], kind="detector", family="det", filename="best.pt")]
     path = tmp_path / "models.json"
-    path.write_text(json.dumps({"schema": 1, "models": rows}))
+    path.write_text(json.dumps({"schema": 1, "models": rows}), encoding="utf-8")
     return path, {row["key"]: row for row in rows}, contents
 
 
@@ -44,7 +44,7 @@ def test_key_selection(catalogue):
 def test_duplicate_catalogue_key_is_refused(tmp_path):
     row = _row("k_v1", b"x")
     path = tmp_path / "models.json"
-    path.write_text(json.dumps({"schema": 1, "models": [row, row]}))
+    path.write_text(json.dumps({"schema": 1, "models": [row, row]}), encoding="utf-8")
     with pytest.raises(e.ExportError, match="duplicate"):
         e.load_catalogue(path)
 
@@ -140,11 +140,11 @@ def test_manifest_is_created_then_merged_per_key(tmp_path):
     assert first == {"schema": 1, "generated_by": e.GENERATED_BY, "base_url": None, "models": {"b_v1": {"file": "b.onnx"}}}
     data = json.loads(path.read_text(encoding="utf-8"))
     data["base_url"] = "https://example.invalid/web-onnx/"
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     merged = e.merge_manifest(path, {"a_v1": {"file": "a.onnx"}, "b_v1": {"file": "b2.onnx"}})
     assert merged["base_url"] == "https://example.invalid/web-onnx/"
     assert list(merged["models"]) == ["a_v1", "b_v1"] and merged["models"]["b_v1"] == {"file": "b2.onnx"}
-    path.write_text(json.dumps({"schema": 2, "models": {}}))
+    path.write_text(json.dumps({"schema": 2, "models": {}}), encoding="utf-8")
     with pytest.raises(e.ExportError):
         e.merge_manifest(path, {})
 

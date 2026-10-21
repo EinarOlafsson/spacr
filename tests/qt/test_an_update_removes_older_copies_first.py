@@ -81,7 +81,13 @@ class _Window:
         self.closed = True
 
 
-@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"])
+def _posix(adapter):
+    """A plan only macOS or Linux builds; its handshake binds the owner by POSIX uid and mode."""
+    return pytest.param(adapter, marks=pytest.mark.posix_only)
+
+
+@pytest.fixture(params=[_posix("macos-frozen-v1"), _posix("macos-online-uv-v1"), _posix("linux-online-uv-v1"), _posix("pip-private-posix-v1"),
+                        "pip-private-windows-v1", _posix("linux-deb-v1"), "windows-frozen-nsis-v1"])
 def frozen_window(qtbot, monkeypatch, tmp_path, request):
     monkeypatch.setenv("SPACR_HOME", str(tmp_path / "spacr-profile"))
     from types import SimpleNamespace
@@ -118,11 +124,12 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
         monkeypatch.setattr(install_cleanup, "_windows_pip_acl", lambda path: {
             "owner": "S-1-5-21-1001", "user": "S-1-5-21-1001", "has_dacl": True,
             "rules": [{"sid": "S-1-5-21-1001", "type": 0, "rights": 0x1f01ff, "propagation": 0}]})
-    online = request.param == "macos-online-uv-v1"
+    online = request.param in {"macos-online-uv-v1", "linux-online-uv-v1"}
+    linux_online = request.param == "linux-online-uv-v1"
     debian = request.param == "linux-deb-v1"
     record = install_cleanup.InstallRecord(
-        "environment" if pip else "installer", "venv" if pip else "windows-offline" if frozen_windows else "linux-deb" if debian else "macos-runtime" if online else "macos-app",
-        "windows" if windows else "linux" if pip or debian else "macos", str(tmp_path / ("venv" if pip else "spaCR" if frozen_windows else "deb-runtime" if debian else "Application Support" if online else "spaCR.app")), running=True,
+        "environment" if pip else "installer", "venv" if pip else "windows-offline" if frozen_windows else "linux-deb" if debian else "linux-online" if linux_online else "macos-runtime" if online else "macos-app",
+        "windows" if windows else "linux" if pip or debian or linux_online else "macos", str(tmp_path / ("venv" if pip else "spaCR" if frozen_windows else "deb-runtime" if debian else "Application Support" if online else "spaCR.app")), running=True,
         registrations=("deb:spacr",) if debian else ())
     monkeypatch.setattr(install_cleanup, "_macos_online_update_record",
                         lambda records: record if online else None)
@@ -200,7 +207,7 @@ def test_background_preparation_can_be_cancelled_without_closing_spacr(frozen_wi
     assert state.events == []
 
 
-@pytest.mark.parametrize("frozen_window", ["macos-online-uv-v1"], indirect=True)
+@pytest.mark.parametrize("frozen_window", [_posix("macos-online-uv-v1")], indirect=True)
 @pytest.mark.parametrize("decision", [True, False, "error", "screen-veto"])
 def test_uninstall_approval_occurs_only_after_screen_vetoes(frozen_window, qtbot, decision):
     state = frozen_window
@@ -616,7 +623,7 @@ def test_the_update_messages_translate_spacr_reasons_and_leave_others_as_they_ca
     assert messages.informations == []
 
 
-@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"], indirect=True)
+@pytest.mark.parametrize("frozen_window", [_posix("pip-private-posix-v1"), "pip-private-windows-v1", _posix("linux-deb-v1"), "windows-frozen-nsis-v1"], indirect=True)
 def test_pip_handoff_preserves_current_settings_before_approved_close(frozen_window, monkeypatch):
     from spacr import restart_state
     state = frozen_window
@@ -629,7 +636,7 @@ def test_pip_handoff_preserves_current_settings_before_approved_close(frozen_win
     restart_state.discard()
 
 
-@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"], indirect=True)
+@pytest.mark.parametrize("frozen_window", [_posix("pip-private-posix-v1"), "pip-private-windows-v1", _posix("linux-deb-v1"), "windows-frozen-nsis-v1"], indirect=True)
 def test_pip_handoff_refuses_unsaved_state_without_closing_or_approval(frozen_window, monkeypatch):
     from spacr import restart_state
     state = frozen_window

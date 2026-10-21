@@ -16,7 +16,7 @@ def _schema(path):
              for name, values in (('WildType', ['c1', 'c2']), ('mutant', ['c4']))]
     path.write_text(json.dumps({'format': 'spacr.annotation-schema', 'version': 1, 'recipe_version': 3,
                                 'manual_rows': 'excluded',
-                                'columns': [{'column': 'genotype', 'kind': 'rules', 'conditions': rules}]}))
+                                'columns': [{'column': 'genotype', 'kind': 'rules', 'conditions': rules}]}), encoding="utf-8")
 
 
 def _visible_boxes(dialog):

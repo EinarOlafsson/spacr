@@ -46,6 +46,7 @@ def prefs(tmp_path, monkeypatch):
     path = tmp_path / "alpha.ini"
     monkeypatch.setattr(preferences, "_settings",
                         lambda: QSettings(str(path), QSettings.IniFormat))
+    preferences.set_show_alpha(True)
     return preferences
 
 

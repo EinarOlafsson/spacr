@@ -384,6 +384,33 @@ def _the_resource_hooks_do_not_outlive_the_test():
         _take_back()
 
 
+@pytest.fixture(autouse=True)
+def _background_imports_finish_inside_their_test():
+    """Wait for the background imports a test started before the next begins.
+
+    Opening a folder in Make Masks imports :mod:`spacr.io` (torch, torchvision)
+    on a worker, and a screen's Run or Mask's preload imports its pipeline
+    the same way. Left running, that import overlapped the next test's own
+    import of the same packages on the main thread, and two threads importing
+    torchvision's circular package at once leave one of them a partially
+    initialised module (``cannot import name 'batched_nms'``, coverage shard
+    1, 2026-10-20). Nothing is imported here: a test that never loaded the
+    modules started no thread.
+    """
+    import sys
+
+    yield
+    threads = []
+    masks = sys.modules.get("spacr.qt.screens.make_masks")
+    threads.extend(getattr(masks, "_SAVE_PATH_WARM", ()) or ())
+    bridge = sys.modules.get("spacr.qt.bridge")
+    threads.extend((getattr(bridge, "_ENTRY_IMPORTS", None) or {}).values())
+    for thread in threads:
+        join = getattr(thread, "join", None)
+        if callable(join) and thread.is_alive():
+            join(timeout=180)
+
+
 @pytest.fixture(scope="session")
 def _registry_baseline():
     """The app registry as the SESSION found it, captured once.
@@ -721,6 +748,27 @@ def _qt_catalog_matches_test_language(
     code = current_language()
     if getattr(app, "_spacr_qt_translator_code", None) != code:
         install_qt_translations(app, code)
+    yield
+
+
+@pytest.fixture(autouse=True)
+def _alpha_modules_visible_unless_testing_the_default(request, monkeypatch):
+    """Show Alpha modules in tests, except the one that tests the default.
+
+    New users start with "Show Alpha modules and settings" off
+    (``preferences.DEFAULT_SHOW_ALPHA`` is False), so the shipped default
+    hides every Alpha tile. Most Qt tests exercise those screens and read
+    their own throwaway settings files, so the fallback is raised for them.
+    A test whose name contains ``ships_alpha_off`` keeps the real default.
+    """
+    if "ships_alpha_off" in request.node.name:
+        yield
+        return
+    try:
+        from spacr.qt import preferences
+        monkeypatch.setattr(preferences, "DEFAULT_SHOW_ALPHA", True)
+    except Exception:
+        pass
     yield
 
 

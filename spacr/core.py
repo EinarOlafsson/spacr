@@ -2302,7 +2302,8 @@ def _watch_vendor_groups(context, now):
                        'members': [os.path.basename(name)], 'reason': reason}]
         for field in fields:
             field = dict(field, folder=folder)
-            members = [os.path.join(folder, member) for member in field['members']]
+            members = [f'{folder}/{member}' if folder else member
+                       for member in field['members']]
             claimed.update(members)
             present = [member for member in members if member in seen]
             if field['reason'] is None and len(present) != len(members):
@@ -2421,7 +2422,7 @@ def _watch_images(src, companions=False):
             if (not name.startswith('.') and (name.lower().endswith(_WATCH_SUFFIXES)
                                               or (companions and _watch_companion_kind(name)))
                     and not os.path.islink(path) and os.path.isfile(path)):
-                names.append(os.path.relpath(path, src))
+                names.append(os.path.relpath(path, src).replace(os.sep, '/'))
     return sorted(names)
 
 
@@ -2828,7 +2829,7 @@ def _watch_artifact_sha256(path):
         raise ValueError(f'Collection artifact cannot be opened: {path}') from exc
     with os.fdopen(descriptor, 'rb') as handle:
         info = os.fstat(handle.fileno())
-        if [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns] != identity:
+        if _watch_stat_identity(info, descriptor=handle.fileno()) != identity:
             raise ValueError(f'Collection artifact changed before hashing: {path}')
         digest, size = hashlib.sha256(), 0
         while True:
@@ -2867,7 +2868,7 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
                 os.listdir(copies)) != set(vendor):
             raise ValueError('Collection vendor stack copy is missing or unsafe.')
         for name in sorted(vendor):
-            relative = os.path.join('.watch_vendor', name)
+            relative = f'.watch_vendor/{name}'
             artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
             if artifacts[relative] != vendor[name]:
                 raise ValueError('Collection vendor stack copy changed after its snapshot.')
@@ -2876,7 +2877,7 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
         if os.path.islink(planar) or not os.path.isdir(planar):
             raise ValueError('Collection planar snapshots must be a regular directory.')
         for name in sorted(os.listdir(planar)):
-            relative = os.path.join('.watch_planar', name)
+            relative = f'.watch_planar/{name}'
             artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
         for name in sorted(os.listdir(field_dir)):
             if name.lower().endswith(('.tif', '.tiff')):
@@ -2884,7 +2885,7 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
     if volume_plan is not None:
         source_names = {name for _output, names in volume_plan for name in names}
         volume_names = {output for output, _names in volume_plan}
-        source_hashes = {name: artifacts.get(os.path.join('.watch_planar', name))
+        source_hashes = {name: artifacts.get(f'.watch_planar/{name}')
                          for name in source_names}
         volume_hashes = {name: artifacts.get(name) for name in volume_names}
         if (set(os.listdir(planar)) if os.path.isdir(planar) and not os.path.islink(planar)
@@ -2932,7 +2933,7 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
                                       if not name.startswith('.spacr-native-mask-')]
                 for name in sorted(files):
                     path = os.path.join(root, name)
-                    relative = os.path.relpath(path, field_dir)
+                    relative = os.path.relpath(path, field_dir).replace(os.sep, '/')
                     artifacts[relative] = _watch_artifact_sha256(path)
         receipt_path = os.path.join(field_dir, 'stack',
                                     '.spacr_volume_series_ingest.json')
@@ -2949,16 +2950,16 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
                 or set(receipt.get('stacks', {})) != set(native_series_plan['stacks'])
                 or set(receipt.get('archives', {})) != {native_series_plan['archive']}):
             raise ValueError('Collection native series receipt disagrees with field inputs.')
-        if any(receipt['stacks'][name] != artifacts[os.path.join('stack', name)]
+        if any(receipt['stacks'][name] != artifacts[f'stack/{name}']
                for name in native_series_plan['stacks']) or (
                 receipt['archives'][native_series_plan['archive']]
-                != artifacts[os.path.join('masks', native_series_plan['archive'])]):
+                != artifacts[f"masks/{native_series_plan['archive']}"]):
             raise ValueError('Collection native series receipt outputs changed.')
     input_count = len(artifacts)
     merged = os.path.join(field_dir, 'merged')
     if os.path.isdir(merged):
         for name in sorted(os.listdir(merged)):
-            relative = os.path.join('merged', name)
+            relative = f'merged/{name}'
             artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
     if native_series_plan is not None and {
             os.path.basename(name) for name in artifacts
@@ -2971,9 +2972,9 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
     if os.path.isdir(tracks):
         for name in sorted(os.listdir(tracks)):
             if name.endswith('.csv'):
-                relative = os.path.join('tracks', name)
+                relative = f'tracks/{name}'
                 artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
-    relative = os.path.join('.watch_collection', 'measurements.db')
+    relative = '.watch_collection/measurements.db'
     if os.path.lexists(os.path.join(field_dir, relative)):
         for suffix in ('-wal', '-journal', '-shm'):
             if os.path.lexists(os.path.join(field_dir, relative + suffix)):
@@ -3129,6 +3130,77 @@ def _watch_check_settings(settings):
     return src, pipeline, settle, poll, idle
 
 
+def _watch_windows_change_ns(*, path=None, descriptor=None):
+    """NTFS ``ChangeTime`` of ``path`` or an open ``descriptor``, or None.
+
+    On Windows ``st_ctime`` is the creation time, so a same-size rewrite whose
+    writer restores the modification time would leave the stat identity
+    unchanged. NTFS still advances ``ChangeTime`` for every data or metadata
+    change, which is the change time POSIX reports as ``st_ctime``.
+
+    :param path: file to open for attribute reading only, links not followed.
+    :param descriptor: an already open file descriptor.
+    :returns: ``ChangeTime`` in 100 ns units, or None when it cannot be read.
+    """
+    import ctypes
+    from ctypes import wintypes
+
+    class _BasicInfo(ctypes.Structure):
+        """``FILE_BASIC_INFO``: the four NTFS times and the attribute bits."""
+
+        _fields_ = [('creation', ctypes.c_int64), ('access', ctypes.c_int64),
+                    ('write', ctypes.c_int64), ('change', ctypes.c_int64),
+                    ('attributes', wintypes.DWORD)]
+
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel32.GetFileInformationByHandleEx.argtypes = [
+        wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+    kernel32.GetFileInformationByHandleEx.restype = wintypes.BOOL
+    owned = None
+    if descriptor is not None:
+        import msvcrt
+
+        try:
+            handle = msvcrt.get_osfhandle(descriptor)
+        except OSError:
+            return None
+    else:
+        kernel32.CreateFileW.argtypes = [
+            wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.c_void_p,
+            wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+        kernel32.CreateFileW.restype = wintypes.HANDLE
+        owned = kernel32.CreateFileW(os.fspath(path), 0x80, 0x7, None, 3,
+                                     0x02000000 | 0x00200000, None)
+        if owned is None or owned == ctypes.c_void_p(-1).value:
+            return None
+        handle = owned
+    try:
+        info = _BasicInfo()
+        if not kernel32.GetFileInformationByHandleEx(
+                handle, 0, ctypes.byref(info), ctypes.sizeof(info)):
+            return None
+        return int(info.change)
+    finally:
+        if owned is not None:
+            kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+            kernel32.CloseHandle(owned)
+
+
+def _watch_stat_identity(info, *, path=None, descriptor=None):
+    """Device, inode, size, mtime_ns and change time of one stat result.
+
+    :param info: ``os.stat`` or ``os.fstat`` result for the file.
+    :param path: the path ``info`` came from, when it came from a path.
+    :param descriptor: the descriptor ``info`` came from, when it did.
+    :returns: the identity as a JSON-safe list.
+    """
+    change = info.st_ctime_ns
+    if os.name == 'nt':
+        native = _watch_windows_change_ns(path=path, descriptor=descriptor)
+        if native is not None:
+            change = native
+    return [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, change]
+
 def _watch_file_identity(path):
     """Return regular-file identity or None for missing, linked or unsafe input.
 
@@ -3143,7 +3215,7 @@ def _watch_file_identity(path):
         return None
     if not stat.S_ISREG(info.st_mode):
         return None
-    return [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns]
+    return _watch_stat_identity(info, path=path)
 
 
 def _watch_copy_snapshot(source, target, expected):
@@ -3170,8 +3242,7 @@ def _watch_copy_snapshot(source, target, expected):
         return None
     with os.fdopen(descriptor, 'rb') as incoming:
         before = os.fstat(incoming.fileno())
-        identity = [before.st_dev, before.st_ino, before.st_size,
-                    before.st_mtime_ns, before.st_ctime_ns]
+        identity = _watch_stat_identity(before, descriptor=incoming.fileno())
         if not stat.S_ISREG(before.st_mode) or identity != expected:
             return None
         digest = hashlib.sha256()
@@ -3191,8 +3262,7 @@ def _watch_copy_snapshot(source, target, expected):
                 outgoing.write(chunk)
                 digest.update(chunk)
         after = os.fstat(incoming.fileno())
-        identity = [after.st_dev, after.st_ino, after.st_size,
-                    after.st_mtime_ns, after.st_ctime_ns]
+        identity = _watch_stat_identity(after, descriptor=incoming.fileno())
         if identity != expected or _watch_file_identity(source) != expected:
             return None
     if os.path.getsize(target) != expected[2]:
@@ -3400,7 +3470,7 @@ def _watch_run_field(key, members, signature, context):
             native_series_plan=series_field,
             vendor=entry.get('vendor_sha256'))
         _watch_check_map(context)
-        database_relative = os.path.join('.watch_collection', 'measurements.db')
+        database_relative = '.watch_collection/measurements.db'
         database_snapshot = (os.path.join(field_dir, database_relative)
                              if database_relative in entry['collection_checkpoint']['artifacts']
                              else None)
@@ -4655,7 +4725,7 @@ def _umap_source_label(src):
     ``measurements/measurements.db`` to it, so the file name is the same for
     every plate and useless as a label.
     """
-    text = str(src).rstrip(os.sep)
+    text = str(src).rstrip(os.sep + (os.altsep or ''))
     return os.path.basename(text) or text
 
 

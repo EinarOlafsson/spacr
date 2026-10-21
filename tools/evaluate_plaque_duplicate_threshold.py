@@ -174,7 +174,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
-        rows = source_rows(json.loads(args.manifest.read_text()), args.images)
+        rows = source_rows(json.loads(args.manifest.read_text(encoding="utf-8")), args.images)
         protected = {args.manifest.resolve(), *(row["path"] for row in rows)}
         if args.output.resolve() in protected or (args.output.exists() and any(
                 path.exists() and args.output.samefile(path) for path in protected)):
@@ -193,7 +193,7 @@ def main():
                                "Similar hashes only flag; exact bytes/pixels alone skip",
                                "Threshold sweep does not automatically select a threshold"])
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(result, indent=2) + "\n")
+    args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"figures": len(rows), "controls": len(result["controls"]),
                       "by_control": result["by_control"],
                       "nearest_source_matches": len(result["current_nearest_source_matches"]),

@@ -230,7 +230,7 @@ def main():
     parser.add_argument('--figure', type=Path)
     args = parser.parse_args()
     report, example = evaluate(args.images, args.outlines)
-    args.output.write_text(json.dumps(report, indent=2) + '\n')
+    args.output.write_text(json.dumps(report, indent=2) + '\n', encoding="utf-8")
     if args.figure:
         render_example(example, args.figure)
     print(json.dumps(report['summary'], indent=2))

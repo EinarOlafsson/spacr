@@ -101,9 +101,9 @@ def test_report_disk_savings_includes_sidecars(tmp_path):
     baseline = report_disk_savings(tmp_path, [stack])["v2_bytes"]
 
     # Add sidecars — should bump the v2 count
-    (tmp_path / "filename_map.csv").write_text("x" * 1000)
-    (tmp_path / "filename_map.json").write_text("y" * 500)
-    (tmp_path / "merged" / "channel_order.json").write_text("z" * 300)
+    (tmp_path / "filename_map.csv").write_text("x" * 1000, encoding="utf-8")
+    (tmp_path / "filename_map.json").write_text("y" * 500, encoding="utf-8")
+    (tmp_path / "merged" / "channel_order.json").write_text("z" * 300, encoding="utf-8")
 
     bumped = report_disk_savings(tmp_path, [stack])["v2_bytes"]
     assert bumped - baseline >= 1800

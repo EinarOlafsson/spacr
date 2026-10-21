@@ -101,6 +101,7 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   ; The finder and remover the bootstrap runs before it installs: the same
   ; module the in-app update uses.
   File "..\..\spacr\install_cleanup.py"
+  File "..\..\spacr\install_profile.py"
 
   StrCpy $1 "cpu"
   SectionGetFlags ${SecGpu} $2
@@ -172,6 +173,7 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
 
   Delete "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1"
   Delete "$PLUGINSDIR\spaCR-online-installer\install_cleanup.py"
+  Delete "$PLUGINSDIR\spaCR-online-installer\install_profile.py"
   Delete "$PLUGINSDIR\spaCR-online-installer\generated\installer_messages.ps1"
   RMDir "$PLUGINSDIR\spaCR-online-installer\generated"
   RMDir "$PLUGINSDIR\spaCR-online-installer"

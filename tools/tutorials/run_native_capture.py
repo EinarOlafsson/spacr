@@ -43,7 +43,7 @@ def copy_inputs(source, stage):
                          key=lambda p: len(p.parts), reverse=True):
         shutil.copystat(folder, stage / folder.relative_to(source))
     (stage / 'inputs-manifest.json').write_text(json.dumps(
-        {'source': str(source), 'sha256': manifest}, indent=2) + '\n')
+        {'source': str(source), 'sha256': manifest}, indent=2) + '\n', encoding="utf-8")
     return manifest
 
 
@@ -124,9 +124,9 @@ def main():
                 'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),
                 'sha256': sources, 'fresh': True, 'private_profile': True,
                 'surface': 'native Qt application on isolated X11; no native compositor claim',
-                'prepared_inputs': (json.loads((stage/'inputs-manifest.json').read_text())
+                'prepared_inputs': (json.loads((stage/'inputs-manifest.json').read_text(encoding="utf-8"))
                                     if (stage/'inputs-manifest.json').exists() else None),
-            }, indent=2)+'\n')
+            }, indent=2)+'\n', encoding="utf-8")
             import capture_refresh
             sys.argv = ['capture_refresh', '--stage', str(stage), '--platform', 'xcb', *capture_args]
             result = capture_refresh.main()

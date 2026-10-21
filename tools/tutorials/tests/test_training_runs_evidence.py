@@ -17,13 +17,13 @@ def rows():
 def test_read_and_compare_matching_normalized_csv_without_mutation(tmp_path):
     path = tmp_path / 'train.csv'
     text = ', Epoch ,accuracy,Accuracy,loss\n0,1,0.5,0.5,0.8\n0,2,0.75,0.75,0.4\n'
-    path.write_text(text)
+    path.write_text(text, encoding="utf-8")
     actual, expected = _read_curve(path), rows()
     before = deepcopy(actual)
     assert actual == expected
     _same_rows(actual, expected, 'positive')
     assert actual == before and expected == rows()
-    assert path.read_text() == text
+    assert path.read_text(encoding="utf-8") == text
 
 
 @pytest.mark.parametrize('actual', [rows()[:1], rows() + rows()[:1]])
@@ -58,7 +58,7 @@ def test_rejects_wrong_or_nonfinite_returned_values(key, value):
 @pytest.mark.parametrize('value', ['nan', 'inf', '-inf'])
 def test_reader_rejects_nonfinite_source_values(tmp_path, value):
     path = tmp_path / 'train.csv'
-    path.write_text(f'epoch,accuracy\n1,{value}\n')
+    path.write_text(f'epoch,accuracy\n1,{value}\n', encoding="utf-8")
     with pytest.raises(RuntimeError, match='Non-finite'):
         _read_curve(path)
 
@@ -66,7 +66,7 @@ def test_reader_rejects_nonfinite_source_values(tmp_path, value):
 @pytest.mark.parametrize('body', ['', '1,0.5\n3,0.75\n', '1,0.5\n1,0.75\n'])
 def test_reader_rejects_empty_gapped_or_duplicate_epochs(tmp_path, body):
     path = tmp_path / 'train.csv'
-    path.write_text('epoch,accuracy\n' + body)
+    path.write_text('epoch,accuracy\n' + body, encoding="utf-8")
     with pytest.raises(RuntimeError, match='consecutive epoch rows'):
         _read_curve(path)
 

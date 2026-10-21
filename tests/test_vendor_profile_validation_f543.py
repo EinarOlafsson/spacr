@@ -23,7 +23,7 @@ def profile():
 def write(path, profiles):
     path.write_text('<Root>' + ''.join(
         '<FlatfieldProfile>' + json.dumps(row) + '</FlatfieldProfile>'
-        for row in profiles) + '</Root>')
+        for row in profiles) + '</Root>', encoding="utf-8")
     return path
 
 

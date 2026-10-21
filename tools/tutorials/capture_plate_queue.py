@@ -51,9 +51,9 @@ def verify_frozen_rows(database, tables):
 def prepare_replays(stage):
     """Copy the accepted small measurement subset; never copy generated results."""
     original_capture = Path(stage) / 'captures/recruitment_release'
-    accepted = json.loads((original_capture / 'scientific_acceptance.json').read_text())
-    manifest = json.loads((original_capture / 'input_manifest.json').read_text())
-    settings = json.loads((original_capture / 'batch_settings.json').read_text())
+    accepted = json.loads((original_capture / 'scientific_acceptance.json').read_text(encoding="utf-8"))
+    manifest = json.loads((original_capture / 'input_manifest.json').read_text(encoding="utf-8"))
+    settings = json.loads((original_capture / 'batch_settings.json').read_text(encoding="utf-8"))
     if not accepted['accepted']:
         raise ValueError('The prerequisite real Recruitment example is not accepted')
     source = Path(manifest['destination']) / 'measurements/measurements.db'
@@ -297,7 +297,7 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
         import matplotlib
         proof['matplotlib_backend'] = matplotlib.get_backend()
         proof['queue_figures_saved_or_shown'] = False
-        proof['persisted_final'] = json.loads(actual.read_text())
+        proof['persisted_final'] = json.loads(actual.read_text(encoding="utf-8"))
         proof['first_job_not_repeated'] = True
         # These are disposable replay queue records only, not source data.
         # Preserve their JSON evidence before exercising Clear finished.

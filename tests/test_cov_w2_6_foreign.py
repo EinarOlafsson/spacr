@@ -385,14 +385,14 @@ def test_a_map_file_that_is_not_there_says_which_one(tmp_path):
 
 def test_a_map_file_with_nothing_in_it_is_refused(tmp_path):
     path = tmp_path / "empty.csv"
-    path.write_text("# only a comment\n")
+    path.write_text("# only a comment\n", encoding="utf-8")
     with pytest.raises(ConfigurationError, match="no rows"):
         foreign.load_column_map(path)
 
 
 def test_a_csv_that_is_not_a_column_map_names_what_is_missing(tmp_path):
     path = tmp_path / "other.csv"
-    path.write_text("gene,value\nA,1\n")
+    path.write_text("gene,value\nA,1\n", encoding="utf-8")
     with pytest.raises(ConfigurationError, match="missing column"):
         foreign.load_column_map(path)
 
@@ -402,7 +402,7 @@ def test_a_source_column_mapped_twice_is_refused(tmp_path):
     path = tmp_path / "column_map.csv"
     path.write_text("source,target,transform,unit_in,unit_out,note\n"
                     "Area,foreign_area,identity,,,\n"
-                    "Area,cell_area,area,um^2,px^2,\n")
+                    "Area,cell_area,area,um^2,px^2,\n", encoding="utf-8")
     with pytest.raises(ConfigurationError, match="twice"):
         foreign.load_column_map(path)
 
@@ -412,7 +412,7 @@ def test_a_blank_line_in_the_middle_of_a_map_is_skipped(tmp_path):
     path.write_text("source,target,transform,unit_in,unit_out,note\n"
                     "Area,foreign_area,identity,,,\n"
                     ",,,,,\n"
-                    "Perimeter,foreign_perimeter,identity,,,\n")
+                    "Perimeter,foreign_perimeter,identity,,,\n", encoding="utf-8")
     assert [m.source for m in foreign.load_column_map(path)] == [
         "Area", "Perimeter"]
 
@@ -907,7 +907,7 @@ def test_no_mask_folder_at_all_is_allowed():
 def test_one_folder_on_its_own_is_taken_as_the_cell_masks():
     assert foreign._mask_folders("/data/masks") == {"cell": "/data/masks"}
     assert foreign._mask_folders(Path("/data/masks")) == {
-        "cell": "/data/masks"}
+        "cell": str(Path("/data/masks"))}
 
 
 def test_mask_folders_come_back_in_the_order_a_merged_array_holds_them():

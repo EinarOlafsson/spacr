@@ -1,7 +1,0 @@
-{
-  "previous_proposal": "a2e742d40768254f30efdd66ad7e68733b133e1a7d720f90f3031621da53611c",
-  "corrected_source_sha256": "882fe84f19e592ed0b82a79e0e785e36581ed27bd3522c28965ca38f3ac70ff3",
-  "exact_before": "    assert _declared_defaults(artifact_node)[\"weights_only\"] is False",
-  "exact_after": "    assert ast.literal_eval(_declared_defaults(artifact_node)[\"weights_only\"]) is False",
-  "reason": "Existing _declared_defaults intentionally returns AST nodes. LiteralFalse must be decoded with safe stdlibast.literal_eval; identity isFalse still refuses0/True/None/unknowncall. Allsource/scope/gatecontrols unchanged."
-}

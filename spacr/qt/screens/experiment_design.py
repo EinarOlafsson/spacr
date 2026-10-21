@@ -927,10 +927,12 @@ class ExperimentDesignScreen(QWidget):
             self.export_to(folder)
 
     def export_to(self, folder) -> bool:
-        """Write the plate map. The file writing happens off the GUI thread.
+        """Write the plate map through the job runner. File writing runs on a
+        worker thread by default, or inline when the screen is unthreaded.
 
         :param folder: destination directory.
-        :returns: whether the job was started.
+        :returns: in threaded mode, whether the job was started; inline, whether
+            writing and completion handling succeeded.
         """
         design = self.design()
         if not design.conditions:

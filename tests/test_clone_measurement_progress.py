@@ -3,6 +3,10 @@ from pathlib import Path
 import os
 import subprocess
 
+import pytest
+
+# Runs a POSIX sh helper against a "#!/bin/sh" fake git found through PATH.
+pytestmark = pytest.mark.posix_only
 
 HELPER = Path(__file__).resolve().parents[1] / "packaging" / "measure_clone_forms.sh"
 
@@ -16,10 +20,10 @@ def _measure(tmp_path, form, progress):
         "for destination do :; done\n"
         'mkdir -p "$destination/.git"\n'
         'cp "$SPACR_MEASUREMENT_PROGRESS" /dev/stderr\n'
-    )
+    , encoding="utf-8")
     fake_git.chmod(0o755)
     log = tmp_path / "progress"
-    log.write_text(progress)
+    log.write_text(progress, encoding="utf-8")
     env = {**os.environ, "PATH": f"{binary}:{os.environ['PATH']}",
            "SPACR_MEASUREMENT_PROGRESS": str(log)}
     result = subprocess.run(

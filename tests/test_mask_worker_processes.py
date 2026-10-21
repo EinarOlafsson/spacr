@@ -44,7 +44,7 @@ def _cpu_segmenter(src, settings, object_type, *, batch_paths, on_batch_done, ru
         if settings.get('duplicate'):
             on_batch_done(path)
     metadata['end'] = time.monotonic()
-    (Path(src) / f'worker-{selected}.json').write_text(json.dumps(metadata))
+    (Path(src) / f'worker-{selected}.json').write_text(json.dumps(metadata), encoding="utf-8")
     print(f'worker {selected} finished')
 
 
@@ -160,8 +160,9 @@ def test_partition_assigns_every_archive_once_and_keeps_devices_explicit():
     records = [{'path': f'/batch{index}.npz', 'bytes': size}
                for index, size in enumerate([8, 4, 4, 2])]
     result = _partition_batches(records, [5, 2])
-    assert result == {5: ['/batch0.npz', '/batch3.npz'],
-                      2: ['/batch1.npz', '/batch2.npz']}
+    absolute = os.path.abspath
+    assert result == {5: [absolute('/batch0.npz'), absolute('/batch3.npz')],
+                      2: [absolute('/batch1.npz'), absolute('/batch2.npz')]}
     assert records[0]['bytes'] == 8
     with pytest.raises(ValueError, match='unique paths'):
         _partition_batches(records + records[:1], [5, 2])
@@ -175,11 +176,11 @@ def _cpu_overload_segmenter(src, settings, object_type, *, batch_paths,
     folder = Path(src)
     marker = folder / f'primary-{selected}'
     primary = not marker.exists()
-    marker.write_text('primary attempted')
+    marker.write_text('primary attempted', encoding="utf-8")
     retry = not primary
     if retry:
         assert all((folder / f'primary-{device}').exists() for device in ('7', '3'))
-        (folder / f'retry-start-{selected}').write_text(str(time.monotonic()))
+        (folder / f'retry-start-{selected}').write_text(str(time.monotonic()), encoding="utf-8")
     for index, path in enumerate(batch_paths):
         if primary and index == 1:
             raise MemoryError(f'primary buffer exhausted on {selected}')
@@ -190,7 +191,7 @@ def _cpu_overload_segmenter(src, settings, object_type, *, batch_paths,
         np.save(target, np.array([[0, 1], [1, 1]], dtype=np.uint16))
         on_batch_done(path)
     if retry:
-        (folder / f'retry-end-{selected}').write_text(str(time.monotonic()))
+        (folder / f'retry-end-{selected}').write_text(str(time.monotonic()), encoding="utf-8")
 
 
 def test_overloaded_mask_workers_retry_serially_after_all_primaries_without_repeating_saves(

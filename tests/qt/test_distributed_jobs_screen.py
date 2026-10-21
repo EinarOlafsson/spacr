@@ -207,7 +207,7 @@ def test_file_mode_resolves_settings_and_cancel_is_confirmed(
     )
     qtbot.addWidget(screen)
     settings = tmp_path / "settings.json"
-    settings.write_text('{"src": "/data/plate"}\n')
+    settings.write_text('{"src": "/data/plate"}\n', encoding="utf-8")
     screen._module.setCurrentIndex(screen._module.findData("mask"))
     screen._settings_path.setText(str(settings))
     screen._clear_settings_snapshot()

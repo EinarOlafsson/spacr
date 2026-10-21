@@ -188,7 +188,9 @@ def open_entry(window: QMainWindow, entry: HelpEntry) -> str:
 
     :param window: the main window.
     :param entry: the chosen result.
-    :returns: what to say in the status bar; ``""`` when nothing was done.
+    :returns: the opener's status message, converted with ``str``; ``""`` when no
+        opener is registered or its result is false-like. An opener
+        exception is logged and produces a localized failure message.
     """
     opener = _OPENERS.get(entry.kind)
     if opener is None:

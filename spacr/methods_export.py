@@ -1,44 +1,41 @@
-"""Write Methods and Results text from a run digest and verify its numbers.
+"""Render Methods and Results sections from a run digest and check numerical tokens.
 
-The output is two paragraphs of a paper: a **methods** section that states
-what was done, and a **results** section that states what came out. A
-language model asked to write about an experiment can produce plausible
-numbers that did not come from the run, and a reader cannot tell which ones
-did.
+The digest records run metadata and summaries for deterministic Methods and Results
+rendering. Optional model-written sections can be checked for recognized numerical
+tokens and selected caveat phrases. These checks do not establish scientific accuracy or
+detect every unsupported claim.
 
-The model therefore never sees the data. It sees a **run digest**: a structured
-record of the modules that ran, the parameters they ran with, the counts, the
-versions, the QC verdicts and the statistics *already computed* by the rest of
-spaCR. It writes prose around those numbers, and then:
+The model-facing prompt contains a **run digest**: the supplied mapping serialized as
+JSON, alongside static instructions. :func:`build_digest` collects run metadata and
+existing summaries, but :func:`render_prompt` does not remove raw or sensitive values
+that a caller includes in its digest. The checking helpers then apply these rules:
 
-* :func:`verify_numbers` extracts every number from what came back and checks
-  each one against the digest. A number that is not in the digest — not as a
-  value, not as a correct rounding of one, not as a verbatim quote of a
-  digest string — is **unsupported**, and
-* :func:`check_draft` rejects a draft that carries one, so a draft with an
-  invented figure is never returned as a draft.
+* :func:`verify_numbers` checks the numeric tokens left after removing permitted
+  digest-string substrings and structural patterns. Tokens can pass by matching digest
+  numbers, falling within the implemented rounding tolerance or belonging to
+  :data:`ALWAYS_ALLOWED` with either sign. A token that fails those checks is reported
+  as unsupported.
+* :func:`check_draft` returns two verification verdicts; it does not discard or replace
+  text itself. :mod:`spacr.qt.ai.manuscript` uses these verdicts to choose accepted
+  model sections or deterministic fallback sections.
 
-Two consequences follow. First, the digest is the contract:
-anything the prose may quote has to be *in* it, which is why the digest
-carries the alpha, the confidence level and the seed as numbers rather than
-leaving the model to supply the obvious ones. Second, there is a deterministic
-renderer — :func:`render_methods` and :func:`render_results` — that writes the
-same sections from the same digest with no model at all. It is what runs when
-no AI provider is configured, it is what a rejected draft falls back to, and
-it is what the number-provenance tests assert against, because a test that
-plants a number in the digest and requires it in the output must not be
-testing a stub.
+The digest supplies the recorded values and collection sizes used by
+:func:`render_methods` and :func:`render_results`. These deterministic renderers require
+no model and do not themselves run the verification checks. Their text also contains
+fixed wording, such as the two-guide corroboration description.
 
-**Caveats are required.** A methods section that omits a QC failure, or the
-fact that illumination correction did not run, or the ``on_error=skip`` that
-dropped eleven fields, is incorrect. :func:`build_digest` collects those into :data:`DIGEST_CAVEATS` and both
-renderers, and the prompt, are required to state every one.
+**Recorded caveats are included in Methods and the prompt.** :func:`build_digest` calls
+:func:`caveats_for` to derive selected caveats under :data:`DIGEST_CAVEATS`.
+:func:`render_methods` and :func:`render_prompt` include the supplied caveat sentences;
+:func:`render_results` does not repeat that list. Methods verification searches for the
+case-folded first clause of each caveat, which is a text-containment check rather than a
+semantic assessment.
 
 Public API::
 
-    from spacr.methods_export import build_digest, render_methods
+    from spacr.methods_export import build_digest, render_methods, render_results
 
-    digest = build_digest(project="/data/plate7", run_dir=run.dir,
+    digest = build_digest(project="/data/plate7", run_dir="/data/plate7/run",
                           results_folder=".../results/pred/ols")
     print(render_methods(digest))
     print(render_results(digest))
@@ -114,7 +111,7 @@ def _utcnow() -> str:
 
 
 def _walk(value: Any) -> Iterable[Any]:
-    """Yield every leaf of a nested mapping/sequence, containers included."""
+    """Yield leaf values from nested mappings, lists, tuples and sets."""
     if isinstance(value, Mapping):
         for item in value.values():
             yield from _walk(item)
@@ -148,7 +145,7 @@ def _walk_keyed(value: Any, key: str = "") -> Iterable[Tuple[str, Any]]:
 
 
 def digest_numbers(digest: Mapping[str, Any]) -> Set[float]:
-    """Return every number the digest asserts, as floats.
+    """Collect numeric leaves and fully numeric string leaves as floats.
 
     Numeric leaves, plus strings that are *entirely* a number (a gene id such
     as ``"233460"`` is a string in the tables and a number in prose). Digits
@@ -176,13 +173,13 @@ def digest_numbers(digest: Mapping[str, Any]) -> Set[float]:
 
 
 def digest_strings(digest: Mapping[str, Any]) -> List[str]:
-    """Every non-trivial string the digest carries, longest first.
+    """Return digit-bearing digest strings of at least two characters, longest first.
 
-    Quoting one of these verbatim — a path, a run id, a settings digest, a
-    package version, a gene name — is not inventing a number, so
-    :func:`verify_numbers` removes them from the text before it looks for
-    figures. Longest first so a version is removed whole rather than having
-    its prefix eaten by a shorter match.
+    These strings are removed as literal substrings before numerical tokens are
+    extracted, allowing paths, run identifiers and versions to be quoted without
+    checking their embedded digits separately. A string is excluded when its nearest
+    mapping key is a generated-prose key, such as the caveat list key. Sorting longest
+    first avoids removing a shorter match before its enclosing string.
 
     :param digest: a digest.
     :returns: the strings, longest first.
@@ -200,12 +197,13 @@ def digest_strings(digest: Mapping[str, Any]) -> List[str]:
 
 def extract_numbers(text: str,
                     strings: Sequence[str] = ()) -> List[str]:
-    """Every number a paragraph asserts, as it was written.
+    """Return recognized numerical tokens after permitted text and pattern removal.
 
-    ``strings`` — usually :func:`digest_strings` — are removed first, so a
-    sentence that quotes ``run 8f21c0a3`` or ``/data/plate7`` is not accused
-    of asserting ``8`` and ``7``. Structural tokens (list markers, dotted
-    versions, ISO dates, long hex ids) go next. What is left is a claim.
+    Remove the supplied ``strings`` as literal substrings, longest first, then remove
+    the configured structural patterns for list markers, dotted versions, ISO dates,
+    long hexadecimal identifiers and reference labels. Apply the numeric-token
+    expression to the remaining text; this does not detect numbers written as words or
+    determine the meaning of a numerical claim.
 
     :param text: the prose to check.
     :param strings: substrings that may be quoted verbatim.
@@ -221,9 +219,9 @@ def extract_numbers(text: str,
 
 
 def _supported(token: str, allowed: Set[float]) -> bool:
-    """True when ``token`` is one of ``allowed`` or a correct rounding of one.
+    """Accept structural values, exact digest matches or the supported rounding tolerance.
 
-    Two rules, and the split between them is the whole judgement:
+    Values in :data:`ALWAYS_ALLOWED`, with either sign, pass first. Other finite tokens use two matching rules:
 
     * **A number written with decimals, or in scientific notation, is a
       measurement quoted to some precision.** ``0.043`` for a q-value of
@@ -268,13 +266,16 @@ def _supported(token: str, allowed: Set[float]) -> bool:
 
 @dataclass(frozen=True)
 class Verification:
-    """The verdict on one generated section's numbers.
+    """Recorded numerical-token and optional caveat-check verdict for a section.
 
-    :param ok: no unsupported number was found.
+    :param ok: no numerical token was rejected and no required caveat phrase was
+        missing.
     :param checked: how many number tokens were examined.
-    :param supported: the tokens that trace to the digest.
-    :param unsupported: the tokens that do not.
-    :param missing_caveats: caveats the digest carries that the text omits.
+    :param supported: the tokens accepted by digest matching, rounding tolerance or the
+        structural-value allowance.
+    :param unsupported: the numerical tokens rejected by those checks.
+    :param missing_caveats: the caveat sentences whose selected opening phrase was not
+        found.
     """
 
     ok: bool
@@ -284,7 +285,7 @@ class Verification:
     missing_caveats: Tuple[str, ...] = ()
 
     def __bool__(self) -> bool:
-        """True when the text is clean."""
+        """Return the recorded ``ok`` flag without performing another check."""
         return self.ok
 
     def problem(self) -> str:
@@ -311,16 +312,19 @@ class Verification:
 
 def verify_numbers(text: str, digest: Mapping[str, Any], *,
                    require_caveats: bool = False) -> Verification:
-    """Check that every number in ``text`` came from ``digest``.
+    """Check recognized numerical tokens and optional caveat phrases against a digest.
 
-    It is applied to what a model returns, and a draft that fails it is not returned as a
-    draft — see :func:`check_draft`.
+    The check uses :func:`extract_numbers`, digest values, rounding tolerance and
+    :data:`ALWAYS_ALLOWED`. :func:`check_draft` applies it to both generated sections;
+    the manuscript caller decides whether to use a fallback. A passing verdict does not
+    establish scientific accuracy.
 
     :param text: the generated prose.
     :param digest: the digest it was generated from.
-    :param require_caveats: also require every sentence in the digest's
-        ``caveats`` to be represented. Applied to the methods section, which
-        is where the caveats belong.
+    :param require_caveats: also search for the case-folded opening clause of each
+        non-empty caveat in the digest. The clause ends at the first comma, full stop or
+        semicolon. :func:`check_draft` enables this for Methods; it is a substring check
+        rather than semantic verification.
     :returns: a :class:`Verification`.
     """
     allowed = digest_numbers(digest)
@@ -360,7 +364,8 @@ def check_draft(methods: str, results: str,
                 digest: Mapping[str, Any]) -> Tuple[Verification, Verification]:
     """Verify both sections. ``(methods verdict, results verdict)``.
 
-    The methods section additionally has to state the run's caveats.
+    The Methods verdict additionally checks for the selected opening phrase of each
+    recorded caveat. The function returns verdicts and does not replace either section.
 
     :param methods: generated methods-section text to verify.
     :param results: generated results-section text to verify.
@@ -401,12 +406,12 @@ def build_digest(*,
                  top_hits: int = 10,
                  extra: Optional[Mapping[str, Any]] = None,
                  ) -> Dict[str, Any]:
-    """Assemble everything a methods and results section may quote.
+    """Collect available run metadata and summaries into a JSON-compatible digest.
 
-    Every source is optional and every one of them is read defensively: a
-    subsystem that cannot answer contributes a note rather than an exception,
-    because a digest is written at the end of a long run and should not be
-    lost to, for example, a missing model card.
+    Most source collectors run through a guarded helper that records a failure as a note
+    and continues. Input conversion, some settings and hit-row handling, caveat
+    construction and final serialization are outside those guards and can still raise;
+    the function does not promise successful output for every input.
 
     :param project: the project root. Supplies the provenance summary from
         :mod:`spacr.pipeline_graph` and the segmentation QC from
@@ -416,7 +421,8 @@ def build_digest(*,
     :param macro_path: the emitted ``macro.py``; defaults to the one inside
         ``run_dir``. Supplies the per-module steps, the settings each ran
         with and which of them the user actually chose.
-    :param settings: settings to read directly, when there is no journal.
+    :param settings: settings supplied directly. A non-empty mapping takes precedence
+        over journal or macro settings; otherwise those sources may supply the settings.
     :param results_folder: a regression results folder, for the statistics.
     :param metadata_files: annotation CSVs to join into the hit list.
     :param regression_type: the backend, for how the hit list is ranked.
@@ -666,7 +672,7 @@ def _error_policy(settings: Mapping[str, Any]) -> Dict[str, Any]:
 
 
 def _illumination(settings: Mapping[str, Any]) -> Dict[str, Any]:
-    """Whether illumination correction ran, and with what."""
+    """Read the illumination-correction configuration from settings."""
     enabled = bool(settings.get("illumination_correction", False))
     return {
         "illumination_correction": enabled,
@@ -787,11 +793,11 @@ def _finite(value: Any) -> Optional[float]:
 def caveats_for(digest: Mapping[str, Any]) -> List[str]:
     """Return the caveat sentences that a methods section must include.
 
-    Every limitation the pipeline records about the run, stated as
-    prose the paragraph has to carry: which QC flags fired, whether
-    illumination correction ran, the seed, the ``on_error`` policy and what
-    it dropped, the classifier's held-out metrics, and whether any artifact
-    the numbers rest on is stale.
+    Selected limitations and context derived from the digest: seed and error policy,
+    illumination configuration, segmentation QC, classifier summaries, artifact state,
+    analysis-lock status and recorded warnings. At most five segmentation flag names and
+    five run warnings are included; this is not an exhaustive account of every recorded
+    limitation.
 
     :param digest: a digest under construction.
     :returns: one sentence per caveat, in the order a methods section would
@@ -926,10 +932,9 @@ def _lock_caveats(lock: Any) -> List[str]:
 def render_methods(digest: Mapping[str, Any]) -> str:
     """Write the methods section from the digest, with no model involved.
 
-    What runs when no AI provider is configured, what a rejected draft falls
-    back to, and what the number-provenance tests assert against. Every
-    number in the output comes from ``digest``; every caveat in the digest is
-    stated. No trailing newline.
+    Format recorded values and simple counts derived from the supplied collections.
+    Include every supplied caveat and note, without a trailing newline. The function
+    performs no model request or numerical verification.
 
     :param digest: collected run facts from which to render the section.
     """
@@ -1011,7 +1016,8 @@ def render_methods(digest: Mapping[str, Any]) -> str:
 def render_results(digest: Mapping[str, Any]) -> str:
     """Write the results section from the digest, with no model involved.
 
-    Every number comes from ``digest``. No trailing newline.
+    Format supplied statistical summaries, hit rows and provenance counts. No trailing
+    newline; no model request or numerical verification.
 
     :param digest: collected run facts from which to render the section.
     """
@@ -1076,7 +1082,7 @@ def render_results(digest: Mapping[str, Any]) -> str:
 
 
 def system_prompt() -> str:
-    """Return the system prompt; it requires every number to be in the digest."""
+    """Return instructions requesting that numerical claims be supported by the digest."""
     return (
         "You are writing two sections of a methods-and-results manuscript for "
         "a CRISPR imaging screen analysed with spaCR.\n"
@@ -1110,10 +1116,10 @@ def system_prompt() -> str:
 def render_prompt(digest: Mapping[str, Any]) -> Tuple[str, str]:
     """``(system prompt, user message)`` for one digest.
 
-    A pure function of the digest. The model receives
-    this and nothing else, so there is no path by which raw data could reach
-    it, and a test can assert that a number planted in the digest is the only
-    place a number in the prompt can have come from.
+    Serialize the complete supplied digest into a user message and pair it with the
+    static system instructions. This helper does not call a model or filter raw or
+    sensitive values from the mapping. The prompts contain fixed instructions in
+    addition to the serialized digest.
 
     :param digest: the digest to write about.
     :returns: the two prompt halves.

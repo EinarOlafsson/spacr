@@ -97,7 +97,7 @@ def test_extractor_adds_only_the_shared_inventory_and_preserves_existing_docs(
     assert "spacr._v1_v2_bridge.public_top" not in after
 
 
-def test_empty_rollout_does_not_scan_or_touch_any_catalog(monkeypatch):
+def test_empty_rollout_does_not_scan_or_touch_any_catalog(monkeypatch, api_catalogs):
     paths = sorted((ROOT / "docs/source/_static/i18n/api").glob("*.json"))
     assert len(paths) == 10
     before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
@@ -537,7 +537,7 @@ def test_enabled_helpers_exist_in_the_full_built_site():
     ("spacr.qt.command_palette", 1, ("CommandPalette._collect_commands",)),
 ])
 def test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser(
-    language, catalog_scope, module, count, hidden,
+    language, catalog_scope, module, count, hidden, api_catalogs,
 ):
     """Check helper rendering independently and retain whole-catalog acceptance."""
     spec = importlib.util.spec_from_file_location(

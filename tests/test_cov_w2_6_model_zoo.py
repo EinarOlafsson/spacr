@@ -233,8 +233,8 @@ def test_a_settings_csv_that_cannot_be_parsed_is_skipped(tmp_path,
     folder = tmp_path / "run" / "settings"
     folder.mkdir(parents=True, exist_ok=True)
     # Both spellings the search tries: the full filename and the stem.
-    (folder / "m.CP_model.csv").write_text("this is not a key/value csv")
-    (folder / "m.csv").write_text("key,value\nmodel_type,cyto3\n")
+    (folder / "m.CP_model.csv").write_text("this is not a key/value csv", encoding="utf-8")
+    (folder / "m.csv").write_text("key,value\nmodel_type,cyto3\n", encoding="utf-8")
 
     calls = []
     real = mz._read_key_value_csv
@@ -283,7 +283,7 @@ def test_a_file_with_no_settings_beside_it_says_it_is_untested(tmp_path):
 
 def test_a_git_lfs_pointer_is_flagged_rather_than_listed_as_a_model(tmp_path):
     path = tmp_path / "big.CP_model"
-    path.write_text("version https://git-lfs.github.com/spec/v1\n")
+    path.write_text("version https://git-lfs.github.com/spec/v1\n", encoding="utf-8")
     entry = mz.entry_from_file(path)
     assert any("Git LFS pointer" in note for note in entry.notes)
 
@@ -434,7 +434,7 @@ def test_a_folder_that_cannot_be_listed_is_skipped_not_fatal(tmp_path,
 def test_discovery_ignores_everything_that_is_not_a_model(tmp_path):
     _checkpoint(tmp_path / "cyto.CP_model")
     _checkpoint(tmp_path / "classifier.pth")
-    (tmp_path / "settings.csv").write_text("key,value\n")
+    (tmp_path / "settings.csv").write_text("key,value\n", encoding="utf-8")
     (tmp_path / "montage.png").write_bytes(b"\x89PNG\r\n")
     (tmp_path / "masks.npy").write_bytes(b"\x93NUMPY")
     found = mz.discover_local(tmp_path)
@@ -526,7 +526,7 @@ def test_a_catalogue_file_that_is_not_there_names_it(tmp_path):
 
 def test_a_catalogue_that_is_not_json_names_the_file(tmp_path):
     path = tmp_path / "catalogue.json"
-    path.write_text("{not json")
+    path.write_text("{not json", encoding="utf-8")
     with pytest.raises(mz.ModelZooError, match="could not read the catalogue"):
         mz.load_catalogue_file(path)
 
@@ -534,7 +534,7 @@ def test_a_catalogue_that_is_not_json_names_the_file(tmp_path):
 def test_a_catalogue_that_cannot_be_opened_names_the_file(tmp_path,
                                                           monkeypatch):
     path = tmp_path / "catalogue.json"
-    path.write_text("[]")
+    path.write_text("[]", encoding="utf-8")
     real = Path.read_text
 
     def _refuse(self, *args, **kwargs):
@@ -549,21 +549,21 @@ def test_a_catalogue_that_cannot_be_opened_names_the_file(tmp_path,
 
 def test_a_catalogue_that_is_not_a_list_of_entries_says_what_it_got(tmp_path):
     path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps({"models": {"a": 1}}))
+    path.write_text(json.dumps({"models": {"a": 1}}), encoding="utf-8")
     with pytest.raises(mz.ModelZooError, match="not a model catalogue"):
         mz.load_catalogue_file(path)
 
 
 def test_an_entry_that_is_not_an_object_names_its_position(tmp_path):
     path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps([{"name": "a.CP_model"}, "oops"]))
+    path.write_text(json.dumps([{"name": "a.CP_model"}, "oops"]), encoding="utf-8")
     with pytest.raises(mz.ModelZooError, match="entry 1 is a str"):
         mz.load_catalogue_file(path)
 
 
 def test_an_unusable_entry_names_its_position_and_what_is_wrong(tmp_path):
     path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps([{"sha256": "a" * 64}]))
+    path.write_text(json.dumps([{"sha256": "a" * 64}]), encoding="utf-8")
     with pytest.raises(mz.ModelZooError, match="entry 0 is unusable"):
         mz.load_catalogue_file(path)
 
@@ -573,7 +573,7 @@ def test_a_catalogue_named_by_the_environment_joins_the_listing(tmp_path,
     path = tmp_path / "catalogue.json"
     path.write_text(json.dumps({"models": [
         {"name": "lab_cyto.CP_model", "sha256": "b" * 64,
-         "trained_on": "our own plates"}]}))
+         "trained_on": "our own plates"}]}), encoding="utf-8")
     monkeypatch.setenv(mz.CATALOGUE_ENV_VAR, str(path))
     names = [e.name for e in mz.catalogue(include_bundled=False,
                                           include_plugins=False)]

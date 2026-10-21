@@ -1118,7 +1118,9 @@ def _gui_app():
 
 
 def screen_size(default: Tuple[int, int] = (2560, 1440)) -> Tuple[int, int]:
-    """Native pixel size of the primary screen, or ``default`` headless."""
+    """Primary-screen physical pixel size clamped to background bounds, or
+    ``default`` if no screen is available, it is below the minimum dimensions,
+    or querying it fails."""
     try:
         app = _gui_app()
         if app is None:

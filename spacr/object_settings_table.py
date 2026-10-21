@@ -1,15 +1,14 @@
 """Convert per-object settings between flat keys and a table with one row per question.
 
-78 of Mask's 201 settings are the same 20 questions asked once per object
-type -- ``cell_diameter``, ``nucleus_diameter``, ``pathogen_diameter``,
-``organelle_diameter`` and so on across twenty shapes. A table was chosen
-over tabs and over leaving the names flat.
+Per-object settings repeat questions for each object type --
+``cell_diameter``, ``nucleus_diameter``, ``pathogen_diameter`` and
+``organelle_diameter``, for example. The table puts each question in one
+row and each object type in one column.
 
 The organelle count is variable, up to
-:data:`spacr.organelle_types.MAX_ORGANELLES` of 26. A flat vocabulary grows
-by twenty settings per organelle, so Mask would ask several hundred
-questions at the maximum. In a table a new organelle is a new column and the
-number of questions does not change.
+``spacr.organelle_types.MAX_ORGANELLES``. Each added slot repeats
+the primary organelle's settings. In the table an additional organelle adds
+a column while the question rows stay the same.
 
 This module is only the model: it reads a flat settings dict into a table
 and writes a table back out, losslessly. It draws nothing.
@@ -129,8 +128,9 @@ def questions(keys: Iterable[str]) -> "List[str]":
     One entry per question, however many objects ask it: ``cell_diameter``
     and ``nucleus_diameter`` are one question, ``diameter``.
 
-    :param keys: flat settings names such as ``"cell_diameter"``; names that
-        do not start with a known object followed by ``_`` are skipped.
+    :param keys: flat settings names such as ``"cell_diameter"``,
+        ``"remove_background_cell"``, ``"remove_background_organelle_2"``
+        and ``"adjust_cells"``. Unsupported names are skipped.
     """
     seen: "OrderedDict[str, None]" = OrderedDict()
     for key in keys:
@@ -143,8 +143,9 @@ def questions(keys: Iterable[str]) -> "List[str]":
 def families(keys: Iterable[str]) -> "Dict[str, List[str]]":
     """``{question: [objects that ask it]}``, objects in display order.
 
-    :param keys: flat settings names such as ``"cell_min_area"``; names that
-        do not start with a known object followed by ``_`` are skipped.
+    :param keys: flat settings names such as ``"cell_min_area"``,
+        ``"remove_background_cell"``, ``"remove_background_organelle_2"``
+        and ``"adjust_cells"``. Unsupported names are skipped.
     """
     found: "Dict[str, set]" = {}
     for key in keys:

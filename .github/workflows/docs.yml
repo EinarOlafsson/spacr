@@ -175,12 +175,27 @@ jobs:
             "torch>=2.0" torchvision
           python -m pip install -e ".[dev]"
           python -m pip install sphinx furo sphinx-design sphinx-autoapi
+      - name: Fetch the info deck's pinned PDF and animations
+        run: |
+          if [ -f docs/media_revision.json ]; then
+            tools/run_capped.sh 2G python tools/fetch_docs_media.py fetch
+            tools/run_capped.sh 2G python tools/fetch_docs_media.py check
+          fi
       - name: Generate Make Masks parameter reference from the pinned branch
         run: |
           if [ -f tools/build_make_masks_reference.py ]; then
             reference_home=$(mktemp -d)
             HOME="$reference_home" XDG_CONFIG_HOME="$reference_home/config" \
               tools/run_capped.sh 4G python tools/build_make_masks_reference.py
+          fi
+      - name: Restore pinned translation review inputs
+        if: hashFiles('docs/translation_reviews_revision.json') != ''
+        run: python tools/bootstrap_translation_reviews.py fetch
+
+      - name: Assemble the API catalogs from the pinned translation memory
+        run: |
+          if grep -q '"api_memory"' docs/media_revision.json 2>/dev/null; then
+            tools/run_capped.sh 12G python tools/build_documentation_i18n.py --assemble
           fi
       - name: Refresh English manifests from the pinned branch
         run: |

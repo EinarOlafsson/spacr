@@ -652,6 +652,118 @@ def maybe_start(app, window) -> Optional[Union[BenchmarkController, _Distributio
         app, window, keys, output, live_keys=_live_keys)
 
 
+_SMOKE_STACK_DUMP_SECONDS = 540
+_SMOKE_STACK_DUMP_ARMED = False
+
+
+def _arm_the_smoke_stack_dump(record):
+    """Write every thread's stack to the application log if the smoke still runs at 540 s.
+
+    The CI watchdog kills the application at 660 s, and a GUI thread blocked
+    inside one call never gets back to the 600-second check in the smoke's
+    ``_advance``, so without this a hang left no trace of where it stood.
+
+    Armed only in a distribution smoke run (``SPACR_DISTRIBUTION_SMOKE=1``).
+
+    :param record: the smoke receipt; the log's path is added to it.
+    :returns: the open log file the dump goes to, or ``None``.
+    """
+    global _SMOKE_STACK_DUMP_ARMED
+    import faulthandler
+
+    if os.environ.get('SPACR_DISTRIBUTION_SMOKE') != '1':
+        return None
+    try:
+        from .verbose_logger import current_log_file
+
+        path = current_log_file()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        handle = open(path, 'a', encoding='utf-8')
+        faulthandler.dump_traceback_later(
+            _SMOKE_STACK_DUMP_SECONDS, exit=False, file=handle)
+    except Exception:
+        return None
+    _SMOKE_STACK_DUMP_ARMED = True
+    record['stack_dump_log'] = str(path)
+    return handle
+
+
+def _cancel_the_smoke_stack_dump():
+    """Cancel the smoke's pending stack dump once it has an outcome."""
+    global _SMOKE_STACK_DUMP_ARMED
+    import faulthandler
+
+    if _SMOKE_STACK_DUMP_ARMED:
+        _SMOKE_STACK_DUMP_ARMED = False
+        faulthandler.cancel_dump_traceback_later()
+
+
+def _name_the_blocking_modal(controller, reason):
+    """Name the blocking modal in the smoke receipt and in its failure message.
+
+    The class, object name, window title and any message-box text go to
+    ``record['blocking_modal']``, so a native run that cannot be repeated
+    interactively still says which dialog appeared. A failed cache review's
+    traceback goes with them, since its warning is one such dialog.
+
+    :param controller: the distribution smoke controller, or a stand-in with
+        ``app``, ``record`` and ``_write``.
+    :param reason: what the dialog blocked.
+    :returns: the failure message, ``reason`` followed by the dialog's details.
+    """
+    widget = controller.app.activeModalWidget()
+    detail = dict(cls=type(widget).__name__)
+    for name in ('objectName', 'windowTitle', 'text', 'informativeText'):
+        reader = getattr(widget, name, None)
+        if callable(reader):
+            try:
+                value = reader()
+            except Exception:
+                continue
+            if isinstance(value, str) and value:
+                detail[name] = value
+    described = ', '.join(f'{key}={value!r}' for key, value in detail.items())
+    failure = getattr(getattr(controller, 'window', None), '_cache_cleanup_error', None)
+    if isinstance(failure, str) and failure:
+        detail['cache_review_error'] = failure[-4000:]
+    controller.record['blocking_modal'] = detail
+    controller._write()
+    return f'{reason}: {described}'
+
+
+def _let_the_layouts_settle():
+    """Let the queued re-layouts run."""
+    from PySide6.QtWidgets import QApplication
+
+    for _turn in range(6):
+        QApplication.processEvents()
+
+
+def _collapsed_heading_faults_of(controller):
+    """Judge the smoke's collapsed containers on screen, then every one collapsed.
+
+    :param controller: the smoke controller, or a stand-in with no window.
+    :returns: the faults, ``[]`` for none, or None when there is no
+        window on screen to judge.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    window = getattr(controller, 'window', None)
+    if not isinstance(window, QWidget):
+        return None
+    try:
+        from .widgets.collapsible_splitter import (
+            _collapsed_header_faults, _probe_collapsed_headers)
+
+        screen = getattr(controller, 'screen', None)
+        root = screen if isinstance(screen, QWidget) else window
+        faults = _collapsed_header_faults(window)
+        faults += _probe_collapsed_headers(root, _let_the_layouts_settle)
+    except Exception as exc:                                 # noqa: BLE001
+        faults = [{'problem': f'collapsed-heading check failed: {exc}'}]
+    return faults
+
+
 class _DistributionSmokeController(QObject):
     """Exercise an installed application's real Measure screen and Run action."""
 
@@ -670,8 +782,9 @@ class _DistributionSmokeController(QObject):
         self.record = {'schema': 'spacr-distribution-smoke-v1', 'status': 'running'}
         self.timer = QTimer(self)
         self.timer.setInterval(200)
-        self.timer.timeout.connect(self._advance)
+        self.timer.timeout.connect(self._tick)
         app.aboutToQuit.connect(self._quitting)
+        self._hang_log = _arm_the_smoke_stack_dump(self.record)
         self.timer.start()
         self._write()
 
@@ -738,6 +851,18 @@ class _DistributionSmokeController(QObject):
         if self.app.platformName() in ('offscreen', 'minimal'):
             raise RuntimeError('Native artifact acceptance requires the native Qt platform')
 
+    def _start_up_warm_running(self):
+        """Whether the start-up import warm is still running on its thread."""
+        app_module = sys.modules.get('spacr.qt.app')
+        running = getattr(app_module, '_settings_prewarm_running', None)
+        try:
+            if running is None or not running():
+                return False
+        except Exception:
+            return False
+        self.record['waited_for_start_up_warm'] = True
+        return True
+
     @staticmethod
     def _installed_root(executable, bundle_root, platform):
         """Permit macOS bundle siblings without widening other platforms' roots."""
@@ -756,6 +881,23 @@ class _DistributionSmokeController(QObject):
         """Resolve symlinks so an artifact cannot borrow a source checkout."""
         if not path.resolve().is_relative_to(root.resolve()):
             raise RuntimeError(f'Import outside the installed artifact: {path}')
+
+    def _tick(self):
+        """Record the phase, hold the first pass for the start-up warm, then advance.
+
+        The phase reaches the receipt before each step, so a step that never
+        returns leaves the phase it blocked in. The provenance check of the
+        first pass imports torch, NumPy and spaCR on this thread; it waits on
+        the event loop till the start-up warm thread is done importing, within
+        the same 600-second deadline.
+        """
+        if self.record.get('phase') != self.phase:
+            self.record['phase'] = self.phase
+            self._write()
+        if (self.phase == 'launch' and time.monotonic() - self.started <= 600
+                and self._start_up_warm_running()):
+            return
+        self._advance()
 
     def _advance(self):
         """Drive production widgets without replacing pipeline or worker callbacks."""
@@ -780,6 +922,14 @@ class _DistributionSmokeController(QObject):
                 self._provenance()
                 if not self.window.isVisible():
                     return
+                self.phase = 'onboarding'
+            elif self.phase == 'onboarding':
+                if self.app.activeModalWidget() is not None:
+                    raise RuntimeError(_name_the_blocking_modal(self,
+                        'An unexpected modal dialog blocks first-launch onboarding'))
+                if self._onboarding_running():
+                    return
+                self.record['onboarding_settled_s'] = round(time.monotonic() - self.started, 1)
                 self.window.open_module('measure')
                 self.phase = 'screen'
             elif self.phase == 'screen':
@@ -787,7 +937,8 @@ class _DistributionSmokeController(QObject):
                 if self.screen is None or not self.screen._btn_run.isEnabled():
                     return
                 if self.app.activeModalWidget() is not None:
-                    raise RuntimeError('An unexpected modal dialog blocks the installed application')
+                    raise RuntimeError(_name_the_blocking_modal(self,
+                        'An unexpected modal dialog blocks the installed application'))
                 from .synthetic import demo_settings, generate_measure_demo
 
                 layout = generate_measure_demo(self.root, wells=('A01',), fields=1,
@@ -845,6 +996,8 @@ class _DistributionSmokeController(QObject):
         from PySide6.QtWidgets import (QAbstractButton, QAbstractSpinBox, QComboBox,
                                        QLabel, QLineEdit, QPlainTextEdit, QTextEdit)
 
+        from .gui_scale import _actual_minimum_size
+
         def rectangle(widget):
             """Map actual geometry into the window.
 
@@ -888,7 +1041,7 @@ class _DistributionSmokeController(QObject):
                     clip = clip.intersected(rectangle(ancestor))
                     ancestor = ancestor.parentWidget()
                 hint = widget.minimumSizeHint()
-                explicit = widget.minimumSize()
+                explicit = _actual_minimum_size(widget)
                 embedded_editor = False
                 if isinstance(widget, QLineEdit):
                     owner = widget.parentWidget()
@@ -1156,8 +1309,19 @@ class _DistributionSmokeController(QObject):
         self._write()
 
     def _finish_layout_check(self):
-        """Finish visual acceptance separately from the retained scientific result."""
+        """Finish visual acceptance separately from the retained scientific result.
+
+        Every collapsible container on the screen is also collapsed once and
+        judged (:func:`spacr.qt.widgets.collapsible_splitter._probe_collapsed_headers`):
+        a collapsed heading that is cut, or one with no handle left to drag,
+        fails the layout as a clipped button does.
+        """
         record = self.record['layout']
+        faults = _collapsed_heading_faults_of(self)
+        if faults is not None:
+            record['collapsed_heading_faults'] = faults
+            if faults and record.get('status') == 'passed':
+                record['status'] = 'failed'
         self.record['visual_layout_status'] = record['status']
         self._write()
         if record['status'] != 'passed':
@@ -1171,7 +1335,14 @@ class _DistributionSmokeController(QObject):
         self._finish(0)
 
     def _keep_installer_cleanup(self):
-        """Choose the actual default-off cleanup dialog's Keep button without removing files."""
+        """Choose the actual default-off cleanup dialog's Keep button without removing files.
+
+        Keep is pressed on a later tick than the one that first sees the
+        dialog, and only once its window is exposed. On macOS a modal's
+        show runs a modal session that delivers this timer, and Keep
+        pressed from inside that show hid the window while Cocoa was still
+        showing it ("Already setting window visible!", first-run smoke).
+        """
         from PySide6.QtCore import Qt
         from PySide6.QtTest import QTest
         from PySide6.QtWidgets import QDialog, QPushButton
@@ -1180,6 +1351,11 @@ class _DistributionSmokeController(QObject):
         dialog = self.app.activeModalWidget()
         if not isinstance(dialog, _InstallerCleanupDialog):
             return False
+        handle = dialog.windowHandle()
+        if (getattr(self, '_cleanup_review_seen', None) is not dialog
+                or handle is None or not handle.isExposed()):
+            self._cleanup_review_seen = dialog
+            return True
         keep = dialog.findChild(QPushButton, 'InstallerCleanupKeep')
         remove = dialog.findChild(QPushButton, 'InstallerCleanupRemove')
         if (not dialog.isVisible() or dialog.choices()['keys']
@@ -1201,15 +1377,27 @@ class _DistributionSmokeController(QObject):
         if time.monotonic() - self._installation_review_started > 30:
             raise RuntimeError('Installation review acceptance exceeded its deadline')
         if self.app.activeModalWidget() is not None:
-            raise RuntimeError('An unexpected modal dialog blocks installation review')
-        consent = getattr(self.window, '_consent_timer', None)
-        startup = getattr(self.window, '_startup_sequence_running', None)
-        if ((consent is not None and consent.isActive())
-                or (startup is not None and startup())
-                or getattr(self.window, '_startup_deferred', ())
-                or getattr(self.window, '_cache_cleanup_busy', False)):
+            raise RuntimeError(_name_the_blocking_modal(self,
+                'An unexpected modal dialog blocks installation review'))
+        if self._onboarding_running():
             return
         self._start_native_menu_check()
+
+    def _onboarding_running(self):
+        """Whether first-launch onboarding may still open a dialog.
+
+        The installer consent, the optional cache review and the report
+        notice open from the start-up timers on their own schedule. The
+        smoke waits for them before it drives a screen, so none of them
+        opens in the middle of a screen being built or configured, and a
+        dialog that is left is one the smoke did not expect.
+        """
+        consent = getattr(self.window, '_consent_timer', None)
+        startup = getattr(self.window, '_startup_sequence_running', None)
+        return bool((consent is not None and consent.isActive())
+                    or (startup is not None and startup())
+                    or getattr(self.window, '_startup_deferred', ())
+                    or getattr(self.window, '_cache_cleanup_busy', False))
 
     @staticmethod
     def _cocoa_message(receiver, selector, result_type, *arguments):
@@ -1447,11 +1635,13 @@ class _DistributionSmokeController(QObject):
         """Stop polling, write the receipt, and leave the real Qt event loop."""
         self.phase = 'finished'
         self.timer.stop()
+        _cancel_the_smoke_stack_dump()
         self._write()
         self.app.exit(code)
 
     def _quitting(self):
         """A premature user/application exit cannot become a successful smoke."""
+        _cancel_the_smoke_stack_dump()
         if self.phase == 'native-menu-quitting':
             menu = self.record.get('native_menu', {})
             if all(menu.get(key) for key in ('preferences_opened', 'preferences_closed', 'quit_dispatched')):

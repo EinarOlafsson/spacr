@@ -112,7 +112,7 @@ def build(baseline, stage, identities, *, refresh_player=False):
     for record in manifest['files']:
         source, expected = replacements.get(record['path'], (baseline / record['path'], record['sha256']))
         copy_checked(source, target / record['path'], records, target, expected)
-    javascript = parse_javascript((baseline / 'web/lesson_catalog.js').read_text())
+    javascript = parse_javascript((baseline / 'web/lesson_catalog.js').read_text(encoding="utf-8"))
     timing_references = []
     for lesson in javascript['lessons']:
         if lesson['id'] not in identities:
@@ -133,7 +133,7 @@ def build(baseline, stage, identities, *, refresh_player=False):
                                      original_visual_timing_sha256=digest(source)))
     catalog_path = target / 'web/lesson_catalog.js'
     catalog_path.write_text('"use strict";\nwindow.SPACR_LESSON_CATALOG = Object.freeze('
-                            + json.dumps(javascript, ensure_ascii=False) + ');\n')
+                            + json.dumps(javascript, ensure_ascii=False) + ');\n', encoding="utf-8")
     records = [row for row in records if row['path'] != 'web/lesson_catalog.js']
     records.append(dict(path='web/lesson_catalog.js', sha256=digest(catalog_path), bytes=catalog_path.stat().st_size))
     report = deepcopy(manifest)

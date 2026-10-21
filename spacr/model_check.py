@@ -176,7 +176,10 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
 
     :param settings: classification settings to validate against the model.
 
-    Never raises; problems are reported in the returned :class:`ModelReport`.
+    Invalid class definitions and custom-model load failures are reported in
+    the returned :class:`ModelReport`. Exceptions outside those handled
+    class-validation and custom-load branches can still propagate, including
+    errors from input-channel conversion.
     """
     kind, name = resolve_model_source(settings)
     if not name:

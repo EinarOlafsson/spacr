@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import argparse
 from copy import deepcopy
+import errno
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -23,6 +25,31 @@ from build_release_candidate import copy_checked, require_web_receipt
 from check_completed_matrix import digest
 from stage_lesson import REPO, read, write
 from validate_candidate import hosted_web_path, require_consistent_web_hosting, validate
+
+
+def copy_preserved_checked(source, target, records, root, expected, *, hardlink=False):
+    """Optionally share immutable verified baseline bytes in a fresh candidate.
+
+    Linked files must never be opened for writing; replacements use copy_checked,
+    whose temporary-file replacement leaves the baseline inode unchanged.
+    """
+    if hardlink and expected is None:
+        raise ValueError(f'No verified baseline identity: {source}')
+    if not hardlink or source.is_symlink():
+        return copy_checked(source, target, records, root, expected)
+    if digest(source) != expected:
+        raise ValueError(f'Source changed after verification: {source}')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        os.link(source, target)
+    except OSError as error:
+        if error.errno != errno.EXDEV:
+            raise
+        return copy_checked(source, target, records, root, expected)
+    if digest(target) != expected:
+        raise ValueError(f'Linked bytes differ from verified source: {target}')
+    records.append({'path': target.relative_to(root).as_posix(),
+                    'sha256': expected, 'bytes': target.stat().st_size})
 
 
 def append_catalogs(published, lessons, voices, reviews, *, replace=False, current_hosts=None):
@@ -277,7 +304,8 @@ def local_web_path(identity):
     return f'production/{identity}/video/{identity}_silent.mp4'
 
 
-def copy_preserved_web(published, baseline, root, manifest, *, replacements=(), hosted=()):
+def copy_preserved_web(published, baseline, root, manifest, *, replacements=(), hosted=(),
+                       hardlink_preserved=False):
     """Retain verified media; ignore leftover production files in the Pages tree.
 
     ``hosted`` lessons keep their posters here; their web copy moves to the
@@ -297,19 +325,20 @@ def copy_preserved_web(published, baseline, root, manifest, *, replacements=(), 
         if (relative.parts[0] != 'production' or relative.parts[1] in replacements
                 or (relative.parts[1] in hosted and name == local_web_path(relative.parts[1]))):
             continue
-        copy_checked(baseline / 'web' / relative, root / 'web' / relative,
-                     records, root, record['sha256'])
+        copy_preserved_checked(baseline / 'web' / relative, root / 'web' / relative,
+                               records, root, record['sha256'], hardlink=hardlink_preserved)
     return records
 
 
-def migrate_web_copy(baseline, root, manifest, identity, records):
+def migrate_web_copy(baseline, root, manifest, identity, records, *, hardlink_preserved=False):
     """Move a preserved lesson's verified web copy onto the media host, byte for byte."""
     record = next((row for row in manifest['files']
                    if row['path'] == 'web/' + local_web_path(identity)), None)
     if record is None:
         raise ValueError(f'No verified local web copy to host: {identity}')
-    copy_checked(baseline / 'web' / local_web_path(identity),
-                 root / 'media_host' / hosted_web_path(identity), records, root, record['sha256'])
+    copy_preserved_checked(baseline / 'web' / local_web_path(identity),
+                           root / 'media_host' / hosted_web_path(identity), records, root,
+                           record['sha256'], hardlink=hardlink_preserved)
 
 
 def mark_hosted_web(js_catalog, identities):
@@ -401,7 +430,8 @@ def selected_visual_timing(stage, identity, baseline, retained_ids):
 
 
 def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(),
-          host_web=False, migrate_web=(), retain_narration=(), retain_visual_timing=(), withdraw=()):
+          host_web=False, migrate_web=(), retain_narration=(), retain_visual_timing=(), withdraw=(), candidate_root=None,
+          hardlink_preserved=False, idle_tail_policy=None):
     """Create a new private candidate; never upload or modify the published tree.
 
     ``withdraw`` unlists published lessons: they leave every catalog, the
@@ -430,7 +460,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     receipt = read(baseline / 'publication-receipt.json')
     require_baseline_receipt(previous, receipt, digest(baseline / 'release-manifest.json'))
     published = REPO / 'docs/source/_extra/tutorials'
-    index = (published / 'index.html').read_text()
+    index = (published / 'index.html').read_text(encoding="utf-8")
     roots = re.findall(r'data-(?:audio|video4k)-root="([^"]+)"', index)
     if len(roots) != 2 or set(roots) != {receipt['media_root']}:
         raise ValueError('Baseline media revision is not the currently published revision')
@@ -500,17 +530,23 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
         raise ValueError('Migrate only unique, otherwise preserved lessons')
     # Reject stale playback evidence before allocating or copying the library.
     web_inputs = {lesson['id']: checked_web_input(stage, lesson['id']) for lesson in lessons}
-    root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=stage))
+    candidate_parent = stage if candidate_root is None else Path(candidate_root).expanduser().resolve()
+    if candidate_root is not None:
+        candidate_parent.mkdir(parents=True, exist_ok=True)
+    root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=candidate_parent))
     records = copy_preserved_web(published, baseline, root, previous,
-                                 replacements=[*refresh_ids, *withdraw], hosted=migrate_web)
+                                 replacements=[*refresh_ids, *withdraw], hosted=migrate_web,
+                                 hardlink_preserved=hardlink_preserved)
     for identity in migrate_web:
-        migrate_web_copy(baseline, root, previous, identity, records)
+        migrate_web_copy(baseline, root, previous, identity, records,
+                         hardlink_preserved=hardlink_preserved)
     web_checks = []
     for record in previous['files']:
         if record['path'].startswith('media_host/'):
             if Path(record['path']).parts[1] in (*refresh_ids, *withdraw):
                 continue
-            copy_checked(baseline / record['path'], root / record['path'], records, root, record['sha256'])
+            copy_preserved_checked(baseline / record['path'], root / record['path'],
+                                   records, root, record['sha256'], hardlink=hardlink_preserved)
     for lesson in lessons:
         identity = lesson['id']
         source = stage / 'production' / identity
@@ -538,7 +574,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                                browser_report_sha256=digest(browser_path)))
     for name, catalog in catalogs.items():
         write(root / 'web/catalog' / name, catalog)
-    js_catalog = parse_javascript((published / 'lesson_catalog.js').read_text())
+    js_catalog = parse_javascript((published / 'lesson_catalog.js').read_text(encoding="utf-8"))
     original_js_catalog = deepcopy(js_catalog)
     js_catalog = {**js_catalog, 'lessons': [lesson for lesson in js_catalog['lessons']
                                             if lesson['id'] not in withdraw]}
@@ -558,6 +594,9 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     if link_lessons:
         js_catalog = synchronize_links({'lessons_en.json': js_catalog}, link_lessons)['lessons_en.json']
     js_catalog = mark_hosted_web(js_catalog, [*(identities if host_web else ()), *migrate_web])
+    from idle_tail_policy import bind_policy, load_policy
+    js_catalog['lessons'] = bind_policy(load_policy(REPO, idle_tail_policy), records, js_catalog['lessons'],
+                                       lambda path: read(root / path))
     nav = navigation(catalogs['lessons_en.json'])
     for lesson in lessons:
         host = lesson.get('host_app_key')
@@ -569,14 +608,14 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     for name, variable, data in [('lesson_catalog.js', 'SPACR_LESSON_CATALOG', js_catalog),
                                  ('module_navigation.js', 'SPACR_TUTORIAL_NAVIGATION', nav)]:
         (root / 'web' / name).write_text('"use strict";\nwindow.' + variable + ' = Object.freeze('
-                                       + json.dumps(data, ensure_ascii=False) + ');\n')
+                                       + json.dumps(data, ensure_ascii=False) + ');\n', encoding="utf-8")
     (root / 'web/app_v2.js').write_bytes((REPO / 'tools/tutorials/authoring/web/app_v2.js').read_bytes())
     index = ensure_web_root(index)
     for attribute in ('audio', 'video4k', 'web'):
         index, count = re.subn(rf'data-{attribute}-root="[^"]+"', f'data-{attribute}-root="../media_host"', index)
         if count != 1:
             raise ValueError('Expected one media root per type')
-    (root / 'web/index.html').write_text(index)
+    (root / 'web/index.html').write_text(index, encoding="utf-8")
     write(root / 'web/translation-compatibility.json', dict(policy='report-only; English fallback', entries=compatibility))
     records = [record for record in records if record['path'].startswith('media_host/')]
     records.extend(dict(path=path.relative_to(root).as_posix(), sha256=digest(path), bytes=path.stat().st_size)
@@ -623,6 +662,10 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, required=True)
+    parser.add_argument('--candidate-root', type=Path,
+                        help='Parent directory for the new candidate (default: --stage)')
+    parser.add_argument('--hardlink-preserved-media', action='store_true',
+                        help='Hardlink verified immutable baseline media on the same filesystem; copy across filesystems')
     parser.add_argument('--baseline', type=Path, required=True)
     parser.add_argument('--lesson', action='append', required=True)
     parser.add_argument('--replace-existing', action='store_true',
@@ -639,6 +682,8 @@ if __name__ == '__main__':
                         help='Move a preserved lesson\'s verified web copy onto the media host')
     parser.add_argument('--refresh-links', action='append', default=[],
                         help='Update only chapter destinations; require unchanged prose and preserve media')
+    parser.add_argument('--idle-tail-policy', type=Path,
+                        help='Explicit source-bound idle-tail policy (default: canonical idle_tail_policy.json)')
     parser.add_argument('--withdraw', action='append', default=[],
                         help='Unlist a published lesson from the catalogs, player and candidate media')
     args = parser.parse_args()
@@ -646,4 +691,5 @@ if __name__ == '__main__':
           refresh_ids=args.refresh_lesson, link_ids=args.refresh_links,
           host_web=args.host_web, migrate_web=args.migrate_web, retain_narration=args.retain_narration,
           retain_visual_timing=args.retain_visual_timing,
-          withdraw=args.withdraw)
+          withdraw=args.withdraw, candidate_root=args.candidate_root,
+          hardlink_preserved=args.hardlink_preserved_media, idle_tail_policy=args.idle_tail_policy)

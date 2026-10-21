@@ -20,265 +20,12 @@ from tests.readme_source_words import readme_words
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
-#: 9,434 -> 9,596 on 2026-09-04. 368's public half: every public method in
-#: dnd_handlers, gate_spec, layers, trellis_spec, dna_rain, graph_builder,
-#: feature_rank and umap_search_viewer now carries its own docstring, and the
-#: API_DOC_ALIASES entries that let 111 of them borrow a base class's text
-#: were retired with them -- so those symbols render their own entry instead
-#: of pointing at someone else's.
-#:
-#: 10,152 -> 10,241 on 2026-09-07. The modules added while the list was
-#: being closed out: `ops_sbs`, `ops_merge`, `ops_settings`, `infection`
-#: and `suggest`, plus `live_zoom`.
-#:
-#: 10,241 -> 10,242 on 2026-09-08, and the single symbol is worth naming
-#: because of what it cost: `RegexEditorDialog.resizeEvent`, added by
-#: 350's clipping fix. ONE public method moved the inventory, which
-#: staled all nine API catalogs and turned
-#: `test_api_doc_catalog_is_symbol_keyed_and_source_hashed` red -- so a
-#: fix in `spacr/qt/regex_editor.py` is a change to eleven files. That is
-#: the cost this ratchet exists to make visible rather than to prevent:
-#: overriding a Qt event handler is a normal thing to do and it is not
-#: free.
-#: 10,243 -> 10,306 on 2026-09-10, +69/-6, and it is the same lesson at
-#: sixty-nine times the scale. Instruction 372's OPS modules (52 symbols
-#: across ops_layout, ops_stitch, ops_phenotype, ops_register, ops_accel,
-#: ops_cycles and ops_solve), 359's layout_policy, 327's TourPilot and the
-#: rest of two sessions' Qt work, less the six retired space accessors.
-#:
-#: FIVE REBUILD PASSES IN ONE NIGHT, because the surface moved five times.
-#: The rule that came out of it is in 288: finish the code, THEN rebuild,
-#: and never mid-batch -- a public docstring added between passes stales
-#: every locale that has already been rebuilt and nothing reports it until
-#: the counts are compared across all ten catalogs.
-#: 10,306 -> 10,299 on 2026-09-10, -12/+5, and this one SHRINKS the
-#: surface deliberately. Four symbols added the night before were not
-#: public API and should never have been on it: `open_at_the_measured_width`
-#: and `the_missing_pip_escape` have one caller each inside `qt/app.py`,
-#: `TourPilot` is instantiated once inside `fractal_travel`, and
-#: `spacr/qt/layout_policy.py` is read by nothing but `app.py`. All four are
-#: private now, which takes twelve entries off (the two helpers, TourPilot
-#: and its four members, the module and its four functions) and puts five
-#: back under `_layout_policy` -- a module keeps its docstring on the
-#: inventory whatever it is called; only the leading underscore on a
-#: FUNCTION or CLASS removes it.
-#:
-#: WHY IT IS WORTH A REBUILD RATHER THAN LEAVING THEM. Those twelve entries
-#: were about to be translated into nine languages and maintained there, for
-#: helpers with one caller each. The rebuild has to happen either way: the
-#: same four docstrings were edited the same night to take instruction
-#: numbers out of published text, which changed their English and staled
-#: their hashes in every locale. This makes the one pass smaller instead of
-#: adding a sixth.
-#:
-#: 10,299 -> 10,339 on 2026-09-11, +40/-0, with the merge from main. The
-#: same arrivals `tests/test_docstring_correctness.py` decomposes against
-#: its own baseline of 10,294 -- five of those forty-five were already on
-#: this side of the count when it was last moved, which is why the two
-#: baselines differ by five and the two deltas by the same five:
-#:
-#:     spacr.embeddings          386, the embedding engine
-#:     spacr.ops_compose         372, the composed OPS window
-#:     spacr.bystanders          388, the infected cell's neighbours
-#:     qt.widgets.dose_response  387, selectivity and the two surfaces
-#:     spacr.point_patterns      388, Ripley's K and L
-#:     spacr.model_zoo           370, the scorecard on a model row
-#:     spacr.scorecard           370, reading one back
-#:     spacr.qt.theme            380, the per-window stylesheet
-#:     spacr.infection           377
-#:
-#: The nine locales were repaired against this inventory before the number
-#: was touched, which is the order this file's own rule asks for: catalogs
-#: first, ratchet second.
-#:
-#: 10,339 -> 10,398 on 2026-09-12, +59/-0. Measured against a detached
-#: worktree at the pin commit rather than by subtracting counts, because a
-#: net figure cannot tell an arrival from a departure and this file has been
-#: wrong that way before. Nothing was removed, and the fifty-nine are the
-#: work that landed between the two commits:
-#:
-#:     spacr.ops_objects            9    372, windowed segmentation
-#:     qt.widgets.dose_response     9    387, the two surfaces
-#:     spacr.ops_sample             7    372, sampling at the coordinates
-#:     spacr.ops_store              7    372, the storage contract
-#:     spacr.qt.screens.embeddings  8    386, the screen and its table
-#:     dose_response dataclasses    8    387, PlateSpec, PlateReport,
-#:                                       PooledFit and Checkerboard
-#:     spacr.embeddings             2    386, the engine
-#:     spacr.qt.theme               2    380, the per-window stylesheet
-#:     ops_objects.PlateObject      1    372
-#:     spacr.infection              1    377, border_rules_agree
-#:     spacr.scorecard              1    370
-#:     spacr.qt, .qt.screens,
-#:       .qt.app.MainWindow,
-#:       .qt.stall_watch            4    module docstrings and one member
-#:
-#: `spacr.infection.border_rules_agree` is the one that staled the catalogs:
-#: it landed AFTER they were built, which is exactly the mid-batch arrival
-#: 288's rule warns about, and it took nine locales red until the repair
-#: pass cleared it.
-#: 10,398 -> 10,400 on 2026-09-12, +2/-0, and both arrived with 364's
-#: settings migration: `spacr.object_roles.split_role_setting` and
-#: `spacr.settings.surviving_setting_name`. Measured by differencing the
-#: symbol sets against the previous measurement, not by subtracting counts.
-#: 10,400 -> 10,401 on 2026-09-12 with 391's
-#: `spacr.object_roles.withdrawn_setting_reason`, the resolver that says why
-#: a setting was withdrawn. Set-differenced against the previous
-#: measurement, not subtracted.
-#: 10,401 -> 10,478 on 2026-09-13, +77/-0 for Map Barcodes (c753b7de7).
-#: Set-differenced against 5a2825f67 rather than subtracted, per the note
-#: above: 31 spacr.barcode_search (its module docstring included), 20
-#: spacr.qt.screens, 14 spacr.settings, 12 spacr.qt.widgets. All nine API
-#: catalogs were regenerated AND repaired before this number moved, which is
-#: the order the assertion's own message asks for.
-# 2026-09-14: 10,478 -> 10,531. Moved by SET DIFFERENCE against the symbol
-# list at f15be8dd2, not by accepting the new total: 53 added, 0 removed, and
-# every addition attributable --
-#     36  spacr.curation_queue        (396, a new module)
-#      8  spacr.cli_make_masks        (396, a new module)
-#      5  spacr.graph_types           (293)
-#      2  spacr.style_base            (291: font_names, font_rc)
-#      1  MakeMasksScreen.open_queue  (396)
-#      1  GroupedPlot.starting_mark   (293)
-# A total that merely rose by 53 would look the same if 53 arrived and 53 of
-# something else quietly left, which is why the baseline set is differenced
-# rather than the counts subtracted.
-# 10,531 -> 10,533 on 2026-09-14: +2 / -0 by set difference --
-# spacr.embeddings.EmbeddingSpec.__post_init__ and
-# spacr.ops_store.Readiness.__bool__, two dunders that already existed
-# and were undocumented. Documenting them is what admits them.
-#
-# THIS NUMBER LIVES IN FOUR FILES: here, test_documentation_i18n,
-# test_api_i18n_extractor (twice) and test_docstring_correctness. It has
-# now been moved twice and BOTH TIMES some siblings were missed and found
-# a day later by a sweep. Grep the literal before believing one edit was
-# enough.
-# 10,533 -> 10,534 on 2026-09-15, +1: `spacr.graph_types.mark_to_start_on`,
-# the helper that reads the Default Graph Type setting and answers in the
-# drawing code's vocabulary (graph_types spells `bar_jitter`, spacrGraph draws
-# `jitter_bar`). Its sibling QC helper became private in the same batch
-# because only one module calls it. Catalogued with reviewed records in all
-# nine languages. NOT A COMPLETE CENSUS: the inventory walks `def`s, so a
-# public name bound by assignment (`canonical_app_key = _normalize_app`) enters
-# the API without moving this number.
-# 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M): +7 / -0 by set difference
-# against nightly 3f27b926a (the same seven moved c3f562c4f's 10,533 to
-# 10,540 before the rebase) -- spacr.ops_engine and spacr.ops_engine.run_ops,
-# spacr.ops_cycles.AlignedField and align_field, spacr.ops_sbs.attribute_reads
-# and assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. Their
-# blocks carry reviewed records in all nine locales.
-# 10,541 -> 10,521 on 2026-09-15, +0 / -20 by set difference against
-# the switch commit when the old OPS engine was deleted: the 17 symbols of
-# the old engine's module and `spacr.settings.set_default_stitch`,
-# `set_default_multichannel` and `set_default_general`, the old
-# stitcher's defaults, which nothing called.
-# 10,521 -> 10,523 on 2026-09-15: `spacr.barcode_search.SearchThresholds` and
-# its `__post_init__`. The count is the live surface, measured; the catalogs
-# are NOT regenerated for the two, so the inventory half of the test below
-# names them as missing until the pre-release catalog rebuild runs.
-# 10,523 -> 10,539 on 2026-09-15, +16 / -0 by set difference against
-# nightly dca970671:
-# spacr.qt.make_masks_demo and its seven public functions (412), and
-# spacr.install_cleanup with InstallRecord, RemovalReport,
-# RemovalReport.ok, find_old_installs, remove_install,
-# run_update_sequence and start_update_helper (416). 413 rewrote two
-# existing docstrings and added none. The live surface with those sixteen
-# keys dropped is 10,523, the previous value. Their blocks carry reviewed
-# records in all nine locales
-# (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
-# 10,539 -> 11,280 on 2026-09-22: +743 / -2, measured against e23a6ad9a.
-# Exact added/removed keys: features/data/411_api_manifest_refresh_2026-09-22.json.
-# English is refreshed; the locale inventory and source-hash assertions below
-# remain strict and still report the unfinished translated catalog rebuild.
-# 474: ten organism API entries, translated and source-bound in all nine locales.
-# +27 ParaScape/ruler/diagram entries, then +22 flowchart/secondary entries.
-# Source subtraction is recorded in the two dated 411 API receipts.
-# +7 Timeflows nested helpers, with all nine catalogs updated for those keys.
-# +9 held-out validation module/functions/reporting helpers in all locales.
-# +12 inference/cursor/help/schema entries. English and Help are refreshed;
-# all locale key/hash checks remain strict while translations are completed.
-# +12 image-quality/Host–Pathogen entries; strict locale checks remain active.
-# ParaScape update APIs add five entries; the retired Demos label removes one.
-# Exact added/removed sets: features/data/411_parascape_demos_api_2026-09-23.json.
-# Training and plaque calibration delta: 411_training_calibration_api_2026-09-23.json.
-# Growth, asynchronous review and fallback delta: 411_growth_and_async_api_2026-09-23.json.
-# Cancelled worker ownership: 411_cancelled_preview_api_2026-09-23.json.
-# PSF module and metadata-only doctor: 411_psf_doctor_api_2026-09-23.json.
-# Mask PSF integration: 411_psf_integration_api_2026-09-23.json.
-# +10 for the News panel's live release refresh: the panel's merge and
-# apply entries, Home's relay, the release-refresh preference pair and
-# the updater's release-notes reader and its cache path.
-# 11,538 -> 11,651 on 2026-09-25: the remaining +114 / -1 of the
-# implementation session (items 502-513) beyond those ten, named by set
-# difference in test_api_i18n_extractor. 11,661 after rebasing on
-# b84c3441c: ten more callables (item 475, PSF/detect chain), named there.
-# 11,710 on nightly 03a02c3b8: +49 / -0, named in test_api_i18n_extractor.
-# 11,758 with item 528's twelve, named in test_api_i18n_extractor.
-# 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
-# 11,834 on 2026-09-26: item 545's eighteen ROI callables, named in
-# test_docstring_correctness.
-# 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
-# 11,861 with item 588's mask_engine.fill_label_holes.
-# 11,865 with items 544 and 573's four spacr.run_journal callables.
-# 593, 2026-09-28: +64 (spacr.folder_consolidation, spacr.channel_sorting and
-# spacr.qt.widgets.channel_sort_dialog).
-# 600, 2026-09-29: +13 (spacr.drop_classification and
-# spacr.qt.widgets.organize_for_measure).
-# 2026-10-01: merge, uncertainty and condition APIs; exact source delta
-# recorded in features/data/615_public_api_delta_2026-10-01.json.
-# 2026-10-02 F580: +1/-0, the calibration_preview module overview only;
-# all 12,035 previous symbols unchanged. Exact subtraction and nine-locale
-# strict audit: features/data/615_translation_acceptance_2026-10-02.json.
-# 2026-10-02 F411: +2/-0, tabular._write_workbook._write and
-# qt.command_palette.CommandPalette._collect_commands.app_is_visible.
-# All 12,036 prior source keys/texts unchanged; nested private parents
-# remain hidden. Exact subtraction is recorded in the F411 slice receipt.
-# 2026-10-02 item 43: +2/-0, the module overviews of spacr._lineage_trees
-# and spacr._lineage_measurements (the API docstring contract requires
-# one per module); all 12,038 prior symbols unchanged.
-# 2026-10-03 F411: +131/-0, documented nested helpers of 111 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,040 prior symbols unchanged.
-# 2026-10-03 F411: +46/-0, documented nested helpers of 23 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,171 prior symbols unchanged.
-# 2026-10-03 F411: +136/-1 (the -1 is ConditionSourceTable.setModel, removed by nightly), documented nested helpers of 39 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,217 prior symbols unchanged.
-# 2026-10-03 F411: +99/-0, documented nested helpers of 19 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,352 prior symbols unchanged.
-# 2026-10-03 F411: +95/-0, documented nested helpers of 13 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,451 prior symbols unchanged.
-# 2026-10-03 F411: +154/-0, documented nested helpers of 11 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,546 prior symbols unchanged.
-# 2026-10-03 F411: +28/-0, documented nested helpers of 1 more module
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,700 prior symbols unchanged.
-# 2026-10-03 F411: +159/-0, documented nested helpers of 11 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,728 prior symbols unchanged.
-# 2026-10-03 F411: +103/-0, documented nested helpers of 3 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,887 prior symbols unchanged.
-# 2026-10-03 F411: +81/-0, documented nested helpers of 2 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 12,990 prior symbols unchanged.
-# 2026-10-03 F411: +104/-0, documented nested helpers of 2 more modules
-# (tools/nested_helper_docs.ENABLED_MODULES); all 13,071 prior symbols unchanged.
-# 2026-10-04 566 (a71b646a7): +1/-0, the documented nested helper
-# spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
-# Item 662: +4 public mask_engine YOLO helpers, no removals.
-# All 13,177 prior English records preserved; 662_yolo_support receipt.
-# 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
-# 2026-10-07: the source-reviewed SCN, Cell-DINO, GUI and ambient additions
-# add these 17 symbols without removing any of the prior 13,182.
-# A further 15 Apply, blinking, popup-wave and renderer contracts enter
-# the same dated source-reviewed inventory; none of the prior rows retire.
-# One further nested background picker enters with unchanged existing prose.
-# 2026-10-10 item 684 (bd22c05bd): +3/-0, MainWindow.snap_window,
-# AmbientWidget.set_click_ripples and the nested Preferences helper
-# _build_the_dialog._density_follows_theme, as test_api_i18n_extractor
-# already counts; all 13,215 prior symbols unchanged.
-# 2026-10-15 item 700: +0/-28, the cli_setup_panel and provider_marks
-# modules and SetupSlides.provider_status leave with the first-run AI and
-# GitHub pages. The named inverse below retains the prior historical floor.
-# 2026-10-19: -1, FoldButton.paintEvent retired (native verdict-dot layer).
-# 2026-10-19 item 600: +0/-14, ChannelSortDialog and RegexWindow leave
-# spacr.qt.widgets.channel_sort_dialog; the example-set check stays.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_203
+# Compare the current public API with the unchanged baseline after subtracting
+# named arrival contracts and restoring explicitly retired symbols. Each public
+# symbol owns its docstring unless API_DOC_ALIASES names its source. Private
+# helpers stay hidden unless explicitly enabled by nested_helper_docs.
+# Regenerate every locale catalog against the final integrated source.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_202
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",
@@ -341,6 +88,34 @@ PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
 )
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
+
+
+def _posix_update_prepared_key_move(entries, docs=None):
+    """Apply only the reviewed same-body move in the October 17 contract."""
+    import json
+    from pathlib import Path
+
+    move = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "posix_online_update_prepared_api_key_move_2026-10-21.json").read_text(encoding="utf-8"))
+    assert move == {
+        "old_symbol": "spacr.install_cleanup._run_macos_online_update.prepared",
+        "new_symbol": "spacr.install_cleanup._run_posix_online_update.prepared",
+        "docstring": "Offer Restart only after the replacement passes its staged checks.",
+        "docstring_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+    }
+    old, new = move["old_symbol"], move["new_symbol"]
+    assert hashlib.sha256(move["docstring"].encode("utf-8")).hexdigest() == move["docstring_sha256"]
+    assert entries[old] == move["docstring"]
+    assert new not in entries
+    if docs is not None:
+        assert old not in docs
+        assert docs[new] == move["docstring"]
+    renamed = dict(entries)
+    renamed[new] = renamed.pop(old)
+    assert len(renamed) == len(entries)
+    assert renamed.keys() - entries.keys() == {new}
+    assert entries.keys() - renamed.keys() == {old}
+    return renamed
 
 
 def test_runtime_catalog_cli_pins_imports_to_its_own_checkout(tmp_path):
@@ -3108,7 +2883,7 @@ def test_translation_cache_atomically_removes_rejected_checkpoint(tmp_path):
     from build_i18n_catalogs import _merge_write_translation_cache
 
     path = tmp_path / "ko.json"
-    path.write_text(json.dumps({"api-block-v7\0Source": "Source"}))
+    path.write_text(json.dumps({"api-block-v7\0Source": "Source"}), encoding="utf-8")
     baseline = {"api-block-v7\0Source": "Source"}
     _merge_write_translation_cache(path, {}, baseline)
     assert json.loads(path.read_text(encoding="utf-8")) == {}
@@ -3169,6 +2944,7 @@ def test_cache_lock_releases_descriptor_when_owner_stamp_fails(
         pass
 
 
+@__import__("pytest").mark.posix_only
 def test_cache_lock_closes_descriptor_when_explicit_unlock_fails(
     tmp_path, monkeypatch,
 ):
@@ -3191,6 +2967,7 @@ def test_cache_lock_closes_descriptor_when_explicit_unlock_fails(
         pass
 
 
+@__import__("pytest").mark.posix_only
 def test_atomic_catalog_writes_preserve_existing_mode(tmp_path):
     from build_documentation_i18n import _write_json
     from build_i18n_catalogs import _atomic_write_text
@@ -3250,14 +3027,14 @@ def test_runtime_audit_rejects_a_synthetic_missing_tooltip_translation(
     monkeypatch.setattr(builder, "reviewed_runtime_translations", lambda _: {})
     installer = tmp_path / "packaging/i18n"
     installer.mkdir(parents=True)
-    (installer / "sv.json").write_text(json.dumps(sources["installer"]))
+    (installer / "sv.json").write_text(json.dumps(sources["installer"]), encoding="utf-8")
     builder.write_english(sources)
     values = {"SETTING_LABELS": {}, "SETTING_TOOLTIPS": {
         "cell_diameter": "Celldiameter i pixlar."}, "CATEGORY_HELP": {},
         "UI": {}, "MODULE_SUMMARIES": {}, "SOURCE_HASHES": builder._source_hashes(sources),
         "SECONDARY_MODEL": builder.SECONDARY_MODEL, "SECONDARY_LICENSE": builder.SECONDARY_LICENSE}
     swedish = catalog_dir / "sv.py"
-    swedish.write_text("\n".join(f"{key} = {value!r}" for key, value in values.items()))
+    swedish.write_text("\n".join(f"{key} = {value!r}" for key, value in values.items()), encoding="utf-8")
     assert builder.audit(sources, ["sv"]) == 0
     with swedish.open("a") as handle:
         handle.write('\nSETTING_TOOLTIPS.pop("cell_diameter")\n')
@@ -3310,7 +3087,8 @@ def current_documentation_api_contracts():
 
 
 @pytest.mark.parametrize("language", ["en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
-def test_documentation_api_catalog_inventory_and_hashes_are_current(language, current_documentation_api_contracts):
+def test_documentation_api_catalog_inventory_and_hashes_are_current(
+        language, current_documentation_api_contracts, api_catalogs):
     """English freshness is required; localized drift is registered for repair.
 
     The maintainer made translation compatibility report-only on 2026-09-23.
@@ -3538,9 +3316,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
         ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
+        ("thumbnail_popup_close_api_arrival_2026-10-21.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
+        if filename == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            arrivals = _posix_update_prepared_key_move(arrivals, docs)
         assert len(arrivals) == count
         assert {key: docs[key] for key in arrivals} == arrivals
         assert not arrivals.keys() & (
@@ -3588,17 +3369,6 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
-    thumbnail_close = json.loads((ROOT / "tests/data/release_contracts"
-        / "thumbnail_hidden_close_api_arrival_2026-10-21.json").read_text(encoding="utf-8"))
-    assert set(thumbnail_close) == {
-        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.closeEvent",
-    }
-    assert {symbol: docs[symbol] for symbol in thumbnail_close} == thumbnail_close
-    assert not thumbnail_close.keys() & (
-        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
-        | home_ui_arrivals.keys() | volume_arrivals.keys()
-    )
-    zoo_arrivals = {**zoo_arrivals, **thumbnail_close}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
         / "700_retired_setup_api_inverse_2026-10-15.json").read_text(encoding="utf-8"))
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"
@@ -3611,7 +3381,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     ).encode()).hexdigest() == "5df7d5da3b7cce98b3a0231d968642b2868d09e92d9e797157a4cb728aaec731"
     assert not retired_setup.keys() & (docs.keys() | zoo_arrivals.keys())
     uncataloged = sorted(docs.keys() - json.loads(
-        (ROOT / "docs/source/_static/i18n/api/en.json").read_text(encoding="utf-8")
+        (api_catalogs / "en.json").read_text(encoding="utf-8")
     )["symbols"].keys())
     assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                 - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
@@ -3627,7 +3397,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
     )
     expected = set(docs)
-    api_dir = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
+    api_dir = api_catalogs
     for language in (language,):
         payload = json.loads(
             (api_dir / f"{language}.json").read_text(encoding="utf-8")
@@ -4807,7 +4577,7 @@ def test_readme_builder_reuses_the_same_source_bound_visual_targets():
 def test_localized_readme_inline_markup_is_balanced_and_tight():
     canonical = readme_words()
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
-        text = path.read_text(encoding="utf-8")
+        text = readme_words(path)
         for marker in ("**", "``"):
             assert text.count(marker) == canonical.count(marker)
             marked_text = text.split(marker)[1::2]
@@ -4876,7 +4646,13 @@ def test_localized_readmes_preserve_urls_code_and_table_shape():
     )
     canonical_code = code_pattern.findall(canonical)
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
-        text = path.read_text(encoding="utf-8")
+        text = readme_words(path)
+        language = path.stem.removeprefix("README.")
+        locale = "zh-CN" if language == "zh_CN" else language
+        canonical_mask = "https://einarolafsson.github.io/projects/spacr/#mask-generator"
+        localized_mask = f"https://einarolafsson.github.io/projects/spacr/{locale}/#mask-generator"
+        assert text.count(localized_mask) == canonical.count(canonical_mask), language
+        text = text.replace(localized_mask, canonical_mask)
         assert sorted(re.findall(r"https?://[^\s>`]+", text)) == canonical_urls
         assert code_pattern.findall(text) == canonical_code
         assert len(re.findall(r"(?m)^   \* - ", text)) == len(
@@ -4924,7 +4700,7 @@ def test_localized_readmes_have_as_many_sections_as_the_english_one():
     for path in sorted((ROOT / "docs" / "i18n" / "readme").glob(
             "README.*.rst")):
         titles = [m.group("title") for m in _HEADING.finditer(
-            path.read_text(encoding="utf-8"))]
+            readme_words(path))]
         assert len(titles) == len(expected), (
             f"{path.name} has {len(titles)} sections and README.rst "
             f"{len(expected)}; English titles still in it: "

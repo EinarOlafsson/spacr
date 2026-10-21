@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 SOURCE = Path(__file__).resolve().parents[1] / 'authoring/tools/render_all_voices.py'
-tree = ast.parse(SOURCE.read_text())
+tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
 function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
                 and node.name == 'track_speech_text')
 namespace = {}

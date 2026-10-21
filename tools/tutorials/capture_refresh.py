@@ -138,7 +138,7 @@ def main() -> int:
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
                              'every other recording is refused while alpha features are on')
     args = parser.parse_args()
-    clip_durations = json.loads(args.clip_durations.read_text()) if args.clip_durations else {}
+    clip_durations = json.loads(args.clip_durations.read_text(encoding="utf-8")) if args.clip_durations else {}
     if args.spaceout_effects_only and (args.module != 'home' or args.home_preferences_only
                                      or args.run or args.download or args.preview or args.openings):
         parser.error('--spaceout-effects-only requires Home alone, without another tour')
@@ -1582,7 +1582,7 @@ def main() -> int:
                     'published': False})
                 manifest = prepare_subset(source, destination)
                 write_json(captures / 'input_manifest.json', manifest)
-                recorded = json.loads((REPO / 'tools/tutorials/authoring/catalog/25_recruitment_settings.json').read_text())
+                recorded = json.loads((REPO / 'tools/tutorials/authoring/catalog/25_recruitment_settings.json').read_text(encoding="utf-8"))
                 # These old mask-plane controls no longer exist in Recruitment.
                 # Keep the recorded raw-channel and biological metadata, without
                 # treating those annotations as independently verified biology.
@@ -1753,7 +1753,7 @@ def main() -> int:
                                inspect_mapping(Path(settings['src']), sequence_choice['run'], 10000))
                     if args.barcode_search_tour:
                         from map_barcodes_data import verify_counts
-                        references = json.loads((captures / 'mapping_reference_selection.json').read_text())
+                        references = json.loads((captures / 'mapping_reference_selection.json').read_text(encoding="utf-8"))
                         proof = verify_counts(Path(settings['src']) / (sequence_choice['run'] + '_paired'),
                                               references, 10000)
                         write_json(captures / 'scientific_acceptance.json', proof)
@@ -1839,7 +1839,7 @@ def main() -> int:
     write_json(captures / 'provenance.json', {'commit': inventory['commit'],
                'version': inventory['version'], 'module': args.module,
                'download_requested': args.download, 'dataset_cache': (
-                   json.loads((stage / (args.module + '_state') / f'{args.capture_name or args.module}.json').read_text())['cache']
+                   json.loads((stage / (args.module + '_state') / f'{args.capture_name or args.module}.json').read_text(encoding="utf-8"))['cache']
                    if args.module in ('lineage', 'image_scatter') else str(stage / 'example_data')),
                'app_source_modified': False, 'cache_isolated_with_bind_mount': True,
                'completed_capture': True, 'selected_scenes': args.record_scenes})

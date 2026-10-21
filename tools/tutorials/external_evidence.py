@@ -201,7 +201,7 @@ def _verify(destination, records, settings, expected_shape, expected_labels):
     mapping_by_source = {row["source"]: row for row in mappings}
     _require(set(mapping_by_source) == {str(item[1]["image"]) for item in sources},
              "Conversion map source identities differ from the recorded input TIFFs")
-    layout = json.loads(_file(root / "merged" / ".spacr_plane_layout.json", root).read_text())
+    layout = json.loads(_file(root / "merged" / ".spacr_plane_layout.json", root).read_text(encoding="utf-8"))
     _require(layout == {"version": 1, "intensity_channels": [0],
                         "mask_plane_order": ["cell"], "mask_dims": {"cell": 1}},
              "Merged plane layout must be intensity [0], cell mask 1")

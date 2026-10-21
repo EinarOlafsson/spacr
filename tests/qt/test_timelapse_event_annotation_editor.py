@@ -513,7 +513,7 @@ def test_saved_file_created_during_staging_is_not_overwritten(
 
     def concurrent_create(path):
         verified = original(path)
-        target.write_text("another writer owns this file\n")
+        target.write_text("another writer owns this file\n", encoding="utf-8")
         return verified
 
     monkeypatch.setattr(timelapse, "_event_read_annotations", concurrent_create)

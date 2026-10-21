@@ -130,7 +130,7 @@ def test_actual_cli_refuses_wrong_pinned_bytes_before_pipeline_import(pinned, tm
     settings, _raw, _payload = pinned
     Path(settings['cell_model_name']).write_bytes(b'incorrect supplied bytes')
     path = tmp_path / 'settings.json'
-    path.write_text(json.dumps(settings))
+    path.write_text(json.dumps(settings), encoding="utf-8")
     module = cli.Module('mask', 'fixture', 'spacr.fake:run', None, 'mask')
     monkeypatch.setattr(cli, 'resolve_module', lambda _name: module)
     monkeypatch.setattr(cli, 'module_defaults', lambda _module: {'segmentation_backend': 'cellpose'})
@@ -146,7 +146,7 @@ def test_actual_cli_dry_run_never_acquires_pinned_bytes(pinned, tmp_path, monkey
     from spacr import cli
     settings, _raw, _payload = pinned
     path = tmp_path / 'settings.json'
-    path.write_text(json.dumps(settings))
+    path.write_text(json.dumps(settings), encoding="utf-8")
     module = cli.Module('mask', 'fixture', 'spacr.fake:run', None, 'mask')
     monkeypatch.setattr(cli, 'resolve_module', lambda _name: module)
     monkeypatch.setattr(cli, 'module_defaults', lambda _module: {'segmentation_backend': 'cellpose'})
@@ -166,7 +166,7 @@ def test_actual_cli_records_verified_path_but_keeps_original_settings(pinned, tm
     settings, _raw, payload = pinned
     original = deepcopy(settings)
     path = tmp_path / 'settings.json'
-    path.write_text(json.dumps(settings))
+    path.write_text(json.dumps(settings), encoding="utf-8")
     module = cli.Module('mask', 'fixture', 'spacr.fake:run', None, 'mask')
     events = []
     monkeypatch.setattr(cli, 'resolve_module', lambda _name: module)

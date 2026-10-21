@@ -26,7 +26,7 @@ def _objects():
 
 def test_an_unreadable_results_file_gives_no_hits(tmp_path):
     broken = tmp_path / "results.parquet"
-    broken.write_text("this is not a parquet file")
+    broken.write_text("this is not a parquet file", encoding="utf-8")
     assert _top_hits(_objects(), str(broken)) == []
 
 

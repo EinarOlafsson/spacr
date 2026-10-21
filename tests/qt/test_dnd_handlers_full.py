@@ -553,7 +553,7 @@ def test_mask_apply_on_a_container_survives_a_missing_timer(
 def test_report_on_empty_folder_says_nothing_to_preview(screen, tmp_path):
     folder = tmp_path / "no_images"
     folder.mkdir()
-    (folder / "readme.txt").write_text("hi")
+    (folder / "readme.txt").write_text("hi", encoding="utf-8")
     _report_regex_on_mask(folder, screen)
     assert "no images found in the top level of no_images" in screen.log
     assert "regex" not in screen.log
@@ -779,7 +779,7 @@ def test_report_on_container_with_no_planned_rows_opens_nothing(
 
 def test_report_on_unrecognised_file_says_so(screen, tmp_path):
     f = tmp_path / "notes.txt"
-    f.write_text("not a dataset")
+    f.write_text("not a dataset", encoding="utf-8")
     _report_regex_on_mask(f, screen)
     assert ("[drop] dropped file notes.txt — unrecognised single-file "
             "dataset format.") in screen.log
@@ -1109,7 +1109,7 @@ def test_measure_apply_climbs_out_of_a_dropped_merged_folder(
 
 def test_annotate_rejects_a_non_db_file(tmp_path):
     f = tmp_path / "notes.txt"
-    f.write_text("x")
+    f.write_text("x", encoding="utf-8")
     assert AnnotateDropHandler().can_accept(f) is False
 
 
@@ -1180,7 +1180,7 @@ def test_classify_accepts_an_existing_train_split(tmp_path):
 
 def test_classify_rejects_a_plain_folder_and_a_file(tmp_path):
     f = tmp_path / "x.txt"
-    f.write_text("x")
+    f.write_text("x", encoding="utf-8")
     assert ClassifyDropHandler().can_accept(tmp_path) is False
     assert ClassifyDropHandler().can_accept(f) is False
 
@@ -1238,7 +1238,7 @@ def test_make_masks_takes_an_image_file_and_rejects_an_empty_folder(
         tmp_path):
     f = _mkimg(tmp_path / "a.tif")
     other = tmp_path / "notes.txt"
-    other.write_text("x")
+    other.write_text("x", encoding="utf-8")
     empty = tmp_path / "empty"
     empty.mkdir()
     assert MakeMasksDropHandler().can_accept(f) is True
@@ -1284,14 +1284,14 @@ def test_map_barcodes_accepts_every_fastq_flavour(tmp_path, name):
 
 
 def test_map_barcodes_accepts_a_folder_holding_a_fastq(tmp_path):
-    (tmp_path / "notes.txt").write_text("x")
+    (tmp_path / "notes.txt").write_text("x", encoding="utf-8")
     (tmp_path / "sub").mkdir()
     (tmp_path / "r1.fq.gz").write_bytes(b"x")
     assert MapBarcodesDropHandler().can_accept(tmp_path) is True
 
 
 def test_map_barcodes_rejects_a_folder_without_fastqs(tmp_path):
-    (tmp_path / "notes.txt").write_text("x")
+    (tmp_path / "notes.txt").write_text("x", encoding="utf-8")
     (tmp_path / "sub").mkdir()
     assert MapBarcodesDropHandler().can_accept(tmp_path) is False
 
@@ -1590,9 +1590,9 @@ def test_plate_queue_drop_adds_each_settings_snapshot_with_plate_src(tmp_path):
     settings = plate / "settings"
     settings.mkdir(parents=True)
     (settings / "gen_mask_settings.csv").write_text(
-        "Key,Value\nsrc,/old/path\ncell_channel,2\n")
+        "Key,Value\nsrc,/old/path\ncell_channel,2\n", encoding="utf-8")
     (settings / "measure_crop_settings.csv").write_text(
-        "Key,Value\nsrc,/old/path\ncell_mask_dim,3\n")
+        "Key,Value\nsrc,/old/path\ncell_mask_dim,3\n", encoding="utf-8")
 
     class QueueScreen:
         def __init__(self):

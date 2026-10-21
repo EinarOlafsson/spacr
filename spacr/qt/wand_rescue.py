@@ -353,11 +353,12 @@ def wand_region(image: np.ndarray, seed_x: int, seed_y: int,
                 **settings) -> Tuple[np.ndarray, Dict[str, object]]:
     """Flood from one click and apply whichever rescues are switched on.
 
-    Runs the three rescues in order -- detect the runaway, replace the
-    straight cut with an intensity border, taper what is left onto the
-    local gradient -- and then applies the pixel budget. Every step is
-    optional and each is inert on a flood that did not run away: with no
-    leak detected, this returns exactly :func:`flood_region`'s answer.
+    Runs the three leak rescues in order -- detect the runaway, replace the
+    straight cut with an intensity border, taper what is left onto the local
+    gradient -- and then applies the pixel budget. The budget applies even
+    when no leak is detected: an over-budget region is salvaged or rejected
+    according to settings. With no detected leak and a region within budget,
+    this returns exactly :func:`flood_region`'s answer.
 
     ``settings`` accepts the keys of :data:`RESCUE_DEFAULTS`; anything
     missing takes the default.

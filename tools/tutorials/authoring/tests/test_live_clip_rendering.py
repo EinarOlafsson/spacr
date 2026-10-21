@@ -15,7 +15,7 @@ def verified_clip(tmp_path,duration=2.0):
     receipt=tmp_path/'actual.capture.json'
     receipt.write_text(json.dumps({'sha256':hashlib.sha256(video.read_bytes()).hexdigest(),
                                   'full_decode_passed':True,'audio_streams':0,
-                                  'duration':duration}))
+                                  'duration':duration}), encoding="utf-8")
     return {'video':video.name,'sha256':hashlib.sha256(video.read_bytes()).hexdigest(),
             'receipt':receipt.name,'receipt_sha256':hashlib.sha256(receipt.read_bytes()).hexdigest()}
 

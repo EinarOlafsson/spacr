@@ -12,7 +12,7 @@ import tifffile
 from spacr import convert, core
 from spacr.cancellation import CancellationToken, PipelineCancelled, installed_token
 from tests.test_watch_folder_and_analyse import MASK, MEASURE, _channels, real_pipeline
-from tests.test_watch_pipeline_resume_f548 import _bytes
+from tests.test_watch_pipeline_resume_f548 import _bytes, _walkable
 
 
 def _rows(db, table):
@@ -113,7 +113,7 @@ def test_original_pixel_batch_normalization_masks_and_measurements_match(
     batch.mkdir()
     _arrive(source, batch, rows)
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(MEASURE))
+    recipe.write_text(json.dumps(MEASURE), encoding="utf-8")
     settings = _settings(watched, watch_measure_settings=str(recipe))
     settings['watch_pipeline'] = 'mask_measure'
     core.preprocess_generate_masks(dict(MASK, src=str(batch), batch_size=2,
@@ -146,7 +146,7 @@ def test_interrupted_collection_resumes_one_cohort_without_reanalysis(
     source, watched, rows = _acquisition(tmp_path)
     _arrive(source, watched, rows)
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(MEASURE))
+    recipe.write_text(json.dumps(MEASURE), encoding="utf-8")
     settings = _settings(watched, watch_measure_settings=str(recipe))
     settings['watch_pipeline'] = 'mask_measure'
     analyse, append = core._watch_analyse_field, core._watch_merge_database
@@ -170,7 +170,7 @@ def test_interrupted_collection_resumes_one_cohort_without_reanalysis(
     unit = ledger['normalization_cohorts'][ledger['normalization_pool']['id']]
     assert 'collection_checkpoint' in unit
     preserved = {path: (path.read_bytes(), path.stat().st_mtime_ns)
-                 for path in Path(calls[0]).rglob('*.npy')}
+                 for path in _walkable(calls[0]).rglob('*.npy')}
     monkeypatch.setattr(core, '_watch_merge_database', append)
     result = core._watch_folder_and_analyse(settings, count)
     assert len(result['done']) == 3 and not result['failed']
@@ -207,7 +207,7 @@ def test_changed_pool_provenance_refuses_resume_without_writing(tmp_path, change
         settings['watch_normalization_pool'] = 'per_field'
     else:
         ledger['normalization_cohorts'][ledger['normalization_pool']['id']].pop('collection_checkpoint')
-        path.write_text(json.dumps(ledger))
+        path.write_text(json.dumps(ledger), encoding="utf-8")
     before = _bytes(watched)
     recorder = CohortRecorder()
     with pytest.raises(ValueError):
@@ -254,7 +254,7 @@ def test_cohort_checkpoint_completes_field_aliases_after_process_exit(tmp_path):
     ledger = json.loads(path.read_text(encoding="utf-8"))
     for entry in ledger['fields'].values():
         entry['status'] = 'waiting'
-    path.write_text(json.dumps(ledger))
+    path.write_text(json.dumps(ledger), encoding="utf-8")
     recovered = core._watch_folder_and_analyse(settings, recorder)
     assert recovered['done'] == result['done']
     assert recovered['incomplete'] == []
@@ -375,7 +375,7 @@ def test_incomplete_cohort_provenance_preserves_results(tmp_path, damage):
         next((watched / 'spacr_watch/fields' / key / 'merged').glob('*.npy')).unlink()
     else:
         ledger['normalization_cohorts']['unknown'] = {'status': 'waiting'}
-    path.write_text(json.dumps(ledger))
+    path.write_text(json.dumps(ledger), encoding="utf-8")
     before = _bytes(watched)
     with pytest.raises(ValueError):
         core._watch_folder_and_analyse(_settings(watched), CohortRecorder())

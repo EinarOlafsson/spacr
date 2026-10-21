@@ -572,15 +572,28 @@ def _read_cached_icon(path: Path):
 
 
 def _write_cached_icon(path: Path, array) -> None:
-    """Store a re-inked icon, atomically. Failure is silent by design."""
+    """Store a re-inked icon, atomically. Failure is silent by design.
+
+    A failed replace leaves no ``.part`` behind: on Windows two writers of
+    one icon collide on ``os.replace`` (the target is open in the other), and
+    each loser's temporary used to stay in the cache for good.
+    """
+    tmp = None
     try:
         from PIL import Image
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.part")
         Image.fromarray(array, "RGBA").save(tmp, format="PNG", optimize=False)
         os.replace(tmp, path)
+        tmp = None
     except Exception:
         pass
+    finally:
+        if tmp is not None:
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
 
 
 @lru_cache(maxsize=192)
@@ -614,8 +627,7 @@ def _themed_array(stamp, theme: str):
 def themed_array(path: str, theme: Optional[str] = None):
     """Re-inked ``(h, w, 4)`` uint8 array for ``path``, or ``None``.
 
-    :param path: path to the icon artwork (PNG or SVG); its modification
-        time and size key both the in-memory and the on-disk cache.
+    :param path: path to the icon artwork (PNG or SVG); its modification time and size invalidate the in-memory cache. The on-disk cache key uses the source content digest, theme and cache version.
     """
     return _themed_array(_file_stamp(path), theme or active_theme())
 

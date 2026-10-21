@@ -71,8 +71,8 @@ def _write(tmp_path, figures, labels):
         records.append({"key": key, "pmcid": key.split("__")[0],
                         "boxes": boxes})
     (root / "detections.json").write_text(json.dumps({
-        "models": {V1: {"name": "v3"}}, "conf": 0.25, "figures": records}))
-    (root / "labels.json").write_text(json.dumps({"figures": labels}))
+        "models": {V1: {"name": "v3"}}, "conf": 0.25, "figures": records}), encoding="utf-8")
+    (root / "labels.json").write_text(json.dumps({"figures": labels}), encoding="utf-8")
     return root
 
 
@@ -273,7 +273,7 @@ def test_a_directory_this_rule_filled_is_reused_without_refetching(
     dest = tmp_path / "PMC1"
     dest.mkdir()
     (dest / "g001.webp").write_bytes(b"RIFFwebp" + b"x" * 40000)
-    (dest / ".selection").write_text(f"{spike.SELECTION_RULE}\n")
+    (dest / ".selection").write_text(f"{spike.SELECTION_RULE}\n", encoding="utf-8")
 
     def _refuse(*args, **kwargs):
         raise AssertionError("refetched a directory this rule already filled")

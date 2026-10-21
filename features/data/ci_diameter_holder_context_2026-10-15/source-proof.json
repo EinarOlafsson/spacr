@@ -1,8 +1,0 @@
-{
-  "entire_module_AST_exact_after_removing_only_added_holder_app_key": true,
-  "all_original_assert_ASTs_exact": 62,
-  "all3keys_and5raw_stored_pairs_exact": true,
-  "actual_CANONICAL_READERS_expression_and_real_reader_path_unchanged": true,
-  "test_before_sha256": "d9a2fbee90c2a4f8d9b2d25ea0ad24fcc60493a46d7ddd53f89a5e850813c36e",
-  "test_after_sha256": "69c5dd7a5f8781eb2edfa087b30248e51d274352f8ccaa7009803972b8069c5e"
-}

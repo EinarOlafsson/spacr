@@ -193,6 +193,7 @@ def test_a_kind_with_no_bytes_and_no_registry_rows_is_not_a_row(qtbot,
     assert shown, "the kinds that do carry bytes are still listed"
 
 
+@pytest.mark.needs_symlink
 def test_a_symlink_in_the_project_is_reported_and_not_followed(qtbot,
                                                                tmp_path):
     """A symlink is counted once, as a link, and said out loud.

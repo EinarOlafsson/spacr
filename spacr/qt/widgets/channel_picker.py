@@ -31,7 +31,7 @@ def parse(value: Any) -> tuple:
     Parameters
     ----------
     value : Any
-        A comma-separated string, an iterable of names, or an empty value.
+        A comma-separated string, a list, tuple or set of names, or ``None``. Other input types return an empty tuple.
 
     Returns
     -------

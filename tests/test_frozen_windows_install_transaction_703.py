@@ -11,17 +11,17 @@ from spacr import install_cleanup as cleanup
 
 def payload(root, version, *, manifest=True):
     root.mkdir(parents=True)
-    (root / 'spacr.exe').write_text(version)
+    (root / 'spacr.exe').write_text(version, encoding="utf-8")
     internal = root / '_internal'
     metadata = internal / f'spacr-{version}.dist-info' / 'METADATA'
     metadata.parent.mkdir(parents=True)
-    metadata.write_text(f'Name: spacr\nVersion: {version}\n')
+    metadata.write_text(f'Name: spacr\nVersion: {version}\n', encoding="utf-8")
     (internal / 'runtime.dll').write_bytes(version.encode())
     if manifest:
         files = {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                  for path in root.rglob('*') if path.is_file()}
         (root / 'spacr-payload.json').write_text(json.dumps(
-            {'schema': 1, 'version': version, 'files': files}))
+            {'schema': 1, 'version': version, 'files': files}), encoding="utf-8")
     return root
 
 
@@ -31,7 +31,7 @@ def identity(argv):
         'schema': 1, 'frozen': True, 'version': (root / 'spacr.exe').read_text(encoding="utf-8"),
         'executable': argv[0], 'bundle_root': str(root),
         'import_root': str(root / '_internal'),
-        'module': str(root / '_internal' / 'spacr' / '__init__.py')}))
+        'module': str(root / '_internal' / 'spacr' / '__init__.py')}), encoding="utf-8")
     return 0, ''
 
 
@@ -141,6 +141,7 @@ def test_newer_legacy_version_is_refused_without_running_or_mutating(tmp_path):
     assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.6'
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('change', ['hash', 'extra', 'linked', 'unreadable'])
 def test_untrusted_payload_refused_before_live_mutation(installation, monkeypatch, change):
     source, old = installation
@@ -164,6 +165,7 @@ def test_untrusted_payload_refused_before_live_mutation(installation, monkeypatc
     assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'
 
 
+@pytest.mark.needs_symlink
 def test_linked_legacy_metadata_is_not_used_for_version(installation, tmp_path):
     source, old = installation
     metadata = next((old / '_internal').glob('*.dist-info'))
@@ -178,7 +180,7 @@ def test_linked_legacy_metadata_is_not_used_for_version(installation, tmp_path):
 def test_identity_output_cannot_be_a_link(installation, tmp_path):
     source, _old = installation
     external = tmp_path / 'foreign.json'
-    external.write_text('{}')
+    external.write_text('{}', encoding="utf-8")
 
     def linked(argv):
         Path(argv[-1]).symlink_to(external)
@@ -264,6 +266,7 @@ def test_changed_native_uninstaller_stops_before_application_activation(installa
     assert not (old / 'spacr-uninstaller.json').exists()
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('change', ['link', 'directory', 'empty', 'supplied_receipt'])
 def test_invalid_native_uninstaller_candidate_never_changes_the_old_install(installation, change):
     source, old = installation
@@ -275,7 +278,7 @@ def test_invalid_native_uninstaller_candidate_never_changes_the_old_install(inst
     else:
         candidate.write_bytes(b'' if change == 'empty' else b'new uninstaller')
     if change == 'supplied_receipt':
-        (source / 'spacr-uninstaller.json').write_text('{}')
+        (source / 'spacr-uninstaller.json').write_text('{}', encoding="utf-8")
     with pytest.raises(ValueError, match='candidate_invalid'):
         cleanup._install_frozen_windows(source, old, '1.5.1.5', run=identity)
     assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'

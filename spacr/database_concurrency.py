@@ -241,6 +241,25 @@ def is_busy_error(error: BaseException) -> bool:
     return "locked" in message or "busy" in message
 
 
+def _extended_length_path(path, *, windows=None):
+    """The spelling of ``path`` that is not bound by Windows' MAX_PATH.
+
+    A queued field is spooled as ``<run>\\<64 hex>.pkl`` and its sidecars
+    under ``measurements\\.write_queue``, about 150 characters past the
+    project folder, so a moderately deep project passes the 260-character
+    limit Windows keeps unless long paths are enabled machine-wide. The
+    ``\\\\?\\`` prefix lifts that limit for every file call made with it.
+    Elsewhere the path is returned unchanged.
+
+    :param path: the spool folder.
+    :param windows: whether to use the Windows spelling; this system by default.
+    :returns: the absolute extended-length path on Windows, else ``path``.
+    """
+    from .portable_paths import _long_path
+
+    return os.fspath(_long_path(os.fspath(path), always=True, windows=windows))
+
+
 @dataclass(frozen=True)
 class _WriteQueueEndpoint:
     """Spawn-safe producer handles for bounded serialized database writes.
@@ -339,7 +358,7 @@ class _DatabaseWriteQueue:
             raise ValueError('Database queue RAM must be finite and nonnegative')
         context = context or multiprocessing.get_context()
         run_id = uuid.uuid4().hex
-        folder = Path(folder) / run_id
+        folder = Path(_extended_length_path(folder)) / run_id
         folder.mkdir(mode=0o700, parents=True, exist_ok=True)
         self.endpoint = _WriteQueueEndpoint(
             context.Queue(maxsize=max(1, int(slots))),
@@ -371,7 +390,7 @@ class _DatabaseWriteQueue:
         elif Path(path).exists():
             packet = pickle.loads(Path(path).read_bytes())
         elif marker.exists():
-            packet = json.loads(marker.read_text())
+            packet = json.loads(marker.read_text(encoding="utf-8"))
         else:
             raise FileNotFoundError(path)
         if packet.get('ticket') != ticket or packet.get('field') != field:
@@ -399,7 +418,7 @@ class _DatabaseWriteQueue:
             'error_type': type(error).__name__, 'error': str(error),
             'traceback': ''.join(traceback.format_exception(
                 type(error), error, error.__traceback__)),
-        }, indent=2) + '\n')
+        }, indent=2) + '\n', encoding="utf-8")
         seen = set()
         current = error
         while current is not None and id(current) not in seen:
@@ -449,7 +468,7 @@ class _DatabaseWriteQueue:
                             except BaseException:
                                 Path(temporary).unlink(missing_ok=True)
                                 raise
-                            flag.write_text(retry_path.name)
+                            flag.write_text(retry_path.name, encoding="utf-8")
                             deferred_count += 1
                     else:
                         self._on_result(field, ticket, error)

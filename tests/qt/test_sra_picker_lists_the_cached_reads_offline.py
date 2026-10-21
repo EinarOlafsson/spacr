@@ -39,7 +39,7 @@ def cached_home(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
     folder = sra._cached_read_folder()
     folder.mkdir(parents=True)
-    (folder / sra.CACHED_LISTING).write_text(LISTING)
+    (folder / sra.CACHED_LISTING).write_text(LISTING, encoding="utf-8")
     files = {}
     for mate in (1, 2):
         name = f"SRR33531217_{mate}.fastq.gz"
@@ -48,7 +48,7 @@ def cached_home(tmp_path, monkeypatch):
                 handle.write(f"@r{mate}_{n}\nACGT\n+\nIIII\n")
         files[name] = {"reads": 20}
     (folder / sra.CACHED_MANIFEST).write_text(json.dumps(
-        {"reads_per_file": 20, "files": files}))
+        {"reads_per_file": 20, "files": files}), encoding="utf-8")
     return folder
 
 

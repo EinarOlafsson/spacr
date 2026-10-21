@@ -126,7 +126,7 @@ def test_production_preview_disables_deletion_and_explains_why(qtbot, tmp_path):
     from spacr import install_cleanup as ic
     folder = tmp_path / ".spacr" / "news"
     folder.mkdir(parents=True)
-    (folder / "releases.json").write_text("{}")
+    (folder / "releases.json").write_text("{}", encoding="utf-8")
     machine = ic._Machine(environ={"HOME": str(tmp_path)}, platform="linux")
     actual = ic.preview_optional_cleanup("actual-operation", system=machine)
     dialog = consent._InstallerCleanupDialog(actual)
@@ -148,7 +148,7 @@ def test_actual_inventory_retention_reason_and_keep_button_use_reviewed_locale(q
     monkeypatch.setattr(i18n, "current_language", lambda: language)
     folder = tmp_path / ".spacr" / "news"
     folder.mkdir(parents=True)
-    (folder / "releases.json").write_text("{}")
+    (folder / "releases.json").write_text("{}", encoding="utf-8")
     machine = ic._Machine(environ={"HOME": str(tmp_path)}, platform="linux")
     actual = ic.preview_optional_cleanup("actual-operation", system=machine)
     dialog = consent._InstallerCleanupDialog(actual)
@@ -180,7 +180,7 @@ def test_live_guard_preview_starts_unchecked_then_selected_gui_choice_reaches_ba
     from spacr import install_cleanup as ic
     folder = tmp_path / ".spacr" / "news"
     folder.mkdir(parents=True)
-    (folder / "releases.json").write_text("{}")
+    (folder / "releases.json").write_text("{}", encoding="utf-8")
     machine = ic._Machine(environ={"HOME": str(tmp_path)}, platform="linux")
     @contextmanager
     def guard(_paths):

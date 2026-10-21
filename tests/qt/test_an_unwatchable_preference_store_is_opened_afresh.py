@@ -42,7 +42,7 @@ def test_a_store_file_the_os_refuses_cannot_be_watched(tmp_path):
     assert prefs._store_file_state(_store("bad\0name.ini")) is None
     assert prefs._store_file_state(_store(str(tmp_path / "unwritten.ini"))) == ()
     written = tmp_path / "written.ini"
-    written.write_text("[General]\n")
+    written.write_text("[General]\n", encoding="utf-8")
     assert len(prefs._store_file_state(_store(str(written)))) == 3
 
 

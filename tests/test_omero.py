@@ -1687,3 +1687,19 @@ def test_a_missing_dimension_defaults_to_one_rather_than_zero():
     info = omero._image_info(Sparse(61, "sparse", size_c=2))
     assert (info.size_z, info.size_t, info.size_c) == (1, 1, 2)
     assert info.n_planes == 2
+
+
+def test_upload_types_come_from_the_system_table_off_windows(monkeypatch):
+    """/etc/mime.types and the rest of the system table keep answering on Linux and macOS."""
+    import mimetypes
+
+    monkeypatch.setattr(mimetypes, "guess_type", lambda name, strict=True: ("application/x-site-local", None))
+    assert omero._guess_upload_type("results.lab", windows=False) == "application/x-site-local"
+
+
+def test_upload_types_ignore_the_windows_registry(monkeypatch):
+    """On Windows a fresh table without the registry is asked, so Excel cannot claim .csv."""
+    import mimetypes
+
+    monkeypatch.setattr(mimetypes, "guess_type", lambda name, strict=True: ("application/vnd.ms-excel", None))
+    assert omero._guess_upload_type("results.csv", windows=True) == "text/csv"

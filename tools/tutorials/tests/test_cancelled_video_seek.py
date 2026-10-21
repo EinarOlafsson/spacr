@@ -16,7 +16,7 @@ def test_source_replacement_cannot_leave_a_cancelled_seek_pending(pending):
     if not node:
         pytest.skip('Node executes the actual shipped event handler')
     match = re.search(r'elements\.video\.addEventListener\("emptied", \(\) => \{(.*?)\n\}\);',
-                      PLAYER.read_text(), re.S)
+                      PLAYER.read_text(encoding="utf-8"), re.S)
     assert match, 'A replaced source may never dispatch seeked'
     script = f'let videoClockCorrectionPending = {json.dumps(pending)};\n' + match[1]
     script += '\nconsole.log(JSON.stringify(videoClockCorrectionPending));'

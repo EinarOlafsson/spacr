@@ -21,11 +21,14 @@ def maturity_prefs(tmp_path, monkeypatch):
     return prefs
 
 
-def test_maturity_visibility_defaults_to_showing_everything(maturity_prefs):
+def test_maturity_visibility_ships_alpha_off_and_beta_on(maturity_prefs):
     prefs = maturity_prefs
-    assert prefs.get_show_alpha() is True
+    assert prefs.get_show_alpha() is False
     assert prefs.get_show_beta() is True
-    assert prefs.maturity_is_visible("alpha") is True
+    assert prefs.maturity_is_visible("alpha") is False
+    assert prefs.DEFAULT_SHOW_ALPHA is False
+    assert prefs._get_show_alpha_features() is False
+    assert prefs._get_show_alpha_species() is False
     assert prefs.maturity_is_visible("beta") is True
     assert prefs.maturity_is_visible("stable") is True
 
@@ -102,9 +105,15 @@ def test_home_contains_only_enabled_maturity_stages(
     qtbot,
     qt_theme_applied,
     maturity_prefs,
+    monkeypatch,
 ):
     from spacr.qt.app import make_home_page
     from spacr.qt.widgets.home import AppTile
+    # No shipped tile is beta since 2026-10-20 (the last four were signed
+    # off stable for the paper), so one is staged beta here to keep the
+    # beta path under test.
+    from spacr.qt import app as _app
+    monkeypatch.setitem(_app.APP_STAGE, "umap", "beta")
 
     maturity_prefs.set_show_alpha(False)
     maturity_prefs.set_show_beta(True)
@@ -181,6 +190,7 @@ def test_open_settings_toggle_in_place_without_losing_sections(
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.widgets.section import Section
 
+    maturity_prefs.set_show_alpha(True)
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
     sections = screen.findChildren(Section)
@@ -210,8 +220,14 @@ def test_open_settings_toggle_in_place_without_losing_sections(
 
 def test_hidden_numeric_shortcut_does_not_open_a_filtered_module(
     maturity_prefs,
+    monkeypatch,
 ):
     from spacr.qt import shortcuts
+    # No shipped tile is beta since 2026-10-20 (the last four were signed
+    # off stable for the paper), so one is staged beta here to keep the
+    # beta path under test.
+    from spacr.qt import app as _app
+    monkeypatch.setitem(_app.APP_STAGE, "umap", "beta")
 
     class Window:
         def __init__(self):

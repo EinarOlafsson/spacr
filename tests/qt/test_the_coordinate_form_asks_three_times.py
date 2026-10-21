@@ -66,7 +66,7 @@ def test_it_lists_a_table_s_own_columns_in_declared_order(a_database):
 
 def test_a_file_that_is_not_a_database_is_a_sentence_not_a_crash(tmp_path):
     junk = tmp_path / "notes.txt"
-    junk.write_text("this is not a database")
+    junk.write_text("this is not a database", encoding="utf-8")
     assert ASK.tables_in(str(junk)) == []
 
 
@@ -154,7 +154,7 @@ def test_a_file_with_no_tables_keeps_the_form_open(tmp_path, a_database,
                                                    person):
     """Rejected IN the form, not accepted and failed one step later."""
     junk = tmp_path / "notes.txt"
-    junk.write_text("not a database")
+    junk.write_text("not a database", encoding="utf-8")
     offered = [str(junk), a_database]
     titles = []
 

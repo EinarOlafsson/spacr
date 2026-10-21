@@ -1,9 +1,0 @@
-{
-  "command": [
-    "/home/olafsson/.local/bin/gh",
-    "api",
-    "repos/EinarOlafsson/spacr/actions/workflows/tests.yml/runs?branch=nightly&per_page=8"
-  ],
-  "exit": 0,
-  "seconds": 10.783
-}

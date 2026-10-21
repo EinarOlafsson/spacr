@@ -564,7 +564,7 @@ def test_investigate_hit_drop_identifies_fraction_table_by_schema(
     handler.apply(results, screen)
 
     assert screen.investigate.database.text().endswith(
-        "measurements/measurements.db")
+        os.path.join("measurements", "measurements.db"))
     assert screen.investigate.fractions.text() == str(fractions)
     assert screen.investigate.regression_folder.text() == str(results)
 
@@ -923,6 +923,7 @@ def test_the_resolution_cache_does_not_outlive_its_answer(tmp_path):
     assert handler.can_accept(Path(plate)) is True
 
 
+@pytest.mark.posix_only
 def test_a_database_in_a_folder_with_a_question_mark_still_lists_its_tables(
         tmp_path):
     """A URI is not a path. Quoting is what makes the read-only open safe."""

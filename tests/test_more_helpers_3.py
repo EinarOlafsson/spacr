@@ -180,7 +180,7 @@ def test_utils_generate_image_path_map_indexes_by_key(tmp_path):
     """
     from spacr.utils import generate_image_path_map
     for name in ("a.tif", "b.png"):
-        (tmp_path / name).write_text("")
+        (tmp_path / name).write_text("", encoding="utf-8")
     m = generate_image_path_map(str(tmp_path))
     assert {Path(k).name for k in m} == {"a.tif", "b.png"}
     assert {Path(v).name for v in m.values()} == {"a.tif", "b.png"}
@@ -201,9 +201,9 @@ def test_an_image_in_the_root_does_not_become_a_hidden_file(tmp_path):
     """
     from spacr.utils import generate_image_path_map
 
-    (tmp_path / "loose.tif").write_text("")
+    (tmp_path / "loose.tif").write_text("", encoding="utf-8")
     (tmp_path / "plate1" / "A01").mkdir(parents=True)
-    (tmp_path / "plate1" / "A01" / "f1_c1.tif").write_text("")
+    (tmp_path / "plate1" / "A01" / "f1_c1.tif").write_text("", encoding="utf-8")
 
     names = {Path(k).name: Path(v).name
              for k, v in generate_image_path_map(str(tmp_path)).items()}
@@ -225,8 +225,8 @@ def test_consolidating_twice_does_not_consolidate_the_first_run(tmp_path):
     from spacr.utils import copy_images_to_consolidated, generate_image_path_map
 
     (tmp_path / "plate1").mkdir()
-    (tmp_path / "plate1" / "f1_c1.tif").write_text("")
-    (tmp_path / "loose.tif").write_text("")
+    (tmp_path / "plate1" / "f1_c1.tif").write_text("", encoding="utf-8")
+    (tmp_path / "loose.tif").write_text("", encoding="utf-8")
 
     first = generate_image_path_map(str(tmp_path))
     copy_images_to_consolidated(first, str(tmp_path))

@@ -189,7 +189,7 @@ def test_a_folder_named_like_a_scorecard_is_not_handed_back_as_one(tmp_path):
     qc = tmp_path / CARD_DIR
     qc.mkdir()
     real = qc / f"{CARD_PREFIX}cell.csv"
-    real.write_text("field,object_type,n_objects,severity,flags,note\n")
+    real.write_text("field,object_type,n_objects,severity,flags,note\n", encoding="utf-8")
     (qc / f"{CARD_PREFIX}nucleus.csv").mkdir()
 
     found = find_scorecards(str(tmp_path))

@@ -1,13 +1,14 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
+  "english_sha256": "9a5903f6420c4973ec878cb4f830c334588a936a0170f19a8d932573ed8381b8",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
+    "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
+    "date": "2026-10-21",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Changed/new source units reviewed for meaning, omissions, command/path/version fidelity, feature labels and removal of irrelevant recording/publication commentary. Genuine functional and example-data limits retained. No publication, voice or native-speaker acceptance."
   },
   "language": "it",
   "title": "Mask: segmentare le immagini ed esaminare i risultati",
@@ -18,6 +19,7 @@
     "Eseguire la segmentazione, esaminarne le figure e trovare i risultati uniti."
   ],
   "prerequisite": "Apri Mask e scegli Load test data. Per le tue immagini, prepara una cartella di origine con nomi di file coerenti e canali noti. Questo esempio usa il canale dei nuclei 0, il canale delle cellule 1 e il canale dei patogeni 2, con un ulteriore canale di intensità 3.",
+  "section": "Core",
   "scenes": [
     "Da Home, apri Mask. Usa questo modulo per delineare cellule, nuclei e patogeni nelle immagini al microscopio. Questa procedura elabora immagini bidimensionali. I flussi Time, tridimensionale e OPS hanno tutorial dedicati.",
     "Se le tue immagini sono sparse in più cartelle o hanno nomi che Mask non sa leggere, fai clic su Organize images in cima a Input & Metadata. Assegna una colonna a ogni canale, trascinandone la cartella o con una regex, e verifica che ogni riga sia un campo completo. Apply sposta le immagini in un’unica cartella con nomi Yokogawa e vi punta Source, con i canali già compilati.",
@@ -29,7 +31,7 @@
     "Al termine dell’anteprima, confronta i contorni con l’immagine. Cerca oggetti mancati e oggetti vicini uniti in uno solo. La riga di stato indica quanti oggetti sono stati trovati.",
     "Usa il filtro di area minima per nascondere gli oggetti più piccoli del numero di pixel scelto. Aumentandolo, le etichette piccole spariscono dall’anteprima. Questo filtro aggiorna un risultato di maschera già esistente, quindi puoi confrontare rapidamente diverse soglie di dimensione.",
     "Riporta l’area minima a zero per riavere tutti gli oggetti. Se il modello divide o unisce gli oggetti alla scala sbagliata, cambia Diameter ed esegui di nuovo l’anteprima, controllando i bordi oltre al conteggio. Ripristina le impostazioni desiderate prima dell’elaborazione in batch.",
-    "Per una prima esecuzione rapida, questa registrazione punta Source su ritagli centrati di due campi di esempio; con i tuoi dati, attiva invece Test mode e scegli alcune immagini di prova. Lascia attivo Plot, controlla i diametri e le soglie di flusso per oggetto, lascia attivo Save in Quality Control, poi fai clic su Run.",
+    "Per una prima esecuzione rapida, usa come Source ritagli centrati di due campi di esempio. Con i tuoi dati, attiva Test mode e scegli alcune immagini di prova. Lascia attivo Plot, controlla i diametri e le soglie di flusso per oggetto, lascia attivo Save in Quality Control, poi fai clic su Run.",
     "Al termine dell’esecuzione, l’elenco delle figure si riempie dei suoi grafici. L’ultima figura disegna i contorni di ogni oggetto sul proprio canale, nuclei, cellule e patogeni, e a destra gli oggetti combinati. Controlla in ogni figura gli oggetti piccoli, le cellule a contatto e le regioni mancate.",
     "Le altre figure mostrano ogni canale e gli array di maschere e di flusso prodotti dal modello. L’esecuzione scrive una cartella merged con le intensità delle immagini e le etichette finali degli oggetti, e tiene accanto agli array i metadati della disposizione dei piani perché Measure riconosca ogni canale e maschera. Tieni insieme input, impostazioni, maschere e rapporti di qualità, poi prosegui con Measure per estrarre caratteristiche e ritagli degli oggetti."
   ]

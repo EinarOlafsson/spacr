@@ -53,6 +53,20 @@ def test_exact_builtin_preserves_all_six_approved_matched_scores_and_dataset(mon
     assert raw == before
 
 
+@pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
+def test_card_binding_survives_checkout_line_endings(monkeypatch, tmp_path, newline):
+    raw = _raw()
+    resource = zoo._CURATED_SCORECARD_BINDINGS[raw["key"]]["resource"]
+    payload = (model_cards._CARD_DIR / resource).read_bytes().replace(b"\r\n", b"\n")
+    (tmp_path / resource).write_bytes(payload.replace(b"\n", newline))
+    monkeypatch.setattr(model_cards, "_CARD_DIR", tmp_path)
+    entry = _construct(raw)
+    assert entry.metrics["scorecard_provenance"]["boundary_tolerance_px"] == 2
+    tampered = payload.replace(b"\n", newline).replace(b'"', b"'", 1)
+    (tmp_path / resource).write_bytes(tampered)
+    assert "scorecard_provenance" not in _construct(raw).metrics
+
+
 @pytest.mark.parametrize("change", ["custom", "local", "sha", "uri", "unknown"])
 def test_other_entries_keep_their_own_measurements(monkeypatch, change):
     raw = deepcopy(_raw())
@@ -79,7 +93,7 @@ def test_changed_packaged_card_is_not_attached_to_approved_weights(monkeypatch, 
     repo = raw["repo_id"].split("/")[-1]
     card = deepcopy(model_cards._cards()[raw["key"]])
     card["scores"]["rows"][0]["this"] = 0.999
-    (tmp_path / (repo + ".json")).write_text(json.dumps(card))
+    (tmp_path / (repo + ".json")).write_text(json.dumps(card), encoding="utf-8")
     monkeypatch.setattr(model_cards, "_CARD_DIR", tmp_path)
     assert _construct(raw).metrics == raw["metrics"]
 
@@ -115,3 +129,15 @@ def test_verified_copy_preserves_bound_card_and_generic_identity_equality():
     assert verified._curated_card and "Boundary F1 (2 px)" in verified.describe()
     assert bound == zoo._entry_from_mapping(raw)
     assert "_curated_card" not in repr(bound)
+
+
+def test_every_pinned_digest_is_of_the_committed_lf_bytes():
+    """Line-ending normalisation is a no-op where the checkout keeps LF: every pin is of the raw file."""
+    import hashlib
+
+    for key, binding in zoo._CURATED_SCORECARD_BINDINGS.items():
+        raw = (model_cards._CARD_DIR / binding["resource"]).read_bytes()
+        normalised = raw.replace(b"\r\n", b"\n")
+        assert hashlib.sha256(normalised).hexdigest() == binding["resource_sha256"], key
+        if b"\r" not in raw:
+            assert hashlib.sha256(raw).hexdigest() == binding["resource_sha256"], key

@@ -463,14 +463,6 @@ do a gene's own guides agree in direction
 
 design, residual and inference panels
 
-### line 412, trailing  _(unsure)_
-
-```python
-"regression_search",
-```
-
-the dependent-variable search
-
 ### line 413, trailing  _(unsure)_
 
 ```python

@@ -23,6 +23,53 @@ Owner:     unassigned. spacr/qt/widgets/setup_slides.py (the startup slide),
            spacr/qt/ai/providers.py (what each provider knows about itself),
            spacr/qt/widgets/ai_chat_panel.py (the same hint, shown again).
 
+MAC SESSION: REAL PROVIDER INSTALL AND EMBEDDED AUTHENTICATION
+
+This is the existing real-host/vendor follow-up, not a claim that local PTY
+stand-ins authenticated a vendor. Follow spacr/resources/AI/MAC_HANDOFF.md and
+preserve N703/F655/N686 acceptance. Record fresh origin/nightly HEAD, actual
+app interpreter/spacr.__file__/version, macOS/architecture and the provider CLI
+version/path. Test with a disposable user/profile or test-owned installation;
+do not remove working provider tools or sign out the maintainer's accounts.
+A changed HOME alone does not isolate the macOS keychain or prove signed-out.
+
+Prerequisites are genuine network access, a supported installer/package
+manager and, for completed login, an available authorized vendor account and
+browser. Missing credentials, permissions, billing or installer access are
+recorded separately; do not fabricate READY or create/purchase an account.
+
+1. On the actual startup/setup screen select Claude, Codex, Gemini and GitHub
+   CLI as applicable. For each genuinely absent tool inspect the command and
+   prerequisites displayed by the app before pressing Install. Test the
+   offered macOS route, not copied historical curl/npm/brew commands. A tool
+   already installed can test sign-in/status but cannot prove a clean install.
+2. Press Install in the app; observe live progress while moving/resizing the
+   window. Installation must remain off the GUI thread. On success check the
+   discovered executable/version and proceed without restarting spaCR. Do not
+   substitute a manually completed terminal install for the app-button proof.
+3. Follow sign-in in spaCR's embedded pseudo-terminal and the provider's real
+   browser flow. Confirm readable prompts/links, paste/code entry when needed,
+   return to spaCR and READY only after the tool's real status reports login.
+   Test GitHub's account link opens its sign-up page without requiring account
+   creation. No external terminal should be needed for the macOS sign-in.
+4. On a test-owned attempt exercise Cancel and close: the screen stays usable
+   and the launched process group is cleaned up. Check Keep installing versus
+   Stop it and close when offered. If a real install/auth failure occurs,
+   retain its actionable message and retry state; do not cause destructive
+   permission/network changes just to manufacture every error condition.
+5. Reopen setup/provider status and verify it recognizes the completed state.
+   Report install, PTY/browser login and readiness separately for every tested
+   provider. A skipped vendor login or cached keychain token is not a fresh
+   authentication pass; cancelling intentionally is a cancellation result.
+
+Pass for a tested provider means an actual offered install, responsive UI,
+real successful authentication and current READY without a terminal/restart.
+Record source/runtime, provider/installer route and CLI version, tested initial
+state, install/login/cancel outcomes and exact missing prerequisites in this
+item. Keep tokens, OAuth URLs/codes and private account data out of notes/log
+excerpts. Existing UTF8/URL/ANSI/CRLF transport passes remain retained; this
+Mac follow-up does not establish Windows behavior or universal terminal support.
+
 WHAT IS THERE TODAY (read on nightly c6c49f6ae)
 ------------------------------------------------
 
@@ -398,3 +445,6 @@ no exclusions. Original prose/signatures/public helper ASTs are unchanged.
 Source peer, original failures and actual logs: features/data/
 n420_terminal_newline_boundaries_2026-10-15/. No vendor/browser/network/native
 Windows, universal terminal emulation, whole-item420 or full-CI claim.
+
+2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
+No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.

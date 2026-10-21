@@ -38,13 +38,16 @@ def test_windows_lock_uses_msvcrt_on_empty_and_existing_lock_file(
     monkeypatch.setitem(sys.modules, "msvcrt", fake)
     store = str(tmp_path / "w.parquetdb")
     lock = os.path.join(store, ".spacr-write.lock")
+    # Put back whatever this system is: leaving "posix" on Windows makes every
+    # Path built before monkeypatch unwinds a PosixPath, which cannot exist here.
+    native = os.name
     for _ in range(2):
         monkeypatch.setattr(os, "name", "nt")
         try:
             with tabular._parquet_store_lock(store):
                 pass
         finally:
-            monkeypatch.setattr(os, "name", "posix")
+            monkeypatch.setattr(os, "name", native)
     assert calls == [(1, 1), (0, 1), (1, 1), (0, 1)]
     assert os.path.getsize(lock) == 1
 

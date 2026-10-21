@@ -22,7 +22,7 @@ def test_a_sidecar_that_is_not_a_regular_file_is_refused(tmp_path):
 
 def test_a_sidecar_that_grows_while_read_is_refused(tmp_path, monkeypatch):
     path = tmp_path / "barcode.txt"
-    path.write_text("00123")
+    path.write_text("00123", encoding="utf-8")
     real = os.fstat
     calls = []
 
@@ -66,7 +66,7 @@ def test_discovery_refuses_what_it_cannot_place(tmp_path, kwargs, message):
 def test_inputs_inside_the_destination_are_refused(acquisition, tmp_path):  # noqa: F811
     inside = Path(acquisition["dst"]) / "own.csv"
     inside.parent.mkdir(parents=True)
-    inside.write_text(Path(acquisition["profiling_metadata"]).read_text(encoding="utf-8"))
+    inside.write_text(Path(acquisition["profiling_metadata"]).read_text(encoding="utf-8"), encoding="utf-8")
     with pytest.raises(ConfigurationError, match="outside the destination"):
         cv.convert_folder(acquisition, profiling_metadata=str(inside))
 
@@ -106,7 +106,7 @@ def test_an_unreadable_records_csv_is_refused(acquisition, monkeypatch):  # noqa
 
 def test_a_plan_with_no_wells_has_nothing_to_link(tmp_path):
     records = tmp_path / "r.csv"
-    records.write_text("barcode,well\n1,A01\n")
+    records.write_text("barcode,well\n1,A01\n", encoding="utf-8")
     plan = types.SimpleNamespace(sources=[], mappings=[])
     with pytest.raises(ConfigurationError, match="No planned image wells"):
         cv._prepare_conversion_barcodes(
@@ -122,7 +122,7 @@ def test_an_input_changed_while_linking_is_refused(acquisition, monkeypatch):  #
     def link_then_edit(*args, **kwargs):
         result = real(*args, **kwargs)
         own = Path(acquisition["profiling_metadata"])
-        own.write_text(own.read_text(encoding="utf-8") + "plate1,A02,DMSO,2\n")
+        own.write_text(own.read_text(encoding="utf-8") + "plate1,A02,DMSO,2\n", encoding="utf-8")
         return result
 
     monkeypatch.setattr(plate_qc, "_link_barcode_wells", link_then_edit)

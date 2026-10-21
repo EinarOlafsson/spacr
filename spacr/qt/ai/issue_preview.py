@@ -33,10 +33,11 @@ DIAGNOSE_TIMEOUT_MS = 180_000
 
 
 class IssuePreviewDialog(QDialog):
-    """Show the exact public payload and require a Send click.
+    """Show an editable report preview with a Send button.
 
-    :param report: the payload, as ``body`` and ``fingerprint``. The dialog
-        shows the text that would be sent; nothing is added to it afterwards.
+    :param report: the drafted payload, including ``body`` and ``fingerprint``. The
+        preview permits edits, path stripping and adding a matching AI analysis before
+        the caller submits the returned report.
     :param parent: parent widget.
     :param console: the AI console that owns the conversation. Taken from
         ``parent`` when not given, so the screen opening this does not have
@@ -46,14 +47,14 @@ class IssuePreviewDialog(QDialog):
 
     def __init__(self, report: Mapping[str, str], parent=None,
                  console=None, traceback_text: str = ""):
-        """Build the review dialog shown before anything is posted publicly.
+        """Build an editable report-review dialog; this constructor does not post an issue.
 
-        Nothing has been sent when this opens, and the warning at the top says
-        so: a public issue is world-readable, indexed and mirrored, and cannot
-        be reliably unpublished. Path stripping is on by default.
+        Opening this dialog makes no submission itself. Its warning explains that a
+        public issue is world-readable, indexed and mirrored, and cannot be reliably
+        unpublished. Path stripping is enabled by default.
 
-        Diagnose asks spaCR AI to explain the error before the report is
-        sent. Its analysis is added to the report body.
+        Diagnose asks spaCR AI to explain this error. An available matching answer can
+        be added to the report body; no answer is guaranteed.
 
         :param report: the drafted issue -- its ``title``, ``body`` and
             ``fingerprint``.
@@ -237,9 +238,10 @@ class IssuePreviewDialog(QDialog):
     def _show_diagnosis(self, analysis: str) -> None:
         """Put the analysis in the report and scroll the user to it.
 
-        Appended rather than rebuilt through `build_report`: by the time this
-        runs the user may have edited the body, and regenerating it would
-        throw their edits away to add a paragraph.
+        If an analysis section is already present, only scroll to it. Otherwise append
+        the analysis to the stored source body and rebuild the editor using the current
+        path-stripping choice. This replaces edits made directly in the body editor; it
+        does not regenerate the report through `build_report`.
         """
         text = sanitize_path(str(analysis or "")).strip()
         if not text:
@@ -271,7 +273,9 @@ class IssuePreviewDialog(QDialog):
         self.body_edit.ensureCursorVisible()
 
     def approved_report(self) -> dict[str, str]:
-        """Return exactly the currently displayed, editable payload."""
+        """Return a report mapping with the displayed body verbatim, the displayed title
+        stripped of surrounding whitespace and the original fingerprint. This method
+        neither checks approval nor sends the report."""
         return {
             "title": self.title_edit.text().strip(),
             "body": self.body_edit.toPlainText(),

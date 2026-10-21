@@ -22,7 +22,7 @@ import render_all_voices as renderer  # noqa: E402
 
 
 def read(path):
-    return json.loads(Path(path).read_text())
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def sha(path):
@@ -60,10 +60,17 @@ def check_published_lesson(identity, scenes):
     records = {item['path']: item for item in read(manifest_path)['files']}
     tracks = {tuple(path.split('/')[3:5]) for path in records
               if path.startswith(f'media_host/{identity}/audio/') and path.endswith('.m4a')}
-    # These unchanged lessons retain the accepted baseline voices.
-    sets = {tuple(map(tuple, pairs)) for pairs in publication['narration_voices'].values()}
-    assert len(sets) == 1, 'publication lessons ship different voice sets'
-    voices = {(language, voice + '.m4a') for language, voice in sets.pop()}
+    if identity == '21_model_compare':
+        # The current re-recording ships the renderer's complete 50-voice policy.
+        voices = {(language, voice + '.m4a')
+                  for language, (_, names) in renderer.LANGUAGES.items()
+                  for voice in names}
+        assert len(voices) == 50, 'current renderer policy must contain 50 unique tracks'
+    else:
+        # Unchanged lessons retain the exact accepted baseline voices.
+        sets = {tuple(map(tuple, pairs)) for pairs in publication['narration_voices'].values()}
+        assert len(sets) == 1, 'publication lessons ship different voice sets'
+        voices = {(language, voice + '.m4a') for language, voice in sets.pop()}
     assert tracks == voices and ('en', 'af_heart.m4a') in tracks
     for language, name in tracks:
         timing = f'media_host/{identity}/audio/{language}/{name[:-4]}.json'

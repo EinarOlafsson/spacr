@@ -1,0 +1,54 @@
+================================================================================
+OPERATIONAL AGENT RULES AND HANDOFFS UNDER spacr/resources/AI
+================================================================================
+
+Status:    DONE 2026-10-21 — canonical-only instructions; obsolete protocol retired
+Requested: maintainer, 2026-10-20 — approved moving tracked agent rules and
+           handoffs into spacr/resources/AI, retaining discovery pointers and
+           excluding these operational documents from installed distributions.
+Owner:     Codex retire_two_session_protocol — exact deletion/reference cleanup; root review and nightly publication
+
+SCOPE
+Move tracked AGENTS.md and features/HANDOFF*.md into spacr/resources/AI/.
+Preserve their rule text, dated handoff history and Git history. Root AGENTS.md
+and CLAUDE.md discovery pointers and the legacy features/HANDOFF*.md pointers
+are removed under the maintainer’s superseding 2026-10-21 instruction. Future
+sessions are directed explicitly to spacr/resources/AI; active tooling and
+documentation references must use that canonical location.
+
+Do not move credentials, active .claude worktrees, global skills, scientific
+or runtime AI code, translations or archived data. Other proposed cleanup
+phases have preparation approval only and are outside this item.
+
+ADDITIONAL MAINTAINER SCOPE (2026-10-21, P1)
+Delete features/325_two_sessions_one_repo_working_protocol.temp, the additional
+obsolete operational channel found outside spacr/resources/AI. Preserve its
+history through Git only; do not archive, move or create a replacement file.
+Update the six known referring documents: direct the active startup brief to
+canonical AGENTS/HANDOFF, remove the obsolete packaging coordination clause,
+and retain historical acceptance citations as retired-protocol Git history.
+
+ACCEPTANCE
+- The additional operational protocol is deleted, its six referring documents
+  are corrected, and normal instruction-index generation and focused owning
+  checks pass before root review, commit and nightly publication.
+- Canonical rule/handoff content survives the moves, with only active path
+  references updated; historical handoff content remains intact.
+- No operational agent instruction or handoff files remain outside the AI folder;
+  the instruction-index generator names the canonical handoff location.
+- Active tooling and references use the canonical location, with small owning
+  checks covering discovery and packaging boundaries.
+- Neither a built wheel nor source distribution contains spacr/resources/AI
+  operational documents or root agent-discovery documents; public project
+  policies and scientific/runtime resources remain packaged as before.
+- Native frozen resource collection also excludes the operational documents
+  while retaining genuine font/license data; the owning small frozen app
+  validates this boundary without claiming a full Windows/macOS science bundle.
+- Normal affected index generation, focused validation, root peer review,
+  commit and one nightly publication complete the item.
+
+2026-10-20 — Registered before implementation; P1 only. Root peers the concrete move/reference/packaging delta; N112 Docs acceptance and all other cleanup proposals remain separately owned. 2026-10-20 — Canonical rules and four byte-preserved handoffs now live under spacr/resources/AI; root/legacy discovery links remain usable. Normal index regenerated; 16 focused checks pass. Actual sdist and wheel-from-sdist exclude operational documents while retaining public policies and scientific resources; root independently accepted routing, packaging and actual archives; this delivery publishes the accepted result to nightly.
+2026-10-20 — REOPENED NATIVE BOUNDARY: release_ci_takeover owns the exact resources/AI exclusion in packaging/spacr.spec; its broad resource collector bypasses the already-passing wheel/sdist exclusions. Validate the actual frozen payload and preserve resource/font licenses; prior wheel/sdist evidence remains valid, and feature_takeover retains the separate archive-index scope. Root peers and publishes. 2026-10-20 — Native resource closure passes in an actual tiny frozen Linux application using the production collector expression: top-level/archive operational files are absent, the real font notice is exact, and all nine catalog lookups work with owned staging cleaned at process exit. Seven affected projection/frozen cases and the setup import guard pass; normal full PEP517 sdist→wheel retains nine exact runtime catalogs, four font notices, BSD license and prior exclusions. Root peer accepted; nightly publication remains.
+2026-10-21 — REOPENED by maintainer: remove all six root/features instruction forwarding files; keep full operational instructions only under spacr/resources/AI. Root owns direct references, focused checks and nightly publication; prior packaging validation remains applicable.
+2026-10-21 — Removed six obsolete root/features forwarding files; retained full canonical rules and all four handoffs. Active handoff reference and owning discovery/index tests now use the canonical folder; packaging exclusions remain unchanged. Focused checks and generated instruction index validate this delivery.
+2026-10-21 — REOPENED: maintainer requires deletion of the additional obsolete two-session operational protocol. Exact file deleted; six referring documents now use canonical startup paths or retired-protocol Git history, and F411’s old working rules are explicitly superseded. Normal index generation yields no content change; 12 owning index checks pass. Root independently accepted the exact deletion and reference changes; this delivery publishes the result. Prior canonical and packaging acceptance is retained.

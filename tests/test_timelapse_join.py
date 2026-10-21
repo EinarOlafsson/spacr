@@ -199,7 +199,7 @@ def test_timelapse_join_returns_one_row_per_object_per_frame(tmp_path):
     assert out['png_path'].nunique() == 12
     # And each crop sits on the row for its OWN timepoint and object.
     for _, row in out.iterrows():
-        name = row['png_path'].rsplit('/', 1)[-1]
+        name = os.path.basename(row['png_path'])
         field, time, obj = name[:-len('.png')].split('_')[2:]
         assert f'f{field}' == row['fieldID']
         assert f't{time}' == row['timeID']
