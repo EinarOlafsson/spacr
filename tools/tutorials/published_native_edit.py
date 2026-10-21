@@ -33,20 +33,29 @@ def plan_intervals(english,original,tracks,edit,bindings):
                 raise ValueError('Invalid current voice speech interval')
             spans.append(span);durations.append(duration)
         selected=edits.get(source['visual'])
-        keep=[[0,source_frames]];idle=[]
+        keep=[[0,source_frames]];idle=[];setup=None
         if selected is not None:
-            if (set(selected)!={'visual','keep_frames','confirmed_idle_frames','final_result_frame'}
+            required={'visual','keep_frames','confirmed_idle_frames','final_result_frame'}
+            setup_fields={'omitted_setup_frames','omitted_setup_reason'}
+            has_setup=bool(set(selected)&setup_fields)
+            if (set(selected)!=(required|setup_fields if has_setup else required)
                     or source.get('native_live_video') is not True):
                 raise ValueError('Only explicit reviewed native scenes can be edited')
             keep=selected['keep_frames'];idle=selected['confirmed_idle_frames']
-            def intervals(value):
-                return (isinstance(value,list) and bool(value) and all(isinstance(p,list) and len(p)==2
+            setup=selected.get('omitted_setup_frames')
+            if has_setup and (not isinstance(selected['omitted_setup_reason'],str) or not selected['omitted_setup_reason'].strip()):
+                raise ValueError('Omitted setup requires an explicit reviewed reason')
+            def intervals(value,allow_empty=False):
+                return (isinstance(value,list) and (bool(value) or allow_empty) and all(isinstance(p,list) and len(p)==2
                     and all(type(x) is int for x in p) and 0<=p[0]<p[1]<=source_frames for p in value)
                     and all(a[1]<b[0] for a,b in zip(value,value[1:])))
-            if not intervals(keep) or not intervals(idle):raise ValueError('Invalid reviewed frame intervals')
-            ordered=sorted([(a,b,'kept') for a,b in keep]+[(a,b,'idle') for a,b in idle])
+            if (not intervals(keep) or not intervals(idle,allow_empty=has_setup)
+                    or (has_setup and not intervals(setup))):
+                raise ValueError('Invalid reviewed frame intervals')
+            ordered=sorted([(a,b,'kept') for a,b in keep]+[(a,b,'idle') for a,b in idle]
+                           +[(a,b,'setup') for a,b in (setup or [])])
             if ordered[0][0]!=0 or ordered[-1][1]!=source_frames or any(a[1]!=b[0] for a,b in zip(ordered,ordered[1:])):
-                raise ValueError('Every source frame must be kept or explicitly confirmed idle, without overlap')
+                raise ValueError('Every source frame must be kept, confirmed idle or explicitly omitted setup, without overlap')
             if (type(selected['final_result_frame']) is not int
                     or selected['final_result_frame']!=keep[-1][1]-1):
                 raise ValueError('Hold only the reviewed final kept result frame')
@@ -62,6 +71,9 @@ def plan_intervals(english,original,tracks,edit,bindings):
             longest_narration_duration=max(durations),source_start_frame=round(source['speech_start']*30),
             source_keep_frames=keep,confirmed_idle_frames=idle,kept_frames=kept,
             final_frame_hold_frames=frames-kept,edited=selected is not None))
+        if setup is not None:
+            rows[-1].update(omitted_setup_frames=deepcopy(setup),
+                            omitted_setup_reason=selected['omitted_setup_reason'])
         cursor+=frames
     return rows
 

@@ -187,3 +187,47 @@ def test_edited_poster_dispatch_validates_actual_bindings_then_decodes_first_fra
     audio=root/'audio/en/af_heart.m4a';audio.write_bytes(audio.read_bytes()+b'changed unit fixture')
     with pytest.raises(ValueError,match='Narration media or source changed'):tool.main()
     assert (root/'poster.jpg').read_bytes()==original
+
+
+def test_reviewed_setup_omissions_keep_legacy_objects_identical(source_plan):
+    legacy=edit.plan_intervals(*source_plan)
+    args=deepcopy(source_plan);row=args[3]['scenes'][0]
+    row.update(omitted_setup_frames=[[30,240]],omitted_setup_reason='Omit redundant private path setup.')
+    row['confirmed_idle_frames']=[[270,300]]
+    current=edit.plan_intervals(*args)
+    assert current[0].pop('omitted_setup_frames')==[[30,240]]
+    assert current[0].pop('omitted_setup_reason')=='Omit redundant private path setup.'
+    assert current[0]['confirmed_idle_frames']==[[270,300]]
+    current[0]['confirmed_idle_frames']=deepcopy(legacy[0]['confirmed_idle_frames'])
+    assert current==legacy
+    assert edit.plan_intervals(*source_plan)==legacy
+    assert all('omitted_setup_frames' not in r and 'omitted_setup_reason' not in r for r in legacy)
+
+
+def test_reviewed_setup_can_cover_all_removed_frames_without_false_idle(source_plan):
+    args=deepcopy(source_plan);row=args[3]['scenes'][0]
+    row.update(omitted_setup_frames=row['confirmed_idle_frames'],omitted_setup_reason='Redundant setup/navigation.')
+    row['confirmed_idle_frames']=[]
+    result=edit.plan_intervals(*args)[0]
+    assert result['confirmed_idle_frames']==[] and result['kept_frames']==60
+    assert result['omitted_setup_frames']==[[30,240],[270,300]]
+
+
+@pytest.mark.parametrize('fault',['missing_reason','missing_frames','blank_reason','wrong_reason_type',
+                                  'empty_setup','overlap','gap','fractional','legacy_empty_idle','too_long'])
+def test_reviewed_setup_omissions_reject_incomplete_or_dishonest_partition(source_plan,fault):
+    args=deepcopy(source_plan);row=args[3]['scenes'][0]
+    row.update(omitted_setup_frames=[[30,240]],omitted_setup_reason='Redundant setup.')
+    row['confirmed_idle_frames']=[[270,300]]
+    if fault=='missing_reason':del row['omitted_setup_reason']
+    elif fault=='missing_frames':del row['omitted_setup_frames']
+    elif fault=='blank_reason':row['omitted_setup_reason']='  '
+    elif fault=='wrong_reason_type':row['omitted_setup_reason']=True
+    elif fault=='empty_setup':row['omitted_setup_frames']=[]
+    elif fault=='overlap':row['omitted_setup_frames'][0][0]=29
+    elif fault=='gap':row['omitted_setup_frames'][0][0]=31
+    elif fault=='fractional':row['omitted_setup_frames'][0][0]=30.0
+    elif fault=='legacy_empty_idle':
+        del row['omitted_setup_frames'];del row['omitted_setup_reason'];row['confirmed_idle_frames']=[]
+    elif fault=='too_long':args[2][0]['scenes'][0]['speech_end']=1.99
+    with pytest.raises(ValueError):edit.plan_intervals(*args)
