@@ -2,7 +2,7 @@
 MAKE MACOS GUI SCALING CONTENT-SAFE
 ================================================================================
 
-Status:    OPEN
+Status:    DONE 2026-10-21 — macOS/laptop scale, dialog, toggle, icon and tooltip acceptance passed
 Requested: maintainer, 2026-10-21 — prevent clipped text, controls, icons and popup content at every supported scale
 Priority:  P1
 Owner:     Codex macOS GUI lane — implementation and focused validation
@@ -24,6 +24,15 @@ Every tooltip API link must display exactly "API". A shown tooltip must remain
 visible while the pointer is still over its source or the tooltip itself. The
 default GUI and font scales, including the reset-to-default action, are 90%.
 
+PROGRESS
+Requirement                         State
+Text and module controls fit        DONE
+Dialogs fit, resize and scroll      DONE
+macOS boolean controls render clean DONE
+Icons remain proportional           DONE
+API tooltips persist while hovered  DONE
+GUI and font defaults are 90%       DONE
+
 ACCEPTANCE
 - A representative scale matrix covers the supported GUI/font range and finds
   no clipped Home help, module-button text or module-button icons.
@@ -36,3 +45,7 @@ ACCEPTANCE
 - Fresh preferences and the global reset action select 90% GUI and font scales.
 
 2026-10-21 — Registered before implementation from direct macOS testing; Windows/Linux acceptance remains separately owned.
+2026-10-21 — Default GUI/font/reset scale is 90%; all visible and accessible setting API captions are exactly "API", with hovered tooltip lifetime retained.
+2026-10-21 — Popup startup sizing now preserves content size within 90% of the available screen, remains resizable and scrolls overflow; custom toggles suppress native checkbox perimeter geometry.
+2026-10-21 — 503 text-fit and 55 icon/action-row checks pass across scale/language matrices; 482 dialog/default/tooltip checks pass after repairing macOS isolated-profile coverage.
+2026-10-21 — Native Cocoa launch at 90% on a 1440x870 laptop window passed and exited cleanly; Windows/Linux acceptance remains separately owned.

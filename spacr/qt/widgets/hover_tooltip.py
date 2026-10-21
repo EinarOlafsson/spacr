@@ -472,9 +472,7 @@ class HoverTooltip(QFrame):
         self._api_link = _LinkWord(API_MARK, "HoverTooltipApiLink",
                                    self._links)
         self._api_link.setAccessibleName("API")
-        self._api_link.setAccessibleDescription(
-            "Open spaCR API documentation for this setting."
-        )
+        self._api_link.setAccessibleDescription("API")
         self._api_link.clicked.connect(self.open_api_documentation)
         self._animation_link = _LinkWord(
             ANIMATION_MARK, "HoverTooltipAnimationLink", self._links)

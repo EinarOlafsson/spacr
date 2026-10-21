@@ -183,8 +183,8 @@ def test_resolve_system_returns_valid_choice(qt_theme_applied):
 # Font scale
 # ---------------------------------------------------------------------------
 
-def test_font_scale_default_is_100pct(qt_theme_applied):
-    """1.0, and the reason is in DEFAULT_FONT_SCALE's own comment.
+def test_font_scale_default_is_90pct(qt_theme_applied):
+    """0.9, and the earlier defaults are explained beside the constant.
 
     This scales the WHOLE interface, and a HiDPI display is already being
     scaled by the operating system -- macOS reports a 2x device pixel ratio.
@@ -193,8 +193,8 @@ def test_font_scale_default_is_100pct(qt_theme_applied):
     machine faster than the workstation it ran well on.
     """
     from spacr.qt.preferences import DEFAULT_FONT_SCALE, get_font_scale
-    assert get_font_scale() == 1.0
-    assert DEFAULT_FONT_SCALE == 1.0
+    assert get_font_scale() == 0.9
+    assert DEFAULT_FONT_SCALE == 0.9
 
 
 def test_font_scale_roundtrip(qt_theme_applied):
@@ -220,7 +220,7 @@ def test_font_scale_recovers_from_corrupt_value(qt_theme_applied):
     from spacr.qt.preferences import get_font_scale
     from PySide6.QtCore import QSettings
     QSettings("spacr", "qt").setValue("prefs/font_scale", "garbage")
-    assert get_font_scale() == 1.0
+    assert get_font_scale() == 0.9
 
 
 # ---------------------------------------------------------------------------
@@ -1307,6 +1307,7 @@ def test_preferences_imports_without_touching_the_ambient_widget():
         env["PYTHONPATH"] = root + os.pathsep + env.get("PYTHONPATH", "")
         env["HOME"] = home
         env["XDG_CONFIG_HOME"] = os.path.join(home, "config")
+        env["SPACR_ISOLATED_PROFILE"] = "1"
         env["QT_QPA_PLATFORM"] = "offscreen"
         result = subprocess.run([sys.executable, "-c", code], env=env,
                                 capture_output=True, text=True, timeout=300)

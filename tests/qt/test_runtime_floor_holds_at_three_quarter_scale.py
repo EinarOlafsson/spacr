@@ -92,7 +92,7 @@ def _main_window(qtbot):
     return window
 
 
-@pytest.mark.parametrize("scaled", [1.0, 0.75], indirect=True)
+@pytest.mark.parametrize("scaled", [1.0, 0.9, 0.75], indirect=True)
 def test_every_actions_and_system_button_is_whole_on_measure(qtbot, scaled):
     window = _main_window(qtbot)
     try:

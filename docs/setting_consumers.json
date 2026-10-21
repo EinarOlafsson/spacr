@@ -10575,7 +10575,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 5211,
+    "line": 5207,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -36869,7 +36869,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5204,
+    "line": 5200,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -36878,7 +36878,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5301,
+    "line": 5297,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "regression_design_scan"

@@ -24,6 +24,11 @@ class Toggle(QCheckBox):
             False keeps the existing single-line switch layout.
         """
         super().__init__(text, parent)
+        self.setObjectName("SpacrToggle")
+        self.setStyleSheet(
+            "QCheckBox#SpacrToggle::indicator {"
+            " width: 0px; height: 0px; border: none; margin: 0px; }"
+        )
         self._word_wrap = bool(word_wrap)
         self._track_x = 2
         self._track_w = 30

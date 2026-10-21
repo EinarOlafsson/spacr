@@ -86,7 +86,8 @@ def test_format_tooltip_shows_name_type_and_strips_old_prefix():
     assert "Expected cell diameter." in tip
     assert "(int) -" not in tip           # old inline type prefix removed
     assert 'href="https://einarolafsson.github.io/spacr/api/' in tip
-    assert "Open spaCR API documentation" in tip
+    assert ">API<" in tip
+    assert "Open spaCR API documentation" not in tip
 
 
 def test_undescribed_setting_still_typed():

@@ -397,7 +397,7 @@ def test_the_column_only_widens_when_the_prose_needs_it(tooltip, qtbot):
     tooltip.show_for(_anchor(qtbot), "<b>Cell diameter</b><br>Short.", immediate=True)
     assert tooltip.text_column().width() == HoverTooltip.ANIMATION_SIZE
 
-    long_text = "<b>Cell diameter</b><br>" + ("Long help. " * 40)
+    long_text = "<b>Cell diameter</b><br>" + ("Long help. " * 80)
     tooltip.show_for(_anchor(qtbot), long_text, immediate=True)
     assert tooltip.text_column().width() > HoverTooltip.ANIMATION_SIZE
     assert tooltip.text_column().width() <= HoverTooltip.TEXT_WIDTH

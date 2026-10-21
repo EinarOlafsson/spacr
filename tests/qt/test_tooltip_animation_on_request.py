@@ -180,7 +180,7 @@ def test_the_revealed_square_lands_at_the_measured_geometry(tooltip, qtbot):
     """
     long_html = HTML.replace(
         "quietly degrades every downstream measurement.",
-        "quietly degrades every downstream measurement. " + "More help. " * 60)
+        "quietly degrades every downstream measurement. " + "More help. " * 100)
     tooltip.show_for(_anchor(qtbot), long_html, immediate=True)
     tooltip.animation_link().clicked.emit()
 

@@ -337,7 +337,7 @@ def test_an_api_dot_is_re_pointed_and_captioned_rather_than_re_described():
     # as a way to walk in the nine catalogs -- so this reads the label
     # rather than spelling it.
     from spacr.object_roles import EXACT_LABELS
-    assert caption == f"Open API reference for {EXACT_LABELS['src']}"
+    assert caption == "API"
     assert dot.toolTip() == caption
     assert dot.accessibleName() == caption
     assert dot.url == SM.api_docs_url("measure", "src", "en")

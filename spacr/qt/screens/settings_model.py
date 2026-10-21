@@ -4679,11 +4679,7 @@ def _api_reference_tooltip(
     from ..i18n import tr
 
     code = _language_code(language)
-    return tr(
-        "Open API reference for {name}",
-        code,
-        name=_translated_setting_name(key, code, app_key),
-    )
+    return tr("API", code)
 
 
 def format_tooltip(
@@ -4720,7 +4716,7 @@ def format_tooltip(
     url = escape(api_docs_url(app_key, key, code), quote=True)
     link = (
         f'<a href="{url}">'
-        f'{escape(tr("Open spaCR API documentation", code))}</a>'
+        f'{escape(tr("API", code))}</a>'
     )
     parts = [p for p in (header, body, link) if p]
     return "<br>".join(parts)
@@ -6566,8 +6562,7 @@ def _refresh_api_tooltips_of(widgets, language: Optional[str] = None) -> None:
                 set_url(api_docs_url(str(app_key), str(key), code))
             widget.setToolTip(caption)
             widget.setAccessibleName(caption)
-            widget.setAccessibleDescription(
-                tr("Open spaCR API documentation", code))
+            widget.setAccessibleDescription(tr("API", code))
         else:
             widget.setToolTip(html)
             widget.setToolTipDuration(-1)

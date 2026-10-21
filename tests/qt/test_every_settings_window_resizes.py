@@ -625,7 +625,8 @@ class TestTheRulesThemselves:
         assert floor.width() > 400 and floor.height() > 300
         assert QWidget.minimumSize(dialog).width() < floor.width()
         assert QWidget.minimumSize(dialog).height() < floor.height()
-        assert _size(dialog) == _size(without)
+        assert _size(dialog).width() >= _size(without).width()
+        assert _size(dialog).height() >= _size(without).height()
 
 
 class TestThePartsOnTheirOwn:
@@ -1084,9 +1085,9 @@ class TestEverySettingsWindow:
 
         assert len(_grips(dialog)) == 1, name
 
-    def test_it_opens_at_the_size_it_always_did(self, resizer, qtbot, name,
-                                               build):
-        """The same dialog, opened with the filter off and then on.
+    def test_it_opens_at_a_content_fitting_screen_bounded_size(
+            self, resizer, qtbot, name, build):
+        """The filtered dialog fits at least its old opening or the screen.
 
         EACH SIDE IS MEASURED UNTIL IT SETTLES, and that is not
         ceremony. The two measurements are of two different instances,
@@ -1142,7 +1143,16 @@ class TestEverySettingsWindow:
         finally:
             _filter_on(app, dialogs._DETACHER)
 
-        assert settled() == without, name
+        from PySide6.QtGui import QGuiApplication
+
+        with_filter = settled()
+        available = QGuiApplication.primaryScreen().availableGeometry().size()
+        ceiling_w = int(available.width() * 0.9)
+        ceiling_h = int(available.height() * 0.9)
+        assert with_filter.width() >= min(without.width(), ceiling_w), name
+        assert with_filter.height() >= min(without.height(), ceiling_h), name
+        assert with_filter.width() <= ceiling_w, name
+        assert with_filter.height() <= ceiling_h, name
 
     def test_shown_again_it_is_where_it_was_left(self, resizer, qtbot,
                                                  name, build):

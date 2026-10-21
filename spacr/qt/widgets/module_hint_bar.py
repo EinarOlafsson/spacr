@@ -25,7 +25,7 @@ from __future__ import annotations
 from html import escape
 from typing import Optional
 
-from PySide6.QtCore import QEvent, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QRect, Qt, QTimer, Signal
 from PySide6.QtWidgets import QLabel, QWidget
 
 #: What the strip says when nothing has been hovered yet.
@@ -81,10 +81,25 @@ class ModuleHintBar(QLabel):
         self.setOpenExternalLinks(True)
         self.setTextInteractionFlags(Qt.TextBrowserInteraction)
         self.linkActivated.connect(self._on_link)
-        line = max(1, self.fontMetrics().lineSpacing())
-        self.setFixedHeight(line * 2 + 10)
+        self._fit_height()
         self.setWordWrap(False)
         self.setAccessibleName(default)
+
+    def _fit_height(self) -> None:
+        """Reserve the real two-line glyph bounds at the current font scale."""
+        metrics = self.fontMetrics()
+        text = "Xg\nXg"
+        height = metrics.boundingRect(
+            QRect(0, 0, 1 << 20, 0),
+            int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft), text).height()
+        self.setFixedHeight(max(1, height) + 10)
+
+    def changeEvent(self, event):             # noqa: N802 - Qt naming
+        """Refit the strip after font, style or application-font changes."""
+        super().changeEvent(event)
+        if event.type() in (QEvent.Type.FontChange, QEvent.Type.StyleChange,
+                            QEvent.Type.ApplicationFontChange):
+            self._fit_height()
 
 
     def event(self, event):                     # noqa: N802 - Qt naming

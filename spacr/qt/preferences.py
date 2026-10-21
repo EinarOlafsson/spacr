@@ -608,7 +608,8 @@ FONT_SCALE_MAX = 2.00
 #: interface — spacing, tiles, dots and icons move with the type, so calling it
 #: a font setting undersells what the control does.
 #:
-#: 100% IS THE DEFAULT, and the reason it was 150% is worth keeping: spaCR's
+#: 90% IS THE DEFAULT. The reason this used to be 100%, after starting at
+#: 150%, is worth keeping: spaCR's
 #: natural size was laid out on a 1080p display, and on a 4K panel driven at
 #: 1x everything read small.
 #:
@@ -622,14 +623,14 @@ FONT_SCALE_MAX = 2.00
 #:
 #: The 4K case is a preference a user on that display sets once. The laptop
 #: case was everybody, silently, by default.
-DEFAULT_FONT_SCALE = 1.0
+DEFAULT_FONT_SCALE = 0.9
 
 #: The whole-GUI scale's bounds and default (item 471): the same 10 % to
 #: 200 % as Zoom, so the two sliders read alike. Applied live by the
 #: scaling layer in :mod:`spacr.qt.gui_scale`, which says how.
 GUI_SCALE_MIN = 0.10
 GUI_SCALE_MAX = 2.00
-DEFAULT_GUI_SCALE = 1.0
+DEFAULT_GUI_SCALE = 0.9
 
 #: What the GUI scale row says it is, including the way back.
 GUI_SCALE_TIP = (
@@ -639,7 +640,7 @@ GUI_SCALE_TIP = (
     "asks whether to keep it; with no answer it goes back by itself after "
     "15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives "
     "half-size controls with text the usual size. Ctrl+Alt+0 puts GUI "
-    "scale and font scale back to 100 % from anywhere.")
+    "scale and font scale back to their 90 % defaults from anywhere.")
 
 VALID_CB_MODES = ("off", "deuteranopia", "protanopia", "tritanopia")
 DEFAULT_CB_MODE = "off"
@@ -4845,19 +4846,7 @@ def _screen_default_scale() -> float:
 
     :returns: 0.75 on a small primary screen, otherwise 1.0.
     """
-    try:
-        from PySide6.QtGui import QGuiApplication
-
-        if (QGuiApplication.instance() is None
-                or QGuiApplication.platformName() in ("offscreen", "minimal")):
-            return 1.0
-        screen = QGuiApplication.primaryScreen()
-        if screen is None:
-            return 1.0
-        width = screen.availableGeometry().width()
-    except Exception:
-        return 1.0
-    return 0.75 if 0 < width < 1600 else 1.0
+    return DEFAULT_GUI_SCALE
 
 
 def _stored_font_scale():
