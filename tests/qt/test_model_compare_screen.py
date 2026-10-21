@@ -506,6 +506,45 @@ def test_extra_settings_parse_into_typed_values():
         parse_extra("diam_mean 17")
 
 
+def test_the_displayed_extra_example_builds_a_real_panel_config(screen):
+    panel = screen._panel_a
+    panel.extra_edit.setText(panel.extra_edit.placeholderText())
+    config = panel.config("A")
+    assert config.extra == {"diam_mean": 17, "channels": [2, 0]}
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("channels=[2,0], options={'items': [(1,2), [3,4]]}, label='left,right; middle'",
+     {"channels": [2, 0], "options": {"items": [(1, 2), [3, 4]]},
+      "label": "left,right; middle"}),
+    ('name="quoted, model"; augment=FALSE, niter=null, empty=, offset=-1.5',
+     {"name": "quoted, model", "augment": False, "niter": None,
+      "empty": None, "offset": -1.5}),
+])
+def test_extra_literal_values_keep_nested_and_quoted_separators(text, expected):
+    assert parse_extra(text) == expected
+
+
+@pytest.mark.parametrize("text", [
+    "channels=[2,0",
+    "channels=[2,0)",
+    "options={'items': [1,2)}",
+    "label='left,right",
+    'label="left,right',
+    "channels=[2,0], broken",
+])
+def test_malformed_extra_literals_and_pairs_are_rejected(text):
+    with pytest.raises(ValueError):
+        parse_extra(text)
+
+
+def test_extra_raw_values_cannot_execute_python(tmp_path):
+    sentinel = tmp_path / "executed"
+    raw = f"__import__('pathlib').Path({str(sentinel)!r}).touch()"
+    assert parse_extra(f"name={raw}") == {"name": raw}
+    assert not sentinel.exists()
+
+
 # ---------------------------------------------------------------------------
 # threading
 #

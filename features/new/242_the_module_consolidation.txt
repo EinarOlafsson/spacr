@@ -432,3 +432,9 @@ HOW TO KNOW IT WORKED
 * Nothing in the "not redundant" list lost a capability: the style file,
   the annotation join, the three export formats and the number
   verification all still work from their new homes.
+
+2026-10-21 — Folded Compare repair; owner: release_ci_takeover/easy_n79 with retained G2 finder; the displayed channel-list example previously raised ValueError.
+Tokenized top-level comma/semicolon separators and safe literal_eval now preserve lists, nested containers and quoted separators in actual panel configuration.
+Legacy scalar/bare-name coercions, captions and signatures remain; malformed literal syntax/pairs are rejected and raw Python text is never executed.
+All12 focused checks pass3.55s, including the real displayed-example config and existing inline-error behavior; no model weights, training or GPU work.
+Root owns final peer, integration/publication; no broader consolidation acceptance is claimed.
