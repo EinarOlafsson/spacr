@@ -177,17 +177,18 @@ def _identity_words() -> List[tuple]:
 
 
 def redact_identity(s: str) -> str:
-    """Replace this computer's login and host names with placeholders.
+    """Replace eligible local login and host name matches with placeholders.
 
-    A home folder is already shortened to ``~`` by :func:`sanitize_path`. The
-    login name can still appear elsewhere: another folder named after the
-    user, a permission error, an ``owner`` setting. The host name can appear
-    in a network path or a connection error. Each is replaced wherever it
-    stands as a whole word, in any letter case.
+    Candidate names come from ``_identity_words``; names shorter than three characters,
+    all-digit names and entries in ``_GENERIC_NAMES`` are omitted. Matches are
+    case-insensitive and blocked if either adjacent character matches ``[A-Za-z0-9]``
+    under ``re.IGNORECASE``; underscores do not block them. Home-string substitution is
+    handled separately by :func:`sanitize_path`.
 
     :param s: arbitrary text.
-    :returns: the text with :data:`USER_PLACEHOLDER` and
-        :data:`HOST_PLACEHOLDER` in place of those names.
+    :returns: The input with eligible matches replaced by :data:`USER_PLACEHOLDER` or
+        :data:`HOST_PLACEHOLDER`; excluded names and other unmatched identifiers are
+        unchanged.
     """
     if not s:
         return s
@@ -198,17 +199,18 @@ def redact_identity(s: str) -> str:
 
 
 def sanitize_path(s: str) -> str:
-    """Replace absolute paths pointing inside ``$HOME`` with ``~/``.
+    """Apply literal home-string replacement and pattern-based redaction.
 
-    Also collapses any string that looks like an on-disk ``*.db`` path
-    down to ``<DB>`` so lab / patient / experiment identifiers embedded
-    in a filename don't leak, replaces this computer's login and host names
-    through :func:`redact_identity`, and redacts credential-shaped substrings
-    via :func:`redact_secrets`.
+    Replace exact, case-sensitive occurrences of ``str(Path.home())`` with ``~``
+    wherever they occur; no path boundaries are checked. Replace substrings matching the
+    case-sensitive database-path regex with ``<DB>``: a slash or backslash, one or more
+    characters other than whitespace or single/double quotes, then ``.db`` and a regex
+    word boundary. Finally apply :func:`redact_identity` and :func:`redact_secrets`.
+    These substitutions do not guarantee removal of every identifier or credential.
 
     :param s: arbitrary text.
-    :returns: text with home-relative paths abbreviated and DB paths,
-        login and host names and secrets redacted.
+    :returns: The text after the literal home-string replacement and the database,
+        identity and credential-pattern substitutions.
     """
     home = str(Path.home())
     s = s.replace(home, "~")
