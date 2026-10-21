@@ -1,0 +1,25 @@
+# Mac session handoff — 2026-10-21
+
+The maintainer has started this session to complete current Mac-related work. Read `AGENTS.md` first, then the latest requirements and trailing notes in the owning items below. Use a fresh fetch of `origin/nightly` in an owned Mac worktree; do not reset or clean the maintainer's checkout. Commit and publish finished work to nightly with descriptive messages. Linux `/mnt/...` paths in historical notes refer to the Home host; use the Mac paths permitted in rule 37.
+
+## Priority and ownership
+
+1. **703 and 646: install, update, restart and uninstall.** Follow their detailed Mac sections. The maintainer has NOT yet tested the current changes. Required update behavior: one Install/Update action runs in the background, then an explicit Restart opens the new version through the startup window and main window. No uninstall/reinstall terminal interrogation. Verify the actual old/new versions, app bundle, launcher/interpreter, preserved user data and Preferences > Performance uninstall scope/options. Protect real user data: use disposable installations and explicit test-owned paths for destructive checks.
+2. **673: True 3D.** Verify the currently available Mac backends, visible rendering, picking, dragging, fallback and responsiveness on a real display. The current viewer remains untested by the maintainer. Older Intel-Mac Metal/OpenGL measurements in the item are historical evidence, not acceptance of later changes. Do not claim Vulkan or Direct3D validation on a Mac.
+3. **696, 697, 707 and 708: Make Masks interaction.** Read each item's current native UI checklist: zoom/diameter, disconnected strokes, layout/footer/tabs at both required window sizes, and 32-bit time/lineage editing and TIFF round trips. Fix actual failures and preserve segmentation/undo and existing label identities. Future accessibility work (655) remains deferred.
+4. **444: sound and Preferences.** Test repeated Preferences opens and normal quit with sound enabled on the real audio stack. Home has just repaired repeated shutdown return values; retain that fix. Report any actual native hang or thread teardown fault before broad changes.
+5. **686: website/performance.** The maintainer says laptop performance is good; record this qualitative acceptance without inventing an FPS. Follow the item for any remaining Mac/mobile/browser or published-site checks. Home is investigating site/release synchronization, so coordinate before editing its workflow or site source.
+
+Detailed acceptance steps belong in these existing item files under `features/new/`: 703_updates_replace_old_application_versions_and_keep_user_data.txt; 646_clean_uninstall_purge.txt; 673_make_masks_3d_editable_anchors_and_surfaces.txt; 696_magnification_default_diameter_and_auto_diameter.txt; 697_each_disconnected_brush_stroke_is_a_new_object.txt; 707_make_masks_titled_button_groups_and_collapsible_bars.txt; 708_make_masks_manual_labels_and_timelapse_lineage.txt; 444_sound_on_wedges_the_preferences_dialog.txt; 686_a_free_project_website_with_rich_effects.txt.
+
+## Current Home work to preserve
+
+Home owns general GitHub CI (43), documentation correctness (112), the measured README checkout-size correction, and the shared thumbnail-worker close/park fix. The thumbnail fix has nine passing tests and reviewed translations; normal API/Help publication is underway. Fetch its completed publication rather than implementing it twice. Mac-specific failures discovered during native testing belong to this Mac session; record ownership before editing overlapping files.
+
+The latest published version is 1.5.1.5; 1.5.1.6 is not published yet. Distinguish an explicitly identified nightly/candidate test from an actual published-version upgrade. A successful no-op on an already-current version does not validate an upgrade. Home is completing corrected-source CI before release preparation.
+
+## Acceptance and reporting
+
+For each test record the tested commit/version, macOS version, Intel/Apple Silicon, relevant backend and concise pass/fail/remaining result in its owning item (at most five dated trailing lines). Reuse existing tests and normal generators; no evidence packets or broad inventories. Close a whole item only when all its required acceptance is met; a successful Mac check does not establish Windows/Linux or cluster acceptance. Whole-item completion triggers the Progress List table as specified in AGENTS.md.
+
+The maintainer's standing approval covers routine current-goal decisions. Hold new questions until 2026-10-21 21:10 UTC (17:10 Detroit), unless the maintainer explicitly invites them sooner. Missing hardware, credentials or scientific truth remain unresolved facts. Great Lakes tasks 699/702 are still untested and remain with their cluster owner; they are not made complete by Mac desktop checks.
