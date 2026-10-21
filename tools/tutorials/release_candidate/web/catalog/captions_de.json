@@ -509,9 +509,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Erkunden Sie die Home-Übersicht und die Kategorie-Tabs, lernen Sie dann anhand von Mask die gemeinsamen Bedienelemente der Module kennen und passen Sie Navigation, Hilfe und Erscheinungsbild an.",
+      "description": "Gehen Sie alle Module in Home von links nach rechts durch, lernen Sie mit Mask die gemeinsamen Modulsteuerungen kennen und passen Sie Navigation, Hilfe und Darstellung an.",
       "objectives": [
-        "Finden Sie Module über die Tabs Home, Core, Data, Tools und Organism.",
+        "Jedes Modul in den Zeilen Core, Data, Tools und Organism erkennen.",
         "Mit Mask die gemeinsamen Einstellungen, Vorschauen, Aktionen und Ausgaben kennenlernen.",
         "Zu Home zurückkehren, die Suche verwenden und die Bereiche anordnen.",
         "Einstellungen für Darstellung und Leistung auswählen."
@@ -520,7 +520,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home ist der Ausgangspunkt. Die Übersicht gruppiert Module unter Core, Data, Tools und Organism. Die Kategorie-Tabs grenzen die Ansicht ein. Jede Kachel öffnet das darauf benannte Modul. Die Seitenleiste bietet dieselben Zugänge, und Home führt zurück zur Übersicht.",
+          "narration": "Home ist der Ausgangspunkt. Lesen Sie jede Zeile von links nach rechts: Core, Data, Tools und Organism. Jede Kachel öffnet das darauf benannte Modul. Die Seitenleiste bietet dieselben Zugänge; Home führt zu dieser Übersicht zurück.",
           "hold_after": 0.7
         },
         {
@@ -601,6 +601,17 @@
           ]
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings kodiert Objekt-Bildausschnitte als numerische Merkmale zur Erkundung und zum Vergleich.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare führt gespeicherte Ergebnisse mehrerer Läufe zusammen, damit Sie Unterschiede prüfen können.",
           "hold_after": 0.7,
@@ -612,6 +623,17 @@
           ]
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design legt Bedingungen, Wells und Probenkennungen vor einem Experiment fest.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design untersucht Annahmen zu Stichprobengröße und Teststärke bei geplanten Vergleichen.",
           "hold_after": 0.7,
@@ -620,6 +642,28 @@
           ],
           "related_lessons": [
             "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response führt Fits für Antworten über verschiedene Konzentrationen durch; der gewählte Endpunkt und die Kontrollen bleiben dabei explizit.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC listet die gespeicherten Qualitätsberichte eines Projekts auf und markiert die fehlenden.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
           ]
         },
         {
@@ -653,6 +697,17 @@
           ],
           "related_lessons": [
             "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor definiert Auswahlen für echte Datenspalten. Prüfen Sie die ausgewählten Objekte, bevor Sie eine Auswahl in Labels umwandeln.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
           ]
         },
         {
@@ -796,7 +851,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "Auf der Registerkarte Modules legt Session fest, ob spaCR beim Start das letzte Modul, die Einstellungen und den Ordner wieder öffnet; diese Aufnahme startet frisch. Update channel wählt stabile Versionen oder nächtliche Builds, und mit Proxy und Certificate bundle funktionieren Downloads hinter einem institutionellen Proxy.",
+          "narration": "Auf der Registerkarte Modules bestimmt Session, ob spaCR beim Start das letzte Modul, die Einstellungen und den Ordner erneut öffnet. Update channel wählt stabile Versionen oder nächtliche Builds, und mit Proxy und Certificate bundle funktionieren Downloads hinter einem institutionellen Proxy.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -826,6 +881,11 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "Im Spaceout-Modus bietet Preferences spaCR-Feldsteuerungen für acht unabhängige Effekte. Schalten Sie jeden Effekt einzeln ein oder aus. Die üblichen Steuerungen für Darstellung und Animation des Einstellungsfensters bleiben verfügbar; Apply zeigt eine Änderung als Vorschau, Keep übernimmt sie und Revert stellt die vorherige Auswahl wieder her.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {

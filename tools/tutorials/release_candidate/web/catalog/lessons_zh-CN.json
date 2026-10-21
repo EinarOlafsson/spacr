@@ -573,9 +573,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "浏览 Home 概览和分类选项卡，然后通过 Mask 了解模块的通用控件，并调整导航、帮助和外观。",
+      "description": "从左到右浏览Home的所有模块，再通过Mask学习模块共用的控件，并调整导航、帮助和外观。",
       "objectives": [
-        "通过 Home、Core、Data、Tools 和 Organism 选项卡查找模块。",
+        "识别Core、Data、Tools和Organism各行中的每个模块。",
         "通过 Mask 认识通用设置、预览、操作和输出。",
         "返回 Home，使用搜索并排列面板。",
         "选择外观和性能设置。"
@@ -584,9 +584,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home 是起点。概览将模块归入 Core、Data、Tools 和 Organism。分类选项卡可缩小显示范围。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，选择 Home 可返回概览。",
+          "narration": "Home 是起点。从左到右阅读每一行：Core、Data、Tools和Organism。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，Home可返回此总览。",
           "hold_after": 0.7,
-          "speech_text": "主页 是起点。概览将模块归入 Core、Data、Tools 和 Organism。分类选项卡可缩小显示范围。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，选择 主页 可返回概览。"
+          "speech_text": "主页 是起点。从左到右阅读每一行：Core、Data、Tools和Organism。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，主页可返回此总览。"
         },
         {
           "visual": "home_module_mask",
@@ -673,6 +673,18 @@
           "speech_text": "Import 为项目结构准备输入的显微镜文件及其元数据。"
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings将对象的裁剪图像编码为数值特征，以便探索和比较。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ],
+          "speech_text": "Embeddings将对象的裁剪图像编码为数值特征，以便探索和比较。"
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare 汇集保存的运行结果，便于检查差异。",
           "hold_after": 0.7,
@@ -685,6 +697,18 @@
           "speech_text": "Run Compare 汇集保存的运行结果，便于检查差异。"
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design可在实验前设置条件、孔位和样本标识。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ],
+          "speech_text": "Experiment Design可在实验前设置条件、孔位和样本标识。"
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design 在规划比较时探索样本量和统计功效假设。",
           "hold_after": 0.7,
@@ -695,6 +719,30 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design 在规划比较时探索样本量和统计功效假设。"
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response拟合不同浓度下的响应，同时明确所选响应指标和对照。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ],
+          "speech_text": "Dose Response拟合不同浓度下的响应，同时明确所选响应指标和对照。"
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC列出项目保存的质量报告，并标记缺失的报告。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
+          ],
+          "speech_text": "QC列出项目保存的质量报告，并标记缺失的报告。"
         },
         {
           "visual": "home_module_make_masks",
@@ -731,6 +779,18 @@
             "15_image_umap"
           ],
           "speech_text": "Image 优麦普 投影对象特征，以探索相似对象并检查代表性裁剪图像。"
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor在真实数据列上定义选择条件。将选择转换为标签前，请检查选定的对象。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "门控编辑器在真实数据列上定义选择条件。将选择转换为标签前，请检查选定的对象。"
         },
         {
           "visual": "home_module_graph_builder",
@@ -890,7 +950,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "在 Modules 选项卡中，Session 决定 spaCR 启动时是否重新打开上次的模块、设置和文件夹；本录制从全新状态开始。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。",
+          "narration": "在Modules选项卡中，Session决定spaCR启动时是否重新打开上次的模块、设置和文件夹。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -898,7 +958,7 @@
             1200,
             397
           ],
-          "speech_text": "在 Modules 选项卡中，Session 决定 斯佩克尔 启动时是否重新打开上次的模块、设置和文件夹；本录制从全新状态开始。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。"
+          "speech_text": "在Modules选项卡中，Session决定斯佩克尔启动时是否重新打开上次的模块、设置和文件夹。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。"
         },
         {
           "visual": "13f_storage",
@@ -923,6 +983,12 @@
             1500
           ],
           "speech_text": "Prune now 绝不会不经询问就删除。为运行文件夹设置一个较短的示例上限后，它会列出每个文件夹中将要删除的内容并等待回答。点击 Cancel，则不会删除任何内容。"
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "在Spaceout模式下，Preferences提供八种独立效果的spaCR场控制。各个效果可以分别开启或关闭。常规外观和设置窗口的动画控件仍然可用；Apply预览更改，Keep接受更改，Revert恢复先前的选择。",
+          "hold_after": 0.7,
+          "speech_text": "在Spaceout模式下，Preferences提供八种独立效果的斯佩克尔场控制。各个效果可以分别开启或关闭。常规外观和设置窗口的动画控件仍然可用；Apply预览更改，Keep接受更改，Revert恢复先前的选择。"
         }
       ],
       "narration_voices": {

@@ -509,9 +509,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Utforska Home-översikten och kategoriflikarna, lär dig sedan modulernas gemensamma reglage med Mask och anpassa navigering, hjälp och utseende.",
+      "description": "Gå igenom alla moduler i Home från vänster till höger, lär dig gemensamma modulkontroller med Mask och justera navigering, hjälp och utseende.",
       "objectives": [
-        "Hitta moduler med flikarna Home, Core, Data, Tools och Organism.",
+        "Identifiera varje modul på raderna Core, Data, Tools och Organism.",
         "Använda Mask för att känna igen gemensamma inställningar, förhandsvisningar, åtgärder och resultat.",
         "Återgå till Home, använda sökningen och ordna panelerna.",
         "Välja inställningar för utseende och prestanda."
@@ -520,7 +520,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home är utgångspunkten. Översikten grupperar moduler under Core, Data, Tools och Organism. Kategoriflikarna begränsar vyn. Varje ruta öppnar modulen som den är namngiven efter. Sidopanelen ger samma vägar, och Home återgår till översikten.",
+          "narration": "Home är utgångspunkten. Läs varje rad från vänster till höger: Core, Data, Tools och Organism. Varje ruta öppnar modulen som den är namngiven efter. Sidofältet ger samma vägar och Home återgår till den här översikten.",
           "hold_after": 0.7
         },
         {
@@ -601,6 +601,17 @@
           ]
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings kodar bildutsnitt av objekt till numeriska egenskaper för utforskning och jämförelse.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare samlar sparade körningsresultat så att du kan undersöka skillnader.",
           "hold_after": 0.7,
@@ -612,6 +623,17 @@
           ]
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design anger villkor, plattbrunnar och providentiteter före ett experiment.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design undersöker antaganden om stickprovsstorlek och statistisk styrka när jämförelser planeras.",
           "hold_after": 0.7,
@@ -620,6 +642,28 @@
           ],
           "related_lessons": [
             "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response gör en anpassning av responser över olika koncentrationer, med vald responsvariabel och kontroller tydligt angivna.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC listar projektets sparade kvalitetsrapporter och markerar dem som saknas.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
           ]
         },
         {
@@ -653,6 +697,17 @@
           ],
           "related_lessons": [
             "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor definierar urval i riktiga datakolumner. Granska de valda objekten innan ett urval omvandlas till etiketter.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
           ]
         },
         {
@@ -796,7 +851,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "På fliken Modules bestämmer Session om spaCR öppnar den senaste modulen, inställningarna och mappen igen vid start; den här inspelningen börjar från början. Update channel väljer stabila versioner eller nattliga byggen, och med Proxy och Certificate bundle fungerar nedladdningar bakom en institutionell proxy.",
+          "narration": "På fliken Modules avgör Session om spaCR öppnar den senaste modulen, inställningarna och mappen igen när programmet startas. Update channel väljer stabila versioner eller nattliga byggen, och med Proxy och Certificate bundle fungerar nedladdningar bakom en institutionell proxy.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -826,6 +881,11 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "I Spaceout-läget har Preferences spaCR-fältkontroller för åtta oberoende effekter. Slå på eller av varje effekt separat. Vanliga kontroller för utseende och animering av inställningsfönstret finns kvar; Apply förhandsvisar en ändring, Keep godkänner den och Revert återställer föregående val.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {

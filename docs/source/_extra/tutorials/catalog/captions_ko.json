@@ -509,9 +509,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Home 개요와 범주 탭을 살펴본 다음, Mask로 모듈의 공통 조작 방법을 익히고 탐색, 도움말, 모양을 조정합니다.",
+      "description": "Home의 각 모듈을 왼쪽에서 오른쪽으로 살펴본 뒤 Mask로 모듈 공통 컨트롤을 익히고 탐색, 도움말, 모양을 조정합니다.",
       "objectives": [
-        "Home, Core, Data, Tools, Organism 탭을 사용해 모듈을 찾습니다.",
+        "Core, Data, Tools, Organism 행의 각 모듈을 식별합니다.",
         "Mask로 공통 설정, 미리보기, 동작, 출력을 파악합니다.",
         "Home으로 돌아가 검색을 사용하고 패널을 배치합니다.",
         "모양과 성능 설정을 선택합니다."
@@ -520,7 +520,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home이 시작점입니다. 개요에서는 모듈을 Core, Data, Tools, Organism으로 묶어 보여 줍니다. 범주 탭으로 표시 범위를 좁힐 수 있습니다. 각 타일은 해당 이름의 모듈을 엽니다. 사이드바에서도 같은 경로를 이용할 수 있으며, Home을 선택하면 개요로 돌아옵니다.",
+          "narration": "Home이 시작점입니다. 각 행을 왼쪽에서 오른쪽으로 읽으세요: Core, Data, Tools, Organism. 각 타일은 해당 이름의 모듈을 엽니다. 사이드바도 같은 경로를 제공하며 Home은 이 전체 화면으로 돌아옵니다.",
           "hold_after": 0.7
         },
         {
@@ -601,6 +601,17 @@
           ]
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings는 객체의 잘라낸 이미지를 수치 특징으로 인코딩해 탐색하고 비교할 수 있게 합니다.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare는 저장된 실행 결과를 모아 차이를 살펴봅니다.",
           "hold_after": 0.7,
@@ -612,6 +623,17 @@
           ]
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design은 실험 전에 조건, 플레이트의 웰, 시료 식별 정보를 설정합니다.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design은 비교를 계획할 때 표본 크기와 통계적 검정력에 관한 가정을 살펴봅니다.",
           "hold_after": 0.7,
@@ -620,6 +642,28 @@
           ],
           "related_lessons": [
             "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response는 여러 농도에서의 반응을 피팅하며 선택한 평가지표와 대조군을 명확하게 유지합니다.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC는 프로젝트에 저장된 품질 보고서를 나열하고 누락된 보고서를 표시합니다.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
           ]
         },
         {
@@ -653,6 +697,17 @@
           ],
           "related_lessons": [
             "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor는 실제 데이터 열에 선택 조건을 정의합니다. 선택을 라벨로 바꾸기 전에 선택된 객체를 확인하세요.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
           ]
         },
         {
@@ -796,7 +851,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "Modules 탭의 Session은 spaCR이 시작할 때 마지막 모듈, 설정, 폴더를 다시 열지 정합니다. 이 녹화는 새로 시작합니다. Update channel은 안정 릴리스와 야간 빌드 중에서 고르며, Proxy와 Certificate bundle을 쓰면 기관 프록시 뒤에서도 다운로드가 됩니다.",
+          "narration": "Modules 탭의 Session은 spaCR가 시작될 때 마지막 모듈, 설정, 폴더를 다시 열지 결정합니다. Update channel은 안정 릴리스와 야간 빌드 중에서 고르며, Proxy와 Certificate bundle을 쓰면 기관 프록시 뒤에서도 다운로드가 됩니다.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -826,6 +881,11 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "Spaceout 모드의 Preferences에는 8개의 독립적인 효과를 위한 spaCR 필드 컨트롤이 있습니다. 각 효과를 개별적으로 켜거나 끄세요. 일반적인 모양 설정과 설정 창 애니메이션 컨트롤도 계속 사용할 수 있습니다. Apply는 변경 사항을 미리 보여 주고, Keep은 이를 적용하며, Revert는 이전 선택으로 되돌립니다.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {

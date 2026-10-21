@@ -509,9 +509,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Skoðaðu Home-yfirlitið og flokkaflipana, kynntu þér síðan sameiginlegar stjórnir eininga með Mask og stilltu leiðsögn, hjálp og útlit.",
+      "description": "Farðu yfir allar einingar Home frá vinstri til hægri, lærðu sameiginlegar stýringar eininganna með Mask og stilltu leiðsögn, hjálp og útlit.",
       "objectives": [
-        "Finndu einingar með flipunum Home, Core, Data, Tools og Organism.",
+        "Þekkja hverja einingu í röðunum Core, Data, Tools og Organism.",
         "Nota Mask til að þekkja sameiginlegar stillingar, forskoðanir, aðgerðir og niðurstöður.",
         "Fara aftur á Home, nota leit og raða spjöldum.",
         "Velja stillingar fyrir útlit og afköst."
@@ -520,7 +520,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er upphafspunkturinn. Yfirlitið flokkar einingar undir Core, Data, Tools og Organism. Flokkafliparnir þrengja sýnina. Hver reitur opnar eininguna sem hann er nefndur eftir. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
+          "narration": "Home er upphafspunkturinn. Lestu hverja röð frá vinstri til hægri: Core, Data, Tools og Organism. Hver reitur opnar eininguna sem hann er nefndur eftir. Hliðarstikan býður sömu leiðir og Home fer aftur í þetta yfirlit.",
           "hold_after": 0.7
         },
         {
@@ -601,6 +601,17 @@
           ]
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings kóðar útskorin myndsvæði af hlutum sem tölulega eiginleika til könnunar og samanburðar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare safnar vistuðum niðurstöðum keyrslna svo þú getir skoðað muninn.",
           "hold_after": 0.7,
@@ -612,6 +623,17 @@
           ]
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design skilgreinir skilyrði, holur á plötu og auðkenni sýna fyrir tilraun.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design skoðar forsendur um úrtaksstærð og tölfræðilegt afl við skipulagningu samanburðar.",
           "hold_after": 0.7,
@@ -620,6 +642,28 @@
           ],
           "related_lessons": [
             "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response aðlagar líkan að svörun við mismunandi styrk og heldur völdum endapunkti og viðmiðum skýrum.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC listar vistaðar gæðaskýrslur verkefnis og merkir þær sem vantar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
           ]
         },
         {
@@ -653,6 +697,17 @@
           ],
           "related_lessons": [
             "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor skilgreinir valskilyrði fyrir raunverulega gagnadálka. Skoðaðu valda hluti áður en þú breytir vali í merkingar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
           ]
         },
         {
@@ -796,7 +851,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "Á flipanum Modules ræður Session hvort spaCR opni aftur síðustu einingu, stillingar og möppu við ræsingu; þessi upptaka byrjar upp á nýtt. Update channel velur stöðugar útgáfur eða næturútgáfur, og Proxy og Certificate bundle láta niðurhal virka á bak við stofnanaproxy.",
+          "narration": "Á flipanum Modules ræður Session hvort spaCR opnar síðustu einingu, stillingar og möppu aftur við ræsingu. Update channel velur stöðugar útgáfur eða næturútgáfur, og Proxy og Certificate bundle láta niðurhal virka á bak við stofnanaproxy.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -826,6 +881,11 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "Í Spaceout-ham býður Preferences spaCR-sviðsstýringar fyrir átta óháð áhrif. Kveiktu eða slökktu á hverjum áhrifavalkosti fyrir sig. Venjulegar stýringar fyrir útlit og hreyfingar í stillingaglugganum eru áfram tiltækar; Apply forskoðar breytingu, Keep samþykkir hana og Revert endurheimtir fyrra val.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {

@@ -573,9 +573,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Esplora la panoramica di Home e le schede delle categorie, poi impara i controlli comuni dei moduli usando Mask e regola navigazione, guida e aspetto.",
+      "description": "Esplora tutti i moduli di Home da sinistra a destra, poi impara i controlli comuni ai moduli usando Mask e regola navigazione, aiuto e aspetto.",
       "objectives": [
-        "Trova i moduli tramite le schede Home, Core, Data, Tools e Organism.",
+        "Identificare ogni modulo nelle righe Core, Data, Tools e Organism.",
         "Usare Mask per riconoscere impostazioni, anteprime, azioni e risultati condivisi.",
         "Tornare a Home, usare la ricerca e disporre i pannelli.",
         "Scegliere le impostazioni di aspetto e prestazioni."
@@ -584,9 +584,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home è il punto di partenza. La panoramica raggruppa i moduli in Core, Data, Tools e Organism. Le schede delle categorie restringono la vista. Ogni riquadro apre il modulo di cui porta il nome. La barra laterale offre gli stessi percorsi e Home riporta alla panoramica.",
+          "narration": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data, Tools e Organism. Ogni riquadro apre il modulo di cui porta il nome. La barra laterale offre gli stessi accessi e Home riporta a questa panoramica.",
           "hold_after": 0.7,
-          "speech_text": "Home è il punto di partenza. La panoramica raggruppa i moduli in Core, Data, Tools e Organism. Le schede delle categorie restringono la vista. Ogni riquadro apre il modulo di cui porta il nome. La barra laterale offre gli stessi percorsi e Home riporta alla panoramica."
+          "speech_text": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data, Tools e Organism. Ogni riquadro apre il modulo di cui porta il nome. La barra laterale offre gli stessi accessi e Home riporta a questa panoramica."
         },
         {
           "visual": "home_module_mask",
@@ -673,6 +673,18 @@
           "speech_text": "Import prepara i file di microscopia e i metadati in ingresso per la struttura del progetto."
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings codifica i ritagli degli oggetti in caratteristiche numeriche per esplorarli e confrontarli.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ],
+          "speech_text": "Embeddings codifica i ritagli degli oggetti in caratteristiche numeriche per esplorarli e confrontarli."
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare riunisce i risultati salvati di più esecuzioni per esaminarne le differenze.",
           "hold_after": 0.7,
@@ -685,6 +697,18 @@
           "speech_text": "Run Compare riunisce i risultati salvati di più esecuzioni per esaminarne le differenze."
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design definisce condizioni, pozzetti e identità dei campioni prima di un esperimento.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ],
+          "speech_text": "Experiment Design definisce condizioni, pozzetti e identità dei campioni prima di un esperimento."
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design esplora le ipotesi sulla dimensione del campione e sulla potenza quando si pianificano confronti.",
           "hold_after": 0.7,
@@ -695,6 +719,30 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design esplora le ipotesi sulla dimensione del campione e sulla potenza quando si pianificano confronti."
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response esegue il fit delle risposte alle diverse concentrazioni, mantenendo espliciti la misura di risposta scelta e i controlli.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ],
+          "speech_text": "Dose Response esegue il fit delle risposte alle diverse concentrazioni, mantenendo espliciti la misura di risposta scelta e i controlli."
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC elenca i rapporti di qualità salvati di un progetto e segnala quelli mancanti.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
+          ],
+          "speech_text": "QC elenca i rapporti di qualità salvati di un progetto e segnala quelli mancanti."
         },
         {
           "visual": "home_module_make_masks",
@@ -731,6 +779,18 @@
             "15_image_umap"
           ],
           "speech_text": "Image iu map proietta le caratteristiche degli oggetti per esplorare oggetti simili e controllare ritagli rappresentativi."
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor definisce selezioni su colonne di dati reali. Esamina gli oggetti selezionati prima di trasformare una selezione in etichette.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "gheit èditor definisce selezioni su colonne di dati reali. Esamina gli oggetti selezionati prima di trasformare una selezione in etichette."
         },
         {
           "visual": "home_module_graph_builder",
@@ -890,7 +950,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "Nella scheda Modules, Session decide se spaCR riapre all’avvio l’ultimo modulo, le impostazioni e la cartella; questa registrazione parte da zero. Update channel sceglie versioni stabili o build notturne, e Proxy e Certificate bundle permettono i download dietro un proxy istituzionale.",
+          "narration": "Nella scheda Modules, Session decide se spaCR riapre l’ultimo modulo, le impostazioni e la cartella all’avvio. Update channel sceglie versioni stabili o build notturne, e Proxy e Certificate bundle permettono i download dietro un proxy istituzionale.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -898,7 +958,7 @@
             1200,
             397
           ],
-          "speech_text": "Nella scheda Modules, Session decide se spàker riapre all’avvio l’ultimo modulo, le impostazioni e la cartella; questa registrazione parte da zero. Update channel sceglie versioni stabili o build notturne, e Proxy e Certificate bundle permettono i download dietro un proxy istituzionale."
+          "speech_text": "Nella scheda Modules, Session decide se spàker riapre l’ultimo modulo, le impostazioni e la cartella all’avvio. Update channel sceglie versioni stabili o build notturne, e Proxy e Certificate bundle permettono i download dietro un proxy istituzionale."
         },
         {
           "visual": "13f_storage",
@@ -923,6 +983,12 @@
             1500
           ],
           "speech_text": "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla."
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "In modalità Spaceout, Preferences offre controlli del campo spaCR per otto effetti indipendenti. Attiva o disattiva ciascun effetto separatamente. I normali controlli di aspetto e animazione delle finestre restano disponibili; Apply mostra l’anteprima di una modifica, Keep la accetta e Revert ripristina la scelta precedente.",
+          "hold_after": 0.7,
+          "speech_text": "In modalità Spaceout, Preferences offre controlli del campo spàker per otto effetti indipendenti. Attiva o disattiva ciascun effetto separatamente. I normali controlli di aspetto e animazione delle finestre restano disponibili; Apply mostra l’anteprima di una modifica, Keep la accetta e Revert ripristina la scelta precedente."
         }
       ],
       "narration_voices": {

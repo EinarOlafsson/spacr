@@ -573,9 +573,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Explorez la vue d’ensemble de Home et les onglets de catégories, puis découvrez les commandes communes aux modules avec Mask et ajustez la navigation, l’aide et l’apparence.",
+      "description": "Parcourez tous les modules de Home de gauche à droite, découvrez les contrôles communs aux modules avec Mask, puis réglez la navigation, l’aide et l’apparence.",
       "objectives": [
-        "Trouvez les modules à l’aide des onglets Home, Core, Data, Tools et Organism.",
+        "Identifier chaque module dans les rangées Core, Data, Tools et Organism.",
         "Utiliser Mask pour reconnaître les réglages, aperçus, actions et résultats communs.",
         "Revenir à Home, utiliser la recherche et organiser les panneaux.",
         "Choisir les réglages d’apparence et de performances."
@@ -584,9 +584,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home est le point de départ. Sa vue d’ensemble regroupe les modules sous Core, Data, Tools et Organism. Les onglets de catégories limitent la vue. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès et Home ramène à la vue d’ensemble.",
+          "narration": "Home est le point de départ. Lisez chaque rangée de gauche à droite : Core, Data, Tools et Organism. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès, et Home ramène à cette vue d’ensemble.",
           "hold_after": 0.7,
-          "speech_text": "Home est le point de départ. Sa vue d’ensemble regroupe les modules sous Core, Data, Tools et Organism. Les onglets de catégories limitent la vue. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès et Home ramène à la vue d’ensemble."
+          "speech_text": "Home est le point de départ. Lisez chaque rangée de gauche à droite : Core, Data, Tools et Organism. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès, et Home ramène à cette vue d’ensemble."
         },
         {
           "visual": "home_module_mask",
@@ -673,6 +673,18 @@
           "speech_text": "Import prépare les fichiers de microscopie et leurs métadonnées pour la structure du projet."
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings encode les recadrages d’objets en caractéristiques numériques pour les explorer et les comparer.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ],
+          "speech_text": "Embeddings encode les recadrages d’objets en caractéristiques numériques pour les explorer et les comparer."
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare rassemble les résultats de traitements enregistrés afin d’en examiner les différences.",
           "hold_after": 0.7,
@@ -685,6 +697,18 @@
           "speech_text": "Run Compare rassemble les résultats de traitements enregistrés afin d’en examiner les différences."
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design définit les conditions, les puits et les identités des échantillons avant une expérience.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ],
+          "speech_text": "Experiment Design définit les conditions, les puits et les identités des échantillons avant une expérience."
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design explore les hypothèses de taille d’échantillon et de puissance pour planifier les comparaisons.",
           "hold_after": 0.7,
@@ -695,6 +719,30 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design explore les hypothèses de taille d’échantillon et de puissance pour planifier les comparaisons."
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response ajuste les réponses aux différentes concentrations, en gardant explicites la mesure de réponse choisie et les témoins.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ],
+          "speech_text": "Dose Response ajuste les réponses aux différentes concentrations, en gardant explicites la mesure de réponse choisie et les témoins."
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC répertorie les rapports de qualité enregistrés d’un projet et signale ceux qui manquent.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
+          ],
+          "speech_text": "QC répertorie les rapports de qualité enregistrés d’un projet et signale ceux qui manquent."
         },
         {
           "visual": "home_module_make_masks",
@@ -731,6 +779,18 @@
             "15_image_umap"
           ],
           "speech_text": "Image you map projette les caractéristiques d’objets pour explorer les objets similaires et inspecter des recadrages représentatifs."
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor définit des sélections dans les colonnes de données réelles. Examinez les objets sélectionnés avant de convertir une sélection en étiquettes.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "guéïte éditeur définit des sélections dans les colonnes de données réelles. Examinez les objets sélectionnés avant de convertir une sélection en étiquettes."
         },
         {
           "visual": "home_module_graph_builder",
@@ -890,7 +950,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "Dans l’onglet Modules, Session décide si spaCR rouvre au démarrage le dernier module, les réglages et le dossier ; cet enregistrement démarre à neuf. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel.",
+          "narration": "Dans l’onglet Modules, Session détermine si spaCR rouvre le dernier module, les paramètres et le dossier au démarrage. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -898,7 +958,7 @@
             1200,
             397
           ],
-          "speech_text": "Dans l’onglet Modules, Session décide si spakeur rouvre au démarrage le dernier module, les réglages et le dossier ; cet enregistrement démarre à neuf. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel."
+          "speech_text": "Dans l’onglet Modules, Session détermine si spakeur rouvre le dernier module, les paramètres et le dossier au démarrage. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel."
         },
         {
           "visual": "13f_storage",
@@ -923,6 +983,12 @@
             1500
           ],
           "speech_text": "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé."
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "En mode Spaceout, Preferences propose des contrôles du champ spaCR pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les contrôles habituels d’apparence et d’animation des fenêtres restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent.",
+          "hold_after": 0.7,
+          "speech_text": "En mode Spaceout, Preferences propose des contrôles du champ spakeur pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les contrôles habituels d’apparence et d’animation des fenêtres restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent."
         }
       ],
       "narration_voices": {
