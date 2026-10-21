@@ -883,7 +883,8 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # returns 664. Moved with the workflow in one commit.
     # 664 -> 662 on 2026-10-15: the setup screen's provider marks and
     # install-and-sign-in panel left the package, the same -2 as `shipped`.
-    assert "--expected-file-count 662" in combine_script
+    # Item 127 retired regression_search.py on 2026-10-19; discovery proves 661.
+    assert "--expected-file-count 661" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
