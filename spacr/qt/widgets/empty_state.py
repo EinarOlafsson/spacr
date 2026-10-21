@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..theme import SPACING
+from ..gui_scale import _set_actual_dim
 
 
 class _WrappedLabel(QLabel):
@@ -45,14 +46,17 @@ class _WrappedLabel(QLabel):
         self._wrap_width = wrap_width
         self.setWordWrap(True)
         self.setAlignment(Qt.AlignCenter)
-        self.setFixedSize(wrap_width, self._wrapped_height())
+        self.setFixedWidth(wrap_width)
+        height = self._wrapped_height()
+        _set_actual_dim(self, "minh", height)
+        _set_actual_dim(self, "maxh", height)
 
     def _wrapped_height(self) -> int:
         """Compute label height needed to render the wrapped text."""
         from PySide6.QtCore import QRect
         fm = self.fontMetrics()
         rect = fm.boundingRect(
-            QRect(0, 0, self._wrap_width, 10_000),
+            QRect(0, 0, max(1, self.contentsRect().width()), 10_000),
             Qt.TextWordWrap,
             self.text(),
         )
@@ -61,7 +65,9 @@ class _WrappedLabel(QLabel):
     def setText(self, text: str) -> None:
         """Replace the label text and re-fix the label to its wrapped height."""
         super().setText(text)
-        self.setFixedSize(self._wrap_width, self._wrapped_height())
+        height = self._wrapped_height()
+        _set_actual_dim(self, "minh", height)
+        _set_actual_dim(self, "maxh", height)
 
     def event(self, event: QEvent) -> bool:
         """Remeasure after Qt applies the font or style used to paint the text.
@@ -72,11 +78,12 @@ class _WrappedLabel(QLabel):
         handled = super().event(event)
         if hasattr(self, "_wrap_width") and event.type() in (
             QEvent.FontChange, QEvent.ApplicationFontChange,
-            QEvent.StyleChange, QEvent.Polish,
+            QEvent.StyleChange, QEvent.Polish, QEvent.Resize,
         ):
-            size = QSize(self._wrap_width, self._wrapped_height())
-            if size != self.size():
-                self.setFixedSize(size)
+            height = self._wrapped_height()
+            if height != self.height():
+                _set_actual_dim(self, "minh", height)
+                _set_actual_dim(self, "maxh", height)
         return handled
 
 

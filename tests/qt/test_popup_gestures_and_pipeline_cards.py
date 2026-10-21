@@ -72,6 +72,8 @@ def test_sloped_edges_meet_arrow_base_at_center_without_entering_head(qtbot):
 
 
 def test_pipeline_keeps_all_cards_and_selection_changes_only_border(qtbot):
+    from spacr.qt.gui_scale import _actual_sizes
+
     dialog = SampleProjectDialog()
     qtbot.addWidget(dialog)
     dialog.show()
@@ -93,7 +95,7 @@ def test_pipeline_keeps_all_cards_and_selection_changes_only_border(qtbot):
     assert panel.verticalScrollBar().value() == scroll
     assert positions == {key: card.geometry() for key, card in panel.cards.items()}
     assert panel.width() == dialog.list.width()
-    sizes = dialog.splitter.sizes()
+    sizes = _actual_sizes(dialog.splitter)
     dialog.splitter.moveSplitter(sizes[0] - 80, 1)
     assert dialog.details.height() > sizes[1]
     for key in graph.keys:
