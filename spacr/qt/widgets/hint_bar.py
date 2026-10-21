@@ -22,7 +22,7 @@ from __future__ import annotations
 import math
 from typing import Dict, Optional
 from .. import _after
-from ..gui_scale import _set_actual_dim
+from ..gui_scale import _factor_for, _set_actual_dim, installed as _scaling_installed
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import (
@@ -373,8 +373,10 @@ class HintBar(QLabel):
             if view.font() != self.font():
                 view.setFont(self.font())
             pixels = self.fontInfo().pixelSize()
+            if _scaling_installed():
+                pixels /= _factor_for(view)
             sheet = ("background: transparent; border: none; padding: 0px; "
-                     "margin: 0px;" f"font-size: {pixels}px;")
+                     "margin: 0px;" f"font-size: {pixels:g}px;")
             if view.styleSheet() != sheet:
                 view.setStyleSheet(sheet)
 

@@ -316,6 +316,7 @@ def test_measured_help_heights_fit_and_persist_at_nondefault_zoom(
             bar.setText("First line.\nSecond line.\nThird line.\nFourth line.")
             QApplication.processEvents()
             assert bar.height() == bar._minimum_help_height()
+            assert view.fontInfo().pixelSize() == bar.fontInfo().pixelSize()
             assert view.verticalScrollBar().maximum() == 0
 
             original_font = bar.font()
@@ -324,6 +325,7 @@ def test_measured_help_heights_fit_and_persist_at_nondefault_zoom(
             bar.setFont(larger)
             QApplication.processEvents()
             assert bar.height() == bar._minimum_help_height()
+            assert view.fontInfo().pixelSize() == bar.fontInfo().pixelSize()
             assert view.verticalScrollBar().maximum() == 0
             bar.setFont(original_font)
             QApplication.processEvents()
