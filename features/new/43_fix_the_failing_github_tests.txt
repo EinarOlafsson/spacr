@@ -1,9 +1,9 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
-Status:    OPEN 2026-10-20 — latest source repairs are published; full older-source
-           run39521220327 covers661 modules above90%, with28 historical ratchet
-           regressions. Root and release_ci_takeover own disjoint missing paths,
-           preserving assertions and ceilings; corrected-source hosted green remains.
+Status:    OPEN 2026-10-21 — corrected-source run39561748445 completes all12
+           coverage shards above90%; its aggregate leaves make_masks.py with29
+           uncovered branches against the unchanged28 ceiling. release_ci_takeover
+           owns the focused behavior test; root owns integration and hosted acceptance.
 
 Previous status (superseded 2026-10-20):    OPEN 2026-10-08 — fresh protected53ab run37807749125 has a
            real guide Chrome60s timeout;21jobs currentlyPASS,5active.
@@ -4190,3 +4190,5 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 2026-10-21 — Actual minimum-dependency job119038617381 exposes7 docs-cleanup fixtures assuming httpx and a real distribution test bypassing pyproject setuptools>=77 under the intentional global70.3.0 profile. Root/release pair owns protocol-compatible real Hub error fixtures and isolated declared-backend build acceptance; preserve minimum runtime dependencies, SPDX licensing, every original publication/catalog/license/source-byte assertion and existing timeouts. No assertion/skip/ceiling relaxation. All7 cleanup cases pass on the current Hub and actual0.26 (0.80/0.74s); the three-artifact PEP517 acceptance passes18.53s with global setuptools69.5.1 retained and the declared backend isolated. Independent peer accepts both exact diffs.
 
 2026-10-21 — Correct the build-floor explanation to match the observed older-setuptools license rejection; retain setuptools>=77, PEP639/PEP621 rationale and every parsed TOML value. This is configuration-comment accuracy only, with no backend/runtime requirement or metadata change.
+
+2026-10-21 — release_ci_takeover repairs coverage aggregate119137756141/run39561748445 with a real queued-mask-write timeout test: a timed-out reader does not cancel or complete its save, unrelated paths proceed, and release produces the exact TIFF. All7 owning cases pass27.34s; focused branch coverage executes both previously missing edges6185→6169 and6219→6220, which covers2 of the hosted29 gaps against the unchanged28 ceiling. Product code and existing assertions remain unchanged; independent peer accepts the test. Root owns integration and corrected-source hosted acceptance; N112 output review stays with the same pair.
