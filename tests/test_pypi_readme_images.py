@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def metadata(monkeypatch):
+    monkeypatch.delenv("SPACR_PYPI_README_REF", raising=False)
     captured = {}
     monkeypatch.chdir(ROOT)
     monkeypatch.setattr("setuptools.setup", lambda **kwargs: captured.update(kwargs))
@@ -156,3 +157,36 @@ def test_conversion_preserves_escaped_tile_labels_and_destinations(metadata):
     assert 'image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/icons/sample.png' in converted
     assert ':width: 16.5%' in converted
     assert convert(converted) == converted
+
+
+@pytest.mark.parametrize("reference", ["", "main", "nightly", "../main", "A" * 40, "a" * 39])
+def test_release_description_rejects_non_commit_references(metadata, monkeypatch, reference):
+    _, convert = metadata
+    monkeypatch.setenv("SPACR_PYPI_README_REF", reference)
+    with pytest.raises(ValueError, match="full lowercase commit SHA"):
+        convert(".. image:: docs/example.svg\n")
+
+
+def test_release_description_pins_repository_images_and_pages(metadata, monkeypatch):
+    _, convert = metadata
+    reference = "0123456789abcdef" * 2 + "01234567"
+    monkeypatch.setenv("SPACR_PYPI_README_REF", reference)
+    source = """.. image:: docs/example.svg
+   :target: docs/readme_text/en/example.md
+
+.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/docs/banner.svg
+   :target: https://github.com/EinarOlafsson/spacr/blob/main/docs/i18n/readme/README.fr.rst
+
+`Guide <docs/guide.rst#example>`_ `Remote <https://example.org/main/page>`_
+.. image:: https://example.org/image.svg
+"""
+    result = convert(source)
+    assert f"spacr/{reference}/docs/example.svg" in result
+    assert f"spacr/blob/{reference}/docs/readme_text/en/example.md" in result
+    assert f"spacr/{reference}/docs/banner.svg" in result
+    assert f"spacr/blob/{reference}/docs/i18n/readme/README.fr.rst" in result
+    assert f"spacr/blob/{reference}/docs/guide.rst#example" in result
+    assert "https://example.org/main/page" in result
+    assert "https://example.org/image.svg" in result
+    assert "/main/" not in result.replace("https://example.org/main/page", "")
+    assert convert(result) == result

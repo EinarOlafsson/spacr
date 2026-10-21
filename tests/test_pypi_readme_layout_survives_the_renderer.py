@@ -13,6 +13,9 @@ import io
 import os
 import re
 import runpy
+import tarfile
+import zipfile
+from email import message_from_string
 from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
@@ -22,6 +25,7 @@ import pytest
 pytest.importorskip("readme_renderer")
 
 ROOT = Path(__file__).resolve().parents[1]
+REFERENCE = os.environ.get("SPACR_PYPI_README_REF", "main")
 CLASSES = {"hide-below-desktop": "desktop", "hide-on-desktop": "phone"}
 VOID = ("img", "br", "hr", "col", "input")
 
@@ -39,6 +43,27 @@ def packaged():
     finally:
         setuptools.setup = original
         os.chdir(cwd)
+    artifact_dir = os.environ.get("SPACR_PYPI_DIST_DIR")
+    if artifact_dir is not None:
+        directory = Path(artifact_dir)
+        wheels = list(directory.glob("*.whl"))
+        sources = list(directory.glob("*.tar.gz"))
+        assert len(wheels) == len(sources) == 1, directory
+        with zipfile.ZipFile(wheels[0]) as wheel:
+            names = [name for name in wheel.namelist()
+                     if name.endswith(".dist-info/METADATA")]
+            assert len(names) == 1
+            wheel_metadata = message_from_string(wheel.read(names[0]).decode("utf-8"))
+        with tarfile.open(sources[0], "r:gz") as source:
+            names = [name for name in source.getnames()
+                     if name.count("/") == 1 and name.endswith("/PKG-INFO")]
+            assert len(names) == 1
+            source_metadata = message_from_string(
+                source.extractfile(names[0]).read().decode("utf-8"))
+        for metadata in (wheel_metadata, source_metadata):
+            assert metadata["Description-Content-Type"] == "text/x-rst"
+            assert metadata.get_payload() == captured["long_description"]
+        captured["long_description"] = wheel_metadata.get_payload()
     return captured, namespace
 
 
@@ -110,7 +135,7 @@ def test_every_readme_row_is_a_desktop_and_a_phone_line_block(rendered):
         assert desktop["class"] == phone["class"] == "line-block"
         for block, name, column in ((desktop, "desktop", 0), (phone, "phone", 1)):
             assert {CLASSES[image["class"]] for image in block["images"]} == {name}
-            assert [image["src"].split("/main/")[-1]
+            assert [image["src"].split(f"/{REFERENCE}/")[-1]
                     for image in block["images"]] == [item[column] for item in row]
             assert [image["alt"] for image in block["images"]] == [
                 unescape(item[2]) for item in row]
@@ -137,7 +162,7 @@ def test_a_full_width_panel_fills_the_column_in_both_layouts(rendered):
     widths = {image["class"]: image["width"]
               for block in _layout(rendered).blocks for image in block["images"]
               if image.get("class") in CLASSES
-              and image["src"].split("/main/")[-1] in (f"{panel}.svg",
+              and image["src"].split(f"/{REFERENCE}/")[-1] in (f"{panel}.svg",
                                                        f"{panel}.desktop.svg")}
     assert widths == {"hide-below-desktop": "100%", "hide-on-desktop": "100%"}
 

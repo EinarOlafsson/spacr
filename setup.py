@@ -31,6 +31,7 @@ on a missing ``cmake``. ``install_spacr_unix.sh`` applies the identical pair;
 it is declared here too so a developer install from git gets wheels as well.
 """
 import sys
+import os
 import re
 from html import unescape
 
@@ -67,11 +68,14 @@ class RuntimeCatalogSdist(_sdist):
 def pypi_readme(source):
     """Preserve the GitHub README while resolving its repository-relative URLs.
 
-    PyPI serves package metadata without the repository's files, so every
-    image and link points at the public ``main`` tree. ``main`` carries the
+    PyPI serves package metadata without the repository's files. By default,
+    repository images and links point at the public ``main`` tree, which carries the
     README's images: the image README's panels (docs/readme_images), the
     model cards and the deck are promoted there with every README update,
     and a released description should not move when ``nightly`` does.
+    Release builds set ``SPACR_PYPI_README_REF`` to the exact source commit,
+    binding repository images and readable pages to that immutable revision.
+    Other builds retain the public ``main`` fallback, without requiring Git.
     No network access or spaCR imports are needed during isolated builds.
     GitHub's aligned raw-HTML tile substitutions become ordinary RST images
     here because PyPI's renderer disables raw HTML.
@@ -90,6 +94,10 @@ def pypi_readme(source):
     built from the sdist) reuses the sdist's description, see
     :func:`long_description_for`.
     """
+    release_reference = os.environ.get("SPACR_PYPI_README_REF")
+    if release_reference is not None and re.fullmatch(r"[0-9a-f]{40}", release_reference) is None:
+        raise ValueError("SPACR_PYPI_README_REF must be a full lowercase commit SHA")
+    reference = release_reference if release_reference is not None else "main"
     names = set()
     columns = {"desktop": 830, "phone": 358}
     classes = {"desktop": "hide-below-desktop", "phone": "hide-on-desktop"}
@@ -143,10 +151,16 @@ def pypi_readme(source):
         return "\n\n".join(blocks + definitions) + "\n"
 
     def absolute(value, image=False):
+        for prefix in (
+            "https://raw.githubusercontent.com/EinarOlafsson/spacr/",
+            "https://github.com/EinarOlafsson/spacr/blob/",
+        ):
+            if value.startswith(prefix + "main/"):
+                return prefix + reference + "/" + value[len(prefix + "main/"):]
         if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", value) or value.startswith(("//", "#")):
             return value
-        base = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/main/"
-                if image else "https://github.com/EinarOlafsson/spacr/blob/main/")
+        base = (f"https://raw.githubusercontent.com/EinarOlafsson/spacr/{reference}/"
+                if image else f"https://github.com/EinarOlafsson/spacr/blob/{reference}/")
         return base + value.removeprefix("./")
 
     source = re.sub(
