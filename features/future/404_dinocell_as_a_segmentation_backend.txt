@@ -414,3 +414,4 @@ Model Zoo row, as 405 does for SAMCell, so both show only with Preferences ->
 tests/qt/test_alpha_features_gate.py and joined the alpha deck slide (61).
 Cellpose-DINO (cellpose_dino_v1, item 525) is a separate, done feature and is
 not registered.
+2026-10-21 — ON HOLD by maintainer: do not pursue the curated PV holdout, scorecard or remaining platform acceptance until the maintainer explicitly resumes DINOCell work.

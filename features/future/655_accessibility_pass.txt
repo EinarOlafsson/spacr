@@ -2,8 +2,9 @@
 ACCESSIBILITY PASS
 ================================================================================
 
-Status:    BLOCKED ON MAINTAINER — native screen-reader check only (Orca,
-           NVDA, VoiceOver; steps in the 2026-10-15 note). Code is done.
+Status:    DONE 2026-10-21 — the maintainer listened to the native macOS
+           VoiceOver result and accepted it as working perfectly. Windows and
+           Linux native-reader acceptance are outside the accepted scope.
            Not alpha.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
@@ -697,3 +698,4 @@ Existing shipped behavior and verified results remain valid; relocation is sched
 every focusable control has a QAccessible name and Tab is never trapped. The naming pass now names scroll areas and menus; no new strings.
 Remaining: the native screen-reader check above (BLOCKED ON MAINTAINER).
 2026-10-17 — Naming-pass freeze fixed (ab6c1c80e0b): names are written only when they change, arrival passes skip controls already named for the language, scroll-area fallback is bounded; tests/qt/test_655_accessibility_pass_cost.py.
+2026-10-21 — DONE at maintainer-accepted scope: the maintainer listened to native VoiceOver on macOS and reports that it works perfectly. Retain all portable, native Linux structural and automated macOS results above; Windows/Linux native-reader acceptance is on hold and does not keep this item open.
