@@ -14,6 +14,56 @@ interleaved against a detached checkout of 48006e30d ("base").
 Scratch and harnesses: /mnt/wd4tb/scratch/641/bin (startup_measure.py,
 prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
+MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
+
+The CPU/offscreen audit remains DONE at its recorded scope. This section
+makes its existing quiet real-display follow-up actionable; it does not add
+an acceptance matrix or claim the historical <500 ms module/200 ms Mask and
+Regression targets were met. Follow spacr/resources/AI/MAC_HANDOFF.md,
+preserve accepted N703/F655/N686 work and reuse N305's optional native trace
+when the tested source/artifact and profile are the same.
+
+Preconditions: record fresh origin/nightly HEAD, actual app executable/module/
+version, macOS/Intel-or-Apple-Silicon, RAM, display/DPR and current machine
+load. Use a quiet real Cocoa desktop with recording/build/install/training
+work absent; do not kill unrelated sessions to manufacture quiet. Record if
+this condition cannot be met and do not call contended/offscreen numbers
+release-grade. Chrome/graphics processes are not compute queue blockers.
+Preserve normal theme, profile, prewarm and animation settings and record them;
+never hide preloading before the timer or change behavior to improve a number.
+
+1. Use the existing tools/spacr_startup_benchmark.py native mode and current
+   --help, with its release-acceptance cold/warm protocol where applicable.
+   Start each from a fresh process, using the same isolated profile/cache
+   arrangement as the existing tool. No --offscreen/--record-only substitute.
+   Measure process-start to painted usable Home and click to painted usable
+   controls for every currently registered module, not constructor return.
+2. Keep one per-module result with actual app key, cold/first-open versus
+   warm/revisit time, worst event-loop gap and RSS. Verify the measured key
+   set matches the current live registry; 54 was a historical count, not a
+   fixed current target. Reuse the normal tool's results; do not create a
+   parallel inventory or a new benchmark suite. A mean cannot hide one slow
+   screen or an unfinished modal/blocked control.
+3. Report existing 5 s Home/10 s module/500 ms stall comparisons where the tool
+   applies them, plus the audit's still-unmet <500 ms all-module and 200 ms
+   Mask/Regression improvement targets. A first-event-loop mark, warmed
+   preconstruction or partial key set does not satisfy first-paint timing.
+   Preserve nonzero exits and actual misses; do not raise budgets or turn a
+   diagnostic run into claimed acceptance. CPU-only results say CPU-only.
+4. If an actual Mac regression appears, preserve the action and native trace/
+   traceback and profile that path with the existing diagnostic seam before
+   proposing a source change. Keep timing evidence separate from profiler
+   overhead; do not attribute a function's cost from incoherent/mixed-thread
+   samples. Source fixes and affected retests need coordinated ownership,
+   not a second producer for Home's current Qt-worker or CI fixes.
+
+Record source/runtime/hardware/load/profile, trace scope/key count, Home and
+slowest per-module cold/warm results, worst stall/RSS and any unmeasured or
+failed condition in this item. Keep detailed normal tool output where the
+existing tool already writes it; no new receipt bundle. This follow-up does
+not rescind the accepted CPU audit, prove every machine/GPU path or add
+pipeline/model-quality work beyond the item's existing scope.
+
 1. STARTUP
                                              before        after
   import spacr (-X importtime, cumulative)   5 ms          5 ms
@@ -441,3 +491,6 @@ Incoming F580 adds only excluded private API prose; actual published visibility
 proof and unchanged normal public inputs justify reusing the English audit.
 An unnecessary queued audit was stopped before Python launched, with actual
 wrapper/flock termination preserved; it is not reported as a passing audit.
+
+2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
+No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.

@@ -12,9 +12,19 @@ The maintainer has started this session to complete current Mac-related work. Re
 
 Detailed acceptance steps belong in these existing item files under `features/new/`: 703_updates_replace_old_application_versions_and_keep_user_data.txt; 646_clean_uninstall_purge.txt; 673_make_masks_3d_editable_anchors_and_surfaces.txt; 696_magnification_default_diameter_and_auto_diameter.txt; 697_each_disconnected_brush_stroke_is_a_new_object.txt; 707_make_masks_titled_button_groups_and_collapsible_bars.txt; 444_sound_on_wedges_the_preferences_dialog.txt; 686_a_free_project_website_with_rich_effects.txt.
 
+## Other existing Mac follow-ups
+
+These are the previously recorded Mac obligations, not a new broad acceptance matrix. Read each item's new Mac section for prerequisites, exact workflow and minimal result reporting. Preserve accepted N703, F655 and N686 scope.
+
+- [305 — installed wheel/sdist and native trace follow-up](../../../features/new/305_the_installed_package_loads_and_runs_optimally.txt): optional follow-up only; the maintainer-accepted DONE decision stands. Identify the actual frozen artifacts and installed module paths; reuse its native trace with 641 when compatible.
+- [420 — real provider install and authentication](../../../features/new/420_the_setup_screen_installs_the_ai_provider_it_offers.txt): test the offered Mac installer, embedded sign-in/browser return and READY state. Accounts, credentials, network and permissions are genuine prerequisites; do not infer vendor authentication from local stand-ins.
+- [F423 — real isolated segmenter install](../../../features/future/423_third_party_segmenters_in_the_model_zoo.txt): preserve alpha gating and accepted Linux work; verify install and a small actual adapter inference on supported Mac backends without changing spaCR's environment. Ordinary tutorials remain excluded.
+- [429 — real external-volume confirmation](../../../features/new/429_a_stack_file_spacr_wrote_is_one_it_can_read.txt): existing code/docs are complete; check actual metadata sidecars on a real external filesystem. Distinguish an independent Mac check from the reporter's confirmation.
+- [641 — native per-module timing](../../../features/new/641_performance_audit_2026_10_04.txt): CPU audit acceptance stands. Reuse existing tools on a quiet real display, report actual registry keys and cold/warm first-paint timings, and retain unmet targets honestly.
+
 ## Current Home work to preserve
 
-Home owns general GitHub CI (43), documentation correctness (112), the measured README checkout-size correction, and the shared thumbnail-worker close/park fix. The thumbnail fix has nine passing tests and reviewed translations; normal API/Help publication is underway. Fetch its completed publication rather than implementing it twice. Mac-specific failures discovered during native testing belong to this Mac session; record ownership before editing overlapping files.
+Home owns general GitHub CI (43), documentation correctness (112), the measured README checkout-size correction, and the shared thumbnail-worker close/park fix. The thumbnail fix and its normal API/Help translations are published on nightly, with nine passing lifecycle tests and fourteen API/Help checks. Fetch that completed publication rather than implementing it twice. Mac-specific failures discovered during native testing belong to this Mac session; record ownership before editing overlapping files.
 
 The latest published version is 1.5.1.5; 1.5.1.6 is not published yet. Distinguish an explicitly identified nightly/candidate test from an actual published-version upgrade. A successful no-op on an already-current version does not establish an actual upgrade, but 703's newer-candidate rerun was explicitly waived; do not create a new acceptance gate. Item 708 has only its existing Work-owned tutorial follow-up and is not reopened by this handoff. Home is completing corrected-source CI before release preparation.
 

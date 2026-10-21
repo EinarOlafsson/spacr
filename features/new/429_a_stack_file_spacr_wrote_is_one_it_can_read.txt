@@ -31,6 +31,54 @@ Owner:     Home. Files: spacr/io.py, spacr/object.py, spacr/core.py,
            spacr/illumination.py, and after review spacr/pipeline_v2.py,
            spacr/_v1_v2_bridge.py, spacr/validate.py.
 
+MAC SESSION: REAL EXTERNAL-VOLUME CONFIRMATION ONLY
+
+Implementation and consolidated API/translation work are already complete.
+The remaining obligation is the reporter's real macOS external-volume
+confirmation; an independent Mac reproduction must be labelled as such, not
+attributed to jak18015. Follow spacr/resources/AI/MAC_HANDOFF.md and preserve
+accepted N703/F655/N686 scope. Do not enable allow_pickle or reopen the reader
+fix merely because an AppleDouble file ends in .npy/.npz.
+
+Preconditions: identify fresh origin/nightly HEAD, actual running app/module/
+version, macOS/hardware, external-volume path and filesystem/mount type. Use a
+small COPY of a known valid plate under a disposable test directory on a real
+writable exFAT/FAT/SMB or equivalent volume that actually creates AppleDouble
+sidecars. Do not reformat a disk, modify the reporter's originals or substitute
+an internal APFS folder and call it the reported case. If the reporter's
+volume/input or comparable external hardware is unavailable, state precisely
+which part is missing; a simulated sidecar remains automated evidence only.
+
+1. Copy representative TIFFs normally using macOS, retaining their ordinary
+   metadata. Inspect the directory for actual ._ companions; record whether
+   the filesystem produced them. Keep image names and intended field count
+   independently known. Do not read sidecars as NumPy files or delete them to
+   make the test pass; verify the readers ignore them as designed.
+2. Through the usual Mask path run the smallest already-supported example
+   with available model resources. Check ingest/test-mode counts, stack/,
+   masks/, per-object mask stacks and merged/ contain/consume only visible
+   real fields, not ._ files or hidden atomic temporaries. There must be no
+   pickle/object-array error caused by a sidecar and no phantom extra field.
+3. Open the generated numeric .npy/.npz outputs with the normal application
+   readers and allow_pickle=False, then run the existing small Measure/QC
+   path. Verify real field IDs/counts, usable mask labels and provenance;
+   successful Mask alone must not hide a later Measure sidecar failure.
+4. Repeat/resume the completed test folder and inspect the normal status.
+   Existing valid fields must not be confused with sidecars/partials. For a
+   converted-input rerun follow its documented separate-raw-folder guidance;
+   the expected preflight refusal must preserve prior outputs/rename mapping,
+   not silently renumber wells or erase provenance. Do not interrupt writes
+   or invent new corruption/rollback tests for this physical-volume check.
+
+Pass requires the real-volume workflow to ignore actual metadata sidecars,
+read its own numeric outputs without unpickling, preserve correct field IDs
+and finish the tested Mask/Measure steps. Record source/runtime, real mount/
+filesystem, whether sidecars actually occurred, input/output field counts,
+workflow result and any exact failing file/action. Keep reporter confirmation
+separate from an independent Mac check. Missing hardware/model/input is a
+factual prerequisite, not evidence of failure or proof that the reporter's
+case is fixed. No new docs audit, code inventory or full-suite run is needed.
+
 WHAT THE FILE WAS
 -----------------
 
@@ -410,3 +458,6 @@ A real macOS external-volume run remains outside this Linux host's validation.
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
 
 2026-10-19 — Docs-lane translation pass done: convert_separate_files_to_yokogawa, spacr.resume, completed_fields_in_merged and process_mask_file_adjust_cell have reviewed records for every unreviewed block (de 36, es 38, fr 36, hi 36, is 28, ko 32, pt 37, sv 36, zh_CN 27; 2026-10-19-429-stack-resume-mask-adjust.json, AI review, no native-speaker signoff); catalogs/Help regenerated. Remaining: only the reporter's macOS external-volume confirmation.
+
+2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
+No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.
