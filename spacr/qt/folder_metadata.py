@@ -299,9 +299,21 @@ def assign_missing_fields(
     well_idx = 0
     field_idx = 1
     for i, src in enumerate(files):
-        well = "A01" if have_well else _well_from_index(well_idx)
-        fld = 1 if have_field else field_idx
-        chan = 1 if not have_channel else 1
+        path = Path(src)
+        identifiers = {}
+        for token in reversed(path.parts[:-1]):
+            axis = _classify(token)
+            if axis is not None and axis not in identifiers:
+                identifiers[axis] = token
+        well = (identifiers.get("well", "A01").upper() if have_well
+                else _well_from_index(well_idx))
+        fld = (int(_FIELD_RX.fullmatch(identifiers["field"]).group(1))
+               if have_field and "field" in identifiers
+               else 1 if have_field else field_idx)
+        channel = _CHANNEL_RX.fullmatch(path.stem) if have_channel else None
+        if have_channel and channel is None and "channel" in identifiers:
+            channel = _CHANNEL_RX.fullmatch(identifiers["channel"])
+        chan = int(channel.group(1)) if channel is not None else 1
         canonical = f"{plate}_{well}_F{fld:03d}_C{chan:02d}.tif"
         mappings.append(NameMapping(
             original_path=str(src),
