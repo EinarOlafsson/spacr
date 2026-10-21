@@ -1008,6 +1008,48 @@ def audit_installer_publication(root: Path, releases, *, site_html=None) -> list
     return errors
 
 
+def audit_installer_sources(root: Path, releases, *, site_html=None) -> list[str]:
+    """Check prepared source links separately from already published downloads.
+
+    A newer candidate must advertise its own exact canonical installer URLs.
+    Its archive and the public site still describe actual published assets.
+    Candidates at or below the published version use the strict publication
+    audit, so a historical or stale checkout cannot masquerade as preparation.
+    """
+    candidate = read_version(root / "setup.py")
+    published, _assets = published_installer_version(releases)
+    if Version(candidate) <= Version(published):
+        return audit_installer_publication(root, releases, site_html=site_html)
+
+    from html import unescape
+
+    def links(text):
+        return {match.group(0) for _label, suffix in PLATFORMS
+                for match in _installer_url_pattern(suffix).finditer(unescape(text))}
+
+    expected = links(_readme_links(candidate, "main"))
+    readme = root / "README.rst"
+    errors = []
+    for path in (readme, *_localized_readmes(readme, None)):
+        text = path.read_text(encoding="utf-8")
+        try:
+            _updated_readme_text(path, candidate)
+        except ValueError as error:
+            errors.append(str(error))
+        found = links(text)
+        errors.extend(f"{path}: Missing prepared installer: {url}"
+                      for url in sorted(expected - found))
+        errors.extend(f"{path}: Unexpected or stale installer: {url}"
+                      for url in sorted(found - expected))
+    archive = root / INSTALLER_INDEX_PATH
+    errors.extend(f"{archive}: {error}" for error in installer_publication_errors(
+        archive.read_text(encoding="utf-8"), releases, archive=True))
+    if site_html is not None:
+        errors.extend("Public website: " + error for error in installer_publication_errors(
+            site_html, releases, archive=True))
+    return errors
+
+
 def write_installer_index(
     destination: Path,
     setup_path: Path,
