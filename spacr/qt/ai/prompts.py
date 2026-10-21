@@ -5,8 +5,8 @@ Two shapes:
 
 * `default_system_prompt()` — spacr-aware assistant persona, used for
   the freeform chat panel.
-* `error_explainer_prompt()` — prefix that turns a traceback into a
-  concrete, numbered fix list capped at six steps.
+* `error_explainer_prompt()` — instructions requesting a concrete, numbered traceback
+  fix list with at most six steps.
 """
 from __future__ import annotations
 
@@ -55,12 +55,14 @@ def default_system_prompt() -> str:
 
 
 def tool_approval_note(provider_name: str) -> str:
-    """Tell the assistant how tool approval works in spaCR's console (GitHub #147).
+    """Return instructions about tool approval for spaCR's console (GitHub #147).
 
-    The vendor CLIs run non-interactively, so they cannot show their own
-    approval prompt. For Claude Code spaCR asks the user itself after the
-    reply and resumes the session when the user allows the call; the other
-    CLIs have no such route, so the assistant hands the command over instead.
+    The vendor CLIs run non-interactively. For Claude Code, the console can offer an
+    approval dialog after a successful reply when the provider recorded denied tool
+    calls and a resumable session. Approval supplies tool rules for the next resumed
+    reply; a rule may cover more than one exact call. Other provider names receive
+    instructions to give the user a terminal command instead. This function only returns
+    the instructions; the caller handles any approval and resume.
 
     :param provider_name: the provider's short id, such as ``"claude"``.
     :returns: the paragraph to append to the system prompt.
@@ -82,7 +84,8 @@ def tool_approval_note(provider_name: str) -> str:
 
 
 def error_explainer_prompt() -> str:
-    """Return the system prompt that turns a traceback into a numbered fix list."""
+    """Return instructions requesting a traceback explanation and a fix list of at most six
+    steps."""
     return (
         f"{_spacr_context()}\n\n"
         "The user just hit a runtime error inside spacr. Your job:\n"
@@ -98,7 +101,7 @@ def error_explainer_prompt() -> str:
 
 
 def wrap_error_for_prompt(traceback_text: str, active_app: str = "") -> str:
-    """Turn a raw traceback into the user message body sent to the model.
+    """Format a traceback and optional active-app label as a user message.
 
     :param traceback_text: the raw traceback text; surrounding whitespace is
         stripped and the rest is placed inside a fenced code block.

@@ -1,13 +1,13 @@
 """Run a vendor command-line tool's own installer, and say how it went.
 
-Qt-free. :mod:`spacr.qt.widgets.cli_setup_panel` calls :func:`run_install` on
-a worker thread and shows what it reports; nothing here touches a widget.
+Qt-free installer helpers. :func:`run_install` blocks, so GUI callers should run it off
+the GUI thread; nothing here touches a widget.
 
 This module defines no install commands. Each tool's ``install_methods`` in
-:mod:`spacr.qt.ai.providers` are the rows its ``install_hint`` is built from,
-and :func:`plan_install` picks the first of those rows whose programs are on
-``PATH``. The command the Install button runs and the command the screen shows
-are therefore one definition.
+:mod:`spacr.qt.ai.providers` supplies the rows used by :func:`plan_install`, which picks
+the first row whose prerequisite programs are on ``PATH``. The tool's ``install_hint``
+is built from those same rows; this module does not wire them to a screen or Install
+button.
 
 What a run reports is a kind (:data:`INSTALLED`, :data:`NO_NETWORK`, ...)
 rather than a sentence, so the screen can say something the user can act on,
@@ -165,9 +165,10 @@ class InstallOutcome:
     """How one run of an installer ended.
 
     :ivar kind: one of the module's kinds, such as :data:`INSTALLED`.
-    :ivar exit_status: the installer's exit status, or ``None`` when it did
-        not run or was stopped before it exited on its own.
-    :ivar tail: the installer's last output, quoted for a failure message.
+    :ivar exit_status: the recorded installer exit status, or ``None`` when no status is
+        retained, including cancellation and timeout outcomes.
+    :ivar tail: the installer's last output, shortened for a failure message, or the
+        startup exception text when the installer could not be started.
     :ivar location: where the CLI was found afterwards, or ``""``.
     """
 
@@ -178,7 +179,8 @@ class InstallOutcome:
 
     @property
     def ok(self) -> bool:
-        """Whether the tool is now installed and findable."""
+        """Whether ``kind`` is :data:`INSTALLED`; this property performs no new executable
+        lookup."""
         return self.kind == INSTALLED
 
 
@@ -265,12 +267,14 @@ def clean_line(raw: bytes) -> str:
 
 
 def stop_process(proc: Any, platform: str) -> None:
-    """End an installer and everything it started.
+    """Request termination of an installer process or its process group.
 
-    On POSIX the installer's group is signalled even when the installer
-    itself has already exited: a program it started can still hold its
-    output open, and the install does not end until that program does.
-    The installer's own process is left alone once it has exited.
+    On POSIX, signal the installer's group even when the installer itself has exited,
+    because a child may still hold its output open. A running installer gets a
+    termination request and, after :data:`STOP_GRACE_S`, a kill attempt if its wait
+    times out. On Windows, a running installer is targeted with ``taskkill /T /F``
+    without waiting for that command; an already exited installer is left alone. These
+    attempts do not confirm that every descendant has stopped.
 
     :param proc: the installer, running or exited.
     :param platform: a ``sys.platform`` value.
@@ -353,7 +357,7 @@ def _watch(proc: Any, stop: Optional[threading.Event], deadline: float,
 
 def classify(exit_status: int, lines: Sequence[str],
              method: InstallMethod) -> str:
-    """Name what went wrong with an installer that exited non-zero.
+    """Classify an installer failure from its output markers and exit status.
 
     :param exit_status: its exit status.
     :param lines: its last output lines.
@@ -396,22 +400,24 @@ def run_install(plan: InstallPlan,
                 timeout_s: float = INSTALL_TIMEOUT_S) -> InstallOutcome:
     """Run ``plan``'s installer to the end and say how it went.
 
-    Blocks until the installer exits, so run it off the GUI thread. The
-    installer gets no input -- a prompt reads end-of-file rather than
-    waiting forever -- and runs in a scratch folder that is removed
-    afterwards, because the Windows command downloads ``install.cmd`` into
-    the folder it runs in.
+    Blocks while consuming the installer's output and waiting for its process to exit,
+    so run it off the GUI thread. Standard input supplies end-of-file. The installer
+    runs in a scratch folder, with cleanup attempted afterwards, because the Windows
+    command downloads ``install.cmd`` into its working folder. Cancellation and timeout
+    handling request termination; neither guarantees a fixed upper bound on this call's
+    duration.
 
     :param plan: from :func:`plan_install`.
     :param on_output: called with each non-blank line of output, on the
         calling thread, as it arrives.
-    :param stop: set it to stop the installer.
-    :param timeout_s: seconds after which the installer is stopped as hung.
-    :returns: the outcome; :data:`INSTALLED` only when the CLI is found
-        afterwards, with ``location`` saying where. An installer that exited
-        0 as Cancel or the time limit reached it is :data:`INSTALLED` when
-        the CLI is there, because the install finished; otherwise it is
-        :data:`CANCELLED` or :data:`TIMED_OUT`.
+    :param stop: set it to request cancellation of the installer.
+    :param timeout_s: seconds before the watcher requests termination after the
+        installer starts; not a bound on the total call duration.
+    :returns: the recorded outcome; :data:`INSTALLED` requires an exit status of 0 and a
+        CLI found afterwards, with ``location`` saying where. If cancellation or timeout
+        was recorded, its kind is returned unless both success checks pass. Other
+        non-zero exits are classified from their output and status; an exit of 0 with no
+        CLI found is not a successful install.
     """
     if plan.method is None:
         return InstallOutcome(NOT_AUTOMATIC)
@@ -550,7 +556,8 @@ def locate(tool: Any, platform: Optional[str] = None) -> str:
 
     :param tool: a :class:`spacr.qt.ai.providers.CommandLineTool`.
     :param platform: a ``sys.platform`` value; the running one by default.
-    :returns: the executable's path, or ``""`` when it is nowhere.
+    :returns: the executable path found in the searched locations, or ``""`` when none
+        was found there.
     """
     name = str(getattr(tool, "cli_name", "") or "")
     if not name:

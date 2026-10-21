@@ -53,13 +53,13 @@ class StreamWorker(QObject):
         self.saved = False
 
     def cancel(self) -> None:
-        """Cancel: kill the subprocess so the reader unblocks.
+        """Mark the worker cancelled and request provider cancellation.
 
-        Setting a Python flag alone isn't enough — the worker is
-        blocked in a `for line in proc.stdout` iteration until the
-        subprocess writes or closes. This method terminates the subprocess
-        directly via `provider.cancel_stream()`; the reader then
-        exits with an empty read and run() completes cleanly.
+        A flag alone may not interrupt a provider blocked while reading subprocess
+        output or waiting for a reply. This method calls ``provider.cancel_stream()``
+        and ignores its exceptions; it does not wait for the worker thread to exit or
+        guarantee that the provider stops. The streaming path checks the flag after
+        receiving a chunk and after the iterator ends.
         """
         self._cancelled = True
         try:
@@ -70,12 +70,12 @@ class StreamWorker(QObject):
     def run(self) -> None:
         """Consume the provider stream, emitting stage/chunk/finished signals.
 
-        ``finished`` carries ``(True, the whole reply)`` only when the stream
-        ended on its own and the provider did not report a failure. Anything
-        else gives ``(False, <what to tell the user>)``, and whatever the
-        provider printed before failing is not an answer. A stream that was
-        cancelled gives ``(False, "Cancelled.")`` even when ending the child
-        made the provider raise, because the user asked for the stop.
+        ``finished`` carries ``(True, text)`` for a saved-answer hit or when the
+        uncancelled streaming path completes without an exception, including an empty
+        reply. In the streaming path, cancellation gives ``(False, "Cancelled.")``,
+        including when the provider raises after cancellation; other caught exceptions
+        give ``(False, error_detail)``. Chunks already emitted before a failure are not
+        a successful answer.
 
         The exception's class name is prefixed to its message, except for a
         :class:`~spacr.qt.ai.providers.ProviderFailed` with a non-empty
@@ -85,11 +85,13 @@ class StreamWorker(QObject):
         kept because it often names the error: a bare ``[Errno 2] No such
         file or directory`` does not say it is a FileNotFoundError.
 
-        A fresh, short question
-        (:func:`~spacr.qt.ai.providers.question_cache_key`) asked before is
-        answered from this computer's saved answers with no provider call,
-        and :attr:`saved` is then ``True``; a new complete answer to such a
-        question is saved, whatever the provider.
+        For a question accepted by :func:`~spacr.qt.ai.providers.question_cache_key`, a
+        valid saved answer is returned without a provider call and :attr:`saved` becomes
+        ``True``. This lookup precedes the streaming cancellation check and exception
+        handler, so a cache hit succeeds even if cancellation was already requested, and
+        lookup errors propagate without a ``finished`` signal. Otherwise a non-empty,
+        uncancelled reply is passed to ``save_explanation``; a save attempt does not
+        guarantee persistence.
         """
         from ... import crashreport
 
