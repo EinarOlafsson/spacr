@@ -434,10 +434,6 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="docs/readme_text/en/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/language-translation-2.desktop.svg"><img src="docs/readme_images/en/language-translation-2.svg" alt="The nine non-English catalogs are machine-drafted and technically reviewed rather than read end to end by a native speaker. The review scope records which languages have had a human pass and every term left in English by decision."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="docs/readme_text/en/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/animated-setting-guidance.desktop.svg"><img src="docs/readme_images/en/animated-setting-guidance.svg" alt="Animated setting guidance. Settings with a visual explanation offer an Animation control in their tooltip. Browse the setting animation gallery or the Setting animation registry."></picture></a></div>
 
 .. raw:: html

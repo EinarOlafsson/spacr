@@ -311,11 +311,6 @@ blocks:
     ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie
     übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe
     die `Richtlinie zur Kontexthilfe <docs/source/localization.rst#contextual-help>`_.
-- p: Die neun nicht-englischen Kataloge werden von einem Muttersprachler maschinengefertigt
-    und technisch überarbeitet, anstatt zu Ende zu lesen. Die `Überprüfungsspielraum
-    <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ Aufzeichnungen, welche Sprachen einen
-    menschlichen Pass hatten und jeder Begriff auf Englisch durch Entscheidung übrig
-    geblieben ist.
 - h2: Animierte Einstellungshilfe
 - p: Einstellungen mit einer visuellen Erklärung bieten in ihrem Tooltip die Schaltfläche
     **Animation**. Durchsuchen Sie die `Galerie der Einstellungsanimationen <https://einarolafsson.github.io/spacr/setting_animations.html>`_

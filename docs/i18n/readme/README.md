@@ -6,18 +6,18 @@
 <details open>
 <summary><b>🌐 Choose a language</b></summary>
 
-| Language | Translation |
-| --- | --- |
-| [English](../../../README.rst) | Source text. Every other README is translated from it. |
-| [Svenska](README.sv.rst) (Swedish) | AI technical review (Codex), no native-speaker signoff. |
-| [Deutsch](README.de.rst) (German) | AI technical review (Codex), no native-speaker signoff. |
-| [Español](README.es.rst) (Spanish) | AI technical review (Codex), no native-speaker signoff. |
-| [简体中文](README.zh_CN.rst) (Mandarin Chinese) | AI technical review (Codex), no native-speaker signoff. |
-| [Português](README.pt.rst) (Portuguese) | AI technical review (Codex), no native-speaker signoff. |
-| [हिन्दी](README.hi.rst) (Hindi) | AI technical review (Codex), no native-speaker signoff. |
-| [한국어](README.ko.rst) (Korean) | AI technical review (Codex), no native-speaker signoff. |
-| [Íslenska](README.is.rst) (Icelandic) | AI technical review (Codex), no native-speaker signoff. |
-| [Français](README.fr.rst) (French) | AI technical review (Codex), no native-speaker signoff. |
+| Language |
+| --- |
+| [English](../../../README.rst) |
+| [Svenska](README.sv.rst) (Swedish) |
+| [Deutsch](README.de.rst) (German) |
+| [Español](README.es.rst) (Spanish) |
+| [简体中文](README.zh_CN.rst) (Mandarin Chinese) |
+| [Português](README.pt.rst) (Portuguese) |
+| [हिन्दी](README.hi.rst) (Hindi) |
+| [한국어](README.ko.rst) (Korean) |
+| [Íslenska](README.is.rst) (Icelandic) |
+| [Français](README.fr.rst) (French) |
 
 </details>
 
@@ -25,8 +25,8 @@ Every spaCR README links here, so a reader who lands in the wrong
 language is one click from the right one.
 
 English is the source text: where a translation and the English
-README disagree, the English one is right. The models that drafted
-the translations and their licenses are listed in
+README disagree, the English one is right. Translation model
+attribution and licenses are listed in
 [TRANSLATION_MODELS.md](../TRANSLATION_MODELS.md), and the measured
 per-locale coverage in [COVERAGE.md](../COVERAGE.md).
 

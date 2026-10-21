@@ -250,10 +250,6 @@ blocks:
 - h2: 语言与翻译
 - p: 界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言**
     中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <docs/source/localization.rst#contextual-help>`_。
-- p: The nine non-English catalogs are machine-drafted and technically reviewed rather
-    than read end to end by a native speaker. The `评论范围 <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_
-    records which languages have had a human pass and every term left in English
-    by decision.
 - h2: 动画设置指南
 - p: 带有视觉说明的设置会在工具提示中提供 **Animation** 控件。浏览 `设置动画图库 <https://einarolafsson.github.io/spacr/setting_animations.html>`_
     或 `设置动画注册表 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_。

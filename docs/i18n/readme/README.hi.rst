@@ -434,10 +434,6 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/language-translation-2.desktop.svg"><img src="../../readme_images/hi/language-translation-2.svg" alt="नौ गैर-अंग्रेजी कैटलॉग मशीन-ड्राइंग और तकनीकी रूप से समीक्षा के बजाय एक स्वदेशी वक्ता द्वारा समाप्त पढ़ने के लिए. समीक्षा स्कोप रिकॉर्ड जिन भाषाओं ने एक मानव पास किया है और प्रत्येक शब्द अंग्रेजी में छोड़ दिया है निर्णय द्वारा."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/hi/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/animated-setting-guidance.desktop.svg"><img src="../../readme_images/hi/animated-setting-guidance.svg" alt="एनिमेटेड सेटिंग मार्गदर्शन. दृश्य व्याख्या वाली सेटिंग के टूलटिप में Animation नियंत्रण मिलता है। सेटिंग एनिमेशन गैलरी या सेटिंग एनिमेशन रजिस्ट्री देखें।"></picture></a></div>
 
 .. raw:: html

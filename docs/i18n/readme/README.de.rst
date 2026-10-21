@@ -434,10 +434,6 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="../../readme_text/de/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/language-translation-2.desktop.svg"><img src="../../readme_images/de/language-translation-2.svg" alt="Die neun nicht-englischen Kataloge werden von einem Muttersprachler maschinengefertigt und technisch überarbeitet, anstatt zu Ende zu lesen. Die Überprüfungsspielraum Aufzeichnungen, welche Sprachen einen menschlichen Pass hatten und jeder Begriff auf Englisch durch Entscheidung übrig geblieben ist."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/de/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/animated-setting-guidance.desktop.svg"><img src="../../readme_images/de/animated-setting-guidance.svg" alt="Animierte Einstellungshilfe. Einstellungen mit einer visuellen Erklärung bieten in ihrem Tooltip die Schaltfläche Animation. Durchsuchen Sie die Galerie der Einstellungsanimationen oder das Register der Einstellungsanimationen."></picture></a></div>
 
 .. raw:: html

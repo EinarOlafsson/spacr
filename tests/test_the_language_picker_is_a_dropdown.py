@@ -258,24 +258,26 @@ def test_the_menu_offers_every_shipped_language_and_each_link_resolves():
         assert (PICKER_PAGE.parent / target).resolve().is_file(), (name, target)
 
 
-def test_the_menu_labels_ai_review_without_native_speaker_signoff():
-    """Current AI review must not inherit claims of native-speaker approval."""
+def test_the_menu_offers_only_exact_language_routes_without_review_claims():
+    """The neutral picker preserves every route without implying human review."""
     from spacr.qt.i18n import LANGUAGES
 
     text = PICKER_PAGE.read_text(encoding="utf-8")
     menu = text.split("<details open>")[1].split("</details>")[0]
-    rows = {
-        re.search(r"\[([^\]]+)\]", line).group(1): line
-        for line in menu.splitlines()
-        if line.startswith("| [")
-    }
-    assert "A fluent speaker read a sample" not in menu
-    for language in LANGUAGES:
-        row = rows[language.native_name]
-        if language.code == "en":
-            assert "Source text" in row
-        else:
-            assert "AI technical review (Codex), no native-speaker signoff" in row
+    rows = [line for line in menu.splitlines() if line.startswith("| [")]
+    assert "| Language |\n| --- |" in menu
+    assert len(rows) == len(LANGUAGES) == 10
+    for language, row in zip(LANGUAGES, rows):
+        target = ("../../../README.rst" if language.code == "en"
+                  else f"README.{language.code}.rst")
+        name = f"[{language.native_name}]({target})"
+        if language.native_name != language.english_name:
+            name = f"{name} ({language.english_name})"
+        assert row == f"| {name} |"
+    assert "review" not in menu.casefold()
+    assert "native-speaker" not in menu.casefold()
+    assert "English is the source text" in text
+    assert "[TRANSLATION_MODELS.md](../TRANSLATION_MODELS.md)" in text
 
 
 def test_the_page_and_the_readmes_are_regenerated_not_hand_written(

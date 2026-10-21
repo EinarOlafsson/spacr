@@ -293,10 +293,6 @@ blocks:
     Change the language under **spaCR → Preferences → Language** without restarting.
     Logs, paths, database values and measurements are never translated; scientific
     output remains canonical English. See the `contextual-help policy <docs/source/localization.rst#contextual-help>`_.
-- p: The nine non-English catalogs are machine-drafted and technically reviewed rather
-    than read end to end by a native speaker. The `review scope <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_
-    records which languages have had a human pass and every term left in English
-    by decision.
 - h2: Animated setting guidance
 - p: Settings with a visual explanation offer an **Animation** control in their tooltip.
     Browse the `setting animation gallery <https://einarolafsson.github.io/spacr/setting_animations.html>`_

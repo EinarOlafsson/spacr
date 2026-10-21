@@ -434,10 +434,6 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/language-translation-2.desktop.svg"><img src="../../readme_images/zh_CN/language-translation-2.svg" alt="The nine non-English catalogs are machine-drafted and technically reviewed rather than read end to end by a native speaker. The 评论范围 records which languages have had a human pass and every term left in English by decision."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/zh_CN/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/animated-setting-guidance.desktop.svg"><img src="../../readme_images/zh_CN/animated-setting-guidance.svg" alt="动画设置指南. 带有视觉说明的设置会在工具提示中提供 Animation 控件。浏览 设置动画图库 或 设置动画注册表。"></picture></a></div>
 
 .. raw:: html

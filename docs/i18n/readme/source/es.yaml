@@ -311,10 +311,6 @@ blocks:
     Los registros, las rutas, los valores de la base de datos y las mediciones nunca
     se traducen; los resultados científicos permanecen en inglés canónico. Consulte
     la `política de ayuda contextual <docs/source/localization.rst#contextual-help>`_.
-- p: Los nueve catálogos no ingleses son redactados por máquina y revisados técnicamente
-    en lugar de leer de extremo a extremo por un hablante nativo. Los registros `ámbito
-    de aplicación de la revisión <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ que los
-    idiomas han tenido un pase humano y cada término dejado en inglés por decisión.
 - h2: Guía animada de ajustes
 - p: Los ajustes con una explicación visual incluyen un control **Animación** en
     su información emergente. Consulte la `galería de animaciones de ajustes <https://einarolafsson.github.io/spacr/setting_animations.html>`_

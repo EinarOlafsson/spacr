@@ -294,10 +294,6 @@ blocks:
     undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi
     og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá
     `stefnu um samhengishjálp <docs/source/localization.rst#contextual-help>`_.
-- p: Nín ekki Engleska sögu eru stutt og tæknilegt endurskoðað í stað þess að lesa
-    end til end af heimilum tala. `Sjáðu skammt <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_
-    skrá sem tungumálir hafa haft mannleg útgang og hvert orð eftir á Englesku eftir
-    ákvörðun.
 - h2: Hreyfimyndaleiðbeiningar fyrir stillingar
 - p: Stillingar með sjónræna skýringu bjóða upp á **Animation**-stýringu í verkfæraábendingunni.
     Skoðaðu `myndasafn stillingahreyfimynda <https://einarolafsson.github.io/spacr/setting_animations.html>`_

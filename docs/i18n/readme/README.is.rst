@@ -434,10 +434,6 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/language-translation-2.desktop.svg"><img src="../../readme_images/is/language-translation-2.svg" alt="Nín ekki Engleska sögu eru stutt og tæknilegt endurskoðað í stað þess að lesa end til end af heimilum tala. Sjáðu skammt skrá sem tungumálir hafa haft mannleg útgang og hvert orð eftir á Englesku eftir ákvörðun."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/is/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/animated-setting-guidance.desktop.svg"><img src="../../readme_images/is/animated-setting-guidance.svg" alt="Hreyfimyndaleiðbeiningar fyrir stillingar. Stillingar með sjónræna skýringu bjóða upp á Animation-stýringu í verkfæraábendingunni. Skoðaðu myndasafn stillingahreyfimynda eða skrá stillingahreyfimynda."></picture></a></div>
 
 .. raw:: html

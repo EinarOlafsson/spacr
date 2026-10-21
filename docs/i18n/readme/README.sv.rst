@@ -434,10 +434,6 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/language-translation-2.desktop.svg"><img src="../../readme_images/sv/language-translation-2.svg" alt="De nio icke-engelska katalogerna är maskinskrivna och tekniskt recenserade snarare än lästa ända till slut av en infödd talare. De Översynens tillämpningsområde skivor som språken har haft ett mänskligt pass och varje term kvar på engelska av beslut."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/sv/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/animated-setting-guidance.desktop.svg"><img src="../../readme_images/sv/animated-setting-guidance.svg" alt="Animerad hjälp för inställningar. Inställningar med en visuell förklaring har kontrollen Animation i verktygstipset. Bläddra i galleriet med inställningsanimationer eller registret över inställningsanimationer."></picture></a></div>
 
 .. raw:: html

@@ -1,1 +1,0 @@
-Nín ekki Engleska sögu eru stutt og tæknilegt endurskoðað í stað þess að lesa end til end af heimilum tala. [Sjáðu skammt](<../../i18n/REVIEW_SCOPE_2026-09-04.md>) skrá sem tungumálir hafa haft mannleg útgang og hvert orð eftir á Englesku eftir ákvörðun.

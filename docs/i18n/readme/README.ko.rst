@@ -434,10 +434,6 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/language-translation-2.desktop.svg"><img src="../../readme_images/ko/language-translation-2.svg" alt="영어가 아닌 9개의 카탈로그는 기계적으로 작성되고 기술적으로 검토되며, 원주민 연설자에 의해 끝까지 읽기보다는 검토 범위 기록은 언어가 인간의 통로를 가졌으며 각 용어는 결정에 따라 영어로 남아 있습니다."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/ko/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/animated-setting-guidance.desktop.svg"><img src="../../readme_images/ko/animated-setting-guidance.svg" alt="애니메이션 설정 안내. 시각적 설명이 있는 설정은 도구 설명에 Animation 컨트롤을 제공합니다. 다음 리소스를 살펴보세요: 설정 애니메이션 갤러리 및 설정 애니메이션 레지스트리."></picture></a></div>
 
 .. raw:: html

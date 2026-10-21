@@ -434,10 +434,6 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/language-translation-2.desktop.svg"><img src="../../readme_images/pt/language-translation-2.svg" alt="Os nove catálogos não ingleses são elaborados por máquina e tecnicamente revisados em vez de lidos de ponta a ponta por um falante nativo. Os registros âmbito de revisão que as línguas tiveram um passe humano e todos os termos deixados em inglês por decisão."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/pt/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/animated-setting-guidance.desktop.svg"><img src="../../readme_images/pt/animated-setting-guidance.svg" alt="Guia animado de configurações. As configurações com uma explicação visual oferecem um controle Animation na dica de ferramenta. Consulte a galeria de animações de configurações ou o registro de animações de configurações."></picture></a></div>
 
 .. raw:: html

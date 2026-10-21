@@ -300,10 +300,6 @@ blocks:
     **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden
     och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska.
     Se `policyn för kontexthjälp <docs/source/localization.rst#contextual-help>`_.
-- p: De nio icke-engelska katalogerna är maskinskrivna och tekniskt recenserade snarare
-    än lästa ända till slut av en infödd talare. De `Översynens tillämpningsområde
-    <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ skivor som språken har haft ett mänskligt
-    pass och varje term kvar på engelska av beslut.
 - h2: Animerad hjälp för inställningar
 - p: Inställningar med en visuell förklaring har kontrollen **Animation** i verktygstipset.
     Bläddra i `galleriet med inställningsanimationer <https://einarolafsson.github.io/spacr/setting_animations.html>`_
