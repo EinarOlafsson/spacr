@@ -1116,9 +1116,9 @@ def test_chinese_and_scientific_runtime_terms_are_contextual():
 
 
 @pytest.mark.parametrize("language", ["en", *LANGUAGES])
-def test_api_doc_catalog_is_symbol_keyed_and_source_hashed(language):
+def test_api_doc_catalog_is_symbol_keyed_and_source_hashed(language, api_catalogs):
     manifest = json.loads((
-        ROOT / "docs" / "source" / "_static" / "i18n" / "api" / "en.json"
+        api_catalogs / "en.json"
     ).read_text(encoding="utf-8"))
     assert manifest["schema"] == 2
     assert len(manifest["symbols"]) >= 6000
@@ -1135,8 +1135,7 @@ def test_api_doc_catalog_is_symbol_keyed_and_source_hashed(language):
         assert record["text"].strip()
     for language in (() if language == "en" else (language,)):
         translated = json.loads((
-            ROOT / "docs" / "source" / "_static" / "i18n" / "api"
-            / f"{language}.json"
+            api_catalogs / f"{language}.json"
         ).read_text(encoding="utf-8"))
         assert set(translated["symbols"]) == set(manifest["symbols"])
         assert translated["schema"] == 2
