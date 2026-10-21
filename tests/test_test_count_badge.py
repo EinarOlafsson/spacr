@@ -56,6 +56,7 @@ def collector():
 
 def configure_collector(collector, tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("SPACR_TEST_COUNT_OWNER_PID", raising=False)
     monkeypatch.setenv("SPACR_TEST_COUNT_DIR", "counts")
     monkeypatch.setenv("SPACR_TEST_COUNT_SESSION", "previous-session")
     collector.pytest_configure(SimpleNamespace())
@@ -150,7 +151,9 @@ def test_primary():
     assert failed.returncode == 1, failed.stdout + failed.stderr
 ''', encoding="utf-8")
     env = dict(os.environ)
-    for marker in ("SPACR_TEST_COUNT_OWNER_PID", "SPACR_TEST_COUNT_SESSION"):
+    for marker in ("SPACR_TEST_COUNT_OWNER_PID", "SPACR_TEST_COUNT_SESSION",
+                   "PYTEST_XDIST_WORKER", "PYTEST_XDIST_WORKER_COUNT",
+                   "PYTEST_XDIST_TESTRUNUID"):
         env.pop(marker, None)
     env["SPACR_TEST_COUNT_DIR"] = str(tmp_path / "counts")
     root = str(Path(__file__).resolve().parents[1])
