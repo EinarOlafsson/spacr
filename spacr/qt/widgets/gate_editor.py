@@ -515,6 +515,7 @@ class GateCanvas(GraphCanvas):
         self._surface_drag = None
         self._edit_drag_projection = None
         self._editable_boundary_cache = None
+        self._volume_handles_cache = None
         #: The edited gate shown while a handle is pulled, or None.
         self._volume_preview: Optional[Gate] = None
         #: The live highlight of the objects inside a shape being drawn.
@@ -2224,7 +2225,14 @@ class GateCanvas(GraphCanvas):
         if isinstance(gate, EditableVolumeGate) or self.drag_mode() == 'edit':
             mesh = self._editable_boundary(gate)
             if mesh is not None:
-                return [(anchor.role, placed(dict(zip(mesh.columns, anchor.point)))) for anchor in mesh.anchors(self._anchor_density)]
+                cached = self._volume_handles_cache
+                key = (self._anchor_density, tuple(shown))
+                if cached is not None and cached[0] is mesh and cached[1] == key:
+                    return cached[2]
+                handles = [(anchor.role, placed(dict(zip(mesh.columns, anchor.point))))
+                           for anchor in mesh.anchors(self._anchor_density)]
+                self._volume_handles_cache = mesh, key, handles
+                return handles
         if isinstance(gate, BoxGate):
             sides = {gate.x_column: (gate.x_low, gate.x_high, "x"),
                      gate.y_column: (gate.y_low, gate.y_high, "y"),
