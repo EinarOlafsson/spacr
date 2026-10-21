@@ -99,6 +99,15 @@ def reconcile_visual_sources(stage, lesson_id, english):
     stage = Path(stage).resolve()
     folder = stage / 'production' / lesson_id
     specification = folder / 'scenes.json'
+    mix_mode = (specification.is_file() and
+        read(specification).get('kind') == 'mixed_published_native_intervals')
+    mix_record = folder / 'published-native-mix.json'
+    if mix_mode or mix_record.exists():
+        if (not mix_mode or not mix_record.is_file()
+                or any((folder / name).exists() for name in ['published-native-edit.json','published-native-reuse.json'])):
+            raise ValueError('Mixed published sources need their exclusive source/card/interval record')
+        from published_native_mix import checked_mixed_native_timing
+        return read(checked_mixed_native_timing(stage, lesson_id))['published_native_mix']
     edit_mode = (specification.is_file() and
         read(specification).get('kind') == 'edited_published_native_intervals')
     edit_record = folder / 'published-native-edit.json'
@@ -207,7 +216,7 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             'retained_narration': retention,
             'native_speaker_signoff': False, 'human_listening_review': False, 'published': False}
     if reuse is not None:
-        key = 'published_native_edit' if (folder / 'published-native-edit.json').exists() else 'published_native_reuse'
+        key = 'published_native_mix' if (folder / 'published-native-mix.json').exists() else 'published_native_edit' if (folder / 'published-native-edit.json').exists() else 'published_native_reuse'
         result[key] = reuse
     return result
 
