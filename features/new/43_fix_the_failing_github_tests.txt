@@ -4154,3 +4154,5 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 
 2026-10-20 — release_ci_takeover owns Coverage4/118973753627's missing API-catalog fixture consumer: request the existing session api_catalogs build and use its returned directory, preserving all ten locale/schema/hash/symbol assertions and item710's untracked catalog policy. Validate only the owning parametrized case; broader hosted acceptance remains open.
 2026-10-20 — The exact ten-language owning case passes with the normally assembled pinned-memory catalogs (10 passed,123.13s); all original assertion ASTs are unchanged. No generated catalog is recommitted, no public source changes, and final hosted acceptance remains open.
+
+2026-10-20 — Root owns Coverage11/118973753842 tutorial CLI release-contract missing en.json: request existing api_catalogs fixture only in that reader and use its returned path, preserving release-contract assertions and Work tutorial content. Coverage7/118973753639 and Coverage11 repeat the already-scoped fork-pool timeout; retain N43 spawn repair ownership.
