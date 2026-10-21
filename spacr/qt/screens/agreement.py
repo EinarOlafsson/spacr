@@ -503,9 +503,11 @@ class AgreementScreen(QWidget):
     def compute(self) -> bool:
         """Build the agreement report for the ticked columns.
 
-        Everything that can go wrong here is a normal state — no database,
-        one column ticked, a column that turns out to be empty — so every
-        failure is inline text and a ``False`` return.
+        Expected refusals, such as no database or fewer than two selected
+        columns, are shown inline and return ``False``. Synchronous computation
+        failures also return ``False``. In threaded mode, computation failures
+        are reported later; the method has already returned ``True`` once the
+        job starts.
 
         :returns: for the synchronous path, whether the report was built;
             for the threaded path, ``True`` once the job has started.

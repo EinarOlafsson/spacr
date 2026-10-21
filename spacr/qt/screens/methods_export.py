@@ -420,10 +420,11 @@ class MethodsExportScreen(QWidget):
         return "\n\n".join(part for part in (methods, results) if part)
 
     def export(self, path: str) -> str:
-        """Write both sections plus the digest to a Markdown file.
+        """Write the current sections to a Markdown file, appending the digest
+        when available.
 
-        The digest is written into the same file as an appendix, so the record
-        the text was written from stays with it.
+        When a digest is available, it is written into the same file as an
+        appendix so the record the text was written from stays with it.
 
         :param path: where to write.
         :returns: the path written, or ``""`` when there was nothing to write.

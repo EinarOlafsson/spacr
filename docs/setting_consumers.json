@@ -8450,7 +8450,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 13660,
+    "line": 13662,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8459,7 +8459,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13671,
+    "line": 13673,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -10566,7 +10566,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 13962,
+    "line": 13964,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -36860,7 +36860,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 13957,
+    "line": 13959,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -50722,7 +50722,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 559,
+    "line": 561,
     "module": "spacr.qt.screens.hyperparam",
     "nested": false,
     "qualname": "_search_figure_dir"

@@ -13459,12 +13459,14 @@ class AppScreen(QWidget):
         """Push key/value pairs from `settings` into whichever settings
         widgets this app exposes.
 
-        A bulk load is one transaction. If it changes the form's shape, the
-        complete merged mapping builds one replacement screen before values
-        are applied; no signal may replace the screen halfway through the
-        loop. Silently skips keys the current app does not have — the same
-        dict can safely be applied across several apps. Returns the count of
-        keys actually applied.
+        A bulk load is one transaction. When the form's shape changes and the
+        host supports rebuilding, the complete merged mapping is used to
+        request one replacement screen. If a worker is running, that rebuild
+        is deferred and values are applied to the current form; otherwise the
+        replacement is built before values are applied. No signal may replace
+        the screen halfway through the value loop. Silently skips keys the
+        current app does not have -- the same dict can safely be applied across
+        several apps. Returns the count of keys actually applied.
 
         :param settings: setting key to value mapping; legacy key names are
             translated first, and it is merged over the current values.

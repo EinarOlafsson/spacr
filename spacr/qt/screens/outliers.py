@@ -604,12 +604,11 @@ class OutliersScreen(QWidget):
     def export_csv(self) -> None:
         """Write the flags out: the whole table, the flagged rows, the wells.
 
-        Three files, because the three have different row meanings. The first
-        is the *whole* table with the columns added — the "write columns" case,
-        and the one that keeps every object — and the second is the same rows
-        filtered down to the flagged ones for a quick look. The engine's own
-        ``filtered()`` is what produces it, so the file and the screen flag the
-        same rows.
+        A successful export writes two CSV files: the *whole* table with
+        added columns, keeping every object, and the rows selected by the
+        same flags the screen uses. A third CSV summarizes wells when well
+        results are available. A text report is written alongside these
+        files.
         """
         result = self._result
         if result is None or self._objects is None:
