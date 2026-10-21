@@ -2,7 +2,7 @@
 ANONYMISED ERROR REPORTS WITHOUT A GITHUB ACCOUNT (ON BY DEFAULT)
 ================================================================================
 
-Status:    new 2026-10-13
+Status:    complete 2026-10-21
 Requested: maintainer, 2026-10-13: "instead of having the user need to login
            to github to send error messages, can i create a github account for
            spacr called spacr_first_responder that auto logs in in the
@@ -377,3 +377,7 @@ redundant now that reports go through the relay and spaCR AI (free) is on):
 
 2026-10-18 (maintainer): spaCR AI never says an answer is saved or cached; a reused answer renders exactly like a fresh one (same text, heading, styling, no badge or status line). The cache, counters and metadata stay internal; the privacy statement of 30-day saved-answer retention stays.
 - Done: console heading "spaCR AI (saved answer)" and its tr() string removed, nine reviewed records archived under docs/i18n/retired/runtime and retired. Relay unchanged (cached flag is internal; no relay deploy needed).
+
+2026-10-21 — Original acceptance reconciled against https://github.com/EinarOlafsson/spacr/issues/148: the bot filed the sanitized report, added the duplicate +1 comment, and the maintainer explicitly closed it as passed. Current original redaction/schema/default/opt-out and first-run UI contracts pass40/40 in2.51s, including planted personal data and blocked sockets; no new live report was posted. Retain Claude's published relay, consent/cache changes and nine-language outputs. No new global security or native-platform certification is claimed.
+
+2026-10-21 — Root additionally corrects the unsupported first-run promise of unlimited Claude/Codex/Gemini CLI use to using the user's own provider account. Correct the notice final sentence and the matching provider-CLI hint/summary; preserve the report/share limits, destinations, privacy and controls. Peer all18 exact runtime targets and9 API-summary targets, then regenerate catalogs normally. All27 exact targets are independently AI-peer reviewed (no human/native-speaker signoff);54 unique existing N700 cases pass across the original40 and affected17 runs. Executable AST is unchanged apart from the two approved caption constants. The existing55-key current-body fixture also needs only hosted_cli_hint updated to the approved summary; preserve its other54 entries and every assertion. COMPLETE: normal10-language runtime/Help generation, immutable9833-baseline arrivals refresh, and all12 owning API/Help/caption checks pass; HF API memory4690595d5c3f8d60d8e1105391345dbaffdea27a verifies all9 immutable files. Review pin7380d6a2ec74a5fe29c1942a415663654a4fb9dd retains review history; original live acceptance and every requested product change are delivered.

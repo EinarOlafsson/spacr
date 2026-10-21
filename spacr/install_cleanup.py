@@ -31,9 +31,10 @@ A pip or conda environment the user made is listed but never deleted; the
 spaCR package is uninstalled from it only when the caller says it was ticked.
 An editable source checkout is reported and left alone.
 
-The module uses only the standard library and imports nothing from spaCR, so
-an installer can run it with its bootstrapped Python before any spaCR exists,
-and a helper process can run a copy of it after the running spaCR has closed::
+The module requires only the standard library and imports no spaCR code at startup, so
+an installer can run it with its bootstrapped Python before spaCR is installed. Cleanup
+message translation may use spaCR's catalog when available, with English fallback
+otherwise. A helper process can run a copy after the running spaCR has closed::
 
     python -I install_cleanup.py find [--json]
     python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]
@@ -132,12 +133,15 @@ class InstallRecord:
 
 @dataclass
 class RemovalReport:
-    """What :func:`remove_install` did with one installation.
+    """Recorded outcomes of installation removal and cleanup.
 
-    :param record: the installation this report is about.
-    :param removed: every path, registry entry and package that was removed.
-    :param failed: ``(item, reason)`` for everything that could not be removed.
-    :param skipped: ``(item, reason)`` for everything left in place on purpose.
+    :param record: the installation this report is about, or ``None`` for cleanup not
+        associated with one installation.
+    :param removed: paths, registry entries and packages recorded as removed. Removing a
+        directory need not record each contained path.
+    :param failed: recorded ``(item, reason)`` pairs for removal failures.
+    :param skipped: recorded ``(item, reason)`` pairs for items intentionally left in
+        place.
     """
 
     record: InstallRecord
@@ -147,7 +151,8 @@ class RemovalReport:
 
     @property
     def ok(self) -> bool:
-        """Whether nothing failed."""
+        """Whether this report has no recorded failures. Skipped or retained items alone do not
+        make this false."""
         return not self.failed
 
 
@@ -1895,8 +1900,9 @@ def remove_install(record: InstallRecord, *, ticked: bool = False,
 
     :param record: an installation from :func:`find_old_installs`.
     :param ticked: whether the user ticked this environment for removal.
-    :param keep: paths to leave in place, such as the log of the install
-        that is about to start.
+    :param keep: paths to preserve while removing installer-made copies, such as the log
+        of the install that is about to start. This does not prevent package
+        uninstallation from an explicitly ticked user environment.
     :param system: the computer; ``None`` means this one.
     :returns: what was removed, what could not be, and why.
     """
@@ -3065,18 +3071,23 @@ def run_update_sequence(install: Callable[[], object], *,
                         records: Optional[Sequence[InstallRecord]] = None,
                         ticked: Iterable[str] = (), keep: Sequence[str] = (),
                         find=None, remove=None, system=None):
-    """Remove old installations; install only if every installer-made copy is gone.
+    """Attempt removal; install if installer-made removal reports contain no failures.
 
-    Every installer-made copy is removed, the spaCR package is uninstalled
-    from each ticked environment, and only then is ``install`` called. When an
-    installer-made copy could not be removed, ``install`` is not called at
-    all, and the reports say what stopped it.
+    Call the remover for each supplied or discovered installation. The default remover
+    attempts removal of installer-made copies, uninstalls spaCR only from ticked user
+    environments and skips source checkouts; protected paths or whole roots can remain.
+    After all removal calls return, call ``install`` unless an installer-made record has
+    a report whose ``ok`` value is false. Skipped or retained items alone, and failures
+    reported for user environments, do not block the callback. Removal or installation
+    exceptions propagate to the caller.
 
     :param install: zero-argument callable that installs the new version.
     :param records: installations already found; :func:`find_old_installs`
         is called when ``None``.
     :param ticked: roots of the environments the user ticked.
-    :param keep: paths removal must leave in place.
+    :param keep: paths passed to the remover's ``keep`` argument. The default remover
+        applies them to installer-made copy removal, not package uninstallation in
+        ticked user environments.
     :param find: replaces :func:`find_old_installs`.
     :param remove: replaces :func:`remove_install`.
     :param system: the computer; ``None`` means this one.

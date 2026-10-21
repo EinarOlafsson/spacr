@@ -1129,13 +1129,13 @@ def local_reset_time(resets_at=None) -> str:
 
 
 def hosted_cli_hint() -> str:
-    """The hint that a user's own CLI gives unlimited answers.
+    """The hint for connecting a CLI that uses the user's own provider account.
 
     :returns: the translated sentence.
     """
     from ..i18n import tr
 
-    return tr("For unlimited use, connect your own Claude, Codex or Gemini "
+    return tr("To use your own provider account, connect your own Claude, Codex or Gemini "
               "CLI under Preferences → AI → Providers.")
 
 

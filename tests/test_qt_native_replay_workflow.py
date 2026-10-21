@@ -63,8 +63,19 @@ def test_registered_serial_route_preserves_original_job_and_isolates_replay():
 
     serial = workflow['jobs']['serial-qt']
     original = {key: value for key, value in serial.items() if key != 'if'}
+    bootstrap = {
+        'name': 'Restore pinned translation review inputs',
+        'if': "hashFiles('docs/translation_reviews_revision.json') != ''",
+        'run': 'python tools/bootstrap_translation_reviews.py fetch',
+    }
+    steps = serial['steps']
+    assert steps.count(bootstrap) == 1
+    bootstrap_index = steps.index(bootstrap)
+    assert steps[bootstrap_index - 1]['name'] == 'Install the existing hosted Qt test dependencies'
+    assert steps[bootstrap_index + 1]['name'] == 'Record serial source and dependency provenance'
+    original['steps'] = steps[:bootstrap_index] + steps[bootstrap_index + 1:]
     assert _stable_sha256(original) == ACCEPTED_SERIAL_JOB_SHA256
-    assert _stable_sha256(serial['steps']) == ACCEPTED_SERIAL_STEPS_SHA256
+    assert _stable_sha256(original['steps']) == ACCEPTED_SERIAL_STEPS_SHA256
     diagnostic = workflow['jobs']['native-batch-replay']
     assert diagnostic['uses'] == './.github/workflows/qt-native-replay.yml'
     assert diagnostic['permissions'] == {'contents': 'read'}

@@ -76,12 +76,22 @@ _REVIEWED_UI_MODULE = importlib.util.module_from_spec(_REVIEWED_UI_SPEC)
 _REVIEWED_UI_SPEC.loader.exec_module(_REVIEWED_UI_MODULE)
 REVIEWED_UI_TRANSLATIONS = _REVIEWED_UI_MODULE.REVIEWED_UI_TRANSLATIONS
 
+_REVIEW_INPUTS_MODULE = sys.modules.get("bootstrap_translation_reviews")
+if _REVIEW_INPUTS_MODULE is None:
+    _REVIEW_INPUTS_SPEC = importlib.util.spec_from_file_location(
+        "bootstrap_translation_reviews", ROOT / "tools" / "bootstrap_translation_reviews.py",
+    )
+    if _REVIEW_INPUTS_SPEC is None or _REVIEW_INPUTS_SPEC.loader is None:
+        raise ImportError("could not load tools/bootstrap_translation_reviews.py")
+    _REVIEW_INPUTS_MODULE = importlib.util.module_from_spec(_REVIEW_INPUTS_SPEC)
+    sys.modules[_REVIEW_INPUTS_SPEC.name] = _REVIEW_INPUTS_MODULE
+    _REVIEW_INPUTS_SPEC.loader.exec_module(_REVIEW_INPUTS_MODULE)
+
 CATALOG_DIR = ROOT / "spacr" / "qt" / "i18n_catalogs"
 REVIEWED_RUNTIME_DIR = ROOT / "docs" / "i18n" / "reviewed" / "runtime"
 _DEFAULT_REVIEWED_RUNTIME_DIR = REVIEWED_RUNTIME_DIR
 if __name__ == "__main__" and not {"-h", "--help"}.intersection(sys.argv[1:]):
-    from bootstrap_translation_reviews import ensure_review_inputs
-    ensure_review_inputs(ROOT)
+    _REVIEW_INPUTS_MODULE.ensure_review_inputs(ROOT)
 
 MODEL_SPECS = {
     "sv": ("Helsinki-NLP/opus-mt-en-sv", "en-sv", "Apache-2.0", ""),
@@ -5176,8 +5186,7 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
     is therefore a hard error.
     """
     if REVIEWED_RUNTIME_DIR == _DEFAULT_REVIEWED_RUNTIME_DIR:
-        from bootstrap_translation_reviews import ensure_review_inputs
-        ensure_review_inputs(ROOT, offline=True)
+        _REVIEW_INPUTS_MODULE.ensure_review_inputs(ROOT, offline=True)
     directory = REVIEWED_RUNTIME_DIR / language
     if not directory.is_dir():
         return {}
