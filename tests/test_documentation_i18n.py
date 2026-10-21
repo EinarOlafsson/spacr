@@ -16,9 +16,6 @@ from pathlib import Path
 
 import pytest
 
-#: Item 710: the API catalogs are assembled for the session, not committed.
-pytestmark = pytest.mark.usefixtures("api_catalogs")
-
 from tests.readme_source_words import readme_words
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -3062,7 +3059,8 @@ def current_documentation_api_contracts():
 
 
 @pytest.mark.parametrize("language", ["en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
-def test_documentation_api_catalog_inventory_and_hashes_are_current(language, current_documentation_api_contracts):
+def test_documentation_api_catalog_inventory_and_hashes_are_current(
+        language, current_documentation_api_contracts, api_catalogs):
     """English freshness is required; localized drift is registered for repair.
 
     The maintainer made translation compatibility report-only on 2026-09-23.
@@ -3352,7 +3350,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     ).encode()).hexdigest() == "5df7d5da3b7cce98b3a0231d968642b2868d09e92d9e797157a4cb728aaec731"
     assert not retired_setup.keys() & (docs.keys() | zoo_arrivals.keys())
     uncataloged = sorted(docs.keys() - json.loads(
-        (ROOT / "docs/source/_static/i18n/api/en.json").read_text(encoding="utf-8")
+        (api_catalogs / "en.json").read_text(encoding="utf-8")
     )["symbols"].keys())
     assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                 - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
@@ -3368,7 +3366,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
     )
     expected = set(docs)
-    api_dir = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
+    api_dir = api_catalogs
     for language in (language,):
         payload = json.loads(
             (api_dir / f"{language}.json").read_text(encoding="utf-8")
