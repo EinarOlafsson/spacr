@@ -31,6 +31,7 @@ on a missing ``cmake``. ``install_spacr_unix.sh`` applies the identical pair;
 it is declared here too so a developer install from git gets wheels as well.
 """
 import sys
+import os
 import re
 from html import unescape
 
@@ -39,58 +40,99 @@ from setuptools import setup, find_packages
 def pypi_readme(source):
     """Preserve the GitHub README while resolving its repository-relative URLs.
 
-    PyPI serves package metadata without the repository's files, so every
-    image and link points at the public ``main`` tree. ``main`` carries the
+    PyPI serves package metadata without the repository's files. By default,
+    repository images and links point at the public ``main`` tree, which carries the
     README's images: the image README's panels (docs/readme_images), the
     model cards and the deck are promoted there with every README update,
     and a released description should not move when ``nightly`` does.
+    Release builds set ``SPACR_PYPI_README_REF`` to the exact source commit,
+    binding repository images and readable pages to that immutable revision.
+    Other builds retain the public ``main`` fallback, without requiring Git.
     No network access or spaCR imports are needed during isolated builds.
-    GitHub's aligned raw-HTML tile substitutions and the README's
-    phone/desktop ``<picture>`` blocks become ordinary RST images here
-    because PyPI's renderer disables raw HTML; a picture keeps its phone
-    drawing.
+    GitHub's aligned raw-HTML tile substitutions become ordinary RST images
+    here because PyPI's renderer disables raw HTML.
+
+    Each phone/desktop ``<picture>`` row becomes two line blocks, so every
+    row is a block of its own as GitHub's ``<div>`` is, never a run of
+    inline images beside the row before it. PyPI keeps neither ``<source>``
+    nor ``media``, so the desktop drawings carry PyPI's own
+    ``hide-below-desktop`` class and the phone drawings ``hide-on-desktop``:
+    a desktop browser sees the desktop layout, a phone the phone layout,
+    as on GitHub. Each image's width is its share of the column it was
+    drawn for (830 px desktop, 358 px phone), so a row of buttons or cards
+    fills the column and never wraps when PyPI's column is a little
+    narrower than GitHub's. The widths are read from the drawings, which
+    sit beside ``setup.py`` in a checkout; a build without them (a wheel
+    built from the sdist) reuses the sdist's description, see
+    :func:`long_description_for`.
     """
+    release_reference = os.environ.get("SPACR_PYPI_README_REF")
+    if release_reference is not None and re.fullmatch(r"[0-9a-f]{40}", release_reference) is None:
+        raise ValueError("SPACR_PYPI_README_REF must be a full lowercase commit SHA")
+    reference = release_reference if release_reference is not None else "main"
     names = set()
+    columns = {"desktop": 830, "phone": 358}
+    classes = {"desktop": "hide-below-desktop", "phone": "hide-on-desktop"}
+
+    def share(path, layout):
+        """``path``'s drawn width as a percentage of its layout's column."""
+        from pathlib import Path
+
+        try:
+            head = (Path(__file__).resolve().parent / path).read_text(
+                encoding="utf-8")[:2000]
+        except OSError:
+            return None
+        match = re.search(r'<svg\b[^>]*?\swidth="([0-9.]+)"', head)
+        if match is None:
+            return None
+        percent = min(100.0, 100.0 * float(match[1]) / columns[layout])
+        return f"{int(percent * 1000) / 1000:g}%"
 
     def pictures(rows):
-        """Rows of GitHub ``<picture>`` images as RST images: the phone
-        drawing, which PyPI shows at its own size like GitHub's phone page."""
+        """Rows of GitHub ``<picture>`` images as a desktop and a phone
+        line block of RST images, each line one row as on GitHub."""
         found = re.compile(
-            r'(?:<a href="(?P<target>[^"]*)">)?<picture><source [^>]*>'
+            r'(?:<a href="(?P<target>[^"]*)">)?<picture><source [^>]*?'
+            r'srcset="(?P<desktop>[^"]+)"[^>]*>'
             r'<img src="(?P<src>[^"]+)" alt="(?P<alt>[^"]*)"></picture>'
             r'(?:</a>)?')
         blocks, definitions = [], []
         for row in re.findall(r"   <div>(.*)</div>", rows):
             items = list(found.finditer(row))
-            if len(items) == 1:
-                item = items[0]
-                lines = [f".. image:: {unescape(item['src'])}",
-                         f"   :alt: {unescape(item['alt'])}"]
-                if item["target"]:
-                    lines.append(f"   :target: {unescape(item['target'])}")
-                blocks.append("\n".join(lines))
-                continue
-            line = []
-            for item in items:
-                name = "pypi-" + re.sub(
-                    r"\W+", "-", item["src"].rsplit("/", 1)[-1])
-                while name in names:
-                    name += "-"
-                names.add(name)
-                line.append(f"|{name}|")
-                lines = [f".. |{name}| image:: {unescape(item['src'])}",
-                         f"   :alt: {unescape(item['alt'])}"]
-                if item["target"]:
-                    lines.append(f"   :target: {unescape(item['target'])}")
-                definitions.append("\n".join(lines))
-            blocks.append("| " + "\\ ".join(line))
+            for layout in ("desktop", "phone"):
+                line = []
+                for item in items:
+                    image = unescape(item["desktop" if layout == "desktop" else "src"])
+                    name = f"pypi-{layout}-" + re.sub(
+                        r"\W+", "-", image.rsplit("/", 1)[-1])
+                    while name in names:
+                        name += "-"
+                    names.add(name)
+                    line.append(f"|{name}|")
+                    lines = [f".. |{name}| image:: {image}",
+                             f"   :alt: {unescape(item['alt'])}",
+                             f"   :class: {classes[layout]}"]
+                    width = share(image, layout)
+                    if width:
+                        lines.append(f"   :width: {width}")
+                    if item["target"]:
+                        lines.append(f"   :target: {unescape(item['target'])}")
+                    definitions.append("\n".join(lines))
+                blocks.append("| " + "\\ ".join(line))
         return "\n\n".join(blocks + definitions) + "\n"
 
     def absolute(value, image=False):
+        for prefix in (
+            "https://raw.githubusercontent.com/EinarOlafsson/spacr/",
+            "https://github.com/EinarOlafsson/spacr/blob/",
+        ):
+            if value.startswith(prefix + "main/"):
+                return prefix + reference + "/" + value[len(prefix + "main/"):]
         if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", value) or value.startswith(("//", "#")):
             return value
-        base = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/main/"
-                if image else "https://github.com/EinarOlafsson/spacr/blob/main/")
+        base = (f"https://raw.githubusercontent.com/EinarOlafsson/spacr/{reference}/"
+                if image else f"https://github.com/EinarOlafsson/spacr/blob/{reference}/")
         return base + value.removeprefix("./")
 
     source = re.sub(
@@ -108,6 +150,7 @@ def pypi_readme(source):
     source = re.sub(
         r"(?m)^\.\. raw:: html\n\n((?:   <div>[^\n]*</div>(?:\n|$))+)",
         lambda match: pictures(match[1]), source)
+    source = space_after_code(source)
     source = re.sub(
         r"(?m)^(\s*\.\. (?:\|[^|]+\| )?(?:image|figure)::\s+)(\S+)",
         lambda match: match[1] + absolute(match[2], image=True), source)
@@ -117,9 +160,54 @@ def pypi_readme(source):
     return re.sub(r"<([^<>\s]+)>(?=`_)",
                   lambda match: "<" + absolute(match[1]) + ">", source)
 
+def space_after_code(source):
+    """Put an empty line block between a code block and the image row after it.
+
+    PyPI sets a code block 30 px below what precedes it and nothing below
+    it, so the panel that follows would touch the code; GitHub leaves a gap
+    on both sides. One empty line of a line block restores that gap.
+
+    :param source: the converted reStructuredText.
+    :returns: the same text with a spacer after each such code block.
+    """
+    lines, out, in_code = source.split("\n"), [], False
+    for line in lines:
+        if line.startswith(".. code-block::") or line.startswith(".. code::"):
+            in_code = True
+        elif in_code and line and not line.startswith(" "):
+            if line.startswith("| |pypi-"):
+                out.extend(["|", ""])
+            in_code = False
+        out.append(line)
+    return "\n".join(out)
+
+def long_description_for(readme, root=None):
+    """The PyPI description: the converted README, or the sdist's own.
+
+    A wheel built from the sdist runs this file again in the unpacked sdist,
+    which holds ``PKG-INFO`` but not the README's drawings, so their widths
+    cannot be read there; the description the sdist already carries is
+    reused, and the wheel and the sdist describe the release identically.
+
+    :param readme: the README.rst source text.
+    :param root: the folder holding ``setup.py``; this file's own by default.
+    :returns: the reStructuredText long description.
+    """
+    from email import message_from_string
+    from pathlib import Path
+
+    here = Path(root) if root is not None else Path(__file__).resolve().parent
+    pkg_info = here / "PKG-INFO"
+    if not (here / "docs" / "readme_images").is_dir() and pkg_info.is_file():
+        metadata = message_from_string(pkg_info.read_text(encoding="utf-8"))
+        payload = metadata.get_payload()
+        if isinstance(payload, str) and payload.strip():
+            return payload
+    return pypi_readme(readme)
+
 
 with open("README.rst", "r", encoding="utf-8") as fh:
-    long_description = pypi_readme(fh.read())
+    long_description = long_description_for(fh.read())
 
 dependencies = [
     'packaging>=21.3',

@@ -170,9 +170,12 @@ jobs:
           # always going to fail on `ModuleNotFoundError: No module named 'PIL'`
           # with a wheel that had already built and passed `twine check`.
           python -m pip install build twine pytest packaging pyyaml "setuptools>=64" pillow
+          export SPACR_PYPI_README_REF="$(git rev-parse HEAD)"
           python -m build
-          python -m twine check dist/*
-          python -m pytest --noconftest \
+          python -m twine check --strict dist/*
+          SPACR_PYPI_DIST_DIR="$PWD/dist" python -m pytest --noconftest \
+            tests/test_pypi_readme_images.py \
+            tests/test_pypi_readme_layout_survives_the_renderer.py \
             tests/test_packaging_metadata.py \
             tests/test_online_installers.py \
             tests/test_conda_forge_recipe.py -q --tb=short

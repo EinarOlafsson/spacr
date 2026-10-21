@@ -1,6 +1,6 @@
 488 — PYPI README IMAGES WITHOUT LOSING THE GITHUB PAGE
 =====================================================
-Status: DONE 2026-09-24 — implementation and package rendering verified; ships with1.5.1.0.
+Status: REOPENED 2026-10-21 — responsive PyPI layout and release-source binding required for1.5.1.6.
 
 User request2026-09-23: keep every GitHub image and all content, making PyPI
 compatible or providing a PyPI-specific equivalent instead of broken images.
@@ -45,3 +45,9 @@ This checks the built package's description and live image hosts, not a
 publication of1.5.1.0. The maintainer retains the version/main release step.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_pypi_readme_images.py pass.
+
+2026-10-21 — Maintainer release priority: release_ci_takeover owns minimal main-compatible responsive PyPI metadata and root owns publication.
+2026-10-21 — Preserve canonical README/GitHub/language outputs and existing main packaging; project only responsive image rows, exact40-hex release-source URLs and built-artifact acceptance gates.
+2026-10-21 — Acceptance: actual main sdist→wheel metadata equality, strict Twine/rendering checks and desktop/mobile preview; published1.5.1.6 remains required before whole-item closure.
+
+2026-10-21 — Actual main sdist→wheel build, strict Twine and17 artifact checks pass; actual wheel HTML shows121 loaded images with no overflow in desktop780px/phone360px columns. Main-compatible producer preserves other packaging; published1.5.1.6 acceptance remains.

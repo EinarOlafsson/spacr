@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def metadata(monkeypatch):
+    monkeypatch.delenv("SPACR_PYPI_README_REF", raising=False)
     captured = {}
     monkeypatch.chdir(ROOT)
     monkeypatch.setattr("setuptools.setup", lambda **kwargs: captured.update(kwargs))
@@ -24,6 +25,7 @@ class Images(HTMLParser):
     def __init__(self):
         super().__init__()
         self.images = []
+        self.sources = []
         self.links = []
         self.image_targets = {}
         self.target = None
@@ -33,6 +35,8 @@ class Images(HTMLParser):
         if tag == "img":
             self.images.append(values)
             self.image_targets[values["src"]] = self.target
+        if tag == "source":
+            self.sources.append(values)
         if tag == "a" and "href" in values:
             self.target = values["href"]
             self.links.append(values["href"])
@@ -59,8 +63,14 @@ def test_packaged_readme_renders_all_original_images(metadata):
         **renderer.SETTINGS, "raw_enabled": True,
     })["fragment"])
     converted.feed(html)
+    desktop = [i for i in converted.images
+               if i.get("class") == "hide-below-desktop"]
+    converted.images = [i for i in converted.images
+                        if i.get("class") != "hide-below-desktop"]
     assert len(converted.images) == len(original.images) > 30
     assert [i.get("alt") for i in converted.images] == [i.get("alt") for i in original.images]
+    assert [i["src"].split("/main/")[-1] for i in desktop] == [
+        s["srcset"] for s in original.sources]
     assert all(i["src"].startswith("https://") for i in converted.images)
     assert all(re.match(r"(?:https?://|mailto:|#)", link) for link in converted.links)
     restored = packaged["long_description"].replace(
@@ -70,7 +80,7 @@ def test_packaged_readme_renders_all_original_images(metadata):
         "https://raw.githubusercontent.com/EinarOlafsson/spacr/main/", "").replace(
         "https://github.com/EinarOlafsson/spacr/blob/main/", "")
     # Only GitHub's raw HTML changes shape for PyPI: icon cells and the
-    # phone/desktop pictures become RST images (the phone drawing). Every
+    # phone/desktop pictures become RST images (both drawings). Every
     # code block and every line outside the raw HTML stays intact.
     def kept(text):
         text = re.sub(r"(?m)^\.\. (?:\|[^|\n]+\| )?raw:: html\n\n(?:   [^\n]*\n?)+",
@@ -78,7 +88,8 @@ def test_packaged_readme_renders_all_original_images(metadata):
         text = re.sub(r"(?m)^\.\. (?:\|[^|\n]+\| )?image::[^\n]*\n(?:   :[^\n]*\n?)*",
                       "", text)
         return [line for line in text.splitlines()
-                if line.strip() and not line.startswith("| ")]
+                if line.strip() and line.strip() != "|"
+                and not line.startswith("| ")]
     assert kept(restored) == kept(original_normalized)
     assert "raw:: html" not in packaged["long_description"]
     assert {i["alt"]: i["src"].split("/main/")[-1] for i in converted.images} == {
@@ -146,3 +157,36 @@ def test_conversion_preserves_escaped_tile_labels_and_destinations(metadata):
     assert 'image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/icons/sample.png' in converted
     assert ':width: 16.5%' in converted
     assert convert(converted) == converted
+
+
+@pytest.mark.parametrize("reference", ["", "main", "nightly", "../main", "A" * 40, "a" * 39])
+def test_release_description_rejects_non_commit_references(metadata, monkeypatch, reference):
+    _, convert = metadata
+    monkeypatch.setenv("SPACR_PYPI_README_REF", reference)
+    with pytest.raises(ValueError, match="full lowercase commit SHA"):
+        convert(".. image:: docs/example.svg\n")
+
+
+def test_release_description_pins_repository_images_and_pages(metadata, monkeypatch):
+    _, convert = metadata
+    reference = "0123456789abcdef" * 2 + "01234567"
+    monkeypatch.setenv("SPACR_PYPI_README_REF", reference)
+    source = """.. image:: docs/example.svg
+   :target: docs/readme_text/en/example.md
+
+.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/docs/banner.svg
+   :target: https://github.com/EinarOlafsson/spacr/blob/main/docs/i18n/readme/README.fr.rst
+
+`Guide <docs/guide.rst#example>`_ `Remote <https://example.org/main/page>`_
+.. image:: https://example.org/image.svg
+"""
+    result = convert(source)
+    assert f"spacr/{reference}/docs/example.svg" in result
+    assert f"spacr/blob/{reference}/docs/readme_text/en/example.md" in result
+    assert f"spacr/{reference}/docs/banner.svg" in result
+    assert f"spacr/blob/{reference}/docs/i18n/readme/README.fr.rst" in result
+    assert f"spacr/blob/{reference}/docs/guide.rst#example" in result
+    assert "https://example.org/main/page" in result
+    assert "https://example.org/image.svg" in result
+    assert "/main/" not in result.replace("https://example.org/main/page", "")
+    assert convert(result) == result
