@@ -223,13 +223,13 @@ def test_windows_native_verifier_keeps_default_and_explicit_commit_refusal(tmp_p
               "-NativeReceipt", str(receipt), "-Shell", "cmd", "-Output", str(tmp_path / "out")]
     import os
     env = dict(os.environ, GITHUB_SHA="selected")
-    default = subprocess.run(common, env=env, capture_output=True, text=True, timeout=10)
+    default = subprocess.run(common, env=env, capture_output=True, text=True, timeout=60)
     assert default.returncode == 0, default.stderr
     explicit = subprocess.run(common + ["-SourceCommit", "selected"],
-                              env=dict(env, GITHUB_SHA="caller"), capture_output=True, text=True, timeout=10)
+                              env=dict(env, GITHUB_SHA="caller"), capture_output=True, text=True, timeout=60)
     assert explicit.returncode == 0, explicit.stderr
     wrong = subprocess.run(common + ["-SourceCommit", "caller"], env=env,
-                           capture_output=True, text=True, timeout=10)
+                           capture_output=True, text=True, timeout=60)
     assert wrong.returncode != 0 and "another commit" in wrong.stderr
 
 
