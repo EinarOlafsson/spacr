@@ -3,8 +3,6 @@ name: release spaCR
 on:
   push:
     branches: [main]
-    paths:
-      - "setup.py"
   workflow_dispatch:
     inputs:
       version:
@@ -492,8 +490,8 @@ jobs:
       # mistake worth over-guarding: (1) the push carries GITHUB_TOKEN, and
       # GitHub starts no workflow run from an event pushed with that token
       # -- the same fact `container-images` above is built around; (2) this
-      # workflow's push trigger is filtered to `paths: setup.py`, and this
-      # commit touches one JSON resource; (3) the `bump` job refuses any
+      # version comparison refuses a release when VERSION is unchanged;
+      # (3) the `bump` job refuses any
       # push whose actor is github-actions[bot].
       - name: Commit the refreshed notes to main and nightly
         env:
@@ -535,8 +533,8 @@ jobs:
     # everything it describes is already published when it runs.
     #
     # IT CANNOT START ANOTHER RELEASE, for the three reasons release-notes
-    # gives: a GITHUB_TOKEN push starts no workflow, the push trigger is
-    # filtered to setup.py, and `bump` refuses github-actions[bot].
+    # gives: a GITHUB_TOKEN push starts no workflow, unchanged VERSION starts
+    # no release, and `bump` refuses github-actions[bot].
     if: >-
       always() &&
       needs.bump.result == 'success' &&

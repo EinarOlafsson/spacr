@@ -722,10 +722,13 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
 
 
 def test_one_click_release_orders_version_pypi_installers_and_github():
+    import yaml
     workflow = _text(RELEASE_WORKFLOW)
+    definition = yaml.safe_load(workflow)
+    triggers = definition.get("on", definition.get(True))
+    assert triggers["push"] == {"branches": ["main"]}
     assert "workflow_dispatch:" in workflow
     assert "branches: [main]" in workflow
-    assert '"setup.py"' in workflow
     assert "python packaging/release.py bump" in workflow
     assert "--allow-current" in workflow
     assert "github.actor != 'github-actions[bot]'" in workflow
