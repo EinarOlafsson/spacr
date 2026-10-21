@@ -176,19 +176,19 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "在Python虚拟环境中用pip安装，在Conda环境中用pip安装，或在Conda环境中通过conda-forge安装；启动、更新和卸载。",
+      "description": "使用pip、conda-forge或Docker安装spaCR，检查安装，启动相应界面，并进行更新和卸载。",
       "objectives": [
-        "选择三种隔离安装方式中的一种。",
+        "选择独立的Python安装环境或固定版本的容器。",
         "安装或启动前激活正确的环境。",
         "检查已安装版本，安全更新和卸载。"
       ],
-      "prerequisite": "虚拟环境方式使用Python 3.12；两种Conda方式均需先安装Conda/Miniforge。打开终端。不要与现有环境使用相同名称。",
+      "prerequisite": "虚拟环境方式使用Python 3.12；两种Conda方式均需先安装Conda/Miniforge。打开终端。不要与现有环境使用相同名称。使用容器时，请安装Docker Desktop或Docker Engine，并将其配置为运行Linux x86-64容器。",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "选择一种安装方式。Pip可将spaCR安装到Python虚拟环境或Conda环境中。Conda-forge安装到Conda环境中，不能向Python虚拟环境安装软件包。以下三种方式是备选方案，只需选择一种。",
+          "narration": "选择一种安装方式。Pip会在Python虚拟环境或Conda环境中安装spaCR。Conda-forge会在Conda环境中安装spaCR。Docker在容器内运行命令行分析流程。请选择适合您使用spaCR的方式。",
           "hold_after": 0.7,
-          "speech_text": "选择一种安装方式。Pip可将斯佩克尔安装到Python虚拟环境或Conda环境中。Conda-forge安装到Conda环境中，不能向Python虚拟环境安装软件包。以下三种方式是备选方案，只需选择一种。"
+          "speech_text": "选择一种安装方式。Pip会在Python虚拟环境或Conda环境中安装斯佩克尔。Conda-forge会在Conda环境中安装斯佩克尔。Docker在容器内运行命令行分析流程。请选择适合您使用斯佩克尔的方式。"
         },
         {
           "visual": "pip_01_create_venv",
@@ -210,9 +210,9 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。此方式安装的是PyPI上已发布的软件包；源代码检出版本或每夜开发版可能有更新的界面功能。",
+          "narration": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。",
           "hold_after": 0.7,
-          "speech_text": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。此方式安装的是派普上已发布的软件包；源代码检出版本或每夜开发版可能有更新的界面功能。"
+          "speech_text": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。"
         },
         {
           "visual": "pip_05_launch",
@@ -240,9 +240,9 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。conda-forge上可用的版本可能与最新PyPI版本或每夜开发版不同。",
+          "narration": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。",
           "hold_after": 0.7,
-          "speech_text": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。conda-forge上可用的版本可能与最新派普版本或每夜开发版不同。"
+          "speech_text": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。"
         },
         {
           "visual": "conda_03_activate",
@@ -251,13 +251,37 @@
           "speech_text": "激活斯佩克尔-conda。检查Python环境路径，并运行conda list 斯佩克尔确认已安装版本及频道。然后运行斯佩克尔-doctor，从此环境启动斯佩克尔。"
         },
         {
+          "visual": "docker_01_install",
+          "narration": "使用Docker时，请按操作系统的官方说明安装Docker Desktop或Docker Engine，并配置Linux容器。spaCR容器镜像面向Linux x86-64。命令行分析流程可使用容器；图形应用程序请选择桌面安装方式。",
+          "hold_after": 0.7,
+          "speech_text": "使用Docker时，请按操作系统的官方说明安装Docker Desktop或Docker Engine，并配置Linux容器。斯佩克尔容器镜像面向Linux x86-64。命令行分析流程可使用容器；图形应用程序请选择桌面安装方式。"
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "打开spaCR官方容器软件包页面，选择一个可用版本。拉取该确切版本的CPU镜像，再用它运行spacr --version和spacr-run --list。确认显示的版本与所选标签一致，并将标签保存在分析笔记中。",
+          "hold_after": 0.7,
+          "speech_text": "打开斯佩克尔官方容器软件包页面，选择一个可用版本。拉取该确切版本的CPU镜像，再用它运行斯佩克尔 --version和斯佩克尔-run --list。确认显示的版本与所选标签一致，并将标签保存在分析笔记中。"
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "将项目文件夹挂载到/data，将模型缓存挂载到/models。把分析流程的设置导出到项目文件夹，并在设置中使用容器内部路径。运行spacr-run，指定流程名称和设置CSV。将结果写入/data，使其在容器退出后仍保存在项目中。在Linux上，请传入自己的用户ID和组ID，使输出文件的所有权与您的账户一致。",
+          "hold_after": 0.7,
+          "speech_text": "将项目文件夹挂载到/data，将模型缓存挂载到/models。把分析流程的设置导出到项目文件夹，并在设置中使用容器内部路径。运行斯佩克尔-run，指定流程名称和设置CSV。将结果写入/data，使其在容器退出后仍保存在项目中。在Linux上，请传入自己的用户ID和组ID，使输出文件的所有权与您的账户一致。"
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "使用NVIDIA进行处理时，请安装受支持的主机驱动和NVIDIA Container Toolkit，再按官方指南配置Docker运行时。CUDA 12.4镜像需要550或更新版本的主机驱动。选择相应的固定版本CUDA镜像，并添加--gpus all。CPU镜像既不需要toolkit，也不需要GPU。",
+          "hold_after": 0.7,
+          "speech_text": "使用NVIDIA进行处理时，请安装受支持的主机驱动和NVIDIA Container Toolkit，再按官方指南配置Docker运行时。CUDA 12.4镜像需要550或更新版本的主机驱动。选择相应的固定版本CUDA镜像，并添加--gpus all。CPU镜像既不需要toolkit，也不需要GPU。"
+        },
+        {
           "visual": "06_current_home",
-          "narration": "这份补充材料展示当前每夜开发版的Home界面。您已安装的发布版本可能外观不同。环境命令安装的是所选频道中已发布的软件包；此当前源代码视图并不意味着每夜开发版的所有功能都已发布。",
+          "narration": "从已安装的环境中启动spaCR。Home将模块分为Core、Data、Tools和Organism。选择一个模块即可开始相应的工作流程。",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
           ],
-          "speech_text": "这份补充材料展示当前每夜开发版的主页界面。您已安装的发布版本可能外观不同。环境命令安装的是所选频道中已发布的软件包；此当前源代码视图并不意味着每夜开发版的所有功能都已发布。"
+          "speech_text": "从已安装的环境中启动斯佩克尔。主页将模块分为Core、Data、Tools和Organism。选择一个模块即可开始相应的工作流程。"
         },
         {
           "visual": "pip_06_update",

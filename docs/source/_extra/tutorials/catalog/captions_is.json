@@ -147,17 +147,17 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Settu upp með pip í sýndarumhverfi Python, pip í Conda-umhverfi eða conda-forge í Conda-umhverfi; ræstu, uppfærðu og fjarlægðu.",
+      "description": "Settu spaCR upp með pip, conda-forge eða Docker; athugaðu uppsetninguna, opnaðu viðeigandi viðmót, uppfærðu og fjarlægðu forritið.",
       "objectives": [
-        "Veldu eina af þremur aðskildum uppsetningarleiðum.",
+        "Velja einangrað Python-umhverfi eða gám með fastri útgáfu.",
         "Virkjaðu rétt umhverfi fyrir uppsetningu eða ræsingu.",
         "Athugaðu uppsetta útgáfu, uppfærðu og fjarlægðu á öruggan hátt."
       ],
-      "prerequisite": "Notaðu Python 3.12 fyrir sýndarumhverfisleiðina eða settu upp Conda/Miniforge fyrir aðra hvora Conda-leiðina. Opnaðu skipanalínu. Veldu önnur nöfn en þau sem núverandi umhverfi nota.",
+      "prerequisite": "Notaðu Python 3.12 fyrir sýndarumhverfisleiðina eða settu upp Conda/Miniforge fyrir aðra hvora Conda-leiðina. Opnaðu skipanalínu. Veldu önnur nöfn en þau sem núverandi umhverfi nota. Fyrir gáma skaltu setja upp Docker Desktop eða Docker Engine og stilla það fyrir Linux-x86-64-gáma.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Veldu uppsetningarleið. Pip setur spaCR upp annaðhvort í sýndarumhverfi Python eða Conda-umhverfi. Conda-forge setur upp í Conda-umhverfi; það getur ekki sett pakka upp í sýndarumhverfi Python. Leiðirnar þrjár hér að neðan eru valkostir, svo þú þarft aðeins eina.",
+          "narration": "Veldu uppsetningarleið. Pip setur spaCR upp í Python-sýndarumhverfi eða Conda-umhverfi. Conda-forge setur spaCR upp í Conda-umhverfi. Docker keyrir skipanalínuvinnslukeðjur inni í gámi. Veldu leið sem hentar því hvernig þú ætlar að nota spaCR.",
           "hold_after": 0.7
         },
         {
@@ -177,7 +177,7 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Athugaðu uppsetta útgáfu og slóð pakkans og keyrðu síðan python -m pip check. Geymdu útgáfuna með greiningarnótunum þínum. Þessi leið setur upp útgefna PyPI-pakkann; afrit af frumkóða eða nightly-útgáfa getur haft nýrri viðmótsaðgerðir.",
+          "narration": "Athugaðu uppsetta útgáfu og slóð pakkans og keyrðu síðan python -m pip check. Geymdu útgáfuna með greiningarnótunum þínum.",
           "hold_after": 0.7
         },
         {
@@ -202,7 +202,7 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda sýnir pakkaáætlun sína fyrir uppsetningu. Farðu yfir hana, samþykktu hana og leyfðu niðurhali og uppsetningu að ljúka. Tiltæk conda-forge-útgáfa getur verið önnur en nýjasta PyPI- eða nightly-útgáfan.",
+          "narration": "Conda sýnir pakkaáætlun sína fyrir uppsetningu. Farðu yfir hana, samþykktu hana og leyfðu niðurhali og uppsetningu að ljúka.",
           "hold_after": 0.7
         },
         {
@@ -211,8 +211,28 @@
           "hold_after": 0.7
         },
         {
+          "visual": "docker_01_install",
+          "narration": "Settu upp Docker Desktop eða Docker Engine samkvæmt opinberum leiðbeiningum fyrir stýrikerfið þitt og stilltu Linux-gáma. spaCR-gámamyndirnar eru fyrir Linux x86-64. Notaðu gám fyrir skipanalínuvinnslukeðjur en skjáborðsuppsetningu fyrir myndræna forritið.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Opnaðu opinbera pakkasíðu spaCR-gáma og veldu tiltæka útgáfu. Sæktu nákvæmlega þá CPU-mynd og keyrðu hana með spacr --version og spacr-run --list. Athugaðu að útgáfan sem birtist samsvari valda útgáfumerkinu. Geymdu merkið með greiningarnótunum þínum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Tengdu verkefnismöppuna við /data og skyndiminni líkana við /models. Flyttu stillingar vinnslukeðjunnar út í verkefnismöppuna og notaðu slóðir innan gámsins í stillingunum. Keyrðu spacr-run með heiti vinnslukeðjunnar og stillingaskránni á CSV-sniði. Skrifaðu niðurstöður undir /data svo þær haldist í verkefninu þegar gámurinn hefur lokið keyrslu. Í Linux skaltu gefa notandaauðkenni og hópauðkenni svo úttaksskrárnar verði í eigu reikningsins þíns.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "Settu upp studdan rekil á hýsingartölvunni og NVIDIA Container Toolkit fyrir NVIDIA-vinnslu og stilltu keyrsluumhverfi Docker samkvæmt opinberu leiðbeiningunum. CUDA 12.4-myndin krefst rekilútgáfu 550 eða nýrri á hýsingartölvunni. Veldu samsvarandi CUDA-mynd með fastri útgáfu og bættu við --gpus all. CPU-myndin þarf hvorki toolkit né GPU.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_current_home",
-          "narration": "Þetta fylgiefni sýnir Home í núverandi nightly-viðmóti. Uppsetta útgáfan þín getur litið öðruvísi út. Umhverfisskipanirnar setja upp útgefna pakkann úr valinni rás; þessi sýn á núverandi frumkóða fullyrðir ekki að allar nightly-aðgerðir séu þegar útgefnar.",
+          "narration": "Ræstu spaCR úr umhverfinu sem þú settir upp. Home flokkar einingarnar í Core, Data, Tools og Organism. Veldu einingu til að hefja vinnuflæði hennar.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"

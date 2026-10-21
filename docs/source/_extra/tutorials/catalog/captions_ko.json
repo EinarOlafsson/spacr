@@ -147,17 +147,17 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Python 가상 환경에서 pip로, Conda 환경에서 pip로, 또는 Conda 환경에서 conda-forge로 설치하고 실행, 업데이트 및 제거합니다.",
+      "description": "pip, conda-forge 또는 Docker로 spaCR를 설치하고, 설치 상태를 확인한 뒤 적절한 인터페이스를 실행하고 업데이트하거나 제거합니다.",
       "objectives": [
-        "세 가지 격리된 설치 방법 중 하나를 선택합니다.",
+        "격리된 Python 설치 환경 또는 버전이 고정된 컨테이너를 선택합니다.",
         "설치하거나 실행하기 전에 올바른 환경을 활성화합니다.",
         "설치된 버전을 확인하고 안전하게 업데이트하고 제거합니다."
       ],
-      "prerequisite": "가상 환경 방법에는 Python 3.12를 사용하고, 두 Conda 방법에는 Conda/Miniforge를 설치하세요. 터미널을 여세요. 기존 환경과 다른 이름을 사용해야 합니다.",
+      "prerequisite": "가상 환경 방법에는 Python 3.12를 사용하고, 두 Conda 방법에는 Conda/Miniforge를 설치하세요. 터미널을 여세요. 기존 환경과 다른 이름을 사용해야 합니다. 컨테이너를 사용하려면 Docker Desktop 또는 Docker Engine을 설치하고 Linux x86-64 컨테이너용으로 구성하세요.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "설치 방법 하나를 선택하세요. Pip는 Python 가상 환경이나 Conda 환경 안에 spaCR을 설치합니다. Conda-forge는 Conda 환경에 설치하며 Python 가상 환경에는 패키지를 설치할 수 없습니다. 아래 세 방법은 대안이므로 하나만 선택하면 됩니다.",
+          "narration": "설치 방법 하나를 선택하세요. Pip는 Python 가상 환경이나 Conda 환경에 spaCR를 설치합니다. Conda-forge는 Conda 환경에 spaCR를 설치합니다. Docker는 컨테이너 안에서 명령줄 파이프라인을 실행합니다. spaCR를 사용할 방식에 맞는 방법을 선택하세요.",
           "hold_after": 0.7
         },
         {
@@ -177,7 +177,7 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "설치된 버전과 패키지 경로를 확인한 다음 python -m pip check를 실행하세요. 분석 기록에 버전을 함께 보관하세요. 이 방법은 배포된 PyPI 패키지를 설치합니다. 소스 코드 체크아웃이나 nightly 빌드에는 더 새로운 인터페이스 기능이 있을 수 있습니다.",
+          "narration": "설치된 버전과 패키지 경로를 확인한 다음 python -m pip check를 실행하세요. 분석 기록에 버전을 함께 보관하세요.",
           "hold_after": 0.7
         },
         {
@@ -202,7 +202,7 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda는 설치 전에 패키지 계획을 보여 줍니다. 계획을 검토하고 승인한 다음 다운로드와 설치가 끝날 때까지 기다리세요. 사용 가능한 conda-forge 버전은 최신 PyPI 또는 nightly 버전과 다를 수 있습니다.",
+          "narration": "Conda는 설치 전에 패키지 계획을 보여 줍니다. 계획을 검토하고 승인한 다음 다운로드와 설치가 끝날 때까지 기다리세요.",
           "hold_after": 0.7
         },
         {
@@ -211,8 +211,28 @@
           "hold_after": 0.7
         },
         {
+          "visual": "docker_01_install",
+          "narration": "운영 체제의 공식 안내에 따라 Docker Desktop 또는 Docker Engine을 설치하고 Linux 컨테이너를 구성하세요. spaCR 컨테이너 이미지는 Linux x86-64용입니다. 명령줄 파이프라인에는 컨테이너를 사용하고 그래픽 응용 프로그램에는 데스크톱 설치를 선택하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "spaCR 공식 컨테이너 패키지 페이지를 열고 사용 가능한 버전을 선택하세요. 그 정확한 CPU 이미지를 내려받아 spacr --version과 spacr-run --list를 실행하세요. 표시된 버전이 선택한 태그와 일치하는지 확인하고 분석 기록에 그 태그를 보관하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "프로젝트 폴더를 /data에, 모델 캐시를 /models에 마운트하세요. 파이프라인 설정을 프로젝트 폴더로 내보내고 설정에는 컨테이너 내부 경로를 사용하세요. spacr-run에 파이프라인 이름과 설정 CSV를 지정해 실행하세요. 컨테이너가 종료되어도 프로젝트에 남도록 결과는 /data 아래에 기록하세요. Linux에서는 사용자 ID와 그룹 ID를 지정해 출력 파일의 소유권이 자신의 계정과 일치하도록 하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "NVIDIA 처리를 위해 지원되는 호스트 드라이버와 NVIDIA Container Toolkit을 설치한 뒤 공식 안내에 따라 Docker 런타임을 구성하세요. CUDA 12.4 이미지는 버전 550 이상의 호스트 드라이버가 필요합니다. 해당 버전으로 고정된 CUDA 이미지를 선택하고 --gpus all을 추가하세요. CPU 이미지는 툴킷이나 GPU가 필요하지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_current_home",
-          "narration": "이 보조 자료는 현재 nightly의 Home 인터페이스를 보여 줍니다. 설치된 배포 버전은 다르게 보일 수 있습니다. 환경 명령은 선택한 채널에서 배포된 패키지를 설치합니다. 이 현재 소스 화면은 모든 nightly 기능이 이미 배포되었다고 주장하지 않습니다.",
+          "narration": "설치한 환경에서 spaCR를 시작하세요. Home은 모듈을 Core, Data, Tools, Organism으로 묶어 보여 줍니다. 모듈을 선택해 해당 작업 흐름을 시작하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"

@@ -147,17 +147,17 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installer med pip i et virtuelt Python-miljø, pip i et Conda-miljø eller conda-forge i et Conda-miljø; start, oppdater og avinstaller.",
+      "description": "Installer spaCR med pip, conda-forge eller Docker; kontroller installasjonen, åpne riktig grensesnitt, oppdater og avinstaller.",
       "objectives": [
-        "Velg én av tre isolerte installasjonsmåter.",
+        "Velge en isolert Python-installasjon eller en container med fast versjon.",
         "Aktiver riktig miljø før installasjon eller oppstart.",
         "Kontroller den installerte versjonen, oppdater og avinstaller trygt."
       ],
-      "prerequisite": "Bruk Python 3.12 for det virtuelle miljøet, eller installer Conda/Miniforge for en av Conda-måtene. Åpne en terminal. Velg andre navn enn navnene på eksisterende miljøer.",
+      "prerequisite": "Bruk Python 3.12 for det virtuelle miljøet, eller installer Conda/Miniforge for en av Conda-måtene. Åpne en terminal. Velg andre navn enn navnene på eksisterende miljøer. For containere installerer du Docker Desktop eller Docker Engine konfigurert for Linux-x86-64-containere.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Velg en installasjonsmåte. Pip installerer spaCR i enten et virtuelt Python-miljø eller et Conda-miljø. Conda-forge installerer i et Conda-miljø; det kan ikke installere pakker i et virtuelt Python-miljø. De tre måtene nedenfor er alternativer, så du trenger bare én.",
+          "narration": "Velg en installasjonsmåte. Pip installerer spaCR i et virtuelt Python-miljø eller et Conda-miljø. Conda-forge installerer spaCR i et Conda-miljø. Docker kjører kommandolinjepipelines i en container. Velg løsningen som passer til hvordan du skal bruke spaCR.",
           "hold_after": 0.7
         },
         {
@@ -177,7 +177,7 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Kontroller den installerte versjonen og pakkebanen, og kjør deretter python -m pip check. Ta vare på versjonen sammen med analysenotatene dine. Denne måten installerer den publiserte PyPI-pakken; en utsjekking av kildekoden eller en nightly-versjon kan ha nyere grensesnittfunksjoner.",
+          "narration": "Kontroller den installerte versjonen og pakkebanen, og kjør deretter python -m pip check. Ta vare på versjonen sammen med analysenotatene dine.",
           "hold_after": 0.7
         },
         {
@@ -202,7 +202,7 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda viser pakkeplanen før installasjonen. Gjennomgå og godta planen, og la nedlasting og installasjon bli ferdig. Den tilgjengelige conda-forge-versjonen kan være forskjellig fra den nyeste PyPI- eller nightly-versjonen.",
+          "narration": "Conda viser pakkeplanen før installasjonen. Gjennomgå og godta planen, og la nedlasting og installasjon bli ferdig.",
           "hold_after": 0.7
         },
         {
@@ -211,8 +211,28 @@
           "hold_after": 0.7
         },
         {
+          "visual": "docker_01_install",
+          "narration": "Installer Docker Desktop eller Docker Engine etter de offisielle instruksjonene for operativsystemet ditt, og konfigurer Linux-containere. Containeravbildningene til spaCR er for Linux x86-64. Bruk en container til kommandolinjepipelines, og en skrivebordsinstallasjon til det grafiske programmet.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Åpne den offisielle pakkesiden for spaCR-containere og velg en tilgjengelig versjon. Last ned akkurat den CPU-avbildningen og kjør den med spacr --version og spacr-run --list. Kontroller at den viste versjonen samsvarer med den valgte taggen. Ta vare på taggen sammen med analysenotatene dine.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Monter prosjektmappen på /data og modellhurtiglageret på /models. Eksporter pipelineinnstillingene til prosjektmappen, og bruk filstier inne i containeren i innstillingene. Kjør spacr-run med pipeline-navnet og CSV-filen med innstillinger. Skriv resultatene under /data slik at de blir værende i prosjektet når containeren avsluttes. Oppgi bruker-ID og gruppe-ID i Linux slik at utdatafilene tilhører kontoen din.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "Installer en støttet driver på vertsmaskinen og NVIDIA Container Toolkit for NVIDIA-behandling, og konfigurer Docker-kjøremiljøet etter den offisielle veiledningen. CUDA 12.4-avbildningen krever vertsdriver versjon 550 eller nyere. Velg den tilsvarende CUDA-avbildningen med fast versjon og legg til --gpus all. CPU-avbildningen trenger verken toolkit eller GPU.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_current_home",
-          "narration": "Dette tillegget viser Home i det nåværende nightly-grensesnittet. Den installerte versjonen din kan se annerledes ut. Miljøkommandoene installerer den publiserte pakken fra den valgte kanalen; denne visningen av aktuell kildekode hevder ikke at alle nightly-funksjoner allerede er publisert.",
+          "narration": "Start spaCR fra miljøet du installerte. Home grupperer modulene i Core, Data, Tools og Organism. Velg en modul for å starte arbeidsflyten.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"

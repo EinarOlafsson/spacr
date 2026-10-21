@@ -241,3 +241,5 @@ Tutorial 1 PyPI is corrected in 24 English voices; 26 other-language audio track
 Source-bound idle cuts preserve speech and demonstrated actions; the Mask example measures 1.03 s. Reviewed scenes in04/07/21 have explicit protection boundaries.
 Docker (02), Yokogawa (07/14), focused prose (02/04/05/07/17) and 13-language reviews are prepared; their revised media still need delivery.
 Remaining native idle boundaries need editorial review. Captures stay held; preserve original stages/logs and restart AF3 when the campaign ends.
+
+2026-10-21 — Lesson02 publishes Docker installation guidance and feature-focused narration through normal50-voice/media/browser verification. Existing installation footage and held command cards remain distinguished by normal source metadata; item676 stays open.

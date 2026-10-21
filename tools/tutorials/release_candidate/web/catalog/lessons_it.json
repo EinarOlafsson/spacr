@@ -176,19 +176,19 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installare con pip in un ambiente virtuale Python, con pip in un ambiente Conda o con conda-forge in un ambiente Conda; avviare, aggiornare e disinstallare.",
+      "description": "Installa spaCR con pip, conda-forge o Docker; verifica l’installazione, apri l’interfaccia appropriata, aggiorna e disinstalla.",
       "objectives": [
-        "Scegliere uno dei tre percorsi di installazione isolati.",
+        "Scegliere un’installazione Python isolata o un container con una versione fissata.",
         "Attivare l’ambiente corretto prima di installare o avviare.",
         "Verificare la versione installata, aggiornare e disinstallare in sicurezza."
       ],
-      "prerequisite": "Usa Python 3.12 per l’ambiente virtuale, oppure installa Conda/Miniforge per uno dei due percorsi Conda. Apri un terminale. Scegli nomi diversi da quelli degli ambienti esistenti.",
+      "prerequisite": "Usa Python 3.12 per l’ambiente virtuale, oppure installa Conda/Miniforge per uno dei due percorsi Conda. Apri un terminale. Scegli nomi diversi da quelli degli ambienti esistenti. Per i container, installa Docker Desktop o Docker Engine configurato per container Linux x86-64.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Scegli un percorso di installazione. Pip installa spaCR in un ambiente virtuale Python oppure in un ambiente Conda. Conda-forge installa in un ambiente Conda; non può installare pacchetti in un ambiente virtuale Python. I tre percorsi seguenti sono alternative, quindi ne basta uno.",
+          "narration": "Scegli un percorso di installazione. Pip installa spaCR in un ambiente virtuale Python oppure in un ambiente Conda. Conda-forge installa spaCR in un ambiente Conda. Docker esegue le pipeline da riga di comando all’interno di un container. Scegli il percorso adatto al tuo utilizzo di spaCR.",
           "hold_after": 0.7,
-          "speech_text": "Scegli un percorso di installazione. Pip installa spàker in un ambiente virtuale Python oppure in un ambiente Conda. Conda Forge installa in un ambiente Conda; non può installare pacchetti in un ambiente virtuale Python. I tre percorsi seguenti sono alternative, quindi ne basta uno."
+          "speech_text": "Scegli un percorso di installazione. Pip installa spàker in un ambiente virtuale Python oppure in un ambiente Conda. Conda Forge installa spàker in un ambiente Conda. Docker esegue le pipeline da riga di comando all’interno di un container. Scegli il percorso adatto al tuo utilizzo di spàker."
         },
         {
           "visual": "pip_01_create_venv",
@@ -210,9 +210,9 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Verifica la versione installata e il percorso del pacchetto, poi esegui python trattino m pip check. Conserva la versione con le note dell’analisi. Questo percorso installa il pacchetto pubblicato su PyPI; una copia del codice sorgente o una versione nightly può avere funzionalità dell’interfaccia più recenti.",
+          "narration": "Verifica la versione installata e il percorso del pacchetto, poi esegui python trattino m pip check. Conserva la versione con le note dell’analisi.",
           "hold_after": 0.7,
-          "speech_text": "Verifica la versione installata e il percorso del pacchetto, poi esegui python trattino m pip check. Conserva la versione con le note dell’analisi. Questo percorso installa il pacchetto pubblicato su paip; una copia del codice sorgente o una versione nightly può avere funzionalità dell’interfaccia più recenti."
+          "speech_text": "Verifica la versione installata e il percorso del pacchetto, poi esegui python trattino m pip check. Conserva la versione con le note dell’analisi."
         },
         {
           "visual": "pip_05_launch",
@@ -240,9 +240,9 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda mostra il piano dei pacchetti prima dell’installazione. Esaminalo, accettalo e attendi che download e installazione terminino. La versione disponibile su conda-forge può differire dalla più recente versione PyPI o nightly.",
+          "narration": "Conda mostra il piano dei pacchetti prima dell’installazione. Esaminalo, accettalo e attendi che download e installazione terminino.",
           "hold_after": 0.7,
-          "speech_text": "Conda mostra il piano dei pacchetti prima dell’installazione. Esaminalo, accettalo e attendi che download e installazione terminino. La versione disponibile su Conda Forge può differire dalla più recente versione paip o nightly."
+          "speech_text": "Conda mostra il piano dei pacchetti prima dell’installazione. Esaminalo, accettalo e attendi che download e installazione terminino."
         },
         {
           "visual": "conda_03_activate",
@@ -251,13 +251,37 @@
           "speech_text": "Attiva spàker-conda. Verifica il percorso dell’ambiente Python ed esegui conda list spàker per confermare versione installata e canale. Quindi esegui spàker-doctor e avvia spàker da questo ambiente."
         },
         {
+          "visual": "docker_01_install",
+          "narration": "Per Docker, installa Docker Desktop o Docker Engine seguendo le istruzioni ufficiali per il tuo sistema operativo e configura i container Linux. Le immagini spaCR sono destinate a Linux x86-64. Usa un container per le pipeline da riga di comando; scegli un’installazione desktop per l’applicazione grafica.",
+          "hold_after": 0.7,
+          "speech_text": "Per Docker, installa Docker Desktop o Docker Engine seguendo le istruzioni ufficiali per il tuo sistema operativo e configura i container Linux. Le immagini spàker sono destinate a Linux x86-64. Usa un container per le pipeline da riga di comando; scegli un’installazione desktop per l’applicazione grafica."
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Apri la pagina ufficiale del pacchetto container di spaCR e scegli una versione disponibile. Scarica quella precisa immagine CPU, poi eseguila con spacr --version e spacr-run --list. Controlla che la versione indicata corrisponda al tag scelto. Conserva quel tag nelle note dell’analisi.",
+          "hold_after": 0.7,
+          "speech_text": "Apri la pagina ufficiale del pacchetto container di spàker e scegli una versione disponibile. Scarica quella precisa immagine CPU, poi eseguila con spàker --version e spàker-run --list. Controlla che la versione indicata corrisponda al tag scelto. Conserva quel tag nelle note dell’analisi."
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Monta la cartella del progetto su /data e la cache dei modelli su /models. Esporta le impostazioni della pipeline nella cartella del progetto e usa i percorsi interni al container nelle impostazioni. Esegui spacr-run con il nome della pipeline e il CSV delle impostazioni. Scrivi i risultati sotto /data, così resteranno nel progetto dopo l’uscita dal container. Su Linux, passa gli identificatori del tuo utente e del tuo gruppo, affinché i file di output appartengano al tuo account.",
+          "hold_after": 0.7,
+          "speech_text": "Monta la cartella del progetto su /data e la cache dei modelli su /models. Esporta le impostazioni della pipeline nella cartella del progetto e usa i percorsi interni al container nelle impostazioni. Esegui spàker-run con il nome della pipeline e il CSV delle impostazioni. Scrivi i risultati sotto /data, così resteranno nel progetto dopo l’uscita dal container. Su Linux, passa gli identificatori del tuo utente e del tuo gruppo, affinché i file di output appartengano al tuo account."
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "Per elaborare con NVIDIA, installa un driver supportato sull’host e NVIDIA Container Toolkit, poi configura il runtime Docker seguendo la guida ufficiale. L’immagine CUDA 12.4 richiede un driver host di versione 550 o successiva. Scegli l’immagine CUDA corrispondente con una versione fissata e aggiungi --gpus all. L’immagine CPU non richiede né il toolkit né una GPU.",
+          "hold_after": 0.7,
+          "speech_text": "Per elaborare con NVIDIA, installa un driver supportato sull’host e NVIDIA Container Toolkit, poi configura il runtime Docker seguendo la guida ufficiale. L’immagine CUDA 12.4 richiede un driver host di versione 550 o successiva. Scegli l’immagine CUDA corrispondente con una versione fissata e aggiungi --gpus all. L’immagine CPU non richiede né il toolkit né una GPU."
+        },
+        {
           "visual": "06_current_home",
-          "narration": "Questo materiale complementare mostra l’interfaccia Home della versione nightly attuale. La versione installata può apparire diversa. I comandi degli ambienti installano il pacchetto pubblicato nel canale scelto; questa vista del codice attuale non afferma che tutte le funzionalità nightly siano già pubblicate.",
+          "narration": "Avvia spaCR dall’ambiente che hai installato. Home raggruppa i moduli in Core, Data, Tools e Organism. Scegli un modulo per iniziare il relativo flusso di lavoro.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
           ],
-          "speech_text": "Questo materiale complementare mostra l’interfaccia Home della versione nightly attuale. La versione installata può apparire diversa. I comandi degli ambienti installano il pacchetto pubblicato nel canale scelto; questa vista del codice attuale non afferma che tutte le funzionalità nightly siano già pubblicate."
+          "speech_text": "Avvia spàker dall’ambiente che hai installato. Home raggruppa i moduli in Core, Data, Tools e Organism. Scegli un modulo per iniziare il relativo flusso di lavoro."
         },
         {
           "visual": "pip_06_update",

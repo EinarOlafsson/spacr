@@ -1391,7 +1391,12 @@ function updateSceneSyncRate(audioSeconds) {
   const referenceDuration = Number(reference.scene_end) - Number(reference.speech_start);
   const referenceTotal = timingDuration(visualTimings, elements.video.duration);
   if (selectedDuration <= 0 || referenceDuration <= 0 || referenceTotal <= 0) return;
-  syncRate = completeNativePlayback() || reference.native_live_video ? 1
+  // Complete native masters can also contain held-image cards. Their clocks
+  // still use the same duration ratio as mapTiming; only preserved intervals
+  // and actual native footage must remain at their recorded speed.
+  const elapsedMapping = (visualTimings.preserve_visual_intervals === true &&
+    visualTimings.native_live_video === true) || reference.native_live_video;
+  syncRate = elapsedMapping ? 1
     : elements.video.duration / referenceTotal * referenceDuration / selectedDuration;
   programmedVideoRate = clamp(syncRate, 0.0625, 16);
   elements.video.defaultPlaybackRate = programmedVideoRate;
@@ -1560,6 +1565,7 @@ function nativeIdleQuietRate(audioTime, quietEnd, now, endAt) {
 function serviceNativeIdleTransition() {
   const transition = nativeIdleTransition;
   if (!transition) return;
+  if (transition.mode === "late") { serviceNativeLateIdleTransition(transition); return; }
   if (transition.request !== narrationRequest || transition.lesson !== activeLesson?.id ||
       transition.voice !== elements.voice.value || transition.language !== elements.language.value ||
       narrationLoadPending || !narrationObjectUrl || elements.audio.currentSrc !== narrationObjectUrl) {
@@ -1625,6 +1631,121 @@ function beginNativeIdleTransition(cut, state, clock, index) {
   scheduleNativeIdleTransition();
 }
 
+function nativeLateIdleTailCut(visuals, audio, index) {
+  const visual = visuals?.scenes?.[index];
+  const spoken = audio?.scenes?.[index];
+  const next = audio?.scenes?.[index + 1];
+  const final = index === visuals?.scenes?.length - 1 && index === audio?.scenes?.length - 1;
+  if (!visual || !spoken || (!final && !next)) return null;
+  const start = Number(visual.speech_start), end = Number(visual.scene_end);
+  const speechStart = Number(spoken.speech_start), speechEnd = Number(spoken.speech_end);
+  const fence = visual.idle_tail_start;
+  const nextStart = final ? speechEnd : Number(next.speech_start);
+  const nextVideo = final ? end : Number(visuals.scenes[index + 1]?.speech_start);
+  if (typeof fence !== "number" || ![start, end, speechStart, speechEnd, fence, nextStart, nextVideo].every(Number.isFinite) ||
+      speechEnd < speechStart || fence <= speechEnd - speechStart ||
+      fence >= end - start - 1 / Number(visuals.fps || 30) || nextStart < speechEnd) return null;
+  return { final, fence: start + fence, next: nextVideo, speechEnd, nextStart };
+}
+
+function beginNativeLateIdleTransition(cut, state, index, visualTime) {
+  if (nativeIdleTransition || !nativeIdleTailReady(state) || visualTime < cut.fence ||
+      state.speechEnd !== cut.speechEnd ||
+      (!cut.final && elements.audio.currentTime >= cut.nextStart)) return false;
+  const frame = 1 / Number(visualTimings.fps || 30);
+  if (cut.final && elements.video.currentTime >= elements.video.duration - frame - 0.000001) return false;
+  nativeIdleTransition = {
+    mode: "late", phase: "decode", request: narrationRequest, lesson: activeLesson.id,
+    voice: elements.voice.value, language: elements.language.value,
+    scene: cut.final ? index : index + 1, final: cut.final,
+    speechEnd: cut.speechEnd, quietEnd: cut.nextStart,
+    fenceReachedAt: performance.now()
+  };
+  // All demonstrated actions through the bound fence have already played at1x.
+  // Preserve the completed audio position: only the picture may skip idle time.
+  completeNativeNarrationWaiting = true;
+  elements.audio.playbackRate = 1;
+  elements.audio.pause();
+  holdVideoForAudio();
+  updateCaptionTrackMode();
+  const destination = cut.final ? Math.max(0, elements.video.duration - frame)
+    : (cut.next + 1 / 90000) / timingDuration(visualTimings, elements.video.duration) * elements.video.duration;
+  setVideoTimeWithoutNarrationSeek(destination);
+  scheduleNativeIdleTransition();
+  return true;
+}
+
+function serviceNativeLateIdleTransition(transition) {
+  if (nativeIdleTransition !== transition) return;
+  if (transition.request !== narrationRequest || transition.lesson !== activeLesson?.id ||
+      transition.voice !== elements.voice.value || transition.language !== elements.language.value ||
+      narrationLoadPending || !narrationObjectUrl || elements.audio.currentSrc !== narrationObjectUrl ||
+      elements.audio.currentTime < transition.speechEnd || elements.audio.seeking) {
+    cancelNativeIdleTransition();
+    return;
+  }
+  if (transition.phase === "decode") {
+    if (videoClockCorrectionPending || videoIsLoading() ||
+        (!transition.final && elements.audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA)) {
+      scheduleNativeIdleTransition();
+      return;
+    }
+    if (transition.final) {
+      // Play the genuine last frame to the browser's actual ended event.
+      nativeIdleTransition = null;
+      if (nativeIdleTransitionTimer !== null) clearTimeout(nativeIdleTransitionTimer);
+      nativeIdleTransitionTimer = null;
+      completeNativeNarrationWaiting = true;
+      videoHeldForAudio = false;
+      resumeAfterAudioHold = false;
+      updateCaptionTrackMode();
+      elements.loading.classList.add("hidden");
+      playVideoWithoutNarrationSync();
+      return;
+    }
+    if (elements.audio.currentTime >= transition.quietEnd) {
+      cancelNativeIdleTransition();
+      return;
+    }
+    transition.phase = "starting";
+    startNarrationAudio().then(() => {
+      if (nativeIdleTransition !== transition) return;
+      transition.phase = "quiet";
+      scheduleNativeIdleTransition();
+    }).catch(() => {
+      if (nativeIdleTransition !== transition) return;
+      cancelNativeIdleTransition();
+      videoHeldForAudio = false;
+      resumeAfterAudioHold = false;
+      elements.loading.classList.add("hidden");
+      showToast("Select play again to start narration.");
+    });
+    scheduleNativeIdleTransition();
+    return;
+  }
+  if (transition.phase === "starting") {
+    scheduleNativeIdleTransition();
+    return;
+  }
+  if (elements.audio.paused) {
+    // Never turn a viewer pause or cancelled start into an automatic replay.
+    cancelNativeIdleTransition();
+    return;
+  }
+  if (elements.audio.currentTime < transition.quietEnd) {
+    scheduleNativeIdleTransition();
+    return;
+  }
+  // The intervening PCM silence has played without any seek or speed change.
+  nativeIdleTransition = null;
+  if (nativeIdleTransitionTimer !== null) clearTimeout(nativeIdleTransitionTimer);
+  nativeIdleTransitionTimer = null;
+  completeNativeSceneIndex = transition.scene;
+  completeNativeNarrationWaiting = false;
+  updateCaptionTrackMode();
+  releaseVideoForAudio();
+}
+
 function syncCompleteNativeNarration(seek = false) {
   if (nativeIdleTransition) { serviceNativeIdleTransition(); return; }
   if (narrationLoadPending || !completeNativePlayback() || !narrationAudioAvailable ||
@@ -1643,7 +1764,9 @@ function syncCompleteNativeNarration(seek = false) {
   const idleState = currentNativeIdleTailState(spoken, located.index, seek);
   const idleWait = nativeIdleTailWait(nativeIdlePauseClock, idleState, performance.now());
   nativeIdlePauseClock = idleWait.clock;
-  const protectedEnd = Number(located.scene.required_action_end || 0);
+  const lateCut = nativeLateIdleTailCut(visualTimings, audioTimings, located.index);
+  if (lateCut && beginNativeLateIdleTransition(lateCut, idleState, located.index, visualTime)) return;
+  const protectedEnd = Number(located.scene.idle_tail_start);
   // A final cut decodes the real last frame, then plays it to actual EOF.
   // Do not schedule that same transition again during its remaining frame.
   const finalFramePending = idleCut?.final &&

@@ -168,17 +168,17 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Install with pip in a Python virtual environment, pip in a Conda environment, or conda-forge in a Conda environment; launch, update and uninstall.",
+      "description": "Install with pip, conda-forge or Docker; check the installation, launch the appropriate interface, update and uninstall.",
       "objectives": [
-        "Choose one of three isolated installation routes.",
+        "Choose an isolated Python installation or a versioned container.",
         "Activate the correct environment before installing or launching.",
         "Check the installed version, update and uninstall safely."
       ],
-      "prerequisite": "Use Python 3.12 for the virtual-environment route, or install Conda/Miniforge for either Conda route. Open a terminal. Existing environments need distinct names.",
+      "prerequisite": "Use Python 3.12 for the virtual-environment route, or install Conda/Miniforge for either Conda route. Open a terminal. Existing environments need distinct names. For containers, install Docker Desktop or Docker Engine configured for Linux x86-64 containers.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Choose one installation route. Pip installs spaCR inside either a Python virtual environment or a Conda environment. Conda-forge installs into a Conda environment; it cannot install packages into a Python virtual environment. The three routes below are alternatives, so you need only one.",
+          "narration": "Choose one installation route. Pip installs spaCR inside a Python virtual environment or a Conda environment. Conda-forge installs into a Conda environment. Docker runs the command-line pipelines inside a container. Choose the route that fits how you will use spaCR.",
           "hold_after": 0.7
         },
         {
@@ -198,7 +198,7 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Check the installed version and package path, then run python dash m pip check. Keep the version with your analysis notes. This route installs the published PyPI package; a source checkout or nightly build can have newer interface features.",
+          "narration": "Check the installed version and package path, then run python dash m pip check. Keep the version with your analysis notes.",
           "hold_after": 0.7
         },
         {
@@ -223,7 +223,7 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda shows its package plan before installing. Review it, accept the plan and let the downloads and installation finish. The available conda-forge release may differ from the latest PyPI or nightly version.",
+          "narration": "Conda shows its package plan before installing. Review it, accept the plan and let the downloads and installation finish.",
           "hold_after": 0.7
         },
         {
@@ -232,8 +232,28 @@
           "hold_after": 0.7
         },
         {
+          "visual": "docker_01_install",
+          "narration": "For Docker, install Docker Desktop or Docker Engine using the official instructions for your operating system, and configure Linux containers. The spaCR images target x86 sixty-four. Use a container for command-line pipelines; choose a desktop installation for the graphical application.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Open the official spaCR container package page and select an available version. Pull that exact CPU image, then run it with spacr dash dash version and spacr-run dash dash list. Check that the reported version matches your selected tag. Keep that tag with your analysis notes.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Mount your project folder at slash data and your model cache at slash models. Export the pipeline settings into the project folder, and use container paths in the settings. Run spacr-run with the pipeline name and the settings CSV. Write results under slash data so they remain in your project after the container exits. On Linux, pass your user and group identifiers so output ownership matches your account.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "For NVIDIA processing, install a supported host driver and the NVIDIA Container Toolkit, then configure the Docker runtime using its official guide. The CUDA twelve point four image needs host driver five hundred fifty or newer. Select the matching versioned CUDA image and add dash dash gpus all. The CPU image needs neither the toolkit nor a GPU.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_current_home",
-          "narration": "This companion shows the current nightly Home interface. Your installed release may look different. The environment commands install the published package from the selected channel; this current-source view does not claim that all nightly features are already published.",
+          "narration": "Launch spaCR from the environment you installed. Home groups the modules into Core, Data, Tools and Organism. Choose a module to start its workflow.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"

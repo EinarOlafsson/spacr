@@ -147,17 +147,17 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Mit pip in einer virtuellen Python-Umgebung, mit pip in einer Conda-Umgebung oder mit conda-forge in einer Conda-Umgebung installieren; starten, aktualisieren und deinstallieren.",
+      "description": "Installieren Sie spaCR mit pip, conda-forge oder Docker; prüfen Sie die Installation, öffnen Sie die passende Oberfläche und führen Sie Updates oder die Deinstallation durch.",
       "objectives": [
-        "Einen von drei isolierten Installationswegen wählen.",
+        "Eine isolierte Python-Installation oder einen Container mit festgelegter Version auswählen.",
         "Vor der Installation oder dem Start die richtige Umgebung aktivieren.",
         "Die installierte Version prüfen, sicher aktualisieren und deinstallieren."
       ],
-      "prerequisite": "Verwenden Sie Python 3.12 für die virtuelle Umgebung oder installieren Sie Conda/Miniforge für einen der beiden Conda-Wege. Öffnen Sie ein Terminal. Wählen Sie andere Namen als die vorhandener Umgebungen.",
+      "prerequisite": "Verwenden Sie Python 3.12 für die virtuelle Umgebung oder installieren Sie Conda/Miniforge für einen der beiden Conda-Wege. Öffnen Sie ein Terminal. Wählen Sie andere Namen als die vorhandener Umgebungen. Für Container installieren Sie Docker Desktop oder Docker Engine und konfigurieren Linux-x86-64-Container.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Wählen Sie einen Installationsweg. Pip installiert spaCR in einer virtuellen Python-Umgebung oder in einer Conda-Umgebung. Conda-forge installiert in eine Conda-Umgebung; es kann keine Pakete in eine virtuelle Python-Umgebung installieren. Die drei folgenden Wege sind Alternativen, Sie benötigen also nur einen.",
+          "narration": "Wählen Sie einen Installationsweg. Pip installiert spaCR in einer virtuellen Python-Umgebung oder einer Conda-Umgebung. Conda-forge installiert spaCR in einer Conda-Umgebung. Docker führt Kommandozeilen-Pipelines innerhalb eines Containers aus. Wählen Sie den Weg, der zu Ihrer Nutzung von spaCR passt.",
           "hold_after": 0.7
         },
         {
@@ -177,7 +177,7 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Prüfen Sie die installierte Version und den Paketpfad und führen Sie anschließend python -m pip check aus. Bewahren Sie die Version mit Ihren Analysenotizen auf. Dieser Weg installiert das veröffentlichte PyPI-Paket; ein Quellcode-Checkout oder ein Nightly-Build kann neuere Oberflächenfunktionen enthalten.",
+          "narration": "Prüfen Sie die installierte Version und den Paketpfad und führen Sie anschließend python -m pip check aus. Bewahren Sie die Version mit Ihren Analysenotizen auf.",
           "hold_after": 0.7
         },
         {
@@ -202,7 +202,7 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda zeigt vor der Installation seinen Paketplan. Prüfen und bestätigen Sie ihn und warten Sie, bis Download und Installation abgeschlossen sind. Die verfügbare conda-forge-Version kann von der neuesten PyPI- oder Nightly-Version abweichen.",
+          "narration": "Conda zeigt vor der Installation seinen Paketplan. Prüfen und bestätigen Sie ihn und warten Sie, bis Download und Installation abgeschlossen sind.",
           "hold_after": 0.7
         },
         {
@@ -211,8 +211,28 @@
           "hold_after": 0.7
         },
         {
+          "visual": "docker_01_install",
+          "narration": "Installieren Sie für Docker Docker Desktop oder Docker Engine nach den offiziellen Anweisungen für Ihr Betriebssystem und konfigurieren Sie Linux-Container. Die spaCR-Container-Images sind für Linux x86-64 ausgelegt. Verwenden Sie Container für Kommandozeilen-Pipelines und eine Desktop-Installation für die grafische Anwendung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Öffnen Sie die offizielle spaCR-Container-Paketseite und wählen Sie eine verfügbare Version. Laden Sie genau dieses CPU-Image herunter und führen Sie damit spacr --version und spacr-run --list aus. Prüfen Sie, ob die angezeigte Version zum gewählten Tag passt. Bewahren Sie diesen Tag mit Ihren Analysenotizen auf.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Binden Sie Ihren Projektordner unter /data und den Modellcache unter /models ein. Exportieren Sie die Pipeline-Einstellungen in den Projektordner und verwenden Sie darin containerinterne Pfade. Führen Sie spacr-run mit dem Pipeline-Namen und der Einstellungs-CSV aus. Schreiben Sie Ergebnisse unter /data, damit sie nach dem Beenden des Containers im Projekt bleiben. Übergeben Sie unter Linux Ihre Benutzer- und Gruppenkennung, damit die Ausgabedateien Ihrem Konto gehören.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "Installieren Sie für die Verarbeitung mit NVIDIA einen unterstützten Host-Treiber und NVIDIA Container Toolkit und konfigurieren Sie die Docker-Laufzeit nach der offiziellen Anleitung. Das CUDA-12.4-Image benötigt einen Host-Treiber der Version 550 oder höher. Wählen Sie das passende CUDA-Image mit festgelegter Version und ergänzen Sie --gpus all. Das CPU-Image benötigt weder das Toolkit noch eine GPU.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_current_home",
-          "narration": "Diese Ergänzung zeigt die aktuelle Nightly-Oberfläche von Home. Ihre installierte Version kann anders aussehen. Die Umgebungsbefehle installieren das veröffentlichte Paket aus dem gewählten Kanal; diese Ansicht des aktuellen Quellcodes behauptet nicht, dass alle Nightly-Funktionen bereits veröffentlicht wurden.",
+          "narration": "Starten Sie spaCR aus der installierten Umgebung. Home gruppiert die Module in Core, Data, Tools und Organism. Wählen Sie ein Modul, um dessen Workflow zu beginnen.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
