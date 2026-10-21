@@ -10,8 +10,8 @@ def observation(final=False,seek_at=None):
     seek_at=(1.82 if final else 1.72) if seek_at is None else seek_at
     visual={'scenes':[{'speech_start':0,'scene_end':4,'duration':4,'native_live_video':True,'idle_tail_start':.9},
                        {'speech_start':4,'scene_end':8,'duration':4,'native_live_video':True,'idle_tail_start':.9}]}
-    spoken={'scenes':[{'speech_start':0,'speech_end':1,'scene_end':1.52,'sentences':[{'audible_end':.82}]},
-                       {'speech_start':1.52,'speech_end':2.52,'scene_end':3.04,'sentences':[{'audible_start':1.62,'audible_end':2.34}]}]}
+    spoken={'scenes':[{'speech_start':0,'speech_end':1,'scene_end':1.72,'sentences':[{'audible_end':.82}]},
+                       {'speech_start':1.72,'speech_end':2.72,'scene_end':3.24,'sentences':[{'audible_start':1.82,'audible_end':2.54}]}]}
     trace=[]
     for k in range(7,65):
         wall=k*.05
@@ -23,7 +23,7 @@ def observation(final=False,seek_at=None):
             video=4;audio=1;paused=True
         else:
             video=4+max(0,wall-seek_at-.05)
-            audio=1.52+max(0,wall-seek_at-.05);paused=seeking
+            audio=1.72+max(0,wall-seek_at-.05);paused=seeking
         trace.append(dict(wall=wall*1000,audio=audio,video=video,rate=1,audioRate=1,
                           audioPaused=paused,videoPaused=ended,videoEnded=ended,
                           seeking=seeking,correcting=seeking,error=None))
@@ -87,17 +87,17 @@ def test_picture_can_preseek_then_hold_during_the_one_second_quiet_window():
         wall=row['wall']/1000
         if wall>=1:
             row['video']=4+max(0,wall-1.72)
-            row['audio']=1.52+max(0,wall-1.72)
+            row['audio']=1.72+max(0,wall-1.72)
             row['videoPaused']=row['audioPaused']=wall<1.72
             row['seeking']=row['correcting']=1<=wall<1.05
     events=[{'type':'idle-cut','audio':1,'video':1,'wall':1000},
-            {'type':'seeking','audio':1.52,'video':4,'wall':1000},
+            {'type':'seeking','audio':1.72,'video':4,'wall':1000},
             {'type':'pause','video':1,'wall':1000}]
     result=check_complete_native_trace(trace,events,v,a,0)
     assert result['actual_sound_gap_seconds']==pytest.approx(1)
 
 
-@pytest.mark.parametrize('position,accepted',[(1.15,True),(.9,False),(1.49,False),(1.7,False)])
+@pytest.mark.parametrize('position,accepted',[(1.15,True),(.9,False),(1.69,False),(1.7,False)])
 def test_elastic_rate_is_allowed_only_in_proven_interclip_quiet(position,accepted):
     trace,events,v,a=observation()
     quiet=dict(trace[20],audio=position,audioRate=.7)
@@ -125,3 +125,37 @@ def test_known_fence_after_complete_speech_keeps_full_source_tail():
     trace.append(dict(trace[-1],wall=4000,video=4,videoPaused=True,videoEnded=True))
     result=check_complete_native_trace(trace,events,v,a,0,True)
     assert result['entire_recorded_tail_played'] and not result['idle_padding_skipped']
+
+
+@pytest.mark.parametrize('source_gap,actual_gap,accepted',[
+    (.8,.66,True),(.8,.8,True),(.8,.94,True),
+    (.8,.64,False),(.8,.96,False),(.8,1.1,False),
+    (1.0,.8,False),(1.4,.8,False),(1.4,1.1,True)])
+def test_native_gap_preserves_short_source_pause_and_shortens_only_long_pauses(source_gap,actual_gap,accepted):
+    trace,events,visual,spoken=observation(seek_at=actual_gap+.67)
+    # Actual continuous synthetic audio observations, with the following clip
+    # shifted together with its metadata; the measured wall gap is independent.
+    delta=source_gap-1.0
+    following=spoken['scenes'][1]
+    for key in ('speech_start','speech_end','scene_end'):following[key]+=delta
+    for key in ('audible_start','audible_end'):following['sentences'][0][key]+=delta
+    spoken['scenes'][0]['scene_end']+=delta
+    for row in trace:
+        if row['video']>=4:row['audio']+=delta
+    if accepted:
+        result=check_complete_native_trace(trace,events,visual,spoken,0)
+        assert result['actual_sound_gap_seconds']==pytest.approx(actual_gap,abs=.015)
+    else:
+        with pytest.raises(AssertionError,match='actual_sound_gap_outside_policy'):
+            check_complete_native_trace(trace,events,visual,spoken,0)
+
+
+def test_final_eof_keeps_one_second_policy_without_a_following_sound():
+    trace,events,visual,spoken=observation(final=True)
+    # The source trailing PCM is only .18s; final picture EOF still follows
+    # the existing one-second final-cut rule, not an interscene minimum.
+    assert spoken['scenes'][0]['speech_end']-spoken['scenes'][0]['sentences'][-1]['audible_end']==pytest.approx(.18)
+    assert check_complete_native_trace(trace,events,visual,spoken,0,True)['final_native_eof_observed']
+    trace,events,visual,spoken=observation(final=True,seek_at=1.62)
+    with pytest.raises(AssertionError,match='actual_sound_gap_outside_policy'):
+        check_complete_native_trace(trace,events,visual,spoken,0,True)
