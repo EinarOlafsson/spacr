@@ -206,7 +206,7 @@ def test_bootstraps_persist_the_requested_and_actual_backend_for_doctor():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
     for source in (unix, windows):
-        assert "spacr.install_profile" in source
+        assert "install_profile.py" in source
         assert "install-profile.json" in source
         assert "requested" in source
         assert "detected" in source
@@ -226,7 +226,7 @@ def test_installer_consent_is_optional_off_by_default_and_persisted():
         assert "ShareDiagnostics" in source or "SHARE_DIAGNOSTICS=0" in source
         assert "ReportIssues" in source or "REPORT_ISSUES=0" in source
         assert "SignInNow" not in source and "SIGN_IN_NOW" not in source and "sign-in-now" not in source
-        assert "spacr.install_profile" in source
+        assert "install_profile.py" in source
     assert "Page custom ConsentPage ConsentPageLeave" in nsis
     assert "off by default" not in nsis
     assert "public GitHub issues by spaCR" not in nsis

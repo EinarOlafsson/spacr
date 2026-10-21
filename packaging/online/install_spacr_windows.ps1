@@ -442,6 +442,10 @@ try {
     if (-not (Test-Path $CleanupModule)) {
         $CleanupModule = Join-Path $PSScriptRoot "..\..\spacr\install_cleanup.py"
     }
+    $ProfileModule = Join-Path $PSScriptRoot "install_profile.py"
+    if (-not (Test-Path $ProfileModule)) {
+        $ProfileModule = Join-Path $PSScriptRoot "..\..\spacr\install_profile.py"
+    }
     # The log of this install and the files the NSIS wrapper has already
     # written for it are not old files.
 
@@ -497,7 +501,7 @@ try {
     if ($PipCheckCode -ne 0) {
         $Accepted = $false
         if ($WithoutWgpu) {
-            & $StagePython -I -c "import sys; from spacr.install_cleanup import _only_saved_wgpu_omission as only; sys.exit(0 if only(int(sys.argv[1]), open(sys.argv[2], encoding='utf-8', errors='replace').read()) else 1)" "$PipCheckCode" $PipCheckLog
+            & $StagePython -I -c "import runpy, sys; only=runpy.run_path(sys.argv[1])['_only_saved_wgpu_omission']; sys.exit(0 if only(int(sys.argv[2]), open(sys.argv[3], encoding='utf-8', errors='replace').read()) else 1)" $CleanupModule "$PipCheckCode" $PipCheckLog
             $Accepted = ($LASTEXITCODE -eq 0)
         }
         if (-not $Accepted) {
@@ -520,8 +524,7 @@ try {
 
     Invoke-Checked -Command $StagePython -Arguments @(
         "-I",
-        "-m",
-        "spacr.install_profile",
+        $ProfileModule,
         "--path",
         $StageProfile,
         "--requested",

@@ -399,6 +399,7 @@ def render_installer(target: Target, version: str, bundle: Path) -> Path:
     out = bundle / "install.ps1"
     shutil.copy2(WINDOWS_INSTALLER, out)
     shutil.copy2(REPO / "spacr" / "install_cleanup.py", bundle / "install_cleanup.py")
+    shutil.copy2(REPO / "spacr" / "install_profile.py", bundle / "install_profile.py")
     run([sys.executable, PACKAGING / "i18n" / "render.py"])
     generated = bundle / "generated"
     generated.mkdir(exist_ok=True)

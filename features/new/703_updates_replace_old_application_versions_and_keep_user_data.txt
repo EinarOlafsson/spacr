@@ -2,7 +2,7 @@
 UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
 ================================================================================
 
-Status:    BLOCKED ON MAINTAINER — implementation, fixture tests, docs and translations on nightly (2026-10-17); native Windows/macOS/Linux acceptance remains
+Status:    OPEN 2026-10-20 — old-package installer profile compatibility repaired locally; native upgrade, uninstall and lease acceptance remain
 Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
            reopen an old version. Replace obsolete application installations,
            preserve cache and temporary/user files unless cleanup is required
@@ -936,3 +936,8 @@ Acceptance: on the maintainer's Intel Mac (online 1.5.1.0, /Applications pkg 1.5
 2026-10-18 — Claude Home integrated owner-stamped installer leases (branch macos-acceptance-2026-10-18 up to 3977b74f5) into nightly for 1.5.1.6. Home follow-ups: Linux stamps the start tick from /proc and other POSIX systems read ps lstart in the C locale and UTC; only an ESRCH null signal counts as gone; leases must be this user's and record the pid namespace; a stamped .takeover guard serialises takeovers; an open Windows lease file is never taken; the lease identity uses whichever stat is on PATH; the protected-update test can no longer raise a real admin prompt. Lease messages say "remove it" in ten languages; catalogs regenerated. Remaining: native macOS/Windows acceptance.
 2026-10-18 — NATIVE (Intel Mac): SIGKILL of the installer during uv pip install left uv, the log tee and a subshell running in the root; the next run took the leases over and two installers ran at once. Leases now also record the installer pgid; a lease stays live while a same-user member (not the checker's own lineage) survives, and the next run refuses naming it; once taken over, the dead run's .venv-staging-<pid> is removed. Verified natively end to end. Windows has the same orphan-child gap (Home).
 2026-10-18 — Claude Home integrated process-group leases (branch macos-acceptance-2026-10-18 up to e16e3c631, plus a bounded parent walk) and the Windows child-tree lease (kill-on-close Job Object in the PowerShell installer; tree=1 leases stay live while a child the owner started runs). BLOCKED BEFORE 1.5.1.6: the Windows Job Object and the Win32_Process / ToolHelp32 child check have only fake-table tests; they need a native Windows run (kill the installer mid-pip; the next install must refuse while the children run, then take over).
+
+2026-10-20 — Codex release_ci_takeover + feature_takeover own the native old-version profile repair before other installer work: upgrade39465358896 fails on all three OSes because1.5.0.7 cannot parse the current --without-wgpu option.
+The current installer must carry its profile writer, probe the staged runtime and preserve consent/backend/renderer choices without assuming newer helpers exist in the target package. Keep old PyPI releases immutable and preserve rollback and identity gates.
+Acceptance: focused old-package profile/renderer compatibility cases, source and packaged installer payloads, then native old-to-new upgrade on Windows/macOS/Linux after publication; existing native lease and legacy-matrix requirements remain open.
+2026-10-20 — Current writer payloads and bundled omission validation implemented and peer-reviewed; 99 focused checks pass, then the sole corrected offline-catalog fixture passes. Native old-to-new acceptance on all three OSes remains pending publication and the owning workflow; no whole-item completion.

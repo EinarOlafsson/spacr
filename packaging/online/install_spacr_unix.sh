@@ -29,6 +29,13 @@ spacr_write_cleanup_module() {
 }
 # @SPACR_CLEANUP_MODULE_END@
 
+# @SPACR_PROFILE_MODULE_BEGIN@
+# The installer owns the profile schema even when it installs an older spaCR.
+spacr_write_profile_module() {
+    cp "$SPACR_SOURCE_DIR/../../spacr/install_profile.py" "$1"
+}
+# @SPACR_PROFILE_MODULE_END@
+
 UV_VERSION="0.11.32"
 PYTHON_VERSION="3.12"
 DEFAULT_SPACR_VERSION="@SPACR_VERSION@"
@@ -856,6 +863,8 @@ cleanup_python="$(UV_PYTHON_INSTALL_DIR="$work_dir/python" \
     "$work_uv" python find "$PYTHON_VERSION" --managed-python)"
 cleanup_module="$work_dir/install_cleanup.py"
 spacr_write_cleanup_module "$cleanup_module"
+profile_module="$work_dir/install_profile.py"
+spacr_write_profile_module "$profile_module"
 
 # The log of this install, and the lock of the macOS first-launch helper, are
 # not old files.
@@ -930,8 +939,8 @@ pip_check_code=0
 cat "$pip_check_log"
 if [[ "$pip_check_code" != "0" ]]; then
     if [[ "$WITHOUT_WGPU" != "1" ]] || ! "$stage_python" -I -c \
-        'import sys; from spacr.install_cleanup import _only_saved_wgpu_omission as only; sys.exit(0 if only(int(sys.argv[1]), open(sys.argv[2], encoding="utf-8", errors="replace").read()) else 1)' \
-        "$pip_check_code" "$pip_check_log"; then
+        'import runpy, sys; only=runpy.run_path(sys.argv[1])["_only_saved_wgpu_omission"]; sys.exit(0 if only(int(sys.argv[2]), open(sys.argv[3], encoding="utf-8", errors="replace").read()) else 1)' \
+        "$cleanup_module" "$pip_check_code" "$pip_check_log"; then
         exit "$pip_check_code"
     fi
 fi
@@ -945,7 +954,7 @@ elif [[ "$TORCH_BACKEND" != "cpu" && "$DETECTED_ACCELERATOR" == "apple-silicon" 
         "import torch; assert torch.backends.mps.is_available(), 'Apple GPU selected but MPS is unavailable'"
 fi
 
-"$stage_python" -I -m spacr.install_profile \
+"$stage_python" -I "$profile_module" \
     --path "$stage_profile" \
     --requested "$TORCH_BACKEND" \
     --detected "$DETECTED_ACCELERATOR" \

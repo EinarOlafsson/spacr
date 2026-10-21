@@ -248,7 +248,7 @@ _UV_SAYS_ONLY_WGPU = (
 
 def _the_installer_check(source: str) -> str:
     """The Python one-liner an installer runs on a failed ``uv pip check``."""
-    start = source.index("import sys; from spacr.install_cleanup import _only_saved_wgpu_omission")
+    start = source.index("import runpy, sys; only=runpy.run_path(sys.argv[1])")
     return source[start:source.index("else 1)", start) + len("else 1)")]
 
 
@@ -264,7 +264,7 @@ def test_an_install_without_wgpu_accepts_only_uvs_missing_wgpu_diagnostic(name, 
 
     def accepted(text, status=1):
         log.write_text(text, encoding="utf-8")
-        return subprocess.run([sys.executable, "-I", "-c", code, str(status), str(log)],
+        return subprocess.run([sys.executable, "-I", "-c", code, str(ROOT / "spacr" / "install_cleanup.py"), str(status), str(log)],
                               cwd=ROOT, env={**os.environ, "PYTHONPATH": str(ROOT)}).returncode == 0
 
     assert accepted(_UV_SAYS_ONLY_WGPU)
