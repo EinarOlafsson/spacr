@@ -111,7 +111,8 @@ def test_real_wheel_and_wheel_from_sdist_have_identical_runtime_catalogs(tmp_pat
     """Use the real setup commands and catalogs without unrelated scientific code."""
     project = tmp_path / "project"
     project.mkdir()
-    for name in ("setup.py", "pyproject.toml", "MANIFEST.in", "README.rst", "LICENSE"):
+    for name in ("setup.py", "_spacr_catalog_build.py", "pyproject.toml", "MANIFEST.in",
+                 "README.rst", "LICENSE"):
         shutil.copyfile(ROOT / name, project / name)
     for parent in ("spacr", "spacr/qt"):
         folder = project / parent

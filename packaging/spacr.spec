@@ -111,7 +111,8 @@ _NON_CORE_IMPORTS = [
 # spacr version file.
 # ------------------------------------------------------------------
 datas = []
-datas += collect_data_files("spacr", includes=["resources/**/*", "fonts/**/*"])
+datas += collect_data_files("spacr", includes=["resources/**/*", "fonts/**/*"],
+                            excludes=["resources/AI/**"])
 datas += collect_data_files("cellpose", includes=["*.txt", "*.md"])
 datas += copy_metadata("spacr")
 # ImageIO reads its distribution version at import time. Its data hook does
@@ -164,7 +165,7 @@ a = Analysis(
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
-    hookspath=[],
+    hookspath=[str(ROOT / "packaging" / "hooks")],
     hooksconfig={
         # spaCR renders either into Qt or directly to an image.  Naming the
         # two backends prevents an installed but unrelated GUI toolkit from
