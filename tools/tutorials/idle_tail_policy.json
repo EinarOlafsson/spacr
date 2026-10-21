@@ -328,6 +328,247 @@
           "idle_tail_start": 0
         }
       ]
+    },
+    {
+      "lesson": "05_home",
+      "master_sha256": "a95dfe0af5e19edf39a8d201564fb59d0fa4cdb49918c15e342655da68b2b8be",
+      "visual_timing_sha256": "423a7765531ee5a714cc3cae6e5eb736f81afe712326ff797945c2d0aedec7d1",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "source_start": 0.0,
+          "source_end": 29.7,
+          "idle_tail_start": 1
+        },
+        {
+          "visual": "home_module_mask",
+          "source_start": 29.7,
+          "source_end": 46.46666666666667,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "home_module_measure",
+          "source_start": 46.46666666666667,
+          "source_end": 63.56666666666667,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_annotate",
+          "source_start": 63.56666666666667,
+          "source_end": 75.86666666666666,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "source_start": 75.86666666666666,
+          "source_end": 93.2,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_map_barcodes",
+          "source_start": 93.2,
+          "source_end": 105.26666666666667,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_regression",
+          "source_start": 105.26666666666667,
+          "source_end": 119.03333333333333,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_foreign",
+          "source_start": 119.03333333333333,
+          "source_end": 132.13333333333333,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "home_module_embeddings",
+          "source_start": 132.13333333333333,
+          "source_end": 141.93333333333334,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_run_compare",
+          "source_start": 141.93333333333334,
+          "source_end": 153.83333333333334,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_experiment_design",
+          "source_start": 153.83333333333334,
+          "source_end": 162.26666666666668,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_power",
+          "source_start": 162.26666666666668,
+          "source_end": 176.1,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_dose_response",
+          "source_start": 176.1,
+          "source_end": 186.56666666666666,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "source_start": 186.56666666666666,
+          "source_end": 195.93333333333334,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_make_masks",
+          "source_start": 195.93333333333334,
+          "source_end": 208.86666666666667,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_align",
+          "source_start": 208.86666666666667,
+          "source_end": 220.93333333333334,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_umap",
+          "source_start": 220.93333333333334,
+          "source_end": 235.9,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "source_start": 235.9,
+          "source_end": 249.56666666666666,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_graph_builder",
+          "source_start": 249.56666666666666,
+          "source_end": 262.43333333333334,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "source_start": 262.43333333333334,
+          "source_end": 284.4,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "06_mask_host",
+          "source_start": 284.4,
+          "source_end": 312.8666666666667,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "06b_mask_settings",
+          "source_start": 312.8666666666667,
+          "source_end": 336.6,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "06c_mask_actions",
+          "source_start": 336.6,
+          "source_end": 365.8333333333333,
+          "idle_tail_start": 5
+        },
+        {
+          "visual": "14_resize_panels",
+          "source_start": 365.8333333333333,
+          "source_end": 386.6333333333333,
+          "idle_tail_start": 9.8
+        },
+        {
+          "visual": "10_home_column",
+          "source_start": 386.6333333333333,
+          "source_end": 422.23333333333335,
+          "idle_tail_start": 13
+        },
+        {
+          "visual": "11_column_folded",
+          "source_start": 422.23333333333335,
+          "source_end": 445.43333333333334,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "08_help_search",
+          "source_start": 445.43333333333334,
+          "source_end": 475.46666666666664,
+          "idle_tail_start": 12.2
+        },
+        {
+          "visual": "12_command_palette",
+          "source_start": 475.46666666666664,
+          "source_end": 502.1666666666667,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "09_performance",
+          "source_start": 502.1666666666667,
+          "source_end": 535.4,
+          "idle_tail_start": 12.5
+        },
+        {
+          "visual": "13_preferences_general",
+          "source_start": 535.4,
+          "source_end": 565.6333333333333,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "source_start": 565.6333333333333,
+          "source_end": 605.0,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "source_start": 605.0,
+          "source_end": 641.4333333333333,
+          "idle_tail_start": 14
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "source_start": 641.4333333333333,
+          "source_end": 718.3666666666667,
+          "idle_tail_start": 10.5
+        },
+        {
+          "visual": "13h_preferences_apply",
+          "source_start": 718.3666666666667,
+          "source_end": 746.2333333333333,
+          "idle_tail_start": 10.0
+        },
+        {
+          "visual": "13i_preferences_kept",
+          "source_start": 746.2333333333333,
+          "source_end": 767.6,
+          "idle_tail_start": 7
+        },
+        {
+          "visual": "13e_session_updates",
+          "source_start": 767.6,
+          "source_end": 798.9,
+          "idle_tail_start": 8
+        },
+        {
+          "visual": "13f_storage",
+          "source_start": 798.9,
+          "source_end": 825.8,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "13g_storage_prune",
+          "source_start": 825.8,
+          "source_end": 846.0,
+          "idle_tail_start": 9.5
+        },
+        {
+          "visual": "24_spaceout_field",
+          "source_start": 846.0,
+          "source_end": 875.9666666666667,
+          "idle_tail_start": 0
+        }
+      ]
     }
   ]
 }
