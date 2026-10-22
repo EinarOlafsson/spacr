@@ -1404,6 +1404,377 @@
           "idle_tail_start": 6.5
         }
       ]
+    },
+    {
+      "lesson": "11_classify_ml",
+      "master_sha256": "fe5a2b022b3531dd09df8196d79c0cf47d3ecd1a5751e85fe82da7278d946707",
+      "visual_timing_sha256": "2278b105207e1920dcf2e1d830e4368f8e66fd6c98cf92f4c4192016a2107896",
+      "scenes": [
+        {
+          "visual": "19_setting_classifier_family",
+          "source_start": 0.0,
+          "source_end": 24.2,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "02_data_choice_load",
+          "source_start": 24.2,
+          "source_end": 45.86666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "19_setting_classes",
+          "source_start": 68.86666666666667,
+          "source_end": 99.33333333333334,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "19_setting_channel_of_interest",
+          "source_start": 99.33333333333334,
+          "source_end": 121.76666666666668,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "19_setting_n_estimators",
+          "source_start": 121.76666666666668,
+          "source_end": 153.76666666666668,
+          "idle_tail_start": 7.0
+        },
+        {
+          "visual": "19_setting_test_size",
+          "source_start": 153.76666666666668,
+          "source_end": 180.96666666666667,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "19_setting_plot",
+          "source_start": 180.96666666666667,
+          "source_end": 205.36666666666667,
+          "idle_tail_start": 5.75
+        },
+        {
+          "visual": "23_batch_finished",
+          "source_start": 205.36666666666667,
+          "source_end": 236.43333333333334,
+          "idle_tail_start": 3.25
+        },
+        {
+          "visual": "25_ml_figure_02",
+          "source_start": 236.43333333333334,
+          "source_end": 268.93333333333334,
+          "idle_tail_start": 1.0
+        }
+      ]
+    },
+    {
+      "lesson": "09_annotate",
+      "master_sha256": "0d60bf081c4bb9005a91b8ad51286251c6aa233ec798239d074badbd2a663d4f",
+      "visual_timing_sha256": "074b2a32a771122a69399786c07c1a5005b5faaacd9d1e80f687b549415d9fb2",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 19.733333333333334,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "02_data_choice_load",
+          "source_start": 19.733333333333334,
+          "source_end": 36.3,
+          "idle_tail_start": 1.2
+        },
+        {
+          "visual": "02_data_choice_stream",
+          "source_start": 36.3,
+          "source_end": 57.4,
+          "idle_tail_start": 1.3
+        },
+        {
+          "visual": "05_loaded_crops",
+          "source_start": 77.2,
+          "source_end": 100.9,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "06_annotation_settings",
+          "source_start": 100.9,
+          "source_end": 121.23333333333333,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "08_class_one_pending",
+          "source_start": 121.23333333333333,
+          "source_end": 146.06666666666666,
+          "idle_tail_start": 4.7
+        },
+        {
+          "visual": "08_next_page_saved",
+          "source_start": 146.06666666666666,
+          "source_end": 162.53333333333333,
+          "idle_tail_start": 3.3
+        },
+        {
+          "visual": "08_class_one_saved",
+          "source_start": 162.53333333333333,
+          "source_end": 186.43333333333334,
+          "idle_tail_start": 2.6
+        },
+        {
+          "visual": "09_class_counts",
+          "source_start": 186.43333333333334,
+          "source_end": 203.46666666666667,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "09_annotation_coverage",
+          "source_start": 203.46666666666667,
+          "source_end": 222.66666666666666,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "11_display_colour_settings",
+          "source_start": 240.43333333333334,
+          "source_end": 259.9,
+          "idle_tail_start": 6.7
+        },
+        {
+          "visual": "12_cmy_view",
+          "source_start": 259.9,
+          "source_end": 275.79999999999995,
+          "idle_tail_start": 2.0
+        },
+        {
+          "visual": "15_agreement_fold",
+          "source_start": 275.79999999999995,
+          "source_end": 294.09999999999997,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "16_training_routes",
+          "source_start": 294.09999999999997,
+          "source_end": 317.29999999999995,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "20_suggestions",
+          "source_start": 352.4,
+          "source_end": 377.79999999999995,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "21_judged",
+          "source_start": 377.79999999999995,
+          "source_end": 405.13333333333327,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "17_generate_database_entry",
+          "source_start": 405.13333333333327,
+          "source_end": 431.0666666666666,
+          "idle_tail_start": 4.1
+        },
+        {
+          "visual": "18_annotation_console",
+          "source_start": 431.0666666666666,
+          "source_end": 451.53333333333325,
+          "idle_tail_start": 5.9
+        },
+        {
+          "visual": "30_ai_unsent_question",
+          "source_start": 451.53333333333325,
+          "source_end": 474.69999999999993,
+          "idle_tail_start": 1.0
+        }
+      ]
+    },
+    {
+      "lesson": "15_image_umap",
+      "master_sha256": "b8af9109aed4012ed5751e76063e11ee355320df73f5f288ddd376f78ed2a744",
+      "visual_timing_sha256": "fcc35788fef6013cbd9670671c74ee51526e5df4f9f7d1cb6da2de31007f89f5",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 23.2,
+          "idle_tail_start": 7.0
+        },
+        {
+          "visual": "19_setting_src",
+          "source_start": 23.2,
+          "source_end": 49.599999999999994,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "19_setting_tables",
+          "source_start": 49.599999999999994,
+          "source_end": 78.63333333333333,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "19_setting_row_limit",
+          "source_start": 78.63333333333333,
+          "source_end": 101.06666666666666,
+          "idle_tail_start": 3.7
+        },
+        {
+          "visual": "19_setting_reduction_method",
+          "source_start": 101.06666666666666,
+          "source_end": 124.69999999999999,
+          "idle_tail_start": 4.8
+        },
+        {
+          "visual": "19_setting_n_neighbors",
+          "source_start": 124.69999999999999,
+          "source_end": 147.66666666666666,
+          "idle_tail_start": 3.6
+        },
+        {
+          "visual": "19_setting_random_seed",
+          "source_start": 147.66666666666666,
+          "source_end": 169.5,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "19_setting_clustering",
+          "source_start": 169.5,
+          "source_end": 193.7,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "19_setting_plot_images",
+          "source_start": 193.7,
+          "source_end": 215.86666666666665,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "23_batch_finished",
+          "source_start": 215.86666666666665,
+          "source_end": 240.89999999999998,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "24_batch_figure",
+          "source_start": 240.89999999999998,
+          "source_end": 266.2,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "26_point_0",
+          "source_start": 290.56666666666666,
+          "source_end": 315.1333333333333,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "26_point_200",
+          "source_start": 315.1333333333333,
+          "source_end": 341.3666666666667,
+          "idle_tail_start": 4.7
+        }
+      ]
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "master_sha256": "29436aaadd8b2e6b5e08d23f7c05827419f97ea3babe2be1a4c807e4ef063cfc",
+      "visual_timing_sha256": "c94830d3b09da4b050628527e4de96b8cb42b4f8fefeaea513d997bc29af8fa3",
+      "scenes": [
+        {
+          "visual": "04_setting_src",
+          "source_start": 26.366666666666667,
+          "source_end": 54.2,
+          "idle_tail_start": 6.2
+        },
+        {
+          "visual": "05_setting_model_name",
+          "source_start": 54.2,
+          "source_end": 84.86666666666667,
+          "idle_tail_start": 9.3
+        },
+        {
+          "visual": "15_actual_mask_and_flow_figures",
+          "source_start": 123.66666666666667,
+          "source_end": 152.06666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "20a_actual_zoomed_preview",
+          "source_start": 212.23333333333332,
+          "source_end": 229.63333333333333,
+          "idle_tail_start": 4.8
+        },
+        {
+          "visual": "22_native_filter_reduces_objects",
+          "source_start": 229.63333333333333,
+          "source_end": 253.23333333333332,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "22b_actual_zoomed_filtered_preview",
+          "source_start": 253.23333333333332,
+          "source_end": 280.46666666666664,
+          "idle_tail_start": 5.3
+        },
+        {
+          "visual": "23b_actual_zoomed_restored_preview",
+          "source_start": 280.46666666666664,
+          "source_end": 308.76666666666665,
+          "idle_tail_start": 11.0
+        }
+      ]
+    },
+    {
+      "lesson": "23_agreement",
+      "master_sha256": "89b2202f3ee3ce234bd200c83af7d35dffa64966f4e06fac93faf6cd3b8e5868",
+      "visual_timing_sha256": "416f1e985e971c427580ea98843253207d9eb841a0ea52d071668d615468cd09",
+      "scenes": [
+        {
+          "visual": "02_agreement_fold",
+          "source_start": 0.0,
+          "source_end": 21.3,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "05_one_column_not_a_comparison",
+          "source_start": 49.0,
+          "source_end": 67.2,
+          "idle_tail_start": 4.3
+        },
+        {
+          "visual": "06_two_columns",
+          "source_start": 67.2,
+          "source_end": 97.36666666666667,
+          "idle_tail_start": 2.3
+        },
+        {
+          "visual": "07_pairwise_results",
+          "source_start": 97.36666666666667,
+          "source_end": 125.0,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "08_confusion_matrix",
+          "source_start": 125.0,
+          "source_end": 146.23333333333335,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "09_disagreement_crop_1",
+          "source_start": 146.23333333333335,
+          "source_end": 168.20000000000002,
+          "idle_tail_start": 4.3
+        },
+        {
+          "visual": "10_three_columns",
+          "source_start": 168.20000000000002,
+          "source_end": 194.26666666666668,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "12_pairwise_restored",
+          "source_start": 219.76666666666668,
+          "source_end": 250.86666666666667,
+          "idle_tail_start": 6.7
+        }
+      ]
     }
   ]
 }
