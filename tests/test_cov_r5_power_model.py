@@ -28,6 +28,7 @@ two column guards in ``scan_parameters``' resume block unreachable.
 from __future__ import annotations
 
 import importlib.machinery
+from contextlib import contextmanager
 import sys
 import types
 
@@ -103,9 +104,9 @@ def _distribution(kind):
 
 
 #: Fixed "draws" the stand-in samplers return for each latent. ``lam`` and
-#: ``tau`` are negative on purpose: the model takes their absolute value,
-#: and a fake that only ever returned positives could not tell whether it
-#: still did.
+#: ``tau`` are negative on purpose: folded/half distributions must return
+#: their positive magnitudes, rather than allowing a signed scale into
+#: the linear predictor.
 _LATENTS = {"z": 0.5, "lam": -2.0, "tau": -0.25, "c2": 4.0, "intercept": 0.7}
 
 
@@ -138,14 +139,21 @@ class _NumpyroRecorder:
         self.mcmc_kwargs = None
         self.seed = None
         self.group_by_chain = None
+        self.x64_active = False
+        self.x64_entries = 0
+        self.x64_exits = 0
 
     def sample(self, name, prior, obs=None):
+        assert self.x64_active
         self.priors[name] = prior
         if obs is not None:
             self.observed = np.asarray(obs)
             self.rate = np.asarray(prior.args[0], dtype=np.float64)
             return obs
-        return np.full(prior.shape, _LATENTS[name], dtype=np.float64)
+        value = _LATENTS[name]
+        if prior.kind == "FoldedDistribution":
+            value = abs(value)
+        return np.full(prior.shape, value, dtype=np.float64)
 
     def determine(self, name, value):
         self.deterministic[name] = np.asarray(value, dtype=np.float64)
@@ -153,9 +161,24 @@ class _NumpyroRecorder:
 
 
 def _install_numpyro(monkeypatch, *, beta_draws, intercept_draws,
-                     n_divergent=0) -> _NumpyroRecorder:
+                     n_divergent=0, legacy_x64=False) -> _NumpyroRecorder:
     """Put stand-in ``jax`` and ``numpyro`` modules in ``sys.modules``."""
     recorder = _NumpyroRecorder(beta_draws, intercept_draws, n_divergent)
+
+    @contextmanager
+    def enable_x64():
+        assert not recorder.x64_active
+        recorder.x64_active = True
+        recorder.x64_entries += 1
+        try:
+            yield
+        finally:
+            recorder.x64_active = False
+            recorder.x64_exits += 1
+
+    def asarray(value, **kwargs):
+        assert recorder.x64_active
+        return np.asarray(value, **kwargs)
 
     class _NUTS:
         def __init__(self, model, **kwargs):
@@ -168,30 +191,37 @@ def _install_numpyro(monkeypatch, *, beta_draws, intercept_draws,
             recorder.mcmc_kwargs = kwargs
 
         def run(self, key):
+            assert recorder.x64_active
             recorder.seed = key
             self.kernel.model()          # the model body is the thing under test
 
         def get_samples(self):
+            assert recorder.x64_active
             return {"beta": recorder.beta_draws,
                     "intercept": recorder.intercept_draws}
 
         def get_extra_fields(self, group_by_chain=True):
+            assert recorder.x64_active
             recorder.group_by_chain = group_by_chain
             return {"diverging": np.ones(recorder.n_divergent)}
 
     jnp = _fake_module(
-        "jax.numpy", asarray=np.asarray, log=np.log, abs=np.abs,
+        "jax.numpy", asarray=asarray, log=np.log, abs=np.abs,
         sqrt=np.sqrt, exp=np.exp, float64=np.float64,
     )
     jax = _fake_module(
         "jax", numpy=jnp,
         random=types.SimpleNamespace(PRNGKey=lambda seed: ("key", seed)),
     )
+    experimental = _fake_module("jax.experimental", enable_x64=enable_x64)
+    if not legacy_x64:
+        jax.enable_x64 = enable_x64
     distributions = _fake_module(
         "numpyro.distributions",
         Normal=_distribution("Normal"), StudentT=_distribution("StudentT"),
         InverseGamma=_distribution("InverseGamma"),
         Poisson=_distribution("Poisson"),
+        FoldedDistribution=_distribution("FoldedDistribution"),
     )
     infer = _fake_module("numpyro.infer", MCMC=_MCMC, NUTS=_NUTS)
     numpyro = _fake_module(
@@ -199,6 +229,7 @@ def _install_numpyro(monkeypatch, *, beta_draws, intercept_draws,
         distributions=distributions, infer=infer,
     )
     for name, module in (("jax", jax), ("jax.numpy", jnp),
+                         ("jax.experimental", experimental),
                          ("numpyro", numpyro),
                          ("numpyro.distributions", distributions),
                          ("numpyro.infer", infer)):
@@ -206,13 +237,15 @@ def _install_numpyro(monkeypatch, *, beta_draws, intercept_draws,
     return recorder
 
 
+@pytest.mark.parametrize("legacy_x64", [False, True])
 def test_the_numpyro_backend_hands_back_a_fit_that_names_itself(
-        monkeypatch, model_data):
+        monkeypatch, model_data, legacy_x64):
     """``backend="numpyro"`` runs the NUTS path and says so on the result."""
     draws = np.arange(15, dtype=np.float64).reshape(5, 3)
     recorder = _install_numpyro(
         monkeypatch, beta_draws=draws.copy(),
         intercept_draws=np.linspace(-1.0, 1.0, 5),
+        legacy_x64=legacy_x64,
     )
 
     fit = pm.fit_model(model_data, backend="numpyro", seed=7,
@@ -240,11 +273,14 @@ def test_the_numpyro_backend_hands_back_a_fit_that_names_itself(
         pm._horseshoe_global_scale(3, 4, None, None))
     assert fit.diagnostics["seconds"] >= 0.0
     # the sampler knobs are forwarded, not silently defaulted
-    assert recorder.kernel_kwargs == {"max_tree_depth": 9}
+    assert recorder.kernel_kwargs == {"max_tree_depth": 9,
+                                      "target_accept_prob": 0.9}
     assert recorder.mcmc_kwargs == {"num_warmup": 11, "num_samples": 5,
                                     "num_chains": 2, "progress_bar": False}
     assert recorder.seed == ("key", 7)
     assert recorder.group_by_chain is False
+    assert recorder.x64_entries == recorder.x64_exits == 1
+    assert recorder.x64_active is False
 
 
 def test_the_numpyro_model_is_the_horseshoe_poisson_with_the_offset(
@@ -261,13 +297,17 @@ def test_the_numpyro_model_is_the_horseshoe_poisson_with_the_offset(
 
     priors = recorder.priors
     assert priors["z"].kind == "Normal" and priors["z"].shape == (3,)
-    assert priors["lam"].kind == "StudentT"
-    assert priors["lam"].args == (8.0, 0.0, 1.0)      # df_local
+    assert priors["lam"].kind == "FoldedDistribution"
+    assert priors["lam"].args[0].kind == "StudentT"
+    assert priors["lam"].args[0].args == (8.0, 0.0, 1.0)      # df_local
     assert priors["lam"].shape == (3,)
-    # lam is sampled under mask(False): it is a half-Student-t taken by
-    # absolute value, so its density must not be counted twice.
-    assert priors["lam"].masked is False
-    assert priors["tau"].args == (2.0, 0.0, 0.02)     # df_global, tau0
+    assert priors["lam"].masked is None
+    assert priors["lam"].args[0].masked is None
+    assert priors["tau"].kind == "FoldedDistribution"
+    assert priors["tau"].args[0].kind == "StudentT"
+    assert priors["tau"].args[0].args == (2.0, 0.0, 0.02)     # df_global, tau0
+    assert priors["tau"].masked is None
+    assert priors["tau"].args[0].masked is None
     assert priors["c2"].args == (3.0, 3.0 * 3.0 ** 2)  # df_slab/2, slab scale
 
     baseline = model_data.Npositive.sum() / model_data.Ntotal.sum()

@@ -141,3 +141,55 @@ def test_hindi_clear_button_keeps_native_text_room_in_a_narrow_pane(
                     settings.setValue(key, previous[key])
                 else:
                     settings.remove(key)
+
+
+def test_native_wide_hindi_content_gets_pane_room_without_growing_the_window(
+        qtbot, qt_theme_applied, monkeypatch):
+    from PySide6.QtWidgets import QApplication
+    from spacr.qt import gui_scale, i18n, preferences
+    from spacr.qt.screens.organism_screen import OrganismScreen
+
+    settings = preferences._settings()
+    keys = ("prefs/gui_scale", "prefs/font_scale")
+    previous = {key: settings.value(key) for key in keys if settings.contains(key)}
+    gui_scale.install_scaling_layer()
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 0.9)
+        patch.setattr(i18n, "current_language", lambda: "hi")
+        try:
+            preferences.set_gui_scale(0.9)
+            preferences.set_font_scale(0.9)
+            screen = OrganismScreen("toxoplasma")
+            qtbot.addWidget(screen)
+            screen.resize(800, 700)
+            screen.show()
+            qtbot.waitExposed(screen)
+            for _ in range(4):
+                QApplication.processEvents()
+            geometry = screen.geometry()
+            button = screen._diagram.clear_button
+            assert button.text() == "चयन साफ़ करें"
+            button.setStyleSheet("font-size: 75px;")
+            for _ in range(6):
+                QApplication.processEvents()
+            assert screen.geometry() == geometry
+            assert button.fontMetrics().horizontalAdvance(button.text()) <= (
+                button.contentsRect().width() - 20)
+            assert screen._diagram._legend.rect().contains(button.geometry())
+            assert screen._scroll.horizontalScrollBar().maximum() == 0
+            assert screen._module_scroll.horizontalScrollBar().maximum() == 0
+            wide_floor = screen._scroll.minimumWidth()
+            button.setStyleSheet("font-size: 12px;")
+            for _ in range(6):
+                QApplication.processEvents()
+            assert screen._scroll.minimumWidth() < wide_floor
+            assert screen.geometry() == geometry
+            assert screen._scroll.horizontalScrollBar().maximum() == 0
+            assert screen._module_scroll.horizontalScrollBar().maximum() == 0
+            screen.close()
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)

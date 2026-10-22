@@ -335,6 +335,7 @@ class _WGPU:
         self.created = []
         self.submitted = 0
         self.copies = []
+        self.mapping = []
         self.reader = None
         self.asked = None
         state = self
@@ -342,15 +343,40 @@ class _WGPU:
         module.__spec__ = importlib.machinery.ModuleSpec("wgpu", None)
         module.TextureFormat = SimpleNamespace(r32uint="r32uint")
         module.TextureUsage = SimpleNamespace(TEXTURE_BINDING=4, COPY_DST=2)
-        module.BufferUsage = SimpleNamespace(STORAGE=128, COPY_SRC=4, COPY_DST=8, UNIFORM=64)
+        module.BufferUsage = SimpleNamespace(MAP_READ=1, STORAGE=128, COPY_SRC=4, COPY_DST=8, UNIFORM=64)
 
         class GPUBuffer:
             def __init__(self, size, usage, data=None):
                 self.size, self.usage, self.data, self.destroyed = size, usage, data, False
                 self.copies = {}
+                self.storage = bytearray(size)
+                self.mapped = None
+                self.submission = 0
                 state.created.append(self)
 
+            def map_sync(self, mode, *, offset=0, size=None):
+                size = self.size - offset if size is None else size
+                assert not self.destroyed and self.mapped is None
+                assert self.usage == module.BufferUsage.MAP_READ | module.BufferUsage.COPY_DST
+                assert mode == "READ" and 0 <= offset < offset + size <= self.size
+                assert self.submission == state.submitted and self.submission > 0
+                self.mapped = (offset, size)
+                state.mapping.append(("map", self, mode, offset, size))
+
+            def read_mapped(self, *, offset=0, size=None, copy=True):
+                size = self.size - offset if size is None else size
+                assert self.mapped == (offset, size) and copy is True
+                assert not self.destroyed
+                state.mapping.append(("read", self, offset, size, copy))
+                return bytes(self.storage[offset:offset + size])
+
+            def unmap(self):
+                assert self.mapped is not None and not self.destroyed
+                self.mapped = None
+                state.mapping.append(("unmap", self))
+
             def destroy(self):
+                assert self.mapped is None
                 self.destroyed = True
 
         class Texture:
@@ -391,13 +417,16 @@ class _WGPU:
 
             def submit(self, buffers):
                 state.submitted += len(buffers)
+                for commands in buffers:
+                    for source, source_offset, target, target_offset, size in commands:
+                        assert not source.destroyed and not target.destroyed
+                        assert target.mapped is None
+                        payload = self._contents(source)[source_offset:source_offset + size]
+                        assert len(payload) == size
+                        target.storage[target_offset:target_offset + size] = payload
+                        target.submission = state.submitted
 
-            def read_buffer(self, buffer):
-                if buffer.copies:
-                    data = bytearray(buffer.size)
-                    for offset, (source, source_offset, size) in buffer.copies.items():
-                        data[offset:offset + size] = self.read_buffer(source)[source_offset:source_offset + size]
-                    return bytes(data)
+            def _contents(self, buffer):
                 if state.reader is not None:
                     found = state.reader(buffer)
                     if found is not None:
@@ -427,6 +456,8 @@ class _WGPU:
                 return {"layout": layout, "entries": entries}
 
             def create_command_encoder(self):
+                copies = []
+
                 def copy_buffer_to_buffer(source, source_offset, target, target_offset, size):
                     assert source.usage & module.BufferUsage.COPY_SRC
                     assert target.usage & module.BufferUsage.COPY_DST
@@ -434,8 +465,9 @@ class _WGPU:
                     assert target_offset + size <= target.size
                     target.copies[target_offset] = (source, source_offset, size)
                     state.copies.append((source, source_offset, target, target_offset, size))
+                    copies.append((source, source_offset, target, target_offset, size))
 
-                return SimpleNamespace(begin_compute_pass=Pass, finish=lambda: "commands",
+                return SimpleNamespace(begin_compute_pass=Pass, finish=lambda: copies,
                                        copy_buffer_to_buffer=copy_buffer_to_buffer)
 
         if destroyable:
@@ -524,6 +556,14 @@ def test_wgpu_frame_runs_clear_image_labels_and_pack_and_decodes_the_picture(mon
     assert [groups for *_rest, groups in fake.dispatches] == [
         (1, 1, 1), (1, 1, 1), (1, 1, 1), (2, 2, 1)]
     assert fake.submitted == 1
+    staging = renderer._buffers["readback"][1]
+    mapped_bytes = 12 * 15 * 4 + 6 * 7 * 8
+    assert staging.usage == fake.module.BufferUsage.MAP_READ | fake.module.BufferUsage.COPY_DST
+    assert not staging.usage & fake.module.BufferUsage.STORAGE
+    assert fake.mapping == [("map", staging, "READ", 0, mapped_bytes),
+                            ("read", staging, 0, mapped_bytes, True),
+                            ("unmap", staging)]
+    assert staging.mapped is None and not staging.destroyed
     assert [(copy[1], copy[3], copy[4]) for copy in fake.copies] == [
         (0, 0, 12 * 15 * 4), (0, 12 * 15 * 4, 6 * 7 * 8)]
     assert rgb.shape == (12, 15, 3) and np.array_equal(rgb[3, :, 0], np.arange(15))
@@ -572,15 +612,35 @@ def test_wgpu_volumes_and_buffers_are_kept_resized_and_freed(monkeypatch):
     renderer.render([channel, masks], rays)
     textures = [obj for obj in fake.created if isinstance(obj, fake.Texture)]
     frame = renderer._buffers["frame"][1]
+    staging = renderer._buffers["readback"][1]
+    assert staging.size == 6 * 7 * (4 + 8)
     assert len(textures) == 2
     renderer.render([channel, masks], rays)
     assert len([obj for obj in fake.created if isinstance(obj, fake.Texture)]) == 2
     assert renderer._buffers["frame"][1] is frame and not frame.destroyed
     colours = renderer._textures[(layers._array_key(masks.data), "colours")][1][0]
+    staging.storage[:] = b"\xa5" * staging.size
     renderer.render([channel], _rays((4, 5, 9)))
-    assert frame.destroyed and renderer._buffers["frame"][0] == 4 * 5 * 16
+    mapped_bytes = 4 * 5 * (4 + 8)
+    assert renderer._buffers["readback"][1] is staging
+    assert staging.storage[mapped_bytes:] == b"\xa5" * (staging.size - mapped_bytes)
+    assert fake.mapping[-3:] == [("map", staging, "READ", 0, mapped_bytes),
+                                 ("read", staging, 0, mapped_bytes, True),
+                                 ("unmap", staging)]
+    assert fake.submitted == 3 and staging.mapped is None
+    assert renderer._buffers["frame"] == (6 * 7 * 16, frame) and not frame.destroyed
     assert [texture.destroyed for texture in textures] == [False, True]
     assert colours.destroyed
+    renderer.render([channel], _rays((8, 9, 9)))
+    assert frame.destroyed and renderer._buffers["frame"][0] == 8 * 9 * 16
+    grown_staging = renderer._buffers["readback"][1]
+    mapped_bytes = 8 * 9 * (4 + 8)
+    assert staging.destroyed and staging.mapped is None
+    assert grown_staging is not staging and grown_staging.size == mapped_bytes
+    assert fake.mapping[-3:] == [("map", grown_staging, "READ", 0, mapped_bytes),
+                                 ("read", grown_staging, 0, mapped_bytes, True),
+                                 ("unmap", grown_staging)]
+    assert fake.submitted == 4 and grown_staging.mapped is None
     lut = next(iter(renderer._luts.values()))
     held = [buffer for _size, buffer in renderer._buffers.values()]
     renderer.close()
@@ -588,6 +648,8 @@ def test_wgpu_volumes_and_buffers_are_kept_resized_and_freed(monkeypatch):
     assert held and all(buffer.destroyed for buffer in held)
     assert renderer._textures == {} and renderer._buffers == {} and renderer._pipelines == {}
     assert fake.device_destroyed
+    assert staging.destroyed and staging.mapped is None
+    assert grown_staging.destroyed and grown_staging.mapped is None
 
 
 def test_wgpu_close_without_a_device_destroy(monkeypatch):

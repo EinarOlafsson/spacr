@@ -170,7 +170,10 @@ def test_project_harness_blocks_only_the_unrelated_napari_plugin(tmp_path):
         "raise AssertionError('the unrelated napari plugin must not load')\n"
     )
     (tmp_path / "required_harness_plugin.py").write_text(
-        "import pytest\n@pytest.fixture\ndef required_plugin_fixture():\n"
+        "from pathlib import Path\nimport pytest\n"
+        "def pytest_collect_directory(path, parent):\n"
+        "    assert Path(str(path)).resolve().is_relative_to(Path(__file__).resolve().parent), 'collection escaped the probe directory'\n"
+        "@pytest.fixture\ndef required_plugin_fixture():\n"
         "    return 'other plugins remain available'\n"
     )
     probe = tmp_path / "test_logging_probe.py"
@@ -197,7 +200,8 @@ def test_project_harness_blocks_only_the_unrelated_napari_plugin(tmp_path):
     )
     result = subprocess.run(
         [sys.executable, "-m", "pytest", "--noconftest", "-q",
-         "-c", str(ROOT / "pytest.ini"), str(probe)],
+         "-c", str(ROOT / "pytest.ini"), "--rootdir", str(tmp_path),
+         "--confcutdir", str(tmp_path), str(probe)],
         env=environment, text=True, capture_output=True, timeout=30,
     )
     assert result.returncode == 0, result.stdout + result.stderr

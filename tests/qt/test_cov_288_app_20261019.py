@@ -291,6 +291,7 @@ def test_a_theme_refresh_carries_on_past_every_failing_step(monkeypatch):
                    _refresh_alpha_visibility=_boom)
     languages = []
     window = _fake(
+        findChildren=lambda widget_type: [],
         _sidebar=_fake(refresh_icons=_boom, refresh_visibility=_boom),
         _refresh_app_action_visibility=_boom,
         _backdrop_the_dock_column=_boom,
