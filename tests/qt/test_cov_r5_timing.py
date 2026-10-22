@@ -301,6 +301,14 @@ def test_a_slow_import_is_charged_to_the_spacr_frame_that_triggered_it(
     monkeypatch.setattr(timing, "_IMPORT_TIMER_INSTALLED", False)
     timing._install_import_timer()
     loader, module = _slow_module(tmp_path)
+    worker_loader, worker_module = _slow_module(
+        tmp_path, name="an_unrelated_preloader_probe")
+    worker = threading.Thread(
+        target=worker_loader.exec_module, args=(worker_module,),
+        name="unrelated-preloader-probe")
+    worker.start()
+    worker.join(timeout=5)
+    assert not worker.is_alive() and worker_module.VALUE == 1
     # Two frames deep because the wrapper reads ``_getframe(2)``: in a real
     # import the frame between it and the requester is importlib's.
     run = _function_from(
@@ -313,10 +321,15 @@ def test_a_slow_import_is_charged_to_the_spacr_frame_that_triggered_it(
 
     run(loader, module)
 
-    assert [row["name"] for row in timing._IMPORTS] == [
-        "a_deliberately_slow_probe"]
-    assert timing._IMPORTS[0]["by"] == "qt/importer_probe.py:2"
-    assert timing._IMPORTS[0]["took"] >= 0.019
+    records = [row for row in timing._IMPORTS
+               if row["name"] in (worker_module.__name__, module.__name__)]
+    assert [row["name"] for row in records] == [
+        worker_module.__name__, module.__name__]
+    assert records[0]["thread"] == "unrelated-preloader-probe"
+    assert records[0]["by"] == ""
+    assert records[0]["took"] >= 0.019
+    assert records[1]["by"] == "qt/importer_probe.py:2"
+    assert records[1]["took"] >= 0.019
 
 
 def test_a_slow_import_off_the_top_of_a_worker_stack_is_still_recorded(

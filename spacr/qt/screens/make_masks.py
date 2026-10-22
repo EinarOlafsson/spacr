@@ -12179,6 +12179,7 @@ class _VolumeStage(QWidget):
         self._settle_timer.start()
 
     def _prepaint_axes(self, figure, widget):
+        """Return eligible volume axes for prepaint, or None."""
         if (self._panel is None or self._panel.canvas._figure is not figure
                 or self._panel.canvas._canvas is not widget or self.view != 'true3d'
                 or self.session is None or self._gl is None or self._backend_choice == 'cpu'
@@ -12196,6 +12197,7 @@ class _VolumeStage(QWidget):
         return self._view_axes()
 
     def _queue_volume_frame(self, figure, widget, original):
+        """Request a volume repaint, or delegate when prepaint is unavailable."""
         if self._prepaint_axes(figure, widget) is None:
             return original()
         widget._draw_pending = True
@@ -12203,6 +12205,7 @@ class _VolumeStage(QWidget):
         widget.update()
 
     def _draw_volume_frame(self, figure, widget, original, renderer):
+        """Attempt eligible volume prepaint, then call the original figure draw."""
         ax = self._prepaint_axes(figure, widget)
         if ax is None:
             return original(renderer)
@@ -12293,6 +12296,7 @@ class _VolumeStage(QWidget):
         self._show_render()
 
     def _make_volume_image(self, artist, original, renderer, magnification=1.0, unsampled=False):
+        """Build opaque RGBA pixels for eligible RGB volume images, otherwise delegate."""
         from matplotlib.backends.backend_agg import RendererAgg
         from matplotlib.transforms import Affine2D
 

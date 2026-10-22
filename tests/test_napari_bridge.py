@@ -498,24 +498,25 @@ def test_the_missing_extra_names_the_pip_command_not_a_traceback():
     assert "Curate" in message
 
 
-@pytest.mark.skipif(nb.napari_available(),
-                    reason="napari is installed in this environment")
-def test_require_napari_raises_an_import_error_carrying_that_message():
+def test_require_napari_raises_an_import_error_carrying_that_message(monkeypatch):
+    monkeypatch.setitem(sys.modules, "napari", None)
     with pytest.raises(nb.NapariExtraMissing) as caught:
         nb.require_napari()
     assert 'pip install "spacr[napari]"' in str(caught.value)
     # An ImportError subclass, so `except ImportError` callers keep working.
     assert isinstance(caught.value, ImportError)
+    assert isinstance(caught.value.__cause__, ModuleNotFoundError)
+    assert caught.value.__cause__.name == "napari"
 
 
-@pytest.mark.skipif(nb.napari_available(),
-                    reason="napari is installed in this environment")
-def test_opening_without_napari_refuses_with_the_same_message(tmp_path):
+def test_opening_without_napari_refuses_with_the_same_message(tmp_path, monkeypatch):
+    monkeypatch.setitem(sys.modules, "napari", None)
     mask_path, _ = _field(tmp_path)
-    with pytest.raises(nb.NapariExtraMissing):
+    with pytest.raises(nb.NapariExtraMissing) as opening:
         nb.open_in_napari(nb.load_handoff(mask_path))
-    with pytest.raises(nb.NapariExtraMissing):
+    with pytest.raises(nb.NapariExtraMissing) as event_loop:
         nb.run_event_loop()
+    assert str(opening.value) == str(event_loop.value) == nb.missing_napari_message()
 
 
 def test_open_in_napari_accepts_a_viewer_and_then_needs_no_napari(tmp_path):

@@ -273,7 +273,15 @@ def test_the_uninstallers_offer_purge():
     assert uninstall.index('${IfNot} ${Errors}') < purge < targeted
     assert 'RMDir /r "$INSTDIR"' not in uninstall
     mac = (root / "build_macos_online.sh").read_text(encoding="utf-8")
-    assert "spacr.install_cleanup purge" in mac
+    uninstaller = mac.split('cat > "$SUPPORT/uninstall-spacr.sh" <<\'EOF\'\n', 1)[1].split('\nEOF', 1)[0]
+    assert 'cp spacr/install_cleanup.py "$SUPPORT/verify_runtime.py"' in mac
+    purge = uninstaller.index("set -- -I '/Library/Application Support/spaCR/verify_runtime.py' purge")
+    invoked = uninstaller.index('"$py" "$@"', purge)
+    assert uninstaller.index('--purge) purge=1') < purge < invoked
+    assert 'set -- "$@" --dry-run' in uninstaller[purge:invoked]
+    assert 'set -- "$@" --yes' in uninstaller[purge:invoked]
+    assert invoked < uninstaller.index('rm -rf "/Applications/spaCR.app"')
+    assert invoked < uninstaller.index('rm -rf "/Library/Application Support/spaCR"')
 
 
 def test_failed_cache_location_write_can_be_retried_without_losing_cache(home, tmp_path):

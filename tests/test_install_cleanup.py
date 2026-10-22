@@ -1179,12 +1179,15 @@ def test_the_unix_installer_keeps_old_copies_when_staging_fails(tmp_path):
 def test_the_windows_installer_validates_staging_before_retiring_old_copies():
     ps1 = (ROOT / "packaging" / "online" / "install_spacr_windows.ps1").read_text(
         encoding="utf-8")
-    remove = ps1.index("$CleanupModule remove")
-    assert ps1.index("python find $PythonVersion") < remove
+    retirement = 'Invoke-SpacrNative -Command $CleanupPython -Arguments @("-I", "-X", "utf8", $CleanupModule, "remove",'
+    assert ps1.count(retirement) == 1
+    remove = ps1.index(retirement)
+    assert ps1.index('@("python", "find", $PythonVersion, "--managed-python")') < remove
+    assert ps1.index('Invoke-Checked -Command $CleanupPython -Arguments $IdentityArgs') < remove
     assert ps1.index('@("pip", "check", "--python"') < remove
     assert ps1.index("pip install --python $StagePython") < remove
-    assert "--keep $InstallRoot" in ps1
-    assert "--keep $LogPath" in ps1
+    assert '"--keep", $InstallRoot' in ps1[remove:]
+    assert '"--keep", $LogPath' in ps1[remove:]
     nsis = (ROOT / "packaging" / "online" / "spacr_online_installer.nsi").read_text(
         encoding="utf-8")
     shipped = 'File "..\\..\\spacr\\install_cleanup.py"'

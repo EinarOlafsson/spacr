@@ -137,6 +137,9 @@ class OrganismScreen(QWidget):
         self._splitter.setSizes([scaled_px(480), scaled_px(780)])
         self._splitter.handle(1).setToolTip(tr("Drag to resize the information pane."))
         self._module_scroll.viewport().installEventFilter(self)
+        self._intro.installEventFilter(self)
+        self._scroll.installEventFilter(self)
+        self._scroll.verticalScrollBar().installEventFilter(self)
         self._build_tiles()
         self._splitter.splitterMoved.connect(self._reflow)
         QTimer.singleShot(0, self._reflow)
@@ -315,6 +318,17 @@ class OrganismScreen(QWidget):
 
     def _reflow_tiles(self) -> None:
         """Re-grid the tiles when the column count changes."""
+        from ..gui_scale import _factor_for, _set_actual_dim, scale_int
+
+        self._scroll.ensurePolished()
+        scrollbar = self._scroll.verticalScrollBar()
+        scrollbar.ensurePolished()
+        minimum = max(
+            scale_int(scaled_px(240), _factor_for(self._scroll)),
+            self._intro.minimumSizeHint().width() + scrollbar.sizeHint().width()
+            + 2 * self._scroll.frameWidth())
+        if self._scroll.property("minimumWidth") != minimum:
+            _set_actual_dim(self._scroll, "minw", minimum)
         if not self._tiles:
             return
         available = self._module_scroll.viewport().width()
@@ -341,6 +355,12 @@ class OrganismScreen(QWidget):
         :returns: the base event filter's result.
         """
         if event.type() == QEvent.Resize and watched is self._module_scroll.viewport():
+            QTimer.singleShot(0, self._reflow)
+        elif watched is self._intro and event.type() in (
+            QEvent.LayoutRequest, QEvent.FontChange, QEvent.StyleChange):
+            QTimer.singleShot(0, self._reflow)
+        elif watched in (self._scroll, self._scroll.verticalScrollBar()) and event.type() in (
+            QEvent.FontChange, QEvent.StyleChange):
             QTimer.singleShot(0, self._reflow)
         return super().eventFilter(watched, event)
 

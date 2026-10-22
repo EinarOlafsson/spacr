@@ -176,7 +176,8 @@ def test_only_an_accepted_close_ends_the_session(win, monkeypatch):
     assert quits == ["quit"]
 
 
-def test_on_macos_an_accepted_close_leaves_the_loop_without_asking_cocoa(win, monkeypatch):
+def test_on_macos_an_accepted_close_leaves_the_loop_without_asking_cocoa(
+        win, monkeypatch, qtbot):
     """2026-10-19 macOS acceptance: Dock Quit or logout closes the window from
     inside Cocoa's terminate; a second terminate from ``quit()`` made AppKit
     call ``exit()`` and PySide crashed in its static destructors."""
@@ -195,6 +196,10 @@ def test_on_macos_an_accepted_close_leaves_the_loop_without_asking_cocoa(win, mo
 
     win.closeEvent(QCloseEvent())
     win.closeEvent(QCloseEvent())
+    assert calls == ["close all"]
+    qtbot.waitUntil(lambda: ("exit", 0) in calls)
+    from PySide6.QtWidgets import QApplication as QtApplication
+    QtApplication.processEvents()
     assert calls == ["close all", ("exit", 0)], "the loop is left once"
 
 
