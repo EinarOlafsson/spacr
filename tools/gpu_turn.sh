@@ -31,7 +31,7 @@ set -uo pipefail
 case "${OSTYPE:-}" in
     msys*|cygwin*)
         windows_gpu_script="${BASH_SOURCE[0]//\\//}"
-        if [[ "$OSTYPE" == cygwin* ]]; then
+        if [[ "$OSTYPE" == cygwin* && "$windows_gpu_script" == /* ]]; then
             windows_gpu_script=$(cygpath -w "$windows_gpu_script") || exit 1
             windows_gpu_script="${windows_gpu_script//\\//}"
         fi

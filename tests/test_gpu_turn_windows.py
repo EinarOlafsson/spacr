@@ -38,11 +38,28 @@ def test_windows_dispatch_reaches_native_usage_without_starting_a_turn(tmp_path)
         bash = str(candidate) if candidate.exists() else None
     if not bash:
         pytest.skip('MSYS bash is not installed')
+    identity_script = tmp_path / 'shell-identity.sh'
+    identity_script.write_text('printf "%s\\n" "$OSTYPE"\n', encoding='utf-8')
+    identity = subprocess.run([bash, '--noprofile', '--norc', str(identity_script)],
+                              capture_output=True, text=True, timeout=15)
+    assert identity.returncode == 0 and identity.stdout.strip().startswith(('msys', 'cygwin'))
     result = subprocess.run([bash, '--noprofile', '--norc', str(ROOT / 'tools/gpu_turn.sh')],
                             capture_output=True, text=True, timeout=15)
     assert result.returncode != 0
     assert 'usage: gpu_turn.ps1' in result.stderr
     assert 'flock' not in result.stderr
+
+
+def test_native_file_entry_preserves_external_flags_as_command_arguments(tmp_path):
+    header = SCRIPT.read_text(encoding='utf-8-sig').split("$ErrorActionPreference = 'Stop'", 1)[0]
+    probe = tmp_path / 'native-file-entry.ps1'
+    probe.write_text(header + '\n@{label=$Label;command=@($Command)} | ConvertTo-Json -Compress\n',
+                     encoding='utf-8-sig')
+    arguments = ['owned-turn', sys.executable, 'cap.py', '--command', 'probe.py', '-c', 'space value', '$HOME']
+    result = subprocess.run([POWERSHELL, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(probe), *arguments],
+                            capture_output=True, text=True, timeout=15)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(result.stdout) == {'label': arguments[0], 'command': arguments[1:]}
 
 
 def test_browser_descendants_and_exact_graphics_argument_are_excluded(tmp_path):
@@ -170,7 +187,9 @@ $activity = Select-SpacrGpuActivity $samples $processes
 def test_admitted_owned_command_preserves_arguments_exit_code_and_release(tmp_path):
     marker = tmp_path / 'literal arguments'
     queue = tmp_path / 'queue'
-    code = 'import sys; from pathlib import Path; Path(sys.argv[1]).write_text(sys.argv[2]); sys.exit(7)'
+    code = ('import sys,time; from pathlib import Path; '
+            'sys.stderr.write(chr(120)); sys.stderr.flush(); time.sleep(.3); '
+            'Path(sys.argv[1]).write_text(sys.argv[2]); sys.exit(7)')
     result = _run(tmp_path, r'''
 function Get-SpacrGpuActivity { [pscustomobject]@{BusyPids=@();ExcludedPids=@()} }
 $result = Invoke-SpacrGpuTurn -TurnLabel owned-cpu -Directory ''' + _quote(queue) + r''' -IdleSeconds 0 -GapSeconds 0 -TurnCommand @(''' + ','.join(map(_quote, [sys.executable, '-c', code, marker, 'literal $HOME'])) + r''')

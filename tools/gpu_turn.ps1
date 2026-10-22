@@ -1,7 +1,7 @@
-param(
-    [Parameter(Position=0)][string]$Label,
-    [Parameter(Position=1, ValueFromRemainingArguments=$true)][string[]]$Command
-)
+param()
+
+$Label = if ($args.Count) { [string]$args[0] } else { '' }
+[string[]]$Command = @($args | Select-Object -Skip 1)
 
 $ErrorActionPreference = 'Stop'
 
