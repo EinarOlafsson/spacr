@@ -254,8 +254,16 @@ def _legacy_mesh_triangle_contact(first, second, common):
     return False
 
 
+def _scalar_triangle_basis(triangle):
+    u, v = triangle[1] - triangle[0], triangle[2] - triangle[0]
+    normal = np.cross(u, v)
+    return (normal, np.linalg.norm(normal), u, v,
+            float(u @ u), float(u @ v), float(v @ v), float(normal @ normal))
+
+
 @pytest.mark.parametrize('scale', [1e-3, 1., 1e3])
-def test_surface_contact_arithmetic_matches_the_original_predicate(scale):
+@pytest.mark.parametrize('cached', [False, True])
+def test_surface_contact_arithmetic_matches_the_original_predicate(scale, cached):
     from spacr.qt.widgets.gate_spec import _mesh_triangle_contact
 
     rng = np.random.default_rng(673)
@@ -276,7 +284,8 @@ def test_surface_contact_arithmetic_matches_the_original_predicate(scale):
     for first, second, common in cases:
         for left, right in ((first, second), (second, first)):
             left, right, shared = left * scale, right * scale, common * scale
-            assert _mesh_triangle_contact(left, right, shared) is _legacy_mesh_triangle_contact(left, right, shared)
+            basis = (_scalar_triangle_basis(left), _scalar_triangle_basis(right)) if cached else None
+            assert _mesh_triangle_contact(left, right, shared, _basis=basis) is _legacy_mesh_triangle_contact(left, right, shared)
 
 
 def test_surface_contact_computes_each_triangle_normal_only_once(monkeypatch):
@@ -292,6 +301,21 @@ def test_surface_contact_computes_each_triangle_normal_only_once(monkeypatch):
     monkeypatch.setattr(gate_spec.np, 'cross', counted)
     assert gate_spec._mesh_triangle_contact(first, second, np.empty((0, 3)))
     assert len(calls) == 2
+
+
+def test_volume_validator_caches_one_exact_scalar_basis_per_triangle(monkeypatch):
+    from spacr.qt.widgets import gate_spec
+
+    gate = _box()
+    vertices, faces = np.asarray(gate.vertices), np.asarray(gate.faces)
+    original = np.cross
+    shapes = []
+    def counted(first, second, **kwargs):
+        shapes.append(np.asarray(first).shape)
+        return original(first, second, **kwargs)
+    monkeypatch.setattr(gate_spec.np, 'cross', counted)
+    gate_spec._validate_volume_mesh(vertices, faces)
+    assert shapes == [(len(faces), 3)] + [(3,)] * len(faces)
 
 
 @pytest.mark.parametrize('jitter', [0., .5e-10, 1e-10, 2e-10])
@@ -314,7 +338,11 @@ def test_mesh_prefilter_keeps_all_original_candidates_and_their_order(monkeypatc
         expected.extend((i, int(j)) for j in candidates)
     indices = {triangle.tobytes(): index for index, triangle in enumerate(triangles)}
     seen = []
-    def record_contact(first, second, common):
+    def record_contact(first, second, common, _basis=None):
+        assert _basis is not None
+        for triangle, basis in zip((first, second), _basis):
+            expected_basis = _scalar_triangle_basis(triangle)
+            assert all(np.array_equal(actual, expected) for actual, expected in zip(basis, expected_basis))
         seen.append((indices[first.tobytes()], indices[second.tobytes()]))
         return False
     monkeypatch.setattr(gate_spec, '_mesh_triangle_contact', record_contact)

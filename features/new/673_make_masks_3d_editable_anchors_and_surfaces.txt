@@ -85,6 +85,25 @@ candidate order and topology decisions. Same-input label1 timing is49.185s
 versus52.096s; the30s strict synthetic settle gate remains unmet. Production
 pan invalidation now includes the actual axes display transform; two new
 regressions failed before repair and four related checks pass afterward.
+Next bounded geometry repair: topology implies at least189,348 scalar normal
+cross products for the label1 candidate pairs, versus15,784 triangles. Test
+per-triangle cached bases/normals/norms/determinants using exactly the existing
+scalar operations, passed privately to the contact predicate. Keep the default
+uncached path and all full topology/contact checks. Do not substitute vectorized
+normal values, reassociate arithmetic, change tolerances or mutate geometry.
+Require cached and uncached legacy-decision comparisons, refusal/membership
+regressions and one same-input timing before claiming any improvement.
+That exact scalar cache now passes185 focused geometry/volume/refusal tests,
+including both legacy predicate paths and per-triangle scalar-call checks.
+The same label1 geometry returns normally in30.743s versus49.185s, with
+identical vertices/faces/groups and unchanged mask/history. This remains above
+the strict30s settle bound; it is not native acceptance or an item closure.
+The retained scratch prepaint rate27.12FPS counts new render-state deliveries,
+not visible frames: that run records only14.55 canvas paints/s versus23.73
+for the24.06-state-FPS control. Do not adopt it as a performance improvement.
+Diagnose Qt paint coalescing before further prepaint work; require both actual
+paint cadence and independent current-view correctness, keeping the original
+render quality and the30–60FPS target.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
@@ -369,3 +388,4 @@ Real-display acceptance remains with the maintainer: each available backend and 
 2026-10-21 — Pixel picking now floors coordinates instead of truncating toward zero, so points just left of or above the rendered volume cannot select its first pixel. All11 exact interior/edge cases pass, including3 previously false outside picks. Rotated physical-input and30–60FPS acceptance remain open.
 2026-10-21 — Batched colour/picking readback preserves exact pixels and uint32 label IDs with one synchronized GPU read per frame. Four transport/buffer checks and the real Metal-versus-CPU rendering/finish/lens case pass. Same instrumented Cocoa/Intel Iris Plus64×256×256/100% drag comparison improves18.95→23.59FPS and interactive-render median17.47→14.52ms; all20 picks match the rendered frame, exit0/errors[]. This focused run remains below30–60FPS and does not establish physical-input editing acceptance.
 2026-10-21 — Reuse identical triangle operands and prefilter bounding-box candidates without changing contact/topology predicates:173 initial focused checks and101 affected final geometry checks pass; label1 still takes49.185s, so strict30s settle remains open. Fix pan invalidation with the axes display transform (four focused checks). Actual Cocoa/Intel Iris Plus/macOS26.6.1 FIB-SEM loader opens128×256×256 ZYX/15nm/uint16 labels1–43: Metal100%/22.09FPS,20/20 current-frame picks, independent fresh pan rect/RGB/picking exact, all workers idle, original files unchanged, exit0/errors[]. No production prepaint adoption, physical-input or30–60FPS acceptance claimed.
+2026-10-21 — Cache each triangle's identical scalar basis for full contact validation;185 focused geometry/volume/refusal checks pass, including cached/uncached legacy decisions and candidate order. Same label1 geometry30.743s versus49.185s, normal exit and exact mesh counts/unchanged mask/history; still above30s strict settle. Scratch prepaint27.12 state updates/s produced only14.55 paint events/s versus23.73 control, so it remains unshipped and is not a visible-FPS gain; paint-paced investigation is separate.
