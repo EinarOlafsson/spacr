@@ -1149,6 +1149,159 @@
           "idle_tail_start": 5.3
         }
       ]
+    },
+    {
+      "lesson": "32_align_stitch",
+      "master_sha256": "f8dbb33e4a2acb4a78647e42f7e0d71a3eff2c27534de344ecd5d6f6a8c2d3cf",
+      "visual_timing_sha256": "61aa7a5fdd0ecc6156e1cb1dc81c6e79ba02ec473bf0b74907981de309372ebf",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 17.2,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "02b_align_test_data_loaded",
+          "source_start": 42.8,
+          "source_end": 74.16666666666666,
+          "idle_tail_start": 11.5
+        },
+        {
+          "visual": "03_actual_layout_and_budget",
+          "source_start": 74.16666666666666,
+          "source_end": 130.66666666666666,
+          "idle_tail_start": 10.6
+        },
+        {
+          "visual": "04_registered_plan_not_yet_written",
+          "source_start": 243.66666666666666,
+          "source_end": 273.0333333333333,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "05_actual_tile_detail",
+          "source_start": 273.0333333333333,
+          "source_end": 295.59999999999997,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "05_actual_tile_detail",
+          "source_start": 295.59999999999997,
+          "source_end": 318.16666666666663,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "06_real_stitch_complete",
+          "source_start": 318.16666666666663,
+          "source_end": 342.59999999999997,
+          "idle_tail_start": 7.0
+        }
+      ]
+    },
+    {
+      "lesson": "08_measure",
+      "master_sha256": "8aa9ec74ad15e3c8dbdf5e3c288ce76e7e783b4e4e96a6e414c423d02c59d937",
+      "visual_timing_sha256": "2e5bb42fae54117c8c1db02f4c9da9ff5f41de59c5bd9829bfd8f04f73fe56d7",
+      "scenes": [
+        {
+          "visual": "preview_03_data_ready",
+          "source_start": 0.0,
+          "source_end": 39.96666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "preview_03_data_ready",
+          "source_start": 39.96666666666667,
+          "source_end": 79.93333333333334,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "preview_04_preview_normalization_setup",
+          "source_start": 79.93333333333334,
+          "source_end": 107.80000000000001,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "preview_07_live_second_field",
+          "source_start": 179.4,
+          "source_end": 198.66666666666669,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "09a_qc_popup",
+          "source_start": 235.26666666666668,
+          "source_end": 273.93333333333334,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "09b_image_preprocessing",
+          "source_start": 273.93333333333334,
+          "source_end": 307.23333333333335,
+          "idle_tail_start": 14.0
+        },
+        {
+          "visual": "preview_08_saved_normalization_restored",
+          "source_start": 307.23333333333335,
+          "source_end": 337.6333333333333,
+          "idle_tail_start": 11.0
+        },
+        {
+          "visual": "batch_25_measure_figure_02",
+          "source_start": 471.49999999999994,
+          "source_end": 503.99999999999994,
+          "idle_tail_start": 2.5
+        }
+      ]
+    },
+    {
+      "lesson": "55_image_scatter",
+      "master_sha256": "95b9c457087d017e1829c0cb9c49a940fdbdb0906e8de960511c96cc98499673",
+      "visual_timing_sha256": "c33fd703236108f1c8af1b0edf78bd597c1b3536db3d3907248b675ed4ede3a1",
+      "scenes": [
+        {
+          "visual": "01_image_umap_host",
+          "source_start": 0.0,
+          "source_end": 21.033333333333335,
+          "idle_tail_start": 6.2
+        },
+        {
+          "visual": "04_choose_cell_not_children",
+          "source_start": 51.1,
+          "source_end": 67.26666666666667,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "06_genuine_large_cell_preview",
+          "source_start": 97.23333333333333,
+          "source_end": 116.96666666666667,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "08_cached_same_cell",
+          "source_start": 116.96666666666667,
+          "source_end": 130.63333333333333,
+          "idle_tail_start": 4.3
+        },
+        {
+          "visual": "16_real_annotate_grid",
+          "source_start": 225.26666666666668,
+          "source_end": 245.0666666666667,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "17c_native_point_click_target",
+          "source_start": 245.0666666666667,
+          "source_end": 267.40000000000003,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "18_verified_clicked_cell_in_annotate",
+          "source_start": 267.40000000000003,
+          "source_end": 284.4333333333334,
+          "idle_tail_start": 6.5
+        }
+      ]
     }
   ]
 }
