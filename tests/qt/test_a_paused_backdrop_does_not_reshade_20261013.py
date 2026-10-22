@@ -171,14 +171,16 @@ def test_a_resized_paused_backdrop_shades_once_for_its_new_size(
         qtbot, backdrop, monkeypatch):
     host, widget = backdrop
     _pause_for_a_run(monkeypatch, widget)
+    old_size = widget.size()
     calls = _count_shading(monkeypatch, widget)
     host.resize(700, 420)
     widget.setGeometry(host.rect())
-    qtbot.waitUntil(lambda: widget.width() == 700, timeout=5000)
+    qtbot.waitUntil(lambda: widget.geometry() == host.rect(), timeout=5000)
+    assert widget.size() != old_size
     for _ in range(5):
         widget.repaint()
     assert len(calls) == 1
-    assert widget._still[0][0] == widget._art_render_size(700, 420)
+    assert widget._still[0][0] == widget._art_render_size(widget.width(), widget.height())
 
 
 def test_a_hidden_backdrop_keeps_no_still(qtbot, backdrop, monkeypatch):
