@@ -9398,7 +9398,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_counting",
-    "line": 4044,
+    "line": 4050,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "PlaquePreviewPanel.apply_settings"
@@ -9407,7 +9407,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_counting",
-    "line": 4309,
+    "line": 4315,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "PlaquePreviewPanel.run_preview"
@@ -39810,7 +39810,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_formation_hours",
-    "line": 4885,
+    "line": 4891,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "PlaquePreviewPanel._growth_values"

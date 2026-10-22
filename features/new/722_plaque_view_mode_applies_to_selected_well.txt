@@ -2,9 +2,9 @@
 APPLY THE PLAQUE FIGURE VIEW MODE TO THE SELECTED SINGLE WELL
 ================================================================================
 
-Status:    PLANNED 2026-10-22 — requested behavior, not implemented acceptance
+Status:    IN PROGRESS 2026-10-22 — validated implementation; final root review and publication pending
 Requested: maintainer, 2026-10-22
-Owner:     Plaque-assay implementation lane — end-to-end implementation pending
+Owner:     G1 — implementation, validation and publication; G2 — independent contract/code/test peer
 Related:   468 plaque/figure modes; 524 segmentation views; 720 PDF Live opening
 
 REQUEST
@@ -25,3 +25,7 @@ ACCEPTANCE
   with their normal tools. Publish implementation only after related checks pass.
 
 2026-10-22 — Registered before implementation; extends item 524's full-figure views to the selected single-well image.
+
+2026-10-22 — G1/G2 own this item end to end. Next: trace the selected-well rendering path, apply the existing chosen view to that well’s actual arrays, and add focused switching/unavailable-output regressions before normal generation and nightly publication. Preserve the four figure-wide views, selection, segmentation and zoom; new UI wording requires the normal translation pipeline.
+
+2026-10-22 — The existing selected-well canvas now shares the chosen segmentation view and replaces its arrays for each well; unavailable outputs show the existing truthful messages. Five CPU/offscreen real-image cases pass, covering all views, well switching, missing outputs and retained zoom/pan; G1/G2 independently reviewed code and tests. Public docs/signatures and runtime captions are unchanged; normal consumer offsets are regenerated from final source. The reviewed implementation is ready for final root review and ordinary nightly publication.

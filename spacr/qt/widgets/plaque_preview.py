@@ -3512,7 +3512,13 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._well_view = _ImageView(self._well_side)
         self._well_view.setObjectName("PlaqueWellImage")
         self._well_view.context_requested.connect(self._on_view_context)
-        side.addWidget(self._well_view, 1)
+        self._well_overlay: Optional[np.ndarray] = None
+        self._well_views = SegmentationViews(self._well_side, canvas=self._well_view)
+        self._well_views.setObjectName("PlaqueWellViews")
+        self._well_views.set_renderer(OVERLAY, lambda _arrays: self._well_overlay)
+        self._well_views.set_renderer(MASKS, self._render_masks_view)
+        self._views.view_changed.connect(self._well_views.set_view)
+        side.addWidget(self._well_views, 1)
         pictures.add_pane(self._well_side, "Well", mode=EDGE, stretch=2,
                           fold_key=f"{key}/Well")
         picture_host = QWidget(self)
@@ -5129,6 +5135,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._filling_table = False
         _retire_table_cells(self._plaque_table)
         self._tabs.setTabText(1, tr("Plaques"))
+        self._well_overlay = None
+        self._well_views.set_arrays()
         self._well_view.set_image(None)
         self._well_view.ruler.clear()
         self._well_title.setText(tr(PICK_A_WELL))
@@ -5185,15 +5193,19 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._refresh_ruler_spacing()
 
     def _show_well(self, index: int) -> None:
-        """Draw the well's crop, with its plaques once they are found."""
+        """Draw the chosen view from this well's crop and segmentation."""
         result = self._figure
         region = result["regions"][index]
         crop = np.array(result["image"][region.y0:region.y1,
                                         region.x0:region.x1], copy=True)
         well = self._wells.get(index)
+        self._well_overlay = np.array(crop, copy=True)
         if well is not None:
-            render_overlay(crop, well["labels"], self._overlay_style)
-        self._well_view.set_image(crop)
+            render_overlay(self._well_overlay, well["labels"], self._overlay_style)
+        self._well_views.set_arrays(
+            image=crop, labels=None if well is None else well.get("labels"),
+            flows=None if well is None else well.get("flow_rgb"),
+            cellprob=None if well is None else well.get("cellprob"))
         a = self._annotations[index] if index < len(self._annotations) else None
         parts = [tr("Well {n}", n=index + 1)]
         if a is not None and a.panel:
