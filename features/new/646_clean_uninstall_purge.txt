@@ -77,6 +77,19 @@ Record actual outcomes and any missing route/prerequisite in at most five
 dated trailing lines; root owns integration/publication of resulting fixes.
 
 --------------------------------------------------------------------------------
+CURRENT WINDOWS ACCEPTANCE - RESUMED 2026-10-21
+
+Maintainer resumes the previously held Windows lane. Codex Windows scope owns
+actual Preferences/Performance uninstall preview, scope/default-category and
+cancel checks on native Windows QPA, plus guarded removal only where every
+selected software/data path is verified disposable and test-owned. Exercise
+category opt-out and unrelated sentinels; protect the working host installation,
+registry, shared caches and user data. Retain existing portable/Windows results,
+and distinguish actual dialog/filesystem checks from native NSIS /PURGE or a
+complete installed-desktop uninstall. Coordinate updater fixtures with the
+separate N703 owner; installer PowerShell sources remain with the offline owner.
+
+--------------------------------------------------------------------------------
 CURRENT MAC SESSION: NATIVE UNINSTALL AND CLEANUP ACCEPTANCE
 --------------------------------------------------------------------------------
 
