@@ -80,3 +80,64 @@ def test_organism_labels_tooltips_and_compartment_keys(
     empty = ('Hover over the cell to identify a compartment. '
              'Check several labels to keep them highlighted.')
     assert diagram.caption.text() == targets[empty]
+
+
+@pytest.mark.parametrize("scale", (0.75, 0.9, 1.25))
+def test_hindi_clear_button_keeps_native_text_room_in_a_narrow_pane(
+        qtbot, qt_theme_applied, monkeypatch, scale):
+    from PySide6.QtWidgets import QApplication
+    from spacr.qt import gui_scale, i18n, preferences
+    from spacr.qt.screens.organism_screen import OrganismScreen
+
+    settings = preferences._settings()
+    keys = ("prefs/gui_scale", "prefs/font_scale")
+    previous = {key: settings.value(key) for key in keys if settings.contains(key)}
+    gui_scale.install_scaling_layer()
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", scale)
+        patch.setattr(i18n, "current_language", lambda: "hi")
+        try:
+            preferences.set_gui_scale(scale)
+            preferences.set_font_scale(0.9)
+            screen = OrganismScreen("toxoplasma")
+            qtbot.addWidget(screen)
+            screen.resize(800, 700)
+            screen.show()
+            qtbot.waitExposed(screen)
+            diagram = screen._diagram
+            button = diagram.clear_button
+            hindi = button.text()
+            assert hindi == "चयन साफ़ करें"
+            button.setStyleSheet("font-size: 37px;")
+            QApplication.processEvents()
+            QApplication.processEvents()
+            assert button.fontMetrics().horizontalAdvance(hindi) <= (
+                button.contentsRect().width() - 20)
+            assert diagram._legend.rect().contains(button.geometry())
+            assert screen._scroll.horizontalScrollBar().maximum() == 0
+            wide_floor = diagram._legend.minimumWidth()
+
+            button.setText("Clear")
+            QApplication.processEvents()
+            QApplication.processEvents()
+            assert diagram._legend.minimumWidth() < wide_floor
+            text_floor = diagram._legend.minimumWidth()
+            button.setStyleSheet("font-size: 12px;")
+            QApplication.processEvents()
+            QApplication.processEvents()
+            assert diagram._legend.minimumWidth() < text_floor
+            button.setText(hindi)
+            QApplication.processEvents()
+            QApplication.processEvents()
+            assert button.text() == hindi
+            assert button.fontMetrics().horizontalAdvance(hindi) <= (
+                button.contentsRect().width() - 20)
+            assert diagram._legend.rect().contains(button.geometry())
+            assert screen._scroll.horizontalScrollBar().maximum() == 0
+            screen.close()
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)

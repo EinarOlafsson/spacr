@@ -518,6 +518,7 @@ class OrganismDiagram(QWidget):
         self.caption.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
         self.caption.setTextInteractionFlags(Qt.TextSelectableByMouse)
         layout.addWidget(self.caption)
+        self._legend.installEventFilter(self)
         self.selector.itemChanged.connect(self._select)
         self.selector.itemEntered.connect(lambda item: self.artwork.set_hover(item.data(Qt.UserRole)))
         self.artwork.hovered.connect(self._describe)
@@ -589,11 +590,22 @@ class OrganismDiagram(QWidget):
         the posted relayout would show the artwork and caption there for a
         frame.
         """
-        if not hasattr(self, "caption") or self.width() == self._layout_width:
+        if not hasattr(self, "caption"):
+            return
+        button = self.clear_button
+        button.ensurePolished()
+        minimum = max(
+            button.minimumSizeHint().width(),
+            button.fontMetrics().horizontalAdvance(button.text()) + 20
+            + button.width() - button.contentsRect().width())
+        from ..gui_scale import _set_actual_dim
+
+        _set_actual_dim(button, "minw", minimum)
+        _set_actual_dim(self._legend, "minw", minimum)
+        if self.width() == self._layout_width:
             return
         self._layout_width = self.width()
         row, caption = self._reserved_heights(self.width())
-        from ..gui_scale import _set_actual_dim
 
         _set_actual_dim(self._model_row, "minh", row)
         _set_actual_dim(self._model_row, "maxh", row)
@@ -608,7 +620,8 @@ class OrganismDiagram(QWidget):
         :returns: None.
         """
         super().changeEvent(event)
-        if event.type() in (QEvent.FontChange, QEvent.LanguageChange):
+        if event.type() in (QEvent.FontChange, QEvent.LanguageChange,
+                            QEvent.StyleChange):
             self._layout_width = None
             self._reserved_cache = None
             self._fit_width()
@@ -677,4 +690,6 @@ class OrganismDiagram(QWidget):
         """
         if watched is self.selector.viewport() and event.type() == QEvent.Leave:
             self.artwork.set_hover("")
+        elif watched is self._legend and event.type() == QEvent.LayoutRequest:
+            self._fit_width()
         return super().eventFilter(watched, event)
