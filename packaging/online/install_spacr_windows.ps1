@@ -400,7 +400,7 @@ $Committed = $false
 $null = Enable-SpacrInstallerJob
 try {
     $InstallParent = [System.IO.Path]::GetDirectoryName($InstallRoot)
-    New-Item -ItemType Directory -Force -Path $InstallParent | Out-Null
+    [System.IO.Directory]::CreateDirectory($InstallParent) | Out-Null
     $OuterLease = Join-Path $InstallParent (("." + [System.IO.Path]::GetFileName($InstallRoot)) + ".spacr-installer-lock")
     $InstallerLeaseHandles += @{ Path = $OuterLease; Handle = (Open-SpacrInstallerLease $OuterLease) }
     New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null

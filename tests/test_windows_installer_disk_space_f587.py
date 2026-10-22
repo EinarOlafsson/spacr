@@ -81,3 +81,34 @@ Write-Output 'Disk admitted'
     else:
         assert 'needs_free_space' in result.stderr
         assert 'Disk admitted' not in result.stdout
+
+
+def test_installer_parent_creation_is_idempotent_and_refuses_file_collisions(tmp_path):
+    source = INSTALLER.read_text(encoding='utf-8')
+    statement = source.split('$InstallParent = [System.IO.Path]::GetDirectoryName($InstallRoot)', 1)[1].split(
+        '$OuterLease =', 1)[0]
+    result = _powershell(tmp_path, r'''
+$InstallParent = Join-Path $PSScriptRoot 'parent'
+[IO.Directory]::CreateDirectory($InstallParent) | Out-Null
+$Sentinel = Join-Path $InstallParent 'foreign.txt'
+[IO.File]::WriteAllText($Sentinel, 'preserve existing contents')
+''' + statement + r'''
+if ([IO.File]::ReadAllText($Sentinel) -ne 'preserve existing contents') { throw 'Existing parent damaged' }
+$InstallParent = Join-Path $PSScriptRoot 'missing\nested\parent'
+''' + statement + r'''
+if (-not [IO.Directory]::Exists($InstallParent)) { throw 'Missing parent not created' }
+$InstallParent = Join-Path $PSScriptRoot 'occupied-by-file'
+[IO.File]::WriteAllText($InstallParent, 'foreign file')
+try {
+''' + statement + r'''
+    throw 'File collision admitted'
+} catch {
+    $Exception = $_.Exception
+    while ($Exception.InnerException) { $Exception = $Exception.InnerException }
+    if ($Exception -isnot [IO.IOException]) { throw }
+}
+if ([IO.File]::ReadAllText($InstallParent) -ne 'foreign file') { throw 'Foreign file damaged' }
+Write-Output 'Parent creation and collision refusal verified'
+''')
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert 'Parent creation and collision refusal verified' in result.stdout
