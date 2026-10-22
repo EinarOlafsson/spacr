@@ -5,7 +5,6 @@ import hashlib
 import io
 import json
 import tarfile
-from types import SimpleNamespace
 from unittest.mock import Mock
 
 import huggingface_hub
@@ -167,7 +166,7 @@ def test_cached_login_or_unavailable_login(monkeypatch, raises):
         if raises:
             raise OSError("login unavailable")
         return "test-cached-token"
-    monkeypatch.setattr(huggingface_hub, "HfFolder", SimpleNamespace(get_token=token), raising=False)
+    monkeypatch.setattr(huggingface_hub, "get_token", token)
     assert sharing.find_token() == (None if raises else "test-cached-token")
 
 
