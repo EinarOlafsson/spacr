@@ -26,7 +26,7 @@ from .merge_tables import (
     OBJECT_COLUMN,
     MergeError,
     MergePolicy,
-    _align_keys,
+    _align_keys, _keys_in,
     _read,
     aggregation_for,
     merge_tables,
@@ -76,7 +76,7 @@ def identity_columns(frame):
     :param frame: An object measurement frame.
     :returns: Ordered identity columns, excluding the object label.
     """
-    return [c for c in (*IDENTITY, "timeID", "time_id") if c in frame]
+    return _keys_in(frame)
 
 
 def _identifiers(columns):
@@ -110,7 +110,7 @@ def default_definition(path, tables, *, name="Merged measurements", base=None,
         raise MergeError("Missing tables: " + ", ".join(sorted(missing)))
     policy = policy or MergePolicy(primary=base)
     base_columns = [c[0] for c in available[base]]
-    keys = [c for c in (*IDENTITY, "timeID", "time_id") if c in base_columns]
+    keys = _keys_in(pd.DataFrame(columns=base_columns))
     joins = []
     for table in tables:
         if table == base:

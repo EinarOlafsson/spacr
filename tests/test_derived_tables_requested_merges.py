@@ -128,6 +128,47 @@ def test_repeated_object_ids_in_timelapse_are_not_pooled(tmp_path):
     assert result.pathogen_area.iloc[[0, 3]].tolist() == [7, 70]
 
 
+def _repeated_image_frames():
+    return {name: pd.concat([frame.assign(file_name="first_image"),
+                            frame.assign(file_name="second_image")], ignore_index=True)
+            for name, frame in standard_frames().items()}
+
+
+def test_default_merge_keeps_repeated_cell_labels_in_separate_images(tmp_path):
+    frames = _repeated_image_frames()
+    frames["pathogen"].loc[3:, "area"] *= 10
+    path = database(tmp_path, frames)
+    before = open(path, "rb").read()
+    definition = default_definition(path, ["cell", "pathogen"])
+    assert "file_name" in definition["base_keys"]
+    assert "file_name" in definition["joins"][0]["left_keys"]
+    assert "file_name" in definition["joins"][0]["right_keys"]
+    result, report = execute(path, definition)
+    assert len(result) == 6
+    assert result.file_name.tolist() == ["first_image"] * 3 + ["second_image"] * 3
+    assert result.pathogen_area.iloc[[0, 3]].tolist() == [7, 70]
+    assert result.cell_area.tolist() == [100, 200, 300] * 2
+    assert report["joins"][0]["unmatched_base"] == 2
+    assert open(path, "rb").read() == before
+
+
+@pytest.mark.parametrize("defect, message", [
+    ("child_missing_image", "missing keys file_name"),
+    ("duplicate_in_same_image", "duplicate observation keys"),
+])
+def test_default_image_identity_still_refuses_ambiguous_sources(tmp_path, defect, message):
+    frames = _repeated_image_frames()
+    if defect == "child_missing_image":
+        frames["pathogen"] = frames["pathogen"].drop(columns="file_name")
+    else:
+        frames["cell"] = pd.concat([frames["cell"], frames["cell"].iloc[[0]]], ignore_index=True)
+    path = database(tmp_path, frames)
+    before = open(path, "rb").read()
+    with pytest.raises(MergeError, match=message):
+        execute(path, default_definition(path, ["cell", "pathogen"]))
+    assert open(path, "rb").read() == before
+
+
 def test_missing_image_key_is_not_joined_by_object_label_alone(tmp_path):
     frames = standard_frames()
     frames["pathogen"] = frames["pathogen"].drop(columns="fieldID")
