@@ -342,7 +342,16 @@ def test_a_slow_import_off_the_top_of_a_worker_stack_is_still_recorded(
     monkeypatch.setattr(timing, "IMPORT_FLOOR_MS", 1.0)
     monkeypatch.setattr(timing, "_IMPORT_TIMER_INSTALLED", False)
     timing._install_import_timer()
-    loader, module = _slow_module(tmp_path)
+    loader, module = _slow_module(
+        tmp_path, name="the_worker_stack_attribution_probe")
+    unrelated_loader, unrelated_module = _slow_module(
+        tmp_path, name="an_unrelated_worker_stack_probe")
+    unrelated = threading.Thread(
+        target=unrelated_loader.exec_module, args=(unrelated_module,),
+        name="unrelated-worker-stack-probe")
+    unrelated.start()
+    unrelated.join(timeout=5)
+    assert not unrelated.is_alive() and unrelated_module.VALUE == 1
     attributable = _function_from(
         "/nowhere/spacr/qt/thread_probe.py",
         "def run(loader, module):\n"
@@ -360,10 +369,19 @@ def test_a_slow_import_off_the_top_of_a_worker_stack_is_still_recorded(
         thread.start()
         thread.join()
 
-    assert len(timing._IMPORTS) == 2
-    assert timing._IMPORTS[0]["by"] == "qt/thread_probe.py:2"
-    assert timing._IMPORTS[1]["by"] == ""
-    assert timing._IMPORTS[1]["thread"] == "preloader-probe"
+    records = [row for row in timing._IMPORTS
+               if row["name"] == module.__name__]
+    assert len(records) == 2
+    assert records[0]["by"] == "qt/thread_probe.py:2"
+    assert records[1]["by"] == ""
+    assert all(row["thread"] == "preloader-probe" for row in records)
+    assert all(row["took"] >= 0.019 for row in records)
+    unrelated_records = [row for row in timing._IMPORTS
+                         if row["name"] == unrelated_module.__name__]
+    assert len(unrelated_records) == 1
+    assert unrelated_records[0]["by"] == ""
+    assert unrelated_records[0]["thread"] == "unrelated-worker-stack-probe"
+    assert unrelated_records[0]["took"] >= 0.019
 
 
 def test_a_runtime_that_will_not_give_a_frame_still_records_the_cost(

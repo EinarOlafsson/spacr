@@ -138,6 +138,7 @@ class OrganismScreen(QWidget):
         self._splitter.handle(1).setToolTip(tr("Drag to resize the information pane."))
         self._module_scroll.viewport().installEventFilter(self)
         self._intro.installEventFilter(self)
+        self._modules.installEventFilter(self)
         self._scroll.installEventFilter(self)
         self._scroll.verticalScrollBar().installEventFilter(self)
         self._build_tiles()
@@ -318,7 +319,7 @@ class OrganismScreen(QWidget):
 
     def _reflow_tiles(self) -> None:
         """Re-grid the tiles when the column count changes."""
-        from ..gui_scale import _factor_for, _set_actual_dim, scale_int
+        from ..gui_scale import _actual_minimum_size, _factor_for, _set_actual_dim, scale_int
 
         self._scroll.ensurePolished()
         scrollbar = self._scroll.verticalScrollBar()
@@ -331,9 +332,22 @@ class OrganismScreen(QWidget):
             _set_actual_dim(self._scroll, "minw", minimum)
         if not self._tiles:
             return
-        available = self._module_scroll.viewport().width()
-        spacing = scaled_px(SPACING["xs"])
-        columns = max(1, (available + spacing) // (scaled_px(TILE_W) + spacing))
+        module_bar = self._module_scroll.verticalScrollBar()
+        module_bar.ensurePolished()
+        for tile in self._tiles:
+            tile.ensurePolished()
+        tile_width = max(max(_actual_minimum_size(tile).width(),
+                             tile.minimumSizeHint().width()) for tile in self._tiles)
+        margins = self._grid.contentsMargins()
+        module_minimum = (tile_width + margins.left() + margins.right()
+                          + module_bar.sizeHint().width()
+                          + 2 * self._module_scroll.frameWidth())
+        if self._module_scroll.property("minimumWidth") != module_minimum:
+            _set_actual_dim(self._module_scroll, "minw", module_minimum)
+        available = (self._module_scroll.viewport().width()
+                     - margins.left() - margins.right())
+        spacing = self._grid.horizontalSpacing()
+        columns = max(1, (available + spacing) // (tile_width + spacing))
         if columns == self._columns:
             return
         self._columns = columns
@@ -356,7 +370,7 @@ class OrganismScreen(QWidget):
         """
         if event.type() == QEvent.Resize and watched is self._module_scroll.viewport():
             QTimer.singleShot(0, self._reflow)
-        elif watched is self._intro and event.type() in (
+        elif watched in (self._intro, self._modules) and event.type() in (
             QEvent.LayoutRequest, QEvent.FontChange, QEvent.StyleChange):
             QTimer.singleShot(0, self._reflow)
         elif watched in (self._scroll, self._scroll.verticalScrollBar()) and event.type() in (

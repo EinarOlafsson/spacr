@@ -1,5 +1,14 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT TIMING AND ORGANISM FOLLOWUP — 2026-10-22
+Feature_takeover and the retained timing/layout pair own the two actual Main
+Coverage2 job119821421528 failures: isolate the deliberate worker-import records
+without weakening attribution/count checks, and correct wide Hindi module-pane
+overflow without changing translations, outer window size or fit assertions.
+Use the smallest affected CPU cohort; root reviews the exact diff and owns Main
+publication, with a source-bound Night candidate. Preserve unrelated results.
+
+
 CURRENT MAIN UPDATER FIXTURE PORT
 Acceptance coordinator and retained installer worker own the source-bound port
 of accepted nightly historical-plan/profile fixtures and meaningful Linux
@@ -4450,5 +4459,6 @@ Root owns MAIN review/publication and corrected-source hosted acceptance; no who
 2026-10-22: Added four private volume-helper docstrings with normal consumer output; translated information panes now derive their minimum width from current content and release it when content shrinks.
 2026-10-22: Focused owning checks pass (retained results); hosted scientific separation and unreproduced native crashes remain open. All three scientific acceptance requirements were confirmed by the maintainer.
 
-2026-10-22: Added real-workflow coverage for absent FAISS fallback, numeric AnnData parent stamping, atomic simulation rollback/retry, and empty font-discovery flag restoration.
-2026-10-22: Five focused controls pass; simulation rollback also has a failing negative control. Runtime code and ratchet ceilings are unchanged; remaining hosted failures and strict scientific separation stay open.
+2026-10-22: Added real-workflow coverage for absent FAISS fallback, numeric AnnData parent stamping, atomic simulation rollback/retry, and empty font-discovery flag restoration. Five focused controls pass; simulation rollback also has a failing negative control. Runtime code and ratchet ceilings are unchanged; remaining hosted failures and strict scientific separation stay open.
+
+2026-10-22: Worker import attribution now checks its own exact two records while retaining a real unrelated import control; the organism module pane recomputes a native tile-width floor without growing the window. Two focused Qt6.11.2 checks pass (3.57 s and3.46 s), independently peer-reviewed; original attribution, Hindi text, overflow and shrink assertions retained. Hosted N43 acceptance remains open.
