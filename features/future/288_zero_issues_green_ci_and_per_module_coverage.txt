@@ -5866,3 +5866,7 @@ Whole N43/F288 and release acceptance remain OPEN.
 2026-10-19: classifier_evaluation and ambient, every CI-missing statement and branch (90641edcc); ops_accel, prefs, folder_metadata, restart_state, run_journal, install_consent, layer_viewer, ortho_view, batch, train_compare, figure_grid_view, metadata_table, sortable_table, import_workbench, timelapse_preview (cf15e7ebe).
 2026-10-19: app_screen runs beside, removed runs, trials, workspace restore, anonymous report, advisor and dialogs (ca0866490, 705a76fac); local uncovered 193 -> 64 statements, 103 -> 53 branches (baseline 113/64).
 2026-10-19: REMAINING: the next hosted coverage run confirms the ratchets; the zero-issues parent stays open until full CI is green.
+
+2026-10-21 — feature_takeover and retained Qt pair own the unchanged MakeMasksScreen._save_mask first-save artifact-binding coverage gap from artifact12334326734: exercise a real logged brush/edit before Save, verify persisted mask and embedded curation-log artifact path, and confirm second-save association. Use the existing real-image save fixture and smallest owning cases; no production or coverage-ceiling changes unless a genuine defect is found.
+
+2026-10-21 — Source verification clarifies that save metadata is the actual .curation.json sidecar, not embedded TIFF metadata, and normal UI ledger opening already binds its artifact before editing. The real logged-edit/save regression must assert that persisted association without clearing it or claiming an unexecuted defensive fallback arc is covered.

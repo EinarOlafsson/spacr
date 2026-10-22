@@ -1100,7 +1100,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "anisotropy",
-    "line": 4578,
+    "line": 4590,
     "module": "spacr._segmentation_backends",
     "nested": false,
     "qualname": "_stardist_volume_batch"
@@ -13150,7 +13150,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 4586,
+    "line": 4598,
     "module": "spacr._segmentation_backends",
     "nested": false,
     "qualname": "_stardist_volume_batch"
@@ -16501,7 +16501,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 13175,
+    "line": 13180,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -27966,7 +27966,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 4594,
+    "line": 4606,
     "module": "spacr._segmentation_backends",
     "nested": false,
     "qualname": "_stardist_volume_batch"
@@ -47811,7 +47811,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "segmentation_backend",
-    "line": 1175,
+    "line": 1180,
     "module": "spacr._segmentation_backends",
     "nested": false,
     "qualname": "_cellpose3_is_chosen"
@@ -52276,7 +52276,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "stitch_threshold",
-    "line": 3751,
+    "line": 3763,
     "module": "spacr._segmentation_backends",
     "nested": false,
     "qualname": "_RemoteBackend.eval"
@@ -62274,7 +62274,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "z_axis",
-    "line": 4604,
+    "line": 4616,
     "module": "spacr._segmentation_backends",
     "nested": false,
     "qualname": "_stardist_volume_batch"

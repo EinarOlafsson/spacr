@@ -10765,7 +10765,12 @@ class AmbientWidget(QWidget):
     def _set_graphics_backend(self, mode):
         """Offer a backend choice; the producer owns context creation/retirement."""
         mode = str(mode).lower()
-        self._graphics_backend = mode if mode in ('cpu', 'auto', 'gpu') else 'cpu'
+        mode = mode if mode in ('cpu', 'auto', 'gpu') else 'cpu'
+        if (mode == self._graphics_backend
+                and (not isinstance(self._engine, _GraphicsBackend)
+                     or mode == self._engine._graphics_backend)):
+            return
+        self._graphics_backend = mode
         with self._engine_lock:
             if isinstance(self._engine, _GraphicsBackend):
                 self._engine._graphics_backend = self._graphics_backend

@@ -9,8 +9,18 @@ def _application():
     return QApplication.instance() or QApplication([])
 
 
-def test_html_tooltip_localizes_chrome_but_not_partial_scientific_prose():
+def test_html_tooltip_localizes_chrome_but_not_partial_scientific_prose(monkeypatch):
+    from spacr.qt import i18n
     from spacr.qt.screens.settings_model import api_docs_url, format_tooltip
+
+    translations = []
+    real_tr = i18n.tr
+
+    def recording_tr(text, language=None, **values):
+        translations.append((text, language))
+        return real_tr(text, language, **values)
+
+    monkeypatch.setattr(i18n, "tr", recording_tr)
 
     body = "Threshold for class 1 classification."
     swedish_url = api_docs_url("mask", "plot", "sv")
@@ -19,15 +29,17 @@ def test_html_tooltip_localizes_chrome_but_not_partial_scientific_prose():
     assert "<b>Diagram</b> <i>(boolesk)</i>" in swedish
     assert body in swedish
     assert "Klassificering" not in swedish
-    assert "Öppna spaCR:s API-dokumentation" in swedish
+    assert f'<a href="{swedish_url}">API</a>' in swedish
+    assert ("API", "sv") in translations
     assert f'href="{swedish_url}"' in swedish
 
     korean = format_tooltip(body, "mask", "plot", language="ko")
     assert "<b>플롯</b> <i>(불리언)</i>" in korean
     assert body in korean
     assert "분류" not in korean
-    assert "spaCR API 문서 열기" in korean
     korean_url = api_docs_url("mask", "plot", "ko")
+    assert f'<a href="{korean_url}">API</a>' in korean
+    assert ("API", "ko") in translations
     assert f'href="{korean_url}"' in korean
 
 
@@ -92,6 +104,7 @@ def test_plain_tooltip_localizes_chrome_and_retains_canonical_body_and_url():
 def test_refresh_regenerates_semantic_help_without_mutating_source():
     from PySide6.QtWidgets import QSpinBox, QVBoxLayout, QWidget
     from spacr.qt.screens.settings_model import (
+        api_docs_url,
         attach_api_tooltip,
         refresh_api_tooltips,
     )
@@ -113,7 +126,8 @@ def test_refresh_regenerates_semantic_help_without_mutating_source():
     from spacr.qt.i18n import retranslate_widget_tree
     retranslate_widget_tree(root, "ko")
     assert "이 설정을 제어합니다." in field.toolTip()
-    assert "spaCR API 문서 열기" in field.toolTip()
+    korean_url = api_docs_url("mask", "plot", "ko")
+    assert f'<a href="{korean_url}">API</a>' in field.toolTip()
     assert field.property("apiTooltipDescriptionSource") == source
     root.close()
     app.processEvents()

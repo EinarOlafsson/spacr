@@ -6,13 +6,14 @@ one finishes in the background, and every reader of that file waits for it.
 """
 from __future__ import annotations
 
+import json
 import threading
 
 import imageio.v2 as imageio
 import numpy as np
 import pytest
 import tifffile
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
 
 from spacr.qt import mask_engine as engine
 from spacr.qt.screens import make_masks as mm
@@ -108,6 +109,42 @@ def test_a_fast_save_is_written_by_the_writer_and_reported_at_once(opened, monke
     assert threads == ["spacr-mask-writer"]
     assert screen._status_label.text().startswith("Saved")
     assert np.all(tifffile.imread(_saved(folder, 0))[12:20, 12:20] > 0)
+
+
+def test_logged_brush_saves_keep_the_mask_and_ledger_artifact_together(
+        opened, qtbot):
+    screen, folder = opened
+    screen.resize(1000, 800)
+    screen.show()
+    qtbot.waitUntil(lambda: screen._canvas.pixmap() is not None)
+    qtbot.mouseClick(screen._btn_brush, Qt.LeftButton)
+    path = _saved(folder, 0)
+    assert screen._log.artifact == path
+    assert not screen._log.edits
+
+    for count, image_point in enumerate(((14, 14), (48, 48)), start=1):
+        before = screen._canvas.mask.copy()
+        point = screen._canvas._image_to_canvas(*image_point)
+        assert point is not None
+        qtbot.mouseClick(screen._canvas, Qt.LeftButton, pos=point)
+        changed = int(np.count_nonzero(screen._canvas.mask != before))
+        assert changed > 0
+        assert len(screen._log.edits) == count
+        assert screen._log.edits[-1].kind == "paint"
+        assert screen._log.edits[-1].n_changed == changed
+        expected = engine.canonical_labels(screen._canvas.mask)
+
+        qtbot.mouseClick(screen._btn_save, Qt.LeftButton)
+        assert mm._wait_for_mask_writes(path, timeout=10)
+        qtbot.waitUntil(lambda: screen._status_label.text().startswith("Saved"),
+                        timeout=10000)
+        np.testing.assert_array_equal(tifffile.imread(path), expected)
+        with open(path + ".curation.json", encoding="utf-8") as handle:
+            curation_log = json.load(handle)
+        assert curation_log["artifact"] == path
+        assert len(curation_log["edits"]) == count
+        assert [edit["kind"] for edit in curation_log["edits"]] == ["paint"] * count
+        assert screen._log.artifact == path
 
 
 def test_a_slow_save_returns_at_once_and_reports_when_it_lands(opened, monkeypatch, qtbot):
