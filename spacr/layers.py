@@ -5737,8 +5737,9 @@ class WGPUVolumeRenderer:
             return held[1]
         if held is not None:
             held[1].destroy()
-        usage = wgpu.BufferUsage.STORAGE | (
-            wgpu.BufferUsage.COPY_SRC | wgpu.BufferUsage.COPY_DST if readable else 0)
+        usage = (wgpu.BufferUsage.MAP_READ | wgpu.BufferUsage.COPY_DST
+                 if name == "readback" else wgpu.BufferUsage.STORAGE | (
+                     wgpu.BufferUsage.COPY_SRC | wgpu.BufferUsage.COPY_DST if readable else 0))
         buffer = self._device.create_buffer(size=size, usage=usage)
         self._buffers[name] = (size, buffer)
         return buffer
@@ -5861,7 +5862,11 @@ class WGPUVolumeRenderer:
         encoder.copy_buffer_to_buffer(picture, 0, readback, 0, picture_bytes)
         encoder.copy_buffer_to_buffer(pick, 0, readback, picture_bytes, pick_bytes)
         self._device.queue.submit([encoder.finish()])
-        data = self._device.queue.read_buffer(readback, size=picture_bytes + pick_bytes)
+        readback.map_sync("READ", size=picture_bytes + pick_bytes)
+        try:
+            data = readback.read_mapped(size=picture_bytes + pick_bytes, copy=True)
+        finally:
+            readback.unmap()
         rgb = np.frombuffer(data, dtype=np.uint8, count=picture_bytes)
         codes = np.frombuffer(data, dtype=np.uint32, count=rows * columns * 2,
                               offset=picture_bytes)
