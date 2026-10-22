@@ -234,3 +234,28 @@ def test_fit_counts_follow_rows_patsy_drops_after_response_cleaning(tmp_path, mo
         model_plate_position=True, qc=False, plot=False, draw_shared_panels=False)
     assert coefficients.attrs["fit_design"]["n_rows_fitted"] == 4
     assert coefficients.attrs["fit_design"]["n_wells"] == 2
+
+
+def test_missing_count_column_reports_only_the_first_twenty_headers(monkeypatch):
+    monkeypatch.setenv("SPACR_LANGUAGE", "en")
+    headers = ["grna", *[f"public_header_{index:02d}" for index in range(19)],
+               "private_extra_header", "another_extra_header"]
+    frame = pd.DataFrame({name: ["g1" if name == "grna" else 1]
+                          for name in headers})
+    before = frame.copy(deep=True)
+
+    with pytest.raises(ValueError) as caught:
+        normalise_count_table_layout(
+            frame, layout="long", count_column="missing_reads")
+
+    message = str(caught.value)
+    assert "Long independent-variable table lacks: missing_reads" in message
+    assert "count_grna_column='grna'" in message
+    assert "count_value_column='missing_reads'" in message
+    preview = message.split("Available columns after reading (up to 20): ", 1)[1]
+    preview = preview.split(". Select the actual read-count header", 1)[0]
+    assert preview == ", ".join(repr(name) for name in headers[:20]) + ", ..."
+    assert "private_extra_header" not in message
+    assert "another_extra_header" not in message
+    assert isinstance(caught.value.__cause__, ValueError)
+    pd.testing.assert_frame_equal(frame, before)
