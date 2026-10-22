@@ -193,3 +193,7 @@ Lesson 09 capture/publication evidence is tracked separately.
 Receipt: features/data/610_runtime_localization_2026-10-01.json.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); the timing test passes alone (64 s against a 60 s bound when two suites shared the CPU).
+
+2026-10-22 — feature_takeover and retained Qt pair own the suggestion completion-status regression: preserve active Suggest progress and its terminal notice during idle save-status refresh, while real save busy/error/pending states retain priority; clear stale notices on new operations. Validate the real completed round/writes/no-popup case and a timer-refresh control without sleeps or relaxed status assertions; independently peer and source-bind Main/Night before root-coordinated publication.
+
+2026-10-22 — Preserve Suggest progress, cancellation and completion during idle status refresh; Save errors/work/queues keep priority and new operations clear the old notice. The real completed-round/writes/no-popup case plus cancellation, Save-priority and new-search controls pass: seven cases in 7.11 s; independent source/test review accepted. Publication and broader CI remain pending.

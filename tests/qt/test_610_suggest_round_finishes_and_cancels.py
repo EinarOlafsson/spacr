@@ -154,10 +154,59 @@ def test_the_screen_runs_a_round_to_the_end_without_a_box(
 
     assert elapsed < _BOUND_S
     assert "suggestions written" in screen._status_label.text()
+    reported = screen._status_label.text()
+    screen._refresh_status_label()
+    assert screen._status_label.text() == reported
     assert screen.findChild(QMessageBox, "AnnotateSuggestFailedBox") is None
     assert screen._btn_suggest.isEnabled()
     assert screen._btn_suggest_cancel.isHidden()
     assert _suggested(db) == 40
+
+
+@pytest.mark.parametrize("save_state,expected", [
+    ("failed", "Save failed — disk full"),
+    ("busy", "saving…"),
+    ("pending", "1 unsaved change(s)"),
+    ("queued", "2 batch queued"),
+])
+def test_suggest_progress_survives_idle_refresh_but_real_save_activity_wins(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch, save_state, expected):
+    from types import SimpleNamespace
+
+    db, _ = _one_page_of_labels(tmp_path)
+    screen = _screen(qtbot, db)
+    screen._on_suggest_progress(3, 5, "fit")
+    progress = screen._status_label.text()
+    screen._refresh_status_label()
+    assert screen._status_label.text() == progress
+    worker = SimpleNamespace(last_error="disk full" if save_state == "failed" else None,
+                             busy=save_state == "busy",
+                             pending_batches=2 if save_state == "queued" else 0,
+                             last_save_ts=None)
+    with monkeypatch.context() as patch:
+        patch.setattr(screen, "_worker", worker)
+        patch.setattr(screen, "_pending_updates",
+                      {"crop": 1} if save_state == "pending" else {})
+        screen._refresh_status_label()
+        assert screen._status_label.text() == expected
+        worker.last_error = None
+        worker.busy = False
+        worker.pending_batches = 0
+        screen._pending_updates.clear()
+        screen._refresh_status_label()
+        assert screen._status_label.text() == progress
+
+
+def test_a_new_search_clears_the_previous_suggest_status(
+        qtbot, qt_theme_applied, tmp_path):
+    db, _ = _one_page_of_labels(tmp_path)
+    screen = _screen(qtbot, db)
+    screen._on_suggest_cancelled()
+    assert screen._status_label.text() == "Suggest cancelled."
+    screen._on_find_similar()
+    assert screen._status_label.text() == "No crop is selected to match."
+    screen._refresh_status_label()
+    assert screen._status_label.text() == "Ready."
 
 
 def test_cancel_stops_the_worker_before_it_fits(
@@ -190,6 +239,10 @@ def test_cancel_stops_the_worker_before_it_fits(
                     timeout=5000)
 
     screen._btn_suggest_cancel.click()
+    cancelling = screen._status_label.text()
+    assert cancelling == "Cancelling the suggestion run after its current step…"
+    screen._refresh_status_label()
+    assert screen._status_label.text() == cancelling
     assert worker.isInterruptionRequested()
     assert not screen._btn_suggest_cancel.isEnabled()
     release.set()
