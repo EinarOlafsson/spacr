@@ -195,3 +195,29 @@ def test_native_wide_hindi_content_gets_pane_room_without_growing_the_window(
                     settings.setValue(key, previous[key])
                 else:
                     settings.remove(key)
+
+
+def test_queued_organism_reflow_ends_when_its_screen_is_deleted(
+        qtbot, qt_theme_applied):
+    import shiboken6
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QApplication, QWidget
+    from spacr.qt.screens.organism_screen import OrganismScreen
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    screen = OrganismScreen("toxoplasma", parent=host)
+    for _ in range(6):
+        QApplication.processEvents()
+    assert screen._columns > 0
+    scroll = screen._scroll
+    with qtbot.captureExceptions() as exceptions:
+        QCoreApplication.sendEvent(screen._intro, QEvent(QEvent.LayoutRequest))
+        screen.deleteLater()
+        QCoreApplication.sendPostedEvents(screen, QEvent.DeferredDelete)
+        assert shiboken6.isValid(host)
+        assert not shiboken6.isValid(screen)
+        assert not shiboken6.isValid(scroll)
+        for _ in range(6):
+            QApplication.processEvents()
+    assert exceptions == []

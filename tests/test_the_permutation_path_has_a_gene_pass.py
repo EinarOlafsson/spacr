@@ -76,13 +76,18 @@ def _long_table(seed=0, n_plates=3, n_rows=4, n_cols=4):
 #  The gene regressor IS the summed guide fraction
 # --------------------------------------------------------------------------- #
 
-def test_the_gene_matrix_is_the_parametric_gene_fraction():
+@pytest.mark.parametrize("row_order", ["original", "reversed", "interleaved"])
+def test_the_gene_matrix_is_the_parametric_gene_fraction(row_order):
     """Both paths must test the same regressor, or they answer different
     questions and their disagreement means nothing."""
     from spacr.guide_permutation import prepare_long_gene_data
     from spacr.ml import check_and_clean_data
 
     frame = _long_table()
+    if row_order == "reversed":
+        frame = frame.iloc[::-1]
+    elif row_order == "interleaved":
+        frame = frame.sort_values(["grna", "prc"])
     gene_fractions, _outcomes, _metadata = prepare_long_gene_data(frame, "pred")
 
     clean = check_and_clean_data(frame.copy(), "pred")
