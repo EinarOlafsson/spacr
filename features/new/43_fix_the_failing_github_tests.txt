@@ -1,5 +1,13 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT TIMING AND ORGANISM FOLLOWUP — 2026-10-22
+Feature_takeover and the retained timing/layout pair own the two actual Main
+Coverage2 job119821421528 failures: isolate the deliberate worker-import records
+without weakening attribution/count checks, and correct wide Hindi module-pane
+overflow without changing translations, outer window size or fit assertions.
+Use the smallest affected CPU cohort; root reviews the exact diff and owns Main
+publication, with a source-bound Night candidate. Preserve unrelated results.
+
 CURRENT HOSTED LINUX UPDATE FIXTURE REPAIR — 2026-10-21
 Acceptance coordinator and retained installer worker own only the 16 failures
 in Minimum 1 job119485807319 on old nightly9d48020f289: seed real valid saved
@@ -4339,11 +4347,10 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 
 2026-10-22 — Toggle sizeHint now includes its existing painted-track height floor while preserving larger native text hints. The valid compact-font control failed before the fix (native11px versus required19px); three focused checks pass on Qt6.11.2 (two retained, revised compact-font control rerun:1.53 s). Independent peer accepted; no public-doc/signature/caption change or affected consumer row. Main remains root-coordinated; N43 stays open.
 
-2026-10-22: Integrated independently reviewed Qt/readback/NumPyro fixtures, bounded dependency probes, missing-Napari refusal controls, and Windows/macOS installer contracts; runtime assertions and ratchets retained.
-2026-10-22: Added four private volume-helper docstrings with normal consumer output; translated information panes now derive their minimum width from current content and release it when content shrinks.
-2026-10-22: Focused owning checks pass (retained results); hosted scientific separation and unreproduced native crashes remain open. All three scientific acceptance requirements were confirmed by the maintainer.
+2026-10-22: Integrated independently reviewed Qt/readback/NumPyro fixtures, bounded dependency probes, missing-Napari refusal controls, and Windows/macOS installer contracts; runtime assertions and ratchets retained. Added four private volume-helper docstrings with normal consumer output; translated information panes now derive their minimum width from current content and release it when content shrinks. Focused owning checks pass (retained results); hosted scientific separation and unreproduced native crashes remain open. All three scientific acceptance requirements were confirmed by the maintainer.
 
 2026-10-22: Added real-workflow coverage for absent FAISS fallback, numeric AnnData parent stamping, atomic simulation rollback/retry, and empty font-discovery flag restoration.
 2026-10-22: Five focused controls pass; simulation rollback also has a failing negative control. Runtime code and ratchet ceilings are unchanged; remaining hosted failures and strict scientific separation stay open.
 
 2026-10-22 — release_ci_takeover owns Night network119865494809 prepared-installer failure: align normal version preparation with accepted Main canonical all-ten installer projection, source-before-render ordering and verified same-version freshness. Preserve strict published archive/site audit and translations; normal preparation updated all ten 1.5.1.6 link blocks; 19 owning controls plus final real lean/no-write and actual network audit pass (2.97 s), with independent source peer. Root owns publication; Main already has the accepted preparation logic.
+2026-10-22: Worker import attribution now checks its own exact two records while retaining a real unrelated import control; the organism module pane recomputes a native tile-width floor without growing the window. Two focused Qt6.11.2 checks pass (3.57 s and3.46 s), independently peer-reviewed; original attribution, Hindi text, overflow and shrink assertions retained. Hosted N43 acceptance remains open.

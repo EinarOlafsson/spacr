@@ -178,6 +178,8 @@ def test_native_wide_hindi_content_gets_pane_room_without_growing_the_window(
             assert screen._diagram._legend.rect().contains(button.geometry())
             assert screen._scroll.horizontalScrollBar().maximum() == 0
             assert screen._module_scroll.horizontalScrollBar().maximum() == 0
+            module_viewport = screen._module_scroll.viewport()
+            assert all(tile.width() <= module_viewport.width() for tile in screen._tiles)
             wide_floor = screen._scroll.minimumWidth()
             button.setStyleSheet("font-size: 12px;")
             for _ in range(6):
