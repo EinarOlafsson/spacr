@@ -13,10 +13,11 @@ def extract_metadata(tmp_path, monkeypatch):
     root.mkdir(parents=True)
     for name in (
             'model_compare.py', 'embeddings.py', 'settings.py', 'object.py',
-            'remote_execution.py', 'install_cleanup.py', 'doctor.py', 'updater.py',
+            'remote_execution.py', 'install_cleanup.py', 'data_manager.py', 'doctor.py', 'updater.py',
             'model_zoo.py', 'utils.py',
             'attribution.py', 'measure.py', 'channel_sorting.py', 'object_classifier.py', 'core.py',
-            'psf_pipeline.py', '_lineage_trees.py', 'plot.py', 'run_journal.py', 'ml.py'):
+            'psf_pipeline.py', '_lineage_trees.py', 'plot.py', 'run_journal.py', 'ml.py',
+            'regression_layout.py', 'regression_failure.py'):
         (tmp_path / 'spacr' / name).write_text('', encoding="utf-8")
     monkeypatch.setattr(builder, 'ROOT', tmp_path)
     monkeypatch.setattr(builder, '_indirect_runtime_ui_sources', set)
