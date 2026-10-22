@@ -338,7 +338,18 @@ def test_shared_vertex_distance_keeps_norm_for_nearby_points_only(monkeypatch, d
     assert len(calls) == 1 and np.array_equal(calls[0], point - vertex)
 
 
-def test_volume_validator_caches_one_exact_scalar_basis_per_triangle(monkeypatch):
+def test_bulk_triangle_normals_match_scalar_cross_operands_exactly():
+    rng = np.random.default_rng(673)
+    triangles = rng.uniform(0, 1, (256, 3, 3))
+    triangles[:2] = [[[0., -0., 0.], [1., 0., 0.], [0., 1., 0.]],
+                     [[0., 0., -0.], [0., 1., 0.], [0., 0., 1.]]]
+    bulk = np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0])
+    scalar = np.asarray([np.cross(triangle[1] - triangle[0], triangle[2] - triangle[0])
+                         for triangle in triangles])
+    assert bulk.dtype == scalar.dtype and bulk.tobytes() == scalar.tobytes()
+
+
+def test_volume_validator_reuses_validated_normals_and_caches_exact_scalar_bases(monkeypatch):
     from spacr.qt.widgets import gate_spec
 
     gate = _box()
@@ -350,7 +361,7 @@ def test_volume_validator_caches_one_exact_scalar_basis_per_triangle(monkeypatch
         return original(first, second, **kwargs)
     monkeypatch.setattr(gate_spec.np, 'cross', counted)
     gate_spec._validate_volume_mesh(vertices, faces)
-    assert shapes == [(len(faces), 3)] + [(3,)] * len(faces)
+    assert shapes == [(len(faces), 3)]
 
 
 @pytest.mark.parametrize('jitter', [0., .5e-10, 1e-10, 2e-10])

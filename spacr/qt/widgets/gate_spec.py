@@ -2629,9 +2629,9 @@ def _validate_volume_mesh(vertices, faces) -> None:
     if abs(float(volume)) <= 1e-12:
         raise GateError(tr("The volume must enclose a nonzero region."))
     bases = []
-    for triangle in triangles:
+    for index, triangle in enumerate(triangles):
         u, v = triangle[1] - triangle[0], triangle[2] - triangle[0]
-        normal = np.cross(u, v)
+        normal = normals[index]
         bases.append((normal, np.linalg.norm(normal), u, v,
                       float(u @ u), float(u @ v), float(v @ v), float(normal @ normal)))
     low, high = triangles.min(axis=1), triangles.max(axis=1)
