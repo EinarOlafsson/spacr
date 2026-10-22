@@ -45,6 +45,7 @@ def _thumb_widths(panel):
 
 def test_a_panel_opened_at_a_larger_gui_scale_starts_with_larger_thumbnails(
         qtbot, monkeypatch):
+    monkeypatch.setattr(gui_scale, "current_scale", lambda: 1.0)
     plain = _panel(qtbot)
     assert plain._thumb_px == 132
 

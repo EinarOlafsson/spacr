@@ -682,6 +682,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'min_total_intensity',
     'min_train_masks',
     'minima',
+    'minimum_object_size',
     'mix',
     'mixed_control_wells',
     'mixed_precision',

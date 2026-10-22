@@ -83,15 +83,24 @@ def test_filter_dataframe_features_exclude_str_removes_single_feature():
                              "cell_channel_1_mean_intensity", "cell_area"}
 
 
-def test_filter_dataframe_features_exclude_str_unknown_raises():
-    """`features.remove` is exact-match, so an unknown name is a ValueError."""
+def test_filter_dataframe_features_unmatched_regex_warns_and_keeps_features():
+    """An unmatched selector warns and leaves the numeric feature data intact."""
     from spacr.utils import filter_dataframe_features
-    with pytest.raises(ValueError):
-        filter_dataframe_features(
-            _plain_feature_df(), channel_of_interest=None,
+    df = _plain_feature_df()
+    expected_features = ["cell_channel_0_mean_intensity",
+                         "cell_channel_1_mean_intensity", "cell_area",
+                         "cell_perimeter"]
+    with pytest.warns(
+            UserWarning,
+            match=r"Feature exclusion 'not_a_column' matched no columns\."):
+        filtered, features = filter_dataframe_features(
+            df.copy(), channel_of_interest=None,
             exclude="not_a_column",
             remove_low_variance_features=False,
             remove_highly_correlated_features=False)
+
+    assert features == expected_features
+    pd.testing.assert_frame_equal(filtered, df.loc[:, expected_features])
 
 
 # ---------------------------------------------------------------------------

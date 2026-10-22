@@ -48,6 +48,24 @@ feature diagnostics, channel_of_interest selection and other model behavior.
 The retained dependency worker owns combined source/tests and revised English
 plus reviewed locales; root owns producer coordination, peer/publication and
 issue reply/closure. No model training or GPU is needed.
+The current CI test-only follow-up replaces the obsolete unknown-exclusion
+ValueError expectation with the approved unmatched-pattern UserWarning and
+exact surviving feature/data preservation; retain invalid-regex, exact-name
+and empty-result guards. Source/runtime and frozen tooltip work remain unchanged.
+The second historical Qt contract must warn for its mistyped selector while
+proving the valid exact-column exclusion still removes only its target and
+preserves surviving row indexes, values and dtypes.
+The current CI follow-up keeps the exclude hover comfortably below the existing
+600-character ceiling without losing selector priority, warnings/errors, logging,
+row/feature distinction, channel selection or the None default. Update its nine
+reviewed runtime translations and regenerate both settings-flow artifacts through
+tools/settings_flow.py --rst, including the existing minimum_object_size setting.
+Keep the full API help and runtime exclusion behavior unchanged; root reviews
+the clean candidate before publication.
+The same closure must regenerate the explicit caption-arrival delta through its
+normal tool for actual current source/review changes. Preserve the immutable
+historical baseline, all original counts/hash anchors and every negative
+source/evidence/fresh-bytes/duplicate-record assertion; accept no blanket exemptions.
 
 ACCEPTANCE
 Every issue in the block below is fixed on nightly with tests and closed.
@@ -66,4 +84,6 @@ running the tool twice changes nothing.
 2026-10-21 — #157 now names the actual read-count column/settings and available headers while preserving strict numeric validation; both captions have nine reviewed translations. Eighteen behavior/owner checks, three shortcut-owner checks and the final 17 catalog/source checks pass; all ten pinned API catalogs reproduce byte-for-byte (reviews3214ea7, HFd1796ba). Root owns nightly publication, the GitHub reply and closure; other open issues remain tracked above. N43 maintenance, owner obsolete_repo_cleanup: align the issue-sync workflow test with the approved descriptive commit-message policy, retaining all issue-event, item-only staging, permissions, concurrency, no-skip-CI and nightly publication assertions. The owning workflow contract passes (0.71 s); production workflow and completed issue-resolution acceptance remain unchanged.
 
 
-2026-10-22 — Issue158 default definition and typed merge share canonical file_name identity alongside field/time keys; real SQLite two-image regressions preserve six observations/distinct sums and reject absent keys or true duplicates (3 cases,0.90s; two retained identity controls). Issues159/160 resolve exact names, canonical whole-token channel groups, then fullmatch regexes before numeric validation. Unmatched selectors warn, invalid patterns name their error, and translated diagnostics log each selector's hit count plus matched names only when verbose. Fifteen feature/schema/literal/regex cases pass (5.01s); the canonical extractor owns exactly four diagnostics (1 case,0.98s). The API/tooltip and all54 locale targets pass canonical guards, independent meaning review and actual-output review; normal generation preserves unrelated catalog content. Eleven stock checks pass (150.42s), reproducing all10 API catalogs byte-for-byte; published reviews015d70f and HF3b35221 read back exactly. Existing channel selection/downstream behavior remains unchanged, so reporter channel3 selection versus channel3 exclusion is not silently overridden and no training reproduction is claimed. This change publishes the repair; verified GitHub replies/closure and other issues remain open.
+2026-10-22 — Issue158 default definition and typed merge share canonical file_name identity alongside field/time keys; real SQLite two-image regressions preserve six observations/distinct sums and reject absent keys or true duplicates (3 cases,0.90s; two retained identity controls). Issues159/160 resolve exact names, canonical whole-token channel groups, then fullmatch regexes before numeric validation. Unmatched selectors warn, invalid patterns name their error, and translated diagnostics log each selector's hit count plus matched names only when verbose. Fifteen feature/schema/literal/regex cases pass (5.01s); the canonical extractor owns exactly four diagnostics (1 case,0.98s). The API/tooltip and all54 locale targets pass canonical guards, independent meaning review and actual-output review; normal generation preserves unrelated catalog content. Eleven stock checks pass (150.42s), reproducing all10 API catalogs byte-for-byte; published reviews015d70f and HF3b35221 read back exactly. Existing channel selection/downstream behavior remains unchanged, so reporter channel3 selection versus channel3 exclusion is not silently overridden and no training reproduction is claimed. The selector repair is published; two isolated historical CI tests now assert unmatched-selector warnings and exact surviving feature/data preservation rather than the superseded ValueError, including valid exclusion alongside a typo (individual cases8.91s and8.22s). The hover is compacted to463characters with nine meaning-reviewed translations; normal flow generation includes minimum_object_size (three owning cases41.31s). Compact immutable reviews040f717 are published, pinned and hydrated offline; normal runtime outputs and arrival refresh preserve the historical baseline, with all13 strict positive/negative arrival contracts passing (118.00s). Root owns nightly integration/publication; verified GitHub replies/closure and other issues remain open.
+
+2026-10-22: Issue158 follow-up from currentNight02f control1 job120012567241: canonical filename identity must be explicitly requested by default image merges, not silently promoted by legacy plate-merging callers. Retained CI owner will preserve the established pathogen_file_name metadata column and strict per-image disambiguation, retaining actual ambiguous-key refusals and source database integrity. Five existing legacy/per-image/time controls pass (1.00 s). Public signatures/docs, strings and source line positions remain unchanged; root owns review/publication.
