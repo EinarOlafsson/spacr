@@ -3625,7 +3625,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Cet enregistrement importe les paramètres d’une petite séquence synthétique de huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images.",
+          "narration": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Ici, importez les paramètres du petit exemple synthétique à huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -3633,7 +3633,7 @@
             1160,
             1900
           ],
-          "speech_text": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Cet enregistrement importe les paramètres d’une petite séquence synthétique de huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images."
+          "speech_text": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Ici, importez les paramètres du petit exemple synthétique à huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images."
         },
         {
           "visual": "05_setting_timelapse_mode",

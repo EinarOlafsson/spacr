@@ -3625,7 +3625,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Para uma execução completa com suas próprias imagens, defina Source e os canais de intensidade em Mask. Esta gravação importa as configurações de uma pequena sequência sintética de oito quadros. Mantenha os pontos de tempo de cada campo em ordem. Os limites de quadros usam um início e um fim excluído: de zero a oito seleciona os oito primeiros quadros.",
+          "narration": "Para uma execução completa com suas próprias imagens, defina Source e os canais de intensidade em Mask. Aqui, importe as configurações do pequeno exemplo sintético de oito quadros. Mantenha os pontos de tempo de cada campo em ordem. Os limites de quadros usam um início e um fim excluído: de zero a oito seleciona os oito primeiros quadros.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -3633,7 +3633,7 @@
             1160,
             1900
           ],
-          "speech_text": "Para uma execução completa com suas próprias imagens, defina Source e os canais de intensidade em Mask. Esta gravação importa as configurações de uma pequena sequência sintética de oito quadros. Mantenha os pontos de tempo de cada campo em ordem. Os limites de quadros usam um início e um fim excluído: de zero a oito seleciona os oito primeiros quadros."
+          "speech_text": "Para uma execução completa com suas próprias imagens, defina Source e os canais de intensidade em Mask. Aqui, importe as configurações do pequeno exemplo sintético de oito quadros. Mantenha os pontos de tempo de cada campo em ordem. Os limites de quadros usam um início e um fim excluído: de zero a oito seleciona os oito primeiros quadros."
         },
         {
           "visual": "05_setting_timelapse_mode",

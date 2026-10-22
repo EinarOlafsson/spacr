@@ -3321,7 +3321,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "För en fullständig körning på dina egna bilder anger du Source och intensitetskanalerna i Mask. Den här inspelningen importerar inställningarna för en liten syntetisk sekvens med åtta bildrutor. Håll varje synfälts tidpunkter i ordning. Bildrutegränser använder en start och ett uteslutet slut: 0 till 8 väljer de första åtta bildrutorna.",
+          "narration": "För en fullständig körning på dina egna bilder anger du Source och intensitetskanalerna i Mask. Här importerar du inställningarna för det lilla syntetiska exemplet med åtta bildrutor. Håll varje synfälts tidpunkter i ordning. Bildrutegränser använder en start och ett uteslutet slut: 0 till 8 väljer de första åtta bildrutorna.",
           "hold_after": 0.7,
           "focus": [
             340,

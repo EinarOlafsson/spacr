@@ -3321,7 +3321,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For en fullstendig kjøring på egne bilder angir du Source og intensitetskanalene i Mask. Dette opptaket importerer innstillingene for en liten syntetisk sekvens med åtte bilderammer. Hold tidspunktene for hvert synsfelt i rekkefølge. Bilderammegrenser bruker en start og en utelukket slutt: 0 til 8 velger de første åtte bilderammene.",
+          "narration": "For en fullstendig kjøring på egne bilder angir du Source og intensitetskanalene i Mask. Her importerer du innstillingene for det lille syntetiske eksemplet med åtte bilder. Hold tidspunktene for hvert synsfelt i rekkefølge. Bilderammegrenser bruker en start og en utelukket slutt: 0 til 8 velger de første åtte bilderammene.",
           "hold_after": 0.7,
           "focus": [
             340,

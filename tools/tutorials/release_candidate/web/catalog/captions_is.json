@@ -3321,7 +3321,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Fyrir fulla keyrslu á eigin myndum stillirðu Source og styrkleikarásirnar í Mask. Þessi upptaka flytur inn stillingar lítillar gervimyndaraðar með átta römmum. Haltu tímapunktum hvers sjónsviðs í réttri röð. Rammamörk nota upphaf og útilokaðan endi: 0 til 8 velur fyrstu átta rammana.",
+          "narration": "Fyrir fulla keyrslu á eigin myndum stillirðu Source og styrkleikarásirnar í Mask. Hér flyturðu inn stillingar fyrir lítið tilbúið dæmi með átta römmum. Haltu tímapunktum hvers sjónsviðs í réttri röð. Rammamörk nota upphaf og útilokaðan endi: 0 til 8 velur fyrstu átta rammana.",
           "hold_after": 0.7,
           "focus": [
             340,

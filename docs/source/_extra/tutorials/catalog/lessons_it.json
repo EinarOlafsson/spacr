@@ -3625,7 +3625,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Per un’esecuzione completa sulle tue immagini, imposta Source e i canali di intensità in Mask. Questa registrazione importa le impostazioni di una piccola sequenza sintetica di otto fotogrammi. Mantieni in ordine i punti temporali di ogni campo. I limiti dei fotogrammi usano un inizio e una fine esclusa: da zero a otto seleziona i primi otto fotogrammi.",
+          "narration": "Per un’esecuzione completa sulle tue immagini, imposta Source e i canali di intensità in Mask. Qui importa le impostazioni del piccolo esempio sintetico di otto fotogrammi. Mantieni in ordine i punti temporali di ogni campo. I limiti dei fotogrammi usano un inizio e una fine esclusa: da zero a otto seleziona i primi otto fotogrammi.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -3633,7 +3633,7 @@
             1160,
             1900
           ],
-          "speech_text": "Per un’esecuzione completa sulle tue immagini, imposta Source e i canali di intensità in Mask. Questa registrazione importa le impostazioni di una piccola sequenza sintetica di otto fotogrammi. Mantieni in ordine i punti temporali di ogni campo. I limiti dei fotogrammi usano un inizio e una fine esclusa: da zero a otto seleziona i primi otto fotogrammi."
+          "speech_text": "Per un’esecuzione completa sulle tue immagini, imposta Source e i canali di intensità in Mask. Qui importa le impostazioni del piccolo esempio sintetico di otto fotogrammi. Mantieni in ordine i punti temporali di ogni campo. I limiti dei fotogrammi usano un inizio e una fine esclusa: da zero a otto seleziona i primi otto fotogrammi."
         },
         {
           "visual": "05_setting_timelapse_mode",

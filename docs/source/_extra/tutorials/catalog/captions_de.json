@@ -3321,7 +3321,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Für einen vollständigen Lauf mit Ihren eigenen Bildern legen Sie in Mask Source und die Intensitätskanäle fest. Diese Aufnahme importiert die Einstellungen einer kleinen synthetischen Sequenz mit acht Frames. Halten Sie die Zeitpunkte jedes Bildfelds in der richtigen Reihenfolge. Frame-Grenzen bestehen aus einem Start und einem ausgeschlossenen Ende: 0 bis 8 wählt die ersten acht Frames.",
+          "narration": "Für einen vollständigen Lauf mit Ihren eigenen Bildern legen Sie in Mask Source und die Intensitätskanäle fest. Hier laden Sie die Einstellungen des kleinen synthetischen Beispiels mit acht Frames. Halten Sie die Zeitpunkte jedes Bildfelds in der richtigen Reihenfolge. Frame-Grenzen bestehen aus einem Start und einem ausgeschlossenen Ende: 0 bis 8 wählt die ersten acht Frames.",
           "hold_after": 0.7,
           "focus": [
             340,
