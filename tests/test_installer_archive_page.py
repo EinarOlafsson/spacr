@@ -333,12 +333,7 @@ def _committed_rows():
 
 
 def test_the_committed_page_marks_the_version_the_readme_advertises():
-    """Exactly one row is current, and it matches the public download links.
-
-    A version-bump commit precedes the native installer build, so ``setup.py``
-    names the next package while the README honestly keeps advertising the
-    previous installers. The collect job moves both sets of links together.
-    """
+    """Archive current means published; a newer README is a prepared candidate."""
     R = _release_helper()
     readme = (ROOT / "README.rst").read_text(encoding="utf-8")
     advertised = set()
@@ -351,7 +346,16 @@ def test_the_committed_page_marks_the_version_the_readme_advertises():
     assert len(advertised) == 1
     marked = [version for version, _cells, is_current in _committed_rows()
               if is_current]
-    assert marked == [advertised.pop()]
+    assert len(marked) == 1
+    targets = _image_targets(PAGE.read_text(encoding="utf-8"))
+    releases = [{"tag_name": f"v{version}", "assets": [
+        {"name": targets[cell.strip("|")].rsplit("/", 1)[-1],
+         "browser_download_url": targets[cell.strip("|")]}
+        for cell in cells if cell]}
+        for version, cells, _current in _committed_rows()]
+    assert marked == [R.published_installer_version(releases)[0]]
+    errors = R.audit_installer_sources(ROOT, releases)
+    assert not errors, "\n".join(errors)
 
 
 def test_every_link_in_a_row_belongs_to_that_row_s_version():
@@ -574,3 +578,40 @@ def test_nonfuture_sources_keep_the_strict_published_readme_requirement(
     assert len(helper.audit_installer_sources(root, releases, site_html=html)) == 60
     helper.sync_published_installer_links(root, releases)
     assert helper.audit_installer_sources(root, releases, site_html=html) == []
+
+
+@pytest.mark.parametrize("phase", ["published", "prepared"])
+def test_archive_current_accepts_only_the_two_coherent_release_phases(
+        prepared_installer_source, monkeypatch, phase):
+    helper, root, releases, _html = prepared_installer_source
+    monkeypatch.setitem(globals(), "ROOT", root)
+    monkeypatch.setitem(globals(), "_release_helper", lambda: helper)
+    monkeypatch.setitem(globals(), "PAGE", root / helper.INSTALLER_INDEX_PATH)
+    if phase == "published":
+        (root / "setup.py").write_text('VERSION = "1.5.1.5"\n')
+        helper.sync_published_installer_links(root, releases)
+    test_the_committed_page_marks_the_version_the_readme_advertises()
+
+
+@pytest.mark.parametrize("defect", ["stale", "malformed", "duplicate", "marker"])
+def test_archive_current_rejects_incoherent_prepared_sources(
+        prepared_installer_source, monkeypatch, defect):
+    helper, root, _releases, _html = prepared_installer_source
+    monkeypatch.setitem(globals(), "ROOT", root)
+    monkeypatch.setitem(globals(), "_release_helper", lambda: helper)
+    page = root / helper.INSTALLER_INDEX_PATH
+    monkeypatch.setitem(globals(), "PAGE", page)
+    path = page if defect == "marker" else root / "README.rst"
+    text = path.read_text()
+    if defect == "stale":
+        text = text.replace("1.5.1.6", "1.5.1.4")
+    elif defect == "malformed":
+        text = text.replace("/v1.5.1.6/", "/v1.5.1.5/", 1)
+    elif defect == "duplicate":
+        match = helper._installer_url_pattern("Linux-x86_64-Online.run").search(text)
+        text = text.replace(helper.README_END, match.group(0) + "\n" + helper.README_END)
+    else:
+        text = text.replace("1.5.1.5 (current)", "1.5.1.5")
+    path.write_text(text)
+    with pytest.raises((AssertionError, ValueError)):
+        test_the_committed_page_marks_the_version_the_readme_advertises()
