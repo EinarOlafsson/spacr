@@ -103,7 +103,7 @@ def test_windows_installer_and_distributables_carry_the_current_writer(tmp_path,
     assert '$ProfileModule = Join-Path $PSScriptRoot "install_profile.py"' in windows
     assert '$ProfileModule = Join-Path $PSScriptRoot "..\\..\\spacr\\install_profile.py"' in windows
     invocation = re.search(
-        r'Invoke-Checked -Command \$StagePython -Arguments @\(\s*"-I",\s*\$ProfileModule,.*?\n    \)',
+        r'Invoke-Checked -Command \$StagePython -Arguments @\(\s*"-I",\s*"-X",\s*"utf8",\s*\$ProfileModule,.*?\n    \)',
         windows, re.DOTALL,
     )
     assert invocation is not None
