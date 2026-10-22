@@ -285,3 +285,32 @@ def test_an_application_that_refuses_the_filter_leaves_the_slot_empty(qapp):
 
             _stop_watching_application_events(qapp, dialogs._DETACHER)
         dialogs._DETACHER, dialogs._DETACHED_APP = saved
+
+
+@pytest.mark.parametrize("screen_state", ["departed", "missing"])
+def test_natural_opening_survives_an_unavailable_screen_and_keeps_user_size(
+        qtbot, unfiltered_app, monkeypatch, screen_state):
+    from PySide6.QtCore import QSize
+    from PySide6.QtGui import QGuiApplication
+    from PySide6.QtWidgets import QDialog
+    from spacr.qt import dialogs, gui_scale
+
+    class ScreenlessDialog(QDialog):
+        def screen(self):
+            if screen_state == "departed":
+                raise RuntimeError("the dialog's screen was removed")
+            return None
+
+    dialog = ScreenlessDialog()
+    qtbot.addWidget(dialog)
+    gui_scale._resize_actual(dialog, QSize(360, 220))
+    dialog.setProperty(dialogs.OPENS_AT, QSize(540, 340))
+    with monkeypatch.context() as patch:
+        if screen_state == "missing":
+            patch.setattr(QGuiApplication, "primaryScreen", staticmethod(lambda: None))
+        assert dialogs.open_at_its_natural_size(dialog) is True
+        assert dialog.size() == QSize(540, 340)
+        assert dialog.property(dialogs.OPENS_AT) is None
+        gui_scale._resize_actual(dialog, QSize(620, 420))
+        assert dialogs.open_at_its_natural_size(dialog) is False
+        assert dialog.size() == QSize(620, 420)
