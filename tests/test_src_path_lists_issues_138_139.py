@@ -200,6 +200,37 @@ def test_missing_paths_say_whether_the_parent_exists(tmp_path):
     assert unmounted in lines[1] and "mounted" in lines[1]
 
 
+@pytest.mark.parametrize("parent_exists", [True, False])
+def test_windows_forward_slash_missing_path_keeps_its_parent_spelling(
+        monkeypatch, parent_exists):
+    import ntpath
+    from types import SimpleNamespace
+    from spacr import portable_paths
+
+    monkeypatch.setenv("SPACR_LANGUAGE", "en")
+    monkeypatch.setattr(portable_paths, "os", SimpleNamespace(path=ntpath, sep="\\"))
+    missing = "C:/plates/missing"
+    parent = "C:/plates"
+    checked = []
+
+    def exists(path):
+        checked.append(path)
+        return parent_exists and path == parent
+
+    lines = portable_paths._describe_missing_paths([missing], exists=exists)
+    assert checked == [missing, parent]
+    assert len(lines) == 1
+    assert lines[0].count(missing) == 1
+    if parent_exists:
+        assert lines == [f"  {missing} (its parent folder {parent} exists, "
+                         "so check the last folder name for a typo)"]
+        assert "mounted" not in lines[0]
+    else:
+        assert lines == [f"  {missing} (its parent folder {parent} does not exist either; "
+                         "is the drive or share mounted?)"]
+        assert "typo" not in lines[0]
+
+
 def test_measure_error_lists_each_missing_plate_on_its_own_line(tmp_path):
     from spacr.errors import ConfigurationError
     from spacr.measure import measure_crop
