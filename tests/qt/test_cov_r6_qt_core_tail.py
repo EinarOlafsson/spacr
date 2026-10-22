@@ -897,3 +897,49 @@ def test_a_failed_icon_cache_replace_removes_its_temporary_and_keeps_the_cache(
     assert path.read_bytes() == saved
     assert not attempted[0].exists()
     assert sorted(child.name for child in path.parent.iterdir()) == [path.name]
+
+
+def test_failed_icon_cache_cleanup_keeps_the_previous_icon_usable(
+        tmp_path, monkeypatch):
+    from pathlib import Path
+    import threading
+    from types import SimpleNamespace
+    from spacr.qt import iconset
+
+    path = tmp_path / "icons" / "one.png"
+    old = np.zeros((4, 4, 4), dtype=np.uint8)
+    old[..., 3] = 255
+    iconset._write_cached_icon(path, old)
+    saved = path.read_bytes()
+    updated = old.copy()
+    updated[..., 0] = 200
+    temporary = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.part")
+    replacements, removals = [], []
+    original_replace, original_unlink = os.replace, Path.unlink
+
+    def sharing_violation(source, destination):
+        if destination == path:
+            replacements.append((source, destination))
+            raise PermissionError("another writer has the cached icon open")
+        return original_replace(source, destination)
+
+    def cleanup_denied(candidate, *args, **kwargs):
+        if candidate == temporary:
+            removals.append(candidate)
+            raise PermissionError("the temporary icon cannot be removed")
+        return original_unlink(candidate, *args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(iconset, "os", SimpleNamespace(
+            getpid=os.getpid, replace=sharing_violation))
+        patch.setattr(Path, "unlink", cleanup_denied)
+        result = iconset._write_cached_icon(path, updated)
+
+    assert result is None
+    assert replacements == [(temporary, path)]
+    assert removals == [temporary]
+    assert temporary.is_file()
+    assert path.read_bytes() == saved
+    np.testing.assert_array_equal(iconset._read_cached_icon(path), old)
+    np.testing.assert_array_equal(iconset._read_cached_icon(temporary), updated)
+    temporary.unlink()

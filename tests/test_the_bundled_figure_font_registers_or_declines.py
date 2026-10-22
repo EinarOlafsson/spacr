@@ -99,6 +99,94 @@ def test_native_discovery_falls_back_without_hiding_fonts(native_manager, monkey
         'user-choice' if reason == 'optout' else None)
 
 
+@pytest.mark.parametrize("version", [None, "3.development"])
+def test_an_unreadable_matplotlib_version_keeps_the_existing_fonts(
+        native_manager, version):
+    case = native_manager
+    before = list(case.manager.ttflist)
+    case.root.__version__ = version
+
+    assert case.module._figure_font_manager() is case.fonts
+    assert case.manager.ttflist == before
+    assert case.manager.afmlist == []
+    assert case.probes == []
+    assert case.imports == [None]
+    assert case.writes == []
+    assert "MPL_IGNORE_SYSTEM_FONTS" not in os.environ
+
+
+@pytest.mark.parametrize("paths", [None, [], ["relative.ttf"], [17]])
+def test_an_invalid_coretext_list_keeps_normal_font_discovery(
+        native_manager, monkeypatch, paths):
+    case = native_manager
+    before = list(case.manager.ttflist)
+    monkeypatch.setattr(subprocess, "check_output", lambda *a, **kw: json.dumps(paths))
+
+    assert case.module._figure_font_manager() is case.fonts
+    assert case.manager.ttflist == before
+    assert case.manager.afmlist == []
+    assert case.imports == [None]
+    assert case.writes == []
+    assert "MPL_IGNORE_SYSTEM_FONTS" not in os.environ
+
+
+@pytest.mark.parametrize("refusal", ["unsupported_suffix", "one_unreadable", "all_unreadable"])
+def test_native_face_refusals_preserve_existing_and_usable_fonts(
+        native_manager, monkeypatch, refusal):
+    case = native_manager
+    known = case.manager.ttflist[0].fname
+    expected = set(case.expected)
+    real_add = case.manager.addfont
+    if refusal == "unsupported_suffix":
+        unsupported = os.path.join(os.path.dirname(known), "not-a-font.txt")
+        monkeypatch.setattr(subprocess, "check_output", lambda *a, **kw:
+                            json.dumps([*case.expected, unsupported]))
+    else:
+        def add_if_readable(path):
+            if refusal == "all_unreadable" or os.path.basename(path) == "core.ttf":
+                raise OSError("unreadable native face")
+            return real_add(path)
+
+        monkeypatch.setattr(case.manager, "addfont", add_if_readable)
+        expected = ({known} if refusal == "all_unreadable" else
+                    {path for path in expected if os.path.basename(path) != "core.ttf"})
+
+    assert case.module._figure_font_manager() is case.fonts
+    fonts = [entry.fname for entry in [*case.manager.ttflist, *case.manager.afmlist]]
+    assert set(fonts) == expected
+    assert len(fonts) == len(expected)
+    assert known in fonts
+    assert case.imports == ["1"]
+    assert "MPL_IGNORE_SYSTEM_FONTS" not in os.environ
+    if refusal == "all_unreadable":
+        assert case.writes == []
+    else:
+        assert len(case.writes) == 1
+        assert case.writes[0][0] is case.manager
+        assert case.writes[0][1].name == "fontlist-vtest.json"
+
+
+def test_a_cache_write_failure_does_not_discard_registered_fonts(
+        native_manager, monkeypatch):
+    case = native_manager
+    real_dump = case.fonts.json_dump
+
+    def unwritable(manager, path):
+        real_dump(manager, path)
+        raise OSError("font cache is read-only")
+
+    monkeypatch.setattr(case.fonts, "json_dump", unwritable)
+    assert case.module._figure_font_manager() is case.fonts
+    fonts = [entry.fname for entry in [*case.manager.ttflist, *case.manager.afmlist]]
+    assert set(fonts) == case.expected
+    assert len(fonts) == len(case.expected)
+    assert len(case.writes) == 1
+    assert case.writes[0][0] is case.manager
+    assert case.writes[0][1].name == "fontlist-vtest.json"
+    assert case.imports == ["1"]
+    assert "MPL_IGNORE_SYSTEM_FONTS" not in os.environ
+
+
 def test_a_failed_native_font_import_restores_the_discovery_setting(native_manager):
     native_manager.root.fail_import = True
     with pytest.raises(ImportError, match='unavailable renderer'):
