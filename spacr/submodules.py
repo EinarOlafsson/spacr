@@ -1465,7 +1465,7 @@ class _Cellpose3PlaqueModel:
         self.note = str(getattr(backend, 'note', '') or '')
 
     def eval(self, image, channel_axis=None, diameter=None,
-             flow_threshold=0.4, cellprob_threshold=0.0, **_other):
+             flow_threshold=0.4, cellprob_threshold=0.0, min_size=None, **_other):
         """Segment one image the way ``CellposeModel.eval`` does.
 
         :param image: ``H x W`` or ``H x W x C``.
@@ -1475,16 +1475,19 @@ class _Cellpose3PlaqueModel:
             checkpoint's own.
         :param flow_threshold: Cellpose's flow error threshold.
         :param cellprob_threshold: Cellpose's cell probability threshold.
+        :param min_size: minimum object area in input pixels, without
+            rounding; None leaves the backend's default unchanged.
         :returns: ``(labels, flows, None)``.
         """
         plane = np.asarray(image, dtype=np.float32)
         if plane.ndim == 3:
             plane = plane.mean(axis=-1 if channel_axis is None
                                else channel_axis)
+        size_options = {} if min_size is None else {"min_size": min_size}
         masks, flows, _styles = self._backend.eval(
             [plane], diameter=diameter or None,
             flow_threshold=flow_threshold,
-            cellprob_threshold=cellprob_threshold)
+            cellprob_threshold=cellprob_threshold, **size_options)
         return masks[0], (list(flows[0]) if flows else []), None
 
 
@@ -2017,6 +2020,7 @@ def _analyze_plaque_figures(settings, model_path):
             folder, os.path.join(settings['src'], 'plaque_figures'),
             detector=detector,
             segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
+            min_size=float(settings.get('minimum_object_size') or 0),
             confidence=float(settings.get('figure_confidence', 0.25)),
             confirm_each=bool(settings.get('confirm_annotations', False)),
             plate_format=settings.get('plate_format'),

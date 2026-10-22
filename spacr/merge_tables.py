@@ -263,7 +263,7 @@ def _read(db_path: str, table: str) -> pd.DataFrame:
 
 def _keys_in(frame: pd.DataFrame) -> List[str]:
     """Return canonical identity columns present, in identity order."""
-    return [c for c in (*IDENTITY, "timeID", "time_id")
+    return [c for c in (*IDENTITY, "timeID", "time_id", "file_name")
             if c in frame.columns]
 
 

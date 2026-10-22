@@ -137,3 +137,39 @@ def test_duplicate_source_bound_review_identity_is_rejected(state,monkeypatch):
     monkeypatch.setattr(Path,'read_bytes',lambda p:raw if p==path else original(p))
     with pytest.raises(AssertionError,match='duplicate caption reviewed record'):
         project(external,declarations,candidate)
+
+
+@pytest.mark.parametrize(
+    "target,candidate,raw_failure,expected_reasons", [
+        ("Compter les cellules par puits pendant l’exécution.",
+         "Compter les cellules par puits pendant l’exécution.", False, frozenset()),
+        ("Compter les cellules par bien pendant l’exécution.",
+         "Compter les cellules par bien pendant l’exécution.", False, frozenset({"semantic"})),
+        ("Compter les cellules par puits pendant la exécution.",
+         "Compter les cellules par puits pendant l’exécution.", False, frozenset()),
+        ("Compter les cellules par bien pendant la exécution.",
+         "Compter les cellules par bien pendant l’exécution.", False, frozenset({"semantic"})),
+        ("Compter les cellules par puits pendant l’exécution.",
+         "Compter les cellules par puits pendant l’exécution.", True, frozenset({"semantic"})),
+    ], ids=("unchanged-valid", "unchanged-bad-well", "changed-valid", "changed-bad-well", "raw-failure-flag"),
+)
+def test_runtime_review_checks_each_distinct_semantic_candidate_once(
+        monkeypatch, target, candidate, raw_failure, expected_reasons):
+    source = "Count cells per well during the run."
+    monkeypatch.setattr(builder, "_REVIEWED_RUNTIME_LOADING", {"fr"})
+    assert builder._contextualize(target, "fr", source) == candidate
+    semantic = builder._semantic_false_friends
+    checked = []
+
+    def check_actual_semantics(current_source, current_target, language):
+        checked.append((current_source, current_target, language))
+        return semantic(current_source, current_target, language)
+
+    monkeypatch.setattr(builder, "_semantic_false_friends", check_actual_semantics)
+    reasons = builder._translation_rejection_reasons(
+        source, target, "fr", force=True, raw_semantic_failure=raw_failure)
+    assert reasons == expected_reasons
+    expected_targets = [] if raw_failure else [target]
+    if candidate != target:
+        expected_targets.append(candidate)
+    assert checked == [(source, value, "fr") for value in expected_targets]

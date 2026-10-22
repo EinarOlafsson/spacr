@@ -10536,7 +10536,7 @@ class AppScreen(QWidget):
             return
         card.setVisible(on)
 
-    def _on_preview_switch(self, on: bool) -> None:
+    def _on_preview_switch(self, on: bool, *, autoload: bool = True) -> None:
         """Show or hide the preview while keeping its Live switch reachable.
 
         When closed, the switch sits beside the Actions heading, outside its
@@ -10580,7 +10580,7 @@ class AppScreen(QWidget):
         if on and not getattr(self, "_preview_primed", False):
             self._preview_primed = True
             self._prime_preview()
-            if attr == "_live_preview_card":
+            if attr == "_live_preview_card" and autoload:
                 self._autoload_live_preview(self._settings_src_path() or "")
         card.setVisible(on)
 

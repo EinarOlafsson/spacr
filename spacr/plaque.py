@@ -497,7 +497,9 @@ def segment_plaque_image(model: Any, image: np.ndarray,
 
     :param model: a Cellpose model.
     :param image: ``H x W`` or ``H x W x 3``.
-    :param settings: ``diameter``, ``flow_threshold`` and ``CP_prob``.
+    :param settings: ``diameter``, ``flow_threshold``, ``CP_prob`` and
+        ``minimum_object_size``. The minimum is an unrounded pixel area in
+        the input image; 0 disables small-object removal.
     :param return_flows: also hand back what the live preview's Flows and
         Cell probability tabs show, from the same call.
     :param return_metrics: Return ``(labels, per_label_metrics)`` for saved
@@ -513,7 +515,8 @@ def segment_plaque_image(model: Any, image: np.ndarray,
     output = model.eval(image, channel_axis=cellpose_channel_axis(image),
                         diameter=diameter if diameter else None,
                         flow_threshold=_number(settings, "flow_threshold", 0.4),
-                        cellprob_threshold=_number(settings, "CP_prob", 0.0))
+                        cellprob_threshold=_number(settings, "CP_prob", 0.0),
+                        min_size=_number(settings, "minimum_object_size", 0.0))
     labels = _host_array(output[0])
     if return_metrics:
         if labels.max() <= 1:

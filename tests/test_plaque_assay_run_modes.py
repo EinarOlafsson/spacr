@@ -36,6 +36,7 @@ def test_the_default_model_is_the_current_plaque_model():
     settings = get_analyze_plaque_settings({})
     assert settings["plaque_model"] == "toxoplasma_plaque_v5"
     assert settings["plaque_mode"] == "plaque"
+    assert settings["minimum_object_size"] == 0
 
 
 def test_a_cellpose3_refusal_becomes_advice():
@@ -65,8 +66,9 @@ def test_plaque_mode_writes_a_per_image_and_a_per_plaque_table(tmp_path,
     assert {"summary", "details", "stats"} <= legacy
 
 
-def test_figure_mode_hands_the_folder_to_the_figure_engine(tmp_path,
-                                                            monkeypatch):
+@pytest.mark.parametrize("minimum_object_size", [0, 3, 1.0000001])
+def test_figure_mode_hands_the_folder_to_the_figure_engine(
+        tmp_path, monkeypatch, minimum_object_size):
     from spacr import plaque_papers
 
     seen = {}
@@ -82,14 +84,80 @@ def test_figure_mode_hands_the_folder_to_the_figure_engine(tmp_path,
     monkeypatch.setattr("spacr.utils.save_settings", lambda *a, **k: None)
     out = sm.analyze_plaques({"src": str(tmp_path), "plaque_mode": "figure",
                               "figure_imgsz": "640, 1280",
+                              "minimum_object_size": minimum_object_size,
                               "confirm_annotations": True,
                               "figure_read_text": False})
     assert out["plaques"] == 9
     assert seen["segmenter"] == "/models/r5"
     assert seen["imgsz"] == (640, 1280)
     assert seen["confirm_each"] is True
+    assert seen["min_size"] == minimum_object_size
     assert seen["read_text"]("any.png") == []
     assert seen["dst"].endswith("plaque_figures")
+
+
+@pytest.mark.parametrize("minimum_object_size", [0, 3, 1.0000001, 1e-7])
+def test_minimum_object_size_survives_csv_and_json_settings(
+        tmp_path, minimum_object_size):
+    import json
+
+    from spacr.settings import get_analyze_plaque_settings
+    from spacr.utils import load_settings, save_settings
+
+    settings = get_analyze_plaque_settings({
+        "src": str(tmp_path), "minimum_object_size": minimum_object_size,
+    })
+    save_settings(settings, name="plaque_minimum_object_size")
+    path = tmp_path / "settings/plaque_minimum_object_size"
+    loaded = load_settings(path.with_suffix(".csv"))
+    snapshot = json.loads(path.with_suffix(".json").read_text())
+    assert loaded["minimum_object_size"] == minimum_object_size
+    assert snapshot["minimum_object_size"] == minimum_object_size
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("1e-07", 1e-7),
+    ("-3E+2", -300.0),
+    ("2.25", 2.25),
+    ("7", 7),
+    ("TRUE", True),
+    ("", None),
+    ("well_E1", "well_E1"),
+    ("1e-invalid", "1e-invalid"),
+    ("'1e-7'", "'1e-7'"),
+    ("1.5.1", "1.5.1"),
+    ("[1, 2.5]", [1, 2.5]),
+    ("{'name': 'well_E1', 'value': 3}", {"name": "well_E1", "value": 3}),
+])
+def test_settings_cell_parser_preserves_scientific_floats_and_other_values(
+        text, expected):
+    from spacr import tabular
+
+    actual = tabular._parse_setting_value(text)
+    assert actual == expected
+    assert type(actual) is type(expected)
+
+
+@pytest.mark.parametrize("minimum_object_size", [0, 2.25, 1.0000001])
+def test_figure_folder_forwards_the_minimum_to_its_segmenter(
+        tmp_path, monkeypatch, minimum_object_size):
+    from spacr import plaque_papers
+
+    seen = []
+
+    def segmenter(path, *, return_metrics=False, min_size=None):
+        seen.append((path, return_metrics, min_size))
+        return lambda crop: np.zeros(crop.shape[:2], dtype=np.uint16)
+
+    monkeypatch.setattr(plaque_papers, "_cellpose_segmenter", segmenter)
+    monkeypatch.setattr(plaque_papers, "_zoo_path", lambda *args, **kwargs:
+                        ("resolved-model", "checkpoint provenance"))
+    result = plaque_papers.measure_figure_folder(
+        tmp_path, tmp_path / "output", segmenter="requested-model",
+        detect=lambda *args, **kwargs: [], read_text=lambda path: [],
+        min_size=minimum_object_size)
+    assert seen == [("resolved-model", True, minimum_object_size)]
+    assert result["figures"] == 0
 
 
 def test_detector_boxes_on_a_gpu_are_copied_to_the_host(monkeypatch):

@@ -36,6 +36,139 @@ from tests.test_measure_hooks import _project, _settings
 # The real database
 # ---------------------------------------------------------------------------
 
+def _channel_exclusion_frame():
+    columns = [
+        "pathogen_rad_dist_channel_0_bin_0",
+        "cell_channel_2_mean_intensity",
+        "nucleus_channel_3_mean_intensity",
+        "cell_channel_1_channel_3_pearsons",
+        "cell_channel_1_mean_intensity",
+        "cell_channel_01_mean_intensity",
+        "cell_channel_10_mean_intensity",
+        "cell_channel_0suffix_mean_intensity",
+        "cell_area",
+    ]
+    return pd.DataFrame({name: [1.0, 2.0, 3.0] for name in columns})
+
+
+@pytest.mark.parametrize("exclude, dropped", [
+    (["channel_0", "channel_2", "channel_3"], [
+        "pathogen_rad_dist_channel_0_bin_0",
+        "cell_channel_2_mean_intensity",
+        "nucleus_channel_3_mean_intensity",
+        "cell_channel_1_channel_3_pearsons",
+    ]),
+    ("channel_0", ["pathogen_rad_dist_channel_0_bin_0"]),
+])
+def test_channel_group_exclusions_resolve_before_numeric_validation(exclude, dropped):
+    from spacr.utils import filter_dataframe_features
+
+    frame = _channel_exclusion_frame()
+    frame["pathogen_rad_dist_channel_0_bin_0"] = "unreadable"
+    filtered, features = filter_dataframe_features(
+        frame, channel_of_interest=None, exclude=exclude,
+        remove_low_variance_features=False,
+        remove_highly_correlated_features=False)
+    expected = [name for name in frame.columns if name not in dropped]
+    assert features == expected
+    pd.testing.assert_frame_equal(filtered, frame[expected])
+
+
+def test_exact_column_exclusions_take_priority_over_channel_groups():
+    from spacr.utils import filter_dataframe_features
+
+    frame = _channel_exclusion_frame()
+    frame["channel_0"] = [7.0, 8.0, 9.0]
+    filtered, features = filter_dataframe_features(
+        frame, channel_of_interest=None, exclude="channel_0",
+        remove_low_variance_features=False,
+        remove_highly_correlated_features=False)
+    assert features == list(_channel_exclusion_frame().columns)
+    assert "pathogen_rad_dist_channel_0_bin_0" in filtered
+    assert "channel_0" not in filtered
+
+
+def test_exact_feature_names_and_channel_groups_can_be_excluded_together():
+    from spacr.utils import filter_dataframe_features
+
+    frame = _channel_exclusion_frame()
+    filtered, features = filter_dataframe_features(
+        frame, channel_of_interest=None,
+        exclude=["channel_0", "cell_area", "cell_channel_10_mean_intensity"],
+        remove_low_variance_features=False,
+        remove_highly_correlated_features=False)
+    assert features == [name for name in frame.columns if name not in {
+        "pathogen_rad_dist_channel_0_bin_0", "cell_area", "cell_channel_10_mean_intensity"}]
+    assert list(filtered.columns) == features
+
+
+@pytest.mark.parametrize("unmatched", ["channel_9", "cell_area_typo", "channel_0.*", "channel_*"])
+def test_unmatched_selectors_warn_and_leave_the_feature_matrix_unchanged(unmatched, capsys):
+    from spacr.utils import filter_dataframe_features
+
+    frame = _channel_exclusion_frame()
+    with pytest.warns(UserWarning, match="matched no columns") as caught:
+        filtered, features = filter_dataframe_features(
+            frame, channel_of_interest=None, exclude=unmatched,
+            remove_low_variance_features=False,
+            remove_highly_correlated_features=False)
+    assert unmatched in str(caught[0].message)
+    assert features == list(frame.columns)
+    pd.testing.assert_frame_equal(filtered, frame)
+    assert f"{unmatched!r}: 0 matching column(s)." in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("invalid", ["[", "(", "*"])
+def test_invalid_exclusion_regexes_name_the_pattern_and_keep_the_cause(invalid):
+    import re
+    from spacr.utils import filter_dataframe_features
+
+    with pytest.raises(ValueError, match="Invalid feature-exclusion regular expression") as caught:
+        filter_dataframe_features(
+            _channel_exclusion_frame(), channel_of_interest=None,
+            exclude=invalid,
+            remove_low_variance_features=False,
+            remove_highly_correlated_features=False)
+    assert repr(invalid) in str(caught.value)
+    assert isinstance(caught.value.__cause__, re.error)
+
+
+def test_existing_feature_names_with_regex_metacharacters_are_literal():
+    from spacr.utils import filter_dataframe_features
+
+    frame = _channel_exclusion_frame()
+    literal = "cell_channel_0.mean_intensity"
+    other = "cell_channel_0Xmean_intensity"
+    frame[literal] = [1.0, 2.0, 3.0]
+    frame[other] = [4.0, 5.0, 6.0]
+    filtered, features = filter_dataframe_features(
+        frame, channel_of_interest=None, exclude=literal,
+        remove_low_variance_features=False,
+        remove_highly_correlated_features=False)
+    assert features == [name for name in frame.columns if name != literal]
+    assert other in filtered
+
+
+@pytest.mark.parametrize("verbose", [False, True])
+def test_overlapping_regex_exclusions_log_hit_counts_and_optional_names(verbose, capsys):
+    from spacr.utils import filter_dataframe_features
+
+    frame = _channel_exclusion_frame()
+    literal = "pathogen_rad_dist_channel_0_bin_0"
+    frame[literal] = "unreadable"
+    filtered, features = filter_dataframe_features(
+        frame, channel_of_interest=None, exclude=[".*channel_0.*", literal],
+        remove_low_variance_features=False,
+        remove_highly_correlated_features=False, verbose=verbose)
+    dropped = {literal, "cell_channel_01_mean_intensity", "cell_channel_0suffix_mean_intensity"}
+    assert features == [name for name in frame.columns if name not in dropped]
+    pd.testing.assert_frame_equal(filtered, frame[features])
+    output = capsys.readouterr().out
+    assert "'.*channel_0.*': 3 matching column(s)." in output
+    assert f"{literal!r}: 1 matching column(s)." in output
+    assert ("cell_channel_01_mean_intensity" in output) is verbose
+
+
 @pytest.fixture(scope="module")
 def measured_project(tmp_path_factory):
     """One field measured by ``_measure_crop_core`` into a real project."""

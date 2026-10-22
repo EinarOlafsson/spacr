@@ -3413,6 +3413,7 @@ expected_types = {
     "plaque_growth_reference_hours": (float, int),
     "plaque_pixels_per_um": (float, int, type(None)),
     "plaque_formation_hours": (float, int, type(None)),
+    "minimum_object_size": (float, int),
     "colony_counting": bool,
     "colony_dilution": (float, int, dict, str),
     "colony_plated_volume_ul": (float, int),
@@ -4739,6 +4740,7 @@ tooltips = {
     "plaque_growth_reference_hours": "(float) - Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
     "plaque_pixels_per_um": "(float, int or None) - Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
     "plaque_formation_hours": "(float, int or None) - Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
+    "minimum_object_size": "(float or int) - Minimum plaque area in square pixels of the input image or detected well crop. Objects smaller than this value are discarded. 0 keeps small objects; other segmentation filters still apply. Fractional values are accepted. Default 0.",
     "colony_counting": "(bool) - Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
     "colony_dilution": "(float, int, dict or str) - Dilution factor of the plated suspension: 10000 for a 10^-4 dilution; fractions such as 0.0001 are inverted. CFU/mL = colonies x dilution factor / plated volume. Enter one number, a dict keyed by filename or stem, or a UTF-8 CSV path with file,dilution columns. Exact filenames take priority over stems; unmatched plates get no CFU/mL. CSV factors must be positive and finite, with unique file identifiers. Default 1.",
     "colony_plated_volume_ul": "(float) - Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
@@ -4899,7 +4901,7 @@ tooltips = {
     "negative_control_wells": "(list or str) - Wells containing only the negative control, e.g. ['c1']. Accepts the same row, column, and well notation as positive_control_wells. These wells are excluded from the regression and define the negative endpoint for mixed-ratio calibration. Default None.",
     "mixed_control_wells": "(list or str) - Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. Per-cell identities in these wells are unknown, but the aggregate proportions are known from sequencing, so annotation methods can be scored on real rather than simulated cells. Default None.",
     "exclude_grnas": "(list or str) - gRNA or gene identifiers known not to occur in cells, such as primer or plasmid carry-over. These sequences are removed before guide fractions are calculated, and retained guides are renormalized. This differs from background subtraction, which corrects spurious reads assigned to a real guide. A gene identifier matches all of its guides. Default None.",
-    "exclude": "(str or list) - Names of measurement columns to drop from the feature set before UMAP embedding or ML training, applied after the channel_of_interest selection. Use it to remove features that leak the label or swamp the embedding. It does not filter database rows; use exclude_rows for that. Default None keeps every feature.",
+    "exclude": "(str or list) - Exclude measurement features before UMAP embedding or ML training. Exact column names take priority, then channel_N groups match whole channel tokens: channel_0 does not match channel_01. Other entries are regular expressions matched against complete column names; .*channel_0.* matches names containing that text. Unmatched selectors warn; invalid regexes raise an error naming the pattern. Logs show each selector's hit count and matched names when verbose. Applied with channel_of_interest. This excludes features, not database rows; use exclude_rows for rows. Default None keeps every feature.",
     "exclude_conditions": "(list) - Condition labels dropped from the image UMAP input, matched against the cond column that map_condition derives from the pos, neg and mix column IDs; the only possible entries are 'neg', 'pos', 'mix' and 'screen'. A bare string is accepted and wrapped in a list. Use it to embed screen wells only. Default None.",
     "exclude_rows": "(dict or None) - General UMAP row exclusions. Choose one or more database columns, then check the values whose rows should be removed. Rules are combined with OR, so a row matching any selected column/value pair is excluded. Default None keeps every row.",
     "experiment": "(str) - Free-text run label. Its real effect is naming the exported PNG dataset tar as <YYMMDD>_<experiment>.tar (a random-numbered variant is used if that name already exists), so give each screen a distinct value to avoid confusing dataset tars. It is also passed to the measurement-database writer but not stored there. Default 'experiment' (the barcode pipeline uses 'experiment_1' and a foreign import uses 'foreign_import').",
@@ -6808,6 +6810,7 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('masks', True)
     settings.setdefault('plaque_model', 'toxoplasma_plaque_v5')
     settings.setdefault('plaque_mode', 'plaque')
+    settings.setdefault('minimum_object_size', 0.0)
     settings.setdefault('figure_detector', 'toxoplasma_well_detector_v2')
     settings.setdefault('figure_imgsz', '640,1280')
     settings.setdefault('figure_confidence', 0.25)

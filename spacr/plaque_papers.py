@@ -2346,7 +2346,8 @@ def _zoo_path(key: str, cache: Path, *, kind=None, setting=None) -> Tuple[str, s
     return str(resolved), f"{resolved.name} {zoo.sha256_file(resolved)}"
 
 
-def _cellpose_segmenter(path: str, *, return_metrics: bool = False) -> Callable:
+def _cellpose_segmenter(path: str, *, return_metrics: bool = False,
+                        min_size: Optional[float] = None) -> Callable:
     """A plaque segmenter from a Cellpose checkpoint.
 
     A Cellpose 3 checkpoint, which Cellpose 4 refuses, segments through the
@@ -2355,6 +2356,8 @@ def _cellpose_segmenter(path: str, *, return_metrics: bool = False) -> Callable:
 
     :param path: the checkpoint.
     :param return_metrics: Include raw probability and flow diagnostics.
+    :param min_size: optional unrounded minimum object area in input pixels;
+        None leaves the backend's default unchanged.
     :returns: ``fn(crop) -> labels`` or, with metrics, ``(labels, metrics)``.
     """
     from cellpose import models
@@ -2380,10 +2383,12 @@ def _cellpose_segmenter(path: str, *, return_metrics: bool = False) -> Callable:
         if model is None:
             raise explained from exc
 
+    size_options = {} if min_size is None else {"min_size": float(min_size)}
+
     def segment(crop: np.ndarray) -> Any:
         """The Cellpose label mask of one plaque image crop."""
         from .plaque import _plaque_segmentation_metrics, _host_array
-        output = model.eval(crop)
+        output = model.eval(crop, **size_options)
         masks = _host_array(output[0])
         return (masks, _plaque_segmentation_metrics(masks, output)) if return_metrics else masks
     return segment
@@ -3151,7 +3156,8 @@ def measure_figure_folder(
         plate_format: Optional[str] = None, pixels_per_um=None, formation_hours=None, growth_settings=None, legends: Any = None,
         annotations: Any = None, read_text: Optional[Callable] = None,
         detect: Optional[Callable] = None, segment: Optional[Callable] = None,
-        text_options: Optional[TextOptions] = None) -> Dict[str, Any]:
+        text_options: Optional[TextOptions] = None,
+        min_size: Optional[float] = None) -> Dict[str, Any]:
     """Figure mode of Plaque Assay: find, read, annotate and measure a folder.
 
     The function does not prompt. Legends come from ``legends`` (default
@@ -3184,6 +3190,9 @@ def measure_figure_folder(
     :param detect: passed to :func:`find_plaque_regions`.
     :param segment: ``fn(crop) -> labels``.
     :param text_options: how the text is read (:class:`TextOptions`).
+    :param min_size: minimum plaque area in square pixels of the input well
+        crop, without rounding; 0 disables small-object removal. None leaves
+        the segmenter's default unchanged. Ignored for a supplied ``segment``.
     :returns: the summary, with ``awaiting_approval`` added.
     """
     pixels_per_um = calibration_number(pixels_per_um, name='pixels_per_um')
@@ -3210,7 +3219,8 @@ def measure_figure_folder(
     segmenter_id = str(segmenter)
     if segment is None:
         segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models", kind="cellpose", setting="segmenter")
-        segment = _cellpose_segmenter(segmenter_path, return_metrics=True)
+        segment = _cellpose_segmenter(segmenter_path, return_metrics=True,
+                                      min_size=min_size)
     run_id = _start_run(
         connection, entry="folder", source=str(src.resolve()),
         detector=detector_id, segmenter=segmenter_id,

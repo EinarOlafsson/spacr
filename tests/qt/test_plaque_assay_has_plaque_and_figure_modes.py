@@ -288,6 +288,97 @@ def test_a_seeded_model_is_not_written_back_but_tuned_values_are(panel):
     assert panel.settings_for_propagation()["plaque_model"] == "bundled"
 
 
+@pytest.mark.parametrize("text", ["0", "3", "1.0000001", "1e-7"])
+def test_minimum_object_size_form_preserves_fractional_text(qtbot, text):
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    model = SettingsWidgets("analyze_plaques", current={
+        "minimum_object_size": float(text),
+    })
+    model.build_sections()
+    assert model.collect()["minimum_object_size"] == float(text)
+    assert model.set_value_for_key("minimum_object_size", float(text))
+    editor = model._widgets["minimum_object_size"]
+    qtbot.addWidget(editor)
+    editor.setText(text)
+    assert editor.hasAcceptableInput()
+    assert model._valid_committed_value("minimum_object_size") == float(text)
+    assert model.collect()["minimum_object_size"] == float(text)
+
+
+@pytest.mark.parametrize("text", ["0", "3", "1.0000001", "1e-7"])
+def test_minimum_object_size_preview_keeps_text_when_settings_reopen(panel, text):
+    panel.apply_settings({"minimum_object_size": float(text)})
+    dialog = panel.open_settings("plaque")
+    editor = panel._minimum_object_size
+    assert editor.isVisibleTo(dialog.plaque_tab)
+    assert "square pixels" in editor.toolTip()
+    editor.setText(text)
+    assert editor.hasAcceptableInput()
+    assert panel.current_settings()["minimum_object_size"] == float(text)
+    assert panel.settings_for_propagation()["minimum_object_size"] == float(text)
+    dialog.reject()
+    assert editor.parent() is panel._controls
+    reopened = panel.open_settings("plaque")
+    assert panel._minimum_object_size.text() == text
+    assert panel.current_settings()["minimum_object_size"] == float(text)
+    reopened.reject()
+
+
+def test_minimum_object_size_preview_reaches_the_real_form(screen):
+    from spacr.qt.preview_registry import PREVIEWS
+
+    assert PREVIEWS["analyze_plaques"].propagation["minimum_object_size"] == "minimum_object_size"
+    screen._live_preview._minimum_object_size.setText("1.0000001")
+    screen._live_preview.propagate()
+    assert screen._settings_model.collect()["minimum_object_size"] == 1.0000001
+
+
+@pytest.mark.parametrize("minimum, areas", [
+    (0, [1, 2, 4]), (2.25, [4]), (1.0000001, [2, 4]),
+])
+def test_minimum_object_size_live_and_folder_keep_the_same_objects(
+        tmp_path, monkeypatch, minimum, areas):
+    import tifffile
+    from cellpose import utils as cellpose_utils
+    from spacr import submodules
+
+    labels = np.zeros((12, 14), dtype=np.uint16)
+    labels[1, 1] = 1
+    labels[4, 4:6] = 2
+    labels[8:10, 9:11] = 3
+    src = tmp_path / "images"
+    src.mkdir()
+    path = src / "well.tif"
+    tifffile.imwrite(path, np.zeros(labels.shape, dtype=np.uint8))
+
+    class Model:
+        def eval(self, image, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+            check_cellpose_eval_call(image, channel_axis)
+            return (cellpose_utils.fill_holes_and_remove_small_masks(
+                labels.copy(), min_size=min_size), [], None)
+
+    monkeypatch.setattr(ppv, "resolve_plaque_model", lambda settings:
+                        ("model", "", None))
+    monkeypatch.setattr(ppv, "_cellpose_model", lambda path: Model())
+    monkeypatch.setattr(submodules, "_plaque_cellpose_model", lambda path: Model())
+    settings = {"src": str(src), "dst": str(tmp_path / "masks"),
+                "minimum_object_size": minimum}
+    live = ppv.plaque_pass(path, settings)
+    assert submodules._segment_plaque_folder(settings, "model") == 1
+    saved = tifffile.imread(tmp_path / "masks/well.tif")
+    np.testing.assert_array_equal(saved, live["labels"])
+    _, counts = np.unique(saved[saved > 0], return_counts=True)
+    assert sorted(counts.tolist()) == areas
+    assert live["count"] == len(areas)
+
+
 def test_use_these_settings_reaches_the_form(screen):
     written = {}
     screen._settings_model.set_value_for_key = (

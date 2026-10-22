@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..theme import SPACING
-from ..gui_scale import _set_actual_dim
+from ..gui_scale import _set_actual_dim, add_listener
 
 
 class _WrappedLabel(QLabel):
@@ -47,6 +47,19 @@ class _WrappedLabel(QLabel):
         self.setWordWrap(True)
         self.setAlignment(Qt.AlignCenter)
         self.setFixedWidth(wrap_width)
+        self._fit_wrapped_height()
+        add_listener(self._fit_wrapped_height)
+
+    def _fit_wrapped_height(self, _scale=None) -> None:
+        """Reconcile physical height after measurement or a finished GUI zoom.
+
+        :param _scale: unused zoom notification; measure the current font
+            and contents width instead.
+        """
+        from shiboken6 import isValid
+
+        if not isValid(self):
+            return
         height = self._wrapped_height()
         _set_actual_dim(self, "minh", height)
         _set_actual_dim(self, "maxh", height)
@@ -65,9 +78,7 @@ class _WrappedLabel(QLabel):
     def setText(self, text: str) -> None:
         """Replace the label text and re-fix the label to its wrapped height."""
         super().setText(text)
-        height = self._wrapped_height()
-        _set_actual_dim(self, "minh", height)
-        _set_actual_dim(self, "maxh", height)
+        self._fit_wrapped_height()
 
     def event(self, event: QEvent) -> bool:
         """Remeasure after Qt applies the font or style used to paint the text.
@@ -82,8 +93,7 @@ class _WrappedLabel(QLabel):
         ):
             height = self._wrapped_height()
             if height != self.height():
-                _set_actual_dim(self, "minh", height)
-                _set_actual_dim(self, "maxh", height)
+                self._fit_wrapped_height()
         return handled
 
 
