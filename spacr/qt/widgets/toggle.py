@@ -53,6 +53,7 @@ class Toggle(QCheckBox):
     def sizeHint(self) -> "QSize":
         """Return the default checkbox hint widened to fit the switch track."""
         base = super().sizeHint()
+        base.setHeight(max(base.height(), self._track_h + 2))
         base.setWidth(
             self._track_x + self._track_w + self._label_gap + base.width())
         if self._word_wrap:
