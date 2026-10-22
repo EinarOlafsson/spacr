@@ -18,9 +18,14 @@ on:
         required: false
         type: boolean
         default: false
+      collect_only:
+        description: Store this run's existing installer artifacts without rebuilding
+        required: false
+        type: boolean
+        default: false
     outputs:
       release_commit:
-        description: Commit containing the collected installers
+        description: Repository synchronization commit, not the release source
         value: ${{ jobs.collect.outputs.commit_sha }}
   workflow_dispatch:
     inputs:
@@ -35,7 +40,7 @@ permissions:
 
 jobs:
   linux:
-    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'linux' }}
+    if: ${{ !inputs.collect_only && (github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'linux') }}
     name: Linux online installer
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -86,7 +91,7 @@ jobs:
           if-no-files-found: error
 
   windows:
-    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'windows' }}
+    if: ${{ !inputs.collect_only && (github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'windows') }}
     name: Windows online installer
     runs-on: windows-2025
     timeout-minutes: 30
@@ -215,7 +220,7 @@ jobs:
           if-no-files-found: error
 
   macos:
-    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'macos' }}
+    if: ${{ !inputs.collect_only && (github.event_name != 'workflow_dispatch' || !inputs.platform || inputs.platform == 'all' || inputs.platform == 'macos') }}
     name: macOS universal online installer
     runs-on: macos-15
     timeout-minutes: 50
@@ -300,17 +305,13 @@ jobs:
 
   collect:
     name: Store installers and update README
-    # `inputs.publish_to_repository` ALONE, because github.event_name is the
-    # CALLER's event inside a reusable workflow -- `workflow_dispatch` or
-    # `push` when release.yml calls this, never 'workflow_call'. The old
-    # condition could therefore never be true: this job was skipped on every
-    # release, `release_commit` came back empty, and "Publish GitHub release"
-    # ran `git tag -a <tag> ""` against it. v1.5.0.4 shipped only because it
-    # was cut from tutorial-deploy-20260814, a branch that predates 7f8aff9f1
-    # and still had the old `workflow_dispatch ||` form. main and nightly have
-    # carried the broken form since 2026-07-29, and 1.5.0.5 is the first
-    # release cut from either.
-    if: ${{ inputs.publish_to_repository }}
+    # Explicit collection reuses artifacts after publication. Normal callers
+    # may collect only after all builders succeed; a skipped builder must
+    # not silently suppress a requested collect-only synchronization.
+    if: >-
+      ${{ always() && !cancelled() && inputs.publish_to_repository &&
+          (inputs.collect_only || (needs.linux.result == 'success' &&
+           needs.windows.result == 'success' && needs.macos.result == 'success')) }}
     needs: [linux, windows, macos]
     runs-on: ubuntu-24.04
     outputs:
@@ -339,9 +340,8 @@ jobs:
             --readme README.rst \
             --localized-readme-dir docs/i18n/readme \
             --branch "$TARGET_BRANCH"
-      # The GitHub release is created after this reusable workflow returns.
-      # Merge the just-built local files into the published history so the
-      # archive gains the new row on this run, not on the following release.
+      # Include the downloaded files as well as published release history,
+      # retaining collection support for callers outside release.yml.
       - name: Regenerate the installer archive page
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -800,16 +800,12 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert 'find dist/online -name \'*macOS*Online.pkg\'' in macos_job
     assert "packaging/release.py version" not in macos_job
     collect_job = workflow[workflow.index("  collect:"):]
-    # THE GATE IS THE INPUT ALONE, and this assertion is re-pointed rather
-    # than relaxed. It used to require
-    # `github.event_name == 'workflow_call' && inputs.publish_to_repository`,
-    # which pinned a condition that could never be true: inside a reusable
-    # workflow github.event_name is the CALLER's event, so release.yml's call
-    # reports `workflow_dispatch` or `push`. collect was skipped on every
-    # release, release_commit came back empty, and the tag step ran
-    # `git tag -a <tag> ""`. The test agreed with the workflow and both were
-    # wrong, which is why 1.5.0.5 was the release that found it.
-    assert "if: ${{ inputs.publish_to_repository }}" in collect_job
+    # A reusable workflow sees its caller's event, not 'workflow_call'.
+    # Explicit collection must run even when its builders were skipped;
+    # ordinary collection still requires every builder to succeed.
+    assert "always() && !cancelled() && inputs.publish_to_repository" in collect_job
+    assert "inputs.collect_only || (needs.linux.result == 'success'" in collect_job
+    assert "needs.windows.result == 'success' && needs.macos.result == 'success'" in collect_job
     assert "github.event_name == 'workflow_call'" not in collect_job
     assert "github.event_name == 'workflow_dispatch' ||" not in collect_job
 
@@ -859,10 +855,10 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "needs.bump.outputs.pypi_exists != 'true'" in workflow
     assert "verify-pypi:" in workflow
     assert "https://pypi.org/pypi/spacr/$VERSION/json" in workflow
-    assert "needs: [bump, package, publish-pypi]" in workflow
-    assert "needs: [bump, verify-pypi]" in workflow
+    assert "needs: [bump, package, source-ci, publish-pypi]" in workflow
+    assert "needs: [bump, verify-pypi, source-ci]" in workflow
     assert (
-        "needs: [bump, package, publish-pypi, verify-pypi, installers, frozen-installers]"
+        "needs: [bump, package, source-ci, publish-pypi, verify-pypi, installers, frozen-installers]"
         in workflow
     )
     # The installer stage cannot start until PyPI has returned HTTP 200.
@@ -1210,3 +1206,44 @@ def test_builders_read_version_without_importing_setup_py():
     windows = _text(ONLINE / "build_windows_online.ps1")
     assert "Select-String" in windows
     assert "setup.py --version" not in windows
+
+
+@needs_bash
+@pytest.mark.parametrize("collect_only,publish,cancelled,results,builds,collects", [
+    (False, True, False, ("success", "success", "success"), True, True),
+    (False, True, False, ("success", "failure", "success"), True, False),
+    (False, True, False, ("success", "skipped", "success"), True, False),
+    (True, True, False, ("skipped", "skipped", "skipped"), False, True),
+    (True, False, False, ("skipped", "skipped", "skipped"), False, False),
+    (True, True, True, ("skipped", "skipped", "skipped"), False, False),
+])
+def test_collect_only_reuses_artifacts_without_rebuilding_or_hiding_failures(
+        collect_only, publish, cancelled, results, builds, collects):
+    import yaml
+
+    definition = yaml.safe_load(_text(WORKFLOW))
+    triggers = definition.get("on", definition.get(True))
+    assert triggers["workflow_call"]["inputs"]["collect_only"]["default"] is False
+    jobs = definition["jobs"]
+
+    def accepts(condition):
+        expression = condition.strip().removeprefix("${{").removesuffix("}}")
+        expression = expression.replace("always()", "( 1 == 1 )")
+        expression = expression.replace("cancelled()", f"( {int(cancelled)} == 1 )")
+        expression = expression.replace("!inputs.", "! inputs.")
+        values = {"inputs.collect_only": f"( {int(collect_only)} == 1 )",
+                  "inputs.publish_to_repository": f"( {int(publish)} == 1 )",
+                  "github.event_name": "'push'", "inputs.platform": "'all'"}
+        values.update({f"needs.{name}.result": repr(value)
+                       for name, value in zip(("linux", "windows", "macos"), results)})
+        for name, value in values.items():
+            expression = expression.replace(name, value)
+        expression = expression.replace("!(", "! (")
+        checked = subprocess.run([shutil.which("bash"), "-c",
+                                  "if [[ " + expression + " ]]; then exit 0; else exit 1; fi"],
+                                 capture_output=True, text=True, timeout=5)
+        assert checked.returncode in (0, 1), checked.stderr
+        return checked.returncode == 0
+
+    assert [accepts(jobs[name]["if"]) for name in ("linux", "windows", "macos")] == [builds] * 3
+    assert accepts(jobs["collect"]["if"]) is collects
