@@ -120,6 +120,7 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "cell_cellprob_threshold": "CP_prob",
             "plaque_model": "plaque_model",
             "diameter": "diameter",
+            "minimum_object_size": "minimum_object_size",
             "flow_threshold": "flow_threshold",
             "CP_prob": "CP_prob",
             "plaque_mode": "plaque_mode",

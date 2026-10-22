@@ -1634,7 +1634,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Experimental Growth Estimates", ("plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours")),
         ("Model", ("diameter",)),
         ("Detection Thresholds", (
-            "CP_prob", "flow_threshold", "rescale", "resample", "fill_in",
+            "CP_prob", "flow_threshold", "minimum_object_size", "rescale", "resample", "fill_in",
         )),
         ("Image Geometry", ("resize", "target_height", "target_width")),
         ("Background & Denoising", (
@@ -6824,6 +6824,24 @@ class _ScalarEdit(QLineEdit):
         self.setText("" if v is None else str(v))
 
 
+def _minimum_object_size_editor(value, parent=None):
+    """Edit an unrounded nonnegative pixel-area threshold."""
+    from PySide6.QtCore import QLocale
+    from PySide6.QtGui import QDoubleValidator
+
+    editor = _ScalarEdit(parent)
+    validator = QDoubleValidator(editor)
+    validator.setBottom(0.0)
+    locale = QLocale.c()
+    locale.setNumberOptions(QLocale.RejectGroupSeparator)
+    validator.setLocale(locale)
+    editor.setValidator(validator)
+    editor.set_value(value)
+    attach_api_tooltip(editor, "analyze_plaques", "minimum_object_size",
+                       _descriptions=get_tooltips())
+    return editor
+
+
 class _TrainingFolderEdit(_ScalarEdit):
     """An editable directory with a browse action, retaining the standard value contract."""
 
@@ -10666,6 +10684,8 @@ class SettingsWidgets:
             w.setRange(*plan["range"])
             w.setValue(value)
             return w
+        if control == "precise_float":
+            return _minimum_object_size_editor(value)
         if control == "float":
             w = QDoubleSpinBox()
             w.setRange(*plan["range"])
@@ -10706,6 +10726,9 @@ class SettingsWidgets:
         A numeric default must still allow a per-plate dict or a CSV path.
         """
         parent = self._parent
+        if key == "minimum_object_size":
+            return "plain", {"control": "precise_float",
+                             "value": self._defaults.get(key, default)}
         if self.app_key == "train_cellpose" and key in {"model_name", "channels"}:
             kind, options = "entry", None
             default = self._defaults.get(key, default)

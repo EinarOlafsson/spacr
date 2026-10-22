@@ -162,19 +162,20 @@ def test_a_pdf_dropped_in_plaque_mode_asks_and_switches(plaque_screen,
     assert _mode(plaque_screen) == "plaque"
     _drop(plaque_screen, [pdf])
     assert asked.boxes[0]["title"] == "Switch to Figure mode?"
-    assert "PDFs are read in Figure mode" in asked.boxes[0]["text"]
+    assert "Figure mode finds wells; Plaque mode segments the images directly." in asked.boxes[0]["text"]
     assert _mode(plaque_screen) == "figure"
     assert plaque_screen._plaque_mode_switch.mode() == "figure"
     assert plaque_screen.fetched == [(str(pdf), str(tmp_path))]
 
 
-def test_a_pdf_dropped_in_plaque_mode_stays_unread_when_told_to_stay(
+def test_a_pdf_dropped_in_plaque_mode_is_read_when_told_to_stay(
         plaque_screen, tmp_path, answer):
     asked = answer("plaque")
-    _drop(plaque_screen, [_pdf(tmp_path / "paper.pdf")])
+    pdf = _pdf(tmp_path / "paper.pdf")
+    _drop(plaque_screen, [pdf])
     assert len(asked.boxes) == 1
     assert _mode(plaque_screen) == "plaque"
-    assert plaque_screen.fetched == []
+    assert plaque_screen.fetched == [(str(pdf), str(tmp_path))]
 
 
 def test_a_folder_of_pdfs_dropped_in_plaque_mode_asks_and_reads_them_all(

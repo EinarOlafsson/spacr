@@ -4670,7 +4670,7 @@ API_ENTRIES = (
     ('spacr.qt.dnd_handlers.PlaqueDropHandler', "Plaque Assay's own drop policy and its own words."),
     ('spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple', 'Several images and folders in one drop make one selection.'),
     ('spacr.qt.dnd_handlers.PlaqueDropHandler.apply', 'Take one dropped path.'),
-    ('spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all', 'Point Plaque Assay at the drop: PDFs to Figure mode, images to src.'),
+    ('spacr.qt.dnd_handlers.PlaqueDropHandler.apply_all', 'Point Plaque Assay at the drop and open PDFs in the chosen Live mode.'),
     ('spacr.qt.dnd_handlers.PlaqueDropHandler.can_accept', 'Any file, or a folder with plaque images or PDFs in it.'),
     ('spacr.qt.dnd_handlers.PlaqueDropHandler.error_message', 'Say what Plaque Assay reads, in its own terms.'),
     ('spacr.qt.dnd_handlers.PlaqueDropHandler.suggest_alternatives', 'Nearby folders that hold plaque images.'),

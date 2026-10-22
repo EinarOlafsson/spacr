@@ -3413,6 +3413,7 @@ expected_types = {
     "plaque_growth_reference_hours": (float, int),
     "plaque_pixels_per_um": (float, int, type(None)),
     "plaque_formation_hours": (float, int, type(None)),
+    "minimum_object_size": (float, int),
     "colony_counting": bool,
     "colony_dilution": (float, int, dict, str),
     "colony_plated_volume_ul": (float, int),
@@ -4739,6 +4740,7 @@ tooltips = {
     "plaque_growth_reference_hours": "(float) - Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
     "plaque_pixels_per_um": "(float, int or None) - Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
     "plaque_formation_hours": "(float, int or None) - Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
+    "minimum_object_size": "(float or int) - Minimum plaque area in square pixels of the input image or detected well crop. Objects smaller than this value are discarded. 0 keeps small objects; other segmentation filters still apply. Fractional values are accepted. Default 0.",
     "colony_counting": "(bool) - Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
     "colony_dilution": "(float, int, dict or str) - Dilution factor of the plated suspension: 10000 for a 10^-4 dilution; fractions such as 0.0001 are inverted. CFU/mL = colonies x dilution factor / plated volume. Enter one number, a dict keyed by filename or stem, or a UTF-8 CSV path with file,dilution columns. Exact filenames take priority over stems; unmatched plates get no CFU/mL. CSV factors must be positive and finite, with unique file identifiers. Default 1.",
     "colony_plated_volume_ul": "(float) - Volume of the dilution spread on each plate, in microlitres, the denominator of CFU/mL. Change it with the plating protocol: 100 for a standard spread plate, 1000 for a pour plate of 1 mL. Default 100.",
@@ -6808,6 +6810,7 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('masks', True)
     settings.setdefault('plaque_model', 'toxoplasma_plaque_v5')
     settings.setdefault('plaque_mode', 'plaque')
+    settings.setdefault('minimum_object_size', 0.0)
     settings.setdefault('figure_detector', 'toxoplasma_well_detector_v2')
     settings.setdefault('figure_imgsz', '640,1280')
     settings.setdefault('figure_confidence', 0.25)

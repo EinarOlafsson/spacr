@@ -292,3 +292,100 @@ def test_unreadable_saved_diagnostics_keep_mask_analysis_but_clear_metrics(
     np.testing.assert_array_equal(tifffile.imread(tmp_path / 'masks' / 'well.tif'), before)
     assert len(calls) == 1
     assert 'Could not read plaque diagnostics' in caplog.text
+
+
+def _small_plaque_mask():
+    labels = np.zeros((12, 14), dtype=np.uint16)
+    labels[1, 1] = 1
+    labels[4, 4:6] = 2
+    labels[8:10, 9:11] = 3
+    return labels
+
+
+def _plaque_areas(labels):
+    _, counts = np.unique(labels[labels > 0], return_counts=True)
+    return sorted(counts.tolist())
+
+
+@pytest.mark.parametrize('compatibility', ['cellpose4', 'cellpose3'])
+@pytest.mark.parametrize('minimum, expected', [
+    (None, [1, 2, 4]),
+    (0, [1, 2, 4]),
+    (2, [2, 4]),
+    (2.25, [4]),
+    (1.0000001, [2, 4]),
+])
+def test_plaque_minimum_uses_native_pixel_area_without_rounding(
+        compatibility, minimum, expected):
+    from cellpose import utils as cellpose_utils
+
+    labels = _small_plaque_mask()
+    seen = []
+
+    class Model:
+        def eval(self, image, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+            check_cellpose_eval_call(image, channel_axis)
+            seen.append(min_size)
+            filtered = cellpose_utils.fill_holes_and_remove_small_masks(
+                labels.copy(), min_size=min_size)
+            return filtered, [], None
+
+    class Backend:
+        def eval(self, images, **kwargs):
+            assert len(images) == 1
+            assert images[0].shape == labels.shape
+            size = kwargs.get('min_size', 15)
+            seen.append(size)
+            filtered = cellpose_utils.fill_holes_and_remove_small_masks(
+                labels.copy(), min_size=size)
+            return [filtered], [[]], None
+
+    model = Model() if compatibility == 'cellpose4' else submodules._Cellpose3PlaqueModel(Backend())
+    settings = {} if minimum is None else {'minimum_object_size': minimum}
+    result = plaque.segment_plaque_image(model, np.zeros(labels.shape, np.uint8), settings)
+    assert seen == [0.0 if minimum is None else minimum]
+    assert result.shape == labels.shape
+    assert _plaque_areas(result) == expected
+
+
+def test_cellpose3_compatibility_without_an_explicit_minimum_keeps_native_default():
+    from cellpose import utils as cellpose_utils
+
+    labels = _small_plaque_mask()
+    seen = []
+
+    class Backend:
+        def eval(self, images, **kwargs):
+            size = kwargs.get('min_size', 15)
+            seen.append(size)
+            return [cellpose_utils.fill_holes_and_remove_small_masks(
+                labels.copy(), min_size=size)], [[]], None
+
+    result, _, _ = submodules._Cellpose3PlaqueModel(Backend()).eval(
+        np.zeros(labels.shape, np.uint8))
+    assert seen == [15]
+    assert not result.any()
+
+
+def test_native_minimum_area_is_applied_after_return_to_input_pixels(monkeypatch):
+    coarse = np.zeros((6, 6), dtype=np.uint16)
+    coarse[2:4, 2:4] = 1
+    seen = []
+
+    def computed(*args, **kwargs):
+        seen.append(kwargs)
+        return coarse.copy()
+
+    monkeypatch.setattr(dynamics, 'compute_masks', computed)
+    result = dynamics.resize_and_compute_masks(
+        np.zeros((2, 6, 6), np.float32), np.zeros((6, 6), np.float32),
+        resize=(12, 12), min_size=8.5, device=torch.device('cpu'))
+    assert len(seen) == 1
+    assert result.shape == (12, 12)
+    assert _plaque_areas(result) == [16]

@@ -298,7 +298,7 @@ def _parse_setting_value(value: Any) -> Any:
         except (ValueError, SyntaxError):
             pass
     try:
-        if '.' in value:
+        if '.' in value or 'e' in value.lower():
             return float(value)
         return int(value)
     except ValueError:

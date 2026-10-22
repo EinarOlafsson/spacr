@@ -1872,8 +1872,8 @@ def plaque_selection_folder(images: Sequence[Path],
 class PlaqueDropHandler(DropHandler):
     """Plaque Assay's own drop policy and its own words.
 
-    It takes plaque images, folders of them, both mixed, and in Figure mode
-    any number of PDFs; other files dropped with them are left
+    It takes plaque images, folders of them, both mixed, and any number
+    of PDFs in the chosen preview mode; other files dropped with them are left
     aside quietly. Before this handler Plaque Assay was given Make Masks'
     policy, which refused a folder it could not use with Make Masks'
     sentence.
@@ -1931,8 +1931,7 @@ class PlaqueDropHandler(DropHandler):
         from .i18n import tr
 
         return tr("Plaque Assay reads plaque images (JPG, PNG, TIFF, GIF, "
-                  "BMP or WebP), a folder of them, or in Figure mode a "
-                  "paper's PDF.")
+                  "BMP or WebP), a folder of them, or a paper's PDF.")
 
     def apply(self, path: Path, screen) -> None:
         """Take one dropped path.
@@ -1943,14 +1942,13 @@ class PlaqueDropHandler(DropHandler):
         self.apply_all([path], screen)
 
     def apply_all(self, paths: Sequence[Path], screen) -> bool:
-        """Point Plaque Assay at the drop: PDFs to Figure mode, images to src.
+        """Point Plaque Assay at the drop and open PDFs in the chosen Live mode.
 
-        The mode follows what was dropped: PDFs, or a folder of
-        them, dropped in Plaque mode ask to switch to Figure mode; images
-        dropped in Figure mode ask to switch to Plaque mode; PDFs and images
-        together say that PDFs are read in Figure mode and images in Plaque
-        mode, and ask which to read. Staying in Figure mode reads the images
-        as figures; staying in Plaque mode leaves the PDFs unread.
+        The mode follows what was dropped: PDFs, or a folder of them,
+        dropped in Plaque mode ask whether to switch to Figure mode; images
+        dropped in Figure mode ask to switch to Plaque mode. PDFs and images
+        together ask which to read. A PDF-only drop opens Live in the chosen
+        mode; mixed drops read only the chosen input type.
 
         :param paths: the accepted files and folders, in drop order.
         :param screen: the Plaque Assay screen.
@@ -1982,15 +1980,12 @@ class PlaqueDropHandler(DropHandler):
         rest = [path for path in paths
                 if (path.suffix.lower() in _plaque_image_suffixes()
                     if path.is_file() else bool(_plaque_images_in(path)))]
-        if mode == FIGURE_MODE and pdfs:
+        if pdfs and (mode == FIGURE_MODE or not rest):
             self._take_pdfs(pdfs, screen)
         elif rest:
             self._take_images(rest, screen)
         elif mode == FIGURE_MODE and papers:
             self._take_images(papers[:1], screen)
-        elif pdfs:
-            _log(screen, f"[drop] {len(pdfs)} PDF(s) left unread in Plaque "
-                 f"mode\n")
         return True
 
     @staticmethod
@@ -2006,17 +2001,18 @@ class PlaqueDropHandler(DropHandler):
         """
         from .dnd import _report_drop_problem
         from .i18n import tr
-        from .widgets.plaque_preview import FIGURE_MODE
+        from .widgets.plaque_preview import paper_folder_name, remember_the_input
 
         first = pdfs[0]
-        if _plaque_mode_of(screen) != FIGURE_MODE:
-            _report_drop_problem(
-                screen, first,
-                tr("Plaque Assay reads a paper's PDF in Figure mode, and it "
-                   "is in Plaque mode."),
-                tr("Switch Plaque Assay to Figure mode, then drop the PDF "
-                   "again."))
-            return
+        source = first.parent / paper_folder_name(first) if len(pdfs) == 1 else first.parent
+        remember_the_input(screen, source)
+        for name in ("_live_src_timer", "_plaque_src_mode_timer"):
+            timer = getattr(screen, name, None)
+            if timer is not None:
+                timer.stop()
+        open_live = getattr(screen, "_on_preview_switch", None)
+        if callable(open_live):
+            open_live(True, autoload=False)
         panel = getattr(screen, "_live_preview", None)
         if len(pdfs) == 1:
             fetch = getattr(panel, "fetch_paper", None)

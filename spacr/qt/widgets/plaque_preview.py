@@ -1634,6 +1634,7 @@ class PlaqueSettingsDialog(QDialog):
         form.addRow(tr("Diameter"), panel._diameter)
         form.addRow(tr("Flow threshold"), panel._flow)
         form.addRow(tr("Cell probability"), panel._cellprob)
+        form.addRow(tr("Minimum object size"), panel._minimum_object_size)
         self.plaque_tab = plaque
 
         self.tabs.addTab(figure, tr("Figure"))
@@ -1653,6 +1654,7 @@ class PlaqueSettingsDialog(QDialog):
         p = self._panel
         return (p._detector_row, p._sizes, p._confidence, p._read_text,
                 p._confirm, p._model_row, p._diameter, p._flow, p._cellprob,
+                p._minimum_object_size,
                 *p._text.values())
 
     def show_mode(self, mode: Any, tab: Optional[str] = None) -> None:
@@ -3366,6 +3368,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._diameter = self._spin(0, 2000, 1, 30, 1)
         self._flow = self._spin(0, 3, 2, 0.4, 0.05)
         self._cellprob = self._spin(-8, 8, 2, 0, 0.25)
+        from ..screens.settings_model import _minimum_object_size_editor
+
+        self._minimum_object_size = _minimum_object_size_editor(0.0, self._controls)
+        self._minimum_object_size.setObjectName("PlaqueMinimumObjectSize")
         self._detector_row = QWidget(self._controls)
         detector_row = QHBoxLayout(self._detector_row)
         detector_row.setContentsMargins(0, 0, 0, 0)
@@ -3967,7 +3973,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         token = self._load_token
         self.set_preview_status(tr("Loading preview from {path}…", path=text))
         self._listed_mode = self.mode()
-        papers = self._listed_mode == FIGURE_MODE
+        papers = (self._listed_mode == FIGURE_MODE
+                  or text == getattr(self, "_paper_source", None))
         self._load_jobs.submit(lambda: images_in(text, papers),
                                lambda paths, t=token: self._on_listing(t, paths))
         return True
@@ -4060,6 +4067,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._src = str(s["src"])
         self._fill_model_box(str(s.get("plaque_model") or DEFAULT_PLAQUE_MODEL))
         self._seeded_model = self._model_box.currentText()
+        self._minimum_object_size.set_value(s.get("minimum_object_size", 0.0))
         self._fill_detector_box(str(s.get("figure_detector") or DEFAULT_DETECTOR))
         self._seeded_detector = self._detector_box.currentText()
         for key, spin in (("diameter", self._diameter),
@@ -4178,6 +4186,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def current_settings(self) -> Dict[str, Any]:
         """The module's settings with this panel's values over them."""
+        from ..screens.settings_model import SettingsWidgets
+
         out = dict(self._settings)
         out.update({
             MODE_KEY: self.mode(),
@@ -4187,6 +4197,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             "diameter": float(self._diameter.value()),
             "flow_threshold": float(self._flow.value()),
             "CP_prob": float(self._cellprob.value()),
+            "minimum_object_size": SettingsWidgets._coerce_to_expected_type(
+                "minimum_object_size", self._minimum_object_size.get_value()),
             "figure_detector": self._detector_box.currentText()
             or DEFAULT_DETECTOR,
             "figure_imgsz": ",".join(str(v) for v in
@@ -4210,7 +4222,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         """
         s = self.current_settings()
         out = {MODE_KEY: s[MODE_KEY], "diameter": s["diameter"],
-               "flow_threshold": s["flow_threshold"], "CP_prob": s["CP_prob"]}
+               "flow_threshold": s["flow_threshold"], "CP_prob": s["CP_prob"],
+               "minimum_object_size": s["minimum_object_size"]}
         if s["plaque_model"] != self._seeded_model:
             out["plaque_model"] = s["plaque_model"]
         if self.mode() == FIGURE_MODE:
@@ -5613,6 +5626,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if self._paper_jobs.is_busy():
             self.set_preview_status(tr("A paper is already being fetched."))
             return False
+        self._prepare_paper_input()
         if offer_install and fetch is None and reference.lower().endswith(".pdf"):
             from ...plaque_papers import reader_problem
 
@@ -5645,6 +5659,22 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
         self._paper_jobs.submit(job, self._on_paper_fetched)
         return True
+
+    def _prepare_paper_input(self) -> None:
+        """Retire the previous image before a new paper starts loading."""
+        self.cancel_preview()
+        self._load_jobs.cancel()
+        self._load_token += 1
+        self._paper_source = None
+        self._paths = []
+        self._picker.blockSignals(True)
+        self._picker.clear()
+        self._picker.blockSignals(False)
+        self._clear_figure()
+        self._plaque_result = None
+        self._show_plaque_tabs()
+        self._show_overlay(None)
+        self._position.setText("")
 
     def _paper_idle(self) -> None:
         """Put the paper button back."""
@@ -5683,6 +5713,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._paper_note.show()
         if not folder:
             return
+        self._paper_source = folder
         if self._propagate_cb is not None:
             try:
                 self._propagate_cb({"src": folder})
@@ -5720,6 +5751,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if self._paper_jobs.is_busy() or getattr(self, "_paper_batch", None):
             self.set_preview_status(tr("A paper is already being fetched."))
             return False
+        self._prepare_paper_input()
         if offer_install and fetch is None:
             from ...plaque_papers import reader_problem
 
@@ -5809,6 +5841,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             if failed else lines[0])
         if not read:
             return
+        self._paper_source = folder
         if self._propagate_cb is not None:
             try:
                 self._propagate_cb({"src": folder})
@@ -6018,13 +6051,13 @@ def input_mode_box(parent: Any, question: str, name: str, mode: Any, *,
                    (tr("Cancel"), "", QMessageBox.RejectRole))
     elif question == TO_FIGURE:
         box.setWindowTitle(tr("Switch to Figure mode?"))
-        box.setText(tr("{name} holds a paper's PDF or its figures. PDFs are "
-                       "read in Figure mode, and Plaque Assay is in Plaque "
-                       "mode.", name=name))
+        box.setText(tr("Choose how to preview {name}. Figure mode finds wells; "
+                       "Plaque mode segments the images directly.", name=name))
         answers = ((tr("Switch to Figure mode"), FIGURE_MODE,
                     QMessageBox.AcceptRole),
                    (tr("Stay in Plaque mode"), PLAQUE_MODE,
-                    QMessageBox.RejectRole))
+                    QMessageBox.RejectRole),
+                   (tr("Cancel"), "", QMessageBox.RejectRole))
     else:
         box.setWindowTitle(tr("Switch to Plaque mode?"))
         box.setText(tr("{name} holds images. Plaque images are read in "
@@ -6033,12 +6066,16 @@ def input_mode_box(parent: Any, question: str, name: str, mode: Any, *,
         answers = ((tr("Switch to Plaque mode"), PLAQUE_MODE,
                     QMessageBox.AcceptRole),
                    (tr("Stay in Figure mode"), FIGURE_MODE,
-                    QMessageBox.RejectRole))
+                    QMessageBox.RejectRole),
+                   (tr("Cancel"), "", QMessageBox.RejectRole))
     for text, chosen, role in answers:
         button = box.addButton(text, role)
-        button.setProperty("plaque_mode", chosen)
-        if chosen and chosen != mode:
-            box.setDefaultButton(button)
+        if chosen:
+            button.setProperty("plaque_mode", chosen)
+            if chosen != mode:
+                box.setDefaultButton(button)
+        else:
+            box.setEscapeButton(button)
     return box
 
 
@@ -6046,9 +6083,8 @@ def ask_input_mode(parent: Any, question: str, name: str, mode: Any, *,
                    pdfs: int = 0, images: int = 0) -> Optional[str]:
     """Ask :func:`input_mode_box`'s question and return the answer.
 
-    :returns: the mode to read the input in, or None to leave it unread.
-        Closing a switch question keeps the mode it is in; closing the
-        PDFs-or-images question reads neither.
+    :returns: the chosen mode to read the input in, or None to leave it
+        unread. Closing any mode question leaves the input unread.
     """
     box = input_mode_box(parent, question, name, mode, pdfs=pdfs,
                          images=images)
@@ -6056,7 +6092,7 @@ def ask_input_mode(parent: Any, question: str, name: str, mode: Any, *,
     clicked = box.clickedButton()
     chosen = clicked.property("plaque_mode") if clicked is not None else None
     if chosen is None:
-        return None if question == MIXED else normalise_mode(mode)
+        return None
     return normalise_mode(chosen) if chosen else None
 
 
