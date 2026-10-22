@@ -5733,7 +5733,7 @@ class WGPUVolumeRenderer:
         import wgpu
 
         held = self._buffers.get(name)
-        if held is not None and held[0] == size:
+        if held is not None and held[0] >= size:
             return held[1]
         if held is not None:
             held[1].destroy()
@@ -5861,7 +5861,7 @@ class WGPUVolumeRenderer:
         encoder.copy_buffer_to_buffer(picture, 0, readback, 0, picture_bytes)
         encoder.copy_buffer_to_buffer(pick, 0, readback, picture_bytes, pick_bytes)
         self._device.queue.submit([encoder.finish()])
-        data = self._device.queue.read_buffer(readback)
+        data = self._device.queue.read_buffer(readback, size=picture_bytes + pick_bytes)
         rgb = np.frombuffer(data, dtype=np.uint8, count=picture_bytes)
         codes = np.frombuffer(data, dtype=np.uint32, count=rows * columns * 2,
                               offset=picture_bytes)

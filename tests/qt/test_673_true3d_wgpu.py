@@ -392,7 +392,7 @@ def test_wgpu_reads_colour_and_picking_from_one_completed_frame(size):
     buffers, copies, reads, events = {}, [], [], []
 
     def buffer(name, count, readable):
-        buffers[name] = types.SimpleNamespace(name=name, data=bytearray(count))
+        buffers[name] = types.SimpleNamespace(name=name, data=bytearray(count + (64 if name == "readback" else 0)))
         return buffers[name]
 
     def dispatch(compute, name, params, resources, groups):
@@ -413,10 +413,11 @@ def test_wgpu_reads_colour_and_picking_from_one_completed_frame(size):
         def finish(self):
             return self
 
-    def read_buffer(resource):
+    def read_buffer(resource, *, size=None):
         assert events[-1] == "submit"
-        reads.append(resource.name)
-        return memoryview(resource.data)
+        reads.append((resource.name, size))
+        assert size == colour.nbytes + packed.nbytes
+        return memoryview(resource.data)[:size]
 
     renderer = object.__new__(layers.WGPUVolumeRenderer)
     renderer._device = types.SimpleNamespace(
@@ -427,28 +428,41 @@ def test_wgpu_reads_colour_and_picking_from_one_completed_frame(size):
     renderer._dispatch = dispatch
     renderer._forget_unused = lambda: None
     rgb, picked = renderer.render([], rays, size=size)
-    assert reads == ["readback"]
+    assert reads == [("readback", colour.nbytes + packed.nbytes)]
     assert copies == [("picture", "readback", 0, colour.nbytes),
                       ("pick", "readback", colour.nbytes, packed.nbytes)]
     assert np.array_equal(rgb, colour[..., :3]) and rgb.dtype == np.uint8
     assert np.array_equal(picked, codes) and picked.dtype == np.int64
 
 
-def test_wgpu_readable_buffers_can_receive_the_combined_gpu_copy(monkeypatch):
+@pytest.mark.parametrize("readable", [False, True])
+def test_wgpu_readable_buffers_can_receive_the_combined_gpu_copy(monkeypatch, readable):
     flags = types.SimpleNamespace(STORAGE=1, COPY_SRC=2, COPY_DST=4)
     monkeypatch.setitem(sys.modules, "wgpu", types.SimpleNamespace(BufferUsage=flags))
-    allocated = []
+    allocated, destroyed = [], []
 
     def create_buffer(**kwargs):
         allocated.append(kwargs)
-        return types.SimpleNamespace(destroy=lambda: None)
+        return types.SimpleNamespace(destroy=lambda: destroyed.append(kwargs["size"]))
 
     renderer = object.__new__(layers.WGPUVolumeRenderer)
     renderer._buffers = {}
+    renderer._textures, renderer._luts, renderer._pipelines = {}, {}, {}
     renderer._device = types.SimpleNamespace(create_buffer=create_buffer)
-    held = renderer._buffer("readback", 80, True)
-    assert renderer._buffer("readback", 80, True) is held
-    assert allocated == [{"size": 80, "usage": flags.STORAGE | flags.COPY_SRC | flags.COPY_DST}]
+    name = "readback" if readable else "frame"
+    held = renderer._buffer(name, 80, readable)
+    assert renderer._buffer(name, 80, readable) is held
+    assert renderer._buffer(name, 48, readable) is held
+    grown = renderer._buffer(name, 160, readable)
+    assert grown is not held and destroyed == [80]
+    assert renderer._buffer(name, 100, readable) is grown
+    usage = flags.STORAGE | (flags.COPY_SRC | flags.COPY_DST if readable else 0)
+    assert allocated == [{"size": 80, "usage": usage}, {"size": 160, "usage": usage}]
+    renderer.close()
+    assert destroyed == [80, 160]
+    assert renderer._buffers == {}
+    renderer.close()
+    assert destroyed == [80, 160]
 
 
 def test_wgpu_frames_match_the_cpu_for_every_rendering_finish_and_lens():
@@ -474,6 +488,13 @@ def test_wgpu_frames_match_the_cpu_for_every_rendering_finish_and_lens():
     channel, masks = _layers()
     big, _ = gpu.renderer.render([channel, masks], rays, size=(60, 72))
     assert big.shape == (60, 72, 3) and big.dtype == np.uint8
+    for shape in ((15, 18, 20), (40, 44, 30), (8, 9, 12)):
+        current = _rays(shape)
+        cpu, cpu_picked = render_volume([channel, masks], current)
+        drawn, picked = gpu.renderer.render([channel, masks], current)
+        assert drawn.shape == (*shape[:2], 3)
+        assert np.abs(cpu * 255 - drawn).max() <= 1
+        assert np.array_equal(cpu_picked, picked)
     gpu.close()
 
 

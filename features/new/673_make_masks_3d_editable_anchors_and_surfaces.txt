@@ -148,6 +148,38 @@ exit0/errors[]. Unique completed image/pose rates are23.37/s and27.37/s.
 Original CPU, active/custom/legacy layout and stale-canvas paths remain intact;
 errors propagate once and preparation suppression always resets. No30–60FPS,
 label1 strict-settle or physical-input acceptance is inferred.
+Remaining geometry profile identifies triangle contact as28.256s cumulative
+across144,392 calls (instrumented, not benchmark). Test exact per-triangle
+argmax-axis/planar-projection caching; when the second triangle's cached axis
+differs, retain the original projection. Require cached/uncached legacy and
+near-coplanar mismatched-axis checks, existing refusals, and one same-input
+timing. No tolerance, geometry, topology or predicate-order changes.
+Projection caching passed107 checks but31.158s versus30.743s showed no gain;
+that source/test experiment was reverted. Next contact-validation path must
+PROVE rectilinear half-cell triangle intersections are only allowed shared
+boundaries, after every existing structural/topology/volume check. Certify
+only exact adjacent grid cells, unique grid vertices and complementary
+coplanar halves, with axis-gap uniformity within1e-12, minimum normalized
+gap1e-3 and global gap ratio at most32; ambiguous,
+tight, overlapping or deformed inputs retain the complete legacy predicate.
+Require exhaustive small voxel subsets versus legacy acceptance/refusals,
+both diagonals, overlapping halves, edge/corner contacts, anisotropy/scales,
+cavities and near-threshold fallback, plus unchanged full label1 fingerprints
+and one timing. This is a geometry proof, not trust in a voxel-origin flag.
+The certificate remains unimplemented: strict floating-point equivalence is
+unproven, so the existing validator is retained. A separate concrete GPU defect
+is now identified: _buffer documents reuse while capacity suffices but tests
+equality, reallocating buffers whenever the projected frame shrinks. Restore
+capacity-based reuse and read only current colour/ID bytes. Require growth/
+shrink/destruction and exact bounded-read transport checks, real Metal pixel/
+ID comparisons across changing sizes, and one focused native measurement.
+Do not change rendering quality, shaders, geometry or accepted frame alignment.
+Capacity reuse and bounded readback now pass five focused checks and the real
+Metal/CPU changing-dimensions comparison. A matched32-pose same-process pair
+preserves exact rays/dimensions/RGB/IDs, aligned paints and unchanged masks;
+allocations fall122→6 (2.141s exact-size versus2.094s reused capacity).
+The earlier unmatched18.34/s trace did not establish a causal regression;
+the matched pair shows no regression, but no robust speed/30FPS claim is made.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
@@ -430,4 +462,4 @@ Real-display acceptance remains with the maintainer: each available backend and 
 2026-10-21 — Batched colour/picking readback preserves exact pixels and uint32 label IDs with one synchronized GPU read per frame. Four transport/buffer checks and the real Metal-versus-CPU rendering/finish/lens case pass. Same instrumented Cocoa/Intel Iris Plus64×256×256/100% drag comparison improves18.95→23.59FPS and interactive-render median17.47→14.52ms; all20 picks match the rendered frame, exit0/errors[]. This focused run remains below30–60FPS and does not establish physical-input editing acceptance.
 2026-10-21 — Reuse identical triangle operands and prefilter bounding-box candidates without changing contact/topology predicates:173 initial focused checks and101 affected final geometry checks pass; label1 still takes49.185s, so strict30s settle remains open. Fix pan invalidation with the axes display transform (four focused checks). Actual Cocoa/Intel Iris Plus/macOS26.6.1 FIB-SEM loader opens128×256×256 ZYX/15nm/uint16 labels1–43: Metal100%/22.09FPS,20/20 current-frame picks, independent fresh pan rect/RGB/picking exact, all workers idle, original files unchanged, exit0/errors[]. No production prepaint adoption, physical-input or30–60FPS acceptance claimed.
 2026-10-21 — Cache each triangle's identical scalar basis for full contact validation;185 focused geometry/volume/refusal checks pass, including cached/uncached legacy decisions and candidate order. Same label1 geometry30.743s versus49.185s, normal exit and exact mesh counts/unchanged mask/history; still above30s strict settle. Scratch prepaint27.12 state updates/s produced only14.55 paint events/s versus23.73 control, so it remains unshipped and is not a visible-FPS gain; paint-paced investigation is separate.
-2026-10-21 — Real FIB-SEM/macOS26.6.1 Intel/Cocoa: OpenGL100%21.36 updates/s/21.03 paint events/s; CPU100%6.99 new frames/s,21 during drag; both20/20 current-frame picks, exact fresh pan pixels/picking, idle workers, unchanged originals, exit0/errors[]. Retained Metal22.09 updates/s/21.76 paints/s. Subsequent localized GPU prepaint/paint-paced correction passes20 focused checks and production native verification without scratch mutations: Metal72 aligned/0 misaligned/0 unknown paints, OpenGL85/0/0; both20/20 picks, exit0/errors[],23.37/27.37 unique painted image/pose pairs/s. Preserve CPU/layout/error/stale-canvas fallbacks. Target30–60FPS, label1 strict-settle and physical-input acceptance remain open.
+2026-10-21 — Real FIB-SEM/macOS26.6.1 Intel/Cocoa: OpenGL100%21.36 updates/s/21.03 paint events/s; CPU100%6.99 new frames/s,21 during drag; both20/20 current-frame picks, exact fresh pan pixels/picking, idle workers, unchanged originals, exit0/errors[]. Retained Metal22.09 updates/s/21.76 paints/s. GPU prepaint/paint-paced correction passes20 focused checks and production native verification without scratch mutations: Metal72 aligned/0 misaligned/0 unknown paints, OpenGL85/0/0; both20/20 picks, exit0/errors[],23.37/27.37 unique painted image/pose pairs/s; CPU/layout/error/stale-canvas fallbacks preserved. Subsequent capacity reuse/current-prefix readback passes5 focused checks, real Metal/CPU changing-dimensions checks and a matched32-pose pair: exact outputs/alignment,122→6 allocations,2.141→2.094s (no robust FPS gain claimed). Target30–60FPS, label1 strict-settle and physical-input acceptance remain open; unproven geometry shortcuts remain unshipped.
