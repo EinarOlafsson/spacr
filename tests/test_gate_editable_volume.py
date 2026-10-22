@@ -318,6 +318,18 @@ def test_shared_vertex_distance_matches_original_norm(dimension, coordinates):
     assert bool(_mesh_shared_vertex(point, vertex, 1e-10)) == bool(np.linalg.norm(point - vertex) <= 1e-10)
 
 
+def test_shared_vertex_generic_distance_includes_every_coordinate():
+    from math import dist
+    from spacr.qt.widgets.gate_spec import _mesh_shared_vertex
+
+    vertex = np.asarray([1., 2., 3., 4.])
+    point = vertex + np.asarray([.25, -.5, .75, -1.])
+    distance = dist(point, vertex)
+    assert not _mesh_shared_vertex(point, vertex, distance - .01)
+    assert _mesh_shared_vertex(point, vertex, distance + .01)
+    assert _mesh_shared_vertex(vertex.copy(), vertex, 0.)
+
+
 @pytest.mark.parametrize('dimension', [2, 3])
 def test_shared_vertex_distance_keeps_norm_for_nearby_points_only(monkeypatch, dimension):
     from spacr.qt.widgets import gate_spec

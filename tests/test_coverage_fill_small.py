@@ -479,6 +479,14 @@ class TestEdgeLines:
         with pytest.raises(json.JSONDecodeError):
             _read_settings(tmp_path)
 
+    def test_read_manifest_missing_returns_empty_without_creating_files(self, tmp_path):
+        from spacr.notebook_export import _read_manifest
+
+        run_dir = tmp_path / "unrecorded-run"
+        run_dir.mkdir()
+        assert _read_manifest(run_dir) == {}
+        assert list(run_dir.iterdir()) == []
+
     def test_read_manifest_corrupt_json_returns_empty(self, tmp_path):
         from spacr.notebook_export import _read_manifest
         (tmp_path / "manifest.json").write_text("{bad", encoding="utf-8")

@@ -929,10 +929,20 @@ def _fake_group_df(n_frames=4, seed=40):
 
 
 def test_recompute_from_merged_sequential(tmp_path, panel_calls, monkeypatch, capsys):
+    import spacr.resource_log as resource_log
     import spacr.timelapse as tl
 
     src = _make_src(tmp_path, n_files=1)
     seen = []
+    preflight = []
+    original_guard = resource_log._guard_workers
+
+    def record_guard(module, requested, unit_bytes, **kwargs):
+        assert not seen
+        preflight.append((module, requested, unit_bytes))
+        return original_guard(module, requested, unit_bytes, **kwargs)
+
+    monkeypatch.setattr(resource_log, "_guard_workers", record_guard)
 
     def _fake_process(args):
         seen.append(args)
@@ -949,6 +959,15 @@ def test_recompute_from_merged_sequential(tmp_path, panel_calls, monkeypatch, ca
     assert "After smoothing" in txt
     # one (plate, well, field) group -> one worker call, with the right args
     assert len(seen) == 1
+    assert len(preflight) == 1
+    assert preflight[0][:2] == ("motility", 1)
+    first_group = seen[0][1]
+    first = first_group[0]
+    expected_path = first if os.path.isabs(str(first)) else src / "merged" / first
+    assert os.path.isfile(expected_path)
+    expected_bytes = np.load(expected_path, mmap_mode="r").nbytes
+    assert expected_bytes > 0
+    assert preflight[0][2] == len(first_group) * expected_bytes
     assert seen[0][0] == str(src)
     assert seen[0][2] == 3                     # n_channels
     assert seen[0][5] == PATHOGEN_CHAN
