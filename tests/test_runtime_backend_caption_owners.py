@@ -1,4 +1,5 @@
 """Backend runtime captions enter catalogs only through their declared owners."""
+import ast
 from importlib import import_module
 from pathlib import Path
 
@@ -43,6 +44,28 @@ def test_explicit_cellpose_selection_refusal_enters_its_declared_owner(
         "stock weights were not substituted.")
     assert extract_backend_sources('utils.py',
         f'def _resolve_cellpose_pretrained(name):\n    raise ValueError(tr({caption!r}, name=name))\n') == {caption}
+
+
+def test_feature_exclusion_diagnostics_have_one_exact_runtime_owner(extract_backend_sources):
+    path = Path(__file__).resolve().parents[1] / "spacr" / "utils.py"
+    source = path.read_text(encoding="utf-8")
+    owner = next(node for node in ast.parse(source).body
+                 if isinstance(node, ast.FunctionDef) and node.name == "filter_dataframe_features")
+    isolated = ast.get_source_segment(source, owner) + '''
+tr("Unrelated utility metadata.")
+def unrelated():
+    def filter_dataframe_features():
+        return tr("Nested same-name helper.")
+class Unrelated:
+    def filter_dataframe_features(self):
+        return tr("Same-name method.")
+'''
+    assert extract_backend_sources("utils.py", isolated) == {
+        "Invalid feature-exclusion regular expression {pattern!r}: {error}",
+        "Feature exclusion {pattern!r}: {count} matching column(s).",
+        "Excluded columns for {pattern!r}: {columns}",
+        "Feature exclusion {pattern!r} matched no columns.",
+    }
 
 
 def test_cellpose_selection_owner_excludes_other_utility_scopes(

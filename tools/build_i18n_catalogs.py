@@ -4710,7 +4710,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
-                                           "_cellpose_stock_preflight"}]
+                                           "_cellpose_stock_preflight", "filter_dataframe_features"}]
         if path == source_root / "attribution.py":
             diagnostic_owners = {
                 "_cf_preserved_channels", "_cf_preserve_reference_channels",

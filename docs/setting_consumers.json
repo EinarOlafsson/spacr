@@ -12742,7 +12742,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "db_path",
-    "line": 10058,
+    "line": 10085,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "add_column_to_database"
@@ -52083,7 +52083,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10373,
+    "line": 10400,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52092,7 +52092,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10374,
+    "line": 10401,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52101,7 +52101,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10375,
+    "line": 10402,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52110,7 +52110,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10376,
+    "line": 10403,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52119,7 +52119,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10377,
+    "line": 10404,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52128,7 +52128,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10378,
+    "line": 10405,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52137,7 +52137,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10379,
+    "line": 10406,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52146,7 +52146,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10380,
+    "line": 10407,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52155,7 +52155,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10381,
+    "line": 10408,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52164,7 +52164,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10382,
+    "line": 10409,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52173,7 +52173,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10383,
+    "line": 10410,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52182,7 +52182,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10384,
+    "line": 10411,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52191,7 +52191,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10385,
+    "line": 10412,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52200,7 +52200,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10386,
+    "line": 10413,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52209,7 +52209,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10393,
+    "line": 10420,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -52218,7 +52218,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10394,
+    "line": 10421,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"

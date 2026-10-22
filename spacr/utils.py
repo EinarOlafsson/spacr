@@ -8695,25 +8695,55 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
 
     :param df: input DataFrame.
     :param channel_of_interest: int, str, list, or ``'morphology'`` to select feature groups.
-    :param exclude: feature(s) to drop from the final list. A single name or
-        any number of them; the Qt 'Exclude' field collects a list.
+    :param exclude: exact feature names, channel groups such as ``'channel_0'``,
+        or regular expressions, as a string or list. Exact columns take priority,
+        then channel groups match whole tokens, so ``'channel_0'`` does not match
+        ``'channel_01'``. Other patterns use full matching; ``'.*channel_0.*'``
+        matches names containing that text. Unmatched selectors warn; invalid
+        regexes raise ``ValueError`` naming the pattern. Logs show each selector's
+        hit count and, when verbose, matched names.
     :param remove_low_variance_features: apply :func:`remove_low_variance_columns`.
     :param remove_highly_correlated_features: apply :func:`remove_highly_correlated_columns`.
     :param verbose: print filter details.
     :returns: ``(filtered_df, features)``.
     """
 
-    excluded_features = (
+    requested_exclusions = (
         [exclude] if isinstance(exclude, str) else (exclude or ())
     )
-    missing_exclusions = [
-        feature for feature in excluded_features if feature not in df.columns
-    ]
-    if missing_exclusions:
-        raise ValueError(
-            "Requested feature exclusions are not present in the input "
-            f"table: {missing_exclusions}. Available columns: "
-            f"{sorted(map(str, df.columns))}.")
+    if requested_exclusions:
+        import warnings
+        from .qt.i18n import tr
+
+    excluded_features = []
+    for feature in requested_exclusions:
+        if feature in df.columns:
+            matches = [feature]
+        elif isinstance(feature, str) and re.fullmatch(r"channel_(?:0|[1-9]\d*)", feature):
+            pattern = rf"(?:^|_){re.escape(feature)}(?:_|$)"
+            matches = [column for column in df.columns if re.search(pattern, str(column))]
+        else:
+            try:
+                pattern = re.compile(feature)
+            except (re.error, TypeError) as exc:
+                raise ValueError(tr(
+                    "Invalid feature-exclusion regular expression {pattern!r}: {error}"
+                ).format(pattern=feature, error=exc)) from exc
+            matches = [column for column in df.columns if pattern.fullmatch(str(column))]
+        print(tr(
+            "Feature exclusion {pattern!r}: {count} matching column(s)."
+        ).format(pattern=feature, count=len(matches)))
+        if matches:
+            excluded_features.extend(matches)
+            if verbose:
+                print(tr(
+                    "Excluded columns for {pattern!r}: {columns}"
+                ).format(pattern=feature, columns=matches))
+        else:
+            warnings.warn(tr(
+                "Feature exclusion {pattern!r} matched no columns."
+            ).format(pattern=feature), UserWarning, stacklevel=2)
+    excluded_features = list(dict.fromkeys(excluded_features))
     df = schema.coerce_model_feature_types(df, exclude=excluded_features)
     declared_features = schema.model_feature_columns(
         df, exclude=excluded_features)
@@ -8751,10 +8781,7 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
         
     features = schema.model_feature_columns(df)
 
-    if isinstance(exclude, list):
-        features = [feature for feature in features if feature not in exclude]
-    elif isinstance(exclude, str):
-        features = [feature for feature in features if feature != exclude]
+    features = [feature for feature in features if feature not in excluded_features]
 
     filtered_df = df[features]
 

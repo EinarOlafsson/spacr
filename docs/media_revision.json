@@ -26,52 +26,52 @@
   "api_memory": {
    "repo": "einarolafsson/spacr-tutorials",
    "repo_type": "dataset",
-   "revision": "a65a6708b1e63cffca500567090c7e8e91ce2b20",
+   "revision": "3b352215925586061b5a358c75c03f95d430742d",
    "files": {
     "docs/source/_static/i18n/api/de.json": {
      "path_in_repo": "i18n/api/de.json",
-     "sha256": "feb2ee0f14c618430b3e871baaf353019a03c0eaa4bd3d6e572bc2c9919042db",
-     "size": 18373552
+     "sha256": "c251bd563af10926c84a4f1f1bf52efe02a0bf69dc12b069e49267564e3277b1",
+     "size": 18374034
     },
     "docs/source/_static/i18n/api/es.json": {
      "path_in_repo": "i18n/api/es.json",
-     "sha256": "e7e650d3c1216f03f44dbe7b5fd68a9ab39b9f27ec19a66d5fa783ef9782357b",
-     "size": 18291176
+     "sha256": "5ccb09b8e16a8886fd87bcebf943a853a518c19fcbb25a489d51ad960ae72180",
+     "size": 18291708
     },
     "docs/source/_static/i18n/api/fr.json": {
      "path_in_repo": "i18n/api/fr.json",
-     "sha256": "bdab521c12bfe7b51ef4cbc01804e2f474a2f0778fa416c1986bb545daea1864",
-     "size": 18508328
+     "sha256": "82fe79ce3cd655600c2dd47fd3babf5e746251bedf4e0a243ebb032b451b9705",
+     "size": 18508891
     },
     "docs/source/_static/i18n/api/hi.json": {
      "path_in_repo": "i18n/api/hi.json",
-     "sha256": "d78d8972a78c1a0ae6f0cea29b9534774785eca27b1a7f5bd73fca93d37bcee2",
-     "size": 24897109
+     "sha256": "14cb94858558095d87f274c760b22de1bdd7101eaf983d9708f1bb43ef44aafa",
+     "size": 24898168
     },
     "docs/source/_static/i18n/api/is.json": {
      "path_in_repo": "i18n/api/is.json",
-     "sha256": "8b6897ff09a5972e164dae1f652b0d1636ce732c0ce59f06e93548611dc3411a",
-     "size": 17707989
+     "sha256": "9233c950f3f90ac37356767c729bd521bfdcdc16f604632b7d30b711a3b91669",
+     "size": 17708451
     },
     "docs/source/_static/i18n/api/ko.json": {
      "path_in_repo": "i18n/api/ko.json",
-     "sha256": "5d8b128658a8b774a8a19b9a3a38f6fdf258fff9048b677da9346d88f1bb2c42",
-     "size": 18604791
+     "sha256": "653481dfc940bf951c28bcf18fefd3b1553fca002dce2decb184141610b91417",
+     "size": 18605303
     },
     "docs/source/_static/i18n/api/pt.json": {
      "path_in_repo": "i18n/api/pt.json",
-     "sha256": "23443832a023e318aa8873a3c8627e45b895f433b2da4aafb745c5c253fc0dad",
-     "size": 18142433
+     "sha256": "4f6eba7125535c229c703df9cd2144fdebad5c044f4ff2f6ad467ef273eb9012",
+     "size": 18142956
     },
     "docs/source/_static/i18n/api/sv.json": {
      "path_in_repo": "i18n/api/sv.json",
-     "sha256": "1bc74fae92af2aa1d52576858810221f11491b2c25d557b332b6e441563e641f",
-     "size": 17809959
+     "sha256": "3a1bad9403275ac5d5a04931b26156e58f7115c1980525896b970d9bba91f0bf",
+     "size": 17810401
     },
     "docs/source/_static/i18n/api/zh_CN.json": {
      "path_in_repo": "i18n/api/zh_CN.json",
-     "sha256": "77741e8adeb9dc9631dae51ffd959a50e28f5e9f71dba522a9e13e67681aab5a",
-     "size": 16942938
+     "sha256": "5a8620bcad148113b0ff152fcaa6d61f29bb31100556b55e62e5d5a2564a7fec",
+     "size": 16943312
     }
    }
   }

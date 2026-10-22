@@ -6,7 +6,7 @@ Status:    OPEN — 3 open GitHub issues
 Requested: maintainer, 2026-10-18 — "make an item that resolves all GitHub
            issues and gets reactivated every time issues are added, currently
            there are 4"
-Owner:     Codex root + widgets_g5 (regression input handling)
+Owner:     Codex dependency worker — issue159 feature exclusions; retained CI owner — issue158 merge identity; root — review/publication and issue closure
 Priority:  Release-blocking failures first; diagnose the active regression report now
 
 WHAT TO BUILD
@@ -35,6 +35,20 @@ tables rejected. widgets_g5 owns an isolated implementation, focused tests,
 normal generated outputs and a ready commit; root owns publication, the issue
 comment and closure after verification on nightly.
 
+CURRENT AUTHORIZED CLASSIFY EXCLUSION REPAIR (2026-10-22)
+Issues159/160 extend Classify exclusions before numeric feature validation.
+Existing exact columns take priority, then canonical channel_N groups use whole
+channel tokens (channel_0 differs from channel_01). Otherwise compile a regular
+expression and use fullmatch against column names. Unmatched selectors warn;
+invalid regexes raise a clear pattern-naming ValueError. Log each selector's
+hit count and list matched names only when verbose. This explicitly supersedes
+the previous unmatched-name/group error contract; do not weaken invalid-regex
+or exact-literal/metacharacter protections. Preserve existing downstream empty
+feature diagnostics, channel_of_interest selection and other model behavior.
+The retained dependency worker owns combined source/tests and revised English
+plus reviewed locales; root owns producer coordination, peer/publication and
+issue reply/closure. No model training or GPU is needed.
+
 ACCEPTANCE
 Every issue in the block below is fixed on nightly with tests and closed.
 The block and Status match the GitHub issue list (pull requests excluded);
@@ -49,10 +63,7 @@ running the tool twice changes nothing.
 2026-10-18 — Registered with the sync tool and the issues workflow. #146 (093ad790e) and #150 (9d8b49418) closed: item 696 already accepted 0/auto and float diameters; regression tests and the "an int" fix text added. #147 closed (9470f0466): Claude tool calls blocked for approval now get an Allow once / Don't allow dialog and a resumed session; other CLIs are told to hand over the command. #153 closed (03ef89e85): user error; the refusal names each channel setting and the acquired indices. #152: 4f0ff7e02 fixed the key matching and restores earlier suggestions after a failed round; maintainer then asked for chosen tables (own row, parent cell via parent key), feature classes by channel/family, and a scope of on-screen, all or chosen pages frozen at opening, remembered per database. Built as the Suggest menu's "Choose tables, features and images…" dialog (see the #152 commit); open until the maintainer confirms. The issues workflow fires only once issues-item.yml is on main (GitHub runs issue-event and dispatch workflows from the default branch), so the block updates automatically after the next release merge; before then run the tool by hand.
 2026-10-19 — #154 (keep_original_images defaulted to False, so a finished run deleted orig/): both original-image flags now default to True, cleanup and the save_original_images=False path log what they delete, the tooltip and its nine reviewed translations follow, regression tests added; reply to the issue is the maintainer's.
 2026-10-20 — #155 (Classify on a source with no png_list rows and no cell rows died with KeyError 'png_path') now refuses naming the missing database or empty table and what to change; #156 (user error: src held no images, only spaCR's own settings/) no longer calls settings/ a possible plate, names unreadable files and says where src must point. Regression tests added; draft replies await the maintainer.
-2026-10-21 — #157 now names the actual read-count column/settings and available headers while preserving strict numeric validation; both captions have nine reviewed translations. Eighteen behavior/owner checks, three shortcut-owner checks and the final 17 catalog/source checks pass; all ten pinned API catalogs reproduce byte-for-byte (reviews3214ea7, HFd1796ba). Root owns nightly publication, the GitHub reply and closure; other open issues remain tracked above.
+2026-10-21 — #157 now names the actual read-count column/settings and available headers while preserving strict numeric validation; both captions have nine reviewed translations. Eighteen behavior/owner checks, three shortcut-owner checks and the final 17 catalog/source checks pass; all ten pinned API catalogs reproduce byte-for-byte (reviews3214ea7, HFd1796ba). Root owns nightly publication, the GitHub reply and closure; other open issues remain tracked above. N43 maintenance, owner obsolete_repo_cleanup: align the issue-sync workflow test with the approved descriptive commit-message policy, retaining all issue-event, item-only staging, permissions, concurrency, no-skip-CI and nightly publication assertions. The owning workflow contract passes (0.71 s); production workflow and completed issue-resolution acceptance remain unchanged.
 
-2026-10-21 — N43 maintenance, owner obsolete_repo_cleanup: align the issue-sync workflow test with the approved descriptive commit-message policy, retaining all issue-event, item-only staging, permissions, concurrency, no-skip-CI and nightly publication assertions. The owning workflow contract passes (0.71 s); production workflow and completed issue-resolution acceptance remain unchanged.
 
-2026-10-22: REOPENED for GitHub issue158: Gate Editor merge rejects repeated cell labels across images/timepoints. Retained CI owner will bind existing identity detection and GUI caller, add safe image/time disambiguation without cross-image joins or silent duplicate removal, and validate real-table merges plus missing/ambiguous-key refusals. Root owns review/publication; actual reporter schema remains unavailable.
-
-2026-10-22: Both default definition and established typed merge now share canonical file_name identity in addition to existing field/time keys. Real SQLite two-image regressions preserve six observations and distinct pathogen sums, reject absent child image keys or actual within-image duplicates, and leave source bytes unchanged (3 PASS,0.90 s); two existing time/identity controls also pass. Public English/signatures and source line positions remain unchanged; reporter dataset reproduction and root publication remain pending.
+2026-10-22 — Issue158 default definition and typed merge share canonical file_name identity alongside field/time keys; real SQLite two-image regressions preserve six observations/distinct sums and reject absent keys or true duplicates (3 cases,0.90s; two retained identity controls). Issues159/160 resolve exact names, canonical whole-token channel groups, then fullmatch regexes before numeric validation. Unmatched selectors warn, invalid patterns name their error, and translated diagnostics log each selector's hit count plus matched names only when verbose. Fifteen feature/schema/literal/regex cases pass (5.01s); the canonical extractor owns exactly four diagnostics (1 case,0.98s). The API/tooltip and all54 locale targets pass canonical guards, independent meaning review and actual-output review; normal generation preserves unrelated catalog content. Eleven stock checks pass (150.42s), reproducing all10 API catalogs byte-for-byte; published reviews015d70f and HF3b35221 read back exactly. Existing channel selection/downstream behavior remains unchanged, so reporter channel3 selection versus channel3 exclusion is not silently overridden and no training reproduction is claimed. This change publishes the repair; verified GitHub replies/closure and other issues remain open.
