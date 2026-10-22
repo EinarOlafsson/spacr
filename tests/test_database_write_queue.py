@@ -652,3 +652,43 @@ def test_spool_beneath_a_deep_output_folder_commits(tmp_path):
     assert len(str(Path(writer.endpoint.folder) / (ticket + '.pkl.committed'))) > 260
     if os.name == 'nt':
         assert writer.endpoint.folder.startswith('\\\\?\\')
+
+
+def test_a_simulation_storage_failure_rolls_back_and_keeps_its_ticket_retryable(
+        tmp_path, monkeypatch):
+    """A writer fault cannot turn a partially written simulation into success."""
+    import json
+    import pandas as pd
+    from spacr import sim, tabular
+    from spacr.database_concurrency import _WRITE_TICKETS_TABLE
+
+    path = tmp_path / 'simulations.db'
+    packet = {'field': json.dumps([str(path), 3]), 'ticket': 'storage-failure',
+              'operations': [('simulation', (str(tmp_path),
+                             pd.DataFrame({'value': [value]}), 'simulations'), {})
+                             for value in (4, 5)]}
+    original = tabular.write_database
+    calls = []
+
+    def failing_storage(frame, *args, **kwargs):
+        calls.append(frame['value'].iloc[0])
+        if len(calls) == 2:
+            raise sqlite3.OperationalError('disk I/O error')
+        return original(frame, *args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(tabular, 'write_database', failing_storage)
+        with pytest.raises(sqlite3.OperationalError, match='disk I/O error'):
+            sim._commit_simulation_packet(packet)
+    assert calls == [4, 5]
+    with connect(path, readonly=True) as db:
+        tables = {row[0] for row in db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        assert 'simulations' not in tables
+        assert _WRITE_TICKETS_TABLE not in tables
+
+    assert sim._commit_simulation_packet(packet) is True
+    assert sim._commit_simulation_packet(packet) is False
+    with connect(path, readonly=True) as db:
+        assert db.execute('SELECT value FROM simulations ORDER BY value').fetchall() == [(4,), (5,)]
+        assert db.execute(f'SELECT COUNT(*) FROM {_WRITE_TICKETS_TABLE}').fetchone()[0] == 1

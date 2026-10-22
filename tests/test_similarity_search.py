@@ -7,6 +7,7 @@ and time one query over a million vectors on the CPU.
 """
 from __future__ import annotations
 
+import sys
 import time
 
 import numpy as np
@@ -123,6 +124,22 @@ def test_an_unknown_backend_or_a_missing_faiss_says_so():
         ref = al._SimilarityIndex(frame, backend="numpy")
         key = frame.index[0]
         assert list(index.like(key, 5)["key"]) == list(ref.like(key, 5)["key"])
+
+
+def test_missing_faiss_refuses_explicit_selection_and_auto_searches_with_numpy(monkeypatch):
+    monkeypatch.setitem(sys.modules, "faiss", None)
+    frame, _ = _clusters(n_per=(10, 10, 2), dims=4)
+    with pytest.raises(ImportError, match="pip install faiss-cpu"):
+        al._SimilarityIndex(frame, backend="faiss")
+
+    index = al._SimilarityIndex(frame, backend="auto", block=7)
+    assert index.backend == "numpy"
+    key = frame.index[0]
+    hits = index.like(key, 5)
+    expected, scores = _brute(frame, key, 5)
+    assert list(hits["key"]) == expected
+    assert np.allclose(hits["similarity"], scores, atol=1e-5)
+    assert key not in set(hits["key"])
 
 
 def test_one_query_over_a_million_crops_returns_in_under_a_second():

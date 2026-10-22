@@ -1213,6 +1213,71 @@ def test_integration_with_power_simulate():
     )
 
 
+@pytest.mark.parametrize("local_scale", [2.0, 1e200])
+def test_numpyro_horseshoe_keeps_supported_large_scales_finite(monkeypatch, local_scale):
+    jax = pytest.importorskip("jax")
+    numpyro = pytest.importorskip("numpyro")
+    import jax.numpy as jnp
+    import torch
+    from numpyro import handlers, infer
+    from torch.nn import functional as F
+
+    class ConditionedSampler:
+        def __init__(self, model, **kwargs):
+            self.model = model
+
+        def run(self, key):
+            log_scales = np.log([local_scale, 0.25, 4.0])
+
+            def trace_at(scales):
+                latents = {
+                    "z": jnp.array([0.5, -0.5]),
+                    "lam": jnp.array([jnp.exp(scales[0]), 2.0]),
+                    "tau": jnp.exp(scales[1]),
+                    "c2": jnp.exp(scales[2]),
+                    "intercept": jnp.array(-2.0),
+                }
+                conditioned = handlers.condition(self.model, data=latents)
+                return handlers.trace(handlers.seed(conditioned, rng_seed=key)).get_trace()
+
+            self.trace = trace_at(jnp.asarray(log_scales))
+            beta, gradient = jax.value_and_grad(
+                lambda scales: trace_at(scales)["beta"]["value"][0]
+            )(jnp.asarray(log_scales))
+            theta = torch.tensor(log_scales, dtype=torch.float64, requires_grad=True)
+            log_lam, log_tau, log_c2 = theta.unbind()
+            expected = 0.5 * torch.exp(log_tau + log_lam - 0.5 * F.softplus(
+                2.0 * log_tau + 2.0 * log_lam - log_c2))
+            expected.backward()
+            assert np.isfinite(np.asarray(beta)).all()
+            assert np.isfinite(np.asarray(gradient)).all()
+            np.testing.assert_allclose(beta, expected.detach().numpy(), rtol=1e-12)
+            np.testing.assert_allclose(gradient, theta.grad.numpy(), rtol=1e-12, atol=1e-14)
+            rate = np.asarray(self.trace["obs"]["fn"].rate)
+            assert np.isfinite(rate).all() and (rate > 0).all()
+            if local_scale == 2.0:
+                direct = 0.5 * 0.25 * np.sqrt(4.0 * 2.0 ** 2 / (4.0 + 0.25 ** 2 * 2.0 ** 2))
+                np.testing.assert_allclose(beta, direct, rtol=1e-12)
+            else:
+                np.testing.assert_allclose(beta, 0.5 * np.sqrt(4.0), rtol=1e-12)
+
+        def get_samples(self):
+            return {name: jnp.repeat(self.trace[name]["value"][None], 2, axis=0)
+                    for name in ("beta", "intercept")}
+
+        def get_extra_fields(self, **kwargs):
+            return {"diverging": np.zeros(2, dtype=bool)}
+
+    monkeypatch.setattr(infer, "NUTS", lambda model, **kwargs: model)
+    monkeypatch.setattr(infer, "MCMC", ConditionedSampler)
+    data = ModelData(
+        wells=np.array(["w1", "w2", "w3"]), genes=np.array(["A", "B"]),
+        Npositive=np.array([1, 3, 2]), Ntotal=np.array([10, 10, 10]),
+        log10expression=np.array([[-1.0, -0.1], [-0.1, -1.0], [-0.5, -0.5]]))
+    fit = fit_model(data, backend="numpyro", n_chains=1)
+    assert np.isfinite(fit.draws).all()
+
+
 @pytest.mark.parametrize("sampler_raises", [False, True])
 def test_numpyro_preserves_half_student_priors_and_scoped_double_precision(
         monkeypatch, sampler_raises):

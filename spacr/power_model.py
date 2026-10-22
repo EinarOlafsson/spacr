@@ -1017,8 +1017,12 @@ def _fit_numpyro_nuts(
             c2 = numpyro.sample(
                 "c2", dist.InverseGamma(df_slab / 2.0, (df_slab / 2.0) * scale_slab ** 2)
             )
-            lam_tilde = jnp.sqrt(c2 * lam ** 2 / (c2 + tau ** 2 * lam ** 2))
-            beta = numpyro.deterministic("beta", z * tau * lam_tilde)
+            log_lam = jnp.log(lam)
+            log_tau = jnp.log(tau)
+            log_lam_tilde = log_lam - 0.5 * jnp.logaddexp(
+                0.0, 2.0 * log_tau + 2.0 * log_lam - jnp.log(c2)
+            )
+            beta = numpyro.deterministic("beta", z * jnp.exp(log_tau + log_lam_tilde))
             intercept = numpyro.sample("intercept", dist.StudentT(3.0, mu0, 2.5))
             eta = intercept + X @ beta + log_offset
             numpyro.sample("obs", dist.Poisson(jnp.exp(eta)), obs=y)
