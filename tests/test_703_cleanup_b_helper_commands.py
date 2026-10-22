@@ -504,9 +504,12 @@ def test_targeted_removal_requires_one_recognized_installation(monkeypatch, caps
 
 
 def test_remove_with_purge_runs_the_purge_after_removal(monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "share"))
+    monkeypatch.setenv("SPACR_HOME", str(tmp_path / ".spacr"))
     purged = []
     monkeypatch.setattr(cleanup, 'find_old_installs', lambda system: [])
     monkeypatch.setattr(cleanup, 'run_update_sequence', lambda *a, **k: ([], 0))
-    monkeypatch.setattr(cleanup, '_purge_command', lambda machine, yes: purged.append(yes) or 0)
+    monkeypatch.setattr(cleanup, '_purge_command', lambda machine, yes, *, installer_caches: purged.append((yes, installer_caches)) or 0)
     assert cleanup._main(['remove', '--purge', '--yes', '--root', str(tmp_path)]) == 0
-    assert purged == [True]
+    assert purged == [(True, [])]
