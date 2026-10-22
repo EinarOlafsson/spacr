@@ -12292,6 +12292,41 @@ class _VolumeStage(QWidget):
         self._detail.setText(text)
         self._show_render()
 
+    def _make_volume_image(self, artist, original, renderer, magnification=1.0, unsampled=False):
+        from matplotlib.backends.backend_agg import RendererAgg
+        from matplotlib.transforms import Affine2D
+
+        image = artist.get_array()
+        if not isinstance(image, np.ndarray) or image.ndim != 3:
+            return original(renderer, magnification, unsampled)
+        figure = artist.figure
+        height, width, channels = image.shape
+        x, y = artist.ox, artist.oy
+        transform = artist.get_transform()
+        clip = artist.get_clip_box()
+        if not (
+            type(renderer) is RendererAgg and figure is not None
+            and renderer.dpi == figure.dpi and magnification == 1 and not unsampled
+            and image.dtype == np.uint8 and channels == 3 and height > 0 and width > 0
+            and not np.ma.is_masked(image) and artist.origin == 'upper'
+            and artist.get_alpha() is None
+            and artist.get_interpolation() in ('nearest', 'auto', 'antialiased')
+            and artist.get_clip_path() is None and artist.get_agg_filter() is None
+            and not artist.get_path_effects() and transform.is_affine
+            and np.array_equal(transform.get_matrix(), np.eye(3))
+            and x == int(x) and y == int(y)
+            and 0 <= x and 0 <= y
+            and x + width <= figure.bbox.width and y + height <= figure.bbox.height
+            and (not artist.get_clip_on() or clip is None or
+                 (clip.x0 <= x and clip.y0 <= y
+                  and clip.x1 >= x + width and clip.y1 >= y + height))
+        ):
+            return original(renderer, magnification, unsampled)
+        rgba = np.empty((height, width, 4), np.uint8)
+        rgba[..., :3] = image[::-1]
+        rgba[..., 3] = 255
+        return rgba, x, y, Affine2D().translate(0, -height).scale(1, -1)
+
     def _show_render(self, draw=True):
         """Put the newest render under the 3-D axes."""
         state = self._render_state
@@ -12303,6 +12338,7 @@ class _VolumeStage(QWidget):
         if artist is None or artist not in figure.images:
             artist = figure.figimage(state.rgb, xo=int(x0), yo=int(y0), origin='upper',
                                      zorder=-1, resize=False)
+            artist.make_image = partial(self._make_volume_image, artist, artist.make_image)
             artist.set_gid('VolumeRender')
             self._render_artist = artist
         else:

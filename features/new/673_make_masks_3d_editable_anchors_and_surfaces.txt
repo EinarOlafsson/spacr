@@ -40,6 +40,33 @@ frame prefix, always unmap after a successful map (including read failures),
 and preserve capacity reuse, exact RGB/IDs, grow/shrink and cleanup behavior.
 Require focused transport/lifecycle checks and a matched native comparison;
 do not infer a performance pass from the API change alone.
+
+Bounded composition experiment: prototype only in owned scratch a private
+FigureImage.make_image shortcut for opaque uint8 upper-origin frames at exact
+1:1 Agg/DPI/magnification, integer fully contained placement and unchanged
+alpha/clip/transform semantics. Unsupported cases must use the original path.
+Require byte-exact make_image output and complete figure pixels on focused
+offscreen cases, then one matched 512x768 timing; no production adoption
+without demonstrated parity and benefit.
+Scratch result: all11 cases match both make_image output and complete figure
+pixels; three supported cases exercise the shortcut and eight unsupported
+cases fall back. The exercised same-process 512x768 full-figure draw pair
+has medians39.731ms original versus5.555ms shortcut (12 draws each). The first
+attempt rejected the installed default interpolation='auto' everywhere and
+is not fastpath evidence; the exercised revision also allows auto/antialiased
+only under the exact1:1 guard where installed Matplotlib resolves nearest.
+No production integration or native/GPU performance claim follows this CPU
+scratch result; retain it for source review and native acceptance.
+The reviewed candidate may now be integrated only on the owned volume
+FigureImage using a private per-artist make_image hook capturing its original
+bound method. Add malformed/None/masked/nonaffine and renderer/magnification/
+DPI/alpha/clip fallback coverage before shape unpacking or fast composition;
+retain original behavior everywhere unsupported. Require the focused unit
+cohort followed by native current-frame composition, paint and picking proof
+before claiming acceptance; the CPU timing is not native FPS evidence.
+The integrated hook passes42 affected offscreen cases: three byte-exact image
+and full-figure comparisons,20 unsupported-input fallbacks and19 existing
+prepaint/camera-consumption checks. Native paint/picking proof remains pending.
 All10 focused transport/lifecycle checks pass. A real Metal matched32-pose
 transport pair gives0.4919s queue-read versus0.3530s direct-map, exact RGB/IDs/
 rays/dimensions, unchanged mask and clean teardown. Production fixed-rate drag
@@ -236,6 +263,14 @@ An allocation-free float64-only candidate passes35 targeted checks but takes
 30.228s versus28.559s; reverted with its candidate-only tests. Retain the
 verified delta-array helper. Native≤30s and full interaction acceptance remain
 open; neither these diagnostic timings nor partial tests complete this item.
+
+Checkpoint at maintainer request: the owned-image shortcut passes42 affected
+tests and native whole-canvas byte parity (28.209ms original versus9.220ms;
+92 fast calls/0 fallback). Native drag shows52 aligned paints but16.67 unique
+painted pairs/s and19/20 snapshot picks. The cadence workload differs from
+the earlier run; pick expectations predate intervening selections/renders.
+Neither a regression nor full native acceptance is established. Keep FPS and
+current-state picking validation open; this checkpoint is not item completion.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
@@ -528,4 +563,4 @@ Real-display acceptance remains with the maintainer: each available backend and 
 
 2026-10-21 - Windows lane owns minimal native GPU queue tooling: dispatch existing gpu_turn.sh to PowerShell on Windows, retain Linux behavior, default360s idle/600s gap and exclusive host queue; query native GPU engine counters, conservatively retain unknown activity and exclude verified Chrome/graphics descendants. Fail closed on query/identity/locking uncertainty; verify the actual browser classifier before any GPU start. This supersedes the earlier missing-tooling maintainer blocker; real data/physical/FPS acceptance remain separate.
 
-2026-10-21 - Windows queue tooling now dispatches gpu_turn.sh to native GPU Engine counters and a shared ProgramData/Global-mutex queue, retaining360s idle/600s gap and the Linux path. Ten unique focused cases pass, including real two-process serialization, failed-query no-start/release, exact argument parsing, unknown activity, and installed Chrome with an owned GPU-disabled profile/children. Actual native counter/classifier readback succeeds with graphics exclusions; no GPU job or full idle-window acceptance has run. Root owns review/publication and subsequent native backend checks.
+2026-10-21 - Windows queue tooling now dispatches gpu_turn.sh to native GPU Engine counters and a shared ProgramData/Global-mutex queue, retaining360s idle/600s gap and the Linux path. Ten unique focused cases pass, including real two-process serialization, failed-query no-start/release, exact argument parsing, unknown activity, and installed Chrome with an owned GPU-disabled profile/children. Actual native counter/classifier readback succeeds with graphics exclusions; no GPU job or full idle-window acceptance has run. Root owns review/publication and subsequent native backend checks. Guarded owned-image checkpoint passes42 focused checks and native whole-canvas byte parity; current-pick and FPS acceptance remain open.

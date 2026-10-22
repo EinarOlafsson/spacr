@@ -188,6 +188,94 @@ def test_the_rendered_view_shows_the_image_and_the_objects(view, qtbot):
     assert not stage._render_state.rgb.any()
 
 
+@pytest.mark.parametrize('shape,offset', [((7, 11), (3, 5)), ((8, 12), (0, 0)), ((1, 1), (10, 10))])
+def test_volume_image_fastpath_matches_image_and_complete_figure(shape, offset):
+    from functools import partial
+    from types import SimpleNamespace
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(3, 2), dpi=100)
+    canvas = FigureCanvasAgg(figure)
+    rgb = np.random.default_rng(673).integers(0, 256, shape + (3,), dtype=np.uint8)
+    rgb[0, 0], rgb[-1, -1] = 0, 255
+    stage = SimpleNamespace(_render_state=SimpleNamespace(rgb=rgb, rect=(offset[0], 0, offset[1], 0)),
+                            _panel=SimpleNamespace(canvas=SimpleNamespace(_figure=figure)),
+                            _render_artist=None,
+                            _make_volume_image=partial(mm._VolumeStage._make_volume_image, None))
+    mm._VolumeStage._show_render(stage, draw=False)
+    artist = stage._render_artist
+    original = artist.make_image.args[-1]
+    renderer = canvas.get_renderer()
+    expected = original(renderer)
+    def forbidden(*_args):
+        pytest.fail('supported volume image fell back')
+    actual = mm._VolumeStage._make_volume_image(None, artist, forbidden, renderer)
+    assert np.array_equal(expected[0], actual[0])
+    assert expected[1:3] == actual[1:3]
+    assert np.array_equal(expected[3].get_matrix(), actual[3].get_matrix())
+    hook = artist.make_image
+    artist.make_image = original
+    canvas.draw()
+    pixels = np.asarray(canvas.buffer_rgba()).copy()
+    artist.make_image = hook
+    canvas.draw()
+    assert np.array_equal(pixels, np.asarray(canvas.buffer_rgba()))
+
+
+@pytest.mark.parametrize('kind', ['none', 'nonarray', 'ndim', 'masked', 'rgba', 'float',
+                                'nonaffine', 'transform', 'magnification', 'unsampled',
+                                'renderer', 'dpi', 'clip', 'path', 'alpha', 'origin',
+                                'fractional', 'outside', 'filter', 'effects'])
+def test_volume_image_unsupported_inputs_preserve_original(kind):
+    from matplotlib.backends.backend_agg import FigureCanvasAgg, RendererAgg
+    from matplotlib.figure import Figure
+    from matplotlib.patches import Circle
+    from matplotlib.transforms import Affine2D, Bbox, Transform
+
+    figure = Figure(figsize=(3, 2), dpi=100)
+    canvas = FigureCanvasAgg(figure)
+    artist = figure.figimage(np.ones((7, 11, 3), np.uint8), xo=3, yo=5, origin='upper')
+    renderer, magnification, unsampled = canvas.get_renderer(), 1., False
+    if kind in ('none', 'nonarray', 'ndim', 'masked', 'rgba', 'float'):
+        artist._A = {'none': None, 'nonarray': [], 'ndim': np.zeros((7, 11), np.uint8),
+                     'masked': np.ma.array(np.ones((7, 11, 3), np.uint8), mask=True),
+                     'rgba': np.ones((7, 11, 4), np.uint8),
+                     'float': np.ones((7, 11, 3), float)}[kind]
+    elif kind in ('nonaffine', 'transform'):
+        artist.set_transform(Transform() if kind == 'nonaffine' else Affine2D().translate(1, 0))
+    elif kind == 'magnification':
+        magnification = 2.
+    elif kind == 'unsampled':
+        unsampled = True
+    elif kind == 'renderer':
+        renderer = object()
+    elif kind == 'dpi':
+        renderer = RendererAgg(300, 200, 200)
+    elif kind == 'clip':
+        artist.set_clip_box(Bbox.from_bounds(3, 5, 1, 1))
+    elif kind == 'path':
+        artist.set_clip_path(Circle((0, 0), 1))
+    elif kind == 'alpha':
+        artist.set_alpha(.5)
+    elif kind == 'origin':
+        artist.origin = 'lower'
+    elif kind in ('fractional', 'outside'):
+        artist.ox = 1.5 if kind == 'fractional' else -1
+    elif kind == 'filter':
+        artist.set_agg_filter(lambda *args: args)
+    else:
+        artist.set_path_effects([object()])
+    calls = []
+    sentinel = object()
+    def original(*args):
+        calls.append(args)
+        return sentinel
+    assert mm._VolumeStage._make_volume_image(None, artist, original, renderer,
+                                              magnification, unsampled) is sentinel
+    assert calls == [(renderer, magnification, unsampled)]
+
+
 def test_a_camera_draw_consumes_volume_pixels_for_the_axes_pose_it_composes(view, monkeypatch):
     from types import SimpleNamespace
 
