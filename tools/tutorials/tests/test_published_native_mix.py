@@ -99,3 +99,83 @@ def test_normal_six_cards_reject_pixel_definition_and_narration_tampering(genera
     contract.write_text(original)
     image=folder/next(iter(cards.values()))['image'];image.write_bytes(image.read_bytes()+b'changed PNG bytes')
     with pytest.raises(ValueError,match='bytes, source or narration'):generator.validate_cards(folder,english,repo)
+
+
+@pytest.fixture
+def umap_plan():
+    source=[*mix.UMAP_SOURCE, '27_review_embedding']
+    original={'scenes':[dict(visual=v,speech_start=i*3,scene_end=(i+1)*3,duration=3,native_live_video=True)
+                        for i,v in enumerate(source)]}
+    english={'id':'15_image_umap','scenes':[dict(visual=v,narration='Feature '+v)
+             for v in [*mix.UMAP_SOURCE,mix.UMAP_CARD]]}
+    cards={mix.UMAP_CARD:dict(visual=mix.UMAP_CARD,kind='authored_reference_card',
+        narration_sha256=mix.identity(english['scenes'][-1]['narration']))}
+    tracks=[dict(scenes=[dict(speech_start=i*2,speech_end=i*2+1.48,duration=2)
+                        for i in range(15)]) for _ in range(50)]
+    bindings={'master':{'sha256':'a'*64},'timing':{'sha256':'b'*64}}
+    edit=dict(schema=1,lesson='15_image_umap',master_sha256='a'*64,visual_timing_sha256='b'*64,scenes=[])
+    return english,original,tracks,cards,edit,bindings,{}
+
+
+def test_umap_replaces_only_redundant_last_view_with_full_frame_linked_tool_card(umap_plan):
+    rows=mix.plan_mix(*umap_plan)
+    assert [r['visual'] for r in rows[:-1]]==list(mix.UMAP_SOURCE)
+    assert [r['source_start_frame'] for r in rows[:-1]]==[i*90 for i in range(14)]
+    assert all(r['source_keep_frames']==[[0,90]] and r['native_live_video'] for r in rows[:-1])
+    assert rows[13]['visual']=='26_point_200' and rows[13]['source_start_frame']==1170
+    assert rows[-1]['visual']==mix.UMAP_CARD and not rows[-1]['native_live_video']
+    assert rows[-1]['reference_card']['kind']=='authored_reference_card'
+    assert 'source_start_frame' not in rows[-1] and 'focus' not in rows[-1]
+    assert rows[-1]['duration']==2 and rows[-1]['scene_end']==44
+
+
+@pytest.mark.parametrize('fault',['unknown_source','source_reorder','wrong_discarded_view',
+    'early_card','unknown_card','native_flag','card_kind','card_text','source_hash',
+    'missing_voice','discarded_view_edit'])
+def test_umap_mix_rejects_nonreviewed_replacement_or_changed_proofs(umap_plan,fault):
+    a=deepcopy(umap_plan);english,original,tracks,cards,edit,bindings,fences=a
+    if fault=='unknown_source':original['scenes'][0]['visual']='other_source'
+    elif fault=='source_reorder':original['scenes'][0],original['scenes'][1]=original['scenes'][1],original['scenes'][0]
+    elif fault=='wrong_discarded_view':original['scenes'][-1]['visual']='real_only_result'
+    elif fault=='early_card':english['scenes'][-1],english['scenes'][0]=english['scenes'][0],english['scenes'][-1]
+    elif fault=='unknown_card':cards['other_card']=cards.pop(mix.UMAP_CARD)
+    elif fault=='native_flag':original['scenes'][13]['native_live_video']=False
+    elif fault=='card_kind':cards[mix.UMAP_CARD]['kind']='gui_capture'
+    elif fault=='card_text':cards[mix.UMAP_CARD]['narration_sha256']='c'*64
+    elif fault=='source_hash':edit['master_sha256']='c'*64
+    elif fault=='missing_voice':tracks.pop()
+    else:edit['scenes']=[dict(visual='27_review_embedding')]
+    with pytest.raises(ValueError):mix.plan_mix(*a)
+
+
+def test_umap_indexed_interior_edit_preserves_original_clock_and_shortest_voice_limit(umap_plan):
+    a=deepcopy(umap_plan);visual=mix.UMAP_SOURCE[13]
+    a[4]['scenes']=[dict(source_scene=14,visual=visual,keep_frames=[[0,30]],
+        confirmed_idle_frames=[[30,90]],final_result_frame=29)]
+    row=mix.plan_mix(*a)[13]
+    assert row['source_start_frame']==1170 and row['kept_frames']==30 and row['edited']
+    a[4]['scenes'][0]['source_scene']=13
+    with pytest.raises(ValueError,match='source index'):mix.plan_mix(*a)
+    a[4]['scenes'][0]['source_scene']=14
+    a[2][0]['scenes'][13]['speech_end']=a[2][0]['scenes'][13]['speech_start']+.99
+    with pytest.raises(ValueError,match='shortest full speech'):mix.plan_mix(*a)
+
+
+def test_umap_normal_card_binds_actual_header_sources_and_preserves_canonical_focus(tmp_path,monkeypatch):
+    from stage_lesson import REPO
+    import render_umap_reference_card as generator
+    canonical=REPO/'tools/tutorials/lessons/15_image_umap.json'
+    english=json.loads(canonical.read_text());before=canonical.read_bytes()
+    destination=tmp_path/'reference-cards'
+    monkeypatch.setattr(sys,'argv',['render_umap_reference_card.py','--repo',str(REPO),
+        '--lesson',str(canonical),'--destination',str(destination)])
+    generator.main()
+    cards=generator.validate_cards(destination,english,REPO)
+    assert set(cards)=={mix.UMAP_CARD} and canonical.read_bytes()==before
+    assert english['scenes'][-1]['focus_buttons']=='FoldButton'
+    assert cards[mix.UMAP_CARD]['references'][0]['path']=='spacr/qt/screens/image_umap.py'
+    changed=deepcopy(english);changed['scenes'][-1]['narration']+=' changed'
+    with pytest.raises(ValueError,match='source binding'):generator.validate_cards(destination,changed,REPO)
+    contract=destination/'cards.json';value=json.loads(contract.read_text())
+    value['cards'][0]['references'][0]['sha256']='c'*64;contract.write_text(json.dumps(value))
+    with pytest.raises(ValueError,match='bytes, source or narration'):generator.validate_cards(destination,english,REPO)
