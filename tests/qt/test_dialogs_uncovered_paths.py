@@ -314,3 +314,45 @@ def test_natural_opening_survives_an_unavailable_screen_and_keeps_user_size(
         gui_scale._resize_actual(dialog, QSize(620, 420))
         assert dialogs.open_at_its_natural_size(dialog) is False
         assert dialog.size() == QSize(620, 420)
+
+
+@pytest.mark.parametrize("scale", [0.9, 1.0, 1.25])
+@pytest.mark.parametrize("failure", [ImportError, RuntimeError])
+def test_natural_opening_helper_failure_keeps_physical_size_and_position(
+        qtbot, unfiltered_app, monkeypatch, scale, failure):
+    from PySide6.QtCore import QRect, QSize
+    from PySide6.QtWidgets import QDialog, QWidget
+    from spacr.qt import dialogs, gui_scale, preferences
+
+    settings = preferences._settings()
+    key = "prefs/gui_scale"
+    had_scale = settings.contains(key)
+    previous = settings.value(key) if had_scale else None
+    gui_scale.install_scaling_layer()
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", scale)
+        try:
+            preferences.set_gui_scale(scale)
+            dialog = QDialog()
+            qtbot.addWidget(dialog)
+            QWidget.setGeometry(dialog, QRect(71, 83, 360, 220))
+            position = dialog.geometry().topLeft()
+            dialog.setProperty(dialogs.OPENS_AT, QSize(540, 340))
+
+            def unavailable_resize(*args):
+                raise failure("physical resize helper unavailable")
+
+            patch.setattr(gui_scale, "_resize_actual", unavailable_resize)
+            assert dialogs.open_at_its_natural_size(dialog) is True
+            assert dialog.size() == QSize(540, 340)
+            assert dialog.geometry().topLeft() == position
+            assert dialog.property(dialogs.OPENS_AT) is None
+            QWidget.setGeometry(dialog, QRect(position, QSize(620, 420)))
+            assert dialogs.open_at_its_natural_size(dialog) is False
+            assert dialog.size() == QSize(620, 420)
+            assert dialog.geometry().topLeft() == position
+        finally:
+            if had_scale:
+                settings.setValue(key, previous)
+            else:
+                settings.remove(key)

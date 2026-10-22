@@ -578,7 +578,11 @@ def open_at_its_natural_size(dialog) -> bool:
 
         _resize_actual(dialog, wanted)
     except (ImportError, RuntimeError):
-        dialog.resize(wanted)
+        from PySide6.QtWidgets import QWidget
+
+        geometry = dialog.geometry()
+        geometry.setSize(wanted)
+        QWidget.setGeometry(dialog, geometry)
     return True
 
 
