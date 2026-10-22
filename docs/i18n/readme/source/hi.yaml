@@ -144,8 +144,8 @@ blocks:
   - '**Docker**: Linux कंटेनर में कमांड-लाइन पाइपलाइन, CPU इमेज या NVIDIA GPU इमेज
     से:'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
   lang: bash
 - p: '`Docker गाइड (nightly, अंग्रेज़ी में) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     में GPU सेटअप, डेटा माउंट और पाइपलाइन कमांड बताए गए हैं।'

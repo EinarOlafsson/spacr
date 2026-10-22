@@ -698,10 +698,10 @@ installers above to install the desktop application.
 
    * - Image
      - For
-   * - ``ghcr.io/einarolafsson/spacr:1.5.1.5``
+   * - ``ghcr.io/einarolafsson/spacr:1.5.1.6``
      - CPU only. Runs Linux x86-64 containers with Docker or Podman and
        needs no GPU driver.
-   * - ``ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4``
+   * - ``ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4``
      - CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and
        the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU
        image.
@@ -731,9 +731,9 @@ pipelines:
 
 .. code-block:: bash
 
-   docker pull ghcr.io/einarolafsson/spacr:1.5.1.5
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr --version
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
+   docker pull ghcr.io/einarolafsson/spacr:1.5.1.6
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr --version
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
 
 For NVIDIA GPU processing, install the host driver and follow the
 `NVIDIA Container Toolkit installation guide
@@ -760,7 +760,7 @@ paths. Write outputs under ``/data`` so they remain in ``screen`` after
        --user "$(id -u):$(id -g)" \
        -v "$PWD/screen:/data" \
        -v "$HOME/.cellpose/models:/models" \
-       ghcr.io/einarolafsson/spacr:1.5.1.5 \
+       ghcr.io/einarolafsson/spacr:1.5.1.6 \
        spacr-run measure --settings /data/settings/measure_settings.csv
 
 On a GPU host, add ``--gpus all`` and use the CUDA tag:
@@ -771,7 +771,7 @@ On a GPU host, add ``--gpus all`` and use the CUDA tag:
        --user "$(id -u):$(id -g)" \
        -v "$PWD/screen:/data" \
        -v "$HOME/.cellpose/models:/models" \
-       ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 \
+       ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 \
        spacr-run mask --settings /data/settings/gen_mask_settings.csv
 
 On Linux, pass ``--user "$(id -u):$(id -g)"`` to match your host user and group.
@@ -788,7 +788,7 @@ is visible:
 
 .. code-block:: bash
 
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-doctor
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-doctor
 
 The desktop interface in a container
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -804,7 +804,7 @@ libraries, so a Linux host running X11 can pass its display socket in:
        -e DISPLAY \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -v "$PWD/screen:/data" \
-       ghcr.io/einarolafsson/spacr:1.5.1.5 \
+       ghcr.io/einarolafsson/spacr:1.5.1.6 \
        spacr
 
 Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist
@@ -818,7 +818,7 @@ switched off, and is the right command when the window is slow or blank:
 .. code-block:: bash
 
    docker run --rm -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
-       ghcr.io/einarolafsson/spacr:1.5.1.5 safespacr
+       ghcr.io/einarolafsson/spacr:1.5.1.6 safespacr
 
 On macOS and Windows this needs a third-party X server and is not tested or
 supported. Use the desktop installer on those platforms.
@@ -860,9 +860,9 @@ newer:
 
 .. code-block:: bash
 
-   apptainer build --build-arg IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.5 \
+   apptainer build --build-arg IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.6 \
        spacr-cpu.sif packaging/apptainer/spacr.def
-   apptainer build --build-arg IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 \
+   apptainer build --build-arg IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 \
        spacr-cuda.sif packaging/apptainer/spacr.def
 
 To start from an image you built yourself, add
