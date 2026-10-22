@@ -59,9 +59,16 @@ class _Answers:
         self.boxes.append({
             "title": box.windowTitle(), "text": box.text(),
             "info": box.informativeText(),
+            "escape": box.escapeButton().text(),
             "buttons": {b.text(): b.property("plaque_mode")
                         for b in box.buttons()}})
         wanted = self.modes.pop(0)
+        if wanted == "":
+            cancel = box.escapeButton()
+            assert cancel.property("plaque_mode") is None
+            cancel.click()
+            assert box.clickedButton() is cancel
+            return 0
         for button in box.buttons():
             if button.property("plaque_mode") == wanted:
                 button.click()
@@ -225,7 +232,9 @@ def test_pdfs_and_images_dropped_together_ask_which_to_read(
     box = asked.boxes[0]
     assert box["text"] == "PDFs are read in Figure mode, images in Plaque mode."
     assert "1 PDF(s)" in box["info"] and "1 image(s)" in box["info"]
-    assert sorted(v for v in box["buttons"].values()) == ["", "figure", "plaque"]
+    assert list(box["buttons"].values()).count(None) == 1
+    assert sorted(v for v in box["buttons"].values() if v is not None) == ["figure", "plaque"]
+    assert box["buttons"][box["escape"]] is None
     if choice == "plaque":
         assert _mode(plaque_screen) == "plaque"
         assert _src(plaque_screen) == str(folder)

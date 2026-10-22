@@ -207,8 +207,9 @@ class TestDataChooser(QDialog):
             document.setTextWidth(width)
             tallest = max(tallest, math.ceil(document.size().height()))
         tallest += metrics.lineSpacing()
-        self._description.setMinimumHeight(tallest)
-        self._description.setMaximumHeight(tallest)
+        from ..gui_scale import _set_actual_dim
+        _set_actual_dim(self._description, "minh", tallest)
+        _set_actual_dim(self._description, "maxh", tallest)
 
     def _measurement_width(self) -> int:
         """The width the pane will actually be drawn at.

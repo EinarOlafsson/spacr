@@ -2128,10 +2128,40 @@ def _validated_prior_plaque_callables(callables):
     assert item.required_parameters == {"image", "model", "settings"}
     assert item.accepted_documented_parameters == item.parameters
     assert "return_metrics" in _documented_parameter_names(item.docstring)
-    return [replace(item, parameters=item.parameters - {"return_metrics"},
+    figure_symbol = "spacr.plaque_papers.measure_figure_folder"
+    figure = next(item for item in callables if item.symbol == figure_symbol)
+    parameters = {
+        "src", "dst", "detector", "segmenter", "imgsz", "confidence",
+        "confirm_each", "plate_format", "pixels_per_um", "formation_hours",
+        "growth_settings", "legends", "annotations", "read_text", "detect",
+        "segment", "text_options", "min_size",
+    }
+    assert figure.parameters == figure.accepted_documented_parameters == parameters
+    assert figure.required_parameters == {"src"}
+    assert figure.category == "function" and figure.exposure == "autoapi"
+    assert figure.variant_count == 1
+    assert figure.docless_variant_count == figure.constructor_prose_variant_count == 0
+    assert not figure.accepts_arbitrary_keywords
+    assert _documented_parameter_names(figure.docstring) == parameters
+    source = pathlib.Path(__file__).resolve().parents[1] / "spacr/plaque_papers.py"
+    declaration = next(node for node in ast.parse(source.read_text(encoding="utf-8")).body
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "measure_figure_folder")
+    minimum = next(arg for arg in declaration.args.kwonlyargs if arg.arg == "min_size")
+    assert ast.unparse(minimum.annotation) == "Optional[float]"
+    assert ast.literal_eval(_declared_defaults(declaration)["min_size"]) is None
+    minimum_doc = re.search(r":param min_size:(.*?)(?=\n\s*:returns:)",
+                            figure.docstring, re.S)
+    assert minimum_doc is not None
+    assert " ".join(minimum_doc.group(1).split()) == (
+        "minimum plaque area in square pixels of the input well crop, without "
+        "rounding; 0 disables small-object removal. None leaves the segmenter's "
+        "default unchanged. Ignored for a supplied ``segment``.")
+    additions = {symbol: {"return_metrics"}, figure_symbol: {"min_size"}}
+    return [replace(item, parameters=item.parameters - additions[item.symbol],
                     accepted_documented_parameters=(
-                        item.accepted_documented_parameters - {"return_metrics"}))
-            if item.symbol == symbol else item for item in callables]
+                        item.accepted_documented_parameters - additions[item.symbol]))
+            if item.symbol in additions else item for item in callables]
 
 
 def _validated_prior_701_callables(callables):

@@ -141,9 +141,50 @@ def test_renderer_construction_draw_and_release_share_producer_thread(monkeypatc
     assert not producer.is_alive()
 
 
+def _mock_compute_process_metadata(monkeypatch, metadata):
+    from pathlib import Path
+
+    def proc_path(location):
+        prefix, proc, pid, leaf = str(location).split("/")
+        assert prefix == "" and proc == "proc" and leaf in ("exe", "cmdline")
+        entry = metadata.get(int(pid), {})
+
+        def read(key):
+            value = entry.get(key)
+            if value is None:
+                raise PermissionError(location)
+            return value
+
+        return SimpleNamespace(readlink=lambda: Path(read("exe")),
+                               read_bytes=lambda: read("cmdline"))
+
+    monkeypatch.setattr(ambient, "Path", proc_path)
+
+
+@pytest.fixture
+def compute_query(monkeypatch):
+    def query(pids, metadata):
+        events = []
+        module = SimpleNamespace(
+            nvmlInit=lambda: events.append("init"),
+            nvmlDeviceGetCount=lambda: 1,
+            nvmlDeviceGetHandleByIndex=lambda index: index,
+            nvmlDeviceGetComputeRunningProcesses=lambda handle: [
+                SimpleNamespace(pid=pid) for pid in pids],
+            nvmlShutdown=lambda: events.append("shutdown"))
+        monkeypatch.setitem(__import__("sys").modules, "pynvml", module)
+        _mock_compute_process_metadata(monkeypatch, metadata)
+        idle = ambient._flow_compute_idle()
+        assert events == ["init", "shutdown"]
+        return idle
+
+    return query
+
+
 @pytest.mark.parametrize('processes', [[], [SimpleNamespace(pid=123)]])
 def test_compute_process_monitor_refuses_busy_device_and_shuts_down(
         processes, monkeypatch):
+    _mock_compute_process_metadata(monkeypatch, {})
     events = []
     module = SimpleNamespace(
         nvmlInit=lambda: events.append('init'),
@@ -319,3 +360,33 @@ def test_macos_never_creates_a_gl_context_to_probe(monkeypatch):
     monkeypatch.delenv("SPACR_NO_GL", raising=False)
     monkeypatch.setattr(subprocess, "run", lambda *a, **k: pytest.fail("the GL probe child was started"))
     assert ambient._flow_graphics_preflight() is False
+
+
+@pytest.mark.parametrize("executable", [
+    "chrome", "chromium", "chromium-browser", "google-chrome",
+    "google-chrome-stable", "chrome (deleted)",
+])
+def test_compute_monitor_excludes_browser_executables(compute_query, executable):
+    assert compute_query([424242], {424242: {"exe": "/opt/browser/" + executable}}) is True
+
+
+@pytest.mark.parametrize("arguments,idle", [
+    (b"/opt/browser/helper\0--type=gpu-process\0", True),
+    (b"/usr/bin/python\0--type=gpu-process-extra\0", False),
+    (b"/usr/bin/python\0--file=chrome\0", False),
+])
+def test_compute_monitor_requires_the_exact_graphics_argument(
+        compute_query, arguments, idle):
+    assert compute_query([424242], {424242: {"exe": "/usr/bin/helper",
+                                          "cmdline": arguments}}) is idle
+
+
+@pytest.mark.parametrize("processes,metadata", [
+    ([424242, 424243], {424242: {"exe": "/opt/browser/chrome"},
+                       424243: {"exe": "/usr/bin/python", "cmdline": b"python\0train.py\0"}}),
+    ([424242], {}),
+    ([None], {}),
+])
+def test_compute_monitor_still_refuses_real_or_unknown_compute(
+        compute_query, processes, metadata):
+    assert compute_query(processes, metadata) is False

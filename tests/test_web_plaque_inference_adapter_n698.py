@@ -64,7 +64,7 @@ def test_actual_desktop_segmenter_receives_exact_plane_and_settings(job, monkeyp
     assert len(model.calls) == 1
     image, settings = model.calls[0]
     np.testing.assert_array_equal(image, np.moveaxis(tifffile.imread(arguments["input_file"]), 0, -1))
-    assert settings == {"channel_axis": -1, "diameter": 52.0, "flow_threshold": 0.6, "cellprob_threshold": -1.5}
+    assert settings == {"channel_axis": -1, "diameter": 52.0, "flow_threshold": 0.6, "cellprob_threshold": -1.5, "min_size": 0.0}
     with zipfile.ZipFile(target) as archive:
         np.testing.assert_array_equal(np.load(io.BytesIO(archive.read("flows.npy"))), np.full((2, 5, 7), 0.25, dtype=np.float32))
         assert np.load(io.BytesIO(archive.read("cell_probability.npy"))).min() == -2.5
@@ -82,7 +82,7 @@ def test_explicit_native_scale_and_missing_backend_arrays(job, monkeypatch):
     monkeypatch.setattr(plaque, "_load_model", lambda path, digest=None: model)
     arguments["effective_settings"] = {"diameter": None}
     plaque.run_plaque_download(target, **arguments)
-    assert model.calls[0][1] == {"channel_axis": -1, "diameter": None, "flow_threshold": 0.4, "cellprob_threshold": 0.0}
+    assert model.calls[0][1] == {"channel_axis": -1, "diameter": None, "flow_threshold": 0.4, "cellprob_threshold": 0.0, "min_size": 0.0}
     with zipfile.ZipFile(target) as archive:
         assert "flows.npy" not in archive.namelist()
         manifest = json.loads(archive.read("manifest.json"))

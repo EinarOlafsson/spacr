@@ -314,7 +314,7 @@ class OrganismScreen(QWidget):
             self._tiles.append(tile)
 
     def _reflow(self, *args) -> None:
-        """Fit Home tiles to the current right-pane width after divider moves."""
+        """Fit Home tiles to the current module-pane width after divider moves."""
         from .. import timing as _timing
 
         with _timing.span("organism reflow", self.app_key):
@@ -331,9 +331,9 @@ class OrganismScreen(QWidget):
             scale_int(scaled_px(240), _factor_for(self._scroll)),
             self._intro.minimumSizeHint().width() + scrollbar.sizeHint().width()
             + 2 * self._scroll.frameWidth())
-        if self._scroll.property("minimumWidth") != minimum:
-            _set_actual_dim(self._scroll, "minw", minimum)
         if not self._tiles:
+            if self._scroll.property("minimumWidth") != minimum:
+                _set_actual_dim(self._scroll, "minw", minimum)
             return
         module_bar = self._module_scroll.verticalScrollBar()
         module_bar.ensurePolished()
@@ -345,8 +345,17 @@ class OrganismScreen(QWidget):
         module_minimum = (tile_width + margins.left() + margins.right()
                           + module_bar.sizeHint().width()
                           + 2 * self._module_scroll.frameWidth())
+        orientation = (Qt.Vertical if minimum + module_minimum
+                       + self._splitter.handleWidth() > self._splitter.contentsRect().width()
+                       else Qt.Horizontal)
+        if orientation == Qt.Vertical and self._splitter.orientation() != orientation:
+            self._splitter.setOrientation(orientation)
+        if self._scroll.property("minimumWidth") != minimum:
+            _set_actual_dim(self._scroll, "minw", minimum)
         if self._module_scroll.property("minimumWidth") != module_minimum:
             _set_actual_dim(self._module_scroll, "minw", module_minimum)
+        if orientation == Qt.Horizontal and self._splitter.orientation() != orientation:
+            self._splitter.setOrientation(orientation)
         available = (self._module_scroll.viewport().width()
                      - margins.left() - margins.right())
         spacing = self._grid.horizontalSpacing()

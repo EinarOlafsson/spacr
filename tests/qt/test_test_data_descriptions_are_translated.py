@@ -65,3 +65,29 @@ def test_rest_hover_tooltip_and_pane_use_the_reviewed_translation(
         assert dialog.description_text() == targets[Chooser.RESTING_TEXT]
     assert dialog.every_description() == tuple(expected)
     assert dialog.chosen == ''  # inspecting a route must not choose/download it
+
+
+def test_description_pane_fits_after_live_zoom(qtbot, qt_theme_applied, monkeypatch):
+    from spacr.qt import gui_scale
+
+    monkeypatch.setenv('SPACR_LANGUAGE', 'de')
+    original_scale = gui_scale._SCALE
+    original_factor = gui_scale.current_scale()
+    dialog = Chooser()
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitUntil(lambda: dialog._laid_out and dialog._description.width() > 200)
+    try:
+        for factor in (0.75, 1.25):
+            gui_scale.set_gui_scale_live(factor)
+            QCoreApplication.processEvents()
+            for text in dialog.every_description():
+                document = QTextDocument()
+                document.setDefaultFont(dialog._description.font())
+                document.setDocumentMargin(0)
+                document.setPlainText(text)
+                document.setTextWidth(dialog._description.contentsRect().width())
+                assert document.size().height() <= dialog._description.contentsRect().height()
+    finally:
+        gui_scale.set_gui_scale_live(original_factor)
+        gui_scale._SCALE = original_scale

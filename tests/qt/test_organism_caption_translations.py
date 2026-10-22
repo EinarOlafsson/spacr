@@ -221,3 +221,80 @@ def test_queued_organism_reflow_ends_when_its_screen_is_deleted(
         for _ in range(6):
             QApplication.processEvents()
     assert exceptions == []
+
+
+def test_native_pane_minima_stack_then_release_without_resizing_the_window(
+        qtbot, qt_theme_applied, monkeypatch):
+    from PySide6.QtGui import QFontMetrics
+    from PySide6.QtWidgets import QApplication
+    from spacr.qt import gui_scale, i18n, preferences
+    from spacr.qt.screens.organism_screen import OrganismScreen
+
+    settings = preferences._settings()
+    keys = ("prefs/gui_scale", "prefs/font_scale")
+    previous = {key: settings.value(key) for key in keys if settings.contains(key)}
+    gui_scale.install_scaling_layer()
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 0.9)
+        patch.setattr(i18n, "current_language", lambda: "hi")
+        try:
+            preferences.set_gui_scale(0.9)
+            preferences.set_font_scale(0.9)
+            screen = OrganismScreen("toxoplasma")
+            qtbot.addWidget(screen)
+            screen.resize(800, 700)
+            screen.show()
+            qtbot.waitExposed(screen)
+            for _ in range(4):
+                QApplication.processEvents()
+            geometry = screen.geometry()
+            assert screen._splitter.orientation() == Qt.Horizontal
+            button = screen._diagram.clear_button
+            button.setStyleSheet("font-size: 75px;")
+            for _ in range(6):
+                QApplication.processEvents()
+            width = screen._splitter.contentsRect().width()
+            module_floor = gui_scale._actual_minimum_size(screen._module_scroll).width()
+            scrollbar = screen._scroll.verticalScrollBar().sizeHint().width()
+            glyph_width = button.fontMetrics().horizontalAdvance(button.text())
+            button_padding = button.minimumSizeHint().width() - glyph_width
+            intro_padding = screen._intro.minimumSizeHint().width() - button.minimumSizeHint().width()
+            target_glyph_width = (width - module_floor // 2 - scrollbar
+                                  - 2 * screen._scroll.frameWidth()
+                                  - button_padding - intro_padding)
+            font = button.font()
+            font.setStretch(max(1, min(4000, round(
+                (font.stretch() or 100) * target_glyph_width
+                / QFontMetrics(font).horizontalAdvance(button.text())))))
+            button.setFont(font)
+            for _ in range(6):
+                QApplication.processEvents()
+            left = gui_scale._actual_minimum_size(screen._scroll).width()
+            right = gui_scale._actual_minimum_size(screen._module_scroll).width()
+            assert max(left, right) <= width
+            assert left + right + screen._splitter.handleWidth() > width
+            assert screen._splitter.orientation() == Qt.Vertical
+            assert screen.geometry() == geometry
+            assert button.fontMetrics().horizontalAdvance(button.text()) <= (
+                button.contentsRect().width() - 20)
+            assert screen._diagram._legend.rect().contains(button.geometry())
+            assert screen._scroll.horizontalScrollBar().maximum() == 0
+            assert screen._module_scroll.horizontalScrollBar().maximum() == 0
+            assert all(tile.width() <= screen._module_scroll.viewport().width()
+                       for tile in screen._tiles)
+            wide_floor = left
+            button.setStyleSheet("font-size: 12px;")
+            for _ in range(6):
+                QApplication.processEvents()
+            assert gui_scale._actual_minimum_size(screen._scroll).width() < wide_floor
+            assert screen._splitter.orientation() == Qt.Horizontal
+            assert screen.geometry() == geometry
+            assert screen._scroll.horizontalScrollBar().maximum() == 0
+            assert screen._module_scroll.horizontalScrollBar().maximum() == 0
+            screen.close()
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
