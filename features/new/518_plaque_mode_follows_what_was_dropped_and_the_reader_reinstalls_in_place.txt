@@ -6,6 +6,10 @@ Owner: Claude. Related: 468 (plaque and figure modes), 469 (the figure
 reader in its own environment), 517 (dropping files and PDFs), 507 (an
 install button that says what happened).
 
+FOLLOW-UP 2026-10-22: item 720 adds automatic Live opening with the dropped PDF
+loaded after either mode choice. This new requirement is pending and is not
+covered by the historical completion below; release CI retains priority.
+
 REQUEST (the maintainer, 2026-09-25, verbatim)
     "for the figure, now its telling me to reinstall the plaque figure reader
     from the model zoo. this should trigger a pupup to reinstall it and if a

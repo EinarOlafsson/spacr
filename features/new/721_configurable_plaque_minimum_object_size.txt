@@ -1,0 +1,27 @@
+================================================================================
+CONFIGURABLE MINIMUM OBJECT SIZE IN PLAQUE SETTINGS
+================================================================================
+
+Status:    PLANNED 2026-10-22 — requested behavior, not implemented acceptance
+Requested: maintainer, 2026-10-22
+Owner:     Plaque-assay implementation lane; queued behind release CI repairs
+Related:   468 plaque segmentation and its settings; 720 Live PDF loading
+
+REQUEST
+Inspect automatic removal of small objects in plaque segmentation. Expose its
+threshold in Plaque settings as "Minimum object size", with a default of 0.
+Accept integer and floating-point values; do not restrict input to integers.
+
+ACCEPTANCE
+- Find and replace any implicit small-object removal threshold with the user
+  setting. At the default 0, objects are not discarded merely for being small.
+- Preserve fractional input through editing, saving/loading settings, and worker
+  transport; do not silently round or impose an undisclosed positive minimum.
+- Use the existing segmentation size units, explain those units in Help, and
+  apply the same threshold in Live and full-run plaque segmentation.
+- Tests cover the default, integer and fractional thresholds, persistence, and
+  consistent Live/full-run object retention. Preserve unrelated filtering.
+- Translate the label and Help, and regenerate settings/API/Help outputs with
+  their owning tools. Implementation and generated-output acceptance remain open.
+
+2026-10-22 — Registered before implementation; default 0 and integer/float support are explicit maintainer requirements.

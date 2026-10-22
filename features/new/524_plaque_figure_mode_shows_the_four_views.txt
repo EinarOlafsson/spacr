@@ -2,6 +2,11 @@ PLAQUE FIGURE MODE SHOWS THE FOUR VIEWS: OVERLAY, MASKS, FLOWS, CELL PROBABILITY
 
 Status: DONE 2026-09-25
 
+FOLLOW-UP 2026-10-22: item 722 requires the same selected view to apply to the
+single-well image, including when the selected well changes. Implemented by
+item 722 in nightly f183c84c540; historical completion below covers the earlier
+figure-wide views.
+
 THE REQUEST
 The maintainer, 2026-09-25:
   "i cannot see the cell probability, flows, and masks tabs in the figure

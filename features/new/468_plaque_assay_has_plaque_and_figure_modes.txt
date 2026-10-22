@@ -2,6 +2,11 @@
 PLAQUE ASSAY HAS A PLAQUE MODE AND A FIGURE MODE, AND A SWITCH BETWEEN THEM
 ================================================================================
 
+FOLLOW-UPS 2026-10-22: item 720 opens a dropped PDF in Live after the mode choice;
+item 721 exposes Minimum object size, default 0, accepting integers and floats
+in both Live and full-run segmentation. These new requirements remain pending;
+historical completion below does not accept them. Release CI retains priority.
+
 Status:    DONE 2026-09-21 — per-well Figure preview added the same day.
            Run side f7803de0b, preview and switch 42e03b752;
            240 tests passed on the merged tree. Plaque mode and the preview
