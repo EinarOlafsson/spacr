@@ -1,5 +1,13 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT MAIN UPDATER FIXTURE PORT
+Acceptance coordinator and retained installer worker own the source-bound port
+of accepted nightly historical-plan/profile fixtures and meaningful Linux
+transaction assertions for old Main control1 job119522926810. Preserve current
+Main adapters/runtime and all original actions/refusals. Validate only the
+13 cleanup cases and two affected Linux wrapper tests; root peers and publishes
+Main. No artifact build, broad inventory, new CI or workflow dispatch.
+
 Status:    OPEN 2026-10-21 — corrected-source run39561748445 completes all12
            coverage shards above90%; its aggregate leaves make_masks.py with29
            uncovered branches against the unchanged28 ceiling. release_ci_takeover
@@ -4295,3 +4303,5 @@ Root owns MAIN review/publication and corrected-source hosted acceptance; no who
 2026-10-22 — Actual Main imported-source path verified; the single wide-header regression passes (3.80 s), with exact Night/Main test preimage and normaliser AST binding. The source-bound Night run separately executes truncation arc258→259. No production, packaging, generated-input or notebook-policy change; root owns aggregate integration and publication.
 
 2026-10-22 — release_ci_takeover owns the assertion-free informational-compatibility case from Hygiene119522926810: explicitly preserve optional failure states, report exact-source acceptance and forbid replacement dispatch. The owning case passes0.72s and the existing AST hygiene helper accepts it; independent peer accepts unchanged blocking policy and explicit acceptance assertions. Root batches publication; no artifact or CI action.
+
+2026-10-21 — Main fixture port3f1c697ce30 binds the accepted Night06b historical-plan/profile and Linux outcome assertions to identical current Main updater protocol bodies. All13 old Main control1 failures plus4 Linux stage/cancel cases pass (17 cases,1.69s); supported legacy actions and current guarded adapter behavior remain unchanged. Independent diff peer accepted; root owns Main publication and fresh hosted acceptance. No runtime, artifact, workflow or other Night fixture changes.
