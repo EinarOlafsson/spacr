@@ -163,12 +163,89 @@ $WorkUv = Join-Path $WorkDir "bootstrap\uv.exe"
 $InstallerScript = Join-Path $WorkDir "uv-installer.ps1"
 $LogPath = Join-Path $InstallRoot "install.log"
 
+function ConvertTo-SpacrNativeArgument {
+    param([AllowEmptyString()][string]$Argument)
+    return '"' + [regex]::Replace([regex]::Replace($Argument, '(\\*)"', '$1$1\"'), '(\\+)$', '$1$1') + '"'
+}
+
+function Invoke-SpacrNative {
+    param(
+        [Parameter(Mandatory = $true)][string]$Command,
+        [AllowEmptyCollection()][AllowEmptyString()][string[]]$Arguments = @(),
+        [string]$StandardOutputPath = "",
+        [string]$StandardErrorPath = ""
+    )
+    $Info = [System.Diagnostics.ProcessStartInfo]::new()
+    $Info.FileName = $Command
+    $Info.Arguments = (($Arguments | ForEach-Object { ConvertTo-SpacrNativeArgument $_ }) -join ' ')
+    $Info.UseShellExecute = $false
+    $Info.RedirectStandardOutput = $true
+    $Info.RedirectStandardError = $true
+    $Info.StandardOutputEncoding = [System.Text.UTF8Encoding]::new($false)
+    $Info.StandardErrorEncoding = [System.Text.UTF8Encoding]::new($false)
+    $Process = [System.Diagnostics.Process]::new()
+    $Process.StartInfo = $Info
+    $OutputFile = $null
+    $ErrorFile = $null
+    $Started = $false
+    try {
+        if ($StandardOutputPath -or $StandardErrorPath) {
+            if (-not $StandardOutputPath -or -not $StandardErrorPath) {
+                throw [System.ArgumentException]::new()
+            }
+            $OutputFile = [System.IO.File]::Open($StandardOutputPath, [System.IO.FileMode]::Create)
+            $ErrorFile = [System.IO.File]::Open($StandardErrorPath, [System.IO.FileMode]::Create)
+        }
+        $Started = $Process.Start()
+        if (-not $Started) { throw [System.ComponentModel.Win32Exception]::new() }
+        if ($OutputFile) {
+            $OutputCopy = $Process.StandardOutput.BaseStream.CopyToAsync($OutputFile)
+            $ErrorCopy = $Process.StandardError.BaseStream.CopyToAsync($ErrorFile)
+            [System.Threading.Tasks.Task]::WaitAll([System.Threading.Tasks.Task[]]@($OutputCopy, $ErrorCopy))
+        } else {
+            $OutputRead = $Process.StandardOutput.ReadLineAsync()
+            $ErrorRead = $Process.StandardError.ReadLineAsync()
+            while ($null -ne $OutputRead -or $null -ne $ErrorRead) {
+                $Reads = [System.Threading.Tasks.Task[]]@(@($OutputRead, $ErrorRead) | Where-Object { $null -ne $_ })
+                $Ready = [System.Threading.Tasks.Task]::WaitAny($Reads)
+                if ($Reads[$Ready] -eq $OutputRead) {
+                    $Line = $OutputRead.GetAwaiter().GetResult()
+                    if ($null -eq $Line) {
+                        $OutputRead = $null
+                    } else {
+                        Write-Output $Line
+                        $OutputRead = $Process.StandardOutput.ReadLineAsync()
+                    }
+                } else {
+                    $Line = $ErrorRead.GetAwaiter().GetResult()
+                    if ($null -eq $Line) {
+                        $ErrorRead = $null
+                    } else {
+                        $Host.UI.WriteErrorLine($Line)
+                        $ErrorRead = $Process.StandardError.ReadLineAsync()
+                    }
+                }
+            }
+        }
+        $Process.WaitForExit()
+        $global:LASTEXITCODE = $Process.ExitCode
+    } finally {
+        if ($Started -and -not $Process.HasExited) {
+            $Process.Kill()
+            $Process.WaitForExit()
+        }
+        if ($OutputFile) { $OutputFile.Dispose() }
+        if ($ErrorFile) { $ErrorFile.Dispose() }
+        $Process.Dispose()
+    }
+}
+
 function Invoke-Checked {
     param(
         [Parameter(Mandatory = $true)][string]$Command,
         [Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments
     )
-    & $Command @Arguments
+    Invoke-SpacrNative -Command $Command -Arguments $Arguments
     if ($LASTEXITCODE -ne 0) {
         throw (Get-SpacrInstallerMessage "command_failed" @($Command, $LASTEXITCODE))
     }
@@ -329,6 +406,20 @@ function Remove-SpacrTree {
     }
     [System.IO.Directory]::Delete($Folder, $false)
 }
+function Remove-SpacrInstallerWork {
+    $Expected = [System.IO.Path]::GetFullPath((Join-Path $env:TEMP ("spacr-install-" + $PID))).TrimEnd("\")
+    if ([System.IO.Path]::GetFullPath($WorkDir).TrimEnd("\") -ne $Expected) {
+        throw [System.ComponentModel.Win32Exception]::new(87)
+    }
+    try {
+        $Attributes = [System.IO.File]::GetAttributes($Expected)
+    } catch [System.IO.FileNotFoundException] { return }
+      catch [System.IO.DirectoryNotFoundException] { return }
+    if ($Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+        throw [System.ComponentModel.Win32Exception]::new(5)
+    }
+    Remove-SpacrTree $Expected
+}
 function Remove-SpacrAbandonedPath {
     param([string]$Parent, [string]$Name)
     if ([string]::IsNullOrWhiteSpace($Parent)) { return }
@@ -457,7 +548,7 @@ try {
     $env:UV_CACHE_DIR = Join-Path $WorkDir "cache"
     Write-Host (Get-SpacrInstallerMessage "downloading_python" @($PythonVersion)) -ForegroundColor Cyan
     Invoke-Checked $WorkUv python install $PythonVersion --managed-python --no-bin --no-registry
-    $CleanupPython = & $WorkUv python find $PythonVersion --managed-python | Select-Object -Last 1
+    $CleanupPython = Invoke-SpacrNative -Command $WorkUv -Arguments @("python", "find", $PythonVersion, "--managed-python") | Select-Object -Last 1
     if ($LASTEXITCODE -ne 0 -or -not $CleanupPython -or -not (Test-Path $CleanupPython.Trim())) {
         throw (Get-SpacrInstallerMessage "command_failed" @($WorkUv, $LASTEXITCODE))
     }
@@ -510,14 +601,14 @@ try {
     # An install without wgpu leaves one declared dependency out on purpose, so
     # uv's sole "spacr requires wgpu" diagnostic is accepted then and nothing
     # else is (install_cleanup._only_saved_wgpu_omission, as the updater does).
-    # Start-Process keeps uv's own UTF-8 bytes; PowerShell redirection would
+    # Native stream copies keep uv's own UTF-8 bytes; PowerShell redirection would
     # re-encode them and wrap stderr lines as error records.
     $PipCheckOut = Join-Path $WorkDir "pip-check-out.txt"
     $PipCheckErr = Join-Path $WorkDir "pip-check-err.txt"
     $PipCheckLog = Join-Path $WorkDir "pip-check.txt"
-    $PipCheck = Start-Process -FilePath $UvExe -ArgumentList @("pip", "check", "--python", "`"$StagePython`"") `
-        -NoNewWindow -Wait -PassThru -RedirectStandardOutput $PipCheckOut -RedirectStandardError $PipCheckErr
-    $PipCheckCode = $PipCheck.ExitCode
+    Invoke-SpacrNative -Command $UvExe -Arguments @("pip", "check", "--python", $StagePython) `
+        -StandardOutputPath $PipCheckOut -StandardErrorPath $PipCheckErr
+    $PipCheckCode = $LASTEXITCODE
     [System.IO.File]::WriteAllText($PipCheckLog,
         [System.IO.File]::ReadAllText($PipCheckErr) + [System.IO.File]::ReadAllText($PipCheckOut),
         [System.Text.UTF8Encoding]::new($false))
@@ -525,7 +616,9 @@ try {
     if ($PipCheckCode -ne 0) {
         $Accepted = $false
         if ($WithoutWgpu) {
-            & $StagePython -I -c "import runpy, sys; only=runpy.run_path(sys.argv[1])['_only_saved_wgpu_omission']; sys.exit(0 if only(int(sys.argv[2]), open(sys.argv[3], encoding='utf-8', errors='replace').read()) else 1)" $CleanupModule "$PipCheckCode" $PipCheckLog
+            Invoke-SpacrNative -Command $StagePython -Arguments @("-I", "-X", "utf8", "-c",
+                "import runpy, sys; only=runpy.run_path(sys.argv[1])['_only_saved_wgpu_omission']; sys.exit(0 if only(int(sys.argv[2]), open(sys.argv[3], encoding='utf-8', errors='replace').read()) else 1)",
+                $CleanupModule, "$PipCheckCode", $PipCheckLog)
             $Accepted = ($LASTEXITCODE -eq 0)
         }
         if (-not $Accepted) {
@@ -535,12 +628,14 @@ try {
     $env:QT_QPA_PLATFORM = "offscreen"
     Invoke-Checked -Command $StagePython -Arguments @(
         "-I",
+        "-X", "utf8",
         "-c",
         "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
     )
     if ($TorchBackend -ne "cpu" -and $DetectedAccelerator -eq "nvidia") {
         Invoke-Checked -Command $StagePython -Arguments @(
             "-I",
+            "-X", "utf8",
             "-c",
             "import torch; assert torch.cuda.is_available(), 'GPU install selected but CUDA is unavailable'"
         )
@@ -548,6 +643,7 @@ try {
 
     Invoke-Checked -Command $StagePython -Arguments @(
         "-I",
+        "-X", "utf8",
         $ProfileModule,
         "--path",
         $StageProfile,
@@ -565,14 +661,13 @@ try {
         $(if ($WithoutWgpu) { "1" } else { "0" })
     )
 
-    $IdentityArgs = @("-I", $CleanupModule, "verify-runtime", "--python", $StagePython, "--retiring-prefix", $VenvDir)
+    $IdentityArgs = @("-I", "-X", "utf8", $CleanupModule, "verify-runtime", "--python", $StagePython, "--retiring-prefix", $VenvDir)
     if (-not [string]::IsNullOrWhiteSpace($Version)) { $IdentityArgs += @("--version", $Version) }
     Invoke-Checked -Command $CleanupPython -Arguments $IdentityArgs
-    & $CleanupPython -I $CleanupModule remove `
-        --keep $InstallRoot `
-        --keep $LogPath `
-        --keep (Join-Path $InstallRoot "spacr.ico") `
-        --keep (Join-Path $InstallRoot "nsis-bootstrap-status.txt")
+    Invoke-SpacrNative -Command $CleanupPython -Arguments @("-I", "-X", "utf8", $CleanupModule, "remove",
+        "--keep", $InstallRoot, "--keep", $LogPath,
+        "--keep", (Join-Path $InstallRoot "spacr.ico"),
+        "--keep", (Join-Path $InstallRoot "nsis-bootstrap-status.txt"))
     if ($LASTEXITCODE -ne 0) {
         throw (Get-SpacrInstallerMessage "old_copy_not_removed")
     }
@@ -582,7 +677,7 @@ try {
         $MetadataPaths += @((Join-Path $InstallRoot "offline_mask_check.py"),
             (Join-Path $InstallRoot "offline-bundle.json"))
     }
-    Invoke-Checked -Command $CleanupPython -Arguments (@("-I", $CleanupModule,
+    Invoke-Checked -Command $CleanupPython -Arguments (@("-I", "-X", "utf8", $CleanupModule,
         "installer-metadata", "snapshot", "--folder", $MetadataBackup, "--paths") + $MetadataPaths)
     $OldVenv = Join-Path $InstallRoot (".venv-previous-" + $PID)
     if (Test-Path $VenvDir) {
@@ -634,7 +729,7 @@ try {
         Copy-Item (Join-Path $OfflineBundle "bundle.json") (Join-Path $InstallRoot "offline-bundle.json")
         if ($CheckMask) {
             Invoke-Checked -Command $InstalledPython -Arguments @(
-                "-I", $MaskCheck, "--data", (Join-Path $TestData "plate1"))
+                "-I", "-X", "utf8", $MaskCheck, "--data", (Join-Path $TestData "plate1"))
         }
     }
 
@@ -672,7 +767,7 @@ raise SystemExit(run())
     }
     if ($MetadataTouched -and $RuntimeRestored) {
         try {
-            Invoke-Checked -Command $CleanupPython -Arguments @("-I", $CleanupModule,
+            Invoke-Checked -Command $CleanupPython -Arguments @("-I", "-X", "utf8", $CleanupModule,
                 "installer-metadata", "restore", "--folder", $MetadataBackup)
         } catch {
             $RetainWorkDir = $true
@@ -686,8 +781,12 @@ raise SystemExit(run())
     Remove-Item -Force -ErrorAction SilentlyContinue $StageProfile
     throw $OriginalError
 } finally {
+    $WorkCleanupError = $null
     if ($InstallerStarted -and -not $RetainWorkDir) {
-        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $WorkDir
+        try { Remove-SpacrInstallerWork } catch {
+            $WorkCleanupError = $_
+            if ($OriginalError) { Write-Warning $_.Exception.Message }
+        }
     }
     if ($TranscriptStarted) { Stop-Transcript -ErrorAction SilentlyContinue | Out-Null }
     for ($LeaseIndex = $InstallerLeaseHandles.Count - 1; $LeaseIndex -ge 0; $LeaseIndex--) {
@@ -703,4 +802,5 @@ raise SystemExit(run())
             Remove-Item -LiteralPath $Lease.Path -ErrorAction SilentlyContinue
         }
     }
+    if ($WorkCleanupError -and -not $OriginalError) { throw $WorkCleanupError }
 }
