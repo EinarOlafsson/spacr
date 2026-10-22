@@ -182,3 +182,94 @@ def test_record_absence_keeps_original_fresh_fingerprint_validation(tmp_path, mo
     metadata['render_fingerprint'] = 'stale';write(audio.with_suffix('.json'), metadata)
     with pytest.raises(ValueError, match='current render inputs'):
         native.verified_narration_tracks(stage, identity, lesson)
+
+def composed_stage(published):
+    """A separately validated fresh lesson changes joint catalog bytes only."""
+    from audit_staged_catalogs import CATALOGS
+    base, stage, identity, repo = published
+    retained.prepare(stage, identity, base)
+    for name in CATALOGS:
+        path = stage / 'catalog' / name
+        catalog = json.loads(path.read_text())
+        catalog['lessons'].append(dict(id='15_fresh', scenes=[dict(visual='reference', narration='Fresh feature.')]))
+        write(path, catalog)
+    return base, stage, identity, repo
+
+
+def test_explicit_catalog_composition_preserves_source_record_and_all_fifty_tracks(published):
+    base, stage, identity, _ = composed_stage(published)
+    record = stage / 'production' / identity / retained.RECORD
+    original = record.read_bytes()
+    with pytest.raises(ValueError):retained.checked_published_narration(stage, identity)
+    sidecar = retained.bind_composed_catalogs(stage, identity)
+    tracks, proofs = retained.checked_published_narration(stage, identity)
+    assert record.read_bytes() == original and len(tracks) == len(proofs) == 50
+    contract = json.loads(sidecar.read_text())
+    assert contract['retained_record_sha256'] == sha(record) and len(contract['catalogs']) == 14
+    for source in (base / f'media_host/{identity}/audio').rglob('*'):
+        if source.is_file():
+            target = stage / 'production' / identity / 'audio' / source.relative_to(base / f'media_host/{identity}/audio')
+            assert target.read_bytes() == source.read_bytes()
+    with pytest.raises(FileExistsError):retained.bind_composed_catalogs(stage, identity)
+
+
+@pytest.mark.parametrize('fault', ['selected', 'duplicate_selected', 'duplicate_other', 'traversal_id',
+    'catalog_symlink', 'catalog_parent_symlink', 'audio_symlink', 'audio_parent_symlink', 'wrong_audio'])
+def test_composition_binding_rejects_invalid_stage_before_writing_sidecar(published, fault):
+    _, stage, identity, _ = composed_stage(published)
+    path = stage / 'catalog/lessons_en.json'
+    if fault in {'selected', 'duplicate_selected', 'duplicate_other', 'traversal_id'}:
+        catalog = json.loads(path.read_text())
+        if fault == 'selected':catalog['lessons'][0]['scenes'][0]['narration'] = 'Changed retained speech'
+        elif fault == 'duplicate_selected':catalog['lessons'].append(deepcopy(catalog['lessons'][0]))
+        elif fault == 'duplicate_other':catalog['lessons'].append(deepcopy(catalog['lessons'][-1]))
+        else:catalog['lessons'][-1]['id'] = '../foreign'
+        write(path, catalog)
+    elif fault.endswith('symlink'):
+        if fault == 'catalog_parent_symlink':path = path.parent
+        elif fault == 'audio_symlink':path = stage / 'production' / identity / 'audio/en/af_heart.m4a'
+        elif fault == 'audio_parent_symlink':path = stage / 'production' / identity / 'audio/en'
+        preserved = path.with_name(path.name + '-original')
+        path.rename(preserved);path.symlink_to(preserved, target_is_directory=preserved.is_dir())
+    else:
+        (stage / 'production' / identity / 'audio/en/af_heart.m4a').write_bytes(b'wrong AAC')
+    with pytest.raises(ValueError):retained.bind_composed_catalogs(stage, identity)
+    assert not (stage / 'production' / identity / retained.CATALOG_COMPOSITION).exists()
+
+
+@pytest.mark.parametrize('fault', ['unrelated_bytes', 'rebound_selected', 'source_catalog', 'source_audio',
+    'stage_audio', 'stage_timing', 'record', 'missing_row', 'duplicate_row', 'traversal_path',
+    'missing_sidecar', 'partial_sidecar', 'sidecar_symlink'])
+def test_composed_retention_rejects_catalog_audio_source_and_contract_tampering(published, fault):
+    base, stage, identity, _ = composed_stage(published)
+    sidecar = retained.bind_composed_catalogs(stage, identity)
+    contract = json.loads(sidecar.read_text())
+    path = stage / 'catalog/lessons_en.json'
+    if fault in {'unrelated_bytes', 'rebound_selected'}:
+        catalog = json.loads(path.read_text())
+        catalog['lessons'][0 if fault == 'rebound_selected' else 1]['scenes'][0]['narration'] = 'Changed'
+        write(path, catalog)
+        if fault == 'rebound_selected':
+            row = next(row for row in contract['catalogs'] if row['path'] == path.name)
+            row.update(bytes=path.stat().st_size, sha256=sha(path),
+                       selected_lesson_sha256=retained._object_digest(catalog['lessons'][0]))
+            write(sidecar, contract)
+    elif fault in {'source_catalog', 'source_audio', 'stage_audio', 'stage_timing', 'record'}:
+        targets = dict(source_catalog=base / 'web/catalog/lessons_en.json',
+            source_audio=base / f'media_host/{identity}/audio/en/af_heart.m4a',
+            stage_audio=stage / 'production' / identity / 'audio/en/af_heart.m4a',
+            stage_timing=stage / 'production' / identity / 'audio/en/af_heart.json',
+            record=stage / 'production' / identity / retained.RECORD)
+        with targets[fault].open('ab') as stream:stream.write(b'\nchanged')
+    elif fault in {'missing_row', 'duplicate_row', 'traversal_path'}:
+        if fault == 'missing_row':contract['catalogs'].pop()
+        elif fault == 'duplicate_row':contract['catalogs'][-1] = deepcopy(contract['catalogs'][0])
+        else:contract['catalogs'][0]['path'] = '../lessons_en.json'
+        write(sidecar, contract)
+    elif fault == 'partial_sidecar':sidecar.write_text('{')
+    else:
+        preserved = sidecar.with_name(sidecar.name + '-original')
+        sidecar.rename(preserved)
+        if fault == 'sidecar_symlink':sidecar.symlink_to(preserved)
+    with pytest.raises((ValueError, KeyError)):
+        retained.checked_published_narration(stage, identity)
