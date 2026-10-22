@@ -1,0 +1,24 @@
+================================================================================
+OPEN A DROPPED PLAQUE-ASSAY PDF IN LIVE PREVIEW
+================================================================================
+
+Status:    PLANNED 2026-10-22 — requested behavior, not implemented acceptance
+Requested: maintainer, 2026-10-22
+Owner:     Plaque-assay implementation lane; queued behind release CI repairs
+Related:   468 plaque/figure modes; 517 file drops; 518 mode choice; 526 PDF inputs
+
+REQUEST
+When a PDF is dropped into Plaque Assay and the user chooses Figure or Plaque,
+open Live with that PDF already loaded.
+
+ACCEPTANCE
+- Completing either mode choice opens the corresponding Live preview and loads
+  the dropped PDF, without another file selection or a separate Live click.
+- Retain the user's selected mode and document identity across asynchronous
+  loading; an earlier PDF or an empty preview must not replace the new input.
+- Cancellation does not launch a preview. Existing multiple-input handling,
+  reader installation prompts, and actionable loading errors remain intact.
+- Owning tests cover both choices, cancellation, and the actual loaded PDF.
+  Translate new user strings and regenerate affected outputs normally.
+
+2026-10-22 — Registered before implementation; extends the existing PDF-drop/mode-choice workflow without claiming prior item acceptance covers automatic Live opening.
