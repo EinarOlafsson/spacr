@@ -448,3 +448,6 @@ Windows, universal terminal emulation, whole-item420 or full-CI claim.
 
 2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
 No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.
+
+2026-10-21 - Codex Windows lane owns native provider discovery/install/sign-in checks; preserve working tools/accounts and distinguish current authenticated status from a fresh app-button install/browser login.
+2026-10-21 - Windows: 89 focused checks pass/8 POSIX skips; existing conda-tools GitHub CLI reports signed in when its directory is on PATH (absent from desktop PATH). BLOCKED ON MAINTAINER: in a disposable Windows profile use the offered app Install/sign-in flow and authorized vendor browser login; verify READY and cancellation. Existing account status does not prove a fresh installation/login.

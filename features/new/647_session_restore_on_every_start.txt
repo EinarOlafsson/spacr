@@ -44,3 +44,7 @@ exit from changed lines. No API/docstring/UI-caption change or generator
 delta, no app.py/clean-close change, no live user-store operation or new
 macOS/Windows native claim. Existing broader acceptance notes remain scoped.
 Evidence: features/data/647_unread_draft_preservation_2026-10-14/receipt.json.
+
+2026-10-21 ? Maintainer resumes Windows acceptance; Codex Windows lane owns the existing focused restoration cohort and isolated real-process clean-close/crash/reopen checks. Use disposable SPACR_HOME, preserve actual module/settings/folder identity and record native Windows process recovery separately from offscreen unit results; no accepted Mac/Linux scope is reopened.
+
+2026-10-21 ? Windows focused restoration/autosave cohort passes21 cases (100.97s). Real windows-QPA MainWindow subprocesses preserve regression/module, fdr_alpha0.03 and exact source folder through clean close/reopen; force-kill then fresh-process reopen restores Mask and offers the other module draft. Disposable built-in isolated INI profile, 8 GiB cap, backdrop/prewarm disabled; these checks do not establish default-registry, physical-input or full-launch acceptance.
