@@ -169,3 +169,19 @@ def test_a_labelled_switch_asks_for_room_for_the_track_and_the_text(qtbot):
         plain.sizeHint().width() + toggle._track_x + toggle._track_w
         + toggle._label_gap)
     assert toggle.sizeHint().height() >= toggle._track_h
+
+
+def test_a_compact_native_font_does_not_shrink_the_switch_track_hint(qtbot):
+    """A short native text hint must still reserve the painted track."""
+    from PySide6.QtWidgets import QCheckBox
+
+    toggle = Toggle("Timelapse")
+    toggle.setStyleSheet(
+        toggle.styleSheet()
+        + "QCheckBox#SpacrToggle { font-size: 8px; }")
+    qtbot.addWidget(toggle)
+    toggle.ensurePolished()
+
+    native_hint = QCheckBox.sizeHint(toggle)
+    assert toggle.sizeHint().height() >= native_hint.height()
+    assert toggle.sizeHint().height() >= toggle._track_h + 2
