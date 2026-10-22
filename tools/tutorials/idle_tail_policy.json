@@ -954,6 +954,67 @@
           "idle_tail_start": 1.0
         }
       ]
+    },
+    {
+      "lesson": "17_timelapse",
+      "master_sha256": "3dff1fc49ae8a70f8ba30e8d1f7af58bfbbae838730fd4ba1d67e72bd00cde9c",
+      "visual_timing_sha256": "be6d6bdd84acb34605ce8b19cf030e8331479c39f5c2cd21e91e21d5051772a0",
+      "scenes": [
+        {
+          "visual": "02_timelapse_fold",
+          "source_start": 0.0,
+          "source_end": 31.8,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "12_actual_linked_preview",
+          "source_start": 133.93333333333334,
+          "source_end": 165.2,
+          "idle_tail_start": 7.0
+        },
+        {
+          "visual": "14_actual_overlap_restored",
+          "source_start": 165.2,
+          "source_end": 199.93333333333334,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "15_actual_final_frame",
+          "source_start": 199.93333333333334,
+          "source_end": 222.96666666666667,
+          "idle_tail_start": 5.1
+        },
+        {
+          "visual": "05_setting_timelapse_frame_limits",
+          "source_start": 222.96666666666667,
+          "source_end": 257.4666666666667,
+          "idle_tail_start": 13.1
+        },
+        {
+          "visual": "05_setting_timelapse_mode",
+          "source_start": 257.4666666666667,
+          "source_end": 284.03333333333336,
+          "idle_tail_start": 6.2
+        },
+        {
+          "visual": "05_setting_keep_original_images",
+          "source_start": 284.03333333333336,
+          "source_end": 309.1333333333334,
+          "idle_tail_start": 7.9
+        },
+        {
+          "visual": "05_setting_plot",
+          "source_start": 309.1333333333334,
+          "source_end": 335.7333333333334,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "08_actual_figure_04",
+          "source_start": 335.7333333333334,
+          "source_end": 364.86666666666673,
+          "idle_tail_start": 2.0
+        }
+      ]
     }
   ]
 }
