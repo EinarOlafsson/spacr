@@ -67,13 +67,17 @@ def plan_mix(english,original,tracks,cards,edit,bindings,fences):
             row=dict(native_live_video=False,reference_card=deepcopy(card),edited=False,
                      kept_frames=0,final_frame_hold_frames=frames)
         elif visual in selected:
-            one=deepcopy(original);one['scenes']=[by_source[visual]]
+            expected=next(i for i,s in enumerate(original['scenes'],1) if s['visual']==visual)
+            source_row=by_source[visual]
+            if 'scene' in source_row and (type(source_row['scene']) is not int or source_row['scene']!=expected):
+                raise ValueError('Native original source index differs from published visual')
+            one=deepcopy(original);one['scenes']=[deepcopy(source_row)]
+            if 'scene' in one['scenes'][0]:one['scenes'][0]['scene']=1
             current={'id':english['id'],'scenes':[authored]}
             subset=[dict(scenes=[s]) for s in spoken]
             chosen=deepcopy(selected[visual])
             if 'source_scene' in chosen:
-                expected=next(i for i,s in enumerate(original['scenes'],1) if s['visual']==visual)
-                if chosen['source_scene']!=expected:raise ValueError('Native edit source index differs from published visual')
+                if type(chosen['source_scene']) is not int or chosen['source_scene']!=expected:raise ValueError('Native edit source index differs from published visual')
                 chosen['source_scene']=1
             selection={**edit,'scenes':[chosen]}
             row=plan_intervals(current,one,subset,selection,bindings)[0]

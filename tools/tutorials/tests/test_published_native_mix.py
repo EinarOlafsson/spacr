@@ -61,7 +61,9 @@ def test_approved_native_interior_edit_still_requires_shortest_full_speech_fit(s
     visual=f'native_{native_index}'
     scene_index=next(i for i,s in enumerate(a[0]['scenes']) if s['visual']==visual)
     a[4]['scenes']=[dict(visual=visual,keep_frames=[[0,30]],confirmed_idle_frames=[[30,90]],final_result_frame=29)]
+    untouched=deepcopy(a[1])
     row=next(r for r in mix.plan_mix(*a) if r['visual']==visual)
+    assert a[1]==untouched and all('scene' not in r for r in a[1]['scenes'])
     assert row['source_start_frame']==native_index*90
     assert row['kept_frames']==30 and row['final_frame_hold_frames']==30 and row['edited']
     a[2][0]['scenes'][scene_index]['speech_end']=a[2][0]['scenes'][scene_index]['speech_start']+.99
@@ -104,7 +106,7 @@ def test_normal_six_cards_reject_pixel_definition_and_narration_tampering(genera
 @pytest.fixture
 def umap_plan():
     source=[*mix.UMAP_SOURCE, '27_review_embedding']
-    original={'scenes':[dict(visual=v,speech_start=i*3,scene_end=(i+1)*3,duration=3,native_live_video=True)
+    original={'scenes':[dict(scene=i+1,visual=v,speech_start=i*3,scene_end=(i+1)*3,duration=3,native_live_video=True)
                         for i,v in enumerate(source)]}
     english={'id':'15_image_umap','scenes':[dict(visual=v,narration='Feature '+v)
              for v in [*mix.UMAP_SOURCE,mix.UMAP_CARD]]}
@@ -152,13 +154,26 @@ def test_umap_indexed_interior_edit_preserves_original_clock_and_shortest_voice_
     a=deepcopy(umap_plan);visual=mix.UMAP_SOURCE[13]
     a[4]['scenes']=[dict(source_scene=14,visual=visual,keep_frames=[[0,30]],
         confirmed_idle_frames=[[30,90]],final_result_frame=29)]
+    untouched=deepcopy(a[1])
     row=mix.plan_mix(*a)[13]
+    assert a[1]==untouched, 'Virtual one-row indexing must not mutate published input clocks/identity'
     assert row['source_start_frame']==1170 and row['kept_frames']==30 and row['edited']
     a[4]['scenes'][0]['source_scene']=13
     with pytest.raises(ValueError,match='source index'):mix.plan_mix(*a)
     a[4]['scenes'][0]['source_scene']=14
     a[2][0]['scenes'][13]['speech_end']=a[2][0]['scenes'][13]['speech_start']+.99
     with pytest.raises(ValueError,match='shortest full speech'):mix.plan_mix(*a)
+
+
+@pytest.mark.parametrize('wrong_index',[13,15,0,True,'14',None])
+def test_umap_interior_edit_rejects_wrong_original_source_index(umap_plan,wrong_index):
+    a=deepcopy(umap_plan);visual=mix.UMAP_SOURCE[13]
+    a[1]['scenes'][13]['scene']=wrong_index
+    a[4]['scenes']=[dict(source_scene=14,visual=visual,keep_frames=[[0,30]],
+        confirmed_idle_frames=[[30,90]],final_result_frame=29)]
+    original=deepcopy(a[1])
+    with pytest.raises(ValueError,match='original source index'):mix.plan_mix(*a)
+    assert a[1]==original
 
 
 def test_umap_normal_card_binds_actual_header_sources_and_preserves_canonical_focus(tmp_path,monkeypatch):
