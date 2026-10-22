@@ -272,11 +272,20 @@ def test_a_release_publishes_an_image_without_relying_on_the_tag_push():
         "and release.yml's own permissions do not include packages: write, so "
         "every `docker push` would be denied."
     )
-    assert "installers" in job["needs"], (
-        "the images must be built from the commit the release tags, which is "
-        "the one the installers job commits."
+    assert {"bump", "verify-pypi", "installers"} <= set(job["needs"]), (
+        "images must wait for the verified package and installers from the finalized release source"
     )
-    assert "needs.installers.outputs.release_commit" in job["with"]["source_ref"]
+    source = "${{ needs.bump.outputs.commit_sha }}"
+    assert job["with"]["source_ref"] == source
+    package_checkout = next(step for step in release["jobs"]["package"]["steps"]
+                            if step.get("uses", "").startswith("actions/checkout@"))
+    assert package_checkout["with"]["ref"] == source
+    source_gate = next(step for step in release["jobs"]["source-ci"]["steps"]
+                       if "RELEASE_SHA" in step.get("env", {}))
+    assert source_gate["env"]["RELEASE_SHA"] == source
+    tag = next(step for step in release["jobs"]["github-release"]["steps"]
+               if step.get("name") == "Tag exact release commit")
+    assert tag["env"]["RELEASE_SHA"] == source
     assert "needs.bump.outputs.version" in job["with"]["release_version"]
 
 

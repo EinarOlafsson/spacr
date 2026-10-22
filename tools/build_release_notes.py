@@ -23,8 +23,11 @@ merges anything newer in front of the bundle -- see
 :class:`spacr.qt.widgets.home.NewsPanel` and
 :func:`spacr.updater.fetch_release_notes`.
 
-RUN THIS AFTER THE RELEASE IS PUBLISHED, which the release workflow now does
-for you. By hand, to refresh the resource on a working branch:
+Manual release preparation refreshes the already published history before
+freezing its source commit; automatic version pushes require this history to
+be committed already. A missed earlier refresh cannot silently leave the
+next wheel multiple releases behind. The workflow refreshes again AFTER publication to
+include the release that did not exist during preparation. By hand:
 
     python tools/build_release_notes.py
 
