@@ -98,12 +98,42 @@ including both legacy predicate paths and per-triangle scalar-call checks.
 The same label1 geometry returns normally in30.743s versus49.185s, with
 identical vertices/faces/groups and unchanged mask/history. This remains above
 the strict30s settle bound; it is not native acceptance or an item closure.
+An additional coplanar six-edge reuse candidate passed107 affected checks but
+showed no demonstrated timing gain (31.030s versus30.743s). Its source/test
+delta was not retained; preserve the published scalar-cache baseline and the
+unmet30s bound rather than claiming an allocation count as a speedup.
 The retained scratch prepaint rate27.12FPS counts new render-state deliveries,
 not visible frames: that run records only14.55 canvas paints/s versus23.73
 for the24.06-state-FPS control. Do not adopt it as a performance improvement.
 Diagnose Qt paint coalescing before further prepaint work; require both actual
 paint cadence and independent current-view correctness, keeping the original
 render quality and the30–60FPS target.
+The same real FIB-SEM fixture now passes actual OpenGL100% native checks:
+20/20 picks match the current displayed frame, fresh pan rect/RGB/picking are
+exact, all workers settle and originals remain unchanged (exit0/errors[]).
+OpenGL records21.36 state updates/s and21.03 paint events/s; retained Metal
+records22.09 and21.76 respectively. Neither counter proves unique physical
+display presentation or reaches the accelerated30–60FPS target.
+A paint-paced scratch variant passes all five fresh-current-view cases and
+a separate already-cached-label3 anchors/grid/slice/lens case, with155 exact
+camera/affine checks, unchanged masks, idle workers and exit0/errors[]. It
+records69 unique completed figure/render-pose paintings in3.040s (22.70/s),
+not photon/compositor presentation and not a target pass. This different
+overlay fixture does not clear the label1 strict-settle failure. No production
+prepaint or paint-scheduling changes are adopted from these experiments.
+The real FIB-SEM CPU100% run also passes20/20 current-frame picks and exact
+fresh pan rect/RGB/picking, with21 new frames during the3s drag, idle workers,
+unchanged originals and exit0/errors[]. CPU paint events repeat buffers and
+are not new-frame FPS; its state-update rate is6.99/s.
+Next correctness check: the original FigureImage can be composited before
+Axes3D refreshes its camera; a draw_event delivery then changes only the next
+image. This source path permits old image/new overlay buffers under some Qt
+schedules, not proof that every control frame is wrong. Test actual image
+pixel-consumption pose/serial against the axes pose in the same completed Agg
+composition and associate it with the completed Qt paint. Use matched control
+and scratch-prepaint events; missing tokens are unvalidated, not passes. Any
+production change requires evidence of this actual moving-frame fault and
+related fallback/lifecycle checks, independent of the unmet FPS target.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
@@ -389,3 +419,4 @@ Real-display acceptance remains with the maintainer: each available backend and 
 2026-10-21 — Batched colour/picking readback preserves exact pixels and uint32 label IDs with one synchronized GPU read per frame. Four transport/buffer checks and the real Metal-versus-CPU rendering/finish/lens case pass. Same instrumented Cocoa/Intel Iris Plus64×256×256/100% drag comparison improves18.95→23.59FPS and interactive-render median17.47→14.52ms; all20 picks match the rendered frame, exit0/errors[]. This focused run remains below30–60FPS and does not establish physical-input editing acceptance.
 2026-10-21 — Reuse identical triangle operands and prefilter bounding-box candidates without changing contact/topology predicates:173 initial focused checks and101 affected final geometry checks pass; label1 still takes49.185s, so strict30s settle remains open. Fix pan invalidation with the axes display transform (four focused checks). Actual Cocoa/Intel Iris Plus/macOS26.6.1 FIB-SEM loader opens128×256×256 ZYX/15nm/uint16 labels1–43: Metal100%/22.09FPS,20/20 current-frame picks, independent fresh pan rect/RGB/picking exact, all workers idle, original files unchanged, exit0/errors[]. No production prepaint adoption, physical-input or30–60FPS acceptance claimed.
 2026-10-21 — Cache each triangle's identical scalar basis for full contact validation;185 focused geometry/volume/refusal checks pass, including cached/uncached legacy decisions and candidate order. Same label1 geometry30.743s versus49.185s, normal exit and exact mesh counts/unchanged mask/history; still above30s strict settle. Scratch prepaint27.12 state updates/s produced only14.55 paint events/s versus23.73 control, so it remains unshipped and is not a visible-FPS gain; paint-paced investigation is separate.
+2026-10-21 — Current scalar-cache source/macOS26.6.1 Intel/Cocoa real FIB-SEM follow-up: OpenGL100%21.36 state updates/s/21.03 paint events/s; CPU100%6.99 new frames/s and21 new frames during drag. Both pass20/20 current-frame picks, independent exact fresh pan rect/RGB/picking, all workers idle, unchanged originals and exit0/errors[]. This complements retained Metal22.09 updates/s/21.76 paint events/s, not30–60FPS or physical-input acceptance. Paint-paced scratch passes fresh-view/cached-label3 overlay checks but only22.70 unique completed-paint proxies/s; no production adoption and no label1-timeout closure.
