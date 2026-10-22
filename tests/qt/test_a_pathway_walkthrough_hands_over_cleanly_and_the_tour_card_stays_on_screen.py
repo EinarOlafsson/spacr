@@ -179,6 +179,43 @@ def test_the_card_is_not_placed_before_it_is_built():
     assert not hasattr(bare, "_card")
 
 
+@pytest.mark.parametrize("scheme", ["dark", "light"])
+def test_tour_text_keeps_the_dark_card_background_in_both_themes(
+        window, qtbot, qapp, scheme):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QColor
+    from spacr.qt import preferences, theme
+
+    preferences.set_ambient_enabled(False)
+    preferences.set_theme("dark")
+    preferences.apply_preferences_to_app(qapp)
+    overlay = F._TourOverlay(window, [F.TourStep("A short title", "Short body.")],
+                             on_finish=lambda: None)
+    overlay.show()
+    preferences.set_theme(scheme)
+    preferences.apply_preferences_to_app(qapp)
+    theme._sheet_one_window(overlay)
+    qtbot.wait(30)
+    image = overlay._card.grab().toImage()
+    ratio = image.devicePixelRatio()
+    background = QColor("#0d0e10")
+    for widget in (overlay._title_lbl, overlay._body_lbl,
+                   overlay._text_scroll.viewport()):
+        point = widget.mapTo(overlay._card,
+                             QPoint(widget.width() - 3, widget.height() - 3))
+        pixel = image.pixelColor(round(point.x() * ratio), round(point.y() * ratio))
+        assert pixel == background, (scheme, widget.objectName(), pixel.name())
+    row = overlay._skip_btn.parentWidget()
+    gap = (overlay._skip_btn.geometry().right() + overlay._next_btn.x()) // 2
+    point = row.mapTo(overlay._card, QPoint(gap, row.height() // 2))
+    assert image.pixelColor(round(point.x() * ratio), round(point.y() * ratio)) == background
+    button = overlay._next_btn
+    point = button.mapTo(overlay._card, QPoint(5, button.height() // 2))
+    pixel = image.pixelColor(round(point.x() * ratio), round(point.y() * ratio))
+    assert pixel.blue() > 150 and pixel.red() < 120
+    overlay._finish()
+
+
 def test_nothing_the_user_cannot_see_is_highlighted(window, qtbot):
     listed = window.menuBar().addMenu("Tools")
     unlisted = QMenu("Not on the bar", window)

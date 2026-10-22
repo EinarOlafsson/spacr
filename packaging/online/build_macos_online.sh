@@ -86,21 +86,40 @@ cat > "$SUPPORT/uninstall-spacr.sh" <<'EOF'
 #!/bin/sh
 set -eu
 . "/Library/Application Support/spaCR/installer_messages.sh"
-# --purge also deletes spaCR's caches, backends and user data, after
-# listing them and asking (spacr/install_cleanup.py purge).
+purge=0
+yes=0
+dry_run=0
 for arg in "$@"; do
-    if [ "$arg" = "--purge" ]; then
-        yes=""
-        for other in "$@"; do
-            [ "$other" = "--yes" ] && yes="--yes"
-        done
-        py="$HOME/Library/Application Support/spaCR/venv/bin/python"
-        if [ -x "$py" ]; then
-            "$py" -m spacr.install_cleanup purge $yes || true
-        fi
-    fi
+    case "$arg" in
+        --purge) purge=1 ;;
+        --yes) yes=1 ;;
+        --dry-run) dry_run=1 ;;
+        *) spacr_say unknown_option "$arg" >&2; exit 2 ;;
+    esac
 done
-rm -f /usr/local/bin/spacr
+if [ "$dry_run" = 1 ]; then
+    printf '%s\n' '/Applications/spaCR.app' '/Library/Application Support/spaCR'
+    if [ -L /usr/local/bin/spacr ] &&
+        [ "$(readlink /usr/local/bin/spacr)" = '/Applications/spaCR.app/Contents/MacOS/spaCR' ]; then
+        printf '%s\n' /usr/local/bin/spacr
+    fi
+fi
+if [ "$purge" = 1 ]; then
+    py="$HOME/Library/Application Support/spaCR/venv/bin/python"
+    if [ ! -x "$py" ]; then
+        spacr_say gui_uninstall_failed >&2
+        exit 1
+    fi
+    set -- -I '/Library/Application Support/spaCR/verify_runtime.py' purge
+    if [ "$dry_run" = 1 ]; then set -- "$@" --dry-run; fi
+    if [ "$yes" = 1 ]; then set -- "$@" --yes; fi
+    "$py" "$@"
+fi
+if [ "$dry_run" = 1 ]; then exit 0; fi
+if [ -L /usr/local/bin/spacr ] &&
+    [ "$(readlink /usr/local/bin/spacr)" = '/Applications/spaCR.app/Contents/MacOS/spaCR' ]; then
+    rm -f /usr/local/bin/spacr
+fi
 rm -rf "/Applications/spaCR.app"
 rm -rf "/Library/Application Support/spaCR"
 spacr_say removed

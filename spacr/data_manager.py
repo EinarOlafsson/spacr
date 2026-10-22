@@ -834,19 +834,24 @@ def is_prunable(artifact: Artifact, *, root: Any,
         kinds, and deleting the file for one destroys the other two.
     :returns: ``""`` or a reason.
     """
-    project = _absolute(root)
-    reason = _regenerable_reason(artifact, project, registry)
-    if reason:
-        return reason
-    for other in group:
-        if other.artifact_id == artifact.artifact_id:
-            continue
-        shared = _regenerable_reason(other, project, registry)
-        if shared:
-            return (f"the same path also holds "
-                    f"{KIND_LABELS.get(other.kind, other.kind)} from "
-                    f"{other.module}, and {shared}")
-    return ""
+    try:
+        project = _absolute(root)
+        reason = _regenerable_reason(artifact, project, registry)
+        if reason:
+            return reason
+        for other in group:
+            if other.artifact_id == artifact.artifact_id:
+                continue
+            shared = _regenerable_reason(other, project, registry)
+            if shared:
+                return (f"the same path also holds "
+                        f"{KIND_LABELS.get(other.kind, other.kind)} from "
+                        f"{other.module}, and {shared}")
+        return ""
+    except Exception:
+        from .qt.i18n import tr
+
+        return tr("Eligibility checks could not be completed; keep this artifact.")
 
 
 

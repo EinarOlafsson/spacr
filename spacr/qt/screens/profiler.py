@@ -452,9 +452,10 @@ class ProfilerScreen(QWidget):
     def load_coefficients(self, path: str) -> None:
         """Read a coefficient table and profile the model it describes.
 
-        :param path: CSV file with ``feature`` and ``coefficient`` columns;
-            read on a worker thread and rebuilt with the chosen link. An
-            empty path only asks for a table.
+        :param path: CSV file with ``feature`` and ``coefficient`` columns; read and
+            rebuilt with the chosen link on a worker thread by default, or
+            inline when the screen is unthreaded. An empty path only asks for
+            a table.
         """
         path = str(path or "").strip()
         self.last_error = ""

@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import ast
+import os
 from pathlib import Path
+import subprocess
+import sys
 
 from packaging.markers import default_environment
 from packaging.requirements import Requirement
@@ -151,3 +154,51 @@ def test_macos_compatibility_installs_xgboost_openmp_runtime():
     assert "Install OpenMP runtime (macOS only)" in workflow
     assert "if: runner.os == 'macOS'" in workflow
     assert "brew install libomp" in workflow
+
+
+def test_project_harness_blocks_only_the_unrelated_napari_plugin(tmp_path):
+    metadata = tmp_path / "spacr_harness_plugin_probe-0.0.dist-info"
+    metadata.mkdir()
+    (metadata / "METADATA").write_text(
+        "Metadata-Version: 2.1\nName: spacr-harness-plugin-probe\nVersion: 0.0\n"
+    )
+    (metadata / "entry_points.txt").write_text(
+        "[pytest11]\nnapari = unrelated_napari_plugin\n"
+        "spacr_harness_probe = required_harness_plugin\n"
+    )
+    (tmp_path / "unrelated_napari_plugin.py").write_text(
+        "raise AssertionError('the unrelated napari plugin must not load')\n"
+    )
+    (tmp_path / "required_harness_plugin.py").write_text(
+        "import pytest\n@pytest.fixture\ndef required_plugin_fixture():\n"
+        "    return 'other plugins remain available'\n"
+    )
+    probe = tmp_path / "test_logging_probe.py"
+    probe.write_text(
+        "import logging\n"
+        "def test_mapping_log_and_other_plugin(required_plugin_fixture, caplog):\n"
+        "    assert required_plugin_fixture == 'other plugins remain available'\n"
+        "    options = {'tm_lim': 2500, 'mip_gap': 0.05}\n"
+        "    with caplog.at_level(logging.INFO):\n"
+        "        logging.getLogger('spacr.timelapse').info('Options: %s', options)\n"
+        "    assert caplog.records[-1].args == options\n"
+        "    assert caplog.records[-1].getMessage() == f'Options: {options}'\n"
+    )
+    environment = os.environ.copy()
+    for name in (
+        "PYTEST_ADDOPTS", "PYTEST_DISABLE_PLUGIN_AUTOLOAD",
+        "PYTEST_XDIST_WORKER", "PYTEST_XDIST_WORKER_COUNT",
+        "PYTEST_XDIST_TESTRUNUID", "SPACR_TEST_COUNT_OWNER_PID",
+        "SPACR_TEST_COUNT_SESSION_ID",
+    ):
+        environment.pop(name, None)
+    environment["PYTHONPATH"] = os.pathsep.join(
+        [str(tmp_path), environment.get("PYTHONPATH", "")]
+    )
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "--noconftest", "-q",
+         "-c", str(ROOT / "pytest.ini"), str(probe)],
+        env=environment, text=True, capture_output=True, timeout=30,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 passed" in result.stdout

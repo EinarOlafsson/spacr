@@ -361,7 +361,7 @@ def link_by_iou(mask_prev, mask_next, iou_threshold=0.1):
     :param mask_prev: labelled mask from the previous frame.
     :param mask_next: labelled mask from the next frame.
     :param iou_threshold: minimum IoU required to accept a match. Default ``0.1``.
-    :returns: list of ``(label_prev, label_next)`` matches above the threshold.
+    :returns: list of ``(label_prev, label_next)`` matches at or above the threshold.
     """
     labels_prev = np.unique(mask_prev)[1:]
     labels_next = np.unique(mask_next)[1:]

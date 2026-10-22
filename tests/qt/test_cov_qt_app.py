@@ -15,6 +15,8 @@ and settings models are the shipping objects.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import importlib
 import os
 import sys
@@ -823,6 +825,35 @@ def test_no_shipping_sidebar_label_is_clipped(qtbot, qapp, qt_theme_applied):
 # 3. Home tiles: the clipped-label bug that motivated the regrouping
 # ===========================================================================
 
+@contextmanager
+def _at_design_scale():
+    """Keep the page and its pixel contract at the same explicit scale."""
+    from spacr.qt import gui_scale, preferences
+
+    settings = preferences._settings()
+    keys = ("prefs/font_scale", "prefs/gui_scale")
+    previous = {key: settings.value(key) for key in keys
+                if settings.contains(key)}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        try:
+            preferences.set_font_scale(1.0)
+            preferences.set_gui_scale(1.0)
+            yield
+        finally:
+            for key in keys:
+                if key in previous:
+                    settings.setValue(key, previous[key])
+                else:
+                    settings.remove(key)
+
+
+@pytest.fixture
+def _home_geometry_at_design_scale():
+    with _at_design_scale():
+        yield
+
+
 @pytest.fixture(scope="module")
 def home_page(qapp, qt_theme_applied):
     # Alpha tiles are off for a new user (DEFAULT_SHOW_ALPHA is False) and
@@ -831,10 +862,11 @@ def home_page(qapp, qt_theme_applied):
     from spacr.qt import preferences as _prefs
     patch = pytest.MonkeyPatch()
     patch.setattr(_prefs, "DEFAULT_SHOW_ALPHA", True)
-    page = make_home_page()  # the page MainWindow ships
-    page.resize(1500, 950)
-    page.show()
-    qapp.processEvents()
+    with _at_design_scale():
+        page = make_home_page()  # the page MainWindow ships
+        page.resize(1500, 950)
+        page.show()
+        qapp.processEvents()
     yield page
     page.hide()
     page.deleteLater()
@@ -874,6 +906,7 @@ def test_todays_names_all_fit_without_eliding(home_page):
             if t.is_name_elided()] == []
 
 
+@pytest.mark.usefixtures("_home_geometry_at_design_scale")
 def test_a_tile_is_wide_enough_for_the_longest_name(home_page):
     """Was ``test_a_tile_is_as_wide_as_the_name_it_has_to_draw``.
 

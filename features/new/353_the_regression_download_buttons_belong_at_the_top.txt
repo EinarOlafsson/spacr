@@ -225,3 +225,7 @@ two captions a rename left behind -- `test_the_example_screen_button` wants
 example images", where the source says "Load test data…" at HEAD.
 
 VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.
+
+2026-10-21 — Shared-picker follow-up for353 download controls: root/easy_n79 own responsive screen-data picker construction and a genuinely bounded Hub inventory request; retain published/empty/unknown semantics, existing captions and top-aligned download behavior. Validate controlled slow lookup, GUI-thread delivery and safe close without blocking or late widget access; root owns review/publication.
+2026-10-21 — The shared picker now constructs before its bounded timeout-aware dataset inventory lookup; GUI-thread delivery preserves empty/unknown results, selection totals and the active language, while closing cancels and parks without waiting.
+2026-10-21 — Owning checks retain8 SDK/14 pure cases and21 GUI passes; the two final French callbacks pass2.12s with no leftover-thread report. Normal caption extraction preserves all7960 source identities; original alignment acceptance remains intact and root owns publication.

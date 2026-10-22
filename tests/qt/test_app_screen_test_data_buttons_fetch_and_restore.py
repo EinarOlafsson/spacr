@@ -124,22 +124,35 @@ class TestTheScreenData:
         assert f"Screen data ready: {plate}" in _console_text(screen._console)
 
     def test_the_real_picker_and_downloader_are_reached_for(
-            self, screen, plate, monkeypatch):
+            self, qtbot, screen, plate, monkeypatch):
+        from PySide6.QtWidgets import QDialog
+        from spacr import screen_data
         from spacr.qt.widgets import screen_data_picker
+        from spacr.qt.bridge import prune_parked_threads, thread_has_stopped
 
         picked = []
         fetched = []
-        monkeypatch.setattr(
-            screen_data_picker, "choose_screen_data",
-            lambda parent, destination, kind: picked.append(kind) or [
-                types.SimpleNamespace(archive="x.tar")])
+        threads = []
+        monkeypatch.setattr(screen_data, "published_archives", lambda: None)
+
+        def choose(dialog):
+            picked.append(dialog._kind)
+            threads.extend(thread for thread, _worker in dialog._inventory_jobs._jobs.values())
+            dialog._list.item(0).setSelected(True)
+            dialog._follow_selection()
+            dialog.accept()
+            return QDialog.Accepted
+
+        monkeypatch.setattr(screen_data_picker.ScreenDataPicker, "exec", choose)
         monkeypatch.setattr(
             hf_download, "download_chosen_screen_data",
             lambda parent, destination, archives, repo, done:
                 fetched.append(list(archives)))
         assert screen.load_the_screen_data(kind="measurements") == {}
         assert picked == ["measurements"]
-        assert fetched == [["x.tar"]]
+        assert fetched == [["plate1-measurements.tar"]]
+        qtbot.waitUntil(lambda: all(thread_has_stopped(thread) for thread in threads))
+        prune_parked_threads()
 
 
 # --------------------------------------------------------------------------

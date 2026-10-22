@@ -110,6 +110,7 @@ def test_a_matrix_screener_tree_past_max_path_converts_on_windows(tmp_path):
     layout = image_import.infer_layout(plate)
     assert layout.sampled == 2
     deep = os.path.join(root, "x" * 60, "masks")
+    os.makedirs(_long_path(deep, always=True), exist_ok=True)
     mask_io.save_mask(os.path.join(deep, "field_mask.tif"), np.ones((8, 8), np.uint16))
     assert mask_io.load_mask(os.path.join(deep, "field_mask.tif")).sum() == 64
     stack = spacr_io._save_array_atomic(os.path.join(deep, "stack", "f.npy"),

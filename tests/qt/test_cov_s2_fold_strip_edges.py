@@ -14,6 +14,7 @@ Three of those handovers can go wrong quietly:
 from __future__ import annotations
 
 import importlib
+import types
 
 import pytest
 
@@ -24,6 +25,34 @@ from spacr.qt.widgets import fold_strip                          # noqa: E402
 from spacr.qt.widgets.fold_strip import (                        # noqa: E402
     FOLD_HOST_MODULES, FoldButton, folded_modules,
 )
+
+
+@pytest.mark.parametrize("before,after", [("dark", "light"), ("light", "dark")])
+def test_preferences_reinks_existing_fold_icons_without_resizing_them(
+        qtbot, qapp, before, after):
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt import app as app_module, preferences
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    owner.refresh_theme = types.MethodType(app_module.MainWindow.refresh_theme, owner)
+    owner.refresh_language = lambda: None
+    preferences.set_theme(before)
+    preferences.apply_preferences_to_app(qapp)
+    button = FoldButton("train_cellpose", parent=owner, checkable=True)
+    button.setChecked(True)
+    geometry = (button.size(), button.iconSize())
+    original = button.icon().pixmap(button.iconSize()).toImage()
+
+    preferences.set_theme(after)
+    preferences.apply_preferences_to_app(qapp)
+    preferences._refresh_owner_window(owner)
+    expected = app_module._icon_for_app("train_cellpose").pixmap(button.iconSize()).toImage()
+    actual = button.icon().pixmap(button.iconSize()).toImage()
+    assert original != expected
+    assert actual == expected
+    assert (button.size(), button.iconSize()) == geometry
+    assert button.isChecked() and button.app_key == "train_cellpose"
 
 
 class TestOneBrokenHostDoesNotEmptyTheInventory:

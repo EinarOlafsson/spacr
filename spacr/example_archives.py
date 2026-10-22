@@ -741,15 +741,17 @@ _download_one = download_archive
 def extract_example_archive(archive, dest) -> int:
     """Unpack a downloaded example archive under ``dest``.
 
-    Members are extracted with ``filter="data"``. A tar can name
-    ``../../etc/something`` or an absolute path, and a plain ``extractall``
-    writes there, so an unfiltered unpack would let anyone who can publish to
-    the repository write anywhere the user can write. The filter rejects those
-    members, along with device nodes, setuid bits and symlinks pointing outside
-    the tree.
+    Where available, members are extracted with ``filter="data"``. Unlike a
+    plain ``extractall``, the filter rejects paths such as
+    ``../../etc/something`` that would leave the destination. Leading path
+    separators are stripped before the remaining path is checked. Device nodes
+    and links to absolute or outside targets are rejected; unsafe permission
+    bits, including setuid, are cleared.
 
-    Python 3.12 and later have it built in. Older interpreters get an explicit
-    check instead of a silent unfiltered unpack.
+    When ``tarfile.data_filter`` is unavailable, all members are checked
+    before extraction: names starting with ``/`` or containing a ``..`` path
+    component are refused, as are members other than regular files and
+    directories.
 
     :param archive: the ``.tar`` on disk.
     :param dest: the folder to unpack into.

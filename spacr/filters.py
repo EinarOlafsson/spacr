@@ -180,8 +180,8 @@ def choose_anchor(tables: Sequence[str]) -> str:
         comes from the order of :data:`OBJECT_TABLES`, not from the order
         given here, so putting ``nucleus`` first does not make it the anchor
         while ``cell`` is also in the sequence.
-    :raises FilterError: nothing to anchor on. The message names the tables
-        that were found.
+    :raises FilterError: nothing to anchor on. The message lists the table names
+        that were looked for.
     """
     for name in OBJECT_TABLES:
         if name in tables:

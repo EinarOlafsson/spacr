@@ -181,7 +181,7 @@ def require_napari() -> Any:
 
 
 def napari_available() -> bool:
-    """Whether napari can be imported. Never raises.
+    """Whether a module spec for napari can be found. Never raises.
 
     Uses :func:`importlib.util.find_spec` without importing napari, so a
     screen can disable a button before the user presses it.

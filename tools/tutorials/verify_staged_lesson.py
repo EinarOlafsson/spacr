@@ -183,8 +183,13 @@ def check_complete_native_trace(trace, events, visual, spoken, index, final=Fals
             if abs(row['audio'] - expected) >= .5:
                 raise AssertionError({'next_narration_wrong_offset': row, 'expected': expected})
     gap = (next_wall - last_wall) / 1000
-    if planned_cut and not .85 <= gap <= 1.15:
-        raise AssertionError({'actual_sound_gap_outside_policy': gap, 'planned_idle_cut': planned_cut})
+    # Shorten long gaps without padding an already brief source pause. Final
+    # EOF has no following sound: retain its existing one-second end policy.
+    expected_gap = 1.0 if final else min(next_sound - last_sound, 1.0)
+    if planned_cut and not expected_gap - .15 <= gap <= expected_gap + .15:
+        raise AssertionError({'actual_sound_gap_outside_policy': gap,
+                              'expected_sound_gap_seconds': expected_gap,
+                              'planned_idle_cut': planned_cut})
     return {'checked_boundary_after_scene': index + 1, 'trace': trace,
         'selected_visual_tail_observed': True, 'recorded_tail_observed': True,
         'entire_recorded_tail_played': not planned_cut,

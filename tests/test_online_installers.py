@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -145,6 +146,98 @@ def test_bootstraps_use_tls_and_select_acceleration_by_default():
     assert "--torch-backend $TorchBackend" in windows
     assert "qt,zernike,btrack,czi" not in unix
     assert "qt,zernike,btrack,czi" not in windows
+
+
+@needs_bash
+@pytest.mark.parametrize("platform", ["linux", "macos"])
+@pytest.mark.parametrize("offline", [False, True])
+def test_unix_package_resolution_uses_compatible_mac_cvxopt_wheels(tmp_path, platform, offline):
+    source = _text(UNIX)
+    commands = source[source.index("binary_args=()"):
+                      source.index("spacr_say validating_install")]
+    arguments = tmp_path / "resolved-arguments"
+    fake_uv = tmp_path / "uv"
+    fake_uv.write_text(
+        "#!/bin/sh\n"
+        "printf '%s\\n' \"$@\" > \"$UV_ARGS_LOG\"\n",
+        encoding="utf-8",
+    )
+    fake_uv.chmod(0o755)
+    bindings = {
+        "PLATFORM": platform, "UV_BIN": str(fake_uv),
+        "UV_ARGS_LOG": str(arguments), "work_dir": str(tmp_path),
+        "WITHOUT_WGPU": "1", "stage_python": str(tmp_path / "python"),
+        "OFFLINE_BUNDLE": str(tmp_path / "bundle") if offline else "",
+        "TORCH_BACKEND": "cpu", "PACKAGE_SPEC": "spacr[qt]",
+    }
+    script = "\n".join(f"export {key}={shlex.quote(value)}"
+                       for key, value in bindings.items())
+    script += '\nRESOLVER_GUARDS=("numba>=0.60,<1.0" "llvmlite>=0.43,<1.0")'
+    script += "\nspacr_say() { :; }\n" + commands
+    subprocess.run(["bash", "-eu", "-c", script], check=True,
+                   capture_output=True, text=True, timeout=10)
+    args = arguments.read_text(encoding="utf-8").splitlines()
+    assert args[:2] == ["pip", "install"]
+    assert ("--only-binary=cvxopt" in args) is (platform == "macos")
+    assert "--override" in args
+    assert args[args.index("--override") + 1] == str(tmp_path / "without-wgpu-overrides.txt")
+    assert "--python" in args and str(tmp_path / "python") in args
+    assert "--compile-bytecode" in args
+    if offline:
+        assert "--offline" in args and "--no-index" in args
+        assert args[args.index("--find-links") + 1] == str(tmp_path / "bundle/wheels")
+        assert args[args.index("-r") + 1] == str(tmp_path / "bundle/requirements.txt")
+    else:
+        assert args[args.index("--torch-backend") + 1] == "cpu"
+        assert "spacr[qt]" in args
+        assert "numba>=0.60,<1.0" in args and "llvmlite>=0.43,<1.0" in args
+
+
+@needs_bash
+@pytest.mark.parametrize("architecture", ["aarch64", "x86_64"])
+@pytest.mark.parametrize("manager,build_packages,runtime", [
+    ("apt-get", ("build-essential", "libx11-dev"), "libegl1"),
+    ("dnf", ("gcc-c++", "libX11-devel"), "mesa-libEGL"),
+    ("zypper", ("gcc-c++", "libX11-devel"), "Mesa-libEGL1"),
+    ("pacman", ("base-devel", "libx11"), "libglvnd"),
+])
+def test_linux_arm_installer_provisions_compiler_and_x11_headers(
+        tmp_path, architecture, manager, build_packages, runtime):
+    args = _linux_system_dependency_arguments(tmp_path, architecture, manager)
+    assert runtime in args
+    assert "ffmpeg" in args
+    for package in build_packages:
+        assert (package in args) is (architecture == "aarch64")
+
+
+def _linux_system_dependency_arguments(tmp_path, architecture, manager, *, skip=False):
+    source = _text(UNIX)
+    function = "install_linux_system_dependencies() {" + source.split(
+        "install_linux_system_dependencies() {", 1)[1].split("\n}\n", 1)[0] + "\n}"
+    commands = tmp_path / "commands"
+    commands.mkdir()
+    scripts = {
+        "id": "#!/bin/sh\nprintf '0\\n'\n",
+        "uname": "#!/bin/sh\nprintf '%s\\n' \"$TEST_ARCHITECTURE\"\n",
+        manager: "#!/bin/sh\nprintf '%s\\0' \"$@\" >> \"$SYSTEM_PACKAGE_ARGS\"\n",
+    }
+    for name, script in scripts.items():
+        command = commands / name
+        command.write_text(script, encoding="utf-8")
+        command.chmod(0o755)
+    captured = tmp_path / "package-arguments"
+    env = dict(os.environ, PATH=str(commands), TEST_ARCHITECTURE=architecture,
+               SYSTEM_PACKAGE_ARGS=str(captured))
+    script = 'PLATFORM=linux\nSKIP_SYSTEM_DEPS=' + ("1" if skip else "0")
+    script += "\nspacr_say() { :; }\n" + function + "\ninstall_linux_system_dependencies"
+    subprocess.run([shutil.which("bash"), "-eu", "-c", script], env=env,
+                   check=True, capture_output=True, text=True, timeout=10)
+    return captured.read_text(encoding="utf-8").split("\0") if captured.exists() else []
+
+
+@needs_bash
+def test_linux_arm_installer_retains_explicit_system_dependency_skip(tmp_path):
+    assert _linux_system_dependency_arguments(tmp_path, "aarch64", "apt-get", skip=True) == []
 
 
 def test_online_installers_default_to_the_core_package_and_keep_overrides():
@@ -718,10 +811,13 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
 
 
 def test_one_click_release_orders_version_pypi_installers_and_github():
+    import yaml
     workflow = _text(RELEASE_WORKFLOW)
+    definition = yaml.safe_load(workflow)
+    triggers = definition.get("on", definition.get(True))
+    assert triggers["push"] == {"branches": ["main"]}
     assert "workflow_dispatch:" in workflow
     assert "branches: [main]" in workflow
-    assert '"setup.py"' in workflow
     assert "python packaging/release.py bump" in workflow
     assert "--allow-current" in workflow
     assert "github.actor != 'github-actions[bot]'" in workflow
@@ -1110,3 +1206,44 @@ def test_builders_read_version_without_importing_setup_py():
     windows = _text(ONLINE / "build_windows_online.ps1")
     assert "Select-String" in windows
     assert "setup.py --version" not in windows
+
+
+@needs_bash
+@pytest.mark.parametrize("collect_only,publish,cancelled,results,builds,collects", [
+    (False, True, False, ("success", "success", "success"), True, True),
+    (False, True, False, ("success", "failure", "success"), True, False),
+    (False, True, False, ("success", "skipped", "success"), True, False),
+    (True, True, False, ("skipped", "skipped", "skipped"), False, True),
+    (True, False, False, ("skipped", "skipped", "skipped"), False, False),
+    (True, True, True, ("skipped", "skipped", "skipped"), False, False),
+])
+def test_collect_only_reuses_artifacts_without_rebuilding_or_hiding_failures(
+        collect_only, publish, cancelled, results, builds, collects):
+    import yaml
+
+    definition = yaml.safe_load(_text(WORKFLOW))
+    triggers = definition.get("on", definition.get(True))
+    assert triggers["workflow_call"]["inputs"]["collect_only"]["default"] is False
+    jobs = definition["jobs"]
+
+    def accepts(condition):
+        expression = condition.strip().removeprefix("${{").removesuffix("}}")
+        expression = expression.replace("always()", "( 1 == 1 )")
+        expression = expression.replace("cancelled()", f"( {int(cancelled)} == 1 )")
+        expression = expression.replace("!inputs.", "! inputs.")
+        values = {"inputs.collect_only": f"( {int(collect_only)} == 1 )",
+                  "inputs.publish_to_repository": f"( {int(publish)} == 1 )",
+                  "github.event_name": "'push'", "inputs.platform": "'all'"}
+        values.update({f"needs.{name}.result": repr(value)
+                       for name, value in zip(("linux", "windows", "macos"), results)})
+        for name, value in values.items():
+            expression = expression.replace(name, value)
+        expression = expression.replace("!(", "! (")
+        checked = subprocess.run([shutil.which("bash"), "-c",
+                                  "if [[ " + expression + " ]]; then exit 0; else exit 1; fi"],
+                                 capture_output=True, text=True, timeout=5)
+        assert checked.returncode in (0, 1), checked.stderr
+        return checked.returncode == 0
+
+    assert [accepts(jobs[name]["if"]) for name in ("linux", "windows", "macos")] == [builds] * 3
+    assert accepts(jobs["collect"]["if"]) is collects

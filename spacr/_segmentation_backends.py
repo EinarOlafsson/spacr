@@ -506,7 +506,9 @@ _SPECS = {
     _CELLPOSE3: _BackendSpec(
         name=_CELLPOSE3, label="Cellpose 3", module="cellpose",
         probe=("cellpose.models",), distribution="cellpose",
-        requirements=("cellpose==3.1.1.3", "packaging"),
+        requirements=("cellpose==3.1.1.3", "packaging",
+                      "numba<0.63; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+                      "numpy<2; sys_platform == 'darwin' and platform_machine == 'x86_64'"),
         torch=("torch",), python=((3, 9), (3, 12)),
         licence="BSD-3-Clause",
         licence_note=(
@@ -718,7 +720,10 @@ _SPECS = {
         name=_SAMCELL, label="SAMCell", module="samcell",
         probe=("samcell.model", "samcell.pipeline"),
         distribution="samcell",
-        requirements=("samcell==1.2.0", "matplotlib>=3.3.0"),
+        requirements=(
+            "samcell==1.2.0", "matplotlib>=3.3.0",
+            "numpy<2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+            "transformers<5; sys_platform == 'darwin' and platform_machine == 'x86_64'"),
         torch=("torch",), python=((3, 9), (3, 14)), licence="MIT",
         licence_note=(
             "SAMCell 1.2.0 is MIT (Copyright 2025 Saahil Sanganeriya). It "
@@ -1562,9 +1567,16 @@ def _stale_requirements(name, record=None, root=None):
     if not isinstance(listed, list):
         return []
     have = {_requirement_name(item) for item in listed}
-    return [item for item in (spec.requirements + spec.built_here
-                              + spec.without_dependencies)
-            if _requirement_name(item) not in have]
+    missing = []
+    for item in spec.requirements + spec.built_here + spec.without_dependencies:
+        if ";" in item:
+            from packaging.requirements import Requirement
+            marker = Requirement(item).marker
+            if marker is not None and not marker.evaluate():
+                continue
+        if _requirement_name(item) not in have:
+            missing.append(item)
+    return missing
 
 
 #: ``name -> interpreters`` found for it, once per process.
@@ -6200,8 +6212,10 @@ def _worker_main(argv=None, stdin=None, stdout=None):
         out.write(json.dumps(reply) + "\n")
         out.flush()
         return 0 if reply["ok"] else 1
-    return _serve(name, sys.stdin if stdin is None else stdin,
-                  _protocol_channel() if stdout is None else stdout)
+    channel = _protocol_channel() if stdout is None else stdout
+    if sys.platform == "win32":
+        _handle(name, {"protocol": _PROTOCOL, "id": 0, "op": "hello"}, {})
+    return _serve(name, sys.stdin if stdin is None else stdin, channel)
 
 
 def _load_backend(name, *, device=None, z_plan=None, t_plan=None,

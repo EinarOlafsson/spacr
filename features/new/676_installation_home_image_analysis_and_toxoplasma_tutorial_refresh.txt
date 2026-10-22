@@ -241,3 +241,17 @@ Tutorial 1 PyPI is corrected in 24 English voices; 26 other-language audio track
 Source-bound idle cuts preserve speech and demonstrated actions; the Mask example measures 1.03 s. Reviewed scenes in04/07/21 have explicit protection boundaries.
 Docker (02), Yokogawa (07/14), focused prose (02/04/05/07/17) and 13-language reviews are prepared; their revised media still need delivery.
 Remaining native idle boundaries need editorial review. Captures stay held; preserve original stages/logs and restart AF3 when the campaign ends.
+
+2026-10-21 — Lesson02 publishes Docker installation guidance and feature-focused narration through normal50-voice/media/browser verification. Existing installation footage and held command cards remain distinguished by normal source metadata; item676 stays open.
+
+2026-10-21 — Lesson04 publishes feature-focused installation narration using its verified unchanged mixed master and original14 scene intervals. Normal50-voice QA, decode/PTS/poster/web, reviewed source-bound idle cuts and actualbrowser/publication checks pass. No new raw capture or app-source changes; item676 stays open.
+
+2026-10-21 — Lesson05 publishes feature-focused Home narration in39 scenes using33 retained published native sources and six explicit feature-reference cards. Reviewed1x interior edits retain fold/unfold, Revert and Cancel actions; source-bound idle fences protect essential results. Normal50-voice QA/onsets, decode/PTS/poster/web, browser and84-route publication checks pass. No new raw capture or app-source changes; item676 stays open.
+
+2026-10-21 — Lesson07 Mask publishes refreshed narration in13 scenes using retained published footage, reviewed1x interior edits and explicit omitted setup footage. Essential regex entry, channel rows, preview controls and Run actions remain visible; source-bound idle fences protect results. Normal50-voice QA/onsets, decode/PTS/poster/web, browser and84-route publication checks pass. No new raw capture or app-source changes; item676 stays open.
+
+2026-10-21 — Lesson14 Make Masks publishes corrected Yokogawa narration across50 voices and61 existing instructional scenes. The verified published master is unchanged; reviewed source-clock idle fences preserve every established state. Normal audio QA/onsets, decode/PTS/poster/web, browser and84-route publication checks pass. No new raw capture or app-source changes; item676 stays open.
+
+2026-10-21 — Lesson17 Timelapse publishes feature-focused narration across50 voices and12 existing instructional scenes. Reviewed1x edits omit redundant setup while preserving established tracking controls and results; source-bound idle fences protect required actions. Normal audio QA/onsets, decode/PTS/poster/web, browser and84-route publication checks pass. No new raw capture or app-source changes; item676 stays open.
+
+2026-10-21 — Lessons49 Methods and Results and78 the spaCR workflow overview publish reviewed1x editorial footage edits and source-bound idle-tail protection. Existing50 verified narration tracks per lesson, audio timings, authored lesson content, fingerprints and voice speeds are preserved; no synthesis, new raw capture, runtime-freshness or listening-review claim. Normal full decode/PTS/poster/web,71 new browser checks per lesson and84-route candidate/publication/readback pass. Item676 remains open.

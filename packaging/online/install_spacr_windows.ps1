@@ -123,10 +123,34 @@ if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
     exit 0
 }
 
-$driveName = [System.IO.Path]::GetPathRoot($InstallRoot)
-$drive = [System.IO.DriveInfo]::new($driveName)
-if ($drive.AvailableFreeSpace -lt 5GB) {
-    $available = [math]::Round($drive.AvailableFreeSpace / 1GB, 1)
+function Get-SpacrAvailableDiskSpace {
+    param([Parameter(Mandatory = $true)][string]$Path)
+    $Directory = [System.IO.Path]::GetFullPath($Path)
+    while (-not [System.IO.Directory]::Exists($Directory)) {
+        $Parent = [System.IO.Path]::GetDirectoryName($Directory)
+        if ([string]::IsNullOrEmpty($Parent) -or $Parent -eq $Directory) {
+            break
+        }
+        $Directory = $Parent
+    }
+    if (-not ("SpacrInstaller.DiskSpace" -as [type])) {
+        Add-Type -Namespace SpacrInstaller -Name DiskSpace -MemberDefinition @'
+[System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+public static extern bool GetDiskFreeSpaceExW(string directory, out ulong available, out ulong total, out ulong free);
+'@
+    }
+    [UInt64]$Available = 0
+    [UInt64]$Total = 0
+    [UInt64]$Free = 0
+    if (-not [SpacrInstaller.DiskSpace]::GetDiskFreeSpaceExW($Directory, [ref]$Available, [ref]$Total, [ref]$Free)) {
+        throw [System.ComponentModel.Win32Exception]::new([System.Runtime.InteropServices.Marshal]::GetLastWin32Error())
+    }
+    return $Available
+}
+
+$AvailableSpace = Get-SpacrAvailableDiskSpace $InstallRoot
+if ($AvailableSpace -lt 5GB) {
+    $available = [math]::Round($AvailableSpace / 1GB, 1)
     throw ((Get-SpacrInstallerMessage "needs_free_space") + " " +
         (Get-SpacrInstallerMessage "available_space" @($available, $InstallRoot)))
 }
@@ -376,7 +400,7 @@ $Committed = $false
 $null = Enable-SpacrInstallerJob
 try {
     $InstallParent = [System.IO.Path]::GetDirectoryName($InstallRoot)
-    New-Item -ItemType Directory -Force -Path $InstallParent | Out-Null
+    [System.IO.Directory]::CreateDirectory($InstallParent) | Out-Null
     $OuterLease = Join-Path $InstallParent (("." + [System.IO.Path]::GetFileName($InstallRoot)) + ".spacr-installer-lock")
     $InstallerLeaseHandles += @{ Path = $OuterLease; Handle = (Open-SpacrInstallerLease $OuterLease) }
     New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null

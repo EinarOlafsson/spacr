@@ -2515,12 +2515,30 @@ def _triangulate_volume_cap(footprint):
     return triangles
 
 
-def _mesh_triangle_contact(first, second, common) -> bool:
+def _mesh_shared_vertex(point, vertex, tolerance):
+    """Preserve the original norm near tolerance; shortcut only zero/far deltas."""
+    delta = point - vertex
+    if len(delta) not in (2, 3):
+        return np.linalg.norm(delta) <= tolerance
+    a, b = float(delta[0]), float(delta[1])
+    c = float(delta[2]) if len(delta) == 3 else 0.
+    if a == b == c == 0:
+        return True
+    margin = 100 * tolerance
+    if abs(a) > margin or abs(b) > margin or abs(c) > margin:
+        return False
+    return np.linalg.norm(delta) <= tolerance
+
+
+def _mesh_triangle_contact(first, second, common, _basis=None) -> bool:
     """Reject triangle contact beyond vertices or edges shared by topology."""
     tolerance = 1e-10
-    n1 = np.cross(first[1] - first[0], first[2] - first[0])
-    n2 = np.cross(second[1] - second[0], second[2] - second[0])
-    coplanar = np.max(np.abs((second - first[0]) @ n1)) <= tolerance * np.linalg.norm(n1)
+    if _basis is None:
+        n1 = np.cross(first[1] - first[0], first[2] - first[0])
+        n2 = np.cross(second[1] - second[0], second[2] - second[0])
+    else:
+        n1, n2 = _basis[0][0], _basis[1][0]
+    coplanar = np.max(np.abs((second - first[0]) @ n1)) <= tolerance * (np.linalg.norm(n1) if _basis is None else _basis[0][1])
     if coplanar:
         axis = int(np.argmax(np.abs(n1)))
         a, b = np.delete(first, axis, axis=1), np.delete(second, axis, axis=1)
@@ -2530,7 +2548,7 @@ def _mesh_triangle_contact(first, second, common) -> bool:
         common_flat = np.delete(np.asarray(common).reshape(-1, 3), axis, axis=1)
         for left, right in ((a, b), (b, a)):
             for point in left:
-                if any(np.linalg.norm(point - vertex) <= tolerance for vertex in common_flat):
+                if any(_mesh_shared_vertex(point, vertex, tolerance) for vertex in common_flat):
                     continue
                 signs = [cross(right[(i + 1) % 3] - right[i], point - right[i]) for i in range(3)]
                 if min(signs) >= -tolerance or max(signs) <= tolerance:
@@ -2545,22 +2563,27 @@ def _mesh_triangle_contact(first, second, common) -> bool:
                     if tolerance < t < 1 - tolerance and tolerance < u < 1 - tolerance:
                         return True
         return False
-    for triangle, other, normal in ((first, second, n2), (second, first, n1)):
+    for index, (triangle, other, normal) in enumerate(((first, second, n2), (second, first, n1))):
+        if _basis is None:
+            normal_norm = np.linalg.norm(normal)
+            u, v = other[1] - other[0], other[2] - other[0]
+            uu, uv, vv = float(u @ u), float(u @ v), float(v @ v)
+            determinant = float(normal @ normal)
+        else:
+            _, normal_norm, u, v, uu, uv, vv, determinant = _basis[1 - index]
         for i in range(3):
             start, end = triangle[i], triangle[(i + 1) % 3]
             denominator = float((end - start) @ normal)
-            if abs(denominator) <= tolerance * np.linalg.norm(normal):
+            if abs(denominator) <= tolerance * normal_norm:
                 continue
             t = float((other[0] - start) @ normal) / denominator
             if t < -tolerance or t > 1 + tolerance:
                 continue
             point = start + t * (end - start)
-            if any(np.linalg.norm(point - vertex) <= tolerance for vertex in common):
+            if any(_mesh_shared_vertex(point, vertex, tolerance) for vertex in common):
                 continue
-            u, v, w = other[1] - other[0], other[2] - other[0], point - other[0]
-            uu, uv, vv = float(u @ u), float(u @ v), float(v @ v)
+            w = point - other[0]
             wu, wv = float(w @ u), float(w @ v)
-            determinant = float(np.cross(u, v) @ np.cross(u, v))
             s, r = (vv * wu - uv * wv) / determinant, (uu * wv - uv * wu) / determinant
             if s >= -tolerance and r >= -tolerance and s + r <= 1 + tolerance:
                 return True
@@ -2605,12 +2628,19 @@ def _validate_volume_mesh(vertices, faces) -> None:
     volume = np.einsum('ij,ij->i', triangles[:, 0], normals).sum() / 6
     if abs(float(volume)) <= 1e-12:
         raise GateError(tr("The volume must enclose a nonzero region."))
+    bases = []
+    for index, triangle in enumerate(triangles):
+        u, v = triangle[1] - triangle[0], triangle[2] - triangle[0]
+        normal = normals[index]
+        bases.append((normal, np.linalg.norm(normal), u, v,
+                      float(u @ u), float(u @ v), float(v @ v), float(normal @ normal)))
     low, high = triangles.min(axis=1), triangles.max(axis=1)
     for i, triangle in enumerate(triangles):
-        candidates = np.flatnonzero(np.all(high[i] >= low[i + 1:] - 1e-10, axis=1) & np.all(high[i + 1:] >= low[i] - 1e-10, axis=1)) + i + 1
+        candidates = np.flatnonzero((high[i, 0] >= low[i + 1:, 0] - 1e-10) & (high[i + 1:, 0] >= low[i, 0] - 1e-10)) + i + 1
+        candidates = candidates[np.all(high[i] >= low[candidates] - 1e-10, axis=1) & np.all(high[candidates] >= low[i] - 1e-10, axis=1)]
         for j in candidates:
             shared = set(faces[i]) & set(faces[j])
-            if len(shared) == 3 or _mesh_triangle_contact(triangle, triangles[j], points[list(shared)]):
+            if len(shared) == 3 or _mesh_triangle_contact(triangle, triangles[j], points[list(shared)], _basis=(bases[i], bases[j])):
                 raise GateError(tr("Volume surfaces must not intersect or overlap."))
 
 

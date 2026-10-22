@@ -136,20 +136,12 @@ def published_archives(repo: str = SCREEN_REPO, *, timeout: float = 8.0):
     try:
         from huggingface_hub import HfApi
 
-        names = HfApi().list_repo_files(repo, repo_type="dataset",
-                                        timeout=timeout)
-    except TypeError:
-        try:
-            from huggingface_hub import HfApi
-
-            names = HfApi().list_repo_files(repo, repo_type="dataset")
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("could not list %s", repo, exc_info=True)
-            return None
+        info = HfApi().repo_info(repo, repo_type="dataset", timeout=timeout)
+        return {sibling.rfilename for sibling in info.siblings
+                if sibling.rfilename.endswith(".tar")}
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not list %s", repo, exc_info=True)
         return None
-    return {name for name in names if name.endswith(".tar")}
 
 
 def total_size(assets) -> int:

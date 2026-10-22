@@ -96,6 +96,30 @@ saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer.
 ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering``
 line. See :ref:`wgpu-3d-rendering`.
 
+Linux ARM64 build requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Linux ARM64 environments build ModernGL's GLContext backend from source. This
+requires a C++ compiler and the X11 development headers. The Unix installer's
+normal system-dependency step installs these packages on ARM64:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Package manager
+     - Build packages
+   * - APT
+     - ``build-essential libx11-dev``
+   * - DNF or Zypper
+     - ``gcc-c++ libX11-devel``
+   * - Pacman
+     - ``base-devel libx11``
+
+When using ``--skip-system-deps`` or installing with ``pip`` directly, provide
+these build packages beforehand alongside the required desktop runtime
+libraries. The managed Python already includes its own Python headers; for a
+system Python, provide that interpreter's development headers as well.
+
 Updating
 --------
 
@@ -320,6 +344,9 @@ Native and command-line alternatives
 * **macOS:** run
   ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This
   removes the application, command launcher and system installer support.
+  Add ``--dry-run`` to preview the software paths without removing anything.
+  The command launcher is removed only if it is spaCR's exact installed
+  symlink; unrelated files and links are kept.
   Remove ``~/Library/Application Support/spaCR`` separately to delete the
   per-user private runtime.
 * **Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the
@@ -348,6 +375,8 @@ your projects, are never touched.
 
 * **Windows:** run ``%LOCALAPPDATA%\spaCR\Uninstall.exe /PURGE``.
 * **macOS:** run ``uninstall-spacr.sh --purge`` as above.
+  Add ``--dry-run`` to preview both software and data removal. A refused or
+  failed purge stops the uninstall before the application is removed.
 * **Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``.
 * **Any install, before uninstalling:** ``python -m spacr.install_cleanup
   purge`` (add ``--dry-run`` to list only).

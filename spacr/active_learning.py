@@ -634,7 +634,9 @@ def rank_by_uncertainty(probs: Any, measure: Any = DEFAULT_MEASURE,
     :param scores: pre-computed scores to rank instead of recomputing
         from ``probs`` (used by :func:`build_queue`, and by anything
         ranking a :func:`disagreement` score).
-    :returns: ``(N,)`` (or ``(limit,)``) int array of row indices.
+    :returns: ``(K,)`` int array of row indices, with ``K = N`` when no limit
+        is given and ``K = min(N, max(0, int(limit)))`` otherwise.
+        ``N`` is the number of computed or supplied scores.
     """
     if scores is None:
         values = uncertainty_scores(probs, measure)

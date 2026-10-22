@@ -54,8 +54,8 @@ def test_native_features_follow_their_last_wheel_interpreter():
 
     zernike = _requirement("zernike", "mahotas")
     assert _applies(zernike, "3.12")
-    assert not _applies(zernike, "3.13")
-    assert not _applies(zernike, "3.14")
+    assert _applies(zernike, "3.13")
+    assert _applies(zernike, "3.14")
 
 
 def test_all_reuses_the_named_extras_native_platform_policy():
@@ -94,3 +94,65 @@ def test_intel_macos_omits_extras_whose_transitive_wheels_end_early():
         requirement = _requirement(extra, distribution)
         assert requirement.marker is not None
         assert not requirement.marker.evaluate(environment)
+
+
+def test_default_native_backends_follow_actual_mac_wheel_boundaries():
+    tree = ast.parse((ROOT / "setup.py").read_text(encoding="utf-8"))
+    values = next(ast.literal_eval(node.value) for node in tree.body
+                  if isinstance(node, ast.Assign)
+                  and any(getattr(target, "id", "") == "dependencies"
+                          for target in node.targets))
+    requirements = {canonicalize_name(Requirement(value).name): Requirement(value)
+                    for value in values}
+    environment = default_environment()
+    environment.update(sys_platform="darwin", platform_system="Darwin",
+                       platform_machine="arm64", python_version="3.10",
+                       python_full_version="3.10.22", platform_release="22.6.0")
+    assert not requirements["pyfixest"].marker.evaluate(environment)
+    environment.update(python_version="3.12", python_full_version="3.12.14")
+    assert requirements["pyfixest"].marker.evaluate(environment)
+    assert requirements["faiss-cpu"].marker.evaluate(environment)
+    assert requirements["btrack"].marker.evaluate(environment)
+    environment.update(python_version="3.14", python_full_version="3.14.7")
+    assert not requirements["faiss-cpu"].marker.evaluate(environment)
+    assert not requirements["btrack"].marker.evaluate(environment)
+    assert not requirements["piper-tts"].marker.evaluate(environment)
+    environment["platform_release"] = "23.6.0"
+    assert requirements["faiss-cpu"].marker.evaluate(environment)
+    assert requirements["piper-tts"].marker.evaluate(environment)
+    assert not requirements["btrack"].marker.evaluate(environment)
+    environment["platform_release"] = "24.0.0"
+    assert requirements["faiss-cpu"].marker.evaluate(environment)
+    assert requirements["btrack"].marker.evaluate(environment)
+    environment.update(sys_platform="win32", platform_system="Windows",
+                       platform_machine="AMD64", platform_release="10")
+    for name in ("pyfixest", "faiss-cpu", "btrack"):
+        assert requirements[name].marker.evaluate(environment)
+
+
+def test_ultrack_profiles_follow_higra_native_platform_availability():
+    tree = ast.parse((ROOT / "setup.py").read_text(encoding="utf-8"))
+    values = next(ast.literal_eval(node.value) for node in tree.body
+                  if isinstance(node, ast.Assign)
+                  and any(getattr(target, "id", "") == "dependencies"
+                          for target in node.targets))
+    default = next(Requirement(value) for value in values
+                   if canonicalize_name(Requirement(value).name) == "ultrack")
+    profiles = (default, _requirement("ultrack", "ultrack"),
+                _requirement("all", "ultrack"))
+    environment = default_environment()
+    environment.update(python_version="3.11", python_full_version="3.11.17")
+    for system, platform, machine, available in (
+            ("Linux", "linux", "aarch64", False),
+            ("Linux", "linux", "arm64", False),
+            ("Linux", "linux", "x86_64", True),
+            ("Linux", "linux", "AMD64", True),
+            ("Darwin", "darwin", "arm64", True),
+            ("Darwin", "darwin", "x86_64", True),
+            ("Windows", "win32", "AMD64", True)):
+        environment.update(platform_system=system, sys_platform=platform,
+                           platform_machine=machine)
+        for requirement in profiles:
+            assert requirement.marker is not None
+            assert requirement.marker.evaluate(environment) is available, (
+                str(requirement), environment)

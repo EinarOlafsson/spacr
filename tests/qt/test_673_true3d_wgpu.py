@@ -380,6 +380,119 @@ def _layers(rendering="mip", labels_rendering="surface", finish="matte"):
     return channel, masks
 
 
+@pytest.mark.parametrize("size,error", [(None, None), ((4, 7), None), ((1, 2), None),
+                                        (None, "map"), (None, "read"), (None, "unmap")])
+def test_wgpu_reads_colour_and_picking_from_one_completed_frame(size, error):
+    rays = VolumeRays(origin=(0, 0, 0), across=(0, 0, 1), down=(0, 1, 0),
+                      depth=(1, 0, 0), shape=(2, 3, 2))
+    height, width = size or (2, 3)
+    colour = np.arange(height * width * 4, dtype=np.uint8).reshape(height, width, 4)
+    codes = np.array([0, 3, 9, 65536, 2**31, 2**32-1], dtype=np.uint32).reshape(2, 3)
+    packed = np.zeros((2, 3, 2), dtype=np.uint32)
+    packed[..., 0] = codes
+    buffers, copies, reads, events = {}, [], [], []
+
+    def buffer(name, count, readable):
+        buffers[name] = types.SimpleNamespace(name=name, data=bytearray(count + (64 if name == "readback" else 0)))
+        if name == "readback":
+            buffers[name].map_sync = map_sync
+            buffers[name].read_mapped = read_mapped
+            buffers[name].unmap = unmap
+        return buffers[name]
+
+    def dispatch(compute, name, params, resources, groups):
+        if name == "clear":
+            resources[1].data[:] = packed.tobytes()
+        if name == "pack":
+            resources[1].data[:] = colour.tobytes()
+
+    class Encoder:
+        def begin_compute_pass(self):
+            return types.SimpleNamespace(end=lambda: events.append("end"))
+
+        def copy_buffer_to_buffer(self, source, source_offset, target, target_offset, count):
+            assert events == ["end"]
+            copies.append((source.name, target.name, target_offset, count))
+            target.data[target_offset:target_offset+count] = source.data[source_offset:source_offset+count]
+
+        def finish(self):
+            return self
+
+    def map_sync(mode, *, size):
+        assert events[-1] == "submit"
+        assert mode == "READ"
+        assert size == colour.nbytes + packed.nbytes
+        events.append("map")
+        if error == "map":
+            raise RuntimeError("map")
+
+    def read_mapped(*, size, copy):
+        assert events[-1] == "map" and copy is True
+        reads.append(("readback", size))
+        assert size == colour.nbytes + packed.nbytes
+        events.append("read")
+        if error == "read":
+            raise RuntimeError("read")
+        return memoryview(bytes(buffers["readback"].data[:size]))
+
+    def unmap():
+        assert events[-1] == "read"
+        events.append("unmap")
+        buffers["readback"].data[:] = b"\xff" * len(buffers["readback"].data)
+        if error == "unmap":
+            raise RuntimeError("unmap")
+
+    renderer = object.__new__(layers.WGPUVolumeRenderer)
+    renderer._device = types.SimpleNamespace(
+        create_command_encoder=Encoder,
+        queue=types.SimpleNamespace(submit=lambda commands: events.append("submit")))
+    renderer._buffer = buffer
+    renderer._dispatch = dispatch
+    renderer._forget_unused = lambda: None
+    if error is not None:
+        with pytest.raises(RuntimeError, match=error):
+            renderer.render([], rays, size=size)
+        assert events == (["end", "submit", "map"] if error == "map" else
+                          ["end", "submit", "map", "read", "unmap"])
+        return
+    rgb, picked = renderer.render([], rays, size=size)
+    assert events == ["end", "submit", "map", "read", "unmap"]
+    assert reads == [("readback", colour.nbytes + packed.nbytes)]
+    assert copies == [("picture", "readback", 0, colour.nbytes),
+                      ("pick", "readback", colour.nbytes, packed.nbytes)]
+    assert np.array_equal(rgb, colour[..., :3]) and rgb.dtype == np.uint8
+    assert np.array_equal(picked, codes) and picked.dtype == np.int64
+
+
+@pytest.mark.parametrize("name,readable,usage", [("frame", False, 1), ("picture", True, 7),
+                                               ("pick", True, 7), ("readback", True, 12)])
+def test_wgpu_readable_buffers_can_receive_the_combined_gpu_copy(monkeypatch, name, readable, usage):
+    flags = types.SimpleNamespace(STORAGE=1, COPY_SRC=2, COPY_DST=4, MAP_READ=8)
+    monkeypatch.setitem(sys.modules, "wgpu", types.SimpleNamespace(BufferUsage=flags))
+    allocated, destroyed = [], []
+
+    def create_buffer(**kwargs):
+        allocated.append(kwargs)
+        return types.SimpleNamespace(destroy=lambda: destroyed.append(kwargs["size"]))
+
+    renderer = object.__new__(layers.WGPUVolumeRenderer)
+    renderer._buffers = {}
+    renderer._textures, renderer._luts, renderer._pipelines = {}, {}, {}
+    renderer._device = types.SimpleNamespace(create_buffer=create_buffer)
+    held = renderer._buffer(name, 80, readable)
+    assert renderer._buffer(name, 80, readable) is held
+    assert renderer._buffer(name, 48, readable) is held
+    grown = renderer._buffer(name, 160, readable)
+    assert grown is not held and destroyed == [80]
+    assert renderer._buffer(name, 100, readable) is grown
+    assert allocated == [{"size": 80, "usage": usage}, {"size": 160, "usage": usage}]
+    renderer.close()
+    assert destroyed == [80, 160]
+    assert renderer._buffers == {}
+    renderer.close()
+    assert destroyed == [80, 160]
+
+
 def test_wgpu_frames_match_the_cpu_for_every_rendering_finish_and_lens():
     gpu = _wgpu_context()
     rays = _rays()
@@ -403,6 +516,13 @@ def test_wgpu_frames_match_the_cpu_for_every_rendering_finish_and_lens():
     channel, masks = _layers()
     big, _ = gpu.renderer.render([channel, masks], rays, size=(60, 72))
     assert big.shape == (60, 72, 3) and big.dtype == np.uint8
+    for shape in ((15, 18, 20), (40, 44, 30), (8, 9, 12)):
+        current = _rays(shape)
+        cpu, cpu_picked = render_volume([channel, masks], current)
+        drawn, picked = gpu.renderer.render([channel, masks], current)
+        assert drawn.shape == (*shape[:2], 3)
+        assert np.abs(cpu * 255 - drawn).max() <= 1
+        assert np.array_equal(cpu_picked, picked)
     gpu.close()
 
 

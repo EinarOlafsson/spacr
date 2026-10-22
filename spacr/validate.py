@@ -936,11 +936,12 @@ def coerce_expected_types(settings: Dict[str, Any],
     ``cell_diameter='60.0'`` would otherwise fail inside Cellpose on ``diameter
     > 0``.
 
-    The conversion is conservative. Only ``bool``, ``int`` and ``float`` are
-    converted, only from a string, only when the conversion is exact, and never
-    when ``str`` is itself an accepted type for the key. Anything that does not
-    convert cleanly is left exactly as it was, for :func:`validate_settings` to
-    report.
+    Object-diameter settings are canonicalized to their stored form first. The
+    subsequent type conversion is conservative. Only ``bool``, ``int`` and
+    ``float`` are converted, only from a string, only when the conversion is
+    exact, and never when ``str`` is itself an accepted type for the key.
+    Anything that does not convert cleanly is left exactly as it was, for
+    :func:`validate_settings` to report.
 
     :param settings: the settings mapping.
     :param app: the pipeline, for the same per-app type overrides

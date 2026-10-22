@@ -296,10 +296,12 @@ def refine_similarity(source: np.ndarray, target: np.ndarray, seed,
     :param target: ``(M, 2)`` points in the frame being moved to.
     :param seed: ``(scale, rotation, translation)`` to start from.
     :param radius: how close a moved point must land to count as a match.
-    :param rounds: how many times to re-solve.
+    :param rounds: how many final re-solves to attempt at ``radius``, coerced to an
+        integer and at least one, after two wider matching rounds.
     :returns: ``(scale, rotation, translation, source_in, target_in,
-        distances)``, or None when a round finds too few correspondences to
-        solve from.
+        distances)`` from the last solved round, or None if no round could be
+        solved. A later round with too few correspondences or an unsolvable
+        fit returns the previous result.
 
     The seed may be inaccurate. The triangle consensus is biased by up to
     44 % in scale on sparse data, but a bias that large still puts the

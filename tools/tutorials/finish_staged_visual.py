@@ -25,7 +25,11 @@ def finish(stage, identity, *, retain_visual_from=None):
             row['narration'] for row in english['scenes']]:
         raise ValueError('Visual specification and current authored narration differ')
     published_reuse = (root / 'published-native-reuse.json').exists()
-    if published_reuse and retain_visual_from is not None:
+    published_edit = (root / 'published-native-edit.json').exists()
+    published_mix = (root / 'published-native-mix.json').exists()
+    if sum([published_reuse, published_edit, published_mix]) > 1:
+        raise ValueError('Choose unchanged reuse or explicit published edit, not both')
+    if (published_reuse or published_edit or published_mix) and retain_visual_from is not None:
         raise ValueError('Choose published-native narration reuse or retained visual overlay, not both')
     if retain_visual_from is not None:
         from retained_visual_refresh import checked_retained_visual_timing
@@ -34,7 +38,7 @@ def finish(stage, identity, *, retain_visual_from=None):
         native = checked_native_timing(stage, identity)
     timing_path = native or root / 'audio/en/af_heart.json'
     timing = read(timing_path)
-    if not published_reuse:
+    if not (published_reuse or published_edit or published_mix):
         for scene in spec['scenes']:
             source = root / scene['image']
             if hashlib.sha256(source.read_bytes()).hexdigest() != scene['capture_sha256']:
@@ -82,6 +86,14 @@ def finish(stage, identity, *, retain_visual_from=None):
         'master_frame_count_matches_scene_boundaries': True, 'master_all_presentation_times_checked': True,
         'poster_sha256': hashlib.sha256((root / 'poster.jpg').read_bytes()).hexdigest(),
         'web_rendition': rendition, 'browser_verified': False, 'published': False}
+    if published_mix:
+        receipt['published_native_reference_mix'] = True
+        receipt['fresh_capture'] = False
+        receipt['raw_capture_revalidated'] = False
+    if published_edit:
+        receipt['published_native_intervals_edited'] = True
+        receipt['fresh_capture'] = False
+        receipt['raw_capture_revalidated'] = False
     if published_reuse:
         receipt['published_native_master_reused'] = True
         receipt['fresh_capture'] = False

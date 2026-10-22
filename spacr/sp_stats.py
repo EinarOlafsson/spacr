@@ -1823,7 +1823,7 @@ def _cluster_sar(sar: pd.DataFrame, similarity: float, notes: List[str]):
             label[row] = label[hit_rows[top]]
     sar["cluster"] = pd.array([v if v else pd.NA for v in label],
                               dtype="Int64")
-    sar["nearest_hit"] = nearest
+    sar["nearest_hit"] = pd.Series(nearest, index=sar.index, dtype=object)
     sar["similarity_to_hit"] = best
     rows = []
     for number in range(1, len(groups) + 1):

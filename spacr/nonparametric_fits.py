@@ -244,9 +244,14 @@ def smooth(x, y, *, method: str = "lowess", points: int = 200,
                "distance"
 
     if method == "kernel":
+        from inspect import signature
+
         from statsmodels.nonparametric.kernel_regression import KernelReg
 
-        model = KernelReg(ys, xz, var_type="c")
+        kernel_options = {}
+        if "rng" in signature(KernelReg).parameters:
+            kernel_options["rng"] = np.random.RandomState(0)
+        model = KernelReg(ys, xz, var_type="c", **kernel_options)
         fitted, _marginal = model.fit(gz)
         return Curve(method, grid, np.asarray(fitted).ravel(), note=note)
 

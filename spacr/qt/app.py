@@ -3103,7 +3103,9 @@ def _end_the_event_loop(app) -> None:
     close_all = getattr(app, "closeAllWindows", None)
     if close_all is not None:
         close_all()
-    leave(0)
+    from PySide6.QtCore import QTimer
+
+    QTimer.singleShot(0, lambda: leave(0))
 
 
 #: Seconds of work between two breaths while a screen is rebuilt in place
@@ -4925,6 +4927,15 @@ class MainWindow(QMainWindow):
             self._sidebar.refresh_visibility()
         except Exception:
             pass
+        from .widgets.fold_strip import FoldButton
+
+        for button in self.findChildren(FoldButton):
+            try:
+                icon = _icon_for_app(button.app_key)
+                if icon is not None and not icon.isNull():
+                    button.setIcon(icon)
+            except Exception:
+                LOG.debug("could not refresh a folded module icon", exc_info=True)
         try:
             self._refresh_app_action_visibility()
         except Exception:

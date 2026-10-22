@@ -147,17 +147,17 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Settu upp með pip í sýndarumhverfi Python, pip í Conda-umhverfi eða conda-forge í Conda-umhverfi; ræstu, uppfærðu og fjarlægðu.",
+      "description": "Settu spaCR upp með pip, conda-forge eða Docker; athugaðu uppsetninguna, opnaðu viðeigandi viðmót, uppfærðu og fjarlægðu forritið.",
       "objectives": [
-        "Veldu eina af þremur aðskildum uppsetningarleiðum.",
+        "Velja einangrað Python-umhverfi eða gám með fastri útgáfu.",
         "Virkjaðu rétt umhverfi fyrir uppsetningu eða ræsingu.",
         "Athugaðu uppsetta útgáfu, uppfærðu og fjarlægðu á öruggan hátt."
       ],
-      "prerequisite": "Notaðu Python 3.12 fyrir sýndarumhverfisleiðina eða settu upp Conda/Miniforge fyrir aðra hvora Conda-leiðina. Opnaðu skipanalínu. Veldu önnur nöfn en þau sem núverandi umhverfi nota.",
+      "prerequisite": "Notaðu Python 3.12 fyrir sýndarumhverfisleiðina eða settu upp Conda/Miniforge fyrir aðra hvora Conda-leiðina. Opnaðu skipanalínu. Veldu önnur nöfn en þau sem núverandi umhverfi nota. Fyrir gáma skaltu setja upp Docker Desktop eða Docker Engine og stilla það fyrir Linux-x86-64-gáma.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Veldu uppsetningarleið. Pip setur spaCR upp annaðhvort í sýndarumhverfi Python eða Conda-umhverfi. Conda-forge setur upp í Conda-umhverfi; það getur ekki sett pakka upp í sýndarumhverfi Python. Leiðirnar þrjár hér að neðan eru valkostir, svo þú þarft aðeins eina.",
+          "narration": "Veldu uppsetningarleið. Pip setur spaCR upp í Python-sýndarumhverfi eða Conda-umhverfi. Conda-forge setur spaCR upp í Conda-umhverfi. Docker keyrir skipanalínuvinnslukeðjur inni í gámi. Veldu leið sem hentar því hvernig þú ætlar að nota spaCR.",
           "hold_after": 0.7
         },
         {
@@ -177,7 +177,7 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Athugaðu uppsetta útgáfu og slóð pakkans og keyrðu síðan python -m pip check. Geymdu útgáfuna með greiningarnótunum þínum. Þessi leið setur upp útgefna PyPI-pakkann; afrit af frumkóða eða nightly-útgáfa getur haft nýrri viðmótsaðgerðir.",
+          "narration": "Athugaðu uppsetta útgáfu og slóð pakkans og keyrðu síðan python -m pip check. Geymdu útgáfuna með greiningarnótunum þínum.",
           "hold_after": 0.7
         },
         {
@@ -202,7 +202,7 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda sýnir pakkaáætlun sína fyrir uppsetningu. Farðu yfir hana, samþykktu hana og leyfðu niðurhali og uppsetningu að ljúka. Tiltæk conda-forge-útgáfa getur verið önnur en nýjasta PyPI- eða nightly-útgáfan.",
+          "narration": "Conda sýnir pakkaáætlun sína fyrir uppsetningu. Farðu yfir hana, samþykktu hana og leyfðu niðurhali og uppsetningu að ljúka.",
           "hold_after": 0.7
         },
         {
@@ -211,8 +211,28 @@
           "hold_after": 0.7
         },
         {
+          "visual": "docker_01_install",
+          "narration": "Settu upp Docker Desktop eða Docker Engine samkvæmt opinberum leiðbeiningum fyrir stýrikerfið þitt og stilltu Linux-gáma. spaCR-gámamyndirnar eru fyrir Linux x86-64. Notaðu gám fyrir skipanalínuvinnslukeðjur en skjáborðsuppsetningu fyrir myndræna forritið.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Opnaðu opinbera pakkasíðu spaCR-gáma og veldu tiltæka útgáfu. Sæktu nákvæmlega þá CPU-mynd og keyrðu hana með spacr --version og spacr-run --list. Athugaðu að útgáfan sem birtist samsvari valda útgáfumerkinu. Geymdu merkið með greiningarnótunum þínum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Tengdu verkefnismöppuna við /data og skyndiminni líkana við /models. Flyttu stillingar vinnslukeðjunnar út í verkefnismöppuna og notaðu slóðir innan gámsins í stillingunum. Keyrðu spacr-run með heiti vinnslukeðjunnar og stillingaskránni á CSV-sniði. Skrifaðu niðurstöður undir /data svo þær haldist í verkefninu þegar gámurinn hefur lokið keyrslu. Í Linux skaltu gefa notandaauðkenni og hópauðkenni svo úttaksskrárnar verði í eigu reikningsins þíns.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "Settu upp studdan rekil á hýsingartölvunni og NVIDIA Container Toolkit fyrir NVIDIA-vinnslu og stilltu keyrsluumhverfi Docker samkvæmt opinberu leiðbeiningunum. CUDA 12.4-myndin krefst rekilútgáfu 550 eða nýrri á hýsingartölvunni. Veldu samsvarandi CUDA-mynd með fastri útgáfu og bættu við --gpus all. CPU-myndin þarf hvorki toolkit né GPU.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_current_home",
-          "narration": "Þetta fylgiefni sýnir Home í núverandi nightly-viðmóti. Uppsetta útgáfan þín getur litið öðruvísi út. Umhverfisskipanirnar setja upp útgefna pakkann úr valinni rás; þessi sýn á núverandi frumkóða fullyrðir ekki að allar nightly-aðgerðir séu þegar útgefnar.",
+          "narration": "Ræstu spaCR úr umhverfinu sem þú settir upp. Home flokkar einingarnar í Core, Data, Tools og Organism. Veldu einingu til að hefja vinnuflæði hennar.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
@@ -371,12 +391,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Opnaðu Preferences í núverandi nightly-viðmóti og veldu Performance. Veldu snið fyrir tölvuna þína. Laptop notar færri tilföng; hærri snið leyfa meira skyndiminni og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað.",
+          "narration": "Opnaðu Preferences og veldu Performance. Veldu snið fyrir tölvuna þína. Laptop notar færri tilföng; hærri snið leyfa meira skyndiminni og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Organism. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
+          "narration": "Home flokkar einingarnar í Core, Data, Tools og Organism. Haltu áfram í Home screen and navigation til að finna eininguna fyrir næsta verkefni.",
           "related_lessons": [
             "05_home"
           ],
@@ -384,7 +404,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "Keyrðu spacr-doctor úr uppsetta keyrsluumhverfinu ef ræsing eða skráarsnið þarfnast athugunar. Í þessari upptöku af CPU-uppsetningu stenst bakendaprófunin og GPU-prófuninni er sleppt. Viðvörunin segir að valfrjálsan CZI-lesara vanti; settu aðeins upp þá viðbót ef þú þarft CZI-skrár.",
+          "narration": "Keyrðu spacr-doctor úr uppsetta keyrsluumhverfinu ef ræsing eða skráarsnið þarfnast athugunar. Athugaðu niðurstöðu bakendans og hvort GPU-prófunin var keyrð. Ef viðvörunin segir að valfrjálsan CZI-lesara vanti skaltu aðeins setja viðbótina upp ef þú þarft CZI-skrár.",
           "hold_after": 0.7
         },
         {
@@ -489,9 +509,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Skoðaðu Home-yfirlitið og flokkaflipana, kynntu þér síðan sameiginlegar stjórnir eininga með Mask og stilltu leiðsögn, hjálp og útlit.",
+      "description": "Farðu yfir allar einingar Home frá vinstri til hægri, lærðu sameiginlegar stýringar eininganna með Mask og stilltu leiðsögn, hjálp og útlit.",
       "objectives": [
-        "Finndu einingar með flipunum Home, Core, Data, Tools og Organism.",
+        "Þekkja hverja einingu í röðunum Core, Data, Tools og Organism.",
         "Nota Mask til að þekkja sameiginlegar stillingar, forskoðanir, aðgerðir og niðurstöður.",
         "Fara aftur á Home, nota leit og raða spjöldum.",
         "Velja stillingar fyrir útlit og afköst."
@@ -500,7 +520,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er upphafspunkturinn. Yfirlitið flokkar einingar undir Core, Data, Tools og Organism. Flokkafliparnir þrengja sýnina. Hver reitur opnar eininguna sem hann er nefndur eftir. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
+          "narration": "Home er upphafspunkturinn. Lestu hverja röð frá vinstri til hægri: Core, Data, Tools og Organism. Hver reitur opnar eininguna sem hann er nefndur eftir. Hliðarstikan býður sömu leiðir og Home fer aftur í þetta yfirlit.",
           "hold_after": 0.7
         },
         {
@@ -581,6 +601,17 @@
           ]
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings kóðar útskorin myndsvæði af hlutum sem tölulega eiginleika til könnunar og samanburðar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare safnar vistuðum niðurstöðum keyrslna svo þú getir skoðað muninn.",
           "hold_after": 0.7,
@@ -592,6 +623,17 @@
           ]
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design skilgreinir skilyrði, holur á plötu og auðkenni sýna fyrir tilraun.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design skoðar forsendur um úrtaksstærð og tölfræðilegt afl við skipulagningu samanburðar.",
           "hold_after": 0.7,
@@ -600,6 +642,28 @@
           ],
           "related_lessons": [
             "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response aðlagar líkan að svörun við mismunandi styrk og heldur völdum endapunkti og viðmiðum skýrum.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC listar vistaðar gæðaskýrslur verkefnis og merkir þær sem vantar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
           ]
         },
         {
@@ -633,6 +697,17 @@
           ],
           "related_lessons": [
             "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor skilgreinir valskilyrði fyrir raunverulega gagnadálka. Skoðaðu valda hluti áður en þú breytir vali í merkingar.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
           ]
         },
         {
@@ -776,7 +851,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "Á flipanum Modules ræður Session hvort spaCR opni aftur síðustu einingu, stillingar og möppu við ræsingu; þessi upptaka byrjar upp á nýtt. Update channel velur stöðugar útgáfur eða næturútgáfur, og Proxy og Certificate bundle láta niðurhal virka á bak við stofnanaproxy.",
+          "narration": "Á flipanum Modules ræður Session hvort spaCR opnar síðustu einingu, stillingar og möppu aftur við ræsingu. Update channel velur stöðugar útgáfur eða næturútgáfur, og Proxy og Certificate bundle láta niðurhal virka á bak við stofnanaproxy.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -806,6 +881,11 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "Í Spaceout-ham býður Preferences spaCR-sviðsstýringar fyrir átta óháð áhrif. Kveiktu eða slökktu á hverjum áhrifavalkosti fyrir sig. Venjulegar stýringar fyrir útlit og hreyfingar í stillingaglugganum eru áfram tiltækar; Apply forskoðar breytingu, Keep samþykkir hana og Revert endurheimtir fyrra val.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -1091,7 +1171,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Fyrir fljótlega fyrstu keyrslu beinir þessi upptaka Source að miðjubútum úr tveimur dæmasviðum; með þínum eigin gögnum kveikirðu frekar á Test mode og velur nokkrar prófmyndir. Hafðu Plot á, athugaðu þvermál og flæðimörk hvers hlutar, hafðu Save á undir Quality Control og smelltu svo á Run.",
+          "narration": "Notaðu miðjuútskurði úr tveimur dæmismyndsviðum sem Source fyrir fljótlega fyrstu keyrslu. Með eigin gögnum skaltu kveikja á Test mode og velja nokkrar prófunarmyndir. Hafðu Plot á, athugaðu þvermál og flæðimörk hvers hlutar, hafðu Save á undir Quality Control og smelltu svo á Run.",
           "hold_after": 0.7
         },
         {
@@ -3241,7 +3321,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Fyrir fulla keyrslu á eigin myndum stillirðu Source og styrkleikarásirnar í Mask. Þessi upptaka flytur inn stillingar lítillar gervimyndaraðar með átta römmum. Haltu tímapunktum hvers sjónsviðs í réttri röð. Rammamörk nota upphaf og útilokaðan endi: 0 til 8 velur fyrstu átta rammana.",
+          "narration": "Fyrir fulla keyrslu á eigin myndum stillirðu Source og styrkleikarásirnar í Mask. Hér flyturðu inn stillingar fyrir lítið tilbúið dæmi með átta römmum. Haltu tímapunktum hvers sjónsviðs í réttri röð. Rammamörk nota upphaf og útilokaðan endi: 0 til 8 velur fyrstu átta rammana.",
           "hold_after": 0.7,
           "focus": [
             340,

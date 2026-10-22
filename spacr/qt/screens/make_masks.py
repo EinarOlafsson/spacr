@@ -11461,6 +11461,9 @@ class _VolumeStage(QWidget):
         self._settle_timer.setInterval(VOLUME_SETTLE_MS)
         self._settle_timer.timeout.connect(lambda: self._submit_render('preview'))
         self._panel = panel
+        figure, widget = canvas._figure, canvas._canvas
+        figure.draw = partial(self._draw_volume_frame, figure, widget, figure.draw)
+        widget.draw_idle = partial(self._queue_volume_frame, figure, widget, widget.draw_idle)
 
     def _build_layer_dock(self, page):
         """The layer list beside the 3-D view, napari style.
@@ -12175,13 +12178,72 @@ class _VolumeStage(QWidget):
         self._submit_render('interactive')
         self._settle_timer.start()
 
+    def _prepaint_axes(self, figure, widget):
+        if (self._panel is None or self._panel.canvas._figure is not figure
+                or self._panel.canvas._canvas is not widget or self.view != 'true3d'
+                or self.session is None or self._gl is None or self._backend_choice == 'cpu'
+                or getattr(self._gl, 'backend', 'cpu') == 'cpu'
+                or getattr(figure, '_spacr_volume_prepaint_disabled', False)):
+            return None
+        try:
+            from matplotlib.layout_engine import PlaceHolderLayoutEngine
+
+            engine = figure.get_layout_engine()
+        except (AttributeError, ImportError):
+            return None
+        if engine is not None and type(engine) is not PlaceHolderLayoutEngine:
+            return None
+        return self._view_axes()
+
+    def _queue_volume_frame(self, figure, widget, original):
+        if self._prepaint_axes(figure, widget) is None:
+            return original()
+        widget._draw_pending = True
+        widget._spacr_draw_timer.stop()
+        widget.update()
+
+    def _draw_volume_frame(self, figure, widget, original, renderer):
+        ax = self._prepaint_axes(figure, widget)
+        if ax is None:
+            return original(renderer)
+        prepared = False
+        try:
+            ax._unstale_viewLim()
+            locator = ax.get_axes_locator()
+            ax.apply_aspect(locator(ax, renderer) if locator else None)
+            matrix = np.asarray(ax.get_proj()).copy()
+            affine = np.asarray(ax.transData.get_affine().get_matrix()).copy()
+            ax.M, ax.invM = matrix.copy(), np.linalg.inv(matrix)
+            signature = (np.round(matrix, 9).tobytes(), tuple(figure.bbox.bounds),
+                         np.round(affine, 9).tobytes())
+            if signature != self._view_signature:
+                self._view_signature = signature
+                self._volume_prepainting = True
+                try:
+                    self._view_changed()
+                finally:
+                    self._volume_prepainting = False
+            prepared = True
+        except Exception:
+            figure._spacr_volume_prepaint_disabled = True
+            self._view_signature = None
+            LOG.debug('Volume prepaint preparation failed', exc_info=True)
+        result = original(renderer)
+        if prepared and (not np.array_equal(matrix, ax.M) or not np.array_equal(
+                affine, ax.transData.get_affine().get_matrix())):
+            figure._spacr_volume_prepaint_disabled = True
+            self._view_signature = None
+            widget.draw_idle()
+        return result
+
     def _view_drawn(self, _event):
         """After every draw: render again when the camera or the canvas moved."""
         ax = self._view_axes()
         if ax is None or self.view != 'true3d' or getattr(ax, 'M', None) is None:
             return
         figure = self._panel.canvas._figure
-        signature = (np.round(np.asarray(ax.M), 9).tobytes(), tuple(figure.bbox.bounds))
+        signature = (np.round(np.asarray(ax.M), 9).tobytes(), tuple(figure.bbox.bounds),
+                     np.round(np.asarray(ax.transData.get_affine().get_matrix()), 9).tobytes())
         if signature != self._view_signature:
             self._view_signature = signature
             self._view_changed()
@@ -12230,6 +12292,41 @@ class _VolumeStage(QWidget):
         self._detail.setText(text)
         self._show_render()
 
+    def _make_volume_image(self, artist, original, renderer, magnification=1.0, unsampled=False):
+        from matplotlib.backends.backend_agg import RendererAgg
+        from matplotlib.transforms import Affine2D
+
+        image = artist.get_array()
+        if not isinstance(image, np.ndarray) or image.ndim != 3:
+            return original(renderer, magnification, unsampled)
+        figure = artist.figure
+        height, width, channels = image.shape
+        x, y = artist.ox, artist.oy
+        transform = artist.get_transform()
+        clip = artist.get_clip_box()
+        if not (
+            type(renderer) is RendererAgg and figure is not None
+            and renderer.dpi == figure.dpi and magnification == 1 and not unsampled
+            and image.dtype == np.uint8 and channels == 3 and height > 0 and width > 0
+            and not np.ma.is_masked(image) and artist.origin == 'upper'
+            and artist.get_alpha() is None
+            and artist.get_interpolation() in ('nearest', 'auto', 'antialiased')
+            and artist.get_clip_path() is None and artist.get_agg_filter() is None
+            and not artist.get_path_effects() and transform.is_affine
+            and np.array_equal(transform.get_matrix(), np.eye(3))
+            and x == int(x) and y == int(y)
+            and 0 <= x and 0 <= y
+            and x + width <= figure.bbox.width and y + height <= figure.bbox.height
+            and (not artist.get_clip_on() or clip is None or
+                 (clip.x0 <= x and clip.y0 <= y
+                  and clip.x1 >= x + width and clip.y1 >= y + height))
+        ):
+            return original(renderer, magnification, unsampled)
+        rgba = np.empty((height, width, 4), np.uint8)
+        rgba[..., :3] = image[::-1]
+        rgba[..., 3] = 255
+        return rgba, x, y, Affine2D().translate(0, -height).scale(1, -1)
+
     def _show_render(self, draw=True):
         """Put the newest render under the 3-D axes."""
         state = self._render_state
@@ -12241,12 +12338,13 @@ class _VolumeStage(QWidget):
         if artist is None or artist not in figure.images:
             artist = figure.figimage(state.rgb, xo=int(x0), yo=int(y0), origin='upper',
                                      zorder=-1, resize=False)
+            artist.make_image = partial(self._make_volume_image, artist, artist.make_image)
             artist.set_gid('VolumeRender')
             self._render_artist = artist
         else:
             artist.set_data(state.rgb)
             artist.ox, artist.oy = int(x0), int(y0)
-        if draw:
+        if draw and not getattr(self, '_volume_prepainting', False):
             self._panel.canvas._canvas.draw_idle()
 
     def _choose_tool(self, key, _checked=False):

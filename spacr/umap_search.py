@@ -385,8 +385,9 @@ def walk_recipes(base: UmapRecipe, *, steps: int = 12,
     :param steps: target sample count when no explicit grid is given. At least
         two neighbor values are attempted, and integer rounding plus
         deduplication may change the final count.
-    :param neighbors: explicit neighborhood-size values, or empty to derive a
-        walk from ``base`` and ``steps``.
+    :param neighbors: explicit neighborhood-size values. If all three grids are empty,
+        derive a walk from ``base`` and ``steps``; if another grid is supplied,
+        an empty neighbor grid retains the base neighbor count.
     :param min_dists: explicit minimum-distance values, or empty to retain the
         base value.
     :param components: explicit dimensionalities, or empty to retain the base

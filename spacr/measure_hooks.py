@@ -386,8 +386,8 @@ def register_preprocessing_hook(hook: Callable[..., Any], *,
     :param priority: lower runs first; ties keep registration order.
     :returns: the key the hook was registered under — pass it to
         :func:`unregister_preprocessing_hook`.
-    :raises MeasurementHookError: if ``hook`` is not callable or ``priority``
-        is not an int.
+    :raises MeasurementHookError: if ``hook`` is not callable, or converting ``priority``
+        to an int raises ``TypeError`` or ``ValueError``.
     """
     return _register(_PREPROCESSING, 'preprocessing', hook, name, priority,
                      _CURRENT_SOURCE[0])

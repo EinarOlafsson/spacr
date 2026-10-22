@@ -325,23 +325,24 @@ def test_numpy_admits_2x_now_that_all_three_blockers_are_closed():
         "the only release satisfying `<2.0` and its wheels stop at cp312."
     )
 
-    core = {re.split(r"[<>=!~ ,\[;]", d.strip())[0].lower()
-            for d in _core_dependencies()}
-    assert "torchcam" not in core, (
-        "torchcam is back in the core dependencies while numpy admits 2.x. "
-        "Every release satisfying `>=0.4.0,<1.0` declares `numpy<2.0.0`, so "
-        "pip resolves numpy back to 1.26.4 — and on Python 3.13, where 1.26.4 "
-        "has no wheel, that is a numpy source build. Measured 2026-07-27 in a "
-        "3.13.14 env: `pip install torchcam` is ResolutionImpossible. It "
-        "belongs in the `attribution` extra."
-    )
-    assert "mahotas" not in core, (
-        "mahotas is back in the core dependencies. It has never published a "
-        "cp313 wheel at any version, so in the core list it forces a C++ "
-        "source build on every Python 3.13 install — including on machines "
-        "with no toolchain, where it simply fails. It belongs in the "
-        "`zernike` extra."
-    )
+    from packaging.markers import default_environment
+    from packaging.requirements import Requirement
+
+    requirements = [Requirement(value) for value in _core_dependencies()]
+    torchcam = next(r for r in requirements if r.name.lower() == "torchcam")
+    assert "0.5.0" in torchcam.specifier
+    assert "0.4.1" not in torchcam.specifier
+    environment = default_environment()
+    environment.update(sys_platform="linux", platform_system="Linux",
+                       platform_machine="x86_64", python_version="3.10",
+                       python_full_version="3.10.22")
+    assert not torchcam.marker.evaluate(environment)
+    environment.update(python_version="3.13", python_full_version="3.13.14")
+    assert torchcam.marker.evaluate(environment)
+    mahotas = next(r for r in requirements if r.name.lower() == "mahotas")
+    assert "1.4.19" in mahotas.specifier
+    assert "1.4.18" not in mahotas.specifier
+    assert mahotas.marker.evaluate(environment)
 
     ptp_test = (REPO_ROOT / "tests" / "test_diameter_estimator.py")
     if ptp_test.exists():
@@ -393,13 +394,15 @@ def test_the_unimported_dependencies_stay_removed():
     grep for the string form as well.
     """
     removed = {
-        "transformers", "monai", "segmentation-models-pytorch",
+        "monai", "segmentation-models-pytorch",
         "torch-geometric", "rapidfuzz", "wandb", "gdown",
         "pytz", "ipykernel", "ttkthemes", "ttf-opensans", "brokenaxes",
-        "gpustat", "customtkinter", "openai", "keyring", "importlib-metadata",
+        "gpustat", "customtkinter", "openai", "importlib-metadata",
     }
     core = {_norm(re.split(r"[<>=!~ ,\[;]", d.strip())[0])
             for d in _core_dependencies()}
+    assert "from transformers import AutoModel" in _src("embeddings.py")
+    assert "import keyring" in _src("run_journal.py")
     back = sorted(removed & core)
     assert not back, (
         f"{back} returned to setup.py's core dependencies. Each was removed "

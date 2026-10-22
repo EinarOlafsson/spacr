@@ -524,11 +524,14 @@ class PipelineGraphScreen(QWidget):
 
 
     def load_project(self, project: str) -> None:
-        """Build and draw the graph for ``project``, off the GUI thread.
+        """Build the graph for ``project`` through the job runner and draw it
+        when ready.
 
-        Returns as soon as the job is submitted; :attr:`graph_loaded` fires
-        when the graph is drawn. A project with no registry is not a failure
-        — it draws the declared module order and says nothing has run.
+        In threaded mode, returns once the job is submitted; an unthreaded
+        screen builds the graph and delivers its result inline before
+        returning. :attr:`graph_loaded` fires when the graph is drawn. A project
+        with no registry is not a failure — it draws the declared module order
+        and says nothing has run.
 
         :param project: the spaCR project folder; stripped, and an empty value
             only asks for a folder.

@@ -405,6 +405,53 @@ def test_the_plan_runs_pip_only_inside_the_environment():
         "Create the environment", "Update pip", "Install SAMCell", "Check it loads"]
 
 
+@pytest.mark.parametrize("platform,machine,expected", [
+    ("darwin", "x86_64", ["cellpose==3.1.1.3", "packaging", "numba<0.63", "numpy<2"]),
+    ("darwin", "arm64", ["cellpose==3.1.1.3", "packaging"]),
+    ("linux", "x86_64", ["cellpose==3.1.1.3", "packaging"]),
+    ("win32", "AMD64", ["cellpose==3.1.1.3", "packaging"]),
+])
+def test_cellpose3_uses_compatible_dependencies_only_on_the_intel_mac_plan(
+        platform, machine, expected):
+    from packaging.requirements import Requirement
+
+    spec = SB._SPECS["cellpose3"]
+    steps = SB._install_plan(spec, "/b/cellpose3", ("/own/python",))
+    assert steps[3].argv[-len(spec.requirements):] == spec.requirements
+    effective = []
+    for text in spec.requirements:
+        requirement = Requirement(text)
+        if requirement.marker is None or requirement.marker.evaluate(
+                {"sys_platform": platform, "platform_machine": machine}):
+            effective.append(requirement.name + str(requirement.specifier))
+    assert effective == expected
+
+
+@pytest.mark.parametrize("platform,machine,missing", [
+    ("darwin", "x86_64", True), ("darwin", "arm64", False),
+    ("linux", "x86_64", False), ("win32", "AMD64", False),
+])
+@pytest.mark.parametrize("numba_bound_recorded", [False, True])
+def test_cellpose3_ignores_inactive_bounds_in_install_records(
+        _sandboxed_backends, monkeypatch, platform, machine, missing,
+        numba_bound_recorded):
+    import packaging.markers
+
+    environment = packaging.markers.default_environment()
+    environment.update(sys_platform=platform, platform_machine=machine)
+    monkeypatch.setattr(packaging.markers, "default_environment", lambda: environment)
+    record = {"requirements": ["cellpose==3.1.1.3", "packaging"],
+              "packages": {"cellpose": "3.1.1.3", "numba": "0.68.0", "numpy": "2.0.2"}}
+    if numba_bound_recorded:
+        record["requirements"].append(SB._SPECS["cellpose3"].requirements[2])
+    _finished_env(_sandboxed_backends, record=record)
+    state = SB._backend_state("cellpose3")
+    assert state.ready and not state.in_process
+    assert SB._stale_requirements("cellpose3", state.record) == (
+        list(SB._SPECS["cellpose3"].requirements[3 if numba_bound_recorded else 2:])
+        if missing else [])
+
+
 def test_the_environment_variables_cannot_point_pip_elsewhere(monkeypatch):
     for name in SB._STRIPPED_VARIABLES:
         monkeypatch.setenv(name, "elsewhere")
@@ -487,6 +534,49 @@ def test_samcell_installs_its_unconditionally_imported_plotting_dependency():
     dependencies = next(step.argv for step in steps if step.label == "Install SAMCell")
     assert "matplotlib>=3.3.0" in dependencies
     assert "samcell==1.2.0" in dependencies
+
+
+@pytest.mark.parametrize("platform,machine,expected", [
+    ("darwin", "x86_64", ["samcell==1.2.0", "matplotlib>=3.3.0", "numpy<2", "transformers<5"]),
+    ("darwin", "arm64", ["samcell==1.2.0", "matplotlib>=3.3.0"]),
+    ("linux", "x86_64", ["samcell==1.2.0", "matplotlib>=3.3.0"]),
+    ("win32", "AMD64", ["samcell==1.2.0", "matplotlib>=3.3.0"]),
+])
+def test_samcell_uses_compatible_dependencies_only_on_the_intel_mac_plan(
+        platform, machine, expected):
+    from packaging.requirements import Requirement
+
+    spec = SB._SPECS["samcell"]
+    steps = SB._install_plan(spec, "/b/samcell", ("/own/python",))
+    assert steps[3].argv[-len(spec.requirements):] == spec.requirements
+    effective = []
+    for text in spec.requirements:
+        requirement = Requirement(text)
+        if requirement.marker is None or requirement.marker.evaluate(
+                {"sys_platform": platform, "platform_machine": machine}):
+            effective.append(requirement.name + str(requirement.specifier))
+    assert effective == expected
+
+
+@pytest.mark.parametrize("platform,machine,missing", [
+    ("darwin", "x86_64", True), ("darwin", "arm64", False),
+    ("linux", "x86_64", False), ("win32", "AMD64", False),
+])
+def test_samcell_ignores_inactive_bounds_in_install_records(
+        _sandboxed_backends, monkeypatch, platform, machine, missing):
+    import packaging.markers
+
+    environment = packaging.markers.default_environment()
+    environment.update(sys_platform=platform, platform_machine=machine)
+    monkeypatch.setattr(packaging.markers, "default_environment", lambda: environment)
+    record = {"requirements": ["samcell==1.2.0", "matplotlib>=3.3.0"],
+              "packages": {"samcell": "1.2.0", "matplotlib": "3.11.2",
+                           "numpy": "2.5.4", "transformers": "5.20.2"}}
+    _finished_env(_sandboxed_backends, name="samcell", record=record)
+    state = SB._backend_state("samcell")
+    assert state.ready and not state.in_process
+    assert SB._stale_requirements("samcell", state.record) == (
+        list(SB._SPECS["samcell"].requirements[2:]) if missing else [])
 
 
 def test_every_module_an_adapter_imports_is_in_its_self_test():
@@ -1329,6 +1419,26 @@ def test_the_worker_command_line(stub_cellpose, capsys):
         stdin=io.StringIO(json.dumps(_request("hello")) + "\n"),
         stdout=served) == 0
     assert json.loads(served.getvalue())["ok"]
+
+
+@pytest.mark.parametrize("loads", [True, False])
+def test_windows_loads_native_libraries_before_blocking_on_stdin(monkeypatch, loads):
+    events = []
+    monkeypatch.setattr(SB.sys, "platform", "win32")
+
+    def handle(name, request, adapters):
+        events.append(("load", name, request["op"]))
+        return {"ok": loads}
+
+    def serve(name, stdin, stdout):
+        events.append(("serve", name))
+        return 0
+
+    monkeypatch.setattr(SB, "_handle", handle)
+    monkeypatch.setattr(SB, "_serve", serve)
+    assert SB._worker_main(["--serve", "cellpose3"],
+                           stdin=io.StringIO(), stdout=io.StringIO()) == 0
+    assert events == [("load", "cellpose3", "hello"), ("serve", "cellpose3")]
 
 
 def test_a_selftest_that_cannot_import_fails(monkeypatch):

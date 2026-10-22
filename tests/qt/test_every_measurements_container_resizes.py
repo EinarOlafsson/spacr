@@ -64,12 +64,16 @@ def scale(monkeypatch):
 
 
 @pytest.fixture()
-def tab(qtbot):
+def tab(qtbot, scale):
+    from spacr.qt import gui_scale
     from spacr.qt.widgets.measurement_scan_panel import MeasurementScanPanel
 
-    widget = MeasurementScanPanel(threaded=False)
-    qtbot.addWidget(widget)
-    return widget
+    scale(1.0)
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(gui_scale, "_SCALE", 1.0)
+        widget = MeasurementScanPanel(threaded=False)
+        qtbot.addWidget(widget)
+        yield widget
 
 
 def _panels(tab):

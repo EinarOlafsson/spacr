@@ -354,12 +354,13 @@ def _takes_an_argument(fn: Any) -> bool:
 def explicit_settings(module: str,
                       settings: Optional[Mapping[str, Any]],
                       ) -> Tuple[Dict[str, Any], Tuple[str, ...], str]:
-    """Return the settings a reproduction needs, with nothing left implicit.
+    """Return available defaults overlaid with the caller's settings.
 
-    The module's defaults, then the run-control defaults
+    Available module defaults, then available run-control defaults
     (:func:`spacr.runctx.apply_defaults` — ``random_seed`` above all, since
     an unpinned seed is the one "default" that changes the numbers on its
-    own), then the caller's values on top. Keys are ordered defaults-first
+    own), then the caller's values on top. Unavailable default sources are skipped,
+    so unset keys can remain absent. Keys are ordered defaults-first
     so a diff between two macros lines up.
 
     :param module: the module / app key.

@@ -366,13 +366,15 @@ def copy_test_data(source: Path, dest: Path, fields: int) -> int:
     """Copy Mask test images and their Mask settings into ``dest``."""
     images = select_test_fields(list(source.glob("*.tif")), fields)
     settings = source / "settings" / "gen_mask_settings.csv"
+    if not settings.is_file():
+        settings = source / "settings" / "gen_masks_settings.csv"
     if not images or not settings.is_file():
         raise SystemExit(f"{source} holds no *.tif and settings/gen_mask_settings.csv; "
                          "point --test-data at the Mask example plate folder")
     (dest / "settings").mkdir(parents=True, exist_ok=True)
     for path in images:
         shutil.copy2(path, dest / path.name)
-    shutil.copy2(settings, dest / "settings" / settings.name)
+    shutil.copy2(settings, dest / "settings" / "gen_mask_settings.csv")
     return len(images)
 
 

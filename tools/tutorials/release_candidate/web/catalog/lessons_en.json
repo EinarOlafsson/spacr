@@ -168,17 +168,17 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Install with pip in a Python virtual environment, pip in a Conda environment, or conda-forge in a Conda environment; launch, update and uninstall.",
+      "description": "Install with pip, conda-forge or Docker; check the installation, launch the appropriate interface, update and uninstall.",
       "objectives": [
-        "Choose one of three isolated installation routes.",
+        "Choose an isolated Python installation or a versioned container.",
         "Activate the correct environment before installing or launching.",
         "Check the installed version, update and uninstall safely."
       ],
-      "prerequisite": "Use Python 3.12 for the virtual-environment route, or install Conda/Miniforge for either Conda route. Open a terminal. Existing environments need distinct names.",
+      "prerequisite": "Use Python 3.12 for the virtual-environment route, or install Conda/Miniforge for either Conda route. Open a terminal. Existing environments need distinct names. For containers, install Docker Desktop or Docker Engine configured for Linux x86-64 containers.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Choose one installation route. Pip installs spaCR inside either a Python virtual environment or a Conda environment. Conda-forge installs into a Conda environment; it cannot install packages into a Python virtual environment. The three routes below are alternatives, so you need only one.",
+          "narration": "Choose one installation route. Pip installs spaCR inside a Python virtual environment or a Conda environment. Conda-forge installs into a Conda environment. Docker runs the command-line pipelines inside a container. Choose the route that fits how you will use spaCR.",
           "hold_after": 0.7
         },
         {
@@ -198,7 +198,7 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Check the installed version and package path, then run python dash m pip check. Keep the version with your analysis notes. This route installs the published PyPI package; a source checkout or nightly build can have newer interface features.",
+          "narration": "Check the installed version and package path, then run python dash m pip check. Keep the version with your analysis notes.",
           "hold_after": 0.7
         },
         {
@@ -223,7 +223,7 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda shows its package plan before installing. Review it, accept the plan and let the downloads and installation finish. The available conda-forge release may differ from the latest PyPI or nightly version.",
+          "narration": "Conda shows its package plan before installing. Review it, accept the plan and let the downloads and installation finish.",
           "hold_after": 0.7
         },
         {
@@ -232,8 +232,28 @@
           "hold_after": 0.7
         },
         {
+          "visual": "docker_01_install",
+          "narration": "For Docker, install Docker Desktop or Docker Engine using the official instructions for your operating system, and configure Linux containers. The spaCR images target x86 sixty-four. Use a container for command-line pipelines; choose a desktop installation for the graphical application.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Open the official spaCR container package page and select an available version. Pull that exact CPU image, then run it with spacr dash dash version and spacr-run dash dash list. Check that the reported version matches your selected tag. Keep that tag with your analysis notes.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Mount your project folder at slash data and your model cache at slash models. Export the pipeline settings into the project folder, and use container paths in the settings. Run spacr-run with the pipeline name and the settings CSV. Write results under slash data so they remain in your project after the container exits. On Linux, pass your user and group identifiers so output ownership matches your account.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "For NVIDIA processing, install a supported host driver and the NVIDIA Container Toolkit, then configure the Docker runtime using its official guide. The CUDA twelve point four image needs host driver five hundred fifty or newer. Select the matching versioned CUDA image and add dash dash gpus all. The CPU image needs neither the toolkit nor a GPU.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_current_home",
-          "narration": "This companion shows the current nightly Home interface. Your installed release may look different. The environment commands install the published package from the selected channel; this current-source view does not claim that all nightly features are already published.",
+          "narration": "Launch spaCR from the environment you installed. Home groups the modules into Core, Data, Tools and Organism. Choose a module to start its workflow.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
@@ -392,12 +412,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "In the current nightly interface, open Preferences and choose Performance. Select a profile for your computer. Laptop uses fewer resources; higher profiles allow more caching and background work. Start with a modest profile if memory is limited.",
+          "narration": "Open Preferences and choose Performance. Select a profile for your computer. Laptop uses fewer resources; higher profiles allow more caching and background work. Start with a modest profile if memory is limited.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Organism. Continue to Home screen and navigation for the current modules.",
+          "narration": "Home groups the modules into Core, Data, Tools and Organism. Continue to Home screen and navigation to find the module for your next task.",
           "related_lessons": [
             "05_home"
           ],
@@ -405,7 +425,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "Run spacr-doctor from the installed runtime if startup or a file format needs attention. In this recorded CPU installation, the backend check passes and the GPU probe is skipped. The warning says the optional CZI reader is missing; install that extra only if you need CZI files.",
+          "narration": "Run spacr-doctor from the installed runtime if startup or a file format needs attention. Check the backend result and whether the GPU probe ran. If the warning identifies a missing optional CZI reader, install that extra only when you need CZI files.",
           "hold_after": 0.7
         },
         {
@@ -510,9 +530,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Explore the Home overview and category tabs, then learn shared module controls using Mask and adjust navigation, help and appearance.",
+      "description": "Tour every current Home module from left to right, then learn the shared module controls using Mask and adjust navigation, help and appearance.",
       "objectives": [
-        "Find modules using the Home, Core, Data, Tools and Organism tabs.",
+        "Identify every module in the current Core, Data, Tools and Organism rows.",
         "Use Mask to recognize shared settings, previews, actions and outputs.",
         "Return Home, use search and arrange panels.",
         "Choose appearance and performance settings."
@@ -521,7 +541,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is the starting point. Its overview groups modules under Core, Data, Tools and Organism. The category tabs narrow the view. Every tile opens its named module. The sidebar provides the same routes, and Home returns to the overview.",
+          "narration": "Home is the starting point. Read each row from left to right: Core, Data, Tools and Organism. Every tile opens its named module. The sidebar provides the same routes, and Home returns to this overview.",
           "hold_after": 0.7
         },
         {
@@ -602,6 +622,17 @@
           ]
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings encodes object crops into numerical features for exploration and comparison.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare brings saved run results together so you can inspect differences.",
           "hold_after": 0.7,
@@ -613,6 +644,17 @@
           ]
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design lays out conditions, wells and sample identities before an experiment.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design explores sample-size and power assumptions when planning comparisons.",
           "hold_after": 0.7,
@@ -621,6 +663,28 @@
           ],
           "related_lessons": [
             "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose-Response fits responses across concentrations, keeping the chosen endpoint and controls explicit.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC lists the saved quality reports of a project and marks the ones that are missing.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
           ]
         },
         {
@@ -654,6 +718,17 @@
           ],
           "related_lessons": [
             "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor defines selections on real data columns. Review selected objects before turning a gate into labels.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
           ]
         },
         {
@@ -797,7 +872,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "On the Modules tab, Session decides whether spaCR reopens the last module, settings and folder when it starts; this recording starts fresh. Update channel chooses stable releases or nightly builds, and Proxy and Certificate bundle let downloads work behind an institutional proxy.",
+          "narration": "On the Modules tab, Session decides whether spaCR reopens the last module, settings and folder when it starts. Update channel chooses stable releases or nightly builds, and Proxy and Certificate bundle let downloads work behind an institutional proxy.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -827,6 +902,11 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "In Spaceout mode, Preferences includes spaCR field controls for eight independent effects. Turn each effect on or off separately. Ordinary appearance and settings-window animation controls remain available; Apply previews a change, Keep accepts it and Revert restores the previous choice.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -1112,7 +1192,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "For a quick first run, this recording points Source at centred crops of two example fields; with your own data, turn on Test mode and choose a few test images instead. Keep Plot on, check the per-object diameters and flow thresholds, keep Save on under Quality Control, then click Run.",
+          "narration": "For a quick first run, use centred crops of two example fields as Source. With your own data, turn on Test mode and choose a few test images. Keep Plot on, check the per-object diameters and flow thresholds, keep Save on under Quality Control, then click Run.",
           "hold_after": 0.7
         },
         {
@@ -3262,7 +3342,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. Here, import the settings of the small synthetic eight-frame example. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
           "hold_after": 0.7,
           "focus": [
             340,

@@ -176,19 +176,19 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installer avec pip dans un environnement virtuel Python, avec pip dans un environnement Conda ou avec conda-forge dans un environnement Conda ; lancer, mettre à jour et désinstaller.",
+      "description": "Installez spaCR avec pip, conda-forge ou Docker ; vérifiez l’installation, ouvrez l’interface adaptée, mettez à jour et désinstallez.",
       "objectives": [
-        "Choisir l’une des trois méthodes d’installation isolées.",
+        "Choisir une installation Python isolée ou un conteneur dont la version est fixée.",
         "Activer le bon environnement avant d’installer ou de lancer l’application.",
         "Vérifier la version installée, mettre à jour et désinstaller de façon sûre."
       ],
-      "prerequisite": "Utilisez Python 3.12 pour l’environnement virtuel, ou installez Conda/Miniforge pour l’une des deux méthodes Conda. Ouvrez un terminal. Choisissez des noms distincts des environnements existants.",
+      "prerequisite": "Utilisez Python 3.12 pour l’environnement virtuel, ou installez Conda/Miniforge pour l’une des deux méthodes Conda. Ouvrez un terminal. Choisissez des noms distincts des environnements existants. Pour les conteneurs, installez Docker Desktop ou Docker Engine configuré pour les conteneurs Linux x86-64.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Choisissez une méthode d’installation. Pip installe spaCR dans un environnement virtuel Python ou dans un environnement Conda. Conda-forge installe dans un environnement Conda ; il ne peut pas installer de paquets dans un environnement virtuel Python. Les trois méthodes suivantes sont des alternatives : une seule suffit.",
+          "narration": "Choisissez une méthode d’installation. Pip installe spaCR dans un environnement virtuel Python ou dans un environnement Conda. Conda-forge installe spaCR dans un environnement Conda. Docker exécute les pipelines en ligne de commande dans un conteneur. Choisissez la méthode adaptée à votre utilisation de spaCR.",
           "hold_after": 0.7,
-          "speech_text": "Choisissez une méthode d’installation. Pip installe spakeur dans un environnement virtuel Python ou dans un environnement Conda. Conda Forge installe dans un environnement Conda ; il ne peut pas installer de paquets dans un environnement virtuel Python. Les trois méthodes suivantes sont des alternatives : une seule suffit."
+          "speech_text": "Choisissez une méthode d’installation. Pip installe spakeur dans un environnement virtuel Python ou dans un environnement Conda. Conda Forge installe spakeur dans un environnement Conda. Docker exécute les pipelines en ligne de commande dans un conteneur. Choisissez la méthode adaptée à votre utilisation de spakeur."
         },
         {
           "visual": "pip_01_create_venv",
@@ -210,9 +210,9 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Vérifiez la version installée et le chemin du paquet, puis exécutez python tiret m pip check. Conservez la version avec vos notes d’analyse. Cette méthode installe le paquet publié sur PyPI ; une copie du code source ou une version nightly peut proposer des fonctions d’interface plus récentes.",
+          "narration": "Vérifiez la version installée et le chemin du paquet, puis exécutez python tiret m pip check. Conservez la version avec vos notes d’analyse.",
           "hold_after": 0.7,
-          "speech_text": "Vérifiez la version installée et le chemin du paquet, puis exécutez python tiret m pip check. Conservez la version avec vos notes d’analyse. Cette méthode installe le paquet publié sur païpe ; une copie du code source ou une version nightly peut proposer des fonctions d’interface plus récentes."
+          "speech_text": "Vérifiez la version installée et le chemin du paquet, puis exécutez python tiret m pip check. Conservez la version avec vos notes d’analyse."
         },
         {
           "visual": "pip_05_launch",
@@ -240,9 +240,9 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda affiche son plan de paquets avant l’installation. Examinez-le, acceptez-le et laissez les téléchargements et l’installation se terminer. La version disponible sur conda-forge peut différer de la dernière version PyPI ou nightly.",
+          "narration": "Conda affiche son plan de paquets avant l’installation. Examinez-le, acceptez-le et laissez les téléchargements et l’installation se terminer.",
           "hold_after": 0.7,
-          "speech_text": "Conda affiche son plan de paquets avant l’installation. Examinez-le, acceptez-le et laissez les téléchargements et l’installation se terminer. La version disponible sur Conda Forge peut différer de la dernière version païpe ou nightly."
+          "speech_text": "Conda affiche son plan de paquets avant l’installation. Examinez-le, acceptez-le et laissez les téléchargements et l’installation se terminer."
         },
         {
           "visual": "conda_03_activate",
@@ -251,13 +251,37 @@
           "speech_text": "Activez spakeur-conda. Vérifiez le chemin de l’environnement Python et exécutez conda list spakeur pour confirmer la version installée et le canal. Exécutez ensuite spakeur-doctor et lancez spakeur depuis cet environnement."
         },
         {
+          "visual": "docker_01_install",
+          "narration": "Pour Docker, installez Docker Desktop ou Docker Engine en suivant les instructions officielles de votre système d’exploitation, puis configurez les conteneurs Linux. Les images de spaCR ciblent Linux x86-64. Utilisez un conteneur pour les pipelines en ligne de commande ; choisissez une installation de bureau pour l’application graphique.",
+          "hold_after": 0.7,
+          "speech_text": "Pour Docker, installez Docker Desktop ou Docker Engine en suivant les instructions officielles de votre système d’exploitation, puis configurez les conteneurs Linux. Les images de spakeur ciblent Linux x86-64. Utilisez un conteneur pour les pipelines en ligne de commande ; choisissez une installation de bureau pour l’application graphique."
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Ouvrez la page officielle du paquet de conteneurs spaCR et choisissez une version disponible. Téléchargez cette image CPU précise, puis exécutez-la avec spacr --version et spacr-run --list. Vérifiez que la version indiquée correspond à la balise choisie. Conservez cette balise avec vos notes d’analyse.",
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez la page officielle du paquet de conteneurs spakeur et choisissez une version disponible. Téléchargez cette image CPU précise, puis exécutez-la avec spakeur --version et spakeur-run --list. Vérifiez que la version indiquée correspond à la balise choisie. Conservez cette balise avec vos notes d’analyse."
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Montez le dossier de votre projet sur /data et le cache des modèles sur /models. Exportez les paramètres du pipeline dans le dossier du projet et utilisez les chemins internes du conteneur dans ces paramètres. Exécutez spacr-run avec le nom du pipeline et le fichier CSV de paramètres. Écrivez les résultats sous /data pour les conserver dans votre projet après la fermeture du conteneur. Sous Linux, transmettez vos identifiants d’utilisateur et de groupe afin que les fichiers de sortie vous appartiennent.",
+          "hold_after": 0.7,
+          "speech_text": "Montez le dossier de votre projet sur /data et le cache des modèles sur /models. Exportez les paramètres du pipeline dans le dossier du projet et utilisez les chemins internes du conteneur dans ces paramètres. Exécutez spakeur-run avec le nom du pipeline et le fichier CSV de paramètres. Écrivez les résultats sous /data pour les conserver dans votre projet après la fermeture du conteneur. Sous Linux, transmettez vos identifiants d’utilisateur et de groupe afin que les fichiers de sortie vous appartiennent."
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "Pour le traitement avec NVIDIA, installez un pilote compatible sur l’hôte et NVIDIA Container Toolkit, puis configurez l’environnement d’exécution de Docker en suivant le guide officiel. L’image CUDA 12.4 nécessite un pilote hôte de version 550 ou ultérieure. Choisissez l’image CUDA correspondante avec une version fixée et ajoutez --gpus all. L’image CPU ne nécessite ni le toolkit ni un GPU.",
+          "hold_after": 0.7,
+          "speech_text": "Pour le traitement avec NVIDIA, installez un pilote compatible sur l’hôte et NVIDIA Container Toolkit, puis configurez l’environnement d’exécution de Docker en suivant le guide officiel. L’image CUDA 12.4 nécessite un pilote hôte de version 550 ou ultérieure. Choisissez l’image CUDA correspondante avec une version fixée et ajoutez --gpus all. L’image CPU ne nécessite ni le toolkit ni un GPU."
+        },
+        {
           "visual": "06_current_home",
-          "narration": "Ce complément montre l’interface Home de la version nightly actuelle. Votre version installée peut avoir une autre apparence. Les commandes d’environnement installent le paquet publié sur le canal choisi ; cette vue du code actuel n’affirme pas que toutes les fonctions nightly sont déjà publiées.",
+          "narration": "Lancez spaCR depuis l’environnement que vous avez installé. Home regroupe les modules dans Core, Data, Tools et Organism. Choisissez un module pour commencer son flux de travail.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
           ],
-          "speech_text": "Ce complément montre l’interface Home de la version nightly actuelle. Votre version installée peut avoir une autre apparence. Les commandes d’environnement installent le paquet publié sur le canal choisi ; cette vue du code actuel n’affirme pas que toutes les fonctions nightly sont déjà publiées."
+          "speech_text": "Lancez spakeur depuis l’environnement que vous avez installé. Home regroupe les modules dans Core, Data, Tools et Organism. Choisissez un module pour commencer son flux de travail."
         },
         {
           "visual": "pip_06_update",
@@ -424,24 +448,24 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Dans l’interface nightly actuelle, ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée.",
+          "narration": "Ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée.",
           "hold_after": 0.7,
-          "speech_text": "Dans l’interface nightly actuelle, ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée."
+          "speech_text": "Ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée."
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Cet enregistrement installe spaCR version un point cinq point un point trois. Les versions publiées peuvent présenter une ancienne disposition de Home. Voici Home dans la version nightly actuelle, avec Core, Data, Tools et Organism. Poursuivez avec Home screen and navigation pour découvrir les modules actuels.",
+          "narration": "Home regroupe les modules dans Core, Data, Tools et Organism. Poursuivez avec Home screen and navigation pour trouver le module de votre prochaine tâche.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Cet enregistrement installe spakeur version un point cinq point un point trois. Les versions publiées peuvent présenter une ancienne disposition de Home. Voici Home dans la version nightly actuelle, avec Core, Data, Tools et Organism. Poursuivez avec Home screen and navigation pour découvrir les modules actuels."
+          "speech_text": "Home regroupe les modules dans Core, Data, Tools et Organism. Poursuivez avec Home screen and navigation pour trouver le module de votre prochaine tâche."
         },
         {
           "visual": "05_doctor",
-          "narration": "Exécutez spacr-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Dans cette installation CPU enregistrée, la vérification du backend réussit et le test GPU est ignoré. L’avertissement indique que le lecteur CZI facultatif manque ; installez cet extra uniquement si vous avez besoin de fichiers CZI.",
+          "narration": "Exécutez spacr-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Vérifiez le résultat du backend et si le contrôle du GPU a été exécuté. Si l’avertissement signale l’absence du lecteur CZI facultatif, installez ce supplément uniquement si vous avez besoin de fichiers CZI.",
           "hold_after": 0.7,
-          "speech_text": "Exécutez spakeur-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Dans cette installation CPU enregistrée, la vérification du backend réussit et le test GPU est ignoré. L’avertissement indique que le lecteur CZI facultatif manque ; installez cet extra uniquement si vous avez besoin de fichiers CZI."
+          "speech_text": "Exécutez spakeur-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Vérifiez le résultat du backend et si le contrôle du GPU a été exécuté. Si l’avertissement signale l’absence du lecteur CZI facultatif, installez ce supplément uniquement si vous avez besoin de fichiers CZI."
         },
         {
           "visual": "12_logs_and_versions",
@@ -549,9 +573,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Explorez la vue d’ensemble de Home et les onglets de catégories, puis découvrez les commandes communes aux modules avec Mask et ajustez la navigation, l’aide et l’apparence.",
+      "description": "Parcourez tous les modules de Home de gauche à droite, découvrez les contrôles communs aux modules avec Mask, puis réglez la navigation, l’aide et l’apparence.",
       "objectives": [
-        "Trouvez les modules à l’aide des onglets Home, Core, Data, Tools et Organism.",
+        "Identifier chaque module dans les rangées Core, Data, Tools et Organism.",
         "Utiliser Mask pour reconnaître les réglages, aperçus, actions et résultats communs.",
         "Revenir à Home, utiliser la recherche et organiser les panneaux.",
         "Choisir les réglages d’apparence et de performances."
@@ -560,9 +584,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home est le point de départ. Sa vue d’ensemble regroupe les modules sous Core, Data, Tools et Organism. Les onglets de catégories limitent la vue. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès et Home ramène à la vue d’ensemble.",
+          "narration": "Home est le point de départ. Lisez chaque rangée de gauche à droite : Core, Data, Tools et Organism. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès, et Home ramène à cette vue d’ensemble.",
           "hold_after": 0.7,
-          "speech_text": "Home est le point de départ. Sa vue d’ensemble regroupe les modules sous Core, Data, Tools et Organism. Les onglets de catégories limitent la vue. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès et Home ramène à la vue d’ensemble."
+          "speech_text": "Home est le point de départ. Lisez chaque rangée de gauche à droite : Core, Data, Tools et Organism. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès, et Home ramène à cette vue d’ensemble."
         },
         {
           "visual": "home_module_mask",
@@ -649,6 +673,18 @@
           "speech_text": "Import prépare les fichiers de microscopie et leurs métadonnées pour la structure du projet."
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings encode les recadrages d’objets en caractéristiques numériques pour les explorer et les comparer.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ],
+          "speech_text": "Embeddings encode les recadrages d’objets en caractéristiques numériques pour les explorer et les comparer."
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare rassemble les résultats de traitements enregistrés afin d’en examiner les différences.",
           "hold_after": 0.7,
@@ -661,6 +697,18 @@
           "speech_text": "Run Compare rassemble les résultats de traitements enregistrés afin d’en examiner les différences."
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design définit les conditions, les puits et les identités des échantillons avant une expérience.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ],
+          "speech_text": "Experiment Design définit les conditions, les puits et les identités des échantillons avant une expérience."
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design explore les hypothèses de taille d’échantillon et de puissance pour planifier les comparaisons.",
           "hold_after": 0.7,
@@ -671,6 +719,30 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design explore les hypothèses de taille d’échantillon et de puissance pour planifier les comparaisons."
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response ajuste les réponses aux différentes concentrations, en gardant explicites la mesure de réponse choisie et les témoins.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ],
+          "speech_text": "Dose Response ajuste les réponses aux différentes concentrations, en gardant explicites la mesure de réponse choisie et les témoins."
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC répertorie les rapports de qualité enregistrés d’un projet et signale ceux qui manquent.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
+          ],
+          "speech_text": "QC répertorie les rapports de qualité enregistrés d’un projet et signale ceux qui manquent."
         },
         {
           "visual": "home_module_make_masks",
@@ -707,6 +779,18 @@
             "15_image_umap"
           ],
           "speech_text": "Image you map projette les caractéristiques d’objets pour explorer les objets similaires et inspecter des recadrages représentatifs."
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor définit des sélections dans les colonnes de données réelles. Examinez les objets sélectionnés avant de convertir une sélection en étiquettes.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "guéïte éditeur définit des sélections dans les colonnes de données réelles. Examinez les objets sélectionnés avant de convertir une sélection en étiquettes."
         },
         {
           "visual": "home_module_graph_builder",
@@ -866,7 +950,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "Dans l’onglet Modules, Session décide si spaCR rouvre au démarrage le dernier module, les réglages et le dossier ; cet enregistrement démarre à neuf. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel.",
+          "narration": "Dans l’onglet Modules, Session détermine si spaCR rouvre le dernier module, les paramètres et le dossier au démarrage. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -874,7 +958,7 @@
             1200,
             397
           ],
-          "speech_text": "Dans l’onglet Modules, Session décide si spakeur rouvre au démarrage le dernier module, les réglages et le dossier ; cet enregistrement démarre à neuf. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel."
+          "speech_text": "Dans l’onglet Modules, Session détermine si spakeur rouvre le dernier module, les paramètres et le dossier au démarrage. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel."
         },
         {
           "visual": "13f_storage",
@@ -899,6 +983,12 @@
             1500
           ],
           "speech_text": "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé."
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "En mode Spaceout, Preferences propose des contrôles du champ spaCR pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les contrôles habituels d’apparence et d’animation des fenêtres restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent.",
+          "hold_after": 0.7,
+          "speech_text": "En mode Spaceout, Preferences propose des contrôles du champ spakeur pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les contrôles habituels d’apparence et d’animation des fenêtres restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent."
         }
       ],
       "narration_voices": {
@@ -1200,9 +1290,9 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Pour un premier essai rapide, cet enregistrement fait pointer Source vers des découpes centrées de deux champs d’exemple ; avec vos propres données, activez plutôt Test mode et choisissez quelques images de test. Laissez Plot activé, vérifiez les diamètres et les seuils de flux par objet, laissez Save activé dans Quality Control, puis cliquez sur Run.",
+          "narration": "Pour une première exécution rapide, utilisez comme Source des recadrages centrés de deux champs d’exemple. Avec vos propres données, activez Test mode et choisissez quelques images de test. Laissez Plot activé, vérifiez les diamètres et les seuils de flux par objet, laissez Save activé dans Quality Control, puis cliquez sur Run.",
           "hold_after": 0.7,
-          "speech_text": "Pour un premier essai rapide, cet enregistrement fait pointer Source vers des découpes centrées de deux champs d’exemple ; avec vos propres données, activez plutôt Test mode et choisissez quelques images de test. Laissez Plot activé, vérifiez les diamètres et les seuils de flux par objet, laissez Save activé dans Quality Control, puis cliquez sur Run."
+          "speech_text": "Pour une première exécution rapide, utilisez comme Source des recadrages centrés de deux champs d’exemple. Avec vos propres données, activez Test mode et choisissez quelques images de test. Laissez Plot activé, vérifiez les diamètres et les seuils de flux par objet, laissez Save activé dans Quality Control, puis cliquez sur Run."
         },
         {
           "visual": "run_23_batch_finished",
@@ -3535,7 +3625,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Cet enregistrement importe les paramètres d’une petite séquence synthétique de huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images.",
+          "narration": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Ici, importez les paramètres du petit exemple synthétique à huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -3543,7 +3633,7 @@
             1160,
             1900
           ],
-          "speech_text": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Cet enregistrement importe les paramètres d’une petite séquence synthétique de huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images."
+          "speech_text": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Ici, importez les paramètres du petit exemple synthétique à huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images."
         },
         {
           "visual": "05_setting_timelapse_mode",

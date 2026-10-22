@@ -738,12 +738,13 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
                 ) -> EmbeddingResult:
     """Embed a stack of crops.
 
-    Every crop is divided by the same per-channel scale,
-    ``spec.channel_scale``, so a crop's embedding does not depend on the other
-    crops in ``crops``. When the spec carries none, one is estimated from a
-    random sample of ``crops`` -- the stack is treated as the whole plate --
-    and a warning is logged. To embed one plate in several calls, pass the
-    same scale to each: the returned ``spec`` carries it.
+    When normalization is enabled, every crop is divided by the same
+    per-channel scale, ``spec.channel_scale``, so a crop's embedding does not
+    depend on the other crops in ``crops``. If normalization is enabled and
+    the spec carries no scale, one is estimated from a random sample of
+    ``crops`` -- the stack is treated as the whole plate -- and a warning is
+    logged. To embed one plate in several calls, pass the same scale to each:
+    the returned ``spec`` carries it.
 
     :param crops: ``(n, height, width, channels)``, the shape
         :mod:`spacr.crops` already produces.

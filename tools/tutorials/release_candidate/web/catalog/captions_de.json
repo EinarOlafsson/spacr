@@ -147,17 +147,17 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Mit pip in einer virtuellen Python-Umgebung, mit pip in einer Conda-Umgebung oder mit conda-forge in einer Conda-Umgebung installieren; starten, aktualisieren und deinstallieren.",
+      "description": "Installieren Sie spaCR mit pip, conda-forge oder Docker; prüfen Sie die Installation, öffnen Sie die passende Oberfläche und führen Sie Updates oder die Deinstallation durch.",
       "objectives": [
-        "Einen von drei isolierten Installationswegen wählen.",
+        "Eine isolierte Python-Installation oder einen Container mit festgelegter Version auswählen.",
         "Vor der Installation oder dem Start die richtige Umgebung aktivieren.",
         "Die installierte Version prüfen, sicher aktualisieren und deinstallieren."
       ],
-      "prerequisite": "Verwenden Sie Python 3.12 für die virtuelle Umgebung oder installieren Sie Conda/Miniforge für einen der beiden Conda-Wege. Öffnen Sie ein Terminal. Wählen Sie andere Namen als die vorhandener Umgebungen.",
+      "prerequisite": "Verwenden Sie Python 3.12 für die virtuelle Umgebung oder installieren Sie Conda/Miniforge für einen der beiden Conda-Wege. Öffnen Sie ein Terminal. Wählen Sie andere Namen als die vorhandener Umgebungen. Für Container installieren Sie Docker Desktop oder Docker Engine und konfigurieren Linux-x86-64-Container.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Wählen Sie einen Installationsweg. Pip installiert spaCR in einer virtuellen Python-Umgebung oder in einer Conda-Umgebung. Conda-forge installiert in eine Conda-Umgebung; es kann keine Pakete in eine virtuelle Python-Umgebung installieren. Die drei folgenden Wege sind Alternativen, Sie benötigen also nur einen.",
+          "narration": "Wählen Sie einen Installationsweg. Pip installiert spaCR in einer virtuellen Python-Umgebung oder einer Conda-Umgebung. Conda-forge installiert spaCR in einer Conda-Umgebung. Docker führt Kommandozeilen-Pipelines innerhalb eines Containers aus. Wählen Sie den Weg, der zu Ihrer Nutzung von spaCR passt.",
           "hold_after": 0.7
         },
         {
@@ -177,7 +177,7 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Prüfen Sie die installierte Version und den Paketpfad und führen Sie anschließend python -m pip check aus. Bewahren Sie die Version mit Ihren Analysenotizen auf. Dieser Weg installiert das veröffentlichte PyPI-Paket; ein Quellcode-Checkout oder ein Nightly-Build kann neuere Oberflächenfunktionen enthalten.",
+          "narration": "Prüfen Sie die installierte Version und den Paketpfad und führen Sie anschließend python -m pip check aus. Bewahren Sie die Version mit Ihren Analysenotizen auf.",
           "hold_after": 0.7
         },
         {
@@ -202,7 +202,7 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda zeigt vor der Installation seinen Paketplan. Prüfen und bestätigen Sie ihn und warten Sie, bis Download und Installation abgeschlossen sind. Die verfügbare conda-forge-Version kann von der neuesten PyPI- oder Nightly-Version abweichen.",
+          "narration": "Conda zeigt vor der Installation seinen Paketplan. Prüfen und bestätigen Sie ihn und warten Sie, bis Download und Installation abgeschlossen sind.",
           "hold_after": 0.7
         },
         {
@@ -211,8 +211,28 @@
           "hold_after": 0.7
         },
         {
+          "visual": "docker_01_install",
+          "narration": "Installieren Sie für Docker Docker Desktop oder Docker Engine nach den offiziellen Anweisungen für Ihr Betriebssystem und konfigurieren Sie Linux-Container. Die spaCR-Container-Images sind für Linux x86-64 ausgelegt. Verwenden Sie Container für Kommandozeilen-Pipelines und eine Desktop-Installation für die grafische Anwendung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Öffnen Sie die offizielle spaCR-Container-Paketseite und wählen Sie eine verfügbare Version. Laden Sie genau dieses CPU-Image herunter und führen Sie damit spacr --version und spacr-run --list aus. Prüfen Sie, ob die angezeigte Version zum gewählten Tag passt. Bewahren Sie diesen Tag mit Ihren Analysenotizen auf.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Binden Sie Ihren Projektordner unter /data und den Modellcache unter /models ein. Exportieren Sie die Pipeline-Einstellungen in den Projektordner und verwenden Sie darin containerinterne Pfade. Führen Sie spacr-run mit dem Pipeline-Namen und der Einstellungs-CSV aus. Schreiben Sie Ergebnisse unter /data, damit sie nach dem Beenden des Containers im Projekt bleiben. Übergeben Sie unter Linux Ihre Benutzer- und Gruppenkennung, damit die Ausgabedateien Ihrem Konto gehören.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "Installieren Sie für die Verarbeitung mit NVIDIA einen unterstützten Host-Treiber und NVIDIA Container Toolkit und konfigurieren Sie die Docker-Laufzeit nach der offiziellen Anleitung. Das CUDA-12.4-Image benötigt einen Host-Treiber der Version 550 oder höher. Wählen Sie das passende CUDA-Image mit festgelegter Version und ergänzen Sie --gpus all. Das CPU-Image benötigt weder das Toolkit noch eine GPU.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_current_home",
-          "narration": "Diese Ergänzung zeigt die aktuelle Nightly-Oberfläche von Home. Ihre installierte Version kann anders aussehen. Die Umgebungsbefehle installieren das veröffentlichte Paket aus dem gewählten Kanal; diese Ansicht des aktuellen Quellcodes behauptet nicht, dass alle Nightly-Funktionen bereits veröffentlicht wurden.",
+          "narration": "Starten Sie spaCR aus der installierten Umgebung. Home gruppiert die Module in Core, Data, Tools und Organism. Wählen Sie ein Modul, um dessen Workflow zu beginnen.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
@@ -371,12 +391,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Öffnen Sie in der aktuellen Nightly-Oberfläche Preferences und wählen Sie Performance. Wählen Sie ein Profil für Ihren Computer. Laptop benötigt weniger Ressourcen; höhere Profile erlauben mehr Zwischenspeicherung und Hintergrundarbeit. Beginnen Sie bei knappem Speicher mit einem sparsamen Profil.",
+          "narration": "Öffnen Sie Preferences und wählen Sie Performance. Wählen Sie ein Profil für Ihren Computer. Laptop benötigt weniger Ressourcen; höhere Profile erlauben mehr Zwischenspeicherung und Hintergrundarbeit. Beginnen Sie bei knappem Speicher mit einem sparsamen Profil.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Diese Aufnahme installiert spaCR Version eins Punkt fünf Punkt eins Punkt drei. Veröffentlichte Versionen können ein älteres Home-Layout zeigen. Hier sehen Sie Home im aktuellen Nightly-Build mit Core, Data, Tools und Organism. Die aktuellen Module erklärt Home screen and navigation.",
+          "narration": "Home gruppiert die Module in Core, Data, Tools und Organism. Fahren Sie mit Home screen and navigation fort, um das Modul für Ihre nächste Aufgabe zu finden.",
           "related_lessons": [
             "05_home"
           ],
@@ -384,7 +404,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus der installierten Laufzeitumgebung aus, wenn der Start oder ein Dateiformat Probleme bereitet. In dieser aufgezeichneten CPU-Installation besteht die Backend-Prüfung, und die GPU-Prüfung wird übersprungen. Die Warnung weist auf den fehlenden optionalen CZI-Leser hin; installieren Sie dieses Extra nur, wenn Sie CZI-Dateien benötigen.",
+          "narration": "Führen Sie spacr-doctor aus der installierten Laufzeitumgebung aus, wenn der Start oder ein Dateiformat Probleme bereitet. Prüfen Sie das Backend-Ergebnis und ob die GPU-Prüfung ausgeführt wurde. Falls die Warnung einen fehlenden optionalen CZI-Reader meldet, installieren Sie diese Erweiterung nur, wenn Sie CZI-Dateien benötigen.",
           "hold_after": 0.7
         },
         {
@@ -489,9 +509,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Erkunden Sie die Home-Übersicht und die Kategorie-Tabs, lernen Sie dann anhand von Mask die gemeinsamen Bedienelemente der Module kennen und passen Sie Navigation, Hilfe und Erscheinungsbild an.",
+      "description": "Gehen Sie alle Module in Home von links nach rechts durch, lernen Sie mit Mask die gemeinsamen Modulsteuerungen kennen und passen Sie Navigation, Hilfe und Darstellung an.",
       "objectives": [
-        "Finden Sie Module über die Tabs Home, Core, Data, Tools und Organism.",
+        "Jedes Modul in den Zeilen Core, Data, Tools und Organism erkennen.",
         "Mit Mask die gemeinsamen Einstellungen, Vorschauen, Aktionen und Ausgaben kennenlernen.",
         "Zu Home zurückkehren, die Suche verwenden und die Bereiche anordnen.",
         "Einstellungen für Darstellung und Leistung auswählen."
@@ -500,7 +520,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home ist der Ausgangspunkt. Die Übersicht gruppiert Module unter Core, Data, Tools und Organism. Die Kategorie-Tabs grenzen die Ansicht ein. Jede Kachel öffnet das darauf benannte Modul. Die Seitenleiste bietet dieselben Zugänge, und Home führt zurück zur Übersicht.",
+          "narration": "Home ist der Ausgangspunkt. Lesen Sie jede Zeile von links nach rechts: Core, Data, Tools und Organism. Jede Kachel öffnet das darauf benannte Modul. Die Seitenleiste bietet dieselben Zugänge; Home führt zu dieser Übersicht zurück.",
           "hold_after": 0.7
         },
         {
@@ -581,6 +601,17 @@
           ]
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings kodiert Objekt-Bildausschnitte als numerische Merkmale zur Erkundung und zum Vergleich.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare führt gespeicherte Ergebnisse mehrerer Läufe zusammen, damit Sie Unterschiede prüfen können.",
           "hold_after": 0.7,
@@ -592,6 +623,17 @@
           ]
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design legt Bedingungen, Wells und Probenkennungen vor einem Experiment fest.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design untersucht Annahmen zu Stichprobengröße und Teststärke bei geplanten Vergleichen.",
           "hold_after": 0.7,
@@ -600,6 +642,28 @@
           ],
           "related_lessons": [
             "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response führt Fits für Antworten über verschiedene Konzentrationen durch; der gewählte Endpunkt und die Kontrollen bleiben dabei explizit.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC listet die gespeicherten Qualitätsberichte eines Projekts auf und markiert die fehlenden.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
           ]
         },
         {
@@ -633,6 +697,17 @@
           ],
           "related_lessons": [
             "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor definiert Auswahlen für echte Datenspalten. Prüfen Sie die ausgewählten Objekte, bevor Sie eine Auswahl in Labels umwandeln.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
           ]
         },
         {
@@ -776,7 +851,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "Auf der Registerkarte Modules legt Session fest, ob spaCR beim Start das letzte Modul, die Einstellungen und den Ordner wieder öffnet; diese Aufnahme startet frisch. Update channel wählt stabile Versionen oder nächtliche Builds, und mit Proxy und Certificate bundle funktionieren Downloads hinter einem institutionellen Proxy.",
+          "narration": "Auf der Registerkarte Modules bestimmt Session, ob spaCR beim Start das letzte Modul, die Einstellungen und den Ordner erneut öffnet. Update channel wählt stabile Versionen oder nächtliche Builds, und mit Proxy und Certificate bundle funktionieren Downloads hinter einem institutionellen Proxy.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -806,6 +881,11 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "Im Spaceout-Modus bietet Preferences spaCR-Feldsteuerungen für acht unabhängige Effekte. Schalten Sie jeden Effekt einzeln ein oder aus. Die üblichen Steuerungen für Darstellung und Animation des Einstellungsfensters bleiben verfügbar; Apply zeigt eine Änderung als Vorschau, Keep übernimmt sie und Revert stellt die vorherige Auswahl wieder her.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -1091,7 +1171,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Für einen schnellen ersten Lauf richtet diese Aufnahme Source auf zentrierte Ausschnitte zweier Beispielfelder; bei Ihren eigenen Daten schalten Sie stattdessen Test mode ein und wählen einige Testbilder. Lassen Sie Plot an, prüfen Sie die objektbezogenen Durchmesser und Flow-Schwellen, lassen Sie Save unter Quality Control an und klicken Sie dann auf Run.",
+          "narration": "Verwenden Sie für einen schnellen ersten Lauf zentrierte Bildausschnitte zweier Beispiel-Bildfelder als Source. Aktivieren Sie bei eigenen Daten Test mode und wählen Sie einige Testbilder. Lassen Sie Plot an, prüfen Sie die objektbezogenen Durchmesser und Flow-Schwellen, lassen Sie Save unter Quality Control an und klicken Sie dann auf Run.",
           "hold_after": 0.7
         },
         {
@@ -3241,7 +3321,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Für einen vollständigen Lauf mit Ihren eigenen Bildern legen Sie in Mask Source und die Intensitätskanäle fest. Diese Aufnahme importiert die Einstellungen einer kleinen synthetischen Sequenz mit acht Frames. Halten Sie die Zeitpunkte jedes Bildfelds in der richtigen Reihenfolge. Frame-Grenzen bestehen aus einem Start und einem ausgeschlossenen Ende: 0 bis 8 wählt die ersten acht Frames.",
+          "narration": "Für einen vollständigen Lauf mit Ihren eigenen Bildern legen Sie in Mask Source und die Intensitätskanäle fest. Hier laden Sie die Einstellungen des kleinen synthetischen Beispiels mit acht Frames. Halten Sie die Zeitpunkte jedes Bildfelds in der richtigen Reihenfolge. Frame-Grenzen bestehen aus einem Start und einem ausgeschlossenen Ende: 0 bis 8 wählt die ersten acht Frames.",
           "hold_after": 0.7,
           "focus": [
             340,

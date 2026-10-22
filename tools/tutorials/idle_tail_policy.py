@@ -51,23 +51,32 @@ def bind_policy(policy, records, lessons, load_timing=None):
         scenes = visual['scenes'] if visual is not None else None
         if not isinstance(entry['scenes'], list) or not entry['scenes']:
             raise ValueError('Idle-tail policy needs explicit scenes')
-        used = set()
+        used = []
+        resolved = set()
         for fence in entry['scenes']:
-            if (not isinstance(fence, dict) or set(fence) != {'visual', 'source_start', 'source_end', 'idle_tail_start'}
-                    or fence['visual'] in used):
+            if not isinstance(fence, dict) or set(fence) != {'visual', 'source_start', 'source_end', 'idle_tail_start'}:
                 raise ValueError('Invalid or duplicate idle-tail scene')
-            used.add(fence['visual'])
             values = [fence[key] for key in ('source_start', 'source_end', 'idle_tail_start')]
             if (not isinstance(fence['visual'], str) or not fence['visual']
                     or any(type(value) not in (int, float) or not math.isfinite(value) for value in values)
                     or fence['source_start'] < 0
                     or not 0 <= fence['idle_tail_start'] < fence['source_end'] - fence['source_start']):
                 raise ValueError('Invalid idle-tail scene clock')
+            # Repeated visuals are distinct only when their immutable scene clocks differ.
+            if any(previous['visual'] == fence['visual']
+                   and abs(previous['source_start'] - fence['source_start']) <= 1e-7
+                   and abs(previous['source_end'] - fence['source_end']) <= 1e-7
+                   for previous in used):
+                raise ValueError('Invalid or duplicate idle-tail scene')
+            used.append(fence)
             if scenes is not None:
-                found = [scene for scene in scenes if scene['visual'] == fence['visual']]
-                if (len(found) != 1 or abs(fence['source_start'] - found[0]['speech_start']) > 1e-7
-                        or abs(fence['source_end'] - found[0]['scene_end']) > 1e-7):
+                found = [index for index, scene in enumerate(scenes)
+                         if scene['visual'] == fence['visual']
+                         and abs(fence['source_start'] - scene['speech_start']) <= 1e-7
+                         and abs(fence['source_end'] - scene['scene_end']) <= 1e-7]
+                if len(found) != 1 or found[0] in resolved:
                     raise ValueError('Idle-tail policy scene clock changed')
+                resolved.add(found[0])
         lesson['native_idle_tails'] = {'schema': 1, **deepcopy(entry)}
     return result
 

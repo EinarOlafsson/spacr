@@ -134,3 +134,5 @@ small real compound-screen DONE WHEN at alpha scope. It is not a claim that
 the source plate measured host toxicity or that clustering validates biology.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); the rdkit tests pass in a scratch venv with rdkit (they skip in the base env).
+
+2026-10-21 — Maintenance under N43, owner obsolete_repo_cleanup: preserve nearest_hit=None for a hit with no other hit under pandas3, whose automatic string inference changes None to NaN. Keep alpha scope, clustering, neighbour selection and all original scientific assertions unchanged; original alpha delivery remains retained while this compatibility repair awaits validation/publication. The original singleton case fails before this repair and passes with the explicit object column under hosted pandas3.0.3 (1.62 s); the existing named-neighbour/clustering/export case also passes (6.23 s). Publication/hosted CI remain pending.

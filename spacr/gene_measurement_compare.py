@@ -245,7 +245,8 @@ def combine(objects: "pd.DataFrame", first: str, operator: str,
     :param objects: table containing the measurement columns.
     :param first: name of the first measurement column.
     :param operator: one of ``''``, ``'+'``, ``'-'``, ``'*'``, or ``'/'``.
-        An empty string returns ``first`` unchanged.
+        An empty string returns ``first`` after numeric conversion,
+        with unparseable values made missing.
     :param second: name of the second measurement column. Required when
         ``operator`` is not empty.
     :returns: ``(values, name, dropped)``. ``name`` is the displayed

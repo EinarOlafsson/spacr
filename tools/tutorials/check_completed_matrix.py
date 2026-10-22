@@ -82,13 +82,26 @@ def reconcile_browser(report, lesson, language, voice, caption, audio_hash, scen
         raise ValueError('Invalid or unsynchronised browser clocks')
 
 
-def reconcile_english_catalog(translated, english, inventory):
+def reconcile_english_catalog(translated, english, inventory, *, retained_narration=False):
     """Allow only the normal complete planned-voice declaration as metadata."""
     compared, authored = dict(translated), dict(english)
+    if retained_narration and 'narration_voices' not in compared:
+        raise ValueError('Retained English needs its bound fifty-voice matrix')
     for item in (compared, authored):
         if 'narration_voices' in item:
             declared = item.pop('narration_voices')
-            if not isinstance(declared, dict) or declared != inventory:
+            if retained_narration:
+                # The caller has already checked immutable published catalogs,
+                # all source tracks and exact current canonical lesson bytes.
+                valid = (isinstance(declared, dict) and set(declared) == set(inventory)
+                    and all(isinstance(voices, list)
+                            and all(isinstance(voice, str) for voice in voices)
+                            and len(voices) == len(set(voices))
+                            and set(voices) == set(inventory[language])
+                            for language, voices in declared.items()))
+            else:
+                valid = isinstance(declared, dict) and declared == inventory
+            if not valid:
                 raise ValueError('English planned voices differ from the normal fifty-voice matrix')
     if compared != authored:
         raise ValueError('Staged English differs from the rendered lesson')
@@ -99,6 +112,27 @@ def reconcile_visual_sources(stage, lesson_id, english):
     stage = Path(stage).resolve()
     folder = stage / 'production' / lesson_id
     specification = folder / 'scenes.json'
+    mix_mode = (specification.is_file() and
+        read(specification).get('kind') == 'mixed_published_native_intervals')
+    mix_record = folder / 'published-native-mix.json'
+    if mix_mode or mix_record.exists():
+        if (not mix_mode or not mix_record.is_file()
+                or any((folder / name).exists() for name in ['published-native-edit.json','published-native-reuse.json'])):
+            raise ValueError('Mixed published sources need their exclusive source/card/interval record')
+        from published_native_mix import checked_mixed_native_timing
+        return read(checked_mixed_native_timing(stage, lesson_id))['published_native_mix']
+    edit_mode = (specification.is_file() and
+        read(specification).get('kind') == 'edited_published_native_intervals')
+    edit_record = folder / 'published-native-edit.json'
+    if edit_mode or edit_record.exists():
+        if (not edit_mode or not edit_record.is_file()
+                or (folder / 'published-native-reuse.json').exists()):
+            raise ValueError('Edited published footage requires its exclusive source/interval record')
+        from published_native_edit import checked_edited_native_timing
+        # This revalidates the exact current 50 render inputs/audio hashes,
+        # immutable published source, reviewed frame edits and rendered master.
+        timing = read(checked_edited_native_timing(stage, lesson_id))
+        return timing['published_native_edit']
     interval_mode = (specification.is_file() and
         read(specification).get('kind') == 'published_native_intervals')
     reuse_record = folder / 'published-native-reuse.json'
@@ -133,9 +167,16 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
         from retain_narration import retained_sources
         from stage_lesson import REPO
         original = Path(retained_from) if retained_from is not None else Path(renderer).resolve().parents[1]
-        retention = retained_sources(stage, original,
-            Path(baseline) if baseline is not None else REPO / 'docs/source/_extra/tutorials/catalog', lesson_id, inventory,
-            require_staged=True)
+        from published_retained_narration import RECORD, checked_published_narration
+        if (folder / RECORD).exists() or (folder / RECORD).is_symlink():
+            if retained_from is not None:
+                raise ValueError('Published retention has its own immutable source, not retained-from')
+            checked_published_narration(stage, lesson_id)
+            retention = read(folder / RECORD)
+        else:
+            retention = retained_sources(stage, original,
+                Path(baseline) if baseline is not None else REPO / 'docs/source/_extra/tutorials/catalog', lesson_id, inventory,
+                require_staged=True)
     expected = {(language, voice) for language, voices in inventory.items() for voice in voices}
     hashes = {key: digest(folder / 'audio' / key[0] / (key[1] + '.m4a')) for key in expected}
     for language in [*inventory, *CAPTION_LANGUAGES]:
@@ -146,7 +187,7 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             raise ValueError('Catalog identity or scene count differs')
         translated = matches[0]
         if language == 'en':
-            reconcile_english_catalog(translated, english, inventory)
+            reconcile_english_catalog(translated, english, inventory, retained_narration=retained_narration)
         elif not retained_narration:
             review = read(folder / f'review.{language}.json')
             if (review.get('english_sha256') != canonical or review.get('lesson') != lesson_id
@@ -195,7 +236,8 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             'retained_narration': retention,
             'native_speaker_signoff': False, 'human_listening_review': False, 'published': False}
     if reuse is not None:
-        result['published_native_reuse'] = reuse
+        key = 'published_native_mix' if (folder / 'published-native-mix.json').exists() else 'published_native_edit' if (folder / 'published-native-edit.json').exists() else 'published_native_reuse'
+        result[key] = reuse
     return result
 
 

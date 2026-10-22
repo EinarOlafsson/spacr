@@ -334,6 +334,7 @@ class _WGPU:
         self.writes = []
         self.created = []
         self.submitted = 0
+        self.copies = []
         self.reader = None
         self.asked = None
         state = self
@@ -341,11 +342,12 @@ class _WGPU:
         module.__spec__ = importlib.machinery.ModuleSpec("wgpu", None)
         module.TextureFormat = SimpleNamespace(r32uint="r32uint")
         module.TextureUsage = SimpleNamespace(TEXTURE_BINDING=4, COPY_DST=2)
-        module.BufferUsage = SimpleNamespace(STORAGE=128, COPY_SRC=4, UNIFORM=64)
+        module.BufferUsage = SimpleNamespace(STORAGE=128, COPY_SRC=4, COPY_DST=8, UNIFORM=64)
 
         class GPUBuffer:
             def __init__(self, size, usage, data=None):
                 self.size, self.usage, self.data, self.destroyed = size, usage, data, False
+                self.copies = {}
                 state.created.append(self)
 
             def destroy(self):
@@ -391,6 +393,11 @@ class _WGPU:
                 state.submitted += len(buffers)
 
             def read_buffer(self, buffer):
+                if buffer.copies:
+                    data = bytearray(buffer.size)
+                    for offset, (source, source_offset, size) in buffer.copies.items():
+                        data[offset:offset + size] = self.read_buffer(source)[source_offset:source_offset + size]
+                    return bytes(data)
                 if state.reader is not None:
                     found = state.reader(buffer)
                     if found is not None:
@@ -420,7 +427,16 @@ class _WGPU:
                 return {"layout": layout, "entries": entries}
 
             def create_command_encoder(self):
-                return SimpleNamespace(begin_compute_pass=Pass, finish=lambda: "commands")
+                def copy_buffer_to_buffer(source, source_offset, target, target_offset, size):
+                    assert source.usage & module.BufferUsage.COPY_SRC
+                    assert target.usage & module.BufferUsage.COPY_DST
+                    assert source_offset + size <= source.size
+                    assert target_offset + size <= target.size
+                    target.copies[target_offset] = (source, source_offset, size)
+                    state.copies.append((source, source_offset, target, target_offset, size))
+
+                return SimpleNamespace(begin_compute_pass=Pass, finish=lambda: "commands",
+                                       copy_buffer_to_buffer=copy_buffer_to_buffer)
 
         if destroyable:
             Device.destroy = lambda self: setattr(state, "device_destroyed", True)
@@ -508,6 +524,8 @@ def test_wgpu_frame_runs_clear_image_labels_and_pack_and_decodes_the_picture(mon
     assert [groups for *_rest, groups in fake.dispatches] == [
         (1, 1, 1), (1, 1, 1), (1, 1, 1), (2, 2, 1)]
     assert fake.submitted == 1
+    assert [(copy[1], copy[3], copy[4]) for copy in fake.copies] == [
+        (0, 0, 12 * 15 * 4), (0, 12 * 15 * 4, 6 * 7 * 8)]
     assert rgb.shape == (12, 15, 3) and np.array_equal(rgb[3, :, 0], np.arange(15))
     assert picked.dtype == np.int64 and picked[1, 2] == 2 and picked[5, 6] == 70000
     assert picked.sum() == 70002

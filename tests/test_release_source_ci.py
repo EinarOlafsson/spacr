@@ -419,7 +419,7 @@ def test_bump_checks_and_stages_tracked_owner_outputs_before_finalizing_the_sour
     arguments = shlex.split(stage)
     assert arguments[:4] == ["git", "add", "-u", "--"]
     assert set(arguments[4:]) == {
-        "setup.py", "CITATION.cff", "spacr/_version.py", "README.rst",
+        "setup.py", "CITATION.cff", "spacr/_version.py", "spacr/resources/release_notes.json", "README.rst",
         "packaging/readme_source.yaml", "docs/i18n/readme", "docs/readme_images",
         "docs/readme_text", "docs/readme_assets", "docs/source/_static/deck",
         "docs/source/_generated/hardware_table.rst", "docs/source/installer_guide.rst",
@@ -537,3 +537,53 @@ def test_pypi_verification_checks_the_gated_sha_against_the_existing_package_art
     assert '--wheel-dir dist --pypi-json "$RUNNER_TEMP/pypi-release.json"' in check["run"]
     assert '--version "$VERSION" --source-commit "$RELEASE_SHA"' in check["run"]
     assert check["run"].index("verify-pypi-source") < check["run"].index("exit 0")
+
+
+def test_actual_nightly_compatibility_cells_keep_their_blocking_policies():
+    expected = {
+        "Packaging metadata": True,
+        "PowerShell scripts parse (5.1 and 7)": True,
+        "Fractal extra constructs the default renderer": True,
+        "Linux x86-64 / py3.12 (control)": True,
+        "Linux x86-64 / py3.9 (floor)": True,
+        "Linux x86-64 / py3.10": True,
+        "Linux x86-64 / py3.13": True,
+        "Linux x86-64 / py3.14": True,
+        "Linux ARM64 / py3.11": True,
+        "Windows x86-64 / py3.11": False,
+        "macOS arm64 / py3.11": False,
+        "Upstream wheel availability (informational)": False,
+    }
+    expected.update({f"{version} installs, from wheels only": True
+                     for version in ("3.9", "3.10", "3.11", "3.12", "3.13", "3.14")})
+    assert COMPATIBILITY == expected
+
+
+def test_actual_nightly_tests_and_docs_job_names_match_the_source_gate():
+    tests = yaml.safe_load((ROOT / ".github/workflows/tests.yml").read_text())["jobs"]
+    docs = yaml.safe_load((ROOT / ".github/workflows/docs.yml").read_text())["jobs"]
+    assert tests["release-gate"]["name"] == "Release gate / zero unexpected failures"
+    assert docs["resolve"]["name"] == "Pin the documentation branch"
+    assert docs["build"]["name"].replace(
+        "${{ needs.resolve.outputs.branch }}", "main") == "Build main documentation"
+    assert docs["deploy-pages"]["name"] == "Publish main documentation to GitHub Pages"
+
+
+@pytest.mark.parametrize("matrix,policy,error", [
+    ({"os": ["linux"], "include": [{"os": "windows"}]}, False,
+     "combined compatibility matrix"),
+    ({"os": ["linux"], "exclude": [{"os": "linux"}]}, False,
+     "matrix exclusions"),
+    ({"os": ["linux"]}, "${{ github.event_name == 'push' }}",
+     "blocking policy"),
+    ({"include": [{"experimental": "false"}]}, "${{ matrix.experimental }}",
+     "Ambiguous compatibility job"),
+])
+def test_unsupported_compatibility_policy_cannot_silently_omit_cells(
+        tmp_path, matrix, policy, error):
+    source = tmp_path / "compat.yml"
+    source.write_text(yaml.safe_dump({"jobs": {"check": {
+        "name": "check", "continue-on-error": policy,
+        "strategy": {"matrix": matrix}}}}), encoding="utf-8")
+    with pytest.raises(ValueError, match=error):
+        CI.compatibility_jobs(source)

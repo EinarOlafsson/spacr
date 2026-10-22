@@ -118,3 +118,54 @@ def test_normal_candidate_validation_supports_thin_checkpoint_but_rejects_bad_pr
         with pytest.raises(ValueError):validate(root,include_hosted_media=True)
     dest=root/records[1]['path'];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text('{"wrong":"present bytes"}')
     with pytest.raises(ValueError):validate(root,include_hosted_media=not thin)
+
+
+def repeated_visual_fixture():
+    policy,records,lessons,load=fixture();timing=load(None)
+    timing['scenes']=[
+        {'visual':'table','speech_start':0.,'scene_end':12.},
+        {'visual':'other','speech_start':12.,'scene_end':30.},
+        {'visual':'table','speech_start':30.,'scene_end':44.},
+        {'visual':'table','speech_start':70.,'scene_end':95.}]
+    # Policy order deliberately differs from source order; visuals alone cannot bind it.
+    policy['lessons'][0]['scenes']=[
+        {'visual':'table','source_start':70.,'source_end':95.,'idle_tail_start':8.},
+        {'visual':'table','source_start':0.,'source_end':12.,'idle_tail_start':4.},
+        {'visual':'table','source_start':30.,'source_end':44.,'idle_tail_start':6.}]
+    return policy,records,lessons,lambda _:deepcopy(timing)
+
+
+def runtime_fence_values(timing,lesson):
+    import json,os,subprocess
+    source=(Path(__file__).resolve().parents[1]/'authoring/web/app_v2.js').read_text()
+    helper='function boundNativeIdleTimings('+source.split('function boundNativeIdleTimings(',1)[1].split('async function loadLessonDetail(',1)[0]
+    js=helper+'console.log(JSON.stringify(boundNativeIdleTimings('+json.dumps(timing)+','+json.dumps(lesson)+','+json.dumps('b'*64)+').scenes.map(s=>s.idle_tail_start??null)));'
+    return json.loads(subprocess.check_output([os.environ['SPACR_TUTORIAL_NODE'],'-e',js],text=True))
+
+
+def test_three_repeated_visuals_bind_exact_clocks_and_actual_runtime_indices():
+    policy,records,lessons,load=repeated_visual_fixture()
+    bound=bind_policy(policy,records,lessons,load)
+    assert bound[0]['native_idle_tails']['scenes']==policy['lessons'][0]['scenes']
+    assert bind_policy({'schema':1,'lessons':[]},records,bound,load)==bound
+    validate_catalog_policy(records,bound,None)  # Thin checkpoint makes no clock-read claim.
+    validate_catalog_policy(records,bound,load)
+    assert runtime_fence_values(load(None),bound[0])==[4.,None,6.,8.]
+
+
+@pytest.mark.parametrize('change',['duplicate','near_duplicate','ambiguous','mismatch'])
+def test_repeated_visual_bad_binding_rejected_by_binder_and_runtime(change):
+    policy,records,lessons,load=repeated_visual_fixture();timing=load(None)
+    fences=policy['lessons'][0]['scenes']
+    if change in ('duplicate','near_duplicate'):
+        fences.append(deepcopy(fences[0]))
+        if change=='near_duplicate':fences[-1]['source_start']+=5e-8
+    elif change=='ambiguous':timing['scenes'].append(deepcopy(timing['scenes'][0]))
+    else:fences[0]['source_end']+=2e-7  # Outside unchanged normal clock tolerance.
+    with pytest.raises(ValueError):bind_policy(policy,records,lessons,lambda _:deepcopy(timing))
+    # Exercise runtime independently of the normal binder's refusal; no partial fence leakage.
+    lesson=deepcopy(lessons[0]);lesson['native_idle_tails']={'schema':1,**policy['lessons'][0]}
+    for scene in timing['scenes']:scene['idle_tail_start']=1.  # Stale timing fields must be cleared.
+    assert runtime_fence_values(timing,lesson)==[None]*len(timing['scenes'])
+    if change in ('duplicate','near_duplicate'):
+        with pytest.raises(ValueError):bind_policy(policy,records,lessons,None)

@@ -61,7 +61,14 @@ def complete_native_duration(receipt, fps):
 
 
 def verified_narration_tracks(stage, identity, english):
-    """Validate the same complete current voice policy for either visual source."""
+    """Validate fresh tracks, or explicitly bound immutable published narration."""
+    from published_retained_narration import RECORD, checked_published_narration
+    record = Path(stage) / 'production' / identity / RECORD
+    if record.exists() or record.is_symlink():
+        tracks, proofs = checked_published_narration(stage, identity)
+        if english != read(Path(stage) / 'production' / identity / 'lesson.en.json'):
+            raise ValueError('Retained narration canonical English changed')
+        return tracks, proofs
     sys.path.insert(0, str(Path(__file__).resolve().parent / 'authoring/tools'))
     from render_all_voices import (LANGUAGES, narration_dialect, prepare_scene_plans,
                                   resolve_voice_speed, track_fingerprint)
@@ -151,6 +158,12 @@ def plan(stage, identity):
 
 def checked_native_timing(stage, identity):
     """Return an accepted visual sidecar only when every input still matches."""
+    if (stage / 'production' / identity / 'published-native-mix.json').exists():
+        from published_native_mix import checked_mixed_native_timing
+        return checked_mixed_native_timing(stage, identity)
+    if (stage / 'production' / identity / 'published-native-edit.json').exists():
+        from published_native_edit import checked_edited_native_timing
+        return checked_edited_native_timing(stage, identity)
     if (stage / 'production' / identity / 'published-native-reuse.json').exists():
         from published_native_reuse import checked_published_native_timing
         return checked_published_native_timing(stage, identity)

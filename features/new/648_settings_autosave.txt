@@ -79,3 +79,7 @@ DONE 2026-10-04
   handler execute under coverage. No new captions or documentation prose.
   Linux/offscreen acceptance only; native Windows/macOS remains separate.
   Proof:features/data/648_collection_failure_recovery_2026-10-14/receipt.json.
+
+2026-10-21 ? Maintainer resumes Windows acceptance; Codex Windows lane owns focused autosave/recovery checks and disposable-profile process interruption/relaunch. Verify clean-close draft removal and crash draft presentation/restoration with actual Windows processes; distinguish timer/storage/UI checks from physical-user or hard-power-loss acceptance.
+
+2026-10-21 ? The same21 Windows Qt cases pass; actual isolated windows-QPA subprocess recovery confirms clean close removes drafts, forced process termination retains them, the visible Restore prompt applies regression fdr_alpha0.04, and drafts are consumed once. Autosave is invoked through the production method in this process probe; normal30s timer behavior is covered by the Qt cohort, not elapsed-time acceptance. Scoped recovery uses backdrop/prewarm opt-outs; a direct-MainWindow probe with ambient compilation timed out at90s and is not a packaged-launch verdict.

@@ -299,6 +299,9 @@ class _TourOverlay(QWidget):
         row.addWidget(self._next_btn)
         col.addWidget(btn_row)
 
+        from .theme import make_transparent
+        make_transparent(content, self._text_scroll, btn_row)
+
         self._update_card_position()
         self._card.show()
         window.installEventFilter(self)

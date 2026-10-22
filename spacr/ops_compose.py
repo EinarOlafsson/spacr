@@ -78,8 +78,8 @@ def windows_over(canvas: Tuple[int, int], size: int = 4096,
     :param canvas: ``(height, width)`` of the well frame.
     :param size: window edge in pixels.
     :param overlap: how much neighbouring windows share.
-    :raises ComposeError: when the overlap is not smaller than the window,
-        which would make the stride zero and the iteration infinite.
+    :raises ComposeError: when the window size is not positive, or the overlap is
+        negative or not smaller than the window.
     """
     height, width = int(canvas[0]), int(canvas[1])
     size, overlap = int(size), int(overlap)

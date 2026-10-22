@@ -647,7 +647,7 @@ _ROW_ONLY = re.compile(r'^([A-Za-z]{1,2})$')
 
 
 def parse_int_token(token: Any, *, allow_prefix: bool = True) -> Optional[int]:
-    """Return the integer ``token`` denotes, or ``None`` — **never** ``0``.
+    """Return the integer ``token`` denotes, or ``None`` for invalid input; ``0`` is valid.
 
     This replaces ``utils._safe_int_convert``, which returns ``0`` for a token
     that holds no integer; ``0`` is a valid field id, so that result cannot be

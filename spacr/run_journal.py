@@ -2222,8 +2222,8 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     clock second still sort correctly — folder names alone truncate
     to seconds and would produce ties. Only the newest
     ``max(limit * 4, limit + 64)`` folders by name are opened at all
-    (for non-negative ``limit``), so startup cost does not grow with the
-    size of the journal.
+    (for non-negative ``limit``), bounding manifest reads while all run-folder names are still
+    enumerated and sorted.
 
     Pass ``None`` for every run, never a negative number. The truncation
     at the end is ``all_entries[:limit]``, so ``limit=-1`` reads the whole

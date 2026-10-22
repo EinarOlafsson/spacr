@@ -294,9 +294,9 @@ def build_forest(frames: Mapping[str, pd.DataFrame], *,
                  typed: bool = True) -> Tuple[LineageNode, ...]:
     """Assemble object tables into one tree per root object.
 
-    :param frames: ``{table name: rows}``. Only the tables named in
-        :data:`LINEAGE_TABLES` are read; anything else is ignored, so a
-        caller can hand over everything it loaded.
+    :param frames: ``{table name: rows}``. The ``root`` table is read directly; other
+        tables are read only if named in :data:`LINEAGE_TABLES`. Remaining
+        tables are ignored, so a caller can hand over everything it loaded.
     :param root: the table whose rows become the roots.
     :param typed: put each node's object table into its shared key, so a
         cell's nucleus 1 and its pathogen 1 are two keys. ``False`` rebuilds

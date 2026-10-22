@@ -98,12 +98,19 @@ def test_release_audit_parsers_pin_the_current_inventory():
         "03_pip_install": "02_install_spacr",
     }
     refreshed_scenes = {
-        "01_pypi_github": 8, "02_install_spacr": 17,
-        "04_platform_installers": 14, "05_home": 33,
+        "01_pypi_github": 8, "02_install_spacr": 21,
+        "04_platform_installers": 14, "05_home": 39,
         "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
     }
     assert {lesson["id"]: len(lesson["scenes"]) for lesson in catalog["lessons"]
             if lesson["id"] in refreshed_scenes} == refreshed_scenes
+    installation = next(lesson for lesson in catalog["lessons"]
+                        if lesson["id"] == "02_install_spacr")
+    assert [scene["visual"] for scene in installation["scenes"]
+            if scene["visual"].startswith("docker_")] == [
+        "docker_01_install", "docker_02_image_check",
+        "docker_03_mount_and_run", "docker_04_gpu",
+    ]
     # Native Embeddings replaces eleven historical scenes with nine; current Plate Viewer adds two;
     # native Timelapse has 12 scenes (was 16), native OPS 12 (was 9), Conda 9 (was 8);
     # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11);
@@ -126,8 +133,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
         scene["visual"] for scene in make_masks["scenes"]
     }
     # The accepted Home revision removes its hidden Spaceout ending.
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1160
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1221
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1170
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1231
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

@@ -176,19 +176,19 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Instale com pip em um ambiente virtual do Python, pip em um ambiente do Conda ou conda-forge em um ambiente do Conda; inicie, atualize e desinstale.",
+      "description": "Instale spaCR com pip, conda-forge ou Docker; verifique a instalação, abra a interface adequada, atualize e desinstale.",
       "objectives": [
-        "Escolher uma das três formas de instalação isoladas.",
+        "Escolher uma instalação Python isolada ou um contêiner com versão fixada.",
         "Ativar o ambiente correto antes de instalar ou iniciar.",
         "Verificar a versão instalada, atualizar e desinstalar com segurança."
       ],
-      "prerequisite": "Use Python 3.12 para o ambiente virtual ou instale Conda/Miniforge para uma das duas opções com Conda. Abra um terminal. Escolha nomes diferentes dos ambientes existentes.",
+      "prerequisite": "Use Python 3.12 para o ambiente virtual ou instale Conda/Miniforge para uma das duas opções com Conda. Abra um terminal. Escolha nomes diferentes dos ambientes existentes. Para contêineres, instale Docker Desktop ou Docker Engine configurado para contêineres Linux x86-64.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Escolha uma forma de instalação. Pip instala o spaCR em um ambiente virtual do Python ou em um ambiente do Conda. Conda-forge instala em um ambiente do Conda; ele não pode instalar pacotes em um ambiente virtual do Python. As três formas abaixo são alternativas, então você só precisa de uma.",
+          "narration": "Escolha uma forma de instalação. Pip instala spaCR em um ambiente virtual Python ou em um ambiente Conda. Conda-forge instala spaCR em um ambiente Conda. Docker executa pipelines de linha de comando dentro de um contêiner. Escolha a opção adequada à maneira como você usará spaCR.",
           "hold_after": 0.7,
-          "speech_text": "Escolha uma forma de instalação. Pip instala o espáquer em um ambiente virtual do Python ou em um ambiente do Conda. Conda Forge instala em um ambiente do Conda; ele não pode instalar pacotes em um ambiente virtual do Python. As três formas abaixo são alternativas, então você só precisa de uma."
+          "speech_text": "Escolha uma forma de instalação. Pip instala espáquer em um ambiente virtual Python ou em um ambiente Conda. Conda Forge instala espáquer em um ambiente Conda. Docker executa pipelines de linha de comando dentro de um contêiner. Escolha a opção adequada à maneira como você usará espáquer."
         },
         {
           "visual": "pip_01_create_venv",
@@ -210,9 +210,9 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Verifique a versão instalada e o caminho do pacote; depois execute python hífen m pip check. Guarde a versão com suas notas de análise. Essa forma instala o pacote publicado no PyPI; uma cópia do código-fonte ou uma versão nightly pode ter recursos de interface mais recentes.",
+          "narration": "Verifique a versão instalada e o caminho do pacote; depois execute python hífen m pip check. Guarde a versão com suas notas de análise.",
           "hold_after": 0.7,
-          "speech_text": "Verifique a versão instalada e o caminho do pacote; depois execute python hífen m pip check. Guarde a versão com suas notas de análise. Essa forma instala o pacote publicado no paip; uma cópia do código-fonte ou uma versão nightly pode ter recursos de interface mais recentes."
+          "speech_text": "Verifique a versão instalada e o caminho do pacote; depois execute python hífen m pip check. Guarde a versão com suas notas de análise."
         },
         {
           "visual": "pip_05_launch",
@@ -240,9 +240,9 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda mostra seu plano de pacotes antes de instalar. Revise o plano, aceite-o e espere os downloads e a instalação terminarem. A versão disponível no conda-forge pode ser diferente da versão mais recente no PyPI ou nightly.",
+          "narration": "Conda mostra seu plano de pacotes antes de instalar. Revise o plano, aceite-o e espere os downloads e a instalação terminarem.",
           "hold_after": 0.7,
-          "speech_text": "Conda mostra seu plano de pacotes antes de instalar. Revise o plano, aceite-o e espere os downloads e a instalação terminarem. A versão disponível no Conda Forge pode ser diferente da versão mais recente no paip ou nightly."
+          "speech_text": "Conda mostra seu plano de pacotes antes de instalar. Revise o plano, aceite-o e espere os downloads e a instalação terminarem."
         },
         {
           "visual": "conda_03_activate",
@@ -251,13 +251,37 @@
           "speech_text": "Ative espáquer-conda. Verifique o caminho do ambiente do Python e execute conda list espáquer para confirmar a versão instalada e o canal. Depois execute espáquer-doctor e inicie espáquer a partir desse ambiente."
         },
         {
+          "visual": "docker_01_install",
+          "narration": "Para usar Docker, instale Docker Desktop ou Docker Engine seguindo as instruções oficiais do seu sistema operacional e configure contêineres Linux. As imagens de spaCR são destinadas a Linux x86-64. Use um contêiner para pipelines de linha de comando; escolha uma instalação de desktop para o aplicativo gráfico.",
+          "hold_after": 0.7,
+          "speech_text": "Para usar Docker, instale Docker Desktop ou Docker Engine seguindo as instruções oficiais do seu sistema operacional e configure contêineres Linux. As imagens de espáquer são destinadas a Linux x86-64. Use um contêiner para pipelines de linha de comando; escolha uma instalação de desktop para o aplicativo gráfico."
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Abra a página oficial do pacote de contêineres de spaCR e escolha uma versão disponível. Baixe essa imagem CPU exata e execute-a com spacr --version e spacr-run --list. Verifique se a versão informada corresponde à tag escolhida. Guarde essa tag com suas notas de análise.",
+          "hold_after": 0.7,
+          "speech_text": "Abra a página oficial do pacote de contêineres de espáquer e escolha uma versão disponível. Baixe essa imagem CPU exata e execute-a com espáquer --version e espáquer-run --list. Verifique se a versão informada corresponde à tag escolhida. Guarde essa tag com suas notas de análise."
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Monte a pasta do projeto em /data e o cache dos modelos em /models. Exporte as configurações do pipeline para a pasta do projeto e use os caminhos internos do contêiner nas configurações. Execute spacr-run com o nome do pipeline e o CSV de configurações. Grave os resultados sob /data para mantê-los no projeto depois que o contêiner sair. No Linux, informe os identificadores do seu usuário e grupo para que os arquivos de saída pertençam à sua conta.",
+          "hold_after": 0.7,
+          "speech_text": "Monte a pasta do projeto em /data e o cache dos modelos em /models. Exporte as configurações do pipeline para a pasta do projeto e use os caminhos internos do contêiner nas configurações. Execute espáquer-run com o nome do pipeline e o CSV de configurações. Grave os resultados sob /data para mantê-los no projeto depois que o contêiner sair. No Linux, informe os identificadores do seu usuário e grupo para que os arquivos de saída pertençam à sua conta."
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "Para processar com NVIDIA, instale no host um driver compatível e NVIDIA Container Toolkit; depois configure o runtime do Docker seguindo o guia oficial. A imagem CUDA 12.4 exige driver do host na versão 550 ou posterior. Escolha a imagem CUDA correspondente com versão fixada e adicione --gpus all. A imagem CPU não exige nem o toolkit nem uma GPU.",
+          "hold_after": 0.7,
+          "speech_text": "Para processar com NVIDIA, instale no host um driver compatível e NVIDIA Container Toolkit; depois configure o runtime do Docker seguindo o guia oficial. A imagem CUDA 12.4 exige driver do host na versão 550 ou posterior. Escolha a imagem CUDA correspondente com versão fixada e adicione --gpus all. A imagem CPU não exige nem o toolkit nem uma GPU."
+        },
+        {
           "visual": "06_current_home",
-          "narration": "Este material complementar mostra a interface Home da versão nightly atual. Sua versão instalada pode ter outra aparência. Os comandos de ambiente instalam o pacote publicado no canal escolhido; esta visualização do código atual não afirma que todos os recursos nightly já foram publicados.",
+          "narration": "Inicie spaCR pelo ambiente que você instalou. Home agrupa os módulos em Core, Data, Tools e Organism. Escolha um módulo para começar seu fluxo de trabalho.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
           ],
-          "speech_text": "Este material complementar mostra a interface Home da versão nightly atual. Sua versão instalada pode ter outra aparência. Os comandos de ambiente instalam o pacote publicado no canal escolhido; esta visualização do código atual não afirma que todos os recursos nightly já foram publicados."
+          "speech_text": "Inicie espáquer pelo ambiente que você instalou. Home agrupa os módulos em Core, Data, Tools e Organism. Escolha um módulo para começar seu fluxo de trabalho."
         },
         {
           "visual": "pip_06_update",
@@ -424,24 +448,24 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Na interface nightly atual, abra Preferences e escolha Performance. Selecione um perfil para o seu computador. Laptop usa menos recursos; os perfis superiores permitem mais cache e trabalho em segundo plano. Comece com um perfil moderado se houver pouca memória.",
+          "narration": "Abra Preferences e escolha Performance. Selecione um perfil para o seu computador. Laptop usa menos recursos; os perfis superiores permitem mais cache e trabalho em segundo plano. Comece com um perfil moderado se houver pouca memória.",
           "hold_after": 0.7,
-          "speech_text": "Na interface nightly atual, abra Preferences e escolha Performance. Selecione um perfil para o seu computador. Laptop usa menos recursos; os perfis superiores permitem mais cache e trabalho em segundo plano. Comece com um perfil moderado se houver pouca memória."
+          "speech_text": "Abra Preferences e escolha Performance. Selecione um perfil para o seu computador. Laptop usa menos recursos; os perfis superiores permitem mais cache e trabalho em segundo plano. Comece com um perfil moderado se houver pouca memória."
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Esta gravação instala o spaCR versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Organism. Continue em Home screen and navigation para conhecer os módulos atuais.",
+          "narration": "Home agrupa os módulos em Core, Data, Tools e Organism. Continue em Home screen and navigation para encontrar o módulo da sua próxima tarefa.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Esta gravação instala o espáquer versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Organism. Continue em Home screen and navigation para conhecer os módulos atuais."
+          "speech_text": "Home agrupa os módulos em Core, Data, Tools e Organism. Continue em Home screen and navigation para encontrar o módulo da sua próxima tarefa."
         },
         {
           "visual": "05_doctor",
-          "narration": "Execute spacr-doctor a partir do ambiente instalado se a inicialização ou um formato de arquivo precisar de atenção. Nesta instalação de CPU gravada, a verificação do backend passa e a verificação da GPU é ignorada. O aviso informa que o leitor CZI opcional está ausente; instale esse extra apenas se precisar de arquivos CZI.",
+          "narration": "Execute spacr-doctor a partir do ambiente instalado se a inicialização ou um formato de arquivo precisar de atenção. Verifique o resultado do backend e se a verificação da GPU foi executada. Se o aviso indicar a falta do leitor CZI opcional, instale esse extra somente se precisar de arquivos CZI.",
           "hold_after": 0.7,
-          "speech_text": "Execute espáquer-doctor a partir do ambiente instalado se a inicialização ou um formato de arquivo precisar de atenção. Nesta instalação de CPU gravada, a verificação do backend passa e a verificação da GPU é ignorada. O aviso informa que o leitor CZI opcional está ausente; instale esse extra apenas se precisar de arquivos CZI."
+          "speech_text": "Execute espáquer-doctor a partir do ambiente instalado se a inicialização ou um formato de arquivo precisar de atenção. Verifique o resultado do backend e se a verificação da GPU foi executada. Se o aviso indicar a falta do leitor CZI opcional, instale esse extra somente se precisar de arquivos CZI."
         },
         {
           "visual": "12_logs_and_versions",
@@ -549,9 +573,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Explore a visão geral de Home e as abas de categorias; depois, aprenda os controles comuns dos módulos usando Mask e ajuste a navegação, a ajuda e a aparência.",
+      "description": "Percorra todos os módulos de Home da esquerda para a direita, aprenda os controles comuns aos módulos usando Mask e ajuste navegação, ajuda e aparência.",
       "objectives": [
-        "Encontre módulos pelas abas Home, Core, Data, Tools e Organism.",
+        "Identificar cada módulo nas linhas Core, Data, Tools e Organism.",
         "Usar Mask para reconhecer configurações, prévias, ações e resultados comuns.",
         "Voltar a Home, usar a pesquisa e organizar os painéis.",
         "Escolher as configurações de aparência e desempenho."
@@ -560,9 +584,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home é o ponto de partida. A visão geral agrupa os módulos em Core, Data, Tools e Organism. As abas de categorias restringem a visualização. Cada bloco abre o módulo com o nome indicado. A barra lateral oferece os mesmos caminhos e Home retorna à visão geral.",
+          "narration": "Home é o ponto de partida. Leia cada linha da esquerda para a direita: Core, Data, Tools e Organism. Cada bloco abre o módulo com o nome indicado. A barra lateral oferece os mesmos caminhos, e Home retorna a esta visão geral.",
           "hold_after": 0.7,
-          "speech_text": "Home é o ponto de partida. A visão geral agrupa os módulos em Core, Data, Tools e Organism. As abas de categorias restringem a visualização. Cada bloco abre o módulo com o nome indicado. A barra lateral oferece os mesmos caminhos e Home retorna à visão geral."
+          "speech_text": "Home é o ponto de partida. Leia cada linha da esquerda para a direita: Core, Data, Tools e Organism. Cada bloco abre o módulo com o nome indicado. A barra lateral oferece os mesmos caminhos, e Home retorna a esta visão geral."
         },
         {
           "visual": "home_module_mask",
@@ -649,6 +673,18 @@
           "speech_text": "Import prepara os arquivos de microscopia e metadados recebidos para a estrutura do projeto."
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings codifica os recortes de objetos em características numéricas para exploração e comparação.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ],
+          "speech_text": "Embeddings codifica os recortes de objetos em características numéricas para exploração e comparação."
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare reúne resultados salvos de execuções para examinar suas diferenças.",
           "hold_after": 0.7,
@@ -661,6 +697,18 @@
           "speech_text": "Run Compare reúne resultados salvos de execuções para examinar suas diferenças."
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design define condições, poços e identidades das amostras antes de um experimento.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ],
+          "speech_text": "Experiment Design define condições, poços e identidades das amostras antes de um experimento."
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design explora hipóteses de tamanho amostral e poder estatístico ao planejar comparações.",
           "hold_after": 0.7,
@@ -671,6 +719,30 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design explora hipóteses de tamanho amostral e poder estatístico ao planejar comparações."
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response ajusta as respostas às diferentes concentrações, mantendo explícitos a medida de resposta escolhida e os controles.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ],
+          "speech_text": "Dose Response ajusta as respostas às diferentes concentrações, mantendo explícitos a medida de resposta escolhida e os controles."
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC lista os relatórios de qualidade salvos de um projeto e sinaliza os que faltam.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
+          ],
+          "speech_text": "QC lista os relatórios de qualidade salvos de um projeto e sinaliza os que faltam."
         },
         {
           "visual": "home_module_make_masks",
@@ -707,6 +779,18 @@
             "15_image_umap"
           ],
           "speech_text": "Image iu mép projeta características de objetos para explorar objetos semelhantes e inspecionar recortes representativos."
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor define seleções em colunas de dados reais. Revise os objetos selecionados antes de converter uma seleção em rótulos.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "gueit éditor define seleções em colunas de dados reais. Revise os objetos selecionados antes de converter uma seleção em rótulos."
         },
         {
           "visual": "home_module_graph_builder",
@@ -866,7 +950,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "Na aba Modules, Session decide se o spaCR reabre o último módulo, as configurações e a pasta ao iniciar; esta gravação começa do zero. Update channel escolhe versões estáveis ou compilações noturnas, e Proxy e Certificate bundle permitem downloads atrás de um proxy institucional.",
+          "narration": "Na guia Modules, Session determina se spaCR reabre o último módulo, as configurações e a pasta ao iniciar. Update channel escolhe versões estáveis ou compilações noturnas, e Proxy e Certificate bundle permitem downloads atrás de um proxy institucional.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -874,7 +958,7 @@
             1200,
             397
           ],
-          "speech_text": "Na aba Modules, Session decide se o espáquer reabre o último módulo, as configurações e a pasta ao iniciar; esta gravação começa do zero. Update channel escolhe versões estáveis ou compilações noturnas, e Proxy e Certificate bundle permitem downloads atrás de um proxy institucional."
+          "speech_text": "Na guia Modules, Session determina se espáquer reabre o último módulo, as configurações e a pasta ao iniciar. Update channel escolhe versões estáveis ou compilações noturnas, e Proxy e Certificate bundle permitem downloads atrás de um proxy institucional."
         },
         {
           "visual": "13f_storage",
@@ -899,6 +983,12 @@
             1500
           ],
           "speech_text": "Prune now nunca apaga sem perguntar. Com um limite de exemplo curto para as pastas de execução, ele lista o que apagaria em cada pasta e espera uma resposta. Clique em Cancel e nada é removido."
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "No modo Spaceout, Preferences oferece controles do campo spaCR para oito efeitos independentes. Ative ou desative cada efeito separadamente. Os controles habituais de aparência e animação das janelas continuam disponíveis; Apply mostra a prévia de uma alteração, Keep a aceita e Revert restaura a opção anterior.",
+          "hold_after": 0.7,
+          "speech_text": "No modo Spaceout, Preferences oferece controles do campo espáquer para oito efeitos independentes. Ative ou desative cada efeito separadamente. Os controles habituais de aparência e animação das janelas continuam disponíveis; Apply mostra a prévia de uma alteração, Keep a aceita e Revert restaura a opção anterior."
         }
       ],
       "narration_voices": {
@@ -1200,9 +1290,9 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "Para uma primeira execução rápida, esta gravação aponta Source para recortes centrais de dois campos de exemplo; com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run.",
+          "narration": "Para uma primeira execução rápida, use como Source recortes centrados de dois campos de exemplo. Com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run.",
           "hold_after": 0.7,
-          "speech_text": "Para uma primeira execução rápida, esta gravação aponta Source para recortes centrais de dois campos de exemplo; com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run."
+          "speech_text": "Para uma primeira execução rápida, use como Source recortes centrados de dois campos de exemplo. Com seus próprios dados, ative Test mode e escolha algumas imagens de teste. Mantenha Plot ativado, confira os diâmetros e os limiares de fluxo por objeto, mantenha Save ativado em Quality Control e clique em Run."
         },
         {
           "visual": "run_23_batch_finished",
@@ -3535,7 +3625,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Para uma execução completa com suas próprias imagens, defina Source e os canais de intensidade em Mask. Esta gravação importa as configurações de uma pequena sequência sintética de oito quadros. Mantenha os pontos de tempo de cada campo em ordem. Os limites de quadros usam um início e um fim excluído: de zero a oito seleciona os oito primeiros quadros.",
+          "narration": "Para uma execução completa com suas próprias imagens, defina Source e os canais de intensidade em Mask. Aqui, importe as configurações do pequeno exemplo sintético de oito quadros. Mantenha os pontos de tempo de cada campo em ordem. Os limites de quadros usam um início e um fim excluído: de zero a oito seleciona os oito primeiros quadros.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -3543,7 +3633,7 @@
             1160,
             1900
           ],
-          "speech_text": "Para uma execução completa com suas próprias imagens, defina Source e os canais de intensidade em Mask. Esta gravação importa as configurações de uma pequena sequência sintética de oito quadros. Mantenha os pontos de tempo de cada campo em ordem. Os limites de quadros usam um início e um fim excluído: de zero a oito seleciona os oito primeiros quadros."
+          "speech_text": "Para uma execução completa com suas próprias imagens, defina Source e os canais de intensidade em Mask. Aqui, importe as configurações do pequeno exemplo sintético de oito quadros. Mantenha os pontos de tempo de cada campo em ordem. Os limites de quadros usam um início e um fim excluído: de zero a oito seleciona os oito primeiros quadros."
         },
         {
           "visual": "05_setting_timelapse_mode",

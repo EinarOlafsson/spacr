@@ -5733,11 +5733,13 @@ class WGPUVolumeRenderer:
         import wgpu
 
         held = self._buffers.get(name)
-        if held is not None and held[0] == size:
+        if held is not None and held[0] >= size:
             return held[1]
         if held is not None:
             held[1].destroy()
-        usage = wgpu.BufferUsage.STORAGE | (wgpu.BufferUsage.COPY_SRC if readable else 0)
+        usage = (wgpu.BufferUsage.MAP_READ | wgpu.BufferUsage.COPY_DST
+                 if name == "readback" else wgpu.BufferUsage.STORAGE | (
+                     wgpu.BufferUsage.COPY_SRC | wgpu.BufferUsage.COPY_DST if readable else 0))
         buffer = self._device.create_buffer(size=size, usage=usage)
         self._buffers[name] = (size, buffer)
         return buffer
@@ -5855,9 +5857,19 @@ class WGPUVolumeRenderer:
         self._dispatch(compute, "pack", params, (frame, picture),
                        (-(-width // 8), -(-height // 8)))
         compute.end()
+        picture_bytes, pick_bytes = height * width * 4, rows * columns * 8
+        readback = self._buffer("readback", picture_bytes + pick_bytes, True)
+        encoder.copy_buffer_to_buffer(picture, 0, readback, 0, picture_bytes)
+        encoder.copy_buffer_to_buffer(pick, 0, readback, picture_bytes, pick_bytes)
         self._device.queue.submit([encoder.finish()])
-        rgb = np.frombuffer(self._device.queue.read_buffer(picture), dtype=np.uint8)
-        codes = np.frombuffer(self._device.queue.read_buffer(pick), dtype=np.uint32)
+        readback.map_sync("READ", size=picture_bytes + pick_bytes)
+        try:
+            data = readback.read_mapped(size=picture_bytes + pick_bytes, copy=True)
+        finally:
+            readback.unmap()
+        rgb = np.frombuffer(data, dtype=np.uint8, count=picture_bytes)
+        codes = np.frombuffer(data, dtype=np.uint32, count=rows * columns * 2,
+                              offset=picture_bytes)
         self._forget_unused()
         rgb = rgb[:height * width * 4].reshape(height, width, 4)[..., :3]
         picked = codes[:rows * columns * 2].reshape(rows, columns, 2)[..., 0].astype(np.int64)

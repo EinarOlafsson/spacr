@@ -439,8 +439,9 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
     explicit ``fmt=`` still wins, for the few callers that genuinely need one
     particular format.
 
-    **Fonts are embedded as TrueType** (``pdf.fonttype = 42``) for the length
-    of the save. matplotlib's default is Type 3, which draws every glyph as
+    **Fonts use TrueType embedding by default** (``pdf.fonttype = 42``) for
+    the length of the save; disabling ``vector_text`` selects Type 3
+    (``pdf.fonttype = 3``) instead. matplotlib's default is Type 3, which draws every glyph as
     its own content stream: the file is still vector, but Illustrator and
     Inkscape open the text as unselectable outlines, and the preference that
     selects this path is labelled "PDF (vector, editable)". Scoped with

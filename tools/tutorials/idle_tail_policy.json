@@ -2,9 +2,142 @@
   "schema": 1,
   "lessons": [
     {
+      "lesson": "02_install_spacr",
+      "master_sha256": "331e12e22e6118223af0310f75d8ceb32fc4ce45409d12756331d087f02c7dae",
+      "visual_timing_sha256": "714e5fe2c65e72dd1813ce123d4883354e0ab651c9caec95e0b547024916f847",
+      "scenes": [
+        {
+          "visual": "00_install_routes",
+          "source_start": 0.0,
+          "source_end": 26.4,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_01_create_venv",
+          "source_start": 26.4,
+          "source_end": 45.3,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_02_activate_venv",
+          "source_start": 45.3,
+          "source_end": 74.23333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_03_install",
+          "source_start": 74.23333333333333,
+          "source_end": 97.5,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_04_check",
+          "source_start": 97.5,
+          "source_end": 111.26666666666667,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_05_launch",
+          "source_start": 111.26666666666667,
+          "source_end": 132.73333333333332,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_conda_01_create",
+          "source_start": 132.73333333333332,
+          "source_end": 155.79999999999998,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_conda_02_install",
+          "source_start": 155.79999999999998,
+          "source_end": 182.96666666666664,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_01_create",
+          "source_start": 182.96666666666664,
+          "source_end": 207.86666666666665,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_02_plan",
+          "source_start": 207.86666666666665,
+          "source_end": 220.46666666666664,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_03_activate",
+          "source_start": 220.46666666666664,
+          "source_end": 241.59999999999997,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "docker_01_install",
+          "source_start": 241.59999999999997,
+          "source_end": 270.26666666666665,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "docker_02_image_check",
+          "source_start": 270.26666666666665,
+          "source_end": 295.26666666666665,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "source_start": 295.26666666666665,
+          "source_end": 329.0333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "docker_04_gpu",
+          "source_start": 329.0333333333333,
+          "source_end": 359.0333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "06_current_home",
+          "source_start": 359.0333333333333,
+          "source_end": 419.0333333333333,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "pip_06_update",
+          "source_start": 419.0333333333333,
+          "source_end": 443.96666666666664,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_04_update",
+          "source_start": 443.96666666666664,
+          "source_end": 472.56666666666666,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_07_uninstall",
+          "source_start": 472.56666666666666,
+          "source_end": 496.8333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "pip_08_remove_environment",
+          "source_start": 496.8333333333333,
+          "source_end": 524.1333333333333,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "conda_05_uninstall",
+          "source_start": 524.1333333333333,
+          "source_end": 553.8,
+          "idle_tail_start": 0
+        }
+      ]
+    },
+    {
       "lesson": "04_platform_installers",
       "master_sha256": "eb353f10bd81dbcba6f7f76761ccc286de7cc6d1575dc3155a45bec54d486d40",
-      "visual_timing_sha256": "c97206b1ba30afa90784e67d5b127d903c407b165a14b5b77538ad80c45a6a91",
+      "visual_timing_sha256": "b2f76c008abf021ecae123f40bb0b92be855e32c99f625cfecef82fd15a3b50a",
       "scenes": [
         {
           "visual": "08_official_release",
@@ -52,13 +185,13 @@
           "visual": "14_current_nightly_performance",
           "source_start": 143.1,
           "source_end": 176.33333333333331,
-          "idle_tail_start": 13.0
+          "idle_tail_start": 11.3
         },
         {
           "visual": "13_current_nightly_home",
           "source_start": 176.33333333333331,
           "source_end": 206.0333333333333,
-          "idle_tail_start": 13.5
+          "idle_tail_start": 1.0
         },
         {
           "visual": "05_doctor",
@@ -94,74 +227,86 @@
     },
     {
       "lesson": "07_mask",
-      "master_sha256": "aec77fb857ef93ca34dc1fef5248c830a0ff04a7111dc7d4bd01ab8f06470a3d",
-      "visual_timing_sha256": "8770843ee390cd6b54b76d958ffbc157ccb812c054d2fff1f2c7ec117cd6caef",
+      "master_sha256": "a9985f358878fe5a6c53c1959a0669f3b80e7bc6553129b61f04fa86de5ffd97",
+      "visual_timing_sha256": "86767fbc3f27a7c41fe421ff0d49edc7773fb2521fb09ddb6505d1c78c075df9",
       "scenes": [
         {
           "visual": "01_module",
           "source_start": 0.0,
           "source_end": 25.2,
-          "idle_tail_start": 10.0
+          "idle_tail_start": 8.0
         },
         {
           "visual": "org_organize_popup",
           "source_start": 25.2,
-          "source_end": 70.16666666666667,
-          "idle_tail_start": 42.6
+          "source_end": 60.666666666666664,
+          "idle_tail_start": 17.5
         },
         {
           "visual": "02_cached_load",
-          "source_start": 70.16666666666667,
-          "source_end": 94.46666666666667,
-          "idle_tail_start": 10.0
+          "source_start": 60.666666666666664,
+          "source_end": 84.96666666666667,
+          "idle_tail_start": 4.0
         },
         {
           "visual": "03_data_ready",
-          "source_start": 94.46666666666667,
-          "source_end": 120.83333333333334,
-          "idle_tail_start": 13.0
+          "source_start": 84.96666666666667,
+          "source_end": 111.33333333333333,
+          "idle_tail_start": 9.5
         },
         {
           "visual": "03b_object_table",
-          "source_start": 120.83333333333334,
-          "source_end": 163.13333333333333,
-          "idle_tail_start": 22.6
+          "source_start": 111.33333333333333,
+          "source_end": 153.63333333333333,
+          "idle_tail_start": 10.5
         },
         {
           "visual": "04_live_image",
-          "source_start": 163.13333333333333,
-          "source_end": 184.0,
-          "idle_tail_start": 18.1
+          "source_start": 153.63333333333333,
+          "source_end": 174.5,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "05_live_settings",
+          "source_start": 174.5,
+          "source_end": 187.16666666666666,
+          "idle_tail_start": 5.9
         },
         {
           "visual": "07_preview_result",
-          "source_start": 203.7,
-          "source_end": 226.83333333333331,
-          "idle_tail_start": 14.6
+          "source_start": 187.16666666666666,
+          "source_end": 210.3,
+          "idle_tail_start": 3.0
         },
         {
           "visual": "09_filters_after",
-          "source_start": 226.83333333333331,
-          "source_end": 252.79999999999998,
-          "idle_tail_start": 18.6
+          "source_start": 210.3,
+          "source_end": 236.26666666666668,
+          "idle_tail_start": 5.0
         },
         {
           "visual": "10_filters_restored",
-          "source_start": 252.79999999999998,
-          "source_end": 281.8333333333333,
-          "idle_tail_start": 16.1
+          "source_start": 236.26666666666668,
+          "source_end": 265.3,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "run_20_batch_settings",
+          "source_start": 265.3,
+          "source_end": 292.9,
+          "idle_tail_start": 13.866666666666667
         },
         {
           "visual": "run_23_batch_finished",
-          "source_start": 341.2,
-          "source_end": 371.2,
-          "idle_tail_start": 14.0
+          "source_start": 292.9,
+          "source_end": 322.9,
+          "idle_tail_start": 1.0
         },
         {
           "visual": "run_25_mask_figure_02",
-          "source_start": 371.2,
-          "source_end": 411.4,
-          "idle_tail_start": 18.3
+          "source_start": 322.9,
+          "source_end": 363.1,
+          "idle_tail_start": 2.5
         }
       ]
     },
@@ -193,6 +338,815 @@
           "source_start": 128.6,
           "source_end": 152.86666666666667,
           "idle_tail_start": 0
+        }
+      ]
+    },
+    {
+      "lesson": "05_home",
+      "master_sha256": "a95dfe0af5e19edf39a8d201564fb59d0fa4cdb49918c15e342655da68b2b8be",
+      "visual_timing_sha256": "423a7765531ee5a714cc3cae6e5eb736f81afe712326ff797945c2d0aedec7d1",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "source_start": 0.0,
+          "source_end": 29.7,
+          "idle_tail_start": 1
+        },
+        {
+          "visual": "home_module_mask",
+          "source_start": 29.7,
+          "source_end": 46.46666666666667,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "home_module_measure",
+          "source_start": 46.46666666666667,
+          "source_end": 63.56666666666667,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_annotate",
+          "source_start": 63.56666666666667,
+          "source_end": 75.86666666666666,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_classify_merged",
+          "source_start": 75.86666666666666,
+          "source_end": 93.2,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_map_barcodes",
+          "source_start": 93.2,
+          "source_end": 105.26666666666667,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_regression",
+          "source_start": 105.26666666666667,
+          "source_end": 119.03333333333333,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_foreign",
+          "source_start": 119.03333333333333,
+          "source_end": 132.13333333333333,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "home_module_embeddings",
+          "source_start": 132.13333333333333,
+          "source_end": 141.93333333333334,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_run_compare",
+          "source_start": 141.93333333333334,
+          "source_end": 153.83333333333334,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_experiment_design",
+          "source_start": 153.83333333333334,
+          "source_end": 162.26666666666668,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_power",
+          "source_start": 162.26666666666668,
+          "source_end": 176.1,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_dose_response",
+          "source_start": 176.1,
+          "source_end": 186.56666666666666,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "source_start": 186.56666666666666,
+          "source_end": 195.93333333333334,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_make_masks",
+          "source_start": 195.93333333333334,
+          "source_end": 208.86666666666667,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_align",
+          "source_start": 208.86666666666667,
+          "source_end": 220.93333333333334,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_umap",
+          "source_start": 220.93333333333334,
+          "source_end": 235.9,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "source_start": 235.9,
+          "source_end": 249.56666666666666,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "home_module_graph_builder",
+          "source_start": 249.56666666666666,
+          "source_end": 262.43333333333334,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "source_start": 262.43333333333334,
+          "source_end": 284.4,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "06_mask_host",
+          "source_start": 284.4,
+          "source_end": 312.8666666666667,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "06b_mask_settings",
+          "source_start": 312.8666666666667,
+          "source_end": 336.6,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "06c_mask_actions",
+          "source_start": 336.6,
+          "source_end": 365.8333333333333,
+          "idle_tail_start": 5
+        },
+        {
+          "visual": "14_resize_panels",
+          "source_start": 365.8333333333333,
+          "source_end": 386.6333333333333,
+          "idle_tail_start": 9.8
+        },
+        {
+          "visual": "10_home_column",
+          "source_start": 386.6333333333333,
+          "source_end": 422.23333333333335,
+          "idle_tail_start": 13
+        },
+        {
+          "visual": "11_column_folded",
+          "source_start": 422.23333333333335,
+          "source_end": 445.43333333333334,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "08_help_search",
+          "source_start": 445.43333333333334,
+          "source_end": 475.46666666666664,
+          "idle_tail_start": 12.2
+        },
+        {
+          "visual": "12_command_palette",
+          "source_start": 475.46666666666664,
+          "source_end": 502.1666666666667,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "09_performance",
+          "source_start": 502.1666666666667,
+          "source_end": 535.4,
+          "idle_tail_start": 12.5
+        },
+        {
+          "visual": "13_preferences_general",
+          "source_start": 535.4,
+          "source_end": 565.6333333333333,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "source_start": 565.6333333333333,
+          "source_end": 605.0,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "source_start": 605.0,
+          "source_end": 641.4333333333333,
+          "idle_tail_start": 14
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "source_start": 641.4333333333333,
+          "source_end": 718.3666666666667,
+          "idle_tail_start": 10.5
+        },
+        {
+          "visual": "13h_preferences_apply",
+          "source_start": 718.3666666666667,
+          "source_end": 746.2333333333333,
+          "idle_tail_start": 10.0
+        },
+        {
+          "visual": "13i_preferences_kept",
+          "source_start": 746.2333333333333,
+          "source_end": 767.6,
+          "idle_tail_start": 7
+        },
+        {
+          "visual": "13e_session_updates",
+          "source_start": 767.6,
+          "source_end": 798.9,
+          "idle_tail_start": 8
+        },
+        {
+          "visual": "13f_storage",
+          "source_start": 798.9,
+          "source_end": 825.8,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "13g_storage_prune",
+          "source_start": 825.8,
+          "source_end": 846.0,
+          "idle_tail_start": 9.5
+        },
+        {
+          "visual": "24_spaceout_field",
+          "source_start": 846.0,
+          "source_end": 875.9666666666667,
+          "idle_tail_start": 0
+        }
+      ]
+    },
+    {
+      "lesson": "14_make_masks",
+      "master_sha256": "acda903a7c8385539e439bfe58f9b4e4abd5668f49e7408a085324e13b201efd",
+      "visual_timing_sha256": "2ae7420a647ba853764109cc46a94d4991f6acb0265858240ede91cbad1c3799",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 30.366666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "01b_test_data_menu",
+          "source_start": 30.366666666666667,
+          "source_end": 50.86666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "02_folder_picker",
+          "source_start": 50.86666666666667,
+          "source_end": 70.63333333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "03_real_labels",
+          "source_start": 70.63333333333333,
+          "source_end": 94.8,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "readouts_04_otsu_magnifier_settings",
+          "source_start": 94.8,
+          "source_end": 115.86666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "readouts_05_live_otsu_magnifier",
+          "source_start": 115.86666666666666,
+          "source_end": 141.96666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "03_real_labels",
+          "source_start": 141.96666666666667,
+          "source_end": 177.63333333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "04_erase_one_object",
+          "source_start": 177.63333333333333,
+          "source_end": 197.2,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "06_redo",
+          "source_start": 197.2,
+          "source_end": 213.36666666666665,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "07_draw_demo_not_annotation",
+          "source_start": 213.36666666666665,
+          "source_end": 238.39999999999998,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "07b_wand_add",
+          "source_start": 238.39999999999998,
+          "source_end": 264.7,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "source_start": 264.7,
+          "source_end": 289.23333333333335,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "08_divide_demo",
+          "source_start": 289.23333333333335,
+          "source_end": 313.3666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "08b_merge_demo",
+          "source_start": 313.3666666666667,
+          "source_end": 339.8333333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "08b_contrast_only",
+          "source_start": 339.8333333333333,
+          "source_end": 358.26666666666665,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "08c_filter_edits_labels",
+          "source_start": 358.26666666666665,
+          "source_end": 393.8333333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "08d_filter_removed",
+          "source_start": 393.8333333333333,
+          "source_end": 417.09999999999997,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "11_saved_restored_mask",
+          "source_start": 417.09999999999997,
+          "source_end": 429.6333333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "source_start": 429.6333333333333,
+          "source_end": 455.56666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "source_start": 455.56666666666666,
+          "source_end": 475.6,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "source_start": 475.6,
+          "source_end": 496.56666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "source_start": 496.56666666666666,
+          "source_end": 509.6666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "source_start": 509.6666666666667,
+          "source_end": 523.9333333333334,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "source_start": 523.9333333333334,
+          "source_end": 544.9000000000001,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "source_start": 544.9000000000001,
+          "source_end": 561.9333333333334,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "source_start": 561.9333333333334,
+          "source_end": 576.8333333333334,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "source_start": 576.8333333333334,
+          "source_end": 593.5,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "source_start": 593.5,
+          "source_end": 614.3,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "source_start": 614.3,
+          "source_end": 636.2333333333332,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "source_start": 636.2333333333332,
+          "source_end": 659.8333333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "source_start": 659.8333333333333,
+          "source_end": 680.7333333333332,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "09_fold_train_cellpose",
+          "source_start": 680.7333333333332,
+          "source_end": 702.3999999999999,
+          "idle_tail_start": 1.2
+        },
+        {
+          "visual": "09_fold_model_zoo",
+          "source_start": 702.3999999999999,
+          "source_end": 719.1999999999998,
+          "idle_tail_start": 1.2
+        },
+        {
+          "visual": "12_recrop_written",
+          "source_start": 719.1999999999998,
+          "source_end": 743.7999999999998,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "13_child_and_recovery_archive",
+          "source_start": 743.7999999999998,
+          "source_end": 764.5666666666665,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "restoration_01_restoration_row",
+          "source_start": 764.5666666666665,
+          "source_end": 781.8666666666664,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "restoration_02_denoise_settings",
+          "source_start": 781.8666666666664,
+          "source_end": 800.0333333333331,
+          "idle_tail_start": 6.8
+        },
+        {
+          "visual": "restoration_03_model_ready",
+          "source_start": 800.0333333333331,
+          "source_end": 811.7999999999997,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "restoration_04_compare",
+          "source_start": 811.7999999999997,
+          "source_end": 831.1999999999997,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "restoration_05_apply",
+          "source_start": 831.1999999999997,
+          "source_end": 841.2666666666664,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "14_cellpose_settings",
+          "source_start": 841.2666666666664,
+          "source_end": 866.7666666666664,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "15_cellpose_detected",
+          "source_start": 866.7666666666664,
+          "source_end": 887.6999999999997,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "16_cell_probability",
+          "source_start": 887.6999999999997,
+          "source_end": 906.8999999999997,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "17_flows",
+          "source_start": 906.8999999999997,
+          "source_end": 930.2666666666664,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "19_detection_undone",
+          "source_start": 930.2666666666664,
+          "source_end": 944.2666666666664,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "puncta_01_raw_input",
+          "source_start": 944.2666666666664,
+          "source_end": 966.1333333333331,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "puncta_02_parent_and_settings",
+          "source_start": 966.1333333333331,
+          "source_end": 990.3666666666664,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "puncta_03_detected_centres",
+          "source_start": 990.3666666666664,
+          "source_end": 1015.9666666666665,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "puncta_04_saved_mask_and_measurements",
+          "source_start": 1015.9666666666665,
+          "source_end": 1050.3666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "20_curate_keep",
+          "source_start": 1050.3666666666666,
+          "source_end": 1073.8999999999999,
+          "idle_tail_start": 1.3
+        },
+        {
+          "visual": "21_curate_discard",
+          "source_start": 1073.8999999999999,
+          "source_end": 1095.6333333333332,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "22_upload_data",
+          "source_start": 1095.6333333333332,
+          "source_end": 1125.7333333333331,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "23_consolidate_offer",
+          "source_start": 1125.7333333333331,
+          "source_end": 1154.533333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "24_consolidated_opened",
+          "source_start": 1154.533333333333,
+          "source_end": 1170.4999999999998,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "25_organize_open",
+          "source_start": 1170.4999999999998,
+          "source_end": 1205.2999999999997,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "26_organize_table",
+          "source_start": 1205.2999999999997,
+          "source_end": 1232.5666666666664,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "27_detect_sets_check",
+          "source_start": 1232.5666666666664,
+          "source_end": 1252.033333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "28_organize_images",
+          "source_start": 1252.033333333333,
+          "source_end": 1275.4666666666665,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "29_move_and_merge",
+          "source_start": 1275.4666666666665,
+          "source_end": 1296.7999999999997,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "30_organized_for_measure",
+          "source_start": 1296.7999999999997,
+          "source_end": 1316.4999999999998,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "03_real_labels",
+          "source_start": 1316.4999999999998,
+          "source_end": 1340.7333333333331,
+          "idle_tail_start": 1.0
+        }
+      ]
+    },
+    {
+      "lesson": "17_timelapse",
+      "master_sha256": "5e5fd7d1ce410de67ce46d8dde99e5f649ac417d1a6ef43f5e41170452414a6c",
+      "visual_timing_sha256": "7207cd4e47806b99ea1fe0728de22e97ca9181fa8689261191f8e6e2939a55f7",
+      "scenes": [
+        {
+          "visual": "02_timelapse_fold",
+          "source_start": 0.0,
+          "source_end": 31.8,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "09_actual_track_preview",
+          "source_start": 31.8,
+          "source_end": 57.166666666666664,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "10_actual_image_sequence_folder",
+          "source_start": 57.166666666666664,
+          "source_end": 77.86666666666666,
+          "idle_tail_start": 5.233333333333333
+        },
+        {
+          "visual": "11_actual_mask_sequence_folder",
+          "source_start": 77.86666666666666,
+          "source_end": 102.33333333333333,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "12_actual_linked_preview",
+          "source_start": 102.33333333333333,
+          "source_end": 133.6,
+          "idle_tail_start": 7.0
+        },
+        {
+          "visual": "14_actual_overlap_restored",
+          "source_start": 133.6,
+          "source_end": 168.33333333333334,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "15_actual_final_frame",
+          "source_start": 168.33333333333334,
+          "source_end": 191.36666666666667,
+          "idle_tail_start": 5.1
+        },
+        {
+          "visual": "05_setting_timelapse_frame_limits",
+          "source_start": 191.36666666666667,
+          "source_end": 225.86666666666667,
+          "idle_tail_start": 13.1
+        },
+        {
+          "visual": "05_setting_timelapse_mode",
+          "source_start": 225.86666666666667,
+          "source_end": 252.43333333333334,
+          "idle_tail_start": 6.2
+        },
+        {
+          "visual": "05_setting_keep_original_images",
+          "source_start": 252.43333333333334,
+          "source_end": 277.53333333333336,
+          "idle_tail_start": 7.9
+        },
+        {
+          "visual": "05_setting_plot",
+          "source_start": 277.53333333333336,
+          "source_end": 304.1333333333333,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "08_actual_figure_04",
+          "source_start": 304.1333333333333,
+          "source_end": 333.26666666666665,
+          "idle_tail_start": 2.0
+        }
+      ]
+    },
+    {
+      "lesson": "49_methods_results",
+      "master_sha256": "4f284578fd704ec43217af738d875cb09fb4e0d86f2ec3a623fc8d68cadbc882",
+      "visual_timing_sha256": "cc8f764b6a0d3852d9c947fcb4199f1c8fe840a15397daaa2a1df7364bbbfce0",
+      "scenes": [
+        {
+          "visual": "01_regression_methods_host",
+          "source_start": 0.0,
+          "source_end": 22.066666666666666,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "02_real_project_journal_and_result_sources",
+          "source_start": 22.066666666666666,
+          "source_end": 40.7,
+          "idle_tail_start": 9.366666666666667
+        },
+        {
+          "visual": "03_actual_deterministic_methods",
+          "source_start": 40.7,
+          "source_end": 63.3,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "04_actual_seed_caveat",
+          "source_start": 63.3,
+          "source_end": 89.26666666666667,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "05_digest_run_record",
+          "source_start": 89.26666666666667,
+          "source_end": 111.36666666666666,
+          "idle_tail_start": 7.0
+        },
+        {
+          "visual": "06_zero_significant_genes_and_ranked_candidates",
+          "source_start": 111.36666666666666,
+          "source_end": 138.3,
+          "idle_tail_start": 7.9
+        },
+        {
+          "visual": "07_copy_sections_is_not_scientific_approval",
+          "source_start": 138.3,
+          "source_end": 161.83333333333334,
+          "idle_tail_start": 4.3
+        },
+        {
+          "visual": "08_export_unreviewed_markdown_picker",
+          "source_start": 161.83333333333334,
+          "source_end": 181.36666666666667,
+          "idle_tail_start": 6.466666666666667
+        },
+        {
+          "visual": "09_actual_export_completed_not_approved",
+          "source_start": 181.36666666666667,
+          "source_end": 209.3,
+          "idle_tail_start": 5.2
+        }
+      ]
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "master_sha256": "eb9b61246caf544168caf85b5d554e4373417a3086afcd42da64ae750e4c92f8",
+      "visual_timing_sha256": "1ed168619d3ab24785f374b7e1e71ffd7923e01dfa4c17db549375f628de01c4",
+      "scenes": [
+        {
+          "visual": "home",
+          "source_start": 0.0,
+          "source_end": 42.03333333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "module_mask",
+          "source_start": 42.03333333333333,
+          "source_end": 81.63333333333334,
+          "idle_tail_start": 14.5
+        },
+        {
+          "visual": "module_measure",
+          "source_start": 81.63333333333334,
+          "source_end": 125.1,
+          "idle_tail_start": 17.5
+        },
+        {
+          "visual": "module_annotate",
+          "source_start": 125.1,
+          "source_end": 167.63333333333333,
+          "idle_tail_start": 13.0
+        },
+        {
+          "visual": "module_classify_merged",
+          "source_start": 167.63333333333333,
+          "source_end": 210.33333333333334,
+          "idle_tail_start": 14.5
+        },
+        {
+          "visual": "module_map_barcodes",
+          "source_start": 210.33333333333334,
+          "source_end": 246.4,
+          "idle_tail_start": 9.8
+        },
+        {
+          "visual": "module_regression",
+          "source_start": 246.4,
+          "source_end": 296.5,
+          "idle_tail_start": 15.5
+        },
+        {
+          "visual": "home_summary",
+          "source_start": 296.5,
+          "source_end": 333.76666666666665,
+          "idle_tail_start": 5.3
         }
       ]
     }

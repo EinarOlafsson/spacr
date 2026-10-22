@@ -1128,8 +1128,9 @@ def relay_url() -> str:
 def network_allowed() -> bool:
     """Whether a report or a hosted diagnosis may use the network at all.
 
-    :returns: ``False`` when :data:`NO_NETWORK_ENV` is set or spaCR runs in
-        safe mode, ``True`` otherwise.
+    :returns: ``False`` when :data:`NO_NETWORK_ENV` has a nonempty value other than
+        ``0``, ``false``, ``no`` or ``off`` (ignoring case and surrounding
+        whitespace), or spaCR runs in safe mode; ``True`` otherwise.
     """
     flag = os.environ.get(NO_NETWORK_ENV, "").strip().lower()
     if flag and flag not in ("0", "false", "no", "off"):

@@ -28,14 +28,31 @@ def test_strict_quality_target_manifest_names_real_python_files():
 
 
 def test_quality_tools_are_contributor_dependencies():
-    setup = (ROOT / "setup.py").read_text(encoding="utf-8")
+    import ast
+    from packaging.requirements import Requirement
+    from packaging.specifiers import SpecifierSet
 
-    for requirement in (
-        "'ruff>=0.9,<1'",
-        "'mypy>=1.11,<2'",
-        "'xenon>=0.9,<1'",
-    ):
-        assert requirement in setup
+    tree = ast.parse((ROOT / "setup.py").read_text(encoding="utf-8"))
+    extras = next(ast.literal_eval(keyword.value)
+                  for node in ast.walk(tree)
+                  if isinstance(node, ast.Call)
+                  and getattr(node.func, "id", "") == "setup"
+                  for keyword in node.keywords
+                  if keyword.arg == "extras_require")
+    core = next(ast.literal_eval(node.value) for node in tree.body
+                if isinstance(node, ast.Assign)
+                and any(getattr(target, "id", "") == "dependencies"
+                        for target in node.targets))
+    runtime = {Requirement(value).name for value in core}
+    dev = [Requirement(value) for value in extras["dev"]]
+    for name, bounds in (("ruff", ">=0.9,<1"),
+                         ("mypy", ">=1.11,<3"),
+                         ("xenon", ">=0.9,<1")):
+        matches = [requirement for requirement in dev if requirement.name == name]
+        assert len(matches) == 1, (name, matches)
+        assert matches[0].specifier == SpecifierSet(bounds)
+        assert matches[0].marker is None
+        assert name not in runtime
 
 
 def test_quality_job_runs_all_four_enforced_checks():

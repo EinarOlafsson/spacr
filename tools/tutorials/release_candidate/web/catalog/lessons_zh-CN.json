@@ -176,19 +176,19 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "在Python虚拟环境中用pip安装，在Conda环境中用pip安装，或在Conda环境中通过conda-forge安装；启动、更新和卸载。",
+      "description": "使用pip、conda-forge或Docker安装spaCR，检查安装，启动相应界面，并进行更新和卸载。",
       "objectives": [
-        "选择三种隔离安装方式中的一种。",
+        "选择独立的Python安装环境或固定版本的容器。",
         "安装或启动前激活正确的环境。",
         "检查已安装版本，安全更新和卸载。"
       ],
-      "prerequisite": "虚拟环境方式使用Python 3.12；两种Conda方式均需先安装Conda/Miniforge。打开终端。不要与现有环境使用相同名称。",
+      "prerequisite": "虚拟环境方式使用Python 3.12；两种Conda方式均需先安装Conda/Miniforge。打开终端。不要与现有环境使用相同名称。使用容器时，请安装Docker Desktop或Docker Engine，并将其配置为运行Linux x86-64容器。",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "选择一种安装方式。Pip可将spaCR安装到Python虚拟环境或Conda环境中。Conda-forge安装到Conda环境中，不能向Python虚拟环境安装软件包。以下三种方式是备选方案，只需选择一种。",
+          "narration": "选择一种安装方式。Pip会在Python虚拟环境或Conda环境中安装spaCR。Conda-forge会在Conda环境中安装spaCR。Docker在容器内运行命令行分析流程。请选择适合您使用spaCR的方式。",
           "hold_after": 0.7,
-          "speech_text": "选择一种安装方式。Pip可将斯佩克尔安装到Python虚拟环境或Conda环境中。Conda-forge安装到Conda环境中，不能向Python虚拟环境安装软件包。以下三种方式是备选方案，只需选择一种。"
+          "speech_text": "选择一种安装方式。Pip会在Python虚拟环境或Conda环境中安装斯佩克尔。Conda-forge会在Conda环境中安装斯佩克尔。Docker在容器内运行命令行分析流程。请选择适合您使用斯佩克尔的方式。"
         },
         {
           "visual": "pip_01_create_venv",
@@ -210,9 +210,9 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。此方式安装的是PyPI上已发布的软件包；源代码检出版本或每夜开发版可能有更新的界面功能。",
+          "narration": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。",
           "hold_after": 0.7,
-          "speech_text": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。此方式安装的是派普上已发布的软件包；源代码检出版本或每夜开发版可能有更新的界面功能。"
+          "speech_text": "检查已安装版本和软件包路径，然后运行python横杠m pip check。将版本记录在分析笔记中。"
         },
         {
           "visual": "pip_05_launch",
@@ -240,9 +240,9 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。conda-forge上可用的版本可能与最新PyPI版本或每夜开发版不同。",
+          "narration": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。",
           "hold_after": 0.7,
-          "speech_text": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。conda-forge上可用的版本可能与最新派普版本或每夜开发版不同。"
+          "speech_text": "Conda会在安装前显示软件包计划。检查并接受计划，等待下载和安装完成。"
         },
         {
           "visual": "conda_03_activate",
@@ -251,13 +251,37 @@
           "speech_text": "激活斯佩克尔-conda。检查Python环境路径，并运行conda list 斯佩克尔确认已安装版本及频道。然后运行斯佩克尔-doctor，从此环境启动斯佩克尔。"
         },
         {
+          "visual": "docker_01_install",
+          "narration": "使用Docker时，请按操作系统的官方说明安装Docker Desktop或Docker Engine，并配置Linux容器。spaCR容器镜像面向Linux x86-64。命令行分析流程可使用容器；图形应用程序请选择桌面安装方式。",
+          "hold_after": 0.7,
+          "speech_text": "使用Docker时，请按操作系统的官方说明安装Docker Desktop或Docker Engine，并配置Linux容器。斯佩克尔容器镜像面向Linux x86-64。命令行分析流程可使用容器；图形应用程序请选择桌面安装方式。"
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "打开spaCR官方容器软件包页面，选择一个可用版本。拉取该确切版本的CPU镜像，再用它运行spacr --version和spacr-run --list。确认显示的版本与所选标签一致，并将标签保存在分析笔记中。",
+          "hold_after": 0.7,
+          "speech_text": "打开斯佩克尔官方容器软件包页面，选择一个可用版本。拉取该确切版本的CPU镜像，再用它运行斯佩克尔 --version和斯佩克尔-run --list。确认显示的版本与所选标签一致，并将标签保存在分析笔记中。"
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "将项目文件夹挂载到/data，将模型缓存挂载到/models。把分析流程的设置导出到项目文件夹，并在设置中使用容器内部路径。运行spacr-run，指定流程名称和设置CSV。将结果写入/data，使其在容器退出后仍保存在项目中。在Linux上，请传入自己的用户ID和组ID，使输出文件的所有权与您的账户一致。",
+          "hold_after": 0.7,
+          "speech_text": "将项目文件夹挂载到/data，将模型缓存挂载到/models。把分析流程的设置导出到项目文件夹，并在设置中使用容器内部路径。运行斯佩克尔-run，指定流程名称和设置CSV。将结果写入/data，使其在容器退出后仍保存在项目中。在Linux上，请传入自己的用户ID和组ID，使输出文件的所有权与您的账户一致。"
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "使用NVIDIA进行处理时，请安装受支持的主机驱动和NVIDIA Container Toolkit，再按官方指南配置Docker运行时。CUDA 12.4镜像需要550或更新版本的主机驱动。选择相应的固定版本CUDA镜像，并添加--gpus all。CPU镜像既不需要toolkit，也不需要GPU。",
+          "hold_after": 0.7,
+          "speech_text": "使用NVIDIA进行处理时，请安装受支持的主机驱动和NVIDIA Container Toolkit，再按官方指南配置Docker运行时。CUDA 12.4镜像需要550或更新版本的主机驱动。选择相应的固定版本CUDA镜像，并添加--gpus all。CPU镜像既不需要toolkit，也不需要GPU。"
+        },
+        {
           "visual": "06_current_home",
-          "narration": "这份补充材料展示当前每夜开发版的Home界面。您已安装的发布版本可能外观不同。环境命令安装的是所选频道中已发布的软件包；此当前源代码视图并不意味着每夜开发版的所有功能都已发布。",
+          "narration": "从已安装的环境中启动spaCR。Home将模块分为Core、Data、Tools和Organism。选择一个模块即可开始相应的工作流程。",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
           ],
-          "speech_text": "这份补充材料展示当前每夜开发版的主页界面。您已安装的发布版本可能外观不同。环境命令安装的是所选频道中已发布的软件包；此当前源代码视图并不意味着每夜开发版的所有功能都已发布。"
+          "speech_text": "从已安装的环境中启动斯佩克尔。主页将模块分为Core、Data、Tools和Organism。选择一个模块即可开始相应的工作流程。"
         },
         {
           "visual": "pip_06_update",
@@ -424,24 +448,24 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "在当前每夜开发版界面中，打开 Preferences 并选择 Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。",
+          "narration": "打开Preferences，选择Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。",
           "hold_after": 0.7,
-          "speech_text": "在当前每夜开发版界面中，打开 Preferences 并选择 Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。"
+          "speech_text": "打开Preferences，选择Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。"
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Organism。请继续观看主页与导航教程，了解当前的模块。",
+          "narration": "Home将模块分为Core、Data、Tools和Organism。接着查看Home画面与导航教程，找到下一项任务所需的模块。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "这段录像安装的是 斯佩克尔 一点五点一点三版。已发布的版本可能显示较旧的 主页 布局。这里展示的是当前每夜开发版的 主页，包含 Core、Data、Tools 和 Organism。请继续观看主页与导航教程，了解当前的模块。"
+          "speech_text": "主页将模块分为Core、Data、Tools和Organism。接着查看主页画面与导航教程，找到下一项任务所需的模块。"
         },
         {
           "visual": "05_doctor",
-          "narration": "如果启动或文件格式需要处理，请从安装的运行环境执行 spacr-doctor。在这段录像的 CPU 安装中，后端检查通过，GPU 检查被跳过。警告说明缺少可选的 CZI 读取器；只有需要 CZI 文件时，才安装这个额外组件。",
+          "narration": "如果启动或文件格式需要处理，请从安装的运行环境执行 spacr-doctor。检查后端结果，并确认是否执行了GPU检测。如果警告提示缺少可选的CZI读取器，仅在需要CZI文件时安装此扩展。",
           "hold_after": 0.7,
-          "speech_text": "如果启动或文件格式需要处理，请从安装的运行环境执行 斯佩克尔-doctor。在这段录像的 CPU 安装中，后端检查通过，GPU 检查被跳过。警告说明缺少可选的 CZI 读取器；只有需要 CZI 文件时，才安装这个额外组件。"
+          "speech_text": "如果启动或文件格式需要处理，请从安装的运行环境执行 斯佩克尔-doctor。检查后端结果，并确认是否执行了GPU检测。如果警告提示缺少可选的CZI读取器，仅在需要CZI文件时安装此扩展。"
         },
         {
           "visual": "12_logs_and_versions",
@@ -549,9 +573,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "浏览 Home 概览和分类选项卡，然后通过 Mask 了解模块的通用控件，并调整导航、帮助和外观。",
+      "description": "从左到右浏览Home的所有模块，再通过Mask学习模块共用的控件，并调整导航、帮助和外观。",
       "objectives": [
-        "通过 Home、Core、Data、Tools 和 Organism 选项卡查找模块。",
+        "识别Core、Data、Tools和Organism各行中的每个模块。",
         "通过 Mask 认识通用设置、预览、操作和输出。",
         "返回 Home，使用搜索并排列面板。",
         "选择外观和性能设置。"
@@ -560,9 +584,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home 是起点。概览将模块归入 Core、Data、Tools 和 Organism。分类选项卡可缩小显示范围。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，选择 Home 可返回概览。",
+          "narration": "Home 是起点。从左到右阅读每一行：Core、Data、Tools和Organism。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，Home可返回此总览。",
           "hold_after": 0.7,
-          "speech_text": "主页 是起点。概览将模块归入 Core、Data、Tools 和 Organism。分类选项卡可缩小显示范围。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，选择 主页 可返回概览。"
+          "speech_text": "主页 是起点。从左到右阅读每一行：Core、Data、Tools和Organism。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，主页可返回此总览。"
         },
         {
           "visual": "home_module_mask",
@@ -649,6 +673,18 @@
           "speech_text": "Import 为项目结构准备输入的显微镜文件及其元数据。"
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings将对象的裁剪图像编码为数值特征，以便探索和比较。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ],
+          "speech_text": "Embeddings将对象的裁剪图像编码为数值特征，以便探索和比较。"
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare 汇集保存的运行结果，便于检查差异。",
           "hold_after": 0.7,
@@ -661,6 +697,18 @@
           "speech_text": "Run Compare 汇集保存的运行结果，便于检查差异。"
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design可在实验前设置条件、孔位和样本标识。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ],
+          "speech_text": "Experiment Design可在实验前设置条件、孔位和样本标识。"
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design 在规划比较时探索样本量和统计功效假设。",
           "hold_after": 0.7,
@@ -671,6 +719,30 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design 在规划比较时探索样本量和统计功效假设。"
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response拟合不同浓度下的响应，同时明确所选响应指标和对照。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ],
+          "speech_text": "Dose Response拟合不同浓度下的响应，同时明确所选响应指标和对照。"
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC列出项目保存的质量报告，并标记缺失的报告。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
+          ],
+          "speech_text": "QC列出项目保存的质量报告，并标记缺失的报告。"
         },
         {
           "visual": "home_module_make_masks",
@@ -707,6 +779,18 @@
             "15_image_umap"
           ],
           "speech_text": "Image 优麦普 投影对象特征，以探索相似对象并检查代表性裁剪图像。"
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor在真实数据列上定义选择条件。将选择转换为标签前，请检查选定的对象。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
+          ],
+          "speech_text": "门控编辑器在真实数据列上定义选择条件。将选择转换为标签前，请检查选定的对象。"
         },
         {
           "visual": "home_module_graph_builder",
@@ -866,7 +950,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "在 Modules 选项卡中，Session 决定 spaCR 启动时是否重新打开上次的模块、设置和文件夹；本录制从全新状态开始。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。",
+          "narration": "在Modules选项卡中，Session决定spaCR启动时是否重新打开上次的模块、设置和文件夹。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -874,7 +958,7 @@
             1200,
             397
           ],
-          "speech_text": "在 Modules 选项卡中，Session 决定 斯佩克尔 启动时是否重新打开上次的模块、设置和文件夹；本录制从全新状态开始。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。"
+          "speech_text": "在Modules选项卡中，Session决定斯佩克尔启动时是否重新打开上次的模块、设置和文件夹。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。"
         },
         {
           "visual": "13f_storage",
@@ -899,6 +983,12 @@
             1500
           ],
           "speech_text": "Prune now 绝不会不经询问就删除。为运行文件夹设置一个较短的示例上限后，它会列出每个文件夹中将要删除的内容并等待回答。点击 Cancel，则不会删除任何内容。"
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "在Spaceout模式下，Preferences提供八种独立效果的spaCR场控制。各个效果可以分别开启或关闭。常规外观和设置窗口的动画控件仍然可用；Apply预览更改，Keep接受更改，Revert恢复先前的选择。",
+          "hold_after": 0.7,
+          "speech_text": "在Spaceout模式下，Preferences提供八种独立效果的斯佩克尔场控制。各个效果可以分别开启或关闭。常规外观和设置窗口的动画控件仍然可用；Apply预览更改，Keep接受更改，Revert恢复先前的选择。"
         }
       ],
       "narration_voices": {
@@ -1200,9 +1290,9 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "为了快速完成第一次运行，本录制把 Source 指向两个示例视野的中心裁剪图像；处理您自己的数据时，请改为打开 Test mode 并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。",
+          "narration": "为了快速进行首次运行，将两个示例视野的居中裁剪图像设为Source。使用自己的数据时，打开Test mode并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。",
           "hold_after": 0.7,
-          "speech_text": "为了快速完成第一次运行，本录制把 Source 指向两个示例视野的中心裁剪图像；处理您自己的数据时，请改为打开 Test mode 并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。"
+          "speech_text": "为了快速进行首次运行，将两个示例视野的居中裁剪图像设为Source。使用自己的数据时，打开Test mode并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。"
         },
         {
           "visual": "run_23_batch_finished",
@@ -3535,7 +3625,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "要对自己的图像完整运行，请在Mask中设置Source和强度通道。这段录制导入了一个八帧小型合成序列的设置。请保持每个视野的时间点顺序。帧范围由起点和不包含在内的终点指定：从零到八表示选择前八帧。",
+          "narration": "要对自己的图像完整运行，请在Mask中设置Source和强度通道。这里载入小型八帧合成示例的设置。请保持每个视野的时间点顺序。帧范围由起点和不包含在内的终点指定：从零到八表示选择前八帧。",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -3543,7 +3633,7 @@
             1160,
             1900
           ],
-          "speech_text": "要对自己的图像完整运行，请在Mask中设置Source和强度通道。这段录制导入了一个八帧小型合成序列的设置。请保持每个视野的时间点顺序。帧范围由起点和不包含在内的终点指定：从零到八表示选择前八帧。"
+          "speech_text": "要对自己的图像完整运行，请在Mask中设置Source和强度通道。这里载入小型八帧合成示例的设置。请保持每个视野的时间点顺序。帧范围由起点和不包含在内的终点指定：从零到八表示选择前八帧。"
         },
         {
           "visual": "05_setting_timelapse_mode",

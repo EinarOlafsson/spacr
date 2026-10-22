@@ -1211,3 +1211,70 @@ def test_integration_with_power_simulate():
         "and 60 wells -- the inference half is not reading the simulator half "
         "correctly"
     )
+
+
+@pytest.mark.parametrize("sampler_raises", [False, True])
+def test_numpyro_preserves_half_student_priors_and_scoped_double_precision(
+        monkeypatch, sampler_raises):
+    jax = pytest.importorskip("jax")
+    numpyro = pytest.importorskip("numpyro")
+    import jax.numpy as jnp
+    from numpyro import handlers
+    from numpyro import infer
+    try:
+        from jax import enable_x64
+    except ImportError:
+        from jax.experimental import enable_x64
+
+    class CheckedSampler:
+        def __init__(self, model, **kwargs):
+            self.model = model
+
+        def run(self, key):
+            assert jax.config.x64_enabled
+            self.trace = handlers.trace(handlers.seed(self.model, rng_seed=key)).get_trace()
+            assert self.trace["obs"]["fn"].rate.dtype == jnp.float64
+            for name in ("lam", "tau"):
+                distribution = self.trace[name]["fn"]
+                assert bool(jnp.all(distribution.support(jnp.array([1.0, 2.0]))))
+                assert not bool(jnp.any(distribution.support(jnp.array([-1.0]))))
+                values = jnp.array([1.0, 2.0])
+                folded = (distribution.base_dist
+                          if isinstance(distribution, numpyro.distributions.ExpandedDistribution)
+                          else distribution)
+                assert isinstance(folded, numpyro.distributions.FoldedDistribution)
+                assert isinstance(folded.base_dist, numpyro.distributions.StudentT)
+                assert float(folded.base_dist.df) == (10.0 if name == "lam" else 1.0)
+                expected = folded.base_dist.log_prob(values) + jnp.log(2.0)
+                actual = distribution.log_prob(values)
+                np.testing.assert_allclose(actual, expected)
+                assert not np.allclose(actual[0], actual[1])
+            if sampler_raises:
+                raise RuntimeError("sampler failed")
+
+        def get_samples(self):
+            return {name: jnp.repeat(self.trace[name]["value"][None], 4, axis=0)
+                    for name in ("beta", "intercept")}
+
+        def get_extra_fields(self, **kwargs):
+            return {"diverging": np.zeros(4, dtype=bool)}
+
+    def checked_kernel(model, **kwargs):
+        assert kwargs["target_accept_prob"] == 0.87
+        return model
+
+    monkeypatch.setattr(infer, "NUTS", checked_kernel)
+    monkeypatch.setattr(infer, "MCMC", CheckedSampler)
+    data = ModelData(
+        wells=np.array(["w1", "w2", "w3"]), genes=np.array(["A", "B"]),
+        Npositive=np.array([1, 3, 2]), Ntotal=np.array([10, 10, 10]),
+        log10expression=np.array([[-1.0, -0.1], [-0.1, -1.0], [-0.5, -0.5]]))
+    with enable_x64(False):
+        if sampler_raises:
+            with pytest.raises(RuntimeError, match="sampler failed"):
+                fit_model(data, backend="numpyro", n_chains=1, target_accept=0.87)
+        else:
+            fit = fit_model(data, backend="numpyro", n_chains=1, target_accept=0.87)
+            assert fit.draws.dtype == np.float64
+            assert fit.converged
+        assert not jax.config.x64_enabled

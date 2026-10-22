@@ -3,6 +3,7 @@
 ================================================================================
 
 Status:    IN PROGRESS — unchanged editing handles are reused; current-frame picking, accelerated FPS and physical interaction acceptance remain
+Status:    IN PROGRESS — native Mac pan and moving-frame alignment repaired; 3D performance and physical interaction acceptance remain
 Requested: 2026-10-08
 Owner:     Mac Codex session (current Mac runtime/UI and Mac-specific fixes); root (Linux/general CI/publication); other platform acceptance remains separate
 Depends:   N672 validated gate anchor and surface editing logic
@@ -24,6 +25,265 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+
+Delivered readback repair: native Intel-Mac phase timing identified two
+synchronous GPU buffer reads per frame (RGB and picked IDs). One combined
+readback now follows both copies in the same command encoder, without changing
+rays, resolution, samples, label IDs or interaction behavior. Exact transport,
+real Metal frame comparison and native drag checks pass; retain the unmet
+30–60FPS/physical-input gates.
+
+Next measured readback repair: map the existing combined readback buffer
+directly instead of queue.read_buffer allocating and copying through another
+staging buffer. Only the owned readback buffer uses MAP_READ|COPY_DST;
+picture/picking storage flags stay unchanged. Map and copy only the current
+frame prefix, always unmap after a successful map (including read failures),
+and preserve capacity reuse, exact RGB/IDs, grow/shrink and cleanup behavior.
+Require focused transport/lifecycle checks and a matched native comparison;
+do not infer a performance pass from the API change alone.
+
+Bounded composition experiment: prototype only in owned scratch a private
+FigureImage.make_image shortcut for opaque uint8 upper-origin frames at exact
+1:1 Agg/DPI/magnification, integer fully contained placement and unchanged
+alpha/clip/transform semantics. Unsupported cases must use the original path.
+Require byte-exact make_image output and complete figure pixels on focused
+offscreen cases, then one matched 512x768 timing; no production adoption
+without demonstrated parity and benefit.
+Scratch result: all11 cases match both make_image output and complete figure
+pixels; three supported cases exercise the shortcut and eight unsupported
+cases fall back. The exercised same-process 512x768 full-figure draw pair
+has medians39.731ms original versus5.555ms shortcut (12 draws each). The first
+attempt rejected the installed default interpolation='auto' everywhere and
+is not fastpath evidence; the exercised revision also allows auto/antialiased
+only under the exact1:1 guard where installed Matplotlib resolves nearest.
+No production integration or native/GPU performance claim follows this CPU
+scratch result; retain it for source review and native acceptance.
+The reviewed candidate may now be integrated only on the owned volume
+FigureImage using a private per-artist make_image hook capturing its original
+bound method. Add malformed/None/masked/nonaffine and renderer/magnification/
+DPI/alpha/clip fallback coverage before shape unpacking or fast composition;
+retain original behavior everywhere unsupported. Require the focused unit
+cohort followed by native current-frame composition, paint and picking proof
+before claiming acceptance; the CPU timing is not native FPS evidence.
+The integrated hook passes42 affected offscreen cases: three byte-exact image
+and full-figure comparisons,20 unsupported-input fallbacks and19 existing
+prepaint/camera-consumption checks. Native paint/picking proof remains pending.
+All10 focused transport/lifecycle checks pass. A real Metal matched32-pose
+transport pair gives0.4919s queue-read versus0.3530s direct-map, exact RGB/IDs/
+rays/dimensions, unchanged mask and clean teardown. Production fixed-rate drag
+then passes71 aligned paints/0 misaligned/0 unknown,70 unique image/pose pairs
+in3.022s (23.16/s paint-handler proxy), all70 interactive;20/20 current-frame
+picks, clean settle, exit0/errors[]. The earlier per-pose GUI comparison was
+rejected for a preview transition and is not performance evidence. Direct
+transport improves; the full30–60FPS and physical-input gates remain open.
+
+Next measured follow-up: the owned canvas schedules another full draw when
+synchronous GPU delivery updates the image inside draw_event. Dropping that
+draw would leave stale image pixels under current anchors, so test a bounded
+GPU-only prepaint experiment in scratch first: prepare the same projection
+and aspect before unchanged full figure composition, preserving the CPU and
+layout-engine fallback paths. Require prepaint/actual camera equality and
+exact pixels/picks/rects plus overlays, magnifier, rotation/pan/resize and
+settled-preview checks before considering production adoption. No lower
+resolution, fewer ray samples, hidden handles or target reduction is allowed.
+The first scratch run exercised no prepaint path: all144 draws rejected a
+non-None engine, and the first post-pick quiescence check timed out without
+isolating its cause. It is not a validation pass or performance improvement.
+Log the actual engine and individual idle predicates in a bounded revision;
+allow only None or the exact verified no-op PlaceHolderLayoutEngine, never
+disable/execute an active layout engine twice or weaken the settle check.
+The revised scratch path exercised84 prepaint renders with118 exact camera
+checks and27.12FPS versus24.06 control, still below target. Its strict visual
+cases remain unvalidated: diagnostics isolate the selected-object mesher
+running more than50s after picking label3/version1 while every other worker
+and settle timer is idle. Reproduce and diagnose that bounded geometry job
+before any production prepaint adoption; preserve all voxel/mesh identities,
+anchors and topology, and do not bypass the worker-idle/overlay checks.
+The same label3 geometry completes headlessly in26.666s (10,692 voxels,
+3,522 vertices/7,040 triangles), with the captured stack inside triangle-contact
+validation's repeated cross products. The Mac lane may hoist identical
+per-triangle basis/norm operands and reuse the already computed identical
+normal for its determinant, without changing operation values, tolerances,
+contact/topology decisions, coordinates, faces, anchors or mask membership.
+Require legacy-predicate comparisons including shared/coplanar/touching cases,
+existing refusal/membership checks and one same-input post-change timing;
+retain the native>50s observation until strict native validation completes.
+After arithmetic reuse, five scratch cases match their captured render request
+and stable composition exactly, but the final overlay case still exceeds30s
+while meshing label1. These are not current-view alignment acceptance: review
+found the pan case changes the overlay while retaining the prior render rect
+and pixels. Diagnose pan invalidation separately; require a fresh request from
+the current axes and compare its rect/rays against the shown frame, not merely
+repeat the previous request. Preserve all earlier measured facts without
+counting the stale-request comparison as proof that image and anchors align.
+The Mac lane owns a bounded camera/axes-transform invalidation repair and
+related regression checks before any production prepaint adoption.
+The label1 job completes headlessly in52.096s with unchanged voxels/history
+and7,894 vertices/15,784 triangles; a bounded stack sample finds the full
+three-axis bounding-box candidate scan. Test an exact single-axis prefilter
+before the existing full predicate, preserving pair order and every contact
+check, tolerance and refusal. Require direct candidate-set equivalence across
+touching thresholds plus the existing mesh validity checks and one same-input
+timing; this is not permission to simplify or skip geometry validation.
+The exact prefilter passes101 relevant geometry/refusal checks, retaining
+candidate order and topology decisions. Same-input label1 timing is49.185s
+versus52.096s; the30s strict synthetic settle gate remains unmet. Production
+pan invalidation now includes the actual axes display transform; two new
+regressions failed before repair and four related checks pass afterward.
+Next bounded geometry repair: topology implies at least189,348 scalar normal
+cross products for the label1 candidate pairs, versus15,784 triangles. Test
+per-triangle cached bases/normals/norms/determinants using exactly the existing
+scalar operations, passed privately to the contact predicate. Keep the default
+uncached path and all full topology/contact checks. Do not substitute vectorized
+normal values, reassociate arithmetic, change tolerances or mutate geometry.
+Require cached and uncached legacy-decision comparisons, refusal/membership
+regressions and one same-input timing before claiming any improvement.
+That exact scalar cache now passes185 focused geometry/volume/refusal tests,
+including both legacy predicate paths and per-triangle scalar-call checks.
+The same label1 geometry returns normally in30.743s versus49.185s, with
+identical vertices/faces/groups and unchanged mask/history. This remains above
+the strict30s settle bound; it is not native acceptance or an item closure.
+A separate bulk-normal reuse candidate passed130 relevant checks, including
+byte-exact scalar/bulk normals and cross-call budgets. Same-input label1
+timing29.111s versus28.559s showed no demonstrated gain; its source/test
+delta was removed. Mesh fingerprints and mask/history remained unchanged;
+retain the published helper baseline and unmet native strict30s gate.
+The final matched same-process pair gives28.433s baseline versus27.713s
+normal reuse (2.5% lower), with identical input/environment, geometry hashes,
+and unchanged mask/history. Retain the two-line reuse and its130 already-passed
+checks, without profiling/full-test repeats. This byte-verified reuse alone
+supersedes the earlier bulk-normal restriction; scalar norms/dots and every
+validation predicate remain unchanged. Native cold label1 then PASSES strict
+30s: full worker idle at29.8262s, initially selected0/cache absent; all three
+geometry hashes and fresh rays/parameters/RGB/IDs/rectangle/camera/affine/
+composition and actual label1 picking match. Mask/state unchanged, exit0,
+errors[]. This closes only the tested cold-selection gate, not the FPS or
+physical-input editing requirements.
+An additional coplanar six-edge reuse candidate passed107 affected checks but
+showed no demonstrated timing gain (31.030s versus30.743s). Its source/test
+delta was not retained; preserve the published scalar-cache baseline and the
+unmet30s bound rather than claiming an allocation count as a speedup.
+The retained scratch prepaint rate27.12FPS counts new render-state deliveries,
+not visible frames: that run records only14.55 canvas paints/s versus23.73
+for the24.06-state-FPS control. Do not adopt it as a performance improvement.
+Diagnose Qt paint coalescing before further prepaint work; require both actual
+paint cadence and independent current-view correctness, keeping the original
+render quality and the30–60FPS target.
+The same real FIB-SEM fixture now passes actual OpenGL100% native checks:
+20/20 picks match the current displayed frame, fresh pan rect/RGB/picking are
+exact, all workers settle and originals remain unchanged (exit0/errors[]).
+OpenGL records21.36 state updates/s and21.03 paint events/s; retained Metal
+records22.09 and21.76 respectively. Neither counter proves unique physical
+display presentation or reaches the accelerated30–60FPS target.
+A paint-paced scratch variant passes all five fresh-current-view cases and
+a separate already-cached-label3 anchors/grid/slice/lens case, with155 exact
+camera/affine checks, unchanged masks, idle workers and exit0/errors[]. It
+records69 unique completed figure/render-pose paintings in3.040s (22.70/s),
+not photon/compositor presentation and not a target pass. This different
+overlay fixture does not clear the label1 strict-settle failure. No production
+prepaint or paint-scheduling changes are adopted from these experiments.
+The real FIB-SEM CPU100% run also passes20/20 current-frame picks and exact
+fresh pan rect/RGB/picking, with21 new frames during the3s drag, idle workers,
+unchanged originals and exit0/errors[]. CPU paint events repeat buffers and
+are not new-frame FPS; its state-update rate is6.99/s.
+Next correctness check: the original FigureImage can be composited before
+Axes3D refreshes its camera; a draw_event delivery then changes only the next
+image. This source path permits old image/new overlay buffers under some Qt
+schedules, not proof that every control frame is wrong. Test actual image
+pixel-consumption pose/serial against the axes pose in the same completed Agg
+composition and associate it with the completed Qt paint. Use matched control
+and scratch-prepaint events; missing tokens are unvalidated, not passes. Any
+production change requires evidence of this actual moving-frame fault and
+related fallback/lifecycle checks, independent of the unmet FPS target.
+Matched native image-consumption/axes-composition traces confirm the fault:
+control paints1 aligned/64 misaligned/0 unknown moving buffers; paint-paced
+scratch paints73 aligned/0 misaligned/0 unknown (23.75 unique image/pose
+pairs/s). Both exit0/errors[]; visible slice overlay is captured, not physical
+anchor dragging. Implement the localized synchronous-GPU prepaint correction
+with CPU/layout/error/old-canvas fallback coverage; retain30–60FPS and label1
+strict-settle gates rather than claiming a speed-target pass.
+The localized production correction now passes20 focused regression/fallback
+checks and actual native verification with all scratch mutations disabled:
+Metal72 aligned/0 misaligned/0 unknown paints; OpenGL85/0/0, both20/20 picks,
+exit0/errors[]. Unique completed image/pose rates are23.37/s and27.37/s.
+Original CPU, active/custom/legacy layout and stale-canvas paths remain intact;
+errors propagate once and preparation suppression always resets. No30–60FPS,
+label1 strict-settle or physical-input acceptance is inferred.
+Remaining geometry profile identifies triangle contact as28.256s cumulative
+across144,392 calls (instrumented, not benchmark). Test exact per-triangle
+argmax-axis/planar-projection caching; when the second triangle's cached axis
+differs, retain the original projection. Require cached/uncached legacy and
+near-coplanar mismatched-axis checks, existing refusals, and one same-input
+timing. No tolerance, geometry, topology or predicate-order changes.
+Projection caching passed107 checks but31.158s versus30.743s showed no gain;
+that source/test experiment was reverted. Next contact-validation path must
+PROVE rectilinear half-cell triangle intersections are only allowed shared
+boundaries, after every existing structural/topology/volume check. Certify
+only exact adjacent grid cells, unique grid vertices and complementary
+coplanar halves, with axis-gap uniformity within1e-12, minimum normalized
+gap1e-3 and global gap ratio at most32; ambiguous,
+tight, overlapping or deformed inputs retain the complete legacy predicate.
+Require exhaustive small voxel subsets versus legacy acceptance/refusals,
+both diagonals, overlapping halves, edge/corner contacts, anisotropy/scales,
+cavities and near-threshold fallback, plus unchanged full label1 fingerprints
+and one timing. This is a geometry proof, not trust in a voxel-origin flag.
+The certificate remains unimplemented: strict floating-point equivalence is
+unproven, so the existing validator is retained. A separate concrete GPU defect
+is now identified: _buffer documents reuse while capacity suffices but tests
+equality, reallocating buffers whenever the projected frame shrinks. Restore
+capacity-based reuse and read only current colour/ID bytes. Require growth/
+shrink/destruction and exact bounded-read transport checks, real Metal pixel/
+ID comparisons across changing sizes, and one focused native measurement.
+Do not change rendering quality, shaders, geometry or accepted frame alignment.
+Capacity reuse and bounded readback now pass five focused checks and the real
+Metal/CPU changing-dimensions comparison. A matched32-pose same-process pair
+preserves exact rays/dimensions/RGB/IDs, aligned paints and unchanged masks;
+allocations fall122→6 (2.141s exact-size versus2.094s reused capacity).
+The earlier unmatched18.34/s trace did not establish a causal regression;
+the matched pair shows no regression, but no robust speed/30FPS claim is made.
+Next measured geometry cost:581,221 norm calls in the retained profile.
+Test a small shared-vertex distance helper: exact zero difference is close;
+any coordinate more than100 times the existing tolerance is safely far;
+all remaining cases execute the original norm comparison unchanged. Preserve
+subtraction, tolerances and contact decisions. Require legacy equivalence,
+threshold/NaN/infinity cases, norm-call reduction and one same-label1 timing;
+discard it if no useful improvement is demonstrated.
+The distance helper passes129 relevant checks and reduces the same label1
+headless job30.743→29.452s in one diagnostic pair. Complete vertices/faces/
+groups fingerprints and mask/history remain unchanged. Native cold selection
+must still satisfy actual elapsed≤30s; this timing alone is not GUI acceptance.
+First native cold selection reaches full idle at30.812s and FAILS the strict
+deadline; subsequent fingerprint/fresh-view/picking checks were not accepted.
+Test one further helper-only reduction: compare exact float64 coordinate
+values as Python floats, retaining the original delta/norm fallback. Require
+legacy/helper equivalence and one new same-input timing before native reuse.
+Python scalar comparisons pass31 targeted checks and reduce headless label1
+to28.559s, with identical fingerprints. Native cold selection still FAILS:
+30.0437s deadline observation with the mesher running, not a completion time.
+An allocation-free float64-only candidate passes35 targeted checks but takes
+30.228s versus28.559s; reverted with its candidate-only tests. Retain the
+verified delta-array helper. Native≤30s and full interaction acceptance remain
+open; neither these diagnostic timings nor partial tests complete this item.
+
+Checkpoint at maintainer request: the owned-image shortcut passes42 affected
+tests and native whole-canvas byte parity (28.209ms original versus9.220ms;
+92 fast calls/0 fallback). Native drag shows52 aligned paints but16.67 unique
+painted pairs/s and19/20 snapshot picks. The cadence workload differs from
+the earlier run; pick expectations predate intervening selections/renders.
+Those unmatched workload/snapshot-oracle observations remain historical, not
+current acceptance. Corrected same-window611x140/DPR2 Metal verification is
+whole-canvas byte exact (22.618ms original versus6.797ms hooked). Matched
+fixed-rate drag improves26.48 to29.80 unique painted pairs/s; the hooked leg
+has119 aligned/0 misaligned/0 unknown paints and90 fast calls/0 fallback.
+All20 picks match an immediately refreshed current-frame oracle with recorded
+serial/rect/cell and independently checked cell-centre mapping. Input emits
+179 motions over3.020s on the60Hz schedule, not a30Hz cap. This supersedes
+the pending Metal pick/workload acceptance, not the unmet30–60FPS target or
+physical-input editing acceptance; the cold-label29.8262s pass is retained.
+Next required backend guard check is one actual OpenGL fixed-rate drag at
+the same611x140/DPR2 viewport with fast/fallback and consumed-paint alignment
+counts,20 refreshed per-call picks and normal cleanup; no Metal-control repeat,
+CPU/cold-label matrix or production change.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
@@ -302,8 +562,19 @@ Real-display acceptance remains with the maintainer: each available backend and 
 
 2026-10-19 — macOS acceptance (Intel MacBook Pro, Iris Plus, Retina, 1.5.1.5 installer build, real display): Metal 30 fps dragging, picks agree with the render 19/20. OpenGL was offered but always drew on the CPU because PyOpenGL (needed by VisPy 3-D textures) was not declared; 537b53690 now installs PyOpenGL; with it OpenGL drags at 24 fps. CPU: every mouse move cancelled the frame being drawn, so a drag showed no new picture until release; a newer interactive request of the same content now lets the running CPU frame finish and the newest finished frame is shown (preview, content change or leaving still cancel). Linux/Windows backends remain with the maintainer.
 
-2026-10-21 — Maintainer response: the current 3D viewer has not been tested; earlier recorded Intel Mac measurements are retained, not treated as acceptance of the current build.
-The Mac session owns current Metal/OpenGL/CPU rendering, picking, dragging and installer/doctor checks; Linux/Windows backend acceptance remains separate.
+2026-10-21 — Earlier Mac checks retained, not maintainer acceptance: Cocoa7884c4a1f/Intel Iris Plus/macOS26.6.1/64×256×256/100% measured Metal20.13/OpenGL26.03 state FPS and hit240s rebuilding anchors. 62f709b6f reuses unchanged immutable handles (20 focused checks); Metal23.73FPS/46s exit0,19/20 pre-selection-snapshot picks. Pixel flooring repairs three outside-edge false picks (all11 grid checks pass). No reduced handles/geometry or physical-edit acceptance; Mac ownership and separate other-platform/CI/tutorial lanes remain as above.
+2026-10-21 — Batched colour/picking readback preserves exact pixels and uint32 label IDs with one synchronized GPU read per frame. Four transport/buffer checks and the real Metal-versus-CPU rendering/finish/lens case pass. Same instrumented Cocoa/Intel Iris Plus64×256×256/100% drag comparison improves18.95→23.59FPS and interactive-render median17.47→14.52ms; all20 picks match the rendered frame, exit0/errors[]. This focused run remains below30–60FPS and does not establish physical-input editing acceptance.
+2026-10-21 — Reuse identical triangle operands and prefilter bounding-box candidates without changing contact/topology predicates:173 initial focused checks and101 affected final geometry checks pass; label1 still takes49.185s, so strict30s settle remains open. Fix pan invalidation with the axes display transform (four focused checks). Actual Cocoa/Intel Iris Plus/macOS26.6.1 FIB-SEM loader opens128×256×256 ZYX/15nm/uint16 labels1–43: Metal100%/22.09FPS,20/20 current-frame picks, independent fresh pan rect/RGB/picking exact, all workers idle, original files unchanged, exit0/errors[]. No production prepaint adoption, physical-input or30–60FPS acceptance claimed.
+2026-10-21 — Cache each triangle's identical scalar basis for full contact validation;185 focused geometry/volume/refusal checks pass, including cached/uncached legacy decisions and candidate order. Same label1 geometry30.743s versus49.185s, normal exit and exact mesh counts/unchanged mask/history; still above30s strict settle. Scratch prepaint27.12 state updates/s produced only14.55 paint events/s versus23.73 control, so it remains unshipped and is not a visible-FPS gain; paint-paced investigation is separate.
+2026-10-21 — Real FIB-SEM/macOS26.6.1 Intel/Cocoa: OpenGL100%21.36 updates/s/21.03 paint events/s; CPU100%6.99 new frames/s,21 during drag; both20/20 current-frame picks, exact fresh pan pixels/picking, idle workers, unchanged originals, exit0/errors[]. Retained Metal22.09 updates/s/21.76 paints/s. GPU prepaint/paint-paced correction passes20 focused checks and production native verification without scratch mutations: Metal72 aligned/0 misaligned/0 unknown paints, OpenGL85/0/0; both20/20 picks, exit0/errors[],23.37/27.37 unique painted image/pose pairs/s; CPU/layout/error/stale-canvas fallbacks preserved. Subsequent capacity reuse/current-prefix readback passes5 focused checks, real Metal/CPU changing-dimensions checks and a matched32-pose pair: exact outputs/alignment,122→6 allocations,2.141→2.094s (no robust FPS gain claimed). Direct mapped readback passes10 focused checks and a same-process32-pose Metal pair with exact outputs/cleanup,0.4919→0.3530s (~28% transport reduction); production drag has71 aligned/0 misaligned/0 unknown paints,20/20 picks and23.16 unique painted pairs/s (no30FPS claim). Cold label1 now passes strict30s at29.8262s with exact geometry/fresh-view/picking and unchanged state; target30–60FPS and physical-input acceptance remain open; unproven geometry shortcuts remain unshipped. Corrected611x140/DPR2 Metal hook acceptance is whole-canvas byte exact22.618→6.797ms, matched26.48→29.80 painted pairs/s,119 aligned/0 bad/0 unknown,90 fast/0 fallback and20/20 fresh-oracle picks;60Hz input emits179 motions, so no30FPS pass is claimed. OpenGL guard acceptance is next.
+
+2026-10-21 - Maintainer resumes Windows acceptance; Codex Windows lane owns a bounded real-display CPU True3D synthetic-volume render/picking check using an isolated profile. GPU backend checks remain conditional on the required tools/gpu_turn.sh scheduler operating correctly on this Windows/Intel host, including Chrome exclusion; no bypass, physical-input/FPS claim or Mac-owned source changes. Preserve existing CPU/mock results and separately record missing real FIB-SEM data.
+
+2026-10-21 - Windows native GPU acceptance is BLOCKED before admission by protected-process visibility: actual GPU Engine samples at01:47:56/01:48:39Z show active PID4 System;01:48:25Z shows active PID1216 csrss.exe. Both boot-time OS identities have unavailable CIM image paths, and native OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION) returns AccessDenied5 for both. The repaired queue correctly fails closed with normal360s idle/600s gap and verified Chrome exclusions; no GPU probe has started. A supported telemetry/privilege route that can distinguish this activity is required; do not hide these PIDs or shorten waits. Real FIB-SEM download was separately rejected by automatic review (only reason: blocked by policy); no download occurred.
+
+2026-10-21 - Refresh the earlier d9e Windows CPU check after current Make Masks alignment/composition changes: publication a4ebb5b7ca94b746846cfc3f23b49b601f8e38a1, C:/Users/olafsson/anaconda3/envs/spacr/python.exe Python3.10.22/PySide6-Qt6.11.2. The SAME bounded windows-QPA CPU probe passes synthetic12x24x28/two-channel/two-label/25% scale, ten current-frame picks, exact independent fresh-pan rect/RGB/labels and unchanged source/mask; process terminates with empty stderr. Verified8GiB cap, disposable isolated INI profile and backdrop/prewarm opt-outs; no GPU, FIB-SEM,100%/FPS or physical-input acceptance inferred.
+
+2026-10-21 - Windows lane owns minimal native GPU queue tooling: dispatch existing gpu_turn.sh to PowerShell on Windows, retain Linux behavior, default360s idle/600s gap and exclusive host queue; query native GPU engine counters, conservatively retain unknown activity and exclude verified Chrome/graphics descendants. Fail closed on query/identity/locking uncertainty; verify the actual browser classifier before any GPU start. This supersedes the earlier missing-tooling maintainer blocker; real data/physical/FPS acceptance remain separate.
 
 2026-10-21 — Mac session owns the detailed current-nightly native checks and Mac-specific fixes above; run N703/N646 first via the canonical Mac handoff.
 Record actual build/runtime and per-case results here; prior automation/history is retained, and Linux/general CI plus Work tutorials remain separate.
@@ -313,3 +584,4 @@ Record actual build/runtime and per-case results here; prior automation/history 
 2026-10-21 — Native nightly62f709b6f/macOS26.6.1 Intel Iris Plus: repeated immutable-mesh handle sampling repaired;20 regression checks pass and focused Metal benchmark exits normally in46s with20 picks.23.73FPS remains below30–60FPS;19/20 picks agree with the pre-selection snapshot, so current-frame picking and physical editing remain unverified. This change is ported to main without claiming main-native acceptance.
 
 2026-10-21 — Pixel picking now floors coordinates instead of truncating toward zero, so points just left of or above the rendered volume cannot select its first pixel. All11 exact interior/edge cases pass, including3 previously false outside picks. Rotated physical-input and30–60FPS acceptance remain open.
+2026-10-21 - Windows queue tooling now dispatches gpu_turn.sh to native GPU Engine counters and a shared ProgramData/Global-mutex queue, retaining360s idle/600s gap and the Linux path. Ten unique focused cases pass, including real two-process serialization, failed-query no-start/release, exact argument parsing, unknown activity, and installed Chrome with an owned GPU-disabled profile/children. Actual native counter/classifier readback succeeds with graphics exclusions; no GPU job or full idle-window acceptance has run. Root owns review/publication and subsequent native backend checks.

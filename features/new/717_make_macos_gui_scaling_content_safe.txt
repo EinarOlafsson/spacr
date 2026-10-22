@@ -3,6 +3,7 @@ MAKE MACOS GUI SCALING CONTENT-SAFE
 ================================================================================
 
 Status:    DONE 2026-10-21 — native macOS acceptance and final-source runtime/API catalog closure complete
+Status:    DONE 2026-10-21 — native macOS scale fixes, tour readability and runtime/API catalog closure complete
 Requested: maintainer, 2026-10-21 — prevent clipped text, controls, icons and popup content at every supported scale
 Priority:  P1
 Owner:     Codex macOS GUI lane — native implementation/acceptance; Home — shared runtime/API catalog closure
@@ -24,10 +25,17 @@ Every tooltip API link must display exactly "API". A shown tooltip must remain
 visible while the pointer is still over its source or the tooltip itself. The
 default GUI and font scales, including the reset-to-default action, are 90%.
 
+Completed native follow-up: the first-run tour's title, body and button-row containers
+must remain readable on their dark card in the light application theme. A
+2026-10-21 Cocoa laptop screenshot shows pale text on unintended white child
+backgrounds. Repair the scoped popup styling, test both themes and confirm
+the corrected native popup; retain the completed scale and catalog checks.
+
 PROGRESS
 Requirement                         State
 Text and module controls fit        DONE
 Dialogs fit, resize and scroll      DONE
+Light-theme first-run tour readable DONE
 macOS boolean controls render clean DONE
 Icons remain proportional           DONE
 API tooltips persist while hovered  DONE
@@ -44,8 +52,8 @@ ACCEPTANCE
   tooltip cannot time out while its source or tooltip remains hovered.
 - Fresh preferences and the global reset action select 90% GUI and font scales.
 
-2026-10-21 — Registered before implementation from direct macOS testing; Windows/Linux acceptance remains separately owned.
-2026-10-21 — Default GUI/font/reset scale is 90%; all visible and accessible setting API captions are exactly "API", with hovered tooltip lifetime retained.
+2026-10-21 — Registered before implementation from direct macOS testing; Windows/Linux acceptance remains separately owned. Default GUI/font/reset scale is90%; visible and accessible setting API captions are exactly "API", with hovered tooltip lifetime retained.
 2026-10-21 — Popup startup sizing now preserves content size within 90% of the available screen, remains resizable and scrolls overflow; custom toggles suppress native checkbox perimeter geometry.
 2026-10-21 — 503 text-fit and 55 icon/action-row checks pass across scale/language matrices; 482 dialog/default/tooltip checks pass after repairing macOS isolated-profile coverage.
 2026-10-21 — Native Cocoa launch at90% on1440x870 passed and exited cleanly; font-change refitting uses the existing event handler, preserving the API inventory.122 affected Home layout checks and3 API inventory checks pass. Windows/Linux acceptance remains separately owned. Home catalog closure validates two runtime captions, two existing API blocks and the identical POSIX callback move; the removed changeEvent arrival is excluded. Reviews3214ea7/HFd1796ba, 17 final checks and all-ten-byte reproduction pass; native acceptance is retained and publication remains pending.
+2026-10-21 — Native light-theme/backdrop-off tour revealed pale text over white layout containers. Reuse existing transparent-container theming for its scroll content/viewport/button row; rendered dark/light regressions reproduce before and45 focused tour checks pass after. Native Cocoa90% pixels and visual review confirm a continuous dark readable card and preserved buttons, exit0. Private styling only; no public API/caption/catalog changes.

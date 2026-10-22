@@ -70,7 +70,7 @@ def backend_row(name: str) -> Optional[Tuple[str, str, str, str]]:
 
 
 def is_importable(module: str) -> bool:
-    """Whether ``module`` can be imported here, without importing it.
+    """Whether Python can find a module spec for ``module``, without importing it.
 
     :param module: the top-level import name.
     :returns: True when Python can find it.

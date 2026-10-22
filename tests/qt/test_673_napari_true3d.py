@@ -188,6 +188,262 @@ def test_the_rendered_view_shows_the_image_and_the_objects(view, qtbot):
     assert not stage._render_state.rgb.any()
 
 
+@pytest.mark.parametrize('shape,offset', [((7, 11), (3, 5)), ((8, 12), (0, 0)), ((1, 1), (10, 10))])
+def test_volume_image_fastpath_matches_image_and_complete_figure(shape, offset):
+    from functools import partial
+    from types import SimpleNamespace
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(3, 2), dpi=100)
+    canvas = FigureCanvasAgg(figure)
+    rgb = np.random.default_rng(673).integers(0, 256, shape + (3,), dtype=np.uint8)
+    rgb[0, 0], rgb[-1, -1] = 0, 255
+    stage = SimpleNamespace(_render_state=SimpleNamespace(rgb=rgb, rect=(offset[0], 0, offset[1], 0)),
+                            _panel=SimpleNamespace(canvas=SimpleNamespace(_figure=figure)),
+                            _render_artist=None,
+                            _make_volume_image=partial(mm._VolumeStage._make_volume_image, None))
+    mm._VolumeStage._show_render(stage, draw=False)
+    artist = stage._render_artist
+    original = artist.make_image.args[-1]
+    renderer = canvas.get_renderer()
+    expected = original(renderer)
+    def forbidden(*_args):
+        pytest.fail('supported volume image fell back')
+    actual = mm._VolumeStage._make_volume_image(None, artist, forbidden, renderer)
+    assert np.array_equal(expected[0], actual[0])
+    assert expected[1:3] == actual[1:3]
+    assert np.array_equal(expected[3].get_matrix(), actual[3].get_matrix())
+    hook = artist.make_image
+    artist.make_image = original
+    canvas.draw()
+    pixels = np.asarray(canvas.buffer_rgba()).copy()
+    artist.make_image = hook
+    canvas.draw()
+    assert np.array_equal(pixels, np.asarray(canvas.buffer_rgba()))
+
+
+@pytest.mark.parametrize('kind', ['none', 'nonarray', 'ndim', 'masked', 'rgba', 'float',
+                                'nonaffine', 'transform', 'magnification', 'unsampled',
+                                'renderer', 'dpi', 'clip', 'path', 'alpha', 'origin',
+                                'fractional', 'outside', 'filter', 'effects'])
+def test_volume_image_unsupported_inputs_preserve_original(kind):
+    from matplotlib.backends.backend_agg import FigureCanvasAgg, RendererAgg
+    from matplotlib.figure import Figure
+    from matplotlib.patches import Circle
+    from matplotlib.transforms import Affine2D, Bbox, Transform
+
+    figure = Figure(figsize=(3, 2), dpi=100)
+    canvas = FigureCanvasAgg(figure)
+    artist = figure.figimage(np.ones((7, 11, 3), np.uint8), xo=3, yo=5, origin='upper')
+    renderer, magnification, unsampled = canvas.get_renderer(), 1., False
+    if kind in ('none', 'nonarray', 'ndim', 'masked', 'rgba', 'float'):
+        artist._A = {'none': None, 'nonarray': [], 'ndim': np.zeros((7, 11), np.uint8),
+                     'masked': np.ma.array(np.ones((7, 11, 3), np.uint8), mask=True),
+                     'rgba': np.ones((7, 11, 4), np.uint8),
+                     'float': np.ones((7, 11, 3), float)}[kind]
+    elif kind in ('nonaffine', 'transform'):
+        artist.set_transform(Transform() if kind == 'nonaffine' else Affine2D().translate(1, 0))
+    elif kind == 'magnification':
+        magnification = 2.
+    elif kind == 'unsampled':
+        unsampled = True
+    elif kind == 'renderer':
+        renderer = object()
+    elif kind == 'dpi':
+        renderer = RendererAgg(300, 200, 200)
+    elif kind == 'clip':
+        artist.set_clip_box(Bbox.from_bounds(3, 5, 1, 1))
+    elif kind == 'path':
+        artist.set_clip_path(Circle((0, 0), 1))
+    elif kind == 'alpha':
+        artist.set_alpha(.5)
+    elif kind == 'origin':
+        artist.origin = 'lower'
+    elif kind in ('fractional', 'outside'):
+        artist.ox = 1.5 if kind == 'fractional' else -1
+    elif kind == 'filter':
+        artist.set_agg_filter(lambda *args: args)
+    else:
+        artist.set_path_effects([object()])
+    calls = []
+    sentinel = object()
+    def original(*args):
+        calls.append(args)
+        return sentinel
+    assert mm._VolumeStage._make_volume_image(None, artist, original, renderer,
+                                              magnification, unsampled) is sentinel
+    assert calls == [(renderer, magnification, unsampled)]
+
+
+def test_a_camera_draw_consumes_volume_pixels_for_the_axes_pose_it_composes(view, monkeypatch):
+    from types import SimpleNamespace
+
+    stage = view
+    canvas = stage._panel.canvas._canvas
+    ax = stage._view_axes()
+    poses = {}
+    def render(request):
+        marker = len(poses) + 1
+        poses[marker] = np.asarray(ax.M).copy()
+        rows, columns = request.rays.shape[:2]
+        rgb = np.zeros((rows, columns, 3), np.uint8)
+        rgb[..., 0] = marker
+        return rgb, np.full((rows, columns), marker, np.int64)
+    monkeypatch.setattr(stage, '_active_backend', lambda: 'metal')
+    monkeypatch.setattr(stage, '_backend_choice', 'metal')
+    monkeypatch.setattr(stage, '_gl', SimpleNamespace(backend='metal', render=render, limits={}, name=lambda: 'test-only synchronous renderer', close=lambda: None))
+    assert stage._submit_render('preview')
+    canvas.draw()
+    stage._settle_timer.stop()
+    initial_pose = np.asarray(ax.M).copy()
+    consumed, composed = [], []
+    artist = stage._render_artist
+    make_image, draw_axes = artist.make_image, ax.draw
+    def consume_pixels(*args, **kwargs):
+        marker = int(np.asarray(artist.get_array())[0, 0, 0])
+        consumed.append(poses[marker].copy())
+        return make_image(*args, **kwargs)
+    def compose_axes(*args, **kwargs):
+        result = draw_axes(*args, **kwargs)
+        composed.append(np.asarray(ax.M).copy())
+        return result
+    monkeypatch.setattr(artist, 'make_image', consume_pixels)
+    monkeypatch.setattr(ax, 'draw', compose_axes)
+    ax.view_init(elev=ax.elev + 17, azim=ax.azim + 23, roll=ax.roll)
+    canvas.draw()
+    stage._settle_timer.stop()
+    assert consumed and composed
+    assert not np.array_equal(initial_pose, composed[-1])
+    assert all(np.array_equal(pose, composed[-1]) for pose in consumed), 'FigureImage consumed pixels from a different camera pose than the axes composed in that draw'
+
+
+@pytest.fixture
+def prepaint():
+    from types import SimpleNamespace as NS
+
+    calls = []
+    affine = np.eye(3)
+    ax = NS(_unstale_viewLim=lambda: None, get_axes_locator=lambda: None,
+            apply_aspect=lambda _position: None, get_proj=lambda: np.eye(4),
+            transData=NS(get_affine=lambda: NS(get_matrix=lambda: affine)))
+    figure = NS(get_layout_engine=lambda: None, bbox=NS(bounds=(0, 0, 40, 30)))
+    widget = NS(_spacr_draw_timer=NS(stop=lambda: calls.append('stop')),
+                update=lambda: calls.append('update'), draw_idle=lambda: calls.append('idle'))
+    stage = NS(_panel=NS(canvas=NS(_figure=figure, _canvas=widget)), view='true3d',
+               session=object(), _gl=NS(backend='metal'), _backend_choice='metal',
+               _view_axes=lambda: ax, _view_signature=None,
+               _view_changed=lambda: calls.append('render'))
+    stage._prepaint_axes = lambda f, w: mm._VolumeStage._prepaint_axes(stage, f, w)
+    return stage, figure, widget, ax, calls
+
+
+@pytest.mark.parametrize('kind', ['cpu', 'context_cpu', 'active', 'custom', 'subclass', 'legacy', 'import', 'old_figure', 'old_widget'])
+def test_prepaint_guard_preserves_legacy_draw_and_queue(prepaint, monkeypatch, kind):
+    import builtins
+    from types import SimpleNamespace
+    from matplotlib.layout_engine import PlaceHolderLayoutEngine, TightLayoutEngine
+
+    stage, figure, widget, _ax, calls = prepaint
+    if kind == 'cpu':
+        stage._backend_choice = 'cpu'
+    elif kind == 'context_cpu':
+        stage._gl.backend = 'cpu'
+    elif kind in ('active', 'custom', 'subclass'):
+        class CustomPlaceholder(PlaceHolderLayoutEngine):
+            pass
+        engine = {'active': TightLayoutEngine(), 'custom': object(),
+                  'subclass': CustomPlaceholder(False, False)}[kind]
+        figure.get_layout_engine = lambda: engine
+    elif kind == 'legacy':
+        del figure.get_layout_engine
+    elif kind == 'import':
+        original = builtins.__import__
+        def missing(name, *args, **kwargs):
+            if name == 'matplotlib.layout_engine':
+                raise ImportError('legacy matplotlib')
+            return original(name, *args, **kwargs)
+        monkeypatch.setattr(builtins, '__import__', missing)
+    elif kind == 'old_figure':
+        figure = SimpleNamespace()
+    else:
+        widget = SimpleNamespace()
+    mm._VolumeStage._queue_volume_frame(stage, figure, widget, lambda: calls.append('queue'))
+    mm._VolumeStage._draw_volume_frame(stage, figure, widget, lambda renderer: calls.append(renderer), 'draw')
+    assert calls == ['queue', 'draw']
+
+
+@pytest.mark.parametrize('placeholder', [False, True])
+def test_prepaint_accepts_only_verified_layout_and_resets_suppression(prepaint, placeholder):
+    from matplotlib.layout_engine import PlaceHolderLayoutEngine
+
+    stage, figure, widget, _ax, calls = prepaint
+    if placeholder:
+        figure.get_layout_engine = lambda: PlaceHolderLayoutEngine(False, False)
+    mm._VolumeStage._queue_volume_frame(stage, figure, widget, lambda: calls.append('legacy'))
+    assert widget._draw_pending and calls == ['stop', 'update']
+    mm._VolumeStage._draw_volume_frame(stage, figure, widget, lambda renderer: calls.append(renderer), 'draw')
+    assert calls == ['stop', 'update', 'render', 'draw']
+    assert stage._volume_prepainting is False
+
+
+@pytest.mark.parametrize('error', ['prepare', 'draw', 'gpu'])
+def test_prepaint_error_fallback_and_original_draw_are_not_repeated(prepaint, error):
+    from types import SimpleNamespace
+
+    stage, figure, widget, _ax, calls = prepaint
+    def fail(*_args):
+        raise RuntimeError(error)
+    def draw(renderer):
+        calls.append(renderer)
+        if error == 'draw':
+            fail()
+    if error == 'prepare':
+        stage._view_changed = fail
+    elif error == 'gpu':
+        stage._gl.render = fail
+        stage._render_request = lambda _quality: SimpleNamespace(backend='metal' if stage._gl else 'cpu')
+        stage._gpu_failed = lambda _exc: setattr(stage, '_gl', None)
+        stage._renderer = SimpleNamespace(submit=lambda request: calls.append(request.backend))
+        stage._submit_render = lambda quality: mm._VolumeStage._submit_render(stage, quality)
+        stage._view_changed = lambda: stage._submit_render('interactive')
+    if error == 'draw':
+        with pytest.raises(RuntimeError, match='draw'):
+            mm._VolumeStage._draw_volume_frame(stage, figure, widget, draw, 'draw')
+    else:
+        mm._VolumeStage._draw_volume_frame(stage, figure, widget, draw, 'draw')
+    assert calls.count('draw') == 1 and not stage._volume_prepainting
+    if error == 'prepare':
+        assert figure._spacr_volume_prepaint_disabled and stage._view_signature is None
+    if error == 'gpu':
+        assert stage._gl is None and calls == ['cpu', 'draw']
+
+
+@pytest.mark.parametrize('changed', ['projection', 'affine'])
+def test_prepaint_composition_mismatch_disables_fastpath(prepaint, changed):
+    stage, figure, widget, ax, calls = prepaint
+    def draw(_renderer):
+        matrix = ax.M if changed == 'projection' else ax.transData.get_affine().get_matrix()
+        matrix[0, 0] += 1
+    mm._VolumeStage._draw_volume_frame(stage, figure, widget, draw, None)
+    assert figure._spacr_volume_prepaint_disabled and stage._view_signature is None
+    assert calls == ['render', 'idle']
+
+
+@pytest.mark.parametrize('preparing', [False, True])
+def test_prepaint_suppresses_only_image_requeue_not_image_delivery(prepaint, preparing):
+    from types import SimpleNamespace
+
+    stage, figure, widget, _ax, calls = prepaint
+    artist = SimpleNamespace(set_data=lambda _rgb: calls.append('pixels'))
+    figure.images = [artist]
+    stage._render_artist = artist
+    stage._render_state = SimpleNamespace(rgb=np.zeros((2, 2, 3), np.uint8), rect=(0, 2, 0, 2))
+    stage._volume_prepainting = preparing
+    mm._VolumeStage._show_render(stage)
+    assert calls == (['pixels'] if preparing else ['pixels', 'idle'])
+
+
 def test_axes_and_grid_are_off_by_default_and_toggle(view, qtbot):
     stage = view
     assert not stage._grid_toggle.isChecked()
@@ -231,6 +487,72 @@ def test_shift_drag_pans_the_box_and_reset_view_centres_it(view, qtbot):
     _settle()
     assert stage._pan == (0.0, 0.0)
     assert stage._view_axes().get_position(original=True).x0 == pytest.approx(start)
+
+
+def test_display_translation_invalidates_the_volume_once_without_changing_the_camera():
+    from types import SimpleNamespace
+
+    matrix = np.eye(3)
+    affine = SimpleNamespace(get_matrix=lambda: matrix)
+    ax = SimpleNamespace(M=np.eye(4), transData=SimpleNamespace(get_affine=lambda: affine))
+    figure = SimpleNamespace(bbox=SimpleNamespace(bounds=(0, 0, 600, 400)))
+    calls = []
+    stage = SimpleNamespace(
+        _view_axes=lambda: ax, view='true3d', _view_signature=None,
+        _panel=SimpleNamespace(canvas=SimpleNamespace(_figure=figure)),
+        _view_changed=lambda: calls.append(True))
+    mm._VolumeStage._view_drawn(stage, None)
+    original = stage._view_signature
+    mm._VolumeStage._view_drawn(stage, None)
+    assert len(calls) == 1
+    matrix[0, 2] = 31.0
+    matrix[1, 2] = -17.0
+    mm._VolumeStage._view_drawn(stage, None)
+    assert len(calls) == 2
+    assert stage._view_signature != original
+    mm._VolumeStage._view_drawn(stage, None)
+    matrix[0, 2] += 1e-12
+    mm._VolumeStage._view_drawn(stage, None)
+    assert len(calls) == 2
+    assert np.array_equal(ax.M, np.eye(4))
+
+
+def test_a_panned_frame_matches_independent_current_view_rays_and_pixels(view, qtbot, monkeypatch):
+    stage = view
+    canvas = stage._panel.canvas._canvas
+    canvas.draw()
+    _wait_render(stage, qtbot)
+    before = stage._render_request('preview')
+    matrix = stage._view_axes().M.copy()
+    figure_bounds = tuple(stage._panel.canvas._figure.bbox.bounds)
+    labels = stage.session.mask.copy()
+    requests = []
+    original_request = stage._render_request
+
+    def request(quality):
+        value = original_request(quality)
+        if value is not None:
+            requests.append(value)
+        return value
+
+    monkeypatch.setattr(stage, '_render_request', request)
+    stage._pan_by(23, -13)
+    canvas.draw()
+    _wait_render(stage, qtbot)
+    shown = stage._render_state
+    fresh = original_request(shown.quality)
+    assert np.array_equal(stage._view_axes().M, matrix)
+    assert tuple(stage._panel.canvas._figure.bbox.bounds) == figure_bounds
+    assert fresh.rect != before.rect
+    assert shown.rect == fresh.rect
+    assert requests
+    delivered = next(value for value in reversed(requests) if value.serial == stage._shown_serial)
+    assert delivered.rays == fresh.rays
+    assert delivered.steps == fresh.steps and delivered.lens == fresh.lens
+    rgb, picked = mm._render_volume_view(fresh)
+    assert np.array_equal(shown.rgb, rgb)
+    assert np.array_equal(shown.picked, picked)
+    assert np.array_equal(stage.session.mask, labels)
 
 
 def test_the_slice_plane_is_outlined_and_follows_the_slice(view, monkeypatch):

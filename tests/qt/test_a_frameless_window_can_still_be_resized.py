@@ -46,15 +46,17 @@ def test_installing_it_twice_leaves_one(dialog):
 
 
 @pytest.mark.parametrize("point,expected", [
-    ((1, 100), Qt.Edge.LeftEdge),
-    ((399, 100), Qt.Edge.RightEdge),
-    ((200, 1), Qt.Edge.TopEdge),
-    ((200, 299), Qt.Edge.BottomEdge),
-    ((1, 1), Qt.Edge.LeftEdge | Qt.Edge.TopEdge),
-    ((399, 299), Qt.Edge.RightEdge | Qt.Edge.BottomEdge),
+    ((0, 0.5), Qt.Edge.LeftEdge),
+    ((1, 0.5), Qt.Edge.RightEdge),
+    ((0.5, 0), Qt.Edge.TopEdge),
+    ((0.5, 1), Qt.Edge.BottomEdge),
+    ((0, 0), Qt.Edge.LeftEdge | Qt.Edge.TopEdge),
+    ((1, 1), Qt.Edge.RightEdge | Qt.Edge.BottomEdge),
 ])
 def test_every_edge_and_corner_is_a_grab(dialog, point, expected):
-    assert glass._edges_at(dialog, QPoint(*point)) == expected
+    position = QPoint(round(point[0] * (dialog.width() - 1)),
+                      round(point[1] * (dialog.height() - 1)))
+    assert glass._edges_at(dialog, position) == expected
 
 
 def test_the_middle_is_not_a_grab(dialog):

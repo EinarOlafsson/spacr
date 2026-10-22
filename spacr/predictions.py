@@ -1243,10 +1243,11 @@ def attach_predictions(objects, results, *,
     :param objects: the per-object frame, e.g. `png_list` read back.
     :param results: the score table -- `path`, `pred`, `cv_predictions`, as
         `process_vision_results` and the regression module's score CSVs carry.
-    :returns: ``(frame, matched)`` -- a copy of ``objects`` with the score and
-        class columns added where they joined, and how many rows matched.
-        ``matched`` is 0 when nothing lined up, and the frame comes back
-        without the columns, so a caller can report the count.
+    :returns: ``(frame, matched)`` -- when values join, a copy of ``objects`` with
+        the joined score or class columns and the largest non-missing match
+        count among those columns. With no matched values or no usable join
+        key, ``frame`` is the original ``objects`` unchanged and ``matched``
+        is 0.
     """
     if objects is None or results is None or not len(objects) or not len(results):
         return objects, 0

@@ -147,17 +147,17 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installer med pip i et virtuelt Python-miljø, pip i et Conda-miljø eller conda-forge i et Conda-miljø; start, oppdater og avinstaller.",
+      "description": "Installer spaCR med pip, conda-forge eller Docker; kontroller installasjonen, åpne riktig grensesnitt, oppdater og avinstaller.",
       "objectives": [
-        "Velg én av tre isolerte installasjonsmåter.",
+        "Velge en isolert Python-installasjon eller en container med fast versjon.",
         "Aktiver riktig miljø før installasjon eller oppstart.",
         "Kontroller den installerte versjonen, oppdater og avinstaller trygt."
       ],
-      "prerequisite": "Bruk Python 3.12 for det virtuelle miljøet, eller installer Conda/Miniforge for en av Conda-måtene. Åpne en terminal. Velg andre navn enn navnene på eksisterende miljøer.",
+      "prerequisite": "Bruk Python 3.12 for det virtuelle miljøet, eller installer Conda/Miniforge for en av Conda-måtene. Åpne en terminal. Velg andre navn enn navnene på eksisterende miljøer. For containere installerer du Docker Desktop eller Docker Engine konfigurert for Linux-x86-64-containere.",
       "scenes": [
         {
           "visual": "00_install_routes",
-          "narration": "Velg en installasjonsmåte. Pip installerer spaCR i enten et virtuelt Python-miljø eller et Conda-miljø. Conda-forge installerer i et Conda-miljø; det kan ikke installere pakker i et virtuelt Python-miljø. De tre måtene nedenfor er alternativer, så du trenger bare én.",
+          "narration": "Velg en installasjonsmåte. Pip installerer spaCR i et virtuelt Python-miljø eller et Conda-miljø. Conda-forge installerer spaCR i et Conda-miljø. Docker kjører kommandolinjepipelines i en container. Velg løsningen som passer til hvordan du skal bruke spaCR.",
           "hold_after": 0.7
         },
         {
@@ -177,7 +177,7 @@
         },
         {
           "visual": "pip_04_check",
-          "narration": "Kontroller den installerte versjonen og pakkebanen, og kjør deretter python -m pip check. Ta vare på versjonen sammen med analysenotatene dine. Denne måten installerer den publiserte PyPI-pakken; en utsjekking av kildekoden eller en nightly-versjon kan ha nyere grensesnittfunksjoner.",
+          "narration": "Kontroller den installerte versjonen og pakkebanen, og kjør deretter python -m pip check. Ta vare på versjonen sammen med analysenotatene dine.",
           "hold_after": 0.7
         },
         {
@@ -202,7 +202,7 @@
         },
         {
           "visual": "conda_02_plan",
-          "narration": "Conda viser pakkeplanen før installasjonen. Gjennomgå og godta planen, og la nedlasting og installasjon bli ferdig. Den tilgjengelige conda-forge-versjonen kan være forskjellig fra den nyeste PyPI- eller nightly-versjonen.",
+          "narration": "Conda viser pakkeplanen før installasjonen. Gjennomgå og godta planen, og la nedlasting og installasjon bli ferdig.",
           "hold_after": 0.7
         },
         {
@@ -211,8 +211,28 @@
           "hold_after": 0.7
         },
         {
+          "visual": "docker_01_install",
+          "narration": "Installer Docker Desktop eller Docker Engine etter de offisielle instruksjonene for operativsystemet ditt, og konfigurer Linux-containere. Containeravbildningene til spaCR er for Linux x86-64. Bruk en container til kommandolinjepipelines, og en skrivebordsinstallasjon til det grafiske programmet.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_02_image_check",
+          "narration": "Åpne den offisielle pakkesiden for spaCR-containere og velg en tilgjengelig versjon. Last ned akkurat den CPU-avbildningen og kjør den med spacr --version og spacr-run --list. Kontroller at den viste versjonen samsvarer med den valgte taggen. Ta vare på taggen sammen med analysenotatene dine.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_03_mount_and_run",
+          "narration": "Monter prosjektmappen på /data og modellhurtiglageret på /models. Eksporter pipelineinnstillingene til prosjektmappen, og bruk filstier inne i containeren i innstillingene. Kjør spacr-run med pipeline-navnet og CSV-filen med innstillinger. Skriv resultatene under /data slik at de blir værende i prosjektet når containeren avsluttes. Oppgi bruker-ID og gruppe-ID i Linux slik at utdatafilene tilhører kontoen din.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "docker_04_gpu",
+          "narration": "Installer en støttet driver på vertsmaskinen og NVIDIA Container Toolkit for NVIDIA-behandling, og konfigurer Docker-kjøremiljøet etter den offisielle veiledningen. CUDA 12.4-avbildningen krever vertsdriver versjon 550 eller nyere. Velg den tilsvarende CUDA-avbildningen med fast versjon og legg til --gpus all. CPU-avbildningen trenger verken toolkit eller GPU.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "06_current_home",
-          "narration": "Dette tillegget viser Home i det nåværende nightly-grensesnittet. Den installerte versjonen din kan se annerledes ut. Miljøkommandoene installerer den publiserte pakken fra den valgte kanalen; denne visningen av aktuell kildekode hevder ikke at alle nightly-funksjoner allerede er publisert.",
+          "narration": "Start spaCR fra miljøet du installerte. Home grupperer modulene i Core, Data, Tools og Organism. Velg en modul for å starte arbeidsflyten.",
           "hold_after": 0.7,
           "related_lessons": [
             "05_home"
@@ -371,12 +391,12 @@
         },
         {
           "visual": "14_current_nightly_performance",
-          "narration": "Åpne Preferences i det nåværende nightly-grensesnittet, og velg Performance. Velg en profil for datamaskinen din. Laptop bruker færre ressurser; høyere profiler tillater mer mellomlagring og bakgrunnsarbeid. Start med en moderat profil hvis minnet er begrenset.",
+          "narration": "Åpne Preferences og velg Performance. Velg en profil for datamaskinen din. Laptop bruker færre ressurser; høyere profiler tillater mer mellomlagring og bakgrunnsarbeid. Start med en moderat profil hvis minnet er begrenset.",
           "hold_after": 0.7
         },
         {
           "visual": "13_current_nightly_home",
-          "narration": "Dette opptaket installerer spaCR versjon én punkt fem punkt én punkt tre. Publiserte versjoner kan vise et eldre Home-oppsett. Her vises Home i den nåværende nightly-versjonen, med Core, Data, Tools og Organism. Fortsett med Home screen and navigation for de nåværende modulene.",
+          "narration": "Home grupperer modulene i Core, Data, Tools og Organism. Fortsett til Home screen and navigation for å finne modulen til neste oppgave.",
           "related_lessons": [
             "05_home"
           ],
@@ -384,7 +404,7 @@
         },
         {
           "visual": "05_doctor",
-          "narration": "Kjør spacr-doctor fra det installerte kjøremiljøet hvis oppstart eller et filformat trenger oppmerksomhet. I denne innspilte CPU-installasjonen består backend-kontrollen, og GPU-kontrollen hoppes over. Advarselen sier at den valgfrie CZI-leseren mangler; installer dette tillegget bare hvis du trenger CZI-filer.",
+          "narration": "Kjør spacr-doctor fra det installerte kjøremiljøet hvis oppstart eller et filformat trenger oppmerksomhet. Kontroller backend-resultatet og om GPU-sjekken ble kjørt. Hvis advarselen sier at den valgfrie CZI-leseren mangler, installer tillegget bare hvis du trenger CZI-filer.",
           "hold_after": 0.7
         },
         {
@@ -489,9 +509,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Utforsk Home-oversikten og kategorifanene, lær deretter modulenes felles kontroller med Mask, og tilpass navigasjon, hjelp og utseende.",
+      "description": "Gå gjennom alle modulene i Home fra venstre til høyre, lær felles modulkontroller med Mask og juster navigasjon, hjelp og utseende.",
       "objectives": [
-        "Finn moduler med fanene Home, Core, Data, Tools og Organism.",
+        "Identifisere hver modul på radene Core, Data, Tools og Organism.",
         "Bruke Mask til å kjenne igjen felles innstillinger, forhåndsvisninger, handlinger og resultater.",
         "Gå tilbake til Home, bruke søk og ordne panelene.",
         "Velge innstillinger for utseende og ytelse."
@@ -500,7 +520,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er utgangspunktet. Oversikten grupperer moduler under Core, Data, Tools og Organism. Kategorifanene avgrenser visningen. Hver flis åpner modulen den er oppkalt etter. Sidepanelet gir de samme inngangene, og Home går tilbake til oversikten.",
+          "narration": "Home er utgangspunktet. Les hver rad fra venstre til høyre: Core, Data, Tools og Organism. Hver flis åpner modulen den er oppkalt etter. Sidepanelet gir de samme veiene, og Home returnerer til denne oversikten.",
           "hold_after": 0.7
         },
         {
@@ -581,6 +601,17 @@
           ]
         },
         {
+          "visual": "home_module_embeddings",
+          "narration": "Embeddings koder bildeutsnitt av objekter som numeriske egenskaper for utforskning og sammenligning.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "77_embeddings"
+          ]
+        },
+        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare samler lagrede resultater fra kjøringer, slik at du kan undersøke forskjeller.",
           "hold_after": 0.7,
@@ -592,6 +623,17 @@
           ]
         },
         {
+          "visual": "home_module_experiment_design",
+          "narration": "Experiment Design definerer betingelser, platebrønner og prøveidentiteter før et eksperiment.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "experiment_design"
+          ],
+          "related_lessons": [
+            "67_experiment_design"
+          ]
+        },
+        {
           "visual": "home_module_power",
           "narration": "Power / Design undersøker antakelser om utvalgsstørrelse og statistisk styrke ved planlagte sammenligninger.",
           "hold_after": 0.7,
@@ -600,6 +642,28 @@
           ],
           "related_lessons": [
             "68_power_design"
+          ]
+        },
+        {
+          "visual": "home_module_dose_response",
+          "narration": "Dose Response tilpasser kurver til responsene ved ulike konsentrasjoner og holder valgt endepunkt og kontrollene tydelige.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "dose_response"
+          ],
+          "related_lessons": [
+            "69_dose_response"
+          ]
+        },
+        {
+          "visual": "home_module_qc_dashboard",
+          "narration": "QC lister opp prosjektets lagrede kvalitetsrapporter og markerer dem som mangler.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "54_qc_dashboard"
           ]
         },
         {
@@ -633,6 +697,17 @@
           ],
           "related_lessons": [
             "15_image_umap"
+          ]
+        },
+        {
+          "visual": "home_module_gate_editor",
+          "narration": "Gate Editor definerer utvalg i reelle datakolonner. Se gjennom de valgte objektene før et utvalg gjøres om til etiketter.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "gate_editor"
+          ],
+          "related_lessons": [
+            "64_gate_editor"
           ]
         },
         {
@@ -776,7 +851,7 @@
         },
         {
           "visual": "13e_session_updates",
-          "narration": "På fanen Modules bestemmer Session om spaCR åpner siste modul, innstillinger og mappe igjen ved oppstart; dette opptaket starter på nytt. Update channel velger stabile utgivelser eller nattlige bygg, og med Proxy og Certificate bundle fungerer nedlastinger bak en institusjonell proxy.",
+          "narration": "På fanen Modules bestemmer Session om spaCR åpner forrige modul, innstillingene og mappen igjen ved oppstart. Update channel velger stabile utgivelser eller nattlige bygg, og med Proxy og Certificate bundle fungerer nedlastinger bak en institusjonell proxy.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -806,6 +881,11 @@
             1200,
             1500
           ]
+        },
+        {
+          "visual": "24_spaceout_field",
+          "narration": "I Spaceout-modus har Preferences spaCR-feltkontroller for åtte uavhengige effekter. Slå hver effekt på eller av separat. Vanlige kontroller for utseende og animasjon av innstillingsvinduet er fortsatt tilgjengelige; Apply forhåndsviser en endring, Keep godtar den og Revert gjenoppretter forrige valg.",
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -1091,7 +1171,7 @@
         },
         {
           "visual": "run_20_batch_settings",
-          "narration": "For en rask første kjøring peker dette opptaket Source mot sentrerte utsnitt av to eksempelfelt; med dine egne data slår du heller på Test mode og velger noen få testbilder. La Plot være på, sjekk diameter og flytterskler per objekt, la Save under Quality Control være på, og klikk så Run.",
+          "narration": "For en rask første kjøring bruker du bildeutsnitt fra midten av to eksempelsynsfelt som Source. Slå på Test mode og velg noen testbilder når du bruker egne data. La Plot være på, sjekk diameter og flytterskler per objekt, la Save under Quality Control være på, og klikk så Run.",
           "hold_after": 0.7
         },
         {
@@ -3241,7 +3321,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For en fullstendig kjøring på egne bilder angir du Source og intensitetskanalene i Mask. Dette opptaket importerer innstillingene for en liten syntetisk sekvens med åtte bilderammer. Hold tidspunktene for hvert synsfelt i rekkefølge. Bilderammegrenser bruker en start og en utelukket slutt: 0 til 8 velger de første åtte bilderammene.",
+          "narration": "For en fullstendig kjøring på egne bilder angir du Source og intensitetskanalene i Mask. Her importerer du innstillingene for det lille syntetiske eksemplet med åtte bilder. Hold tidspunktene for hvert synsfelt i rekkefølge. Bilderammegrenser bruker en start og en utelukket slutt: 0 til 8 velger de første åtte bilderammene.",
           "hold_after": 0.7,
           "focus": [
             340,

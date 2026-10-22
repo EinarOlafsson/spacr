@@ -43,3 +43,34 @@ def test_valid_metadata_does_not_hide_changed_authored_fields(field):
     else:catalog['scenes'][0]['visual']='another_action'
     with pytest.raises(ValueError,match='Staged English differs'):
         reconcile_english_catalog(catalog,english,inventory)
+
+
+def test_retained_bound_complete_voice_sets_accept_original_order():
+    english=source();inventory=matrix();catalog=deepcopy(english)
+    catalog['narration_voices']={language:list(reversed(voices)) for language,voices in inventory.items()}
+    before=deepcopy(catalog)
+    reconcile_english_catalog(catalog,english,inventory,retained_narration=True)
+    assert catalog==before and 'narration_voices' not in english
+
+
+@pytest.mark.parametrize('mutation',['missing_declaration','missing_voice','unknown_voice','duplicate_voice','missing_language','not_a_matrix'])
+def test_retained_english_rejects_incomplete_or_malformed_matrix(mutation):
+    english=source();inventory=matrix();catalog=deepcopy(english);declared=deepcopy(inventory)
+    if mutation=='missing_declaration':pass
+    else:
+        if mutation=='missing_voice':declared['en'].pop()
+        elif mutation=='unknown_voice':declared['en'][0]='invented_voice'
+        elif mutation=='duplicate_voice':declared['en'][-1]=declared['en'][0]
+        elif mutation=='missing_language':declared.pop('en')
+        else:declared=list(declared)
+        catalog['narration_voices']=declared
+    with pytest.raises(ValueError,match='fifty-voice matrix'):
+        reconcile_english_catalog(catalog,english,inventory,retained_narration=True)
+
+
+def test_retained_complete_voice_sets_do_not_hide_authored_change():
+    english=source();inventory=matrix();catalog=deepcopy(english)
+    catalog['narration_voices']={language:list(reversed(voices)) for language,voices in inventory.items()}
+    catalog['scenes'][0]['narration']='Changed words.'
+    with pytest.raises(ValueError,match='Staged English differs'):
+        reconcile_english_catalog(catalog,english,inventory,retained_narration=True)
