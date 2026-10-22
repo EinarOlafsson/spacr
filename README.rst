@@ -144,13 +144,13 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Windows-Online-Setup.exe"><img src="docs/readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.5 for Windows 10/11"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="docs/readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.6 for Windows 10/11"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-macOS-Universal-Online.pkg"><img src="docs/readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.5 for macOS 11+ (Intel and Apple silicon)"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="docs/readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.6 for macOS 11+ (Intel and Apple silicon)"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run"><img src="docs/readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.5 for 64-bit Linux"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="docs/readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.6 for 64-bit Linux"></a>
 
 .. spacr-installer-links-end
 

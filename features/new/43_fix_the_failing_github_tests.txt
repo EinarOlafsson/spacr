@@ -4345,3 +4345,5 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 
 2026-10-22: Added real-workflow coverage for absent FAISS fallback, numeric AnnData parent stamping, atomic simulation rollback/retry, and empty font-discovery flag restoration.
 2026-10-22: Five focused controls pass; simulation rollback also has a failing negative control. Runtime code and ratchet ceilings are unchanged; remaining hosted failures and strict scientific separation stay open.
+
+2026-10-22 — release_ci_takeover owns Night network119865494809 prepared-installer failure: align normal version preparation with accepted Main canonical all-ten installer projection, source-before-render ordering and verified same-version freshness. Preserve strict published archive/site audit and translations; normal preparation updated all ten 1.5.1.6 link blocks; 19 owning controls plus final real lean/no-write and actual network audit pass (2.97 s), with independent source peer. Root owns publication; Main already has the accepted preparation logic.
