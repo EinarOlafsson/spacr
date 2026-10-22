@@ -111,6 +111,22 @@ def test_lock_pins_skip_options_comments_and_markers(builder, tmp_path):
     assert not builder._have_wheel("numpy==2.2.0", wheels)
 
 
+@pytest.mark.parametrize("settings_name", ["gen_mask_settings.csv", "gen_masks_settings.csv"])
+def test_bundled_mask_settings_accept_the_published_example_name(builder, tmp_path, settings_name):
+    source, destination = tmp_path / "source", tmp_path / "bundle"
+    (source / "settings").mkdir(parents=True)
+    settings = b"key,value\ncell_model_name,cpsam\n"
+    (source / "settings" / settings_name).write_bytes(settings)
+    names = [f"plate1_E01_T0001F00{field}L01A0{channel}Z01C0{channel}.tif"
+             for field in (1, 2) for channel in (1, 2)]
+    for name in names:
+        (source / name).write_bytes(b"example image")
+    assert builder.copy_test_data(source, destination, 1) == 2
+    assert sorted(path.name for path in destination.glob("*.tif")) == names[:2]
+    assert (destination / "settings" / "gen_mask_settings.csv").read_bytes() == settings
+    assert (source / "settings" / settings_name).read_bytes() == settings
+
+
 def test_test_data_keeps_whole_fields(builder, tmp_path):
     names = [f"plate1_E01_T0001F00{f}L01A0{c}Z01C0{c}.tif"
              for f in (1, 2, 3) for c in (1, 2, 3)]

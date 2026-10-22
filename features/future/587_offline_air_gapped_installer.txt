@@ -133,3 +133,6 @@ FRESH LINUX OFFLINE ACCEPTANCE (2026-10-02)
     Receipt: features/data/587_linux_offline_acceptance_2026-10-02.json.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); it is a CLI/bundle with no GUI, so nothing needs an alpha registry entry.
+
+2026-10-21 — Codex Windows lane resumes native CPU bundle build and install/CheckMask acceptance on disposable roots. Verify real bundled example data and weights; network-disabled acceptance remains required and Linux's accepted scope is preserved.
+2026-10-21 - Native preparation reproduced a real published-data mismatch: Mask examples contain gen_masks_settings.csv, while the builder required gen_mask_settings.csv. Accept either input name and retain the canonical bundled filename; validate both plus whole-field copying before continuing the real bundle build.
