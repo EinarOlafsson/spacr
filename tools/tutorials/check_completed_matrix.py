@@ -82,13 +82,26 @@ def reconcile_browser(report, lesson, language, voice, caption, audio_hash, scen
         raise ValueError('Invalid or unsynchronised browser clocks')
 
 
-def reconcile_english_catalog(translated, english, inventory):
+def reconcile_english_catalog(translated, english, inventory, *, retained_narration=False):
     """Allow only the normal complete planned-voice declaration as metadata."""
     compared, authored = dict(translated), dict(english)
+    if retained_narration and 'narration_voices' not in compared:
+        raise ValueError('Retained English needs its bound fifty-voice matrix')
     for item in (compared, authored):
         if 'narration_voices' in item:
             declared = item.pop('narration_voices')
-            if not isinstance(declared, dict) or declared != inventory:
+            if retained_narration:
+                # The caller has already checked immutable published catalogs,
+                # all source tracks and exact current canonical lesson bytes.
+                valid = (isinstance(declared, dict) and set(declared) == set(inventory)
+                    and all(isinstance(voices, list)
+                            and all(isinstance(voice, str) for voice in voices)
+                            and len(voices) == len(set(voices))
+                            and set(voices) == set(inventory[language])
+                            for language, voices in declared.items()))
+            else:
+                valid = isinstance(declared, dict) and declared == inventory
+            if not valid:
                 raise ValueError('English planned voices differ from the normal fifty-voice matrix')
     if compared != authored:
         raise ValueError('Staged English differs from the rendered lesson')
@@ -174,7 +187,7 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             raise ValueError('Catalog identity or scene count differs')
         translated = matches[0]
         if language == 'en':
-            reconcile_english_catalog(translated, english, inventory)
+            reconcile_english_catalog(translated, english, inventory, retained_narration=retained_narration)
         elif not retained_narration:
             review = read(folder / f'review.{language}.json')
             if (review.get('english_sha256') != canonical or review.get('lesson') != lesson_id
