@@ -14,7 +14,7 @@ which is every wheel built before the generator ran.
 
 import pytest
 from PySide6.QtCore import QRect
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QMainWindow
 
 from spacr.qt import app as qt_app
 
@@ -31,7 +31,7 @@ class _Screen:
 
 @pytest.fixture
 def window(qtbot):
-    widget = QWidget()
+    widget = QMainWindow()
     qtbot.addWidget(widget)
     widget.resize(1200, 720)
     return widget
