@@ -2522,7 +2522,10 @@ def _translation_rejection_reasons(
         source_text, candidate, language, force=force,
     ):
         failures.add("target_script")
-    if _semantic_false_friends(source_text, candidate, language):
+    if (
+        candidate != raw_value
+        and _semantic_false_friends(source_text, candidate, language)
+    ):
         failures.add("semantic")
     if (
         language == "zh_CN"
