@@ -5980,11 +5980,13 @@ def _flow_compute_idle():
                     continue
                 if not isinstance(pid, int) or pid <= 0:
                     return False
+                proc_metadata_available = True
                 try:
                     executable = Path(f"/proc/{pid}/exe").readlink()
                     browser = executable.name.removesuffix(" (deleted)")
                 except OSError:
                     browser = ""
+                    proc_metadata_available = False
                 if browser in ("chrome", "chromium", "chromium-browser",
                                "google-chrome", "google-chrome-stable"):
                     continue
@@ -5993,7 +5995,26 @@ def _flow_compute_idle():
                     if b"--type=gpu-process" in arguments:
                         continue
                 except OSError:
-                    pass
+                    proc_metadata_available = False
+                if not proc_metadata_available:
+                    import ntpath
+                    import psutil
+
+                    process_info = psutil.Process(pid)
+                    try:
+                        browser = ntpath.basename(process_info.exe()).removesuffix(" (deleted)")
+                        if browser.casefold().endswith(".exe"):
+                            browser = browser[:-4].casefold()
+                    except (OSError, psutil.Error):
+                        browser = ""
+                    if browser in ("chrome", "chromium", "chromium-browser",
+                                   "google-chrome", "google-chrome-stable"):
+                        continue
+                    try:
+                        if "--type=gpu-process" in process_info.cmdline():
+                            continue
+                    except (OSError, psutil.Error):
+                        pass
                 return False
         return True
     except Exception:

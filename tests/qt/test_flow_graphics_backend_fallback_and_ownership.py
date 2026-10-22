@@ -158,7 +158,21 @@ def _mock_compute_process_metadata(monkeypatch, metadata):
         return SimpleNamespace(readlink=lambda: Path(read("exe")),
                                read_bytes=lambda: read("cmdline"))
 
+    def portable_process(pid):
+        entry = metadata.get(pid, {})
+
+        def read(key):
+            value = entry.get(key)
+            if value is None:
+                raise PermissionError(pid)
+            return value
+
+        return SimpleNamespace(exe=lambda: read("portable_exe"),
+                               cmdline=lambda: read("portable_cmdline"))
+
     monkeypatch.setattr(ambient, "Path", proc_path)
+    monkeypatch.setitem(__import__("sys").modules, "psutil",
+                        SimpleNamespace(Process=portable_process, Error=OSError))
 
 
 @pytest.fixture
@@ -390,3 +404,31 @@ def test_compute_monitor_requires_the_exact_graphics_argument(
 def test_compute_monitor_still_refuses_real_or_unknown_compute(
         compute_query, processes, metadata):
     assert compute_query(processes, metadata) is False
+
+
+@pytest.mark.parametrize("metadata,idle", [
+    ({"portable_exe": r"C:\Program Files\Google\Chrome\Application\chrome.exe"}, True),
+    ({"portable_exe": r"C:\Program Files\Google\Chrome\Application\CHROME.EXE"}, True),
+    ({"portable_exe": "/opt/browser/chromium (deleted)"}, True),
+    ({"portable_exe": r"C:\Browser\helper.exe",
+      "portable_cmdline": ["helper.exe", "--type=gpu-process"]}, True),
+    ({"portable_cmdline": ["helper.exe", "--type=gpu-process"]}, True),
+    ({"portable_exe": r"C:\Python\python.exe",
+      "portable_cmdline": ["python.exe", "train.py"]}, False),
+    ({"portable_exe": r"C:\Browser\chrome.exe.backup",
+      "portable_cmdline": ["helper.exe", "--type=gpu-process-extra"]}, False),
+    ({"portable_exe": r"C:\Python\python.exe",
+      "portable_cmdline": ["python.exe", "--file=chrome"]}, False),
+    ({}, False),
+])
+def test_compute_monitor_uses_portable_metadata_without_proc(
+        compute_query, metadata, idle):
+    assert compute_query([424242], {424242: metadata}) is idle
+
+
+def test_portable_browser_does_not_hide_a_real_compute_process(compute_query):
+    assert compute_query([424242, 424243], {
+        424242: {"portable_exe": r"C:\Browser\chrome.exe"},
+        424243: {"portable_exe": r"C:\Python\python.exe",
+                 "portable_cmdline": ["python.exe", "train.py"]},
+    }) is False
