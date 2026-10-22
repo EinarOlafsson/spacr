@@ -154,9 +154,16 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
         from retain_narration import retained_sources
         from stage_lesson import REPO
         original = Path(retained_from) if retained_from is not None else Path(renderer).resolve().parents[1]
-        retention = retained_sources(stage, original,
-            Path(baseline) if baseline is not None else REPO / 'docs/source/_extra/tutorials/catalog', lesson_id, inventory,
-            require_staged=True)
+        from published_retained_narration import RECORD, checked_published_narration
+        if (folder / RECORD).exists() or (folder / RECORD).is_symlink():
+            if retained_from is not None:
+                raise ValueError('Published retention has its own immutable source, not retained-from')
+            checked_published_narration(stage, lesson_id)
+            retention = read(folder / RECORD)
+        else:
+            retention = retained_sources(stage, original,
+                Path(baseline) if baseline is not None else REPO / 'docs/source/_extra/tutorials/catalog', lesson_id, inventory,
+                require_staged=True)
     expected = {(language, voice) for language, voices in inventory.items() for voice in voices}
     hashes = {key: digest(folder / 'audio' / key[0] / (key[1] + '.m4a')) for key in expected}
     for language in [*inventory, *CAPTION_LANGUAGES]:

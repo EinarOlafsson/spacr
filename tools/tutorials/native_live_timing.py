@@ -61,7 +61,14 @@ def complete_native_duration(receipt, fps):
 
 
 def verified_narration_tracks(stage, identity, english):
-    """Validate the same complete current voice policy for either visual source."""
+    """Validate fresh tracks, or explicitly bound immutable published narration."""
+    from published_retained_narration import RECORD, checked_published_narration
+    record = Path(stage) / 'production' / identity / RECORD
+    if record.exists() or record.is_symlink():
+        tracks, proofs = checked_published_narration(stage, identity)
+        if english != read(Path(stage) / 'production' / identity / 'lesson.en.json'):
+            raise ValueError('Retained narration canonical English changed')
+        return tracks, proofs
     sys.path.insert(0, str(Path(__file__).resolve().parent / 'authoring/tools'))
     from render_all_voices import (LANGUAGES, narration_dialect, prepare_scene_plans,
                                   resolve_voice_speed, track_fingerprint)

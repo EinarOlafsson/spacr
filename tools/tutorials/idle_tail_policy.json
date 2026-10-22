@@ -1033,6 +1033,104 @@
           "idle_tail_start": 2.0
         }
       ]
+    },
+    {
+      "lesson": "49_methods_results",
+      "master_sha256": "77014189b615951b2e09ad15928baa915737813db9e93d17c2c95373480ca45f",
+      "visual_timing_sha256": "2b21374865886a3f89c9156e818333a5186ae79ec0f1bb3403c07c99474d4b2b",
+      "scenes": [
+        {
+          "visual": "01_regression_methods_host",
+          "source_start": 0.0,
+          "source_end": 22.066666666666666,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "03_actual_deterministic_methods",
+          "source_start": 85.93333333333334,
+          "source_end": 108.53333333333333,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "04_actual_seed_caveat",
+          "source_start": 108.53333333333333,
+          "source_end": 134.5,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "05_digest_run_record",
+          "source_start": 134.5,
+          "source_end": 156.6,
+          "idle_tail_start": 7.0
+        },
+        {
+          "visual": "06_zero_significant_genes_and_ranked_candidates",
+          "source_start": 156.6,
+          "source_end": 183.53333333333333,
+          "idle_tail_start": 7.9
+        },
+        {
+          "visual": "07_copy_sections_is_not_scientific_approval",
+          "source_start": 183.53333333333333,
+          "source_end": 207.06666666666666,
+          "idle_tail_start": 4.3
+        },
+        {
+          "visual": "09_actual_export_completed_not_approved",
+          "source_start": 233.83333333333331,
+          "source_end": 261.76666666666665,
+          "idle_tail_start": 5.2
+        }
+      ]
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "master_sha256": "529086bb8654bcf1189d81e6bc4b7b3ac66b371b2869e4b6f7b27189fe66d722",
+      "visual_timing_sha256": "48f4116a5dd9f57664fb571d7f209125fbb4d94a134f78576ed03f5b22068a5a",
+      "scenes": [
+        {
+          "visual": "home",
+          "source_start": 0.0,
+          "source_end": 42.03333333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "module_mask",
+          "source_start": 42.03333333333333,
+          "source_end": 81.63333333333333,
+          "idle_tail_start": 14.5
+        },
+        {
+          "visual": "module_measure",
+          "source_start": 81.63333333333333,
+          "source_end": 125.1,
+          "idle_tail_start": 17.5
+        },
+        {
+          "visual": "module_annotate",
+          "source_start": 125.1,
+          "source_end": 167.63333333333333,
+          "idle_tail_start": 13.0
+        },
+        {
+          "visual": "module_classify_merged",
+          "source_start": 167.63333333333333,
+          "source_end": 210.33333333333331,
+          "idle_tail_start": 14.5
+        },
+        {
+          "visual": "module_regression",
+          "source_start": 289.59999999999997,
+          "source_end": 339.7,
+          "idle_tail_start": 15.5
+        },
+        {
+          "visual": "home_summary",
+          "source_start": 339.7,
+          "source_end": 376.96666666666664,
+          "idle_tail_start": 5.3
+        }
+      ]
     }
   ]
 }
