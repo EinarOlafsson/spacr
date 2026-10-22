@@ -1,0 +1,27 @@
+================================================================================
+APPLY THE PLAQUE FIGURE VIEW MODE TO THE SELECTED SINGLE WELL
+================================================================================
+
+Status:    PLANNED 2026-10-22 — requested behavior, not implemented acceptance
+Requested: maintainer, 2026-10-22
+Owner:     Plaque-assay implementation lane — end-to-end implementation pending
+Related:   468 plaque/figure modes; 524 segmentation views; 720 PDF Live opening
+
+REQUEST
+In Plaque Assay Figure mode, the chosen view (Overlay, Masks, Flows, Cell
+probability, and any other supported view) must also apply to the selected
+single-well image, rather than changing only the full-figure display.
+
+ACCEPTANCE
+- Selecting a view updates both the figure display and the single-well image
+  using the selected well's actual image, masks, flows or probability data.
+- Changing the selected well preserves the chosen view and displays that well's
+  corresponding data; a previous well's pixels must not remain visible.
+- Missing segmentation outputs use the existing truthful empty/unavailable
+  state instead of silently showing an unrelated view or stale data.
+- Preserve single-well selection, segmentation, zoom and existing figure views.
+  Focused tests cover view switching, switching wells and unavailable outputs.
+- Route any new user strings through translation and regenerate affected outputs
+  with their normal tools. Publish implementation only after related checks pass.
+
+2026-10-22 — Registered before implementation; extends item 524's full-figure views to the selected single-well image.
