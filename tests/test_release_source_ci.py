@@ -212,11 +212,21 @@ def test_a_green_run_cannot_hide_a_missing_or_skipped_compatibility_cell(github,
         require(github)
 
 
-def test_existing_informational_failures_remain_informational(github):
-    for job in github.jobs(github.records["compat-matrix.yml"][0]):
-        if not COMPATIBILITY[job["name"]]:
+def test_existing_informational_failures_remain_informational(github, capsys):
+    run = github.records["compat-matrix.yml"][0]
+    jobs = github.jobs(run)
+    optional = {name for name, blocking in COMPATIBILITY.items() if not blocking}
+    assert len(optional) == 3
+    for job in jobs:
+        if job["name"] in optional:
             job["conclusion"] = "failure"
+    states = {job["name"]: (job["status"], job["conclusion"]) for job in jobs}
     require(github)
+    assert {job["name"]: (job["status"], job["conclusion"])
+            for job in github.jobs(run)} == states
+    assert github.dispatches == []
+    assert (f"Accepted compat-matrix.yml run {run['id']} attempt {run['run_attempt']} "
+            f"for {SHA}") in capsys.readouterr().out
 
 
 def test_a_new_failure_invalidates_an_earlier_acceptance_while_other_ci_is_live(github):
