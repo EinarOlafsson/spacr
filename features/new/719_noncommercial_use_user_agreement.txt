@@ -1,0 +1,27 @@
+NONCOMMERCIAL USE POLICY AND USER AGREEMENT
+
+Status:    PLANNED — item registration only; policy and license unchanged
+Requested: maintainer — add an item to prohibit commercial use
+Owner:     Maintainer and policy implementation owner
+
+REQUIREMENTS
+Draft a prohibition on commercial use of spaCR. Explicitly define commercial
+use and its scope, including organizational use, paid services, redistribution
+and any proposed exceptions or separate permissions.
+
+Review consistency across the user agreement, package LICENSE, distribution
+metadata and third-party terms. Resolve compatibility and scope with an
+appropriate legal review before shipping; do not claim that adding agreement
+wording alone changes existing licenses or previously granted rights.
+
+After approval, apply a versioned policy through startup and installer consent,
+record the accepted version, update all supported translations and relevant
+documentation, and test consent/version handling and packaged policy consistency.
+
+ACCEPTANCE
+Commercial scope and legal compatibility are reviewed and approved before policy
+publication. Agreement, licensing/distribution choices, consent flows, translated
+text and tests are consistent. Registration of this item does not authorize
+changing the current agreement, LICENSE or published distribution terms.
+
+2026-10-22 — Registered the maintainer's requested noncommercial-policy work; implementation and legal compatibility review remain pending.

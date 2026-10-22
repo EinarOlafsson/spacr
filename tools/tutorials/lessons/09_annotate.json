@@ -154,7 +154,7 @@
     },
     {
       "visual": "19_labels_for_suggest",
-      "narration": "Suggest proposes labels for the crops you have not answered yet, so first give it examples of both classes from several wells. Here a few crops of each class are labelled in four wells, then Next saves them.",
+      "narration": "Suggest proposes labels for the crops you have not answered yet, so first give it examples of both classes from several wells. Here a few crops of each class are labelled in three wells, then Next saves them.",
       "focus": [
         360,
         380,
@@ -166,7 +166,7 @@
     },
     {
       "visual": "20_suggestions",
-      "narration": "Open Suggest and choose Suggest for the images on this page. The round takes a few seconds, and every crop on the page now wears a question-mark badge. The bar above the grid counts how many suggestions are left to judge.",
+      "narration": "Open Suggest and choose Suggest for the images on this page. The round takes a few seconds, and the unlabelled crops on the page now wear question-mark badges. The bar above the grid counts how many suggestions are left to judge.",
       "focus": [
         350,
         250,
@@ -177,7 +177,7 @@
     },
     {
       "visual": "21_judged",
-      "narration": "Click a suggested crop or press Y to confirm it, and right-click it or press N to reject it. Both answers are recorded, rejections train the next round, and Confirm the rest of the page settles what is left once you have checked it.",
+      "narration": "Click a suggested crop or press Y to confirm it, and right-click it or press N to reject it. Both answers remain pending until Next saves them; rejections train the next round, and Confirm the rest of the page settles what is left once you have checked it.",
       "focus": [
         350,
         250,

@@ -1149,6 +1149,261 @@
           "idle_tail_start": 5.3
         }
       ]
+    },
+    {
+      "lesson": "32_align_stitch",
+      "master_sha256": "b58bed5f2fa480b5c717f6679c25db725c355ca42fec0fb78585847ef75b56fb",
+      "visual_timing_sha256": "3c2d66616116f8795c9cb6f514d15fb0d283b3eb59e0802f221b9ef07e9f5acd",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 17.2,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "02_preserved_real_pixel_tiles",
+          "source_start": 17.2,
+          "source_end": 38.43333333333333,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "02b_align_test_data_loaded",
+          "source_start": 38.43333333333333,
+          "source_end": 69.8,
+          "idle_tail_start": 11.5
+        },
+        {
+          "visual": "03_actual_layout_and_budget",
+          "source_start": 69.8,
+          "source_end": 126.3,
+          "idle_tail_start": 10.6
+        },
+        {
+          "visual": "03_actual_layout_and_budget",
+          "source_start": 126.3,
+          "source_end": 148.6,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "03_actual_layout_and_budget",
+          "source_start": 148.6,
+          "source_end": 173.73333333333332,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "04_registered_plan_not_yet_written",
+          "source_start": 173.73333333333332,
+          "source_end": 203.1,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "05_actual_tile_detail",
+          "source_start": 203.1,
+          "source_end": 225.66666666666666,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "05_actual_tile_detail",
+          "source_start": 225.66666666666666,
+          "source_end": 248.23333333333332,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "06_real_stitch_complete",
+          "source_start": 248.23333333333332,
+          "source_end": 272.6666666666667,
+          "idle_tail_start": 7.0
+        }
+      ]
+    },
+    {
+      "lesson": "08_measure",
+      "master_sha256": "89bb5e7cd5860abce333371b73dcd6bd7a33d52241cb412fbaaa9cc44ebee3d0",
+      "visual_timing_sha256": "bbaccabb875779f3644067256e35471a5fe5a5f22dc59cb709367fb95c8b7f1a",
+      "scenes": [
+        {
+          "visual": "preview_03_data_ready",
+          "source_start": 0.0,
+          "source_end": 39.96666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "preview_03_data_ready",
+          "source_start": 39.96666666666667,
+          "source_end": 79.93333333333334,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "preview_04_preview_normalization_setup",
+          "source_start": 79.93333333333334,
+          "source_end": 107.8,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "preview_05_live_all_channels",
+          "source_start": 107.8,
+          "source_end": 124.46666666666667,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "preview_06_live_channel_zero",
+          "source_start": 124.46666666666667,
+          "source_end": 146.5,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "preview_07_live_second_field",
+          "source_start": 146.5,
+          "source_end": 165.76666666666668,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "preview_07c_checked_two_fields",
+          "source_start": 165.76666666666668,
+          "source_end": 197.96666666666667,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "09a_qc_popup",
+          "source_start": 197.96666666666667,
+          "source_end": 236.63333333333333,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "09b_image_preprocessing",
+          "source_start": 236.63333333333333,
+          "source_end": 269.93333333333334,
+          "idle_tail_start": 14.0
+        },
+        {
+          "visual": "preview_08_saved_normalization_restored",
+          "source_start": 269.93333333333334,
+          "source_end": 300.3333333333333,
+          "idle_tail_start": 11.0
+        },
+        {
+          "visual": "tpl_31_template_save_name",
+          "source_start": 300.3333333333333,
+          "source_end": 322.9,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "tpl_33_templates_imported",
+          "source_start": 322.9,
+          "source_end": 337.6333333333333,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "tpl_35_templates_renamed",
+          "source_start": 337.6333333333333,
+          "source_end": 351.93333333333334,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "tpl_37_change_shortcuts",
+          "source_start": 351.93333333333334,
+          "source_end": 374.1,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "batch_20_batch_settings",
+          "source_start": 374.1,
+          "source_end": 406.56666666666666,
+          "idle_tail_start": 15.5
+        },
+        {
+          "visual": "batch_25_measure_figure_02",
+          "source_start": 406.56666666666666,
+          "source_end": 439.06666666666666,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "batch_21_ram_guard",
+          "source_start": 439.06666666666666,
+          "source_end": 478.06666666666666,
+          "idle_tail_start": 9.0
+        }
+      ]
+    },
+    {
+      "lesson": "55_image_scatter",
+      "master_sha256": "415e5be05612bb883d53bf8d272d59b621be4a0cf6a64b0b4501e1a3fef8cec9",
+      "visual_timing_sha256": "34eba8df5ce8bc4c107e83e09b379242a34605b8b87bcc6489bba0332cfc8903",
+      "scenes": [
+        {
+          "visual": "01_image_umap_host",
+          "source_start": 0.0,
+          "source_end": 21.033333333333335,
+          "idle_tail_start": 6.2
+        },
+        {
+          "visual": "03_choose_real_measurements",
+          "source_start": 21.033333333333335,
+          "source_end": 36.93333333333333,
+          "idle_tail_start": 4.566666666666666
+        },
+        {
+          "visual": "04_choose_cell_not_children",
+          "source_start": 36.93333333333333,
+          "source_end": 53.1,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "05_real_measurement_scatter",
+          "source_start": 53.1,
+          "source_end": 65.0,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "06_genuine_large_cell_preview",
+          "source_start": 65.0,
+          "source_end": 84.73333333333333,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "08_cached_same_cell",
+          "source_start": 84.73333333333333,
+          "source_end": 98.4,
+          "idle_tail_start": 4.3
+        },
+        {
+          "visual": "09_swapped_raw_axes",
+          "source_start": 98.4,
+          "source_end": 109.5,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "11_missing_texture_not_plotted",
+          "source_start": 109.5,
+          "source_end": 125.76666666666667,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "12_constant_axis_is_centred",
+          "source_start": 125.76666666666667,
+          "source_end": 140.66666666666666,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "16_real_annotate_grid",
+          "source_start": 140.66666666666666,
+          "source_end": 160.46666666666667,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "17c_native_point_click_target",
+          "source_start": 160.46666666666667,
+          "source_end": 182.8,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "18_verified_clicked_cell_in_annotate",
+          "source_start": 182.8,
+          "source_end": 199.83333333333334,
+          "idle_tail_start": 6.5
+        }
+      ]
     }
   ]
 }
