@@ -6,6 +6,8 @@
 #   * when several GPU jobs are queued, leave 10 minutes between them, so
 #     another session gets a chance at the card in the gap;
 #   * tell the other sessions what is running.
+# Native Windows uses gpu_turn.ps1, GPU Engine counters, and a shared
+# ProgramData queue with a global mutex; the same idle/gap defaults apply.
 #
 # "Idle" means no CUDA compute process on any GPU. The desktop (Xorg,
 # gnome-shell, browsers) always holds graphics contexts and keeps the
@@ -25,6 +27,18 @@
 #
 # Tunables (seconds): GPU_IDLE_S (360), GPU_GAP_S (600), GPU_POLL_S (15).
 set -uo pipefail
+
+case "${OSTYPE:-}" in
+    msys*|cygwin*)
+        windows_gpu_script="${BASH_SOURCE[0]//\\//}"
+        if [[ "$OSTYPE" == cygwin* ]]; then
+            windows_gpu_script=$(cygpath -w "$windows_gpu_script") || exit 1
+            windows_gpu_script="${windows_gpu_script//\\//}"
+        fi
+        exec "${SYSTEMROOT:-C:/Windows}/System32/WindowsPowerShell/v1.0/powershell.exe" \
+            -NoProfile -ExecutionPolicy Bypass -File "${windows_gpu_script%/*}/gpu_turn.ps1" "$@"
+        ;;
+esac
 
 IDLE_S=${GPU_IDLE_S:-360}
 GAP_S=${GPU_GAP_S:-600}
