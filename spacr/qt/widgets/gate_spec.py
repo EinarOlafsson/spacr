@@ -2546,10 +2546,14 @@ def _mesh_triangle_contact(first, second, common) -> bool:
                         return True
         return False
     for triangle, other, normal in ((first, second, n2), (second, first, n1)):
+        normal_norm = np.linalg.norm(normal)
+        u, v = other[1] - other[0], other[2] - other[0]
+        uu, uv, vv = float(u @ u), float(u @ v), float(v @ v)
+        determinant = float(normal @ normal)
         for i in range(3):
             start, end = triangle[i], triangle[(i + 1) % 3]
             denominator = float((end - start) @ normal)
-            if abs(denominator) <= tolerance * np.linalg.norm(normal):
+            if abs(denominator) <= tolerance * normal_norm:
                 continue
             t = float((other[0] - start) @ normal) / denominator
             if t < -tolerance or t > 1 + tolerance:
@@ -2557,10 +2561,8 @@ def _mesh_triangle_contact(first, second, common) -> bool:
             point = start + t * (end - start)
             if any(np.linalg.norm(point - vertex) <= tolerance for vertex in common):
                 continue
-            u, v, w = other[1] - other[0], other[2] - other[0], point - other[0]
-            uu, uv, vv = float(u @ u), float(u @ v), float(v @ v)
+            w = point - other[0]
             wu, wv = float(w @ u), float(w @ v)
-            determinant = float(np.cross(u, v) @ np.cross(u, v))
             s, r = (vv * wu - uv * wv) / determinant, (uu * wv - uv * wu) / determinant
             if s >= -tolerance and r >= -tolerance and s + r <= 1 + tolerance:
                 return True
@@ -2607,7 +2609,8 @@ def _validate_volume_mesh(vertices, faces) -> None:
         raise GateError(tr("The volume must enclose a nonzero region."))
     low, high = triangles.min(axis=1), triangles.max(axis=1)
     for i, triangle in enumerate(triangles):
-        candidates = np.flatnonzero(np.all(high[i] >= low[i + 1:] - 1e-10, axis=1) & np.all(high[i + 1:] >= low[i] - 1e-10, axis=1)) + i + 1
+        candidates = np.flatnonzero((high[i, 0] >= low[i + 1:, 0] - 1e-10) & (high[i + 1:, 0] >= low[i, 0] - 1e-10)) + i + 1
+        candidates = candidates[np.all(high[i] >= low[candidates] - 1e-10, axis=1) & np.all(high[candidates] >= low[i] - 1e-10, axis=1)]
         for j in candidates:
             shared = set(faces[i]) & set(faces[j])
             if len(shared) == 3 or _mesh_triangle_contact(triangle, triangles[j], points[list(shared)]):

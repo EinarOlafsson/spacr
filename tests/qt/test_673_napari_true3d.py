@@ -233,6 +233,72 @@ def test_shift_drag_pans_the_box_and_reset_view_centres_it(view, qtbot):
     assert stage._view_axes().get_position(original=True).x0 == pytest.approx(start)
 
 
+def test_display_translation_invalidates_the_volume_once_without_changing_the_camera():
+    from types import SimpleNamespace
+
+    matrix = np.eye(3)
+    affine = SimpleNamespace(get_matrix=lambda: matrix)
+    ax = SimpleNamespace(M=np.eye(4), transData=SimpleNamespace(get_affine=lambda: affine))
+    figure = SimpleNamespace(bbox=SimpleNamespace(bounds=(0, 0, 600, 400)))
+    calls = []
+    stage = SimpleNamespace(
+        _view_axes=lambda: ax, view='true3d', _view_signature=None,
+        _panel=SimpleNamespace(canvas=SimpleNamespace(_figure=figure)),
+        _view_changed=lambda: calls.append(True))
+    mm._VolumeStage._view_drawn(stage, None)
+    original = stage._view_signature
+    mm._VolumeStage._view_drawn(stage, None)
+    assert len(calls) == 1
+    matrix[0, 2] = 31.0
+    matrix[1, 2] = -17.0
+    mm._VolumeStage._view_drawn(stage, None)
+    assert len(calls) == 2
+    assert stage._view_signature != original
+    mm._VolumeStage._view_drawn(stage, None)
+    matrix[0, 2] += 1e-12
+    mm._VolumeStage._view_drawn(stage, None)
+    assert len(calls) == 2
+    assert np.array_equal(ax.M, np.eye(4))
+
+
+def test_a_panned_frame_matches_independent_current_view_rays_and_pixels(view, qtbot, monkeypatch):
+    stage = view
+    canvas = stage._panel.canvas._canvas
+    canvas.draw()
+    _wait_render(stage, qtbot)
+    before = stage._render_request('preview')
+    matrix = stage._view_axes().M.copy()
+    figure_bounds = tuple(stage._panel.canvas._figure.bbox.bounds)
+    labels = stage.session.mask.copy()
+    requests = []
+    original_request = stage._render_request
+
+    def request(quality):
+        value = original_request(quality)
+        if value is not None:
+            requests.append(value)
+        return value
+
+    monkeypatch.setattr(stage, '_render_request', request)
+    stage._pan_by(23, -13)
+    canvas.draw()
+    _wait_render(stage, qtbot)
+    shown = stage._render_state
+    fresh = original_request(shown.quality)
+    assert np.array_equal(stage._view_axes().M, matrix)
+    assert tuple(stage._panel.canvas._figure.bbox.bounds) == figure_bounds
+    assert fresh.rect != before.rect
+    assert shown.rect == fresh.rect
+    assert requests
+    delivered = next(value for value in reversed(requests) if value.serial == stage._shown_serial)
+    assert delivered.rays == fresh.rays
+    assert delivered.steps == fresh.steps and delivered.lens == fresh.lens
+    rgb, picked = mm._render_volume_view(fresh)
+    assert np.array_equal(shown.rgb, rgb)
+    assert np.array_equal(shown.picked, picked)
+    assert np.array_equal(stage.session.mask, labels)
+
+
 def test_the_slice_plane_is_outlined_and_follows_the_slice(view, monkeypatch):
     stage = view
     ax = stage._view_axes()

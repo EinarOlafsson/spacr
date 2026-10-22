@@ -204,6 +204,125 @@ def test_surface_contact_distinguishes_shared_edges_and_actual_crossings(second,
     assert _mesh_triangle_contact(first, np.asarray(second, float), np.asarray(common, float).reshape(-1, 3)) is expected
 
 
+def _legacy_mesh_triangle_contact(first, second, common):
+    tolerance = 1e-10
+    n1 = np.cross(first[1] - first[0], first[2] - first[0])
+    n2 = np.cross(second[1] - second[0], second[2] - second[0])
+    coplanar = np.max(np.abs((second - first[0]) @ n1)) <= tolerance * np.linalg.norm(n1)
+    if coplanar:
+        axis = int(np.argmax(np.abs(n1)))
+        a, b = np.delete(first, axis, axis=1), np.delete(second, axis, axis=1)
+        def cross(u, v):
+            return float(u[0] * v[1] - u[1] * v[0])
+        common_flat = np.delete(np.asarray(common).reshape(-1, 3), axis, axis=1)
+        for left, right in ((a, b), (b, a)):
+            for point in left:
+                if any(np.linalg.norm(point - vertex) <= tolerance for vertex in common_flat):
+                    continue
+                signs = [cross(right[(i + 1) % 3] - right[i], point - right[i]) for i in range(3)]
+                if min(signs) >= -tolerance or max(signs) <= tolerance:
+                    return True
+        for i in range(3):
+            for j in range(3):
+                p, r = a[i], a[(i + 1) % 3] - a[i]
+                q, s = b[j], b[(j + 1) % 3] - b[j]
+                denominator = cross(r, s)
+                if abs(denominator) > tolerance:
+                    t, u = cross(q - p, s) / denominator, cross(q - p, r) / denominator
+                    if tolerance < t < 1 - tolerance and tolerance < u < 1 - tolerance:
+                        return True
+        return False
+    for triangle, other, normal in ((first, second, n2), (second, first, n1)):
+        for i in range(3):
+            start, end = triangle[i], triangle[(i + 1) % 3]
+            denominator = float((end - start) @ normal)
+            if abs(denominator) <= tolerance * np.linalg.norm(normal):
+                continue
+            t = float((other[0] - start) @ normal) / denominator
+            if t < -tolerance or t > 1 + tolerance:
+                continue
+            point = start + t * (end - start)
+            if any(np.linalg.norm(point - vertex) <= tolerance for vertex in common):
+                continue
+            u, v, w = other[1] - other[0], other[2] - other[0], point - other[0]
+            uu, uv, vv = float(u @ u), float(u @ v), float(v @ v)
+            wu, wv = float(w @ u), float(w @ v)
+            determinant = float(np.cross(u, v) @ np.cross(u, v))
+            s, r = (vv * wu - uv * wv) / determinant, (uu * wv - uv * wu) / determinant
+            if s >= -tolerance and r >= -tolerance and s + r <= 1 + tolerance:
+                return True
+    return False
+
+
+@pytest.mark.parametrize('scale', [1e-3, 1., 1e3])
+def test_surface_contact_arithmetic_matches_the_original_predicate(scale):
+    from spacr.qt.widgets.gate_spec import _mesh_triangle_contact
+
+    rng = np.random.default_rng(673)
+    cases = []
+    for _ in range(48):
+        first, second = rng.normal(size=(2, 3, 3))
+        cases.append((first, second, np.empty((0, 3))))
+        shared = second.copy()
+        shared[0] = first[0]
+        cases.append((first, shared.copy(), first[:1]))
+        shared[1] = first[1]
+        cases.append((first, shared.copy(), first[:2]))
+    first = np.asarray([[0., 0, 0], [1, 0, 0], [0, 1, 0]])
+    for delta in (0., -2e-10, -.5e-10, .5e-10, 2e-10):
+        cases.append((first, np.asarray([[.2, .2, delta], [.8, .2, delta], [.2, .8, delta]]), np.empty((0, 3))))
+        cases.append((first, np.asarray([[1 + delta, 0, -1.], [1 + delta, 0, 1.], [1 + delta, 1, 0.]]), np.empty((0, 3))))
+    cases.append((first, np.asarray([[0., 0, 0], [1, 0, 0], [1, -1, 0]]), first[:2]))
+    for first, second, common in cases:
+        for left, right in ((first, second), (second, first)):
+            left, right, shared = left * scale, right * scale, common * scale
+            assert _mesh_triangle_contact(left, right, shared) is _legacy_mesh_triangle_contact(left, right, shared)
+
+
+def test_surface_contact_computes_each_triangle_normal_only_once(monkeypatch):
+    from spacr.qt.widgets import gate_spec
+
+    first = np.asarray([[0., 0, 0], [1, 0, 0], [0, 1, 0]])
+    second = np.asarray([[.2, .2, -1.], [.2, .2, 1.], [.8, .2, 1.]])
+    original = np.cross
+    calls = []
+    def counted(*args, **kwargs):
+        calls.append(None)
+        return original(*args, **kwargs)
+    monkeypatch.setattr(gate_spec.np, 'cross', counted)
+    assert gate_spec._mesh_triangle_contact(first, second, np.empty((0, 3)))
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize('jitter', [0., .5e-10, 1e-10, 2e-10])
+@pytest.mark.parametrize('reorder', [False, True])
+def test_mesh_prefilter_keeps_all_original_candidates_and_their_order(monkeypatch, jitter, reorder):
+    from spacr.qt.widgets import gate_spec
+
+    gate = _box()
+    vertices, faces = np.asarray(gate.vertices), np.asarray(gate.faces)
+    vertices[:, 0] += jitter * np.asarray([1, -1, 2, -2, 3, -3, 4, -4])
+    if reorder:
+        faces = faces[np.random.default_rng(673).permutation(len(faces))]
+    points = (vertices - vertices.min(axis=0)) / np.ptp(vertices, axis=0)
+    triangles = points[faces]
+    low, high = triangles.min(axis=1), triangles.max(axis=1)
+    expected = []
+    for i in range(len(triangles)):
+        candidates = np.flatnonzero(np.all(high[i] >= low[i + 1:] - 1e-10, axis=1)
+                                    & np.all(high[i + 1:] >= low[i] - 1e-10, axis=1)) + i + 1
+        expected.extend((i, int(j)) for j in candidates)
+    indices = {triangle.tobytes(): index for index, triangle in enumerate(triangles)}
+    seen = []
+    def record_contact(first, second, common):
+        seen.append((indices[first.tobytes()], indices[second.tobytes()]))
+        return False
+    monkeypatch.setattr(gate_spec, '_mesh_triangle_contact', record_contact)
+    gate_spec._validate_volume_mesh(vertices, faces)
+    assert seen == expected
+    assert seen == sorted(seen)
+
+
 def test_disconnected_closed_shells_are_not_accepted_as_one_volume():
     gate = _box()
     points = gate.vertices + tuple(tuple(np.asarray(v) + (3, 0, 0)) for v in gate.vertices)

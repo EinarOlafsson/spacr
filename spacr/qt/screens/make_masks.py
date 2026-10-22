@@ -12181,7 +12181,8 @@ class _VolumeStage(QWidget):
         if ax is None or self.view != 'true3d' or getattr(ax, 'M', None) is None:
             return
         figure = self._panel.canvas._figure
-        signature = (np.round(np.asarray(ax.M), 9).tobytes(), tuple(figure.bbox.bounds))
+        signature = (np.round(np.asarray(ax.M), 9).tobytes(), tuple(figure.bbox.bounds),
+                     np.round(np.asarray(ax.transData.get_affine().get_matrix()), 9).tobytes())
         if signature != self._view_signature:
             self._view_signature = signature
             self._view_changed()
