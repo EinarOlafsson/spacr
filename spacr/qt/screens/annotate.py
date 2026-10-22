@@ -4615,6 +4615,7 @@ class AnnotateScreen(QWidget):
         #: one can be running while the other is retired. They fit
         #: the same kind of model and must not be the same slot.
         self._suggest_worker: Optional[_SuggestWorker] = None
+        self._suggest_status_text: Optional[str] = None
         #: True when the outstanding suggestions came from a fit whose
         #: negatives were INVENTED -- see `_synthetic_negatives_needed`.
         #: Such a run is a RANKING and not a verdict, so the bulk KEEP is
@@ -5972,6 +5973,7 @@ class AnnotateScreen(QWidget):
         :param then: optional callback after its population count is ready.
         :param preserve_similarity: retain cross-plate results during navigation.
         """
+        self._suggest_status_text = None
         db_path = os.path.join(src, "measurements", "measurements.db")
         if not os.path.isfile(db_path):
             answer = QMessageBox.question(
@@ -6217,6 +6219,7 @@ class AnnotateScreen(QWidget):
 
     def _on_find_similar(self) -> None:
         """Search for the crops most like the current one, off the GUI thread."""
+        self._suggest_status_text = None
         if not self._settings.db_path:
             QMessageBox.information(
                 self, tr("Open a source first"),
@@ -6852,6 +6855,7 @@ class AnnotateScreen(QWidget):
 
     def _on_retrain(self):
         """Fit a round on the labels so far, then re-rank without leaving."""
+        self._suggest_status_text = None
         if not self._settings.db_path:
             QMessageBox.information(
                 self, "Open a source first",
@@ -7229,7 +7233,9 @@ class AnnotateScreen(QWidget):
         """
         if self._suggest_worker is not None:
             self._status_label.setText("A suggestion run is already going.")
+            self._suggest_status_text = self._status_label.text()
             return
+        self._suggest_status_text = None
         self._flush_pending()
         if self._worker is not None:
             self._worker.stop(wait=True)
@@ -7246,6 +7252,7 @@ class AnnotateScreen(QWidget):
             if not only:
                 self._status_label.setText(
                     "There is nothing on this page to suggest for.")
+                self._suggest_status_text = self._status_label.text()
                 return
 
         self._suggestions_are_a_ranking = bool(synthetic)
@@ -7262,6 +7269,7 @@ class AnnotateScreen(QWidget):
                 "result when it finishes."))
         self._status_label.setText(
             "Fitting on the labels so far, then suggesting…")
+        self._suggest_status_text = self._status_label.text()
         self._console.append_notice(
             "Suggesting labels from a model fitted on the labels so far…\n")
         worker = _SuggestWorker(
@@ -7333,6 +7341,7 @@ class AnnotateScreen(QWidget):
         self._btn_suggest_cancel.setEnabled(False)
         self._status_label.setText(tr(
             "Cancelling the suggestion run after its current step…"))
+        self._suggest_status_text = self._status_label.text()
 
     @Slot(int, int, str)
     def _on_suggest_progress(self, step: int, total: int, stage: str) -> None:
@@ -7352,6 +7361,7 @@ class AnnotateScreen(QWidget):
         self._status_label.setText(tr(
             "Suggest: step {n} of {total} — {what}…",
             n=int(step), total=int(total), what=what))
+        self._suggest_status_text = self._status_label.text()
         stage_text = {
             "clear": tr("Clearing earlier suggestions…"),
             "features": tr("Reading features…"),
@@ -7387,6 +7397,7 @@ class AnnotateScreen(QWidget):
                 "suggestions may have been cleared and round scores may have "
                 "been updated.\n")
         self._status_label.setText(tr("Suggest cancelled."))
+        self._suggest_status_text = self._status_label.text()
         if self._worker is not None:
             self._recount_judgements()
             self._refresh_total(then=self._load_page)
@@ -7423,6 +7434,7 @@ class AnnotateScreen(QWidget):
             self._console.append_notice(
                 "No suggestions written — {why}.\n", why=message)
             self._status_label.setText(f"No suggestions — {message}.")
+            self._suggest_status_text = self._status_label.text()
             if self._worker is not None:
                 self._recount_judgements()
                 self._refresh_total(then=self._load_page)
@@ -7449,6 +7461,7 @@ class AnnotateScreen(QWidget):
         self._status_label.setText(
             f"{written:,} suggestions written — dashed rings are proposals, "
             f"not answers.")
+        self._suggest_status_text = self._status_label.text()
         self._recount_judgements()
         self._refresh_total(then=self._load_page)
 
@@ -7466,6 +7479,7 @@ class AnnotateScreen(QWidget):
         self._console.append_notice(
             "Suggest failed: {msg}\n", msg=message)
         self._status_label.setText(f"Suggest failed — {message}")
+        self._suggest_status_text = self._status_label.text()
         if self._earlier_suggestions_kept():
             detail = tr(
                 "No new suggestions from this round were saved. Earlier "
@@ -7814,6 +7828,7 @@ class AnnotateScreen(QWidget):
         untouched whichever way this goes -- but the annotator should still
         get to see the number before it happens.
         """
+        self._suggest_status_text = None
         from ...suggest import pending_suggestions, resolve_suggestions
 
         db_path = self._settings.db_path
@@ -8522,6 +8537,7 @@ class AnnotateScreen(QWidget):
         """
         if not (0 <= slot < len(self._page_paths)):
             return False
+        self._suggest_status_text = None
         path, _ = self._page_paths[slot]
         before = self._judge_contribution(slot)
         self._pending_updates[path] = value
@@ -9407,6 +9423,9 @@ class AnnotateScreen(QWidget):
         """
         w = self._worker
         if w is None:
+            if self._suggest_status_text is not None:
+                self._status_label.setText(self._suggest_status_text)
+                return
             if (self._similar_worker is not None or
                     time.monotonic() < self._similar_notice_until):
                 return
@@ -9422,6 +9441,9 @@ class AnnotateScreen(QWidget):
             parts.append("saving…")
         elif w.pending_batches > 0:
             parts.append(f"{w.pending_batches} batch queued")
+        if not parts and self._suggest_status_text is not None:
+            self._status_label.setText(self._suggest_status_text)
+            return
         if (not parts and (self._similar_worker is not None or
                            time.monotonic() < self._similar_notice_until)):
             return

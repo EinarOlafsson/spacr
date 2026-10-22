@@ -46,13 +46,15 @@ def test_pan_does_not_select_well_but_click_does(qtbot):
     from PySide6.QtCore import QEvent
     view = _ImageView(); qtbot.addWidget(view); view.resize(500, 400); view.show()
     view.set_image(np.zeros((400,800,3),np.uint8)); selected=[];view.clicked.connect(lambda *p:selected.append(p))
-    qtbot.mouseClick(view,Qt.LeftButton,pos=QPoint(250,200))
+    center = QPoint(view.width() // 2, view.height() // 2)
+    drag_end = center + QPoint(40, 20)
+    qtbot.mouseClick(view,Qt.LeftButton,pos=center)
     assert selected == [pytest.approx((400,200))]
     selected.clear()
-    qtbot.mousePress(view,Qt.LeftButton,pos=QPoint(250,200))
-    move=QMouseEvent(QEvent.MouseMove,QPointF(290,220),QPointF(290,220),Qt.NoButton,Qt.LeftButton,Qt.NoModifier)
+    qtbot.mousePress(view,Qt.LeftButton,pos=center)
+    move=QMouseEvent(QEvent.MouseMove,QPointF(drag_end),QPointF(drag_end),Qt.NoButton,Qt.LeftButton,Qt.NoModifier)
     view.mouseMoveEvent(move)
-    qtbot.mouseRelease(view,Qt.LeftButton,pos=QPoint(290,220))
+    qtbot.mouseRelease(view,Qt.LeftButton,pos=drag_end)
     assert not selected
     assert view._pan == QPointF(40,20)
     assert view.cursor().shape() == Qt.ArrowCursor
