@@ -2515,6 +2515,21 @@ def _triangulate_volume_cap(footprint):
     return triangles
 
 
+def _mesh_shared_vertex(point, vertex, tolerance):
+    """Preserve the original norm near tolerance; shortcut only zero/far deltas."""
+    delta = point - vertex
+    if len(delta) not in (2, 3):
+        return np.linalg.norm(delta) <= tolerance
+    a, b = float(delta[0]), float(delta[1])
+    c = float(delta[2]) if len(delta) == 3 else 0.
+    if a == b == c == 0:
+        return True
+    margin = 100 * tolerance
+    if abs(a) > margin or abs(b) > margin or abs(c) > margin:
+        return False
+    return np.linalg.norm(delta) <= tolerance
+
+
 def _mesh_triangle_contact(first, second, common, _basis=None) -> bool:
     """Reject triangle contact beyond vertices or edges shared by topology."""
     tolerance = 1e-10
@@ -2533,7 +2548,7 @@ def _mesh_triangle_contact(first, second, common, _basis=None) -> bool:
         common_flat = np.delete(np.asarray(common).reshape(-1, 3), axis, axis=1)
         for left, right in ((a, b), (b, a)):
             for point in left:
-                if any(np.linalg.norm(point - vertex) <= tolerance for vertex in common_flat):
+                if any(_mesh_shared_vertex(point, vertex, tolerance) for vertex in common_flat):
                     continue
                 signs = [cross(right[(i + 1) % 3] - right[i], point - right[i]) for i in range(3)]
                 if min(signs) >= -tolerance or max(signs) <= tolerance:
@@ -2565,7 +2580,7 @@ def _mesh_triangle_contact(first, second, common, _basis=None) -> bool:
             if t < -tolerance or t > 1 + tolerance:
                 continue
             point = start + t * (end - start)
-            if any(np.linalg.norm(point - vertex) <= tolerance for vertex in common):
+            if any(_mesh_shared_vertex(point, vertex, tolerance) for vertex in common):
                 continue
             w = point - other[0]
             wu, wv = float(w @ u), float(w @ v)

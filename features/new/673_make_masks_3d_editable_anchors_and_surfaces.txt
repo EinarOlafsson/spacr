@@ -180,6 +180,29 @@ preserves exact rays/dimensions/RGB/IDs, aligned paints and unchanged masks;
 allocations fall122→6 (2.141s exact-size versus2.094s reused capacity).
 The earlier unmatched18.34/s trace did not establish a causal regression;
 the matched pair shows no regression, but no robust speed/30FPS claim is made.
+Next measured geometry cost:581,221 norm calls in the retained profile.
+Test a small shared-vertex distance helper: exact zero difference is close;
+any coordinate more than100 times the existing tolerance is safely far;
+all remaining cases execute the original norm comparison unchanged. Preserve
+subtraction, tolerances and contact decisions. Require legacy equivalence,
+threshold/NaN/infinity cases, norm-call reduction and one same-label1 timing;
+discard it if no useful improvement is demonstrated.
+The distance helper passes129 relevant checks and reduces the same label1
+headless job30.743→29.452s in one diagnostic pair. Complete vertices/faces/
+groups fingerprints and mask/history remain unchanged. Native cold selection
+must still satisfy actual elapsed≤30s; this timing alone is not GUI acceptance.
+First native cold selection reaches full idle at30.812s and FAILS the strict
+deadline; subsequent fingerprint/fresh-view/picking checks were not accepted.
+Test one further helper-only reduction: compare exact float64 coordinate
+values as Python floats, retaining the original delta/norm fallback. Require
+legacy/helper equivalence and one new same-input timing before native reuse.
+Python scalar comparisons pass31 targeted checks and reduce headless label1
+to28.559s, with identical fingerprints. Native cold selection still FAILS:
+30.0437s deadline observation with the mesher running, not a completion time.
+An allocation-free float64-only candidate passes35 targeted checks but takes
+30.228s versus28.559s; reverted with its candidate-only tests. Retain the
+verified delta-array helper. Native≤30s and full interaction acceptance remain
+open; neither these diagnostic timings nor partial tests complete this item.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.

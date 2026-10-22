@@ -303,6 +303,41 @@ def test_surface_contact_computes_each_triangle_normal_only_once(monkeypatch):
     assert len(calls) == 2
 
 
+@pytest.mark.parametrize('dimension', [2, 3])
+@pytest.mark.parametrize('coordinates', [
+    (0., 0., 0.), (.5e-10, 0., 0.), (1e-10, 0., 0.),
+    (.8e-10, .8e-10, 0.), (99e-10, 0., 0.), (100e-10, 0., 0.),
+    (101e-10, 0., 0.), (0., 0., 101e-10),
+    (np.nan, 0., 0.), (np.inf, 0., 0.), (np.nan, np.inf, 0.),
+])
+def test_shared_vertex_distance_matches_original_norm(dimension, coordinates):
+    from spacr.qt.widgets.gate_spec import _mesh_shared_vertex
+
+    point = np.asarray(coordinates[:dimension])
+    vertex = np.zeros(dimension)
+    assert bool(_mesh_shared_vertex(point, vertex, 1e-10)) == bool(np.linalg.norm(point - vertex) <= 1e-10)
+
+
+@pytest.mark.parametrize('dimension', [2, 3])
+def test_shared_vertex_distance_keeps_norm_for_nearby_points_only(monkeypatch, dimension):
+    from spacr.qt.widgets import gate_spec
+
+    original = np.linalg.norm
+    calls = []
+    def norm(delta):
+        calls.append(delta.copy())
+        return original(delta)
+    monkeypatch.setattr(gate_spec.np.linalg, 'norm', norm)
+    vertex = np.zeros(dimension)
+    assert gate_spec._mesh_shared_vertex(vertex.copy(), vertex, 1e-10)
+    point = vertex.copy()
+    point[-1] = 101e-10
+    assert not gate_spec._mesh_shared_vertex(point, vertex, 1e-10)
+    point[-1] = .5e-10
+    assert gate_spec._mesh_shared_vertex(point, vertex, 1e-10)
+    assert len(calls) == 1 and np.array_equal(calls[0], point - vertex)
+
+
 def test_volume_validator_caches_one_exact_scalar_basis_per_triangle(monkeypatch):
     from spacr.qt.widgets import gate_spec
 
