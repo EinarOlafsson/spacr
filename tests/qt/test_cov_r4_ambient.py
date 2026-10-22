@@ -302,6 +302,7 @@ def test_unchanged_preferences_preserve_the_ready_frame_without_shading(
     prefs.set_ambient_palette(amb.default_palette_for(theme))
     prefs.set_ambient_enabled(True)
     motion = amb.preferred_motion()
+    monkeypatch.setattr(amb, "_flow_graphics_possible", lambda: False)
     monkeypatch.setattr(_FrameProducer, "start", lambda self: None)
     widget = AmbientWidget(theme=theme, palette=amb.default_palette_for(theme),
                            background=DARK, seed=7, **motion._asdict())
@@ -327,6 +328,61 @@ def test_unchanged_preferences_preserve_the_ready_frame_without_shading(
         after = producer.latest()
         assert after.size() == before.size()
         assert bytes(after.constBits()) == bytes(before.constBits())
+
+
+def _backend_change_probe(monkeypatch, requested, engine_backend):
+    from types import SimpleNamespace
+
+    engine = object.__new__(amb.DriftEngine)
+    engine._graphics_backend = engine_backend
+    ready = object()
+    changes = []
+    widget = SimpleNamespace(
+        _graphics_backend=requested, _engine=engine,
+        _engine_lock=threading.Lock(),
+        _timer=SimpleNamespace(isActive=lambda: True),
+        _producer_box=[ready], _partial_frame=ready,
+        _last_frame=ready, _last_composed=ready,
+        _start_producer=lambda: changes.append("start"),
+        update=lambda: changes.append("update"))
+
+    def retire(box):
+        changes.append("retire")
+        box[0] = None
+
+    monkeypatch.setattr(amb, "_retire_producer", retire)
+    return widget, ready, changes
+
+
+@pytest.mark.parametrize("backend,choice", [("gpu", "GPU"), ("cpu", "unknown")])
+def test_an_unchanged_graphics_backend_preserves_the_ready_drift_frame(
+        monkeypatch, backend, choice):
+    widget, ready, changes = _backend_change_probe(monkeypatch, backend, backend)
+    AmbientWidget._set_graphics_backend(widget, choice)
+    assert changes == []
+    assert widget._producer_box[0] is ready
+    assert widget._partial_frame is ready
+    assert widget._last_frame is ready
+    assert widget._last_composed is ready
+    assert widget._graphics_backend == widget._engine._graphics_backend == backend
+
+
+def test_a_changed_graphics_backend_restarts_the_drift_producer(monkeypatch):
+    widget, _ready, changes = _backend_change_probe(monkeypatch, "cpu", "cpu")
+    AmbientWidget._set_graphics_backend(widget, "GPU")
+    assert widget._graphics_backend == widget._engine._graphics_backend == "gpu"
+    assert changes == ["retire", "start", "update"]
+    assert widget._producer_box[0] is None
+    assert widget._partial_frame is None
+    assert widget._last_frame is None
+    assert widget._last_composed is None
+
+
+def test_reapplying_a_backend_repairs_a_mismatched_engine(monkeypatch):
+    widget, _ready, changes = _backend_change_probe(monkeypatch, "cpu", "gpu")
+    AmbientWidget._set_graphics_backend(widget, "CPU")
+    assert widget._graphics_backend == widget._engine._graphics_backend == "cpu"
+    assert changes == ["retire", "start", "update"]
 
 
 @pytest.mark.parametrize("setter,field,changed", [
