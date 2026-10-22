@@ -162,19 +162,25 @@ def test_release_waits_for_exact_source_native_acceptance_before_tagging_or_uplo
     yaml = pytest.importorskip("yaml")
     release = yaml.safe_load((ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8"))
     jobs = release["jobs"]
+    source_ref = "${{ needs.bump.outputs.commit_sha }}"
     native = jobs["frozen-installers"]
     assert native["uses"] == "./.github/workflows/frozen-installers.yml"
     assert native["needs"] == ["bump", "installers"]
-    assert native["with"] == {"source_ref": "${{ needs.installers.outputs.release_commit }}",
+    assert native["with"] == {"source_ref": source_ref,
                               "release_version": "${{ needs.bump.outputs.version }}"}
     publish = jobs["github-release"]
     assert "frozen-installers" in publish["needs"]
     assert "needs.frozen-installers.result == 'success'" in publish["if"]
     steps = publish["steps"]
+    checkout = next(step for step in steps if step.get("uses", "").startswith("actions/checkout@"))
+    assert checkout["with"]["ref"] == source_ref
+    for name in ("Tag exact release commit", "Publish release notes and downloadable installers"):
+        step = next(step for step in steps if step.get("name") == name)
+        assert step["env"]["RELEASE_SHA"] == source_ref
     download = next(step for step in steps if step.get("with", {}).get("pattern") == "legacy-build-*")
     assert download["with"] == {"pattern": "legacy-build-*", "path": "frozen-assets"}
     verify = next(step for step in steps if step.get("name") == "Verify and select exact native release payloads")
-    assert verify["env"] == {"RELEASE_SHA": "${{ needs.installers.outputs.release_commit }}",
+    assert verify["env"] == {"RELEASE_SHA": source_ref,
                              "VERSION": "${{ needs.bump.outputs.version }}"}
     assert 'collect-frozen --source frozen-assets --destination release-assets' in verify["run"]
     assert '--source-commit "$RELEASE_SHA" --version "$VERSION"' in verify["run"]
