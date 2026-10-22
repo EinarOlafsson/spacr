@@ -207,7 +207,7 @@ def _install_numpyro(monkeypatch, *, beta_draws, intercept_draws,
 
     jnp = _fake_module(
         "jax.numpy", asarray=asarray, log=np.log, abs=np.abs,
-        sqrt=np.sqrt, exp=np.exp, float64=np.float64,
+        sqrt=np.sqrt, exp=np.exp, logaddexp=np.logaddexp, float64=np.float64,
     )
     jax = _fake_module(
         "jax", numpy=jnp,

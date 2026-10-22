@@ -983,6 +983,9 @@ def test_registration_can_be_turned_off(fresh_project):
 
 def test_export_anndata_set_writes_one_file_per_object_type(fresh_project):
     root, db = fresh_project
+    with sqlite3.connect(db) as connection:
+        connection.execute("ALTER TABLE nucleus ADD COLUMN cluster INTEGER")
+        connection.execute("UPDATE nucleus SET cluster = object_label % 2")
     out_dir = os.path.join(root, "results", "set")
     results = ax.export_anndata_set(db, out_dir, register=False, verbose=False)
 
@@ -998,6 +1001,11 @@ def test_export_anndata_set_writes_one_file_per_object_type(fresh_project):
     assert parent["file"] == "cell.h5ad"
     assert parent["obs_column"] == "cell_id"
     assert os.path.isfile(os.path.join(out_dir, parent["file"]))
+    assert isinstance(child.obs["cluster"].dtype, pd.CategoricalDtype)
+    assert child.obs["cluster"].cat.categories.dtype.kind in "iu"
+    assert set(child.obs["cluster"].dropna()) == {0, 1}
+    assert child.obs["cluster"].astype(int).tolist() == [
+        int(label) % 2 for label in child.obs["object_label"]]
 
 
 # ---------------------------------------------------------------------------

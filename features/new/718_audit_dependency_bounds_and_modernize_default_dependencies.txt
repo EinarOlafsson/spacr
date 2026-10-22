@@ -2,7 +2,7 @@
 AUDIT DEPENDENCY BOUNDS AND MODERNIZE DEFAULT DEPENDENCIES
 ================================================================================
 
-Status:    OPEN 2026-10-21 — awaiting ARM64, staged Mac upgrade and Bayesian convergence acceptance
+Status:    OPEN 2026-10-22 — confirmed LONG/per-SD/>3 acceptance still fails; numerical overflow repair validated, root coordinates remaining acceptance
 Requested: maintainer, 2026-10-21
 Priority:  P1
 Owner:     Codex dependency audit worker — end-to-end implementation and validation; root — integration/publication
@@ -33,12 +33,26 @@ such as Cellpose, NumPy, pandas and PyTorch. Keep optional packages whose actual
 constraints conflict, and document the concrete reason rather than habit.
 
 RELEASE BOUNDARY
-Integrate these dependency bounds, promotions and exact native-wheel markers into
-current nightly after the frozen 1.6 source cut. The separate 1.6 Main candidate
-excludes this modernization. Preserve the current package version and the already
-published Hub compatibility fix; root owns final nightly review/publication.
-Reuse the accepted isolated-install, behavior and target-resolver results rather
-than repeating compatibility trials without a concrete source/dependency change.
+The full nightly source was merged into Main 4c361e32811 for 1.5.1.6
+preparation; the earlier separate frozen-Main exclusion no longer applies.
+Root retains release/promotion ownership. Keep dependency investigation in an
+isolated nightly worktree and do not claim a PyPI publication or source hash
+until the release actually exists. Preserve accepted source and validation.
+Reuse existing results rather than repeat compatibility trials without a
+concrete source or dependency change.
+
+CONFIRMED SCIENTIFIC ACCEPTANCE — 2026-10-22
+The maintainer requires all three together: LONG one-row-per-well-guide
+likelihood, per-standard-deviation coefficients, and the unchanged strict
+planted-hit/largest-null magnitude ratio greater than 3. The retained dependency
+worker owns diagnosis and repair of a demonstrable implementation defect,
+including model/inference or fixture wiring; root owns integration/publication.
+Do not change priors, seed, data, fit settings, threshold or default backend to
+force acceptance. Reuse the matched NumPyro 0.21/0.22 comparison: both return
+identical coefficients and fail at 2.765119, so no downgrade is justified.
+No repeated version trials or unchanged scientific fits. Review a concrete
+behavioral correction before changing scientific behavior; preserve other
+accepted dependency, platform and CPU validation. Whole acceptance remains open.
 
 ACCEPTANCE
 - Every setup.py dependency and extra is accounted for, with current authoritative
@@ -61,8 +75,9 @@ ACCEPTANCE
   other sessions and GPU restrictions. Commit descriptive changes and publish to
   nightly once the integrated result passes its relevant checks.
 
-2026-10-21 — Registered before implementation. Reuse the existing Windows integration worker as the sole dependency-audit worker; retain its earlier blocked cleanup ownership and context. Root and the release coordinator coordinate setup.py changes with the active release preparation.
-2026-10-21 — Official PyPI metadata covers all 127 declared distributions. Clean newest-core Python 3.12.14 installs and imports NumPy 2.5.4, pandas 3.0.6, CPU Torch 2.14.1, Cellpose 4.2.1.1, OpenCV 5, Hub 2.2, statsmodels 0.15 and Qt 6.12; the separate Python 3.10.22 install subsequently passed its owning checks. Actual all-feature trials found RAPIDS/Numba, DINOCell pins, Lifelines/pandas and OMERO/removed CPython eval.h conflicts; GPyTorch selects mpmath 1.3 and s3fs selects compatible botocore without redundant spaCR caps.
+2026-10-21 — Registered before implementation; retain the sole dependency worker and release coordination. Official PyPI metadata covers all 127 declared distributions. Clean newest-core Python 3.12.14 installs and imports NumPy 2.5.4, pandas 3.0.6, CPU Torch 2.14.1, Cellpose 4.2.1.1, OpenCV 5, Hub 2.2, statsmodels 0.15 and Qt 6.12; the separate Python 3.10.22 install subsequently passed its owning checks. Actual all-feature trials found RAPIDS/Numba, DINOCell pins, Lifelines/pandas and OMERO/removed CPython eval.h conflicts; GPyTorch selects mpmath 1.3 and s3fs selects compatible botocore without redundant spaCR caps.
 2026-10-21 — Promoted 38 compatible runtime distributions; widened only stable-blocking bounds and retained precise Qt 6.12.0/native-wheel exceptions. All 127 decisions and official release/Python metadata are in docs/notes/setup.md; dev tools and 11 concretely conflicting or hardware/overlapping-cv2 runtime packages remain optional. Clean Linux CPU installs on Python 3.10.22/3.12.14/3.14.7 retain 21/38 scientific-API, 326 promoted-feature, 271 Python 3.14, 24 final Qt and 126 marker-contract passes, plus native/probabilistic smoke checks; documented server/API skips are unchanged. Native Windows/macOS/GPU execution is not claimed.
 2026-10-21 — Target-platform wheel-policy resolution passes Windows 3.10/3.12/3.14, Mac arm64 3.10/3.12 and 3.14 on macOS 13–15, Intel Mac 3.10/3.12, and Linux 3.10. Exact Mac backend markers and verified pure-Python websocket/asciitree exceptions prevent new default restrictions; the pre-existing Intel Mac 3.14 Numba-wheel gap remains disclosed. Validated on current nightly after the frozen 1.6 cut; published with this change.
 2026-10-21 — Reopened after hosted ARM64/Python 3.11 job 119488634092 found Ultrack requires Higra with no Linux ARM64 distribution. Applied Higra-supported architecture markers consistently to default/named/all Ultrack profiles, preserving x86 Linux/Mac ARM/Windows. Actual Ubuntu 24.04 ARM64/Python 3.11.17 [qt,dev,zernike] target resolution succeeds (376 packages); nine owning checks pass. The marker fix ships on nightly only, outside frozen 1.5.1.6 Main. Actual hosted ARM install and modern-stack Bayesian convergence acceptance remain open; release_ci_takeover owns the separate float64/prior repair. Native ARM execution is not claimed. The obsolete Coverage 5 NumPyro extras-only assertion now checks the approved conditional NumPyro/JAX default, retained extra, Python 3.9 exclusions and adjacent Mac 3.10 exclusion. All eight owning packaging cases pass (0.84s); dependencies, runtime, scientific tolerances and seeds are unchanged. Hosted macOS 14 ARM64/Python 3.12 staged upgrade job 119524565286 built newest CVXOPT source and failed at missing SuiteSparse umfpack.h after old-release health succeeded; Mac installer online/offline resolution now requires a CVXOPT wheel without changing dependency bounds/defaults or N703 staging guards. Pinned uv 0.11.32 real target controls select 1.3.3 source before the fix on macOS14, compatible 1.3.2 wheel after it, and newest 1.3.3 wheel on macOS15; each full default graph resolves 367 packages. Eight owning installer/guard checks pass; actual hosted staged-upgrade/removal acceptance remains pending root publication. Coverage 6 job 119485807974's obsolete literal mypy<2 assertion now parses the real dev extra, checks exact approved bounds/markers semantically and keeps quality tools out of runtime requirements; the owning case passes, with no dependency/runtime-policy change. Linux ARM64/Python 3.11 job 119548709706 now passes the old Higra gap but GLContext 3.1.0 source compilation fails at missing X11/Xlib.h. The Linux ARM64 compatibility job now installs mandatory libx11-dev before artifact installation, preserving default ModernGL/3D renderers and all bounds. Official Ubuntu ARM package contents supply both required X11 headers; exact GLContext 3.1.0 source build and x11/egl backend imports pass on isolated x86 CPython 3.11.17, and two owning workflow cases pass. Native ARM acceptance remains open. Normal-user Linux ARM64 installer paths now provision the C++ toolchain and X11 headers on apt/DNF/zypper/pacman, with manual/skip prerequisites documented. Nine real shell command-construction cases pass across ARM/x86 and explicit skip; non-ARM package lists, staging and skip/fallback policy are preserved.
+
+2026-10-22 — Main includes the full nightly source; prior separate release-cut exclusion no longer applies. Maintainer requires LONG rows, per-SD coefficients and strict >3 separation together. Matched NumPyro 0.21/0.22 coefficients are identical, so no downgrade is justified. Corrected a demonstrated finite-input overflow using Torch-equivalent log-space shrinkage; real conditioned-model values/gradients and retained precision/prior/backend contracts pass (9 cases,6.93s). The one changed-source strict case still fails (ratio2.755627,39.14s); gene fit has7/4000 divergences, identified-gene ESS2608–4171 and R-hat0.9994–1.0005. Model, priors, data, settings, seed, units, backend and threshold are unchanged; whole scientific acceptance remains open.

@@ -4342,3 +4342,6 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 2026-10-22: Integrated independently reviewed Qt/readback/NumPyro fixtures, bounded dependency probes, missing-Napari refusal controls, and Windows/macOS installer contracts; runtime assertions and ratchets retained.
 2026-10-22: Added four private volume-helper docstrings with normal consumer output; translated information panes now derive their minimum width from current content and release it when content shrinks.
 2026-10-22: Focused owning checks pass (retained results); hosted scientific separation and unreproduced native crashes remain open. All three scientific acceptance requirements were confirmed by the maintainer.
+
+2026-10-22: Added real-workflow coverage for absent FAISS fallback, numeric AnnData parent stamping, atomic simulation rollback/retry, and empty font-discovery flag restoration.
+2026-10-22: Five focused controls pass; simulation rollback also has a failing negative control. Runtime code and ratchet ceilings are unchanged; remaining hosted failures and strict scientific separation stay open.

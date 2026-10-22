@@ -69,14 +69,21 @@ def native_manager(monkeypatch, tmp_path):
                            expected={known, core, custom, directory, afm})
 
 
-def test_native_discovery_keeps_coretext_directory_and_fontconfig_fonts(native_manager):
+@pytest.mark.parametrize("discovery_setting", [None, ""])
+def test_native_discovery_keeps_coretext_directory_and_fontconfig_fonts(
+        native_manager, monkeypatch, discovery_setting):
     case = native_manager
+    if discovery_setting is not None:
+        monkeypatch.setenv("MPL_IGNORE_SYSTEM_FONTS", discovery_setting)
     assert case.module._figure_font_manager() is case.fonts
     paths = [entry.fname for entry in [*case.manager.ttflist, *case.manager.afmlist]]
     assert set(paths) == case.expected
     assert len(paths) == len(set(paths))
     assert case.imports == ['1']
-    assert 'MPL_IGNORE_SYSTEM_FONTS' not in os.environ
+    if discovery_setting is None:
+        assert 'MPL_IGNORE_SYSTEM_FONTS' not in os.environ
+    else:
+        assert os.environ['MPL_IGNORE_SYSTEM_FONTS'] == discovery_setting
     assert len(case.writes) == 1
     assert case.writes[0][1].name == 'fontlist-vtest.json'
 
