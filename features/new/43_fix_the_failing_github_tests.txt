@@ -1,5 +1,14 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT WRAPPED-LABEL HEIGHT FOLLOWUP — 2026-10-22
+Feature_takeover and the retained geometry pair own the observed Main
+Coverage1 job119821422359 wrapped-label 75% zoom/font/style/text height
+mismatch (85 versus measured84): bind actual rounding, native font and resize
+ordering before correction; preserve exact physical fit and clipping checks.
+Use only the affected case and a necessary causal control, with no arbitrary
+tolerance or timing waits. Root reviews final source and owns Main publication.
+
+
 CURRENT TIMING AND ORGANISM FOLLOWUP — 2026-10-22
 Feature_takeover and the retained timing/layout pair own the two actual Main
 Coverage2 job119821421528 failures: isolate the deliberate worker-import records
@@ -4351,4 +4360,4 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 
 2026-10-22 — release_ci_takeover owns Night network119865494809 prepared-installer failure: align normal version preparation with accepted Main canonical all-ten installer projection, source-before-render ordering and verified same-version freshness. Preserve strict published archive/site audit and translations; normal preparation updated all ten 1.5.1.6 link blocks; 19 owning controls plus final real lean/no-write and actual network audit pass (2.97 s), with independent source peer. Root owns publication; Main already has the accepted preparation logic. Worker import attribution now checks its own exact two records while retaining a real unrelated import control; the organism module pane recomputes a native tile-width floor without growing the window. Two focused Qt6.11.2 checks pass (3.57 s and3.46 s), independently peer-reviewed; original attribution, Hindi text, overflow and shrink assertions retained. Hosted N43 acceptance remains open.
 
-2026-10-22: Deferred organism reflow now uses a screen-owned timer, cancelled on destruction; two focused checks pass (3.05s). Gene fractions use the same compensated summation in parametric and permutation paths; four controls pass (4.92s), including three exact-equality row orders. Independent peers and root accepted both fixes; scientific separation and remaining hosted acceptance stay open.
+2026-10-22: Deferred organism reflow now uses a screen-owned timer, cancelled on destruction; two focused checks pass (3.05s). Gene fractions use the same compensated summation in parametric and permutation paths; four controls pass (4.92s), including three exact-equality row orders. Independent peers and root accepted both fixes; scientific separation and remaining hosted acceptance stay open. Wrapped labels now reconcile both physical bounds after live zoom via the existing weak listener, including nested labels and deleted-widget safety; the real118px→119px replay control failed before the fix and both owning checks pass (1.69 s).
