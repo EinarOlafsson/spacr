@@ -54,6 +54,16 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Refresh notes for releases already published
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python tools/build_release_notes.py
+          else
+            python tools/build_release_notes.py --check
+          fi
+
       - name: Validate release version
         id: version
         env:
@@ -106,7 +116,7 @@ jobs:
         run: |
           git config user.name "Einar Olafsson"
           git config user.email "einar.olafsson@gmail.com"
-          git add setup.py CITATION.cff spacr/_version.py README.rst packaging/readme_source.yaml docs/i18n/readme docs/source/installer_guide.rst packaging/apptainer/README.md
+          git add setup.py CITATION.cff spacr/_version.py spacr/resources/release_notes.json README.rst packaging/readme_source.yaml docs/i18n/readme docs/source/installer_guide.rst packaging/apptainer/README.md
           if git diff --cached --quiet; then
             echo "Release metadata already declares $VERSION; continuing idempotently."
           else
@@ -463,8 +473,8 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      # AFTER `gh release create`, NOT BEFORE, and that ordering is the
-      # whole point. `--generate-notes` is what writes the body this
+      # Refresh AGAIN after `gh release create`: preparation could only
+      # bundle earlier published releases. `--generate-notes` writes this
       # resource carries, so before that step this release has no note to
       # bundle: the tool would rewrite the file with the previous release
       # at the top and call it current. Running here means the resource
