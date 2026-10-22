@@ -65,7 +65,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from scipy.stats import shapiro
-from math import pi
+from math import fsum, pi
 
 from sklearn.linear_model import (Lasso, Ridge, LassoCV, RidgeCV,
                                   ElasticNet, ElasticNetCV)
@@ -1818,7 +1818,7 @@ def check_and_clean_data(df, dependent_variable):
             f"{offenders.iloc[0].to_dict()}. This means the count table was "
             f"joined twice, or two count files describe the same plate. "
             f"Aggregate the counts per (prc, grna) before regressing.")
-    gene_totals = per_grna.groupby(['prc', 'gene'], observed=False)['fraction'].sum()
+    gene_totals = per_grna.groupby(['prc', 'gene'], observed=False)['fraction'].agg(fsum)
     df_cleaned['gene_fraction'] = pd.MultiIndex.from_arrays(
         [df_cleaned['prc'], df_cleaned['gene']]).map(gene_totals)
 

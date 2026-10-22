@@ -109,6 +109,9 @@ class OrganismScreen(QWidget):
             self.module_requested.connect(host._on_nav_selected)
         self._columns = 0
         self._tiles = []
+        self._reflow_timer = QTimer(self)
+        self._reflow_timer.setSingleShot(True)
+        self._reflow_timer.timeout.connect(self._reflow)
         root = QVBoxLayout(self)
         heading = QHBoxLayout()
         title = QLabel(tr(self.organism["name"]), self)
@@ -143,7 +146,7 @@ class OrganismScreen(QWidget):
         self._scroll.verticalScrollBar().installEventFilter(self)
         self._build_tiles()
         self._splitter.splitterMoved.connect(self._reflow)
-        QTimer.singleShot(0, self._reflow)
+        self._reflow_timer.start(0)
 
     def _name_alpha_page(self, app_key: str) -> None:
         """Give each alpha organism page the object name the alpha gate hides.
@@ -369,13 +372,13 @@ class OrganismScreen(QWidget):
         :returns: the base event filter's result.
         """
         if event.type() == QEvent.Resize and watched is self._module_scroll.viewport():
-            QTimer.singleShot(0, self._reflow)
+            self._reflow_timer.start(0)
         elif watched in (self._intro, self._modules) and event.type() in (
             QEvent.LayoutRequest, QEvent.FontChange, QEvent.StyleChange):
-            QTimer.singleShot(0, self._reflow)
+            self._reflow_timer.start(0)
         elif watched in (self._scroll, self._scroll.verticalScrollBar()) and event.type() in (
             QEvent.FontChange, QEvent.StyleChange):
-            QTimer.singleShot(0, self._reflow)
+            self._reflow_timer.start(0)
         return super().eventFilter(watched, event)
 
 

@@ -14,6 +14,7 @@ number or correlation structure of guides makes that model unidentified.
 
 from __future__ import annotations
 
+from math import fsum
 from pathlib import Path
 from typing import Iterable, Mapping, Sequence
 
@@ -798,7 +799,7 @@ def gene_fraction_matrix(fractions: pd.DataFrame,
             "every guide column needs a gene to be summed into, and these "
             f"have none: {missing[:10]}{' ...' if len(missing) > 10 else ''}")
     grouped = fractions.T.groupby(
-        [mapping[name] for name in columns], sort=True).sum().T
+        [mapping[name] for name in columns], sort=True).agg(fsum).T
     grouped.columns = grouped.columns.astype(str)
     grouped.index = fractions.index
     return grouped
