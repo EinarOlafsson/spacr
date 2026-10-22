@@ -957,8 +957,8 @@
     },
     {
       "lesson": "17_timelapse",
-      "master_sha256": "3dff1fc49ae8a70f8ba30e8d1f7af58bfbbae838730fd4ba1d67e72bd00cde9c",
-      "visual_timing_sha256": "be6d6bdd84acb34605ce8b19cf030e8331479c39f5c2cd21e91e21d5051772a0",
+      "master_sha256": "5e5fd7d1ce410de67ce46d8dde99e5f649ac417d1a6ef43f5e41170452414a6c",
+      "visual_timing_sha256": "7207cd4e47806b99ea1fe0728de22e97ca9181fa8689261191f8e6e2939a55f7",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
@@ -967,51 +967,69 @@
           "idle_tail_start": 5.5
         },
         {
+          "visual": "09_actual_track_preview",
+          "source_start": 31.8,
+          "source_end": 57.166666666666664,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "10_actual_image_sequence_folder",
+          "source_start": 57.166666666666664,
+          "source_end": 77.86666666666666,
+          "idle_tail_start": 5.233333333333333
+        },
+        {
+          "visual": "11_actual_mask_sequence_folder",
+          "source_start": 77.86666666666666,
+          "source_end": 102.33333333333333,
+          "idle_tail_start": 5.5
+        },
+        {
           "visual": "12_actual_linked_preview",
-          "source_start": 133.93333333333334,
-          "source_end": 165.2,
+          "source_start": 102.33333333333333,
+          "source_end": 133.6,
           "idle_tail_start": 7.0
         },
         {
           "visual": "14_actual_overlap_restored",
-          "source_start": 165.2,
-          "source_end": 199.93333333333334,
+          "source_start": 133.6,
+          "source_end": 168.33333333333334,
           "idle_tail_start": 8.0
         },
         {
           "visual": "15_actual_final_frame",
-          "source_start": 199.93333333333334,
-          "source_end": 222.96666666666667,
+          "source_start": 168.33333333333334,
+          "source_end": 191.36666666666667,
           "idle_tail_start": 5.1
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "source_start": 222.96666666666667,
-          "source_end": 257.4666666666667,
+          "source_start": 191.36666666666667,
+          "source_end": 225.86666666666667,
           "idle_tail_start": 13.1
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "source_start": 257.4666666666667,
-          "source_end": 284.03333333333336,
+          "source_start": 225.86666666666667,
+          "source_end": 252.43333333333334,
           "idle_tail_start": 6.2
         },
         {
           "visual": "05_setting_keep_original_images",
-          "source_start": 284.03333333333336,
-          "source_end": 309.1333333333334,
+          "source_start": 252.43333333333334,
+          "source_end": 277.53333333333336,
           "idle_tail_start": 7.9
         },
         {
           "visual": "05_setting_plot",
-          "source_start": 309.1333333333334,
-          "source_end": 335.7333333333334,
+          "source_start": 277.53333333333336,
+          "source_end": 304.1333333333333,
           "idle_tail_start": 4.2
         },
         {
           "visual": "08_actual_figure_04",
-          "source_start": 335.7333333333334,
-          "source_end": 364.86666666666673,
+          "source_start": 304.1333333333333,
+          "source_end": 333.26666666666665,
           "idle_tail_start": 2.0
         }
       ]
