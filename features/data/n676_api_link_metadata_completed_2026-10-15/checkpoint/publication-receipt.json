@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-ws-07-mask-20261021speechgap1",
+  "branch": "n676-ws-14-make-masks-20261021pronunciation1",
   "base_commit": "ffaf6878993f6267034faa31b1610551c1a7f299",
-  "commit": "db31ac390af3aa5ee703ba4ad0966445bc64d975",
-  "tag": "n676-ws-07-mask-20261021speechgap1-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/db31ac390af3aa5ee703ba4ad0966445bc64d975",
-  "manifest_sha256": "1487918b0e833f6c7af4f6bc3d8bceb9501749e7c2ac633b3fcbcae64dfebe0c",
+  "commit": "ce8dc6a4ad101225b8533504774c9815d500597f",
+  "tag": "n676-ws-14-make-masks-20261021pronunciation1-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/ce8dc6a4ad101225b8533504774c9815d500597f",
+  "manifest_sha256": "1ba401ae482f06f14ad3654e0e77a8778baa78fe1752366fa6cb99e9820ef265",
   "media_files": 6448,
-  "media_bytes": 13973009787,
+  "media_bytes": 13972945842,
   "readback": {
-    "commit": "db31ac390af3aa5ee703ba4ad0966445bc64d975",
+    "commit": "ce8dc6a4ad101225b8533504774c9815d500597f",
     "files_expected": 6448,
     "metadata_matched": 6448,
     "metadata_failures": [],
-    "bytes_read_back": 13973009787,
+    "bytes_read_back": 13972945842,
     "downloaded_sha256_matched": 6448,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -1982,32 +1982,31 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 518.8,
+    "seconds": 515.4,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "8ae4c59f863696e9c61e547ca6c36f12d4cc8b6d209406d37be6f37e4fba3a20",
-    "candidate_index_sha256": "b7d49f6a041d3e1b6f9557aaf2aa679897fd0dab46ad8720f5347f4071e2b19a",
-    "cache_key": "n676-ws-07-mask-20261021speechgap1-verified",
+    "index_sha256": "fabdd4d8ee8a1b568ae4b97ddcd0b3d36de992bc2c0aee32117304e9549c6d6a",
+    "candidate_index_sha256": "87983aae86e3f042113669ce1c61ae656726907d777b217f978c81169085374a",
+    "cache_key": "n676-ws-14-make-masks-20261021pronunciation1-verified",
     "unchanged_versioned_assets": [
-      "app_v2.js",
       "styles.css",
       "voice_catalog.js"
     ],
     "versioned_assets": {
-      "app_v2.js": "n676-ws-02-install-spacr-20261021docker1-verified",
+      "app_v2.js": "n676-ws-14-make-masks-20261021pronunciation1-verified",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-ws-07-mask-20261021speechgap1-verified",
-      "module_navigation.js": "n676-ws-07-mask-20261021speechgap1-verified",
+      "lesson_catalog.js": "n676-ws-14-make-masks-20261021pronunciation1-verified",
+      "module_navigation.js": "n676-ws-14-make-masks-20261021pronunciation1-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-3mwlx5l3/retired-pages",
+      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-qzmkxpwx/retired-pages",
       "files": []
     },
     "ready": 84,

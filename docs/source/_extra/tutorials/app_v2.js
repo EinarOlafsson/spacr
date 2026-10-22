@@ -1949,18 +1949,18 @@ function boundNativeIdleTimings(reference, lesson, timingSha) {
       policy.visual_timing_sha256 !== timingSha || !Array.isArray(policy.scenes)) return result;
   const fences = new Map();
   for (const fence of policy.scenes) {
-    const matches = result.scenes.filter(scene => scene.visual === fence.visual);
-    if (matches.length !== 1 || fences.has(fence.visual)) return result;
-    const scene = matches[0];
     if (![fence.source_start, fence.source_end, fence.idle_tail_start].every(value =>
         typeof value === "number" && Number.isFinite(value)) ||
-        Math.abs(fence.source_start - Number(scene.speech_start)) > 1e-7 ||
-        Math.abs(fence.source_end - Number(scene.scene_end)) > 1e-7 ||
         fence.idle_tail_start < 0 || fence.idle_tail_start >= fence.source_end - fence.source_start) return result;
-    fences.set(fence.visual, fence.idle_tail_start);
+    const matches = result.scenes.map((scene, index) => ({ scene, index })).filter(({ scene }) =>
+      scene.visual === fence.visual &&
+      Math.abs(fence.source_start - Number(scene.speech_start)) <= 1e-7 &&
+      Math.abs(fence.source_end - Number(scene.scene_end)) <= 1e-7);
+    if (matches.length !== 1 || fences.has(matches[0].index)) return result;
+    fences.set(matches[0].index, fence.idle_tail_start);
   }
-  for (const scene of result.scenes) {
-    if (fences.has(scene.visual)) scene.idle_tail_start = fences.get(scene.visual);
+  for (const [index, scene] of result.scenes.entries()) {
+    if (fences.has(index)) scene.idle_tail_start = fences.get(index);
   }
   return result;
 }
