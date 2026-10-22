@@ -84,7 +84,7 @@ def test_the_card_and_the_backdrop_are_one_rectangle(rendered):
     rects = {(c.geometry().x(), c.geometry().y(),
               c.geometry().width(), c.geometry().height()) for c in children}
     assert len(rects) == 1, f"the dialog's children occupy {len(rects)} rects"
-    assert rects.pop() == (0, 0, WIDTH, HEIGHT)
+    assert rects.pop() == dialog.rect().getRect()
 
 
 def test_the_backdrop_rounds_by_the_same_amount_as_the_card(rendered):

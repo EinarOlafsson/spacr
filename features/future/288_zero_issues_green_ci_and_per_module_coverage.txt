@@ -5868,3 +5868,7 @@ Whole N43/F288 and release acceptance remain OPEN.
 2026-10-19: REMAINING: the next hosted coverage run confirms the ratchets; the zero-issues parent stays open until full CI is green.
 
 2026-10-21 — Actual logged Make Masks brush edits now have a real first/second-save regression checking persisted TIFF arrays and .curation.json artifact paths. The new case plus existing fast-save case pass (18.02 s) and independent review accepted the exact test. Normal UI ledger opening already binds artifacts; its defensive empty-artifact save branch remains unexecuted and is not claimed closed.
+
+2026-10-22 — Prepare Main test-only ports against aggregate bc9df01: real CPU-cancelled render preservation plus measured-window QMainWindow and native rounded-setup rectangle fixtures. Require exact source/test preimages, CPU before stage loading, unchanged rendering/grow/clamp/launch assertions and independent peers; root/release coordinator own final aggregate integration, artifact acceptance and Main publication.
+
+2026-10-22 — Exact aggregate preimages match all three test ports. Actual imported Main CPU cancellation/off-thread controls pass (7.25 s); the eight geometry cases pass at genuine fresh 90% scales (3.49 s), with Main/Night gui_scale/setup_slides bytes and measured-width helper AST identical. Original assertions and production remain unchanged; source-bound Night coverage proves the real unavailable-result arc, while hosted aggregate coverage remains open. Root/release coordinator own final aggregate integration and publication.

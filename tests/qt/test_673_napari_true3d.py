@@ -83,6 +83,24 @@ def view(screen, tmp_path, qtbot):
     return stage
 
 
+@pytest.fixture
+def cpu_view(request):
+    from spacr.qt import preferences
+
+    settings = preferences._settings()
+    key = preferences._KEY_VOLUME_VIEW
+    present = settings.contains(key)
+    previous = settings.value(key) if present else None
+    try:
+        preferences.set_volume_view(backend="cpu")
+        yield request.getfixturevalue("view")
+    finally:
+        if present:
+            settings.setValue(key, previous)
+        else:
+            settings.remove(key)
+
+
 def _wait_render(stage, qtbot):
     qtbot.waitUntil(stage.render_idle, timeout=WAIT)
     _settle()
@@ -334,10 +352,10 @@ def test_interactive_renders_are_downsampled_and_full_scale_renders_are_not(view
     assert "every voxel" in stage._detail.text()
 
 
-def test_the_render_runs_off_the_gui_thread_and_stale_results_are_dropped(view, monkeypatch, qtbot):
+def test_the_render_runs_off_the_gui_thread_and_stale_results_are_dropped(cpu_view, monkeypatch, qtbot):
     """2026-10-16: on the CPU backend; the GPU draws on the GUI thread, which
     owns its GL context (tests/qt/test_673_true3d_gpu.py)."""
-    stage = view
+    stage = cpu_view
     stage._backend_box.setCurrentIndex(stage._backend_box.findData("cpu"))
     _wait_render(stage, qtbot)
     threads = []
@@ -359,6 +377,76 @@ def test_the_render_runs_off_the_gui_thread_and_stale_results_are_dropped(view, 
     stage._take_render((old, (np.zeros((2, 2, 3), np.uint8), np.zeros((2, 2), np.int64)), None))
     assert stage._render_state is shown
     assert old.cancelled()
+
+
+def test_a_cancelled_cpu_render_keeps_the_frame_until_the_new_render_arrives(
+        cpu_view, qtbot, monkeypatch):
+    import spacr.layers as layers
+
+    stage = cpu_view
+    assert stage._backend_choice == "cpu"
+    assert stage._render_state.backend == "cpu"
+    previous = stage._render_state
+    artist = stage._render_artist
+    status = stage._screen._status_label.text()
+    detail = stage._detail.text()
+    first_entered, release_first = threading.Event(), threading.Event()
+    newer_entered, release_newer = threading.Event(), threading.Event()
+    delivered = []
+    real = layers.render_volume
+
+    def gated_cpu_render(*args, **kwargs):
+        cancelled = kwargs["cancelled"]
+        entered, release = ((first_entered, release_first)
+                            if not first_entered.is_set()
+                            else (newer_entered, release_newer))
+
+        def gate_at_chunk():
+            entered.set()
+            assert release.wait(WAIT / 1000)
+            return cancelled()
+
+        return real(*args, **dict(kwargs, cancelled=gate_at_chunk))
+
+    monkeypatch.setattr(layers, "render_volume", gated_cpu_render)
+    receive = delivered.append
+    stage._rendered.connect(receive)
+    try:
+        assert stage._submit_render("preview")
+        qtbot.waitUntil(first_entered.is_set, timeout=WAIT)
+        stage._layer_rows["Masks"].eye.setChecked(False)
+        assert stage._submit_render("preview")
+        release_first.set()
+        qtbot.waitUntil(newer_entered.is_set, timeout=WAIT)
+        qtbot.waitUntil(lambda: any(result is None for _, result, _ in delivered),
+                        timeout=WAIT)
+        cancelled_request, result, error = next(
+            payload for payload in delivered if payload[1] is None)
+        assert cancelled_request.session is stage.session
+        assert cancelled_request.backend == "cpu"
+        assert cancelled_request.cancelled()
+        assert result is None and error is None
+        assert stage._render_state is previous
+        assert stage._render_artist is artist
+        np.testing.assert_array_equal(np.asarray(artist.get_array()), previous.rgb)
+        assert stage._screen._status_label.text() == status
+        assert stage._detail.text() == detail
+
+        release_newer.set()
+        _wait_render(stage, qtbot)
+        assert stage._render_state is not previous
+        assert stage._render_state.backend == "cpu"
+        assert not stage._render_state.picked.any()
+        assert stage._render_state.rgb.any()
+        assert "Drawn on the CPU" in stage._detail.text()
+        assert all(error is None for _, _, error in delivered)
+        assert any(request.session is stage.session and result is not None
+                   for request, result, _ in delivered)
+    finally:
+        release_first.set()
+        release_newer.set()
+        _wait_render(stage, qtbot)
+        stage._rendered.disconnect(receive)
 
 
 def test_a_cpu_drag_shows_frames_while_the_view_still_turns(view, qtbot):
