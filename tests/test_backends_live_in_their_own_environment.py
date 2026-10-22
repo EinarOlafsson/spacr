@@ -1421,6 +1421,26 @@ def test_the_worker_command_line(stub_cellpose, capsys):
     assert json.loads(served.getvalue())["ok"]
 
 
+@pytest.mark.parametrize("loads", [True, False])
+def test_windows_loads_native_libraries_before_blocking_on_stdin(monkeypatch, loads):
+    events = []
+    monkeypatch.setattr(SB.sys, "platform", "win32")
+
+    def handle(name, request, adapters):
+        events.append(("load", name, request["op"]))
+        return {"ok": loads}
+
+    def serve(name, stdin, stdout):
+        events.append(("serve", name))
+        return 0
+
+    monkeypatch.setattr(SB, "_handle", handle)
+    monkeypatch.setattr(SB, "_serve", serve)
+    assert SB._worker_main(["--serve", "cellpose3"],
+                           stdin=io.StringIO(), stdout=io.StringIO()) == 0
+    assert events == [("load", "cellpose3", "hello"), ("serve", "cellpose3")]
+
+
 def test_a_selftest_that_cannot_import_fails(monkeypatch):
     monkeypatch.setitem(sys.modules, "cellpose.models", None)
     out = io.StringIO()

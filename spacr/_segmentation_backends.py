@@ -6212,8 +6212,10 @@ def _worker_main(argv=None, stdin=None, stdout=None):
         out.write(json.dumps(reply) + "\n")
         out.flush()
         return 0 if reply["ok"] else 1
-    return _serve(name, sys.stdin if stdin is None else stdin,
-                  _protocol_channel() if stdout is None else stdout)
+    channel = _protocol_channel() if stdout is None else stdout
+    if sys.platform == "win32":
+        _handle(name, {"protocol": _PROTOCOL, "id": 0, "op": "hello"}, {})
+    return _serve(name, sys.stdin if stdin is None else stdin, channel)
 
 
 def _load_backend(name, *, device=None, z_plan=None, t_plan=None,
