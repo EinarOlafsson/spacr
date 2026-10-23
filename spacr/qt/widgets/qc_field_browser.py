@@ -2330,6 +2330,8 @@ class _FieldOverview(QDialog):
         super().__init__(parent)
         self._overview_options = dict(settings or {})
         self._normalization_plan = None
+        self._normalization_context = None
+        self._normalization_plate = None
         self._normalization_ready = not bool(self._overview_options.get("normalization"))
         self._display_pending = False
         self._display_generation = 0
@@ -2807,6 +2809,7 @@ class _FieldOverview(QDialog):
         time = self.time_axis.currentData()
         z = self.z_axis.currentData()
         return dict(normalization=self._normalization_plan,
+                    normalization_context=self._normalization_context,
                     time_index=time if isinstance(time, int) else 0,
                     z_index=z if isinstance(z, int) else 0,
                     z_mode=self.z_mode.currentData() or "plane")
@@ -2881,10 +2884,27 @@ class _FieldOverview(QDialog):
         options["conditions"] = dict(self._conditions)
         axes = self._display_kwargs()
         axes.pop("normalization")
+        axes.pop("normalization_context")
         time, z = self.time_axis.currentData(), self.z_axis.currentData()
         sampled_fields = tuple(field for field in fields
             if (not getattr(field, "time_id", "") or field.time_id == time)
             and (not getattr(field, "z_id", "") or field.z_id == z))
+        if options.get("mode") == "reference_average":
+            plate = self.plates.currentData()
+            fov = self.fov_axis.currentData()
+            representatives = {}
+            for field in sampled_fields:
+                if field.plate == plate and (fov is None or field.field_id == fov):
+                    representatives.setdefault(field.well, []).append(field)
+            sampled_fields = tuple(field for well in sorted(representatives, key=self._natural)
+                for field in representatives[well][:self.representatives.value()])
+        options["selection"] = dict(field_id=self.fov_axis.currentData(),
+            filename_time=time if isinstance(time, str) else None,
+            filename_z=z if isinstance(z, str) else None,
+            time_index=axes["time_index"], z_mode=axes["z_mode"], z_index=axes["z_index"],
+            representatives=self.representatives.value(), seed=self.seed.value(),
+            generation=generation)
+        self._normalization_plate = self.plates.currentData()
         self._normalization_ready = False
         def prepare():
             """Read metadata and bounded reference samples without Qt objects.
@@ -2892,12 +2912,12 @@ class _FieldOverview(QDialog):
             :returns: header metadata and an immutable display plan.
             """
             info = _overview_channel_info(fields[0])
-            plan = None
+            plan, context = None, None
             if self._overview_options.get("normalization"):
-                plan = _overview_normalization_plan(sampled_fields, channels, options,
+                plan, context = _overview_prepare_normalization(sampled_fields, channels, options,
                     lambda field, selected, edge=256: tuple(_overview_raw_planes(
                         field, selected, edge=edge, **axes)), cancelled)
-            return info, plan
+            return info, plan, context
         def prepared(result):
             """Install only the still-current source generation.
 
@@ -2906,7 +2926,7 @@ class _FieldOverview(QDialog):
             if (cancelled.is_set() or fields is not self._fields
                     or generation != self._display_generation):
                 return
-            info, self._normalization_plan = result
+            info, self._normalization_plan, self._normalization_context = result
             self._populate_axes(fields, info)
             self._normalization_ready = True
             self._request_visuals()
@@ -2977,6 +2997,8 @@ class _FieldOverview(QDialog):
         """Invalidate plate representatives while retaining source selections."""
         self._thumbnail_cache.clear()
         self._filter()
+        if self._overview_options.get("normalization"):
+            self._prepare_display()
 
     def _annotate(self):
         """Associate condition text with stable physical well identities."""
@@ -3273,6 +3295,9 @@ class _FieldOverview(QDialog):
                 self._zoom_plate()
             else:
                 self._apply_plate_extent()
+        if (self._overview_options.get("normalization")
+                and self._normalization_plate != plate):
+            self._prepare_display()
         self._request_visuals()
 
     def _remember_selection(self):
