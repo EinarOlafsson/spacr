@@ -316,6 +316,18 @@
       "visual_timing_sha256": "01febfd12973d5c2c3d87b192837879210e23e139e643c8998a1e797967f6bd2",
       "scenes": [
         {
+          "visual": "gui_00_home",
+          "source_start": 0.0,
+          "source_end": 24.466666666666665,
+          "idle_tail_start": 1
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "source_start": 24.466666666666665,
+          "source_end": 50.06666666666666,
+          "idle_tail_start": 9.5
+        },
+        {
           "visual": "api_00_inputs",
           "source_start": 50.06666666666666,
           "source_end": 73.73333333333333,
@@ -1845,6 +1857,304 @@
           "source_start": 210.93333333333334,
           "source_end": 242.03333333333333,
           "idle_tail_start": 6.7
+        }
+      ]
+    },
+    {
+      "lesson": "27_replication",
+      "master_sha256": "4ba9dcf0ddca7a596c27ab753f9e1dffd4a92b1cbd93a7584b2a3b0ca37361c9",
+      "visual_timing_sha256": "d8c7767fe8bf387690682049245b98814f37f95dde8ac83fe13a651cf8abf9b3",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 27.066666666666666,
+          "idle_tail_start": 10.9
+        },
+        {
+          "visual": "03_setting_src",
+          "source_start": 27.066666666666666,
+          "source_end": 56.53333333333333,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "04_setting_vacuole_key",
+          "source_start": 56.53333333333333,
+          "source_end": 81.66666666666666,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "05_setting_require_host_cell",
+          "source_start": 81.66666666666666,
+          "source_end": 108.89999999999999,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "07_setting_max_parasites_per_vacuole",
+          "source_start": 108.89999999999999,
+          "source_end": 136.26666666666665,
+          "idle_tail_start": 4.7
+        },
+        {
+          "visual": "09_setting_pathogen_plate_metadata",
+          "source_start": 136.26666666666665,
+          "source_end": 165.96666666666664,
+          "idle_tail_start": 4.3
+        },
+        {
+          "visual": "15_readable_legend_00",
+          "source_start": 186.29999999999998,
+          "source_end": 215.36666666666665,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "15_readable_legend_01",
+          "source_start": 238.66666666666666,
+          "source_end": 264.73333333333335,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "12_actual_completion",
+          "source_start": 264.73333333333335,
+          "source_end": 283.90000000000003,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "10_setting_save",
+          "source_start": 283.90000000000003,
+          "source_end": 318.3666666666667,
+          "idle_tail_start": 3.2
+        }
+      ]
+    },
+    {
+      "lesson": "28_training_runs",
+      "master_sha256": "981e0c6b631f93ec1be2d79ad539d199b9babbeeaa26d4a7333d68ec389621e3",
+      "visual_timing_sha256": "0734acb42933afc55b677b11250c8ca245094e7305cd9701e2926c025fa8920d",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 25.366666666666667,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "01_current_training_runs_fold",
+          "source_start": 25.366666666666667,
+          "source_end": 47.43333333333334,
+          "idle_tail_start": 10.5
+        },
+        {
+          "visual": "03_synthetic_runs_and_real_warnings",
+          "source_start": 71.30000000000001,
+          "source_end": 96.86666666666667,
+          "idle_tail_start": 5.1
+        },
+        {
+          "visual": "03_synthetic_runs_and_real_warnings",
+          "source_start": 96.86666666666667,
+          "source_end": 122.43333333333334,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "04b_actual_metric_choices",
+          "source_start": 122.43333333333334,
+          "source_end": 146.4,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "05_actual_synthetic_accuracy_overlay",
+          "source_start": 146.4,
+          "source_end": 171.46666666666667,
+          "idle_tail_start": 3.8
+        },
+        {
+          "visual": "06_actual_synthetic_settings_diff",
+          "source_start": 171.46666666666667,
+          "source_end": 194.63333333333333,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "06_actual_synthetic_settings_diff",
+          "source_start": 194.63333333333333,
+          "source_end": 217.79999999999998,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "07_actual_series_pick_best_and_last_epochs",
+          "source_start": 217.79999999999998,
+          "source_end": 242.46666666666664,
+          "idle_tail_start": 3.7
+        },
+        {
+          "visual": "08_actual_synthetic_loss_overlay",
+          "source_start": 242.46666666666664,
+          "source_end": 261.26666666666665,
+          "idle_tail_start": 5.6
+        },
+        {
+          "visual": "08b_actual_fold_choices",
+          "source_start": 261.26666666666665,
+          "source_end": 284.26666666666665,
+          "idle_tail_start": 4.4
+        },
+        {
+          "visual": "09_actual_synthetic_fold_mean_sd",
+          "source_start": 284.26666666666665,
+          "source_end": 309.93333333333334,
+          "idle_tail_start": 4.4
+        },
+        {
+          "visual": "10_actual_synthetic_folds_and_mean",
+          "source_start": 309.93333333333334,
+          "source_end": 329.6333333333333,
+          "idle_tail_start": 5.7
+        },
+        {
+          "visual": "11_actual_synthetic_per_fold_curves",
+          "source_start": 329.6333333333333,
+          "source_end": 356.59999999999997,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "11_actual_synthetic_per_fold_curves",
+          "source_start": 356.59999999999997,
+          "source_end": 383.5666666666666,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "11_actual_synthetic_per_fold_curves",
+          "source_start": 383.5666666666666,
+          "source_end": 410.53333333333325,
+          "idle_tail_start": 5.5
+        }
+      ]
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "master_sha256": "49e07b2358e72d6773e13127a032e7e81054f0b39e464d69ce4529d6131ca95e",
+      "visual_timing_sha256": "6282da9d3f85793fab89b1159d4f2892ec13e7539046b14ce30d4d7ba3869c9e",
+      "scenes": [
+        {
+          "visual": "01_graph_builder_host",
+          "source_start": 0.0,
+          "source_end": 18.466666666666665,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "03_example_mean",
+          "source_start": 18.466666666666665,
+          "source_end": 44.266666666666666,
+          "idle_tail_start": 3.2
+        },
+        {
+          "visual": "03_example_mean",
+          "source_start": 44.266666666666666,
+          "source_end": 70.06666666666666,
+          "idle_tail_start": 3.2
+        },
+        {
+          "visual": "04_colour_scale",
+          "source_start": 70.06666666666666,
+          "source_end": 90.96666666666667,
+          "idle_tail_start": 7.2
+        },
+        {
+          "visual": "03_example_mean",
+          "source_start": 90.96666666666667,
+          "source_end": 116.76666666666667,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "05_well_detail",
+          "source_start": 116.76666666666667,
+          "source_end": 137.66666666666666,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "06_count",
+          "source_start": 137.66666666666666,
+          "source_end": 157.66666666666666,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "07_filtered",
+          "source_start": 157.66666666666666,
+          "source_end": 183.26666666666665,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "09_exported",
+          "source_start": 202.36666666666665,
+          "source_end": 223.23333333333332,
+          "idle_tail_start": 4.2
+        }
+      ]
+    },
+    {
+      "lesson": "35_converter",
+      "master_sha256": "1fd8ad0d450404d1d81d2d5bef8e38aa2e1e724354c7657eecb8c2f3e734b099",
+      "visual_timing_sha256": "7b97effbf78bd6b86612780d91250878a5750207c0aa2eac3666bbb38711a7aa",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 18.166666666666668,
+          "idle_tail_start": 5.6
+        },
+        {
+          "visual": "01b_current_converter_fold",
+          "source_start": 18.166666666666668,
+          "source_end": 44.66666666666667,
+          "idle_tail_start": 5.3
+        },
+        {
+          "visual": "04_explicit_flat_single_plane_settings",
+          "source_start": 84.76666666666668,
+          "source_end": 112.10000000000001,
+          "idle_tail_start": 6.4
+        },
+        {
+          "visual": "04_explicit_flat_single_plane_settings",
+          "source_start": 112.10000000000001,
+          "source_end": 139.43333333333334,
+          "idle_tail_start": 6.4
+        },
+        {
+          "visual": "05_preview_no_output_written",
+          "source_start": 139.43333333333334,
+          "source_end": 164.46666666666667,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "06_preview_source_channel_and_plane_provenance",
+          "source_start": 164.46666666666667,
+          "source_end": 193.06666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "05_preview_no_output_written",
+          "source_start": 193.06666666666666,
+          "source_end": 218.1,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "07_actual_conversion_complete",
+          "source_start": 218.1,
+          "source_end": 242.1,
+          "idle_tail_start": 4.8
+        },
+        {
+          "visual": "07_actual_conversion_complete",
+          "source_start": 242.1,
+          "source_end": 266.1,
+          "idle_tail_start": 4.8
+        },
+        {
+          "visual": "08_resume_enabled",
+          "source_start": 266.1,
+          "source_end": 293.20000000000005,
+          "idle_tail_start": 8.0
         }
       ]
     }
