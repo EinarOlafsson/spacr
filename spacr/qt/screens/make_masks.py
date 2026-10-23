@@ -12743,6 +12743,8 @@ class _VolumeStage(QWidget):
         selected_surfaces = set(canvas._selected_surfaces)
         gates = dict(self.session.geometries)
         label = self._selected
+        if not label or label in gates or label in self._meshes:
+            self._mesher.drop_waiting()
         if label and label not in gates:
             if label not in self._meshes:
                 self._say(tr('Preparing the anchors of object {label}…', label=label))

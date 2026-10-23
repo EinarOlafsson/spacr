@@ -626,6 +626,61 @@ def test_selected_label_mesh_requests_deduplicate_and_keep_newest(qtbot, case):
         assert worker.close(5)
 
 
+@pytest.mark.parametrize("case", ["cached", "saved", "none"])
+def test_selected_ready_geometry_drops_only_waiting_mesh_requests(qtbot, case):
+    import threading
+    from types import SimpleNamespace
+
+    started, release = threading.Event(), threading.Event()
+    calls, shown, selected, edit_clicks = [], [], [], []
+    gate = EditableVolumeGate.from_gate(
+        BoxGate.from_limits("3", ("x", "y", "z"), [(0, 1)] * 3))
+    session = SimpleNamespace(geometries={}, geometry_for_label=lambda label: label)
+    panel = SimpleNamespace(
+        canvas=SimpleNamespace(_surface_gate=None, _selected_surfaces=set()),
+        set_gates=shown.append, tree=SimpleNamespace(select=selected.append),
+        _drag_buttons={"edit": SimpleNamespace(click=lambda: edit_clicks.append(True))})
+    stage = SimpleNamespace(session=session, _selected=1, _version=1, _meshes={},
+                            _panel=panel, _say=lambda message: None, _restoring=False)
+
+    def work(request):
+        calls.append(request)
+        started.set()
+        assert release.wait(5), "test-owned active mesh was not released"
+        return mm._volume_mesh(request)
+
+    worker = mm._NewestRequestWorker(work, lambda *args: None, name="test-ready-mesh")
+    stage._mesher = worker
+    select = lambda: mm._VolumeStage._select_label(stage)
+    try:
+        select()
+        assert started.wait(5)
+        active = worker._running
+        stage._selected = 2
+        select()
+        assert worker._pending.label == 2
+        if case == "cached":
+            stage._meshes[3] = gate
+        elif case == "saved":
+            session.geometries[3] = gate
+        stage._selected = 0 if case == "none" else 3
+        select()
+        assert worker._running is active and worker._pending is None
+        assert stage._selected == (0 if case == "none" else 3)
+        assert not stage._restoring
+        if case == "none":
+            assert shown[-1].names == () and not selected and not edit_clicks
+        else:
+            assert shown[-1].get("3") is gate
+            assert selected == ["3"] and edit_clicks == [True]
+        release.set()
+        qtbot.waitUntil(worker.idle, timeout=5000)
+        assert calls == [active]
+    finally:
+        release.set()
+        assert worker.close(5)
+
+
 def test_a_large_object_gets_its_anchors_off_the_gui_thread(true3d, screen, qtbot):
     stage = true3d
     session = stage.session

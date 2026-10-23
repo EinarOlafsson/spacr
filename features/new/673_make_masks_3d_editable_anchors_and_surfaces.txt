@@ -227,6 +227,11 @@ argmax-axis/planar-projection caching; when the second triangle's cached axis
 differs, retain the original projection. Require cached/uncached legacy and
 near-coplanar mismatched-axis checks, existing refusals, and one same-input
 timing. No tolerance, geometry, topology or predicate-order changes.
+Scratch-only follow-up,2026-10-23: test reuse of the identical noncoplanar
+end-minus-start vector within one edge iteration. Preserve the exact predicate,
+float64 arithmetic order, thresholds, topology checks and worker policy. Compare
+against the retained original-reference cases and one same-input paired timing;
+keep this candidate out of production unless exact parity and benefit hold.
 Projection caching passed107 checks but31.158s versus30.743s showed no gain;
 that source/test experiment was reverted. Next contact-validation path must
 PROVE rectilinear half-cell triangle intersections are only allowed shared
@@ -306,7 +311,8 @@ picking/GPU cleanup pass:106 aligned/0 misaligned/0 unknown paints,89 fast/
 0 fallback and29.617 unique pairs/s; audited fresh-oracle20/20 picks. The
 strict20s full-idle gate fails at20.015s, solely on the mesher: label5/version1
 running with4 queued initially; label4/version1 running/no queue at deadline.
-Last selection4 completes41.0316s and failure snapshot is62.1146s. Mask and
+Last selection4 pick_at returns at benchmark t41.0316s; this is not a mesh
+completion/duration. Failure snapshot t62.1146s still shows label4 running. Mask and
 history are unchanged before/after the gate; GPU resources empty in finally.
 Full-idle and30–60FPS acceptance remain open; no shutdown/forced-exit pass.
 2026-10-23 Mesher deduplication follow-up: actual _select_label submissions
@@ -315,13 +321,35 @@ same in-flight geometry twice. Preserve tuple consumers and existing newest-
 request policy; test the actual submit route with a blocked worker before
 repair, including distinct labels/versions/sessions and return-to-current.
 This source gap is not established as the cause of the retained5→4 failure
-and cannot establish20s idle or accelerate label4's41.0316s geometry itself.
+and cannot establish20s idle; label4's geometry duration was not recorded.
 The actual-route blocked-worker regression fails before repair by computing
 the identical request twice. Private tuple-compatible keyed requests fix it:
 eight CPU/offscreen Mac checks pass12.88s (sampled RSS0.463GiB), covering
 repeat/newest/session/version/return-to-current plus existing asynchronous
 anchors, refused-boundary caching and stale delivery. Geometry and worker
 policy are unchanged; no new native/FPS/full-idle acceptance is claimed.
+2026-10-23 Timestamp correction preserves the earlier failed20s verdict:
+41.0316 was misdescribed as mesh duration/completion; it is pick_at return
+relative to benchmark startup. Run one current-source exact-workload OpenGL
+trace of mesher submit/start/finish/delivery with a common epoch and owned
+profile. Keep20s verdict immutable; any subsequent≤60s observation is only
+cleanup/diagnosis, never an extended acceptance deadline.
+Current9bba2954d trace: actual work5=23.0838s, then work1=29.5102s;
+latest1 queued16.0038s. Strict20s full-idle gate FAILS20.0201s solely on
+mesher; later worker/render predicates become idle, but final1 Qt delivery
+is unrecorded before quit, so delivered anchors remain UNVALIDATED.
+Final GPU cleanup is empty and mask/history unchanged;20/20 current picks,
+81 aligned/0 bad/0 unknown paints,26.64 painted pairs/s. No FPS/full-idle/
+shutdown pass inferred (sampled RSS0.647GiB; no inaccessible samples).
+Next scoped queue contract: when selection needs no mesh (cached preview,
+saved geometry or explicit selection0), drop obsolete pending work without
+cancelling the active mesh or changing stale-delivery/pick-at-zero policy.
+Require three actual-route blocked-worker regressions before that repair.
+All three fail before repair because obsoleteB survives; the two-line ready-
+selection guard now drops pending work only. Eleven affected checks pass
+(10 in12.04s plus corrected none-case tuple expectation in4.00s; sampled
+RSS0.442/0.259GiB). Active work, stale delivery and pick-at-zero stay unchanged;
+this queue repair does not close the native20s/full-delivery/FPS gates.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
