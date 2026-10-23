@@ -87,6 +87,8 @@ def set_response_speed(speed: str) -> None:
         raise ValueError(f"unknown speed: {speed!r}. "
                           f"Choose from {VALID_SPEEDS}.")
     _settings().setValue(_KEY_SPEED, speed)
+    from .issue_report import _sync_automatic_failure_policy
+    _sync_automatic_failure_policy()
 
 
 def provider_args(provider_name: str) -> List[str]:
