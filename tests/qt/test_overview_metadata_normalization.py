@@ -526,3 +526,74 @@ def test_metadata_wizard_restores_explicit_geometry_and_reference_tuple(qtbot, t
     assert config["geometry"] == (16, 24)
     assert config["normalization"]["reference"] == selected
     wizard.reject()
+
+
+def test_concurrent_well_requests_share_reader_and_cancel_only_the_waiter(monkeypatch):
+    import json
+    from concurrent.futures import CancelledError, ThreadPoolExecutor, TimeoutError
+
+    reference = _field()
+    target = _field(well="B02", row="B", column=2)
+    raw = np.array([0., 4.])
+    owner_cancel = threading.Event()
+    waiter_cancel = threading.Event()
+    reading, release, waiting, timed_out = (threading.Event() for _ in range(4))
+    calls = []
+
+    def read(field, channels, *, edge):
+        calls.append(field.identity)
+        if field is target:
+            reading.set()
+            if not release.wait(10):
+                raise RuntimeError("The controlled reader was not released.")
+        return ((0, "raw", raw),)
+
+    _, context = browser._overview_prepare_normalization((reference, target), (0,),
+        _well_mean_options(), read, owner_cancel)
+    executor = ThreadPoolExecutor(max_workers=3)
+    try:
+        owner = executor.submit(context.plan_for, target)
+        assert reading.wait(5)
+        pending = context._pending[(target.plate, target.well)]
+        real_result = pending.result
+
+        def observe_result(timeout=None):
+            waiting.set()
+            try:
+                return real_result(timeout=timeout)
+            except TimeoutError:
+                timed_out.set()
+                raise
+
+        monkeypatch.setattr(pending, "result", observe_result)
+        cancelled_waiter = executor.submit(context.plan_for, target, waiter_cancel)
+        assert timed_out.wait(5)
+        waiter_cancel.set()
+        with pytest.raises(CancelledError):
+            cancelled_waiter.result(timeout=5)
+        assert not owner.done()
+        waiting.clear()
+        successful_waiter = executor.submit(context.plan_for, target)
+        assert waiting.wait(5)
+        assert calls == [reference.identity, target.identity]
+        release.set()
+        first = owner.result(timeout=5)
+        second = successful_waiter.result(timeout=5)
+        assert first == second
+        assert first["gains"] == {0: 1.}
+        assert context.plan_for(target) == first
+        assert calls == [reference.identity, target.identity]
+        provenance = context.provenance()
+        assert len(provenance["used_wells"]) == 1
+        assert provenance["used_wells"][0]["field_identities"] == (target.identity,)
+        assert provenance["used_wells"][0]["gains"] == {0: 1.}
+        json.dumps(provenance, allow_nan=False)
+        owner_cancel.set()
+        with pytest.raises(CancelledError):
+            context.plan_for(target)
+        assert context.provenance() == provenance
+        assert calls == [reference.identity, target.identity]
+        np.testing.assert_array_equal(raw, [0., 4.])
+    finally:
+        release.set()
+        executor.shutdown(wait=True)
