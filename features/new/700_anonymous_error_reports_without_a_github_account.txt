@@ -2,7 +2,7 @@
 ANONYMISED ERROR REPORTS WITHOUT A GITHUB ACCOUNT (ON BY DEFAULT)
 ================================================================================
 
-Status:    IN PROGRESS — consented shared ERROR capture and safe native-crash delivery
+Status:    DONE — consented shared ERROR capture, provider controls and safe deferred native-crash reporting
 Requested: maintainer, 2026-10-13: "instead of having the user need to login
            to github to send error messages, can i create a github account for
            spacr called spacr_first_responder that auto logs in in the
@@ -405,4 +405,5 @@ redundant now that reports go through the relay and spaCR AI (free) is on):
 
 2026-10-21 — Root additionally corrects the unsupported first-run promise of unlimited Claude/Codex/Gemini CLI use to using the user's own provider account. Correct the notice final sentence and the matching provider-CLI hint/summary; preserve the report/share limits, destinations, privacy and controls. Peer all18 exact runtime targets and9 API-summary targets, then regenerate catalogs normally. All27 exact targets are independently AI-peer reviewed (no human/native-speaker signoff);54 unique existing N700 cases pass across the original40 and affected17 runs. Executable AST is unchanged apart from the two approved caption constants. The existing55-key current-body fixture also needs only hosted_cli_hint updated to the approved summary; preserve its other54 entries and every assertion. COMPLETE: normal10-language runtime/Help generation, immutable9833-baseline arrivals refresh, and all12 owning API/Help/caption checks pass; HF API memory4690595d5c3f8d60d8e1105391345dbaffdea27a verifies all9 immutable files. Review pin7380d6a2ec74a5fe29c1942a415663654a4fb9dd retains review history; original live acceptance and every requested product change are delivered.
 
-2026-10-23 — Shared consented ERROR dispatch, per-occurrence transport, safe deferred native reports and explicit no-AI reporting are implemented; 52 affected CPU controls and the fake-relay no-AI control pass, retaining unchanged earlier controls. G1 independently accepted the core; startup UI integration, normal localized outputs and root publication remain pending.
+2026-10-23 — Consented shared ERROR capture, safe deferred native reports, explicit provider None and startup AI choice are integrated; focused core, lifecycle, privacy, startup and real uncaught-hook controls pass with independent source peers.
+Nine-language normal review/API/runtime outputs preserve prior records; immutable review and API-memory publication/readback pass. Seven final stock controls and the repaired English/extractor/callable-boundary inventories pass; source and normal outputs are delivered together on nightly. The original 55-row API fixture is preserved with exact named retirement/revision handling; no native crash cure or public release is claimed.

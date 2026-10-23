@@ -806,7 +806,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_mode",
-    "line": 9486,
+    "line": 9487,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -8459,7 +8459,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 13673,
+    "line": 13523,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8468,7 +8468,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13684,
+    "line": 13534,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -10575,7 +10575,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 13975,
+    "line": 13825,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -15121,7 +15121,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "export_vvvv",
-    "line": 9283,
+    "line": 9284,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -17283,7 +17283,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grna_statistic",
-    "line": 9521,
+    "line": 9522,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -17814,7 +17814,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutation_block",
-    "line": 9522,
+    "line": 9523,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -17908,7 +17908,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutations",
-    "line": 9504,
+    "line": 9505,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -20849,7 +20849,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "infection_xgb_n_jobs",
-    "line": 567,
+    "line": 572,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -20858,7 +20858,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "infection_xgb_n_jobs",
-    "line": 575,
+    "line": 580,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -21034,7 +21034,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
-    "line": 9485,
+    "line": 9486,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -22681,7 +22681,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9520,
+    "line": 9521,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -22690,7 +22690,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9573,
+    "line": 9574,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -26472,7 +26472,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "multiple_testing_method",
-    "line": 12561,
+    "line": 12411,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -27078,7 +27078,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 567,
+    "line": 572,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -27087,7 +27087,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 575,
+    "line": 580,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -27096,7 +27096,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11018,
+    "line": 10867,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27105,7 +27105,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11021,
+    "line": 10870,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27114,7 +27114,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11034,
+    "line": 10883,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27500,7 +27500,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 567,
+    "line": 572,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -27509,7 +27509,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 575,
+    "line": 580,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -28382,7 +28382,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 10885,
+    "line": 10734,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -36997,7 +36997,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 13970,
+    "line": 13820,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -43127,7 +43127,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 11002,
+    "line": 10851,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -43136,7 +43136,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 11037,
+    "line": 10886,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -44116,7 +44116,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_backend",
-    "line": 9574,
+    "line": 9575,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -44401,7 +44401,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 9564,
+    "line": 9565,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -44410,7 +44410,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 12560,
+    "line": 12410,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -49248,7 +49248,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1896,
+    "line": 1898,
     "module": "spacr.cli",
     "nested": false,
     "qualname": "_call_entry"
@@ -50805,7 +50805,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9199,
+    "line": 9200,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._claim_the_project"
@@ -50814,7 +50814,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9298,
+    "line": 9299,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -50823,7 +50823,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9312,
+    "line": 9313,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -50832,7 +50832,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9324,
+    "line": 9325,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -50841,7 +50841,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 10933,
+    "line": 10782,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_measure_plane_layout"
@@ -50850,7 +50850,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11026,
+    "line": 10875,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -50859,7 +50859,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11723,
+    "line": 11573,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._measurements_destination"
@@ -50868,7 +50868,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 12634,
+    "line": 12484,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._load_regression_results"
@@ -50877,7 +50877,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 13007,
+    "line": 12857,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._lock_analysis_now"
@@ -58691,7 +58691,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ultrack_n_workers",
-    "line": 567,
+    "line": 572,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -58700,7 +58700,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "ultrack_n_workers",
-    "line": 575,
+    "line": 580,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -59004,7 +59004,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 10896,
+    "line": 10745,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -61263,7 +61263,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_folder",
-    "line": 9323,
+    "line": 9324,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -61388,7 +61388,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_pipeline",
-    "line": 9329,
+    "line": 9330,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"

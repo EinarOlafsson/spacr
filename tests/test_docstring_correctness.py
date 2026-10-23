@@ -4804,6 +4804,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(client700_additions) == 55
+    from tests.test_documentation_i18n import _current_700_client_api
+    client700_additions = _current_700_client_api(client700_additions, docs)
     assert {key: docs[key] for key in client700_additions} == client700_additions
     assert not client700_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **client700_additions}
