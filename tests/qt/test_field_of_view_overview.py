@@ -229,7 +229,11 @@ def test_reopening_cancelled_overview_keeps_navigation_and_decodes(plate_images,
 
 def test_explicit_well_exports_all_fields_while_sample_mode_limits(plate_images, qtbot):
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    def retire(widget):
+        """Stop only this overview's queued visuals and owned workers before close."""
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+    qtbot.addWidget(dialog, before_close_func=retire)
     dialog._indexed(browser._overview_index(plate_images))
     dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
     dialog.use_selection.setChecked(True)
@@ -246,6 +250,7 @@ def test_explicit_well_exports_all_fields_while_sample_mode_limits(plate_images,
     dialog.use_selection.setChecked(True)
     dialog.fields.item(0).setSelected(True)
     assert dialog._export_selection() == (dialog.fields.item(0).data(browser.Qt.UserRole),)
+    retire(dialog)
     dialog.close()
 
 
@@ -1259,7 +1264,11 @@ def test_real_oversized_image_headers_refuse_pixel_decode(tmp_path, monkeypatch,
 def test_invalid_editable_display_choices_reach_field_and_export_guards(plate_images, qtbot, monkeypatch, invalid):
     from PySide6.QtWidgets import QFileDialog, QPushButton
     dialog = browser._FieldOverview(settings={"channels": [1]})
-    qtbot.addWidget(dialog)
+    def retire(widget):
+        """Stop only this overview's queued visuals and owned workers before close."""
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+    qtbot.addWidget(dialog, before_close_func=retire)
     dialog._indexed(tuple(field for field in browser._overview_index(plate_images)
                           if field.plate == "plate1" and field.well == "A01"))
     dialog.show()
@@ -1285,6 +1294,7 @@ def test_invalid_editable_display_choices_reach_field_and_export_guards(plate_im
         assert dialog.status.text() == expected and not dialog._export_jobs.is_busy()
         assert dialog._visual_context() is None
     finally:
+        retire(dialog)
         dialog.close()
 
 
