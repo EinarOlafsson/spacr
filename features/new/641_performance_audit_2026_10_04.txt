@@ -16,6 +16,17 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+Mac owner: the current Mac session owns attribution of the isolated setup
+language-cycle timeout on d671f743c (707 follow-up3202). Its original280s
+watchdog terminated only the owned child; no locale epoch was certified.
+A separate one-second native sample shows timer-driven synchronous repaint,
+not proof of event-hub recursion or a particular Python caller. Preserve
+the earlier completed layout observations. Next diagnostic retains the20s
+modal/280s parent deadlines and unchanged workload, persists existing phase/
+partial-page checkpoints, and permits one delayed Python-only stack snapshot
+without faulthandler, signals, Qt calls from a worker, or product changes.
+No startup/performance acceptance is inferred; CPU-only completion stands.
+
 Scoped shutdown follow-up: isolate normal MainWindow.close with the two
 production ambient compiler-start routes held at an owned test barrier, without
 real compilation or user settings. Check natural process termination after the

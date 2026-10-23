@@ -50,6 +50,62 @@ GUI_SCALE_MAX2.0/FONT_SCALE_MIN0.10. The body font is first floored to1px by
 theme scaling, then GUI scaling produces a2px witness. Prepare exact both-case
 normal-constructor checks with unchanged strict geometry/intrinsic/choice-slot/
 indicator/scroll/cleanup oracles and deadlines; no product fix is assumed.
+Native2623 on d671f743cc passes GUI200/font10 for both presentations:
+actual2px witnesses and1296x783 initial frames, all five Slides/one grouped
+page checks, offered slots/indicators, intrinsic/reach and both resize phases
+clear. Exec7.188/5.433s stays below20s; normal exit0 in33.333s/RSS1.330GiB,
+zero missed/no aliases. No readability or physical-input acceptance inferred.
+Last uncovered supported joint setup corner: GUI10%/font10%, with staged
+font/GUI floors producing an actual1px body witness. Prepare exact both-case
+normal-constructor inspection with unchanged strict oracles and deadlines,
+not a claim that1px text is readable or every intermediate scale is accepted.
+Native26670 on d671f743c passes joint GUI10/font10: Slides113x155 and
+grouped1082x685, actual1px witnesses, all five/one page checks and both resize
+phases clear. Exec5.748/3.902s stays below20s; natural exit0 in29.542s,
+RSS1.175GiB/zero missed/no aliases. The four min/max GUI/font combinations
+are now covered for these two setup presentations, alongside the retained
+default and independent-font checks. This does not certify intermediate
+scales, tiny-text readability, physical input or other screens/work areas.
+Next concrete live-layout gap: at GUI10/font200, change the real Slides
+language choice EN→DE→EN in its isolated profile without accepting setup or
+terms. Require actual stored/current language and Language→Sprache→Language
+witnesses, all pages' translated intrinsic/slot/reach checks and visible
+Hello/Hallo greeting placement under the original single20s modal deadline.
+Only the owned language preference may change; restore English and preserve
+other answers. This is programmatic native layout, not physical input.
+Native27950 on d671f743c reaches live German preference/Sprache and a clean
+DE page0, then fails the full-greeting-label visibility contract: Hallo's
+127x41 label has a113x41 visible region while the form has14px horizontal
+scroll range. This alone does not prove cut text; centered ink may fit inside
+that region. Remaining DE/restored-EN pages are uncertified; English restores.
+Natural exit1 in31.026s/RSS0.929GiB/zero missed. Attribute actual style text/
+tight glyph bounds and card/window geometry before any product repair; retain
+the full-label failure and all constructor/corner passes.
+Attribution80658 on the same source confirms clipped whitespace, not clipped
+greeting text: native30pt Open Sans Hallo has full style-text rectangle
+[29,0,69,41] and derived tight bounds[29,9,64,24], both wholly visible within
+113x41 despite the127x41 label. Natural exit1/32.213s/RSS0.962GiB/zero missed
+is the retained expected whole-label assertion failure, not product acceptance.
+The affected retake requires the FULL style-text rectangle visible, retaining
+intrinsic-height/nonoverlap checks and recording mapped title/blurb/note/button/
+language rectangles before assertions. No product change is justified by this
+whitespace-only finding; other translated pages remain pending.
+Retake88023 completes all ten DE/restored-EN page observations and both complete
+styled greetings with six nonoverlap checks; other answers/terms are unchanged,
+English restored, and exec takes8.594s within20s. Natural exit1/30.294s/
+RSS0.965GiB is solely the copied generic inspector's earlier restored-EN
+greeting whole-label check (127x41 label versus113x41 visible), before the
+new greeting placement. Full-case acceptance remains pending: record actual
+style-text visibility at that exact generic-inspection point and apply the
+same full-style-text contract ONLY to the actual dialog._greeting identity;
+all other widget reach/intrinsic checks remain unchanged. No product repair.
+Follow-up3202/H0NuCj on the unchanged source times out at280.201s; the watchdog
+terminates only its owned child (RSS1.338GiB/zero missed samples). No popups.json
+or locale epoch is certified, and no new glyph failure is established. One
+manual external native sample was captured at approximately3m48s; the wrapper's
+default external_sampling_performed=false does not describe that separate
+capture. Retain DC5GoA's ten-page partial results above; complete live-locale
+acceptance remains pending. No product edit or renewed acceptance claim.
 
 Affected setup follow-up after the new spaCR_AI row: inspect real SetupSlides
 and SetupDialog at normal owned Cocoa GUI/font90%/90%, actual1440x870 work
