@@ -2,7 +2,7 @@
 EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
 ================================================================================
 
-Status:    REOPENED 2026-10-22 — refresh generated settings after plaque and exclusion changes
+Status:    DONE 2026-10-22 — current generated references ship with this atomic publication
 Current follow-up: obsolete_repo_cleanup alone regenerates the standard and Colab
 notebooks and linked references from final current settings, including the plaque
 minimum_object_size setting and compact reviewed exclusion help. Preserve compact
@@ -185,4 +185,4 @@ VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_notebook_sett
 
 2026-10-22: REOPENED for actualNight02f Coverage2 job120012567210: regenerate missing plaque minimum_object_size descriptions/settings after accepted721 and the final compact exclusion tooltip. The retained sole notebook owner will use the normal producer after both source/category dependencies are frozen, retain all standard/Colab paths and validate the three actual freshness/description failures; root owns final review/publication.
 
-2026-10-22: READY for root publication: the normal notebook producer refreshed exactly three linked references (Plaque, ML Classify, image UMAP) against the compact reviewed exclusion tooltip plus categorized plaque cutoff. All64 standard/Colab notebook files and interactive helpers remain unchanged; the three actual freshness/description/compact-help checks pass (19.28 s). Source dependencies are the approved category and compact-tooltip candidates; no heavy workflow or duplicate UI matrix was run.
+2026-10-22: DONE with this atomic publication: the normal notebook producer refreshed exactly three linked references (Plaque, ML Classify, image UMAP) against the compact reviewed exclusion tooltip plus categorized plaque cutoff. All64 standard/Colab notebook files and interactive helpers remain unchanged; the three actual freshness/description/compact-help checks pass (19.28 s). Source dependencies are the approved category and compact-tooltip candidates; no heavy workflow or duplicate UI matrix was run.
