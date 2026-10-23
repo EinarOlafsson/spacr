@@ -651,3 +651,249 @@ def test_automatic_wizard_pattern_preserves_nested_folder_channel_groups(qtbot, 
     assert accepted[0]["custom_regex"] == ""
     assert accepted[0]["source_scope"] == "recursive"
     assert all(path.read_bytes() == before[path] for path in paths)
+
+
+@pytest.fixture
+def real_normalization_source(tmp_path):
+    import tifffile
+
+    paths = []
+    for channel, offset in ((1, 0), (2, 10)):
+        path = tmp_path / f"p_A01_F1_C{channel}.tif"
+        tifffile.imwrite(path, np.array([[0, 10], [20, 30]], dtype=np.uint16) + offset)
+        paths.append(path)
+    originals = {path: path.read_bytes() for path in paths}
+    fields = browser._overview_index(str(tmp_path), source_scope="folder")
+    assert len(fields) == 1 and fields[0].well == "A01"
+    yield tmp_path, fields
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+@pytest.mark.parametrize("channels,options,message", [
+    ((1,), {"mode": "retired-display-mode"}, "supported normalization"),
+    ((1,), {"percentiles": (97., 3.)}, "lower percentile"),
+    ((1,), {"percentiles": (3.,)}, "lower percentile"),
+    ((1,), {"percentiles": (float("nan"), 97.)}, "lower percentile"),
+    ((), {}, "distinct available channel"),
+    ((1, 1), {}, "distinct available channel"),
+    ((1,), {"reference_channel": 2}, "reference channel must be selected"),
+    ((1,), {"mean_match": True}, "Choose a reference channel"),
+])
+def test_saved_display_choices_refuse_invalid_configuration_without_changing_source(
+        real_normalization_source, channels, options, message):
+    _, fields = real_normalization_source
+    with pytest.raises(browser._OverviewValidationError, match=message):
+        browser._overview_prepare_normalization(fields, channels, options, browser._overview_raw_planes)
+
+
+def test_reference_channel_image_bounds_and_serialized_well_reference_use_real_raw_planes(real_normalization_source):
+    _, fields = real_normalization_source
+    field = fields[0]
+    source = tuple(browser._overview_raw_planes(field, (1, 2), edge=256))
+    plan = browser._overview_normalization_plan(fields, (1, 2), {
+        "mode": "image", "percentiles": (0., 100.), "reference_channel": 2}, browser._overview_raw_planes)
+    shown = browser._overview_normalized_planes(source, plan, field)
+    np.testing.assert_allclose(shown[0][2], [[0., 0.], [1 / 3, 2 / 3]])
+    np.testing.assert_allclose(shown[1][2], [[0., 1 / 3], [2 / 3, 1.]])
+    serialized_reference = browser._overview_normalization_plan(fields, (1,), {
+        "mode": "reference_well", "reference": [field.plate, field.well],
+        "percentiles": (0., 100.)}, browser._overview_raw_planes)
+    assert serialized_reference["reference"] == (field.plate, field.well)
+    assert serialized_reference["field_identities"] == (field.identity,)
+
+
+def test_channel_changes_refuse_stale_reference_and_shared_bounds(real_normalization_source):
+    _, fields = real_normalization_source
+    field = fields[0]
+    reference_plan = browser._overview_normalization_plan(fields, (1, 2), {
+        "mode": "image", "reference_channel": 2}, browser._overview_raw_planes)
+    first_channel = tuple(browser._overview_raw_planes(field, (1,), edge=256))
+    with pytest.raises(browser._OverviewValidationError, match="reference channel must be selected"):
+        browser._overview_normalized_planes(first_channel, reference_plan, field)
+    shared_plan = browser._overview_normalization_plan(fields, (1,), {"mode": "shared"},
+                                                       browser._overview_raw_planes)
+    second_channel = tuple(browser._overview_raw_planes(field, (2,), edge=256))
+    with pytest.raises(browser._OverviewValidationError, match="no learned normalization bounds"):
+        browser._overview_normalized_planes(second_channel, shared_plan, field)
+
+
+@pytest.mark.parametrize("mode", ["image", "shared"])
+def test_nonfinite_tiff_channel_is_refused_in_display_and_reference_learning(tmp_path, mode):
+    import tifffile
+
+    path = tmp_path / "p_A01_F1_C1.tif"
+    tifffile.imwrite(path, np.array([[np.nan, np.inf]], dtype=np.float32))
+    original = path.read_bytes()
+    fields = browser._overview_index(str(tmp_path), source_scope="folder")
+    with pytest.raises(browser._OverviewValidationError, match="no finite pixels"):
+        plan = browser._overview_normalization_plan(fields, (1,), {"mode": mode}, browser._overview_raw_planes)
+        browser._overview_normalized_planes(tuple(browser._overview_raw_planes(fields[0], (1,), edge=256)),
+                                            plan, fields[0])
+    assert path.read_bytes() == original
+
+
+@pytest.mark.parametrize("options,message", [
+    ({"reference_kind": "reference_unknown"}, "supported normalization"),
+    ({"reference": "p/A01"}, "reference has no fields"),
+    ({"reference": ("absent", 1)}, "reference has no fields"),
+    ({"reference": ("p", 9)}, "reference has no fields"),
+])
+def test_well_mean_saved_reference_must_resolve_to_actual_metadata(real_normalization_source, options, message):
+    _, fields = real_normalization_source
+    with pytest.raises(browser._OverviewValidationError, match=message):
+        browser._overview_prepare_normalization(fields, (1,), _well_mean_options(**options),
+                                                browser._overview_raw_planes)
+
+
+@pytest.mark.parametrize("axis", ["time", "z"])
+def test_well_mean_refuses_combining_distinct_real_filename_axes(tmp_path, axis):
+    import tifffile
+
+    pattern = (r"(?P<plateID>p)_(?P<wellID>A01)_F(?P<fieldID>1)_"
+               r"T(?P<timeID>\d+)_Z(?P<sliceID>\d+)_C(?P<chanID>1)\.tif")
+    for index in (1, 2):
+        time, z = (index, 1) if axis == "time" else (1, index)
+        tifffile.imwrite(tmp_path / f"p_A01_F1_T{time}_Z{z}_C1.tif", np.ones((2, 2), dtype=np.uint16))
+    fields = browser._overview_index(str(tmp_path), pattern, source_scope="folder")
+    assert len(fields) == 2
+    with pytest.raises(browser._OverviewValidationError, match="Choose one filename time point and Z plane"):
+        browser._overview_prepare_normalization(fields, (1,), _well_mean_options(), browser._overview_raw_planes)
+
+
+def test_unresolved_real_source_can_be_viewed_but_not_used_as_physical_well_reference(tmp_path):
+    import tifffile
+
+    path = tmp_path / "unidentified.tif"
+    tifffile.imwrite(path, np.array([[1, 2]], dtype=np.uint16))
+    fields = browser._overview_index(str(tmp_path), source_scope="folder")
+    assert len(fields) == 1 and fields[0].well == ""
+    info = browser._overview_channel_info(fields[0])
+    assert info["channels"] == (0,)
+    image = browser._overview_pixels(fields[0], (0,), (0., 100.))
+    assert image.size
+    with pytest.raises(browser._OverviewValidationError, match="resolved physical well identities"):
+        browser._overview_prepare_normalization(fields, (0,),
+            _well_mean_options(reference=(fields[0].plate, 1)), browser._overview_raw_planes)
+
+
+def test_empty_real_selection_cannot_learn_shared_bounds(tmp_path):
+    fields = browser._overview_index(str(tmp_path), source_scope="folder")
+    assert fields == ()
+    with pytest.raises(browser._OverviewValidationError, match="No fields are available"):
+        browser._overview_prepare_normalization(fields, (0,), {"mode": "shared"}, browser._overview_raw_planes)
+
+
+def test_wizard_refuses_invalid_display_edits_then_accepts_repaired_choices(qtbot, real_normalization_source):
+    source, _ = real_normalization_source
+    wizard = browser._OverviewMetadataWizard(str(source), {"channels": (1, 2)})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    accepted = []
+    wizard.accepted.connect(lambda: accepted.append(wizard.configuration()))
+    wizard.channels.setText("red")
+    wizard.next.click()
+    assert "channel IDs" in wizard.status.text() and not accepted
+    wizard.channels.setText("1, 1")
+    wizard.next.click()
+    assert "channel IDs" in wizard.status.text() and not accepted
+    wizard.channels.setText("1")
+    wizard.low.setValue(97.)
+    wizard.high.setValue(3.)
+    wizard.next.click()
+    assert "lower percentile" in wizard.status.text() and not accepted
+    wizard.low.setValue(3.)
+    wizard.high.setValue(97.)
+    wizard.gain.setCurrentIndex(wizard.gain.findData(2))
+    wizard.next.click()
+    assert "reference channel must be selected" in wizard.status.text() and not accepted
+    wizard.gain.setCurrentIndex(0)
+    wizard.mean_match.setChecked(True)
+    wizard.next.click()
+    assert "Choose a reference channel" in wizard.status.text() and not accepted
+    wizard.mean_match.setChecked(False)
+    wizard.mode.setCurrentIndex(wizard.mode.findData("reference_condition"))
+    wizard.next.click()
+    assert "reference has no fields" in wizard.status.text() and not accepted
+    wizard.conditions.item(0, 2).setText("control")
+    wizard.channels.setText("1, 2")
+    wizard.next.click()
+    assert len(accepted) == 1
+    assert accepted[0]["channels"] == (1, 2)
+    assert accepted[0]["normalization"]["percentiles"] == (3., 97.)
+    assert accepted[0]["normalization"]["reference"] == ("p", "control")
+
+
+def test_wizard_discards_stale_metadata_and_refuses_empty_missing_and_invalid_sources(
+        qtbot, monkeypatch, real_normalization_source):
+    import re
+
+    source, _ = real_normalization_source
+    empty = source / "empty"
+    empty.mkdir()
+    entered, release = threading.Event(), threading.Event()
+    actual_probe = browser._overview_wizard_probe
+
+    def gated_probe(path, *args, **kwargs):
+        result = actual_probe(path, *args, **kwargs)
+        if path == str(source):
+            entered.set()
+            if not release.wait(10):
+                raise RuntimeError("The real metadata probe was not released.")
+        return result
+
+    monkeypatch.setattr(browser, "_overview_wizard_probe", gated_probe)
+    wizard = browser._OverviewMetadataWizard(str(source), {"channels": (1, 2)})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    try:
+        qtbot.waitUntil(entered.is_set, timeout=10000)
+        wizard.source.selectAll()
+        qtbot.keyClicks(wizard.source, str(empty))
+        assert not wizard.next.isEnabled()
+        release.set()
+        qtbot.waitUntil(lambda: not wizard._runner.is_busy(), timeout=10000)
+        assert wizard._fields == () and wizard._info is None
+        with pytest.raises(browser._OverviewValidationError, match="Preview the current source"):
+            wizard.configuration()
+        wizard._scan()
+        qtbot.waitUntil(lambda: not wizard._runner.is_busy(), timeout=10000)
+        assert "No readable image fields" in wizard.status.text()
+        assert not wizard.next.isEnabled()
+        wizard.source.setText(str(empty / "missing"))
+        wizard._scan()
+        qtbot.waitUntil(lambda: not wizard._runner.is_busy(), timeout=10000)
+        assert "existing image folder" in wizard.status.text()
+        assert not wizard.next.isEnabled()
+        wizard.source.setText(str(source))
+        wizard.regex.setText("(")
+        try:
+            re.compile("(")
+        except re.error as error:
+            diagnostic = str(error)
+        wizard._scan()
+        qtbot.waitUntil(lambda: not wizard._runner.is_busy(), timeout=10000)
+        assert wizard.status.text() == diagnostic
+        assert not wizard.next.isEnabled()
+    finally:
+        release.set()
+        wizard.reject()
+
+
+def test_finite_reference_does_not_hide_nonfinite_target_field(tmp_path):
+    import tifffile
+
+    tifffile.imwrite(tmp_path / "p_A01_F1_C1.tif", np.array([[1., 2.]], dtype=np.float32))
+    target_path = tmp_path / "p_B02_F1_C1.tif"
+    tifffile.imwrite(target_path, np.array([[np.nan, np.inf]], dtype=np.float32))
+    original = target_path.read_bytes()
+    fields = browser._overview_index(str(tmp_path), source_scope="folder")
+    plan = browser._overview_normalization_plan(fields, (1,), {
+        "mode": "reference_well", "reference": ("p", "A01"),
+        "percentiles": (0., 100.)}, browser._overview_raw_planes)
+    assert plan["bounds"] == {1: (1., 2.)}
+    target = next(field for field in fields if field.well == "B02")
+    with pytest.raises(browser._OverviewValidationError, match="no finite pixels"):
+        browser._overview_normalized_planes(tuple(browser._overview_raw_planes(target, (1,), edge=256)),
+                                            plan, target)
+    assert target_path.read_bytes() == original
