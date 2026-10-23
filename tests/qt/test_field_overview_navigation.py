@@ -788,7 +788,7 @@ def test_wizard_folder_cancel_select_and_real_pattern_transitions(tmp_path, qtbo
     assert all(path.read_bytes() == before for path, before in originals.items())
 
 
-def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_path, qtbot):
+def test_coverslip_next_loads_real_pixels_with_explicit_well_identity(tmp_path, qtbot):
     import json
     from PySide6.QtWidgets import QWidget, QPushButton
 
@@ -796,11 +796,11 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
     source.mkdir()
     originals = {}
     for field in (1, 2):
-        path = source / f"f{field:03d}_c01.tif"
+        path = source / f"A01_f{field:03d}_c01.tif"
         tifffile.imwrite(path, np.roll(np.arange(1280, dtype=np.uint16).reshape(32, 40),
                                       field * 3, axis=1))
         originals[path] = path.read_bytes()
-    pattern = r"f(?P<fieldID>\d+)_c(?P<chanID>\d+)\.tif"
+    pattern = r"(?P<wellID>A01)_f(?P<fieldID>\d+)_c(?P<chanID>\d+)\.tif"
     owner = QWidget()
 
     def retire(widget):
@@ -820,7 +820,7 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
     wizard.geometry.setCurrentIndex(0)
     assert wizard.configuration()["geometry"] == (1, 1)
     accepted_fields = wizard._fields
-    assert len(accepted_fields) == 2 and all(field.well == "" for field in accepted_fields)
+    assert len(accepted_fields) == 2 and all(field.well == "A01" for field in accepted_fields)
     qtbot.mouseClick(wizard.next, Qt.LeftButton)
     dialog = owner._field_overview
     assert dialog._fields == accepted_fields
@@ -829,8 +829,8 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
         and dialog.wells.columnCount() == 1 and dialog.wells.item(0, 0) is not None
         and not dialog.wells.item(0, 0).icon().isNull(), timeout=10000)
     item = dialog.wells.item(0, 0)
-    assert item.data(Qt.UserRole) == ""
-    assert all(field.well == "" and field.row == "" and field.column == 0
+    assert item.data(Qt.UserRole) == "A01"
+    assert all(field.well == "A01" and field.row == "1" and field.column == 1
                for field in dialog._fields)
     dialog.wells.setCurrentItem(item)
     open_well = next(button for button in dialog.findChildren(QPushButton)
@@ -840,15 +840,15 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
     picture = dialog.view._item.pixmap().toImage()
     assert (picture.width(), picture.height()) == (512, 280)
     assert any(picture.pixelColor(x, 100).red() for x in range(50, 200))
-    assert dialog.fields.count() == 2 and dialog._scope == (str(source), "")
+    assert dialog.fields.count() == 2 and dialog._scope == (str(source), "A01")
     output = tmp_path / "export"
     paths, errors = module._overview_export(dialog._visible, output, (1,), (1., 99.9), measurements=True)
     assert paths and not errors
     metadata = json.loads((output / "overview_selection.json").read_text())
-    assert [field["well"] for field in metadata["fields"]] == ["", ""]
+    assert [field["well"] for field in metadata["fields"]] == ["A01", "A01"]
     measured = tabular.read_table(output / "overview_measurements.csv", canonicalise=False,
                                   keep_default_na=False)
-    assert measured["well"].tolist() == ["", ""]
+    assert measured["well"].tolist() == ["A01", "A01"]
     assert all(path.read_bytes() == before for path, before in originals.items())
 
 

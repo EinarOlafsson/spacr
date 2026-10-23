@@ -27,7 +27,8 @@ def overview(qtbot, tmp_path):
     dialog = browser._FieldOverview(settings={'source': str(source), 'geometry': (2, 2),
                                               'channels': [1], 'normalize': False})
     runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
-               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs,
+               dialog._metadata_jobs, dialog._native_jobs, dialog._measurement_jobs)
 
     def retire(widget):
         widget._cancel()

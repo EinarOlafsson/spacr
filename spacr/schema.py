@@ -1905,12 +1905,13 @@ CROP_TABLES: Tuple[str, ...] = ('png_list',)
 #: One row per measured field describing transformations applied before its
 #: object measurements were computed. These are field-keyed, not object-keyed.
 FIELD_PROVENANCE_TABLES: Tuple[str, ...] = ('intensity_rescale',)
+IMAGE_MEASUREMENT_TABLES: Tuple[str, ...] = ('fov',)
 
 #: Everything written into ``measurements/measurements.db`` that carries a
 #: field identity.
 MEASUREMENT_TABLES: Tuple[str, ...] = (
     OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + CROP_TABLES
-    + FIELD_PROVENANCE_TABLES)
+    + FIELD_PROVENANCE_TABLES + IMAGE_MEASUREMENT_TABLES)
 
 #: Tables spaCR owns that are *not* keyed on a field: the settings snapshot,
 #: the per-file object tallies, and the two append-only run journals.
@@ -2418,6 +2419,8 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
             f'{sorted(OWNED_TABLES)}.')
     if table in BOOKKEEPING_TABLES:
         return BOOKKEEPING_KEY_COLUMNS[table]
+    if table in IMAGE_MEASUREMENT_TABLES:
+        return ('field_uid',)
     base = TIMEPOINT_KEY_COLUMNS if timelapse else FIELD_KEY_COLUMNS
     if table in FIELD_PROVENANCE_TABLES:
         return base
