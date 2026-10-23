@@ -60,6 +60,13 @@ def test_shortcut_keys_keep_an_available_platform_monospace_family(qapp):
         assert 'Menlo' in QFontDatabase.families()
 
 
+@pytest.mark.parametrize('generator', ['_ghost_btn_qss', '_primary_btn_qss'])
+def test_actual_tour_button_fonts_use_platform_families(generator):
+    from spacr.qt import first_run
+
+    assert _assert_platform_families([getattr(first_run, generator)()]) == 1
+
+
 def test_every_generated_home_font_declaration_uses_platform_families(qtbot):
     from PySide6.QtWidgets import QWidget
     from shiboken6 import delete

@@ -16,43 +16,24 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
-Current scoped diagnostic (2026-10-23): retain the 61 unmet native comparisons;
-sample one owned normal Cocoa Home→Mask process externally at spawn+8–12 s
-using /usr/bin/sample at 10 ms. Record actual sample/readiness/heartbeat times
-and GUI/prewarm stacks before attributing the retained 1.9 s gap or changing
-code. Owned INI/state/cache, exact source, 8 GiB sampled RSS and 300 s watchdog
-remain required. This instrumented diagnostic is not a new timing acceptance.
-The first sample captured a 2099.8 ms interval crossing initial event-loop entry,
-not the later 1487.8 ms post-Home heartbeat gap. Native stacks showed nested
-event processing/painting/layout, not a dominant import lock. One follow-up
-uses owned pipe IPC to sample Home-ready+1 s for 4 s at 10 ms; correlate actual
-acquisition with that post-Home gap before proposing a source change.
-That follow-up captured 1536.8 ms: 293/348 main-thread samples waited for the
-GIL beneath synchronous ambient repaint; the Python witness showed settings
-prewarm importing pandas/pyarrow. One scratch-only exact-AST candidate wraps
-only that worker body in existing responsive_gui (including normal ambient
-busy pacing); preserve repaint semantics and verify balanced interval restore.
-The first candidate diagnostic crashed in the timed faulthandler dump thread
-(OS report PID67286), establishing neither product failure nor improvement.
-One affected retry omits that timed Python dump; keep external sampling,
-balanced claim/restore checks, original workload and normal-return checks.
-The safe retry's own claim/release restored 0.005 s/depth 0; exit 1 came from
-an invalid final global-zero assertion after another worker acquired a claim.
-No adoption: 270/346 sampled GUI GIL waits versus 293/348, but worst gap
-1885 versus 1633 ms and Mask 13.157 s within baseline variation. Instrumented
-diagnostics establish neither a robust timing improvement nor new acceptance.
-Current repair requirement: the native diagnostic still reports a 195 ms
-missing Sans-serif alias scan. Replace eight Home/tour hardcoded generic
-fallbacks with the existing platform-safe QSS_FONT_FAMILY; inspect every
-font-family declaration in generated application/Home styles, preserving
-Windows/Linux fallback policy. Existing startup/stall targets remain unmet.
-The all-declaration guard also exposed ShortcutOverlayKeys' generic monospace;
-use the verified native Menlo family only on Darwin, preserve the monospaced
-role and other-platform fallback, and test that exact selector separately.
-The same generated application sheet registers GateConsoleLog's monospace
-role too; apply the identical Darwin-only Menlo policy at that single site.
-Only those two exact selectors may use the named monospaced stack; all other
-application/Home font-family declarations must use the primary platform stack.
+Current Mac follow-up (2026-10-23): retain 61 unmet native comparisons and all
+startup/stall targets. Owned Cocoa Home→Mask diagnostics use exact source,
+isolated INI/state/cache and the sampled 8 GiB/300 s guard, not timing acceptance.
+The initial 2099.8 ms gap crossed first event-loop entry; a later live 1536.8 ms
+gap had 293/348 GUI samples waiting for the GIL beneath ambient repaint, while
+the Python witness showed settings prewarm importing pandas/pyarrow.
+Discarded scratch responsive_gui candidate: no demonstrated timing gain; its
+timed traceback diagnostic crashed, and its safe retry's global-zero assertion
+was invalid under another worker's claim despite its own balanced restoration.
+Observed 195 ms Sans-serif alias warning prompted twelve targeted font-site
+repairs: ten use existing QSS_FONT_FAMILY; two intentional monospaced roles
+(ShortcutOverlayKeys/GateConsoleLog) use verified Menlo on Darwin, preserving
+other-platform fallbacks. Ten affected font checks pass; colors/layout stay.
+The first ten-site native check still warned (202 ms), with normal app return.
+Targeted stored-font/QSS snapshots then exposed actual tour buttons' remaining
+generic fallback; only their two observed generators were additionally fixed.
+Native warning closure remains pending the affected clean Home→Mask run;
+unit passes and instrumented samples do not close performance or physical gates.
 
 The CPU/offscreen audit remains DONE at its recorded scope. This section
 makes its existing quiet real-display follow-up actionable; it does not add
