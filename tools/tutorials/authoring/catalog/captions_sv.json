@@ -1371,7 +1371,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "I den här demonstrationen av minnesanvändning upprepas samma exempelbildfält som plattor i en större array; ingen mätning startas. Innan en körning startar uppskattar spaCR hur mycket minne varje arbetsprocess behöver utifrån ett synfält i ditt projekt. Med mycket stora synfält, som sammanfogade mosaiker, får de arbetsprocesser du bad om kanske inte plats i ledigt RAM, och då frågar spaCR först. Välj det rekommenderade antalet arbetsprocesser, behåll ditt eget och låt Measure pausa nya synfält medan minnet är knappt, eller stäng andra program för att frigöra minne.",
+          "narration": "Innan en körning startar uppskattar spaCR hur mycket minne varje arbetsprocess behöver utifrån ett synfält i ditt projekt. Med mycket stora synfält, som sammanfogade mosaiker, får de arbetsprocesser du bad om kanske inte plats i ledigt RAM, och då frågar spaCR först. Välj det rekommenderade antalet arbetsprocesser, behåll ditt eget och låt Measure pausa nya synfält medan minnet är knappt, eller stäng andra program för att frigöra minne.",
           "focus": [
             1620,
             860,

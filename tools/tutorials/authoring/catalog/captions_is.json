@@ -1371,7 +1371,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "Í þessari sýnikennslu um minnisnotkun er sami myndreitur úr dæminu endurtekinn í flísum til að mynda stærra fylki; engin mæling er ræst. Áður en keyrsla hefst metur spaCR hve mikið minni hvert vinnuferli þarf út frá einu sjónsviði í verkefninu þínu. Með mjög stórum sjónsviðum, eins og samsettum mósaíkmyndum, rúmast vinnuferlin sem þú baðst um ef til vill ekki í lausu vinnsluminni, og þá spyr spaCR fyrst. Veldu ráðlagðan fjölda vinnuferla, haltu þínum fjölda og leyfðu Measure að gera hlé á nýjum sjónsviðum meðan minni er af skornum skammti, eða lokaðu öðrum forritum til að losa minni.",
+          "narration": "Áður en keyrsla hefst metur spaCR hve mikið minni hvert vinnuferli þarf út frá einu sjónsviði í verkefninu þínu. Með mjög stórum sjónsviðum, eins og samsettum mósaíkmyndum, rúmast vinnuferlin sem þú baðst um ef til vill ekki í lausu vinnsluminni, og þá spyr spaCR fyrst. Veldu ráðlagðan fjölda vinnuferla, haltu þínum fjölda og leyfðu Measure að gera hlé á nýjum sjónsviðum meðan minni er af skornum skammti, eða lokaðu öðrum forritum til að losa minni.",
           "focus": [
             1620,
             860,

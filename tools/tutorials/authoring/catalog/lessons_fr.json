@@ -1509,7 +1509,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "Pour cette démonstration de mémoire, le même champ exemple est répété en mosaïque pour former un tableau plus grand ; aucune mesure n’est lancée. Avant de lancer une exécution, spaCR estime la mémoire dont chaque processus de travail a besoin à partir d’un champ de votre projet. Avec des champs très grands, comme des mosaïques assemblées, les processus demandés peuvent ne pas tenir dans la RAM libre, et spaCR vous demande d’abord. Choisissez le nombre de processus recommandé, gardez le vôtre et laissez Measure suspendre les nouveaux champs tant que la mémoire manque, ou fermez d’autres programmes pour libérer de la mémoire.",
+          "narration": "Avant de lancer une exécution, spaCR estime la mémoire dont chaque processus de travail a besoin à partir d’un champ de votre projet. Avec des champs très grands, comme des mosaïques assemblées, les processus demandés peuvent ne pas tenir dans la RAM libre, et spaCR vous demande d’abord. Choisissez le nombre de processus recommandé, gardez le vôtre et laissez Measure suspendre les nouveaux champs tant que la mémoire manque, ou fermez d’autres programmes pour libérer de la mémoire.",
           "focus": [
             1620,
             860,
@@ -1517,7 +1517,7 @@
             360
           ],
           "hold_after": 0.7,
-          "speech_text": "Pour cette démonstration de mémoire, le même champ exemple est répété en mosaïque pour former un tableau plus grand ; aucune mesure n’est lancée. Avant de lancer une exécution, spakeur estime la mémoire dont chaque processus de travail a besoin à partir d’un champ de votre projet. Avec des champs très grands, comme des mosaïques assemblées, les processus demandés peuvent ne pas tenir dans la RAM libre, et spakeur vous demande d’abord. Choisissez le nombre de processus recommandé, gardez le vôtre et laissez Measure suspendre les nouveaux champs tant que la mémoire manque, ou fermez d’autres programmes pour libérer de la mémoire."
+          "speech_text": "Avant de lancer une exécution, spakeur estime la mémoire dont chaque processus de travail a besoin à partir d’un champ de votre projet. Avec des champs très grands, comme des mosaïques assemblées, les processus demandés peuvent ne pas tenir dans la RAM libre, et spakeur vous demande d’abord. Choisissez le nombre de processus recommandé, gardez le vôtre et laissez Measure suspendre les nouveaux champs tant que la mémoire manque, ou fermez d’autres programmes pour libérer de la mémoire."
         }
       ],
       "narration_voices": {
