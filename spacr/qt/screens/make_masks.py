@@ -11662,6 +11662,9 @@ class _VolumeStage(QWidget):
         broken, self._gl = self._gl, None
         self._gl_tried = True
         if broken is not None:
+            self._render_state = None
+            if self._render_artist is not None:
+                self._render_artist.set_visible(False)
             self._gpu_refused.add(broken.backend)
             broken.close()
             if self._backend_choice == 'auto':
@@ -12385,6 +12388,7 @@ class _VolumeStage(QWidget):
         else:
             artist.set_data(state.rgb)
             artist.ox, artist.oy = int(x0), int(y0)
+        artist.set_visible(True)
         if draw and not getattr(self, '_volume_prepainting', False):
             self._panel.canvas._canvas.draw_idle()
 

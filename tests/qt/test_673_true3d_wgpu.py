@@ -19,6 +19,7 @@ import ast
 import logging
 import subprocess
 import sys
+import threading
 import types
 from importlib.util import find_spec
 from pathlib import Path
@@ -269,6 +270,79 @@ def test_a_wgpu_frame_that_fails_hands_auto_to_opengl_then_the_cpu(view, qtbot, 
     _wait_render(stage, qtbot)
     assert stage._gl is None and stage._render_state.backend == "cpu"
     assert "GL_OUT_OF_MEMORY" in stage._backend_note
+
+
+def test_failed_gpu_frame_is_hidden_and_unpickable_until_fresh_cpu_delivery(view, qtbot, monkeypatch):
+    stage = view
+    _chain(monkeypatch)
+    _restart(stage, qtbot)
+    stage._backend_choice = 'vulkan'
+    previous = stage._render_state
+    artist = stage._render_artist
+    assert artist.get_visible() and np.any(previous.picked > 0)
+    stale = stage._render_request('preview')
+    original_mask = stage.session.mask.copy()
+    history = (list(stage.session._undo), list(stage.session._redo), stage._version)
+    selected = stage._selected
+    closed, consumed = [], []
+    monkeypatch.setattr(stage._gl, 'close', lambda: closed.append(True))
+    entered, release = threading.Event(), threading.Event()
+    original_render = layers.render_volume
+
+    def blocked_cpu(*args, **kwargs):
+        entered.set()
+        assert release.wait(5)
+        return original_render(*args, **kwargs)
+
+    monkeypatch.setattr(layers, 'render_volume', blocked_cpu)
+    stage._gl.failing = 'owned render failure'
+    stage._panel.canvas._view_angles = (37., -49., 0.)
+    try:
+        stage._panel.canvas.render_now()
+        qtbot.waitUntil(entered.is_set, timeout=5000)
+        assert stage._gl is None and stage._active_backend() == 'cpu' and closed == [True]
+        assert stage._render_state is None
+        pending_artist = stage._render_artist
+        assert not pending_artist.get_visible()
+        assert not any(image.get_visible() for image in stage._panel.canvas._figure.images
+                       if image.get_gid() == 'VolumeRender')
+        original_make_image = pending_artist.make_image
+
+        def make_image(*args, **kwargs):
+            consumed.append(True)
+            return original_make_image(*args, **kwargs)
+
+        monkeypatch.setattr(pending_artist, 'make_image', make_image)
+        consumed.clear()
+        stage._panel.canvas._canvas.draw()
+        assert consumed == []
+        row, column = np.argwhere(previous.picked > 0)[0]
+        x0, x1, y0, y1 = previous.rect
+        height, width = previous.picked.shape
+        x = x0 + (column + .5) * (x1 - x0) / width
+        y = y1 - (row + .5) * (y1 - y0) / height
+        assert stage.pick_at(x, y) == 0 and stage._selected == selected
+        stage._take_render((stale, (previous.rgb, previous.picked), None))
+        assert stage._render_state is None and not pending_artist.get_visible()
+        assert np.array_equal(stage.session.mask, original_mask)
+        assert (list(stage.session._undo), list(stage.session._redo), stage._version) == history
+    finally:
+        release.set()
+        _wait_render(stage, qtbot)
+    current = stage._render_state
+    current_artist = stage._render_artist
+    assert current.backend == 'cpu' and current_artist.get_visible()
+    assert np.any(current.rgb) and np.any(current.picked > 0)
+    stage._take_render((stale, (previous.rgb, previous.picked), None))
+    assert stage._render_state is current and current_artist.get_visible()
+    row, column = np.argwhere(current.picked > 0)[0]
+    x0, x1, y0, y1 = current.rect
+    height, width = current.picked.shape
+    assert stage.pick_at(x0 + (column + .5) * (x1 - x0) / width,
+                         y1 - (row + .5) * (y1 - y0) / height) == int(current.picked[row, column])
+    _wait_render(stage, qtbot)
+    assert np.array_equal(stage.session.mask, original_mask)
+    assert (list(stage.session._undo), list(stage.session._redo), stage._version) == history
 
 
 def test_an_explicit_wgpu_choice_that_fails_draws_on_the_cpu(view, qtbot, monkeypatch):
