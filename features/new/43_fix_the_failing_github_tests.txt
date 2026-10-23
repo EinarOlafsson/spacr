@@ -1,4 +1,13 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT QT BATCH COLLECTION COST — 2026-10-23
+Root owns the demonstrated empty-batch startup cost in the three-hour Qt CI
+job. Retain every selected test, whole-batch conftest checks, bounded memory,
+marker/shard selection, diagnostic timeouts and failure propagation. Use actual
+pytest collection to avoid starting extra workers for proven-empty non-Qt-path
+batches; no static guesses, suite-wide collection or timeout/ratchet increases.
+Independent coordinator reviews the change; validate only the owning runner
+contracts and real small collection/selection regressions before publication.
+
 CURRENT EMBEDDINGS CONTROL COVERAGE — 2026-10-23
 Retained widgets_g5 owns four source-bound controls for the actual aggregate
 coverage gaps: installed-checkpoint placeholder preservation, current-result
@@ -4530,3 +4539,5 @@ Normal bounded API applicability confirms 223 rendered entries unchanged; runtim
 An owned-timer native-start failure control passes (0.68s): boundary drain preserves the buffered tail, retires the unstarted timer without an invalid join and leaves the log usable. The failure seam forwards every unrelated thread start; previous lifecycle results are retained.
 Mac follow-up on9697c935b: both unavailable-original-stderr cases pass on real Cocoa (2 tests,4.10s; sampled RSS0.272GiB), preserving real QThread payload/completion/retirement assertions in isolated fixture paths under the8GiB/300s wrapper. Intel macOS26.6.1/DPR2; no production changes, broader replay or whole-item acceptance inferred.
 Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control/deleted-wrapper diagnostic cases pass on real Cocoa (2 tests,5.46s; sampled RSS0.317GiB), using owned temporary settings/state and the8GiB/300s wrapper. Intel macOS26.6.1/DPR2; no physical-input, performance-budget or whole-item acceptance is inferred, and earlier results remain retained.
+
+2026-10-23 — Qt CI now uses opt-in serial collection for batches outside automatically Qt-marked paths before starting extra workers; only pytest exit5 skips execution. Explicit Qt tests, marker/shard settings, failures, timeouts and later batches are retained. Runner24cases pass7.84s, five affected workflow contracts pass0.91s; independent peer accepted. No time limit, assertion or coverage ceiling changed; actual final-source hosted CI remains required.
