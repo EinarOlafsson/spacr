@@ -101,7 +101,7 @@ def test_enabling_startup_ai_preserves_explicit_report_off_and_existing_vendor(p
     assert terms.agreement_record() == before
 
 
-def test_preferences_none_can_save_sending_mode_without_enabling_ai(qtbot, private_ai_profile):
+def test_preferences_none_can_save_sending_mode_without_enabling_ai(qtbot, private_ai_profile, monkeypatch):
     from spacr import crashreport
 
     preferences, terms, settings = private_ai_profile
@@ -122,7 +122,9 @@ def test_preferences_none_can_save_sending_mode_without_enabling_ai(qtbot, priva
     assert not preferences._get_spacr_ai_enabled()
     assert crashreport.error_report_mode() == "all"
     assert terms.agreement_record() == accepted
-    policy, explain, send = crashreport._automatic_error_policy(crashreport.KIND_FAULT)
+    with monkeypatch.context() as policy_network:
+        policy_network.setattr(crashreport, "network_allowed", lambda: True)
+        policy, explain, send = crashreport._automatic_error_policy(crashreport.KIND_FAULT)
     assert policy["provider"] == "none"
     assert not explain and send
     reopened = preferences.PreferencesDialog()
