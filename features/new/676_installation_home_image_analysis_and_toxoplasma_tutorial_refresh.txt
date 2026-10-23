@@ -296,3 +296,5 @@ Prior no-new-recording/deletion/GPU-job holds remain; retain passed media and pl
 2026-10-23 — Measure’s17 reviewed idle fences are rebound by the normal reuse generator to its fresh narration timeline; the unchanged published master and all34 other policies are retained. Reuse and finish passed; browser/publication remain pending. No new capture.
 
 2026-10-23 — Measure narration now explains the memory warning and worker choices without recording-construction commentary. Matching13 caption translations and all50 narration tracks use the normal reviewed sentence cache; unchanged published footage and essential actions are retained. Normal audio QA/onsets,71 browser cases/completed matrix and84-route candidate/published/media readback checks passed; all83 other lessons preserved. Item676 remains open.
+
+2026-10-23 — The reviewed CPU Doctor reference now uses feature-focused labels with the original command/results. Its normal mix/finish passed; the generated policy retains all14 original scene clocks/fences and all34 other policies. Retained speech and browser/publication acceptance remain separately guarded; item676 remains open.
