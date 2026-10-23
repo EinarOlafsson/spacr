@@ -32,9 +32,11 @@ with actual60px CommandInput/48px headers and the same native bounds, intrinsic
 rich-text and axis-specific reachability checks; no accepted cohort replay.
 Native e8c15928c combined maximum PASS: palette1120x467, fallback1296x783
 with vertical range1851; actual60/48px fonts, full/reachable text, no aliases,
-normal exit0, RSS0.969GiB/0 missed. Check remaining supported scale corners
-(GUI/font .1/.1, .1/2 and2/.1) with the same strict native/text preconditions;
-these boundary checks do not certify every intermediate scale or physical input.
+normal exit0, RSS0.969GiB/0 missed. Native1162f6ba1 remaining supported corners
+(GUI/font .1/.1, .1/2 and2/.1) all PASS with exact fonts, bounded frames,
+full/reachable controls and rich text, no aliases and normal exits0;
+RSS0.829/0.869/0.931GiB, no missed samples. These boundary checks do not certify
+every intermediate scale, readability at1px, or physical input.
 Native font200 stress confirms a real parentless shortcut-fallback defect:
 756x1295 exceeds the870px work area and has no scroll container. Palette fits
 1120x420 with87 rows scrolling and27px input; fallback fonts22/23px are correct.
