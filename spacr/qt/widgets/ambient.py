@@ -5207,6 +5207,7 @@ _PRIME_PROCESS = None
 
 
 def _compiler_checkpoint():
+    """Abort optional compiler work once shutdown has requested cancellation."""
     if _COMPILER_STOP.is_set():
         from concurrent.futures import CancelledError
 
@@ -5214,7 +5215,9 @@ def _compiler_checkpoint():
 
 
 def _start_compiler(function, name):
+    """Track one non-daemon compiler, refusing new work after shutdown."""
     def work():
+        """Release this worker's tracked ownership when its function ends."""
         try:
             function()
         finally:
@@ -5235,6 +5238,7 @@ def _start_compiler(function, name):
 
 
 def _stop_prime_helper(process, deadline):
+    """Terminate and reap only the owned helper before the shared deadline."""
     import subprocess
 
     if process.poll() is not None:
@@ -5257,6 +5261,7 @@ def _stop_prime_helper(process, deadline):
 
 
 def _retire_compiler_threads(timeout_s=3.0):
+    """Cancel owned helper work and report compilers still alive after a bounded wait."""
     deadline = time.monotonic() + max(0.0, float(timeout_s))
     with _COMPILER_LIFECYCLE_LOCK:
         _COMPILER_STOP.set()
