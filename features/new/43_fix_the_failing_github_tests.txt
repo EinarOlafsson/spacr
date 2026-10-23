@@ -7,6 +7,17 @@ the full140000-cell workload, strict one/three-second budgets, displayed
 values, item identity and sorting behavior; no skips, weakened thresholds or
 mocked work. Use only bounded CPU profiling and the smallest owning cohort.
 
+
+CURRENT EXTRA TIMER ATTRIBUTION — 2026-10-22
+Priority: diagnose the actual Night682 Coverage9 job120160675367 cancellation
+census failure before any product change. Retained G3 owns the isolated test
+followup; root reviews and publishes it. Preserve all twenty genuine cancelled
+runs and both strict whole-thread/OS-thread assertions. Failure-only diagnostics
+must identify extra Timer class modules, callbacks and source locations,
+interval/finished state and current Python stacks without argument payloads,
+thread exclusions, added waits or a speculative Qt fix. Existing ordinary/INFO
+passes remain valid; this metadata-only change does not require another local
+standalone run. The extra Timer's producer remains unproven until attributed.
 - Diagnose the actual Night caption-arrival reproduction timeout (job119865495029): reuse source-bound strict review validation safely without increasing timeouts or weakening immutable-pin/negative checks. G3 owns the isolated caching repair; feature_takeover integrates, root reviews before publication.
 
 CURRENT WEAK-LISTENER LIFETIME CONTROL — 2026-10-22
@@ -4384,7 +4395,7 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 
 2026-10-22 — release_ci_takeover owns actual coverage0 job119865494655 native-release contract alignment: require the existing finalized bump SHA consistently for native builds, checkout, payload verification, tag and publication. Preserve native success dependencies, exact-source checksums/artifact collection and ordering; test-only repair under root review, with no release dispatch or gate relaxation. Cold reviewed-runtime validation now avoids a second deterministic semantic check only when its contextualized candidate is byte-identical; distinct candidates and all rejection flags stay strict. Five real-string/call-count controls pass (2.78 s); the original 600-second reproduction test was not rerun and hosted CI acceptance remains open.
 
-2026-10-22: Root-approved retained G1/G4 geometry repairs stack organism panes when fresh native minima exceed available width, release them after shrink, and preserve physical measured description heights through zoom. Original Hindi/no-overflow/window-size checks pass with new controls (2 organism and8 description checks); Home keeps all39 design samples on native rendered coordinates (1 fresh90% CPU case). Reviewed text, opacity assertions and defaults are unchanged.
+2026-10-22: Root-approved retained G1/G4 geometry repairs stack organism panes when fresh native minima exceed available width, release them after shrink, and preserve physical measured description heights through zoom. Original focused Hindi/no-overflow/window-size controls passed, but hosted Night682 job120160675443 still grows the window to959px in two wide-Hindi controls; feature_takeover/G4 retained2 local passes and native single-pane-fit/sum-only-overflow probes without reproducing growth; root approved failure-only native font/pane geometry diagnostics in those same assertions for the next coherent CI publication. Every input, assertion condition, timeout and production behavior remains unchanged; hosted font/layout causality remains unresolved. Retain8 unaffected description checks; Home keeps all39 design samples on native rendered coordinates (1 fresh90% CPU case). Reviewed text, opacity assertions and defaults are unchanged.
 
 2026-10-22: Divide strokes reuse bounded integer object boxes while sparse/noninteger masks retain the old path;3 exact-reference/budget controls pass, without a reproduced CI timing failure or relaxed half-time threshold. Chrome/browser graphics entries never block ambient compute-idle checks, including portable Windows metadata fallback;16 original and15 new/affected mocked checks pass with unaffected Linux results retained. Real/unknown compute remains busy; no GPU execution or claimed Home-failure causality.
 

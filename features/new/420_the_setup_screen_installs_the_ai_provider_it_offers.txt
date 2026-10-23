@@ -2,14 +2,9 @@
 THE SETUP SCREEN INSTALLS THE AI PROVIDER IT OFFERS, INSTEAD OF PRINTING A LINK
 ================================================================================
 
-Status:    DONE 2026-09-21 — ON LINUX AND macOS 2026-09-21: the AI sign-ins run inside spaCR
-           on a pseudo-terminal, no terminal window (Windows still opens one).
-           Earlier: BUILT ON LINUX AND LANDED ON NIGHTLY 2026-09-19, after review.
-           NOT DONE: the AI CLIs' sign-in still runs in a terminal window
-           spaCR opens, so the first DONE WHEN ("no terminal used") is met
-           for the GitHub CLI only. Windows and macOS commands are data from
-           the vendors' docs, UNVERIFIED on those hosts. No real install was
-           run anywhere. See the two 2026-09-19 notes at the end.
+Status:    DONE / SUPERSEDED 2026-10-22 — item 700 removed the startup
+           provider/GitHub install and sign-in workflow by maintainer request.
+           No fresh installation or browser authentication is claimed.
 Requested: 2026-09-16, by the maintainer, in these words:
 
            "in the startup spacr when the use clicks an AI provider there
@@ -19,11 +14,10 @@ Requested: 2026-09-16, by the maintainer, in these words:
            giving the user a curl link it uses the curl link to downloade e.g.
            claude and then installs it."
 
-Owner:     unassigned. spacr/qt/widgets/setup_slides.py (the startup slide),
-           spacr/qt/ai/providers.py (what each provider knows about itself),
-           spacr/qt/widgets/ai_chat_panel.py (the same hint, shown again).
+Owner:     none — superseded startup scope closed; optional AI preferences
+           and hosted reporting retain their current item 700 behavior.
 
-MAC SESSION: REAL PROVIDER INSTALL AND EMBEDDED AUTHENTICATION
+HISTORICAL MAC FOLLOW-UP — SUPERSEDED BY ITEM 700 (2026-10-22)
 
 This is the existing real-host/vendor follow-up, not a claim that local PTY
 stand-ins authenticated a vendor. Follow spacr/resources/AI/MAC_HANDOFF.md and
@@ -452,3 +446,7 @@ No native execution or new completion claim is implied; existing source, tests a
 2026-10-22 - Maintainer requests noninteractive alternatives. Windows lane preserves existing tools/accounts and accepts supported credential reuse without calling it a fresh install/browser login; N700 (2026-10-14/15) supersedes the old startup AI/GitHub frontdoor in N221/420, so do not restore removed onboarding.
 2026-10-22 - Genuine GitHub CLI 2.102.0 passed fresh private GH_CONFIG_DIR, memory-only existing GH_TOKEN, authenticated read-only API and spaCR tool/issue-auth readiness; original configuration unchanged and no credential persisted. Root verified existing Codex CLI login/status and spaCR readiness; neither result proves fresh app-button installation or browser authentication.
 2026-10-22 - N700 retired the startup provider/GitHub install/login UI and its browser/READY/cancel gate; that gate is superseded, not an active Windows prerequisite. Current optional AI Console cards copy commands and show installed state; GitHub is an issue tool, not Copilot chat. Claude/Gemini are unconfigured; retain 89 focused passes/8 POSIX skips, with no fresh install/login or GUI READY claim.
+
+2026-10-22 — Closeout reconciles item 700's maintainer-approved removal of the startup AI/GitHub pages, installers and sign-in paths; the former fresh-install/browser/READY/cancel gate no longer applies.
+Existing POSIX transport fixes and recorded focused results remain retained; optional preference cards and authenticated tool readiness do not constitute a new app-button install or fresh browser login.
+This closes superseded scope, preserves the historical native limitations above, and adds no new provider-installation requirement or implementation claim.

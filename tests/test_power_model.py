@@ -1343,3 +1343,250 @@ def test_numpyro_preserves_half_student_priors_and_scoped_double_precision(
             assert fit.draws.dtype == np.float64
             assert fit.converged
         assert not jax.config.x64_enabled
+
+
+@pytest.mark.parametrize('weighted', [False, True])
+def test_numpyro_repeated_well_likelihood_and_gradient_match_single_observations(monkeypatch, weighted):
+    jax = pytest.importorskip('jax')
+    numpyro = pytest.importorskip('numpyro')
+    import jax.numpy as jnp
+    import torch
+    from numpyro import handlers, infer
+
+    repeated = np.array([0, 0, 0, 1, 1])
+    weights = np.array([1/3, 1/3, 1/3, 1/2, 1/2]) if weighted else None
+    design = np.array([[0.2, 0.8], [0.7, 0.3]])
+    counts, exposure = np.array([2, 4]), np.array([10, 12])
+
+    class ConditionedSampler:
+        def __init__(self, model, **kwargs):
+            self.model = model
+
+        def run(self, key):
+            def trace_at(theta):
+                latents = {'z': theta[:2], 'lam': jnp.ones(2),
+                           'tau': jnp.array(0.25), 'c2': jnp.array(4.0),
+                           'intercept': theta[2]}
+                return handlers.trace(handlers.seed(
+                    handlers.condition(self.model, data=latents), rng_seed=key)).get_trace()
+
+            def loglik(theta):
+                site = trace_at(theta)['obs']
+                return jnp.sum(site['fn'].log_prob(site['value']) * site['scale'])
+
+            theta = np.array([0.4, -0.2, -1.2])
+            value, gradient = jax.value_and_grad(loglik)(jnp.asarray(theta))
+            expected_theta = torch.tensor(theta, dtype=torch.float64, requires_grad=True)
+            beta = expected_theta[:2] * (0.25 * np.sqrt(4 / (4 + 0.25**2)))
+            indices = np.arange(2) if weighted else repeated
+            eta = expected_theta[2] + torch.tensor(design[indices] - design[repeated].mean(axis=0)) @ beta + torch.log(
+                torch.tensor(exposure[indices], dtype=torch.float64))
+            expected = torch.distributions.Poisson(torch.exp(eta)).log_prob(
+                torch.tensor(counts[indices], dtype=torch.float64)).sum()
+            expected.backward()
+            np.testing.assert_allclose(value, expected.detach().numpy(), rtol=1e-12)
+            np.testing.assert_allclose(gradient, expected_theta.grad.numpy(), rtol=1e-12, atol=1e-14)
+            self.trace = trace_at(jnp.asarray(theta))
+            np.testing.assert_array_equal(self.trace['obs']['value'], counts[repeated])
+
+        def get_samples(self):
+            return {name: jnp.repeat(self.trace[name]['value'][None], 2, axis=0)
+                    for name in ('beta', 'intercept')}
+
+        def get_extra_fields(self, **kwargs):
+            return {'diverging': np.zeros(2, dtype=bool)}
+
+    monkeypatch.setattr(infer, 'NUTS', lambda model, **kwargs: model)
+    monkeypatch.setattr(infer, 'MCMC', ConditionedSampler)
+    data = ModelData(wells=np.array(['a']*3 + ['b']*2), genes=np.array(['A', 'B']),
+                     Npositive=counts[repeated], Ntotal=exposure[repeated],
+                     log10expression=design[repeated], likelihood_weights=weights,
+                     likelihood_well_ids=tuple(repeated) if weighted else None)
+    fit_model(data, backend='numpyro', standardize=False, n_chains=1)
+
+
+@pytest.mark.parametrize('weights', [[1.0], [1.0, 0.0], [1.0, np.nan], [[1.0], [1.0]]])
+def test_likelihood_weights_refuse_invalid_or_misaligned_rows(weights):
+    data = ModelData(wells=np.array(['a', 'b']), genes=np.array(['A']),
+                     Npositive=np.array([1, 2]), Ntotal=np.array([10, 10]),
+                     log10expression=np.array([[0.2], [0.8]]), likelihood_weights=weights)
+    with pytest.raises(ValueError, match='likelihood_weights.*aligned'):
+        fit_model(data, backend='torch')
+
+
+def test_pymc_repeated_well_loglik_and_gradient_match_one_contribution(monkeypatch):
+    pm = pytest.importorskip('pymc')
+    import torch
+
+    class InspectedModel(Exception):
+        pass
+
+    def inspect_model(**kwargs):
+        model = pm.modelcontext(None)
+        point = model.initial_point()
+        likelihood = model.compile_logp(vars=model.observed_RVs + model.potentials)
+        z = np.array([0.4, -0.2])
+        point['z'] = z
+        point['intercept'] = np.array(-1.2)
+        point['lam_log__'] = np.zeros(2)
+        point['tau_log__'] = np.array(np.log(0.25))
+        point['c2_log__'] = np.array(np.log(4.0))
+        theta = torch.tensor([0.4, -0.2, -1.2], dtype=torch.float64, requires_grad=True)
+        beta = theta[:2] * (0.25 * np.sqrt(4 / (4 + 0.25**2)))
+        design = np.array([[0.2, 0.8], [0.7, 0.3]])
+        centre = design[[0, 0, 0, 1, 1]].mean(axis=0)
+        eta = theta[2] + torch.tensor(design - centre) @ beta + torch.log(torch.tensor([10., 12.], dtype=torch.float64))
+        expected = torch.distributions.Poisson(torch.exp(eta)).log_prob(torch.tensor([2, 4], dtype=torch.float64)).sum()
+        expected.backward()
+        np.testing.assert_allclose(likelihood(point), expected.detach().numpy(), rtol=1e-7)
+        gradients = []
+        for name, index in [('z', 0), ('z', 1), ('intercept', None)]:
+            values = []
+            for delta in [-1e-5, 1e-5]:
+                changed = {key: np.array(value, copy=True) for key, value in point.items()}
+                if index is None:
+                    changed[name] += delta
+                else:
+                    changed[name][index] += delta
+                values.append(likelihood(changed))
+            gradients.append((values[1] - values[0]) / 2e-5)
+        np.testing.assert_allclose(gradients, theta.grad.numpy(), rtol=1e-6, atol=1e-7)
+        raise InspectedModel
+
+    monkeypatch.setattr(pm, 'sample', inspect_model)
+    data = ModelData(wells=np.array(['a']*3 + ['b']*2), genes=np.array(['A', 'B']),
+                     Npositive=np.array([2, 2, 2, 4, 4]), Ntotal=np.array([10, 10, 10, 12, 12]),
+                     log10expression=np.array([[0.2, 0.8]]*3 + [[0.7, 0.3]]*2),
+                     likelihood_weights=np.array([1/3]*3 + [1/2]*2),
+                     likelihood_well_ids=(0, 0, 0, 1, 1))
+    with pytest.raises(InspectedModel):
+        fit_model(data, backend='pymc', standardize=False, n_chains=1)
+
+
+def test_torch_weighted_repeated_well_loglik_and_gradient_equal_one_factor():
+    import torch
+    from spacr.power_model import _torch_poisson_log_likelihood
+
+    eta = torch.tensor([[0.3, -0.2], [0.1, 0.7]], dtype=torch.float64, requires_grad=True)
+    repeated = [0, 0, 0, 1, 1]
+    counts = torch.tensor([2., 4.], dtype=torch.float64)
+    weights = torch.tensor([1/3]*3 + [1/2]*2, dtype=torch.float64)
+    actual = _torch_poisson_log_likelihood(eta[:, repeated], counts[repeated], weights)
+    expected = (counts * eta - torch.exp(eta)).sum(-1)
+    torch.testing.assert_close(actual, expected)
+    torch.testing.assert_close(torch.autograd.grad(actual.sum(), eta, retain_graph=True)[0],
+                               torch.autograd.grad(expected.sum(), eta)[0])
+
+
+def _calibration_design(repeat=False, padded=False):
+    from dataclasses import replace
+
+    data = ModelData(wells=np.array(['w1', 'w2']), genes=np.array(['a', 'b']),
+                     Npositive=np.array([2, 4]), Ntotal=np.array([10, 12]),
+                     log10expression=np.array([[.2, .8], [.7, .3]]))
+    if repeat:
+        positions = [0, 0, 0, 1, 1]
+        data = replace(data, wells=data.wells[positions], Npositive=data.Npositive[positions],
+                       Ntotal=data.Ntotal[positions], log10expression=data.log10expression[positions],
+                       likelihood_weights=np.array([1/3]*3 + [1/2]*2),
+                       likelihood_well_ids=(('s1', 'plate1', 'A01'),)*3 + (('s2', 'plate1', 'A01'),)*2)
+    if padded:
+        data = replace(data, genes=np.array(['a', 'b', 'ignored_intercept']),
+                       log10expression=np.column_stack([data.log10expression, np.ones(data.n_wells)]))
+    return data
+
+
+@pytest.mark.parametrize('repeat,padded', [(False, False), (False, True), (True, False), (True, True)])
+def test_prior_calibration_is_invariant_to_inverse_duplicates_and_constant_padding(repeat, padded):
+    from spacr.power_model import _prior_calibration_counts, _horseshoe_global_scale, _prepare_design
+
+    data = _calibration_design(repeat, padded)
+    predictors, observations = _prior_calibration_counts(data)
+    assert (predictors, observations) == (2, 2)
+    assert data.n_wells == (5 if repeat else 2)
+    assert data.n_genes == (3 if padded else 2)
+    assert _horseshoe_global_scale(predictors, observations, None, None) == pytest.approx(1/np.sqrt(2))
+    transformed, _, _, identified = _prepare_design(data, False)
+    assert identified.tolist() == ([True, True, False] if padded else [True, True])
+    if padded:
+        np.testing.assert_array_equal(transformed[:, -1], 0)
+
+
+@pytest.mark.parametrize('change', ['ids_length', 'missing_id', 'wrong_weights', 'different_design', 'different_count', 'different_exposure', 'no_ids'])
+def test_independent_well_calibration_refuses_ambiguous_or_nonduplicate_rows(change):
+    from dataclasses import replace
+    from spacr.power_model import _prior_calibration_counts
+
+    data = _calibration_design(repeat=True)
+    if change == 'ids_length':
+        data = replace(data, likelihood_well_ids=data.likelihood_well_ids[:-1])
+    elif change == 'missing_id':
+        data = replace(data, likelihood_well_ids=(None,) + data.likelihood_well_ids[1:])
+    elif change == 'wrong_weights':
+        data = replace(data, likelihood_weights=np.ones(5))
+    elif change == 'no_ids':
+        data = replace(data, likelihood_well_ids=None)
+    else:
+        field = {'different_design':'log10expression', 'different_count':'Npositive', 'different_exposure':'Ntotal'}[change]
+        array = getattr(data, field).copy()
+        array[0] += 1
+        data = replace(data, **{field:array})
+    with pytest.raises(PowerFitError, match='likelihood_well_ids|inverse row-multiplicity'):
+        _prior_calibration_counts(data)
+
+
+@pytest.mark.parametrize("with_ids", [False, True])
+def test_arbitrary_weights_do_not_implicitly_set_independent_sample_size(with_ids):
+    from dataclasses import replace
+    from spacr.power_model import _prior_calibration_counts
+
+    data = replace(_calibration_design(), likelihood_weights=np.array([.2, .8]))
+    if with_ids:
+        data = replace(data, likelihood_well_ids=(("s1", "plate1", "A01"), ("s2", "plate1", "A01")))
+    with pytest.raises(PowerFitError, match="explicit scale_global|inverse row-multiplicity"):
+        _prior_calibration_counts(data)
+    assert _prior_calibration_counts(data, scale_global=.03) == (2, None)
+
+
+@pytest.mark.parametrize('genes,expected_hits', [(0, None), (1, None), (2, 2.0), (2, 0.0)])
+def test_horseshoe_calibration_rejects_undefined_active_predictor_sparsity(genes, expected_hits):
+    from dataclasses import replace
+
+    data = _calibration_design()
+    if genes == 0:
+        data = replace(data, log10expression=np.ones((2, 2)))
+    elif genes == 1:
+        data = replace(data, log10expression=np.column_stack([data.log10expression[:, 0], np.ones(2)]))
+    with pytest.raises(PowerFitError, match='identified|expected_hits|sparsity'):
+        fit_model(data, backend='numpyro', expected_hits=expected_hits)
+
+
+def test_uniform_inverse_replication_preserves_centered_design_likelihood_and_prior():
+    from dataclasses import replace
+    from spacr.power_model import _prior_calibration_counts, _prepare_design, _observation_weights
+
+    original = _calibration_design()
+    positions = np.repeat(np.arange(2), 3)
+    repeated = replace(original, wells=original.wells[positions],
+                       log10expression=original.log10expression[positions],
+                       Npositive=original.Npositive[positions], Ntotal=original.Ntotal[positions],
+                       likelihood_weights=np.full(6, 1/3), likelihood_well_ids=tuple(positions))
+    x, means, scales, _ = _prepare_design(original, True)
+    repeated_x, repeated_means, repeated_scales, _ = _prepare_design(repeated, True)
+    np.testing.assert_allclose(repeated_x, x[positions])
+    np.testing.assert_allclose(repeated_means, means)
+    np.testing.assert_allclose(repeated_scales, scales)
+    beta = np.array([.4, -.2])
+    eta = -1.2 + x @ beta + np.log(original.Ntotal)
+    repeated_eta = -1.2 + repeated_x @ beta + np.log(repeated.Ntotal)
+    expected = np.sum(original.Npositive*eta - np.exp(eta))
+    actual = np.sum((repeated.Npositive*repeated_eta - np.exp(repeated_eta))*_observation_weights(repeated))
+    assert actual == pytest.approx(expected)
+    assert _prior_calibration_counts(original) == _prior_calibration_counts(repeated) == (2, 2)
+
+
+@pytest.mark.parametrize('expected_hits,scale_global,expected', [(.5, None, 1/np.sqrt(2)), (None, .03, .03)])
+def test_one_active_predictor_requires_an_explicit_valid_sparsity_or_scale(expected_hits, scale_global, expected):
+    from spacr.power_model import _horseshoe_global_scale
+
+    assert _horseshoe_global_scale(1, 2, expected_hits, scale_global) == pytest.approx(expected)

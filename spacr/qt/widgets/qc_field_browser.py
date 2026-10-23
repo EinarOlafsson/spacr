@@ -1627,15 +1627,10 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None):
     return tuple(result)
 
 
-def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200):
-    """Decode one bounded field and return the same RGB pixels used in PDFs."""
-    from PIL import Image, ImageDraw
+def _overview_raw_planes(field, channels):
+    """Yield original-resolution selected-channel pixels without display conversion."""
+    from PIL import Image
 
-    planes = []
-    columns = math.ceil(math.sqrt(len(channels))) if len(channels) > 3 else 1
-    tile = max(1, edge // columns)
-    header = min(16, tile // 4) if len(channels) > 3 else 0
-    plane_edge = max(1, tile - header)
     decoded_path, decoded_array, decoded_axes = None, None, None
     for channel in channels:
         if channel < 0:
@@ -1682,6 +1677,19 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200):
                 raise ValueError(tr("The image channel axis is unresolved."))
         elif not separate and channel != 0:
             raise ValueError(tr("Channel {channel} is missing or ambiguous.", channel=channel))
+        yield channel, path, array
+
+
+def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200):
+    """Decode one bounded field and return the same RGB pixels used in PDFs."""
+    from PIL import Image, ImageDraw
+
+    planes = []
+    columns = math.ceil(math.sqrt(len(channels))) if len(channels) > 3 else 1
+    tile = max(1, edge // columns)
+    header = min(16, tile // 4) if len(channels) > 3 else 0
+    plane_edge = max(1, tile - header)
+    for channel, path, array in _overview_raw_planes(field, channels):
         stride = max(1, math.ceil(max(array.shape) / plane_edge))
         plane = np.array(array[::stride, ::stride], dtype=np.float32, copy=True)
         finite = np.isfinite(plane)
@@ -1714,6 +1722,65 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200):
     return rgb
 
 
+def _overview_measurement(field, channels, cancelled=None):
+    """Measure one whole-image ROI; intensity statistics exclude nonfinite values."""
+    import json
+    from concurrent.futures import CancelledError
+    from skimage.measure import regionprops_table
+
+    record = dict(plate=field.plate, well=field.well, row=field.row,
+                  column=field.column, field=field.field,
+                  metadata_resolved=not field.unresolved,
+                  channels=json.dumps(list(channels)),
+                  source_files=json.dumps(field.files),
+                  roi="whole_image", geometry_units="pixels",
+                  intensity_units="raw_stored_pixel_values",
+                  intensity_policy="finite_pixels_only",
+                  coordinates="zero_based_row_column_bbox_max_exclusive",
+                  status="ok", error="")
+    shape = None
+    try:
+        for channel, path, plane in _overview_raw_planes(field, channels):
+            if cancelled is not None and cancelled.is_set():
+                raise CancelledError()
+            if not (np.issubdtype(plane.dtype, np.number)
+                    or np.issubdtype(plane.dtype, np.bool_)) or np.iscomplexobj(plane):
+                raise ValueError(tr("Measurements require real numeric image pixels."))
+            if shape is None:
+                shape = plane.shape
+                record.update(height_px=shape[0], width_px=shape[1])
+                geometry = regionprops_table(np.ones(shape, dtype=np.uint8), properties=(
+                    "area", "bbox", "centroid", "axis_major_length",
+                    "axis_minor_length", "eccentricity", "extent", "perimeter"))
+                record.update({"roi_" + key.replace("-", "_"): value[0].item()
+                               for key, value in geometry.items()})
+            elif plane.shape != shape:
+                raise ValueError(tr("Selected channels must have matching image sizes."))
+            finite = np.isfinite(plane)
+            count = int(np.count_nonzero(finite))
+            prefix = "channel_" + str(channel) + "_"
+            record.update({prefix + "source": str(path),
+                           prefix + "dtype": str(plane.dtype),
+                           prefix + "finite_pixel_count": count,
+                           prefix + "nonfinite_pixel_count": int(plane.size - count)})
+            if not count:
+                raise ValueError(tr("This channel has no finite pixels."))
+            intensity = regionprops_table(finite.astype(np.uint8),
+                intensity_image=np.where(finite, plane, 0),
+                properties=("intensity_min", "intensity_max", "intensity_mean"))
+            record.update({prefix + key: value[0].item()
+                           for key, value in intensity.items()})
+            record[prefix + "intensity_std"] = float(np.std(plane[finite]))
+        if shape is None:
+            raise ValueError(tr("Choose one or more nonnegative channel indices."))
+    except CancelledError:
+        raise
+    except Exception as error:
+        record.update(status="error", error=str(error))
+    return record
+
+
+
 def _overview_sample(fields, count=1, seed=0, grouping="well", randomize=False):
     """Select stable examples per actual plate, row, column or well."""
     import random
@@ -1738,18 +1805,24 @@ def _overview_sample(fields, count=1, seed=0, grouping="well", randomize=False):
     return tuple(result)
 
 
-def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=None):
+def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=None,
+                     measurements=False):
     """Write twelve bounded images per styled PDF with reproducible provenance."""
     import json
     from matplotlib.figure import Figure
     from ...plot import save_figure
     from ...figures.style import _apply_user_style
+    from ... import tabular
+    from concurrent.futures import CancelledError
 
     destination = Path(folder)
     destination.mkdir(parents=True, exist_ok=True)
-    if any(destination.glob("overview_*.pdf")) or (destination / "overview_selection.json").exists():
+    if (any(destination.glob("overview_*.pdf"))
+            or (destination / "overview_selection.json").exists()
+            or (destination / "overview_measurements.csv").exists()):
         raise ValueError(tr("Overview files already exist here. Choose a new output folder."))
     written, errors, provenance = [], [], []
+    measurement_rows = []
     for start in range(0, len(fields), 12):
         if cancelled is not None and cancelled.is_set():
             break
@@ -1760,6 +1833,14 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
             if cancelled is not None and cancelled.is_set():
                 interrupted = True
                 break
+            if measurements:
+                try:
+                    measurement_rows.append(_overview_measurement(field, channels, cancelled))
+                    if cancelled is not None and cancelled.is_set():
+                        raise CancelledError()
+                except CancelledError:
+                    interrupted = True
+                    break
             axis = figure.add_subplot(4, 3, index + 1)
             try:
                 axis.imshow(_overview_pixels(field, channels, percentiles, edge=1000))
@@ -1782,11 +1863,35 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         written.append(str(path))
         provenance.extend(page_records)
         errors.extend(page_errors)
-    (destination / "overview_selection.json").write_text(json.dumps(
-        {"channels": channels, "percentiles": percentiles, "seed": seed,
-         "fields": provenance, "errors": errors,
-         "cancelled": bool(cancelled is not None and cancelled.is_set()),
-         "requested_field_count": len(fields), "written_field_count": len(provenance)}, indent=2), encoding="utf-8")
+    stopped = bool(cancelled is not None and cancelled.is_set())
+    csv_path = None
+    if measurements and not stopped:
+        import pandas as pd
+        csv_path = str(destination / "overview_measurements.csv")
+        def _write_measurements(pending):
+            """Write pending CSV and refuse publication after cancellation."""
+            tabular.write_table(pd.DataFrame(measurement_rows), pending, canonicalise=False)
+            if cancelled is not None and cancelled.is_set():
+                raise CancelledError()
+        try:
+            tabular._publish(csv_path, _write_measurements)
+        except CancelledError:
+            stopped, csv_path = True, None
+        known = {caption for caption, message in errors}
+        errors.extend((field.caption, row["error"]) for field, row in zip(fields, measurement_rows)
+                      if row["status"] == "error" and field.caption not in known)
+    metadata = {"channels": channels, "percentiles": percentiles, "seed": seed,
+                "fields": provenance, "errors": errors, "cancelled": stopped,
+                "requested_field_count": len(fields), "written_field_count": len(provenance)}
+    if measurements:
+        metadata["measurements"] = dict(path=csv_path, roi="whole_image",
+            geometry_units="pixels", intensity_units="raw_stored_pixel_values",
+            intensity_policy="finite_pixels_only", original_resolution=True,
+            coordinates="zero_based_row_column_bbox_max_exclusive",
+            written_field_count=len(measurement_rows) if csv_path else 0,
+            cancelled=stopped)
+    tabular._publish(str(destination / "overview_selection.json"), lambda pending:
+        Path(pending).write_text(json.dumps(metadata, indent=2), encoding="utf-8"))
     return tuple(written), tuple(errors)
 
 
@@ -1967,6 +2072,11 @@ class _FieldOverview(QDialog):
         self.random = QCheckBox(tr("Random sample"))
         self.use_selection = QCheckBox(tr("Export selected fields or wells"))
         self.sample_selected = QCheckBox(tr("Sample within selected wells"))
+        self.measurements = QCheckBox(tr("Measurements CSV (raw image pixels)"))
+        self.measurements.setToolTip(tr(
+            "Measure original-resolution selected channels as one whole-image ROI, not segmented objects. "
+            "Geometry is in pixels; intensity statistics use finite stored pixel values without display "
+            "normalization. Nonfinite pixel counts and read errors are recorded."))
         export, cancel = QPushButton(tr("Export PDFs")), QPushButton(tr("Cancel loading or export"))
         clear_selection = QPushButton(tr("Clear selections"))
         clear_selection.clicked.connect(self._clear_selection)
@@ -1985,6 +2095,7 @@ class _FieldOverview(QDialog):
         for widget in (self.use_selection, self.sample_selected, clear_selection, export, cancel):
             export_row.addWidget(widget)
         column.addLayout(export_row)
+        column.addWidget(self.measurements)
         self.status = QLabel(tr("No images have been loaded."))
         self.status.setWordWrap(True)
         column.addWidget(self.status)
@@ -2393,14 +2504,23 @@ class _FieldOverview(QDialog):
         self._cancelled.set()
         self._cancelled = threading.Event()
         cancelled, seed = self._cancelled, self.seed.value()
-        self._export_jobs.submit(lambda: _overview_export(selected, folder, channels, limits, seed, cancelled),
-                                 self._exported)
+        measurements = self.measurements.isChecked()
+        self._export_jobs.submit(lambda: _overview_export(
+            selected, folder, channels, limits, seed, cancelled, measurements),
+            lambda result: self._exported(result, measurements, folder, cancelled))
 
-    def _exported(self, result):
+    def _exported(self, result, measurements=False, folder="", cancelled=None):
         """Report output and unreadable fields without hiding either."""
         paths, errors = result
-        self.status.setText(tr("Wrote {count} PDF pages; {errors} unreadable fields.",
-                               count=len(paths), errors=len(errors)))
+        message = tr("Wrote {count} PDF pages; {errors} unreadable fields.",
+                     count=len(paths), errors=len(errors))
+        if measurements:
+            if not (Path(folder) / "overview_measurements.csv").is_file():
+                message += " " + tr("Measurements CSV was not published because export was cancelled.")
+            else:
+                message += " " + tr("Raw whole-image measurements: {path}",
+                    path=str(Path(folder) / "overview_measurements.csv"))
+        self.status.setText(message)
 
     def closeEvent(self, event):
         """Cancel generations when closing; workers never touch the closed widgets."""

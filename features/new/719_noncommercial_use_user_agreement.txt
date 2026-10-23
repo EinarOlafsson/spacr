@@ -17,7 +17,7 @@ BMC submission remains subject to its actual access and review requirements.
 Preserve existing BSD tracking-module grants and GPL/LGPL component rights.
 The noncommercial policy does not override GPL-covered combined-work obligations
 or certify every dependency combination or binary distribution as compatible.
-Resolve concrete new combinations before distributing them; a frozen-spec
+The maintainer owns resolving concrete new combinations; a frozen-spec
 exclusion is not proof that an actual artifact contains no such component.
 
 Draft a prohibition on commercial use of spaCR. Explicitly define commercial
