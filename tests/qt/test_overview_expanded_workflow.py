@@ -1686,6 +1686,39 @@ def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns
     qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
     dialog = host._field_overview
     qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy())
+    def wait_layout():
+        previous = [None]
+        def settled():
+            widgets = [dialog, dialog.wells, dialog.wells.viewport(), dialog._splitter,
+                dialog._essential_scroll, dialog._essential_scroll.viewport(), dialog.status,
+                dialog._module_actions, dialog._module_actions.viewport(), dialog._module_action_content,
+                *dialog._module_action_buttons, workspace.back_button, dialog._options_window]
+            parent = dialog.parentWidget()
+            while parent is not None:
+                if parent not in widgets:
+                    widgets.append(parent)
+                parent = parent.parentWidget()
+            snapshot = []
+            for widget in widgets:
+                for name in ("_module_action_fit_timer", "_back_fit_timer", "_floor_timer"):
+                    timer = getattr(widget, name, None)
+                    if timer is not None and timer.isActive():
+                        previous[0] = None
+                        return False
+                if any(getattr(widget, name, False) for name in ("_fitting_module_actions",
+                        "_back_fit_busy", "_rebalance_queued", "_limits_queued", "_refit_queued")):
+                    previous[0] = None
+                    return False
+                layout = widget.layout()
+                snapshot.append((widget.property("size").toTuple(), widget.pos().toTuple(),
+                    widget.property("minimumSize").toTuple(), widget.property("maximumSize").toTuple(),
+                    layout.geometry().getRect() if layout else None, widget.font().toString()))
+            snapshot.append((tuple(dialog.wells.rowHeight(i) for i in range(dialog.wells.rowCount())),
+                tuple(dialog.wells.columnWidth(i) for i in range(dialog.wells.columnCount()))))
+            stable = previous[0] == snapshot
+            previous[0] = snapshot
+            return stable
+        qtbot.waitUntil(settled)
     assert workspace.stack.currentWidget() is dialog
     assert not dialog.isWindow() and dialog.window() is host
     qtbot.waitUntil(lambda: dialog.wells.viewport().width() > 500)
@@ -1694,10 +1727,12 @@ def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns
     _resize_actual(host, QSize(1440, 1040))
     qtbot.waitUntil(lambda: dialog.wells.viewport().width() > before.width() + 200)
     assert dialog._plate_cell_extent[0] > before_cell[0]
+    wait_layout()
     plate_area = dialog.wells.viewport().size()
     qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
     assert dialog._options_window.isWindow() and dialog._options_window.isVisible()
     assert dialog._controls_scroll.window() is dialog._options_window
+    wait_layout()
     assert dialog.wells.viewport().size() == plate_area
     dialog.gamma.setValue(1.7)
     dialog._options_window.close()
@@ -1731,27 +1766,38 @@ def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns
 
 @pytest.mark.parametrize("selector", ("pdf_quality", "pdf_dpi", "grouping",
                                     "annotation_scope", "annotation_key",
-                                    "normalization_method", "normalization_scope"))
+                                    "normalization_method", "normalization_scope",
+                                    "norm_channel", "export_scope"))
 def test_pdf_quality_reserves_all_native_text_slots_when_fonts_change(qtbot, qapp, selector):
     from PySide6.QtCore import Qt
+    from PySide6.QtGui import QFont, QFontInfo
     from PySide6.QtWidgets import QStyle, QStyleOptionComboBox
     from spacr.qt import gui_scale, theme
 
     old_gui = gui_scale.current_scale()
+    old_font = QFont(qapp.font())
+    joint_maximum = selector in ("norm_channel", "export_scope")
     body = None
     try:
         gui_scale.install_scaling_layer()
-        gui_scale.set_gui_scale_live(.9)
+        gui_scale.set_gui_scale_live(2. if joint_maximum else .9)
+        if joint_maximum:
+            from spacr.qt import app as app_module
+            app_module._load_bundled_fonts()
+            assert app_module._use_open_sans(qapp) == "Open Sans"
         body = browser._FieldOverview()
         qtbot.addWidget(body)
         combo = getattr(body, selector)
         selected = (combo.currentIndex(), combo.currentText(), combo.currentData())
         floors = []
-        for scale, pixels in ((.9, 11), (2., 23), (.9, 11)):
+        steps = ((2., 52), (.1, 2), (2., 52)) if joint_maximum else ((.9, 11), (2., 23), (.9, 11))
+        for scale, pixels in steps:
             body.setStyleSheet(theme.stylesheet('dark', font_scale=scale))
             combo.ensurePolished()
             gui_scale._resize_actual(combo, combo.minimumSizeHint())
             assert combo.font().pixelSize() == pixels
+            if joint_maximum:
+                assert QFontInfo(combo.font()).family() == "Open Sans"
             option = QStyleOptionComboBox()
             option.initFrom(combo)
             option.rect = combo.rect()
@@ -1769,13 +1815,16 @@ def test_pdf_quality_reserves_all_native_text_slots_when_fonts_change(qtbot, qap
             floors.append(combo.minimumSize())
             assert (combo.currentIndex(), combo.currentText(), combo.currentData()) == selected
             assert combo.maximumWidth() == combo.maximumHeight() == 16777215
-        assert floors[-1] == floors[0] and floors[1].height() > floors[0].height()
+        assert floors[-1] == floors[0]
+        assert (floors[1].height() < floors[0].height() if joint_maximum
+                else floors[1].height() > floors[0].height())
     finally:
         try:
             if body is not None:
                 body._retire()
         finally:
             gui_scale.set_gui_scale_live(old_gui)
+            qapp.setFont(old_font)
 
 
 def test_advanced_background_pair_keeps_wrapped_caption_and_native_editor_whole(qtbot, qapp):

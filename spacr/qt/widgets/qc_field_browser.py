@@ -3145,7 +3145,7 @@ class _FieldOverview(QWidget):
         self.representatives.setToolTip(tr("Display up to 24 representative fields per well; whole-source exports remain available."))
         self.representatives.setValue(int(self._overview_options.get("representatives", 1)))
         self.representatives.valueChanged.connect(self._representatives_changed)
-        self.export_scope = QComboBox()
+        self.export_scope = _SetupComboBox()
         for text, value in ((tr("Current view"), "view"), (tr("Whole plate"), "plate"),
                             (tr("Current well"), "well"), (tr("Current field"), "field"),
                             (tr("Selected fields or wells"), "selection")):
@@ -3492,7 +3492,7 @@ class _FieldOverview(QWidget):
             pair_layout.addWidget(control)
             grid.addWidget(pair)
         layout.addWidget(host)
-        self.norm_channel = QComboBox()
+        self.norm_channel = _SetupComboBox()
         self.norm_channel.addItem(tr("All channels"), None)
         self._editing_channel = None
         self._global_normalization_options = self._editor_options()

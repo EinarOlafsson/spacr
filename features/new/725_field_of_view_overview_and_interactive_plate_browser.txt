@@ -30,6 +30,22 @@ Keep the original50ms cadence/20s deadline: owned timers/queues idle, two identi
 one reveal and unchanged next-tick strict checks; never scroll until a failed assertion passes.
 The20px image target is measured for this small fixture, not guaranteed for every dense plate.
 Other scales, the full normal entrypoint, physical input and smaller-display acceptance remain separate.
+Normal-entrypoint GUI200/font200 follow-up: retain the preceding scoped passes.
+The real Options scan finds only norm_channel/export_scope native text overflow:
+277px field for278px "All channels", and524px for527px "Selected fields or wells".
+Use the existing font-aware combo only for these two controls; require bundled
+Open Sans52px and live52→2→52 floors/full offered text slots without changing
+values or imposing maxima. Also recheck affected manual zoom/Back/reopen behavior.
+Cocoa causal40722 reproduces both exact52px failures:2FAIL7.55s/RSS0.311GiB,
+native fields277/524px versus278/527px text. Change only those two factories
+to the existing font-aware combo; scientific values and all earlier scopes remain unchanged.
+Cocoa13404 retains both new selector PASSes; the manual workflow initially
+fails a width-only, unsettled plate baseline. With owned queues idle and two
+identical geometry snapshots under the unchanged5s waits, failed-node-only
+35476 PASSES7.03s/RSS0.404GiB: exact Options plate-area equality, manual zoom,
+field/well/plate Back navigation and retained-workspace reopen. No further
+production change or assertion tolerance was needed; three affected passes
+are retained across the two runs, not claimed as one complete cohort/full app.
 
 Mac acceptance addendum: retain Workstation's DONE implementation/ownership.
 On b453f2b0702abf5f158793c8b0e783974f488ea2, inspect two fresh normal-app
