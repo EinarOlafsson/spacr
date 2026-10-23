@@ -13203,8 +13203,7 @@
             "06_api",
             "68_power_design",
             "33_plate_viewer"
-          ],
-          "speech_text": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacer.Q T.widgets.plate_layout."
+          ]
         }
       ],
       "narration_voices": {
