@@ -2488,8 +2488,9 @@
           "narration": "Use the toolbar to open Volcano Explorer, Hit List or Investigate Hit for the next step. Their tutorials show how to inspect selected results. Keep the input tables, saved settings, result files and diagnostic reports together when sharing the analysis.",
           "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "73_parameter_sweep"
+            "72_volcano_explorer",
+            "48_hit_list",
+            "71_investigate_hit"
           ]
         }
       ],
@@ -2561,10 +2562,10 @@
           "visual": "01_module",
           "narration": "From Home, open Make Masks in Tools. The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data. On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited. Clear all objects, immediately left of Discard, asks for confirmation before removing every object in the current image.",
           "hold_after": 0.7,
+          "speech_text": "From Home, open Make Masks in Tools. The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data. On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited. Clear all objects, immediately left of Discard, asks for confirmation before removing every object in the current image.",
           "related_lessons": [
             "07_mask"
-          ],
-          "speech_text": "From Home, open Make Masks in Tools. The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data. On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited. Clear all objects, immediately left of Discard, asks for confirmation before removing every object in the current image."
+          ]
         },
         {
           "visual": "01b_test_data_menu",
@@ -2576,10 +2577,10 @@
           "visual": "02_folder_picker",
           "narration": "Click Open folder and select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
           "hold_after": 0.7,
+          "speech_text": "Click Open folder and select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "Click Open folder and select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired."
+          ]
         },
         {
           "visual": "03_real_labels",
@@ -2838,24 +2839,24 @@
           "narration": "The icons at the top right open the rest of the mask toolkit. Cellpose Workbench trains a model on curated pairs and applies it to a folder, and the next icon runs detection on every field of the open folder.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
+          "speech_text": "The icons at the top right open the rest of the mask toolkit. [Cellpose](/sˈɛlpˌOz/) Workbench trains a model on curated pairs and applies it to a folder, and the next icon runs detection on every field of the open folder.",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ],
-          "speech_text": "The icons at the top right open the rest of the mask toolkit. [Cellpose](/sˈɛlpˌOz/) Workbench trains a model on curated pairs and applies it to a folder, and the next icon runs detection on every field of the open folder."
+          ]
         },
         {
           "visual": "09_fold_model_zoo",
           "narration": "Model Compare puts two sets of masks side by side and Model Zoo finds and tests weights. When more examples need fixing, Curate and Napari Bridge take you back into editing.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
+          "speech_text": "Model Compare puts two sets of masks side by side and Model Zoo finds and tests weights. When more examples need fixing, Curate and [Napari](/nəpˈɑɹi/) Bridge take you back into editing.",
           "related_lessons": [
             "21_model_compare",
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ],
-          "speech_text": "Model Compare puts two sets of masks side by side and Model Zoo finds and tests weights. When more examples need fixing, Curate and [Napari](/nəpˈɑɹi/) Bridge take you back into editing."
+          ]
         },
         {
           "visual": "12_recrop_written",
@@ -2867,10 +2868,10 @@
           "visual": "13_child_and_recovery_archive",
           "narration": "Click Next image in the toolbar to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
           "hold_after": 0.7,
+          "speech_text": "Click Next image in the toolbar to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Click Next image in the toolbar to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset."
+          ]
         },
         {
           "visual": "restoration_01_restoration_row",
@@ -2990,10 +2991,10 @@
           "visual": "25_organize_open",
           "narration": "To measure your fields, click Organize for Measure. Measure reads each field as one merged array that holds every channel and its masks. Give a source folder here, or drop files and folders into the table below. If Consolidate subfolders is on and a copy fails, the popup says how many files failed and where the manifest is, and stops without changing the source or the table.",
           "hold_after": 0.7,
+          "speech_text": "To measure your fields, click Organize for Measure. Measure reads each field as one merged array that holds every channel and its masks. Give a source folder here, or drop files and folders into the table below. If Consolidate subfolders is on and a copy fails, the popup says how many files failed and where the manifest is, and stops without changing the source or the table.",
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "To measure your fields, click Organize for Measure. Measure reads each field as one merged array that holds every channel and its masks. Give a source folder here, or drop files and folders into the table below. If Consolidate subfolders is on and a copy fails, the popup says how many files failed and where the manifest is, and stops without changing the source or the table."
+          ]
         },
         {
           "visual": "26_organize_table",
@@ -3023,20 +3024,21 @@
           "visual": "30_organized_for_measure",
           "narration": "When sorting finishes, Make Masks opens the first channel folder, and the console notes that the result is first in Measure's recent sources. Open Measure and use it as the source to extract object features.",
           "hold_after": 0.7,
+          "speech_text": "When sorting finishes, Make Masks opens the first channel folder, and the console notes that the result is first in Measure's recent sources. Open Measure and use it as the source to extract object features.",
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "When sorting finishes, Make Masks opens the first channel folder, and the console notes that the result is first in Measure's recent sources. Open Measure and use it as the source to extract object features."
+          ]
         },
         {
           "visual": "03_real_labels",
           "narration": "Keep curated images and their same-stem masks together. Use Cellpose Workbench to train on those pairs, or Organize for Measure and then Measure to extract measurements. The related tutorials show each next step.",
           "hold_after": 0.7,
+          "speech_text": "Keep curated images and their same-stem masks together. Use [Cellpose](/sˈɛlpˌOz/) Workbench to train on those pairs, or Organize for Measure and then Measure to extract measurements. The related tutorials show each next step.",
           "related_lessons": [
             "06_api",
-            "19_train_cellpose"
-          ],
-          "speech_text": "Keep curated images and their same-stem masks together. Use [Cellpose](/sˈɛlpˌOz/) Workbench to train on those pairs, or Organize for Measure and then Measure to extract measurements. The related tutorials show each next step."
+            "19_train_cellpose",
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -3993,11 +3995,11 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "From Home, open Make Masks, then its Cellpose Workbench. Choose Apply to segment images with an existing model. Use Train when you want to learn new weights from curated image-mask pairs.",
+          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "04_setting_src",
@@ -4077,11 +4079,11 @@
             2750,
             455
           ],
+          "hold_after": 0.7,
           "related_lessons": [
-            "07_mask",
-            "06_api"
-          ],
-          "hold_after": 0.7
+            "14_make_masks",
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -7164,8 +7166,8 @@
           "narration": "Continue in Database Browser to inspect the tables or in Annotate to review object crops. Retain the reviewed mapping with the completed project.",
           "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "08_measure"
+            "34_database",
+            "09_annotate"
           ]
         }
       ],
@@ -8110,21 +8112,21 @@
           "focus_modules": [
             "classify_merged"
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_02_family_choices",
           "narration": "Choose Computer Vision to learn from object images. Choose Tabular Machine Learning to learn from measured feature columns. Measure provides these inputs, and Annotate lets you add object labels.",
+          "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_03_tabular_family",
@@ -8135,19 +8137,19 @@
             1150,
             1600
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "For the tabular example, click Load test data and choose Load. Select your class labels and feature settings, then follow the tabular lesson to train the model and save predictions.",
+          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8158,10 +8160,10 @@
             2050,
             1520
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "cv_24_batch_figure",
@@ -8172,10 +8174,10 @@
             3460,
             1440
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "10_classify_cv"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -8186,10 +8188,10 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "39_classifier_evaluation"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -8200,10 +8202,10 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "70_explain_cv"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -8214,10 +8216,10 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "16_activation"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -8228,18 +8230,18 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "28_training_runs"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Open Feature Explorer to compare measured features between selected groups. Choose the groups and filters, then inspect the feature ranking and plots.",
+          "hold_after": 0.7,
           "related_lessons": [
             "65_feature_explorer"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8250,12 +8252,13 @@
             2050,
             1520
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "10_classify_cv",
-            "11_classify_ml"
-          ],
-          "hold_after": 0.7
+            "11_classify_ml",
+            "13_regression"
+          ]
         }
       ],
       "narration_voices": {

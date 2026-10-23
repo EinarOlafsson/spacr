@@ -154,6 +154,47 @@ MainWindow close pass. Child0/38.625s/RSS1.118GiB/zero missed/no aliases.
 Both requested default/font200 Mac addendum scopes are accepted on this host;
 Workstation's DONE implementation ownership is retained, with no other-platform,
 physical-input, smaller-display or all-scale certification inferred.
+Next bounded Mac layout scope on publisheda5014584ec: four supported GUI/font
+corners(.1,.1),(.1,2),(2,.1),(2,2) through normal live scale application before
+construction, with actual body fonts1/3/2/52px independently derived by
+scale_int(font_px('body',font),gui). Reuse owned tiny TIFFs and actual current
+1440x870/DPR2; require all Options controls/offered native slots/intrinsic text,
+opaque embedded surfaces, untouched initial Options work-area fit, strict
+axis-scroll reach, legal actual host/plate resize, independent Options close/
+reopen/value restore, Back, unchanged inputs and actual owned-thread drain/
+normal close. Preserve existing phase/process/memory caps and do not enlarge
+the opening in the probe. Tiny-font fit is not readability; these four corners
+do not certify intermediate scales, physical input, smaller displays or other
+platforms. No product change is assumed before an actual observed failure.
+Joint maximum native69770/dyQlZa on a5014584ec fails BEFORE Overview: the
+unchanged20s host-phase deadline expires, with Mask ready at29.032s and only
+8/48 controls painted. Home was ready9.641s. Natural child1/51.170s/
+RSS1.116GiB/zero missed, unchanged TIFFs and accepted normal close. No joint-
+maximum Overview/Options geometry is certified; do not raise the gate. The new
+narrow641 Mac max-scale construction attribution owns this blocker; retain
+default/font200 acceptance and inspect independent small-GUI corners separately.
+Independent GUI10/font200 native58982/yjDXDU on the samea5014584ec PASSES:
+actual3px, Options148x100 within current work area, all85 controls/native slots/
+intrinsic/reach, opaque embedding/navigation and actual thread drain clear.
+Host frame1440x870/minimum120x64/unbounded maximum; plate1386→1366 does not
+jump with Options. Inputs unchanged and normal close; child0/41.451s/
+RSS1.102GiB/zero missed/no aliases. Tiny-font fit is not readability or physical
+display-mode acceptance; the independent joint-maximum host blocker remains.
+Joint-minimum native59298/uF8y3V on a5014584ec also PASSES: actual1px and all85
+controls clear, Options88x68 fits, plate1388→1368 does not jump with Options;
+opaque embedding/navigation/thread drain/input preservation/normal close pass.
+Child0/39.934s/RSS1.079GiB/zero missed/no aliases. Readability is not certified;
+the maximum-scale construction blocker is unchanged.
+Affected unprofiled maximum99706/LjKc2X on568dc00b6 reaches actual Mask ready
+16.057505s, but the original combined host phase exceeds20s while also building
+the metadata wizard (approximately6s more, including Measure build5.323s).
+The wizard is embedded and workspace/wizard style-opacity observations pass; Next,
+browser and Options are not reached/certified. Natural child1/43.747s/
+RSS1.152GiB/zero missed, unchanged input and normal close. Preserve this failed
+combined-phase verdict. Next oracle review separates distinct module readiness
+and metadata opening into their own unchanged20s budgets; do not enlarge a
+budget, hide constructor time or infer an unproven layout defect. No new product
+change beyond the separately validated pacing repair is assumed.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 
