@@ -37,6 +37,44 @@ def dialog_parent(qtbot):
 
 class TestTheFilterDetaches:
 
+    @pytest.mark.parametrize("embedded", (True, False))
+    def test_polish_preserves_embedded_pages_but_detaches_popups(self, qtbot, qapp, embedded):
+        from PySide6.QtCore import QEvent, Qt
+        from PySide6.QtWidgets import QDialog, QLineEdit, QVBoxLayout, QWidget
+        from spacr.qt import dialogs
+
+        owner = QWidget()
+        qtbot.addWidget(owner)
+        outer = QVBoxLayout(owner)
+        page = QDialog(owner)
+        if embedded:
+            page.setWindowFlags(Qt.Widget)
+            outer.addWidget(page)
+        content = QVBoxLayout(page)
+        editor = QLineEdit("owned control", page)
+        content.addWidget(editor)
+        before_flags = page.windowFlags()
+        assert page.parentWidget() is owner
+        assert page.isWindow() is not embedded
+        dialogs.detach_all_dialogs(qapp)
+        qapp.sendEvent(page, QEvent(QEvent.Polish))
+        owner.show()
+        page.show()
+        qtbot.waitUntil(lambda: page.isVisibleTo(owner))
+        if embedded:
+            assert not page.isWindow(), (before_flags, page.windowFlags())
+            assert page.windowFlags() == before_flags
+            assert page.window() is owner and page.parentWidget() is owner
+            assert outer.indexOf(page) >= 0 and page.layout() is content
+            assert not page.property(dialogs.FILTER_DETACHED)
+            assert not page.property(dialogs.RESIZABLE)
+        else:
+            qtbot.addWidget(page)
+            assert _window_type(page) == Qt.Window
+            assert page.isWindow() and page.parentWidget() is owner
+            assert page.property(dialogs.FILTER_DETACHED)
+            assert page.property(dialogs.RESIZABLE)
+
     def test_a_dialog_becomes_a_window(self, qtbot, dialog_parent):
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import QApplication, QDialog
