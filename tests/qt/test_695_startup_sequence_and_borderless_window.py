@@ -493,7 +493,9 @@ def test_a_minimum_larger_than_the_screen_is_lowered_to_fit(window):
     work = window.screen().availableGeometry().size()
     window.setMinimumSize(work + QSize(400, 300))
     app_mod._show_at_launch(window)
-    assert window.minimumSize() == work
+    from spacr.qt.gui_scale import _actual_minimum_size
+
+    assert _actual_minimum_size(window) == work
     assert window.isMaximized()
 
 
