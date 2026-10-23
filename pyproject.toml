@@ -76,8 +76,8 @@ authors = [
 # pyproject.toml -- so it does not merely mis-label the wheel, it stops the
 # build before it starts. Every job in the compat matrix failed on it: the
 # sdist, the wheel, and `pip install spacr` on all six interpreters.
-license = "BSD-3-Clause"
-license-files = ["LICENSE"]
+license = "LicenseRef-spaCR-Noncommercial AND BSD-3-Clause"
+license-files = ["LICENSE", "LICENSE-BSD-3-Clause"]
 
 # ---------------------------------------------------------------------------
 # Classifiers are a *claim of support*. `Operating System :: OS Independent`

@@ -38,9 +38,9 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
    :target: https://github.com/EinarOlafsson/spacr/issues
    :alt: GitHub issues
 
-.. |License| image:: https://img.shields.io/badge/License-BSD--3-blue?logo=opensourceinitiative&logoColor=white
-   :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: BSD 3-Clause license
+.. |License| image:: https://img.shields.io/badge/License-Noncommercial-blue
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
+   :alt: Noncommercial license
 
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
@@ -590,7 +590,15 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="docs/readme_text/en/licensing.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing.desktop.svg"><img src="docs/readme_images/en/licensing.svg" alt="Licensing. spaCR is released under the BSD 3-Clause License. If spaCR contributed to published work, a citation is appreciated and is not a condition of the licence — see Citing spaCR below."></picture></a></div>
+   <div><a href="docs/readme_text/en/licensing.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing.desktop.svg"><img src="docs/readme_images/en/licensing.svg" alt="Licensing. New original spaCR material is licensed under the spaCR Noncommercial License 1.0. Commercial use requires separate written permission; contact olafsson@med.umich.com. Earlier BSD grants and third-party licenses remain in effect; see LICENSE for scope and notices."></picture></a></div>
+
+.. raw:: html
+
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing-link-1.desktop.svg"><img src="docs/readme_images/en/licensing-link-1.svg" alt="spaCR Noncommercial License 1.0"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing-link-2.desktop.svg"><img src="docs/readme_images/en/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
+
+.. raw:: html
+
+   <div><a href="docs/readme_text/en/licensing-2.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing-2.desktop.svg"><img src="docs/readme_images/en/licensing-2.svg" alt="If spaCR contributed to published work, a citation is appreciated and is not a condition of the licence — see Citing spaCR below."></picture></a></div>
 
 .. raw:: html
 

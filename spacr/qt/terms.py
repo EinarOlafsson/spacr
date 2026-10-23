@@ -46,26 +46,12 @@ from typing import Dict, Tuple
 #: asked again.
 LOG = logging.getLogger(__name__)
 
-TERMS_VERSION = "4.3"
+TERMS_VERSION = "4.4"
 
-#: What the licence is called, and where the whole of it can be read.
-#:
-#: BSD 3-CLAUSE, the licence CellProfiler, napari, Cellpose, scikit-image,
-#: numpy and scipy all use. spaCR is a methods tool for the scientific
-#: community, and every one of its own dependencies is permissive -- a
-#: noncommercial layer on top of a BSD stack made spaCR the one component a
-#: core facility, a company reproducing a published analysis, or a distro
-#: packager could not use.
-LICENSE_NAME = "BSD 3-Clause License"
-LICENSE_URL = "https://opensource.org/licenses/BSD-3-Clause"
-
-#: The notice the licence itself requires be carried with the software.
-#:
-#: BSD's first two clauses require this notice, the conditions and the
-#: disclaimer to travel with every copy, in source and in binary. It is
-#: the whole of what a redistributor owes.
-REQUIRED_NOTICE = ("Copyright (c) 2025-2026, Einar Birnir Olafsson and the "
-                   "spaCR contributors. All rights reserved.")
+LICENSE_NAME = "spaCR Noncommercial License 1.0"
+LICENSE_URL = "https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"
+REQUIRED_NOTICE = ("Copyright (c) 2025-2026, Einar Birnir Olafsson "
+                   "and the spaCR contributors.")
 
 #: The agreement, in the words it is accepted in.
 #:
@@ -78,17 +64,6 @@ REQUIRED_NOTICE = ("Copyright (c) 2025-2026, Einar Birnir Olafsson and the "
 #: paragraph, defined terms, a licence grant, restrictions, ownership,
 #: data, warranty and liability in the capitals those two sections are
 #: always set in, then term, changes and general provisions.
-#:
-#: Section 2 summarises the BSD 3-Clause License and says so: the licence
-#: itself governs, and its three numbered conditions are what Section 3 is
-#: written against.
-#:
-#: THE LICENCE IS PERMISSIVE AND THE AGREEMENT IS STILL LONG, which looks
-#: like a contradiction and is not. What survives relicensing is everything
-#: BSD does NOT speak to: what leaves the machine, what may be done with a
-#: bug report or an uploaded model, what there is no promise about, and how
-#: to say no. Those were always the clauses worth reading, and they are
-#: unchanged.
 #:
 #: LONG ENOUGH TO BE TERMS. A four-sentence summary is a thing a reader
 #: takes in without noticing they agreed to anything, and the clauses that
@@ -128,30 +103,44 @@ TERMS: Tuple[str, ...] = (
     "material.",
 
     "2. LICENCE GRANT",
-    "2.1 The Software is open source. It is made available under the BSD "
-    "3-Clause License, the full text of which ships with the Software as "
-    "the file LICENSE and is linked below. That licence governs Your use "
-    "of the Software and prevails over anything in this Agreement that "
-    "conflicts with it.",
-    "2.2 You may use, copy, modify, merge, publish, distribute, "
-    "sublicense and sell the Software and works derived from it, FOR ANY "
-    "PURPOSE, commercial or otherwise. No separate permission is needed "
-    "and no fee is payable.",
-    "2.3 There is no noncommercial restriction. Earlier versions of spaCR "
-    "were licensed under the BSD 3-Clause License; that "
-    "restriction has been removed and does not apply to this version.",
+    "2.1 New original spaCR material first distributed with Agreement version "
+    "4.4 is licensed under the spaCR Noncommercial License 1.0 supplied in "
+    "LICENSE. That licence governs where this summary conflicts with it. "
+    "This is source-available software, not OSI-approved open source.",
+    "2.2 Noncommercial use, copying, modification and distribution of the "
+    "covered material are permitted subject to that licence. Noncommercial "
+    "research, education, teaching and personal experiments are permitted "
+    "without a fee, account approval or material-transfer agreement.",
+    "2.3 Commercial use requires separate written permission from an "
+    "authorized licensor. Commercial use means use directed toward commercial "
+    "advantage or monetary compensation, including paid services, commercial "
+    "hosting or products and internal research or operations for commercial "
+    "advantage. Organizational status alone creates no exception. Contact "
+    "olafsson@med.umich.com. This Agreement grants no commercial permission "
+    "and specifies no fee or commercial licence terms.",
+    "2.4 Previously BSD-licensed spaCR material retains its BSD 3-Clause "
+    "permissions, including commercial permissions, and its notices in "
+    "LICENSE-BSD-3-Clause. This Agreement does not withdraw earlier grants "
+    "or change the licences of prior releases or third-party material.",
+    "2.5 Third-party libraries, contributions, datasets and model weights "
+    "remain under their own licences. Their rights to inspect, modify, "
+    "replace, relink, obtain source, redistribute or debug by reverse "
+    "engineering, where granted, are not restricted by this Agreement. "
+    "GPL-covered combined-work obligations are not overridden; this Agreement "
+    "does not certify every dependency combination or binary distribution as "
+    "licence-compatible.",
 
     "3. WHAT THE LICENCE ASKS IN RETURN",
-    "3.1 Redistributions in source form must retain the copyright notice "
-    "at the end of this Agreement, the licence conditions, and the "
-    "disclaimer of warranties.",
-    "3.2 Redistributions in binary form must reproduce the same three "
-    "things in the documentation or other materials supplied with the "
-    "distribution.",
-    "3.3 Neither the name of the copyright holder nor the names of "
-    "contributors may be used to endorse or promote a derived product "
-    "without prior written permission. This is a rule about endorsement "
-    "only: it does not restrict what You may build or sell.",
+    "3.1 Distribute the applicable licence and copyright notice with copies "
+    "of covered material or modifications, and identify modifications. The "
+    "noncommercial licence does not grant commercial permission for changes "
+    "or new works; obtain separate written permission where required.",
+    "3.2 Retain the BSD copyright notice, conditions and disclaimer for "
+    "previously BSD-licensed material in source and binary distributions. "
+    "Keep all applicable third-party licences and notices.",
+    "3.3 A copyright holder's or contributor's name may not be used to "
+    "endorse a derived product without prior written permission where the "
+    "applicable licence prohibits it. No trademark rights are granted here.",
     "3.4 If You publish work that relied on the Software, a citation is "
     "asked for and is not a condition of the licence. See CITATION.cff in "
     "the Software for the form it should take.",
@@ -307,10 +296,9 @@ TERMS: Tuple[str, ...] = (
     "11.1 If any provision of this Agreement is held unenforceable, the "
     "remaining provisions continue in full force.",
     "11.2 A failure to enforce any provision is not a waiver of it.",
-    "11.3 This Agreement, together with the BSD 3-Clause License "
-    "referenced in Section 2.1, is the entire agreement between You and "
-    "the Licensor concerning the Software. Where the two differ, the "
-    "licence governs.",
+    "11.3 This Agreement and the applicable licences described in Section "
+    "2 govern the Software. Where they differ, the applicable licence "
+    "governs. Separately licensed material retains its own terms.",
     "11.4 LANGUAGE. This Agreement is written in English. spaCR may present a translation of it for convenience, and a translation is not a separate agreement: if a translated version differs from the English in any respect, THE ENGLISH VERSION GOVERNS. You accept the English Agreement whichever language You read it in.",
 )
 
@@ -340,6 +328,7 @@ WHY_NOT_YET = (
 #: Where the accepted version is remembered, and when it was accepted.
 _KEY_VERSION = "onboarding/terms_agreed_version"
 _KEY_WHEN = "onboarding/terms_agreed_at"
+_KEY_LICENSE = "onboarding/terms_agreed_license"
 
 
 def _settings():
@@ -409,11 +398,18 @@ def agreement_record() -> Dict[str, str]:
         a different answer from having accepted an older version and the
         reason both are reported rather than one boolean.
     """
+    version = agreed_version()
+    try:
+        accepted_license = str(_settings().value(_KEY_LICENSE, "") or "")
+    except Exception:
+        accepted_license = ""
+    if not accepted_license and version in ("4.0", "4.1", "4.2", "4.3"):
+        accepted_license = "BSD 3-Clause License"
     return {
-        "version": agreed_version(),
+        "version": version,
         "accepted_at": agreed_at(),
         "current_version": TERMS_VERSION,
-        "license": LICENSE_NAME,
+        "license": accepted_license,
     }
 
 
@@ -430,6 +426,8 @@ def record_agreement(version: str = "") -> str:
     store = _settings()
     store.setValue(_KEY_VERSION, stamped)
     store.setValue(_KEY_WHEN, when)
+    store.setValue(_KEY_LICENSE, LICENSE_NAME if stamped == TERMS_VERSION else
+                   "BSD 3-Clause License" if stamped in ("4.0", "4.1", "4.2", "4.3") else "")
     try:
         store.sync()
     except Exception:                                        # noqa: BLE001
@@ -464,33 +462,17 @@ TRANSLATIONS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
         "Användningsvillkor", "Nutzungsbedingungen", "Condiciones de uso",
         "使用条款", "Termos de uso", "उपयोग की शर्तें", "이용 약관",
         "Notkunarskilmálar", "Conditions d’utilisation")),
-    ("Review the terms of use and scroll to the end to enable acceptance. "
-     "Use the license link to read the full BSD 3-Clause "
-     "License.", (
-        "Läs igenom användningsvillkoren och rulla till slutet för att "
-        "aktivera godkännandet. Använd licenslänken för att läsa hela "
-        "BSD 3-Clause License.",
-        "Lesen Sie die Nutzungsbedingungen und scrollen Sie bis zum Ende, "
-        "um die Zustimmung zu aktivieren. Über den Lizenzlink können Sie die "
-        "vollständige BSD 3-Clause License lesen.",
-        "Revise las condiciones de uso y desplácese hasta el final para "
-        "habilitar la aceptación. Utilice el enlace de la licencia para leer "
-        "la BSD 3-Clause License completa.",
-        "请查看使用条款并滚动到末尾以启用接受选项。使用许可证链接可阅读完整的 "
-        "BSD 3-Clause License。",
-        "Revise os termos de uso e role até o final para habilitar a "
-        "aceitação. Use o link da licença para ler a BSD 3-Clause "
-        "License completa.",
-        "उपयोग की शर्तों की समीक्षा करें और स्वीकृति सक्षम करने के लिए अंत तक स्क्रॉल करें। "
-        "पूर्ण BSD 3-Clause License पढ़ने के लिए लाइसेंस लिंक का उपयोग करें।",
-        "이용 약관을 검토하고 끝까지 스크롤하여 동의 항목을 활성화하십시오. "
-        "라이선스 링크에서 전체 BSD 3-Clause License을 확인할 수 있습니다.",
-        "Farðu yfir notkunarskilmálana og skrunaðu til enda til að "
-        "virkja samþykki. Notaðu leyfistengilinn til að lesa BSD "
-        "3-Clause License í heild.",
-        "Consultez les conditions d’utilisation et faites défiler jusqu’à la "
-        "fin pour activer l’acceptation. Utilisez le lien de licence pour lire "
-        "l’intégralité de la BSD 3-Clause License.")),
+    ("Review the terms of use and full license. Use is noncommercial by default; commercial use requires separate written permission.", (
+        'Läs användningsvillkoren och hela licensen. Användning är som standard icke-kommersiell; kommersiell användning kräver separat skriftligt tillstånd.',
+        'Lesen Sie die Nutzungsbedingungen und die vollständige Lizenz. Standardmäßig ist die Nutzung nichtkommerziell; kommerzielle Nutzung erfordert eine gesonderte schriftliche Erlaubnis.',
+        'Revise las condiciones de uso y la licencia completa. El uso es no comercial por defecto; el uso comercial requiere autorización escrita por separado.',
+        '请阅读使用条款和完整许可证。默认仅供非商业用途；商业使用须另行获得书面许可。',
+        'Leia os termos de uso e a licença completa. Por predefinição, o uso é não comercial; o uso comercial exige autorização escrita separada.',
+        'उपयोग की शर्तें और पूरा लाइसेंस पढ़ें। डिफ़ॉल्ट रूप से उपयोग गैर-व्यावसायिक है; व्यावसायिक उपयोग के लिए अलग से लिखित अनुमति आवश्यक है।',
+        '이용 약관과 전체 라이선스를 읽으세요. 기본적으로 비상업적 사용이 허용되며, 상업적 사용에는 별도의 서면 허가가 필요합니다.',
+        'Lesið notkunarskilmálana og leyfið í heild. Notkun er sjálfgefið ekki í viðskiptaskyni; notkun í viðskiptaskyni krefst sérstaks skriflegs leyfis.',
+        'Lisez les conditions d’utilisation et la licence complète. L’utilisation est non commerciale par défaut ; toute utilisation commerciale nécessite une autorisation écrite distincte.',
+    )),
     (AGREE_LABEL, (
         "Jag har läst och godkänner dessa villkor",
         "Ich habe diese Bedingungen gelesen und stimme ihnen zu",

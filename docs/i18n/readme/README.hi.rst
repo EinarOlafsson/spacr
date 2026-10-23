@@ -38,9 +38,9 @@
    :target: https://github.com/EinarOlafsson/spacr/issues
    :alt: GitHub समस्याएँ
 
-.. |License| image:: https://img.shields.io/badge/License-BSD--3-blue?logo=opensourceinitiative&logoColor=white
-   :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: BSD 3-Clause लाइसेंस
+.. |License| image:: https://img.shields.io/badge/License-Noncommercial-blue
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
+   :alt: गैर-व्यावसायिक लाइसेंस
 
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
@@ -590,7 +590,15 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/licensing.desktop.svg"><img src="../../readme_images/hi/licensing.svg" alt="लाइसेंस. spaCR BSD 3-Clause लाइसेंस के अंतर्गत जारी किया जाता है। यदि spaCR ने आपके प्रकाशित कार्य में योगदान दिया है, तो उसका संदर्भ देना सराहनीय है, लेकिन यह लाइसेंस की शर्त नहीं है; नीचे spaCR का संदर्भ देखें।"></picture></a></div>
+   <div><a href="../../readme_text/hi/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/licensing.desktop.svg"><img src="../../readme_images/hi/licensing.svg" alt="लाइसेंस. spaCR की नई मौलिक सामग्री spaCR Noncommercial License 1.0 के अंतर्गत लाइसेंस प्राप्त है। व्यावसायिक उपयोग के लिए अलग लिखित अनुमति आवश्यक है; olafsson@med.umich.com पर संपर्क करें। पहले दिए गए BSD लाइसेंस अधिकार और तृतीय-पक्ष लाइसेंस प्रभावी बने रहते हैं; दायरे और सूचनाओं के लिए LICENSE देखें।"></picture></a></div>
+
+.. raw:: html
+
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/licensing-link-1.desktop.svg"><img src="../../readme_images/hi/licensing-link-1.svg" alt="spaCR Noncommercial License 1.0"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/licensing-link-2.desktop.svg"><img src="../../readme_images/hi/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
+
+.. raw:: html
+
+   <div><a href="../../readme_text/hi/licensing-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/licensing-2.desktop.svg"><img src="../../readme_images/hi/licensing-2.svg" alt="यदि spaCR ने आपके प्रकाशित कार्य में योगदान दिया है, तो उसका संदर्भ देना सराहनीय है, लेकिन यह लाइसेंस की शर्त नहीं है; नीचे spaCR का संदर्भ देखें।"></picture></a></div>
 
 .. raw:: html
 

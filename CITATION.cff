@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using these metadata."
 title: "spaCR: spatial phenotype analysis of CRISPR-Cas9 screens"
-abstract: "An open-source Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression."
+abstract: "A source-available Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression. New original material uses spaCR Noncommercial License 1.0; prior BSD grants and third-party licenses remain in effect; see LICENSE for scope."
 type: software
 authors:
   - family-names: "Olafsson"
@@ -42,7 +42,7 @@ identifiers:
   - type: url
     value: "https://pypi.org/project/spacr/"
     description: "Released package on PyPI."
-license: BSD-3-Clause
+license-url: "https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"
 repository-code: "https://github.com/EinarOlafsson/spacr"
 url: "https://einarolafsson.github.io/spacr/"
 keywords:

@@ -5877,8 +5877,8 @@ def _runtime_exchange(first, second):
 def _runtime_staging_allowed(prefix, machine):
     """Refuse shared or linked environments before invoking a package tool."""
     prefix = os.path.realpath(prefix)
-    configuration = os.path.join(prefix, "pyvenv.cfg")
-    if not os.path.isfile(configuration) or os.path.isdir(os.path.join(prefix, "conda-meta")):
+    configuration = _windows_native_path(os.path.join(prefix, "pyvenv.cfg"))
+    if not os.path.isfile(configuration) or os.path.isdir(_windows_native_path(os.path.join(prefix, "conda-meta"))):
         raise ValueError("this update requires a dedicated virtual environment")
     with open(configuration, encoding="utf-8") as handle:
         config = handle.read().lower().replace(" ", "")
@@ -5887,7 +5887,7 @@ def _runtime_staging_allowed(prefix, machine):
     if any(_exists(path) and _inside(os.path.realpath(path), prefix)
            for path in _user_data(machine)):
         raise ValueError("configured user data inside the runtime must remain untouched")
-    for directory, _folders, files in os.walk(prefix):
+    for directory, _folders, files in os.walk(_windows_native_path(prefix)):
         for name in files:
             path = os.path.join(directory, name)
             if name.endswith(".egg-link"):
@@ -6199,8 +6199,8 @@ def _remove_runtime_copies(parent, candidates):
             if (stat.S_ISLNK(details.st_mode) or not stat.S_ISDIR(details.st_mode)
                     or os.path.dirname(os.path.realpath(path)) != parent):
                 continue
-            size = _folder_size(path)
-            shutil.rmtree(path)
+            size = _folder_size(_windows_native_path(path))
+            shutil.rmtree(_windows_native_path(path))
         except OSError as error:
             log.warning("Could not remove the retained update copy %s: %s", path, error)
             continue
@@ -7050,6 +7050,15 @@ def _debian_prepare_root_transaction(version, previous_version, desktop_uid, *, 
     return result.returncode, result.stdout
 
 
+def _windows_native_path(path):
+    """Use the extended namespace only at native filesystem boundaries."""
+    value = os.fspath(path)
+    if os.name != "nt":
+        return value
+    absolute = os.path.abspath(value)
+    return absolute if absolute.startswith("\\\\") else "\\\\?\\" + absolute
+
+
 def _windows_pip_acl(path):
     """Read local fixed-volume ownership and ordinary DACL entries through native Windows APIs."""
     import ctypes
@@ -7067,12 +7076,17 @@ def _windows_pip_acl(path):
     drive_type.argtypes = [ctypes.c_wchar_p]
     drive_type.restype = dword
     absolute = os.path.abspath(path)
+    if absolute.startswith("\\\\?\\") and absolute[5:7] == ":\\":
+        absolute = absolute[4:]
     if absolute.startswith("\\\\") or drive_type(os.path.splitdrive(absolute)[0] + os.sep) != 3:
         raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
     root = ctypes.create_unicode_buffer(32768)
-    if not volume(absolute, root, len(root)):
+    if not volume(_windows_native_path(absolute), root, len(root)):
         raise OSError(ctypes.get_last_error(), os.strerror(errno.EACCES), path)
-    if root.value.startswith("\\\\") or drive_type(root.value) != 3:
+    volume_root = root.value
+    if volume_root.startswith("\\\\?\\") and volume_root[5:7] == ":\\":
+        volume_root = volume_root[4:]
+    if volume_root.startswith("\\\\") or drive_type(volume_root) != 3:
         raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
     read_security = security.GetNamedSecurityInfoW
     read_security.argtypes = [ctypes.c_wchar_p, dword, dword,
@@ -7101,7 +7115,7 @@ def _windows_pip_acl(path):
     close.argtypes = [pointer]
     close.restype = ctypes.c_int32
     owner, dacl, descriptor, token = pointer(), pointer(), pointer(), pointer()
-    code = read_security(os.path.abspath(path), 1, 5, ctypes.byref(owner), None,
+    code = read_security(_windows_native_path(absolute), 1, 5, ctypes.byref(owner), None,
                          ctypes.byref(dacl), None, ctypes.byref(descriptor))
     if code:
         raise OSError(code, os.strerror(errno.EACCES), path)
@@ -7583,13 +7597,14 @@ def _windows_relocatable_scripts(staged):
 def _windows_pip_tree(prefix):
     """Read complete runtime identity and reject every linked or reparse payload before use."""
     _installer_metadata_folder(prefix, "untrusted_windows_runtime_directory", windows=True)
-    _windows_pip_tree_acl(prefix)
-    return _runtime_recovery_inventory(prefix)
+    native = _windows_native_path(prefix)
+    _windows_pip_tree_acl(native)
+    return _runtime_recovery_inventory(native)
 
 
 def _windows_pip_transition(path, identity, inventory):
     """Refuse a foreign or modified runtime before any two-rename activation or rollback step."""
-    details = os.stat(path, follow_symlinks=False)
+    details = os.stat(_windows_native_path(path), follow_symlinks=False)
     if ([details.st_dev, details.st_ino] != identity or _windows_pip_tree(path) != inventory):
         raise ValueError("windows_runtime_replaced_or_modified")
 
@@ -7633,7 +7648,7 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
                  "requested_version": version, "old_identity": [details.st_dev, details.st_ino],
                  "old_inventory": _windows_pip_tree(prefix), "state": "staging"}
         _runtime_recovery_journal(root, state)
-        shutil.copytree(prefix, staged)
+        shutil.copytree(_windows_native_path(prefix), _windows_native_path(staged))
         _windows_pip_private_directory(staged)
         python = os.path.join(staged, "Scripts", "python.exe")
         if uv_tool:
@@ -7661,15 +7676,15 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         if code and not (uv_tool and without_wgpu and _only_saved_wgpu_omission(code, checked)):
             raise RuntimeError(checked)
         _windows_pip_tree(staged)
-        for directory, _folders, files in os.walk(staged):
+        for directory, _folders, files in os.walk(_windows_native_path(staged)):
             for name in files:
                 path = os.path.join(directory, name)
-                relative = os.path.relpath(path, staged)
+                relative = os.path.relpath(path, _windows_native_path(staged))
                 prior = state["old_inventory"].get(relative, {})
                 if not name.endswith(".py") or prior.get("kind") != "file":
                     continue
                 details = os.stat(path, follow_symlinks=False)
-                original = os.stat(os.path.join(prefix, relative), follow_symlinks=False)
+                original = os.stat(_windows_native_path(os.path.join(prefix, relative)), follow_symlinks=False)
                 if (details.st_size == prior["size"] and int(details.st_mtime) == int(original.st_mtime)
                         and _macos_digest(path) != prior["sha256"]):
                     os.utime(path, ns=(details.st_atime_ns, (int(original.st_mtime) + 2) * 1_000_000_000),
@@ -7700,13 +7715,13 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         _windows_pip_transition(staged, state["new_identity"], state["new_inventory"])
         state["state"] = "retiring"
         _runtime_recovery_journal(root, state)
-        os.rename(prefix, previous)
+        os.rename(_windows_native_path(prefix), _windows_native_path(previous))
         retired = True
         state["state"] = "retired"
         _runtime_recovery_journal(root, state)
         if os.path.lexists(prefix):
             raise ValueError("windows_runtime_replaced_or_modified")
-        os.rename(staged, prefix)
+        os.rename(_windows_native_path(staged), _windows_native_path(prefix))
         installed = True
         state["state"] = "verifying"
         _runtime_recovery_journal(root, state)
@@ -7737,10 +7752,10 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
                     _windows_pip_transition(prefix, state["new_identity"], state["new_inventory"])
                     if os.path.lexists(staged):
                         raise ValueError("windows_runtime_replaced_or_modified")
-                    os.rename(prefix, staged)
+                    os.rename(_windows_native_path(prefix), _windows_native_path(staged))
                 if os.path.lexists(prefix):
                     raise ValueError("windows_runtime_replaced_or_modified")
-                os.rename(previous, prefix)
+                os.rename(_windows_native_path(previous), _windows_native_path(prefix))
                 state["state"] = "rolled_back"
                 _runtime_recovery_journal(root, state)
             except BaseException as error:
@@ -7899,6 +7914,7 @@ def _windows_online_helper(record, module, plan_path, machine):
 
 def _remove_runtime_copy(path):
     """Delete a retired runtime copy; a link or junction inside it is removed as a link, never entered."""
+    path = _windows_native_path(path)
     with os.scandir(path) as entries:
         for entry in entries:
             details = entry.stat(follow_symlinks=False)

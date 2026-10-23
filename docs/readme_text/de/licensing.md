@@ -1,5 +1,3 @@
 ## Lizenz
 
-spaCR wird unter der [BSD3-Clause-Lizenz](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>) veröffentlicht.
-
-Wenn spaCR zu einer Veröffentlichung beigetragen hat, freuen wir uns über eine Quellenangabe. Sie ist keine Bedingung der Lizenz; siehe unten unter spaCR zitieren.
+Neues originales spaCR-Material steht unter der [spaCR Noncommercial License 1.0](<https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>). Kommerzielle Nutzung erfordert eine gesonderte schriftliche Erlaubnis; wenden Sie sich an [olafsson@med.umich.com](<mailto:olafsson@med.umich.com>). Frühere BSD-Lizenzgewährungen und Lizenzen Dritter bleiben gültig; Geltungsbereich und Hinweise finden Sie in LICENSE.

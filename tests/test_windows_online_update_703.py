@@ -248,6 +248,49 @@ def test_a_verified_uv_update_swaps_in_and_retains_the_previous_runtime(online):
     assert Path(install[0][install[0].index('--python') + 1]).parent.parent.name == 'staged'
 
 
+@pytest.mark.skipif(os.name != 'nt', reason='requires actual Windows extended-path filesystem behavior')
+@pytest.mark.parametrize('rollback', [False, True])
+def test_deep_windows_payload_survives_staging_rollback_and_cleanup(online, rollback):
+    relative = Path(*(['deep-pyside-payload-' + str(index) for index in range(9)]), 'resource.cpp.obj')
+    payload = online.venv / relative
+    native = cleanup._windows_native_path(str(payload))
+    assert len(str(payload)) > 260
+    os.makedirs(os.path.dirname(native))
+    with open(native, 'wb') as stream:
+        stream.write(b'all native payload bytes must survive')
+    before = cleanup._windows_pip_tree(str(online.venv))
+
+    def fail_activation(version):
+        raise RuntimeError('owned native activation failure')
+
+    if rollback:
+        with pytest.raises(RuntimeError, match='owned native activation failure'):
+            transaction(online, activate=fail_activation)
+        assert cleanup._windows_pip_tree(str(online.venv)) == before
+    else:
+        transaction(online)
+    after = cleanup._windows_pip_tree(str(online.venv))
+    assert after[str(relative)] == before[str(relative)]
+    recovery = next(online.root.glob('.spacr-windows-update-*'))
+    journal = json.loads((recovery / 'transaction.json').read_text(encoding='utf-8'))
+    assert journal['state'] == ('rolled_back' if rollback else 'committed')
+    assert not any(journal[key].startswith('\\\\?\\') for key in ('prefix', 'rollback_runtime', 'staged_runtime'))
+    assert recovery.resolve().parent == online.root.resolve()
+    removed = cleanup._remove_runtime_copies(str(online.root.resolve()), [(0, str(recovery), journal)])
+    assert removed and removed[0][0] == str(recovery)
+    assert not recovery.exists()
+    assert cleanup._windows_pip_tree(str(online.venv)) == after
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='requires actual Windows volume and ACL APIs')
+def test_extended_local_acl_keeps_the_same_identity_and_rejects_network_namespaces(tmp_path):
+    path = str(tmp_path)
+    assert cleanup._windows_pip_acl(path) == cleanup._windows_pip_acl(cleanup._windows_native_path(path))
+    for network in ('\\\\not-a-host\\share\\file', '\\\\?\\UNC\\not-a-host\\share\\file', '\\\\?\\GLOBALROOT\\Device\\HarddiskVolume1'):
+        with pytest.raises(ValueError):
+            cleanup._windows_pip_acl(network)
+
+
 @pytest.mark.parametrize('failure', ['install', 'check', 'import', 'identity', 'absolute_script',
                                      'final_identity', 'final_import', 'activation'])
 def test_a_failed_uv_update_leaves_or_restores_the_exact_runtime(online, failure):

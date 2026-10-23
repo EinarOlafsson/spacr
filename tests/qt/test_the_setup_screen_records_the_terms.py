@@ -163,6 +163,57 @@ class TestTheAgreementIsRecorded:
 
         assert terms_module.agreed_version() == ""
 
+    def test_declining_the_revision_retains_the_prior_acceptance(self, slides, terms_module):
+        store = terms_module._settings()
+        store.setValue("onboarding/terms_agreed_version", "4.3")
+        store.setValue("onboarding/terms_agreed_at", "2026-01-01T12:00:00+00:00")
+        store.sync()
+        assert not slides.agreed_to_terms()
+
+        slides.reject()
+
+        record = terms_module.agreement_record()
+        assert record["version"] == "4.3"
+        assert record["accepted_at"] == "2026-01-01T12:00:00+00:00"
+        assert record["current_version"] == "4.4"
+        assert record["license"] == "BSD 3-Clause License"
+        assert terms_module.needs_agreement() is True
+
+    def test_accepting_the_revision_records_its_license_and_new_utc_time(self, slides, terms_module):
+        from datetime import datetime, timezone
+
+        store = terms_module._settings()
+        store.setValue("onboarding/terms_agreed_version", "4.3")
+        store.setValue("onboarding/terms_agreed_at", "2026-01-01T12:00:00+00:00")
+        store.sync()
+        before = datetime.now(timezone.utc).replace(microsecond=0)
+        slides._agree.setChecked(True)
+
+        slides.accept()
+
+        after = datetime.now(timezone.utc)
+        record = terms_module.agreement_record()
+        assert record["version"] == record["current_version"] == "4.4"
+        assert record["license"] == "spaCR Noncommercial License 1.0"
+        accepted = datetime.fromisoformat(record["accepted_at"])
+        assert accepted.utcoffset().total_seconds() == 0
+        assert before <= accepted <= after
+        assert terms_module.needs_agreement() is False
+
+    def test_the_accepted_license_survives_a_future_current_license(self, terms_module, monkeypatch):
+        terms_module.record_agreement()
+        accepted = terms_module.agreement_record()
+        monkeypatch.setattr(terms_module, "TERMS_VERSION", "future-version")
+        monkeypatch.setattr(terms_module, "LICENSE_NAME", "Future licence")
+
+        record = terms_module.agreement_record()
+
+        assert record["version"] == "4.4"
+        assert record["license"] == "spaCR Noncommercial License 1.0"
+        assert record["accepted_at"] == accepted["accepted_at"]
+        assert record["current_version"] == "future-version"
+        assert terms_module.needs_agreement() is True
+
     def test_a_store_that_refuses_the_write_asks_again(self, slides,
                                                        terms_module,
                                                        monkeypatch):

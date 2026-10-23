@@ -1,5 +1,3 @@
 ## 许可
 
-spaCR 以 [BSD 三条款许可证](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>) 发布。
-
-如果 spaCR 对您的已发表研究有所帮助，我们欢迎引用，但引用不是许可证的条件；请参阅下方的 引用 spaCR。
+spaCR 的新增原创材料采用 [spaCR Noncommercial License 1.0](<https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>)。商业使用须另行获得书面许可；请联系 [olafsson@med.umich.com](<mailto:olafsson@med.umich.com>)。此前授予的 BSD 许可及第三方许可证仍然有效；适用范围和声明请参阅 LICENSE。

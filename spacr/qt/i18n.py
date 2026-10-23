@@ -510,33 +510,17 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Användningsvillkor", "Nutzungsbedingungen", "Condiciones de uso",
         "使用条款", "Termos de uso", "उपयोग की शर्तें", "이용 약관",
         "Notkunarskilmálar", "Conditions d’utilisation"),
-    "Review the terms of use and scroll to the end to enable acceptance. "
-    "Use the license link to read the full BSD 3-Clause "
-    "License.": _row(
-        "Läs igenom användningsvillkoren och rulla till slutet för att "
-        "aktivera godkännandet. Använd licenslänken för att läsa hela "
-        "BSD 3-Clause License.",
-        "Lesen Sie die Nutzungsbedingungen und scrollen Sie bis zum Ende, "
-        "um die Zustimmung zu aktivieren. Über den Lizenzlink können Sie die "
-        "vollständige BSD 3-Clause License lesen.",
-        "Revise las condiciones de uso y desplácese hasta el final para "
-        "habilitar la aceptación. Utilice el enlace de la licencia para leer "
-        "la BSD 3-Clause License completa.",
-        "请查看使用条款并滚动到末尾以启用接受选项。使用许可证链接可阅读完整的 "
-        "BSD 3-Clause License。",
-        "Revise os termos de uso e role até o final para habilitar a "
-        "aceitação. Use o link da licença para ler a BSD 3-Clause "
-        "License completa.",
-        "उपयोग की शर्तों की समीक्षा करें और स्वीकृति सक्षम करने के लिए अंत तक स्क्रॉल करें। "
-        "पूर्ण BSD 3-Clause License पढ़ने के लिए लाइसेंस लिंक का उपयोग करें।",
-        "이용 약관을 검토하고 끝까지 스크롤하여 동의 항목을 활성화하십시오. "
-        "라이선스 링크에서 전체 BSD 3-Clause License을 확인할 수 있습니다.",
-        "Farðu yfir notkunarskilmálana og skrunaðu til enda til að "
-        "virkja samþykki. Notaðu leyfistengilinn til að lesa BSD "
-        "3-Clause License í heild.",
-        "Consultez les conditions d’utilisation et faites défiler jusqu’à la "
-        "fin pour activer l’acceptation. Utilisez le lien de licence pour lire "
-        "l’intégralité de la BSD 3-Clause License."),
+    'Review the terms of use and full license. Use is noncommercial by default; commercial use requires separate written permission.': _row(
+        'Läs användningsvillkoren och hela licensen. Användning är som standard icke-kommersiell; kommersiell användning kräver separat skriftligt tillstånd.',
+        'Lesen Sie die Nutzungsbedingungen und die vollständige Lizenz. Standardmäßig ist die Nutzung nichtkommerziell; kommerzielle Nutzung erfordert eine gesonderte schriftliche Erlaubnis.',
+        'Revise las condiciones de uso y la licencia completa. El uso es no comercial por defecto; el uso comercial requiere autorización escrita por separado.',
+        '请阅读使用条款和完整许可证。默认仅供非商业用途；商业使用须另行获得书面许可。',
+        'Leia os termos de uso e a licença completa. Por predefinição, o uso é não comercial; o uso comercial exige autorização escrita separada.',
+        'उपयोग की शर्तें और पूरा लाइसेंस पढ़ें। डिफ़ॉल्ट रूप से उपयोग गैर-व्यावसायिक है; व्यावसायिक उपयोग के लिए अलग से लिखित अनुमति आवश्यक है।',
+        '이용 약관과 전체 라이선스를 읽으세요. 기본적으로 비상업적 사용이 허용되며, 상업적 사용에는 별도의 서면 허가가 필요합니다.',
+        'Lesið notkunarskilmálana og leyfið í heild. Notkun er sjálfgefið ekki í viðskiptaskyni; notkun í viðskiptaskyni krefst sérstaks skriflegs leyfis.',
+        'Lisez les conditions d’utilisation et la licence complète. L’utilisation est non commerciale par défaut ; toute utilisation commerciale nécessite une autorisation écrite distincte.',
+    ),
     "I have read and agree to these terms": _row(
         "Jag har läst och godkänner dessa villkor",
         "Ich habe diese Bedingungen gelesen und stimme ihnen zu",
