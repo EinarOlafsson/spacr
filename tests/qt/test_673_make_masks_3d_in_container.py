@@ -857,6 +857,155 @@ def test_a_large_object_gets_its_anchors_off_the_gui_thread(true3d, screen, qtbo
     assert stage._panel.drag_mode() == "edit"
 
 
+@pytest.mark.skipif(__import__('sys').platform != 'darwin', reason='requires native Cocoa')
+def test_native_cocoa_close_during_real_mesh_validation(tmp_path):
+    import ast
+    import json
+    import os
+    import subprocess
+    import sys
+    import textwrap
+
+    root = Path(__file__).resolve().parents[2]
+    syntax = ast.parse(Path(__file__).with_name('test_the_macos_application_menu.py').read_text())
+    bootstrap = next(node.value.args[0] for node in syntax.body if isinstance(node, ast.Assign)
+                     and any(isinstance(target, ast.Name) and target.id == '_OWNED_SETTINGS_PROBE'
+                             for target in node.targets))
+    probe = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
+        import hashlib, threading, traceback
+        from pathlib import Path
+        import numpy as np
+        import tifffile
+        from PySide6 import QtCore
+        from PySide6.QtCore import QTimer
+        from spacr.cancellation import current_token
+        from spacr.qt.screens import make_masks as mm
+        from spacr.qt.widgets import gate_spec
+
+        assert Path(mm.__file__).resolve() == Path(os.environ['SPACR_NATIVE_SOURCE']) / 'spacr/qt/screens/make_masks.py'
+        report = {'pid': os.getpid(), 'source': mm.__file__, 'settings': settings_file,
+                  'qt_critical': [], 'python_errors': []}
+        previous_qt = None
+
+        def qt_message(kind, context, message):
+            if kind in (QtCore.QtCriticalMsg, QtCore.QtFatalMsg):
+                report['qt_critical'].append(message)
+            if previous_qt is not None:
+                previous_qt(kind, context, message)
+            else:
+                sys.__stderr__.write(message + '\n')
+
+        previous_qt = QtCore.qInstallMessageHandler(qt_message)
+        original_exception = sys.excepthook
+
+        def python_exception(kind, value, tb):
+            report['python_errors'].append(''.join(traceback.format_exception(kind, value, tb)))
+            original_exception(kind, value, tb)
+
+        sys.excepthook = python_exception
+        original_thread_exception = threading.excepthook
+
+        def thread_exception(args):
+            report['python_errors'].append(str(args.exc_value))
+            original_thread_exception(args)
+
+        threading.excepthook = thread_exception
+        validation = threading.Event()
+        original_contact = gate_spec._mesh_triangle_contact
+
+        def contact(*args, **kwargs):
+            if threading.current_thread().name == 'spacr-volume-mask-mesh' and not validation.is_set():
+                request = stage._mesher._running
+                report['validation_pair'] = {'generation': request.generation,
+                    'token_matches_worker': current_token() is request.token,
+                    'triangle_shapes': [list(args[0].shape), list(args[1].shape)]}
+                validation.set()
+            return original_contact(*args, **kwargs)
+
+        gate_spec._mesh_triangle_contact = contact
+        fixture = Path(settings_root) / 'fixture'
+        (fixture / 'masks').mkdir(parents=True)
+        image = np.zeros((64, 256, 256), dtype=np.uint16)
+        labels = np.zeros_like(image)
+        labels[20:44, 80:104, 80:104] = 1
+        tifffile.imwrite(fixture / 'cells.tif', image, metadata={'axes': 'ZYX'})
+        tifffile.imwrite(fixture / 'masks/cells.tif', labels, metadata={'axes': 'ZYX'})
+
+        def snapshot(session):
+            return (hashlib.sha256(session.mask.tobytes()).hexdigest(),
+                    tuple(session.geometries), tuple(map(id, session._undo)), tuple(map(id, session._redo)),
+                    session._saved_mask_sha256, session._saved_geometry_sha256, session._history_bytes)
+
+        app = QApplication([])
+        window = mm.MakeMasksScreen()
+        window.resize(1280, 720)
+        window.show()
+        stage = window.open_volume(str(fixture / 'cells.tif'))
+        session = stage.session
+        before = snapshot(session)
+        assert stage.set_view('true3d')
+        stage._labels.setCurrentIndex(stage._labels.findData(1))
+        assert stage._selected == 1
+        worker = stage._mesher
+        closed_request = closed_thread = None
+        timer = QTimer()
+
+        def close_when_validating():
+            global closed_request, closed_thread
+            if not validation.is_set():
+                return
+            timer.stop()
+            closed_request, closed_thread = worker._running, worker._thread
+            assert closed_request is not None and closed_thread.is_alive()
+            assert not closed_request.token.cancelled
+            assert report['validation_pair']['generation'] == closed_request.generation
+            report['close_returned'] = bool(window.close())
+            report['token_cancelled_after_close'] = closed_request.token.cancelled
+            report['worker_closed_after_close'] = worker._closed
+            report['worker_alive_after_close'] = closed_thread.is_alive()
+            report['state_unchanged_after_close'] = snapshot(session) == before
+
+        timer.timeout.connect(close_when_validating)
+        timer.start(5)
+        report['event_loop_returncode'] = app.exec()
+        report['worker_alive_at_exec_return'] = bool(closed_thread and closed_thread.is_alive())
+        report['worker_daemon'] = bool(closed_thread and closed_thread.daemon)
+        report['state_unchanged_at_exec_return'] = snapshot(session) == before
+        report['shutdown_observation'] = ('cancelled_read_only_daemon_pending'
+            if report['worker_alive_at_exec_return'] else 'drained')
+        print('RESULT_CLOSE_REAL_MESH ' + json.dumps(report), flush=True)
+    ''')
+    profile = str((tmp_path / 'profile').resolve())
+    env = dict(os.environ, QT_QPA_PLATFORM='cocoa', CUDA_VISIBLE_DEVICES='', SPACR_NO_GPU_RENDER='1',
+               SPACR_NATIVE_SOURCE=str(root), PYTHONPATH=str(root), SPACR_MENU_TEST_SETTINGS=profile,
+               SPACR_ISOLATED_PROFILE='1', SPACR_NO_NETWORK='1', SPACR_NO_BACKDROP='1')
+    for name, relative in {'SPACR_HOME': 'home', 'SPACR_LOG_DIR': 'logs', 'SPACR_LOCK_DIR': 'locks',
+                           'SPACR_CHAINING_PINS': 'pins.json', 'SPACR_BACKENDS_DIR': 'backends',
+                           'SPACR_MODEL_CACHE': 'models', 'SPACR_PLUGIN_HOME': 'plugins',
+                           'SPACR_SOUND_CACHE': 'sounds', 'XDG_CACHE_HOME': 'cache',
+                           'XDG_STATE_HOME': 'state', 'MPLCONFIGDIR': 'matplotlib',
+                           'HF_HOME': 'huggingface', 'TORCH_HOME': 'torch',
+                           'CELLPOSE_LOCAL_MODELS_PATH': 'cellpose'}.items():
+        env[name] = str(Path(profile) / relative)
+    result = subprocess.run([sys.executable, '-c', probe], cwd=root, env=env,
+                            capture_output=True, text=True, timeout=180)
+    assert result.returncode == 0, result.stdout + result.stderr
+    lines = [line for line in result.stdout.splitlines() if line.startswith('RESULT_CLOSE_REAL_MESH ')]
+    assert len(lines) == 1, result.stdout + result.stderr
+    observed = json.loads(lines[0].split(' ', 1)[1])
+    assert observed['validation_pair']['token_matches_worker']
+    assert observed['validation_pair']['triangle_shapes'] == [[3, 3], [3, 3]]
+    assert observed['close_returned'] and observed['token_cancelled_after_close']
+    assert observed['worker_closed_after_close'] and observed['event_loop_returncode'] == 0
+    assert observed['state_unchanged_after_close'] and observed['state_unchanged_at_exec_return']
+    assert not observed['qt_critical'] and not observed['python_errors']
+    assert not observed['worker_alive_at_exec_return'] or observed['worker_daemon']
+    assert all(marker not in result.stderr for marker in ('Traceback (most recent call last)',
+               'Internal C++ object', 'QThread: Destroyed', 'Exception ignored in:'))
+    assert os.path.commonpath([os.path.realpath(observed['settings']), profile]) == profile
+    print('Native close observation: ' + observed['shutdown_observation'])
+
+
 def test_an_object_without_a_boundary_says_why_and_is_not_asked_twice(true3d, screen, qtbot):
     stage = true3d
     session = stage.session

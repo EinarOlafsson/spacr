@@ -443,6 +443,7 @@ def test_wgpu_reads_colour_and_picking_from_one_completed_frame(size, error):
             raise RuntimeError("unmap")
 
     renderer = object.__new__(layers.WGPUVolumeRenderer)
+    renderer._init_dispatch_pool()
     renderer._device = types.SimpleNamespace(
         create_command_encoder=Encoder,
         queue=types.SimpleNamespace(submit=lambda commands: events.append("submit")))
@@ -464,6 +465,279 @@ def test_wgpu_reads_colour_and_picking_from_one_completed_frame(size, error):
     assert np.array_equal(picked, codes) and picked.dtype == np.int64
 
 
+def _dispatch_pool_fixture(monkeypatch):
+    import threading
+
+    flags = types.SimpleNamespace(STORAGE=1, COPY_SRC=2, COPY_DST=4, MAP_READ=8, UNIFORM=16)
+
+    class Buffer:
+        def __init__(self, device, size, usage):
+            self.device, self.size, self.usage = device, size, usage
+            self.data = bytearray(size)
+            self.destroyed = False
+
+        def destroy(self):
+            self.destroyed = True
+
+        def map_sync(self, mode, *, size):
+            self.device.entered.set()
+            assert self.device.release.wait(3)
+            self.device.fail('map')
+
+        def read_mapped(self, *, size, copy):
+            self.device.fail('read')
+            return memoryview(bytes(self.data[:size]))
+
+        def unmap(self):
+            self.device.fail('unmap')
+
+    class Encoder:
+        def __init__(self, device):
+            self.device, self.commands, self.pipeline, self.group = device, [], None, None
+
+        def begin_compute_pass(self):
+            return self
+
+        def set_pipeline(self, pipeline):
+            self.pipeline = pipeline
+
+        def set_bind_group(self, index, group):
+            self.group = group
+
+        def dispatch_workgroups(self, *groups):
+            self.commands.append(('dispatch', self.pipeline, self.group))
+
+        def end(self):
+            pass
+
+        def copy_buffer_to_buffer(self, source, source_offset, target, target_offset, size):
+            self.commands.append(('copy', source, source_offset, target, target_offset, size))
+
+        def finish(self):
+            return self
+
+    class Device:
+        def __init__(self):
+            self.buffers, self.groups, self.submitted = [], [], []
+            self.error, self.destroyed = None, False
+            self.entered, self.release = threading.Event(), threading.Event()
+            self.release.set()
+            self.queue = types.SimpleNamespace(write_buffer=self.write, submit=self.submit)
+
+        def fail(self, where):
+            if self.error == where:
+                raise RuntimeError(where)
+
+        def create_buffer(self, *, size, usage):
+            buffer = Buffer(self, size, usage)
+            self.buffers.append(buffer)
+            return buffer
+
+        def create_buffer_with_data(self, *, data, usage):
+            buffer = self.create_buffer(size=data.nbytes, usage=usage)
+            buffer.data[:] = data.tobytes()
+            return buffer
+
+        def write(self, buffer, offset, data, *args, **kwargs):
+            self.fail('write')
+            assert offset % 4 == 0 and data.nbytes % 4 == 0
+            buffer.data[offset:offset+data.nbytes] = data.tobytes()
+
+        def create_bind_group(self, *, layout, entries):
+            self.fail('bind')
+            class Group:
+                pass
+            group = Group()
+            group.layout, group.entries = layout, entries
+            self.groups.append(group)
+            return group
+
+        def create_command_encoder(self):
+            return Encoder(self)
+
+        def submit(self, commands):
+            self.fail('submit')
+            frame = []
+            for encoder in commands:
+                for command in encoder.commands:
+                    if command[0] == 'dispatch':
+                        _, pipeline, group = command
+                        uniform = group.entries[0]['resource']['buffer']
+                        assert not uniform.destroyed
+                        frame.append((pipeline.name, bytes(uniform.data), uniform))
+                    else:
+                        _, source, source_offset, target, target_offset, size = command
+                        target.data[target_offset:target_offset+size] = source.data[source_offset:source_offset+size]
+            self.submitted.append(frame)
+
+        def destroy(self):
+            self.destroyed = True
+
+    monkeypatch.setitem(sys.modules, 'wgpu', types.SimpleNamespace(BufferUsage=flags, GPUBuffer=Buffer))
+    device = Device()
+    adapter = _FakeAdapter('Metal')
+    adapter.request_device_sync = lambda **kwargs: device
+    renderer = layers.WGPUVolumeRenderer(adapter)
+    pipelines = {}
+
+    def pipeline(name):
+        if name not in pipelines:
+            layout = object()
+            pipelines[name] = types.SimpleNamespace(name=name, get_bind_group_layout=lambda index: layout)
+        return pipelines[name]
+
+    renderer._pipeline = pipeline
+    resources = {}
+    renderer._volume = lambda array, kind: resources.setdefault(
+        (id(array), kind), (object(), object()))
+    renderer._lut = lambda colormap: resources.setdefault(('lut', id(colormap)), object())
+    renderer._colours = lambda array: (resources.setdefault(('colours', id(array)), object()), None)
+    image = np.ones((2, 3, 4), np.float32)
+    first = ImageLayer(image, name='first', opacity=.25, contrast_limits=[(0., 2.)])
+    second = ImageLayer(image * 2, name='second', opacity=.75, contrast_limits=[(0., 4.)])
+    masks = LabelsLayer(np.ones(image.shape, np.uint16), name='labels')
+    rays = VolumeRays(origin=(0, 0, 0), across=(0, 0, 1), down=(0, 1, 0),
+                      depth=(1, 0, 0), shape=(2, 3, 4))
+    return renderer, device, [first, second, masks], rays, pipelines, resources
+
+
+def test_wgpu_dispatch_slots_keep_encoded_uniforms_distinct_and_reuse(monkeypatch):
+    renderer, device, drawn, rays, _, _ = _dispatch_pool_fixture(monkeypatch)
+    try:
+        renderer.render(drawn, rays)
+        encoded = device.submitted[-1]
+        assert [entry[0] for entry in encoded] == ['clear', 'image', 'image', 'labels', 'pack']
+        assert len({id(entry[2]) for entry in encoded}) == 5
+        uniforms = [np.frombuffer(entry[1], np.float32).reshape(17, 4) for entry in encoded]
+        assert uniforms[1][9, 2] == .25 and uniforms[2][9, 2] == .75
+        assert uniforms[1][9, 1] == 2 and uniforms[2][9, 1] == 4
+        allocated, groups = len(device.buffers), len(device.groups)
+        drawn[0].opacity = .5
+        renderer.render(drawn, rays)
+        assert len(device.buffers) == allocated and len(device.groups) == groups
+        assert [entry[2] for entry in device.submitted[-1]] == [entry[2] for entry in encoded]
+        assert np.frombuffer(device.submitted[-1][1][1], np.float32).reshape(17, 4)[9, 2] == .5
+    finally:
+        renderer.close()
+
+
+def test_wgpu_dispatch_slots_shrink_and_replace_bindings_without_old_retention(monkeypatch):
+    import gc
+    import weakref
+
+    renderer, device, drawn, rays, pipelines, resources = _dispatch_pool_fixture(monkeypatch)
+    try:
+        renderer.render(drawn, rays)
+        old_uniforms = [entry[2] for entry in device.submitted[-1]]
+        renderer.render(drawn[:1], rays, size=(1, 2))
+        assert all(buffer.destroyed for buffer in old_uniforms[3:])
+        renderer.render(drawn, rays, size=(4, 7))
+        assert len(device.submitted[-1]) == 5
+        old_group = device.groups[-1]
+        old_ref = weakref.ref(old_group)
+        renderer.render(drawn, rays, size=(8, 9))
+        assert device.groups[-1] is not old_group
+        device.groups.clear()
+        del old_group
+        gc.collect()
+        assert old_ref() is None
+        previous = len(device.groups)
+        resources.clear()
+        pipelines.clear()
+        renderer.render(drawn, rays, size=(8, 9))
+        assert len(device.groups) > previous
+    finally:
+        renderer.close()
+    assert all(buffer.destroyed for buffer in device.buffers)
+    renderer.close()
+
+
+@pytest.mark.parametrize('error', ['write', 'bind', 'submit', 'map', 'read', 'unmap'])
+def test_wgpu_dispatch_failure_never_reuses_uncertain_uniforms(monkeypatch, error):
+    renderer, device, drawn, rays, _, resources = _dispatch_pool_fixture(monkeypatch)
+    try:
+        renderer.render(drawn, rays)
+        resources.clear()
+        device.error = error
+        with pytest.raises(RuntimeError, match=error):
+            renderer.render(drawn, rays)
+        allocations = len(device.buffers)
+        device.error = None
+        with pytest.raises(RuntimeError):
+            renderer.render(drawn, rays)
+        assert len(device.buffers) == allocations
+    finally:
+        renderer.close()
+    assert all(buffer.destroyed for buffer in device.buffers)
+
+
+@pytest.mark.parametrize('action', ['render', 'close'])
+def test_wgpu_render_and_close_are_serialized_through_readback(monkeypatch, action):
+    import threading
+
+    renderer, device, drawn, rays, _, _ = _dispatch_pool_fixture(monkeypatch)
+    device.release.clear()
+    errors, second_done, second_started = [], threading.Event(), threading.Event()
+
+    def run(first):
+        try:
+            if not first:
+                second_started.set()
+            if first or action == 'render':
+                renderer.render(drawn, rays)
+            else:
+                renderer.close()
+        except BaseException as exc:
+            errors.append(exc)
+        finally:
+            if not first:
+                second_done.set()
+
+    first = threading.Thread(target=run, args=(True,))
+    second = threading.Thread(target=run, args=(False,))
+    try:
+        first.start()
+        assert device.entered.wait(2)
+        second.start()
+        assert second_started.wait(2)
+        assert not second_done.wait(.05)
+        assert len(device.submitted) == 1 and not device.destroyed
+    finally:
+        device.release.set()
+        first.join(3)
+        second.join(3)
+        renderer.close()
+    assert not first.is_alive() and not second.is_alive() and not errors
+
+
+def test_wgpu_dispatch_slots_are_not_shared_across_devices(monkeypatch):
+    first, first_device, drawn, rays, _, _ = _dispatch_pool_fixture(monkeypatch)
+    second, second_device, other, _, _, _ = _dispatch_pool_fixture(monkeypatch)
+    try:
+        first.render(drawn, rays)
+        second.render(other, rays)
+        first_buffers = {id(entry[2]) for entry in first_device.submitted[-1]}
+        second_buffers = {id(entry[2]) for entry in second_device.submitted[-1]}
+        assert not first_buffers & second_buffers
+        assert all(entry[2].device is first_device for entry in first_device.submitted[-1])
+        assert all(entry[2].device is second_device for entry in second_device.submitted[-1])
+    finally:
+        first.close()
+        second.close()
+
+
+def test_wgpu_invalid_input_before_dispatch_does_not_poison_pool(monkeypatch):
+    renderer, device, drawn, rays, _, _ = _dispatch_pool_fixture(monkeypatch)
+    try:
+        with pytest.raises(layers.LayerError, match='3-D layers'):
+            renderer.render([ImageLayer(np.ones((2, 3)), name='not-volume')], rays)
+        assert not device.submitted and renderer._dispatch_error is None
+        renderer.render(drawn, rays)
+        assert len(device.submitted) == 1
+    finally:
+        renderer.close()
+
+
 @pytest.mark.parametrize("name,readable,usage", [("frame", False, 1), ("picture", True, 7),
                                                ("pick", True, 7), ("readback", True, 12)])
 def test_wgpu_readable_buffers_can_receive_the_combined_gpu_copy(monkeypatch, name, readable, usage):
@@ -476,6 +750,7 @@ def test_wgpu_readable_buffers_can_receive_the_combined_gpu_copy(monkeypatch, na
         return types.SimpleNamespace(destroy=lambda: destroyed.append(kwargs["size"]))
 
     renderer = object.__new__(layers.WGPUVolumeRenderer)
+    renderer._init_dispatch_pool()
     renderer._buffers = {}
     renderer._textures, renderer._luts, renderer._pipelines = {}, {}, {}
     renderer._device = types.SimpleNamespace(create_buffer=create_buffer)

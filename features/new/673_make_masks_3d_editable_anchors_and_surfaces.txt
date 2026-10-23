@@ -221,6 +221,25 @@ exit0/errors[]. Unique completed image/pose rates are23.37/s and27.37/s.
 Original CPU, active/custom/legacy layout and stale-canvas paths remain intact;
 errors propagate once and preparation suppression always resets. No30–60FPS,
 label1 strict-settle or physical-input acceptance is inferred.
+GPU dispatch reuse scope,2026-10-23: serialize full render/readback and close,
+use distinct ordinal uniform slots within each unsubmitted frame, and reuse
+only after completed readback. Keep one last strong-identity binding set per
+slot, replace changed resources and trim unused slots after shrink. Poison
+reuse after uncertain failures; never recycle possibly in-flight uniforms.
+Require encoded multipass uniform-byte checks, growth/shrink/binding/device,
+failure/lifetime/close serialization and retained exact transport checks before
+one native exact-output/allocation comparison. No shader/quality/API change.
+The11 focused RED controls show10 failures/1 pass (4.87s). Ordinal pooling,
+strong last-binding caches, full render/close serialization and post-dispatch
+failure poisoning now pass22 affected CPU checks in5.11s, sampled RSS0.270GiB:
+encoded5-pass uniform bytes, reuse/growth/shrink/device/binding lifetime,
+six fault stages, concurrency, recoverable pre-GPU invalid input and retained
+combined transport/buffer checks. Stored failure references are cleared on close;
+Native Iris Plus/Metal15-frame comparison passes exact nonblank RGB and
+label123 picking, lens/highlight, changed dimensions/layer counts and unchanged
+both-image/mask inputs; cleanup is empty. Uniform allocations fall69 to11,
+bind groups69 to18; repeated unchanged bindings allocate neither. This is
+parity/allocation acceptance, not a GUI FPS claim (sampled RSS0.097GiB).
 Remaining geometry profile identifies triangle contact as28.256s cumulative
 across144,392 calls (instrumented, not benchmark). Test exact per-triangle
 argmax-axis/planar-projection caching; when the second triangle's cached axis
@@ -400,6 +419,25 @@ Targeted RED exposes11 cancellation/lifecycle gaps plus2 view-exit failures;
 Per-request tokens/generations, safe boundary/contact checkpoints and canceled-
 delivery guards preserve legacy tuple payloads, exact geometry/state and real
 current refusals. Native20s/full-delivery/FPS acceptance remains pending.
+Nativee955f494a Cocoa/OpenGL611x140/DPR2 now passes strict20s full-idle in
+16.5746s, with selected4/generation14 accepted and its exact canvas geometry
+captured in Agg figure113 then an aligned Qt paint before that verdict.
+Desired work queues23.975ms and computes18.2298s;13 genuine canceled jobs
+finish median11.016/max105.672ms after cancellation. All13 ignored deliveries
+leave cache/status/preference unchanged.20/20 picks, final GPUempty and
+unchanged mask/history pass;79 aligned/0 bad/0 unknown paints,25.9481 pairs/s
+remain below30–60FPS. Sampled RSS0.632GiB; physical-input acceptance remains open.
+Native close follow-up: one isolated Cocoa child must close its owned Make
+Masks window during an actual validation pair, through the unchanged close
+event path. Verify cancellation/closed worker, preserved state and normal
+process exit without forced exit or added post-close grace. Report a still-
+pending canceled read-only daemon separately from fully drained shutdown;
+programmatic close is not physical window-control acceptance.
+The real Cocoa close-during-validation case passes48.27s (sampled RSS0.766GiB):
+actual contact-pair/token witness precedes close; cancellation/closed worker,
+unchanged state and no late Qt/Python errors pass. The mesh worker is drained
+at normal event-loop return and the child exits normally, with no forced exit,
+post-close grace or join. No physical-close acceptance is inferred.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
