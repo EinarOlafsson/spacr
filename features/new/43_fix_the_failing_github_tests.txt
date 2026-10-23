@@ -1,4 +1,10 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT REMAINING QC BEHAVIOR CONTRACT — 2026-10-23
+Retained QC owners validate real image formats, size/measurement/input guards,
+metadata reindexing and navigation during committed or refused field moves.
+Remove only proven unused code, preserving active target guards and all prior
+assertions; normal generated references must match the final source.
+
 CURRENT SOURCE-BOUND COVERAGE REPAIRS — 2026-10-23
 Retained owners validate real terms fallback records, quiet gene annotation,
 physical-well refusal paths and native overview cancellation/export/moves.
@@ -4471,3 +4477,6 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 2026-10-23 — Six terms fallback controls preserve truthful acceptance history and governing English; quiet annotation returns the original table (1 pass). Genuine unhashable well identities and eight affected calibration controls pass without fitting.
 Removed only independently proven redundant guards; normal caption retirement preserves baseline/history and unrelated catalogs. All 13 strict arrival contracts pass; immutable reviews 2e25ab73 pin 6,835 inputs. Scientific convergence remains open.
 Four real overview controls cover corrupt panels, cancellation without partial delivery, background PDF completion and byte-preserving quarantine/restore. Public trace inheritance measures native Qt workers without changing their execution or assertions; all affected checks pass, with prior results retained. Remaining source-bound coverage gaps stay open.
+
+2026-10-23 — Thirteen real QC checks pass for image formats/header limits, editable validation, metadata indexing and navigation during successful or refused background moves; final cleanup leaves no parked threads. Removed only a proven unused private helper and stale explanations, preserving active callbacks and all scientific behavior.
+Normal API output remains identical across 19 keys; runtime captions and API targets are unchanged. Normal consumer generation updates only six owning line references by −30. Existing results remain retained; whole-module coverage acceptance awaits fresh CI.

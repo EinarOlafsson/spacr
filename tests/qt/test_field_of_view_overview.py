@@ -1093,3 +1093,183 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
         release.set()
         qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy())
         dialog.close()
+
+
+@pytest.mark.parametrize("rgb", (False, True), ids=("gray-png", "rgb-png"))
+def test_png_overview_preserves_stored_pixels_in_whole_image_measurements(tmp_path, rgb):
+    from PIL import Image
+    plane = np.arange(48, dtype=np.uint8).reshape(6, 8)
+    image = np.stack((plane, plane + 50, plane + 100), axis=-1) if rgb else plane
+    path = tmp_path / "plate1_A01_F1.png"
+    Image.fromarray(image).save(path)
+    field, = browser._overview_index(tmp_path)
+    channels = (0, 1, 2) if rgb else (0,)
+    actual = tuple(browser._overview_raw_planes(field, channels))
+    for channel, source, values in actual:
+        assert source == str(path)
+        np.testing.assert_array_equal(values, image[..., channel] if rgb else image)
+    measurement = browser._overview_measurement(field, channels)
+    assert measurement["status"] == "ok"
+    assert measurement["height_px"] == 6 and measurement["width_px"] == 8
+    assert measurement["roi_area"] == 48 and measurement["intensity_units"] == "raw_stored_pixel_values"
+    for channel in channels:
+        assert measurement[f"channel_{channel}_intensity_mean"] == 23.5 + (50 * channel if rgb else 0)
+    expected = np.repeat(np.uint8(plane / 47 * 255)[..., None], 3, axis=2)
+    np.testing.assert_array_equal(browser._overview_pixels(field, channels, None), expected)
+
+
+@pytest.mark.parametrize("axes", ("CYX", "TYX"), ids=("explicit-channels", "unresolved-time"))
+def test_tiff_axis_metadata_selects_channels_without_guessing_time(tmp_path, axes):
+    image = np.stack([np.arange(35, dtype=np.uint16).reshape(5, 7) + 100 * index
+                      for index in range(3)])
+    path = tmp_path / "plate1_A01_F1.tif"
+    tifffile.imwrite(path, image, photometric="minisblack", metadata={"axes": axes})
+    field, = browser._overview_index(tmp_path)
+    if axes == "TYX":
+        with pytest.raises(ValueError, match="channel axis is unresolved"):
+            tuple(browser._overview_raw_planes(field, (2,)))
+        record = browser._overview_measurement(field, (2,))
+        assert record["status"] == "error" and "channel axis is unresolved" in record["error"]
+        assert "channel_2_intensity_mean" not in record
+    else:
+        channel, source, plane = next(browser._overview_raw_planes(field, (2,)))
+        assert channel == 2 and source == str(path)
+        np.testing.assert_array_equal(plane, image[2])
+        record = browser._overview_measurement(field, (2,))
+        assert record["status"] == "ok" and record["channel_2_intensity_mean"] == 217
+        assert record["height_px"] == 5 and record["width_px"] == 7
+
+
+@pytest.mark.parametrize("problem", ("complex", "different-channel-shapes"))
+def test_measurements_report_real_unsupported_pixels_and_shape_mismatch(tmp_path, problem):
+    if problem == "complex":
+        np.save(tmp_path / "plate1_A01_F1.npy", np.ones((4, 5), dtype=np.complex64) * (1 + 2j))
+        channels = (0,)
+        expected_error = "Measurements require real numeric image pixels."
+    else:
+        tifffile.imwrite(tmp_path / "plate1_A01_F1_C1.tif", np.arange(20, dtype=np.uint16).reshape(4, 5))
+        tifffile.imwrite(tmp_path / "plate1_A01_F1_C2.tif", np.arange(12, dtype=np.uint16).reshape(3, 4))
+        channels = (1, 2)
+        expected_error = "Selected channels must have matching image sizes."
+    field, = browser._overview_index(tmp_path)
+    record = browser._overview_measurement(field, channels)
+    assert record["status"] == "error" and record["error"] == browser.tr(expected_error)
+    assert record["source_files"] == json.dumps(field.files)
+    assert not any(key.startswith(f"channel_{channels[-1]}_intensity_") for key in record)
+    if problem != "complex":
+        assert record["channel_1_intensity_mean"] == 9.5
+        with pytest.raises(ValueError, match="matching image sizes"):
+            browser._overview_pixels(field, channels)
+
+
+@pytest.mark.parametrize("format", ("tif", "png"), ids=("128-MiB-tiff", "32-Mpixel-png"))
+def test_real_oversized_image_headers_refuse_pixel_decode(tmp_path, monkeypatch, format):
+    from PIL import Image, PngImagePlugin
+    path = tmp_path / f"plate1_A01_F1.{format}"
+    if format == "tif":
+        tifffile.imwrite(path, data=None, shape=(8193, 8192), dtype=np.uint16, photometric="minisblack")
+        monkeypatch.setattr(tifffile.TiffPageSeries, "asarray", lambda *_a, **_k: pytest.fail("oversized TIFF decoded"))
+    else:
+        Image.new("L", (8193, 4096)).save(path)
+        monkeypatch.setattr(PngImagePlugin.PngImageFile, "load", lambda *_a, **_k: pytest.fail("oversized PNG decoded"))
+    field, = browser._overview_index(tmp_path)
+    with pytest.raises(ValueError, match="preview decode limit"):
+        tuple(browser._overview_raw_planes(field, (0,)))
+    record = browser._overview_measurement(field, (0,))
+    assert record["status"] == "error" and "preview decode limit" in record["error"]
+    assert "height_px" not in record and "channel_0_intensity_mean" not in record
+
+
+@pytest.mark.parametrize("invalid", ("negative-channel", "reversed-percentiles"))
+def test_invalid_editable_display_choices_reach_field_and_export_guards(plate_images, qtbot, monkeypatch, invalid):
+    from PySide6.QtWidgets import QFileDialog, QPushButton
+    dialog = browser._FieldOverview(settings={"channels": [1]})
+    qtbot.addWidget(dialog)
+    dialog._indexed(tuple(field for field in browser._overview_index(plate_images)
+                          if field.plate == "plate1" and field.well == "A01"))
+    dialog.show()
+    dialog._well(dialog.wells.item(0, 0))
+    qtbot.waitUntil(lambda: dialog._displayed_montage is not None)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_a, **_k: pytest.fail("invalid choices opened a folder dialog"))
+    if invalid == "negative-channel":
+        dialog.channels.setText("-1")
+        expected = browser.tr("Choose one or more nonnegative channel indices.")
+    else:
+        dialog.normalise.setChecked(True)
+        dialog.low.setValue(90)
+        dialog.high.setValue(10)
+        expected = browser.tr("The lower percentile must be below the upper percentile.")
+    try:
+        item = dialog.fields.item(0)
+        qtbot.mouseClick(dialog.fields.viewport(), browser.Qt.LeftButton,
+                         pos=dialog.fields.visualItemRect(item).center())
+        assert dialog.status.text() == expected
+        export = next(button for button in dialog.findChildren(QPushButton)
+                      if button.text() == browser.tr("Export PDFs"))
+        qtbot.mouseClick(export, browser.Qt.LeftButton)
+        assert dialog.status.text() == expected and not dialog._export_jobs.is_busy()
+        assert dialog._visual_context() is None
+    finally:
+        dialog.close()
+
+
+def test_folder_browse_and_real_metadata_acceptance_reindex_without_moving_images(tmp_path, qtbot, monkeypatch):
+    from PySide6.QtWidgets import QFileDialog, QPushButton, QDialogButtonBox
+    import sys
+    source = tmp_path / "images"
+    source.mkdir()
+    path = source / "sample-p9-A03-f2-c1.tif"
+    tifffile.imwrite(path, np.arange(30, dtype=np.uint16).reshape(5, 6))
+    before = path.read_bytes()
+    initial = tmp_path / "empty"
+    initial.mkdir()
+    dialog = browser._FieldOverview(settings={"src": [str(initial)], "channels": [1]})
+    qtbot.addWidget(dialog)
+    dialog.show()
+    original = browser._overview_index
+
+    def index(*args, **kwargs):
+        previous = sys.gettrace()
+        inherited = threading.gettrace() if previous is None else None
+        if inherited is not None:
+            sys.settrace(inherited)
+        try:
+            return original(*args, **kwargs)
+        finally:
+            if inherited is not None:
+                sys.settrace(previous)
+
+    monkeypatch.setattr(browser, "_overview_index", index)
+    metadata = next(button for button in dialog.findChildren(QPushButton)
+                    if button.text() == browser.tr("Filename metadata…"))
+    browse = next(button for button in dialog.findChildren(QPushButton)
+                  if button.text() == browser.tr("Browse folder"))
+    try:
+        qtbot.mouseClick(metadata, browser.Qt.LeftButton)
+        assert dialog.status.text() == browser.tr("Load the image index before opening filename metadata.")
+        monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_a, **_k: "")
+        qtbot.mouseClick(browse, browser.Qt.LeftButton)
+        assert dialog.source.text() == str(initial) and not dialog._fields
+        monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_a, **_k: str(source))
+        qtbot.mouseClick(browse, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: not dialog._index_jobs.is_busy() and len(dialog._fields) == 1)
+        qtbot.mouseClick(metadata, browser.Qt.LeftButton)
+        workbench = dialog._metadata_dialog
+        qtbot.waitExposed(workbench)
+        pattern = r"(?P<plateID>p\d+)-(?P<wellID>[A-Z]\d+)-f(?P<fieldID>\d+)-c(?P<chanID>\d+)"
+        workbench.workbench.regex.setText(pattern)
+        buttons = workbench.findChild(QDialogButtonBox)
+        qtbot.mouseClick(buttons.button(QDialogButtonBox.Ok), browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: not dialog._index_jobs.is_busy() and len(dialog._fields) == 1
+                        and dialog._fields[0].well == "A03")
+        assert dialog.regex.text() == pattern
+        field, = dialog._fields
+        assert (field.plate, field.well, field.field, field.files) == ("p9", "A03", "2", (("1", str(path)),))
+        assert path.read_bytes() == before and tuple(source.iterdir()) == (path,)
+    finally:
+        dialog._cancel()
+        dialog._visual_timer.stop()
+        for runner in (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+                       dialog._thumbnail_jobs, dialog._montage_jobs):
+            runner.shutdown()
+        dialog.close()
