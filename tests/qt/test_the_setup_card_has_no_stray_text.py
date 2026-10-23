@@ -163,3 +163,50 @@ def test_gpu_note_measures_its_actual_scaled_width(qtbot):
     finally:
         card.close()
         gui_scale.set_gui_scale_live(previous)
+
+
+def test_joint_maximum_setup_opens_on_screen_with_scrollable_card(qtbot, qapp, monkeypatch):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtWidgets import QAbstractButton, QAbstractScrollArea, QDialog, QLabel
+    from spacr.qt import gui_scale, theme
+
+    old_scale, old_sheet = gui_scale.current_scale(), qapp.styleSheet()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(2.0)
+    qapp.setStyleSheet(theme.stylesheet('dark', font_scale=2.0))
+    monkeypatch.setattr(SetupSlides, '_install_backdrop', lambda self: None)
+    from spacr.qt.widgets.setup_slides import GPU_MAC_CPU_HINT
+    note_text = ('<div>' + GPU_REQUIREMENT + '</div><div>GPU: Intel Iris Plus Graphics: Metal</div><div>'
+                 + GPU_MAC_CPU_HINT + '</div><table><tr><td>Cellpose 4</td><td>CPU</td><td>Segmentation</td></tr>'
+                 '<tr><td>Torch models</td><td>CPU</td><td>Classification</td></tr>'
+                 '<tr><td>Live backdrop</td><td>GPU</td><td>Visualization</td></tr>'
+                 '<tr><td>UMAP / t-SNE / cluster</td><td>CPU</td><td>Machine learning</td></tr></table>')
+    monkeypatch.setattr(SetupSlides, '_say_what_the_gpu_is', lambda self: self._gpu_note.setText(note_text))
+    dialog = SetupSlides()
+    qtbot.addWidget(dialog)
+    try:
+        dialog.show()
+        qtbot.waitExposed(dialog)
+        qapp.processEvents()
+        handle = dialog.windowHandle()
+        assert handle.screen().availableGeometry().contains(handle.frameGeometry())
+        ancestor = dialog.card.parentWidget()
+        while ancestor is not None and not isinstance(ancestor, QAbstractScrollArea):
+            ancestor = ancestor.parentWidget()
+        assert ancestor is not None, 'the actual floating card must be the scrolled content'
+        assert ancestor.horizontalScrollBar().maximum() > 0 or ancestor.verticalScrollBar().maximum() > 0
+        viewport = ancestor.viewport()
+        mapped = dialog._next.rect().translated(dialog._next.mapTo(viewport, QPoint()))
+        horizontal, vertical = ancestor.horizontalScrollBar(), ancestor.verticalScrollBar()
+        assert mapped.right() + horizontal.value() <= viewport.rect().right() + horizontal.maximum()
+        assert mapped.bottom() + vertical.value() <= viewport.rect().bottom() + vertical.maximum()
+        note = dialog._gpu_note
+        for control in dialog.findChildren(QLabel) + dialog.findChildren(QAbstractButton):
+            if control is note or not control.isVisibleTo(dialog) or not control.text():
+                continue
+            mapped = control.rect().translated(control.mapTo(dialog.card, QPoint()))
+            assert not note.geometry().intersects(mapped), (control.text(), note.geometry(), mapped)
+    finally:
+        QDialog.reject(dialog)
+        qapp.setStyleSheet(old_sheet)
+        gui_scale.set_gui_scale_live(old_scale)

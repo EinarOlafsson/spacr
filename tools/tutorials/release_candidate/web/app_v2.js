@@ -1470,7 +1470,9 @@ function nativeIdleTailCut(visuals, audio, index, maxGap = 1) {
   if (![start, end, last, nextStart, nextSound, visualStart, visualEnd, nextVideo, maxGap]
       .every(Number.isFinite) || maxGap <= 0 || last < start || end < last ||
       nextSound < nextStart || nextStart < end || visualEnd <= visualStart) return null;
-  const cutElapsed = last - start + maxGap - (nextSound - nextStart);
+  const gap = nativeIdleGapBudget(last, nextSound, final, maxGap);
+  if (gap === null) return null;
+  const cutElapsed = last - start + gap - (nextSound - nextStart);
   // Preserve the entire speech clip including its conservative quiet edge,
   // every protected action, and the next sentence's original leading audio.
   if (protectedEnd > end - start || cutElapsed < end - start || cutElapsed < protectedEnd ||
@@ -1486,6 +1488,12 @@ function nativeIdleTailReady(state) {
     Number.isFinite(state.speechEnd) && state.audioTime >= state.speechEnd;
 }
 
+function nativeIdleGapBudget(lastSound, nextSound, final, maxGap = 1) {
+  if (![lastSound, nextSound, maxGap].every(Number.isFinite) ||
+      typeof final !== "boolean" || maxGap <= 0 || nextSound < lastSound) return null;
+  return final ? maxGap : Math.min(maxGap, nextSound - lastSound);
+}
+
 let nativeIdlePauseClock = null;
 
 function nativeIdleTailWait(previous, state, now, maxGap = 1) {
@@ -1499,7 +1507,9 @@ function nativeIdleTailWait(previous, state, now, maxGap = 1) {
   const clock = previous?.key === state.key ? previous
     : { key: state.key, completedAt: now };
   const quietAlreadyHeard = state.speechEnd - state.lastSound;
-  const remaining = Math.max(0, maxGap - quietAlreadyHeard - state.nextLead);
+  const gap = nativeIdleGapBudget(state.lastSound, state.nextSound, state.final, maxGap);
+  if (gap === null) return { clock: null, ready: false };
+  const remaining = Math.max(0, gap - quietAlreadyHeard - state.nextLead);
   return { clock, ready: now >= clock.completedAt + remaining * 1000 };
 }
 
@@ -1517,6 +1527,8 @@ function currentNativeIdleTailState(spoken, index, seek) {
     key: `${activeLesson.id}/${narrationRequest}/${audioTimings.language}/${audioTimings.voice}/${index}`,
     lastSound: Number(spoken.sentences?.at(-1)?.audible_end),
     nextLead: next ? Number(next.sentences?.[0]?.audible_start) - Number(next.speech_start) : 0,
+    nextSound: next ? Number(next.sentences?.[0]?.audible_start) : end,
+    final: !next,
     sameTrack: audioTimings?.voice === elements.voice.value &&
       audioTimings?.language === elements.language.value &&
       !!narrationObjectUrl && elements.audio.currentSrc === narrationObjectUrl,
@@ -1606,6 +1618,8 @@ function serviceNativeIdleTransition() {
 
 function beginNativeIdleTransition(cut, state, clock, index) {
   if (nativeIdleTransition || !nativeIdleTailReady(state) || (!cut.final && elements.audio.paused)) return;
+  const gap = nativeIdleGapBudget(state.lastSound, state.nextSound, state.final);
+  if (gap === null) return;
   const quietHeard = state.speechEnd - state.lastSound;
   const finalFrame = cut.final ? 1 / Number(visualTimings.fps || 30) : 0;
   nativeIdleTransition = {
@@ -1613,7 +1627,7 @@ function beginNativeIdleTransition(cut, state, clock, index) {
     voice: elements.voice.value, language: elements.language.value,
     scene: cut.final ? index : index + 1, final: cut.final,
     quietEnd: cut.final ? state.speechEnd : Number(audioTimings.scenes[index + 1].speech_start),
-    resumeAt: clock.completedAt + Math.max(0, 1 - quietHeard - state.nextLead - finalFrame) * 1000
+    resumeAt: clock.completedAt + Math.max(0, gap - quietHeard - state.nextLead - finalFrame) * 1000
   };
   // Decode the next picture during the quiet window, after the entire actual
   // speech clip. Continuous audio avoids variable pause/play device latency.

@@ -12,6 +12,14 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next uncovered supported setup corner: GUI10%/font200%, within the actual
+GUI_SCALE_MIN0.10/FONT_SCALE_MAX2.0 clamps. Normal live scaling precedes both
+real setup constructors; require actual3px body-font witnesses and exact two
+case names. Preserve untouched initial bounds, every slide/group, all offered
+native text slots/arrows/checkbox indicators, AI reachability, intrinsic labels
+and existing deadlines/normal cleanup. This checks layout at the supported
+minimum, not readability or physical input. No product fix is assumed.
+
 Affected setup follow-up after the new spaCR_AI row: inspect real SetupSlides
 and SetupDialog at normal owned Cocoa GUI/font90%/90%, actual1440x870 work
 area/DPR2. Require untouched initial frame, every slide/group, intrinsic label
@@ -71,6 +79,64 @@ native text slot/arrow, AI control, intrinsic/reachability and grow/shrink check
 No aliases; natural exit0 in24.675s/RSS1.108GiB/zero missed. Default90/90 and
 GUI90/font200 acceptance are now current; joint maximum scales and physical/
 actual smaller-display subgates remain open. No whole-item completion claimed.
+Next affected supported boundary: inspect these same two setup presentations
+at joint GUI200%/font200% through normal live scaling before construction,
+with actual52px body-font witnesses. Keep untouched initial frames, all slides/
+groups, every offered native combo text slot/arrow, AI reachability, intrinsic
+labels and axis-specific scrolling strict. Only after initial inspection choose
+a positive resize of up to20px per axis within the actual work frame and above
+the actual minimum, then restore and prove both axes changed. Never clamp the
+opening window in the harness or infer physical/small-display acceptance.
+Joint-max native26699 on efe77c308 fails a real opening-frame requirement:
+SetupSlides opens1440x1120 at(0,30) on a1440x870 work area, with actual52px
+body fonts. All five slides' internal text/AI/choice-slot checks pass within
+that oversized window. Both post-inspection resize states still exceed the
+work area; the owned20s case deadline ends the case. SetupDialog is UNTESTED,
+not failed. Natural child exit1 in50.127s/RSS1.385GiB/zero missed/no aliases.
+Repair the scaled720x560 opening request without shrinking fonts or bypassing
+the strict native oracle; floating card/backdrop content must remain reachable
+through compatible natural-size/scroll handling. Focused regression first;
+default90/90 and GUI90/font200 acceptance remains retained.
+Focused joint-max regression fails before repair (5.60s/RSS0.291GiB): the real
+opening1440x1120 exceeds its actual800x800 test work area. Overflow-only setup
+handling moves the actual floating card, not the backdrop, into the existing
+scroll/natural-opening helpers and preserves natural card coordinates/minimums.
+An additional fuller GPU-note check exposes a4px Back-button overlap after
+scroll layout (5.45s/RSS0.288GiB); a card-owned coalesced resize timer reapplies
+the existing overlay placement after layout. The strict focused check now
+passes (5.26s/RSS0.287GiB), including initial bounds, actual card scrolling,
+last-control reach and note/form/navigation nonoverlap. Nonoverflow layouts and
+fonts stay unchanged; affected native max acceptance remains pending.
+Native9007 on3d387b227 establishes the scoped joint-max Slides pass: initial
+1296x783 at(134,77), actual52px font, all five pages' native choice slots/AI/
+intrinsic/reach checks and both resize phases pass; exec returns in8.635s.
+Grouped SetupDialog is now reached at1296x783/52px but fails its AI editor
+height-versus-minimum-hint assertion before the partial page is saved; the
+owned20s deadline closes it. Preserve that unresolved case, not a grouped pass
+or proven cut-glyph claim. Natural exit1 in52.906s/RSS1.454GiB/zero missed.
+Retain partial native page/AI geometry and rejection timestamps before further
+product changes; verify actual floating-card/scroll compatibility and clipping.
+The controlled grouped-layout regression reaches the actual indicator failure:
+AI checkbox571x10 versus native34x34 indicator positioned at y−12, outside its
+control (3.13s/RSS0.248GiB). This proves clipping in the compressed floating-card
+route, unlike the earlier minimum-hint-only evidence. The initial offscreen
+attempt lacked a backdrop; the affected retry supplies an owned QGraphicsView
+only at that decorative seam, retaining real form/checkbox/style behavior.
+Repair only overflow handling of the actual grouped card, keeping its snapshot
+outside scrolling and nonoverflow layouts unchanged; preserve strict native
+grouped-only acceptance, partial-page diagnostics and the original20s deadline.
+The overflow-only grouped repair preserves the card's natural actual minimums,
+moves that card into scrolling, and leaves its snapshot as a manual background;
+resize no longer compresses scrolled controls to the viewport. The focused
+check passes (3.23s/RSS0.245GiB): untouched opening fits, AI647x42 contains its
+34x34 indicator at y4, and every editor/label is whole or intentionally reachable.
+Default and Slides paths are unchanged. On 2026-10-23, grouped-only native Cocoa
+acceptance passes at 9a7e41e838 on this 1440x900/DPR2 Mac: initial 1296x783, actual
+52px font, all content/choice checks clear; AI 656x42 is intentionally scroll-
+reachable. Native resize 1306x803 and restore 1296x783 both pass. The case returns
+in 6.384s within its unchanged 20s deadline; normal child exit0 in 24.160s,
+sampled RSS 1.023GiB/0 missed, no alias warnings. Prior failures remain recorded;
+accepted Slides is not replayed, and physical/smaller-display gates remain open.
 
 Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
 public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.
