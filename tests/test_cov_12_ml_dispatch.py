@@ -202,6 +202,32 @@ def test_a_horseshoe_fit_that_did_not_converge_says_so(capsys):
     assert results.summary() is estimates
 
 
+
+def test_a_converged_horseshoe_result_retains_its_posterior_without_warning(capsys):
+    """Propagate the supplied fit flag; this fixture does not certify a sampler."""
+    from spacr.power_model import PowerFit, gather_model_estimate
+
+    draws = np.array([[.2, -.5, np.nan], [.4, -.2, np.nan],
+                      [-.1, .1, np.nan], [.3, -.4, np.nan]])
+    fit = PowerFit(
+        backend="numpyro", requested_backend="numpyro", method="nuts",
+        draws=draws, intercept_draws=np.zeros(4),
+        genes=np.array(["positive", "negative", "Intercept"]), converged=True,
+    )
+    estimates = gather_model_estimate(fit)
+    results = ml._HorseshoeResults(fit, estimates)
+
+    assert results.converged is True
+    assert results.fit is fit
+    assert list(results.params.index) == ["positive", "negative"]
+    np.testing.assert_allclose(results.params.to_numpy(), draws[:, :2].mean(axis=0))
+    np.testing.assert_allclose(results.bse.to_numpy(), draws[:, :2].std(axis=0, ddof=1))
+    assert results.pvalues.to_dict() == {"positive": .5, "negative": .5}
+    assert results.summary() is estimates
+    assert estimates["identified"].tolist() == [True, True, False]
+    assert capsys.readouterr().out == ""
+
+
 def test_the_rra_summary_is_the_per_gene_table():
     """``summary()`` hands back the gene table so the run can save it.
 
