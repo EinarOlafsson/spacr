@@ -240,3 +240,31 @@ def test_metadata_wizard_custom_edit_invalidates_preview_until_rescanned(qtbot, 
     assert wizard.preview.item(0, 3).text() == "2"
     assert wizard.preview.item(0, 6).text() == "9"
     wizard.reject()
+
+
+def test_metadata_wizard_immediate_cancel_never_starts_work_or_accumulates_forms(qtbot, monkeypatch):
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QWidget
+    from shiboken6 import isValid
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    existing_browser = object()
+    owner._field_overview = existing_browser
+    submissions = []
+    monkeypatch.setattr(browser.JobRunner, "submit", lambda *args, **kwargs: submissions.append(args))
+    previous = None
+    for _ in range(3):
+        wizard = browser._open_field_overview(owner, {"source": "/not-read-after-cancellation"})
+        assert wizard is owner._field_overview_wizard
+        wizard.reject()
+        assert wizard._cancelled.is_set()
+        assert not wizard._startup_timer.isActive()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        QCoreApplication.processEvents()
+        assert submissions == []
+        assert owner._field_overview is existing_browser
+        if previous is not None:
+            assert not isValid(previous)
+        assert len(owner.findChildren(browser._OverviewMetadataWizard)) == 1
+        previous = wizard

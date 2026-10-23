@@ -2725,6 +2725,9 @@ def _open_field_overview(owner, settings=None):
     if previous is not None and previous.isVisible():
         previous.raise_()
         return previous
+    if previous is not None:
+        previous.reject()
+        previous.deleteLater()
     settings = dict(settings or {})
     source = settings.get("source") or settings.get("src") or ""
     if isinstance(source, (list, tuple)):
@@ -2945,6 +2948,7 @@ class _OverviewMetadataWizard(QDialog):
         self._info = None
         self._cancelled = threading.Event()
         self._generation = 0
+        self._finished = False
         self._runner = JobRunner(self, threaded=True, app_key="overview metadata", user_visible=False)
         self._runner.job_failed.connect(self._failed)
         shell = QVBoxLayout(self)
@@ -3086,7 +3090,10 @@ class _OverviewMetadataWizard(QDialog):
             self.preset.setCurrentIndex(self.preset.count() - 1)
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
-        QTimer.singleShot(0, self._scan)
+        self._startup_timer = QTimer(self)
+        self._startup_timer.setSingleShot(True)
+        self._startup_timer.timeout.connect(self._scan)
+        self._startup_timer.start(0)
 
     def _invalidate(self):
         """Prevent stale metadata from authorizing a changed source or pattern."""
@@ -3120,6 +3127,8 @@ class _OverviewMetadataWizard(QDialog):
     def _scan(self):
         """Queue cancellable indexing and header inspection without decoding images."""
         import threading
+        if self._finished:
+            return
         self._invalidate()
         self._cancelled = threading.Event()
         generation = self._generation
@@ -3274,6 +3283,8 @@ class _OverviewMetadataWizard(QDialog):
 
     def done(self, result):
         """Cancel metadata work before hiding the wizard."""
+        self._finished = True
+        self._startup_timer.stop()
         self._cancelled.set()
         self._runner.shutdown(timeout_ms=0)
         super().done(result)
