@@ -36,7 +36,11 @@ checkpoints preserve ordinary frozen/smoke/no-cache fallback. The affected CPU
 cohort has35passes plus its sole failed grain fixture passing after isolating its
 intended fake in-process compiler (5.59s/0.327GiB); the first failure allowed an
 unintended helper before its5s entry gate, but no exact delay attribution was
-captured. No owned worker/helper remains; native close acceptance is pending.
+captured. No owned worker/helper remains. Native870d208ae close PASS with actual
+Cocoa/exposed-window/nonzero-handle proof, owned helper reaped and both compiler
+threads drained, no late local compilation and normal process exit0 (11.27s,
+RSS0.610GiB). Earlier Cocoa pass lacked explicit exposure proof and is diagnostic
+only. Affected normal Home-to-Mask real-helper startup/quit check remains next.
 
 Next scoped Mac font check: from normal Home startup, open the public command
 palette and parentless shortcut-help fallback sequentially at default 90% GUI/
