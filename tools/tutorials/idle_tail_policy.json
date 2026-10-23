@@ -2597,8 +2597,8 @@
     },
     {
       "lesson": "44_data_manager",
-      "master_sha256": "b44f1882c712c64fa917e21729cd3e78fba95bde120a3e664e07704547ab2eb3",
-      "visual_timing_sha256": "767f35a0d7e07ddde390cd633c31891ce252baa8d6030f0656841ea463591ac6",
+      "master_sha256": "2f0bc4ac537294899667deadadc45a66715b328bba1dd663c8c55b26813bd11a",
+      "visual_timing_sha256": "834b8cb4093dadccb1266354c8c5d70498ea9be24c38cd6c720cb270a844d977",
       "scenes": [
         {
           "visual": "01_help_data_manager",
@@ -2609,130 +2609,154 @@
         {
           "visual": "03_actual_usage",
           "source_start": 17.5,
-          "source_end": 33.06666666666666,
+          "source_end": 33.06666666666667,
           "idle_tail_start": 1.0
         },
         {
           "visual": "04_prune_choices",
-          "source_start": 33.06666666666666,
-          "source_end": 54.39999999999999,
+          "source_start": 33.06666666666667,
+          "source_end": 54.4,
           "idle_tail_start": 4.6
         },
         {
           "visual": "05_real_prune_plan",
-          "source_start": 54.39999999999999,
+          "source_start": 54.4,
           "source_end": 77.86666666666666,
           "idle_tail_start": 1.7
         },
         {
+          "visual": "09_confirmation_locked",
+          "source_start": 77.86666666666666,
+          "source_end": 92.9,
+          "idle_tail_start": 2.8
+        },
+        {
           "visual": "11_acknowledged_not_deleted",
-          "source_start": 97.26666666666665,
-          "source_end": 114.76666666666665,
+          "source_start": 92.9,
+          "source_end": 110.4,
           "idle_tail_start": 2.5
         },
         {
           "visual": "14_actual_cleanup_result",
-          "source_start": 114.76666666666665,
-          "source_end": 129.79999999999998,
+          "source_start": 110.4,
+          "source_end": 125.43333333333334,
           "idle_tail_start": 4.2
         },
         {
           "visual": "15_usage_after_cleanup",
-          "source_start": 129.79999999999998,
-          "source_end": 152.36666666666665,
+          "source_start": 125.43333333333334,
+          "source_end": 148.0,
           "idle_tail_start": 6.8
         },
         {
+          "visual": "16_updated_archive_plan",
+          "source_start": 148.0,
+          "source_end": 160.53333333333333,
+          "idle_tail_start": 4.1
+        },
+        {
           "visual": "17_archive_default_no",
-          "source_start": 169.29999999999998,
-          "source_end": 185.89999999999998,
+          "source_start": 160.53333333333333,
+          "source_end": 177.13333333333333,
           "idle_tail_start": 2.3
         },
         {
           "visual": "19_archive_confirm_yes",
-          "source_start": 185.89999999999998,
-          "source_end": 201.76666666666665,
+          "source_start": 177.13333333333333,
+          "source_end": 193.0,
           "idle_tail_start": 4.7
         },
         {
           "visual": "22_rescan_archived_project",
-          "source_start": 201.76666666666665,
-          "source_end": 224.46666666666664,
+          "source_start": 193.0,
+          "source_end": 215.7,
           "idle_tail_start": 4.6
         },
         {
           "visual": "22_rescan_archived_project",
-          "source_start": 224.46666666666664,
-          "source_end": 247.16666666666663,
+          "source_start": 215.7,
+          "source_end": 238.4,
           "idle_tail_start": 4.6
         }
       ]
     },
     {
       "lesson": "45_project_browser",
-      "master_sha256": "f58b12abc81be634ca944205926d2755d4905b4a004c8bfa70ce596ced15b018",
-      "visual_timing_sha256": "4cb7206500bbb4b166855d5c9a5f8eadfe5896414c0482d1d8f47f5bbc594696",
+      "master_sha256": "d49fa2f582bea731a345c919d339703a941ee948f40897f61bd060e81c838563",
+      "visual_timing_sha256": "4b4d29fb5c5a4eb54281d775e2c70a62a5f33a57ed5ff441ea1473d67d9e8b07",
       "scenes": [
         {
+          "visual": "01_help_project_browser",
+          "source_start": 0.0,
+          "source_end": 10.266666666666667,
+          "idle_tail_start": 2.4
+        },
+        {
           "visual": "04_depth_zero_no_projects",
-          "source_start": 14.633333333333333,
-          "source_end": 33.8,
+          "source_start": 10.266666666666667,
+          "source_end": 29.433333333333334,
           "idle_tail_start": 1.0
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "source_start": 53.766666666666666,
-          "source_end": 73.73333333333333,
+          "source_start": 29.433333333333334,
+          "source_end": 40.93333333333333,
+          "idle_tail_start": 4.4
+        },
+        {
+          "visual": "05_real_unregistered_conversion",
+          "source_start": 40.93333333333333,
+          "source_end": 60.9,
           "idle_tail_start": 6.4
         },
         {
           "visual": "07_two_real_projects",
-          "source_start": 73.73333333333333,
-          "source_end": 95.63333333333333,
+          "source_start": 60.9,
+          "source_end": 82.8,
           "idle_tail_start": 1.0
         },
         {
           "visual": "09_enlarged_details",
-          "source_start": 95.63333333333333,
-          "source_end": 114.1,
+          "source_start": 82.8,
+          "source_end": 101.26666666666667,
           "idle_tail_start": 6.7
         },
         {
           "visual": "10_stages_and_next_steps",
-          "source_start": 114.1,
-          "source_end": 135.13333333333333,
+          "source_start": 101.26666666666667,
+          "source_end": 122.3,
           "idle_tail_start": 1.0
         },
         {
           "visual": "12_size_descending",
-          "source_start": 135.13333333333333,
-          "source_end": 149.9,
+          "source_start": 122.3,
+          "source_end": 137.06666666666666,
           "idle_tail_start": 4.0
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "source_start": 149.9,
-          "source_end": 167.03333333333333,
+          "source_start": 137.06666666666666,
+          "source_end": 154.2,
           "idle_tail_start": 4.0
         },
         {
           "visual": "16_remove_search_root_only",
-          "source_start": 167.03333333333333,
-          "source_end": 183.73333333333332,
+          "source_start": 154.2,
+          "source_end": 170.9,
           "idle_tail_start": 6.5
         },
         {
           "visual": "18_restored_project_inventory",
-          "source_start": 183.73333333333332,
-          "source_end": 204.53333333333333,
+          "source_start": 170.9,
+          "source_end": 191.7,
           "idle_tail_start": 5.2
         }
       ]
     },
     {
       "lesson": "51_control_charts",
-      "master_sha256": "e97aea905f48371861753a29ef551a1b461c2b6a07f28e70ca657a8b7ca28eaf",
-      "visual_timing_sha256": "9dcb89da2f1b0c3e2e957dd2e81b82146b9466b57eec442347c37758b854daa0",
+      "master_sha256": "d6eb2c56065bd8c93fb3a80e43cc0118d2d4896384b91700084a74981e565d1d",
+      "visual_timing_sha256": "2d4815ffa019d28c02a2e2e846b91e2f787501bf3f012e0f939427d2ac14b3f6",
       "scenes": [
         {
           "visual": "01_qc_host",
@@ -2741,108 +2765,138 @@
           "idle_tail_start": 1.0
         },
         {
+          "visual": "03_load_synthetic_csv",
+          "source_start": 20.366666666666667,
+          "source_end": 34.766666666666666,
+          "idle_tail_start": 3.8666666666666667
+        },
+        {
           "visual": "05_negative_control_default_rules",
-          "source_start": 44.33333333333333,
-          "source_end": 64.6,
+          "source_start": 34.766666666666666,
+          "source_end": 55.03333333333333,
           "idle_tail_start": 2.2
         },
         {
           "visual": "05a_sigma_choices",
-          "source_start": 64.6,
-          "source_end": 82.89999999999999,
+          "source_start": 55.03333333333333,
+          "source_end": 73.33333333333333,
           "idle_tail_start": 4.7
         },
         {
           "visual": "05b_rule_choices",
-          "source_start": 82.89999999999999,
-          "source_end": 103.53333333333333,
+          "source_start": 73.33333333333333,
+          "source_end": 93.96666666666667,
           "idle_tail_start": 5.8
         },
         {
           "visual": "06_limits_only",
-          "source_start": 103.53333333333333,
-          "source_end": 122.93333333333334,
+          "source_start": 93.96666666666667,
+          "source_end": 113.36666666666666,
           "idle_tail_start": 3.1
         },
         {
           "visual": "07_positive_control",
-          "source_start": 122.93333333333334,
-          "source_end": 140.06666666666666,
+          "source_start": 113.36666666666666,
+          "source_end": 130.5,
           "idle_tail_start": 6.0
         },
         {
           "visual": "09_shorter_baseline",
-          "source_start": 140.06666666666666,
-          "source_end": 160.53333333333333,
+          "source_start": 130.5,
+          "source_end": 150.96666666666667,
           "idle_tail_start": 5.7
         },
         {
+          "visual": "11_actual_export_picker",
+          "source_start": 150.96666666666667,
+          "source_end": 165.56666666666666,
+          "idle_tail_start": 3.9
+        },
+        {
           "visual": "12_exported",
-          "source_start": 188.33333333333334,
-          "source_end": 207.9,
+          "source_start": 165.56666666666666,
+          "source_end": 185.13333333333333,
           "idle_tail_start": 1.0
         }
       ]
     },
     {
       "lesson": "52_pipeline_graph",
-      "master_sha256": "89410c1072e8bf1c5e7eebe767dc9d426d785a69f71a819d779fb5d6742fe973",
-      "visual_timing_sha256": "49824011651add563027b75d063de5d14af5168ccd6f195c143f9143030aee44",
+      "master_sha256": "513f9bcb325fbfac98edb6aad2e9fc426fd924a047a310319f960bdaadff2166",
+      "visual_timing_sha256": "a1ee973983f6a38f260388a3848b3f94b6f2f330afaf2611511f6a06f4c3f987",
       "scenes": [
         {
+          "visual": "01_help_pipeline_graph",
+          "source_start": 0.0,
+          "source_end": 9.2,
+          "idle_tail_start": 1.4
+        },
+        {
           "visual": "04_unregistered_is_not_unprocessed",
-          "source_start": 13.6,
-          "source_end": 34.766666666666666,
+          "source_start": 9.2,
+          "source_end": 30.366666666666667,
           "idle_tail_start": 1.0
         },
         {
           "visual": "06_three_actual_artifacts",
-          "source_start": 34.766666666666666,
-          "source_end": 57.4,
+          "source_start": 30.366666666666667,
+          "source_end": 53.0,
           "idle_tail_start": 1.0
         },
         {
+          "visual": "07_measurement_provenance",
+          "source_start": 53.0,
+          "source_end": 67.13333333333334,
+          "idle_tail_start": 4.6
+        },
+        {
           "visual": "08_missing_crop_provenance",
-          "source_start": 75.93333333333334,
-          "source_end": 96.16666666666667,
+          "source_start": 67.13333333333334,
+          "source_end": 87.36666666666666,
           "idle_tail_start": 4.6
         },
         {
           "visual": "09_external_resource_log",
-          "source_start": 96.16666666666667,
-          "source_end": 112.80000000000001,
+          "source_start": 87.36666666666666,
+          "source_end": 104.0,
           "idle_tail_start": 4.7
         },
         {
           "visual": "11_missing_detail",
-          "source_start": 112.80000000000001,
-          "source_end": 129.43333333333334,
+          "source_start": 104.0,
+          "source_end": 120.63333333333334,
           "idle_tail_start": 4.2
         },
         {
           "visual": "12_no_visible_artifacts",
-          "source_start": 129.43333333333334,
-          "source_end": 146.93333333333334,
+          "source_start": 120.63333333333334,
+          "source_end": 138.13333333333333,
           "idle_tail_start": 4.5
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "source_start": 146.93333333333334,
-          "source_end": 166.93333333333334,
+          "source_start": 138.13333333333333,
+          "source_end": 158.13333333333333,
           "idle_tail_start": 4.5
         },
         {
           "visual": "15_restore_all_nodes",
-          "source_start": 166.93333333333334,
-          "source_end": 185.76666666666668,
+          "source_start": 158.13333333333333,
+          "source_end": 176.96666666666667,
           "idle_tail_start": 3.7
+        },
+        {
+          "visual": "16_redrawn_unchanged_graph",
+          "source_start": 176.96666666666667,
+          "source_end": 192.63333333333333,
+          "idle_tail_start": 3.3
         }
       ]
     },
     {
       "lesson": "53_prediction_profiler",
-      "master_sha256": "3ac34bed0d91f0df75a0e382db417b67c08266ab925dd402078d184d4cc583cb",
-      "visual_timing_sha256": "f2eb1019af064ddc17f401fcac41b48b4d11bba3f47576b625fa467e084df947",
+      "master_sha256": "7e7a2036b752213d341a7ab47c8d210b7bc816a9e3973fec2828103060221c15",
+      "visual_timing_sha256": "2d1a30eb8339b70772b3351c3a0e8958240923e6bd4f727f47df28390efeef7c",
       "scenes": [
         {
           "visual": "01_regression_host",
@@ -2851,51 +2905,57 @@
           "idle_tail_start": 3.5
         },
         {
+          "visual": "03_explicit_synthetic_coefficients_picker",
+          "source_start": 18.2,
+          "source_end": 32.1,
+          "idle_tail_start": 3.8333333333333335
+        },
+        {
           "visual": "05_link_options_keep_identity",
-          "source_start": 45.63333333333333,
-          "source_end": 61.4,
+          "source_start": 32.1,
+          "source_end": 47.86666666666667,
           "idle_tail_start": 2.8
         },
         {
           "visual": "04_loaded_identity_model",
-          "source_start": 61.4,
-          "source_end": 85.53333333333333,
+          "source_start": 47.86666666666667,
+          "source_end": 72.0,
           "idle_tail_start": 4.7
         },
         {
           "visual": "06_hold_b_at_one",
-          "source_start": 85.53333333333333,
-          "source_end": 102.13333333333333,
+          "source_start": 72.0,
+          "source_end": 88.6,
           "idle_tail_start": 4.4
         },
         {
           "visual": "07_hold_b_at_zero",
-          "source_start": 102.13333333333333,
-          "source_end": 118.13333333333333,
+          "source_start": 88.6,
+          "source_end": 104.6,
           "idle_tail_start": 3.2
         },
         {
           "visual": "08_reset_midpoints",
-          "source_start": 118.13333333333333,
-          "source_end": 133.23333333333332,
+          "source_start": 104.6,
+          "source_end": 119.7,
           "idle_tail_start": 3.2
         },
         {
           "visual": "09_sweep_second_input",
-          "source_start": 133.23333333333332,
-          "source_end": 151.33333333333331,
+          "source_start": 119.7,
+          "source_end": 137.8,
           "idle_tail_start": 4.6
         },
         {
           "visual": "10_eleven_grid_points",
-          "source_start": 151.33333333333331,
-          "source_end": 169.73333333333332,
+          "source_start": 137.8,
+          "source_end": 156.2,
           "idle_tail_start": 3.7
         },
         {
           "visual": "11_hold_a_at_one",
-          "source_start": 169.73333333333332,
-          "source_end": 190.2,
+          "source_start": 156.2,
+          "source_end": 176.66666666666666,
           "idle_tail_start": 3.1
         }
       ]
