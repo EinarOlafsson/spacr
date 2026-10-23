@@ -1,9 +1,11 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-Status:    DONE — live embedded-workspace regression repaired and qualified 2026-10-23
+Status:    IN PROGRESS — native module layout and metadata acceptance reopened 2026-10-23
 Requested: maintainer, 2026-10-22
 Owner:     Workstation spaCR session 2 — expanded workflow, implementation, validation and nightly publication; Home retains general CI/release
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
+
+LATEST MAINTAINER REQUIREMENTS — 2026-10-23: Overview must reuse Mask Generation’s normal module layout: categorized left settings and the existing console, AI chat, actions and system chrome, inheriting the normal transparent themed background rather than a black custom workspace. The initial metadata screen must not show Back. Its filename preview must include Row and Column, with unmatched files in gray text. Diagnose and fix the valid CellVoyager acquisition at /nas_mnt/carruthers/anu/revision/ALIXALG2KOme49_20261004_144325/AssayPlate_PerkinElmer_CellCarrier-384 where metadata detection finishes but Next remains disabled; inspect user data read-only. Retain true QWidget embedded bodies, resolution controls, bounded fast readers and existing scientific behavior. Workstation session 2 owns implementation, focused full-app validation, normal artifacts and nightly publication; root independently reviews the dataset and UI. These requirements supersede conflicting earlier opaque-background/layout instructions.
 
 LIVE STARTUP REGRESSION — 2026-10-23: the maintainer reports published Overview opens a tab containing only a black box and Back. Reproduce and repair real AppScreen/Make Masks startup, empty source and source-selection/reopen lifecycle; visible source controls must never depend on pre-populated settings. Add a discoverable user-controlled display resolution, retain the independent settings window, and verify fast bounded progressive image loading. Workstation session 2 owns the repair and normal artifacts/nightly publication; root independently reviews actual UI. Prior passing tests do not close this live regression.
 

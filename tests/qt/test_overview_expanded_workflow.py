@@ -1054,7 +1054,7 @@ def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns
     pages = host._fold_pages
     assert pages.widget(0) is body and pages.currentWidget() is workspace
     assert not wizard.isWindow() and wizard.window() is host
-    assert workspace.back_button.isVisible() and workspace.autoFillBackground()
+    assert not workspace.back_button.isVisible() and not workspace.autoFillBackground()
     qtbot.waitUntil(wizard.next.isEnabled)
     qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
     dialog = host._field_overview
@@ -1229,8 +1229,10 @@ def open_empty():
  try:
   window.open_module(sys.argv[1])
   host = window._screens[sys.argv[1]]
+  original_settings = host._settings_scroll.widget()
+  console = host._console if hasattr(host, '_console') else host._masks_console.console
   wizard = _open_field_overview(host, {})
-  state.update(host=host, wizard=wizard, stage=0)
+  state.update(host=host, wizard=wizard, stage=0, original_settings=original_settings, console=console)
  except Exception:
   fail()
 def tick():
@@ -1242,6 +1244,12 @@ def tick():
    assert wizard.isVisible() and wizard.source.isVisible()
    assert not wizard.isWindow() and not isinstance(wizard, QDialog)
    assert not wizard.property('spacrGlassed') and wizard.window() is window
+   assert wizard.preview.isVisible() and not host._field_overview_workspace.back_button.isVisible()
+   assert host._settings_scroll.widget() is wizard._settings_content
+   assert state['console'] is (host._console if hasattr(host, '_console') else host._masks_console.console)
+   if hasattr(host, '_btn_run'):
+    assert not host._btn_run.isVisible() and wizard.next.isVisible()
+    assert not host._settings_search.isVisible()
    wizard.source.setText(sys.argv[2])
    wizard._scan()
    state['stage'] = 1
@@ -1255,6 +1263,7 @@ def tick():
    assert body.isVisible() and not body.isWindow() and not isinstance(body, QDialog)
    assert not body.property('spacrGlassed') and body.window() is window
    assert body.preview_resolution.isVisible()
+   assert host._settings_scroll.widget() is body._settings_content
    QTest.mouseClick(body.options_button, Qt.LeftButton)
    state['stage'] = 3
   elif state['stage'] == 3:
@@ -1262,6 +1271,14 @@ def tick():
    assert isinstance(body._options_window, QDialog) and body._options_window.isWindow()
    assert body._options_window.isVisible()
    body._options_window.close()
+   assert host._settings_scroll.widget() is body._settings_content
+   host._field_overview_workspace._back()
+   assert host._settings_scroll.widget() is state['original_settings']
+   assert state['console'] is (host._console if hasattr(host, '_console') else host._masks_console.console)
+   if hasattr(host, '_btn_run'):
+    assert host._btn_run.isVisible() and host._settings_search.isVisible()
+   assert _open_field_overview(host, {}) is wizard
+   assert body.isVisible() and host._settings_scroll.widget() is body._settings_content
    host._field_overview_workspace.close()
    for runner in (body._index_jobs, body._image_jobs, body._export_jobs, body._thumbnail_jobs,
      body._montage_jobs, body._field_thumbnail_jobs, body._metadata_jobs, body._native_jobs, body._measurement_jobs):
@@ -1363,4 +1380,47 @@ def test_embedded_metadata_keyboard_and_close_emit_one_hidden_cancel(tmp_path, q
     assert wizard.result() == QDialog.Rejected and wizard._cancelled.is_set()
     wizard.reject()
     assert len(events) == 2
+    wizard._runner.shutdown(timeout_ms=3000)
+
+
+@pytest.mark.parametrize("invalid_well", (False, True))
+def test_cellvoyager_calibrations_are_gray_excluded_and_cannot_mask_invalid_matches(tmp_path, qtbot, invalid_well):
+    from PySide6.QtGui import QPalette
+    for channel in (1, 2, 3, 4):
+        tifffile.imwrite(tmp_path / f"plate1_A01_T0001F001L01A01Z01C{channel:02}.tif",
+            np.full((5, 7), channel, np.uint16))
+    calibration = tmp_path / "OTF_DC_DCAM#1_CAM1.tif"
+    tifffile.imwrite(calibration, np.zeros((4, 4), np.uint16))
+    if invalid_well:
+        tifffile.imwrite(tmp_path / "plate1_Z00_T0001F001L01A01Z01C01.tif", np.ones((5, 7), np.uint16))
+    before = {path: path.read_bytes() for path in tmp_path.iterdir()}
+    wizard = browser._OverviewMetadataWizard(str(tmp_path))
+    qtbot.addWidget(wizard)
+    qtbot.waitUntil(lambda: wizard._info is not None)
+    assert wizard.preset.currentData() == "cellvoyager"
+    assert wizard._info["channels"] == (1, 2, 3, 4)
+    assert wizard.next.isEnabled() is (not invalid_well)
+    assert all(path != str(calibration) for field in wizard._fields for _, path in field.files)
+    assert wizard.preview.columnCount() == 9
+    rows = {wizard.preview.item(row, 0).text(): row for row in range(wizard.preview.rowCount())}
+    row = rows[calibration.name]
+    gray = wizard.palette().color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text)
+    assert all(wizard.preview.item(row, column).foreground().color() == gray for column in range(9))
+    assert all(wizard.preview.item(row, column).text() == "" for column in range(1, 9))
+    row = rows["plate1_A01_T0001F001L01A01Z01C01.tif"]
+    assert wizard.preview.item(row, 3).text() == "A"
+    assert wizard.preview.item(row, 4).text() == "1"
+    if invalid_well:
+        assert "valid wellID" in wizard.status.text()
+        with pytest.raises(ValueError):
+            wizard.configuration()
+    else:
+        assert "1 unmatched filenames excluded" in wizard.status.text()
+        accepted = []
+        wizard.accepted.connect(lambda: accepted.append(wizard.configuration()))
+        wizard.next.click()
+        assert len(accepted) == 1
+        assert accepted[0]["channels"] == (1, 2, 3)
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+    wizard.reject()
     wizard._runner.shutdown(timeout_ms=3000)

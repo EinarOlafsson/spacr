@@ -643,6 +643,7 @@ def test_automatic_wizard_pattern_preserves_nested_folder_channel_groups(qtbot, 
     assert wizard._fields[0].files == (("1", str(paths[0])), ("2", str(paths[1])))
     assert wizard._info["channels"] == (1, 2)
     assert wizard.regex.text() == ""
+    assert "2 matched filenames and 0 unmatched filenames excluded" in wizard.status.text()
     accepted = []
     wizard.accepted.connect(lambda: accepted.append(wizard.configuration()))
     wizard.next.click()
