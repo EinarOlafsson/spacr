@@ -19,9 +19,10 @@ from retain_narration import catalog_lesson, digest, require_timing, require_unc
 from stage_lesson import REPO, read, write
 
 RECORD = 'published-retained-narration.json'
+CATALOG_COMPOSITION = 'published-retained-catalog-composition.json'
 
 
-def published_sources(baseline, identity, *, stage=None):
+def published_sources(baseline, identity, *, stage=None, catalog_composition=None):
     """Require the exact published receipt, catalogs, fifty tracks and native proofs."""
     from audit_staged_catalogs import CATALOGS
     from published_native_reuse import _published_inputs, interval_spec
@@ -34,15 +35,18 @@ def published_sources(baseline, identity, *, stage=None):
     manifest = read(baseline / 'release-manifest.json')
     records = {row['path']: row for row in manifest['files']}
     files = []
+    if catalog_composition is not None:
+        _require_composition(stage, identity, catalog_composition, CATALOGS)
 
-    def verified(relative, destination):
+    def verified(relative, destination, *, exact_stage=True):
         path = baseline / relative
         row = records.get(relative)
         if (not row or path.is_symlink() or not path.resolve().is_relative_to(baseline)
                 or path.stat().st_size != row['bytes'] or digest(path) != row['sha256']):
             raise ValueError('Published narration source differs from manifest: ' + relative)
-        if stage is not None:
-            target = Path(stage) / destination
+        if stage is not None and exact_stage:
+            target = (_stage_file(stage, destination) if catalog_composition is not None
+                      else Path(stage) / destination)
             if (target.is_symlink() or not target.resolve().is_relative_to(Path(stage).resolve())
                     or target.stat().st_size != row['bytes'] or digest(target) != row['sha256']):
                 raise ValueError('Staged retained narration differs from published bytes: ' + destination)
@@ -54,8 +58,11 @@ def published_sources(baseline, identity, *, stage=None):
     catalogs = []
     localized = {}
     for name in CATALOGS:
-        row = verified('web/catalog/' + name, 'catalog/' + name)
+        row = verified('web/catalog/' + name, 'catalog/' + name,
+                       exact_stage=catalog_composition is None)
         original = catalog_lesson(baseline / 'web/catalog' / name, identity)
+        if catalog_composition is not None:
+            _require_composed_catalog(stage, identity, catalog_composition, name, original, row)
         current = catalog_lesson(REPO / 'tools/tutorials/authoring/catalog' / name, identity)
         require_unchanged_lesson(current, original, original, voice_inventory=inventory)
         if name == 'lessons_en.json':
@@ -121,6 +128,8 @@ def checked_published_narration(stage, identity):
     """Explicit retention is valid only while every immutable source still agrees."""
     if Path(identity).name != identity or identity in {'.', '..'}:
         raise ValueError('Expected one published lesson identity')
+    if Path(stage).is_symlink():
+        raise ValueError('Retained stage must not be a symlink')
     stage = Path(stage).resolve()
     path = stage / 'production' / identity / RECORD
     if path.is_symlink():
@@ -129,10 +138,117 @@ def checked_published_narration(stage, identity):
     if (record.get('schema') != 1 or record.get('kind') != 'published_retained_narration'
             or record.get('lesson') != identity):
         raise ValueError('Expected explicit published retained narration provenance')
-    expected, tracks, proofs, _, _ = published_sources(record['baseline_root'], identity, stage=stage)
+    sidecar = stage / 'production' / identity / CATALOG_COMPOSITION
+    composition = read(_stage_file(stage, sidecar.relative_to(stage))) if os.path.lexists(sidecar) else None
+    expected, tracks, proofs, _, _ = published_sources(record['baseline_root'], identity, stage=stage,
+                                                       catalog_composition=composition)
     if record != expected:
         raise ValueError('Published retained narration bindings changed')
     return tracks, proofs
+
+
+def _stage_file(stage, relative):
+    """Resolve a required regular file without accepting any symlink component."""
+    relative = Path(relative)
+    stage = Path(stage)
+    if relative.is_absolute() or '..' in relative.parts or not relative.parts:
+        raise ValueError('Invalid composed catalog path')
+    path = stage
+    if path.is_symlink():
+        raise ValueError('Composed stage must not be a symlink')
+    for part in relative.parts:
+        path = path / part
+        if path.is_symlink():
+            raise ValueError('Composed catalog path must not use symlinks')
+    if not path.is_file() or not path.resolve().is_relative_to(stage.resolve()):
+        raise ValueError('Missing composed catalog file')
+    return path
+
+
+def _object_digest(value):
+    return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True,
+                                     separators=(',', ':')).encode()).hexdigest()
+
+
+def _unique_lesson(path, identity):
+    value = read(path)
+    lessons = value.get('lessons') if isinstance(value, dict) else None
+    if (not isinstance(lessons, list) or any(not isinstance(row, dict)
+            or not isinstance(row.get('id'), str) for row in lessons)):
+        raise ValueError('Invalid composed lesson catalog')
+    ids = [row['id'] for row in lessons]
+    if any(not name or Path(name).name != name or name in {'.', '..'} for name in ids):
+        raise ValueError('Invalid composed catalog identity')
+    if len(ids) != len(set(ids)) or ids.count(identity) != 1:
+        raise ValueError('Duplicate or missing composed catalog identity')
+    return lessons[ids.index(identity)]
+
+
+def _require_composition(stage, identity, composition, names):
+    required = {'schema', 'kind', 'lesson', 'retained_record_sha256', 'catalogs'}
+    if (stage is None or not isinstance(composition, dict) or set(composition) != required
+            or type(composition['schema']) is not int or composition['schema'] != 1
+            or composition['kind'] != 'published_retained_catalog_composition'
+            or composition['lesson'] != identity):
+        raise ValueError('Invalid explicit retained catalog composition')
+    record = _stage_file(stage, Path('production') / identity / RECORD)
+    if digest(record) != composition['retained_record_sha256']:
+        raise ValueError('Original retained record changed')
+    rows = composition['catalogs']
+    keys = {'path', 'sha256', 'bytes', 'source_sha256', 'selected_lesson_sha256'}
+    if (not isinstance(rows, list) or len(rows) != len(names)
+            or any(not isinstance(row, dict) or set(row) != keys for row in rows)
+            or [row['path'] for row in rows] != list(names)):
+        raise ValueError('Composed catalog inventory changed')
+
+
+def _require_composed_catalog(stage, identity, composition, name, original, source):
+    row = next(row for row in composition['catalogs'] if row['path'] == name)
+    path = _stage_file(stage, Path('catalog') / name)
+    selected = _unique_lesson(path, identity)
+    if (type(row['bytes']) is not int or path.stat().st_size != row['bytes']
+            or digest(path) != row['sha256'] or row['source_sha256'] != source['sha256']
+            or selected != original or _object_digest(selected) != row['selected_lesson_sha256']):
+        raise ValueError('Composed catalog bytes or retained selected lesson changed')
+
+
+def bind_composed_catalogs(stage, identity):
+    """Explicitly bind merged catalogs after assembly, without changing source proof.
+
+    This validates the retained lesson only. Other merged lessons require their own
+    normal fresh/retained validators; this is not an acceptance claim for them.
+    """
+    from audit_staged_catalogs import CATALOGS
+    if Path(identity).name != identity or identity in {'.', '..'}:
+        raise ValueError('Expected one published lesson identity')
+    stage = Path(stage)
+    record_path = _stage_file(stage, Path('production') / identity / RECORD)
+    destination = record_path.with_name(CATALOG_COMPOSITION)
+    if os.path.lexists(destination):
+        raise FileExistsError('Preserve existing catalog composition')
+    record = read(record_path)
+    if record.get('schema') != 1 or record.get('kind') != 'published_retained_narration' or record.get('lesson') != identity:
+        raise ValueError('Expected original schema1 retained record')
+    expected, _, _, _, _ = published_sources(record['baseline_root'], identity)
+    if record != expected:
+        raise ValueError('Original published retention proof changed')
+    rows = []
+    for source in expected['catalogs']:
+        name = source['path']
+        path = _stage_file(stage, Path('catalog') / name)
+        original = _unique_lesson(Path(record['baseline_root']) / 'web/catalog' / name, identity)
+        selected = _unique_lesson(path, identity)
+        if selected != original:
+            raise ValueError('Retained selected lesson changed during catalog composition')
+        rows.append(dict(path=name, sha256=digest(path), bytes=path.stat().st_size,
+                         source_sha256=source['sha256'], selected_lesson_sha256=_object_digest(selected)))
+    composition = dict(schema=1, kind='published_retained_catalog_composition', lesson=identity,
+                       retained_record_sha256=digest(record_path), catalogs=rows)
+    # Full stage/audio validation happens BEFORE creating any sidecar.
+    published_sources(record['baseline_root'], identity, stage=stage, catalog_composition=composition)
+    with destination.open('x') as output:
+        output.write(json.dumps(composition, ensure_ascii=False, indent=2) + '\n')
+    return destination
 
 
 def prepare(stage, identity, baseline):

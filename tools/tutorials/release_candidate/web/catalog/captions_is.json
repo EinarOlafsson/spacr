@@ -2973,7 +2973,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Veldu UMAP sem smækkunaraðferð. Hver punktur táknar hlut með tveimur hnitum á grafinu.",
+          "narration": "Veldu UMAP sem smækkunaraðferð. Hver punktur táknar hlut með tveimur hnitum á grafinu. Þú getur kannað PCA með tengdu tóli þess þegar þú vilt línulegt ofanvarp og hleðslur eiginleika.",
           "hold_after": 0.7
         },
         {
@@ -3022,8 +3022,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_review_embedding",
-          "narration": "Skoðaðu fullgerðu vörpunina og berðu saman myndútskurði valinna hluta. Geymdu inntaksmælingarnar, valdar stillingar og vistaðar niðurstöður saman svo hægt sé að rekja hvern punkt til uppruna síns.",
+          "visual": "27_fold_image_scatter",
+          "narration": "Opnaðu Image Scatter úr haus Image UMAP til að bera valda eiginleika beint saman, eða opnaðu PCA fyrir línulegt ofanvarp. Haltu áfram með tengdu kennsluefnin til að sjá inntaksstillingar þeirra og vistað úttak.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "55_image_scatter",
+            "60_pca"
+          ],
           "hold_after": 0.7
         }
       ],

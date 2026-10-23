@@ -45,10 +45,22 @@ class Toggle(QCheckBox):
         self._anim.setDuration(140)
         self.stateChanged.connect(self._start_anim)
         self.setMinimumHeight(self._track_h + 2)
+        from ..gui_scale import add_listener
+
+        add_listener(self._fit_track)
+        self._fit_track()
         if self._word_wrap:
             policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
             policy.setHeightForWidth(True)
             self.setSizePolicy(policy)
+
+    def _fit_track(self, _scale=None):
+        from PySide6.QtWidgets import QWidget
+        from ..gui_scale import _ORIGINAL, _actual_minimum_height
+
+        if _actual_minimum_height(self) < self._track_h + 2:
+            setter = _ORIGINAL.get((QWidget, "setMinimumHeight"), QWidget.setMinimumHeight)
+            setter(self, self._track_h + 2)
 
     def sizeHint(self) -> "QSize":
         """Return the default checkbox hint widened to fit the switch track."""
@@ -64,7 +76,9 @@ class Toggle(QCheckBox):
     def minimumSizeHint(self) -> QSize:
         """Allow wrapped captions to shrink without making their text a width floor."""
         if not self._word_wrap:
-            return super().minimumSizeHint()
+            base = super().minimumSizeHint()
+            base.setHeight(max(base.height(), self._track_h + 2))
+            return base
         width = self._track_x + self._track_w + self._label_gap
         return QSize(width + self.fontMetrics().averageCharWidth() * 8,
                      max(self._track_h + 2, self.fontMetrics().height() + 4))

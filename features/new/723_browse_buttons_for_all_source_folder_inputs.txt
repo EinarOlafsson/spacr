@@ -1,6 +1,6 @@
 BROWSE BUTTONS FOR EVERY SOURCE-FOLDER INPUT
 ===========================================
-Status:    IN PROGRESS
+Status:    DONE 2026-10-22 — delivered with this atomic publication
 Requested: maintainer, 2026-10-22
 Owner:     widgets_g5 implementation and delivery; widgets_g4 independent peer
 Priority:  Start now alongside release CI; preserve ongoing scientific work
@@ -23,3 +23,5 @@ ACCEPTANCE
   regenerate affected translations and generated consumers with their tools.
 
 2026-10-22 — Registered before implementation; retained UI pair owns implementation, focused validation, normal generation and publication end to end.
+
+2026-10-22 — Shared source-folder fields now reuse a compact keyboard-accessible folder action, including grouped source lists; existing custom/file/cloud pickers are retained. Eight focused controls pass (1.86 s); root and independent source/output peers accepted. Normal generation confirms all13,606 API records/schema, runtime English, source history and consumer metadata unchanged; the existing translated folder caption is reused. Published with this atomic completion update.

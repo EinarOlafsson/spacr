@@ -259,3 +259,9 @@ Remaining native idle boundaries need editorial review. Captures stay held; pres
 2026-10-21 maintainer stop checkpoint: committed reviewed 32/08/55 pause policies and canonical09/20 corrections; next batch not yet published.32 passed all71 playback cases+reconciliation;08 checks partial,55 pending.15 all50 current audio/QA/onsets passed; footage review remains. Owned tutorial jobs stopped on request; preserve scratch stages and held15 mix patch. Whole676 remains open; no recapture/deletion, AF3 stays held until campaign completion.
 
 2026-10-21 — Lessons32 Align and Stitch,08 Measure and55 Image Scatter publish reviewed1x editorial footage edits and source-bound idle-tail protection. Existing50 verified narration tracks per lesson, audio timings, authored lesson content, fingerprints and voice speeds are preserved; no synthesis, new raw capture, runtime-freshness or listening-review claim. Normal full decode/PTS/poster/web,71 new browser checks per lesson and84-route candidate/publication/readback pass. Item676 remains open.
+
+2026-10-22 — Maintainer resumes the tutorial campaign under Codex ownership.
+Continue existing-footage pause edits and normal publication; preserve passed audio/render results and the no-rerecording instruction.
+Lessons11/09/15/20/23 are rendered; repair composed-catalog retention validation before their browser checks and publication. Item676 remains open.
+
+2026-10-22 — Lessons11 Classify ML,09 Annotate,15 Image UMAP,20 Cellpose Masks and23 Annotator Agreement publish reviewed1x editorial footage and source-bound idle-tail protection. Four lessons retain their verified50 narration tracks/timings/speeds; Image UMAP uses current reviewed50 narration and a truthful navigation reference card alongside14retained native scenes. No new raw capture or listening/native-speaker signoff claimed. Normal full decode/PTS/poster/web,71browser checks per lesson and84route candidate/publication/readback pass. Item676 remains open.

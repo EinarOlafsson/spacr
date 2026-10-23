@@ -185,3 +185,64 @@ def test_a_compact_native_font_does_not_shrink_the_switch_track_hint(qtbot):
     native_hint = QCheckBox.sizeHint(toggle)
     assert toggle.sizeHint().height() >= native_hint.height()
     assert toggle.sizeHint().height() >= toggle._track_h + 2
+
+
+def test_preferences_modules_at_ninety_percent_reserve_the_painted_track(
+        qtbot, qt_theme_applied, monkeypatch):
+    from PySide6.QtWidgets import QApplication, QTabWidget, QWidget
+    from spacr.qt import gui_scale, preferences
+
+    gui_scale.install_scaling_layer()
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, '_SCALE', .9)
+        preferences.set_gui_scale(.9)
+        preferences.set_font_scale(.9)
+        dialog = preferences.PreferencesDialog()
+        qtbot.addWidget(dialog)
+        tabs = dialog.findChild(QTabWidget, 'PreferencesTabs')
+        page = dialog.findChild(QWidget, 'PreferencesTabModules')
+        tabs.setCurrentIndex(tabs.indexOf(page.parentWidget().parentWidget()))
+        dialog.resize(900, 650)
+        dialog.show()
+        QApplication.processEvents()
+        captions = {'Enable verbose logging',
+                    'Include redacted log excerpts in issue previews',
+                    'Allow editing in the Database Browser'}
+        toggles = [toggle for toggle in page.findChildren(Toggle) if toggle.text() in captions]
+        assert len(toggles) == 3
+        for toggle in toggles:
+            assert gui_scale._actual_minimum_height(toggle) >= toggle._track_h + 2
+            assert toggle.minimumSizeHint().height() >= toggle._track_h + 2
+            top = (toggle.height() - toggle._track_h) // 2
+            assert top >= .75
+            assert top + toggle._track_h + .75 <= toggle.height()
+            assert toggle.isVisible()
+
+
+def test_existing_plain_and_wrapped_tracks_fit_across_live_scale_changes(
+        qtbot, qt_theme_applied, monkeypatch):
+    from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
+    from spacr.qt import gui_scale, preferences
+
+    gui_scale.install_scaling_layer()
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, '_SCALE', .9)
+        preferences.set_gui_scale(.9)
+        preferences.set_font_scale(.9)
+        panel = QWidget()
+        qtbot.addWidget(panel)
+        layout = QVBoxLayout(panel)
+        toggles = [Toggle('A switch caption', word_wrap=wrapped) for wrapped in (False, True)]
+        for toggle in toggles:
+            layout.addWidget(toggle)
+        panel.show()
+        for scale in (.9, .75, 2., .1, .9):
+            gui_scale.set_gui_scale_live(scale)
+            QApplication.processEvents()
+            for toggle in toggles:
+                floor = toggle._track_h + 2
+                assert gui_scale._actual_minimum_height(toggle) >= floor
+                assert gui_scale._actual_minimum_height(toggle) <= max(floor, gui_scale.scale_int(floor, scale))
+                top = (toggle.height() - toggle._track_h) // 2
+                assert top >= .75
+                assert top + toggle._track_h + .75 <= toggle.height()

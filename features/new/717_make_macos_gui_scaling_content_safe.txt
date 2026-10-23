@@ -31,6 +31,40 @@ must remain readable on their dark card in the light application theme. A
 backgrounds. Repair the scoped popup styling, test both themes and confirm
 the corrected native popup; retain the completed scale and catalog checks.
 
+Open native regression follow-up, 2026-10-22: at 90% GUI/font scale,
+Preferences Modules gives verbose logging, redacted excerpts and Database
+editing toggles 18px height. Their fixed 17px track plus 1.5px stroke reaches
+above the widget boundary, unlike the other 19/20px toggles. The constructor's
+19px minimum is scaled down by the GUI setter while painted geometry is not.
+Repair the private switch sizing floor without growing the dialog offscreen,
+changing captions or enlarging the track. Require focused toggle checks, an
+actual 90% Modules layout regression and native recheck before closing this
+follow-up. Retain the prior DONE delivery/history and accepted evidence;
+this is new native regression evidence, not proof of an OpenGL timeout cause.
+The private Toggle weak scale listener now restores the actual 19px paint
+floor after construction/rescale without changing its remembered 19px design
+baseline or track/caption geometry; plain minimumSizeHint also reserves it.
+Twelve focused CPU/offscreen cases pass, including actual 90% Modules layout
+and the same plain/wrapped switches at 90/75/200/10/90% without floor inflation
+(7.50s; peak sampled aggregate RSS 0.312GiB). Native Cocoa90% Modules recheck
+passes all nine switch bounds: formerly18px controls now have actual/minimum/
+plain hints19px;17px tracks start at y1, containing their1.5px strokes. Three
+programmatic click/restore checks pass, dialog remains582x568/resizable and
+normal close exits0. A screenshot-only follow-up confirms the actual Modules
+tab after a paint/event turn; owner visual review confirms complete on/off
+rings and visible overflow/scroll mechanisms. Native68818 and capture1429
+both close normally with exit0. This resolves the scoped regression follow-up
+while retaining the previously delivered DONE status and separate human gaps.
+
+2026-10-22 retained-DONE regression follow-up: source 8e6a76b38b on
+macOS 26.6.1 Intel (host display DPR 2). A 101-PASS CPU/offscreen cohort includes
+affected dialog/toggle/wrapped-font cases, exact 90% default/reset and API-tail
+normalization guards, plus owning diameter/brush files (113.40s; peak sampled
+aggregate RSS 0.869GiB under an 8GiB RSS watchdog). 101 is the total cohort,
+not a 717-only count. This adds automated regression evidence only, not fresh
+physical-input/native-geometry acceptance; prior 503/55/482 and native closure
+are retained, and DONE is unchanged.
+
 PROGRESS
 Requirement                         State
 Text and module controls fit        DONE

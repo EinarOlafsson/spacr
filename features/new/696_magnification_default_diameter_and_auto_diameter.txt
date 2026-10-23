@@ -117,6 +117,15 @@ and the unmodified 1.35 paint gate remain retained evidence, not fresh Mac
 acceptance. No whole-item DONE claim follows from this native subset: hosted
 CI/release and Work tutorials remain with their owners.
 
+2026-10-22 Mac automated follow-up: source 8e6a76b38b, macOS 26.6.1 Intel,
+host display DPR 2. The diameter-field owning file passed within one 101-PASS
+CPU/offscreen cohort covering diameter/brush behavior plus dialog, toggle,
+wrapped-font, 90% default/reset and API-link guards (113.40s; peak sampled
+aggregate RSS 0.869GiB under an 8GiB RSS watchdog). 101 is the total cohort,
+not a diameter-only count. This does not establish physical keyboard/clipboard
+editing, native geometry or model/preview runtime acceptance; the native
+requirements above and existing Linux/release/tutorial ownership remain.
+
 --------------------------------------------------------------------------------
 2026-10-13 - BUILT (Home, worktree feat-696-auto-diameter; not pushed, ships
 after the 1.5.1.5 release)

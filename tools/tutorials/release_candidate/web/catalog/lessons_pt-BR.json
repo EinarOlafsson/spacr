@@ -3247,9 +3247,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Escolha UMAP como método de redução. Cada ponto vai representar um objeto por meio de duas coordenadas no gráfico.",
+          "narration": "Escolha UMAP como método de redução. Cada ponto vai representar um objeto por meio de duas coordenadas no gráfico. Você pode explorar PCA pela ferramenta indicada quando quiser uma projeção linear e as cargas das características.",
           "hold_after": 0.7,
-          "speech_text": "Escolha iu mép como método de redução. Cada ponto vai representar um objeto por meio de duas coordenadas no gráfico."
+          "speech_text": "Escolha iu mép como método de redução. Cada ponto vai representar um objeto por meio de duas coordenadas no gráfico. Você pode explorar PCA pela ferramenta indicada quando quiser uma projeção linear e as cargas das características."
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3306,10 +3306,15 @@
           "speech_text": "Clique em outro ponto para comparar o recorte dele. A barra lateral também oferece rotulagem da seleção e propagação de rótulos de grupo. Esses controles salvam anotações, então escolha o rótulo e a seleção certos antes de aplicá-los."
         },
         {
-          "visual": "27_review_embedding",
-          "narration": "Revise a projeção concluída e compare os recortes das imagens dos objetos selecionados. Guarde juntas as medições de entrada, as configurações escolhidas e os resultados salvos para rastrear cada ponto até sua origem.",
+          "visual": "27_fold_image_scatter",
+          "narration": "Abra o Image Scatter pelo cabeçalho do Image UMAP para comparar diretamente as características escolhidas, ou abra o PCA para uma projeção linear. Continue com os tutoriais indicados para ver as configurações de entrada e as saídas salvas deles.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "55_image_scatter",
+            "60_pca"
+          ],
           "hold_after": 0.7,
-          "speech_text": "Revise a projeção concluída e compare os recortes das imagens dos objetos selecionados. Guarde juntas as medições de entrada, as configurações escolhidas e os resultados salvos para rastrear cada ponto até sua origem."
+          "speech_text": "Abra o Image Scatter pelo cabeçalho do Image iu mép para comparar diretamente as características escolhidas, ou abra o PCA para uma projeção linear. Continue com os tutoriais indicados para ver as configurações de entrada e as saídas salvas deles."
         }
       ],
       "narration_voices": {
