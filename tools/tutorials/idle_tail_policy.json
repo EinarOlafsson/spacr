@@ -2962,8 +2962,8 @@
     },
     {
       "lesson": "54_qc_dashboard",
-      "master_sha256": "84f9d35246de246267f2ad3ff0cddbe99440e709aadb9911f0195257c5f1e629",
-      "visual_timing_sha256": "f6fb3d503c5434b930eda444094448871c9e79ef358598178947d6908b0ab61c",
+      "master_sha256": "2096f7e633e7d92c5c84c380e4a2c81ccd6361159e23fbf8a076c5dacc35e05f",
+      "visual_timing_sha256": "81cfbb5ca9e17f06ef1eaa7b54529a17f98ab85b89e25d7dac4a2c574e130356",
       "scenes": [
         {
           "visual": "01_module",
@@ -2978,59 +2978,71 @@
           "idle_tail_start": 1.0
         },
         {
+          "visual": "03_missing_reports_picker",
+          "source_start": 31.266666666666666,
+          "source_end": 40.833333333333336,
+          "idle_tail_start": 2.6666666666666665
+        },
+        {
           "visual": "03_missing_reports",
-          "source_start": 48.733333333333334,
-          "source_end": 65.6,
+          "source_start": 40.833333333333336,
+          "source_end": 57.7,
           "idle_tail_start": 1.3
         },
         {
+          "visual": "04_computed_subset_picker",
+          "source_start": 57.7,
+          "source_end": 72.46666666666667,
+          "idle_tail_start": 3.566666666666667
+        },
+        {
           "visual": "04_computed_subset",
-          "source_start": 84.76666666666667,
-          "source_end": 103.13333333333333,
+          "source_start": 72.46666666666667,
+          "source_end": 90.83333333333333,
           "idle_tail_start": 1.2
         },
         {
           "visual": "05_subset_remaining_checks",
-          "source_start": 103.13333333333333,
-          "source_end": 124.1,
+          "source_start": 90.83333333333333,
+          "source_end": 111.8,
           "idle_tail_start": 1.0
         },
         {
           "visual": "05_subset_remaining_checks",
-          "source_start": 124.1,
-          "source_end": 145.06666666666666,
+          "source_start": 111.8,
+          "source_end": 132.76666666666668,
           "idle_tail_start": 1.0
         },
         {
           "visual": "07_original_plate_details",
-          "source_start": 145.06666666666666,
-          "source_end": 161.73333333333332,
+          "source_start": 132.76666666666668,
+          "source_end": 149.43333333333334,
           "idle_tail_start": 1.0
         },
         {
           "visual": "08_unchanged_refresh",
-          "source_start": 161.73333333333332,
-          "source_end": 181.0,
+          "source_start": 149.43333333333334,
+          "source_end": 168.7,
           "idle_tail_start": 5.2
         },
         {
           "visual": "08_unchanged_refresh",
-          "source_start": 181.0,
-          "source_end": 200.26666666666665,
+          "source_start": 168.7,
+          "source_end": 187.96666666666667,
           "idle_tail_start": 5.2
         },
         {
           "visual": "08_unchanged_refresh",
-          "source_start": 200.26666666666665,
-          "source_end": 219.5333333333333,
+          "source_start": 187.96666666666667,
+          "source_end": 207.23333333333332,
           "idle_tail_start": 5.2
         }
       ]
     },
     {
       "lesson": "62_feature_dictionary",
-      "master_sha256": "f0fd2467d008d75ae812ac7c4be81df9d938bf7cbc4e07ea499b8a5343f450e1",
-      "visual_timing_sha256": "41770ed89ea4065baa0101769d1df0d5ed9df5d5dda86f08ad6a785b72728fb0",
+      "master_sha256": "eebff4b675d801c401b1d59ab9dc7b52ec3d0bbac498d089a3cfa7d425240a90",
+      "visual_timing_sha256": "ab8fc3e20b16151e122bcd7348538f6c37a5a117829398619ee6d4f67984e285",
       "scenes": [
         {
           "visual": "01_help_dictionary",
@@ -3041,51 +3053,57 @@
         {
           "visual": "03_search_by_idea",
           "source_start": 16.6,
-          "source_end": 34.400000000000006,
+          "source_end": 34.4,
           "idle_tail_start": 3.9
         },
         {
           "visual": "04_actual_concept_object_filters",
-          "source_start": 34.400000000000006,
-          "source_end": 55.83333333333334,
+          "source_start": 34.4,
+          "source_end": 55.833333333333336,
           "idle_tail_start": 7.0
         },
         {
+          "visual": "05_measurement_name",
+          "source_start": 55.833333333333336,
+          "source_end": 69.4,
+          "idle_tail_start": 4.6
+        },
+        {
           "visual": "06_computing_function",
-          "source_start": 73.76666666666668,
-          "source_end": 91.73333333333335,
+          "source_start": 69.4,
+          "source_end": 87.36666666666666,
           "idle_tail_start": 1.0
         },
         {
           "visual": "07_conditional_area_units",
-          "source_start": 91.73333333333335,
-          "source_end": 113.80000000000001,
+          "source_start": 87.36666666666666,
+          "source_end": 109.43333333333334,
           "idle_tail_start": 6.5
         },
         {
           "visual": "08_area_caveats",
-          "source_start": 113.80000000000001,
-          "source_end": 136.76666666666668,
+          "source_start": 109.43333333333334,
+          "source_end": 132.4,
           "idle_tail_start": 1.0
         },
         {
           "visual": "09_unknown_search",
-          "source_start": 136.76666666666668,
-          "source_end": 158.3,
+          "source_start": 132.4,
+          "source_end": 153.93333333333334,
           "idle_tail_start": 6.5
         },
         {
           "visual": "11_actual_text_copy",
-          "source_start": 158.3,
-          "source_end": 177.0,
+          "source_start": 153.93333333333334,
+          "source_end": 172.63333333333333,
           "idle_tail_start": 2.3
         }
       ]
     },
     {
       "lesson": "67_experiment_design",
-      "master_sha256": "72b751634fc78168916d1b1671d3092b582b226c2095dfe2c59d79e5f7e5e52c",
-      "visual_timing_sha256": "2b7e33a3506e53b90e0378e389c0522a389eb46a4eb453df7a2a7862bf8e4ee4",
+      "master_sha256": "497b2f54ec2aadf0abaa1fcfc7e759095ec8a6b7578efe830ca67ce10de33b3c",
+      "visual_timing_sha256": "7ab617c3537b196da1dce2d536e89868f51c51b86c3637731b5a80af4d822dff",
       "scenes": [
         {
           "visual": "01_module",
@@ -3094,65 +3112,89 @@
           "idle_tail_start": 4.5
         },
         {
+          "visual": "02_named_draft",
+          "source_start": 14.733333333333333,
+          "source_end": 30.566666666666666,
+          "idle_tail_start": 7.4
+        },
+        {
           "visual": "03_capacity_warning",
-          "source_start": 34.96666666666667,
-          "source_end": 57.16666666666667,
+          "source_start": 30.566666666666666,
+          "source_end": 52.766666666666666,
           "idle_tail_start": 3.6
         },
         {
           "visual": "04_capacity_restored",
-          "source_start": 57.16666666666667,
-          "source_end": 77.23333333333333,
+          "source_start": 52.766666666666666,
+          "source_end": 72.83333333333333,
           "idle_tail_start": 6.6
         },
         {
           "visual": "05_single_replicate_warning",
-          "source_start": 77.23333333333333,
-          "source_end": 97.46666666666667,
+          "source_start": 72.83333333333333,
+          "source_end": 93.06666666666666,
           "idle_tail_start": 8.3
         },
         {
+          "visual": "06_block_layout_warning",
+          "source_start": 93.06666666666666,
+          "source_end": 106.53333333333333,
+          "idle_tail_start": 3.8
+        },
+        {
+          "visual": "07_random_interior_seed42",
+          "source_start": 106.53333333333333,
+          "source_end": 125.23333333333333,
+          "idle_tail_start": 6.3
+        },
+        {
           "visual": "08_seed43",
-          "source_start": 139.8,
-          "source_end": 157.10000000000002,
+          "source_start": 125.23333333333333,
+          "source_end": 142.53333333333333,
           "idle_tail_start": 2.3
         },
         {
           "visual": "09_seed42_restored",
-          "source_start": 157.10000000000002,
-          "source_end": 181.5666666666667,
+          "source_start": 142.53333333333333,
+          "source_end": 167.0,
           "idle_tail_start": 2.4
         },
         {
           "visual": "10_selected_wells_not_reassigned",
-          "source_start": 181.5666666666667,
-          "source_end": 200.10000000000002,
+          "source_start": 167.0,
+          "source_end": 185.53333333333333,
           "idle_tail_start": 4.2
         },
         {
+          "visual": "11_export_folder",
+          "source_start": 185.53333333333333,
+          "source_end": 197.43333333333334,
+          "idle_tail_start": 2.7
+        },
+        {
           "visual": "12_real_export_complete",
-          "source_start": 219.60000000000002,
-          "source_end": 244.90000000000003,
+          "source_start": 197.43333333333334,
+          "source_end": 222.73333333333332,
           "idle_tail_start": 1.2
         },
         {
           "visual": "09_seed42_restored",
-          "source_start": 244.90000000000003,
-          "source_end": 269.3666666666667,
+          "source_start": 222.73333333333332,
+          "source_end": 247.2,
           "idle_tail_start": 2.3
         },
         {
           "visual": "12_real_export_complete",
-          "source_start": 269.3666666666667,
-          "source_end": 294.6666666666667,
+          "source_start": 247.2,
+          "source_end": 272.5,
           "idle_tail_start": 1.2
         }
       ]
     },
     {
       "lesson": "82_toxoplasma",
-      "master_sha256": "f6a334345b77df6a6d75e1bed7cbe05fba027b824dcd1412b47209fe36c3c12b",
-      "visual_timing_sha256": "64ec02af90697b494a26eaab89bf79e51797f93802c827633a4e9a7e3dfbb0a4",
+      "master_sha256": "7b64e4270782cf5dffd6f0d5311e6c6f2774a3995354afff13d0329e03469568",
+      "visual_timing_sha256": "f0c145ae8a8cfa229f3b37aa6d82278d621705e2c275b6445cdac80cba5061c5",
       "scenes": [
         {
           "visual": "00_home",
@@ -3161,27 +3203,39 @@
           "idle_tail_start": 8.9
         },
         {
+          "visual": "01_organism",
+          "source_start": 24.733333333333334,
+          "source_end": 39.833333333333336,
+          "idle_tail_start": 4.5
+        },
+        {
           "visual": "02_diagram",
-          "source_start": 44.233333333333334,
-          "source_end": 65.86666666666667,
+          "source_start": 39.833333333333336,
+          "source_end": 61.46666666666667,
           "idle_tail_start": 7.8
         },
         {
           "visual": "03_assays",
-          "source_start": 65.86666666666667,
-          "source_end": 95.26666666666668,
+          "source_start": 61.46666666666667,
+          "source_end": 90.86666666666666,
           "idle_tail_start": 10.6
         },
         {
           "visual": "04_plaque_assay",
-          "source_start": 95.26666666666668,
-          "source_end": 126.43333333333335,
+          "source_start": 90.86666666666666,
+          "source_end": 122.03333333333333,
           "idle_tail_start": 7.5
         },
         {
+          "visual": "05_references",
+          "source_start": 122.03333333333333,
+          "source_end": 148.7,
+          "idle_tail_start": 6.6
+        },
+        {
           "visual": "06_home_return",
-          "source_start": 157.50000000000003,
-          "source_end": 184.13333333333335,
+          "source_start": 148.7,
+          "source_end": 175.33333333333334,
           "idle_tail_start": 5.3
         }
       ]
