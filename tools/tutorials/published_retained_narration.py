@@ -22,6 +22,32 @@ RECORD = 'published-retained-narration.json'
 CATALOG_COMPOSITION = 'published-retained-catalog-composition.json'
 
 
+def _authoring_without_generated_aliases(current, published, language):
+    """Ignore only a reproducible normal alias absent from the published scene.
+
+    This projection never edits either catalog or the canonical lesson. All other
+    fields still pass the existing exact retention comparator below.
+    """
+    projected = deepcopy(current)
+    scenes, old = projected.get('scenes'), published.get('scenes')
+    if not isinstance(scenes, list) or not isinstance(old, list) or len(scenes) != len(old):
+        return projected
+    for scene, previous in zip(scenes, old):
+        if not isinstance(scene, dict) or not isinstance(previous, dict):
+            continue
+        if 'speech_text' in scene and 'speech_text' not in previous:
+            # The maintained producer imports this same normal helper; this is
+            # not a synthesis-runtime or historical-spoken-form claim.
+            import sys
+            sys.path.insert(0, str(Path(__file__).resolve().parent / 'authoring/tools'))
+            from pronunciation import spoken_form
+            narration = scene.get('narration')
+            if not isinstance(narration, str) or scene['speech_text'] != spoken_form(narration, language):
+                raise ValueError('Unpublished speech alias differs from normal generated pronunciation')
+            scene.pop('speech_text')
+    return projected
+
+
 def published_sources(baseline, identity, *, stage=None, catalog_composition=None):
     """Require the exact published receipt, catalogs, fifty tracks and native proofs."""
     from audit_staged_catalogs import CATALOGS
@@ -64,7 +90,9 @@ def published_sources(baseline, identity, *, stage=None, catalog_composition=Non
         if catalog_composition is not None:
             _require_composed_catalog(stage, identity, catalog_composition, name, original, row)
         current = catalog_lesson(REPO / 'tools/tutorials/authoring/catalog' / name, identity)
-        require_unchanged_lesson(current, original, original, voice_inventory=inventory)
+        language = name.split('_', 1)[1][:-len('.json')]
+        compared = _authoring_without_generated_aliases(current, original, language)
+        require_unchanged_lesson(compared, original, original, voice_inventory=inventory)
         if name == 'lessons_en.json':
             require_unchanged_lesson(english, original, original, voice_inventory=inventory)
         if name.startswith('lessons_'):

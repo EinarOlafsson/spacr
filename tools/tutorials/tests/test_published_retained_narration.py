@@ -273,3 +273,84 @@ def test_composed_retention_rejects_catalog_audio_source_and_contract_tampering(
         if fault == 'sidecar_symlink':sidecar.symlink_to(preserved)
     with pytest.raises((ValueError, KeyError)):
         retained.checked_published_narration(stage, identity)
+
+
+
+def add_generated_authoring_alias(published):
+    base, stage, identity, repo = published
+    sys.path.insert(0, str(Path(retained.__file__).resolve().parent / 'authoring/tools'))
+    from pronunciation import spoken_form
+    path = repo / 'tools/tutorials/authoring/catalog/lessons_en.json'
+    catalog = json.loads(path.read_text())
+    scene = catalog['lessons'][0]['scenes'][0]
+    scene['speech_text'] = spoken_form(scene['narration'], 'en')
+    write(path, catalog)
+    return path, catalog
+
+
+def test_generated_authoring_alias_preserves_exact_published_objects_and_audio(published):
+    base, stage, identity, repo = published
+    path, catalog = add_generated_authoring_alias(published)
+    before = path.read_bytes()
+    retained.prepare(stage, identity, base)
+    tracks, proofs = retained.checked_published_narration(stage, identity)
+    assert len(tracks) == len(proofs) == 50
+    assert path.read_bytes() == before
+    assert (stage/'catalog/lessons_en.json').read_bytes() == (base/'web/catalog/lessons_en.json').read_bytes()
+    assert 'speech_text' not in json.loads((stage/'catalog/lessons_en.json').read_text())['lessons'][0]['scenes'][0]
+    record = json.loads((stage/'production'/identity/retained.RECORD).read_text())
+    assert record['current_runtime_freshness_claimed'] is False
+
+
+@pytest.mark.parametrize('fault', ['alias', 'narration', 'metadata', 'voice', 'explicit_canonical'])
+def test_generated_alias_does_not_mask_any_other_retention_change(published, fault):
+    base, stage, identity, repo = published
+    path, catalog = add_generated_authoring_alias(published)
+    lesson = catalog['lessons'][0]
+    if fault == 'alias':lesson['scenes'][0]['speech_text'] += ' Unreviewed extra speech.'
+    elif fault == 'narration':
+        lesson['scenes'][0]['narration'] = 'A different instruction.'
+        from pronunciation import spoken_form
+        lesson['scenes'][0]['speech_text'] = spoken_form(lesson['scenes'][0]['narration'], 'en')
+    elif fault == 'metadata':lesson['description'] = 'New metadata.'
+    elif fault == 'voice':lesson['narration_voices']['en'] = ['not-a-published-voice']
+    else:
+        source = repo/'tools/tutorials/lessons'/(identity+'.json')
+        canonical = json.loads(source.read_text())
+        canonical['scenes'][0]['speech_text'] = lesson['scenes'][0]['speech_text']
+        write(source, canonical)
+    write(path, catalog)
+    with pytest.raises(ValueError):retained.prepare(stage, identity, base)
+    assert not stage.exists()
+
+
+def test_published_alias_is_never_removed_or_normalized():
+    original = dict(scenes=[dict(visual='x', narration='Inspect spaCR.', speech_text='Explicit published pronunciation.')])
+    assert retained._authoring_without_generated_aliases(original, original, 'en') == original
+    changed = deepcopy(original);changed['scenes'][0]['speech_text'] = 'A changed override.'
+    projected = retained._authoring_without_generated_aliases(changed, original, 'en')
+    with pytest.raises(ValueError):retained.require_unchanged_lesson(projected, original, original)
+
+
+def test_audio_qa_uses_full_explicit_published_retention_without_legacy_original(published, monkeypatch):
+    import verify_staged_audio as qa
+    import retain_narration as legacy
+    base, stage, identity, _ = published
+    retained.prepare(stage, identity, base)
+    monkeypatch.setattr(legacy, 'retained_sources', lambda *a, **k: pytest.fail('Legacy workspace route must not consume a published record'))
+    qa.verify_retention(stage, identity, {})
+    with pytest.raises(ValueError, match='own immutable source'):
+        qa.verify_retention(stage, identity, {}, retained_from=stage)
+    (stage/'production'/identity/'audio/en/af_heart.m4a').write_bytes(b'changed actual audio')
+    with pytest.raises(ValueError):qa.verify_retention(stage, identity, {})
+
+
+def test_audio_qa_retains_legacy_dispatch_when_no_published_record(tmp_path, monkeypatch):
+    import verify_staged_audio as qa
+    import retain_narration as legacy
+    calls=[]
+    monkeypatch.setattr(legacy,'retained_sources',lambda *a,**k:calls.append((a,k)))
+    stage,original=tmp_path/'stage',tmp_path/'original'
+    qa.verify_retention(stage,'49_fixture',{'en':['af_heart']},retained_from=original)
+    assert len(calls)==1 and calls[0][0][:2]==(stage,original)
+    assert calls[0][0][3:]==('49_fixture',{'en':['af_heart']}) and calls[0][1]==dict(require_staged=True)
