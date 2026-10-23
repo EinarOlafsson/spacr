@@ -36,6 +36,27 @@ Original:  OPEN. Requested 2026-08-26 -- "on mac i do not have access to the
            spacr dropdown to the to left".
 Owner:     spacr/qt/app.py.
 
+2026-10-22 Mac regression-harness follow-up: preserve accepted menu behavior
+while making the existing tests valid and safe on their actual target OS.
+Exercise the non-Darwin branch with an explicit platform monkeypatch rather
+than asserting the host cannot be Darwin. Before importing the child app,
+redirect its QSettings constructors to owned INI/UserScope storage; XDG alone
+does not redirect macOS CFPreferences. Retain application-name/order/menu-role
+assertions and verify the reported child settings file stays in its fixture.
+No production menu change or new physical/native acceptance is implied.
+The two existing menu files pass 25 CPU/offscreen cases on macOS 26.6.1 Intel,
+source 878e911ccc plus the scoped test repair (118.06s; peak sampled aggregate
+RSS 0.760GiB). Every child QSettings instance checks containment immediately
+after construction, before writes; the child and parent also verify the
+reported settings path. These automated results retain native acceptance
+boundaries and do not require a production menu repair.
+Overall Mac automated follow-up totals 435 unit passes across 21 files,
+including these 25 menu cases; the native owner's 20 protected cases remain
+separate. No functional assertions were weakened. The 194-case packaging
+cohort's RSS sampling is incomplete after a watcher AccessDenied warning;
+the later 89-case adjacent cohort passes warning-free with the repaired
+watcher. These totals do not imply fresh physical-input acceptance.
+
 --------------------------------------------------------------------------------
 THEY HAVE NOT VANISHED. MACOS TOOK THEM, WHICH IS CORRECT.
 --------------------------------------------------------------------------------

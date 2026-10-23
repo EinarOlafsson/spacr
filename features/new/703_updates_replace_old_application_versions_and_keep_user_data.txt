@@ -134,6 +134,35 @@ regressions, not a new gate or a reason to repeat accepted tests. Continue
 with outstanding 646 work instead. Windows native acceptance remains on hold.
 The later explicit Home Linux acceptance section resumes Linux separately;
 Home general CI is separate.
+Current Mac-only follow-up on2026-10-22: all20 opt-in protected-native
+semantics cases pass in14.20s, peak sampled aggregate RSS0.164GiB under the
+owned8GiB/300s polling watchdog. These exercise unprivileged AppleScript
+transport, exact filesystem/inventory/journal/recovery behavior and Darwin
+directory exchange using only disposable fixtures. The inert32MiB read-only
+DMG is detached; a final owned-mount inspection finds none remaining. No
+administrator authorization, real application installation/removal or user-data
+mutation occurs. This supplements the accepted Mac decision and does not
+replace its manual/waived scope or claim fresh administrator/uninstall acceptance.
+
+Additional Mac unit follow-up, 2026-10-22, source 878e911ccc on macOS 26.6.1
+Intel: 44 runtime/profile, 194 packaging/refusal/rollback and 89 adjacent
+process-group/uninstall fixture cases pass (327 total across 13 files).
+These use temporary runtimes/local wheels,
+disposable filesystem fixtures and mocked authorization/tool boundaries;
+no accepted manual installer/update trial was repeated. The first two cohorts took
+80.40s/28.87s; the later 89-case cohort passed warning-free in 19.64s with
+peak sampled aggregate RSS 0.179GiB under the repaired watcher. The 194-case
+cohort's RSS watcher stopped on psutil.AccessDenied
+and emitted one harness warning: its 0.190GiB sampled peak is incomplete and
+is not full-run memory-guard evidence. Assertions all passed; the owned wrapper
+is repaired for future runs without repeating these functional checks.
+Overall newly checked Mac unit coverage is 435 passes across 21 files,
+including 25 menu cases and 83 other Mac-focused cases; 435 is not a703-only
+count. The separate 20 protected-native cases and accepted manual scope above
+remain retained, with no new administrator/user-install/data-purge claim.
+No functional assertions were weakened. The bounded explicit Mac-only gate
+check identifies no remaining ready automated Mac-only gap; physical-input,
+unavailable display modes and separately owned acceptance remain separate.
 
 Owner: the maintainer's Mac session owns any newly demonstrated Mac-specific
 regression; root retains general CI. Preserve the latest accepted scope.

@@ -30,8 +30,16 @@ display modes. One90% Preferences popup opens582x568 with eight reachable tabs,
 scroll bottoms through maximum1667 and resize freedom. Three18px Modules
 switches expose a sizing regression; the scoped Toggle repair and native
 recheck restore all nine switches to at least19px with three click/restore
-checks and normal exit0. Retain earlier90% EN/DE matrices; physical input and
-restart persistence remain separate. No installer/VoiceOver/sound repeats.
+checks and normal exit0. Retain earlier90% EN/DE matrices; physical input
+remains separate. No installer/VoiceOver/sound repeats.
+The two-process Cocoa restart check passes with one isolated90% profile and
+client1280x680: seven user fold/open states for Settings/TopBar/BottomBar/Title
+and Shortcut list/Console/System restore exactly, including the persisted
+mapping. Automatic narrow-side folding is not remembered; transient reopening
+preserves that mapping. Controls/footer remain reachable (canvas884x208,
+footer886x27), frame fits the actual work area and both processes close
+normally with exit0. This is automated persistence evidence, not physical-input
+or a new saved-main-window-geometry contract.
 
 Follow spacr/resources/AI/MAC_HANDOFF.md and finish running N703/N646 first.
 The Mac session owns real-display layout/input acceptance and Mac-specific
