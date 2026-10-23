@@ -2223,33 +2223,7 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
     return np.asarray(image).copy(), tuple(errors)
 
 
-class _OverviewWellDelegate(QStyledItemDelegate):
-    """Paint each well image above its complete address and field count."""
-
-    def paint(self, painter, option, index):
-        """Use native cell geometry for the image and two-line caption."""
-        from PySide6.QtCore import QRect
-        from PySide6.QtGui import QPalette
-        from PySide6.QtWidgets import QStyle, QStyleOptionViewItem
-
-        opts = QStyleOptionViewItem(option)
-        self.initStyleOption(opts, index)
-        option.widget.style().drawPrimitive(QStyle.PE_PanelItemViewItem, opts, painter, option.widget)
-        painter.save()
-        rect = option.rect.adjusted(4, 4, -4, -4)
-        caption_height = option.fontMetrics.height() * 2 + 4
-        image_rect = QRect(rect.left(), rect.top(), rect.width(), max(0, rect.height() - caption_height))
-        icon = index.data(Qt.DecorationRole)
-        if icon is not None:
-            icon.paint(painter, image_rect, Qt.AlignCenter)
-        colour = QPalette.HighlightedText if option.state & QStyle.State_Selected else QPalette.Text
-        painter.setPen(option.palette.color(colour))
-        text_rect = QRect(rect.left(), rect.bottom() - caption_height + 1, rect.width(), caption_height)
-        painter.drawText(text_rect, Qt.AlignCenter | Qt.TextWordWrap, str(index.data(Qt.DisplayRole) or ""))
-        painter.restore()
-
-
-class _OverviewPlateDelegate(_OverviewWellDelegate):
+class _OverviewPlateDelegate(QStyledItemDelegate):
     """Show the active physical well beneath a translucent blue hover."""
 
     def paint(self, painter, option, index):
