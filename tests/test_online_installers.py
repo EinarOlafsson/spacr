@@ -257,7 +257,7 @@ def test_online_installers_default_to_the_core_package_and_keep_overrides():
 def test_bootstraps_do_not_register_their_private_python_globally():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
-    assert 'python install "$PYTHON_VERSION" --managed-python --no-bin' in unix
+    assert 'python install "$PYTHON_REQUEST" --managed-python --no-bin' in unix
     assert (
         "python install $PythonVersion --managed-python --no-bin --no-registry"
         in windows

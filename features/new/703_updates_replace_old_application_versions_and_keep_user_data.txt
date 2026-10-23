@@ -259,6 +259,23 @@ Pass/reporting boundary
   platform lanes are on hold and do not reopen the accepted 703 scope. Do not
   implement or reopen 655 here; preserve separately recorded acceptance.
 
+APPLE SILICON MIXED-ARCHITECTURE INSTALLATION — 2026-10-22
+Priority: urgent maintainer-reported failure; owner: f559_pinned_weights for
+bounded installer/dependency prevention, root for recovery instructions and
+publication. The reported Intel Conda Python selects x86_64 wheels on Apple
+Silicon, while the available compiler tools contain arm64/arm64e only. Preserve
+that environment and supported Intel installations; do not downgrade packages
+to conceal the architecture mismatch. Detect actual native versus translated
+bootstrap where applicable, preserve explicit supported architecture choices,
+and validate the smallest relevant architecture controls. The maintainer also
+requires automatic compatible dependency selection for pip and Conda installs:
+verify affected Intel/ARM macOS wheel availability and use only demonstrated
+architecture-specific compatible bounds, preserving newest ARM dependencies.
+Do not require users to repair compilers or destructively convert environments;
+direct pip cannot migrate an existing interpreter. Reuse the affected existing
+Conda recipe and verify actual binary resolution for both architectures. No Mac/native success or compiler availability
+is inferred from Linux tests; root coordinates the producer's generated outputs.
+
 2026-10-13 21:00 EDT — HOME SOURCE AUDIT, NOT NATIVE ACCEPTANCE
 --------------------------------------------------------------------------------
 
@@ -1158,4 +1175,4 @@ Old-to-new desktop acceptance remains open: this Mac and the current candidate a
 Windows updater ownership (resumed 2026-10-22): Codex windows_backend owns genuine retained1.5.1.5 to nightly candidate1.5.1.6 (8e6a76b38) staging/identity/cancel/rollback/restart acceptance using the actual candidate wheel, existing offline wheelhouse and native ACL checks. Root authorizes the heavy transaction lane after bundle refresh; windows_scope owns uninstall/cleanup and F587 owns installer PowerShell. Preserve accepted Mac/Linux results, all user files and recorded child-lease passes; no fabricated versions or live registry/profile changes.
 Native repair requirement (2026-10-22): real staging hit WinError3 copying three deep PySide6 QML object files beyond MAX_PATH. windows_backend owns Windows extended-path handling for complete staging, guarded inventories/ACL checks, rollback and abandoned-stage removal; retain normal displayed/journal paths, every payload file and all existing identity/private-volume guards. No registry long-path toggle or skipped files. The original1.5.1.5 runtime remains intact; actual cancel/rollback/restart resumes on the repaired candidate.
 
-2026-10-22 — Native Windows build22631/Python3.12.13: real old1.5.1.5 Home/interpreter/module identity passes; attempted1.5.1.6 staging safely preserves it after WinError3 on three deep PySide6 payload paths. Windows filesystem boundaries now use extended paths for complete copy/ACL/inventory checks, rollback and abandoned-copy removal while journals/commands keep normal paths and UNC/device/foreign-write guards remain.49 focused checks pass, including native deep-file commit/rollback/removal and ACL-identity controls; no public API prose/signatures or generated references change. Full genuine candidate cancel/rollback/restart retry awaits the normal rebuilt wheel and heavy-lane handoff; accepted Mac/Linux and prior child-lease results remain retained.
+2026-10-22 — Native Windows build22631/Python3.12.13: real old1.5.1.5 Home/interpreter/module identity passes; attempted1.5.1.6 staging safely preserves it after WinError3 on three deep PySide6 payload paths. Windows filesystem boundaries now use extended paths for complete copy/ACL/inventory checks, rollback and abandoned-copy removal while journals/commands keep normal paths and UNC/device/foreign-write guards remain.49 focused checks pass, including native deep-file commit/rollback/removal and ACL-identity controls; no public API prose/signatures or generated references change. Full genuine candidate cancel/rollback/restart retry awaits the normal rebuilt wheel and heavy-lane handoff; accepted Mac/Linux and prior child-lease results remain retained. Separate Mac installation repair: verified Rosetta online bootstraps restart natively and all managed Python requests bind architecture; offline targets remain unchanged. Intel Darwin metadata/flow-gpu and released-installer guards select ModernGL5.12, GLContext3.0 and Cryptography48, retaining newest ARM releases. Twelve unique focused controls pass (six retained and six affected fixture reruns); actual CPython3.12/macOS26 binary dependency downloads pass for both architectures with Paramiko5.1. Native Mac execution, other Python/OS combinations and existing scientific/newer-release gates are not newly accepted.

@@ -698,3 +698,33 @@ def test_the_conda_recipe_names_nvidias_bindings_and_not_the_retired_wrapper():
         "setup.py stopped declaring nvidia-ml-py, so the recipe would be the "
         "only file naming it and this check no longer compares two halves"
     )
+
+
+@pytest.mark.parametrize("machine,system", [("x86_64", "darwin"), ("arm64", "darwin"),
+                                             ("x86_64", "linux"), ("AMD64", "win32")])
+def test_mac_intel_graphics_and_crypto_select_the_supported_wheel_lines(machine, system):
+    from packaging.markers import default_environment
+    from packaging.requirements import Requirement
+
+    environment = default_environment()
+    environment.update(sys_platform=system, platform_machine=machine,
+                       python_version="3.12", python_full_version="3.12.15")
+    tree = ast.parse(SETUP_PY.read_text(encoding="utf-8"))
+    call = next(node for node in ast.walk(tree)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id == "setup")
+    extras = ast.literal_eval(next(kw.value for kw in call.keywords
+                                  if kw.arg == "extras_require"))
+    for values in (_core_dependencies(), _core_dependencies() + extras["flow-gpu"]):
+        requirements = [Requirement(value) for value in values]
+        selected = [req for req in requirements
+                    if req.marker is None or req.marker.evaluate(environment)]
+        for name, supported, latest in (("moderngl", "5.12.0", "5.13.0"),
+                                         ("glcontext", "3.0.0", "3.1.0"),
+                                         ("cryptography", "48.0.1", "50.0.2")):
+            matching = [req for req in selected if _norm(req.name) == name]
+            assert all(supported in req.specifier for req in matching)
+            if system == "darwin" and machine == "x86_64":
+                assert matching and not all(latest in req.specifier for req in matching)
+            else:
+                assert all(latest in req.specifier for req in matching)

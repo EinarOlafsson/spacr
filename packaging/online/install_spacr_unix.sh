@@ -196,6 +196,22 @@ if [[ "$PLATFORM" != "linux" && "$PLATFORM" != "macos" ]]; then
     exit 2
 fi
 
+# An online managed install follows the Mac's native architecture, including
+# when a terminal or caller is translated by Rosetta. Offline bundles retain
+# their explicitly selected architecture and never change process mode here.
+if [[ "$PLATFORM" == "macos" && -z "$OFFLINE_BUNDLE" && "$(uname -s)" == "Darwin" ]] && \
+        [[ "$(sysctl -in sysctl.proc_translated 2>/dev/null || true)" == "1" ]]; then
+    exec /usr/bin/arch -arm64 /bin/bash "${BASH_SOURCE[0]}" "${SPACR_ORIGINAL_ARGS[@]}"
+fi
+
+PYTHON_REQUEST="$PYTHON_VERSION"
+if [[ "$PLATFORM" == "macos" && -z "$OFFLINE_BUNDLE" ]]; then
+    case "$(uname -m)" in
+        arm64|aarch64) PYTHON_REQUEST="cpython-$PYTHON_VERSION-macos-aarch64-none" ;;
+        x86_64) PYTHON_REQUEST="cpython-$PYTHON_VERSION-macos-x86_64-none" ;;
+    esac
+fi
+
 # Record detected hardware for validation and the install profile. Automatic
 # backend selection is the user-facing default: uv chooses CUDA on compatible
 # NVIDIA systems and falls back to the portable wheel elsewhere. An explicit
@@ -239,6 +255,9 @@ if [[ "$PLATFORM" == "macos" && "$(uname -m)" == "x86_64" ]]; then
         "opencv-python-headless<4.12"
         "numba>=0.60,<0.63"
         "llvmlite>=0.43,<0.46"
+        "moderngl>=5.12,<5.13"
+        "glcontext>=3.0,<3.1"
+        "cryptography<49"
     )
 fi
 # wgpu publishes Linux wheels for glibc 2.28 and newer only; on an older
@@ -872,9 +891,9 @@ export UV_PYTHON_CACHE_DIR="$work_dir/python-downloads"
 
 spacr_say downloading_python "$PYTHON_VERSION"
 UV_PYTHON_INSTALL_DIR="$work_dir/python" UV_CACHE_DIR="$work_dir/cache" \
-    "$work_uv" python install "$PYTHON_VERSION" --managed-python --no-bin
+    "$work_uv" python install "$PYTHON_REQUEST" --managed-python --no-bin
 cleanup_python="$(UV_PYTHON_INSTALL_DIR="$work_dir/python" \
-    "$work_uv" python find "$PYTHON_VERSION" --managed-python)"
+    "$work_uv" python find "$PYTHON_REQUEST" --managed-python)"
 cleanup_module="$work_dir/install_cleanup.py"
 spacr_write_cleanup_module "$cleanup_module"
 profile_module="$work_dir/install_profile.py"
@@ -904,12 +923,12 @@ mv "$work_uv" "$UV_BIN"
 export UV_PYTHON_INSTALL_DIR="$PYTHON_DIR"
 export UV_CACHE_DIR="$CACHE_DIR"
 
-"$UV_BIN" python install "$PYTHON_VERSION" --managed-python --no-bin
+"$UV_BIN" python install "$PYTHON_REQUEST" --managed-python --no-bin
 
 spacr_say creating_environment
 rm -rf "$stage_venv"
 "$UV_BIN" venv "$stage_venv" \
-    --python "$PYTHON_VERSION" --managed-python --relocatable
+    --python "$PYTHON_REQUEST" --managed-python --relocatable
 
 stage_python="$stage_venv/bin/python"
 

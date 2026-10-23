@@ -135,3 +135,116 @@ def test_generated_uninstaller_isolates_both_installed_helper_invocations(tmp_pa
     calls = [call.splitlines() for call in record.read_text(encoding='utf-8').split('CALL\n')[1:]]
     assert calls == [['-I', '-m', 'spacr.install_cleanup', 'purge', '--yes'],
                      ['-I', '-m', 'spacr.install_cleanup', 'remove', '--only-root', str(root)]]
+
+
+@pytest.mark.parametrize('machine,translated,offline,expected', [
+    ('x86_64', '1', False, 'aarch64'),
+    ('arm64', '0', False, 'aarch64'),
+    ('x86_64', '0', False, 'x86_64'),
+    ('x86_64', 'unknown', False, 'x86_64'),
+    ('x86_64', '1', True, None),
+])
+def test_mac_installer_follows_native_architecture_but_preserves_offline_target(
+        tmp_path, machine, translated, offline, expected):
+    import json
+    from tests.test_online_installers import _standalone_unix_installer
+
+    installer = _standalone_unix_installer(tmp_path)
+    record = tmp_path / 'architecture.txt'
+    driver = tmp_path / 'driver.sh'
+    driver.write_text('''
+uname() {
+    case "$1" in
+        -s) printf 'Darwin\\n' ;;
+        -m) printf '%s\\n' "$TEST_MACHINE" ;;
+        *) command uname "$@" ;;
+    esac
+}
+sysctl() {
+    [[ "$TEST_TRANSLATED" != unknown ]] || return 1
+    printf '%s\\n' "$TEST_TRANSLATED"
+}
+exec() {
+    [[ "$1" == /usr/bin/arch && "$2" == -arm64 && "$3" == /bin/bash ]] || return 98
+    printf 'NATIVE\\n' >> "$ARCH_RECORD"
+    TEST_MACHINE=arm64 TEST_TRANSLATED=0 command "$3" "${@:4}"
+    exit "$?"
+}
+trap 'printf "%s|%s|%s\\n" "${PYTHON_REQUEST-unset}" "${DETECTED_ACCELERATOR-unset}" "${RESOLVER_GUARDS[*]-unset}" >> "$ARCH_RECORD"' EXIT
+''', encoding='utf-8')
+    install = tmp_path / 'managed root'
+    preserved = install / 'user-data.txt'
+    install.mkdir()
+    preserved.write_text('unchanged', encoding='utf-8')
+    args = ['--platform', 'macos', '--install-root', str(install),
+            '--package-spec', 'spacr==1.5.1.6', '--without-wgpu', '--dry-run']
+    if offline:
+        bundle = tmp_path / 'Intel offline bundle'
+        bundle.mkdir()
+        (bundle / 'bundle.json').write_text(json.dumps({
+            'torch_backend': 'cpu', 'package_spec': 'spacr==1.5.1.6',
+            'target': 'macos-x86_64'}), encoding='utf-8')
+        args.extend(['--offline-bundle', str(bundle)])
+    env = dict(os.environ, BASH_ENV=str(driver), TEST_MACHINE=machine,
+               TEST_TRANSLATED=translated, ARCH_RECORD=str(record),
+               UV_PYTHON_ARCH='x86_64')
+    env.pop('SPACR_OFFLINE_BUNDLE', None)
+    result = subprocess.run(['/bin/bash', str(installer), *args], env=env,
+                            capture_output=True, text=True, timeout=10)
+    assert result.returncode == 0, result.stderr
+    lines = record.read_text(encoding='utf-8').splitlines()
+    assert ('NATIVE' in lines) == (translated == '1' and not offline)
+    request, accelerator, guards = next(line.split('|') for line in lines
+                                        if line.startswith('cpython-') or line.startswith('3.12|'))
+    assert request == ('3.12' if offline else f'cpython-3.12-macos-{expected}-none')
+    assert accelerator == ('apple-silicon' if expected == 'aarch64' else 'none')
+    assert ('cryptography<49' in guards) == (expected == 'x86_64' or offline)
+    assert str(install) in result.stdout and 'spacr==1.5.1.6' in result.stdout
+    assert preserved.read_text(encoding='utf-8') == 'unchanged'
+    assert list(install.iterdir()) == [preserved]
+
+
+def test_managed_mac_requests_cannot_reuse_a_cached_intel_python(tmp_path):
+    source = SOURCE.read_text(encoding='utf-8')
+    initial = source[source.index('UV_PYTHON_INSTALL_DIR="$work_dir/python" UV_CACHE_DIR="$work_dir/cache"'):source.index('cleanup_module="$work_dir/install_cleanup.py"')]
+    final = source[source.index('"$UV_BIN" python install "$PYTHON_REQUEST"'):source.index('stage_python="$stage_venv/bin/python"')]
+    cache = tmp_path / 'python'
+    intel = cache / 'cpython-3.12-macos-x86_64-none/bin/python'
+    arm = cache / 'cpython-3.12-macos-aarch64-none/bin/python'
+    intel.parent.mkdir(parents=True)
+    intel.write_bytes(b'old Intel runtime')
+    record = tmp_path / 'uv-calls.txt'
+    env = dict(os.environ, work_dir=str(tmp_path), PYTHON_DIR=str(cache),
+               stage_venv=str(tmp_path / 'stage'), PYTHON_VERSION='3.12',
+               PYTHON_REQUEST='cpython-3.12-macos-aarch64-none',
+               UV_PYTHON_ARCH='x86_64', UV_RECORD=str(record),
+               INTEL_PYTHON=str(intel), ARM_PYTHON=str(arm))
+    script = '''set -Eeuo pipefail
+spacr_say() { :; }
+capture_uv() {
+    printf '%s\\n' CALL "$@" >> "$UV_RECORD"
+    if [[ "$1 $2" == "python find" ]]; then
+        if [[ "$3" == cpython-3.12-macos-aarch64-none ]]; then
+            printf '%s\\n' "$ARM_PYTHON"
+        else
+            printf '%s\\n' "$INTEL_PYTHON"
+        fi
+    fi
+}
+work_uv=capture_uv
+UV_BIN=capture_uv
+''' + initial + final + '\nprintf "%s" "$cleanup_python"\n'
+    result = subprocess.run(['/bin/bash', '-c', script], env=env,
+                            capture_output=True, text=True, timeout=10)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == str(arm)
+    calls = [call.splitlines() for call in record.read_text().split('CALL\n')[1:]]
+    assert len(calls) == 4
+    assert calls[:3] == [
+        ['python', 'install', env['PYTHON_REQUEST'], '--managed-python', '--no-bin'],
+        ['python', 'find', env['PYTHON_REQUEST'], '--managed-python'],
+        ['python', 'install', env['PYTHON_REQUEST'], '--managed-python', '--no-bin'],
+    ]
+    assert calls[3] == ['venv', env['stage_venv'], '--python', env['PYTHON_REQUEST'],
+                        '--managed-python', '--relocatable']
+    assert intel.read_bytes() == b'old Intel runtime'
