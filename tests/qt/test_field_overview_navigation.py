@@ -280,7 +280,10 @@ def test_real_wizard_conditions_reach_reference_plan_and_browser(source_planes, 
         if wizard.conditions.item(row, 1).text() == "A01":
             wizard.conditions.item(row, 2).setText("control")
     _choose(wizard.mode, "reference_condition")
-    _choose(wizard.reference, "control")
+    reference = ("p1", "control")
+    index = next(index for index in range(wizard.reference.count())
+                 if wizard.reference.itemData(index) == reference)
+    wizard.reference.setCurrentIndex(index)
     configuration = wizard.configuration()
     expected = configuration["normalization"]["conditions"]
     assert expected
@@ -293,7 +296,7 @@ def test_real_wizard_conditions_reach_reference_plan_and_browser(source_planes, 
                         and not dialog._index_jobs.is_busy(), timeout=10000)
         assert dialog._conditions == expected
         assert dialog._normalization_plan["mode"] == "reference_condition"
-        assert dialog._normalization_plan["reference"] == "control"
+        assert dialog._normalization_plan["reference"] == reference
         expected_count = sum(field.well == "A01" and field.time_id == dialog.time_axis.currentData()
                              and field.z_id == dialog.z_axis.currentData() for field in dialog._fields)
         assert dialog._normalization_plan["sample_fields"] == expected_count

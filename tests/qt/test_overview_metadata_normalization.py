@@ -213,7 +213,7 @@ def test_metadata_wizard_reads_real_preset_channels_and_explicit_scope(qtbot, tm
     wizard.mode.setCurrentIndex(wizard.mode.findData("reference_condition"))
     config = wizard.configuration()
     assert config["normalization"]["conditions"] == {("plate1", "E01"): "vehicle"}
-    assert config["normalization"]["reference"] == "vehicle"
+    assert config["normalization"]["reference"] == ("plate1", "vehicle")
     wizard.reject()
     assert all(np.all(tifffile.imread(path) == int(path.stem[-2:]))
                for path in tmp_path.glob("*.tif"))
