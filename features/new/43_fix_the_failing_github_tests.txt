@@ -1,4 +1,11 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT HEADLESS WGPU BUFFER PROTOCOL — 2026-10-23
+widgets_g4 owns the five Main minimum2 recording-renderer failures. Complete
+the fake queue's buffer-write protocol for reused uniform buffers and isolate
+independent refusal cases after a failed frame quarantines its renderer. Retain
+all render, dispatch, reuse, resize and release assertions. Production stays
+unchanged. Validate only the five CPU/offscreen cases; root publishes.
+
 CURRENT NATIVE CRASH DUMP PATH FALLBACKS — 2026-10-23
 widgets_g2 owns the three Main221 Coverage11 crash-dump failures; root reviews
 and publishes. Guard optional logging-helper resolution and accept string or
@@ -4695,3 +4702,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — The overview measurement staging connection now explicitly waits up to 30 seconds while retaining its existing temporary transaction behavior and destination atomic writer. The exact Main69 SQLite timeout gate passes on source-bound Main d28 (1 test, 7.92s); independent review accepted. No API, caption or generated line-offset changes; root integration/publication pending.
 
 2026-10-23 — obsolete_repo_cleanup owns the source-bound notebook freshness failure from Main69 minimum2: regenerate the maintained classifier notebook and mask/classifier reference pages against the current release candidate with the existing producer; retain compact controls and all settings, then validate the owning freshness assertion without a notebook redesign.
+
+2026-10-23 — The headless wgpu queue now records real uniform-buffer writes, and independent refusal fixtures close quarantined renderers before continuing. All five affected cases pass (four retained from the 0.93s cohort; the corrected refusal case passes in 0.69s). Independent peer accepted; production rendering and all original assertions are unchanged. No GPU was used.
