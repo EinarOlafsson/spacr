@@ -1,8 +1,13 @@
 ================================================================================
-PLAQUE ROUND 5 COVERS FOUR DOMAINS; NOTHING IN spaCR OR ON HUGGINGFACE KNOWS IT
-YET
+PLAQUE MODEL PUBLICATION AND V6 INTEGRATION
 ================================================================================
 
+CURRENT PLAQUE V6 HANDOFF — 2026-10-23
+Status:    OPEN — awaiting the training session’s verified v6 handoff; published v5 delivery is retained.
+Owner:     plaque model session; easy_n79 integration watch; root publication.
+The maintainer requests integration when v6 arrives. Keep the existing v5 default until checkpoint/architecture, channels, immutable checksums and scorecard are verified; then integrate the registry and required published assets with CPU-only load/sample checks and normal generated documentation. Do not touch the other session’s training or use the Home GPU.
+
+BASELINE DELIVERY HISTORY
 Status:    DONE 2026-09-20 — published and listed; PROMOTED 2026-09-21:
            toxoplasma_plaque_v2 (cpsam_plaque_r5) is Plaque Assay's default
            plaque model, the maintainer's choice, and the Make Masks and Plaque

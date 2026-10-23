@@ -689,9 +689,168 @@ def test_horseshoe_says_which_module_it_needs_when_it_is_missing(
         perform_regression(settings)
 
 
+def _horseshoe_input_fingerprint(data):
+    import hashlib
+    import json
+
+    from spacr import power_model as pm
+
+    arrays = {
+        "X": data.log10expression, "y": data.Npositive,
+        "exposure": data.Ntotal, "weights": pm._observation_weights(data),
+        "prepared_X": pm._prepare_design(data, True)[0],
+    }
+    fingerprints = {}
+    for name, values in arrays.items():
+        array = np.ascontiguousarray(values)
+        fingerprints[name] = {
+            "shape": list(array.shape), "dtype": str(array.dtype),
+            "sha256": hashlib.sha256(array.tobytes()).hexdigest(),
+        }
+    for name, values in (("physical_ids", data.likelihood_well_ids),
+                         ("wells", data.wells.tolist()),
+                         ("genes", data.genes.tolist())):
+        encoded = json.dumps(values, default=str, separators=(",", ":"))
+        fingerprints[name] = hashlib.sha256(encoded.encode()).hexdigest()
+    d, n = pm._prior_calibration_counts(data, None)
+    fingerprints["calibration"] = {
+        "identified_predictors": d, "independent_observations": n,
+        "tau0": pm._horseshoe_global_scale(d, n, None, None),
+    }
+    return fingerprints
+
+
+def _write_horseshoe_failure_diagnostics(directory, fits):
+    import importlib.metadata
+    import json
+    import platform
+    import sys
+
+    from spacr import power_model as pm
+
+    directory.mkdir(parents=True, exist_ok=True)
+    report = {
+        "python": sys.version, "platform": platform.platform(),
+        "environment": {key: os.environ.get(key) for key in (
+            "CUDA_VISIBLE_DEVICES", "JAX_PLATFORMS", "JAX_ENABLE_X64",
+            "XLA_FLAGS", "OMP_NUM_THREADS", "MKL_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS")},
+        "dependencies": {}, "fits": [],
+    }
+    for name in ("numpy", "scipy", "pandas", "patsy", "numpyro", "jax",
+                 "jaxlib", "ml_dtypes"):
+        module = sys.modules.get(name)
+        try:
+            version = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            version = None
+        report["dependencies"][name] = {
+            "version": version, "path": getattr(module, "__file__", None),
+        }
+    jax = sys.modules.get("jax")
+    if jax is not None:
+        report["jax"] = {
+            "backend": jax.default_backend(),
+            "devices": [str(device) for device in jax.devices()],
+            "local_device_count": jax.local_device_count(),
+            "x64_outside_fit_context": bool(jax.config.x64_enabled),
+        }
+    for index, fit in enumerate(fits):
+        record = {
+            "inputs": _horseshoe_input_fingerprint(fit.data),
+            "backend": fit.backend, "seed": fit.seed,
+            "converged": fit.converged, "diagnostics": fit.diagnostics,
+            "genes": fit.genes.tolist(), "draw_dtype": str(fit.draws.dtype),
+        }
+        draws = np.asarray(fit.draws)
+        identified = pm._prepare_design(fit.data, True)[3]
+        record["identified_draws_finite"] = bool(
+            np.isfinite(draws[:, identified]).all())
+        record["unidentified_columns"] = np.flatnonzero(~identified).tolist()
+        chains = fit.diagnostics.get("n_chains")
+        samples = fit.diagnostics.get("n_samples")
+        if fit.backend == "numpyro" and chains and samples:
+            from numpyro.diagnostics import effective_sample_size
+
+            grouped = draws.reshape(chains, samples, -1)[:, :, identified]
+            record["beta_ess"] = np.asarray(effective_sample_size(grouped)).tolist()
+            signs = (grouped > 0).astype(float)
+            probability = signs.mean(axis=(0, 1))
+            ess = np.asarray(effective_sample_size(signs))
+            record["sign"] = {
+                "genes": fit.genes[identified].tolist(),
+                "positive_probability": probability.tolist(),
+                "two_sided_tail": (2 * np.minimum(probability, 1-probability)).tolist(),
+                "ess": ess.tolist(),
+                "tail_mcse": (2 * np.sqrt(probability * (1-probability) / ess)).tolist(),
+                "caveat": "Monte Carlo error assumes unbiased sampling; divergences remain disqualifying.",
+            }
+        np.savez_compressed(
+            directory / f"fit-{index}.npz", beta=draws,
+            X=fit.data.log10expression, y=fit.data.Npositive,
+            exposure=fit.data.Ntotal,
+            weights=pm._observation_weights(fit.data),
+            physical_ids=np.asarray(fit.data.likelihood_well_ids or (), dtype=str),
+        )
+        report["fits"].append(record)
+    encoded = json.dumps(report, default=lambda value: np.asarray(value).tolist())
+    (directory / "diagnostics.json").write_text(encoded + "\n")
+    print("HORSESHOE_FAILURE_DIAGNOSTICS", str(directory), encoded)
+
+
+def test_horseshoe_failure_capture_preserves_inputs_draws_and_tail(tmp_path, capsys):
+    pytest.importorskip("numpyro")
+    import hashlib
+    import json
+
+    from spacr import power_model as pm
+
+    data = pm.ModelData(
+        wells=np.repeat(["w1", "w2", "w3", "w4"], 2),
+        genes=np.array(["A", "B"]),
+        Npositive=np.repeat([1, 2, 3, 4], 2), Ntotal=np.full(8, 12),
+        log10expression=np.repeat(
+            [[0., 0.], [1., 0.], [0., 1.], [1., 1.]], 2, axis=0),
+        likelihood_weights=np.full(8, 0.5),
+        likelihood_well_ids=tuple(
+            ("screen", "plate", "r1", column)
+            for column in ("c1", "c2", "c3", "c4") for _ in range(2)),
+    )
+    draws = np.random.default_rng(71).normal(size=(64, 2))
+    fit = pm.PowerFit(
+        backend="numpyro", requested_backend="numpyro", method="nuts",
+        draws=draws, intercept_draws=np.zeros(64), genes=data.genes,
+        converged=False, diagnostics={"n_chains": 4, "n_samples": 16,
+                                      "n_divergent": 2}, data=data, seed=0,
+    )
+    directory = tmp_path / "capture"
+    _write_horseshoe_failure_diagnostics(directory, [fit])
+    report = json.loads((directory / "diagnostics.json").read_text())
+    record = report["fits"][0]
+    assert record["seed"] == 0
+    assert record["converged"] is False
+    assert record["diagnostics"]["n_divergent"] == 2
+    assert record["inputs"]["calibration"]["identified_predictors"] == 2
+    assert record["inputs"]["calibration"]["independent_observations"] == 4
+    assert record["inputs"]["y"]["sha256"] == hashlib.sha256(data.Npositive.tobytes()).hexdigest()
+    probability = (draws > 0).mean(axis=0)
+    np.testing.assert_array_equal(record["sign"]["positive_probability"], probability)
+    np.testing.assert_array_equal(record["sign"]["two_sided_tail"],
+                                  2 * np.minimum(probability, 1-probability))
+    assert np.isfinite(record["sign"]["tail_mcse"]).all()
+    with np.load(directory / "fit-0.npz", allow_pickle=False) as saved:
+        np.testing.assert_array_equal(saved["beta"], draws)
+        np.testing.assert_array_equal(saved["X"], data.log10expression)
+        np.testing.assert_array_equal(saved["y"], data.Npositive)
+        np.testing.assert_array_equal(saved["exposure"], data.Ntotal)
+        np.testing.assert_array_equal(saved["weights"], data.likelihood_weights)
+        np.testing.assert_array_equal(saved["physical_ids"], data.likelihood_well_ids)
+    assert "HORSESHOE_FAILURE_DIAGNOSTICS" in capsys.readouterr().out
+
+
 @pytest.mark.slow
 def test_horseshoe_fits_through_power_model_and_finds_the_planted_gene(
-        tmp_path, stubs):
+        tmp_path, stubs, monkeypatch):
     """The real spaCRPower model, reached as an ordinary regression choice.
 
     The response reaching it is the per-well POSITIVE COUNT and the exposure
@@ -703,37 +862,64 @@ def test_horseshoe_fits_through_power_model_and_finds_the_planted_gene(
     pytest.importorskip("spacr.power_model")
     from spacr.ml import perform_regression
 
-    score, count = write_screen(tmp_path, response="binary")
-    settings = settings_for(score, count, regression_type="horseshoe")
-    out = perform_regression(settings)
+    from spacr import power_model as pm
 
-    assert_recovers_the_planted_gene(out["results"], "horseshoe")
-    coefficients = gene_coefficients(out["results"])
-    others = [abs(v) for g, v in coefficients.items() if g != HIT_GENE]
-    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): the gene fit is its
-    # own model now, with five candidate columns instead of the twenty of the
-    # old combined design, and a horseshoe shrinks less hard when it has fewer
-    # candidates to shrink. Measured on this fixture: the hit is +0.0673 and
-    # the widest null is -0.0190, a ratio of 3.55 where the old collinear
-    # design gave more than 5 -- but the old design's gene coefficients were
-    # one arbitrary solution out of infinitely many, because gene_fraction is
-    # the SUM of the gene's guide fractions.
-    #
-    # THE SEPARATION IS NOW ASSERTED WHERE THE HORSESHOE ACTUALLY MAKES IT --
-    # in the posterior. The hit's tail mass is 0.000 and every null's is above
-    # 0.1, which is a cleaner statement than a magnitude ratio and is the
-    # quantity a reader would report.
-    assert abs(coefficients[HIT_GENE]) > 3 * max(others), (
-        "the horseshoe did not separate the hit from the nulls: "
-        f"{coefficients}")
-    genes = out["results"]
-    genes = genes[genes["feature"].str.startswith("gene_fraction:gene[")]
-    hit = genes[genes["feature"].str.contains(HIT_GENE)]
-    nulls = genes[~genes["feature"].str.contains(HIT_GENE)]
-    assert float(hit["p_value"].iloc[0]) < 0.01, hit.to_dict("records")
-    assert (nulls["p_value"] > 0.1).all(), nulls.to_dict("records")
-    # p_value here is a posterior tail mass, so it must still be a probability.
-    assert out["results"]["p_value"].between(0.0, 1.0).all()
+    fits = []
+    original_fit = pm.fit_model
+
+    def observe_fit(*args, **kwargs):
+        fit = original_fit(*args, **kwargs)
+        fits.append(fit)
+        return fit
+
+    monkeypatch.setattr(pm, "fit_model", observe_fit)
+    try:
+        score, count = write_screen(tmp_path, response="binary")
+        settings = settings_for(score, count, regression_type="horseshoe")
+        out = perform_regression(settings)
+
+        assert_recovers_the_planted_gene(out["results"], "horseshoe")
+        coefficients = gene_coefficients(out["results"])
+        others = [abs(v) for g, v in coefficients.items() if g != HIT_GENE]
+        # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): the gene fit is its
+        # own model now, with five candidate columns instead of the twenty of the
+        # old combined design, and a horseshoe shrinks less hard when it has fewer
+        # candidates to shrink. Measured on this fixture: the hit is +0.0673 and
+        # the widest null is -0.0190, a ratio of 3.55 where the old collinear
+        # design gave more than 5 -- but the old design's gene coefficients were
+        # one arbitrary solution out of infinitely many, because gene_fraction is
+        # the SUM of the gene's guide fractions.
+        #
+        # THE SEPARATION IS NOW ASSERTED WHERE THE HORSESHOE ACTUALLY MAKES IT --
+        # in the posterior. The hit's tail mass is 0.000 and every null's is above
+        # 0.1, which is a cleaner statement than a magnitude ratio and is the
+        # quantity a reader would report.
+        assert abs(coefficients[HIT_GENE]) > 3 * max(others), (
+            "the horseshoe did not separate the hit from the nulls: "
+            f"{coefficients}")
+        genes = out["results"]
+        genes = genes[genes["feature"].str.startswith("gene_fraction:gene[")]
+        hit = genes[genes["feature"].str.contains(HIT_GENE)]
+        nulls = genes[~genes["feature"].str.contains(HIT_GENE)]
+        assert float(hit["p_value"].iloc[0]) < 0.01, hit.to_dict("records")
+        assert (nulls["p_value"] > 0.1).all(), nulls.to_dict("records")
+        # p_value here is a posterior tail mass, so it must still be a probability.
+        assert out["results"]["p_value"].between(0.0, 1.0).all()
+
+    except AssertionError:
+        try:
+            from pathlib import Path
+
+            runner_temp = os.environ.get("RUNNER_TEMP")
+            directory = (Path(runner_temp) / "spacr-scientific-diagnostics"
+                         if runner_temp else tmp_path / "horseshoe-failure")
+            _write_horseshoe_failure_diagnostics(directory, fits)
+        except Exception as error:
+            try:
+                print("HORSESHOE_FAILURE_DIAGNOSTICS_ERROR", repr(error))
+            except Exception:
+                pass
+        raise
 
 
 def test_horseshoe_drops_terms_it_could_not_identify(tmp_path, stubs):

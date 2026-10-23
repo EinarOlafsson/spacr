@@ -541,6 +541,15 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+      - name: Upload scientific failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: scientific-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/spacr-scientific-diagnostics/
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Name numeric test results
         if: always()
         run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"

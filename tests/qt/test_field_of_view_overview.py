@@ -906,3 +906,55 @@ def test_visible_well_thumbnails_follow_native_ratio_and_reuse_source_cache(tmp_
         assert len(dialog._thumbnail_cache) == 2
     finally:
         dialog.close()
+
+
+def test_plate_cells_keep_identity_and_shared_numeric_sorting(plate_images, qtbot, qapp):
+    from collections import Counter
+    from dataclasses import replace
+    from PySide6.QtCore import QPoint
+    from PySide6.QtWidgets import QTableWidget
+    from spacr.qt.widgets.sortable_table import SortableTableItem, install_sorting, table_item
+
+    original = next(field for field in browser._overview_index(plate_images) if not field.unresolved)
+    expected = {"A01": 2, "A02": 10, "A03": 3}
+    fields = tuple(replace(original, well=well, row="1", column=column, field=str(index))
+                   for column, (well, count) in enumerate(expected.items(), 1)
+                   for index in range(count))
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._indexed(fields)
+    cells = [dialog.wells.item(0, column) for column in range(3)]
+    for column, (well, count) in enumerate(expected.items()):
+        item = cells[column]
+        assert isinstance(item, SortableTableItem)
+        assert item.text() == browser.tr("{well}\n{count} fields", well=well, count=count)
+        assert item.data(browser.Qt.UserRole) == well
+        assert not item.flags() & browser.Qt.ItemIsEditable
+        assert dialog._well_positions[well] == (0, column)
+    assert not dialog.wells.isSortingEnabled()
+    snapshots = {id(item): (item.text(), item.data(browser.Qt.UserRole), item.flags())
+                 for item in cells}
+    counts = Counter(field.well for field in fields)
+    table = QTableWidget(3, 2)
+    qtbot.addWidget(table)
+    table.setHorizontalHeaderLabels(["Well", "Fields"])
+    for row, item in enumerate(cells):
+        assert dialog.wells.takeItem(0, row) is item
+        table.setItem(row, 0, item)
+        table.setItem(row, 1, table_item(counts[item.data(browser.Qt.UserRole)]))
+    install_sorting(table)
+    table.show()
+    qtbot.waitExposed(table)
+    header = table.horizontalHeader()
+    for order in (("A02", "A03", "A01"), ("A01", "A03", "A02"), tuple(expected)):
+        qtbot.mouseClick(header.viewport(), browser.Qt.LeftButton, pos=QPoint(
+            header.sectionViewportPosition(1) + header.sectionSize(1) // 2,
+            header.height() // 2))
+        qapp.processEvents()
+        assert tuple(table.item(row, 0).data(browser.Qt.UserRole) for row in range(3)) == order
+        for row in range(3):
+            item = table.item(row, 0)
+            assert (item.text(), item.data(browser.Qt.UserRole), item.flags()) == snapshots[id(item)]
+            assert int(table.item(row, 1).text()) == counts[item.data(browser.Qt.UserRole)]
+    dialog.close()
+    table.close()
