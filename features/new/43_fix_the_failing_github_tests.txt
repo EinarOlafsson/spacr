@@ -1,4 +1,13 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT QT BATCH COLLECTION COST — 2026-10-23
+Root owns the demonstrated empty-batch startup cost in the three-hour Qt CI
+job. Retain every selected test, whole-batch conftest checks, bounded memory,
+marker/shard selection, diagnostic timeouts and failure propagation. Use actual
+pytest collection to avoid starting extra workers for proven-empty non-Qt-path
+batches; no static guesses, suite-wide collection or timeout/ratchet increases.
+Independent coordinator reviews the change; validate only the owning runner
+contracts and real small collection/selection regressions before publication.
+
 CURRENT EMBEDDINGS CONTROL COVERAGE — 2026-10-23
 Retained widgets_g5 owns four source-bound controls for the actual aggregate
 coverage gaps: installed-checkpoint placeholder preservation, current-result
@@ -4594,7 +4603,7 @@ Root owns MAIN review/publication and corrected-source hosted acceptance; no who
 
 2026-10-22: Motility RAM preflight now reads actual src/merged inputs and always runs after proven nonempty grouping. Its regression independently checks np.load byte counts before processing; documented missing-manifest and generic vertex-distance contracts are also tested. Four controls pass (three retained; corrected assay case4.85s); independent/root peers accepted, with no ratchet or scientific tolerance changes.
 
-2026-10-22 — Retained dialog pair (G3 author/G4 peer) owns the recoverable physical-size fallback when _resize_actual raises ImportError or RuntimeError: use unscaled native geometry while preserving client position, consume the stored opening size once, and retain later user sizing. Validate real QDialogs at 90/100/125% using only helper-failure injection; no invalid QObject, unit-scale masking or unrelated exception suppression. Six Qt6.11.2 controls pass (2.67 s), with independent source/test peer acceptance. Feature_takeover coordinates integration and root owns publication; hosted acceptance remains open.
+2026-10-22 — Retained dialog pair (G3 author/G4 peer) owns the recoverable physical-size fallback when _resize_actual raises ImportError or RuntimeError: use unscaled native geometry while preserving client position, consume the stored opening size once, and retain later user sizing. Validate real QDialogs at 90/100/125% using only helper-failure injection; no invalid QObject, unit-scale masking or unrelated exception suppression. Six Qt6.11.2 controls pass (2.67 s), with independent source/test peer acceptance. Mac follow-up2026-10-23: exactly these six existing controls pass on Cocoa/macOS26.6.1 Intel in4.22s (sampled RSS0.274GiB), exit0 under the8GiB/300s polling wrapper. These verify scale-wrapper geometry fallback on unshown real QDialogs, not visual popup/native-chrome acceptance. Feature_takeover coordinates integration and root owns publication; hosted acceptance remains open.
 
 2026-10-22 — release_ci_takeover owns actual coverage0 job119865494655 native-release contract alignment: require the existing finalized bump SHA consistently for native builds, checkout, payload verification, tag and publication. Preserve native success dependencies, exact-source checksums/artifact collection and ordering; test-only repair under root review, with no release dispatch or gate relaxation. Cold reviewed-runtime validation now avoids a second deterministic semantic check only when its contextualized candidate is byte-identical; distinct candidates and all rejection flags stay strict. Five real-string/call-count controls pass (2.78 s); the original 600-second reproduction test was not rerun and hosted CI acceptance remains open.
 
@@ -4645,6 +4654,9 @@ Normal API output remains identical across 19 keys; runtime captions and API tar
 
 2026-10-23 — Actual CI diagnostics identified a false Preferences draft change caused solely by page/widget traversal order. Native identity ordering fixes it without changing captured values or weakening cache/performance limits. The real detach/reorder/value-sensitive regression and both original strict controls pass (3 tests, 9.96s); independent source/test review is accepted.
 Normal bounded API applicability confirms 223 rendered entries unchanged; runtime strings, setting targets and consumers are unaffected. No artifact regeneration is applicable; prior unrelated results are retained.
-
 2026-10-23 — Two actual native-worker controls pass (4.30s) with missing or genuinely closed original stderr: cleanup reporting preserves the payload and exactly one successful completion, without a leaked thread. Public trace inheritance measures the original worker frame; scoped facades preserve other process streams. Production and generated outputs are unchanged.
 An owned-timer native-start failure control passes (0.68s): boundary drain preserves the buffered tail, retires the unstarted timer without an invalid join and leaves the log usable. The failure seam forwards every unrelated thread start; previous lifecycle results are retained.
+Mac follow-up on9697c935b: both unavailable-original-stderr cases pass on real Cocoa (2 tests,4.10s; sampled RSS0.272GiB), preserving real QThread payload/completion/retirement assertions in isolated fixture paths under the8GiB/300s wrapper. Intel macOS26.6.1/DPR2; no production changes, broader replay or whole-item acceptance inferred.
+Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control/deleted-wrapper diagnostic cases pass on real Cocoa (2 tests,5.46s; sampled RSS0.317GiB), using owned temporary settings/state and the8GiB/300s wrapper. Intel macOS26.6.1/DPR2; no physical-input, performance-budget or whole-item acceptance is inferred, and earlier results remain retained.
+
+2026-10-23 — Qt CI now uses opt-in serial collection for batches outside automatically Qt-marked paths before starting extra workers; only pytest exit5 skips execution. Explicit Qt tests, marker/shard settings, failures, timeouts and later batches are retained. Runner24cases pass7.84s, five affected workflow contracts pass0.91s; independent peer accepted. No time limit, assertion or coverage ceiling changed; actual final-source hosted CI remains required.

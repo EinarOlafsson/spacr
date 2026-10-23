@@ -122,6 +122,21 @@ def _only_automatically_qt_files(batch: Sequence[str]) -> bool:
     return bool(batch)
 
 
+def _qt_batches_are_required(marker: str) -> bool:
+    """Accept a positive Qt conjunction without alternative selections."""
+    terms = [term.strip() for term in marker.split(" and ")]
+    return "qt" in terms and all(
+        term == "qt" or (term != "not qt" and
+                         re.fullmatch(r"not [A-Za-z_][A-Za-z_0-9]*", term))
+        for term in terms
+    )
+
+
+def _contains_automatically_qt_files(batch: Sequence[str]) -> bool:
+    """Whether a batch contains files that need no Qt selection preflight."""
+    return any(_only_automatically_qt_files([path]) for path in batch)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the command-line parser."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -169,6 +184,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="skip global batches containing only automatically Qt-marked "
         "files when --marker is a conjunction excluding qt",
     )
+    parser.add_argument(
+        "--precollect-nonqt-batches", action="store_true",
+        help="use serial pytest collection to avoid starting workers for empty "
+        "Qt selections outside tests/qt; requires a positive Qt conjunction",
+    )
     return parser
 
 
@@ -195,6 +215,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         raise ValueError(
             "--skip-qt-only-batches requires a conjunction of negative "
             "markers including 'not qt'"
+        )
+    if args.precollect_nonqt_batches and not _qt_batches_are_required(args.marker):
+        raise ValueError(
+            "--precollect-nonqt-batches requires a positive Qt conjunction"
         )
 
     ignored = [Path(path).resolve() for path in args.ignore]
@@ -277,6 +301,23 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "-o", f"faulthandler_timeout={args.faulthandler_timeout}",
             ])
         command.extend(["-v", "--tb=short"])
+        if (args.precollect_nonqt_batches and args.workers > 1
+                and not _contains_automatically_qt_files(batch)):
+            collection = [sys.executable, "-m", "pytest", *batch,
+                          "-m", args.marker, "--collect-only", "-q", "-n", "0",
+                          "--tb=short"]
+            if args.faulthandler_timeout > 0:
+                collection.extend([
+                    "-o", f"faulthandler_timeout={args.faulthandler_timeout}",
+                ])
+            collected = _run_bounded(collection, timeout=args.batch_timeout)
+            if collected.returncode == NO_TESTS_COLLECTED:
+                print(f"pytest batch {number}/{len(batches)}: collection "
+                      "selected no tests; no worker pool started", flush=True)
+                continue
+            if collected.returncode != 0:
+                failed.append((number, int(collected.returncode), batch))
+                continue
         result = _run_bounded(command, timeout=args.batch_timeout)
         if result.returncode not in (0, NO_TESTS_COLLECTED):
             # REMEMBERED, NOT RETURNED. The first failing status is what

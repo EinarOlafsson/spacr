@@ -10344,6 +10344,18 @@ def _apply_volume_edit(request):
         session._cancelled = None
 
 
+class _VolumeMeshRequest(NamedTuple):
+    """Identify one unchanged session boundary while retaining tuple consumers."""
+
+    session: Any
+    label: int
+    version: int
+
+    @property
+    def key(self):
+        return id(self.session), self.label, self.version
+
+
 def _volume_mesh(request):
     """Build one object's editable voxel boundary off the GUI thread."""
     return request[0].geometry_for_label(request[1])
@@ -12731,10 +12743,12 @@ class _VolumeStage(QWidget):
         selected_surfaces = set(canvas._selected_surfaces)
         gates = dict(self.session.geometries)
         label = self._selected
+        if not label or label in gates or label in self._meshes:
+            self._mesher.drop_waiting()
         if label and label not in gates:
             if label not in self._meshes:
                 self._say(tr('Preparing the anchors of object {label}…', label=label))
-                self._mesher.submit((self.session, label, self._version))
+                self._mesher.submit(_VolumeMeshRequest(self.session, label, self._version))
             mesh = self._meshes.get(label)
             if mesh is None:
                 label = 0

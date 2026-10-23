@@ -56,6 +56,60 @@ def test_native_explicit_venv_probe_resolves_alias_and_requires_configuration(tm
     assert (metadata / "METADATA").read_text(encoding="utf-8") == "Name: spacr\nVersion: 0.0\n"
 
 
+def test_native_public_discovery_refuses_running_venv_in_both_alias_directions(tmp_path):
+    """Keep a real owned interpreter safe through public discovery and removal."""
+    import json
+    import venv
+
+    prefix = tmp_path / "private Python μ"
+    venv.EnvBuilder(with_pip=False, symlinks=True).create(prefix)
+    metadata = prefix / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}" / "site-packages" / "spacr-0.0.dist-info"
+    metadata.mkdir(parents=True, exist_ok=True)
+    (metadata / "METADATA").write_text("Name: spacr\nVersion: 0.0\n", encoding="utf-8")
+    (prefix / "unrelated sentinel").write_bytes(b"keep this environment intact")
+    alias = tmp_path / "Ólafur's active environment"
+    alias.symlink_to(prefix, target_is_directory=True)
+    home = tmp_path / "home"
+    home.mkdir()
+    system_root = tmp_path / "system"
+    system_root.mkdir()
+    expected = [str(prefix / "bin" / "python"), "-I", "-c",
+                "import json,sys;print(json.dumps(sys.prefix))"]
+    calls = []
+
+    def run(argv):
+        assert argv == expected, "only the owned interpreter prefix probe may execute"
+        result = subprocess.run(argv, cwd=tmp_path, env={"PATH": os.defpath},
+                                capture_output=True, text=True, timeout=15)
+        assert result.returncode == 0 and not result.stderr
+        assert Path(json.loads(result.stdout)).samefile(prefix)
+        calls.append(tuple(argv))
+        return result.returncode, result.stdout
+
+    def snapshot():
+        return {str(path.relative_to(tmp_path)): (
+            ("link", os.readlink(path)) if path.is_symlink() else
+            ("file", path.read_bytes()) if path.is_file() else ("directory",))
+            for path in tmp_path.rglob("*")}
+
+    before = snapshot()
+    for explicit, running in ((prefix, alias), (alias, prefix)):
+        machine = cleanup._Machine(
+            platform="macos", fs_root=str(system_root),
+            environ={"HOME": str(home), "VIRTUAL_ENV": str(explicit)},
+            runner=run, running_prefix=str(running), executable=expected[0])
+        assert not machine.real and not getattr(sys, "frozen", False)
+        [record] = cleanup.find_old_installs(system=machine)
+        assert (record.kind, record.layout, record.root, record.version, record.running) == (
+            "environment", "venv", str(prefix), "0.0", True)
+        assert record.python == expected[0]
+        report = cleanup.remove_install(record, ticked=True, system=machine)
+        assert report.skipped == [(str(prefix), "in use by the running spaCR")]
+        assert report.ok and not report.removed and not report.failed
+        assert snapshot() == before
+    assert len(calls) == 2 and alias.samefile(prefix)
+
+
 def test_native_apple_script_string_encoding_cannot_execute_the_embedded_transaction(tmp_path):
     """Ask AppleScript to return the exact string without authorization.
 

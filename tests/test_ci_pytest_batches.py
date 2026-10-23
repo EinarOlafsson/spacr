@@ -10,6 +10,113 @@ import pytest
 from tools import run_pytest_batches as runner
 
 
+def test_qt_precollection_preserves_execution_failures_and_later_batches(
+    tmp_path, monkeypatch, capsys,
+):
+    for index in range(4):
+        (tmp_path / f"test_{index}.py").write_text("", encoding="utf-8")
+    calls = []
+    statuses = iter((5, 0, 1, 2, runner.BATCH_TIMED_OUT))
+    monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_INDEX", "1")
+    monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_COUNT", "3")
+    monkeypatch.setattr(runner, "_timeout_plugin_available", lambda: True)
+
+    def run(command, *, timeout):
+        import os
+        assert os.environ["SPACR_PYTEST_FILE_SHARD_INDEX"] == "1"
+        assert os.environ["SPACR_PYTEST_FILE_SHARD_COUNT"] == "3"
+        assert timeout == 2700
+        calls.append(command)
+        return SimpleNamespace(returncode=next(statuses))
+
+    monkeypatch.setattr(runner, "_run_bounded", run)
+    assert runner.main([
+        str(tmp_path), "--marker", "qt and not slow", "--batch-size", "1",
+        "--workers", "2", "--precollect-nonqt-batches",
+        "--batch-timeout", "2700", "--faulthandler-timeout", "900",
+        "--per-test-timeout", "1200",
+    ]) == 1
+    assert len(calls) == 5
+    collected = [command for command in calls if "--collect-only" in command]
+    assert len(collected) == 4
+    assert all(command[command.index("-n") + 1] == "0" for command in collected)
+    assert all("faulthandler_timeout=900" in command for command in calls)
+    [executed] = [command for command in calls if "--collect-only" not in command]
+    assert executed[3:executed.index("-m", 3)] == [str(tmp_path / "test_1.py")]
+    assert executed[executed.index("-n") + 1] == "2"
+    assert executed[executed.index("--timeout") + 1] == "1200"
+    assert "--max-worker-restart=0" in executed
+    assert "3 of 4 batches failed" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("marker", ["not qt", "qt or slow", "qt and not qt", "slow"])
+def test_qt_precollection_refuses_nonconjunctive_selection(tmp_path, marker):
+    with pytest.raises(ValueError, match="positive Qt conjunction"):
+        runner.main([str(tmp_path), "--marker", marker,
+                     "--precollect-nonqt-batches"])
+
+
+@pytest.mark.parametrize("collection_error", [False, True])
+def test_real_qt_precollection_keeps_explicit_and_automatic_tests(
+    tmp_path, collection_error,
+):
+    import json
+    import os
+    import subprocess
+    import sys
+
+    tests = tmp_path / "tests"
+    (tests / "qt").mkdir(parents=True)
+    (tmp_path / "pytest.ini").write_text(
+        "[pytest]\nmarkers =\n    qt: Qt tests\n    slow: slow tests\n")
+    (tests / "conftest.py").write_text('''import json
+from pathlib import Path
+import pytest
+
+def pytest_collection_modifyitems(config, items):
+    for item in items:
+        if "qt" in item.path.parts:
+            item.add_marker(pytest.mark.qt)
+    with Path("collection.jsonl").open("a") as stream:
+        stream.write(json.dumps({"worker": getattr(config, "workerinput", {}).get("workerid"), "n": config.getoption("numprocesses"), "files": sorted({item.path.name for item in items})}) + "\\n")
+
+def pytest_runtest_logreport(report):
+    if report.when == "call":
+        with Path("executed.txt").open("a") as stream:
+            stream.write(report.nodeid + "\\n")
+''')
+    (tests / "test_empty.py").write_text("def test_not_qt(): pass\n")
+    (tests / "test_explicit.py").write_text(
+        "import pytest\n@pytest.mark.qt\ndef test_selected(): pass\n"
+        "@pytest.mark.qt\n@pytest.mark.slow\ndef test_excluded(): pass\n")
+    (tests / "qt/test_auto.py").write_text("def test_automatic(): pass\n")
+    if collection_error:
+        (tests / "test_0_fault.py").write_text(
+            "raise RuntimeError('collection remains a failure')\n")
+    env = dict(os.environ, PYTEST_DISABLE_PLUGIN_AUTOLOAD="1",
+               PYTEST_ADDOPTS="-p xdist.plugin -n 2")
+    script = Path(runner.__file__).resolve()
+    result = subprocess.run([
+        sys.executable, str(script), "tests", "--marker", "qt and not slow",
+        "--batch-size", "1", "--workers", "2",
+        "--precollect-nonqt-batches", "--batch-timeout", "30",
+    ], cwd=tmp_path, env=env, capture_output=True, text=True, timeout=60)
+    assert result.returncode == (2 if collection_error else 0), result.stdout + result.stderr
+    executed = set((tmp_path / "executed.txt").read_text().splitlines())
+    assert executed == {"tests/qt/test_auto.py::test_automatic",
+                        "tests/test_explicit.py::test_selected"}
+    records = [json.loads(line) for line in
+               (tmp_path / "collection.jsonl").read_text().splitlines()]
+    serial = [record for record in records if record["worker"] is None]
+    expected = {("test_empty.py",), ("test_explicit.py",)}
+    if collection_error:
+        expected.add(())
+        assert "1 of 4 batches failed" in result.stdout
+    assert {tuple(record["files"]) for record in serial} == expected
+    assert all(record["n"] == 0 for record in serial)
+    assert "collection selected no tests; no worker pool started" in result.stdout
+
+
 def test_test_files_are_recursive_sorted_and_deduplicated(tmp_path):
     first = tmp_path / "test_a.py"
     nested = tmp_path / "nested"
