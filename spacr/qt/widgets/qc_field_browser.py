@@ -5455,7 +5455,9 @@ class _OverviewMetadataWizard(QWidget):
         self.status = QLabel("")
         self.status.setWordWrap(True)
         outer.addWidget(self.status)
-        actions = QHBoxLayout()
+        self._action_bar = QWidget()
+        actions = QHBoxLayout(self._action_bar)
+        actions.setContentsMargins(0, 0, 0, 0)
         cancel = QPushButton(tr("Cancel"))
         cancel.clicked.connect(self.reject)
         self.next = QPushButton(tr("Next"))
@@ -5465,7 +5467,15 @@ class _OverviewMetadataWizard(QWidget):
         actions.addStretch(1)
         actions.addWidget(cancel)
         actions.addWidget(self.next)
-        shell.addLayout(actions)
+        shell.addWidget(self._action_bar)
+        self._wizard_shell, self._wizard_body = shell, outer
+        self._wizard_scroll = scroll
+        self._sticky_margins = shell.contentsMargins()
+        self._actions_scroll = False
+        self._fitting_actions = False
+        self._action_fit_timer = QTimer(self)
+        self._action_fit_timer.setSingleShot(True)
+        self._action_fit_timer.timeout.connect(self._fit_actions)
         self.source.textEdited.connect(self._invalidate)
         self.regex.textEdited.connect(self._custom_regex_changed)
         if self.regex.text():
@@ -5479,6 +5489,52 @@ class _OverviewMetadataWizard(QWidget):
         self._rescan_timer.setSingleShot(True)
         self._rescan_timer.timeout.connect(self._scan)
         self._startup_timer.start(0)
+        self._action_fit_timer.start(0)
+
+    def event(self, event):
+        """Coalesce actual allocation and native font/style changes after Qt handles them."""
+        result = super().event(event)
+        timer = getattr(self, "_action_fit_timer", None)
+        if (timer is not None and not self._finished and not self._fitting_actions
+                and event.type() in (QEvent.Resize, QEvent.FontChange,
+                                     QEvent.StyleChange, QEvent.LayoutRequest)):
+            timer.start(0)
+        return result
+
+    def _fit_actions(self):
+        """Scroll the same actions in short allocations and restore sticky actions on growth.
+
+        Fresh native footer hints reserve a full footer-height content viewport.
+        Only the compact mode drops redundant outer margins; text, fonts and
+        the existing content scroller remain unchanged.
+        """
+        if self._finished or self._fitting_actions:
+            return
+        self._fitting_actions = True
+        try:
+            footer_height = max(self._action_bar.sizeHint().height(),
+                                self._action_bar.minimumSizeHint().height())
+            margins = self._sticky_margins
+            from ..gui_scale import _original_for
+            margin_height = margins.top() + margins.bottom()
+            needed = 2 * footer_height + margin_height + max(0, self._wizard_shell.spacing())
+            compact = QWidget.height(self) < needed
+            if compact == self._actions_scroll:
+                return
+            set_margins = (_original_for(self._wizard_shell, "setContentsMargins")
+                           or type(self._wizard_shell).setContentsMargins)
+            if compact:
+                self._wizard_shell.removeWidget(self._action_bar)
+                self._wizard_body.addWidget(self._action_bar)
+                set_margins(self._wizard_shell, 0, 0, 0, 0)
+            else:
+                self._wizard_body.removeWidget(self._action_bar)
+                self._wizard_shell.addWidget(self._action_bar)
+                set_margins(self._wizard_shell, margins)
+            self._actions_scroll = compact
+            self._action_bar.show()
+        finally:
+            self._fitting_actions = False
 
     def _invalidate(self, *_):
         """Debounce filename previews and prevent acceptance of stale metadata."""
@@ -5725,6 +5781,7 @@ class _OverviewMetadataWizard(QWidget):
         self._startup_timer.stop()
         self._rescan_timer.stop()
         self._cancelled.set()
+        self._action_fit_timer.stop()
         self._runner.shutdown(timeout_ms=0)
         self.hide()
         if result == QDialog.Accepted:

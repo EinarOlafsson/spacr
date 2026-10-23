@@ -39,6 +39,83 @@ def _browser(tmp_path, qtbot, fields=None, channels=(0,), options=None):
     return dialog
 
 
+def test_compressed_metadata_wizard_keeps_next_text_scrollable_and_restores_footer(tmp_path, qtbot):
+    from PySide6.QtCore import QSize, Qt
+    from PySide6.QtGui import QRegion
+    from PySide6.QtWidgets import QWidget, QScrollArea, QStyle, QStyleOptionButton
+    from spacr.qt import gui_scale, theme
+
+    tifffile.imwrite(tmp_path / "plate1_A01_F1.tif", np.zeros((10, 12), np.uint16))
+    old_gui = gui_scale.current_scale()
+    host = wizard = None
+    try:
+        gui_scale.install_scaling_layer()
+        gui_scale.set_gui_scale_live(2.)
+        host = QWidget()
+        qtbot.addWidget(host)
+        host.setStyleSheet(theme.stylesheet('dark', font_scale=2.))
+        wizard = browser._OverviewMetadataWizard(str(tmp_path), parent=host)
+        wizard.setGeometry(0, 0, 1356, 102)
+        gui_scale._resize_actual(host, QSize(1356, 102))
+        host.show()
+        wizard.show()
+        qtbot.waitUntil(wizard.next.isEnabled, timeout=20000)
+        assert wizard.next.font().pixelSize() == 52
+        next_button = wizard.next
+        events = []
+        wizard.rejected.connect(lambda: events.append("rejected"))
+        wizard.finished.connect(lambda result: events.append(result))
+        for height in (102, 760, 102):
+            gui_scale._resize_actual(host, QSize(1356, height))
+            wizard.setGeometry(0, 0, 1356, height)
+            qtbot.wait(50)
+            assert QWidget.size(wizard) == QSize(1356, height)
+            ancestor = next_button.parentWidget()
+            while ancestor is not None and not isinstance(ancestor, QScrollArea):
+                ancestor = ancestor.parentWidget()
+            if height == 102:
+                assert ancestor is not None, (next_button.geometry(), next_button.visibleRegion().boundingRect())
+                ancestor.ensureWidgetVisible(next_button, 0, 0)
+                qtbot.wait(50)
+            else:
+                assert ancestor is None
+            option = QStyleOptionButton()
+            option.initFrom(next_button)
+            option.rect = next_button.rect()
+            option.text = next_button.text()
+            option.icon = next_button.icon()
+            option.iconSize = next_button.iconSize()
+            if next_button.isDefault():
+                option.features |= QStyleOptionButton.DefaultButton
+            if next_button.autoDefault():
+                option.features |= QStyleOptionButton.AutoDefaultButton
+            if next_button.isFlat():
+                option.features |= QStyleOptionButton.Flat
+            field = next_button.style().subElementRect(QStyle.SE_PushButtonContents,
+                option, next_button)
+            text = next_button.style().itemTextRect(next_button.fontMetrics(),
+                field, int(Qt.AlignCenter | Qt.TextSingleLine),
+                next_button.isEnabled(), next_button.text())
+            assert field.contains(text)
+            assert QRegion(text).subtracted(next_button.visibleRegion()).isEmpty(), (
+                height, text, next_button.visibleRegion().boundingRect())
+            assert wizard.next is next_button and wizard.next.isEnabled()
+        wizard.reject()
+        assert events == ["rejected", browser.QDialog.Rejected]
+        assert not wizard.isVisible() and wizard._cancelled.is_set()
+    finally:
+        try:
+            if wizard is not None:
+                wizard.reject()
+                wizard._runner.shutdown(timeout_ms=3000)
+        finally:
+            try:
+                if host is not None:
+                    host.close()
+            finally:
+                gui_scale.set_gui_scale_live(old_gui)
+
+
 def test_well_only_regex_groups_channels_and_live_preview_requires_valid_wells(tmp_path, qtbot):
     for channel in (1, 2):
         tifffile.imwrite(tmp_path / f"A01_alpha_C{channel}.tif", np.zeros((5, 7), np.uint16))

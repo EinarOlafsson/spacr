@@ -202,6 +202,24 @@ plate2220x25, Options unreached. Natural child1/46.388s/RSS1.270GiB/zero missed,
 unchanged input and normal close. New707 MainWindow scale-fit scope owns this
 proven floor overflow; retain all earlier accepted corner/layout results and
 do not relax bounds or certify usable plate/Options before the app is repaired.
+Floor candidate4b768 native23189/pXBSaT now reaches Mask11.189s and wizard
+construction2.158s, with embedded workspace/wizard opacity passing, but its
+1356x102 metadata allocation leaves enabled Next neither visible nor scroll
+reachable: actions lie outside the content scroller. Browser/Options remain
+unreached; natural child1/37.931s/RSS.991GiB/zero missed, unchanged inputs and
+normal close. Preserve seven floor checks, not whole-content acceptance.
+Mac owner now tests adaptive same-footer scrolling at this exact allocation,
+restoring sticky actions on growth; require full native styled text visibility
+after actual scrolling, unchanged signals/jobs, no smaller fonts or probe bypass.
+Causal Cocoa30074 fails at the exact allocation: Next164x78 has only164x44
+visible and no scroll ancestor (5.36s/RSS.318GiB). The private wizard now moves
+the same actions into its existing content scroller only in short allocations,
+drops redundant outer margins there, and restores sticky actions/margins on
+growth; no font, result or worker changes. Peer-reviewed Cocoa2850 passes four
+affected checks in5.78s/RSS.334GiB: actual52px1356x102→760→102, full native
+Next text-slot visibility after scrolling, same button, Escape/close and queued
+scan cancellation. Faithful maximum-scale content/plate/Options remains pending;
+this is not acceptance of every smaller-than-text viewport or of the whole item.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 
