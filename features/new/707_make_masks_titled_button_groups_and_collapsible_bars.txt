@@ -71,6 +71,34 @@ native text slot/arrow, AI control, intrinsic/reachability and grow/shrink check
 No aliases; natural exit0 in24.675s/RSS1.108GiB/zero missed. Default90/90 and
 GUI90/font200 acceptance are now current; joint maximum scales and physical/
 actual smaller-display subgates remain open. No whole-item completion claimed.
+Next affected supported boundary: inspect these same two setup presentations
+at joint GUI200%/font200% through normal live scaling before construction,
+with actual52px body-font witnesses. Keep untouched initial frames, all slides/
+groups, every offered native combo text slot/arrow, AI reachability, intrinsic
+labels and axis-specific scrolling strict. Only after initial inspection choose
+a positive resize of up to20px per axis within the actual work frame and above
+the actual minimum, then restore and prove both axes changed. Never clamp the
+opening window in the harness or infer physical/small-display acceptance.
+Joint-max native26699 on efe77c308 fails a real opening-frame requirement:
+SetupSlides opens1440x1120 at(0,30) on a1440x870 work area, with actual52px
+body fonts. All five slides' internal text/AI/choice-slot checks pass within
+that oversized window. Both post-inspection resize states still exceed the
+work area; the owned20s case deadline ends the case. SetupDialog is UNTESTED,
+not failed. Natural child exit1 in50.127s/RSS1.385GiB/zero missed/no aliases.
+Repair the scaled720x560 opening request without shrinking fonts or bypassing
+the strict native oracle; floating card/backdrop content must remain reachable
+through compatible natural-size/scroll handling. Focused regression first;
+default90/90 and GUI90/font200 acceptance remains retained.
+Focused joint-max regression fails before repair (5.60s/RSS0.291GiB): the real
+opening1440x1120 exceeds its actual800x800 test work area. Overflow-only setup
+handling moves the actual floating card, not the backdrop, into the existing
+scroll/natural-opening helpers and preserves natural card coordinates/minimums.
+An additional fuller GPU-note check exposes a4px Back-button overlap after
+scroll layout (5.45s/RSS0.288GiB); a card-owned coalesced resize timer reapplies
+the existing overlay placement after layout. The strict focused check now
+passes (5.26s/RSS0.287GiB), including initial bounds, actual card scrolling,
+last-control reach and note/form/navigation nonoverlap. Nonoverflow layouts and
+fonts stay unchanged; affected native max acceptance remains pending.
 
 Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
 public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.
