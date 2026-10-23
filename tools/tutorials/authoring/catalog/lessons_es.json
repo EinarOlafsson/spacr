@@ -2555,10 +2555,10 @@
           "visual": "25_result_runs",
           "narration": "Cuando termine la ejecución, abre Runs y selecciona el análisis guardado. Confirma la carpeta y los ajustes antes de compararlo con otra ejecución. Vuelve a ejecutar el análisis tras cambiar los ajustes si quieres resultados nuevos.",
           "hold_after": 0.7,
+          "speech_text": "Cuando termine la ejecución, abre Runs y selecciona el análisis guardado. Confirma la carpeta y los ajustes antes de compararlo con otra ejecución. Vuelve a ejecutar el análisis tras cambiar los ajustes si quieres resultados nuevos.",
           "related_lessons": [
             "73_parameter_sweep"
-          ],
-          "speech_text": "Cuando termine la ejecución, abre Runs y selecciona el análisis guardado. Confirma la carpeta y los ajustes antes de compararlo con otra ejecución. Vuelve a ejecutar el análisis tras cambiar los ajustes si quieres resultados nuevos."
+          ]
         },
         {
           "visual": "25_result_results",
@@ -2570,20 +2570,21 @@
           "visual": "26_detail_p_values",
           "narration": "Abre la vista de valores p y la herramienta Diagnostics. Revisa la distribución de los resultados junto con la resolución de las permutaciones, la familia de pruebas y los avisos sobre el diseño. Resuelve los problemas de diagnóstico importantes antes de interpretar las asociaciones.",
           "hold_after": 0.7,
+          "speech_text": "Abre la vista de valores p y la herramienta Diagnostics. Revisa la distribución de los resultados junto con la resolución de las permutaciones, la familia de pruebas y los avisos sobre el diseño. Resuelve los problemas de diagnóstico importantes antes de interpretar las asociaciones.",
           "related_lessons": [
             "75_regression_diagnostics"
-          ],
-          "speech_text": "Abre la vista de valores p y la herramienta Diagnostics. Revisa la distribución de los resultados junto con la resolución de las permutaciones, la familia de pruebas y los avisos sobre el diseño. Resuelve los problemas de diagnóstico importantes antes de interpretar las asociaciones."
+          ]
         },
         {
           "visual": "26_detail_coefficients",
           "narration": "Usa la barra de herramientas para abrir Volcano Explorer, Hit List o Investigate Hit como siguiente paso. Sus tutoriales muestran cómo revisar los resultados seleccionados. Mantén juntas las tablas de entrada, los ajustes guardados, los archivos de resultados y los informes de diagnóstico cuando compartas el análisis.",
           "hold_after": 0.7,
+          "speech_text": "Usa la barra de herramientas para abrir Volcano Explorer, Hit List o Investigate Hit como siguiente paso. Sus tutoriales muestran cómo revisar los resultados seleccionados. Mantén juntas las tablas de entrada, los ajustes guardados, los archivos de resultados y los informes de diagnóstico cuando compartas el análisis.",
           "related_lessons": [
-            "06_api",
-            "73_parameter_sweep"
-          ],
-          "speech_text": "Usa la barra de herramientas para abrir Volcano Explorer, Hit List o Investigate Hit como siguiente paso. Sus tutoriales muestran cómo revisar los resultados seleccionados. Mantén juntas las tablas de entrada, los ajustes guardados, los archivos de resultados y los informes de diagnóstico cuando compartas el análisis."
+            "72_volcano_explorer",
+            "48_hit_list",
+            "71_investigate_hit"
+          ]
         }
       ],
       "narration_voices": {
@@ -2654,10 +2655,10 @@
           "visual": "01_module",
           "narration": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear all objects, justo a la izquierda de Discard, pide confirmación antes de eliminar todos los objetos de la imagen actual.",
           "hold_after": 0.7,
+          "speech_text": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear all objects, justo a la izquierda de Discard, pide confirmación antes de eliminar todos los objetos de la imagen actual.",
           "related_lessons": [
             "07_mask"
-          ],
-          "speech_text": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear all objects, justo a la izquierda de Discard, pide confirmación antes de eliminar todos los objetos de la imagen actual."
+          ]
         },
         {
           "visual": "01b_test_data_menu",
@@ -2669,10 +2670,10 @@
           "visual": "02_folder_picker",
           "narration": "Haz clic en Open folder y selecciona la carpeta de imágenes. Para este ejemplo, usa las imágenes de intensidad de ER y las máscaras de células correspondientes de la muestra de Measure. Mantén iguales las dimensiones de imagen y máscara, y sus nombres de archivo emparejados.",
           "hold_after": 0.7,
+          "speech_text": "Haz clic en Open folder y selecciona la carpeta de imágenes. Para este ejemplo, usa las imágenes de intensidad de ER y las máscaras de células correspondientes de la muestra de Measure. Mantén iguales las dimensiones de imagen y máscara, y sus nombres de archivo emparejados.",
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "Haz clic en Open folder y selecciona la carpeta de imágenes. Para este ejemplo, usa las imágenes de intensidad de ER y las máscaras de células correspondientes de la muestra de Measure. Mantén iguales las dimensiones de imagen y máscara, y sus nombres de archivo emparejados."
+          ]
         },
         {
           "visual": "03_real_labels",
@@ -2931,24 +2932,24 @@
           "narration": "Los iconos de la esquina superior derecha abren el resto de las herramientas para máscaras. Cellpose Workbench entrena un modelo con pares revisados y lo aplica a una carpeta, y el siguiente icono ejecuta la detección en todos los campos de la carpeta abierta.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
+          "speech_text": "Los iconos de la esquina superior derecha abren el resto de las herramientas para máscaras. sel póus Workbench entrena un modelo con pares revisados y lo aplica a una carpeta, y el siguiente icono ejecuta la detección en todos los campos de la carpeta abierta.",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ],
-          "speech_text": "Los iconos de la esquina superior derecha abren el resto de las herramientas para máscaras. sel póus Workbench entrena un modelo con pares revisados y lo aplica a una carpeta, y el siguiente icono ejecuta la detección en todos los campos de la carpeta abierta."
+          ]
         },
         {
           "visual": "09_fold_model_zoo",
           "narration": "Model Compare pone dos conjuntos de máscaras uno al lado del otro y Model Zoo encuentra y prueba pesos. Cuando hay más ejemplos que corregir, Curate y Napari Bridge te llevan de vuelta a la edición.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
+          "speech_text": "Model Compare pone dos conjuntos de máscaras uno al lado del otro y Model Zoo encuentra y prueba pesos. Cuando hay más ejemplos que corregir, Curate y Napari Bridge te llevan de vuelta a la edición.",
           "related_lessons": [
             "21_model_compare",
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ],
-          "speech_text": "Model Compare pone dos conjuntos de máscaras uno al lado del otro y Model Zoo encuentra y prueba pesos. Cuando hay más ejemplos que corregir, Curate y Napari Bridge te llevan de vuelta a la edición."
+          ]
         },
         {
           "visual": "12_recrop_written",
@@ -2960,10 +2961,10 @@
           "visual": "13_child_and_recovery_archive",
           "narration": "Haz clic en Next image, en la barra de herramientas, para abrir el nuevo recorte. La imagen y la máscara originales se conservan en recropped_originals para poder recuperarlas. Revisa el recorte y sus etiquetas antes de añadirlo a tu conjunto de entrenamiento.",
           "hold_after": 0.7,
+          "speech_text": "Haz clic en Next image, en la barra de herramientas, para abrir el nuevo recorte. La imagen y la máscara originales se conservan en recropped_originals para poder recuperarlas. Revisa el recorte y sus etiquetas antes de añadirlo a tu conjunto de entrenamiento.",
           "related_lessons": [
             "09_annotate"
-          ],
-          "speech_text": "Haz clic en Next image, en la barra de herramientas, para abrir el nuevo recorte. La imagen y la máscara originales se conservan en recropped_originals para poder recuperarlas. Revisa el recorte y sus etiquetas antes de añadirlo a tu conjunto de entrenamiento."
+          ]
         },
         {
           "visual": "restoration_01_restoration_row",
@@ -3083,10 +3084,10 @@
           "visual": "25_organize_open",
           "narration": "Para medir tus campos, haz clic en Organize for Measure. Measure lee cada campo como una sola matriz combinada que contiene todos los canales y sus máscaras. Indica aquí una carpeta de origen, o arrastra archivos y carpetas a la tabla de abajo. Si Consolidate subfolders está activado y falla una copia, la ventana indica cuántos archivos fallaron y dónde está el manifiesto, y se detiene sin cambiar el origen ni la tabla.",
           "hold_after": 0.7,
+          "speech_text": "Para medir tus campos, haz clic en Organize for Measure. Measure lee cada campo como una sola matriz combinada que contiene todos los canales y sus máscaras. Indica aquí una carpeta de origen, o arrastra archivos y carpetas a la tabla de abajo. Si Consolidate subfolders está activado y falla una copia, la ventana indica cuántos archivos fallaron y dónde está el manifiesto, y se detiene sin cambiar el origen ni la tabla.",
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "Para medir tus campos, haz clic en Organize for Measure. Measure lee cada campo como una sola matriz combinada que contiene todos los canales y sus máscaras. Indica aquí una carpeta de origen, o arrastra archivos y carpetas a la tabla de abajo. Si Consolidate subfolders está activado y falla una copia, la ventana indica cuántos archivos fallaron y dónde está el manifiesto, y se detiene sin cambiar el origen ni la tabla."
+          ]
         },
         {
           "visual": "26_organize_table",
@@ -3116,20 +3117,21 @@
           "visual": "30_organized_for_measure",
           "narration": "Cuando termina la ordenación, Make Masks abre la primera carpeta de canal, y la consola indica que el resultado aparece primero entre las fuentes recientes de Measure. Abre Measure y úsalo como origen para extraer características de los objetos.",
           "hold_after": 0.7,
+          "speech_text": "Cuando termina la ordenación, Make Masks abre la primera carpeta de canal, y la consola indica que el resultado aparece primero entre las fuentes recientes de Measure. Abre Measure y úsalo como origen para extraer características de los objetos.",
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "Cuando termina la ordenación, Make Masks abre la primera carpeta de canal, y la consola indica que el resultado aparece primero entre las fuentes recientes de Measure. Abre Measure y úsalo como origen para extraer características de los objetos."
+          ]
         },
         {
           "visual": "03_real_labels",
           "narration": "Mantén juntas las imágenes revisadas y las máscaras con el mismo nombre base. Usa Cellpose Workbench para entrenar con esos pares, u Organize for Measure y luego Measure para extraer mediciones. Los tutoriales relacionados muestran cada paso siguiente.",
           "hold_after": 0.7,
+          "speech_text": "Mantén juntas las imágenes revisadas y las máscaras con el mismo nombre base. Usa sel póus Workbench para entrenar con esos pares, u Organize for Measure y luego Measure para extraer mediciones. Los tutoriales relacionados muestran cada paso siguiente.",
           "related_lessons": [
             "06_api",
-            "19_train_cellpose"
-          ],
-          "speech_text": "Mantén juntas las imágenes revisadas y las máscaras con el mismo nombre base. Usa sel póus Workbench para entrenar con esos pares, u Organize for Measure y luego Measure para extraer mediciones. Los tutoriales relacionados muestran cada paso siguiente."
+            "19_train_cellpose",
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -4137,12 +4139,12 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Desde Home, abre Make Masks y luego su Cellpose Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados.",
+          "hold_after": 0.7,
+          "speech_text": "Desde Home, abre Make Masks y luego su sel póus Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Desde Home, abre Make Masks y luego su sel póus Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados."
+          ]
         },
         {
           "visual": "04_setting_src",
@@ -4231,12 +4233,12 @@
             2750,
             455
           ],
-          "related_lessons": [
-            "07_mask",
-            "06_api"
-          ],
           "hold_after": 0.7,
-          "speech_text": "Devuelve Minimum cell area a cero para restaurar la vista previa sin filtrar. Mantén juntos las imágenes de entrada, la identidad del modelo, los ajustes y las máscaras guardadas. Usa Make Masks para hacer correcciones o Measure para extraer características de los objetos a partir de las máscaras revisadas."
+          "speech_text": "Devuelve Minimum cell area a cero para restaurar la vista previa sin filtrar. Mantén juntos las imágenes de entrada, la identidad del modelo, los ajustes y las máscaras guardadas. Usa Make Masks para hacer correcciones o Measure para extraer características de los objetos a partir de las máscaras revisadas.",
+          "related_lessons": [
+            "14_make_masks",
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -7383,12 +7385,12 @@
           "narration": "Elige la herramienta de importación según lo que tengas: Import Images o Format Converter si solo tienes imágenes, External Masks si tienes imágenes con máscaras. Esta pantalla recibe imágenes, máscaras y una tabla de mediciones a la vez.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
+          "speech_text": "Elige la herramienta de importación según lo que tengas: Import Images o Format Converter si solo tienes imágenes, External Masks si tienes imágenes con máscaras. Esta pantalla recibe imágenes, máscaras y una tabla de mediciones a la vez.",
           "related_lessons": [
             "74_import_images",
             "35_converter",
             "31_external_masks"
-          ],
-          "speech_text": "Elige la herramienta de importación según lo que tengas: Import Images o Format Converter si solo tienes imágenes, External Masks si tienes imágenes con máscaras. Esta pantalla recibe imágenes, máscaras y una tabla de mediciones a la vez."
+          ]
         },
         {
           "visual": "org_organize_popup",
@@ -7400,10 +7402,10 @@
           "visual": "03_choose_images",
           "narration": "Elige la carpeta de imágenes. El ejemplo usa dos campos de microscopía con un canal de intensidad y las etiquetas de células correspondientes. Anota la placa, el pocillo y el campo originales de cada archivo.",
           "hold_after": 0.7,
+          "speech_text": "Elige la carpeta de imágenes. El ejemplo usa dos campos de microscopía con un canal de intensidad y las etiquetas de células correspondientes. Anota la placa, el pocillo y el campo originales de cada archivo.",
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "Elige la carpeta de imágenes. El ejemplo usa dos campos de microscopía con un canal de intensidad y las etiquetas de células correspondientes. Anota la placa, el pocillo y el campo originales de cada archivo."
+          ]
         },
         {
           "visual": "04_choose_masks",
@@ -7499,29 +7501,29 @@
             3450,
             195
           ],
+          "speech_text": "Abre el proyecto y revisa las mediciones importadas. La tabla de columnas foreign registra su origen. Usa Measure cuando quieras que espáquer calcule características nuevas a partir de las imágenes.",
           "related_lessons": [
             "08_measure"
-          ],
-          "speech_text": "Abre el proyecto y revisa las mediciones importadas. La tabla de columnas foreign registra su origen. Usa Measure cuando quieras que espáquer calcule características nuevas a partir de las imágenes."
+          ]
         },
         {
           "visual": "14_import_scope",
           "narration": "Guarda el mapa de conversión con el proyecto y comprueba sus asignaciones de placa, pocillo y campo. Los nombres de archivo genéricos pueden recibir coordenadas nuevas, así que resuelve sus identidades originales antes de un análisis a nivel de placa.",
           "hold_after": 0.7,
+          "speech_text": "Guarda el mapa de conversión con el proyecto y comprueba sus asignaciones de placa, pocillo y campo. Los nombres de archivo genéricos pueden recibir coordenadas nuevas, así que resuelve sus identidades originales antes de un análisis a nivel de placa.",
           "related_lessons": [
             "74_import_images"
-          ],
-          "speech_text": "Guarda el mapa de conversión con el proyecto y comprueba sus asignaciones de placa, pocillo y campo. Los nombres de archivo genéricos pueden recibir coordenadas nuevas, así que resuelve sus identidades originales antes de un análisis a nivel de placa."
+          ]
         },
         {
           "visual": "14_import_scope",
           "narration": "Continúa en Database Browser para revisar las tablas o en Annotate para revisar recortes de objetos. Conserva la asignación revisada junto con el proyecto terminado.",
           "hold_after": 0.7,
+          "speech_text": "Continúa en Database Browser para revisar las tablas o en Annotate para revisar recortes de objetos. Conserva la asignación revisada junto con el proyecto terminado.",
           "related_lessons": [
-            "06_api",
-            "08_measure"
-          ],
-          "speech_text": "Continúa en Database Browser para revisar las tablas o en Annotate para revisar recortes de objetos. Conserva la asignación revisada junto con el proyecto terminado."
+            "34_database",
+            "09_annotate"
+          ]
         }
       ],
       "narration_voices": {
@@ -8515,23 +8517,23 @@
           "focus_modules": [
             "classify_merged"
           ],
+          "hold_after": 0.7,
+          "speech_text": "Abre Classify desde Home. Empieza eligiendo la familia de clasificadores. Las lecciones de imágenes y tabular enlazadas aquí recorren cada una un ejemplo completo.",
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Abre Classify desde Home. Empieza eligiendo la familia de clasificadores. Las lecciones de imágenes y tabular enlazadas aquí recorren cada una un ejemplo completo."
+          ]
         },
         {
           "visual": "main_02_family_choices",
           "narration": "Elige Computer Vision para aprender de imágenes de objetos. Elige Tabular Machine Learning para aprender de columnas de características medidas. Measure proporciona estas entradas, y Annotate te permite añadir etiquetas a los objetos.",
+          "hold_after": 0.7,
+          "speech_text": "Elige Computer Vision para aprender de imágenes de objetos. Elige Tabular Machine Learning para aprender de columnas de características medidas. Measure proporciona estas entradas, y Annotate te permite añadir etiquetas a los objetos.",
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Elige Computer Vision para aprender de imágenes de objetos. Elige Tabular Machine Learning para aprender de columnas de características medidas. Measure proporciona estas entradas, y Annotate te permite añadir etiquetas a los objetos."
+          ]
         },
         {
           "visual": "main_03_tabular_family",
@@ -8542,21 +8544,21 @@
             1150,
             1600
           ],
+          "hold_after": 0.7,
+          "speech_text": "La vista Essentials reúne los ajustes que ambas familias necesitan para entrenar. Al cambiar a Tabular Machine Learning, los ajustes de Computer Vision se atenúan, de modo que solo rellena lo que usa la familia elegida.",
           "related_lessons": [
             "11_classify_ml"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "La vista Essentials reúne los ajustes que ambas familias necesitan para entrenar. Al cambiar a Tabular Machine Learning, los ajustes de Computer Vision se atenúan, de modo que solo rellena lo que usa la familia elegida."
+          ]
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "Para el ejemplo tabular, haz clic en Load test data y elige Load. Selecciona las etiquetas de clase y los ajustes de características, y sigue la lección tabular para entrenar el modelo y guardar las predicciones.",
+          "hold_after": 0.7,
+          "speech_text": "Para el ejemplo tabular, haz clic en Load test data y elige Load. Selecciona las etiquetas de clase y los ajustes de características, y sigue la lección tabular para entrenar el modelo y guardar las predicciones.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Para el ejemplo tabular, haz clic en Load test data y elige Load. Selecciona las etiquetas de clase y los ajustes de características, y sigue la lección tabular para entrenar el modelo y guardar las predicciones."
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8567,11 +8569,11 @@
             2050,
             1520
           ],
+          "hold_after": 0.7,
+          "speech_text": "Después de la ejecución tabular, revisa el mapa de calor de predicciones y las puntuaciones guardadas por objeto. Los objetos a los que les faltan mediciones necesarias pueden quedar sin puntuación. Revisa los resultados de evaluación para decidir si cambias las etiquetas, las características o los ajustes del modelo.",
           "related_lessons": [
             "11_classify_ml"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Después de la ejecución tabular, revisa el mapa de calor de predicciones y las puntuaciones guardadas por objeto. Los objetos a los que les faltan mediciones necesarias pueden quedar sin puntuación. Revisa los resultados de evaluación para decidir si cambias las etiquetas, las características o los ajustes del modelo."
+          ]
         },
         {
           "visual": "cv_24_batch_figure",
@@ -8582,11 +8584,11 @@
             3460,
             1440
           ],
+          "hold_after": 0.7,
+          "speech_text": "Para la clasificación de imágenes, siga la lección de Computer Vision para preparar recortes etiquetados, elegir un modelo y definir las divisiones de entrenamiento, validación y prueba. Tras el entrenamiento, revise las curvas de pérdida y de exactitud y, después, las figuras de evaluación y las predicciones guardadas.",
           "related_lessons": [
             "10_classify_cv"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Para la clasificación de imágenes, siga la lección de Computer Vision para preparar recortes etiquetados, elegir un modelo y definir las divisiones de entrenamiento, validación y prueba. Tras el entrenamiento, revise las curvas de pérdida y de exactitud y, después, las figuras de evaluación y las predicciones guardadas."
+          ]
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -8597,11 +8599,11 @@
             950,
             160
           ],
+          "hold_after": 0.7,
+          "speech_text": "Abre Classifier Evaluation desde las herramientas de arriba a la derecha. Selecciona un paquete de evaluación guardado para revisar las predicciones, las métricas y la división de los datos.",
           "related_lessons": [
             "39_classifier_evaluation"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Abre Classifier Evaluation desde las herramientas de arriba a la derecha. Selecciona un paquete de evaluación guardado para revisar las predicciones, las métricas y la división de los datos."
+          ]
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -8612,11 +8614,11 @@
             950,
             160
           ],
+          "hold_after": 0.7,
+          "speech_text": "Abre Explain CV para relacionar las predicciones de un clasificador de imágenes con las características medidas. Aporta los resultados de predicción de imágenes y las mediciones correspondientes, y revisa qué características explican las puntuaciones.",
           "related_lessons": [
             "70_explain_cv"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Abre Explain CV para relacionar las predicciones de un clasificador de imágenes con las características medidas. Aporta los resultados de predicción de imágenes y las mediciones correspondientes, y revisa qué características explican las puntuaciones."
+          ]
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -8627,11 +8629,11 @@
             950,
             160
           ],
+          "hold_after": 0.7,
+          "speech_text": "Abre Activation para ver qué regiones de la imagen influyen en las respuestas del modelo. Selecciona el punto de control entrenado y usa los mismos canales de imagen y el mismo preprocesamiento que en el entrenamiento.",
           "related_lessons": [
             "16_activation"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Abre Activation para ver qué regiones de la imagen influyen en las respuestas del modelo. Selecciona el punto de control entrenado y usa los mismos canales de imagen y el mismo preprocesamiento que en el entrenamiento."
+          ]
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -8642,20 +8644,20 @@
             950,
             160
           ],
+          "hold_after": 0.7,
+          "speech_text": "Abre Training Runs para comparar historiales de entrenamiento guardados. Selecciona ejecuciones con métricas y divisiones de datos compatibles, y revisa sus curvas de aprendizaje y sus ajustes.",
           "related_lessons": [
             "28_training_runs"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Abre Training Runs para comparar historiales de entrenamiento guardados. Selecciona ejecuciones con métricas y divisiones de datos compatibles, y revisa sus curvas de aprendizaje y sus ajustes."
+          ]
         },
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Abre Feature Explorer para comparar características medidas entre grupos seleccionados. Elige los grupos y los filtros, y revisa la clasificación de características y los gráficos.",
+          "hold_after": 0.7,
+          "speech_text": "Abre Feature Explorer para comparar características medidas entre grupos seleccionados. Elige los grupos y los filtros, y revisa la clasificación de características y los gráficos.",
           "related_lessons": [
             "65_feature_explorer"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Abre Feature Explorer para comparar características medidas entre grupos seleccionados. Elige los grupos y los filtros, y revisa la clasificación de características y los gráficos."
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8666,13 +8668,14 @@
             2050,
             1520
           ],
+          "hold_after": 0.7,
+          "speech_text": "Guarda el modelo entrenado, las predicciones y los resultados de evaluación en la carpeta de la ejecución. Puedes usar las puntuaciones por objeto en Regression junto con los recuentos de guías correspondientes. Las lecciones de módulos enlazadas muestran los siguientes pasos.",
           "related_lessons": [
             "06_api",
             "10_classify_cv",
-            "11_classify_ml"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Guarda el modelo entrenado, las predicciones y los resultados de evaluación en la carpeta de la ejecución. Puedes usar las puntuaciones por objeto en Regression junto con los recuentos de guías correspondientes. Las lecciones de módulos enlazadas muestran los siguientes pasos."
+            "11_classify_ml",
+            "13_regression"
+          ]
         }
       ],
       "narration_voices": {

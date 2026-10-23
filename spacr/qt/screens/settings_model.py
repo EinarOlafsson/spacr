@@ -10015,9 +10015,9 @@ class SettingsWidgets:
                         self._widgets.wait_for(key, what)
                         continue
                 if _time.perf_counter() >= next_breath:
-                    next_breath = _time.perf_counter() + _BREATH
                     QCoreApplication.processEvents(
                         QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+                    next_breath = _time.perf_counter() + _BREATH
                 widget = self._widget_for(kind, options, default, key)
                 if widget is not None:
                     attach_api_tooltip(

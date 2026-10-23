@@ -640,6 +640,43 @@ class _Voiceless(QWidget):
     """A control with none of the three value-changed signals."""
 
 
+def test_slow_event_pumps_leave_real_widget_work_between_breaths(qtbot, monkeypatch):
+    import time
+    from PySide6.QtCore import QCoreApplication, QEventLoop
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SM.SettingsWidgets("measure", parent=owner)
+    defaults = {f"owned_breath_{index}": str(index) for index in range(64)}
+    model._defaults = defaults
+    clock = [0]
+    built, pumps, flags = [], [], []
+    original = model._widget_for
+
+    def widget_for(kind, options, default, key):
+        widget = original(kind, options, default, key)
+        built.append(key)
+        clock[0] += 1
+        return widget
+
+    def process_events(mode):
+        pumps.append(len(built))
+        flags.append(mode)
+        clock[0] += 40
+
+    with monkeypatch.context() as patch:
+        patch.setattr(model, "_widget_for", widget_for)
+        patch.setattr(time, "perf_counter", lambda: clock[0] / 1000)
+        patch.setattr(QCoreApplication, "processEvents", process_events)
+        model.build_sections()
+
+    assert built == list(defaults)
+    assert list(model._widgets) == list(defaults)
+    assert flags and all(flag == QEventLoop.ExcludeUserInputEvents for flag in flags)
+    assert len(pumps) == 2, pumps
+    assert pumps[0] >= 25 and all(right - left >= 25 for left, right in zip(pumps, pumps[1:])), pumps
+
+
 def test_a_selector_with_no_signal_is_left_unconnected_rather_than_fatal(qtbot):
     """Three spellings are tried; a control with none is simply not followed."""
     owner = QWidget()
