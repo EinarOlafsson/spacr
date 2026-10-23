@@ -51,7 +51,13 @@ all89 Options controls, full native plate visibility, bounded resize, independen
 Options/reopen and full Back text after actual scrolling; original host restored.
 Inputs unchanged, all10 job groups and captured threads drained, normal close;
 child0/62.825s/RSS1.241GiB/zero missed samples. Normal generators are unchanged.
-Other-scale current-module coverage, physical input and smaller displays remain separate.
+Current-module normal-entrypoint scale matrix on72e62e264 also PASSES:
+GUI/font90/90,90/200,10/200,10/10,200/10; each checks all89 controls,
+full plate visibility, bounded resize, separate Options/reopen, native Back,
+unchanged inputs and actual job/thread drain with normal close. Five children0,
+40.274–46.177s/RSS1.169–1.294GiB/zero missed samples; no font-alias warnings.
+Together with200/200 above this covers six defined cases, not every intermediate
+scale, tiny-font readability, physical input or a different physical display.
 
 Mac acceptance addendum: retain Workstation's DONE implementation/ownership.
 On b453f2b0702abf5f158793c8b0e783974f488ea2, inspect two fresh normal-app
