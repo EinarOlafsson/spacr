@@ -502,3 +502,122 @@ def test_well_mean_context_uses_only_actual_view_representatives_and_axes(tmp_pa
     assert provenance["selection"]["generation"] == dialog._display_generation
     assert provenance["scope_plate"] == "p2"
     assert all(f.plate == "p2" and f.field_id == "10" for f in dialog._well_fields["A01"])
+
+
+def test_native_plate_wheel_and_enter_preserve_cursor_and_missing_field_identity(source_planes, qtbot):
+    from PySide6.QtCore import QPoint, QPointF, QSize
+    from PySide6.QtGui import QWheelEvent
+    from PySide6.QtWidgets import QApplication
+    from spacr.qt.gui_scale import _resize_actual
+
+    source, _ = source_planes
+    dialog = module._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "custom_regex": PATTERN, "channels": (1,), "geometry": (16, 24)})
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    _resize_actual(dialog, QSize(1000, 760))
+    dialog.show()
+    dialog._scan()
+    qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready
+                    and not dialog._index_jobs.is_busy(), timeout=10000)
+    viewport = dialog.wells.viewport()
+    cursor = viewport.rect().center()
+    anchor = dialog.wells.indexAt(cursor)
+    assert anchor.isValid()
+    address = anchor.row(), anchor.column()
+    identities = {well: dialog.wells.item(*position).data(Qt.UserRole)
+                  for well, position in dialog._well_positions.items()}
+    before = dialog._plate_cell_extent
+    event = QWheelEvent(QPointF(cursor), QPointF(viewport.mapToGlobal(cursor)),
+                        QPoint(), QPoint(0, 120), Qt.NoButton, Qt.NoModifier,
+                        Qt.NoScrollPhase, False)
+    QApplication.sendEvent(viewport, event)
+    assert event.isAccepted() and not dialog._plate_fit
+    assert all(after > old for after, old in zip(dialog._plate_cell_extent, before))
+    anchored = dialog.wells.indexAt(cursor)
+    assert (anchored.row(), anchored.column()) == address
+    magnified = dialog._plate_cell_extent
+    horizontal = QWheelEvent(QPointF(cursor), QPointF(viewport.mapToGlobal(cursor)),
+                             QPoint(), QPoint(120, 0), Qt.NoButton, Qt.NoModifier,
+                             Qt.NoScrollPhase, False)
+    QApplication.sendEvent(viewport, horizontal)
+    assert dialog._plate_cell_extent == magnified
+    item = dialog.wells.item(*dialog._well_positions["B02"])
+    dialog.wells.setCurrentItem(item)
+    dialog.wells.setFocus()
+    qtbot.keyClick(dialog.wells, Qt.Key_Return)
+    assert dialog._scope == ("p1", "B02")
+    assert dialog.fields.isVisible() and dialog.view.isVisible()
+    _choose(dialog.fov_axis, "10")
+    _choose(dialog.time_axis, "1")
+    _choose(dialog.z_axis, "1")
+    _choose(dialog.wheel_axis, "time")
+    transform = dialog.view.transform()
+    image_viewport = dialog.view.viewport()
+    position = image_viewport.rect().center()
+    for expected_time in ("2", "10"):
+        wheel = QWheelEvent(QPointF(position), QPointF(image_viewport.mapToGlobal(position)),
+                            QPoint(), QPoint(0, 120), Qt.NoButton, Qt.NoModifier,
+                            Qt.NoScrollPhase, False)
+        QApplication.sendEvent(image_viewport, wheel)
+        assert dialog.time_axis.currentData() == expected_time
+        assert dialog._scope == ("p1", "B02")
+        assert dialog.fov_axis.currentData() == "10" and dialog.z_axis.currentData() == "1"
+        if expected_time == "2":
+            assert dialog.view.transform() == transform
+            assert dialog._visible and all(field.well == "B02" and field.time_id == "2"
+                                          for field in dialog._visible)
+        else:
+            assert dialog._visible == () and dialog.fields.count() == 0
+            assert dialog.view._item is None
+    assert identities == {well: dialog.wells.item(*position).data(Qt.UserRole)
+                          for well, position in dialog._well_positions.items()}
+
+
+def test_native_representative_change_relearns_well_means_without_changing_axes(tmp_path, qtbot):
+    source = tmp_path / "representatives"
+    source.mkdir()
+    base = np.array([[0, 2], [2, 4]], dtype=np.uint16)
+    originals = {}
+    for well in ("A01", "B02"):
+        for field in (1, 2, 10):
+            for time in (1, 2):
+                for z in (1, 2):
+                    path = source / f"p1-{well}-f{field}-t{time}-z{z}-c1.tif"
+                    tifffile.imwrite(path, base + field * 4 + time * 100 + z * 10)
+                    originals[path] = path.read_bytes()
+    dialog = module._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "custom_regex": PATTERN, "channels": (1,), "geometry": (2, 3), "representatives": 1,
+        "normalization": {"mode": "reference_average", "reference_kind": "reference_well",
+                          "reference": ("p1", "A01"), "percentiles": (0., 100.)}})
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    dialog.show()
+    dialog._scan()
+    qtbot.waitUntil(lambda: dialog._normalization_ready and dialog._normalization_context is not None
+                    and not dialog._index_jobs.is_busy(), timeout=10000)
+    _choose(dialog.time_axis, "2")
+    _choose(dialog.z_axis, "2")
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
+    previous = dialog._normalization_context
+    assert previous.provenance()["reference_means"] == {1: 226.}
+    before = dialog._display_generation
+    dialog.options_button.click()
+    dialog._controls_scroll.ensureWidgetVisible(dialog.representatives)
+    dialog.representatives.setFocus()
+    qtbot.keyClick(dialog.representatives, Qt.Key_Up)
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy()
+                    and dialog._normalization_context is not previous, timeout=10000)
+    assert dialog.representatives.value() == 2
+    assert dialog._display_generation > before
+    assert dialog.plates.currentData() == "p1"
+    assert dialog.fov_axis.currentData() is None
+    assert dialog.time_axis.currentData() == dialog.z_axis.currentData() == "2"
+    provenance = dialog._normalization_context.provenance()
+    assert provenance["reference_means"] == {1: 228.}
+    assert provenance["selection"]["representatives"] == 2
+    assert provenance["selection"]["filename_time"] == provenance["selection"]["filename_z"] == "2"
+    assert provenance["selection"]["field_id"] is None
+    assert provenance["selection"]["generation"] == dialog._display_generation
+    reference, = provenance["reference_wells"]
+    assert reference["field_identities"] == tuple(field.identity for field in dialog._well_fields["A01"][:2])
+    assert previous.provenance()["reference_means"] == {1: 226.}
+    assert all(path.read_bytes() == content for path, content in originals.items())
