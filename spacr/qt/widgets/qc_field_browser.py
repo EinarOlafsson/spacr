@@ -1717,8 +1717,6 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None):
                 if plane.size * result_dtype.itemsize > 128 * 1024 ** 2:
                     raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
                 result = np.array(plane, dtype=result_dtype)
-                if result.nbytes > 128 * 1024 ** 2:
-                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
             elif z_mode == "max":
                 np.maximum(result, plane, out=result)
             else:
@@ -1797,10 +1795,6 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
         plane_size = math.prod(record["shape"][axes.index(axis)] for axis in "YX") * array.dtype.itemsize
         if edge is None and plane_size > 128 * 1024 ** 2:
             raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
-        remaining = "".join(axis for axis in axes if axis not in selections and axis != "C")
-        if "Z" in remaining:
-            axis = remaining.index("Z")
-            array = np.max(array, axis=axis) if z_mode == "max" else np.mean(array, axis=axis)
         if array.nbytes > 128 * 1024 ** 2:
             raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
         if edge is not None:
