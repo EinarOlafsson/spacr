@@ -147,7 +147,8 @@ def pypi_readme(source):
                     if item["target"]:
                         lines.append(f"   :target: {unescape(item['target'])}")
                     definitions.append("\n".join(lines))
-                blocks.append("| " + "\\ ".join(line))
+                blocks.append(f".. class:: {classes[layout]}\n\n| "
+                              + "\\ ".join(line))
         return "\n\n".join(blocks + definitions) + "\n"
 
     def absolute(value, image=False):
@@ -204,7 +205,9 @@ def space_after_code(source):
         if line.startswith(".. code-block::") or line.startswith(".. code::"):
             in_code = True
         elif in_code and line and not line.startswith(" "):
-            if line.startswith("| |pypi-"):
+            if (line.startswith("| |pypi-")
+                    or line in {".. class:: hide-below-desktop",
+                                ".. class:: hide-on-desktop"}):
                 out.extend(["|", ""])
             in_code = False
         out.append(line)
