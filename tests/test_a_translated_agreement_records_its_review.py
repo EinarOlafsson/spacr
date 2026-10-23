@@ -122,7 +122,7 @@ def test_an_unreadable_profile_language_displays_english_without_accepting(
     assert terms.terms_text() == "\n\n".join(terms.TERMS)
     assert _stored_values(store) == before
     assert terms.agreement_record()["version"] == "4.3"
-    assert terms.agreement_record()["current_version"] == "4.4"
+    assert terms.agreement_record()["current_version"] == "4.5"
 
 
 @pytest.mark.parametrize("unavailable", [False, True], ids=["missing", "failed"])
@@ -140,13 +140,14 @@ def test_an_unavailable_translation_displays_english_without_accepting(
     assert terms.terms_text("is") == "\n\n".join(terms.TERMS)
     assert _stored_values(store) == before
     assert terms.agreement_record()["license"] == "BSD 3-Clause License"
-    assert terms.agreement_record()["current_version"] == "4.4"
+    assert terms.agreement_record()["current_version"] == "4.5"
 
 
 @pytest.mark.parametrize(
     "accepted_version,expected_license",
-    [("", ""), ("4.3", "BSD 3-Clause License"), ("4.4", "")],
-    ids=["never-accepted", "historic-bsd", "current-license-unreadable"],
+    [("", ""), ("4.3", "BSD 3-Clause License"),
+     ("4.4", "spaCR Noncommercial License 1.0"), ("4.5", "")],
+    ids=["never-accepted", "historic-bsd", "historic-noncommercial", "current-license-unreadable"],
 )
 def test_an_unreadable_accepted_license_does_not_become_the_current_license(
         recorded_terms, monkeypatch, accepted_version, expected_license):
@@ -155,6 +156,7 @@ def test_an_unreadable_accepted_license_does_not_become_the_current_license(
     accepted_at = "2026-01-01T12:00:00+00:00" if accepted_version else ""
     store.setValue("onboarding/terms_agreed_at", accepted_at)
     license_name = "BSD 3-Clause License" if accepted_version == "4.3" else (
+        "spaCR Noncommercial License 1.0" if accepted_version == "4.4" else
         terms.LICENSE_NAME if accepted_version else "")
     store.setValue("onboarding/terms_agreed_license", license_name)
     store.sync()
@@ -171,7 +173,7 @@ def test_an_unreadable_accepted_license_does_not_become_the_current_license(
     assert terms.agreement_record() == {
         "version": accepted_version,
         "accepted_at": accepted_at,
-        "current_version": "4.4",
+        "current_version": "4.5",
         "license": expected_license,
     }
     assert _stored_values(store) == before

@@ -268,7 +268,7 @@ def test_operating_system_classifiers_are_named_explicitly():
 
 def test_the_package_declares_both_prospective_and_retained_licenses():
     """The distribution contains differently scoped material, not a BSD alternative."""
-    expression = "LicenseRef-spaCR-Noncommercial AND BSD-3-Clause"
+    expression = "LicenseRef-spaCR-BSD-3-Clause-Additional-Terms AND BSD-3-Clause"
     data = _toml_loads(_pyproject_text())
     if data is not None:
         assert data["project"]["license"] == expression
@@ -281,7 +281,19 @@ def test_the_package_declares_both_prospective_and_retained_licenses():
     assert not [c for c in _classifiers() if c.startswith("License ::")]
 
     current = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
-    assert "spaCR Noncommercial License 1.0" in current
+    assert current.startswith("BSD 3-Clause with additional terms\n")
+    assert "not the standard BSD 3-Clause License" in current
+    assert "SPDX-License-Identifier: LicenseRef-spaCR-BSD-3-Clause-Additional-Terms" in current
+    assert "Commercial use of the covered material is not permitted without separate" in current
+    assert '"AS IS", WITHOUT WARRANTY OF ANY KIND' in current
+    assert "ARE NOT LIABLE FOR CLAIMS, DAMAGES OR OTHER LIABILITY" in current
+    assert "TO THE EXTENT PERMITTED BY APPLICABLE LAW" in current
+    assert "does not override obligations for GPL-covered" in current
+    assert "subject to the noncommercial scope and permissions above" in current
+    assert "Redistributions of source code must retain" in current
+    assert "Redistributions in binary form must reproduce" in current
+    assert "Neither the name of the copyright holder" in current
+    assert "These conditions grant no commercial permission" in current
     assert "new original spaCR material first distributed" in current
     assert "spaCR Agreement version 4.4" in current
     assert "previously BSD-licensed material" in current
@@ -298,7 +310,7 @@ def test_the_package_declares_both_prospective_and_retained_licenses():
 def test_repository_metadata_links_the_scoped_license_without_a_bsd_or_choice():
     zenodo = json.loads((REPO_ROOT / ".zenodo.json").read_text(encoding="utf-8"))
     assert zenodo["license"] == "other-nc"
-    assert "spaCR Noncommercial License 1.0" in zenodo["description"]
+    assert "BSD 3-Clause with additional terms" in zenodo["description"]
     assert "commercial use requires separate written permission" in zenodo["description"]
     assert "BSD" in zenodo["description"]
     assert "source-available" in zenodo["description"]
@@ -311,11 +323,13 @@ def test_repository_metadata_links_the_scoped_license_without_a_bsd_or_choice():
 def test_the_in_app_policy_keeps_commercial_permission_and_existing_rights_explicit():
     from spacr.qt import terms
 
-    assert terms.LICENSE_NAME == "spaCR Noncommercial License 1.0"
+    assert terms.LICENSE_NAME == "BSD 3-Clause with additional terms"
     assert terms.LICENSE_URL.endswith("/nightly/LICENSE")
     clauses = {point.split(" ", 1)[0]: point for point in terms.TERMS}
     assert "New original spaCR material" in clauses["2.1"]
     assert "4.4" in clauses["2.1"] and "not OSI-approved open source" in clauses["2.1"]
+    assert "noncommercial restrictions" in clauses["2.1"]
+    assert "not the standard BSD 3-Clause License" in clauses["2.1"]
     assert "Noncommercial use, copying, modification and distribution" in clauses["2.2"]
     assert "without a fee, account approval or material-transfer agreement" in clauses["2.2"]
     assert "Commercial use requires separate written permission" in clauses["2.3"]
@@ -354,13 +368,16 @@ def test_the_terms_version_is_bumped_whenever_the_agreement_changes():
     4.4 adds prospective noncommercial licensing while preserving existing
     BSD grants and third-party rights; 4.3 acceptance cannot carry forward.
 
+    4.5 identifies the same restrictions under a BSD-first custom licence name;
+    4.4 acceptance is preserved and the revised identity needs re-acceptance.
+
     Pinned rather than asserted-nonempty so a bump is deliberate: whoever
     changes the agreement updates this line in the same commit and says which
     clause moved.
     """
     from spacr.qt import terms
 
-    assert terms.TERMS_VERSION == "4.4"
+    assert terms.TERMS_VERSION == "4.5"
     assert any(clause.startswith("11.4 LANGUAGE.") for clause in terms.TERMS), (
         "4.1 is defined by the governing-language clause; it is missing")
     assert any(clause.startswith(

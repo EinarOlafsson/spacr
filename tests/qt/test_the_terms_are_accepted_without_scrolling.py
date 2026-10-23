@@ -195,8 +195,8 @@ class TestRewrittenTermsAskAgain:
         assert terms_module.needs_agreement() is True
 
     def test_the_noncommercial_revision_requires_a_new_agreement(self, terms_module):
-        """Accepting the BSD-era 4.3 terms does not accept prospective 4.4 terms."""
-        assert terms_module.TERMS_VERSION == "4.4"
+        """Accepting the BSD-era 4.3 terms does not accept the current custom-licence identity."""
+        assert terms_module.TERMS_VERSION == "4.5"
         terms_module.record_agreement("4.3")
 
         assert terms_module.needs_agreement() is True

@@ -231,7 +231,7 @@ class TestSchema:
                                           "ai_summary", "summarize",
                                           "screen", "error_text", "chain",
                                           "settings", "inputs", "environment",
-                                          "run", "log_tail", "cause"}
+                                          "run", "log_tail", "cause", "native_session"}
 
     def test_exactly_the_allowlisted_keys(self):
         summary = _summary(module="measure")
