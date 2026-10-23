@@ -2265,8 +2265,10 @@ class _OverviewPlateDelegate(_OverviewWellDelegate):
         self.initStyleOption(opts, index)
         option.widget.style().drawPrimitive(QStyle.PE_PanelItemViewItem, opts, painter, option.widget)
         painter.save()
-        rect = option.rect.adjusted(4, 4, -4, -4)
+        rect = option.rect.adjusted(1, 1, -1, -1)
         height = option.fontMetrics.height() + 3
+        if rect.height() < height + 20:
+            height = 0
         image_rect = QRect(rect.left(), rect.top(), rect.width(), max(1, rect.height() - height))
         icon = index.data(Qt.DecorationRole)
         if icon is not None:
@@ -2275,8 +2277,9 @@ class _OverviewPlateDelegate(_OverviewWellDelegate):
         caption = option.fontMetrics.elidedText(caption, Qt.ElideRight, rect.width())
         painter.setPen(opts.palette.color(QPalette.HighlightedText
             if option.state & QStyle.State_Selected else QPalette.Text))
-        painter.drawText(QRect(rect.left(), image_rect.bottom() + 1, rect.width(), height),
-                         Qt.AlignHCenter | Qt.AlignVCenter, caption)
+        if height:
+            painter.drawText(QRect(rect.left(), image_rect.bottom() + 1, rect.width(), height),
+                             Qt.AlignHCenter | Qt.AlignVCenter, caption)
         if option.state & QStyle.State_MouseOver:
             painter.fillRect(option.rect.adjusted(1, 1, -1, -1), QColor(35, 130, 245, 65))
         painter.restore()
@@ -2336,6 +2339,7 @@ class _FieldOverview(QDialog):
         self._geometry_valid = True
         self._geometry_error = None
         self._plate_cell_extent = None
+        self._plate_fit = True
         self._displayed_field = None
         self.setWindowTitle(tr("Field-of-view overview"))
         self.resize(1000, 760)
@@ -2416,10 +2420,16 @@ class _FieldOverview(QDialog):
         back = QPushButton(tr("Back to plate"))
         back.clicked.connect(self._back)
         navigation.addWidget(back)
+        open_well = QPushButton(tr("Open selected well"))
+        open_well.clicked.connect(self._open_selected_well)
+        navigation.addWidget(open_well)
+        self._navigation_layout = navigation
         column.addLayout(navigation)
         from PySide6.QtCore import QSize
         self.wells, self.fields = QTableWidget(), QListWidget()
         self.wells.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.wells.horizontalHeader().setMinimumSectionSize(1)
+        self.wells.verticalHeader().setMinimumSectionSize(1)
         self.wells.setItemDelegate(_OverviewPlateDelegate(self.wells))
         self.wells.setMouseTracking(True)
         self.wells.viewport().setMouseTracking(True)
@@ -2437,6 +2447,7 @@ class _FieldOverview(QDialog):
         self.fields.verticalScrollBar().valueChanged.connect(self._request_visuals)
         self._well_viewport = self.wells.viewport()
         self._well_viewport.installEventFilter(self)
+        self.wells.installEventFilter(self)
         self.wells.horizontalScrollBar().valueChanged.connect(self._request_visuals)
         self.wells.verticalScrollBar().valueChanged.connect(self._request_visuals)
         from PySide6.QtCore import QSize
@@ -2704,56 +2715,70 @@ class _FieldOverview(QDialog):
             return
 
     def _zoom_plate(self, delta=0):
-        """Keep source well geometry while reserving at least 64 native pixels per cell.
+        """Fit the complete physical plate or explicitly magnify its cells.
 
-        :param delta: positive or negative zoom step; zero chooses readable fitting cells.
+        :param delta: signed magnification step, or zero to restore whole-plate fit.
         """
+        self._plate_fit = not bool(delta)
         columns, rows = max(1, self.wells.columnCount()), max(1, self.wells.rowCount())
         if delta and self._plate_cell_extent is not None:
             factor = 1.25 if delta > 0 else .8
-            width, height = (max(64, min(512, round(value * factor)))
+            width, height = (max(2, min(512, round(value * factor)))
                              for value in self._plate_cell_extent)
         else:
-            width = max(64, int(self.wells.viewport().width() / columns))
-            height = max(64, int(self.wells.viewport().height() / rows))
+            width = max(1, self.wells.viewport().width() // columns)
+            height = max(1, self.wells.viewport().height() // rows)
+        self.wells.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff if self._plate_fit else Qt.ScrollBarAsNeeded)
+        self.wells.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if self._plate_fit else Qt.ScrollBarAsNeeded)
         self._plate_cell_extent = width, height
         self._apply_plate_extent()
 
     def _apply_plate_extent(self):
-        """Restore the same native well size after a source-axis or annotation change."""
+        """Restore the same native well size after source-axis or annotation changes."""
         if self._plate_cell_extent is None:
             return
         width, height = self._plate_cell_extent
+        from PySide6.QtCore import QSize
+        self.wells.setIconSize(QSize(max(1, width - 2), max(1, height - 2)))
         for column in range(self.wells.columnCount()):
             self.wells.setColumnWidth(column, width)
         for row in range(self.wells.rowCount()):
             self.wells.setRowHeight(row, height)
         self._request_visuals()
 
-    def _wrap_controls(self, column, splitter):
-        """Keep every configuration action reachable on a small window via one scroll area.
+    def _open_selected_well(self):
+        """Open the selected well without conflating selection with navigation."""
+        item = self.wells.currentItem()
+        if item is not None:
+            self._well(item)
 
-        :param column: the dialog's existing outer layout.
-        :param splitter: the image and plate area, kept outside the settings scroller.
+    def _wrap_controls(self, column, splitter):
+        """Keep essential navigation visible and put detailed controls in optional scrolling.
+
+        :param column: the existing dialog layout.
+        :param splitter: image workspace outside the configuration scroller.
         """
         from PySide6.QtWidgets import QScrollArea
         from .flow import FlowHost, FlowLayout
         content = QWidget(self)
         controls = QVBoxLayout(content)
+        essential = FlowHost(self)
+        essential_flow = FlowLayout(essential)
         while column.count():
             item = column.takeAt(0)
             if item.widget() in (splitter, self.status):
                 continue
             layout = item.layout()
             if layout is not None:
-                host = FlowHost(content)
-                flow = FlowLayout(host)
+                host = essential if layout is self._navigation_layout else FlowHost(content)
+                flow = essential_flow if host is essential else FlowLayout(host)
                 while layout.count():
                     child = layout.takeAt(0)
                     if child.widget() is not None:
                         flow.addWidget(child.widget())
                 layout.setParent(None)
-                controls.addWidget(host)
+                if host is not essential:
+                    controls.addWidget(host)
             elif item.widget() is not None:
                 controls.addWidget(item.widget())
         scroll = QScrollArea(self)
@@ -2762,9 +2787,20 @@ class _FieldOverview(QDialog):
         scroll.setMinimumHeight(100)
         scroll.setMaximumHeight(330)
         self._controls_scroll = scroll
+        self.options_button = QPushButton(tr("Options"))
+        self.options_button.setCheckable(True)
+        self.options_button.toggled.connect(scroll.setVisible)
+        essential_flow.addWidget(self.options_button)
+        fit = QPushButton(tr("Fit plate"))
+        fit.clicked.connect(lambda: self._zoom_plate())
+        essential_flow.addWidget(fit)
+        column.addWidget(essential)
         column.addWidget(scroll)
         column.addWidget(splitter, 1)
         column.addWidget(self.status)
+        scroll.hide()
+        self.fields.hide()
+        self.view.hide()
 
     def _display_kwargs(self):
         """Freeze selected stack axes and the immutable normalization plan."""
@@ -2981,6 +3017,8 @@ class _FieldOverview(QDialog):
             return
         options, cancelled = self._display_kwargs(), self._cancelled
         self._individual = False
+        self.fields.show()
+        self.view.show()
         self._splitter.setSizes([250, 300, 750])
         signature = tuple(field.identity for field in fields), channels, limits, repr(options)
         self._comparison_signature = signature
@@ -3094,7 +3132,12 @@ class _FieldOverview(QDialog):
         self._scope = (self.plates.currentData(), None)
         self._individual = False
         self._comparison_signature = None
-        self._splitter.setSizes([720, 280, 0])
+        self.fields.hide()
+        self.view.hide()
+        self.wells.show()
+        self._plate_fit = True
+        self._plate_cell_extent = None
+        self._splitter.setSizes([1000, 0, 0])
         self.view.clear_image()
         self._page = 0
         self._filter()
@@ -3226,7 +3269,7 @@ class _FieldOverview(QDialog):
         if not self._visible:
             self.view.clear_image()
         if self._overview_options.get("geometry"):
-            if self._plate_cell_extent is None:
+            if self._plate_fit or self._plate_cell_extent is None:
                 self._zoom_plate()
             else:
                 self._apply_plate_extent()
@@ -3255,6 +3298,8 @@ class _FieldOverview(QDialog):
         """
         self._scope = (self.plates.currentData(), item.data(Qt.UserRole))
         self._comparison_signature = None
+        self.fields.show()
+        self.view.show()
         self._splitter.setSizes([250, 200, 750])
         self._individual = False
         self._page = 0
@@ -3351,6 +3396,23 @@ class _FieldOverview(QDialog):
         :param event: a paint or resize event that may expose image tiles.
         :returns: the inherited event-filter result.
         """
+        if (watched is self._well_viewport and event.type() == QEvent.Wheel
+                and event.angleDelta().y()):
+            position = event.position().toPoint()
+            old_width, old_height = self._plate_cell_extent or (1, 1)
+            column = (self.wells.horizontalScrollBar().value() + position.x()) / old_width
+            row = (self.wells.verticalScrollBar().value() + position.y()) / old_height
+            self._zoom_plate(1 if event.angleDelta().y() > 0 else -1)
+            width, height = self._plate_cell_extent
+            self.wells.horizontalScrollBar().setValue(round(column * width - position.x()))
+            self.wells.verticalScrollBar().setValue(round(row * height - position.y()))
+            event.accept()
+            return True
+        if watched in (self.wells, self._well_viewport) and event.type() == QEvent.KeyPress and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self._open_selected_well()
+            return True
+        if watched is self._well_viewport and event.type() == QEvent.Resize and self._plate_fit:
+            self._zoom_plate()
         if watched in (self._well_viewport, self.fields.viewport()) and event.type() in (QEvent.Paint, QEvent.Resize):
             self._request_visuals()
         return super().eventFilter(watched, event)
@@ -3391,7 +3453,8 @@ class _FieldOverview(QDialog):
         self._visual_signature = signature
         cancelled = self._cancelled
         options = self._display_kwargs()
-        self._update_field_thumbnails(signature, channels, limits, options)
+        if self.fields.isVisible():
+            self._update_field_thumbnails(signature, channels, limits, options)
         if self._comparison_signature is not None:
             return
         if self._scope[1] is not None and not self._individual and page:
@@ -3444,7 +3507,8 @@ class _FieldOverview(QDialog):
                 if field is None:
                     continue
                 representatives = tuple(self._well_fields[well][:self.representatives.value()])
-                key = (tuple(record.identity for record in representatives), channels, limits, ratio, repr(options))
+                edge = min(4096, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
+                key = (tuple(record.identity for record in representatives), channels, limits, ratio, edge, repr(options))
                 if item.data(Qt.UserRole + 1) == key:
                     continue
                 if key in self._thumbnail_cache:
@@ -3461,7 +3525,7 @@ class _FieldOverview(QDialog):
                                                               cancelled, **options)
                             return pixels, "; ".join(message for _, message in errors)
                         return _overview_pixels(field, channels, limits,
-                                                edge=math.ceil(160 * ratio), **options), ""
+                                                edge=edge, **options), ""
                     except Exception as exc:
                         return None, str(exc)
                 def done(result):

@@ -216,6 +216,8 @@ def test_small_physical_window_keeps_configuration_and_images_reachable(overview
     dialog = overview
     _resize_actual(dialog, QSize(760, 620))
     qtbot.waitUntil(lambda: dialog.size() == QSize(760, 620))
+    assert not dialog._controls_scroll.isVisible()
+    dialog.options_button.click()
     assert dialog._controls_scroll.isVisible()
     assert dialog._splitter.isVisible()
     assert dialog._splitter.height() > 0
@@ -344,6 +346,8 @@ def test_readable_plate_cells_paint_real_native_icons_and_translucent_hover(sour
     qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready, timeout=10000)
     item = dialog.wells.item(*dialog._well_positions["A01"])
     qtbot.waitUntil(lambda: not item.icon().isNull(), timeout=10000)
+    while min(dialog._plate_cell_extent) < 64:
+        dialog._zoom_plate(1)
     assert dialog.wells.rowHeight(0) >= 64
     assert dialog.wells.columnWidth(0) >= 64
     assert item.text() in item.toolTip()
@@ -401,3 +405,47 @@ def test_incompatible_plate_geometry_refuses_without_an_expanded_grid_or_gui_err
                             pytest.fail("an invalid plate geometry must not export"))
         dialog._export()
     assert exceptions == []
+
+
+@pytest.mark.parametrize("dimensions", [(1280, 820), (760, 620)])
+def test_initial_whole_plate_fits_and_opening_is_separate_from_selection(source_planes, qtbot, dimensions):
+    from PySide6.QtCore import QSize
+    from spacr.qt.gui_scale import _resize_actual
+
+    source, _ = source_planes
+    dialog = module._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "custom_regex": PATTERN, "channels": (1,), "geometry": (16, 24)})
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    _resize_actual(dialog, QSize(*dimensions))
+    dialog.show()
+    dialog._scan()
+    qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready, timeout=10000)
+    qtbot.waitUntil(lambda: all(dialog.wells.item(*position).data(Qt.UserRole + 1) is not None
+        for position in dialog._well_positions.values()), timeout=10000)
+    assert dialog.size() == QSize(*dimensions)
+    assert not dialog._controls_scroll.isVisible()
+    assert not dialog.fields.isVisible() and not dialog.view.isVisible()
+    viewport = dialog.wells.viewport().rect()
+    for row, column in ((0, 0), (0, 23), (15, 0), (15, 23)):
+        assert viewport.contains(dialog.wells.visualRect(dialog.wells.model().index(row, column)))
+    assert dialog.wells.horizontalScrollBar().maximum() == 0
+    assert dialog.wells.verticalScrollBar().maximum() == 0
+    identities = {well: dialog.wells.item(*position).data(Qt.UserRole)
+                  for well, position in dialog._well_positions.items()}
+    item = dialog.wells.item(*dialog._well_positions["A01"])
+    dialog.wells.setCurrentItem(item)
+    assert not dialog.fields.isVisible()
+    dialog._open_selected_well()
+    assert dialog.fields.isVisible() and dialog.view.isVisible()
+    assert dialog._scope[1] == "A01"
+    dialog._back()
+    qtbot.waitUntil(lambda: dialog.wells.verticalScrollBar().maximum() == 0)
+    assert not dialog.fields.isVisible() and not dialog.view.isVisible()
+    assert viewport.contains(dialog.wells.visualRect(dialog.wells.model().index(15, 23)))
+    before = dialog._plate_cell_extent
+    dialog._zoom_plate(1)
+    assert dialog._plate_cell_extent[0] > before[0]
+    assert identities == {well: dialog.wells.item(*position).data(Qt.UserRole)
+                          for well, position in dialog._well_positions.items()}
+    dialog._zoom_plate()
+    assert dialog.wells.verticalScrollBar().maximum() == 0
