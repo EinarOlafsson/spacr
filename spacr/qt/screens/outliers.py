@@ -118,7 +118,7 @@ _METHOD_LABELS = (
     (METHOD_MAHALANOBIS, "Mahalanobis — robust multivariate (MCD)"),
 )
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import (SortableTableItem, _spare_items, _spare_table_item,
+from ..widgets.sortable_table import (SortableTableItem, _spare_items,
                                       install_sorting, table_item)
 from ..app_catalog import declared_app, register_declared
 
@@ -675,6 +675,7 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
         table.setColumnCount(columns)
         table.setRowCount(rows)
         table.setHorizontalHeaderLabels([str(c) for c in frame.columns])
+        spare = _spare_items(table)
         model = table.model()
         model.blockSignals(True)
         try:
@@ -683,12 +684,17 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
                 for row, value in enumerate(values):
                     text = _cell(value)
                     item = table.item(row, column) if row < had_rows and column < had_columns else None
-                    if item is None:
-                        table.setItem(row, column, _spare_table_item(table, text))
-                    else:
-                        item.setText(text)
-                        if isinstance(item, SortableTableItem):
-                            item._init_sort_key(text)
+                    insert = item is None
+                    if insert:
+                        if not spare:
+                            table.setItem(row, column, table_item(text))
+                            continue
+                        item = spare.pop()
+                    QTableWidgetItem.setData(item, Qt.DisplayRole, text)
+                    if isinstance(item, SortableTableItem):
+                        item._init_sort_key(text)
+                    if insert:
+                        table.setItem(row, column, item)
         finally:
             model.blockSignals(False)
         if rows and columns:

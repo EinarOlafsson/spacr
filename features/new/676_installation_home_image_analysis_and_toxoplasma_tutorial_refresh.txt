@@ -265,3 +265,8 @@ Continue existing-footage pause edits and normal publication; preserve passed au
 Lessons11/09/15/20/23 are rendered; repair composed-catalog retention validation before their browser checks and publication. Item676 remains open.
 
 2026-10-22 — Lessons11 Classify ML,09 Annotate,15 Image UMAP,20 Cellpose Masks and23 Annotator Agreement publish reviewed1x editorial footage and source-bound idle-tail protection. Four lessons retain their verified50 narration tracks/timings/speeds; Image UMAP uses current reviewed50 narration and a truthful navigation reference card alongside14retained native scenes. No new raw capture or listening/native-speaker signoff claimed. Normal full decode/PTS/poster/web,71browser checks per lesson and84route candidate/publication/readback pass. Item676 remains open.
+
+2026-10-22 — Reviewed existing-footage pause cuts for21 Model Compare,27 Replication,28 Training Runs,33 Plate Viewer and35 Converter.
+Preserve all existing narration and essential selection, result, export and conversion actions; Model Compare reuses its unchanged master. Normal media finishing and publication remain pending; item676 stays open.
+
+2026-10-22 — Lessons21 Model Compare,27 Replication,28 Training Runs,33 Plate Viewer and35 Converter publish reviewed existing footage with source-bound idle-tail protection. All five retain their verified50 narration tracks/timings/speeds. Lesson21 retains its unchanged master with two native views and four truthful held cards; the other lessons use reviewed1x editorial source intervals. No new raw capture or listening/native-speaker signoff claimed. Normal full decode/PTS/poster/web,71browser checks per lesson and84route candidate/publication/readback pass. Item676 remains open.
