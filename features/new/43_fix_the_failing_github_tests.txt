@@ -1,4 +1,21 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT EMBEDDINGS CONTROL COVERAGE — 2026-10-23
+Retained widgets_g5 owns four source-bound controls for the actual aggregate
+coverage gaps: installed-checkpoint placeholder preservation, current-result
+well-label column acceptance/cancellation, and read-only refusal of stored
+vectors without matching crop metadata. G4 independently peers and root
+publishes. Preserve frozen object/well identities, alpha gates, every ratchet,
+production source and existing assertions; no model execution or fitting.
+Result: all four controls pass; the two affected dialog cases pass in 5.19s.
+Coverage confirms the selected core refusal and three screen branches.
+No production/API/runtime/consumer changes require generated outputs.
+
+CURRENT SOURCE-BOUND LOGGING, BRIDGE AND EMBEDDINGS CONTROLS — 2026-10-23
+Retained owners cover the actual timer-start failure, native worker reporting
+without usable original stderr, and embeddings registry/column-selection paths.
+Preserve real lifecycle outcomes, frozen data identities, existing assertions
+and coverage ceilings; root integrates the disjoint controls before publication.
+
 CURRENT PREFERENCES DRAFT IDENTITY FIX — 2026-10-23
 Keep unchanged cached-dialog drafts stable when pages are detached or moved.
 Order widget enumeration by native identity before collecting unchanged
@@ -4509,3 +4526,6 @@ Normal API output remains identical across 19 keys; runtime captions and API tar
 
 2026-10-23 — Actual CI diagnostics identified a false Preferences draft change caused solely by page/widget traversal order. Native identity ordering fixes it without changing captured values or weakening cache/performance limits. The real detach/reorder/value-sensitive regression and both original strict controls pass (3 tests, 9.96s); independent source/test review is accepted.
 Normal bounded API applicability confirms 223 rendered entries unchanged; runtime strings, setting targets and consumers are unaffected. No artifact regeneration is applicable; prior unrelated results are retained.
+
+2026-10-23 — Two actual native-worker controls pass (4.30s) with missing or genuinely closed original stderr: cleanup reporting preserves the payload and exactly one successful completion, without a leaked thread. Public trace inheritance measures the original worker frame; scoped facades preserve other process streams. Production and generated outputs are unchanged.
+An owned-timer native-start failure control passes (0.68s): boundary drain preserves the buffered tail, retires the unstarted timer without an invalid join and leaves the log usable. The failure seam forwards every unrelated thread start; previous lifecycle results are retained.

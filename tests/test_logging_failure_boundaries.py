@@ -162,6 +162,45 @@ def test_a_failed_handler_does_not_prevent_other_tails_or_timer_retirement(
         failed.close()
 
 
+
+def test_boundary_drain_flushes_a_burst_after_its_timer_cannot_start(
+        paced_file_handler, monkeypatch):
+    """A failed native thread start cannot lose a tail or cause an invalid join."""
+    handler, path = paced_file_handler
+    monkeypatch.setattr(lu, "_FLUSH_INTERVAL_S", 60)
+    _write_record(handler, "first")
+    errors = []
+    monkeypatch.setattr(handler, "handleError", errors.append)
+
+    original_start = threading.Thread.start
+
+    def no_native_thread(thread):
+        if thread is handler._spacr_late_flush:
+            raise RuntimeError("can't start new thread")
+        return original_start(thread)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(threading.Thread, "start", no_native_thread)
+        _write_record(handler, "tail without a timer thread")
+    timer = handler._spacr_late_flush
+    assert isinstance(timer, threading.Timer)
+    assert timer.ident is None
+    assert not timer.is_alive()
+    assert timer in handler._spacr_flush_timers
+    assert [record.getMessage() for record in errors] == [
+        "tail without a timer thread"]
+    assert path.read_text() == "first\n"
+
+    lu._drain_package_logs()
+
+    assert path.read_text() == "first\ntail without a timer thread\n"
+    assert handler._spacr_late_flush is None
+    assert handler._spacr_flush_token is None
+    assert timer.finished.is_set()
+    assert timer.ident is None
+    assert handler.stream is not None and not handler.stream.closed
+
+
 def test_a_non_rotating_handler_is_not_rewired():
     handler = logging.StreamHandler()
     assert lu._quicken(handler) is handler

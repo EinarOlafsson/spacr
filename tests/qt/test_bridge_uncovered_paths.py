@@ -812,3 +812,92 @@ def test_a_journalled_run_says_what_its_analysis_lock_found(monkeypatch):
     assert "threshold changed after the lock\n" in text
     assert text.index("Reproducibility manifest:") < text.index(
         "threshold changed after the lock")
+
+
+@pytest.mark.parametrize("stderr_state", ["missing", "closed"])
+def test_a_drain_report_with_unavailable_original_stderr_keeps_native_completion(
+        qtbot, monkeypatch, tmp_path, stderr_state):
+    """A failed cleanup diagnostic cannot swallow a real worker's result."""
+    from types import SimpleNamespace
+
+    from PySide6.QtCore import Slot
+
+    from spacr import logging_util
+
+    closed_stream = (tmp_path / "closed-stderr.txt").open("w")
+    closed_stream.close()
+    stderr = None if stderr_state == "missing" else closed_stream
+    events, failures, drains, reports, report_failures, retired = [], [], [], [], [], []
+    main_ident = threading.get_ident()
+    original_run = B.PipelineWorker.run
+    original_report = B.traceback.print_exc
+
+    class BridgeSys:
+        """Vary only bridge's original-stderr read, forwarding stream writes."""
+        def __getattr__(self, name):
+            return stderr if name == "__stderr__" else getattr(sys, name)
+
+        def __setattr__(self, name, value):
+            setattr(sys, name, value)
+
+    class TracedWorker(B.PipelineWorker):
+        """Keep a native QObject slot while inheriting an existing trace hook."""
+        @Slot()
+        def run(self):
+            """Enter the unchanged worker frame on its real QThread."""
+            previous = sys.gettrace()
+            inherited = threading.gettrace() if previous is None else None
+            if inherited is not None:
+                sys.settrace(inherited)
+            try:
+                return original_run(self)
+            finally:
+                if inherited is not None:
+                    sys.settrace(previous)
+
+    def fail_drain():
+        """Model an unavailable log destination at the existing drain seam."""
+        drains.append(threading.get_ident())
+        raise OSError("the run log cannot be flushed")
+
+    def report(*args, **kwargs):
+        """Observe and delegate the real traceback write to the closed file."""
+        reports.append(kwargs["file"])
+        try:
+            return original_report(*args, **kwargs)
+        except (OSError, ValueError) as exc:
+            report_failures.append(type(exc))
+            raise
+
+    def analysis(settings):
+        """Return an actual worker payload before its cleanup fails."""
+        events.append(("called", threading.get_ident()))
+        return {"rows": settings["rows"]}
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(B, "sys", BridgeSys())
+        scoped.setattr(logging_util, "_drain_package_logs", fail_drain)
+        scoped.setattr(B, "traceback", SimpleNamespace(
+            **{**vars(B.traceback), "print_exc": report}))
+        scoped.setattr(B, "PipelineWorker", TracedWorker)
+        thread, worker = B.make_thread(
+            analysis, {"rows": 4}, journal=False, capture_figures=False,
+            user_visible=False)
+        worker.result_ready.connect(lambda value: events.append(("result", value)))
+        worker.finished.connect(lambda ok: events.append(("finished", ok)))
+        worker.error.connect(failures.append)
+        thread.finished.connect(lambda: retired.append(True))
+        thread.start()
+        try:
+            qtbot.waitUntil(lambda: bool(retired), timeout=5000)
+            assert events[0][0] == "called"
+            assert events[0][1] != main_ident
+            assert events[1:] == [("result", {"rows": 4}), ("finished", True)]
+            assert drains == [events[0][1]]
+            assert failures == []
+            assert retired == [True]
+            assert not shiboken6.isValid(thread) or not thread.isRunning()
+            assert reports == ([] if stderr_state == "missing" else [closed_stream])
+            assert report_failures == ([] if stderr_state == "missing" else [ValueError])
+        finally:
+            B.drain_thread(thread)
