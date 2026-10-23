@@ -40,7 +40,10 @@ captured. No owned worker/helper remains. Native870d208ae close PASS with actual
 Cocoa/exposed-window/nonzero-handle proof, owned helper reaped and both compiler
 threads drained, no late local compilation and normal process exit0 (11.27s,
 RSS0.610GiB). Earlier Cocoa pass lacked explicit exposure proof and is diagnostic
-only. Affected normal Home-to-Mask real-helper startup/quit check remains next.
+only. Native03510c144 normal Home-to-Mask real-helper check PASS: both screens
+usable/no font alias, actual helper active before quit and reaped afterward
+(poll -15), no remaining tracked compiler threads/helper, natural process exit0;
+RSS0.937GiB/0 missed samples. No sampling/candidate hooks or timing acceptance.
 
 Next scoped Mac font check: from normal Home startup, open the public command
 palette and parentless shortcut-help fallback sequentially at default 90% GUI/
