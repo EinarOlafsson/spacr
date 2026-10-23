@@ -56,6 +56,16 @@ Both regressions fail before repair and pass afterward (4.28 s, sampled RSS
 0.269 GiB); ten prior font checks stand. Native4495f2178 now passes both popup
 font/geometry cases with normal exit0/no aliases, RSS0.960GiB/0 missed samples.
 
+Scoped current-source Regression coverage: run only the existing first-open
+10 s budget and fresh-screen navigation nodes on Cocoa with owned settings;
+observe platform/window exposure after each unchanged test call. This is not
+painted-usable timing, the 200 ms target or complete N641 acceptance.
+On1ed1a5fb7446 (macOS26.6.1 Intel), both unchanged nodes pass on Cocoa with
+shown/exposed1400x900 windows at DPR2: timed-test call6.180s, navigation3.274s;
+2 PASS in21.99s, sampled RSS0.780GiB, normal exit0. Qt reports OpenType script11
+coverage warnings for Apple system fonts; no assertion is weakened. Existing
+200 ms and native startup/stall targets remain unmet, not reclassified.
+
 Current Mac follow-up (2026-10-23): retain 61 unmet native comparisons and all
 startup/stall targets. Owned Cocoa Home→Mask diagnostics use exact source,
 isolated INI/state/cache and the sampled 8 GiB/300 s guard, not timing acceptance.
