@@ -1232,9 +1232,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Organelle Segmentation", ("@Organelle",)),
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
         ("Cellpose 3", ("@Cellpose 3",)),
-        ("Image Preprocessing (per object)",
-         ("@Image preprocessing (per object)",)),
-        ("Object Filtration (all objects)", ("@Object filtration",)),
+        ("Object filtration α", ("real_object_classifier", "real_object_threshold",
+                                  "@Object filtration")),
         ("Quality Control", (
             "@Segmentation QC",
             "save", "delete_intermediate", "keep_intermediate",
@@ -3789,6 +3788,8 @@ def _category_blurb(app_key: str, title: str) -> str:
     key = str(title or "").upper().strip()
     if not key:
         return ""
+    if app_key == "mask" and key == "OBJECT FILTRATION Α":
+        return get_tooltips().get("real_object_classifier", "")
     candidates = [key]
     mark = ALPHA_MARK.upper()
     if key.endswith(mark) and key[:-len(mark)].strip():
@@ -3824,6 +3825,10 @@ def category_tooltip(
     """
     if not str(title or "").strip():
         return ""
+    if app_key == "mask" and title == "Object filtration α":
+        return _translated_body(get_tooltips().get("real_object_classifier", ""),
+                                language, setting_key="real_object_classifier",
+                                app_key=app_key)
     text = _category_blurb(app_key, title)
     if not text:
         text = f"Settings that control {str(title).lower().strip()}."

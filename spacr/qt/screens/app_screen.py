@@ -3048,6 +3048,16 @@ class AppScreen(QWidget):
                 section.deleteLater()
                 return
             section.add_prose_row("", grid)
+            if self.app_key == "mask":
+                filters = next((child for child in self._settings_sections
+                                if child.property("settingsCategorySource")
+                                == "Object filtration α"), None)
+                if filters is not None:
+                    filters.setObjectName("MaskObjectFiltrationAlpha")
+                    layout.removeWidget(filters)
+                    section.add_prose(filters)
+                    filters.toggled.connect(
+                        partial(self._open_the_headings_above, section))
             self._object_grid = grid
             self._object_grid_binding = binding
             model.hide_the_rows_the_grid_speaks_for(owned)

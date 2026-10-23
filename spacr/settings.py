@@ -7683,6 +7683,7 @@ ALPHA_FEATURES = {
     },
     470: {
         'settings': ('real_object_classifier', 'real_object_threshold'),
+        'widgets': ('MaskObjectFiltrationAlpha',),
     },
     578: {
         'settings': ('robustness_report', 'robustness_fields',

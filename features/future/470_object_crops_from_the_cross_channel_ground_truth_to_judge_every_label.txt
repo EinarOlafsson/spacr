@@ -369,3 +369,5 @@ source-current target are preserved. Full writer actually refuses two later
 foreign F549 microscope_positions targets; raw failure and per-locale missing
 lists are retained. This source publication leaves global caption/release
 acceptance open; unchanged121 are not needlessly rerun.
+
+2026-10-23 — Maintainer UI requirement, shared settings owner: move existing real_object_classifier/real_object_threshold from Generate Masks Advanced/Object filtration (all objects) to Per-object settings > Object filtration α, with a literal group object name registered in ALPHA_FEATURES[470]. Preserve values and ordinary regionprop filters; hide the group with alpha off, remove the empty preprocessing/Advanced categories, and validate actual navigation. Broader annotation/training/biological acceptance remains open.
