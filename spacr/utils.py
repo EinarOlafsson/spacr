@@ -1618,7 +1618,7 @@ def save_settings(settings, name='settings', show=False):
     settings_csv = os.path.join(src,'settings',f'{name}.csv')
     try:
         os.makedirs(os.path.join(src,'settings'), exist_ok=True)
-        print(f"Saving settings to {settings_csv}")
+        print(console_safe(f"Saving settings to {settings_csv}"))
         import errno
         import stat
         import tempfile
@@ -1641,8 +1641,8 @@ def save_settings(settings, name='settings', show=False):
             os.replace(staged, target)
         _save_settings_json(settings, os.path.splitext(settings_csv)[0] + '.json')
     except (OSError, PermissionError) as e:
-        print(f"Warning: could not save settings to {settings_csv}: {e}. "
-              f"Continuing without writing the settings copy.")
+        print(console_safe(f"Warning: could not save settings to {settings_csv}: {e}. "
+                           f"Continuing without writing the settings copy."))
 
 
 def _save_settings_json(settings, path):
@@ -1702,7 +1702,7 @@ def _save_settings_json(settings, path):
             staged.chmod(mode)
             os.replace(staged, target)
     except Exception as error:                               # noqa: BLE001
-        print(f"Warning: could not write {path}: {error}")
+        print(console_safe(f"Warning: could not write {path}: {error}"))
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
     """Print a one-line progress report with an ETA derived from mean step time.

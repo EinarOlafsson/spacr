@@ -2,6 +2,8 @@
 EXPORT SETTINGS FROM EVERY FORM
 ================================================================================
 
+Current Windows follow-up, owner Codex windows_scope: verify real NTFS sharing-denial behavior with an owned CreateFileW lock, preserving the prior CSV and JSON and removing private staging before recovery after unlock. Verify production save/show/reload in a real strict cp1252 child with Unicode values and a spaces/Unicode NTFS path; console fallback must not end the run or corrupt the UTF-8 settings files. Use an isolated profile and a 2 GiB cap; preserve existing acceptance, no power-loss or two-file-transaction claim. Fix any reproduced failure in the owned Windows worktree before focused validation and nightly publication.
+
 Status:    DONE 2026-10-14 (not alpha); ships in 1.5.1.5
 Requested: GitHub issue EinarOlafsson/spacr #140 by @jak18015 (duplicated as
            #141 and #142): "Measure (and other screens): add 'Export
@@ -140,3 +142,5 @@ completes. Atomic inode/ownership/ACL/xattr, external-writer and power-loss
 semantics are not claimed. Second-expansion paths that could escape staging
 refuse safely. No model/network/GPU, native other-OS or fullCI/release acceptance.
 Evidence: data/693_export_stream_staging_2026-10-15/.
+
+2026-10-22 Windows native follow-up: real NTFS locked-CSV preservation/recovery passes; a strict cp1252 child reproduced UnicodeEncodeError in the settings-path diagnostic. Progress/CSV-warning/JSON-warning output now uses existing console_safe without changing UTF-8 files or publication order. Two native cases plus the existing console regression pass under2GiB, including Unicode/spaces paths, exact typed CSV/JSON roundtrip, real CSV/JSON sharing locks, stage cleanup and unlock recovery; baseline1FAIL/1PASS retained. JSON refusal can follow successful CSV publication, as documented; no two-file transaction, power-loss or broader GUI acceptance claimed.
