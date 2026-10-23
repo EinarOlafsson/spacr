@@ -2746,7 +2746,7 @@ class _OverviewMetadataWizard(QDialog):
         """Build the source wizard; filesystem work starts only on its worker."""
         import threading
         from PySide6.QtWidgets import (QFormLayout, QLineEdit, QSpinBox,
-                                       QDoubleSpinBox, QTableWidget, QTableWidgetItem,
+                                       QDoubleSpinBox, QTableWidget,
                                        QHeaderView, QScrollArea)
         from ..regex_detect import BUILTIN_REGEXES
         from .sortable_table import install_sorting
@@ -2897,6 +2897,8 @@ class _OverviewMetadataWizard(QDialog):
         self.regex.textEdited.connect(self._custom_regex_changed)
         if self.regex.text():
             self.preset.setCurrentIndex(self.preset.count() - 1)
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
         QTimer.singleShot(0, self._scan)
 
     def _invalidate(self):
@@ -2944,7 +2946,7 @@ class _OverviewMetadataWizard(QDialog):
 
     def _scanned(self, payload):
         """Expose actual parsed identities, available channels and embedded axes."""
-        from PySide6.QtWidgets import QTableWidgetItem
+        from .sortable_table import table_item
         generation, (fields, info) = payload
         if generation != self._generation or self._cancelled.is_set():
             return
@@ -2972,7 +2974,7 @@ class _OverviewMetadataWizard(QDialog):
         for row, (name, values) in enumerate(rows):
             for column, value in enumerate((name,) + tuple(values.get(key, "") or "" for key in
                     ("plateID", "wellID", "fieldID", "timeID", "sliceID", "chanID"))):
-                self.preview.setItem(row, column, QTableWidgetItem(str(value)))
+                self.preview.setItem(row, column, table_item(str(value), key=str(value)))
         self.preview.setSortingEnabled(True)
         available = tuple(info["channels"])
         requested = self._settings.get("channels") or ()
@@ -2996,7 +2998,7 @@ class _OverviewMetadataWizard(QDialog):
         self.conditions.setRowCount(len(wells))
         for row, pair in enumerate(wells):
             for column, value in enumerate(pair + ("",)):
-                item = QTableWidgetItem(str(value))
+                item = table_item(str(value), key=str(value))
                 if column < 2:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self.conditions.setItem(row, column, item)
