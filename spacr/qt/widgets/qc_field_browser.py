@@ -2493,6 +2493,7 @@ class _FieldOverview(QDialog):
         compare = QPushButton(tr("Compare selected fields"))
         compare.clicked.connect(self._compare)
         axes.addWidget(compare)
+        self._axes_layout = axes
         column.addLayout(axes)
         annotations = QHBoxLayout()
         self.annotation_scope = QComboBox()
@@ -2772,7 +2773,7 @@ class _FieldOverview(QDialog):
                 continue
             layout = item.layout()
             if layout is not None:
-                host = essential if layout is self._navigation_layout else FlowHost(content)
+                host = essential if layout in (self._navigation_layout, self._axes_layout) else FlowHost(content)
                 flow = essential_flow if host is essential else FlowLayout(host)
                 while layout.count():
                     child = layout.takeAt(0)

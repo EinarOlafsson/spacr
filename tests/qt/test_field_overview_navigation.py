@@ -221,7 +221,8 @@ def test_small_physical_window_keeps_configuration_and_images_reachable(overview
     assert dialog._controls_scroll.isVisible()
     assert dialog._splitter.isVisible()
     assert dialog._splitter.height() > 0
-    for control in (dialog.source, dialog.time_axis, dialog.annotation_text,
+    assert dialog.time_axis.isVisible()
+    for control in (dialog.source, dialog.annotation_text,
                     dialog.pdf_quality, dialog.measurements):
         dialog._controls_scroll.ensureWidgetVisible(control)
         assert dialog._controls_scroll.viewport().rect().contains(
@@ -424,6 +425,7 @@ def test_initial_whole_plate_fits_and_opening_is_separate_from_selection(source_
         for position in dialog._well_positions.values()), timeout=10000)
     assert dialog.size() == QSize(*dimensions)
     assert not dialog._controls_scroll.isVisible()
+    assert all(control.isVisible() for control in (dialog.time_axis, dialog.z_axis, dialog.fov_axis))
     assert not dialog.fields.isVisible() and not dialog.view.isVisible()
     viewport = dialog.wells.viewport().rect()
     for row, column in ((0, 0), (0, 23), (15, 0), (15, 23)):
