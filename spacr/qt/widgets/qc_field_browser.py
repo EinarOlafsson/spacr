@@ -1896,8 +1896,10 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
                   status="ok", error="")
     shape = None
     try:
-        for channel, path, plane in _overview_raw_planes(field, channels,
-                time_index=time_index, z_mode=z_mode, z_index=z_index):
+        planes = (item for channel in channels
+                  for item in _overview_raw_planes(field, (channel,),
+                      time_index=time_index, z_mode=z_mode, z_index=z_index))
+        for channel, path, plane in planes:
             if cancelled is not None and cancelled.is_set():
                 raise CancelledError()
             if not (np.issubdtype(plane.dtype, np.number)

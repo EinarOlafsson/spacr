@@ -765,8 +765,8 @@ def test_cancelled_measurements_do_not_publish_a_partial_csv(plate_images, tmp_p
     cancelled = threading.Event()
     original = browser._overview_measurement
     measured = []
-    def measure(*args):
-        row = original(*args)
+    def measure(*args, **kwargs):
+        row = original(*args, **kwargs)
         measured.append(row)
         cancelled.set()
         return row
@@ -1129,11 +1129,16 @@ def test_tiff_axis_metadata_selects_channels_without_guessing_time(tmp_path, axe
     tifffile.imwrite(path, image, photometric="minisblack", metadata={"axes": axes})
     field, = browser._overview_index(tmp_path)
     if axes == "TYX":
-        with pytest.raises(ValueError, match="channel axis is unresolved"):
+        with pytest.raises(ValueError, match=r"Channel 2 is missing or ambiguous\. Available channels: 0"):
             tuple(browser._overview_raw_planes(field, (2,)))
-        record = browser._overview_measurement(field, (2,))
-        assert record["status"] == "error" and "channel axis is unresolved" in record["error"]
+        with pytest.raises(ValueError, match="Choose explicit time and Z positions"):
+            tuple(browser._overview_raw_planes(field, (0,)))
+        record = browser._overview_measurement(field, (0,))
+        assert record["status"] == "error" and "Choose explicit time and Z positions" in record["error"]
         assert "channel_2_intensity_mean" not in record
+        channel, source, plane = next(browser._overview_raw_planes(field, (0,), time_index=2))
+        assert channel == 0 and source == str(path)
+        np.testing.assert_array_equal(plane, image[2])
     else:
         channel, source, plane = next(browser._overview_raw_planes(field, (2,)))
         assert channel == 2 and source == str(path)
