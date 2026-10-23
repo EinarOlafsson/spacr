@@ -83,6 +83,7 @@ def test_packaged_readme_renders_all_original_images(metadata):
     # phone/desktop pictures become RST images (both drawings). Every
     # code block and every line outside the raw HTML stays intact.
     def kept(text):
+        text = re.sub(r"(?m)^\.\. class:: (?:hide-below-desktop|hide-on-desktop)\n", "", text)
         text = re.sub(r"(?m)^\.\. (?:\|[^|\n]+\| )?raw:: html\n\n(?:   [^\n]*\n?)+",
                       "", text)
         text = re.sub(r"(?m)^\.\. (?:\|[^|\n]+\| )?image::[^\n]*\n(?:   :[^\n]*\n?)*",
