@@ -888,12 +888,17 @@ def test_measurements_follow_the_exact_ui_export_selection_and_dialog_cancel(
     from PySide6.QtWidgets import QFileDialog
 
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    def retire(widget):
+        """Retire this overview's actual asynchronous work before closing its owner."""
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+    qtbot.addWidget(dialog, before_close_func=retire)
     dialog._export_jobs._threaded = False
     dialog.channels.setText("1,2")
     dialog._indexed(browser._overview_index(plate_images))
     dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
     dialog._well(dialog.wells.item(0, 0))
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
     dialog.use_selection.setChecked(True)
     dialog.fields.item(1).setSelected(True)
     selected = dialog._export_selection()
@@ -912,6 +917,7 @@ def test_measurements_follow_the_exact_ui_export_selection_and_dialog_cancel(
     assert all(actual["channel_1_intensity_mean"] == 59.5)
     assert all(actual["channel_2_intensity_mean"] == 119)
     assert "overview_measurements.csv" in dialog.status.text()
+    retire(dialog)
     dialog.close()
 
 
@@ -1109,10 +1115,17 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
     fields = tuple(field for field in browser._overview_index(plate_images)
                    if field.plate == "plate1" and field.well == "A01")
     dialog = browser._FieldOverview(settings={"channels": [1, 2]})
-    qtbot.addWidget(dialog)
+    def retire(widget):
+        """Retire this overview's actual asynchronous work before closing its owner."""
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+    qtbot.addWidget(dialog, before_close_func=retire)
     dialog._indexed(fields)
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
     dialog.use_selection.setChecked(False)
     dialog.show()
+    dialog.options_button.click()
+    dialog._controls_scroll.ensureWidgetVisible(dialog.channels)
     export = next(button for button in dialog.findChildren(QPushButton)
                   if button.text() == browser.tr("Export PDFs"))
     output = tmp_path / "real-worker"
@@ -1148,6 +1161,9 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
         assert dialog.status.text() and not folders and not workers
         assert not dialog._export_jobs.is_busy() and not output.exists()
         dialog.channels.setText("1,2")
+        dialog.channels.setFocus()
+        qtbot.keyClick(dialog.channels, browser.Qt.Key_Tab)
+        qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
         dialog.status.setText("")
         dialog._export_jobs.job_finished.connect(lambda: delivered.append(QThread.currentThread()))
         qtbot.mouseClick(export, browser.Qt.LeftButton)
@@ -1167,6 +1183,7 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
     finally:
         release.set()
         qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy())
+        retire(dialog)
         dialog.close()
 
 
