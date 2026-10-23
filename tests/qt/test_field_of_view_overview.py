@@ -37,6 +37,18 @@ def _retire_overview(dialog, qtbot):
         runner.shutdown(timeout_ms=3000)
 
 
+def _retire_overview_owner(owner, qtbot):
+    wizard = getattr(owner, "_field_overview_wizard", None)
+    if wizard is not None:
+        wizard._cancelled.set()
+        wizard._runner.cancel()
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
+        wizard._runner.shutdown(timeout_ms=3000)
+    dialog = getattr(owner, "_field_overview", None)
+    if dialog is not None:
+        _retire_overview(dialog, qtbot)
+
+
 def _magnify_plate(dialog):
     while (dialog._plate_cell_extent or (0, 0))[0] < 180:
         dialog._zoom_plate(1)
@@ -183,9 +195,8 @@ def test_padded_filename_channels_decode_and_reject_duplicate_channels(tmp_path)
 def test_reopening_cancelled_overview_keeps_navigation_and_decodes(plate_images, qtbot):
     from PySide6.QtWidgets import QWidget
     owner = QWidget()
-    qtbot.addWidget(owner)
+    qtbot.addWidget(owner, before_close_func=lambda widget: _retire_overview_owner(widget, qtbot))
     wizard = browser._open_field_overview(owner, {"source": str(plate_images / "plate1")})
-    qtbot.addWidget(wizard)
     wizard.scope.setCurrentIndex(wizard.scope.findData("recursive"))
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
     wizard.channels.setText("1,2")
@@ -194,11 +205,12 @@ def test_reopening_cancelled_overview_keeps_navigation_and_decodes(plate_images,
     qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
     assert hasattr(owner, "_field_overview"), wizard.status.text()
     dialog = owner._field_overview
-    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     dialog._image_jobs._threaded = False
     _ready_overview(dialog, browser._overview_index(plate_images), qtbot)
     dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
     dialog._well(dialog.wells.item(0, 0))
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
+    _retire_overview(dialog, qtbot)
     dialog.close()
     assert dialog._cancelled.is_set()
     reopened = owner._field_overview
@@ -206,10 +218,12 @@ def test_reopening_cancelled_overview_keeps_navigation_and_decodes(plate_images,
     assert reopened is dialog
     assert reopened._scope == ("plate1", "A01")
     assert not reopened._cancelled.is_set()
+    qtbot.waitUntil(lambda: reopened._normalization_ready and not reopened._index_jobs.is_busy(), timeout=10000)
     reopened.fields.setCurrentRow(0)
     reopened._field(reopened.fields.item(0))
     assert reopened.view._item is not None
     assert len(reopened._cache) == 2
+    _retire_overview(reopened, qtbot)
     reopened.close()
 
 
