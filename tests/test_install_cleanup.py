@@ -676,6 +676,122 @@ def test_an_environment_you_made_is_only_listed_until_you_tick_it(tmp_path):
     assert prefix.is_dir() and box.files() == before, "the environment stays"
 
 
+def _explicit_pip_environment(box):
+    prefix = box.base / "external-analysis"
+    box.write(prefix / "bin" / "python")
+    site = prefix / "lib" / "python3.12" / "site-packages"
+    _dist(site, "1.5.1.6")
+    (site / "pip").mkdir()
+    machine = box.machine("linux", running_prefix="")
+    machine.environ["VIRTUAL_ENV"] = str(prefix)
+    box.write(prefix / "pyvenv.cfg", "home = /usr/bin\ninclude-system-site-packages = false\n")
+    def run(argv):
+        if "-c" in argv:
+            assert argv == [str(prefix / "bin" / "python"), "-I", "-c",
+                            "import json,sys;print(json.dumps(sys.prefix))"]
+            return 0, json.dumps(str(prefix))
+        return box.run(argv)
+    machine.runner = run
+    return prefix, site, machine
+
+
+def test_an_explicit_virtualenv_uses_the_existing_package_only_removal(tmp_path):
+    box = Box(tmp_path)
+    prefix, site, machine = _explicit_pip_environment(box)
+    unrelated = box.write(site / "unrelated" / "__init__.py")
+    data = box.write(prefix / "results" / "keep.csv")
+    [record] = ic.find_old_installs(system=machine)
+    assert (record.kind, record.layout, record.root, record.running) == (
+        "environment", "venv", str(prefix), False)
+    before = box.files()
+    assert ic.remove_install(record, system=machine).skipped
+    assert box.commands == []
+    report = ic.remove_install(record, ticked=True, system=machine)
+    assert report.ok and report.removed
+    assert box.commands == [[str(prefix / "bin" / "python"), "-m", "pip",
+                             "uninstall", "-y", "spacr"]]
+    assert box.files() == before and unrelated.exists() and data.exists()
+
+
+@pytest.mark.parametrize("candidate", ["missing", "file", "relative", "foreign"])
+def test_explicit_virtualenv_without_an_installed_spacr_is_not_selected(tmp_path, candidate):
+    box = Box(tmp_path)
+    machine = box.machine("linux", running_prefix="")
+    path = box.base / candidate
+    if candidate == "file":
+        box.write(path)
+    elif candidate == "foreign":
+        box.write(path / "bin" / "python")
+        box.write(path / "lib" / "python3.12" / "site-packages" / "foreign-1.0.dist-info" / "METADATA", "Name: foreign\nVersion: 1.0\n")
+    machine.environ["VIRTUAL_ENV"] = "relative" if candidate == "relative" else str(path)
+    assert ic.find_old_installs(system=machine) == []
+    assert box.commands == []
+
+
+def test_explicit_virtualenv_editable_checkout_is_still_preserved(tmp_path):
+    box = Box(tmp_path)
+    prefix, site, machine = _explicit_pip_environment(box)
+    checkout = box.base / "source"
+    box.write(checkout / "pyproject.toml")
+    (site / "spacr-1.5.1.6.dist-info" / "direct_url.json").write_text(
+        json.dumps({"url": checkout.as_uri(), "dir_info": {"editable": True}}))
+    [record] = ic.find_old_installs(system=machine)
+    assert record.kind == "checkout" and record.root == str(checkout)
+    assert ic.remove_install(record, ticked=True, system=machine).skipped
+    assert box.commands == [] and checkout.exists() and prefix.exists()
+
+
+def test_explicit_virtualenv_alias_cannot_bypass_running_environment_guard(tmp_path):
+    box = Box(tmp_path)
+    prefix, site, machine = _explicit_pip_environment(box)
+    alias = box.base / "active-alias"
+    alias.symlink_to(prefix, target_is_directory=True)
+    machine.running_prefix = str(alias)
+    [record] = ic.find_old_installs(system=machine)
+    assert record.root == str(prefix) and record.running
+    assert ic.remove_install(record, ticked=True, system=machine).skipped
+    assert box.commands == []
+    machine.environ["VIRTUAL_ENV"] = str(alias)
+    machine.running_prefix = str(prefix)
+    [record] = ic.find_old_installs(system=machine)
+    assert record.root == str(prefix) and record.running
+    assert ic.remove_install(record, ticked=True, system=machine).skipped
+    assert box.commands == []
+
+
+def test_explicit_virtualenv_without_python_refuses_package_removal(tmp_path):
+    box = Box(tmp_path)
+    prefix, site, machine = _explicit_pip_environment(box)
+    (prefix / "bin" / "python").unlink()
+    assert ic.find_old_installs(system=machine) == []
+    assert box.commands == [] and site.exists()
+
+
+@pytest.mark.parametrize("failure", ["missing-cfg", "malformed-cfg", "foreign-prefix", "invalid-json", "failed-probe"])
+def test_explicit_virtualenv_refuses_unverified_interpreter_ownership(tmp_path, failure):
+    box = Box(tmp_path)
+    prefix, site, machine = _explicit_pip_environment(box)
+    python = prefix / "bin" / "python"
+    python.unlink()
+    python.symlink_to(sys.executable)
+    if failure == "missing-cfg":
+        (prefix / "pyvenv.cfg").unlink()
+    elif failure == "malformed-cfg":
+        (prefix / "pyvenv.cfg").write_text("home =\n")
+    def run(argv):
+        assert "-c" in argv, "unverified environment reached pip uninstall"
+        assert failure not in {"missing-cfg", "malformed-cfg"}
+        if failure == "foreign-prefix":
+            return 0, json.dumps(sys.base_prefix)
+        if failure == "invalid-json":
+            return 0, "invalid"
+        return 1, "interpreter unavailable"
+    machine.runner = run
+    before = box.files()
+    assert ic.find_old_installs(system=machine) == []
+    assert box.commands == [] and box.files() == before
+
+
 def test_only_the_ticked_environment_is_changed_by_an_update(tmp_path):
     box = Box(tmp_path)
     ticked = _conda_env(box, "old-analysis")
