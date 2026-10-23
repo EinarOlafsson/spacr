@@ -873,7 +873,9 @@ def test_wizard_discards_stale_metadata_and_refuses_empty_missing_and_invalid_so
             diagnostic = str(error)
         wizard._scan()
         qtbot.waitUntil(lambda: not wizard._runner.is_busy(), timeout=10000)
-        assert wizard.status.text() == diagnostic
+        error_type = browser._OverviewValidationError
+        expected = f"{error_type.__module__}.{error_type.__qualname__}: {diagnostic}"
+        assert wizard.status.text() == expected
         assert not wizard.next.isEnabled()
     finally:
         release.set()
