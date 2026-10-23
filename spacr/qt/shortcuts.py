@@ -1697,10 +1697,10 @@ def show_cheat_sheet(parent) -> None:
         by_cat.setdefault(s.category, []).append(s)
 
     for cat, specs in by_cat.items():
-        from .theme import font_px
+        from .theme import QSS_FONT_FAMILY, font_px
         hdr = QLabel(f"<b>{cat}</b>")
         hdr.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif;"
+            f"font-family: {QSS_FONT_FAMILY};"
             f"font-weight: 600; font-size: {font_px(12)}px;"
             "letter-spacing: 1.5px; margin-top: 8px;"
         )

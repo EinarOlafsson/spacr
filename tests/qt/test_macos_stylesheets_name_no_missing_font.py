@@ -67,6 +67,41 @@ def test_actual_tour_button_fonts_use_platform_families(generator):
     assert _assert_platform_families([getattr(first_run, generator)()]) == 1
 
 
+def test_actual_command_palette_input_uses_platform_families(qtbot):
+    from PySide6.QtWidgets import QLineEdit, QMainWindow, QStackedWidget
+    from spacr.qt.command_palette import CommandPalette
+
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    window._stack = QStackedWidget(window)
+    window.setCentralWidget(window._stack)
+    window._screens = {}
+    palette = CommandPalette(window)
+    qtbot.addWidget(palette)
+    field = palette.findChild(QLineEdit, 'CommandInput')
+    assert field is not None
+    assert _assert_platform_families([field.styleSheet()]) == 1
+
+
+def test_actual_fallback_shortcut_headers_use_platform_families(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QLabel
+    from spacr.qt import shortcuts
+    from spacr.qt.widgets.workflow_diagram import DiagramDialog
+
+    captured = []
+
+    def inspect(dialog):
+        qtbot.addWidget(dialog)
+        captured.extend(label.styleSheet() for label in dialog.findChildren(QLabel)
+                        if 'font-family:' in label.styleSheet())
+        return 0
+
+    monkeypatch.setattr(DiagramDialog, 'exec', inspect)
+    assert shortcuts.show_cheat_sheet(None) is None
+    assert len(captured) == len({shortcut.category for shortcut in shortcuts.SHORTCUTS})
+    assert _assert_platform_families(captured) == len(captured)
+
+
 def test_every_generated_home_font_declaration_uses_platform_families(qtbot):
     from PySide6.QtWidgets import QWidget
     from shiboken6 import delete

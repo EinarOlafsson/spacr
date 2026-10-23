@@ -16,6 +16,16 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+Next scoped Mac font check: from normal Home startup, open the public command
+palette and parentless shortcut-help fallback sequentially at default 90% GUI/
+font; inspect actual widget fonts/QSS and alias warnings before any repair.
+Both native popups returned normally without alias warnings but retained
+Open Sans/sans-serif in CommandInput and five fallback category headers.
+Repair only those two observed source literals with QSS_FONT_FAMILY; actual
+constructor/generated-header regressions precede changes. Geometry needs no fix.
+Both regressions fail before repair and pass afterward (4.28 s, sampled RSS
+0.269 GiB); ten prior font checks stand. Native popup font closure is pending.
+
 Current Mac follow-up (2026-10-23): retain 61 unmet native comparisons and all
 startup/stall targets. Owned Cocoa Home→Mask diagnostics use exact source,
 isolated INI/state/cache and the sampled 8 GiB/300 s guard, not timing acceptance.

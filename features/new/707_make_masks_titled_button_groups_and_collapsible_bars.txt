@@ -12,6 +12,17 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
+public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.
+Observe untouched initial native QWindow frame/work-area geometry and content
+reachability or intentional scrolling on 1440x900/DPR2; programmatic API/close
+checks do not establish physical menu/keyboard or smaller-display acceptance.
+Native baseline: both initial frames fit, with no unreachable controls:
+command palette 504x420 (87 model rows, vertical range77), fallback340x739.
+Actual GUI/font90%/90%, work1440x870/DPR2; app returned0, font assertions failed
+on CommandInput/five fallback headers. Preserve accepted geometry while those
+two source font declarations are repaired; no layout change is warranted.
+
 2026-10-22 affected-source requirement: the new Field-of-view overview
 shares the unwrapped tab-corner row with Reset zoom/Ruler. Check all three
 buttons, naturally translated active tabs and the footer at 1280x680 and
