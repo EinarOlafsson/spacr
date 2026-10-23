@@ -392,6 +392,76 @@ def synchronize_links(catalogs, lessons):
     return result
 
 
+
+METADATA_FIELDS = ('description', 'objectives', 'prerequisite')
+
+
+def synchronize_metadata(catalogs, lessons, reviews):
+    """Change reviewed top-level metadata only; retain every published scene byte.
+
+    All thirteen non-English reviews must describe current canonical English and
+    exactly the already published localized narration. This is not an audio
+    freshness check, and missing reviews never become English fallbacks.
+    """
+    if set(catalogs) != set(CATALOGS):
+        raise ValueError('Metadata-only updates require all fourteen published catalogs')
+    if any(not isinstance(lesson, dict) or not isinstance(lesson.get('id'), str)
+           or not re.fullmatch(r'[0-9]+_[a-z0-9_]+', lesson['id']) for lesson in lessons):
+        raise ValueError('Require valid metadata-only lesson identities')
+    identities = [lesson['id'] for lesson in lessons]
+    if len(identities) != len(set(identities)):
+        raise ValueError('Duplicate metadata-only lesson')
+    result = deepcopy(catalogs)
+    def selected(catalog, identity):
+        matches = [row for row in catalog['lessons'] if row['id'] == identity]
+        if len(matches) != 1:
+            raise ValueError('Metadata-only selected lesson is missing or duplicated: ' + identity)
+        return matches[0]
+    def checked_fields(document):
+        if (any(not isinstance(document.get(k), str) or not document[k].strip()
+                for k in ('description', 'prerequisite'))
+                or not isinstance(document.get('objectives'), list) or not document['objectives']
+                or any(not isinstance(value, str) or not value.strip() for value in document['objectives'])):
+            raise ValueError('Metadata-only update requires explicit nonempty reviewed metadata')
+    for source in lessons:
+        identity = source['id'];old = selected(catalogs['lessons_en.json'], identity)
+        checked_fields(source)
+        scenes = source.get('scenes')
+        if (not isinstance(scenes, list) or not scenes
+                or any(not isinstance(scene, dict) or not isinstance(scene.get('visual'), str)
+                       or not scene['visual'] or not isinstance(scene.get('narration'), str)
+                       or not scene['narration'].strip() for scene in scenes)
+                or scenes != old.get('scenes')):
+            raise ValueError('Metadata-only update requires every exact published canonical scene')
+        if any(source.get(key) != old.get(key) for key in
+               ('id','number','slug','app_key','host_app_key','title','section','series')):
+            raise ValueError('Metadata-only update changes canonical identity, routing or title')
+        before = {key: deepcopy(old.get(key)) for key in source if key not in METADATA_FIELDS}
+        after = {key: deepcopy(value) for key,value in source.items() if key not in METADATA_FIELDS}
+        if before != after:
+            raise ValueError('Metadata-only update changes canonical scenes, routes or other content: ' + identity)
+        for name in CATALOGS:
+            original = selected(catalogs[name], identity)
+            target = selected(result[name], identity)
+            if name == 'lessons_en.json':
+                reviewed = source
+            else:
+                language = name.split('_',1)[1].removesuffix('.json')
+                review = reviews.get((identity,language))
+                if review is None or review.get('lesson') != identity or review.get('language') != language:
+                    raise ValueError('Metadata-only update requires every source-bound translation review: ' + identity + '/' + language)
+                reviewed = translated_lesson(review, source, original)
+                if ([scene['narration'] for scene in reviewed['scenes']] !=
+                        [scene['narration'] for scene in original['scenes']]):
+                    raise ValueError('Metadata-only review changes published localized narration: ' + identity + '/' + language)
+                if any(key in original and reviewed.get(key) != original[key] for key in ('title','section')):
+                    raise ValueError('Metadata-only review changes other localized metadata: ' + identity + '/' + language)
+            checked_fields(reviewed)
+            for key in METADATA_FIELDS:
+                target[key] = deepcopy(reviewed[key])
+    return result
+
+
 def checked_web_input(stage, identity):
     """Select current-byte playback evidence, preferring sentence-cue checks."""
     rendition = stage / 'web-renditions' / identity
@@ -429,7 +499,7 @@ def selected_visual_timing(stage, identity, baseline, retained_ids):
     return checked_native_timing(stage, identity)
 
 
-def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(),
+def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(), metadata_ids=(),
           host_web=False, migrate_web=(), retain_narration=(), retain_visual_timing=(), withdraw=(), candidate_root=None,
           hardlink_preserved=False, idle_tail_policy=None):
     """Create a new private candidate; never upload or modify the published tree.
@@ -522,6 +592,25 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     link_lessons = [read(REPO / 'tools/tutorials/lessons' / (identity + '.json'))
                     for identity in link_ids]
     catalogs = synchronize_links(catalogs, link_lessons)
+    metadata_ids = list(metadata_ids)
+    if (len(metadata_ids) != len(set(metadata_ids))
+            or set(metadata_ids) & (set(identities) | set(link_ids) | set(withdraw))
+            or any(not re.fullmatch(r'[0-9]+_[a-z0-9_]+', value) for value in metadata_ids)):
+        raise ValueError('Metadata updates must select unique, otherwise preserved lessons separately from links')
+    metadata_lessons = [read(REPO / 'tools/tutorials/lessons' / (identity + '.json'))
+                        for identity in metadata_ids]
+    metadata_reviews = {}
+    for lesson in metadata_lessons:
+        for name in CATALOGS:
+            if name == 'lessons_en.json':
+                continue
+            language = name.split('_',1)[1].removesuffix('.json')
+            path = REPO / 'tools/tutorials/lessons/reviews' / f'{lesson["id"]}.{language}.json'
+            if not path.is_file() or path.is_symlink():
+                raise ValueError('Require an actual normal metadata translation review: ' + str(path))
+            metadata_reviews[lesson['id'],language] = read(path)
+    if metadata_lessons:
+        catalogs = synchronize_metadata(catalogs, metadata_lessons, metadata_reviews)
     compatibility = complete_translation_compatibility(
         catalogs, compatibility,
         read(baseline / 'web/translation-compatibility.json').get('entries', []))
@@ -593,6 +682,16 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                 lesson['visual_timings'] = f"{lesson['id']}/video/{native_timings.name}"
     if link_lessons:
         js_catalog = synchronize_links({'lessons_en.json': js_catalog}, link_lessons)['lessons_en.json']
+    if metadata_lessons:
+        # Full fourteen-catalog/source-review validation happened above. Project
+        # only those three validated fields; preserve all runtime/media fields.
+        for identity in metadata_ids:
+            matches = [row for row in js_catalog['lessons'] if row['id'] == identity]
+            if len(matches) != 1:
+                raise ValueError('Runtime metadata lesson missing or duplicated: ' + identity)
+            reviewed = next(row for row in catalogs['lessons_en.json']['lessons'] if row['id'] == identity)
+            for key in METADATA_FIELDS:
+                matches[0][key] = deepcopy(reviewed[key])
     js_catalog = mark_hosted_web(js_catalog, [*(identities if host_web else ()), *migrate_web])
     from idle_tail_policy import bind_policy, load_policy
     js_catalog['lessons'] = bind_policy(load_policy(REPO, idle_tail_policy), records, js_catalog['lessons'],
@@ -653,13 +752,16 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                   new_lesson_tracks=checks, translation_incompatibilities=compatibility,
                   all_workflows_demonstrated=False, native_speaker_signoff=False,
                   human_listening_signoff=False, release_hold=True, uploaded=False, published=False)
+    if metadata_ids:
+        report['metadata_only_updates']={identity: dict(fields=list(METADATA_FIELDS),
+            narration_changed=False, current_runtime_freshness_claimed=False) for identity in metadata_ids}
     write(root / 'release-manifest.json', report)
     validate(root, include_hosted_media=True)
     print('CANDIDATE', root, flush=True)
     return root
 
 
-if __name__ == '__main__':
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, required=True)
     parser.add_argument('--candidate-root', type=Path,
@@ -667,7 +769,7 @@ if __name__ == '__main__':
     parser.add_argument('--hardlink-preserved-media', action='store_true',
                         help='Hardlink verified immutable baseline media on the same filesystem; copy across filesystems')
     parser.add_argument('--baseline', type=Path, required=True)
-    parser.add_argument('--lesson', action='append', required=True)
+    parser.add_argument('--lesson', action='append', default=[])
     parser.add_argument('--replace-existing', action='store_true',
                         help='Refresh only the selected existing lessons; keep all other lesson media and prose')
     parser.add_argument('--refresh-lesson', action='append', default=[],
@@ -682,14 +784,22 @@ if __name__ == '__main__':
                         help='Move a preserved lesson\'s verified web copy onto the media host')
     parser.add_argument('--refresh-links', action='append', default=[],
                         help='Update only chapter destinations; require unchanged prose and preserve media')
+    parser.add_argument('--refresh-metadata', action='append', default=[],
+                        help='Update reviewed description/objectives/prerequisite only; preserve all scenes and media')
     parser.add_argument('--idle-tail-policy', type=Path,
                         help='Explicit source-bound idle-tail policy (default: canonical idle_tail_policy.json)')
     parser.add_argument('--withdraw', action='append', default=[],
                         help='Unlist a published lesson from the catalogs, player and candidate media')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    if not (args.lesson or args.refresh_metadata or args.refresh_links):
+        parser.error('Select --lesson, --refresh-metadata or --refresh-links')
     build(args.stage, args.baseline, args.lesson, replace=args.replace_existing,
-          refresh_ids=args.refresh_lesson, link_ids=args.refresh_links,
+          refresh_ids=args.refresh_lesson, link_ids=args.refresh_links, metadata_ids=args.refresh_metadata,
           host_web=args.host_web, migrate_web=args.migrate_web, retain_narration=args.retain_narration,
           retain_visual_timing=args.retain_visual_timing,
           withdraw=args.withdraw, candidate_root=args.candidate_root,
           hardlink_preserved=args.hardlink_preserved_media, idle_tail_policy=args.idle_tail_policy)
+
+
+if __name__ == '__main__':
+    main()

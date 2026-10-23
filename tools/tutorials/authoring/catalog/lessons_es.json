@@ -1509,7 +1509,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "En esta demostración de memoria, el mismo campo de ejemplo se repite en mosaico para formar un array más grande; no se inicia ninguna medición. Antes de iniciar cualquier ejecución, spaCR estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y spaCR pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla.",
+          "narration": "Antes de iniciar cualquier ejecución, spaCR estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y spaCR pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla.",
           "focus": [
             1620,
             860,
@@ -1517,7 +1517,7 @@
             360
           ],
           "hold_after": 0.7,
-          "speech_text": "En esta demostración de memoria, el mismo campo de ejemplo se repite en mosaico para formar un array más grande; no se inicia ninguna medición. Antes de iniciar cualquier ejecución, espáquer estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y espáquer pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla."
+          "speech_text": "Antes de iniciar cualquier ejecución, espáquer estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y espáquer pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla."
         }
       ],
       "narration_voices": {
