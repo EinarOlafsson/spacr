@@ -2549,6 +2549,11 @@ class ConsolePanel(QWidget):
                 return
             if event_id not in self._pending_report_entries:
                 saved = dict(outcome.get("explanation") or {})
+                if not saved.get("text"):
+                    self.append_notice(tr(
+                        "An error occurred — asking spaCR AI to explain it. "
+                        "(Ask the AI to \"show the raw error\" to see the traceback.)"
+                    ) + "\n")
                 block = self.begin_ai_entry(thinking=not bool(saved.get("text")))
                 if saved.get("text"):
                     light = "\n\n[" + tr("lighter model") + "]" if saved.get(
@@ -2583,6 +2588,8 @@ class ConsolePanel(QWidget):
                         "tier") == "light" else ""
                     self.fill_ai_entry(
                         entry, explanation["text"] + light)
+                elif explanation.get("diagnostic"):
+                    self.fill_ai_entry(entry, "[AI error] " + explanation["diagnostic"])
                 elif refused == "quota":
                     self.fill_ai_entry(entry, tr(
                         "spaCR AI: today's free AI is used up, so this error is "
@@ -3001,7 +3008,8 @@ class ConsolePanel(QWidget):
             prompt, so the user can ask the AI to show the error.
         """
         from ..ai.providers import _batch_widget_error
-        _batch_widget_error(self, traceback_text, active_app, show_raw)
+        if not _batch_widget_error(self, traceback_text, active_app, show_raw):
+            self._open_error_flow_now(traceback_text, active_app, show_raw)
 
     def _open_batched_error(self, text, active_app, show_raw, provider_name, diagnostics):
         """Recheck the live provider before delivering a delayed manual action."""

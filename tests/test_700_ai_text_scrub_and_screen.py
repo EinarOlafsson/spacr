@@ -192,10 +192,10 @@ def test_a_cli_provider_reads_the_saved_answer_first(monkeypatch):
         raise AssertionError("the CLI must not be asked")
 
     cr.save_explanation(cr.explanation_signature(_summary()), "Saved.")
-    monkeypatch.setattr(providers, "write_report_summary", never)
+    monkeypatch.setattr(providers, "_report_summary_result", never)
     assert providers.explain_failure(_summary(), Cli())["saved"] == "local"
-    monkeypatch.setattr(providers, "write_report_summary",
-                        lambda *a, **k: "Fresh from the CLI.")
+    monkeypatch.setattr(providers, "_report_summary_result",
+                        lambda *a, **k: ("Fresh from the CLI.", ""))
     other = cr.public_summary(traceback_text=TB.replace("ValueError",
                                                         "KeyError"),
                               module="measure")
@@ -320,8 +320,8 @@ def test_a_cli_answer_gives_its_cause_and_shows_without_it(monkeypatch):
     class Cli:
         name = "Claude"
 
-    monkeypatch.setattr(providers, "write_report_summary",
-                        lambda *a, **k: "Set the channel.\nCAUSE: no-channel")
+    monkeypatch.setattr(providers, "_report_summary_result",
+                        lambda *a, **k: ("Set the channel.\nCAUSE: no-channel", ""))
     answer = providers.explain_failure(_summary(), Cli())
     assert answer["text"] == "Set the channel."
     assert answer["cause"] == "no-channel"

@@ -1360,28 +1360,31 @@ def write_report_summary(summary: Dict, provider: Optional[ChatProvider],
     :returns: the summary text, scrubbed and cut to
         :data:`spacr.crashreport.MAX_AI_SUMMARY_CHARS`.
     """
+    return _report_summary_result(summary, provider, timeout)[0]
+
+
+def _report_summary_result(summary, provider, timeout=None):
+    """Collect advice separately from a sanitized local provider failure.
+
+    :param summary: anonymized report supplied to the selected provider.
+    :param provider: vendor CLI provider, or None.
+    :param timeout: maximum wait in seconds, or the normal summary timeout.
+    :returns: advice and local failure text; failures are never advice.
+    """
     import threading
 
     from ... import crashreport
 
     if provider is None or provider.name == HOSTED_PROVIDER_NAME:
-        return ""
+        return "", ""
     wait = crashreport.AI_SUMMARY_TIMEOUT_S if timeout is None else timeout
     prompt = crashreport.ai_summary_prompt(summary)
     chunks: List[str] = []
     failed: List[BaseException] = []
 
-    def _ask() -> None:
-        """Collect the provider's answer."""
-        try:
-            for chunk in provider.stream_chat(
-                    [{"role": "user", "content": prompt}]):
-                chunks.append(str(chunk))
-        except Exception as exc:
-            failed.append(exc)
-
-    worker = threading.Thread(target=_ask, name="spacr-report-summary",
-                              daemon=True)
+    worker = threading.Thread(target=_collect_report_reply,
+                              args=(provider, prompt, chunks, failed),
+                              name="spacr-report-summary", daemon=True)
     worker.start()
     worker.join(wait)
     if worker.is_alive():
@@ -1389,11 +1392,29 @@ def write_report_summary(summary: Dict, provider: Optional[ChatProvider],
             provider.cancel_stream()
         except Exception:
             pass
-        return ""
+        return "", ""
     if failed:
-        return ""
+        diagnostic = crashreport.scrub_public_lines(
+            str(failed[0]), crashreport.MAX_AI_SUMMARY_CHARS, True)
+        return "", diagnostic
     return crashreport.scrub_public_lines(
-        "".join(chunks).strip(), crashreport.MAX_AI_SUMMARY_CHARS, True)
+        "".join(chunks).strip(), crashreport.MAX_AI_SUMMARY_CHARS, True), ""
+
+
+
+def _collect_report_reply(provider, prompt, chunks, failed):
+    """Collect a CLI reply while retaining exceptions only for local diagnostics.
+
+    :param provider: vendor provider asked on this daemon thread.
+    :param prompt: sanitized report prompt.
+    :param chunks: reply fragments owned by the waiting summary call.
+    :param failed: local exception list owned by that same call.
+    """
+    try:
+        for chunk in provider.stream_chat([{"role": "user", "content": prompt}]):
+            chunks.append(str(chunk))
+    except Exception as exc:
+        failed.append(exc)
 
 
 def with_ai_summary(summary: Dict, provider: Optional[ChatProvider]) -> Dict:
@@ -1482,8 +1503,10 @@ def explain_failure(summary: Dict, provider: Optional[ChatProvider],
                 "refused": "" if text else "error",
                 "saved": "relay" if answer.get("cached") and text else "",
                 "cause": cause}
-    text, cause = crashreport.split_cause(
-        write_report_summary(summary, provider, timeout))
+    advice, diagnostic = _report_summary_result(summary, provider, timeout)
+    if diagnostic:
+        return {"text": "", "tier": "", "refused": "error", "diagnostic": diagnostic}
+    text, cause = crashreport.split_cause(advice)
     crashreport.save_explanation(signature, text, cause=cause)
     return {"text": text, "tier": "", "refused": "" if text else "error",
             "cause": cause}
