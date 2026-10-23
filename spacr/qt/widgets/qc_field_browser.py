@@ -2209,6 +2209,7 @@ class _FieldOverview(QDialog):
                                 or (self._overview_options.get("normalization") or {}).get("conditions") or {})
         self._preview_edge = 256
         self._geometry_valid = True
+        self._geometry_error = None
         self._plate_cell_extent = None
         self._displayed_field = None
         self.setWindowTitle(tr("Field-of-view overview"))
@@ -2987,7 +2988,9 @@ class _FieldOverview(QDialog):
         if rows < 1 or columns < 1 or any(not field.unresolved and
                 (int(field.row) > rows or field.column > columns) for field in fields):
             raise _OverviewValidationError(tr(
-                "The selected plate geometry does not contain all source well coordinates."))
+                "The selected geometry does not contain the indexed wells ({rows} rows, {columns} columns required).",
+                rows=max((int(field.row) for field in fields if not field.unresolved), default=0),
+                columns=max((field.column for field in fields if not field.unresolved), default=0)))
         return rows, columns
 
     def _filter(self, *_):
@@ -3003,6 +3006,7 @@ class _FieldOverview(QDialog):
         try:
             geometry = self._checked_plate_geometry(available, self._overview_options.get("geometry"))
         except _OverviewValidationError as error:
+            self._geometry_error = error
             self._geometry_valid = False
             self._normalization_ready = False
             self._visible = ()
@@ -3014,6 +3018,7 @@ class _FieldOverview(QDialog):
             self.status.setText(str(error))
             return
         self._geometry_valid = True
+        self._geometry_error = None
         for combo, values, title in ((self.rows, sorted({f.row for f in available if f.row}, key=int), tr("All rows")),
                                      (self.columns, sorted({f.column for f in available if f.column}), tr("All columns"))):
             old = combo.currentData()
@@ -3446,7 +3451,7 @@ class _FieldOverview(QDialog):
         from PySide6.QtWidgets import QFileDialog
         import threading
         if not self._geometry_valid:
-            self.status.setText(tr("The selected plate geometry does not contain all source well coordinates."))
+            self.status.setText(str(self._geometry_error))
             return
         try:
             channels, limits = self._choices()

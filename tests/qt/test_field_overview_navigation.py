@@ -395,7 +395,8 @@ def test_incompatible_plate_geometry_refuses_without_an_expanded_grid_or_gui_err
         assert dialog.wells.rowCount() == dialog.wells.columnCount() == 0
         assert dialog.fields.count() == 0
         assert dialog.view._item is None
-        assert "does not contain all source well coordinates" in dialog.status.text()
+        assert dialog.status.text() == (
+            "The selected geometry does not contain the indexed wells (2 rows, 2 columns required).")
         monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *a, **k:
                             pytest.fail("an invalid plate geometry must not export"))
         dialog._export()
