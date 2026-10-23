@@ -2959,6 +2959,232 @@
           "idle_tail_start": 3.1
         }
       ]
+    },
+    {
+      "lesson": "54_qc_dashboard",
+      "master_sha256": "84f9d35246de246267f2ad3ff0cddbe99440e709aadb9911f0195257c5f1e629",
+      "visual_timing_sha256": "f6fb3d503c5434b930eda444094448871c9e79ef358598178947d6908b0ab61c",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 13.333333333333334,
+          "idle_tail_start": 3.4
+        },
+        {
+          "visual": "02_fold_layer_viewer",
+          "source_start": 13.333333333333334,
+          "source_end": 31.266666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "03_missing_reports",
+          "source_start": 48.733333333333334,
+          "source_end": 65.6,
+          "idle_tail_start": 1.3
+        },
+        {
+          "visual": "04_computed_subset",
+          "source_start": 84.76666666666667,
+          "source_end": 103.13333333333333,
+          "idle_tail_start": 1.2
+        },
+        {
+          "visual": "05_subset_remaining_checks",
+          "source_start": 103.13333333333333,
+          "source_end": 124.1,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "05_subset_remaining_checks",
+          "source_start": 124.1,
+          "source_end": 145.06666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "07_original_plate_details",
+          "source_start": 145.06666666666666,
+          "source_end": 161.73333333333332,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "08_unchanged_refresh",
+          "source_start": 161.73333333333332,
+          "source_end": 181.0,
+          "idle_tail_start": 5.2
+        },
+        {
+          "visual": "08_unchanged_refresh",
+          "source_start": 181.0,
+          "source_end": 200.26666666666665,
+          "idle_tail_start": 5.2
+        },
+        {
+          "visual": "08_unchanged_refresh",
+          "source_start": 200.26666666666665,
+          "source_end": 219.5333333333333,
+          "idle_tail_start": 5.2
+        }
+      ]
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "master_sha256": "f0fd2467d008d75ae812ac7c4be81df9d938bf7cbc4e07ea499b8a5343f450e1",
+      "visual_timing_sha256": "41770ed89ea4065baa0101769d1df0d5ed9df5d5dda86f08ad6a785b72728fb0",
+      "scenes": [
+        {
+          "visual": "01_help_dictionary",
+          "source_start": 0.0,
+          "source_end": 16.6,
+          "idle_tail_start": 5.2
+        },
+        {
+          "visual": "03_search_by_idea",
+          "source_start": 16.6,
+          "source_end": 34.400000000000006,
+          "idle_tail_start": 3.9
+        },
+        {
+          "visual": "04_actual_concept_object_filters",
+          "source_start": 34.400000000000006,
+          "source_end": 55.83333333333334,
+          "idle_tail_start": 7.0
+        },
+        {
+          "visual": "06_computing_function",
+          "source_start": 73.76666666666668,
+          "source_end": 91.73333333333335,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "07_conditional_area_units",
+          "source_start": 91.73333333333335,
+          "source_end": 113.80000000000001,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "08_area_caveats",
+          "source_start": 113.80000000000001,
+          "source_end": 136.76666666666668,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "09_unknown_search",
+          "source_start": 136.76666666666668,
+          "source_end": 158.3,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "11_actual_text_copy",
+          "source_start": 158.3,
+          "source_end": 177.0,
+          "idle_tail_start": 2.3
+        }
+      ]
+    },
+    {
+      "lesson": "67_experiment_design",
+      "master_sha256": "72b751634fc78168916d1b1671d3092b582b226c2095dfe2c59d79e5f7e5e52c",
+      "visual_timing_sha256": "2b7e33a3506e53b90e0378e389c0522a389eb46a4eb453df7a2a7862bf8e4ee4",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 14.733333333333333,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "03_capacity_warning",
+          "source_start": 34.96666666666667,
+          "source_end": 57.16666666666667,
+          "idle_tail_start": 3.6
+        },
+        {
+          "visual": "04_capacity_restored",
+          "source_start": 57.16666666666667,
+          "source_end": 77.23333333333333,
+          "idle_tail_start": 6.6
+        },
+        {
+          "visual": "05_single_replicate_warning",
+          "source_start": 77.23333333333333,
+          "source_end": 97.46666666666667,
+          "idle_tail_start": 8.3
+        },
+        {
+          "visual": "08_seed43",
+          "source_start": 139.8,
+          "source_end": 157.10000000000002,
+          "idle_tail_start": 2.3
+        },
+        {
+          "visual": "09_seed42_restored",
+          "source_start": 157.10000000000002,
+          "source_end": 181.5666666666667,
+          "idle_tail_start": 2.4
+        },
+        {
+          "visual": "10_selected_wells_not_reassigned",
+          "source_start": 181.5666666666667,
+          "source_end": 200.10000000000002,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "12_real_export_complete",
+          "source_start": 219.60000000000002,
+          "source_end": 244.90000000000003,
+          "idle_tail_start": 1.2
+        },
+        {
+          "visual": "09_seed42_restored",
+          "source_start": 244.90000000000003,
+          "source_end": 269.3666666666667,
+          "idle_tail_start": 2.3
+        },
+        {
+          "visual": "12_real_export_complete",
+          "source_start": 269.3666666666667,
+          "source_end": 294.6666666666667,
+          "idle_tail_start": 1.2
+        }
+      ]
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "master_sha256": "f6a334345b77df6a6d75e1bed7cbe05fba027b824dcd1412b47209fe36c3c12b",
+      "visual_timing_sha256": "64ec02af90697b494a26eaab89bf79e51797f93802c827633a4e9a7e3dfbb0a4",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "source_start": 0.0,
+          "source_end": 24.733333333333334,
+          "idle_tail_start": 8.9
+        },
+        {
+          "visual": "02_diagram",
+          "source_start": 44.233333333333334,
+          "source_end": 65.86666666666667,
+          "idle_tail_start": 7.8
+        },
+        {
+          "visual": "03_assays",
+          "source_start": 65.86666666666667,
+          "source_end": 95.26666666666668,
+          "idle_tail_start": 10.6
+        },
+        {
+          "visual": "04_plaque_assay",
+          "source_start": 95.26666666666668,
+          "source_end": 126.43333333333335,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "06_home_return",
+          "source_start": 157.50000000000003,
+          "source_end": 184.13333333333335,
+          "idle_tail_start": 5.3
+        }
+      ]
     }
   ]
 }
