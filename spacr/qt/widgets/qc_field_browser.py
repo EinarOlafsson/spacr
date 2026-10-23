@@ -3451,13 +3451,13 @@ def _open_field_overview(owner, settings=None):
 def _overview_reference_key(field, mode, conditions):
     """Address a reference without merging identically named wells on plates."""
     if mode == "reference_well":
-        return (field.plate, field.well)
+        return (field.plate, field.well) if field.well else None
     if mode == "reference_row":
-        return (field.plate, field.row)
+        return (field.plate, field.row) if field.row else None
     if mode == "reference_column":
-        return (field.plate, field.column)
+        return (field.plate, field.column) if field.column > 0 else None
     if mode == "reference_condition":
-        return conditions.get((field.plate, field.well), "")
+        return conditions.get((field.plate, field.well), "") if field.well else None
     return None
 
 

@@ -287,3 +287,18 @@ def test_overview_known_constraints_use_configuration_error_without_reclassifyin
         browser._overview_metadata_preview(("name.tif",), "(")
     with pytest.raises(KeyError):
         browser._overview_normalized_planes(((0, "a", np.ones((2, 2))),), {})
+
+
+@pytest.mark.parametrize("mode,reference", [
+    ("reference_well", ("p", "")),
+    ("reference_row", ("p", "")),
+    ("reference_column", ("p", 0)),
+    ("reference_condition", "control"),
+])
+def test_unknown_physical_identities_cannot_form_normalization_reference_groups(mode, reference):
+    field = _field(well="", row="", column=0)
+    assert browser._overview_reference_key(field, mode, {("p", ""): "control"}) is None
+    with pytest.raises(browser._OverviewValidationError, match="reference has no fields"):
+        browser._overview_normalization_plan((field,), (0,),
+            {"mode": mode, "reference": reference, "conditions": {("p", ""): "control"}}, None)
+    assert (field.plate, field.well, field.row, field.column) == ("p", "", "", 0)
