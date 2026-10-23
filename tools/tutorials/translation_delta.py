@@ -67,16 +67,29 @@ def plan_delta(source, baseline, localized, selected, split_english, split_local
     for identity in selected:
         new, old, translated = new_by[identity], old_by[identity], translated_by[identity]
         output = output_by[identity]
-        before = unique(old['scenes'], 'visual')
+        old_visuals = [scene['visual'] for scene in old['scenes']]
+        new_visuals = [scene['visual'] for scene in new['scenes']]
+        indexed = (len(set(old_visuals)) != len(old_visuals)
+                   or len(set(new_visuals)) != len(new_visuals))
+        if indexed and old_visuals != new_visuals:
+            raise ValueError('Duplicate visual scenes require unchanged exact source-index order')
+        scene_key = lambda index, scene: (index, scene['visual']) if indexed else scene['visual']
+        before = {scene_key(index, scene): scene for index, scene in enumerate(old['scenes'])}
+        if indexed:
+            for index, current in enumerate(new['scenes']):
+                if (current['narration'] != old['scenes'][index]['narration']
+                        and any(other_index != index and other['visual'] == current['visual']
+                                and other['narration'] == current['narration']
+                                for other_index, other in enumerate(old['scenes']))):
+                    raise ValueError('Ambiguous repeated visual narration move requires explicit review')
         # Caption-only catalogs are positional by contract; bind to old visuals.
         if len(translated['scenes']) != len(old['scenes']):
             raise ValueError('Localized baseline scene count differs')
         local_scenes = {}
-        for original, local in zip(old['scenes'], translated['scenes']):
+        for index, (original, local) in enumerate(zip(old['scenes'], translated['scenes'])):
             if local.get('visual', original['visual']) != original['visual']:
                 raise ValueError('Localized baseline visual identity differs')
-            local_scenes[original['visual']] = local
-        unique(new['scenes'], 'visual')
+            local_scenes[scene_key(index, original)] = local
         if 'title' in translated:  # Spoken catalogs also localize metadata.
             for key in ('title', 'section', 'description', 'prerequisite'):
                 if old.get(key) != new.get(key):
@@ -95,10 +108,11 @@ def plan_delta(source, baseline, localized, selected, split_english, split_local
                     if text != old['objectives'][index]:
                         request(text, output['objectives'], index)
         scenes = []
-        for current in new['scenes']:
+        for index, current in enumerate(new['scenes']):
             visual = current['visual']
-            previous = before.get(visual)
-            local = local_scenes.get(visual)
+            key = scene_key(index, current)
+            previous = before.get(key)
+            local = local_scenes.get(key)
             if previous and previous['narration'] == current['narration']:
                 if not local or not local.get('narration', '').strip():
                     raise ValueError('Missing unchanged reviewed narration')
@@ -146,7 +160,10 @@ def alignment_splitter(baseline, localized, language, entries, default_split):
             continue
         english=english_by[entry['lesson']]
         local=localized_by[entry['lesson']]
-        index=next(i for i,s in enumerate(english['scenes']) if s['visual']==entry['visual'])
+        matches=[i for i,s in enumerate(english['scenes']) if s['visual']==entry['visual']]
+        if len(matches)!=1:
+            raise ValueError('Explicit alignment visual is missing or ambiguous')
+        index=matches[0]
         if len(local['scenes'])!=len(english['scenes']):
             raise ValueError('Explicit alignment baseline count changed')
         source_text=english['scenes'][index]['narration']

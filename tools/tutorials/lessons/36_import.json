@@ -144,8 +144,8 @@
       "narration": "Continue in Database Browser to inspect the tables or in Annotate to review object crops. Retain the reviewed mapping with the completed project.",
       "hold_after": 0.7,
       "related_lessons": [
-        "06_api",
-        "08_measure"
+        "34_database",
+        "09_annotate"
       ]
     }
   ]

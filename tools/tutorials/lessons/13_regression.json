@@ -96,8 +96,9 @@
       "narration": "Use the toolbar to open Volcano Explorer, Hit List or Investigate Hit for the next step. Their tutorials show how to inspect selected results. Keep the input tables, saved settings, result files and diagnostic reports together when sharing the analysis.",
       "hold_after": 0.7,
       "related_lessons": [
-        "06_api",
-        "73_parameter_sweep"
+        "72_volcano_explorer",
+        "48_hit_list",
+        "71_investigate_hit"
       ]
     }
   ]
