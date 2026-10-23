@@ -745,7 +745,13 @@ def test_explicit_virtualenv_alias_cannot_bypass_running_environment_guard(tmp_p
     box = Box(tmp_path)
     prefix, site, machine = _explicit_pip_environment(box)
     alias = box.base / "active-alias"
-    alias.symlink_to(prefix, target_is_directory=True)
+    if os.name == "nt":
+        import _winapi
+
+        _winapi.CreateJunction(str(prefix), str(alias))
+    else:
+        alias.symlink_to(prefix, target_is_directory=True)
+    assert alias.samefile(prefix)
     machine.running_prefix = str(alias)
     [record] = ic.find_old_installs(system=machine)
     assert record.root == str(prefix) and record.running
@@ -773,7 +779,10 @@ def test_explicit_virtualenv_refuses_unverified_interpreter_ownership(tmp_path, 
     prefix, site, machine = _explicit_pip_environment(box)
     python = prefix / "bin" / "python"
     python.unlink()
-    python.symlink_to(sys.executable)
+    if os.name == "nt":
+        shutil.copy2(sys.executable, python)
+    else:
+        python.symlink_to(sys.executable)
     if failure == "missing-cfg":
         (prefix / "pyvenv.cfg").unlink()
     elif failure == "malformed-cfg":
