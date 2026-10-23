@@ -1811,7 +1811,7 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
 
 def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
-                     channel_views=False):
+                     channel_views=False, normalization_context=None, cancelled=None):
     """Decode canonical display pixels, optionally returning individual channel views."""
     from PIL import Image, ImageDraw
 
@@ -1825,6 +1825,8 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         if total_bytes > 128 * 1024 ** 2:
             raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
         source_planes.append(item)
+    if normalization_context is not None:
+        normalization = normalization_context.plan_for(field, cancelled)
     if normalization is not None:
         source_planes = tuple(_overview_normalized_planes(source_planes, normalization, field))
     if edge is None:
@@ -1972,7 +1974,8 @@ def _overview_pdf_header(channels, percentiles, seed, normalization):
                  "reference_well": tr("Bounds from a reference well"),
                  "reference_row": tr("Bounds from a reference row"),
                  "reference_column": tr("Bounds from a reference column"),
-                 "reference_condition": tr("Bounds from a reference condition")}
+                 "reference_condition": tr("Bounds from a reference condition"),
+                 "reference_average": tr("Well-mean display scaling to reference average")}
         reference = normalization.get("reference")
         if isinstance(reference, (tuple, list)):
             reference = " / ".join(map(str, reference))
@@ -1983,7 +1986,18 @@ def _overview_pdf_header(channels, percentiles, seed, normalization):
         if normalization.get("mean_match"):
             matching += " (" + ", ".join(f"{channel} × {float(gains.get(channel, 1.)):g}"
                                          for channel in channels) + ")"
+        sample_fields = int(normalization.get("sample_fields", 0))
         counts = normalization.get("sample_pixels") or {}
+        if normalization["mode"] == "reference_average":
+            reference_wells = normalization.get("reference_wells") or ()
+            sample_fields = sum(len(well["field_identities"]) for well in reference_wells)
+            counts = {channel: sum(well["sample_pixels"].get(channel, 0)
+                                   for well in reference_wells) for channel in channels}
+            matching = "; ".join(
+                f"{well['plate']} / {well['well']} ("
+                + ", ".join(f"{channel} × {float(well['gains'][channel]):g}"
+                            for channel in channels) + ")"
+                for well in normalization.get("used_wells", ()))
         pixels = ", ".join(f"{channel}: {int(counts.get(channel, 0))}" for channel in channels)
         lines.extend((
             tr("Display normalization") + ": " + modes[normalization["mode"]]
@@ -1992,15 +2006,19 @@ def _overview_pdf_header(channels, percentiles, seed, normalization):
             + (str(reference_channel) if reference_channel is not None else "-"),
             tr("Mean-matched display scaling before reference bounds") + ": " + matching,
             tr("Sampled fields: {fields}; sampled pixels per channel: {pixels}",
-               fields=int(normalization.get("sample_fields", 0)), pixels=pixels),
+               fields=sample_fields, pixels=pixels),
         ))
+        if normalization["mode"] == "reference_average":
+            means = ", ".join(f"{channel}: {float(normalization['reference_means'][channel]):g}"
+                              for channel in channels)
+            lines.append(tr("Reference means: {means}", means=means))
     return tuple(part for line in lines for part in (textwrap.wrap(line, 112) or [""]))
 
 
 def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=None,
                      measurements=False, *, quality_edge=1000, dpi=None,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
-                     conditions=None):
+                     conditions=None, normalization_context=None):
     """Write twelve bounded images per styled PDF with reproducible provenance."""
     import json
     from matplotlib.figure import Figure
@@ -2025,7 +2043,15 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         page_fields = fields[start:start + 12]
         columns = min(3, len(page_fields)) if len(page_fields) != 4 else 2
         rows = math.ceil(len(page_fields) / columns)
-        header = _overview_pdf_header(channels, percentiles, seed, normalization)
+        if normalization_context is not None:
+            try:
+                for field in page_fields:
+                    normalization_context.plan_for(field, cancelled)
+            except CancelledError:
+                break
+        page_normalization = (normalization_context.provenance()
+                              if normalization_context is not None else normalization)
+        header = _overview_pdf_header(channels, percentiles, seed, page_normalization)
         header_height = .25 + .18 * len(header)
         panel_width = 12. / columns
         import textwrap
@@ -2069,7 +2095,9 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
             try:
                 if len(channels) > 3:
                     views = _overview_pixels(field, channels, percentiles, edge=quality_edge,
-                        normalization=normalization, channel_views=True, **axis_options)
+                        normalization=normalization, normalization_context=normalization_context,
+                        cancelled=cancelled,
+                        channel_views=True, **axis_options)
                     channel_columns = math.ceil(math.sqrt(len(views)))
                     channel_rows = math.ceil(len(views) / channel_columns)
                     inner = panel.subgridspec(channel_rows, channel_columns, hspace=.18, wspace=.08)
@@ -2083,13 +2111,18 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                         image_channels.append((channel,))
                 else:
                     pixels = _overview_pixels(field, channels, percentiles, edge=quality_edge,
-                                              normalization=normalization, **axis_options)
+                                              normalization=normalization,
+                                              normalization_context=normalization_context,
+                                              cancelled=cancelled, **axis_options)
                     axis = figure.add_subplot(panel)
                     axis.imshow(pixels, interpolation="none")
                     axis.set_axis_off()
                     page_images.append(pixels)
                     image_panels.append(index)
                     image_channels.append(tuple(channels))
+            except CancelledError:
+                interrupted = True
+                break
             except Exception as exc:
                 axis = figure.add_subplot(panel)
                 axis.text(.5, .5, str(exc), ha="center", va="center", wrap=True)
@@ -2108,7 +2141,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                               image_panels=image_panels, image_channels=image_channels,
                               errors=page_errors, grid=(rows, columns), preview_edge=quality_edge,
                               original_resolution=quality_edge is None,
-                              normalization=normalization, **axis_options)
+                              normalization=(normalization_context.provenance()
+                                  if normalization_context is not None else normalization), **axis_options)
         _apply_user_style(figure)
         path = destination / f"overview_{start // 12 + 1:04d}.pdf"
         save_figure(figure, str(path), fmt="pdf", close=True, dpi=dpi)
@@ -2135,7 +2169,9 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
     metadata = {"channels": channels, "percentiles": percentiles, "seed": seed,
                 "fields": provenance, "errors": errors, "cancelled": stopped,
                 "requested_field_count": len(fields), "written_field_count": len(provenance),
-                "quality_edge": quality_edge, "dpi": dpi, "normalization": normalization,
+                "quality_edge": quality_edge, "dpi": dpi,
+                "normalization": (normalization_context.provenance()
+                    if normalization_context is not None else normalization),
                 **axis_options}
     if measurements:
         metadata["measurements"] = dict(path=csv_path, roi="whole_image",
@@ -2150,8 +2186,10 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
 
 
 def _overview_montage(fields, channels, percentiles, cancelled=None, *,
-                      normalization=None, time_index=None, z_mode="plane", z_index=None):
+                      normalization=None, time_index=None, z_mode="plane", z_index=None,
+                      normalization_context=None):
     """Render one bounded page of field thumbnails, using the shared pixel path."""
+    from concurrent.futures import CancelledError
     from PIL import Image, ImageDraw
 
     columns = min(4, max(1, len(fields)))
@@ -2166,13 +2204,17 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
         draw.text((x, y), field.well + " / " + field.field, fill="white")
         try:
             pixels = _overview_pixels(field, channels, percentiles, edge=240,
-                                      normalization=normalization, time_index=time_index,
+                                      normalization=normalization,
+                                      normalization_context=normalization_context,
+                                      cancelled=cancelled, time_index=time_index,
                                       z_mode=z_mode, z_index=z_index)
             preview = Image.fromarray(pixels)
             factor = min(240 / preview.width, 240 / preview.height)
             preview = preview.resize((max(1, round(preview.width * factor)),
                                       max(1, round(preview.height * factor))), Image.Resampling.BILINEAR)
             image.paste(preview, (x, y + 24))
+        except CancelledError:
+            return None, ()
         except Exception as exc:
             errors.append((field.caption, str(exc)))
             draw.text((x, y + 30), str(exc), fill="red")
