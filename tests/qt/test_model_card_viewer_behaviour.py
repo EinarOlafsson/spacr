@@ -322,18 +322,34 @@ def test_a_broken_png_in_the_cache_shows_the_stored_data_not_a_blank(qtbot):
 
 
 def test_an_answer_for_another_card_is_ignored(qtbot):
-    gate = Gate()
-    w = make(qtbot, gate, threaded=True)
-    w.set_card(card())
-    assert gate.started.wait(5)
-    w.set_card(card(OTHER_KEY))
-    w._on_fetched(card()["repo_id"], OSError("late"))
-    assert not w._failed and not w.showing_image()
-    gate.release.set()
-    qtbot.waitUntil(w.showing_image, timeout=5000)
-    w._on_fetched(card()["repo_id"], OSError("later still"))
-    assert w.showing_image() and not w._failed
-    w._thread.join(5)
+    first_gate, current_gate = Gate(), Gate()
+    sources = {
+        cards.page_url(card(key)["repo_id"], page): gate
+        for key, gate in ((KEY, first_gate), (OTHER_KEY, current_gate))
+        for page in range(1, cards.PAGE_COUNT + 1)
+    }
+    w = make(qtbot, lambda url: sources[url](url), threaded=True)
+    threads = []
+    try:
+        w.set_card(card())
+        threads.append(w._thread)
+        assert first_gate.started.wait(5)
+        w.set_card(card(OTHER_KEY))
+        threads.append(w._thread)
+        assert current_gate.started.wait(5)
+        w._on_fetched(card()["repo_id"], OSError("late"))
+        assert not w._failed and not w.showing_image()
+        current_gate.release.set()
+        qtbot.waitUntil(w.showing_image, timeout=5000)
+        assert threads[0].is_alive()
+        w._on_fetched(card()["repo_id"], OSError("later still"))
+        assert w.showing_image() and not w._failed
+    finally:
+        first_gate.release.set()
+        current_gate.release.set()
+        for thread in threads:
+            thread.join(5)
+        assert all(not thread.is_alive() for thread in threads)
 
 
 def test_closing_during_a_download_does_not_break_the_worker(qtbot):
