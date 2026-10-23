@@ -685,7 +685,7 @@ API_ENTRIES = (
     ('spacr.classify', 'One Classify entry point over both classifier families.'),
     ('spacr.classify.ClassifierFamilyError', 'A classifier family spaCR does not have.'),
     ('spacr.classify.classify', 'Run whichever classifier family ``settings`` asks for.'),
-    ('spacr.classify.inapplicable_settings', "Return the other family's setting keys, which the panel greys out."),
+    ('spacr.classify.inapplicable_settings', 'Return setting keys used only by the other classifier family.'),
     ('spacr.classify.resolve_family', 'Return the classifier family a settings dict asks for.'),
     ('spacr.classify.resolve_ml_model_type', 'Return the classical-ML estimator selected by ``settings``.'),
     ('spacr.classify_classes', 'Define classification classes from annotation or plate-metadata values.'),
