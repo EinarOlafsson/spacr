@@ -505,12 +505,34 @@ def mask_screen(qtbot, monkeypatch, tmp_path):
     child process is a real one that prints the expired-sign-in line and
     exits 1 -- only its command line is replaced, so no ``claude`` runs.
     """
-    from spacr import run_journal
+    from spacr import crashreport, run_journal
     from spacr.qt.ai import issue_report
     from spacr.qt.ai import settings as ai_settings
     from spacr.qt.ai.issue_preview import IssuePreviewDialog
-    from spacr.qt import preferences
+    from spacr.qt import preferences, terms
     from spacr.qt.screens import app_screen
+
+    monkeypatch.setattr(crashreport, "_reports_dir", lambda: tmp_path / "reports")
+    monkeypatch.setattr(crashreport, "_ERROR_POLICY_CACHE", {})
+    monkeypatch.setattr(crashreport, "_ERROR_OCCURRENCE_POLICIES", {})
+    monkeypatch.setattr(crashreport, "_ERROR_DISPATCH_SEEN", {})
+    monkeypatch.setattr(crashreport, "network_allowed", lambda: True)
+    monkeypatch.setattr(crashreport, "_send_queued",
+                        lambda *_a, **_k: pytest.fail("Ask mode sent a report automatically"))
+    summaries, outcomes = [], []
+    collect = providers._report_summary_result
+    deliver = crashreport._deliver_error_result
+
+    def collect_locally(summary, provider, timeout=None):
+        summaries.append(dict(summary))
+        return collect(summary, provider, timeout)
+
+    def deliver_locally(outcome):
+        outcomes.append(dict(outcome))
+        return deliver(outcome)
+
+    monkeypatch.setattr(providers, "_report_summary_result", collect_locally)
+    monkeypatch.setattr(crashreport, "_deliver_error_result", deliver_locally)
 
     runs = tmp_path / "runs"
     runs.mkdir()
@@ -520,6 +542,10 @@ def mask_screen(qtbot, monkeypatch, tmp_path):
                         lambda: True)
     monkeypatch.setattr(preferences, "get_issue_prompt_mode",
                         lambda: preferences.ISSUE_PROMPT_ASK)
+    terms.record_agreement()
+    preferences.set_preferred_provider("claude")
+    crashreport.set_error_report_mode("all")
+    issue_report._sync_automatic_failure_policy()
     monkeypatch.setattr(app_screen, "resolve_pipeline_entry",
                         lambda key: _fails_like_issue_117)
 
@@ -540,8 +566,17 @@ def mask_screen(qtbot, monkeypatch, tmp_path):
     qtbot.addWidget(screen)
     screen._console.set_ai_active(True)
     screen._console.set_ai_provider("claude")
+    screen.show()
+    qtbot.waitExposed(screen)
+    assert screen._console.isVisible() and screen.window().isVisible()
+    policy, explain, send = crashreport._automatic_error_policy(crashreport.KIND_FAULT)
+    assert policy["provider"] == "claude" and explain and not send
     screen.sent, screen.previews = sent, previews
+    screen.summaries, screen.outcomes = summaries, outcomes
     yield screen
+    from spacr.qt.bridge import thread_has_stopped
+
+    qtbot.waitUntil(lambda: thread_has_stopped(screen._thread), timeout=10000)
     screen._console.shutdown()
 
 
@@ -585,6 +620,15 @@ class TestIssue117EndToEnd:
 
         assert PICKLE_MESSAGE in error
         assert mask_screen._console.ai_explanation_of(error) == ""
+        from spacr import crashreport
+
+        assert mask_screen.summaries
+        for summary in mask_screen.summaries:
+            assert crashreport.saved_explanation(
+                crashreport._error_explanation_signature(summary)) is None
+        settled = [outcome for outcome in mask_screen.outcomes if outcome.get("explained")]
+        assert settled and all(not outcome["explanation"]["text"] for outcome in settled)
+        assert all("ai_summary" not in outcome for outcome in settled)
 
     def test_the_console_says_nothing_was_sent_and_how_to_send_it(
             self, qtbot, mask_screen):
