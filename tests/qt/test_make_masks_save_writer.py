@@ -233,3 +233,80 @@ def test_a_fast_failure_still_stops_the_save_at_once(opened, monkeypatch):
     screen._canvas.mask[12:20, 12:20] = 2
     assert screen._save_mask() is None
     assert warnings == [("Save failed", "read-only folder")]
+
+
+def test_atomic_replace_failure_during_close_preserves_file_unsaved_mask_and_history(
+        opened, monkeypatch):
+    import os
+    from pathlib import Path
+    import time
+
+    screen, folder = opened
+    target = Path(engine.save_mask(str(folder), 'field_0.tif', screen._canvas.mask))
+    prior_file = target.read_bytes()
+    source = folder / 'field_0.tif'
+    source_bytes = source.read_bytes()
+    previous_saved = screen._last_saved_mask.copy()
+    screen._canvas.mask[12:20, 12:20] = 9
+    screen._history.push(screen._canvas.mask)
+    unsaved = screen._canvas.mask.copy()
+
+    def history_state():
+        return [[(mask.dtype.str, mask.shape, mask.tobytes()) for mask in stack]
+                for stack in (screen._history._undo, screen._history._redo)]
+
+    history = history_state()
+    warnings = []
+    monkeypatch.setattr(screen, '_warn', lambda *args: warnings.append(args))
+    entered, release = threading.Event(), threading.Event()
+    real_replace, real_fsync = engine.os.replace, engine.os.fsync
+    synced = set()
+    temporary_paths = []
+
+    def fsync(descriptor):
+        result = real_fsync(descriptor)
+        identity = os.fstat(descriptor)
+        synced.add((identity.st_dev, identity.st_ino))
+        return result
+
+    def replace(source_path, destination):
+        if Path(destination) != target:
+            return real_replace(source_path, destination)
+        temporary = Path(source_path)
+        assert temporary.parent == target.parent and temporary.name.startswith('.spacr-mask-')
+        identity = temporary.stat()
+        assert (identity.st_dev, identity.st_ino) in synced
+        np.testing.assert_array_equal(tifffile.imread(temporary), engine.canonical_labels(unsaved))
+        temporary_paths.append(temporary)
+        entered.set()
+        assert release.wait(10)
+        raise PermissionError('owned mask replacement refused')
+
+    monkeypatch.setattr(engine.os, 'fsync', fsync)
+    monkeypatch.setattr(engine.os, 'replace', replace)
+    try:
+        assert screen._save_mask() == str(target)
+        assert entered.wait(10) and mm._mask_writes_pending(target)
+        request = screen._mask_write_requests[-1]
+        timer = threading.Timer(.3, release.set)
+        timer.start()
+        started = time.monotonic()
+        screen.close()
+        assert time.monotonic() - started < 10
+        timer.join(timeout=1)
+    finally:
+        release.set()
+    assert request['done'].is_set() and request['finished']
+    assert isinstance(request['error'], PermissionError)
+    assert not mm._mask_writes_pending() and not screen._mask_write_requests
+    assert mm._MASK_WRITE_STATE['running'] is None and not mm._MASK_WRITE_QUEUE
+    assert target.read_bytes() == prior_file and source.read_bytes() == source_bytes
+    assert temporary_paths and all(not path.exists() for path in temporary_paths)
+    assert not list(target.parent.glob('.spacr-mask-*.tif'))
+    np.testing.assert_array_equal(screen._canvas.mask, unsaved)
+    np.testing.assert_array_equal(screen._last_saved_mask, previous_saved)
+    assert screen._canvas.mask.dtype == unsaved.dtype and history_state() == history
+    assert not np.array_equal(screen._canvas.mask, screen._last_saved_mask)
+    assert not screen._save_would_change_nothing()
+    assert warnings == [('Save failed', 'owned mask replacement refused')]
+    assert not screen._status_label.text().startswith('Saved')

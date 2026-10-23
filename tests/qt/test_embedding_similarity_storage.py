@@ -298,3 +298,101 @@ def test_current_mil_refusal_uses_the_actual_selected_locale(
         emb._mil_frame_from_result(str(database), keys, result, None)
     assert str(error.value) == expected
     assert sha256(database.read_bytes()).hexdigest() == before
+
+
+@pytest.mark.parametrize("accept", [False, True])
+def test_current_mil_real_column_dialog_preserves_frozen_source_without_fitting(
+        screen, plate, tmp_path, monkeypatch, accept):
+    from hashlib import sha256
+    from PySide6.QtWidgets import QDialogButtonBox
+    from spacr.settings import ALPHA_FEATURES
+
+    database, rows = plate
+    _load(screen, database)
+    screen.embed()
+    result = screen._result
+    values = result.values.copy()
+    identity = screen._result_identity
+    labels = _well_labels(tmp_path)
+    before = sha256(database.read_bytes()).hexdigest()
+    screen._path.setText(str(tmp_path / "other.db"))
+    pending = []
+    frames = []
+    choices = []
+    original_frame = emb._mil_frame_from_result
+    original_form = screen._mil_column_form
+    original_ask = screen._ask_mil_columns
+
+    def frame_for(*args, **kwargs):
+        assert args[:3] == (str(database), identity[1], result)
+        frame = original_frame(*args, **kwargs)
+        frames.append(frame.copy(deep=True))
+        return frame
+
+    def column_form(columns):
+        dialog, well, label, features = original_form(columns)
+        assert well.currentText() == "wellID"
+        assert label.currentText() == "well_label"
+        for position in range(features.count()):
+            item = features.item(position)
+            item.setSelected(item.text() == "emb_1")
+        buttons = dialog.findChild(QDialogButtonBox)
+
+        def respond():
+            buttons.button(
+                QDialogButtonBox.Ok if accept else QDialogButtonBox.Cancel).click()
+            return dialog.result()
+
+        monkeypatch.setattr(dialog, "exec", respond)
+        return dialog, well, label, features
+
+    def ask(columns):
+        answer = original_ask(columns)
+        choices.append(answer)
+        return answer
+
+    monkeypatch.setattr(emb, "_mil_frame_from_result", frame_for)
+    monkeypatch.setattr(screen, "_mil_column_form", column_form)
+    monkeypatch.setattr(screen, "_ask_mil_columns", ask)
+    monkeypatch.setattr(screen._jobs, "submit", lambda work, done: pending.append((work, done)))
+    assert screen._current_well_mil.objectName() in ALPHA_FEATURES[562]["widgets"]
+    assert not screen._current_well_mil.isHidden()
+    assert screen._current_well_mil.isEnabled()
+    answer = screen._learn_from_current_embeddings(str(labels))
+    assert answer == (str(labels) if accept else "")
+    assert choices == ([{"well_column": "wellID", "label_column": "well_label",
+                         "feature_columns": ["emb_1"]}] if accept else [None])
+    assert len(pending) == int(accept)
+    [frame] = frames
+    assert frame["prcfo"].tolist() == [row[1] for row in rows]
+    assert frame["wellID"].tolist() == ["plate1_r1_c1"] * len(rows)
+    np.testing.assert_array_equal(frame[list(result.columns)], values)
+    assert screen._result is result
+    assert sha256(database.read_bytes()).hexdigest() == before
+    assert al._stored_embedding_frame(str(database)) is None
+    assert not (tmp_path / "other.db").exists()
+    assert not list(tmp_path.glob("*_mil_*.csv"))
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
+    preferences._apply_alpha_widgets(screen)
+    assert screen._current_well_mil.isHidden()
+
+
+def test_orphaned_stored_vectors_refuse_without_rewriting_the_database(plate):
+    from hashlib import sha256
+    import pandas as pd
+
+    database, rows = plate
+    values = np.arange(12, dtype=np.float32).reshape(4, 3)
+    result = emb.EmbeddingResult(values, ("emb_0", "emb_1", "emb_2"),
+                                 emb.EmbeddingSpec(backbone="resnet18"), 3, 3)
+    assert al._store_crop_embeddings(str(database), [row[1] for row in rows], result) == 4
+    with sqlite3.connect(database) as connection:
+        connection.execute("DELETE FROM png_list")
+    stored = al._stored_embedding_frame(str(database)).copy(deep=True)
+    before = sha256(database.read_bytes()).hexdigest()
+    with pytest.raises(ValueError, match="no stored embedding .* joins a crop"):
+        emb._mil_frame_from_db(str(database))
+    assert sha256(database.read_bytes()).hexdigest() == before
+    pd.testing.assert_frame_equal(al._stored_embedding_frame(str(database)), stored)
+    with sqlite3.connect(database) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM png_list").fetchone() == (0,)

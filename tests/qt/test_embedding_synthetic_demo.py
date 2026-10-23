@@ -304,3 +304,40 @@ def test_the_dialog_lists_installed_checkpoints_and_remembers_the_choice(
     assert "channel_adaptive" in again._dino_in_use.text()
     again.deleteLater()
 
+
+
+def test_installed_checkpoint_placeholder_keeps_the_existing_mapping(
+        demo_screen, monkeypatch, tmp_path):
+    from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit
+    from spacr import embeddings
+
+    checkpoint = str(tmp_path / "chosen.pth")
+    unreadable = str(tmp_path / "unreadable.pth")
+    entries = [{"path": checkpoint, "factory": "cell_dino_hpa_vitl16"},
+               {"path": unreadable, "factory": ""}]
+    monkeypatch.setattr(embeddings, "_cell_dino_checkpoints", lambda: entries)
+    demo_screen.set_crops(np.zeros((2, 8, 8, 4), dtype=np.float32))
+    demo_screen._cell_dino_checkpoint = checkpoint
+    demo_screen._cell_dino_factory = "cell_dino_hpa_vitl16"
+    demo_screen._cell_dino_digest = "a" * 64
+    dialog = demo_screen._cell_dino_dialog()
+    installed = dialog.findChild(QComboBox, "EmbeddingsCellDinoInstalled")
+    factory = dialog.findChild(QComboBox, "EmbeddingsCellDinoFactory")
+    path = dialog.findChild(QLineEdit, "EmbeddingsCellDinoCheckpointPath")
+    digest = dialog.findChild(QLineEdit, "EmbeddingsCellDinoDigest")
+    assert installed.currentData() == checkpoint
+    assert not installed.model().item(installed.findData(unreadable)).isEnabled()
+    assert (path.text(), factory.currentData(), digest.text()) == (
+        checkpoint, "cell_dino_hpa_vitl16", "a" * 64)
+    installed.setCurrentIndex(0)
+    assert installed.currentData() == ""
+    assert (path.text(), factory.currentData(), digest.text()) == (
+        checkpoint, "cell_dino_hpa_vitl16", "a" * 64)
+    dialog.reject()
+    assert dialog.result() == QDialog.Rejected
+    assert (demo_screen._cell_dino_checkpoint, demo_screen._cell_dino_factory,
+            demo_screen._cell_dino_digest) == (
+                checkpoint, "cell_dino_hpa_vitl16", "a" * 64)
+    assert not (tmp_path / "chosen.pth").exists()
+    assert not (tmp_path / "unreadable.pth").exists()
+    dialog.deleteLater()

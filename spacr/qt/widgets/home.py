@@ -61,7 +61,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..hidpi import follow_device_ratio, scaled_for
+from ..hidpi import device_ratio, follow_device_ratio, scaled_for
 from ..theme import (
     SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px,
     make_transparent, palette_for,
@@ -171,6 +171,28 @@ def _fmt_elapsed(seconds: float) -> str:
 
 
 
+class _AppTileIcon(QLabel):
+    """Render the original icon into this label's actual bounds and DPR."""
+
+    def __init__(self, icon, side):
+        super().__init__()
+        self._icon = QIcon(icon)
+        self.setFixedSize(side, side)
+        self.setAlignment(Qt.AlignCenter)
+        self._redraw()
+        follow_device_ratio(self, self._redraw)
+
+    def _redraw(self):
+        bounds = self.contentsRect().size()
+        if not bounds.isEmpty():
+            rendered = self._icon.pixmap(bounds, device_ratio(self))
+            self.setPixmap(scaled_for(rendered, self, bounds))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._redraw()
+
+
 class AppTile(QPushButton):
     """**The** tile: a large square-ish button, icon over module name.
 
@@ -250,9 +272,7 @@ class AppTile(QPushButton):
         col.addStretch(1)
 
         if icon is not None:
-            glyph = QLabel()
-            glyph.setPixmap(icon.pixmap(icon_px, icon_px))
-            glyph.setFixedSize(icon_px, icon_px)
+            glyph = _AppTileIcon(icon, icon_px)
             glyph.setStyleSheet("background: transparent;")
             col.addWidget(glyph, 0, Qt.AlignHCenter)
 

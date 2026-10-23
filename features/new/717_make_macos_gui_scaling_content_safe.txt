@@ -77,6 +77,23 @@ not a 717-only count. This adds automated regression evidence only, not fresh
 physical-input/native-geometry acceptance; prior 503/55/482 and native closure
 are retained, and DONE is unchanged.
 
+2026-10-23 Startup follow-up requires normal-entrypoint default90% GUI/font,
+live change/global reset and normal Quit/restart in two isolated Cocoa processes.
+Native RED: fully visible align glyph39x39 received a43x43 DPR2 pixmap;
+nonzero-alpha ink[1.5,-0.5,41.5,37.5] crossed its top/right contents edges.
+Private AppTile icon label now renders its original QIcon at actual bounds
+on resize/DPR change, then uses scaled_for to preserve aspect and proportional
+size even for low-resolution rectangular plugin icons; no public API changes.
+Eight small/large square/rectangular DPR1/2 tests pass across GUI10/90/125/200%,
+including containment/filled-edge checks (5.26s; sampled RSS0.282GiB).
+Final normal-entrypoint startup/change/reset/Quit/restart passes56.56s,
+sampled RSS0.985GiB: visible ink, measured font/liveGUI90%, icon geometry and
+both normal exits verified on Intel macOS26.6.1,1440x900 display,DPR2.
+Earlier selector/mock-DPR setup failures and superseded passes are not current acceptance.
+Owned INI/app-state paths asserted before writes;8GiB/300s wrapper used.
+No user-profile writes, physical-input or smaller-display acceptance claimed;
+prior closure/history and separately owned physical acceptance remain unchanged.
+
 PROGRESS
 Requirement                         State
 Text and module controls fit        DONE

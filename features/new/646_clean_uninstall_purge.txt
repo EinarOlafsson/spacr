@@ -106,6 +106,16 @@ separate N703 owner; installer PowerShell sources remain with the offline owner.
 CURRENT MAC SESSION: NATIVE UNINSTALL AND CLEANUP ACCEPTANCE
 --------------------------------------------------------------------------------
 
+Additional Mac guard scope,2026-10-23: exercise the new activated-venv
+prefix probe using one real disposable no-pip interpreter, inert spaCR
+metadata and a Unicode/spaces symlink alias. Verify the actual isolated
+interpreter binds the physical prefix and missing configuration refuses
+before execution. No host discovery, package removal or admin acceptance.
+Onab45a3885b/macOS26.6.1 Intel,13 new upstream guard cases pass in3.46s
+(sampled RSS0.169GiB); the new real interpreter/alias case passes in1.37s
+(0.143GiB), both exit0 under the8GiB/300s polling wrapper. The native case
+uses inert metadata, not an installed spaCR package or uninstall acceptance.
+
 Completed Mac shutdown follow-up (2026-10-21): the owned German Make Masks
 layout harness on2a43db5068 completed geometry checks but left an idle Cocoa
 event loop after QApplication.quit() and MainWindow.close(). A minimal
