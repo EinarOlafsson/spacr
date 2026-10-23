@@ -81,6 +81,7 @@ def watching_prime():
 ambient._prime_in_helper_process = watching_prime
 
 app = QApplication([])
+assert app.platformName() == os.environ["QT_QPA_PLATFORM"]
 app.setQuitOnLastWindowClosed(True)
 window = application.MainWindow()
 window.show()
@@ -94,7 +95,24 @@ while len(entered) != 2 or not (root / "helper-entered").exists():
     assert time.monotonic() < deadline, entered
     time.sleep(.01)
 ambient._retire_shading_on_quit(app)
-QTimer.singleShot(0, window.close)
+exposure = {}
+exposure_deadline = time.monotonic() + 5
+
+def close_after_exposure():
+    handle = window.windowHandle()
+    if handle is not None and handle.isExposed():
+        frame = handle.frameGeometry()
+        exposure.update(platform=app.platformName(), native_handle=int(handle.winId()),
+                        exposed=handle.isExposed(), visible=window.isVisible(),
+                        frame=[frame.x(), frame.y(), frame.width(), frame.height()])
+        window.close()
+    elif time.monotonic() < exposure_deadline:
+        QTimer.singleShot(10, close_after_exposure)
+    else:
+        exposure.update(error="owned window was not exposed before close")
+        app.exit(92)
+
+QTimer.singleShot(0, close_after_exposure)
 QTimer.singleShot(10000, lambda: app.exit(91))
 code = app.exec()
 application._tear_down_before_finalization()
@@ -104,7 +122,7 @@ threads = [{"name": worker.name, "daemon": worker.daemon}
            if worker.name in ("spacr-grain-compile", "spacr-satin-compile")]
 (root / "returned.json").write_text(json.dumps({
     "code": code, "threads": threads, "helpers": [process.poll() for process in helpers],
-    "prime_callers": entered}))
+    "prime_callers": entered, "window_before_close": exposure}))
 print("NORMAL_RETURN", flush=True)
 '''
     platform = os.environ.get("SPACR_COMPILER_TEST_PLATFORM", "offscreen")
@@ -128,6 +146,10 @@ print("NORMAL_RETURN", flush=True)
                 time.sleep(.02)
             assert returned.exists(), (tmp_path / "child.log").read_text()
             result = json.loads(returned.read_text())
+            assert result["window_before_close"]["platform"] == platform, result
+            assert result["window_before_close"]["exposed"], result
+            assert result["window_before_close"]["visible"], result
+            assert result["window_before_close"]["native_handle"] != 0, result
             try:
                 process.wait(timeout=1)
             except subprocess.TimeoutExpired:
