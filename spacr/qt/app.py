@@ -226,13 +226,21 @@ def _fit_to_the_work_area(window, screen=None, lower_minimum=True) -> bool:
         room.setWidth(max(1, room.width() - border_w))
         room.setHeight(max(1, room.height() - border_h))
         if lower_minimum:
-            window.setMinimumSize(window.minimumSize().boundedTo(room))
+            from .gui_scale import _fit_main_window_minimum
+
+            if not _fit_main_window_minimum(window, screen):
+                window.setMinimumSize(window.minimumSize().boundedTo(room))
         if window.isMaximized() or window.isFullScreen():
             return False
         size = inner.size().boundedTo(room)
         changed = size != inner.size()
         if changed:
-            window.resize(size)
+            if getattr(window, "_gs_main_window_floor", False):
+                from .gui_scale import _resize_actual
+
+                _resize_actual(window, size)
+            else:
+                window.resize(size)
         placed = (window.isVisible()
                   or window.testAttribute(Qt.WidgetAttribute.WA_Moved))
         if placed:
@@ -3141,6 +3149,7 @@ class MainWindow(QMainWindow):
         :param initial_app: the module to open on startup; ``None`` opens Home.
         """
         super().__init__()
+        self._gs_main_window_floor = True
         self._closing = False
         from .widgets.loading_screen import splash_role
         startup_palette = self.palette()

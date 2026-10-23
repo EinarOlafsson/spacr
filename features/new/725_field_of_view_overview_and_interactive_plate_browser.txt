@@ -195,6 +195,13 @@ combined-phase verdict. Next oracle review separates distinct module readiness
 and metadata opening into their own unchanged20s budgets; do not enlarge a
 budget, hide constructor time or infer an unproven layout defect. No new product
 change beyond the separately validated pacing repair is assumed.
+Separate-operation maximum59310/zKXERs on aad96b90c gets through Mask14.205s,
+wizard6.952s, reachable Next and embedded browser/three opaque surfaces, then
+fails actual host frame/client/minimum2400x1280 versus1440x870 work area;
+plate2220x25, Options unreached. Natural child1/46.388s/RSS1.270GiB/zero missed,
+unchanged input and normal close. New707 MainWindow scale-fit scope owns this
+proven floor overflow; retain all earlier accepted corner/layout results and
+do not relax bounds or certify usable plate/Options before the app is repaired.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 

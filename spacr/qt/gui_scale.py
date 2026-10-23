@@ -247,6 +247,62 @@ def _is_our_own_value(base, value, factor: float) -> bool:
     return abs(int(value) - wanted) <= max(1, int(round(wanted * 0.06)))
 
 
+def _bounded_main_window_minimum(widget, key, value, screen=None):
+    """Cap an opted-in floor in actual client pixels, preserving its baseline.
+
+    :param widget: window; unmarked and embedded widgets pass through.
+    :param key: ``minw`` or ``minh``; other dimensions pass through.
+    :param value: already scaled floor in actual pixels.
+    :param screen: known screen, or ``None`` to use the window's screen.
+    :returns: floor bounded by native work area minus frame margins, or the
+        unchanged value when screen geometry is unavailable.
+    """
+    if (key not in ("minw", "minh")
+            or not getattr(widget, "_gs_main_window_floor", False)):
+        return value
+    try:
+        if not widget.isWindow():
+            return value
+        screen = screen or widget.screen()
+        if screen is None:
+            return value
+        work = screen.availableGeometry()
+        if work.isEmpty():
+            return value
+        width, height = work.width(), work.height()
+        handle = widget.windowHandle()
+        if handle is not None:
+            margins = handle.frameMargins()
+            width -= margins.left() + margins.right()
+            height -= margins.top() + margins.bottom()
+        return min(value, max(1, width if key == "minw" else height))
+    except (AttributeError, RuntimeError):
+        return value
+
+
+def _fit_main_window_minimum(widget, screen=None):
+    """Reapply logical floors after native decoration or work-area changes.
+
+    :param widget: opted-in window with remembered logical minimum dimensions.
+    :param screen: known screen, or ``None`` to use the window's screen.
+    :returns: whether stored floors were applied through original Qt setters;
+        ``False`` leaves callers' existing unmarked-window fallback intact.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    record = getattr(widget, "_gs_geo", None)
+    if (not getattr(widget, "_gs_main_window_floor", False)
+            or not record or not all(key in record for key in ("minw", "minh"))
+            or not all((QWidget, _DIMS[key][0]) in _ORIGINAL for key in ("minw", "minh"))):
+        return False
+    applied = _store(widget, "_gs_geo_set")
+    for key in ("minw", "minh"):
+        wanted = _bounded_main_window_minimum(widget, key, scale_int(record[key], _factor_for(widget)), screen)
+        applied[key] = wanted
+        _ORIGINAL[(QWidget, _DIMS[key][0])](widget, wanted)
+    return True
+
+
 def _set_dims(widget, **dims) -> None:
     """Remember and apply minimum/maximum dimensions of ``widget``."""
     from PySide6.QtWidgets import QWidget
@@ -257,7 +313,7 @@ def _set_dims(widget, **dims) -> None:
     for key, value in dims.items():
         if not _is_our_own_value(record.get(key), value, factor):
             record[key] = int(value)
-        wanted = scale_int(record[key], factor)
+        wanted = _bounded_main_window_minimum(widget, key, scale_int(record[key], factor))
         applied[key] = wanted
         _ORIGINAL[(QWidget, _DIMS[key][0])](widget, wanted)
 
@@ -826,7 +882,7 @@ def _reapply_widget(widget, factor: float, previous: float = 1.0) -> None:
     if record:
         applied = _store(widget, "_gs_geo_set")
         for key, value in record.items():
-            wanted = scale_int(value, factor)
+            wanted = _bounded_main_window_minimum(widget, key, scale_int(value, factor))
             if applied.get(key) != wanted:
                 applied[key] = wanted
                 _ORIGINAL[(QWidget, _DIMS[key][0])](widget, wanted)
