@@ -3212,7 +3212,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "bleach_correction",
-    "line": 9343,
+    "line": 9348,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -4181,7 +4181,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 9433,
+    "line": 9438,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -7867,7 +7867,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 9437,
+    "line": 9442,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -12780,7 +12780,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "db_table_name",
-    "line": 9337,
+    "line": 9342,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -13437,7 +13437,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "drop_straight_tracks",
-    "line": 7263,
+    "line": 7268,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_compute_velocities_and_well_summary"
@@ -20065,7 +20065,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_mode",
-    "line": 6452,
+    "line": 6457,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20074,7 +20074,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_mode",
-    "line": 8471,
+    "line": 8476,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -20083,7 +20083,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_mode",
-    "line": 9063,
+    "line": 9068,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20103,7 +20103,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "infection_intensity_n_bins",
-    "line": 4228,
+    "line": 4233,
     "module": "spacr.timelapse",
     "nested": true,
     "qualname": "_make_intensity_motility_panel._plot_hist_qc"
@@ -20112,7 +20112,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_n_bins",
-    "line": 8434,
+    "line": 8439,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -20121,7 +20121,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_n_bins",
-    "line": 9197,
+    "line": 9202,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20132,7 +20132,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc",
-    "line": 6952,
+    "line": 6957,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -20141,7 +20141,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc",
-    "line": 9630,
+    "line": 9635,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -20161,7 +20161,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_graphs",
-    "line": 4122,
+    "line": 4127,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -20170,7 +20170,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_graphs",
-    "line": 8531,
+    "line": 8536,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -20181,7 +20181,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 4124,
+    "line": 4129,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -20190,7 +20190,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6827,
+    "line": 6832,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20199,7 +20199,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6950,
+    "line": 6955,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -20208,25 +20208,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 6995,
-    "module": "spacr.timelapse",
-    "nested": false,
-    "qualname": "_apply_infection_intensity_qc"
-   },
-   {
-    "form": "get",
-    "function_depth": 1,
-    "key": "infection_intensity_qc_panel_path",
-    "line": 6995,
-    "module": "spacr.timelapse",
-    "nested": false,
-    "qualname": "_apply_infection_intensity_qc"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "infection_intensity_qc_panel_path",
-    "line": 7036,
+    "line": 7000,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -20235,7 +20217,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 7036,
+    "line": 7000,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -20244,7 +20226,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 7073,
+    "line": 7041,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -20253,7 +20235,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 7073,
+    "line": 7041,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -20262,7 +20244,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 7126,
+    "line": 7078,
+    "module": "spacr.timelapse",
+    "nested": false,
+    "qualname": "_apply_infection_intensity_qc"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "infection_intensity_qc_panel_path",
+    "line": 7078,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -20271,7 +20262,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 8394,
+    "line": 7131,
+    "module": "spacr.timelapse",
+    "nested": false,
+    "qualname": "_apply_infection_intensity_qc"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "infection_intensity_qc_panel_path",
+    "line": 8399,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -20280,7 +20280,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 8423,
+    "line": 8428,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -20289,7 +20289,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 8601,
+    "line": 8606,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_histogram"
@@ -20298,7 +20298,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_intensity_qc_panel_path",
-    "line": 9283,
+    "line": 9288,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20318,7 +20318,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_scope",
-    "line": 6974,
+    "line": 6979,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -20338,7 +20338,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 4118,
+    "line": 4123,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -20347,7 +20347,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 6460,
+    "line": 6465,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20356,7 +20356,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 6959,
+    "line": 6964,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_apply_infection_intensity_qc"
@@ -20365,7 +20365,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 9631,
+    "line": 9636,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -20374,7 +20374,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 9705,
+    "line": 9710,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -20383,7 +20383,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 9758,
+    "line": 9763,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -20403,7 +20403,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_log_intensity",
-    "line": 6588,
+    "line": 6593,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20423,7 +20423,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_max_cells",
-    "line": 6617,
+    "line": 6622,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20434,7 +20434,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "infection_pca_method",
-    "line": 6466,
+    "line": 6471,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20463,7 +20463,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_min_gt_separation",
-    "line": 6728,
+    "line": 6733,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20483,7 +20483,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_min_silhouette",
-    "line": 6729,
+    "line": 6734,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20503,7 +20503,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_pathogen_weight",
-    "line": 6666,
+    "line": 6671,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20523,7 +20523,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_random_state",
-    "line": 6672,
+    "line": 6677,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_pca_clustering"
@@ -20532,7 +20532,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_random_state",
-    "line": 9234,
+    "line": 9239,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20651,7 +20651,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_high",
-    "line": 9120,
+    "line": 9125,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20660,7 +20660,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_high",
-    "line": 9635,
+    "line": 9640,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -20680,7 +20680,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_low",
-    "line": 9119,
+    "line": 9124,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20689,7 +20689,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_low",
-    "line": 9634,
+    "line": 9639,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -20709,7 +20709,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_colsample_bytree",
-    "line": 9044,
+    "line": 9049,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20729,7 +20729,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_drop_ambiguous",
-    "line": 9118,
+    "line": 9123,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20738,7 +20738,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_drop_ambiguous",
-    "line": 9632,
+    "line": 9637,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -20758,7 +20758,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_learning_rate",
-    "line": 9042,
+    "line": 9047,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20778,7 +20778,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_margin",
-    "line": 9057,
+    "line": 9062,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20798,7 +20798,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_max_depth",
-    "line": 9041,
+    "line": 9046,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20818,7 +20818,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_min_cells_per_class",
-    "line": 8916,
+    "line": 8921,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20838,7 +20838,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_n_estimators",
-    "line": 9050,
+    "line": 9055,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20876,7 +20876,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_n_jobs",
-    "line": 9048,
+    "line": 9053,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20896,7 +20896,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "infection_xgb_proba_column",
-    "line": 4338,
+    "line": 4343,
     "module": "spacr.timelapse",
     "nested": true,
     "qualname": "_make_intensity_motility_panel._plot_xgb_prob_qc"
@@ -20905,7 +20905,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_proba_column",
-    "line": 9637,
+    "line": 9642,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -20925,7 +20925,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_proba_threshold",
-    "line": 9056,
+    "line": 9061,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20945,7 +20945,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_random_state",
-    "line": 8917,
+    "line": 8922,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20965,7 +20965,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_reg_lambda",
-    "line": 9045,
+    "line": 9050,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -20985,7 +20985,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_subsample",
-    "line": 9043,
+    "line": 9048,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -21005,7 +21005,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_top_features",
-    "line": 9265,
+    "line": 9270,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
@@ -23712,7 +23712,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_displacement",
-    "line": 9339,
+    "line": 9344,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -26351,7 +26351,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_xlim",
-    "line": 4150,
+    "line": 4155,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -26360,7 +26360,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_xlim",
-    "line": 7715,
+    "line": 7720,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_motility_plots"
@@ -26380,7 +26380,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_ylim",
-    "line": 4151,
+    "line": 4156,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -26389,7 +26389,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_ylim",
-    "line": 7716,
+    "line": 7721,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_motility_plots"
@@ -27258,7 +27258,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 9338,
+    "line": 9343,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -29563,7 +29563,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 9434,
+    "line": 9439,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -37661,7 +37661,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 4162,
+    "line": 4167,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_make_intensity_motility_panel"
@@ -37670,7 +37670,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 9435,
+    "line": 9440,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -39871,7 +39871,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pixels_per_um",
-    "line": 9439,
+    "line": 9444,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -41136,7 +41136,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 2894,
+    "line": 2899,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -45617,7 +45617,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "reuse_existing_measurements",
-    "line": 9342,
+    "line": 9347,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -46772,7 +46772,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 2894,
+    "line": 2899,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -47441,7 +47441,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "seconds_per_frame",
-    "line": 9440,
+    "line": 9445,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -52038,7 +52038,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 9336,
+    "line": 9341,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -52469,7 +52469,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "straightness_threshold",
-    "line": 7261,
+    "line": 7266,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_compute_velocities_and_well_summary"
@@ -56140,7 +56140,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_annotations",
-    "line": 2888,
+    "line": 2893,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56160,7 +56160,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_conditions",
-    "line": 2892,
+    "line": 2897,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56180,7 +56180,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse_events_encoder",
-    "line": 2886,
+    "line": 2891,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56189,7 +56189,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_encoder",
-    "line": 2896,
+    "line": 2901,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56209,7 +56209,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_model",
-    "line": 2889,
+    "line": 2894,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56229,7 +56229,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_threshold",
-    "line": 2891,
+    "line": 2896,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56249,7 +56249,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse_events_video_channels",
-    "line": 2886,
+    "line": 2891,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56258,7 +56258,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_video_channels",
-    "line": 2898,
+    "line": 2903,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56278,7 +56278,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse_events_video_checkpoint",
-    "line": 2886,
+    "line": 2891,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56287,7 +56287,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_video_checkpoint",
-    "line": 2897,
+    "line": 2902,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56307,7 +56307,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "timelapse_events_video_device",
-    "line": 2886,
+    "line": 2891,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56316,7 +56316,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_video_device",
-    "line": 2899,
+    "line": 2904,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56336,7 +56336,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_events_window",
-    "line": 2890,
+    "line": 2895,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56593,7 +56593,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_lineage_max_distance",
-    "line": 2893,
+    "line": 2898,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56736,7 +56736,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_mode",
-    "line": 2879,
+    "line": 2884,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -56873,7 +56873,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_objects",
-    "line": 2883,
+    "line": 2888,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_run_event_detection_step"
@@ -57369,7 +57369,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "track_outlier_zscore",
-    "line": 9340,
+    "line": 9345,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "automated_motility_assay"
@@ -57456,7 +57456,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "tracked_object",
-    "line": 8735,
+    "line": 8740,
     "module": "spacr.timelapse",
     "nested": false,
     "qualname": "_infection_qc_xgboost"
