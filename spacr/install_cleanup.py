@@ -1015,6 +1015,37 @@ def _conda_environments(machine: _Machine) -> List[str]:
     return prefixes
 
 
+def _explicit_virtualenv(machine: _Machine) -> Optional[str]:
+    """Verify the active virtual environment before offering package removal.
+
+    :param machine: The computer and its explicit environment selection.
+    :returns: Its physical prefix only when its interpreter confirms ownership.
+    """
+    explicit = machine.env("VIRTUAL_ENV")
+    if not explicit or not os.path.isabs(explicit):
+        return None
+    prefix = os.path.realpath(explicit)
+    python = _env_python(prefix)
+    if not python or not _distributions(prefix):
+        return None
+    try:
+        with open(os.path.join(prefix, "pyvenv.cfg"), encoding="utf-8") as handle:
+            if not any(line.partition("=")[0].strip().lower() == "home"
+                       and line.partition("=")[2].strip() for line in handle):
+                return None
+        argv = [python, "-I", "-c", "import json,sys;print(json.dumps(sys.prefix))"]
+        if machine.real:
+            code, output = machine.runner(argv, timeout=15)
+        else:
+            code, output = machine.runner(argv)
+        actual = json.loads(output) if code == 0 else None
+        if isinstance(actual, str) and _norm(os.path.realpath(actual)) == _norm(prefix):
+            return prefix
+    except (OSError, UnicodeError, ValueError, TypeError):
+        return None
+    return None
+
+
 def _find_environments(machine: _Machine,
                        installers: Sequence[InstallRecord]) -> List[InstallRecord]:
     """Find environments the user made, and editable checkouts, holding spaCR.
@@ -1025,6 +1056,9 @@ def _find_environments(machine: _Machine,
     """
     home = machine.home
     prefixes = [(p, "conda") for p in _conda_environments(machine)]
+    explicit = _explicit_virtualenv(machine)
+    if explicit:
+        prefixes.append((explicit, "venv"))
     for folder in (".virtualenvs", ".venvs", "venvs", "Envs",
                    os.path.join(".pyenv", "versions"),
                    os.path.join(".local", "pipx", "venvs"),
@@ -1056,8 +1090,9 @@ def _find_environments(machine: _Machine,
         seen.add(key)
         if os.path.exists(os.path.join(prefix, "conda-meta")):
             layout = "conda"
-        running = bool(machine.running_prefix) and \
+        running = bool(machine.running_prefix) and (
             _norm(prefix) == _norm(machine.running_prefix)
+            or _identity(prefix) == _identity(machine.running_prefix))
         python = None
         if layout == "user-site":
             python = machine.which(os.path.basename(prefix)) if machine.real else None
