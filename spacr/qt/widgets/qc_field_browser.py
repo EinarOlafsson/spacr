@@ -3006,7 +3006,7 @@ class _FieldOverview(QDialog):
         try:
             geometry = self._checked_plate_geometry(available, self._overview_options.get("geometry"))
         except _OverviewValidationError as error:
-            self._geometry_error = error
+            self._geometry_error = str(error)
             self._geometry_valid = False
             self._normalization_ready = False
             self._visible = ()
