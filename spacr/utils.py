@@ -10551,9 +10551,9 @@ def format_path_for_system(path):
     
     new_path = os.path.normpath(formatted_path)
     if os.path.exists(new_path):
-        print(f"Found path: {new_path}")
+        print(console_safe(f"Found path: {new_path}"))
     else:
-        print(f"Path not found: {new_path}")
+        print(console_safe(f"Path not found: {new_path}"))
         
     return new_path
 
