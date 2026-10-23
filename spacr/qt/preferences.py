@@ -716,6 +716,10 @@ class _DefaultsForReadingRealForWriting:
             return _SAFE_OVERRIDES[key]
         return default
 
+    def contains(self, key) -> bool:
+        """Expose only forced-safe entries, never the real store's keys."""
+        return key in _SAFE_OVERRIDES
+
     def setValue(self, key, value) -> None:
         """Write through to the real store."""
         self._real.setValue(key, value)
