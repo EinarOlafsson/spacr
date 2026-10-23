@@ -22,6 +22,8 @@ command palette 504x420 (87 model rows, vertical range77), fallback340x739.
 Actual GUI/font90%/90%, work1440x870/DPR2; app returned0, font assertions failed
 on CommandInput/five fallback headers. Preserve accepted geometry while those
 two source font declarations are repaired; no layout change is warranted.
+Native4495f2178 final: both cases PASS at unchanged initial sizes, exact scales,
+whole/reachable controls and safe fonts; normal exit0, RSS0.960GiB/0 missed.
 
 2026-10-22 affected-source requirement: the new Field-of-view overview
 shares the unwrapped tab-corner row with Reset zoom/Ruler. Check all three
