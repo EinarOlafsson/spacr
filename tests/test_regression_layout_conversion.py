@@ -341,7 +341,46 @@ def test_long_gene_composition_keeps_reused_wells_on_separate_screens():
     )
 
 
-def test_long_gene_regression_passes_full_composition_to_the_real_estimator(tmp_path):
+def test_long_gene_horseshoe_passes_full_composition_and_weights_before_sampling(
+        tmp_path, monkeypatch):
+    from spacr import ml, power_model
+
+    frame = _long_fractions()
+    frame["score"] = np.rint(frame["score"] * frame["cell_count"]).astype(int)
+    frame.index = pd.Index([17, 3, 44, 9, 21, 8, 14, 30], name="source_row")
+    captured = {}
+
+    class ModelDataCaptured(Exception):
+        pass
+
+    def stop_before_sampling(data, **kwargs):
+        captured["data"] = data
+        captured["settings"] = kwargs
+        raise ModelDataCaptured
+
+    monkeypatch.setattr(power_model, "fit_model", stop_before_sampling)
+    with pytest.raises(ModelDataCaptured):
+        ml.regression(
+            frame, str(tmp_path / "screen.csv"), dependent_variable="score",
+            regression_type="horseshoe", level="gene", model_data_layout="long",
+            model_plate_position=False, qc=False, plot=False, draw_shared_panels=False)
+    data = captured["data"]
+    assert data.n_wells == len(frame)
+    np.testing.assert_array_equal(data.wells, frame.index)
+    gene_columns = [i for i, name in enumerate(data.genes)
+                    if name.startswith("gene_fraction:gene[")]
+    np.testing.assert_allclose(data.log10expression[:, gene_columns],
+                               np.repeat([[0.1, 0.0], [0.3, 0.1],
+                                          [0.6, 0.2], [0.8, 0.1]], 2, axis=0))
+    np.testing.assert_array_equal(data.Npositive, frame["score"])
+    np.testing.assert_array_equal(data.Ntotal, frame["cell_count"])
+    np.testing.assert_array_equal(data.likelihood_weights, np.full(len(frame), .5))
+    assert data.likelihood_well_ids == tuple(
+        frame[["plateID", "rowID", "columnID", "prc"]].itertuples(index=False, name=None))
+    assert captured["settings"] == {"seed": 0, "standardize": True}
+
+
+def test_long_gene_ols_passes_native_row_interactions_to_the_real_estimator(tmp_path):
     from spacr import ml
 
     frame = _long_fractions()
@@ -351,11 +390,18 @@ def test_long_gene_regression_passes_full_composition_to_the_real_estimator(tmp_
         model_plate_position=False, qc=False, plot=False, draw_shared_panels=False)
     assert kind == "ols"
     assert coefficients.attrs["fit_design"]["n_rows_fitted"] == len(frame)
+    pd.testing.assert_index_equal(model.model.data.row_labels, frame.index)
     gene_columns = [i for i, name in enumerate(model.model.exog_names)
                     if name.startswith("gene_fraction:gene[")]
-    np.testing.assert_allclose(model.model.exog[:, gene_columns],
-                               np.repeat([[0.1, 0.0], [0.3, 0.1],
-                                          [0.6, 0.2], [0.8, 0.1]], 2, axis=0))
+    expected = np.array([[.1, 0.], [0., 0.], [.3, 0.], [0., .1],
+                         [.6, 0.], [0., .2], [.8, 0.], [0., .1]])
+    np.testing.assert_allclose(model.model.exog[:, gene_columns], expected)
+    expected_design = np.column_stack([np.ones(len(frame)), expected])
+    np.testing.assert_allclose(model.model.exog, expected_design)
+    expected_coefficients = np.linalg.lstsq(
+        expected_design, frame["score"].to_numpy(), rcond=None)[0]
+    np.testing.assert_allclose(model.params.to_numpy(), expected_coefficients)
+
 
 
 def test_long_gene_composition_accepts_a_prc_only_well_index():

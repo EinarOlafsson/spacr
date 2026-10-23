@@ -1,4 +1,9 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT LONG ESTIMATOR SCOPE CONTRACT — 2026-10-23
+Test the approved full-well design only on the horseshoe route, stopping
+before sampling. Independently retain real OLS row interactions and verify
+its coefficients; scientific datasets and model requirements stay unchanged.
+
 CURRENT POSTERIOR ADAPTER CONTROL — 2026-10-23
 Cover the reachable converged-result adapter branch using a valid PowerFit
 and its real summary, without fitting or implying scientific convergence.
@@ -4494,3 +4499,5 @@ Normal API output remains identical across 19 keys; runtime captions and API tar
 2026-10-23 — Preserve the Main-only pending-quarantine control and both new banner-navigation cases on nightly. Its original hosted Qt1 case passed; active callback ASTs remain identical, and the removed private helper had no callers. No tests repeated.
 
 2026-10-23 — The converged-result adapter control passes (1 test, 4.48s), preserving means, deviations, posterior tails, unidentified-term filtering and summary identity without a false warning. It supplies a valid result flag and runs no sampler; this does not certify scientific convergence. Root independently reviewed the exact test; production and generated outputs are unchanged.
+
+2026-10-23 — Two estimator contracts pass (3.53s): horseshoe transport preserves the original full-well matrix, row identities, raw counts/exposure and per-well weights before sampling; real OLS retains historical interactions and agrees with an independent least-squares solution. Root reviewed the split. Production, strict scientific fixtures/assertions and generated outputs are unchanged.
