@@ -9922,6 +9922,8 @@ class AppScreen(QWidget):
                 getattr(self, "_failure_kind", ""))
         if failed and anonymous_due:
             self._report_files_itself = False
+            if relay_files:
+                self._report_is_a_settings_path = False
         files_itself = getattr(self, "_report_files_itself", False)
         awaits_the_terms = getattr(self, "_report_awaits_the_terms", False)
         self._report_files_itself = False

@@ -247,12 +247,18 @@ class TestFailedRunWiring:
         assert screen._recorded.workers == []
         assert relay.calls == []
 
-    def test_a_settings_error_is_a_user_error(self, screen, relay):
+    @pytest.mark.parametrize("mode", ["all", "faults"])
+    def test_a_settings_error_is_a_user_error(self, screen, relay, mode):
+        cr.set_error_report_mode(mode)
         screen._on_pipeline_error(
             "Traceback (most recent call last):\n"
             "spacr.errors.ConfigurationError: src does not exist\n")
         assert screen._anonymous_report_due is True
         assert screen._failure_kind == "user_error"
+        screen._settle_the_report(failed=True)
+        screen._recorded.wait()
+        assert len(relay.calls_to("/report")) == (1 if mode == "all" else 0)
+        assert any("path in its settings" in line for line in screen._notices) is (mode == "faults")
 
     def test_the_github_button_is_still_offered(self, screen, relay):
         from spacr.qt.ai import settings as ai_settings
