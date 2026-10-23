@@ -55,6 +55,26 @@ unchanged generic CPU keep-last-frame contract; the new case passes13.43s/
 RSS0.446GiB after its artist assertion was corrected for a real axes rebuild.
 Native acceptance remains pending strict draw-ID-bound known-absence proof and
 the original exact current CPU frame/two picks/full-idle/normal-close checks.
+Native12943 on1de379 validates the transition repair: one Metal error, four
+aligned paints/two draw-proven absent-image paints/zero bad or unknown; absent
+old-hit pick returns0 without changing selection. Current CPU RGB/IDs and final
+paint are exact; Metal resources close. First fresh pick is3/3, but the original
+strict20s idle fails with only the label3 mesher active, so pick2 is not reached
+and the full case remains FAIL (normal exit1,93.94s/RSS1.311GiB). Data/history
+and normal close remain unchanged. Diagnose baseline label3 cache/delivery before
+any new run; do not relax20s or substitute a cheaper object.
+Post-pick Figure16 is a separate diagnostic, not covered by the initial4/0/2:
+camera/affine/rays/rect/data-tag all match, but visible CPU frame16 still has
+highlight0 while the new request has highlight3. A later CPU frame matches.
+This selection-color lag is distinct from the repaired moving-pose GPU failure;
+retain the existing CPU keep-last-frame contract and do not claim every case
+paint aligned or silently discard that parameter mismatch.
+Stronger baseline next: within the original single30s from initial label3
+selection, require actual accepted non-None cache3 and its active visible gate
+before force-spin deselection. Log exact mesh submit/work/delivery timestamps,
+session/version/token/cache identities around selection/spin/pick. Record cold
+label3 setup time separately; keep both fresh picks and the original post-pick
+20s gate. No new warmup, cheaper label, added grace or product fix is assumed.
 First owned run stops before injection: default90% GUI scales the fixed canvas
 away from611x140. Cleanup preserves dirty/image/mask/history, but the parent
 times out280s without a final run-return marker; this is not native failover
