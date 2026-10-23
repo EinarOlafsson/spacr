@@ -58,6 +58,19 @@ font/style/model changes without fixed/max sizes or changed choices/signals.
 Two strengthened checks pass (2.96s/RSS0.244GiB), including the same widget's
 font90→200→90 floor reset, long-choice insert/remove and padding change/reset;
 selected data stays unchanged. Native affected acceptance remains pending.
+Native9764 on626b04c788 passes the affected font200 setup checks: actual23px
+witnesses, all five slides648x504 and grouped dialog1098x724 initially bounded
+on1440x870/DPR2, full/reachable AI controls and intrinsic text. Every offered
+combo choice fits its actual native edit field with a contained arrow; slide
+widths144/209/178/231px and all combo heights44px provide full slots. Both
+native grow/shrink checks pass. No answers/provider actions, no aliases,
+normal exit0 in27.760s/RSS1.130GiB/zero missed. Retain the earlier failures.
+Affected default47670 on626b04c788 also passes both layouts after the repairs:
+actual11px witnesses, five slides648x504/all-groups1098x710, every offered
+native text slot/arrow, AI control, intrinsic/reachability and grow/shrink check.
+No aliases; natural exit0 in24.675s/RSS1.108GiB/zero missed. Default90/90 and
+GUI90/font200 acceptance are now current; joint maximum scales and physical/
+actual smaller-display subgates remain open. No whole-item completion claimed.
 
 Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
 public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.
