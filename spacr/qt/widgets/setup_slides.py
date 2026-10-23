@@ -781,7 +781,9 @@ class SetupSlides(QDialog):
         STATE rather than as a task, which is what these settings are.
         """
         if choices:
-            box = QComboBox()
+            from .setup_dialog import _SetupComboBox
+
+            box = _SetupComboBox()
             for data, caption in choices:
                 box.addItem(str(caption), data)
             index = box.findData(value)
@@ -981,7 +983,10 @@ class SetupSlides(QDialog):
             return
         margin = 28
         width = max(1, card.width() - 2 * margin)
-        note.setFixedWidth(width)
+        from ..gui_scale import _set_actual_dim
+
+        _set_actual_dim(note, "minw", width)
+        _set_actual_dim(note, "maxw", width)
         height = note.heightForWidth(width)
         if height <= 0:
             height = note.sizeHint().height()

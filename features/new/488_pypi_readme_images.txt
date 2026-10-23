@@ -51,3 +51,5 @@ VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_pypi_readme_image
 2026-10-21 — Acceptance: real wheel METADATA, strict readme_renderer/Twine checks and usable image/button/link preview; verify published1.5.1.6 before whole-item closure.
 2026-10-21 — Current responsive conversion is absent from published1.5.1.5; actual PyPI CSS previews load all121 visible images at780px desktop/360px phone without overflow.
 2026-10-21 — Pinned sdist→wheel build and strict Twine pass; 17 artifact-bound checks and 11 URL checks pass. Release URLs bind the checked-out commit; published1.5.1.6 acceptance remains.
+
+2026-10-23 — Current 1.5.1.6 wheel/sdist render checks found Warehouse mailto pseudo-icons keep the hidden responsive licensing/contact row visible. Apply the existing responsive class to the generated row as well as its images, preserving all links, widths, source pins and translated README sources; verify actual artifact rendering before publication. PyPI upload acceptance remains open.

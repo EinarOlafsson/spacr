@@ -124,3 +124,42 @@ def test_the_note_leaves_with_the_first_slide(slides):
     slides._show_slide(1) if hasattr(slides, "_show_slide") else None
     if hasattr(slides, "_show_slide"):
         assert not slides._gpu_note.isVisible()
+
+
+def test_gpu_note_measures_its_actual_scaled_width(qtbot):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QSize, Qt
+    from PySide6.QtGui import QFont, QTextDocument
+    from PySide6.QtWidgets import QLabel, QWidget
+    from spacr.qt import gui_scale
+
+    previous = gui_scale.current_scale()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(.9)
+    card = QWidget()
+    qtbot.addWidget(card)
+    gui_scale._resize_actual(card, QSize(648, 504))
+    note = QLabel(card)
+    note.setWordWrap(True)
+    note.setTextFormat(Qt.RichText)
+    font = QFont('Helvetica Neue')
+    font.setPixelSize(23)
+    note.setFont(font)
+    note.setText('<div>' + GPU_REQUIREMENT + '</div><div>'
+                 + ('GPU acceleration and CPU fallback retain every task. ' * 5)
+                 + '</div>')
+    card.show()
+    note.show()
+    try:
+        SetupSlides._place_the_gpu_note(SimpleNamespace(card=card, _gpu_note=note, _back=None))
+        document = QTextDocument()
+        document.setDefaultFont(note.font())
+        document.setDocumentMargin(0)
+        document.setHtml(note.text())
+        document.setTextWidth(note.contentsRect().width())
+        assert document.size().height() <= note.contentsRect().height() + 1
+        assert note.width() == card.width() - 2 * CARD_MARGIN
+        assert note.geometry().bottom() < card.height()
+    finally:
+        card.close()
+        gui_scale.set_gui_scale_live(previous)

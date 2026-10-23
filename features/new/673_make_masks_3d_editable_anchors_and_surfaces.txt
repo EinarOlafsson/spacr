@@ -29,8 +29,11 @@ MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 Failure-only visibility repair: invalidate the failed GPU frame/picks and hide
 its owned image; restore visibility only for an accepted fresh frame. The new
 blocked-CPU regression fails before repair and passes afterward (13.43s,
-RSS0.446GiB); six Auto/CPU/prepaint contracts stay green. Native causal-absence,
-fresh CPU pixels/picks and normal cleanup acceptance remain pending.
+RSS0.446GiB); six Auto/CPU/prepaint contracts stay green. Scoped native Metal
+failure-to-CPU acceptance now passes on33889ac177, including causal absence,
+exact fresh pixels/two picks, original idle gates and normal cleanup. Whole-item
+FPS and physical-input acceptance remain open; this is synthetic fault coverage,
+not proof of real OS device-loss behavior.
 Next scoped native failover check: after a real owned Metal frame, inject one
 error only at that live context's render seam. Preserve the production close/
 refusal/CPU retry route; require released Metal resources, fresh current-request
@@ -75,6 +78,36 @@ before force-spin deselection. Log exact mesh submit/work/delivery timestamps,
 session/version/token/cache identities around selection/spin/pick. Record cold
 label3 setup time separately; keep both fresh picks and the original post-pick
 20s gate. No new warmup, cheaper label, added grace or product fix is assumed.
+Native35241 on bbd7ba6627 fails that stronger baseline at30.095s: label3/
+version1/generation1 starts4.19ms after selection and remains running uncancelled,
+with no pending job, cache, gate or accepted delivery. Injection is not reached.
+Thus queued-delivery timing alone cannot explain this failure; cold mesh work
+itself exceeds the original budget. Natural exit1 in76.03s/RSS1.268GiB,
+unchanged mask/history and normal close pass; full failover acceptance stays open.
+Next bounded attribution: profile this exact cold label3 geometry once headlessly,
+reusing the retained synthetic fixture and geometry probe, before choosing a
+product optimization. The older label1 contact profile is not label3 attribution;
+preserve exact geometry/state and all native deadlines, with no native rerun.
+That current-source headless attribution passes (21.18s/RSS0.302GiB), producing
+3522 vertices/7040 faces with unchanged image/mask/history. The19.604s
+instrumented interval records64,356 triangle-contact calls (11.393s cumulative,
+6.806s self) and791,448 planar-cross calls. However watcher-thread activity and
+inconsistent parent/child nesting contaminate timing totals (contact falsely
+names psutil/thread waits as callers); these are not reliable phase attribution
+or native completion/performance. This direct probe has no cancellation token
+or live GUI competition, unlike the native worker. No new optimization adopted.
+Native93581 on33889ac177 passes the affected full failover case: actual Intel
+Metal611x140/DPR2, cold label3 accepted with identical visible cached gate in
+24.8498s (original30s). Its uncancelled generation1 work takes23.7497s wall/
+13.9337s same-thread CPU; the9.8160s difference is waiting/descheduling or other
+off-CPU time, not a measured GIL cause. Cache identity survives spin and both
+picks without another mesh job. One injected render error yields three aligned,
+two causally absent, zero bad/unknown transition paints; old-hit pick0 leaves
+selection unchanged. Fresh CPU frame15 is exact at the normal50% fallback
+scale; two current-frame picks16/18 both return3/3 and original20s idle passes.
+Metal resources release; image/mask/history/dirty remain unchanged, normal close
+and natural exit0 pass in76.659s/RSS1.314GiB with no missed RSS samples. Retain
+earlier failures and separate highlight-lag diagnostic; no FPS/physical claim.
 First owned run stops before injection: default90% GUI scales the fixed canvas
 away from611x140. Cleanup preserves dirty/image/mask/history, but the parent
 times out280s without a final run-return marker; this is not native failover
@@ -111,6 +144,22 @@ Third setup confirms normal close/prewarm stop and natural app return, but raw
 Axes.view_init is restored by the canvas: injected0, unchanged painted pose/
 serial, childexit1 (63.83s/RSS1.265GiB). Correct the camera trigger through the
 existing interaction route; this is still no active-failure/failover acceptance.
+
+Next scratch-only geometry candidate: cache each triangle's immutable vertex-ID
+set once, preserving the exact shared-intersection iteration order on the real
+label3 fixture and seeded cases. Keep structural checks, predicate arithmetic,
+checkpoint positions and geometry unchanged. Require focused legacy/refusal
+coverage and one fresh-session baseline/candidate label3 pair; discard without
+useful measured benefit. No native deadline or acceptance-budget relaxation.
+The single fresh-session pair measures13.2021→11.8599s (10.17%); all three
+geometry fingerprints and mask/image/history match. All64,356 actual shared
+orders and32,640 seeded orders match; face-set builds fall128,712→7,040.
+The31-case scratch/reference cohort passes functionally; nine teardown errors
+were owned-profile/sandbox conflicts (no real settings touched), and only those
+nine rerun cleanly in1.21s/RSS0.175GiB after removing the scratch override.
+The exact two-site source matches the tested AST; two persistent order/budget
+regressions pass in1.72s/RSS0.151GiB. This is one order-biased headless pair,
+not robust/native speed acceptance; the existing30s/20s gates stay unchanged.
 
 Bounded CPU attribution: retained phase timing measures Axes3D.draw at
 5.016 ms per frame but does not isolate projection work. Measure only the
