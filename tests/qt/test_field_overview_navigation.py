@@ -621,3 +621,168 @@ def test_native_representative_change_relearns_well_means_without_changing_axes(
     assert reference["field_identities"] == tuple(field.identity for field in dialog._well_fields["A01"][:2])
     assert previous.provenance()["reference_means"] == {1: 226.}
     assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def _edit_overview_channels(dialog, qtbot, value):
+    if not dialog.options_button.isChecked():
+        dialog.options_button.click()
+    dialog._controls_scroll.ensureWidgetVisible(dialog.channels)
+    qtbot.mouseClick(dialog.channels, Qt.LeftButton)
+    qtbot.keyClick(dialog.channels, Qt.Key_A, Qt.ControlModifier)
+    qtbot.keyClicks(dialog.channels, value)
+    qtbot.keyClick(dialog.channels, Qt.Key_Tab)
+
+
+def test_invalid_channel_edit_rejects_pending_normalization_then_recovers(source_planes, qtbot, monkeypatch):
+    from PySide6.QtGui import QImage
+
+    source, paths = source_planes
+    dialog = module._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "custom_regex": PATTERN, "channels": (1,), "geometry": (2, 3),
+        "normalization": {"mode": "shared", "percentiles": (0., 100.)}})
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    dialog.show()
+    dialog._scan()
+    qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready
+                    and not dialog._index_jobs.is_busy(), timeout=10000)
+    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    item = dialog.fields.item(0)
+    qtbot.mouseClick(dialog.fields.viewport(), Qt.LeftButton,
+                    pos=dialog.fields.visualItemRect(item).center())
+    qtbot.waitUntil(lambda: dialog._individual and dialog.view._item is not None
+                    and not dialog._image_jobs.is_busy(), timeout=10000)
+    before = dialog.view._item.pixmap().toImage()
+    old_plan, old_generation = dialog._normalization_plan, dialog._display_generation
+    entered, release = threading.Event(), threading.Event()
+    actual_prepare = module._overview_prepare_normalization
+
+    def prepare(*args, **kwargs):
+        result = actual_prepare(*args, **kwargs)
+        entered.set()
+        assert release.wait(10)
+        return result
+
+    monkeypatch.setattr(module, "_overview_prepare_normalization", prepare)
+    try:
+        dialog.options_button.click()
+        dialog._controls_scroll.ensureWidgetVisible(dialog.low)
+        qtbot.mouseClick(dialog.low, Qt.LeftButton)
+        qtbot.keyClick(dialog.low, Qt.Key_A, Qt.ControlModifier)
+        qtbot.keyClicks(dialog.low, "5")
+        qtbot.keyClick(dialog.low, Qt.Key_Tab)
+        qtbot.waitUntil(entered.is_set, timeout=10000)
+        _edit_overview_channels(dialog, qtbot, "-1")
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._index_jobs.is_busy()
+            and dialog.status.text() == module.tr("Choose one or more nonnegative channel indices."), timeout=10000)
+        assert not dialog._normalization_ready
+        assert dialog._normalization_plan is old_plan
+        assert dialog._display_generation > old_generation
+        assert dialog.view._item.pixmap().toImage() == before
+        _edit_overview_channels(dialog, qtbot, "1")
+        qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy()
+                        and not dialog._image_jobs.is_busy() and dialog.view._item is not None, timeout=10000)
+        assert tuple(dialog._normalization_plan["percentiles"]) == (5., 100.)
+        assert dialog._normalization_plan is not old_plan
+        field = dialog.fields.currentItem().data(Qt.UserRole)
+        expected = module._overview_pixels(field, (1,), (5., 100.), edge=1024, **dialog._display_kwargs())
+        picture = QImage(expected.data, expected.shape[1], expected.shape[0],
+                         expected.strides[0], QImage.Format_RGB888).copy()
+        assert dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888) == picture
+        assert dialog.view._item.pixmap().toImage() != before
+    finally:
+        release.set()
+
+
+def test_invalid_channel_edit_does_not_install_a_pending_field_image(overview, qtbot, monkeypatch):
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    entered, release = threading.Event(), threading.Event()
+    actual_pixels = module._overview_pixels
+
+    def pixels(field, *args, **kwargs):
+        result = actual_pixels(field, *args, **kwargs)
+        if field.field_id == "2" and kwargs.get("edge") == 256:
+            entered.set()
+            assert release.wait(10)
+        return result
+
+    monkeypatch.setattr(module, "_overview_pixels", pixels)
+    item = next(dialog.fields.item(index) for index in range(dialog.fields.count())
+                if dialog.fields.item(index).data(Qt.UserRole).field_id == "2")
+    try:
+        qtbot.mouseClick(dialog.fields.viewport(), Qt.LeftButton,
+                        pos=dialog.fields.visualItemRect(item).center())
+        qtbot.waitUntil(entered.is_set, timeout=10000)
+        _edit_overview_channels(dialog, qtbot, "invalid")
+        dialog.wells.viewport().update()
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy()
+            and dialog.status.text() == module.tr("Choose one or more nonnegative channel indices."), timeout=10000)
+        assert dialog.view._item is None
+        assert dialog.fields.currentItem().data(Qt.UserRole).identity == item.data(Qt.UserRole).identity
+        _edit_overview_channels(dialog, qtbot, "1")
+        qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog.view._item is not None, timeout=10000)
+        expected = actual_pixels(item.data(Qt.UserRole), (1,), (1., 99.9), edge=256)
+        actual = dialog.view._item.pixmap().toImage()
+        assert (actual.width(), actual.height()) == (expected.shape[1], expected.shape[0])
+        for x, y in ((0, 0), (20, 15), (39, 29)):
+            assert actual.pixelColor(x, y).getRgb()[:3] == tuple(int(value) for value in expected[y, x])
+    finally:
+        release.set()
+
+
+def test_wizard_folder_cancel_select_and_real_pattern_transitions(tmp_path, qtbot, monkeypatch):
+    from PySide6.QtWidgets import QPushButton
+    from spacr.qt.regex_detect import BUILTIN_REGEXES
+
+    first, second = tmp_path / "first", tmp_path / "second"
+    originals = {}
+    for directory, plate, well in ((first, "plate1", "A01"), (second, "plate2", "B02")):
+        directory.mkdir()
+        for channel in (1, 2):
+            path = directory / f"{plate}_{well}_T0001F001L01A02Z01C{channel:02d}.tif"
+            tifffile.imwrite(path, np.arange(120, dtype=np.uint16).reshape(10, 12) + channel)
+            originals[path] = path.read_bytes()
+    wizard = module._OverviewMetadataWizard(str(first))
+
+    def retire(widget):
+        widget._cancelled.set()
+        widget._runner.cancel()
+        qtbot.waitUntil(lambda: widget._runner.active_jobs() == 0, timeout=10000)
+        widget._runner.shutdown(timeout_ms=3000)
+
+    qtbot.addWidget(wizard, before_close_func=retire)
+    wizard.show()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    fields, generation = wizard._fields, wizard._generation
+    browse = next(button for button in wizard.findChildren(QPushButton)
+                  if button.text() == module.tr("Choose folder…"))
+    preview = next(button for button in wizard.findChildren(QPushButton)
+                   if button.text() == module.tr("Preview metadata"))
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_args, **_kwargs: "")
+    browse.click()
+    assert wizard.source.text() == str(first)
+    assert wizard._fields is fields and wizard._generation == generation and wizard.next.isEnabled()
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_args, **_kwargs: str(second))
+    browse.click()
+    qtbot.waitUntil(lambda: wizard.next.isEnabled() and wizard._fields[0].plate == "plate2", timeout=10000)
+    _choose(wizard.preset, "auto")
+    _choose(wizard.preset, "cellvoyager")
+    assert wizard.regex.text() == BUILTIN_REGEXES["cellvoyager"]
+    assert not wizard.next.isEnabled()
+    custom = (r"(?P<plateID>plate\d+)_(?P<wellID>[A-Z]\d+)_T(?P<timeID>\d+)"
+              r"F(?P<fieldID>\d+)L\d+A\d+Z(?P<sliceID>\d+)C(?P<chanID>\d+)\.tif")
+    qtbot.mouseClick(wizard.regex, Qt.LeftButton)
+    qtbot.keyClick(wizard.regex, Qt.Key_A, Qt.ControlModifier)
+    qtbot.keyClicks(wizard.regex, custom)
+    assert wizard.preset.currentData() == "custom" and wizard.regex.text() == custom
+    assert not wizard.next.isEnabled()
+    preview.click()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    assert {(field.plate, field.well, field.field_id, field.time_id, field.z_id)
+            for field in wizard._fields} == {("plate2", "B02", "001", "0001", "01")}
+    configuration = wizard.configuration()
+    assert configuration["source"] == str(second) and configuration["custom_regex"] == custom
+    assert configuration["channels"] == (1, 2)
+    assert all(path.read_bytes() == before for path, before in originals.items())
