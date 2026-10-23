@@ -180,7 +180,7 @@ def test_metadata_wizard_reads_real_preset_channels_and_explicit_scope(qtbot, tm
     assert wizard.preset.currentData() == "cellvoyager"
     assert config["source_scope"] == "folder"
     assert config["channels"] == (1, 2, 3, 4)
-    assert config["geometry"] == (8, 12)
+    assert config["geometry"] == (6, 8)
     assert config["time_index"] == config["z_index"] == 0
     assert wizard._info["channels"] == (1, 2, 3, 4)
     assert {entry["axes"] for entry in wizard._info["files"]} == {"YX"}
@@ -203,11 +203,11 @@ def test_metadata_wizard_reads_real_preset_channels_and_explicit_scope(qtbot, tm
     with pytest.raises(ValueError, match="channel IDs"):
         wizard.configuration()
     wizard.channels.setText("1, 4")
-    wizard.geometry.setCurrentIndex(0)
+    wizard.geometry.setCurrentIndex(5)
     wizard.representatives.setValue(2)
     config = wizard.configuration()
     assert config["channels"] == (1, 4)
-    assert config["geometry"] == (1, 1)
+    assert config["geometry"] == (8, 12)
     assert config["representatives"] == 2
     wizard.conditions.item(0, 2).setText("vehicle")
     wizard.mode.setCurrentIndex(wizard.mode.findData("reference_condition"))
@@ -302,3 +302,32 @@ def test_unknown_physical_identities_cannot_form_normalization_reference_groups(
         browser._overview_normalization_plan((field,), (0,),
             {"mode": mode, "reference": reference, "conditions": {("p", ""): "control"}}, None)
     assert (field.plate, field.well, field.row, field.column) == ("p", "", "", 0)
+
+
+def test_metadata_wizard_geometry_fits_real_row_l_and_preserves_explicit_rejection(qtbot, tmp_path):
+    import tifffile
+    from PySide6.QtCore import Qt
+
+    tifffile.imwrite(tmp_path / "plate1_L02_T0001F001L01A01Z01C01.tif",
+                     np.ones((6, 8), dtype=np.uint16))
+    wizard = browser._OverviewMetadataWizard(str(tmp_path))
+    qtbot.addWidget(wizard)
+    wizard.show()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    assert browser._overview_geometry_extent(wizard._fields) == (12, 2)
+    assert wizard.configuration()["geometry"] == (16, 24)
+    wizard.geometry.setFocus()
+    qtbot.keyClick(wizard.geometry, Qt.Key_Home)
+    for _ in range(5):
+        qtbot.keyClick(wizard.geometry, Qt.Key_Down)
+    assert wizard.geometry.currentData() == (8, 12)
+    assert wizard._geometry_explicit
+    with pytest.raises(browser._OverviewValidationError, match="12 rows, 2 columns"):
+        wizard.configuration()
+    wizard._scan()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    assert wizard.geometry.currentData() == (8, 12)
+    with pytest.raises(browser._OverviewValidationError, match="indexed wells"):
+        wizard.configuration()
+    assert wizard._fields[0].well == "L02"
+    wizard.reject()

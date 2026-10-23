@@ -3464,6 +3464,14 @@ def _open_field_overview(owner, settings=None):
     return wizard
 
 
+def _overview_geometry_extent(fields):
+    """Return known physical well extents without assigning unknown identities."""
+    coordinates = tuple((int(field.row), field.column) for field in fields
+                        if field.row and field.column > 0)
+    return (max((row for row, column in coordinates), default=0),
+            max((column for row, column in coordinates), default=0))
+
+
 def _overview_reference_key(field, mode, conditions):
     """Address a reference without merging identically named wells on plates."""
     if mode == "reference_well":
@@ -3737,7 +3745,11 @@ class _OverviewMetadataWizard(QDialog):
                                   (48, (6, 8)), (96, (8, 12)), (384, (16, 24)),
                                   (1536, (32, 48))):
             self.geometry.addItem(tr("{count}-well plate", count=count), dimensions)
-        self.geometry.setCurrentIndex(5)
+        self._geometry_explicit = self._settings.get("geometry") is not None
+        selected_geometry = self._settings.get("geometry")
+        selected_index = self.geometry.findData(tuple(selected_geometry)) if selected_geometry else -1
+        self.geometry.setCurrentIndex(selected_index if selected_index >= 0 else 5)
+        self.geometry.activated.connect(self._choose_geometry)
         layout.addRow(tr("Plate geometry"), self.geometry)
         self.representatives = QSpinBox()
         self.representatives.setRange(1, 100)
@@ -3902,6 +3914,13 @@ class _OverviewMetadataWizard(QDialog):
                              details="; ".join(descriptions), channels=str(available)))
         self.time.setRange(0, max(entry.get("time_count", 1) for entry in info["files"]) - 1)
         self.z.setRange(0, max(entry.get("z_count", 1) for entry in info["files"]) - 1)
+        if not self._geometry_explicit:
+            rows_required, columns_required = _overview_geometry_extent(fields)
+            for index in range(self.geometry.count()):
+                rows_available, columns_available = self.geometry.itemData(index)
+                if rows_available >= rows_required and columns_available >= columns_required:
+                    self.geometry.setCurrentIndex(index)
+                    break
         wells = sorted({(field.plate, field.well) for field in fields})
         self.conditions.blockSignals(True)
         self.conditions.setSortingEnabled(False)
@@ -3923,6 +3942,10 @@ class _OverviewMetadataWizard(QDialog):
             source=self.source.text(), count=len(fields), matched=matched,
             unmatched=len(all_files) - matched, channels=str(available)))
         self.next.setEnabled(True)
+
+    def _choose_geometry(self):
+        """Keep an explicit user geometry across subsequent metadata previews."""
+        self._geometry_explicit = True
 
     def _condition_mapping(self):
         """Read explicit condition labels without changing any image metadata."""
@@ -3959,6 +3982,13 @@ class _OverviewMetadataWizard(QDialog):
             raise _OverviewValidationError(tr("Choose only channel IDs reported by this image's metadata.")) from None
         if not channels or len(set(channels)) != len(channels) or not set(channels) <= set(self._info["channels"]):
             raise _OverviewValidationError(tr("Choose only channel IDs reported by this image's metadata."))
+        rows_required, columns_required = _overview_geometry_extent(self._fields)
+        rows_available, columns_available = self.geometry.currentData()
+        if rows_required > rows_available or columns_required > columns_available:
+            raise _OverviewValidationError(tr(
+                "The selected geometry does not contain the indexed wells "
+                "({rows} rows, {columns} columns required).",
+                rows=rows_required, columns=columns_required))
         if not self.low.value() < self.high.value():
             raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile."))
         mode = self.mode.currentData()
