@@ -6774,8 +6774,9 @@ class AppScreen(QWidget):
 
         if _is_alpha_visible():
             return set()
-        alpha = _alpha_names("settings", self.app_key)
         model = getattr(self, "_settings_model", None)
+        alpha = set(_alpha_names("settings", self.app_key)) | set(
+            getattr(model, "_hidden_by_the_run", ()) or ())
         widgets = getattr(model, "_widgets", None) or {}
         built = getattr(widgets, "built_items", None)
         pairs = built() if callable(built) else widgets.items()
@@ -6798,7 +6799,7 @@ class AppScreen(QWidget):
             if keys and all(key in alpha for key in keys):
                 hidden.add(id(section))
                 continue
-            if not any(keys) and self._every_heading_below_is_hidden(
+            if not keys and self._every_heading_below_is_hidden(
                     section, hidden):
                 hidden.add(id(section))
         return hidden

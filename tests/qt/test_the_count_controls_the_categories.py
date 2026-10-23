@@ -69,7 +69,7 @@ def test_no_category_is_empty(mask):
     # AppScreen._mount_the_object_grid -- so it is judged by the table.
     table = grid_section(mask)
     for section in _sections_below(mask):
-        if not isinstance(section, Section):
+        if not isinstance(section, Section) or not section.isVisibleTo(mask):
             continue
         if section is table:
             assert mask._object_grid.objects(), "a table with no column"
