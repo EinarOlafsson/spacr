@@ -634,8 +634,8 @@ def test_automatic_wizard_pattern_preserves_nested_folder_channel_groups(qtbot, 
     indexed = browser._overview_index(str(tmp_path), source_scope="recursive")
     assert len(indexed) == 1
     assert indexed[0].well == "A01" and indexed[0].field_id == "1"
-    wizard = browser._OverviewMetadataWizard(str(tmp_path), {
-        "source_scope": "recursive", "channels": (1, 2)})
+    wizard = browser._OverviewMetadataWizard(str(tmp_path), {"channels": (1, 2)})
+    wizard.scope.setCurrentIndex(wizard.scope.findData("recursive"))
     qtbot.addWidget(wizard)
     wizard.show()
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
