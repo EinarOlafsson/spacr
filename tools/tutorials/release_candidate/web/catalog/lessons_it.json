@@ -1509,7 +1509,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "Per questa dimostrazione della memoria, lo stesso campo di esempio viene ripetuto a mosaico in un array più grande; non viene avviata alcuna misurazione. Prima che parta un’esecuzione, spaCR stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spaCR chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria.",
+          "narration": "Prima che parta un’esecuzione, spaCR stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spaCR chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria.",
           "focus": [
             1620,
             860,
@@ -1517,7 +1517,7 @@
             360
           ],
           "hold_after": 0.7,
-          "speech_text": "Per questa dimostrazione della memoria, lo stesso campo di esempio viene ripetuto a mosaico in un array più grande; non viene avviata alcuna misurazione. Prima che parta un’esecuzione, spàker stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spàker chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria."
+          "speech_text": "Prima che parta un’esecuzione, spàker stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spàker chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria."
         }
       ],
       "narration_voices": {

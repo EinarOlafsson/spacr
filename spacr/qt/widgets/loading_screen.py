@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import sys
 import time
 import weakref
 from typing import Callable, Optional, Sequence
@@ -531,6 +532,7 @@ class LoadingScreen(QWidget):
         self._rest_target = QRectF()
         self._anchor = QPointF()
         self._tick_timer: Optional[QTimer] = None
+        self._underlay: Optional[QPixmap] = None
         self._focus_before: Optional[QWidget] = None
         self._floor = 0.02
         self._frame_ms: list = []
@@ -893,7 +895,8 @@ class LoadingScreen(QWidget):
         else:
             self._cut_tiles(picture, x, y, side, tile)
         self.setAutoFillBackground(False)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        self._capture_underlay()
+        self.setAttribute(Qt.WA_OpaquePaintEvent, self._underlay is not None)
         self.setAttribute(Qt.WA_StyledBackground, False)
         self._state = "playing"
         self._began_at = self._clock()
@@ -904,6 +907,27 @@ class LoadingScreen(QWidget):
         timer.start()
         self._tick_timer = timer
         self.update()
+
+    def _capture_underlay(self) -> None:
+        """Composite over a single native Mac frame during the short dissolve.
+
+        A translucent child otherwise repaints the entire Retina window below
+        it on every animation tick. Keep the cover opaque to Qt and perform
+        the same blend locally; normal live painting resumes when it closes.
+        """
+        from PySide6.QtGui import QGuiApplication
+
+        parent = self.parentWidget()
+        if QGuiApplication.platformName() != "cocoa" or parent is None:
+            return
+        self.hide()
+        try:
+            picture = parent.grab()
+            if not picture.isNull():
+                self._underlay = picture
+        finally:
+            self.show()
+            self.raise_()
 
     def _cut_tiles(self, picture: QPixmap, x: float, y: float, side: float,
                    tile: int) -> None:
@@ -916,8 +940,16 @@ class LoadingScreen(QWidget):
         :param tile: device pixels per tile in ``picture``.
         """
         grid = self._mosaic.grid
+        occupied = self._mosaic.occupied
+        # Group adjacent cells on Retina Macs to bound per-frame pixmap calls.
+        # The resting mosaic retains its original pixels and the same timing.
+        if sys.platform == 'darwin' and grid >= 64 and grid % 2 == 0:
+            occupied = np.asarray(occupied).reshape(grid // 2, 2,
+                                                   grid // 2, 2).any(axis=(1, 3))
+            grid //= 2
+            tile *= 2
         pitch = side / grid
-        model = BlowAway(self._mosaic.occupied, (x, y), side, sweep=_SWEEP_S,
+        model = BlowAway(occupied, (x, y), side, sweep=_SWEEP_S,
                          pace=_PACE, end=_BLOW_AWAY_S)
         rest = picture.toImage().convertToFormat(
             QImage.Format.Format_ARGB32_Premultiplied)
@@ -992,6 +1024,8 @@ class LoadingScreen(QWidget):
         drawn = 0
         painter = QPainter(self)
         try:
+            if self._underlay is not None:
+                painter.drawPixmap(self.rect(), self._underlay)
             ground = _role_color("splash_bg")
             ground.setAlphaF(self.container_opacity())
             painter.fillRect(self.rect(), ground)
@@ -1125,6 +1159,7 @@ class LoadingScreen(QWidget):
             self._tick_timer = None
         self._tiles = []
         self._rest = None
+        self._underlay = None
         self.hide()
         self.deleteLater()
         callback, self._on_finished = self._on_finished, None

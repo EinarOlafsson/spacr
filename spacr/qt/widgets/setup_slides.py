@@ -1163,6 +1163,7 @@ class SetupSlides(QDialog):
                 return None, ""
 
             cells = []
+            partial_details = []
             for library, prefix, task in GPU_TABLE_ROWS:
                 accelerated, _detail = _answer(prefix)
                 if accelerated is None:
@@ -1170,6 +1171,9 @@ class SetupSlides(QDialog):
                     continue
                 if library.startswith("Cellpose"):
                     library = SetupSlides._cellpose_label()
+                if prefix == 'UMAP' and _detail.startswith('PCA/KMeans on Metal'):
+                    library = 'PCA / KMeans'
+                    partial_details.append(_detail)
                 ink = verdict_ink(bool(accelerated))
                 where = _say("GPU") if accelerated else _say("CPU")
                 cells.append(
@@ -1185,6 +1189,8 @@ class SetupSlides(QDialog):
                     '<div align="center">'
                     '<table style="margin-top:6px; border-collapse:collapse;">'
                     + "".join(cells) + '</table></div>')
+                for detail in partial_details:
+                    rows.append(f'<div align="center">{_say(detail)}</div>')
             for engine in neural_engines():
                 rows.append(
                     f'<div style="opacity:0.75;">• {engine} — '
@@ -1293,10 +1299,22 @@ class SetupSlides(QDialog):
         """
         super().showEvent(event)
         try:
+            QTimer.singleShot(0, self._settle_opening_layout)
             QTimer.singleShot(0, self._look_at_the_terms_gate)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the terms gate could not be re-measured",
                       exc_info=True)
+
+    def _settle_opening_layout(self):
+        """Lay out the card after native font metrics and window geometry settle."""
+        if not (getattr(self, '_card_scrolls', False)
+                or getattr(self, '_card_in_layout', False)):
+            self.card.setGeometry(self.rect())
+        self.card.ensurePolished()
+        self.card.layout().invalidate()
+        self.card.layout().activate()
+        self._place_the_greeting()
+        self._place_the_gpu_note()
 
     def _fade_in(self) -> None:
         """Bring the new slide up from transparent.

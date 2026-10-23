@@ -1315,7 +1315,7 @@ def _import_torch() -> Any:
 
 @_register("torch")
 def check_torch(ctx: Context) -> Result:
-    """Check that torch imports and report whether it was built with CUDA.
+    """Check that torch imports and report its compiled accelerator backend.
 
     :param ctx: not read — in particular ``ctx.probe_gpu`` belongs to
         :func:`check_gpu`, not here. This row only imports torch and reports
@@ -1334,6 +1334,12 @@ def check_torch(ctx: Context) -> Result:
         )
     built = getattr(getattr(torch, "version", None), "cuda", None)
     suffix = f"built against CUDA {built}" if built else "CPU-only build"
+    hip = getattr(getattr(torch, 'version', None), 'hip', None)
+    mps = getattr(getattr(torch, 'backends', None), 'mps', None)
+    if hip:
+        suffix = f'built against ROCm {hip}'
+    elif not built and mps is not None and getattr(mps, 'is_built', lambda: False)():
+        suffix = 'Metal/MPS build'
     return Result("torch", PASS, f"torch {torch.__version__} ({suffix}).")
 
 

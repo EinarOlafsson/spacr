@@ -814,6 +814,15 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
                            per_channel_dims=per_channel)
 
 
+def _embedding_device(requested=None):
+    """Honor an explicit device, otherwise use spaCR's shared accelerator."""
+    if requested:
+        return requested
+    from .accelerator import torch_device
+
+    return str(torch_device())
+
+
 def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     """Load a headless backbone and honor a strict patch embedding size.
 
@@ -828,7 +837,7 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
             "self-supervised embeddings need torch and timm; install the "
             "`spacr[embeddings]` extra") from exc
 
-    device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    device = _embedding_device(spec.device)
     model = timm.create_model(spec.backbone, pretrained=True, num_classes=0)
     model.eval().to(device)
     patch_embed = getattr(model, "patch_embed", None)
@@ -958,7 +967,7 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
         info = dict(_FOUNDATION_MODELS["cell_dino"],
                     in_channels=width, size=size)
         model, forward = _cell_dino_model(spec, torch)
-        device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
+        device = _embedding_device(spec.device)
         model.eval().to(device)
 
         def run(stack: np.ndarray) -> np.ndarray:
@@ -987,7 +996,7 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
         run.in_channels = info["in_channels"]
         return run
     info = _FOUNDATION_MODELS[spec.backbone]
-    device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    device = _embedding_device(spec.device)
     if spec.backbone in ("subcell", "subcell_rybg"):
         model, forward = _subcell_model(info, torch)
     else:
@@ -1442,7 +1451,7 @@ def _dino_pretrain(crops: Any, path: str, *, arch: str = "resnet18",
 
     images, scale = _dino_planes(crops, channel_policy, channels)
     in_chans = int(images.shape[1])
-    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    device = _embedding_device(device)
     trained = {"arch": arch, "in_chans": in_chans, "size": int(size),
               "channel_policy": channel_policy, "out_dim": int(out_dim)}
     state = None
@@ -2004,7 +2013,7 @@ def _dino_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     model, _head = _dino_network(trained["arch"], trained["in_chans"], size,
                                  False, trained["out_dim"], torch)
     model.load_state_dict(state["teacher"])
-    device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    device = _embedding_device(spec.device)
     model.eval().to(device)
 
     def run(stack: np.ndarray) -> np.ndarray:

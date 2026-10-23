@@ -89,7 +89,7 @@ def test_cpu_adapter_batches_real_tensors_in_eval_mode_without_gradients(monkeyp
     monkeypatch.setitem(sys.modules, 'timm', SimpleNamespace(create_model=create))
     monkeypatch.setattr(torch.cuda, 'is_available', lambda: False)
     crops = np.arange(5*2*3*3, dtype=np.float32).reshape(5, 2, 3, 3)/100
-    run = emb._timm_encoder(emb.EmbeddingSpec(backbone='test-encoder', batch_size=2))
+    run = emb._timm_encoder(emb.EmbeddingSpec(backbone='test-encoder', batch_size=2, device='cpu'))
     values = run(crops)
     np.testing.assert_allclose(values, crops.mean(axis=(1, 2)), rtol=1e-6)
     assert batches == [((2, 3, 2, 3), False, False, 'cpu'),

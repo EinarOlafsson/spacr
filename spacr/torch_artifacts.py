@@ -66,6 +66,9 @@ def capture_rng_state() -> dict[str, Any]:
     }
     if torch.cuda.is_available():
         state["torch_cuda"] = torch.cuda.get_rng_state_all()
+    mps = getattr(torch.backends, 'mps', None)
+    if mps is not None and mps.is_available():
+        state['torch_mps'] = torch.mps.get_rng_state()
     return state
 
 
@@ -81,9 +84,12 @@ def restore_rng_state(state: Mapping[str, Any] | None) -> None:
     if state.get("numpy") is not None:
         np.random.set_state(state["numpy"])
     if state.get("torch") is not None:
-        torch.set_rng_state(state["torch"])
+        torch.set_rng_state(state["torch"].cpu())
     if torch.cuda.is_available() and state.get("torch_cuda") is not None:
         torch.cuda.set_rng_state_all(state["torch_cuda"])
+    mps = getattr(torch.backends, 'mps', None)
+    if state.get('torch_mps') is not None and mps is not None and mps.is_available():
+        torch.mps.set_rng_state(state['torch_mps'].cpu())
 
 
 def atomic_torch_save(payload: Any, path: str) -> str:

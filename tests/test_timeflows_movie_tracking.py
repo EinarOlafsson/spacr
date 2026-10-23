@@ -343,5 +343,8 @@ def test_load_timeflows_rebuilds_the_saved_network_without_download(tmp_path, mo
     assert not net.training
     tm._load_timeflows(str(path), precision='float32')
     assert loaded['dtype'] == torch.float32
+    if getattr(torch.backends, 'mps', None) and torch.backends.mps.is_available():
+        tm._load_timeflows(str(path), device='mps')
+        assert loaded['dtype'] == torch.float32
     with pytest.raises(ValueError, match='precision'):
         tm._load_timeflows(str(path), precision='half')

@@ -1371,7 +1371,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "I denne demonstration af hukommelsesforbrug gentages det samme eksempelfelt som fliser i et større array; ingen måling startes. Før en kørsel starter, anslår spaCR den hukommelse, hver arbejdsproces skal bruge, ud fra ét synsfelt i dit projekt. Med meget store synsfelter, som sammensatte mosaikker, er der måske ikke plads til de arbejdsprocesser, du bad om, i den ledige RAM, og så spørger spaCR først. Vælg det anbefalede antal arbejdsprocesser, behold dit eget og lad Measure holde pause med nye synsfelter, mens hukommelsen er knap, eller luk andre programmer for at frigøre hukommelse.",
+          "narration": "Før en kørsel starter, anslår spaCR den hukommelse, hver arbejdsproces skal bruge, ud fra ét synsfelt i dit projekt. Med meget store synsfelter, som sammensatte mosaikker, er der måske ikke plads til de arbejdsprocesser, du bad om, i den ledige RAM, og så spørger spaCR først. Vælg det anbefalede antal arbejdsprocesser, behold dit eget og lad Measure holde pause med nye synsfelter, mens hukommelsen er knap, eller luk andre programmer for at frigøre hukommelse.",
           "focus": [
             1620,
             860,

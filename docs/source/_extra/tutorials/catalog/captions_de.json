@@ -1371,7 +1371,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "Für diese Speicherdemonstration wird dasselbe Beispielbildfeld kachelartig zu einem größeren Array zusammengesetzt; es wird keine Messung gestartet. Bevor ein Lauf beginnt, schätzt spaCR anhand eines Bildfelds Ihres Projekts, wie viel Speicher jeder Worker braucht. Bei sehr großen Bildfeldern, etwa zusammengesetzten Mosaiken, passen die gewünschten Worker womöglich nicht in den freien Arbeitsspeicher, und spaCR fragt zuerst nach. Wählen Sie die empfohlene Worker-Anzahl, behalten Sie Ihre eigene und lassen Sie Measure neue Bildfelder zurückhalten, solange der Speicher knapp ist, oder schließen Sie andere Programme, um Speicher freizugeben.",
+          "narration": "Bevor ein Lauf beginnt, schätzt spaCR anhand eines Bildfelds Ihres Projekts, wie viel Speicher jeder Worker braucht. Bei sehr großen Bildfeldern, etwa zusammengesetzten Mosaiken, passen die gewünschten Worker womöglich nicht in den freien Arbeitsspeicher, und spaCR fragt zuerst nach. Wählen Sie die empfohlene Worker-Anzahl, behalten Sie Ihre eigene und lassen Sie Measure neue Bildfelder zurückhalten, solange der Speicher knapp ist, oder schließen Sie andere Programme, um Speicher freizugeben.",
           "focus": [
             1620,
             860,

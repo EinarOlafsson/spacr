@@ -79,8 +79,12 @@ SHARED_Z_KEYS = {
 @pytest.fixture(autouse=True)
 def force_cpu(monkeypatch):
     import torch
+    import spacr.accelerator as accelerator
+    monkeypatch.setattr(accelerator, '_CACHED', None)
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
     monkeypatch.setattr(torch.cuda, "empty_cache", lambda: None)
+    if hasattr(torch.backends, 'mps'):
+        monkeypatch.setattr(torch.backends.mps, 'is_available', lambda: False)
 
 
 @pytest.fixture

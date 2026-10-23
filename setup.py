@@ -373,8 +373,12 @@ dependencies = [
     'threadpoolctl<4,>=3.0; python_version >= "3.10"',
     'timm<2.0,>=0.9; python_version >= "3.10"',
     'torchcam<1.0,>=0.5; python_version >= "3.11" and (sys_platform != "darwin" or platform_machine != "x86_64")',
+    'torchcam>=0.4,<0.5; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.13"',
     'trackastra<1.0,>=0.5; (python_version >= "3.10" and (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13")) and python_version >= "3.10"',
-    'transformers<6,>=4.40; python_version >= "3.10"',
+    # Intel macOS is limited to torch 2.2.2; Transformers 5 disables that
+    # backend even though pip regards its optional Torch dependency as valid.
+    'transformers<6,>=4.40; python_version >= "3.10" and (sys_platform != "darwin" or platform_machine != "x86_64")',
+    'transformers>=4.40,<4.58; sys_platform == "darwin" and platform_machine == "x86_64"',
     'ultrack<1.0,>=0.6; (python_version >= "3.10" and python_version < "3.14" and (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13")) and python_version >= "3.10" and (sys_platform != "linux" or platform_machine == "x86_64" or platform_machine == "AMD64")',
     'zarr<4,>=2.16; python_version >= "3.10"',
 ]

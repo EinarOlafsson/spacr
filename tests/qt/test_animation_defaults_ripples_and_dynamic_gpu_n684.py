@@ -113,10 +113,10 @@ def _save(dialog):
     dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
 
 
-def test_fresh_defaults_field_density_25_and_dark_background_191919(store, monkeypatch):
+def test_fresh_defaults_field_density_10_and_dark_background_191919(store, monkeypatch):
     monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: "dark")
     assert prefs.get_ambient_theme() == "data_art_impulse_lens"
-    assert prefs.get_ambient_density() == pytest.approx(0.25)
+    assert prefs.get_ambient_density() == pytest.approx(0.1)
     for theme in ("blobs", "drift", "data_art_genetic_advection", "data_art_point_atlas"):
         assert ambient._default_density_for(theme) == ambient.DEFAULT_DENSITY
     assert prefs._ambient_background_choice() == "#191919"
@@ -136,7 +136,7 @@ def test_saved_density_and_background_are_never_overwritten(store, monkeypatch):
 
 
 def test_untouched_density_follows_each_theme_default(store):
-    prefs.set_ambient_density(0.25)
+    prefs.set_ambient_density(0.1)
     assert not store.contains(prefs._KEY_AMBIENT_DENSITY)
     prefs.set_ambient_animation("blobs")
     assert prefs.get_ambient_density() == pytest.approx(ambient.DEFAULT_DENSITY)
@@ -160,11 +160,11 @@ def test_dialog_density_slider_follows_theme_until_chosen(store, qtbot, qt_theme
     combo = dialog.findChild(QComboBox, "AmbientTheme") or next(
         box for box in dialog.findChildren(QComboBox)
         if box.findData("data_art_impulse_lens") >= 0 and box.findData("blobs") >= 0)
-    assert density.value() == 25
+    assert density.value() == 10
     combo.setCurrentIndex(combo.findData("blobs"))
     assert density.value() == 10
     combo.setCurrentIndex(combo.findData("data_art_impulse_lens"))
-    assert density.value() == 25
+    assert density.value() == 10
     _save(dialog)
     assert not store.contains(prefs._KEY_AMBIENT_DENSITY)
 

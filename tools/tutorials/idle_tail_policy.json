@@ -136,8 +136,8 @@
     },
     {
       "lesson": "04_platform_installers",
-      "master_sha256": "eb353f10bd81dbcba6f7f76761ccc286de7cc6d1575dc3155a45bec54d486d40",
-      "visual_timing_sha256": "b2f76c008abf021ecae123f40bb0b92be855e32c99f625cfecef82fd15a3b50a",
+      "master_sha256": "7c93360d640bed781a0756675ff9cdbde2aaf6d907096b8e017e088d1019ec4a",
+      "visual_timing_sha256": "3988e51266fc3df86a97619898d6f8494eb9d74bb94a2b83395216320ba1357f",
       "scenes": [
         {
           "visual": "08_official_release",
@@ -1232,7 +1232,7 @@
     {
       "lesson": "08_measure",
       "master_sha256": "89bb5e7cd5860abce333371b73dcd6bd7a33d52241cb412fbaaa9cc44ebee3d0",
-      "visual_timing_sha256": "bbaccabb875779f3644067256e35471a5fe5a5f22dc59cb709367fb95c8b7f1a",
+      "visual_timing_sha256": "3439e48a75005f4c098e645f51f5d3c16fb36a751c313df856d42cf6f1d7bc37",
       "scenes": [
         {
           "visual": "preview_03_data_ready",

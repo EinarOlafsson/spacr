@@ -4599,7 +4599,12 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
                     values, inside, modes[index], length).reshape(last - first, columns)
                 continue
             labels = ndimage.map_coordinates(
-                np.asarray(layer.data), flat, order=0, mode="nearest"
+                # Stabilize categorical picking within a few float32 ulps
+                # of a half-voxel boundary; GPU fused arithmetic otherwise
+                # chooses a different object along the same camera ray.
+                np.asarray(layer.data),
+                np.floor(flat + 0.5 + np.maximum(1.0, np.abs(flat)) * 1e-6),
+                order=0, mode="nearest"
             ).reshape(inside.shape).astype(np.int64) * inside
             hit = labels != 0
             seen = hit.any(axis=1)
@@ -4788,7 +4793,8 @@ uniform float u_shininess;
 uniform float u_tint;
 
 float object_at(vec3 p) {
-    return floor(texture3D(u_ids, texcoord(p)).r + 0.5);
+    vec3 nearest = floor(p + vec3(0.5) + max(vec3(1.0), abs(p)) * 0.000001);
+    return floor(texture3D(u_ids, texcoord(nearest)).r + 0.5);
 }
 
 vec3 colour_of(float id) {
@@ -5378,7 +5384,8 @@ _WGSL_LABELS = """
 @group(0) @binding(4) var<storage, read> colours: array<vec4<f32>>;
 
 fn id_at(p: vec3<f32>) -> u32 {
-    let c = clamp(vec3<i32>(floor(p + vec3<f32>(0.5))), vec3<i32>(0), last_voxel());
+    let nearest = floor(p + vec3<f32>(0.5) + max(vec3<f32>(1.0), abs(p)) * 0.000001);
+    let c = clamp(vec3<i32>(nearest), vec3<i32>(0), last_voxel());
     return textureLoad(ids, vec3<i32>(c.z, c.y, c.x), 0).r;
 }
 

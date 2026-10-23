@@ -40,8 +40,16 @@ def _count(db, table):
 def test_a_bystander_block_that_cannot_answer_costs_only_its_columns(
         tmp_path, drawn, monkeypatch, capfd, answer):
     import pandas as pd
+    from multiprocessing.pool import ThreadPool
 
     import spacr.bystanders as bystanders
+    import spacr.measure as measure
+
+    # Fault injection must share this interpreter: macOS/Windows spawn
+    # workers import a clean classifier and cannot inherit monkeypatches.
+    monkeypatch.setattr(measure, '_MEASURE_WRITE_ENDPOINT', None)
+    monkeypatch.setattr(measure, '_parallel_pool',
+                        lambda processes, context=None, **kw: ThreadPool(processes, **kw))
 
     def classify(mask, infected, reach, spacing):
         if answer == "raises":

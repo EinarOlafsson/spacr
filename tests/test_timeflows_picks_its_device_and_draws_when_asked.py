@@ -24,6 +24,9 @@ def test_no_device_named_means_the_cpu_here_and_float32(tmp_path,
     import torch
 
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    from spacr.accelerator import Accelerator
+    monkeypatch.setattr('spacr.accelerator.resolve',
+                        lambda: Accelerator(kind='cpu', device='cpu', label='Test CPU'))
     masks, images, net = _backend_inputs()
     checkpoint = tmp_path / "tf.pt"
     checkpoint.write_bytes(b"stand-in")

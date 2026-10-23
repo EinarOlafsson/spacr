@@ -7450,8 +7450,9 @@ def reduction_and_clustering(
 
     Supported reducers are UMAP, t-SNE, PCA, Isomap and Spectral Embedding.
     ``reducer_options`` carries only method-specific settings; irrelevant
-    options are never forwarded. RAPIDS is opt-in and applies to UMAP, t-SNE
-    and PCA, with the actual backend retained on the fitted reducer.
+    options are never forwarded. GPU execution is opt-in: RAPIDS supports
+    UMAP/t-SNE/PCA, while Metal supports PCA/KMeans. The actual reduction
+    backend is retained on the fitted reducer.
 
     :param numeric_data: rows of numeric features to embed and cluster.
     :param n_neighbors: reducer neighborhood size, or a row fraction as a
@@ -7561,13 +7562,20 @@ def reduction_and_clustering(
                 )
             reducer = SpectralEmbedding(**kwargs)
 
-        if prefer_gpu and backend != 'cuml':
+        from .accelerator import resolve as resolve_accelerator
+        metal_cpu_method = (prefer_gpu and backend == 'cpu'
+                            and method in ('umap', 'tsne')
+                            and resolve_accelerator().kind == 'mps')
+        if metal_cpu_method:
+            print(f'{method} uses the CPU on Metal; PCA and KMeans can use the GPU.')
+        if prefer_gpu and backend not in ('cuml', 'mps') and not metal_cpu_method:
             raise RuntimeError(
                 f"GPU was requested for {method}, but cuML could not build "
                 "the reducer. No CPU fallback was run; turn GPU off to use "
                 "the CPU backend.")
 
         embedding = reducer.fit_transform(values)
+        backend = getattr(reducer, 'projection_backend_', backend)
         if hasattr(embedding, 'get'):
             embedding = embedding.get()
         embedding = np.asarray(embedding)
@@ -7597,7 +7605,10 @@ def reduction_and_clustering(
     if clustering == 'dbscan':
         clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, n_jobs=n_jobs)
     elif clustering == 'kmeans':
-        clustering_model = KMeans(n_clusters=min_samples, random_state=_run_random_state(42))
+        from .gpu_reduce import make_reducer
+        clustering_model, _ = make_reducer(
+            'kmeans', prefer_gpu=bool(prefer_gpu), n_clusters=min_samples,
+            random_state=_run_random_state(42))
     else:
         raise ValueError(f"Unsupported clustering method: {clustering}. Supported methods are 'dbscan' and 'kmeans'")
 

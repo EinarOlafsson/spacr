@@ -128,8 +128,16 @@ def test_original_pixel_batch_normalization_masks_and_measurements_match(
         np.testing.assert_array_equal(np.load(batch / 'merged' / name),
                                       np.load(combined / 'merged' / name))
     for table in ('cell', 'nucleus'):
-        assert _rows(batch / 'measurements/measurements.db', table) == _rows(
-            combined / 'measurements/measurements.db', table)
+        import pandas as pd
+
+        columns, batch_rows = _rows(batch / 'measurements/measurements.db', table)
+        watched_columns, watched_rows = _rows(combined / 'measurements/measurements.db', table)
+        assert columns == watched_columns
+        # Independent spawned workers can differ in the last floating-point
+        # bit of a Zernike reduction. The source pixels/masks remain exact.
+        pd.testing.assert_frame_equal(pd.DataFrame(batch_rows, columns=columns),
+                                      pd.DataFrame(watched_rows, columns=columns),
+                                      check_exact=False, rtol=1e-12, atol=1e-12)
     for archive in sorted((batch / 'masks').glob('*_norm.npz')):
         with np.load(archive, allow_pickle=True) as reference, np.load(
                 staged / 'masks' / archive.name, allow_pickle=True) as actual:

@@ -1371,7 +1371,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "I denne demonstrasjonen av minnebruk gjentas det samme eksempelbildefeltet som fliser i en større matrise; ingen måling startes. Før en kjøring starter, anslår spaCR hvor mye minne hver arbeidsprosess trenger ut fra ett synsfelt i prosjektet ditt. Med svært store synsfelt, som sammensatte mosaikker, får kanskje ikke arbeidsprosessene du ba om plass i ledig RAM, og da spør spaCR først. Velg anbefalt antall arbeidsprosesser, behold ditt eget og la Measure vente med nye synsfelt mens minnet er knapt, eller lukk andre programmer for å frigjøre minne.",
+          "narration": "Før en kjøring starter, anslår spaCR hvor mye minne hver arbeidsprosess trenger ut fra ett synsfelt i prosjektet ditt. Med svært store synsfelt, som sammensatte mosaikker, får kanskje ikke arbeidsprosessene du ba om plass i ledig RAM, og da spør spaCR først. Velg anbefalt antall arbeidsprosesser, behold ditt eget og la Measure vente med nye synsfelt mens minnet er knapt, eller lukk andre programmer for å frigjøre minne.",
           "focus": [
             1620,
             860,

@@ -113,9 +113,9 @@ def _current_700_client_api(entries, docs):
         assert hashlib.sha256(docs[key].encode()).hexdigest() == after
         active[key] = docs[key]
     arrivals = {
-        "spacr.crashreport._dispatch_error.work":
+        "spacr.crashreport._dispatch_error_now.work":
             "Sanitize the captured error and apply its AI and reporting policy.",
-        "spacr.crashreport._dispatch_error.work.allowed":
+        "spacr.crashreport._dispatch_error_now.work.allowed":
             "Recheck revocation under the actual relay send lock.",
         "spacr.layers._serialized_wgpu.locked":
             "Hold the renderer lock around rendering or resource cleanup.",
@@ -126,6 +126,25 @@ def _current_700_client_api(entries, docs):
     assert {key: docs[key] for key in arrivals} == arrivals
     active.update(arrivals)
     assert len(active) == 58
+    assert not {
+        "spacr.crashreport._dispatch_error.work",
+        "spacr.crashreport._dispatch_error.work.allowed",
+    } & docs.keys()
+    policy_arrivals = {
+        'spacr.crashreport._dispatch_error.ai_eligible':
+            'Prefer the current provider when old errors still permit reporting.',
+        'spacr.crashreport._dispatch_error.deliver':
+            'Re-enter the existing policy/queue path once for this combined batch.',
+        'spacr.crashreport._dispatch_error.eligible':
+            'Keep each pending entry within its original and current permission.',
+        'spacr.crashreport._dispatch_error.report_eligible':
+            'A manual AI owner must not discard an already consented report.',
+    }
+    assert len(policy_arrivals) == 4
+    assert not policy_arrivals.keys() & active.keys()
+    assert {key: docs[key] for key in policy_arrivals} == policy_arrivals
+    active.update(policy_arrivals)
+    assert len(active) == 62
     assert {key: docs[key] for key in active} == active
     return active
 

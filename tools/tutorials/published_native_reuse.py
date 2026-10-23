@@ -171,13 +171,89 @@ def prepare(stage, identity, baseline):
     return timing_path
 
 
+
+def reused_policy(stage, identity):
+    """Write exact original idle fences rebound only to checked reused timing."""
+    from idle_tail_policy import bind_policy, load_policy
+    from native_live_timing import verified_narration_tracks
+    import re
+    if not isinstance(identity, str) or not re.fullmatch(r'[0-9]+_[a-z0-9_]+', identity):
+        raise ValueError('Require a single published lesson identity')
+    stage = Path(stage).resolve();root = stage / 'production' / identity
+    destination = root / 'reused-idle-tail-policy.json'
+    if os.path.lexists(destination):
+        raise FileExistsError('Preserve existing reused idle-tail policy')
+    clock = checked_published_native_timing(stage, identity)
+    current = read(clock);record = read(root / RECORD)
+    baseline, original, bindings, _source = _published_inputs(record['baseline_root'], identity)
+    if record['published_master'] != bindings['master'] or record['published_timing'] != bindings['timing']:
+        raise ValueError('Reused policy baseline bindings changed')
+    master = root / 'video' / f'{identity}_silent.mp4'
+    if digest(master) != bindings['master']['sha256'] or master.stat().st_size != bindings['master']['bytes']:
+        raise ValueError('Reused policy master changed')
+    def intervals(timing):
+        return [(s['visual'], s['speech_start'], s['scene_end'], s.get('native_live_video')) for s in timing['scenes']]
+    if (any(type(scene.get('native_live_video')) is not bool
+            for timing in (current,original) for scene in timing['scenes'])
+            or intervals(current) != intervals(original)):
+        raise ValueError('Reused policy requires unchanged indexed source intervals and native flags')
+    policy_path = REPO / 'tools/tutorials/idle_tail_policy.json';policy_digest = digest(policy_path)
+    entries = [entry for entry in load_policy(REPO)['lessons'] if entry.get('lesson') == identity]
+    if len(entries) != 1:
+        raise ValueError('Require exactly one original source-bound idle policy')
+    source_policy = dict(schema=1, lessons=entries)
+    lesson = dict(id=identity, silent=bindings['master']['path'].removeprefix('media_host/'),
+                  visual_timings=bindings['timing']['path'].removeprefix('media_host/'))
+    old_bound = bind_policy(source_policy, list(bindings.values()), [lesson], lambda _path: original)[0]
+    fences = old_bound['native_idle_tails']['scenes']
+    if len(fences) != len(original['scenes']):
+        raise ValueError('Reused policy requires complete original scene fence coverage')
+    tracks, proofs = verified_narration_tracks(stage, identity, read(root / 'lesson.en.json'))
+    if len(tracks) != 50 or len(proofs) != 50:
+        raise ValueError('Reused policy requires all fifty complete current tracks')
+    for fence in fences:
+        matches = [i for i,scene in enumerate(original['scenes'])
+                   if scene['visual'] == fence['visual']
+                   and abs(scene['speech_start']-fence['source_start']) <= 1e-7
+                   and abs(scene['scene_end']-fence['source_end']) <= 1e-7]
+        if len(matches) != 1:
+            raise ValueError('Reused policy scene clock is ambiguous')
+        index = matches[0]
+        for track in tracks:
+            speech = track['scenes'][index]
+            start,end = speech.get('speech_start'),speech.get('speech_end')
+            if (type(start) not in (int,float) or type(end) not in (int,float)
+                    or not math.isfinite(start) or not math.isfinite(end) or end <= start
+                    or fence['idle_tail_start'] > end-start):
+                raise ValueError('Original essential-action fence exceeds complete new speech')
+    rebound = deepcopy(entries[0]);rebound['visual_timing_sha256'] = digest(clock)
+    result = dict(schema=1, lessons=[rebound])
+    actual_records = [dict(bindings['master'], sha256=digest(master)),
+                      dict(bindings['timing'], sha256=digest(clock), bytes=clock.stat().st_size)]
+    bind_policy(result, actual_records, [lesson], lambda _path: current)
+    if digest(policy_path) != policy_digest:
+        raise ValueError('Original idle policy changed during generation')
+    with destination.open('x', encoding='utf-8') as stream:
+        stream.write(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
+    return destination
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, required=True)
     parser.add_argument('--lesson', required=True)
     parser.add_argument('--baseline', type=Path, required=True)
+    parser.add_argument('--write-idle-policy', action='store_true',
+                        help='Write checked original idle fences rebound to existing reused timing; no media work')
     args = parser.parse_args()
-    print(prepare(args.stage, args.lesson, args.baseline))
+    if args.write_idle_policy:
+        if Path(args.lesson).name != args.lesson or args.lesson in {'.','..'}:
+            raise ValueError('Require a single published lesson identity')
+        record = read(args.stage / 'production' / args.lesson / RECORD)
+        if args.baseline.resolve() != Path(record['baseline_root']).resolve():
+            raise ValueError('Policy baseline must match the existing reuse record')
+        print(reused_policy(args.stage, args.lesson))
+    else:
+        print(prepare(args.stage, args.lesson, args.baseline))
 
 
 if __name__ == '__main__':

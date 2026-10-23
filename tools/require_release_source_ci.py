@@ -11,8 +11,6 @@ import subprocess
 import time
 from urllib.parse import quote, urlencode
 
-import yaml
-
 
 WORKFLOWS = ("tests.yml", "docs.yml", "compat-matrix.yml")
 
@@ -79,6 +77,8 @@ class GitHub:
 
 def compatibility_jobs(path):
     """Derive all cells and their existing blocking policy from the source."""
+    import yaml
+
     expected = {}
     for key, job in yaml.safe_load(path.read_text(encoding="utf-8"))["jobs"].items():
         matrix = job.get("strategy", {}).get("matrix", {})
@@ -124,6 +124,14 @@ def select_run(api, workflow, sha, branch):
     return None
 
 
+def require_current_head(api, sha, branch):
+    """Refuse publication or acceptance of a superseded main source."""
+    if not re.fullmatch(r"[0-9a-f]{40}", sha) or branch != "main":
+        raise ValueError("Release CI requires a full lowercase SHA on main")
+    if api.branch_sha(branch) != sha:
+        raise RuntimeError("Release branch moved; refusing obsolete release source")
+
+
 def require_source_ci(api, sha, branch, compatibility, *, timeout=19800,
                       interval=60, clock=time.monotonic, sleep=time.sleep):
     if not re.fullmatch(r"[0-9a-f]{40}", sha) or branch != "main":
@@ -140,6 +148,7 @@ def require_source_ci(api, sha, branch, compatibility, *, timeout=19800,
         "compat-matrix.yml": compatibility,
     }
     while clock() < deadline:
+        require_current_head(api, sha, branch)
         accepted = set()
         for workflow in WORKFLOWS:
             candidate = select_run(api, workflow, sha, branch)
@@ -176,6 +185,7 @@ def require_source_ci(api, sha, branch, compatibility, *, timeout=19800,
                 print(f"Accepted {workflow} run {run['id']} attempt {run['run_attempt']} "
                       f"for {sha}", flush=True)
         if len(accepted) == len(WORKFLOWS):
+            require_current_head(api, sha, branch)
             return
         sleep(min(interval, max(0, deadline - clock())))
     raise TimeoutError("Exact-source release CI did not finish before the deadline")
@@ -185,9 +195,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sha", required=True)
     parser.add_argument("--branch", required=True)
+    parser.add_argument("--head-only", action="store_true")
     arguments = parser.parse_args()
+    api = GitHub(os.environ["GITHUB_REPOSITORY"])
+    if arguments.head_only:
+        require_current_head(api, arguments.sha, arguments.branch)
+        return
     root = Path(__file__).resolve().parents[1]
-    require_source_ci(GitHub(os.environ["GITHUB_REPOSITORY"]), arguments.sha,
+    require_source_ci(api, arguments.sha,
                       arguments.branch,
                       compatibility_jobs(root / ".github/workflows/compat-matrix.yml"))
 

@@ -8503,8 +8503,9 @@ class AppScreen(QWidget):
             self._gpu_switch = AiToggleLabel(
                 text="GPU",
                 tooltip=(
-                    "Use the RAPIDS cuML backend for both the main "
-                    "dimensionality-reduction run and hyperparameter search. "
+                    "Use GPU reducers where supported: CUDA supports cuML; "
+                    "Metal supports PCA and KMeans. UMAP/t-SNE searches "
+                    "stay on CPU on Metal. "
                     "CPU and GPU reducers may produce different embeddings, "
                     "so compare search results only within the same backend."),
             )

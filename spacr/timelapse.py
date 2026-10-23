@@ -828,8 +828,8 @@ def _timeflows_track_cells(src, name, batch_filenames, object_type, masks, image
         because the model reads the images, not only the masks.
     :param timelapse_remove_transient: drop tracks not present in every frame.
     :param model_path: the Timeflows checkpoint to load.
-    :param device: 'cuda', 'cpu' or None for CUDA when available. On CPU the
-        encoder runs in float32, which is much faster there than bfloat16.
+    :param device: a torch device or None for spaCR's selected accelerator.
+        CPU and Metal use float32 encoder weights.
     :param min_successor: successor probability an object needs to be linked.
     :param max_distance: the furthest link, in the object's own diameters.
     :param net: an already loaded network; used instead of ``model_path``.
@@ -855,17 +855,17 @@ def _timeflows_track_cells(src, name, batch_filenames, object_type, masks, image
     if images.shape[:3] != masks.shape:
         raise ValueError(tr("Image stack shape {images} does not match mask stack shape {masks}.",
                             images=images.shape, masks=masks.shape))
+    if device is None:
+        from .accelerator import torch_device
+        device = str(torch_device())
     if net is None:
         if not model_path or not os.path.isfile(str(model_path)):
             raise ValueError(tr("timelapse_mode='timeflows' needs timeflows_model set to a trained "
                                 "Timeflows checkpoint file; none was found at {path}.",
                                 path=model_path))
-        if device is None:
-            import torch
-            device = 'cuda' if torch.cuda.is_available() else 'cpu'
         net = timeflows_model._load_timeflows(
             str(model_path), device=device,
-            precision='float32' if str(device).startswith('cpu') else 'checkpoint')
+            precision='float32' if str(device).startswith(('cpu', 'mps')) else 'checkpoint')
     masks_tracked, _links = timeflows_model._track_movie(
         net, list(images), masks, device=device or 'cpu',
         min_successor=min_successor, max_distance=max_distance)

@@ -813,8 +813,9 @@ def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, 
          "on the GPU" if gpu else "CPU only"),
         ("Live backdrop and spaceout", display_gpu,
          "GPU shader" if display_gpu else "CPU renderer"),
-        ("UMAP / t-SNE / clustering", gpu and found.is_cuda,
+        ("UMAP / t-SNE / clustering", gpu and found.kind in ('cuda', 'mps'),
          "on the GPU via cuML" if gpu and found.is_cuda
+         else "PCA/KMeans on Metal; PCA fitting/precision and UMAP/t-SNE/DBSCAN on CPU" if gpu and found.kind == 'mps'
          else "CPU — cuML is built for CUDA only"),
     ]
     return tuple(rows)
@@ -825,7 +826,11 @@ def _opengl_likely() -> bool:
     try:
         from .qt.widgets.fractal_travel import gpu_is_available
 
-        return bool(gpu_is_available())
+        if gpu_is_available():
+            return True
+        from .qt.widgets.ambient import _flow_graphics_preflight
+
+        return bool(_flow_graphics_preflight())
     except Exception:                                        # noqa: BLE001
         return False
 
