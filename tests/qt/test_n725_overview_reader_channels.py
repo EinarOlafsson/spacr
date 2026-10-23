@@ -252,7 +252,7 @@ def test_reference_normalization_and_plate_conditions_preserve_raw_export_data(t
         np.testing.assert_array_equal(data, rgb)
     embedded = PdfReader(written[0]).pages[0].images
     assert len(embedded) == 2
-    actual_images = [np.asarray(image.image.convert("RGB")) for image in embedded]
+    actual_images = [np.asarray(image.image.convert("RGB"))[::-1].copy() for image in embedded]
     assert all(image.shape == (2, 2, 3) for image in actual_images)
     assert {image.tobytes() for image in actual_images} == {image.tobytes() for image in expected}
     table = tabular.read_table(output / "overview_measurements.csv", canonicalise=False)
