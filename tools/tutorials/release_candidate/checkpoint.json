@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-3es2z59l",
-  "manifest_sha256": "bc33129f796db9ebe9ed13b4ddb3c6c1b452c3043470e68412267d94c4b72e53",
+  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-r1hk_9t2",
+  "manifest_sha256": "9e3d5b3a6a0e30ee6e5208a64d34986fab38b75474949acb299005d53a85cbfd",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -259,13 +259,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "521291011d7caff5b32d387b2d6127bf7ad42f0794ca4f898fca5426f17193c0",
+      "sha256": "a189a62479d24d4b7426cf987ad99603dab67624646e7e94b55e62de153efaff",
       "bytes": 15699
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "463b60b637ab3fb1182e1b42703b844d69355b352d0f46ad6904438041a118bf",
-      "bytes": 596755
+      "sha256": "25d5225083bd112250d522d8b48e15d3ed62a35a1ada52c512d79af1a2ac31dc",
+      "bytes": 604596
     },
     {
       "path": "web/logo_spacr.png",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "9e10cc6efa175acd4d5a1743bff00294c19777a536851071d057d0df786ed1b1",
+      "sha256": "79dd700000da3407772a431c6daa7acbe787755e9c334a6a5bfa750553f98603",
       "bytes": 17171
     },
     {
@@ -489,13 +489,13 @@
     },
     {
       "path": "web/production/44_data_manager/poster.jpg",
-      "sha256": "786d3c9c0bc36d86a4ab23695a0c24400d1b3d511d244ab18a8e4492c3883c6e",
-      "bytes": 784981
+      "sha256": "890679be85c1fa1291915d8c2e18577bd15e3162a0eb435a89e060a4b53a2748",
+      "bytes": 776068
     },
     {
       "path": "web/production/45_project_browser/poster.jpg",
-      "sha256": "39de6d0a145a72b7e29a42ea397e5648d9502e6623233b3a0a68a4833ec7998b",
-      "bytes": 781935
+      "sha256": "0469ba00fdccc860b66bb463a918d0105db6f54dbfe6990d0842aeeefd8eef5a",
+      "bytes": 771990
     },
     {
       "path": "web/production/46_napari_bridge/poster.jpg",
@@ -524,18 +524,18 @@
     },
     {
       "path": "web/production/51_control_charts/poster.jpg",
-      "sha256": "17ad6b5317ef422ba7d07dc67448be456c519b19eb56785d24825cc14ce31bd3",
-      "bytes": 578681
+      "sha256": "3ebe912dae640c6969c98ed07d60b5342ffb3ebfb90efd2994c0ad6e69a6f09a",
+      "bytes": 584278
     },
     {
       "path": "web/production/52_pipeline_graph/poster.jpg",
-      "sha256": "196f9a25fb5863a35cff42689cdec968c92aacdcc8742fcd92fa73790bf9cbcf",
-      "bytes": 796080
+      "sha256": "635c7b445ef51372aa531bfd04015ac0a0affcad8c3da12454b5c2efdf92fe74",
+      "bytes": 788436
     },
     {
       "path": "web/production/53_prediction_profiler/poster.jpg",
-      "sha256": "026558d66433cce4080972491bd5e737908745df399ec49f1aefb29c1767474f",
-      "bytes": 793005
+      "sha256": "0f71d276cfaac8b0d1fbf86956663683dfd90cb8c6c61d3267c12e0e979704c2",
+      "bytes": 782460
     },
     {
       "path": "web/production/54_qc_dashboard/poster.jpg",
@@ -714,13 +714,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "bc33129f796db9ebe9ed13b4ddb3c6c1b452c3043470e68412267d94c4b72e53",
-      "bytes": 1436531
+      "sha256": "9e3d5b3a6a0e30ee6e5208a64d34986fab38b75474949acb299005d53a85cbfd",
+      "bytes": 1436562
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "35a8c1e40e7293b7760a919ba3ea99645abeca3d3fa0a2140fa0e4a45ce62508",
-      "bytes": 126657
+      "sha256": "a125824828944550c8f5b3bd1cda399173e2bb8b2ef9dcc4e8964e45a7317b5c",
+      "bytes": 126661
     },
     {
       "path": "placeholder-mutation-checks.json",
@@ -737,10 +737,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "n676-ws-38-39-40-42-43-20261023-idle-edits1",
-    "tag": "n676-ws-38-39-40-42-43-20261023-idle-edits1-verified",
-    "commit": "69089806a9559b1c3905d4687de8fb26db045b48",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/69089806a9559b1c3905d4687de8fb26db045b48"
+    "branch": "n676-ws-44-45-51-52-53-20261023-idle-edits1",
+    "tag": "n676-ws-44-45-51-52-53-20261023-idle-edits1-verified",
+    "commit": "e39eff3940dcbf6d95770ce61d3f670b486aaaa4",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e39eff3940dcbf6d95770ce61d3f670b486aaaa4"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }

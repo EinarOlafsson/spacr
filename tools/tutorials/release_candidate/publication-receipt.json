@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-ws-38-39-40-42-43-20261023-idle-edits1",
+  "branch": "n676-ws-44-45-51-52-53-20261023-idle-edits1",
   "base_commit": "1704624d84f6f0ec6ebb3fc7c79c6bd6deff5dc5",
-  "commit": "69089806a9559b1c3905d4687de8fb26db045b48",
-  "tag": "n676-ws-38-39-40-42-43-20261023-idle-edits1-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/69089806a9559b1c3905d4687de8fb26db045b48",
-  "manifest_sha256": "bc33129f796db9ebe9ed13b4ddb3c6c1b452c3043470e68412267d94c4b72e53",
+  "commit": "e39eff3940dcbf6d95770ce61d3f670b486aaaa4",
+  "tag": "n676-ws-44-45-51-52-53-20261023-idle-edits1-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e39eff3940dcbf6d95770ce61d3f670b486aaaa4",
+  "manifest_sha256": "9e3d5b3a6a0e30ee6e5208a64d34986fab38b75474949acb299005d53a85cbfd",
   "media_files": 6448,
-  "media_bytes": 12872412372,
+  "media_bytes": 12747112374,
   "readback": {
-    "commit": "69089806a9559b1c3905d4687de8fb26db045b48",
+    "commit": "e39eff3940dcbf6d95770ce61d3f670b486aaaa4",
     "files_expected": 6448,
     "metadata_matched": 6448,
     "metadata_failures": [],
-    "bytes_read_back": 12872412372,
+    "bytes_read_back": 12747112374,
     "downloaded_sha256_matched": 6448,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -1982,16 +1982,16 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 474.7,
+    "seconds": 507.8,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "4732849f6cc79ca720e8e550377312c3212c60daa0d3f38053ba601bfa56aeea",
-    "candidate_index_sha256": "521291011d7caff5b32d387b2d6127bf7ad42f0794ca4f898fca5426f17193c0",
-    "cache_key": "n676-ws-38-39-40-42-43-20261023-idle-edits1-verified",
+    "index_sha256": "360bc7ac7fe8ebf770cccff070fbd35ee64d2ed3a0c8eff76f2748a1e6fa30c4",
+    "candidate_index_sha256": "a189a62479d24d4b7426cf987ad99603dab67624646e7e94b55e62de153efaff",
+    "cache_key": "n676-ws-44-45-51-52-53-20261023-idle-edits1-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
@@ -2000,14 +2000,14 @@
     "versioned_assets": {
       "app_v2.js": "n676-ws-14-make-masks-20261021pronunciation1-verified",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-ws-38-39-40-42-43-20261023-idle-edits1-verified",
-      "module_navigation.js": "n676-ws-38-39-40-42-43-20261023-idle-edits1-verified",
+      "lesson_catalog.js": "n676-ws-44-45-51-52-53-20261023-idle-edits1-verified",
+      "module_navigation.js": "n676-ws-44-45-51-52-53-20261023-idle-edits1-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-3es2z59l/retired-pages",
+      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-r1hk_9t2/retired-pages",
       "files": []
     },
     "ready": 84,
