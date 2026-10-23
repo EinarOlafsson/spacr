@@ -4079,7 +4079,11 @@ class _OverviewMetadataWizard(QDialog):
         layout.addRow(tr("Display normalization"), self.mode)
         self.low = QDoubleSpinBox()
         self.high = QDoubleSpinBox()
-        for spin, value in ((self.low, 1.), (self.high, 99.)):
+        percentiles = (self._settings.get("normalization") or {}).get("percentiles")
+        percentiles = percentiles or self._settings.get("normalization_percentiles") or (1., 99.9)
+        percentiles = _overview_normalization_plan((), (0,),
+            {"mode": "image", "percentiles": percentiles}, None)["percentiles"]
+        for spin, value in ((self.low, percentiles[0]), (self.high, percentiles[1])):
             spin.setRange(0., 100.)
             spin.setDecimals(3)
             spin.setValue(value)
@@ -4340,6 +4344,7 @@ class _OverviewMetadataWizard(QDialog):
                 "channels": channels, "time_index": self.time.value(),
                 "z_mode": self.z_mode.currentData(), "z_index": self.z.value(),
                 "representatives": self.representatives.value(),
+                "normalize": bool(self._settings.get("normalize", True)),
                 "normalization": {"mode": mode, "percentiles": (self.low.value(), self.high.value()),
                                   "reference": reference, "reference_kind": self.reference_kind.currentData(),
                                   "reference_channel": gain,

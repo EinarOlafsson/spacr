@@ -597,3 +597,26 @@ def test_concurrent_well_requests_share_reader_and_cancel_only_the_waiter(monkey
     finally:
         release.set()
         executor.shutdown(wait=True)
+
+
+def test_metadata_wizard_accepts_caller_percentiles_without_enabling_normalization(qtbot, tmp_path):
+    import tifffile
+
+    tifffile.imwrite(tmp_path / "p_A01_F1_C0.tif", np.array([[1, 2]], dtype=np.uint16))
+    wizard = browser._OverviewMetadataWizard(str(tmp_path), {
+        "channels": [0], "normalization_percentiles": (3., 97.), "normalize": False})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    assert (wizard.low.value(), wizard.high.value()) == (3., 97.)
+    accepted = []
+    wizard.accepted.connect(lambda: accepted.append(wizard.configuration()))
+    wizard.next.click()
+    assert len(accepted) == 1
+    assert accepted[0]["normalization"]["percentiles"] == (3., 97.)
+    assert accepted[0]["normalize"] is False
+    dialog = browser._FieldOverview(settings=accepted[0])
+    qtbot.addWidget(dialog)
+    assert not dialog.normalise.isChecked()
+    assert (dialog.low.value(), dialog.high.value()) == (3., 97.)
+    dialog.close()
