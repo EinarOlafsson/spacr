@@ -3687,7 +3687,8 @@ def _overview_reference_key(field, mode, conditions):
     if mode == "reference_column":
         return (field.plate, field.column) if field.column > 0 else None
     if mode == "reference_condition":
-        return conditions.get((field.plate, field.well), "") if field.well else None
+        condition = conditions.get((field.plate, field.well)) if field.well else None
+        return (field.plate, condition) if condition else None
     return None
 
 
@@ -3786,6 +3787,9 @@ def _overview_normalized_planes(planes, plan, field=None):
     Reference-channel bounds are shared; optional mean matching scales raw
     pixels before that affine display transform, never computing pixel ratios.
     """
+    if plan["mode"] == "reference_average" and (field is None or
+            tuple(plan.get("well_identity", ())) != (field.plate, field.well)):
+        raise RuntimeError("Well-mean display rendering requires a resolved per-well plan.")
     planes = tuple(planes)
     image_bounds = {}
     if plan["mode"] == "image":
@@ -3967,7 +3971,8 @@ class _OverviewMetadataWizard(QDialog):
                              (tr("Bounds from a reference well"), "reference_well"),
                              (tr("Bounds from a reference row"), "reference_row"),
                              (tr("Bounds from a reference column"), "reference_column"),
-                             (tr("Bounds from a reference condition"), "reference_condition")):
+                             (tr("Bounds from a reference condition"), "reference_condition"),
+                             (tr("Well-mean display scaling to reference average"), "reference_average")):
             self.mode.addItem(label, value)
         self.mode.currentIndexChanged.connect(self._reference_choices)
         layout.addRow(tr("Display normalization"), self.mode)
@@ -3979,6 +3984,14 @@ class _OverviewMetadataWizard(QDialog):
             spin.setValue(value)
         layout.addRow(tr("Lower normalization percentile"), self.low)
         layout.addRow(tr("Upper normalization percentile"), self.high)
+        self.reference_kind = QComboBox()
+        for label, value in ((tr("Well"), "reference_well"), (tr("Row"), "reference_row"),
+                             (tr("Column"), "reference_column"), (tr("Condition"), "reference_condition")):
+            self.reference_kind.addItem(label, value)
+        self.reference_kind.setCurrentIndex(2)
+        self.reference_kind.setEnabled(False)
+        self.reference_kind.currentIndexChanged.connect(self._reference_choices)
+        layout.addRow(tr("Reference group"), self.reference_kind)
         self.reference = QComboBox()
         layout.addRow(tr("Reference scope"), self.reference)
         self.gain = QComboBox()
@@ -4002,6 +4015,13 @@ class _OverviewMetadataWizard(QDialog):
             "both must be positive and finite. It is not a per-pixel ratio. Raw values stay unchanged."))
         explanation.setWordWrap(True)
         outer.addWidget(explanation)
+        well_explanation = QLabel(tr(
+            "Well-mean scaling uses the selected representative fields and time/Z view. "
+            "Finite original pixels, including zeros, are averaged equally by field, then equally by reference well on the same plate. "
+            "Each well is scaled to that reference mean before fixed reference bounds and clipping; clipped display means need not match. "
+            "Bounds use balanced original-pixel samples from reference wells. Nonreference well statistics are learned on demand. Raw CSV values stay unchanged."))
+        well_explanation.setWordWrap(True)
+        outer.addWidget(well_explanation)
         self.status = QLabel("")
         self.status.setWordWrap(True)
         outer.addWidget(self.status)
@@ -4165,6 +4185,9 @@ class _OverviewMetadataWizard(QDialog):
     def _reference_choices(self):
         """List only existing plate-qualified references or explicit conditions."""
         mode = self.mode.currentData()
+        self.reference_kind.setEnabled(mode == "reference_average")
+        if mode == "reference_average":
+            mode = self.reference_kind.currentData()
         conditions = self._condition_mapping()
         values = {_overview_reference_key(field, mode, conditions) for field in self._fields}
         values.discard(None)
@@ -4202,6 +4225,9 @@ class _OverviewMetadataWizard(QDialog):
         if mode.startswith("reference_") and reference is None:
             raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
         gain = self.gain.currentData()
+        if mode == "reference_average" and (gain is not None or self.mean_match.isChecked()):
+            raise _OverviewValidationError(tr(
+                "Well-mean display scaling cannot be combined with channel-reference scaling."))
         if self.mean_match.isChecked() and gain is None:
             raise _OverviewValidationError(tr("Choose a reference channel before enabling mean-matched display scaling."))
         if gain is not None and gain not in channels:
@@ -4213,7 +4239,8 @@ class _OverviewMetadataWizard(QDialog):
                 "z_mode": self.z_mode.currentData(), "z_index": self.z.value(),
                 "representatives": self.representatives.value(),
                 "normalization": {"mode": mode, "percentiles": (self.low.value(), self.high.value()),
-                                  "reference": reference, "reference_channel": gain,
+                                  "reference": reference, "reference_kind": self.reference_kind.currentData(),
+                                  "reference_channel": gain,
                                   "mean_match": self.mean_match.isChecked(),
                                   "conditions": self._condition_mapping()}}
 
@@ -4238,3 +4265,227 @@ class _OverviewMetadataWizard(QDialog):
         self._cancelled.set()
         self._runner.shutdown(timeout_ms=0)
         super().done(result)
+
+
+def _overview_prepare_normalization(fields, channels, options, read_planes, cancelled=None):
+    """Return a JSON display plan and a separate optional lazy well-statistics context."""
+    if (options or {}).get("mode") == "reference_average":
+        context = _OverviewWellMeanContext(fields, channels, options, read_planes, cancelled)
+        return context.provenance(), context
+    return _overview_normalization_plan(fields, channels, options, read_planes, cancelled), None
+
+
+def _overview_sample_mean(values):
+    """Compute a finite-sample mean without overflowing finite intensity magnitudes."""
+    scale = float(np.max(np.abs(values)))
+    return float(np.mean(values / scale) * scale) if scale else 0.
+
+
+def _overview_cancelled(cancelled):
+    """Stop statistics at a field or channel boundary when cancellation is requested."""
+    if cancelled is not None and cancelled.is_set():
+        from concurrent.futures import CancelledError
+        raise CancelledError()
+
+
+class _OverviewWellMeanContext:
+    """Learn equal-field/equal-well display gains without retaining image arrays."""
+
+    def __init__(self, fields, channels, options, read_planes, cancelled=None):
+        """Learn the chosen same-plate reference and bounded original-pixel bounds."""
+        from collections import OrderedDict
+        import threading
+
+        options = dict(options)
+        if options.get("reference_channel") is not None or options.get("mean_match", False):
+            raise _OverviewValidationError(tr(
+                "Well-mean display scaling cannot be combined with channel-reference scaling."))
+        self.channels = tuple(channels)
+        checked = _overview_normalization_plan((), self.channels,
+            {"mode": "image", "percentiles": options.get("percentiles", (1., 99.))}, None)
+        self._percentiles = checked["percentiles"]
+        self._reference_kind = options.get("reference_kind", "reference_column")
+        if self._reference_kind not in ("reference_well", "reference_row", "reference_column",
+                                       "reference_condition"):
+            raise _OverviewValidationError(tr("Choose a supported normalization mode."))
+        reference = options.get("reference")
+        if not isinstance(reference, (list, tuple)) or len(reference) != 2:
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
+        self._reference = tuple(reference)
+        self._plate = self._reference[0]
+        self._selection = dict(options.get("selection") or {})
+        self._read_planes = read_planes
+        self._cancelled = cancelled
+        self._lock = threading.RLock()
+        self._cache = OrderedDict()
+        self._pending = {}
+        self._used = {}
+        self._fields = {}
+        selected = tuple(field for field in fields if field.plate == self._plate)
+        if not selected:
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
+        if (len({getattr(field, "time_id", "") for field in selected}) > 1
+                or len({getattr(field, "z_id", "") for field in selected}) > 1):
+            raise _OverviewValidationError(tr(
+                "Choose one filename time point and Z plane before well-mean display scaling."))
+        for field in selected:
+            if not field.well or not field.row or field.column <= 0:
+                raise _OverviewValidationError(tr(
+                    "Well-mean display scaling requires resolved physical well identities."))
+            key = (field.plate, field.well)
+            self._fields.setdefault(key, {})[field.identity] = field
+        self._fields = {key: tuple(group.values()) for key, group in self._fields.items()}
+        conditions = dict(options.get("conditions") or {})
+        self._reference_keys = tuple(sorted({(field.plate, field.well) for field in selected
+            if _overview_reference_key(field, self._reference_kind, conditions) == self._reference}))
+        if not self._reference_keys:
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
+        budget = 262144 // len(self._reference_keys)
+        if budget < 1:
+            raise _OverviewValidationError(tr("The reference group is too large for bounded sampling."))
+        pools = {channel: [] for channel in self.channels}
+        self._reference_stats = {}
+        self._bounds_counts = {}
+        for key in self._reference_keys:
+            _overview_cancelled(cancelled)
+            stats, values = self._learn_well(key, cancelled, budget)
+            self._reference_stats[key] = stats
+            for channel in self.channels:
+                pools[channel].append(values[channel])
+        for channel in self.channels:
+            count = min(len(values) for values in pools[channel])
+            pools[channel] = [values[np.linspace(0, len(values) - 1, count, dtype=int)]
+                              for values in pools[channel]]
+            for key in self._reference_keys:
+                self._bounds_counts.setdefault(key, {})[channel] = count
+        self._reference_means = {channel: _overview_sample_mean(np.array([
+            self._reference_stats[key]["means"][channel] for key in self._reference_keys]))
+            for channel in self.channels}
+        self._bounds = {channel: tuple(float(value) for value in np.percentile(
+            np.concatenate(pools[channel]), self._percentiles)) for channel in self.channels}
+
+    def _learn_well(self, key, cancelled, bounds_budget=0):
+        """Average every selected FOV equally; optionally retain a bounded raw reservoir."""
+        import hashlib
+        import json
+
+        fields = self._fields[key]
+        field_means = {channel: [] for channel in self.channels}
+        sample_counts = {channel: 0 for channel in self.channels}
+        retained = {channel: np.empty(0, dtype=np.float64) for channel in self.channels}
+        priorities = {channel: np.empty(0, dtype=np.float64) for channel in self.channels}
+        rng = {}
+        if bounds_budget:
+            for channel in self.channels:
+                digest = hashlib.sha256(json.dumps([key, channel, self._selection],
+                    sort_keys=True).encode("utf-8")).digest()
+                rng[channel] = np.random.default_rng(int.from_bytes(digest[:8], "little"))
+        for field in fields:
+            _overview_cancelled(self._cancelled)
+            _overview_cancelled(cancelled)
+            found = set()
+            for channel, path, raw in self._read_planes(field, self.channels, edge=256):
+                _overview_cancelled(self._cancelled)
+                _overview_cancelled(cancelled)
+                if channel not in field_means or channel in found:
+                    raise _OverviewValidationError(tr("The normalization sample has ambiguous channels."))
+                found.add(channel)
+                values = np.asarray(raw).ravel()
+                values = values[np.isfinite(values)]
+                if not values.size:
+                    raise _OverviewValidationError(tr("This channel has no finite pixels."))
+                positions = np.linspace(0, values.size - 1, min(2048, values.size), dtype=int)
+                values = np.asarray(values[positions], dtype=np.float64)
+                field_means[channel].append(_overview_sample_mean(values))
+                sample_counts[channel] += len(values)
+                if bounds_budget:
+                    retained[channel] = np.concatenate((retained[channel], values))
+                    priorities[channel] = np.concatenate((priorities[channel], rng[channel].random(len(values))))
+                    if len(retained[channel]) > bounds_budget:
+                        chosen = np.argpartition(priorities[channel], bounds_budget - 1)[:bounds_budget]
+                        retained[channel] = retained[channel][chosen]
+                        priorities[channel] = priorities[channel][chosen]
+            if found != set(self.channels):
+                raise _OverviewValidationError(tr("A selected channel is missing from the normalization sample."))
+        means = {channel: _overview_sample_mean(np.asarray(values))
+                 for channel, values in field_means.items()}
+        if any(not math.isfinite(value) or value <= 0 for value in means.values()):
+            raise _OverviewValidationError(tr(
+                "Well-mean display scaling requires positive finite means for every selected well and channel."))
+        return {"means": means, "sample_pixels": sample_counts,
+                "field_identities": tuple(field.identity for field in fields)}, retained
+
+    def _well_stats(self, key, cancelled):
+        """Coalesce concurrent reads and keep at most 128 nonreference scalar-stat records."""
+        from concurrent.futures import Future, TimeoutError
+
+        _overview_cancelled(self._cancelled)
+        _overview_cancelled(cancelled)
+        with self._lock:
+            if key in self._reference_stats:
+                return self._reference_stats[key]
+            if key in self._cache:
+                self._cache.move_to_end(key)
+                return self._cache[key]
+            future = self._pending.get(key)
+            owns_read = future is None
+            if owns_read:
+                future = Future()
+                self._pending[key] = future
+        if not owns_read:
+            while True:
+                _overview_cancelled(self._cancelled)
+                _overview_cancelled(cancelled)
+                try:
+                    return future.result(timeout=.1)
+                except TimeoutError:
+                    continue
+        try:
+            stats, values = self._learn_well(key, cancelled)
+        except BaseException as error:
+            with self._lock:
+                self._pending.pop(key, None)
+                future.set_exception(error)
+            raise
+        with self._lock:
+            self._cache[key] = stats
+            self._cache.move_to_end(key)
+            while len(self._cache) > 128:
+                self._cache.popitem(last=False)
+            self._pending.pop(key, None)
+            future.set_result(stats)
+        return stats
+
+    def plan_for(self, field, cancelled=None):
+        """Resolve this well's gain on a worker without changing raw measurements."""
+        key = (field.plate, field.well)
+        if key not in self._fields:
+            raise _OverviewValidationError(tr(
+                "This field is outside the selected same-plate reference and representative scope."))
+        stats = self._well_stats(key, cancelled)
+        gains = {channel: self._reference_means[channel] / stats["means"][channel]
+                 for channel in self.channels}
+        if any(not math.isfinite(value) or value <= 0 for value in gains.values()):
+            raise _OverviewValidationError(tr(
+                "Well-mean display scaling requires positive finite means for every selected well and channel."))
+        with self._lock:
+            self._used[key] = {"plate": key[0], "well": key[1], **stats, "gains": gains}
+        return {"mode": "reference_average", "percentiles": self._percentiles,
+                "bounds": dict(self._bounds), "gains": gains, "well_identity": key}
+
+    def provenance(self):
+        """Return JSON-safe means, sampling choices and used gains, excluding runtime caches."""
+        with self._lock:
+            reference = [{"plate": key[0], "well": key[1], **self._reference_stats[key],
+                          "bounds_sample_pixels": self._bounds_counts[key]}
+                         for key in self._reference_keys]
+            used = [dict(self._used[key]) for key in sorted(self._used)]
+        return {"mode": "reference_average", "reference_kind": self._reference_kind,
+                "reference": self._reference, "scope_plate": self._plate,
+                "percentiles": self._percentiles, "bounds": dict(self._bounds),
+                "reference_means": dict(self._reference_means),
+                "reference_wells": reference, "used_wells": used,
+                "selection": dict(self._selection), "preview_edge": 256,
+                "max_pixels_per_field": 2048, "max_bounds_pixels_per_channel": 262144,
+                "bounds_sampling": "balanced wells; deterministic PCG64 priority reservoir",
+                "bounds_domain": "original reference pixels before gain", "nonreference_cache_wells": 128}

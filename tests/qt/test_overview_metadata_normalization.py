@@ -37,7 +37,7 @@ def test_per_image_normalization_keeps_raw_values_and_handles_constant_nonfinite
     ("reference_well", ("p", "A01")),
     ("reference_row", ("p", "A")),
     ("reference_column", ("p", 1)),
-    ("reference_condition", "control"),
+    ("reference_condition", ("p", "control")),
 ])
 def test_reference_scope_uses_only_explicit_plate_qualified_or_condition_fields(mode, reference):
     selected = _field()
@@ -48,7 +48,7 @@ def test_reference_scope_uses_only_explicit_plate_qualified_or_condition_fields(
               for field in fields}
     calls = []
     options = {"mode": mode, "reference": reference, "percentiles": (0, 100),
-               "conditions": {("p", "A01"): "control", ("other", "A01"): "other"}}
+               "conditions": {("p", "A01"): "control", ("other", "A01"): "control"}}
     plan = browser._overview_normalization_plan(fields, (0,), options, _reader(arrays, calls))
     assert calls == [(selected.identity, (0,), 256)]
     assert plan["bounds"] == {0: (0., 10.)}
@@ -293,7 +293,7 @@ def test_overview_known_constraints_use_configuration_error_without_reclassifyin
     ("reference_well", ("p", "")),
     ("reference_row", ("p", "")),
     ("reference_column", ("p", 0)),
-    ("reference_condition", "control"),
+    ("reference_condition", ("p", "control")),
 ])
 def test_unknown_physical_identities_cannot_form_normalization_reference_groups(mode, reference):
     field = _field(well="", row="", column=0)
@@ -364,3 +364,113 @@ def test_overview_source_entry_reuses_only_the_current_normalized_first_source(q
     assert owner._field_overview is existing_browser
     assert submissions == []
     assert not first_source.exists() and not second_source.exists()
+
+
+def _well_mean_options(**changes):
+    return {"mode": "reference_average", "reference_kind": "reference_column",
+            "reference": ("p", 1), "percentiles": (0, 100),
+            "selection": {"representatives": 2, "seed": 3, "generation": 7}, **changes}
+
+
+def test_well_mean_equal_field_then_equal_well_statistics_are_lazy_and_raw_immutable():
+    import json
+
+    fields = (_field(), _field(number=1), _field(well="B01", row="B"),
+              _field(well="C02", row="C", column=2))
+    arrays = {fields[0].identity: {0: np.array([0., 4.])},
+              fields[1].identity: {0: np.full(100, 6.)},
+              fields[2].identity: {0: np.full(3, 10.)},
+              fields[3].identity: {0: np.array([0., 4.])}}
+    before = {key: value[0].copy() for key, value in arrays.items()}
+    calls = []
+    plan, context = browser._overview_prepare_normalization(fields, (0,), _well_mean_options(),
+                                                            _reader(arrays, calls))
+    assert plan["reference_means"] == {0: 7.}
+    assert len(calls) == 3
+    assert {row["bounds_sample_pixels"][0] for row in plan["reference_wells"]} == {3}
+    resolved = context.plan_for(fields[3])
+    assert resolved["gains"] == {0: 3.5}
+    assert len(calls) == 4
+    assert context.plan_for(fields[3]) == resolved
+    assert len(calls) == 4
+    shown = browser._overview_normalized_planes(((0, "raw", arrays[fields[3].identity][0]),),
+                                                resolved, fields[3])[0][2]
+    low, high = resolved["bounds"][0]
+    np.testing.assert_allclose(shown, np.clip((np.array([0., 4.]) * 3.5 - low) / (high - low), 0, 1))
+    assert context.provenance()["used_wells"][0]["field_identities"] == (fields[3].identity,)
+    json.dumps(context.provenance(), allow_nan=False)
+    with pytest.raises(RuntimeError, match="resolved per-well"):
+        browser._overview_normalized_planes(((0, "raw", arrays[fields[3].identity][0]),), plan, fields[3])
+    for key in arrays:
+        np.testing.assert_array_equal(arrays[key][0], before[key])
+
+
+def test_well_mean_condition_reference_is_plate_qualified():
+    fields = (_field(), _field("other"))
+    arrays = {fields[0].identity: {0: np.array([2., 4.])},
+              fields[1].identity: {0: np.array([100., 200.])}}
+    calls = []
+    plan, context = browser._overview_prepare_normalization(fields, (0,),
+        _well_mean_options(reference_kind="reference_condition", reference=("p", "control"),
+                           conditions={("p", "A01"): "control", ("other", "A01"): "control"}),
+        _reader(arrays, calls))
+    assert plan["reference_means"] == {0: 3.}
+    assert calls == [(fields[0].identity, (0,), 256)]
+    with pytest.raises(ValueError, match="same-plate"):
+        context.plan_for(fields[1])
+
+
+@pytest.mark.parametrize("values", [[0., 0.], [-1., 0.], [np.nan, np.inf]])
+def test_well_mean_requires_positive_finite_means(values):
+    field = _field()
+    with pytest.raises(ValueError, match="finite"):
+        browser._overview_prepare_normalization((field,), (0,), _well_mean_options(),
+            _reader({field.identity: {0: np.array(values)}}, []))
+
+
+@pytest.mark.parametrize("extra", [{"reference_channel": 0}, {"mean_match": True}])
+def test_well_mean_refuses_combining_distinct_channel_scaling(extra):
+    with pytest.raises(ValueError, match="cannot be combined"):
+        browser._overview_prepare_normalization((_field(),), (0,), _well_mean_options(**extra), None)
+
+
+def test_well_mean_lazy_reads_stop_on_owned_cancellation_before_next_field():
+    from concurrent.futures import CancelledError
+
+    fields = (_field(), _field(well="B02", row="B", column=2),
+              _field(well="B02", row="B", column=2, number=1))
+    cancelled = threading.Event()
+    calls = []
+
+    def read(field, channels, *, edge):
+        calls.append(field.identity)
+        if field.well == "B02":
+            cancelled.set()
+        return ((0, "raw", np.array([1., 2.])),)
+
+    _, context = browser._overview_prepare_normalization(fields, (0,), _well_mean_options(), read, cancelled)
+    with pytest.raises(CancelledError):
+        context.plan_for(fields[1])
+    assert calls == [fields[0].identity, fields[1].identity]
+
+
+def test_well_mean_lazy_scalar_cache_is_bounded_and_selection_specific():
+    fields = (_field(),) + tuple(_field(well=f"B{number:03}", row="B", column=number + 2)
+                                for number in range(129))
+    arrays = {field.identity: {0: np.array([1., 3.])} for field in fields}
+    calls = []
+    _, context = browser._overview_prepare_normalization(fields, (0,), _well_mean_options(),
+                                                         _reader(arrays, calls))
+    for field in fields[1:]:
+        context.plan_for(field)
+    assert len(context._cache) == 128
+    assert len(calls) == 130
+    context.plan_for(fields[1])
+    assert len(calls) == 131
+    updated = _field(number=5)
+    arrays[updated.identity] = {0: np.array([4., 8.])}
+    plan, other = browser._overview_prepare_normalization((updated,), (0,),
+        _well_mean_options(selection={"representatives": 1, "generation": 8}), _reader(arrays, calls))
+    assert plan["reference_means"] == {0: 6.}
+    assert other.provenance()["reference_wells"][0]["field_identities"] == (updated.identity,)
+    assert context.provenance()["reference_means"] == {0: 2.}
