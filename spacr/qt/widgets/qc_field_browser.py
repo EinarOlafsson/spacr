@@ -3989,7 +3989,7 @@ class _OverviewMetadataWizard(QDialog):
             self.gain.addItem(str(channel), channel)
         descriptions = []
         for entry in info["files"]:
-            descriptions.append(tr("{axes}: {shape}; {dtype}", axes=entry["axes"],
+            descriptions.append(tr("Axes: {axes}; shape: {shape}; type: {dtype}", axes=entry["axes"],
                                    shape=str(entry["shape"]), dtype=entry["dtype"]))
         self.axes.setText(tr("First field: {details}. Available channel IDs: {channels}",
                              details="; ".join(descriptions), channels=str(available)))
