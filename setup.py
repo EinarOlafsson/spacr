@@ -502,8 +502,10 @@ setup(
             'PySide6>=6.6,!=6.12.0,<7',
             'qtawesome>=1.3,<2',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2; sys_platform != "darwin" or '
-            'platform_machine != "x86_64" or python_version < "3.14"',
+            'piper-tts>=1.2,<2; (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.14") and '
+            '(sys_platform != "darwin" or python_version < "3.14" or '
+            '"23" <= platform_release)',
         ],
 
         'czi': ['pylibCZIrw>=5.0.0,<7.0; python_version < "3.14"',
@@ -513,11 +515,13 @@ setup(
         'vendor-watch': ['nd2>=0.10,<1; python_version >= "3.10"',
                          'liffile>=2025.1.25; python_version >= "3.12"'],
         'zernike': ['mahotas>=1.4.13,<2.0'],
-        'btrack': ['btrack>=0.7.0,<1.0'],
+        'btrack': ['btrack>=0.7.0,<1.0; sys_platform != "darwin" or '
+                   'python_version < "3.14" or "24" <= platform_release'],
 
         'numpyro': ['numpyro>=0.13,<1.0', 'jax>=0.4,<1.0'],
         'pymc': ['pymc>=5.10,<7'],
-        'pyfixest': ['pyfixest>=0.40.1,<1; python_version >= "3.10"'],
+        'pyfixest': ['pyfixest>=0.40.1,<1; python_version >= "3.10" and '
+                    '(sys_platform != "darwin" or python_version >= "3.11")'],
         'glum': ['glum>=3.1.2,<4; python_version >= "3.10"'],
         'gpytorch': ['gpytorch>=1.11,<2; python_version >= "3.10"'],
 
@@ -526,7 +530,8 @@ setup(
         'cloud': ['fsspec>=2023.1', 's3fs>=2023.1', 'gcsfs>=2023.1',
                   'adlfs>=2023.1', 'aiohttp>=3.8,<4', 'botocore>=1.29,<2'],
         'survival': ['lifelines>=0.27,<1'],
-        'search': ['faiss-cpu>=1.7.4,<2'],
+        'search': ['faiss-cpu>=1.7.4,<2; sys_platform != "darwin" or '
+                   'python_version < "3.14" or "23" <= platform_release'],
         'foundation': ['transformers>=4.40,<6'],
         'notify': ['keyring>=23.0,<27'],
         'chem': ['rdkit>=2023.3'],
@@ -538,8 +543,10 @@ setup(
             'pyqtgraph>=0.13.3,<1',
             'vispy>=0.14,<1.0',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2; sys_platform != "darwin" or '
-            'platform_machine != "x86_64" or python_version < "3.14"',
+            'piper-tts>=1.2,<2; (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.14") and '
+            '(sys_platform != "darwin" or python_version < "3.14" or '
+            '"23" <= platform_release)',
             'trackastra>=0.5,<1.0; python_version >= "3.10" and '
             '(sys_platform != "darwin" or platform_machine != "x86_64" '
             'or python_version < "3.13")',
@@ -556,7 +563,8 @@ setup(
             'nd2reader>=3.3.0,<4.0',
             'readlif',
             'mahotas>=1.4.13,<2.0',
-            'btrack>=0.7.0,<1.0',
+            'btrack>=0.7.0,<1.0; sys_platform != "darwin" or '
+            'python_version < "3.14" or "24" <= platform_release',
             'anndata>=0.10,<0.14',
             'mrcfile>=1.5,<2',
         ],

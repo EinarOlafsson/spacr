@@ -156,3 +156,40 @@ def test_ultrack_profiles_follow_higra_native_platform_availability():
             assert requirement.marker is not None
             assert requirement.marker.evaluate(environment) is available, (
                 str(requirement), environment)
+
+
+def test_named_and_aggregate_extras_cannot_bypass_default_native_guards():
+    tree = ast.parse((ROOT / "setup.py").read_text(encoding="utf-8"))
+    values = next(ast.literal_eval(node.value) for node in tree.body
+                  if isinstance(node, ast.Assign)
+                  and any(getattr(target, "id", "") == "dependencies"
+                          for target in node.targets))
+    defaults = {canonicalize_name(Requirement(value).name): Requirement(value)
+                for value in values}
+    profiles = (("btrack", "btrack"), ("all", "btrack"),
+                ("search", "faiss-cpu"), ("pyfixest", "pyfixest"),
+                ("tutorial", "piper-tts"), ("all", "piper-tts"))
+    mismatches = []
+    for system, platform, machine, python, release in (
+            ("Darwin", "darwin", "arm64", "3.10", "22.6.0"),
+            ("Darwin", "darwin", "x86_64", "3.12", "23.6.0"),
+            ("Darwin", "darwin", "arm64", "3.14", "22.6.0"),
+            ("Darwin", "darwin", "arm64", "3.14", "23.6.0"),
+            ("Darwin", "darwin", "arm64", "3.14", "24.0.0"),
+            ("Darwin", "darwin", "x86_64", "3.14", "25.0.0"),
+            ("Linux", "linux", "x86_64", "3.10", "6.17.0-generic"),
+            ("Linux", "linux", "aarch64", "3.12", "6.17.0-generic"),
+            ("Windows", "win32", "AMD64", "3.14", "10")):
+        environment = default_environment()
+        environment.update(platform_system=system, sys_platform=platform,
+                           platform_machine=machine, python_version=python,
+                           python_full_version=python + ".0", platform_release=release)
+        for extra, distribution in profiles:
+            named = _requirement(extra, distribution)
+            default = defaults[canonicalize_name(distribution)]
+            available = default.marker is None or default.marker.evaluate(environment)
+            applies = named.marker is None or named.marker.evaluate(environment)
+            if applies != available:
+                mismatches.append((extra, distribution, machine, python, release,
+                                   available, applies))
+    assert not mismatches, mismatches
