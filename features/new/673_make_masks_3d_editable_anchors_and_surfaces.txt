@@ -240,6 +240,11 @@ label123 picking, lens/highlight, changed dimensions/layer counts and unchanged
 both-image/mask inputs; cleanup is empty. Uniform allocations fall69 to11,
 bind groups69 to18; repeated unchanged bindings allocate neither. This is
 parity/allocation acceptance, not a GUI FPS claim (sampled RSS0.097GiB).
+Native ec9f452ba Metal611x140/DPR2 passes99 aligned/0 bad/0 unknown paints,
+89 fast/0 fallback and20/20 current picks;89 unique pairs/3.029s=29.3826/s, still below30.
+Strict20s idle passes16.4444s; label4/gen14 delivery joins exact cached geometry
+to aligned Figure123 at44.38596s and Qt paint44.38775s before verdict44.40374s.
+Exit0/errors[], mask/history unchanged, pool/GPU cleanup empty; sampled RSS0.577GiB,0 missed samples.
 Remaining geometry profile identifies triangle contact as28.256s cumulative
 across144,392 calls (instrumented, not benchmark). Test exact per-triangle
 argmax-axis/planar-projection caching; when the second triangle's cached axis
