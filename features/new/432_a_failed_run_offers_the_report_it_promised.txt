@@ -1,3 +1,37 @@
+CURRENT FOLLOW-UP — ERROR STORMS AND AI ALLOWANCE, 2026-10-23
+Status: DONE 2026-10-23 — bounded error batching, hosted request limits, persistent cooldown and explicit storm actions delivered; earlier reporting behavior below is retained.
+Owner: Workstation session 2 / retained AI error-control agent; Home retains general CI/release.
+Priority: current user report; repeated Qt errors exhausted spaCR AI allowance.
+
+For every AI provider, send the first error immediately. An error arriving within
+60 seconds of the preceding error starts/extends a pending combined error. Flush
+that batch only after 60 seconds without another error. Preserve distinct errors
+and occurrence counts within bounded memory rather than creating one AI request
+per exception. At five minutes of an uninterrupted stream, stop automatic sends
+and show one prompt offering force quit or force restart; neither happens without
+the user's choice. Keep local crash logs and existing reporting consent controls.
+
+For spaCR AI only, enforce at most three actual AI requests in any rolling
+60 seconds across the application's chat and error routes. If error submissions
+reach three per minute for three consecutive minutes, block further error
+submissions for one hour. Preserve this cooldown across an app restart; other AI
+providers keep batching but do not receive spaCR AI's rate limit or cooldown.
+Local cached explanations make no request. Proven relay cache hits retain the
+transport-rate slot but do not count toward the error saturation cooldown.
+Protect all actual hosted AI
+request entry points, including report summaries, and prevent concurrent sends
+from bypassing the shared limit. Respect network/consent revocation before delayed
+work runs. Surface useful waiting/cooldown status without recursive AI reporting.
+
+Acceptance: deterministic clock-driven tests cover immediate delivery, exactly
+60-second quiet gaps, repeated and distinct errors, five-minute stream cutoff,
+no repeated restart prompts, three-per-minute boundaries, three consecutive
+saturated minutes, one-hour expiry/restart persistence, concurrent callers,
+provider distinctions, cached results and consent changes. Exercise the actual Qt
+prompt/actions without quitting the test process; retain existing error-report
+ownership and explanation matching. Complete normal generated artifacts and
+translations, review the implementation, then publish to nightly.
+
 ================================================================================
 A FAILED RUN SAYS WHERE ITS REPORT AND ITS AI EXPLANATION WENT
 ================================================================================
@@ -797,3 +831,5 @@ Owed: the new "[issue] Waiting up to {seconds} s…" notice in the nine
 catalogs.
 
 VERIFIED 2026-10-04: named tests pass; fixed test_cov_app_screen hostile widget-map stand-in (lacked .get, broken by the later mask GPU refresh); 5 referenced test files pass.
+
+2026-10-23 — Workstation follow-up delivers immediate first errors, bounded/count-preserving combined errors after60quiet seconds, and one explicit five-minute storm prompt; automatic sends stop while manual Explain remains available under the hosted guard. All hosted AI entry points share a persisted3-per-rolling-minute transport guard; three saturated burst minutes start a one-hour error-only cooldown, with local caches free and proven relay caches excluded from saturation. Captured permissions, old-provider reports and manual ownership survive batching without duplicate AI requests; all eight retained diagnostics reach hosted/vendor prompts. The30 deterministic backend/Qt cases pass, retained routing/owner/provider checks pass, root dark/light prompt and clock peers pass, nine-language81-caption review/runtime/arrival gates pass, and normal API/consumer/flow/Help outputs are current. Ordinary nightly publication follows the approved final review; no live AI billing or destructive force action was used for validation.

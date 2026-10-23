@@ -53,6 +53,17 @@ def _no_desktop_notifications(monkeypatch):
                         lambda *args, **kwargs: None)
 
 
+@pytest.fixture(autouse=True)
+def _isolated_error_batch(monkeypatch):
+    """An independent failed-run test starts with no earlier error stream."""
+    from spacr import crashreport
+    monkeypatch.setattr(crashreport, "_ERROR_BATCHER", None)
+    yield
+    control = crashreport._ERROR_BATCHER
+    if control is not None and control.timer is not None:
+        control.timer.cancel()
+
+
 def _child_that_prints(line: str, status: int) -> list:
     """A real child process that prints ``line`` and exits with ``status``."""
     code = f"import sys; print({line!r}); sys.exit({status})"
@@ -358,9 +369,12 @@ def _heading_over(console, needle: str) -> str:
 def console(qapp, monkeypatch):
     """A console whose provider is set and whose stream is started by hand."""
     from spacr.qt.widgets.console_panel import ConsolePanel
+    from spacr import crashreport
+    from types import SimpleNamespace
 
     panel = ConsolePanel()
-    monkeypatch.setattr(panel, "_current_provider", lambda: object())
+    monkeypatch.setattr(panel, "_current_provider", lambda: SimpleNamespace(name="claude"))
+    monkeypatch.setattr(crashreport, "network_allowed", lambda: True)
     monkeypatch.setattr(panel, "_start_stream", lambda **kw: None)
     yield panel
     dots = getattr(panel, "_working_dots", None)
@@ -650,18 +664,22 @@ class TestTheLineIsSaidOnlyWhenItIsTrue:
             "Nothing was sent to GitHub") == 1
 
     def test_not_when_reporting_is_set_to_always(self, screen, monkeypatch):
-        """'always' files the report itself (2026-09-19), so saying nothing
-        was sent would be false. The filing is
-        test_the_report_files_itself.py's subject; here it is stubbed."""
+        """Central routing settles one report without a legacy duplicate."""
         from spacr.qt import terms
 
         terms.record_agreement()
-        filed = []
+        filed, routed = [], []
+        original = screen._send_the_anonymous_report
+        def report(kind=""):
+            routed.append(kind)
+            return original(kind)
+        monkeypatch.setattr(screen, "_send_the_anonymous_report", report)
         monkeypatch.setattr(type(screen), "_file_the_report_automatically",
                             lambda self: filed.append(self._last_error_text))
         self._fail(screen, monkeypatch, reporting=True, mode="always")
         assert not self._said(screen)
-        assert filed == ["Traceback\nValueError: boom"]
+        assert routed == ["fault"]
+        assert filed == []
 
     def test_not_when_the_run_was_stopped(self, screen, monkeypatch):
         monkeypatch.setattr("spacr.qt.ai.settings.get_auto_file_issues",

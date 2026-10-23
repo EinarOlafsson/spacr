@@ -479,12 +479,15 @@ class AIChatPanel(QWidget):
     :param parent: parent widget.
     """
 
+    _error_batch_ready = Signal(str, str, bool, str, object)
+
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the chat panel.
 
         :param parent: parent widget.
         """
         super().__init__(parent)
+        self._error_batch_ready.connect(self._open_batched_error)
         self._messages: List[Dict] = []
         self._thread: Optional[QThread] = None
         self._worker: Optional[StreamWorker] = None
@@ -841,6 +844,25 @@ class AIChatPanel(QWidget):
         :param traceback_text: raw traceback captured from the pipeline.
         :param active_app: optional app label used in the framing prompt.
         """
+        from ..ai.providers import _batch_widget_error
+        _batch_widget_error(self, traceback_text, active_app)
+
+    def _open_batched_error(self, text, active_app, show_raw, provider_name, diagnostics):
+        """Recheck the selected provider and network before a delayed request."""
+        from ... import crashreport
+        provider = self._current_provider()
+        policy = crashreport._ERROR_POLICY_CACHE.get("affirmed_policy") or {}
+        if (provider is not None and provider.name == provider_name
+                and policy.get("provider") != "none" and crashreport.network_allowed()):
+            self._pending_error_diagnostics = diagnostics
+            self._open_error_flow_now(text, active_app)
+
+    def _open_error_flow_now(self, traceback_text: str, active_app: str = "") -> None:
+        """Send a traceback to the AI explainer and stream the reply.
+
+        :param traceback_text: raw traceback captured from the pipeline.
+        :param active_app: optional app label used in the framing prompt.
+        """
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         provider = self._current_provider()
         if provider is None:
@@ -849,4 +871,6 @@ class AIChatPanel(QWidget):
             return
         prompt = wrap_error_for_prompt(traceback_text, active_app)
         self._append_user(prompt)
+        self._messages[-1]["_spacr_batch_errors"] = getattr(self, "_pending_error_diagnostics", [])
+        self._pending_error_diagnostics = []
         self._start_stream(system=error_explainer_prompt())
