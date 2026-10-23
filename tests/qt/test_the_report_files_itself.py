@@ -39,6 +39,9 @@ import pytest
 pytest.importorskip("PySide6")
 
 from spacr.qt.ai import github_auth, issue_report  # noqa: E402
+from PySide6.QtWidgets import QDialog as _QDialog  # noqa: E402
+
+_REAL_DIALOG_EXEC = _QDialog.exec
 
 USER = "jakobk"
 HOST = "jaks-mbp.lab.example.org"
@@ -884,50 +887,88 @@ class TestAFailedRunFilesItself:
 # ---------------------------------------------------------------------------
 
 
+from tests.qt.test_the_console_keeps_the_ai_error_analysis import manual_error_batches
+
+
 AUTH_LINE = ("Failed to authenticate: OAuth session expired and could not "
              "be refreshed")
 
 
 class TestTheAIsErrorIsNotItsAnalysis:
 
-    def _filed_body(self, qtbot, screen, github) -> str:
-        screen._file_the_report_automatically()
+    def _filed_body(self, qtbot, screen, github, monkeypatch) -> str:
+        from PySide6.QtCore import QTimer, Qt
+        from PySide6.QtWidgets import QDialog, QDialogButtonBox
+        from spacr.qt.ai.issue_preview import IssuePreviewDialog
+
+        def approve(dialog):
+            buttons = dialog.findChild(QDialogButtonBox)
+            send = next(button for button in buttons.buttons()
+                        if buttons.buttonRole(button) == QDialogButtonBox.AcceptRole)
+            failures = []
+
+            def send_once():
+                try:
+                    qtbot.mouseClick(send, Qt.LeftButton)
+                    assert dialog.result() == QDialog.Accepted
+                except BaseException as error:
+                    failures.append(error)
+                    dialog.reject()
+
+            timer = QTimer(dialog)
+            timer.setSingleShot(True)
+            timer.timeout.connect(send_once)
+            timer.start(0)
+            result = _REAL_DIALOG_EXEC(dialog)
+            assert failures == []
+            return result
+
+        monkeypatch.setattr(IssuePreviewDialog, "exec", approve)
+        screen.show()
+        qtbot.waitExposed(screen)
+        assert screen._btn_file_issue.isVisible() and screen._btn_file_issue.isEnabled()
+        qtbot.mouseClick(screen._btn_file_issue, Qt.LeftButton)
         qtbot.waitUntil(lambda: bool(github.posted(
             "/repos/EinarOlafsson/spacr/issues")), timeout=30000)
         qtbot.waitUntil(lambda: not screen._jobs.is_busy(), timeout=30000)
+        qtbot.waitUntil(lambda: screen._jobs.active_jobs() == 0, timeout=30000)
         return github.posted("/repos/EinarOlafsson/spacr/issues")[0]["body"]
 
-    def _asked(self, screen, tb, monkeypatch):
+    def _asked(self, screen, tb, monkeypatch, manual_error_batches):
+        from types import SimpleNamespace
+
         console = screen._console
-        monkeypatch.setattr(console, "_current_provider", lambda: object())
+        provider = SimpleNamespace(name="claude")
+        monkeypatch.setattr(console, "_current_provider", lambda: provider)
         monkeypatch.setattr(console, "_start_stream", lambda **kw: None)
-        screen._last_error_text = tb
+        screen._on_pipeline_error(tb)
         console.open_error_flow(tb, active_app="mask", show_raw=False)
+        manual_error_batches()
 
     def test_a_provider_that_failed_leaves_no_analysis(
-            self, qtbot, monkeypatch, signed_in, mask_screen):
+            self, qtbot, monkeypatch, signed_in, mask_screen, manual_error_batches):
         github = FakeGitHub()
         monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
         tb = _traceback("/home/" + USER)
-        self._asked(mask_screen, tb, monkeypatch)
+        self._asked(mask_screen, tb, monkeypatch, manual_error_batches)
         mask_screen._console._on_stream_finished(False, AUTH_LINE)
 
-        body = self._filed_body(qtbot, mask_screen, github)
+        body = self._filed_body(qtbot, mask_screen, github, monkeypatch)
 
         assert AUTH_LINE not in body
         assert "spaCR AI's analysis" not in body
 
     def test_an_answer_to_this_error_is_attached(
-            self, qtbot, monkeypatch, signed_in, mask_screen):
+            self, qtbot, monkeypatch, signed_in, mask_screen, manual_error_batches):
         """The control: the same path does attach a real answer."""
         github = FakeGitHub()
         monkeypatch.setattr(github_auth, "_HTTP_OPEN", github)
         tb = _traceback("/home/" + USER)
-        self._asked(mask_screen, tb, monkeypatch)
+        self._asked(mask_screen, tb, monkeypatch, manual_error_batches)
         mask_screen._console._on_stream_finished(
             True, "The file holds pickled objects.")
 
-        body = self._filed_body(qtbot, mask_screen, github)
+        body = self._filed_body(qtbot, mask_screen, github, monkeypatch)
 
         assert "spaCR AI's analysis" in body
         assert "The file holds pickled objects." in body

@@ -24,6 +24,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QDialog, QLabel, QLineEdit
 
+from tests.qt.test_the_console_keeps_the_ai_error_analysis import manual_error_batches
+
 
 # ---------------------------------------------------------------------------
 # Doubles + fixtures
@@ -1040,12 +1042,13 @@ def test_clear_chat_mid_stream_does_not_crash_the_next_chunk(panel):
 # open_error_flow
 # ---------------------------------------------------------------------------
 
-def test_open_error_flow_sends_the_wrapped_traceback(panel, qtbot, ai_env):
+def test_open_error_flow_sends_the_wrapped_traceback(panel, qtbot, ai_env, manual_error_batches):
     from spacr.qt.ai.prompts import error_explainer_prompt
 
     provider = ai_env["providers"][0]
     tb = "Traceback (most recent call last):\nValueError: channels is None"
     panel.open_error_flow(tb, active_app="mask")
+    manual_error_batches()
     qtbot.waitUntil(lambda: panel._thread is None, timeout=5000)
 
     sent = provider.seen[0]
@@ -1061,18 +1064,20 @@ def test_open_error_flow_sends_the_wrapped_traceback(panel, qtbot, ai_env):
 
 
 def test_open_error_flow_without_a_provider_tells_the_user_what_to_do(panel,
-                                                                      ai_env):
+                                                                      ai_env, manual_error_batches):
     ai_env["providers"] = []
     panel.open_error_flow("boom", active_app="measure")
+    manual_error_batches()
     assert panel._status.text() == "Install a vendor CLI first (Providers…)."
     assert panel._messages == []
     assert panel._thread is None
 
 
 def test_open_error_flow_omits_the_app_line_when_unknown(panel, qtbot,
-                                                          ai_env):
+                                                          ai_env, manual_error_batches):
     provider = ai_env["providers"][0]
     panel.open_error_flow("KeyError: 'plate'")
+    manual_error_batches()
     qtbot.waitUntil(lambda: panel._thread is None, timeout=5000)
     body = provider.seen[0]["messages"][0]["content"]
     assert "Active app:" not in body

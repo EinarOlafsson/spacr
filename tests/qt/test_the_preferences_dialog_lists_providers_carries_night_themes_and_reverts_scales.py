@@ -120,7 +120,7 @@ def test_a_provider_list_that_cannot_be_read_still_offers_every_choice(
     names = [r.property("providerName")
              for r in dialog.findChildren(QRadioButton)
              if r.objectName().startswith("AiProvider_")]
-    assert names == ["spacr_hosted", "claude", "codex", "gemini"]
+    assert names == ["spacr_hosted", "claude", "codex", "gemini", "none"]
 
 
 # ---------------------------------------------------------------------------
