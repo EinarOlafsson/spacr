@@ -474,7 +474,7 @@ def test_well_mean_context_uses_only_actual_view_representatives_and_axes(tmp_pa
     dialog = module._FieldOverview(settings={"source": str(source), "source_scope": "folder",
         "custom_regex": PATTERN, "channels": (1,), "geometry": (2, 3), "representatives": 1,
         "normalization": {"mode": "reference_average", "reference_kind": "reference_well",
-                          "reference": ("p1", "A01"), "percentiles": (0., 100.)}})
+                          "reference": ("p2", "A01"), "percentiles": (0., 100.)}})
     qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     dialog.show()
     dialog._scan()
@@ -482,7 +482,7 @@ def test_well_mean_context_uses_only_actual_view_representatives_and_axes(tmp_pa
                     timeout=10000)
     fields, options = calls[-1]
     assert {(f.plate, f.well, f.field_id, f.time_id, f.z_id) for f in fields} == {
-        ("p1", "A01", "1", "1", "1"), ("p1", "B02", "1", "1", "1")}
+        ("p2", "A01", "1", "1", "1"), ("p2", "B02", "1", "1", "1")}
     assert dialog._display_kwargs()["normalization_context"] is dialog._normalization_context
     previous = dialog._normalization_context
     _choose(dialog.fov_axis, "10")
@@ -491,11 +491,11 @@ def test_well_mean_context_uses_only_actual_view_representatives_and_axes(tmp_pa
         and dialog._normalization_context is not previous and not dialog._index_jobs.is_busy(), timeout=10000)
     fields, options = calls[-1]
     assert {(f.plate, f.well, f.field_id, f.time_id, f.z_id) for f in fields} == {
-        ("p1", "A01", "10", "2", "1"), ("p1", "B02", "10", "2", "1")}
+        ("p2", "A01", "10", "2", "1"), ("p2", "B02", "10", "2", "1")}
     provenance = dialog._normalization_context.provenance()
     assert provenance["selection"]["field_id"] == "10"
     assert provenance["selection"]["filename_time"] == "2"
     assert provenance["selection"]["representatives"] == 1
     assert provenance["selection"]["generation"] == dialog._display_generation
-    assert provenance["scope_plate"] == "p1"
-    assert all(f.plate == "p1" and f.field_id == "10" for f in dialog._well_fields["A01"])
+    assert provenance["scope_plate"] == "p2"
+    assert all(f.plate == "p2" and f.field_id == "10" for f in dialog._well_fields["A01"])

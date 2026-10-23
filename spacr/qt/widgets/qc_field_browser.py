@@ -3142,6 +3142,13 @@ class _FieldOverview(QDialog):
         self.plates.clear()
         for plate in sorted({field.plate for field in fields}):
             self.plates.addItem(plate, plate)
+        options = self._overview_options.get("normalization") or {}
+        reference = options.get("reference")
+        if (options.get("mode") == "reference_average"
+                and isinstance(reference, (tuple, list)) and len(reference) == 2):
+            index = self.plates.findData(reference[0])
+            if index >= 0:
+                self.plates.setCurrentIndex(index)
         self.plates.blockSignals(False)
         self._back()
         if not self._geometry_valid:
