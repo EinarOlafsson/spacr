@@ -2393,7 +2393,12 @@ def _event_field_inputs(tracks_path, radius, partners=None):
     """
     from .tabular import read_table
 
-    tracks = read_table(tracks_path, report=None)
+    tracks = read_table(tracks_path, report=None, dtype={'parent_track_id': object})
+    if 'parent_track_id' in tracks:
+        parents = tracks['parent_track_id']
+        boolean = parents.dropna().str.lower()
+        if len(boolean) and boolean.isin(('true', 'false')).all():
+            tracks['parent_track_id'] = parents.str.lower().map({'true': True, 'false': False})
     stem = os.path.splitext(os.path.basename(tracks_path))[0]
     base = os.path.join(os.path.dirname(tracks_path), 'events', stem)
     features = crops = None

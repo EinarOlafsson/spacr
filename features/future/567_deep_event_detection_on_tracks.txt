@@ -1,5 +1,14 @@
 DEEP-LEARNING EVENT DETECTION ON TRACKS: MITOSIS, EGRESS, INVASION, HOST DEATH
 
+CURRENT SOFTWARE FOLLOWUP — 2026-10-23
+Priority: native CSV-loader parity for the stored-parent correction accepted on
+October 15. widgets_g5 owns the supported CSV → event correction → lineage
+round trip; widgets_g4 independently reviews and root publishes. Preserve exact
+signed64 parent identities above 2**53 with missing rows, existing malformed,
+negative, fractional and nonfinite policies, and the unsupported status of
+out-of-signed64 inputs. Use bounded CPU controls only; annotated biological
+acceptance and whole-item completion remain external and open.
+
 2026-10-06 workstation implementation in progress:
 Requested: extend the existing event detector with the strictly verified
 official pretrained VideoMAE video encoder, in an isolated optional backend
@@ -14,7 +23,7 @@ record does not close item567 or claim GPU/biological accuracy.
 
 Status: DONE (alpha) 2026-09-27 (evidence 1b7606dc7)
 VERIFIED 2026-10-04: test_event_detection_on_tracks, qt/test_event_detection_alpha_gate pass (nightly 85c3e41c2, CPU).
-Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+Owner: widgets_g5 software follow-up; widgets_g4 independent peer; root publication. Scientific/backend ownership and open acceptance below are retained.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
@@ -276,3 +285,5 @@ identity guarantee is claimed. Source, raw failures, peer, successful checks and
 API evidence are in data/567_parent_identity_2026-10-15/. This closes only this
 software identity boundary; native CSV-loader parity, biological event accuracy,
 whole F567, final global CI and release acceptance remain separate.
+
+2026-10-23 — Native CSV loading preserves nullable signed64 parent IDs through event correction and actual lineage/Newick export; nine round-trip/policy controls pass (6.29 s), including the signed64 maximum. The normal consumer generator changes only98 existing timelapse line offsets by+5; API/runtime/target bodies remain unchanged. Root owns publication; annotated biological accuracy and whole F567 remain OPEN.
