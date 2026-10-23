@@ -2271,10 +2271,12 @@ def _overview_measurements_export(fields, source, channels, workers=1,
         return dict(time_index=time_index, z_mode=z_mode, z_index=z_index) | dict((field_options or {}).get(repr(field.identity), {}))
 
     def check_cancelled():
+        """Raise cancellation when the measurement export is stopped."""
         if cancelled is not None and cancelled.is_set():
             raise CancelledError()
 
     def record_result(field, row, stage):
+        """Record one field result or diagnostic in the staged export."""
         check_cancelled()
         report["attempted"] += 1
         if row.get("status") != "ok":
