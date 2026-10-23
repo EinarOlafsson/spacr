@@ -187,6 +187,8 @@ function Invoke-SpacrNative {
     $Process.StartInfo = $Info
     $OutputFile = $null
     $ErrorFile = $null
+    $ErrorTail = [System.Text.StringBuilder]::new()
+    $ErrorTailLimit = 65536
     $Started = $false
     try {
         if ($StandardOutputPath -or $StandardErrorPath) {
@@ -222,12 +224,22 @@ function Invoke-SpacrNative {
                         $ErrorRead = $null
                     } else {
                         $Host.UI.WriteErrorLine($Line)
+                        $TailLine = if ($Line.Length -gt $ErrorTailLimit) {
+                            $Line.Substring($Line.Length - $ErrorTailLimit)
+                        } else { $Line }
+                        [void]$ErrorTail.AppendLine($TailLine)
+                        if ($ErrorTail.Length -gt $ErrorTailLimit) {
+                            [void]$ErrorTail.Remove(0, $ErrorTail.Length - $ErrorTailLimit)
+                        }
                         $ErrorRead = $Process.StandardError.ReadLineAsync()
                     }
                 }
             }
         }
         $Process.WaitForExit()
+        if ($Process.ExitCode -ne 0 -and $ErrorTail.Length) {
+            Write-Host $ErrorTail.ToString()
+        }
         $global:LASTEXITCODE = $Process.ExitCode
     } finally {
         if ($Started -and -not $Process.HasExited) {
@@ -561,6 +573,19 @@ try {
     if (-not (Test-Path $ProfileModule)) {
         $ProfileModule = Join-Path $PSScriptRoot "..\..\spacr\install_profile.py"
     }
+    $CrtHelper = Join-Path $PSScriptRoot "windows_crt.py"
+    $CrtInfo = Get-Content -Raw (Join-Path $PSScriptRoot "windows_crt.json") | ConvertFrom-Json
+    $CrtPrepared = Join-Path $WorkDir "windows-crt"
+    if ($OfflineBundle) {
+        $CrtArtifact = Join-Path (Join-Path $OfflineBundle "windows-runtime") $CrtInfo.artifact.filename
+    } else {
+        $CrtArtifact = Join-Path $WorkDir $CrtInfo.artifact.filename
+        Invoke-WebRequest -UseBasicParsing -Uri $CrtInfo.artifact.url -OutFile $CrtArtifact
+    }
+    Invoke-Checked -Command $CleanupPython -Arguments @(
+        "-I", "-X", "utf8", $CrtHelper, "prepare",
+        "--artifact", $CrtArtifact, "--output", $CrtPrepared
+    )
     # The log of this install and the files the NSIS wrapper has already
     # written for it are not old files.
 
@@ -576,6 +601,9 @@ try {
     }
     Write-Host (Get-SpacrInstallerMessage "creating_environment") -ForegroundColor Cyan
     Invoke-Checked $UvExe venv $StageVenv --python $PythonVersion --managed-python --relocatable
+    Invoke-Checked -Command $CleanupPython -Arguments @(
+        "-I", "-X", "utf8", $CrtHelper, "verify-stage", "--runtime", $StageVenv
+    )
 
     # Skipping wgpu at resolve time: an override whose marker never holds
     # removes wgpu (and rendercanvas, which only wgpu pulls) from the
@@ -625,6 +653,11 @@ try {
             throw (Get-SpacrInstallerMessage "command_failed" @($UvExe, $PipCheckCode))
         }
     }
+    Invoke-Checked -Command $CleanupPython -Arguments @(
+        "-I", "-X", "utf8", $CrtHelper, "install",
+        "--source", $CrtPrepared,
+        "--destination", (Join-Path $StageVenv "Lib\site-packages\torch\lib")
+    )
     $env:QT_QPA_PLATFORM = "offscreen"
     Invoke-Checked -Command $StagePython -Arguments @(
         "-I",
@@ -775,8 +808,14 @@ raise SystemExit(run())
             Write-Host $MetadataBackup
         }
     }
-    if (Test-Path $StageVenv) {
-        Remove-Item -Recurse -Force $StageVenv
+    try {
+        if (Test-Path -LiteralPath $StageVenv) {
+            Remove-Item -LiteralPath $StageVenv -Recurse -Force -ErrorAction Stop
+        }
+    } catch {
+        $RetainWorkDir = $true
+        Write-Warning $_.Exception.Message
+        Write-Host $StageVenv
     }
     Remove-Item -Force -ErrorAction SilentlyContinue $StageProfile
     throw $OriginalError
