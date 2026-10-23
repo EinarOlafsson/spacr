@@ -6842,26 +6842,73 @@ def _minimum_object_size_editor(value, parent=None):
     return editor
 
 
+_SOURCE_FOLDER_KEYS = frozenset({
+    "src", "mask_src", "test_src", "test_mask_src", "folders",
+    "microscope_simulated_folder", "n2v_model",
+})
+
+
+def _add_folder_browse_action(edit, choose=None):
+    """Choose a local folder through the field's existing commit signals."""
+    previous = getattr(edit, "_spacr_folder_browse_action", None)
+    if previous is not None:
+        return previous
+    from PySide6.QtWidgets import QStyle, QToolButton
+    from ..i18n import tr
+
+    action = edit.addAction(edit.style().standardIcon(QStyle.SP_DirOpenIcon),
+                            QLineEdit.TrailingPosition)
+    action.setObjectName("SourceFolderBrowse")
+    action.setToolTip(tr("Choose folder…"))
+    edit._spacr_folder_browse_action = action
+    for button in edit.findChildren(QToolButton):
+        if button.defaultAction() is action:
+            button.setFocusPolicy(Qt.StrongFocus)
+            button.setAccessibleName(action.toolTip())
+
+    action.triggered.connect(choose if choose is not None
+                             else lambda: _choose_source_folder(edit))
+    return action
+
+
+def _choose_source_folder(edit):
+    """Commit a folder while retaining existing ordered multi-source values."""
+    from PySide6.QtWidgets import QFileDialog
+    from ..i18n import tr
+
+    current = edit.text()
+    try:
+        values = ast.literal_eval(current)
+    except (ValueError, SyntaxError):
+        values = None
+    multiple = isinstance(values, (list, tuple))
+    initial = str(values[-1]) if multiple and values else current
+    path = QFileDialog.getExistingDirectory(edit, tr("Choose folder…"), initial)
+    if not path:
+        return
+    if multiple:
+        chosen = list(values)
+        if path not in chosen:
+            chosen.append(path)
+        edit.setText(repr(tuple(chosen) if isinstance(values, tuple) else chosen))
+    else:
+        edit.setText(path)
+    edit.editingFinished.emit()
+
+
 class _TrainingFolderEdit(_ScalarEdit):
     """An editable directory with a browse action, retaining the standard value contract."""
 
     def __init__(self, value=None, parent=None):
         """Initialize the folder value and add its trailing directory-picker action."""
         super().__init__(parent)
-        from PySide6.QtWidgets import QFileDialog, QStyle
-        from ..i18n import tr
         self.set_value(value)
-        action = self.addAction(self.style().standardIcon(QStyle.SP_DirOpenIcon), QLineEdit.TrailingPosition)
-        action.setToolTip(tr("Choose folder…"))
 
         def browse():
             """Set a chosen directory; cancelling leaves the existing setting intact."""
-            path = QFileDialog.getExistingDirectory(self, tr("Choose folder…"), self.text())
-            if path:
-                self.setText(path)
-                self.editingFinished.emit()
+            _choose_source_folder(self)
 
-        action.triggered.connect(browse)
+        _add_folder_browse_action(self, choose=browse)
 
 
 class _CalibrationPathEdit(_ScalarEdit):
@@ -9246,6 +9293,8 @@ class _ListEditor(QWidget):
         self._strips.append(strip)
         strip.set_values(values)
         strip.changed.connect(self._committed)
+        if self._key in _SOURCE_FOLDER_KEYS:
+            _add_folder_browse_action(strip._entry)
         return strip
 
     def _drop_strip(self, strip) -> None:
@@ -10630,6 +10679,8 @@ class SettingsWidgets:
                 QLineEdit.TrailingPosition)
             action.setToolTip(tr("Choose file…"))
             action.triggered.connect(partial(self._choose_counterfactual_checkpoint, widget))
+        if key in _SOURCE_FOLDER_KEYS and isinstance(widget, QLineEdit):
+            _add_folder_browse_action(widget)
         if (key == "src" and self.app_key in ("mask", "measure")
                 and isinstance(widget, QLineEdit)):
             _add_cloud_browse_action(widget, self)

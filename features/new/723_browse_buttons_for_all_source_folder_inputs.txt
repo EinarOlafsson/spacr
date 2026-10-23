@@ -23,3 +23,5 @@ ACCEPTANCE
   regenerate affected translations and generated consumers with their tools.
 
 2026-10-22 — Registered before implementation; retained UI pair owns implementation, focused validation, normal generation and publication end to end.
+
+2026-10-22 — Shared source-folder fields now reuse a compact keyboard-accessible folder action, including grouped source lists; existing custom/file/cloud pickers are retained. Eight focused controls pass; independent peer and normal generation/publication closure remain.
