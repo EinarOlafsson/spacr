@@ -10681,6 +10681,22 @@ class SettingsWidgets:
             action.triggered.connect(partial(self._choose_counterfactual_checkpoint, widget))
         if key in _SOURCE_FOLDER_KEYS and isinstance(widget, QLineEdit):
             _add_folder_browse_action(widget)
+        overview_requested = getattr(self, "_field_overview_requested", None)
+        if (key == "src" and self.app_key == "mask" and isinstance(widget, QLineEdit)
+                and callable(overview_requested)):
+            from PySide6.QtWidgets import QToolButton
+            from .. import iconset
+            from ..i18n import tr
+
+            action = widget.addAction(iconset.icon("import_images"), QLineEdit.TrailingPosition)
+            action.setObjectName("GenerateMasksFieldOverview")
+            action.setToolTip(tr("Field-of-view overview"))
+            action.triggered.connect(overview_requested)
+            for button in widget.findChildren(QToolButton):
+                if button.defaultAction() is action:
+                    button.setObjectName("GenerateMasksFieldOverview")
+                    button.setFocusPolicy(Qt.StrongFocus)
+                    button.setAccessibleName(action.toolTip())
         if (key == "src" and self.app_key in ("mask", "measure")
                 and isinstance(widget, QLineEdit)):
             _add_cloud_browse_action(widget, self)
