@@ -303,6 +303,7 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         "class_folder_names",
     },
     "classify_merged": {
+        "dataset",
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
         "class_metadata", "annotation_column",

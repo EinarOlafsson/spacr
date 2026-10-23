@@ -80,3 +80,5 @@ written and was overtaken by that removal, not violated by this item.
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_settings_categories.py).
 
 2026-10-23 — Maintainer now requires Classify to hide every opposite-family setting and category for classifier_family=cv/ml, replacing greying; shared controls remain available and hidden values survive switching. release_ci_takeover owns implementation, focused real-GUI acceptance, the changed English tooltip and nine reviewed locales, normal consumers/index and root-coordinated publication. Preserve classifier routing/scientific behavior, search/navigation/current selections and repeated switches; root owns final publication.
+
+2026-10-23 — Actual integrated UI review found the CV inference model_path still visible in ML mode and an obsolete dataset row exposed by merged Classify. Classify's two pipelines do not consume that activation-map-only dataset setting: hide its merged-panel row while preserving imported/default values and the separate Activation Maps control; classify model_path as CV-only and validate switching/value preservation before shared artifact freeze.

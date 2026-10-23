@@ -107,6 +107,8 @@ def test_family_hides_every_opposite_row_and_category(classify_screen, qtbot, fa
     assert not shown.intersection(FAMILY_SETTINGS[other])
     assert {"classifier_family", "learning_rate", "channel_of_interest", "tables", "src"} <= shown
     assert ("model_type" if family == "cv" else "model_type_ml") in shown
+    assert "dataset" not in shown
+    assert ("model_path" in shown) == (family == "cv")
     prefix = "Machine Learning" if family == "cv" else "Computer Vision"
     opposite = [section for section in screen.rendered_settings_sections()
                 if str(section.property("settingsCategorySource") or "").startswith(prefix)]
@@ -124,6 +126,8 @@ def test_switching_families_keeps_values_filters_and_navigation(classify_screen,
     selector = model._widgets["classifier_family"]
     assert model.set_value_for_key("epochs", 17)
     assert model.set_value_for_key("n_estimators", 37)
+    assert model.set_hidden_value("dataset", "/saved/crops.tar")
+    assert model.set_value_for_key("model_path", "/saved/model.pth")
     bar.set_level(ALL)
     screen.show()
     for family in ("ml", "cv", "ml", "cv"):
@@ -134,6 +138,8 @@ def test_switching_families_keeps_values_filters_and_navigation(classify_screen,
         assert model._widgets["classifier_family"] is selector
         assert model.collect()["epochs"] == 17
         assert model.collect()["n_estimators"] == 37
+        assert model.collect()["dataset"] == "/saved/crops.tar"
+        assert model.collect()["model_path"] == "/saved/model.pth"
         bar.set_query(inactive)
         assert inactive not in bar.visible_keys()
         assert not set(bar.visible_keys()).intersection(FAMILY_SETTINGS[other])

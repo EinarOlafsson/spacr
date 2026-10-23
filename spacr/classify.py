@@ -66,7 +66,7 @@ FAMILY_APP_KEY: Dict[str, str] = {"cv": "classify", "ml": "ml_analyze"}
 FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "cv": (
         "crop_shape", "extract_channels", "object_array", "coordinate_columns",
-        "model_type", "custom_model_path", "image_size",
+        "model_type", "custom_model_path", "image_size", "model_path",
         "train_channels", "epochs", "optimizer_type", "schedule", "loss_type",
         "dropout_rate", "init_weights", "amsgrad", "weight_decay",
         "gradient_accumulation_steps",
