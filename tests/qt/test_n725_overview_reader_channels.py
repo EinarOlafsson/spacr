@@ -172,3 +172,20 @@ def test_sixteen_bit_png_header_and_raw_samples_keep_the_actual_dtype(tmp_path):
     plane, = browser._overview_raw_planes(field, (0,))
     assert plane[2].dtype == np.uint16
     np.testing.assert_array_equal(plane[2], image)
+
+
+def test_expected_channel_validation_is_a_user_error_without_hiding_programming_faults(tmp_path):
+    import traceback
+    from spacr import crashreport
+    from spacr.errors import ConfigurationError
+    path = tmp_path / "plate1_A01_F1.tif"
+    tifffile.imwrite(path, np.zeros((3, 5, 3), np.uint8), photometric="rgb")
+    field, = browser._overview_index(tmp_path)
+    with pytest.raises(ValueError) as caught:
+        tuple(browser._overview_raw_planes(field, (3,)))
+    assert isinstance(caught.value, ConfigurationError)
+    assert crashreport.classify_failure(caught.value) == crashreport.KIND_USER_ERROR
+    formatted = "".join(traceback.format_exception(caught.type, caught.value, caught.tb))
+    assert crashreport.classify_failure(traceback_text=formatted) == crashreport.KIND_USER_ERROR
+    assert crashreport.classify_failure(IndexError("unexpected array indexing")) == crashreport.KIND_FAULT
+    assert crashreport.classify_failure(ValueError("unexpected implementation error")) == crashreport.KIND_FAULT

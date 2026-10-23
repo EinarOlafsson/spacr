@@ -38,6 +38,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ...errors import ConfigurationError as _ConfigurationError
 from ...qc_quarantine import (
     QUARANTINE_DIRNAME,
     quarantine_dir_for,
@@ -1486,6 +1487,10 @@ class QCFieldBrowser(QDialog):
         super().closeEvent(event)
 
 
+class _OverviewValidationError(_ConfigurationError, ValueError):
+    """An explicit overview input constraint the user can correct."""
+
+
 @dataclass(frozen=True)
 class _OverviewField:
     """One field address and its explicitly identified channel files."""
@@ -1530,10 +1535,13 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
 
     root = Path(source).resolve()
     if not root.is_dir():
-        raise ValueError(tr("Choose an existing image folder."))
+        raise _OverviewValidationError(tr("Choose an existing image folder."))
     if source_scope not in ("folder", "recursive"):
-        raise ValueError(tr("Choose this folder or an explicit recursive source scope."))
-    custom = re.compile(pattern, re.I) if pattern else None
+        raise _OverviewValidationError(tr("Choose this folder or an explicit recursive source scope."))
+    try:
+        custom = re.compile(pattern, re.I) if pattern else None
+    except re.error as exc:
+        raise _OverviewValidationError(str(exc)) from exc
     groups = {}
     for directory, folders, names in os.walk(root):
         folders[:] = (sorted(p for p in folders if not p.startswith("."))
@@ -1622,7 +1630,7 @@ def _overview_channel_info(field):
     separate = any(key for key, _ in field.files)
     if (not field.files or (not separate and len(field.files) != 1)
             or (separate and any(not key for key, _ in field.files))):
-        raise ValueError(tr("This field has ambiguous image files."))
+        raise _OverviewValidationError(tr("This field has ambiguous image files."))
     for key, path in field.files:
         suffix = Path(path).suffix.lower()
         if suffix == ".npy":
@@ -1644,7 +1652,7 @@ def _overview_channel_info(field):
         axes = str(axes).upper().replace("S", "C")
         if (len(axes) != len(shape) or len(set(axes)) != len(axes)
                 or set(axes) - set("TZCYX") or axes.replace("T", "").replace("Z", "").replace("C", "") != "YX"):
-            raise ValueError(tr("The image channel axis is unresolved."))
+            raise _OverviewValidationError(tr("The image channel axis is unresolved."))
         channel_axis = axes.find("C")
         records.append(dict(path=path, file_channel=key, shape=tuple(shape),
                             axes=axes, dtype=str(np.dtype(dtype)),
@@ -1674,11 +1682,11 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None):
         series = tif.series[0]
         page_axes = series.pages[0].axes.upper().replace("S", "C")
         if not axes.endswith(page_axes):
-            raise ValueError(tr("This TIFF layout cannot be read as bounded image planes."))
+            raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
         leading = axes[:-len(page_axes)]
         leading_shape = series.shape[:len(leading)]
         if any(axis not in "TCZ" for axis in leading):
-            raise ValueError(tr("This TIFF layout cannot be read as bounded image planes."))
+            raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
         z_values = (range(record["z_count"]) if "Z" in axes and z_mode != "plane"
                     else (selections.get("Z", 0),))
         result, count = None, 0
@@ -1691,7 +1699,7 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None):
                 try:
                     plane = tifffile.memmap(record["path"], page=page.index, mode="r")
                 except ValueError as exc:
-                    raise ValueError(tr("This image exceeds the 128 MiB preview decode limit.")) from exc
+                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.")) from exc
             else:
                 plane = page.asarray()
             selector = tuple(positions[axis] if axis in "TCZ" else slice(None)
@@ -1701,16 +1709,16 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None):
                 stride = max(1, math.ceil(max(plane.shape) / max(1, edge)))
                 plane = plane[::stride, ::stride]
             if plane.nbytes > 128 * 1024 ** 2:
-                raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+                raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
             if z_mode == "plane" or "Z" not in axes:
                 return plane
             if result is None:
                 result_dtype = np.dtype(np.float64 if z_mode == "mean" else plane.dtype)
                 if plane.size * result_dtype.itemsize > 128 * 1024 ** 2:
-                    raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
                 result = np.array(plane, dtype=result_dtype)
                 if result.nbytes > 128 * 1024 ** 2:
-                    raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
             elif z_mode == "max":
                 np.maximum(result, plane, out=result)
             else:
@@ -1729,16 +1737,16 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
     try:
         channels = tuple(operator.index(channel) for channel in channels)
     except TypeError as exc:
-        raise ValueError(tr("Choose one or more nonnegative channel indices.")) from exc
+        raise _OverviewValidationError(tr("Choose one or more nonnegative channel indices.")) from exc
     for channel in channels:
         if channel < 0:
-            raise ValueError(tr("Channel indices must be zero or greater."))
+            raise _OverviewValidationError(tr("Channel indices must be zero or greater."))
         if channel not in info["channels"]:
-            raise ValueError(tr(
+            raise _OverviewValidationError(tr(
                 "Channel {channel} is missing or ambiguous. Available channels: {available}.",
                 channel=channel, available=", ".join(map(str, info["channels"])) or "—"))
     if z_mode not in ("plane", "max", "mean"):
-        raise ValueError(tr("Choose an explicit Z plane or a maximum or mean projection."))
+        raise _OverviewValidationError(tr("Choose an explicit Z plane or a maximum or mean projection."))
     decoded_path, decoded_array = None, None
     for channel in channels:
         record = (next(record for record in info["files"]
@@ -1751,14 +1759,14 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
             if axis not in axes or (axis == "Z" and z_mode != "plane"):
                 continue
             if chosen is None:
-                raise ValueError(tr("Choose explicit time and Z positions before reading this image."))
+                raise _OverviewValidationError(tr("Choose explicit time and Z positions before reading this image."))
             count = record["shape"][axes.index(axis)]
             try:
                 chosen = operator.index(chosen)
             except TypeError as exc:
-                raise ValueError(tr("Choose explicit time and Z positions before reading this image.")) from exc
+                raise _OverviewValidationError(tr("Choose explicit time and Z positions before reading this image.")) from exc
             if not 0 <= chosen < count:
-                raise ValueError(tr("Axis {axis} index {index} is unavailable; valid indices are 0 to {maximum}.",
+                raise _OverviewValidationError(tr("Axis {axis} index {index} is unavailable; valid indices are 0 to {maximum}.",
                                     axis=axis, index=chosen, maximum=count - 1))
             selections[axis] = int(chosen)
         if path != decoded_path:
@@ -1773,7 +1781,7 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
             else:
                 with Image.open(path) as image:
                     if image.width * image.height > 32 * 1024 ** 2:
-                        raise ValueError(tr("This image exceeds the preview decode limit."))
+                        raise _OverviewValidationError(tr("This image exceeds the preview decode limit."))
                     array = np.asarray(image)
             decoded_path, decoded_array = path, array
         array = decoded_array
@@ -1788,13 +1796,13 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
                                 for axis in retained)]
         plane_size = math.prod(record["shape"][axes.index(axis)] for axis in "YX") * array.dtype.itemsize
         if edge is None and plane_size > 128 * 1024 ** 2:
-            raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+            raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
         remaining = "".join(axis for axis in axes if axis not in selections and axis != "C")
         if "Z" in remaining:
             axis = remaining.index("Z")
             array = np.max(array, axis=axis) if z_mode == "max" else np.mean(array, axis=axis)
         if array.nbytes > 128 * 1024 ** 2:
-            raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+            raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
         if edge is not None:
             stride = max(1, math.ceil(max(array.shape) / max(1, edge)))
             array = array[::stride, ::stride]
@@ -1814,7 +1822,7 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                                      z_mode=z_mode, z_index=z_index, edge=edge):
         total_bytes += item[2].nbytes
         if total_bytes > 128 * 1024 ** 2:
-            raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+            raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
         source_planes.append(item)
     if normalization is not None:
         source_planes = tuple(_overview_normalized_planes(source_planes, normalization, field))
@@ -1829,7 +1837,7 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         plane = np.array(array[::stride, ::stride], dtype=np.float32, copy=True)
         finite = np.isfinite(plane)
         if not finite.any():
-            raise ValueError(tr("This channel has no finite pixels."))
+            raise _OverviewValidationError(tr("This channel has no finite pixels."))
         if normalization is not None:
             low, high = 0., 1.
         elif percentiles is None:
@@ -1840,7 +1848,7 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                               nan=0., posinf=1., neginf=0.)
         planes.append(np.uint8(np.clip(plane, 0, 1) * 255))
     if not planes or any(plane.shape != planes[0].shape for plane in planes):
-        raise ValueError(tr("Selected channels must have matching image sizes."))
+        raise _OverviewValidationError(tr("Selected channels must have matching image sizes."))
     if len(planes) == 1:
         return np.repeat(planes[0][..., None], 3, axis=2)
     if len(planes) > 3:
