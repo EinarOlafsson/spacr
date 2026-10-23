@@ -106,6 +106,18 @@ separate N703 owner; installer PowerShell sources remain with the offline owner.
 CURRENT MAC SESSION: NATIVE UNINSTALL AND CLEANUP ACCEPTANCE
 --------------------------------------------------------------------------------
 
+Additional public Mac guard scope,2026-10-23: one owned pip-free venv with
+inert metadata must pass public find_old_installs discovery using its actual
+isolated interpreter prefix, in both physical/alias running-prefix directions.
+Require one deduplicated running record and ticked remove_install refusal with
+all owned files unchanged; confine discovery to owned home/system roots and
+reject every subprocess except the exact prefix probe. No host removal/admin.
+On0b400b2fa/macOS26.6.1 Intel this additional native public-route node passes
+in1.54s (sampled RSS0.142GiB), exit0 under the8GiB/300s polling wrapper:
+both real-prefix probes, running-record deduplication, ticked refusal and exact
+owned file/symlink preservation pass. Inert metadata is not installed-package
+removal or native uninstaller acceptance; prior native passes remain retained.
+
 Additional Mac guard scope,2026-10-23: exercise the new activated-venv
 prefix probe using one real disposable no-pip interpreter, inert spaCR
 metadata and a Unicode/spaces symlink alias. Verify the actual isolated
