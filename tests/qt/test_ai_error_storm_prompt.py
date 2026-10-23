@@ -1,12 +1,15 @@
 """Error-storm controls act only after an explicit GUI choice."""
 import weakref
+import os
 from types import SimpleNamespace
 
 import pytest
 
 pytest.importorskip("PySide6")
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMessageBox, QWidget, QVBoxLayout
+from PySide6.QtGui import QRegion, QTextDocument, QTextOption
+from PySide6.QtWidgets import (QLabel, QMainWindow, QMessageBox, QWidget, QVBoxLayout,
+                              QStyle, QStyleOptionButton)
 
 from spacr import crashreport as cr
 from spacr.qt.widgets import console_panel as console
@@ -39,6 +42,106 @@ def test_prompt_offers_one_explicit_action_with_cancel_default(panel, qtbot, mon
     button = next(button for button in box.buttons() if button.text() == choice)
     qtbot.mouseClick(button, Qt.LeftButton)
     assert selected == ([] if choice == "Cancel" else ["quit" if choice == "Force quit" else "restart"])
+
+
+@pytest.mark.parametrize("font_scale,expected_pixels", ((.9, 11), (2., 23)))
+def test_storm_prompt_initial_frame_and_text_fit(qtbot, qapp, monkeypatch, tmp_path,
+                                               record_property, font_scale, expected_pixels):
+    from shiboken6 import isValid
+    from spacr.qt import gui_scale, preferences
+
+    monkeypatch.setattr(cr, "_reports_dir", lambda: tmp_path)
+    monkeypatch.setattr(cr, "_ERROR_POLICY_CACHE", {})
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    old_live = gui_scale.current_scale()
+    old_gui, old_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    old_sheet, old_app_font = qapp.styleSheet(), qapp.font()
+    old_palette = qapp.palette()
+    box = None
+    try:
+        gui_scale.install_scaling_layer()
+        gui_scale.apply_saved_gui_scale()
+        preferences.apply_preferences_to_app()
+        gui_scale.change_scales(window, gui=.9, font=font_scale, ask=False)
+        assert gui_scale.current_scale() == .9
+        assert preferences.get_font_scale() == font_scale
+        widget = console.ConsolePanel(parent=window, follow_log=False, chat=False)
+        window.setCentralWidget(widget)
+        monkeypatch.setattr(widget, "_force_error_storm",
+                            lambda action: pytest.fail("Cancel invoked destructive action: " + action))
+        window.show()
+        widget._show_error_report_result(dict(storm=True))
+        box = widget._error_storm_box
+        qtbot.waitUntil(lambda: box.windowHandle() is not None
+                        and box.windowHandle().isExposed(), timeout=10000)
+        assert qapp.platformName() == os.environ.get("QT_QPA_PLATFORM", qapp.platformName())
+        handle = box.windowHandle()
+        frame = handle.frameGeometry()
+        work = handle.screen().availableGeometry()
+        record_property("native_prompt", dict(platform=qapp.platformName(),
+            frame=frame.getRect(), work=work.getRect(), dpr=handle.devicePixelRatio(),
+            font_scale=font_scale))
+        assert work.contains(frame)
+        message = box.findChild(QLabel, "qt_msgbox_label")
+        assert message is not None and message.font().pixelSize() == expected_pixels
+        for label in box.findChildren(QLabel):
+            if not label.text() or not label.isVisibleTo(box):
+                continue
+            assert QRegion(label.rect()).subtracted(label.visibleRegion()).isEmpty()
+            document = QTextDocument()
+            document.setDefaultFont(label.font())
+            document.setDocumentMargin(0)
+            option = document.defaultTextOption()
+            option.setWrapMode(QTextOption.WordWrap if label.wordWrap() else QTextOption.NoWrap)
+            document.setDefaultTextOption(option)
+            if label.textFormat() == Qt.RichText:
+                document.setHtml(label.text())
+            else:
+                document.setPlainText(label.text())
+            area = label.contentsRect().adjusted(label.margin(), label.margin(),
+                                                 -label.margin(), -label.margin())
+            document.setTextWidth(area.width() if label.wordWrap() else -1)
+            tolerance = 1 / handle.devicePixelRatio()
+            assert document.idealWidth() <= area.width() + tolerance
+            assert document.size().height() <= area.height() + tolerance
+        assert {button.text() for button in box.buttons()} == {"Cancel", "Force quit", "Force restart"}
+        for button in box.buttons():
+            assert QRegion(button.rect()).subtracted(button.visibleRegion()).isEmpty()
+            option = QStyleOptionButton()
+            option.initFrom(button)
+            option.rect = button.rect()
+            option.text = button.text()
+            option.icon = button.icon()
+            option.iconSize = button.iconSize()
+            if button.isDefault():
+                option.features |= QStyleOptionButton.DefaultButton
+            if button.autoDefault():
+                option.features |= QStyleOptionButton.AutoDefaultButton
+            if button.isFlat():
+                option.features |= QStyleOptionButton.Flat
+            contents = button.style().subElementRect(QStyle.SE_PushButtonContents, option, button)
+            text = button.style().itemTextRect(button.fontMetrics(), contents,
+                int(Qt.AlignCenter | Qt.TextSingleLine), button.isEnabled(), button.text())
+            assert contents.contains(text), (button.text(), contents, text)
+        assert box.defaultButton().text() == box.escapeButton().text() == "Cancel"
+        widget._show_error_report_result(dict(storm=True))
+        assert widget._error_storm_box is box
+        qtbot.mouseClick(box.defaultButton(), Qt.LeftButton)
+        qtbot.waitUntil(lambda: not isValid(box) or not box.isVisible(), timeout=10000)
+    finally:
+        try:
+            if box is not None and isValid(box) and box.isVisible():
+                box.reject()
+            gui_scale.change_scales(window, gui=old_gui, font=old_font, ask=False)
+        finally:
+            preferences.set_gui_scale(old_gui)
+            preferences.set_font_scale(old_font)
+            gui_scale.set_gui_scale_live(old_live)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_app_font)
+            qapp.setPalette(old_palette)
+            window.close()
 
 
 def test_hidden_console_receives_storm_prompt_on_visible_window(qtbot, monkeypatch):
