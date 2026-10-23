@@ -176,7 +176,9 @@ def test_response_speed_updates_the_headless_provider_arguments(configured, tmp_
 
 def test_real_background_failure_transports_one_identity_to_the_screen(configured, qtbot, tmp_path, monkeypatch):
     import logging
+    import sys
     import numpy as np
+    from PySide6.QtCore import Slot
     from spacr.qt import preferences, bridge
     from spacr.qt.ai import settings
     from spacr.qt.job_runner import JobRunner
@@ -184,6 +186,22 @@ def test_real_background_failure_transports_one_identity_to_the_screen(configure
     from spacr.qt.terms import record_agreement
     from spacr.logging_util import _AutomaticErrorHandler
 
+    original_run = bridge.PipelineWorker.run
+    class TracedWorker(bridge.PipelineWorker):
+        """Inherit the existing public trace hook on the actual native worker."""
+        @Slot()
+        def run(self):
+            """Delegate unchanged worker behavior and restore its prior hook."""
+            previous = sys.gettrace()
+            inherited = threading.gettrace() if previous is None else None
+            if inherited is not None:
+                sys.settrace(inherited)
+            try:
+                return original_run(self)
+            finally:
+                if inherited is not None:
+                    sys.settrace(previous)
+    monkeypatch.setattr(bridge, "PipelineWorker", TracedWorker)
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
     monkeypatch.setattr(preferences, "_settings", lambda: store)
     monkeypatch.setattr(settings, "_settings", lambda: store)
