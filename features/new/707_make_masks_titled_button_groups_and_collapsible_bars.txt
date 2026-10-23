@@ -39,6 +39,17 @@ nonoverlap, and exact unchanged648x504/overlay branches at GUI90/font90 and
 GUI90/font200. The unit's terms-label check was corrected to the same strict
 axis-specific scrolling oracle rather than forbidding intentional scrolling.
 Native Slides-only GUI10/font200 acceptance remains pending; grouped is retained.
+Native34237 on9b77f09bdb passes the affected Slides-only corner: untouched
+113x244 opening, actual3px body font, all five pages' intrinsic/reach/choice-slot
+checks and both bounded resize phases clear. Exec returns in6.053s; natural
+child exit0 in26.037s/RSS0.940GiB/zero missed/no aliases. Grouped's earlier
+GUI10/font200 pass is retained, as are default/font200/MAX scopes and failure
+history. No readability or physical-input acceptance is inferred.
+Next uncovered supported setup corner: GUI200%/font10%, from actual
+GUI_SCALE_MAX2.0/FONT_SCALE_MIN0.10. The body font is first floored to1px by
+theme scaling, then GUI scaling produces a2px witness. Prepare exact both-case
+normal-constructor checks with unchanged strict geometry/intrinsic/choice-slot/
+indicator/scroll/cleanup oracles and deadlines; no product fix is assumed.
 
 Affected setup follow-up after the new spaCR_AI row: inspect real SetupSlides
 and SetupDialog at normal owned Cocoa GUI/font90%/90%, actual1440x870 work
