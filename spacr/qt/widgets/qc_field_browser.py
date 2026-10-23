@@ -5470,6 +5470,15 @@ class _OverviewMetadataWizard(QWidget):
         shell.addWidget(self._action_bar)
         self._wizard_shell, self._wizard_body = shell, outer
         self._wizard_scroll = scroll
+        self._action_buttons = (cancel, self.next)
+        self._compact_scroll = QScrollArea(self)
+        self._compact_scroll.setWidgetResizable(True)
+        self._compact_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._compact_page = QWidget()
+        self._compact_layout = QVBoxLayout(self._compact_page)
+        self._compact_layout.setContentsMargins(0, 0, 0, 0)
+        self._compact_scroll.setWidget(self._compact_page)
+        self._compact_scroll.hide()
         self._sticky_margins = shell.contentsMargins()
         self._actions_scroll = False
         self._fitting_actions = False
@@ -5505,13 +5514,14 @@ class _OverviewMetadataWizard(QWidget):
         """Scroll the same actions in short allocations and restore sticky actions on growth.
 
         Fresh native footer hints reserve a full footer-height content viewport.
-        Only the compact mode drops redundant outer margins; text, fonts and
-        the existing content scroller remain unchanged.
+        Only compact mode drops redundant outer margins. Its vertical page
+        scroll keeps the footer separate from the form's horizontal scrollbar.
         """
         if self._finished or self._fitting_actions:
             return
         self._fitting_actions = True
         try:
+            self._fit_action_buttons()
             footer_height = max(self._action_bar.sizeHint().height(),
                                 self._action_bar.minimumSizeHint().height())
             margins = self._sticky_margins
@@ -5525,16 +5535,57 @@ class _OverviewMetadataWizard(QWidget):
                            or type(self._wizard_shell).setContentsMargins)
             if compact:
                 self._wizard_shell.removeWidget(self._action_bar)
-                self._wizard_body.addWidget(self._action_bar)
+                self._wizard_shell.removeWidget(self._wizard_scroll)
+                self._compact_layout.addWidget(self._wizard_scroll, 1)
+                self._compact_layout.addWidget(self._action_bar)
+                self._wizard_shell.addWidget(self._compact_scroll, 1)
+                self._compact_scroll.show()
                 set_margins(self._wizard_shell, 0, 0, 0, 0)
             else:
-                self._wizard_body.removeWidget(self._action_bar)
+                self._compact_layout.removeWidget(self._action_bar)
+                self._compact_layout.removeWidget(self._wizard_scroll)
+                self._wizard_shell.removeWidget(self._compact_scroll)
+                self._wizard_shell.addWidget(self._wizard_scroll, 1)
                 self._wizard_shell.addWidget(self._action_bar)
+                self._compact_scroll.hide()
                 set_margins(self._wizard_shell, margins)
             self._actions_scroll = compact
+            self._wizard_scroll.show()
             self._action_bar.show()
         finally:
             self._fitting_actions = False
+
+    def _fit_action_buttons(self):
+        """Reserve actual native text slots from fresh hints, permitting later shrink.
+
+        Only minimum dimensions change; current font, style, default-button
+        features and icon insets are measured without scaling them a second time.
+        """
+        from PySide6.QtCore import QRect
+        from PySide6.QtWidgets import QStyle, QStyleOptionButton
+        from ..gui_scale import _set_actual_dim
+
+        for button in self._action_buttons:
+            button.ensurePolished()
+            hint = button.sizeHint().expandedTo(button.minimumSizeHint())
+            option = QStyleOptionButton()
+            option.initFrom(button)
+            option.rect = QRect(0, 0, hint.width(), hint.height())
+            option.text, option.icon = button.text(), button.icon()
+            option.iconSize = button.iconSize()
+            if button.isDefault():
+                option.features |= QStyleOptionButton.DefaultButton
+            if button.autoDefault():
+                option.features |= QStyleOptionButton.AutoDefaultButton
+            if button.isFlat():
+                option.features |= QStyleOptionButton.Flat
+            field = button.style().subElementRect(QStyle.SE_PushButtonContents, option, button)
+            text = button.style().itemTextRect(button.fontMetrics(), field,
+                int(Qt.AlignCenter | Qt.TextSingleLine), button.isEnabled(), button.text())
+            width = max(hint.width(), hint.width() - field.width() + text.width())
+            height = max(hint.height(), hint.height() - field.height() + text.height())
+            _set_actual_dim(button, "minw", width)
+            _set_actual_dim(button, "minh", height)
 
     def _invalidate(self, *_):
         """Debounce filename previews and prevent acceptance of stale metadata."""

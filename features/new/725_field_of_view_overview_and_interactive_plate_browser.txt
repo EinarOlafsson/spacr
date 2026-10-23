@@ -220,6 +220,27 @@ affected checks in5.78s/RSS.334GiB: actual52px1356x102→760→102, full native
 Next text-slot visibility after scrolling, same button, Escape/close and queued
 scan cancellation. Faithful maximum-scale content/plate/Options remains pending;
 this is not acceptance of every smaller-than-text viewport or of the whole item.
+Strict full-app27973/Y4fa9t on dba35 still fails: the host1440x870 fits and
+Next is range reachable after scrolling, but its170x78 button exposes170x65;
+native content field120x44 cannot hold the full120x72 text line. Mask10.742s,
+wizard2.194s, embedding/two opacity surfaces pass; browser remains unreached.
+Natural child1/37.939s/RSS.991GiB/zero missed, unchanged input/normal close.
+Correct the unit's normal-startup font/style precondition first, then reserve
+actual native button text floors and enough compact scroll viewport independently
+of the form's horizontal scrollbar. No font reduction, fixed height or waived slot.
+Normal preference bootstrap alone60856 still passes the unit (5.98s/.324GiB),
+but normal bundled-font registration/application resolves the missing fixture
+precondition:45054 fails full Open Sans52px text120x71 with only170x26 visible
+(6.61s/.329GiB). The candidate reserves fresh native minimum text slots for
+Cancel/Next and places the unchanged form scroller plus same footer in a
+compact-only vertical outer page, preserving independent form horizontal scroll.
+This is an unaccepted integration checkpoint:23048 retains three cancellation
+passes but the corrected text-visibility node still fails (7.67s/.349GiB);
+53022's allocation diagnostic likewise fails (7.01s/.335GiB), despite outer
+viewport1334x100 and button170x105, with only170x78 visible. Stop old-layout
+work here: newly fetched module-panel changes materially replace its wizard
+shell. Integrate first and adapt the wrapper to the actual new split/content,
+then test that final path; neither checkpoint nor prior bare-font green certifies it.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 

@@ -39,21 +39,26 @@ def _browser(tmp_path, qtbot, fields=None, channels=(0,), options=None):
     return dialog
 
 
-def test_compressed_metadata_wizard_keeps_next_text_scrollable_and_restores_footer(tmp_path, qtbot):
+def test_compressed_metadata_wizard_keeps_next_text_scrollable_and_restores_footer(tmp_path, qtbot, qapp):
     from PySide6.QtCore import QSize, Qt
     from PySide6.QtGui import QRegion
     from PySide6.QtWidgets import QWidget, QScrollArea, QStyle, QStyleOptionButton
-    from spacr.qt import gui_scale, theme
+    from spacr.qt import app, gui_scale, preferences
 
     tifffile.imwrite(tmp_path / "plate1_A01_F1.tif", np.zeros((10, 12), np.uint16))
     old_gui = gui_scale.current_scale()
+    old_saved_gui, old_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    old_sheet, old_app_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
     host = wizard = None
     try:
         gui_scale.install_scaling_layer()
-        gui_scale.set_gui_scale_live(2.)
+        gui_scale.apply_saved_gui_scale()
+        app._load_bundled_fonts()
+        assert app._use_open_sans(qapp) == "Open Sans"
+        preferences.apply_preferences_to_app()
         host = QWidget()
         qtbot.addWidget(host)
-        host.setStyleSheet(theme.stylesheet('dark', font_scale=2.))
+        gui_scale.change_scales(host, gui=2., font=2., ask=False)
         wizard = browser._OverviewMetadataWizard(str(tmp_path), parent=host)
         wizard.setGeometry(0, 0, 1356, 102)
         gui_scale._resize_actual(host, QSize(1356, 102))
@@ -61,6 +66,8 @@ def test_compressed_metadata_wizard_keeps_next_text_scrollable_and_restores_foot
         wizard.show()
         qtbot.waitUntil(wizard.next.isEnabled, timeout=20000)
         assert wizard.next.font().pixelSize() == 52
+        from PySide6.QtGui import QFontInfo
+        assert QFontInfo(wizard.next.font()).family() == "Open Sans"
         next_button = wizard.next
         events = []
         wizard.rejected.connect(lambda: events.append("rejected"))
@@ -75,6 +82,9 @@ def test_compressed_metadata_wizard_keeps_next_text_scrollable_and_restores_foot
                 ancestor = ancestor.parentWidget()
             if height == 102:
                 assert ancestor is not None, (next_button.geometry(), next_button.visibleRegion().boundingRect())
+                assert ancestor is not wizard._wizard_scroll
+                assert ancestor.horizontalScrollBarPolicy() == Qt.ScrollBarAlwaysOff
+                assert wizard._wizard_scroll.horizontalScrollBar().maximum() > 0
                 ancestor.ensureWidgetVisible(next_button, 0, 0)
                 qtbot.wait(50)
             else:
@@ -98,8 +108,20 @@ def test_compressed_metadata_wizard_keeps_next_text_scrollable_and_restores_foot
                 next_button.isEnabled(), next_button.text())
             assert field.contains(text)
             assert QRegion(text).subtracted(next_button.visibleRegion()).isEmpty(), (
-                height, text, next_button.visibleRegion().boundingRect())
+                height, text, next_button.visibleRegion().boundingRect(),
+                next_button.geometry(), wizard._compact_scroll.geometry(),
+                wizard._compact_scroll.viewport().geometry(),
+                wizard._compact_page.geometry(), wizard._action_bar.geometry(),
+                wizard._wizard_shell.contentsMargins())
             assert wizard.next is next_button and wizard.next.isEnabled()
+        floor = next_button.property("minimumSize").height()
+        for font_scale, pixels in ((.1, 2), (2., 52)):
+            gui_scale.change_scales(host, gui=2., font=font_scale, ask=False)
+            qtbot.wait(50)
+            assert next_button.font().pixelSize() == pixels
+            current_floor = next_button.property("minimumSize").height()
+            assert current_floor < floor if font_scale == .1 else current_floor == floor
+            assert next_button.maximumHeight() == 16777215
         wizard.reject()
         assert events == ["rejected", browser.QDialog.Rejected]
         assert not wizard.isVisible() and wizard._cancelled.is_set()
@@ -113,7 +135,16 @@ def test_compressed_metadata_wizard_keeps_next_text_scrollable_and_restores_foot
                 if host is not None:
                     host.close()
             finally:
-                gui_scale.set_gui_scale_live(old_gui)
+                try:
+                    if host is not None:
+                        gui_scale.change_scales(host, gui=old_saved_gui, font=old_font, ask=False)
+                finally:
+                    preferences.set_gui_scale(old_saved_gui)
+                    preferences.set_font_scale(old_font)
+                    gui_scale.set_gui_scale_live(old_gui)
+                    qapp.setStyleSheet(old_sheet)
+                    qapp.setFont(old_app_font)
+                    qapp.setPalette(old_palette)
 
 
 def test_well_only_regex_groups_channels_and_live_preview_requires_valid_wells(tmp_path, qtbot):
