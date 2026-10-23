@@ -599,3 +599,77 @@ def test_large_z_mean_refuses_full_float_allocation_but_keeps_raw_stride_preview
     actual = tifffile.memmap(path, mode="r")
     assert actual[0, 0, 0] == 2 and actual[1, 0, 0] == 4
     del actual
+
+
+def test_raw_npy_memory_budget_cannot_be_bypassed_by_an_oversized_preview(tmp_path):
+    path = tmp_path / "p1_A01_F1.npy"
+    image = np.lib.format.open_memmap(path, mode="w+", dtype=np.uint16, shape=(8193, 8193))
+    image[0, 0], image[-1, -1] = 1234, 4321
+    image.flush()
+    del image
+    before = path.stat()
+    field, = browser._overview_index(tmp_path)
+    for edge in (None, 16384):
+        with pytest.raises(browser._OverviewValidationError, match="128 MiB preview decode limit"):
+            tuple(browser._overview_raw_planes(field, (0,), edge=edge))
+    _, actual_path, preview = next(browser._overview_raw_planes(field, (0,), edge=32))
+    assert actual_path == str(path) and preview.shape == (32, 32)
+    assert isinstance(preview, np.memmap) and preview[0, 0] == 1234
+    record = browser._overview_measurement(field, (0,))
+    assert record["status"] == "error" and "128 MiB preview decode limit" in record["error"]
+    assert record["source_files"] == json.dumps(field.files)
+    assert "height_px" not in record and "channel_0_intensity_mean" not in record
+    assert (path.stat().st_size, path.stat().st_mtime_ns) == (before.st_size, before.st_mtime_ns)
+    actual = np.load(path, mmap_mode="r", allow_pickle=False)
+    assert actual[0, 0] == 1234 and actual[-1, -1] == 4321
+    del actual
+
+
+def test_empty_measurement_selection_reports_provenance_without_inventing_a_region(tmp_path):
+    path = tmp_path / "p1_A01_F1_C1.tif"
+    tifffile.imwrite(path, np.arange(12, dtype=np.uint16).reshape(3, 4))
+    original = path.read_bytes()
+    field, = browser._overview_index(tmp_path)
+    record = browser._overview_measurement(field, (), conditions={("p1", "A01"): "control"})
+    assert record["status"] == "error"
+    assert record["error"] == browser.tr("Choose one or more nonnegative channel indices.")
+    assert record["channels"] == "[]" and record["source_files"] == json.dumps(field.files)
+    assert (record["plate"], record["well"], record["field_id"], record["condition"]) == (
+        "p1", "A01", "1", "control")
+    assert "height_px" not in record and "roi_area" not in record
+    assert not any(key.startswith("channel_") for key in record)
+    assert path.read_bytes() == original
+
+
+def test_cancellation_after_actual_raw_measurement_read_does_not_publish_results(tmp_path, monkeypatch):
+    import threading
+
+    path = tmp_path / "p1_A01_F1_C1.tif"
+    tifffile.imwrite(path, np.arange(12, dtype=np.uint16).reshape(3, 4))
+    original_bytes = path.read_bytes()
+    field, = browser._overview_index(tmp_path)
+    cancelled = threading.Event()
+    original_read = browser._overview_raw_planes
+    actual_reads = []
+
+    def read_then_cancel(actual_field, channels, **options):
+        planes = tuple(original_read(actual_field, channels, **options))
+        actual_reads.extend((channel, source, plane.copy()) for channel, source, plane in planes)
+        cancelled.set()
+        yield from planes
+
+    monkeypatch.setattr(browser, "_overview_raw_planes", read_then_cancel)
+    output = tmp_path / "export"
+    written, errors = browser._overview_export((field,), output, (1,), (0, 100),
+        cancelled=cancelled, measurements=True, quality_edge=None)
+    assert len(actual_reads) == 1 and actual_reads[0][:2] == (1, str(path))
+    np.testing.assert_array_equal(actual_reads[0][2], np.arange(12).reshape(3, 4))
+    assert cancelled.is_set() and written == errors == ()
+    assert not list(output.glob("*.pdf")) and not (output / "overview_measurements.csv").exists()
+    assert not list(output.glob(".*pending*"))
+    metadata = json.loads((output / "overview_selection.json").read_text())
+    assert metadata["cancelled"] is True and metadata["fields"] == []
+    assert metadata["written_field_count"] == 0 and metadata["requested_field_count"] == 1
+    assert metadata["measurements"]["path"] is None
+    assert metadata["measurements"]["written_field_count"] == 0
+    assert path.read_bytes() == original_bytes
