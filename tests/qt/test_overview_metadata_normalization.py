@@ -160,3 +160,83 @@ def test_metadata_preview_matches_reader_case_insensitive_filename_policy():
     rows, missed = browser._overview_metadata_preview(("p_a01_f2_c4.TIF",), BUILTIN_REGEXES["canonical"])
     assert not missed
     assert rows[0][1] == {"plateID": "p", "wellID": "a01", "fieldID": "2", "chanID": "4"}
+
+
+def test_metadata_wizard_reads_real_preset_channels_and_explicit_scope(qtbot, tmp_path):
+    import tifffile
+    from PIL import Image
+
+    for channel in (1, 2, 3, 4):
+        tifffile.imwrite(tmp_path / f"plate1_E01_T0001F001L01A01Z01C{channel:02}.tif",
+                         np.full((12, 16), channel, dtype=np.uint16))
+    derived = tmp_path / "data" / "cell_png"
+    derived.mkdir(parents=True)
+    Image.fromarray(np.zeros((8, 8, 3), dtype=np.uint8)).save(derived / "derived.png")
+    wizard = browser._OverviewMetadataWizard(str(tmp_path), {"channels": [0, 1, 2, 3, 4, 7]})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    config = wizard.configuration()
+    assert wizard.preset.currentData() == "cellvoyager"
+    assert config["source_scope"] == "folder"
+    assert config["channels"] == (1, 2, 3, 4)
+    assert config["geometry"] == (8, 12)
+    assert config["time_index"] == config["z_index"] == 0
+    assert wizard._info["channels"] == (1, 2, 3, 4)
+    assert {entry["axes"] for entry in wizard._info["files"]} == {"YX"}
+    assert {entry["dtype"] for entry in wizard._info["files"]} == {"uint16"}
+    assert wizard.preview.rowCount() == 4
+    from PySide6.QtWidgets import QLabel
+    from spacr.qt.widgets.sortable_table import SortableTableItem
+    assert not wizard.channels.toolTip()
+    assert any(label.toolTip() for label in wizard.findChildren(QLabel))
+    assert all(isinstance(wizard.preview.item(row, column), SortableTableItem)
+               for row in range(wizard.preview.rowCount()) for column in range(7))
+    assert all(isinstance(wizard.conditions.item(row, column), SortableTableItem)
+               for row in range(wizard.conditions.rowCount()) for column in range(3))
+    assert len(wizard._fields) == 1
+    assert {field.time_id for field in wizard._fields} == {"0001"}
+    assert {field.z_id for field in wizard._fields} == {"01"}
+    assert "derived.png" not in {wizard.preview.item(row, 0).text()
+                                  for row in range(wizard.preview.rowCount())}
+    wizard.channels.setText("7")
+    with pytest.raises(ValueError, match="channel IDs"):
+        wizard.configuration()
+    wizard.channels.setText("1, 4")
+    wizard.geometry.setCurrentIndex(0)
+    wizard.representatives.setValue(2)
+    config = wizard.configuration()
+    assert config["channels"] == (1, 4)
+    assert config["geometry"] == (1, 1)
+    assert config["representatives"] == 2
+    wizard.reject()
+    assert all(np.all(tifffile.imread(path) == int(path.stem[-2:]))
+               for path in tmp_path.glob("*.tif"))
+
+
+def test_metadata_wizard_custom_edit_invalidates_preview_until_rescanned(qtbot, tmp_path):
+    import tifffile
+    from PySide6.QtCore import Qt
+
+    name = "P7-B03-s2-c9.tif"
+    tifffile.imwrite(tmp_path / name, np.arange(48, dtype=np.uint16).reshape(6, 8))
+    wizard = browser._OverviewMetadataWizard(str(tmp_path))
+    qtbot.addWidget(wizard)
+    wizard.show()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    pattern = r"(?P<plateID>P\d+)-(?P<wellID>[A-Z]\d+)-s(?P<fieldID>\d+)-c(?P<chanID>\d+)\.tif$"
+    wizard.regex.setFocus()
+    qtbot.keyClick(wizard.regex, Qt.Key_A, Qt.ControlModifier)
+    qtbot.keyClicks(wizard.regex, pattern)
+    assert wizard.preset.currentData() == "custom"
+    assert not wizard.next.isEnabled()
+    with pytest.raises(ValueError, match="Preview"):
+        wizard.configuration()
+    wizard._scan()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    assert wizard.configuration()["channels"] == (9,)
+    assert wizard.configuration()["custom_regex"] == pattern
+    assert wizard.preview.item(0, 2).text() == "B03"
+    assert wizard.preview.item(0, 3).text() == "2"
+    assert wizard.preview.item(0, 6).text() == "9"
+    wizard.reject()
