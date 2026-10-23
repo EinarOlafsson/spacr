@@ -997,9 +997,9 @@ class TestTheAgreementSaysSo:
     def test_a_profile_that_accepted_the_old_terms_is_asked_again(self):
         from spacr.qt import terms
 
-        terms.record_agreement("4.2")
+        terms.record_agreement("4.3")
 
-        assert terms.TERMS_VERSION == "4.3"
+        assert terms.TERMS_VERSION == "4.4"
         assert terms.needs_agreement() is True
 
 

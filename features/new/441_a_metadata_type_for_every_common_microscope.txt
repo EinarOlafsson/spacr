@@ -353,10 +353,26 @@ WHAT IS LEFT
     (CellProfiler issue 3725). One literal example only; not shipped.
   * LAS X NAVIGATOR AUTO-SAVE, `Position 1--t00--Z00--C00.tif` (ZMB UZH
     guide, forum.image.sc 97695). One literal example; also has no well.
-  * ETALUMA LUMASCOPE: LumaViewPro is open source and
-    modules/common_utils.py::generate_default_step_name builds the name, but
-    its optional parts mean the two derivable examples have different shapes.
-    Not shipped rather than invent a second of the same shape.
+  * ETALUMA LUMAVIEWPRO MANUAL/LIVE SNAPSHOTS: two literal TIFF pairs are
+    now sourced from vendor-owner attachments, not inferred AVI extensions:
+    live_A1_BF_000002.tiff and live_A1_BF_000003.tiff (official issue 840),
+    live_D8_Blue_000001.ome.tiff and live_D8_Blue_000002.ome.tiff (issue 746).
+    https://github.com/EtalumaSupport/LumaViewPro/issues/840
+    https://github.com/EtalumaSupport/LumaViewPro/issues/746
+    At upstream ffe0e48a49f0fa70422482775a3095196b363b37,
+    CompositeCapture.live_capture supplies well/layer to save_live_image;
+    lumascope_api.generate_image_save_path increments the suffix only while
+    that basename already exists. It is a per-basename collision ordinal,
+    NOT an acquisition field/time ID; different channels must not be paired
+    by this number. Only well/channel are established by these names.
+    Still NOT SHIPPED: Mask's _extract_filename_metadata requires fieldID.
+    Import Images canonical_name defaults absent field/time to 1 and
+    apply_import refuses repeated destinations; it does not supply stable
+    independent-file identities while preserving only well/channel. Safe
+    support requires explicit Import handling of missing acquisition axes,
+    preserving each snapshot independently without implying channel pairing.
+    Protocol tiled/time-lapse filenames have a different generator and are
+    outside this manual-snapshot evidence; no all-Etaluma support is claimed.
   * NANOLIVE: NOT FOUND. Closed-source STEVE/EVE, no manual, no dataset with
     a visible listing, no forum post with a real name in it.
   * EVOS M5000 is untested -- only FL Auto 2 and M7000 manuals were readable.
@@ -364,9 +380,15 @@ WHAT IS LEFT
     NIS-Elements writes the dimensions the user ticked, in the order they
     chose, with NO SEPARATOR to tell a prefix from an index. Recorded in the
     record's own source note.
-  * `imagexpress` takes ONE digit for the wavelength, because MetaXpress
-    appends a GUID with no separator and `\d+` reads `w1836B56...` as
-    wavelength 1836. A plate with ten or more wavelengths would not parse.
+  * ImageXpress multi-digit wavelength repair (priority: current bounded
+    follow-up; owner: G3). The acquisition owner explicitly identifies UUIDs
+    and lists five source files plus their thumbnail counterparts at
+    https://github.com/pharmbio/omero/pull/2#issuecomment-474780102.
+    Accept arbitrary-length numeric wavelengths only with either no suffix
+    (Bio-Formats' documented construction) or the exact 8-4-4-4-12 hex UUID
+    suffix. Preserve all known examples and original four patterns; reject
+    malformed suffixes, thumbnails and cross-convention matches. Constructed
+    wavelength-above-9 controls prove the boundary, not acquired-file origin.
   * The `.*` in the four pinned arms is still greedy and still wrong for a
     plate name with more underscores than expected. Changing it is a separate
     decision from adding microscopes and was not taken here.
@@ -468,3 +490,12 @@ data/441_combined_evos_scanr_acceptance_2026-10-15/.
 The real folder-preview/import collision for plate1/A01/field01/{ch1.tif,ch2.tif} is repaired using existing recognizers and filename-channel priority; original microscope regexes and have_channel prose are unchanged.
 All 15 focused checks pass (3.47 s), including scan→preview→CSV identity, distinct canonical names, reversed input and missing-axis behavior; independent source/test peers accepted.
 Prior vendor-corpus and translation obligations remain open; this bounded regression repair does not complete the item.
+
+2026-10-23 — G3 bounded Etaluma follow-up: vendor-owner TIFF attachments replace the missing-literal blocker; acquisition identity remains unresolved, so no new metadata_type is enabled.
+The live writer's six-digit suffix is only a per-basename collision ordinal; neither Mask nor Import currently supplies the required independent-file fallback without invented field/time or cross-channel pairing.
+IN Cell 7.2 issue3725 and its sole comment still provide only one literal modern filename; no second example was fabricated. Existing conventions, code, catalogs and prior passing controls remain unchanged.
+
+2026-10-23 — G3 repaired ImageXpress numeric wavelength boundaries using the acquisition owner's exact UUID structure; no new vendor convention or acquired-above-nine claim.
+Known UUID and bare names retain their groups; constructed channels10/12/123 remain separate from complete UUIDs, while malformed suffixes/thumbnails are refused. Original four patterns and cross-convention pins remain unchanged.
+Focused23 controls pass (16 retained +7 affected rerun4.55s); public signatures/docs unchanged. Etaluma and IN Cell evidence limits above remain open; whole-item completion is not claimed.
+Normal old/new canonical runtime collection has zero changes across all six tables; 15 owning AutoAPI entries and all other module AST remain exact, with zero consumer-map references requiring offsets. No catalog generation or locale targets are applicable.

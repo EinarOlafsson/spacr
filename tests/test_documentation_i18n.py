@@ -2007,15 +2007,31 @@ def test_github_summary_has_reviewed_domain_translations():
         REVIEWED_README_BLOCKS,
         REVIEWED_README_EVIDENCE_BLOCKS,
         REVIEWED_README_HEADINGS,
+        RETIRED_README_EVIDENCE_BLOCKS,
         translatable_blocks,
     )
 
     reviewed_sources = json.loads((ROOT / "tests/data/release_contracts"
         / "readme_domain_review_sources_2026_10_09.json").read_text(encoding="utf-8"))
-    assert set(REVIEWED_README_BLOCKS) == set(reviewed_sources)
     all_languages = {
         "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
     }
+    historical_license = (
+        "spaCR is released under the `BSD 3-Clause License "
+        "<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.")
+    current_license = (
+        "New original spaCR material is licensed under the `spaCR Noncommercial License 1.0 "
+        "<https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>`_. "
+        "Commercial use requires separate written permission; contact "
+        "`olafsson@med.umich.com <mailto:olafsson@med.umich.com>`_. "
+        "Earlier BSD grants and third-party licenses remain in effect; "
+        "see LICENSE for scope and notices.")
+    assert historical_license in reviewed_sources
+    assert set(RETIRED_README_EVIDENCE_BLOCKS[historical_license]) == all_languages
+    assert historical_license not in REVIEWED_README_BLOCKS
+    assert current_license in REVIEWED_README_BLOCKS
+    assert set(REVIEWED_README_BLOCKS) == (
+        set(reviewed_sources) - {historical_license}) | {current_license}
     canonical = readme_words()
     canonical_blocks, _layout = translatable_blocks(canonical)
     canonical_normalized = re.sub(r"\s+", " ", canonical)
