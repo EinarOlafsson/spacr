@@ -2412,8 +2412,13 @@ class _FieldOverview(QDialog):
         scan.clicked.connect(self._scan)
         metadata = QPushButton(tr("Filename metadata…"))
         metadata.clicked.connect(self._metadata)
-        controls.addWidget(QLabel(tr("Channels")))
-        for widget in (self.channels, self.normalise, self.low, self.high, scan, metadata):
+        channel_pair = QWidget(self)
+        channel_layout = QHBoxLayout(channel_pair)
+        channel_layout.setContentsMargins(0, 0, 0, 0)
+        channel_layout.addWidget(QLabel(tr("Channels")))
+        channel_layout.addWidget(self.channels)
+        controls.addWidget(channel_pair)
+        for widget in (self.normalise, self.low, self.high, scan, metadata):
             controls.addWidget(widget)
         column.addLayout(controls)
         self.plates, self.rows, self.columns = QComboBox(), QComboBox(), QComboBox()
@@ -3455,6 +3460,14 @@ class _FieldOverview(QDialog):
     def showEvent(self, event):
         """Resume bounded image requests when the retained dialog is shown."""
         super().showEvent(event)
+        if self._cancelled.is_set():
+            import threading
+            self._cancelled = threading.Event()
+            self._image_pending = False
+            self._display_pending = False
+            if self._fields and (not self._normalization_ready
+                                 or self._normalization_context is not None):
+                self._prepare_display()
         self._request_visuals()
 
     def _request_visuals(self, *_):
