@@ -2437,6 +2437,8 @@ class _FieldOverview(QDialog):
         from PySide6.QtCore import QSize
         self.wells, self.fields = QTableWidget(), QListWidget()
         self.wells.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.wells.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.wells.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.wells.horizontalHeader().setMinimumSectionSize(1)
         self.wells.verticalHeader().setMinimumSectionSize(1)
         self.wells.setItemDelegate(_OverviewPlateDelegate(self.wells))
@@ -3443,6 +3445,7 @@ class _FieldOverview(QDialog):
             column = (self.wells.horizontalScrollBar().value() + position.x()) / old_width
             row = (self.wells.verticalScrollBar().value() + position.y()) / old_height
             self._zoom_plate(1 if event.angleDelta().y() > 0 else -1)
+            self.wells.doItemsLayout()
             width, height = self._plate_cell_extent
             self.wells.horizontalScrollBar().setValue(round(column * width - position.x()))
             self.wells.verticalScrollBar().setValue(round(row * height - position.y()))
