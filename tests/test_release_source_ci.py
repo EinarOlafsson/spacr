@@ -587,3 +587,77 @@ def test_unsupported_compatibility_policy_cannot_silently_omit_cells(
         "strategy": {"matrix": matrix}}}}), encoding="utf-8")
     with pytest.raises(ValueError, match=error):
         CI.compatibility_jobs(source)
+
+
+def test_green_runs_for_a_superseded_head_cannot_qualify(github):
+    github.head = "b" * 40
+    with pytest.raises(RuntimeError, match="branch moved"):
+        require(github)
+    assert github.dispatches == []
+
+
+def test_main_advancing_during_ci_wait_stops_acceptance(github):
+    run = github.records["tests.yml"][0]
+    run.update(status="in_progress", conclusion=None)
+    clock = Clock()
+
+    def advance():
+        github.head = "b" * 40
+        run.update(status="completed", conclusion="success")
+
+    clock.after_sleep = advance
+    with pytest.raises(RuntimeError, match="branch moved"):
+        require(github, clock)
+    assert clock.now == 60 and github.dispatches == []
+
+
+def test_main_advancing_while_last_green_run_is_read_cannot_qualify(github):
+    original = github.jobs
+
+    def jobs(run):
+        result = original(run)
+        if run is github.records["compat-matrix.yml"][0]:
+            github.head = "b" * 40
+        return result
+
+    github.jobs = jobs
+    with pytest.raises(RuntimeError, match="branch moved"):
+        require(github)
+    assert github.dispatches == []
+
+
+def test_publication_head_recheck_refuses_advance_after_green_ci(github, monkeypatch):
+    require(github)
+    monkeypatch.setenv("GITHUB_REPOSITORY", "owner/repository")
+    monkeypatch.setattr(CI, "GitHub", lambda repository: github)
+    monkeypatch.setattr(sys, "argv", ["source-ci", "--sha", SHA,
+                                      "--branch", "main", "--head-only"])
+    CI.main()
+    github.head = "b" * 40
+    with pytest.raises(RuntimeError, match="branch moved"):
+        CI.main()
+    assert github.dispatches == []
+
+
+def test_pypi_and_tagged_installer_publication_recheck_the_exact_main_head():
+    jobs = yaml.safe_load((ROOT / ".github/workflows/release.yml").read_text())["jobs"]
+    boundaries = {
+        "publish-pypi": ["pypa/gh-action-pypi-publish@release/v1"],
+        "github-release": ["Tag exact release commit",
+                           "Publish release notes and downloadable installers"],
+    }
+    for job, names in boundaries.items():
+        steps = jobs[job]["steps"]
+        for name in names:
+            index, = [i for i, step in enumerate(steps)
+                       if step.get("uses", step.get("name")) == name]
+            guard = steps[index - 1]
+            assert guard["run"] == ('python tools/require_release_source_ci.py '
+                                     '--sha "$RELEASE_SHA" --branch "$RELEASE_BRANCH" --head-only')
+            assert guard["env"] == {
+                "GH_TOKEN": "${{ github.token }}",
+                "RELEASE_SHA": "${{ needs.bump.outputs.commit_sha }}",
+                "RELEASE_BRANCH": "${{ needs.bump.outputs.branch }}",
+            }
+        assert jobs[job]["permissions"]["contents"] in ("read", "write")
+        assert steps[0]["with"]["ref"] == "${{ needs.bump.outputs.commit_sha }}"

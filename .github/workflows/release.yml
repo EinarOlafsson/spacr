@@ -259,11 +259,21 @@ jobs:
       url: https://pypi.org/project/spacr/
     permissions:
       id-token: write
+      contents: read
     steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.bump.outputs.commit_sha }}
       - uses: actions/download-artifact@v8
         with:
           name: pypi-distributions
           path: dist
+      - name: Refuse a superseded release source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
+          RELEASE_BRANCH: ${{ needs.bump.outputs.branch }}
+        run: python tools/require_release_source_ci.py --sha "$RELEASE_SHA" --branch "$RELEASE_BRANCH" --head-only
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   verify-pypi:
@@ -463,6 +473,12 @@ jobs:
         run: |
           cd release-assets
           sha256sum * > SHA256SUMS.txt
+      - name: Refuse a superseded release source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
+          RELEASE_BRANCH: ${{ needs.bump.outputs.branch }}
+        run: python tools/require_release_source_ci.py --sha "$RELEASE_SHA" --branch "$RELEASE_BRANCH" --head-only
       - name: Tag exact release commit
         env:
           RELEASE_TAG: ${{ needs.bump.outputs.tag }}
@@ -481,6 +497,12 @@ jobs:
               -m "spaCR ${RELEASE_TAG#v}"
             git push origin "$RELEASE_TAG"
           fi
+      - name: Recheck release source before uploading installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
+          RELEASE_BRANCH: ${{ needs.bump.outputs.branch }}
+        run: python tools/require_release_source_ci.py --sha "$RELEASE_SHA" --branch "$RELEASE_BRANCH" --head-only
       - name: Publish release notes and downloadable installers
         env:
           GH_TOKEN: ${{ github.token }}
