@@ -275,6 +275,65 @@ def test_saved_mask_and_object_table_show_the_new_objects(screen):
     assert len(table) == 3
 
 
+def test_brush_label_256_and_shift_identity_survive_unicode_save_reopen(
+        qtbot, qt_theme_applied, tmp_path):
+    import unicodedata
+
+    folder = tmp_path / unicodedata.normalize("NFD", "Ólafur's μασκ 测试")
+    (folder / "masks").mkdir(parents=True)
+    filename = unicodedata.normalize("NFD", "région_🧫.tif")
+    image = np.arange(IMG_N * IMG_N, dtype=np.uint16).reshape(IMG_N, IMG_N)
+    initial = np.zeros(image.shape, np.uint8)
+    initial[4:9, 4:9] = 254
+    initial[4:9, 50:55] = 255
+    imageio.imwrite(folder / filename, image)
+    imageio.imwrite(folder / "masks" / filename, initial)
+    widget = MakeMasksScreen()
+    qtbot.addWidget(widget)
+    assert widget._open_folder(str(folder))
+    canvas = widget._canvas
+    canvas.resize(CANVAS_W, CANVAS_H)
+    canvas.show()
+    canvas.refresh()
+    widget._set_mode(MODE_BRUSH)
+    widget._brush_slider.setValue(1)
+    assert _state(canvas.mask) == _state(initial)
+    states = [_state(canvas.mask)]
+    stroke(canvas, [(5, 28), (20, 28)], Qt.NoModifier, _on_screen(widget))
+    assert canvas.mask.dtype == np.uint16
+    assert ids(canvas.mask) == {254, 255, 256}
+    assert int(canvas.mask[28, 12]) == 256
+    states.append(_state(canvas.mask))
+    stroke(canvas, [(40, 50), (55, 50)], Qt.ShiftModifier, _on_screen(widget))
+    assert ids(canvas.mask) == {254, 255, 256}
+    assert int(canvas.mask[50, 45]) == 256 and canvas.manual_ids
+    np.testing.assert_array_equal(canvas.mask[initial > 0], initial[initial > 0])
+    states.append(_state(canvas.mask))
+    for expected in reversed(states[:-1]):
+        widget._on_undo()
+        assert _state(canvas.mask) == expected
+    for expected in states[1:]:
+        widget._on_redo()
+        assert _state(canvas.mask) == expected
+    assert canvas.manual_ids
+    expected = canvas.mask.copy()
+    widget._btn_save.click()
+    saved_path = engine.mask_save_path(str(folder), filename)
+    assert mm._wait_for_mask_writes(saved_path, timeout=10)
+    saved = imageio.imread(saved_path)
+    assert _state(saved) == _state(expected)
+    assert sorted(engine._vvvv_object_table(saved)["label"]) == [254, 255, 256]
+    widget.close()
+    reopened = MakeMasksScreen()
+    qtbot.addWidget(reopened)
+    assert reopened._open_folder(str(folder))
+    assert _state(reopened._canvas.mask) == _state(expected)
+    assert reopened._canvas.manual_ids
+    assert sorted(engine._vvvv_object_table(reopened._canvas.mask)["label"]) == [254, 255, 256]
+    np.testing.assert_array_equal(imageio.imread(folder / filename), image)
+    reopened.close()
+
+
 # ---------------------------------------------------------------------------
 # 3-D: per stroke in the shown section, 26-connected through its neighbours
 # ---------------------------------------------------------------------------

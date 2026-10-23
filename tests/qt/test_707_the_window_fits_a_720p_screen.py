@@ -119,6 +119,86 @@ def test_make_masks_fits_with_every_group_and_the_image_whole(
     _close(screen)
 
 
+@pytest.mark.parametrize("language,size,font_scale", [
+    pytest.param("en", WORK_AREAS[0], .9, id="en-small-font90"),
+    pytest.param("en", WORK_AREAS[1], .9, id="en-medium-font90"),
+    pytest.param("de", WORK_AREAS[0], .9, id="de-small-font90"),
+    pytest.param("de", WORK_AREAS[1], .9, id="de-medium-font90"),
+    pytest.param("de", WORK_AREAS[0], 2., id="de-small-font200"),
+])
+def test_overview_reset_ruler_and_active_tab_fit_at_ninety_percent(
+        qtbot, qt_theme_applied, folder, monkeypatch, size, language, font_scale):
+    from PySide6.QtWidgets import QToolButton
+    from PySide6.QtGui import QTextDocument
+    from spacr.qt import gui_scale, preferences, theme
+    from spacr.qt.i18n import retranslate_widget_tree, tr
+
+    previous = gui_scale.current_scale()
+    previous_saved_gui = preferences.get_gui_scale()
+    previous_font = preferences.get_font_scale()
+    monkeypatch.setenv("SPACR_LANGUAGE", language)
+    preferences.set_gui_scale(.9)
+    preferences.set_font_scale(font_scale)
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(.9)
+    assert gui_scale.current_scale() == pytest.approx(.9)
+    screen = None
+    try:
+        window, screen = _open_make_masks(qtbot, folder, size)
+        preferences.apply_preferences_to_app(QApplication.instance())
+        retranslate_widget_tree(window, language)
+        QApplication.processEvents()
+        assert (window.width(), window.height()) == size
+        overview = screen.findChild(QToolButton, "MakeMasksFieldOverview")
+        assert overview is not None
+        caption = tr("Field-of-view overview")
+        assert overview.accessibleName() == caption
+        tooltip = QTextDocument()
+        tooltip.setHtml(overview.toolTip())
+        assert tooltip.toPlainText().splitlines()[-2:] == [caption, "API"]
+        assert overview.toolButtonStyle() == Qt.ToolButtonIconOnly
+        assert not overview.icon().isNull()
+        assert screen._io_group.isAncestorOf(overview)
+        assert _rect_in(window, screen._io_group).contains(_rect_in(window, overview))
+        assert overview.font().pixelSize() == gui_scale.scale_int(theme.font_px("body", font_scale), .9)
+        tabs = screen._view_tabs
+        bar = tabs.tabBar()
+        for index, caption in enumerate(("Mask", "Cell probability", "Flows")):
+            assert tabs.tabText(index) == tr(caption, language=language)
+        display = window.screen()
+        print("707 geometry", QApplication.platformName(), language, size,
+              "client", (window.width(), window.height()),
+              "display", display.geometry().getRect(), "work", display.availableGeometry().getRect(),
+              "DPR", display.devicePixelRatio(), "font_px", overview.font().pixelSize())
+        buttons = (screen._btn_reset_zoom, screen._btn_ruler, overview)
+        for index in range(tabs.count()):
+            tabs.setCurrentIndex(index)
+            QApplication.processEvents()
+            assert (window.width(), window.height()) == size
+            assert _whole(window, bar)
+            selected = bar.tabRect(index)
+            assert bar.rect().contains(selected), (language, size, index)
+            selected = QRect(bar.mapTo(window, selected.topLeft()), selected.size())
+            rectangles = []
+            for button in buttons:
+                assert _whole(window, button), (language, size, button.text())
+                assert button.width() >= button.sizeHint().width()
+                assert button.height() >= button.sizeHint().height()
+                rect = _rect_in(window, button)
+                assert not rect.intersects(selected)
+                assert not any(rect.intersects(other) for other in rectangles)
+                rectangles.append(rect)
+            assert _whole(window, screen._image_footer)
+            content = _rect_in(window, tabs.currentWidget())
+            assert _rect_in(window, screen._image_footer).top() > content.bottom()
+    finally:
+        if screen is not None:
+            _close(screen)
+        preferences.set_gui_scale(previous_saved_gui)
+        preferences.set_font_scale(previous_font)
+        gui_scale.set_gui_scale_live(previous)
+
+
 def test_a_side_column_opened_by_hand_stays_open_while_narrow(
         qtbot, qt_theme_applied, folder):
     window, screen = _open_make_masks(qtbot, folder, (1280, 680))

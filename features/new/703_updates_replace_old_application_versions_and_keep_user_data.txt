@@ -163,6 +163,11 @@ remain retained, with no new administrator/user-install/data-purge claim.
 No functional assertions were weakened. The bounded explicit Mac-only gate
 check identifies no remaining ready automated Mac-only gap; physical-input,
 unavailable display modes and separately owned acceptance remain separate.
+After upstream installer changes, a9904694f5 on this Intel Mac passes ten
+new architecture-selection/cache-binding and graphics/crypto metadata cases
+in3.79s, sampled aggregate RSS0.174GiB (2026-10-22). Native /bin/bash runs
+owned fixtures; Rosetta/ARM identities are simulated, not native ARM acceptance.
+No download, install, admin action or accepted manual update rerun occurs.
 
 Owner: the maintainer's Mac session owns any newly demonstrated Mac-specific
 regression; root retains general CI. Preserve the latest accepted scope.

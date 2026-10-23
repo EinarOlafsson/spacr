@@ -26,6 +26,17 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+Additional bounded high-ID coverage: combined readback already tests exact
+uint32 codes through2**32-1 with a fake transport, but real GPU fixtures use
+only IDs1/2. Add one tiny real GPU frame relabelled256/65536, require both IDs
+visible and exact current-ray CPU/picked parity plus the retained RGB tolerance.
+On this Mac require actual Metal; do not count a skip/fake backend as acceptance
+or repeat performance/backend matrices. Preserve the live physical-input app.
+The single real Metal node passes in6.78s, sampled aggregate RSS0.304GiB
+under the8GiB/300s polling wrapper, normal exit0. Both256/65536 are visible,
+texture/shader/readback picks match the current-ray CPU oracle exactly as
+int64, and RGB stays within the existing1-level tolerance. This is high-ID
+rendering coverage only, not new physical/picking-UI/FPS/full-idle acceptance.
 
 Delivered readback repair: native Intel-Mac phase timing identified two
 synchronous GPU buffer reads per frame (RGB and picked IDs). One combined

@@ -55,6 +55,10 @@ class Toggle(QCheckBox):
             self.setSizePolicy(policy)
 
     def _fit_track(self, _scale=None):
+        from shiboken6 import isValid
+
+        if not isValid(self):
+            return
         from PySide6.QtWidgets import QWidget
         from ..gui_scale import _ORIGINAL, _actual_minimum_height
 

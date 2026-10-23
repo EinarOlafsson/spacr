@@ -12,6 +12,53 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+2026-10-22 affected-source requirement: the new Field-of-view overview
+shares the unwrapped tab-corner row with Reset zoom/Ruler. Check all three
+buttons, naturally translated active tabs and the footer at 1280x680 and
+1366x728, English/German, GUI/font 90%/90%; add German 1280x680 at GUI 90%/
+font 200%. Require exact client dimensions after application and tab changes,
+whole nonoverlapping controls, and no resize-back hiding an expanded minimum.
+
+Unaccepted setup history on source a9904694f5: four offscreen passes used
+manual tab translations/unverified fonts (69.45s, sampled RSS 0.956GiB).
+Two Cocoa attempts each fail four font preconditions: 13px then 12px versus
+expected 11px (99.26s/104.81s, sampled RSS 0.990/0.988GiB). Correct startup
+order and explicitly set live GUI scale; change_scales can no-op when saved
+defaults already match. Intermediate one-plus-three Cocoa passes precede
+the final client-size assertion and do not prove it (39.62s/90.63s).
+
+2026-10-23 historical scoped Cocoa result on a9904694f5: four EN/DE cases PASS with
+actual QFont 11px (115.76s, sampled RSS 0.973GiB); one German independent-font
+stress PASS with QFont 23px (45.21s, sampled RSS 0.817GiB). All five verify
+exact target clients after preferences/normal translation and every tab
+switch, with whole nonoverlapping corner controls, active tab and footer.
+Actual display 1440x900/work 1440x870/DPR2, not smaller physical modes.
+These five establish the strengthened invariant only for that layout; prior native
+evidence and pending physical-input scope remain. No geometry repair needed.
+Caught DEBUG callbacks to deleted Toggle wrappers were separately handed
+to the 717 repair owner; they are not suppressed as a production fix here.
+
+Current upstream follow-up, 2026-10-23: 33fb405293 moves overview into IO
+as an icon-only QToolButton, preserving its object name. Adapt the five
+strict Cocoa cases to actual IO placement, whole button/size hint/icon,
+translated accessible name/tooltip, and the separate reset/ruler/tab/footer
+geometry. Rebased source bcb5659433 requires fresh results; historical five
+passes do not accept this changed upstream layout. No production repair
+is assumed, and physical/display-mode limitations remain unchanged.
+The first current-layout attempt fails five tooltip preconditions (121.26s;
+sampled RSS 1.042GiB): normal policy wraps the correct translated body in
+title/API HTML, while accessibleName remains plain text. Compare exact
+accessible text and parsed body/API lines rather than requiring HTML to
+equal plain text; no production defect or current geometry pass is inferred.
+Final current-layout result on bcb5659433: five Cocoa cases PASS (one
+setup case 36.61s/RSS 0.787GiB, remaining four 102.15s/RSS 1.039GiB).
+Exact final clients 1280x680/1366x728, actual fonts 11px normal/23px stress,
+natural EN/DE captions and IO icon/accessible name/rich tooltip/API all fit;
+reset/ruler, active tabs and footer remain whole/nonoverlapping. Actual
+display1440x900/work1440x870/DPR2. No production repair; physical-input and
+actual smaller-display-mode acceptance remain separate. No old-case replay
+or assertion weakening is counted toward these five current-source passes.
+
 Completed Mac follow-up (2026-10-21): the German native dark-to-light layout
 check retains pale folded-module icons against the light button plates.
 The existing icon resolver already re-inks correctly for each theme, but

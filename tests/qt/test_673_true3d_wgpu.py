@@ -526,6 +526,30 @@ def test_wgpu_frames_match_the_cpu_for_every_rendering_finish_and_lens():
     gpu.close()
 
 
+def test_wgpu_high_label_ids_match_cpu_after_texture_sampling_and_readback():
+    gpu = _wgpu_context()
+    try:
+        if sys.platform == "darwin":
+            assert gpu.backend == "metal"
+        channel, original = _layers()
+        data = np.zeros(original.data.shape, dtype=np.uint32)
+        data[original.data == 1] = 256
+        data[original.data == 2] = 65536
+        masks = LabelsLayer(data, name="high IDs", opacity=original.opacity,
+                            metadata=dict(original.metadata))
+        rays = _rays()
+        cpu, cpu_picked = render_volume([channel, masks], rays, highlight=65536)
+        assert set(np.unique(cpu_picked)) == {0, 256, 65536}
+        rgb, picked = gpu.renderer.render([channel, masks], rays, highlight=65536)
+        assert picked.shape == rays.shape[:2] and picked.dtype == np.int64
+        assert rgb.shape == (*rays.shape[:2], 3) and rgb.dtype == np.uint8
+        assert set(np.unique(picked)) == {0, 256, 65536}
+        np.testing.assert_array_equal(picked, cpu_picked)
+        assert np.abs(cpu * 255 - rgb).max() <= 1
+    finally:
+        gpu.close()
+
+
 def test_wgpu_and_opengl_frames_agree():
     gpu = _wgpu_context()
     try:
