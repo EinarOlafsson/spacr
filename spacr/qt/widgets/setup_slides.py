@@ -981,7 +981,10 @@ class SetupSlides(QDialog):
             return
         margin = 28
         width = max(1, card.width() - 2 * margin)
-        note.setFixedWidth(width)
+        from ..gui_scale import _set_actual_dim
+
+        _set_actual_dim(note, "minw", width)
+        _set_actual_dim(note, "maxw", width)
         height = note.heightForWidth(width)
         if height <= 0:
             height = note.sizeHint().height()

@@ -2,15 +2,44 @@
 MAKE MASKS BUTTONS IN TITLED GROUPS AROUND THE IMAGE, WITH COLLAPSIBLE BARS
 ================================================================================
 
-Status:    BLOCKED ON MAINTAINER — layout/tests/translations and native Mac
-           theme-icon repair complete; physical/small-display acceptance
-           remains (tutorial re-recordings belong to lane 676).
+Status:    IN PROGRESS — affected native setup-popup acceptance underway;
+           physical/small-display subgates remain BLOCKED ON MAINTAINER
+           (tutorial re-recordings belong to lane 676).
 Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
            spacr/qt/preferences.py (Plugins tab), spacr/qt/screens/
            settings_model.py and app_screen.py (vvvv), spacr/qt/theme.py
            (group card style).
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
+
+Affected setup follow-up after the new spaCR_AI row: inspect real SetupSlides
+and SetupDialog at normal owned Cocoa GUI/font90%/90%, actual1440x870 work
+area/DPR2. Require untouched initial frame, every slide/group, intrinsic label
+fit and reachable controls including the AI row; inspect resize/scroll mechanisms
+without first enlarging the window. Constructor-only checks must not apply
+answers, authenticate, install providers or touch real settings. Then separately
+check GUI90%/font200% after the default probe is accepted. These are automated
+layout checks, not physical input or actual smaller-display-mode acceptance.
+Default native32892 on6fa5aa1f passes both affected setup layouts: five slides
+initial648x504 and one all-groups dialog1098x710, actual11px body-font witnesses,
+AI controls visible/reachable, intrinsic text and native20px grow/shrink checks.
+Actual work1440x870/DPR2, GUI/font90%/90%; no aliases, normal exit0 in25.645s,
+sampled RSS1.116GiB/zero missed. No answers applied or provider operation; the
+separate GUI90%/font200% check remains pending, not a default-cohort replay.
+Font200 native4802 fails four checks on6fa5aa1f: the first slide's rich GPU
+note exceeds its allocated height; three grouped-dialog combos have39/40px
+height against44px minimum hints. Both native frames, all AI controls, remaining
+slides, grow/shrink and actual23px witnesses pass; no aliases, natural exit1
+in31.665s/RSS1.161GiB/zero missed. Diagnose the note's actual placement and
+combo selected-text/arrow rectangles before assigning product versus oracle
+failure; preserve default passes and all strict bounds/intrinsic checks.
+Focused GPU-note regression proves a real width double-scale: measuring at592px
+then scaled setFixedWidth enforces533px, whose rich text needs280px versus252px
+allocated. The regression fails before repair (4.95s/RSS0.269GiB). Set the
+already-measured width through the existing actual-dimension helper, preserving
+the band/floor placement. Three affected checks pass (8.46s/RSS0.456GiB,
+natural exit0); existing fixtures warn of a live grain compiler at session end.
+Native affected recheck and combo selected-text/arrow attribution remain pending.
 
 Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
 public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.
