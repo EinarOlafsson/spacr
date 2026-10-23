@@ -30,9 +30,9 @@ def test_shared_controls_survive_dialog_disposal_and_keep_values(qtbot, method):
     dialog = panel._live_settings_dialog
     tracked = list(dialog._managed_widgets()) + list(panel._organelle_widgets.values())
     diameter = panel._diameter.value() + 3
-    minimum = panel._organelle_widgets['min_size'].value() + 2
+    minimum = panel._organelle_widgets['morph_radius'].value() + 2
     panel._diameter.setValue(diameter)
-    panel._organelle_widgets['min_size'].setValue(minimum)
+    panel._organelle_widgets['morph_radius'].setValue(minimum)
     _exit_dialog(dialog, qtbot, method)
     assert panel._live_settings_dialog is None
     dialog.deleteLater()
@@ -41,13 +41,13 @@ def test_shared_controls_survive_dialog_disposal_and_keep_values(qtbot, method):
     assert isValid(panel)
     assert all(isValid(widget) for widget in tracked), 'Dialog destroyed shared preview controls'
     assert panel._diameter.value() == diameter
-    assert panel._organelle_widgets['min_size'].value() == minimum
+    assert panel._organelle_widgets['morph_radius'].value() == minimum
     panel.open_live_settings()
     reopened = panel._live_settings_dialog
     try:
         assert reopened.isVisible()
         assert panel._diameter.value() == diameter
-        assert panel._organelle_widgets['min_size'].value() == minimum
+        assert panel._organelle_widgets['morph_radius'].value() == minimum
     finally:
         reopened.close()
 
@@ -65,7 +65,7 @@ def test_a_completed_dialog_cannot_take_controls_from_its_replacement(qtbot):
         assert panel._live_settings_dialog is replacement
         assert replacement.isVisible()
         assert replacement.isAncestorOf(panel._diameter)
-        assert replacement.isAncestorOf(panel._organelle_widgets['min_size'])
+        assert replacement.isAncestorOf(panel._organelle_widgets['morph_radius'])
     finally:
         replacement.close()
 

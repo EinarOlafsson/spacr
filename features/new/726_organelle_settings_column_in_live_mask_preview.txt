@@ -1,0 +1,33 @@
+ORGANELLE-SPECIFIC SETTINGS COLUMN IN LIVE MASK GENERATION
+========================================================
+Status:    IN PROGRESS
+Requested: maintainer, 2026-10-22
+Owner:     widgets_g3, implementation through validation and publication
+Priority:  Start now; one agent owns the complete shared Live workflow
+Related:   Generate Masks Live preview; normal organelle mask pipeline
+
+REQUEST
+When Generate Masks Live previews an organelle object, expose all relevant
+organelle-specific object settings in an additional settings column. The
+existing Cellpose, filter and preprocessing options are insufficient. Expand
+the Live window to accommodate the column and use its values in the preview.
+
+ACCEPTANCE
+- Trace the organelle settings consumed by the normal Generate Masks run and
+  expose every relevant per-object option in the additional Live column.
+- Show controls for the currently selected organelle; switching objects restores
+  their own values and hides options that do not apply to the selected object.
+- Send edited values into the actual Live preview execution and preserve parity
+  with the normal run's organelle settings, including conditional controls.
+- Preserve existing cell, nucleus and pathogen preview behavior and settings.
+- Expand the Live window when space permits; retain usable scrolling and fit
+  on smaller screens without hiding controls or forcing unsupported geometry.
+- Reuse existing modules/settings definitions. User-visible strings use tr().
+- Validate object switching, complete option coverage, actual request/worker
+  consumption and normal-run parity with small CPU fixtures; inspect the actual
+  UI and run only the smallest necessary cohorts under the existing RAM cap.
+- Regenerate affected outputs with the normal tools under the shared producer
+  lease, publish through ordinary nightly delivery and verify final acceptance.
+
+2026-10-22 — Registered before implementation; widgets_g3 owns source, focused checks, visual acceptance, normal generation and publication. No subagents.
+2026-10-22 — Implemented method-specific controls, slot persistence and normal-worker routing; 25 focused CPU controls pass and desktop/small-screen visuals accepted. Normal generated output, reviewed publication and final nightly acceptance remain.

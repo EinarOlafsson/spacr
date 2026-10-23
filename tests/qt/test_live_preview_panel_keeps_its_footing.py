@@ -241,7 +241,7 @@ def test_values_no_control_can_hold_do_not_stop_the_rest(panel):
         "adjust_cells": np.array([1, 0]),
         "organelle_morphology": "blob",
         "organelle_ridge_filter": "sato",
-        "organelle_min_size": "big",
+        "organelle_rolling_ball_radius": "big",
         "cell_diameter": 42.0,
     })
     assert panel._diameter.value() == 42.0, "the usable value landed"
@@ -250,7 +250,7 @@ def test_values_no_control_can_hold_do_not_stop_the_rest(panel):
     assert LP._combo_value(widgets["morphology"]) == "spots", (
         "an unknown morphology leaves the first one selected")
     assert LP._combo_value(widgets["ridge_filter"]) == "sato"
-    assert widgets["min_size"].value() == 0
+    assert widgets["rolling_ball_radius"].value() == 50
 
 
 def test_fewer_organelles_puts_the_picker_back_on_cell(panel):
