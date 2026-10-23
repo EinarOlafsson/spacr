@@ -15,6 +15,21 @@ from pathlib import Path
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 
+def verify_retention(stage, lesson, inventory, *, retained_from=None):
+    """Dispatch explicit immutable published provenance before legacy workspace reuse."""
+    from published_retained_narration import RECORD, checked_published_narration
+    record = Path(stage) / 'production' / lesson / RECORD
+    if os.path.lexists(record):
+        if retained_from is not None:
+            raise ValueError('Published retention has its own immutable source, not retained-from')
+        checked_published_narration(stage, lesson)
+    else:
+        from retain_narration import retained_sources
+        retained_sources(stage, retained_from if retained_from is not None else DEFAULT_STAGE.parent,
+                         REPO / 'docs/source/_extra/tutorials/catalog', lesson, inventory,
+                         require_staged=True)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--lesson', required=True)
@@ -33,11 +48,9 @@ def main(argv=None):
     import verify_audio_release as verify
 
     if args.retained_narration:
-        from retain_narration import retained_sources
-        retained_sources(args.stage, args.retained_from if args.retained_from is not None else DEFAULT_STAGE.parent,
-                         REPO / 'docs/source/_extra/tutorials/catalog', args.lesson,
+        verify_retention(args.stage, args.lesson,
                          {lang: values[1] for lang, values in verify.LANGUAGES.items()},
-                         require_staged=True)
+                         retained_from=args.retained_from)
 
     reports = []
     for language in args.languages:
