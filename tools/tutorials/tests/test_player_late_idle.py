@@ -60,7 +60,7 @@ def run(body):
       function videoTimeFromAudio(x){return x} function setVideoTimeFromNarration(x){elements.video.currentTime=x}
       function state(){return {sameTrack:true,sameScene:true,loadPending:false,audioSeeking:false,videoSeeking:false,
         videoPaused:elements.video.paused,pictureLoading:false,explicitSeek:false,readyState:4,bufferedSpeechEnd:true,
-        audioTime:actualAudio,speechEnd:10,lastSound:9.82,nextLead:.1}}
+        audioTime:actualAudio,speechEnd:10,lastSound:9.82,nextLead:.1,nextSound:10.62,final:false}}
       function cut(){return nativeLateIdleTailCut(visualTimings,audioTimings,0)}
       function decoded(){videoClockCorrectionPending=false}
       async function tick(){await Promise.resolve();await Promise.resolve();await Promise.resolve()}
@@ -152,3 +152,30 @@ def test_actual_early_sync_waits_for_picture_to_reach_bound_fence_even_when_audi
     assert r['transition'] is expect_transition
     assert r['targets']==int(expect_transition)
     assert r['seeks']==[] and r['audio']==10
+
+
+@pytest.mark.parametrize('original_gap,remaining',[(.8,.52),(1.3,.72)])
+def test_regular_transition_uses_same_validated_budget_without_speech_seek(original_gap,remaining):
+    body="""visualTimings.scenes[0].idle_tail_start=1;
+      audioTimings.scenes[1].speech_start=9.82+GAP-.1;
+      audioTimings.scenes[1].sentences[0].audible_start=9.82+GAP;
+      completeNativeNarrationWaiting=false; // This case starts in active unfinished speech, unlike the late-action fixture.
+      actualAudio=9.99;elements.audio.paused=false;elements.video.currentTime=10;
+      syncCompleteNativeNarration();const unfinished=nativeIdleTransition;
+      actualAudio=10;syncCompleteNativeNarration();
+      const begun={deadline:nativeIdleTransition.resumeAt,rate:elements.audio.playbackRate,
+        seeks:stats.audioSeeks,starts:stats.audioStarts};
+      cancelNativeIdleTransition();
+      console.log(JSON.stringify({unfinished,begun,cancelRate:elements.audio.playbackRate}));"""
+    r=run(body.replace('GAP',str(original_gap)))
+    assert r['unfinished'] is None
+    assert r['begun']['deadline']==pytest.approx(1000+remaining*1000)
+    assert r['begun']['seeks']==[] and r['begun']['starts']==0 and r['cancelRate']==1
+    if original_gap<1:assert r['begun']['rate']==pytest.approx(1)
+
+
+def test_final_gap_budget_stays_one_second_and_malformed_gap_fails_closed():
+    r=run("""console.log(JSON.stringify([
+      nativeIdleGapBudget(9.82,10,true),nativeIdleGapBudget(9.82,10.62,false),
+      nativeIdleGapBudget(9.82,9,false),nativeIdleGapBudget(9.82,NaN,false)]));""")
+    assert r[0]==1 and r[1]==pytest.approx(.8) and r[2:]==[None,None]
