@@ -10,6 +10,7 @@ background runner with only the relay transport faked.
 
 from __future__ import annotations
 
+import threading
 import pytest
 
 pytest.importorskip("PySide6")
@@ -27,12 +28,18 @@ MISSING = "/nonexistent-700/plate1"
 
 
 @pytest.fixture
-def relay(monkeypatch):
+def relay(monkeypatch, qtbot):
     """Allow the network for this test and install a fake relay."""
     monkeypatch.delenv(cr.NO_NETWORK_ENV, raising=False)
     fake = FakeRelay()
+    fake.release_events = []
+    fake.report_sessions = []
     monkeypatch.setattr(cr, "_open_url", fake)
-    return fake
+    yield fake
+    for release in fake.release_events:
+        release.set()
+    for session in fake.report_sessions:
+        session.wait()
 
 
 def _entries(screen):
@@ -59,26 +66,34 @@ def _mask_settings():
     return settings
 
 
-def _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=False):
+def _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=False, tier="best"):
     """Run the bridge-wrapped refusal on the real Mask screen."""
     from spacr.errors import raise_if_strict
     from spacr.qt.bridge import _say_what_is_wrong_with_the_settings
     from spacr.qt.screens.app_screen import AppScreen
+    from tests.qt.test_700_anonymous_reports_qt import _ReportSession
 
     cr.set_error_report_mode("all")
     relay.routes["/diagnose"] = [(200, {"advice": ADVICE, "model": "big",
-                                        "tier": "best"})]
+                                        "tier": tier})]
     relay.routes["/report"] = [(200, {"issue_number": 152, "issue_url": "u",
                                       "deduplicated": False,
                                       "ai_summary_source": "client"})]
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
-    monkeypatch.setattr(screen, "_report_summary_provider",
-                        providers.hosted_provider)
+    session = _ReportSession(screen, qtbot, monkeypatch)
+    relay.report_sessions.append(session)
     jobs = []
     if hold_ai:
-        monkeypatch.setattr(screen._jobs, "submit",
-                            lambda fn, done: jobs.append((fn, done)))
+        release = threading.Event()
+        relay.release_events.append(release)
+        original_transport = cr._open_url
+        def transport(request, timeout):
+            if request.full_url.endswith("/diagnose"):
+                assert release.wait(5)
+            return original_transport(request, timeout)
+        monkeypatch.setattr(cr, "_open_url", transport)
+        jobs.append((release.set, lambda value: session.wait()))
 
     def pipeline(settings):
         if all(settings.get(k) is None for k in settings
@@ -88,9 +103,10 @@ def _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=False):
     screen._watch_for_refusals()
     _say_what_is_wrong_with_the_settings("mask", pipeline)(_mask_settings())
     screen._on_finished(True)
-    if not hold_ai:
-        qtbot.waitUntil(lambda: not screen._jobs.is_busy(), timeout=15000)
-        qtbot.wait(50)
+    if hold_ai:
+        qtbot.waitUntil(lambda: bool(_ai_blocks(screen)), timeout=5000)
+    else:
+        session.wait()
     return screen, jobs
 
 
@@ -175,21 +191,23 @@ def test_the_entry_opens_again_when_the_console_was_cleared(
     assert again.property("consoleContextKind") == "spacr_ai"
 
 
+@pytest.mark.parametrize("tier", ["best", "light"])
 def test_a_repeated_error_looks_like_a_fresh_answer_without_thinking(
-        qtbot, qt_theme_applied, relay, monkeypatch):
+        qtbot, qt_theme_applied, relay, monkeypatch, tier):
     from spacr.qt.widgets.console_panel import _TopicBar, _WorkingDots
 
-    first = _refused_mask_run(qtbot, monkeypatch, relay)
+    first = _refused_mask_run(qtbot, monkeypatch, relay, tier=tier)
     if isinstance(first, tuple):
         first = first[0]
     fresh_block = _ai_blocks(first)[0]
     fresh_entries = _entries(first)
     fresh_bar = fresh_entries[fresh_entries.index(fresh_block) - 1]
     assert len(relay.calls_to("/diagnose")) == 1
-    screen, jobs = _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=True)
+    screen, jobs = _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=True, tier=tier)
     block = _ai_blocks(screen)[0]
     entries = _entries(screen)
     bar = entries[entries.index(block) - 1]
+    assert block.toPlainText() == fresh_block.toPlainText()
     assert bar.text() == fresh_bar.text()
     assert isinstance(bar, _TopicBar)
     assert bar.text() == "spaCR AI"

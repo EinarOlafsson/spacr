@@ -25,7 +25,8 @@ def test_report_finishes_without_resurrecting_its_owner(configured, qtbot, tmp_p
     record_agreement()
     monkeypatch.setattr(cr, "_deliver_error_result", _ORIGINAL_DELIVERY)
     terminal = []
-    monkeypatch.setattr(cr, "_write_error_result", terminal.append)
+    monkeypatch.setattr(cr, "_write_error_result", lambda outcome: terminal.append(outcome)
+                        if not (outcome.get("pending") or outcome.get("quiet")) else None)
     relay, outcomes, ready = configured
     entered, release = threading.Event(), threading.Event()
     original_transport = cr._open_url
@@ -45,7 +46,8 @@ def test_report_finishes_without_resurrecting_its_owner(configured, qtbot, tmp_p
     shown = []
     original_show = panel._show_error_report_result
     def show(outcome, *args, **kwargs):
-        shown.append(outcome)
+        if not outcome.get("pending"):
+            shown.append(outcome)
         return original_show(outcome, *args, **kwargs)
     monkeypatch.setattr(panel, "_show_error_report_result", show)
     second_owner = second_panel = None
@@ -58,7 +60,8 @@ def test_report_finishes_without_resurrecting_its_owner(configured, qtbot, tmp_p
         second_panel.show()
         second_original = second_panel._show_error_report_result
         def second_show(outcome, *args, **kwargs):
-            second_shown.append(outcome)
+            if not outcome.get("pending"):
+                second_shown.append(outcome)
             return second_original(outcome, *args, **kwargs)
         monkeypatch.setattr(second_panel, "_show_error_report_result", second_show)
 
@@ -237,3 +240,142 @@ def test_real_background_failure_transports_one_identity_to_the_screen(configure
     assert body["exception_type"] == "IndexError" and body["kind"] == cr.KIND_FAULT
     assert any(frame["function"] == "invalid_internal_index" for frame in body["frames"])
     assert "axis 2" in failures[0]
+
+
+@pytest.mark.parametrize("choice", ["none", "revoke-pending"])
+def test_none_keeps_the_original_error_without_report_notifications(configured, qtbot, tmp_path, monkeypatch, choice):
+    import io
+    from spacr.qt import preferences
+    from spacr.qt.ai import settings, providers
+    from spacr.qt.terms import record_agreement
+    from spacr.qt.widgets.console_panel import ConsolePanel, _TopicBar
+
+    store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, "_settings", lambda: store)
+    monkeypatch.setattr(settings, "_settings", lambda: store)
+    preferences.set_issue_prompt_mode(preferences.ISSUE_PROMPT_ALWAYS)
+    preferences.set_preferred_provider("none" if choice == "none" else providers.HOSTED_PROVIDER_NAME)
+    settings.set_auto_file_issues(True)
+    settings.set_route_errors_through_ai(True)
+    record_agreement()
+    cr.set_error_report_mode("all")
+    monkeypatch.setattr(cr, "_deliver_error_result", _ORIGINAL_DELIVERY)
+    terminal = io.StringIO()
+    monkeypatch.setattr(cr.sys, "__stderr__", terminal)
+    relay, outcomes, ready = configured
+    entered, release = threading.Event(), threading.Event()
+    original_transport = cr._open_url
+    def transport(request, timeout):
+        if request.full_url.endswith("/diagnose"):
+            entered.set()
+            assert release.wait(5)
+        return original_transport(request, timeout)
+    monkeypatch.setattr(cr, "_open_url", transport)
+    workers = []
+    original_dispatch = cr._dispatch_error
+    def dispatch(*args, **kwargs):
+        worker = original_dispatch(*args, **kwargs)
+        if worker is not None:
+            workers.append(worker)
+        return worker
+    monkeypatch.setattr(cr, "_dispatch_error", dispatch)
+    panel = ConsolePanel(follow_log=False)
+    qtbot.addWidget(panel)
+    panel.show()
+    try:
+        panel.append_error("IndexError: original channel failure")
+        if choice == "revoke-pending":
+            qtbot.waitUntil(lambda: entered.is_set() and bool(panel._pending_report_entries), timeout=5000)
+            preferences.set_preferred_provider("none")
+            release.set()
+        qtbot.waitUntil(lambda: bool(workers) and all(not worker.is_alive() for worker in workers), timeout=10000)
+        QCoreApplication.processEvents()
+        assert "IndexError: original channel failure" in panel.as_text()
+        assert "issue #" not in panel.as_text()
+        assert not panel._pending_report_entries
+        entries = [panel._entries.itemAt(index).widget() for index in range(panel._entries.count())]
+        assert not any(isinstance(widget, _TopicBar) and widget.text() == "spaCR AI" for widget in entries)
+        assert terminal.getvalue() == ""
+        assert len(relay.calls_to("/diagnose")) == (0 if choice == "none" else 1)
+        reports = relay.calls_to("/report")
+        assert len(reports) == 1 and reports[0]["body"]["summarize"] is False
+        assert "ai_summary" not in reports[0]["body"]
+    finally:
+        release.set()
+        for worker in workers:
+            worker.join(5)
+
+
+@pytest.mark.parametrize("failure_at", ["provider", "publish"])
+def test_an_unexpected_reporting_failure_retires_the_pending_entry(configured, qtbot, tmp_path, monkeypatch, failure_at):
+    from spacr.qt import preferences
+    from spacr.qt.ai import settings, providers
+    from spacr.qt.terms import record_agreement
+    from spacr.qt.widgets import console_panel
+
+    store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, "_settings", lambda: store)
+    monkeypatch.setattr(settings, "_settings", lambda: store)
+    record_agreement()
+    monkeypatch.setattr(cr, "_deliver_error_result", _ORIGINAL_DELIVERY)
+    def fail(*args, **kwargs):
+        raise OSError("the reporting collaborator is unavailable")
+    if failure_at == "provider":
+        monkeypatch.setattr(providers, "explain_failure", fail)
+    else:
+        monkeypatch.setattr(cr, "_send_queued", fail)
+    panel = console_panel.ConsolePanel(follow_log=False)
+    qtbot.addWidget(panel)
+    panel.show()
+    workers = []
+    original_dispatch = cr._dispatch_error
+    def dispatch(*args, **kwargs):
+        worker = original_dispatch(*args, **kwargs)
+        if worker is not None:
+            workers.append(worker)
+        return worker
+    monkeypatch.setattr(cr, "_dispatch_error", dispatch)
+    panel.append_error("IndexError: original channel failure")
+    qtbot.waitUntil(lambda: bool(workers) and all(not worker.is_alive() for worker in workers), timeout=10000)
+    QCoreApplication.processEvents()
+    assert "IndexError: original channel failure" in panel.as_text()
+    assert not panel._pending_report_entries
+    assert workers[0]._spacr_error_occurrence not in console_panel._ERROR_REPORT_RELAY.pending
+    assert not any(dots._timer.isActive() for dots in panel.findChildren(console_panel._WorkingDots))
+    relay = configured[0]
+    assert len(relay.calls_to("/report")) == (1 if failure_at == "provider" else 0)
+    if failure_at == "publish":
+        assert len(cr.queued_summaries()) == 1
+
+
+@pytest.mark.parametrize("provider_type,fast_model,deep_model,model_flag", [
+    ("ClaudeCliProvider", "haiku", "opus", "--model"),
+    ("CodexCliProvider", "gpt-5-mini", "gpt-5-pro", "--model"),
+    ("GeminiCliProvider", "gemini-2.5-flash", "gemini-2.5-pro", "-m"),
+])
+def test_cli_chat_uses_captured_arguments_then_real_preferences(
+        configured, tmp_path, monkeypatch, provider_type, fast_model, deep_model, model_flag):
+    from spacr.qt.ai import providers, settings
+
+    store = QSettings(str(tmp_path / "args.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(settings, "_settings", lambda: store)
+    calls = []
+    def process(argv, **kwargs):
+        calls.append((list(argv), kwargs["provider"]))
+        yield "answer"
+    monkeypatch.setattr(providers, "_stream_process", process)
+    provider = getattr(providers, provider_type)()
+    settings.set_response_speed("fast")
+    provider._reporting_args = settings.provider_args(provider.name)
+    settings.set_response_speed("deep")
+    messages = [{"role": "user", "content": "Explain the failure."}]
+    assert list(provider.stream_chat(messages)) == ["answer"]
+    assert calls[-1][0][calls[-1][0].index(model_flag) + 1] == fast_model
+    assert deep_model not in calls[-1][0]
+    del provider._reporting_args
+    assert list(provider.stream_chat(messages)) == ["answer"]
+    assert calls[-1][0][calls[-1][0].index(model_flag) + 1] == deep_model
+    assert len(calls) == 2
+    assert all(owner is provider for _, owner in calls)
+    assert all(argv[0] == provider.name and "Explain the failure." in argv[2]
+               for argv, _ in calls)

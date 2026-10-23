@@ -10015,10 +10015,20 @@ class AppScreen(QWidget):
             return False
         kind = kind or self._kind_of_failure(tb)
         mode, explain, send = _automatic_failure_policy(kind)
+        lines = crashreport.public_problem_lines(
+            list(getattr(self, "_last_error_problems", None) or []))
+        message = "\n".join([
+            f"The run did not start: {len(lines)} settings problem"
+            f"{'' if len(lines) == 1 else 's'}."
+        ] + [f"- {line}" for line in lines]) if lines else ""
+        context = {"screen": self._screen_name(), "message": message,
+                   "error_text": crashreport.scrub_public_lines(
+                       getattr(self, "_last_error_console_text", "") or tb,
+                       crashreport.MAX_ERROR_TEXT_CHARS)}
         event_id = self._last_error_occurrence or crashreport._new_error_occurrence()
         self._last_error_occurrence = ""
         crashreport._dispatch_error(tb, traceback_text=tb, module=str(self.app_key or ""),
-                                    event_id=event_id)
+                                    event_id=event_id, context=context)
         return send
 
     def _watch_for_refusals(self) -> None:
@@ -10055,6 +10065,7 @@ class AppScreen(QWidget):
         watch = getattr(self, "_refusal_watch", None)
         self._refusal_watch = None
         self._refusal_call_site = []
+        self._refusal_error_occurrence = ""
         self._settings_problems = []
         if watch is None:
             return []
@@ -10068,6 +10079,9 @@ class AppScreen(QWidget):
             except Exception:                                # noqa: BLE001
                 continue
             site = getattr(record, "spacr_call_site", None)
+            self._refusal_error_occurrence = (
+                getattr(record, "_spacr_error_occurrence", "")
+                or self._refusal_error_occurrence)
             if site and not self._refusal_call_site:
                 self._refusal_call_site = list(site)
         for record in problems:
@@ -11240,7 +11254,7 @@ class AppScreen(QWidget):
                 ("Traceback (most recent call last):\n" + site if site else "")
                 + "spacr.errors.ConfigurationError: " + refusals[-1])
             self._failure_kind = crashreport.KIND_USER_ERROR
-            self._last_error_occurrence = ""
+            self._last_error_occurrence = getattr(self, "_refusal_error_occurrence", "")
             self._send_the_anonymous_report(crashreport.KIND_USER_ERROR)
         else:
             self._settle_the_report(failed=not ok and not cancelled)

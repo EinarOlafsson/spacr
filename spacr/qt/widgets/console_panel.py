@@ -1161,6 +1161,7 @@ class _ErrorReportRelay(QObject):
         """Retain weak console references, never their owning windows."""
         super().__init__(application)
         self.consoles = []
+        self.pending = {}
         self._arrived.connect(self._receive)
 
     def _queue(self, outcome):
@@ -1174,13 +1175,31 @@ class _ErrorReportRelay(QObject):
     def _receive(self, outcome):
         """Show one answer or fall back to the terminal if all owners have closed."""
         from shiboken6 import isValid
-        from ...crashreport import _write_error_result
-        for ref in reversed(self.consoles):
+        from ...crashreport import QUEUE_LIMIT, _write_error_result
+        for key, ref in tuple(self.pending.items()):
+            target = ref()
+            if target is None or not isValid(target):
+                self.pending.pop(key, None)
+        event_id = outcome.get("event_id", "")
+        previous = self.pending.get(event_id)
+        if not outcome.get("pending"):
+            self.pending.pop(event_id, None)
+        refs = ([previous] if previous is not None else []) + list(reversed(self.consoles))
+        for ref in refs:
             console = ref()
             if (console is not None and isValid(console) and console.isVisible()
                     and console.window().isVisible()):
+                if outcome.get("pending"):
+                    self.pending[event_id] = ref
+                    while len(self.pending) > QUEUE_LIMIT:
+                        retired = next(iter(self.pending))
+                        target = self.pending.pop(retired)()
+                        if target is not None and isValid(target):
+                            target._discard_error_report_entry(retired)
                 console._show_error_report_result(outcome)
                 return
+            if ref is previous and console is not None and isValid(console):
+                console._discard_error_report_entry(event_id)
         _write_error_result(outcome)
 
 
@@ -1268,6 +1287,7 @@ class ConsolePanel(QWidget):
         #: :meth:`_take_down_the_waiting_heading`.
         self._pending_ai_topic: Optional[_TopicBar] = None
         self._pending_ai_block: Optional[_StdoutBlock] = None
+        self._pending_report_entries = {}
         #: The traceback the AI is currently explaining, and its answer once
         #: the stream finishes. Read by the bug reporter -- see
         #: :meth:`ai_explanation_of`.
@@ -2134,6 +2154,7 @@ class ConsolePanel(QWidget):
         self._current_topic_label = None
         self._pending_ai_topic = None
         self._pending_ai_block = None
+        self._pending_report_entries.clear()
         self._ai_messages.clear()
         self._console_sent_lengths.clear()
 
@@ -2430,6 +2451,26 @@ class ConsolePanel(QWidget):
         self._scroll_to_bottom()
         return block
 
+    def _discard_error_report_entry(self, event_id):
+        """Stop a retired request's indicator without showing or reviving its owner."""
+        pending = self._pending_report_entries.pop(event_id, None)
+        if pending is None:
+            return
+        block, _ = pending
+        try:
+            dots = getattr(block, "_ai_dots", None)
+            if dots is not None:
+                dots.stop()
+            if not block.toPlainText().strip():
+                for widget in (block, getattr(block, "_ai_bar", None)):
+                    if widget is not None:
+                        self._entries.removeWidget(widget)
+                        widget.hide()
+                        widget.deleteLater()
+                self._current_topic_label = None
+        except RuntimeError:
+            pass
+
     def _show_error_report_result(self, outcome, entry=None, *,
                                   saved_already_shown=False):
         """Render a shared failure outcome without reopening any owning window."""
@@ -2437,6 +2478,31 @@ class ConsolePanel(QWidget):
         from ... import crashreport
 
         outcome = dict(outcome or {})
+        event_id = outcome.get("event_id", "")
+        if outcome.get("pending"):
+            policy, eligible, _ = crashreport._automatic_error_policy(outcome.get("kind"))
+            if not eligible or policy.get("provider") == "none":
+                return
+            if event_id not in self._pending_report_entries:
+                saved = dict(outcome.get("explanation") or {})
+                block = self.begin_ai_entry(thinking=not bool(saved.get("text")))
+                if saved.get("text"):
+                    light = "\n\n[" + tr("lighter model") + "]" if saved.get(
+                        "tier") == "light" else ""
+                    self.fill_ai_entry(block, saved["text"] + light)
+                self._pending_report_entries[event_id] = (block, bool(saved.get("text")))
+                while len(self._pending_report_entries) > crashreport.QUEUE_LIMIT:
+                    self._discard_error_report_entry(next(iter(self._pending_report_entries)))
+            return
+        if outcome.get("quiet"):
+            self._discard_error_report_entry(event_id)
+            return
+        pending = self._pending_report_entries.get(event_id)
+        if pending is not None and not outcome.get("explained"):
+            self._discard_error_report_entry(event_id)
+        elif pending is not None:
+            entry, shown = self._pending_report_entries.pop(event_id)
+            saved_already_shown = saved_already_shown or shown
         status = outcome.get("status")
         explanation = dict(outcome.get("explanation") or {})
         refused = str(explanation.get("refused", "") or "")

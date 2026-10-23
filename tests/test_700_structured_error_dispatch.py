@@ -11,6 +11,8 @@ from spacr import crashreport as cr
 from spacr.logging_util import _AutomaticErrorHandler, _ErrorStream
 from tests.test_700_anonymous_error_reports import FakeRelay
 
+_ORIGINAL_DELIVERY = cr._deliver_error_result
+
 
 @pytest.fixture
 def configured(tmp_path, monkeypatch):
@@ -31,6 +33,8 @@ def configured(tmp_path, monkeypatch):
     outcomes = []
     ready = threading.Event()
     def delivered(outcome):
+        if outcome.get("pending"):
+            return
         outcomes.append(outcome)
         ready.set()
     monkeypatch.setattr(cr, "_deliver_error_result", delivered)
@@ -355,9 +359,9 @@ def test_explicit_none_never_discovers_or_resolves_an_ai_backend(configured, mon
     policy["provider"] = "none"
     cr._update_state(affirmed_policy=policy)
     calls = []
-    monkeypatch.setattr(providers._HOSTED, "is_configured", lambda: calls.append("hosted") or True)
+    monkeypatch.setattr(type(providers._HOSTED), "is_configured", lambda self: calls.append("hosted") or True)
     for provider in providers._PROVIDERS:
-        monkeypatch.setattr(provider, "is_configured", lambda: calls.append("vendor") or True)
+        monkeypatch.setattr(type(provider), "is_configured", lambda self: calls.append("vendor") or True)
     assert providers.default_provider("none") is None
     assert providers.default_provider() is None
     assert providers.configured_providers() == []
@@ -503,3 +507,73 @@ def test_reraising_the_same_exception_freezes_a_new_occurrence_policy(configured
     assert len(relay.calls_to("/report")) == 1
     assert cr._dispatch_error(tb, traceback_text=tb, event_id=old_token) is None
     assert cr._dispatch_error(tb, traceback_text=tb, event_id=second._spacr_error_occurrence) is None
+
+
+def test_none_reports_without_presenting_a_terminal_result(configured, monkeypatch):
+    relay, outcomes, ready = configured
+    policy = cr._read_state()["affirmed_policy"]
+    policy["provider"] = "none"
+    cr._update_state(affirmed_policy=policy)
+    destination, original = io.StringIO(), io.StringIO()
+    monkeypatch.setattr(cr.sys, "__stderr__", destination)
+    monkeypatch.setattr(cr, "_deliver_error_result", _ORIGINAL_DELIVERY)
+    workers = []
+    dispatch = cr._dispatch_error
+    def capture(*args, **kwargs):
+        worker = dispatch(*args, **kwargs)
+        if worker is not None:
+            workers.append(worker)
+        return worker
+    monkeypatch.setattr(cr, "_dispatch_error", capture)
+    _ErrorStream(original).write("ERROR original channel failure\n")
+    assert len(workers) == 1
+    joined(workers[0])
+    assert original.getvalue() == "ERROR original channel failure\n"
+    assert destination.getvalue() == ""
+    assert relay.calls_to("/diagnose") == []
+    reports = relay.calls_to("/report")
+    assert len(reports) == 1 and reports[0]["body"]["summarize"] is False
+    assert "ai_summary" not in reports[0]["body"]
+
+
+@pytest.mark.parametrize("expiry", ["capacity", "ttl"])
+def test_retired_transport_cannot_resubmit_but_a_new_error_can(configured, monkeypatch, expiry):
+    import time
+    from types import SimpleNamespace
+
+    relay, outcomes, ready = configured
+    policy = cr._read_state()["affirmed_policy"]
+    policy["provider"] = "none"
+    cr._update_state(affirmed_policy=policy)
+    threads = []
+    original_dispatch = cr._dispatch_error
+    def dispatch(*args, **kwargs):
+        result = original_dispatch(*args, **kwargs)
+        threads.append(result)
+        return result
+    monkeypatch.setattr(cr, "_dispatch_error", dispatch)
+    handler = _AutomaticErrorHandler(logging.ERROR)
+    def emit(number):
+        record = logging.LogRecord("spacr.retirement", logging.ERROR, __file__, 1,
+                                   f"Real error occurrence {number}", (), None)
+        handler.emit(record)
+        joined(threads[-1])
+        return record
+    first = emit(0)
+    if expiry == "capacity":
+        for number in range(1, 257):
+            emit(number)
+        expected = 257
+    else:
+        original_monotonic = time.monotonic
+        monkeypatch.setattr(cr, "time", SimpleNamespace(
+            time=time.time,
+            monotonic=lambda: original_monotonic() + cr.QUEUE_RETENTION_S + 1))
+        expected = 1
+    assert original_dispatch(first.getMessage(), event_id=first._spacr_error_occurrence) is None
+    assert len(relay.calls_to("/report")) == expected
+    emit("fresh")
+    assert len(relay.calls_to("/report")) == expected + 1
+    assert relay.calls_to("/diagnose") == []
+    assert all(call["body"]["summarize"] is False for call in relay.calls_to("/report"))
+    assert all(outcome["quiet"] for outcome in outcomes)

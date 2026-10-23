@@ -538,17 +538,17 @@ class TestPreferencesProviderSwitch:
 
         return dialog.findChild(QRadioButton, f"AiProvider_{name}")
 
-    def test_four_choices_with_spacr_ai_first_and_on(self, qtbot,
+    def test_five_choices_with_spacr_ai_first_and_on(self, qtbot,
                                                      qt_theme_applied):
         from PySide6.QtWidgets import QLabel
 
         dialog = self._dialog(qtbot)
         names = [name for name, _l, _n in providers.PROVIDER_CHOICES]
         assert names == [providers.HOSTED_PROVIDER_NAME, "claude", "codex",
-                         "gemini"]
+                         "gemini", "none"]
         labels = [self._radio(dialog, n).text() for n in names]
         assert labels == ["spaCR AI (free, daily allowance)", "Claude",
-                          "GPT (Codex)", "Gemini"]
+                          "GPT (Codex)", "Gemini", "None"]
         assert self._radio(dialog, providers.HOSTED_PROVIDER_NAME).isChecked()
         texts = [label.text() for label in dialog.findChildren(QLabel)]
         assert "Uses your Claude Code login (the claude CLI)." in texts

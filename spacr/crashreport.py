@@ -79,6 +79,7 @@ Usage
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager as _contextmanager
 import hashlib
 import io
 import itertools
@@ -3054,6 +3055,8 @@ def _deliver_error_result(outcome):
 
 def _write_error_result(outcome):
     """Write sanitized results to the original terminal outside captured streams."""
+    if outcome.get("pending") or outcome.get("quiet"):
+        return
     text = str((outcome.get("explanation") or {}).get("text", ""))
     url = str(outcome.get("issue_url", ""))
     if not (text or url):
@@ -3102,11 +3105,36 @@ def _error_occurrence(event_id):
         return event_id, captured
 
 
+@_contextmanager
+def _validation_error_context(app_key, problems):
+    """Scope safe validation metadata to the thread running this entry point."""
+    previous = getattr(_ERROR_DISPATCH_LOCAL, "validation_context", None)
+    lines = public_problem_lines(problems)
+    screen = str(app_key or "").replace("_", " ").title()
+    for entry in getattr(sys.modules.get("spacr.qt.app"), "APPS", ()):
+        if entry[0] == app_key:
+            screen = str(entry[1])
+            break
+    message = "\n".join([
+        f"The run did not start: {len(lines)} settings problem"
+        f"{'' if len(lines) == 1 else 's'}."
+    ] + [f"- {line}" for line in lines]) if lines else ""
+    _ERROR_DISPATCH_LOCAL.validation_context = {
+        "module": str(app_key or ""), "screen": screen,
+        "message": message, "error_text": message,
+    }
+    try:
+        yield
+    finally:
+        _ERROR_DISPATCH_LOCAL.validation_context = previous
+
+
 def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
-                    summary=None, event_id="", origin="direct"):
+                    summary=None, event_id="", origin="direct", context=None):
     """Schedule bounded error processing without file I/O on the emitting thread."""
     if getattr(_ERROR_DISPATCH_LOCAL, "active", False):
         return None
+    context = dict(context or {})
     event_id, (captured, explain, send) = _error_occurrence(
         event_id or (_new_error_occurrence(exception) if exception is not None else ""))
     if not (explain or send) or not _ERROR_DISPATCH_LIMIT.acquire(blocking=False):
@@ -3116,17 +3144,22 @@ def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
         for key, when in list(_ERROR_DISPATCH_SEEN.items()):
             if now - when > QUEUE_RETENTION_S:
                 _ERROR_DISPATCH_SEEN.pop(key, None)
-        if event_id in _ERROR_DISPATCH_SEEN:
+                _ERROR_OCCURRENCE_POLICIES.pop(key, None)
+        if (event_id not in _ERROR_OCCURRENCE_POLICIES
+                or event_id in _ERROR_DISPATCH_SEEN):
             _ERROR_DISPATCH_LIMIT.release()
             return None
         if len(_ERROR_DISPATCH_SEEN) >= 256:
-            _ERROR_DISPATCH_SEEN.pop(next(iter(_ERROR_DISPATCH_SEEN)))
+            retired = next(iter(_ERROR_DISPATCH_SEEN))
+            _ERROR_DISPATCH_SEEN.pop(retired)
+            _ERROR_OCCURRENCE_POLICIES.pop(retired, None)
         _ERROR_DISPATCH_SEEN[event_id] = now
 
     def work():
         """Sanitize, deduplicate, explain and publish only on this background thread."""
         _ERROR_DISPATCH_LOCAL.active = True
         queued = None
+        pending_issued = delivered = False
         try:
             kind = classify_failure(exception, traceback_text or text)
             original_send = send and mode_sends(kind, captured["_mode"])
@@ -3135,7 +3168,9 @@ def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
                 return
             clean = summary or public_summary(
                 exception, traceback_text=traceback_text or text,
-                error_text=text, kind=kind, module=module or "background",
+                error_text=context.get("error_text") or text, kind=kind,
+                module=context.get("module") or module or "background",
+                screen=context.get("screen", ""), message=context.get("message", ""),
                 code_context=(mode_code_context(captured["_mode"])
                               and mode_code_context(current["_mode"])))
             if not clean.get("exception_type"):
@@ -3146,19 +3181,26 @@ def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
                 clean["message"] = scrub_public_text(text, MAX_MESSAGE_CHARS)
             if original_send and now_send:
                 queued = _enqueue(dict(clean, summarize=False), automatic=True)
-            outcome = {}
+            outcome = {"event_id": event_id}
             current, now_explain, now_send = _automatic_error_policy(kind)
             selected = str(captured.get("provider", ""))
             do_explain = explain and now_explain and current.get("provider", "") == selected
             if do_explain:
+                saved = saved_explanation(explanation_signature(clean))
+                pending_issued = True
+                _deliver_error_result({"event_id": event_id, "pending": True,
+                                       "kind": kind, "explanation": saved or {}})
                 from .qt.ai.providers import list_providers, HostedProvider, explain_failure
-                candidates = [HostedProvider()] + [type(p)() for p in list_providers()]
-                provider = next((p for p in candidates if p.name == selected), None)
-                if not selected:
-                    provider = candidates[0]
-                if provider is not None:
-                    provider._reporting_args = list(captured.get("provider_args") or [])
-                outcome["explanation"] = explain_failure(clean, provider)
+                try:
+                    candidates = [HostedProvider()] + [type(p)() for p in list_providers()]
+                    provider = next((p for p in candidates if p.name == selected), None)
+                    if not selected:
+                        provider = candidates[0]
+                    if provider is not None:
+                        provider._reporting_args = list(captured.get("provider_args") or [])
+                    outcome["explanation"] = explain_failure(clean, provider)
+                except Exception:
+                    outcome["explanation"] = {"text": "", "refused": "error"}
             payload = dict(clean, summarize=False)
             advice = (outcome.get("explanation") or {}).get("text", "")
             if advice:
@@ -3188,10 +3230,18 @@ def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
                 do_explain = False
             outcome["explained"] = do_explain
             outcome["kind"] = kind
+            outcome["quiet"] = (selected == "none" or latest.get("provider") == "none"
+                                or not (may_explain or may_send))
             _deliver_error_result(outcome)
+            delivered = True
         except Exception:
             pass
         finally:
+            if pending_issued and not delivered:
+                try:
+                    _deliver_error_result({"event_id": event_id, "quiet": True})
+                except Exception:
+                    pass
             if queued is not None:
                 _ERROR_ACTIVE_QUEUES.discard(queued)
             _ERROR_DISPATCH_LOCAL.active = False
@@ -3218,10 +3268,16 @@ def _capture_error_record(record):
     text = record.getMessage()
     exc = record.exc_info[1] if record.exc_info else None
     tb = str(record.exc_text or "") if exc else ""
+    context = None
+    site = getattr(record, "spacr_call_site", None)
+    if not exc and site:
+        tb = ("Traceback (most recent call last):\n" + "".join(site)
+              + "spacr.errors.ConfigurationError: " + text)
+        context = getattr(_ERROR_DISPATCH_LOCAL, "validation_context", None)
     event_id = getattr(record, "_spacr_error_occurrence", "") or _new_error_occurrence(exc)
     record._spacr_error_occurrence = event_id
     _dispatch_error(text, exception=exc, module=record.name, traceback_text=tb,
-                    event_id=event_id, origin="log")
+                    event_id=event_id, origin="log", context=context)
 
 
 def _capture_error_line(text, *, origin="terminal"):

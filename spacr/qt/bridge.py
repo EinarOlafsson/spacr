@@ -1940,6 +1940,7 @@ def _say_what_is_wrong_with_the_settings(app_key, fn):
     @functools.wraps(fn)
     def run(settings=None, *args, **kwargs):
         """Run the entry point, turning a settings problem into a message."""
+        errors = []
         if isinstance(settings, dict):
             try:
                 from spacr.validate import (ERROR, coerce_expected_types,
@@ -1961,7 +1962,8 @@ def _say_what_is_wrong_with_the_settings(app_key, fn):
                 if problem.fix:
                     print(f"[settings]     {problem.fix}")
         from spacr.resource_log import _ram_guard_scope
-        with _ram_guard_scope(settings):
+        from spacr.crashreport import _validation_error_context
+        with _ram_guard_scope(settings), _validation_error_context(app_key, errors):
             if settings is None:
                 return fn(*args, **kwargs)
             return fn(settings, *args, **kwargs)
