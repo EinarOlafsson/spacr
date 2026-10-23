@@ -189,7 +189,10 @@ def test_reopening_cancelled_overview_keeps_navigation_and_decodes(plate_images,
     wizard.scope.setCurrentIndex(wizard.scope.findData("recursive"))
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
     wizard.channels.setText("1,2")
+    configuration = wizard.configuration()
+    assert configuration["channels"] == (1, 2)
     qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+    assert hasattr(owner, "_field_overview"), wizard.status.text()
     dialog = owner._field_overview
     qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     dialog._image_jobs._threaded = False
@@ -342,7 +345,7 @@ def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, tmp_p
     source_folder = tmp_path / "source"
     source_folder.mkdir()
     np.save(source_folder / "plate1_A01_F1.npy", np.stack([
-        np.arange(120).reshape(10, 12)] * 3, axis=-1).astype(np.uint16))
+        np.arange(120).reshape(10, 12)] * 4, axis=-1).astype(np.uint16))
     source_path = str(source_folder)
     if module == "mask":
         from spacr.qt.screens.app_screen import AppScreen
@@ -383,7 +386,10 @@ def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, tmp_p
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
     channels = expected.get("channels") or (0,)
     wizard.channels.setText(",".join(str(value) for value in channels))
+    configuration = wizard.configuration()
+    assert configuration["channels"] == tuple(channels)
     qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+    assert hasattr(screen, "_field_overview"), wizard.status.text()
     dialog = screen._field_overview
     qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     assert isinstance(dialog, browser._FieldOverview)
@@ -945,9 +951,10 @@ def test_visible_well_thumbnails_follow_native_ratio_and_reuse_source_cache(tmp_
             size = dialog.wells.iconSize()
             picture = item.icon().pixmap(size, density)
             assert picture.devicePixelRatio() == density
-            assert picture.size() == QSize(round(size.width() * density), round(size.height() * density))
-            assert picture.deviceIndependentSize().width() == size.width()
-            assert picture.deviceIndependentSize().height() == size.height()
+            expected = QSize(image.shape[1], image.shape[0]).scaled(size, browser.Qt.KeepAspectRatio)
+            assert picture.size() == QSize(round(expected.width() * density), round(expected.height() * density))
+            assert picture.deviceIndependentSize().width() == expected.width()
+            assert picture.deviceIndependentSize().height() == expected.height()
         base = max(64, max(dialog._plate_cell_extent or (160, 160)))
         assert decoded == [base, base * 2]
         assert len(dialog._thumbnail_cache) == 2
@@ -1343,6 +1350,7 @@ def test_reopening_well_mean_browser_rebuilds_its_cancelled_context(plate_images
     assert old_context is not None
     field = dialog._well_representatives["A01"]
     previous_generation = dialog._display_generation
+    _retire_overview(dialog, qtbot)
     dialog.close()
     assert old_cancelled.is_set()
     dialog.show()
