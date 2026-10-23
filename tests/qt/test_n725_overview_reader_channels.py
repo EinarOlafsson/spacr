@@ -436,3 +436,166 @@ def test_well_mean_reference_average_preserves_raw_csv_and_full_source_pdf(tmp_p
     assert metadata["measurements"]["original_resolution"] is True
     assert metadata["measurements"]["intensity_units"] == "raw_stored_pixel_values"
     assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_discovery_refuses_invalid_configuration_without_changing_source_files(tmp_path):
+    source = tmp_path / "source"
+    source.mkdir()
+    path = source / "p1_A01_F1.tif"
+    tifffile.imwrite(path, np.arange(12, dtype=np.uint16).reshape(3, 4))
+    original = path.read_bytes()
+    (source / "README.txt").write_text("Source acquisition notes", encoding="utf-8")
+    with pytest.raises(browser._OverviewValidationError, match="existing image folder"):
+        browser._overview_index(source / "missing")
+    with pytest.raises(browser._OverviewValidationError, match="source scope"):
+        browser._overview_index(source, source_scope="unknown")
+    with pytest.raises(browser._OverviewValidationError, match="unterminated"):
+        browser._overview_index(source, pattern="[")
+    fields = browser._overview_index(source, source_scope="folder")
+    assert len(fields) == 1 and fields[0].files == (("", str(path)),)
+    assert path.read_bytes() == original
+    assert (source / "README.txt").read_text() == "Source acquisition notes"
+
+
+def test_declared_unsupported_axes_and_invalid_plane_choices_refuse_without_mutation(tmp_path):
+    unsupported = tmp_path / "unsupported"
+    unsupported.mkdir()
+    unknown = unsupported / "p1_A01_F1.tif"
+    tifffile.imwrite(unknown, np.ones((2, 3, 4), np.uint16),
+                     photometric="minisblack", metadata={"axes": "QYX"})
+    field, = browser._overview_index(unsupported)
+    with pytest.raises(browser._OverviewValidationError, match="channel axis is unresolved"):
+        browser._overview_channel_info(field)
+    source = tmp_path / "supported"
+    source.mkdir()
+    path = source / "p1_A01_F1.tif"
+    image = np.arange(2 * 2 * 3 * 4, dtype=np.uint16).reshape(2, 2, 3, 4)
+    tifffile.imwrite(path, image, photometric="minisblack", metadata={"axes": "TZYX"})
+    original = {file: file.read_bytes() for file in (unknown, path)}
+    field, = browser._overview_index(source)
+    for channels, options, message in (
+        ((.5,), {}, "nonnegative channel indices"),
+        ((-1,), {}, "zero or greater"),
+        ((0,), {"z_mode": "median"}, "maximum or mean projection"),
+        ((0,), {"time_index": .5, "z_index": 0}, "explicit time and Z"),
+    ):
+        with pytest.raises(browser._OverviewValidationError, match=message):
+            tuple(browser._overview_raw_planes(field, channels, **options))
+    channel, actual_path, plane = next(browser._overview_raw_planes(
+        field, (0,), time_index=1, z_index=1))
+    assert channel == 0 and actual_path == str(path)
+    np.testing.assert_array_equal(plane, image[1, 1])
+    assert all(file.read_bytes() == content for file, content in original.items())
+
+
+def test_oversized_tiff_uses_bounded_native_mapping_and_refuses_compressed_decode(tmp_path):
+    from spacr.errors import ConfigurationError
+
+    source = tmp_path / "source"
+    source.mkdir()
+    shape = (8193, 8193)
+    mapped_path = source / "p1_A01_F1.tif"
+    mapped = tifffile.memmap(mapped_path, shape=shape, dtype=np.uint16,
+                            photometric="minisblack")
+    mapped[0, 0] = 1234
+    mapped[-1, -1] = 4321
+    mapped.flush()
+    del mapped
+    compressed_path = source / "p1_A01_F2.tif"
+    tifffile.imwrite(compressed_path, np.zeros(shape, dtype=np.uint16),
+                     compression="deflate", photometric="minisblack")
+    compressed_bytes = compressed_path.read_bytes()
+    mapped_stat = mapped_path.stat()
+    fields = browser._overview_index(source)
+    first, second = fields
+    _, _, preview = next(browser._overview_raw_planes(first, (0,), edge=32))
+    assert preview.shape == (32, 32) and preview[0, 0] == 1234
+    assert isinstance(preview, np.memmap)
+    with pytest.raises(ConfigurationError, match="128 MiB preview decode limit"):
+        tuple(browser._overview_raw_planes(second, (0,), edge=32))
+    assert compressed_path.read_bytes() == compressed_bytes
+    assert (mapped_path.stat().st_size, mapped_path.stat().st_mtime_ns) == (
+        mapped_stat.st_size, mapped_stat.st_mtime_ns)
+    actual = tifffile.memmap(mapped_path, mode="r")
+    assert actual[0, 0] == 1234 and actual[-1, -1] == 4321
+    del actual
+
+
+@pytest.mark.parametrize("stage", ("reference-preparation", "full-source-render"))
+def test_actual_well_mean_export_cancellation_never_publishes_a_partial_page(tmp_path, stage):
+    import threading
+
+    source = tmp_path / "source"
+    source.mkdir()
+    for well, offset in (("A01", 0), ("B02", 4)):
+        tifffile.imwrite(source / f"p1_{well}_F1_C1.tif",
+            np.arange(12, dtype=np.uint16).reshape(3, 4) + offset)
+    fields = browser._overview_index(source)
+    target = next(field for field in fields if field.well == "B02")
+    original = {path: path.read_bytes() for path in source.iterdir()}
+    cancelled = threading.Event()
+    read_fields = []
+
+    def sampled_read(field, channels, *, edge):
+        planes = tuple(browser._overview_raw_planes(field, channels, edge=edge))
+        read_fields.append(field.identity)
+        if field is target and stage == "reference-preparation":
+            cancelled.set()
+        return planes
+
+    plan, context = browser._overview_prepare_normalization(fields, (1,), {
+        "mode": "reference_average", "reference_kind": "reference_well",
+        "reference": ("p1", "A01"), "percentiles": (0, 100),
+    }, sampled_read, cancelled)
+    assert read_fields == [fields[0].identity]
+    if stage == "full-source-render":
+        context.plan_for(target, cancelled)
+        original_read = browser._overview_raw_planes
+        from unittest.mock import patch
+
+        def render_read(field, channels, **options):
+            for plane in original_read(field, channels, **options):
+                yield plane
+            if field is target and "edge" in options and options["edge"] is None:
+                cancelled.set()
+
+        patcher = patch.object(browser, "_overview_raw_planes", render_read)
+    else:
+        from contextlib import nullcontext
+        patcher = nullcontext()
+    output = tmp_path / "export"
+    with patcher:
+        written, errors = browser._overview_export((target,), output, (1,), (0, 100),
+            cancelled=cancelled, measurements=True, quality_edge=None,
+            normalization=plan, normalization_context=context)
+    assert cancelled.is_set() and written == errors == ()
+    assert not list(output.glob("*.pdf"))
+    assert not (output / "overview_measurements.csv").exists()
+    assert not list(output.glob(".*pending*"))
+    metadata = json.loads((output / "overview_selection.json").read_text())
+    assert metadata["cancelled"] is True and metadata["fields"] == []
+    assert metadata["written_field_count"] == 0 and metadata["requested_field_count"] == 1
+    assert metadata["measurements"]["path"] is None
+    assert metadata["measurements"]["written_field_count"] == 0
+    assert metadata["normalization"]["reference_means"] == {"1": 5.5}
+    assert all(path.read_bytes() == content for path, content in original.items())
+
+
+def test_large_z_mean_refuses_full_float_allocation_but_keeps_raw_stride_preview(tmp_path):
+    path = tmp_path / "p1_A01_F1.tif"
+    image = tifffile.memmap(path, shape=(2, 4097, 4097), dtype=np.uint8,
+                           photometric="minisblack", metadata={"axes": "ZYX"})
+    image[0, 0, 0], image[1, 0, 0] = 2, 4
+    image.flush()
+    del image
+    before = path.stat()
+    field, = browser._overview_index(tmp_path)
+    with pytest.raises(browser._OverviewValidationError, match="128 MiB preview decode limit"):
+        tuple(browser._overview_raw_planes(field, (0,), z_mode="mean"))
+    _, _, preview = next(browser._overview_raw_planes(field, (0,), z_mode="mean", edge=32))
+    assert preview.shape == (32, 32) and preview.dtype == np.float64
+    assert preview[0, 0] == 3. and np.count_nonzero(preview) == 1
+    assert (path.stat().st_size, path.stat().st_mtime_ns) == (before.st_size, before.st_mtime_ns)
+    actual = tifffile.memmap(path, mode="r")
+    assert actual[0, 0, 0] == 2 and actual[1, 0, 0] == 4
+    del actual
