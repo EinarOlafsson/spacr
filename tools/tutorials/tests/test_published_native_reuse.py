@@ -101,3 +101,78 @@ def test_preparation_never_overwrites_existing_outputs(retained_stage):
     stage,root,baseline,repo=retained_stage
     reuse.prepare(stage,'05_home',baseline)
     with pytest.raises(FileExistsError):reuse.prepare(stage,'05_home',baseline)
+
+
+def policy_stage(retained_stage, repeated=False):
+    stage,root,baseline,repo=retained_stage
+    if repeated:
+        canonical=json.loads((root/'lesson.en.json').read_text())
+        canonical['scenes'][1]['visual']=canonical['scenes'][0]['visual']
+        write(root/'lesson.en.json',canonical);write(repo/'tools/tutorials/lessons/05_home.json',canonical)
+        for path in (stage/'catalog').glob('lessons_*.json'):
+            catalog=json.loads(path.read_text());catalog['lessons'][0]['scenes'][1]['visual']=canonical['scenes'][0]['visual'];write(path,catalog)
+        clock=baseline/'media_host/05_home/video/native-live-timings.json'
+        original=json.loads(clock.read_text());original['scenes'][1]['visual']=original['scenes'][0]['visual'];write(clock,original)
+        manifest=baseline/'release-manifest.json';m=json.loads(manifest.read_text())
+        for record in m['files']:
+            if record['path'].endswith('native-live-timings.json'):record.update(bytes=clock.stat().st_size,sha256=digest(clock))
+        write(manifest,m);receipt=baseline/'publication-receipt.json';r=json.loads(receipt.read_text());r['manifest_sha256']=digest(manifest);write(receipt,r)
+    # Full speech bounds, not scene padding, determine essential-action coverage.
+    for path in (root/'audio').rglob('*.json'):
+        track=json.loads(path.read_text())
+        for index,scene in enumerate(track['scenes']):scene.update(speech_start=index*2,speech_end=index*2+1.5)
+        write(path,track)
+    current=reuse.prepare(stage,'05_home',baseline)
+    original_path=baseline/'media_host/05_home/video/native-live-timings.json'
+    original=json.loads(original_path.read_text())
+    entry=dict(lesson='05_home',master_sha256=digest(root/'video/05_home_silent.mp4'),visual_timing_sha256=digest(original_path),
+        scenes=[dict(visual=s['visual'],source_start=s['speech_start'],source_end=s['scene_end'],idle_tail_start=.2+index*.2)
+                for index,s in enumerate(original['scenes'])])
+    policy=repo/'tools/tutorials/idle_tail_policy.json';write(policy,dict(schema=1,lessons=[entry]))
+    return stage,root,baseline,repo,current,policy,entry
+
+
+@pytest.mark.parametrize('repeated',[False,True])
+def test_reused_policy_changes_only_timing_hash_and_preserves_exact_indexed_fences(retained_stage,repeated):
+    stage,root,baseline,repo,current,policy,entry=policy_stage(retained_stage,repeated)
+    old_policy=policy.read_bytes();old_record=(root/reuse.RECORD).read_bytes()
+    result=reuse.reused_policy(stage,'05_home')
+    assert result==root/'reused-idle-tail-policy.json'
+    assert json.loads(result.read_text())==dict(schema=1,lessons=[dict(entry,visual_timing_sha256=digest(current))])
+    assert policy.read_bytes()==old_policy and (root/reuse.RECORD).read_bytes()==old_record
+    assert digest(root/'video/05_home_silent.mp4')==digest(baseline/'media_host/05_home/video/05_home_silent.mp4')
+    if repeated:
+        fences=json.loads(result.read_text())['lessons'][0]['scenes']
+        assert fences[0]['visual']==fences[1]['visual'] and [s['source_start'] for s in fences]==[0,3]
+        assert [s['idle_tail_start'] for s in fences]==[.2,.4]
+
+
+@pytest.mark.parametrize('mutation',['old_timing_hash','old_master_hash','old_fence_clock','missing_fence','shortest_speech','stored_clock','integer_flag','staged_master'])
+def test_reused_policy_refuses_stale_source_or_uncovered_action_without_writing(retained_stage,mutation):
+    stage,root,baseline,repo,current,policy,entry=policy_stage(retained_stage)
+    if mutation=='old_timing_hash':entry['visual_timing_sha256']='f'*64
+    elif mutation=='old_master_hash':entry['master_sha256']='f'*64
+    elif mutation=='old_fence_clock':entry['scenes'][1].update(source_start=3.1)
+    elif mutation=='missing_fence':entry['scenes'].pop()
+    elif mutation=='shortest_speech':entry['scenes'][1]['idle_tail_start']=1.6
+    elif mutation in ('stored_clock','integer_flag'):
+        clock=json.loads(current.read_text());clock['scenes'][1]['native_live_video']=False if mutation=='stored_clock' else 1;write(current,clock)
+    else:
+        master=root/'video/05_home_silent.mp4';master.rename(master.with_suffix('.preserved.mp4'));master.write_bytes(b'changed staged source')
+    write(policy,dict(schema=1,lessons=[entry]))
+    with pytest.raises(ValueError):reuse.reused_policy(stage,'05_home')
+    assert not (root/'reused-idle-tail-policy.json').exists()
+
+
+def test_reused_policy_never_overwrites_an_existing_result(retained_stage):
+    stage,root,*_=policy_stage(retained_stage)
+    result=root/'reused-idle-tail-policy.json';result.write_text('preserve incomplete prior output')
+    with pytest.raises(FileExistsError):reuse.reused_policy(stage,'05_home')
+    assert result.read_text()=='preserve incomplete prior output'
+
+
+def test_write_policy_cli_requires_the_actual_reuse_record_baseline(retained_stage,monkeypatch):
+    stage,root,*_=policy_stage(retained_stage)
+    monkeypatch.setattr(sys,'argv',['published_native_reuse.py','--stage',str(stage),'--lesson','05_home','--baseline',str(stage/'wrong-baseline'),'--write-idle-policy'])
+    with pytest.raises(ValueError,match='baseline must match'):reuse.main()
+    assert not (root/'reused-idle-tail-policy.json').exists()
