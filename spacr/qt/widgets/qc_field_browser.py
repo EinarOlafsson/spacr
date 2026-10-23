@@ -3975,8 +3975,9 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
                         for axis in ("well", "field_id", "time_id", "z_id"))
                 and (not channel or channel == by_path[path][1])
                 for field in fields for channel, path in field.files)
-            preserves_groups = all(len({by_path[path][0].identity for _, path in field.files
-                                        if path in by_path}) == 1 for field in fields)
+            preserves_groups = preserves_metadata and all(
+                {path for _, path in by_path[field.files[0][1]][0].files}
+                == {path for _, path in field.files} for field in fields)
             if preserves_metadata and preserves_groups:
                 fields = inferred
             else:
