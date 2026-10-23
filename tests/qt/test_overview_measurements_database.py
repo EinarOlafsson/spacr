@@ -288,3 +288,30 @@ def test_parallel_cancel_discards_partial_rows_and_retires_pending_image_jobs(tm
         cancelled=stopped, progress=lambda done, total: stopped.set())
     assert report["cancelled"] and report["count"] == 0 and report["attempted"] >= 1
     assert _rows(previous["path"]) == before
+
+
+def test_parallel_export_with_fewer_images_than_workers_keeps_actual_row_count(tmp_path):
+    field = _field(tmp_path)
+    report = _overview_measurements_export((field,), tmp_path, (0,), workers=2)
+    assert report["count"] == report["attempted"] == 1
+    assert not report["errors"]
+    assert len(_rows(report["path"])) == 1
+
+
+def test_worker_exception_preserves_database_and_records_source_diagnostic(tmp_path, monkeypatch):
+    from concurrent import futures
+    from spacr.qt.widgets import qc_field_browser as browser
+    field = _field(tmp_path)
+    before = _overview_measurements_export((field,), tmp_path, (0,))
+    rows = _rows(before["path"])
+    def executor(*, max_workers, mp_context):
+        return futures.ThreadPoolExecutor(max_workers=max_workers)
+    def failed(*args, **kwargs):
+        raise MemoryError("controlled worker allocation refusal")
+    monkeypatch.setattr(futures, "ProcessPoolExecutor", executor)
+    monkeypatch.setattr(browser, "_overview_measurement", failed)
+    report = _overview_measurements_export((field,), tmp_path, (0,), workers=2)
+    assert report["count"] == 0 and report["attempted"] == 1
+    assert "allocation refusal" in report["errors"][0]["error"]
+    assert report["diagnostics"][0]["source_files"] == field.files
+    assert _rows(before["path"]) == rows

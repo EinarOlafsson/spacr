@@ -31,10 +31,13 @@ def _ready_overview(dialog, fields, qtbot):
 def _retire_overview(dialog, qtbot):
     dialog._cancel()
     runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
-               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs)
     qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
     for runner in runners:
         runner.shutdown(timeout_ms=3000)
+    from spacr.qt.bridge import prune_parked_threads
+    qtbot.waitUntil(lambda: prune_parked_threads() == 0)
 
 
 def _retire_overview_owner(owner, qtbot):
@@ -1355,6 +1358,7 @@ def test_folder_browse_and_real_metadata_acceptance_reindex_without_moving_image
         dialog._controls_scroll.ensureWidgetVisible(browse)
         qtbot.mouseClick(browse, browser.Qt.LeftButton)
         assert dialog.source.text() == str(initial) and not dialog._fields
+        dialog.regex.setText(r"sample-p9-(?P<wellID>[A-Z]\d+)-f\d+-c(?P<chanID>\d+)")
         monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_a, **_k: str(source))
         dialog._controls_scroll.ensureWidgetVisible(browse)
         qtbot.mouseClick(browse, browser.Qt.LeftButton)

@@ -1705,7 +1705,7 @@ def _overview_plane_region(array, region):
 
 
 def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=None):
-    """Read only the selected TIFF pages, streaming an explicit Z projection."""
+    """Read validated TIFF axes as selected pages, streaming explicit Z projections."""
     import tifffile
 
     axes = record["axes"]
@@ -1716,8 +1716,6 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=
             raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
         leading = axes[:-len(page_axes)]
         leading_shape = series.shape[:len(leading)]
-        if any(axis not in "TCZ" for axis in leading):
-            raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
         z_values = (range(record["z_count"]) if "Z" in axes and z_mode != "plane"
                     else (selections.get("Z", 0),))
         result, count = None, 0
@@ -2969,6 +2967,7 @@ class _FieldOverview(QDialog):
         self.wells.setToolTip(tr("Select wells for export; double-click a well to explore its fields."))
         self.fields.itemSelectionChanged.connect(self._remember_selection)
         self.fields.itemClicked.connect(self._field)
+        self.fields.currentItemChanged.connect(self._current_field_changed)
         from PySide6.QtWidgets import QSplitter
         splitter = QSplitter()
         self._splitter = splitter
@@ -3155,8 +3154,6 @@ class _FieldOverview(QDialog):
 
     def _normalization_target_changed(self, *_):
         """Load the effective settings for one channel without changing others."""
-        if self._loading_controls:
-            return
         if self._editing_channel is None:
             self._global_normalization_options = self._editor_options()
         self._editing_channel = self.norm_channel.currentData()
@@ -3304,8 +3301,6 @@ class _FieldOverview(QDialog):
 
     def _advanced_invalidate(self, *_):
         """Recompute advanced limits without changing the saved reference mode."""
-        if self._loading_controls:
-            return
         self._advanced_model = None
         self._cache.clear()
         self._thumbnail_cache.clear()
@@ -3653,8 +3648,6 @@ class _FieldOverview(QDialog):
 
     def _apply_plate_extent(self):
         """Restore the same native well size after source-axis or annotation changes."""
-        if self._plate_cell_extent is None:
-            return
         width, height = self._plate_cell_extent
         from PySide6.QtCore import QSize
         self.wells.setIconSize(QSize(max(1, width - 2), max(1, height - 2)))
@@ -3692,12 +3685,11 @@ class _FieldOverview(QDialog):
                 flow = essential_flow if host is essential else FlowLayout(host)
                 while layout.count():
                     child = layout.takeAt(0)
-                    if child.widget() is not None:
-                        flow.addWidget(child.widget())
+                    flow.addWidget(child.widget())
                 layout.setParent(None)
                 if host is not essential:
                     controls.addWidget(host)
-            elif item.widget() is not None:
+            else:
                 controls.addWidget(item.widget())
         scroll = QScrollArea(self)
         scroll.setWidgetResizable(True)
@@ -4248,6 +4240,8 @@ class _FieldOverview(QDialog):
 
         :param _: unused plate, row or column selection arguments.
         """
+        current = self.fields.currentItem()
+        current_identity = current.data(Qt.UserRole).identity if current is not None else None
         plate = self.plates.currentData()
         self._comparison_signature = None
         if self._scope[0] != plate:
@@ -4346,6 +4340,7 @@ class _FieldOverview(QDialog):
         self.fields.blockSignals(True)
         self.fields.clear()
         from PySide6.QtWidgets import QListWidgetItem
+        from PySide6.QtCore import QItemSelectionModel
         for field in self._visible[self._page * 24:(self._page + 1) * 24]:
             item = QListWidgetItem(tr("{well} · field {field} · T {time} · Z {z}",
                 well=field.well or tr("Unresolved"), field=getattr(field, "field_id", "") or field.field,
@@ -4355,6 +4350,8 @@ class _FieldOverview(QDialog):
             item.setData(Qt.UserRole, field)
             self.fields.addItem(item)
             item.setSelected(field.identity in self._selected_fields)
+            if field.identity == current_identity:
+                self.fields.setCurrentItem(item, QItemSelectionModel.NoUpdate)
         self.fields.blockSignals(False)
         if not self._visible:
             self.view.clear_image()
@@ -4428,6 +4425,11 @@ class _FieldOverview(QDialog):
         item = self.fields.currentItem()
         if item is not None and self._individual:
             self._field(item)
+
+    def _current_field_changed(self, current, previous):
+        """Follow keyboard navigation while ignoring list resets during filtering."""
+        if current is not None:
+            self._field(current)
 
     def _field(self, item, preserve_view=False):
         """Progressively decode one field without using Qt objects on a worker.

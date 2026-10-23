@@ -54,10 +54,13 @@ def overview(qtbot, source_planes):
 def _retire_overview(dialog, qtbot):
     dialog._cancel()
     runners = (dialog._index_jobs, dialog._image_jobs, dialog._thumbnail_jobs,
-               dialog._field_thumbnail_jobs, dialog._montage_jobs, dialog._export_jobs)
+               dialog._field_thumbnail_jobs, dialog._montage_jobs, dialog._export_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs)
     qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
     for runner in runners:
         runner.shutdown(timeout_ms=3000)
+    from spacr.qt.bridge import prune_parked_threads
+    qtbot.waitUntil(lambda: prune_parked_threads() == 0)
     dialog.close()
 
 

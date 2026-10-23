@@ -19,8 +19,9 @@ def _images(tmp_path):
     return browser._overview_index(tmp_path)
 
 
-def _browser(tmp_path, qtbot, fields=None, channels=(0,)):
-    dialog = browser._FieldOverview(settings={"source": str(tmp_path), "channels": channels})
+def _browser(tmp_path, qtbot, fields=None, channels=(0,), options=None):
+    settings = {"source": str(tmp_path), "channels": channels} | dict(options or {})
+    dialog = browser._FieldOverview(settings=settings)
     def retire(widget):
         widget._cancel()
         widget._visual_timer.stop()
@@ -679,4 +680,331 @@ def test_changing_field_axis_keeps_individual_view_and_advanced_time_axis_relear
     limits = next(iter(dialog._advanced_model["bounds"].values()))["0"]
     assert limits["low"] == 100 and limits["high"] == 123
     assert dialog._advanced_model["provenance"]["sampling_axes"]["time_index"] == 1
+    dialog.close()
+
+
+def test_large_viewport_native_crop_remains_bounded_in_both_spatial_dimensions(tmp_path, qtbot):
+    from PySide6.QtCore import QSize
+    from spacr.qt.gui_scale import _resize_actual
+    path = tmp_path / "plate1_A01_F1.npy"
+    raw = np.lib.format.open_memmap(path, mode="w+", dtype=np.uint8, shape=(8192, 8192))
+    raw[4000:4100, 4000:4100] = 255
+    raw.flush()
+    del raw
+    dialog = _browser(tmp_path, qtbot, browser._overview_index(tmp_path))
+    dialog.show()
+    _resize_actual(dialog, QSize(3000, 2600))
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.setCurrentRow(0)
+    dialog._field(dialog.fields.item(0))
+    dialog._splitter.setSizes([100, 100, 2800])
+    try:
+        qtbot.waitUntil(lambda: dialog.view._item is not None and dialog.view._item.pixmap().width() == 1024
+            and not dialog._image_jobs.is_busy())
+    except Exception:
+        pytest.fail(str(dict(status=dialog.status.text(), edge=dialog._preview_edge,
+            pixels=dialog.view._item.pixmap().size() if dialog.view._item else None,
+            jobs=dialog._image_jobs.active_jobs(), pending=dialog._image_pending,
+            visible=dialog.view.viewport().size(), window=dialog.size())))
+    qtbot.waitUntil(lambda: dialog.view.viewport().width() > 1500)
+    dialog.view.zoom_by(3)
+    dialog._request_detail()
+    qtbot.waitUntil(lambda: dialog._native_key is not None and not dialog._native_jobs.is_busy(), timeout=10000)
+    y0, y1, x0, x1 = dialog._native_key[2]
+    assert y1 - y0 == x1 - x0 == 2048
+    assert dialog._native_item.pixmap().size() == QSize(2048, 2048)
+    dialog.close()
+
+
+def test_saved_metadata_restore_relearns_advanced_model_and_preserves_current_condition(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot, options={"conditions": {("plate1", "A01"): "current"}})
+    qtbot.waitUntil(lambda: not dialog._metadata_jobs.is_busy())
+    dialog.normalization_scope.setCurrentIndex(dialog.normalization_scope.findData("plate"))
+    dialog.advanced.setChecked(True)
+    qtbot.waitUntil(lambda: dialog._normalization_ready and dialog._advanced_model is not None)
+    previous = dialog._advanced_model
+    path = tmp_path / "results" / "overview_annotations.json"
+    path.parent.mkdir(exist_ok=True)
+    path.write_text(json.dumps(dict(wells=[dict(plate="plate1", well="A01",
+        metadata=dict(condition="saved", dose="12 nM"))])))
+    dialog._restore_metadata()
+    qtbot.waitUntil(lambda: not dialog._metadata_jobs.is_busy() and dialog._normalization_ready
+        and dialog._advanced_model is not previous)
+    assert dialog._annotation_snapshot()[("plate1", "A01")] == dict(condition="current", dose="12 nM")
+    assert dialog.normalization_scope.findData("dose") >= 0
+    dialog.close()
+
+
+def test_late_metadata_restore_preserves_current_field_without_selecting_new_exports(tmp_path, qtbot, monkeypatch):
+    dialog = _browser(tmp_path, qtbot)
+    qtbot.waitUntil(lambda: not dialog._metadata_jobs.is_busy())
+    path = tmp_path / "results" / "overview_annotations.json"
+    path.parent.mkdir(exist_ok=True)
+    path.write_text(json.dumps(dict(wells=[dict(plate="plate1", well="A01", metadata=dict(dose="12 nM"))])))
+    original = type(path).read_text
+    entered, release = threading.Event(), threading.Event()
+    def delayed(current, *args, **kwargs):
+        value = original(current, *args, **kwargs)
+        if current == path:
+            entered.set()
+            assert release.wait(5)
+        return value
+    monkeypatch.setattr(type(path), "read_text", delayed)
+    dialog._restore_metadata()
+    qtbot.waitUntil(entered.is_set)
+    dialog.show()
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.setCurrentRow(1)
+    current = dialog.fields.item(1).data(browser.Qt.UserRole)
+    dialog.fields.clearSelection()
+    assert not dialog._selected_fields
+    dialog._field(dialog.fields.item(1))
+    release.set()
+    qtbot.waitUntil(lambda: not dialog._metadata_jobs.is_busy() and not dialog._image_jobs.is_busy()
+        and dialog.view._item is not None)
+    assert dialog.fields.currentItem().data(browser.Qt.UserRole).identity == current.identity
+    assert not dialog._selected_fields and not dialog.fields.selectedItems()
+    assert dialog._annotation_snapshot()[("plate1", "A01")]["dose"] == "12 nM"
+    dialog.close()
+
+
+def test_keyboard_field_navigation_displays_current_field_pixels(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot)
+    dialog.show()
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog.view._item is not None)
+    first = dialog.fields.currentItem().data(browser.Qt.UserRole)
+    dialog.fields.setFocus()
+    qtbot.keyClick(dialog.fields, browser.Qt.Key_Right)
+    current = dialog.fields.currentItem().data(browser.Qt.UserRole)
+    assert current.identity != first.identity
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog._preview_edge == 1024)
+    assert dialog._displayed_field[0] == current.identity
+    channels, limits = dialog._choices()
+    expected = browser._overview_pixels(current, channels, limits, edge=1024, **dialog._display_kwargs())
+    actual = dialog.view._item.pixmap().toImage()
+    from PySide6.QtGui import QImage
+    actual = actual.convertToFormat(QImage.Format_RGB888)
+    pixels = np.frombuffer(actual.bits(), np.uint8).reshape(actual.height(), actual.bytesPerLine())
+    assert np.array_equal(pixels[:, :actual.width() * 3].reshape(actual.height(), actual.width(), 3), expected)
+    dialog.close()
+
+
+def test_custom_annotation_deletion_and_target_scope_updates_keep_global_settings(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot, channels=(0,))
+    dialog.wells.item(0, 0).setSelected(True)
+    dialog.annotation_key.setEditText("dose")
+    dialog.annotation_text.setText("10 nM")
+    dialog._annotate()
+    assert dialog._annotation_snapshot()[("plate1", "A01")]["dose"] == "10 nM"
+    dialog.annotation_text.clear()
+    dialog._annotate()
+    assert "dose" not in dialog._annotation_snapshot().get(("plate1", "A01"), {})
+    dialog.norm_channel.setCurrentIndex(dialog.norm_channel.findData(0))
+    dialog.normalization_scope.setCurrentIndex(dialog.normalization_scope.findData("well"))
+    assert dialog._normalization_options()["scope"] == "well"
+    dialog.representatives.setValue(2)
+    assert dialog.representatives.value() == 2
+    dialog.close()
+
+
+def test_queued_native_camera_after_current_field_disappears_is_safe(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot)
+    dialog.show()
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog.view._item is not None)
+    dialog.fields.setCurrentRow(-1)
+    dialog.view._user_zoomed = True
+    dialog.view.zoom_by(3)
+    dialog._request_detail()
+    dialog._load_native_detail()
+    assert dialog._native_jobs.active_jobs() == 0
+    assert dialog._native_key is None
+    dialog._open_selected_well()
+    dialog.close()
+
+
+def test_camera_before_new_field_header_finishes_does_not_borrow_previous_shape(tmp_path, qtbot, monkeypatch):
+    dialog = _browser(tmp_path, qtbot)
+    dialog.show()
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog.view._item is not None)
+    original = browser._overview_channel_info
+    entered, release = threading.Event(), threading.Event()
+    next_field = dialog.fields.item(1).data(browser.Qt.UserRole)
+    def delayed(field):
+        if field.identity == next_field.identity:
+            entered.set()
+            assert release.wait(5)
+        return original(field)
+    monkeypatch.setattr(browser, "_overview_channel_info", delayed)
+    dialog.fields.setCurrentRow(1)
+    qtbot.waitUntil(entered.is_set)
+    assert next_field.identity not in dialog._source_shapes
+    dialog._load_native_detail()
+    assert dialog._native_jobs.active_jobs() == 0
+    release.set()
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog.view._item is not None)
+    dialog.close()
+
+
+def test_wizard_closed_queued_scan_and_missing_geometry_cannot_open(tmp_path, qtbot):
+    from PySide6.QtCore import QTimer
+    _images(tmp_path)
+    wizard = browser._OverviewMetadataWizard(str(tmp_path))
+    qtbot.addWidget(wizard)
+    qtbot.waitUntil(lambda: wizard.next.isEnabled())
+    wizard.plate_geometry.setCurrentIndex(-1)
+    with pytest.raises(ValueError, match="plate geometry"):
+        wizard.configuration()
+    QTimer.singleShot(0, wizard._scan)
+    wizard.reject()
+    qtbot.wait(5)
+    assert not wizard._runner.is_busy()
+
+
+def test_plate_grid_refuses_unbounded_physical_coordinate_without_allocating_cells(tmp_path, qtbot):
+    from dataclasses import replace
+    fields = _images(tmp_path)
+    field = replace(fields[0], well="A513", row="1", column=513)
+    dialog = _browser(tmp_path, qtbot, (field,))
+    dialog._filter()
+    assert "grid limit" in dialog.status.text()
+    assert dialog.wells.columnCount() < 513
+    dialog.close()
+
+
+def test_ctrl_click_well_retains_plate_selection_instead_of_opening(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot)
+    dialog.show()
+    item = dialog.wells.item(0, 0)
+    qtbot.mouseClick(dialog.wells.viewport(), browser.Qt.LeftButton,
+        browser.Qt.ControlModifier, pos=dialog.wells.visualItemRect(item).center())
+    assert dialog._scope[1] is None and not dialog._individual
+    assert ("plate1", "A01") in dialog._selected_wells
+    dialog.close()
+
+
+def test_empty_browser_axis_controls_and_zoom_mode_do_not_invent_fields(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot, ())
+    assert not dialog._fields and not dialog._visible
+    dialog._axis_changed()
+    dialog.wheel_axis.setCurrentIndex(dialog.wheel_axis.findData("zoom"))
+    before = tuple(combo.currentIndex() for combo in (dialog.fov_axis, dialog.z_axis, dialog.time_axis))
+    dialog._step_axis(1)
+    assert tuple(combo.currentIndex() for combo in (dialog.fov_axis, dialog.z_axis, dialog.time_axis)) == before
+    assert dialog.fields.count() == 0
+    dialog.close()
+
+
+def test_reference_to_absent_plate_refuses_new_source_without_silent_fallback(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot)
+    dialog._overview_options["normalization"] = dict(mode="reference_average",
+        reference_kind="reference_well", reference=("missing-plate", "A01"))
+    dialog._indexed(dialog._fields)
+    qtbot.waitUntil(lambda: not dialog._index_jobs.is_busy())
+    assert not dialog._normalization_ready
+    assert "reference has no fields" in dialog.status.text()
+    dialog.close()
+
+
+def test_unreadable_selected_comparison_does_not_install_fabricated_pixels(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot)
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.selectAll()
+    selected = tuple(dialog._selected_fields.values())
+    assert len(selected) == 2
+    for field in selected:
+        for _, path in field.files:
+            from pathlib import Path
+            Path(path).unlink()
+    dialog._compare()
+    qtbot.waitUntil(lambda: not dialog._montage_jobs.is_busy())
+    assert dialog.view._item is not None
+    assert "2 unreadable previews" in dialog.status.text()
+    dialog.close()
+
+
+def test_wizard_refuses_source_larger_than_every_standard_geometry(tmp_path, qtbot):
+    tifffile.imwrite(tmp_path / "plate1_A513_F1.tif", np.zeros((4, 4), np.uint8))
+    wizard = browser._OverviewMetadataWizard(str(tmp_path))
+    qtbot.addWidget(wizard)
+    qtbot.waitUntil(lambda: wizard._info is not None)
+    with pytest.raises(ValueError, match="geometry"):
+        wizard.configuration()
+    wizard.reject()
+
+
+def test_cancel_after_metadata_inference_does_not_inspect_an_image_header(tmp_path, monkeypatch):
+    _images(tmp_path)
+    cancelled = threading.Event()
+    original = browser._overview_index
+    calls = []
+    def indexed(*args, **kwargs):
+        fields = original(*args, **kwargs)
+        calls.append(fields)
+        if len(calls) == 2:
+            cancelled.set()
+        return fields
+    monkeypatch.setattr(browser, "_overview_index", indexed)
+    fields, info = browser._overview_wizard_probe(str(tmp_path), "", "auto", cancelled)
+    assert len(calls) == 2 and fields and info is None
+
+
+def test_nearest_nested_well_and_explicit_channel_named_files_keep_source_identity(tmp_path):
+    nested = tmp_path / "plate1" / "A01" / "B02"
+    nested.mkdir(parents=True)
+    tifffile.imwrite(nested / "F1.tif", np.zeros((4, 4), np.uint8))
+    nested_fields = browser._overview_index(tmp_path)
+    assert len(nested_fields) == 1 and nested_fields[0].well == "B02"
+    root = tmp_path / "raw"
+    for channel in (1, 2):
+        folder = root / f"C{channel}"
+        folder.mkdir(parents=True)
+        tifffile.imwrite(folder / f"A01_alpha_C{channel}.tif", np.zeros((4, 4), np.uint8))
+    fields = browser._overview_index(root, r"(?P<wellID>A01)_alpha_C(?P<chanID>\d+)")
+    assert len(fields) == 1 and len(fields[0].files) == 2
+    assert fields[0].field.startswith("{channel}")
+
+
+def test_late_thumbnail_for_filtered_well_never_replaces_visible_well(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot)
+    old_well = "A01"
+    key = ("detached old thumbnail",)
+    pixels = np.full((4, 4, 3), 255, np.uint8)
+    dialog.rows.setCurrentIndex(dialog.rows.findData("2"))
+    assert old_well not in dialog._well_positions
+    dialog._set_thumbnail(old_well, key, pixels)
+    assert old_well not in dialog._installed_thumbnails
+    for row in range(dialog.wells.rowCount()):
+        for column in range(dialog.wells.columnCount()):
+            item = dialog.wells.item(row, column)
+            assert item is None or item.data(browser.Qt.UserRole + 1) != key
+    dialog.close()
+
+
+def test_display_prepare_finishing_after_current_field_cleared_keeps_selection_empty(tmp_path, qtbot, monkeypatch):
+    dialog = _browser(tmp_path, qtbot)
+    dialog.show()
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog.view._item is not None)
+    original = browser._overview_channel_info
+    entered, release = threading.Event(), threading.Event()
+    def delayed(field):
+        entered.set()
+        assert release.wait(5)
+        return original(field)
+    monkeypatch.setattr(browser, "_overview_channel_info", delayed)
+    dialog._prepare_display()
+    qtbot.waitUntil(entered.is_set)
+    dialog.fields.setCurrentRow(-1)
+    dialog.fields.clearSelection()
+    release.set()
+    qtbot.waitUntil(lambda: not dialog._index_jobs.is_busy() and dialog._normalization_ready)
+    assert dialog.fields.currentItem() is None and not dialog._selected_fields
+    assert not dialog._image_jobs.is_busy()
     dialog.close()

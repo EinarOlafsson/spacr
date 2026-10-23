@@ -343,10 +343,96 @@ def test_field_sampling_and_empty_montages_keep_explicit_source_identities(tmp_p
     from dataclasses import replace
     unresolved = (replace(first, unresolved=True), replace(second, unresolved=True))
     assert browser._overview_sample(unresolved, 1, 0, "well", False) == unresolved
-    assert browser._overview_montage((), (0,), None) == (None, ())
+    stopped = threading.Event()
+    stopped.set()
+    assert browser._overview_montage((first,), (0,), None, stopped) == (None, ())
     reader = lambda target, channels, edge=256: browser._overview_raw_planes(target, channels, edge=edge)
     context = browser._OverviewWellMeanContext((second,), (0,), dict(reference=("plate1", "A01"),
         reference_kind="reference_well"), reader)
     outside = _field(tmp_path, "A01", np.ones((4, 6)), plate="plate2")
     with pytest.raises(ValueError, match="outside"):
         context.plan_for(outside)
+
+
+def test_native_roi_preserves_home_reference_channel_affine_bounds(tmp_path):
+    values = np.stack((np.arange(48).reshape(6, 8), np.arange(48).reshape(6, 8) * 2), axis=-1)
+    field = _field(tmp_path, "A01", values)
+    model = browser._overview_normalization_plan((field,), (0, 1),
+        dict(mode="image", percentiles=(0, 100), reference_channel=0), browser._overview_raw_planes)
+    whole = browser._overview_pixels(field, (0, 1), None, edge=None, normalization=model)
+    crop = browser._overview_pixels(field, (0, 1), None, edge=None, region=(1, 5, 2, 7), normalization=model)
+    np.testing.assert_array_equal(crop, whole[1:5, 2:7])
+    assert crop[..., 1].max() == 255 and crop[..., 0].max() < 255
+
+
+@pytest.mark.parametrize("model", (None, dict(mode="image", percentiles=(0, 100))))
+def test_empty_channel_render_is_rejected_without_inventing_pixels(tmp_path, model):
+    field = _field(tmp_path, "A01", np.arange(24).reshape(4, 6))
+    with pytest.raises(ValueError):
+        browser._overview_pixels(field, (), None, edge=None, normalization=model, region=(1, 3, 2, 5))
+
+
+def test_tiff_declared_channel_axis_cannot_be_reinterpreted_as_page_coordinates(tmp_path):
+    import tifffile
+    path = tmp_path / "plate1_A01_F1.tif"
+    tifffile.imwrite(path, np.arange(72, dtype=np.uint16).reshape(3, 4, 6),
+        metadata={"axes": "YXC"}, photometric="minisblack")
+    field, = browser._overview_index(tmp_path)
+    assert browser._overview_channel_info(field)["channels"] == (0, 1, 2, 3, 4, 5)
+    with pytest.raises(ValueError, match="bounded image planes"):
+        tuple(browser._overview_raw_planes(field, (0,)))
+
+
+@pytest.mark.parametrize("normalization", (None, dict(mode="image", percentiles=(1, 99))))
+def test_native_crop_of_nonfinite_channel_retains_finite_pixel_refusal(tmp_path, normalization):
+    field = _field(tmp_path, "A01", np.full((8, 9), np.nan))
+    with pytest.raises(ValueError, match="finite pixels"):
+        browser._overview_pixels(field, region=(1, 4, 2, 6), normalization=normalization)
+
+
+def test_transform_without_any_finite_values_refuses_bounds():
+    options = browser._overview_channel_normalization(dict(method="log"), 0)
+    with pytest.raises(ValueError, match="finite pixels after normalization"):
+        browser._overview_normalization_bounds(np.array([]), options)
+
+
+def test_four_channel_tiny_native_mosaic_never_reserves_larger_than_image_headers(tmp_path):
+    field = _field(tmp_path, "A01", np.arange(16).reshape(2, 2, 4))
+    views = browser._overview_pixels(field, (0, 1, 2, 3), edge=4)
+    assert views.shape == (4, 4, 3)
+    assert np.any(views)
+
+
+def test_budget_shrink_preserves_small_groups_and_bounds_all_samples(tmp_path):
+    fields = tuple(_field(tmp_path, "A" + str(i + 1).zfill(2),
+        np.arange(2 if i == 0 else 1024).reshape(1, -1)) for i in range(5))
+    model = browser._overview_advanced_normalization(fields, (0,),
+        dict(scope="well", method="minmax", total_sample_limit=64, group_sample_limit=32))
+    counts = [entry["0"]["sample_count"] for entry in model["bounds"].values()]
+    assert min(counts) == 2 and sum(counts) <= 64
+
+
+def test_pdf_image_plan_without_reference_describes_no_reference():
+    text = "\n".join(browser._overview_pdf_header((0,), (1, 99), 0,
+        dict(mode="image", percentiles=(1, 99), reference="")))
+    assert "-" in text and "Percentiles per image" in text
+
+
+def test_well_mean_gain_overflow_is_refused_instead_of_rendered(tmp_path):
+    reference = _field(tmp_path, "A01", np.full((2, 2), 1e308))
+    target = _field(tmp_path, "B02", np.full((2, 2), 1e-300))
+    context = browser._OverviewWellMeanContext((reference, target), (0,),
+        dict(reference_kind="reference_well", reference=("plate1", "A01"), percentiles=(0, 100)),
+        lambda field, channels, edge: browser._overview_raw_planes(field, channels, edge=edge))
+    with pytest.raises(ValueError, match="positive finite means"):
+        context.plan_for(target)
+
+
+def test_reference_sampling_refuses_more_wells_than_bounded_pixel_budget():
+    fields = tuple(browser._OverviewField("plate1", f"A{i + 1:06}", "1", i + 1,
+        "1", (("", "not-read.npy"),)) for i in range(262145))
+    def forbidden(*args, **kwargs):
+        pytest.fail("Excessive reference group must be refused before image decoding")
+    with pytest.raises(ValueError, match="too large for bounded sampling"):
+        browser._OverviewWellMeanContext(fields, (0,),
+            dict(reference_kind="reference_row", reference=("plate1", "1")), forbidden)

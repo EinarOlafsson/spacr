@@ -722,10 +722,8 @@ def test_unreadable_field_tiles_keep_neighbors_renderable_and_recover_after_relo
         well = dialog.wells.item(*dialog._well_positions["A01"])
         qtbot.mouseClick(dialog.wells.viewport(), Qt.LeftButton,
                          pos=dialog.wells.visualItemRect(well).center())
-        assert dialog.wells.currentItem().data(Qt.UserRole) == "A01"
-        open_button = next(button for button in dialog.findChildren(QPushButton)
-                           if button.text() == browser.tr("Open selected well"))
-        qtbot.mouseClick(open_button, Qt.LeftButton)
+        assert dialog._scope == ("p1", "A01")
+        assert ("p1", "A01") in dialog._selected_wells
         qtbot.waitUntil(lambda: dialog.fields.isVisible() and dialog.fields.count() == 4)
         return {dialog.fields.item(index).data(Qt.UserRole).field_id: dialog.fields.item(index)
                 for index in range(dialog.fields.count())}
@@ -901,6 +899,7 @@ def test_ui_cancellation_during_first_real_pdf_field_discards_partial_outputs(tm
         dialog._controls_scroll.ensureWidgetVisible(export)
         qtbot.mouseClick(export, Qt.LeftButton)
         qtbot.waitUntil(started.is_set, timeout=10000)
+        output = next((source / "results").glob("overview_*"))
         assert dialog._export_jobs.is_busy() and len(reads) == 1
         assert reads[0][0] == selected[0].identity
         assert reads[0][1] != qapp.thread()
