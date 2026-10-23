@@ -1111,6 +1111,26 @@ def set_preferred_provider(name: str) -> None:
         Provider name. An empty string clears the preference.
     """
     _settings().setValue(_KEY_AI_PROVIDER, str(name or ""))
+    from .ai.issue_report import _sync_automatic_failure_policy
+    _sync_automatic_failure_policy()
+
+
+def _get_spacr_ai_enabled() -> bool:
+    """Read the startup AI switch from the shared provider preference."""
+    return get_preferred_provider() != "none"
+
+
+def _set_spacr_ai_enabled(enabled: bool) -> None:
+    """Disable AI and reports together; enabling AI preserves report consent."""
+    from .ai.providers import HOSTED_PROVIDER_NAME, apply_provider_choice
+
+    if bool(enabled):
+        if get_preferred_provider() == "none":
+            apply_provider_choice(HOSTED_PROVIDER_NAME)
+    else:
+        from spacr import crashreport
+        crashreport.set_error_report_mode("off")
+        apply_provider_choice("none")
 
 
 #: QSettings key for the mapping of panel identifiers to folded state. One
@@ -5126,6 +5146,8 @@ def set_issue_prompt_mode(mode: str) -> None:
     store = _settings()
     store.setValue(_KEY_ISSUE_PROMPT, mode)
     store.setValue(_KEY_ISSUE_PROMPT_CHOSEN, True)
+    from .ai.issue_report import _sync_automatic_failure_policy
+    _sync_automatic_failure_policy()
 
 
 
@@ -10907,7 +10929,9 @@ class PreferencesDialog:
             "settings the user can fix. Code context adds the line of spaCR's "
             "own code at each step, never yours. Logs, settings, file names "
             "and paths are never sent. Default: summarize and send all "
-            "errors."))
+            "errors. With None selected as the provider, sending modes can still "
+            "file GitHub reports, but no AI is contacted and no AI answer "
+            "is shown."))
         error_report_what = QPushButton(tr("What is sent…"))
         error_report_what.setObjectName("AnonymousReportsWhatIsSent")
         error_report_what.setFlat(True)

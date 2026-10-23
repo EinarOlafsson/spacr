@@ -66,7 +66,7 @@ def test_preferences_offers_the_provider_choice(qtbot, qt_theme_applied):
         "AiErrorReport"], "the only dropdown is the AI Error report choice"
     radios = page.findChildren(QRadioButton)
     names = [radio.property("providerName") for radio in radios]
-    assert names == ["spacr_hosted", "claude", "codex", "gemini"]
+    assert names == ["spacr_hosted", "claude", "codex", "gemini", "none"]
     assert radios[0].isChecked()
 
 

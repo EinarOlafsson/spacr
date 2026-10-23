@@ -122,9 +122,9 @@ def take_the_setup_flags(argv):
 def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
     """Build the question list against the live preference module.
 
-    Setup asks nothing about AI providers, GitHub or error reports: spaCR
-    AI (free) and anonymised error reports are on by default, the terms of
-    use describe both, and Preferences → AI changes them.
+    Turning spaCR AI off selects the ``none`` provider and turns error
+    reporting off. Preferences can later enable reports while keeping
+    AI disabled.
     """
     from . import preferences as prefs
 
@@ -146,6 +146,8 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
           for level in prefs.PERFORMANCE_LEVELS]),
         ("hash_inputs", "Reproducibility hash", prefs.get_hash_inputs,
          prefs.set_hash_inputs, None),
+        ("spacr_ai", "spaCR AI", prefs._get_spacr_ai_enabled,
+         prefs._set_spacr_ai_enabled, None),
     ]
     return [q for q in out if q[4] is None or q[4]]
 
