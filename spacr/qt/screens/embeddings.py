@@ -401,8 +401,10 @@ class EmbeddingsScreen(QWidget):
         selection.addWidget(self._load)
         outer.addLayout(selection)
 
-        controls = QHBoxLayout()
-        controls.setSpacing(SPACING["sm"])
+        from ..widgets.flow import FlowHost, FlowLayout
+
+        controls_host = FlowHost(self)
+        controls = FlowLayout(controls_host, spacing=SPACING["sm"])
 
         controls.addWidget(QLabel("Channels:", self))
         self._policy = QComboBox(self)
@@ -436,7 +438,6 @@ class EmbeddingsScreen(QWidget):
             "memory; it changes speed and nothing else.")
         controls.addWidget(self._batch)
 
-        controls.addStretch(1)
         self._run = QPushButton("Embed", self)
         self._run.setObjectName("PrimaryButton")
         self._run.setEnabled(False)
@@ -446,7 +447,7 @@ class EmbeddingsScreen(QWidget):
         self._add_well_mil_button(controls)
         self._add_dino_button(controls)
         self._add_use_for_pickers(controls)
-        outer.addLayout(controls)
+        outer.addWidget(controls_host)
         outer.addWidget(self._dino_in_use)
 
         self._save_similar = QPushButton(tr("Save for Similar crops"), self)
@@ -1128,6 +1129,70 @@ class EmbeddingsScreen(QWidget):
         self._well_mil.clicked.connect(lambda: self._learn_from_well_labels())
         controls.addWidget(self._well_mil)
         _apply_alpha_widgets(self._well_mil)
+        self._current_well_mil = QPushButton(tr("Learn from these embeddings…"), self)
+        self._current_well_mil.setObjectName("EmbeddingsCurrentWellMilButton")
+        self._current_well_mil.setToolTip(tr(
+            "Use the current database crop embeddings and their original object "
+            "and well identities with a separate well-label table."))
+        self._current_well_mil.setEnabled(False)
+        self._current_well_mil.clicked.connect(
+            lambda: self._learn_from_current_embeddings())
+        controls.addWidget(self._current_well_mil)
+        _apply_alpha_widgets(self._current_well_mil)
+
+    def _learn_from_current_embeddings(self, labels="", columns=None):
+        """Use the frozen current result with explicitly chosen well labels.
+
+        :param labels: A well-label table path; asks when empty.
+        :param columns: Existing MIL column choices; asks when omitted.
+        :returns: The label path, or an empty string when unavailable/cancelled.
+        """
+        from ...embeddings import _mil_frame_from_result
+        from ...tabular import write_table
+
+        identity, result = self._result_identity, self._result
+        if self._loading or identity is None or result is None:
+            self._status.setText(tr("Load database crops and embed them before learning from well labels."))
+            return ""
+        database, keys = identity
+        entry = self._result_encoder
+        if not labels:
+            labels, _filter = QFileDialog.getOpenFileName(
+                self, tr("Choose the well-label table for these embeddings"),
+                os.path.dirname(database),
+                tr("Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"))
+        if not labels:
+            return ""
+        try:
+            frame = _mil_frame_from_result(database, keys, result, str(labels),
+                                            encoder_entry=entry)
+        except ValueError as error:
+            self._status.setText(str(error))
+            return ""
+        if columns is None:
+            columns = self._ask_mil_columns(frame.columns)
+            if columns is None:
+                return ""
+        columns = dict(columns)
+        stem = os.path.splitext(str(labels))[0] + "_current_embeddings"
+        self._status.setText(tr("Learning from well labels…"))
+
+        def work():
+            """Pass the source-bound snapshot through the existing MIL model."""
+            from ...embeddings import _mil_from_table
+
+            cells, wells, card = _mil_from_table(frame, **columns)
+            write_table(cells, stem + "_mil_cells.csv")
+            write_table(wells, stem + "_mil_wells.csv")
+            return card, cells
+
+        def finished(answer):
+            """Only the current result receives the completed scorecard."""
+            if self._result is result and not self._loading:
+                self._on_well_mil_done(answer)
+
+        self._jobs.submit(work, finished)
+        return str(labels)
 
     def _mil_column_form(self, columns):
         """A form for choosing the well, label and feature columns.
@@ -2475,6 +2540,8 @@ class EmbeddingsScreen(QWidget):
         self._save_similar.setEnabled(
             not loading and self._result_identity is not None
             and self._result is not None)
+        self._current_well_mil.setEnabled(
+            not loading and self._result_identity is not None and self._result is not None)
         self._sync_classifier_application_controls()
         if not loading:
             self._on_source_changed()
@@ -2674,6 +2741,7 @@ class EmbeddingsScreen(QWidget):
         self._frame = None
         self._result_encoder = None
         self._save_similar.setEnabled(False)
+        self._current_well_mil.setEnabled(False)
         self._scale_record = {}
         self._source.setText(
             label or f"{crops.shape[0]} objects x {crops.shape[-1]} channels")
@@ -2819,6 +2887,8 @@ class EmbeddingsScreen(QWidget):
         """Fill the preview and say which encoder produced it."""
         self._result = result
         self._result_encoder = entry
+        self._current_well_mil.setEnabled(
+            not self._loading and self._result_identity is not None)
         self._save_similar.setEnabled(
             not self._loading and self._result_identity is not None)
         frame = pd.DataFrame(np.asarray(result.values),

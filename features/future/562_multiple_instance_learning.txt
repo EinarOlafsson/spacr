@@ -76,8 +76,15 @@ MEASURED (CPU only; the GPU was held for days)
 WHAT IS LEFT
     - A real arrayed screen with known responder fractions (e.g. a titrated
       infection or a spike-in plate) and hundreds of wells; GPU runs.
-    - Feed embeddings straight from the screen's result (needs object ids
-      and wells carried through crop loading).
+    - Feed the current Embeddings result directly into the alpha well-label
+      workflow, preserving its frozen database/object keys, measured wells,
+      crop paths and encoder provenance without first saving crop_embedding.
+      The alpha control strip must wrap at a physical 1280-pixel desktop width
+      without forcing a wider window or hiding the current-result action.
+      Require an explicit well-label table; preserve existing label/cardinality
+      guards and refuse unsourced or stale results. Owner: G3, priority ready.
+      Acceptance: real crop-load/result handoff controls, alpha gating, source
+      selection changes, read-only source DB and unchanged MIL algorithms.
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: real arrayed screen and GPU runs (data, GPU). OPEN code over 1 h: column-picker form with scorecard/montage, embeddings carried with object ids and wells.
@@ -133,8 +140,9 @@ WHAT IS LEFT
     Tests: tests/test_multiple_instance_learning.py (join, planted
     responders get higher evidence, refusals), tests/qt/test_well_mil_alpha_gate.py
     (db reaches the model while the button is hidden; no-embedding db says so).
-    Left: nothing in code. Note: no GUI step writes crop_embedding yet
-    (only spacr.active_learning._store_crop_embeddings); new captions await
+    Historical note (superseded by F560): the Embeddings screen now saves
+    crop_embedding through Save for similarity; direct current-result MIL
+    handoff remains the distinct open path. New captions await
     the catalog lane (_AWAITING_CATALOG_REBUILD). GPU runs optional.
 
 2026-10-14 — Original Home: well-label identity/read-only join repaired (alpha).
@@ -310,3 +318,8 @@ Original collector and4source/tool/test hashes remain exact through closure.
 Parent source/technical target peer and all raw receipts retained in the same
 evidence folder. Legacy unknown identities remain unverified; no model
 training, scientific efficacy, wholefeature or fullCI/release acceptance.
+
+2026-10-23 — Source-bound current-result MIL handoff remains alpha: original vectors, object/well identities and encoder provenance reach the existing model; wrapped controls are reachable on the actual 1280×760 display.
+31 focused transport/alpha/extractor/localized-refusal/layout controls and 12 stock API/caption gates pass; existing 13,606 API records and unrelated runtime targets remain exact.
+Normal Help, 2 API entries and 6 runtime captions are generated in all 10 languages; 72 reviewed targets are pinned at a5dd0ca4a6a7eb2813439f4144ef713701b95127 and API memory at 0c9efde6375b7df0807da43af788fa6c6bdfdbea with exact immutable readback.
+This completes the software handoff without new model training, biological efficacy or broader scientific-acceptance claims.

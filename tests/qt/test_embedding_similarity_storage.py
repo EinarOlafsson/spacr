@@ -141,3 +141,160 @@ def test_same_width_different_encoder_replaces_instead_of_mixing_rows(plate):
     assert al._stored_embedding_frame(str(database))["prcfo"].tolist() == [rows[2][1]]
     assert al._store_crop_embeddings(str(database), [rows[3][1]], second.values) == 1
     assert "_embedding_spec" not in al._stored_embedding_frame(str(database))
+
+
+def _well_labels(tmp_path):
+    from spacr.tabular import write_table
+    import pandas as pd
+    path = tmp_path / "well_labels.csv"
+    write_table(pd.DataFrame({"wellID": ["plate1_r1_c1"], "well_label": [1]}), path)
+    return path
+
+
+def test_current_result_reaches_mil_with_frozen_keys_wells_vectors_and_provenance(
+        screen, plate, tmp_path, monkeypatch):
+    from hashlib import sha256
+    from spacr.tabular import read_table
+    database, rows = plate
+    _load(screen, database)
+    screen.embed()
+    result = screen._result
+    before = sha256(database.read_bytes()).hexdigest()
+    labels = _well_labels(tmp_path)
+    screen._path.setText(str(tmp_path / "different.db"))
+    screen._backbone.setCurrentText("another-backbone")
+    seen = []
+    completed = []
+
+    def transport(frame, **columns):
+        seen.append(frame.copy(deep=True))
+        assert columns["feature_columns"] == ["emb_0", "emb_1", "emb_2"]
+        return frame.assign(mil_attention=0.25), frame[["wellID", "well_label"]].drop_duplicates(), {"transport": True}
+
+    monkeypatch.setattr(emb, "_mil_from_table", transport)
+    monkeypatch.setattr(screen, "_on_well_mil_done", completed.append)
+    assert screen._current_well_mil.isEnabled()
+    assert screen._learn_from_current_embeddings(str(labels), columns={
+        "well_column": "wellID", "label_column": "well_label",
+        "feature_columns": ["emb_0", "emb_1", "emb_2"]}) == str(labels)
+    [frame] = seen
+    assert frame["prcfo"].tolist() == [row[1] for row in rows]
+    assert frame["png_path"].tolist() == [row[0] for row in rows]
+    assert frame["wellID"].tolist() == ["plate1_r1_c1"] * 4
+    assert frame["well_label"].tolist() == [1] * 4
+    np.testing.assert_array_equal(frame[list(result.columns)], result.values)
+    assert frame["_embedding_fingerprint"].eq(result.spec.fingerprint()).all()
+    assert frame["_embedding_spec"].map(json.loads).map(lambda value: value["backbone"]).eq(result.spec.backbone).all()
+    assert len(completed) == 1
+    output = read_table(tmp_path / "well_labels_current_embeddings_mil_cells.csv", report=None)
+    assert output["prcfo"].tolist() == frame["prcfo"].tolist()
+    assert sha256(database.read_bytes()).hexdigest() == before
+    assert al._stored_embedding_frame(str(database)) is None
+    assert not (tmp_path / "different.db").exists()
+
+
+def test_current_mil_preserves_encoder_key_and_weights_without_storing_vectors(screen, plate, tmp_path):
+    _load(screen, plate[0])
+    screen.embed()
+    frame = emb._mil_frame_from_result(*screen._result_identity, screen._result,
+        str(_well_labels(tmp_path)), encoder_entry=SimpleNamespace(
+            sha256="a" * 64, key="encoder:test", source="fixture"))
+    assert frame["_embedding_weights_sha256"].eq("a" * 64).all()
+    assert frame["_embedding_encoder_key"].eq("encoder:test").all()
+    assert frame["_embedding_encoder_source"].eq("fixture").all()
+    assert al._stored_embedding_frame(str(plate[0])) is None
+
+
+def test_current_mil_is_disabled_for_unsourced_and_replaced_crops(screen, plate, tmp_path):
+    assert not screen._current_well_mil.isEnabled()
+    _load(screen, plate[0])
+    screen.embed()
+    assert screen._current_well_mil.isEnabled()
+    screen.set_crops(np.zeros((2, 16, 16, 3), np.uint8))
+    assert not screen._current_well_mil.isEnabled()
+    assert screen._learn_from_current_embeddings(str(_well_labels(tmp_path))) == ""
+    assert "Load database crops" in screen._status.text()
+    assert not list(tmp_path.glob("*_mil_*.csv"))
+
+
+def test_current_mil_cancelled_label_dialog_submits_nothing(screen, plate, monkeypatch):
+    from PySide6.QtWidgets import QFileDialog
+    _load(screen, plate[0])
+    screen.embed()
+    submitted = []
+    monkeypatch.setattr(screen._jobs, "submit", lambda *args: submitted.append(args))
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", staticmethod(lambda *args: ("", "")))
+    assert screen._learn_from_current_embeddings() == ""
+    assert submitted == []
+
+
+def test_current_mil_frozen_snapshot_and_late_callback_do_not_replace_new_result(
+        screen, plate, tmp_path, monkeypatch):
+    _load(screen, plate[0])
+    screen.embed()
+    values = screen._result.values.copy()
+    pending = []
+    seen = []
+    completed = []
+    monkeypatch.setattr(screen._jobs, "submit", lambda work, done: pending.append((work, done)))
+    monkeypatch.setattr(screen, "_on_well_mil_done", completed.append)
+    def transport(frame, **columns):
+        seen.append(frame.copy(deep=True))
+        return frame, frame[["wellID"]].drop_duplicates(), {}
+    monkeypatch.setattr(emb, "_mil_from_table", transport)
+    screen._learn_from_current_embeddings(str(_well_labels(tmp_path)), columns={})
+    screen._result.values[:] = -1
+    screen.set_crops(np.ones((2, 16, 16, 3), np.uint8))
+    [(work, done)] = pending
+    done(work())
+    np.testing.assert_array_equal(seen[0][["emb_0", "emb_1", "emb_2"]], values)
+    assert completed == []
+    assert not screen._current_well_mil.isEnabled()
+
+
+def test_current_mil_refuses_missing_crop_metadata_without_training(screen, plate, tmp_path, monkeypatch):
+    _load(screen, plate[0])
+    screen.embed()
+    with sqlite3.connect(plate[0]) as database:
+        database.execute("DELETE FROM png_list WHERE prcfo = ?", (plate[1][0][1],))
+    submitted = []
+    monkeypatch.setattr(screen._jobs, "submit", lambda *args: submitted.append(args))
+    assert screen._learn_from_current_embeddings(str(_well_labels(tmp_path)), columns={}) == ""
+    assert "no longer have crop metadata" in screen._status.text()
+    assert submitted == []
+
+
+@pytest.mark.parametrize("keys", [("same", "same", "same", "same"), ("", "b", "c", "d"), ("one",)])
+def test_current_result_rejects_invalid_object_cardinality(screen, plate, tmp_path, keys):
+    _load(screen, plate[0])
+    screen.embed()
+    with pytest.raises(ValueError):
+        emb._mil_frame_from_result(str(plate[0]), keys, screen._result, str(_well_labels(tmp_path)))
+
+
+@pytest.mark.parametrize("language", ["sv", "de", "es", "fr", "pt", "is", "hi", "ko", "zh_CN"])
+@pytest.mark.parametrize("failure,source", [
+    ("keys", "The current embedding has no unique source object keys."),
+    ("metadata", "Some current embedding objects no longer have crop metadata."),
+])
+def test_current_mil_refusal_uses_the_actual_selected_locale(
+        plate, language, failure, source, monkeypatch):
+    from hashlib import sha256
+    from importlib import import_module
+    monkeypatch.setenv("SPACR_LANGUAGE", language)
+    catalog = import_module("spacr.qt.i18n_catalogs." + language)
+    expected = catalog.UI[source]
+    assert expected != source
+    database, rows = plate
+    before = sha256(database.read_bytes()).hexdigest()
+    result = emb.EmbeddingResult(np.arange(12, dtype=np.float32).reshape(4, 3),
+        ("emb_0", "emb_1", "emb_2"), emb.EmbeddingSpec(backbone="fixture"), 3, 3)
+    keys = [row[1] for row in rows]
+    if failure == "keys":
+        keys[-1] = keys[0]
+    else:
+        keys[-1] = "plate1_r1_c1_f1_o999"
+    with pytest.raises(ValueError) as error:
+        emb._mil_frame_from_result(str(database), keys, result, None)
+    assert str(error.value) == expected
+    assert sha256(database.read_bytes()).hexdigest() == before

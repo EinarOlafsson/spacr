@@ -7557,7 +7557,7 @@ ALPHA_FEATURES = {
                     'EmbeddingsUseForPicker', 'EmbeddingsUseForRun'),
     },
     562: {
-        'widgets': ('EmbeddingsWellMilButton',),
+        'widgets': ('EmbeddingsWellMilButton', 'EmbeddingsCurrentWellMilButton'),
     },
     561: {
         'widgets': ('EmbeddingsDinoPretrainButton', 'EmbeddingsDinoControls'),

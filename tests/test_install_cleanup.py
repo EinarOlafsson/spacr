@@ -1329,9 +1329,14 @@ def test_the_unix_installer_source_orders_staging_verification_before_retirement
     sh = (ROOT / "packaging" / "online" / "install_spacr_unix.sh").read_text(
         encoding="utf-8")
     remove = sh.index('"$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"')
-    assert sh.index('python find "$PYTHON_VERSION"') < remove
-    assert sh.index('"$UV_BIN" pip check') < remove
-    assert sh.index('"$UV_BIN" pip install') < remove
+    find = sh.index('python find "$PYTHON_REQUEST" --managed-python')
+    stage = sh.index('"$UV_BIN" venv "$stage_venv"')
+    install = sh.index('"$UV_BIN" pip install')
+    check = sh.index('"$UV_BIN" pip check --python "$stage_python"')
+    verify = sh.index('"$cleanup_python" -I "$cleanup_module" "${identity_args[@]}"')
+    activate = sh.index('mv "$stage_venv" "$VENV_DIR"')
+    assert find < stage < install < check < verify < remove < activate
+    assert '--python "$stage_python" --retiring-prefix "$VENV_DIR"' in sh[verify:remove]
     assert '--keep "$INSTALL_ROOT"' in sh
     assert '--keep "$SPACR_SOURCE_DIR" --keep "/Applications/spaCR.app"' in sh
 

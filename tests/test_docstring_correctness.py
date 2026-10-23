@@ -2387,6 +2387,75 @@ def _validated_prior_example_background_callables(callables):
     return [prior if row.symbol == symbol else row for row in callables]
 
 
+def _validated_prior_weighted_preview_callables(callables):
+    """Validate four optional arrivals before replaying the historical census."""
+    contracts = {
+        "spacr.ml.regression_model": (
+            "spacr/ml.py", "function", {"likelihood_weights"}, {"X", "y"},
+            {"X", "y", "regression_type", "groups", "alpha", "cov_type",
+             "weights", "l1_ratio", "quantile", "hinge_threshold", "huber_t",
+             "exposure", "spline_knots", "spline_degree", "group_lasso_lambda",
+             "rra_alpha", "rra_permutations", "regression_backend", "verbose",
+             "response_name", "transform", "glm_force_identity", "likelihood_weights"},
+            "69d59c1112927730b8a3d3075660bfa05041f44e35a9b6192119caa948ebc4ac",
+            "003d4c3817aaed1f585f64eb078bb47f2752d3f32c24b981c07d87b0cb2c9796"),
+        "spacr.power_model.ModelData": (
+            "spacr/power_model.py", "dataclass_constructor",
+            {"likelihood_weights", "likelihood_well_ids"},
+            {"wells", "genes", "Npositive", "Ntotal", "log10expression"},
+            {"wells", "genes", "Npositive", "Ntotal", "log10expression",
+             "dropped_wells", "zero_read_wells", "unidentified_genes",
+             "likelihood_weights", "likelihood_well_ids"},
+            "fa522fe72c850a590a38303d25825bd2cfd34a9ab49d9f25ab7ac3275332978a",
+            "7c61b5379ae1ef8d5b2b285132093cf3e90789df881d8d23d1cc5b5fd0d9319c"),
+        "spacr.qt.widgets.live_preview.PreviewRequest": (
+            "spacr/qt/widgets/live_preview.py", "dataclass_constructor",
+            {"cell_mask"}, {"image"},
+            {"image", "model", "diameter", "flow_threshold", "cellprob", "channels",
+             "object_types", "preprocess_settings", "postprocess_settings",
+             "model_note", "cancel", "provenance", "cellprob_maps", "source_path",
+             "cell_mask"},
+            "52ac326570a01a5db4af593ee1ef314cd7e57c2b08d071885dc6034d4cb03643",
+            "9d76c91c3380bbe571f3bbb3073659d41113721c6fd4990e583d9fcb79963c6b"),
+    }
+    by_symbol = {item.symbol: item for item in callables}
+    root = pathlib.Path(__file__).resolve().parents[1]
+    for symbol, contract in contracts.items():
+        path, category, arrivals, required, parameters, signature_sha, doc_sha = contract
+        item = by_symbol[symbol]
+        assert item.category == category and item.exposure == "autoapi"
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.constructor_prose_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.parameters == item.accepted_documented_parameters == parameters
+        assert item.required_parameters == required
+        assert arrivals <= _documented_parameter_names(item.docstring)
+        assert hashlib.sha256(item.docstring.encode()).hexdigest() == doc_sha
+        name = symbol.rsplit(".", 1)[1]
+        declaration = next(node for node in ast.parse(
+            (root / path).read_text(encoding="utf-8")).body
+            if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name == name)
+        if isinstance(declaration, ast.FunctionDef):
+            signature = declaration.args
+            assert ast.literal_eval(_declared_defaults(declaration)["likelihood_weights"]) is None
+        else:
+            fields = [node for node in declaration.body if isinstance(node, ast.AnnAssign)]
+            signature = ast.Module(body=fields, type_ignores=[])
+            for field in fields:
+                if field.target.id in arrivals:
+                    default = field.value
+                    if isinstance(default, ast.Call):
+                        assert ast.unparse(default.func) == "field"
+                        default = next(value.value for value in default.keywords
+                                       if value.arg == "default")
+                    assert ast.literal_eval(default) is None
+        assert hashlib.sha256(ast.dump(signature, include_attributes=False).encode()).hexdigest() == signature_sha
+    return [replace(item, parameters=item.parameters - contracts[item.symbol][2],
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - contracts[item.symbol][2]))
+            if item.symbol in contracts else item for item in callables]
+
+
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """Freeze the whole boundary and every source-owned parameter name.
 
@@ -2405,6 +2474,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
     callables = _validated_prior_152_callables(callables)
+    callables = _validated_prior_weighted_preview_callables(callables)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -4777,6 +4847,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
         ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
         ("thumbnail_popup_close_api_arrival_2026-10-21.json", 1),
+        ("current_embedding_mil_api_arrivals_2026-10-23.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))

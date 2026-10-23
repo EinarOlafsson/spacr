@@ -142,14 +142,21 @@ class _NumpyroRecorder:
         self.x64_active = False
         self.x64_entries = 0
         self.x64_exits = 0
+        self.active_scale = None
+        self.observation_scale = None
+        self.scale_entries = 0
+        self.scale_exits = 0
 
     def sample(self, name, prior, obs=None):
         assert self.x64_active
         self.priors[name] = prior
         if obs is not None:
+            assert self.active_scale is not None
+            self.observation_scale = self.active_scale.copy()
             self.observed = np.asarray(obs)
             self.rate = np.asarray(prior.args[0], dtype=np.float64)
             return obs
+        assert self.active_scale is None
         value = _LATENTS[name]
         if prior.kind == "FoldedDistribution":
             value = abs(value)
@@ -175,6 +182,18 @@ def _install_numpyro(monkeypatch, *, beta_draws, intercept_draws,
         finally:
             recorder.x64_active = False
             recorder.x64_exits += 1
+
+    @contextmanager
+    def scale(*, scale):
+        assert recorder.x64_active
+        assert recorder.active_scale is None
+        recorder.active_scale = np.asarray(scale).copy()
+        recorder.scale_entries += 1
+        try:
+            yield
+        finally:
+            recorder.active_scale = None
+            recorder.scale_exits += 1
 
     def asarray(value, **kwargs):
         assert recorder.x64_active
@@ -224,15 +243,17 @@ def _install_numpyro(monkeypatch, *, beta_draws, intercept_draws,
         FoldedDistribution=_distribution("FoldedDistribution"),
     )
     infer = _fake_module("numpyro.infer", MCMC=_MCMC, NUTS=_NUTS)
+    handlers = _fake_module("numpyro.handlers", scale=scale)
     numpyro = _fake_module(
         "numpyro", sample=recorder.sample, deterministic=recorder.determine,
-        distributions=distributions, infer=infer,
+        distributions=distributions, infer=infer, handlers=handlers,
     )
     for name, module in (("jax", jax), ("jax.numpy", jnp),
                          ("jax.experimental", experimental),
                          ("numpyro", numpyro),
                          ("numpyro.distributions", distributions),
-                         ("numpyro.infer", infer)):
+                         ("numpyro.infer", infer),
+                         ("numpyro.handlers", handlers)):
         monkeypatch.setitem(sys.modules, name, module)
     return recorder
 
@@ -270,7 +291,7 @@ def test_the_numpyro_backend_hands_back_a_fit_that_names_itself(
     assert (fit.diagnostics["n_warmup"], fit.diagnostics["n_samples"],
             fit.diagnostics["n_chains"]) == (11, 5, 2)
     assert fit.diagnostics["tau0"] == pytest.approx(
-        pm._horseshoe_global_scale(3, 4, None, None))
+        pm._horseshoe_global_scale(2, 4, None, None))
     assert fit.diagnostics["seconds"] >= 0.0
     # the sampler knobs are forwarded, not silently defaulted
     assert recorder.kernel_kwargs == {"max_tree_depth": 9,
@@ -281,6 +302,9 @@ def test_the_numpyro_backend_hands_back_a_fit_that_names_itself(
     assert recorder.group_by_chain is False
     assert recorder.x64_entries == recorder.x64_exits == 1
     assert recorder.x64_active is False
+    np.testing.assert_array_equal(recorder.observation_scale, np.ones(4))
+    assert recorder.scale_entries == recorder.scale_exits == 1
+    assert recorder.active_scale is None
 
 
 def test_the_numpyro_model_is_the_horseshoe_poisson_with_the_offset(
@@ -291,6 +315,9 @@ def test_the_numpyro_model_is_the_horseshoe_poisson_with_the_offset(
         intercept_draws=np.zeros(4),
     )
 
+    from dataclasses import replace
+
+    model_data = replace(model_data, likelihood_weights=np.array([0.25, 0.5, 0.75, 1.0]))
     pm.fit_model(model_data, backend="numpyro", df_local=8.0, df_global=2.0,
                  df_slab=6.0, scale_slab=3.0, scale_global=0.02,
                  n_warmup=1, n_samples=4, n_chains=1)
@@ -323,6 +350,9 @@ def test_the_numpyro_model_is_the_horseshoe_poisson_with_the_offset(
     expected_rate = model_data.Ntotal * np.exp(
         _LATENTS["intercept"] + design @ beta)
     assert recorder.observed.tolist() == model_data.Npositive.tolist()
+    np.testing.assert_array_equal(recorder.observation_scale, model_data.likelihood_weights)
+    assert recorder.scale_entries == recorder.scale_exits == 1
+    assert recorder.active_scale is None
     assert recorder.rate == pytest.approx(expected_rate)
     # centring, not the raw covariate: an uncentred design would give a
     # visibly different rate here.

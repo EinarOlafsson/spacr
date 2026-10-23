@@ -1,0 +1,4 @@
+{
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._learn_from_current_embeddings.finished": "Only the current result receives the completed scorecard.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._learn_from_current_embeddings.work": "Pass the source-bound snapshot through the existing MIL model."
+}

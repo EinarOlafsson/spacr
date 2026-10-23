@@ -2316,6 +2316,10 @@ class _FieldOverview(QDialog):
             return
         cancelled = self._cancelled
         def done(pixels):
+            """Cache loaded pixels and show them only for the current field.
+
+            :param pixels: preview pixels returned by the image worker.
+            """
             if cancelled.is_set():
                 return
             self._cache[key] = pixels
@@ -2370,6 +2374,10 @@ class _FieldOverview(QDialog):
             if self._displayed_montage == signature or self._montage_jobs.is_busy():
                 return
             def show_montage(result):
+                """Display a montage only while its navigation choices match.
+
+                :param result: montage pixels and read errors from the worker.
+                """
                 pixels, errors = result
                 if (cancelled.is_set() or self._visual_context() != signature or self._individual
                         or pixels is None):
@@ -2415,11 +2423,19 @@ class _FieldOverview(QDialog):
                     self._set_thumbnail(well, key, self._thumbnail_cache[key])
                     continue
                 def read_thumbnail():
+                    """Read bounded thumbnail pixels and capture any read error.
+
+                    :returns: pixels and an empty error, or None and the error.
+                    """
                     try:
                         return _overview_pixels(field, channels, limits, edge=160), ""
                     except Exception as exc:
                         return None, str(exc)
                 def done(result):
+                    """Cache a thumbnail and update its matching current well.
+
+                    :param result: thumbnail pixels and an optional read error.
+                    """
                     if cancelled.is_set():
                         return
                     pixels, error = result

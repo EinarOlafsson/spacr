@@ -41,15 +41,18 @@ def test_the_button_follows_the_alpha_switch(screen, alpha):
     from spacr.qt.preferences import _apply_alpha_widgets
     from spacr.settings import ALPHA_FEATURES
 
-    assert ALPHA_FEATURES[562]["widgets"] == ("EmbeddingsWellMilButton",)
+    assert ALPHA_FEATURES[562]["widgets"] == (
+        "EmbeddingsWellMilButton", "EmbeddingsCurrentWellMilButton")
+    current = screen.findChild(QPushButton, "EmbeddingsCurrentWellMilButton")
+    assert current is not None and current.isHidden()
     button = screen.findChild(QPushButton, "EmbeddingsWellMilButton")
     assert button is not None and button.isHidden()
     alpha["on"] = True
     _apply_alpha_widgets(screen)
-    assert not button.isHidden()
+    assert not button.isHidden() and not current.isHidden()
     alpha["on"] = False
     _apply_alpha_widgets(screen)
-    assert button.isHidden()
+    assert button.isHidden() and current.isHidden()
 
 
 def test_a_table_given_while_hidden_still_reaches_the_run(
@@ -191,3 +194,31 @@ def test_a_database_without_embeddings_says_so(screen, tmp_path):
     assert screen._learn_from_well_labels(
         db, columns={}, labels=str(tmp_path / "unused.csv")) == ""
     assert "no stored crop embeddings" in screen._status.text()
+
+
+def test_alpha_embedding_controls_wrap_inside_the_actual_desktop_width(screen, alpha, qtbot):
+    from PySide6.QtCore import QPoint, QSize
+    from spacr.qt.gui_scale import _resize_actual
+    from spacr.qt.preferences import _apply_alpha_widgets
+    from spacr.qt.widgets.flow import FlowHost
+
+    alpha["on"] = True
+    _apply_alpha_widgets(screen)
+    _resize_actual(screen, QSize(1280, 760))
+    screen.show()
+    host = screen.findChild(FlowHost)
+    assert host is not None
+    qtbot.waitUntil(lambda: host.size().height() >= host.heightForWidth(
+        host.size().width()))
+    assert screen.size().width() == 1280
+    assert screen.size().height() == 760
+    controls = [host.layout().itemAt(index).widget()
+                for index in range(host.layout().count())]
+    visible = [widget for widget in controls if widget.isVisible()]
+    assert screen._well_mil in visible and screen._current_well_mil in visible
+    assert len({widget.mapTo(host, QPoint(0, 0)).y() for widget in visible}) > 1
+    for widget in visible:
+        top_left = widget.mapTo(screen, QPoint(0, 0))
+        bottom_right = widget.mapTo(screen, widget.rect().bottomRight())
+        assert screen.rect().contains(top_left)
+        assert screen.rect().contains(bottom_right)

@@ -2459,8 +2459,46 @@ def _mil_from_table(frame: Any, *, folds: int = 4, seed: int = 0,
     return cells, well_frame, card
 
 
+def _mil_frame_from_result(db_path, keys, result, labels, *, encoder_entry=None,
+                           label_column=_MIL_LABEL_COLUMN):
+    """Join frozen current-result vectors to their measured object identities.
+
+    :param db_path: The database from which the encoded crops were loaded.
+    :param keys: Object keys in the exact order supplied to the encoder.
+    :param result: The corresponding embedding result, independent of controls.
+    :param labels: Explicit well labels accepted by the existing database join.
+    :param encoder_entry: The encoder provenance captured with the result.
+    :param label_column: The selected well-label column.
+    :returns: Source-ordered vectors, object/well metadata and explicit labels.
+    :raises ValueError: When keys are missing, repeated or no longer join crops.
+    """
+    from dataclasses import asdict
+    import json
+    from .qt.i18n import tr
+
+    keys = [str(key) for key in keys]
+    if not keys or any(not key.strip() for key in keys) or len(set(keys)) != len(keys):
+        raise ValueError(tr("The current embedding has no unique source object keys."))
+    stored = result.to_frame(keys).rename(columns={"object_id": "prcfo"})
+    spec = getattr(result, "spec", None)
+    if spec is not None:
+        stored["_embedding_fingerprint"] = spec.fingerprint()
+        stored["_embedding_spec"] = json.dumps(asdict(spec), sort_keys=True)
+    if encoder_entry is not None:
+        for column, attribute in (("_embedding_weights_sha256", "sha256"),
+                                  ("_embedding_encoder_key", "key"),
+                                  ("_embedding_encoder_source", "source")):
+            stored[column] = str(getattr(encoder_entry, attribute, "") or "")
+    frame = _mil_frame_from_db(db_path, labels, label_column=label_column,
+                               stored_embeddings=stored)
+    if set(frame["prcfo"]) != set(keys):
+        raise ValueError(tr("Some current embedding objects no longer have crop metadata."))
+    return frame.set_index("prcfo", drop=False).loc[keys].reset_index(drop=True)
+
+
 def _mil_frame_from_db(db_path: str, labels: Any = None, *,
-                       label_column: str = _MIL_LABEL_COLUMN):
+                       label_column: str = _MIL_LABEL_COLUMN,
+                       stored_embeddings=None):
     """A per-cell table for the well-label model from stored crop embeddings.
 
     The embeddings saved in ``measurements.db`` by
@@ -2478,6 +2516,8 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
         for the same well must agree.
         Cells of an unlabelled well keep an empty label.
     :param label_column: the label column of ``labels``.
+    :param stored_embeddings: optional source-bound in-memory object vectors;
+        when supplied, the database embedding table is not read or changed.
     :returns: one row per crop with a stored embedding.
     :raises ValueError: when the database has no stored embeddings, none
         joins a crop, ``labels`` has no well or label column, labels
@@ -2489,8 +2529,8 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
     from .active_learning import _EMBEDDING_TABLE
     from .agreement import PNG_TABLE
 
-    stored = None
-    if os.path.exists(str(db_path)):
+    stored = stored_embeddings
+    if stored is None and os.path.exists(str(db_path)):
         try:
             stored = tabular.read_database(
                 db_path, _EMBEDDING_TABLE, canonicalise=False, report=None,
