@@ -1704,11 +1704,12 @@ def _overview_plane_region(array, region):
     return array[..., y0:y1, x0:x1]
 
 
-def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=None):
+def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=None, page_cache=None):
     """Read validated TIFF axes as selected pages, streaming explicit Z projections."""
     import tifffile
 
     axes = record["axes"]
+    page_cache = {} if page_cache is None else page_cache
     with tifffile.TiffFile(record["path"]) as tif:
         series = tif.series[0]
         page_axes = series.pages[0].axes.upper().replace("S", "C")
@@ -1724,13 +1725,17 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=
             coordinates = tuple(positions[axis] for axis in leading)
             page_index = int(np.ravel_multi_index(coordinates, leading_shape)) if leading else 0
             page = series.pages[page_index]
-            if math.prod(page.shape) * np.dtype(page.dtype).itemsize > 128 * 1024 ** 2:
-                try:
+            page_key = record["path"], page.index
+            if page_key not in page_cache:
+                page_cache.clear()
+                if page.is_memmappable:
                     plane = tifffile.memmap(record["path"], page=page.index, mode="r")
-                except ValueError as exc:
-                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.")) from exc
-            else:
-                plane = page.asarray()
+                else:
+                    if math.prod(page.shape) * np.dtype(page.dtype).itemsize > 128 * 1024 ** 2:
+                        raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+                    plane = page.asarray()
+                page_cache[page_key] = plane
+            plane = page_cache[page_key]
             selector = tuple(positions[axis] if axis in "TCZ" else slice(None)
                              for axis in page_axes)
             plane = _overview_plane_region(plane[selector], region)
@@ -1775,6 +1780,7 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
     if z_mode not in ("plane", "max", "mean"):
         raise _OverviewValidationError(tr("Choose an explicit Z plane or a maximum or mean projection."))
     decoded_path, decoded_array = None, None
+    page_cache = {}
     for channel in channels:
         record = (next(record for record in info["files"]
                        if str(record["file_channel"]).isdigit()
@@ -1804,7 +1810,7 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
                 array = np.load(path, mmap_mode="r", allow_pickle=False)
             elif suffix in (".tif", ".tiff"):
                 plane_channel = channel if info["kind"] == "stack" else 0
-                array = _overview_tiff_plane(record, plane_channel, selections, z_mode, edge, region)
+                array = _overview_tiff_plane(record, plane_channel, selections, z_mode, edge, region, page_cache)
                 yield channel, path, array
                 continue
             else:
@@ -2683,7 +2689,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
 
 def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                       normalization=None, time_index=None, z_mode="plane", z_index=None,
-                      normalization_context=None, advanced_normalization=None):
+                      normalization_context=None, advanced_normalization=None, preview_edge=240):
     """Render one bounded page of field thumbnails, using the shared pixel path."""
     from concurrent.futures import CancelledError
     from PIL import Image, ImageDraw
@@ -2699,7 +2705,7 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
         x, y = (index % columns) * 256, (index // columns) * 280
         draw.text((x, y), field.well + " / " + field.field, fill="white")
         try:
-            pixels = _overview_pixels(field, channels, percentiles, edge=240,
+            pixels = _overview_pixels(field, channels, percentiles, edge=preview_edge,
                                       normalization=normalization,
                                       normalization_context=normalization_context,
                                       cancelled=cancelled, time_index=time_index,
@@ -2784,7 +2790,7 @@ class _OverviewImageView(ZoomableImageView):
         self.detail_requested.emit()
 
 
-class _FieldOverview(QDialog):
+class _FieldOverview(QWidget):
     """Shared, lazily loaded plate and field overview for both mask modules."""
 
     def __init__(self, parent=None, settings=None):
@@ -3001,6 +3007,16 @@ class _FieldOverview(QDialog):
         axes.addWidget(self.z_mode)
         self.z_mode.currentIndexChanged.connect(self._axis_changed)
         axes.addWidget(self.wheel_axis)
+        self.preview_resolution = QComboBox()
+        self.preview_resolution.setObjectName("OverviewPreviewResolution")
+        for value in (128, 256, 512, 1024, 2048, 4096):
+            self.preview_resolution.addItem(str(value), value)
+        self.preview_resolution.setCurrentIndex(3)
+        self.preview_resolution.setToolTip(tr(
+            "Maximum preview edge in pixels; lower values load faster. Zoom still loads original pixels."))
+        self.preview_resolution.currentIndexChanged.connect(self._resolution_changed)
+        axes.addWidget(QLabel(tr("Preview resolution")))
+        axes.addWidget(self.preview_resolution)
         compare = QPushButton(tr("Compare selected fields"))
         compare.clicked.connect(self._compare)
         axes.addWidget(compare)
@@ -3582,12 +3598,13 @@ class _FieldOverview(QDialog):
             return
         viewport, cancelled = self.fields.viewport(), self._cancelled
         ratio = device_ratio(viewport)
+        edge = min(math.ceil(128 * ratio), self.preview_resolution.currentData())
         for index in range(self.fields.count()):
             item = self.fields.item(index)
             if not viewport.rect().intersects(self.fields.visualItemRect(item)):
                 continue
             field = item.data(Qt.UserRole)
-            key = field.identity, channels, limits, self._display_options_key(options), ratio
+            key = field.identity, channels, limits, self._display_options_key(options), ratio, edge
             if item.data(Qt.UserRole + 1) == key:
                 continue
             def read():
@@ -3597,7 +3614,7 @@ class _FieldOverview(QDialog):
                 """
                 try:
                     return _overview_pixels(field, channels, limits,
-                                             edge=math.ceil(128 * ratio), **options), ""
+                                             edge=edge, **options), ""
                 except Exception as exc:
                     return None, str(exc)
             def shown(result):
@@ -3926,6 +3943,17 @@ class _FieldOverview(QDialog):
             self.view.clear_image()
             self.status.setText(tr("No field exists for this well and acquisition-axis selection."))
 
+    def _resolution_changed(self, *_):
+        """Rebuild bounded previews without changing raw data or learned display limits."""
+        self._cache.clear()
+        self._thumbnail_cache.clear()
+        self._displayed_montage = None
+        self._displayed_field = None
+        self._request_visuals()
+        item = self.fields.currentItem()
+        if self._individual and item is not None:
+            self._field(item)
+
     def _wheel_mode_changed(self):
         """Apply the explicit wheel action without modifying any acquisition value."""
         self.view.wheel_mode = self.wheel_axis.currentData()
@@ -3947,7 +3975,8 @@ class _FieldOverview(QDialog):
         width = self.view._item.pixmap().width()
         displayed = width * self.view.transform().m11()
         desired = min(4096, max(256, int(math.ceil(displayed * device_ratio(self.view.viewport())))))
-        desired = next((edge for edge in (256, 1024, 2048, 4096) if edge >= desired), 4096)
+        desired = min(self.preview_resolution.currentData(),
+            next((edge for edge in (256, 512, 1024, 2048, 4096) if edge >= desired), 4096))
         self._request_native_detail()
         if desired > self._preview_edge:
             self._preview_edge = desired
@@ -4471,7 +4500,7 @@ class _FieldOverview(QDialog):
         options = self._display_kwargs()
         source_key = field.identity, channels, limits, self._display_options_key(options)
         if source_key != self._displayed_field:
-            self._preview_edge = 256
+            self._preview_edge = min(256, self.preview_resolution.currentData())
             self._displayed_field = source_key
             preserve_view = False
         edge = self._preview_edge
@@ -4487,6 +4516,7 @@ class _FieldOverview(QDialog):
             self._show_pixels(self._cache[key], preserve_view)
             return
         cancelled, signature = self._cancelled, self._visual_context()
+        target_edge = self.preview_resolution.currentData()
         def done(result):
             """Cache bounded pixels and accept only the exact current axis/view.
 
@@ -4505,8 +4535,8 @@ class _FieldOverview(QDialog):
                     and self._visual_context() == signature
                     and self._displayed_field == source_key):
                 self._show_pixels(pixels, preserve_view)
-                if edge == 256:
-                    self._preview_edge = 1024
+                if edge == min(256, target_edge) and edge < target_edge:
+                    self._preview_edge = target_edge
                     self._image_pending = True
         def read():
             """Read original dimensions and a bounded preview without Qt access."""
@@ -4582,7 +4612,8 @@ class _FieldOverview(QDialog):
         return (self._scope, self.rows.currentData(), self.columns.currentData(),
                 self._page, self._display_generation,
                 self.fov_axis.currentData(), self.time_axis.currentData(),
-                self.z_axis.currentData(), self.z_mode.currentData(), channels, limits)
+                self.z_axis.currentData(), self.z_mode.currentData(), channels, limits,
+                self.preview_resolution.currentData())
 
     def _update_visuals(self):
         """Load one visible representative or one bounded well montage at a time."""
@@ -4599,6 +4630,7 @@ class _FieldOverview(QDialog):
         self._visual_signature = signature
         cancelled = self._cancelled
         options = self._display_kwargs()
+        resolution = self.preview_resolution.currentData()
         if self.fields.isVisible():
             self._update_field_thumbnails(signature, channels, limits, options)
         if self._comparison_signature is not None:
@@ -4620,7 +4652,8 @@ class _FieldOverview(QDialog):
                 self.status.setText(tr("{count} fields; {errors} unreadable previews.",
                                        count=len(page), errors=len(errors)))
             self._montage_jobs.submit(
-                lambda: _overview_montage(page, channels, limits, cancelled, **options), show_montage)
+                lambda: _overview_montage(page, channels, limits, cancelled,
+                    preview_edge=min(240, resolution), **options), show_montage)
             return
         viewport = self.wells.viewport()
         ratio = device_ratio(viewport)
@@ -4653,7 +4686,7 @@ class _FieldOverview(QDialog):
                 if field is None:
                     continue
                 representatives = tuple(self._well_fields[well][:self.representatives.value()])
-                edge = min(4096, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
+                edge = min(resolution, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
                 key = (tuple(record.identity for record in representatives), channels, limits, ratio, edge, self._display_options_key(options))
                 if item.data(Qt.UserRole + 1) == key:
                     continue
@@ -4668,7 +4701,7 @@ class _FieldOverview(QDialog):
                     try:
                         if len(representatives) > 1:
                             pixels, errors = _overview_montage(representatives, channels, limits,
-                                                              cancelled, **options)
+                                                              cancelled, preview_edge=min(240, resolution), **options)
                             return pixels, "; ".join(message for _, message in errors)
                         return _overview_pixels(field, channels, limits,
                                                 edge=edge, **options), ""
@@ -4874,8 +4907,8 @@ class _FieldOverview(QDialog):
 
 def _overview_workspace_qss(palette, opacity):
     """Give embedded overview pages an opaque background in both themes."""
-    return ("QWidget#FieldOverviewWorkspace, QDialog#FieldOverviewBody, "
-            "QDialog#FieldOverviewMetadata { background-color: " + palette["bg"] + "; }")
+    return ("QWidget#FieldOverviewWorkspace, QWidget#FieldOverviewBody, "
+            "QWidget#FieldOverviewMetadata { background-color: " + palette["bg"] + "; }")
 
 
 class _OverviewWorkspace(QWidget):
@@ -5245,8 +5278,12 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
     return fields, info
 
 
-class _OverviewMetadataWizard(QDialog):
+class _OverviewMetadataWizard(QWidget):
     """Choose a real source's metadata, axes, geometry and display transform."""
+
+    accepted = Signal()
+    rejected = Signal()
+    finished = Signal(int)
 
     def __init__(self, source="", settings=None, parent=None):
         """Build the source wizard; filesystem work starts only on its worker."""
@@ -5265,6 +5302,7 @@ class _OverviewMetadataWizard(QDialog):
         self._cancelled = threading.Event()
         self._generation = 0
         self._finished = False
+        self._result = QDialog.Rejected
         self._runner = JobRunner(self, threaded=True, app_key="overview metadata", user_visible=False)
         self._runner.job_failed.connect(self._failed)
         shell = QVBoxLayout(self)
@@ -5664,14 +5702,47 @@ class _OverviewMetadataWizard(QDialog):
         self.status.setText(str(error))
         self.next.setEnabled(False)
 
+    def result(self):
+        """Return the accepted or rejected metadata result."""
+        return self._result
+
+    def accept(self):
+        """Publish validated metadata without turning the body into a popup."""
+        self.done(QDialog.Accepted)
+
+    def reject(self):
+        """Cancel this metadata generation and notify its embedded workspace."""
+        self.done(QDialog.Rejected)
+
     def done(self, result):
-        """Cancel metadata work before hiding the wizard."""
+        """Cancel metadata work before hiding and emitting the matching result."""
+        if self._finished:
+            return
         self._finished = True
+        self._result = result
         self._startup_timer.stop()
         self._rescan_timer.stop()
         self._cancelled.set()
         self._runner.shutdown(timeout_ms=0)
-        super().done(result)
+        self.hide()
+        if result == QDialog.Accepted:
+            self.accepted.emit()
+        else:
+            self.rejected.emit()
+        self.finished.emit(result)
+
+    def closeEvent(self, event):
+        """Retire pending metadata when its containing window is closed."""
+        self.reject()
+        super().closeEvent(event)
+
+    def keyPressEvent(self, event):
+        """Retain Escape cancellation inside the metadata body."""
+        if event.key() == Qt.Key_Escape:
+            self.reject()
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
 
 def _overview_prepare_normalization(fields, channels, options, read_planes, cancelled=None):

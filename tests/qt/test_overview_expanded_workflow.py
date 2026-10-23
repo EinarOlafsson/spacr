@@ -1195,3 +1195,172 @@ def test_field_thumbnails_decode_visible_rows_and_load_new_rows_on_scroll(tmp_pa
     qtbot.waitUntil(lambda: not last.icon().isNull() and not dialog._field_thumbnail_jobs.is_busy())
     assert first.data(browser.Qt.UserRole).identity != last.data(browser.Qt.UserRole).identity
     dialog.close()
+
+
+@pytest.mark.parametrize("host_key", ("mask", "make_masks"))
+def test_actual_application_dialog_filters_keep_metadata_and_browser_in_their_host(tmp_path, host_key):
+    import os
+    import subprocess
+    import sys
+    tifffile.imwrite(tmp_path / "plate1_A01_F1.tif", np.arange(120, dtype=np.uint16).reshape(10, 12))
+    code = r'''
+import sys
+from PySide6.QtWidgets import QApplication, QDialog
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtTest import QTest
+from spacr.qt.app import MainWindow, install_the_dialog_filters
+from spacr.qt import preferences
+from spacr.qt.first_run import mark_tour_seen
+from spacr.qt.widgets.qc_field_browser import _open_field_overview
+app = QApplication([])
+app.setQuitOnLastWindowClosed(False)
+mark_tour_seen()
+preferences.apply_preferences_to_app(app)
+window = MainWindow()
+window.resize(1180, 820)
+window.show()
+install_the_dialog_filters(app)
+state = {}
+def fail():
+ import traceback
+ traceback.print_exc()
+ app.exit(1)
+def open_empty():
+ try:
+  window.open_module(sys.argv[1])
+  host = window._screens[sys.argv[1]]
+  wizard = _open_field_overview(host, {})
+  state.update(host=host, wizard=wizard, stage=0)
+ except Exception:
+  fail()
+def tick():
+ try:
+  if not state:
+   return
+  host, wizard = state['host'], state['wizard']
+  if state['stage'] == 0:
+   assert wizard.isVisible() and wizard.source.isVisible()
+   assert not wizard.isWindow() and not isinstance(wizard, QDialog)
+   assert not wizard.property('spacrGlassed') and wizard.window() is window
+   wizard.source.setText(sys.argv[2])
+   wizard._scan()
+   state['stage'] = 1
+  elif state['stage'] == 1 and wizard.next.isEnabled():
+   QTest.mouseClick(wizard.next, Qt.LeftButton)
+   state['stage'] = 2
+  elif state['stage'] == 2:
+   body = host._field_overview
+   if not body._normalization_ready:
+    return
+   assert body.isVisible() and not body.isWindow() and not isinstance(body, QDialog)
+   assert not body.property('spacrGlassed') and body.window() is window
+   assert body.preview_resolution.isVisible()
+   QTest.mouseClick(body.options_button, Qt.LeftButton)
+   state['stage'] = 3
+  elif state['stage'] == 3:
+   body = host._field_overview
+   assert isinstance(body._options_window, QDialog) and body._options_window.isWindow()
+   assert body._options_window.isVisible()
+   body._options_window.close()
+   host._field_overview_workspace.close()
+   for runner in (body._index_jobs, body._image_jobs, body._export_jobs, body._thumbnail_jobs,
+     body._montage_jobs, body._field_thumbnail_jobs, body._metadata_jobs, body._native_jobs, body._measurement_jobs):
+    runner.shutdown(timeout_ms=3000)
+   wizard._runner.shutdown(timeout_ms=3000)
+   print('embedded widgets survive actual application dialog filters', flush=True)
+   app.exit(0)
+ except Exception:
+  fail()
+QTimer.singleShot(0, open_empty)
+timer = QTimer()
+timer.timeout.connect(tick)
+timer.start(50)
+QTimer.singleShot(20000, lambda: app.exit(2))
+sys.exit(app.exec())
+'''
+    environment = dict(os.environ, XDG_CONFIG_HOME=str(tmp_path / "config"),
+        XDG_CACHE_HOME=str(tmp_path / "cache"), SPACR_NO_NETWORK="1", SPACR_PREWARM="0")
+    result = subprocess.run([sys.executable, "-c", code, host_key, str(tmp_path)],
+        env=environment, capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "embedded widgets survive actual application dialog filters" in result.stdout
+
+
+def test_preview_resolution_caps_plate_reads_and_progressive_field_pixels(tmp_path, qtbot, monkeypatch):
+    raw = np.arange(1024 * 1024, dtype=np.uint16).reshape(1024, 1024)
+    path = tmp_path / "plate1_A01_F1.npy"
+    np.save(path, raw)
+    before = path.stat().st_mtime_ns
+    dialog = _browser(tmp_path, qtbot, browser._overview_index(tmp_path))
+    calls = []
+    original = browser._overview_pixels
+    def pixels(*args, **kwargs):
+        calls.append(kwargs.get("edge"))
+        return original(*args, **kwargs)
+    monkeypatch.setattr(browser, "_overview_pixels", pixels)
+    dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(128))
+    dialog.show()
+    qtbot.waitUntil(lambda: "A01" in dialog._installed_thumbnails and not dialog._thumbnail_jobs.is_busy())
+    assert calls and all(edge <= 128 for edge in calls)
+    dialog._well(dialog.wells.item(0, 0))
+    qtbot.waitUntil(lambda: dialog._displayed_montage is not None)
+    assert all(edge <= 128 for edge in calls)
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy()
+        and dialog.view._item.pixmap().width() == 128)
+    calls.clear()
+    dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(512))
+    qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy()
+        and dialog.view._item.pixmap().width() == 512)
+    assert 256 in calls and 512 in calls
+    assert path.stat().st_mtime_ns == before
+    np.testing.assert_array_equal(np.load(path), raw)
+    dialog.close()
+
+
+@pytest.mark.parametrize("compression,expected_decodes", ((None, 0), ("deflate", 1)))
+def test_multichannel_tiff_thumbnail_decodes_only_one_shared_page_when_required(tmp_path, monkeypatch, compression, expected_decodes):
+    raw = np.arange(256 * 384 * 3, dtype=np.uint16).reshape(256, 384, 3)
+    path = tmp_path / "plate1_A01_F1.tif"
+    tifffile.imwrite(path, raw, photometric="rgb", compression=compression)
+    field, = browser._overview_index(tmp_path)
+    calls = []
+    original = tifffile.TiffPage.asarray
+    def decoded(page, *args, **kwargs):
+        calls.append(page.shape)
+        return original(page, *args, **kwargs)
+    monkeypatch.setattr(tifffile.TiffPage, "asarray", decoded)
+    planes = tuple(browser._overview_raw_planes(field, (0, 1, 2), edge=48))
+    for channel, _, plane in planes:
+        np.testing.assert_array_equal(plane, raw[::8, ::8, channel])
+    assert len(calls) == expected_decodes
+    calls.clear()
+    region = (23, 57, 31, 89)
+    planes = tuple(browser._overview_raw_planes(field, (0, 1, 2), region=region))
+    for channel, _, plane in planes:
+        np.testing.assert_array_equal(plane, raw[23:57, 31:89, channel])
+    assert len(calls) == expected_decodes
+
+
+@pytest.mark.parametrize("cancel", ("escape", "close"))
+def test_embedded_metadata_keyboard_and_close_emit_one_hidden_cancel(tmp_path, qtbot, cancel):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QDialog
+    wizard = browser._OverviewMetadataWizard(str(tmp_path))
+    wizard._startup_timer.stop()
+    qtbot.addWidget(wizard)
+    events = []
+    wizard.rejected.connect(lambda: events.append(("rejected", wizard.isVisible())))
+    wizard.finished.connect(lambda result: events.append((result, wizard.isVisible())))
+    wizard.show()
+    qtbot.keyClick(wizard, Qt.Key_F1)
+    assert wizard.isVisible() and not events
+    if cancel == "escape":
+        qtbot.keyClick(wizard, Qt.Key_Escape)
+    else:
+        wizard.close()
+    assert events == [("rejected", False), (QDialog.Rejected, False)]
+    assert wizard.result() == QDialog.Rejected and wizard._cancelled.is_set()
+    wizard.reject()
+    assert len(events) == 2
+    wizard._runner.shutdown(timeout_ms=3000)

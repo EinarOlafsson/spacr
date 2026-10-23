@@ -178,6 +178,7 @@ def test_progressive_detail_is_bounded_and_native_images_own_their_pixels(
     from PySide6.QtCore import QThread
 
     dialog = overview
+    dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(4096))
     requests, shown = [], []
     original_read, original_show = module._overview_pixels, dialog._show_pixels
 
@@ -194,7 +195,7 @@ def test_progressive_detail_is_bounded_and_native_images_own_their_pixels(
     dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
     dialog.fields.setCurrentRow(0)
     dialog._field(dialog.fields.item(0))
-    qtbot.waitUntil(lambda: any(shape[1] == 1024 for shape, _ in shown)
+    qtbot.waitUntil(lambda: any(shape[1] == 2048 for shape, _ in shown)
                     and not dialog._image_jobs.is_busy(), timeout=10000)
     assert any(shape[1] == 256 for shape, _ in shown)
     assert all(thread == qapp.thread() for _, thread in shown)
@@ -202,7 +203,7 @@ def test_progressive_detail_is_bounded_and_native_images_own_their_pixels(
     dialog._request_detail()
     qtbot.waitUntil(lambda: any(edge == 4096 for edge, _ in requests)
                     and not dialog._image_jobs.is_busy(), timeout=10000)
-    assert max(edge for edge, _ in requests) <= 4096
+    assert max(edge for edge, _ in requests if edge is not None) <= 4096
     assert all(ident != threading.get_ident() for _, ident in requests)
     assert len(dialog._cache) <= 8
     before = dialog.view._item.pixmap().toImage().copy()
@@ -894,19 +895,61 @@ def test_native_image_wheel_keeps_anchor_and_requests_real_progressive_detail(ov
                                          normalized.y() * new_size.height()))
         assert abs(moved.x() - cursor.x()) <= 2
         assert abs(moved.y() - cursor.y()) <= 2
-    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy()
-                    and view._item.pixmap().width() > initial_width, timeout=10000)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and not dialog._native_jobs.is_busy()
+                    and dialog._native_key is not None, timeout=10000)
     actual = view._item.pixmap().toImage()
     moved = view.mapFromScene(QPointF(normalized.x() * actual.width(),
                                      normalized.y() * actual.height()))
     assert abs(moved.x() - cursor.x()) <= 2
     assert abs(moved.y() - cursor.y()) <= 2
-    assert (actual.width(), actual.height()) == (2048, 1536)
+    assert (actual.width(), actual.height()) == (1024, 768)
+    assert actual.width() == dialog.preview_resolution.currentData()
     assert actual.width() * view.transform().m11() > initial_displayed
     assert dialog.fields.currentItem().data(Qt.UserRole).identity == field.identity
     assert dialog._scope == ("p1", "A01")
     assert (dialog.fov_axis.currentData(), dialog.time_axis.currentData(), dialog.z_axis.currentData()) == axes
     assert len(dialog._cache) <= 8
-    expected = module._overview_pixels(field, (1,), (1., 99.9), edge=2048)
-    for x, y in ((128, 96), (1024, 768), (2047, 1535)):
-        assert actual.pixelColor(x, y).getRgb()[:3] == tuple(int(value) for value in expected[y, x])
+    region = dialog._native_key[2]
+    y0, y1, x0, x1 = region
+    native = dialog._native_item.pixmap().toImage()
+    assert (native.width(), native.height()) == (x1 - x0, y1 - y0)
+    assert dialog._native_item.pos() == QPointF(x0 / 2, y0 / 2)
+    expected = module._overview_pixels(field, (1,), (1., 99.9), edge=None,
+        region=region, **dialog._display_kwargs())
+    for x, y in ((0, 0), (native.width() // 2, native.height() // 2),
+                 (native.width() - 1, native.height() - 1)):
+        assert native.pixelColor(x, y).getRgb()[:3] == tuple(int(value) for value in expected[y, x])
+
+
+def test_finer_preview_preserves_source_camera_and_ignores_deselected_native_target(overview, qtbot):
+    from PySide6.QtCore import QPointF
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy())
+    field = dialog.fields.currentItem().data(Qt.UserRole)
+    low = module._overview_pixels(field, (1,), (1., 99.9), edge=256, **dialog._display_kwargs())
+    dialog._show_pixels(low)
+    dialog._preview_edge = 256
+    dialog.view.zoom_by(8)
+    anchor = dialog.view.viewport().rect().center()
+    center = dialog.view.mapToScene(anchor)
+    normalized = QPointF(center.x() / low.shape[1], center.y() / low.shape[0])
+    displayed = dialog.view.transform().m11() * low.shape[1]
+    dialog._request_detail()
+    qtbot.waitUntil(lambda: dialog.view._item.pixmap().width() == 1024 and not dialog._image_jobs.is_busy())
+    final = dialog.view._item.pixmap()
+    moved = dialog.view.mapFromScene(QPointF(normalized.x() * final.width(), normalized.y() * final.height()))
+    assert abs(moved.x() - anchor.x()) <= 2 and abs(moved.y() - anchor.y()) <= 2
+    assert dialog.view._user_zoomed
+    assert abs(final.width() * dialog.view.transform().m11() - displayed) < .01
+    dialog._native_timer.stop()
+    qtbot.waitUntil(lambda: not dialog._native_jobs.is_busy())
+    dialog.fields.setCurrentRow(-1)
+    before = dialog.view._item.pixmap().toImage().copy()
+    dialog._preview_edge = 256
+    dialog._request_detail()
+    dialog._load_native_detail()
+    assert dialog.fields.currentItem() is None
+    assert dialog.view._item.pixmap().toImage() == before
+    assert not dialog._native_jobs.is_busy()

@@ -985,7 +985,8 @@ def test_visible_well_thumbnails_follow_native_ratio_and_reuse_source_cache(tmp_
             assert picture.deviceIndependentSize().width() == expected.width()
             assert picture.deviceIndependentSize().height() == expected.height()
         base = max(64, max(dialog._plate_cell_extent or (160, 160)))
-        assert decoded == [base, base * 2]
+        cap = dialog.preview_resolution.currentData()
+        assert decoded == [min(cap, base), min(cap, base * 2)]
         assert len(dialog._thumbnail_cache) == 2
     finally:
         dialog.close()
