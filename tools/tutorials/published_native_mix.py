@@ -41,7 +41,16 @@ def source_mapping(english, original, cards):
                 or [s['native_live_video'] for s in original['scenes']] != [True,True,False,False,False,False]):
             raise ValueError('Require exact six Model Compare scenes, two native/four held, and only three reviewed reference slots')
         return [v for v in source if v not in COMPARE_CARDS], set(COMPARE_CARDS)
-    raise ValueError('Mixed published source is only reviewed for Home, Image UMAP and Model Compare')
+    if english['id'] == '04_platform_installers':
+        from render_platform_doctor_reference_card import VISUALS, CARD
+        flags=[s.get('native_live_video') for s in original['scenes']]
+        if (source!=list(VISUALS) or visuals!=list(VISUALS) or set(cards)!={CARD}
+                or any(type(flag) is not bool for flag in flags)
+                or flags!=[False]*7+[True,True]+[False]*5
+                or round(original['scenes'][9]['duration']*30)!=879):
+            raise ValueError('Require exact fourteen Platform scenes, two native/twelve held and only the original879-frame Doctor reference')
+        return [v for v in source if v!=CARD], {CARD}
+    raise ValueError('Mixed published source is only reviewed for Home, Image UMAP, Model Compare and Platform Installers')
 
 
 def identity(value):
@@ -57,11 +66,14 @@ def plan_mix(english,original,tracks,cards,edit,bindings,fences):
             or edit['visual_timing_sha256']!=bindings['timing']['sha256']):
         raise ValueError('Native edit source binding changed')
     selected={s['visual']:s for s in edit['scenes']}
-    if english['id']=='21_model_compare' and selected:
-        raise ValueError('Model Compare reference refresh preserves all retained source intervals unchanged')
+    if english['id'] in {'21_model_compare','04_platform_installers'} and selected:
+        raise ValueError('Reference refresh preserves all retained source intervals unchanged')
     if len(selected)!=len(edit['scenes']) or set(selected)-set(source):raise ValueError('Unknown or duplicate native edits')
     if len(tracks)!=50 or any(len(t['scenes'])!=count for t in tracks):raise ValueError('Require all current fifty complete scene tracks')
     by_source={s['visual']:s for s in original['scenes']};rows=[];cursor=0
+    if english['id']=='04_platform_installers':
+        from render_platform_doctor_reference_card import MASTER_SHA
+        if bindings['master']['sha256']!=MASTER_SHA:raise ValueError('Accepted Platform master changed')
     for index,authored in enumerate(english['scenes']):
         visual=authored['visual'];spoken=[t['scenes'][index] for t in tracks]
         spans=[float(s['speech_end'])-float(s['speech_start']) for s in spoken]
@@ -73,6 +85,9 @@ def plan_mix(english,original,tracks,cards,edit,bindings,fences):
             if card.get('kind')!='authored_reference_card' or card.get('narration_sha256')!=identity(authored['narration']):
                 raise ValueError('Inserted visual must be a current authored reference card')
             frames=math.ceil(max(durations)*30-1e-8)
+            if english['id']=='04_platform_installers':
+                frames=round(by_source[visual]['duration']*30)
+                if max(durations)>frames/30+1e-9:raise ValueError('Retained Doctor speech exceeds its original interval')
             row=dict(native_live_video=False,reference_card=deepcopy(card),edited=False,
                      kept_frames=0,final_frame_hold_frames=frames)
         elif visual in selected:
@@ -94,6 +109,8 @@ def plan_mix(english,original,tracks,cards,edit,bindings,fences):
         else:
             source_row=by_source[visual];kept=round(source_row['duration']*30)
             frames=max(kept,math.ceil(max(durations)*30-1e-8))
+            if english['id']=='04_platform_installers' and frames!=kept:
+                raise ValueError('Retained Platform speech exceeds its unchanged source clock')
             if frames>kept and (visual not in fences or fences[visual]>min(spans)):
                 raise ValueError('Longer narration requires a reviewed early idle/result fence before final-frame hold: '+visual)
             row=dict(native_live_video=source_row.get('native_live_video') is True,
@@ -102,6 +119,8 @@ def plan_mix(english,original,tracks,cards,edit,bindings,fences):
         row.update(scene=index+1,visual=visual,text=authored['narration'],speech_start=cursor/30,
                    speech_end=(cursor+frames)/30,scene_end=(cursor+frames)/30,duration=frames/30,
                    longest_narration_duration=max(durations))
+        if english['id']=='04_platform_installers':
+            row.update({key:deepcopy(by_source[visual][key]) for key in ('speech_start','speech_end','scene_end','duration')})
         rows.append(row);cursor+=frames
     return rows
 
@@ -126,14 +145,16 @@ def inputs(stage,baseline,edit,source_policy,identity_='05_home'):
         from render_umap_reference_card import validate_cards
     elif identity_ == '21_model_compare':
         from render_model_compare_reference_cards import validate_cards
+    elif identity_ == '04_platform_installers':
+        from render_platform_doctor_reference_card import validate_cards
     else:
         raise ValueError('Unreviewed mixed lesson')
     cards=validate_cards(root/'reference-cards',english,REPO)
     card_contract=read(root/'reference-cards/cards.json')
-    if identity_ == '21_model_compare':
+    if identity_ in {'21_model_compare','04_platform_installers'}:
         from published_retained_narration import RECORD as NARRATION_RECORD, checked_published_narration
         if Path(read(root/NARRATION_RECORD)['baseline_root']).resolve()!=baseline:
-            raise ValueError('Model Compare requires unchanged fifty-track narration from this exact published baseline')
+            raise ValueError('Reference refresh requires unchanged fifty-track narration from this exact published baseline')
         tracks,proofs=checked_published_narration(stage,identity_)
     else:
         tracks,proofs=verified_narration_tracks(stage,identity_,english)
@@ -155,10 +176,10 @@ def inputs(stage,baseline,edit,source_policy,identity_='05_home'):
           edit_sha256=identity(edit),cards_contract_sha256=identity(card_contract),
           source_idle_policy_sha256=identity(source_policy),fresh_capture=False,raw_capture_revalidated=False),
         coverage=dict(accepted=True,gaps=[],track_count=50,source_native_scene_count=len(original['scenes'])-int(identity_=='15_image_umap'),reference_card_count=len(cards)))
-    if identity_ == '21_model_compare':
+    if identity_ in {'21_model_compare','04_platform_installers'}:
         timing['coverage']['source_native_scene_count']=2
         timing['published_native_mix']['replaced_source_scenes']=[
-            dict(source_scene=i+1,visual=s['visual'],reason='Authoring terminal replaced by clearly labelled reference from unchanged saved results')
+            dict(source_scene=i+1,visual=s['visual'],reason=('Historical CPU diagnostic reference wording clarified; command and results unchanged' if identity_=='04_platform_installers' else 'Authoring terminal replaced by clearly labelled reference from unchanged saved results'))
             for i,s in enumerate(original['scenes']) if s['visual'] in cards]
     if identity_ == '15_image_umap':
         timing['published_native_mix']['omitted_source_scenes'] = [dict(source_scene=15,visual='27_review_embedding',
@@ -203,7 +224,7 @@ def render(stage,baseline,edit,source_policy,identity_='05_home'):
 
 
 def checked_mixed_native_timing(stage,identity_):
-    if identity_ not in {'05_home','15_image_umap','21_model_compare'}:raise ValueError('Unreviewed mixed source')
+    if identity_ not in {'05_home','15_image_umap','21_model_compare','04_platform_installers'}:raise ValueError('Unreviewed mixed source')
     root=Path(stage)/'production'/identity_;record=read(root/RECORD)
     root,_,_,source,spec,timing,_,_=inputs(stage,record['baseline_root'],record['edit'],record['source_idle_policy'],identity_)
     expected=dict(schema=1,kind='mixed_published_native_intervals',lesson=identity_,fresh_capture=False,raw_capture_revalidated=False,**source,edit=record['edit'],
@@ -214,11 +235,21 @@ def checked_mixed_native_timing(stage,identity_):
     return clock
 
 
+def platform_source_policy():
+    """Select only the existing Platform binding; inputs() validates its source clocks."""
+    policy=read(REPO/'tools/tutorials/idle_tail_policy.json')
+    if not isinstance(policy,dict) or set(policy)!={'schema','lessons'} or policy['schema']!=1 or not isinstance(policy['lessons'],list):
+        raise ValueError('Require canonical schema1 idle policy')
+    entries=[row for row in policy['lessons'] if isinstance(row,dict) and row.get('lesson')=='04_platform_installers']
+    if len(entries)!=1:raise ValueError('Require exactly one existing Platform source policy')
+    return dict(schema=1,lessons=deepcopy(entries))
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--stage',type=Path,required=True)
     p.add_argument('--baseline',type=Path,required=True);p.add_argument('--reviewed-edit',type=Path)
     p.add_argument('--source-idle-policy',type=Path)
-    p.add_argument('--lesson',choices=['05_home','15_image_umap','21_model_compare'],default='05_home')
+    p.add_argument('--lesson',choices=['05_home','15_image_umap','21_model_compare','04_platform_installers'],default='05_home')
     a=p.parse_args();print(render(a.stage,a.baseline,read(a.reviewed_edit) if a.reviewed_edit else None,
-        read(a.source_idle_policy) if a.source_idle_policy else dict(schema=1,lessons=[]),a.lesson))
+        read(a.source_idle_policy) if a.source_idle_policy else platform_source_policy() if a.lesson=='04_platform_installers' else dict(schema=1,lessons=[]),a.lesson))
 if __name__=='__main__':main()
