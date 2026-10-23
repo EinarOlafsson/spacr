@@ -117,8 +117,8 @@ def test_full_source_pdf_and_raw_csv_preserve_typed_annotation_provenance(tmp_pa
     original = plot.save_figure
 
     def save(figure, *args, **kwargs):
-        captured.append((np.asarray(figure.axes[0].images[0].get_array()).copy(),
-                         figure._spacr_spec))
+        captured.append(([np.asarray(axis.images[0].get_array()).copy()
+                          for axis in figure.axes if axis.images], figure._spacr_spec))
         return original(figure, *args, **kwargs)
 
     monkeypatch.setattr(plot, "save_figure", save)
@@ -127,22 +127,22 @@ def test_full_source_pdf_and_raw_csv_preserve_typed_annotation_provenance(tmp_pa
         measurements=True, quality_edge=None, dpi=150, conditions={(field.plate, field.well): "control"})
     assert len(written) == 1 and not errors
     drawn = captured[0][0]
+    assert len(drawn) == channel_count
     if channel_count == 1:
-        assert drawn.shape == image.shape + (3,)
+        assert drawn[0].shape == image.shape + (3,)
     else:
-        tile = max(image.shape) + 16
-        assert drawn.shape == (tile * 2, tile * 2, 3)
-        for index in range(4):
+        for index, actual in enumerate(drawn):
             plane = stored[index].astype(np.float32)
             low, high = np.percentile(plane, (1, 99))
             expected = np.uint8(np.clip((plane - low) / (high - low), 0, 1) * 255)
-            y, x = (index // 2) * tile + 16, (index % 2) * tile
-            np.testing.assert_array_equal(drawn[y:y + image.shape[0], x:x + image.shape[1], 0], expected)
+            assert actual.shape == image.shape + (3,)
+            np.testing.assert_array_equal(actual[..., 0], expected)
+        assert captured[0][1]["image_channels"] == [(index,) for index in range(4)]
     assert captured[0][1]["original_resolution"] is True
     from pypdf import PdfReader
     embedded = PdfReader(written[0]).pages[0].images
-    assert len(embedded) == 1
-    assert embedded[0].image.size == (drawn.shape[1], drawn.shape[0])
+    assert len(embedded) == channel_count
+    assert all(item.image.size == (image.shape[1], image.shape[0]) for item in embedded)
     record = json.loads((output / "overview_selection.json").read_text())["fields"][0]
     assert record["field_id"] == "1" and record["condition"] == "control"
     from spacr import tabular
@@ -269,3 +269,81 @@ def test_reference_normalization_and_plate_conditions_preserve_raw_export_data(t
             for record in metadata["fields"]] == [("p1", "A01", "1", "reference"), ("p2", "A01", "1", "treated")]
     assert metadata["measurements"]["intensity_units"] == "raw_stored_pixel_values"
     assert all(path.read_bytes() == content for path, content in original_bytes.items())
+
+
+def test_pdf_pages_fit_actual_fields_and_keep_readable_vector_channel_labels(tmp_path, monkeypatch):
+    from pypdf import PdfReader
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from spacr import plot
+
+    source = tmp_path / "source"
+    source.mkdir()
+    for field_id in (1, 2, 3):
+        image = np.stack([np.arange(100, dtype=np.uint16).reshape(10, 10) + 10 * channel + field_id
+                          for channel in range(4)])
+        tifffile.imwrite(source / f"plate1_A01_F{field_id}.tif", image,
+                         photometric="minisblack", metadata={"axes": "CYX"})
+    fields = browser._overview_index(source, source_scope="folder")
+    plan = browser._overview_normalization_plan(fields, (0, 1, 2, 3), {
+        "mode": "reference_well", "reference": ("plate1", "A01"),
+        "percentiles": (0, 100), "reference_channel": 0, "mean_match": True,
+    }, browser._overview_raw_planes)
+    actual_save = plot.save_figure
+    snapshots = []
+
+    def save(figure, *args, **kwargs):
+        canvas = FigureCanvasAgg(figure)
+        canvas.draw()
+        renderer = canvas.get_renderer()
+        snapshots.append((figure, [(axis, image.get_window_extent(renderer))
+                                   for axis in figure.axes for image in axis.images],
+                          [text.get_text() for text in figure.texts]))
+        return actual_save(figure, *args, **kwargs)
+
+    monkeypatch.setattr(plot, "save_figure", save)
+    long_condition = "A user condition with several words kept in the PDF caption " * 5
+    for count in (1, 3):
+        condition = "control" if count == 1 else long_condition
+        written, errors = browser._overview_export(fields[:count], tmp_path / f"pdf{count}",
+            (0, 1, 2, 3), (0, 100), quality_edge=None, normalization=plan,
+            conditions={("plate1", "A01"): condition})
+        assert len(written) == 1 and not errors
+        figure, images, header = snapshots[-1]
+        assert len(images) == count * 4
+        assert figure._spacr_spec["grid"] == (1, count)
+        for position, (axis, bounds) in enumerate(images):
+            assert axis.get_title() == str(position % 4)
+            assert axis.title.get_fontsize() >= 10
+            title = axis.title.get_window_extent(figure.canvas.get_renderer())
+            assert title.y0 >= bounds.y1
+            assert title.x0 >= 0 and title.x1 <= figure.bbox.width
+            assert title.y1 <= figure.bbox.height
+            for other_axis, other_bounds in images:
+                if other_axis is not axis:
+                    assert not title.overlaps(other_bounds)
+        caption_texts = [text for text in figure.texts
+                         if text.get_text().startswith("plate1 / A01 /")]
+        assert len(caption_texts) == count
+        for caption in caption_texts:
+            box = caption.get_window_extent(figure.canvas.get_renderer())
+            assert box.x0 >= 0 and box.x1 <= figure.bbox.width
+            assert box.y0 >= 0 and box.y1 <= figure.bbox.height
+            for axis, image_bounds in images:
+                assert not box.overlaps(image_bounds)
+                assert not box.overlaps(axis.title.get_window_extent(figure.canvas.get_renderer()))
+        all_text = "\n".join(header)
+        assert browser.tr("Bounds from a reference well") in all_text
+        assert "plate1 / A01" in all_text
+        assert browser.tr("Mean-matched display scaling before reference bounds") in all_text
+        assert browser.tr("On") in all_text
+        assert browser.tr("Sampled fields: {fields}; sampled pixels per channel: {pixels}",
+                          fields=3, pixels="0: 300, 1: 300, 2: 300, 3: 300") in all_text
+        if count == 1:
+            occupied = sum(bounds.width * bounds.height for axis, bounds in images)
+            assert occupied > .55 * figure.bbox.width * figure.bbox.height
+        reader = PdfReader(written[0])
+        assert len(reader.pages[0].images) == count * 4
+        assert all(item.image.size == (10, 10) for item in reader.pages[0].images)
+        text = reader.pages[0].extract_text()
+        assert browser.tr("Bounds from a reference well") in text
+        assert "plate1 / A01" in text

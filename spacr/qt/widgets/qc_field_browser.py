@@ -1810,8 +1810,9 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
 
 
 def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
-                     normalization=None, time_index=None, z_mode="plane", z_index=None):
-    """Decode one bounded field and return the same RGB pixels used in PDFs."""
+                     normalization=None, time_index=None, z_mode="plane", z_index=None,
+                     channel_views=False):
+    """Decode canonical display pixels, optionally returning individual channel views."""
     from PIL import Image, ImageDraw
 
     planes = []
@@ -1849,6 +1850,9 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         planes.append(np.uint8(np.clip(plane, 0, 1) * 255))
     if not planes or any(plane.shape != planes[0].shape for plane in planes):
         raise _OverviewValidationError(tr("Selected channels must have matching image sizes."))
+    if channel_views:
+        return tuple((channel, np.repeat(plane[..., None], 3, axis=2))
+                     for channel, plane in zip(channels, planes))
     if len(planes) == 1:
         return np.repeat(planes[0][..., None], 3, axis=2)
     if len(planes) > 3:
@@ -1956,6 +1960,43 @@ def _overview_sample(fields, count=1, seed=0, grouping="well", randomize=False):
     return tuple(result)
 
 
+def _overview_pdf_header(channels, percentiles, seed, normalization):
+    """Describe the selected display transform and its actual sampled reference."""
+    import textwrap
+
+    lines = [tr("Channels: {channels}; percentiles: {percentiles}; seed: {seed}",
+                channels=str(channels), percentiles=str(percentiles), seed=seed)]
+    if normalization is not None:
+        modes = {"image": tr("Percentiles per image"),
+                 "shared": tr("Shared channel percentile bounds"),
+                 "reference_well": tr("Bounds from a reference well"),
+                 "reference_row": tr("Bounds from a reference row"),
+                 "reference_column": tr("Bounds from a reference column"),
+                 "reference_condition": tr("Bounds from a reference condition")}
+        reference = normalization.get("reference")
+        if isinstance(reference, (tuple, list)):
+            reference = " / ".join(map(str, reference))
+        reference = str(reference) if reference not in (None, "") else "-"
+        reference_channel = normalization.get("reference_channel")
+        matching = tr("On") if normalization.get("mean_match") else tr("Off")
+        gains = normalization.get("gains") or {}
+        if normalization.get("mean_match"):
+            matching += " (" + ", ".join(f"{channel} × {float(gains.get(channel, 1.)):g}"
+                                         for channel in channels) + ")"
+        counts = normalization.get("sample_pixels") or {}
+        pixels = ", ".join(f"{channel}: {int(counts.get(channel, 0))}" for channel in channels)
+        lines.extend((
+            tr("Display normalization") + ": " + modes[normalization["mode"]]
+            + " | " + tr("Reference scope") + ": " + reference,
+            tr("Use reference-channel bounds") + ": "
+            + (str(reference_channel) if reference_channel is not None else "-"),
+            tr("Mean-matched display scaling before reference bounds") + ": " + matching,
+            tr("Sampled fields: {fields}; sampled pixels per channel: {pixels}",
+               fields=int(normalization.get("sample_fields", 0)), pixels=pixels),
+        ))
+    return tuple(part for line in lines for part in (textwrap.wrap(line, 112) or [""]))
+
+
 def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=None,
                      measurements=False, *, quality_edge=1000, dpi=None,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
@@ -1981,10 +2022,32 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
     for start in range(0, len(fields), 12):
         if cancelled is not None and cancelled.is_set():
             break
-        figure = Figure(figsize=(12, 12))
-        page_records, page_errors, page_images, image_panels = [], [], [], []
+        page_fields = fields[start:start + 12]
+        columns = min(3, len(page_fields)) if len(page_fields) != 4 else 2
+        rows = math.ceil(len(page_fields) / columns)
+        header = _overview_pdf_header(channels, percentiles, seed, normalization)
+        header_height = .25 + .18 * len(header)
+        panel_width = 12. / columns
+        import textwrap
+        captions = ["\n".join(textwrap.wrap(
+            field.caption + (" / " + str((conditions or {}).get((field.plate, field.well), ""))
+                             if (conditions or {}).get((field.plate, field.well), "") else ""),
+            max(24, int(95 / columns)))) for field in page_fields]
+        heights = []
+        for row in range(rows):
+            lines = max(caption.count("\n") + 1 for caption in captions[row * columns:(row + 1) * columns])
+            heights.extend((.18 * lines + .12, panel_width + .25))
+        figure_height = sum(heights) + header_height + .6
+        figure = Figure(figsize=(12, figure_height))
+        grid = figure.add_gridspec(rows * 2, columns, height_ratios=heights,
+            left=.035, right=.965, bottom=.03,
+            top=1. - (header_height + .12) / figure_height,
+            hspace=.08, wspace=.12)
+        figure.text(.5, 1. - .14 / figure_height, "\n".join(header),
+                    ha="center", va="top", fontsize=9, linespacing=1.3)
+        page_records, page_errors, page_images, image_panels, image_channels = [], [], [], [], []
         interrupted = False
-        for index, field in enumerate(fields[start:start + 12]):
+        for index, field in enumerate(page_fields):
             if cancelled is not None and cancelled.is_set():
                 interrupted = True
                 break
@@ -1997,19 +2060,41 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                 except CancelledError:
                     interrupted = True
                     break
-            axis = figure.add_subplot(4, 3, index + 1)
-            try:
-                pixels = _overview_pixels(field, channels, percentiles, edge=quality_edge,
-                                          normalization=normalization, **axis_options)
-                axis.imshow(pixels, interpolation="none")
-                page_images.append(pixels)
-                image_panels.append(index)
-            except Exception as exc:
-                axis.text(.5, .5, str(exc), ha="center", va="center", wrap=True)
-                page_errors.append((field.caption, str(exc)))
+            panel = grid[(index // columns) * 2 + 1, index % columns]
             condition = (conditions or {}).get((field.plate, field.well), "")
-            axis.set_title(field.caption + (" / " + condition if condition else ""), fontsize=8, wrap=True)
-            axis.set_axis_off()
+            bounds = grid[(index // columns) * 2, index % columns].get_position(figure)
+            figure.text((bounds.x0 + bounds.x1) / 2, bounds.y1 - .05 / figure_height,
+                        captions[index], ha="center", va="top", fontsize=10,
+                        linespacing=1.25)
+            try:
+                if len(channels) > 3:
+                    views = _overview_pixels(field, channels, percentiles, edge=quality_edge,
+                        normalization=normalization, channel_views=True, **axis_options)
+                    channel_columns = math.ceil(math.sqrt(len(views)))
+                    channel_rows = math.ceil(len(views) / channel_columns)
+                    inner = panel.subgridspec(channel_rows, channel_columns, hspace=.18, wspace=.08)
+                    for position, (channel, pixels) in enumerate(views):
+                        axis = figure.add_subplot(inner[position // channel_columns, position % channel_columns])
+                        axis.imshow(pixels, interpolation="none")
+                        axis.set_title(str(channel), fontsize=10, pad=5)
+                        axis.set_axis_off()
+                        page_images.append(pixels)
+                        image_panels.append(index)
+                        image_channels.append((channel,))
+                else:
+                    pixels = _overview_pixels(field, channels, percentiles, edge=quality_edge,
+                                              normalization=normalization, **axis_options)
+                    axis = figure.add_subplot(panel)
+                    axis.imshow(pixels, interpolation="none")
+                    axis.set_axis_off()
+                    page_images.append(pixels)
+                    image_panels.append(index)
+                    image_channels.append(tuple(channels))
+            except Exception as exc:
+                axis = figure.add_subplot(panel)
+                axis.text(.5, .5, str(exc), ha="center", va="center", wrap=True)
+                axis.set_axis_off()
+                page_errors.append((field.caption, str(exc)))
             page_records.append({"plate": field.plate, "well": field.well,
                                "field": field.field, "files": field.files,
                                "field_id": field.field_id or field.field,
@@ -2018,14 +2103,12 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         if interrupted:
             figure.clear()
             break
-        figure.suptitle(tr("Channels: {channels}; percentiles: {percentiles}; seed: {seed}",
-                          channels=str(channels), percentiles=str(percentiles), seed=seed))
         _register_figure_data(figure, page_images, kind="montage", fields=page_records,
                               channels=channels, percentiles=percentiles, seed=seed,
-                              image_panels=image_panels, errors=page_errors,
-                              grid=(4, 3), preview_edge=quality_edge, original_resolution=quality_edge is None,
+                              image_panels=image_panels, image_channels=image_channels,
+                              errors=page_errors, grid=(rows, columns), preview_edge=quality_edge,
+                              original_resolution=quality_edge is None,
                               normalization=normalization, **axis_options)
-        figure.tight_layout()
         _apply_user_style(figure)
         path = destination / f"overview_{start // 12 + 1:04d}.pdf"
         save_figure(figure, str(path), fmt="pdf", close=True, dpi=dpi)
