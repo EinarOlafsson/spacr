@@ -194,3 +194,52 @@ def test_umap_normal_card_binds_actual_header_sources_and_preserves_canonical_fo
     contract=destination/'cards.json';value=json.loads(contract.read_text())
     value['cards'][0]['references'][0]['sha256']='c'*64;contract.write_text(json.dumps(value))
     with pytest.raises(ValueError,match='bytes, source or narration'):generator.validate_cards(destination,english,REPO)
+
+
+
+def test_explicit_canonical_source_selects_whole_unique_binding_without_mutation(tmp_path,monkeypatch):
+    path=tmp_path/'tools/tutorials/idle_tail_policy.json';path.parent.mkdir(parents=True)
+    entries=[dict(lesson=lesson,master_sha256='a'*64,visual_timing_sha256='b'*64,
+                  scenes=[dict(visual='actual',source_start=12.0,source_end=22.0,idle_tail_start=9.5)])
+             for lesson in ('04_platform_installers','21_model_compare')]
+    monkeypatch.setattr(mix,'REPO',tmp_path)
+    path.write_text(json.dumps(dict(schema=1,lessons=entries)))
+    for entry in entries:
+        selected=mix.canonical_source_policy(entry['lesson'])
+        assert selected==dict(schema=1,lessons=[entry])
+        selected['lessons'][0]['scenes'][0]['idle_tail_start']=0
+        assert mix.canonical_source_policy(entry['lesson'])['lessons'][0]==entry
+    for invalid in ([],[entries[1],entries[1]]):
+        path.write_text(json.dumps(dict(schema=1,lessons=invalid)))
+        with pytest.raises(ValueError,match='exactly one'):mix.canonical_source_policy('21_model_compare')
+    with pytest.raises(ValueError,match='reviewed only'):mix.canonical_source_policy('05_home')
+
+
+def test_explicit_canonical_cli_passes_whole_binding_and_excludes_file_input(tmp_path,monkeypatch):
+    path=tmp_path/'tools/tutorials/idle_tail_policy.json';path.parent.mkdir(parents=True)
+    entry=dict(lesson='21_model_compare',master_sha256='a'*64,visual_timing_sha256='b'*64,scenes=[])
+    path.write_text(json.dumps(dict(schema=1,lessons=[entry])))
+    monkeypatch.setattr(mix,'REPO',tmp_path);calls=[]
+    monkeypatch.setattr(mix,'render',lambda *args:calls.append(args))
+    argv=['mix','--stage',str(tmp_path/'stage'),'--baseline',str(tmp_path/'baseline'),'--lesson','21_model_compare','--canonical-source-policy']
+    monkeypatch.setattr(sys,'argv',argv);mix.main()
+    assert len(calls)==1 and calls[0][3:]==(dict(schema=1,lessons=[entry]),'21_model_compare')
+    monkeypatch.setattr(sys,'argv',argv+['--source-idle-policy',str(tmp_path/'unused.json')])
+    with pytest.raises(SystemExit):mix.main()
+    assert len(calls)==1
+
+
+def test_canonical_flag_does_not_change_legacy_defaults_or_explicit_file(tmp_path,monkeypatch):
+    path=tmp_path/'tools/tutorials/idle_tail_policy.json';path.parent.mkdir(parents=True)
+    platform=dict(lesson='04_platform_installers',master_sha256='a'*64,visual_timing_sha256='b'*64,scenes=[])
+    path.write_text(json.dumps(dict(schema=1,lessons=[platform])))
+    custom=tmp_path/'reviewed.json';custom_policy=dict(schema=1,lessons=[dict(lesson='21_model_compare',scenes=[])])
+    custom.write_text(json.dumps(custom_policy));monkeypatch.setattr(mix,'REPO',tmp_path);calls=[]
+    monkeypatch.setattr(mix,'render',lambda *args:calls.append(args))
+    for lesson in ('05_home','15_image_umap','21_model_compare','04_platform_installers'):
+        argv=['mix','--stage',str(tmp_path/'stage'),'--baseline',str(tmp_path/'baseline'),'--lesson',lesson]
+        monkeypatch.setattr(sys,'argv',argv);mix.main()
+        expected=dict(schema=1,lessons=[platform] if lesson=='04_platform_installers' else [])
+        assert calls[-1][3:]==(expected,lesson)
+    monkeypatch.setattr(sys,'argv',argv[:-1]+['21_model_compare','--source-idle-policy',str(custom)]);mix.main()
+    assert calls[-1][3:]==(custom_policy,'21_model_compare')

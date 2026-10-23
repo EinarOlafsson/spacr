@@ -235,21 +235,30 @@ def checked_mixed_native_timing(stage,identity_):
     return clock
 
 
-def platform_source_policy():
-    """Select only the existing Platform binding; inputs() validates its source clocks."""
+def canonical_source_policy(identity_):
+    """Select one existing reviewed binding; inputs() still verifies its source."""
+    if identity_ not in {'04_platform_installers','21_model_compare'}:
+        raise ValueError('Canonical source policy is reviewed only for Platform and Model Compare')
     policy=read(REPO/'tools/tutorials/idle_tail_policy.json')
     if not isinstance(policy,dict) or set(policy)!={'schema','lessons'} or policy['schema']!=1 or not isinstance(policy['lessons'],list):
         raise ValueError('Require canonical schema1 idle policy')
-    entries=[row for row in policy['lessons'] if isinstance(row,dict) and row.get('lesson')=='04_platform_installers']
-    if len(entries)!=1:raise ValueError('Require exactly one existing Platform source policy')
+    entries=[row for row in policy['lessons'] if isinstance(row,dict) and row.get('lesson')==identity_]
+    if len(entries)!=1:raise ValueError('Require exactly one existing source policy')
     return dict(schema=1,lessons=deepcopy(entries))
+
+
+def platform_source_policy():
+    """Preserve the established Platform-only default."""
+    return canonical_source_policy('04_platform_installers')
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--stage',type=Path,required=True)
     p.add_argument('--baseline',type=Path,required=True);p.add_argument('--reviewed-edit',type=Path)
-    p.add_argument('--source-idle-policy',type=Path)
+    source=p.add_mutually_exclusive_group()
+    source.add_argument('--source-idle-policy',type=Path)
+    source.add_argument('--canonical-source-policy',action='store_true',help='Explicitly bind the one existing canonical04/21 source entry')
     p.add_argument('--lesson',choices=['05_home','15_image_umap','21_model_compare','04_platform_installers'],default='05_home')
     a=p.parse_args();print(render(a.stage,a.baseline,read(a.reviewed_edit) if a.reviewed_edit else None,
-        read(a.source_idle_policy) if a.source_idle_policy else platform_source_policy() if a.lesson=='04_platform_installers' else dict(schema=1,lessons=[]),a.lesson))
+        read(a.source_idle_policy) if a.source_idle_policy else canonical_source_policy(a.lesson) if a.canonical_source_policy else platform_source_policy() if a.lesson=='04_platform_installers' else dict(schema=1,lessons=[]),a.lesson))
 if __name__=='__main__':main()

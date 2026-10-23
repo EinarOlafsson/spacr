@@ -2790,6 +2790,96 @@ class _OverviewImageView(ZoomableImageView):
         self.detail_requested.emit()
 
 
+def _fit_overview_action_buttons(buttons):
+    """Reserve fresh native text slots without imposing fixed button sizes.
+
+    :param buttons: owned action buttons, measured using their current font,
+        style, default-button features and icon insets in actual pixels.
+    :returns: ``None``; only minimum dimensions change and may later shrink.
+    """
+    from PySide6.QtCore import QRect
+    from PySide6.QtWidgets import QStyle, QStyleOptionButton
+    from ..gui_scale import _set_actual_dim
+
+    for button in buttons:
+        button.ensurePolished()
+        hint = button.sizeHint().expandedTo(button.minimumSizeHint())
+        option = QStyleOptionButton()
+        option.initFrom(button)
+        option.rect = QRect(0, 0, hint.width(), hint.height())
+        option.text, option.icon = button.text(), button.icon()
+        option.iconSize = button.iconSize()
+        if button.isDefault():
+            option.features |= QStyleOptionButton.DefaultButton
+        if button.autoDefault():
+            option.features |= QStyleOptionButton.AutoDefaultButton
+        if button.isFlat():
+            option.features |= QStyleOptionButton.Flat
+        field = button.style().subElementRect(QStyle.SE_PushButtonContents, option, button)
+        text = button.style().itemTextRect(button.fontMetrics(), field,
+            int(Qt.AlignCenter | Qt.TextSingleLine), button.isEnabled(), button.text())
+        width = max(hint.width(), hint.width() - field.width() + text.width())
+        height = max(hint.height(), hint.height() - field.height() + text.height())
+        _set_actual_dim(button, "minw", width)
+        _set_actual_dim(button, "minh", height)
+
+
+def _fit_overview_action_width(button, width, context):
+    """Fit an owned action to its viewport and restore its selected font on growth.
+
+    Owned actions have empty local sheets; ordinary ``QPushButton`` rules are
+    also retained. This is not a general stylesheet selector rewriter.
+
+    :param button: action whose original local stylesheet must be preserved.
+    :param width: actual viewport width, or zero for an unexposed action row.
+    :param context: font/theme identity; a change re-resolves the base style.
+    :returns: ``None``; only this button's local font override and minima change.
+    """
+    from PySide6.QtGui import QFont, QFontInfo
+    from PySide6.QtWidgets import QWidget
+    from ..gui_scale import _original_for
+
+    setter = _original_for(button, "setStyleSheet") or QWidget.setStyleSheet
+    getter = _original_for(button, "styleSheet") or QWidget.styleSheet
+    actual = getter(button)
+    state = getattr(button, "_overview_font_fit", None)
+    changed = (state is None or state["context"] != context
+               or actual != state["applied"] or button.font() != state["font"])
+    if not changed and state["width"] == width:
+        return
+    if changed:
+        base = actual if state is None or actual != state["applied"] else state["base"]
+        if actual != base:
+            setter(button, base)
+        button.ensurePolished()
+        selected = QFont(button.font())
+        state = {"base": base, "selected": selected, "context": context}
+    selected_px = QFontInfo(state["selected"]).pixelSize()
+
+    def apply(pixels):
+        sheet = state["base"] if pixels == selected_px else (
+            state["base"] + f"\nQPushButton {{ font-size: {pixels}px; }}")
+        if getter(button) != sheet:
+            setter(button, sheet)
+        button.ensurePolished()
+        _fit_overview_action_buttons((button,))
+        return button.property("minimumSize").width()
+
+    if width <= 0 or apply(selected_px) <= width:
+        apply(selected_px)
+    else:
+        low, high, best = 1, max(1, selected_px - 1), 1
+        while low <= high:
+            middle = (low + high) // 2
+            if apply(middle) <= width:
+                best, low = middle, middle + 1
+            else:
+                high = middle - 1
+        apply(best)
+    state.update(applied=getter(button), font=QFont(button.font()), width=width)
+    button._overview_font_fit = state
+
+
 class _FieldOverview(QWidget):
     """Shared, lazily loaded plate and field overview for both mask modules."""
 
@@ -3055,7 +3145,7 @@ class _FieldOverview(QWidget):
         self.representatives.setToolTip(tr("Display up to 24 representative fields per well; whole-source exports remain available."))
         self.representatives.setValue(int(self._overview_options.get("representatives", 1)))
         self.representatives.valueChanged.connect(self._representatives_changed)
-        self.export_scope = QComboBox()
+        self.export_scope = _SetupComboBox()
         for text, value in ((tr("Current view"), "view"), (tr("Whole plate"), "plate"),
                             (tr("Current well"), "well"), (tr("Current field"), "field"),
                             (tr("Selected fields or wells"), "selection")):
@@ -3134,15 +3224,139 @@ class _FieldOverview(QWidget):
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
         self._wrap_controls(column, splitter)
-        self._module_actions = QWidget(self)
-        action_row = QHBoxLayout(self._module_actions)
+        from .flow import FlowHost, FlowLayout
+        from PySide6.QtWidgets import QScrollArea
+        self._module_actions = QScrollArea(self)
+        self._module_actions.setWidgetResizable(True)
+        self._module_actions.setFrameShape(QScrollArea.NoFrame)
+        self._module_actions.viewport().setAutoFillBackground(False)
+        self._module_action_content = FlowHost()
+        action_row = FlowLayout(self._module_action_content)
+        self._module_actions.setWidget(self._module_action_content)
+        self._module_action_buttons = []
         for caption, callback in ((tr("Export PDFs"), self._export),
                 (tr("Export image-level measurements"), self._measure),
                 (tr("Cancel loading or export"), self._cancel)):
             button = QPushButton(caption)
             button.clicked.connect(callback)
             action_row.addWidget(button)
+            self._module_action_buttons.append(button)
+        self._module_actions_retired = False
+        self._fitting_module_actions = False
+        self._module_action_fit_timer = QTimer(self)
+        self._module_action_fit_timer.setSingleShot(True)
+        self._module_action_fit_timer.timeout.connect(self._fit_module_actions)
+        for widget in (self._module_actions, self._module_actions.viewport(),
+                       self._module_action_content, *self._module_action_buttons):
+            widget.installEventFilter(self)
+        self._module_action_fit_timer.start(0)
         self._module_actions.hide()
+
+    def _fit_module_actions(self):
+        """Refresh native action minima after coalesced font and style changes."""
+        if self._module_actions_retired or self._fitting_module_actions:
+            return
+        self._fitting_module_actions = True
+        try:
+            from PySide6.QtWidgets import QApplication
+            from ..gui_scale import current_scale
+            from ..preferences import get_font_scale
+
+            app = QApplication.instance()
+            context = (current_scale(), get_font_scale(), app.font().toString(),
+                       self.window().property("_spacr_window_stylesheet_serial"),
+                       self._module_action_content.font().toString())
+            width = (self._module_actions.viewport().width()
+                     if self._module_actions.isVisibleTo(self.window()) else 0)
+            for button in self._module_action_buttons:
+                _fit_overview_action_width(button, width, (context, button.text()))
+            if width > 0:
+                from PySide6.QtCore import QSize
+                from ..gui_scale import _resize_actual
+
+                layout = self._module_action_content.layout()
+                target_width = max(width, layout.minimumSize().width())
+                target = QSize(target_width, max(self._module_actions.viewport().height(),
+                                                layout.heightForWidth(target_width)))
+                if self._module_action_content.property("size") != target:
+                    layout.activate()
+                    _resize_actual(self._module_action_content, target)
+            self._fit_plate_allocation()
+        finally:
+            self._fitting_module_actions = False
+
+    def _fit_plate_allocation(self):
+        """Reserve the delegate's image budget and scroll excess essential rows.
+
+        The delegate's 20-pixel image budget and cell insets are preferred
+        only within the enclosing viewport capacity. Other controls remain
+        separately scrollable. Dense plates retain whole-plate
+        Fit rather than imposing an unbounded per-row floor. Ample layouts
+        retain the essential controls' natural height rather than a fixed cap.
+        A scrolling ancestor bounds surplus table stretch; removing that
+        ancestor restores the unbounded maximum, and resizing recomputes it.
+        Only embedded content receives its fresh layout's width-dependent
+        floor; standalone content regains its original minimum height.
+        """
+        from ..gui_scale import _set_actual_dim
+        from PySide6.QtWidgets import QScrollArea
+
+        scroll = self._essential_scroll
+        if not hasattr(self, "_allocation_minimum_baseline"):
+            self._allocation_minimum_baseline = self.property("minimumHeight")
+        content = scroll.widget()
+        layout = content.layout()
+        margins = layout.contentsMargins()
+        row = max((layout.itemAt(index).widget().sizeHint().height()
+                   for index in range(layout.count()) if layout.itemAt(index).widget()), default=0)
+        row += margins.top() + margins.bottom() + 2 * scroll.frameWidth()
+        if content.minimumSizeHint().width() > scroll.viewport().width():
+            row += scroll.horizontalScrollBar().sizeHint().height()
+        gaps = [self.wells.rowHeight(index) - self.wells.visualItemRect(item).height()
+                for index in range(self.wells.rowCount())
+                if (item := self.wells.item(index, 0)) is not None]
+        gap = max(gaps, default=int(self.wells.showGrid()))
+        plate = (22 + gap) * max(1, self.wells.rowCount()) + 2 * self.wells.frameWidth()
+        if self.wells.horizontalHeader().isVisible():
+            plate += self.wells.horizontalHeader().property("size").height()
+        outer = self.layout().contentsMargins()
+        available = self.window().property("size").height()
+        ancestor = self.parentWidget()
+        viewports = []
+        while ancestor is not None:
+            if isinstance(ancestor, QScrollArea):
+                viewport = ancestor.viewport()
+                viewports.append(viewport)
+                available = min(available, viewport.property("size").height())
+            ancestor = ancestor.parentWidget()
+        for viewport in getattr(self, "_allocation_viewports", ()):
+            if viewport not in viewports:
+                viewport.removeEventFilter(self)
+        for viewport in viewports:
+            viewport.installEventFilter(self)
+        self._allocation_viewports = tuple(viewports)
+        if not viewports:
+            available = min(available, self.property("size").height())
+        room = available - outer.top() - outer.bottom() - self.status.sizeHint().height()
+        budget = max(0, available)
+        plate = min(plate, budget)
+        if self.wells.property("minimumHeight") != plate:
+            _set_actual_dim(self.wells, "minh", plate)
+        maximum = budget if viewports else 16777215
+        if self.wells.property("maximumHeight") != maximum:
+            _set_actual_dim(self.wells, "maxh", maximum)
+        natural = content.heightForWidth(scroll.viewport().width())
+        constrained = natural + plate > room
+        maximum = row if constrained else 16777215
+        if scroll.property("maximumHeight") != maximum:
+            _set_actual_dim(scroll, "maxh", maximum)
+        floor = self._allocation_minimum_baseline
+        if viewports:
+            body_layout = self.layout()
+            floor = max(floor, body_layout.minimumSize().height(),
+                        body_layout.totalHeightForWidth(self.property("size").width()))
+        if self.property("minimumHeight") != floor:
+            _set_actual_dim(self, "minh", floor)
 
     def _fill_group_choices(self, combo, image=False):
         """Offer physical addresses and every defined well annotation."""
@@ -3278,7 +3492,7 @@ class _FieldOverview(QWidget):
             pair_layout.addWidget(control)
             grid.addWidget(pair)
         layout.addWidget(host)
-        self.norm_channel = QComboBox()
+        self.norm_channel = _SetupComboBox()
         self.norm_channel.addItem(tr("All channels"), None)
         self._editing_channel = None
         self._global_normalization_options = self._editor_options()
@@ -3756,7 +3970,16 @@ class _FieldOverview(QWidget):
         fit = QPushButton(tr("Fit plate"))
         fit.clicked.connect(lambda: self._zoom_plate())
         essential_flow.addWidget(fit)
-        column.addWidget(essential)
+        essential_scroll = QScrollArea(self)
+        essential_scroll.setWidgetResizable(True)
+        essential_scroll.setFrameShape(QScrollArea.NoFrame)
+        essential_scroll.viewport().setAutoFillBackground(False)
+        essential_scroll.setWidget(essential)
+        self._essential_scroll = essential_scroll
+        self.installEventFilter(self)
+        essential_scroll.viewport().installEventFilter(self)
+        essential.installEventFilter(self)
+        column.addWidget(essential_scroll)
         column.addWidget(splitter, 1)
         column.addWidget(self.status)
         self.fields.hide()
@@ -4587,6 +4810,22 @@ class _FieldOverview(QWidget):
         :param event: a paint or resize event that may expose image tiles.
         :returns: the inherited event-filter result.
         """
+        if (event.type() in (QEvent.FontChange, QEvent.StyleChange, QEvent.Polish,
+                             QEvent.LayoutRequest, QEvent.Resize, QEvent.HideToParent,
+                             QEvent.ParentChange)
+                and (watched is getattr(self, "_module_actions", None)
+                     or (event.type() != QEvent.LayoutRequest and watched is
+                         getattr(getattr(self, "_module_actions", None), "viewport", lambda: None)())
+                     or watched is getattr(self, "_module_action_content", None)
+                     or watched is self
+                     or watched is getattr(getattr(self, "_essential_scroll", None), "viewport", lambda: None)()
+                     or watched is getattr(getattr(self, "_essential_scroll", None), "widget", lambda: None)()
+                     or (event.type() == QEvent.Resize and watched in
+                         getattr(self, "_allocation_viewports", ()))
+                     or watched in getattr(self, "_module_action_buttons", ()))
+                and not getattr(self, "_module_actions_retired", True)
+                and not getattr(self, "_fitting_module_actions", False)):
+            self._module_action_fit_timer.start(0)
         if watched is self._well_viewport:
             if event.type() == QEvent.MouseButtonPress:
                 self._drag_start = event.position().toPoint()
@@ -4936,6 +5175,8 @@ class _FieldOverview(QWidget):
 
     def _retire(self):
         """Stop owned image generations even when a page is already hidden."""
+        self._module_actions_retired = True
+        self._module_action_fit_timer.stop()
         self._options_window.close()
         self._cancel()
         self._visual_timer.stop()
@@ -4965,6 +5206,7 @@ class _OverviewWorkspace(QWidget):
         self._previous_workspace = None
         self._module_mounted = False
         self._active_child = None
+        self._inactive_page_policies = {}
         self._saved_settings = None
         self._module_hidden = []
         self._module_panes = []
@@ -4977,6 +5219,12 @@ class _OverviewWorkspace(QWidget):
         self.back_button = QPushButton(tr("Back"))
         self.back_button.clicked.connect(self._back)
         self.back_button.hide()
+        self._back_fit_busy = False
+        self._back_fit_timer = QTimer(self)
+        self._back_fit_timer.setSingleShot(True)
+        self._back_fit_timer.timeout.connect(self._fit_back_button)
+        self.back_button.installEventFilter(self)
+        self._back_fit_timer.start(0)
         navigation.addWidget(self.back_button)
         navigation.addWidget(QLabel(tr("Field-of-view overview")), 1)
         layout.addLayout(navigation)
@@ -4985,6 +5233,21 @@ class _OverviewWorkspace(QWidget):
         layout.addWidget(self.stack, 1)
         register_widget_qss("FieldOverviewWorkspace", _overview_workspace_qss, replace=True)
         ensure_widget_qss_applied("FieldOverviewWorkspace", root=self)
+
+    def _fit_back_button(self):
+        """Refresh the owned Back action's native text floor without fixing its size."""
+        self._back_fit_busy = True
+        try:
+            _fit_overview_action_buttons((self.back_button,))
+        finally:
+            self._back_fit_busy = False
+
+    def eventFilter(self, watched, event):
+        """Coalesce the owned Back action's font/style changes after Qt applies them."""
+        if (watched is self.back_button and not self._back_fit_busy
+                and event.type() in (QEvent.FontChange, QEvent.StyleChange, QEvent.Polish)):
+            self._back_fit_timer.start(0)
+        return super().eventFilter(watched, event)
 
     def show_page(self):
         """Reuse module panels, falling back to the shared page host for bare callers."""
@@ -5035,6 +5298,10 @@ class _OverviewWorkspace(QWidget):
         if pages is not None:
             pages.setCurrentIndex(0)
         self._previous_module_image = target.currentWidget()
+        self._previous_module_image_policy = (self._previous_module_image.sizePolicy()
+                                               if self._previous_module_image is not None else None)
+        if self._previous_module_image is not None:
+            self._previous_module_image.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self._saved_settings = settings.takeWidget()
         self._saved_settings.setParent(owner)
         self._saved_settings.hide()
@@ -5056,9 +5323,12 @@ class _OverviewWorkspace(QWidget):
         if figures is not None:
             pane = owner._runtime_splitter.pane("Figures")
             self._module_figures = figures, figures.isHidden(), figures.minimumHeight(), pane.minimum, pane.extent
+            figures.setMinimumHeight(0)
+            pane.minimum = 0
             figures.show()
         for splitter, pane, _collapsed in self._module_panes:
-            splitter.set_collapsed(pane, False)
+            if pane in ("Settings", "Figures"):
+                splitter.set_collapsed(pane, False)
         self._activate_child()
         return True
 
@@ -5090,6 +5360,13 @@ class _OverviewWorkspace(QWidget):
         self.back_button.setVisible(isinstance(current, _FieldOverview))
         if not self._module_mounted or current is self._active_child:
             return
+        from PySide6.QtWidgets import QSizePolicy
+        if self._active_child is not None:
+            previous = self._active_child
+            self._inactive_page_policies[previous] = previous.sizePolicy()
+            previous.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        if current in self._inactive_page_policies:
+            current.setSizePolicy(self._inactive_page_policies.pop(current))
         self._return_child_settings()
         scroll = current._controls_scroll if isinstance(current, _FieldOverview) else current._settings_scroll
         content = scroll.takeWidget()
@@ -5114,14 +5391,6 @@ class _OverviewWorkspace(QWidget):
             current.layout().addWidget(current._module_actions)
             current._module_actions.show()
             self._active_actions = current._module_actions
-        if self._module_figures is not None:
-            height = max(700, min(32, current.wells.rowCount()) * 26 + 230) if isinstance(current, _FieldOverview) else 600
-            self.setMinimumHeight(height)
-            figures = self._module_figures[0]
-            figures.setMinimumHeight(height + 45)
-            pane = self._owner._runtime_splitter.pane("Figures")
-            pane.minimum = height + 45
-            pane.extent = max(pane.extent, height + 45)
         self._active_child = current
 
     def _leave_page(self):
@@ -5131,9 +5400,14 @@ class _OverviewWorkspace(QWidget):
             self._return_child_settings()
             self._owner._settings_scroll.setWidget(self._saved_settings)
             self._saved_settings = None
+            if self._previous_module_image_policy is not None:
+                self._previous_module_image.setSizePolicy(self._previous_module_image_policy)
             self._module_stack.setCurrentWidget(self._previous_module_image)
             self._module_stack.removeWidget(self)
             self._module_mounted = False
+            for child, policy in self._inactive_page_policies.items():
+                child.setSizePolicy(policy)
+            self._inactive_page_policies.clear()
             for widget, hidden in self._module_hidden:
                 widget.setVisible(not hidden)
             self._module_hidden.clear()
@@ -5187,6 +5461,7 @@ class _OverviewWorkspace(QWidget):
 
     def _retire(self):
         """Retire owned child jobs independently of native hidden-widget closes."""
+        self._back_fit_timer.stop()
         previous = self._previous_workspace
         self._previous_workspace = None
         if previous is not None:
@@ -5821,31 +6096,7 @@ class _OverviewMetadataWizard(QWidget):
         Only minimum dimensions change; current font, style, default-button
         features and icon insets are measured without scaling them a second time.
         """
-        from PySide6.QtCore import QRect
-        from PySide6.QtWidgets import QStyle, QStyleOptionButton
-        from ..gui_scale import _set_actual_dim
-
-        for button in self._action_buttons:
-            button.ensurePolished()
-            hint = button.sizeHint().expandedTo(button.minimumSizeHint())
-            option = QStyleOptionButton()
-            option.initFrom(button)
-            option.rect = QRect(0, 0, hint.width(), hint.height())
-            option.text, option.icon = button.text(), button.icon()
-            option.iconSize = button.iconSize()
-            if button.isDefault():
-                option.features |= QStyleOptionButton.DefaultButton
-            if button.autoDefault():
-                option.features |= QStyleOptionButton.AutoDefaultButton
-            if button.isFlat():
-                option.features |= QStyleOptionButton.Flat
-            field = button.style().subElementRect(QStyle.SE_PushButtonContents, option, button)
-            text = button.style().itemTextRect(button.fontMetrics(), field,
-                int(Qt.AlignCenter | Qt.TextSingleLine), button.isEnabled(), button.text())
-            width = max(hint.width(), hint.width() - field.width() + text.width())
-            height = max(hint.height(), hint.height() - field.height() + text.height())
-            _set_actual_dim(button, "minw", width)
-            _set_actual_dim(button, "minh", height)
+        _fit_overview_action_buttons(self._action_buttons)
 
     def _invalidate(self, *_):
         """Debounce filename previews and prevent acceptance of stale metadata."""

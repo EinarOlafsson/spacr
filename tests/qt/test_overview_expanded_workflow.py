@@ -39,6 +39,523 @@ def _browser(tmp_path, qtbot, fields=None, channels=(0,), options=None):
     return dialog
 
 
+def test_action_font_override_restores_selected_style_without_feedback(qtbot, qapp):
+    from PySide6.QtCore import QEvent, QObject
+    from PySide6.QtGui import QFont
+    from PySide6.QtWidgets import QPushButton, QScrollArea, QWidget
+    from spacr.qt.gui_scale import _original_for
+
+    button = QPushButton("Export image-level measurements")
+    qtbot.addWidget(button)
+    set_sheet = _original_for(button, "setStyleSheet") or QWidget.setStyleSheet
+    get_sheet = _original_for(button, "styleSheet") or QWidget.styleSheet
+    base = "QPushButton { font-size: 52px; font-weight: 600; padding: 4px; }"
+    set_sheet(button, base)
+    button.ensurePolished()
+    selected = QFont(button.font())
+    assert selected.pixelSize() == 52
+    direct = QFont(selected)
+    direct.setPixelSize(39)
+    button.setFont(direct)
+    assert button.font().pixelSize() == 52
+
+    class Events(QObject):
+        def __init__(self, parent):
+            super().__init__(parent)
+            self.count = 0
+
+        def eventFilter(self, watched, event):
+            if event.type() in (QEvent.FontChange, QEvent.StyleChange):
+                self.count += 1
+            return False
+
+    events = Events(button)
+    button.installEventFilter(events)
+    fitted = base + "\nQPushButton { font-size: 39px; }"
+    set_sheet(button, fitted)
+    assert button.font().pixelSize() == 39
+    assert button.font().family() == selected.family() and button.font().weight() == selected.weight()
+    set_sheet(button, base)
+    assert get_sheet(button) == base and button.font() == selected
+    qapp.processEvents()
+    count = events.count
+    qtbot.wait(30)
+    assert events.count == count
+
+    browser._fit_overview_action_width(button, 420, ("initial",))
+    assert 1 <= button.font().pixelSize() < 52
+    assert button.property("minimumSize").width() <= 420
+    fitted_font = QFont(button.font())
+    fitted_sheet = get_sheet(button)
+    qapp.processEvents()
+    count = events.count
+    for _ in range(5):
+        browser._fit_overview_action_width(button, 420, ("initial",))
+        qapp.processEvents()
+    qtbot.wait(30)
+    assert events.count == count
+    assert button.font() == fitted_font and get_sheet(button) == fitted_sheet
+    browser._fit_overview_action_width(button, 3000, ("initial",))
+    assert button.font() == selected and get_sheet(button) == base
+
+    custom = "QPushButton { font-size: 44px; font-weight: 700; padding: 7px; }"
+    set_sheet(button, custom)
+    custom_font = QFont(button.font())
+    browser._fit_overview_action_width(button, 360, ("initial",))
+    assert button.font().pixelSize() < 44
+    assert button.font().weight() == custom_font.weight()
+    assert button.property("minimumSize").width() <= 360
+    browser._fit_overview_action_width(button, 3000, ("changed-theme",))
+    assert button.font() == custom_font and get_sheet(button) == custom
+    qapp.processEvents()
+    count = events.count
+    browser._fit_overview_action_width(button, 3000, ("changed-theme",))
+    qtbot.wait(30)
+    assert events.count == count
+
+    owner = browser._FieldOverview(settings={})
+    qtbot.addWidget(owner, before_close_func=lambda widget: widget._retire())
+    calls = []
+    owner._module_action_fit_timer.timeout.disconnect(owner._fit_module_actions)
+    def fit_owner():
+        calls.append(None)
+        owner._fit_module_actions()
+    owner._module_action_fit_timer.timeout.connect(fit_owner)
+    owner.resize(800, 600)
+    owner.show()
+    owner._module_actions.setGeometry(0, 0, 420, 160)
+    owner._module_actions.show()
+    owner._module_action_fit_timer.start(0)
+    qtbot.wait(150)
+    assert calls and not owner._module_action_fit_timer.isActive()
+    count = len(calls)
+    qtbot.wait(150)
+    assert len(calls) == count
+    from PySide6.QtCore import QSize
+    from spacr.qt.gui_scale import _resize_actual
+    owner._fitting_module_actions = True
+    try:
+        content_sheet = _original_for(owner._module_action_content, "setStyleSheet") or QWidget.setStyleSheet
+        content_sheet(owner._module_action_content, "QPushButton { font-size: 52px; }")
+        _resize_actual(owner._module_actions, QSize(1040, 400))
+        qapp.processEvents()
+    finally:
+        owner._fitting_module_actions = False
+    owner._fit_module_actions()
+    wide_width = owner._module_actions.viewport().property("size").width()
+    assert owner._module_action_content.property("size").width() == wide_width
+    assert all(action.font().pixelSize() == 52 for action in owner._module_action_buttons)
+    narrow_width = max(action.property("minimumSize").width() for action in owner._module_action_buttons) // 2
+    _resize_actual(owner._module_actions, QSize(narrow_width, 120))
+    qapp.processEvents()
+    owner._fit_module_actions()
+    target_width = owner._module_actions.viewport().property("size").width()
+    assert 0 < target_width < wide_width
+    assert owner._module_action_content.property("size").width() == target_width
+    qtbot.waitUntil(lambda: owner._module_actions.horizontalScrollBar().maximum() == 0)
+    assert owner._module_actions.horizontalScrollBar().value() == 0
+    assert any(action.font().pixelSize() < 52 for action in owner._module_action_buttons)
+    qtbot.wait(150)
+    count = len(calls)
+    qtbot.wait(150)
+    assert len(calls) == count
+    _resize_actual(owner._module_actions, QSize(1040, 400))
+    qapp.processEvents()
+    owner._fit_module_actions()
+    assert all(action.font().pixelSize() == 52 for action in owner._module_action_buttons)
+    assert owner._module_action_content.property("size").width() == owner._module_actions.viewport().property("size").width()
+    assert owner._module_action_content.property("size").height() >= owner._module_actions.viewport().property("size").height()
+    qtbot.wait(150)
+    count = len(calls)
+    qtbot.wait(150)
+    assert len(calls) == count
+    owner.wells.setRowCount(32)
+    viewport_host = QScrollArea()
+    qtbot.addWidget(viewport_host)
+    viewport_host.resize(800, 300)
+    viewport_host.setWidget(owner)
+    viewport_host.show()
+    owner.status.setStyleSheet("font-size: 52px;")
+    owner.status.setText("Each physical well retains its complete original source images and display metadata. " * 3)
+    qapp.processEvents()
+    owner._fit_module_actions()
+    qtbot.waitUntil(lambda: owner.property("minimumHeight") == max(
+        owner._allocation_minimum_baseline, owner.layout().minimumSize().height(),
+        owner.layout().totalHeightForWidth(owner.property("size").width())))
+    qtbot.waitUntil(lambda: owner._splitter.property("size").height() >= owner.wells.property("minimumHeight"))
+    wrapped_floor = owner.property("minimumHeight")
+    owner.status.setStyleSheet("font-size: 13px;")
+    owner._fit_module_actions()
+    qtbot.waitUntil(lambda: owner.property("minimumHeight") < wrapped_floor)
+    assert owner.wells.property("minimumHeight") <= viewport_host.viewport().height()
+    cap = owner.wells.property("maximumHeight")
+    assert owner.wells.property("minimumHeight") <= cap <= viewport_host.viewport().height()
+    viewport_host.resize(800, 500)
+    qtbot.waitUntil(lambda: owner.wells.property("maximumHeight") > cap)
+    viewport_host.resize(800, 300)
+    qtbot.waitUntil(lambda: owner.wells.property("maximumHeight") == cap)
+    owner._zoom_plate()
+    assert owner._plate_fit
+    viewport_host.takeWidget()
+    owner._fit_module_actions()
+    assert owner.wells.property("maximumHeight") == 16777215
+    assert owner.property("minimumHeight") == owner._allocation_minimum_baseline
+    qtbot.wait(150)
+    count = len(calls)
+    qtbot.wait(150)
+    assert len(calls) == count
+
+
+def test_real_module_plate_is_visible_at_joint_maximum_scales(tmp_path):
+    import hashlib
+    import os
+    import subprocess
+    import sys
+
+    if sys.platform != "darwin" or os.environ.get("QT_QPA_PLATFORM", "").lower() != "cocoa":
+        pytest.skip("Requires an explicitly selected native Cocoa application")
+    for well in ("A01", "B02"):
+        tifffile.imwrite(tmp_path / f"plate1_{well}_F1.tif", np.arange(120, dtype=np.uint16).reshape(10, 12))
+    before = {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in tmp_path.glob("*.tif")}
+    code = r'''
+import json, math, sys, traceback
+from pathlib import Path
+import numpy as np
+from PySide6.QtCore import QPoint, QRect, Qt, QTimer
+from PySide6.QtGui import QFontInfo, QFontMetrics, QImage, QPainter, QRegion
+from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QStyle, QStyleOption, QStyleOptionButton
+from PySide6.QtWidgets import QScrollArea, QSizePolicy, QStyleOptionViewItem
+from spacr.qt import app as app_module, gui_scale, preferences
+from spacr.qt.bridge import thread_has_stopped
+from spacr.qt.first_run import mark_tour_seen
+from spacr.qt.widgets import qc_field_browser as browser
+assert Path(browser.__file__).resolve() == Path(sys.argv[2]).resolve()
+app = QApplication([])
+app_module._load_bundled_fonts()
+assert app_module._use_open_sans(app) == 'Open Sans'
+gui_scale.install_scaling_layer()
+gui_scale.apply_saved_gui_scale()
+preferences.apply_preferences_to_app(app)
+mark_tour_seen()
+window = app_module.MainWindow(initial_app='__home__')
+assert set(app_module.install_the_dialog_filters(app)) == {name for _, name in app_module._DIALOG_FILTERS}
+gui_scale.change_scales(window, gui=2., font=2., ask=False)
+app_module._show_at_launch(window)
+state, errors = {}, []
+def metrics(widget):
+ return {'class':type(widget).__name__, 'name':widget.objectName(), 'rect':widget.rect().getRect(),
+  'global':QRect(widget.mapToGlobal(QPoint()), QWidget.size(widget)).getRect(),
+  'minimum':widget.property('minimumSize').toTuple(), 'hint':widget.sizeHint().toTuple(),
+  'minimum_hint':widget.minimumSizeHint().toTuple(),
+  'height_for_width':widget.heightForWidth(widget.width()) if widget.hasHeightForWidth() else None,
+  'whole':QRegion(widget.rect()).subtracted(widget.visibleRegion()).isEmpty()}
+def text_slot(button):
+ option = QStyleOptionButton()
+ option.initFrom(button)
+ option.rect, option.text = button.rect(), button.text()
+ option.icon, option.iconSize = button.icon(), button.iconSize()
+ if button.isDefault(): option.features |= QStyleOptionButton.DefaultButton
+ if button.autoDefault(): option.features |= QStyleOptionButton.AutoDefaultButton
+ if button.isFlat(): option.features |= QStyleOptionButton.Flat
+ field = button.style().subElementRect(QStyle.SE_PushButtonContents,option,button)
+ text = button.style().itemTextRect(button.fontMetrics(),field,int(Qt.AlignCenter|Qt.TextSingleLine),button.isEnabled(),button.text())
+ return field, text
+def layout_snapshot(body):
+ widgets = [body,body.wells,body.wells.parentWidget(),body.wells.viewport(),
+  body._essential_scroll,body._essential_scroll.viewport(),body._module_actions,
+  body._module_actions.viewport(),body._module_action_content,*body._module_action_buttons,
+  state['workspace'].back_button]
+ parent = body.parentWidget()
+ while parent is not None:
+  if parent not in widgets: widgets.append(parent)
+  if isinstance(parent,QScrollArea) and parent.viewport() not in widgets:
+   widgets.append(parent.viewport())
+  parent = parent.parentWidget()
+ pending, snapshots = [], []
+ for widget in widgets:
+  for name in ('_module_action_fit_timer','_back_fit_timer','_floor_timer'):
+   owned = getattr(widget,name,None)
+   if owned is not None and owned.isActive(): pending.append((type(widget).__name__,name))
+  for name in ('_fitting_module_actions','_back_fit_busy','_rebalance_queued','_limits_queued','_refit_queued'):
+   if getattr(widget,name,False): pending.append((type(widget).__name__,name))
+  layout = widget.layout()
+  entry = {'class':type(widget).__name__,'name':widget.objectName(),
+   'size':widget.property('size').toTuple(),'position':widget.mapToGlobal(QPoint()).toTuple(),
+   'minimum':widget.property('minimumSize').toTuple(),'maximum':widget.property('maximumSize').toTuple(),
+   'layout':layout.geometry().getRect() if layout else None,'font':widget.font().toString()}
+  if isinstance(widget,QScrollArea):
+   entry['scrolls'] = (widget.horizontalScrollBar().value(),widget.verticalScrollBar().value())
+  snapshots.append(entry)
+ return {'widgets':snapshots,'rows':tuple(body.wells.rowHeight(i) for i in range(body.wells.rowCount())),
+  'columns':tuple(body.wells.columnWidth(i) for i in range(body.wells.columnCount()))},pending
+def layout_ready(phase, body):
+ snapshot,pending = layout_snapshot(body)
+ previous = state.setdefault('layout_candidates',{})
+ if pending:
+  previous[phase] = None
+  return False
+ if previous.get(phase) != snapshot:
+  previous[phase] = snapshot
+  return False
+ print('LAYOUT_READY '+json.dumps({'phase':phase,'pending':pending,'snapshot':snapshot}),flush=True)
+ return True
+def scroll_finished(phase, body):
+ snapshot,pending = layout_snapshot(body)
+ expected = state['post_scroll'][phase]
+ assert not pending and snapshot == expected, {'phase':phase,'pending':pending,
+  'before':expected,'after':snapshot}
+def scroll_action(index):
+ button = state['browser']._module_action_buttons[index]
+ parent, scrolls = button.parentWidget(), []
+ while parent is not None and parent is not window:
+  if isinstance(parent,QScrollArea): scrolls.append(parent)
+  parent = parent.parentWidget()
+ assert state['browser']._module_actions in scrolls
+ if 'scroll_positions' not in state:
+  state['scroll_positions'] = [(scroll,scroll.horizontalScrollBar().value(),scroll.verticalScrollBar().value()) for scroll in scrolls]
+  state['actions_was_collapsed'] = state['host']._runtime_splitter.is_collapsed('Actions')
+  state['host']._runtime_splitter.set_collapsed('Actions',False,by_user=False)
+ state['action_index'] = index
+ state['action_positioned'] = False
+def finish():
+ timer.stop()
+ watchdog.stop()
+ try:
+  workspace = state.get('workspace')
+  runners = [state['wizard']._runner] if 'wizard' in state else []
+  body = state.get('browser')
+  if body is not None:
+   runners += [getattr(body,name) for name in ('_index_jobs','_image_jobs','_export_jobs','_metadata_jobs',
+    '_measurement_jobs','_native_jobs','_thumbnail_jobs','_montage_jobs','_field_thumbnail_jobs')]
+  threads = [thread for runner in runners for thread,worker in list(runner._jobs.values())]
+  if workspace is not None: workspace._retire()
+  for runner in runners: runner.shutdown(timeout_ms=3000)
+  assert all(thread_has_stopped(thread) for thread in threads)
+ except Exception: errors.append(traceback.format_exc())
+ finally:
+  assert window.close()
+def tick():
+ try:
+  if 'wizard' not in state:
+   host = window._screens.get('mask')
+   if host is None or not host.isVisible(): return
+   state['host'] = host
+   state['original_settings'] = host._settings_scroll.widget()
+   figures = host._figures_card
+   state['figures_before_open'] = metrics(figures)|{'logical_minimum':figures.minimumSize().toTuple(),
+    'record':dict(getattr(figures,'_gs_geo',{})), 'applied':dict(getattr(figures,'_gs_geo_set',{})),
+    'pane_minimum':host._runtime_splitter.pane('Figures').minimum,
+    'pane_extent':host._runtime_splitter.pane('Figures').extent}
+   state['wizard'] = browser._open_field_overview(host, {'source':sys.argv[1], 'geometry':(2,3)})
+   state['workspace'] = host._field_overview_workspace
+   state['original_image'] = state['workspace']._previous_module_image
+   state['original_image_policy'] = state['workspace']._previous_module_image_policy
+   state['wizard_policy'] = state['wizard'].sizePolicy()
+   return
+  if 'clicked' not in state:
+   if not state['wizard'].next.isEnabled(): return
+   state['clicked'] = True
+   state['wizard'].next.click()
+   return
+  body = getattr(state['host'],'_field_overview',None)
+  if body is None or not body._normalization_ready or body._index_jobs.is_busy(): return
+  state['browser'] = body
+  host, workspace = state['host'], state['workspace']
+  viewport = body.wells.viewport()
+  if state.get('restore_scrolls'):
+   if not state.get('back_positioned'):
+    if not layout_ready('restored_plate',body): return
+    assert QRegion(viewport.rect()).subtracted(viewport.visibleRegion()).isEmpty()
+    parent = workspace.back_button.parentWidget()
+    while parent is not None and parent is not window:
+     if isinstance(parent,QScrollArea): parent.ensureWidgetVisible(workspace.back_button,0,0)
+     parent = parent.parentWidget()
+    state['back_positioned'] = True
+    state.setdefault('post_scroll',{})['back'] = layout_snapshot(body)[0]
+    return
+   scroll_finished('back',body)
+   field,text = text_slot(workspace.back_button)
+   assert field.contains(text)
+   assert QRegion(text).subtracted(workspace.back_button.visibleRegion()).isEmpty()
+   assert window.windowHandle().geometry().contains(QRect(workspace.back_button.mapToGlobal(text.topLeft()),text.size()))
+   workspace.back_button.click()
+   assert not workspace._module_mounted
+   assert host._settings_scroll.widget() is state['original_settings']
+   assert workspace._module_stack.currentWidget() is state['original_image']
+   assert state['original_image'].sizePolicy() == state['original_image_policy']
+   assert state['wizard'].sizePolicy() == state['wizard_policy']
+   assert host._figures_card.minimumHeight() == state['figures_before_open']['logical_minimum'][1]
+   assert host._runtime_splitter.pane('Figures').minimum == state['figures_before_open']['pane_minimum']
+   assert host._runtime_splitter.pane('Figures').extent == state['figures_before_open']['pane_extent']
+   print('real module plate fully visible',flush=True)
+   finish()
+   return
+  if 'action_index' in state:
+   button = body._module_action_buttons[state['action_index']]
+   if not state['action_positioned']:
+    if not layout_ready('action_'+str(state['action_index']),body): return
+    parent = button.parentWidget()
+    while parent is not None and parent is not window:
+     if isinstance(parent,QScrollArea): parent.ensureWidgetVisible(button,0,0)
+     parent = parent.parentWidget()
+    state['action_positioned'] = True
+    state.setdefault('post_scroll',{})['action'] = layout_snapshot(body)[0]
+    return
+   scroll_finished('action',body)
+   field,text = text_slot(button)
+   visible = QRegion(text).subtracted(button.visibleRegion()).isEmpty()
+   mapped = QRect(button.mapToGlobal(text.topLeft()),text.size())
+   ancestry, parent = [], button
+   while parent is not None:
+    entry = metrics(parent)
+    if isinstance(parent,QScrollArea):
+     entry['viewport'] = metrics(parent.viewport())
+     entry['scrolls'] = {'horizontal':(parent.horizontalScrollBar().value(),parent.horizontalScrollBar().maximum()),
+      'vertical':(parent.verticalScrollBar().value(),parent.verticalScrollBar().maximum())}
+    ancestry.append(entry)
+    if parent is window: break
+    parent = parent.parentWidget()
+   fit = getattr(button,'_overview_font_fit',{})
+   print('ACTION_VISIBLE '+json.dumps({'text':button.text(),'field':field.getRect(),
+    'text_rect':text.getRect(),'global_text':mapped.getRect(),'visible':visible,
+    'visible_region':button.visibleRegion().boundingRect().getRect(),
+    'missing_text':QRegion(text).subtracted(button.visibleRegion()).boundingRect().getRect(),
+    'fit_width':fit.get('width'),'fit_font':button.font().toString(),'ancestors':ancestry}),flush=True)
+   assert field.contains(text) and visible and window.windowHandle().geometry().contains(mapped)
+   if state['action_index'] + 1 < len(body._module_action_buttons):
+    scroll_action(state['action_index'] + 1)
+   else:
+    if not layout_ready('close_actions',body): return
+    host._runtime_splitter.set_collapsed('Actions',state['actions_was_collapsed'],by_user=False)
+    for scroll,horizontal,vertical in state['scroll_positions']:
+     scroll.horizontalScrollBar().setValue(horizontal)
+     scroll.verticalScrollBar().setValue(vertical)
+    state['restore_scrolls'] = True
+   return
+  ancestors, current = [], viewport
+  while current is not None:
+   ancestors.append(metrics(current))
+   if current is window: break
+   current = current.parentWidget()
+  actions = []
+  for button in body._module_actions.findChildren(QPushButton):
+   field,text = text_slot(button)
+   actions.append(metrics(button)|{'text':button.text(),'field':field.getRect(),
+    'text_rect':text.getRect(),'text_fits':field.contains(text),'font_height':button.fontMetrics().height()})
+  panes = {}
+  for name in ('Figures','Console','System','Actions'):
+   pane = host._runtime_splitter.pane(name)
+   if pane is not None: panes[name] = {'minimum':pane.minimum,'extent':pane.extent,
+    'collapsed':host._runtime_splitter.is_collapsed(name)}
+  handle = window.windowHandle()
+  cells = []
+  for row in range(body.wells.rowCount()):
+   for column in range(body.wells.columnCount()):
+    item = body.wells.item(row,column)
+    if item is None: continue
+    rect = body.wells.visualItemRect(item)
+    inset = rect.adjusted(1,1,-1,-1)
+    font = item.font().resolve(body.wells.font())
+    fm = QFontMetrics(font)
+    caption = fm.height()+3 if inset.height() >= fm.height()+3+20 else 0
+    option = QStyleOptionViewItem()
+    option.initFrom(body.wells)
+    option.rect,option.font,option.fontMetrics,option.text = rect,font,fm,item.text()
+    option.features |= QStyleOptionViewItem.HasDisplay
+    native = body.wells.style().subElementRect(QStyle.SE_ItemViewItemText,option,body.wells)
+    cells.append({'text':item.text(),'font':font.toString(),'font_height':fm.height(),
+     'cell':rect.getRect(),'native_text_field':native.getRect(),'inset':inset.getRect(),
+     'caption_drawn':bool(caption),'caption_height':caption,'image_height':inset.height()-caption,
+     'icon_size':body.wells.iconSize().toTuple()})
+  back_field,back_text = text_slot(workspace.back_button)
+  children = []
+  for index in range(body.layout().count()):
+   child = body.layout().itemAt(index).widget()
+   if child is not None: children.append(metrics(child)|{'index':index,
+    'layout':child.layout().geometry().getRect() if child.layout() else None})
+  diagnostic = {'ancestors':ancestors,'actions':actions,'action_host':metrics(body._module_actions),'cells':cells,
+   'body_layout_children':children,'status':metrics(body.status)|{'text':body.status.text()},
+   'back':metrics(workspace.back_button)|{'field':back_field.getRect(),'text_rect':back_text.getRect(),
+    'text_fits':back_field.contains(back_text)},
+   'figures_before_open':state['figures_before_open'],
+   'panes':panes,'host_client':handle.geometry().getRect(),'host_frame':handle.frameGeometry().getRect(),
+   'work':handle.screen().availableGeometry().getRect(),'dpr':handle.devicePixelRatio()}
+  if not state.get('plate_scrolled'):
+   if not layout_ready('plate',body): return
+   print('MODULE_VISIBILITY '+json.dumps(diagnostic),flush=True)
+  assert app.platformName() == 'cocoa'
+  assert gui_scale.current_scale() == preferences.get_gui_scale() == preferences.get_font_scale() == 2.
+  assert body.source.font().pixelSize() == 52 and QFontInfo(body.source.font()).family() == 'Open Sans'
+  assert workspace._module_mounted and workspace._active_child is body
+  assert workspace._module_stack.currentWidget() is workspace
+  assert host._settings_scroll.widget() is body._settings_content
+  assert state['wizard'].sizePolicy().horizontalPolicy() == QSizePolicy.Ignored
+  assert state['wizard'].sizePolicy().verticalPolicy() == QSizePolicy.Ignored
+  assert state['original_image'].sizePolicy().horizontalPolicy() == QSizePolicy.Ignored
+  assert state['original_image'].sizePolicy().verticalPolicy() == QSizePolicy.Ignored
+  assert not body.isWindow() and body.window() is window
+  for widget in (workspace,state['wizard'],body):
+   ratio = widget.devicePixelRatioF()
+   image = QImage(math.ceil(widget.width()*ratio),math.ceil(widget.height()*ratio),QImage.Format_RGBA8888)
+   image.setDevicePixelRatio(ratio)
+   image.fill(Qt.transparent)
+   option = QStyleOption()
+   option.initFrom(widget)
+   option.rect = widget.rect()
+   painter = QPainter(image)
+   try: widget.style().drawPrimitive(QStyle.PE_Widget,option,painter,widget)
+   finally: painter.end()
+   pixels = np.frombuffer(image.constBits(),np.uint8).reshape(image.height(),image.bytesPerLine())[:,:image.width()*4].reshape(image.height(),image.width(),4)
+   assert np.all(pixels[:,:,3] == 0)
+  assert handle.screen().availableGeometry().contains(handle.frameGeometry())
+  if not state.get('plate_scrolled'):
+   parent, scrolls = viewport.parentWidget(), []
+   while parent is not None and parent is not window:
+    if isinstance(parent,QScrollArea): scrolls.append(parent)
+    parent = parent.parentWidget()
+   assert scrolls
+   for scroll in scrolls: scroll.ensureWidgetVisible(viewport,0,0)
+   state['plate_scrolled'] = True
+   state.setdefault('post_scroll',{})['plate'] = layout_snapshot(body)[0]
+   return
+  scroll_finished('plate',body)
+  print('PLATE_SCROLLED '+json.dumps(metrics(viewport)),flush=True)
+  assert not body.visibleRegion().isEmpty()
+  assert handle.geometry().contains(QRect(viewport.mapToGlobal(QPoint()),QWidget.size(viewport))), diagnostic
+  assert QRegion(viewport.rect()).subtracted(viewport.visibleRegion()).isEmpty(), diagnostic
+  assert sum(body.wells.rowHeight(i) for i in range(body.wells.rowCount())) <= viewport.height()
+  assert sum(body.wells.columnWidth(i) for i in range(body.wells.columnCount())) <= viewport.width()
+  assert cells and all(cell['image_height'] >= 20 for cell in cells), diagnostic
+  if layout_ready('open_actions',body): scroll_action(0)
+ except Exception:
+  errors.append(traceback.format_exc())
+  finish()
+window.open_module('mask')
+timer = QTimer(window)
+timer.timeout.connect(tick)
+timer.start(50)
+def timeout():
+ errors.append('module visibility phase exceeded20s')
+ finish()
+watchdog = QTimer(window)
+watchdog.setSingleShot(True)
+watchdog.timeout.connect(timeout)
+watchdog.start(20000)
+app.exec()
+if errors: print('\n'.join(errors),file=sys.stderr,flush=True)
+sys.exit(bool(errors))
+'''
+    environment = dict(os.environ, SPACR_ISOLATED_PROFILE="1", SPACR_HOME=str(tmp_path / "profile"),
+                       SPACR_NO_NETWORK="1", XDG_CONFIG_HOME=str(tmp_path / "config"),
+                       XDG_CACHE_HOME=str(tmp_path / "cache"))
+    result = subprocess.run([sys.executable, "-c", code, str(tmp_path), browser.__file__],
+                            env=environment, capture_output=True, text=True, timeout=180)
+    (tmp_path / "native-module-stdout.txt").write_text(result.stdout + result.stderr)
+    assert before == {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in tmp_path.glob("*.tif")}
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "real module plate fully visible" in result.stdout
+
+
 def test_compressed_metadata_wizard_keeps_next_text_scrollable_and_restores_footer(tmp_path, qtbot, qapp):
     from PySide6.QtCore import QSize, Qt
     from PySide6.QtGui import QRegion
@@ -1169,6 +1686,39 @@ def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns
     qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
     dialog = host._field_overview
     qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy())
+    def wait_layout():
+        previous = [None]
+        def settled():
+            widgets = [dialog, dialog.wells, dialog.wells.viewport(), dialog._splitter,
+                dialog._essential_scroll, dialog._essential_scroll.viewport(), dialog.status,
+                dialog._module_actions, dialog._module_actions.viewport(), dialog._module_action_content,
+                *dialog._module_action_buttons, workspace.back_button, dialog._options_window]
+            parent = dialog.parentWidget()
+            while parent is not None:
+                if parent not in widgets:
+                    widgets.append(parent)
+                parent = parent.parentWidget()
+            snapshot = []
+            for widget in widgets:
+                for name in ("_module_action_fit_timer", "_back_fit_timer", "_floor_timer"):
+                    timer = getattr(widget, name, None)
+                    if timer is not None and timer.isActive():
+                        previous[0] = None
+                        return False
+                if any(getattr(widget, name, False) for name in ("_fitting_module_actions",
+                        "_back_fit_busy", "_rebalance_queued", "_limits_queued", "_refit_queued")):
+                    previous[0] = None
+                    return False
+                layout = widget.layout()
+                snapshot.append((widget.property("size").toTuple(), widget.pos().toTuple(),
+                    widget.property("minimumSize").toTuple(), widget.property("maximumSize").toTuple(),
+                    layout.geometry().getRect() if layout else None, widget.font().toString()))
+            snapshot.append((tuple(dialog.wells.rowHeight(i) for i in range(dialog.wells.rowCount())),
+                tuple(dialog.wells.columnWidth(i) for i in range(dialog.wells.columnCount()))))
+            stable = previous[0] == snapshot
+            previous[0] = snapshot
+            return stable
+        qtbot.waitUntil(settled)
     assert workspace.stack.currentWidget() is dialog
     assert not dialog.isWindow() and dialog.window() is host
     qtbot.waitUntil(lambda: dialog.wells.viewport().width() > 500)
@@ -1177,10 +1727,12 @@ def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns
     _resize_actual(host, QSize(1440, 1040))
     qtbot.waitUntil(lambda: dialog.wells.viewport().width() > before.width() + 200)
     assert dialog._plate_cell_extent[0] > before_cell[0]
+    wait_layout()
     plate_area = dialog.wells.viewport().size()
     qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
     assert dialog._options_window.isWindow() and dialog._options_window.isVisible()
     assert dialog._controls_scroll.window() is dialog._options_window
+    wait_layout()
     assert dialog.wells.viewport().size() == plate_area
     dialog.gamma.setValue(1.7)
     dialog._options_window.close()
@@ -1214,27 +1766,38 @@ def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns
 
 @pytest.mark.parametrize("selector", ("pdf_quality", "pdf_dpi", "grouping",
                                     "annotation_scope", "annotation_key",
-                                    "normalization_method", "normalization_scope"))
+                                    "normalization_method", "normalization_scope",
+                                    "norm_channel", "export_scope"))
 def test_pdf_quality_reserves_all_native_text_slots_when_fonts_change(qtbot, qapp, selector):
     from PySide6.QtCore import Qt
+    from PySide6.QtGui import QFont, QFontInfo
     from PySide6.QtWidgets import QStyle, QStyleOptionComboBox
     from spacr.qt import gui_scale, theme
 
     old_gui = gui_scale.current_scale()
+    old_font = QFont(qapp.font())
+    joint_maximum = selector in ("norm_channel", "export_scope")
     body = None
     try:
         gui_scale.install_scaling_layer()
-        gui_scale.set_gui_scale_live(.9)
+        gui_scale.set_gui_scale_live(2. if joint_maximum else .9)
+        if joint_maximum:
+            from spacr.qt import app as app_module
+            app_module._load_bundled_fonts()
+            assert app_module._use_open_sans(qapp) == "Open Sans"
         body = browser._FieldOverview()
         qtbot.addWidget(body)
         combo = getattr(body, selector)
         selected = (combo.currentIndex(), combo.currentText(), combo.currentData())
         floors = []
-        for scale, pixels in ((.9, 11), (2., 23), (.9, 11)):
+        steps = ((2., 52), (.1, 2), (2., 52)) if joint_maximum else ((.9, 11), (2., 23), (.9, 11))
+        for scale, pixels in steps:
             body.setStyleSheet(theme.stylesheet('dark', font_scale=scale))
             combo.ensurePolished()
             gui_scale._resize_actual(combo, combo.minimumSizeHint())
             assert combo.font().pixelSize() == pixels
+            if joint_maximum:
+                assert QFontInfo(combo.font()).family() == "Open Sans"
             option = QStyleOptionComboBox()
             option.initFrom(combo)
             option.rect = combo.rect()
@@ -1252,13 +1815,16 @@ def test_pdf_quality_reserves_all_native_text_slots_when_fonts_change(qtbot, qap
             floors.append(combo.minimumSize())
             assert (combo.currentIndex(), combo.currentText(), combo.currentData()) == selected
             assert combo.maximumWidth() == combo.maximumHeight() == 16777215
-        assert floors[-1] == floors[0] and floors[1].height() > floors[0].height()
+        assert floors[-1] == floors[0]
+        assert (floors[1].height() < floors[0].height() if joint_maximum
+                else floors[1].height() > floors[0].height())
     finally:
         try:
             if body is not None:
                 body._retire()
         finally:
             gui_scale.set_gui_scale_live(old_gui)
+            qapp.setFont(old_font)
 
 
 def test_advanced_background_pair_keeps_wrapped_caption_and_native_editor_whole(qtbot, qapp):
