@@ -1,6 +1,6 @@
 ORGANELLE-SPECIFIC SETTINGS COLUMN IN LIVE MASK GENERATION
 ========================================================
-Status:    IN PROGRESS
+Status:    COMPLETE
 Requested: maintainer, 2026-10-22
 Owner:     widgets_g3, implementation through validation and publication
 Priority:  Start now; one agent owns the complete shared Live workflow
@@ -31,3 +31,4 @@ ACCEPTANCE
 
 2026-10-22 — Registered before implementation; widgets_g3 owns source, focused checks, visual acceptance, normal generation and publication. No subagents.
 2026-10-22 — Implemented method-specific controls, slot persistence and normal-worker routing; 25 focused CPU controls pass and desktop/small-screen visuals accepted. Normal generated output, reviewed publication and final nightly acceptance remain.
+2026-10-22 — Normal API/runtime, Help and consumer outputs verified; 27 reviewed translations published, nine immutable API catalogs read back byte-exact, and final 11 API/Help checks passed with all ten catalog bytes preserved. Nightly delivery is prepared for the root publisher.

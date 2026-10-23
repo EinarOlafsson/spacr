@@ -6150,7 +6150,7 @@ class LiveSettingsDialog(QDialog):
 
     def _install_api_tooltips(self) -> None:
         """Attach linked Mask API help to every setting in this popup."""
-        from ..screens.settings_model import install_api_tooltips
+        from ..screens.settings_model import install_api_tooltips, format_tooltip
 
         p = self._panel
         widget_keys = {
@@ -6175,10 +6175,23 @@ class LiveSettingsDialog(QDialog):
         }
         for compartment, fields in p._compartment_widgets.items():
             for suffix, widget in fields.items():
-                widget_keys[widget] = f"{compartment}_{suffix}"
+                widget_keys[widget] = f"{p._active_organelle_role if compartment == 'organelle' else compartment}_{suffix}"
         for suffix, widget in p._organelle_widgets.items():
-            widget_keys[widget] = f"organelle_{suffix}"
+            widget_keys[widget] = f"{p._active_organelle_role}_{suffix}"
         install_api_tooltips(self, "mask", widget_keys)
+        source = tr(
+            "Preview cell masks are required to restrict organelles to cells.", "en")
+        widget = p._organelle_widgets["mask_within_cells"]
+        label = self._organelle_group.layout().labelForField(widget)
+        html = format_tooltip(
+            source, "mask", f"{p._active_organelle_role}_mask_within_cells")
+        for owner in (widget, label):
+            if owner is not None:
+                owner.setProperty("apiTooltipDescriptionSource", source)
+                owner.setProperty("apiTooltipDescription", source)
+                owner.setProperty("apiTooltipHtml", html)
+                if owner is label:
+                    owner.setToolTip(html)
 
     def refresh_visibility(self):
         """Grey out settings that don't apply to the current selection.

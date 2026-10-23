@@ -301,7 +301,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "adjust_cells",
-    "line": 3945,
+    "line": 3967,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -310,7 +310,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "adjust_cells",
-    "line": 3947,
+    "line": 3969,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -3358,7 +3358,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -3817,7 +3817,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_cellprob_threshold",
-    "line": 1250,
+    "line": 1272,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -4136,7 +4136,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -4374,7 +4374,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_cycle_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -4651,7 +4651,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -4660,7 +4660,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -4669,7 +4669,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -4797,7 +4797,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_flow_threshold",
-    "line": 1249,
+    "line": 1271,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -5780,7 +5780,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_remove_border_objects",
-    "line": 1347,
+    "line": 1369,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -6256,7 +6256,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose3_add_nucleus_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -6621,7 +6621,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -6630,7 +6630,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -6639,7 +6639,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -10251,7 +10251,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "confluency_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -13213,7 +13213,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 3698,
+    "line": 3720,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -13222,7 +13222,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "diameter",
-    "line": 3699,
+    "line": 3721,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -13231,7 +13231,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 3720,
+    "line": 3742,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -17171,7 +17171,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -23408,7 +23408,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "magnification",
-    "line": 3704,
+    "line": 3726,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -28355,7 +28355,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 3950,
+    "line": 3972,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -28364,7 +28364,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 3952,
+    "line": 3974,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -29172,7 +29172,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_cellprob_threshold",
-    "line": 1250,
+    "line": 1272,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -29518,7 +29518,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -29664,7 +29664,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -29673,7 +29673,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -29682,7 +29682,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -29801,7 +29801,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_flow_threshold",
-    "line": 1249,
+    "line": 1271,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -30366,7 +30366,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_remove_border_objects",
-    "line": 1347,
+    "line": 1369,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -31371,7 +31371,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_cellprob_threshold",
-    "line": 1250,
+    "line": 1272,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -31627,7 +31627,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -31840,7 +31840,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -31849,7 +31849,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -31858,7 +31858,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -32091,7 +32091,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_flow_threshold",
-    "line": 1249,
+    "line": 1271,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -32642,7 +32642,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_max_intensity",
-    "line": 1344,
+    "line": 1366,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -32702,6 +32702,24 @@
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_organelle_output"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "organelle_method",
+    "line": 1024,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "_classical_organelle_mask"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "organelle_method",
+    "line": 1028,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "_classical_organelle_mask"
    },
    {
     "form": "get",
@@ -32891,7 +32909,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_min_intensity",
-    "line": 1343,
+    "line": 1365,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -33128,7 +33146,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_remove_border",
-    "line": 1350,
+    "line": 1372,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -33175,7 +33193,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_remove_border_objects",
-    "line": 1347,
+    "line": 1369,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -33284,6 +33302,15 @@
     "module": "spacr.object_roles",
     "nested": false,
     "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "organelle_ridge_sigmas",
+    "line": 1029,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "_classical_organelle_mask"
    },
    {
     "form": "get",
@@ -33733,7 +33760,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_cellprob_threshold",
-    "line": 1250,
+    "line": 1272,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -33888,7 +33915,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -33998,7 +34025,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -34007,7 +34034,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -34016,7 +34043,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -34126,7 +34153,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_flow_threshold",
-    "line": 1249,
+    "line": 1271,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -34285,7 +34312,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_max_intensity",
-    "line": 1344,
+    "line": 1366,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -34354,7 +34381,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_min_intensity",
-    "line": 1343,
+    "line": 1365,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -34416,7 +34443,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_remove_border",
-    "line": 1350,
+    "line": 1372,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -34436,7 +34463,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_remove_border_objects",
-    "line": 1347,
+    "line": 1369,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -34574,7 +34601,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_cellprob_threshold",
-    "line": 1250,
+    "line": 1272,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -34729,7 +34756,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -34839,7 +34866,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -34848,7 +34875,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -34857,7 +34884,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -34967,7 +34994,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_flow_threshold",
-    "line": 1249,
+    "line": 1271,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -35126,7 +35153,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_max_intensity",
-    "line": 1344,
+    "line": 1366,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -35195,7 +35222,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_min_intensity",
-    "line": 1343,
+    "line": 1365,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -35257,7 +35284,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_remove_border",
-    "line": 1350,
+    "line": 1372,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -35277,7 +35304,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_remove_border_objects",
-    "line": 1347,
+    "line": 1369,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -35415,7 +35442,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_cellprob_threshold",
-    "line": 1250,
+    "line": 1272,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -35570,7 +35597,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -35680,7 +35707,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -35689,7 +35716,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -35698,7 +35725,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -35808,7 +35835,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_flow_threshold",
-    "line": 1249,
+    "line": 1271,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -35967,7 +35994,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_max_intensity",
-    "line": 1344,
+    "line": 1366,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -36036,7 +36063,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_min_intensity",
-    "line": 1343,
+    "line": 1365,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -36098,7 +36125,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_remove_border",
-    "line": 1350,
+    "line": 1372,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -36118,7 +36145,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_remove_border_objects",
-    "line": 1347,
+    "line": 1369,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -36513,7 +36540,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -37270,7 +37297,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_cellprob_threshold",
-    "line": 1250,
+    "line": 1272,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -37589,7 +37616,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -37753,7 +37780,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -37762,7 +37789,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -37771,7 +37798,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -37890,7 +37917,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_flow_threshold",
-    "line": 1249,
+    "line": 1271,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -39073,7 +39100,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_remove_border_objects",
-    "line": 1347,
+    "line": 1369,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_apply_size_filter"
@@ -43746,7 +43773,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -47653,7 +47680,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "seg_qc_min_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -47662,7 +47689,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "seg_qc_min_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -47671,7 +47698,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "seg_qc_min_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -48451,7 +48478,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 1248,
+    "line": 1270,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "_backend_preview_pass"
@@ -48460,7 +48487,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 3703,
+    "line": 3725,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -48469,7 +48496,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 3721,
+    "line": 3743,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel._seed_the_diameter"
@@ -57259,7 +57286,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -60561,7 +60588,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_dead_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -60761,7 +60788,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_live_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"
@@ -61770,7 +61797,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "wound_channel",
-    "line": 3892,
+    "line": 3914,
     "module": "spacr.qt.widgets.live_preview",
     "nested": false,
     "qualname": "LivePreviewPanel.apply_settings"

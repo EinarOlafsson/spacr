@@ -43,6 +43,7 @@ def test_column_follows_detector_and_restores_each_slot(panel, qtbot):
     assert lp._combo_value(controls["method"]) == "adaptive"
     assert controls["adaptive_offset"].value() == 7
     assert "Organelle 2" in form.labelForField(controls["method"]).text()
+    assert controls["method"].property("settingKey") == "organelleb_method"
     assert form.isRowVisible(controls["adaptive_offset"])
     assert not form.isRowVisible(controls["ridge_sigmas"])
     controls["adaptive_offset"].setValue(12)
@@ -64,6 +65,13 @@ def test_organelle_edits_propagate_and_build_real_worker_request(panel, qtbot):
     assert all(widget in dialog._propagate_sources
                for widget in panel._organelle_widgets.values())
     controls = panel._organelle_widgets
+    restriction = controls["mask_within_cells"]
+    label = dialog._organelle_group.layout().labelForField(restriction)
+    assert "Preview cell masks are required" in label.toolTip()
+    assert 'href="' in label.toolTip() and "API" in label.toolTip()
+    assert "cell_mask_stack" not in label.toolTip()
+    assert restriction.property("apiTooltipDescriptionSource") == (
+        "Preview cell masks are required to restrict organelles to cells.")
     controls["rolling_ball"].setChecked(True)
     controls["rolling_ball_radius"].setValue(6)
     controls["clahe"].setChecked(True)
