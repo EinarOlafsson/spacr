@@ -200,6 +200,7 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         s = set_default_settings_preprocess_generate_masks(settings={})
         for key in timelapse_and_motility_keys():
             s.pop(key, None)
+        s["timelapse"] = False
         return s
     if app_key == "timelapse":
         s = get_timelapse_settings(settings={})
@@ -1248,7 +1249,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Segmentation Robustness α",
          ("@Segmentation Robustness α",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
-        ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
+        ("Time Axes & Tracking (Beta)", ("timelapse", "@4D Settings (Beta)",)),
         ("Visualization & Diagnostics", (
             "plot", "cmap", "figuresize", "examples_to_plot",
         )),
@@ -3136,10 +3137,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How a z-stack is turned into something segmentable — whether "
         "planes are projected or stitched, which axis is z, and the "
         "physical voxel size. Ignore it entirely for single-plane data.",
-    "TIME AXES & TRACKING (BETA)":
-        "How the time axis is read and, experimentally, how objects are "
-        "linked between frames. The full tracking workflow is the Timelapse "
-        "module; this is the inline version.",
     "VISUALIZATION & DIAGNOSTICS":
         "The diagnostic figures a run draws as it goes — how many example "
         "fields, at what size, with which colour map and normalisation. "

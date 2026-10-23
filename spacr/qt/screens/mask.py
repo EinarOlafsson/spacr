@@ -1,33 +1,13 @@
-"""The modules folded onto Mask Generation: Timelapse, and OPS.
+"""Tracking settings and auxiliary pages on Mask Generation.
 
-Two kinds of fold are used here, and they change this screen differently.
-Timelapse is a settings fold: switching it on mounts its categories on Mask's
-own form and sets the pipeline gate the run reads, so its switch belongs on the
-masthead strip beside the heading. OPS is a page fold: it has 63 settings of
-its own and its own run entry point, none of which is
-`preprocess_generate_masks`, so switching it on puts it on this screen's page
-strip instead and its switch sits in the actions row beside the Live and 3D
-buttons, in the same format. See :data:`CATEGORY_FOLDS`, :data:`PAGE_FOLDS` and
-:func:`install_ops_switch`.
+The existing Time control reveals the time-axis settings, mounted tracking
+categories and tracking preview. Visibility does not change the ``timelapse``
+pipeline setting; its checkbox remains on the form and settings files retain
+their processing choices. The legacy Timelapse route opens Time and explicitly
+enables tracking.
 
-Spatial Mask Generation (alpha, F534) is a page fold of the same kind: its
-Spatial switch sits beside OPS and opens the ``spatial_masks`` settings
-page, which segments a whole Xenium or Visium HD slide in overlapping tiles.
-Both are :class:`~spacr.qt.screens.map_barcodes.PageFold` instances; see
-:func:`install_spatial_masks_switch`.
-
-The Timelapse switch enables ``timelapse=True`` for the standard mask
-pipeline and displays the additional time-series and tracking settings on the
-Mask form. Settings files created for the Timelapse module remain compatible;
-:func:`sync_folds` restores the switch state from the pipeline gate.
-
-The integrated tracking preview evaluates object linkage across frames,
-whereas the standard Mask preview evaluates segmentation of an individual
-field. Motility analysis remains under Measure because it quantifies existing
-masks and writes measurements rather than generating masks.
-
-Category mounting and fold-state synchronization are shared with the other
-host screens through :mod:`spacr.qt.screens.map_barcodes`.
+OPS and Spatial Mask Generation retain their separate page switches and run
+entry points. Motility analysis remains under Measure.
 """
 
 from __future__ import annotations
@@ -72,12 +52,6 @@ HOST_KEY = "mask"
 #: in :data:`PAGE_FOLDS` below and not in :data:`FOLD_GATES`.
 FOLDED_APPS: Tuple[str, ...] = ("timelapse", "ops")
 
-#: The folds that ARE settings categories on this screen's own form.
-#:
-#: This is what the masthead strip is built from and what
-#: :class:`~spacr.qt.screens.map_barcodes.CategoryFoldSet` mounts. Every
-#: key here needs a row in :data:`FOLD_GATES`, because switching one on is
-#: exactly setting its gate.
 CATEGORY_FOLDS: Tuple[str, ...] = ("timelapse",)
 
 #: The folds that open a page of their own instead.
@@ -103,17 +77,8 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "alpha"),
 }
 
-#: ``key -> the settings the pipeline reads to decide it should do this``.
-#:
-#: These are the seam. :func:`spacr.core.preprocess_generate_masks` groups
-#: a plate into time stacks when ``timelapse`` is true, and
-#: the same function calls :func:`spacr.timelapse.automated_motility_assay`
-#: once per plate, after every mask is merged, when ``timelapse and motility_analysis`` are both true -- so switching a
-#: fold on is exactly setting its gate, and no new pipeline path is
-#: involved.
-#:
 FOLD_GATES: Dict[str, Tuple[str, ...]] = {
-    "timelapse": ("timelapse",),
+    "timelapse": (),
 }
 
 #: ``key -> the folds it cannot run without``. Nothing here needs another
@@ -121,15 +86,6 @@ FOLD_GATES: Dict[str, Tuple[str, ...]] = {
 #: second gated fold would otherwise arrive with no place to say so.
 FOLD_IMPLIES: Dict[str, Tuple[str, ...]] = {}
 
-#: ``key -> the categories on THIS screen's OWN form that are its settings``.
-#:
-#: The fold mounts the categories Mask Generation does not already offer,
-#: and those are marked from the fold itself. This table is for the other
-#: half: the time-axis settings Mask Generation has always drawn itself,
-#: which are Timelapse's subject however early they were written. Marking
-#: them says the same thing the mounted cards say -- these belong to the
-#: module the switch on the masthead turns on -- rather than leaving one
-#: half of a module's settings attributed and the other half anonymous.
 FOLD_CATEGORIES: Dict[str, Tuple[str, ...]] = {
     "timelapse": ("Time Axes & Tracking (Beta)",),
 }
@@ -152,8 +108,8 @@ class _OfferedPreview(QObject):
     would keep it alive through the switch that is supposed to own it.
 
     Off is stronger than merely hidden. Switching the fold off unchecks
-    the preview's toggle as well as hiding it, so the card cannot stay on
-    screen showing tracks for a run that is no longer tracking.
+    the preview's toggle as well as hiding it, so hiding Time closes its
+    optional tracking preview without changing processing settings.
 
     :param host: the screen offering the preview. Its ``card`` is the
         QObject parent -- not the host itself, which is what the note above
@@ -188,7 +144,7 @@ def fold_previews(screen: QWidget) -> Dict[str, object]:
 
 def _offer_fold_previews(screen: QWidget,
                          folds: CategoryFoldSet,
-                         strip: FoldStrip) -> Dict[str, _OfferedPreview]:
+                         strip=None) -> Dict[str, _OfferedPreview]:
     """Attach each mounted fold's own preview panel, hidden behind its switch.
 
     A module whose preview is its whole reason for a runtime panel loses
@@ -204,7 +160,8 @@ def _offer_fold_previews(screen: QWidget,
 
     offered: Dict[str, _OfferedPreview] = {}
     for key in folds.order:
-        button = strip.button_for(key)
+        button = (strip.button_for(key) if strip is not None
+                  else screen.dimension_switch("t"))
         if button is None:
             continue
         try:
@@ -581,19 +538,13 @@ def install_spatial_masks_switch(screen: QWidget,
 
 
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
-    """Put Mask Generation's fold switches on ``screen``'s masthead.
+    """Mount tracking controls under the existing Time visibility switch.
 
-    And the example-plate button on its form: this is the one walk that
-    reaches this screen from outside, so everything hung on Mask Generation
-    is hung here. See :func:`install_example_data_button`.
+    Also install the example-plate and organize buttons. Installation is
+    idempotent; no additional masthead strip is created.
 
-    Idempotent, and errors are not raised, so a failure leaves the screen
-    without its switches rather than stopping it from opening.
-
-    :param screen: the host module's screen.
-    :returns: the strip, or None when this screen cannot carry one -- it
-        is not the host, it has no masthead, one is already installed, or
-        no folded module had a category of its own to add.
+    :param screen: Mask Generation screen.
+    :returns: ``None``; retained for callers of the former strip installer.
     """
     if getattr(screen, "app_key", None) != HOST_KEY:
         return None
@@ -607,57 +558,49 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     except Exception:
         LOG.debug("Could not install the organize button on %s", HOST_KEY,
                   exc_info=True)
-    existing = getattr(screen, "_fold_strip", None)
-    if isinstance(existing, FoldStrip):
-        return existing
-    header = getattr(screen, "_header", None)
-    if header is None or not hasattr(header, "add_trailing"):
+    if getattr(screen, "_category_folds", None) is not None:
         return None
     try:
+        switch = screen.dimension_switch("t")
+        if switch is None:
+            return None
         folds = CategoryFoldSet(
-            screen,
-            {key: FOLD_GATES[key] for key in CATEGORY_FOLDS},
-            implies=FOLD_IMPLIES,
-        )
+            screen, {key: FOLD_GATES[key] for key in CATEGORY_FOLDS},
+            implies=FOLD_IMPLIES)
         if not folds.mount():
             return None
-        strip = folds.build_strip(header)
-        if strip is None:
-            return None
-        header.add_trailing(strip)
+        screen._category_folds = folds
+        switch.toggled.connect(lambda on: folds.set_active("timelapse", on))
+        folds.set_active("timelapse", switch.isChecked())
+        screen._fold_previews = _offer_fold_previews(screen, folds)
+        mark_fold_sources(screen)
     except Exception:
-        LOG.debug("Could not build the fold strip for %s", HOST_KEY,
+        LOG.debug("Could not mount Time controls for %s", HOST_KEY,
                   exc_info=True)
-        return None
-    screen._category_folds = folds
-    screen._fold_strip = strip
-    screen._fold_previews = _offer_fold_previews(screen, folds, strip)
-    mark_fold_sources(screen)
-    return strip
+    return None
 
 
 def sync_folds(screen: QWidget,
                settings: Dict[str, object]) -> Sequence[str]:
-    """Move the switches to match a settings dict that was just applied.
+    """Reveal imported time settings without changing processing flags.
 
-    The tracking and assay CONTROLS take their values through the ordinary bulk
-    apply, because they are ordinary controls on this form. Their gates are not
-    controls -- the switch is -- so a Timelapse settings file would otherwise
-    fill in every tracking setting and leave tracking off.
-
-    Safe to call on any screen: one that has no category folds returns an
-    empty tuple.
-
-    :param screen: the screen the settings were applied to.
-    :param settings: the dict that was applied.
-    :returns: the folded keys the settings switched on.
+    :param screen: Screen receiving the settings.
+    :param settings: Applied settings; absent time flags preserve visibility.
+    :returns: Tracking fold key when imported flags reveal Time.
     """
+    from .map_barcodes import _reads_as_true
+
     folds = fold_set(screen)
     if folds is None:
         return ()
     try:
-        return folds.sync_from_settings(settings)
+        named = [key for key in ("t_stack", "timelapse") if key in settings]
+        if not named:
+            return ()
+        wanted = any(_reads_as_true(settings[key]) for key in named)
+        screen.set_dimension("t", wanted)
+        folds.set_active("timelapse", wanted)
+        return ("timelapse",) if wanted else ()
     except Exception:
-        LOG.debug("Could not sync the folds from the applied settings",
-                  exc_info=True)
+        LOG.debug("Could not sync Time from the applied settings", exc_info=True)
         return ()

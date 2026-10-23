@@ -12995,29 +12995,19 @@ class AppScreen(QWidget):
         return bool(val)
 
     def _warn_about_moved_settings(self, loaded: dict) -> None:
-        """Say, in the console, what an imported CSV did to the fold switches.
+        """Report imported tracking settings and unsupported motility flags.
 
-        Tracking is a set of settings CATEGORIES on this form rather than a
-        module of its own, and its pipeline gate has no control for a bulk
-        apply to land in — the switch on the masthead is the control.
-        :meth:`apply_settings_dict` moves it, and this reports what moved,
-        so a user who loaded a Timelapse settings file can see that tracking
-        became part of the run rather than being left to wonder.
-
-        A gate the file asks for that no switch answered is reported as
-        ignored, because that is what it is: nothing on this screen collects
-        it and it will not reach the run. That covers the automated motility
-        assay, which reads finished masks and writes a measurements table and
-        so is a module Measure opens, not a category here.
-
-        Console text, never a modal — a QMessageBox here would hang headless
-        runs.
+        Tracking uses a native processing checkbox and Time reveals its
+        categories. A native checkbox that accepted the flag must not be
+        reported as ignored when no optional tracking categories were mounted.
+        Motility remains a separate module hosted by Measure.
         """
         if self.app_key != "mask":
             return
         switched = set(getattr(self, "_folds_last_switched_on", ()))
         notes = []
-        if self._truthy(loaded.get("timelapse", False)):
+        if (self._truthy(loaded.get("timelapse", False)) and
+                "timelapse" not in getattr(self._settings_model, "_widgets", {})):
             if "timelapse" in switched:
                 notes.append(
                     "timelapse=True switched Timelapse on — its tracking "
