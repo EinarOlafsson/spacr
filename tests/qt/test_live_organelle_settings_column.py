@@ -237,3 +237,51 @@ def test_cell_restriction_refuses_missing_or_different_field_masks(cell_mask):
         cell_mask=cell_mask)
     with pytest.raises(ValueError, match="Preview cell masks are required"):
         lp._segment_multi(request)
+
+
+@pytest.mark.parametrize("missing_name", ["spacr.qt.i18n_catalogs", "spacr.qt.i18n_catalogs.en"])
+def test_column_keeps_readable_captions_and_slot_values_without_catalogs(
+        panel, qtbot, monkeypatch, missing_name):
+    import builtins
+    from spacr.qt.i18n import tr
+
+    original_import = builtins.__import__
+
+    def without_catalogs(name, *args, **kwargs):
+        if name == "i18n_catalogs" or name.startswith("spacr.qt.i18n_catalogs"):
+            raise ModuleNotFoundError("catalog intentionally absent", name=missing_name)
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", without_catalogs)
+    dialog = lp.LiveSettingsDialog(panel)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    controls = panel._organelle_widgets
+    form = dialog._organelle_group.layout()
+    assert form.labelForField(controls["method"]).text() == tr("Method")
+    controls["ridge_sigmas"].setText("2, 4, 6")
+    panel._object_box.setCurrentText("organelle 2")
+    assert form.labelForField(controls["method"]).text() == tr("Method")
+    assert controls["method"].property("settingKey") == "organelleb_method"
+    assert controls["adaptive_offset"].value() == 7
+    controls["adaptive_offset"].setValue(12)
+    panel._object_box.setCurrentText("organelle")
+    assert panel._widget_value(controls["ridge_sigmas"]) == [2, 4, 6]
+    panel._object_box.setCurrentText("organelle 2")
+    assert controls["adaptive_offset"].value() == 12
+    dialog.close()
+
+
+def test_column_does_not_hide_an_unrelated_missing_dependency(panel, qtbot, monkeypatch):
+    import builtins
+
+    original_import = builtins.__import__
+
+    def broken_catalog(name, *args, **kwargs):
+        if name == "i18n_catalogs":
+            raise ModuleNotFoundError("unrelated dependency absent", name="unrelated_dependency")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", broken_catalog)
+    with pytest.raises(ModuleNotFoundError, match="unrelated dependency absent"):
+        lp.LiveSettingsDialog(panel)

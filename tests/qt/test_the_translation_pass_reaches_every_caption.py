@@ -271,7 +271,8 @@ def test_switching_language_re_renders_a_screen_that_was_already_translated(
         "language switch did not reach it")
 
 
-def test_translating_the_same_tree_twice_changes_nothing(qtbot):
+@pytest.mark.parametrize("gpu_count", (0, 2))
+def test_translating_the_same_tree_twice_changes_nothing(qtbot, monkeypatch, gpu_count):
     """Idempotence, which is what makes deduplication safe to attempt.
 
     If a second pass over an already-translated tree were NOT a no-op, then
@@ -279,7 +280,9 @@ def test_translating_the_same_tree_twice_changes_nothing(qtbot):
     amount of care in the marker would make it safe.
     """
     from spacr.qt.i18n import retranslate_widget_tree
+    from spacr import _mask_workers
 
+    monkeypatch.setattr(_mask_workers, "_mask_gpu_count_for_controls", lambda: gpu_count)
     with _language("fr"):
         screen = _screen(qtbot)
         once = _captions(screen)

@@ -1,4 +1,18 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT FIXED-EFFECT GENE DESIGN SCOPE RESTORATION — 2026-10-23
+Retained N718 worker owns the actual beta failure in control2 job120232189649;
+root approves the demonstrated a990 scope correction and owns publication.
+Reserve new full-well LONG gene composition for the approved horseshoe model.
+Restore historical Patsy gene interactions for other non-wide fixed estimators,
+without reference-gene choices, dropped predictors, invented p-values or any
+change to original finite-p/planted-effect assertions, data or backend defaults.
+Prove both branches without fitting, then run the unchanged failing beta case
+once. Preserve the approved horseshoe likelihood/calibration and all retained
+scientific results; correct the one public layout paragraph and its nine targets.
+Result: original beta acceptance passes unchanged; no-fit beta and horseshoe
+design guards pass in6.44s/8.48s. Source peer accepted; normal consumer/index
+generation is unchanged. API translation/pin closure remains in progress.
+
 CURRENT CALIBRATION VALIDATION BEFORE BACKEND SELECTION — 2026-10-23
 Retained N718 worker owns the two actual MinimumPython3.9 shard0 failures
 job120232189598; root approves and publishes the narrow ordering correction.
@@ -4437,3 +4451,9 @@ Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST 
 2026-10-23 — Root integrates the source-bound README license registry and explicit historical BSD-to-current review reconciliation, preserving all archived reviews and strict equality checks; inert metadata/web fixture trees include the current power-model dependency. The consent regression also requires reaccepting4.4 after stored4.3; six owning checks and independent reviews pass; no product defaults, budgets or assertions are weakened. Final hosted CI and release remain open.
 
 2026-10-23 — Root integrates owned logging timers and durable synchronous flushes, draining cancelled run diagnostics before completion without joining under handler locks; strict twenty-cycle census and performance contracts remain intact (22 passes). Calibration validation precedes optional backend probing (3 passes); exact licensing panel identity and guarded Windows lease cleanup match current product source (10 and1 passes). Independent peers accepted all changes; normal API/runtime records and affected consumer bindings are unchanged, with no generated catalog publication required. Final hosted CI and release remain open.
+
+2026-10-23 — Root integrates HiDPI field thumbnails using density-aware decode/cache/render and screen-change handling (3 owning checks), preserving published PDF arrays/CSV/icons. Missing optional organelle catalogs retain local labels and slot values while unrelated import errors remain visible (5 checks). Reuse the normal six consumer offset updates; no extra API/runtime targets or passing-test repeats.
+
+2026-10-23 — Translation idempotence now fixes only asynchronous GPU-discovery inputs at zero and two devices while retaining complete caption equality (2 passes). Preferences reuse/speed assertions remain unchanged: both font configurations pass locally, so only failure-time cache diagnostics are added (1 helper control); no runtime cache fix or reproduced cause is claimed.
+
+2026-10-23 — Beta LONG interaction design is restored while the approved horseshoe composition remains unchanged; the original beta case and both no-fit branch controls pass. The single corrected API block has nine reviewed translations, normal source-proven repair and independently accepted catalogue deltas; reviews93375068 and HF API1704624d are pinned after nine immutable readbacks and strict checks. No sampling, prior, scientific threshold or original beta assertion changes; hosted horseshoe confidence and Preferences acceptance remain open.

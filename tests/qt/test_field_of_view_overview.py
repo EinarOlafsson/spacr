@@ -866,3 +866,43 @@ def test_cancellation_during_measurement_csv_write_discards_complete_pending_fil
     assert metadata["cancelled"] is True
     assert metadata["measurements"]["path"] is None
     assert metadata["measurements"]["written_field_count"] == 0
+
+
+def test_visible_well_thumbnails_follow_native_ratio_and_reuse_source_cache(tmp_path, qtbot, monkeypatch):
+    from PySide6.QtCore import QEvent, QSize
+    from PySide6.QtWidgets import QApplication
+    image = np.arange(480 * 640, dtype=np.uint16).reshape(480, 640)
+    tifffile.imwrite(tmp_path / "plate1_A01_T0001F001L01C1.tif", image)
+    fields = browser._overview_index(tmp_path)
+    dialog = browser._FieldOverview(settings={"channels": [1]})
+    qtbot.addWidget(dialog)
+    viewport = dialog.wells.viewport()
+    ratio = [1.0]
+    monkeypatch.setattr(viewport, "devicePixelRatioF", lambda: ratio[0])
+    decoded = []
+    original = browser._overview_pixels
+
+    def read(field, *args, **kwargs):
+        decoded.append(kwargs["edge"])
+        return original(field, *args, **kwargs)
+
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    dialog._indexed(fields)
+    dialog.show()
+    item = dialog.wells.item(0, 0)
+    try:
+        for density in (1.0, 2.0, 1.0):
+            ratio[0] = density
+            QApplication.sendEvent(viewport, QEvent(QEvent.Type.DevicePixelRatioChange))
+            qtbot.waitUntil(lambda: item.data(browser.Qt.UserRole + 1) is not None
+                            and item.data(browser.Qt.UserRole + 1)[-1] == density)
+            size = dialog.wells.iconSize()
+            picture = item.icon().pixmap(size, density)
+            assert picture.devicePixelRatio() == density
+            assert picture.size() == QSize(round(size.width() * density), round(size.height() * density))
+            assert picture.deviceIndependentSize().width() == size.width()
+            assert picture.deviceIndependentSize().height() == size.height()
+        assert decoded == [160, 320]
+        assert len(dialog._thumbnail_cache) == 2
+    finally:
+        dialog.close()

@@ -1,5 +1,5 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-Status:    DONE — overview export and channel-help CI follow-up validated
+Status:    DONE — overview/PDF/CSV/icons, figure registration/help and HiDPI thumbnail acceptance complete
 Requested: maintainer, 2026-10-22
 Owner:     widgets_g1 / widgets_g4 peer / root publication — completed PDF/CSV/icon delivery retained
 Priority:  Current CI follow-up; completed overview/PDF/CSV/icon requirements remain delivered
@@ -73,3 +73,9 @@ ACCEPTANCE
 2026-10-22 — Moved both overview entries to icon-only source-browse controls, removing the old toolbar/tab-corner buttons while retaining translated help, accessibility and opening context. Both owning entry checks and native source-icon adjacency pass; normal consumer output changes only source-line offsets and independent source/output review passes. This completes the UI follow-up; completed PDF and raw CSV delivery remain retained.
 
 2026-10-23 — Reopened only the figure-registration and editable-field help CI follow-up: register actual overview page images/provenance and move the same reviewed channel guidance to its setting label; preserve delivered CSV/PDF/icons and callback documentation. Both original gates plus real export/help controls pass (4 tests,25.36 s), with independent source/output review accepted. Normal consumer generation closes exactly21 line offsets; API/runtime/target map are unchanged. Root integrates and publishes this follow-up; prior delivery/history remain retained.
+
+2026-10-23 — Reopened only the well-thumbnail HiDPI follow-up under widgets_g1 with widgets_g4 peer and root publication: retain native screen-density detail, logical icon size and redraw from bounded source pixels after screen-ratio changes; preserve completed PDF/RAW CSV/source-icon and registration/help delivery. Validate the unchanged scaled-site audit and real thumbnail ratios without exemptions. PUBLICATION PENDING.
+
+2026-10-23 — Well thumbnails use native screen-density rendering with bounded density-aware source/cache and screen-change redraw; 1x-to-2x-to-1x real-image control, unchanged scaled-site audit and visible-thumbnail cache control pass (3 tests,5.88 s). Independent source review accepted; existing PDF/RAW CSV/icons/callback documentation remain retained. PUBLICATION PENDING under root.
+
+2026-10-23 — Final HiDPI postimages and three owning checks are accepted; normal consumer output changes only six line offsets, with all targets/metadata preserved. Root integrates the validated source and generated output for nightly/main publication; prior feature requirements and completed acceptance remain retained.
