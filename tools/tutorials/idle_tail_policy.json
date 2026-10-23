@@ -2196,8 +2196,8 @@
     },
     {
       "lesson": "38_distributed_jobs",
-      "master_sha256": "013d6599fd34a4b06a04a7532f6133453a2aeaf207867071aa3554682c3ae034",
-      "visual_timing_sha256": "287edafb7838ad7452ec9cc4b234754bcfaaf5c18d81fb2cb5094539bfb80917",
+      "master_sha256": "d40eedbbe9248501cfa8bb734c1a134ed1d541b36c157c5532938d39b1bfea32",
+      "visual_timing_sha256": "dcada193b0cc8d554c7e795c427299eb3178bbaba56535220587b4d8ef56e0aa",
       "scenes": [
         {
           "visual": "01_help_route",
@@ -2208,18 +2208,18 @@
         {
           "visual": "02_empty_actual_workbench",
           "source_start": 16.266666666666666,
-          "source_end": 37.83333333333333,
+          "source_end": 37.833333333333336,
           "idle_tail_start": 2.1
         },
         {
           "visual": "03_empty_profile_refused",
-          "source_start": 37.83333333333333,
-          "source_end": 54.199999999999996,
+          "source_start": 37.833333333333336,
+          "source_end": 54.2,
           "idle_tail_start": 5.6
         },
         {
           "visual": "06_saved_profile_reopened",
-          "source_start": 54.199999999999996,
+          "source_start": 54.2,
           "source_end": 79.26666666666667,
           "idle_tail_start": 4.5
         },
@@ -2230,29 +2230,35 @@
           "idle_tail_start": 4.5
         },
         {
+          "visual": "07_slurm_controls_not_submitted",
+          "source_start": 104.33333333333333,
+          "source_end": 120.63333333333334,
+          "idle_tail_start": 6.6
+        },
+        {
           "visual": "08_custom_argument_templates",
-          "source_start": 125.03333333333333,
-          "source_end": 150.03333333333333,
+          "source_start": 120.63333333333334,
+          "source_end": 145.63333333333333,
           "idle_tail_start": 4.4
         },
         {
           "visual": "05_profile_saved_not_connected",
-          "source_start": 150.03333333333333,
-          "source_end": 167.46666666666667,
+          "source_start": 145.63333333333333,
+          "source_end": 163.06666666666666,
           "idle_tail_start": 2.9
         },
         {
           "visual": "09_submission_controls_no_job",
-          "source_start": 167.46666666666667,
-          "source_end": 193.53333333333333,
+          "source_start": 163.06666666666666,
+          "source_end": 189.13333333333333,
           "idle_tail_start": 2.5
         }
       ]
     },
     {
       "lesson": "39_classifier_evaluation",
-      "master_sha256": "13422cfe2d8863a4dac2e6c15db31066480f5dcedd2ccd35ec1a9c053c62d707",
-      "visual_timing_sha256": "758ebc2f8f5cd8789bd00ca9547f3d0f906993d75d886da4dc987da0c856fb80",
+      "master_sha256": "cd158068198c068b5f0c4fe13f8a79b056b81aec0b642ae32edd6910db490327",
+      "visual_timing_sha256": "d730b003e5e4110337aae7ba8679dd3201ce5434e39e28332a961def61e0bec6",
       "scenes": [
         {
           "visual": "01_classify_host",
@@ -2261,132 +2267,174 @@
           "idle_tail_start": 4.9
         },
         {
+          "visual": "03_actual_bundle_folder",
+          "source_start": 18.833333333333332,
+          "source_end": 29.933333333333334,
+          "idle_tail_start": 4.2
+        },
+        {
           "visual": "04_actual_summary",
-          "source_start": 49.3,
-          "source_end": 66.36666666666666,
+          "source_start": 29.933333333333334,
+          "source_end": 47.0,
           "idle_tail_start": 1.0
         },
         {
           "visual": "05_actual_leakage_requires_review",
-          "source_start": 66.36666666666666,
-          "source_end": 93.33333333333333,
+          "source_start": 47.0,
+          "source_end": 73.96666666666667,
           "idle_tail_start": 3.3
         },
         {
           "visual": "06_actual_confusion_counts",
-          "source_start": 93.33333333333333,
-          "source_end": 112.73333333333332,
+          "source_start": 73.96666666666667,
+          "source_end": 93.36666666666666,
           "idle_tail_start": 6.5
         },
         {
           "visual": "07_actual_error_cell",
-          "source_start": 112.73333333333332,
-          "source_end": 131.39999999999998,
+          "source_start": 93.36666666666666,
+          "source_end": 112.03333333333333,
           "idle_tail_start": 3.2
         },
         {
           "visual": "08_actual_confidence_threshold",
-          "source_start": 131.39999999999998,
-          "source_end": 153.96666666666664,
+          "source_start": 112.03333333333333,
+          "source_end": 134.6,
           "idle_tail_start": 5.0
         },
         {
           "visual": "07_actual_error_cell",
-          "source_start": 153.96666666666664,
-          "source_end": 172.6333333333333,
+          "source_start": 134.6,
+          "source_end": 153.26666666666668,
           "idle_tail_start": 3.2
         },
         {
           "visual": "09_actual_per_plate",
-          "source_start": 172.6333333333333,
-          "source_end": 191.96666666666664,
+          "source_start": 153.26666666666668,
+          "source_end": 172.6,
           "idle_tail_start": 5.7
         },
         {
           "visual": "10_actual_calibration_table",
-          "source_start": 191.96666666666664,
-          "source_end": 209.16666666666663,
+          "source_start": 172.6,
+          "source_end": 189.8,
           "idle_tail_start": 5.9
         },
         {
           "visual": "12_actual_prediction_filter",
-          "source_start": 209.16666666666663,
-          "source_end": 228.5333333333333,
+          "source_start": 189.8,
+          "source_end": 209.16666666666666,
           "idle_tail_start": 4.9
         },
         {
           "visual": "13_actual_filter_cleared",
-          "source_start": 228.5333333333333,
-          "source_end": 251.6333333333333,
+          "source_start": 209.16666666666666,
+          "source_end": 232.26666666666668,
           "idle_tail_start": 1.7
         },
         {
           "visual": "04_actual_summary",
-          "source_start": 251.6333333333333,
-          "source_end": 268.7,
+          "source_start": 232.26666666666668,
+          "source_end": 249.33333333333334,
           "idle_tail_start": 1.0
         },
         {
           "visual": "14_actual_final_leakage",
-          "source_start": 268.7,
-          "source_end": 290.8333333333333,
+          "source_start": 249.33333333333334,
+          "source_end": 271.46666666666664,
           "idle_tail_start": 3.1
         }
       ]
     },
     {
       "lesson": "40_run_history",
-      "master_sha256": "ad7688ed478fefc3f13d04aaf48e148e580a0091224d219529e48f1c438d4335",
-      "visual_timing_sha256": "7fd01fe378409c3b239ac65536e5241094f211a3e6d89f2bb5ec9cb825d5870e",
+      "master_sha256": "55ecf3e0ecd19619e2a72513f424ee63a3d59d5d74f4fb6fb48f928f838b915e",
+      "visual_timing_sha256": "a0f7d4b0419a5083dd70ad4602d7ab54ccb729954b7968e4004f90fa100584a6",
       "scenes": [
         {
+          "visual": "01_help_history",
+          "source_start": 0.0,
+          "source_end": 8.766666666666667,
+          "idle_tail_start": 2.4
+        },
+        {
           "visual": "02_loaded_history",
-          "source_start": 13.166666666666666,
-          "source_end": 31.4,
+          "source_start": 8.766666666666667,
+          "source_end": 27.0,
           "idle_tail_start": 5.3
         },
         {
+          "visual": "03_batch_search",
+          "source_start": 27.0,
+          "source_end": 41.06666666666667,
+          "idle_tail_start": 5.1
+        },
+        {
           "visual": "04_batch_empty_inventory",
-          "source_start": 50.5,
-          "source_end": 75.83333333333333,
+          "source_start": 41.06666666666667,
+          "source_end": 66.4,
           "idle_tail_start": 3.3
         },
         {
           "visual": "05_no_match",
-          "source_start": 75.83333333333333,
-          "source_end": 90.26666666666667,
+          "source_start": 66.4,
+          "source_end": 80.83333333333333,
           "idle_tail_start": 4.4
         },
         {
+          "visual": "07_recruitment_overview",
+          "source_start": 80.83333333333333,
+          "source_end": 93.36666666666666,
+          "idle_tail_start": 5.2
+        },
+        {
           "visual": "09_settings_source",
-          "source_start": 113.93333333333334,
-          "source_end": 132.7,
+          "source_start": 93.36666666666666,
+          "source_end": 112.13333333333334,
           "idle_tail_start": 7.1
         },
         {
           "visual": "10_recorded_files",
-          "source_start": 132.7,
-          "source_end": 153.56666666666666,
+          "source_start": 112.13333333333334,
+          "source_end": 133.0,
           "idle_tail_start": 4.2
         },
         {
+          "visual": "12_hashes_and_seeds",
+          "source_start": 133.0,
+          "source_end": 144.96666666666667,
+          "idle_tail_start": 3.7
+        },
+        {
+          "visual": "14_recorded_warning",
+          "source_start": 144.96666666666667,
+          "source_end": 157.2,
+          "idle_tail_start": 6.3
+        },
+        {
           "visual": "16_failure_exception",
-          "source_start": 190.2,
-          "source_end": 208.29999999999998,
+          "source_start": 157.2,
+          "source_end": 175.3,
           "idle_tail_start": 1.0
         },
         {
           "visual": "18_restored_recruitment",
-          "source_start": 208.29999999999998,
-          "source_end": 225.66666666666666,
+          "source_start": 175.3,
+          "source_end": 192.66666666666666,
           "idle_tail_start": 5.4
+        },
+        {
+          "visual": "17_ready_to_restore",
+          "source_start": 192.66666666666666,
+          "source_end": 208.63333333333333,
+          "idle_tail_start": 4.0
         }
       ]
     },
     {
       "lesson": "42_curate",
-      "master_sha256": "ff4c11fb16a9cbcae2d35d9ac61930c143c36617832fe505cea994f3e43d3747",
-      "visual_timing_sha256": "417a8ddd450fcfff259fa821e6ee50b906f90af0c2594fcdf35aecf55ddd4bd9",
+      "master_sha256": "4dfa126afc9330d144002e4e64db3c06992f177d3b945a140b3f7a005fdfe3e3",
+      "visual_timing_sha256": "f04c0d123217cc1501e8e5cbf1ee78815ca6d85ca7d19f0124b4193c39575a21",
       "scenes": [
         {
           "visual": "02_actual_curate_page",
@@ -2401,53 +2449,65 @@
           "idle_tail_start": 1.0
         },
         {
+          "visual": "05_practice_disk_not_a_real_object",
+          "source_start": 38.166666666666664,
+          "source_end": 51.6,
+          "idle_tail_start": 5.2
+        },
+        {
           "visual": "06_undo_restores_every_original_pixel",
-          "source_start": 56.0,
-          "source_end": 71.63333333333333,
+          "source_start": 51.6,
+          "source_end": 67.23333333333333,
           "idle_tail_start": 5.2
         },
         {
           "visual": "07_saved_mask_and_ledger",
-          "source_start": 71.63333333333333,
-          "source_end": 97.66666666666666,
+          "source_start": 67.23333333333333,
+          "source_end": 93.26666666666667,
           "idle_tail_start": 9.3
         },
         {
+          "visual": "10_second_session_saved_history",
+          "source_start": 93.26666666666667,
+          "source_end": 111.83333333333333,
+          "idle_tail_start": 4.7
+        },
+        {
           "visual": "13_overlapping_tracks_cannot_join",
-          "source_start": 120.63333333333333,
-          "source_end": 141.29999999999998,
+          "source_start": 111.83333333333333,
+          "source_end": 132.5,
           "idle_tail_start": 7.0
         },
         {
           "visual": "14_split_tail_starts_at_frame_four",
-          "source_start": 141.29999999999998,
-          "source_end": 159.79999999999998,
+          "source_start": 132.5,
+          "source_end": 151.0,
           "idle_tail_start": 6.0
         },
         {
           "visual": "16_saved_tracks_and_history",
-          "source_start": 159.79999999999998,
-          "source_end": 177.96666666666664,
+          "source_start": 151.0,
+          "source_end": 169.16666666666666,
           "idle_tail_start": 2.2
         },
         {
           "visual": "17_unsaved_delete_removes_eight_rows",
-          "source_start": 177.96666666666664,
-          "source_end": 194.7,
+          "source_start": 169.16666666666666,
+          "source_end": 185.9,
           "idle_tail_start": 4.1
         },
         {
           "visual": "19_saved_tracks_and_two_actions_return",
-          "source_start": 194.7,
-          "source_end": 214.93333333333334,
+          "source_start": 185.9,
+          "source_end": 206.13333333333333,
           "idle_tail_start": 1.0
         }
       ]
     },
     {
       "lesson": "43_illumination",
-      "master_sha256": "58833482d141bac1df82fe51da604e54fb38276ab28dd0e02dd2fff97cfa96d9",
-      "visual_timing_sha256": "235359e9a7f588b90578b611615001aefb7327b14b9744ac4447fcb57a670110",
+      "master_sha256": "14de3bb8fb9ba26527527165887d760e4651244368001f10c62d9b609707ebea",
+      "visual_timing_sha256": "9d07ae0eedd2bff5ea78d009d6aba9859c791c490ef44d8df29a5cc33e0e21c3",
       "scenes": [
         {
           "visual": "01_measure_host",
@@ -2456,64 +2516,82 @@
           "idle_tail_start": 4.7
         },
         {
+          "visual": "05_setting_src",
+          "source_start": 13.533333333333333,
+          "source_end": 28.333333333333332,
+          "idle_tail_start": 7.0
+        },
+        {
           "visual": "05_setting_channels",
-          "source_start": 40.63333333333333,
-          "source_end": 60.3,
+          "source_start": 28.333333333333332,
+          "source_end": 48.0,
           "idle_tail_start": 2.4
         },
         {
           "visual": "04_correction_off_finished",
-          "source_start": 60.3,
-          "source_end": 76.36666666666666,
+          "source_start": 48.0,
+          "source_end": 64.06666666666666,
           "idle_tail_start": 5.5
         },
         {
           "visual": "05_setting_illumination_degree",
-          "source_start": 76.36666666666666,
-          "source_end": 102.33333333333333,
+          "source_start": 64.06666666666666,
+          "source_end": 90.03333333333333,
           "idle_tail_start": 2.0
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "source_start": 102.33333333333333,
-          "source_end": 124.19999999999999,
+          "source_start": 90.03333333333333,
+          "source_end": 111.9,
           "idle_tail_start": 3.9
         },
         {
           "visual": "05_setting_illumination_dark",
-          "source_start": 124.19999999999999,
-          "source_end": 142.46666666666664,
+          "source_start": 111.9,
+          "source_end": 130.16666666666666,
           "idle_tail_start": 2.2
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "source_start": 142.46666666666664,
-          "source_end": 162.2,
+          "source_start": 130.16666666666666,
+          "source_end": 149.9,
           "idle_tail_start": 1.9
         },
         {
+          "visual": "06_correction_on_finished",
+          "source_start": 149.9,
+          "source_end": 165.8,
+          "idle_tail_start": 4.5
+        },
+        {
           "visual": "08_exported_qc_system_viewer",
-          "source_start": 182.53333333333333,
-          "source_end": 205.1,
+          "source_start": 165.8,
+          "source_end": 188.36666666666667,
           "idle_tail_start": 1.8
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "source_start": 205.1,
-          "source_end": 227.66666666666666,
+          "source_start": 188.36666666666667,
+          "source_end": 210.93333333333334,
           "idle_tail_start": 1.8
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "source_start": 227.66666666666666,
-          "source_end": 250.23333333333332,
+          "source_start": 210.93333333333334,
+          "source_end": 233.5,
           "idle_tail_start": 1.8
         },
         {
           "visual": "09_return_to_illumination",
-          "source_start": 250.23333333333332,
-          "source_end": 270.8333333333333,
+          "source_start": 233.5,
+          "source_end": 254.1,
           "idle_tail_start": 1.7
+        },
+        {
+          "visual": "10_measure_apply_model",
+          "source_start": 254.1,
+          "source_end": 281.03333333333336,
+          "idle_tail_start": 13.1
         }
       ]
     }
