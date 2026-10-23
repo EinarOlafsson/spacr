@@ -1851,6 +1851,15 @@ class PipelineWorker(QObject):
             except AttributeError:
                 pass
             self._drain_output()
+            try:
+                from spacr.logging_util import _drain_package_logs
+                _drain_package_logs()
+            except Exception:
+                if sys.__stderr__ is not None:
+                    try:
+                        traceback.print_exc(file=sys.__stderr__)
+                    except (OSError, ValueError):
+                        pass
             self.finished.emit(ok)
 
 

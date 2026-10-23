@@ -1391,13 +1391,13 @@ def fit_model(
             tr("automatic horseshoe calibration needs at least two identified predictors; "
             "provide expected_hits strictly between zero and the identified count "
             "or an explicit scale_global"))
-    resolved = resolve_backend(backend)
     tau0 = _horseshoe_global_scale(
         n_genes=n_prior_predictors,
         n_wells=n_prior_observations,
         expected_hits=expected_hits,
         scale_global=scale_global,
     )
+    resolved = resolve_backend(backend)
 
     if resolved == "torch":
         draws, intercept_draws, converged, diagnostics = _fit_torch_advi(

@@ -1549,7 +1549,7 @@ def test_arbitrary_weights_do_not_implicitly_set_independent_sample_size(with_id
 
 
 @pytest.mark.parametrize('genes,expected_hits', [(0, None), (1, None), (2, 2.0), (2, 0.0)])
-def test_horseshoe_calibration_rejects_undefined_active_predictor_sparsity(genes, expected_hits):
+def test_horseshoe_calibration_rejects_undefined_active_predictor_sparsity(genes, expected_hits, monkeypatch):
     from dataclasses import replace
 
     data = _calibration_design()
@@ -1557,8 +1557,22 @@ def test_horseshoe_calibration_rejects_undefined_active_predictor_sparsity(genes
         data = replace(data, log10expression=np.ones((2, 2)))
     elif genes == 1:
         data = replace(data, log10expression=np.column_stack([data.log10expression[:, 0], np.ones(2)]))
+    probes = []
+
+    def unavailable(name):
+        probes.append(name)
+        return False
+
+    monkeypatch.setattr('spacr.power_model._module_installed', unavailable)
     with pytest.raises(PowerFitError, match='identified|expected_hits|sparsity'):
         fit_model(data, backend='numpyro', expected_hits=expected_hits)
+    assert probes == []
+
+
+def test_valid_horseshoe_calibration_still_refuses_the_requested_missing_backend(monkeypatch):
+    monkeypatch.setattr('spacr.power_model._module_installed', lambda name: False)
+    with pytest.raises(PowerFitError, match="backend='numpyro'.*numpyro is not installed"):
+        fit_model(_calibration_design(), backend='numpyro', expected_hits=1.0)
 
 
 def test_uniform_inverse_replication_preserves_centered_design_likelihood_and_prior():
