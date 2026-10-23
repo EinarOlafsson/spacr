@@ -12,6 +12,7 @@ raise, because the dialog is what stands between a user and deleting data.
 from __future__ import annotations
 
 import shutil
+import threading
 from pathlib import Path
 
 import pytest
@@ -397,6 +398,70 @@ def test_the_dialog_answers_the_triage_keys_and_passes_the_rest_on(
     _key(browser, Qt.Key_Escape)
 
     assert rejected == [True], "Escape must still reach QDialog"
+
+
+def test_a_pending_quarantine_disables_the_action_until_the_move_finishes(
+        qtbot, tmp_path, monkeypatch):
+    """An unfinished filesystem move must not accept a second triage action."""
+    from spacr.qt.widgets import qc_field_browser
+
+    plate = _one_field_plate(tmp_path)
+    active = plate / "merged" / f"{FIELD}.npy"
+    destination = plate / "merged_quarantined" / f"{FIELD}.npy"
+    original_bytes = active.read_bytes()
+    entered, release = threading.Event(), threading.Event()
+    move_field = qc_field_browser._move_field
+
+    def gated_move(target, was_quarantined, sink):
+        entered.set()
+        if not release.wait(10):
+            raise TimeoutError("test did not release the quarantine worker")
+        return move_field(target, was_quarantined, sink)
+
+    monkeypatch.setattr(qc_field_browser, "_move_field", gated_move)
+    browser = QCFieldBrowser([_target(plate)], threaded=True)
+    qtbot.addWidget(browser)
+    runners = (browser._jobs, browser._render_jobs, browser._move_jobs)
+    changes = []
+    browser.quarantineChanged.connect(
+        lambda field, moved: changes.append((field, moved)))
+    try:
+        qtbot.waitUntil(
+            lambda: browser._quarantine.isEnabled()
+            and browser._view._item is not None
+            and not any(runner.is_busy() for runner in runners),
+            timeout=10000)
+        browser.toggle_quarantine()
+        qtbot.waitUntil(entered.is_set, timeout=5000)
+
+        pending = browser._pending_move
+        assert pending is not None
+        assert browser._move_jobs.is_busy()
+        assert not browser._quarantine.isEnabled()
+        assert active.read_bytes() == original_bytes
+        assert not destination.exists()
+        assert changes == []
+
+        browser.toggle_quarantine()
+        assert browser._pending_move is pending
+        assert browser._move_jobs.pending_jobs() == 1
+
+        release.set()
+        qtbot.waitUntil(
+            lambda: browser._pending_move is None
+            and browser._quarantine.isEnabled()
+            and not any(runner.is_busy() for runner in runners),
+            timeout=10000)
+        assert changes == [(FIELD, True)]
+        assert not active.exists()
+        assert destination.read_bytes() == original_bytes
+        assert "Restore field" in browser._quarantine.text()
+        assert "Quarantined" in browser._action_status.text()
+    finally:
+        release.set()
+        qtbot.waitUntil(
+            lambda: not any(runner._jobs for runner in runners),
+            timeout=10000)
 
 
 @pytest.mark.parametrize("collision", [False, True], ids=["committed", "duplicate-refused"])

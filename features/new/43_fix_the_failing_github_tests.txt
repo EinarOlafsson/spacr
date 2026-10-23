@@ -1,4 +1,9 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT BRANCH CONTROL ALIGNMENT — 2026-10-23
+Preserve both branches’ existing QC controls during integration; port the
+Main-only pending-quarantine control unchanged to nightly with its import.
+Retain its verified hosted pass and the source-equivalent active callbacks.
+
 CURRENT REMAINING QC BEHAVIOR CONTRACT — 2026-10-23
 Retained QC owners validate real image formats, size/measurement/input guards,
 metadata reindexing and navigation during committed or refused field moves.
@@ -4480,3 +4485,5 @@ Four real overview controls cover corrupt panels, cancellation without partial d
 
 2026-10-23 — Thirteen real QC checks pass for image formats/header limits, editable validation, metadata indexing and navigation during successful or refused background moves; final cleanup leaves no parked threads. Removed only a proven unused private helper and stale explanations, preserving active callbacks and all scientific behavior.
 Normal API output remains identical across 19 keys; runtime captions and API targets are unchanged. Normal consumer generation updates only six owning line references by −30. Existing results remain retained; whole-module coverage acceptance awaits fresh CI.
+
+2026-10-23 — Preserve the Main-only pending-quarantine control and both new banner-navigation cases on nightly. Its original hosted Qt1 case passed; active callback ASTs remain identical, and the removed private helper had no callers. No tests repeated.
