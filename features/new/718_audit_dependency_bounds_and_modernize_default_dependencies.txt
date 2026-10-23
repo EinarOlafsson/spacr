@@ -11,7 +11,19 @@ Home Linux coordinator owns remaining current-source CPU-only managed/pip/Conda 
 Status:    OPEN 2026-10-22 — unchanged scientific assertions pass; gene NUTS convergence remains open (14 divergences)
 Requested: maintainer, 2026-10-21
 Priority:  P1
-Owner:     Codex dependency audit worker — end-to-end implementation and validation; root — integration/publication
+Owner:     Workstation session 2 dependency agent — current optimization and end-to-end validation/publication; Home retains existing scientific-model ownership and release integration
+
+CURRENT WORKSTATION ASSIGNMENT — 2026-10-23
+The maintainer assigns one dedicated agent to dependency optimization, separate
+from the sole item725 overview agent. Reuse delivered bounds/default-package,
+platform and installed-environment acceptance; identify remaining concrete
+resolver, import, dependency-footprint or runtime compatibility improvements
+before changing constraints. Preserve core NumPy/pandas/Cellpose/Torch behavior,
+Python3.10+ support and accepted platform guards. Do not repeat broad inventories
+or installs without a changed dependency or demonstrated defect. Do not duplicate
+Home's scientific-model work, rerun unchanged fits, or change data/priors/seed/
+settings/assertions to force a scientific pass. Dependency software acceptance
+and the recorded hosted horseshoe-convergence gate must be reported separately.
 
 OVERNIGHT DEFAULT-DEPENDENCY REQUIREMENT — 2026-10-22
 Priority: maintainer-requested active dependency lane; owner: f559_pinned_weights

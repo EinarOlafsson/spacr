@@ -2,10 +2,19 @@
 UPDATE CONDA-FORGE TO THE MOST RECENT SPACR RELEASE
 ================================================================================
 
-Status:    PARTIAL 2026-10-21 — 15/35 released versions published; remaining historical versions require upstream dependencies
+Status:    DONE 100% 2026-10-23 — latest released spaCR is published and validated on conda-forge; historical backfills cancelled by maintainer
 Requested: 2026-10-08
-Owner:     Codex root; upstream feedstock maintainers for remaining prerequisite publication
+Owner:     Workstation session 2 — scope reconciliation and closure; future current-release updates remain normal release maintenance
 Related:   N59 established feedstock; N43 required GitHub tests
+
+CURRENT MAINTAINER SCOPE — 2026-10-23
+Only the latest released spaCR version is required on conda-forge. The maintainer
+explicitly cancels publishing older missing versions: they are neither wanted
+nor needed. The 2026-10-16 historical expansion and later historical dependency
+blockers below are retained as superseded history, not active work or release
+requirements. Preserve already published packages; no deletion or upstream PR
+closure is authorized by this scope correction. Latest released 1.5.1.5 was
+published and clean-environment validated on 2026-10-21 as recorded below.
 
 WHAT THE STATE IS
 
@@ -171,3 +180,5 @@ Build a concrete supported publication path for released versions, including cur
 2026-10-21 — Latest1.5.1.5 PyPI source SHA2564b3ec55b0140df6f34256e20927228b9deab4da0a17ea7e1abafcab36143e323 is published on ordinary conda-forge via PR12/a354702c; a fresh Python3.11 CPU solve/install passes version, spaCR/Measure/Qt imports, all17 console executables, tensor operation and spacr-run --list. This is Linux CPU acceptance, not native GUI/all-platform certification.
 2026-10-21 — Published/channel-readback now15/35: existing modern PR4/5/6 were repaired without relaxing released constraints, tested locally and hosted, then merged to maintenance branches;1.5.0.9 publication39541346735 and1.5.1.0 publication39542446694 succeeded.1.5.1.2/1.5.1.1/1.5.1.3/1.5.1.4/1.5.0.5 also published; latest main is not downgraded.
 2026-10-21 — BLOCKED ON MAINTAINER/upstream for older versions: merge/publish green btrack-feedstock#18 and staged-recipes#35223; resolve staged-recipes#35225 Bioconda coordination; create dgl-feedstock v0.9.x at24334a4ad3db0938b68d22d6c0c2f58bda913da6 for the already-tested/fork-published0.9.1 candidate. Account has no upstream btrack/DGL write access; pyfixest is now published and is no longer a blocker. Prepared historical recipes and strict acceptance checks remain reusable.
+
+2026-10-23 — Maintainer cancels all historical conda-forge backfills and accepts latest-release-only scope. Latest1.5.1.5 publication and retained clean Python3.11 installation/import/17-entrypoint checks satisfy the item; missing older versions and their upstream prerequisites no longer block it. Already published artifacts and external PRs are preserved; future newly released versions use normal release maintenance.
