@@ -3023,13 +3023,15 @@ class _FieldOverview(QWidget):
         self._axes_layout = axes
         column.addLayout(axes)
         annotations = QHBoxLayout()
-        self.annotation_scope = QComboBox()
+        from .setup_dialog import _SetupComboBox
+
+        self.annotation_scope = _SetupComboBox()
         for text, value in ((tr("Plate"), "plate"), (tr("Row"), "row"),
                             (tr("Column"), "column"), (tr("Selected wells"), "wells")):
             self.annotation_scope.addItem(text, value)
         self.annotation_scope.setToolTip(tr(
             "Apply metadata in this scope; an empty value removes the selected metadata item."))
-        self.annotation_key = QComboBox()
+        self.annotation_key = _SetupComboBox()
         self.annotation_key.setEditable(True)
         for label, key in ((tr("Condition"), "condition"), (tr("Cell type"), "cell_type"),
                            (tr("Pathogen"), "pathogen"), (tr("Genotype"), "genotype"), (tr("Drug"), "drug")):
@@ -3060,7 +3062,7 @@ class _FieldOverview(QWidget):
             self.export_scope.addItem(text, value)
         self.export_scope.setToolTip(tr(
             "Whole plate and well exports use the selected Z and time; explicit selections keep their own acquisition identities."))
-        self.pdf_quality, self.pdf_dpi = QComboBox(), QComboBox()
+        self.pdf_quality, self.pdf_dpi = _SetupComboBox(), _SetupComboBox()
         for text, value in ((tr("PDF: full source resolution"), None),
                             (tr("PDF: 1600-pixel field"), 1600), (tr("PDF: 3200-pixel field"), 3200)):
             self.pdf_quality.addItem(text, value)
@@ -3075,7 +3077,7 @@ class _FieldOverview(QWidget):
         previous, following = QPushButton(tr("Previous fields")), QPushButton(tr("Next fields"))
         previous.clicked.connect(lambda: self._turn(-1))
         following.clicked.connect(lambda: self._turn(1))
-        self.grouping = QComboBox()
+        self.grouping = _SetupComboBox()
         for text, key in ((tr("Plate"), "plate"), (tr("Row"), "row"),
                           (tr("Column"), "column"), (tr("Well"), "well")):
             self.grouping.addItem(text, key)
@@ -3217,11 +3219,12 @@ class _FieldOverview(QWidget):
     def _build_advanced_controls(self, column):
         """Keep independent channel editing distinct from the existing reference modes."""
         from PySide6.QtWidgets import QSpinBox, QDoubleSpinBox, QGridLayout
+        from .setup_dialog import _SetupComboBox
         widget = QWidget(self)
         layout = QVBoxLayout(widget)
         self.advanced = QCheckBox(tr("Advanced channel normalization"))
         layout.addWidget(self.advanced)
-        self.normalization_method, self.normalization_scope = QComboBox(), QComboBox()
+        self.normalization_method, self.normalization_scope = _SetupComboBox(), _SetupComboBox()
         for text, key in ((tr("Percentiles"), "percentile"), (tr("Minimum / maximum"), "minmax"),
             (tr("Fixed intensity bounds"), "manual"), (tr("Mean ± 3 standard deviations"), "zscore"),
             (tr("Log intensity"), "log"), (tr("Inverse hyperbolic sine"), "asinh"),
@@ -3264,7 +3267,6 @@ class _FieldOverview(QWidget):
             caption.setWordWrap(True)
             pair_layout.addWidget(caption)
             pair_layout.addWidget(control)
-            pair.setMaximumWidth(240)
             grid.addWidget(pair)
         layout.addWidget(host)
         self.norm_channel = QComboBox()
