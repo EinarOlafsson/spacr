@@ -8360,30 +8360,9 @@ def _install_crash_dump():
 
     :returns: the path being written to, or ``""``.
     """
-    import faulthandler
+    from ..crashreport import _install_native_error_capture
+    return _install_native_error_capture()
 
-    try:
-        from ..logging_util import log_dir
-    except Exception:                                    # noqa: BLE001
-        log_dir = None
-    try:
-        folder = log_dir() if callable(log_dir) else None
-    except Exception:                                    # noqa: BLE001
-        folder = None
-    if not folder:
-        folder = os.path.join(str(_spacr_home()), "logs")
-    try:
-        os.makedirs(folder, exist_ok=True)
-        path = os.path.join(folder, CRASH_DUMP_NAME)
-        handle = open(path, "a", buffering=1, encoding="utf-8")
-        handle.write(f"\n=== spaCR started (pid {os.getpid()}) ===\n")
-        faulthandler.enable(file=handle, all_threads=True)
-        globals()["_CRASH_DUMP_FILE"] = handle
-        LOG.info("fatal-signal stacks will be written to %s", path)
-        return path
-    except Exception:                                    # noqa: BLE001
-        LOG.debug("could not install the crash dump", exc_info=True)
-        return ""
 
 #: The application-wide event filters that exist for DIALOGS, and nothing
 #: else -- the card and the rim, the detach-from-the-main-window, and the

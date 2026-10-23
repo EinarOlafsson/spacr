@@ -2193,6 +2193,7 @@ class AppScreen(QWidget):
         self._backdrops_ready = False
         self._dna_rain = None
         self._last_error_text: str = ""
+        self._last_error_occurrence = ""
         self._hint_map: dict = _CaptionsBuiltWhenTheyAreAskedFor(
             self._caption_every_waiting_row)
         self._html_tip_map: dict = {}
@@ -9356,10 +9357,10 @@ class AppScreen(QWidget):
         self._watch_for_refusals()
         self._thread, worker = make_thread(entry, settings)
         self._worker = worker
-        worker.line_ready.connect(self._console.append_stdout)
+        worker.line_ready.connect(self._console._display_stdout)
         worker.line_ready.connect(self._show_mask_gpu_progress)
         worker.line_ready.connect(self._show_watch_progress)
-        worker.error.connect(self._on_pipeline_error)
+        getattr(worker, "_error_detail", worker.error).connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
         worker.result_ready.connect(self._on_pipeline_result)
         self._results_loaded_in_memory = False
@@ -9742,7 +9743,7 @@ class AppScreen(QWidget):
             return
         self.remote_submit_requested.emit(self.app_key, settings)
 
-    def _on_pipeline_error(self, tb: str):
+    def _on_pipeline_error(self, tb: str, event_id: str = ""):
         """Capture the traceback and either show it raw or route it through AI.
 
         With the report action switched on, "File as issue" is revealed and
@@ -9757,20 +9758,16 @@ class AppScreen(QWidget):
         self._failure_kind = self._kind_of_failure(tb)
         self._anonymous_report_due = True
 
-        routed = False
         try:
-            from ..ai import settings as _ai_settings
-            if (self._console._ai_active
-                    and not self._the_failure_is_explained_after_the_run()
-                    and self._console._current_provider() is not None
-                    and _ai_settings.get_route_errors_through_ai()):
-                self._console.open_error_flow(
-                    tb, active_app=self.app_key, show_raw=False)
-                routed = True
+            from ...crashreport import _dispatch_error, _new_error_occurrence
+            self._last_error_occurrence = (
+                event_id or getattr(self.sender(), "_spacr_error_occurrence", "")
+                or _new_error_occurrence())
+            _dispatch_error(tb, traceback_text=tb, module=str(self.app_key or ""),
+                            event_id=self._last_error_occurrence)
         except Exception:
-            routed = False
-        if not routed:
-            self._console.append_error(tb)
+            self._last_error_occurrence = ""
+        self._console._display_error(tb)
         try:
             from ..ai import settings as _ai_settings
             enabled = _ai_settings.get_auto_file_issues()
@@ -9923,7 +9920,7 @@ class AppScreen(QWidget):
         if failed and anonymous_due:
             relay_files = self._send_the_anonymous_report(
                 getattr(self, "_failure_kind", ""))
-        if relay_files:
+        if failed and anonymous_due:
             self._report_files_itself = False
         files_itself = getattr(self, "_report_files_itself", False)
         awaits_the_terms = getattr(self, "_report_awaits_the_terms", False)
@@ -10009,104 +10006,17 @@ class AppScreen(QWidget):
             case the GitHub sign-in path does not file it a second time.
         """
         from ... import crashreport
+        from ..ai.issue_report import _automatic_failure_policy
 
         tb = getattr(self, "_last_error_text", "") or ""
         if not tb:
             return False
-        try:
-            kind = kind or self._kind_of_failure(tb)
-            mode = crashreport.error_report_mode()
-            online = crashreport.network_allowed()
-            explain = bool(crashreport.mode_explains(mode) and online)
-            send = bool(crashreport.mode_sends(kind, mode)
-                        and crashreport.anonymous_reports_enabled() and online)
-        except Exception:                                    # noqa: BLE001
-            return False
-        provider = self._report_summary_provider() if explain else None
-        explain = explain and provider is not None
-        if not (explain or send):
-            return False
-        app_key = str(self.app_key or "")
-        code_context = crashreport.mode_code_context(mode)
-        screen = self._screen_name()
-        error_text = str(getattr(self, "_last_error_console_text", "") or tb)
-        problems = list(getattr(self, "_last_error_problems", None) or [])
-        message = ""
-        if problems:
-            lines = crashreport.public_problem_lines(problems)
-            message = "\n".join(
-                [f"The run did not start: {len(lines)} settings problem"
-                 f"{'' if len(lines) == 1 else 's'}."]
-                + [f"- {line}" for line in lines])
-        import time as _clock
-
-        run_settings = dict(getattr(self, "_run_settings", None) or {})
-        run = {"stage": str(getattr(self._console, "_run_function", "")
-                            or ""),
-               "dry_run": bool(run_settings.get("dry_run", False))}
-        started = getattr(self, "_run_started_at", None)
-        if started:
-            run["elapsed_s"] = max(0.0, _clock.time() - started)
-        try:
-            log_text = self._console.as_text()
-        except Exception:                                    # noqa: BLE001
-            log_text = ""
-        saved = None
-        if explain:
-            try:
-                saved = crashreport.saved_explanation(
-                    crashreport.explanation_key(tb, app_key, kind, message))
-            except Exception:                                # noqa: BLE001
-                saved = None
-        if saved:
-            self._ai_report_entry = None
-            self._console.fill_ai_entry(
-                self._console.begin_ai_entry(thinking=False),
-                saved["text"])
-        elif explain:
-            self._ai_report_entry = self._console.begin_ai_entry()
-
-        def _send() -> dict:
-            """Explain, summarise and post the failure. Off the GUI thread."""
-            from ..ai.providers import explain_failure
-
-            explanation: dict = {}
-            outcome: dict = {"status": "not_sent"}
-            try:
-                summary = crashreport.public_summary(
-                    traceback_text=tb, module=app_key, kind=kind,
-                    code_context=code_context, screen=screen,
-                    error_text=error_text, message=message,
-                    settings=run_settings, log_text=log_text, run=run,
-                    diagnostics=True)
-                if saved:
-                    explanation = {"text": saved["text"],
-                                   "tier": saved["tier"], "refused": "",
-                                   "saved": "local",
-                                   "cause": saved.get("cause", "")}
-                elif explain:
-                    try:
-                        explanation = explain_failure(summary, provider)
-                    except Exception as exc:  # noqa: BLE001 - report anyway
-                        explanation = {"text": "", "refused": "error",
-                                       "detail": str(exc)}
-                if send:
-                    if explanation.get("text"):
-                        summary["ai_summary"] = explanation["text"]
-                    if explanation.get("cause"):
-                        summary["cause"] = explanation["cause"]
-                    outcome = crashreport.submit_public_summary(summary)
-                    outcome["ai_summary_attached"] = bool(
-                        explanation.get("text"))
-            except Exception as exc:      # noqa: BLE001 - reported, not hidden
-                outcome = {"status": crashreport.REPORT_QUEUED,
-                           "detail": f"{type(exc).__name__}: {exc}"}
-            outcome["explained"] = explain
-            outcome["explanation"] = explanation
-            outcome["kind"] = kind
-            return outcome
-
-        self._jobs.submit(_send, self._on_anonymous_report_sent)
+        kind = kind or self._kind_of_failure(tb)
+        mode, explain, send = _automatic_failure_policy(kind)
+        event_id = self._last_error_occurrence or crashreport._new_error_occurrence()
+        self._last_error_occurrence = ""
+        crashreport._dispatch_error(tb, traceback_text=tb, module=str(self.app_key or ""),
+                                    event_id=event_id)
         return send
 
     def _watch_for_refusals(self) -> None:
@@ -10237,78 +10147,12 @@ class AppScreen(QWidget):
         :param outcome: what :func:`spacr.crashreport.submit_public_summary`
             returned.
         """
-        from ... import crashreport
-
-        outcome = dict(outcome or {})
-        status = outcome.get("status")
-        explanation = dict(outcome.get("explanation") or {})
-        refused = str(explanation.get("refused", "") or "")
-        relay_text = str(outcome.get("ai_summary", "") or "")
         entry = getattr(self, "_ai_report_entry", None)
         self._ai_report_entry = None
-        try:
-            if explanation.get("saved") == "local" and entry is None:
-                pass
-            elif relay_text and not explanation.get("text"):
-                self._console.fill_ai_entry(
-                    entry, relay_text + "\n\n[" + tr("lighter model") + "]")
-            elif outcome.get("explained"):
-                if explanation.get("text"):
-                    light = "\n\n[" + tr("lighter model") + "]" if explanation.get(
-                        "tier") == "light" else ""
-                    self._console.fill_ai_entry(
-                        entry, explanation["text"] + light)
-                elif refused == "quota":
-                    self._console.fill_ai_entry(entry, tr(
-                        "spaCR AI: today's free AI is used up, so this error is "
-                        "not explained. It is still handled as Preferences → AI "
-                        "→ AI Error report says."))
-                else:
-                    self._console.fill_ai_entry(entry, tr(
-                        "spaCR AI could not explain this error this time."))
-                try:
-                    self._console.refresh_ai_usage()
-                except Exception:                                # noqa: BLE001
-                    LOG.debug("could not refresh the AI usage", exc_info=True)
-        except Exception:                                    # noqa: BLE001
-            LOG.warning("could not show the AI answer", exc_info=True)
-        if status == crashreport.REPORT_SENT:
-            number = outcome.get("issue_number") or "?"
-            url = str(outcome.get("issue_url", "") or "")
-            if outcome.get("deduplicated"):
-                self._console.append_notice(
-                    "[report] Reported anonymously: this error already has "
-                    "issue #{number}, which now counts it again. {url}\n",
-                    number=number, url=url)
-            elif outcome.get("ai_summary_attached"):
-                self._console.append_notice(
-                    "[report] Reported as issue #{number} (with AI summary). "
-                    "{url}\n", number=number, url=url)
-            elif outcome.get("explained") and refused == "quota":
-                self._console.append_notice(
-                    "[report] Reported as issue #{number} (without AI "
-                    "summary: daily AI allowance used). {url}\n",
-                    number=number, url=url)
-            elif outcome.get("explained"):
-                self._console.append_notice(
-                    "[report] Reported as issue #{number} (without AI "
-                    "summary). {url}\n", number=number, url=url)
-            else:
-                self._console.append_notice(
-                    "[report] Reported anonymously as issue #{number}. "
-                    "{url}\n", number=number, url=url)
-        elif status == crashreport.REPORT_QUEUED and outcome.get("quota"):
-            self._console.append_notice(
-                "[report] Will report after the daily limit resets.\n")
-        elif status == crashreport.REPORT_QUEUED:
-            self._console.append_notice(
-                "[report] The anonymised report could not be sent now. "
-                "spaCR will retry later.\n")
-        elif status == crashreport.REPORT_DROPPED:
-            self._console.append_notice(
-                "[report] spaCR's relay did not accept the anonymised "
-                "report: {detail}\n",
-                detail=str(outcome.get("detail", "") or "unknown"))
+        saved = dict(outcome or {}).get("explanation") or {}
+        self._console._show_error_report_result(
+            outcome, entry, saved_already_shown=bool(
+                saved.get("saved") == "local" and entry is None))
 
     def _settings_snapshot(self) -> dict:
         """The settings form's current values, for a report.
@@ -10364,27 +10208,7 @@ class AppScreen(QWidget):
         Building and posting run on the background runner. Resolving the
         sign-in can run ``gh auth token``, and the log copy is file I/O.
         """
-        tb = getattr(self, "_last_error_text", "") or ""
-        if not tb:
-            return
-        from ..ai import issue_report
-        from ..ai import settings as _ai_settings
-
-        fingerprint = issue_report.fingerprint_of(tb)
-        known = _ai_settings.auto_filed_url(fingerprint)
-        if known:
-            self._console.append_notice(
-                "[issue] This error was reported from this computer before, "
-                "so it was not filed again: {url}\n", url=known)
-            return
-        if _a_report_is_in_flight(fingerprint):
-            self._console.append_notice(
-                "[issue] This error is being reported already.\n")
-            return
-        if self._the_ai_is_still_explaining(tb):
-            self._wait_for_the_ai_then_file(tb, fingerprint)
-            return
-        self._post_the_report(tb, fingerprint)
+        self._send_the_anonymous_report(getattr(self, "_failure_kind", ""))
 
     def _the_ai_is_still_explaining(self, tb: str) -> bool:
         """Whether spaCR AI is answering THIS error right now.
@@ -10753,6 +10577,13 @@ class AppScreen(QWidget):
         self._console.set_ai_active(on)
         if on:
             from .. import ai as ai_module
+            if self._wanted_provider() == "none":
+                self._console.set_ai_provider(None)
+                self._console.set_ai_active(False)
+                self._ai_switch.setChecked(False)
+                self._console.append_notice(
+                    "[AI] Enable AI in the actions row + pick a provider first.\n")
+                return
             if not self._console._current_provider_name:
                 configured = ai_module.configured_providers()
                 if configured:
@@ -10775,6 +10606,8 @@ class AppScreen(QWidget):
         from ..preferences import get_preferred_provider
 
         wanted = get_preferred_provider()
+        if wanted == "none":
+            return "none"
         if not wanted:
             return ""
         try:
@@ -11405,6 +11238,7 @@ class AppScreen(QWidget):
                 ("Traceback (most recent call last):\n" + site if site else "")
                 + "spacr.errors.ConfigurationError: " + refusals[-1])
             self._failure_kind = crashreport.KIND_USER_ERROR
+            self._last_error_occurrence = ""
             self._send_the_anonymous_report(crashreport.KIND_USER_ERROR)
         else:
             self._settle_the_report(failed=not ok and not cancelled)

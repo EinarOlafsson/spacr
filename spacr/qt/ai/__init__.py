@@ -22,7 +22,6 @@ Public entry points::
 """
 from __future__ import annotations
 
-from . import settings
 from .manuscript import Availability, ManuscriptDraft, availability, generate_sections
 from .providers import (
     ChatProvider,
@@ -45,3 +44,11 @@ __all__ = [
     "list_providers",
     "settings",
 ]
+
+
+def __getattr__(name):
+    """Keep Qt settings lazy so headless error diagnosis needs no Qt import."""
+    if name == "settings":
+        import importlib
+        return importlib.import_module(".settings", __name__)
+    raise AttributeError(name)

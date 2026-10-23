@@ -1722,6 +1722,8 @@ def setup_logging(verbose: bool = False) -> logging.Logger:
         fmt="%(asctime)s %(levelname)-7s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"))
     LOG.addHandler(handler)
+    from .logging_util import _install_error_dispatch
+    _install_error_dispatch(LOG)
     return LOG
 
 

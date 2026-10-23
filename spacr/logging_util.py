@@ -764,6 +764,86 @@ def log_path() -> Path:
 
 
 
+class _ErrorStream:
+    """Forward terminal writes intact and collect only explicitly tagged errors."""
+
+    def __init__(self, original):
+        """Keep the real stream and a bounded partial line per writing thread."""
+        self.original = original
+        self._buffers = threading.local()
+
+    def write(self, text):
+        """Preserve stream behavior; logging records have their own structured sink."""
+        result = self.original.write(text)
+        frame = sys._getframe(1)
+        while frame is not None:
+            if frame.f_globals.get("__name__") == "logging":
+                return result
+            frame = frame.f_back
+        value = getattr(self._buffers, "text", "") + str(text)
+        lines = value.splitlines(keepends=True)
+        self._buffers.text = ""
+        try:
+            from .crashreport import _capture_error_line
+        except Exception:
+            return result
+        for line in lines:
+            if line.endswith(("\n", "\r")):
+                try:
+                    _capture_error_line(line)
+                except Exception:
+                    pass
+            else:
+                self._buffers.text = line[-65536:]
+        return result
+
+    def flush(self):
+        """Flush an explicitly tagged partial error without delaying output."""
+        try:
+            from .crashreport import _capture_error_line
+        except Exception:
+            return self.original.flush()
+        text = getattr(self._buffers, "text", "")
+        self._buffers.text = ""
+        if text:
+            try:
+                _capture_error_line(text)
+            except Exception:
+                pass
+        return self.original.flush()
+
+    def __getattr__(self, name):
+        """Retain the wrapped stream's normal file and encoding interfaces."""
+        return getattr(self.original, name)
+
+
+class _AutomaticErrorHandler(logging.Handler):
+    """Pass structured ERROR records to the consented shared dispatcher."""
+
+    def emit(self, record):
+        """Never let reporting interfere with the original logged error."""
+        try:
+            from .crashreport import _capture_error_record
+            _capture_error_record(record)
+        except Exception:
+            pass
+
+
+def _install_error_dispatch(logger=None):
+    """Install exactly one severity-aware error sink on this logging root."""
+    logger = logging.getLogger() if logger is None else logger
+    for name in ("stdout", "stderr"):
+        stream = getattr(sys, name)
+        if stream is not None and not isinstance(stream, _ErrorStream):
+            setattr(sys, name, _ErrorStream(stream))
+    if not any(isinstance(h, _AutomaticErrorHandler) for h in logger.handlers):
+        from . import crashreport
+        crashreport._ERROR_POLICY_CACHE = crashreport._read_state()
+        logger.addHandler(_AutomaticErrorHandler(logging.ERROR))
+        from .crashreport import _install_native_error_capture
+        _install_native_error_capture()
+
+
 def setup_logging(level: Optional[int] = None,
                     log_file: Optional[Path] = None,
                     stream: bool = False,
@@ -786,6 +866,8 @@ def setup_logging(level: Optional[int] = None,
     :returns: the resolved log-file path.
     """
     global _INITIALISED, _SESSION_LEVEL, _LOG_PATH
+
+    _install_error_dispatch()
 
     if level is None:
         level = _env_level()
