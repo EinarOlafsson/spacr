@@ -18,12 +18,12 @@ def call(visual,audio,index=0):
     js='function nativeIdleTailCut('+helper+'\nconsole.log(JSON.stringify(nativeIdleTailCut('+json.dumps(visual)+','+json.dumps(audio)+','+str(index)+')));'
     return json.loads(subprocess.check_output([node,'-e',js],text=True))
 
-def fixture(last=26.95,idle=27):
+def fixture(last=26.95,idle=27,gap=1.3):
     v={'scenes':[{'speech_start':120.83333333333334,'scene_end':163.13333333333333,'idle_tail_start':idle},{'speech_start':163.13333333333333,'scene_end':180}]}
-    a={'scenes':[{'speech_start':70.895,'speech_end':70.895+last+.18,'sentences':[{'audible_end':70.895+last}]},{'speech_start':70.895+last+.7,'sentences':[{'audible_start':70.895+last+.8}]}]}
+    a={'scenes':[{'speech_start':70.895,'speech_end':70.895+last+.18,'sentences':[{'audible_end':70.895+last}]},{'speech_start':70.895+last+gap-.1,'sentences':[{'audible_start':70.895+last+gap}]}]}
     return v,a
 
-def test_real_mask_heart_boundary_is_exactly_one_second():
+def test_long_source_gap_is_capped_at_exactly_one_second():
     v,a=fixture();r=call(v,a)
     last_video=v['scenes'][0]['speech_start']+26.95
     next_lead=.1
@@ -85,7 +85,7 @@ def wait_clock(previous=None,now=1000,**overrides):
     state=dict(key='07/en/heart/5',sameTrack=True,sameScene=True,loadPending=False,
       audioSeeking=False,videoSeeking=False,videoPaused=False,pictureLoading=False,
       explicitSeek=False,readyState=4,bufferedSpeechEnd=True,audioTime=98.03,
-      speechEnd=98.025,lastSound=97.845,nextLead=.1)
+      speechEnd=98.025,lastSound=97.845,nextLead=.1,nextSound=99.145,final=False)
     state.update(overrides)
     node=NODE
     script=PLAYER.read_text().split('function nativeIdleTailReady(',1)[1].split('function currentNativeIdleTailState(',1)[0]
@@ -145,6 +145,7 @@ def test_actual_player_blob_identity_accepts_current_fetch_and_rejects_stale_blo
 
 def test_decoded_fractional_boundary_stays_in_next_scene_first_frame():
     source=PLAYER.read_text()
+    budget='function nativeIdleGapBudget('+source.split('function nativeIdleGapBudget(',1)[1].split('let nativeIdlePauseClock',1)[0]
     begin='function beginNativeIdleTransition('+source.split('function beginNativeIdleTransition(',1)[1].split('function syncCompleteNativeNarration(',1)[0]
     scene='function timingDuration('+source.split('function timingDuration(',1)[1].split('function mapTiming(',1)[0]
     js="""
@@ -171,8 +172,8 @@ def test_decoded_fractional_boundary_stays_in_next_scene_first_frame():
 
 
       function setVideoTimeWithoutNarrationSeek(value){destination=Number(value.toFixed(6));}
-    """+scene+begin+"""
-      beginNativeIdleTransition({final:false,next:163.13333333333333},{speechEnd:98.025,lastSound:97.845,nextLead:.1},{completedAt:1000},0);
+    """+scene+budget+begin+"""
+      beginNativeIdleTransition({final:false,next:163.13333333333333},{speechEnd:98.025,lastSound:97.845,nextLead:.1,nextSound:99.145,final:false},{completedAt:1000},0);
       console.log(JSON.stringify({index:timingScene(visualTimings,destination).index,offset:destination-163.13333333333333,audio:elements.audio.currentTime}));
     """
     result=json.loads(subprocess.check_output([NODE,'-e',js],text=True))
@@ -201,6 +202,7 @@ def test_cancelling_transition_immediately_restores_natural_audio_rate():
 def test_hybrid_card_and_native_user_seeks_invert_picture_mapping(video_time,expected_audio):
     source=PLAYER.read_text()
     mapping='function timingDuration('+source.split('function timingDuration(',1)[1].split('function updateSceneSyncRate(',1)[0]
+    late='function nativeLateIdleTailCut('+source.split('function nativeLateIdleTailCut(',1)[1].split('function beginNativeLateIdleTransition(',1)[0]
     sync='function syncCompleteNativeNarration('+source.split('function syncCompleteNativeNarration(',1)[1].split('function holdVideoForAudio(',1)[0]
     js="""
       let nativeIdleTransition=null,narrationLoadPending=false,narrationAudioAvailable=true,videoClockCorrectionPending=false;
@@ -216,7 +218,7 @@ def test_hybrid_card_and_native_user_seeks_invert_picture_mapping(video_time,exp
       function updateSceneSyncRate(){}
       function audioNeedsData(){return false;}
       function releaseVideoForAudio(){}
-    """.replace('VIDEO_TIME',str(video_time))+mapping+sync+"syncCompleteNativeNarration(true);console.log(elements.audio.currentTime);"
+    """.replace('VIDEO_TIME',str(video_time))+mapping+late+sync+"syncCompleteNativeNarration(true);console.log(elements.audio.currentTime);"
     actual=float(subprocess.check_output([NODE,'-e',js],text=True))
     assert actual==pytest.approx(expected_audio)
 
@@ -250,3 +252,11 @@ def test_paused_narration_cannot_enter_continuous_idle_transition():
     helper='function beginNativeIdleTransition('+source.split('function beginNativeIdleTransition(',1)[1].split('function syncCompleteNativeNarration(',1)[0]
     js="let nativeIdleTransition=null;const elements={audio:{paused:true,playbackRate:1}};function nativeIdleTailReady(){return true;}"+helper+"beginNativeIdleTransition({final:false},{},{},0);console.log(JSON.stringify([nativeIdleTransition,elements.audio.playbackRate]));"
     assert json.loads(subprocess.check_output([NODE,'-e',js],text=True))==[None,1]
+
+
+def test_short_source_gap_is_not_padded_by_picture_cut_or_observed_wait():
+    v,a=fixture(gap=.8);r=call(v,a)
+    assert r['at']-(v['scenes'][0]['speech_start']+26.95)+.1==pytest.approx(.8)
+    first=wait_clock(now=1000,nextSound=98.645)
+    assert wait_clock(first['clock'],now=1519,nextSound=98.645)['ready'] is False
+    assert wait_clock(first['clock'],now=1521,nextSound=98.645)['ready'] is True

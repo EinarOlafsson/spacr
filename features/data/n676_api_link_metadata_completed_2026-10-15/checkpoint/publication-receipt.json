@@ -5,7 +5,7 @@
   "commit": "069d3ff84b245e32d989a64252008350c60566cd",
   "tag": "n676-ws-54-62-67-82-20261023-idle-edits1-verified",
   "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/069d3ff84b245e32d989a64252008350c60566cd",
-  "manifest_sha256": "fa31bdef4d72c372d7201e4ca94c7e4f1c914944b98ed544c8f6c78276c324b3",
+  "manifest_sha256": "77c9db3d815522eb65751dc6fbaff09d8e1edabc4f60e65077d0675d8070d3a8",
   "media_files": 6448,
   "media_bytes": 12598476510,
   "readback": {
@@ -1985,29 +1985,34 @@
     "seconds": 545.6,
     "passed": true
   },
+  "readback_source": "unchanged media reused from verified publication",
+  "media_reuse": {
+    "baseline_manifest_sha256": "fa31bdef4d72c372d7201e4ca94c7e4f1c914944b98ed544c8f6c78276c324b3",
+    "baseline_receipt_sha256": "429173bd76b8a60943fd927151936fe70a6b2402f63bec54840cc44ec660efe0"
+  },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "620a6d1ff5c8274433bcaf9707a0cfee8e9f49bf0cb431f39302b641fbcb55ba",
-    "candidate_index_sha256": "f3214d3da4a40a42fd6db411d4ceb714b9aacfaeb449f650d35d2df143e057dc",
-    "cache_key": "n676-ws-54-62-67-82-20261023-idle-edits1-verified",
+    "index_sha256": "9f22c555d74b3130cec0bb6457129cd6a019119d65d406c2e917e06ac26af94f",
+    "candidate_index_sha256": "c50fcfbb934af9a830bb49df0cec9bd13ea86c77722a8a3041461c77c2a10cfb",
+    "cache_key": "n676-player-short-gap-20261023",
     "unchanged_versioned_assets": [
-      "app_v2.js",
+      "lesson_catalog.js",
       "styles.css",
       "voice_catalog.js"
     ],
     "versioned_assets": {
-      "app_v2.js": "n676-ws-14-make-masks-20261021pronunciation1-verified",
+      "app_v2.js": "n676-player-short-gap-20261023",
       "styles.css": "20261002-home-landscape",
       "lesson_catalog.js": "n676-ws-54-62-67-82-20261023-idle-edits1-verified",
-      "module_navigation.js": "n676-ws-54-62-67-82-20261023-idle-edits1-verified",
+      "module_navigation.js": "n676-player-short-gap-20261023",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-ne71xm2y/retired-pages",
+      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-0to8p_k8/retired-pages",
       "files": []
     },
     "ready": 84,
