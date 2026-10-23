@@ -4054,7 +4054,9 @@ class _OverviewMetadataWizard(QDialog):
             self.geometry.addItem(tr("{count}-well plate", count=count), dimensions)
         self._geometry_explicit = self._settings.get("geometry") is not None
         selected_geometry = self._settings.get("geometry")
-        selected_index = self.geometry.findData(tuple(selected_geometry)) if selected_geometry else -1
+        selected_index = next((index for index in range(self.geometry.count())
+                               if selected_geometry and
+                               self.geometry.itemData(index) == tuple(selected_geometry)), -1)
         self.geometry.setCurrentIndex(selected_index if selected_index >= 0 else 5)
         self.geometry.activated.connect(self._choose_geometry)
         layout.addRow(tr("Plate geometry"), self.geometry)
@@ -4293,7 +4295,8 @@ class _OverviewMetadataWizard(QDialog):
         self.reference.clear()
         for value in sorted(values, key=str):
             self.reference.addItem(str(value), value)
-        index = self.reference.findData(previous)
+        index = next((index for index in range(self.reference.count())
+                      if self.reference.itemData(index) == previous), -1)
         if index >= 0:
             self.reference.setCurrentIndex(index)
         self.reference.setEnabled(mode.startswith("reference_"))

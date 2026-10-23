@@ -503,3 +503,26 @@ def test_well_mean_wizard_transports_plate_qualified_condition_and_refuses_chann
     with pytest.raises(ValueError, match="cannot be combined"):
         wizard.configuration()
     wizard.reject()
+
+
+def test_metadata_wizard_restores_explicit_geometry_and_reference_tuple(qtbot, tmp_path):
+    import tifffile
+
+    for plate in ("p", "other"):
+        tifffile.imwrite(tmp_path / f"{plate}_A01_F1_C0.tif", np.array([[1, 2]], dtype=np.uint16))
+    wizard = browser._OverviewMetadataWizard(str(tmp_path), {"channels": [0], "geometry": (16, 24)})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    assert wizard.geometry.currentData() == (16, 24)
+    wizard.mode.setCurrentIndex(wizard.mode.findData("reference_well"))
+    assert wizard.reference.count() == 2
+    wizard.reference.setCurrentIndex(1)
+    selected = wizard.reference.currentData()
+    wizard._reference_choices()
+    assert wizard.reference.currentIndex() == 1
+    assert wizard.reference.currentData() == selected
+    config = wizard.configuration()
+    assert config["geometry"] == (16, 24)
+    assert config["normalization"]["reference"] == selected
+    wizard.reject()
