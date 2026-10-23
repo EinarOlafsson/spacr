@@ -4648,7 +4648,7 @@ class _FieldOverview(QWidget):
                 self.preview_resolution.currentData())
 
     def _update_visuals(self):
-        """Load one visible representative or one bounded well montage at a time."""
+        """Load up to eight visible representatives or one bounded well montage."""
         if (not self.isVisible() or self._cancelled.is_set()
                 or not self._normalization_ready or not self._geometry_valid):
             return
@@ -4708,6 +4708,7 @@ class _FieldOverview(QWidget):
         last_column = self.wells.columnAt(viewport.width() - 1)
         if last_column < 0:
             last_column = self.wells.columnCount() - 1
+        requests = []
         for row in range(first_row, last_row + 1):
             for column in range(first_column, last_column + 1):
                 item = self.wells.item(row, column)
@@ -4725,39 +4726,46 @@ class _FieldOverview(QWidget):
                 if key in self._thumbnail_cache:
                     self._set_thumbnail(well, key, self._thumbnail_cache[key])
                     continue
-                def read_thumbnail():
-                    """Read bounded thumbnail pixels and capture any read error.
-
-                    :returns: pixels and an empty error, or None and the error.
-                    """
-                    try:
-                        if len(representatives) > 1:
-                            pixels, errors = _overview_montage(representatives, channels, limits,
-                                                              cancelled, preview_edge=min(240, resolution), **options)
-                            return pixels, "; ".join(message for _, message in errors)
-                        return _overview_pixels(field, channels, limits,
-                                                edge=edge, **options), ""
-                    except Exception as exc:
-                        return None, str(exc)
-                def done(result):
-                    """Cache a thumbnail and update its matching current well.
-
-                    :param result: thumbnail pixels and an optional read error.
-                    """
-                    if cancelled.is_set():
-                        return
-                    pixels, error = result
-                    self._thumbnail_cache[key] = pixels
-                    while len(self._thumbnail_cache) > 64:
-                        self._thumbnail_cache.popitem(last=False)
-                    if (self._visual_context() == signature
-                            and device_ratio(self.wells.viewport()) == ratio):
-                        self._set_thumbnail(well, key, pixels)
-                        if error:
-                            self.status.setText(tr("Could not read {field}: {error}",
-                                                   field=field.caption, error=error))
-                self._thumbnail_jobs.submit(read_thumbnail, done)
+                requests.append((well, key, field, representatives, edge))
+                if len(requests) == 8:
+                    break
+            if len(requests) == 8:
+                break
+        if not requests:
+            return
+        def read_thumbnails():
+            """Read at most eight detached previews per worker lifecycle."""
+            results = []
+            for well, key, field, representatives, edge in requests:
+                if cancelled.is_set():
+                    break
+                try:
+                    if len(representatives) > 1:
+                        pixels, errors = _overview_montage(representatives, channels, limits,
+                            cancelled, preview_edge=min(240, resolution), **options)
+                        error = "; ".join(message for _, message in errors)
+                    else:
+                        pixels = _overview_pixels(field, channels, limits, edge=edge, **options)
+                        error = ""
+                except Exception as exc:
+                    pixels, error = None, str(exc)
+                results.append((well, key, field, pixels, error))
+            return results
+        def done(results):
+            """Install each current thumbnail and preserve individual read failures."""
+            if cancelled.is_set():
                 return
+            for well, key, field, pixels, error in results:
+                self._thumbnail_cache[key] = pixels
+                while len(self._thumbnail_cache) > 64:
+                    self._thumbnail_cache.popitem(last=False)
+                if (self._visual_context() == signature
+                        and device_ratio(self.wells.viewport()) == ratio):
+                    self._set_thumbnail(well, key, pixels)
+                    if error:
+                        self.status.setText(tr("Could not read {field}: {error}",
+                                               field=field.caption, error=error))
+        self._thumbnail_jobs.submit(read_thumbnails, done)
 
     def _set_thumbnail(self, well, key, pixels):
         """Attach an image to the current well cell only on the GUI thread."""
@@ -5450,7 +5458,8 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
         from ..regex_detect import auto_detect_regex
         names = tuple(Path(path).name for field in fields for _, path in field.files)[:20]
         detected_pattern, detected_label, hits = auto_detect_regex(names)
-        if detected_pattern and "wellID" not in re.compile(detected_pattern).groupindex:
+        if detected_pattern and ("wellID" not in re.compile(detected_pattern).groupindex
+                or not any(re.match(detected_pattern, name, re.I) for name in names)):
             detected_pattern, detected_label = pattern, convention
         if detected_pattern and hits:
             inferred = _overview_index(source, detected_pattern, "auto", cancelled,
@@ -5509,6 +5518,9 @@ class _OverviewMetadataWizard(QWidget):
         self._result = QDialog.Rejected
         self._runner = JobRunner(self, threaded=True, app_key="overview metadata", user_visible=False)
         self._runner.job_failed.connect(self._failed)
+        self._readout_timer = QTimer(self)
+        self._readout_timer.setSingleShot(True)
+        self._readout_timer.timeout.connect(self._fit_readouts)
         shell = QVBoxLayout(self)
         body = QWidget()
         self._settings_content = body
@@ -5770,7 +5782,8 @@ class _OverviewMetadataWizard(QWidget):
     def _scanned(self, payload):
         """Expose actual parsed identities, available channels and embedded axes."""
         from .sortable_table import table_item
-        from PySide6.QtGui import QPalette
+        from PySide6.QtGui import QColor
+        from ..theme import active_palette
         generation, (fields, info) = payload
         if generation != self._generation or self._cancelled.is_set():
             return
@@ -5811,7 +5824,7 @@ class _OverviewMetadataWizard(QWidget):
                 item = table_item(str(value))
                 item.setToolTip(str(value))
                 if name in missed:
-                    item.setForeground(self.palette().brush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text))
+                    item.setForeground(QColor(active_palette()["fg_dim"]))
                 self.preview.setItem(row, column, item)
         self.preview.setSortingEnabled(True)
         available = tuple(info["channels"])
@@ -5827,7 +5840,7 @@ class _OverviewMetadataWizard(QWidget):
             descriptions.append(tr("Axes: {axes}; shape: {shape}; type: {dtype}", axes=entry["axes"],
                                    shape=str(entry["shape"]), dtype=entry["dtype"]))
         self.axes.setText(tr("First field: {details}. Available channel IDs: {channels}",
-                             details="; ".join(descriptions), channels=str(available)))
+                             details="; ".join(dict.fromkeys(descriptions)), channels=str(available)))
         self.time.setRange(0, max(entry.get("time_count", 1) for entry in info["files"]) - 1)
         self.z.setRange(0, max(entry.get("z_count", 1) for entry in info["files"]) - 1)
         if not self._geometry_explicit:
@@ -5861,6 +5874,19 @@ class _OverviewMetadataWizard(QWidget):
         self.next.setEnabled(valid)
         if not valid:
             self.status.setText(tr("The filename regex must include a valid wellID for every image."))
+        self._readout_timer.start(0)
+
+    def _fit_readouts(self):
+        """Reserve wrapped metadata/status heights instead of clipping their text."""
+        from ..gui_scale import _set_actual_dim
+        width = max(200, self.preview.viewport().width())
+        for label in (self.axes, self.status):
+            _set_actual_dim(label, "minh", max(label.fontMetrics().height(), label.heightForWidth(width)))
+
+    def resizeEvent(self, event):
+        """Reflow metadata messages when the normal module pane changes width."""
+        super().resizeEvent(event)
+        self._readout_timer.start(0)
 
     def _choose_geometry(self):
         """Keep an explicit user geometry across subsequent metadata previews."""
@@ -5976,6 +6002,7 @@ class _OverviewMetadataWizard(QWidget):
         self._result = result
         self._startup_timer.stop()
         self._rescan_timer.stop()
+        self._readout_timer.stop()
         self._cancelled.set()
         self._runner.shutdown(timeout_ms=0)
         self.hide()

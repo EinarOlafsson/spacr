@@ -242,8 +242,9 @@ def test_metadata_wizard_custom_edit_invalidates_preview_until_rescanned(qtbot, 
     assert wizard.configuration()["channels"] == (9,)
     assert wizard.configuration()["custom_regex"] == pattern
     assert wizard.preview.item(0, 2).text() == "B03"
-    assert wizard.preview.item(0, 3).text() == "2"
-    assert wizard.preview.item(0, 6).text() == "9"
+    columns = {wizard.preview.horizontalHeaderItem(index).text(): index for index in range(wizard.preview.columnCount())}
+    for caption, value in (("Field", "2"), ("Row", "B"), ("Column", "3"), ("Channel", "9")):
+        assert wizard.preview.item(0, columns[browser.tr(caption)]).text() == value
     wizard.reject()
 
 

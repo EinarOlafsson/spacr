@@ -317,3 +317,16 @@ def test_real_async_quarantine_and_restore_preserve_masks_and_gui_delivery(qtbot
         release.set()
         qtbot.waitUntil(lambda: not dialog._move_jobs.is_busy())
         dialog.close()
+
+
+def test_empty_field_browser_has_no_file_state_or_triage_action(qtbot):
+    dialog = QCFieldBrowser([], threaded=False)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    assert dialog.current_target is None
+    assert dialog._field_paths() == ("", "")
+    assert dialog._file_state() == (False, False)
+    dialog._recheck_files()
+    assert not dialog._quarantine.isEnabled()
+    assert dialog._jobs.active_jobs() == 0
+    dialog.close()

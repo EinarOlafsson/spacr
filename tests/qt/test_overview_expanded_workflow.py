@@ -1203,18 +1203,23 @@ def test_actual_application_dialog_filters_keep_metadata_and_browser_in_their_ho
     import subprocess
     import sys
     tifffile.imwrite(tmp_path / "plate1_A01_F1.tif", np.arange(120, dtype=np.uint16).reshape(10, 12))
+    tifffile.imwrite(tmp_path / "OTF_DC_DCAM#1_CAM1.tif", np.zeros((4, 4), np.uint16))
     code = r'''
 import sys
-from PySide6.QtWidgets import QApplication, QDialog
+from PySide6.QtWidgets import QApplication, QDialog, QSpacerItem, QSizePolicy
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtTest import QTest
 from spacr.qt.app import MainWindow, install_the_dialog_filters
 from spacr.qt import preferences
 from spacr.qt.first_run import mark_tour_seen
+from spacr.qt.theme import active_palette
+from PySide6.QtGui import QColor, QPalette
 from spacr.qt.widgets.qc_field_browser import _open_field_overview
+from spacr.qt.screens.map_barcodes import host_pages
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 mark_tour_seen()
+preferences.set_theme('dark' if sys.argv[1] == 'mask' else 'light')
 preferences.apply_preferences_to_app(app)
 window = MainWindow()
 window.resize(1180, 820)
@@ -1229,10 +1234,17 @@ def open_empty():
  try:
   window.open_module(sys.argv[1])
   host = window._screens[sys.argv[1]]
+  assert host_pages(host).currentIndex() == 0
   original_settings = host._settings_scroll.widget()
+  if sys.argv[1] == 'mask':
+   state['figure_spacer'] = QSpacerItem(9, 13, QSizePolicy.Minimum, QSizePolicy.Fixed)
+   host._figures_card.body_layout.addItem(state['figure_spacer'])
   console = host._console if hasattr(host, '_console') else host._masks_console.console
-  wizard = _open_field_overview(host, {})
-  state.update(host=host, wizard=wizard, stage=0, original_settings=original_settings, console=console)
+  settings = {'custom_regex': r'(?P<plateID>plate\d+)_(?P<wellID>[A-Z]\d+)_F(?P<fieldID>\d+)\.tif$'}
+  if sys.argv[1] == 'mask':
+   settings['geometry'] = (16, 24)
+  wizard = _open_field_overview(host, settings)
+  state.update(host=host, wizard=wizard, stage=0, original_settings=original_settings, console=console, settings=settings)
  except Exception:
   fail()
 def tick():
@@ -1245,15 +1257,38 @@ def tick():
    assert not wizard.isWindow() and not isinstance(wizard, QDialog)
    assert not wizard.property('spacrGlassed') and wizard.window() is window
    assert wizard.preview.isVisible() and not host._field_overview_workspace.back_button.isVisible()
+   if sys.argv[1] == 'mask':
+    retained = host._overview_content_stack.widget(0).layout()
+    assert any(retained.itemAt(index) is state['figure_spacer'] for index in range(retained.count()))
    assert host._settings_scroll.widget() is wizard._settings_content
+   assert _open_field_overview(host, state['settings']) is wizard
    assert state['console'] is (host._console if hasattr(host, '_console') else host._masks_console.console)
    if hasattr(host, '_btn_run'):
     assert not host._btn_run.isVisible() and wizard.next.isVisible()
     assert not host._settings_search.isVisible()
+   if not state.get('cancelled_initial'):
+    wizard.reject()
+    wizard._runner.shutdown(timeout_ms=3000)
+    assert host._settings_scroll.widget() is state['original_settings']
+    state['wizard'] = _open_field_overview(host, state['settings'])
+    assert state['wizard'] is not wizard
+    state['cancelled_initial'] = True
+    return
    wizard.source.setText(sys.argv[2])
    wizard._scan()
    state['stage'] = 1
   elif state['stage'] == 1 and wizard.next.isEnabled():
+   if wizard._readout_timer.isActive():
+    return
+   assert wizard.axes.height() >= wizard.axes.heightForWidth(wizard.axes.width())
+   assert wizard.status.height() >= wizard.status.heightForWidth(wizard.status.width())
+   row = next(row for row in range(wizard.preview.rowCount()) if wizard.preview.item(row, 0).text().startswith('OTF_'))
+   gray = QColor(active_palette()['fg_dim'])
+   assert wizard.preview.item(row, 0).foreground().color() == gray
+   assert gray != wizard.palette().color(QPalette.ColorGroup.Active, QPalette.ColorRole.Text)
+   image = wizard.preview.viewport().grab().toImage()
+   rect = wizard.preview.visualItemRect(wizard.preview.item(row, 0)).intersected(image.rect())
+   assert any(image.pixelColor(x, y) == gray for y in range(rect.top(), rect.bottom()) for x in range(rect.left(), rect.right()))
    QTest.mouseClick(wizard.next, Qt.LeftButton)
    state['stage'] = 2
   elif state['stage'] == 2:
@@ -1264,6 +1299,12 @@ def tick():
    assert not body.property('spacrGlassed') and body.window() is window
    assert body.preview_resolution.isVisible()
    assert host._settings_scroll.widget() is body._settings_content
+   assert body._settings_content.property('spacrTransparent') is True
+   assert host._field_overview_workspace.stack.property('spacrTransparent') is True
+   if sys.argv[1] == 'mask':
+    assert (body.wells.rowCount(), body.wells.columnCount()) == (16, 24)
+    assert body.wells.viewport().height() >= 400
+    assert body.wells.rowHeight(0) >= 22
    QTest.mouseClick(body.options_button, Qt.LeftButton)
    state['stage'] = 3
   elif state['stage'] == 3:
@@ -1271,6 +1312,12 @@ def tick():
    assert isinstance(body._options_window, QDialog) and body._options_window.isWindow()
    assert body._options_window.isVisible()
    body._options_window.close()
+   assert host._settings_scroll.widget() is body._settings_content
+   replacement = _open_field_overview(host, {'source': sys.argv[2] + '/missing'})
+   assert host._field_overview_workspace.stack.currentWidget() is replacement
+   replacement.reject()
+   replacement._runner.shutdown(timeout_ms=3000)
+   assert host._field_overview_workspace.stack.currentWidget() is body
    assert host._settings_scroll.widget() is body._settings_content
    host._field_overview_workspace._back()
    assert host._settings_scroll.widget() is state['original_settings']
@@ -1385,7 +1432,8 @@ def test_embedded_metadata_keyboard_and_close_emit_one_hidden_cancel(tmp_path, q
 
 @pytest.mark.parametrize("invalid_well", (False, True))
 def test_cellvoyager_calibrations_are_gray_excluded_and_cannot_mask_invalid_matches(tmp_path, qtbot, invalid_well):
-    from PySide6.QtGui import QPalette
+    from PySide6.QtGui import QColor
+    from spacr.qt.theme import active_palette
     for channel in (1, 2, 3, 4):
         tifffile.imwrite(tmp_path / f"plate1_A01_T0001F001L01A01Z01C{channel:02}.tif",
             np.full((5, 7), channel, np.uint16))
@@ -1404,7 +1452,7 @@ def test_cellvoyager_calibrations_are_gray_excluded_and_cannot_mask_invalid_matc
     assert wizard.preview.columnCount() == 9
     rows = {wizard.preview.item(row, 0).text(): row for row in range(wizard.preview.rowCount())}
     row = rows[calibration.name]
-    gray = wizard.palette().color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text)
+    gray = QColor(active_palette()["fg_dim"])
     assert all(wizard.preview.item(row, column).foreground().color() == gray for column in range(9))
     assert all(wizard.preview.item(row, column).text() == "" for column in range(1, 9))
     row = rows["plate1_A01_T0001F001L01A01Z01C01.tif"]
@@ -1424,3 +1472,127 @@ def test_cellvoyager_calibrations_are_gray_excluded_and_cannot_mask_invalid_matc
     assert all(path.read_bytes() == raw for path, raw in before.items())
     wizard.reject()
     wizard._runner.shutdown(timeout_ms=3000)
+
+
+def test_visible_thumbnail_batches_bound_handoffs_and_keep_per_well_errors(tmp_path, qtbot, monkeypatch):
+    for row in "ABCD":
+        for column in range(1, 7):
+            np.save(tmp_path / f"plate1_{row}{column:02}_F1.npy",
+                np.roll(np.arange(256, dtype=np.uint16).reshape(16, 16), column, axis=1))
+    fields = browser._overview_index(tmp_path)
+    dialog = _browser(tmp_path, qtbot, fields, options={"geometry": (4, 6)})
+    (tmp_path / "plate1_A01_F1.npy").unlink()
+    batches = []
+    original = dialog._thumbnail_jobs.submit
+    def submitted(read, done):
+        def completed(results):
+            batches.append(len(results))
+            done(results)
+        return original(read, completed)
+    monkeypatch.setattr(dialog._thumbnail_jobs, "submit", submitted)
+    dialog.show()
+    qtbot.waitUntil(lambda: len(dialog._installed_thumbnails) == 23 and not dialog._thumbnail_jobs.is_busy())
+    assert all(1 <= count <= 8 for count in batches) and max(batches) == 8
+    assert len(batches) < 12
+    assert dialog.wells.item(0, 0).icon().isNull()
+    assert "A01" in dialog.status.text() and "Could not read" in dialog.status.text()
+    assert all(not dialog.wells.item(row, column).icon().isNull()
+        for row in range(4) for column in range(6) if (row, column) != (0, 0))
+    for field in fields:
+        key = dialog.wells.item(*dialog._well_positions[field.well]).data(browser.Qt.UserRole + 1)
+        pixels = dialog._thumbnail_cache[key]
+        if field.well != "A01":
+            np.testing.assert_array_equal(pixels, browser._overview_pixels(field, (0,), (1., 99.9), edge=key[4]))
+    dialog.close()
+
+
+def test_cancelled_thumbnail_batch_stops_before_reading_the_next_well(tmp_path, qtbot, monkeypatch):
+    for column in range(1, 13):
+        np.save(tmp_path / f"plate1_A{column:02}_F1.npy", np.arange(64).reshape(8, 8))
+    dialog = _browser(tmp_path, qtbot, browser._overview_index(tmp_path))
+    started, release = threading.Event(), threading.Event()
+    calls = []
+    original = browser._overview_pixels
+    def read(field, *args, **kwargs):
+        calls.append(field.well)
+        started.set()
+        assert release.wait(5)
+        return original(field, *args, **kwargs)
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    try:
+        dialog.show()
+        qtbot.waitUntil(started.is_set)
+        dialog._cancel()
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._thumbnail_jobs.is_busy())
+        assert len(calls) == 1 and not dialog._installed_thumbnails
+    finally:
+        release.set()
+        dialog.close()
+
+
+def test_late_comparison_cannot_replace_a_field_opened_while_it_loads(tmp_path, qtbot, monkeypatch):
+    dialog = _browser(tmp_path, qtbot)
+    delivered = []
+    submit = dialog._montage_jobs.submit
+    def submitted(read, done):
+        def completed(result):
+            delivered.append(True)
+            return done(result)
+        return submit(read, completed)
+    monkeypatch.setattr(dialog._montage_jobs, "submit", submitted)
+    for index in (0, 1):
+        dialog.fields.item(index).setSelected(True)
+    started, release = threading.Event(), threading.Event()
+    original = browser._overview_montage
+    def montage(*args, **kwargs):
+        started.set()
+        assert release.wait(5)
+        return original(*args, **kwargs)
+    monkeypatch.setattr(browser, "_overview_montage", montage)
+    try:
+        dialog._compare()
+        qtbot.waitUntil(started.is_set)
+        dialog.fields.setCurrentRow(0)
+        qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy())
+        before = dialog.view._item.pixmap().toImage().copy()
+        release.set()
+        qtbot.waitUntil(lambda: bool(delivered) and not dialog._montage_jobs.is_busy())
+        assert dialog._individual and dialog._comparison_signature is None
+        assert dialog.view._item.pixmap().toImage() == before
+    finally:
+        release.set()
+        dialog.close()
+
+
+def test_late_field_thumbnail_error_cannot_overwrite_another_plate_status(tmp_path, qtbot, monkeypatch):
+    dialog = _browser(tmp_path, qtbot)
+    delivered = []
+    submit = dialog._field_thumbnail_jobs.submit
+    def submitted(read, done):
+        def completed(result):
+            delivered.append(True)
+            return done(result)
+        return submit(read, completed)
+    monkeypatch.setattr(dialog._field_thumbnail_jobs, "submit", submitted)
+    started, release = threading.Event(), threading.Event()
+    original = browser._overview_pixels
+    def read(field, *args, **kwargs):
+        if field.plate == "plate1" and kwargs.get("edge") == 128:
+            started.set()
+            assert release.wait(5)
+            raise ValueError("previous plate thumbnail read failed")
+        return original(field, *args, **kwargs)
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    try:
+        dialog.show()
+        dialog._well(dialog.wells.item(0, 0))
+        qtbot.waitUntil(started.is_set)
+        dialog.plates.setCurrentIndex(dialog.plates.findData("plate2"))
+        release.set()
+        qtbot.waitUntil(lambda: bool(delivered) and not dialog._field_thumbnail_jobs.is_busy())
+        assert dialog.plates.currentData() == "plate2"
+        assert "previous plate thumbnail read failed" not in dialog.status.text()
+    finally:
+        release.set()
+        dialog.close()
