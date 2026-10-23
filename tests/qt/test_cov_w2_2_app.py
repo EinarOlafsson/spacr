@@ -24,6 +24,7 @@ from PySide6.QtCore import QEvent, QPoint, Qt
 from PySide6.QtGui import QIcon, QMouseEvent
 from PySide6.QtWidgets import QWidget
 
+from spacr.crashreport import _reports_dir as _REAL_REPORTS_DIR
 from spacr.qt import app as app_mod
 from spacr.qt.app import (APPS, SECTION_ORDER, SECTIONS,
                           MainWindow, Sidebar, _ChromeButton, _LiveSections,
@@ -581,7 +582,20 @@ def test_a_build_with_no_bundled_fonts_loads_none(qapp, monkeypatch):
     assert loaded == []
 
 
-def test_the_crash_dump_goes_beside_the_ordinary_log(tmp_path, monkeypatch):
+@pytest.fixture
+def native_capture(monkeypatch):
+    from spacr import crashreport
+
+    original = crashreport._NATIVE_CAPTURE_HANDLE
+    monkeypatch.setattr(crashreport, "_NATIVE_CAPTURE_HANDLE", None)
+    monkeypatch.setattr(crashreport, "_NATIVE_EXCEPTION_HOOK", object())
+    yield crashreport
+    handle = crashreport._NATIVE_CAPTURE_HANDLE
+    if handle is not None and handle is not original:
+        handle.close()
+
+
+def test_the_crash_dump_goes_beside_the_ordinary_log(tmp_path, monkeypatch, native_capture):
     """faulthandler writes from a signal handler, where opening a file is not
     allowed -- so the file is opened once and kept."""
     import faulthandler
@@ -595,19 +609,16 @@ def test_the_crash_dump_goes_beside_the_ordinary_log(tmp_path, monkeypatch):
                         enabled.append(file))
 
     path = app_mod._install_crash_dump()
-    try:
-        assert path == str(tmp_path / app_mod.CRASH_DUMP_NAME)
-        assert os.path.isfile(path)
-        assert "spaCR started" in open(path).read()
-        assert enabled and enabled[0] is app_mod._CRASH_DUMP_FILE
-    finally:
-        handle = app_mod.__dict__.pop("_CRASH_DUMP_FILE", None)
-        if handle is not None:
-            handle.close()
+    assert path == str(tmp_path / app_mod.CRASH_DUMP_NAME)
+    assert os.path.isfile(path)
+    with open(path) as stream:
+        assert "=== spaCR session " in stream.read()
+    assert enabled and enabled[0] is native_capture._NATIVE_CAPTURE_HANDLE
+    assert not native_capture._NATIVE_CAPTURE_HANDLE.closed
 
 
 def test_a_log_folder_that_cannot_be_made_costs_the_crash_dump_only(
-        tmp_path, monkeypatch):
+        tmp_path, monkeypatch, native_capture):
     """The dump is diagnostics; the application is not."""
     from spacr import logging_util
 
@@ -619,7 +630,13 @@ def test_a_log_folder_that_cannot_be_made_costs_the_crash_dump_only(
                         lambda *_a, **_k: (_ for _ in ()).throw(
                             OSError("read-only filesystem")))
 
-    assert app_mod._install_crash_dump() == ""
+    def must_not_create(*args, **kwargs):
+        raise AssertionError("A failed log-directory lookup must not create a fallback folder")
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(native_capture.Path, "mkdir", must_not_create)
+        assert app_mod._install_crash_dump() == ""
+    assert native_capture._NATIVE_CAPTURE_HANDLE is None
 
 
 # ---------------------------------------------------------------------------
@@ -685,11 +702,24 @@ def test_the_bundled_fonts_are_registered_with_qt(qapp):
         "the bundled font never reached QFontDatabase"
 
 
+@pytest.mark.parametrize("oversized", [False, True])
 def test_a_build_with_no_logging_helper_still_writes_a_crash_dump(tmp_path,
-                                                                  monkeypatch):
+                                                                  monkeypatch,
+                                                                  native_capture,
+                                                                  oversized):
     """The dump falls back to `~/.spacr/logs` when the helper is absent."""
     import faulthandler
 
+    expected = tmp_path / ".spacr" / "logs" / app_mod.CRASH_DUMP_NAME
+    expected.parent.mkdir(parents=True)
+    prefix = "x" * native_capture.MAX_LOG_BYTES + "\n" if oversized else ""
+    expected.write_text(prefix + "Fatal Python error: Aborted\n")
+    def must_not_report(*args, **kwargs):
+        raise AssertionError("Unavailable reporting state must not authorize replay")
+
+    monkeypatch.setattr(native_capture, "_reports_dir", _REAL_REPORTS_DIR)
+    monkeypatch.setattr(native_capture, "_dispatch_error", must_not_report)
+    monkeypatch.setattr(native_capture, "_update_state", must_not_report)
     monkeypatch.setitem(sys.modules, "spacr.logging_util", None)
     monkeypatch.setattr(os.path, "expanduser", lambda _p: str(tmp_path))
     # The fallback asks spaCR's home, which on Windows comes from
@@ -699,11 +729,14 @@ def test_a_build_with_no_logging_helper_still_writes_a_crash_dump(tmp_path,
                         lambda file=None, all_threads=True: None)
 
     path = app_mod._install_crash_dump()
-    try:
-        assert path == os.path.join(str(tmp_path), ".spacr", "logs",
-                                    app_mod.CRASH_DUMP_NAME)
-        assert os.path.isfile(path)
-    finally:
-        handle = app_mod.__dict__.pop("_CRASH_DUMP_FILE", None)
-        if handle is not None:
-            handle.close()
+    assert path == os.path.join(str(tmp_path), ".spacr", "logs",
+                                app_mod.CRASH_DUMP_NAME)
+    assert os.path.isfile(path)
+    text = expected.read_text()
+    assert "Fatal Python error: Aborted" in text
+    assert "=== spaCR session " in text
+    if oversized:
+        assert text.startswith("\n=== spaCR session history truncated ===\n")
+        new_header = text[text.rfind("\n=== spaCR session "):]
+        assert expected.stat().st_size == native_capture.MAX_LOG_BYTES + len(new_header.encode())
+    assert not native_capture._NATIVE_CAPTURE_HANDLE.closed
