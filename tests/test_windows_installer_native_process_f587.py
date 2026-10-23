@@ -165,3 +165,35 @@ try {{
 if ($null -eq $WorkCleanupError) {{ throw 'Cleanup failure was not retained' }}
 ''')
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_current_lease_release_preserves_sharing_locks_and_the_primary_error(tmp_path):
+    source = INSTALLER.read_text(encoding='utf-8-sig')
+    finalizer = source.rsplit('} finally {', 1)[1].rsplit('}', 1)[0]
+    result = _run(tmp_path, f'''
+$InstallerStarted=$false
+$RetainWorkDir=$false
+$TranscriptStarted=$false
+$OriginalError=$null
+$LeasePath=Join-Path {_ps(tmp_path)} 'owned-installer.lock'
+$OwnedHandle=[IO.File]::Open($LeasePath,[IO.FileMode]::CreateNew,[IO.FileAccess]::ReadWrite,[IO.FileShare]::ReadWrite)
+$InstallerLeaseHandles=@(@{{Path=$LeasePath;Handle=$OwnedHandle}})
+try {{ }} finally {{
+{finalizer}
+}}
+if ([IO.File]::Exists($LeasePath) -or $OwnedHandle.CanRead) {{ throw 'Current lease was not disposed and deleted' }}
+$OwnedHandle=[IO.File]::Open($LeasePath,[IO.FileMode]::CreateNew,[IO.FileAccess]::ReadWrite,[IO.FileShare]::ReadWrite)
+$OtherHandle=[IO.File]::Open($LeasePath,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite)
+$InstallerLeaseHandles=@(@{{Path=$LeasePath;Handle=$OwnedHandle}})
+try {{
+    try {{
+        try {{ throw 'primary install failure' }} catch {{ $OriginalError=$_; throw }} finally {{
+{finalizer}
+        }}
+    }} catch {{ if ($_.Exception.Message -ne 'primary install failure') {{ throw }} }}
+    if ($OwnedHandle.CanRead -or -not [IO.File]::Exists($LeasePath)) {{ throw 'Sharing lock or current handle ownership lost' }}
+    if ($null -eq $WorkCleanupError -or ($WorkCleanupError.Exception.InnerException.HResult -band 65535) -ne 32) {{ throw 'Real sharing violation not retained' }}
+}} finally {{ $OtherHandle.Dispose() }}
+[IO.File]::Delete($LeasePath)
+''')
+    assert result.returncode == 0, result.stdout + result.stderr

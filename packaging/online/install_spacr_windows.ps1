@@ -799,7 +799,10 @@ raise SystemExit(run())
         }
         $Lease.Handle.Dispose()
         if (-not $RetainWorkDir) {
-            Remove-Item -LiteralPath $Lease.Path -ErrorAction SilentlyContinue
+            try { [System.IO.File]::Delete($Lease.Path) } catch {
+                if ($OriginalError) { Write-Warning $_.Exception.Message }
+                if (-not $WorkCleanupError) { $WorkCleanupError = $_ }
+            }
         }
     }
     if ($WorkCleanupError -and -not $OriginalError) { throw $WorkCleanupError }
