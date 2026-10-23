@@ -846,14 +846,25 @@ def install_excepthook(destination: Optional[os.PathLike] = None,
 
     def hook(kind, value, tb) -> None:
         """Report, then delegate to the hook that was installed before."""
+        event_id = None
         if not issubclass(kind, KeyboardInterrupt):
+            event_id = _new_error_occurrence(value)
             path = report_exception(value, destination, **kwargs)
-            _report_anonymously(value, str(kwargs.get("app", "") or ""))
+            _report_anonymously(value, str(kwargs.get("app", "") or ""), event_id=event_id)
             if path:
                 print(f"\nspaCR wrote a crash report to {path}\n"
                       f"Attach it to a bug report — it holds the log, the "
                       f"settings, the versions and this run.", file=sys.stderr)
-        previous(kind, value, tb)
+        absent = object()
+        outer = getattr(_ERROR_DISPATCH_LOCAL, "traceback_occurrence", absent)
+        _ERROR_DISPATCH_LOCAL.traceback_occurrence = event_id
+        try:
+            previous(kind, value, tb)
+        finally:
+            if outer is absent:
+                del _ERROR_DISPATCH_LOCAL.traceback_occurrence
+            else:
+                _ERROR_DISPATCH_LOCAL.traceback_occurrence = outer
 
     sys.excepthook = hook
     return hook
@@ -3301,7 +3312,10 @@ def _capture_error_line(text, *, origin="terminal"):
             _ERROR_DISPATCH_LOCAL.traceback_buffers = buffers
             if not line[:1].isspace() and _EXCEPTION_LINE_RE.match(line.strip()):
                 buffers[origin] = ""
-                _dispatch_error(pending, traceback_text=pending, origin=origin)
+                event_id = getattr(_ERROR_DISPATCH_LOCAL, "traceback_occurrence", "")
+                if event_id is not None:
+                    _dispatch_error(pending, traceback_text=pending, origin=origin,
+                                    event_id=event_id)
         elif re.match(r"^\s*" + stamp + r"(?:\[ERROR\]|ERROR(?:\s|:))", line):
             _dispatch_error(line, origin=origin)
 
@@ -3382,12 +3396,12 @@ def _install_native_error_capture(path=None):
         return ""
 
 
-def _report_anonymously(exception: BaseException, app: str = "") -> None:
+def _report_anonymously(exception: BaseException, app: str = "", *, event_id="") -> None:
     """Queue and send an anonymised summary of an unhandled exception.
 
     Never raises: it runs on the way out of a crash.
     """
-    _dispatch_error(str(exception), exception=exception, module=app)
+    _dispatch_error(str(exception), exception=exception, module=app, event_id=event_id)
 
 
 def build_parser() -> argparse.ArgumentParser:

@@ -577,3 +577,129 @@ def test_retired_transport_cannot_resubmit_but_a_new_error_can(configured, monke
     assert relay.calls_to("/diagnose") == []
     assert all(call["body"]["summarize"] is False for call in relay.calls_to("/report"))
     assert all(outcome["quiet"] for outcome in outcomes)
+
+
+@pytest.fixture
+def uncaught(configured, monkeypatch):
+    import sys
+
+    relay, outcomes, ready = configured
+    policy = cr._read_state()["affirmed_policy"]
+    policy["provider"] = "none"
+    cr._update_state(affirmed_policy=policy)
+    monkeypatch.setattr(cr, "report_exception", lambda *args, **kwargs: "")
+    sink = io.StringIO()
+    dispatches = []
+    original_dispatch = cr._dispatch_error
+    def dispatch(*args, **kwargs):
+        result = original_dispatch(*args, **kwargs)
+        dispatches.append((dict(kwargs), result))
+        return result
+    monkeypatch.setattr(cr, "_dispatch_error", dispatch)
+    return relay, sink, dispatches
+
+
+def test_uncaught_traceback_forwards_its_occurrence_but_an_independent_error_is_new(
+        uncaught, monkeypatch, tmp_path):
+    import sys
+
+    relay, sink, dispatches = uncaught
+    stream = _ErrorStream(sink)
+    monkeypatch.setattr(sys, "stderr", stream)
+    assert sys.stderr is stream
+    def previous(kind, value, tb):
+        sys.stderr.write("ERROR independent hook failure\n")
+        sys.__excepthook__(kind, value, tb)
+    monkeypatch.setattr(sys, "excepthook", previous)
+    hook = cr.install_excepthook(tmp_path, app="measure")
+    exc, _ = failure()
+    hook(type(exc), exc, exc.__traceback__)
+    for _, worker in dispatches:
+        if worker is not None:joined(worker)
+    assert len(relay.calls_to("/report")) == 2
+    assert relay.calls_to("/diagnose") == []
+    reports = [call["body"] for call in relay.calls_to("/report")]
+    assert sum(body["exception_type"] == "IndexError" for body in reports) == 1
+    assert sum(body["exception_type"] == "LoggedError" for body in reports) == 1
+    original = next(worker for kwargs, worker in dispatches if kwargs.get("exception") is exc)
+    printed = [(kwargs, worker) for kwargs, worker in dispatches if kwargs.get("traceback_text")]
+    assert len(printed) == 1
+    assert printed[0][0]["event_id"] == original._spacr_error_occurrence
+    assert printed[0][1] is None
+    assert "ERROR independent hook failure" in sink.getvalue()
+    assert "IndexError: bad channel in /home/private_person/plate7/image.tif" in sink.getvalue()
+    assert not hasattr(cr._ERROR_DISPATCH_LOCAL, "traceback_occurrence")
+
+
+def test_excepthook_restores_existing_context_when_the_previous_hook_raises(
+        uncaught, monkeypatch, tmp_path):
+    import sys
+
+    relay, sink, dispatches = uncaught
+    stream = _ErrorStream(sink)
+    monkeypatch.setattr(sys, "stderr", stream)
+    assert sys.stderr is stream
+    monkeypatch.setattr(cr._ERROR_DISPATCH_LOCAL, "traceback_occurrence", None, raising=False)
+    def previous(kind, value, tb):
+        sys.__excepthook__(kind, value, tb)
+        raise RuntimeError("previous hook failed")
+    monkeypatch.setattr(sys, "excepthook", previous)
+    hook = cr.install_excepthook(tmp_path)
+    exc, _ = failure()
+    with pytest.raises(RuntimeError, match="previous hook failed"):
+        hook(type(exc), exc, exc.__traceback__)
+    for _, worker in dispatches:
+        if worker is not None:joined(worker)
+    assert cr._ERROR_DISPATCH_LOCAL.traceback_occurrence is None
+    assert len(relay.calls_to("/report")) == 1
+    assert "IndexError:" in sink.getvalue()
+
+
+def test_keyboard_interrupt_delegates_without_reporting_and_restores_outer_context(
+        uncaught, monkeypatch, tmp_path):
+    import sys
+
+    relay, sink, dispatches = uncaught
+    stream = _ErrorStream(sink)
+    monkeypatch.setattr(sys, "stderr", stream)
+    assert sys.stderr is stream
+    outer = cr._new_error_occurrence()
+    monkeypatch.setattr(cr._ERROR_DISPATCH_LOCAL, "traceback_occurrence", outer, raising=False)
+    monkeypatch.setattr(sys, "excepthook", sys.__excepthook__)
+    hook = cr.install_excepthook(tmp_path)
+    try:
+        raise KeyboardInterrupt()
+    except KeyboardInterrupt as exc:
+        hook(type(exc), exc, exc.__traceback__)
+    for _, worker in dispatches:
+        if worker is not None:joined(worker)
+    assert cr._ERROR_DISPATCH_LOCAL.traceback_occurrence == outer
+    assert "KeyboardInterrupt" in sink.getvalue()
+    assert relay.calls == []
+
+
+def test_hook_transport_cannot_enable_a_previously_unconsented_occurrence(
+        uncaught, monkeypatch, tmp_path):
+    import sys
+
+    relay, sink, dispatches = uncaught
+    stream = _ErrorStream(sink)
+    monkeypatch.setattr(sys, "stderr", stream)
+    assert sys.stderr is stream
+    agreed = cr._read_state()["affirmed_policy"]
+    cr._update_state(affirmed_policy={})
+    def previous(kind, value, tb):
+        cr._update_state(affirmed_policy=agreed)
+        sys.__excepthook__(kind, value, tb)
+    monkeypatch.setattr(sys, "excepthook", previous)
+    hook = cr.install_excepthook(tmp_path)
+    exc, _ = failure()
+    hook(type(exc), exc, exc.__traceback__)
+    for _, worker in dispatches:
+        if worker is not None:joined(worker)
+    assert relay.calls == []
+    assert not hasattr(cr._ERROR_DISPATCH_LOCAL, "traceback_occurrence")
+    sys.stderr.write("ERROR newly consented independent error\n")
+    joined(dispatches[-1][1])
+    assert len(relay.calls_to("/report")) == 1
+    assert relay.calls_to("/diagnose") == []
