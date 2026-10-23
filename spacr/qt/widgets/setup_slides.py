@@ -480,16 +480,34 @@ class SetupSlides(QDialog):
         self._fit_opening_to_screen()
 
     def _fit_opening_to_screen(self) -> None:
-        """Scroll the whole floating card only when its opening exceeds the screen.
+        """Fit undersized content naturally and scroll an oversized opening.
 
-        Keep the natural card coordinates for its overlay labels and controls;
-        the backdrop remains outside the scroll area and the window stays resizable.
+        An otherwise screen-fitting but undersized window reserves the GPU note
+        in the layout. Oversized openings retain their natural overlay coordinates;
+        the backdrop stays outside scrolling and no maximum limits later growth.
         """
         screen = self.screen()
         if screen is None:
             return
         opening = self.size()
         available = screen.availableGeometry().size()
+        self.card.ensurePolished()
+        self.card.layout().activate()
+        if (opening.width() <= available.width() and opening.height() <= available.height()
+                and (opening.width() < self.card.minimumSizeHint().width()
+                     or opening.height() < self.card.minimumSizeHint().height())):
+            from ..gui_scale import QWIDGETSIZE_MAX, _resize_actual, _set_actual_dim
+
+            self._gpu_note_in_layout = True
+            _set_actual_dim(self._gpu_note, "minw", 0)
+            _set_actual_dim(self._gpu_note, "maxw", QWIDGETSIZE_MAX)
+            column = self.card.layout()
+            column.insertWidget(column.count() - 1, self._gpu_note)
+            self._card_in_layout = True
+            self.layout().addWidget(self.card)
+            column.activate()
+            opening = opening.expandedTo(self.card.sizeHint()).expandedTo(self.card.minimumSizeHint())
+            _resize_actual(self, opening)
         if opening.width() <= available.width() and opening.height() <= available.height():
             return
         from ..dialogs import (OPENS_AT, let_the_content_scroll,
@@ -500,7 +518,8 @@ class SetupSlides(QDialog):
         _set_actual_dim(self.card, "minh", opening.height())
         self._card_scrolls = True
         self._card_placement = _CardPlacement(self.card, self._place_the_greeting)
-        self.layout().addWidget(self.card)
+        if not getattr(self, "_card_in_layout", False):
+            self.layout().addWidget(self.card)
         let_the_content_scroll(self)
         make_the_window_resizable(self)
         self.setProperty(OPENS_AT, opening)
@@ -1022,7 +1041,9 @@ class SetupSlides(QDialog):
         self._place_the_gpu_note()
 
     def _place_the_gpu_note(self) -> None:
-        """Put the GPU note in its band, whatever the greeting is doing."""
+        """Use the undersize layout's placement, or place the floating note's band."""
+        if getattr(self, "_gpu_note_in_layout", False):
+            return
         card = getattr(self, "card", None)
         note = getattr(self, "_gpu_note", None)
         if card is None or note is None or note.isHidden():
@@ -1496,7 +1517,7 @@ class SetupSlides(QDialog):
         :param event: the Qt resize event.
         """
         super().resizeEvent(event)
-        if not getattr(self, "_card_scrolls", False):
+        if not (getattr(self, "_card_scrolls", False) or getattr(self, "_card_in_layout", False)):
             self.card.setGeometry(self.rect())
         self.card.raise_()
         self._look_at_the_terms_gate()

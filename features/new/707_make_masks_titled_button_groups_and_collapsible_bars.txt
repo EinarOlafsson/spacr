@@ -19,6 +19,26 @@ case names. Preserve untouched initial bounds, every slide/group, all offered
 native text slots/arrows/checkbox indicators, AI reachability, intrinsic labels
 and existing deadlines/normal cleanup. This checks layout at the supported
 minimum, not readability or physical input. No product fix is assumed.
+Native51203 on cd9bb49b6 fails Slides at GUI10%/font200%: untouched72x56
+opening with actual3px font compresses controls; pages0–2 report intrinsic/
+reach errors and42x19 Toggles have only42x1 or0x0 visible. Slides3/4 are untested
+after the callback assertion. Grouped SetupDialog independently passes its
+1082x686 initial layout, all checks and resize; retain that pass. Natural exit1
+in31.821s/RSS1.188GiB/zero missed. Expand undersized Slides to natural content
+requirements including all stack pages and floating GPU/navigation bands,
+without font shrink or harness resizing; focused regression precedes repair.
+The focused small-opening regression fails at56px height versus the actual
+149px card minimum (5.17s/RSS0.286GiB). For a screen-fitting but undersized
+opening only, the GPU note joins the actual card layout before navigation,
+its obsolete fixed width is cleared, and fresh natural/all-stack-page hints
+expand the actual window. Existing oversized scrolling and nonundersized
+overlay paths are preserved, with no font reduction or fixed maximum.
+Three focused checks pass (6.91s/RSS0.289GiB): all five tiny-GUI pages retain
+intrinsic text/whole-or-intentionally-scrollable controls, greeting/note/form
+nonoverlap, and exact unchanged648x504/overlay branches at GUI90/font90 and
+GUI90/font200. The unit's terms-label check was corrected to the same strict
+axis-specific scrolling oracle rather than forbidding intentional scrolling.
+Native Slides-only GUI10/font200 acceptance remains pending; grouped is retained.
 
 Affected setup follow-up after the new spaCR_AI row: inspect real SetupSlides
 and SetupDialog at normal owned Cocoa GUI/font90%/90%, actual1440x870 work
