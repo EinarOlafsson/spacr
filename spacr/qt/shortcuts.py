@@ -34,6 +34,7 @@ editable rows and saved overrides, applied to both existing and new screens.
 from __future__ import annotations
 
 import logging
+import sys
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
@@ -1747,7 +1748,7 @@ QLabel#ShortcutOverlayCategory {{
     padding-top: 10px;
 }}
 QLabel#ShortcutOverlayKeys {{
-    font-family: monospace;
+    font-family: {"Menlo" if sys.platform == "darwin" else "monospace"};
     color: {palette["fg"]};
 }}
 QLabel#ShortcutOverlayLabel {{

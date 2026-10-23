@@ -63,7 +63,7 @@ from PySide6.QtWidgets import (
 
 from ..hidpi import device_ratio, follow_device_ratio, scaled_for
 from ..theme import (
-    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px,
+    QSS_FONT_FAMILY, SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px,
     make_transparent, palette_for,
 )
 from .divider import Divider
@@ -418,7 +418,7 @@ class Panel(QWidget):
                              + (BETA_SUFFIX if self.is_beta else ""))
         self.header.setObjectName("HomePanelHeader")
         self.header.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif; font-weight: 600;"
+            f"font-family: {QSS_FONT_FAMILY}; font-weight: 600;"
             f"font-size: {font_px(10)}px; letter-spacing: 2px;"
             "background: transparent;"
             f"color: {P['fg_muted']};")
@@ -490,7 +490,7 @@ class Panel(QWidget):
         word.setStyleSheet(
             "QPushButton#HomePanelAction {"
             " background: transparent; border: none; padding: 0px;"
-            " font-family: 'Open Sans', sans-serif; font-weight: 600;"
+            f" font-family: {QSS_FONT_FAMILY}; font-weight: 600;"
             f" font-size: {font_px(10)}px; letter-spacing: 1px;"
             f" color: {P['fg_dim']}; }}"
             f"QPushButton#HomePanelAction:hover {{ color: {ink}; }}"
@@ -2375,7 +2375,7 @@ class HomePage(QWidget):
 
         title = QLabel("spaCR")
         title.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif; font-weight: 300;"
+            f"font-family: {QSS_FONT_FAMILY}; font-weight: 300;"
             f"font-size: {font_px(HERO_TITLE_PX)}px; color: {P['accent']};"
             "letter-spacing: -0.6px; background: transparent;")
         row.addWidget(title)
@@ -2468,7 +2468,7 @@ class HomePage(QWidget):
         row.setSpacing(SPACING["sm"])
         label = QLabel(title.upper())
         label.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif; font-weight: 600;"
+            f"font-family: {QSS_FONT_FAMILY}; font-weight: 600;"
             f"font-size: {font_px(11)}px; letter-spacing: 2px;"
             "background: transparent;"
             f"color: {P['fg_muted']};")
@@ -2505,7 +2505,7 @@ class HomePage(QWidget):
         from ..i18n import tr
         heading = QLabel(tr(section).upper())
         heading.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif; font-weight: 600;"
+            f"font-family: {QSS_FONT_FAMILY}; font-weight: 600;"
             f"font-size: {font_px(11)}px; letter-spacing: 2px;"
             "background: transparent;"
             f"color: {P['fg_muted']};")

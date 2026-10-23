@@ -5434,18 +5434,18 @@ QLabel#SettingChipText, QToolButton#SettingListFooter {{
 }}
 QLabel#TourStep {{
     font-size: {font_px(10, font_scale)}px;
-    font-family: 'Open Sans', sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 600;
     letter-spacing: 2px;
 }}
 QLabel#TourTitle {{
     font-size: {font_px(20, font_scale)}px;
-    font-family: 'Open Sans', sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 400;
 }}
 QLabel#TourBody {{
     font-size: {font_px(13, font_scale)}px;
-    font-family: 'Open Sans', sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 300;
 }}
 QLabel#Caption {{

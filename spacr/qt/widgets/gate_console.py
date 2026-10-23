@@ -21,6 +21,7 @@ back reads in order regardless of which pane asked.
 from __future__ import annotations
 
 import logging
+import sys
 import traceback
 from typing import Any, Callable, Optional
 
@@ -104,7 +105,7 @@ def _console_qss(palette, opacity=None) -> str:
         background: transparent;
         color: {palette['fg']};
         border: none;
-        font-family: monospace;
+        font-family: {"Menlo" if sys.platform == "darwin" else "monospace"};
     }}
     QLineEdit#GateConsoleInput, QPlainTextEdit#GateChatInput {{
         background: {palette['surface_alt']};
