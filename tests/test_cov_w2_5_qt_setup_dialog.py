@@ -102,6 +102,63 @@ def test_setup_combos_keep_all_offered_text_slots_when_fonts_change(qtbot, prese
         gui_scale.set_gui_scale_live(previous)
 
 
+def test_grouped_setup_keeps_controls_reachable_at_joint_maximum(qtbot, qapp, monkeypatch):
+    from PySide6.QtCore import QPoint, QSize
+    from PySide6.QtGui import QRegion
+    from PySide6.QtWidgets import QAbstractScrollArea, QDialog, QStyle, QStyleOptionButton
+    from spacr.qt import gui_scale, theme
+
+    old_scale, old_sheet = gui_scale.current_scale(), qapp.styleSheet()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(2.0)
+    qapp.setStyleSheet(theme.stylesheet('dark', font_scale=2.0))
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    parent.show()
+    monkeypatch.setattr(sd.SetupDialog, '_backdrop', lambda self, parent: QGraphicsView(self))
+    dialog = sd.SetupDialog(parent)
+    qtbot.addWidget(dialog)
+    try:
+        assert dialog._backdrop_view is not None
+        dialog.show()
+        qtbot.waitExposed(dialog)
+        handle = dialog.windowHandle()
+        assert handle.screen().availableGeometry().contains(handle.frameGeometry())
+        gui_scale._resize_actual(dialog, QSize(1296, 783))
+        qapp.processEvents()
+        editor = dialog._editors['spacr_ai']
+        option = QStyleOptionButton()
+        option.initFrom(editor)
+        option.rect, option.text = editor.rect(), editor.text()
+        indicator = editor.style().subElementRect(QStyle.SE_CheckBoxIndicator, option, editor)
+        print('GROUPED_AI_GEOMETRY', editor.rect(), editor.minimumSizeHint(), indicator)
+        assert not indicator.isEmpty() and editor.rect().contains(indicator)
+        for control in list(dialog._editors.values()) + dialog.findChildren(QLabel):
+            if not control.isVisibleTo(dialog):
+                continue
+            whole = not control.rect().isEmpty() and QRegion(control.rect()).subtracted(control.visibleRegion()).isEmpty()
+            ancestor = control.parentWidget()
+            while ancestor is not None and ancestor is not dialog and not isinstance(ancestor, QAbstractScrollArea):
+                ancestor = ancestor.parentWidget()
+            reachable = False
+            if isinstance(ancestor, QAbstractScrollArea):
+                viewport = ancestor.viewport()
+                mapped = control.rect().translated(control.mapTo(viewport, QPoint()))
+                area = viewport.rect()
+                horizontal, vertical = ancestor.horizontalScrollBar(), ancestor.verticalScrollBar()
+                reachable = (mapped.left() + horizontal.value() >= area.left() + horizontal.minimum()
+                             and mapped.right() + horizontal.value() <= area.right() + horizontal.maximum()
+                             and mapped.top() + vertical.value() >= area.top() + vertical.minimum()
+                             and mapped.bottom() + vertical.value() <= area.bottom() + vertical.maximum()
+                             and not area.contains(mapped))
+            assert whole or reachable, (type(control).__name__, control.rect(), control.visibleRegion())
+    finally:
+        QDialog.reject(dialog)
+        parent.close()
+        qapp.setStyleSheet(old_sheet)
+        gui_scale.set_gui_scale_live(old_scale)
+
+
 # ---------------------------------------------------------------------------
 # the backdrop
 # ---------------------------------------------------------------------------

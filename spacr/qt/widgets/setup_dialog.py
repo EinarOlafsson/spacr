@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Optional
 
-from PySide6.QtCore import QEvent, QPoint, QRect, Qt
+from PySide6.QtCore import QEvent, QPoint, QRect, QSize, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog,
                                QDialogButtonBox, QFormLayout, QGridLayout,
@@ -145,6 +145,42 @@ class SetupDialog(QDialog):
             self.card.setParent(self)
             self.card.raise_()
         self.resize(680, 560)
+        self._fit_opening_to_screen()
+
+    def _fit_opening_to_screen(self) -> None:
+        """Scroll the grouped card, not its snapshot, for an oversized opening.
+
+        Preserve natural actual-pixel content floors and the ordinary floating
+        card path when it fits; only the opening is capped, never later growth.
+        """
+        screen = self.screen()
+        if screen is None:
+            return
+        opening = self.size()
+        available = screen.availableGeometry().size()
+        if opening.width() <= available.width() and opening.height() <= available.height():
+            return
+        from ..dialogs import (OPENS_AT, let_the_content_scroll,
+                               make_the_window_resizable, open_at_its_natural_size)
+        from ..gui_scale import _set_actual_dim
+
+        self.card.ensurePolished()
+        self.card.layout().activate()
+        natural = self.card.sizeHint().expandedTo(QSize(max(1, opening.width() - 96),
+                                                      max(1, opening.height() - 96)))
+        _set_actual_dim(self.card, "minw", natural.width())
+        _set_actual_dim(self.card, "minh", natural.height())
+        outer = self.layout()
+        if self._backdrop_view is not None:
+            outer.removeWidget(self._backdrop_view)
+            self._backdrop_view.setParent(self)
+            self._backdrop_view.lower()
+        self._card_scrolls = True
+        outer.addWidget(self.card)
+        let_the_content_scroll(self)
+        make_the_window_resizable(self)
+        self.setProperty(OPENS_AT, opening)
+        open_at_its_natural_size(self)
 
 
     def _build_groups(self, layout) -> None:
@@ -263,9 +299,10 @@ class SetupDialog(QDialog):
         super().resizeEvent(event)
         if self._backdrop_view is not None:
             self._backdrop_view.setGeometry(self.rect())
-            margin = 48
-            self.card.setGeometry(self.rect().adjusted(
-                margin, margin, -margin, -margin))
+            if not getattr(self, "_card_scrolls", False):
+                margin = 48
+                self.card.setGeometry(self.rect().adjusted(
+                    margin, margin, -margin, -margin))
             self.card.raise_()
 
 

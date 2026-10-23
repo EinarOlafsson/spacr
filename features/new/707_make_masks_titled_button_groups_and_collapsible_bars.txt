@@ -99,6 +99,32 @@ the existing overlay placement after layout. The strict focused check now
 passes (5.26s/RSS0.287GiB), including initial bounds, actual card scrolling,
 last-control reach and note/form/navigation nonoverlap. Nonoverflow layouts and
 fonts stay unchanged; affected native max acceptance remains pending.
+Native9007 on3d387b227 establishes the scoped joint-max Slides pass: initial
+1296x783 at(134,77), actual52px font, all five pages' native choice slots/AI/
+intrinsic/reach checks and both resize phases pass; exec returns in8.635s.
+Grouped SetupDialog is now reached at1296x783/52px but fails its AI editor
+height-versus-minimum-hint assertion before the partial page is saved; the
+owned20s deadline closes it. Preserve that unresolved case, not a grouped pass
+or proven cut-glyph claim. Natural exit1 in52.906s/RSS1.454GiB/zero missed.
+Retain partial native page/AI geometry and rejection timestamps before further
+product changes; verify actual floating-card/scroll compatibility and clipping.
+The controlled grouped-layout regression reaches the actual indicator failure:
+AI checkbox571x10 versus native34x34 indicator positioned at y−12, outside its
+control (3.13s/RSS0.248GiB). This proves clipping in the compressed floating-card
+route, unlike the earlier minimum-hint-only evidence. The initial offscreen
+attempt lacked a backdrop; the affected retry supplies an owned QGraphicsView
+only at that decorative seam, retaining real form/checkbox/style behavior.
+Repair only overflow handling of the actual grouped card, keeping its snapshot
+outside scrolling and nonoverflow layouts unchanged; preserve strict native
+grouped-only acceptance, partial-page diagnostics and the original20s deadline.
+The overflow-only grouped repair preserves the card's natural actual minimums,
+moves that card into scrolling, and leaves its snapshot as a manual background;
+resize no longer compresses scrolled controls to the viewport. The focused
+check passes (3.23s/RSS0.245GiB): untouched opening fits, AI647x42 contains its
+34x34 indicator at y4, and every editor/label is whole or intentionally reachable.
+Default and Slides paths are unchanged. Native grouped-only max acceptance is
+pending; its probe preserves partial pages and exact case names without replaying
+the accepted Slides case or extending the20s deadline.
 
 Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
 public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.
