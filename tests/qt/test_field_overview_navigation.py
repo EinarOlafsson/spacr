@@ -850,3 +850,59 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
                                   keep_default_na=False)
     assert measured["well"].tolist() == ["", ""]
     assert all(path.read_bytes() == before for path, before in originals.items())
+
+
+def test_native_image_wheel_keeps_anchor_and_requests_real_progressive_detail(overview, qtbot):
+    from PySide6.QtCore import QPoint, QPointF
+    from PySide6.QtGui import QWheelEvent
+    from PySide6.QtWidgets import QApplication
+
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    item = dialog.fields.item(0)
+    qtbot.mouseClick(dialog.fields.viewport(), Qt.LeftButton,
+                    pos=dialog.fields.visualItemRect(item).center())
+    qtbot.waitUntil(lambda: dialog.view._item is not None
+                    and dialog.view._item.pixmap().width() == 1024
+                    and not dialog._image_jobs.is_busy(), timeout=10000)
+    field = item.data(Qt.UserRole)
+    axes = (dialog.fov_axis.currentData(), dialog.time_axis.currentData(), dialog.z_axis.currentData())
+    _choose(dialog.wheel_axis, "zoom")
+    view, viewport = dialog.view, dialog.view.viewport()
+    cursor = viewport.rect().center() + QPoint(viewport.width() // 8, viewport.height() // 10)
+    initial_width = view._item.pixmap().width()
+    initial_displayed = initial_width * view.transform().m11()
+    for _ in range(10):
+        old_size = view._item.pixmap().size()
+        target = view.mapToScene(cursor)
+        normalized = QPointF(target.x() / old_size.width(), target.y() / old_size.height())
+        event = QWheelEvent(QPointF(cursor), QPointF(viewport.mapToGlobal(cursor)),
+                            QPoint(), QPoint(0, 120), Qt.NoButton, Qt.NoModifier,
+                            Qt.NoScrollPhase, False)
+        QApplication.sendEvent(viewport, event)
+        assert event.isAccepted() and view._user_zoomed
+        moved = view.mapFromScene(target)
+        assert abs(moved.x() - cursor.x()) <= 2
+        assert abs(moved.y() - cursor.y()) <= 2
+        QApplication.processEvents()
+        new_size = view._item.pixmap().size()
+        moved = view.mapFromScene(QPointF(normalized.x() * new_size.width(),
+                                         normalized.y() * new_size.height()))
+        assert abs(moved.x() - cursor.x()) <= 2
+        assert abs(moved.y() - cursor.y()) <= 2
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy()
+                    and view._item.pixmap().width() > initial_width, timeout=10000)
+    actual = view._item.pixmap().toImage()
+    moved = view.mapFromScene(QPointF(normalized.x() * actual.width(),
+                                     normalized.y() * actual.height()))
+    assert abs(moved.x() - cursor.x()) <= 2
+    assert abs(moved.y() - cursor.y()) <= 2
+    assert (actual.width(), actual.height()) == (2048, 1536)
+    assert actual.width() * view.transform().m11() > initial_displayed
+    assert dialog.fields.currentItem().data(Qt.UserRole).identity == field.identity
+    assert dialog._scope == ("p1", "A01")
+    assert (dialog.fov_axis.currentData(), dialog.time_axis.currentData(), dialog.z_axis.currentData()) == axes
+    assert len(dialog._cache) <= 8
+    expected = module._overview_pixels(field, (1,), (1., 99.9), edge=2048)
+    for x, y in ((128, 96), (1024, 768), (2047, 1535)):
+        assert actual.pixelColor(x, y).getRgb()[:3] == tuple(int(value) for value in expected[y, x])

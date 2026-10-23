@@ -3605,21 +3605,32 @@ class _FieldOverview(QDialog):
         :param pixels: detached RGB pixels from a worker or bounded cache.
         :param preserve_view: retain normalized center and user zoom on an upgrade.
         """
-        from PySide6.QtCore import QPointF
+        from PySide6.QtCore import QPointF, QRectF
         previous = self.view._item
         keep = preserve_view and previous is not None and self.view._user_zoomed
         if keep:
             old_size = previous.pixmap().size()
-            center = self.view.mapToScene(self.view.viewport().rect().center())
+            anchor = self.view.viewport().rect().center()
+            center = self.view.mapToScene(anchor)
+            scene_rect = self.view.sceneRect()
             normalized = QPointF(center.x() / old_size.width(), center.y() / old_size.height())
             transform = self.view.transform()
         image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
                        pixels.strides[0], QImage.Format_RGB888).copy()
         self.view.set_pixmap(QPixmap.fromImage(image))
         if keep:
+            x_ratio = image.width() / old_size.width()
+            y_ratio = image.height() / old_size.height()
+            self.view.setSceneRect(QRectF(scene_rect.x() * x_ratio, scene_rect.y() * y_ratio,
+                                         scene_rect.width() * x_ratio, scene_rect.height() * y_ratio))
             self.view.setTransform(transform)
-            self.view.scale(old_size.width() / image.width(), old_size.height() / image.height())
-            self.view.centerOn(normalized.x() * image.width(), normalized.y() * image.height())
+            self.view.scale(1. / x_ratio, 1. / y_ratio)
+            target = QPointF(normalized.x() * image.width(), normalized.y() * image.height())
+            self.view.centerOn(target)
+            residual = self.view.viewportTransform().map(target) - QPointF(anchor)
+            horizontal, vertical = self.view.horizontalScrollBar(), self.view.verticalScrollBar()
+            horizontal.setValue(horizontal.value() + round(residual.x()))
+            vertical.setValue(vertical.value() + round(residual.y()))
             self.view._user_zoomed = True
 
     def _export_selection(self):
