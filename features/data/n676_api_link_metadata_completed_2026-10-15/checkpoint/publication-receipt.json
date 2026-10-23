@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-08-measure-feature-memory-20261023",
+  "branch": "n676-04-doctor-reference-20261023",
   "base_commit": "3748b86ee58c9b07abc802796c3f9ae86386c92e",
-  "commit": "fb250fd2b1f0819f9b150c55b9c8430dfe9f70a7",
-  "tag": "n676-08-measure-feature-memory-20261023-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/fb250fd2b1f0819f9b150c55b9c8430dfe9f70a7",
-  "manifest_sha256": "91e67ab116fb08b36aa000477cafa228ed29157dbd2f3f953b10bcf839705ad5",
+  "commit": "8837ec8a735a949a368924faf23fef8f02e9dbf6",
+  "tag": "n676-04-doctor-reference-20261023-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/8837ec8a735a949a368924faf23fef8f02e9dbf6",
+  "manifest_sha256": "674fd5f232e8bc6193f94283de10eb7207569ae4ca2f131c8698621d5aa34fc1",
   "media_files": 6448,
-  "media_bytes": 12596918758,
+  "media_bytes": 12592373283,
   "readback": {
-    "commit": "fb250fd2b1f0819f9b150c55b9c8430dfe9f70a7",
+    "commit": "8837ec8a735a949a368924faf23fef8f02e9dbf6",
     "files_expected": 6448,
     "metadata_matched": 6448,
     "metadata_failures": [],
-    "bytes_read_back": 12596918758,
+    "bytes_read_back": 12592373283,
     "downloaded_sha256_matched": 6448,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -1982,16 +1982,16 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 492.6,
+    "seconds": 504.5,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "a7bcbd87faa458269e774995beaaeb708e49599efb20d260a314d8858b5b2c76",
-    "candidate_index_sha256": "fe5a50c90288daa6c7863043fd44f64f64aeca777a1e9f20c2946eff8b555673",
-    "cache_key": "n676-08-measure-feature-memory-20261023-verified",
+    "index_sha256": "9bcd720fda7737b428c306b768395cdf5955e6c67242c34d559efe5e7da0aa15",
+    "candidate_index_sha256": "b58f2fc4803eebadf3c0dd0ae18f164590cc242639352f9a8a5d81b046c5fed7",
+    "cache_key": "n676-04-doctor-reference-20261023-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
@@ -2000,14 +2000,14 @@
     "versioned_assets": {
       "app_v2.js": "n676-player-short-gap-20261023",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-08-measure-feature-memory-20261023-verified",
-      "module_navigation.js": "n676-08-measure-feature-memory-20261023-verified",
+      "lesson_catalog.js": "n676-04-doctor-reference-20261023-verified",
+      "module_navigation.js": "n676-04-doctor-reference-20261023-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-31fwjo01/retired-pages",
+      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-xq33a1x1/retired-pages",
       "files": []
     },
     "ready": 84,
