@@ -1,0 +1,622 @@
+"""Real field images exercise the shared overview without a model or GPU."""
+import json
+import threading
+
+import numpy as np
+import pytest
+import tifffile
+
+from spacr.qt.widgets import qc_field_browser as browser
+
+
+@pytest.fixture
+def plate_images(tmp_path):
+    for plate in ("plate1", "plate2"):
+        for well in ("A01", "B02"):
+            for field in range(1, 4):
+                folder = tmp_path / plate / well / f"field{field}"
+                folder.mkdir(parents=True)
+                image = np.arange(120, dtype=np.uint16).reshape(10, 12)
+                for channel in (1, 2):
+                    tifffile.imwrite(folder / f"ch{channel}.tif", image * channel)
+    tifffile.imwrite(tmp_path / "unassigned.tif", np.zeros((6, 8), np.uint8))
+    return tmp_path
+
+
+def test_folder_index_never_decodes_or_invents_wells(plate_images, monkeypatch):
+    monkeypatch.setattr(tifffile.TiffFile, "asarray", lambda *_: pytest.fail("metadata index decoded pixels"))
+    fields = browser._overview_index(plate_images)
+    assert len(fields) == 13
+    assert sum(field.unresolved for field in fields) == 1
+    resolved = [field for field in fields if not field.unresolved]
+    assert {field.plate for field in resolved} == {"plate1", "plate2"}
+    assert {(field.well, field.row, field.column) for field in resolved} == {("A01", "1", 1), ("B02", "2", 2)}
+    assert all(len(field.files) == 2 for field in resolved)
+    assert next(field for field in fields if field.unresolved).well == ""
+    cancelled = threading.Event()
+    cancelled.set()
+    assert browser._overview_index(plate_images, cancelled=cancelled) == ()
+
+
+def test_regex_and_multichannel_pixels_are_source_bound(tmp_path):
+    image = np.stack([np.arange(120).reshape(10, 12), np.ones((10, 12)) * 5], axis=-1).astype(np.uint16)
+    np.save(tmp_path / "p9-A03-site8.npy", image)
+    pattern = r"(?P<plateID>p\d+)-(?P<wellID>[A-Z]\d+)-site(?P<fieldID>\d+)"
+    field, = browser._overview_index(tmp_path, pattern)
+    assert (field.plate, field.well, field.field) == ("p9", "A03", "8")
+    rgb = browser._overview_pixels(field, (0, 1), (0, 100))
+    assert rgb.shape == (10, 12, 3)
+    assert rgb.dtype == np.uint8
+    assert rgb[0, 0, 0] == 0 and rgb[-1, -1, 0] == 255
+    assert not rgb[..., 1:].any()
+    assert browser._overview_pixels(field, (0,), (10, 90))[1, 0, 0] != rgb[1, 0, 0]
+    with pytest.raises(IndexError):
+        browser._overview_pixels(field, (2,))
+
+
+def test_grouped_random_samples_keep_plates_distinct_and_reproducible(plate_images):
+    fields = tuple(f for f in browser._overview_index(plate_images) if not f.unresolved)
+    selected = browser._overview_sample(fields, 2, 37, "well", True)
+    assert len(selected) == 8
+    assert selected == browser._overview_sample(tuple(reversed(fields)), 2, 37, "well", True)
+    assert len({f.identity for f in selected}) == 8
+    assert len(browser._overview_sample(fields, 1, grouping="plate")) == 2
+    assert len(browser._overview_sample(fields, 1, grouping="row")) == 4
+    assert len(browser._overview_sample(fields, 1, grouping="column")) == 4
+
+
+def test_navigation_is_metadata_only_and_decodes_one_selected_field(plate_images, qtbot, monkeypatch):
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    fields = browser._overview_index(plate_images)
+    calls = []
+    original = browser._overview_pixels
+    def read(field, *args, **kwargs):
+        calls.append(field.identity)
+        return original(field, *args, **kwargs)
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    dialog._image_jobs._threaded = False
+    dialog.channels.setText("1,2")
+    dialog._indexed(fields)
+    assert calls == []
+    dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
+    item = dialog.wells.item(0, 0)
+    dialog._well(item)
+    assert len(dialog._visible) == 3
+    assert all(field.plate == "plate1" and field.well == "A01" for field in dialog._visible)
+    dialog.fields.setCurrentRow(0)
+    dialog._field(dialog.fields.item(0))
+    assert len(calls) == 1
+    dialog._field(dialog.fields.item(0))
+    assert len(calls) == 1
+    dialog._back()
+    assert len(dialog._visible) == 6
+    assert dialog.plates.currentData() == "plate1"
+    assert len(dialog._cache) == 1
+    dialog.close()
+
+
+def test_real_pdf_and_selection_provenance(plate_images, tmp_path):
+    fields = tuple(f for f in browser._overview_index(plate_images) if not f.unresolved)
+    selected = browser._overview_sample(fields, 1, 15, "well", True)
+    output = tmp_path / "pdf"
+    paths, errors = browser._overview_export(selected, output, (1, 2), (1, 99), 15)
+    assert len(paths) == 1 and not errors
+    assert (output / "overview_0001.pdf").read_bytes().startswith(b"%PDF-")
+    provenance = json.loads((output / "overview_selection.json").read_text())
+    assert provenance["seed"] == 15
+    assert provenance["channels"] == [1, 2]
+    assert [(row["plate"], row["well"], row["field"]) for row in provenance["fields"]] == [
+        (field.plate, field.well, field.field) for field in selected]
+
+
+def test_padded_filename_channels_decode_and_reject_duplicate_channels(tmp_path):
+    for channel in ("01", "02"):
+        tifffile.imwrite(tmp_path / f"plate1_A01_T0001F001L01C{channel}.tif",
+                         np.arange(48, dtype=np.uint16).reshape(6, 8))
+    field, = browser._overview_index(tmp_path)
+    assert [channel for channel, _ in field.files] == ["1", "2"]
+    assert browser._overview_pixels(field, (1, 2)).shape == (6, 8, 3)
+    tifffile.imwrite(tmp_path / "plate1_A01_T0001F001L01C1.tif", np.zeros((6, 8), np.uint16))
+    duplicate, = browser._overview_index(tmp_path)
+    with pytest.raises(ValueError, match="ambiguous"):
+        browser._overview_pixels(duplicate, (1,))
+
+
+def test_reopening_cancelled_overview_keeps_navigation_and_decodes(plate_images, qtbot):
+    from PySide6.QtWidgets import QWidget
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    dialog = browser._open_field_overview(owner)
+    dialog._image_jobs._threaded = False
+    dialog._indexed(browser._overview_index(plate_images))
+    dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.close()
+    assert dialog._cancelled.is_set()
+    reopened = browser._open_field_overview(owner)
+    assert reopened is dialog
+    assert reopened._scope == ("plate1", "A01")
+    assert not reopened._cancelled.is_set()
+    reopened.fields.setCurrentRow(0)
+    reopened._field(reopened.fields.item(0))
+    assert reopened.view._item is not None
+    assert len(reopened._cache) == 1
+    reopened.close()
+
+
+def test_explicit_well_exports_all_fields_while_sample_mode_limits(plate_images, qtbot):
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._indexed(browser._overview_index(plate_images))
+    dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
+    dialog.use_selection.setChecked(True)
+    dialog.wells.item(0, 0).setSelected(True)
+    selected = dialog._export_selection()
+    assert len(selected) == 3 and all(f.well == "A01" for f in selected)
+    dialog.sample_selected.setChecked(True)
+    dialog.random.setChecked(True)
+    assert len(dialog._export_selection()) == 1
+    dialog.sample_selected.setChecked(False)
+    dialog.use_selection.setChecked(False)
+    dialog.grouping.setCurrentIndex(dialog.grouping.findData("well"))
+    assert len(dialog._export_selection()) == 2
+    dialog.use_selection.setChecked(True)
+    dialog.fields.item(0).setSelected(True)
+    assert dialog._export_selection() == (dialog.fields.item(0).data(browser.Qt.UserRole),)
+    dialog.close()
+
+
+def test_cancelled_export_preserves_completed_pages_and_refuses_overwrite(plate_images, tmp_path, monkeypatch):
+    from spacr import plot
+    fields = tuple(f for f in browser._overview_index(plate_images) if not f.unresolved)
+    fields = fields + (fields[0],)
+    cancelled = threading.Event()
+    original = plot.save_figure
+    def save(*args, **kwargs):
+        result = original(*args, **kwargs)
+        cancelled.set()
+        return result
+    monkeypatch.setattr(plot, "save_figure", save)
+    folder = tmp_path / "partial"
+    paths, errors = browser._overview_export(fields, folder, (1, 2), (1, 99), cancelled=cancelled)
+    assert len(paths) == 1 and not errors
+    manifest = folder / "overview_selection.json"
+    before = manifest.read_bytes()
+    partial = json.loads(before)
+    assert len(partial["fields"]) == 12
+    assert partial["cancelled"] is True
+    assert partial["requested_field_count"] == 13
+    assert partial["written_field_count"] == 12
+    with pytest.raises(ValueError, match="already exist"):
+        browser._overview_export(fields[:1], folder, (1,), None)
+    assert manifest.read_bytes() == before
+    assert len(list(folder.glob("*.pdf"))) == 1
+
+
+def test_large_metadata_pages_and_rgb_cache_stay_bounded(plate_images, qtbot):
+    from dataclasses import replace
+    actual = next(f for f in browser._overview_index(plate_images) if not f.unresolved)
+    fields = tuple(replace(actual, field=str(index)) for index in range(100))
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._image_jobs._threaded = False
+    dialog._indexed(fields)
+    assert dialog.fields.count() == 24
+    assert not dialog._cache
+    for index in range(20):
+        dialog.fields.setCurrentRow(index)
+        dialog._field(dialog.fields.item(index))
+    assert len(dialog._cache) == 16
+    assert all(value.shape == (10, 12, 3) for value in dialog._cache.values())
+    dialog._turn(1)
+    assert dialog._page == 1 and dialog.fields.count() == 24
+    assert dialog.fields.item(0).data(browser.Qt.UserRole) == fields[24]
+    dialog.use_selection.setChecked(True)
+    assert len(dialog._export_selection()) == 1
+    assert dialog._export_selection()[0] == fields[19]
+    dialog._clear_selection()
+    assert dialog._export_selection() == ()
+    dialog.close()
+
+
+def test_rapid_field_changes_coalesce_behind_one_real_image_read(plate_images, qtbot, monkeypatch):
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    fields = tuple(f for f in browser._overview_index(plate_images) if not f.unresolved)
+    dialog._indexed(fields)
+    started, release = threading.Event(), threading.Event()
+    original = browser._overview_pixels
+    calls = []
+    def read(field, *args, **kwargs):
+        calls.append(field.identity)
+        pixels = original(field, *args, **kwargs)
+        if len(calls) == 1:
+            started.set()
+            assert release.wait(5)
+        return pixels
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    try:
+        dialog.fields.setCurrentRow(0)
+        dialog._field(dialog.fields.item(0))
+        qtbot.waitUntil(started.is_set)
+        dialog.fields.setCurrentRow(1)
+        dialog._field(dialog.fields.item(1))
+        dialog.fields.setCurrentRow(2)
+        dialog._field(dialog.fields.item(2))
+        assert len(calls) == 1
+        release.set()
+        qtbot.waitUntil(lambda: len(calls) == 2 and not dialog._image_jobs.is_busy())
+        assert calls[-1] == dialog.fields.item(2).data(browser.Qt.UserRole).identity
+        assert dialog.view._item is not None
+    finally:
+        release.set()
+        dialog.close()
+
+
+
+def test_arbitrary_plate_folder_names_never_merge_their_fields(tmp_path):
+    for plate in ("untreated", "treated"):
+        folder = tmp_path / plate / "A01" / "field1"
+        folder.mkdir(parents=True)
+        tifffile.imwrite(folder / "ch1.tif", np.zeros((5, 6), np.uint8))
+    fields = browser._overview_index(tmp_path)
+    assert len(fields) == 2
+    assert {field.plate for field in fields} == {str(tmp_path / "untreated"), str(tmp_path / "treated")}
+    assert all(not field.unresolved and len(field.files) == 1 for field in fields)
+
+
+@pytest.mark.parametrize("module,object_name", [
+    ("mask", "GenerateMasksFieldOverview"), ("make_masks", "MakeMasksFieldOverview"),
+])
+def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, module, object_name):
+    from PySide6.QtWidgets import QPushButton
+    from spacr.qt.widgets import ambient
+    monkeypatch.setattr(ambient, "_flow_graphics_possible", lambda: False)
+    if module == "mask":
+        from spacr.qt.screens.app_screen import AppScreen
+        screen = AppScreen("mask")
+    else:
+        from spacr.qt.screens.make_masks import MakeMasksScreen
+        screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    button = screen.findChild(QPushButton, object_name)
+    assert button is not None
+    button.click()
+    dialog = screen._field_overview
+    assert isinstance(dialog, browser._FieldOverview)
+    assert dialog._fields == () and not dialog._cache
+    assert not dialog._index_jobs.is_busy()
+    dialog.close()
+
+
+def test_source_change_discards_late_image_from_previous_generation(plate_images, tmp_path, qtbot, monkeypatch):
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._indexed(tuple(f for f in browser._overview_index(plate_images) if not f.unresolved))
+    started, release = threading.Event(), threading.Event()
+    original = browser._overview_pixels
+    def read(*args, **kwargs):
+        pixels = original(*args, **kwargs)
+        started.set()
+        assert release.wait(5)
+        return pixels
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    next_source = tmp_path / "new_source"
+    next_source.mkdir()
+    tifffile.imwrite(next_source / "other_A01_F1.tif", np.ones((4, 5), np.uint8))
+    try:
+        dialog.fields.setCurrentRow(0)
+        dialog._field(dialog.fields.item(0))
+        qtbot.waitUntil(started.is_set)
+        dialog.source.setText(str(next_source))
+        dialog._scan()
+        qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._fields[0].plate == "other")
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy())
+        assert not dialog._cache
+        assert dialog.view._item is None
+        assert all(field.plate == "other" for field in dialog._fields)
+    finally:
+        release.set()
+        dialog.close()
+
+
+def test_unreadable_field_is_traceable_in_pdf_instead_of_dropping_selection(tmp_path):
+    broken = tmp_path / "broken_A01_F1.tif"
+    broken.write_bytes(b"not a TIFF")
+    field, = browser._overview_index(tmp_path)
+    paths, errors = browser._overview_export((field,), tmp_path / "errors", (0,), (1, 99))
+    assert len(paths) == 1
+    assert len(errors) == 1 and errors[0][0] == field.caption
+    manifest = json.loads((tmp_path / "errors" / "overview_selection.json").read_text())
+    assert manifest["fields"][0]["files"] == [["", str(broken)]]
+    assert len(manifest["errors"]) == 1
+
+
+
+def test_identical_filename_plate_ids_keep_physical_screen_scopes(tmp_path):
+    for screen in ("screenA", "screenB"):
+        for well in ("A01", "B02"):
+            for channel in ("01", "02"):
+                folder = tmp_path / screen / "plate1" / well / "field1" / f"ch{channel}"
+                folder.mkdir(parents=True)
+                tifffile.imwrite(folder / f"plate1_{well}_T0001F001L01C{channel}.tif",
+                                 np.arange(30, dtype=np.uint16).reshape(5, 6))
+    fields = browser._overview_index(tmp_path)
+    assert len(fields) == 4
+    assert {f.plate for f in fields} == {"screenA/plate1", "screenB/plate1"}
+    assert all(len(f.files) == 2 for f in fields)
+    assert len(browser._overview_sample(fields, 1, grouping="plate")) == 2
+    assert all(browser._overview_pixels(f, (1, 2)).shape == (5, 6, 3) for f in fields)
+
+
+
+def test_fourth_channel_changes_shared_preview_and_pdf_pixels(tmp_path):
+    array = np.zeros((12, 16, 4), dtype=np.uint16)
+    array[..., :3] = np.arange(192).reshape(12, 16, 1)
+    path = tmp_path / "four_A01_F1.npy"
+    np.save(path, array)
+    field, = browser._overview_index(tmp_path)
+    before = browser._overview_pixels(field, (0, 1, 2, 3), (0, 100), edge=120)
+    array[..., 3] = np.arange(192).reshape(12, 16)
+    np.save(path, array)
+    after = browser._overview_pixels(field, (0, 1, 2, 3), (0, 100), edge=120)
+    assert before.shape == after.shape == (120, 120, 3)
+    np.testing.assert_array_equal(before[:60], after[:60])
+    np.testing.assert_array_equal(before[60:, :60], after[60:, :60])
+    assert not np.array_equal(before[60:, 60:], after[60:, 60:])
+
+
+
+def test_overview_initial_choices_follow_supplied_display_settings(qtbot):
+    dialog = browser._FieldOverview(settings={"channels": [0, 1, 2, 3],
+        "normalization_percentiles": [5, 95], "normalize": False})
+    qtbot.addWidget(dialog)
+    assert dialog._choices() == ((0, 1, 2, 3), None)
+    dialog.normalise.setChecked(True)
+    assert dialog._choices() == ((0, 1, 2, 3), (5, 95))
+    dialog.close()
+
+
+
+def test_plate_previews_decode_only_visible_representatives(plate_images, qtbot, monkeypatch):
+    from dataclasses import replace
+    actual = next(f for f in browser._overview_index(plate_images) if not f.unresolved)
+    fields = tuple(replace(actual, well=f"A{column:02d}", column=column) for column in range(1, 41))
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    calls = []
+    original = browser._overview_pixels
+    def read(field, *args, **kwargs):
+        calls.append((field.well, kwargs.get("edge")))
+        return original(field, *args, **kwargs)
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    dialog._indexed(fields)
+    assert not calls
+    dialog.show()
+    qtbot.waitUntil(lambda: not dialog.wells.item(0, 0).icon().isNull())
+    def visible():
+        return {dialog.wells.item(0, column).data(browser.Qt.UserRole)
+                for column in range(40)
+                if dialog.wells.viewport().rect().intersects(dialog.wells.visualItemRect(dialog.wells.item(0, column)))}
+    initial = visible()
+    qtbot.waitUntil(lambda: all(not dialog.wells.item(0, int(well[1:]) - 1).icon().isNull() for well in initial))
+    before = dialog._thumbnail_jobs._next_id
+    for well in initial:
+        item = dialog.wells.item(0, int(well[1:]) - 1)
+        assert item.data(browser.Qt.UserRole + 1) in dialog._thumbnail_cache
+    dialog._update_visuals()
+    assert dialog._thumbnail_jobs._next_id == before
+    assert set(well for well, _ in calls) <= initial
+    assert all(edge == 160 for _, edge in calls)
+    assert len(calls) < len(fields)
+    dialog.wells.horizontalScrollBar().setValue(dialog.wells.horizontalScrollBar().maximum())
+    qtbot.waitUntil(lambda: not dialog.wells.item(0, 39).icon().isNull())
+    assert "A40" in {well for well, _ in calls}
+    assert len(dialog._thumbnail_cache) <= 64
+    dialog.close()
+
+
+def test_well_montage_and_individual_zoom_share_real_pixels(plate_images, qtbot):
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._indexed(browser._overview_index(plate_images))
+    dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
+    dialog.show()
+    dialog._well(dialog.wells.item(0, 0))
+    qtbot.waitUntil(lambda: dialog._displayed_montage is not None)
+    montage = dialog.view._item.pixmap().toImage()
+    assert montage.width() == 3 * 256 and montage.height() == 280
+    from PIL import Image
+    expected = Image.fromarray(browser._overview_pixels(
+        dialog._visible[0], (1, 2), (1., 99.9), edge=240)).resize((240, 200), Image.Resampling.BILINEAR)
+    assert montage.pixelColor(100, 100).getRgb()[:3] == expected.getpixel((100, 76))
+    dialog.fields.setCurrentRow(0)
+    dialog._field(dialog.fields.item(0))
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy())
+    assert dialog.view._item.pixmap().width() == 12
+    dialog._back()
+    assert dialog._scope == ("plate1", None)
+    assert dialog.view._item is None
+    assert dialog.wells.item(0, 0).data(browser.Qt.UserRole) == "A01"
+    dialog.close()
+
+
+def test_well_aliases_use_one_canonical_grid_address(tmp_path):
+    for well, channel in (("A1", 1), ("A01", 2)):
+        tifffile.imwrite(tmp_path / f"plate_{well}_F1_C{channel}.tif",
+                         np.arange(30, dtype=np.uint16).reshape(5, 6))
+    field, = browser._overview_index(tmp_path)
+    assert field.well == "A01" and len(field.files) == 2
+    assert browser._overview_pixels(field, (1, 2)).shape == (5, 6, 3)
+
+
+def test_source_change_rejects_an_old_visible_well_thumbnail(plate_images, tmp_path, qtbot, monkeypatch):
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._indexed(browser._overview_index(plate_images))
+    dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
+    started, release = threading.Event(), threading.Event()
+    original = browser._overview_pixels
+    def read(field, *args, **kwargs):
+        pixels = original(field, *args, **kwargs)
+        if field.plate == "plate1":
+            started.set()
+            assert release.wait(5)
+        return pixels
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    next_source = tmp_path / "replacement"
+    next_source.mkdir()
+    for channel in (1, 2):
+        tifffile.imwrite(next_source / f"other_A01_F1_C{channel}.tif",
+                         np.arange(20, dtype=np.uint16).reshape(4, 5))
+    try:
+        dialog.show()
+        qtbot.waitUntil(started.is_set)
+        dialog.source.setText(str(next_source))
+        dialog._scan()
+        qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._fields[0].plate == "other")
+        release.set()
+        qtbot.waitUntil(lambda: not dialog.wells.item(0, 0).icon().isNull())
+        assert all(key[0][0] == "other" for key in dialog._thumbnail_cache)
+        assert dialog.wells.item(0, 0).data(browser.Qt.UserRole + 1)[0][0] == "other"
+    finally:
+        release.set()
+        dialog.close()
+
+
+
+def test_scrolling_many_wells_releases_offscreen_native_icons(plate_images, qtbot, monkeypatch):
+    from dataclasses import replace
+    actual = next(f for f in browser._overview_index(plate_images) if not f.unresolved)
+    fields = tuple(replace(actual, well=f"A{column:02d}", column=column) for column in range(1, 81))
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    calls = set()
+    original = browser._overview_pixels
+    def read(field, *args, **kwargs):
+        calls.add(field.well)
+        return original(field, *args, **kwargs)
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    dialog._indexed(fields)
+    dialog.show()
+    try:
+        for column in range(80):
+            target = dialog.wells.item(0, column)
+            dialog.wells.scrollToItem(target)
+            qtbot.waitUntil(lambda: not target.icon().isNull())
+            dialog._update_visuals()
+            visible = {index for index in range(80) if dialog.wells.viewport().rect().intersects(
+                dialog.wells.visualItemRect(dialog.wells.item(0, index)))}
+            installed = {index for index in range(80) if not dialog.wells.item(0, index).icon().isNull()}
+            assert installed <= visible
+            assert len(dialog._thumbnail_cache) <= 64
+        assert len(calls) > 64
+        assert len(dialog._installed_thumbnails) < 64
+        old = dialog.wells.item(0, 0)
+        assert old.icon().isNull()
+        dialog._set_thumbnail("A01", (fields[0].identity, (1, 2), (1., 99.9)),
+                              original(fields[0], (1, 2), edge=160))
+        assert old.icon().isNull()
+    finally:
+        dialog.close()
+
+
+
+def test_changed_display_choices_reject_the_previous_inflight_image(plate_images, qtbot, monkeypatch):
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._indexed(tuple(f for f in browser._overview_index(plate_images) if not f.unresolved))
+    started, release = threading.Event(), threading.Event()
+    original = browser._overview_pixels
+    calls, shown = [], []
+    show = dialog._show_pixels
+    def read(field, *args, **kwargs):
+        calls.append(args)
+        pixels = original(field, *args, **kwargs)
+        if len(calls) == 1:
+            started.set()
+            assert release.wait(5)
+        return pixels
+    def display(pixels):
+        shown.append(pixels.copy())
+        show(pixels)
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    monkeypatch.setattr(dialog, "_show_pixels", display)
+    try:
+        dialog.fields.setCurrentRow(0)
+        dialog._field(dialog.fields.item(0))
+        qtbot.waitUntil(started.is_set)
+        dialog.channels.setText("1")
+        dialog._refresh_image()
+        release.set()
+        qtbot.waitUntil(lambda: len(calls) == 2 and not dialog._image_jobs.is_busy())
+        assert len(shown) == 1
+        np.testing.assert_array_equal(shown[0][..., 0], shown[0][..., 2])
+        assert shown[0][..., 2].any()
+    finally:
+        release.set()
+        dialog.close()
+
+
+
+def test_missing_channel_clears_previous_well_and_field_images(plate_images, qtbot):
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._indexed(tuple(f for f in browser._overview_index(plate_images) if not f.unresolved))
+    dialog.show()
+    cell = dialog.wells.item(0, 0)
+    qtbot.waitUntil(lambda: not cell.icon().isNull())
+    dialog.fields.setCurrentRow(0)
+    dialog._field(dialog.fields.item(0))
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy())
+    assert dialog.view._item is not None
+    dialog.channels.setText("99")
+    dialog._refresh_image()
+    qtbot.waitUntil(lambda: cell.data(browser.Qt.UserRole + 1)[1] == (99,))
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy())
+    assert cell.icon().isNull()
+    assert "A01" not in dialog._installed_thumbnails
+    assert dialog.view._item is None
+    before = dialog._thumbnail_jobs._next_id
+    dialog._update_visuals()
+    assert dialog._thumbnail_jobs._next_id == before
+    dialog.close()
+
+
+
+def test_back_to_plate_rejects_a_late_individual_field_image(plate_images, qtbot, monkeypatch):
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._indexed(tuple(f for f in browser._overview_index(plate_images) if not f.unresolved))
+    dialog._well(dialog.wells.item(0, 0))
+    started, release = threading.Event(), threading.Event()
+    original = browser._overview_pixels
+    shown = []
+    show = dialog._show_pixels
+    def read(*args, **kwargs):
+        pixels = original(*args, **kwargs)
+        started.set()
+        assert release.wait(5)
+        return pixels
+    def display(pixels):
+        shown.append(pixels.copy())
+        show(pixels)
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    monkeypatch.setattr(dialog, "_show_pixels", display)
+    try:
+        dialog.fields.setCurrentRow(0)
+        dialog._field(dialog.fields.item(0))
+        qtbot.waitUntil(started.is_set)
+        dialog._back()
+        dialog.fields.setCurrentRow(0)
+        assert dialog.fields.currentItem().data(browser.Qt.UserRole).identity == dialog._visible[0].identity
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy())
+        assert dialog._scope == ("plate1", None)
+        assert not shown and dialog.view._item is None
+        assert len(dialog._cache) == 1
+    finally:
+        release.set()
+        dialog.close()

@@ -27,6 +27,7 @@ from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
+    QStyledItemDelegate,
     QComboBox,
     QDialog,
     QHBoxLayout,
@@ -1512,3 +1513,915 @@ class QCFieldBrowser(QDialog):
         self._render_jobs.shutdown()
         self._jobs.shutdown()
         super().closeEvent(event)
+
+
+@dataclass(frozen=True)
+class _OverviewField:
+    """One field address and its explicitly identified channel files."""
+
+    plate: str
+    well: str
+    row: str
+    column: int
+    field: str
+    files: tuple
+    unresolved: bool = False
+
+    @property
+    def identity(self):
+        """Keep the original paths in the identity, including unresolved fields."""
+        return (self.plate, self.well, self.field, self.files)
+
+    @property
+    def caption(self):
+        """Trace a view back to its plate, well, field and source files."""
+        return " / ".join((self.plate, self.well, self.field))
+
+
+def _overview_index(source, pattern="", convention="auto", cancelled=None):
+    """Index paths without decoding pixels; never invent an unresolved well."""
+    import re
+    from ...schema import parse_well, well_id
+    from ...regex_infer import _metadata_pattern
+    from ..folder_metadata import _classify, _FIELD_RX, _CHANNEL_RX
+
+    root = Path(source).resolve()
+    if not root.is_dir():
+        raise ValueError(tr("Choose an existing image folder."))
+    custom = re.compile(pattern, re.I) if pattern else None
+    groups = {}
+    for directory, folders, names in os.walk(root):
+        folders[:] = sorted(p for p in folders if not p.startswith("."))
+        for name in sorted(names):
+            if cancelled is not None and cancelled.is_set():
+                return ()
+            path = Path(directory) / name
+            if path.suffix.lower() not in (".tif", ".tiff", ".npy", ".png", ".jpg", ".jpeg"):
+                continue
+            values = {}
+            if custom is not None:
+                match = custom.search(name)
+            else:
+                match = re.match(_metadata_pattern(convention, path.suffix[1:]), name, re.I)
+                if match is None:
+                    match = re.match(r"(?P<plateID>.+)_(?P<wellID>[A-Za-z]+\d+)_"
+                                     r"(?:F|field)?(?P<fieldID>\d+)(?:_C(?P<chanID>\d+))?(?:\.|$)", name, re.I)
+            if match is not None:
+                values = {key: value for key, value in match.groupdict().items() if value}
+            filename_plate = values.get("plateID")
+            if custom is None:
+                parent_parts = path.relative_to(root).parts[:-1]
+                well_parent = None
+                for position in reversed(range(len(parent_parts))):
+                    token = parent_parts[position]
+                    axis = _classify(token)
+                    if axis == "well":
+                        values.setdefault("wellID", token)
+                        if well_parent is None:
+                            well_parent = position
+                    elif axis == "plate":
+                        values.setdefault("plateID", str(Path(*parent_parts[:position + 1])))
+                    elif axis == "field":
+                        values.setdefault("fieldID", _FIELD_RX.match(token).group(1))
+                    elif axis == "channel":
+                        values.setdefault("chanID", _CHANNEL_RX.match(token).group(1))
+                if "plateID" not in values and well_parent is not None:
+                    values["plateID"] = str(root.joinpath(*parent_parts[:well_parent]))
+                channel = _CHANNEL_RX.match(path.stem)
+                if channel:
+                    values.setdefault("chanID", channel.group(1))
+            plate = str(values.get("plateID") or root)
+            if filename_plate:
+                scope = list(path.relative_to(root).parts[:-1])
+                while scope and _classify(scope[-1]) in ("well", "field", "channel"):
+                    scope.pop()
+                if not scope or scope[-1] != filename_plate:
+                    scope.append(filename_plate)
+                plate = str(Path(*scope))
+            well = str(values.get("wellID") or "").upper()
+            try:
+                row, column = parse_well(well, strict=True)
+                well = well_id(row, column)
+                row = row[1:]
+                column = int(column[1:])
+            except (ValueError, TypeError):
+                row, column = "", 0
+                well = ""
+            field = str(values.get("fieldID") or "")
+            unresolved = not well or not field
+            if unresolved:
+                key = (plate, "", str(path.relative_to(root)), "", "")
+            else:
+                key = (plate, well, field, values.get("timeID", ""), values.get("sliceID", ""))
+            channel = str(values.get("chanID") or "")
+            if channel.isdigit():
+                channel = str(int(channel))
+            groups.setdefault(key, [row, column, unresolved, []])[3].append(
+                (channel, str(path)))
+    result = []
+    for (plate, well, field, time, plane), (row, column, unresolved, files) in sorted(groups.items()):
+        if time or plane:
+            field += f" / T{time} / Z{plane}"
+        result.append(_OverviewField(plate, well, row, column, field,
+                                     tuple(sorted(files)), unresolved))
+    return tuple(result)
+
+
+def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200):
+    """Decode one bounded field and return the same RGB pixels used in PDFs."""
+    from PIL import Image, ImageDraw
+
+    planes = []
+    columns = math.ceil(math.sqrt(len(channels))) if len(channels) > 3 else 1
+    tile = max(1, edge // columns)
+    header = min(16, tile // 4) if len(channels) > 3 else 0
+    plane_edge = max(1, tile - header)
+    decoded_path, decoded_array, decoded_axes = None, None, None
+    for channel in channels:
+        if channel < 0:
+            raise ValueError(tr("Channel indices must be zero or greater."))
+        separate = any(key for key, _ in field.files)
+        if separate:
+            matches = [path for key, path in field.files if key == str(channel)]
+            if len(matches) != 1:
+                raise ValueError(tr("Channel {channel} is missing or ambiguous.", channel=channel))
+            path = matches[0]
+        else:
+            if len(field.files) != 1:
+                raise ValueError(tr("This field has ambiguous image files."))
+            path = field.files[0][1]
+        if path != decoded_path:
+            suffix = Path(path).suffix.lower()
+            if suffix == ".npy":
+                array = np.load(path, mmap_mode="r", allow_pickle=False)
+                axes = "YX" if array.ndim == 2 else "YXC"
+            elif suffix in (".tif", ".tiff"):
+                import tifffile
+                with tifffile.TiffFile(path) as tif:
+                    series = tif.series[0]
+                    if math.prod(series.shape) * np.dtype(series.dtype).itemsize > 128 * 1024 ** 2:
+                        raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+                    axes = series.axes
+                    array = series.asarray()
+            else:
+                with Image.open(path) as image:
+                    if image.width * image.height > 32 * 1024 ** 2:
+                        raise ValueError(tr("This image exceeds the preview decode limit."))
+                    array = np.asarray(image)
+                    axes = "YX" if array.ndim == 2 else "YXC"
+            decoded_path, decoded_array, decoded_axes = path, array, axes
+        array, axes = decoded_array, decoded_axes
+        if array.ndim > 3 or array.ndim < 2:
+            raise ValueError(tr("Choose a two-dimensional field or a channel image stack."))
+        if array.ndim == 3:
+            if axes[-1] in ("C", "S"):
+                array = array[..., 0 if separate else channel]
+            elif axes[0] in ("C", "S", "Q", "I"):
+                array = array[0 if separate else channel]
+            else:
+                raise ValueError(tr("The image channel axis is unresolved."))
+        elif not separate and channel != 0:
+            raise ValueError(tr("Channel {channel} is missing or ambiguous.", channel=channel))
+        stride = max(1, math.ceil(max(array.shape) / plane_edge))
+        plane = np.array(array[::stride, ::stride], dtype=np.float32, copy=True)
+        finite = np.isfinite(plane)
+        if not finite.any():
+            raise ValueError(tr("This channel has no finite pixels."))
+        if percentiles is None:
+            low, high = float(plane[finite].min()), float(plane[finite].max())
+        else:
+            low, high = np.percentile(plane[finite], percentiles)
+        plane = np.nan_to_num((plane - low) / max(float(high - low), np.finfo(np.float32).eps),
+                              nan=0., posinf=1., neginf=0.)
+        planes.append(np.uint8(np.clip(plane, 0, 1) * 255))
+    if not planes or any(plane.shape != planes[0].shape for plane in planes):
+        raise ValueError(tr("Selected channels must have matching image sizes."))
+    if len(planes) == 1:
+        return np.repeat(planes[0][..., None], 3, axis=2)
+    if len(planes) > 3:
+        rows = math.ceil(len(planes) / columns)
+        mosaic = Image.new("RGB", (columns * tile, rows * tile))
+        draw = ImageDraw.Draw(mosaic)
+        for index, (channel, plane) in enumerate(zip(channels, planes)):
+            x, y = (index % columns) * tile, (index // columns) * tile
+            mosaic.paste(Image.fromarray(plane).convert("RGB"), (x, y + header))
+            if header:
+                draw.text((x, y), str(channel), fill="white")
+        return np.asarray(mosaic).copy()
+    rgb = np.zeros(planes[0].shape + (3,), dtype=np.uint8)
+    for index, plane in enumerate(planes):
+        rgb[..., index] = plane
+    return rgb
+
+
+def _overview_sample(fields, count=1, seed=0, grouping="well", randomize=False):
+    """Select stable examples per actual plate, row, column or well."""
+    import random
+    grouped = {}
+    for field in sorted(fields, key=lambda value: value.identity):
+        key = (field.plate,)
+        if grouping == "row":
+            key += (field.row,)
+        elif grouping == "column":
+            key += (field.column,)
+        elif grouping == "well":
+            key += (field.well,)
+        if field.unresolved:
+            key += (field.identity,)
+        grouped.setdefault(key, []).append(field)
+    rng = random.Random(seed)
+    result = []
+    for key in sorted(grouped, key=str):
+        values = grouped[key]
+        n = min(max(1, int(count)), len(values))
+        result.extend(rng.sample(values, n) if randomize else values[:n])
+    return tuple(result)
+
+
+def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=None):
+    """Write twelve bounded images per styled PDF with reproducible provenance."""
+    import json
+    from matplotlib.figure import Figure
+    from ...plot import save_figure
+    from ...figures.style import _apply_user_style
+
+    destination = Path(folder)
+    destination.mkdir(parents=True, exist_ok=True)
+    if any(destination.glob("overview_*.pdf")) or (destination / "overview_selection.json").exists():
+        raise ValueError(tr("Overview files already exist here. Choose a new output folder."))
+    written, errors, provenance = [], [], []
+    for start in range(0, len(fields), 12):
+        if cancelled is not None and cancelled.is_set():
+            break
+        figure = Figure(figsize=(12, 12))
+        page_records, page_errors = [], []
+        interrupted = False
+        for index, field in enumerate(fields[start:start + 12]):
+            if cancelled is not None and cancelled.is_set():
+                interrupted = True
+                break
+            axis = figure.add_subplot(4, 3, index + 1)
+            try:
+                axis.imshow(_overview_pixels(field, channels, percentiles, edge=1000))
+            except Exception as exc:
+                axis.text(.5, .5, str(exc), ha="center", va="center", wrap=True)
+                page_errors.append((field.caption, str(exc)))
+            axis.set_title(field.caption, fontsize=8, wrap=True)
+            axis.set_axis_off()
+            page_records.append({"plate": field.plate, "well": field.well,
+                               "field": field.field, "files": field.files})
+        if interrupted:
+            figure.clear()
+            break
+        figure.suptitle(tr("Channels: {channels}; percentiles: {percentiles}; seed: {seed}",
+                          channels=str(channels), percentiles=str(percentiles), seed=seed))
+        figure.tight_layout()
+        _apply_user_style(figure)
+        path = destination / f"overview_{start // 12 + 1:04d}.pdf"
+        save_figure(figure, str(path), fmt="pdf", close=True)
+        written.append(str(path))
+        provenance.extend(page_records)
+        errors.extend(page_errors)
+    (destination / "overview_selection.json").write_text(json.dumps(
+        {"channels": channels, "percentiles": percentiles, "seed": seed,
+         "fields": provenance, "errors": errors,
+         "cancelled": bool(cancelled is not None and cancelled.is_set()),
+         "requested_field_count": len(fields), "written_field_count": len(provenance)}, indent=2), encoding="utf-8")
+    return tuple(written), tuple(errors)
+
+
+def _overview_montage(fields, channels, percentiles, cancelled=None):
+    """Render one bounded page of field thumbnails, using the shared pixel path."""
+    from PIL import Image, ImageDraw
+
+    columns = min(4, max(1, len(fields)))
+    rows = max(1, math.ceil(len(fields) / columns))
+    image = Image.new("RGB", (columns * 256, rows * 280))
+    draw = ImageDraw.Draw(image)
+    errors = []
+    for index, field in enumerate(fields):
+        if cancelled is not None and cancelled.is_set():
+            return None, ()
+        x, y = (index % columns) * 256, (index // columns) * 280
+        draw.text((x, y), field.well + " / " + field.field, fill="white")
+        try:
+            pixels = _overview_pixels(field, channels, percentiles, edge=240)
+            preview = Image.fromarray(pixels)
+            factor = min(240 / preview.width, 240 / preview.height)
+            preview = preview.resize((max(1, round(preview.width * factor)),
+                                      max(1, round(preview.height * factor))), Image.Resampling.BILINEAR)
+            image.paste(preview, (x, y + 24))
+        except Exception as exc:
+            errors.append((field.caption, str(exc)))
+            draw.text((x, y + 30), str(exc), fill="red")
+    return np.asarray(image).copy(), tuple(errors)
+
+
+class _OverviewWellDelegate(QStyledItemDelegate):
+    """Paint each well image above its complete address and field count."""
+
+    def paint(self, painter, option, index):
+        """Use native cell geometry for the image and two-line caption."""
+        from PySide6.QtCore import QRect
+        from PySide6.QtGui import QPalette
+        from PySide6.QtWidgets import QStyle, QStyleOptionViewItem
+
+        opts = QStyleOptionViewItem(option)
+        self.initStyleOption(opts, index)
+        option.widget.style().drawPrimitive(QStyle.PE_PanelItemViewItem, opts, painter, option.widget)
+        painter.save()
+        rect = option.rect.adjusted(4, 4, -4, -4)
+        caption_height = option.fontMetrics.height() * 2 + 4
+        image_rect = QRect(rect.left(), rect.top(), rect.width(), max(0, rect.height() - caption_height))
+        icon = index.data(Qt.DecorationRole)
+        if icon is not None:
+            icon.paint(painter, image_rect, Qt.AlignCenter)
+        colour = QPalette.HighlightedText if option.state & QStyle.State_Selected else QPalette.Text
+        painter.setPen(option.palette.color(colour))
+        text_rect = QRect(rect.left(), rect.bottom() - caption_height + 1, rect.width(), caption_height)
+        painter.drawText(text_rect, Qt.AlignCenter | Qt.TextWordWrap, str(index.data(Qt.DisplayRole) or ""))
+        painter.restore()
+
+
+class _FieldOverview(QDialog):
+    """Shared, lazily loaded plate and field overview for both mask modules."""
+
+    def __init__(self, parent=None, settings=None):
+        """Create controls without opening a directory or decoding an image."""
+        from collections import OrderedDict
+        from PySide6.QtWidgets import (QLineEdit, QSpinBox, QDoubleSpinBox,
+                                       QListWidget, QAbstractItemView, QTableWidget)
+        import threading
+
+        super().__init__(parent)
+        self.setWindowTitle(tr("Field-of-view overview"))
+        self.resize(1000, 760)
+        self._fields, self._visible = (), ()
+        self._selected_fields = {}
+        self._cache = OrderedDict()
+        self._thumbnail_cache = OrderedDict()
+        self._well_representatives = {}
+        self._well_positions = {}
+        self._installed_thumbnails = set()
+        self._individual = False
+        self._visual_signature = None
+        self._displayed_montage = None
+        self._cancelled = threading.Event()
+        self._index_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._image_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._export_jobs = JobRunner(self, app_key="field_overview")
+        self._thumbnail_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._montage_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._visual_timer = QTimer(self)
+        self._visual_timer.setSingleShot(True)
+        self._visual_timer.timeout.connect(self._update_visuals)
+        self._thumbnail_jobs.job_finished.connect(self._request_visuals)
+        self._montage_jobs.job_finished.connect(self._request_visuals)
+        self._scope = (None, None)
+        self._image_jobs.job_finished.connect(self._refresh_image_if_pending)
+        self._image_pending = False
+        self._page = 0
+        column = QVBoxLayout(self)
+        source_row = QHBoxLayout()
+        source = (settings or {}).get("src") or ""
+        if isinstance(source, (list, tuple)):
+            source = source[0] if source else ""
+        self.source = QLineEdit(str(source))
+        browse = QPushButton(tr("Browse folder"))
+        browse.clicked.connect(self._browse)
+        source_row.addWidget(self.source, 1)
+        source_row.addWidget(browse)
+        column.addLayout(source_row)
+        self.regex = QLineEdit(str((settings or {}).get("custom_regex") or ""))
+        self.regex.setPlaceholderText(tr("Filename regex with plateID, wellID, fieldID and chanID groups (optional)"))
+        column.addWidget(self.regex)
+        controls = QHBoxLayout()
+        channels = (settings or {}).get("channels")
+        if not isinstance(channels, (list, tuple)) or not channels:
+            channels = (0,)
+        self.channels = QLineEdit(",".join(str(value) for value in channels))
+        self.channels.setPlaceholderText(tr("Channels, comma-separated"))
+        self.channels.setToolTip(tr("Use filename channel IDs for separate files; use zero-based indices for multichannel images."))
+        self.channels.setMaximumWidth(160)
+        self.normalise = QCheckBox(tr("Percentile normalization"))
+        self.normalise.setChecked(bool((settings or {}).get("normalize", True)))
+        self.low, self.high = QDoubleSpinBox(), QDoubleSpinBox()
+        percentiles = (settings or {}).get("normalization_percentiles") or (1., 99.9)
+        for spin, value in ((self.low, percentiles[0]), (self.high, percentiles[1])):
+            spin.setRange(0, 100)
+            spin.setValue(value)
+        self.low.setToolTip(tr("Lower normalization percentile"))
+        self.high.setToolTip(tr("Upper normalization percentile"))
+        scan = QPushButton(tr("Load overview"))
+        scan.clicked.connect(self._scan)
+        metadata = QPushButton(tr("Filename metadata…"))
+        metadata.clicked.connect(self._metadata)
+        controls.addWidget(QLabel(tr("Channels")))
+        for widget in (self.channels, self.normalise, self.low, self.high, scan, metadata):
+            controls.addWidget(widget)
+        column.addLayout(controls)
+        self.plates, self.rows, self.columns = QComboBox(), QComboBox(), QComboBox()
+        navigation = QHBoxLayout()
+        for widget in (self.plates, self.rows, self.columns):
+            navigation.addWidget(widget)
+            widget.currentIndexChanged.connect(self._filter)
+        back = QPushButton(tr("Back to plate"))
+        back.clicked.connect(self._back)
+        navigation.addWidget(back)
+        column.addLayout(navigation)
+        self.wells, self.fields = QTableWidget(), QListWidget()
+        self.wells.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.wells.setItemDelegate(_OverviewWellDelegate(self.wells))
+        self.fields.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self._well_viewport = self.wells.viewport()
+        self._well_viewport.installEventFilter(self)
+        self.wells.horizontalScrollBar().valueChanged.connect(self._request_visuals)
+        self.wells.verticalScrollBar().valueChanged.connect(self._request_visuals)
+        from PySide6.QtCore import QSize
+        self.wells.setIconSize(QSize(160, 120))
+        self.wells.itemDoubleClicked.connect(self._well)
+        self.wells.setToolTip(tr("Select wells for export; double-click a well to explore its fields."))
+        self.fields.itemSelectionChanged.connect(self._remember_selection)
+        self.fields.itemClicked.connect(self._field)
+        from PySide6.QtWidgets import QSplitter
+        splitter = QSplitter()
+        self._splitter = splitter
+        splitter.addWidget(self.wells)
+        splitter.addWidget(self.fields)
+        self.view = ZoomableImageView()
+        splitter.addWidget(self.view)
+        splitter.setStretchFactor(2, 3)
+        column.addWidget(splitter, 1)
+        paging = QHBoxLayout()
+        previous, following = QPushButton(tr("Previous fields")), QPushButton(tr("Next fields"))
+        previous.clicked.connect(lambda: self._turn(-1))
+        following.clicked.connect(lambda: self._turn(1))
+        self.grouping = QComboBox()
+        for text, key in ((tr("Plate"), "plate"), (tr("Row"), "row"),
+                          (tr("Column"), "column"), (tr("Well"), "well")):
+            self.grouping.addItem(text, key)
+        self.count, self.seed = QSpinBox(), QSpinBox()
+        self.count.setRange(1, 1000)
+        self.count.setValue(1)
+        self.seed.setRange(0, 2147483647)
+        self.random = QCheckBox(tr("Random sample"))
+        self.use_selection = QCheckBox(tr("Export selected fields or wells"))
+        self.sample_selected = QCheckBox(tr("Sample within selected wells"))
+        export, cancel = QPushButton(tr("Export PDFs")), QPushButton(tr("Cancel loading or export"))
+        clear_selection = QPushButton(tr("Clear selections"))
+        clear_selection.clicked.connect(self._clear_selection)
+        export.clicked.connect(self._export)
+        cancel.clicked.connect(self._cancel)
+        for widget in (previous, following):
+            paging.addWidget(widget)
+        paging.addStretch(1)
+        column.addLayout(paging)
+        sample_row = QHBoxLayout()
+        for widget in (self.grouping, QLabel(tr("Samples per group")), self.count,
+                       QLabel(tr("Seed")), self.seed, self.random):
+            sample_row.addWidget(widget)
+        column.addLayout(sample_row)
+        export_row = QHBoxLayout()
+        for widget in (self.use_selection, self.sample_selected, clear_selection, export, cancel):
+            export_row.addWidget(widget)
+        column.addLayout(export_row)
+        self.status = QLabel(tr("No images have been loaded."))
+        self.status.setWordWrap(True)
+        column.addWidget(self.status)
+        for runner in (self._index_jobs, self._image_jobs, self._export_jobs):
+            runner.job_failed.connect(self.status.setText)
+        for control in (self.channels,):
+            control.editingFinished.connect(self._refresh_image)
+        self.normalise.toggled.connect(self._refresh_image)
+        self.low.valueChanged.connect(self._refresh_image)
+        self.high.valueChanged.connect(self._refresh_image)
+        self._convention = str((settings or {}).get("metadata_type") or "auto")
+
+    def _choices(self):
+        """Validate one display/export configuration on the GUI thread."""
+        channels = tuple(int(token.strip()) for token in self.channels.text().split(","))
+        if not channels or min(channels) < 0:
+            raise ValueError(tr("Choose one or more nonnegative channel indices."))
+        limits = (self.low.value(), self.high.value()) if self.normalise.isChecked() else None
+        if limits is not None and limits[0] >= limits[1]:
+            raise ValueError(tr("The lower percentile must be below the upper percentile."))
+        return channels, limits
+
+    def _browse(self):
+        """Ask for a source without touching the filesystem on the GUI thread."""
+        from PySide6.QtWidgets import QFileDialog
+        value = QFileDialog.getExistingDirectory(self, tr("Image source"))
+        if value:
+            self.source.setText(value)
+            self._scan()
+
+    def _metadata(self):
+        """Reuse the import workbench to preview and accept a filename pattern."""
+        from .import_workbench import ImportWorkbenchDialog
+        from itertools import islice
+
+        filenames = tuple(islice((path for field in self._fields for _, path in field.files), 500))
+        if not filenames:
+            self.status.setText(tr("Load the image index before opening filename metadata."))
+            return
+        self._metadata_dialog = ImportWorkbenchDialog(filenames, self.regex.text(), self)
+        self._metadata_dialog.accepted.connect(self._accept_metadata)
+        self._metadata_dialog.open()
+
+    def _accept_metadata(self):
+        """Apply the workbench's complete filename pattern without moving images."""
+        self.regex.setText(self._metadata_dialog.workbench.regex.text())
+        self._scan()
+
+    def _cancel(self):
+        """Cancel queued results and stop work at the next field boundary."""
+        self._cancelled.set()
+        self.status.setText(tr("Cancellation requested; the current image read may finish."))
+        self._index_jobs.cancel()
+
+    def _scan(self):
+        """Replace the source generation; old worker results cannot leak through."""
+        import threading
+        self._cancel()
+        self._cancelled = threading.Event()
+        self._cache.clear()
+        self._thumbnail_cache.clear()
+        self._displayed_montage = None
+        self._visual_signature = None
+        self._individual = False
+        self._selected_fields.clear()
+        self._fields, self._visible = (), ()
+        self.wells.clear()
+        self.fields.clear()
+        self.view.clear_image()
+        source, regex, convention, cancelled = self.source.text(), self.regex.text(), self._convention, self._cancelled
+        self.status.setText(tr("Indexing image metadata…"))
+        self._index_jobs.submit(lambda: _overview_index(source, regex, convention, cancelled), self._indexed)
+
+    def _indexed(self, fields):
+        """Show actual plate identities and explicitly retained unresolved fields."""
+        self._fields = fields
+        channel_ids = sorted({channel for field in fields for channel, _ in field.files if channel},
+                             key=lambda value: (not value.isdigit(), int(value) if value.isdigit() else value))
+        if channel_ids and self.channels.text() == "0":
+            self.channels.setText(",".join(channel_ids[:3]))
+        self.plates.blockSignals(True)
+        self.plates.clear()
+        for plate in sorted({field.plate for field in fields}):
+            self.plates.addItem(plate, plate)
+        self.plates.blockSignals(False)
+        self._back()
+        self.status.setText(tr("{count} fields; {unresolved} with unresolved metadata.",
+                               count=len(fields), unresolved=sum(f.unresolved for f in fields)))
+
+    def _back(self):
+        """Return to the current plate, retaining its identity and filters."""
+        self._scope = (self.plates.currentData(), None)
+        self._individual = False
+        self._splitter.setSizes([720, 280, 0])
+        self.view.clear_image()
+        self._page = 0
+        self._filter()
+
+    def _filter(self, *_):
+        """Filter metadata and show bounded field pages without image reads."""
+        plate = self.plates.currentData()
+        if self._scope[0] != plate:
+            self._scope = (plate, None)
+        available = tuple(f for f in self._fields if f.plate == plate)
+        for combo, values, title in ((self.rows, sorted({f.row for f in available if f.row}, key=int), tr("All rows")),
+                                     (self.columns, sorted({f.column for f in available if f.column}), tr("All columns"))):
+            old = combo.currentData()
+            combo.blockSignals(True)
+            combo.clear()
+            combo.addItem(title, None)
+            for value in values:
+                combo.addItem(str(value), value)
+            if old in values:
+                combo.setCurrentIndex(combo.findData(old))
+            combo.blockSignals(False)
+        row, col = self.rows.currentData(), self.columns.currentData()
+        available = tuple(f for f in available if (row is None or f.row == row) and
+                          (col is None or f.column == col))
+        from collections import Counter
+        from PySide6.QtWidgets import QTableWidgetItem
+        counts = Counter(f.well for f in available)
+        addresses = {f.well: (int(f.row), f.column) for f in available if not f.unresolved}
+        rows = max((position[0] for position in addresses.values()), default=0)
+        columns = max((position[1] for position in addresses.values()), default=1)
+        if rows > 512 or columns > 512:
+            self.status.setText(tr("Plate coordinates exceed the overview grid limit."))
+            return
+        self._well_representatives = {}
+        for field in available:
+            self._well_representatives.setdefault(field.well, field)
+        self._well_positions = {}
+        self._installed_thumbnails.clear()
+        self.wells.clear()
+        self.wells.setRowCount(rows + int("" in counts))
+        self.wells.setColumnCount(columns)
+        self.wells.setHorizontalHeaderLabels([str(n) for n in range(1, columns + 1)])
+        for well, count in sorted(counts.items()):
+            r, c = addresses.get(well, (rows + 1, 1))
+            item = QTableWidgetItem(tr("{well}\n{count} fields", well=well or tr("Unresolved"), count=count))
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            item.setData(Qt.UserRole, well)
+            self.wells.setItem(r - 1, c - 1, item)
+            self._well_positions[well] = (r - 1, c - 1)
+            self.wells.setRowHeight(r - 1, 150)
+        for index in range(columns):
+            self.wells.setColumnWidth(index, 180)
+        self._visible = tuple(f for f in available if self._scope[1] is None or f.well == self._scope[1])
+        self._page = min(self._page, max(0, (len(self._visible) - 1) // 24))
+        self.fields.blockSignals(True)
+        self.fields.clear()
+        from PySide6.QtWidgets import QListWidgetItem
+        for field in self._visible[self._page * 24:(self._page + 1) * 24]:
+            item = QListWidgetItem(field.caption)
+            item.setData(Qt.UserRole, field)
+            self.fields.addItem(item)
+            item.setSelected(field.identity in self._selected_fields)
+        self.fields.blockSignals(False)
+        self._request_visuals()
+
+    def _remember_selection(self):
+        """Retain explicit field selections across pages and plate navigation."""
+        for index in range(self.fields.count()):
+            item = self.fields.item(index)
+            field = item.data(Qt.UserRole)
+            if item.isSelected():
+                self._selected_fields[field.identity] = field
+            else:
+                self._selected_fields.pop(field.identity, None)
+
+    def _clear_selection(self):
+        """Clear both visible and retained explicit selections."""
+        self._selected_fields.clear()
+        self.fields.clearSelection()
+        self.wells.clearSelection()
+
+    def _well(self, item):
+        """Zoom into one well while retaining the current plate and filters."""
+        self._scope = (self.plates.currentData(), item.data(Qt.UserRole))
+        self._splitter.setSizes([250, 200, 750])
+        self._individual = False
+        self._page = 0
+        self._filter()
+
+    def _turn(self, delta):
+        """Move one bounded field page at a time."""
+        self._individual = False
+        self._page = max(0, min((len(self._visible) - 1) // 24, self._page + delta))
+        self._filter()
+
+    def _refresh_image(self, *_):
+        """Re-render only the current field after display controls change."""
+        self._displayed_montage = None
+        self._request_visuals()
+        item = self.fields.currentItem()
+        if item is not None and self._individual:
+            self._field(item)
+
+    def _field(self, item):
+        """Load one selected field, with at most sixteen bounded RGB payloads cached."""
+        try:
+            channels, limits = self._choices()
+        except (ValueError, TypeError) as exc:
+            self.status.setText(str(exc))
+            return
+        if not self._individual:
+            self._splitter.setSizes([250, 200, 750])
+        self._individual = True
+        field = item.data(Qt.UserRole)
+        key = (field.identity, channels, limits)
+        self.view.clear_image()
+        if self._image_jobs.is_busy():
+            self._image_pending = True
+            return
+        self._image_pending = False
+        if key in self._cache:
+            self._cache.move_to_end(key)
+            self._show_pixels(self._cache[key])
+            return
+        cancelled = self._cancelled
+        def done(pixels):
+            if cancelled.is_set():
+                return
+            self._cache[key] = pixels
+            while len(self._cache) > 16:
+                self._cache.popitem(last=False)
+            item = self.fields.currentItem()
+            context = self._visual_context()
+            if (self._individual and item is not None and item.data(Qt.UserRole).identity == field.identity
+                    and context is not None and context[-2:] == (channels, limits)):
+                self._show_pixels(pixels)
+        self._image_jobs.submit(lambda: _overview_pixels(field, channels, limits), done)
+
+    def eventFilter(self, watched, event):
+        """Request only newly visible well images after viewport paints or resizes."""
+        if watched is self._well_viewport and event.type() in (QEvent.Paint, QEvent.Resize):
+            self._request_visuals()
+        return super().eventFilter(watched, event)
+
+    def showEvent(self, event):
+        """Resume bounded image requests when the retained dialog is shown."""
+        super().showEvent(event)
+        self._request_visuals()
+
+    def _request_visuals(self, *_):
+        """Coalesce viewport and navigation updates on one owned timer."""
+        if self.isVisible() and not self._cancelled.is_set():
+            self._visual_timer.start(0)
+
+    def _visual_context(self):
+        """Snapshot live navigation and display choices for stale-result checks."""
+        try:
+            channels, limits = self._choices()
+        except (ValueError, TypeError):
+            return None
+        return (self._scope, self.rows.currentData(), self.columns.currentData(),
+                self._page, channels, limits)
+
+    def _update_visuals(self):
+        """Load one visible representative or one bounded well montage at a time."""
+        if not self.isVisible() or self._cancelled.is_set():
+            return
+        try:
+            channels, limits = self._choices()
+        except (ValueError, TypeError) as exc:
+            self.status.setText(str(exc))
+            return
+        page = self._visible[self._page * 24:(self._page + 1) * 24]
+        signature = self._visual_context()
+        self._visual_signature = signature
+        cancelled = self._cancelled
+        if self._scope[1] is not None and not self._individual and page:
+            if self._displayed_montage == signature or self._montage_jobs.is_busy():
+                return
+            def show_montage(result):
+                pixels, errors = result
+                if (cancelled.is_set() or self._visual_context() != signature or self._individual
+                        or pixels is None):
+                    return
+                self._show_pixels(pixels)
+                self._displayed_montage = signature
+                self.status.setText(tr("{count} fields; {errors} unreadable previews.",
+                                       count=len(page), errors=len(errors)))
+            self._montage_jobs.submit(
+                lambda: _overview_montage(page, channels, limits, cancelled), show_montage)
+            return
+        viewport = self.wells.viewport()
+        from PySide6.QtGui import QIcon
+        for well in tuple(self._installed_thumbnails):
+            position = self._well_positions.get(well)
+            item = self.wells.item(*position) if position is not None else None
+            if item is None or not viewport.rect().intersects(self.wells.visualItemRect(item)):
+                if item is not None:
+                    item.setIcon(QIcon())
+                    item.setData(Qt.UserRole + 1, None)
+                self._installed_thumbnails.discard(well)
+        if self._thumbnail_jobs.is_busy():
+            return
+        first_row = max(0, self.wells.rowAt(0))
+        last_row = self.wells.rowAt(viewport.height() - 1)
+        if last_row < 0:
+            last_row = self.wells.rowCount() - 1
+        first_column = max(0, self.wells.columnAt(0))
+        last_column = self.wells.columnAt(viewport.width() - 1)
+        if last_column < 0:
+            last_column = self.wells.columnCount() - 1
+        for row in range(first_row, last_row + 1):
+            for column in range(first_column, last_column + 1):
+                item = self.wells.item(row, column)
+                if item is None or not viewport.rect().intersects(self.wells.visualItemRect(item)):
+                    continue
+                well = item.data(Qt.UserRole)
+                field = self._well_representatives[well]
+                key = (field.identity, channels, limits)
+                if item.data(Qt.UserRole + 1) == key:
+                    continue
+                if key in self._thumbnail_cache:
+                    self._set_thumbnail(well, key, self._thumbnail_cache[key])
+                    continue
+                def read_thumbnail():
+                    try:
+                        return _overview_pixels(field, channels, limits, edge=160), ""
+                    except Exception as exc:
+                        return None, str(exc)
+                def done(result):
+                    if cancelled.is_set():
+                        return
+                    pixels, error = result
+                    self._thumbnail_cache[key] = pixels
+                    while len(self._thumbnail_cache) > 64:
+                        self._thumbnail_cache.popitem(last=False)
+                    if self._visual_context() == signature:
+                        self._set_thumbnail(well, key, pixels)
+                        if error:
+                            self.status.setText(tr("Could not read {field}: {error}",
+                                                   field=field.caption, error=error))
+                self._thumbnail_jobs.submit(read_thumbnail, done)
+                return
+
+    def _set_thumbnail(self, well, key, pixels):
+        """Attach an image to the current well cell only on the GUI thread."""
+        from PySide6.QtGui import QIcon
+        position = self._well_positions.get(well)
+        if position is None:
+            return
+        item = self.wells.item(*position)
+        if not self.wells.viewport().rect().intersects(self.wells.visualItemRect(item)):
+            return
+        item.setData(Qt.UserRole + 1, key)
+        if pixels is not None:
+            image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
+                           pixels.strides[0], QImage.Format_RGB888).copy()
+            pixmap = QPixmap.fromImage(image).scaled(
+                self.wells.iconSize(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            item.setIcon(QIcon(pixmap))
+            self._installed_thumbnails.add(well)
+        else:
+            item.setIcon(QIcon())
+            self._installed_thumbnails.discard(well)
+
+    def _refresh_image_if_pending(self, *_):
+        """Coalesce rapid selections behind one active image decoder."""
+        if self._image_pending:
+            self._image_pending = False
+            self._refresh_image()
+
+    def _show_pixels(self, pixels):
+        """Create the Qt pixmap only on the GUI thread."""
+        image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
+                       pixels.strides[0], QImage.Format_RGB888).copy()
+        self.view.set_pixmap(QPixmap.fromImage(image))
+
+    def _export_selection(self):
+        """Export all explicit selections; sample only when selection mode is off."""
+        if self.use_selection.isChecked():
+            fields = tuple(self._selected_fields.values())
+            if fields:
+                return fields
+            wells = {item.data(Qt.UserRole) for item in self.wells.selectedItems()}
+            fields = tuple(f for f in self._visible if f.well in wells)
+            if self.sample_selected.isChecked():
+                return _overview_sample(fields, self.count.value(), self.seed.value(),
+                                        self.grouping.currentData(), self.random.isChecked())
+            return fields
+        return _overview_sample(self._visible, self.count.value(), self.seed.value(),
+                                self.grouping.currentData(), self.random.isChecked())
+
+    def _export(self):
+        """Export explicit field/well selections or reproducible examples of this view."""
+        from PySide6.QtWidgets import QFileDialog
+        import threading
+        try:
+            channels, limits = self._choices()
+        except (ValueError, TypeError) as exc:
+            self.status.setText(str(exc))
+            return
+        selected = self._export_selection()
+        if not selected:
+            self.status.setText(tr("Select fields or load a plate before exporting."))
+            return
+        if self._export_jobs.is_busy():
+            self.status.setText(tr("Wait for the current export to finish or cancel it."))
+            return
+        folder = QFileDialog.getExistingDirectory(self, tr("PDF output folder"))
+        if not folder:
+            return
+        self._cancelled.set()
+        self._cancelled = threading.Event()
+        cancelled, seed = self._cancelled, self.seed.value()
+        self._export_jobs.submit(lambda: _overview_export(selected, folder, channels, limits, seed, cancelled),
+                                 self._exported)
+
+    def _exported(self, result):
+        """Report output and unreadable fields without hiding either."""
+        paths, errors = result
+        self.status.setText(tr("Wrote {count} PDF pages; {errors} unreadable fields.",
+                               count=len(paths), errors=len(errors)))
+
+    def closeEvent(self, event):
+        """Cancel generations when closing; workers never touch the closed widgets."""
+        self._cancel()
+        self._visual_timer.stop()
+        for runner in (self._index_jobs, self._image_jobs, self._export_jobs,
+                       self._thumbnail_jobs, self._montage_jobs):
+            runner.shutdown(timeout_ms=0)
+        super().closeEvent(event)
+
+
+def _open_field_overview(owner, settings=None):
+    """Keep one shared overview window per module and retain its navigation."""
+    dialog = getattr(owner, "_field_overview", None)
+    if dialog is None:
+        dialog = _FieldOverview(owner, settings)
+        owner._field_overview = dialog
+    if dialog._cancelled.is_set():
+        import threading
+        dialog._cancelled = threading.Event()
+        dialog._image_pending = False
+    dialog.show()
+    dialog.raise_()
+    return dialog

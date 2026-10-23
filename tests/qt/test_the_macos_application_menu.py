@@ -72,13 +72,38 @@ _NAME_PROBE = textwrap.dedent('''
     os.environ["QT_QPA_PLATFORM"] = "offscreen"
     os.environ["SPACR_NO_SETUP"] = "1"
 
+    from PySide6 import QtCore
     from PySide6.QtCore import QCoreApplication
     from PySide6.QtGui import QGuiApplication
     from PySide6.QtWidgets import QApplication
 
+    NativeSettings = QtCore.QSettings
+    settings_root = os.environ["SPACR_MENU_TEST_SETTINGS"]
+    for scope in (NativeSettings.UserScope, NativeSettings.SystemScope):
+        NativeSettings.setPath(NativeSettings.IniFormat, scope, settings_root)
+
+    class OwnedSettings(NativeSettings):
+        def __init__(self, *args, **kwargs):
+            if args and isinstance(args[0], str) and not (
+                    len(args) > 1 and isinstance(args[1], NativeSettings.Format)):
+                args = (NativeSettings.IniFormat, NativeSettings.UserScope) + args
+            elif args and isinstance(args[0], NativeSettings.Scope):
+                args = (NativeSettings.IniFormat,) + args
+            elif args and args[0] == NativeSettings.NativeFormat and len(args) > 2:
+                args = (NativeSettings.IniFormat,) + args[1:]
+            elif (not args or isinstance(args[0], QtCore.QObject)) and not kwargs:
+                args = (NativeSettings.IniFormat, NativeSettings.UserScope,
+                        QCoreApplication.organizationName(), QCoreApplication.applicationName()) + args
+            super().__init__(*args, **kwargs)
+            assert os.path.commonpath([os.path.realpath(self.fileName()), settings_root]) == settings_root
+
+    QtCore.QSettings = OwnedSettings
+    settings_file = OwnedSettings("spacr", "qt").fileName()
+    assert os.path.commonpath([os.path.realpath(settings_file), settings_root]) == settings_root
     import spacr.qt.app as app_mod
 
-    seen = {"module": app_mod.__file__}
+    seen = {"module": app_mod.__file__,
+            "settings": settings_file}
 
     def names():
         return [QCoreApplication.applicationName(),
@@ -124,6 +149,7 @@ def launched(tmp_path_factory):
     env["SPACR_NO_SETUP"] = "1"
     # Qt writes preferences through QSettings; keep them out of the real one.
     env["XDG_CONFIG_HOME"] = str(tmp_path_factory.mktemp("config"))
+    env["SPACR_MENU_TEST_SETTINGS"] = str(tmp_path_factory.mktemp("menu-settings").resolve())
     env["PYTHONPATH"] = root + os.pathsep + env.get("PYTHONPATH", "")
     proc = subprocess.run(
         [sys.executable, "-c", _NAME_PROBE],
@@ -132,6 +158,8 @@ def launched(tmp_path_factory):
                  if ln.startswith("RESULT ")), None)
     assert line, f"launch() produced no result\n{proc.stdout}\n{proc.stderr}"
     seen = json.loads(line[len("RESULT "):])
+    assert os.path.commonpath([os.path.realpath(seen["settings"]),
+                               env["SPACR_MENU_TEST_SETTINGS"]]) == env["SPACR_MENU_TEST_SETTINGS"]
     # The tree under test, not an installed copy of it.
     assert seen["module"] == os.path.join(root, "spacr", "qt", "app.py")
     return seen
@@ -178,12 +206,12 @@ def test_the_launch_survives_being_named_early(launched):
 # The bundle name macOS titles the menu from.
 # --------------------------------------------------------------------------
 
-def test_the_bundle_name_patch_is_macos_only():
+def test_the_bundle_name_patch_is_macos_only(monkeypatch):
     """It must be inert, not merely harmless, on this platform."""
-    from spacr.qt.menus import name_the_macos_application_menu
+    from spacr.qt import menus
 
-    assert sys.platform != "darwin", "this assertion is about the other case"
-    assert name_the_macos_application_menu("spaCR") is False
+    monkeypatch.setattr(menus.sys, "platform", "linux")
+    assert menus.name_the_macos_application_menu("spaCR") is False
 
 
 def test_the_bundle_name_patch_never_raises(monkeypatch):

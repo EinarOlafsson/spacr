@@ -1,5 +1,8 @@
 602. The window rim is one continuous gradient
 
+2026-10-22 Windows regression requirement, owner Codex windows_scope: fix maintainer-observed black square exteriors beyond rounded popup corners on the actual Windows desktop. Reproduce/capture representative real dialogs against a controlled background, preserve glow/antialiasing and Mac/Linux behavior, verify native transparency after resize/reopen in dark/light themes; isolated profile, <=2GiB, no GPU compute. Prior platform acceptance remains retained; this Windows defect is open until native before/after proof.
+2026-10-22 Windows fix: rebuild the translucent popup surface through QWidget once per native identity, restoring WS_EX_LAYERED instead of leaving rounded alpha pixels on an opaque surface; other-platform repair is unchanged. Actual Windows11/Qt6.11.2/Python3.10.22 desktop captures at150% scale pass all12 dark/light shared-popup/Preferences initial/resize/reopen cases: visible popup, four exterior corners exactly match the controlled green ground, transparent/antialiased edges and rounded rim remain; before captures show black corners. Nine focused offscreen cases and three actual Windows-QPA cases pass under2GiB, including child state, native layered style and stable repaired identity; publication remains with root. No extra display scale/Mac/Linux revalidation claimed.
+
 Requested by the maintainer (2026-09-30), verbatim:
 "in preferences theme and animation can be categories in appearence instead of their own tabs.
 
