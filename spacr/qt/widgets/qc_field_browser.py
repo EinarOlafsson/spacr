@@ -2227,7 +2227,7 @@ class _FieldOverview(QDialog):
         available = tuple(f for f in available if (row is None or f.row == row) and
                           (col is None or f.column == col))
         from collections import Counter
-        from PySide6.QtWidgets import QTableWidgetItem
+        from .sortable_table import table_item
         counts = Counter(f.well for f in available)
         addresses = {f.well: (int(f.row), f.column) for f in available if not f.unresolved}
         rows = max((position[0] for position in addresses.values()), default=0)
@@ -2246,7 +2246,7 @@ class _FieldOverview(QDialog):
         self.wells.setHorizontalHeaderLabels([str(n) for n in range(1, columns + 1)])
         for well, count in sorted(counts.items()):
             r, c = addresses.get(well, (rows + 1, 1))
-            item = QTableWidgetItem(tr("{well}\n{count} fields", well=well or tr("Unresolved"), count=count))
+            item = table_item(tr("{well}\n{count} fields", well=well or tr("Unresolved"), count=count))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setData(Qt.UserRole, well)
             self.wells.setItem(r - 1, c - 1, item)

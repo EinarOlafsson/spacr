@@ -163,6 +163,53 @@ def _native_pane_geometry(screen):
     }
 
 
+def _grow_hindi_font_within_original_pane(screen, original_width):
+    """Choose one larger native font with room for either individual pane."""
+    from PySide6.QtCore import QSize
+    from PySide6.QtGui import QFont, QFontInfo, QFontMetrics
+    from PySide6.QtWidgets import QStyle, QStyleOptionButton
+    from spacr.qt import gui_scale
+
+    button = screen._diagram.clear_button
+    baseline = QFontInfo(button.font()).pixelSize()
+    right = gui_scale._actual_minimum_size(screen._module_scroll).width()
+    target_left = original_width - max(1, right // 2)
+    padding = (screen._scroll.verticalScrollBar().sizeHint().width()
+               + 2 * screen._scroll.frameWidth()
+               + screen._diagram._model_row.layout().spacing()
+               + max(0, gui_scale._actual_minimum_size(screen._diagram.artwork).width(),
+                     screen._diagram.artwork.minimumSizeHint().width()))
+    for widget in (screen._intro, screen._diagram,
+                   screen._diagram._model_row, screen._diagram._legend):
+        margins = widget.layout().contentsMargins()
+        padding += margins.left() + margins.right()
+    factor = gui_scale._factor_for(button)
+    low, high, chosen = 1, int(original_width / factor), None
+    while low <= high:
+        css_pixels = (low + high) // 2
+        font = QFont(button.font())
+        font.setPixelSize(gui_scale.scale_int(css_pixels, factor))
+        metrics = QFontMetrics(font)
+        glyph = metrics.horizontalAdvance(button.text())
+        option = QStyleOptionButton()
+        option.initFrom(button)
+        option.text = button.text()
+        option.fontMetrics = metrics
+        native_hint = button.style().sizeFromContents(
+            QStyle.CT_PushButton, option, QSize(glyph, metrics.height()), button)
+        button_floor = max(native_hint.width(), glyph + 20
+                           + button.width() - button.contentsRect().width())
+        if button_floor + padding <= target_left:
+            chosen = css_pixels
+            low = css_pixels + 1
+        else:
+            high = css_pixels - 1
+    assert chosen is not None
+    assert gui_scale.scale_int(chosen, factor) > baseline
+    button.setStyleSheet(f"font-size: {chosen}px;")
+    return baseline
+
+
 def test_native_wide_hindi_content_gets_pane_room_without_growing_the_window(
         qtbot, qt_theme_applied, monkeypatch):
     from PySide6.QtWidgets import QApplication
@@ -187,11 +234,19 @@ def test_native_wide_hindi_content_gets_pane_room_without_growing_the_window(
             for _ in range(4):
                 QApplication.processEvents()
             geometry = screen.geometry()
+            width = screen._splitter.contentsRect().width()
+            assert geometry.width() == 720
             button = screen._diagram.clear_button
             assert button.text() == "चयन साफ़ करें"
-            button.setStyleSheet("font-size: 75px;")
+            baseline_font = _grow_hindi_font_within_original_pane(screen, width)
             for _ in range(6):
                 QApplication.processEvents()
+            from PySide6.QtGui import QFontInfo
+            assert QFontInfo(button.font()).pixelSize() > baseline_font
+            left = gui_scale._actual_minimum_size(screen._scroll).width()
+            right = gui_scale._actual_minimum_size(screen._module_scroll).width()
+            assert max(left, right) <= width
+            assert left + right + screen._splitter.handleWidth() > width
             assert screen.geometry() == geometry, _native_pane_geometry(screen)
             assert button.fontMetrics().horizontalAdvance(button.text()) <= (
                 button.contentsRect().width() - 20)
@@ -245,7 +300,7 @@ def test_queued_organism_reflow_ends_when_its_screen_is_deleted(
 
 def test_native_pane_minima_stack_then_release_without_resizing_the_window(
         qtbot, qt_theme_applied, monkeypatch):
-    from PySide6.QtGui import QFontMetrics
+    from PySide6.QtGui import QFontInfo
     from PySide6.QtWidgets import QApplication
     from spacr.qt import gui_scale, i18n, preferences
     from spacr.qt.screens.organism_screen import OrganismScreen
@@ -268,27 +323,14 @@ def test_native_pane_minima_stack_then_release_without_resizing_the_window(
             for _ in range(4):
                 QApplication.processEvents()
             geometry = screen.geometry()
+            width = screen._splitter.contentsRect().width()
+            assert geometry.width() == 720
             assert screen._splitter.orientation() == Qt.Horizontal
             button = screen._diagram.clear_button
-            button.setStyleSheet("font-size: 75px;")
+            baseline_font = _grow_hindi_font_within_original_pane(screen, width)
             for _ in range(6):
                 QApplication.processEvents()
-            width = screen._splitter.contentsRect().width()
-            module_floor = gui_scale._actual_minimum_size(screen._module_scroll).width()
-            scrollbar = screen._scroll.verticalScrollBar().sizeHint().width()
-            glyph_width = button.fontMetrics().horizontalAdvance(button.text())
-            button_padding = button.minimumSizeHint().width() - glyph_width
-            intro_padding = screen._intro.minimumSizeHint().width() - button.minimumSizeHint().width()
-            target_glyph_width = (width - module_floor // 2 - scrollbar
-                                  - 2 * screen._scroll.frameWidth()
-                                  - button_padding - intro_padding)
-            font = button.font()
-            font.setStretch(max(1, min(4000, round(
-                (font.stretch() or 100) * target_glyph_width
-                / QFontMetrics(font).horizontalAdvance(button.text())))))
-            button.setFont(font)
-            for _ in range(6):
-                QApplication.processEvents()
+            assert QFontInfo(button.font()).pixelSize() > baseline_font
             left = gui_scale._actual_minimum_size(screen._scroll).width()
             right = gui_scale._actual_minimum_size(screen._module_scroll).width()
             assert max(left, right) <= width

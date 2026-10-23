@@ -1,5 +1,5 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-Status:    DONE — overview/PDF/CSV/icons, figure registration/help and HiDPI thumbnail acceptance complete
+Status:    DONE — overview/PDF/CSV/icons, registration/help, HiDPI and shared plate-cell acceptance complete
 Requested: maintainer, 2026-10-22
 Owner:     widgets_g1 / widgets_g4 peer / root publication — completed PDF/CSV/icon delivery retained
 Priority:  Current CI follow-up; completed overview/PDF/CSV/icon requirements remain delivered
@@ -79,3 +79,9 @@ ACCEPTANCE
 2026-10-23 — Well thumbnails use native screen-density rendering with bounded density-aware source/cache and screen-change redraw; 1x-to-2x-to-1x real-image control, unchanged scaled-site audit and visible-thumbnail cache control pass (3 tests,5.88 s). Independent source review accepted; existing PDF/RAW CSV/icons/callback documentation remain retained. PUBLICATION PENDING under root.
 
 2026-10-23 — Final HiDPI postimages and three owning checks are accepted; normal consumer output changes only six line offsets, with all targets/metadata preserved. Root integrates the validated source and generated output for nightly/main publication; prior feature requirements and completed acceptance remain retained.
+
+2026-10-23 — Reopened only the overview well-cell contract under widgets_g1, widgets_g4 peer and root publication: construct plate cells through the existing shared sortable-cell factory while preserving coordinate placement, displayed field counts, read-only flags, selection and raw well identity. Validate the unchanged bare-cell gate and actual numeric/natural sorting identity control; retain all previous overview/CSV/icon/HiDPI requirements. PUBLICATION PENDING.
+
+2026-10-23 — Overview plate cells use the shared factory without changing physical coordinates, displayed counts, read-only flags or raw well identity. All six related registration/parity/HiDPI/bare-cell/sort-declaration gates plus the actual numeric/arrival-order identity control pass (7 tests,44.94 s); independent source/test peer accepted. Existing captions, API docs and source line counts are unchanged, so runtime/API/consumer generation is inapplicable. PUBLICATION PENDING under root.
+
+2026-10-23 — Shared plate cells retain well identity and physical layout; all seven related structural and sorting-identity checks pass with independent source review. Root integrates the exact validated source for nightly/main publication; API/runtime/consumer records and all prior delivered requirements are unchanged.

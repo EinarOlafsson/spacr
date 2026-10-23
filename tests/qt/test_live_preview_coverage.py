@@ -1406,8 +1406,9 @@ class TestPanelSettings:
 
     def test_tooltips_fall_back_when_spacr_descriptions_are_unavailable(
             self, qtbot, monkeypatch):
-        broken = types.ModuleType("spacr.settings")   # no `descriptions`
-        monkeypatch.setitem(sys.modules, "spacr.settings", broken)
+        from spacr import settings
+
+        monkeypatch.delattr(settings, "descriptions")
         p = _panel(qtbot)
         assert p._compartment_widgets["cell"]["min_area"].toolTip() == \
             "Min area (px²) for cell objects."
