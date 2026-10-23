@@ -39,6 +39,26 @@ unmarked child floors and existing default/unmarked fit/placement contracts
 remain unchanged. Independent source/test peer clears the bounded mechanism.
 Actual Mask→Overview reachability and whole-plate row/column fit still require
 the faithful native retake; no bare-window-only layout acceptance is claimed.
+Native83898/ijj1qi on08935 now passes full styled Next text, module ownership
+and three transparent surfaces, but actual frame/minimum1440x870 consumes the
+entire1440x870 work area with no legal resize direction at GUI200/font200.
+Natural child1/42.254s/RSS1.035GiB/zero missed and normal close/input preservation;
+this is a separate resize-floor defect, not acceptance of the oversized browser.
+Next bounded policy: for the opted-in MainWindow only, retain the recorded
+unscaled desktop minimum as the GUI-above100% ceiling, still bounded by actual
+native client room; preserve live smaller-GUI minima, logical1200x640 records,
+unbounded maxima and all child/dialog policies. Add native causal resize proof
+before changing the helper. Actual browser/plate visibility remains a separate gate.
+Causal Cocoa31235 fails the strengthened font200 node at actual1440x870
+minimum versus desktop1200x640 (15.23s/RSS.539GiB). The bounded helper now
+uses each current stored logical floor as an additional ceiling, not a literal
+1200x640 constant; initial, live and native-fit callers share this one policy.
+No app, maximum, child or ordinary-dialog policy changes are made.
+Peer-reviewed Cocoa43729 PASSES seven affected checks in34.43s/RSS.606GiB:
+both font200/10 cases preserve GUI200→10→200 logical baselines, actual native
+bounded20px grow and shrink on both axes and unbounded maxima; default and
+unmarked fit/placement controls remain passing. Full app/browser content and
+actual whole-plate visibility remain separate pending acceptance, not implied.
 
 Next uncovered supported setup corner: GUI10%/font200%, within the actual
 GUI_SCALE_MIN0.10/FONT_SCALE_MAX2.0 clamps. Normal live scaling precedes both

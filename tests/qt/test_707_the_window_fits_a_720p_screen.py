@@ -113,6 +113,17 @@ def test_main_window_live_scaled_floor_fits_native_work_area_without_losing_base
             actual = handle.minimumSize()
             assert actual.width() <= work.width() and actual.height() <= work.height(), (scale, actual, work)
             assert work.contains(frame), (scale, frame, work)
+            if scale > 1.:
+                assert actual.width() <= 1200 and actual.height() <= 640, (scale, actual)
+                from PySide6.QtCore import QSize
+                margins = handle.frameMargins()
+                base = QSize(min(handle.width(), work.width() - margins.left() - margins.right() - 20),
+                             min(handle.height(), work.height() - margins.top() - margins.bottom() - 20))
+                assert base.width() >= actual.width() and base.height() >= actual.height()
+                for target in (base, base + QSize(20, 20), base):
+                    handle.resize(target)
+                    qtbot.waitUntil(lambda: handle.size() == target, timeout=2000)
+                    assert work.contains(handle.frameGeometry())
             assert window._gs_geo['minw'] == 1200 and window._gs_geo['minh'] == 640
             assert handle.maximumSize().width() == handle.maximumSize().height() == 16777215
             assert gui_scale._actual_minimum_size(child).width() == gui_scale.scale_int(1600, scale)

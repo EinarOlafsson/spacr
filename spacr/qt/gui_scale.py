@@ -248,14 +248,16 @@ def _is_our_own_value(base, value, factor: float) -> bool:
 
 
 def _bounded_main_window_minimum(widget, key, value, screen=None):
-    """Cap an opted-in floor in actual client pixels, preserving its baseline.
+    """Bound an opted-in floor by its desktop baseline and actual client room.
 
     :param widget: window; unmarked and embedded widgets pass through.
     :param key: ``minw`` or ``minh``; other dimensions pass through.
     :param value: already scaled floor in actual pixels.
     :param screen: known screen, or ``None`` to use the window's screen.
-    :returns: floor bounded by native work area minus frame margins, or the
-        unchanged value when screen geometry is unavailable.
+    :returns: floor bounded by its recorded100% value and native work area
+        minus frame margins, or unchanged when screen geometry is unavailable.
+        Smaller GUI scales still lower the floor; larger controls do not
+        turn the desktop minimum into a screen-filling resize lock.
     """
     if (key not in ("minw", "minh")
             or not getattr(widget, "_gs_main_window_floor", False)):
@@ -275,7 +277,8 @@ def _bounded_main_window_minimum(widget, key, value, screen=None):
             margins = handle.frameMargins()
             width -= margins.left() + margins.right()
             height -= margins.top() + margins.bottom()
-        return min(value, max(1, width if key == "minw" else height))
+        baseline = getattr(widget, "_gs_geo", {}).get(key, value)
+        return min(value, baseline, max(1, width if key == "minw" else height))
     except (AttributeError, RuntimeError):
         return value
 
