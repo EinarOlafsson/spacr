@@ -347,3 +347,92 @@ def test_pdf_pages_fit_actual_fields_and_keep_readable_vector_channel_labels(tmp
         text = reader.pages[0].extract_text()
         assert browser.tr("Bounds from a reference well") in text
         assert "plate1 / A01" in text
+
+
+def test_well_mean_reference_average_preserves_raw_csv_and_full_source_pdf(tmp_path, monkeypatch):
+    from pypdf import PdfReader
+    from spacr import plot, tabular
+    from spacr.figures import style
+
+    source = tmp_path / "source"
+    source.mkdir()
+    base = np.array([[0, 2], [2, 4]], dtype=np.uint16)
+    originals = {}
+    for well, field_id, offset in (("A01", 1, 0), ("A01", 2, 4),
+                                   ("B01", 1, 8), ("C02", 1, 0)):
+        for channel in (1, 2):
+            path = source / f"p1_{well}_F{field_id}_C{channel}.tif"
+            tifffile.imwrite(path, (base + offset) * channel)
+            originals[path] = path.read_bytes()
+    fields = browser._overview_index(source, source_scope="folder")
+    target, = (field for field in fields if field.well == "C02")
+    conditions = {("p1", "A01"): "reference A", ("p1", "B01"): "reference B",
+                  ("p1", "C02"): "treated"}
+    plan, context = browser._overview_prepare_normalization(fields, (1, 2), {
+        "mode": "reference_average", "reference_kind": "reference_column",
+        "reference": ("p1", 1), "percentiles": (0, 100), "conditions": conditions,
+        "selection": {"seed": 17, "time_index": 0, "z_mode": "plane", "z_index": 0},
+    }, browser._overview_raw_planes)
+    assert plan["reference_means"] == {1: 7., 2: 14.}
+    assert plan["bounds"] == {1: (0., 12.), 2: (0., 24.)}
+    rgb = np.zeros((2, 2, 3), dtype=np.uint8)
+    rgb[..., 0] = rgb[..., 1] = np.uint8(np.clip(base * 3.5 / 12., 0., 1.) * 255)
+    np.testing.assert_array_equal(browser._overview_pixels(target, (1, 2), edge=None,
+        normalization=plan, normalization_context=context), rgb)
+    captured, styled = [], []
+    actual_save, actual_style = plot.save_figure, style._apply_user_style
+
+    def apply_style(figure, *args, **kwargs):
+        styled.append(figure)
+        return actual_style(figure, *args, **kwargs)
+
+    def save(figure, *args, **kwargs):
+        assert figure in styled
+        drawn = [np.asarray(image.get_array()).copy()
+                 for axis in figure.axes for image in axis.images]
+        captured.append((drawn, [np.asarray(image).copy() for image in figure._spacr_image],
+                         figure._spacr_spec))
+        return actual_save(figure, *args, **kwargs)
+
+    monkeypatch.setattr(style, "_apply_user_style", apply_style)
+    monkeypatch.setattr(plot, "save_figure", save)
+    output = tmp_path / "export"
+    written, errors = browser._overview_export((target,), output, (1, 2), (0, 100),
+        measurements=True, quality_edge=None, dpi=150, normalization=plan,
+        normalization_context=context, conditions=conditions)
+    assert len(written) == 1 and errors == ()
+    drawn, registered, spec = captured[0]
+    assert len(captured) == len(drawn) == len(registered) == 1
+    np.testing.assert_array_equal(drawn[0], rgb)
+    np.testing.assert_array_equal(registered[0], rgb)
+    assert spec["original_resolution"] is True
+    assert spec["normalization"]["reference_means"] == {1: 7., 2: 14.}
+    used, = spec["normalization"]["used_wells"]
+    assert (used["plate"], used["well"]) == ("p1", "C02")
+    assert used["means"] == {1: 2., 2: 4.} and used["gains"] == {1: 3.5, 2: 3.5}
+    assert used["sample_pixels"] == {1: 4, 2: 4}
+    assert used["field_identities"] == (target.identity,)
+    references = spec["normalization"]["reference_wells"]
+    assert [(well["well"], well["means"][1]) for well in references] == [("A01", 4.), ("B01", 10.)]
+    page = PdfReader(written[0]).pages[0]
+    embedded, = page.images
+    assert embedded.image.size == (2, 2)
+    np.testing.assert_array_equal(np.asarray(embedded.image.convert("RGB"))[::-1], rgb)
+    text = page.extract_text()
+    assert browser.tr("Well-mean display scaling to reference average") in text
+    assert browser.tr("Reference means: {means}", means="1: 7, 2: 14") in text
+    assert "p1 / C02" in text and "3.5" in text
+    table = tabular.read_table(output / "overview_measurements.csv", canonicalise=False)
+    assert len(table) == 1
+    row = table.iloc[0]
+    assert (row["plate"], row["well"], row["field_id"], row["condition"]) == ("p1", "C02", 1, "treated")
+    for channel in (1, 2):
+        assert row[f"channel_{channel}_intensity_mean"] == 2. * channel
+        assert row[f"channel_{channel}_source"] == dict(target.files)[str(channel)]
+    metadata = json.loads((output / "overview_selection.json").read_text())
+    assert metadata["normalization"]["reference_means"] == {"1": 7., "2": 14.}
+    assert metadata["normalization"]["used_wells"][0]["gains"] == {"1": 3.5, "2": 3.5}
+    assert metadata["fields"][0]["condition"] == "treated"
+    assert metadata["measurements"]["original_resolution"] is True
+    assert metadata["measurements"]["intensity_units"] == "raw_stored_pixel_values"
+    assert all(path.read_bytes() == content for path, content in originals.items())
