@@ -1,6 +1,6 @@
 BROWSE BUTTONS FOR EVERY SOURCE-FOLDER INPUT
 ===========================================
-Status:    REOPENED 2026-10-23 — editable source fields and consistent inline actions
+Status:    DONE — editable source fields and consistent inline actions
 Requested: maintainer, 2026-10-22
 Owner:     release_ci_takeover — shared source controls after Classify family visibility; root — publication
 Priority:  Start now alongside release CI; preserve ongoing scientific work
@@ -39,4 +39,4 @@ ACCEPTANCE
 
 2026-10-23 — Classify, Measure and Map barcodes now retain directly editable scalar/list/group source paths with compact folder/cloud actions; only Classify and Measure add the shared overview action. Source lookup follows the first actual folder, grouped browsing preserves groups, and cancellation/keyboard access retain their existing contracts. Fourteen focused controls pass, including six final-source module controls; shared normal generation and final publication remain pending.
 
-2026-10-23 — All14 focused source-control checks and final native module captures are accepted: editable scalar/list/group inputs retain folder/cloud actions, Classify/Measure overview uses the current source, and Map barcodes has no overview action. Normal collection confirms no API/runtime arrival for these shared controls; generated consumer positions await final integrated refresh and root publication.
+2026-10-23 — All14 focused source-control checks and final native module captures are accepted: editable scalar/list/group inputs retain folder/cloud actions, Classify/Measure overview uses the current source, and Map barcodes has no overview action. Normal collection confirms no API/runtime arrival for these shared controls; normal generated consumer positions are refreshed against the final integrated source for the coordinated publication.

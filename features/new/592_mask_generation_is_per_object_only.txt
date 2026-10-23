@@ -1,6 +1,6 @@
 MASK GENERATION IS PER-OBJECT ONLY
 
-Status:    REOPENED 2026-10-23 — remove empty categories and relocate alpha filtration
+Status:    DONE — empty categories removed and alpha filtration relocated
 Owner:     release_ci_takeover — retained shared settings owner; root — publication
 
 CURRENT REQUIREMENTS — 2026-10-23
@@ -119,4 +119,4 @@ VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, 
 
 2026-10-23 — Integrated visual review confirms the pre-existing wide Input & Metadata category imposes the same horizontal size before and after subgroup relocation. Vertical settings navigation must retain the user's horizontal scroll position (including zero) instead of shifting the whole form right and clipping category labels; retain deliberate horizontal scrolling and validate the real subgroup reveal interaction.
 
-2026-10-23 — Per-object alpha grouping, ordinary filters, empty-heading removal and horizontal-position-preserving navigation pass focused controls and final native alpha-on/off review. The nine reviewed title targets and normal generated outputs are verified; ready for root publication. Broader future470 scientific acceptance remains open.
+2026-10-23 — Per-object alpha grouping, ordinary filters, empty-heading removal and horizontal-position-preserving navigation pass focused controls and final native alpha-on/off review. The nine reviewed title targets and normal generated outputs are verified; included in the coordinated atomic source and generated-output publication. Broader future470 scientific acceptance remains open.

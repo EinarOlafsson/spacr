@@ -2,7 +2,7 @@
 CLASSIFY (MERGED): SAY WHICH SETTINGS ARE COMPUTER VISION
 ================================================================================
 
-Status:    OPEN — family visibility follow-up 2026-10-23
+Status:    DONE — family visibility follow-up verified
 Requested: 2026-08-06 - "for the new classify module, the settings that are specifically for computer vision need to be under a settings category that states that. this module should make it obvious to the user what they are doing, computer vision or machine learning like XGBoost"
 
 --------------------------------------------------------------------------------
@@ -83,4 +83,4 @@ VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_settings_cate
 
 2026-10-23 — Actual integrated UI review found the CV inference model_path still visible in ML mode and an obsolete dataset row exposed by merged Classify. Classify's two pipelines do not consume that activation-map-only dataset setting: hide its merged-panel row while preserving imported/default values and the separate Activation Maps control; classify model_path as CV-only and validate switching/value preservation before shared artifact freeze.
 
-2026-10-23 — Family-specific rows and empty categories now hide while shared Tables and saved values survive switching; merged-only obsolete Dataset is hidden and model_path remains CV-only. Focused controls and final native CV/ML captures are accepted; all27 reviewed API/tooltip targets and normal generated outputs are verified. Ready for root publication.
+2026-10-23 — Family-specific rows and empty categories now hide while shared Tables and saved values survive switching; merged-only obsolete Dataset is hidden and model_path remains CV-only. Focused controls and final native CV/ML captures are accepted; all27 reviewed API/tooltip targets and normal generated outputs are verified. Included in the coordinated atomic source and generated-output publication.
