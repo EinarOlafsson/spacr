@@ -728,3 +728,42 @@ def test_mac_intel_graphics_and_crypto_select_the_supported_wheel_lines(machine,
                 assert matching and not all(latest in req.specifier for req in matching)
             else:
                 assert all(latest in req.specifier for req in matching)
+
+
+@pytest.mark.parametrize(
+    "system,machine,python_version,release,expected",
+    [
+        ("linux", "x86_64", "3.10", "7.0.0-38-generic", (True, True, True)),
+        ("linux", "x86_64", "3.12", "7.0.0-38-generic", (True, True, True)),
+        ("linux", "x86_64", "3.14", "7.0.0-38-generic", (True, True, True)),
+        ("linux", "x86_64", "3.14", "6.11.0-1018-azure", (True, True, True)),
+        ("win32", "AMD64", "3.14", "10.0.26100", (True, True, True)),
+        ("darwin", "arm64", "3.14", "22.6.0", (False, False, False)),
+        ("darwin", "arm64", "3.14", "23.6.0", (False, True, True)),
+        ("darwin", "arm64", "3.14", "24.0.0", (True, True, True)),
+        ("darwin", "arm64", "3.14", "25.0.0", (True, True, True)),
+        ("darwin", "x86_64", "3.14", "22.6.0", (False, False, False)),
+        ("darwin", "x86_64", "3.14", "23.6.0", (False, True, False)),
+        ("darwin", "x86_64", "3.14", "24.0.0", (True, True, False)),
+        ("darwin", "x86_64", "3.12", "22.6.0", (True, True, True)),
+    ],
+)
+def test_native_defaults_preserve_os_wheel_boundaries(
+    system, machine, python_version, release, expected
+):
+    from packaging.markers import default_environment
+    from packaging.requirements import Requirement
+
+    environment = default_environment()
+    environment.update(
+        sys_platform=system,
+        platform_machine=machine,
+        python_version=python_version,
+        python_full_version=python_version + ".0",
+        platform_release=release,
+    )
+    requirements = {Requirement(text).name: Requirement(text)
+                    for text in _core_dependencies()}
+    actual = tuple(requirements[name].marker.evaluate(environment)
+                   for name in ("btrack", "faiss-cpu", "piper-tts"))
+    assert actual == expected
