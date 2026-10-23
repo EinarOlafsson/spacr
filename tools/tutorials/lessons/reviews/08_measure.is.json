@@ -1,33 +1,43 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
+  "english_sha256": "ad2e6952ad2911e6e2c45af11963b3b6ca91d65e14d6f9fc3b68d6db242a9764",
   "review": {
-    "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
-    "date": "2026-10-05",
+    "kind": "AI technical editorial review (Codex), no native-speaker signoff",
+    "translator": "No model translation; Root-reviewed exact deletion and retained native text",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
+    "scope": "Only scene17 constructed-memory-example sentence removed; ja/ko first two sentences grouped. Remaining three sentences and all16 other chapters unchanged.",
+    "previous_english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
     "previous_review": {
       "kind": "AI technical review (Codex), no native-speaker signoff",
-      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
       "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
       "listening_review": false,
-      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
       "previous_review": {
-        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-        "date": "2026-09-30",
+        "kind": "AI technical review (Codex), no native-speaker signoff",
+        "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+        "date": "2026-10-05",
         "independent_peer_review": false,
         "native_speaker_signoff": false,
-        "listening_review": false
+        "listening_review": false,
+        "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+        "previous_review": {
+          "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+          "date": "2026-09-30",
+          "independent_peer_review": false,
+          "native_speaker_signoff": false,
+          "listening_review": false
+        },
+        "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
       },
-      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
-    },
-    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
+      "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
+    }
   },
   "language": "is",
   "title": "Measure: dragðu út eiginleika og úrklipp hluta",
@@ -55,6 +65,6 @@
     "Lyklum eins og Ctrl+Shift+R má breyta. Opnaðu Help, svo Keyboard shortcuts, og veldu Change shortcuts. Sláðu inn nýjan lykil fyrir hvaða aðgerð sem er; ef hann rekst á annan nefnir spaCR árekstrinum og heldur Save óvirku þar til þú leysir hann.",
     "Kveiktu á vistun mælinga og búta af hlutum, hafðu Plot á og veldu stærð búta og úttaksrásir. Í fyrstu keyrslu mælir Test mode eitt svið; slökktu á því til að vinna öll sextán sviðin sem fylgja. Smelltu á Run, fylgstu með stjórnborðinu þar til keyrslunni lýkur og athugaðu svo hvaða svið tókust áður en þú heldur áfram.",
     "Skoðaðu úrklippamyndritið og finndu svo measurements.db í möppunni measurements og vistuðu myndir hlutanna í úrklippaúttaki verkefnisins. Haltu gagnagrunninum og slóðum myndanna saman. Haltu áfram í Annotate til að merkja dæmahluti, eða í Classify ef þú ert þegar með merkt þjálfunargögn.",
-    "Í þessari sýnikennslu um minnisnotkun er sami myndreitur úr dæminu endurtekinn í flísum til að mynda stærra fylki; engin mæling er ræst. Áður en keyrsla hefst metur spaCR hve mikið minni hvert vinnuferli þarf út frá einu sjónsviði í verkefninu þínu. Með mjög stórum sjónsviðum, eins og samsettum mósaíkmyndum, rúmast vinnuferlin sem þú baðst um ef til vill ekki í lausu vinnsluminni, og þá spyr spaCR fyrst. Veldu ráðlagðan fjölda vinnuferla, haltu þínum fjölda og leyfðu Measure að gera hlé á nýjum sjónsviðum meðan minni er af skornum skammti, eða lokaðu öðrum forritum til að losa minni."
+    "Áður en keyrsla hefst metur spaCR hve mikið minni hvert vinnuferli þarf út frá einu sjónsviði í verkefninu þínu. Með mjög stórum sjónsviðum, eins og samsettum mósaíkmyndum, rúmast vinnuferlin sem þú baðst um ef til vill ekki í lausu vinnsluminni, og þá spyr spaCR fyrst. Veldu ráðlagðan fjölda vinnuferla, haltu þínum fjölda og leyfðu Measure að gera hlé á nýjum sjónsviðum meðan minni er af skornum skammti, eða lokaðu öðrum forritum til að losa minni."
   ]
 }

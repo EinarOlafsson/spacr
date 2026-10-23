@@ -3134,6 +3134,15 @@ class _FieldOverview(QWidget):
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
         self._wrap_controls(column, splitter)
+        self._module_actions = QWidget(self)
+        action_row = QHBoxLayout(self._module_actions)
+        for caption, callback in ((tr("Export PDFs"), self._export),
+                (tr("Export image-level measurements"), self._measure),
+                (tr("Cancel loading or export"), self._cancel)):
+            button = QPushButton(caption)
+            button.clicked.connect(callback)
+            action_row.addWidget(button)
+        self._module_actions.hide()
 
     def _fill_group_choices(self, combo, image=False):
         """Offer physical addresses and every defined well annotation."""
@@ -3277,10 +3286,11 @@ class _FieldOverview(QWidget):
         apply.clicked.connect(self._apply_channel_normalization)
         reset = QPushButton(tr("Reset channel overrides"))
         reset.clicked.connect(self._clear_channel_normalization)
-        row = QHBoxLayout()
+        override_host = FlowHost(widget)
+        row = FlowLayout(override_host)
         for control in (self.norm_channel, apply, reset):
             row.addWidget(control)
-        layout.addLayout(row)
+        layout.addWidget(override_host)
         column.addWidget(widget)
         channel_host = FlowHost(self)
         channel_row = FlowLayout(channel_host)
@@ -3690,13 +3700,21 @@ class _FieldOverview(QWidget):
         """
         from PySide6.QtWidgets import QScrollArea
         from .flow import FlowHost, FlowLayout
+        from .card import Card
         self._options_window = QDialog(self, Qt.Window)
         self._options_window.setWindowTitle(tr("Options"))
         self._options_window.setWindowModality(Qt.NonModal)
         self._options_window.resize(880, 680)
         options_layout = QVBoxLayout(self._options_window)
         content = QWidget(self._options_window)
+        self._settings_content = content
+        self._settings_host = None
         controls = QVBoxLayout(content)
+        categories = {}
+        for name in (tr("Source"), tr("Display"), tr("Annotations"), tr("Export")):
+            card = Card(title=name, foldable=True)
+            controls.addWidget(card)
+            categories[name] = card.body_layout
         essential = FlowHost(self)
         essential_flow = FlowLayout(essential)
         while column.count():
@@ -3704,6 +3722,14 @@ class _FieldOverview(QWidget):
             if item.widget() in (splitter, self.status):
                 continue
             layout = item.layout()
+            members = [layout.itemAt(index).widget() for index in range(layout.count())] if layout else [item.widget()]
+            category = tr("Display")
+            if self.source in members or self.regex in members:
+                category = tr("Source")
+            elif self.annotation_scope in members:
+                category = tr("Annotations")
+            elif any(widget in members for widget in (self.export_scope, self.grouping, self.use_selection, self.measurements)):
+                category = tr("Export")
             if layout is not None:
                 host = essential if layout in (self._navigation_layout, self._axes_layout) else FlowHost(content)
                 flow = essential_flow if host is essential else FlowLayout(host)
@@ -3712,9 +3738,10 @@ class _FieldOverview(QWidget):
                     flow.addWidget(child.widget())
                 layout.setParent(None)
                 if host is not essential:
-                    controls.addWidget(host)
+                    categories[category].addWidget(host)
             else:
-                controls.addWidget(item.widget())
+                categories[category].addWidget(item.widget())
+        controls.addStretch(1)
         scroll = QScrollArea(self)
         scroll.setWidgetResizable(True)
         scroll.setWidget(content)
@@ -3737,6 +3764,8 @@ class _FieldOverview(QWidget):
 
     def _show_options(self, on):
         """Open the separate controls window with normal keyboard focus."""
+        if on and self._settings_host is not None and self._settings_host.widget() is self._settings_content:
+            self._controls_scroll.setWidget(self._settings_host.takeWidget())
         self._options_window.setVisible(on)
         if on:
             self._options_window.raise_()
@@ -3744,6 +3773,8 @@ class _FieldOverview(QWidget):
 
     def _options_closed(self, *_):
         """Keep the Options action consistent with its independent window."""
+        if self._settings_host is not None and self._controls_scroll.widget() is self._settings_content:
+            self._settings_host.setWidget(self._controls_scroll.takeWidget())
         self.options_button.setChecked(False)
 
     @staticmethod
@@ -4209,7 +4240,8 @@ class _FieldOverview(QWidget):
         source_scope = self._overview_options.get("source_scope", "recursive")
         def read():
             """Reject unresolved wells on every browser load, retaining honest previews."""
-            fields = _overview_index(source, regex, convention, cancelled, source_scope=source_scope)
+            fields = _overview_matched_fields(_overview_index(
+                source, regex, convention, cancelled, source_scope=source_scope), regex)
             if any(not field.well or field.unresolved for field in fields):
                 raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
             return fields
@@ -4618,7 +4650,7 @@ class _FieldOverview(QWidget):
                 self.preview_resolution.currentData())
 
     def _update_visuals(self):
-        """Load one visible representative or one bounded well montage at a time."""
+        """Load up to eight visible representatives or one bounded well montage."""
         if (not self.isVisible() or self._cancelled.is_set()
                 or not self._normalization_ready or not self._geometry_valid):
             return
@@ -4678,6 +4710,7 @@ class _FieldOverview(QWidget):
         last_column = self.wells.columnAt(viewport.width() - 1)
         if last_column < 0:
             last_column = self.wells.columnCount() - 1
+        requests = []
         for row in range(first_row, last_row + 1):
             for column in range(first_column, last_column + 1):
                 item = self.wells.item(row, column)
@@ -4695,39 +4728,46 @@ class _FieldOverview(QWidget):
                 if key in self._thumbnail_cache:
                     self._set_thumbnail(well, key, self._thumbnail_cache[key])
                     continue
-                def read_thumbnail():
-                    """Read bounded thumbnail pixels and capture any read error.
-
-                    :returns: pixels and an empty error, or None and the error.
-                    """
-                    try:
-                        if len(representatives) > 1:
-                            pixels, errors = _overview_montage(representatives, channels, limits,
-                                                              cancelled, preview_edge=min(240, resolution), **options)
-                            return pixels, "; ".join(message for _, message in errors)
-                        return _overview_pixels(field, channels, limits,
-                                                edge=edge, **options), ""
-                    except Exception as exc:
-                        return None, str(exc)
-                def done(result):
-                    """Cache a thumbnail and update its matching current well.
-
-                    :param result: thumbnail pixels and an optional read error.
-                    """
-                    if cancelled.is_set():
-                        return
-                    pixels, error = result
-                    self._thumbnail_cache[key] = pixels
-                    while len(self._thumbnail_cache) > 64:
-                        self._thumbnail_cache.popitem(last=False)
-                    if (self._visual_context() == signature
-                            and device_ratio(self.wells.viewport()) == ratio):
-                        self._set_thumbnail(well, key, pixels)
-                        if error:
-                            self.status.setText(tr("Could not read {field}: {error}",
-                                                   field=field.caption, error=error))
-                self._thumbnail_jobs.submit(read_thumbnail, done)
+                requests.append((well, key, field, representatives, edge))
+                if len(requests) == 8:
+                    break
+            if len(requests) == 8:
+                break
+        if not requests:
+            return
+        def read_thumbnails():
+            """Read at most eight detached previews per worker lifecycle."""
+            results = []
+            for well, key, field, representatives, edge in requests:
+                if cancelled.is_set():
+                    break
+                try:
+                    if len(representatives) > 1:
+                        pixels, errors = _overview_montage(representatives, channels, limits,
+                            cancelled, preview_edge=min(240, resolution), **options)
+                        error = "; ".join(message for _, message in errors)
+                    else:
+                        pixels = _overview_pixels(field, channels, limits, edge=edge, **options)
+                        error = ""
+                except Exception as exc:
+                    pixels, error = None, str(exc)
+                results.append((well, key, field, pixels, error))
+            return results
+        def done(results):
+            """Install each current thumbnail and preserve individual read failures."""
+            if cancelled.is_set():
                 return
+            for well, key, field, pixels, error in results:
+                self._thumbnail_cache[key] = pixels
+                while len(self._thumbnail_cache) > 64:
+                    self._thumbnail_cache.popitem(last=False)
+                if (self._visual_context() == signature
+                        and device_ratio(self.wells.viewport()) == ratio):
+                    self._set_thumbnail(well, key, pixels)
+                    if error:
+                        self.status.setText(tr("Could not read {field}: {error}",
+                                               field=field.caption, error=error))
+        self._thumbnail_jobs.submit(read_thumbnails, done)
 
     def _set_thumbnail(self, well, key, pixels):
         """Attach an image to the current well cell only on the GUI thread."""
@@ -4908,39 +4948,51 @@ class _FieldOverview(QWidget):
 
 
 def _overview_workspace_qss(palette, opacity):
-    """Give embedded overview pages an opaque background in both themes."""
+    """Let embedded overview content inherit the owning module's backdrop."""
     return ("QWidget#FieldOverviewWorkspace, QWidget#FieldOverviewBody, "
-            "QWidget#FieldOverviewMetadata { background-color: " + palette["bg"] + "; }")
+            "QWidget#FieldOverviewMetadata { background: transparent; }")
 
 
 class _OverviewWorkspace(QWidget):
-    """Retain metadata and image navigation on the host's existing page strip."""
+    """Retain overview stages inside the owning module's existing panels."""
 
     def __init__(self, owner, source):
-        """Create one opaque workspace without opening an extra top-level window."""
+        """Reuse the owning module's panels without opening another top-level window."""
         from PySide6.QtWidgets import QStackedWidget
         from ..theme import register_widget_qss, ensure_widget_qss_applied
         super().__init__(owner)
         self._owner, self.source = owner, source
         self._previous_workspace = None
+        self._module_mounted = False
+        self._active_child = None
+        self._saved_settings = None
+        self._module_hidden = []
+        self._module_panes = []
+        self._module_figures = None
+        self._active_actions = None
         self.setObjectName("FieldOverviewWorkspace")
-        self.setAutoFillBackground(True)
-        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setAutoFillBackground(False)
         layout = QVBoxLayout(self)
         navigation = QHBoxLayout()
         self.back_button = QPushButton(tr("Back"))
         self.back_button.clicked.connect(self._back)
+        self.back_button.hide()
         navigation.addWidget(self.back_button)
         navigation.addWidget(QLabel(tr("Field-of-view overview")), 1)
         layout.addLayout(navigation)
         self.stack = QStackedWidget(self)
+        self.stack.currentChanged.connect(self._activate_child)
         layout.addWidget(self.stack, 1)
         register_widget_qss("FieldOverviewWorkspace", _overview_workspace_qss, replace=True)
         ensure_widget_qss_applied("FieldOverviewWorkspace", root=self)
 
     def show_page(self):
-        """Use the same embedded page host as OPS, including standalone test hosts."""
+        """Reuse module panels, falling back to the shared page host for bare callers."""
         from ..screens.map_barcodes import show_as_page
+        if self._mount_module():
+            self._owner.show()
+            self.show()
+            return
         if self._owner.layout() is None:
             layout = QVBoxLayout(self._owner)
             layout.addWidget(QWidget(self._owner), 1)
@@ -4948,9 +5000,160 @@ class _OverviewWorkspace(QWidget):
         self._owner.show()
         self.show()
 
+    def _mount_module(self):
+        """Mount the real module settings and image area while retaining its chrome."""
+        from PySide6.QtWidgets import QStackedWidget
+        owner = self._owner
+        settings = getattr(owner, "_settings_scroll", None)
+        figures = getattr(owner, "_figures_card", None)
+        images = getattr(owner, "_body_stack", None)
+        if settings is None or (figures is None and images is None):
+            return False
+        if self._module_mounted:
+            self._module_stack.setCurrentWidget(self)
+            return True
+        if figures is not None:
+            target = getattr(owner, "_overview_content_stack", None)
+            if target is None:
+                target = QStackedWidget(figures.body)
+                original = QWidget()
+                original_layout = QVBoxLayout(original)
+                original_layout.setContentsMargins(0, 0, 0, 0)
+                while figures.body_layout.count():
+                    item = figures.body_layout.takeAt(0)
+                    if item.widget() is not None:
+                        original_layout.addWidget(item.widget())
+                    else:
+                        original_layout.addItem(item)
+                target.addWidget(original)
+                figures.body_layout.addWidget(target, 1)
+                owner._overview_content_stack = target
+        else:
+            target = images
+        self._module_stack = target
+        pages = getattr(owner, "_fold_pages", None)
+        if pages is not None:
+            pages.setCurrentIndex(0)
+        self._previous_module_image = target.currentWidget()
+        self._saved_settings = settings.takeWidget()
+        self._saved_settings.setParent(owner)
+        self._saved_settings.hide()
+        self._module_mounted = True
+        for name in ("_actions_body", "_settings_search", "_tool_row", "_bottom_bar", "_image_footer"):
+            widget = getattr(owner, name, None)
+            if widget is not None:
+                self._module_hidden.append((widget, widget.isHidden()))
+                widget.hide()
+        target.addWidget(self)
+        target.setCurrentWidget(self)
+        for name, panels in (("_body_splitter", ("Settings",)),
+                ("_runtime_splitter", ("Figures", "Console", "System", "Actions"))):
+            splitter = getattr(owner, name, None)
+            if splitter is not None:
+                for pane in panels:
+                    if splitter.pane(pane) is not None:
+                        self._module_panes.append((splitter, pane, splitter.is_collapsed(pane)))
+        if figures is not None:
+            pane = owner._runtime_splitter.pane("Figures")
+            self._module_figures = figures, figures.isHidden(), figures.minimumHeight(), pane.minimum, pane.extent
+            figures.show()
+        for splitter, pane, _collapsed in self._module_panes:
+            splitter.set_collapsed(pane, False)
+        self._activate_child()
+        return True
+
+    def _return_child_settings(self):
+        """Return borrowed controls to their original retained widget."""
+        child = self._active_child
+        if child is None:
+            return
+        if isinstance(child, _FieldOverview):
+            child._options_window.hide()
+            child._options_closed()
+        settings = self._owner._settings_scroll
+        content = settings.takeWidget()
+        if content is not None:
+            scroll = child._controls_scroll if isinstance(child, _FieldOverview) else child._settings_scroll
+            scroll.setWidget(content)
+        if isinstance(child, _FieldOverview):
+            child._settings_host = None
+        if self._active_actions is not None:
+            self._active_actions.setParent(child)
+            self._active_actions.hide()
+            self._active_actions = None
+        self._active_child = None
+
+    def _activate_child(self, *_):
+        """Show the active stage's categories and safe actions in the normal panels."""
+        from ..theme import clear_container_surfaces, make_transparent
+        current = self.stack.currentWidget()
+        self.back_button.setVisible(isinstance(current, _FieldOverview))
+        if not self._module_mounted or current is self._active_child:
+            return
+        self._return_child_settings()
+        scroll = current._controls_scroll if isinstance(current, _FieldOverview) else current._settings_scroll
+        content = scroll.takeWidget()
+        clear_container_surfaces(current)
+        clear_container_surfaces(content)
+        clear_container_surfaces(self)
+        make_transparent(self, self.stack, self._module_stack, current, content, current._module_actions)
+        for label in content.findChildren(QLabel):
+            label.setWordWrap(True)
+        self._owner._settings_scroll.setWidget(content)
+        if isinstance(current, _FieldOverview):
+            current._settings_host = self._owner._settings_scroll
+        else:
+            current._settings_scroll.hide()
+        section = getattr(self._owner, "_actions_section", None)
+        if section is not None:
+            actions = current._module_actions if isinstance(current, _FieldOverview) else current._host_actions
+            section.body_layout.addWidget(actions)
+            actions.show()
+            self._active_actions = actions
+        elif isinstance(current, _FieldOverview):
+            current.layout().addWidget(current._module_actions)
+            current._module_actions.show()
+            self._active_actions = current._module_actions
+        if self._module_figures is not None:
+            height = max(700, min(32, current.wells.rowCount()) * 26 + 230) if isinstance(current, _FieldOverview) else 600
+            self.setMinimumHeight(height)
+            figures = self._module_figures[0]
+            figures.setMinimumHeight(height + 45)
+            pane = self._owner._runtime_splitter.pane("Figures")
+            pane.minimum = height + 45
+            pane.extent = max(pane.extent, height + 45)
+        self._active_child = current
+
+    def _leave_page(self):
+        """Restore the exact host settings, image and action widgets on return."""
+        from ..screens.map_barcodes import hide_as_page
+        if self._module_mounted:
+            self._return_child_settings()
+            self._owner._settings_scroll.setWidget(self._saved_settings)
+            self._saved_settings = None
+            self._module_stack.setCurrentWidget(self._previous_module_image)
+            self._module_stack.removeWidget(self)
+            self._module_mounted = False
+            for widget, hidden in self._module_hidden:
+                widget.setVisible(not hidden)
+            self._module_hidden.clear()
+            if self._module_figures is not None:
+                figures, hidden, minimum, pane_minimum, extent = self._module_figures
+                figures.setMinimumHeight(minimum)
+                pane = self._owner._runtime_splitter.pane("Figures")
+                pane.minimum, pane.extent = pane_minimum, extent
+                figures.setVisible(not hidden)
+                self._module_figures = None
+            for splitter, pane, collapsed in self._module_panes:
+                splitter.set_collapsed(pane, collapsed)
+            self._module_panes.clear()
+        else:
+            hide_as_page(self, self._owner)
+        self.hide()
+        self.setParent(self._owner, Qt.Widget)
+
     def _back(self):
         """Return through field, well, plate and the owning module."""
-        from ..screens.map_barcodes import hide_as_page
         current = self.stack.currentWidget()
         if isinstance(current, _FieldOverview) and current._individual:
             current._individual = False
@@ -4959,9 +5162,7 @@ class _OverviewWorkspace(QWidget):
         elif isinstance(current, _FieldOverview) and current._scope[1] is not None:
             current._back()
         else:
-            self.hide()
-            hide_as_page(self, self._owner)
-            self.setParent(self._owner, Qt.Widget)
+            self._leave_page()
 
     def hideEvent(self, event):
         """Hide the independent options window when its workspace leaves view."""
@@ -4977,11 +5178,8 @@ class _OverviewWorkspace(QWidget):
         if previous is None:
             self._back()
             return
-        from ..screens.map_barcodes import hide_as_page
         self._previous_workspace = None
-        self.hide()
-        hide_as_page(self, self._owner)
-        self.setParent(self._owner, Qt.Widget)
+        self._leave_page()
         self._owner._field_overview_workspace = previous
         self._owner._field_overview_wizard = previous.stack.widget(0)
         previous.show_page()
@@ -5004,12 +5202,12 @@ class _OverviewWorkspace(QWidget):
     def closeEvent(self, event):
         """Retire the retained child jobs when replacing or closing the workspace."""
         self._retire()
+        self._leave_page()
         super().closeEvent(event)
 
 
 def _open_field_overview(owner, settings=None):
     """Open metadata and the image browser as a retained embedded submodule."""
-    from ..screens.map_barcodes import hide_as_page
     settings = dict(settings or {})
     source = _overview_source_path(settings.get("source") or settings.get("src"))
     previous = getattr(owner, "_field_overview_workspace", None)
@@ -5027,8 +5225,7 @@ def _open_field_overview(owner, settings=None):
             previous._previous_workspace = None
             previous._retire()
             previous.deleteLater()
-        hide_as_page(previous, owner)
-        previous.setParent(owner, Qt.Widget)
+        previous._leave_page()
     workspace = _OverviewWorkspace(owner, source)
     workspace._previous_workspace = retained
     owner._field_overview_workspace = workspace
@@ -5036,7 +5233,7 @@ def _open_field_overview(owner, settings=None):
     wizard._startup_timer.stop()
     wizard.setWindowFlags(Qt.Widget)
     wizard.setObjectName("FieldOverviewMetadata")
-    wizard.setAutoFillBackground(True)
+    wizard.setAutoFillBackground(False)
     workspace.stack.addWidget(wizard)
     owner._field_overview_wizard = wizard
 
@@ -5052,7 +5249,7 @@ def _open_field_overview(owner, settings=None):
         dialog = _FieldOverview(workspace, config)
         dialog.setWindowFlags(Qt.Widget)
         dialog.setObjectName("FieldOverviewBody")
-        dialog.setAutoFillBackground(True)
+        dialog.setAutoFillBackground(False)
         owner._field_overview = dialog
         workspace.stack.addWidget(dialog)
         workspace.stack.setCurrentWidget(dialog)
@@ -5242,6 +5439,16 @@ def _overview_metadata_preview(filenames, pattern):
     return tuple((name, dict(by_name.get(name, {}))) for name in names), tuple(missed)
 
 
+def _overview_matched_fields(fields, pattern):
+    """Exclude filename nonmatches while retaining invalid matched well identities."""
+    import re
+    if not pattern:
+        return tuple(fields)
+    expression = re.compile(pattern, re.I)
+    return tuple(field for field in fields if all(
+        expression.match(Path(path).name) for _, path in field.files))
+
+
 def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope="folder"):
     """Index names on a worker and inspect only the first field's image headers."""
     fields = _overview_index(source, pattern, convention, cancelled, source_scope=source_scope)
@@ -5253,7 +5460,8 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
         from ..regex_detect import auto_detect_regex
         names = tuple(Path(path).name for field in fields for _, path in field.files)[:20]
         detected_pattern, detected_label, hits = auto_detect_regex(names)
-        if detected_pattern and "wellID" not in re.compile(detected_pattern).groupindex:
+        if detected_pattern and ("wellID" not in re.compile(detected_pattern).groupindex
+                or not any(re.match(detected_pattern, name, re.I) for name in names)):
             detected_pattern, detected_label = pattern, convention
         if detected_pattern and hits:
             inferred = _overview_index(source, detected_pattern, "auto", cancelled,
@@ -5274,7 +5482,10 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
                 detected_pattern, detected_label = pattern, convention
     if cancelled.is_set() or not fields:
         return fields, None
-    info = dict(_overview_channel_info(fields[0]))
+    matched = _overview_matched_fields(fields, detected_pattern)
+    first = next((field for field in matched if field.well and not field.unresolved),
+                 next(iter(matched), fields[0]))
+    info = dict(_overview_channel_info(first))
     info["detected_pattern"] = detected_pattern or ""
     info["detected_label"] = detected_label
     return fields, info
@@ -5295,6 +5506,8 @@ class _OverviewMetadataWizard(QWidget):
                                        QHeaderView, QScrollArea)
         from ..regex_detect import BUILTIN_REGEXES
         from .sortable_table import install_sorting
+        from .card import Card
+        from PySide6.QtWidgets import QSplitter
 
         super().__init__(parent)
         self.setWindowTitle(tr("Image metadata and display"))
@@ -5307,15 +5520,28 @@ class _OverviewMetadataWizard(QWidget):
         self._result = QDialog.Rejected
         self._runner = JobRunner(self, threaded=True, app_key="overview metadata", user_visible=False)
         self._runner.job_failed.connect(self._failed)
+        self._readout_timer = QTimer(self)
+        self._readout_timer.setSingleShot(True)
+        self._readout_timer.timeout.connect(self._fit_readouts)
         shell = QVBoxLayout(self)
         body = QWidget()
+        self._settings_content = body
         outer = QVBoxLayout(body)
         scroll = QScrollArea()
+        self._settings_scroll = scroll
         scroll.setWidgetResizable(True)
         scroll.setWidget(body)
-        shell.addWidget(scroll, 1)
+        split = QSplitter()
+        split.addWidget(scroll)
+        preview_body = QWidget()
+        preview_column = QVBoxLayout(preview_body)
+        split.addWidget(preview_body)
+        split.setStretchFactor(1, 2)
+        shell.addWidget(split, 1)
         self.resize(920, 760)
         form = QFormLayout()
+        form.setRowWrapPolicy(QFormLayout.WrapAllRows)
+        form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         self.source = QLineEdit(str(source or ""))
         self.source.setObjectName("OverviewWizardSource")
         source_row = QHBoxLayout()
@@ -5344,19 +5570,27 @@ class _OverviewMetadataWizard(QWidget):
         preview = QPushButton(tr("Preview metadata"))
         preview.clicked.connect(self._scan)
         form.addRow(preview)
-        outer.addLayout(form)
-        self.preview = QTableWidget(0, 7)
+        source_card = Card(title=tr("Source"), foldable=True)
+        source_card.body_layout.addLayout(form)
+        outer.addWidget(source_card)
+        self.preview = QTableWidget(0, 9)
         self.preview.setObjectName("OverviewWizardParsePreview")
         install_sorting(self.preview)
-        self.preview.setHorizontalHeaderLabels([tr("File"), tr("Plate"), tr("Well"), tr("Field"),
-                                                tr("Time"), tr("Z"), tr("Channel")])
+        self.preview.setHorizontalHeaderLabels([tr("File"), tr("Plate"), tr("Well"), tr("Row"), tr("Column"),
+                                                tr("Field"), tr("Time"), tr("Z"), tr("Channel")])
         self.preview.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        for column, width in ((0, 180), (1, 100)):
+            self.preview.horizontalHeader().setSectionResizeMode(column, QHeaderView.Interactive)
+            self.preview.setColumnWidth(column, width)
+        self.preview.setMinimumHeight(240)
         self.preview.setEditTriggers(QTableWidget.NoEditTriggers)
-        outer.addWidget(self.preview)
+        preview_column.addWidget(self.preview, 1)
         self.axes = QLabel("")
         self.axes.setWordWrap(True)
-        outer.addWidget(self.axes)
+        preview_column.addWidget(self.axes)
         layout = QFormLayout()
+        layout.setRowWrapPolicy(QFormLayout.WrapAllRows)
+        layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         self.channels = QLineEdit()
         self.channels.setObjectName("OverviewWizardChannels")
         self.channels.setToolTip(tr("Choose only channel IDs reported by this image's metadata."))
@@ -5429,13 +5663,17 @@ class _OverviewMetadataWizard(QWidget):
         layout.addRow(tr("Use reference-channel bounds"), self.gain)
         self.mean_match = QCheckBox(tr("Mean-matched display scaling before reference bounds"))
         layout.addRow(self.mean_match)
-        outer.addLayout(layout)
+        display_card = Card(title=tr("Display"), foldable=True)
+        display_card.body_layout.addLayout(layout)
+        outer.addWidget(display_card)
         self.conditions = QTableWidget(0, 3)
         self.conditions.setObjectName("OverviewWizardConditions")
         install_sorting(self.conditions)
         self.conditions.setHorizontalHeaderLabels([tr("Plate"), tr("Well"), tr("Condition")])
         self.conditions.itemChanged.connect(self._reference_choices)
-        outer.addWidget(self.conditions)
+        annotations_card = Card(title=tr("Annotations"), foldable=True)
+        annotations_card.body_layout.addWidget(self.conditions)
+        outer.addWidget(annotations_card)
         explanation = QLabel(tr(
             "Display only: clip((gain × pixel − lower bound) / (upper bound − lower bound), 0, 1). "
             "Equal lower/upper bounds and nonfinite pixels are black; channels without finite pixels are refused. "
@@ -5444,20 +5682,21 @@ class _OverviewMetadataWizard(QWidget):
             "Optional mean-matched display scaling uses the reference-channel raw sample mean divided by each channel raw sample mean, including zeros. The same reference-channel bounds are then used; "
             "both must be positive and finite. It is not a per-pixel ratio. Raw values stay unchanged."))
         explanation.setWordWrap(True)
-        outer.addWidget(explanation)
+        display_card.body_layout.addWidget(explanation)
         well_explanation = QLabel(tr(
             "Well-mean scaling uses the selected representative fields and time/Z view. "
             "Finite original pixels, including zeros, are averaged equally by field, then equally by reference well on the same plate. "
             "Each well is scaled to that reference mean before fixed reference bounds and clipping; clipped display means need not match. "
             "Bounds use balanced original-pixel samples from reference wells. Nonreference well statistics are learned on demand. Raw CSV values stay unchanged."))
         well_explanation.setWordWrap(True)
-        outer.addWidget(well_explanation)
+        display_card.body_layout.addWidget(well_explanation)
+        outer.addStretch(1)
         self.status = QLabel("")
         self.status.setWordWrap(True)
-        outer.addWidget(self.status)
-        self._action_bar = QWidget()
-        actions = QHBoxLayout(self._action_bar)
-        actions.setContentsMargins(0, 0, 0, 0)
+        preview_column.addWidget(self.status)
+        self._module_actions = QWidget()
+        self._action_bar = self._module_actions
+        actions = QHBoxLayout(self._module_actions)
         cancel = QPushButton(tr("Cancel"))
         cancel.clicked.connect(self.reject)
         self.next = QPushButton(tr("Next"))
@@ -5467,9 +5706,10 @@ class _OverviewMetadataWizard(QWidget):
         actions.addStretch(1)
         actions.addWidget(cancel)
         actions.addWidget(self.next)
-        shell.addWidget(self._action_bar)
+        shell.addWidget(self._module_actions)
         self._wizard_shell, self._wizard_body = shell, outer
         self._wizard_scroll = scroll
+        self._wizard_content = split
         self._action_buttons = (cancel, self.next)
         self._compact_scroll = QScrollArea(self)
         self._compact_scroll.setWidgetResizable(True)
@@ -5485,6 +5725,19 @@ class _OverviewMetadataWizard(QWidget):
         self._action_fit_timer = QTimer(self)
         self._action_fit_timer.setSingleShot(True)
         self._action_fit_timer.timeout.connect(self._fit_actions)
+        self._host_actions = QWidget(self)
+        host_actions = QHBoxLayout(self._host_actions)
+        for caption, callback in ((tr("Preview metadata"), self._scan), (tr("Cancel"), self.reject)):
+            button = QPushButton(caption)
+            button.clicked.connect(callback)
+            host_actions.addWidget(button)
+        self._host_actions.hide()
+        from PySide6.QtWidgets import QSizePolicy
+        for combo in body.findChildren(QComboBox):
+            combo.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            combo.setMinimumContentsLength(8)
+            combo.setMinimumWidth(0)
+            combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.source.textEdited.connect(self._invalidate)
         self.regex.textEdited.connect(self._custom_regex_changed)
         if self.regex.text():
@@ -5522,6 +5775,13 @@ class _OverviewMetadataWizard(QWidget):
         self._fitting_actions = True
         try:
             self._fit_action_buttons()
+            self._action_bar.layout().invalidate()
+            from ..gui_scale import _set_actual_dim
+            action_margins = self._action_bar.layout().contentsMargins()
+            action_height = max(button.property("minimumSize").height()
+                                for button in self._action_buttons)
+            _set_actual_dim(self._action_bar, "minh", action_height
+                            + action_margins.top() + action_margins.bottom())
             footer_height = max(self._action_bar.sizeHint().height(),
                                 self._action_bar.minimumSizeHint().height())
             margins = self._sticky_margins
@@ -5535,22 +5795,22 @@ class _OverviewMetadataWizard(QWidget):
                            or type(self._wizard_shell).setContentsMargins)
             if compact:
                 self._wizard_shell.removeWidget(self._action_bar)
-                self._wizard_shell.removeWidget(self._wizard_scroll)
-                self._compact_layout.addWidget(self._wizard_scroll, 1)
+                self._wizard_shell.removeWidget(self._wizard_content)
+                self._compact_layout.addWidget(self._wizard_content, 1)
                 self._compact_layout.addWidget(self._action_bar)
                 self._wizard_shell.addWidget(self._compact_scroll, 1)
                 self._compact_scroll.show()
                 set_margins(self._wizard_shell, 0, 0, 0, 0)
             else:
                 self._compact_layout.removeWidget(self._action_bar)
-                self._compact_layout.removeWidget(self._wizard_scroll)
+                self._compact_layout.removeWidget(self._wizard_content)
                 self._wizard_shell.removeWidget(self._compact_scroll)
-                self._wizard_shell.addWidget(self._wizard_scroll, 1)
+                self._wizard_shell.addWidget(self._wizard_content, 1)
                 self._wizard_shell.addWidget(self._action_bar)
                 self._compact_scroll.hide()
                 set_margins(self._wizard_shell, margins)
             self._actions_scroll = compact
-            self._wizard_scroll.show()
+            self._wizard_content.show()
             self._action_bar.show()
         finally:
             self._fitting_actions = False
@@ -5638,6 +5898,8 @@ class _OverviewMetadataWizard(QWidget):
     def _scanned(self, payload):
         """Expose actual parsed identities, available channels and embedded axes."""
         from .sortable_table import table_item
+        from PySide6.QtGui import QColor
+        from ..theme import active_palette
         generation, (fields, info) = payload
         if generation != self._generation or self._cancelled.is_set():
             return
@@ -5654,6 +5916,7 @@ class _OverviewMetadataWizard(QWidget):
             self.preset.blockSignals(True)
             self.preset.setCurrentIndex(index if index >= 0 else self.preset.count() - 1)
             self.preset.blockSignals(False)
+        self._fields = _overview_matched_fields(fields, self.regex.text())
         all_files = tuple(dict.fromkeys(path for field in fields for _, path in field.files))
         files = all_files[:20]
         pattern = self.regex.text()
@@ -5665,9 +5928,20 @@ class _OverviewMetadataWizard(QWidget):
         self.preview.setRowCount(len(rows))
         self.preview.setSortingEnabled(False)
         for row, (name, values) in enumerate(rows):
-            for column, value in enumerate((name,) + tuple(values.get(key, "") or "" for key in
-                    ("plateID", "wellID", "fieldID", "timeID", "sliceID", "chanID"))):
-                self.preview.setItem(row, column, table_item(str(value)))
+            from ...schema import parse_well, letters_from_row_index
+            try:
+                physical_row, physical_column = parse_well(values.get("wellID", ""), strict=True)
+                row_letters = letters_from_row_index(int(physical_row[1:]))
+                column_number = str(int(physical_column[1:]))
+            except (ValueError, TypeError):
+                row_letters, column_number = "", ""
+            for column, value in enumerate((name, values.get("plateID", ""), values.get("wellID", ""), row_letters, column_number)
+                    + tuple(values.get(key, "") or "" for key in ("fieldID", "timeID", "sliceID", "chanID"))):
+                item = table_item(str(value))
+                item.setToolTip(str(value))
+                if name in missed:
+                    item.setForeground(QColor(active_palette()["fg_dim"]))
+                self.preview.setItem(row, column, item)
         self.preview.setSortingEnabled(True)
         available = tuple(info["channels"])
         requested = self._settings.get("channels") or ()
@@ -5682,17 +5956,17 @@ class _OverviewMetadataWizard(QWidget):
             descriptions.append(tr("Axes: {axes}; shape: {shape}; type: {dtype}", axes=entry["axes"],
                                    shape=str(entry["shape"]), dtype=entry["dtype"]))
         self.axes.setText(tr("First field: {details}. Available channel IDs: {channels}",
-                             details="; ".join(descriptions), channels=str(available)))
+                             details="; ".join(dict.fromkeys(descriptions)), channels=str(available)))
         self.time.setRange(0, max(entry.get("time_count", 1) for entry in info["files"]) - 1)
         self.z.setRange(0, max(entry.get("z_count", 1) for entry in info["files"]) - 1)
         if not self._geometry_explicit:
-            rows_required, columns_required = _overview_geometry_extent(fields)
+            rows_required, columns_required = _overview_geometry_extent(self._fields)
             for index in range(self.plate_geometry.count()):
                 rows_available, columns_available = self.plate_geometry.itemData(index)
                 if rows_available >= rows_required and columns_available >= columns_required:
                     self.plate_geometry.setCurrentIndex(index)
                     break
-        wells = sorted({(field.plate, field.well) for field in fields})
+        wells = sorted({(field.plate, field.well) for field in self._fields if field.well})
         self.conditions.blockSignals(True)
         self.conditions.setSortingEnabled(False)
         self.conditions.setRowCount(len(wells))
@@ -5706,16 +5980,29 @@ class _OverviewMetadataWizard(QWidget):
         self.conditions.blockSignals(False)
         self._reference_choices()
         import re
-        matched = sum(bool(re.match(pattern, Path(path).name, re.I)) for path in all_files) if pattern else 0
+        matched = sum(bool(re.match(pattern, Path(path).name, re.I)) for path in all_files) if pattern else len(all_files)
         self.status.setText(tr(
             "Source: {source}. Indexed {count} fields; {matched} matched filenames and "
-            "{unmatched} unmatched filenames. Available channel IDs in the first field: {channels}.",
-            source=self.source.text(), count=len(fields), matched=matched,
+            "{unmatched} unmatched filenames excluded. Available channel IDs in the first field: {channels}.",
+            source=self.source.text(), count=len(self._fields), matched=matched,
             unmatched=len(all_files) - matched, channels=str(available)))
-        valid = all(field.well and not field.unresolved for field in fields)
+        valid = bool(self._fields) and all(field.well and not field.unresolved for field in self._fields)
         self.next.setEnabled(valid)
         if not valid:
             self.status.setText(tr("The filename regex must include a valid wellID for every image."))
+        self._readout_timer.start(0)
+
+    def _fit_readouts(self):
+        """Reserve wrapped metadata/status heights instead of clipping their text."""
+        from ..gui_scale import _set_actual_dim
+        width = max(200, self.preview.viewport().width())
+        for label in (self.axes, self.status):
+            _set_actual_dim(label, "minh", max(label.fontMetrics().height(), label.heightForWidth(width)))
+
+    def resizeEvent(self, event):
+        """Reflow metadata messages when the normal module pane changes width."""
+        super().resizeEvent(event)
+        self._readout_timer.start(0)
 
     def _choose_geometry(self):
         """Keep an explicit user geometry across subsequent metadata previews."""
@@ -5831,6 +6118,7 @@ class _OverviewMetadataWizard(QWidget):
         self._result = result
         self._startup_timer.stop()
         self._rescan_timer.stop()
+        self._readout_timer.stop()
         self._cancelled.set()
         self._action_fit_timer.stop()
         self._runner.shutdown(timeout_ms=0)

@@ -77,3 +77,59 @@ def test_explicit_alignment_preserves_text_and_rejects_byte_drift():
 def test_wholly_new_scene_needs_no_old_sentence_reuse():
  after,slots=d.sentence_slots('Old. Two.','Entirely different.','Fusion.',split,split)
  assert after==['Entirely different.'] and slots==[None]
+
+
+def repeated_fixture():
+ old={'lessons':[{'id':'a','scenes':[
+  {'visual':'repeat','narration':'First. Keep.'},
+  {'visual':'other','narration':'Middle.'},
+  {'visual':'repeat','narration':'Last. Old.'}]}]}
+ local={'lessons':[{'id':'a','scenes':[
+  {'narration':'Premier. Garder.','reviewed':'first'},
+  {'narration':'Milieu.'},
+  {'narration':'Dernier. Ancien.','reviewed':'last'}]}]}
+ return deepcopy(old),old,local
+
+
+@pytest.mark.parametrize('explicit_visuals',[False,True])
+def test_repeated_visual_delta_preserves_exact_indexed_translation(explicit_visuals):
+ new,old,local=repeated_fixture()
+ if explicit_visuals:
+  for original,translated in zip(old['lessons'][0]['scenes'],local['lessons'][0]['scenes']):
+   translated['visual']=original['visual']
+ new['lessons'][0]['scenes'][2]['narration']='Last. New.'
+ snapshots=deepcopy((new,old,local))
+ result,strings,slots,plans=d.plan_delta(new,old,local,['a'],split,split)
+ assert strings==['New.']
+ result=d.finish_delta(result,['Nouveau.'],slots,plans,'fr')
+ scenes=result['lessons'][0]['scenes']
+ assert scenes[0]==local['lessons'][0]['scenes'][0]
+ assert scenes[1]==local['lessons'][0]['scenes'][1]
+ assert scenes[2]['narration']=='Dernier. Nouveau.'
+ assert (new,old,local)==snapshots
+
+
+@pytest.mark.parametrize('mutation',['reorder','insert','remove','swap_repeated'])
+def test_repeated_visual_reordering_or_ambiguous_remapping_rejected(mutation):
+ new,old,local=repeated_fixture();scenes=new['lessons'][0]['scenes']
+ if mutation=='reorder':scenes[0],scenes[1]=scenes[1],scenes[0]
+ elif mutation=='insert':scenes.insert(1,{'visual':'added','narration':'Added.'})
+ elif mutation=='remove':scenes.pop(1)
+ else:scenes[0],scenes[2]=scenes[2],scenes[0]
+ with pytest.raises(ValueError,match='source-index|Ambiguous'):
+  d.plan_delta(new,old,local,['a'],split,split)
+
+
+def test_unique_visual_reorder_retains_original_visual_alignment():
+ new,old,local=fixture();new['lessons'][0]['scenes'].reverse()
+ result,strings,slots,plans=d.plan_delta(new,old,local,['a'],split,split)
+ assert strings==['New.']
+ result=d.finish_delta(result,['Nouveau.'],slots,plans,'fr')
+ assert [s['narration'] for s in result['lessons'][0]['scenes']]==['Rester.','Garder. Nouveau.']
+
+
+def test_explicit_alignment_rejects_repeated_visual_before_first_match_selection():
+ _new,old,local=repeated_fixture()
+ entry={'language':'fr','lesson':'a','visual':'repeat'}
+ with pytest.raises(ValueError,match='ambiguous'):
+  d.alignment_splitter(old,local,'fr',[entry],split)
