@@ -222,7 +222,7 @@ def test_small_physical_window_keeps_configuration_and_images_reachable(overview
     for control in (dialog.source, dialog.time_axis, dialog.annotation_text,
                     dialog.pdf_quality, dialog.measurements):
         dialog._controls_scroll.ensureWidgetVisible(control)
-        assert dialog._controls_scroll.viewport().rect().intersects(
+        assert dialog._controls_scroll.viewport().rect().contains(
             control.rect().translated(control.mapTo(dialog._controls_scroll.viewport(),
                                                    control.rect().topLeft())))
     assert dialog.size() == QSize(760, 620)
@@ -328,3 +328,75 @@ def test_cancelled_pending_selection_does_not_start_another_decoder(overview, mo
         assert dialog.view._item is None
     finally:
         release.set()
+
+
+def test_readable_plate_cells_paint_real_native_icons_and_translucent_hover(source_planes, qtbot):
+    from PySide6.QtCore import QRect
+    from PySide6.QtGui import QColor, QImage, QPainter
+    from PySide6.QtWidgets import QStyle, QStyleOptionViewItem
+
+    source, paths = source_planes
+    dialog = module._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "custom_regex": PATTERN, "channels": (1,), "geometry": (16, 24)})
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    dialog.show()
+    dialog._scan()
+    qtbot.waitUntil(lambda: dialog._fields and dialog._normalization_ready, timeout=10000)
+    item = dialog.wells.item(*dialog._well_positions["A01"])
+    qtbot.waitUntil(lambda: not item.icon().isNull(), timeout=10000)
+    assert dialog.wells.rowHeight(0) >= 64
+    assert dialog.wells.columnWidth(0) >= 64
+    assert item.text() in item.toolTip()
+    assert dialog._well_representatives["A01"].caption in item.toolTip()
+    index = dialog.wells.indexFromItem(item)
+    option = QStyleOptionViewItem()
+    option.initFrom(dialog.wells)
+    option.widget = dialog.wells
+    option.rect = QRect(0, 0, dialog.wells.columnWidth(0), dialog.wells.rowHeight(0))
+    option.state = QStyle.State_Enabled
+    delegate = dialog.wells.itemDelegate()
+
+    def paint(state):
+        option.state = state
+        image = QImage(option.rect.size(), QImage.Format_ARGB32_Premultiplied)
+        image.fill(QColor(17, 19, 23))
+        painter = QPainter(image)
+        try:
+            delegate.paint(painter, option, index)
+        finally:
+            painter.end()
+        return image
+
+    normal = paint(QStyle.State_Enabled)
+    height = normal.height() - option.fontMetrics.height() - 12
+    values = [normal.pixelColor(x, y).red() for x in range(5, normal.width() - 5)
+              for y in range(5, height)]
+    assert height > 16
+    assert max(values) - min(values) > 120
+    hover = paint(QStyle.State_Enabled | QStyle.State_MouseOver)
+    before, after = normal.pixelColor(2, 2), hover.pixelColor(2, 2)
+    assert after != before
+    assert after.blue() - after.red() > before.blue() - before.red()
+    assert after != QColor(35, 130, 245)
+
+
+def test_incompatible_plate_geometry_refuses_without_an_expanded_grid_or_gui_error(
+        source_planes, qtbot, monkeypatch):
+    source, paths = source_planes
+    dialog = module._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "custom_regex": PATTERN, "channels": (1,), "geometry": (1, 1)})
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    dialog.show()
+    with qtbot.captureExceptions() as exceptions:
+        dialog._scan()
+        qtbot.waitUntil(lambda: bool(dialog._fields) and not dialog._index_jobs.is_busy(), timeout=10000)
+        assert not dialog._geometry_valid
+        assert not dialog._normalization_ready
+        assert dialog.wells.rowCount() == dialog.wells.columnCount() == 0
+        assert dialog.fields.count() == 0
+        assert dialog.view._item is None
+        assert "does not contain all source well coordinates" in dialog.status.text()
+        monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *a, **k:
+                            pytest.fail("an invalid plate geometry must not export"))
+        dialog._export()
+    assert exceptions == []

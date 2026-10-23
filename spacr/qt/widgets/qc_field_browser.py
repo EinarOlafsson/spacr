@@ -2126,20 +2126,35 @@ class _OverviewPlateDelegate(_OverviewWellDelegate):
     """Show the active physical well beneath a translucent blue hover."""
 
     def paint(self, painter, option, index):
-        """Retain the source thumbnail and caption under the hover highlight.
+        """Reserve native image space and keep the complete caption in its tooltip.
 
         :param painter: the active GUI-thread painter.
         :param option: native cell geometry and hover state.
         :param index: the physical well cell.
         """
-        from PySide6.QtGui import QColor
-        from PySide6.QtWidgets import QStyle
+        from PySide6.QtCore import QRect
+        from PySide6.QtGui import QColor, QPalette
+        from PySide6.QtWidgets import QStyle, QStyleOptionViewItem
 
-        super().paint(painter, option, index)
+        opts = QStyleOptionViewItem(option)
+        self.initStyleOption(opts, index)
+        option.widget.style().drawPrimitive(QStyle.PE_PanelItemViewItem, opts, painter, option.widget)
+        painter.save()
+        rect = option.rect.adjusted(4, 4, -4, -4)
+        height = option.fontMetrics.height() + 3
+        image_rect = QRect(rect.left(), rect.top(), rect.width(), max(1, rect.height() - height))
+        icon = index.data(Qt.DecorationRole)
+        if icon is not None:
+            icon.paint(painter, image_rect, Qt.AlignCenter)
+        caption = str(index.data(Qt.DisplayRole) or "").split("\n", 1)[0]
+        caption = option.fontMetrics.elidedText(caption, Qt.ElideRight, rect.width())
+        painter.setPen(opts.palette.color(QPalette.HighlightedText
+            if option.state & QStyle.State_Selected else QPalette.Text))
+        painter.drawText(QRect(rect.left(), image_rect.bottom() + 1, rect.width(), height),
+                         Qt.AlignHCenter | Qt.AlignVCenter, caption)
         if option.state & QStyle.State_MouseOver:
-            painter.save()
             painter.fillRect(option.rect.adjusted(1, 1, -1, -1), QColor(35, 130, 245, 65))
-            painter.restore()
+        painter.restore()
 
 
 class _OverviewImageView(ZoomableImageView):
@@ -2193,6 +2208,8 @@ class _FieldOverview(QDialog):
         self._conditions = dict(self._overview_options.get("conditions")
                                 or (self._overview_options.get("normalization") or {}).get("conditions") or {})
         self._preview_edge = 256
+        self._geometry_valid = True
+        self._plate_cell_extent = None
         self._displayed_field = None
         self.setWindowTitle(tr("Field-of-view overview"))
         self.resize(1000, 760)
@@ -2561,20 +2578,29 @@ class _FieldOverview(QDialog):
             return
 
     def _zoom_plate(self, delta=0):
-        """Fit physical well geometry or enlarge it without changing source coordinates.
+        """Keep source well geometry while reserving at least 64 native pixels per cell.
 
-        :param delta: positive or negative scale step; zero fits the plate.
+        :param delta: positive or negative zoom step; zero chooses readable fitting cells.
         """
-        if delta:
-            self._plate_scale = max(.5, min(8., self._plate_scale * (1.25 if delta > 0 else .8)))
-        else:
-            self._plate_scale = 1.
         columns, rows = max(1, self.wells.columnCount()), max(1, self.wells.rowCount())
-        width = max(32, int(self.wells.viewport().width() / columns * self._plate_scale))
-        height = max(32, int(self.wells.viewport().height() / rows * self._plate_scale))
-        for column in range(columns):
+        if delta and self._plate_cell_extent is not None:
+            factor = 1.25 if delta > 0 else .8
+            width, height = (max(64, min(512, round(value * factor)))
+                             for value in self._plate_cell_extent)
+        else:
+            width = max(64, int(self.wells.viewport().width() / columns))
+            height = max(64, int(self.wells.viewport().height() / rows))
+        self._plate_cell_extent = width, height
+        self._apply_plate_extent()
+
+    def _apply_plate_extent(self):
+        """Restore the same native well size after a source-axis or annotation change."""
+        if self._plate_cell_extent is None:
+            return
+        width, height = self._plate_cell_extent
+        for column in range(self.wells.columnCount()):
             self.wells.setColumnWidth(column, width)
-        for row in range(rows):
+        for row in range(self.wells.rowCount()):
             self.wells.setRowHeight(row, height)
         self._request_visuals()
 
@@ -2931,6 +2957,8 @@ class _FieldOverview(QDialog):
             self.plates.addItem(plate, plate)
         self.plates.blockSignals(False)
         self._back()
+        if not self._geometry_valid:
+            return
         self._prepare_display()
         self.status.setText(tr("{count} fields; {unresolved} with unresolved metadata.",
                                count=len(fields), unresolved=sum(f.unresolved for f in fields)))
@@ -2945,6 +2973,23 @@ class _FieldOverview(QDialog):
         self._page = 0
         self._filter()
 
+    @staticmethod
+    def _checked_plate_geometry(fields, geometry):
+        """Refuse an explicit format that cannot contain the known source wells.
+
+        :param fields: source records for this physical plate.
+        :param geometry: explicitly chosen row and column counts, or None.
+        :returns: the validated dimensions, or None for metadata-derived geometry.
+        """
+        if geometry is None:
+            return None
+        rows, columns = int(geometry[0]), int(geometry[1])
+        if rows < 1 or columns < 1 or any(not field.unresolved and
+                (int(field.row) > rows or field.column > columns) for field in fields):
+            raise _OverviewValidationError(tr(
+                "The selected plate geometry does not contain all source well coordinates."))
+        return rows, columns
+
     def _filter(self, *_):
         """Filter metadata and show bounded field pages without image reads.
 
@@ -2955,6 +3000,20 @@ class _FieldOverview(QDialog):
         if self._scope[0] != plate:
             self._scope = (plate, None)
         available = tuple(f for f in self._fields if f.plate == plate)
+        try:
+            geometry = self._checked_plate_geometry(available, self._overview_options.get("geometry"))
+        except _OverviewValidationError as error:
+            self._geometry_valid = False
+            self._normalization_ready = False
+            self._visible = ()
+            self.wells.clear()
+            self.wells.setRowCount(0)
+            self.wells.setColumnCount(0)
+            self.fields.clear()
+            self.view.clear_image()
+            self.status.setText(str(error))
+            return
+        self._geometry_valid = True
         for combo, values, title in ((self.rows, sorted({f.row for f in available if f.row}, key=int), tr("All rows")),
                                      (self.columns, sorted({f.column for f in available if f.column}), tr("All columns"))):
             old = combo.currentData()
@@ -2975,9 +3034,8 @@ class _FieldOverview(QDialog):
         addresses = {f.well: (int(f.row), f.column) for f in available if not f.unresolved}
         rows = max((position[0] for position in addresses.values()), default=0)
         columns = max((position[1] for position in addresses.values()), default=1)
-        geometry = self._overview_options.get("geometry")
         if geometry is not None:
-            rows, columns = max(rows, int(geometry[0])), max(columns, int(geometry[1]))
+            rows, columns = int(geometry[0]), int(geometry[1])
         if rows > 512 or columns > 512:
             self.status.setText(tr("Plate coordinates exceed the overview grid limit."))
             return
@@ -3009,7 +3067,12 @@ class _FieldOverview(QDialog):
             item = table_item(tr("{well}\n{count} fields", well=well or tr("Unresolved"), count=count))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setData(Qt.UserRole, well)
-            item.setToolTip(self._conditions.get((plate, well), ""))
+            detail = [item.text(), self._conditions.get((plate, well), "")]
+            detail.extend(field.caption for field in self._well_fields.get(well, ())
+                          [:self.representatives.value()])
+            if not count:
+                detail.append(tr("No image at the selected acquisition axes."))
+            item.setToolTip("\n".join(part for part in detail if part))
             self.wells.setItem(r - 1, c - 1, item)
             self._well_positions[well] = (r - 1, c - 1)
             self.wells.setRowHeight(r - 1, 150)
@@ -3033,7 +3096,10 @@ class _FieldOverview(QDialog):
         if not self._visible:
             self.view.clear_image()
         if self._overview_options.get("geometry"):
-            self._zoom_plate()
+            if self._plate_cell_extent is None:
+                self._zoom_plate()
+            else:
+                self._apply_plate_extent()
         self._request_visuals()
 
     def _remember_selection(self):
@@ -3100,7 +3166,7 @@ class _FieldOverview(QDialog):
         except (ValueError, TypeError) as exc:
             self.status.setText(str(exc))
             return
-        if not self._normalization_ready or self._cancelled.is_set():
+        if not self._normalization_ready or self._cancelled.is_set() or not self._geometry_valid:
             return
         field = item.data(Qt.UserRole)
         if not self._individual:
@@ -3182,7 +3248,8 @@ class _FieldOverview(QDialog):
 
     def _update_visuals(self):
         """Load one visible representative or one bounded well montage at a time."""
-        if not self.isVisible() or self._cancelled.is_set() or not self._normalization_ready:
+        if (not self.isVisible() or self._cancelled.is_set()
+                or not self._normalization_ready or not self._geometry_valid):
             return
         try:
             channels, limits = self._choices()
@@ -3378,6 +3445,9 @@ class _FieldOverview(QDialog):
         """Export explicit field/well selections or reproducible examples of this view."""
         from PySide6.QtWidgets import QFileDialog
         import threading
+        if not self._geometry_valid:
+            self.status.setText(tr("The selected plate geometry does not contain all source well coordinates."))
+            return
         try:
             channels, limits = self._choices()
         except (ValueError, TypeError) as exc:
