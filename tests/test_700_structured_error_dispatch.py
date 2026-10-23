@@ -842,3 +842,40 @@ def test_native_health_lookup_cannot_override_a_new_optout(configured, tmp_path,
         assert relay.calls_to('/report')[0]['body']['summarize'] is False
     else:
         assert relay.calls_to('/report') == []
+
+
+@pytest.mark.parametrize('user_note', ['', 'I pressed Close after opening the overview.', 'x' * 650, 'x' * 1000])
+def test_old_relay_note_preserves_public_crash_fingerprints_and_user_note(configured, user_note):
+    import hashlib
+    relay, outcomes, ready = configured
+    session = {'known': True, 'id': '14cbd541-b9a1-41f4-8f50-4b53ba84755a',
+               'started_at': '2026-10-23T18:00:00Z', 'spacr_version': '1.5.1.6',
+               'python': '3.12.11', 'qt': '6.11.2', 'source_sha256': {}}
+    package = cr.Path(cr.__file__).resolve().parent
+    for key, relative in (('package', '__init__.py'), ('app', 'qt/app.py'),
+                          ('gc_policy', 'qt/gc_policy.py'), ('crashreport', 'crashreport.py')):
+        session['source_sha256'][key] = hashlib.sha256((package / relative).read_bytes()).hexdigest()
+    summary = cr.public_summary(message='Native process termination: Aborted', module='native', user_note=user_note)
+    summary.update(native_session=session, summarize=False)
+    status, _ = cr._post_json('/report', summary, 1)
+    assert status == 200 and len(relay.calls_to('/report')) == 1
+    body = relay.calls_to('/report')[0]['body']
+    assert 'native_session' not in body and body['summarize'] is False
+    assert relay.calls_to('/diagnose') == []
+    note = body['user_note']
+    assert note.startswith(user_note) and len(note) <= cr.MAX_NOTE_CHARS
+    assert cr.scrub_public_text(note, cr.MAX_NOTE_CHARS) == note
+    if len(user_note) < 650:
+        assert 'not the crashed build' in note and 'Crashed session: 2026-10-23T18:00:00Z' in note
+        assert 'spaCR version v1.5.1.6' in note and 'Python version v3.12.11' in note
+        assert 'Qt version v6.11.2' in note
+        assert session['id'].replace('-', ' ') in note
+        assert 'Public installed-source SHA256 fingerprints (8 groups of 8 hex digits)' in note
+        for key, digest in session['source_sha256'].items():
+            grouped = ' '.join(digest[index:index + 8] for index in range(0, 64, 8))
+            assert key + ' ' + grouped in note
+    elif len(user_note) == 650:
+        assert 'Crash-session details kept locally (note limit)' in note
+        assert 'fingerprints' not in note
+    else:
+        assert note == user_note

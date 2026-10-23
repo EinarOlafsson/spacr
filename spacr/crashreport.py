@@ -2567,8 +2567,27 @@ def _post_json(route: str, payload: Optional[Mapping[str, Any]],
             for frame in payload.get("frames", []):
                 frame.pop("code", None)
         if not capable:
+            session = _validated_summary(payload).get("native_session", {"known": False})
             payload.pop("native_session", None)
-            payload["user_note"] = "Crash-session provenance unavailable to this relay; environment values describe the replay process, not the crashed build."
+            existing = scrub_public_text(payload.get("user_note", ""), MAX_NOTE_CHARS)
+            details = ["Environment values describe the replay process, not the crashed build."]
+            if session["known"]:
+                details.append("Crashed session: " + session["started_at"]
+                               + "; random session UUID groups " + session["id"].replace("-", " ") + ".")
+                for key, label in (("spacr_version", "spaCR"), ("python", "Python"), ("qt", "Qt")):
+                    details.append(label + " version " + ("v" if session[key] != "unknown" else "") + session[key] + ".")
+                details.append("Public installed-source SHA256 fingerprints (8 groups of 8 hex digits):")
+                for key, digest in session["source_sha256"].items():
+                    details.append(key + " " + " ".join(digest[index:index + 8] for index in range(0, 64, 8)) + ";")
+            else:
+                details.append("Crashed session unknown: no complete supported startup header.")
+            note = scrub_public_text(" ".join(details), MAX_NOTE_CHARS)
+            separator = " | " if existing else ""
+            if len(existing) + len(separator) + len(note) > MAX_NOTE_CHARS:
+                note = "Crash-session details kept locally (note limit); environment values describe the replay process, not the crashed build."
+            payload["user_note"] = existing
+            if len(existing) + len(separator) + len(note) <= MAX_NOTE_CHARS:
+                payload["user_note"] += separator + note
     if payload is None:
         request = urllib.request.Request(relay_url() + route, method="GET",
                                          headers=headers)
