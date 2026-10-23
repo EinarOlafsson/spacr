@@ -46,6 +46,29 @@ address-reuse/deleted-wrapper safety and existing embedded Overview navigation.
 Source/test peer approves the two-line private guard. Faithful native Overview/
 Options default and font200 acceptance remains pending on the repaired source;
 no earlier native failure is overwritten and no other platform claim is added.
+The detacher-only faithful retake23210/VIksfD on5a795240be still fails the
+same wizard top-level assertion (normal child1/40.414s/RSS0.985GiB/zero missed,
+accepted normal close and unchanged TIFFs). Independent source review finds
+glass Polish/Show can also promote QDialog pages; no glass policy patch is
+adopted. Incoming bcaa3879c instead makes both embedded Overview classes
+QWidget with explicit wizard completion/cancellation semantics, removing both
+dialog-policy eligibility routes. Its existing actual application-filter test
+already covers Mask and Make Masks; reuse that plus changed filter cleanup,
+wizard cancel/source replacement and Options/Back regressions, not a duplicate
+test or scientific/export matrix. Native acceptance remains pending afterward.
+Integrated unit bodies pass, but two initial harness runs report eight owned
+QSettings-path teardown errors each (real files touched[]); custom basetemp is
+not registered early enough by this conftest. Preserve the guard. Confine only
+the upstream raw application subprocess through explicit isolated-profile and
+tmp_path/profile settings before imports; parent tests retain normal conftest
+isolation. This also closes that test's Darwin native-preference escape risk.
+Corrected integrated cohort5620 PASSES all eight in38.20s/RSS0.792GiB:
+the changed two-case detacher fixture restores only its own installed filter;
+both actual global-policy application hosts keep QWidget metadata/browser pages
+embedded, keyboard/close cancels once, Options/Back and source replacement pass.
+Parent QSettings guards remain intact; raw child profiles are explicitly owned.
+Prior sixteen filter checks remain retained. Faithful default/font200 native
+Options geometry on the final integrated source is still pending.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 

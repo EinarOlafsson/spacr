@@ -1279,7 +1279,8 @@ QTimer.singleShot(20000, lambda: app.exit(2))
 sys.exit(app.exec())
 '''
     environment = dict(os.environ, XDG_CONFIG_HOME=str(tmp_path / "config"),
-        XDG_CACHE_HOME=str(tmp_path / "cache"), SPACR_NO_NETWORK="1", SPACR_PREWARM="0")
+        XDG_CACHE_HOME=str(tmp_path / "cache"), SPACR_NO_NETWORK="1", SPACR_PREWARM="0",
+        SPACR_ISOLATED_PROFILE="1", SPACR_HOME=str(tmp_path / "profile"))
     result = subprocess.run([sys.executable, "-c", code, host_key, str(tmp_path)],
         env=environment, capture_output=True, text=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr

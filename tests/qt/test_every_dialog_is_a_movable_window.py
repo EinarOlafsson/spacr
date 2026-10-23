@@ -38,7 +38,7 @@ def dialog_parent(qtbot):
 class TestTheFilterDetaches:
 
     @pytest.mark.parametrize("embedded", (True, False))
-    def test_polish_preserves_embedded_pages_but_detaches_popups(self, qtbot, qapp, embedded):
+    def test_polish_preserves_embedded_pages_but_detaches_popups(self, qtbot, qapp, request, embedded):
         from PySide6.QtCore import QEvent, Qt
         from PySide6.QtWidgets import QDialog, QLineEdit, QVBoxLayout, QWidget
         from spacr.qt import dialogs
@@ -56,7 +56,17 @@ class TestTheFilterDetaches:
         before_flags = page.windowFlags()
         assert page.parentWidget() is owner
         assert page.isWindow() is not embedded
-        dialogs.detach_all_dialogs(qapp)
+        previous_filter, previous_app = dialogs._DETACHER, dialogs._DETACHED_APP
+        if dialogs.detach_all_dialogs(qapp):
+            installed = dialogs._DETACHER
+
+            def restore_filter():
+                from spacr.qt.gil_priority import _stop_watching_application_events
+
+                _stop_watching_application_events(qapp, installed)
+                dialogs._DETACHER, dialogs._DETACHED_APP = previous_filter, previous_app
+
+            request.addfinalizer(restore_filter)
         qapp.sendEvent(page, QEvent(QEvent.Polish))
         owner.show()
         page.show()
