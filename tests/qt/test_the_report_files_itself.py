@@ -999,7 +999,7 @@ class TestTheAgreementSaysSo:
 
         terms.record_agreement("4.3")
 
-        assert terms.TERMS_VERSION == "4.4"
+        assert terms.TERMS_VERSION == "4.5"
         assert terms.needs_agreement() is True
 
 

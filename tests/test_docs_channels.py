@@ -305,9 +305,9 @@ def test_nightly_space_license_matches_the_project_declaration(tmp_path):
     root = Path(__file__).resolve().parents[1]
     project = re.search(r'^license = "([^"]+)"$',
                         (root / 'pyproject.toml').read_text(encoding="utf-8"), re.M)[1]
-    assert project == 'LicenseRef-spaCR-Noncommercial AND BSD-3-Clause'
+    assert project == 'LicenseRef-spaCR-BSD-3-Clause-Additional-Terms AND BSD-3-Clause'
     assert (root / 'LICENSE').read_text(encoding="utf-8").startswith(
-        'spaCR Noncommercial License 1.0\n')
+        'BSD 3-Clause with additional terms\n')
     assert (root / 'LICENSE-BSD-3-Clause').read_text(encoding="utf-8").startswith(
         'BSD 3-Clause License\n')
     output = tmp_path / 'space'

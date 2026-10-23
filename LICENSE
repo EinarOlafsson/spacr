@@ -1,5 +1,9 @@
-spaCR Noncommercial License 1.0
-SPDX-License-Identifier: LicenseRef-spaCR-Noncommercial
+BSD 3-Clause with additional terms
+SPDX-License-Identifier: LicenseRef-spaCR-BSD-3-Clause-Additional-Terms
+
+This is a custom BSD-style license with additional noncommercial terms,
+not the standard BSD 3-Clause License. The restrictions below remain
+applicable to the covered material.
 
 Copyright (c) 2025-2026, Einar Birnir Olafsson and the spaCR contributors.
 All rights reserved except as expressly granted below.
@@ -30,6 +34,23 @@ include this license and its copyright notice and identify modifications.
 They must not represent commercial permission as having been granted here.
 Access for noncommercial research requires no account approval or material
 transfer agreement. Any separately applicable third-party terms still apply.
+
+The following BSD 3-Clause conditions also apply to redistribution of the
+covered material, subject to the noncommercial scope and permissions above:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+These conditions grant no commercial permission and do not change the
+existing-rights and third-party scope in Section 1.
 
 3. Commercial use requires separate written permission
 

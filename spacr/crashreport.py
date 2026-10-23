@@ -3149,7 +3149,7 @@ def fetch_allowance(timeout: float = SEND_TIMEOUT_S
     return _normal_allowance(data)
 
 
-_REPORTING_TERMS_VERSION = "4.4"
+_REPORTING_TERMS_VERSION = "4.5"
 _ERROR_DISPATCH_LOCK = threading.RLock()
 _ERROR_DISPATCH_SEEN = {}
 _ERROR_DISPATCH_LOCAL = threading.local()

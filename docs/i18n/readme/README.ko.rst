@@ -38,9 +38,9 @@
    :target: https://github.com/EinarOlafsson/spacr/issues
    :alt: GitHub 이슈
 
-.. |License| image:: https://img.shields.io/badge/License-Noncommercial-blue
+.. |License| image:: https://img.shields.io/badge/License-BSD_3--Clause_with_additional_terms-blue
    :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
-   :alt: 비상업적 라이선스
+   :alt: 추가 조건이 포함된 BSD 3-Clause
 
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
@@ -590,11 +590,11 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing.desktop.svg"><img src="../../readme_images/ko/licensing.svg" alt="라이선스. 새로운 spaCR 고유 자료에는 spaCR Noncommercial License 1.0가 적용됩니다. 상업적 사용에는 별도의 서면 허가가 필요합니다. olafsson@med.umich.com로 문의하세요. 기존 BSD 라이선스로 부여된 권리와 타사 라이선스는 계속 유효합니다. 적용 범위와 고지는 LICENSE를 참조하세요."></picture></a></div>
+   <div><a href="../../readme_text/ko/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing.desktop.svg"><img src="../../readme_images/ko/licensing.svg" alt="라이선스. 새로운 spaCR 고유 자료에는 BSD 3-Clause with additional terms가 적용됩니다. 상업적 사용에는 별도의 서면 허가가 필요합니다. olafsson@med.umich.com로 문의하세요. 기존 BSD 라이선스로 부여된 권리와 타사 라이선스는 계속 유효합니다. 적용 범위와 고지는 LICENSE를 참조하세요."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing-link-1.desktop.svg"><img src="../../readme_images/ko/licensing-link-1.svg" alt="spaCR Noncommercial License 1.0"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing-link-2.desktop.svg"><img src="../../readme_images/ko/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing-link-1.desktop.svg"><img src="../../readme_images/ko/licensing-link-1.svg" alt="BSD 3-Clause with additional terms"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing-link-2.desktop.svg"><img src="../../readme_images/ko/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
 
 .. raw:: html
 

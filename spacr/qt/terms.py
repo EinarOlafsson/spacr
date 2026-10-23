@@ -50,7 +50,7 @@ from ..crashreport import _REPORTING_TERMS_VERSION
 
 TERMS_VERSION = _REPORTING_TERMS_VERSION
 
-LICENSE_NAME = "spaCR Noncommercial License 1.0"
+LICENSE_NAME = "BSD 3-Clause with additional terms"
 LICENSE_URL = "https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"
 REQUIRED_NOTICE = ("Copyright (c) 2025-2026, Einar Birnir Olafsson "
                    "and the spaCR contributors.")
@@ -106,8 +106,10 @@ TERMS: Tuple[str, ...] = (
 
     "2. LICENCE GRANT",
     "2.1 New original spaCR material first distributed with Agreement version "
-    "4.4 is licensed under the spaCR Noncommercial License 1.0 supplied in "
-    "LICENSE. That licence governs where this summary conflicts with it. "
+    "4.4 is licensed under BSD 3-Clause with additional terms supplied in "
+    "LICENSE. This custom licence includes noncommercial restrictions and is "
+    "not the standard BSD 3-Clause License. That licence governs where this "
+    "summary conflicts with it. "
     "This is source-available software, not OSI-approved open source.",
     "2.2 Noncommercial use, copying, modification and distribution of the "
     "covered material are permitted subject to that licence. Noncommercial "
@@ -405,6 +407,8 @@ def agreement_record() -> Dict[str, str]:
         accepted_license = str(_settings().value(_KEY_LICENSE, "") or "")
     except Exception:
         accepted_license = ""
+    if not accepted_license and version == "4.4":
+        accepted_license = "spaCR Noncommercial License 1.0"
     if not accepted_license and version in ("4.0", "4.1", "4.2", "4.3"):
         accepted_license = "BSD 3-Clause License"
     return {
@@ -429,7 +433,8 @@ def record_agreement(version: str = "") -> str:
     store.setValue(_KEY_VERSION, stamped)
     store.setValue(_KEY_WHEN, when)
     store.setValue(_KEY_LICENSE, LICENSE_NAME if stamped == TERMS_VERSION else
-                   "BSD 3-Clause License" if stamped in ("4.0", "4.1", "4.2", "4.3") else "")
+                   "BSD 3-Clause License" if stamped in ("4.0", "4.1", "4.2", "4.3") else
+                   "spaCR Noncommercial License 1.0" if stamped == "4.4" else "")
     try:
         store.sync()
     except Exception:                                        # noqa: BLE001

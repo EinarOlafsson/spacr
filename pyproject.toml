@@ -76,7 +76,7 @@ authors = [
 # pyproject.toml -- so it does not merely mis-label the wheel, it stops the
 # build before it starts. Every job in the compat matrix failed on it: the
 # sdist, the wheel, and `pip install spacr` on all six interpreters.
-license = "LicenseRef-spaCR-Noncommercial AND BSD-3-Clause"
+license = "LicenseRef-spaCR-BSD-3-Clause-Additional-Terms AND BSD-3-Clause"
 license-files = ["LICENSE", "LICENSE-BSD-3-Clause"]
 
 # ---------------------------------------------------------------------------

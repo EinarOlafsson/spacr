@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using these metadata."
 title: "spaCR: spatial phenotype analysis of CRISPR-Cas9 screens"
-abstract: "A source-available Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression. New original material uses spaCR Noncommercial License 1.0; prior BSD grants and third-party licenses remain in effect; see LICENSE for scope."
+abstract: "A source-available Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression. New original material uses BSD 3-Clause with additional terms; prior BSD grants and third-party licenses remain in effect; see LICENSE for scope."
 type: software
 authors:
   - family-names: "Olafsson"
