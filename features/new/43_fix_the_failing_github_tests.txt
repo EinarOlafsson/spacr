@@ -6,6 +6,12 @@ independent refusal cases after a failed frame quarantines its renderer. Retain
 all render, dispatch, reuse, resize and release assertions. Production stays
 unchanged. Validate only the five CPU/offscreen cases; root publishes.
 
+CURRENT SETUP GPU-NOTE FLOATING PLACEMENT FIXTURE — 2026-10-23
+G4 owns the exact Main CI geometry failure; preserve native floating-band,
+missing-greeting/card/note assertions and layout-owned opening behavior.
+Update only the fixture after explicitly removing native layout ownership;
+run the single owning CPU/offscreen test, with G1 peer and root publication.
+
 CURRENT NATIVE CRASH DUMP PATH FALLBACKS — 2026-10-23
 widgets_g2 owns the three Main221 Coverage11 crash-dump failures; root reviews
 and publishes. Guard optional logging-helper resolution and accept string or
@@ -4710,3 +4716,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — Document the existing overview-export cancellation and staged-result callbacks truthfully, without behavioral changes. Scoped normal extraction confirms the private QC module is excluded from rendered nested-helper API inventory; published API, captions and review records remain valid.
 
 2026-10-23 — Mask category visibility now combines alpha gating with existing object/grid/mode/classifier hiding and retains parents containing real prose controls. The visible-heading check ignores parked forms; five obsolete Advanced-settings fixtures verify the current Measure tree’s exact hierarchy, row ownership, guidance and ancestor lookup instead. Nine distinct controls pass (eight retained in 10.98s, final Mask filter/grid toggle in 3.30s); independent review accepted, with transient grain-compiler/child shutdown diagnostics reported to root. API/captions unchanged; 34 normal consumer offsets and root publication remain pending.
+
+2026-10-23 — Repair the setup GPU-note floating fixture by removing actual layout ownership, showing the note and activating the resized native card layout. The unchanged exact band and missing-widget assertions pass (1 test, 3.17s); production and generated outputs are unchanged. G1 independently reviewed the fixture; root publication remains pending.
