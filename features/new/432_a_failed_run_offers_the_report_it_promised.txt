@@ -1,6 +1,33 @@
 CURRENT FOLLOW-UP — ERROR STORMS AND AI ALLOWANCE, 2026-10-23
 Status: DONE 2026-10-23 — bounded error batching, hosted request limits, persistent cooldown and explicit storm actions delivered; earlier reporting behavior below is retained.
 Owner: Workstation session 2 / retained AI error-control agent; Home retains general CI/release.
+Mac acceptance follow-up (not reopening Home's delivered scope): inspect the
+actual error-storm QMessageBox at GUI90/font90 and GUI90/font200 under owned
+Cocoa settings. Require exposed untouched initial native frame/work-area fit,
+actual11/23px main-message fonts, complete wrapped messages and all three native
+button text slots, Cancel default/Escape, one-shot identity and Cancel-only
+dismissal. Stub destructive actions; no real quit/restart, reports, provider,
+authentication or network calls. Run only these two new geometry nodes plus
+the five existing explicit-action/hidden-relay/failed-restart safety cases under
+the owned8GiB/300s guard. Other platforms may exercise the same geometry test;
+only the actual Cocoa run establishes this Mac-specific acceptance.
+First owned Cocoa cohort56453: six pass in9.34s/RSS0.314GiB, including
+font200 native prompt geometry and all five action/relay/restart safeguards.
+Default geometry is untested: its setup fails before prompt construction when
+liveGUI1.0 differs from already-default owned preferences0.9, causing the normal
+change_scales no-change branch to return. This is a test-startup precondition,
+not an observed prompt clipping failure; align via normal saved-scale startup
+before retrying only that affected default node. No product change.
+Affected default-only retry54535 PASSES after normal saved-scale/font/theme
+bootstrap (5.19s/RSS0.301GiB). Together with the six retained passes, all seven
+scoped Cocoa checks pass: actual11/23px main text; untouched native frames
+420x170/default and579x299/font200 fit1440x870 work area at DPR2; complete
+wrapped labels and all three actual-default-state button text slots fit.
+Cancel/default/Escape, one-shot ownership and the five action/relay/restart
+safeguards pass without any real destructive action, report or provider call.
+Test cleanup restores owned scales and app style/font/palette on all paths.
+This is automated native Mac acceptance, not physical-input certification;
+Home's delivered product scope/status is unchanged. No product fix was needed.
 Priority: current user report; repeated Qt errors exhausted spaCR AI allowance.
 
 For every AI provider, send the first error immediately. An error arriving within
