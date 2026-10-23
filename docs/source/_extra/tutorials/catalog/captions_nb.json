@@ -11272,7 +11272,7 @@
         "Velge sammenslåtte målinger eller én tabell og en policy for manglende verdier.",
         "Eksportere en h5ad-fil med egenskapsnavn og objektmetadata."
       ],
-      "prerequisite": "Bruk et prosjekt der Measure er fullført, eller last ned måleeksemplet via Annotate. Arbeid på en kopi av prosjektet og behold kildebildene. Bruk den nåværende nightly-versjonen for den vanlige eksporten som vises her.",
+      "prerequisite": "Bruk et prosjekt der Measure er fullført, eller last ned måleeksemplet via Annotate. Arbeid på en kopi av prosjektet og behold kildebildene.",
       "scenes": [
         {
           "visual": "01_measure_host",

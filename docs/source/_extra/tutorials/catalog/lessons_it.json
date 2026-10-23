@@ -12088,7 +12088,7 @@
         "Scegliere misure unite o una sola tabella e una regola per i valori mancanti.",
         "Esportare un file h5ad con nomi delle caratteristiche e metadati degli oggetti."
       ],
-      "prerequisite": "Usa un progetto per cui Measure è completato, oppure scarica l’esempio di misure tramite Annotate. Lavora su una copia del progetto e conserva le immagini di origine. Usa la build nightly attuale per l’esportatore standard mostrato qui.",
+      "prerequisite": "Usa un progetto per cui Measure è completato, oppure scarica l’esempio di misure tramite Annotate. Lavora su una copia del progetto e conserva le immagini di origine.",
       "scenes": [
         {
           "visual": "01_measure_host",

@@ -12088,7 +12088,7 @@
         "选择合并测量或单表测量，以及缺失值策略。",
         "导出包含特征名称和对象元数据的h5ad文件。"
       ],
-      "prerequisite": "使用已完成Measure的项目，或通过Annotate下载测量示例。请在项目副本上操作，并保留其源图像。此处展示的常规导出功能请使用当前的nightly版本。",
+      "prerequisite": "使用已完成Measure的项目，或通过Annotate下载测量示例。请在项目副本上操作，并保留其源图像。",
       "scenes": [
         {
           "visual": "01_measure_host",

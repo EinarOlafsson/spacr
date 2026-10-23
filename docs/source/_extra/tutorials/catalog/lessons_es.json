@@ -12088,7 +12088,7 @@
         "Elegir mediciones combinadas o de una sola tabla y una política para los valores faltantes.",
         "Exportar un archivo h5ad con los nombres de las características y los metadatos de los objetos."
       ],
-      "prerequisite": "Usa un proyecto que haya completado Measure, o descarga el ejemplo de mediciones desde Annotate. Trabaja sobre una copia del proyecto y conserva sus imágenes de origen. Usa la compilación nightly actual para el exportador normal que se muestra aquí.",
+      "prerequisite": "Usa un proyecto que haya completado Measure, o descarga el ejemplo de mediciones desde Annotate. Trabaja sobre una copia del proyecto y conserva sus imágenes de origen.",
       "scenes": [
         {
           "visual": "01_measure_host",
