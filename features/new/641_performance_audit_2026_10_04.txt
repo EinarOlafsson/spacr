@@ -26,6 +26,31 @@ modal/280s parent deadlines and unchanged workload, persists existing phase/
 partial-page checkpoints, and permits one delayed Python-only stack snapshot
 without faulthandler, signals, Qt calls from a worker, or product changes.
 No startup/performance acceptance is inferred; CPU-only completion stands.
+Instrumented locale15398/zuhKyF on925c9597c finishes normally: all ten pages
+and owned language restoration pass, modal8.740s, child28.679s/RSS0.955GiB/
+zero missed. The requested12s Python snapshot is NOT performed; no external
+native capture occurs. This fast diagnostic does not explain the prior280s
+timeout. Next scope is ONE bounded recurrence attempt with exactly the same
+instrumented workload/checkpoints and20s/280s gates, not an acceptance replay
+or evidence that the intermittent failure is resolved. No product changes.
+That single recurrence attempt66296/MT8fT0 also finishes normally on925c9597c:
+all ten pages clear, English/other answers restored, modal8.712s; child exit0
+in27.660s/RSS0.968GiB/zero missed/no aliases. Requested12s Python snapshot
+again NOT performed; no external native capture. The planned attempt is done;
+the prior stall's caller remains unattributed and no stall fix is claimed.
+Next bounded attribution batch permits at most THREE identical fresh-process
+attempts on925c9597c, each with a new owned profile, the same scales/workload,
+20s modal/280s parent/8GiB guards and one12s Python-only observer. Stop further
+launches on the first nonzero exit, timeout or actually performed snapshot;
+allow that process's normal bounded cleanup. If all three pass without a
+snapshot, stop the batch and retain rare-stall/unknown-caller status, not fixed.
+No external native sampling, faulthandler, product edits or acceptance replay.
+The three-attempt batch is complete and STOPPED: D0Mw7q/30002 exits0 in
+28.010s/RSS0.967GiB, RRLjqs/30662 in28.819s/0.999GiB, Cr4VVE/61256 in
+28.644s/0.956GiB. All use925c9597c, clear ten pages/English restoration/
+unchanged answers, zero missed samples/no aliases, and perform no12s snapshot
+or external/faulthandler capture; last modal8.949s. The rare280s stall remains
+unresolved with no fix or performance claim. No further batch attempts.
 
 Scoped shutdown follow-up: isolate normal MainWindow.close with the two
 production ambient compiler-start routes held at an owned test barrier, without

@@ -106,6 +106,15 @@ manual external native sample was captured at approximately3m48s; the wrapper's
 default external_sampling_performed=false does not describe that separate
 capture. Retain DC5GoA's ten-page partial results above; complete live-locale
 acceptance remains pending. No product edit or renewed acceptance claim.
+Scoped live-locale acceptance15398/zuhKyF now PASSES on925c9597c: untouched
+113x244 opening, all ten DE/restored-EN pages clear, both complete greeting
+style-text rectangles and six nonoverlaps clear, including full current text
+visibility at the formerly whitespace-clipped generic-inspection points.
+English restores and other answers/terms remain unchanged. Exec8.740s<20;
+normal exit0/28.679s/RSS0.955GiB/zero missed/no aliases. The requested12s
+Python snapshot was NOT performed because the case finished; no external
+native capture occurred in this run. Prior timeout history remains unresolved,
+not overwritten by this scoped layout pass.
 
 Affected setup follow-up after the new spaCR_AI row: inspect real SetupSlides
 and SetupDialog at normal owned Cocoa GUI/font90%/90%, actual1440x870 work
