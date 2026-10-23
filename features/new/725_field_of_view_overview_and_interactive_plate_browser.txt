@@ -137,6 +137,23 @@ the real advanced pair's wrapped caption, native editor line, nonoverlap,
 unchanged value and uncapped natural size also pass. Independent source/test
 peer clears this bounded repair. Retain earlier PDF-quality and navigation
 passes; aggregate normal-app default/font200 native acceptance remains pending.
+Faithful default native39250/QS45uQ on7a73c40fb now PASSES this Mac scope:
+actual11px, untouched Options792x612 within1440x870/DPR2, all85 controls/
+offered native text slots/intrinsic/reach clear; all three backgrounds paint
+opaque and pages remain embedded. Plate1344→1324 tracks host resize without
+Options changing it; independent close/reopen retains/restores gamma and Back
+returns to host. One captured actual QThread drains to zero alive; TIFFs remain
+unchanged and MainWindow closes normally. Child0/34.351s/RSS1.086GiB/zero
+missed/no aliases. Font200 acceptance was pending at this checkpoint.
+Faithful font200 native87919/nNbVkH on the same7a73c40fb also PASSES:
+actual23px, untouched Options850x783 within1440x870/DPR2, all85 controls/
+offered slots/intrinsic/reach clear, three opaque surfaces and embedded pages.
+Plate1336→1316 has no Options jump; independent close/reopen/value restore/Back,
+one actual captured thread drained to zero alive, unchanged TIFFs and normal
+MainWindow close pass. Child0/38.625s/RSS1.118GiB/zero missed/no aliases.
+Both requested default/font200 Mac addendum scopes are accepted on this host;
+Workstation's DONE implementation ownership is retained, with no other-platform,
+physical-input, smaller-display or all-scale certification inferred.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 
