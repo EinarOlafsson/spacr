@@ -2058,6 +2058,44 @@
     "qualname": "train_cellpose"
    }
   ],
+  "baseline": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "baseline",
+    "line": 2059,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_overview_channel_normalization"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "baseline",
+    "line": 2085,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_overview_transform"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "baseline",
+    "line": 2524,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_overview_export"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "baseline",
+    "line": 3171,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_FieldOverview._normalization_target_changed"
+   }
+  ],
   "batch_column": [
    {
     "form": "get",
@@ -7741,7 +7779,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 2362,
+    "line": 2893,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -11779,7 +11817,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 2358,
+    "line": 2889,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -24412,7 +24450,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 2571,
+    "line": 3113,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -25597,7 +25635,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 2870,
+    "line": 3831,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._prepare_display"
@@ -25606,7 +25644,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 3124,
+    "line": 4192,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._indexed"
@@ -25615,7 +25653,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 3808,
+    "line": 4915,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -25624,7 +25662,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 4397,
+    "line": 5522,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_prepare_normalization"
@@ -28047,7 +28085,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 2373,
+    "line": 2904,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -28418,7 +28456,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 2370,
+    "line": 2901,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -39582,7 +39620,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 2861,
+    "line": 3820,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview._prepare_display"
@@ -39591,7 +39629,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 3812,
+    "line": 4919,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -39600,7 +39638,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 4430,
+    "line": 5555,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewWellMeanContext.__init__"
@@ -51084,7 +51122,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2349,
+    "line": 2880,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -51093,7 +51131,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3738,
+    "line": 4845,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_field_overview"
@@ -62770,7 +62808,7 @@
  },
  "exact_targets": 731,
  "nested_consumers_only": 0,
- "no_consumer_found": 131,
+ "no_consumer_found": 130,
  "setting_count": 1252,
  "target_count": 1026,
  "targets": {
@@ -67910,7 +67948,6 @@
   "analyze_plaques",
   "anndata_export",
   "auto_file_issues",
-  "baseline",
   "cap",
   "cell_picking",
   "classify",
@@ -68038,6 +68075,6 @@
   "umap_stability_repeats",
   "umap_stability_weight"
  ],
- "with_addressable_consumer": 1121,
- "with_any_consumer": 1121
+ "with_addressable_consumer": 1122,
+ "with_any_consumer": 1122
 }

@@ -203,7 +203,7 @@ def test_metadata_wizard_reads_real_preset_channels_and_explicit_scope(qtbot, tm
     with pytest.raises(ValueError, match="channel IDs"):
         wizard.configuration()
     wizard.channels.setText("1, 4")
-    wizard.geometry.setCurrentIndex(5)
+    wizard.plate_geometry.setCurrentIndex(5)
     wizard.representatives.setValue(2)
     config = wizard.configuration()
     assert config["channels"] == (1, 4)
@@ -316,17 +316,17 @@ def test_metadata_wizard_geometry_fits_real_row_l_and_preserves_explicit_rejecti
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
     assert browser._overview_geometry_extent(wizard._fields) == (12, 2)
     assert wizard.configuration()["geometry"] == (16, 24)
-    wizard.geometry.setFocus()
-    qtbot.keyClick(wizard.geometry, Qt.Key_Home)
+    wizard.plate_geometry.setFocus()
+    qtbot.keyClick(wizard.plate_geometry, Qt.Key_Home)
     for _ in range(5):
-        qtbot.keyClick(wizard.geometry, Qt.Key_Down)
-    assert wizard.geometry.currentData() == (8, 12)
+        qtbot.keyClick(wizard.plate_geometry, Qt.Key_Down)
+    assert wizard.plate_geometry.currentData() == (8, 12)
     assert wizard._geometry_explicit
     with pytest.raises(browser._OverviewValidationError, match="12 rows, 2 columns"):
         wizard.configuration()
     wizard._scan()
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
-    assert wizard.geometry.currentData() == (8, 12)
+    assert wizard.plate_geometry.currentData() == (8, 12)
     with pytest.raises(browser._OverviewValidationError, match="indexed wells"):
         wizard.configuration()
     assert wizard._fields[0].well == "L02"
@@ -514,7 +514,7 @@ def test_metadata_wizard_restores_explicit_geometry_and_reference_tuple(qtbot, t
     qtbot.addWidget(wizard)
     wizard.show()
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
-    assert wizard.geometry.currentData() == (16, 24)
+    assert wizard.plate_geometry.currentData() == (16, 24)
     wizard.mode.setCurrentIndex(wizard.mode.findData("reference_well"))
     assert wizard.reference.count() == 2
     wizard.reference.setCurrentIndex(1)
@@ -1146,3 +1146,19 @@ def test_hcs_reference_reservoir_is_bounded_balanced_and_reproducible_across_exp
     assert fresh.provenance()["selection"] == options["selection"]
     json.dumps(fresh.provenance(), allow_nan=False)
     assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_metadata_wizard_plate_selector_preserves_native_qwidget_geometry(qtbot):
+    from PySide6.QtCore import QRect
+    from PySide6.QtWidgets import QWidget
+    wizard = browser._OverviewMetadataWizard()
+    wizard._startup_timer.stop()
+    qtbot.addWidget(wizard)
+    assert callable(wizard.geometry)
+    assert isinstance(wizard.geometry(), QRect)
+    assert wizard.geometry() == QWidget.geometry(wizard)
+    assert wizard.plate_geometry.objectName() == "OverviewWizardGeometry"
+    wizard.plate_geometry.setCurrentIndex(0)
+    assert wizard.plate_geometry.currentData() == (1, 1)
+    assert wizard.geometry() == QWidget.geometry(wizard)
+    wizard.reject()

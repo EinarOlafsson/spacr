@@ -74,8 +74,8 @@ def test_wizard_detects_1536_and_refuses_smaller_override(tmp_path, qtbot):
     wizard = browser._OverviewMetadataWizard(str(tmp_path))
     qtbot.addWidget(wizard)
     qtbot.waitUntil(lambda: wizard.next.isEnabled())
-    assert wizard.geometry.currentData() == (32, 48)
-    wizard.geometry.setCurrentIndex(next(index for index in range(wizard.geometry.count()) if tuple(wizard.geometry.itemData(index)) == (8, 12)))
+    assert wizard.plate_geometry.currentData() == (32, 48)
+    wizard.plate_geometry.setCurrentIndex(next(index for index in range(wizard.plate_geometry.count()) if tuple(wizard.plate_geometry.itemData(index)) == (8, 12)))
     with pytest.raises(ValueError, match="geometry"):
         wizard.configuration()
     wizard.reject()
@@ -208,13 +208,25 @@ def test_fourth_channel_reaches_native_pixels_beyond_the_4096_preview_limit(tmp_
     raw = np.zeros((1024, 5120, 4), np.uint16)
     raw[..., 3] = np.arange(1024 * 5120, dtype=np.uint16).reshape(1024, 5120)
     np.save(tmp_path / "plate1_A01_F1.npy", raw)
-    dialog = _browser(tmp_path, qtbot, browser._overview_index(tmp_path), (3,))
+    dialog = _browser(tmp_path, qtbot, browser._overview_index(tmp_path), (0, 1, 2, 3))
     dialog.show()
     dialog._well(dialog.wells.item(0, 0))
     dialog.fields.setCurrentRow(0)
     dialog._field(dialog.fields.item(0))
     qtbot.waitUntil(lambda: dialog.view._item is not None and dialog.view._item.pixmap().width() == 1024
         and dialog.view.viewport().width() > 0 and not dialog._image_jobs.is_busy())
+    dialog.view.zoom_by(32)
+    dialog._request_detail()
+    qtbot.waitUntil(lambda: "toggle up to three channels" in dialog.status.text())
+    assert dialog._native_key is None
+    dialog.options_button.click()
+    for channel in (0, 1, 2):
+        control = dialog._channel_buttons[channel]
+        dialog._controls_scroll.ensureWidgetVisible(control)
+        qtbot.mouseClick(control, browser.Qt.LeftButton)
+    dialog.options_button.click()
+    qtbot.waitUntil(lambda: dialog._choices()[0] == (3,) and dialog.view._item is not None
+        and dialog.view._item.pixmap().width() == 1024 and not dialog._image_jobs.is_busy())
     dialog.view.zoom_by(32)
     dialog._request_detail()
     qtbot.waitUntil(lambda: dialog._native_key is not None and not dialog._image_jobs.is_busy(), timeout=10000)
@@ -478,8 +490,193 @@ def test_native_crop_rejects_old_field_and_old_camera_then_replaces_visible_deta
     dialog._request_native_detail()
     qtbot.waitUntil(lambda: dialog._native_key != first and not dialog._native_jobs.is_busy())
     assert dialog._native_key[-1][1] == horizontal.value()
+    submitted = dialog._native_jobs._next_id
+    dialog._load_native_detail()
+    assert dialog._native_jobs._next_id == submitted
+    horizontal.setValue(horizontal.minimum())
+    dialog.view.verticalScrollBar().setValue(dialog.view.verticalScrollBar().minimum())
+    dialog._load_native_detail()
+    assert dialog._native_jobs._next_id == submitted
+    dialog.view.fit()
+    dialog.view.zoom_by(.1)
+    dialog._load_native_detail()
+    assert dialog._native_jobs._next_id == submitted
     dialog._back()
     dialog._load_native_detail()
     dialog._request_detail()
     assert dialog.view._item is None
+    dialog.close()
+
+
+def test_empty_source_controls_and_export_guards_never_start_image_or_output_jobs(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot, ())
+    dialog.advanced.setChecked(True)
+    dialog._prepare_display()
+    dialog._request_detail()
+    dialog._export()
+    assert "Select fields" in dialog.status.text()
+    dialog._metadata_source = ""
+    dialog._persist_metadata()
+    assert not dialog._annotation_write_running
+    assert not dialog._image_jobs.is_busy() and not dialog._export_jobs.is_busy()
+    dialog.close()
+
+
+def test_loaded_source_requires_destination_identity_before_export_and_well_scope_requires_open_well(tmp_path, qtbot):
+    dialog = _browser(tmp_path, qtbot)
+    dialog.export_scope.setCurrentIndex(dialog.export_scope.findData("well"))
+    assert dialog._export_selection() == ()
+    dialog.export_scope.setCurrentIndex(dialog.export_scope.findData("plate"))
+    dialog._metadata_source = ""
+    dialog._export()
+    assert "image folder" in dialog.status.text()
+    assert not dialog._export_jobs.is_busy()
+    dialog.close()
+
+
+def test_large_multi_channel_and_projection_allocations_obey_decode_budget(tmp_path):
+    path = tmp_path / "plate1_A01_F1.npy"
+    image = np.lib.format.open_memmap(path, mode="w+", dtype=np.uint16, shape=(6000, 6000, 3))
+    image[3:7, 5:11] = 100
+    image.flush()
+    del image
+    field, = browser._overview_index(tmp_path)
+    with pytest.raises(ValueError, match="128 MiB"):
+        browser._overview_pixels(field, (0, 1, 2), edge=None)
+    pixels = browser._overview_pixels(field, (0, 1, 2), edge=None, region=(3, 7, 5, 11),
+        advanced_normalization=dict(method="manual", low=0, high=100))
+    assert pixels.shape == (4, 6, 3) and (pixels == 255).all()
+    del field
+    image = np.lib.format.open_memmap(path, mode="w+", dtype=np.uint16, shape=(2, 8193, 8192, 1))
+    del image
+    field, = browser._overview_index(tmp_path)
+    with pytest.raises(ValueError, match="128 MiB"):
+        tuple(browser._overview_raw_planes(field, (0,), z_mode="mean"))
+    plane = next(browser._overview_raw_planes(field, (0,), z_mode="mean", region=(3, 7, 5, 11)))[2]
+    assert plane.shape == (4, 6) and not plane.any()
+
+
+def test_well_only_regex_keeps_independent_channel_named_folders_without_explicit_channel_capture(tmp_path):
+    for channel in (1, 2):
+        folder = tmp_path / "experiment" / "A01" / f"channel{channel}"
+        folder.mkdir(parents=True)
+        tifffile.imwrite(folder / "A01_sample.tif", np.full((4, 6), channel, np.uint16))
+    fields = browser._overview_index(tmp_path, r"(?P<wellID>A01)_sample")
+    assert len(fields) == 2 and len({field.identity for field in fields}) == 2
+    assert all(field.plate == str(tmp_path / "experiment") and field.well == "A01" for field in fields)
+    assert sorted(next(browser._overview_raw_planes(field, (0,)))[2].mean() for field in fields) == [1, 2]
+
+
+def test_folder_channels_without_field_capture_coalesce_only_recognized_acquisition_channels(tmp_path):
+    for channel in (1, 2):
+        folder = tmp_path / "plate1" / "A01" / f"channel{channel}"
+        folder.mkdir(parents=True)
+        tifffile.imwrite(folder / f"ch{channel}.tif", np.full((4, 6), channel, np.uint16))
+    field, = browser._overview_index(tmp_path)
+    assert field.well == "A01" and field.plate == "plate1" and not field.unresolved
+    assert [key for key, path in field.files] == ["1", "2"]
+    assert [plane.mean() for channel, path, plane in browser._overview_raw_planes(field, (1, 2))] == [1, 2]
+
+
+def test_actual_browser_load_rejects_missing_well_and_accepts_corrected_source(tmp_path, qtbot):
+    from PySide6.QtWidgets import QPushButton
+    invalid = tmp_path / "invalid"
+    invalid.mkdir()
+    tifffile.imwrite(invalid / "unassigned.tif", np.ones((4, 6), np.uint16))
+    dialog = _browser(tmp_path, qtbot, ())
+    dialog.source.setText(str(invalid))
+    load = next(button for button in dialog.findChildren(QPushButton) if button.text() == browser.tr("Load overview"))
+    load.click()
+    qtbot.waitUntil(lambda: not dialog._index_jobs.is_busy())
+    assert not dialog._fields and "valid wellID for every image" in dialog.status.text()
+    assert dialog.view._item is None and dialog.fields.count() == 0
+    valid = tmp_path / "valid"
+    valid.mkdir()
+    tifffile.imwrite(valid / "plate1_A01_F1.tif", np.ones((4, 6), np.uint16))
+    dialog.source.setText(str(valid))
+    load.click()
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy())
+    assert len(dialog._fields) == 1 and dialog._fields[0].well == "A01"
+    dialog.close()
+
+
+def test_condition_csv_refreshes_metadata_grouping_and_advanced_bounds(tmp_path, qtbot, monkeypatch):
+    from PySide6.QtWidgets import QFileDialog
+    from spacr import tabular
+    import pandas as pd
+    dialog = _browser(tmp_path, qtbot)
+    dialog.advanced.setChecked(True)
+    qtbot.waitUntil(lambda: dialog._normalization_ready)
+    path = tmp_path / "conditions.csv"
+    tabular.write_table(pd.DataFrame([dict(plate="plate1", well="A01", condition="treated")]),
+        str(path), canonicalise=False)
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *_a, **_k: (str(path), ""))
+    previous = dialog._advanced_model
+    dialog._load_annotations()
+    qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy() and dialog._normalization_ready
+        and dialog._advanced_model is not previous)
+    assert dialog._annotation_snapshot()[("plate1", "A01")]["condition"] == "treated"
+    assert dialog.grouping.findData("condition") >= 0 and dialog.normalization_scope.findData("condition") >= 0
+    dialog.normalization_scope.setCurrentIndex(dialog.normalization_scope.findData("condition"))
+    qtbot.waitUntil(lambda: dialog._normalization_ready)
+    assert dialog._advanced_model["provenance"]["sampled_fields"] == 8
+    dialog.close()
+
+
+def test_late_condition_csv_cannot_overwrite_new_condition_edits(tmp_path, qtbot, monkeypatch):
+    from PySide6.QtWidgets import QFileDialog
+    from spacr import tabular
+    import pandas as pd
+    dialog = _browser(tmp_path, qtbot)
+    qtbot.waitUntil(lambda: not dialog._metadata_jobs.is_busy())
+    path = tmp_path / "conditions.csv"
+    tabular.write_table(pd.DataFrame([dict(plate="plate1", well="A01", condition="old")]),
+        str(path), canonicalise=False)
+    original = tabular.read_table
+    entered, release = threading.Event(), threading.Event()
+    def delayed(source, **options):
+        values = original(source, **options)
+        if str(source) == str(path):
+            entered.set()
+            assert release.wait(5)
+        return values
+    monkeypatch.setattr(tabular, "read_table", delayed)
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *_a, **_k: (str(path), ""))
+    dialog._load_annotations()
+    qtbot.waitUntil(entered.is_set)
+    dialog.annotation_scope.setCurrentIndex(dialog.annotation_scope.findData("plate"))
+    dialog.annotation_text.setText("new")
+    dialog._annotate()
+    release.set()
+    qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy())
+    assert dialog._conditions[("plate1", "A01")] == "new"
+    dialog.close()
+
+
+def test_changing_field_axis_keeps_individual_view_and_advanced_time_axis_relearns(tmp_path, qtbot):
+    values = np.empty((2, 4, 6, 1), np.float32)
+    values[0, ..., 0] = np.arange(24).reshape(4, 6)
+    values[1, ..., 0] = np.arange(24).reshape(4, 6) + 100
+    for field in (1, 2):
+        tifffile.imwrite(tmp_path / f"plate1_A01_F{field}.tif", values[..., 0],
+            metadata={"axes": "TYX"}, photometric="minisblack")
+    dialog = _browser(tmp_path, qtbot, browser._overview_index(tmp_path))
+    dialog.show()
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.setCurrentRow(0)
+    dialog._field(dialog.fields.item(0))
+    qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy())
+    dialog.fov_axis.setCurrentIndex(dialog.fov_axis.findData("2"))
+    qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy())
+    assert dialog._individual and dialog.fields.item(0).data(browser.Qt.UserRole).field_id == "2"
+    dialog.normalization_method.setCurrentIndex(dialog.normalization_method.findData("minmax"))
+    dialog.normalization_scope.setCurrentIndex(dialog.normalization_scope.findData("plate"))
+    dialog.advanced.setChecked(True)
+    qtbot.waitUntil(lambda: dialog._normalization_ready)
+    previous = dialog._advanced_model
+    dialog.time_axis.setCurrentIndex(dialog.time_axis.findData(1))
+    qtbot.waitUntil(lambda: dialog._normalization_ready and dialog._advanced_model is not previous)
+    limits = next(iter(dialog._advanced_model["bounds"].values()))["0"]
+    assert limits["low"] == 100 and limits["high"] == 123
+    assert dialog._advanced_model["provenance"]["sampling_axes"]["time_index"] == 1
     dialog.close()

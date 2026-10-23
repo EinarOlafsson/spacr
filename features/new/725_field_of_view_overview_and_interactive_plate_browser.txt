@@ -5,6 +5,8 @@ Owner:     Workstation spaCR session 2 — expanded workflow, implementation, va
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
 
+CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
+
 EXPANDED MAINTAINER REQUEST — 2026-10-23
 The maintainer restated the morning Home instructions directly to Workstation
 session 2, which owns this extension. This section supersedes narrower earlier

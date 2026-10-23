@@ -317,3 +317,36 @@ def test_ratio_pdf_names_reference_and_epsilon_and_embeds_exact_display_pixels(t
     embedded, = page.images
     expected = browser._overview_pixels(field, (1,), None, edge=None, advanced_normalization=model)
     np.testing.assert_array_equal(np.asarray(embedded.image.convert("RGB"))[::-1], expected)
+
+
+def test_raw_measurement_cancel_stops_pdf_before_any_partial_image_page(tmp_path, monkeypatch):
+    field = _field(tmp_path, "A01", np.arange(24).reshape(4, 6))
+    stopped = threading.Event()
+    actual = browser._overview_raw_planes
+    def cancelled_read(*args, **kwargs):
+        values = tuple(actual(*args, **kwargs))
+        stopped.set()
+        yield from values
+    monkeypatch.setattr(browser, "_overview_raw_planes", cancelled_read)
+    destination = tmp_path / "cancelled"
+    paths, errors = browser._overview_export((field,), destination, (0,), None,
+        measurements=True, cancelled=stopped)
+    assert not paths and not errors
+    metadata = json.loads((destination / "overview_selection.json").read_text())
+    assert metadata["cancelled"] and metadata["written_field_count"] == 0
+    assert not tuple(destination.glob("*.pdf")) and not (destination / "overview_measurements.csv").exists()
+
+
+def test_field_sampling_and_empty_montages_keep_explicit_source_identities(tmp_path):
+    first = _field(tmp_path, "A01", np.zeros((4, 6)))
+    second = _field(tmp_path, "A01", np.ones((4, 6)), field="2")
+    from dataclasses import replace
+    unresolved = (replace(first, unresolved=True), replace(second, unresolved=True))
+    assert browser._overview_sample(unresolved, 1, 0, "well", False) == unresolved
+    assert browser._overview_montage((), (0,), None) == (None, ())
+    reader = lambda target, channels, edge=256: browser._overview_raw_planes(target, channels, edge=edge)
+    context = browser._OverviewWellMeanContext((second,), (0,), dict(reference=("plate1", "A01"),
+        reference_kind="reference_well"), reader)
+    outside = _field(tmp_path, "A01", np.ones((4, 6)), plate="plate2")
+    with pytest.raises(ValueError, match="outside"):
+        context.plan_for(outside)

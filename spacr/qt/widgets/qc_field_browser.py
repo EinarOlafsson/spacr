@@ -1618,7 +1618,7 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
                     start, end = match.span("chanID")
                     stem = name[:start] + "{channel}" + name[end:]
                 parents = list(relative.parts[:-1])
-                if parents and _classify(parents[-1]) == "channel":
+                if parents and values.get("chanID") and _classify(parents[-1]) == "channel":
                     parents[-1] = "{channel}"
                     if _CHANNEL_RX.match(path.stem):
                         stem = "{channel}"
@@ -3565,11 +3565,13 @@ class _FieldOverview(QDialog):
 
             :param records: validated physical identities and condition strings.
             """
-            if not cancelled.is_set() and fields is self._fields:
+            if not cancelled.is_set() and fields is self._fields and revision == self._metadata_revision:
                 self._conditions = dict(records)
                 self._persist_metadata()
+                self._fill_group_choices(self.grouping)
+                self._fill_group_choices(self.normalization_scope, image=True)
                 self._filter()
-                if self._overview_options.get("normalization"):
+                if self._overview_options.get("normalization") or self.advanced.isChecked():
                     self._prepare_display()
         self._export_jobs.submit(read, loaded)
 
@@ -3908,7 +3910,7 @@ class _FieldOverview(QDialog):
         self._displayed_montage = None
         self._preview_edge = 256
         self._filter()
-        if self._overview_options.get("normalization"):
+        if self._overview_options.get("normalization") or self.advanced.isChecked():
             self._prepare_display()
         if individual and self.fields.count():
             self.fields.setCurrentRow(0)
@@ -4167,8 +4169,13 @@ class _FieldOverview(QDialog):
         source, regex, convention, cancelled = self.source.text(), self.regex.text(), self._convention, self._cancelled
         self.status.setText(tr("Indexing image metadata…"))
         source_scope = self._overview_options.get("source_scope", "recursive")
-        self._index_jobs.submit(lambda: _overview_index(
-            source, regex, convention, cancelled, source_scope=source_scope), self._indexed)
+        def read():
+            """Reject unresolved wells on every browser load, retaining honest previews."""
+            fields = _overview_index(source, regex, convention, cancelled, source_scope=source_scope)
+            if any(not field.well or field.unresolved for field in fields):
+                raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
+            return fields
+        self._index_jobs.submit(read, self._indexed)
 
     def _indexed(self, fields):
         """Show actual plate identities and explicitly retained unresolved fields.
@@ -5175,21 +5182,21 @@ class _OverviewMetadataWizard(QDialog):
         layout.addRow(tr("Time index"), self.time)
         layout.addRow(tr("Z view"), self.z_mode)
         layout.addRow(tr("Z index"), self.z)
-        self.geometry = QComboBox()
-        self.geometry.setObjectName("OverviewWizardGeometry")
-        self.geometry.addItem(tr("Coverslip"), (1, 1))
+        self.plate_geometry = QComboBox()
+        self.plate_geometry.setObjectName("OverviewWizardGeometry")
+        self.plate_geometry.addItem(tr("Coverslip"), (1, 1))
         for count, dimensions in ((6, (2, 3)), (12, (3, 4)), (24, (4, 6)),
                                   (48, (6, 8)), (96, (8, 12)), (384, (16, 24)),
                                   (1536, (32, 48))):
-            self.geometry.addItem(tr("{count}-well plate", count=count), dimensions)
+            self.plate_geometry.addItem(tr("{count}-well plate", count=count), dimensions)
         self._geometry_explicit = self._settings.get("geometry") is not None
         selected_geometry = self._settings.get("geometry")
-        selected_index = next((index for index in range(self.geometry.count())
+        selected_index = next((index for index in range(self.plate_geometry.count())
                                if selected_geometry and
-                               self.geometry.itemData(index) == tuple(selected_geometry)), -1)
-        self.geometry.setCurrentIndex(selected_index if selected_index >= 0 else 5)
-        self.geometry.activated.connect(self._choose_geometry)
-        layout.addRow(tr("Plate geometry"), self.geometry)
+                               self.plate_geometry.itemData(index) == tuple(selected_geometry)), -1)
+        self.plate_geometry.setCurrentIndex(selected_index if selected_index >= 0 else 5)
+        self.plate_geometry.activated.connect(self._choose_geometry)
+        layout.addRow(tr("Plate geometry"), self.plate_geometry)
         self.representatives = QSpinBox()
         self.representatives.setRange(1, 100)
         self.representatives.setValue(1)
@@ -5383,10 +5390,10 @@ class _OverviewMetadataWizard(QDialog):
         self.z.setRange(0, max(entry.get("z_count", 1) for entry in info["files"]) - 1)
         if not self._geometry_explicit:
             rows_required, columns_required = _overview_geometry_extent(fields)
-            for index in range(self.geometry.count()):
-                rows_available, columns_available = self.geometry.itemData(index)
+            for index in range(self.plate_geometry.count()):
+                rows_available, columns_available = self.plate_geometry.itemData(index)
                 if rows_available >= rows_required and columns_available >= columns_required:
-                    self.geometry.setCurrentIndex(index)
+                    self.plate_geometry.setCurrentIndex(index)
                     break
         wells = sorted({(field.plate, field.well) for field in fields})
         self.conditions.blockSignals(True)
@@ -5457,7 +5464,7 @@ class _OverviewMetadataWizard(QDialog):
         if not channels or len(set(channels)) != len(channels) or not set(channels) <= set(self._info["channels"]):
             raise _OverviewValidationError(tr("Choose only channel IDs reported by this image's metadata."))
         rows_required, columns_required = _overview_geometry_extent(self._fields)
-        geometry = self.geometry.currentData()
+        geometry = self.plate_geometry.currentData()
         if geometry is None:
             raise _OverviewValidationError(tr("Choose a plate geometry."))
         rows_available, columns_available = geometry
@@ -5482,7 +5489,7 @@ class _OverviewMetadataWizard(QDialog):
             raise _OverviewValidationError(tr("The reference channel must be selected for display."))
         return {"source": self.source.text(), "custom_regex": self.regex.text(),
                 "microscope": self.preset.currentData(), "source_scope": self.scope.currentData(),
-                "geometry": tuple(self.geometry.currentData()),
+                "geometry": tuple(self.plate_geometry.currentData()),
                 "channels": channels, "time_index": self.time.value(),
                 "z_mode": self.z_mode.currentData(), "z_index": self.z.value(),
                 "representatives": self.representatives.value(),
