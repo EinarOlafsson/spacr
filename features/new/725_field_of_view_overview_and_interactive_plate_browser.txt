@@ -11,6 +11,26 @@ LIVE STARTUP REGRESSION — 2026-10-23: the maintainer reports published Overvie
 
 WORKSPACE LAYOUT REQUIREMENT — 2026-10-23: the maintainer now requires Overview to open as an embedded submodule like OPS, with a solid background rather than a popup. The plate must expand with the main workspace, Options must open in its own window, and a clearly visible Back action must remain available. Preserve all previously accepted image/metadata/normalization/measurement behavior; validate actual embedded navigation, resizing, options ownership and closing before publication. Workstation session 2 retains implementation/publication ownership; root provides independent review.
 
+Mac visible-module follow-up — 2026-10-23: require real Mask embedding at GUI200/font200,
+whole native plate visibility, usable images, readable actions and exact Back restoration; real scrolling is allowed.
+Causal native failures exposed local/pane floors, inactive stack minima, undersized text fields,
+stale action-flow extents and settled HFW underallocation; local grid sums were not visibility proof.
+Repair only Overview: restore saved Figures/pane/page policies on Back, preserve normal focus collapse,
+and independently scroll essential/action controls. Shared native button floors preserve full text.
+A reversible action-only font fit restores selected styles on growth; refresh only its owned flow extent.
+Bound table allocation by actual ancestor capacity while retaining dense Fit/zoom, not a universal image floor.
+Use fresh embedded layout HFW and restore the original standalone minimum; no global Runtime sizing change.
+Coalesced no-op fits must remain quiescent. Focused76612 PASS6.44s/RSS0.303GiB covers font/viewport
+growth/shrink, custom-style restoration, dense Fit, standalone restoration and quiescence.
+Strict Cocoa98683 PASS36.87s/RSS1.058GiB: Open Sans52px, work1440x870/DPR2;
+complete694x91 plate with42px images and all3 full action texts, longest reversibly fitted to45px.
+Captions are intentionally omitted; tooltips remain. Back is fully readable after actual scrolling, not proven pinned.
+Exact borrowing/policies/Figures restoration, captured-job drain, normal close and unchanged TIFFs pass.
+Keep the original50ms cadence/20s deadline: owned timers/queues idle, two identical layout snapshots,
+one reveal and unchanged next-tick strict checks; never scroll until a failed assertion passes.
+The20px image target is measured for this small fixture, not guaranteed for every dense plate.
+Other scales, the full normal entrypoint, physical input and smaller-display acceptance remain separate.
+
 Mac acceptance addendum: retain Workstation's DONE implementation/ownership.
 On b453f2b0702abf5f158793c8b0e783974f488ea2, inspect two fresh normal-app
 Cocoa runs at GUI90/font90 and GUI90/font200 using owned tiny real TIFFs.
