@@ -11267,7 +11267,7 @@
         "Velja sameinaðar mælingar eða staka töflu og reglu fyrir gildi sem vantar.",
         "Flytja út h5ad-skrá með heitum eiginleika og lýsigögnum hluta."
       ],
-      "prerequisite": "Notaðu verkefni þar sem Measure er lokið, eða sæktu mælingadæmið í gegnum Annotate. Vinndu í afriti af verkefninu og haltu upprunamyndum þess. Notaðu núverandi nightly-útgáfu fyrir venjulega útflutninginn sem sýndur er hér.",
+      "prerequisite": "Notaðu verkefni þar sem Measure er lokið, eða sæktu mælingadæmið í gegnum Annotate. Vinndu í afriti af verkefninu og haltu upprunamyndum þess.",
       "scenes": [
         {
           "visual": "01_measure_host",

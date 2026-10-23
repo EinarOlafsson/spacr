@@ -1,13 +1,18 @@
 {
   "lesson": "59_anndata_export",
-  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "english_sha256": "e25dc7de37aaf138a9a5f74112363eada5ce9be1f250e63db4a5ba4e3abc2da9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "metadata_only_correction": {
+      "date": "2026-10-23",
+      "field": "prerequisite",
+      "operation": "Delete obsolete nightly-build sentence; preserve all other text and narration"
+    }
   },
   "language": "ko",
   "title": "AnnData Export: 측정된 객체와 특징 저장",
@@ -17,7 +22,7 @@
     "결합 측정값 또는 단일 표와 결측값 정책을 고릅니다.",
     "특징 이름과 객체 메타데이터가 있는 h5ad 파일을 내보냅니다."
   ],
-  "prerequisite": "Measure를 마친 프로젝트를 쓰거나, Annotate에서 측정 예제를 내려받으세요. 프로젝트 사본으로 작업하고 원본 이미지를 보관하세요. 여기서 보여 주는 일반 내보내기에는 현재 nightly 빌드를 쓰세요.",
+  "prerequisite": "Measure를 마친 프로젝트를 쓰거나, Annotate에서 측정 예제를 내려받으세요. 프로젝트 사본으로 작업하고 원본 이미지를 보관하세요.",
   "scenes": [
     "Home에서 Measure를 연 뒤 AnnData Export를 선택하세요. 측정된 객체, 그 특징, 메타데이터를 h5ad 파일 하나에 함께 저장할 때 씁니다.",
     "측정된 프로젝트를 Source로 선택하세요. 이 안내에서는 Annotate에서 구할 수 있는 측정 예제의 사본을 쓰세요. 측정 폴더와 원본 이미지를 함께 두세요.",

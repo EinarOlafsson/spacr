@@ -1,13 +1,18 @@
 {
   "lesson": "59_anndata_export",
-  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "english_sha256": "e25dc7de37aaf138a9a5f74112363eada5ce9be1f250e63db4a5ba4e3abc2da9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "metadata_only_correction": {
+      "date": "2026-10-23",
+      "field": "prerequisite",
+      "operation": "Delete obsolete nightly-build sentence; preserve all other text and narration"
+    }
   },
   "language": "hi",
   "title": "AnnData Export: मापी गई वस्तुएँ और विशेषताएँ सहेजें",
@@ -17,7 +22,7 @@
     "जोड़े गए या एक तालिका वाले माप और छूटे मानों की नीति चुनें।",
     "विशेषताओं के नाम और वस्तुओं के मेटाडेटा के साथ h5ad फ़ाइल निर्यात करें।"
   ],
-  "prerequisite": "ऐसा प्रोजेक्ट इस्तेमाल करें जिसमें Measure पूरा हो चुका हो, या Annotate से माप वाला उदाहरण डाउनलोड करें। प्रोजेक्ट की प्रति पर काम करें और उसकी स्रोत इमेज रखें। यहाँ दिखाए गए सामान्य निर्यातक के लिए मौजूदा nightly बिल्ड इस्तेमाल करें।",
+  "prerequisite": "ऐसा प्रोजेक्ट इस्तेमाल करें जिसमें Measure पूरा हो चुका हो, या Annotate से माप वाला उदाहरण डाउनलोड करें। प्रोजेक्ट की प्रति पर काम करें और उसकी स्रोत इमेज रखें।",
   "scenes": [
     "Home से Measure खोलें, फिर AnnData Export चुनें। इस टूल से मापी गई वस्तुएँ, उनकी विशेषताएँ और मेटाडेटा एक साथ h5ad फ़ाइल में सहेजें।",
     "Source के रूप में अपना मापा गया प्रोजेक्ट चुनें। इस वॉकथ्रू में Annotate से उपलब्ध माप वाले उदाहरण की एक प्रति इस्तेमाल करें। उसका measurements फ़ोल्डर और स्रोत इमेज साथ रखें।",

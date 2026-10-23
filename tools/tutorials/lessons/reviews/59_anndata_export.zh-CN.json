@@ -1,13 +1,18 @@
 {
   "lesson": "59_anndata_export",
-  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "english_sha256": "e25dc7de37aaf138a9a5f74112363eada5ce9be1f250e63db4a5ba4e3abc2da9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "metadata_only_correction": {
+      "date": "2026-10-23",
+      "field": "prerequisite",
+      "operation": "Delete obsolete nightly-build sentence; preserve all other text and narration"
+    }
   },
   "language": "zh-CN",
   "title": "AnnData Export：保存已测量对象及其特征",
@@ -17,7 +22,7 @@
     "选择合并测量或单表测量，以及缺失值策略。",
     "导出包含特征名称和对象元数据的h5ad文件。"
   ],
-  "prerequisite": "使用已完成Measure的项目，或通过Annotate下载测量示例。请在项目副本上操作，并保留其源图像。此处展示的常规导出功能请使用当前的nightly版本。",
+  "prerequisite": "使用已完成Measure的项目，或通过Annotate下载测量示例。请在项目副本上操作，并保留其源图像。",
   "scenes": [
     "从Home打开Measure，然后选择AnnData Export。用这个工具把已测量对象、其特征和元数据一起保存到h5ad文件中。",
     "把您的已测量项目选为Source。本演示使用通过Annotate获得的测量示例的副本。请把其测量文件夹和源图像放在一起。",

@@ -1,13 +1,18 @@
 {
   "lesson": "59_anndata_export",
-  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "english_sha256": "e25dc7de37aaf138a9a5f74112363eada5ce9be1f250e63db4a5ba4e3abc2da9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "metadata_only_correction": {
+      "date": "2026-10-23",
+      "field": "prerequisite",
+      "operation": "Delete obsolete nightly-build sentence; preserve all other text and narration"
+    }
   },
   "language": "nb",
   "title": "AnnData Export: lagre målte objekter og egenskaper",
@@ -17,7 +22,7 @@
     "Velge sammenslåtte målinger eller én tabell og en policy for manglende verdier.",
     "Eksportere en h5ad-fil med egenskapsnavn og objektmetadata."
   ],
-  "prerequisite": "Bruk et prosjekt der Measure er fullført, eller last ned måleeksemplet via Annotate. Arbeid på en kopi av prosjektet og behold kildebildene. Bruk den nåværende nightly-versjonen for den vanlige eksporten som vises her.",
+  "prerequisite": "Bruk et prosjekt der Measure er fullført, eller last ned måleeksemplet via Annotate. Arbeid på en kopi av prosjektet og behold kildebildene.",
   "scenes": [
     "Fra Home åpner du Measure og velger deretter AnnData Export. Bruk verktøyet til å lagre målte objekter, egenskapene deres og metadataene samlet i en h5ad-fil.",
     "Velg det målte prosjektet ditt som Source. I denne gjennomgangen bruker du en kopi av måleeksemplet som er tilgjengelig via Annotate. Hold målemappen og kildebildene samlet.",

@@ -1,13 +1,18 @@
 {
   "lesson": "59_anndata_export",
-  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "english_sha256": "e25dc7de37aaf138a9a5f74112363eada5ce9be1f250e63db4a5ba4e3abc2da9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "metadata_only_correction": {
+      "date": "2026-10-23",
+      "field": "prerequisite",
+      "operation": "Delete obsolete nightly-build sentence; preserve all other text and narration"
+    }
   },
   "language": "ja",
   "title": "AnnData Export：測定した物体と特徴量を保存する",
@@ -17,7 +22,7 @@
     "結合した測定値か単一の表かを選び、欠損値の方針を選ぶ。",
     "特徴量の名前と物体のメタデータを含むh5adファイルを書き出す。"
   ],
-  "prerequisite": "Measureが完了したプロジェクトを使うか、Annotateから測定値の例をダウンロードします。プロジェクトのコピーで作業し、元の画像は残しておきます。ここで示す通常の書き出しには、現在のnightlyビルドを使います。",
+  "prerequisite": "Measureが完了したプロジェクトを使うか、Annotateから測定値の例をダウンロードします。プロジェクトのコピーで作業し、元の画像は残しておきます。",
   "scenes": [
     "HomeからMeasureを開き、AnnData Exportを選びます。測定した物体、その特徴量、メタデータを、一つのh5adファイルにまとめて保存するのに使います。",
     "Sourceに測定済みのプロジェクトを選びます。このチュートリアルでは、Annotateから入手できる測定値の例のコピーを使います。測定値のフォルダーと元の画像は一緒にしておきます。",

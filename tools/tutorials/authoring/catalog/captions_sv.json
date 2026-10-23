@@ -11267,7 +11267,7 @@
         "Välja sammanslagna mätningar eller en enskild tabell och en policy för saknade värden.",
         "Exportera en h5ad-fil med egenskapsnamn och objektmetadata."
       ],
-      "prerequisite": "Använd ett projekt där Measure är slutfört, eller hämta mätexemplet via Annotate. Arbeta på en kopia av projektet och behåll källbilderna. Använd den aktuella nightly-versionen för den vanliga exporten som visas här.",
+      "prerequisite": "Använd ett projekt där Measure är slutfört, eller hämta mätexemplet via Annotate. Arbeta på en kopia av projektet och behåll källbilderna.",
       "scenes": [
         {
           "visual": "01_measure_host",
