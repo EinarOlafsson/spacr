@@ -6360,6 +6360,11 @@ class VolumeMaskSession:
         """
         from .i18n import tr
         from .widgets.gate_spec import EditableVolumeGate
+        from ..cancellation import current_token
+
+        token = current_token()
+        if token is not None:
+            token.checkpoint()
 
         if (not isinstance(label, Integral) or isinstance(label, (bool, np.bool_))
                 or label <= 0):
@@ -6378,6 +6383,8 @@ class VolumeMaskSession:
                    (0, 1, 0), (-1, 0, 0), (1, 0, 0)]
         indices, vertices, faces, groups = {}, [], [], []
         for position in positions:
+            if token is not None:
+                token.checkpoint()
             for quad, offset in zip(quads, offsets):
                 neighbour = position + offset
                 if (np.all(neighbour >= 0) and np.all(neighbour < volume.shape)
@@ -6395,6 +6402,8 @@ class VolumeMaskSession:
                 faces.extend([(a, b, c), (a, c, d)])
                 if len(vertices) > 8192 or len(faces) > 16384:
                     raise ValueError(tr('This label has too much boundary detail for editable volume geometry.'))
+        if token is not None:
+            token.checkpoint()
         return EditableVolumeGate(name=str(label), x_column='X', y_column='Y',
                                   z_column='Z', vertices=tuple(vertices),
                                   faces=tuple(faces), surface_groups=tuple(groups))

@@ -241,6 +241,23 @@ or native acceptance. The minimal local reuse is adopted after product-function
 AST equality against the tested in-memory transformation; the retained13
 passes and paired fingerprints therefore cover the exact postimage without
 replaying tests. Thresholds, arithmetic order and worker policy are unchanged.
+Next scratch-only candidate: guarded Python binary64 coplanar cross arithmetic,
+opted in once by the validator only for native float64 finite normalized
+coordinates with nonzero magnitudes at least1e-100 and normal NumPy error policy.
+Keep default/other-dtype/error-policy arithmetic unchanged. Require operation-bit
+parity, fast-flag cached/uncached reference coverage, fallback checks and exact
+geometry/mask/history. Adopt only if one fresh-session same-input pair improves
+at least5%; otherwise discard without repeats. No geometry predicate is skipped.
+Scratch validation passes9 checks in3.43s, including explicit adjacent-ULP
+operation bits, fast cached/uncached reference paths, legacy dtype/error-policy
+branches and unchanged contact order. One fresh-session constructor pair on
+05aef38d4 measures29.508246s original versus28.032481s candidate (5.0012%
+lower, narrowly meeting the predeclared5% threshold); validator opt-in is
+exercised once, with exact retained mesh fingerprints and unchanged mask/history.
+Exit0/sampled RSS0.329GiB. Candidate discarded: the threshold margin is only
+0.000353s in one pair, too noise-sensitive to justify guarded production paths;
+the measured obsolete-work queue delay is the next concrete target. Retain
+these parity/timing results, with no robust speed/native claim or replay.
 Projection caching passed107 checks but31.158s versus30.743s showed no gain;
 that source/test experiment was reverted. Next contact-validation path must
 PROVE rectilinear half-cell triangle intersections are only allowed shared
@@ -350,6 +367,14 @@ is unrecorded before quit, so delivered anchors remain UNVALIDATED.
 Final GPU cleanup is empty and mask/history unchanged;20/20 current picks,
 81 aligned/0 bad/0 unknown paints,26.64 painted pairs/s. No FPS/full-idle/
 shutdown pass inferred (sampled RSS0.647GiB; no inaccessible samples).
+Final05aef38d48 Cocoa/OpenGL611x140/DPR2 observer validates actual selected4
+delivery, matching canvas geometry/active gate, Agg figure123 and its aligned
+Qt paint; error=None, final GPU empty and mask/history unchanged. Work2/4
+takes15.7943/17.5503s,4 queues10.1252s; strict20s gate still FAILS20.0237s.
+Later observation is not extended acceptance:20/20 picks,91 aligned/0 bad/
+0 unknown paints,29.4507 painted pairs/s; sampled RSS0.637GiB. Initial new
+observer lookup failed only because GateSet.get raises on absent0; guarded
+membership repairs the harness without weakening surface/paint assertions.
 Next scoped queue contract: when selection needs no mesh (cached preview,
 saved geometry or explicit selection0), drop obsolete pending work without
 cancelling the active mesh or changing stale-delivery/pick-at-zero policy.
@@ -359,6 +384,22 @@ selection guard now drops pending work only. Eleven affected checks pass
 (10 in12.04s plus corrected none-case tuple expectation in4.00s; sampled
 RSS0.442/0.259GiB). Active work, stale delivery and pick-at-zero stay unchanged;
 this queue repair does not close the native20s/full-delivery/FPS gates.
+2026-10-23 Obsolete active meshing must cancel cooperatively using per-request
+thread-local pipeline tokens, never the session's edit cancellation hook.
+Check boundary construction and heavy mesh validation without partial results
+or changed arithmetic/topology/state. Preserve repeated-request dedup through
+queued GUI delivery; A→B→A needs a fresh generation after cancellation.
+Canceled deliveries must not cache refusals, overwrite fresh geometry or clear
+newer requests; genuine current refusals remain cached. Cached/saved/0 and
+leave/close cancel obsolete work. Require targeted RED regressions before
+implementation and an affected cohort; strict20s/FPS/physical gates remain open.
+Switching from True3D to Default/Orthogonal also cancels obsolete preparation;
+returning to True3D requests a fresh generation without changing mask/history.
+Targeted RED exposes11 cancellation/lifecycle gaps plus2 view-exit failures;
+30 affected CPU/offscreen checks then pass21.40s (sampled RSS0.471GiB).
+Per-request tokens/generations, safe boundary/contact checkpoints and canceled-
+delivery guards preserve legacy tuple payloads, exact geometry/state and real
+current refusals. Native20s/full-delivery/FPS acceptance remains pending.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
