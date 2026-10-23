@@ -3820,7 +3820,7 @@ def _consume_native_crash(path):
             summary["module"] = "native"
             headers = list(re.finditer(r"^=== spaCR (?:started|session).*?$", raw[:fatal.start()], re.M))
             session = {"known": False}
-            if headers:
+            if start == 0 and len(headers) == 1:
                 header = headers[-1].group(0)
                 match = re.fullmatch(r"=== spaCR session (\{.*\}) ===", header)
                 if match:
@@ -3860,14 +3860,16 @@ def _install_native_error_capture(path=None):
         path.parent.mkdir(parents=True, exist_ok=True)
         if path.exists() and path.stat().st_size > MAX_LOG_BYTES:
             old_size = path.stat().st_size
+            marker = b"\n=== spaCR session history truncated ===\n"
+            keep = MAX_LOG_BYTES - len(marker)
             with path.open("rb") as previous:
-                previous.seek(old_size - MAX_LOG_BYTES)
-                tail = previous.read(MAX_LOG_BYTES)
+                previous.seek(old_size - keep)
+                tail = previous.read(keep)
             ack = _read_state().get("native_fatal_ack") or {}
             old_offset = int(ack.get("offset", 0)) if ack.get("path") == str(path) else 0
-            path.write_bytes(tail)
+            path.write_bytes(marker + tail)
             _update_state(native_fatal_ack={
-                "path": str(path), "offset": max(0, old_offset - old_size + len(tail))})
+                "path": str(path), "offset": len(marker) + max(0, old_offset - old_size + len(tail))})
         handle = path.open("a", buffering=1, encoding="utf-8")
         session = {
             "known": True, "id": str(uuid.uuid4()),

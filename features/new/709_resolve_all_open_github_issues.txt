@@ -48,8 +48,13 @@ repair was published on main and nightly. widgets_g2 owns this bounded reporting
 follow-up; root owns independent review, integration and publication.
 Capture public crash-session provenance during normal startup: time, installed
 package/source identity where available, and Python/Qt versions, without paths,
-hostnames or secrets. Bind replay to the preceding complete session header;
-legacy, missing or truncated provenance is explicitly unknown and must not be
+hostnames or secrets. Bind replay only when the entire bounded capture has
+exactly one preceding startup/session marker. Shared concurrent writers make
+multiple preceding headers ambiguous; even apparently sequential histories
+remain unknown without writer-lifetime proof. Preserve local headers and
+acknowledgement offsets. Rotation must retain an explicit unknown-history marker
+inside the existing file cap so a retained header cannot masquerade as complete
+history; translate acknowledged offsets for that marker. Legacy, missing or truncated provenance is unknown and must not be
 presented as the current replay process's crashed build. Preserve affirmative
 consent, provider None, reporting Off, event deduplication and bounded retention.
 Fatal-signal handling remains faulthandler file output only, with no Python
@@ -148,4 +153,4 @@ running the tool twice changes nothing.
 
 2026-10-23 — Reports161/163 have distinct native stacks but no crashed-source identity; both remain open. Startup now records path-free session versions and four fixed installed-file hashes, replay binds only preceding complete headers, and legacy records stay explicitly unknown. Twenty CPU client controls and111 fake-relay controls pass with independent privacy review; consent/None/Off and signal safety are retained. The compatible client fallback is ready for root publication; relay code stays private and NOT deployed pending actual Workers Free and Git Build verification (subscription API403).
 
-2026-10-23 — Compatible old relays now receive strictly validated public session facts and labelled grouped source fingerprints through the existing scrubbed note field. The complete existing note has priority; space limits cause an explicit local-only notice when possible, without pretending omitted hashes were sent. Five affected CPU controls pass (0.67s), and the unchanged old relay validator/renderer accepts all four known/unknown/note-limit wire cases with readable crash-versus-replay context and zero AI/network calls. Prior capture/consent passes remain valid; the relay patch remains private and161/163 remain open. Root owns publication.
+2026-10-23 — Compatible old relays now receive strictly validated public session facts and labelled grouped source fingerprints through the existing scrubbed note field. The complete existing note has priority; space limits cause an explicit local-only notice when possible, without pretending omitted hashes were sent. Five affected CPU controls pass (0.67s), and the unchanged old relay validator/renderer accepts all four known/unknown/note-limit wire cases with readable crash-versus-replay context and zero AI/network calls. Shared-writer and actual rotation-window counterexamples reproduced misattribution before repair; six affected controls now pass (0.69s). Multiple preceding headers or truncated history are explicitly unknown, and rotation retains that fact within the existing cap with correct acknowledgement offsets. Other capture/consent passes remain valid; the relay patch stays private and161/163 remain open. Root owns publication.
