@@ -22,7 +22,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "psf_pipeline.py",
         "_lineage_trees.py",
         "utils.py", "channel_sorting.py", "run_journal.py", "ml.py",
-        "regression_layout.py", "regression_failure.py",
+        "regression_layout.py", "regression_failure.py", "power_model.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -289,6 +289,31 @@ def test_well_label_reader_captions_enter_only_through_its_owner(extract_backend
     source = 'def _mil_frame_from_db():\n' + ''.join(
         f'    tr({caption!r})\n' for caption in sorted(captions))
     assert extract_backend_sources('embeddings.py', source) == captions
+
+
+def test_current_embedding_identity_refusals_enter_only_through_their_owner(extract_backend_sources):
+    captions = {
+        "The current embedding has no unique source object keys.",
+        "Some current embedding objects no longer have crop metadata.",
+    }
+    source = 'def _mil_frame_from_result():\n' + ''.join(
+        f'    raise ValueError(tr({caption!r}))\n' for caption in sorted(captions))
+    assert extract_backend_sources('embeddings.py', source) == captions
+
+
+def test_current_embedding_owner_does_not_admit_unrelated_or_nested_captions(extract_backend_sources):
+    source = '\n'.join([
+        'tr("Unrelated module prose remains outside the catalog.")',
+        'def unrelated():',
+        '    return tr("Unrelated callable prose remains outside the catalog.")',
+        'class Foreign:',
+        '    def _mil_frame_from_result(self):',
+        '        return tr("An owner method in another class remains outside the catalog.")',
+        'def outer():',
+        '    def _mil_frame_from_result():',
+        '        return tr("An unrelated nested owner remains outside the catalog.")',
+    ])
+    assert extract_backend_sources('embeddings.py', source) == set()
 
 
 def test_existing_encoder_entry_captions_remain_inventoried(extract_backend_sources):

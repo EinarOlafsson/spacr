@@ -55,6 +55,10 @@ class Toggle(QCheckBox):
             self.setSizePolicy(policy)
 
     def _fit_track(self, _scale=None):
+        """Keep the toggle tall enough for its fixed-height switch track.
+
+        :param _scale: listener scale, unused because the track height is fixed.
+        """
         from shiboken6 import isValid
 
         if not isValid(self):

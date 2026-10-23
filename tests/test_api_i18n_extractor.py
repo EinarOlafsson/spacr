@@ -1856,6 +1856,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in thumbnail_close_arrivals} == thumbnail_close_arrivals
     assert not thumbnail_close_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **thumbnail_close_arrivals}
+    embedding_mil_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "current_embedding_mil_api_arrivals_2026-10-23.json").read_text(encoding="utf-8"))
+    assert set(embedding_mil_arrivals) == {
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._learn_from_current_embeddings.finished",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._learn_from_current_embeddings.work",
+    }
+    assert {key: docs[key] for key in embedding_mil_arrivals} == embedding_mil_arrivals
+    assert not embedding_mil_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **embedding_mil_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]
