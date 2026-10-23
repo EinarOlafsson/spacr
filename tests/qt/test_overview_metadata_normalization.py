@@ -620,3 +620,34 @@ def test_metadata_wizard_accepts_caller_percentiles_without_enabling_normalizati
     assert not dialog.normalise.isChecked()
     assert (dialog.low.value(), dialog.high.value()) == (3., 97.)
     dialog.close()
+
+
+def test_automatic_wizard_pattern_preserves_nested_folder_channel_groups(qtbot, tmp_path):
+    import tifffile
+
+    folder = tmp_path / "A01" / "field1"
+    folder.mkdir(parents=True)
+    paths = tuple(folder / f"ch{channel}.tif" for channel in (1, 2))
+    for channel, path in enumerate(paths, 1):
+        tifffile.imwrite(path, np.full((4, 5), channel, dtype=np.uint16))
+    before = {path: path.read_bytes() for path in paths}
+    indexed = browser._overview_index(str(tmp_path), source_scope="recursive")
+    assert len(indexed) == 1
+    assert indexed[0].well == "A01" and indexed[0].field_id == "1"
+    wizard = browser._OverviewMetadataWizard(str(tmp_path), {
+        "source_scope": "recursive", "channels": (1, 2)})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    assert wizard._fields == indexed
+    assert wizard._fields[0].files == (("1", str(paths[0])), ("2", str(paths[1])))
+    assert wizard._info["channels"] == (1, 2)
+    assert wizard.regex.text() == ""
+    accepted = []
+    wizard.accepted.connect(lambda: accepted.append(wizard.configuration()))
+    wizard.next.click()
+    assert len(accepted) == 1
+    assert accepted[0]["channels"] == (1, 2)
+    assert accepted[0]["custom_regex"] == ""
+    assert accepted[0]["source_scope"] == "recursive"
+    assert all(path.read_bytes() == before[path] for path in paths)

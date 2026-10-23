@@ -3966,8 +3966,21 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
         names = tuple(Path(path).name for field in fields for _, path in field.files)[:20]
         detected_pattern, detected_label, hits = auto_detect_regex(names)
         if detected_pattern and hits:
-            fields = _overview_index(source, detected_pattern, "auto", cancelled,
-                                     source_scope=source_scope)
+            inferred = _overview_index(source, detected_pattern, "auto", cancelled,
+                                       source_scope=source_scope)
+            by_path = {path: (field, channel) for field in inferred for channel, path in field.files}
+            preserves_metadata = all(
+                path in by_path
+                and all(not getattr(field, axis) or getattr(field, axis) == getattr(by_path[path][0], axis)
+                        for axis in ("well", "field_id", "time_id", "z_id"))
+                and (not channel or channel == by_path[path][1])
+                for field in fields for channel, path in field.files)
+            preserves_groups = all(len({by_path[path][0].identity for _, path in field.files
+                                        if path in by_path}) == 1 for field in fields)
+            if preserves_metadata and preserves_groups:
+                fields = inferred
+            else:
+                detected_pattern, detected_label = pattern, convention
     if cancelled.is_set() or not fields:
         return fields, None
     info = dict(_overview_channel_info(fields[0]))
