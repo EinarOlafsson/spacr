@@ -2,6 +2,9 @@
 CLEAN UNINSTALL PURGE
 ================================================================================
 
+OVERNIGHT LINUX ACCEPTANCE — 2026-10-23
+Home Linux coordinator owns current-source disposable-root uninstall preview/removal, cleanup category opt-outs, owned rollback/cache removal and unrelated/data sentinel preservation. Reuse valid earlier native acceptance; no host installation, profile or other-session environment may be removed. Root publishes necessary repairs; native Mac/Windows ownership remains separate.
+
 Status:    IN PROGRESS — Linux repairs and native acceptance ready for publication; native macOS/Windows uninstall acceptance remains.
 Previous software delivery: DONE 2026-10-04.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
@@ -184,3 +187,5 @@ Pass/reporting boundary
 2026-10-21 — Default purge removes runtime/private Python/bootstrap/launchers, real UV cache and all eight selected data categories; opt-out preserves chosen data. Unknown-file bytes, shared idna/environment/HF/cache and unrelated sentinels survive; real qhx1kpmz rollback is removed by the final helper, with no lock before/after.
 2026-10-21 — Released1.5.1.5 Debian dpkg removal preserves five data sentinels; this does not establish current online GUI or macOS/Windows behavior. Owned native jobs finished and Linux source is published in 6ad7c7a633. The normal API collector also renames _run_macos_online_update.prepared to _run_posix_online_update.prepared; its identical source and nine locale bindings now pass normal generated closure (reviews3214ea7/HFd1796ba, final stock reproduction). Native macOS/Windows uninstall acceptance remains open.
 2026-10-22 - Native Windows uninstall dialog/coordinator cohort passes 40 tests; actual disposable-root UI/destructive acceptance remains pending.
+
+2026-10-23 — Current-source real Linux installer cleanup passes settings-only removal (models/cache/data retained) and all-eight-category removal (runtime, launchers and observed owned cleanup removed; experiment, unknown-root and unrelated-cache SHA preserved). Three categories had no populated paths. Independent retained peer accepted both actual scripts/logs; private HOME/read-only host namespace protects filesystem writes, not a network/D-Bus security boundary. No whole-platform or whole-item completion is claimed. Actual discovered Conda environment is removed through remove_install(ticked=True) using the exact installed cleanup module from outside that prefix; only spaCR module/metadata/launchers disappear, while the Conda interpreter, unrelated operational package and four data SHA remain. No populated Qt-settings preservation was measured in this Conda case.

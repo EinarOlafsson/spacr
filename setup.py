@@ -337,10 +337,13 @@ dependencies = [
     'aiohttp<4,>=3.8; python_version >= "3.10"',
     'anndata<0.14,>=0.10; python_version >= "3.10"',
     'botocore<2,>=1.29; python_version >= "3.10"',
-    'btrack<1.0,>=0.7.0; python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or platform_release >= "24")',
+    # Keep the numeric constant on the left: old pip then safely falls back
+    # for non-version Linux kernels instead of parsing them as version values.
+    # Darwin releases still use the same numeric deployment boundaries.
+    'btrack<1.0,>=0.7.0; python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or "24" <= platform_release)',
     'catboost<2.0,>=1.2; python_version >= "3.10"',
     'duckdb<3,>=1.1; python_version >= "3.10"',
-    'faiss-cpu<2,>=1.7.4; python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or platform_release >= "23")',
+    'faiss-cpu<2,>=1.7.4; python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or "23" <= platform_release)',
     'fsspec>=2023.1; python_version >= "3.10"',
     'gcsfs>=2023.1; python_version >= "3.10"',
     'jax<1.0,>=0.4; python_version >= "3.10"',
@@ -358,7 +361,7 @@ dependencies = [
     'numcodecs<1,>=0.12; python_version >= "3.10"',
     'numpyro<1.0,>=0.13; python_version >= "3.10"',
     'pdfplumber<1,>=0.11; python_version >= "3.10"',
-    'piper-tts<2,>=1.2; (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.14") and python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or platform_release >= "23")',
+    'piper-tts<2,>=1.2; (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.14") and python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or "23" <= platform_release)',
     'psycopg[binary]<4,>=3.1; python_version >= "3.10"',
     'pycromanager<2,>=0.28; python_version >= "3.10"',
     'pylibCZIrw<7.0,>=5.0.0; (python_version < "3.14") and python_version >= "3.10" and (sys_platform != "darwin" or platform_machine != "x86_64")',

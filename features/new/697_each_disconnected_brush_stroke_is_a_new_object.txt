@@ -113,6 +113,15 @@ confirms Shift continuation works in the live fixture. Two later Shift strokes
 retain ID1 while touching existing content. The intervening unmodified
 stroke also touches ID1, so it does not prove ordinary disconnected-new-ID.
 The owned app remains live for the next human action; no input was synthesized.
+Additional unattended regression scope: one owned Unicode/decomposed-accent
+path exercises brush allocation256 from distinct uint8 IDs254/255, a separate
+Shift piece keeping256, exact undo/redo dtype/bytes and Save/fresh-screen reopen
+with unchanged object IDs/table/source image. This is CPU/offscreen coverage,
+not native file-dialog or physical-input acceptance; preserve the live app.
+That single new end-to-end regression passes on the Mac in21.09s, sampled
+aggregate RSS0.746GiB under the8GiB/300s polling wrapper, normal exit0.
+It preserves IDs254/255/256 and exact uint8→uint16 undo/redo/save/reopen
+arrays/object table through the owned NFD Unicode path; source image unchanged.
 
 --------------------------------------------------------------------------------
 BUILT 2026-10-13 (Home, branch feat-697-brush-labels on makemasks-paint; not

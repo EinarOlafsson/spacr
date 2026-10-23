@@ -102,3 +102,89 @@ print('N693_NATIVE_CP1252_UNICODE_PASS')
     assert b'Warning: could not save settings' in process.stdout
     assert b'Warning: could not write' in process.stdout
     assert 'UnicodeEncodeError' not in process.stderr.decode('cp1252', errors='replace')
+
+def _assert_native_report_lock_recovery(db_path):
+    import csv
+    from spacr.measure import _emit_infection_report
+
+    assert sys.stdout.encoding.lower() == 'cp1252' and sys.stdout.errors == 'strict'
+    target = Path(db_path).with_name('infection_report.csv')
+    before = target.read_bytes()
+    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
+                                  ctypes.c_void_p, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+    kernel.CreateFileW.restype = wintypes.HANDLE
+    kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+    handle = kernel.CreateFileW(str(target), 0x80000000, 1, None, 3, 0x80, None)
+    assert handle not in (None, ctypes.c_void_p(-1).value), ctypes.WinError(ctypes.get_last_error())
+    try:
+        _emit_infection_report(str(db_path))
+        assert target.read_bytes() == before
+    finally:
+        assert kernel.CloseHandle(handle)
+    _emit_infection_report(str(db_path))
+    assert target.read_bytes() == before
+    with target.open(encoding='utf-8', newline='') as stream:
+        assert list(csv.DictReader(stream))
+    assert not target.with_name('.infection_report.csv.tmp').exists()
+    print('N693_NATIVE_CP1252_REPORT_LOCK_RECOVERY_PASS')
+
+
+def test_native_cp1252_measure_unicode_source_writes_expected_objects(tmp_path, synth_masks_multi, rng):
+    import numpy as np
+    from tests.test_measure_crop_core_synth import _build_merged_stack, _settings_for, _write_stack
+
+    folder = tmp_path / 'measure space \u0394ku80 \u00b5m \u7a7a\u767d'
+    data = _build_merged_stack(synth_masks_multi, rng)
+    merged, _ = _write_stack(folder, data)
+    settings = _settings_for(merged, n_jobs=1, save_png=False, save_arrays=False,
+                             plot=False, measure_gpu=False)
+    settings_file = tmp_path / 'measure-settings.json'
+    settings_file.write_text(json.dumps(settings), encoding='utf-8')
+    expected_areas = {name: sorted(int((labels == label).sum()) for label in np.unique(labels) if label)
+                      for name, labels in synth_masks_multi.items() if name in ('cell', 'nucleus', 'pathogen')}
+    code = r'''
+import json, math, sqlite3, sys
+from pathlib import Path
+from spacr.measure import measure_crop
+assert sys.stdout.encoding.lower() == 'cp1252' and sys.stdout.errors == 'strict'
+settings = json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+measure_crop(settings)
+root = Path(settings['src']).parent
+expected_areas = json.loads(sys.argv[2])
+with sqlite3.connect(root / 'measurements/measurements.db') as connection:
+    connection.row_factory = sqlite3.Row
+    for table, count in {'cell': 4, 'nucleus': 4, 'pathogen': 2, 'cytoplasm': 4}.items():
+        rows = list(connection.execute('SELECT * FROM "' + table + '"'))
+        assert len(rows) == count, (table, len(rows))
+        if table in expected_areas:
+            assert sorted(row[table + '_area'] for row in rows) == expected_areas[table]
+        assert len({(row['prcf'], row['object_label']) for row in rows}) == count
+        for row in rows:
+            assert row[table + '_area'] > 0
+            assert Path(row['path_name']).parent == root
+            assert Path(row['path_name']).stem == row['file_name']
+            intensities = [row[key] for key in row.keys() if 'mean_intensity' in key]
+            assert intensities and all(value is not None and math.isfinite(value) for value in intensities)
+from tests.test_n693_native_windows_settings import _assert_native_report_lock_recovery
+_assert_native_report_lock_recovery(root / 'measurements/measurements.db')
+print('N693_NATIVE_CP1252_MEASURE_UNICODE_PASS')
+'''
+    profile = tmp_path / 'profile'
+    environment = os.environ.copy()
+    environment.update(PYTHONIOENCODING='cp1252:strict', PYTHONUTF8='0',
+                       SPACR_HOME=str(profile / '.spacr'), SPACR_ISOLATED_PROFILE='1',
+                       USERPROFILE=str(profile), HOME=str(profile),
+                       APPDATA=str(profile / 'roaming'), LOCALAPPDATA=str(profile / 'local'))
+    process = subprocess.run([sys.executable, '-c', code, str(settings_file), json.dumps(expected_areas)],
+                             cwd=Path(__file__).resolve().parents[1], env=environment,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
+    assert process.returncode == 0, (process.stdout.decode('cp1252', errors='replace')[-3000:] + '\n' +
+                                     process.stderr.decode('cp1252', errors='replace')[-6000:])
+    assert b'N693_NATIVE_CP1252_MEASURE_UNICODE_PASS' in process.stdout
+    assert b'N693_NATIVE_CP1252_REPORT_LOCK_RECOVERY_PASS' in process.stdout
+    assert b'The infection report could not be written:' in process.stdout
+    assert b'Processing folder:' in process.stdout
+    assert b'Infection report:' in process.stdout
+    assert b'Successfully completed run' in process.stdout
+    assert np.array_equal(np.load(merged / 'plate1_A01_F001.npy'), data)

@@ -246,3 +246,28 @@ def test_existing_plain_and_wrapped_tracks_fit_across_live_scale_changes(
                 top = (toggle.height() - toggle._track_h) // 2
                 assert top >= .75
                 assert top + toggle._track_h + .75 <= toggle.height()
+
+
+def test_live_rescaling_skips_a_retained_wrapper_after_cpp_deferred_delete(
+        qtbot, qt_theme_applied, monkeypatch, caplog):
+    import logging
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+    from spacr.qt import gui_scale
+
+    gui_scale.install_scaling_layer()
+    with monkeypatch.context() as patch:
+        patch.setattr(gui_scale, '_SCALE', .9)
+        deleted = Toggle('Retained Python wrapper')
+        alive = Toggle('Still live')
+        qtbot.addWidget(alive)
+        deleted.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not isValid(deleted) and isValid(alive)
+        with caplog.at_level(logging.DEBUG, logger=gui_scale.LOG.name):
+            gui_scale.set_gui_scale_live(.75)
+        assert not any('Internal C++ object' in record.getMessage()
+                       or (record.exc_info and isinstance(record.exc_info[1], RuntimeError)
+                           and 'already deleted' in str(record.exc_info[1]))
+                       for record in caplog.records)
+        assert gui_scale._actual_minimum_height(alive) >= alive._track_h + 2

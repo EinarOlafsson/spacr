@@ -9669,7 +9669,7 @@ def measure_crop(settings):
         checkpoint as cancellation_checkpoint,
     )
     from .timelapse import _timelapse_masks_to_gif
-    from .utils import measure_test_mode, print_progress, save_settings, format_path_for_system, normalize_src_path
+    from .utils import measure_test_mode, print_progress, save_settings, format_path_for_system, normalize_src_path, console_safe
     from .settings import get_measure_crop_settings
     
     
@@ -9704,7 +9704,7 @@ def measure_crop(settings):
         with run_context('measure', settings) as run:
             for source_folder in source_folders:
                 cancellation_checkpoint()
-                print(f'Processing folder: {source_folder}')
+                print(console_safe(f'Processing folder: {source_folder}'))
                 settings = dict(base_settings)
                 source_folder = format_path_for_system(source_folder)
                 settings['src'] = source_folder
@@ -11340,6 +11340,8 @@ def _emit_infection_report(db_path):
 
     :param db_path: the ``measurements.db`` the run produced.
     """
+    from .utils import console_safe
+
     if not db_path or not os.path.isfile(db_path):
         return
     try:
@@ -11347,10 +11349,10 @@ def _emit_infection_report(db_path):
 
         written = write_infection_report(db_path)
     except Exception as exc:                                 # noqa: BLE001
-        print(f"The infection report could not be written: {exc}")
+        print(console_safe(f"The infection report could not be written: {exc}"))
         return
     if written:
-        print(f"Infection report: {written}")
+        print(console_safe(f"Infection report: {written}"))
 
 
 def _emit_profiles(settings, db_path):

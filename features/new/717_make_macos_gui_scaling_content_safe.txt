@@ -55,6 +55,18 @@ tab after a paint/event turn; owner visual review confirms complete on/off
 rings and visible overflow/scroll mechanisms. Native68818 and capture1429
 both close normally with exit0. This resolves the scoped regression follow-up
 while retaining the previously delivered DONE status and separate human gaps.
+New retained-wrapper lifecycle regression on2026-10-23: native live rescaling
+logs deleted Toggle C++ wrapper RuntimeErrors from the private track-floor
+callback. Guard that callback with shiboken6.isValid before Qt access, keeping
+the19px floor and propagation of unrelated errors. Add a real deferred-delete
+regression retaining the Python wrapper, then rescale without the callback
+diagnostic; retain existing live/plain/wrapped geometry checks. No public
+API/caption change and no whole-item reopening or new closure is implied.
+The real deferred-delete Cocoa regression fails before the guard with the
+exact deleted-wrapper RuntimeError. The private isValid early return repairs
+it; four affected Cocoa checks pass in7.00s (sampled RSS0.342GiB), retaining
+compact-font, Modules90% and live plain/wrapped19px geometry. Other errors
+are not caught or suppressed; no public API/caption/catalog change.
 
 2026-10-22 retained-DONE regression follow-up: source 8e6a76b38b on
 macOS 26.6.1 Intel (host display DPR 2). A 101-PASS CPU/offscreen cohort includes

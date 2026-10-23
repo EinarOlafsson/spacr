@@ -1221,3 +1221,17 @@ Ultrack 0.8 now supports Python 3.13 and declares <3.14. Trackastra declares >=3
 ```
 
 The interactive plots. In `qt` since the regression panel was built on them, and missing here until 2026-08-17 -- so `pip install spacr[all]` installed strictly LESS than `pip install spacr[qt]`, which is the one thing the name of this extra promises cannot happen.
+
+
+### Darwin deployment markers and older pip consumers
+
+The three native default-package gates put the numeric constant on the left:
+`"23" <= platform_release` and `"24" <= platform_release`. On Darwin these
+retain the macOS 14/15 wheel boundaries using version comparisons. pip 25's
+bundled packaging 24.2 evaluates comparisons even in an inactive `or` branch.
+With the release on the left, it constructs a valid numeric specifier and then
+raises `InvalidVersion` on Linux kernels such as `7.0.0-38-generic`. With the
+constant on the left, a non-version kernel instead produces an invalid
+specifier and safely takes the evaluator's fallback comparison; the surrounding
+OS condition includes Linux and Windows. Both old and current evaluators retain
+the Mac deployment boundaries. Package versions and Python support are unchanged.
