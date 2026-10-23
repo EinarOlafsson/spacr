@@ -263,3 +263,5 @@ Remaining native idle boundaries need editorial review. Captures stay held; pres
 2026-10-22 — Maintainer resumes the tutorial campaign under Codex ownership.
 Continue existing-footage pause edits and normal publication; preserve passed audio/render results and the no-rerecording instruction.
 Lessons11/09/15/20/23 are rendered; repair composed-catalog retention validation before their browser checks and publication. Item676 remains open.
+
+2026-10-22 — Lessons11 Classify ML,09 Annotate,15 Image UMAP,20 Cellpose Masks and23 Annotator Agreement publish reviewed1x editorial footage and source-bound idle-tail protection. Four lessons retain their verified50 narration tracks/timings/speeds; Image UMAP uses current reviewed50 narration and a truthful navigation reference card alongside14retained native scenes. No new raw capture or listening/native-speaker signoff claimed. Normal full decode/PTS/poster/web,71browser checks per lesson and84route candidate/publication/readback pass. Item676 remains open.

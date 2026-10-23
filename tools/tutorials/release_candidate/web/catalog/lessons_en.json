@@ -2994,7 +2994,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Choose UMAP as the reduction method. Each point will represent an object using two plotted coordinates.",
+          "narration": "Choose UMAP as the reduction method. Each point will represent an object using two plotted coordinates. You can explore PCA through its linked tool when you want a linear projection and feature loadings.",
           "hold_after": 0.7
         },
         {
@@ -3043,8 +3043,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_review_embedding",
-          "narration": "Review the completed embedding and compare the image crops of selected objects. Keep the input measurements, chosen settings and saved results together to trace each point back to its source.",
+          "visual": "27_fold_image_scatter",
+          "narration": "Open Image Scatter from the Image UMAP header to compare selected features directly, or open PCA for a linear projection. Continue with the linked tutorials for their input settings and saved outputs.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "55_image_scatter",
+            "60_pca"
+          ],
           "hold_after": 0.7
         }
       ],

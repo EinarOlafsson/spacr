@@ -2973,7 +2973,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Wählen Sie UMAP als Reduktionsmethode. Jeder Punkt stellt ein Objekt mit zwei Koordinaten dar.",
+          "narration": "Wählen Sie UMAP als Reduktionsmethode. Jeder Punkt stellt ein Objekt mit zwei Koordinaten dar. Über das verknüpfte Werkzeug können Sie PCA erkunden, wenn Sie eine lineare Projektion und Merkmalsladungen möchten.",
           "hold_after": 0.7
         },
         {
@@ -3022,8 +3022,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_review_embedding",
-          "narration": "Prüfen Sie die fertige Einbettung und vergleichen Sie die Bildausschnitte der ausgewählten Objekte. Bewahren Sie die Eingabemessungen, gewählten Einstellungen und gespeicherten Ergebnisse gemeinsam auf, um jeden Punkt zu seiner Quelle zurückverfolgen zu können.",
+          "visual": "27_fold_image_scatter",
+          "narration": "Öffnen Sie Image Scatter in der Kopfzeile von Image UMAP, um ausgewählte Merkmale direkt zu vergleichen, oder öffnen Sie PCA für eine lineare Projektion. Fahren Sie mit den verknüpften Tutorials fort, um deren Eingabeeinstellungen und gespeicherte Ausgaben kennenzulernen.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "55_image_scatter",
+            "60_pca"
+          ],
           "hold_after": 0.7
         }
       ],

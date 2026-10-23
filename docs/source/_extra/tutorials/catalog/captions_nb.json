@@ -2973,7 +2973,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Velg UMAP som reduksjonsmetode. Hvert punkt representerer et objekt med to plottede koordinater.",
+          "narration": "Velg UMAP som reduksjonsmetode. Hvert punkt representerer et objekt med to plottede koordinater. Du kan utforske PCA via det koblede verktøyet når du vil ha en lineær projeksjon og egenskapsladninger.",
           "hold_after": 0.7
         },
         {
@@ -3022,8 +3022,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_review_embedding",
-          "narration": "Se gjennom den ferdige innbyggingen og sammenlign bildeutsnittene av de valgte objektene. Oppbevar inndatamålingene, de valgte innstillingene og de lagrede resultatene samlet, slik at du kan spore hvert punkt tilbake til kilden.",
+          "visual": "27_fold_image_scatter",
+          "narration": "Åpne Image Scatter fra toppfeltet i Image UMAP for å sammenligne valgte egenskaper direkte, eller åpne PCA for en lineær projeksjon. Fortsett med de koblede veiledningene for inndatainnstillingene og de lagrede utdataene deres.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "55_image_scatter",
+            "60_pca"
+          ],
           "hold_after": 0.7
         }
       ],
