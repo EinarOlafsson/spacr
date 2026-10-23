@@ -1497,11 +1497,16 @@ class _OverviewField:
     field: str
     files: tuple
     unresolved: bool = False
+    field_id: str = ""
+    time_id: str = ""
+    z_id: str = ""
+    axes: tuple = ()
 
     @property
     def identity(self):
         """Keep the original paths in the identity, including unresolved fields."""
-        return (self.plate, self.well, self.field, self.files)
+        return (self.plate, self.well, self.field_id or self.field,
+                self.files, self.time_id, self.z_id)
 
     @property
     def caption(self):
@@ -1509,7 +1514,14 @@ class _OverviewField:
         return " / ".join((self.plate, self.well, self.field))
 
 
-def _overview_index(source, pattern="", convention="auto", cancelled=None):
+def _overview_natural_key(value):
+    """Order physical field and axis identifiers by their numeric components."""
+    import re
+    return tuple((1, int(part)) if part.isdigit() else (0, part.casefold())
+                 for part in re.split(r"(\d+)", str(value)))
+
+
+def _overview_index(source, pattern="", convention="auto", cancelled=None, source_scope="recursive"):
     """Index paths without decoding pixels; never invent an unresolved well."""
     import re
     from ...schema import parse_well, well_id
@@ -1519,10 +1531,13 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None):
     root = Path(source).resolve()
     if not root.is_dir():
         raise ValueError(tr("Choose an existing image folder."))
+    if source_scope not in ("folder", "recursive"):
+        raise ValueError(tr("Choose this folder or an explicit recursive source scope."))
     custom = re.compile(pattern, re.I) if pattern else None
     groups = {}
     for directory, folders, names in os.walk(root):
-        folders[:] = sorted(p for p in folders if not p.startswith("."))
+        folders[:] = (sorted(p for p in folders if not p.startswith("."))
+                      if source_scope == "recursive" else [])
         for name in sorted(names):
             if cancelled is not None and cancelled.is_set():
                 return ()
@@ -1531,7 +1546,7 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None):
                 continue
             values = {}
             if custom is not None:
-                match = custom.search(name)
+                match = custom.match(name)
             else:
                 match = re.match(_metadata_pattern(convention, path.suffix[1:]), name, re.I)
                 if match is None:
@@ -1590,83 +1605,234 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None):
             groups.setdefault(key, [row, column, unresolved, []])[3].append(
                 (channel, str(path)))
     result = []
-    for (plate, well, field, time, plane), (row, column, unresolved, files) in sorted(groups.items()):
-        if time or plane:
-            field += f" / T{time} / Z{plane}"
-        result.append(_OverviewField(plate, well, row, column, field,
-                                     tuple(sorted(files)), unresolved))
+    for (plate, well, field, time, plane), (row, column, unresolved, files) in sorted(groups.items(), key=lambda item: tuple(_overview_natural_key(value) for value in item[0])):
+        label = field + (f" / T{time} / Z{plane}" if time or plane else "")
+        axes = tuple((axis, value) for axis, value in (("T", time), ("Z", plane)) if value)
+        result.append(_OverviewField(plate, well, row, column, label,
+                                     tuple(sorted(files, key=lambda item: (_overview_natural_key(item[0]), item[1]))), unresolved,
+                                     field, str(time), str(plane), axes))
     return tuple(result)
 
 
-def _overview_raw_planes(field, channels):
-    """Yield original-resolution selected-channel pixels without display conversion."""
+def _overview_channel_info(field):
+    """Inspect declared image axes and channel IDs without decoding pixels."""
     from PIL import Image
 
-    decoded_path, decoded_array, decoded_axes = None, None, None
+    records = []
+    separate = any(key for key, _ in field.files)
+    if (not field.files or (not separate and len(field.files) != 1)
+            or (separate and any(not key for key, _ in field.files))):
+        raise ValueError(tr("This field has ambiguous image files."))
+    for key, path in field.files:
+        suffix = Path(path).suffix.lower()
+        if suffix == ".npy":
+            image = np.load(path, mmap_mode="r", allow_pickle=False)
+            shape, dtype = image.shape, image.dtype
+            axes = "YX" if image.ndim == 2 else "YXC" if image.ndim == 3 else ""
+        elif suffix in (".tif", ".tiff"):
+            import tifffile
+            with tifffile.TiffFile(path) as image:
+                series = image.series[0]
+                shape, dtype, axes = series.shape, series.dtype, series.axes
+        else:
+            with Image.open(path) as image:
+                bands = len(image.getbands())
+                shape = (image.height, image.width) + ((bands,) if bands > 1 else ())
+                axes = "YXC" if bands > 1 else "YX"
+                from PIL import ImageMode
+                dtype = np.dtype(ImageMode.getmode(image.mode).typestr)
+        axes = str(axes).upper().replace("S", "C")
+        if (len(axes) != len(shape) or len(set(axes)) != len(axes)
+                or set(axes) - set("TZCYX") or axes.replace("T", "").replace("Z", "").replace("C", "") != "YX"):
+            raise ValueError(tr("The image channel axis is unresolved."))
+        channel_axis = axes.find("C")
+        records.append(dict(path=path, file_channel=key, shape=tuple(shape),
+                            axes=axes, dtype=str(np.dtype(dtype)),
+                            channel_axis=channel_axis,
+                            channel_count=shape[channel_axis] if channel_axis >= 0 else 1,
+                            time_count=shape[axes.index("T")] if "T" in axes else 1,
+                            z_count=shape[axes.index("Z")] if "Z" in axes else 1))
+    if separate:
+        ids = [int(record["file_channel"]) for record in records
+               if str(record["file_channel"]).isdigit()]
+        available = tuple(sorted(key for key in set(ids) if ids.count(key) == 1
+                                 and next(record for record in records
+                                          if str(record["file_channel"]).isdigit()
+                                          and int(record["file_channel"]) == key)["channel_count"] == 1))
+    else:
+        available = tuple(range(records[0]["channel_count"]))
+    return dict(kind="files" if separate else "stack", channels=available,
+                files=tuple(records))
+
+
+def _overview_tiff_plane(record, channel, selections, z_mode, edge=None):
+    """Read only the selected TIFF pages, streaming an explicit Z projection."""
+    import tifffile
+
+    axes = record["axes"]
+    with tifffile.TiffFile(record["path"]) as tif:
+        series = tif.series[0]
+        page_axes = series.pages[0].axes.upper().replace("S", "C")
+        if not axes.endswith(page_axes):
+            raise ValueError(tr("This TIFF layout cannot be read as bounded image planes."))
+        leading = axes[:-len(page_axes)]
+        leading_shape = series.shape[:len(leading)]
+        if any(axis not in "TCZ" for axis in leading):
+            raise ValueError(tr("This TIFF layout cannot be read as bounded image planes."))
+        z_values = (range(record["z_count"]) if "Z" in axes and z_mode != "plane"
+                    else (selections.get("Z", 0),))
+        result, count = None, 0
+        for z in z_values:
+            positions = dict(selections, C=channel, Z=z)
+            coordinates = tuple(positions[axis] for axis in leading)
+            page_index = int(np.ravel_multi_index(coordinates, leading_shape)) if leading else 0
+            page = series.pages[page_index]
+            if math.prod(page.shape) * np.dtype(page.dtype).itemsize > 128 * 1024 ** 2:
+                try:
+                    plane = tifffile.memmap(record["path"], page=page.index, mode="r")
+                except ValueError as exc:
+                    raise ValueError(tr("This image exceeds the 128 MiB preview decode limit.")) from exc
+            else:
+                plane = page.asarray()
+            selector = tuple(positions[axis] if axis in "TCZ" else slice(None)
+                             for axis in page_axes)
+            plane = plane[selector]
+            if edge is not None:
+                stride = max(1, math.ceil(max(plane.shape) / max(1, edge)))
+                plane = plane[::stride, ::stride]
+            if plane.nbytes > 128 * 1024 ** 2:
+                raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+            if z_mode == "plane" or "Z" not in axes:
+                return plane
+            if result is None:
+                result_dtype = np.dtype(np.float64 if z_mode == "mean" else plane.dtype)
+                if plane.size * result_dtype.itemsize > 128 * 1024 ** 2:
+                    raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+                result = np.array(plane, dtype=result_dtype)
+                if result.nbytes > 128 * 1024 ** 2:
+                    raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+            elif z_mode == "max":
+                np.maximum(result, plane, out=result)
+            else:
+                np.add(result, plane, out=result)
+            count += 1
+        return result / count if z_mode == "mean" else result
+
+
+def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
+                         z_index=None, edge=None):
+    """Yield selected raw planes, validating declared axes and file channel IDs."""
+    from PIL import Image
+
+    info = _overview_channel_info(field)
+    import operator
+    try:
+        channels = tuple(operator.index(channel) for channel in channels)
+    except TypeError as exc:
+        raise ValueError(tr("Choose one or more nonnegative channel indices.")) from exc
     for channel in channels:
         if channel < 0:
             raise ValueError(tr("Channel indices must be zero or greater."))
-        separate = any(key for key, _ in field.files)
-        if separate:
-            matches = [path for key, path in field.files if key == str(channel)]
-            if len(matches) != 1:
-                raise ValueError(tr("Channel {channel} is missing or ambiguous.", channel=channel))
-            path = matches[0]
-        else:
-            if len(field.files) != 1:
-                raise ValueError(tr("This field has ambiguous image files."))
-            path = field.files[0][1]
+        if channel not in info["channels"]:
+            raise ValueError(tr(
+                "Channel {channel} is missing or ambiguous. Available channels: {available}.",
+                channel=channel, available=", ".join(map(str, info["channels"])) or "—"))
+    if z_mode not in ("plane", "max", "mean"):
+        raise ValueError(tr("Choose an explicit Z plane or a maximum or mean projection."))
+    decoded_path, decoded_array = None, None
+    for channel in channels:
+        record = (next(record for record in info["files"]
+                       if str(record["file_channel"]).isdigit()
+                       and int(record["file_channel"]) == channel)
+                  if info["kind"] == "files" else info["files"][0])
+        path, axes = record["path"], record["axes"]
+        selections = {}
+        for axis, chosen in (("T", time_index), ("Z", z_index)):
+            if axis not in axes or (axis == "Z" and z_mode != "plane"):
+                continue
+            if chosen is None:
+                raise ValueError(tr("Choose explicit time and Z positions before reading this image."))
+            count = record["shape"][axes.index(axis)]
+            try:
+                chosen = operator.index(chosen)
+            except TypeError as exc:
+                raise ValueError(tr("Choose explicit time and Z positions before reading this image.")) from exc
+            if not 0 <= chosen < count:
+                raise ValueError(tr("Axis {axis} index {index} is unavailable; valid indices are 0 to {maximum}.",
+                                    axis=axis, index=chosen, maximum=count - 1))
+            selections[axis] = int(chosen)
         if path != decoded_path:
             suffix = Path(path).suffix.lower()
             if suffix == ".npy":
                 array = np.load(path, mmap_mode="r", allow_pickle=False)
-                axes = "YX" if array.ndim == 2 else "YXC"
             elif suffix in (".tif", ".tiff"):
-                import tifffile
-                with tifffile.TiffFile(path) as tif:
-                    series = tif.series[0]
-                    if math.prod(series.shape) * np.dtype(series.dtype).itemsize > 128 * 1024 ** 2:
-                        raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
-                    axes = series.axes
-                    array = series.asarray()
+                plane_channel = channel if info["kind"] == "stack" else 0
+                array = _overview_tiff_plane(record, plane_channel, selections, z_mode, edge)
+                yield channel, path, array
+                continue
             else:
                 with Image.open(path) as image:
                     if image.width * image.height > 32 * 1024 ** 2:
                         raise ValueError(tr("This image exceeds the preview decode limit."))
                     array = np.asarray(image)
-                    axes = "YX" if array.ndim == 2 else "YXC"
-            decoded_path, decoded_array, decoded_axes = path, array, axes
-        array, axes = decoded_array, decoded_axes
-        if array.ndim > 3 or array.ndim < 2:
-            raise ValueError(tr("Choose a two-dimensional field or a channel image stack."))
-        if array.ndim == 3:
-            if axes[-1] in ("C", "S"):
-                array = array[..., 0 if separate else channel]
-            elif axes[0] in ("C", "S", "Q", "I"):
-                array = array[0 if separate else channel]
-            else:
-                raise ValueError(tr("The image channel axis is unresolved."))
-        elif not separate and channel != 0:
-            raise ValueError(tr("Channel {channel} is missing or ambiguous.", channel=channel))
+            decoded_path, decoded_array = path, array
+        array = decoded_array
+        selector = tuple(channel if axis == "C" and info["kind"] == "stack"
+                         else 0 if axis == "C" else selections.get(axis, slice(None))
+                         for axis in axes)
+        array = array[selector]
+        if edge is not None:
+            stride = max(1, math.ceil(max(record["shape"][axes.index(axis)] for axis in "YX") / max(1, edge)))
+            retained = "".join(axis for axis in axes if axis not in selections and axis != "C")
+            array = array[tuple(slice(None, None, stride) if axis in "YX" else slice(None)
+                                for axis in retained)]
+        plane_size = math.prod(record["shape"][axes.index(axis)] for axis in "YX") * array.dtype.itemsize
+        if edge is None and plane_size > 128 * 1024 ** 2:
+            raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+        remaining = "".join(axis for axis in axes if axis not in selections and axis != "C")
+        if "Z" in remaining:
+            axis = remaining.index("Z")
+            array = np.max(array, axis=axis) if z_mode == "max" else np.mean(array, axis=axis)
+        if array.nbytes > 128 * 1024 ** 2:
+            raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+        if edge is not None:
+            stride = max(1, math.ceil(max(array.shape) / max(1, edge)))
+            array = array[::stride, ::stride]
         yield channel, path, array
 
 
-def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200):
+def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
+                     normalization=None, time_index=None, z_mode="plane", z_index=None):
     """Decode one bounded field and return the same RGB pixels used in PDFs."""
     from PIL import Image, ImageDraw
 
     planes = []
     columns = math.ceil(math.sqrt(len(channels))) if len(channels) > 3 else 1
+    source_planes = []
+    total_bytes = 0
+    for item in _overview_raw_planes(field, channels, time_index=time_index,
+                                     z_mode=z_mode, z_index=z_index, edge=edge):
+        total_bytes += item[2].nbytes
+        if total_bytes > 128 * 1024 ** 2:
+            raise ValueError(tr("This image exceeds the 128 MiB preview decode limit."))
+        source_planes.append(item)
+    if normalization is not None:
+        source_planes = tuple(_overview_normalized_planes(source_planes, normalization, field))
+    if edge is None:
+        edge = (max((max(array.shape) for _, _, array in source_planes), default=1)
+                + (16 if len(channels) > 3 else 0)) * columns
     tile = max(1, edge // columns)
     header = min(16, tile // 4) if len(channels) > 3 else 0
     plane_edge = max(1, tile - header)
-    for channel, path, array in _overview_raw_planes(field, channels):
+    for channel, path, array in source_planes:
         stride = max(1, math.ceil(max(array.shape) / plane_edge))
         plane = np.array(array[::stride, ::stride], dtype=np.float32, copy=True)
         finite = np.isfinite(plane)
         if not finite.any():
             raise ValueError(tr("This channel has no finite pixels."))
-        if percentiles is None:
+        if normalization is not None:
+            low, high = 0., 1.
+        elif percentiles is None:
             low, high = float(plane[finite].min()), float(plane[finite].max())
         else:
             low, high = np.percentile(plane[finite], percentiles)
@@ -1693,7 +1859,8 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200):
     return rgb
 
 
-def _overview_measurement(field, channels, cancelled=None):
+def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
+                          z_mode="plane", z_index=None, conditions=None):
     """Measure one whole-image ROI; intensity statistics exclude nonfinite values."""
     import json
     from concurrent.futures import CancelledError
@@ -1701,6 +1868,10 @@ def _overview_measurement(field, channels, cancelled=None):
 
     record = dict(plate=field.plate, well=field.well, row=field.row,
                   column=field.column, field=field.field,
+                  field_id=field.field_id or field.field,
+                  time_id=field.time_id, z_id=field.z_id,
+                  time_index=time_index, z_mode=z_mode, z_index=z_index,
+                  condition=(conditions or {}).get((field.plate, field.well), ""),
                   metadata_resolved=not field.unresolved,
                   channels=json.dumps(list(channels)),
                   source_files=json.dumps(field.files),
@@ -1711,7 +1882,8 @@ def _overview_measurement(field, channels, cancelled=None):
                   status="ok", error="")
     shape = None
     try:
-        for channel, path, plane in _overview_raw_planes(field, channels):
+        for channel, path, plane in _overview_raw_planes(field, channels,
+                time_index=time_index, z_mode=z_mode, z_index=z_index):
             if cancelled is not None and cancelled.is_set():
                 raise CancelledError()
             if not (np.issubdtype(plane.dtype, np.number)
@@ -1777,7 +1949,9 @@ def _overview_sample(fields, count=1, seed=0, grouping="well", randomize=False):
 
 
 def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=None,
-                     measurements=False):
+                     measurements=False, *, quality_edge=1000, dpi=None,
+                     normalization=None, time_index=None, z_mode="plane", z_index=None,
+                     conditions=None):
     """Write twelve bounded images per styled PDF with reproducible provenance."""
     import json
     from matplotlib.figure import Figure
@@ -1795,6 +1969,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         raise ValueError(tr("Overview files already exist here. Choose a new output folder."))
     written, errors, provenance = [], [], []
     measurement_rows = []
+    axis_options = dict(time_index=time_index, z_mode=z_mode, z_index=z_index)
     for start in range(0, len(fields), 12):
         if cancelled is not None and cancelled.is_set():
             break
@@ -1807,7 +1982,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                 break
             if measurements:
                 try:
-                    measurement_rows.append(_overview_measurement(field, channels, cancelled))
+                    measurement_rows.append(_overview_measurement(field, channels, cancelled,
+                                            conditions=conditions, **axis_options))
                     if cancelled is not None and cancelled.is_set():
                         raise CancelledError()
                 except CancelledError:
@@ -1815,17 +1991,22 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                     break
             axis = figure.add_subplot(4, 3, index + 1)
             try:
-                pixels = _overview_pixels(field, channels, percentiles, edge=1000)
-                axis.imshow(pixels)
+                pixels = _overview_pixels(field, channels, percentiles, edge=quality_edge,
+                                          normalization=normalization, **axis_options)
+                axis.imshow(pixels, interpolation="none")
                 page_images.append(pixels)
                 image_panels.append(index)
             except Exception as exc:
                 axis.text(.5, .5, str(exc), ha="center", va="center", wrap=True)
                 page_errors.append((field.caption, str(exc)))
-            axis.set_title(field.caption, fontsize=8, wrap=True)
+            condition = (conditions or {}).get((field.plate, field.well), "")
+            axis.set_title(field.caption + (" / " + condition if condition else ""), fontsize=8, wrap=True)
             axis.set_axis_off()
             page_records.append({"plate": field.plate, "well": field.well,
-                               "field": field.field, "files": field.files})
+                               "field": field.field, "files": field.files,
+                               "field_id": field.field_id or field.field,
+                               "time_id": field.time_id, "z_id": field.z_id,
+                               "condition": condition})
         if interrupted:
             figure.clear()
             break
@@ -1834,11 +2015,12 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         _register_figure_data(figure, page_images, kind="montage", fields=page_records,
                               channels=channels, percentiles=percentiles, seed=seed,
                               image_panels=image_panels, errors=page_errors,
-                              grid=(4, 3), preview_edge=1000, original_resolution=False)
+                              grid=(4, 3), preview_edge=quality_edge, original_resolution=quality_edge is None,
+                              normalization=normalization, **axis_options)
         figure.tight_layout()
         _apply_user_style(figure)
         path = destination / f"overview_{start // 12 + 1:04d}.pdf"
-        save_figure(figure, str(path), fmt="pdf", close=True)
+        save_figure(figure, str(path), fmt="pdf", close=True, dpi=dpi)
         written.append(str(path))
         provenance.extend(page_records)
         errors.extend(page_errors)
@@ -1861,7 +2043,9 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                       if row["status"] == "error" and field.caption not in known)
     metadata = {"channels": channels, "percentiles": percentiles, "seed": seed,
                 "fields": provenance, "errors": errors, "cancelled": stopped,
-                "requested_field_count": len(fields), "written_field_count": len(provenance)}
+                "requested_field_count": len(fields), "written_field_count": len(provenance),
+                "quality_edge": quality_edge, "dpi": dpi, "normalization": normalization,
+                **axis_options}
     if measurements:
         metadata["measurements"] = dict(path=csv_path, roi="whole_image",
             geometry_units="pixels", intensity_units="raw_stored_pixel_values",
@@ -1874,7 +2058,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
     return tuple(written), tuple(errors)
 
 
-def _overview_montage(fields, channels, percentiles, cancelled=None):
+def _overview_montage(fields, channels, percentiles, cancelled=None, *,
+                      normalization=None, time_index=None, z_mode="plane", z_index=None):
     """Render one bounded page of field thumbnails, using the shared pixel path."""
     from PIL import Image, ImageDraw
 
@@ -1889,7 +2074,9 @@ def _overview_montage(fields, channels, percentiles, cancelled=None):
         x, y = (index % columns) * 256, (index // columns) * 280
         draw.text((x, y), field.well + " / " + field.field, fill="white")
         try:
-            pixels = _overview_pixels(field, channels, percentiles, edge=240)
+            pixels = _overview_pixels(field, channels, percentiles, edge=240,
+                                      normalization=normalization, time_index=time_index,
+                                      z_mode=z_mode, z_index=z_index)
             preview = Image.fromarray(pixels)
             factor = min(240 / preview.width, 240 / preview.height)
             preview = preview.resize((max(1, round(preview.width * factor)),
