@@ -474,3 +474,30 @@ def test_well_mean_lazy_scalar_cache_is_bounded_and_selection_specific():
     assert plan["reference_means"] == {0: 6.}
     assert other.provenance()["reference_wells"][0]["field_identities"] == (updated.identity,)
     assert context.provenance()["reference_means"] == {0: 2.}
+
+
+def test_well_mean_wizard_transports_plate_qualified_condition_and_refuses_channel_combination(qtbot, tmp_path):
+    import tifffile
+
+    for plate in ("p", "other"):
+        tifffile.imwrite(tmp_path / f"{plate}_A01_F1_C0.tif", np.array([[1, 2]], dtype=np.uint16))
+    wizard = browser._OverviewMetadataWizard(str(tmp_path), {"channels": [0]})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    for row in range(wizard.conditions.rowCount()):
+        wizard.conditions.item(row, 2).setText("control")
+    wizard.mode.setCurrentIndex(wizard.mode.findData("reference_average"))
+    assert wizard.reference_kind.isEnabled()
+    wizard.reference_kind.setCurrentIndex(wizard.reference_kind.findData("reference_condition"))
+    assert {wizard.reference.itemData(index) for index in range(wizard.reference.count())} == {
+        ("p", "control"), ("other", "control")}
+    wizard.reference.setCurrentIndex(wizard.reference.findData(("p", "control")))
+    options = wizard.configuration()["normalization"]
+    assert options["mode"] == "reference_average"
+    assert options["reference_kind"] == "reference_condition"
+    assert options["reference"] == ("p", "control")
+    wizard.gain.setCurrentIndex(wizard.gain.findData(0))
+    with pytest.raises(ValueError, match="cannot be combined"):
+        wizard.configuration()
+    wizard.reject()
