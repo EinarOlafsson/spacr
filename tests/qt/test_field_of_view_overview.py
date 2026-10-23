@@ -50,7 +50,7 @@ def test_regex_and_multichannel_pixels_are_source_bound(tmp_path):
     assert rgb[0, 0, 0] == 0 and rgb[-1, -1, 0] == 255
     assert not rgb[..., 1:].any()
     assert browser._overview_pixels(field, (0,), (10, 90))[1, 0, 0] != rgb[1, 0, 0]
-    with pytest.raises(IndexError):
+    with pytest.raises(ValueError, match=r"Channel 2 is missing or ambiguous\. Available channels: 0, 1"):
         browser._overview_pixels(field, (2,))
 
 
@@ -125,7 +125,10 @@ def test_real_pdf_and_selection_provenance(plate_images, tmp_path, monkeypatch):
         np.testing.assert_array_equal(image, actual)
     assert spec["kind"] == "montage"
     assert spec["fields"] == [{"plate": field.plate, "well": field.well,
-                              "field": field.field, "files": field.files}
+                              "field": field.field, "files": field.files,
+                              "field_id": field.field_id or field.field,
+                              "time_id": field.time_id, "z_id": field.z_id,
+                              "condition": ""}
                              for field in selected]
     assert spec["channels"] == (1, 2) and spec["percentiles"] == (1, 99)
     assert spec["seed"] == 15 and spec["image_panels"] == list(range(len(selected)))
