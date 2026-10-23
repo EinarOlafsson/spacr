@@ -39,12 +39,14 @@ Public API:
 from __future__ import annotations
 
 import functools
+import contextlib
 import logging
 import logging.handlers
 import os
 import sys
 import threading
 import time
+import weakref
 from pathlib import Path
 from typing import Any, Callable, Iterable, Optional
 
@@ -84,13 +86,77 @@ def _quicken(handler):
     real_flush = handler.flush
     handler._spacr_flushed_at = 0.0
     handler._spacr_late_flush_pid = 0
-    handler.flush = functools.partial(_paced_flush, handler, real_flush)
+    handler._spacr_timer_owner_pid = os.getpid()
+    handler._spacr_flush_timers = weakref.WeakSet()
+    handler._spacr_late_flush = None
+    handler._spacr_flush_token = None
+    handler._spacr_emitting = False
+    handler.flush = functools.partial(_flush_handler, handler, real_flush)
     handler.emit = functools.partial(
         _emit_flushing_the_loud, handler, handler.emit, real_flush)
     return handler
 
 
 _FLUSH_INTERVAL_S = 0.25
+
+
+def _cancel_late_flush(handler) -> None:
+    """Invalidate a pending callback while its handler lock is held.
+
+    :param handler: file handler whose delayed write is no longer needed.
+    """
+    timer = getattr(handler, "_spacr_late_flush", None)
+    handler._spacr_late_flush = None
+    handler._spacr_flush_token = None
+    handler._spacr_late_flush_pid = 0
+    if (timer is not None
+            and handler._spacr_timer_owner_pid == os.getpid()):
+        timer.cancel()
+
+
+def _flush_handler(handler, real_flush) -> None:
+    """Pace emit-internal flushes; explicit callers write immediately.
+
+    :param handler: file handler owning the buffer and optional timer.
+    :param real_flush: its original synchronous flush method.
+    """
+    with handler.lock if handler.lock is not None else contextlib.nullcontext():
+        if handler._spacr_emitting:
+            _paced_flush(handler, real_flush)
+        else:
+            _cancel_late_flush(handler)
+            handler._spacr_flushed_at = time.monotonic()
+            real_flush()
+
+
+def _drain_package_logs() -> None:
+    """Flush spaCR-owned handlers and join their timers outside handler locks.
+
+    Called after pipeline cleanup and before its completion signal, so the
+    final diagnostic records and their delayed writes belong to the run
+    that produced them. Inherited timers are never joined after a fork.
+    """
+    handlers = list(dict.fromkeys(
+        logging.getLogger().handlers + logging.getLogger("spacr").handlers))
+    timers = []
+    failures = []
+    try:
+        for handler in handlers:
+            if getattr(handler, "_spacr_timer_owner_pid", None) != os.getpid():
+                continue
+            with handler.lock if handler.lock is not None else contextlib.nullcontext():
+                timers.extend(handler._spacr_flush_timers)
+                try:
+                    handler.flush()
+                except Exception as exc:
+                    failures.append(exc)
+    finally:
+        for timer in timers:
+            if timer is not threading.current_thread() and timer.ident is not None:
+                timer.cancel()
+                timer.join()
+    if failures:
+        raise failures[0]
 
 
 def _in_safe_mode() -> bool:
@@ -119,28 +185,50 @@ def _paced_flush(handler, real_flush) -> None:
     :param real_flush: its own ``flush``.
     """
     now = time.monotonic()
-    if _in_safe_mode() or now - handler._spacr_flushed_at >= _FLUSH_INTERVAL_S:
+    pid = os.getpid()
+    if getattr(handler, "_spacr_timer_owner_pid", pid) != pid:
+        handler._spacr_late_flush = None
+        handler._spacr_flush_token = None
+        handler._spacr_late_flush_pid = 0
+        handler._spacr_flush_timers = weakref.WeakSet()
+        handler._spacr_timer_owner_pid = pid
+    if (_in_safe_mode() or getattr(handler, "_closed", False)
+            or now - handler._spacr_flushed_at >= _FLUSH_INTERVAL_S):
+        _cancel_late_flush(handler)
         handler._spacr_flushed_at = now
         real_flush()
         return
-    pid = os.getpid()
     if handler._spacr_late_flush_pid == pid:
         return
     handler._spacr_late_flush_pid = pid
+    token = object()
+    handler._spacr_flush_token = token
     timer = threading.Timer(_FLUSH_INTERVAL_S, _late_flush,
-                            (handler, real_flush))
+                            (handler, real_flush, token))
+    handler._spacr_late_flush = timer
+    handler._spacr_flush_timers.add(timer)
     timer.daemon = True
     timer.start()
 
 
-def _late_flush(handler, real_flush) -> None:
-    """Write out what a burst left in ``handler``'s buffer."""
-    handler._spacr_late_flush_pid = 0
-    handler._spacr_flushed_at = time.monotonic()
-    try:
-        real_flush()
-    except Exception:
-        pass
+def _late_flush(handler, real_flush, token=None) -> None:
+    """Write out what a burst left in ``handler``'s buffer.
+
+    :param handler: file handler owning this delayed write.
+    :param real_flush: its original synchronous flush method.
+    :param token: callback generation; a cancelled or superseded one cannot
+        write. ``None`` performs an unconditional immediate callback flush.
+    """
+    lock = getattr(handler, "lock", None)
+    with lock if lock is not None else contextlib.nullcontext():
+        if token is not None and token is not handler._spacr_flush_token:
+            return
+        _cancel_late_flush(handler)
+        handler._spacr_flushed_at = time.monotonic()
+        try:
+            real_flush()
+        except Exception:
+            pass
 
 
 def _emit_flushing_the_loud(handler, real_emit, real_flush, record) -> None:
@@ -151,8 +239,13 @@ def _emit_flushing_the_loud(handler, real_emit, real_flush, record) -> None:
     :param real_flush: its own ``flush``.
     :param record: the record.
     """
-    real_emit(record)
+    handler._spacr_emitting = True
+    try:
+        real_emit(record)
+    finally:
+        handler._spacr_emitting = False
     if record.levelno >= logging.WARNING:
+        _cancel_late_flush(handler)
         handler._spacr_flushed_at = time.monotonic()
         try:
             real_flush()

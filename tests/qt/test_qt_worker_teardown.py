@@ -228,8 +228,59 @@ def test_thread_census_returns_to_baseline_after_runs_complete(
         f"completed runs; a per-run leak would show up as ~{_CYCLES}")
 
 
+@pytest.fixture
+def _census_file_logger(tmp_path):
+    """Exercise cancellation with the same real paced handler as the GUI."""
+    from spacr import logging_util
+
+    path = tmp_path / "cancelled-runs.log"
+    handler = logging_util._quicken(logging.handlers.RotatingFileHandler(path))
+    handler.addFilter(logging.Filter("spacr.qt.bridge"))
+    root = logging.getLogger()
+    logger = logging.getLogger("spacr.qt.bridge")
+    previous = logger.level
+    logger.setLevel(logging.INFO)
+    root.addHandler(handler)
+    try:
+        yield path
+    finally:
+        logging_util._drain_package_logs()
+        root.removeHandler(handler)
+        handler.close()
+        logger.setLevel(previous)
+
+
+@pytest.mark.parametrize("stderr_error", [OSError, ValueError])
+def test_a_diagnostic_flush_and_stderr_failure_cannot_suppress_completion(
+        qtbot, qt_theme_applied, monkeypatch, stderr_error):
+    """A valid completed worker still settles when both diagnostic sinks fail."""
+    from types import SimpleNamespace
+    from spacr import logging_util
+    from spacr.qt import bridge
+
+    def unavailable_flush():
+        raise OSError("log volume unavailable")
+
+    class UnavailableStderr:
+        def write(self, text):
+            raise stderr_error("original stderr unavailable")
+
+    facade = SimpleNamespace(**vars(sys))
+    facade.__stderr__ = UnavailableStderr()
+    monkeypatch.setattr(bridge, "sys", facade)
+    monkeypatch.setattr(logging_util, "_drain_package_logs", unavailable_flush)
+    thread, worker = make_thread(lambda settings: None, {}, journal=False)
+    completed = []
+    worker.finished.connect(completed.append, Qt.DirectConnection)
+    with qtbot.captureExceptions() as exceptions:
+        thread.start()
+        _join(qtbot, thread)
+    assert completed == [True]
+    assert not exceptions
+
+
 def test_thread_census_returns_to_baseline_after_runs_are_cancelled(
-        qtbot, qt_theme_applied):
+        qtbot, qt_theme_applied, _census_file_logger):
     """…and twenty jobs stopped mid-flight must not either.
 
     A cancelled run takes a different exit from ``PipelineWorker.run``
@@ -317,6 +368,9 @@ def test_thread_census_returns_to_baseline_after_runs_are_cancelled(
         f"cancelled runs; a per-run leak would show up as ~{_CYCLES}; "
         f"before={before_threads}; after={after_threads}; "
         f"extra_timers={_extra_timer_details(before_threads)}")
+    lines = _census_file_logger.read_text().splitlines()
+    assert sum("Pipeline census-stop-" in line and "cancelled:" in line
+               for line in lines) == _CYCLES + 1
 
 
 # ---------------------------------------------------------------------------

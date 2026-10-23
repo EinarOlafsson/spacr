@@ -216,7 +216,19 @@ def test_windows_wrapper_acquires_exclusive_handles_before_logging_and_cleans_ow
     assert source.index('installer-metadata", "restore"') < source.index('$Lease.Handle.Dispose()')
     assert 'if (-not $InstallerStarted) { throw $OriginalError }' in source
     assert 'if ($InstallerStarted -and -not $RetainWorkDir)' in source
-    assert 'if (-not $RetainWorkDir) {\n            Remove-Item -LiteralPath $Lease.Path' in source
+    cleanup = source[source.rindex('} finally {'):]
+    assert cleanup.index('Remove-SpacrInstallerWork') < cleanup.index('Stop-Transcript')
+    assert cleanup.index('Stop-Transcript') < cleanup.index('$Lease.Handle.Dispose()')
+    assert 'for ($LeaseIndex = $InstallerLeaseHandles.Count - 1; $LeaseIndex -ge 0; $LeaseIndex--)' in cleanup
+    retained = cleanup[:cleanup.index('$Lease.Handle.Dispose()')]
+    assert 'if ($RetainWorkDir)' in retained
+    assert '"rollback=$WorkDir`n"' in retained
+    assert retained.index('$Lease.Handle.Write(') < retained.index('$Lease.Handle.Flush()')
+    assert 'if (-not $RetainWorkDir) {\n            try { [System.IO.File]::Delete($Lease.Path) } catch {' in cleanup
+    assert cleanup.index('$Lease.Handle.Dispose()') < cleanup.index('[System.IO.File]::Delete($Lease.Path)')
+    assert 'if ($OriginalError) { Write-Warning $_.Exception.Message }' in cleanup
+    assert 'if (-not $WorkCleanupError) { $WorkCleanupError = $_ }' in cleanup
+    assert 'if ($WorkCleanupError -and -not $OriginalError) { throw $WorkCleanupError }' in cleanup
 
 
 @needs_bash
