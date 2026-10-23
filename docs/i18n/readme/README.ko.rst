@@ -38,9 +38,9 @@
    :target: https://github.com/EinarOlafsson/spacr/issues
    :alt: GitHub 이슈
 
-.. |License| image:: https://img.shields.io/badge/License-BSD--3-blue?logo=opensourceinitiative&logoColor=white
-   :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: BSD 3-Clause 라이선스
+.. |License| image:: https://img.shields.io/badge/License-Noncommercial-blue
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
+   :alt: 비상업적 라이선스
 
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
@@ -590,7 +590,15 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing.desktop.svg"><img src="../../readme_images/ko/licensing.svg" alt="라이선스. spaCR는 BSD 3-Clause 라이선스로 배포됩니다. spaCR가 출판물에 기여했다면 인용해 주시면 감사하겠습니다. 인용은 라이선스의 조건이 아닙니다. 아래의 spaCR 인용을 참조하십시오."></picture></a></div>
+   <div><a href="../../readme_text/ko/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing.desktop.svg"><img src="../../readme_images/ko/licensing.svg" alt="라이선스. 새로운 spaCR 고유 자료에는 spaCR Noncommercial License 1.0가 적용됩니다. 상업적 사용에는 별도의 서면 허가가 필요합니다. olafsson@med.umich.com로 문의하세요. 기존 BSD 라이선스로 부여된 권리와 타사 라이선스는 계속 유효합니다. 적용 범위와 고지는 LICENSE를 참조하세요."></picture></a></div>
+
+.. raw:: html
+
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing-link-1.desktop.svg"><img src="../../readme_images/ko/licensing-link-1.svg" alt="spaCR Noncommercial License 1.0"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing-link-2.desktop.svg"><img src="../../readme_images/ko/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
+
+.. raw:: html
+
+   <div><a href="../../readme_text/ko/licensing-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/licensing-2.desktop.svg"><img src="../../readme_images/ko/licensing-2.svg" alt="spaCR가 출판물에 기여했다면 인용해 주시면 감사하겠습니다. 인용은 라이선스의 조건이 아닙니다. 아래의 spaCR 인용을 참조하십시오."></picture></a></div>
 
 .. raw:: html
 

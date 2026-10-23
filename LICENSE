@@ -1,29 +1,70 @@
-BSD 3-Clause License
+spaCR Noncommercial License 1.0
+SPDX-License-Identifier: LicenseRef-spaCR-Noncommercial
 
 Copyright (c) 2025-2026, Einar Birnir Olafsson and the spaCR contributors.
-All rights reserved.
+All rights reserved except as expressly granted below.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+1. Scope and existing rights
 
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
+This license applies only to new original spaCR material first distributed
+under these terms with spaCR Agreement version 4.4. It does not replace or
+withdraw permissions already granted for previously BSD-licensed material,
+including material incorporated in this distribution. The original BSD
+3-Clause notice, conditions and disclaimer remain in LICENSE-BSD-3-Clause.
+Previously released versions retain their applicable licenses and grants.
+Separately licensed contributions, dependencies, datasets and model weights
+remain under their own terms. No rights granted by those terms are limited
+by this license. This license does not override obligations for GPL-covered
+components or combined works, or authorize a distribution that violates
+another applicable license. It does not certify every dependency combination
+or binary distribution as compatible. Only rights the licensor has authority
+to license are granted.
 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
+2. Noncommercial permission
 
-3. Neither the name of the copyright holder nor the names of its
-   contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission.
+Subject to this license, permission is granted, without a fee, to use, copy,
+modify and distribute the covered material and modifications for noncommercial
+purposes. Noncommercial research, education, teaching and personal experiments
+are permitted. Redistributions of covered material or modifications must
+include this license and its copyright notice and identify modifications.
+They must not represent commercial permission as having been granted here.
+Access for noncommercial research requires no account approval or material
+transfer agreement. Any separately applicable third-party terms still apply.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+3. Commercial use requires separate written permission
+
+Commercial use means use directed toward commercial advantage or monetary
+compensation. It includes paid analysis or other services for third parties,
+commercial hosted services, development or delivery of commercial products,
+and internal research, development or operations for commercial advantage.
+The purpose of the activity determines its status; academic, nonprofit,
+public-sector or other organizational status alone creates no exception.
+Commercial use of the covered material is not permitted without separate
+written permission from an authorized licensor. Request permission at
+olafsson@med.umich.com. This license grants no commercial permission and
+sets no price or other terms for any separate commercial license.
+
+4. Content, third-party rights and notices
+
+This license does not claim ownership of users' images, measurements,
+annotations, models, figures or other content. Their applicable ownership
+and licenses remain unchanged. Keep all applicable third-party notices and
+licenses, including rights to modify, replace, relink, obtain source,
+redistribute or reverse-engineer for debugging where those terms grant them.
+No trademark or endorsement rights are granted. Statutory rights that cannot
+be restricted by agreement are not restricted by this license.
+
+5. Warranty and liability
+
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE COVERED MATERIAL IS PROVIDED
+"AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSOR AND CONTRIBUTORS
+ARE NOT LIABLE FOR CLAIMS, DAMAGES OR OTHER LIABILITY ARISING FROM THE
+COVERED MATERIAL OR ITS USE, WHETHER IN CONTRACT, TORT OR OTHERWISE.
+
+6. Applicable grants
+
+Rights not expressly granted for the covered material are reserved.
+A separate written commercial license governs only the rights and material
+it identifies. This license is source available and is not OSI-approved.

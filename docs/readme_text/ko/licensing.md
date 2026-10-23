@@ -1,5 +1,3 @@
 ## 라이선스
 
-spaCR는 [BSD 3-Clause 라이선스](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>)로 배포됩니다.
-
-spaCR가 출판물에 기여했다면 인용해 주시면 감사하겠습니다. 인용은 라이선스의 조건이 아닙니다. 아래의 spaCR 인용을 참조하십시오.
+새로운 spaCR 고유 자료에는 [spaCR Noncommercial License 1.0](<https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>)가 적용됩니다. 상업적 사용에는 별도의 서면 허가가 필요합니다. [olafsson@med.umich.com](<mailto:olafsson@med.umich.com>)로 문의하세요. 기존 BSD 라이선스로 부여된 권리와 타사 라이선스는 계속 유효합니다. 적용 범위와 고지는 LICENSE를 참조하세요.

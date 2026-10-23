@@ -46,9 +46,9 @@ blocks:
        :target: https://github.com/EinarOlafsson/spacr/issues
        :alt: GitHub 이슈
 
-    .. |License| image:: https://img.shields.io/badge/License-BSD--3-blue?logo=opensourceinitiative&logoColor=white
-       :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-       :alt: BSD 3-Clause 라이선스
+    .. |License| image:: https://img.shields.io/badge/License-Noncommercial-blue
+       :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
+       :alt: 비상업적 라이선스
 
     .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
        :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
@@ -368,8 +368,7 @@ blocks:
     를 통해 제출하세요. 오류를 보고할 때는 spaCR 버전, 운영 체제, Python 버전, 모듈 설정 및 관련 로그 일부를 포함하십시오.
     ``spacr-doctor``\ 가 이 정보의 대부분을 수집합니다. 성능 문제를 보고할 때는 하드웨어 보고서도 포함하십시오.
 - h2: 라이선스
-- p: spaCR는 `BSD 3-Clause 라이선스 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_\
-    로 배포됩니다.
+- p: "새로운 spaCR 고유 자료에는 `spaCR Noncommercial License 1.0 <https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>`_\\ 가 적용됩니다. 상업적 사용에는 별도의 서면 허가가 필요합니다. `olafsson@med.umich.com <mailto:olafsson@med.umich.com>`_\\ 로 문의하세요. 기존 BSD 라이선스로 부여된 권리와 타사 라이선스는 계속 유효합니다. 적용 범위와 고지는 LICENSE를 참조하세요."
 - p: spaCR가 출판물에 기여했다면 인용해 주시면 감사하겠습니다. 인용은 라이선스의 조건이 아닙니다. 아래의 `spaCR 인용`_\ 을 참조하십시오.
 - h2: 튜토리얼
 - p: '`spaCR 대화형 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_는

@@ -53,9 +53,7 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "level, and the reproducibility hash records what each run used.",
      ("spacr_mode", "hash_inputs")),
     ("Terms of use",
-     "Review the terms of use and scroll to the end to enable acceptance. "
-     "Use the license link to read the full BSD 3-Clause "
-     "License.",
+     "Review the terms of use and full license. Use is noncommercial by default; commercial use requires separate written permission.",
      ()),
     ("Done", "Welcome to spaCR", ()),
 )

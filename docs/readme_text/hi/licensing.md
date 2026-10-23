@@ -1,5 +1,3 @@
 ## लाइसेंस
 
-spaCR [BSD 3-Clause लाइसेंस](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>) के अंतर्गत जारी किया जाता है।
-
-यदि spaCR ने आपके प्रकाशित कार्य में योगदान दिया है, तो उसका संदर्भ देना सराहनीय है, लेकिन यह लाइसेंस की शर्त नहीं है; नीचे spaCR का संदर्भ देखें।
+spaCR की नई मौलिक सामग्री [spaCR Noncommercial License 1.0](<https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>) के अंतर्गत लाइसेंस प्राप्त है। व्यावसायिक उपयोग के लिए अलग लिखित अनुमति आवश्यक है; [olafsson@med.umich.com](<mailto:olafsson@med.umich.com>) पर संपर्क करें। पहले दिए गए BSD लाइसेंस अधिकार और तृतीय-पक्ष लाइसेंस प्रभावी बने रहते हैं; दायरे और सूचनाओं के लिए LICENSE देखें।

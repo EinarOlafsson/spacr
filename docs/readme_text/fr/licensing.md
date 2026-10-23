@@ -1,5 +1,3 @@
 ## Licence
 
-spaCR est distribué sous la [licence BSD3-Clause](<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>).
-
-Si spaCR a contribué à des travaux publiés, une citation est appréciée et n'est pas une condition de la licence — voir Citer spaCR ci-dessous.
+Les nouveaux éléments originaux de spaCR sont sous [spaCR Noncommercial License 1.0](<https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>). Toute utilisation commerciale nécessite une autorisation écrite distincte ; contactez [olafsson@med.umich.com](<mailto:olafsson@med.umich.com>). Les droits précédemment accordés sous BSD et les licences tierces restent en vigueur ; consultez LICENSE pour le périmètre et les mentions.

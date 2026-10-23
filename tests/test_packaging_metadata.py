@@ -266,89 +266,66 @@ def test_operating_system_classifiers_are_named_explicitly():
         assert expected in cls, f"missing OS classifier: {expected}"
 
 
-def test_the_licence_is_bsd_three_clause_everywhere_it_is_declared():
-    """One licence, named the same way in all five places that declare it.
-
-    spaCR was relicensed from PolyForm Noncommercial 1.0.0 to BSD
-    3-Clause -- the licence CellProfiler, napari, Cellpose and the rest
-    of the scientific Python stack use. A noncommercial layer on top of
-    an all-BSD dependency set made spaCR the one component a core
-    facility, a company reproducing a published analysis, or a distro
-    packager could not use.
-
-    The declarations are checked TOGETHER because they are read by
-    different tools -- pip, Zenodo, GitHub's licence detector, CFF
-    parsers -- and one left behind is a package that claims two licences.
-    """
-    # A PEP 639 SPDX EXPRESSION, checked as a string. It was
-    # `license = { file = "LICENSE" }` until 2026-09-07, and setuptools >= 77
-    # rejects that table outright -- "configuration error: `project.license`
-    # must be string" -- while READING pyproject.toml, so the build stops
-    # before it starts. Every cell of the compat matrix failed on it: the
-    # sdist, the wheel, and `pip install spacr` on all six interpreters.
+def test_the_package_declares_both_prospective_and_retained_licenses():
+    """The distribution contains differently scoped material, not a BSD alternative."""
+    expression = "LicenseRef-spaCR-Noncommercial AND BSD-3-Clause"
     data = _toml_loads(_pyproject_text())
     if data is not None:
-        assert data["project"]["license"] == "BSD-3-Clause"
-        assert data["project"]["license-files"] == ["LICENSE"]
+        assert data["project"]["license"] == expression
+        assert data["project"]["license-files"] == ["LICENSE", "LICENSE-BSD-3-Clause"]
     else:
-        assert re.search(
-            r'^license\s*=\s*"BSD-3-Clause"',
-            _pyproject_text(),
-            re.MULTILINE,
-        )
-        assert re.search(
-            r'^license-files\s*=\s*\[\s*"LICENSE"\s*\]',
-            _pyproject_text(),
-            re.MULTILINE,
-        )
+        assert re.search(r'^license\s*=\s*"' + re.escape(expression) + '"',
+                         _pyproject_text(), re.MULTILINE)
+        assert re.search(r'^license-files\s*=\s*\[\s*"LICENSE"\s*,\s*"LICENSE-BSD-3-Clause"\s*\]',
+                         _pyproject_text(), re.MULTILINE)
+    assert not [c for c in _classifiers() if c.startswith("License ::")]
 
-    # AND NO License:: CLASSIFIER BESIDE IT. PEP 639 deprecates them once a
-    # SPDX expression is declared, and carrying both is the "package that
-    # claims two licences" this test exists to prevent -- the same fault as
-    # the old proprietary classifier, in the other direction.
-    classifiers = _classifiers()
-    assert not [c for c in classifiers if c.startswith("License ::")], (
-        "a License:: classifier alongside the SPDX expression")
+    current = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
+    assert "spaCR Noncommercial License 1.0" in current
+    assert "new original spaCR material first distributed" in current
+    assert "spaCR Agreement version 4.4" in current
+    assert "previously BSD-licensed material" in current
+    assert "withdraw permissions already granted" in current
+    assert "third-party" in current
+    legacy = (REPO_ROOT / "LICENSE-BSD-3-Clause").read_text(encoding="utf-8")
+    assert legacy.startswith("BSD 3-Clause License")
+    assert "Redistributions of source code must retain" in legacy
+    assert "Redistributions in binary form must reproduce" in legacy
+    assert "Neither the name of the copyright holder" in legacy
+    assert "AS IS" in legacy and "NO EVENT SHALL" in legacy
 
-    license_text = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
-    assert license_text.startswith("BSD 3-Clause License")
-    assert "Einar Birnir Olafsson" in license_text
-    # The three conditions, which are the whole of what a redistributor
-    # owes. A BSD file missing one of them is a different licence.
-    assert "Redistributions of source code must retain" in license_text
-    assert "Redistributions in binary form must reproduce" in license_text
-    assert "Neither the name of the copyright holder" in license_text
-    assert "AS IS" in license_text and "NO EVENT SHALL" in license_text
-    assert "Noncommercial" not in license_text
 
-    zenodo = json.loads(
-        (REPO_ROOT / ".zenodo.json").read_text(encoding="utf-8")
-    )
-    assert zenodo["license"] == "bsd-3-clause"
-
+def test_repository_metadata_links_the_scoped_license_without_a_bsd_or_choice():
+    zenodo = json.loads((REPO_ROOT / ".zenodo.json").read_text(encoding="utf-8"))
+    assert zenodo["license"] == "other-nc"
+    assert "spaCR Noncommercial License 1.0" in zenodo["description"]
+    assert "commercial use requires separate written permission" in zenodo["description"]
+    assert "BSD" in zenodo["description"]
+    assert "source-available" in zenodo["description"]
     citation = (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8")
-    assert re.search(r"^license:\s*BSD-3-Clause\s*$", citation, re.MULTILINE)
+    assert re.search(r"^license-url:.*LICENSE", citation, re.MULTILINE)
+    assert not re.search(r"^license:", citation, re.MULTILINE)
+    assert "BSD" in citation and "source-available" in citation
 
 
-def test_nothing_still_describes_spacr_as_source_available():
-    """"Source-available" was the honest word under PolyForm and is the
-    wrong one now: BSD 3-Clause IS open source, and hedging reads as a
-    restriction that is no longer there."""
-    for name in (".zenodo.json", "CITATION.cff", "README.rst"):
-        text = (REPO_ROOT / name).read_text(encoding="utf-8")
-        assert "source-available" not in text, (
-            f"{name} still calls spaCR source-available")
-
-
-def test_the_in_app_terms_name_the_same_licence():
-    """The setup screen asks the user to accept terms that name a
-    licence. If it names a different one from the package metadata, the
-    thing they agreed to is not the thing that ships."""
+def test_the_in_app_policy_keeps_commercial_permission_and_existing_rights_explicit():
     from spacr.qt import terms
 
-    assert terms.LICENSE_NAME == "BSD 3-Clause License"
-    assert terms.LICENSE_URL == "https://opensource.org/licenses/BSD-3-Clause"
-    assert "Noncommercial Purpose" not in "\n".join(terms.TERMS)
+    assert terms.LICENSE_NAME == "spaCR Noncommercial License 1.0"
+    assert terms.LICENSE_URL.endswith("/nightly/LICENSE")
+    clauses = {point.split(" ", 1)[0]: point for point in terms.TERMS}
+    assert "New original spaCR material" in clauses["2.1"]
+    assert "4.4" in clauses["2.1"] and "not OSI-approved open source" in clauses["2.1"]
+    assert "Noncommercial use, copying, modification and distribution" in clauses["2.2"]
+    assert "without a fee, account approval or material-transfer agreement" in clauses["2.2"]
+    assert "Commercial use requires separate written permission" in clauses["2.3"]
+    assert "commercial advantage or monetary compensation" in clauses["2.3"]
+    assert "Organizational status alone creates no exception" in clauses["2.3"]
+    assert "olafsson@med.umich.com" in clauses["2.3"]
+    assert "including commercial permissions" in clauses["2.4"]
+    assert "does not withdraw earlier grants" in clauses["2.4"]
+    assert "Third-party" in clauses["2.5"] and "their own licences" in clauses["2.5"]
+    assert "no noncommercial restriction" not in terms.terms_text("en").lower()
 
 
 def test_the_terms_version_is_bumped_whenever_the_agreement_changes():
@@ -374,13 +351,16 @@ def test_the_terms_version_is_bumped_whenever_the_agreement_changes():
     assistant instead uses its vendor's service, so 4.2 profiles are asked
     again before accepting these changed disclosures.
 
+    4.4 adds prospective noncommercial licensing while preserving existing
+    BSD grants and third-party rights; 4.3 acceptance cannot carry forward.
+
     Pinned rather than asserted-nonempty so a bump is deliberate: whoever
     changes the agreement updates this line in the same commit and says which
     clause moved.
     """
     from spacr.qt import terms
 
-    assert terms.TERMS_VERSION == "4.3"
+    assert terms.TERMS_VERSION == "4.4"
     assert any(clause.startswith("11.4 LANGUAGE.") for clause in terms.TERMS), (
         "4.1 is defined by the governing-language clause; it is missing")
     assert any(clause.startswith(

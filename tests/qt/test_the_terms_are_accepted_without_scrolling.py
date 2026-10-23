@@ -194,12 +194,10 @@ class TestRewrittenTermsAskAgain:
 
         assert terms_module.needs_agreement() is True
 
-    def test_the_relay_and_ai_rewrite_is_asked_again(self, terms_module):
-        """4.3 rewrote Sections 5 and 6 (anonymised error reports through
-        spaCR's relay, spaCR AI on by default), so acceptance of 4.2 is not
-        carried forward."""
-        assert terms_module.TERMS_VERSION == "4.3"
-        terms_module.record_agreement("4.2")
+    def test_the_noncommercial_revision_requires_a_new_agreement(self, terms_module):
+        """Accepting the BSD-era 4.3 terms does not accept prospective 4.4 terms."""
+        assert terms_module.TERMS_VERSION == "4.4"
+        terms_module.record_agreement("4.3")
 
         assert terms_module.needs_agreement() is True
 
@@ -272,3 +270,29 @@ class TestTheGateIsOpen:
         terms_module.record_agreement(terms_module.TERMS_VERSION)
         assert terms_module.agreed_version() == terms_module.TERMS_VERSION
         assert terms_module.needs_agreement() is False
+
+
+def test_the_noncommercial_hint_is_translated_in_every_supported_locale():
+    from spacr.qt import i18n
+
+    hint = ("Review the terms of use and full license. Use is noncommercial by default; "
+            "commercial use requires separate written permission.")
+    old_hint = ("Review the terms of use and scroll to the end to enable acceptance. "
+                "Use the license link to read the full BSD 3-Clause License.")
+    expected = {
+        "sv": "Läs användningsvillkoren och hela licensen. Användning är som standard icke-kommersiell; kommersiell användning kräver separat skriftligt tillstånd.",
+        "de": "Lesen Sie die Nutzungsbedingungen und die vollständige Lizenz. Standardmäßig ist die Nutzung nichtkommerziell; kommerzielle Nutzung erfordert eine gesonderte schriftliche Erlaubnis.",
+        "es": "Revise las condiciones de uso y la licencia completa. El uso es no comercial por defecto; el uso comercial requiere autorización escrita por separado.",
+        "zh_CN": "请阅读使用条款和完整许可证。默认仅供非商业用途；商业使用须另行获得书面许可。",
+        "pt": "Leia os termos de uso e a licença completa. Por predefinição, o uso é não comercial; o uso comercial exige autorização escrita separada.",
+        "hi": "उपयोग की शर्तें और पूरा लाइसेंस पढ़ें। डिफ़ॉल्ट रूप से उपयोग गैर-व्यावसायिक है; व्यावसायिक उपयोग के लिए अलग से लिखित अनुमति आवश्यक है।",
+        "ko": "이용 약관과 전체 라이선스를 읽으세요. 기본적으로 비상업적 사용이 허용되며, 상업적 사용에는 별도의 서면 허가가 필요합니다.",
+        "is": "Lesið notkunarskilmálana og leyfið í heild. Notkun er sjálfgefið ekki í viðskiptaskyni; notkun í viðskiptaskyni krefst sérstaks skriflegs leyfis.",
+        "fr": "Lisez les conditions d’utilisation et la licence complète. L’utilisation est non commerciale par défaut ; toute utilisation commerciale nécessite une autorisation écrite distincte.",
+    }
+    assert set(expected) == set(i18n.VALID_LANGUAGE_CODES) - {"en"}
+    assert hint in i18n._ROWS
+    assert old_hint not in i18n._ROWS
+    for language, target in expected.items():
+        assert i18n.tr(hint, language=language) == target
+        assert old_hint not in i18n.CATALOGS[language]
