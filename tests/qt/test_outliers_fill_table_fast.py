@@ -13,10 +13,11 @@ import pytest
 
 pytest.importorskip("PySide6")
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTableWidget
 
 from spacr.qt.screens.outliers import _fill_table
-from spacr.qt.widgets.sortable_table import install_sorting
+from spacr.qt.widgets.sortable_table import install_sorting, restore_natural_order
 
 
 #: Whether the wall-clock budgets apply: not under a line tracer such as coverage.
@@ -69,6 +70,7 @@ def test_shrinking_from_every_feature_to_one_is_cheap_and_regrowing_reuses_the_k
     install_sorting(table)
     wide, narrow = _frame(500, 280, 6), _frame(500, 3, 7)
     _fill_table(table, wide)
+    kept = tuple(table.item(row, column) for row in range(500) for column in range(280))
     started = time.perf_counter()
     _fill_table(table, narrow)
     shrink = time.perf_counter() - started
@@ -80,3 +82,32 @@ def test_shrinking_from_every_feature_to_one_is_cheap_and_regrowing_reuses_the_k
     regrow = time.perf_counter() - started
     assert regrow < 3.0 or not TIMED, f"regrowing 140 000 cells took {regrow:.2f} s"
     assert table.item(250, 279).text() == f"{wide.iloc[250, 279]:.6g}"
+
+    assert {id(table.item(row, column)) for row in range(500) for column in range(280)} == {id(item) for item in kept}
+
+
+def test_reused_cells_refresh_numeric_missing_boolean_and_natural_sort_order(qtbot):
+    table = QTableWidget()
+    qtbot.addWidget(table)
+    install_sorting(table)
+    _fill_table(table, pd.DataFrame({"number": [1, 3, 5], "flag": [False, False, False],
+                                   "word": ["old", "old", "old"]}))
+    table.item(0, 1).setFlags(table.item(0, 1).flags() & ~Qt.ItemIsEditable)
+    flags = {id(table.item(row, col)): table.item(row, col).flags()
+             for row in range(3) for col in range(3)}
+    _fill_table(table, pd.DataFrame({"number": [100, 200, 300]}))
+    fresh = pd.DataFrame({"number": [10., 2., np.nan], "flag": [True, False, None],
+                          "word": ["zebra", "apple", "pear"]})
+    _fill_table(table, fresh)
+    assert [[table.item(row, col).text() for col in range(3)] for row in range(3)] == [
+        ["10", "yes", "zebra"], ["2", "no", "apple"], ["", "", "pear"]]
+    assert {id(table.item(row, col)): table.item(row, col).flags()
+            for row in range(3) for col in range(3)} == flags
+    table.sortItems(0, Qt.AscendingOrder)
+    assert [table.item(row, 0).text() for row in range(3)] == ["2", "10", ""]
+    table.sortItems(0, Qt.DescendingOrder)
+    assert [table.item(row, 0).text() for row in range(3)] == ["10", "2", ""]
+    table.sortItems(2, Qt.AscendingOrder)
+    assert [table.item(row, 2).text() for row in range(3)] == ["apple", "pear", "zebra"]
+    restore_natural_order(table)
+    assert [table.item(row, 2).text() for row in range(3)] == ["zebra", "apple", "pear"]
