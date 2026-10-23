@@ -2870,7 +2870,7 @@ class AppScreen(QWidget):
         self._settings_model = SettingsWidgets(
             self.app_key, parent=content,
             current=AppScreen.values_the_next_screen_is_built_for)
-        if self.app_key == "mask":
+        if self.app_key in ("mask", "measure", "classify", "classify_merged"):
             from ..widgets.qc_field_browser import _open_field_overview
 
             self._settings_model._field_overview_requested = lambda: _open_field_overview(
@@ -7026,21 +7026,17 @@ class AppScreen(QWidget):
         """
         from PySide6.QtWidgets import QLineEdit
         src = getattr(self._settings_model, "_widgets", {}).get("src")
-        if isinstance(src, QLineEdit):
-            return src.text().strip()
         getter = getattr(src, "get_value", None)
         if callable(getter):
             try:
                 value = getter()
             except Exception:
                 return ""
-            if isinstance(value, (list, tuple)):
-                return next(
-                    (str(item).strip() for item in value
-                     if str(item).strip()),
-                    "",
-                )
+            while isinstance(value, (list, tuple)):
+                value = next((item for item in value if item), "")
             return "" if value is None else str(value).strip()
+        if isinstance(src, QLineEdit):
+            return src.text().strip()
         return ""
 
     def _build_empty_state_banner(self):

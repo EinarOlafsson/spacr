@@ -103,3 +103,90 @@ def test_training_folder_keeps_one_existing_browser(qtbot, monkeypatch):
     action.trigger()
     assert edit.get_value() == '/new training'
     assert len(edit.actions()) == 1
+
+
+@pytest.mark.parametrize('app', ['classify_merged', 'measure', 'map_barcodes'])
+def test_source_row_keeps_editable_paths_and_compact_actions(qtbot, monkeypatch, app):
+    from PySide6.QtWidgets import QLineEdit
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets import qc_field_browser
+
+    opened = []
+    monkeypatch.setattr(qc_field_browser, '_open_field_overview',
+                        lambda owner, settings: opened.append((owner, settings['src'])))
+    screen = AppScreen(app)
+    qtbot.addWidget(screen)
+    model = screen._settings_model
+    edit = model._widgets['src']
+    assert isinstance(edit, QLineEdit) and not edit.isReadOnly()
+    assert model.set_value_for_key('src', '/typed source')
+    assert edit.text() == '/typed source'
+    for scalar in ('123', 'None', ' folder with spaces '):
+        edit.setText(scalar)
+        assert model.collect()['src'] == scalar
+    edit.setText('/pasted source')
+    edit.editingFinished.emit()
+    assert model.collect()['src'] == '/pasted source'
+    actions = edit.actions()
+    assert len([a for a in actions if a.objectName() == 'SourceFolderBrowse']) == 1
+    assert len([a for a in actions if a.objectName() == 'CloudSourceBrowse']) == 1
+    overview = [a for a in actions if a.objectName() == 'GenerateMasksFieldOverview']
+    assert len(overview) == (0 if app == 'map_barcodes' else 1)
+    if overview:
+        overview[0].trigger()
+        assert opened == [(screen, '/pasted source')]
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', lambda *args: '')
+    _folder_action(edit).trigger()
+    assert model.collect()['src'] == '/pasted source'
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', lambda *args: '/chosen source')
+    _folder_action(edit).trigger()
+    assert model.collect()['src'] == '/chosen source'
+    assert model.set_value_for_key('src', ['/plate one', '/plate two'])
+    assert model.collect()['src'] == ['/plate one', '/plate two']
+    assert screen._settings_src_path() == '/plate one'
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', lambda *args: '/plate three')
+    _folder_action(edit).trigger()
+    assert model.collect()['src'] == ['/plate one', '/plate two', '/plate three']
+    if overview:
+        overview[0].trigger()
+        assert opened[-1] == (screen, ['/plate one', '/plate two', '/plate three'])
+    grouped = [['/control'], ['/treated']]
+    screen.apply_settings_dict({'src': grouped})
+    assert model.collect()['src'] == grouped
+    assert screen._settings_src_path() == '/control'
+    assert model._current_source_folder() == '/control'
+    _folder_action(edit).trigger()
+    assert model.collect()['src'] == [['/control'], ['/treated', '/plate three']]
+
+
+@pytest.mark.parametrize('app', ['classify_merged', 'measure', 'map_barcodes'])
+def test_source_cloud_action_keeps_existing_dialog_commit(qtbot, monkeypatch, app):
+    from PySide6.QtWidgets import QDialog
+    from spacr.qt.screens import settings_model
+    from spacr.qt.screens.app_screen import AppScreen
+
+    class CloudChoice:
+        def __init__(self, *args):
+            self.args = args
+        def exec(self):
+            return QDialog.Accepted
+        def location(self):
+            return 's3://chosen-bucket/images'
+        def options(self):
+            return {'cloud_anonymous': True, 'cloud_endpoint': 'https://example.test'}
+
+    monkeypatch.setattr(settings_model, '_CloudBrowserDialog', CloudChoice)
+    screen = AppScreen(app)
+    qtbot.addWidget(screen)
+    model = screen._settings_model
+    edit = model._widgets['src']
+    cloud = next(a for a in edit.actions() if a.objectName() == 'CloudSourceBrowse')
+    button = next(b for b in edit.findChildren(QToolButton)
+                  if b.defaultAction() is cloud)
+    assert button.focusPolicy() == Qt.StrongFocus
+    assert button.accessibleName() == cloud.toolTip()
+    cloud.trigger()
+    assert model.collect()['src'] == 's3://chosen-bucket/images'
+    for key, value in CloudChoice().options().items():
+        if key in model._widgets:
+            assert model.collect()[key] == value

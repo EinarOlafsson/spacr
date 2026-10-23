@@ -6726,6 +6726,31 @@ class _ListEdit(QLineEdit):
         self.setText(repr(v) if v is not None else "")
 
 
+class _SourcePathEdit(_ListEdit):
+    """Edit a source path while retaining saved lists and grouped sources."""
+
+    def __init__(self, value=None, parent=None):
+        """Restore the source value before attaching its existing row actions."""
+        super().__init__(parent)
+        self.set_value(value)
+
+    def get_value(self):
+        """Parse source sequences while keeping scalar folder names as text."""
+        text = self.text()
+        if not text:
+            return None
+        try:
+            value = ast.literal_eval(text)
+        except (ValueError, SyntaxError):
+            return text
+        return value if isinstance(value, (list, tuple)) else text
+
+    def set_value(self, value):
+        """Show scalar paths without quotes and preserve sequence literals."""
+        self.setText(value if isinstance(value, str) else
+                     repr(value) if value is not None else "")
+
+
 class _ValueCombo(QComboBox):
     """A dropdown settable by the value it stores, not only by its caption.
 
@@ -6886,13 +6911,21 @@ def _choose_source_folder(edit):
     except (ValueError, SyntaxError):
         values = None
     multiple = isinstance(values, (list, tuple))
-    initial = str(values[-1]) if multiple and values else current
+    last = values[-1] if multiple and values else current
+    if isinstance(last, (list, tuple)):
+        last = last[-1] if last else ""
+    initial = str(last)
     path = QFileDialog.getExistingDirectory(edit, tr("Choose folder…"), initial)
     if not path:
         return
     if multiple:
         chosen = list(values)
-        if path not in chosen:
+        if chosen and all(isinstance(group, (list, tuple)) for group in chosen):
+            group = list(chosen[-1])
+            if path not in group:
+                group.append(path)
+            chosen[-1] = tuple(group) if isinstance(chosen[-1], tuple) else group
+        elif path not in chosen:
             chosen.append(path)
         edit.setText(repr(tuple(chosen) if isinstance(values, tuple) else chosen))
     else:
@@ -7130,7 +7163,7 @@ def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
     :param model: the settings form, passed to :func:`_browse_cloud_into`.
     :returns: the button's action.
     """
-    from PySide6.QtWidgets import QStyle
+    from PySide6.QtWidgets import QStyle, QToolButton
 
     from ..i18n import tr
     from ..preferences import _apply_alpha_widgets
@@ -7140,6 +7173,10 @@ def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
     action.setObjectName("CloudSourceBrowse")
     action.setToolTip(tr("Browse cloud storage…"))
     action.triggered.connect(lambda: _browse_cloud_into(edit, model))
+    for button in edit.findChildren(QToolButton):
+        if button.defaultAction() is action:
+            button.setFocusPolicy(Qt.StrongFocus)
+            button.setAccessibleName(action.toolTip())
     _apply_alpha_widgets(edit)
     return action
 
@@ -10647,9 +10684,9 @@ class SettingsWidgets:
             widget = what()
         elif route == "plain":
             widget = self._build_plain(what)
-            self._add_source_actions(key, widget)
         else:
             return None
+        self._add_source_actions(key, widget)
         if (self.app_key == "measure"
                 and key == "intensity_calibration_reference_plate"
                 and widget is not None):
@@ -10669,7 +10706,7 @@ class SettingsWidgets:
         _attach_preview(widget, self)
 
     def _add_source_actions(self, key: str, widget: QWidget) -> None:
-        """Give the ``src`` field of Make Masks and Measure a cloud browser.
+        """Attach the existing browse actions supported by this source field.
 
         :param key: the setting the plain control edits.
         :param widget: the control just built.
@@ -10686,7 +10723,7 @@ class SettingsWidgets:
         if key in _SOURCE_FOLDER_KEYS and isinstance(widget, QLineEdit):
             _add_folder_browse_action(widget)
         overview_requested = getattr(self, "_field_overview_requested", None)
-        if (key == "src" and self.app_key == "mask" and isinstance(widget, QLineEdit)
+        if (key == "src" and self.app_key in ("mask", "measure", "classify", "classify_merged") and isinstance(widget, QLineEdit)
                 and callable(overview_requested)):
             from PySide6.QtWidgets import QToolButton
             from .. import iconset
@@ -10701,7 +10738,7 @@ class SettingsWidgets:
                     button.setObjectName("GenerateMasksFieldOverview")
                     button.setFocusPolicy(Qt.StrongFocus)
                     button.setAccessibleName(action.toolTip())
-        if (key == "src" and self.app_key in ("mask", "measure")
+        if (key == "src" and self.app_key in ("mask", "measure", "classify", "classify_merged", "map_barcodes")
                 and isinstance(widget, QLineEdit)):
             _add_cloud_browse_action(widget, self)
         if (key == "cellprofiler_pipeline" and self.app_key == "measure"
@@ -10797,6 +10834,10 @@ class SettingsWidgets:
         A numeric default must still allow a per-plate dict or a CSV path.
         """
         parent = self._parent
+        if key == "src" and self.app_key in (
+                "measure", "classify", "classify_merged", "map_barcodes"):
+            return "special", lambda: _SourcePathEdit(
+                self._defaults.get(key, default), parent)
         if key == "minimum_object_size":
             return "plain", {"control": "precise_float",
                              "value": self._defaults.get(key, default)}
@@ -11835,7 +11876,7 @@ class SettingsWidgets:
         folder of raw images and any of them will answer the question.
         """
         value = self._current_setting("src")
-        if isinstance(value, (list, tuple)):
+        while isinstance(value, (list, tuple)):
             value = value[0] if value else ""
         return "" if value is None else str(value)
 
