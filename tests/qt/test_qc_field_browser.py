@@ -249,3 +249,71 @@ def test_quarantine_is_disabled_while_measure_is_in_flight(qtbot, tmp_path):
     browser._sync_action()
     assert browser._quarantine.isEnabled()
     assert prerun.BLOCKS_RUN is False
+
+
+def test_real_async_quarantine_and_restore_preserve_masks_and_gui_delivery(qtbot, tmp_path, monkeypatch, qapp):
+    import threading
+    from PySide6.QtCore import QThread
+    from spacr.qt.widgets import qc_field_browser as module
+
+    plate = tmp_path / "plate1"
+    field = "plate1_A01_1"
+    _write_field(plate, field)
+    active = plate / "merged" / f"{field}.npy"
+    original_bytes = active.read_bytes()
+    mask_paths = tuple((plate / "norm_channel_stack").rglob("*.npy"))
+    masks = {path: path.read_bytes() for path in mask_paths}
+    target = QCFieldTarget(field=field, plate_root=str(plate), merged_dir=str(active.parent),
+                           verdicts=(QCFieldVerdict("cell", "fail", ("under_segmented",), ""),))
+    dialog = QCFieldBrowser([target], threaded=True, run_active=lambda: False)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitUntil(lambda: not dialog._jobs.is_busy() and not dialog._render_jobs.is_busy()
+                    and dialog._quarantine.isEnabled())
+    changes, workers = [], []
+    started, release = threading.Event(), threading.Event()
+    original = module._move_field
+
+    def move(*args, **kwargs):
+        import sys
+        previous = sys.gettrace()
+        inherited = threading.gettrace() if previous is None else None
+        if inherited is not None:
+            sys.settrace(inherited)
+        try:
+            workers.append(QThread.currentThread())
+            if len(workers) == 1:
+                started.set()
+                assert release.wait(5)
+            return original(*args, **kwargs)
+        finally:
+            if inherited is not None:
+                sys.settrace(previous)
+
+    monkeypatch.setattr(module, "_move_field", move)
+    dialog.quarantineChanged.connect(lambda name, state: changes.append(
+        (name, state, QThread.currentThread())))
+    quarantined = plate / "merged_quarantined" / f"{field}.npy"
+    try:
+        qtbot.keyClick(dialog._view, Qt.Key_Q)
+        qtbot.waitUntil(started.is_set)
+        assert dialog._move_jobs.is_busy() and not dialog._quarantine.isEnabled()
+        qtbot.keyClick(dialog._view, Qt.Key_Q)
+        assert len(workers) == 1 and active.is_file() and not quarantined.exists()
+        release.set()
+        qtbot.waitUntil(lambda: len(changes) == 1 and not dialog._move_jobs.is_busy()
+                        and not dialog._jobs.is_busy() and dialog._quarantine.isEnabled())
+        assert changes == [(field, True, qapp.thread())]
+        assert not active.exists() and quarantined.read_bytes() == original_bytes
+        record = json.loads(Path(f"{quarantined}.quarantine.json").read_text(encoding="utf-8"))
+        assert record["field"] == field
+        qtbot.keyClick(dialog._view, Qt.Key_Q)
+        qtbot.waitUntil(lambda: len(changes) == 2 and not dialog._move_jobs.is_busy())
+        assert changes == [(field, True, qapp.thread()), (field, False, qapp.thread())]
+        assert active.read_bytes() == original_bytes and not quarantined.exists()
+        assert all(worker != qapp.thread() for worker in workers) and len(workers) == 2
+        assert {path: path.read_bytes() for path in mask_paths} == masks
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._move_jobs.is_busy())
+        dialog.close()

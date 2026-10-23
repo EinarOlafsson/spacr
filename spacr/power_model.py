@@ -811,12 +811,7 @@ def _prior_calibration_counts(model_data, scale_global=None):
             from .qt.i18n import tr
 
             raise PowerFitError(tr("likelihood_well_ids need complete physical-well identities"))
-        try:
-            grouped.setdefault(identity, []).append(position)
-        except TypeError as exc:
-            from .qt.i18n import tr
-
-            raise PowerFitError(tr("likelihood_well_ids must be hashable physical-well identities")) from exc
+        grouped.setdefault(identity, []).append(position)
     if scale_global is not None:
         return predictors, None
     design = np.asarray(model_data.log10expression)
@@ -1380,10 +1375,6 @@ def fit_model(
         )
 
     n_prior_predictors, n_prior_observations = _prior_calibration_counts(model_data, scale_global)
-    if n_prior_observations is not None and n_prior_observations < 2:
-        from .qt.i18n import tr
-
-        raise PowerFitError(tr("a single independent physical well cannot identify gene effects"))
     if n_prior_predictors <= 1 and expected_hits is None and scale_global is None:
         from .qt.i18n import tr
 
