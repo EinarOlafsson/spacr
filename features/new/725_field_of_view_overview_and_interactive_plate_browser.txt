@@ -69,6 +69,40 @@ embedded, keyboard/close cancels once, Options/Back and source replacement pass.
 Parent QSettings guards remain intact; raw child profiles are explicitly owned.
 Prior sixteen filter checks remain retained. Faithful default/font200 native
 Options geometry on the final integrated source is still pending.
+Native57345/GxkNR5 on551c0ed79 confirms the metadata page is embedded in its
+QStackedWidget/MainWindow, in-stack and not glassed. It then fails only the
+probe's autoFillBackground assertion; QSS supplies an opaque background with
+WA_StyledBackground and may legitimately disable that flag. Attribute actual
+background painting before any product repair or opacity acceptance. No browser/
+Options phase is certified. Natural child1/35.094s/RSS0.983GiB/zero missed,
+unchanged inputs and accepted normal close; eight/sixteen unit passes retained.
+Native22640/KmTlZI on551c0ed79 proves opaque PE_Widget painting on all three
+embedded surfaces (alpha255/exact background), correct embedded pages and plate
+resize1344→1324. Untouched Options792x612 fits the work area with11px text.
+The actual PDF-quality combo full native text slot fails by ONE logical pixel:
+167x27 widget, edit field[8,5,129,17], full-source choice text[8,6,130,15], no
+icon. Do not waive the overflow or relabel it as proven cut ink. Earlier controls
+pass until this selector; remaining controls/font200 are not certified. Natural
+child1/42.017s/RSS1.044GiB/zero missed, accepted close/unchanged inputs.
+Add the focused native-style slot regression first, then reuse the established
+dynamic actual-pixel combo fitter for ONLY the proven PDF-quality selector;
+preserve every caption/data choice, font/GUI scale and grow/shrink behavior.
+Focused Cocoa regression27394 reproduces the same one-pixel contract failure
+at native minimum hint:172x27 widget/edit field134x17/full-source text135x15
+(unit font layout differs from full-app measurements); one failure6.44s/
+RSS0.306GiB. Reuse the existing _SetupComboBox locally for pdf_quality only,
+retaining PDF choices/data and the separate DPI selector. Its established fresh
+style/font/model-aware actual minimum floors impose no fixed/max size; verify
+this same selector through11→23→11px and retained Options/Back navigation.
+Green11560 proves the new PDF selector's exact Cocoa slots through11→23→11px,
+preserved data/no fixed maximum and shrinking floors. Its existing navigation
+companion fails only after manually making a bare host1440x1040: Options show
+reduces viewport height733→535, width1317 unchanged, consistent with deferred
+Cocoa work-area capping; this is not claimed as a repaired product failure.
+Only that unchanged manual-geometry contract is retaken offscreen85405 and
+PASSES5.28s/RSS0.301GiB; original combined Cocoa run6.91s/RSS0.402GiB.
+Source/test peer clears the PDF-only fitter reuse. Faithful bounded normal-app
+native acceptance must still verify Options text and no host/plate jump.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 

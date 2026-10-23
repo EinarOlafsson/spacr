@@ -3060,7 +3060,9 @@ class _FieldOverview(QWidget):
             self.export_scope.addItem(text, value)
         self.export_scope.setToolTip(tr(
             "Whole plate and well exports use the selected Z and time; explicit selections keep their own acquisition identities."))
-        self.pdf_quality, self.pdf_dpi = QComboBox(), QComboBox()
+        from .setup_dialog import _SetupComboBox
+
+        self.pdf_quality, self.pdf_dpi = _SetupComboBox(), QComboBox()
         for text, value in ((tr("PDF: full source resolution"), None),
                             (tr("PDF: 1600-pixel field"), 1600), (tr("PDF: 3200-pixel field"), 3200)):
             self.pdf_quality.addItem(text, value)
