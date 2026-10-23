@@ -1812,6 +1812,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
     from matplotlib.figure import Figure
     from ...plot import save_figure
     from ...figures.style import _apply_user_style
+    from ...figures.bundle import _register_figure_data
     from ... import tabular
     from concurrent.futures import CancelledError
 
@@ -1827,7 +1828,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         if cancelled is not None and cancelled.is_set():
             break
         figure = Figure(figsize=(12, 12))
-        page_records, page_errors = [], []
+        page_records, page_errors, page_images, image_panels = [], [], [], []
         interrupted = False
         for index, field in enumerate(fields[start:start + 12]):
             if cancelled is not None and cancelled.is_set():
@@ -1843,7 +1844,10 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                     break
             axis = figure.add_subplot(4, 3, index + 1)
             try:
-                axis.imshow(_overview_pixels(field, channels, percentiles, edge=1000))
+                pixels = _overview_pixels(field, channels, percentiles, edge=1000)
+                axis.imshow(pixels)
+                page_images.append(pixels)
+                image_panels.append(index)
             except Exception as exc:
                 axis.text(.5, .5, str(exc), ha="center", va="center", wrap=True)
                 page_errors.append((field.caption, str(exc)))
@@ -1856,6 +1860,10 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
             break
         figure.suptitle(tr("Channels: {channels}; percentiles: {percentiles}; seed: {seed}",
                           channels=str(channels), percentiles=str(percentiles), seed=seed))
+        _register_figure_data(figure, page_images, kind="montage", fields=page_records,
+                              channels=channels, percentiles=percentiles, seed=seed,
+                              image_panels=image_panels, errors=page_errors,
+                              grid=(4, 3), preview_edge=1000, original_resolution=False)
         figure.tight_layout()
         _apply_user_style(figure)
         path = destination / f"overview_{start // 12 + 1:04d}.pdf"
@@ -2107,6 +2115,8 @@ class _FieldOverview(QDialog):
         self.low.valueChanged.connect(self._refresh_image)
         self.high.valueChanged.connect(self._refresh_image)
         self._convention = str((settings or {}).get("metadata_type") or "auto")
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _choices(self):
         """Validate one display/export configuration on the GUI thread."""

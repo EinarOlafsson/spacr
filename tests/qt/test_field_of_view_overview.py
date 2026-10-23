@@ -96,7 +96,18 @@ def test_navigation_is_metadata_only_and_decodes_one_selected_field(plate_images
     dialog.close()
 
 
-def test_real_pdf_and_selection_provenance(plate_images, tmp_path):
+def test_real_pdf_and_selection_provenance(plate_images, tmp_path, monkeypatch):
+    from spacr import plot
+    original_save = plot.save_figure
+    registered = []
+
+    def save_registered(figure, *args, **kwargs):
+        registered.append((figure._spacr_image, figure._spacr_spec,
+                           [np.asarray(image.get_array()) for axis in figure.axes
+                            for image in axis.get_images()]))
+        return original_save(figure, *args, **kwargs)
+
+    monkeypatch.setattr(plot, "save_figure", save_registered)
     fields = tuple(f for f in browser._overview_index(plate_images) if not f.unresolved)
     selected = browser._overview_sample(fields, 1, 15, "well", True)
     output = tmp_path / "pdf"
@@ -108,6 +119,30 @@ def test_real_pdf_and_selection_provenance(plate_images, tmp_path):
     assert provenance["channels"] == [1, 2]
     assert [(row["plate"], row["well"], row["field"]) for row in provenance["fields"]] == [
         (field.plate, field.well, field.field) for field in selected]
+    images, spec, drawn = registered[0]
+    assert len(registered) == 1 and len(images) == len(drawn) == len(selected)
+    for image, actual in zip(images, drawn):
+        np.testing.assert_array_equal(image, actual)
+    assert spec["kind"] == "montage"
+    assert spec["fields"] == [{"plate": field.plate, "well": field.well,
+                              "field": field.field, "files": field.files}
+                             for field in selected]
+    assert spec["channels"] == (1, 2) and spec["percentiles"] == (1, 99)
+    assert spec["seed"] == 15 and spec["image_panels"] == list(range(len(selected)))
+    assert spec["preview_edge"] == 1000 and spec["original_resolution"] is False
+
+
+def test_channel_guidance_belongs_to_its_setting_label(qtbot):
+    from spacr.qt.screens.settings_model import _sibling_label_for
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    label = _sibling_label_for(dialog.channels)
+    assert label is not None
+    assert not dialog.channels.toolTip()
+    assert label.toolTip() == browser.tr(
+        "Use filename channel IDs for separate files; use zero-based indices for multichannel images.")
+    assert label.property("settingHelpLabel")
+    dialog.close()
 
 
 def test_padded_filename_channels_decode_and_reject_duplicate_channels(tmp_path):
