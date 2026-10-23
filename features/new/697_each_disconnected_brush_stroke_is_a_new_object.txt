@@ -87,6 +87,15 @@ paint-gate pass without claiming they establish current native behavior or
 new Mac performance/model-quality acceptance. Recheck only affected behavior
 following a fix; do not loosen performance assertions or rerun the whole suite.
 
+2026-10-22 Mac automated follow-up: source 8e6a76b38b, macOS 26.6.1 Intel,
+host display DPR 2. The brush-stroke owning file passed within one 101-PASS
+CPU/offscreen cohort covering diameter/brush behavior plus dialog, toggle,
+wrapped-font, 90% default/reset and API-link guards (113.40s; peak sampled
+aggregate RSS 0.869GiB under an 8GiB RSS watchdog). 101 is the total cohort,
+not a brush-only count. Synthesized events do not close actual Shift/Option
+mouse/trackpad editing, native geometry or physical undo/save acceptance;
+the native requirements above and prior Linux/tutorial evidence remain.
+
 --------------------------------------------------------------------------------
 BUILT 2026-10-13 (Home, branch feat-697-brush-labels on makemasks-paint; not
 pushed, ships after 1.5.1.5)

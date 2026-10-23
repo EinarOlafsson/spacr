@@ -22,6 +22,16 @@ module identity, fallback initial and checked/maturity behavior. The Mac lane
 retains18 passing focused fold checks, bidirectional icon-pixel regressions and
 a real Cocoa confirmation; retain passed geometry and separate unresolved
 physical/display acceptance.
+2026-10-22 affected-source native recheck passes four English100%GUI/font
+client1280x680/1366x728 dark/light cases: exact client sizes, visible groups/
+buttons/footer, aligned tabs/reset/ruler and programmatic fold/reopen; canvas
+855x156/916x204. Frames fit actual1440x900/work1440x870/DPR2, not smaller
+display modes. One90% Preferences popup opens582x568 with eight reachable tabs,
+scroll bottoms through maximum1667 and resize freedom. Three18px Modules
+switches expose a sizing regression; the scoped Toggle repair and native
+recheck restore all nine switches to at least19px with three click/restore
+checks and normal exit0. Retain earlier90% EN/DE matrices; physical input and
+restart persistence remain separate. No installer/VoiceOver/sound repeats.
 
 Follow spacr/resources/AI/MAC_HANDOFF.md and finish running N703/N646 first.
 The Mac session owns real-display layout/input acceptance and Mac-specific
