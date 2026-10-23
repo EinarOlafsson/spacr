@@ -641,8 +641,12 @@ def _ensure_alpha_surface(dialog: QWidget) -> bool:
     Qt can create the platform window before sending Polish. Merely setting
     WA_TranslucentBackground afterwards leaves that existing X11 surface
     opaque (alphaBufferSize=-1). Recreate its platform resources with an
-    explicit alpha format before it is mapped; keep the QWidget, QWindow,
-    geometry, parentage and all child state intact.
+    explicit alpha format before it is mapped; keep its QWindow identity,
+    QWidget, geometry, parentage and all child state intact. Windows needs QWidget's
+    resource recreation: an alpha format alone can leave its raster backing
+    store opaque, while destroying only QWindow bypasses the widget's native
+    translucency setup. Preserve child widgets and repair each native identity
+    once before showing it.
 
     :param dialog: window whose existing native surface must support alpha.
     :returns: true when alpha is requested, or no native window exists yet.
@@ -650,6 +654,17 @@ def _ensure_alpha_surface(dialog: QWidget) -> bool:
     window = dialog.windowHandle()
     if window is None:
         return True
+    if QApplication.platformName() == "windows":
+        identity = int(dialog.winId())
+        if dialog.property("spacrWindowsAlphaSurface") == identity:
+            return True
+        surface_format = window.format()
+        surface_format.setAlphaBufferSize(8)
+        window.setFormat(surface_format)
+        dialog.destroy(True, False)
+        dialog.create()
+        dialog.setProperty("spacrWindowsAlphaSurface", int(dialog.winId()))
+        return dialog.windowHandle().format().alphaBufferSize() >= 8
     if window.format().alphaBufferSize() >= 8:
         return True
     surface_format = window.format()
