@@ -9120,9 +9120,12 @@ def _preferences_draft(dialog) -> tuple:
         QDialog, QLineEdit, QPlainTextEdit, QScrollBar, QTextEdit, QWidget,
     )
 
+    from shiboken6 import getCppPointer
+
     widgets = list(QDialog.findChildren(dialog, QWidget))
     for page in list(getattr(dialog, "_pages_away", {}).values()):
         widgets.extend(page.findChildren(QWidget))
+    widgets.sort(key=lambda widget: getCppPointer(widget)[0])
     held = []
     for widget in widgets:
         if isinstance(widget, QComboBox):

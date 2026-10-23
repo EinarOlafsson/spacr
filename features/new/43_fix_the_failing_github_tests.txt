@@ -1,4 +1,9 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT PREFERENCES DRAFT IDENTITY FIX — 2026-10-23
+Keep unchanged cached-dialog drafts stable when pages are detached or moved.
+Order widget enumeration by native identity before collecting unchanged
+control values; preserve duplicate controls, ordered values and strict budgets.
+
 CURRENT LONG ESTIMATOR SCOPE CONTRACT — 2026-10-23
 Test the approved full-well design only on the horseshoe route, stopping
 before sampling. Independently retain real OLS row interactions and verify
@@ -4501,3 +4506,6 @@ Normal API output remains identical across 19 keys; runtime captions and API tar
 2026-10-23 — The converged-result adapter control passes (1 test, 4.48s), preserving means, deviations, posterior tails, unidentified-term filtering and summary identity without a false warning. It supplies a valid result flag and runs no sampler; this does not certify scientific convergence. Root independently reviewed the exact test; production and generated outputs are unchanged.
 
 2026-10-23 — Two estimator contracts pass (3.53s): horseshoe transport preserves the original full-well matrix, row identities, raw counts/exposure and per-well weights before sampling; real OLS retains historical interactions and agrees with an independent least-squares solution. Root reviewed the split. Production, strict scientific fixtures/assertions and generated outputs are unchanged.
+
+2026-10-23 — Actual CI diagnostics identified a false Preferences draft change caused solely by page/widget traversal order. Native identity ordering fixes it without changing captured values or weakening cache/performance limits. The real detach/reorder/value-sensitive regression and both original strict controls pass (3 tests, 9.96s); independent source/test review is accepted.
+Normal bounded API applicability confirms 223 rendered entries unchanged; runtime strings, setting targets and consumers are unaffected. No artifact regeneration is applicable; prior unrelated results are retained.
