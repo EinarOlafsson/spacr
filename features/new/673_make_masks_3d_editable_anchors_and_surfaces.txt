@@ -29,8 +29,11 @@ MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 Failure-only visibility repair: invalidate the failed GPU frame/picks and hide
 its owned image; restore visibility only for an accepted fresh frame. The new
 blocked-CPU regression fails before repair and passes afterward (13.43s,
-RSS0.446GiB); six Auto/CPU/prepaint contracts stay green. Native causal-absence,
-fresh CPU pixels/picks and normal cleanup acceptance remain pending.
+RSS0.446GiB); six Auto/CPU/prepaint contracts stay green. Scoped native Metal
+failure-to-CPU acceptance now passes on33889ac177, including causal absence,
+exact fresh pixels/two picks, original idle gates and normal cleanup. Whole-item
+FPS and physical-input acceptance remain open; this is synthetic fault coverage,
+not proof of real OS device-loss behavior.
 Next scoped native failover check: after a real owned Metal frame, inject one
 error only at that live context's render seam. Preserve the production close/
 refusal/CPU retry route; require released Metal resources, fresh current-request
@@ -93,6 +96,18 @@ inconsistent parent/child nesting contaminate timing totals (contact falsely
 names psutil/thread waits as callers); these are not reliable phase attribution
 or native completion/performance. This direct probe has no cancellation token
 or live GUI competition, unlike the native worker. No new optimization adopted.
+Native93581 on33889ac177 passes the affected full failover case: actual Intel
+Metal611x140/DPR2, cold label3 accepted with identical visible cached gate in
+24.8498s (original30s). Its uncancelled generation1 work takes23.7497s wall/
+13.9337s same-thread CPU; the9.8160s difference is waiting/descheduling or other
+off-CPU time, not a measured GIL cause. Cache identity survives spin and both
+picks without another mesh job. One injected render error yields three aligned,
+two causally absent, zero bad/unknown transition paints; old-hit pick0 leaves
+selection unchanged. Fresh CPU frame15 is exact at the normal50% fallback
+scale; two current-frame picks16/18 both return3/3 and original20s idle passes.
+Metal resources release; image/mask/history/dirty remain unchanged, normal close
+and natural exit0 pass in76.659s/RSS1.314GiB with no missed RSS samples. Retain
+earlier failures and separate highlight-lag diagnostic; no FPS/physical claim.
 First owned run stops before injection: default90% GUI scales the fixed canvas
 away from611x140. Cleanup preserves dirty/image/mask/history, but the parent
 times out280s without a final run-return marker; this is not native failover
