@@ -781,7 +781,9 @@ class SetupSlides(QDialog):
         STATE rather than as a task, which is what these settings are.
         """
         if choices:
-            box = QComboBox()
+            from .setup_dialog import _SetupComboBox
+
+            box = _SetupComboBox()
             for data, caption in choices:
                 box.addItem(str(caption), data)
             index = box.findData(value)

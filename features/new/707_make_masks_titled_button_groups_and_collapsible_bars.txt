@@ -40,6 +40,24 @@ already-measured width through the existing actual-dimension helper, preserving
 the band/floor placement. Three affected checks pass (8.46s/RSS0.456GiB,
 natural exit0); existing fixtures warn of a live grain compiler at session end.
 Native affected recheck and combo selected-text/arrow attribution remain pending.
+Native85004 on3a8932cb4 confirms the GPU-note repair across all five slides,
+with no remaining rich-text height error. Strict native combo-slot checks still
+fail: four offered-choice widths exceed slide edit fields by small amounts
+(Português106 versus105px; spaCR advection171 versus169px), and three grouped
+edit fields are29/30px high versus Qt line boxes32/33px. Tight glyph ink may fit;
+this establishes insufficient full text slots/padding, not proof of cut glyphs.
+Preserve strict offered-text/arrow fit as a proactive font-aware minimum-sizing
+contract, including live font/style changes. Default passes and all initial-frame,
+reachability and intrinsic checks remain retained; no native acceptance yet.
+Natural exit1 in33.727s/RSS1.192GiB/zero missed, no missing-font aliases.
+Both setup-editor factory regressions fail before the combo floor repair
+(3.07s/RSS0.242GiB): constrained native text slots can be shorter than Qt's
+full line box. A shared private setup combo derives actual minimums from fresh
+native hints, style edit-field insets and every offered text slot, updating on
+font/style/model changes without fixed/max sizes or changed choices/signals.
+Two strengthened checks pass (2.96s/RSS0.244GiB), including the same widget's
+font90→200→90 floor reset, long-choice insert/remove and padding change/reset;
+selected data stays unchanged. Native affected acceptance remains pending.
 
 Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
 public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.

@@ -38,6 +38,70 @@ def _headings(dialog):
             if label.text().startswith("<b>")]
 
 
+@pytest.mark.parametrize('presentation', ['slides', 'grouped'])
+def test_setup_combos_keep_all_offered_text_slots_when_fonts_change(qtbot, presentation):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QSize, Qt
+    from PySide6.QtWidgets import QStyle, QStyleOptionComboBox
+    from spacr.qt import gui_scale, theme
+    from spacr.qt.widgets.setup_slides import SetupSlides
+
+    previous = gui_scale.current_scale()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(.9)
+    choices = [('a', 'Português'), ('b', 'spaCR advection'), ('c', 'Extra Performance')]
+    if presentation == 'slides':
+        combo = SetupSlides._editor(SimpleNamespace(), 'spacr_mode', choices, 'a')
+    else:
+        combo = sd.SetupDialog._editor('spacr_mode', choices, 'a')
+    qtbot.addWidget(combo)
+    try:
+        floors = []
+        for scale in (.9, 2.0, .9):
+            combo.setStyleSheet(theme.stylesheet('dark', font_scale=scale))
+            combo.ensurePolished()
+            combo.show()
+            QApplication.processEvents()
+            expected = gui_scale.scale_int(theme.font_px('body', scale), .9)
+            assert combo.font().pixelSize() == expected
+            hint = combo.minimumSizeHint()
+            gui_scale._resize_actual(combo, hint)
+            option = QStyleOptionComboBox()
+            option.initFrom(combo)
+            option.rect = combo.rect()
+            option.frame = combo.hasFrame()
+            option.editable = combo.isEditable()
+            field = combo.style().subControlRect(QStyle.CC_ComboBox, option, QStyle.SC_ComboBoxEditField, combo)
+            flags = int(Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine)
+            for index in range(combo.count()):
+                text = combo.style().itemTextRect(combo.fontMetrics(), field, flags, True, combo.itemText(index))
+                assert field.contains(text), (presentation, scale, combo.rect(), field, text)
+            gui_scale._resize_actual(combo, QSize(combo.width(), max(1, hint.height() - 5)))
+            option.rect = combo.rect()
+            field = combo.style().subControlRect(QStyle.CC_ComboBox, option, QStyle.SC_ComboBoxEditField, combo)
+            text = combo.style().itemTextRect(combo.fontMetrics(), field, flags, True, combo.currentText())
+            assert field.contains(text), (presentation, scale, combo.rect(), field, text)
+            floors.append((combo.minimumWidth(), combo.minimumHeight()))
+            assert combo.currentData() == 'a'
+        assert floors[-1] == floors[0]
+        assert floors[1][1] > floors[0][1]
+        combo.addItem('An extra long optional setup choice', 'long')
+        assert combo.minimumWidth() > floors[-1][0]
+        assert combo.currentData() == 'a'
+        combo.removeItem(combo.count() - 1)
+        assert (combo.minimumWidth(), combo.minimumHeight()) == floors[-1]
+        combo.setStyleSheet(theme.stylesheet('dark', font_scale=.9)
+                           + '\nQComboBox { padding: 20px 20px; }')
+        QApplication.processEvents()
+        assert combo.minimumHeight() > floors[-1][1]
+        combo.setStyleSheet(theme.stylesheet('dark', font_scale=.9))
+        QApplication.processEvents()
+        assert (combo.minimumWidth(), combo.minimumHeight()) == floors[-1]
+    finally:
+        combo.close()
+        gui_scale.set_gui_scale_live(previous)
+
+
 # ---------------------------------------------------------------------------
 # the backdrop
 # ---------------------------------------------------------------------------
