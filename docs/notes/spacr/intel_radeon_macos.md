@@ -46,6 +46,10 @@ btrack optimization, all 54 GUI modules, native rendering and shutdown.
 Some suites overlap; their counts must not be summed as unique tests.
 The broad battery used nightly `6df3d8184` plus these hardware fixes; integration
 onto subsequent nightly updates is checked with targeted workflow and GUI suites.
+The publication checks passed 180 workflow tests, nine targeted GUI regressions
+and four native Mac window cases. Review also corrected PCA whitening at very
+small feature scales, rejected broadcastable missing feature columns and fixed
+generic window clamping that applied the GUI scale twice to screen dimensions.
 
 Raw Torch 2.2 Metal probes exposed unsupported float64/bfloat16/complex storage,
 Conv3D, FFT, pinv and nondivisible adaptive pooling. These are upstream limits,

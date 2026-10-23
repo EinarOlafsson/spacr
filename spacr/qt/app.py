@@ -226,21 +226,24 @@ def _fit_to_the_work_area(window, screen=None, lower_minimum=True) -> bool:
         room.setWidth(max(1, room.width() - border_w))
         room.setHeight(max(1, room.height() - border_h))
         if lower_minimum:
-            from .gui_scale import _fit_main_window_minimum
+            from .gui_scale import (_actual_minimum_size,
+                                    _fit_main_window_minimum, _set_actual_dim)
 
             if not _fit_main_window_minimum(window, screen):
-                window.setMinimumSize(window.minimumSize().boundedTo(room))
+                minimum = _actual_minimum_size(window)
+                bounded = minimum.boundedTo(room)
+                if bounded.width() != minimum.width():
+                    _set_actual_dim(window, "minw", bounded.width())
+                if bounded.height() != minimum.height():
+                    _set_actual_dim(window, "minh", bounded.height())
         if window.isMaximized() or window.isFullScreen():
             return False
         size = inner.size().boundedTo(room)
         changed = size != inner.size()
         if changed:
-            if getattr(window, "_gs_main_window_floor", False):
-                from .gui_scale import _resize_actual
+            from .gui_scale import _resize_actual
 
-                _resize_actual(window, size)
-            else:
-                window.resize(size)
+            _resize_actual(window, size)
         placed = (window.isVisible()
                   or window.testAttribute(Qt.WidgetAttribute.WA_Moved))
         if placed:

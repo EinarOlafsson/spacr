@@ -104,6 +104,10 @@ def test_main_window_live_scaled_floor_fits_native_work_area_without_losing_base
         child.hide()
         app_mod._show_at_launch(window)
         qtbot.waitExposed(window)
+        # Resize a restored window; a maximized offscreen window manager
+        # immediately reapplies the desktop size to native resize requests.
+        window.showNormal()
+        qapp.processEvents()
         for scale in (2., .1, 2.):
             gui_scale.set_gui_scale_live(scale)
             app_mod._fit_to_the_work_area(window)
@@ -117,10 +121,13 @@ def test_main_window_live_scaled_floor_fits_native_work_area_without_losing_base
                 assert actual.width() <= 1200 and actual.height() <= 640, (scale, actual)
                 from PySide6.QtCore import QSize
                 margins = handle.frameMargins()
-                base = QSize(min(handle.width(), work.width() - margins.left() - margins.right() - 20),
-                             min(handle.height(), work.height() - margins.top() - margins.bottom() - 20))
+                base = QSize(min(handle.width(), work.width() - margins.left() - margins.right()),
+                             min(handle.height(), work.height() - margins.top() - margins.bottom()))
                 assert base.width() >= actual.width() and base.height() >= actual.height()
-                for target in (base, base + QSize(20, 20), base):
+                # The offscreen desktop can be only 800 px wide: its minimum
+                # fills that axis, leaving resize room on the other axis only.
+                smaller = (base - QSize(20, 20)).expandedTo(actual)
+                for target in (smaller, base, smaller):
                     handle.resize(target)
                     qtbot.waitUntil(lambda: handle.size() == target, timeout=2000)
                     assert work.contains(handle.frameGeometry())
@@ -306,7 +313,9 @@ def test_an_oversized_window_is_clamped_into_the_work_area(qtbot, work):
     assert app_mod._fit_to_the_work_area(window, _Screen(work))
     frame = window.frameGeometry()
     assert work.contains(frame)
-    assert window.minimumSize().height() <= work.height()
+    from spacr.qt.gui_scale import _actual_minimum_size
+
+    assert _actual_minimum_size(window).height() <= work.height()
 
 
 def test_a_window_that_fits_is_left_where_it_is(qtbot):
@@ -323,11 +332,42 @@ def test_a_window_that_fits_is_left_where_it_is(qtbot):
 def test_an_unplaced_window_is_sized_but_left_for_the_window_manager(qtbot):
     window = QWidget()
     qtbot.addWidget(window)
-    window.resize(1200, 720)
+    from PySide6.QtCore import QSize
+    from spacr.qt.gui_scale import _resize_actual
+
+    _resize_actual(window, QSize(1200, 720))
     assert app_mod._fit_to_the_work_area(
         window, _Screen(QRect(0, 32, 1280, 680)))
     assert window.height() <= 680
     assert not window.testAttribute(Qt.WidgetAttribute.WA_Moved)
+
+
+@pytest.mark.parametrize("scale", [.5, 2.])
+def test_generic_window_clamping_uses_actual_pixels_at_nondefault_scale(qtbot, scale):
+    from spacr.qt import gui_scale
+
+    old_scale = gui_scale.current_scale()
+    window = None
+    try:
+        gui_scale.install_scaling_layer()
+        gui_scale.set_gui_scale_live(scale)
+        window = QWidget()
+        qtbot.addWidget(window)
+        window.setMinimumSize(1200, 720)
+        window.show()
+        window.setGeometry(400, 300, 1920, 1080)
+        work = QRect(0, 32, 1280, 680)
+        frame, inner = window.frameGeometry(), window.geometry()
+        border = frame.size() - inner.size()
+        assert app_mod._fit_to_the_work_area(window, _Screen(work))
+        assert window.geometry().size() == work.size() - border
+        assert work.contains(window.frameGeometry())
+        minimum = gui_scale._actual_minimum_size(window)
+        assert minimum.width() <= window.width() and minimum.height() <= window.height()
+    finally:
+        if window is not None:
+            window.close()
+        gui_scale.set_gui_scale_live(old_scale)
 
 
 def test_a_framed_launch_on_a_720p_screen_fits(qtbot, qt_theme_applied,
