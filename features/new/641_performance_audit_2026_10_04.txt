@@ -32,8 +32,10 @@ other-platform fallbacks. Ten affected font checks pass; colors/layout stay.
 The first ten-site native check still warned (202 ms), with normal app return.
 Targeted stored-font/QSS snapshots then exposed actual tour buttons' remaining
 generic fallback; only their two observed generators were additionally fixed.
-Native warning closure remains pending the affected clean Home→Mask run;
-unit passes and instrumented samples do not close performance or physical gates.
+Unprofiled native d70875967 Home→Mask now passes with no missing-family alias
+warning, both screens usable and normal exit0; sampled RSS0.942GiB/0 missed.
+No candidate, sampling or traceback hooks were enabled. Startup/stall and
+physical gates remain open; this check is font-warning acceptance only.
 
 The CPU/offscreen audit remains DONE at its recorded scope. This section
 makes its existing quiet real-display follow-up actionable; it does not add
