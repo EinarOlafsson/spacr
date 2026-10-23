@@ -95,6 +95,24 @@ aggregate RSS 0.869GiB under an 8GiB RSS watchdog). 101 is the total cohort,
 not a brush-only count. Synthesized events do not close actual Shift/Option
 mouse/trackpad editing, native geometry or physical undo/save acceptance;
 the native requirements above and prior Linux/tutorial evidence remain.
+Live human-input follow-up on20fc079b95,2026-10-22: an isolated Cocoa2D
+fixture records spontaneous unmodified press/drag/release with Brush6px.
+The stroke extends label1 from2449 to17960 pixels; Undo then restores2449
+and the runtime mask exactly equals the original fixture pixel values, with
+history undo/redo counts2/0 to1/1. The maintainer confirms using Undo; its
+exact key/action trigger was intercepted before the canvas observer and is
+not independently captured. Runtime uint8 versus TIFF uint16 is not claimed
+byte-identical file dtype. One stroke+Undo passes; ordinary disconnected-new-ID,
+Option-pan and native-shortcut-specific acceptance remain pending.
+The subsequent real Shift gesture logs Qt modifier33554432 on press/release.
+Snapshots4→11 add19672 pixels with current ID1, preserve all prior pixels and
+increase that ID's8-connected components1→2; the new component's minimum
+Chebyshev distance to prior ID1 is7 pixels. This proves Shift continuation
+across a real background gap, not merely a touching stroke. The maintainer
+confirms Shift continuation works in the live fixture. Two later Shift strokes
+retain ID1 while touching existing content. The intervening unmodified
+stroke also touches ID1, so it does not prove ordinary disconnected-new-ID.
+The owned app remains live for the next human action; no input was synthesized.
 
 --------------------------------------------------------------------------------
 BUILT 2026-10-13 (Home, branch feat-697-brush-labels on makemasks-paint; not

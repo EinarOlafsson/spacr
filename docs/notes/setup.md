@@ -7,9 +7,40 @@ Entries are grouped by the function or class they sat in and carry the line they
 
 ## Current dependency decisions (2026-10-21)
 
+### Intel macOS binary compatibility follow-up (2026-10-22)
+
+A real Apple Silicon installation used Intel Conda Python 3.12 and selected
+Intel package targets, but newest ModernGL, GLContext and Cryptography had
+stopped publishing Intel Mac wheels. Their source builds reached an ARM-only
+Xcode toolchain and failed. Existing Intel environments now select ModernGL
+5.12 (`<5.13`), GLContext 3.0 (`<3.1`) and Cryptography 48 (`<49`) through
+Darwin/x86_64-specific metadata; ARM and other platforms retain current bounds.
+The flow-gpu extra and released-package installer guards preserve the same
+limits. Actual CPython 3.12/macOS 26 binary downloads resolve all nine wheels
+for the affected Paramiko/graphics graph on each architecture: Intel selects
+5.12.0/3.0.0/48.0.1 and ARM retains 5.13.0/3.1.0/50.0.2, both with Paramiko 5.1.0.
+This qualifies those targets, not every Python/OS combination or native GUI.
+In particular, these older Intel graphics releases publish no CPython 3.14
+wheel; this change does not invent one or certify that existing platform gap.
+The Cryptography Intel bound follows currently published wheels, not a promise
+of indefinite security support; revisit it when upstream support changes.
+
+Online managed Mac installers restart a verified Rosetta process as native ARM
+and use explicit architecture-qualified managed-Python requests at every install,
+find and venv step. This prevents Intel managed caches or `UV_PYTHON_ARCH` from
+silently selecting an emulated Python. Explicit offline bundles and genuine
+Intel hosts retain their targets. Existing Conda/pip interpreters are not
+rewritten or migrated; the conditional binary-compatible dependencies apply
+inside an Intel environment as well. The existing conda-forge recipe resolves
+compiled dependencies through conda packages; no speculative pip wheel caps or
+unrelated optional promotions were added to that separate recipe.
+
+
 This section supersedes the historical bounds and optional-package decisions below.
-All 127 unique distributions declared in `setup.py` were checked against official
-PyPI release JSON, including every extra and interpreter marker. The linked
+The 2026-10-21 audit covered 127 unique distributions then declared in
+`setup.py`, using official PyPI release JSON for every extra and interpreter
+marker. The dated Intel macOS follow-up above adds the two direct constraints
+on GLContext and Cryptography using their current official metadata. The linked
 release metadata supplies `Requires-Python`, `Requires-Dist` and wheel filenames.
 “3.10 latest” means interpreter-compatible release metadata, not a promise that
 all such releases resolve together. Dependencies shared by extras are listed once;
@@ -66,6 +97,7 @@ newer-interpreter tests passing that release.
 | [cucim-cu12](https://pypi.org/pypi/cucim-cu12/json) | 26.10.0 | `>=3.11` | 26.2.1 | gpu | `>=24.0`. Keep CUDA extra: CUDA 12 native stack; RAPIDS 26.10 also requires Numba <0.65, conflicting with newest 0.68. |
 | [cuml-cu12](https://pypi.org/pypi/cuml-cu12/json) | 26.10.0 | `>=3.11` | 26.2.0 | rapids | `>=25.2`. Keep CUDA extra: CUDA 12 native stack; RAPIDS 26.10 requires Numba <0.65, conflicting with newest 0.68. |
 | [cupy-cuda12x](https://pypi.org/pypi/cupy-cuda12x/json) | 14.2.0 | `>=3.10` | 14.2.0 | gpu, rapids | `>=13.0`. Keep CUDA extra: CUDA 12 runtime required; excluded from the CPU installation. |
+| [cryptography](https://pypi.org/pypi/cryptography/json) | 50.0.2 | `>=3.9,!=3.9.0,!=3.9.1` | 50.0.2 ARM / 48.0.1 Intel Mac | conditional default | `<49` on Darwin/x86_64 only; latest releases lack Intel Mac wheels. Paramiko 5.1 resolves with 48.0.1; ARM latest is retained. |
 | [cycler](https://pypi.org/pypi/cycler/json) | 0.12.1 | `>=3.8` | 0.12.1 | default | `<1,>=0.10`. Retain existing floor and API-family guard admitting latest compatible stable. |
 | [czifile](https://pypi.org/pypi/czifile/json) | 2026.10.14 | `>=3.12` | 2019.7.2.2 | default, all, czi | `unbounded`. Remain unbounded; upstream Python/dependency metadata selects compatible stable. |
 | [dinocell](https://pypi.org/pypi/dinocell/json) | 0.74 | `unspecified` | 0.74 | dinocell | `<1.0,>=0.74`. Keep extra: exact Cellpose 4.0.9 / NumPy 2.4.3 / Torch 2.10.0 / Hub 1.7.1 pins contradict newest core. |
@@ -75,6 +107,7 @@ newer-interpreter tests passing that release.
 | [fastremap](https://pypi.org/pypi/fastremap/json) | 1.21.0 | `<4.0,>=3.9` | 1.21.0 | default | `>=1.14.1`. Retain existing floor and API-family guard admitting latest compatible stable. |
 | [fsspec](https://pypi.org/pypi/fsspec/json) | 2026.9.0 | `>=3.10` | 2026.9.0 | default, cloud | `>=2023.1`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
 | [gcsfs](https://pypi.org/pypi/gcsfs/json) | 2026.10.1 | `>=3.10` | 2026.10.1 | default, cloud | `>=2023.1`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [glcontext](https://pypi.org/pypi/glcontext/json) | 3.1.0 | `unspecified` | 3.1.0 ARM / 3.0.0 Intel Mac | conditional default; ModernGL dependency | `>=3.0,<3.1` on Darwin/x86_64 only; latest has ARM Mac wheels but no Intel Mac wheels. |
 | [glum](https://pypi.org/pypi/glum/json) | 3.4.1 | `>=3.10` | 3.4.1 | default, glum | `<4,>=3.1.2`. Retain existing floor and API-family guard admitting latest compatible stable. |
 | [gputil](https://pypi.org/pypi/gputil/json) | 1.4.0 | `unspecified` | 1.4.0 | default | `<2.0,>=1.4.0`. Retain existing floor and API-family guard admitting latest compatible stable. |
 | [gpytorch](https://pypi.org/pypi/gpytorch/json) | 1.15.2 | `>=3.10` | 1.15.2 | default, gpytorch | `<2,>=1.11`. Retain existing floor and API-family guard admitting latest compatible stable. |
@@ -96,7 +129,7 @@ newer-interpreter tests passing that release.
 | [markdown-it-py](https://pypi.org/pypi/markdown-it-py/json) | 4.2.0 | `>=3.10` | 4.2.0 | dev | `<5,>=2.2`. Keep development/test/build tool; retain floor and guard admitting latest compatible stable. |
 | [matplotlib](https://pypi.org/pypi/matplotlib/json) | 3.11.2 | `>=3.11` | 3.10.9 | default | `<4.0,>=3.8.3`. Retain existing floor and API-family guard admitting latest compatible stable. |
 | [matplotlib_venn](https://pypi.org/pypi/matplotlib_venn/json) | 1.1.2 | `unspecified` | 1.1.2 | default | `<2.0,>=1.1`. Retain existing floor and API-family guard admitting latest compatible stable. |
-| [moderngl](https://pypi.org/pypi/moderngl/json) | 5.13.0 | `>=3.7` | 5.13.0 | default, flow-gpu | `<6,>=5.12`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
+| [moderngl](https://pypi.org/pypi/moderngl/json) | 5.13.0 | `>=3.7` | 5.13.0 | default, flow-gpu | `<6,>=5.12` normally; `>=5.12,<5.13` on Intel Mac. ModernGL 5.13 dropped Intel wheels; retain latest ARM release and newest Intel wheel line. |
 | [mpmath](https://pypi.org/pypi/mpmath/json) | 1.4.1 | `>=3.9` | 1.4.1 | default | `<2,>=1.3`. Keep broad <2; GPyTorch itself selects <=1.3.0. No duplicate spaCR cap. |
 | [mrcfile](https://pypi.org/pypi/mrcfile/json) | 1.5.4 | `unspecified` | 1.5.4 | default, all, tem | `<2,>=1.5`. Promote runtime feature; retain floor and current API-family guard; admits latest compatible stable. |
 | [mypy](https://pypi.org/pypi/mypy/json) | 2.4.0 | `>=3.10` | 2.4.0 | dev | `<3,>=1.11`. Keep dev; raise API-family guard to <3 to admit current 2.x. |
