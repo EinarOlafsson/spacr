@@ -2297,6 +2297,8 @@ def ai_summary_prompt(summary: Mapping[str, Any]) -> str:
     shown = {key: value for key, value in _validated_summary(summary).items()
              if key not in ("install_id", "ai_summary", "summarize",
                             "dry_run", "user_note")}
+    if summary.get("_batch_errors"):
+        shown["batched_errors"] = summary["_batch_errors"]
     return (
         "Below is an anonymised spaCR error report as JSON. Summarise the "
         "likely cause of the error and where in spaCR it happens (module, "
@@ -2418,6 +2420,95 @@ def _open_url(request: Any, timeout: float) -> Any:
     return urllib.request.urlopen(request, timeout=timeout)
 
 
+@_contextmanager
+def _hosted_error_context():
+    """Mark error advice without mistaking contextual ordinary chat for errors."""
+    previous = getattr(_ERROR_DISPATCH_LOCAL, "error_ai", False)
+    _ERROR_DISPATCH_LOCAL.error_ai = True
+    try:
+        yield
+    finally:
+        _ERROR_DISPATCH_LOCAL.error_ai = previous
+
+
+def _reserve_hosted_request(*, error=False, now=None):
+    """Reserve one actual hosted request under the persisted installation lock.
+
+    Rolling sixty-second request timestamps exclude the left endpoint. Error
+    saturation uses consecutive windows anchored at the first error; three full windows start
+    an error-only hour pause after the ninth admitted request.
+    """
+    now = time.time() if now is None else float(now)
+    with _STATE_LOCK:
+        state = _read_state()
+        guard = dict(state.get("ai_request_guard") or {})
+        until = float(guard.get("error_cooldown_until", 0) or 0)
+        if error and until > now:
+            raise RelayRefused("cooldown", "error cooldown", scope="local",
+                               resets_at=datetime.fromtimestamp(until, timezone.utc))
+        requests = [float(value) for value in guard.get("requests", [])
+                    if now - 60 < float(value) <= now]
+        if len(requests) >= 3:
+            raise RelayRefused("rate", "three requests per minute", scope="local",
+                resets_at=datetime.fromtimestamp(requests[0] + 60, timezone.utc))
+        requests.append(now)
+        guard["requests"] = requests
+        anchor = float(guard.get("error_anchor", now))
+        if anchor > now:
+            anchor = now
+        minute = int((now - anchor) // 60)
+        counts = {str(key): int(value) for key, value in
+                  (guard.get("error_minutes") or {}).items()
+                  if minute - 2 <= int(key) <= minute}
+        if error and not counts:
+            anchor, minute = now, 0
+        reservation = dict(error=bool(error), minute=minute, anchor=anchor, token="")
+        if error:
+            counts[str(minute)] = min(3, counts.get(str(minute), 0) + 1)
+            if all(counts.get(str(minute - offset), 0) >= 3 for offset in range(3)):
+                guard["error_cooldown_until"] = now + 3600
+                reservation["token"] = uuid.uuid4().hex
+                guard["cooldown_reservation"] = reservation["token"]
+                guard["cooldown_window"] = dict(anchor=anchor, minute=minute,
+                                               counts=dict(counts))
+        guard["error_anchor"] = anchor
+        guard["error_minutes"] = counts
+        state["ai_request_guard"] = guard
+        _write_state(state)
+        return reservation
+
+
+def _refund_cached_error(reservation):
+    """A proven relay cache hit is not a model error ping or a saturated minute."""
+    if not reservation.get("error"):
+        return
+    with _STATE_LOCK:
+        state = _read_state()
+        guard = dict(state.get("ai_request_guard") or {})
+        if guard.get("error_anchor") == reservation["anchor"]:
+            counts = dict(guard.get("error_minutes") or {})
+            key = str(reservation["minute"])
+            if key in counts:
+                counts[key] = max(0, counts[key] - 1)
+            guard["error_minutes"] = counts
+        window = dict(guard.get("cooldown_window") or {})
+        if window.get("anchor") == reservation["anchor"]:
+            counts = dict(window.get("counts") or {})
+            key = str(reservation["minute"])
+            if key in counts:
+                counts[key] = max(0, counts[key] - 1)
+            if not all(counts.get(str(window["minute"] - offset), 0) >= 3
+                       for offset in range(3)):
+                guard["error_cooldown_until"] = 0
+                guard.pop("cooldown_reservation", None)
+                guard.pop("cooldown_window", None)
+            else:
+                window["counts"] = counts
+                guard["cooldown_window"] = window
+        state["ai_request_guard"] = guard
+        _write_state(state)
+
+
 def _post_json(route: str, payload: Optional[Mapping[str, Any]],
                timeout: float) -> Tuple[int, Dict[str, Any]]:
     """POST ``payload`` to the relay, or GET when it is ``None``.
@@ -2439,6 +2530,16 @@ def _post_json(route: str, payload: Optional[Mapping[str, Any]],
                           separators=(",", ":")).encode("utf-8")
         request = urllib.request.Request(
             relay_url() + route, data=body, method="POST", headers=headers)
+    uses_ai = (payload is not None and (route == "/diagnose" or
+               route == "/report" and payload.get("summarize") is True
+               and not payload.get("ai_summary")))
+    reservation = None
+    if uses_ai:
+        if not network_allowed():
+            raise RelayRefused("network", "network disabled")
+        reservation = _reserve_hosted_request(error=(route == "/report" or
+            getattr(_ERROR_DISPATCH_LOCAL, "error_ai", False) or
+            route == "/diagnose" and payload.get("question", "") in ("", EXPLAIN_QUESTION)))
     try:
         with _open_url(request, timeout) as response:
             status = int(getattr(response, "status", 0)
@@ -2454,6 +2555,9 @@ def _post_json(route: str, payload: Optional[Mapping[str, Any]],
         data = json.loads(raw.decode("utf-8", "replace") or "{}")
     except ValueError:
         data = {}
+    if reservation is not None and isinstance(data, dict) and status == 200 and (
+            data.get("cached") is True or data.get("ai_summary_cached") is True):
+        _refund_cached_error(reservation)
     return status, data if isinstance(data, dict) else {}
 
 
@@ -2461,8 +2565,18 @@ def _send_one(summary: Mapping[str, Any], timeout: float) -> Dict[str, Any]:
     """Post one summary to ``/report`` and say what became of it."""
     import http.client
 
+    ai_refusal = None
     try:
-        status, data = _post_json("/report", summary, timeout)
+        try:
+            status, data = _post_json("/report", summary, timeout)
+        except RelayRefused as refusal:
+            if refusal.reason not in ("rate", "cooldown"):
+                raise
+            ai_refusal = dict(reason=refusal.reason, scope=refusal.scope,
+                              resets_at=refusal.resets_at.isoformat())
+            status, data = _post_json("/report", dict(summary, summarize=False), timeout)
+    except RelayRefused as exc:
+        return {"status": REPORT_QUEUED, "detail": exc.reason}
     except (OSError, http.client.HTTPException, ValueError) as exc:
         return {"status": REPORT_QUEUED,
                 "detail": f"{type(exc).__name__}: {exc}"}
@@ -2477,6 +2591,8 @@ def _send_one(summary: Mapping[str, Any], timeout: float) -> Dict[str, Any]:
                    "deduplicated": bool(data.get("deduplicated", False)),
                    "ai_summary_source": source if source in (
                        "client", "relay", "none") else "none"}
+        if ai_refusal is not None:
+            outcome["ai_refusal"] = ai_refusal
         if source == "relay" and data.get("ai_summary"):
             text = scrub_public_lines(str(data.get("ai_summary", "")),
                                       MAX_AI_SUMMARY_CHARS, True)
@@ -2691,6 +2807,10 @@ def diagnose_remotely(summary: Mapping[str, Any], question: str = "", *,
                 "inputs", "environment", "run", "log_tail"):
         payload.pop(key, None)
     asked = scrub_public_text(question, MAX_QUESTION_CHARS) if question else ""
+    if summary.get("_batch_errors"):
+        details = "\n".join(f"{entry['count']} occurrences: {entry['error']}"
+                            for entry in summary["_batch_errors"][:8])
+        asked = scrub_public_lines(asked + "\n\n" + details, MAX_QUESTION_CHARS)
     if asked:
         payload["question"] = asked
     try:
@@ -2799,6 +2919,16 @@ def explanation_signature(summary: Mapping[str, Any]) -> str:
     if summary.get("kind") == KIND_USER_ERROR:
         parts.extend(_normalized_problems(summary.get("message", "")))
     return hashlib.sha256("\n".join(parts).encode("utf-8")).hexdigest()
+
+
+def _error_explanation_signature(summary):
+    """Keep a combined error's local explanation separate from one component."""
+    signature = explanation_signature(summary)
+    details = summary.get("_batch_errors") or []
+    if len(details) > 1 or details and details[0].get("count", 1) > 1:
+        signature = hashlib.sha256((signature + json.dumps(
+            details, sort_keys=True)).encode()).hexdigest()
+    return signature
 
 
 def explanation_key(traceback_text: str, module: str = "", kind: str = "",
@@ -3031,6 +3161,198 @@ _ERROR_OCCURRENCE_COUNTER = itertools.count()
 _ERROR_OCCURRENCE_POLICIES = {}
 
 
+class _ErrorBatcher:
+    """Debounce bounded error batches and stop one continuous five-minute storm."""
+
+    def __init__(self, clock=None, schedule=None, notify=None):
+        """Allow deterministic clocks and timers without importing Qt."""
+        self.clock = clock or time.monotonic
+        self.schedule = schedule or self._schedule
+        self.notify = notify or _deliver_error_result
+        self.lock = threading.RLock()
+        self.started = self.last = None
+        self.pending = {}
+        self.seen = {}
+        self.omitted = 0
+        self.timer = None
+        self.generation = 0
+        self.stopped = False
+        self.automatic_stopped = False
+        self.prompted = False
+
+    @staticmethod
+    def _schedule(delay, callback):
+        """Use one daemon timer, replaced after each incoming error."""
+        timer = threading.Timer(delay, callback)
+        timer.daemon = True
+        timer.start()
+        return timer
+
+    def _arm(self, now):
+        """Serialize stale timer cancellation against incoming errors."""
+        if self.timer is not None:
+            self.timer.cancel()
+        self.generation += 1
+        generation = self.generation
+        delay = max(0., min(self.last + 60, self.started + 300) - now)
+        self.timer = self.schedule(delay, lambda: self._tick(generation))
+
+    def _take(self):
+        """Detach the bounded pending batch before releasing the lock."""
+        batch = list(self.pending.values())
+        omitted = self.omitted
+        self.pending = {}
+        self.omitted = 0
+        return batch, omitted
+
+    @staticmethod
+    def _deliver(batch, omitted):
+        """Call the first pending error's owner once with all retained errors."""
+        batch = [entry for entry in batch if entry[0].get("eligible", lambda: True)()]
+        if batch:
+            owner = next((entry for entry in reversed(batch) if entry[0].get("manual")),
+                next((entry for entry in batch if entry[0].get("ai_eligible", lambda: False)()), batch[0]))
+            provider = owner[0].get("provider")
+            if not owner[0].get("manual") and "report_only" in owner[0] and not owner[0]["ai_eligible"]():
+                reports = [entry for entry in batch if entry[0]["report_eligible"]()]
+                if reports:
+                    try:
+                        reports[0][0]["report_only"]([(entry[0], entry[1]) for entry in reports], omitted)
+                    except Exception:
+                        pass
+                return
+            ai_entries = [entry for entry in batch if entry[0].get("provider") == provider
+                          and (entry[0].get("manual") or entry[0].get("ai_eligible", lambda: True)())]
+            reports = [entry for entry in batch if not entry[0].get("manual")
+                       and (owner[0].get("manual") or entry not in ai_entries)
+                       and entry[0].get("report_eligible", lambda: False)()]
+            if reports:
+                try:
+                    reports[0][0]["report_only"](
+                        [(entry[0], entry[1]) for entry in reports], omitted)
+                except Exception:
+                    pass
+            batch = ai_entries
+            try:
+                owner[2]([(entry[0], entry[1]) for entry in batch], omitted)
+            except Exception:
+                pass
+
+    def _tick(self, generation=None):
+        """Flush after exactly sixty quiet seconds, or announce one storm."""
+        batch, omitted, storm = [], 0, False
+        with self.lock:
+            if generation is not None and generation != self.generation:
+                return
+            if self.last is None or self.stopped:
+                return
+            now = self.clock()
+            if now - self.last >= 60:
+                batch, omitted = self._take()
+                self.started = self.last = None
+                if self.timer is not None:
+                    self.timer.cancel()
+                self.timer = None
+                self.generation += 1
+            elif now - self.started >= 300:
+                self._take()
+                self.stopped = self.automatic_stopped = True
+                storm = not self.prompted
+                self.prompted = True
+                if self.timer is not None:
+                    self.timer.cancel()
+                self.timer = None
+                self.generation += 1
+            else:
+                if generation is not None:
+                    self.timer = None
+                    self._arm(now)
+        if storm:
+            self.notify({"storm": True, "event_id": "error-storm"})
+        self._deliver(batch, omitted)
+
+    def submit(self, payload, deliver, *, event_id=""):
+        """Send the first error now; subsequent errors wait for a quiet minute."""
+        self._tick()
+        immediate = waiting = False
+        with self.lock:
+            if self.automatic_stopped and not payload.get("manual"):
+                return None
+            if self.stopped:
+                self.stopped = False
+                self.started = self.last = None
+            if event_id and event_id in self.seen:
+                return None
+            if event_id:
+                self.seen[event_id] = True
+                while len(self.seen) > 512:
+                    self.seen.pop(next(iter(self.seen)))
+            now = self.clock()
+            if self.started is None:
+                self.started = now
+                immediate = True
+            self.last = now
+            if not immediate:
+                waiting = not self.pending
+                key = hashlib.sha256((str(payload.get("module", "")) + "\n" +
+                                      str(payload.get("provider", "")) + "\n" +
+                                      str(payload.get("manual", False)) + "\n" +
+                                      payload.get("text", "")).encode()).hexdigest()
+                if key in self.pending:
+                    self.pending[key][1] += 1
+                elif len(self.pending) < 8:
+                    self.pending[key] = [payload, 1, deliver]
+                elif payload.get("manual"):
+                    retired = next((key for key, entry in reversed(tuple(self.pending.items()))
+                                    if not entry[0].get("manual")), next(iter(self.pending)))
+                    self.omitted += self.pending.pop(retired)[1]
+                    self.pending[key] = [payload, 1, deliver]
+                else:
+                    self.omitted += 1
+            if self.timer is None:
+                self._arm(now)
+        if immediate:
+            return deliver([(payload, 1)], 0)
+        if waiting:
+            self.notify({"batch_waiting": True, "event_id": "error-batch"})
+        return None
+
+
+_ERROR_BATCHER = None
+
+
+def _submit_error_batch(payload, deliver, *, event_id=""):
+    """Share batching across automatic reporting and explicit Explain actions."""
+    global _ERROR_BATCHER
+    with _ERROR_DISPATCH_LOCK:
+        if _ERROR_BATCHER is None:
+            _ERROR_BATCHER = _ErrorBatcher()
+        batcher = _ERROR_BATCHER
+    return batcher.submit(payload, deliver, event_id=event_id)
+
+
+def _combined_error_text(batch, omitted=0):
+    """Keep distinct raw error excerpts and occurrence counts within 64 KiB."""
+    if len(batch) == 1 and batch[0][1] == 1 and not omitted:
+        return batch[0][0]["text"]
+    parts = [f"{count} occurrences:\n{entry['text']}" for entry, count in batch]
+    if omitted:
+        parts.append(f"{omitted} additional errors omitted from this bounded batch.")
+    return "\n\n".join(parts)[:65536]
+
+
+def _batch_error_diagnostics(batch):
+    """Retain useful scrubbed details for every bounded error in an AI prompt."""
+    diagnostics = []
+    for entry, count in batch[:8]:
+        last = next((line for line in reversed(entry["text"].splitlines()) if line.strip()), "")
+        safe = scrub_public_text(last, 8192)
+        if len(safe) > 180:
+            safe = safe[:88] + " ... " + safe[-87:]
+        diagnostics.append(dict(count=count, error=safe))
+    return diagnostics
+
+
 def _automatic_error_policy(kind):
     """Read only the affirmed, mirrored reporting policy; never import Qt."""
     state = _ERROR_POLICY_CACHE
@@ -3142,6 +3464,85 @@ def _validation_error_context(app_key, problems):
 
 def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
                     summary=None, event_id="", origin="direct", context=None):
+    """Batch error arrivals without retaining exception objects or traceback frames."""
+    if getattr(_ERROR_DISPATCH_LOCAL, "active", False):
+        return None
+    event_id, (captured, explain, send) = _error_occurrence(
+        event_id or (_new_error_occurrence(exception) if exception is not None else ""))
+    if not (explain or send):
+        return None
+    raw = str(traceback_text or text)
+    if exception is not None:
+        raw = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
+    kind = classify_failure(exception, raw)
+
+    def eligible():
+        """Keep each pending entry within its original and current permission."""
+        current, may_explain, may_send = _automatic_error_policy(kind)
+        return bool((explain and may_explain and
+                     current.get("provider", "") == captured.get("provider", "")) or
+                    (send and may_send and mode_sends(kind, captured.get("_mode", "off"))))
+
+    def report_eligible():
+        """A manual AI owner must not discard an already consented report."""
+        _, _, may_send = _automatic_error_policy(kind)
+        return bool(send and may_send and mode_sends(kind, captured.get("_mode", "off")))
+
+    def ai_eligible():
+        """Prefer the current provider when old errors still permit reporting."""
+        current, may_explain, _ = _automatic_error_policy(kind)
+        return bool(explain and may_explain and
+                    current.get("provider", "") == captured.get("provider", ""))
+
+    payload = dict(text=raw[-8192:], module=module, event_id=event_id, kind=kind,
+                   provider=captured.get("provider", ""), eligible=eligible,
+                   report_eligible=report_eligible,
+                   ai_eligible=ai_eligible,
+                   captured_policy=(dict(captured), explain, send),
+                   summary=summary, context=dict(context or {}), origin=origin)
+
+    def deliver(batch, omitted, report_only=False):
+        """Re-enter the existing policy/queue path once for this combined batch."""
+        first = next((entry for entry, _ in batch
+                      if entry["captured_policy"][2]
+                      and mode_sends(entry["kind"], entry["captured_policy"][0].get("_mode", "off"))),
+                     batch[0][0])
+        with _ERROR_DISPATCH_LOCK:
+            policy, may_explain, may_send = first["captured_policy"]
+            _ERROR_OCCURRENCE_POLICIES[first["event_id"]] = (
+                policy, False if report_only else may_explain, may_send)
+            while len(_ERROR_OCCURRENCE_POLICIES) > 512:
+                _ERROR_OCCURRENCE_POLICIES.pop(next(iter(_ERROR_OCCURRENCE_POLICIES)))
+        combined = _combined_error_text(batch, omitted)
+        clean = first.get("summary")
+        if len(batch) > 1 or batch[0][1] > 1 or omitted:
+            lines = []
+            budget = max(12, (MAX_MESSAGE_CHARS - 40) // len(batch) - 1)
+            for entry, count in batch:
+                last = next((line for line in reversed(entry["text"].splitlines()) if line.strip()), "")
+                fingerprint = hashlib.sha256(entry["text"].encode()).hexdigest()[:6]
+                lines.append(f"{count}x {fingerprint} {last}"[:budget])
+            if omitted:
+                lines.append(f"- {omitted} additional occurrences omitted")
+            combined_kind = (KIND_FAULT if any(entry["kind"] == KIND_FAULT
+                                              for entry, _ in batch) else KIND_USER_ERROR)
+            current, _, _ = _automatic_error_policy(combined_kind)
+            clean = public_summary(traceback_text=first["text"], module=first["module"], kind=combined_kind,
+                error_text=combined, message="\n".join(lines),
+                screen=first["context"].get("screen", ""),
+                code_context=(mode_code_context(first["captured_policy"][0].get("_mode", "off"))
+                              and mode_code_context(current.get("_mode", "off"))))
+            clean["_batch_errors"] = _batch_error_diagnostics(batch)
+        return _dispatch_error_now(combined, module=first["module"], traceback_text=combined,
+            summary=clean, event_id=first["event_id"], origin=first["origin"],
+            context=first["context"])
+
+    payload["report_only"] = lambda batch, omitted: deliver(batch, omitted, report_only=True)
+    return _submit_error_batch(payload, deliver, event_id=event_id)
+
+
+def _dispatch_error_now(text="", *, exception=None, module="", traceback_text="",
+                    summary=None, event_id="", origin="direct", context=None):
     """Schedule bounded error processing without file I/O on the emitting thread."""
     if getattr(_ERROR_DISPATCH_LOCAL, "active", False):
         return None
@@ -3172,7 +3573,7 @@ def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
         queued = None
         pending_issued = delivered = False
         try:
-            kind = classify_failure(exception, traceback_text or text)
+            kind = (summary or {}).get("kind") or classify_failure(exception, traceback_text or text)
             original_send = send and mode_sends(kind, captured["_mode"])
             current, now_explain, now_send = _automatic_error_policy(kind)
             if not ((explain and now_explain) or (original_send and now_send)):
@@ -3197,7 +3598,7 @@ def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
             selected = str(captured.get("provider", ""))
             do_explain = explain and now_explain and current.get("provider", "") == selected
             if do_explain:
-                saved = saved_explanation(explanation_signature(clean))
+                saved = saved_explanation(_error_explanation_signature(clean))
                 pending_issued = True
                 _deliver_error_result({"event_id": event_id, "pending": True,
                                        "kind": kind, "explanation": saved or {}})

@@ -308,3 +308,57 @@ def test_interrupt_stops_a_child_even_in_a_separate_process_session(tiny_repo, t
         if process.poll() is None:
             process.kill()
             process.wait()
+
+
+@pytest.mark.parametrize("suite_name,enabled", [("qt replay", True), ("Other suite", False)])
+def test_qt_precollection_follows_the_actual_native_evidence_condition(
+        tmp_path, monkeypatch, suite_name, enabled):
+    import yaml
+
+    original = yaml.safe_load
+
+    def change_suite_name(source):
+        workflow = original(source)
+        if "qt" in workflow["jobs"]:
+            workflow["jobs"]["qt"]["with"]["suite_name"] = suite_name
+        return workflow
+
+    monkeypatch.setattr(yaml, "safe_load", change_suite_name)
+    _, args, options, _, _ = replay._configuration(ROOT, "qt", 0, tmp_path)
+    assert args.precollect_nonqt_batches is enabled
+    assert ("--precollect-nonqt-batches" in options) is enabled
+    assert "${batch_collection_args[@]}" not in options
+
+
+@pytest.mark.parametrize("replacement", ["${unknown_collection_args[@]}",
+                                         "${batch_collection_args[@]}suffix"])
+def test_qt_replay_still_refuses_unknown_shell_expansions(tmp_path, monkeypatch, replacement):
+    original = Path.read_text
+    workflow_path = ROOT / ".github/workflows/_pytest-suite.yml"
+
+    def changed_workflow(path, *args, **kwargs):
+        source = original(path, *args, **kwargs)
+        if path == workflow_path:
+            assert "${batch_collection_args[@]}" in source
+            source = source.replace("${batch_collection_args[@]}", replacement)
+        return source
+
+    monkeypatch.setattr(Path, "read_text", changed_workflow)
+    with pytest.raises(ValueError, match="unresolved expression"):
+        replay._configuration(ROOT, "qt", 0, tmp_path)
+
+
+def test_qt_replay_refuses_a_changed_native_evidence_expression(tmp_path, monkeypatch):
+    original = Path.read_text
+    workflow_path = ROOT / ".github/workflows/_pytest-suite.yml"
+
+    def changed_workflow(path, *args, **kwargs):
+        source = original(path, *args, **kwargs)
+        if path == workflow_path:
+            assert "startsWith(inputs.suite_name, 'Qt')" in source
+            source = source.replace("startsWith(inputs.suite_name, 'Qt')", "env.UNKNOWN")
+        return source
+
+    monkeypatch.setattr(Path, "read_text", changed_workflow)
+    with pytest.raises(ValueError, match="unresolved expression"):
+        replay._configuration(ROOT, "qt", 0, tmp_path)

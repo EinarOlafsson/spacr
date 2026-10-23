@@ -1176,6 +1176,12 @@ class _ErrorReportRelay(QObject):
         """Show one answer or fall back to the terminal if all owners have closed."""
         from shiboken6 import isValid
         from ...crashreport import QUEUE_LIMIT, _write_error_result
+        if outcome.get("storm"):
+            for ref in reversed(self.consoles):
+                console = ref()
+                if console is not None and isValid(console) and console.window().isVisible():
+                    console._show_error_storm_prompt()
+                    return
         for key, ref in tuple(self.pending.items()):
             target = ref()
             if target is None or not isValid(target):
@@ -1247,6 +1253,7 @@ class ConsolePanel(QWidget):
     _relay_stdout = Signal(str)
     _relay_error = Signal(str)
     _relay_notice = Signal(str, object)
+    _error_batch_ready = Signal(str, str, bool, str, object)
 
     def __init__(self, active_app_label: str = "", parent=None,
                  persist_key: str = "", *, follow_log: bool = True,
@@ -1265,6 +1272,7 @@ class ConsolePanel(QWidget):
             reports.
         """
         super().__init__(parent)
+        self._error_batch_ready.connect(self._open_batched_error)
         self.setObjectName("ConsolePanel")
         self._log_pending: List[str] = []
         self._log_flush = QTimer(self)
@@ -2471,6 +2479,51 @@ class ConsolePanel(QWidget):
         except RuntimeError:
             pass
 
+    def _show_error_storm_prompt(self):
+        """Offer destructive actions once, on the GUI thread, with Cancel default."""
+        from PySide6.QtWidgets import QMessageBox
+
+        if getattr(self, "_error_storm_prompt_shown", False):
+            return
+        self._error_storm_prompt_shown = True
+        box = QMessageBox(self.window())
+        box.setObjectName("ErrorStormPrompt")
+        box.setIcon(QMessageBox.Warning)
+        box.setWindowTitle(tr("Repeated errors"))
+        box.setText(tr("Errors have continued for five minutes. Automatic error requests are paused."))
+        box.setInformativeText(tr("Force quit stops spaCR immediately. Force restart starts a new spaCR process first. Work being written may be incomplete. Local logs are kept."))
+        quit_button = box.addButton(tr("Force quit"), QMessageBox.DestructiveRole)
+        restart_button = box.addButton(tr("Force restart"), QMessageBox.DestructiveRole)
+        cancel = box.addButton(tr("Cancel"), QMessageBox.RejectRole)
+        box.setDefaultButton(cancel)
+        box.setEscapeButton(cancel)
+
+        def chosen(_result):
+            """Act only on an explicit button choice, never on dismissal."""
+            if box.clickedButton() is quit_button:
+                self._force_error_storm("quit")
+            elif box.clickedButton() is restart_button:
+                self._force_error_storm("restart")
+            box.deleteLater()
+
+        box.finished.connect(chosen)
+        self._error_storm_box = box
+        box.open()
+
+    def _force_error_storm(self, action):
+        """Reuse verified restart-state persistence and hard-exit adapters."""
+        from ..shutdown import force_quit_now, restart_spacr
+
+        if action == "quit":
+            force_quit_now()
+        elif action == "restart":
+            parent = self.parentWidget()
+            while parent is not None and not callable(getattr(parent, "force_restart", None)):
+                parent = parent.parentWidget()
+            started = parent.force_restart() if parent is not None else restart_spacr("", {})
+            if not started:
+                self.append_notice("[AI] spaCR could not restart. This window remains open.\n")
+
     def _show_error_report_result(self, outcome, entry=None, *,
                                   saved_already_shown=False):
         """Render a shared failure outcome without reopening any owning window."""
@@ -2478,6 +2531,17 @@ class ConsolePanel(QWidget):
         from ... import crashreport
 
         outcome = dict(outcome or {})
+        if outcome.get("storm"):
+            self._show_error_storm_prompt()
+            return
+        if outcome.get("batch_waiting"):
+            self.append_notice("[AI] Errors are being combined until there have been 60 quiet seconds.\n")
+            return
+        if outcome.get("ai_refusal"):
+            from ..ai.providers import hosted_refusal_message
+            refusal = outcome["ai_refusal"]
+            self.fill_ai_entry(None, hosted_refusal_message(refusal["reason"],
+                refusal.get("scope", ""), refusal.get("resets_at")))
         event_id = outcome.get("event_id", "")
         if outcome.get("pending"):
             policy, eligible, _ = crashreport._automatic_error_policy(outcome.get("kind"))
@@ -2524,6 +2588,10 @@ class ConsolePanel(QWidget):
                         "spaCR AI: today's free AI is used up, so this error is "
                         "not explained. It is still handled as Preferences → AI "
                         "→ AI Error report says."))
+                elif refused in ("rate", "cooldown"):
+                    from ..ai.providers import hosted_refusal_message
+                    self.fill_ai_entry(entry, hosted_refusal_message(refused,
+                        explanation.get("scope", ""), explanation.get("resets_at")))
                 else:
                     self.fill_ai_entry(entry, tr(
                         "spaCR AI could not explain this error this time."))
@@ -2932,6 +3000,29 @@ class ConsolePanel(QWidget):
             console (only a short note); the AI still receives it in its
             prompt, so the user can ask the AI to show the error.
         """
+        from ..ai.providers import _batch_widget_error
+        _batch_widget_error(self, traceback_text, active_app, show_raw)
+
+    def _open_batched_error(self, text, active_app, show_raw, provider_name, diagnostics):
+        """Recheck the live provider before delivering a delayed manual action."""
+        from ... import crashreport
+        provider = self._current_provider()
+        policy = crashreport._ERROR_POLICY_CACHE.get("affirmed_policy") or {}
+        if (provider is not None and provider.name == provider_name
+                and policy.get("provider") != "none" and crashreport.network_allowed()):
+            self._pending_error_diagnostics = diagnostics
+            self._open_error_flow_now(text, active_app, show_raw)
+
+    def _open_error_flow_now(self, traceback_text: str, active_app: str = "",
+                             show_raw: bool = True) -> None:
+        """Send a traceback to the AI explainer and stream the reply inline.
+
+        :param traceback_text: raw traceback captured from the pipeline.
+        :param active_app: optional app label used in the framing prompt.
+        :param show_raw: when False, the raw traceback is not printed to the
+            console (only a short note); the AI still receives it in its
+            prompt, so the user can ask the AI to show the error.
+        """
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         if self._current_provider() is None:
             self.append_notice(
@@ -2944,6 +3035,8 @@ class ConsolePanel(QWidget):
         self._ai_error_traceback = traceback_text
         self._ai_error_explanation = ""
         self._ai_messages.append({"role": "user", "content": prompt})
+        self._ai_messages[-1]["_spacr_batch_errors"] = getattr(self, "_pending_error_diagnostics", [])
+        self._pending_error_diagnostics = []
         self._append_user(
             prompt if show_raw
             else tr(

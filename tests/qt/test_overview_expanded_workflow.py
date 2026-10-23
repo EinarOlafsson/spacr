@@ -1084,10 +1084,15 @@ def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns
     qtbot.waitUntil(lambda: dialog.wells.viewport().width() > plate_area.width())
     assert dialog._plate_cell_extent == manual_extent
     dialog._well(dialog.wells.item(0, 0))
+    qtbot.waitUntil(lambda: dialog._displayed_montage is not None and not dialog._montage_jobs.is_busy())
+    montage = dialog.view._item.pixmap().toImage().copy()
     dialog.fields.setCurrentRow(0)
-    qtbot.waitUntil(lambda: dialog._individual and dialog.view._item is not None)
+    qtbot.waitUntil(lambda: dialog._individual and dialog.view._item is not None
+        and not dialog._image_jobs.is_busy() and dialog.view._item.pixmap().width() == 12)
     qtbot.mouseClick(workspace.back_button, browser.Qt.LeftButton)
     assert not dialog._individual and dialog._scope[1] == "A01"
+    qtbot.waitUntil(lambda: dialog.view._item.pixmap().toImage() == montage
+        and not dialog._montage_jobs.is_busy())
     qtbot.mouseClick(workspace.back_button, browser.Qt.LeftButton)
     assert dialog._scope[1] is None
     qtbot.mouseClick(workspace.back_button, browser.Qt.LeftButton)

@@ -94,9 +94,10 @@ class StreamWorker(QObject):
         guarantee persistence.
         """
         from ... import crashreport
+        from .prompts import error_explainer_prompt
 
         buf: List[str] = []
-        key = question_cache_key(self._messages)
+        key = "" if self._system == error_explainer_prompt() else question_cache_key(self._messages)
         if key:
             saved = crashreport.saved_explanation(key)
             if saved:
@@ -107,9 +108,16 @@ class StreamWorker(QObject):
                 return
         try:
             self.stage_changed.emit("connecting")
-            stream = self._provider.stream_chat(
-                self._messages, system=self._system, model=self._model
-            )
+            from contextlib import nullcontext
+            scope = (crashreport._hosted_error_context()
+                     if self._system == error_explainer_prompt() else nullcontext())
+            with scope:
+                stream = iter(self._provider.stream_chat(
+                    self._messages, system=self._system, model=self._model))
+                first = next(stream, None)
+            if first is not None:
+                from itertools import chain
+                stream = chain((first,), stream)
             self.stage_changed.emit("streaming")
             for chunk in stream:
                 if self._cancelled:

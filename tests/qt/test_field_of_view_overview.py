@@ -1616,3 +1616,46 @@ def test_rejecting_wizard_during_real_header_probe_retires_without_delivery(tmp_
         finally:
             release.set()
     assert exceptions == []
+
+
+def test_combined_channel_budget_refuses_full_resolution_but_keeps_real_thumbnail(tmp_path):
+    path = tmp_path / "plate1_A01_F1.tif"
+    stored = tifffile.memmap(path, shape=(2, 4097, 8192), dtype=np.uint16,
+                            photometric="minisblack", metadata={"axes": "CYX"})
+    stored[0, 0, 0] = 1000
+    stored[1, 256, 256] = 2000
+    stored.flush()
+    del stored
+
+    before_stat = path.stat()
+    field, = browser._overview_index(tmp_path)
+    info = browser._overview_channel_info(field)
+    assert info["channels"] == (0, 1) and info["files"][0]["axes"] == "CYX"
+    assert info["files"][0]["shape"] == (2, 4097, 8192)
+    original_planes = tuple(browser._overview_raw_planes(field, (0, 1)))
+    assert all(plane.shape == (4097, 8192) and plane.dtype == np.uint16
+               and plane.nbytes < 128 * 1024 ** 2 for _, _, plane in original_planes)
+    assert sum(plane.nbytes for _, _, plane in original_planes) > 128 * 1024 ** 2
+    assert original_planes[0][2][0, 0] == 1000
+    assert original_planes[1][2][256, 256] == 2000
+    del original_planes
+
+    thumbnail = browser._overview_pixels(field, (0, 1), (0., 100.), edge=32)
+    expected = np.zeros((17, 32, 3), dtype=np.uint8)
+    expected[0, 0, 0] = 255
+    expected[1, 1, 1] = 255
+    np.testing.assert_array_equal(thumbnail, expected)
+    with pytest.raises(browser._OverviewValidationError, match="128 MiB preview decode limit") as failure:
+        browser._overview_pixels(field, (0, 1), (0., 100.), edge=None)
+    traceback = failure.value.__traceback__
+    while traceback.tb_next is not None:
+        traceback = traceback.tb_next
+    assert traceback.tb_frame.f_code is browser._overview_pixels.__code__
+    assert traceback.tb_frame.f_locals["planes"] == []
+    unchanged = tifffile.memmap(path, mode="r")
+    assert unchanged.shape == (2, 4097, 8192) and unchanged.dtype == np.uint16
+    assert unchanged[0, 0, 0] == 1000 and unchanged[1, 256, 256] == 2000
+    assert unchanged[0, -1, -1] == 0 and unchanged[1, -1, -1] == 0
+    del unchanged
+    assert tuple(tmp_path.iterdir()) == (path,)
+    assert (path.stat().st_size, path.stat().st_mtime_ns) == (before_stat.st_size, before_stat.st_mtime_ns)

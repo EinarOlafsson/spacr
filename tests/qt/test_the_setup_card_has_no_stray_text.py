@@ -210,3 +210,110 @@ def test_joint_maximum_setup_opens_on_screen_with_scrollable_card(qtbot, qapp, m
         QDialog.reject(dialog)
         qapp.setStyleSheet(old_sheet)
         gui_scale.set_gui_scale_live(old_scale)
+
+
+def test_small_gui_large_font_setup_keeps_all_pages_whole(qtbot, qapp, monkeypatch):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QRegion, QTextDocument, QTextOption
+    from PySide6.QtWidgets import QAbstractButton, QAbstractScrollArea, QComboBox, QDialog, QLabel
+    from spacr.qt import gui_scale, theme
+    from spacr.qt.widgets.setup_slides import SLIDES, GPU_MAC_CPU_HINT
+
+    old_scale, old_sheet = gui_scale.current_scale(), qapp.styleSheet()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(.1)
+    qapp.setStyleSheet(theme.stylesheet('dark', font_scale=2.0))
+    monkeypatch.setattr(SetupSlides, '_install_backdrop', lambda self: None)
+    text = ('<div>' + GPU_REQUIREMENT + '</div><div>GPU: Intel Iris Plus Graphics: Metal</div><div>'
+            + GPU_MAC_CPU_HINT + '</div><table><tr><td>Cellpose 4</td><td>CPU</td><td>Segmentation</td></tr>'
+            '<tr><td>Live backdrop</td><td>GPU</td><td>Visualization</td></tr></table>')
+    monkeypatch.setattr(SetupSlides, '_say_what_the_gpu_is', lambda self: self._gpu_note.setText(text))
+    dialog = SetupSlides()
+    qtbot.addWidget(dialog)
+    try:
+        dialog.show()
+        qtbot.waitExposed(dialog)
+        qapp.processEvents()
+        assert dialog._editors['language'].font().pixelSize() == 3
+        assert dialog.height() >= dialog.card.minimumSizeHint().height()
+        for index in range(len(SLIDES)):
+            dialog._show_slide(index, fade=False)
+            qapp.processEvents()
+            for control in dialog.findChildren(QLabel) + dialog.findChildren(QAbstractButton) + dialog.findChildren(QComboBox):
+                if not control.isVisibleTo(dialog):
+                    continue
+                assert not control.rect().isEmpty()
+                whole = QRegion(control.rect()).subtracted(control.visibleRegion()).isEmpty()
+                ancestor = control.parentWidget()
+                while ancestor is not None and ancestor is not dialog and not isinstance(ancestor, QAbstractScrollArea):
+                    ancestor = ancestor.parentWidget()
+                reachable = False
+                if isinstance(ancestor, QAbstractScrollArea):
+                    viewport = ancestor.viewport()
+                    mapped = control.rect().translated(control.mapTo(viewport, QPoint()))
+                    area = viewport.rect()
+                    horizontal, vertical = ancestor.horizontalScrollBar(), ancestor.verticalScrollBar()
+                    reachable = (mapped.left() + horizontal.value() >= area.left() + horizontal.minimum()
+                                 and mapped.right() + horizontal.value() <= area.right() + horizontal.maximum()
+                                 and mapped.top() + vertical.value() >= area.top() + vertical.minimum()
+                                 and mapped.bottom() + vertical.value() <= area.bottom() + vertical.maximum()
+                                 and not area.contains(mapped))
+                assert whole or reachable, (index, type(control).__name__, control.rect())
+                if isinstance(control, QLabel) and control.text():
+                    document = QTextDocument()
+                    document.setDocumentMargin(0)
+                    document.setDefaultFont(control.font())
+                    option = document.defaultTextOption()
+                    option.setWrapMode(QTextOption.WordWrap if control.wordWrap() else QTextOption.NoWrap)
+                    document.setDefaultTextOption(option)
+                    document.setHtml(control.text())
+                    document.setTextWidth(control.contentsRect().width() if control.wordWrap() else -1)
+                    assert document.size().height() <= control.contentsRect().height() + 1
+            if index == 0:
+                note = dialog._gpu_note
+                for control in [dialog._title, dialog._blurb, dialog._next, dialog._back,
+                                dialog._editors['language']]:
+                    mapped = control.rect().translated(control.mapTo(dialog.card, QPoint()))
+                    assert not note.geometry().intersects(mapped)
+                dialog._show_the_greeting()
+                if dialog._hello is not None:
+                    dialog._hello.setCurrentTime(dialog._hello.duration())
+                qapp.processEvents()
+                greeting = dialog._greeting
+                assert QRegion(greeting.rect()).subtracted(greeting.visibleRegion()).isEmpty()
+                assert not greeting.geometry().intersects(note.geometry())
+                for control in [dialog._title, dialog._blurb, dialog._editors['language']]:
+                    mapped = control.rect().translated(control.mapTo(dialog.card, QPoint()))
+                    assert not greeting.geometry().intersects(mapped)
+    finally:
+        QDialog.reject(dialog)
+        qapp.setStyleSheet(old_sheet)
+        gui_scale.set_gui_scale_live(old_scale)
+
+
+@pytest.mark.parametrize('font_scale', [.9, 2.0])
+def test_fitting_setup_opening_retains_overlay_and_nominal_size(qtbot, qapp, monkeypatch, font_scale):
+    from PySide6.QtCore import QSize
+    from spacr.qt import gui_scale, theme
+    from PySide6.QtWidgets import QDialog
+
+    old_scale, old_sheet = gui_scale.current_scale(), qapp.styleSheet()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(.9)
+    qapp.setStyleSheet(theme.stylesheet('dark', font_scale=font_scale))
+    monkeypatch.setattr(SetupSlides, '_install_backdrop', lambda self: None)
+    monkeypatch.setattr(SetupSlides, '_say_what_the_gpu_is', lambda self: self._gpu_note.setText(GPU_REQUIREMENT))
+    dialog = SetupSlides()
+    qtbot.addWidget(dialog)
+    try:
+        assert not getattr(dialog, '_gpu_note_in_layout', False)
+        assert not getattr(dialog, '_card_scrolls', False)
+        assert dialog.size() == QSize(648, 504)
+        dialog.show()
+        qtbot.waitExposed(dialog)
+        assert not getattr(dialog, '_gpu_note_in_layout', False)
+        assert dialog.size() == QSize(648, 504)
+    finally:
+        QDialog.reject(dialog)
+        qapp.setStyleSheet(old_sheet)
+        gui_scale.set_gui_scale_live(old_scale)

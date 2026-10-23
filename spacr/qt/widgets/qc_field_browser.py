@@ -4464,6 +4464,7 @@ class _FieldOverview(QDialog):
             self._splitter.setSizes([250, 300, 750])
         self._individual = True
         self._comparison_signature = None
+        self._displayed_montage = None
         if not self._normalization_ready:
             self.view.clear_image()
             return
