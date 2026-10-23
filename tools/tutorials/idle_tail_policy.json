@@ -1232,7 +1232,7 @@
     {
       "lesson": "08_measure",
       "master_sha256": "89bb5e7cd5860abce333371b73dcd6bd7a33d52241cb412fbaaa9cc44ebee3d0",
-      "visual_timing_sha256": "bbaccabb875779f3644067256e35471a5fe5a5f22dc59cb709367fb95c8b7f1a",
+      "visual_timing_sha256": "3439e48a75005f4c098e645f51f5d3c16fb36a751c313df856d42cf6f1d7bc37",
       "scenes": [
         {
           "visual": "preview_03_data_ready",
