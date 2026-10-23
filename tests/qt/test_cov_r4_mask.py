@@ -109,9 +109,8 @@ def host(qtbot, qt_theme_applied):
 
     screen = AppScreen(app_key="mask")
     qtbot.addWidget(screen)
-    strip = mask_module.install_folds(screen)
-    assert strip is not None, "Mask Generation got no fold strip"
-    return screen, strip
+    assert mask_module.install_folds(screen) is None
+    return screen, screen.dimension_switch("t")
 
 
 # ---------------------------------------------------------------------------
@@ -453,8 +452,8 @@ def test_a_button_that_cannot_be_installed_does_not_cost_the_switches(
     with caplog.at_level(logging.DEBUG, logger=LOGGER):
         strip = mask_module.install_folds(screen)
 
-    assert strip is not None, "a broken button took the fold strip with it"
-    assert list(strip.keys()) == list(mask_module.CATEGORY_FOLDS)
+    assert strip is None
+    assert mask_module.fold_set(screen) is not None
     assert any("Could not install the example-plate button"
                in record.getMessage() for record in caplog.records), (
         caplog.text)
@@ -480,7 +479,7 @@ def test_a_screen_with_no_settings_form_carries_no_strip(qtbot,
 
     real = AppScreen(app_key="mask")
     qtbot.addWidget(real)
-    assert mask_module.install_folds(real) is not None
+    assert mask_module.install_folds(real) is None
     assert mask_module.fold_set(real) is not None
 
 
@@ -533,14 +532,14 @@ def test_a_settings_file_moves_the_switch_and_a_dead_switch_costs_nothing(
 
     assert tuple(mask_module.sync_folds(screen, {"timelapse": "True"})) == (
         "timelapse",)
-    assert strip.button_for("timelapse").isChecked(), (
+    assert strip.isChecked(), (
         "the settings file did not move the switch")
 
-    shiboken6.delete(strip.button_for("timelapse"))
+    shiboken6.delete(strip)
 
     with caplog.at_level(logging.DEBUG, logger=LOGGER):
         switched = mask_module.sync_folds(screen, {"timelapse": False})
 
     assert tuple(switched) == ()
-    assert any("Could not sync the folds" in record.getMessage()
+    assert any("Could not sync Time" in record.getMessage()
                for record in caplog.records), caplog.text

@@ -242,8 +242,9 @@ def test_metadata_wizard_custom_edit_invalidates_preview_until_rescanned(qtbot, 
     assert wizard.configuration()["channels"] == (9,)
     assert wizard.configuration()["custom_regex"] == pattern
     assert wizard.preview.item(0, 2).text() == "B03"
-    assert wizard.preview.item(0, 3).text() == "2"
-    assert wizard.preview.item(0, 6).text() == "9"
+    columns = {wizard.preview.horizontalHeaderItem(index).text(): index for index in range(wizard.preview.columnCount())}
+    for caption, value in (("Field", "2"), ("Row", "B"), ("Column", "3"), ("Channel", "9")):
+        assert wizard.preview.item(0, columns[browser.tr(caption)]).text() == value
     wizard.reject()
 
 
@@ -643,6 +644,7 @@ def test_automatic_wizard_pattern_preserves_nested_folder_channel_groups(qtbot, 
     assert wizard._fields[0].files == (("1", str(paths[0])), ("2", str(paths[1])))
     assert wizard._info["channels"] == (1, 2)
     assert wizard.regex.text() == ""
+    assert "2 matched filenames and 0 unmatched filenames excluded" in wizard.status.text()
     accepted = []
     wizard.accepted.connect(lambda: accepted.append(wizard.configuration()))
     wizard.next.click()

@@ -1,27 +1,8 @@
-"""Timelapse and Motility fold into Mask Generation without opening anything.
+"""Time owns tracking visibility while a native checkbox owns processing.
 
-Both are the mask pipeline with a flag on. ``preprocess_generate_masks_
-timelapse`` forces ``timelapse=True`` and then calls
-``preprocess_generate_masks`` unchanged. (The motility assay used to fold
-here too and does not any more: it reads finished masks and writes a
-measurements table, so it belongs to Measure. What remains here is
-both true. So neither is a second screen -- what is theirs is a handful of
-settings categories, and the button reveals them on the form the user is
-already looking at.
-
-What these tests protect:
-
-* NOTHING OPENS. A window is the last resort for a fold and neither of
-  these needs one, so a button that opened one would be a regression.
-* NOTHING IS DUPLICATED. A setting has one control or it has two sources
-  of truth; ``collect()`` is keyed on the setting name, so a second widget
-  for ``src`` would silently replace the host's own.
-* NOTHING IS LOST. Every setting the folded module's own screen resolves
-  has to reach the run from here, and the gate has to be on when -- and
-  only when -- the switch is.
-* THE ASSAY BRINGS TRACKING WITH IT, because it runs inside the timelapse
-  branch and a form offering it beside no tracking would describe a run
-  that cannot happen.
+All tracking settings and previews remain on Mask Generation, with one control
+per setting and preserved imported values. No redundant Timelapse switch or
+separate tracking window is created.
 """
 from __future__ import annotations
 
@@ -44,9 +25,8 @@ def host(qtbot, qt_theme_applied):
     """A Mask Generation screen with its two switches installed."""
     screen = AppScreen(app_key="mask")
     qtbot.addWidget(screen)
-    strip = mask_folds.install_folds(screen)
-    assert strip is not None, "Mask got no fold strip"
-    return screen, strip
+    assert mask_folds.install_folds(screen) is None
+    return screen, screen.dimension_switch("t")
 
 
 def _sections(screen, key):
@@ -58,37 +38,17 @@ def _sections(screen, key):
 # The switches
 # ---------------------------------------------------------------------------
 
-def test_the_series_module_is_a_switch_on_the_mask_masthead(host):
-    """One checkable icon button, and no caption beside it."""
-    screen, strip = host
+def test_time_replaces_the_redundant_masthead_entry(host):
+    screen, switch = host
+    assert switch is screen.dimension_switch("t")
+    assert mask_folds.fold_set(screen).strip is None
+    assert not [b for b in screen.findChildren(QPushButton)
+                if b.objectName() == BUTTON_NAME and
+                getattr(b, "app_key", None) == "timelapse"]
 
-    assert list(strip.keys()) == list(mask_folds.CATEGORY_FOLDS)
-    named = [button for button in strip.findChildren(QPushButton)
-             if button.objectName() == BUTTON_NAME]
-    assert len(named) == len(mask_folds.CATEGORY_FOLDS)
-    for button in named:
-        assert button.isCheckable(), f"{button.app_key} is not a switch"
-        assert not button.text(), f"{button.app_key} drew a caption"
-        assert button.accessibleName()
-
-
-def test_a_switch_carries_the_name_sentence_and_stage_its_tile_had(host):
-    """The button must still be recognisable as the module it replaced.
-
-    Asked of ``fold_description`` and not of ``app_stage``: the fold
-    outlives its registry row, and once the row is dropped the registry
-    answers "stable" with no name and no sentence for every one of these
-    keys. What the button has to go on saying is what the TILE said.
-    """
-    _screen, strip = host
-
-    for key in mask_folds.CATEGORY_FOLDS:
-        button = strip.button_for(key)
-        name, description, stage = map_barcodes.fold_description(key)
-        assert name and description
-        assert button.toolTip() == f"{name}\n{description}"
-        assert button.property("stage") == stage
-
+def test_time_keeps_its_existing_caption(host):
+    screen, switch = host
+    assert switch.property("_spacr_i18n_text") == "Time"
 
 def test_the_recorded_stage_is_real_and_agrees_with_the_assessment(host):
     """The fold fallback is the only record left of what the tile lit.
@@ -116,30 +76,18 @@ def test_the_recorded_stage_is_real_and_agrees_with_the_assessment(host):
                 f"{assessed[0]!r}")
 
 
-def test_the_lit_state_is_the_stage_colour_the_tile_used(host):
-    """A switch says it is on while nobody is touching it.
-
-    Hover and pressed are momentary; being part of the run is not. The
-    colour is read from the maturity table rather than retyped, so this
-    asserts the module's own hue rather than a literal.
-    """
-    from spacr.qt.theme import STAGE_HOVER
-
-    _screen, strip = host
-    button = strip.button_for("timelapse")
-    rule = button.styleSheet()
-
-    assert ":checked" in rule
-    assert STAGE_HOVER[map_barcodes.fold_description("timelapse")[2]] in rule
-
+def test_time_switch_is_checkable(host):
+    screen, switch = host
+    switch.setChecked(True)
+    assert switch.isChecked()
 
 def test_pressing_a_switch_opens_no_window(host):
     """A window is the last resort, and neither of these needs one."""
     screen, strip = host
     before = set(QApplication.topLevelWidgets())
 
-    strip.button_for("timelapse").setChecked(True)
-    strip.button_for("timelapse").setChecked(True)
+    strip.setChecked(True)
+    strip.setChecked(True)
 
     assert set(QApplication.topLevelWidgets()) - before == set()
     assert not hasattr(screen, "_fold_openers")
@@ -158,7 +106,7 @@ def test_the_categories_are_hidden_until_the_switch_is_pressed(host):
         assert cards, f"{key} mounted no categories"
         assert not any(card.isVisibleTo(screen) for card in cards)
 
-    strip.button_for("timelapse").setChecked(True)
+    strip.setChecked(True)
 
     fold = mask_folds.fold_set(screen).folds["timelapse"]
     held = fold._alpha_held_sections()
@@ -184,7 +132,7 @@ def test_alpha_categories_follow_the_show_alpha_features_gate(
     fold = mask_folds.fold_set(screen).folds["timelapse"]
     monkeypatch.setattr(preferences, "_get_show_alpha_features",
                         lambda: False)
-    strip.button_for("timelapse").setChecked(True)
+    strip.setChecked(True)
     hidden = {card.title() for card in fold.sections
               if not card.isVisibleTo(screen)}
     assert hidden == {"LINEAGE TREES \u0391", "EVENT DETECTION \u0391"}
@@ -300,7 +248,7 @@ def test_the_track_preview_is_not_offered_until_tracking_is_on(host):
     assert not _shown(preview.toggle)
     assert not _shown(preview.card)
 
-    strip.button_for("timelapse").setChecked(True)
+    strip.setChecked(True)
 
     assert _shown(preview.toggle)
     # Offered, not opened: a preview costs a Cellpose pass over a field,
@@ -315,11 +263,11 @@ def test_switching_tracking_off_closes_the_track_preview(host):
     """A card left open would be showing tracks for an untracked run."""
     screen, strip = host
     preview = _preview(screen, "timelapse")
-    strip.button_for("timelapse").setChecked(True)
+    strip.setChecked(True)
     preview.toggle.setChecked(True)
     assert _shown(preview.card)
 
-    strip.button_for("timelapse").setChecked(False)
+    strip.setChecked(False)
 
     assert not preview.toggle.isChecked()
     assert not _shown(preview.card)
@@ -329,7 +277,7 @@ def test_switching_tracking_off_closes_the_track_preview(host):
 def test_the_hosts_own_preview_is_untouched_by_the_fold(host):
     """The Cellpose live preview is Mask's and stays Mask's."""
     screen, strip = host
-    strip.button_for("timelapse").setChecked(True)
+    strip.setChecked(True)
 
     assert screen._live_preview_card is not None
     assert screen._live_preview_card is not _preview(screen,
@@ -340,18 +288,14 @@ def test_the_hosts_own_preview_is_untouched_by_the_fold(host):
 # What the run is handed
 # ---------------------------------------------------------------------------
 
-def test_the_gate_is_on_only_while_the_switch_is(host):
-    """The pipeline flag follows the button, in both directions."""
-    screen, strip = host
-
-    assert screen._settings_model.collect()["timelapse"] is False
-
-    strip.button_for("timelapse").setChecked(True)
-    assert screen._settings_model.collect()["timelapse"] is True
-
-    strip.button_for("timelapse").setChecked(False)
-    assert screen._settings_model.collect()["timelapse"] is False
-
+@pytest.mark.parametrize("enabled", [False, True])
+def test_time_visibility_preserves_the_explicit_pipeline_checkbox(host, enabled):
+    screen, switch = host
+    screen.apply_settings_dict({"timelapse": enabled})
+    assert "timelapse" in screen._settings_model._widgets
+    for visible in (True, False, True):
+        switch.setChecked(visible)
+        assert screen._settings_model.collect()["timelapse"] is enabled
 
 @pytest.mark.parametrize("key", ["timelapse"])
 def test_the_run_is_handed_everything_the_module_would_have_handed_it(
@@ -364,7 +308,7 @@ def test_the_run_is_handed_everything_the_module_would_have_handed_it(
     default than the module would have.
     """
     screen, strip = host
-    strip.button_for(key).setChecked(True)
+    strip.setChecked(True)
     collected = screen._settings_model.collect()
 
     missing = sorted(set(resolve_default_settings(key)) - set(collected))
@@ -374,7 +318,7 @@ def test_the_run_is_handed_everything_the_module_would_have_handed_it(
 def test_a_tracking_backend_typed_here_reaches_the_run(host):
     """The mounted controls are read by the host's collect, not just shown."""
     screen, strip = host
-    strip.button_for("timelapse").setChecked(True)
+    strip.setChecked(True)
 
     assert screen._settings_model.set_value_for_key("timelapse_mode", "btrack")
 
@@ -402,11 +346,11 @@ def test_loading_a_timelapse_settings_file_moves_the_switch(host):
 
     assert switched
     assert screen._settings_model.collect()["timelapse_mode"] == "trackpy"
-    assert strip.button_for("timelapse").isChecked()
+    assert strip.isChecked()
     assert screen._settings_model.collect()["timelapse"] is True
 
 
-def test_the_console_says_which_module_the_file_switched_on(host):
+def test_native_tracking_import_does_not_describe_a_removed_switch(host):
     """Importing a settings CSV reports what it did, not what it ignored.
 
     The notice used to say tracking had been IGNORED and send the reader
@@ -421,14 +365,14 @@ def test_the_console_says_which_module_the_file_switched_on(host):
     screen.apply_settings_dict({"timelapse": "True"})
     screen._warn_about_moved_settings({"timelapse": "True"})
 
-    assert strip.button_for("timelapse").isChecked()
+    assert strip.isChecked()
     said = " ".join(written)
-    assert "switched Timelapse on" in said
+    assert "switched Timelapse on" not in said
     assert "ignored" not in said
     assert "sidebar" not in said
 
 
-def test_a_screen_with_no_switch_says_the_flag_was_ignored(qtbot,
+def test_a_native_tracking_checkbox_is_not_reported_as_ignored(qtbot,
                                                              qt_theme_applied):
     """An honest report of the case the switch cannot answer.
 
@@ -446,7 +390,7 @@ def test_a_screen_with_no_switch_says_the_flag_was_ignored(qtbot,
     screen._warn_about_moved_settings({"timelapse": "True"})
 
     assert mask_folds.fold_set(screen) is None
-    assert "was ignored" in " ".join(written)
+    assert "was ignored" not in " ".join(written)
 
 
 def test_the_assay_is_reported_as_a_module_measure_opens(host):
@@ -471,16 +415,24 @@ def test_the_assay_is_reported_as_a_module_measure_opens(host):
     assert "motility_analysis" not in screen._settings_model.collect()
 
 
-def test_a_settings_file_without_the_gate_leaves_the_switch_alone(host):
-    """A plain Mask settings file must not turn tracking on."""
-    screen, strip = host
-    strip.button_for("timelapse").setChecked(True)
-
+def test_a_settings_file_without_time_flags_preserves_visibility(host):
+    screen, switch = host
+    switch.setChecked(True)
     assert mask_folds.sync_folds(screen, {"src": "/tmp/plate"}) == ()
-
-    assert not strip.button_for("timelapse").isChecked()
+    assert switch.isChecked()
     assert screen._settings_model.collect()["timelapse"] is False
 
+
+def test_importing_time_stack_without_tracking_preserves_disabled_gate(host):
+    screen, switch = host
+    screen.apply_settings_dict({"t_stack": True, "timelapse": False})
+    assert switch.isChecked()
+    assert mask_folds.fold_set(screen).is_active("timelapse")
+    for on in (False, True):
+        switch.setChecked(on)
+        values = screen._settings_model.collect()
+        assert values["t_stack"] is True
+        assert values["timelapse"] is False
 
 def test_syncing_a_screen_with_no_folds_is_a_no_op(qtbot):
     """Safe to call from the one place every screen's settings land in."""
@@ -502,32 +454,29 @@ def test_a_screen_that_is_not_mask_gets_no_switches(qtbot, qt_theme_applied):
     assert mask_folds.install_folds(screen) is None
 
 
-def test_installing_twice_does_not_add_a_second_strip(host):
-    """A screen reached twice by the stack watcher keeps one strip."""
-    screen, strip = host
+def test_installing_twice_does_not_duplicate_tracking_controls(host):
+    screen, switch = host
+    before = dict(screen._settings_model._widgets)
+    folds = mask_folds.fold_set(screen)
+    assert mask_folds.install_folds(screen) is None
+    assert mask_folds.fold_set(screen) is folds
+    assert screen._settings_model._widgets == before
 
-    assert mask_folds.install_folds(screen) is strip
-
-
-def test_a_screen_with_no_masthead_gets_no_switches(qtbot):
+def test_time_controls_mount_without_a_masthead(qtbot):
     """A strip needs somewhere to hang; a missing one costs the buttons."""
     screen = AppScreen(app_key="mask")
     qtbot.addWidget(screen)
     screen._header = None
 
     assert mask_folds.install_folds(screen) is None
+    assert mask_folds.fold_set(screen) is not None
 
 
-def test_the_stack_walk_routes_a_mask_screen_here(qtbot, qt_theme_applied):
-    """Mask is reached by the same walk every other host is reached by."""
+def test_the_stack_walk_mounts_time_without_a_strip(qtbot, qt_theme_applied):
     screen = AppScreen(app_key="mask")
     qtbot.addWidget(screen)
-
-    strip = map_barcodes.install_folds_on(screen)
-
-    assert isinstance(strip, FoldStrip)
-    assert list(strip.keys()) == list(mask_folds.CATEGORY_FOLDS)
-
+    assert map_barcodes.install_folds_on(screen) is None
+    assert mask_folds.fold_set(screen) is not None
 
 def test_a_strip_that_cannot_be_built_never_takes_the_host_down(
         qtbot, qt_theme_applied, monkeypatch):

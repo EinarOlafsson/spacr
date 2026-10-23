@@ -82,6 +82,65 @@ def test_the_main_window_minimum_fits_the_smallest_work_area(qtbot):
     assert (window.width(), window.height()) == app_mod._MAIN_WINDOW_OPENING
 
 
+@pytest.mark.parametrize("font_scale", (2., .1))
+def test_main_window_live_scaled_floor_fits_native_work_area_without_losing_baseline(qtbot, qapp, font_scale):
+    from spacr.qt import gui_scale, preferences
+
+    old_gui = gui_scale.current_scale()
+    old_pref_gui = preferences.get_gui_scale()
+    old_font = preferences.get_font_scale()
+    old_sheet, old_app_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    window = None
+    try:
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.set_font_scale(font_scale)
+        preferences.apply_preferences_to_app(qapp)
+        window = app_mod.MainWindow(initial_app="__home__")
+        qtbot.addWidget(window)
+        child = QWidget(window)
+        child.setMinimumSize(1600, 1000)
+        child.hide()
+        app_mod._show_at_launch(window)
+        qtbot.waitExposed(window)
+        for scale in (2., .1, 2.):
+            gui_scale.set_gui_scale_live(scale)
+            app_mod._fit_to_the_work_area(window)
+            qapp.processEvents()
+            handle = window.windowHandle()
+            frame, work = handle.frameGeometry(), handle.screen().availableGeometry()
+            actual = handle.minimumSize()
+            assert actual.width() <= work.width() and actual.height() <= work.height(), (scale, actual, work)
+            assert work.contains(frame), (scale, frame, work)
+            if scale > 1.:
+                assert actual.width() <= 1200 and actual.height() <= 640, (scale, actual)
+                from PySide6.QtCore import QSize
+                margins = handle.frameMargins()
+                base = QSize(min(handle.width(), work.width() - margins.left() - margins.right() - 20),
+                             min(handle.height(), work.height() - margins.top() - margins.bottom() - 20))
+                assert base.width() >= actual.width() and base.height() >= actual.height()
+                for target in (base, base + QSize(20, 20), base):
+                    handle.resize(target)
+                    qtbot.waitUntil(lambda: handle.size() == target, timeout=2000)
+                    assert work.contains(handle.frameGeometry())
+            assert window._gs_geo['minw'] == 1200 and window._gs_geo['minh'] == 640
+            assert handle.maximumSize().width() == handle.maximumSize().height() == 16777215
+            assert gui_scale._actual_minimum_size(child).width() == gui_scale.scale_int(1600, scale)
+            assert gui_scale._actual_minimum_size(child).height() == gui_scale.scale_int(1000, scale)
+    finally:
+        try:
+            if window is not None:
+                window.close()
+        finally:
+            preferences.set_font_scale(old_font)
+            preferences.set_gui_scale(old_pref_gui)
+            gui_scale.set_gui_scale_live(old_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_app_font)
+            qapp.setPalette(old_palette)
+
+
 @pytest.mark.parametrize("size", WORK_AREAS)
 def test_make_masks_fits_with_every_group_and_the_image_whole(
         qtbot, qt_theme_applied, folder, size):

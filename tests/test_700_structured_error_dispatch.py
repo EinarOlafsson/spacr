@@ -775,7 +775,7 @@ def test_native_replay_does_not_borrow_a_following_session_and_retains_previous_
     with path.open('a') as handle:
         handle.write('Fatal Python error: Aborted\n')
     joined(cr._consume_native_crash(path))
-    assert relay.calls_to('/report')[1]['body']['native_session'] == second
+    assert relay.calls_to('/report')[1]['body']['native_session'] == {'known': False}
     assert cr._consume_native_crash(path) is None
 
 
@@ -879,3 +879,69 @@ def test_old_relay_note_preserves_public_crash_fingerprints_and_user_note(config
         assert 'fingerprints' not in note
     else:
         assert note == user_note
+
+
+@pytest.mark.parametrize('history', ['overlapping-writers', 'truncated-history'])
+def test_shared_native_history_never_assigns_another_writers_session(configured, tmp_path, history):
+    relay, outcomes, ready = configured
+    first = {'known': True, 'id': '14cbd541-b9a1-41f4-8f50-4b53ba84755a',
+             'started_at': '2026-10-23T18:00:00Z', 'spacr_version': '1.2.3',
+             'python': '3.12.11', 'qt': '6.11.2', 'source_sha256': {'app': 'a' * 64}}
+    second = dict(first, id='6ae2c2af-3e47-4bf8-9a19-f346ba655d34', python='3.14.0')
+    path = tmp_path / 'shared-fatal.log'
+    with path.open('a') as writer_a, path.open('a') as writer_b:
+        if history == 'overlapping-writers':
+            writer_a.write('=== spaCR session ' + json.dumps(first) + ' ===\n')
+        else:
+            writer_a.write('x' * cr.MAX_LOG_BYTES + '\n')
+        writer_a.flush()
+        writer_b.write('=== spaCR session ' + json.dumps(second) + ' ===\n')
+        writer_b.flush()
+        writer_a.write('Fatal Python error: Aborted\n\nCurrent thread:\n  File "app.py", line 41 in from_session_A\n')
+    joined(cr._consume_native_crash(path))
+    body = relay.calls_to('/report')[0]['body']
+    assert body['frames'][-1]['function'] == 'from_session_A'
+    assert 'Crashed session unknown' in body['user_note']
+    assert second['id'].replace('-', ' ') not in body['user_note']
+    assert 'Python version v3.14.0' not in body['user_note']
+    assert cr._consume_native_crash(path) is None
+
+
+def test_actual_native_rotation_retains_unknown_history_within_the_existing_cap(configured, tmp_path, monkeypatch):
+    import faulthandler
+    relay, outcomes, ready = configured
+    policy = cr._read_state()['affirmed_policy']
+    cr._update_state(affirmed_policy={})
+    monkeypatch.setattr(cr, '_NATIVE_CAPTURE_HANDLE', None)
+    monkeypatch.setattr(cr, '_NATIVE_EXCEPTION_HOOK', object())
+    monkeypatch.setattr(faulthandler, 'enable', lambda **kwargs: None)
+    first = {'known': True, 'id': '14cbd541-b9a1-41f4-8f50-4b53ba84755a',
+             'started_at': '2026-10-23T18:00:00Z', 'spacr_version': '1.2.3',
+             'python': '3.12.11', 'qt': '6.11.2', 'source_sha256': {'app': 'a' * 64}}
+    second = dict(first, id='6ae2c2af-3e47-4bf8-9a19-f346ba655d34', python='3.14.0')
+    path = tmp_path / 'fatal.log'
+    path.write_text('=== spaCR session ' + json.dumps(first) + ' ===\n' + 'x' * cr.MAX_LOG_BYTES
+                    + '\n=== spaCR session ' + json.dumps(second) + ' ===\n'
+                    + 'Fatal Python error: Aborted\n\nCurrent thread:\n  File "app.py", line 41 in from_session_A\n')
+    old_size = path.stat().st_size
+    cr._update_state(native_fatal_ack={'path': str(path), 'offset': old_size - 8})
+    original_open = cr.Path.open
+    rotated = []
+    def observe_append(target, mode='r', *args, **kwargs):
+        if target == path and mode == 'a':
+            rotated.append(target.read_bytes())
+        return original_open(target, mode, *args, **kwargs)
+    with monkeypatch.context() as scoped:
+        scoped.setattr(cr.Path, 'open', observe_append)
+        assert cr._install_native_error_capture(path) == str(path)
+    cr._NATIVE_CAPTURE_HANDLE.close()
+    assert len(rotated) == 1 and len(rotated[0]) == cr.MAX_LOG_BYTES
+    assert cr._read_state()['native_fatal_ack']['offset'] == cr.MAX_LOG_BYTES - 8
+    snapshot = tmp_path / 'rotation-window.log'
+    snapshot.write_bytes(rotated[0])
+    cr._update_state(affirmed_policy=policy)
+    joined(cr._consume_native_crash(snapshot))
+    body = relay.calls_to('/report')[0]['body']
+    assert 'Crashed session unknown' in body['user_note']
+    assert 'Python version v3.14.0' not in body['user_note']
+    assert rotated[0].startswith(b'\n=== spaCR session history truncated ===\n')

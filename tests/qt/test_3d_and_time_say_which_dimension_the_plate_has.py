@@ -446,39 +446,20 @@ def test_the_two_sets_are_read_off_the_settings_module(qt_theme_applied):
         "a setting in both sets would appear and vanish under two switches")
 
 
-def test_the_folded_timelapse_module_keeps_its_own_switch(
-        qtbot, qt_theme_applied):
-    """Mask's tracking categories are the FOLD's, and Time does not take them.
-
-    The Timelapse module folded into Mask Generation as two settings
-    categories behind a masthead switch, and that switch does a second thing
-    the dimension switches deliberately do not: it sets ``timelapse``, the
-    gate the mask pipeline reads to group a plate into time stacks. Making
-    Time a second owner of those cards' visibility would put two controls on
-    one state, which is the failure the fold was written to avoid.
-
-    So the boundary is stated here rather than left to be discovered: Time
-    owns the time settings on the host's own form, the fold owns the folded
-    module's.
-    """
+def test_time_owns_all_tracking_categories(qtbot, qt_theme_applied):
     screen = _screen(qtbot, "mask")
     folds = screen._category_folds
     tracking = folds.folds["timelapse"]
     assert "fps" in tracking.settings_keys
-
     screen.dimension_switch("t").setChecked(True)
-
-    assert all(not card.isVisible() for card in tracking.sections), (
-        "Time revealed the folded module's cards, so two switches now own "
-        "them")
-    assert not folds.is_active("timelapse")
-    screen._fold_strip.button_for("timelapse").setChecked(True)
+    assert folds.is_active("timelapse")
     held = tracking._alpha_held_sections()
     shown = [card for card in tracking.sections if id(card) not in held]
-    assert shown
-    assert all(card.isVisible() for card in shown)
-    assert not any(card.isVisible()
-                   for card in tracking.sections if id(card) in held)
+    assert shown and all(card.isVisible() for card in shown)
+    assert not any(card.isVisible() for card in tracking.sections if id(card) in held)
+    assert screen._settings_model.collect()["timelapse"] is False
+    screen.dimension_switch("t").setChecked(False)
+    assert not any(card.isVisible() for card in tracking.sections)
 
 
 def test_a_setting_with_no_dimension_is_never_hidden(qt_theme_applied):

@@ -1,9 +1,11 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-Status:    DONE — live embedded-workspace regression repaired and qualified 2026-10-23
+Status:    DONE — native module layout and metadata acceptance completed 2026-10-23
 Requested: maintainer, 2026-10-22
 Owner:     Workstation spaCR session 2 — expanded workflow, implementation, validation and nightly publication; Home retains general CI/release
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
+
+LATEST MAINTAINER REQUIREMENTS — 2026-10-23: Overview must reuse Mask Generation’s normal module layout: categorized left settings and the existing console, AI chat, actions and system chrome, inheriting the normal transparent themed background rather than a black custom workspace. The initial metadata screen must not show Back. Its filename preview must include Row and Column, with unmatched files in gray text. Diagnose and fix the valid CellVoyager acquisition at /nas_mnt/carruthers/anu/revision/ALIXALG2KOme49_20261004_144325/AssayPlate_PerkinElmer_CellCarrier-384 where metadata detection finishes but Next remains disabled; inspect user data read-only. Retain true QWidget embedded bodies, resolution controls, bounded fast readers and existing scientific behavior. Workstation session 2 owns implementation, focused full-app validation, normal artifacts and nightly publication; root independently reviews the dataset and UI. These requirements supersede conflicting earlier opaque-background/layout instructions.
 
 LIVE STARTUP REGRESSION — 2026-10-23: the maintainer reports published Overview opens a tab containing only a black box and Back. Reproduce and repair real AppScreen/Make Masks startup, empty source and source-selection/reopen lifecycle; visible source controls must never depend on pre-populated settings. Add a discoverable user-controlled display resolution, retain the independent settings window, and verify fast bounded progressive image loading. Workstation session 2 owns the repair and normal artifacts/nightly publication; root independently reviews actual UI. Prior passing tests do not close this live regression.
 
@@ -195,6 +197,69 @@ combined-phase verdict. Next oracle review separates distinct module readiness
 and metadata opening into their own unchanged20s budgets; do not enlarge a
 budget, hide constructor time or infer an unproven layout defect. No new product
 change beyond the separately validated pacing repair is assumed.
+Separate-operation maximum59310/zKXERs on aad96b90c gets through Mask14.205s,
+wizard6.952s, reachable Next and embedded browser/three opaque surfaces, then
+fails actual host frame/client/minimum2400x1280 versus1440x870 work area;
+plate2220x25, Options unreached. Natural child1/46.388s/RSS1.270GiB/zero missed,
+unchanged input and normal close. New707 MainWindow scale-fit scope owns this
+proven floor overflow; retain all earlier accepted corner/layout results and
+do not relax bounds or certify usable plate/Options before the app is repaired.
+Floor candidate4b768 native23189/pXBSaT now reaches Mask11.189s and wizard
+construction2.158s, with embedded workspace/wizard opacity passing, but its
+1356x102 metadata allocation leaves enabled Next neither visible nor scroll
+reachable: actions lie outside the content scroller. Browser/Options remain
+unreached; natural child1/37.931s/RSS.991GiB/zero missed, unchanged inputs and
+normal close. Preserve seven floor checks, not whole-content acceptance.
+Mac owner now tests adaptive same-footer scrolling at this exact allocation,
+restoring sticky actions on growth; require full native styled text visibility
+after actual scrolling, unchanged signals/jobs, no smaller fonts or probe bypass.
+Causal Cocoa30074 fails at the exact allocation: Next164x78 has only164x44
+visible and no scroll ancestor (5.36s/RSS.318GiB). The private wizard now moves
+the same actions into its existing content scroller only in short allocations,
+drops redundant outer margins there, and restores sticky actions/margins on
+growth; no font, result or worker changes. Peer-reviewed Cocoa2850 passes four
+affected checks in5.78s/RSS.334GiB: actual52px1356x102→760→102, full native
+Next text-slot visibility after scrolling, same button, Escape/close and queued
+scan cancellation. Faithful maximum-scale content/plate/Options remains pending;
+this is not acceptance of every smaller-than-text viewport or of the whole item.
+Strict full-app27973/Y4fa9t on dba35 still fails: the host1440x870 fits and
+Next is range reachable after scrolling, but its170x78 button exposes170x65;
+native content field120x44 cannot hold the full120x72 text line. Mask10.742s,
+wizard2.194s, embedding/two opacity surfaces pass; browser remains unreached.
+Natural child1/37.939s/RSS.991GiB/zero missed, unchanged input/normal close.
+Correct the unit's normal-startup font/style precondition first, then reserve
+actual native button text floors and enough compact scroll viewport independently
+of the form's horizontal scrollbar. No font reduction, fixed height or waived slot.
+Normal preference bootstrap alone60856 still passes the unit (5.98s/.324GiB),
+but normal bundled-font registration/application resolves the missing fixture
+precondition:45054 fails full Open Sans52px text120x71 with only170x26 visible
+(6.61s/.329GiB). The candidate reserves fresh native minimum text slots for
+Cancel/Next and places the unchanged form scroller plus same footer in a
+compact-only vertical outer page, preserving independent form horizontal scroll.
+This is an unaccepted integration checkpoint:23048 retains three cancellation
+passes but the corrected text-visibility node still fails (7.67s/.349GiB);
+53022's allocation diagnostic likewise fails (7.01s/.335GiB), despite outer
+viewport1334x100 and button170x105, with only170x78 visible. Stop old-layout
+work here: newly fetched module-panel changes materially replace its wizard
+shell. Integrate first and adapt the wrapper to the actual new split/content,
+then test that final path; neither checkpoint nor prior bare-font green certifies it.
+After integrating module-panel work, the compact wrapper now moves the original
+split plus upstream's same module-actions widget, never borrowed settings;
+the action bar reserves current native button minima plus layout margins.
+Peer-reviewed merged Cocoa75040 passes the affected node in8.37s/RSS.333GiB:
+actual Open Sans52px, full native Next text visible after scrolling at1356x102,
+sticky760/restored102 and independent inner horizontal scrollbar, then the
+same buttons'52→2→52 minimum reset/unbounded maximum. Full normal-app merged
+module ownership, native maximum content/plate/Options acceptance remains pending.
+Full normal-app Cocoa83898 on merged08935 now passes actual maximum-scale
+Next text visibility (170x105 button; native field/full text120x71), both real
+module/settings ownership checks and all three intentional transparent surfaces.
+The run still fails before Options: the1440x870 native minimum equals the work
+area, leaving no bounded resize direction; browser1950x1271/plate1854x655 also
+exceeds the visible host. Local plate-section sums are not on-screen acceptance.
+Natural child1/42.254s/RSS1.035GiB/zero missed samples, unchanged inputs and
+normal close are retained. Continue707 resize-floor and725 visible-module
+repair; Options and complete maximum-scale acceptance are explicitly unresolved.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 
@@ -387,3 +452,5 @@ Local coverage remains46 missing lines/49 branches against unchanged30/9 limits;
 2026-10-23 — DONE: embedded metadata/browser pages, opaque background, window-sized plate, independent Options and hierarchical Back preserve the complete metadata/normalization/native-image/PDF/fov workflow. Exact montage restoration fails before the stale-display repair and passes afterward;386 focused checks pass, with16 uncovered statements/8 branches against unchanged30/9 ceilings and zero exclusions. Normal combined catalogs, API/help/consumer/flow/caption/index outputs and strict558 reviewed-target/source-hash checks pass; immutable translation pin6da9a41d preserves both Overview and published AI work. Independent real Mask Generation dark/Make Masks light offscreen renders and original-source comparison PDF/raw-value peers are accepted; native Windows/Mac hardware remains owned by those sessions.
 
 2026-10-23 — LIVE REGRESSION REPAIRED: actual QWidget metadata/browser bodies remain embedded when the full app installs its global dialog filters, fixing the black tab; Options remains a separate retained window. Visible Preview resolution (128–4096 px) bounds plate/well/field loading while native cell crops retain original pixels; readonly TIFF mapping and request-local compressed-page reuse preserve exact RGB while avoiding repeated full-page decoding. All391 focused tests plus three lifecycle/camera controls pass; exact source coverage has15 missing statements/9 branches against unchanged30/9 ceilings, with no exclusions. Independent full MainWindow Mask dark/Make Masks light startup, source selection, resolution, Options and Back acceptance passes; normal artifacts and all576 reviewed targets/source hashes pass with immutable translation pin d86160b3 preserving Overview/AI history. Earlier scientific/PDF/database acceptance is retained; native Windows/Mac hardware remains with its owning sessions.
+
+2026-10-23 — DONE: Overview reuses the real Mask/Make Masks categorized settings, console/AI/system/actions and transparent theme; initial metadata has no Back, and retained Options restores the same controls. Row/Column remain visible and unmatched files are theme-dimmed; only actual regex nonmatches are excluded, so the supplied read-only CellVoyager source accepts3068 valid fields/12272 images while excluding8 OTF calibrations. Independent actual full-app dark/light and NAS metadata/384-well rendering pass; bounded eight-preview batches reduce the measured full-plate loading from about51 to30 seconds. All409 final merged-source focused tests pass, preserving native Mac text-sizing updates; exact source coverage has13 missing statements/8 branches, zero exclusions, against unchanged30/9 ceilings. Normal API/runtime/Help/consumer/flow/caption/index outputs and603 strict reviewed-target/source bindings pass with immutable review pin f3141ecf; prior scientific/database/PDF acceptance is retained, and native Windows/Mac hardware validation remains with its owning sessions.

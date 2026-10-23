@@ -226,13 +226,21 @@ def _fit_to_the_work_area(window, screen=None, lower_minimum=True) -> bool:
         room.setWidth(max(1, room.width() - border_w))
         room.setHeight(max(1, room.height() - border_h))
         if lower_minimum:
-            window.setMinimumSize(window.minimumSize().boundedTo(room))
+            from .gui_scale import _fit_main_window_minimum
+
+            if not _fit_main_window_minimum(window, screen):
+                window.setMinimumSize(window.minimumSize().boundedTo(room))
         if window.isMaximized() or window.isFullScreen():
             return False
         size = inner.size().boundedTo(room)
         changed = size != inner.size()
         if changed:
-            window.resize(size)
+            if getattr(window, "_gs_main_window_floor", False):
+                from .gui_scale import _resize_actual
+
+                _resize_actual(window, size)
+            else:
+                window.resize(size)
         placed = (window.isVisible()
                   or window.testAttribute(Qt.WidgetAttribute.WA_Moved))
         if placed:
@@ -3141,6 +3149,7 @@ class MainWindow(QMainWindow):
         :param initial_app: the module to open on startup; ``None`` opens Home.
         """
         super().__init__()
+        self._gs_main_window_floor = True
         self._closing = False
         from .widgets.loading_screen import splash_role
         startup_palette = self.palette()
@@ -6654,9 +6663,9 @@ class MainWindow(QMainWindow):
 
         Driven through the button so the control shows the state the form
         has. Page folds (OPS, and the spatial submodules on Mask Generation
-        and Map Barcodes) use their actions-row switch; category folds use
-        the masthead strip. A host without a corresponding switch is left
-        unchanged.
+        and Map Barcodes) use their actions-row switch. The legacy Timelapse
+        route enables its processing checkbox and reveals Time; other category
+        folds use the masthead strip. Missing controls leave the host unchanged.
         """
         screen = self._screens.get(host_key)
         if screen is None:
@@ -6669,6 +6678,10 @@ class MainWindow(QMainWindow):
                 installed.show_page()
             return
         try:
+            if host_key == "mask" and folded_key == "timelapse":
+                screen.apply_settings_dict({"timelapse": True})
+                screen.set_dimension("t", True)
+                return
             from .screens.mask import fold_set
 
             folds = fold_set(screen)

@@ -207,11 +207,16 @@ def test_the_hosts_offer_both_modules_from_their_mastheads(
 
     win._on_nav_selected("mask")
     mask_screen = win._screens["mask"]
-    assert mask_folds.install_folds(mask_screen) is not None
+    assert mask_folds.install_folds(mask_screen) is None
     folds = mask_folds.fold_set(mask_screen)
     assert folds is not None and "timelapse" in folds.order
-    folds.strip.button_for("timelapse").setChecked(True)
+    mask_screen.dimension_switch("t").setChecked(True)
+    assert folds.is_active("timelapse")
+    assert mask_screen._settings_model.collect()["timelapse"] is False
+    win.open_module("timelapse")
     assert mask_screen._settings_model.collect()["timelapse"] is True
+    assert mask_screen.dimension_is_on("t")
+    assert folds.strip is None
 
     win._on_nav_selected("measure")
     measure_screen = win._screens["measure"]
@@ -326,7 +331,7 @@ def test_the_timelapse_demo_lands_on_mask_with_tracking_switched_on(
 
     win._on_nav_selected("mask")
     screen = win._screens["mask"]
-    assert mask_folds.install_folds(screen) is not None
+    assert mask_folds.install_folds(screen) is None
     screen.apply_settings_dict({"timelapse": "True",
                                  "timelapse_objects": ["cell"]})
 
@@ -442,14 +447,15 @@ def test_mask_categories_are_hidden_through_the_existing_mechanism():
             "Motility Advanced (beta)"} <= hidden
 
 
-def test_mask_defaults_expose_no_timelapse_or_motility_keys():
+def test_mask_defaults_expose_only_the_explicit_tracking_gate():
     """Not even via the trailing 'Other' bucket."""
     from spacr.qt.screens.settings_model import (
         resolve_default_settings, timelapse_and_motility_keys,
     )
     leaked = sorted(set(resolve_default_settings("mask"))
                     & timelapse_and_motility_keys())
-    assert not leaked, f"Mask still edits {leaked}"
+    assert leaked == ["timelapse"]
+    assert resolve_default_settings("mask")["timelapse"] is False
 
 
 def test_mask_screen_still_offers_the_rest_of_its_settings(qtbot, qt_theme_applied):
@@ -477,13 +483,13 @@ def test_importing_a_legacy_mask_csv_reports_what_it_did_with_the_flags(
 
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
-    assert mask_folds.install_folds(screen) is not None
+    assert mask_folds.install_folds(screen) is None
     loaded = {"timelapse": "True", "motility_analysis": True}
     screen.apply_settings_dict(loaded)
     screen._warn_about_moved_settings(loaded)
     text = _console_text(screen)
 
-    assert "switched Timelapse on" in text
+    assert "switched Timelapse on" not in text
     assert "motility_analysis=True was ignored" in text
     assert "Measure" in text
     assert "sidebar" not in text

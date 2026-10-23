@@ -12,6 +12,54 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+New MainWindow scale-fit scope: native59310/zKXERs on publishedaad96b90c
+passes separate20s operations (Mask14.205s, wizard construction6.952s), embedded
+wizard/browser and three opaque surfaces, then proves an actual top-level floor
+defect at GUI200/font200. QWindow frame/client and minimum are2400x1280 at0,30
+against1440x870 work area; maximum remains unbounded and plate is2220x25.
+Options is unreached. Natural child1/46.388s/RSS1.270GiB/zero missed, unchanged
+inputs and normal close. The logical MainWindow1200x640 floor is being doubled
+beyond its screen. First add a causal real-QMainWindow scale regression, then
+cap only the effective actual top-level minimum against native client room,
+preserving its logical baseline, live grow/shrink, free user resizing/no fixed
+maximum and every content's visibility-or-scrolling/usable plate. Do not hide
+overflow by resizing the probe or claim a smaller physical display test.
+Real-Cocoa causal RED64544 fails both font200/font10 cases at actual minimum
+2400x1280 against1440x870 (20.89s/RSS0.626GiB). The scoped repair opts in only
+MainWindow before its first floor setter; effective actual minima are capped
+against native work/client room in both initial and live reapplication while
+logical1200x640 records remain intact. Native work-area fitting reapplies those
+records rather than rewriting them through logical getters. No child/dialog
+policy, maximum size or font changes. Focused green and actual Mask→Overview
+content/whole-plate grid fit remain required; bare frame fit is not acceptance.
+Focused Cocoa green31217 PASSES seven checks in31.99s/RSS0.577GiB: real
+MainWindow fonts200/10 survive GUI200→10→200 with actual native frame/minimum
+within the current work area, original logical1200x640 intact and no maximum;
+unmarked child floors and existing default/unmarked fit/placement contracts
+remain unchanged. Independent source/test peer clears the bounded mechanism.
+Actual Mask→Overview reachability and whole-plate row/column fit still require
+the faithful native retake; no bare-window-only layout acceptance is claimed.
+Native83898/ijj1qi on08935 now passes full styled Next text, module ownership
+and three transparent surfaces, but actual frame/minimum1440x870 consumes the
+entire1440x870 work area with no legal resize direction at GUI200/font200.
+Natural child1/42.254s/RSS1.035GiB/zero missed and normal close/input preservation;
+this is a separate resize-floor defect, not acceptance of the oversized browser.
+Next bounded policy: for the opted-in MainWindow only, retain the recorded
+unscaled desktop minimum as the GUI-above100% ceiling, still bounded by actual
+native client room; preserve live smaller-GUI minima, logical1200x640 records,
+unbounded maxima and all child/dialog policies. Add native causal resize proof
+before changing the helper. Actual browser/plate visibility remains a separate gate.
+Causal Cocoa31235 fails the strengthened font200 node at actual1440x870
+minimum versus desktop1200x640 (15.23s/RSS.539GiB). The bounded helper now
+uses each current stored logical floor as an additional ceiling, not a literal
+1200x640 constant; initial, live and native-fit callers share this one policy.
+No app, maximum, child or ordinary-dialog policy changes are made.
+Peer-reviewed Cocoa43729 PASSES seven affected checks in34.43s/RSS.606GiB:
+both font200/10 cases preserve GUI200→10→200 logical baselines, actual native
+bounded20px grow and shrink on both axes and unbounded maxima; default and
+unmarked fit/placement controls remain passing. Full app/browser content and
+actual whole-plate visibility remain separate pending acceptance, not implied.
+
 Next uncovered supported setup corner: GUI10%/font200%, within the actual
 GUI_SCALE_MIN0.10/FONT_SCALE_MAX2.0 clamps. Normal live scaling precedes both
 real setup constructors; require actual3px body-font witnesses and exact two
