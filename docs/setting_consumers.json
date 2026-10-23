@@ -5228,7 +5228,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 12556,
+    "line": 12558,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -7642,7 +7642,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 12553,
+    "line": 12555,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -7741,7 +7741,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 2004,
+    "line": 2012,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -11118,7 +11118,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 12563,
+    "line": 12565,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -11127,7 +11127,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 12567,
+    "line": 12569,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -11779,7 +11779,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 2000,
+    "line": 2008,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -12226,7 +12226,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 12561,
+    "line": 12563,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -24412,7 +24412,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 2109,
+    "line": 2117,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -28011,7 +28011,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 2014,
+    "line": 2022,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -28382,7 +28382,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 2012,
+    "line": 2020,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -30077,7 +30077,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 12556,
+    "line": 12558,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -32501,7 +32501,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 12556,
+    "line": 12558,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -34245,7 +34245,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 12556,
+    "line": 12558,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -35086,7 +35086,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 12556,
+    "line": 12558,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -35927,7 +35927,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 12556,
+    "line": 12558,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -38456,7 +38456,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 12556,
+    "line": 12558,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -41415,7 +41415,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_dims",
-    "line": 12557,
+    "line": 12559,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -41424,7 +41424,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "png_dims",
-    "line": 12558,
+    "line": 12560,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -50310,7 +50310,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 11406,
+    "line": 11408,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "process_measure_crop_results"
@@ -50319,7 +50319,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 12552,
+    "line": 12554,
     "module": "spacr.measure",
     "nested": false,
     "qualname": "field_table_settings"
@@ -51021,7 +51021,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1991,
+    "line": 1999,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"

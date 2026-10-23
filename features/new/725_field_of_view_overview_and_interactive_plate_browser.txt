@@ -1,8 +1,8 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-Status:    DONE
+Status:    DONE — overview export and channel-help CI follow-up validated
 Requested: maintainer, 2026-10-22
-Owner:     widgets_g1 / root — delivered; completed PDF/CSV delivery retained
-Priority:  Current maintainer UI correction; completed overview/PDF/CSV remain delivered
+Owner:     widgets_g1 / widgets_g4 peer / root publication — completed PDF/CSV/icon delivery retained
+Priority:  Current CI follow-up; completed overview/PDF/CSV/icon requirements remain delivered
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
 
 REQUEST
@@ -71,3 +71,5 @@ ACCEPTANCE
 2026-10-22 — Optional original-resolution whole-image CSV measurements pass 13 focused controls and independent source review; 45 new runtime translations pass independent AI meaning review. The 45 independently peered runtime translations ship under immutable reviews f24e45ba; normal catalogs, caption-arrival/flow/consumer checks and final stock API checks pass. The original overview delivery is preserved; this change completes the optional CSV follow-up.
 
 2026-10-22 — Moved both overview entries to icon-only source-browse controls, removing the old toolbar/tab-corner buttons while retaining translated help, accessibility and opening context. Both owning entry checks and native source-icon adjacency pass; normal consumer output changes only source-line offsets and independent source/output review passes. This completes the UI follow-up; completed PDF and raw CSV delivery remain retained.
+
+2026-10-23 — Reopened only the figure-registration and editable-field help CI follow-up: register actual overview page images/provenance and move the same reviewed channel guidance to its setting label; preserve delivered CSV/PDF/icons and callback documentation. Both original gates plus real export/help controls pass (4 tests,25.36 s), with independent source/output review accepted. Normal consumer generation closes exactly21 line offsets; API/runtime/target map are unchanged. Root integrates and publishes this follow-up; prior delivery/history remain retained.

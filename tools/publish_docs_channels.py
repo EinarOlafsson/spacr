@@ -332,7 +332,8 @@ colorFrom: blue
 colorTo: indigo
 sdk: static
 pinned: false
-license: bsd-3-clause
+license: other
+license_name: {license_name}
 short_description: Nightly preview of the spaCR documentation
 ---
 
@@ -352,7 +353,14 @@ def assemble_nightly(nightly: Path, output: Path, main_url: str = MAIN_URL,
     share_tutorial_media(output, output, "nightly")
     add_banner(output, channel_banner("nightly", main_url, nightly_url))
     index_links = explicit_index_links(output)
-    _write_text(output / "README.md", SPACE_README.format(main_url=main_url))
+    project_root = Path(__file__).resolve().parents[1]
+    license_name = re.search(
+        r'^license = "([^"]+)"$',
+        _read_text(project_root / "pyproject.toml"), re.M)[1]
+    for filename in ("LICENSE", "LICENSE-BSD-3-Clause"):
+        shutil.copyfile(project_root / filename, output / filename)
+    _write_text(output / "README.md", SPACE_README.format(
+        main_url=main_url, license_name=json.dumps(license_name)))
     receipt = {"schema": 2, "channels": {"nightly": record}, "nightly_url": nightly_url,
                "index_links": index_links,
                "media_files": len(list((output / "_media").glob("*")))}
