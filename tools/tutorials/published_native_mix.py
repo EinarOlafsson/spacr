@@ -19,7 +19,7 @@ UMAP_CARD = '27_fold_image_scatter'
 
 
 def source_mapping(english, original, cards):
-    """Only the two explicitly reviewed native/reference-card arrangements."""
+    """Only explicitly reviewed native/reference-card arrangements."""
     visuals = [s['visual'] for s in english['scenes']]
     source = [s['visual'] for s in original['scenes']]
     if english['id'] == '05_home':
@@ -34,7 +34,14 @@ def source_mapping(english, original, cards):
                 or any(s.get('native_live_video') is not True for s in original['scenes'])):
             raise ValueError('Require exact Image UMAP fourteen native scenes and one linked-tool reference card')
         return list(UMAP_SOURCE), {UMAP_CARD}
-    raise ValueError('Mixed published source is only reviewed for Home and Image UMAP')
+    if english['id'] == '21_model_compare':
+        from render_model_compare_reference_cards import VISUALS, CARDS as COMPARE_CARDS
+        if (source != list(VISUALS) or visuals != list(VISUALS) or set(cards) != set(COMPARE_CARDS)
+                or any(type(s.get('native_live_video')) is not bool for s in original['scenes'])
+                or [s['native_live_video'] for s in original['scenes']] != [True,True,False,False,False,False]):
+            raise ValueError('Require exact six Model Compare scenes, two native/four held, and only three reviewed reference slots')
+        return [v for v in source if v not in COMPARE_CARDS], set(COMPARE_CARDS)
+    raise ValueError('Mixed published source is only reviewed for Home, Image UMAP and Model Compare')
 
 
 def identity(value):
@@ -50,6 +57,8 @@ def plan_mix(english,original,tracks,cards,edit,bindings,fences):
             or edit['visual_timing_sha256']!=bindings['timing']['sha256']):
         raise ValueError('Native edit source binding changed')
     selected={s['visual']:s for s in edit['scenes']}
+    if english['id']=='21_model_compare' and selected:
+        raise ValueError('Model Compare reference refresh preserves all retained source intervals unchanged')
     if len(selected)!=len(edit['scenes']) or set(selected)-set(source):raise ValueError('Unknown or duplicate native edits')
     if len(tracks)!=50 or any(len(t['scenes'])!=count for t in tracks):raise ValueError('Require all current fifty complete scene tracks')
     by_source={s['visual']:s for s in original['scenes']};rows=[];cursor=0
@@ -115,11 +124,19 @@ def inputs(stage,baseline,edit,source_policy,identity_='05_home'):
         from render_home_reference_cards import validate_cards
     elif identity_ == '15_image_umap':
         from render_umap_reference_card import validate_cards
+    elif identity_ == '21_model_compare':
+        from render_model_compare_reference_cards import validate_cards
     else:
         raise ValueError('Unreviewed mixed lesson')
     cards=validate_cards(root/'reference-cards',english,REPO)
     card_contract=read(root/'reference-cards/cards.json')
-    tracks,proofs=verified_narration_tracks(stage,identity_,english)
+    if identity_ == '21_model_compare':
+        from published_retained_narration import RECORD as NARRATION_RECORD, checked_published_narration
+        if Path(read(root/NARRATION_RECORD)['baseline_root']).resolve()!=baseline:
+            raise ValueError('Model Compare requires unchanged fifty-track narration from this exact published baseline')
+        tracks,proofs=checked_published_narration(stage,identity_)
+    else:
+        tracks,proofs=verified_narration_tracks(stage,identity_,english)
     lesson={'id':identity_,'silent':bindings['master']['path'].removeprefix('media_host/'),
             'visual_timings':bindings['timing']['path'].removeprefix('media_host/')}
     verified=bind_policy(source_policy,list(bindings.values()),[lesson],lambda _:original)[0]
@@ -138,6 +155,11 @@ def inputs(stage,baseline,edit,source_policy,identity_='05_home'):
           edit_sha256=identity(edit),cards_contract_sha256=identity(card_contract),
           source_idle_policy_sha256=identity(source_policy),fresh_capture=False,raw_capture_revalidated=False),
         coverage=dict(accepted=True,gaps=[],track_count=50,source_native_scene_count=len(original['scenes'])-int(identity_=='15_image_umap'),reference_card_count=len(cards)))
+    if identity_ == '21_model_compare':
+        timing['coverage']['source_native_scene_count']=2
+        timing['published_native_mix']['replaced_source_scenes']=[
+            dict(source_scene=i+1,visual=s['visual'],reason='Authoring terminal replaced by clearly labelled reference from unchanged saved results')
+            for i,s in enumerate(original['scenes']) if s['visual'] in cards]
     if identity_ == '15_image_umap':
         timing['published_native_mix']['omitted_source_scenes'] = [dict(source_scene=15,visual='27_review_embedding',
             reason='Redundant completed embedding view; native scenes11–14 retain real completed result and crop inspection. Replaced by authored linked-tool reference.') ]
@@ -181,7 +203,7 @@ def render(stage,baseline,edit,source_policy,identity_='05_home'):
 
 
 def checked_mixed_native_timing(stage,identity_):
-    if identity_ not in {'05_home','15_image_umap'}:raise ValueError('Unreviewed mixed source')
+    if identity_ not in {'05_home','15_image_umap','21_model_compare'}:raise ValueError('Unreviewed mixed source')
     root=Path(stage)/'production'/identity_;record=read(root/RECORD)
     root,_,_,source,spec,timing,_,_=inputs(stage,record['baseline_root'],record['edit'],record['source_idle_policy'],identity_)
     expected=dict(schema=1,kind='mixed_published_native_intervals',lesson=identity_,fresh_capture=False,raw_capture_revalidated=False,**source,edit=record['edit'],
@@ -196,7 +218,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--stage',type=Path,required=True)
     p.add_argument('--baseline',type=Path,required=True);p.add_argument('--reviewed-edit',type=Path)
     p.add_argument('--source-idle-policy',type=Path)
-    p.add_argument('--lesson',choices=['05_home','15_image_umap'],default='05_home')
+    p.add_argument('--lesson',choices=['05_home','15_image_umap','21_model_compare'],default='05_home')
     a=p.parse_args();print(render(a.stage,a.baseline,read(a.reviewed_edit) if a.reviewed_edit else None,
         read(a.source_idle_policy) if a.source_idle_policy else dict(schema=1,lessons=[]),a.lesson))
 if __name__=='__main__':main()

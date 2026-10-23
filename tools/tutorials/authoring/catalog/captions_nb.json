@@ -1371,7 +1371,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "I denne demonstrasjonen av minnebruk gjentas det samme eksempelbildefeltet som fliser i en større matrise; ingen måling startes. Før en kjøring starter, anslår spaCR hvor mye minne hver arbeidsprosess trenger ut fra ett synsfelt i prosjektet ditt. Med svært store synsfelt, som sammensatte mosaikker, får kanskje ikke arbeidsprosessene du ba om plass i ledig RAM, og da spør spaCR først. Velg anbefalt antall arbeidsprosesser, behold ditt eget og la Measure vente med nye synsfelt mens minnet er knapt, eller lukk andre programmer for å frigjøre minne.",
+          "narration": "Før en kjøring starter, anslår spaCR hvor mye minne hver arbeidsprosess trenger ut fra ett synsfelt i prosjektet ditt. Med svært store synsfelt, som sammensatte mosaikker, får kanskje ikke arbeidsprosessene du ba om plass i ledig RAM, og da spør spaCR først. Velg anbefalt antall arbeidsprosesser, behold ditt eget og la Measure vente med nye synsfelt mens minnet er knapt, eller lukk andre programmer for å frigjøre minne.",
           "focus": [
             1620,
             860,
@@ -2372,8 +2372,9 @@
           "narration": "Bruk verktøylinjen til å åpne Volcano Explorer, Hit List eller Investigate Hit som neste steg. Veiledningene deres viser hvordan du undersøker valgte resultater. Hold inndatatabeller, lagrede innstillinger, resultatfiler og diagnostikkrapporter samlet når du deler analysen.",
           "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "73_parameter_sweep"
+            "72_volcano_explorer",
+            "48_hit_list",
+            "71_investigate_hit"
           ]
         }
       ],
@@ -2858,7 +2859,8 @@
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
-            "19_train_cellpose"
+            "19_train_cellpose",
+            "08_measure"
           ]
         }
       ],
@@ -3804,11 +3806,11 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Fra Home åpner du Make Masks og deretter Cellpose Workbench. Velg Apply for å segmentere bilder med en eksisterende modell. Bruk Train når du vil lære nye vekter fra kontrollerte par av bilde og maske.",
+          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "04_setting_src",
@@ -3888,11 +3890,11 @@
             2750,
             455
           ],
+          "hold_after": 0.7,
           "related_lessons": [
-            "07_mask",
-            "06_api"
-          ],
-          "hold_after": 0.7
+            "14_make_masks",
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -6975,8 +6977,8 @@
           "narration": "Fortsett i Database Browser for å undersøke tabellene, eller i Annotate for å gå gjennom objektutsnitt. Oppbevar den gjennomgåtte tilordningen sammen med det ferdige prosjektet.",
           "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "08_measure"
+            "34_database",
+            "09_annotate"
           ]
         }
       ],
@@ -7921,21 +7923,21 @@
           "focus_modules": [
             "classify_merged"
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_02_family_choices",
           "narration": "Velg Computer Vision for å lære fra objektbilder. Velg Tabular Machine Learning for å lære fra kolonner med målte egenskaper. Measure gir disse inndataene, og i Annotate kan du legge til objektmerkelapper.",
+          "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_03_tabular_family",
@@ -7946,19 +7948,19 @@
             1150,
             1600
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "For tabelleksemplet klikker du på Load test data og velger Load. Velg klassemerkelapper og egenskapsinnstillinger, og følg deretter tabelleksjonen for å trene modellen og lagre prediksjonene.",
+          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -7969,10 +7971,10 @@
             2050,
             1520
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "cv_24_batch_figure",
@@ -7983,10 +7985,10 @@
             3460,
             1440
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "10_classify_cv"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -7997,10 +7999,10 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "39_classifier_evaluation"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -8011,10 +8013,10 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "70_explain_cv"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -8025,10 +8027,10 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "16_activation"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -8039,18 +8041,18 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "28_training_runs"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Åpne Feature Explorer for å sammenligne målte egenskaper mellom valgte grupper. Velg grupper og filtre, og undersøk deretter rangeringen av egenskaper og plottene.",
+          "hold_after": 0.7,
           "related_lessons": [
             "65_feature_explorer"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8061,12 +8063,13 @@
             2050,
             1520
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "10_classify_cv",
-            "11_classify_ml"
-          ],
-          "hold_after": 0.7
+            "11_classify_ml",
+            "13_regression"
+          ]
         }
       ],
       "narration_voices": {
