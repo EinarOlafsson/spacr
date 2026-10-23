@@ -348,6 +348,10 @@ def test_overview_source_entry_reuses_only_the_current_normalized_first_source(q
     first = browser._open_field_overview(owner, {"src": [str(first_source), str(second_source)]})
     same = browser._open_field_overview(owner, {"src": str(first_source) + "/./"})
     assert same is first
+    nested = browser._open_field_overview(owner,
+        {"src": [[str(first_source), str(second_source)], ["unused"]]})
+    assert nested is first
+    assert nested.source.text() == str(first_source)
     assert same.source.text() == str(first_source)
     replacement = browser._open_field_overview(owner, {"src": [str(second_source), str(first_source)]})
     assert replacement is not first

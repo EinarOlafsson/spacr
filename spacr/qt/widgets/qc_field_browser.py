@@ -3540,7 +3540,7 @@ def _open_field_overview(owner, settings=None):
 
 def _overview_source_path(source):
     """Normalize the first source lexically without filesystem work on the GUI thread."""
-    if isinstance(source, (list, tuple)):
+    while isinstance(source, (list, tuple)):
         source = source[0] if source else ""
     return os.path.abspath(os.path.expanduser(str(source))) if source else ""
 
