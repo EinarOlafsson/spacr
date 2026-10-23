@@ -492,7 +492,9 @@ def test_well_mean_wizard_transports_plate_qualified_condition_and_refuses_chann
     wizard.reference_kind.setCurrentIndex(wizard.reference_kind.findData("reference_condition"))
     assert {wizard.reference.itemData(index) for index in range(wizard.reference.count())} == {
         ("p", "control"), ("other", "control")}
-    wizard.reference.setCurrentIndex(wizard.reference.findData(("p", "control")))
+    selected = next(index for index in range(wizard.reference.count())
+                    if wizard.reference.itemData(index) == ("p", "control"))
+    wizard.reference.setCurrentIndex(selected)
     options = wizard.configuration()["normalization"]
     assert options["mode"] == "reference_average"
     assert options["reference_kind"] == "reference_condition"
