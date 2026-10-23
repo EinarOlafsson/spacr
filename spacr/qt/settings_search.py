@@ -412,6 +412,8 @@ class SettingsSearchBar(QWidget):
         A nested heading is reachable only with every containing heading open,
         and logical ancestry also crosses bodies parked off the widget tree.
         """
+        if str(key) in getattr(self._model, "_hidden_by_the_family", ()):
+            return False
         row = self._index.get(str(key))
         if row is None:
             return False

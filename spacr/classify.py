@@ -63,10 +63,6 @@ ML_MODEL_TYPES: Tuple[str, ...] = (
 #: screen is a front end onto these, not a replacement for them.
 FAMILY_APP_KEY: Dict[str, str] = {"cv": "classify", "ml": "ml_analyze"}
 
-#: Settings each family reads that the other has no use for. Drives the
-#: greying, the same way :data:`spacr.training_basis.BASIS_SETTINGS` does for
-#: the training basis, and for the same reason: a control the user can edit
-#: that changes nothing is worse than one that is not there.
 FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "cv": (
         "crop_shape", "extract_channels", "object_array", "coordinate_columns",
@@ -80,10 +76,15 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
         "generate_training_dataset", "apply_model_to_dataset",
         "generate_full_dataset", "tar_path", "n_top_examples", "path_string",
         "file_type", "crop_source", "batch_size", "val_split",
-        "image_source", "mixed_precision",
+        "image_source", "mixed_precision", "stream_method",
+        "channel_arrays", "bounding_box", "normalize", "class_balance",
+        "tta_enabled", "tta_rotations", "tta_horizontal_flip",
+        "tta_vertical_flip", "tta_aggregation", "tta_min_agreement",
+        "tta_max_std",
     ),
     "ml": (
         "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",
+        "test_size", "cross_validation",
         "prune_features", "top_features", "n_repeats", "min_cells_per_well",
         "remove_low_variance_features", "remove_highly_correlated_features",
         "heatmap_feature", "grouping", "min_max", "cmap",
@@ -158,11 +159,12 @@ def resolve_family(settings: Mapping[str, Any]) -> str:
 
 
 def inapplicable_settings(family: str) -> Tuple[str, ...]:
-    """Return the other family's setting keys, which the panel greys out.
+    """Return setting keys used only by the other classifier family.
 
-    Greyed, never removed: INVARIANTS §6. A key absent from the dict makes
-    the pipeline fall back to its own default, which can differ from the
-    value the module needs and says nothing when it does.
+    The merged settings panel hides these rows and empty family categories
+    while retaining their controls and stored values. Hidden keys stay in
+    the settings dictionary, so switching families restores their values
+    rather than substituting pipeline defaults.
 
     :param family: the chosen family.
     :returns: setting keys the other family owns.

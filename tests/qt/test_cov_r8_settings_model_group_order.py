@@ -55,7 +55,7 @@ class TestTheMergedClassifyGroupOrder:
             "train it")
 
         source = inspect.getsource(SM)
-        assert 'rebuilt = {"Classifier": ["classifier_family"]}' in source, (
+        assert 'rebuilt = {"Classifier": ["classifier_family", "learning_rate"]}' in source, (
             "the family choice is no longer the first group, so the panel "
             "asks which model to train after asking how to train it")
 

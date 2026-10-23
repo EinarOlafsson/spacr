@@ -2468,7 +2468,11 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
             shared_last = ("Evaluation", "Results & figures",
                            "Runtime & Reliability")
 
-            rebuilt = {"Classifier": ["classifier_family"]}
+            for shared_key in ("channel_of_interest", "tables"):
+                ordered["Images & Cropping"].remove(shared_key)
+                ordered["Plate Sources & Workflow"].append(shared_key)
+            ordered["Training & Loss"].remove("learning_rate")
+            rebuilt = {"Classifier": ["classifier_family", "learning_rate"]}
             for name in shared_first:
                 if name in ordered:
                     rebuilt[name] = ordered[name]
@@ -11724,14 +11728,11 @@ class SettingsWidgets:
             _clear_greyed_note(metric)
 
     def _refresh_classifier_family_enablement(self) -> None:
-        """Grey the settings the OTHER classifier family reads.
+        """Hide the other family's rows without discarding controls or values.
 
-        Only the merged Classify module has this control; the two original
-        modules are one family each and have nothing to grey.
-
-        Same rule as the training basis: greyed, never removed
-        (INVARIANTS 6), and the list lives in spacr.classify so the panel and
-        the pipeline cannot drift apart about which settings matter.
+        Applicability comes from the pipeline's family ownership declaration.
+        Shared settings remain available, and dependency rules still decide
+        whether a visible control can be edited.
         """
         widget = self._widgets.get("classifier_family")
         if widget is None:
@@ -11747,6 +11748,7 @@ class SettingsWidgets:
         except Exception:
             return
 
+        self._hidden_by_the_family = greyed
         for key, control in self._built_controls():
             if key in greyed:
                 control.setEnabled(False)
@@ -11756,7 +11758,7 @@ class SettingsWidgets:
                 _clear_greyed_note(control)
 
     def _on_classifier_family_changed(self, *_args) -> None:
-        """Re-grey the panel when the classifier family changes.
+        """Refresh family visibility and dependent control states.
 
         The dependency rules run after it, as they do when the panel is
         built: the family pass re-enables every setting the family owns, and
@@ -11768,6 +11770,7 @@ class SettingsWidgets:
         """
         self._refresh_classifier_family_enablement()
         self._refresh_setting_dependencies()
+        self.refresh_object_visibility()
 
     def _on_training_basis_changed(self, *_args) -> None:
         """Re-grey the panel when the training basis changes.
@@ -12275,11 +12278,18 @@ class SettingsWidgets:
             return
         try:
             current = self._object_visibility_settings()
+            if "classifier_family" in self._widgets:
+                from spacr.classify import inapplicable_settings, resolve_family
+
+                self._hidden_by_the_family = set(inapplicable_settings(
+                    resolve_family({"classifier_family": self._current_setting(
+                        "classifier_family")})))
             lacking = set(keys_hidden_by_their_object(self._widgets, current))
             self._hidden_by_their_object = set(lacking)
             hidden = lacking | set(
                 getattr(self, "_hidden_by_the_grid", ()) or ()) | set(
-                getattr(self, "_hidden_by_the_mode", ()) or ())
+                getattr(self, "_hidden_by_the_mode", ()) or ()) | set(
+                getattr(self, "_hidden_by_the_family", ()) or ())
             self._hidden_by_the_run = set(hidden)
             lay_out = getattr(self, "rows_are_laid_out_by", None)
             if lay_out is not None:
@@ -12451,15 +12461,16 @@ class SettingsWidgets:
             return switched_off[role]
 
         elsewhere = set(getattr(self, "_hidden_by_the_grid", ()) or ()) | set(
-            getattr(self, "_hidden_by_the_mode", ()) or ())
+            getattr(self, "_hidden_by_the_mode", ()) or ()) | set(
+            getattr(self, "_hidden_by_the_family", ()) or ())
         for ident, (section, keys) in headings.items():
             gone = bool(keys) and all(
                 key in elsewhere or absent(object_of_setting(key))
                 for key in keys)
             try:
                 if gone:
+                    emptied[ident] = section
                     if not section.isHidden():
-                        emptied[ident] = section
                         section.setVisible(False)
                         section.installEventFilter(self._object_row_guard)
                 elif ident in emptied:

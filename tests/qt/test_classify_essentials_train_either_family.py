@@ -6,7 +6,7 @@ enough to pick and train a computer vision mode (resnet or Maxvit, etc) or a
 tabular based algorithm".
 
 The Essentials view has to carry both families' training settings, and the
-family switch greys the half that does not apply.
+family switch hides the half that does not apply without losing its values.
 """
 from __future__ import annotations
 
@@ -59,8 +59,9 @@ def test_the_essentials_view_shows_them(classify_screen):
     bar = install(classify_screen)
     assert bar.level() == ESSENTIALS
     shown = set(bar.visible_keys())
-    missing = [k for k in (*SHARED, *IMAGE, *TABULAR) if k not in shown]
+    missing = [k for k in (*SHARED, *IMAGE) if k not in shown]
     assert not missing, missing
+    assert not set(TABULAR) & shown
     assert len(shown) < len(bar.indexed_keys())
 
 
@@ -86,3 +87,85 @@ def test_only_the_chosen_family_is_live(classify_screen, family, live,
         if key in built:
             assert built[key].isEnabled(), (family, key)
     assert set(live) & set(built) and set(greyed) & set(built)
+
+
+@pytest.mark.parametrize("family", ["cv", "ml"])
+def test_family_hides_every_opposite_row_and_category(classify_screen, qtbot, family):
+    from spacr.classify import FAMILY_SETTINGS
+    from spacr.qt.settings_search import ALL
+
+    screen = classify_screen
+    bar = install(screen)
+    bar.set_level(ALL)
+    screen.show()
+    model = screen._settings_model
+    selector = model._widgets["classifier_family"]
+    selector.setCurrentIndex(selector.findData(family))
+    qtbot.wait(0)
+    other = "ml" if family == "cv" else "cv"
+    shown = set(bar.visible_keys())
+    assert not shown.intersection(FAMILY_SETTINGS[other])
+    assert {"classifier_family", "learning_rate", "channel_of_interest", "tables", "src"} <= shown
+    assert ("model_type" if family == "cv" else "model_type_ml") in shown
+    prefix = "Machine Learning" if family == "cv" else "Computer Vision"
+    opposite = [section for section in screen.rendered_settings_sections()
+                if str(section.property("settingsCategorySource") or "").startswith(prefix)]
+    assert opposite
+    assert all(section.isHidden() for section in opposite)
+
+
+def test_switching_families_keeps_values_filters_and_navigation(classify_screen, qtbot):
+    from spacr.classify import FAMILY_SETTINGS
+    from spacr.qt.settings_search import ALL
+
+    screen = classify_screen
+    bar = install(screen)
+    model = screen._settings_model
+    selector = model._widgets["classifier_family"]
+    assert model.set_value_for_key("epochs", 17)
+    assert model.set_value_for_key("n_estimators", 37)
+    bar.set_level(ALL)
+    screen.show()
+    for family in ("ml", "cv", "ml", "cv"):
+        selector.setCurrentIndex(selector.findData(family))
+        qtbot.wait(0)
+        other = "ml" if family == "cv" else "cv"
+        inactive = "epochs" if family == "ml" else "n_estimators"
+        assert model._widgets["classifier_family"] is selector
+        assert model.collect()["epochs"] == 17
+        assert model.collect()["n_estimators"] == 37
+        bar.set_query(inactive)
+        assert inactive not in bar.visible_keys()
+        assert not set(bar.visible_keys()).intersection(FAMILY_SETTINGS[other])
+        assert not bar.reveal(inactive)
+        assert bar.query() == inactive
+        bar.set_query("")
+        bar.set_modified_only(True)
+        assert not set(bar.visible_keys()).intersection(FAMILY_SETTINGS[other])
+        bar.set_modified_only(False)
+        screen._open_every_waiting_heading()
+        qtbot.wait(0)
+        assert not set(bar.visible_keys()).intersection(FAMILY_SETTINGS[other])
+        assert model.collect()["epochs"] == 17
+        assert model.collect()["n_estimators"] == 37
+
+
+def test_measurement_tables_remain_shared_and_preserved(classify_screen, qtbot):
+    from spacr.classify import FAMILY_SETTINGS
+    from spacr.qt.settings_search import ALL
+
+    screen = classify_screen
+    bar = install(screen)
+    bar.set_level(ALL)
+    model = screen._settings_model
+    screen.show()
+    selected = ["cell", "nucleus"]
+    assert model.set_value_for_key("tables", selected)
+    selector = model._widgets["classifier_family"]
+    assert all("tables" not in keys for keys in FAMILY_SETTINGS.values())
+    for family in ("ml", "cv", "ml"):
+        selector.setCurrentIndex(selector.findData(family))
+        qtbot.wait(0)
+        assert "tables" in bar.visible_keys()
+        assert model.collect()["tables"] == selected
+        assert model._widgets["tables"].isEnabled()

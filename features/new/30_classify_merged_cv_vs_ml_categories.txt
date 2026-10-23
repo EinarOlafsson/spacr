@@ -2,7 +2,7 @@
 CLASSIFY (MERGED): SAY WHICH SETTINGS ARE COMPUTER VISION
 ================================================================================
 
-Status:    DONE 2026-08-06
+Status:    OPEN — family visibility follow-up 2026-10-23
 Requested: 2026-08-06 - "for the new classify module, the settings that are specifically for computer vision need to be under a settings category that states that. this module should make it obvious to the user what they are doing, computer vision or machine learning like XGBoost"
 
 --------------------------------------------------------------------------------
@@ -78,3 +78,5 @@ it. The step-3 rule ("only the MERGED module changes") was correct when it was
 written and was overtaken by that removal, not violated by this item.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_settings_categories.py).
+
+2026-10-23 — Maintainer now requires Classify to hide every opposite-family setting and category for classifier_family=cv/ml, replacing greying; shared controls remain available and hidden values survive switching. release_ci_takeover owns implementation, focused real-GUI acceptance, the changed English tooltip and nine reviewed locales, normal consumers/index and root-coordinated publication. Preserve classifier routing/scientific behavior, search/navigation/current selections and repeated switches; root owns final publication.
