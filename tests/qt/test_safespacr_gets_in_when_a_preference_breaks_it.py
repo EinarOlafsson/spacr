@@ -548,8 +548,14 @@ def test_the_written_animation_kills_the_ordinary_start(
 @pytest.mark.slow
 @pytest.mark.timeout(900)
 def test_safespacr_opens_anyway_and_saves_the_repair(
-        a_start_that_a_preference_broke):
+        a_start_that_a_preference_broke, monkeypatch):
     """Step two: in, change it, Save, close -- and it is written."""
+    with monkeypatch.context() as patch:
+        patch.setattr(preferences, "_SAFE_OVERRIDES", {"forced-safe": False})
+        shadow = preferences._DefaultsForReadingRealForWriting(object())
+        assert shadow.contains("forced-safe")
+        assert not shadow.contains("stored-only")
+        assert shadow.value("stored-only", "fallback") == "fallback"
     runs = a_start_that_a_preference_broke
     safe = runs["safe"]
     report = safe["report"]
