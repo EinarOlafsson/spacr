@@ -821,7 +821,9 @@ _METADATA_CONVENTIONS = (
         "instrument": "ImageXpress Micro / Confocal, MetaXpress export",
         "pattern": (
             r"(?P<plateID>.+)_(?P<wellID>[A-Z]\d{2})_s(?P<fieldID>\d+)"
-            r"_w(?P<chanID>\d)(?P<AID>[^._]*)\.(?i:{ext})$"),
+            r"_w(?P<chanID>\d+)(?P<AID>(?:[0-9A-Fa-f]{8}-"
+            r"[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-"
+            r"[0-9A-Fa-f]{12})?)\.(?i:{ext})$"),
         "ext": "suffix",
         "examples": (
             "ACHN-20X-P009041_B02_s1_w1836B5662-3526-47FE-A453-"
@@ -837,10 +839,10 @@ _METADATA_CONVENTIONS = (
             "fieldID": "SITE in MetaXpress's own vocabulary -- the field "
                        "within the well",
             "chanID": "WAVELENGTH in MetaXpress's vocabulary -- the channel. "
-                      "ONE DIGIT, deliberately: MetaXpress appends a GUID "
-                      "straight after it with no separator, and a greedy "
-                      "\\d+ reads w1836B56.. as wavelength 1836",
-            "AID": "the per-acquisition GUID MetaXpress stamps on, or empty",
+                      "The numeric index ends before an optional exact "
+                      "8-4-4-4-12 hexadecimal UUID, so digit-leading UUIDs "
+                      "cannot be swallowed into a multi-digit channel",
+            "AID": "the per-acquisition 8-4-4-4-12 hex UUID, or empty",
         },
         "source": (
             "First example from pharmbio/omero pull request 2, an OMERO "
@@ -855,7 +857,13 @@ _METADATA_CONVENTIONS = (
             "'_s'+site, '_w'+channel, and .tif or .TIF. THE _thumb SIDECAR "
             "IS DELIBERATELY NOT MATCHED: MetaXpress writes "
             "..._w1_thumb_<GUID>.tif beside every full-resolution file, and "
-            "matching it would double every field."),
+            "matching it would double every field. The acquisition owner "
+            "explicitly identifies UUID suffixes and lists five full image "
+            "names plus their thumbnail counterparts at "
+            "https://github.com/pharmbio/omero/pull/2#issuecomment-474780102. "
+            "Their fixed 8-4-4-4-12 hex structure separates the suffix from "
+            "the wavelength without a one-digit channel assumption; bare "
+            "numeric wavelengths follow Bio-Formats' construction above."),
         "status": "confirmed",
     },
     {

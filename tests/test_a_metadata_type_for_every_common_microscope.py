@@ -384,3 +384,49 @@ def test_scanr_user_stems_disclose_the_inferred_tiff_suffix():
             "wellID": "A1", "fieldID": "00001", "sliceID": "00000",
             "timeID": "00000", "chanID": channel,
         }
+
+
+@pytest.mark.parametrize("channel,identifier", [
+    (1, "836B5662-3526-47FE-A453-0D1775E08D17"),
+    (1, "6DE341F2-7E20-4CE1-859F-E368584F24DB"),
+    (10, "836B5662-3526-47FE-A453-0D1775E08D17"),
+    (12, "12345678-1234-1234-1234-123456789012"),
+    (123, "abcdef12-abcd-1234-abcd-123456789abc"),
+    (12, ""),
+])
+def test_imagexpress_wavelength_ends_before_a_fixed_uuid(channel, identifier):
+    """Above-nine names are constructed controls, not acquired-file claims."""
+    from spacr.utils import _extract_filename_metadata
+
+    name = f"Plate_A01_s2_w{channel}{identifier}.tif"
+    pattern = re.compile(_metadata_pattern("imagexpress", "tif"))
+    match = pattern.fullmatch(name)
+    assert match is not None
+    assert match.groupdict() == {
+        "plateID": "Plate", "wellID": "A01", "fieldID": "2",
+        "chanID": str(channel), "AID": identifier,
+    }
+    assert _extract_filename_metadata([name], "/data/Plate", pattern,
+                                      "imagexpress") == {
+        ("Plate", "A01", "2", str(channel), None, None): [f"/data/Plate/{name}"],
+    }
+    for record in _METADATA_CONVENTIONS:
+        if record["key"] not in {"imagexpress", "custom"}:
+            assert re.compile(_metadata_pattern(record["key"], "tif")).fullmatch(
+                name) is None
+
+
+@pytest.mark.parametrize("suffix", [
+    "12_thumb_836B5662-3526-47FE-A453-0D1775E08D17",
+    "1A36B566-3526-47FE-A453-0D1775E08D17",
+    "12A36B56622-3526-47FE-A453-0D1775E08D17",
+    "12836B5662-3526-47FE-A453-0D1775E08D1",
+    "12836B5662-3526-47FE-A453-0D1775E08D177",
+    "12836B5662-3526-47FE-A453-0D1775E08D1G",
+    "12836B5662_3526_47FE_A453_0D1775E08D17",
+    "12arbitrary_suffix",
+])
+def test_imagexpress_refuses_malformed_uuid_and_thumbnail_suffixes(suffix):
+    """A malformed acquisition suffix must not become channel digits."""
+    pattern = re.compile(_metadata_pattern("imagexpress", "tif"))
+    assert pattern.fullmatch(f"Plate_A01_s2_w{suffix}.tif") is None
