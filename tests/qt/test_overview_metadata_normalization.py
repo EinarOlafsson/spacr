@@ -331,3 +331,32 @@ def test_metadata_wizard_geometry_fits_real_row_l_and_preserves_explicit_rejecti
         wizard.configuration()
     assert wizard._fields[0].well == "L02"
     wizard.reject()
+
+
+def test_overview_source_entry_reuses_only_the_current_normalized_first_source(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QWidget
+    from shiboken6 import isValid
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    existing_browser = object()
+    owner._field_overview = existing_browser
+    submissions = []
+    monkeypatch.setattr(browser.JobRunner, "submit", lambda *args, **kwargs: submissions.append(args))
+    first_source, second_source = tmp_path / "first", tmp_path / "second"
+    first = browser._open_field_overview(owner, {"src": [str(first_source), str(second_source)]})
+    same = browser._open_field_overview(owner, {"src": str(first_source) + "/./"})
+    assert same is first
+    assert same.source.text() == str(first_source)
+    replacement = browser._open_field_overview(owner, {"src": [str(second_source), str(first_source)]})
+    assert replacement is not first
+    assert replacement.source.text() == str(second_source)
+    assert first._cancelled.is_set()
+    replacement.reject()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    QCoreApplication.processEvents()
+    assert not isValid(first)
+    assert owner._field_overview is existing_browser
+    assert submissions == []
+    assert not first_source.exists() and not second_source.exists()

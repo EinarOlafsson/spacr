@@ -3432,17 +3432,16 @@ class _FieldOverview(QDialog):
 
 def _open_field_overview(owner, settings=None):
     """Open metadata choices before constructing the shared image browser."""
+    settings = dict(settings or {})
+    source = _overview_source_path(settings.get("source") or settings.get("src"))
     previous = getattr(owner, "_field_overview_wizard", None)
-    if previous is not None and previous.isVisible():
+    if (previous is not None and previous.isVisible()
+            and _overview_source_path(previous.source.text()) == source):
         previous.raise_()
         return previous
     if previous is not None:
         previous.reject()
         previous.deleteLater()
-    settings = dict(settings or {})
-    source = settings.get("source") or settings.get("src") or ""
-    if isinstance(source, (list, tuple)):
-        source = source[0] if source else ""
     wizard = _OverviewMetadataWizard(source, settings, owner)
     owner._field_overview_wizard = wizard
 
@@ -3462,6 +3461,13 @@ def _open_field_overview(owner, settings=None):
     wizard.show()
     wizard.raise_()
     return wizard
+
+
+def _overview_source_path(source):
+    """Normalize the first source lexically without filesystem work on the GUI thread."""
+    if isinstance(source, (list, tuple)):
+        source = source[0] if source else ""
+    return os.path.abspath(os.path.expanduser(str(source))) if source else ""
 
 
 def _overview_geometry_extent(fields):
@@ -3714,8 +3720,8 @@ class _OverviewMetadataWizard(QDialog):
         self.preview = QTableWidget(0, 7)
         self.preview.setObjectName("OverviewWizardParsePreview")
         install_sorting(self.preview)
-        self.preview.setHorizontalHeaderLabels([tr("File"), "plateID", "wellID", "fieldID",
-                                                "timeID", "sliceID", "chanID"])
+        self.preview.setHorizontalHeaderLabels([tr("File"), tr("Plate"), tr("Well"), tr("Field"),
+                                                tr("Time"), tr("Z"), tr("Channel")])
         self.preview.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.preview.setEditTriggers(QTableWidget.NoEditTriggers)
         outer.addWidget(self.preview)
