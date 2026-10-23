@@ -370,7 +370,8 @@ def _load_rgba(path: str):
                 image.height(), image.bytesPerLine())[:, :image.width() * 4].reshape(
                     image.height(), image.width(), 4).astype(np.float64)
         with Image.open(path) as im:
-            im = im.convert("RGBA")
+            if im.mode != "RGBA":
+                im = im.convert("RGBA")
             if max(im.size) > MAX_WORK_SIZE:
                 im.thumbnail((MAX_WORK_SIZE, MAX_WORK_SIZE),
                              Image.LANCZOS, reducing_gap=2.0)

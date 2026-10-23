@@ -16,6 +16,25 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+Current narrow scope (2026-10-23, 193eda852c): normal MainWindow starts4.995s,
+event loop9.882s, Home10.605s>5s; later prewarm cannot explain the constructor.
+Profile only that constructor, disabling before prewarm/event-loop work;
+preserve normal owned close and require exact RGBA parity for any cold-icon
+optimization, without changing MAX_WORK_SIZE256/resampling/caches.
+Constructor diagnostic KZIh3T:4.7485s wall/4.5708s thread CPU, normal close with
+no helper/compiler threads left, RSS0.445GiB/zero missed. Dock refresh1.182s
+inclusive;30 cold loads0.985s, including decode0.258s/resize0.364s self.
+Style/stack/event-filter spans overlap; instrumented Home11.539s is not
+acceptance. No native sampling or timed Python stack dump was performed.
+CPU-only1zyE4U (RSS0.173GiB) finds exact pixels on two bundled masters plus
+four RGB/alpha synthetics when skipping only redundant RGBA-to-RGBA copy:
+logo median207.56→177.33ms, activation20.90→20.83ms. RGB-before-thumbnail
+changes180677/132107 channel values and is rejected. Adopt only the source
+mode conditional; preserve RGB conversion/internal premultiplied alpha work.
+Causal RED72962:1 intended failure/1 pass; GREEN89256:5 passes/4.58s/0.268GiB,
+covering exact old pixels/input preservation/lossless cache/bounded source.
+No whole-startup/native speed claim; existing performance gates remain open.
+
 Separate current Mac ownership: attribute the new GUI200/font200 Mask host
 construction blocker before Overview725 on publisheda5014584ec. Native69770/
 dyQlZa retains its20s host-phase gate and fails before Overview: Home9.641s,

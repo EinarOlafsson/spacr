@@ -70,6 +70,47 @@ class TestTheRoundTrip:
 
 class TestTheColdWorkCeiling:
 
+    @pytest.mark.parametrize("mode", ["RGBA", "RGB"])
+    def test_source_conversion_skips_only_the_redundant_rgba_copy(
+            self, tmp_path, monkeypatch, mode):
+        from PIL import Image
+
+        source = tmp_path / "conversion.png"
+        channels = 4 if mode == "RGBA" else 3
+        pixels = np.random.default_rng(641).integers(
+            0, 256, (777, 1024, channels), dtype=np.uint8)
+        if mode == "RGBA":
+            pixels[::3, ::5, 3] = 0
+        Image.fromarray(pixels, mode).save(source)
+        original_bytes = source.read_bytes()
+        with Image.open(source) as image:
+            expected = image.convert("RGBA")
+            expected.thumbnail((iconset.MAX_WORK_SIZE, iconset.MAX_WORK_SIZE),
+                               Image.LANCZOS, reducing_gap=2.0)
+            expected = np.asarray(expected, dtype=np.float64)
+
+        conversions = []
+        original_convert = Image.Image.convert
+
+        def convert(image, target=None, *args, **kwargs):
+            conversions.append((image.mode, target))
+            return original_convert(image, target, *args, **kwargs)
+
+        monkeypatch.setattr(Image.Image, "convert", convert)
+        actual = iconset._load_rgba(str(source))
+
+        assert np.array_equal(actual, expected)
+        assert actual.shape == expected.shape
+        assert source.read_bytes() == original_bytes
+        with Image.open(source) as image:
+            assert image.mode == mode
+            assert image.size == (1024, 777)
+            assert np.array_equal(np.asarray(image), pixels)
+        assert ("RGBA", "RGBa") in conversions
+        assert ("RGBa", "RGBA") in conversions
+        assert conversions.count(("RGB", "RGBA")) == (mode == "RGB")
+        assert ("RGBA", "RGBA") not in conversions
+
     def test_it_covers_the_largest_supported_physical_tile(self):
         """The speedup may not make an accessibility/HiDPI path upscale."""
         from spacr.qt import preferences
