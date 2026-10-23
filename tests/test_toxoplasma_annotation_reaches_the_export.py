@@ -141,6 +141,24 @@ def test_a_table_naming_no_gene_comes_back_unchanged(capsys):
     assert "names no gene column" in capsys.readouterr().out
 
 
+
+def test_a_quiet_table_naming_no_gene_is_returned_without_output(capsys):
+    """A quiet export without gene identifiers remains the caller's table."""
+    frame = pd.DataFrame(
+        {"plate": ["p1", "p2"], "value": [1.0, 2.0]},
+        index=pd.Index([7, 3], name="row"),
+    )
+    before = frame.copy(deep=True)
+
+    out = annotation.annotate(frame, quiet=True)
+
+    assert out is frame
+    pd.testing.assert_frame_equal(frame, before)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == ""
+
+
 def test_a_column_the_table_already_has_is_not_overwritten(capsys):
     """A run that computed its own `gene_name` keeps it."""
     frame = _coefficients()

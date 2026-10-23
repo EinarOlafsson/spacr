@@ -88,3 +88,90 @@ class TestWhatIsRegisteredComesBack:
         """`available()` sorts, and sorting mixed types raises."""
         clean_registry.register(12, ("x",), "reviewed")
         assert clean_registry.available() == ("12",)
+
+
+@pytest.fixture
+def recorded_terms(tmp_path, monkeypatch):
+    from PySide6.QtCore import QSettings
+    from spacr.qt import terms
+
+    store = QSettings(str(tmp_path / "terms.ini"), QSettings.Format.IniFormat)
+    store.setValue("onboarding/terms_agreed_version", "4.3")
+    store.setValue("onboarding/terms_agreed_at", "2026-01-01T12:00:00+00:00")
+    store.sync()
+    monkeypatch.setattr(terms, "_settings", lambda: store)
+    return terms, store
+
+
+def _stored_values(store):
+    return {key: store.value(key) for key in store.allKeys()}
+
+
+def test_an_unreadable_profile_language_displays_english_without_accepting(
+        recorded_terms, monkeypatch):
+    from spacr.qt import i18n
+
+    terms, store = recorded_terms
+    before = _stored_values(store)
+
+    def unavailable_language():
+        raise OSError("profile settings unavailable")
+
+    monkeypatch.setattr(i18n, "current_language", unavailable_language)
+
+    assert terms.terms_text() == "\n\n".join(terms.TERMS)
+    assert _stored_values(store) == before
+    assert terms.agreement_record()["version"] == "4.3"
+    assert terms.agreement_record()["current_version"] == "4.4"
+
+
+@pytest.mark.parametrize("unavailable", [False, True], ids=["missing", "failed"])
+def test_an_unavailable_translation_displays_english_without_accepting(
+        recorded_terms, clean_registry, monkeypatch, unavailable):
+    terms, store = recorded_terms
+    before = _stored_values(store)
+    if unavailable:
+        def unavailable_paragraphs(language):
+            assert language == "is"
+            raise OSError("translation resource unavailable")
+
+        monkeypatch.setattr(clean_registry, "paragraphs", unavailable_paragraphs)
+
+    assert terms.terms_text("is") == "\n\n".join(terms.TERMS)
+    assert _stored_values(store) == before
+    assert terms.agreement_record()["license"] == "BSD 3-Clause License"
+    assert terms.agreement_record()["current_version"] == "4.4"
+
+
+@pytest.mark.parametrize(
+    "accepted_version,expected_license",
+    [("", ""), ("4.3", "BSD 3-Clause License"), ("4.4", "")],
+    ids=["never-accepted", "historic-bsd", "current-license-unreadable"],
+)
+def test_an_unreadable_accepted_license_does_not_become_the_current_license(
+        recorded_terms, monkeypatch, accepted_version, expected_license):
+    terms, store = recorded_terms
+    store.setValue("onboarding/terms_agreed_version", accepted_version)
+    accepted_at = "2026-01-01T12:00:00+00:00" if accepted_version else ""
+    store.setValue("onboarding/terms_agreed_at", accepted_at)
+    license_name = "BSD 3-Clause License" if accepted_version == "4.3" else (
+        terms.LICENSE_NAME if accepted_version else "")
+    store.setValue("onboarding/terms_agreed_license", license_name)
+    store.sync()
+    before = _stored_values(store)
+
+    class UnreadableLicense:
+        def value(self, key, default=""):
+            if key == "onboarding/terms_agreed_license":
+                raise OSError("accepted license is unreadable")
+            return store.value(key, default)
+
+    monkeypatch.setattr(terms, "_settings", UnreadableLicense)
+
+    assert terms.agreement_record() == {
+        "version": accepted_version,
+        "accepted_at": accepted_at,
+        "current_version": "4.4",
+        "license": expected_license,
+    }
+    assert _stored_values(store) == before

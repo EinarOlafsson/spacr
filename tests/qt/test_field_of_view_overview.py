@@ -958,3 +958,138 @@ def test_plate_cells_keep_identity_and_shared_numeric_sorting(plate_images, qtbo
             assert int(table.item(row, 1).text()) == counts[item.data(browser.Qt.UserRole)]
     dialog.close()
     table.close()
+
+
+def test_montage_keeps_a_read_error_panel_and_the_next_real_field(plate_images):
+    from PIL import Image
+    fields = tuple(field for field in browser._overview_index(plate_images)
+                   if field.plate == "plate1" and field.well == "A01")[:2]
+    expected = browser._overview_pixels(fields[1], (1, 2), None, edge=240)
+    expected = Image.fromarray(expected).resize((240, 200), Image.Resampling.BILINEAR)
+    from pathlib import Path
+    Path(fields[0].files[0][1]).write_bytes(b"unreadable after indexing")
+    pixels, errors = browser._overview_montage(fields, (1, 2), None)
+    assert pixels.shape == (280, 512, 3)
+    assert len(errors) == 1 and errors[0][0] == fields[0].caption and errors[0][1]
+    np.testing.assert_array_equal(pixels[24:224, 256:496], np.asarray(expected))
+    assert np.any(pixels[30:80, :240, 0] > pixels[30:80, :240, 1])
+
+
+def test_cancelled_real_montage_does_not_deliver_a_partial_page(plate_images, qtbot, monkeypatch):
+    from PySide6.QtWidgets import QPushButton
+    fields = tuple(field for field in browser._overview_index(plate_images)
+                   if field.plate == "plate1" and field.well == "A01")
+    dialog = browser._FieldOverview(settings={"channels": [1, 2]})
+    qtbot.addWidget(dialog)
+    started, release = threading.Event(), threading.Event()
+    original = browser._overview_pixels
+
+    def read(field, *args, **kwargs):
+        pixels = original(field, *args, **kwargs)
+        if kwargs.get("edge") == 240:
+            started.set()
+            assert release.wait(5)
+        return pixels
+
+    original_montage = browser._overview_montage
+
+    def montage(*args, **kwargs):
+        import sys
+        previous = sys.gettrace()
+        inherited = threading.gettrace() if previous is None else None
+        if inherited is not None:
+            sys.settrace(inherited)
+        try:
+            return original_montage(*args, **kwargs)
+        finally:
+            if inherited is not None:
+                sys.settrace(previous)
+
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    monkeypatch.setattr(browser, "_overview_montage", montage)
+    dialog._indexed(fields)
+    dialog.show()
+    try:
+        dialog._well(dialog.wells.item(0, 0))
+        qtbot.waitUntil(started.is_set)
+        cancel = next(button for button in dialog.findChildren(QPushButton)
+                      if button.text() == browser.tr("Cancel loading or export"))
+        qtbot.mouseClick(cancel, browser.Qt.LeftButton)
+        assert dialog._cancelled.is_set()
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._montage_jobs.is_busy())
+        assert dialog._displayed_montage is None
+        assert dialog.view._item is None
+        assert dialog.status.text() == browser.tr(
+            "Cancellation requested; the current image read may finish.")
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._montage_jobs.is_busy())
+        dialog.close()
+
+
+def test_editable_export_validation_then_real_worker_and_gui_result(plate_images, tmp_path, qtbot, monkeypatch, qapp):
+    from PySide6.QtCore import QThread
+    from PySide6.QtWidgets import QFileDialog, QPushButton
+    fields = tuple(field for field in browser._overview_index(plate_images)
+                   if field.plate == "plate1" and field.well == "A01")
+    dialog = browser._FieldOverview(settings={"channels": [1, 2]})
+    qtbot.addWidget(dialog)
+    dialog._indexed(fields)
+    dialog.use_selection.setChecked(False)
+    dialog.show()
+    export = next(button for button in dialog.findChildren(QPushButton)
+                  if button.text() == browser.tr("Export PDFs"))
+    output = tmp_path / "real-worker"
+    folders, workers, delivered = [], [], []
+    started, release = threading.Event(), threading.Event()
+    original = browser._overview_export
+
+    def choose(*args, **kwargs):
+        folders.append(str(output))
+        return str(output)
+
+    def write(*args, **kwargs):
+        import sys
+        previous = sys.gettrace()
+        inherited = threading.gettrace() if previous is None else None
+        if inherited is not None:
+            sys.settrace(inherited)
+        try:
+            workers.append(QThread.currentThread())
+            started.set()
+            assert release.wait(5)
+            return original(*args, **kwargs)
+        finally:
+            if inherited is not None:
+                sys.settrace(previous)
+
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", choose)
+    monkeypatch.setattr(browser, "_overview_export", write)
+    dialog.channels.setText("not a channel")
+    try:
+        qtbot.mouseClick(export, browser.Qt.LeftButton)
+        assert dialog._visual_context() is None
+        assert dialog.status.text() and not folders and not workers
+        assert not dialog._export_jobs.is_busy() and not output.exists()
+        dialog.channels.setText("1,2")
+        dialog.status.setText("")
+        dialog._export_jobs.job_finished.connect(lambda: delivered.append(QThread.currentThread()))
+        qtbot.mouseClick(export, browser.Qt.LeftButton)
+        qtbot.waitUntil(started.is_set)
+        assert dialog._export_jobs.is_busy()
+        qtbot.mouseClick(export, browser.Qt.LeftButton)
+        assert dialog.status.text() == browser.tr("Wait for the current export to finish or cancel it.")
+        release.set()
+        qtbot.waitUntil(lambda: bool(delivered) and not dialog._export_jobs.is_busy())
+        assert len(workers) == len(folders) == 1
+        assert workers[0] != qapp.thread() and delivered == [qapp.thread()]
+        assert (output / "overview_0001.pdf").read_bytes().startswith(b"%PDF-")
+        selection = json.loads((output / "overview_selection.json").read_text())
+        assert selection["written_field_count"] == len(dialog._export_selection())
+        assert dialog.status.text() == browser.tr("Wrote {count} PDF pages; {errors} unreadable fields.",
+                                                  count=1, errors=0)
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy())
+        dialog.close()

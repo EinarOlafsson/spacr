@@ -1604,3 +1604,23 @@ def test_one_active_predictor_requires_an_explicit_valid_sparsity_or_scale(expec
     from spacr.power_model import _horseshoe_global_scale
 
     assert _horseshoe_global_scale(1, 2, expected_hits, scale_global) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize("identity", [["s1", "plate1", "A01"],
+                                      {"screen": "s1", "well": "A01"}])
+def test_unhashable_physical_well_identity_refuses_before_backend_selection(identity, monkeypatch):
+    from dataclasses import replace
+
+    data = _calibration_design(repeat=True)
+    data = replace(data, likelihood_well_ids=(identity,) + data.likelihood_well_ids[1:])
+    probes = []
+
+    def unavailable(name):
+        probes.append(name)
+        return False
+
+    monkeypatch.setattr("spacr.power_model._module_installed", unavailable)
+    with pytest.raises(PowerFitError, match="hashable physical-well identities") as error:
+        fit_model(data, backend="numpyro")
+    assert isinstance(error.value.__cause__, TypeError)
+    assert probes == []
