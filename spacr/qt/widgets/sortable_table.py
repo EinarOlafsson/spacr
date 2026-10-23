@@ -936,3 +936,89 @@ class SortableProxyModel(QSortFilterProxyModel):
             return str(left_value or "").casefold() < str(
                 right_value or "").casefold()
         return mine is not None
+
+
+def _visible_table_frame(table, values):
+    """Copy visible rows and columns in their current displayed order."""
+    import pandas as pd
+
+    header = table.horizontalHeader()
+    columns = [header.logicalIndex(position)
+               for position in range(table.columnCount())
+               if not table.isColumnHidden(header.logicalIndex(position))]
+    names = [table.horizontalHeaderItem(column).text() for column in columns]
+    rows = [values(row) for row in range(table.rowCount())
+            if not table.isRowHidden(row)]
+    return pd.DataFrame([[row[column] for column in columns] for row in rows],
+                        columns=names)
+
+
+def _save_table(table, frame, filename):
+    """Save the current frame with native overwrite confirmation and atomic replacement."""
+    from PySide6.QtWidgets import QDialog, QFileDialog, QMessageBox
+    from ..i18n import tr
+    from ... import tabular
+
+    formats = [(tr("CSV (*.csv)"), "csv"), (tr("TSV (*.tsv)"), "tsv"),
+               (tr("Excel (*.xlsx)"), "xlsx"),
+               (tr("Parquet (*.parquet)"), "parquet")]
+    dialog = QFileDialog(table, tr("Save table…"))
+    dialog.setAcceptMode(QFileDialog.AcceptSave)
+    dialog.setFileMode(QFileDialog.AnyFile)
+    dialog.setNameFilters([label for label, suffix in formats])
+    dialog.setDefaultSuffix("csv")
+    dialog.selectFile(filename)
+    suffixes = dict(formats)
+
+    def select_format(label):
+        """Keep the suggested extension consistent with the chosen format."""
+        from pathlib import Path
+
+        suffix = suffixes[label]
+        dialog.setDefaultSuffix(suffix)
+        selected = dialog.selectedFiles()
+        if selected and Path(selected[0]).suffix.lower() in {
+                ".csv", ".tsv", ".xlsx", ".parquet"}:
+            dialog.selectFile(str(Path(selected[0]).with_suffix("." + suffix)))
+
+    dialog.filterSelected.connect(select_format)
+    accepted = dialog.exec() == QDialog.Accepted
+    selected = dialog.selectedFiles() if accepted else []
+    dialog.deleteLater()
+    if not selected:
+        return None
+    try:
+        current = frame()
+        return tabular._publish(selected[0], lambda pending: tabular.write_table(
+            current, pending, canonicalise=False))
+    except Exception as error:
+        QMessageBox.warning(table, tr("Export failed"),
+                            tr("Export failed: {error}", error=str(error)))
+        return None
+
+
+def _install_table_export(table, frame, filename):
+    """Offer save for this table without changing its selection or rows."""
+    from PySide6.QtWidgets import QMenu
+    from ..i18n import tr
+    from .feature_dictionary import (
+        CONTEXT_ACTION_TEXT, column_name_at, open_feature_dictionary,
+    )
+
+    def menu_at(position):
+        """Build the menu from the table that received the gesture."""
+        menu = QMenu(table)
+        save = menu.addAction(tr("Save table…"))
+        save.triggered.connect(lambda: _save_table(table, frame, filename))
+        column = column_name_at(table.viewport(), position)
+        if column is not None:
+            help_action = menu.addAction(tr(CONTEXT_ACTION_TEXT))
+            help_action.triggered.connect(
+                lambda: open_feature_dictionary(table, column))
+        try:
+            menu.exec(table.viewport().mapToGlobal(position))
+        finally:
+            menu.deleteLater()
+
+    table.setContextMenuPolicy(Qt.CustomContextMenu)
+    table.customContextMenuRequested.connect(menu_at)

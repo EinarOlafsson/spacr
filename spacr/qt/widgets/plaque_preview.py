@@ -59,7 +59,7 @@ from ..i18n import tr
 from ..job_runner import JobRunner
 from .sortable_table import (
     install_sorting, table_item, _retire_table_cells, _spare_items,
-    _spare_table_item)
+    _spare_table_item, _install_table_export, _visible_table_frame)
 from .segmentation_views import (
     CELLPROB, FLOWS, MASKS, OVERLAY, VIEWS, SegmentationViews,
     picture_name_of, render_cellprob, render_labels,
@@ -3204,6 +3204,39 @@ def seed_well_boxes(path: Any, settings: Dict[str, Any], *,
         detect=detect))
 
 
+def _plaque_table_export_row(panel, table, growth, row):
+    """Resolve a displayed row through its stable underlying identifier."""
+    from ...plaque_papers import calibration_values
+
+    if table is panel._plaque_table:
+        index = int(table.item(row, 0).data(Qt.UserRole))
+        record = panel._plaque_export_rows[index]
+        return [record.get(key) for key in PLAQUE_KEYS]
+    index = panel._annotation_index(row)
+    annotation = panel._annotations[index]
+    scale = panel._scales[index] if index < len(panel._scales) else None
+    calibration = calibration_values(
+        annotation, scale,
+        panel.current_settings().get("plaque_formation_hours"))
+    well = panel._wells.get(index)
+    result = [table.item(row, column).text()
+              if table.item(row, column) is not None else ""
+              for column in range(table.columnCount())]
+    result[0] = index + 1
+    result[PLAQUES_COLUMN] = well["count"] if well else None
+    result[MEAN_AREA_COLUMN] = well["mean_area"] if well else None
+    result[OK_COLUMN] = panel._row_ok(index)
+    for column, key in ((WELL_DIAMETER_COLUMN, "well_diameter_px"),
+                        (PIXELS_PER_UM_COLUMN, "pixels_per_um"),
+                        (FORMATION_HOURS_COLUMN, "formation_hours")):
+        result[column] = calibration[key]
+    for column, key in enumerate(("estimated_pixels_per_um",
+                                  "estimated_formation_hours",
+                                  "estimation_source"), 12):
+        result[column] = growth.get(index, {}).get(key)
+    return result
+
+
 class PlaquePreviewPanel(QWidget, LivePreviewContract):
     """Plaque Assay's live preview, in Plaque mode or Figure mode.
 
@@ -3613,6 +3646,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._plaque_table.itemSelectionChanged.connect(
             self._on_plaque_selection)
         install_sorting(self._plaque_table)
+        self._plaque_export_rows = []
+        for table, filename in ((self._table, "wells.csv"),
+                                (self._plaque_table, "plaques.csv")):
+            _install_table_export(
+                table, lambda current=table: self._table_export_frame(current),
+                filename)
         self._tabs = QTabWidget(self)
         self._tabs.setObjectName("PlaqueFigureTabs")
         self._tabs.addTab(self._table, tr("Wells"))
@@ -5420,6 +5459,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def _fill_plaque_table(self) -> None:
         """Rewrite the Plaques tab from the wells segmented so far."""
         rows = self.plaque_table_rows()
+        self._plaque_export_rows = rows
         self._plaque_table.blockSignals(True)
         self._plaque_table.setSortingEnabled(False)
         _retire_table_cells(self._plaque_table)
@@ -5433,10 +5473,18 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                     text = f"{value:.2f}" if abs(value) < 100 else f"{value:.0f}"
                 else:
                     text = str(value)
-                self._plaque_table.setItem(r, c, _spare_table_item(self._plaque_table, text))
+                item = _spare_table_item(self._plaque_table, text)
+                item.setData(Qt.UserRole, r)
+                self._plaque_table.setItem(r, c, item)
         self._plaque_table.setSortingEnabled(True)
         self._plaque_table.blockSignals(False)
         self._tabs.setTabText(1, tr("Plaques ({n})", n=len(rows)))
+
+    def _table_export_frame(self, table):
+        """Export this visible table's current order with unrounded measurements."""
+        growth = self._growth_values()
+        return _visible_table_frame(
+            table, lambda row: _plaque_table_export_row(self, table, growth, row))
 
     def _row_ok(self, index: int) -> bool:
         """Whether annotation ``index`` is ticked OK, wherever its row sits."""
