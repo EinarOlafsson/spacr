@@ -46,6 +46,7 @@ from ...qc_quarantine import (
     restore_field,
 )
 from .. import path_probe
+from ..hidpi import device_ratio, follow_device_ratio, scaled_for
 from ..i18n import current_language, tr
 from ..job_runner import JobRunner
 from .zoom_view import ZoomableImageView
@@ -2052,6 +2053,7 @@ class _FieldOverview(QDialog):
         self.wells.verticalScrollBar().valueChanged.connect(self._request_visuals)
         from PySide6.QtCore import QSize
         self.wells.setIconSize(QSize(160, 120))
+        follow_device_ratio(self.wells.viewport(), self._request_visuals)
         self.wells.itemDoubleClicked.connect(self._well)
         self.wells.setToolTip(tr("Select wells for export; double-click a well to explore its fields."))
         self.fields.itemSelectionChanged.connect(self._remember_selection)
@@ -2400,6 +2402,7 @@ class _FieldOverview(QDialog):
                 lambda: _overview_montage(page, channels, limits, cancelled), show_montage)
             return
         viewport = self.wells.viewport()
+        ratio = device_ratio(viewport)
         from PySide6.QtGui import QIcon
         for well in tuple(self._installed_thumbnails):
             position = self._well_positions.get(well)
@@ -2426,7 +2429,7 @@ class _FieldOverview(QDialog):
                     continue
                 well = item.data(Qt.UserRole)
                 field = self._well_representatives[well]
-                key = (field.identity, channels, limits)
+                key = (field.identity, channels, limits, ratio)
                 if item.data(Qt.UserRole + 1) == key:
                     continue
                 if key in self._thumbnail_cache:
@@ -2438,7 +2441,7 @@ class _FieldOverview(QDialog):
                     :returns: pixels and an empty error, or None and the error.
                     """
                     try:
-                        return _overview_pixels(field, channels, limits, edge=160), ""
+                        return _overview_pixels(field, channels, limits, edge=math.ceil(160 * ratio)), ""
                     except Exception as exc:
                         return None, str(exc)
                 def done(result):
@@ -2452,7 +2455,8 @@ class _FieldOverview(QDialog):
                     self._thumbnail_cache[key] = pixels
                     while len(self._thumbnail_cache) > 64:
                         self._thumbnail_cache.popitem(last=False)
-                    if self._visual_context() == signature:
+                    if (self._visual_context() == signature
+                            and device_ratio(self.wells.viewport()) == ratio):
                         self._set_thumbnail(well, key, pixels)
                         if error:
                             self.status.setText(tr("Could not read {field}: {error}",
@@ -2473,8 +2477,8 @@ class _FieldOverview(QDialog):
         if pixels is not None:
             image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
                            pixels.strides[0], QImage.Format_RGB888).copy()
-            pixmap = QPixmap.fromImage(image).scaled(
-                self.wells.iconSize(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            pixmap = scaled_for(QPixmap.fromImage(image), self.wells.viewport(),
+                                self.wells.iconSize())
             item.setIcon(QIcon(pixmap))
             self._installed_thumbnails.add(well)
         else:

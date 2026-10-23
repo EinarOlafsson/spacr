@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import statistics
 import time
+import weakref
 
 import pytest
 
@@ -132,6 +133,99 @@ def _close(dialog, which):
     dialog.findChild(QDialogButtonBox).button(which).click()
 
 
+def _cache_failure_details(window, references=()):
+    """Describe live cache decisions only after an owning assertion fails.
+
+    :param window: the Preferences owner.
+    :param references: weak references observed outside measured intervals.
+    :returns: identities and predicate differences, never stored values.
+    """
+    from collections import Counter
+
+    state = preferences._preferences_warmth(window) or {}
+    candidates = [state.get("dialog"), state.get("returned"),
+                  *state.get("retired", ()), *(ref() for ref in references)]
+    details = {
+        "cached_identity": id(state["dialog"]) if state.get("dialog") is not None else None,
+        "returned_identity": id(state["returned"]) if state.get("returned") is not None else None,
+        "observed_identities": [id(ref()) if ref() is not None else None
+                                for ref in references],
+        "owner_visible": window.isVisible(),
+        "mouse_buttons": str(QApplication.mouseButtons()),
+        "modal_identity": id(QApplication.activeModalWidget())
+                          if QApplication.activeModalWidget() is not None else None,
+        "popup_identity": id(QApplication.activePopupWidget())
+                          if QApplication.activePopupWidget() is not None else None,
+        "dialogs": [],
+    }
+    seen = set()
+    for dialog in candidates:
+        if dialog is None or id(dialog) in seen:
+            continue
+        seen.add(id(dialog))
+        row = {"identity": id(dialog), "native_alive": preferences._widget_is_alive(dialog)}
+        details["dialogs"].append(row)
+        if not row["native_alive"]:
+            continue
+        try:
+            shown = getattr(dialog, "_spacr_shows", None)
+            row.update(reusable=getattr(dialog, "_reusable", False),
+                       snapshot_present=shown is not None,
+                       confirmation_pending=getattr(dialog, "_apply_confirmation", None) is not None)
+            if shown is None:
+                continue
+            store, world, draft = shown
+            current_store = preferences._preferences_store_values()
+            current_world = preferences._preferences_world()
+            current_draft = preferences._preferences_draft(dialog)
+            row["changed_store_keys"] = sorted(
+                key for key in store.keys() | current_store.keys()
+                if store.get(key) != current_store.get(key))
+            row["changed_world_indices"] = [
+                index for index in range(max(len(world), len(current_world)))
+                if world[index:index + 1] != current_world[index:index + 1]]
+            row["draft_equal"] = draft == current_draft
+            row["draft_control_counts"] = (len(draft[0]), len(current_draft[0]))
+            row["draft_order_only"] = (draft[0] != current_draft[0]
+                and Counter(map(repr, draft[0])) == Counter(map(repr, current_draft[0])))
+            row["draft_extra_equal"] = draft[1] == current_draft[1]
+            row["changed_controls"] = sorted({
+                entry[:2] for entry in draft[0]
+                if entry not in current_draft[0]} | {
+                entry[:2] for entry in current_draft[0]
+                if entry not in draft[0]})[:12]
+        except Exception as exc:
+            row["diagnostic_error_type"] = type(exc).__name__
+    return details
+
+
+def test_cache_failure_details_report_changed_controls_and_deleted_wrappers(
+        owner, qtbot):
+    """The diagnostic reads real controls and tolerates a retained dead wrapper."""
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QCheckBox
+
+    dialog = QDialog(owner)
+    dialog._reusable = True
+    checkbox = QCheckBox(dialog)
+    checkbox.setObjectName("CacheDiagnosticControl")
+    state = preferences._preferences_warmth(owner)
+    state["dialog"] = dialog
+    reference = weakref.ref(dialog)
+    preferences._note_what_the_dialog_shows(dialog)
+    checkbox.setChecked(True)
+    details = _cache_failure_details(owner, (reference,))
+    row = details["dialogs"][0]
+    assert row["native_alive"]
+    assert not row["draft_equal"]
+    assert row["changed_controls"] == [("CacheDiagnosticControl", "QCheckBox")]
+    dialog.deleteLater()
+    QCoreApplication.sendPostedEvents(dialog, QEvent.DeferredDelete)
+    details = _cache_failure_details(owner, (reference,))
+    assert details["dialogs"][0] == {"identity": id(dialog), "native_alive": False}
+    state["dialog"] = None
+
+
 # --------------------------------------------------------------------------
 # the open and the close stay inside a frame of the old ones
 # --------------------------------------------------------------------------
@@ -153,14 +247,16 @@ def test_the_open_is_a_small_fraction_of_building_the_dialog(owner, qtbot):
         qtbot.wait(1)
 
     new = []
+    observations = []
     for _ in range(3):
-        _warm(owner, qtbot)
+        observations.append(weakref.ref(_warm(owner, qtbot)))
         _stop_warming(preferences._preferences_warmth(owner))
         started = time.perf_counter()
         dialog = preferences._a_preferences_for(owner)
         dialog.show()
         _until_painted(dialog, qtbot)
         new.append(time.perf_counter() - started)
+        observations.append(weakref.ref(dialog))
         _close(dialog, QDialogButtonBox.Cancel)
         preferences._put_the_preferences_away(owner, dialog)
         _settle(owner, qtbot)
@@ -170,7 +266,8 @@ def test_the_open_is_a_small_fraction_of_building_the_dialog(owner, qtbot):
     assert worst < 0.25 * reference, (
         f"opening a warm Preferences took {worst * 1000:.0f} ms against "
         f"{reference * 1000:.0f} ms for building one; the open is meant "
-        f"to be a show of a dialog that is already built")
+        f"to be a show of a dialog that is already built; "
+        f"cache={_cache_failure_details(owner, observations)}")
 
 
 def test_the_close_is_a_small_fraction_of_the_old_redraw(
@@ -211,8 +308,9 @@ def test_the_close_is_a_small_fraction_of_the_old_redraw(
         monkeypatch.setattr(window, "refresh_theme",
                             lambda: redraws.append(1) or real_refresh())
         closes = []
+        observations = []
         for _ in range(2):
-            _warm(window, qtbot)
+            observations.append(weakref.ref(_warm(window, qtbot)))
             _stop_warming(preferences._preferences_warmth(window))
 
             def _cancel():
@@ -232,9 +330,12 @@ def test_the_close_is_a_small_fraction_of_the_old_redraw(
         worst = max(closes)
         assert worst < 0.25 * reference, (
             f"closing Preferences took {worst * 1000:.0f} ms against "
-            f"{reference * 1000:.0f} ms for the redraw it used to do")
+            f"{reference * 1000:.0f} ms for the redraw it used to do; "
+            f"cache={_cache_failure_details(window, observations)}")
         state = preferences._preferences_warmth(window)
-        assert state["dialog"] is not None, "the closed dialog was not kept"
+        assert state["dialog"] is not None, (
+            "the closed dialog was not kept; "
+            f"cache={_cache_failure_details(window, observations)}")
         kept = [w for w in window.findChildren(QDialog)
                 if isinstance(w, preferences._preferences_window_class())]
         assert len(kept) == 1, f"{len(kept)} Preferences windows outlived their close"

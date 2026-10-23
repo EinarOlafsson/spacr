@@ -4866,10 +4866,10 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         second of two fits, so the figure grid gets one copy rather than two
         identical ones.
     :param model_data_layout: ``'long'`` keeps one fitted row per well-guide
-        pair. At gene level, each row carries all retained measured gene
-        fractions of that complete well; guide-level fits retain the guide
-        interaction. Gene-level LONG horseshoe fits weight only observation
-        log likelihood by inverse fitted-row multiplicity per complete well,
+        pair. Gene-level horseshoe rows carry all retained measured gene
+        fractions of that complete well. Other fixed-effects LONG fits retain
+        the gene or guide interaction. Gene-level LONG horseshoe fits weight only
+        observation log likelihood by inverse fitted-row multiplicity per complete well,
         so each well contributes once without rescaling counts, exposures,
         design standardization or priors.
         ``'wide'`` pivots fractions to one row per independent well before
@@ -5006,7 +5006,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             )
             print(f"Model data pivoted to {len(fit_df)} independent well "
                   f"rows and {X.shape[1]} design columns.")
-        elif level == 'gene':
+        elif level == 'gene' and regression_type == 'horseshoe':
             y, X = _long_gene_fixed_effect_design(df, formula)
         else:
             y, X = dmatrices(formula, data=df, return_type='dataframe')

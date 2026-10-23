@@ -6016,12 +6016,18 @@ class LiveSettingsDialog(QDialog):
                 widget = panel._organelle_widgets[suffix]
                 widget.show()
                 from ..i18n import current_language
-                from ..i18n_catalogs import en, setting_label
-                key = f"organelle_{suffix}"
-                source = en.SETTING_LABELS.get(key, label)
-                translated = setting_label(key, source, current_language())
+                source, translated = label, None
+                try:
+                    from ..i18n_catalogs import en, setting_label
+                    key = f"organelle_{suffix}"
+                    source = en.SETTING_LABELS.get(key, label)
+                    translated = setting_label(key, source, current_language())
+                except ModuleNotFoundError as exc:
+                    if not (exc.name == "spacr.qt.i18n_catalogs" or
+                            str(exc.name).startswith("spacr.qt.i18n_catalogs.")):
+                        raise
                 organelle_form.addRow(translated or tr(source), widget)
-                self._organelle_rows[suffix] = (morphology, widget)
+                self._organelle_rows[suffix] = (morphology, widget, label)
         panels_row.addWidget(self._organelle_group)
 
         row_host = QWidget()
@@ -6250,18 +6256,24 @@ class LiveSettingsDialog(QDialog):
             self._organelle_group.setTitle(tr("Organelle segmentation"))
             morphology = p._organelle_morphology()
             form = self._organelle_group.layout()
-            for suffix, (owner, widget) in self._organelle_rows.items():
+            for suffix, (owner, widget, fallback) in self._organelle_rows.items():
                 from ...organelle_types import organelle_number
                 from ..i18n import current_language
-                from ..i18n_catalogs import en, setting_label
-                key = f"{primary}_{suffix}"
-                source = en.SETTING_LABELS.get(f"organelle_{suffix}", suffix)
-                source = source.replace(
-                    "Organelle 1", f"Organelle {organelle_number(primary)}", 1)
+                source, translated = fallback, None
+                try:
+                    from ..i18n_catalogs import en, setting_label
+                    key = f"{primary}_{suffix}"
+                    source = en.SETTING_LABELS.get(f"organelle_{suffix}", fallback)
+                    source = source.replace(
+                        "Organelle 1", f"Organelle {organelle_number(primary)}", 1)
+                    translated = setting_label(key, source, current_language())
+                except ModuleNotFoundError as exc:
+                    if not (exc.name == "spacr.qt.i18n_catalogs" or
+                            str(exc.name).startswith("spacr.qt.i18n_catalogs.")):
+                        raise
                 label = form.labelForField(widget)
                 if label is not None:
-                    label.setText(setting_label(key, source, current_language())
-                                  or tr(source))
+                    label.setText(translated or tr(source))
                 wanted = p._organelle_field_visible(suffix, owner, morphology)
                 position = form.getWidgetPosition(widget)[0]
                 if position >= 0:

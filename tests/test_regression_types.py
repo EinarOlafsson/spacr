@@ -819,3 +819,37 @@ def test_a_continuous_model_keeps_the_log_default():
         {"regression_type": "ols"})["transform"] == "log"
     assert get_perform_regression_default_settings(
         {"regression_type": "glm", "transform": "sqrt"})["transform"] == "sqrt"
+
+
+@pytest.mark.parametrize("backend", ["beta", "horseshoe"])
+def test_full_well_long_gene_composition_is_reserved_for_horseshoe(
+        tmp_path, stubs, monkeypatch, backend):
+    import spacr.ml as ml
+
+    class DesignCaptured(Exception):
+        pass
+
+    captured = {}
+
+    def stop_before_fit(X, y, **kwargs):
+        captured["design"] = X.copy()
+        raise DesignCaptured
+
+    monkeypatch.setattr(ml, "regression_model", stop_before_fit)
+    score, count = write_screen(
+        tmp_path, response="binary" if backend == "horseshoe" else "fraction")
+    settings = settings_for(score, count, regression_type=backend, level="gene",
+                            fraction_threshold=0.0)
+    with pytest.raises(DesignCaptured):
+        ml.perform_regression(settings)
+    design = captured["design"]
+    gene_columns = [c for c in design if str(c).startswith("gene_fraction:gene[")]
+    assert len(design) == len(ROWS) * len(COLS) * GRNAS_PER_WELL
+    assert len(gene_columns) == len(GENES)
+    rank = np.linalg.matrix_rank(design.to_numpy(dtype=float))
+    if backend == "horseshoe":
+        np.testing.assert_allclose(design[gene_columns].sum(axis=1), 1.0)
+        assert rank == len(GENES)
+    else:
+        assert not np.allclose(design[gene_columns].sum(axis=1), 1.0)
+        assert rank == len(GENES) + 1
