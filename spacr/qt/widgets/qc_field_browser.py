@@ -2393,7 +2393,7 @@ class _FieldOverview(QDialog):
                             (tr("PDF: 1600-pixel field"), 1600), (tr("PDF: 3200-pixel field"), 3200)):
             self.pdf_quality.addItem(text, value)
         for value in (150, 300, 600):
-            self.pdf_dpi.addItem(tr("{dpi} DPI", dpi=value), value)
+            self.pdf_dpi.addItem(tr("Resolution: {dpi} DPI", dpi=value), value)
         self.pdf_dpi.setCurrentIndex(1)
         for widget in (QLabel(tr("Representatives per well")), self.representatives,
                        self.export_scope, self.pdf_quality, self.pdf_dpi):

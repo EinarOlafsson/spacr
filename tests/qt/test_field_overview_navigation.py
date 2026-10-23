@@ -341,7 +341,7 @@ def test_readable_plate_cells_paint_real_native_icons_and_translucent_hover(sour
     qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     dialog.show()
     dialog._scan()
-    qtbot.waitUntil(lambda: dialog._fields and dialog._normalization_ready, timeout=10000)
+    qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready, timeout=10000)
     item = dialog.wells.item(*dialog._well_positions["A01"])
     qtbot.waitUntil(lambda: not item.icon().isNull(), timeout=10000)
     assert dialog.wells.rowHeight(0) >= 64
