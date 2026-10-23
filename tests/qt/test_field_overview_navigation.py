@@ -221,16 +221,17 @@ def test_small_physical_window_keeps_configuration_and_images_reachable(overview
     qtbot.waitUntil(lambda: dialog.size() == QSize(760, 620))
     assert not dialog._controls_scroll.isVisible()
     dialog.options_button.click()
-    assert dialog._controls_scroll.isVisible()
+    _resize_actual(dialog._options_window, QSize(760, 620))
+    qtbot.waitUntil(lambda: dialog._controls_scroll.isVisible())
     assert dialog._splitter.isVisible()
     assert dialog._splitter.height() > 0
     assert dialog.time_axis.isVisible()
     for control in (dialog.source, dialog.annotation_text,
                     dialog.pdf_quality, dialog.measurements):
         dialog._controls_scroll.ensureWidgetVisible(control)
-        assert dialog._controls_scroll.viewport().rect().contains(
+        qtbot.waitUntil(lambda: dialog._controls_scroll.viewport().rect().contains(
             control.rect().translated(control.mapTo(dialog._controls_scroll.viewport(),
-                                                   control.rect().topLeft())))
+                                                   control.rect().topLeft()))))
     assert dialog.size() == QSize(760, 620)
 
 

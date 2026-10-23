@@ -1008,3 +1008,185 @@ def test_display_prepare_finishing_after_current_field_cleared_keeps_selection_e
     assert dialog.fields.currentItem() is None and not dialog._selected_fields
     assert not dialog._image_jobs.is_busy()
     dialog.close()
+
+
+def _workspace_host(tmp_path, qtbot):
+    from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
+    host = QWidget()
+    host.app_key = "mask"
+    host._fold_page_title = "Mask Generation"
+    layout = QVBoxLayout(host)
+    layout.addWidget(QLabel("Host masthead"))
+    body = QWidget(host)
+    body.setObjectName("OriginalHostBody")
+    layout.addWidget(body, 1)
+    host.resize(960, 760)
+    def retire(widget):
+        workspace = getattr(widget, "_field_overview_workspace", None)
+        if workspace is None:
+            return
+        workspace.close()
+        wizard = widget._field_overview_wizard
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0)
+        wizard._runner.shutdown(timeout_ms=3000)
+        dialog = getattr(widget, "_field_overview", None)
+        if dialog is not None:
+            runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+                dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs,
+                dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+            qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners))
+            for runner in runners:
+                runner.shutdown(timeout_ms=3000)
+        from spacr.qt.bridge import prune_parked_threads
+        qtbot.waitUntil(lambda: prune_parked_threads() == 0)
+    qtbot.addWidget(host, before_close_func=retire)
+    host.show()
+    return host, body
+
+
+def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns_host(tmp_path, qtbot):
+    from PySide6.QtCore import QSize
+    from spacr.qt.gui_scale import _resize_actual
+    _images(tmp_path)
+    host, body = _workspace_host(tmp_path, qtbot)
+    wizard = browser._open_field_overview(host, dict(source=str(tmp_path), geometry=(2, 3)))
+    workspace = host._field_overview_workspace
+    pages = host._fold_pages
+    assert pages.widget(0) is body and pages.currentWidget() is workspace
+    assert not wizard.isWindow() and wizard.window() is host
+    assert workspace.back_button.isVisible() and workspace.autoFillBackground()
+    qtbot.waitUntil(wizard.next.isEnabled)
+    qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+    dialog = host._field_overview
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy())
+    assert workspace.stack.currentWidget() is dialog
+    assert not dialog.isWindow() and dialog.window() is host
+    qtbot.waitUntil(lambda: dialog.wells.viewport().width() > 500)
+    before = dialog.wells.viewport().size()
+    before_cell = dialog._plate_cell_extent
+    _resize_actual(host, QSize(1440, 1040))
+    qtbot.waitUntil(lambda: dialog.wells.viewport().width() > before.width() + 200)
+    assert dialog._plate_cell_extent[0] > before_cell[0]
+    plate_area = dialog.wells.viewport().size()
+    qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
+    assert dialog._options_window.isWindow() and dialog._options_window.isVisible()
+    assert dialog._controls_scroll.window() is dialog._options_window
+    assert dialog.wells.viewport().size() == plate_area
+    dialog.gamma.setValue(1.7)
+    dialog._options_window.close()
+    assert not dialog.options_button.isChecked()
+    qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
+    assert dialog.gamma.value() == 1.7
+    dialog._options_window.close()
+    dialog._zoom_plate(1)
+    manual_extent = dialog._plate_cell_extent
+    _resize_actual(host, QSize(1540, 1140))
+    qtbot.waitUntil(lambda: dialog.wells.viewport().width() > plate_area.width())
+    assert dialog._plate_cell_extent == manual_extent
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: dialog._individual and dialog.view._item is not None)
+    qtbot.mouseClick(workspace.back_button, browser.Qt.LeftButton)
+    assert not dialog._individual and dialog._scope[1] == "A01"
+    qtbot.mouseClick(workspace.back_button, browser.Qt.LeftButton)
+    assert dialog._scope[1] is None
+    qtbot.mouseClick(workspace.back_button, browser.Qt.LeftButton)
+    assert pages.currentWidget() is body and pages.indexOf(workspace) == -1
+    same = browser._open_field_overview(host, dict(source=str(tmp_path)))
+    assert same is wizard and host._field_overview is dialog
+    assert pages.currentWidget() is workspace and workspace.stack.currentWidget() is dialog
+
+
+def test_embedded_metadata_cancel_and_source_replacement_keep_original_module_body(tmp_path, qtbot):
+    _images(tmp_path)
+    host, body = _workspace_host(tmp_path, qtbot)
+    wizard = browser._open_field_overview(host, dict(source=str(tmp_path)))
+    first = host._field_overview_workspace
+    qtbot.waitUntil(wizard.next.isEnabled)
+    wizard.reject()
+    assert host._fold_pages.currentWidget() is body
+    same = browser._open_field_overview(host, dict(source=str(tmp_path)))
+    assert same is not wizard and host._fold_pages.currentWidget() is host._field_overview_workspace
+    qtbot.waitUntil(same.next.isEnabled)
+    qtbot.mouseClick(same.next, browser.Qt.LeftButton)
+    qtbot.waitUntil(lambda: host._field_overview._normalization_ready)
+    assert host._field_overview._fields
+    second_source = tmp_path / "second"
+    second_source.mkdir()
+    tifffile.imwrite(second_source / "plate2_A01_F1.tif", np.zeros((4, 4), np.uint8))
+    second = browser._open_field_overview(host, dict(source=str(second_source)))
+    qtbot.waitUntil(second.next.isEnabled)
+    assert second is not wizard and not second.isWindow()
+    assert host._fold_pages.widget(0) is body and host._fold_pages.count() == 2
+    qtbot.mouseClick(host._field_overview_workspace.back_button, browser.Qt.LeftButton)
+    assert host._fold_pages.currentWidget() is body
+    assert browser._open_field_overview(host, dict(source=str(second_source))) is second
+    assert host._fold_pages.currentWidget() is host._field_overview_workspace
+
+
+def test_cancel_replacement_metadata_restores_original_validated_browser_after_multiple_sources(tmp_path, qtbot):
+    from shiboken6 import isValid
+    _images(tmp_path)
+    host, body = _workspace_host(tmp_path, qtbot)
+    wizard = browser._open_field_overview(host, dict(source=str(tmp_path)))
+    qtbot.waitUntil(wizard.next.isEnabled)
+    qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+    current, workspace = host._field_overview, host._field_overview_workspace
+    qtbot.waitUntil(lambda: current._normalization_ready)
+    token, fields = current._cancelled, current._fields
+    replacements = []
+    for name in ("replacement-two", "replacement-three"):
+        source = tmp_path / name
+        source.mkdir()
+        tifffile.imwrite(source / "plate2_B02_F1.tif", np.zeros((4, 4), np.uint8))
+        replacement = browser._open_field_overview(host, dict(source=str(source)))
+        replacements.append(replacement)
+        qtbot.waitUntil(replacement.next.isEnabled)
+        assert isValid(current) and not token.is_set()
+    assert replacements[0]._cancelled.is_set()
+    replacements[1].reject()
+    assert host._field_overview_workspace is workspace
+    assert host._field_overview_wizard is wizard and host._field_overview is current
+    assert host._fold_pages.currentWidget() is workspace
+    assert current._fields == fields and not token.is_set()
+    assert host._fold_pages.widget(0) is body
+
+
+def test_closing_pending_replacement_retires_both_sources_without_restoring_old_page(tmp_path, qtbot):
+    _images(tmp_path)
+    host, body = _workspace_host(tmp_path, qtbot)
+    wizard = browser._open_field_overview(host, dict(source=str(tmp_path)))
+    qtbot.waitUntil(wizard.next.isEnabled)
+    qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+    current = host._field_overview
+    qtbot.waitUntil(lambda: current._normalization_ready)
+    source = tmp_path / "replacement"
+    source.mkdir()
+    tifffile.imwrite(source / "plate2_B02_F1.tif", np.zeros((4, 4), np.uint8))
+    replacement = browser._open_field_overview(host, dict(source=str(source)))
+    workspace = host._field_overview_workspace
+    qtbot.waitUntil(replacement.next.isEnabled)
+    workspace.close()
+    assert replacement._cancelled.is_set() and current._cancelled.is_set()
+    assert workspace._previous_workspace is None
+    assert host._field_overview_workspace is workspace
+    assert host._fold_pages.currentWidget() is body
+
+
+def test_field_thumbnails_decode_visible_rows_and_load_new_rows_on_scroll(tmp_path, qtbot):
+    for number in range(1, 25):
+        tifffile.imwrite(tmp_path / f"plate1_A01_F{number}.tif",
+            np.arange(120, dtype=np.uint16).reshape(10, 12) + number)
+    dialog = _browser(tmp_path, qtbot, browser._overview_index(tmp_path))
+    dialog.show()
+    dialog.resize(760, 620)
+    dialog.fields.setFixedWidth(180)
+    dialog._well(dialog.wells.item(0, 0))
+    qtbot.waitUntil(lambda: dialog.fields.verticalScrollBar().maximum() > 0)
+    first, last = dialog.fields.item(0), dialog.fields.item(23)
+    qtbot.waitUntil(lambda: not first.icon().isNull() and not dialog._field_thumbnail_jobs.is_busy())
+    assert last.icon().isNull()
+    dialog.fields.scrollToItem(last)
+    qtbot.waitUntil(lambda: not last.icon().isNull() and not dialog._field_thumbnail_jobs.is_busy())
+    assert first.data(browser.Qt.UserRole).identity != last.data(browser.Qt.UserRole).identity
+    dialog.close()

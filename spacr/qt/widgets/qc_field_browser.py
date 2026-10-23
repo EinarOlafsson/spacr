@@ -3671,7 +3671,12 @@ class _FieldOverview(QDialog):
         """
         from PySide6.QtWidgets import QScrollArea
         from .flow import FlowHost, FlowLayout
-        content = QWidget(self)
+        self._options_window = QDialog(self, Qt.Window)
+        self._options_window.setWindowTitle(tr("Options"))
+        self._options_window.setWindowModality(Qt.NonModal)
+        self._options_window.resize(880, 680)
+        options_layout = QVBoxLayout(self._options_window)
+        content = QWidget(self._options_window)
         controls = QVBoxLayout(content)
         essential = FlowHost(self)
         essential_flow = FlowLayout(essential)
@@ -3695,22 +3700,32 @@ class _FieldOverview(QDialog):
         scroll.setWidgetResizable(True)
         scroll.setWidget(content)
         scroll.setMinimumHeight(100)
-        scroll.setMaximumHeight(330)
         self._controls_scroll = scroll
+        options_layout.addWidget(scroll)
         self.options_button = QPushButton(tr("Options"))
         self.options_button.setCheckable(True)
-        self.options_button.toggled.connect(scroll.setVisible)
+        self.options_button.toggled.connect(self._show_options)
+        self._options_window.finished.connect(self._options_closed)
         essential_flow.addWidget(self.options_button)
         fit = QPushButton(tr("Fit plate"))
         fit.clicked.connect(lambda: self._zoom_plate())
         essential_flow.addWidget(fit)
         column.addWidget(essential)
-        column.addWidget(scroll)
         column.addWidget(splitter, 1)
         column.addWidget(self.status)
-        scroll.hide()
         self.fields.hide()
         self.view.hide()
+
+    def _show_options(self, on):
+        """Open the separate controls window with normal keyboard focus."""
+        self._options_window.setVisible(on)
+        if on:
+            self._options_window.raise_()
+            self._options_window.activateWindow()
+
+    def _options_closed(self, *_):
+        """Keep the Options action consistent with its independent window."""
+        self.options_button.setChecked(False)
 
     @staticmethod
     def _display_options_key(options):
@@ -4442,13 +4457,16 @@ class _FieldOverview(QDialog):
         except (ValueError, TypeError) as exc:
             self.status.setText(str(exc))
             return
-        if not self._normalization_ready or self._cancelled.is_set() or not self._geometry_valid:
+        if self._cancelled.is_set() or not self._geometry_valid:
             return
         field = item.data(Qt.UserRole)
         if not self._individual:
             self._splitter.setSizes([250, 300, 750])
         self._individual = True
         self._comparison_signature = None
+        if not self._normalization_ready:
+            self.view.clear_image()
+            return
         options = self._display_kwargs()
         source_key = field.identity, channels, limits, self._display_options_key(options)
         if source_key != self._displayed_field:
@@ -4837,6 +4855,12 @@ class _FieldOverview(QDialog):
 
         :param event: the native close event passed to the base dialog.
         """
+        self._retire()
+        super().closeEvent(event)
+
+    def _retire(self):
+        """Stop owned image generations even when a page is already hidden."""
+        self._options_window.close()
         self._cancel()
         self._visual_timer.stop()
         self._native_timer.stop()
@@ -4845,40 +4869,163 @@ class _FieldOverview(QDialog):
                        self._thumbnail_jobs, self._montage_jobs, self._field_thumbnail_jobs,
                        self._metadata_jobs, self._measurement_jobs, self._native_jobs):
             runner.shutdown(timeout_ms=0)
+
+
+def _overview_workspace_qss(palette, opacity):
+    """Give embedded overview pages an opaque background in both themes."""
+    return ("QWidget#FieldOverviewWorkspace, QDialog#FieldOverviewBody, "
+            "QDialog#FieldOverviewMetadata { background-color: " + palette["bg"] + "; }")
+
+
+class _OverviewWorkspace(QWidget):
+    """Retain metadata and image navigation on the host's existing page strip."""
+
+    def __init__(self, owner, source):
+        """Create one opaque workspace without opening an extra top-level window."""
+        from PySide6.QtWidgets import QStackedWidget
+        from ..theme import register_widget_qss, ensure_widget_qss_applied
+        super().__init__(owner)
+        self._owner, self.source = owner, source
+        self._previous_workspace = None
+        self.setObjectName("FieldOverviewWorkspace")
+        self.setAutoFillBackground(True)
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        layout = QVBoxLayout(self)
+        navigation = QHBoxLayout()
+        self.back_button = QPushButton(tr("Back"))
+        self.back_button.clicked.connect(self._back)
+        navigation.addWidget(self.back_button)
+        navigation.addWidget(QLabel(tr("Field-of-view overview")), 1)
+        layout.addLayout(navigation)
+        self.stack = QStackedWidget(self)
+        layout.addWidget(self.stack, 1)
+        register_widget_qss("FieldOverviewWorkspace", _overview_workspace_qss, replace=True)
+        ensure_widget_qss_applied("FieldOverviewWorkspace", root=self)
+
+    def show_page(self):
+        """Use the same embedded page host as OPS, including standalone test hosts."""
+        from ..screens.map_barcodes import show_as_page
+        if self._owner.layout() is None:
+            layout = QVBoxLayout(self._owner)
+            layout.addWidget(QWidget(self._owner), 1)
+        show_as_page(self, self._owner, tr("Field-of-view overview"))
+        self._owner.show()
+        self.show()
+
+    def _back(self):
+        """Return through field, well, plate and the owning module."""
+        from ..screens.map_barcodes import hide_as_page
+        current = self.stack.currentWidget()
+        if isinstance(current, _FieldOverview) and current._individual:
+            current._individual = False
+            current._comparison_signature = None
+            current._filter()
+        elif isinstance(current, _FieldOverview) and current._scope[1] is not None:
+            current._back()
+        else:
+            self.hide()
+            hide_as_page(self, self._owner)
+            self.setParent(self._owner, Qt.Widget)
+
+    def hideEvent(self, event):
+        """Hide the independent options window when its workspace leaves view."""
+        current = self.stack.currentWidget()
+        if isinstance(current, _FieldOverview):
+            current._options_window.hide()
+            current._options_closed()
+        super().hideEvent(event)
+
+    def _metadata_rejected(self):
+        """Restore a validated source when replacement metadata is cancelled."""
+        previous = self._previous_workspace
+        if previous is None:
+            self._back()
+            return
+        from ..screens.map_barcodes import hide_as_page
+        self._previous_workspace = None
+        self.hide()
+        hide_as_page(self, self._owner)
+        self.setParent(self._owner, Qt.Widget)
+        self._owner._field_overview_workspace = previous
+        self._owner._field_overview_wizard = previous.stack.widget(0)
+        previous.show_page()
+        self.deleteLater()
+
+    def _retire(self):
+        """Retire owned child jobs independently of native hidden-widget closes."""
+        previous = self._previous_workspace
+        self._previous_workspace = None
+        if previous is not None:
+            previous._retire()
+            previous.deleteLater()
+        for index in range(self.stack.count()):
+            child = self.stack.widget(index)
+            if isinstance(child, _FieldOverview):
+                child._retire()
+            else:
+                child.reject()
+
+    def closeEvent(self, event):
+        """Retire the retained child jobs when replacing or closing the workspace."""
+        self._retire()
         super().closeEvent(event)
 
 
 def _open_field_overview(owner, settings=None):
-    """Open metadata choices before constructing the shared image browser."""
+    """Open metadata and the image browser as a retained embedded submodule."""
+    from ..screens.map_barcodes import hide_as_page
     settings = dict(settings or {})
     source = _overview_source_path(settings.get("source") or settings.get("src"))
-    previous = getattr(owner, "_field_overview_wizard", None)
-    if (previous is not None and previous.isVisible()
-            and _overview_source_path(previous.source.text()) == source):
-        previous.raise_()
-        return previous
+    previous = getattr(owner, "_field_overview_workspace", None)
+    if previous is not None and previous.source == source:
+        current = previous.stack.currentWidget()
+        if not isinstance(current, _OverviewMetadataWizard) or not current._finished:
+            previous.show_page()
+            return owner._field_overview_wizard
+    retained = None
     if previous is not None:
-        previous.reject()
-        previous.deleteLater()
-    wizard = _OverviewMetadataWizard(source, settings, owner)
+        if isinstance(previous.stack.currentWidget(), _FieldOverview):
+            retained = previous
+        else:
+            retained = previous._previous_workspace
+            previous._previous_workspace = None
+            previous._retire()
+            previous.deleteLater()
+        hide_as_page(previous, owner)
+        previous.setParent(owner, Qt.Widget)
+    workspace = _OverviewWorkspace(owner, source)
+    workspace._previous_workspace = retained
+    owner._field_overview_workspace = workspace
+    wizard = _OverviewMetadataWizard(source, settings, workspace)
+    wizard._startup_timer.stop()
+    wizard.setWindowFlags(Qt.Widget)
+    wizard.setObjectName("FieldOverviewMetadata")
+    wizard.setAutoFillBackground(True)
+    workspace.stack.addWidget(wizard)
     owner._field_overview_wizard = wizard
 
     def _show_browser():
-        """Replace the old view only after valid metadata choices are accepted."""
+        """Replace metadata choices with original-image navigation on the same page."""
         config = wizard.configuration()
-        old = getattr(owner, "_field_overview", None)
-        if old is not None:
-            old.close()
+        wizard.rejected.disconnect(workspace._metadata_rejected)
+        if workspace._previous_workspace is not None:
+            old = workspace._previous_workspace
+            workspace._previous_workspace = None
+            old._retire()
             old.deleteLater()
-        dialog = _FieldOverview(owner, config)
+        dialog = _FieldOverview(workspace, config)
+        dialog.setWindowFlags(Qt.Widget)
+        dialog.setObjectName("FieldOverviewBody")
+        dialog.setAutoFillBackground(True)
         owner._field_overview = dialog
-        dialog.show()
-        dialog.raise_()
+        workspace.stack.addWidget(dialog)
+        workspace.stack.setCurrentWidget(dialog)
         dialog._indexed(tuple(wizard._fields))
 
     wizard.accepted.connect(_show_browser)
-    wizard.show()
-    wizard.raise_()
+    wizard.rejected.connect(workspace._metadata_rejected)
+    workspace.show_page()
+    wizard._startup_timer.start(0)
     return wizard
 
 
