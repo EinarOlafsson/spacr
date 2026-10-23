@@ -1102,7 +1102,10 @@ def test_embedded_overview_expands_plate_keeps_options_separate_and_back_returns
     assert pages.currentWidget() is workspace and workspace.stack.currentWidget() is dialog
 
 
-def test_pdf_quality_reserves_all_native_text_slots_when_fonts_change(qtbot, qapp):
+@pytest.mark.parametrize("selector", ("pdf_quality", "pdf_dpi", "grouping",
+                                    "annotation_scope", "annotation_key",
+                                    "normalization_method", "normalization_scope"))
+def test_pdf_quality_reserves_all_native_text_slots_when_fonts_change(qtbot, qapp, selector):
     from PySide6.QtCore import Qt
     from PySide6.QtWidgets import QStyle, QStyleOptionComboBox
     from spacr.qt import gui_scale, theme
@@ -1114,7 +1117,7 @@ def test_pdf_quality_reserves_all_native_text_slots_when_fonts_change(qtbot, qap
         gui_scale.set_gui_scale_live(.9)
         body = browser._FieldOverview()
         qtbot.addWidget(body)
-        combo = body.pdf_quality
+        combo = getattr(body, selector)
         selected = (combo.currentIndex(), combo.currentText(), combo.currentData())
         floors = []
         for scale, pixels in ((.9, 11), (2., 23), (.9, 11)):
@@ -1140,6 +1143,64 @@ def test_pdf_quality_reserves_all_native_text_slots_when_fonts_change(qtbot, qap
             assert (combo.currentIndex(), combo.currentText(), combo.currentData()) == selected
             assert combo.maximumWidth() == combo.maximumHeight() == 16777215
         assert floors[-1] == floors[0] and floors[1].height() > floors[0].height()
+    finally:
+        try:
+            if body is not None:
+                body._retire()
+        finally:
+            gui_scale.set_gui_scale_live(old_gui)
+
+
+def test_advanced_background_pair_keeps_wrapped_caption_and_native_editor_whole(qtbot, qapp):
+    from PySide6.QtGui import QTextDocument, QTextOption
+    from PySide6.QtWidgets import QLabel, QLineEdit, QStyle, QStyleOptionFrame
+    from spacr.qt import gui_scale, theme
+
+    old_gui = gui_scale.current_scale()
+    body = None
+    try:
+        gui_scale.install_scaling_layer()
+        gui_scale.set_gui_scale_live(.9)
+        body = browser._FieldOverview()
+        qtbot.addWidget(body)
+        pair = body.background.parentWidget()
+        caption = pair.findChild(QLabel)
+        assert caption is not None and caption.wordWrap()
+        floors = []
+        for scale, pixels in ((.9, 11), (2., 23), (.9, 11)):
+            body.setStyleSheet(theme.stylesheet('dark', font_scale=scale))
+            body._options_window.show()
+            qtbot.waitUntil(lambda: body._options_window.windowHandle() is not None
+                            and body._options_window.windowHandle().isExposed())
+            qapp.processEvents()
+            assert caption.font().pixelSize() == body.background.font().pixelSize() == pixels
+            document = QTextDocument()
+            document.setDefaultFont(caption.font())
+            document.setDocumentMargin(0)
+            option = document.defaultTextOption()
+            option.setWrapMode(QTextOption.WordWrap)
+            document.setDefaultTextOption(option)
+            document.setPlainText(caption.text())
+            area = caption.contentsRect().adjusted(caption.margin(), caption.margin(),
+                                                   -caption.margin(), -caption.margin())
+            document.setTextWidth(area.width())
+            assert document.size().height() <= area.height() + 1 / caption.devicePixelRatioF(), (caption.geometry(), document.size())
+            editor = body.background.findChild(QLineEdit)
+            assert editor is not None
+            frame = QStyleOptionFrame()
+            frame.initFrom(editor)
+            frame.rect = editor.rect()
+            frame.lineWidth = editor.style().pixelMetric(QStyle.PM_DefaultFrameWidth, frame, editor) if editor.hasFrame() else 0
+            frame.midLineWidth = 0
+            field = editor.style().subElementRect(QStyle.SE_LineEditContents, frame, editor)
+            margins = editor.textMargins()
+            field = field.adjusted(margins.left(), margins.top(), -margins.right(), -margins.bottom())
+            assert field.height() >= editor.fontMetrics().height(), (editor.rect(), field, editor.fontMetrics().height())
+            assert not caption.geometry().intersects(body.background.geometry())
+            assert pair.maximumWidth() == 16777215
+            floors.append(pair.sizeHint())
+            assert body.background.value() == 0
+        assert floors[-1] == floors[0]
     finally:
         try:
             if body is not None:

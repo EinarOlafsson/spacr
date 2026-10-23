@@ -103,6 +103,40 @@ Only that unchanged manual-geometry contract is retaken offscreen85405 and
 PASSES5.28s/RSS0.301GiB; original combined Cocoa run6.91s/RSS0.402GiB.
 Source/test peer clears the PDF-only fitter reuse. Faithful bounded normal-app
 native acceptance must still verify Options text and no host/plate jump.
+Default90523/KwrZqO onb591911a8 confirms PDF quality fits and Options does not
+change the plate1324x471. Aggregate inspection of every Options control finds
+only two remaining one-pixel full-slot defects: pdf_dpi134x27/native field96x17/
+each Resolution choice97x15; grouping102x27/field64x17/Plate column65x15.
+All other inspected controls, opaque backgrounds, embedding and bounded initial
+frame pass at11px. Natural child1/35.631s/RSS1.025GiB/zero missed, unchanged
+inputs and normal close. Prepare the existing font-growth/shrink regression for
+these two proven selectors only; source remains frozen while font200 inspects
+remaining controls. Do not blanket-replace unproven combos or waive one pixel.
+Font20094980/eIIDGR onb591911a8 scans all85 controls at23px; opaque surfaces,
+embedding, plate1336→1316 and independent Options850x783 pass. Six selectors
+have proven full-slot deficits: annotation_scope145>144, annotation_key101>100,
+pdf_dpi202>199, grouping135>132, normalization_method356>178 and
+normalization_scope272>178. The advanced Subtract-background pair also has
+caption216x40 versus64px wrapped height and spinbox216x39/internal editor
+186x29 versus32px font line. Its local pair maximum240→216px constrains natural
+content while FlowLayout uses sizeHint rather than heightForWidth. Natural
+child1/37.033s/RSS0.990GiB/zero missed, unchanged inputs and normal close.
+Extend only the six observed selector regressions and add the real advanced
+pair's wrapped-caption/native-edit-field regression before source changes.
+Prefer natural uncapped pair sizing with existing Options scrolling; do not
+alter global FlowLayout, shrink fonts, remove captions or weaken slot checks.
+Focused Cocoa RED65960 reproduces all seven affected cases in8.95s/
+RSS0.347GiB, including the capped216x38 caption requiring64px at23px font.
+Use the existing fitter for precisely the six proven selectors and remove only
+the local advanced pair's arbitrary width cap, allowing natural hints/Options
+scrolling. Keep PDF quality's accepted fitter and every unproven selector
+unchanged; no global layout, normalization arithmetic or chosen values change.
+Affected Cocoa green45589 PASSES all seven in11.30s/RSS0.336GiB, with exact
+all-choice native slots and11→23→11px shrinking floors for the six selectors;
+the real advanced pair's wrapped caption, native editor line, nonoverlap,
+unchanged value and uncapped natural size also pass. Independent source/test
+peer clears this bounded repair. Retain earlier PDF-quality and navigation
+passes; aggregate normal-app default/font200 native acceptance remains pending.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 
