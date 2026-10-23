@@ -529,3 +529,57 @@ def test_every_key_a_build_reads_is_in_the_compared_groups(
     assert outside == [], (
         f"Preferences reads {outside}, outside _PREFERENCES_STORE_GROUPS; "
         f"a kept dialog would not notice them change")
+
+
+def test_page_detachment_does_not_change_the_same_dialogs_draft(qtbot, store):
+    """Reparenting preserves control identity while edits remain significant."""
+    from PySide6.QtWidgets import QCheckBox, QLineEdit, QScrollArea, QWidget
+    from shiboken6 import getCppPointer
+
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    dialog._reusable = True
+    dialog._pages_away = {}
+    pages, holders, checks, texts = [], [], [], []
+    for index in range(2):
+        holder = QScrollArea(dialog)
+        page = QWidget()
+        check = QCheckBox(page)
+        check.setObjectName("SharedPreferenceName")
+        check.setChecked(bool(index))
+        text = QLineEdit("[1, 2]", page)
+        text.setObjectName("OrderedPreferenceText")
+        holder.setWidget(page)
+        holders.append(holder)
+        pages.append(page)
+        checks.append(check)
+        texts.append(text)
+    ordered_extra = ["first", "second"]
+    dialog._draft_extras = lambda: ordered_extra
+    native_controls = [getCppPointer(control)[0] for control in checks + texts]
+    preferences._note_what_the_dialog_shows(dialog)
+    assert preferences._still_shows_the_store(dialog, saved_by_it=True)
+
+    for index, holder in enumerate(holders):
+        page = holder.takeWidget()
+        assert page is pages[index]
+        dialog._pages_away[index] = page
+    assert preferences._still_shows_the_store(dialog, saved_by_it=True)
+    dialog._pages_away = dict(reversed(tuple(dialog._pages_away.items())))
+    assert preferences._still_shows_the_store(dialog, saved_by_it=True)
+    for index, holder in enumerate(holders):
+        holder.setWidget(dialog._pages_away.pop(index))
+    assert [getCppPointer(control)[0] for control in checks + texts] == native_controls
+    assert preferences._still_shows_the_store(dialog, saved_by_it=True)
+
+    checks[0].setChecked(True)
+    checks[1].setChecked(False)
+    assert not preferences._still_shows_the_store(dialog, saved_by_it=True)
+    checks[0].setChecked(False)
+    checks[1].setChecked(True)
+    assert preferences._still_shows_the_store(dialog, saved_by_it=True)
+    texts[0].setText("[2, 1]")
+    assert not preferences._still_shows_the_store(dialog, saved_by_it=True)
+    texts[0].setText("[1, 2]")
+    ordered_extra.reverse()
+    assert not preferences._still_shows_the_store(dialog, saved_by_it=True)
