@@ -10355,6 +10355,7 @@ class _VolumeMeshRequest(NamedTuple):
 
     @property
     def key(self):
+        """Identify work by session identity, label, version and generation."""
         return id(self.session), self.label, self.version, self.generation
 
 

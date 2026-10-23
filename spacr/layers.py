@@ -5600,6 +5600,7 @@ def _serialized_wgpu(method):
     """Keep a renderer's frame resources alive through readback and close."""
     @wraps(method)
     def locked(self, *args, **kwargs):
+        """Hold the renderer lock around rendering or resource cleanup."""
         with self._render_lock:
             if method.__name__ != 'render':
                 return method(self, *args, **kwargs)

@@ -8495,7 +8495,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 17977,
+    "line": 18036,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8504,7 +8504,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 17977,
+    "line": 18036,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8513,7 +8513,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18094,
+    "line": 18153,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8522,7 +8522,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18094,
+    "line": 18153,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8531,7 +8531,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18380,
+    "line": 18439,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -13204,7 +13204,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 21231,
+    "line": 21290,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"

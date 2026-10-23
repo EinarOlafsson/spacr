@@ -175,6 +175,7 @@ class _AppTileIcon(QLabel):
     """Render the original icon into this label's actual bounds and DPR."""
 
     def __init__(self, icon, side):
+        """Keep the source icon and follow this label's size and device ratio."""
         super().__init__()
         self._icon = QIcon(icon)
         self.setFixedSize(side, side)
@@ -183,12 +184,14 @@ class _AppTileIcon(QLabel):
         follow_device_ratio(self, self._redraw)
 
     def _redraw(self):
+        """Render the source icon at the current content size and device ratio."""
         bounds = self.contentsRect().size()
         if not bounds.isEmpty():
             rendered = self._icon.pixmap(bounds, device_ratio(self))
             self.setPixmap(scaled_for(rendered, self, bounds))
 
     def resizeEvent(self, event):
+        """Refresh the icon after the label handles its resize event."""
         super().resizeEvent(event)
         self._redraw()
 
