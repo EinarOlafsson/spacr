@@ -2114,17 +2114,77 @@ class _OverviewWellDelegate(QStyledItemDelegate):
         painter.restore()
 
 
+class _OverviewPlateDelegate(_OverviewWellDelegate):
+    """Show the active physical well beneath a translucent blue hover."""
+
+    def paint(self, painter, option, index):
+        """Retain the source thumbnail and caption under the hover highlight.
+
+        :param painter: the active GUI-thread painter.
+        :param option: native cell geometry and hover state.
+        :param index: the physical well cell.
+        """
+        from PySide6.QtGui import QColor
+        from PySide6.QtWidgets import QStyle
+
+        super().paint(painter, option, index)
+        if option.state & QStyle.State_MouseOver:
+            painter.save()
+            painter.fillRect(option.rect.adjusted(1, 1, -1, -1), QColor(35, 130, 245, 65))
+            painter.restore()
+
+
+class _OverviewImageView(ZoomableImageView):
+    """Keep zoom and acquisition-axis wheel navigation explicitly separate."""
+
+    axis_step = Signal(int)
+    detail_requested = Signal()
+
+    def __init__(self, parent=None):
+        """Create a normal image view with an explicit wheel mode.
+
+        :param parent: the owning browser widget.
+        """
+        super().__init__(parent)
+        self.wheel_mode = "zoom"
+
+    def wheelEvent(self, event):
+        """Zoom normally or step the chosen acquisition axis, never both.
+
+        :param event: the actual wheel event.
+        """
+        if self.wheel_mode != "zoom":
+            if event.angleDelta().y():
+                self.axis_step.emit(1 if event.angleDelta().y() > 0 else -1)
+            event.accept()
+            return
+        super().wheelEvent(event)
+        self.detail_requested.emit()
+
+
 class _FieldOverview(QDialog):
     """Shared, lazily loaded plate and field overview for both mask modules."""
 
     def __init__(self, parent=None, settings=None):
-        """Create controls without opening a directory or decoding an image."""
+        """Create controls without opening a directory or decoding an image.
+
+        :param parent: the module that owns this retained browser.
+        :param settings: accepted metadata, geometry and display configuration.
+        """
         from collections import OrderedDict
         from PySide6.QtWidgets import (QLineEdit, QSpinBox, QDoubleSpinBox,
                                        QListWidget, QAbstractItemView, QTableWidget)
         import threading
 
         super().__init__(parent)
+        self._overview_options = dict(settings or {})
+        self._normalization_plan = None
+        self._normalization_ready = not bool(self._overview_options.get("normalization"))
+        self._display_pending = False
+        self._display_generation = 0
+        self._conditions = dict(self._overview_options.get("conditions") or {})
+        self._preview_edge = 256
+        self._displayed_field = None
         self.setWindowTitle(tr("Field-of-view overview"))
         self.resize(1000, 760)
         self._fields, self._visible = (), ()
@@ -2139,10 +2199,13 @@ class _FieldOverview(QDialog):
         self._displayed_montage = None
         self._cancelled = threading.Event()
         self._index_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._index_jobs.job_finished.connect(self._finish_display_prepare)
         self._image_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
         self._export_jobs = JobRunner(self, app_key="field_overview")
         self._thumbnail_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
         self._montage_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._field_thumbnail_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._field_thumbnail_jobs.job_finished.connect(self._request_visuals)
         self._visual_timer = QTimer(self)
         self._visual_timer.setSingleShot(True)
         self._visual_timer.timeout.connect(self._update_visuals)
@@ -2152,9 +2215,10 @@ class _FieldOverview(QDialog):
         self._image_jobs.job_finished.connect(self._refresh_image_if_pending)
         self._image_pending = False
         self._page = 0
+        self._comparison_signature = None
         column = QVBoxLayout(self)
         source_row = QHBoxLayout()
-        source = (settings or {}).get("src") or ""
+        source = (settings or {}).get("source") or (settings or {}).get("src") or ""
         if isinstance(source, (list, tuple)):
             source = source[0] if source else ""
         self.source = QLineEdit(str(source))
@@ -2177,7 +2241,8 @@ class _FieldOverview(QDialog):
         self.normalise = QCheckBox(tr("Percentile normalization"))
         self.normalise.setChecked(bool((settings or {}).get("normalize", True)))
         self.low, self.high = QDoubleSpinBox(), QDoubleSpinBox()
-        percentiles = (settings or {}).get("normalization_percentiles") or (1., 99.9)
+        percentiles = ((settings or {}).get("normalization") or {}).get("percentiles")
+        percentiles = percentiles or (settings or {}).get("normalization_percentiles") or (1., 99.9)
         for spin, value in ((self.low, percentiles[0]), (self.high, percentiles[1])):
             spin.setRange(0, 100)
             spin.setValue(value)
@@ -2200,10 +2265,24 @@ class _FieldOverview(QDialog):
         back.clicked.connect(self._back)
         navigation.addWidget(back)
         column.addLayout(navigation)
+        from PySide6.QtCore import QSize
         self.wells, self.fields = QTableWidget(), QListWidget()
         self.wells.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.wells.setItemDelegate(_OverviewWellDelegate(self.wells))
+        self.wells.setItemDelegate(_OverviewPlateDelegate(self.wells))
+        self.wells.setMouseTracking(True)
+        self.wells.viewport().setMouseTracking(True)
         self.fields.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        from PySide6.QtWidgets import QListView
+        self.fields.setViewMode(QListView.IconMode)
+        self.fields.setResizeMode(QListView.Adjust)
+        self.fields.setMovement(QListView.Static)
+        self.fields.setSelectionRectVisible(True)
+        self.fields.setWrapping(True)
+        self.fields.setWordWrap(True)
+        self.fields.setIconSize(QSize(128, 96))
+        self.fields.setGridSize(QSize(154, 140))
+        self.fields.viewport().installEventFilter(self)
+        self.fields.verticalScrollBar().valueChanged.connect(self._request_visuals)
         self._well_viewport = self.wells.viewport()
         self._well_viewport.installEventFilter(self)
         self.wells.horizontalScrollBar().valueChanged.connect(self._request_visuals)
@@ -2220,10 +2299,79 @@ class _FieldOverview(QDialog):
         self._splitter = splitter
         splitter.addWidget(self.wells)
         splitter.addWidget(self.fields)
-        self.view = ZoomableImageView()
+        self.view = _OverviewImageView()
+        self.view.axis_step.connect(self._step_axis)
+        self.view.detail_requested.connect(self._request_detail)
         splitter.addWidget(self.view)
         splitter.setStretchFactor(2, 3)
         column.addWidget(splitter, 1)
+        axes = QHBoxLayout()
+        self.fov_axis, self.time_axis, self.z_axis = QComboBox(), QComboBox(), QComboBox()
+        self.z_mode = QComboBox()
+        for text, value in ((tr("Z plane"), "plane"), (tr("Maximum Z projection"), "max"),
+                            (tr("Mean Z projection"), "mean")):
+            self.z_mode.addItem(text, value)
+        self.z_mode.setCurrentIndex(max(0, self.z_mode.findData(self._overview_options.get("z_mode", "plane"))))
+        self.wheel_axis = QComboBox()
+        for text, value in ((tr("Wheel: zoom"), "zoom"), (tr("Wheel: field"), "field"),
+                            (tr("Wheel: Z"), "z"), (tr("Wheel: time"), "time")):
+            self.wheel_axis.addItem(text, value)
+        self.wheel_axis.currentIndexChanged.connect(self._wheel_mode_changed)
+        for label, combo in ((tr("Field"), self.fov_axis), (tr("Time"), self.time_axis),
+                             (tr("Z"), self.z_axis)):
+            axes.addWidget(QLabel(label))
+            axes.addWidget(combo)
+            combo.currentIndexChanged.connect(self._axis_changed)
+        axes.addWidget(self.z_mode)
+        self.z_mode.currentIndexChanged.connect(self._axis_changed)
+        axes.addWidget(self.wheel_axis)
+        compare = QPushButton(tr("Compare selected fields"))
+        compare.clicked.connect(self._compare)
+        axes.addWidget(compare)
+        column.addLayout(axes)
+        annotations = QHBoxLayout()
+        self.annotation_scope = QComboBox()
+        for text, value in ((tr("Plate condition"), "plate"), (tr("Row condition"), "row"),
+                            (tr("Column condition"), "column"), (tr("Selected wells condition"), "wells")):
+            self.annotation_scope.addItem(text, value)
+        self.annotation_scope.setToolTip(tr(
+            "Replace condition labels only in this scope on the current plate; an empty label clears them."))
+        self.annotation_text = QLineEdit()
+        self.annotation_text.setPlaceholderText(tr("Condition annotation"))
+        annotate = QPushButton(tr("Apply annotation"))
+        annotate.clicked.connect(self._annotate)
+        save_annotations = QPushButton(tr("Save annotations"))
+        load_annotations = QPushButton(tr("Load annotations"))
+        save_annotations.clicked.connect(self._save_annotations)
+        load_annotations.clicked.connect(self._load_annotations)
+        for widget in (self.annotation_scope, self.annotation_text, annotate,
+                       save_annotations, load_annotations):
+            annotations.addWidget(widget)
+        column.addLayout(annotations)
+        quality = QHBoxLayout()
+        self.representatives = QSpinBox()
+        self.representatives.setRange(1, 24)
+        self.representatives.setToolTip(tr("Display up to 24 representative fields per well; whole-source exports remain available."))
+        self.representatives.setValue(int(self._overview_options.get("representatives", 1)))
+        self.representatives.valueChanged.connect(self._representatives_changed)
+        self.export_scope = QComboBox()
+        for text, value in ((tr("Current view"), "view"), (tr("Whole plate"), "plate"),
+                            (tr("Current well"), "well"), (tr("Current field"), "field"),
+                            (tr("Selected fields or wells"), "selection")):
+            self.export_scope.addItem(text, value)
+        self.export_scope.setToolTip(tr(
+            "Whole plate and well exports use the selected Z and time; explicit selections keep their own acquisition identities."))
+        self.pdf_quality, self.pdf_dpi = QComboBox(), QComboBox()
+        for text, value in ((tr("PDF: full source resolution"), None),
+                            (tr("PDF: 1600-pixel field"), 1600), (tr("PDF: 3200-pixel field"), 3200)):
+            self.pdf_quality.addItem(text, value)
+        for value in (150, 300, 600):
+            self.pdf_dpi.addItem(tr("{dpi} DPI", dpi=value), value)
+        self.pdf_dpi.setCurrentIndex(1)
+        for widget in (QLabel(tr("Representatives per well")), self.representatives,
+                       self.export_scope, self.pdf_quality, self.pdf_dpi):
+            quality.addWidget(widget)
+        column.addLayout(quality)
         paging = QHBoxLayout()
         previous, following = QPushButton(tr("Previous fields")), QPushButton(tr("Next fields"))
         previous.clicked.connect(lambda: self._turn(-1))
@@ -2251,7 +2399,11 @@ class _FieldOverview(QDialog):
         cancel.clicked.connect(self._cancel)
         for widget in (previous, following):
             paging.addWidget(widget)
-        paging.addStretch(1)
+        self._plate_scale = 1.
+        for text, step in ((tr("Fit plate"), 0), (tr("Larger wells"), 1), (tr("Smaller wells"), -1)):
+            button = QPushButton(text)
+            button.clicked.connect(lambda _checked=False, value=step: self._zoom_plate(value))
+            paging.addWidget(button)
         column.addLayout(paging)
         sample_row = QHBoxLayout()
         for widget in (self.grouping, QLabel(tr("Samples per group")), self.count,
@@ -2276,6 +2428,404 @@ class _FieldOverview(QDialog):
         self._convention = str((settings or {}).get("metadata_type") or "auto")
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
+        self._wrap_controls(column, splitter)
+
+    def _save_annotations(self):
+        """Write conditions only to the user's explicitly chosen output table."""
+        from PySide6.QtWidgets import QFileDialog
+        if self._export_jobs.is_busy():
+            self.status.setText(tr("Wait for the current export to finish or cancel it."))
+            return
+        path, _ = QFileDialog.getSaveFileName(self, tr("Save condition annotations"),
+                                             "", tr("CSV tables (*.csv)"))
+        if not path:
+            return
+        records = tuple((plate, well, value) for (plate, well), value in sorted(self._conditions.items()))
+        def write():
+            """Atomically write the captured table without changing source images.
+
+            :returns: the requested output path.
+            """
+            import pandas as pd
+            from ... import tabular
+            tabular.write_table(pd.DataFrame(records, columns=("plate", "well", "condition")),
+                                path, canonicalise=False)
+            return path
+        self._export_jobs.submit(write, lambda output: self.status.setText(
+            tr("Condition annotations saved: {path}", path=output)))
+
+    def _load_annotations(self):
+        """Validate every loaded plate/well identity before replacing conditions."""
+        from PySide6.QtWidgets import QFileDialog
+        if self._export_jobs.is_busy():
+            self.status.setText(tr("Wait for the current export to finish or cancel it."))
+            return
+        path, _ = QFileDialog.getOpenFileName(self, tr("Load condition annotations"),
+                                             "", tr("CSV tables (*.csv)"))
+        if not path:
+            return
+        fields, cancelled = self._fields, self._cancelled
+        known = {(field.plate, field.well) for field in fields if not field.unresolved}
+        def read():
+            """Read a real table and refuse foreign or duplicate physical identities.
+
+            :returns: a validated immutable sequence of condition assignments.
+            """
+            from ... import tabular
+            table = tabular.read_table(path, canonicalise=False, dtype=str, keep_default_na=False)
+            if set(table.columns) != {"plate", "well", "condition"}:
+                raise ValueError(tr("Annotation tables must contain plate, well and condition columns."))
+            result = {}
+            for record in table.fillna("").to_dict("records"):
+                key = str(record["plate"]), str(record["well"])
+                if key not in known or key in result:
+                    raise ValueError(tr("Annotation table identities are missing, duplicated or outside this source."))
+                result[key] = str(record["condition"])
+            return tuple(result.items())
+        def loaded(records):
+            """Install validated assignments only for their original source generation.
+
+            :param records: validated physical identities and condition strings.
+            """
+            if not cancelled.is_set() and fields is self._fields:
+                self._conditions = dict(records)
+                self._filter()
+                if self._overview_options.get("normalization"):
+                    self._prepare_display()
+        self._export_jobs.submit(read, loaded)
+
+    def _update_field_thumbnails(self, signature, channels, limits, options):
+        """Decode one visible field tile at a time, with at most 24 native icons.
+
+        :param signature: the current source, axes and display generation.
+        :param channels: exact requested source channel identities.
+        :param limits: optional percentile limits.
+        :param options: the immutable normalization and acquisition selection.
+        """
+        if self._field_thumbnail_jobs.is_busy():
+            return
+        viewport, cancelled = self.fields.viewport(), self._cancelled
+        ratio = device_ratio(viewport)
+        for index in range(self.fields.count()):
+            item = self.fields.item(index)
+            if not viewport.rect().intersects(self.fields.visualItemRect(item)):
+                continue
+            field = item.data(Qt.UserRole)
+            key = field.identity, channels, limits, repr(options), ratio
+            if item.data(Qt.UserRole + 1) == key:
+                continue
+            def read():
+                """Decode only the requested tile, preserving unreadable-field state.
+
+                :returns: detached pixels and an empty error, or None and the refusal.
+                """
+                try:
+                    return _overview_pixels(field, channels, limits,
+                                             edge=math.ceil(128 * ratio), **options), ""
+                except Exception as exc:
+                    return None, str(exc)
+            def shown(result):
+                """Install only an exact current visible field identity.
+
+                :param result: detached worker pixels and an optional refusal message.
+                """
+                from PySide6.QtGui import QIcon
+                if cancelled.is_set() or self._visual_context() != signature:
+                    return
+                pixels, error = result
+                if error:
+                    self.status.setText(tr("Could not read {field}: {error}", field=field.caption, error=error))
+                for current_index in range(self.fields.count()):
+                    current = self.fields.item(current_index)
+                    if current.data(Qt.UserRole).identity != field.identity:
+                        continue
+                    current.setData(Qt.UserRole + 1, key)
+                    if pixels is None:
+                        current.setIcon(QIcon())
+                    else:
+                        image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
+                                       pixels.strides[0], QImage.Format_RGB888).copy()
+                        pixmap = scaled_for(QPixmap.fromImage(image), viewport, self.fields.iconSize())
+                        current.setIcon(QIcon(pixmap))
+                    break
+            self._field_thumbnail_jobs.submit(read, shown)
+            return
+
+    def _zoom_plate(self, delta=0):
+        """Fit physical well geometry or enlarge it without changing source coordinates.
+
+        :param delta: positive or negative scale step; zero fits the plate.
+        """
+        if delta:
+            self._plate_scale = max(.5, min(8., self._plate_scale * (1.25 if delta > 0 else .8)))
+        else:
+            self._plate_scale = 1.
+        columns, rows = max(1, self.wells.columnCount()), max(1, self.wells.rowCount())
+        width = max(32, int(self.wells.viewport().width() / columns * self._plate_scale))
+        height = max(32, int(self.wells.viewport().height() / rows * self._plate_scale))
+        for column in range(columns):
+            self.wells.setColumnWidth(column, width)
+        for row in range(rows):
+            self.wells.setRowHeight(row, height)
+        self._request_visuals()
+
+    def _wrap_controls(self, column, splitter):
+        """Keep every configuration action reachable on a small window via one scroll area.
+
+        :param column: the dialog's existing outer layout.
+        :param splitter: the image and plate area, kept outside the settings scroller.
+        """
+        from PySide6.QtWidgets import QScrollArea
+        from .flow import FlowHost, FlowLayout
+        content = QWidget(self)
+        controls = QVBoxLayout(content)
+        while column.count():
+            item = column.takeAt(0)
+            if item.widget() in (splitter, self.status):
+                continue
+            layout = item.layout()
+            if layout is not None:
+                host = FlowHost(content)
+                flow = FlowLayout(host)
+                while layout.count():
+                    child = layout.takeAt(0)
+                    if child.widget() is not None:
+                        flow.addWidget(child.widget())
+                layout.setParent(None)
+                controls.addWidget(host)
+            elif item.widget() is not None:
+                controls.addWidget(item.widget())
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(content)
+        scroll.setMinimumHeight(100)
+        scroll.setMaximumHeight(330)
+        self._controls_scroll = scroll
+        column.addWidget(scroll)
+        column.addWidget(splitter, 1)
+        column.addWidget(self.status)
+
+    def _display_kwargs(self):
+        """Freeze selected stack axes and the immutable normalization plan."""
+        time = self.time_axis.currentData()
+        z = self.z_axis.currentData()
+        return dict(normalization=self._normalization_plan,
+                    time_index=time if isinstance(time, int) else 0,
+                    z_index=z if isinstance(z, int) else 0,
+                    z_mode=self.z_mode.currentData() or "plane")
+
+    @staticmethod
+    def _natural(value):
+        """Sort acquisition identifiers by their numeric components.
+
+        :param value: the literal acquisition identifier.
+        :returns: comparable typed text and numeric tokens.
+        """
+        import re
+        return tuple((1, int(part)) if part.isdigit() else (0, part.casefold())
+                     for part in re.split(r"(\d+)", str(value)))
+
+    def _populate_axes(self, fields, info=None):
+        """Use literal metadata identifiers or declared stack indices, never captions.
+
+        :param fields: immutable source records in this dataset.
+        :param info: optional header-only channel and stack-axis discovery.
+        """
+        info = info or {}
+        specs = ((self.fov_axis, "field_id", None), (self.time_axis, "time_id", "time_count"),
+                 (self.z_axis, "z_id", "z_count"))
+        for combo, attribute, count_name in specs:
+            previous = combo.currentData()
+            values = sorted({getattr(field, attribute, "") for field in fields
+                             if getattr(field, attribute, "")}, key=self._natural)
+            combo.blockSignals(True)
+            combo.clear()
+            if attribute == "field_id":
+                combo.addItem(tr("All fields"), None)
+            if values:
+                for value in values:
+                    combo.addItem(str(value), value)
+            elif count_name:
+                count = max((record.get(count_name, 1) for record in info.get("files", ())), default=1)
+                for value in range(count):
+                    combo.addItem(str(value), value)
+            if previous is None and attribute in ("time_id", "z_id"):
+                previous = self._overview_options.get("time_index" if attribute == "time_id" else "z_index", 0)
+            index = combo.findData(previous)
+            combo.setCurrentIndex(index if index >= 0 else 0)
+            combo.blockSignals(False)
+        separate_z = any(getattr(field, "z_id", "") for field in fields)
+        self.z_mode.setEnabled(not separate_z)
+
+    def _prepare_display(self):
+        """Resolve reference normalization and real axis headers off the GUI thread."""
+        if not self._fields:
+            return
+        self._display_generation += 1
+        if self._index_jobs.is_busy():
+            self._display_pending = True
+            return
+        generation = self._display_generation
+        fields, cancelled = self._fields, self._cancelled
+        try:
+            channels, limits = self._choices()
+        except (ValueError, TypeError) as exc:
+            self.status.setText(str(exc))
+            return
+        options = dict(self._overview_options.get("normalization") or {})
+        options["percentiles"] = limits if limits is not None else (0., 100.)
+        options["conditions"] = dict(self._conditions)
+        axes = self._display_kwargs()
+        axes.pop("normalization")
+        self._normalization_ready = False
+        def prepare():
+            """Read metadata and bounded reference samples without Qt objects.
+
+            :returns: header metadata and an immutable display plan.
+            """
+            info = _overview_channel_info(fields[0])
+            plan = None
+            if self._overview_options.get("normalization"):
+                plan = _overview_normalization_plan(fields, channels, options,
+                    lambda field, selected, edge=256: tuple(_overview_raw_planes(
+                        field, selected, edge=edge, **axes)), cancelled)
+            return info, plan
+        def prepared(result):
+            """Install only the still-current source generation.
+
+            :param result: header metadata and the resolved normalization plan.
+            """
+            if (cancelled.is_set() or fields is not self._fields
+                    or generation != self._display_generation):
+                return
+            info, self._normalization_plan = result
+            self._populate_axes(fields, info)
+            self._normalization_ready = True
+            self._request_visuals()
+            if self._individual:
+                item = self.fields.currentItem()
+                if item is not None:
+                    self._field(item)
+        self._index_jobs.submit(prepare, prepared)
+
+    def _finish_display_prepare(self, *_):
+        """Coalesce display-plan requests behind the current bounded worker.
+
+        :param _: unused completion-signal arguments.
+        """
+        if self._display_pending and not self._cancelled.is_set():
+            self._display_pending = False
+            self._prepare_display()
+
+    def _axis_changed(self, *_):
+        """Retain the same well while changing an explicit acquisition axis.
+
+        :param _: unused acquisition-control signal arguments.
+        """
+        if not self._fields:
+            return
+        individual = self._individual
+        self._displayed_montage = None
+        self._preview_edge = 256
+        self._filter()
+        if self._overview_options.get("normalization"):
+            self._prepare_display()
+        if individual and self.fields.count():
+            self.fields.setCurrentRow(0)
+            self._field(self.fields.item(0))
+        elif not self._visible:
+            self.view.clear_image()
+            self.status.setText(tr("No field exists for this well and acquisition-axis selection."))
+
+    def _wheel_mode_changed(self):
+        """Apply the explicit wheel action without modifying any acquisition value."""
+        self.view.wheel_mode = self.wheel_axis.currentData()
+
+    def _step_axis(self, delta):
+        """Step the selected field, Z or time axis within its real bounds.
+
+        :param delta: one positive or negative wheel step.
+        """
+        combo = {"field": self.fov_axis, "z": self.z_axis,
+                 "time": self.time_axis}.get(self.wheel_axis.currentData())
+        if combo is not None:
+            combo.setCurrentIndex(max(0, min(combo.count() - 1, combo.currentIndex() + delta)))
+
+    def _request_detail(self):
+        """Request a bounded finer source decode only after genuine user zoom."""
+        if not self._individual or self.view._item is None:
+            return
+        width = self.view._item.pixmap().width()
+        displayed = width * self.view.transform().m11()
+        desired = min(4096, max(256, int(math.ceil(displayed * device_ratio(self.view.viewport())))))
+        desired = next((edge for edge in (256, 1024, 2048, 4096) if edge >= desired), 4096)
+        if desired > self._preview_edge:
+            self._preview_edge = desired
+            item = self.fields.currentItem()
+            if item is not None:
+                self._field(item, preserve_view=True)
+
+    def _representatives_changed(self):
+        """Invalidate plate representatives while retaining source selections."""
+        self._thumbnail_cache.clear()
+        self._filter()
+
+    def _annotate(self):
+        """Associate condition text with stable physical well identities."""
+        plate = self.plates.currentData()
+        scope, text = self.annotation_scope.currentData(), self.annotation_text.text().strip()
+        if scope == "wells":
+            wells = {item.data(Qt.UserRole) for item in self.wells.selectedItems()}
+        else:
+            row, column = self.rows.currentData(), self.columns.currentData()
+            wells = {field.well for field in self._fields if field.plate == plate
+                     and (scope != "row" or row is not None and field.row == row)
+                     and (scope != "column" or column is not None and field.column == column)}
+        if not wells:
+            self.status.setText(tr("Choose a row, column or well selection before annotating."))
+            return
+        for well in wells:
+            if text:
+                self._conditions[(plate, well)] = text
+            else:
+                self._conditions.pop((plate, well), None)
+        self._filter()
+        if self._overview_options.get("normalization"):
+            self._prepare_display()
+
+    def _compare(self):
+        """Render only explicitly selected fields, retaining their source identities."""
+        fields = tuple(self._selected_fields.values())
+        if not fields:
+            self.status.setText(tr("Select fields by clicking or dragging a selection rectangle."))
+            return
+        if len(fields) > 24:
+            self.status.setText(tr("Compare up to 24 fields at a time."))
+            return
+        try:
+            channels, limits = self._choices()
+        except (ValueError, TypeError) as exc:
+            self.status.setText(str(exc))
+            return
+        options, cancelled = self._display_kwargs(), self._cancelled
+        self._individual = False
+        self._splitter.setSizes([250, 300, 750])
+        signature = tuple(field.identity for field in fields), channels, limits, repr(options)
+        self._comparison_signature = signature
+        def done(result):
+            """Show only a comparison that still owns the current navigation.
+
+            :param result: detached montage pixels and per-field errors.
+            """
+            if (not cancelled.is_set() and not self._individual
+                    and self._comparison_signature == signature):
+                pixels, errors = result
+                if pixels is not None:
+                    self._show_pixels(pixels)
+                    self.status.setText(tr("{count} fields; {errors} unreadable previews.",
+                                           count=len(fields), errors=len(errors)))
+        self._montage_jobs.submit(lambda: _overview_montage(
+            fields, channels, limits, cancelled, **options), done)
 
     def _choices(self):
         """Validate one display/export configuration on the GUI thread."""
@@ -2316,6 +2866,7 @@ class _FieldOverview(QDialog):
     def _cancel(self):
         """Cancel queued results and stop work at the next field boundary."""
         self._cancelled.set()
+        self._comparison_signature = None
         self.status.setText(tr("Cancellation requested; the current image read may finish."))
         self._index_jobs.cancel()
 
@@ -2336,11 +2887,17 @@ class _FieldOverview(QDialog):
         self.view.clear_image()
         source, regex, convention, cancelled = self.source.text(), self.regex.text(), self._convention, self._cancelled
         self.status.setText(tr("Indexing image metadata…"))
-        self._index_jobs.submit(lambda: _overview_index(source, regex, convention, cancelled), self._indexed)
+        source_scope = self._overview_options.get("source_scope", "recursive")
+        self._index_jobs.submit(lambda: _overview_index(
+            source, regex, convention, cancelled, source_scope=source_scope), self._indexed)
 
     def _indexed(self, fields):
-        """Show actual plate identities and explicitly retained unresolved fields."""
+        """Show actual plate identities and explicitly retained unresolved fields.
+
+        :param fields: immutable source records returned by the metadata indexer.
+        """
         self._fields = fields
+        self._populate_axes(fields)
         channel_ids = sorted({channel for field in fields for channel, _ in field.files if channel},
                              key=lambda value: (not value.isdigit(), int(value) if value.isdigit() else value))
         if channel_ids and self.channels.text() == "0":
@@ -2351,6 +2908,7 @@ class _FieldOverview(QDialog):
             self.plates.addItem(plate, plate)
         self.plates.blockSignals(False)
         self._back()
+        self._prepare_display()
         self.status.setText(tr("{count} fields; {unresolved} with unresolved metadata.",
                                count=len(fields), unresolved=sum(f.unresolved for f in fields)))
 
@@ -2358,14 +2916,19 @@ class _FieldOverview(QDialog):
         """Return to the current plate, retaining its identity and filters."""
         self._scope = (self.plates.currentData(), None)
         self._individual = False
+        self._comparison_signature = None
         self._splitter.setSizes([720, 280, 0])
         self.view.clear_image()
         self._page = 0
         self._filter()
 
     def _filter(self, *_):
-        """Filter metadata and show bounded field pages without image reads."""
+        """Filter metadata and show bounded field pages without image reads.
+
+        :param _: unused plate, row or column selection arguments.
+        """
         plate = self.plates.currentData()
+        self._comparison_signature = None
         if self._scope[0] != plate:
             self._scope = (plate, None)
         available = tuple(f for f in self._fields if f.plate == plate)
@@ -2385,27 +2948,45 @@ class _FieldOverview(QDialog):
                           (col is None or f.column == col))
         from collections import Counter
         from .sortable_table import table_item
-        counts = Counter(f.well for f in available)
+        known_wells = {field.well for field in available}
         addresses = {f.well: (int(f.row), f.column) for f in available if not f.unresolved}
         rows = max((position[0] for position in addresses.values()), default=0)
         columns = max((position[1] for position in addresses.values()), default=1)
+        geometry = self._overview_options.get("geometry")
+        if geometry is not None:
+            rows, columns = max(rows, int(geometry[0])), max(columns, int(geometry[1]))
         if rows > 512 or columns > 512:
             self.status.setText(tr("Plate coordinates exceed the overview grid limit."))
             return
         self._well_representatives = {}
+        fov, time, z = (combo.currentData() for combo in (self.fov_axis, self.time_axis, self.z_axis))
+        available = tuple(field for field in available
+            if (fov is None or getattr(field, "field_id", "") == fov)
+            and (not getattr(field, "time_id", "") or field.time_id == time)
+            and (not getattr(field, "z_id", "") or field.z_id == z))
+        counts = Counter(f.well for f in available)
+        self._well_fields = {}
         for field in available:
+            self._well_fields.setdefault(field.well, []).append(field)
             self._well_representatives.setdefault(field.well, field)
         self._well_positions = {}
         self._installed_thumbnails.clear()
         self.wells.clear()
-        self.wells.setRowCount(rows + int("" in counts))
+        coverslip = geometry == (1, 1) and not addresses and known_wells == {""}
+        self.wells.setRowCount(1 if coverslip else rows + int("" in known_wells))
         self.wells.setColumnCount(columns)
         self.wells.setHorizontalHeaderLabels([str(n) for n in range(1, columns + 1)])
-        for well, count in sorted(counts.items()):
-            r, c = addresses.get(well, (rows + 1, 1))
+        from ...schema import letters_from_row_index
+        self.wells.setVerticalHeaderLabels([tr("Unresolved")] if coverslip else
+            [letters_from_row_index(n) for n in range(1, rows + 1)]
+            + ([tr("Unresolved")] if "" in known_wells else []))
+        for well in sorted(known_wells):
+            count = counts[well]
+            r, c = addresses.get(well, (1 if coverslip else rows + 1, 1))
             item = table_item(tr("{well}\n{count} fields", well=well or tr("Unresolved"), count=count))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setData(Qt.UserRole, well)
+            item.setToolTip(self._conditions.get((plate, well), ""))
             self.wells.setItem(r - 1, c - 1, item)
             self._well_positions[well] = (r - 1, c - 1)
             self.wells.setRowHeight(r - 1, 150)
@@ -2417,11 +2998,19 @@ class _FieldOverview(QDialog):
         self.fields.clear()
         from PySide6.QtWidgets import QListWidgetItem
         for field in self._visible[self._page * 24:(self._page + 1) * 24]:
-            item = QListWidgetItem(field.caption)
+            item = QListWidgetItem(tr("{well} · field {field} · T {time} · Z {z}",
+                well=field.well or tr("Unresolved"), field=getattr(field, "field_id", "") or field.field,
+                time=getattr(field, "time_id", "") or str(self.time_axis.currentData()),
+                z=getattr(field, "z_id", "") or str(self.z_axis.currentData())))
+            item.setToolTip(field.caption)
             item.setData(Qt.UserRole, field)
             self.fields.addItem(item)
             item.setSelected(field.identity in self._selected_fields)
         self.fields.blockSignals(False)
+        if not self._visible:
+            self.view.clear_image()
+        if self._overview_options.get("geometry"):
+            self._zoom_plate()
         self._request_visuals()
 
     def _remember_selection(self):
@@ -2441,69 +3030,109 @@ class _FieldOverview(QDialog):
         self.wells.clearSelection()
 
     def _well(self, item):
-        """Zoom into one well while retaining the current plate and filters."""
+        """Zoom into one well while retaining the current plate and filters.
+
+        :param item: the selected physical well cell.
+        """
         self._scope = (self.plates.currentData(), item.data(Qt.UserRole))
+        self._comparison_signature = None
         self._splitter.setSizes([250, 200, 750])
         self._individual = False
         self._page = 0
         self._filter()
 
     def _turn(self, delta):
-        """Move one bounded field page at a time."""
+        """Move one bounded field page at a time.
+
+        :param delta: the requested positive or negative page step.
+        """
         self._individual = False
+        self._comparison_signature = None
         self._page = max(0, min((len(self._visible) - 1) // 24, self._page + delta))
         self._filter()
 
     def _refresh_image(self, *_):
-        """Re-render only the current field after display controls change."""
+        """Re-render only the current field after display controls change.
+
+        :param _: unused display-control signal arguments.
+        """
         self._displayed_montage = None
+        self._comparison_signature = None
+        if self._overview_options.get("normalization"):
+            self._prepare_display()
+            return
         self._request_visuals()
         item = self.fields.currentItem()
         if item is not None and self._individual:
             self._field(item)
 
-    def _field(self, item):
-        """Load one selected field, with at most sixteen bounded RGB payloads cached."""
+    def _field(self, item, preserve_view=False):
+        """Progressively decode one field without using Qt objects on a worker.
+
+        :param item: the selected field's list item.
+        :param preserve_view: retain the current source-relative zoom and center.
+        """
         try:
             channels, limits = self._choices()
         except (ValueError, TypeError) as exc:
             self.status.setText(str(exc))
             return
-        if not self._individual:
-            self._splitter.setSizes([250, 200, 750])
-        self._individual = True
+        if not self._normalization_ready:
+            return
         field = item.data(Qt.UserRole)
-        key = (field.identity, channels, limits)
-        self.view.clear_image()
+        if not self._individual:
+            self._splitter.setSizes([250, 300, 750])
+        self._individual = True
+        self._comparison_signature = None
+        options = self._display_kwargs()
+        source_key = field.identity, channels, limits, repr(options)
+        if source_key != self._displayed_field:
+            self._preview_edge = 256
+            self._displayed_field = source_key
+            preserve_view = False
+        edge = self._preview_edge
+        key = source_key + (edge,)
+        if not preserve_view:
+            self.view.clear_image()
         if self._image_jobs.is_busy():
             self._image_pending = True
             return
         self._image_pending = False
         if key in self._cache:
             self._cache.move_to_end(key)
-            self._show_pixels(self._cache[key])
+            self._show_pixels(self._cache[key], preserve_view)
             return
-        cancelled = self._cancelled
+        cancelled, signature = self._cancelled, self._visual_context()
         def done(pixels):
-            """Cache loaded pixels and show them only for the current field.
+            """Cache bounded pixels and accept only the exact current axis/view.
 
-            :param pixels: preview pixels returned by the image worker.
+            :param pixels: the detached worker-owned RGB array.
             """
             if cancelled.is_set():
                 return
             self._cache[key] = pixels
-            while len(self._cache) > 16:
+            while len(self._cache) > 8:
                 self._cache.popitem(last=False)
-            item = self.fields.currentItem()
-            context = self._visual_context()
-            if (self._individual and item is not None and item.data(Qt.UserRole).identity == field.identity
-                    and context is not None and context[-2:] == (channels, limits)):
-                self._show_pixels(pixels)
-        self._image_jobs.submit(lambda: _overview_pixels(field, channels, limits), done)
+            current = self.fields.currentItem()
+            if (self._individual and current is not None
+                    and current.data(Qt.UserRole).identity == field.identity
+                    and self._visual_context() == signature
+                    and self._displayed_field == source_key):
+                self._show_pixels(pixels, preserve_view)
+                if edge == 256:
+                    self._preview_edge = 1024
+                    self._image_pending = True
+        self._image_jobs.submit(lambda: _overview_pixels(
+            field, channels, limits, edge=edge, **options), done)
 
     def eventFilter(self, watched, event):
-        """Request only newly visible well images after viewport paints or resizes."""
-        if watched is self._well_viewport and event.type() in (QEvent.Paint, QEvent.Resize):
+        """Request only newly visible well images after viewport paints or resizes.
+
+        :param watched: the actual plate or field-list viewport.
+        :param event: a paint or resize event that may expose image tiles.
+        :returns: the inherited event-filter result.
+        """
+        if watched in (self._well_viewport, self.fields.viewport()) and event.type() in (QEvent.Paint, QEvent.Resize):
             self._request_visuals()
         return super().eventFilter(watched, event)
 
@@ -2524,11 +3153,12 @@ class _FieldOverview(QDialog):
         except (ValueError, TypeError):
             return None
         return (self._scope, self.rows.currentData(), self.columns.currentData(),
-                self._page, channels, limits)
+                self._page, self.fov_axis.currentData(), self.time_axis.currentData(),
+                self.z_axis.currentData(), self.z_mode.currentData(), channels, limits)
 
     def _update_visuals(self):
         """Load one visible representative or one bounded well montage at a time."""
-        if not self.isVisible() or self._cancelled.is_set():
+        if not self.isVisible() or self._cancelled.is_set() or not self._normalization_ready:
             return
         try:
             channels, limits = self._choices()
@@ -2539,6 +3169,10 @@ class _FieldOverview(QDialog):
         signature = self._visual_context()
         self._visual_signature = signature
         cancelled = self._cancelled
+        options = self._display_kwargs()
+        self._update_field_thumbnails(signature, channels, limits, options)
+        if self._comparison_signature is not None:
+            return
         if self._scope[1] is not None and not self._individual and page:
             if self._displayed_montage == signature or self._montage_jobs.is_busy():
                 return
@@ -2556,7 +3190,7 @@ class _FieldOverview(QDialog):
                 self.status.setText(tr("{count} fields; {errors} unreadable previews.",
                                        count=len(page), errors=len(errors)))
             self._montage_jobs.submit(
-                lambda: _overview_montage(page, channels, limits, cancelled), show_montage)
+                lambda: _overview_montage(page, channels, limits, cancelled, **options), show_montage)
             return
         viewport = self.wells.viewport()
         ratio = device_ratio(viewport)
@@ -2585,8 +3219,11 @@ class _FieldOverview(QDialog):
                 if item is None or not viewport.rect().intersects(self.wells.visualItemRect(item)):
                     continue
                 well = item.data(Qt.UserRole)
-                field = self._well_representatives[well]
-                key = (field.identity, channels, limits, ratio)
+                field = self._well_representatives.get(well)
+                if field is None:
+                    continue
+                representatives = tuple(self._well_fields[well][:self.representatives.value()])
+                key = (tuple(record.identity for record in representatives), channels, limits, ratio, repr(options))
                 if item.data(Qt.UserRole + 1) == key:
                     continue
                 if key in self._thumbnail_cache:
@@ -2598,7 +3235,12 @@ class _FieldOverview(QDialog):
                     :returns: pixels and an empty error, or None and the error.
                     """
                     try:
-                        return _overview_pixels(field, channels, limits, edge=math.ceil(160 * ratio)), ""
+                        if len(representatives) > 1:
+                            pixels, errors = _overview_montage(representatives, channels, limits,
+                                                              cancelled, **options)
+                            return pixels, "; ".join(message for _, message in errors)
+                        return _overview_pixels(field, channels, limits,
+                                                edge=math.ceil(160 * ratio), **options), ""
                     except Exception as exc:
                         return None, str(exc)
                 def done(result):
@@ -2643,25 +3285,64 @@ class _FieldOverview(QDialog):
             self._installed_thumbnails.discard(well)
 
     def _refresh_image_if_pending(self, *_):
-        """Coalesce rapid selections behind one active image decoder."""
+        """Coalesce rapid selections behind one active image decoder.
+
+        :param _: unused image-job completion arguments.
+        """
         if self._image_pending:
             self._image_pending = False
-            self._refresh_image()
+            item = self.fields.currentItem()
+            if item is not None and self._individual:
+                self._field(item, preserve_view=True)
 
-    def _show_pixels(self, pixels):
-        """Create the Qt pixmap only on the GUI thread."""
+    def _show_pixels(self, pixels, preserve_view=False):
+        """Deep-copy RGB pixels and create pixmaps only on the GUI thread.
+
+        :param pixels: detached RGB pixels from a worker or bounded cache.
+        :param preserve_view: retain normalized center and user zoom on an upgrade.
+        """
+        from PySide6.QtCore import QPointF
+        previous = self.view._item
+        keep = preserve_view and previous is not None and self.view._user_zoomed
+        if keep:
+            old_size = previous.pixmap().size()
+            center = self.view.mapToScene(self.view.viewport().rect().center())
+            normalized = QPointF(center.x() / old_size.width(), center.y() / old_size.height())
+            transform = self.view.transform()
         image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
                        pixels.strides[0], QImage.Format_RGB888).copy()
         self.view.set_pixmap(QPixmap.fromImage(image))
+        if keep:
+            self.view.setTransform(transform)
+            self.view.scale(old_size.width() / image.width(), old_size.height() / image.height())
+            self.view.centerOn(normalized.x() * image.width(), normalized.y() * image.height())
+            self.view._user_zoomed = True
 
     def _export_selection(self):
         """Export all explicit selections; sample only when selection mode is off."""
-        if self.use_selection.isChecked():
+        scope = self.export_scope.currentData()
+        if scope == "field":
+            item = self.fields.currentItem()
+            return (item.data(Qt.UserRole),) if item is not None and self._individual else ()
+        if scope in ("plate", "well"):
+            if scope == "well" and self._scope[1] is None:
+                return ()
+            time, z = self.time_axis.currentData(), self.z_axis.currentData()
+            return tuple(field for field in self._fields
+                if field.plate == self.plates.currentData()
+                and (scope != "well" or field.well == self._scope[1])
+                and (not getattr(field, "time_id", "") or field.time_id == time)
+                and (not getattr(field, "z_id", "") or field.z_id == z))
+        if scope == "selection" or self.use_selection.isChecked():
             fields = tuple(self._selected_fields.values())
             if fields:
                 return fields
             wells = {item.data(Qt.UserRole) for item in self.wells.selectedItems()}
-            fields = tuple(f for f in self._visible if f.well in wells)
+            time, z = self.time_axis.currentData(), self.z_axis.currentData()
+            fields = tuple(field for field in self._fields
+                if field.plate == self.plates.currentData() and field.well in wells
+                and (not getattr(field, "time_id", "") or field.time_id == time)
+                and (not getattr(field, "z_id", "") or field.z_id == z))
             if self.sample_selected.isChecked():
                 return _overview_sample(fields, self.count.value(), self.seed.value(),
                                         self.grouping.currentData(), self.random.isChecked())
@@ -2692,8 +3373,11 @@ class _FieldOverview(QDialog):
         self._cancelled = threading.Event()
         cancelled, seed = self._cancelled, self.seed.value()
         measurements = self.measurements.isChecked()
+        options = self._display_kwargs()
+        options.update(quality_edge=self.pdf_quality.currentData(), dpi=self.pdf_dpi.currentData(),
+                       conditions=dict(self._conditions))
         self._export_jobs.submit(lambda: _overview_export(
-            selected, folder, channels, limits, seed, cancelled, measurements),
+            selected, folder, channels, limits, seed, cancelled, measurements, **options),
             lambda result: self._exported(result, measurements, folder, cancelled))
 
     def _exported(self, result, measurements=False, folder="", cancelled=None):
@@ -2710,11 +3394,14 @@ class _FieldOverview(QDialog):
         self.status.setText(message)
 
     def closeEvent(self, event):
-        """Cancel generations when closing; workers never touch the closed widgets."""
+        """Cancel generations when closing; workers never touch the closed widgets.
+
+        :param event: the native close event passed to the base dialog.
+        """
         self._cancel()
         self._visual_timer.stop()
         for runner in (self._index_jobs, self._image_jobs, self._export_jobs,
-                       self._thumbnail_jobs, self._montage_jobs):
+                       self._thumbnail_jobs, self._montage_jobs, self._field_thumbnail_jobs):
             runner.shutdown(timeout_ms=0)
         super().closeEvent(event)
 
