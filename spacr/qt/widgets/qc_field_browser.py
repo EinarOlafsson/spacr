@@ -2325,7 +2325,7 @@ def _overview_measurements_export(fields, source, channels, workers=1,
     try:
         check_cancelled()
         with tempfile.TemporaryDirectory(prefix="spacr-fov-") as temporary:
-            stage = sqlite3.connect(str(Path(temporary) / "stage.db"))
+            stage = sqlite3.connect(str(Path(temporary) / "stage.db"), timeout=30)
             try:
                 stage.execute("CREATE TABLE records (record TEXT NOT NULL)")
                 if workers == 1:
