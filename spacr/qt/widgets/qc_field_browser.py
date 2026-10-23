@@ -3672,6 +3672,8 @@ class _FieldOverview(QDialog):
         if not self._geometry_valid:
             self.status.setText(str(self._geometry_error))
             return
+        if not self._normalization_ready:
+            return
         try:
             channels, limits = self._choices()
         except (ValueError, TypeError) as exc:
@@ -3693,8 +3695,7 @@ class _FieldOverview(QDialog):
             self._display_generation += 1
             self._image_pending = False
             self._display_pending = False
-            self._normalization_context = self._normalization_context._new_generation(
-                self._cancelled, self._display_generation)
+            self._normalization_context = self._normalization_context._new_generation(self._cancelled)
             self._normalization_plan = self._normalization_context.provenance()
         cancelled, seed = self._cancelled, self.seed.value()
         measurements = self.measurements.isChecked()
@@ -4488,7 +4489,7 @@ class _OverviewWellMeanContext:
         self._bounds = {channel: tuple(float(value) for value in np.percentile(
             np.concatenate(pools[channel]), self._percentiles)) for channel in self.channels}
 
-    def _new_generation(self, cancelled, generation):
+    def _new_generation(self, cancelled):
         """Fork completed scalar statistics with independent cancellation and pending reads.
 
         Immutable field identities are retained; images, in-flight futures and
@@ -4505,7 +4506,7 @@ class _OverviewWellMeanContext:
             fresh._pending = {}
             fresh._used = {}
             fresh._fields = dict(self._fields)
-            fresh._selection = dict(self._selection, generation=generation)
+            fresh._selection = dict(self._selection)
             fresh._bounds = dict(self._bounds)
             fresh._reference_means = dict(self._reference_means)
             fresh._bounds_counts = {key: dict(counts) for key, counts in self._bounds_counts.items()}
