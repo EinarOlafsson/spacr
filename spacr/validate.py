@@ -2360,6 +2360,9 @@ def _gpu_line() -> Optional[str]:
         return ("not checked — torch is not loaded in this process, and "
                 "importing it to ask would cost more than the answer")
     try:
+        metal = getattr(getattr(torch, 'backends', None), 'mps', None)
+        if metal is not None and metal.is_available():
+            return 'Apple Metal (MPS) is available; segmentation can run on the GPU'
         if not torch.cuda.is_available():
             return "no CUDA device — segmentation would run on the CPU"
         index = torch.cuda.current_device()

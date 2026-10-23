@@ -79,5 +79,5 @@ def test_cuda_and_metal_slide_tables_agree_with_their_doctor_reports(monkeypatch
     metal = _render_both(monkeypatch, "mps")
     assert cuda["Segmentation"] == metal["Segmentation"] == "GPU"
     assert cuda["Machine learning"] == "GPU"
-    assert metal["Machine learning"] == "CPU"
+    assert metal["Machine learning"] == "GPU"
     assert cuda["Visualization"] == metal["Visualization"] == "GPU"

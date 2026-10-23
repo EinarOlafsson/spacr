@@ -6012,8 +6012,8 @@ GRAPHICS_BACKENDS: Tuple[str, ...] = ("cpu", "auto", "gpu")
 DEFAULT_GRAPHICS_BACKEND = "gpu"
 
 #: Per-theme density defaults for profiles that never saved a density.
-#: spaCR field asked for 25 % (N684); every other theme keeps DEFAULT_DENSITY.
-_THEME_DEFAULT_DENSITY = {"data_art_impulse_lens": 0.25}
+#: spaCR field and the other themes start at 10 %.
+_THEME_DEFAULT_DENSITY = {"data_art_impulse_lens": 0.1}
 
 
 def _default_density_for(theme) -> float:
@@ -6026,12 +6026,23 @@ def _graphics_context_options():
 
     Linux uses headless EGL, which needs no window or X connection.
     Windows (WGL) and macOS (CGL) use the default standalone backend;
-    macOS caps desktop OpenGL at 4.1, so the 4.3 storage-buffer shader
-    is refused there and the CPU renderer stays in use.
+    macOS uses 4.1 with sampled lookup tables in place of storage buffers.
     """
     if sys.platform.startswith("linux"):
         return {"standalone": True, "require": 430, "backend": "egl"}
-    return {"standalone": True, "require": 430}
+    return {"standalone": True, "require": 410 if sys.platform == "darwin" else 430}
+
+
+def _mac_radeon_graphics():
+    """Keep the known Intel integrated-driver failure off the probe path."""
+    if sys.platform != "darwin":
+        return False
+    try:
+        from ...accelerator import _metal_gpu_name
+
+        return "radeon" in _metal_gpu_name().lower()
+    except Exception:
+        return False
 
 
 def _flow_graphics_preflight():
@@ -6043,10 +6054,9 @@ def _flow_graphics_preflight():
     crash during context creation cannot take the application down.
     ``SPACR_NO_GL`` (safe mode, crash recovery) keeps it without probing.
 
-    macOS is never probed. Its OpenGL stops at 4.1, so the 4.3 context can
-    only fail, and creating one at start-up preceded three WindowServer
-    watchdog kills ("Display not ready") on an Intel Iris Mac running
-    macOS 26 on 2026-10-19.
+    On macOS only Radeon devices are probed with OpenGL 4.1. The known
+    Intel Iris driver failure stays on the CPU path; the Radeon path is
+    qualified separately through native rendering and shutdown tests.
     """
     global _FLOW_GRAPHICS_PROBE
     import importlib.util
@@ -6054,7 +6064,7 @@ def _flow_graphics_preflight():
 
     with _FLOW_GRAPHICS_PROBE_LOCK:
         if _FLOW_GRAPHICS_PROBE is None and (
-                sys.platform == "darwin"
+                (sys.platform == "darwin" and not _mac_radeon_graphics())
                 or os.environ.get("SPACR_NO_GL")
                 or importlib.util.find_spec("moderngl") is None):
             _FLOW_GRAPHICS_PROBE = False
@@ -6496,7 +6506,7 @@ class _FlowPointGraphics:
         try:
             self._context = moderngl.create_context(
                 **_graphics_context_options())
-            self._program = self._context.program(vertex_shader='''
+            self._program = self._make_program(vertex_shader='''
                 #version 430
                 in ivec3 position;
                 uniform vec2 canvas;
@@ -6567,7 +6577,7 @@ class _FlowPointGraphics:
             self._vertices.orphan(len(raw))
         if raw:
             self._vertices.write(raw)
-        self._palette.bind_to_storage_buffer(2)
+        self._bind_storage(self._palette, 2, self._program)
         self._framebuffer.use()
         self._context.viewport = (0, 0, width, height)
         self._context.blend_equation = self._gl.MAX if dark else self._gl.MIN
@@ -6599,8 +6609,8 @@ class _FlowPointGraphics:
         program = self._shader('subpixel_grains')
         self._context.blend_equation = self._gl.MAX if dark else self._gl.MIN
         self._uniform(program, 'canvas', (float(width), float(height)))
-        self._stream('subpixel_palette', np.ascontiguousarray(lookup, dtype=np.uint32)
-                     ).bind_to_storage_buffer(2)
+        self._bind_storage(self._stream('subpixel_palette',
+                           np.ascontiguousarray(lookup, dtype=np.uint32)), 2, program)
         array = self._array(program, self._stream('subpixel_grains', rows), '3f/i', 'grain')
         array.render(mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(rows))
         return self._read(width, height)
@@ -6611,11 +6621,57 @@ class _FlowPointGraphics:
         program = programs.get(name)
         if program is None:
             vertex, fragment = _GL_SHADERS[name]
-            program = self._context.program(vertex_shader=vertex.strip(),
-                                            fragment_shader=fragment.strip())
+            program = self._make_program(vertex_shader=vertex.strip(),
+                                         fragment_shader=fragment.strip())
             self._resources.append(program)
             programs[name] = program
         return program
+
+    def _make_program(self, **sources):
+        """Use sampled tables instead of storage buffers on macOS OpenGL 4.1."""
+        if self._context.version_code < 430:
+            import re
+
+            for key, source in sources.items():
+                source = source.replace('#version 430', '#version 410')
+                for name, kind in (('palette', 'uint'), ('columns', 'vec4'),
+                                   ('lookup', 'vec4')):
+                    declaration = (r'layout\(std430,\s*binding=\d+\)\s*readonly\s*'
+                                   r'buffer\s+\w+\s*\{\s*' + kind + r'\s+' + name
+                                   + r'\[\];\s*\};')
+                    sampler = 'usampler2D' if kind == 'uint' else 'sampler2D'
+                    source, count = re.subn(declaration,
+                        f'uniform {sampler} spacr_{name};', source)
+                    if count:
+                        suffix = '.r' if kind == 'uint' else ''
+                        source = re.sub(r'\b' + name + r'\[([^\[\]]+)\]',
+                            lambda match: f'texelFetch(spacr_{name}, '
+                            f'ivec2(int({match[1]}), 0), 0){suffix}', source)
+                sources[key] = source
+        return self._context.program(**sources)
+
+    def _bind_storage(self, buffer, binding, program):
+        """Bind unchanged table values through the API this context supports."""
+        if self._context.version_code >= 430:
+            buffer.bind_to_storage_buffer(binding)
+            return
+        name = {2: 'palette', 3: 'columns', 4: 'lookup'}[binding]
+        components = 1 if binding == 2 else 4
+        raw = buffer.read()
+        size = (len(raw) // (components * 4), 1)
+        tables = self.__dict__.setdefault('_storage_textures', {})
+        texture = tables.get(binding)
+        if texture is None or texture.size != size:
+            if texture is not None:
+                self._resources.remove(texture)
+                texture.release()
+            texture = self._context.texture(size, components,
+                        dtype='u4' if binding == 2 else 'f4')
+            self._resources.append(texture)
+            tables[binding] = texture
+        texture.write(raw)
+        texture.use(location=binding)
+        self._uniform(program, 'spacr_' + name, binding)
 
     @staticmethod
     def _uniform(program, name, value):
@@ -6803,8 +6859,8 @@ class _FlowPointGraphics:
             texture, framebuffer = self._scratch('aurora', size, filtered=True)
             table = np.zeros((len(lookup), 4), dtype=np.float32)
             table[:, :3] = lookup
-            self._stream('aurora_columns', columns).bind_to_storage_buffer(3)
-            self._stream('aurora_lookup', table).bind_to_storage_buffer(4)
+            self._bind_storage(self._stream('aurora_columns', columns), 3, generator)
+            self._bind_storage(self._stream('aurora_lookup', table), 4, generator)
             framebuffer.use()
             self._context.viewport = (0, 0) + size
             self._context.disable(self._gl.BLEND)
@@ -6975,7 +7031,7 @@ class _FlowPointGraphics:
                     resource.release()
                 except Exception:
                     LOG.debug('could not release a flow graphics resource', exc_info=True)
-        for name in ('_programs', '_streams', '_arrays'):
+        for name in ('_programs', '_streams', '_arrays', '_storage_textures'):
             self.__dict__.pop(name, None)
         self._resources = []
         self._context = self._framebuffer = self._texture = None

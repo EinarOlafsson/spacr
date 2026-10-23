@@ -377,6 +377,9 @@ def cuda_reserved() -> Optional[int]:
     if torch is None:
         return None
     try:
+        backend = getattr(getattr(torch, 'backends', None), 'mps', None)
+        if backend is not None and backend.is_available():
+            return int(torch.mps.driver_allocated_memory())
         if not torch.cuda.is_available() or not torch.cuda.is_initialized():
             return None
         return _cuda_stat(torch, "memory_reserved")

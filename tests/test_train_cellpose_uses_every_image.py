@@ -57,22 +57,20 @@ def cp_stub(monkeypatch):
     return rec
 
 
-def test_cellpose_use_gpu_falls_back_to_cpu_when_the_cuda_probe_raises(
+def test_cellpose_use_gpu_falls_back_to_cpu_when_the_shared_probe_raises(
         monkeypatch, capsys):
-    """A broken CUDA install must degrade to CPU, not abort training."""
-    import torch
+    """A failing shared GPU probe must not abort training."""
 
     def _explode():
-        raise RuntimeError("no NVIDIA driver")
+        raise RuntimeError("no GPU driver")
 
-    monkeypatch.setattr(torch.cuda, "is_available", _explode)
+    monkeypatch.setattr('spacr.accelerator.cellpose_gpu', _explode)
     assert SUB._cellpose_use_gpu() is False
-    assert "CUDA probe failed" in capsys.readouterr().out
+    assert "GPU probe failed" in capsys.readouterr().out
 
 
 def test_cellpose_use_gpu_reports_a_working_probe(monkeypatch):
-    import torch
-    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr('spacr.accelerator.cellpose_gpu', lambda: True)
     assert SUB._cellpose_use_gpu() is True
 
 

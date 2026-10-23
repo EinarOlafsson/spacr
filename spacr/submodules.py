@@ -156,9 +156,11 @@ _TRAIN_PREVIEW_N = 8
 def _cellpose_use_gpu() -> bool:
     """Return whether Cellpose can use CUDA, falling back safely to CPU."""
     try:
-        return bool(torch.cuda.is_available())
+        from .accelerator import cellpose_gpu
+
+        return cellpose_gpu()
     except Exception as exc:
-        print(f"Warning: CUDA probe failed; Cellpose will use CPU: {exc}")
+        print(f"Warning: GPU probe failed; Cellpose will use CPU: {exc}")
         return False
 
 
@@ -481,22 +483,26 @@ def train_cellpose(settings):
     base = (str(pinned_base) if pinned_base is not None
             else _resolve_training_base(settings['base_model']))
     print(f'Training starts from {base}')
-    model = cp_models.CellposeModel(gpu=_cellpose_use_gpu(), pretrained_model=base)
+    from .accelerator import cellpose_kwargs
+    model = cp_models.CellposeModel(pretrained_model=base, **cellpose_kwargs())
     try:
         preview = [image if image.ndim == 2 else image[0] for image in images[:_TRAIN_PREVIEW_N]]
         plot_cellpose_batch(preview, labels[:_TRAIN_PREVIEW_N])
     except Exception:
         print('could not print batch images')
     print(f"Training model on {len(images)} native annotated images for {settings['n_epochs']} epochs, minibatch {settings['batch_size']}; Cellpose online augmentation enabled.")
-    result = train_cp.train_seg(
-        model.net, train_data=images, train_labels=labels,
-        test_data=test_images or None, test_labels=test_labels or None,
-        channel_axis=0, save_path=model_save_path, model_name=model_name,
-        normalize=dict(normalize=settings['normalize'], percentile=list(percentiles)),
-        rescale=False, **{key: settings[key] for key in (
-            'n_epochs', 'batch_size', 'learning_rate', 'weight_decay',
-            'save_every', 'save_each', 'min_train_masks', 'scale_range',
-            'nimg_per_epoch', 'nimg_test_per_epoch')})
+    from .metal_cellpose import training_context
+
+    with training_context(model.net):
+        result = train_cp.train_seg(
+            model.net, train_data=images, train_labels=labels,
+            test_data=test_images or None, test_labels=test_labels or None,
+            channel_axis=0, save_path=model_save_path, model_name=model_name,
+            normalize=dict(normalize=settings['normalize'], percentile=list(percentiles)),
+            rescale=False, **{key: settings[key] for key in (
+                'n_epochs', 'batch_size', 'learning_rate', 'weight_decay',
+                'save_every', 'save_each', 'min_train_masks', 'scale_range',
+                'nimg_per_epoch', 'nimg_test_per_epoch')})
     if result is not None:
         print(f'Model saved at: {result[0]}')
     return result

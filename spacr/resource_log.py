@@ -1794,7 +1794,10 @@ def _data_loader_arguments(arguments, keywords):
 
 def _parallel_data_loader(*arguments, **keywords):
     """Construct a standard Torch loader with paced processing workers."""
-    from torch.utils.data import DataLoader
+    if sys.platform == 'darwin':
+        from .torch_loader import ArrayDataLoader as DataLoader
+    else:
+        from torch.utils.data import DataLoader
 
     return DataLoader(*arguments, **_data_loader_arguments(arguments, keywords))
 

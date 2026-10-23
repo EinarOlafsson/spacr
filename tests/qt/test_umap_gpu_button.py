@@ -28,8 +28,28 @@ def quiet(monkeypatch):
 
 
 def _plan(monkeypatch, action, message="msg"):
+    from spacr.accelerator import Accelerator
+    monkeypatch.setattr('spacr.accelerator.resolve',
+                        lambda: Accelerator(kind='cuda', device='cuda', label='Test CUDA'))
     monkeypatch.setattr("spacr.gpu_reduce.install_plan",
                         lambda: {"action": action, "message": message})
+
+
+def test_metal_enables_pca_kmeans_without_offering_cuda_install(screen, monkeypatch):
+    from spacr.accelerator import Accelerator
+    monkeypatch.setattr('spacr.accelerator.resolve',
+                        lambda: Accelerator(kind='mps', device='mps', label='Test Radeon'))
+
+    def forbidden():
+        raise AssertionError('Metal must not offer a CUDA installation')
+
+    monkeypatch.setattr('spacr.gpu_reduce.install_plan', forbidden)
+    screen._gpu_switch.setChecked(True)
+    assert screen._gpu_switch.isChecked()
+    assert screen._settings_model.collect()['gpu'] is True
+    assert 'PCA and KMeans' in screen._hyperparam._status.text()
+    assert 'UMAP/t-SNE searches use CPU' in screen._hyperparam._status.text()
+    assert screen._hyperparam.gpu_backend() == 'cpu'
 
 
 def test_the_shared_toggle_says_gpu_and_sits_left_of_search(screen):

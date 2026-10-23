@@ -30,8 +30,11 @@ pytestmark = pytest.mark.qt
 
 
 @pytest.fixture()
-def panel(qtbot, qt_theme_applied):
+def panel(qtbot, qt_theme_applied, monkeypatch):
     """A UMAP panel, built offscreen."""
+    from spacr.accelerator import Accelerator
+    monkeypatch.setattr('spacr.accelerator.resolve',
+                        lambda: Accelerator(kind='cuda', device='cuda', label='Test CUDA'))
     widget = HyperparamPanel("umap")
     qtbot.addWidget(widget)
     return widget

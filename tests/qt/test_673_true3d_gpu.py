@@ -415,7 +415,7 @@ def test_gpu_frames_match_the_cpu_for_every_rendering_finish_and_lens():
 def test_the_gpu_view_uses_the_cpu_camera_and_picks_the_same_objects(view, qtbot, monkeypatch):
     stage = view
     monkeypatch.setattr(mm, "volume_render_backends", lambda: ("auto", "opengl", "cpu"))
-    _use(stage, "auto", qtbot)
+    _use(stage, "opengl", qtbot)
     if stage._active_backend() != "opengl":
         pytest.skip("no OpenGL context offscreen")
     stage._scale_slider.setValue(99)
@@ -448,7 +448,7 @@ def test_the_gpu_view_uses_the_cpu_camera_and_picks_the_same_objects(view, qtbot
 def test_gpu_drag_frames_stay_inside_an_interactive_budget(view, qtbot, monkeypatch):
     stage = view
     monkeypatch.setattr(mm, "volume_render_backends", lambda: ("auto", "opengl", "cpu"))
-    _use(stage, "auto", qtbot)
+    _use(stage, "opengl", qtbot)
     if stage._active_backend() != "opengl":
         pytest.skip("no OpenGL context offscreen")
     stage._scale_slider.setValue(100)

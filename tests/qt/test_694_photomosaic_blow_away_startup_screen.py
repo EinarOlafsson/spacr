@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 
 import numpy as np
 import pytest
@@ -570,7 +571,8 @@ def test_sixty_frames_a_second_is_within_reach(cover):
         cover.clock.now = cover._began_at + float(t)
         cover.grab()
     stats = cover.frame_stats()
-    assert stats["most_tiles"] > 1000
+    # Retina Macs combine each 2x2 block into one flying pixmap.
+    assert stats["most_tiles"] > (250 if sys.platform == "darwin" else 1000)
     assert stats["mean_ms"] < 40.0
     cover._finish()
 

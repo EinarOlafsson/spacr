@@ -157,16 +157,20 @@ def test_a_wrong_download_that_cannot_be_deleted_still_raises_the_mismatch(
         model_zoo._timepose_files(release["key"], dest=tmp_path, downloader=_writer(bad))
 
 
-def test_the_device_follows_the_request_then_cuda_availability(monkeypatch):
+def test_the_device_follows_the_request_then_shared_accelerator(monkeypatch):
+    from spacr.accelerator import Accelerator
+
     assert model_zoo._timepose_device("CPU") == "cpu"
     assert model_zoo._timepose_device("cuda:1") == "cuda:1"
-    torch = types.ModuleType("torch")
-    torch.cuda = types.SimpleNamespace(is_available=lambda: True)
-    monkeypatch.setitem(sys.modules, "torch", torch)
-    assert model_zoo._timepose_device() == "cuda"
-    torch.cuda = types.SimpleNamespace(is_available=lambda: False)
-    assert model_zoo._timepose_device("auto") == "cpu"
-    monkeypatch.setitem(sys.modules, "torch", None)
+    for kind in ('cuda', 'mps', 'cpu'):
+        found = Accelerator(kind=kind, device=kind, label='Test device')
+        monkeypatch.setattr('spacr.accelerator.resolve', lambda: found)
+        assert model_zoo._timepose_device('auto') == kind
+
+    def unavailable():
+        raise ImportError('torch unavailable')
+
+    monkeypatch.setattr('spacr.accelerator.resolve', unavailable)
     assert model_zoo._timepose_device() == "cpu"
 
 

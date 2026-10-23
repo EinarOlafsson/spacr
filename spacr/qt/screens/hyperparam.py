@@ -1584,14 +1584,14 @@ class HyperparamPanel(QWidget):
 
     def gpu_backend(self) -> str:
         """Which backend the next search will use: ``'cuml'`` or ``'cpu'``."""
-        return "cuml" if self._gpu_enabled else "cpu"
+        return "cuml" if self._gpu_enabled and not getattr(self, '_metal_reducers', False) else "cpu"
 
     def _set_gpu_checked(self, checked: bool) -> None:
         """Set the shared action-strip GPU state without probing/installing."""
         self._gpu_enabled = bool(checked)
 
     def request_gpu_enabled(self, checked: bool, *, anchor=None) -> bool:
-        """Set whether the next search uses the cuML GPU backend.
+        """Enable available GPU reducers and explain partial Metal support.
 
         When cuML is unavailable, the toggle remains off and the shared
         availability panel explains the compatible installation options. Any
@@ -1612,8 +1612,18 @@ class HyperparamPanel(QWidget):
         """
         if not checked:
             self._gpu_enabled = False
+            self._metal_reducers = False
             self._set_status("GPU acceleration is off; CPU reducers will run.")
             return False
+        from ...accelerator import resolve
+
+        found = resolve()
+        if found.is_gpu and found.kind == 'mps':
+            self._metal_reducers = True
+            self._gpu_enabled = True
+            self._set_status('Metal accelerates PCA and KMeans; UMAP/t-SNE searches use CPU.')
+            return True
+        self._metal_reducers = False
         from ...gpu_reduce import availability_entry, install_plan
         from ..widgets.availability_panel import explain
 

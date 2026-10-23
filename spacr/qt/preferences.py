@@ -4394,7 +4394,9 @@ def set_spacr_mode(mode: str) -> None:
         _stash_visuals()
         _minimise_visuals()
     elif previous == "extra_performance" and mode != "extra_performance":
-        _restore_visuals()
+        if not _restore_visuals():
+            set_ambient_animation("data_art_impulse_lens")
+            set_ambient_density(0.1)
 
 
 def mode_label(mode: str) -> str:
@@ -12548,6 +12550,13 @@ class PreferencesDialog:
             theme_before_contrast[0], tuple(sorted(motion_before[0].items())))
         _name_unnamed_form_fields(dlg)
         dlg._show_only_the_open_page_at_first(tabs)
+        from PySide6.QtCore import QSize
+        from .dialogs import OPENS_AT, open_at_its_natural_size
+
+        opening = QSize(scaled_px(1000), scaled_px(800))
+        dlg.setProperty(OPENS_AT, opening)
+        open_at_its_natural_size(dlg)
+        dlg.setProperty(OPENS_AT, opening)
         return dlg
 
 

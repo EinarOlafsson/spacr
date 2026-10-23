@@ -1,6 +1,7 @@
 """Image, dataset, and SQLite input/output helpers used across spaCR."""
 
 import readlif.reader
+import sys
 import os, re, json, sqlite3, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging, warnings
 
 from . import _gc as gc
@@ -847,6 +848,10 @@ class spacrDataset(Dataset):
             img = self.transform(img)
         return img, label, filename
     
+if sys.platform == 'darwin':
+    from .torch_loader import ArrayDataLoader as _TorchDataLoader
+
+
 class spacrDataLoader(_TorchDataLoader):
     """DataLoader that pre-fetches batches into a queue on a background thread.
 

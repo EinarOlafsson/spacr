@@ -1,12 +1,15 @@
-"""Build reducers and clusterers on RAPIDS cuML when available, else on the CPU.
+"""Build opt-in RAPIDS/Metal reducers, with scientific CPU defaults.
+
+Metal supports PCA projection and KMeans without installing RAPIDS. PCA
+fitting and ill-conditioned projections use CPU float64 for accuracy.
+UMAP, t-SNE and DBSCAN remain CPU algorithms on Metal machines.
 
 Install the optional RAPIDS support with:
 
     pip install spacr[rapids]
 
 No other configuration is required. The CPU path remains the default and is
-used whenever cuML is absent, the interpreter is unsupported, there is no
-CUDA device, or the caller has not opted in.
+used unless the caller opts in and a supported GPU implementation is available.
 
 cuML is an optional extra rather than a dependency. ``cuml-cu12`` declares
 ``requires_python >= 3.11`` with classifiers for 3.11 and 3.12 only, and
@@ -74,7 +77,7 @@ def _env_allows() -> bool:
 
 
 def backend_for(method: str, *, prefer_gpu: bool = False) -> str:
-    """Return the backend, ``'cuml'`` or ``'cpu'``, that ``method`` will run on.
+    """Return ``'cuml'``, ``'mps'`` or ``'cpu'`` for the requested method.
 
     :param method: reducer name. Only algorithms in :data:`ACCELERATED` can
         select cuML; unsupported names remain on the CPU path.
@@ -86,7 +89,15 @@ def backend_for(method: str, *, prefer_gpu: bool = False) -> str:
         return "cpu"
     if str(method).strip().lower() not in ACCELERATED:
         return "cpu"
-    return "cuml" if rapids_available() else "cpu"
+    if rapids_available():
+        return "cuml"
+    if str(method).strip().lower() in ('pca', 'kmeans') and _env_allows():
+        from .accelerator import resolve
+
+        found = resolve()
+        if found.is_gpu and found.kind == 'mps':
+            return 'mps'
+    return 'cpu'
 
 
 def make_reducer(method: str, *, prefer_gpu: bool = False, **kwargs) -> Tuple[Any, str]:
@@ -106,6 +117,14 @@ def make_reducer(method: str, *, prefer_gpu: bool = False, **kwargs) -> Tuple[An
     """
     name = str(method).strip().lower()
     backend = backend_for(name, prefer_gpu=prefer_gpu)
+
+    if backend == 'mps':
+        try:
+            from .mps_reduce import MetalKMeans, MetalPCA
+
+            return (MetalPCA if name == 'pca' else MetalKMeans)(**kwargs), 'mps'
+        except (TypeError, ValueError):
+            LOG.info('Requested options use the CPU %s implementation', name)
 
     if backend == "cuml":
         try:

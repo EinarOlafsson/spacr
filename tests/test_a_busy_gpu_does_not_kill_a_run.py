@@ -44,6 +44,10 @@ class _Card:
         monkeypatch.setattr(accelerator, "_CACHED", None)
         monkeypatch.setattr(torch.cuda, "is_available",
                             lambda: self.available)
+        # This fixture simulates a CUDA-only machine, including on a host
+        # whose real Metal device would otherwise answer the next probe.
+        if hasattr(torch.backends, "mps"):
+            monkeypatch.setattr(torch.backends.mps, "is_available", lambda: False)
 
         def mem_get_info(*_args, **_kwargs):
             if not self.readable:

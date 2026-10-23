@@ -1419,8 +1419,9 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         return
 
     gc.collect()
-    if not torch.cuda.is_available():
-        print(f'Torch CUDA is not available, using CPU')
+    from .accelerator import is_gpu
+    if not is_gpu():
+        print('Torch GPU is not available, using CPU')
 
     settings['src'] = src
 
@@ -1915,8 +1916,9 @@ def generate_cellpose_masks(src, settings, object_type):
     from .cancellation import checkpoint as cancellation_checkpoint
     
     gc.collect()
-    if not torch.cuda.is_available():
-        print(f'Torch CUDA is not available, using CPU')
+    from .accelerator import is_gpu
+    if not is_gpu():
+        print('Torch GPU is not available, using CPU')
         
     settings['src'] = src
     

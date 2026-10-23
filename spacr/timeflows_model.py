@@ -638,7 +638,7 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
     :param weights: sampling weight per pair (:func:`pair_sampling_weights`);
         uniform when None.
     :param seed: the random seed.
-    :param device: ``'cpu'`` or ``'cuda'``.
+    :param device: a torch device, including ``'cpu'``, ``'cuda'`` or ``'mps'``.
     :param log: ``fn(line)`` for progress.
     :param validation_pairs: optional held-out full-frame pairs. Exact input
         overlap with training is rejected before any optimizer update.
@@ -949,6 +949,7 @@ def _load_timeflows(path: str, device: str = "cpu", precision: str = "checkpoint
     :param precision: ``'checkpoint'`` keeps the saved encoder dtype;
         ``'float32'`` expands it, which is far faster on CPUs without native
         bfloat16 but changes arithmetic, so predictions can differ slightly.
+        Metal expands unsupported bfloat16/float64 encoder weights to float32.
     :returns: the network in eval mode on ``device``.
     :raises ValueError: an unknown precision.
     """
@@ -959,7 +960,8 @@ def _load_timeflows(path: str, device: str = "cpu", precision: str = "checkpoint
         raise ValueError("precision must be 'checkpoint' or 'float32'")
     state = torch.load(path, map_location="cpu", weights_only=True)
     dtype = state["encoder.encoder.patch_embed.proj.weight"].dtype
-    if precision == "float32":
+    if precision == "float32" or (torch.device(device).type == 'mps'
+                                 and dtype in (torch.bfloat16, torch.float64)):
         dtype = torch.float32
     encoder = CPSAM(ps=int(state["up.weight"].shape[-1]), dtype=dtype).to(dtype=dtype)
     net = TimeflowsNet(CellposeSamFeatures(encoder))
@@ -1178,7 +1180,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--base", default="cpsam")
     parser.add_argument("--head-steps", type=int, default=2000)
     parser.add_argument("--full-steps", type=int, default=2000)
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    from .accelerator import torch_device
+
+    parser.add_argument("--device", default=str(torch_device()))
     parser.add_argument("--max-pairs", type=int, default=60,
                         help="pairs per movie sequence and gap, spaced evenly (0 = all)")
     parser.add_argument("--gaps", nargs="+", type=int, default=[1],
@@ -1264,8 +1268,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if validation_file is not None:
             validation_file.write(json.dumps({"event": "configuration", **validation_info}) + "\n")
             validation_file.flush()
-        base = models.CellposeModel(pretrained_model=args.base,
-                                    gpu=args.device.startswith("cuda"))
+        requested_device = torch.device(args.device)
+        model_options = {'gpu': requested_device.type != 'cpu',
+                         'device': requested_device}
+        if requested_device.type in ('cpu', 'mps'):
+            model_options['use_bfloat16'] = False
+        base = models.CellposeModel(pretrained_model=args.base, **model_options)
         net = TimeflowsNet(CellposeSamFeatures(base.net))
         if args.init:
             net.load_state_dict(torch.load(args.init, map_location="cpu", weights_only=True),

@@ -642,7 +642,11 @@ def _eigen_cam(spec: "MethodSpec", wrapped: ClassScoreModel, x: torch.Tensor,
             wrapped(x)
     finally:
         handle.remove()
-    act = captured[0][0]
+    # The feature extraction stays on the GPU. Small double-precision map
+    # reductions run on the CPU, since Metal cannot store float64 tensors.
+    act = captured[0][0].detach()
+    if act.device.type == 'mps':
+        act = act.cpu()
     c, h, w = act.shape
     flat = act.reshape(c, h * w).T
     flat = flat - flat.mean(dim=0, keepdim=True)
@@ -981,7 +985,7 @@ def attention_rollout(model: nn.Module, image: Any, *,
 
     rolled: Optional[torch.Tensor] = None
     for attn in captured:
-        a = attn.double()
+        a = attn.cpu().double()
         if a.ndim == 4:
             a = fuse[head_fusion](a)
         a = a[0]
@@ -1145,7 +1149,7 @@ def _ablation_cam(spec: "MethodSpec", wrapped: ClassScoreModel,
                 channels = torch.arange(start, min(n_channels, start + step))
                 state["channels"] = channels
                 batch = x.expand(len(channels), *x.shape[1:])
-                scores = wrapped(batch)[:, int(target)].double().cpu()
+                scores = wrapped(batch)[:, int(target)].cpu().double()
                 drops[channels] = base - scores
     finally:
         state["channels"] = None
@@ -1453,8 +1457,8 @@ def chefer_relevance(model: nn.Module, image: Any, *,
 
     relevance: Optional[torch.Tensor] = None
     for attn, grad in zip(captured, grads):
-        a = attn.detach().double()
-        g = grad.detach().double().reshape(attn.shape)
+        a = attn.detach().cpu().double()
+        g = grad.detach().cpu().double().reshape(attn.shape)
         if a.ndim == 3:
             a, g = a[:, None], g[:, None]
         cam = (g[0] * a[0]).clamp_min(0).mean(dim=0)
@@ -3266,6 +3270,11 @@ def _counterfactual_sequences(model: nn.Module,
                 seq = _cf_preserve_reference_channels(seq, x, preserved)
             probs = torch.softmax(wrapped(seq), dim=-1)
             want = target_probs[int(tgt[i])]
+            # torch 2.2's Metal vector-dot graph aborts the process for
+            # these small score vectors. Keep generation/classification on
+            # Metal and reduce their completed probabilities on the CPU.
+            if probs.device.type == 'mps':
+                probs, want = probs.cpu(), want.cpu()
             score = ((probs @ want) / (want @ want)).cpu().numpy()
             span = float(x.max() - x.min()) or 1.0
             change = (seq[-1] - x[0]).abs() / span

@@ -5991,19 +5991,17 @@ def segment_mitonet(image: Any, weights: Any = None, *,
     :param threshold: passed to :func:`mitonet_instances`.
     :param centre_threshold: passed to :func:`mitonet_instances`.
     :param min_size: passed to :func:`mitonet_instances`.
-    :param device: a torch device; None uses CUDA when torch sees it and
-        the CPU otherwise.
+    :param device: a torch device; None uses spaCR's selected accelerator.
     :param tile: the side of the core of one tile, in pixels.
     :param halo: the context around each tile's core, in pixels.
     :param on_tile: called as ``on_tile(done, total)`` after each tile; an
         exception it raises stops the run.
     :returns: an int32 label image shaped like the image's plane.
     """
-    import torch
-
     plane = _mitonet_input(image)
     if device is None:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        from .accelerator import torch_device
+        device = str(torch_device())
     path = Path(weights) if weights is not None else mitonet_weights()
     model = _mitonet_model(path, str(device))
     height, width = plane.shape
@@ -6173,13 +6171,13 @@ def _timepose_files(key: str, dest: Any = None,
 
 
 def _timepose_device(device: Any = None) -> str:
-    """``'cuda'`` when asked for or automatic with a GPU present, else ``'cpu'``."""
+    """An explicit device, or spaCR's shared automatic accelerator choice."""
     text = str(device or "automatic").lower()
     if text not in ("automatic", "auto", "none"):
         return text
     try:
-        import torch
-        return "cuda" if torch.cuda.is_available() else "cpu"
+        from .accelerator import resolve
+        return str(resolve().device)
     except ImportError:
         return "cpu"
 

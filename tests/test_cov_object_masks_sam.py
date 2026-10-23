@@ -58,6 +58,7 @@ def force_cpu(monkeypatch):
 
     cpu = torch.device("cpu")
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    monkeypatch.setattr(O.accelerator, 'is_gpu', lambda: False)
     monkeypatch.setattr(
         O.accelerator,
         "cellpose_kwargs",
@@ -301,7 +302,7 @@ def test_basic_run_writes_masks_counts_and_uses_cpu_model(tmp_path, fake_model,
     assert rows == sorted((n, "cell_before_filtration", 2) for n in names)
 
     out = capsys.readouterr().out
-    assert "Torch CUDA is not available, using CPU" in out
+    assert "Torch GPU is not available, using CPU" in out
     assert "saving to DB" in out
     assert "Found 2.0 cell/FOV" in out
 
