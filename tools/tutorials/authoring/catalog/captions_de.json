@@ -11267,7 +11267,7 @@
         "Verknüpfte oder Einzeltabellen-Messwerte und eine Regel für fehlende Werte wählen.",
         "Eine h5ad-Datei mit Merkmalsnamen und Objektmetadaten exportieren."
       ],
-      "prerequisite": "Verwenden Sie ein Projekt, für das Measure abgeschlossen ist, oder laden Sie das Messbeispiel über Annotate herunter. Arbeiten Sie mit einer Kopie des Projekts und behalten Sie seine Quellbilder. Verwenden Sie für den hier gezeigten normalen Exporter den aktuellen Nightly-Build.",
+      "prerequisite": "Verwenden Sie ein Projekt, für das Measure abgeschlossen ist, oder laden Sie das Messbeispiel über Annotate herunter. Arbeiten Sie mit einer Kopie des Projekts und behalten Sie seine Quellbilder.",
       "scenes": [
         {
           "visual": "01_measure_host",

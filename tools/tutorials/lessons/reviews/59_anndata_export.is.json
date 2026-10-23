@@ -1,13 +1,18 @@
 {
   "lesson": "59_anndata_export",
-  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "english_sha256": "e25dc7de37aaf138a9a5f74112363eada5ce9be1f250e63db4a5ba4e3abc2da9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "metadata_only_correction": {
+      "date": "2026-10-23",
+      "field": "prerequisite",
+      "operation": "Delete obsolete nightly-build sentence; preserve all other text and narration"
+    }
   },
   "language": "is",
   "title": "AnnData Export: vistaðu mælda hluti og eiginleika",
@@ -17,7 +22,7 @@
     "Velja sameinaðar mælingar eða staka töflu og reglu fyrir gildi sem vantar.",
     "Flytja út h5ad-skrá með heitum eiginleika og lýsigögnum hluta."
   ],
-  "prerequisite": "Notaðu verkefni þar sem Measure er lokið, eða sæktu mælingadæmið í gegnum Annotate. Vinndu í afriti af verkefninu og haltu upprunamyndum þess. Notaðu núverandi nightly-útgáfu fyrir venjulega útflutninginn sem sýndur er hér.",
+  "prerequisite": "Notaðu verkefni þar sem Measure er lokið, eða sæktu mælingadæmið í gegnum Annotate. Vinndu í afriti af verkefninu og haltu upprunamyndum þess.",
   "scenes": [
     "Frá Home opnarðu Measure og velur svo AnnData Export. Notaðu þetta tól til að vista mælda hluti, eiginleika þeirra og lýsigögn saman í h5ad-skrá.",
     "Veldu mælda verkefnið þitt sem Source. Í þessari yfirferð notarðu afrit af mælingadæminu sem fæst í gegnum Annotate. Haltu mælingamöppu þess og upprunamyndum saman.",

@@ -5,7 +5,7 @@
   "commit": "40c70929261ada22275b57c258782abd4c0ef078",
   "tag": "n676-21-model-compare-references-20261023-verified",
   "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/40c70929261ada22275b57c258782abd4c0ef078",
-  "manifest_sha256": "4f34ba06d1e2c3faa6e18da728d276cdeca84695c89e65a942f2743d002664d4",
+  "manifest_sha256": "9eef27e15aa048c9ee92452021c58ab42af4dbdf4feb979a35b4372289cbecfc",
   "media_files": 6448,
   "media_bytes": 12588395706,
   "readback": {
@@ -1985,13 +1985,18 @@
     "seconds": 494.1,
     "passed": true
   },
+  "readback_source": "unchanged media reused from verified publication",
+  "media_reuse": {
+    "baseline_manifest_sha256": "4f34ba06d1e2c3faa6e18da728d276cdeca84695c89e65a942f2743d002664d4",
+    "baseline_receipt_sha256": "76f2a492d4a043012ae3da1e5cd94efed0e87f3abcf2c2fb5b4a1346fe654ddd"
+  },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "7c4003dda5461edb619585aaf7aeed7e185806ff2945ff8ab7f6e8d8a0122e17",
-    "candidate_index_sha256": "43eaf4b8cfc9770669a090a5c3ed6a1ce81cab71f6e9fd0f76be0837b2361406",
-    "cache_key": "n676-21-model-compare-references-20261023-verified",
+    "index_sha256": "674f9c3e6d89fca4c58b0361e9c5267429c86e752ffa244b4c98a8fac61018f6",
+    "candidate_index_sha256": "f19f5f120cb62a9dc75e15b0b8383b178949e86bbbabe11ec4315a1c2782b495",
+    "cache_key": "n676-59-anndata-feature-prerequisites-20261023",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
@@ -2000,14 +2005,14 @@
     "versioned_assets": {
       "app_v2.js": "n676-player-short-gap-20261023",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-21-model-compare-references-20261023-verified",
-      "module_navigation.js": "n676-21-model-compare-references-20261023-verified",
+      "lesson_catalog.js": "n676-59-anndata-feature-prerequisites-20261023",
+      "module_navigation.js": "n676-59-anndata-feature-prerequisites-20261023",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-1g63j88e/retired-pages",
+      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-6tnhhvf2/retired-pages",
       "files": []
     },
     "ready": 84,

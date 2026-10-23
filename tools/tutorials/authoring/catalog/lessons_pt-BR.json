@@ -12083,7 +12083,7 @@
         "Escolher medições combinadas ou de uma tabela e uma regra para valores ausentes.",
         "Exportar um arquivo h5ad com os nomes das características e os metadados dos objetos."
       ],
-      "prerequisite": "Use um projeto que já passou pelo Measure, ou baixe o exemplo de medições pelo Annotate. Trabalhe numa cópia do projeto e mantenha as imagens de origem. Use a versão nightly atual para o exportador normal mostrado aqui.",
+      "prerequisite": "Use um projeto que já passou pelo Measure, ou baixe o exemplo de medições pelo Annotate. Trabalhe numa cópia do projeto e mantenha as imagens de origem.",
       "scenes": [
         {
           "visual": "01_measure_host",

@@ -11293,7 +11293,7 @@
         "Choose joined or single-table measurements and a missing-value policy.",
         "Export an h5ad file with feature names and object metadata."
       ],
-      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images. Use the current nightly build for the normal exporter shown here.",
+      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images.",
       "scenes": [
         {
           "visual": "01_measure_host",

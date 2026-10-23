@@ -1,13 +1,18 @@
 {
   "lesson": "59_anndata_export",
-  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "english_sha256": "e25dc7de37aaf138a9a5f74112363eada5ce9be1f250e63db4a5ba4e3abc2da9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "metadata_only_correction": {
+      "date": "2026-10-23",
+      "field": "prerequisite",
+      "operation": "Delete obsolete nightly-build sentence; preserve all other text and narration"
+    }
   },
   "language": "it",
   "title": "AnnData Export: salvare gli oggetti misurati e le loro caratteristiche",
@@ -17,7 +22,7 @@
     "Scegliere misure unite o una sola tabella e una regola per i valori mancanti.",
     "Esportare un file h5ad con nomi delle caratteristiche e metadati degli oggetti."
   ],
-  "prerequisite": "Usa un progetto per cui Measure è completato, oppure scarica l’esempio di misure tramite Annotate. Lavora su una copia del progetto e conserva le immagini di origine. Usa la build nightly attuale per l’esportatore standard mostrato qui.",
+  "prerequisite": "Usa un progetto per cui Measure è completato, oppure scarica l’esempio di misure tramite Annotate. Lavora su una copia del progetto e conserva le immagini di origine.",
   "scenes": [
     "Da Home, apri Measure e poi scegli AnnData Export. Usa questo strumento per salvare insieme, in un file h5ad, gli oggetti misurati, le loro caratteristiche e i metadati.",
     "Seleziona il tuo progetto misurato come Source. Per questa guida, usa una copia dell’esempio di misure disponibile tramite Annotate. Tieni insieme la cartella delle misure e le immagini di origine.",
