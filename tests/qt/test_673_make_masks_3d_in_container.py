@@ -574,6 +574,58 @@ def test_true_3d_keys_mirror_the_gate_editor(true3d, screen, monkeypatch):
     assert not stage.drag_key("edit") and not stage.axis_key("y")
 
 
+@pytest.mark.parametrize("case", ["repeat", "label", "version", "session", "return"])
+def test_selected_label_mesh_requests_deduplicate_and_keep_newest(qtbot, case):
+    import threading
+    from types import SimpleNamespace
+
+    started, release = threading.Event(), threading.Event()
+    calls = []
+    first = SimpleNamespace(geometries={}, geometry_for_label=lambda label: label)
+    other = SimpleNamespace(geometries={}, geometry_for_label=lambda label: label)
+    panel = SimpleNamespace(canvas=SimpleNamespace(_surface_gate=None, _selected_surfaces=set()),
+                            set_gates=lambda gates: None)
+    stage = SimpleNamespace(session=first, _selected=1, _version=1, _meshes={},
+                            _panel=panel, _say=lambda message: None, _restoring=False)
+
+    def work(request):
+        calls.append((id(request[0]), request[1], request[2]))
+        started.set()
+        assert release.wait(5), "test-owned blocked mesh was not released"
+        return mm._volume_mesh(request)
+
+    worker = mm._NewestRequestWorker(work, lambda *args: None, name="test-selected-mesh")
+    stage._mesher = worker
+    select = lambda: mm._VolumeStage._select_label(stage)
+    try:
+        select()
+        assert started.wait(5)
+        select()
+        select()
+        expected = [(id(first), 1, 1)]
+        if case in ("label", "return"):
+            stage._selected = 2
+            select()
+            stage._selected = 3 if case == "label" else 1
+            select()
+            if case == "label":
+                expected.append((id(first), 3, 1))
+        elif case == "version":
+            stage._version = 2
+            select()
+            expected.append((id(first), 1, 2))
+        elif case == "session":
+            stage.session = other
+            select()
+            expected.append((id(other), 1, 1))
+        release.set()
+        qtbot.waitUntil(worker.idle, timeout=5000)
+        assert calls == expected
+    finally:
+        release.set()
+        assert worker.close(5)
+
+
 def test_a_large_object_gets_its_anchors_off_the_gui_thread(true3d, screen, qtbot):
     stage = true3d
     session = stage.session

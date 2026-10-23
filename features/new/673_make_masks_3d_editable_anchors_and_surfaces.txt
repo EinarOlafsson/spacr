@@ -309,6 +309,19 @@ running with4 queued initially; label4/version1 running/no queue at deadline.
 Last selection4 completes41.0316s and failure snapshot is62.1146s. Mask and
 history are unchanged before/after the gate; GPU resources empty in finally.
 Full-idle and30–60FPS acceptance remain open; no shutdown/forced-exit pass.
+2026-10-23 Mesher deduplication follow-up: actual _select_label submissions
+must identify session/label/version so repeated refreshes cannot queue the
+same in-flight geometry twice. Preserve tuple consumers and existing newest-
+request policy; test the actual submit route with a blocked worker before
+repair, including distinct labels/versions/sessions and return-to-current.
+This source gap is not established as the cause of the retained5→4 failure
+and cannot establish20s idle or accelerate label4's41.0316s geometry itself.
+The actual-route blocked-worker regression fails before repair by computing
+the identical request twice. Private tuple-compatible keyed requests fix it:
+eight CPU/offscreen Mac checks pass12.88s (sampled RSS0.463GiB), covering
+repeat/newest/session/version/return-to-current plus existing asynchronous
+anchors, refused-boundary caching and stale delivery. Geometry and worker
+policy are unchanged; no new native/FPS/full-idle acceptance is claimed.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.
