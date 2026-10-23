@@ -49,9 +49,15 @@ def overview(qtbot, source_planes):
     qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready
                     and not dialog._index_jobs.is_busy(), timeout=10000)
     yield dialog
+    _retire_overview(dialog, qtbot)
+
+
+def _retire_overview(dialog, qtbot):
     dialog._cancel()
-    for runner in (dialog._index_jobs, dialog._image_jobs, dialog._thumbnail_jobs,
-                   dialog._field_thumbnail_jobs, dialog._montage_jobs, dialog._export_jobs):
+    runners = (dialog._index_jobs, dialog._image_jobs, dialog._thumbnail_jobs,
+               dialog._field_thumbnail_jobs, dialog._montage_jobs, dialog._export_jobs)
+    qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+    for runner in runners:
         runner.shutdown(timeout_ms=3000)
     dialog.close()
 
@@ -221,3 +227,105 @@ def test_small_physical_window_keeps_configuration_and_images_reachable(overview
             control.rect().translated(control.mapTo(dialog._controls_scroll.viewport(),
                                                    control.rect().topLeft())))
     assert dialog.size() == QSize(760, 620)
+
+
+def test_embedded_nonzero_axes_survive_header_discovery_and_reference_sampling(tmp_path, qtbot):
+    source = tmp_path / "stack"
+    source.mkdir()
+    pixels = np.empty((3, 2, 4, 20, 24), dtype=np.uint16)
+    plane = np.arange(480, dtype=np.uint16).reshape(20, 24)
+    for time in range(3):
+        for channel in range(2):
+            for z in range(4):
+                pixels[time, channel, z] = np.roll(plane, time + z, axis=1) + time * 1000 + z * 100 + channel * 20
+    tifffile.imwrite(source / "p1-A01-f1.tif", pixels,
+                     metadata={"axes": "TCZYX"}, photometric="minisblack")
+    pattern = r"(?P<plateID>p\d+)-(?P<wellID>[A-Z]\d+)-f(?P<fieldID>\d+)\.tif"
+    dialog = module._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "custom_regex": pattern, "channels": (1,), "geometry": (1, 1),
+        "time_index": 1, "z_index": 2, "z_mode": "plane",
+        "normalization": {"mode": "shared", "percentiles": (0., 100.)}})
+    qtbot.addWidget(dialog)
+    dialog.show()
+    try:
+        dialog._scan()
+        qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready
+                        and not dialog._index_jobs.is_busy(), timeout=10000)
+        assert dialog.time_axis.currentData() == 1
+        assert dialog.z_axis.currentData() == 2
+        expected = pixels[1, 1, 2]
+        assert dialog._normalization_plan["bounds"][1] == (float(expected.min()), float(expected.max()))
+        dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+        dialog.fields.setCurrentRow(0)
+        dialog._field(dialog.fields.item(0))
+        qtbot.waitUntil(lambda: dialog.view._item is not None
+                        and not dialog._image_jobs.is_busy(), timeout=10000)
+        image = dialog.view._item.pixmap().toImage()
+        expected_value = int((float(expected[0, 0]) - expected.min())
+                             / (expected.max() - expected.min()) * 255)
+        assert image.pixelColor(0, 0).red() == expected_value
+    finally:
+        _retire_overview(dialog, qtbot)
+
+
+def test_real_wizard_conditions_reach_reference_plan_and_browser(source_planes, qtbot):
+    source, paths = source_planes
+    wizard = module._OverviewMetadataWizard(str(source), {"custom_regex": PATTERN})
+    qtbot.addWidget(wizard)
+    wizard._scan()
+    qtbot.waitUntil(lambda: wizard.next.isEnabled(), timeout=10000)
+    for row in range(wizard.conditions.rowCount()):
+        if wizard.conditions.item(row, 1).text() == "A01":
+            wizard.conditions.item(row, 2).setText("control")
+    _choose(wizard.mode, "reference_condition")
+    _choose(wizard.reference, "control")
+    configuration = wizard.configuration()
+    expected = configuration["normalization"]["conditions"]
+    assert expected
+    dialog = module._FieldOverview(settings=configuration)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    try:
+        dialog._scan()
+        qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready
+                        and not dialog._index_jobs.is_busy(), timeout=10000)
+        assert dialog._conditions == expected
+        assert dialog._normalization_plan["mode"] == "reference_condition"
+        assert dialog._normalization_plan["reference"] == "control"
+        expected_count = sum(field.well == "A01" and field.time_id == dialog.time_axis.currentData()
+                             and field.z_id == dialog.z_axis.currentData() for field in dialog._fields)
+        assert dialog._normalization_plan["sample_fields"] == expected_count
+    finally:
+        _retire_overview(dialog, qtbot)
+        wizard._runner.shutdown(timeout_ms=3000)
+        wizard.close()
+
+
+def test_cancelled_pending_selection_does_not_start_another_decoder(overview, monkeypatch, qtbot):
+    dialog = overview
+    entered, release = threading.Event(), threading.Event()
+    original = module._overview_pixels
+    requested = []
+
+    def read(field, channels, limits, edge=1200, **options):
+        if edge == 256:
+            requested.append(field.identity)
+            entered.set()
+            assert release.wait(10)
+        return original(field, channels, limits, edge=edge, **options)
+
+    monkeypatch.setattr(module, "_overview_pixels", read)
+    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog.fields.setCurrentRow(0)
+    dialog._field(dialog.fields.item(0))
+    try:
+        qtbot.waitUntil(entered.is_set)
+        dialog.fields.setCurrentRow(1)
+        dialog._field(dialog.fields.item(1))
+        dialog._cancel()
+        release.set()
+        qtbot.waitUntil(lambda: dialog._image_jobs.active_jobs() == 0, timeout=10000)
+        assert len(requested) == 1
+        assert dialog.view._item is None
+    finally:
+        release.set()

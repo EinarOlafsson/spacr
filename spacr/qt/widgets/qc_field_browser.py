@@ -2190,7 +2190,8 @@ class _FieldOverview(QDialog):
         self._normalization_ready = not bool(self._overview_options.get("normalization"))
         self._display_pending = False
         self._display_generation = 0
-        self._conditions = dict(self._overview_options.get("conditions") or {})
+        self._conditions = dict(self._overview_options.get("conditions")
+                                or (self._overview_options.get("normalization") or {}).get("conditions") or {})
         self._preview_edge = 256
         self._displayed_field = None
         self.setWindowTitle(tr("Field-of-view overview"))
@@ -2482,12 +2483,12 @@ class _FieldOverview(QDialog):
             from ... import tabular
             table = tabular.read_table(path, canonicalise=False, dtype=str, keep_default_na=False)
             if set(table.columns) != {"plate", "well", "condition"}:
-                raise ValueError(tr("Annotation tables must contain plate, well and condition columns."))
+                raise _OverviewValidationError(tr("Annotation tables must contain plate, well and condition columns."))
             result = {}
             for record in table.fillna("").to_dict("records"):
                 key = str(record["plate"]), str(record["well"])
                 if key not in known or key in result:
-                    raise ValueError(tr("Annotation table identities are missing, duplicated or outside this source."))
+                    raise _OverviewValidationError(tr("Annotation table identities are missing, duplicated or outside this source."))
                 result[key] = str(record["condition"])
             return tuple(result.items())
         def loaded(records):
@@ -2654,8 +2655,14 @@ class _FieldOverview(QDialog):
                 for value in values:
                     combo.addItem(str(value), value)
             elif count_name:
-                count = max((record.get(count_name, 1) for record in info.get("files", ())), default=1)
-                for value in range(count):
+                if info:
+                    count = max((record.get(count_name, 1) for record in info.get("files", ())), default=1)
+                    for value in range(count):
+                        combo.addItem(str(value), value)
+                else:
+                    configured = self._overview_options.get(
+                        "time_index" if attribute == "time_id" else "z_index", 0)
+                    value = previous if isinstance(previous, int) else int(configured)
                     combo.addItem(str(value), value)
             if previous is None and attribute in ("time_id", "z_id"):
                 previous = self._overview_options.get("time_index" if attribute == "time_id" else "z_index", 0)
@@ -2670,6 +2677,7 @@ class _FieldOverview(QDialog):
         if not self._fields:
             return
         self._display_generation += 1
+        self._normalization_ready = False
         if self._index_jobs.is_busy():
             self._display_pending = True
             return
@@ -2685,6 +2693,10 @@ class _FieldOverview(QDialog):
         options["conditions"] = dict(self._conditions)
         axes = self._display_kwargs()
         axes.pop("normalization")
+        time, z = self.time_axis.currentData(), self.z_axis.currentData()
+        sampled_fields = tuple(field for field in fields
+            if (not getattr(field, "time_id", "") or field.time_id == time)
+            and (not getattr(field, "z_id", "") or field.z_id == z))
         self._normalization_ready = False
         def prepare():
             """Read metadata and bounded reference samples without Qt objects.
@@ -2694,7 +2706,7 @@ class _FieldOverview(QDialog):
             info = _overview_channel_info(fields[0])
             plan = None
             if self._overview_options.get("normalization"):
-                plan = _overview_normalization_plan(fields, channels, options,
+                plan = _overview_normalization_plan(sampled_fields, channels, options,
                     lambda field, selected, edge=256: tuple(_overview_raw_planes(
                         field, selected, edge=edge, **axes)), cancelled)
             return info, plan
@@ -2837,12 +2849,15 @@ class _FieldOverview(QDialog):
 
     def _choices(self):
         """Validate one display/export configuration on the GUI thread."""
-        channels = tuple(int(token.strip()) for token in self.channels.text().split(","))
+        try:
+            channels = tuple(int(token.strip()) for token in self.channels.text().split(","))
+        except (ValueError, TypeError):
+            raise _OverviewValidationError(tr("Choose one or more nonnegative channel indices.")) from None
         if not channels or min(channels) < 0:
-            raise ValueError(tr("Choose one or more nonnegative channel indices."))
+            raise _OverviewValidationError(tr("Choose one or more nonnegative channel indices."))
         limits = (self.low.value(), self.high.value()) if self.normalise.isChecked() else None
         if limits is not None and limits[0] >= limits[1]:
-            raise ValueError(tr("The lower percentile must be below the upper percentile."))
+            raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile."))
         return channels, limits
 
     def _browse(self):
@@ -3085,7 +3100,7 @@ class _FieldOverview(QDialog):
         except (ValueError, TypeError) as exc:
             self.status.setText(str(exc))
             return
-        if not self._normalization_ready:
+        if not self._normalization_ready or self._cancelled.is_set():
             return
         field = item.data(Qt.UserRole)
         if not self._individual:
@@ -3161,7 +3176,8 @@ class _FieldOverview(QDialog):
         except (ValueError, TypeError):
             return None
         return (self._scope, self.rows.currentData(), self.columns.currentData(),
-                self._page, self.fov_axis.currentData(), self.time_axis.currentData(),
+                self._page, self._display_generation,
+                self.fov_axis.currentData(), self.time_axis.currentData(),
                 self.z_axis.currentData(), self.z_mode.currentData(), channels, limits)
 
     def _update_visuals(self):
