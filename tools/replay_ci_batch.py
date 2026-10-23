@@ -61,7 +61,21 @@ def _configuration(root, suite, shard, output):
         values.update(job["with"])
         replacements = {f"${{{{ inputs.{key} }}}}": str(value) for key, value in values.items()}
         replacements["$batch_workers"] = str(max(1, int(values["xdist_workers"])))
-        options = _runner_options(reusable["jobs"]["pytest"], "run_pytest_batches.py")
+        qt_job = reusable["jobs"]["pytest"]
+        options = _runner_options(qt_job, "run_pytest_batches.py")
+        collection_array = "${batch_collection_args[@]}"
+        if collection_array in options:
+            native_condition = next(step.get("env", {}).get("SPACR_QT_NATIVE_EVIDENCE_DIR", "")
+                                    for step in qt_job["steps"]
+                                    if "python tools/run_pytest_batches.py " in step.get("run", ""))
+            expected_condition = ("${{ startsWith(inputs.suite_name, 'Qt') && "
+                                  "format('{0}/spacr-qt-native', runner.temp) || '' }}")
+            if native_condition != expected_condition:
+                raise ValueError("workflow native-evidence condition has an unresolved expression")
+            collection = (["--precollect-nonqt-batches"]
+                          if str(values["suite_name"]).casefold().startswith("qt") else [])
+            options = [part for token in options
+                       for part in (collection if token == collection_array else [token])]
         count = int(values["file_shard_count"])
         python_version = values["python_version"]
     else:
