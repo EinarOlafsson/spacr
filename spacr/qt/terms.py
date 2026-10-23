@@ -46,7 +46,9 @@ from typing import Dict, Tuple
 #: asked again.
 LOG = logging.getLogger(__name__)
 
-TERMS_VERSION = "4.4"
+from ..crashreport import _REPORTING_TERMS_VERSION
+
+TERMS_VERSION = _REPORTING_TERMS_VERSION
 
 LICENSE_NAME = "spaCR Noncommercial License 1.0"
 LICENSE_URL = "https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"
@@ -432,6 +434,8 @@ def record_agreement(version: str = "") -> str:
         store.sync()
     except Exception:                                        # noqa: BLE001
         pass
+    from .ai.issue_report import _sync_automatic_failure_policy
+    _sync_automatic_failure_policy()
     return stamped
 
 

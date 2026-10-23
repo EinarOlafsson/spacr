@@ -20,7 +20,7 @@ from __future__ import annotations
 import re
 from typing import Dict, List, Optional
 
-from PySide6.QtCore import (QByteArray, QSize, Qt, QThread, QTimer, Slot,
+from PySide6.QtCore import (QByteArray, QObject, QSize, Qt, QThread, QTimer, Slot,
                             Signal)
 from PySide6.QtGui import (
     QColor,
@@ -1149,6 +1149,77 @@ class _ChatInput(QTextEdit):
 _LOG_FLUSH_MS = 50
 
 
+_ERROR_REPORT_RELAY = None
+
+
+class _ErrorReportRelay(QObject):
+    """Choose a live visible console only after queued GUI-thread delivery."""
+
+    _arrived = Signal(dict)
+
+    def __init__(self, application):
+        """Retain weak console references, never their owning windows."""
+        super().__init__(application)
+        self.consoles = []
+        self.pending = {}
+        self._arrived.connect(self._receive)
+
+    def _queue(self, outcome):
+        """Emit from any thread without reading widget state."""
+        try:
+            self._arrived.emit(outcome)
+            return True
+        except RuntimeError:
+            return False
+
+    def _receive(self, outcome):
+        """Show one answer or fall back to the terminal if all owners have closed."""
+        from shiboken6 import isValid
+        from ...crashreport import QUEUE_LIMIT, _write_error_result
+        for key, ref in tuple(self.pending.items()):
+            target = ref()
+            if target is None or not isValid(target):
+                self.pending.pop(key, None)
+        event_id = outcome.get("event_id", "")
+        previous = self.pending.get(event_id)
+        if not outcome.get("pending"):
+            self.pending.pop(event_id, None)
+        refs = ([previous] if previous is not None else []) + list(reversed(self.consoles))
+        for ref in refs:
+            console = ref()
+            if (console is not None and isValid(console) and console.isVisible()
+                    and console.window().isVisible()):
+                if outcome.get("pending"):
+                    self.pending[event_id] = ref
+                    while len(self.pending) > QUEUE_LIMIT:
+                        retired = next(iter(self.pending))
+                        target = self.pending.pop(retired)()
+                        if target is not None and isValid(target):
+                            target._discard_error_report_entry(retired)
+                console._show_error_report_result(outcome)
+                return
+            if ref is previous and console is not None and isValid(console):
+                console._discard_error_report_entry(event_id)
+        _write_error_result(outcome)
+
+
+def _register_error_console(console):
+    """Register on the GUI thread with the application's one result relay."""
+    global _ERROR_REPORT_RELAY
+    import weakref
+    from shiboken6 import isValid
+    from PySide6.QtWidgets import QApplication
+    from ... import crashreport
+    if _ERROR_REPORT_RELAY is None or not isValid(_ERROR_REPORT_RELAY):
+        _ERROR_REPORT_RELAY = _ErrorReportRelay(QApplication.instance())
+    _ERROR_REPORT_RELAY.consoles = [ref for ref in _ERROR_REPORT_RELAY.consoles
+                                     if ref() is not None]
+    _ERROR_REPORT_RELAY.consoles.append(weakref.ref(console))
+    listener = weakref.WeakMethod(_ERROR_REPORT_RELAY._queue)
+    if listener not in crashreport._ERROR_RESULT_LISTENERS:
+        crashreport._ERROR_RESULT_LISTENERS.append(listener)
+
+
 class ConsolePanel(QWidget):
     """Merged pipeline stdout + AI chat panel.
 
@@ -1216,6 +1287,7 @@ class ConsolePanel(QWidget):
         #: :meth:`_take_down_the_waiting_heading`.
         self._pending_ai_topic: Optional[_TopicBar] = None
         self._pending_ai_block: Optional[_StdoutBlock] = None
+        self._pending_report_entries = {}
         #: The traceback the AI is currently explaining, and its answer once
         #: the stream finishes. Read by the bug reporter -- see
         #: :meth:`ai_explanation_of`.
@@ -1228,9 +1300,15 @@ class ConsolePanel(QWidget):
         self._console_sent_lengths: Dict[int, int] = {}
         self._retired: List = []
 
-        self._relay_stdout.connect(self.append_stdout)
-        self._relay_error.connect(self.append_error)
+        self._relay_stdout.connect(self._display_stdout)
+        self._relay_error.connect(self._display_error)
         self._relay_notice.connect(self._append_notice_on_gui_thread)
+        from ... import crashreport
+        from ..ai.issue_report import _sync_automatic_failure_policy
+        _sync_automatic_failure_policy()
+        _register_error_console(self)
+        from ...logging_util import log_dir
+        crashreport._consume_native_crash(log_dir() / "spacr-crash.log")
 
         self._build_ui()
         if not chat:
@@ -1701,6 +1779,17 @@ class ConsolePanel(QWidget):
         """
         if not text:
             return
+        try:
+            from ...crashreport import _capture_error_line
+            source = self.sender() if self._on_gui_thread() else None
+            if not getattr(source, "_spacr_output_captured", False):
+                _capture_error_line(text, origin="console_stdout")
+        except Exception:
+            pass
+        self._display_stdout(text)
+
+    def _display_stdout(self, text):
+        """Display already-classified output without capturing it a second time."""
         if not self._on_gui_thread():
             self._relay_stdout.emit(text)
             return
@@ -1718,6 +1807,7 @@ class ConsolePanel(QWidget):
                 self._current_stdout.setProperty(
                     "consoleContextKind", "stdout")
                 self._insert_entry(self._current_stdout)
+                self._current_stdout.show()
                 self._last_entry_kind = "stdout"
             self._current_stdout.append(text)
             self._scroll_to_bottom()
@@ -1785,7 +1875,7 @@ class ConsolePanel(QWidget):
             return
         self._flush_log_records()
         if level >= _logging.ERROR:
-            self.append_error(text)
+            self._display_error(text)
         else:
             self.append_warning(text)
 
@@ -1816,7 +1906,7 @@ class ConsolePanel(QWidget):
             return
         text = "".join(self._log_pending)
         self._log_pending.clear()
-        self.append_stdout(text)
+        self._display_stdout(text)
 
     def append_warning(self, text: str) -> None:
         """Append warning text in the theme's amber, under the output banner.
@@ -1849,6 +1939,17 @@ class ConsolePanel(QWidget):
         """
         if not tb:
             return
+        try:
+            from ...crashreport import _dispatch_error
+            source = self.sender() if self._on_gui_thread() else None
+            event_id = getattr(source, "_spacr_error_occurrence", "")
+            _dispatch_error(tb, traceback_text=tb, event_id=event_id)
+        except Exception:
+            pass
+        self._display_error(tb)
+
+    def _display_error(self, tb):
+        """Display already-classified output without capturing it a second time."""
         if not self._on_gui_thread():
             self._relay_error.emit(tb)
             return
@@ -2053,6 +2154,7 @@ class ConsolePanel(QWidget):
         self._current_topic_label = None
         self._pending_ai_topic = None
         self._pending_ai_block = None
+        self._pending_report_entries.clear()
         self._ai_messages.clear()
         self._console_sent_lengths.clear()
 
@@ -2145,6 +2247,10 @@ class ConsolePanel(QWidget):
 
         :returns: the provider, or ``None`` when none is selected.
         """
+        from ... import crashreport
+        policy = crashreport._ERROR_POLICY_CACHE.get("affirmed_policy") or {}
+        if policy.get("provider") == "none":
+            return None
         if not self._current_provider_name:
             return None
         return ai_module.get_provider(self._current_provider_name)
@@ -2344,6 +2450,127 @@ class ConsolePanel(QWidget):
         block.show()
         self._scroll_to_bottom()
         return block
+
+    def _discard_error_report_entry(self, event_id):
+        """Stop a retired request's indicator without showing or reviving its owner."""
+        pending = self._pending_report_entries.pop(event_id, None)
+        if pending is None:
+            return
+        block, _ = pending
+        try:
+            dots = getattr(block, "_ai_dots", None)
+            if dots is not None:
+                dots.stop()
+            if not block.toPlainText().strip():
+                for widget in (block, getattr(block, "_ai_bar", None)):
+                    if widget is not None:
+                        self._entries.removeWidget(widget)
+                        widget.hide()
+                        widget.deleteLater()
+                self._current_topic_label = None
+        except RuntimeError:
+            pass
+
+    def _show_error_report_result(self, outcome, entry=None, *,
+                                  saved_already_shown=False):
+        """Render a shared failure outcome without reopening any owning window."""
+        import logging
+        from ... import crashreport
+
+        outcome = dict(outcome or {})
+        event_id = outcome.get("event_id", "")
+        if outcome.get("pending"):
+            policy, eligible, _ = crashreport._automatic_error_policy(outcome.get("kind"))
+            if not eligible or policy.get("provider") == "none":
+                return
+            if event_id not in self._pending_report_entries:
+                saved = dict(outcome.get("explanation") or {})
+                block = self.begin_ai_entry(thinking=not bool(saved.get("text")))
+                if saved.get("text"):
+                    light = "\n\n[" + tr("lighter model") + "]" if saved.get(
+                        "tier") == "light" else ""
+                    self.fill_ai_entry(block, saved["text"] + light)
+                self._pending_report_entries[event_id] = (block, bool(saved.get("text")))
+                while len(self._pending_report_entries) > crashreport.QUEUE_LIMIT:
+                    self._discard_error_report_entry(next(iter(self._pending_report_entries)))
+            return
+        if outcome.get("quiet"):
+            self._discard_error_report_entry(event_id)
+            return
+        pending = self._pending_report_entries.get(event_id)
+        if pending is not None and not outcome.get("explained"):
+            self._discard_error_report_entry(event_id)
+        elif pending is not None:
+            entry, shown = self._pending_report_entries.pop(event_id)
+            saved_already_shown = saved_already_shown or shown
+        status = outcome.get("status")
+        explanation = dict(outcome.get("explanation") or {})
+        refused = str(explanation.get("refused", "") or "")
+        relay_text = str(outcome.get("ai_summary", "") or "")
+        try:
+            if saved_already_shown:
+                pass
+            elif relay_text and not explanation.get("text"):
+                self.fill_ai_entry(
+                    entry, relay_text + "\n\n[" + tr("lighter model") + "]")
+            elif outcome.get("explained"):
+                if explanation.get("text"):
+                    light = "\n\n[" + tr("lighter model") + "]" if explanation.get(
+                        "tier") == "light" else ""
+                    self.fill_ai_entry(
+                        entry, explanation["text"] + light)
+                elif refused == "quota":
+                    self.fill_ai_entry(entry, tr(
+                        "spaCR AI: today's free AI is used up, so this error is "
+                        "not explained. It is still handled as Preferences → AI "
+                        "→ AI Error report says."))
+                else:
+                    self.fill_ai_entry(entry, tr(
+                        "spaCR AI could not explain this error this time."))
+                try:
+                    self.refresh_ai_usage()
+                except Exception:
+                    logging.getLogger(__name__).debug("could not refresh the AI usage", exc_info=True)
+        except Exception:
+            logging.getLogger(__name__).warning("could not show the AI answer", exc_info=True)
+        if status == crashreport.REPORT_SENT:
+            number = outcome.get("issue_number") or "?"
+            url = str(outcome.get("issue_url", "") or "")
+            if outcome.get("deduplicated"):
+                self.append_notice(
+                    "[report] Reported anonymously: this error already has "
+                    "issue #{number}, which now counts it again. {url}\n",
+                    number=number, url=url)
+            elif outcome.get("ai_summary_attached"):
+                self.append_notice(
+                    "[report] Reported as issue #{number} (with AI summary). "
+                    "{url}\n", number=number, url=url)
+            elif outcome.get("explained") and refused == "quota":
+                self.append_notice(
+                    "[report] Reported as issue #{number} (without AI "
+                    "summary: daily AI allowance used). {url}\n",
+                    number=number, url=url)
+            elif outcome.get("explained"):
+                self.append_notice(
+                    "[report] Reported as issue #{number} (without AI "
+                    "summary). {url}\n", number=number, url=url)
+            else:
+                self.append_notice(
+                    "[report] Reported anonymously as issue #{number}. "
+                    "{url}\n", number=number, url=url)
+        elif status == crashreport.REPORT_QUEUED and outcome.get("quota"):
+            self.append_notice(
+                "[report] Will report after the daily limit resets.\n")
+        elif status == crashreport.REPORT_QUEUED:
+            self.append_notice(
+                "[report] The anonymised report could not be sent now. "
+                "spaCR will retry later.\n")
+        elif status == crashreport.REPORT_DROPPED:
+            self.append_notice(
+                "[report] spaCR's relay did not accept the anonymised "
+                "report: {detail}\n",
+                detail=str(outcome.get("detail", "") or "unknown"))
+
 
     def _ensure_stdout_block(self) -> None:
         """Open a new plain stdout block if the last entry was not one."""

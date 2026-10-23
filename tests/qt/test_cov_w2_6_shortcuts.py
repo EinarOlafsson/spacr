@@ -767,6 +767,57 @@ def test_a_parentless_caller_gets_a_dialog_rather_than_an_overlay(monkeypatch,
     assert sc.show_cheat_sheet(None) is None
 
 
+@pytest.mark.parametrize('font_scale', [.9, 2.])
+def test_parentless_shortcut_dialog_fits_scrolls_and_remains_resizable(
+        monkeypatch, qtbot, qt_theme_applied, font_scale):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtWidgets import QScrollArea, QSizeGrip
+    from spacr.qt import preferences
+    from spacr.qt.gui_scale import _resize_actual
+    from spacr.qt.widgets.workflow_diagram import DiagramDialog
+
+    previous = preferences.get_font_scale()
+    preferences.set_font_scale(font_scale)
+    captured = []
+
+    def inspect(dialog):
+        captured.append(dialog)
+        qtbot.addWidget(dialog)
+        dialog.show()
+        qtbot.waitExposed(dialog)
+        scroll = dialog.findChild(QScrollArea)
+        assert scroll is not None
+        assert dialog.screen().availableGeometry().contains(dialog.windowHandle().frameGeometry())
+        labels = scroll.widget().findChildren(QLabel)
+        rows = [label for label in labels if label.text().startswith('<code')]
+        assert len(rows) == len(sc.SHORTCUTS)
+        expected = [spec.label for category in dict.fromkeys(spec.category for spec in sc.SHORTCUTS)
+                    for spec in sc.SHORTCUTS if spec.category == category]
+        assert [label.text().split('&nbsp; ', 1)[-1] for label in rows] == expected
+        assert dialog.findChildren(QSizeGrip)
+        assert dialog.maximumSize().height() > dialog.screen().availableGeometry().height()
+        initial = dialog.windowHandle().geometry().size()
+        grown = QSize(initial.width() + 10, initial.height() + 10)
+        _resize_actual(dialog, grown)
+        qtbot.waitUntil(lambda: dialog.windowHandle().geometry().size() == grown)
+        target = QSize(initial.width(), max(180, initial.height() // 2))
+        _resize_actual(dialog, target)
+        qtbot.waitUntil(lambda: dialog.windowHandle().geometry().height() <= target.height())
+        assert scroll.verticalScrollBar().maximum() > 0
+        last = rows[-1]
+        scroll.ensureWidgetVisible(last)
+        qtbot.waitUntil(lambda: scroll.viewport().rect().contains(
+            last.rect().translated(last.mapTo(scroll.viewport(), QPoint()))))
+        return 0
+
+    monkeypatch.setattr(DiagramDialog, 'exec', inspect)
+    try:
+        assert sc.show_cheat_sheet(None) is None
+        assert len(captured) == 1
+    finally:
+        preferences.set_font_scale(previous)
+
+
 def test_a_zero_sized_window_gets_the_dialog_too(monkeypatch, qapp):
     from PySide6.QtWidgets import QDialog
 

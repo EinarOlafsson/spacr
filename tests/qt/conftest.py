@@ -1233,3 +1233,52 @@ def hover_now():
         QApplication.processEvents()
 
     return hover
+
+
+@pytest.fixture(autouse=True)
+def _trace_owned_qc_native_jobs(request, monkeypatch):
+    """Let owned QC jobs inherit the public Python thread trace on native workers."""
+    modules = {
+        "test_qc_field_browser.py",
+        "test_cov_r3_qt_widgets_qc_field_browser_1.py",
+        "test_cov_r3_qt_widgets_qc_field_browser_2.py",
+        "test_cov_r5_qt_widgets_qc_field_browser.py",
+        "test_field_of_view_overview.py",
+        "test_n725_overview_reader_channels.py",
+        "test_overview_metadata_normalization.py",
+        "test_field_overview_navigation.py",
+        "test_overview_annotation_interactions.py",
+        "test_the_field_browser_never_stats_the_field.py",
+        "test_source_folder_browse.py",
+    }
+    if request.node.path.name not in modules:
+        return
+    import threading
+    from functools import wraps
+    from spacr.qt.job_runner import JobRunner
+
+    original_submit = JobRunner.submit
+
+    @wraps(original_submit)
+    def submit(runner, fn, *args, **kwargs):
+        """Keep normal submission and adopt tracing only inside the real worker."""
+        if not runner._threaded:
+            return original_submit(runner, fn, *args, **kwargs)
+
+        @wraps(fn)
+        def traced():
+            """Restore an absent native trace after the submitted work settles."""
+            previous = sys.gettrace()
+            inherited = threading.gettrace()
+            installed = previous is None and inherited is not None
+            if installed:
+                sys.settrace(inherited)
+            try:
+                return fn()
+            finally:
+                if installed:
+                    sys.settrace(previous)
+
+        return original_submit(runner, traced, *args, **kwargs)
+
+    monkeypatch.setattr(JobRunner, "submit", submit)

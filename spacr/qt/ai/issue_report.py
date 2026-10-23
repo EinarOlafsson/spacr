@@ -74,6 +74,36 @@ _SECRET_KEY_RE = re.compile(
 )
 
 
+def _sync_automatic_failure_policy():
+    """Mirror affirmative GUI consent and exact choices for headless dispatch."""
+    from ... import crashreport
+    from . import settings
+    from ..preferences import get_issue_prompt_mode, get_preferred_provider
+    from ..terms import agreement_record
+
+    record = agreement_record()
+    version = record.get("version", "")
+    valid = (version == record.get("current_version")
+             and bool(record.get("accepted_at")))
+    crashreport._update_state(affirmed_policy={
+        "version": version if valid else "",
+        "accepted_at": record.get("accepted_at", "") if valid else "",
+        "explain": settings.get_route_errors_through_ai(),
+        "auto_file": settings.get_auto_file_issues(),
+        "prompt": get_issue_prompt_mode(),
+        "provider": get_preferred_provider(),
+        "provider_args": settings.provider_args(get_preferred_provider()),
+    })
+
+
+def _automatic_failure_policy(kind):
+    """Read the shared policy after synchronizing actual GUI consent."""
+    from ... import crashreport
+    _sync_automatic_failure_policy()
+    policy, explain, send = crashreport._automatic_error_policy(kind)
+    return crashreport.error_report_mode(), explain, send
+
+
 def redact_secrets(s: str) -> str:
     """Replace substrings matched by the supported credential patterns.
 

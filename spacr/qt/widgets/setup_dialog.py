@@ -23,7 +23,7 @@ LOG = logging.getLogger("spacr.qt.setup_dialog")
 #: Ordered groups used to organize first-run preference questions.
 GROUPS: List[tuple] = [
     ("How it looks", ("language", "theme", "colour_blind")),
-    ("How it runs", ("spacr_mode", "hash_inputs")),
+    ("How it runs", ("spacr_mode", "hash_inputs", "spacr_ai")),
 ]
 
 #: How far the home screen behind is blurred.
@@ -101,6 +101,12 @@ class SetupDialog(QDialog):
                 editor = self._editor(key, choices, answers.get(key))
                 self._editors[key] = editor
                 form.addRow(caption, editor)
+                if key == "spacr_ai":
+                    from ..i18n import tr
+                    form.labelForField(editor).setToolTip(tr(
+                        "Turning this off selects no AI provider and turns AI Error report off. "
+                        "You can later enable GitHub error reports in Preferences while "
+                        "keeping the provider set to None."))
             layout.addLayout(form)
 
     @staticmethod

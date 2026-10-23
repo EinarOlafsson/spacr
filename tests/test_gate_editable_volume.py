@@ -15,6 +15,27 @@ def _box():
     return EditableVolumeGate.from_gate(BoxGate.from_limits('volume', ('x', 'y', 'z'), [(0, 1)] * 3))
 
 
+def test_volume_contact_validation_observes_cancellation_between_pairs(monkeypatch):
+    from spacr.cancellation import CancellationToken, PipelineCancelled, installed_token
+    from spacr.qt.widgets import gate_spec
+
+    gate = _box()
+    token = CancellationToken()
+    original = gate_spec._mesh_triangle_contact
+    calls = []
+
+    def contact(*args, **kwargs):
+        calls.append(True)
+        result = original(*args, **kwargs)
+        token.cancel()
+        return result
+
+    monkeypatch.setattr(gate_spec, '_mesh_triangle_contact', contact)
+    with installed_token(token), pytest.raises(PipelineCancelled):
+        gate_spec._validate_volume_mesh(np.asarray(gate.vertices), np.asarray(gate.faces))
+    assert len(calls) == 1
+
+
 def _frame(points):
     return pd.DataFrame(points, columns=['x', 'y', 'z'])
 

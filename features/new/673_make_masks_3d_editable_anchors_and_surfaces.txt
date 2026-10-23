@@ -27,6 +27,106 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+Failure-only visibility repair: invalidate the failed GPU frame/picks and hide
+its owned image; restore visibility only for an accepted fresh frame. The new
+blocked-CPU regression fails before repair and passes afterward (13.43s,
+RSS0.446GiB); six Auto/CPU/prepaint contracts stay green. Native causal-absence,
+fresh CPU pixels/picks and normal cleanup acceptance remain pending.
+Next scoped native failover check: after a real owned Metal frame, inject one
+error only at that live context's render seam. Preserve the production close/
+refusal/CPU retry route; require released Metal resources, fresh current-request
+CPU RGB/IDs and nonzero picking, an aligned completed paint, unchanged mask/
+history and normal cleanup. Reuse the owned startup/fixture/composition observer;
+no drag matrix, FPS claim or real OS-device-loss claim. No product change assumed.
+Native22067 on d55b8a49f now exposes a production transition defect: exactly one
+live Metal render error reaches CPU fallback, releases Metal resources/refuses
+that backend, and ends with byte-exact current CPU RGB/IDs and an aligned final
+paint. However two transition paints combine the old image with the changed
+camera (three aligned, zero unknown); strict acceptance fails before two picks.
+Normal close/data/history pass, exit1 in68.82s, RSS1.288GiB. Repair only stale
+image/pick presentation while the first fallback frame is pending; no blocking
+CPU draw, quality reduction or change to successful GPU rendering. Known-absent
+image transitions must be proved separately, never counted as aligned frames/FPS
+or used to waive unknown/misaligned paints. Focused regression precedes repair.
+The focused CPU regression fails before repair (11.87s/RSS0.426GiB): the old
+GPU state remains pickable while CPU work is blocked. The minimal repair clears
+that failed state, hides its owned image, and restores visibility only for an
+accepted frame. Seven affected checks pass, including Auto fallback and the
+unchanged generic CPU keep-last-frame contract; the new case passes13.43s/
+RSS0.446GiB after its artist assertion was corrected for a real axes rebuild.
+Native acceptance remains pending strict draw-ID-bound known-absence proof and
+the original exact current CPU frame/two picks/full-idle/normal-close checks.
+Native12943 on1de379 validates the transition repair: one Metal error, four
+aligned paints/two draw-proven absent-image paints/zero bad or unknown; absent
+old-hit pick returns0 without changing selection. Current CPU RGB/IDs and final
+paint are exact; Metal resources close. First fresh pick is3/3, but the original
+strict20s idle fails with only the label3 mesher active, so pick2 is not reached
+and the full case remains FAIL (normal exit1,93.94s/RSS1.311GiB). Data/history
+and normal close remain unchanged. Diagnose baseline label3 cache/delivery before
+any new run; do not relax20s or substitute a cheaper object.
+Post-pick Figure16 is a separate diagnostic, not covered by the initial4/0/2:
+camera/affine/rays/rect/data-tag all match, but visible CPU frame16 still has
+highlight0 while the new request has highlight3. A later CPU frame matches.
+This selection-color lag is distinct from the repaired moving-pose GPU failure;
+retain the existing CPU keep-last-frame contract and do not claim every case
+paint aligned or silently discard that parameter mismatch.
+Stronger baseline next: within the original single30s from initial label3
+selection, require actual accepted non-None cache3 and its active visible gate
+before force-spin deselection. Log exact mesh submit/work/delivery timestamps,
+session/version/token/cache identities around selection/spin/pick. Record cold
+label3 setup time separately; keep both fresh picks and the original post-pick
+20s gate. No new warmup, cheaper label, added grace or product fix is assumed.
+First owned run stops before injection: default90% GUI scales the fixed canvas
+away from611x140. Cleanup preserves dirty/image/mask/history, but the parent
+times out280s without a final run-return marker; this is not native failover
+acceptance or a proven interpreter-tail cause. Correct only harness scale setup
+using normal GUI100% with the font retained, and observe requested-exit phases
+plus one conditional Python-only thread snapshot without extending deadlines.
+The affected retry reaches611x140/DPR2 but again stops before injection because
+the harness supplied an argument to the no-argument selection method. A tiny
+isolated preflight now verifies current method signatures and the real label-
+combo callback. Exit observation reaches aboutToQuit, with no compiler owner;
+the main stack remains inside screen prewarming, which direct app.exit bypasses.
+Use the actual native Quit route through the owned MainWindow.close, retaining
+the original error/nonzero outcome; no production quit failure is established.
+The third run has a real Intel Integrated Metal baseline but injects no error:
+raw Axes.view_init is overwritten by GateCanvas's authoritative saved camera.
+It fails normally in63.83s, RSS1.265GiB, with unchanged data/history; actual
+MainWindow.close accepts, stops prewarming and returns the run without force.
+Reuse the retained one-gesture spin route, verify saved angles and reacquired
+projection change, and preflight that interaction offscreen before retrying.
+The focused real CPU interaction preflight passes (9.55s, RSS0.442GiB): one
+press/move/release changes authoritative camera state, invokes the actual render-
+request seam, and survives an axes rebuild with a changed current projection.
+First native setup on1e1694950 fails the611x140 canvas precondition before any
+injected fault; screen closes with unchanged data/history, but process exit
+times out at280s and requires owned-child termination (RSS1.432GiB). This is
+not failover acceptance. Correct actual GUI-scale sizing and diagnose the exit
+hold before retry; retain strict dimensions, transition alignment and20s idle.
+Second native setup fixes scale/dimensions but fails the test's wrong-arity
+_select_label call before injection;280s timeout/RSS1.313GiB is not acceptance.
+Exit witness shows compiler drain completed, main thread still in prewarming.
+Source confirms direct app.exit bypassed native Quit's MainWindow.close/prewarm
+stop; correct that harness route and selection API, preserving nonzero failures.
+Third setup confirms normal close/prewarm stop and natural app return, but raw
+Axes.view_init is restored by the canvas: injected0, unchanged painted pose/
+serial, childexit1 (63.83s/RSS1.265GiB). Correct the camera trigger through the
+existing interaction route; this is still no active-failure/failover acceptance.
+
+Bounded CPU attribution: retained phase timing measures Axes3D.draw at
+5.016 ms per frame but does not isolate projection work. Measure only the
+duplicated installed-Axes3D/current-prepaint aspect, projection and inverse
+math at representative 611x140 camera poses, excluding independent validation
+calls. This diagnostic does not establish FPS or authorize a rendering change;
+reject projection reuse if the measured saving is too small.
+CPU attribution passes on 144 warmed camera poses (Matplotlib 3.11.2): mean
+unstale/aspect/projection/inverse costs are 0.013/0.115/0.349/0.040 ms,
+0.517 ms combined, versus the retained 5.016 ms Axes3D.draw span. Original
+Axes3D.draw matrices/inverses match exactly. The capped node passes in 5.01 s,
+sampled RSS 0.107 GiB. Reject projection-reuse implementation: even removing
+all measured duplicate cost would not bridge 29.38 to 30 painted pairs/s;
+these CPU-only diagnostic timings are not a native performance acceptance.
+
 Additional bounded high-ID coverage: combined readback already tests exact
 uint32 codes through2**32-1 with a fake transport, but real GPU fixtures use
 only IDs1/2. Add one tiny real GPU frame relabelled256/65536, require both IDs
@@ -222,6 +322,30 @@ exit0/errors[]. Unique completed image/pose rates are23.37/s and27.37/s.
 Original CPU, active/custom/legacy layout and stale-canvas paths remain intact;
 errors propagate once and preparation suppression always resets. No30–60FPS,
 label1 strict-settle or physical-input acceptance is inferred.
+GPU dispatch reuse scope,2026-10-23: serialize full render/readback and close,
+use distinct ordinal uniform slots within each unsubmitted frame, and reuse
+only after completed readback. Keep one last strong-identity binding set per
+slot, replace changed resources and trim unused slots after shrink. Poison
+reuse after uncertain failures; never recycle possibly in-flight uniforms.
+Require encoded multipass uniform-byte checks, growth/shrink/binding/device,
+failure/lifetime/close serialization and retained exact transport checks before
+one native exact-output/allocation comparison. No shader/quality/API change.
+The11 focused RED controls show10 failures/1 pass (4.87s). Ordinal pooling,
+strong last-binding caches, full render/close serialization and post-dispatch
+failure poisoning now pass22 affected CPU checks in5.11s, sampled RSS0.270GiB:
+encoded5-pass uniform bytes, reuse/growth/shrink/device/binding lifetime,
+six fault stages, concurrency, recoverable pre-GPU invalid input and retained
+combined transport/buffer checks. Stored failure references are cleared on close;
+Native Iris Plus/Metal15-frame comparison passes exact nonblank RGB and
+label123 picking, lens/highlight, changed dimensions/layer counts and unchanged
+both-image/mask inputs; cleanup is empty. Uniform allocations fall69 to11,
+bind groups69 to18; repeated unchanged bindings allocate neither. This is
+parity/allocation acceptance, not a GUI FPS claim (sampled RSS0.097GiB).
+Native ec9f452ba Metal611x140/DPR2 passes99 aligned/0 bad/0 unknown paints,
+89 fast/0 fallback and20/20 current picks;89 unique pairs/3.029s=29.3826/s, still below30.
+Strict20s idle passes16.4444s; label4/gen14 delivery joins exact cached geometry
+to aligned Figure123 at44.38596s and Qt paint44.38775s before verdict44.40374s.
+Exit0/errors[], mask/history unchanged, pool/GPU cleanup empty; sampled RSS0.577GiB,0 missed samples.
 Remaining geometry profile identifies triangle contact as28.256s cumulative
 across144,392 calls (instrumented, not benchmark). Test exact per-triangle
 argmax-axis/planar-projection caching; when the second triangle's cached axis
@@ -242,6 +366,23 @@ or native acceptance. The minimal local reuse is adopted after product-function
 AST equality against the tested in-memory transformation; the retained13
 passes and paired fingerprints therefore cover the exact postimage without
 replaying tests. Thresholds, arithmetic order and worker policy are unchanged.
+Next scratch-only candidate: guarded Python binary64 coplanar cross arithmetic,
+opted in once by the validator only for native float64 finite normalized
+coordinates with nonzero magnitudes at least1e-100 and normal NumPy error policy.
+Keep default/other-dtype/error-policy arithmetic unchanged. Require operation-bit
+parity, fast-flag cached/uncached reference coverage, fallback checks and exact
+geometry/mask/history. Adopt only if one fresh-session same-input pair improves
+at least5%; otherwise discard without repeats. No geometry predicate is skipped.
+Scratch validation passes9 checks in3.43s, including explicit adjacent-ULP
+operation bits, fast cached/uncached reference paths, legacy dtype/error-policy
+branches and unchanged contact order. One fresh-session constructor pair on
+05aef38d4 measures29.508246s original versus28.032481s candidate (5.0012%
+lower, narrowly meeting the predeclared5% threshold); validator opt-in is
+exercised once, with exact retained mesh fingerprints and unchanged mask/history.
+Exit0/sampled RSS0.329GiB. Candidate discarded: the threshold margin is only
+0.000353s in one pair, too noise-sensitive to justify guarded production paths;
+the measured obsolete-work queue delay is the next concrete target. Retain
+these parity/timing results, with no robust speed/native claim or replay.
 Projection caching passed107 checks but31.158s versus30.743s showed no gain;
 that source/test experiment was reverted. Next contact-validation path must
 PROVE rectilinear half-cell triangle intersections are only allowed shared
@@ -351,6 +492,14 @@ is unrecorded before quit, so delivered anchors remain UNVALIDATED.
 Final GPU cleanup is empty and mask/history unchanged;20/20 current picks,
 81 aligned/0 bad/0 unknown paints,26.64 painted pairs/s. No FPS/full-idle/
 shutdown pass inferred (sampled RSS0.647GiB; no inaccessible samples).
+Final05aef38d48 Cocoa/OpenGL611x140/DPR2 observer validates actual selected4
+delivery, matching canvas geometry/active gate, Agg figure123 and its aligned
+Qt paint; error=None, final GPU empty and mask/history unchanged. Work2/4
+takes15.7943/17.5503s,4 queues10.1252s; strict20s gate still FAILS20.0237s.
+Later observation is not extended acceptance:20/20 picks,91 aligned/0 bad/
+0 unknown paints,29.4507 painted pairs/s; sampled RSS0.637GiB. Initial new
+observer lookup failed only because GateSet.get raises on absent0; guarded
+membership repairs the harness without weakening surface/paint assertions.
 Next scoped queue contract: when selection needs no mesh (cached preview,
 saved geometry or explicit selection0), drop obsolete pending work without
 cancelling the active mesh or changing stale-delivery/pick-at-zero policy.
@@ -360,6 +509,41 @@ selection guard now drops pending work only. Eleven affected checks pass
 (10 in12.04s plus corrected none-case tuple expectation in4.00s; sampled
 RSS0.442/0.259GiB). Active work, stale delivery and pick-at-zero stay unchanged;
 this queue repair does not close the native20s/full-delivery/FPS gates.
+2026-10-23 Obsolete active meshing must cancel cooperatively using per-request
+thread-local pipeline tokens, never the session's edit cancellation hook.
+Check boundary construction and heavy mesh validation without partial results
+or changed arithmetic/topology/state. Preserve repeated-request dedup through
+queued GUI delivery; A→B→A needs a fresh generation after cancellation.
+Canceled deliveries must not cache refusals, overwrite fresh geometry or clear
+newer requests; genuine current refusals remain cached. Cached/saved/0 and
+leave/close cancel obsolete work. Require targeted RED regressions before
+implementation and an affected cohort; strict20s/FPS/physical gates remain open.
+Switching from True3D to Default/Orthogonal also cancels obsolete preparation;
+returning to True3D requests a fresh generation without changing mask/history.
+Targeted RED exposes11 cancellation/lifecycle gaps plus2 view-exit failures;
+30 affected CPU/offscreen checks then pass21.40s (sampled RSS0.471GiB).
+Per-request tokens/generations, safe boundary/contact checkpoints and canceled-
+delivery guards preserve legacy tuple payloads, exact geometry/state and real
+current refusals. Native20s/full-delivery/FPS acceptance remains pending.
+Nativee955f494a Cocoa/OpenGL611x140/DPR2 now passes strict20s full-idle in
+16.5746s, with selected4/generation14 accepted and its exact canvas geometry
+captured in Agg figure113 then an aligned Qt paint before that verdict.
+Desired work queues23.975ms and computes18.2298s;13 genuine canceled jobs
+finish median11.016/max105.672ms after cancellation. All13 ignored deliveries
+leave cache/status/preference unchanged.20/20 picks, final GPUempty and
+unchanged mask/history pass;79 aligned/0 bad/0 unknown paints,25.9481 pairs/s
+remain below30–60FPS. Sampled RSS0.632GiB; physical-input acceptance remains open.
+Native close follow-up: one isolated Cocoa child must close its owned Make
+Masks window during an actual validation pair, through the unchanged close
+event path. Verify cancellation/closed worker, preserved state and normal
+process exit without forced exit or added post-close grace. Report a still-
+pending canceled read-only daemon separately from fully drained shutdown;
+programmatic close is not physical window-control acceptance.
+The real Cocoa close-during-validation case passes48.27s (sampled RSS0.766GiB):
+actual contact-pair/token witness precedes close; cancellation/closed worker,
+unchanged state and no late Qt/Python errors pass. The mesh worker is drained
+at normal event-loop return and the child exits normally, with no forced exit,
+post-close grace or join. No physical-close acceptance is inferred.
 
 Priority and ownership: follow spacr/resources/AI/MAC_HANDOFF.md. Finish the
 running N703 installer/runtime and N646 work first, then this native 3D check.

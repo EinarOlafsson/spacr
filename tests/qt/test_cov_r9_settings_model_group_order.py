@@ -37,7 +37,7 @@ def _rebuild_span():
     """The line range of the classifier screen's group rebuild."""
     source = pathlib.Path(MODULE_PATH).read_text(encoding="utf-8").splitlines()
     start = next(i for i, line in enumerate(source, 1)
-                 if 'rebuilt = {"Classifier": ["classifier_family"]}' in line)
+                 if 'rebuilt = {"Classifier": ["classifier_family", "learning_rate"]}' in line)
     ordered = max(i for i, line in enumerate(source, 1)
                   if i < start and line.strip() == "ordered = {")
     end = next(i for i, line in enumerate(source, 1)
@@ -181,7 +181,7 @@ def test_the_classifier_family_heading_leads():
     rest of the form belongs to, so it cannot come after them."""
     source = _rebuild_source()
 
-    assert 'rebuilt = {"Classifier": ["classifier_family"]}' in source
+    assert 'rebuilt = {"Classifier": ["classifier_family", "learning_rate"]}' in source
     assert source.index('rebuilt = {"Classifier"') < \
         source.index("for name in shared_first:")
 

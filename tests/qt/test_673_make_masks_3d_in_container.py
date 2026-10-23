@@ -608,8 +608,7 @@ def test_selected_label_mesh_requests_deduplicate_and_keep_newest(qtbot, case):
             select()
             stage._selected = 3 if case == "label" else 1
             select()
-            if case == "label":
-                expected.append((id(first), 3, 1))
+            expected.append((id(first), 3 if case == "label" else 1, 1))
         elif case == "version":
             stage._version = 2
             select()
@@ -632,7 +631,7 @@ def test_selected_ready_geometry_drops_only_waiting_mesh_requests(qtbot, case):
     from types import SimpleNamespace
 
     started, release = threading.Event(), threading.Event()
-    calls, shown, selected, edit_clicks = [], [], [], []
+    calls, shown, selected, edit_clicks, delivered = [], [], [], [], []
     gate = EditableVolumeGate.from_gate(
         BoxGate.from_limits("3", ("x", "y", "z"), [(0, 1)] * 3))
     session = SimpleNamespace(geometries={}, geometry_for_label=lambda label: label)
@@ -649,7 +648,7 @@ def test_selected_ready_geometry_drops_only_waiting_mesh_requests(qtbot, case):
         assert release.wait(5), "test-owned active mesh was not released"
         return mm._volume_mesh(request)
 
-    worker = mm._NewestRequestWorker(work, lambda *args: None, name="test-ready-mesh")
+    worker = mm._NewestRequestWorker(work, lambda *args: delivered.append(args), name="test-ready-mesh")
     stage._mesher = worker
     select = lambda: mm._VolumeStage._select_label(stage)
     try:
@@ -676,9 +675,172 @@ def test_selected_ready_geometry_drops_only_waiting_mesh_requests(qtbot, case):
         release.set()
         qtbot.waitUntil(worker.idle, timeout=5000)
         assert calls == [active]
+        from spacr.cancellation import PipelineCancelled
+        assert len(delivered) == 1 and isinstance(delivered[0][2], PipelineCancelled)
     finally:
         release.set()
         assert worker.close(5)
+
+
+def _mesh_selection_double():
+    from types import SimpleNamespace
+
+    panel = SimpleNamespace(canvas=SimpleNamespace(_surface_gate=None, _selected_surfaces=set()),
+                            set_gates=lambda gates: None)
+    return SimpleNamespace(session=SimpleNamespace(geometries={}, geometry_for_label=lambda label: label),
+                           _selected=1, _version=1, _meshes={}, _panel=panel,
+                           _say=lambda message: None, _restoring=False, busy=True, view='true3d')
+
+
+@pytest.mark.parametrize('outcome', ['success', 'cancel', 'refusal'])
+def test_mesh_worker_scopes_and_restores_request_token(outcome):
+    from collections import namedtuple
+    from types import SimpleNamespace
+    from spacr.cancellation import (CancellationToken, PipelineCancelled, checkpoint,
+                                    current_token, installed_token)
+
+    outer, token = CancellationToken(), CancellationToken()
+    geometry = object()
+
+    def prepare(label):
+        assert current_token() is token
+        if outcome == 'cancel':
+            token.cancel()
+            checkpoint()
+        if outcome == 'refusal':
+            raise ValueError('true refusal')
+        return geometry
+
+    request = namedtuple('TokenRequest', 'session label version token')(
+        SimpleNamespace(geometry_for_label=prepare), 1, 1, token)
+    with installed_token(outer):
+        if outcome == 'success':
+            assert mm._volume_mesh(request) is geometry
+        else:
+            with pytest.raises(PipelineCancelled if outcome == 'cancel' else ValueError):
+                mm._volume_mesh(request)
+        assert current_token() is outer
+
+
+def test_mesh_completion_is_not_resubmitted_before_gui_delivery(qtbot):
+    stage = _mesh_selection_double()
+    delivered = []
+    stage._mesher = mm._NewestRequestWorker(mm._volume_mesh, lambda *args: delivered.append(args))
+    try:
+        mm._VolumeStage._select_label(stage)
+        qtbot.waitUntil(stage._mesher.idle, timeout=5000)
+        mm._VolumeStage._select_label(stage)
+        qtbot.waitUntil(stage._mesher.idle, timeout=5000)
+        assert len(delivered) == 1
+    finally:
+        assert stage._mesher.close(5)
+
+
+def test_cancelled_old_mesh_cannot_clear_return_selection_or_cache_refusal(qtbot):
+    import threading
+    from spacr.cancellation import PipelineCancelled
+
+    stage = _mesh_selection_double()
+    started, release = threading.Event(), threading.Event()
+    delivered, computed, messages = [], [], []
+    stage._say = messages.append
+    stage.session.geometry_for_label = lambda label: computed.append(label) or label
+
+    def work(request):
+        started.set()
+        assert release.wait(5)
+        return mm._volume_mesh(request)
+
+    stage._mesher = mm._NewestRequestWorker(work, lambda *args: delivered.append(args))
+    try:
+        mm._VolumeStage._select_label(stage)
+        assert started.wait(5)
+        stage._selected = 2
+        mm._VolumeStage._select_label(stage)
+        pending = stage._mesh_request
+        stage._selected = 1
+        mm._VolumeStage._select_label(stage)
+        release.set()
+        qtbot.waitUntil(stage._mesher.idle, timeout=5000)
+        assert computed == [1]
+        old, fresh = delivered
+        assert isinstance(old[2], PipelineCancelled) and fresh[2] is None
+        assert old[0].key != fresh[0].key
+        assert old[0].token.cancelled and pending.token.cancelled
+        preferred = stage._mesh_request
+        before = list(messages)
+        mm._VolumeStage._take_mesh(stage, old)
+        assert stage._mesh_request is preferred and not stage._meshes and messages == before
+        mm._VolumeStage._take_mesh(stage, fresh)
+        assert stage._meshes == {1: 1} and stage._mesh_request is None
+        before = list(messages)
+        mm._VolumeStage._take_mesh(stage, (old[0], 999, None))
+        assert stage._meshes == {1: 1} and stage._mesh_request is None and messages == before
+    finally:
+        release.set()
+        assert stage._mesher.close(5)
+
+
+def test_current_mesh_refusal_stays_cached(qtbot):
+    stage = _mesh_selection_double()
+    delivered = []
+
+    def refused(request):
+        raise ValueError('true geometry refusal')
+
+    stage._mesher = mm._NewestRequestWorker(refused, lambda *args: delivered.append(args))
+    try:
+        mm._VolumeStage._select_label(stage)
+        qtbot.waitUntil(stage._mesher.idle, timeout=5000)
+        mm._VolumeStage._take_mesh(stage, delivered[0])
+        mm._VolumeStage._select_label(stage)
+        assert stage._meshes == {1: None} and len(delivered) == 1
+    finally:
+        assert stage._mesher.close(5)
+
+
+@pytest.mark.parametrize('destination', ['shutdown', 'default', 'orthogonal'])
+def test_leaving_true3d_cancels_mesh_and_can_restart(true3d, qtbot, monkeypatch, destination):
+    import threading
+
+    stage = true3d
+    session = stage.session
+    before = session.mask.copy()
+    history = (tuple(session._undo), tuple(session._redo), dict(session.geometries))
+    started, release = threading.Event(), threading.Event()
+    computed = []
+    gate = EditableVolumeGate.from_gate(BoxGate.from_limits('1', ('X', 'Y', 'Z'), [(0, 1)] * 3))
+    monkeypatch.setattr(session, 'geometry_for_label', lambda label: computed.append(label) or gate)
+
+    def work(request):
+        started.set()
+        assert release.wait(5)
+        return mm._volume_mesh(request)
+
+    stage._mesher._work = work
+    try:
+        stage._selected = 1
+        stage._select_label()
+        assert started.wait(5)
+        first = stage._mesh_request
+        if destination == 'shutdown':
+            stage.shutdown()
+        else:
+            assert stage.set_view(destination)
+        release.set()
+        qtbot.waitUntil(stage._mesher.idle, timeout=5000)
+        assert not computed
+        assert first.token.cancelled and stage._mesh_request is None
+        if destination != 'shutdown':
+            assert stage.set_view('true3d')
+            assert stage._mesh_generation > first.generation
+            qtbot.waitUntil(lambda: 1 in stage._meshes, timeout=5000)
+            assert computed == [1] and stage._meshes[1] is gate
+        np.testing.assert_array_equal(session.mask, before)
+        assert (tuple(session._undo), tuple(session._redo), session.geometries) == history
+    finally:
+        release.set()
+        assert stage._mesher.close(5)
 
 
 def test_a_large_object_gets_its_anchors_off_the_gui_thread(true3d, screen, qtbot):
@@ -693,6 +855,155 @@ def test_a_large_object_gets_its_anchors_off_the_gui_thread(true3d, screen, qtbo
     assert "1" in stage._panel.gates.names
     assert "drag its anchors" in screen._status_label.text()
     assert stage._panel.drag_mode() == "edit"
+
+
+@pytest.mark.skipif(__import__('sys').platform != 'darwin', reason='requires native Cocoa')
+def test_native_cocoa_close_during_real_mesh_validation(tmp_path):
+    import ast
+    import json
+    import os
+    import subprocess
+    import sys
+    import textwrap
+
+    root = Path(__file__).resolve().parents[2]
+    syntax = ast.parse(Path(__file__).with_name('test_the_macos_application_menu.py').read_text())
+    bootstrap = next(node.value.args[0] for node in syntax.body if isinstance(node, ast.Assign)
+                     and any(isinstance(target, ast.Name) and target.id == '_OWNED_SETTINGS_PROBE'
+                             for target in node.targets))
+    probe = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
+        import hashlib, threading, traceback
+        from pathlib import Path
+        import numpy as np
+        import tifffile
+        from PySide6 import QtCore
+        from PySide6.QtCore import QTimer
+        from spacr.cancellation import current_token
+        from spacr.qt.screens import make_masks as mm
+        from spacr.qt.widgets import gate_spec
+
+        assert Path(mm.__file__).resolve() == Path(os.environ['SPACR_NATIVE_SOURCE']) / 'spacr/qt/screens/make_masks.py'
+        report = {'pid': os.getpid(), 'source': mm.__file__, 'settings': settings_file,
+                  'qt_critical': [], 'python_errors': []}
+        previous_qt = None
+
+        def qt_message(kind, context, message):
+            if kind in (QtCore.QtCriticalMsg, QtCore.QtFatalMsg):
+                report['qt_critical'].append(message)
+            if previous_qt is not None:
+                previous_qt(kind, context, message)
+            else:
+                sys.__stderr__.write(message + '\n')
+
+        previous_qt = QtCore.qInstallMessageHandler(qt_message)
+        original_exception = sys.excepthook
+
+        def python_exception(kind, value, tb):
+            report['python_errors'].append(''.join(traceback.format_exception(kind, value, tb)))
+            original_exception(kind, value, tb)
+
+        sys.excepthook = python_exception
+        original_thread_exception = threading.excepthook
+
+        def thread_exception(args):
+            report['python_errors'].append(str(args.exc_value))
+            original_thread_exception(args)
+
+        threading.excepthook = thread_exception
+        validation = threading.Event()
+        original_contact = gate_spec._mesh_triangle_contact
+
+        def contact(*args, **kwargs):
+            if threading.current_thread().name == 'spacr-volume-mask-mesh' and not validation.is_set():
+                request = stage._mesher._running
+                report['validation_pair'] = {'generation': request.generation,
+                    'token_matches_worker': current_token() is request.token,
+                    'triangle_shapes': [list(args[0].shape), list(args[1].shape)]}
+                validation.set()
+            return original_contact(*args, **kwargs)
+
+        gate_spec._mesh_triangle_contact = contact
+        fixture = Path(settings_root) / 'fixture'
+        (fixture / 'masks').mkdir(parents=True)
+        image = np.zeros((64, 256, 256), dtype=np.uint16)
+        labels = np.zeros_like(image)
+        labels[20:44, 80:104, 80:104] = 1
+        tifffile.imwrite(fixture / 'cells.tif', image, metadata={'axes': 'ZYX'})
+        tifffile.imwrite(fixture / 'masks/cells.tif', labels, metadata={'axes': 'ZYX'})
+
+        def snapshot(session):
+            return (hashlib.sha256(session.mask.tobytes()).hexdigest(),
+                    tuple(session.geometries), tuple(map(id, session._undo)), tuple(map(id, session._redo)),
+                    session._saved_mask_sha256, session._saved_geometry_sha256, session._history_bytes)
+
+        app = QApplication([])
+        window = mm.MakeMasksScreen()
+        window.resize(1280, 720)
+        window.show()
+        stage = window.open_volume(str(fixture / 'cells.tif'))
+        session = stage.session
+        before = snapshot(session)
+        assert stage.set_view('true3d')
+        stage._labels.setCurrentIndex(stage._labels.findData(1))
+        assert stage._selected == 1
+        worker = stage._mesher
+        closed_request = closed_thread = None
+        timer = QTimer()
+
+        def close_when_validating():
+            global closed_request, closed_thread
+            if not validation.is_set():
+                return
+            timer.stop()
+            closed_request, closed_thread = worker._running, worker._thread
+            assert closed_request is not None and closed_thread.is_alive()
+            assert not closed_request.token.cancelled
+            assert report['validation_pair']['generation'] == closed_request.generation
+            report['close_returned'] = bool(window.close())
+            report['token_cancelled_after_close'] = closed_request.token.cancelled
+            report['worker_closed_after_close'] = worker._closed
+            report['worker_alive_after_close'] = closed_thread.is_alive()
+            report['state_unchanged_after_close'] = snapshot(session) == before
+
+        timer.timeout.connect(close_when_validating)
+        timer.start(5)
+        report['event_loop_returncode'] = app.exec()
+        report['worker_alive_at_exec_return'] = bool(closed_thread and closed_thread.is_alive())
+        report['worker_daemon'] = bool(closed_thread and closed_thread.daemon)
+        report['state_unchanged_at_exec_return'] = snapshot(session) == before
+        report['shutdown_observation'] = ('cancelled_read_only_daemon_pending'
+            if report['worker_alive_at_exec_return'] else 'drained')
+        print('RESULT_CLOSE_REAL_MESH ' + json.dumps(report), flush=True)
+    ''')
+    profile = str((tmp_path / 'profile').resolve())
+    env = dict(os.environ, QT_QPA_PLATFORM='cocoa', CUDA_VISIBLE_DEVICES='', SPACR_NO_GPU_RENDER='1',
+               SPACR_NATIVE_SOURCE=str(root), PYTHONPATH=str(root), SPACR_MENU_TEST_SETTINGS=profile,
+               SPACR_ISOLATED_PROFILE='1', SPACR_NO_NETWORK='1', SPACR_NO_BACKDROP='1')
+    for name, relative in {'SPACR_HOME': 'home', 'SPACR_LOG_DIR': 'logs', 'SPACR_LOCK_DIR': 'locks',
+                           'SPACR_CHAINING_PINS': 'pins.json', 'SPACR_BACKENDS_DIR': 'backends',
+                           'SPACR_MODEL_CACHE': 'models', 'SPACR_PLUGIN_HOME': 'plugins',
+                           'SPACR_SOUND_CACHE': 'sounds', 'XDG_CACHE_HOME': 'cache',
+                           'XDG_STATE_HOME': 'state', 'MPLCONFIGDIR': 'matplotlib',
+                           'HF_HOME': 'huggingface', 'TORCH_HOME': 'torch',
+                           'CELLPOSE_LOCAL_MODELS_PATH': 'cellpose'}.items():
+        env[name] = str(Path(profile) / relative)
+    result = subprocess.run([sys.executable, '-c', probe], cwd=root, env=env,
+                            capture_output=True, text=True, timeout=180)
+    assert result.returncode == 0, result.stdout + result.stderr
+    lines = [line for line in result.stdout.splitlines() if line.startswith('RESULT_CLOSE_REAL_MESH ')]
+    assert len(lines) == 1, result.stdout + result.stderr
+    observed = json.loads(lines[0].split(' ', 1)[1])
+    assert observed['validation_pair']['token_matches_worker']
+    assert observed['validation_pair']['triangle_shapes'] == [[3, 3], [3, 3]]
+    assert observed['close_returned'] and observed['token_cancelled_after_close']
+    assert observed['worker_closed_after_close'] and observed['event_loop_returncode'] == 0
+    assert observed['state_unchanged_after_close'] and observed['state_unchanged_at_exec_return']
+    assert not observed['qt_critical'] and not observed['python_errors']
+    assert not observed['worker_alive_at_exec_return'] or observed['worker_daemon']
+    assert all(marker not in result.stderr for marker in ('Traceback (most recent call last)',
+               'Internal C++ object', 'QThread: Destroyed', 'Exception ignored in:'))
+    assert os.path.commonpath([os.path.realpath(observed['settings']), profile]) == profile
+    print('Native close observation: ' + observed['shutdown_observation'])
 
 
 def test_an_object_without_a_boundary_says_why_and_is_not_asked_twice(true3d, screen, qtbot):

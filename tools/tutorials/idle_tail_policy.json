@@ -2594,6 +2594,651 @@
           "idle_tail_start": 13.1
         }
       ]
+    },
+    {
+      "lesson": "44_data_manager",
+      "master_sha256": "2f0bc4ac537294899667deadadc45a66715b328bba1dd663c8c55b26813bd11a",
+      "visual_timing_sha256": "834b8cb4093dadccb1266354c8c5d70498ea9be24c38cd6c720cb270a844d977",
+      "scenes": [
+        {
+          "visual": "01_help_data_manager",
+          "source_start": 0.0,
+          "source_end": 17.5,
+          "idle_tail_start": 6.3
+        },
+        {
+          "visual": "03_actual_usage",
+          "source_start": 17.5,
+          "source_end": 33.06666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "04_prune_choices",
+          "source_start": 33.06666666666667,
+          "source_end": 54.4,
+          "idle_tail_start": 4.6
+        },
+        {
+          "visual": "05_real_prune_plan",
+          "source_start": 54.4,
+          "source_end": 77.86666666666666,
+          "idle_tail_start": 1.7
+        },
+        {
+          "visual": "09_confirmation_locked",
+          "source_start": 77.86666666666666,
+          "source_end": 92.9,
+          "idle_tail_start": 2.8
+        },
+        {
+          "visual": "11_acknowledged_not_deleted",
+          "source_start": 92.9,
+          "source_end": 110.4,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "14_actual_cleanup_result",
+          "source_start": 110.4,
+          "source_end": 125.43333333333334,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "15_usage_after_cleanup",
+          "source_start": 125.43333333333334,
+          "source_end": 148.0,
+          "idle_tail_start": 6.8
+        },
+        {
+          "visual": "16_updated_archive_plan",
+          "source_start": 148.0,
+          "source_end": 160.53333333333333,
+          "idle_tail_start": 4.1
+        },
+        {
+          "visual": "17_archive_default_no",
+          "source_start": 160.53333333333333,
+          "source_end": 177.13333333333333,
+          "idle_tail_start": 2.3
+        },
+        {
+          "visual": "19_archive_confirm_yes",
+          "source_start": 177.13333333333333,
+          "source_end": 193.0,
+          "idle_tail_start": 4.7
+        },
+        {
+          "visual": "22_rescan_archived_project",
+          "source_start": 193.0,
+          "source_end": 215.7,
+          "idle_tail_start": 4.6
+        },
+        {
+          "visual": "22_rescan_archived_project",
+          "source_start": 215.7,
+          "source_end": 238.4,
+          "idle_tail_start": 4.6
+        }
+      ]
+    },
+    {
+      "lesson": "45_project_browser",
+      "master_sha256": "d49fa2f582bea731a345c919d339703a941ee948f40897f61bd060e81c838563",
+      "visual_timing_sha256": "4b4d29fb5c5a4eb54281d775e2c70a62a5f33a57ed5ff441ea1473d67d9e8b07",
+      "scenes": [
+        {
+          "visual": "01_help_project_browser",
+          "source_start": 0.0,
+          "source_end": 10.266666666666667,
+          "idle_tail_start": 2.4
+        },
+        {
+          "visual": "04_depth_zero_no_projects",
+          "source_start": 10.266666666666667,
+          "source_end": 29.433333333333334,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "05_real_unregistered_conversion",
+          "source_start": 29.433333333333334,
+          "source_end": 40.93333333333333,
+          "idle_tail_start": 4.4
+        },
+        {
+          "visual": "05_real_unregistered_conversion",
+          "source_start": 40.93333333333333,
+          "source_end": 60.9,
+          "idle_tail_start": 6.4
+        },
+        {
+          "visual": "07_two_real_projects",
+          "source_start": 60.9,
+          "source_end": 82.8,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "09_enlarged_details",
+          "source_start": 82.8,
+          "source_end": 101.26666666666667,
+          "idle_tail_start": 6.7
+        },
+        {
+          "visual": "10_stages_and_next_steps",
+          "source_start": 101.26666666666667,
+          "source_end": 122.3,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "12_size_descending",
+          "source_start": 122.3,
+          "source_end": 137.06666666666666,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "14_depth_zero_keeps_direct_project",
+          "source_start": 137.06666666666666,
+          "source_end": 154.2,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "16_remove_search_root_only",
+          "source_start": 154.2,
+          "source_end": 170.9,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "18_restored_project_inventory",
+          "source_start": 170.9,
+          "source_end": 191.7,
+          "idle_tail_start": 5.2
+        }
+      ]
+    },
+    {
+      "lesson": "51_control_charts",
+      "master_sha256": "d6eb2c56065bd8c93fb3a80e43cc0118d2d4896384b91700084a74981e565d1d",
+      "visual_timing_sha256": "2d4815ffa019d28c02a2e2e846b91e2f787501bf3f012e0f939427d2ac14b3f6",
+      "scenes": [
+        {
+          "visual": "01_qc_host",
+          "source_start": 0.0,
+          "source_end": 20.366666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "03_load_synthetic_csv",
+          "source_start": 20.366666666666667,
+          "source_end": 34.766666666666666,
+          "idle_tail_start": 3.8666666666666667
+        },
+        {
+          "visual": "05_negative_control_default_rules",
+          "source_start": 34.766666666666666,
+          "source_end": 55.03333333333333,
+          "idle_tail_start": 2.2
+        },
+        {
+          "visual": "05a_sigma_choices",
+          "source_start": 55.03333333333333,
+          "source_end": 73.33333333333333,
+          "idle_tail_start": 4.7
+        },
+        {
+          "visual": "05b_rule_choices",
+          "source_start": 73.33333333333333,
+          "source_end": 93.96666666666667,
+          "idle_tail_start": 5.8
+        },
+        {
+          "visual": "06_limits_only",
+          "source_start": 93.96666666666667,
+          "source_end": 113.36666666666666,
+          "idle_tail_start": 3.1
+        },
+        {
+          "visual": "07_positive_control",
+          "source_start": 113.36666666666666,
+          "source_end": 130.5,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "09_shorter_baseline",
+          "source_start": 130.5,
+          "source_end": 150.96666666666667,
+          "idle_tail_start": 5.7
+        },
+        {
+          "visual": "11_actual_export_picker",
+          "source_start": 150.96666666666667,
+          "source_end": 165.56666666666666,
+          "idle_tail_start": 3.9
+        },
+        {
+          "visual": "12_exported",
+          "source_start": 165.56666666666666,
+          "source_end": 185.13333333333333,
+          "idle_tail_start": 1.0
+        }
+      ]
+    },
+    {
+      "lesson": "52_pipeline_graph",
+      "master_sha256": "513f9bcb325fbfac98edb6aad2e9fc426fd924a047a310319f960bdaadff2166",
+      "visual_timing_sha256": "a1ee973983f6a38f260388a3848b3f94b6f2f330afaf2611511f6a06f4c3f987",
+      "scenes": [
+        {
+          "visual": "01_help_pipeline_graph",
+          "source_start": 0.0,
+          "source_end": 9.2,
+          "idle_tail_start": 1.4
+        },
+        {
+          "visual": "04_unregistered_is_not_unprocessed",
+          "source_start": 9.2,
+          "source_end": 30.366666666666667,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "06_three_actual_artifacts",
+          "source_start": 30.366666666666667,
+          "source_end": 53.0,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "07_measurement_provenance",
+          "source_start": 53.0,
+          "source_end": 67.13333333333334,
+          "idle_tail_start": 4.6
+        },
+        {
+          "visual": "08_missing_crop_provenance",
+          "source_start": 67.13333333333334,
+          "source_end": 87.36666666666666,
+          "idle_tail_start": 4.6
+        },
+        {
+          "visual": "09_external_resource_log",
+          "source_start": 87.36666666666666,
+          "source_end": 104.0,
+          "idle_tail_start": 4.7
+        },
+        {
+          "visual": "11_missing_detail",
+          "source_start": 104.0,
+          "source_end": 120.63333333333334,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "12_no_visible_artifacts",
+          "source_start": 120.63333333333334,
+          "source_end": 138.13333333333333,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "13_copy_full_graph_not_filtered_view",
+          "source_start": 138.13333333333333,
+          "source_end": 158.13333333333333,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "15_restore_all_nodes",
+          "source_start": 158.13333333333333,
+          "source_end": 176.96666666666667,
+          "idle_tail_start": 3.7
+        },
+        {
+          "visual": "16_redrawn_unchanged_graph",
+          "source_start": 176.96666666666667,
+          "source_end": 192.63333333333333,
+          "idle_tail_start": 3.3
+        }
+      ]
+    },
+    {
+      "lesson": "53_prediction_profiler",
+      "master_sha256": "7e7a2036b752213d341a7ab47c8d210b7bc816a9e3973fec2828103060221c15",
+      "visual_timing_sha256": "2d1a30eb8339b70772b3351c3a0e8958240923e6bd4f727f47df28390efeef7c",
+      "scenes": [
+        {
+          "visual": "01_regression_host",
+          "source_start": 0.0,
+          "source_end": 18.2,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "03_explicit_synthetic_coefficients_picker",
+          "source_start": 18.2,
+          "source_end": 32.1,
+          "idle_tail_start": 3.8333333333333335
+        },
+        {
+          "visual": "05_link_options_keep_identity",
+          "source_start": 32.1,
+          "source_end": 47.86666666666667,
+          "idle_tail_start": 2.8
+        },
+        {
+          "visual": "04_loaded_identity_model",
+          "source_start": 47.86666666666667,
+          "source_end": 72.0,
+          "idle_tail_start": 4.7
+        },
+        {
+          "visual": "06_hold_b_at_one",
+          "source_start": 72.0,
+          "source_end": 88.6,
+          "idle_tail_start": 4.4
+        },
+        {
+          "visual": "07_hold_b_at_zero",
+          "source_start": 88.6,
+          "source_end": 104.6,
+          "idle_tail_start": 3.2
+        },
+        {
+          "visual": "08_reset_midpoints",
+          "source_start": 104.6,
+          "source_end": 119.7,
+          "idle_tail_start": 3.2
+        },
+        {
+          "visual": "09_sweep_second_input",
+          "source_start": 119.7,
+          "source_end": 137.8,
+          "idle_tail_start": 4.6
+        },
+        {
+          "visual": "10_eleven_grid_points",
+          "source_start": 137.8,
+          "source_end": 156.2,
+          "idle_tail_start": 3.7
+        },
+        {
+          "visual": "11_hold_a_at_one",
+          "source_start": 156.2,
+          "source_end": 176.66666666666666,
+          "idle_tail_start": 3.1
+        }
+      ]
+    },
+    {
+      "lesson": "54_qc_dashboard",
+      "master_sha256": "2096f7e633e7d92c5c84c380e4a2c81ccd6361159e23fbf8a076c5dacc35e05f",
+      "visual_timing_sha256": "81cfbb5ca9e17f06ef1eaa7b54529a17f98ab85b89e25d7dac4a2c574e130356",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 13.333333333333334,
+          "idle_tail_start": 3.4
+        },
+        {
+          "visual": "02_fold_layer_viewer",
+          "source_start": 13.333333333333334,
+          "source_end": 31.266666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "03_missing_reports_picker",
+          "source_start": 31.266666666666666,
+          "source_end": 40.833333333333336,
+          "idle_tail_start": 2.6666666666666665
+        },
+        {
+          "visual": "03_missing_reports",
+          "source_start": 40.833333333333336,
+          "source_end": 57.7,
+          "idle_tail_start": 1.3
+        },
+        {
+          "visual": "04_computed_subset_picker",
+          "source_start": 57.7,
+          "source_end": 72.46666666666667,
+          "idle_tail_start": 3.566666666666667
+        },
+        {
+          "visual": "04_computed_subset",
+          "source_start": 72.46666666666667,
+          "source_end": 90.83333333333333,
+          "idle_tail_start": 1.2
+        },
+        {
+          "visual": "05_subset_remaining_checks",
+          "source_start": 90.83333333333333,
+          "source_end": 111.8,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "05_subset_remaining_checks",
+          "source_start": 111.8,
+          "source_end": 132.76666666666668,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "07_original_plate_details",
+          "source_start": 132.76666666666668,
+          "source_end": 149.43333333333334,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "08_unchanged_refresh",
+          "source_start": 149.43333333333334,
+          "source_end": 168.7,
+          "idle_tail_start": 5.2
+        },
+        {
+          "visual": "08_unchanged_refresh",
+          "source_start": 168.7,
+          "source_end": 187.96666666666667,
+          "idle_tail_start": 5.2
+        },
+        {
+          "visual": "08_unchanged_refresh",
+          "source_start": 187.96666666666667,
+          "source_end": 207.23333333333332,
+          "idle_tail_start": 5.2
+        }
+      ]
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "master_sha256": "eebff4b675d801c401b1d59ab9dc7b52ec3d0bbac498d089a3cfa7d425240a90",
+      "visual_timing_sha256": "ab8fc3e20b16151e122bcd7348538f6c37a5a117829398619ee6d4f67984e285",
+      "scenes": [
+        {
+          "visual": "01_help_dictionary",
+          "source_start": 0.0,
+          "source_end": 16.6,
+          "idle_tail_start": 5.2
+        },
+        {
+          "visual": "03_search_by_idea",
+          "source_start": 16.6,
+          "source_end": 34.4,
+          "idle_tail_start": 3.9
+        },
+        {
+          "visual": "04_actual_concept_object_filters",
+          "source_start": 34.4,
+          "source_end": 55.833333333333336,
+          "idle_tail_start": 7.0
+        },
+        {
+          "visual": "05_measurement_name",
+          "source_start": 55.833333333333336,
+          "source_end": 69.4,
+          "idle_tail_start": 4.6
+        },
+        {
+          "visual": "06_computing_function",
+          "source_start": 69.4,
+          "source_end": 87.36666666666666,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "07_conditional_area_units",
+          "source_start": 87.36666666666666,
+          "source_end": 109.43333333333334,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "08_area_caveats",
+          "source_start": 109.43333333333334,
+          "source_end": 132.4,
+          "idle_tail_start": 1.0
+        },
+        {
+          "visual": "09_unknown_search",
+          "source_start": 132.4,
+          "source_end": 153.93333333333334,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "11_actual_text_copy",
+          "source_start": 153.93333333333334,
+          "source_end": 172.63333333333333,
+          "idle_tail_start": 2.3
+        }
+      ]
+    },
+    {
+      "lesson": "67_experiment_design",
+      "master_sha256": "497b2f54ec2aadf0abaa1fcfc7e759095ec8a6b7578efe830ca67ce10de33b3c",
+      "visual_timing_sha256": "7ab617c3537b196da1dce2d536e89868f51c51b86c3637731b5a80af4d822dff",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 14.733333333333333,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "02_named_draft",
+          "source_start": 14.733333333333333,
+          "source_end": 30.566666666666666,
+          "idle_tail_start": 7.4
+        },
+        {
+          "visual": "03_capacity_warning",
+          "source_start": 30.566666666666666,
+          "source_end": 52.766666666666666,
+          "idle_tail_start": 3.6
+        },
+        {
+          "visual": "04_capacity_restored",
+          "source_start": 52.766666666666666,
+          "source_end": 72.83333333333333,
+          "idle_tail_start": 6.6
+        },
+        {
+          "visual": "05_single_replicate_warning",
+          "source_start": 72.83333333333333,
+          "source_end": 93.06666666666666,
+          "idle_tail_start": 8.3
+        },
+        {
+          "visual": "06_block_layout_warning",
+          "source_start": 93.06666666666666,
+          "source_end": 106.53333333333333,
+          "idle_tail_start": 3.8
+        },
+        {
+          "visual": "07_random_interior_seed42",
+          "source_start": 106.53333333333333,
+          "source_end": 125.23333333333333,
+          "idle_tail_start": 6.3
+        },
+        {
+          "visual": "08_seed43",
+          "source_start": 125.23333333333333,
+          "source_end": 142.53333333333333,
+          "idle_tail_start": 2.3
+        },
+        {
+          "visual": "09_seed42_restored",
+          "source_start": 142.53333333333333,
+          "source_end": 167.0,
+          "idle_tail_start": 2.4
+        },
+        {
+          "visual": "10_selected_wells_not_reassigned",
+          "source_start": 167.0,
+          "source_end": 185.53333333333333,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "11_export_folder",
+          "source_start": 185.53333333333333,
+          "source_end": 197.43333333333334,
+          "idle_tail_start": 2.7
+        },
+        {
+          "visual": "12_real_export_complete",
+          "source_start": 197.43333333333334,
+          "source_end": 222.73333333333332,
+          "idle_tail_start": 1.2
+        },
+        {
+          "visual": "09_seed42_restored",
+          "source_start": 222.73333333333332,
+          "source_end": 247.2,
+          "idle_tail_start": 2.3
+        },
+        {
+          "visual": "12_real_export_complete",
+          "source_start": 247.2,
+          "source_end": 272.5,
+          "idle_tail_start": 1.2
+        }
+      ]
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "master_sha256": "7b64e4270782cf5dffd6f0d5311e6c6f2774a3995354afff13d0329e03469568",
+      "visual_timing_sha256": "f0c145ae8a8cfa229f3b37aa6d82278d621705e2c275b6445cdac80cba5061c5",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "source_start": 0.0,
+          "source_end": 24.733333333333334,
+          "idle_tail_start": 8.9
+        },
+        {
+          "visual": "01_organism",
+          "source_start": 24.733333333333334,
+          "source_end": 39.833333333333336,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "02_diagram",
+          "source_start": 39.833333333333336,
+          "source_end": 61.46666666666667,
+          "idle_tail_start": 7.8
+        },
+        {
+          "visual": "03_assays",
+          "source_start": 61.46666666666667,
+          "source_end": 90.86666666666666,
+          "idle_tail_start": 10.6
+        },
+        {
+          "visual": "04_plaque_assay",
+          "source_start": 90.86666666666666,
+          "source_end": 122.03333333333333,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "05_references",
+          "source_start": 122.03333333333333,
+          "source_end": 148.7,
+          "idle_tail_start": 6.6
+        },
+        {
+          "visual": "06_home_return",
+          "source_start": 148.7,
+          "source_end": 175.33333333333334,
+          "idle_tail_start": 5.3
+        }
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-3es2z59l",
-  "manifest_sha256": "bc33129f796db9ebe9ed13b4ddb3c6c1b452c3043470e68412267d94c4b72e53",
+  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-ne71xm2y",
+  "manifest_sha256": "fa31bdef4d72c372d7201e4ca94c7e4f1c914944b98ed544c8f6c78276c324b3",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -259,13 +259,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "521291011d7caff5b32d387b2d6127bf7ad42f0794ca4f898fca5426f17193c0",
+      "sha256": "f3214d3da4a40a42fd6db411d4ceb714b9aacfaeb449f650d35d2df143e057dc",
       "bytes": 15699
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "463b60b637ab3fb1182e1b42703b844d69355b352d0f46ad6904438041a118bf",
-      "bytes": 596755
+      "sha256": "f628b17acd0947d28106be3b26ea05deff2355db7790992d8a7f7eb17ff87c09",
+      "bytes": 610706
     },
     {
       "path": "web/logo_spacr.png",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "9e10cc6efa175acd4d5a1743bff00294c19777a536851071d057d0df786ed1b1",
+      "sha256": "1246a782b4ffe20a0acfcf21e0695548d5a5daafa489c4b7fa97ac22ec8f7018",
       "bytes": 17171
     },
     {
@@ -489,13 +489,13 @@
     },
     {
       "path": "web/production/44_data_manager/poster.jpg",
-      "sha256": "786d3c9c0bc36d86a4ab23695a0c24400d1b3d511d244ab18a8e4492c3883c6e",
-      "bytes": 784981
+      "sha256": "890679be85c1fa1291915d8c2e18577bd15e3162a0eb435a89e060a4b53a2748",
+      "bytes": 776068
     },
     {
       "path": "web/production/45_project_browser/poster.jpg",
-      "sha256": "39de6d0a145a72b7e29a42ea397e5648d9502e6623233b3a0a68a4833ec7998b",
-      "bytes": 781935
+      "sha256": "0469ba00fdccc860b66bb463a918d0105db6f54dbfe6990d0842aeeefd8eef5a",
+      "bytes": 771990
     },
     {
       "path": "web/production/46_napari_bridge/poster.jpg",
@@ -524,23 +524,23 @@
     },
     {
       "path": "web/production/51_control_charts/poster.jpg",
-      "sha256": "17ad6b5317ef422ba7d07dc67448be456c519b19eb56785d24825cc14ce31bd3",
-      "bytes": 578681
+      "sha256": "3ebe912dae640c6969c98ed07d60b5342ffb3ebfb90efd2994c0ad6e69a6f09a",
+      "bytes": 584278
     },
     {
       "path": "web/production/52_pipeline_graph/poster.jpg",
-      "sha256": "196f9a25fb5863a35cff42689cdec968c92aacdcc8742fcd92fa73790bf9cbcf",
-      "bytes": 796080
+      "sha256": "635c7b445ef51372aa531bfd04015ac0a0affcad8c3da12454b5c2efdf92fe74",
+      "bytes": 788436
     },
     {
       "path": "web/production/53_prediction_profiler/poster.jpg",
-      "sha256": "026558d66433cce4080972491bd5e737908745df399ec49f1aefb29c1767474f",
-      "bytes": 793005
+      "sha256": "0f71d276cfaac8b0d1fbf86956663683dfd90cb8c6c61d3267c12e0e979704c2",
+      "bytes": 782460
     },
     {
       "path": "web/production/54_qc_dashboard/poster.jpg",
-      "sha256": "a5ec8c9f863169c127eb348cf25659958165f407e5b90e3541e6239991f5e84c",
-      "bytes": 795009
+      "sha256": "28bbfd85bf689b8cf26f0aed4719dcab20e3a06d334d9ca74bfccff92a89dd89",
+      "bytes": 782772
     },
     {
       "path": "web/production/55_image_scatter/poster.jpg",
@@ -579,8 +579,8 @@
     },
     {
       "path": "web/production/62_feature_dictionary/poster.jpg",
-      "sha256": "49ece368e07ddeb57d5f9b7c41ee2d56ddc842c02b717b839d5d4e4c12282c20",
-      "bytes": 775454
+      "sha256": "87e9df0e8261568e09d44a34658fcd0f90678fd3da455dc8210ac4eddf89ee89",
+      "bytes": 768339
     },
     {
       "path": "web/production/63_small_multiples/poster.jpg",
@@ -604,8 +604,8 @@
     },
     {
       "path": "web/production/67_experiment_design/poster.jpg",
-      "sha256": "48bb1c1779d577c148820c8659d1997af4372b3015582ccb98287877f0f49fb2",
-      "bytes": 789188
+      "sha256": "f73d066eafaa847bc7845ea4432b2d37c8f189f3bcb2845e174243403ed277af",
+      "bytes": 781507
     },
     {
       "path": "web/production/68_power_design/poster.jpg",
@@ -679,8 +679,8 @@
     },
     {
       "path": "web/production/82_toxoplasma/poster.jpg",
-      "sha256": "15e1b3515589b9a424f7795400a64576da4a0934a98b6414ad6e6f138727e26d",
-      "bytes": 787601
+      "sha256": "0cee7fe8d47da4b67c41dd62d658ed00b72f079a817a398bc7d8073e36f54105",
+      "bytes": 775558
     },
     {
       "path": "web/production/85_host_pathogen/poster.jpg",
@@ -714,13 +714,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "bc33129f796db9ebe9ed13b4ddb3c6c1b452c3043470e68412267d94c4b72e53",
-      "bytes": 1436531
+      "sha256": "fa31bdef4d72c372d7201e4ca94c7e4f1c914944b98ed544c8f6c78276c324b3",
+      "bytes": 1423164
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "35a8c1e40e7293b7760a919ba3ea99645abeca3d3fa0a2140fa0e4a45ce62508",
-      "bytes": 126657
+      "sha256": "06cc5d2359d490e539dcd052dcaefe2cb61d53ac439a2f13e3fdd7ddb94733b9",
+      "bytes": 126683
     },
     {
       "path": "placeholder-mutation-checks.json",
@@ -737,10 +737,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "n676-ws-38-39-40-42-43-20261023-idle-edits1",
-    "tag": "n676-ws-38-39-40-42-43-20261023-idle-edits1-verified",
-    "commit": "69089806a9559b1c3905d4687de8fb26db045b48",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/69089806a9559b1c3905d4687de8fb26db045b48"
+    "branch": "n676-ws-54-62-67-82-20261023-idle-edits1",
+    "tag": "n676-ws-54-62-67-82-20261023-idle-edits1-verified",
+    "commit": "069d3ff84b245e32d989a64252008350c60566cd",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/069d3ff84b245e32d989a64252008350c60566cd"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }

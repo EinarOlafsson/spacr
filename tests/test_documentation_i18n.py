@@ -90,6 +90,45 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 
+
+def _current_700_client_api(entries, docs):
+    """Apply only the consented dispatch replacement to the original client contract."""
+    assert len(entries) == 55
+    active = dict(entries)
+    retired = "spacr.qt.screens.app_screen.AppScreen._send_the_anonymous_report._send"
+    assert active.pop(retired) == "Explain, summarise and post the failure. Off the GUI thread."
+    assert hashlib.sha256(entries[retired].encode()).hexdigest() == (
+        "de51d1780a8ea02c953ce55540b35d8cbbd6f6df9a18ca2cd667a02ff37a4e34")
+    assert retired not in docs
+    revisions = {
+        "spacr.qt.ai.providers.apply_provider_choice": (
+            "82ec71a7ac7a26b7e77f21b0d71b211734e9e0d0fb529c4739e85fa7b54787a2",
+            "0d5f08c61fdc2f93ccdbafec387e6e5258db323465f3afe4e2251b324451f393"),
+        "spacr.qt.ai.providers.default_provider": (
+            "d1de04757cfbcf0e474bc66b7f817eba2e496dd358268e12361958a71cc7ab6f",
+            "9456fc70b30e1cd07ca729bd459e7a36241ecfc9ab459c8229292449279e39e8"),
+    }
+    for key, (before, after) in revisions.items():
+        assert hashlib.sha256(active[key].encode()).hexdigest() == before
+        assert hashlib.sha256(docs[key].encode()).hexdigest() == after
+        active[key] = docs[key]
+    arrivals = {
+        "spacr.crashreport._dispatch_error.work":
+            "Sanitize the captured error and apply its AI and reporting policy.",
+        "spacr.crashreport._dispatch_error.work.allowed":
+            "Recheck revocation under the actual relay send lock.",
+        "spacr.layers._serialized_wgpu.locked":
+            "Hold the renderer lock around rendering or resource cleanup.",
+        "spacr.qt.widgets.ambient._start_compiler.work":
+            "Release this worker's tracked ownership when its function ends.",
+    }
+    assert not arrivals.keys() & active.keys()
+    assert {key: docs[key] for key in arrivals} == arrivals
+    active.update(arrivals)
+    assert len(active) == 58
+    assert {key: docs[key] for key in active} == active
+    return active
+
 def _posix_update_prepared_key_move(entries, docs=None):
     """Apply only the reviewed same-body move in the October 17 contract."""
     import json
@@ -3249,6 +3288,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     client700_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(client700_arrivals) == 55
+    client700_arrivals = _current_700_client_api(client700_arrivals, docs)
     assert {key: docs[key] for key in client700_arrivals} == client700_arrivals
     assert not client700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **client700_arrivals}

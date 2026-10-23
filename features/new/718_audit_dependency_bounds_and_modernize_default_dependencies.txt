@@ -8,10 +8,22 @@ The approved full-well LONG composition applies only to gene-level horseshoe fit
 OVERNIGHT LINUX ACCEPTANCE — 2026-10-23
 Home Linux coordinator owns remaining current-source CPU-only managed/pip/Conda installation and actual CLI/offscreen launch acceptance; retained Qt worker owns the disjoint fresh ordinary pip/source path. Coordinate cached dependency graphs, preserve accepted Python/ARM controls and use disposable environments only. No new scientific fits; the recorded divergence/convergence limitation remains open.
 
-Status:    OPEN 2026-10-22 — unchanged scientific assertions pass; gene NUTS convergence remains open (14 divergences)
+Status:    OPEN 2026-10-23 — dependency installation accepted; latest hosted horseshoe hit tail0.0135 fails<0.01 and convergence remains open
 Requested: maintainer, 2026-10-21
 Priority:  P1
-Owner:     Codex dependency audit worker — end-to-end implementation and validation; root — integration/publication
+Owner:     Workstation session 2 dependency agent — current optimization and end-to-end validation/publication; Home retains existing scientific-model ownership and release integration
+
+CURRENT WORKSTATION ASSIGNMENT — 2026-10-23
+The maintainer assigns one dedicated agent to dependency optimization, separate
+from the sole item725 overview agent. Reuse delivered bounds/default-package,
+platform and installed-environment acceptance; identify remaining concrete
+resolver, import, dependency-footprint or runtime compatibility improvements
+before changing constraints. Preserve core NumPy/pandas/Cellpose/Torch behavior,
+Python3.10+ support and accepted platform guards. Do not repeat broad inventories
+or installs without a changed dependency or demonstrated defect. Do not duplicate
+Home's scientific-model work, rerun unchanged fits, or change data/priors/seed/
+settings/assertions to force a scientific pass. Dependency software acceptance
+and the recorded hosted horseshoe-convergence gate must be reported separately.
 
 OVERNIGHT DEFAULT-DEPENDENCY REQUIREMENT — 2026-10-22
 Priority: maintainer-requested active dependency lane; owner: f559_pinned_weights
@@ -171,3 +183,5 @@ The approved dead-guard cleanup must preserve all calibration formulas, grouping
 2026-10-23 — Preserve all scientific assertions/data/priors/seed/settings while capturing failed horseshoe input/environment/draw diagnostics under pytest temporary output or the authorized CI artifact directory. Retained/regenerated CSVs and current post-design fingerprints agree; historical saved means/scales/tau0 match, but historical full arrays/CI draws are unavailable. One weighted/full-identity synthetic capture control passes (1.55s); its NumPyro ESS check skips only when that optional backend is absent. Same-source hosted pass/failure do not certify convergence; no new fit or scientific acceptance is claimed.
 
 2026-10-23 — Removed only two unreachable defensive branches after the physical-identity/design invariants were independently checked; retain the first hashability refusal and error cause. Two real list/dictionary identity controls pass (0.98s), and eight affected identity/zero-predictor controls pass (0.76s), without fitting. The obsolete runtime caption and its nine active reviewed targets are retired through normal catalog/review tools; immutable reviews2e25ab73 and6835-input hydration are verified, ten catalogues pass independent byte-exact delta review and13strict arrival contracts pass (114.39s). API/deck pins and all calibration formulas, priors, sampler settings and scientific assertions remain unchanged; scientific convergence is still open.
+
+2026-10-23 — Workstation aligns six named/aggregate alias markers for PyFixest, Btrack, FAISS and Piper with accepted Mac wheel boundaries: four reproduced failing target graphs now omit only unsupported backends, while supported PyFixest/Btrack targets and both CZI architecture controls still resolve. Intel CZI retains its compatible5.1.1 explicit-extra fallback; no versions, default dependencies or scientific source changed. Packaging/metadata controls pass214 with3 release/API skips, plus three packaging24.2 controls including54 alias/runtime combinations; eight changed-profile resolver controls pass. Installation acceptance remains retained; hosted horseshoe hit tail0.0135 and divergences leave scientific acceptance open.

@@ -248,3 +248,13 @@ test("a dry run returns the relay summary too", async () => {
   assert.match(r.body.ai_summary, /^Likely cause/);
   assert.equal(gh.calls.length, 0);
 });
+
+test("explicit no-AI report files an issue without invoking or returning AI", async () => {
+  const r = await post(sampleReport({ summarize: false }));
+  assert.equal(r.status, 200);
+  assert.equal(r.body.ai_summary_source, "none");
+  assert.equal(aiCalls.length, 0);
+  assert.equal(r.body.ai_summary, undefined);
+  assert.ok(issueCall());
+  assert.ok(!issueCall().body.body.includes(HEADING));
+});

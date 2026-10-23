@@ -261,7 +261,7 @@ class _ConsoleRelay(QObject):
         if not isValid(target):
             _drop_console_target(_console_ref)
             return
-        append = getattr(target, "append_stdout", None)
+        append = getattr(target, "_display_stdout", None) or getattr(target, "append_stdout", None)
         if append is None:
             return
         try:

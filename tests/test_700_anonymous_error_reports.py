@@ -376,6 +376,11 @@ class TestSending:
 
         monkeypatch.setattr(cr, "report_exception", lambda *a, **k: "")
         monkeypatch.setattr(sys, "excepthook", lambda *a: None)
+        cr._update_state(affirmed_policy={
+            "version": cr._REPORTING_TERMS_VERSION,
+            "accepted_at": "2026-10-23T12:00:00+00:00",
+            "explain": False, "auto_file": True, "prompt": "always", "provider": "none",
+        })
         hook = cr.install_excepthook(tmp_path, app="measure")
         try:
             _raise_from_nested(1, "boom")

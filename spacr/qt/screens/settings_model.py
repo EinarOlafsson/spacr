@@ -303,6 +303,7 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         "class_folder_names",
     },
     "classify_merged": {
+        "dataset",
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
         "class_metadata", "annotation_column",
@@ -1232,9 +1233,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Organelle Segmentation", ("@Organelle",)),
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
         ("Cellpose 3", ("@Cellpose 3",)),
-        ("Image Preprocessing (per object)",
-         ("@Image preprocessing (per object)",)),
-        ("Object Filtration (all objects)", ("@Object filtration",)),
+        ("Object filtration α", ("real_object_classifier", "real_object_threshold",
+                                  "@Object filtration")),
         ("Quality Control", (
             "@Segmentation QC",
             "save", "delete_intermediate", "keep_intermediate",
@@ -2468,7 +2468,11 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
             shared_last = ("Evaluation", "Results & figures",
                            "Runtime & Reliability")
 
-            rebuilt = {"Classifier": ["classifier_family"]}
+            for shared_key in ("channel_of_interest", "tables"):
+                ordered["Images & Cropping"].remove(shared_key)
+                ordered["Plate Sources & Workflow"].append(shared_key)
+            ordered["Training & Loss"].remove("learning_rate")
+            rebuilt = {"Classifier": ["classifier_family", "learning_rate"]}
             for name in shared_first:
                 if name in ordered:
                     rebuilt[name] = ordered[name]
@@ -3785,6 +3789,8 @@ def _category_blurb(app_key: str, title: str) -> str:
     key = str(title or "").upper().strip()
     if not key:
         return ""
+    if app_key == "mask" and key == "OBJECT FILTRATION Α":
+        return get_tooltips().get("real_object_classifier", "")
     candidates = [key]
     mark = ALPHA_MARK.upper()
     if key.endswith(mark) and key[:-len(mark)].strip():
@@ -3820,6 +3826,10 @@ def category_tooltip(
     """
     if not str(title or "").strip():
         return ""
+    if app_key == "mask" and title == "Object filtration α":
+        return _translated_body(get_tooltips().get("real_object_classifier", ""),
+                                language, setting_key="real_object_classifier",
+                                app_key=app_key)
     text = _category_blurb(app_key, title)
     if not text:
         text = f"Settings that control {str(title).lower().strip()}."
@@ -6722,6 +6732,31 @@ class _ListEdit(QLineEdit):
         self.setText(repr(v) if v is not None else "")
 
 
+class _SourcePathEdit(_ListEdit):
+    """Edit a source path while retaining saved lists and grouped sources."""
+
+    def __init__(self, value=None, parent=None):
+        """Restore the source value before attaching its existing row actions."""
+        super().__init__(parent)
+        self.set_value(value)
+
+    def get_value(self):
+        """Parse source sequences while keeping scalar folder names as text."""
+        text = self.text()
+        if not text:
+            return None
+        try:
+            value = ast.literal_eval(text)
+        except (ValueError, SyntaxError):
+            return text
+        return value if isinstance(value, (list, tuple)) else text
+
+    def set_value(self, value):
+        """Show scalar paths without quotes and preserve sequence literals."""
+        self.setText(value if isinstance(value, str) else
+                     repr(value) if value is not None else "")
+
+
 class _ValueCombo(QComboBox):
     """A dropdown settable by the value it stores, not only by its caption.
 
@@ -6882,13 +6917,21 @@ def _choose_source_folder(edit):
     except (ValueError, SyntaxError):
         values = None
     multiple = isinstance(values, (list, tuple))
-    initial = str(values[-1]) if multiple and values else current
+    last = values[-1] if multiple and values else current
+    if isinstance(last, (list, tuple)):
+        last = last[-1] if last else ""
+    initial = str(last)
     path = QFileDialog.getExistingDirectory(edit, tr("Choose folder…"), initial)
     if not path:
         return
     if multiple:
         chosen = list(values)
-        if path not in chosen:
+        if chosen and all(isinstance(group, (list, tuple)) for group in chosen):
+            group = list(chosen[-1])
+            if path not in group:
+                group.append(path)
+            chosen[-1] = tuple(group) if isinstance(chosen[-1], tuple) else group
+        elif path not in chosen:
             chosen.append(path)
         edit.setText(repr(tuple(chosen) if isinstance(values, tuple) else chosen))
     else:
@@ -7126,7 +7169,7 @@ def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
     :param model: the settings form, passed to :func:`_browse_cloud_into`.
     :returns: the button's action.
     """
-    from PySide6.QtWidgets import QStyle
+    from PySide6.QtWidgets import QStyle, QToolButton
 
     from ..i18n import tr
     from ..preferences import _apply_alpha_widgets
@@ -7136,6 +7179,10 @@ def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
     action.setObjectName("CloudSourceBrowse")
     action.setToolTip(tr("Browse cloud storage…"))
     action.triggered.connect(lambda: _browse_cloud_into(edit, model))
+    for button in edit.findChildren(QToolButton):
+        if button.defaultAction() is action:
+            button.setFocusPolicy(Qt.StrongFocus)
+            button.setAccessibleName(action.toolTip())
     _apply_alpha_widgets(edit)
     return action
 
@@ -10643,9 +10690,9 @@ class SettingsWidgets:
             widget = what()
         elif route == "plain":
             widget = self._build_plain(what)
-            self._add_source_actions(key, widget)
         else:
             return None
+        self._add_source_actions(key, widget)
         if (self.app_key == "measure"
                 and key == "intensity_calibration_reference_plate"
                 and widget is not None):
@@ -10665,7 +10712,7 @@ class SettingsWidgets:
         _attach_preview(widget, self)
 
     def _add_source_actions(self, key: str, widget: QWidget) -> None:
-        """Give the ``src`` field of Make Masks and Measure a cloud browser.
+        """Attach the existing browse actions supported by this source field.
 
         :param key: the setting the plain control edits.
         :param widget: the control just built.
@@ -10682,7 +10729,7 @@ class SettingsWidgets:
         if key in _SOURCE_FOLDER_KEYS and isinstance(widget, QLineEdit):
             _add_folder_browse_action(widget)
         overview_requested = getattr(self, "_field_overview_requested", None)
-        if (key == "src" and self.app_key == "mask" and isinstance(widget, QLineEdit)
+        if (key == "src" and self.app_key in ("mask", "measure", "classify", "classify_merged") and isinstance(widget, QLineEdit)
                 and callable(overview_requested)):
             from PySide6.QtWidgets import QToolButton
             from .. import iconset
@@ -10697,7 +10744,7 @@ class SettingsWidgets:
                     button.setObjectName("GenerateMasksFieldOverview")
                     button.setFocusPolicy(Qt.StrongFocus)
                     button.setAccessibleName(action.toolTip())
-        if (key == "src" and self.app_key in ("mask", "measure")
+        if (key == "src" and self.app_key in ("mask", "measure", "classify", "classify_merged", "map_barcodes")
                 and isinstance(widget, QLineEdit)):
             _add_cloud_browse_action(widget, self)
         if (key == "cellprofiler_pipeline" and self.app_key == "measure"
@@ -10793,6 +10840,10 @@ class SettingsWidgets:
         A numeric default must still allow a per-plate dict or a CSV path.
         """
         parent = self._parent
+        if key == "src" and self.app_key in (
+                "measure", "classify", "classify_merged", "map_barcodes"):
+            return "special", lambda: _SourcePathEdit(
+                self._defaults.get(key, default), parent)
         if key == "minimum_object_size":
             return "plain", {"control": "precise_float",
                              "value": self._defaults.get(key, default)}
@@ -11724,14 +11775,11 @@ class SettingsWidgets:
             _clear_greyed_note(metric)
 
     def _refresh_classifier_family_enablement(self) -> None:
-        """Grey the settings the OTHER classifier family reads.
+        """Hide the other family's rows without discarding controls or values.
 
-        Only the merged Classify module has this control; the two original
-        modules are one family each and have nothing to grey.
-
-        Same rule as the training basis: greyed, never removed
-        (INVARIANTS 6), and the list lives in spacr.classify so the panel and
-        the pipeline cannot drift apart about which settings matter.
+        Applicability comes from the pipeline's family ownership declaration.
+        Shared settings remain available, and dependency rules still decide
+        whether a visible control can be edited.
         """
         widget = self._widgets.get("classifier_family")
         if widget is None:
@@ -11747,6 +11795,7 @@ class SettingsWidgets:
         except Exception:
             return
 
+        self._hidden_by_the_family = greyed
         for key, control in self._built_controls():
             if key in greyed:
                 control.setEnabled(False)
@@ -11756,7 +11805,7 @@ class SettingsWidgets:
                 _clear_greyed_note(control)
 
     def _on_classifier_family_changed(self, *_args) -> None:
-        """Re-grey the panel when the classifier family changes.
+        """Refresh family visibility and dependent control states.
 
         The dependency rules run after it, as they do when the panel is
         built: the family pass re-enables every setting the family owns, and
@@ -11768,6 +11817,7 @@ class SettingsWidgets:
         """
         self._refresh_classifier_family_enablement()
         self._refresh_setting_dependencies()
+        self.refresh_object_visibility()
 
     def _on_training_basis_changed(self, *_args) -> None:
         """Re-grey the panel when the training basis changes.
@@ -11832,7 +11882,7 @@ class SettingsWidgets:
         folder of raw images and any of them will answer the question.
         """
         value = self._current_setting("src")
-        if isinstance(value, (list, tuple)):
+        while isinstance(value, (list, tuple)):
             value = value[0] if value else ""
         return "" if value is None else str(value)
 
@@ -12275,11 +12325,18 @@ class SettingsWidgets:
             return
         try:
             current = self._object_visibility_settings()
+            if "classifier_family" in self._widgets:
+                from spacr.classify import inapplicable_settings, resolve_family
+
+                self._hidden_by_the_family = set(inapplicable_settings(
+                    resolve_family({"classifier_family": self._current_setting(
+                        "classifier_family")})))
             lacking = set(keys_hidden_by_their_object(self._widgets, current))
             self._hidden_by_their_object = set(lacking)
             hidden = lacking | set(
                 getattr(self, "_hidden_by_the_grid", ()) or ()) | set(
-                getattr(self, "_hidden_by_the_mode", ()) or ())
+                getattr(self, "_hidden_by_the_mode", ()) or ()) | set(
+                getattr(self, "_hidden_by_the_family", ()) or ())
             self._hidden_by_the_run = set(hidden)
             lay_out = getattr(self, "rows_are_laid_out_by", None)
             if lay_out is not None:
@@ -12451,15 +12508,16 @@ class SettingsWidgets:
             return switched_off[role]
 
         elsewhere = set(getattr(self, "_hidden_by_the_grid", ()) or ()) | set(
-            getattr(self, "_hidden_by_the_mode", ()) or ())
+            getattr(self, "_hidden_by_the_mode", ()) or ()) | set(
+            getattr(self, "_hidden_by_the_family", ()) or ())
         for ident, (section, keys) in headings.items():
             gone = bool(keys) and all(
                 key in elsewhere or absent(object_of_setting(key))
                 for key in keys)
             try:
                 if gone:
+                    emptied[ident] = section
                     if not section.isHidden():
-                        emptied[ident] = section
                         section.setVisible(False)
                         section.installEventFilter(self._object_row_guard)
                 elif ident in emptied:

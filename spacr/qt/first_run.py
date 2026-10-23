@@ -470,6 +470,8 @@ def _ghost_btn_qss() -> str:
     :returns: the QSS. Literal colours rather than the theme's, because the
         first-run tour is shown before a theme has been chosen.
     """
+    from .theme import QSS_FONT_FAMILY
+
     return (
         "QPushButton {"
         "  background: transparent;"
@@ -477,7 +479,7 @@ def _ghost_btn_qss() -> str:
         "  border: 1px solid #2a2d33;"
         "  border-radius: 6px;"
         "  padding: 6px 14px;"
-        "  font-family: 'Open Sans', sans-serif;"
+        f"  font-family: {QSS_FONT_FAMILY};"
         "}"
         "QPushButton:hover { color: #e5e5e5; border-color: #4A9EFF; }"
     )
@@ -489,6 +491,8 @@ def _primary_btn_qss() -> str:
     :returns: the QSS. Literal colours, for the same reason as the ghost
         button.
     """
+    from .theme import QSS_FONT_FAMILY
+
     return (
         "QPushButton {"
         "  background: #4A9EFF;"
@@ -496,7 +500,7 @@ def _primary_btn_qss() -> str:
         "  border: none;"
         "  border-radius: 6px;"
         "  padding: 6px 18px;"
-        "  font-family: 'Open Sans', sans-serif;"
+        f"  font-family: {QSS_FONT_FAMILY};"
         "  font-weight: 600;"
         "}"
         "QPushButton:hover { background: #66B2FF; }"

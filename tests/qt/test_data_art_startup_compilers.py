@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 import textwrap
+import threading
 
 import pytest
 
@@ -14,6 +15,8 @@ from spacr.qt.widgets import ambient
 
 @pytest.fixture
 def cold_compilers(monkeypatch):
+    monkeypatch.setattr(ambient, '_COMPILER_STOP', threading.Event())
+    monkeypatch.setattr(ambient, '_COMPILER_THREADS', set())
     monkeypatch.setattr(ambient, '_PACKED_SCATTER', None)
     monkeypatch.setattr(ambient, '_PACKED_SCATTER_STARTED', False)
     monkeypatch.setattr(ambient, '_PACKED_SCATTER_FAILED', False)
@@ -157,6 +160,7 @@ def test_started_native_compilation_finishes_before_interpreter_exit(tmp_path, k
                 return kernel
             return decorate
         sys.modules['numba'] = SimpleNamespace(njit=njit)
+        ambient._priming_allowed = lambda: False
         ambient._complete_ambient_startup()
         if sys.argv[1] == 'grain':
             original = ambient._warm_packed_scatter
@@ -179,7 +183,7 @@ def test_started_native_compilation_finishes_before_interpreter_exit(tmp_path, k
         assert entered.wait(5), 'native compilation never started'
     """)
     repo = Path(__file__).resolve().parents[2]
-    env = dict(os.environ, PYTHONPATH=str(repo))
+    env = dict(os.environ, PYTHONPATH=str(repo), NUMBA_CACHE_DIR=str(tmp_path / 'numba'))
     result = subprocess.run([sys.executable, '-c', script, kind, str(completed)],
                             cwd=repo, env=env, capture_output=True, text=True,
                             timeout=30)

@@ -23,6 +23,37 @@ def plate_images(tmp_path):
     return tmp_path
 
 
+def _ready_overview(dialog, fields, qtbot):
+    dialog._indexed(fields)
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
+
+
+def _retire_overview(dialog, qtbot):
+    dialog._cancel()
+    runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+    qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+    for runner in runners:
+        runner.shutdown(timeout_ms=3000)
+
+
+def _retire_overview_owner(owner, qtbot):
+    wizard = getattr(owner, "_field_overview_wizard", None)
+    if wizard is not None:
+        wizard._cancelled.set()
+        wizard._runner.cancel()
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
+        wizard._runner.shutdown(timeout_ms=3000)
+    dialog = getattr(owner, "_field_overview", None)
+    if dialog is not None:
+        _retire_overview(dialog, qtbot)
+
+
+def _magnify_plate(dialog):
+    while (dialog._plate_cell_extent or (0, 0))[0] < 180:
+        dialog._zoom_plate(1)
+
+
 def test_folder_index_never_decodes_or_invents_wells(plate_images, monkeypatch):
     monkeypatch.setattr(tifffile.TiffFile, "asarray", lambda *_: pytest.fail("metadata index decoded pixels"))
     fields = browser._overview_index(plate_images)
@@ -50,7 +81,7 @@ def test_regex_and_multichannel_pixels_are_source_bound(tmp_path):
     assert rgb[0, 0, 0] == 0 and rgb[-1, -1, 0] == 255
     assert not rgb[..., 1:].any()
     assert browser._overview_pixels(field, (0,), (10, 90))[1, 0, 0] != rgb[1, 0, 0]
-    with pytest.raises(IndexError):
+    with pytest.raises(ValueError, match=r"Channel 2 is missing or ambiguous\. Available channels: 0, 1"):
         browser._overview_pixels(field, (2,))
 
 
@@ -67,7 +98,7 @@ def test_grouped_random_samples_keep_plates_distinct_and_reproducible(plate_imag
 
 def test_navigation_is_metadata_only_and_decodes_one_selected_field(plate_images, qtbot, monkeypatch):
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     fields = browser._overview_index(plate_images)
     calls = []
     original = browser._overview_pixels
@@ -77,7 +108,7 @@ def test_navigation_is_metadata_only_and_decodes_one_selected_field(plate_images
     monkeypatch.setattr(browser, "_overview_pixels", read)
     dialog._image_jobs._threaded = False
     dialog.channels.setText("1,2")
-    dialog._indexed(fields)
+    _ready_overview(dialog, fields, qtbot)
     assert calls == []
     dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
     item = dialog.wells.item(0, 0)
@@ -86,13 +117,13 @@ def test_navigation_is_metadata_only_and_decodes_one_selected_field(plate_images
     assert all(field.plate == "plate1" and field.well == "A01" for field in dialog._visible)
     dialog.fields.setCurrentRow(0)
     dialog._field(dialog.fields.item(0))
-    assert len(calls) == 1
+    assert len(calls) == 2
     dialog._field(dialog.fields.item(0))
-    assert len(calls) == 1
+    assert len(calls) == 2
     dialog._back()
     assert len(dialog._visible) == 6
     assert dialog.plates.currentData() == "plate1"
-    assert len(dialog._cache) == 1
+    assert len(dialog._cache) == 2
     dialog.close()
 
 
@@ -125,7 +156,10 @@ def test_real_pdf_and_selection_provenance(plate_images, tmp_path, monkeypatch):
         np.testing.assert_array_equal(image, actual)
     assert spec["kind"] == "montage"
     assert spec["fields"] == [{"plate": field.plate, "well": field.well,
-                              "field": field.field, "files": field.files}
+                              "field": field.field, "files": field.files,
+                              "field_id": field.field_id or field.field,
+                              "time_id": field.time_id, "z_id": field.z_id,
+                              "condition": ""}
                              for field in selected]
     assert spec["channels"] == (1, 2) and spec["percentiles"] == (1, 99)
     assert spec["seed"] == 15 and spec["image_panels"] == list(range(len(selected)))
@@ -135,7 +169,7 @@ def test_real_pdf_and_selection_provenance(plate_images, tmp_path, monkeypatch):
 def test_channel_guidance_belongs_to_its_setting_label(qtbot):
     from spacr.qt.screens.settings_model import _sibling_label_for
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     label = _sibling_label_for(dialog.channels)
     assert label is not None
     assert not dialog.channels.toolTip()
@@ -161,28 +195,45 @@ def test_padded_filename_channels_decode_and_reject_duplicate_channels(tmp_path)
 def test_reopening_cancelled_overview_keeps_navigation_and_decodes(plate_images, qtbot):
     from PySide6.QtWidgets import QWidget
     owner = QWidget()
-    qtbot.addWidget(owner)
-    dialog = browser._open_field_overview(owner)
+    qtbot.addWidget(owner, before_close_func=lambda widget: _retire_overview_owner(widget, qtbot))
+    wizard = browser._open_field_overview(owner, {"source": str(plate_images / "plate1")})
+    wizard.scope.setCurrentIndex(wizard.scope.findData("recursive"))
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    wizard.channels.setText("1,2")
+    configuration = wizard.configuration()
+    assert configuration["channels"] == (1, 2)
+    qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+    assert hasattr(owner, "_field_overview"), wizard.status.text()
+    dialog = owner._field_overview
     dialog._image_jobs._threaded = False
-    dialog._indexed(browser._overview_index(plate_images))
-    dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
+    assert dialog._fields == wizard._fields
+    assert dialog.plates.currentData() == str(plate_images / "plate1")
     dialog._well(dialog.wells.item(0, 0))
+    _retire_overview(dialog, qtbot)
     dialog.close()
     assert dialog._cancelled.is_set()
-    reopened = browser._open_field_overview(owner)
+    reopened = owner._field_overview
+    reopened.show()
     assert reopened is dialog
-    assert reopened._scope == ("plate1", "A01")
+    assert reopened._scope == (str(plate_images / "plate1"), "A01")
     assert not reopened._cancelled.is_set()
+    qtbot.waitUntil(lambda: reopened._normalization_ready and not reopened._index_jobs.is_busy(), timeout=10000)
     reopened.fields.setCurrentRow(0)
     reopened._field(reopened.fields.item(0))
     assert reopened.view._item is not None
-    assert len(reopened._cache) == 1
+    assert len(reopened._cache) == 2
+    _retire_overview(reopened, qtbot)
     reopened.close()
 
 
 def test_explicit_well_exports_all_fields_while_sample_mode_limits(plate_images, qtbot):
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    def retire(widget):
+        """Stop only this overview's queued visuals and owned workers before close."""
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+    qtbot.addWidget(dialog, before_close_func=retire)
     dialog._indexed(browser._overview_index(plate_images))
     dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
     dialog.use_selection.setChecked(True)
@@ -199,6 +250,7 @@ def test_explicit_well_exports_all_fields_while_sample_mode_limits(plate_images,
     dialog.use_selection.setChecked(True)
     dialog.fields.item(0).setSelected(True)
     assert dialog._export_selection() == (dialog.fields.item(0).data(browser.Qt.UserRole),)
+    retire(dialog)
     dialog.close()
 
 
@@ -232,17 +284,17 @@ def test_cancelled_export_preserves_completed_pages_and_refuses_overwrite(plate_
 def test_large_metadata_pages_and_rgb_cache_stay_bounded(plate_images, qtbot):
     from dataclasses import replace
     actual = next(f for f in browser._overview_index(plate_images) if not f.unresolved)
-    fields = tuple(replace(actual, field=str(index)) for index in range(100))
+    fields = tuple(replace(actual, field=str(index), field_id=str(index)) for index in range(100))
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     dialog._image_jobs._threaded = False
-    dialog._indexed(fields)
+    _ready_overview(dialog, fields, qtbot)
     assert dialog.fields.count() == 24
     assert not dialog._cache
     for index in range(20):
         dialog.fields.setCurrentRow(index)
         dialog._field(dialog.fields.item(index))
-    assert len(dialog._cache) == 16
+    assert len(dialog._cache) == 8
     assert all(value.shape == (10, 12, 3) for value in dialog._cache.values())
     dialog._turn(1)
     assert dialog._page == 1 and dialog.fields.count() == 24
@@ -257,9 +309,9 @@ def test_large_metadata_pages_and_rgb_cache_stay_bounded(plate_images, qtbot):
 
 def test_rapid_field_changes_coalesce_behind_one_real_image_read(plate_images, qtbot, monkeypatch):
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     fields = tuple(f for f in browser._overview_index(plate_images) if not f.unresolved)
-    dialog._indexed(fields)
+    _ready_overview(dialog, fields, qtbot)
     started, release = threading.Event(), threading.Event()
     original = browser._overview_pixels
     calls = []
@@ -281,8 +333,8 @@ def test_rapid_field_changes_coalesce_behind_one_real_image_read(plate_images, q
         dialog._field(dialog.fields.item(2))
         assert len(calls) == 1
         release.set()
-        qtbot.waitUntil(lambda: len(calls) == 2 and not dialog._image_jobs.is_busy())
-        assert calls[-1] == dialog.fields.item(2).data(browser.Qt.UserRole).identity
+        qtbot.waitUntil(lambda: len(calls) == 3 and not dialog._image_jobs.is_busy())
+        assert calls[-2:] == [dialog.fields.item(2).data(browser.Qt.UserRole).identity] * 2
         assert dialog.view._item is not None
     finally:
         release.set()
@@ -309,7 +361,11 @@ def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, tmp_p
     from spacr.qt.i18n import tr
     from spacr.qt.widgets import ambient
     monkeypatch.setattr(ambient, "_flow_graphics_possible", lambda: False)
-    source_path = str(tmp_path / "not_loaded")
+    source_folder = tmp_path / "source"
+    source_folder.mkdir()
+    np.save(source_folder / "plate1_A01_F1.npy", np.stack([
+        np.arange(120).reshape(10, 12)] * 4, axis=-1).astype(np.uint16))
+    source_path = str(source_folder)
     if module == "mask":
         from spacr.qt.screens.app_screen import AppScreen
         screen = AppScreen("mask")
@@ -342,22 +398,36 @@ def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, tmp_p
         assert row.itemAt(row.indexOf(screen._btn_open) + 1).widget() is button
         assert not screen._view_controls.isAncestorOf(button)
     button.click()
+    wizard = screen._field_overview_wizard
+    qtbot.addWidget(wizard)
+    assert isinstance(wizard, browser._OverviewMetadataWizard)
+    assert wizard.source.text() == source_path
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    channels = expected.get("channels") or (0,)
+    wizard.channels.setText(",".join(str(value) for value in channels))
+    configuration = wizard.configuration()
+    assert configuration["channels"] == tuple(channels)
+    qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+    assert hasattr(screen, "_field_overview"), wizard.status.text()
     dialog = screen._field_overview
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     assert isinstance(dialog, browser._FieldOverview)
     assert dialog.source.text() == source_path
     channels = expected.get("channels") or (0,)
     assert dialog.channels.text() == ",".join(str(value) for value in channels)
     assert dialog.normalise.isChecked() == bool(expected.get("normalize", True))
     assert (dialog.low.value(), dialog.high.value()) == tuple(expected.get("normalization_percentiles") or (1., 99.9))
-    assert dialog._fields == () and not dialog._cache
-    assert not dialog._index_jobs.is_busy()
+    assert dialog._fields == wizard._fields and dialog._fields
+    assert not dialog._cache
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
+    _retire_overview(dialog, qtbot)
     dialog.close()
 
 
 def test_source_change_discards_late_image_from_previous_generation(plate_images, tmp_path, qtbot, monkeypatch):
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
-    dialog._indexed(tuple(f for f in browser._overview_index(plate_images) if not f.unresolved))
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    _ready_overview(dialog, tuple(f for f in browser._overview_index(plate_images) if not f.unresolved), qtbot)
     started, release = threading.Event(), threading.Event()
     original = browser._overview_pixels
     def read(*args, **kwargs):
@@ -449,16 +519,17 @@ def test_plate_previews_decode_only_visible_representatives(plate_images, qtbot,
     actual = next(f for f in browser._overview_index(plate_images) if not f.unresolved)
     fields = tuple(replace(actual, well=f"A{column:02d}", column=column) for column in range(1, 41))
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     calls = []
     original = browser._overview_pixels
     def read(field, *args, **kwargs):
         calls.append((field.well, kwargs.get("edge")))
         return original(field, *args, **kwargs)
     monkeypatch.setattr(browser, "_overview_pixels", read)
-    dialog._indexed(fields)
+    _ready_overview(dialog, fields, qtbot)
     assert not calls
     dialog.show()
+    _magnify_plate(dialog)
     qtbot.waitUntil(lambda: not dialog.wells.item(0, 0).icon().isNull())
     def visible():
         return {dialog.wells.item(0, column).data(browser.Qt.UserRole)
@@ -473,7 +544,7 @@ def test_plate_previews_decode_only_visible_representatives(plate_images, qtbot,
     dialog._update_visuals()
     assert dialog._thumbnail_jobs._next_id == before
     assert set(well for well, _ in calls) <= initial
-    assert all(edge == 160 for _, edge in calls)
+    assert all(edge == max(64, max(dialog._plate_cell_extent)) for _, edge in calls)
     assert len(calls) < len(fields)
     dialog.wells.horizontalScrollBar().setValue(dialog.wells.horizontalScrollBar().maximum())
     qtbot.waitUntil(lambda: not dialog.wells.item(0, 39).icon().isNull())
@@ -518,8 +589,8 @@ def test_well_aliases_use_one_canonical_grid_address(tmp_path):
 
 def test_source_change_rejects_an_old_visible_well_thumbnail(plate_images, tmp_path, qtbot, monkeypatch):
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
-    dialog._indexed(browser._overview_index(plate_images))
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    _ready_overview(dialog, browser._overview_index(plate_images), qtbot)
     dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
     started, release = threading.Event(), threading.Event()
     original = browser._overview_pixels
@@ -543,8 +614,8 @@ def test_source_change_rejects_an_old_visible_well_thumbnail(plate_images, tmp_p
         qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._fields[0].plate == "other")
         release.set()
         qtbot.waitUntil(lambda: not dialog.wells.item(0, 0).icon().isNull())
-        assert all(key[0][0] == "other" for key in dialog._thumbnail_cache)
-        assert dialog.wells.item(0, 0).data(browser.Qt.UserRole + 1)[0][0] == "other"
+        assert all(key[0][0][0] == "other" for key in dialog._thumbnail_cache)
+        assert dialog.wells.item(0, 0).data(browser.Qt.UserRole + 1)[0][0][0] == "other"
     finally:
         release.set()
         dialog.close()
@@ -556,15 +627,16 @@ def test_scrolling_many_wells_releases_offscreen_native_icons(plate_images, qtbo
     actual = next(f for f in browser._overview_index(plate_images) if not f.unresolved)
     fields = tuple(replace(actual, well=f"A{column:02d}", column=column) for column in range(1, 81))
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     calls = set()
     original = browser._overview_pixels
     def read(field, *args, **kwargs):
         calls.add(field.well)
         return original(field, *args, **kwargs)
     monkeypatch.setattr(browser, "_overview_pixels", read)
-    dialog._indexed(fields)
+    _ready_overview(dialog, fields, qtbot)
     dialog.show()
+    _magnify_plate(dialog)
     try:
         for column in range(80):
             target = dialog.wells.item(0, column)
@@ -590,8 +662,8 @@ def test_scrolling_many_wells_releases_offscreen_native_icons(plate_images, qtbo
 
 def test_changed_display_choices_reject_the_previous_inflight_image(plate_images, qtbot, monkeypatch):
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
-    dialog._indexed(tuple(f for f in browser._overview_index(plate_images) if not f.unresolved))
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    _ready_overview(dialog, tuple(f for f in browser._overview_index(plate_images) if not f.unresolved), qtbot)
     started, release = threading.Event(), threading.Event()
     original = browser._overview_pixels
     calls, shown = [], []
@@ -603,9 +675,9 @@ def test_changed_display_choices_reject_the_previous_inflight_image(plate_images
             started.set()
             assert release.wait(5)
         return pixels
-    def display(pixels):
+    def display(pixels, preserve_view=False):
         shown.append(pixels.copy())
-        show(pixels)
+        show(pixels, preserve_view)
     monkeypatch.setattr(browser, "_overview_pixels", read)
     monkeypatch.setattr(dialog, "_show_pixels", display)
     try:
@@ -615,8 +687,9 @@ def test_changed_display_choices_reject_the_previous_inflight_image(plate_images
         dialog.channels.setText("1")
         dialog._refresh_image()
         release.set()
-        qtbot.waitUntil(lambda: len(calls) == 2 and not dialog._image_jobs.is_busy())
-        assert len(shown) == 1
+        qtbot.waitUntil(lambda: len(calls) == 3 and not dialog._image_jobs.is_busy())
+        assert len(shown) == 2
+        np.testing.assert_array_equal(shown[0], shown[1])
         np.testing.assert_array_equal(shown[0][..., 0], shown[0][..., 2])
         assert shown[0][..., 2].any()
     finally:
@@ -652,8 +725,8 @@ def test_missing_channel_clears_previous_well_and_field_images(plate_images, qtb
 
 def test_back_to_plate_rejects_a_late_individual_field_image(plate_images, qtbot, monkeypatch):
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
-    dialog._indexed(tuple(f for f in browser._overview_index(plate_images) if not f.unresolved))
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    _ready_overview(dialog, tuple(f for f in browser._overview_index(plate_images) if not f.unresolved), qtbot)
     dialog._well(dialog.wells.item(0, 0))
     started, release = threading.Event(), threading.Event()
     original = browser._overview_pixels
@@ -664,9 +737,9 @@ def test_back_to_plate_rejects_a_late_individual_field_image(plate_images, qtbot
         started.set()
         assert release.wait(5)
         return pixels
-    def display(pixels):
+    def display(pixels, preserve_view=False):
         shown.append(pixels.copy())
-        show(pixels)
+        show(pixels, preserve_view)
     monkeypatch.setattr(browser, "_overview_pixels", read)
     monkeypatch.setattr(dialog, "_show_pixels", display)
     try:
@@ -762,8 +835,8 @@ def test_cancelled_measurements_do_not_publish_a_partial_csv(plate_images, tmp_p
     cancelled = threading.Event()
     original = browser._overview_measurement
     measured = []
-    def measure(*args):
-        row = original(*args)
+    def measure(*args, **kwargs):
+        row = original(*args, **kwargs)
         measured.append(row)
         cancelled.set()
         return row
@@ -815,12 +888,17 @@ def test_measurements_follow_the_exact_ui_export_selection_and_dialog_cancel(
     from PySide6.QtWidgets import QFileDialog
 
     dialog = browser._FieldOverview()
-    qtbot.addWidget(dialog)
+    def retire(widget):
+        """Retire this overview's actual asynchronous work before closing its owner."""
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+    qtbot.addWidget(dialog, before_close_func=retire)
     dialog._export_jobs._threaded = False
     dialog.channels.setText("1,2")
     dialog._indexed(browser._overview_index(plate_images))
     dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
     dialog._well(dialog.wells.item(0, 0))
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
     dialog.use_selection.setChecked(True)
     dialog.fields.item(1).setSelected(True)
     selected = dialog._export_selection()
@@ -839,6 +917,7 @@ def test_measurements_follow_the_exact_ui_export_selection_and_dialog_cancel(
     assert all(actual["channel_1_intensity_mean"] == 59.5)
     assert all(actual["channel_2_intensity_mean"] == 119)
     assert "overview_measurements.csv" in dialog.status.text()
+    retire(dialog)
     dialog.close()
 
 
@@ -875,7 +954,7 @@ def test_visible_well_thumbnails_follow_native_ratio_and_reuse_source_cache(tmp_
     tifffile.imwrite(tmp_path / "plate1_A01_T0001F001L01C1.tif", image)
     fields = browser._overview_index(tmp_path)
     dialog = browser._FieldOverview(settings={"channels": [1]})
-    qtbot.addWidget(dialog)
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     viewport = dialog.wells.viewport()
     ratio = [1.0]
     monkeypatch.setattr(viewport, "devicePixelRatioF", lambda: ratio[0])
@@ -887,7 +966,7 @@ def test_visible_well_thumbnails_follow_native_ratio_and_reuse_source_cache(tmp_
         return original(field, *args, **kwargs)
 
     monkeypatch.setattr(browser, "_overview_pixels", read)
-    dialog._indexed(fields)
+    _ready_overview(dialog, fields, qtbot)
     dialog.show()
     item = dialog.wells.item(0, 0)
     try:
@@ -895,14 +974,16 @@ def test_visible_well_thumbnails_follow_native_ratio_and_reuse_source_cache(tmp_
             ratio[0] = density
             QApplication.sendEvent(viewport, QEvent(QEvent.Type.DevicePixelRatioChange))
             qtbot.waitUntil(lambda: item.data(browser.Qt.UserRole + 1) is not None
-                            and item.data(browser.Qt.UserRole + 1)[-1] == density)
+                            and item.data(browser.Qt.UserRole + 1)[3] == density)
             size = dialog.wells.iconSize()
             picture = item.icon().pixmap(size, density)
             assert picture.devicePixelRatio() == density
-            assert picture.size() == QSize(round(size.width() * density), round(size.height() * density))
-            assert picture.deviceIndependentSize().width() == size.width()
-            assert picture.deviceIndependentSize().height() == size.height()
-        assert decoded == [160, 320]
+            expected = QSize(image.shape[1], image.shape[0]).scaled(size, browser.Qt.KeepAspectRatio)
+            assert picture.size() == QSize(round(expected.width() * density), round(expected.height() * density))
+            assert picture.deviceIndependentSize().width() == expected.width()
+            assert picture.deviceIndependentSize().height() == expected.height()
+        base = max(64, max(dialog._plate_cell_extent or (160, 160)))
+        assert decoded == [base, base * 2]
         assert len(dialog._thumbnail_cache) == 2
     finally:
         dialog.close()
@@ -1034,10 +1115,17 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
     fields = tuple(field for field in browser._overview_index(plate_images)
                    if field.plate == "plate1" and field.well == "A01")
     dialog = browser._FieldOverview(settings={"channels": [1, 2]})
-    qtbot.addWidget(dialog)
+    def retire(widget):
+        """Retire this overview's actual asynchronous work before closing its owner."""
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+    qtbot.addWidget(dialog, before_close_func=retire)
     dialog._indexed(fields)
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
     dialog.use_selection.setChecked(False)
     dialog.show()
+    dialog.options_button.click()
+    dialog._controls_scroll.ensureWidgetVisible(dialog.channels)
     export = next(button for button in dialog.findChildren(QPushButton)
                   if button.text() == browser.tr("Export PDFs"))
     output = tmp_path / "real-worker"
@@ -1073,6 +1161,9 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
         assert dialog.status.text() and not folders and not workers
         assert not dialog._export_jobs.is_busy() and not output.exists()
         dialog.channels.setText("1,2")
+        dialog.channels.setFocus()
+        qtbot.keyClick(dialog.channels, browser.Qt.Key_Tab)
+        qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
         dialog.status.setText("")
         dialog._export_jobs.job_finished.connect(lambda: delivered.append(QThread.currentThread()))
         qtbot.mouseClick(export, browser.Qt.LeftButton)
@@ -1092,6 +1183,7 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
     finally:
         release.set()
         qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy())
+        retire(dialog)
         dialog.close()
 
 
@@ -1126,11 +1218,16 @@ def test_tiff_axis_metadata_selects_channels_without_guessing_time(tmp_path, axe
     tifffile.imwrite(path, image, photometric="minisblack", metadata={"axes": axes})
     field, = browser._overview_index(tmp_path)
     if axes == "TYX":
-        with pytest.raises(ValueError, match="channel axis is unresolved"):
+        with pytest.raises(ValueError, match=r"Channel 2 is missing or ambiguous\. Available channels: 0"):
             tuple(browser._overview_raw_planes(field, (2,)))
-        record = browser._overview_measurement(field, (2,))
-        assert record["status"] == "error" and "channel axis is unresolved" in record["error"]
+        with pytest.raises(ValueError, match="Choose explicit time and Z positions"):
+            tuple(browser._overview_raw_planes(field, (0,)))
+        record = browser._overview_measurement(field, (0,))
+        assert record["status"] == "error" and "Choose explicit time and Z positions" in record["error"]
         assert "channel_2_intensity_mean" not in record
+        channel, source, plane = next(browser._overview_raw_planes(field, (0,), time_index=2))
+        assert channel == 0 and source == str(path)
+        np.testing.assert_array_equal(plane, image[2])
     else:
         channel, source, plane = next(browser._overview_raw_planes(field, (2,)))
         assert channel == 2 and source == str(path)
@@ -1184,7 +1281,11 @@ def test_real_oversized_image_headers_refuse_pixel_decode(tmp_path, monkeypatch,
 def test_invalid_editable_display_choices_reach_field_and_export_guards(plate_images, qtbot, monkeypatch, invalid):
     from PySide6.QtWidgets import QFileDialog, QPushButton
     dialog = browser._FieldOverview(settings={"channels": [1]})
-    qtbot.addWidget(dialog)
+    def retire(widget):
+        """Stop only this overview's queued visuals and owned workers before close."""
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+    qtbot.addWidget(dialog, before_close_func=retire)
     dialog._indexed(tuple(field for field in browser._overview_index(plate_images)
                           if field.plate == "plate1" and field.well == "A01"))
     dialog.show()
@@ -1210,6 +1311,7 @@ def test_invalid_editable_display_choices_reach_field_and_export_guards(plate_im
         assert dialog.status.text() == expected and not dialog._export_jobs.is_busy()
         assert dialog._visual_context() is None
     finally:
+        retire(dialog)
         dialog.close()
 
 
@@ -1224,8 +1326,9 @@ def test_folder_browse_and_real_metadata_acceptance_reindex_without_moving_image
     initial = tmp_path / "empty"
     initial.mkdir()
     dialog = browser._FieldOverview(settings={"src": [str(initial)], "channels": [1]})
-    qtbot.addWidget(dialog)
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     dialog.show()
+    dialog.options_button.click()
     original = browser._overview_index
 
     def index(*args, **kwargs):
@@ -1245,18 +1348,22 @@ def test_folder_browse_and_real_metadata_acceptance_reindex_without_moving_image
     browse = next(button for button in dialog.findChildren(QPushButton)
                   if button.text() == browser.tr("Browse folder"))
     try:
+        dialog._controls_scroll.ensureWidgetVisible(metadata)
         qtbot.mouseClick(metadata, browser.Qt.LeftButton)
         assert dialog.status.text() == browser.tr("Load the image index before opening filename metadata.")
         monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_a, **_k: "")
+        dialog._controls_scroll.ensureWidgetVisible(browse)
         qtbot.mouseClick(browse, browser.Qt.LeftButton)
         assert dialog.source.text() == str(initial) and not dialog._fields
         monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_a, **_k: str(source))
+        dialog._controls_scroll.ensureWidgetVisible(browse)
         qtbot.mouseClick(browse, browser.Qt.LeftButton)
         qtbot.waitUntil(lambda: not dialog._index_jobs.is_busy() and len(dialog._fields) == 1)
+        dialog._controls_scroll.ensureWidgetVisible(metadata)
         qtbot.mouseClick(metadata, browser.Qt.LeftButton)
         workbench = dialog._metadata_dialog
         qtbot.waitExposed(workbench)
-        pattern = r"(?P<plateID>p\d+)-(?P<wellID>[A-Z]\d+)-f(?P<fieldID>\d+)-c(?P<chanID>\d+)"
+        pattern = r"sample-(?P<plateID>p\d+)-(?P<wellID>[A-Z]\d+)-f(?P<fieldID>\d+)-c(?P<chanID>\d+)"
         workbench.workbench.regex.setText(pattern)
         buttons = workbench.findChild(QDialogButtonBox)
         qtbot.mouseClick(buttons.button(QDialogButtonBox.Ok), browser.Qt.LeftButton)
@@ -1273,3 +1380,29 @@ def test_folder_browse_and_real_metadata_acceptance_reindex_without_moving_image
                        dialog._thumbnail_jobs, dialog._montage_jobs):
             runner.shutdown()
         dialog.close()
+
+
+def test_reopening_well_mean_browser_rebuilds_its_cancelled_context(plate_images, qtbot):
+    dialog = browser._FieldOverview(settings={"channels": (1, 2),
+        "normalization": {"mode": "reference_average", "reference_kind": "reference_well",
+                          "reference": ("plate1", "A01"), "percentiles": (1., 99.)}})
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    dialog.show()
+    _ready_overview(dialog, browser._overview_index(plate_images), qtbot)
+    old_context, old_cancelled = dialog._normalization_context, dialog._cancelled
+    assert old_context is not None
+    field = dialog._well_representatives["A01"]
+    previous_generation = dialog._display_generation
+    _retire_overview(dialog, qtbot)
+    dialog.close()
+    assert old_cancelled.is_set()
+    dialog.show()
+    qtbot.waitUntil(lambda: dialog._normalization_ready
+        and dialog._normalization_context is not old_context, timeout=10000)
+    assert dialog._cancelled is not old_cancelled and not dialog._cancelled.is_set()
+    assert old_cancelled.is_set()
+    assert dialog._display_generation > previous_generation
+    current = dialog._display_kwargs()
+    pixels = browser._overview_pixels(field, (1, 2), (1., 99.), **current)
+    assert pixels.shape == (10, 12, 3) and pixels.any()
+    assert dialog._scope == ("plate1", None)

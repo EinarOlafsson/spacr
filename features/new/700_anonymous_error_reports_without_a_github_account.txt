@@ -2,7 +2,7 @@
 ANONYMISED ERROR REPORTS WITHOUT A GITHUB ACCOUNT (ON BY DEFAULT)
 ================================================================================
 
-Status:    complete 2026-10-21
+Status:    DONE — consented shared ERROR capture, provider controls and safe deferred native-crash reporting
 Requested: maintainer, 2026-10-13: "instead of having the user need to login
            to github to send error messages, can i create a github account for
            spacr called spacr_first_responder that auto logs in in the
@@ -11,11 +11,34 @@ Requested: maintainer, 2026-10-13: "instead of having the user need to login
            stating send anonymized error reports. all user metadata would have
            to be removed, but i think spacr already does that in the current
            setup."
-Owner:     Home (build, relay); maintainer (create/install the GitHub App,
-           approve the privacy wording)
+Owner:     widgets_g2 — shared ERROR/report routing and focused controls; root — review/publication
+           G1/G3 retain overview reader and UI lifecycle ownership
 Related:   spacr/crashreport.py (existing redaction), the report-filing flow
            (tests test_the_report_files_itself, test_a_failed_run_offers_the_
            report_it_promised), Preferences privacy settings.
+
+CURRENT CONSENTED ERROR-DISPATCH FOLLOW-UP (2026-10-23)
+The maintainer supersedes the worker-only route: classified ERROR output from
+shared logging, GUI console or terminal dispatch must reach the configured
+spaCR AI or chosen provider, display/save its answer and file the configured
+GitHub report only within affirmative saved user consent. Incidental prose
+containing “error” is not an ERROR event. Preserve original traceback context,
+privacy sanitization, explicit send/explain/provider/network controls, expected
+validation/cancellation handling, deduplication and reporter-recursion guards.
+Native fatal signals may write only safe local faulthandler records in signal
+context; consented delivery must happen safely afterward or at next startup,
+with acknowledged records not resubmitted. No network or Qt in signal handlers.
+Inspect terms and installer consent records before reusing or migrating them;
+default-enabled reporting or a notice-shown flag alone is not affirmative consent.
+Validate standalone CLI and GUI with fake transports, closed/deleted GUI owners,
+repeated-output deduplication and native-record replay, never live issue spam.
+Startup adds “spaCR AI” directly below Reproducibility hash, default True.
+Choosing False selects provider None and AI Error Report Off. Preferences AI
+provider also offers None. If None is selected and reporting is later enabled,
+submit the consented mode-selected GitHub report without any client or relay AI
+diagnosis and without an AI answer to the user; do not merely hide an answer.
+G5 owns startup/preferences UI and state; widgets_g2 owns central capture,
+consent snapshot and no-AI relay semantics. Root owns final publication.
 
 --------------------------------------------------------------------------------
 DESIGN (security constraint)
@@ -381,3 +404,6 @@ redundant now that reports go through the relay and spaCR AI (free) is on):
 2026-10-21 — Original acceptance reconciled against https://github.com/EinarOlafsson/spacr/issues/148: the bot filed the sanitized report, added the duplicate +1 comment, and the maintainer explicitly closed it as passed. Current original redaction/schema/default/opt-out and first-run UI contracts pass40/40 in2.51s, including planted personal data and blocked sockets; no new live report was posted. Retain Claude's published relay, consent/cache changes and nine-language outputs. No new global security or native-platform certification is claimed.
 
 2026-10-21 — Root additionally corrects the unsupported first-run promise of unlimited Claude/Codex/Gemini CLI use to using the user's own provider account. Correct the notice final sentence and the matching provider-CLI hint/summary; preserve the report/share limits, destinations, privacy and controls. Peer all18 exact runtime targets and9 API-summary targets, then regenerate catalogs normally. All27 exact targets are independently AI-peer reviewed (no human/native-speaker signoff);54 unique existing N700 cases pass across the original40 and affected17 runs. Executable AST is unchanged apart from the two approved caption constants. The existing55-key current-body fixture also needs only hosted_cli_hint updated to the approved summary; preserve its other54 entries and every assertion. COMPLETE: normal10-language runtime/Help generation, immutable9833-baseline arrivals refresh, and all12 owning API/Help/caption checks pass; HF API memory4690595d5c3f8d60d8e1105391345dbaffdea27a verifies all9 immutable files. Review pin7380d6a2ec74a5fe29c1942a415663654a4fb9dd retains review history; original live acceptance and every requested product change are delivered.
+
+2026-10-23 — Consented shared ERROR capture, safe deferred native reports, explicit provider None and startup AI choice are integrated; focused core, lifecycle, privacy, startup and real uncaught-hook controls pass with independent source peers.
+Nine-language normal review/API/runtime outputs preserve prior records; immutable review and API-memory publication/readback pass. Seven final stock controls and the repaired English/extractor/callable-boundary inventories pass; source and normal outputs are delivered together on nightly. The original 55-row API fixture is preserved with exact named retirement/revision handling; no native crash cure or public release is claimed.

@@ -51,7 +51,7 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "caches and GPU memory. Laptop keeps the least — for 8 GB or on "
      "battery; Workstation the most. The same spaCR code runs at every "
      "level, and the reproducibility hash records what each run used.",
-     ("spacr_mode", "hash_inputs")),
+     ("spacr_mode", "hash_inputs", "spacr_ai")),
     ("Terms of use",
      "Review the terms of use and full license. Use is noncommercial by default; commercial use requires separate written permission.",
      ()),
@@ -764,6 +764,11 @@ class SetupSlides(QDialog):
         """
         key, caption, _get, _set, choices = question
         label = QLabel(str(caption))
+        if key == "spacr_ai":
+            label.setToolTip(_say(
+                "Turning this off selects no AI provider and turns AI Error report off. "
+                "You can later enable GitHub error reports in Preferences while "
+                "keeping the provider set to None."))
         editor = self._editor(key, choices, value)
         self._editors[key] = editor
         return label, editor

@@ -228,7 +228,7 @@ class JobRunner(QObject):
             user_visible=self._user_visible, capture_figures=False)
         self._jobs[job_id] = (thread, worker)
         self._pending[job_id] = (box, on_done, self._generation)
-        worker.error.connect(self._on_worker_error_text)
+        getattr(worker, "_error_detail", worker.error).connect(self._on_worker_error_text)
         worker._spacr_job_id = job_id
         worker.finished.connect(self._worker_finished)
         thread.finished.connect(self._retire_finished_jobs)
@@ -304,13 +304,14 @@ class JobRunner(QObject):
             if thread_has_stopped(entry[0]):
                 self._jobs.pop(job_id, None)
 
-    def _on_worker_error_text(self, text: str) -> None:
+    def _on_worker_error_text(self, text: str, event_id: str = "") -> None:
         """Report a worker failure given as raw text.
 
         :param text: the worker's error output. The last non-blank line is what
             is shown -- for a traceback that is the exception itself -- and an
             entirely blank one still reports something rather than nothing.
         """
+        self._spacr_error_occurrence = event_id
         line = ""
         for candidate in reversed(str(text).strip().splitlines()):
             if candidate.strip():
@@ -325,6 +326,11 @@ class JobRunner(QObject):
             no message, so a bare ``KeyError`` still says something.
         """
         LOG.info("background job failed", exc_info=True)
+        try:
+            from ..crashreport import _new_error_occurrence
+            self._spacr_error_occurrence = _new_error_occurrence(exc)
+        except Exception:
+            self._spacr_error_occurrence = ""
         self.job_failed.emit(str(exc) or exc.__class__.__name__)
 
 

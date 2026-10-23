@@ -12,6 +12,44 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
+public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.
+Observe untouched initial native QWindow frame/work-area geometry and content
+reachability or intentional scrolling on 1440x900/DPR2; programmatic API/close
+checks do not establish physical menu/keyboard or smaller-display acceptance.
+Native baseline: both initial frames fit, with no unreachable controls:
+command palette 504x420 (87 model rows, vertical range77), fallback340x739.
+Actual GUI/font90%/90%, work1440x870/DPR2; app returned0, font assertions failed
+on CommandInput/five fallback headers. Preserve accepted geometry while those
+two source font declarations are repaired; no layout change is warranted.
+Affected stress follow-up: repeat only those two actual popup APIs at GUI90%/
+font200%, using normal live change_scales before construction. Require actual
+CommandInput/header pixel-font preconditions and unchanged native initial-frame,
+axis-specific content reachability, font-family and owned-close checks.
+Uncovered supported boundary: GUI_SCALE_MAX and FONT_SCALE_MAX are both2.0.
+Check the same two popup APIs at GUI200%/font200% through normal change_scales,
+with actual60px CommandInput/48px headers and the same native bounds, intrinsic
+rich-text and axis-specific reachability checks; no accepted cohort replay.
+Native e8c15928c combined maximum PASS: palette1120x467, fallback1296x783
+with vertical range1851; actual60/48px fonts, full/reachable text, no aliases,
+normal exit0, RSS0.969GiB/0 missed. Native1162f6ba1 remaining supported corners
+(GUI/font .1/.1, .1/2 and2/.1) all PASS with exact fonts, bounded frames,
+full/reachable controls and rich text, no aliases and normal exits0;
+RSS0.829/0.869/0.931GiB, no missed samples. These boundary checks do not certify
+every intermediate scale, readability at1px, or physical input.
+Native font200 stress confirms a real parentless shortcut-fallback defect:
+756x1295 exceeds the870px work area and has no scroll container. Palette fits
+1120x420 with87 rows scrolling and27px input; fallback fonts22/23px are correct.
+Repair only fallback construction using existing dialog scroll/opening/resize
+helpers, keeping all shortcut rows and the normal MainWindow overlay unchanged.
+The two focused fallback regressions fail before repair; afterward both plus
+the existing overlay route pass (4.62 s, sampled RSS0.281 GiB). Native63d1e247f
+default and font200 both PASS: fallback640x783/840x783, stress vertical range510,
+all controls reachable, stress rich text intrinsically fits, safe fonts and
+normal exits0; RSS0.986/0.855 GiB, no missed samples. No lasting maximum is set.
+Native4495f2178 final: both cases PASS at unchanged initial sizes, exact scales,
+whole/reachable controls and safe fonts; normal exit0, RSS0.960GiB/0 missed.
+
 2026-10-22 affected-source requirement: the new Field-of-view overview
 shares the unwrapped tab-corner row with Reset zoom/Ruler. Check all three
 buttons, naturally translated active tabs and the footer at 1280x680 and

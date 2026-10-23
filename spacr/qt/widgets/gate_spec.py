@@ -2593,6 +2593,11 @@ def _mesh_triangle_contact(first, second, common, _basis=None) -> bool:
 
 def _validate_volume_mesh(vertices, faces) -> None:
     """Require a finite connected closed orientable boundary without crossings."""
+    from ...cancellation import current_token
+
+    token = current_token()
+    if token is not None:
+        token.checkpoint()
     if len(vertices) < 4 or len(vertices) > 8192 or len(faces) > 16384:
         raise GateError(tr("An editable volume needs 4 to 8192 vertices and at most 16384 triangles."))
     if not np.isfinite(vertices).all() or len(np.unique(vertices, axis=0)) != len(vertices):
@@ -2609,6 +2614,8 @@ def _validate_volume_mesh(vertices, faces) -> None:
         raise GateError(tr("Volume triangles must not collapse."))
     edges = {}
     for index, face in enumerate(faces):
+        if token is not None:
+            token.checkpoint()
         for a, b in zip(face, np.roll(face, -1)):
             edges.setdefault(tuple(sorted((int(a), int(b)))), []).append((index, int(a), int(b)))
     if any(len(items) != 2 or items[0][1:] != items[1][1:][::-1] for items in edges.values()):
@@ -2631,15 +2638,21 @@ def _validate_volume_mesh(vertices, faces) -> None:
         raise GateError(tr("The volume must enclose a nonzero region."))
     bases = []
     for index, triangle in enumerate(triangles):
+        if token is not None:
+            token.checkpoint()
         u, v = triangle[1] - triangle[0], triangle[2] - triangle[0]
         normal = normals[index]
         bases.append((normal, np.linalg.norm(normal), u, v,
                       float(u @ u), float(u @ v), float(v @ v), float(normal @ normal)))
     low, high = triangles.min(axis=1), triangles.max(axis=1)
     for i, triangle in enumerate(triangles):
+        if token is not None:
+            token.checkpoint()
         candidates = np.flatnonzero((high[i, 0] >= low[i + 1:, 0] - 1e-10) & (high[i + 1:, 0] >= low[i, 0] - 1e-10)) + i + 1
         candidates = candidates[np.all(high[i] >= low[candidates] - 1e-10, axis=1) & np.all(high[candidates] >= low[i] - 1e-10, axis=1)]
         for j in candidates:
+            if token is not None:
+                token.checkpoint()
             shared = set(faces[i]) & set(faces[j])
             if len(shared) == 3 or _mesh_triangle_contact(triangle, triangles[j], points[list(shared)], _basis=(bases[i], bases[j])):
                 raise GateError(tr("Volume surfaces must not intersect or overlap."))

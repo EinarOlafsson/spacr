@@ -1,9 +1,60 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-Status:    DONE — overview/PDF/CSV/icons, registration/help, HiDPI and shared plate-cell acceptance complete
+Status:    IN PROGRESS — expanded interactive overview requirements assigned 2026-10-23; earlier delivered behavior retained
 Requested: maintainer, 2026-10-22
-Owner:     widgets_g1 / widgets_g4 peer / root publication — completed PDF/CSV/icon delivery retained
-Priority:  Current CI follow-up; completed overview/PDF/CSV/icon requirements remain delivered
+Owner:     Workstation spaCR session 2 — expanded workflow, implementation, validation and nightly publication; Home retains general CI/release
+Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
+
+EXPANDED MAINTAINER REQUEST — 2026-10-23
+The maintainer restated the morning Home instructions directly to Workstation
+session 2, which owns this extension. This section supersedes narrower earlier
+completion claims and CSV-only measurement output; preserve earlier delivered
+behavior where compatible.
+
+1. Source and metadata: ask for a folder, then offer the Mask module's built-in
+   filename regex conventions and a custom regex with immediate filename/group
+   preview. Require a valid well identity at minimum, and enable Open only after
+   the user can verify the mapping. Field, plate, channel, Z and T are optional
+   captured metadata; retain independent-file identity when no field is captured.
+   Detect the smallest compatible standard plate and offer an explicit override:
+   coverslip, 6, 12, 24, 48, 96, 384 and 1536 wells. Never silently merge plates
+   or fabricate well identities; refuse an override that excludes observed wells.
+2. Plate and annotations: show representative well thumbnails in physical plate
+   positions. Support click/drag selection and a blue hover tint. Single-well
+   navigation shows higher-quality fields with an obvious Back path. Annotate
+   selected wells with any number of user-defined metadata keys/values; include
+   condition, cell type, pathogen, genotype and drug as standard suggestions.
+   Save/reload annotations and preserve them in exports and measurements.
+3. Image exploration: representative FOV plus explicit Z/T controls when present,
+   independent channel toggles and normalization controls at plate/well/field
+   levels. Zoom from a user-configurable thumbnail scale to original pixels at
+   cell detail; use bounded asynchronous loading/caching and preserve camera
+   context. Do not enlarge a downsampled thumbnail as the sole full-detail view.
+4. Normalization and comparisons: support per-channel min/max, percentiles,
+   fixed/manual bounds, background/zero baselines and additional useful intensity
+   transforms with explicit semantics. Reference scopes include image, well,
+   plate, row, column and every annotation key (including condition). Allow
+   independent channel settings and reproducible shared scaling for comparisons;
+   normalization changes display/PDF only, never raw measurement pixels.
+   Export annotated comparison PDFs for conditions or selected wells/FOVs under
+   source/results, recording channel, normalization, annotation, Z/T and selection
+   provenance. Retain styled publication output and non-overwrite safeguards.
+5. Measurements: a separate Export image-level measurements action runs in the
+   background with a user-selected worker count, one image per worker. Measure
+   original-resolution morphology and channel intensities using Measure's
+   conventions, retain diagnostics/cancellation and serialize database writes.
+   Persist image-level records to measurements/measurements.db in the fov table
+   using the same project database location as spaCR Measure (and report that
+   exact location in the UI); keep existing unrelated tables. PDFs go in results.
+
+ACCEPTANCE FOR THE EXPANDED REQUEST
+Real multichannel fixtures cover regex live preview/well-only mappings, invalid
+patterns and missing wells, standard plate detection/override, click/drag/hover,
+metadata persistence, Z/T plane identity, channel toggles and normalization
+groups, original-pixel zoom, annotated PDF comparisons, raw-value morphology/
+intensity and fov SQLite writes with bounded parallel processing, cancellation,
+errors and unrelated-table preservation. Inspect the actual GUI and PDFs; close
+only after normal runtime/API/Help generation, translations and nightly delivery.
 
 REQUEST
 Add an overview submodule to both Generate Masks and Make Masks. Given a source,
@@ -24,6 +75,49 @@ it beside the existing Open File/Folder chooser in IO and remove the old tab-cor
 entry. Use an
 icon-only control with the existing translated label as tooltip and accessible
 name. Preserve source/channel/normalization context and opening behavior.
+
+EXPANDED REQUEST (2026-10-23)
+Repair the real multichannel reader IndexError and investigate the reported native
+SIGSEGV through actual async lifetime evidence. Discover real axes/channel counts,
+validate requested indices with available-channel guidance, and preserve separate
+file channel identities without assuming a zero-based filename convention.
+The source icon first opens microscope metadata setup using Generate Masks preset
+and custom-regex controls with real filename parse previews and available channels.
+Make raw versus derived subfolder scope explicit, preview available filename channel
+IDs and stack indices separately, and offer a valid default for the official plate1
+sample without silently skipping incompatible selected files.
+Choose coverslip or plate geometry (6/12/24/96/384 and supported others), then Next
+opens a thumbnail plate browser initially fitting the entire chosen plate on desktop
+and small windows, with setup/export details collapsed and well details hidden until
+explicitly opened. Preserve selection separately from opening; cursor-centered zoom
+requests progressively sharper images. Provide translucent blue hover, responsive multiresolution
+zoom, well opening, FOV/Z/T navigation where present, click/rubber-band comparison,
+and condition annotations scoped to plate/row/column/wells. Provide explicit save/load
+of plate-qualified assignments with stable identity validation, defined replacement
+behavior, condition CSV/PDF provenance and a user-chosen destination; never write
+automatically into input folders. Configure representative
+1/N fields per well and Z/T choices. Define percentile, reference-channel and
+reference-well/column/condition normalization mathematically and expose its scope;
+never invent missing reference data. Reference-channel bounds apply the same raw
+low/high to every selected channel; mean matching uses all finite raw sampled pixels
+including zeros, then clip((gain*x-ref_low)/(ref_high-ref_low),0,1), with undefined
+or nonpositive means refused. Add a distinct display mode matching each well
+mean to the equal-well reference average (well/row/column/condition), using only
+chosen FOV/Z/T representatives and deterministic raw samples. Reference conditions
+are plate-qualified. Keep the existing bounds/channel modes distinct and unchanged.
+Label these operations display scaling, never measurement.
+Export whole or selected views at plate/well/
+field levels while retaining original raw measurement CSV and source-icon placement.
+Validate real YXC/CYX and separate-file missing/ambiguous channels, cancellation and
+widget lifetime, metadata preview, navigation/selection, reference normalization,
+PDF provenance and bounded selected-plane reads for large T/Z stacks. Navigation
+orders dimensions naturally and never substitutes another well for missing planes.
+PDF rendering uses full source at chosen quality independently of thumbnail caches,
+adapts page layout to actual panel count, and keeps channel labels plus display
+normalization/reference/sample provenance legible. The metadata opener reuses a
+visible wizard only for the same current source; a changed source replaces it.
+All new captions require normal reviewed
+translations and generated artifacts before atomic publication/whole acceptance.
 
 ACCEPTANCE
 - Reuse the existing filename-regex and image metadata workflow to resolve each
@@ -85,3 +179,10 @@ ACCEPTANCE
 2026-10-23 — Overview plate cells use the shared factory without changing physical coordinates, displayed counts, read-only flags or raw well identity. All six related registration/parity/HiDPI/bare-cell/sort-declaration gates plus the actual numeric/arrival-order identity control pass (7 tests,44.94 s); independent source/test peer accepted. Existing captions, API docs and source line counts are unchanged, so runtime/API/consumer generation is inapplicable. PUBLICATION PENDING under root.
 
 2026-10-23 — Shared plate cells retain well identity and physical layout; all seven related structural and sorting-identity checks pass with independent source review. Root integrates the exact validated source for nightly/main publication; API/runtime/consumer records and all prior delivered requirements are unchanged.
+
+2026-10-23 — Reopened reader/metadata-first workflow now has bounded channel-aware reads, whole-plate fit, typed-axis navigation, saved conditions, explicit balanced reference-mean display scaling, native full-source PDFs/raw CSV and automatic Coverslip entry. Root visual review,261 focused checks (259 retained plus two affected reruns),17 catalog checks and1026 shared reviewed targets pass; reported native crash cause remains unproven. Exact-source local coverage is46 missing lines/49 branches against unchanged30/9 ceilings, so qualification and root publication remain open; preserve all earlier requirements and ownership above.
+
+2026-10-23 — Home delivery retains Workstation session 2 ownership and all expanded requirements above; rebase onto current nightly before extending the shared browser.
+Home ships the preset/custom wizard, bounded axis-aware browser, condition persistence, explicit balanced reference modes, original-image comparison PDFs/raw ROI CSV,261 focused checks and reviewed normal catalogs.
+Work still owns arbitrary metadata, independent channel controls/transforms, strict well identity/1536 qualification, results-path convention and the separate parallel Measure-compatible fov database action; existing CSV export is not that database workflow.
+Local coverage remains46 missing lines/49 branches against unchanged30/9 limits; the reported native crash cause is unproven. Home retains general CI/release; this whole item stays IN PROGRESS.

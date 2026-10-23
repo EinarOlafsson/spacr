@@ -982,3 +982,88 @@ class TestAnUnsetObjectIsHidden:
         settings[NUMBER_OF_ORGANELLES] = 0
         grid.set_settings(settings)
         assert "organelle" not in grid.objects()
+
+
+def test_real_object_filters_live_under_the_table_and_keep_the_alpha_gate(qtbot, monkeypatch, tmp_path):
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.settings_search import ALL, install
+    from spacr.settings import _alpha_names
+
+    monkeypatch.setattr(preferences, '_settings',
+                        lambda: QSettings(str(tmp_path / 'alpha.ini'), QSettings.IniFormat))
+    preferences.set_show_alpha(True)
+    preferences._set_show_alpha_features(True)
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    bar = install(screen)
+    bar.set_level(ALL)
+    screen._open_every_waiting_heading()
+    screen.show()
+    qtbot.wait(0)
+    model = screen._settings_model
+    assert model.set_value_for_key('real_object_classifier', '/saved/model.joblib')
+    assert model.set_value_for_key('real_object_threshold', .73)
+    original_filters = model.collect()['object_filters']
+    subgroup = screen.findChild(type(screen._settings_sections[0]), 'MaskObjectFiltrationAlpha')
+    assert subgroup is not None
+    assert 'MaskObjectFiltrationAlpha' in _alpha_names('widgets')
+    table_section = next(s for s in screen._settings_sections
+                         if s.property('settingsCategorySource') == 'Per-object settings')
+    assert table_section.isAncestorOf(subgroup)
+    assert subgroup.property('settingsCategorySource') == 'Object filtration α'
+    assert subgroup.isAncestorOf(model._widgets['real_object_classifier'])
+    assert subgroup.isAncestorOf(model._widgets['real_object_threshold'])
+    subgroup.set_expanded(True)
+    assert 'real / not-real classifier' in subgroup._hint
+    assert {key for key, widget in model._built_controls()
+            if subgroup.isAncestorOf(widget) and widget.isVisible()} == {
+                'real_object_classifier', 'real_object_threshold'}
+    assert 'object_filters' in screen._object_grid_binding.owned_keys()
+    for title in ('Advanced settings', 'Image Preprocessing (per object)',
+                  'Object Filtration (all objects)'):
+        assert not any(s.isVisible() and s.property('settingsCategorySource') == title
+                       for s in screen._settings_sections)
+    for alpha in (False, True, False, True):
+        preferences._set_show_alpha_features(alpha)
+        screen._refresh_alpha_visibility()
+        qtbot.wait(0)
+        assert subgroup.isHidden() == (not alpha), (alpha, preferences._get_show_alpha_features(), subgroup.property("_spacr_alpha_hid"))
+        assert screen._object_grid.isVisible()
+        values = model.collect()
+        assert values['real_object_classifier'] == '/saved/model.joblib'
+        assert values['real_object_threshold'] == .73
+        assert values['object_filters'] == original_filters
+
+
+def test_revealing_real_object_filters_retains_deliberate_horizontal_scroll(qtbot, monkeypatch, tmp_path):
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.settings_search import ALL, install
+
+    monkeypatch.setattr(preferences, '_settings',
+                        lambda: QSettings(str(tmp_path / 'navigation.ini'), QSettings.IniFormat))
+    preferences.set_show_alpha(True)
+    preferences._set_show_alpha_features(True)
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    bar = install(screen)
+    bar.set_level(ALL)
+    screen._settings_scroll.setMaximumWidth(360)
+    screen.resize(1100, 750)
+    screen.show()
+    qtbot.wait(0)
+    horizontal = screen._settings_scroll.horizontalScrollBar()
+    vertical = screen._settings_scroll.verticalScrollBar()
+    assert horizontal.maximum() > 0
+    for key, position in [('real_object_threshold', 0),
+                          ('real_object_classifier', min(40, horizontal.maximum()))]:
+        horizontal.setValue(position)
+        vertical.setValue(0)
+        assert bar.reveal(key)
+        qtbot.wait(50)
+        assert horizontal.value() == position
+        assert vertical.value() > 0
+        assert screen._settings_model._widgets[key].hasFocus()

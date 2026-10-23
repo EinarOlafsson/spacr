@@ -384,7 +384,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "agg_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -806,7 +806,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_mode",
-    "line": 9480,
+    "line": 9487,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -3622,7 +3622,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cam_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -4642,7 +4642,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -6612,7 +6612,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -7741,7 +7741,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 1983,
+    "line": 2362,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -8459,7 +8459,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 13667,
+    "line": 13523,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8468,7 +8468,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13678,
+    "line": 13534,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8495,7 +8495,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 17977,
+    "line": 18040,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8504,7 +8504,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 17977,
+    "line": 18040,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8513,7 +8513,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18094,
+    "line": 18157,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8522,7 +8522,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18094,
+    "line": 18157,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8531,7 +8531,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 18380,
+    "line": 18443,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -8598,7 +8598,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classifier_family",
-    "line": 149,
+    "line": 150,
     "module": "spacr.classify",
     "nested": false,
     "qualname": "resolve_family"
@@ -9874,7 +9874,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "comp_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -10575,7 +10575,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 13969,
+    "line": 13825,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -10584,7 +10584,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 5207,
+    "line": 5217,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -10979,7 +10979,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cov_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -11779,7 +11779,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 1979,
+    "line": 2358,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -13204,7 +13204,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 21231,
+    "line": 21294,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"
@@ -15121,7 +15121,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "export_vvvv",
-    "line": 9277,
+    "line": 9284,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -15890,7 +15890,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "file_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -16519,7 +16519,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 13220,
+    "line": 13355,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -17283,7 +17283,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grna_statistic",
-    "line": 9515,
+    "line": 9522,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -17814,7 +17814,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutation_block",
-    "line": 9516,
+    "line": 9523,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -17908,7 +17908,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutations",
-    "line": 9498,
+    "line": 9505,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -19931,7 +19931,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "image_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -20849,7 +20849,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "infection_xgb_n_jobs",
-    "line": 567,
+    "line": 572,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -20858,7 +20858,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "infection_xgb_n_jobs",
-    "line": 575,
+    "line": 580,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -21034,7 +21034,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
-    "line": 9479,
+    "line": 9486,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -22681,7 +22681,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9514,
+    "line": 9521,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -22690,7 +22690,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9567,
+    "line": 9574,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -23287,7 +23287,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "loss_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -24403,7 +24403,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -24412,7 +24412,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 2089,
+    "line": 2571,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -25594,6 +25594,42 @@
     "qualname": "_LiveMagnifier._primary_request_values"
    },
    {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mode",
+    "line": 2870,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_FieldOverview._prepare_display"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mode",
+    "line": 3124,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_FieldOverview._indexed"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mode",
+    "line": 3808,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_overview_normalization_plan"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mode",
+    "line": 4397,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_overview_prepare_normalization"
+   },
+   {
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
@@ -25949,7 +25985,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_type",
-    "line": 195,
+    "line": 197,
     "module": "spacr.classify",
     "nested": false,
     "qualname": "resolve_ml_model_type"
@@ -26192,7 +26228,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "model_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -26257,7 +26293,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_type_ml",
-    "line": 193,
+    "line": 195,
     "module": "spacr.classify",
     "nested": false,
     "qualname": "resolve_ml_model_type"
@@ -26436,7 +26472,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "multiple_testing_method",
-    "line": 12555,
+    "line": 12411,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -27042,7 +27078,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 567,
+    "line": 572,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -27051,7 +27087,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 575,
+    "line": 580,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -27060,7 +27096,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11012,
+    "line": 10867,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27069,7 +27105,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11015,
+    "line": 10870,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27078,7 +27114,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11028,
+    "line": 10883,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27464,7 +27500,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 567,
+    "line": 572,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -27473,7 +27509,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 575,
+    "line": 580,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -28011,7 +28047,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 1993,
+    "line": 2373,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -28346,7 +28382,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 10879,
+    "line": 10734,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -28382,7 +28418,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 1991,
+    "line": 2370,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
@@ -29655,7 +29691,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -30710,7 +30746,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "object_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -31102,7 +31138,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "optimizer_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -31831,7 +31867,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -33059,7 +33095,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_morphology",
-    "line": 552,
+    "line": 553,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -33597,7 +33633,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -34016,7 +34052,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -34421,7 +34457,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_morphology",
-    "line": 552,
+    "line": 553,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -34507,7 +34543,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -34857,7 +34893,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -35262,7 +35298,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_morphology",
-    "line": 552,
+    "line": 553,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -35348,7 +35384,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -35698,7 +35734,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -36103,7 +36139,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_morphology",
-    "line": 552,
+    "line": 553,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -36189,7 +36225,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -36961,7 +36997,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 13964,
+    "line": 13820,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -36970,7 +37006,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5200,
+    "line": 5210,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -36979,7 +37015,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5297,
+    "line": 5307,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "regression_design_scan"
@@ -37771,7 +37807,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -39541,6 +39577,33 @@
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "percentiles",
+    "line": 2861,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_FieldOverview._prepare_display"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "percentiles",
+    "line": 3812,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_overview_normalization_plan"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "percentiles",
+    "line": 4430,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_OverviewWellMeanContext.__init__"
    },
    {
     "form": "get",
@@ -41536,7 +41599,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "png_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -43064,7 +43127,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 10996,
+    "line": 10851,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -43073,7 +43136,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 11031,
+    "line": 10886,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -44053,7 +44116,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_backend",
-    "line": 9568,
+    "line": 9575,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -44338,7 +44401,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 9558,
+    "line": 9565,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -44347,7 +44410,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 12554,
+    "line": 12410,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -44356,7 +44419,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 559,
+    "line": 560,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -47671,7 +47734,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "seg_qc_min_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -48469,7 +48532,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 563,
+    "line": 564,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -49185,7 +49248,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1896,
+    "line": 1898,
     "module": "spacr.cli",
     "nested": false,
     "qualname": "_call_entry"
@@ -50742,7 +50805,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9193,
+    "line": 9200,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._claim_the_project"
@@ -50751,7 +50814,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9292,
+    "line": 9299,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -50760,7 +50823,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9306,
+    "line": 9313,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -50769,7 +50832,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9318,
+    "line": 9325,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -50778,7 +50841,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 10927,
+    "line": 10782,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_measure_plane_layout"
@@ -50787,7 +50850,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11020,
+    "line": 10875,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -50796,7 +50859,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11717,
+    "line": 11573,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._measurements_destination"
@@ -50805,7 +50868,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 12628,
+    "line": 12484,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._load_regression_results"
@@ -50814,7 +50877,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 13001,
+    "line": 12857,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._lock_analysis_now"
@@ -51021,10 +51084,19 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1970,
+    "line": 2349,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_FieldOverview.__init__"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "src",
+    "line": 3738,
+    "module": "spacr.qt.widgets.qc_field_browser",
+    "nested": false,
+    "qualname": "_open_field_overview"
    },
    {
     "form": "get",
@@ -58619,7 +58691,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ultrack_n_workers",
-    "line": 567,
+    "line": 572,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -58628,7 +58700,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "ultrack_n_workers",
-    "line": 575,
+    "line": 580,
     "module": "spacr.qt.bridge",
     "nested": false,
     "qualname": "apply_worker_budget"
@@ -58932,7 +59004,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 10890,
+    "line": 10745,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -61191,7 +61263,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_folder",
-    "line": 9317,
+    "line": 9324,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -61316,7 +61388,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_pipeline",
-    "line": 9323,
+    "line": 9330,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"

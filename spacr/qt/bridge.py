@@ -130,6 +130,11 @@ class _StreamRedirector(io.TextIOBase):
         A print must never fail because something downstream of the console did.
         """
         try:
+            from ..crashreport import _capture_error_line
+            _capture_error_line(s, origin="bridge")
+        except Exception:
+            pass
+        try:
             self._on_write(s)
         except Exception:
             pass
@@ -1425,6 +1430,7 @@ class PipelineWorker(QObject):
     line_ready = Signal(str)
     finished = Signal(bool)
     error = Signal(str)
+    _error_detail = Signal(str, str)
     figure_ready = Signal(object, str)
     #: Whatever the pipeline function RETURNED. For the regression that is
     #: {'results': coef_df, 'res_folder': ..., 'model': ...} -- the table the
@@ -1460,6 +1466,8 @@ class PipelineWorker(QObject):
         """
         super().__init__()
         self._fn = fn
+        self._spacr_output_captured = True
+        self._spacr_error_occurrence = ""
         self._settings = settings
         self._app_key_override = str(app_key or "")
         self._journal_enabled = bool(journal)
@@ -1477,7 +1485,7 @@ class PipelineWorker(QObject):
         self._out_scheduled = False
         self._out_drain = _OutputDrain(self)
 
-    def _push_output(self, text: str) -> None:
+    def _push_output(self, text: str, *, captured=False) -> None:
         """Hand worker output to ``line_ready``, joining bursts.
 
         Emits at once when nothing is waiting and the last emission is
@@ -1491,6 +1499,12 @@ class PipelineWorker(QObject):
 
         :param text: one chunk of the run's stdout or stderr.
         """
+        if not captured:
+            try:
+                from ..crashreport import _capture_error_line
+                _capture_error_line(text, origin="bridge")
+            except Exception:
+                pass
         with self._out_lock:
             now = time.monotonic()
             immediate = (not self._out_parts
@@ -1520,14 +1534,28 @@ class PipelineWorker(QObject):
 
     def _say(self, text: str) -> None:
         """Emit ``text`` after any output still waiting."""
+        try:
+            from ..crashreport import _capture_error_line
+            _capture_error_line(text, origin="bridge")
+        except Exception:
+            pass
         self._drain_output()
         with self._out_lock:
             self._out_last = time.monotonic()
         self.line_ready.emit(text)
 
-    def _say_error(self, tb: str) -> None:
-        """Emit a traceback after any output still waiting."""
+    def _say_error(self, tb: str, *, exception=None) -> None:
+        """Forward a classified failure and its identity after pending output."""
+        self._spacr_error_occurrence = ""
+        try:
+            from ..crashreport import _dispatch_error, _new_error_occurrence
+            self._spacr_error_occurrence = _new_error_occurrence(exception)
+            _dispatch_error(tb, exception=exception, traceback_text=tb,
+                            module=self.app_key, event_id=self._spacr_error_occurrence)
+        except Exception:
+            pass
         self._drain_output()
+        self._error_detail.emit(tb, self._spacr_error_occurrence)
         self.error.emit(tb)
 
     def request_cancel(self, reason: str = "cancelled by the user") -> bool:
@@ -1585,7 +1613,7 @@ class PipelineWorker(QObject):
 
         def _forward_output(text: str) -> None:
             """Emit worker text and retain warning lines in its manifest."""
-            self._push_output(text)
+            self._push_output(text, captured=True)
             run = journal_holder[0]
             if run is not None and re.search(
                 r"\b(?:warning|warn)\b", text, flags=re.IGNORECASE,
@@ -1787,35 +1815,35 @@ class PipelineWorker(QObject):
             ok = exc.code in (None, 0)
             if not ok:
                 tb = traceback.format_exc()
-                LOG.error("Pipeline exited with status %r", exc.code)
+                LOG.error("Pipeline exited with status %r", exc.code, exc_info=True)
                 if journal_run is not None:
                     journal_run.set_status("failed")
                     journal_run.error_traceback = tb
-                self._say_error(tb)
-        except Exception:
+                self._say_error(tb, exception=exc)
+        except Exception as exc:
             tb = traceback.format_exc()
             LOG.exception("Pipeline worker failed")
             if journal_run is not None:
                 journal_run.set_status("failed")
                 journal_run.error_traceback = tb
-            self._say_error(tb)
-        except BaseException:
+            self._say_error(tb, exception=exc)
+        except BaseException as exc:
             tb = traceback.format_exc()
             LOG.exception("Pipeline worker aborted")
             if journal_run is not None:
                 journal_run.set_status("failed")
                 journal_run.error_traceback = tb
-            self._say_error(tb)
+            self._say_error(tb, exception=exc)
         finally:
             if journal_run is not None and ok:
                 try:
                     from spacr.run_journal import _raise_if_incomplete
                     _raise_if_incomplete(journal_run)
-                except Exception:
+                except Exception as exc:
                     ok = False
                     journal_run.set_status("failed")
                     journal_run.error_traceback = traceback.format_exc()
-                    self._say_error(journal_run.error_traceback)
+                    self._say_error(journal_run.error_traceback, exception=exc)
                 else:
                     journal_run.set_status("success")
             if journal_context is not None:
@@ -1912,6 +1940,7 @@ def _say_what_is_wrong_with_the_settings(app_key, fn):
     @functools.wraps(fn)
     def run(settings=None, *args, **kwargs):
         """Run the entry point, turning a settings problem into a message."""
+        errors = []
         if isinstance(settings, dict):
             try:
                 from spacr.validate import (ERROR, coerce_expected_types,
@@ -1933,7 +1962,8 @@ def _say_what_is_wrong_with_the_settings(app_key, fn):
                 if problem.fix:
                     print(f"[settings]     {problem.fix}")
         from spacr.resource_log import _ram_guard_scope
-        with _ram_guard_scope(settings):
+        from spacr.crashreport import _validation_error_context
+        with _ram_guard_scope(settings), _validation_error_context(app_key, errors):
             if settings is None:
                 return fn(*args, **kwargs)
             return fn(settings, *args, **kwargs)

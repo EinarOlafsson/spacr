@@ -10350,15 +10350,36 @@ class _VolumeMeshRequest(NamedTuple):
     session: Any
     label: int
     version: int
+    token: Any = None
+    generation: int = 0
 
     @property
     def key(self):
-        return id(self.session), self.label, self.version
+        """Identify work by session identity, label, version and generation."""
+        return id(self.session), self.label, self.version, self.generation
+
+
+def _cancel_volume_mesh(stage):
+    """Cancel only this stage's obsolete mesh and drop work not yet started."""
+    request = getattr(stage, '_mesh_request', None)
+    if request is not None and request.token is not None:
+        request.token.cancel()
+    stage._mesh_request = None
+    stage._mesher.drop_waiting()
 
 
 def _volume_mesh(request):
     """Build one object's editable voxel boundary off the GUI thread."""
-    return request[0].geometry_for_label(request[1])
+    from ...cancellation import installed_token
+
+    token = getattr(request, 'token', None)
+    if token is None:
+        return request[0].geometry_for_label(request[1])
+    with installed_token(token):
+        token.checkpoint()
+        result = request[0].geometry_for_label(request[1])
+        token.checkpoint()
+        return result
 
 
 class _VolumeSliceHistory:
@@ -10846,6 +10867,8 @@ class _VolumeStage(QWidget):
         self._tool3d = self._stroke = self._pan_from = None
         self._counts = np.zeros(2, dtype=np.int64)
         self._meshes = {}
+        self._mesh_request = None
+        self._mesh_generation = 0
         self._version = 0
         self._frame_stale = False
         self._spin_armed = 0.0
@@ -11008,6 +11031,7 @@ class _VolumeStage(QWidget):
 
     def leave(self):
         """Close any open volume and give the Mask tab back to 2-D editing."""
+        _cancel_volume_mesh(self)
         self._cancel.set()
         self._cancel = threading.Event()
         self._set_busy(False)
@@ -11188,6 +11212,7 @@ class _VolumeStage(QWidget):
             self._pages.setCurrentWidget(self._true3d)
             self._show_true3d()
         else:
+            _cancel_volume_mesh(self)
             self._pages.setCurrentWidget(self._slices)
             self.show_slices(reset=orthogonal)
         return True
@@ -11637,6 +11662,9 @@ class _VolumeStage(QWidget):
         broken, self._gl = self._gl, None
         self._gl_tried = True
         if broken is not None:
+            self._render_state = None
+            if self._render_artist is not None:
+                self._render_artist.set_visible(False)
             self._gpu_refused.add(broken.backend)
             broken.close()
             if self._backend_choice == 'auto':
@@ -12360,6 +12388,7 @@ class _VolumeStage(QWidget):
         else:
             artist.set_data(state.rgb)
             artist.ox, artist.oy = int(x0), int(y0)
+        artist.set_visible(True)
         if draw and not getattr(self, '_volume_prepainting', False):
             self._panel.canvas._canvas.draw_idle()
 
@@ -12736,6 +12765,7 @@ class _VolumeStage(QWidget):
         """
         from ..i18n import tr
         from ..widgets.gate_spec import GateSet
+        from ...cancellation import CancellationToken
 
         panel = self._panel
         canvas = panel.canvas
@@ -12744,11 +12774,23 @@ class _VolumeStage(QWidget):
         gates = dict(self.session.geometries)
         label = self._selected
         if not label or label in gates or label in self._meshes:
-            self._mesher.drop_waiting()
+            _cancel_volume_mesh(self)
         if label and label not in gates:
             if label not in self._meshes:
                 self._say(tr('Preparing the anchors of object {label}…', label=label))
-                self._mesher.submit(_VolumeMeshRequest(self.session, label, self._version))
+                request = getattr(self, '_mesh_request', None)
+                if request is not None and (request.session is not self.session
+                                            or request.label != label
+                                            or request.version != self._version
+                                            or request.token.cancelled):
+                    _cancel_volume_mesh(self)
+                    request = None
+                if request is None:
+                    self._mesh_generation = getattr(self, '_mesh_generation', 0) + 1
+                    request = _VolumeMeshRequest(self.session, label, self._version,
+                                                 CancellationToken(), self._mesh_generation)
+                    self._mesh_request = request
+                    self._mesher.submit(request)
             mesh = self._meshes.get(label)
             if mesh is None:
                 label = 0
@@ -12769,10 +12811,17 @@ class _VolumeStage(QWidget):
     def _take_mesh(self, payload):
         """Keep a finished boundary and show its anchors if its object is still chosen."""
         from ..i18n import tr
+        from ...cancellation import PipelineCancelled
 
         request, mesh, error = payload
         if request[0] is not self.session or request[2] != self._version:
             return
+        token = getattr(request, 'token', None)
+        if (isinstance(error, PipelineCancelled) or (token is not None and
+                (token.cancelled or request is not getattr(self, '_mesh_request', None)))):
+            return
+        if request is getattr(self, '_mesh_request', None):
+            self._mesh_request = None
         self._meshes[request[1]] = mesh
         self._say(str(error) if error is not None else tr(
             'Object {label}: drag its anchors or surfaces to reshape it.', label=request[1]))

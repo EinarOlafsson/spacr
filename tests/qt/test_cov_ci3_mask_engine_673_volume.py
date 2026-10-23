@@ -19,6 +19,74 @@ def _empty(shape=(5, 5, 5), dtype=np.uint16):
     return engine.VolumeMaskSession(np.zeros(shape), np.zeros(shape, dtype=dtype))
 
 
+def test_mesh_boundary_cancellation_preserves_volume_and_edit_hook(monkeypatch):
+    from spacr.cancellation import CancellationToken, PipelineCancelled, current_token, installed_token
+    from spacr.qt.widgets import gate_spec
+
+    labels = np.ones((2, 2, 2), dtype=np.uint16)
+    session = engine.VolumeMaskSession(np.zeros(labels.shape), labels)
+    edit_hook = lambda: False
+    session._cancelled = edit_hook
+    token = CancellationToken()
+    original = engine.np.argwhere
+    constructor = gate_spec.EditableVolumeGate
+    constructed = []
+
+    def construct(*args, **kwargs):
+        constructed.append(True)
+        return constructor(*args, **kwargs)
+
+    def positions(*args, **kwargs):
+        result = original(*args, **kwargs)
+        token.cancel()
+        return result
+
+    monkeypatch.setattr(engine.np, 'argwhere', positions)
+    monkeypatch.setattr(gate_spec, 'EditableVolumeGate', construct)
+    outer = CancellationToken()
+    with installed_token(outer):
+        with installed_token(token), pytest.raises(PipelineCancelled):
+            session.geometry_for_label(1)
+        assert current_token() is outer
+    assert not constructed
+    np.testing.assert_array_equal(session.mask, labels)
+    assert session._cancelled is edit_hook
+    assert not session.geometries and not session._undo and not session._redo
+    assert session._saved_mask_sha256 is None and session._saved_geometry_sha256 is None
+
+
+def test_uncancelled_mesh_is_exact_and_restores_outer_token():
+    from spacr.cancellation import CancellationToken, current_token, installed_token
+
+    labels = np.ones((2, 2, 2), dtype=np.uint16)
+    session = engine.VolumeMaskSession(np.zeros(labels.shape), labels)
+    expected = session.geometry_for_label(1)
+    outer, token = CancellationToken(), CancellationToken()
+    with installed_token(outer):
+        with installed_token(token):
+            actual = session.geometry_for_label(1)
+        assert current_token() is outer
+    assert actual.to_dict() == expected.to_dict()
+    np.testing.assert_array_equal(session.mask, labels)
+    assert not session.geometries and not session._undo and not session._redo
+
+
+def test_refused_mesh_restores_outer_token_without_changing_state():
+    from spacr.cancellation import CancellationToken, current_token, installed_token
+
+    labels = np.zeros((3, 3, 3), dtype=np.uint16)
+    labels[0, 0, 0] = labels[2, 2, 2] = 1
+    session = engine.VolumeMaskSession(np.zeros(labels.shape), labels)
+    outer, token = CancellationToken(), CancellationToken()
+    with installed_token(outer):
+        with installed_token(token), pytest.raises(ValueError):
+            session.geometry_for_label(1)
+        assert current_token() is outer
+    np.testing.assert_array_equal(session.mask, labels)
+    assert not session.geometries and not session._undo and not session._redo
+    assert session._saved_mask_sha256 is None and session._saved_geometry_sha256 is None
+
+
 def _source(tmp_path, name='source.tif'):
     image = np.arange(4 * 5 * 6, dtype=np.uint16).reshape(4, 5, 6)
     write_tiff(tmp_path / name, image, metadata={'axes': 'ZYX', 'voxel_spacing': [1., 1., 1.], 'unit': 'um'})

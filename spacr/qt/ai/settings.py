@@ -87,6 +87,8 @@ def set_response_speed(speed: str) -> None:
         raise ValueError(f"unknown speed: {speed!r}. "
                           f"Choose from {VALID_SPEEDS}.")
     _settings().setValue(_KEY_SPEED, speed)
+    from .issue_report import _sync_automatic_failure_policy
+    _sync_automatic_failure_policy()
 
 
 def provider_args(provider_name: str) -> List[str]:
@@ -182,6 +184,8 @@ def set_auto_file_issues(enabled: bool) -> None:
         ``ai/auto_file_issues`` in spaCR's ``QSettings``.
     """
     _settings().setValue(_KEY_AUTO_ISSUE, bool(enabled))
+    from .issue_report import _sync_automatic_failure_policy
+    _sync_automatic_failure_policy()
 
 
 _KEY_AUTO_FILED = "ai/auto_filed_reports"
@@ -262,6 +266,8 @@ def set_route_errors_through_ai(enabled: bool) -> None:
         ``ai/route_errors_through_ai`` in spaCR's ``QSettings``.
     """
     _settings().setValue(_KEY_ROUTE_ERRORS, bool(enabled))
+    from .issue_report import _sync_automatic_failure_policy
+    _sync_automatic_failure_policy()
 
 
 def get_console_aware() -> bool:

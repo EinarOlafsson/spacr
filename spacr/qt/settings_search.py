@@ -412,6 +412,8 @@ class SettingsSearchBar(QWidget):
         A nested heading is reachable only with every containing heading open,
         and logical ancestry also crosses bodies parked off the widget tree.
         """
+        if str(key) in getattr(self._model, "_hidden_by_the_family", ()):
+            return False
         row = self._index.get(str(key))
         if row is None:
             return False
@@ -498,9 +500,13 @@ class SettingsSearchBar(QWidget):
         """
         try:
             scroll = self._screen.findChild(QScrollArea)
+            horizontal = scroll.horizontalScrollBar() if scroll is not None else None
+            position = horizontal.value() if horizontal is not None else None
             if scroll is not None:
                 scroll.ensureWidgetVisible(field, 0, 40)
             field.setFocus(Qt.ShortcutFocusReason)
+            if horizontal is not None:
+                horizontal.setValue(position)
         except RuntimeError:
             LOG.debug("the row went away before it could be shown")
 

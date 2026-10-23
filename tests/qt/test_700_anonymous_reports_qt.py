@@ -137,15 +137,44 @@ class TestFirstRunNotice:
         assert cr.anonymous_report_notice_due() is True
 
 
-class _Jobs:
-    """A background runner that records jobs instead of running them."""
+class _ReportSession:
+    """Observe real shared dispatch while using affirmative saved GUI choices."""
 
-    def __init__(self):
-        self.jobs = []
+    def __init__(self, screen, qtbot, monkeypatch):
+        from spacr.qt import preferences
+        from spacr.qt.ai import settings
+        from spacr.qt.terms import record_agreement
+        from PySide6.QtCore import QCoreApplication
 
-    def submit(self, fn, on_done):
-        self.jobs.append((fn, on_done))
-        return True
+        self.workers = []
+        self.qtbot = qtbot
+        self.process_events = QCoreApplication.processEvents
+        preferences.set_preferred_provider(providers.HOSTED_PROVIDER_NAME)
+        preferences.set_issue_prompt_mode(preferences.ISSUE_PROMPT_ALWAYS)
+        settings.set_route_errors_through_ai(True)
+        settings.set_auto_file_issues(True)
+        record_agreement()
+        screen.show()
+        dispatch = cr._dispatch_error
+        def submit(*args, **kwargs):
+            worker = dispatch(*args, **kwargs)
+            if worker is not None:
+                self.workers.append(worker)
+            return worker
+        monkeypatch.setattr(cr, "_dispatch_error", submit)
+
+    def wait(self):
+        """Consume actual completion and then queued GUI result delivery."""
+        self.qtbot.waitUntil(lambda: all(not w.is_alive() for w in self.workers), timeout=15000)
+        self.process_events()
+
+
+@pytest.fixture(autouse=True)
+def _fresh_dispatch_memory(monkeypatch):
+    """Keep each existing per-test profile's policy and occurrence memory separate."""
+    monkeypatch.setattr(cr, "_ERROR_POLICY_CACHE", {})
+    monkeypatch.setattr(cr, "_ERROR_DISPATCH_SEEN", {})
+    monkeypatch.setattr(cr, "_ERROR_OCCURRENCE_POLICIES", {})
 
 
 class TestFailedRunWiring:
@@ -165,11 +194,7 @@ class TestFailedRunWiring:
         monkeypatch.setattr(screen._console, "fill_ai_entry",
                             lambda block, text, saved=False: notices.append(
                                 "spaCR AI: " + text))
-        recorder = _Jobs()
-        monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
-        screen._recorded = recorder
-        monkeypatch.setattr(screen, "_report_summary_provider",
-                            providers.hosted_provider)
+        screen._recorded = _ReportSession(screen, qtbot, monkeypatch)
         cr.set_error_report_mode("send_all")
         return screen
 
@@ -179,15 +204,28 @@ class TestFailedRunWiring:
         screen._settle_the_report(failed=True)
 
     def test_the_send_is_queued_on_the_runner_not_run_inline(self, screen,
-                                                             relay):
-        self._fail(screen)
-        assert relay.calls == [], "nothing ran on the GUI thread"
-        assert len(screen._recorded.jobs) == 1
+                                                             relay, monkeypatch):
+        import threading
+        entered, release = threading.Event(), threading.Event()
+        main_thread = threading.get_ident()
+        original = cr._open_url
+        def transport(request, timeout):
+            assert threading.get_ident() != main_thread
+            entered.set()
+            assert release.wait(5)
+            return original(request, timeout)
+        monkeypatch.setattr(cr, "_open_url", transport)
+        try:
+            self._fail(screen)
+            assert entered.wait(5)
+            assert any(worker.is_alive() for worker in screen._recorded.workers)
+        finally:
+            release.set()
+        screen._recorded.wait()
 
     def test_the_outcome_is_one_line_with_the_issue(self, screen, relay):
         self._fail(screen)
-        fn, on_done = screen._recorded.jobs[0]
-        on_done(fn())
+        screen._recorded.wait()
         assert any("Reported anonymously as issue #12" in line
                    and "/issues/12" in line for line in screen._notices)
         body = relay.calls[0]["body"]
@@ -200,22 +238,27 @@ class TestFailedRunWiring:
     def test_offline_says_it_will_retry(self, screen, relay):
         relay.answers = [OSError("offline")]
         self._fail(screen)
-        fn, on_done = screen._recorded.jobs[0]
-        on_done(fn())
+        screen._recorded.wait()
         assert any("will retry later" in line for line in screen._notices)
 
     def test_off_queues_nothing(self, screen, relay):
         cr.set_anonymous_reports_enabled(False)
         self._fail(screen)
-        assert all(fn.__name__ != "_send" for fn, _ in screen._recorded.jobs)
+        assert screen._recorded.workers == []
         assert relay.calls == []
 
-    def test_a_settings_error_is_a_user_error(self, screen, relay):
+    @pytest.mark.parametrize("mode", ["all", "faults"])
+    def test_a_settings_error_is_a_user_error(self, screen, relay, mode):
+        cr.set_error_report_mode(mode)
         screen._on_pipeline_error(
             "Traceback (most recent call last):\n"
             "spacr.errors.ConfigurationError: src does not exist\n")
         assert screen._anonymous_report_due is True
         assert screen._failure_kind == "user_error"
+        screen._settle_the_report(failed=True)
+        screen._recorded.wait()
+        assert len(relay.calls_to("/report")) == (1 if mode == "all" else 0)
+        assert any("path in its settings" in line for line in screen._notices) is (mode == "faults")
 
     def test_the_github_button_is_still_offered(self, screen, relay):
         from spacr.qt.ai import settings as ai_settings
@@ -495,17 +538,17 @@ class TestPreferencesProviderSwitch:
 
         return dialog.findChild(QRadioButton, f"AiProvider_{name}")
 
-    def test_four_choices_with_spacr_ai_first_and_on(self, qtbot,
+    def test_five_choices_with_spacr_ai_first_and_on(self, qtbot,
                                                      qt_theme_applied):
         from PySide6.QtWidgets import QLabel
 
         dialog = self._dialog(qtbot)
         names = [name for name, _l, _n in providers.PROVIDER_CHOICES]
         assert names == [providers.HOSTED_PROVIDER_NAME, "claude", "codex",
-                         "gemini"]
+                         "gemini", "none"]
         labels = [self._radio(dialog, n).text() for n in names]
         assert labels == ["spaCR AI (free, daily allowance)", "Claude",
-                          "GPT (Codex)", "Gemini"]
+                          "GPT (Codex)", "Gemini", "None"]
         assert self._radio(dialog, providers.HOSTED_PROVIDER_NAME).isChecked()
         texts = [label.text() for label in dialog.findChildren(QLabel)]
         assert "Uses your Claude Code login (the claude CLI)." in texts
@@ -626,12 +669,12 @@ class TestReportAiSummary:
 
         dirty = dict(_summary(), ai_summary="see C:\\Users\\anna\\p.nd2 "
                      "token ghp_0123456789abcdefABCDEF0123 " + "x " * 3000,
-                     summarize=True)
+                     summarize=False)
         clean = cr._validated_summary(dirty)
         assert len(clean["ai_summary"]) <= cr.MAX_AI_SUMMARY_CHARS
         assert "anna" not in clean["ai_summary"]
         assert "ghp_" not in clean["ai_summary"]
-        assert "summarize" not in clean
+        assert clean["summarize"] is False
 
     @pytest.fixture
     def screen(self, qtbot, qt_theme_applied, monkeypatch):
@@ -647,19 +690,14 @@ class TestReportAiSummary:
         monkeypatch.setattr(screen._console, "fill_ai_entry",
                             lambda block, text, saved=False: notices.append(
                                 "spaCR AI: " + text))
-        recorder = _Jobs()
-        monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
-        screen._recorded = recorder
-        monkeypatch.setattr(screen, "_report_summary_provider",
-                            providers.hosted_provider)
+        screen._recorded = _ReportSession(screen, qtbot, monkeypatch)
         return screen
 
     def _run(self, screen):
         screen._last_error_text = TRACEBACK
         screen._anonymous_report_due = True
         screen._settle_the_report(failed=True)
-        fn, on_done = screen._recorded.jobs[-1]
-        on_done(fn())
+        screen._recorded.wait()
         return screen._notices[-1]
 
     def test_spacr_ai_explains_once_and_the_text_is_the_summary(
@@ -676,7 +714,7 @@ class TestReportAiSummary:
         assert len(relay.calls_to("/diagnose")) == 1, "one AI call"
         body = relay.calls_to("/report")[0]["body"]
         assert body["ai_summary"].startswith("The column cell_area")
-        assert "summarize" not in body
+        assert body["summarize"] is False
 
     def test_without_a_summary_when_the_allowance_is_used(self, screen,
                                                           relay):
@@ -693,7 +731,10 @@ class TestReportAiSummary:
 
     def test_with_a_private_cli_summary(self, screen, relay, monkeypatch):
         cli = _FakeCli("Cause: a missing column in measure_crop.")
-        monkeypatch.setattr(screen, "_report_summary_provider", lambda: cli)
+        from spacr.qt.preferences import set_preferred_provider
+        set_preferred_provider("claude")
+        monkeypatch.setattr(providers.ClaudeCliProvider, "stream_chat",
+                            lambda self, *args, **kwargs: cli.stream_chat(*args, **kwargs))
         relay.answers = [(200, {"issue_number": 9, "issue_url": "u",
                                 "deduplicated": False,
                                 "ai_summary_source": "client"})]
@@ -706,7 +747,10 @@ class TestReportAiSummary:
 
     def test_a_failing_cli_still_files(self, screen, relay, monkeypatch):
         cli = _FakeCli(error=RuntimeError("signed out"))
-        monkeypatch.setattr(screen, "_report_summary_provider", lambda: cli)
+        from spacr.qt.preferences import set_preferred_provider
+        set_preferred_provider("claude")
+        monkeypatch.setattr(providers.ClaudeCliProvider, "stream_chat",
+                            lambda self, *args, **kwargs: cli.stream_chat(*args, **kwargs))
         relay.answers = [(200, {"issue_number": 10, "issue_url": "u",
                                 "deduplicated": False,
                                 "ai_summary_source": "none"})]
@@ -769,11 +813,7 @@ class TestEveryAiErrorReportChoice:
         monkeypatch.setattr(screen._console, "fill_ai_entry",
                             lambda block, text, saved=False: notices.append(
                                 "spaCR AI: " + text))
-        recorder = _Jobs()
-        monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
-        screen._recorded = recorder
-        monkeypatch.setattr(screen, "_report_summary_provider",
-                            providers.hosted_provider)
+        screen._recorded = _ReportSession(screen, qtbot, monkeypatch)
         return screen
 
     def _fail(self, screen, relay, tb):
@@ -783,8 +823,7 @@ class TestEveryAiErrorReportChoice:
                                           "deduplicated": False})]
         screen._on_pipeline_error(tb)
         screen._settle_the_report(failed=True)
-        for fn, on_done in list(screen._recorded.jobs):
-            on_done(fn())
+        screen._recorded.wait()
 
     @pytest.mark.parametrize("mode", list(EXPECTED))
     @pytest.mark.parametrize("kind", ["fault", "user_error"])
@@ -836,10 +875,7 @@ class TestARunRefusedBeforeItStarts:
         monkeypatch.setattr(screen._console, "append_notice",
                             lambda source, **values: notices.append(
                                 source.format(**values)))
-        recorder = _Jobs()
-        monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
-        monkeypatch.setattr(screen, "_report_summary_provider",
-                            providers.hosted_provider)
+        recorder = _ReportSession(screen, qtbot, monkeypatch)
         relay.routes["/diagnose"] = [(200, {"advice": "Set cell_channel.",
                                             "model": "big", "tier": "best"})]
         relay.routes["/report"] = [(200, {"issue_number": 4, "issue_url": "u",
@@ -854,9 +890,8 @@ class TestARunRefusedBeforeItStarts:
         assert any(n.startswith("✗ The run did not start: At least one "
                                 "registered *_channel") for n in notices)
         assert not any(n.startswith("✓ Finished") for n in notices)
-        assert len(recorder.jobs) == 1
-        fn, on_done = recorder.jobs[0]
-        on_done(fn())
+        recorder.wait()
+        assert recorder.workers
         from PySide6.QtWidgets import QPlainTextEdit
         assert any(w.property("consoleContextKind") == "spacr_ai"
                    and w.toPlainText() == "Set cell_channel."
@@ -964,8 +999,7 @@ class TestTheReportLineAfterTheAiEntry:
 
         screen = AppScreen("mask")
         qtbot.addWidget(screen)
-        monkeypatch.setattr(screen, "_report_summary_provider",
-                            providers.hosted_provider)
+        recorder = _ReportSession(screen, qtbot, monkeypatch)
         cr.set_error_report_mode("all")
         relay.routes["/diagnose"] = [(200, {"advice": ADVICE,
                                             "model": "big", "tier": "best"})]
@@ -1056,6 +1090,9 @@ class TestTheReportLineAfterTheAiEntry:
         column = text.index(url) + 5
         cursor = block.textCursor()
         cursor.setPosition(column)
+        qtbot.waitUntil(lambda: block.link_at(QPoint(
+            block.cursorRect(cursor).x() + 2,
+            block.cursorRect(cursor).y() + 2)) == url, timeout=5000)
         rect = block.cursorRect(cursor)
         assert block.link_at(QPoint(rect.x() + 2, rect.y() + 2)) == url
 

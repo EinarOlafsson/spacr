@@ -1,8 +1,8 @@
 BROWSE BUTTONS FOR EVERY SOURCE-FOLDER INPUT
 ===========================================
-Status:    DONE 2026-10-22 — delivered with this atomic publication
+Status:    DONE — editable source fields and consistent inline actions
 Requested: maintainer, 2026-10-22
-Owner:     widgets_g5 implementation and delivery; widgets_g4 independent peer
+Owner:     release_ci_takeover — shared source controls after Classify family visibility; root — publication
 Priority:  Start now alongside release CI; preserve ongoing scientific work
 Related:   639 import organization; 353 shared source/data picker
 
@@ -10,6 +10,15 @@ REQUEST
 Anywhere in spaCR that accepts a source folder, provide a small adjacent button
 that opens a folder browser. Reuse an existing suitable button rather than
 adding a duplicate.
+
+CURRENT SOURCE-FIELD REQUIREMENTS — 2026-10-23
+Classify and Measure must use an editable source path field with compact browse,
+field-overview and AWS actions matching Masks. Map barcodes uses the same editable
+field and browse/AWS actions, but no overview action. Reuse existing source-row
+components and callbacks; retain typing, paste/drop, chooser cancellation, saved
+settings, validation and appropriate file/folder semantics. Avoid duplicate buttons
+or a button-only replacement for the editable value. Overview navigation must use
+the actual chosen image folder and cloud actions must retain their existing flow.
 
 ACCEPTANCE
 - Cover shared settings forms and custom source-folder controls in all modules.
@@ -25,3 +34,9 @@ ACCEPTANCE
 2026-10-22 — Registered before implementation; retained UI pair owns implementation, focused validation, normal generation and publication end to end.
 
 2026-10-22 — Shared source-folder fields now reuse a compact keyboard-accessible folder action, including grouped source lists; existing custom/file/cloud pickers are retained. Eight focused controls pass (1.86 s); root and independent source/output peers accepted. Normal generation confirms all13,606 API records/schema, runtime English, source history and consumer metadata unchanged; the existing translated folder caption is reused. Published with this atomic completion update.
+
+2026-10-23 — Reopened for the maintainer’s Classify/Measure/Map barcodes source-field request; existing source browsing work/history retained. Shared settings owner will implement after the adjacent Classify family-visibility change, reusing its context and validating actual module controls.
+
+2026-10-23 — Classify, Measure and Map barcodes now retain directly editable scalar/list/group source paths with compact folder/cloud actions; only Classify and Measure add the shared overview action. Source lookup follows the first actual folder, grouped browsing preserves groups, and cancellation/keyboard access retain their existing contracts. Fourteen focused controls pass, including six final-source module controls; shared normal generation and final publication remain pending.
+
+2026-10-23 — All14 focused source-control checks and final native module captures are accepted: editable scalar/list/group inputs retain folder/cloud actions, Classify/Measure overview uses the current source, and Map barcodes has no overview action. Normal collection confirms no API/runtime arrival for these shared controls; normal generated consumer positions are refreshed against the final integrated source for the coordinated publication.

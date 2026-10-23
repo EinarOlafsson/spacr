@@ -60,7 +60,9 @@ that treats the two differently.
 from __future__ import annotations
 
 import math
+import threading
 from dataclasses import dataclass, field, replace
+from functools import wraps
 from types import MappingProxyType, SimpleNamespace
 from typing import (Any, Callable, ClassVar, Dict, Iterable, List, Mapping, cast,
                     Optional, Sequence, Tuple, Union)
@@ -5594,6 +5596,31 @@ def wgpu_adapter(backend: str, allow_software: bool = True) -> Any:
     return min(ranked)[2]
 
 
+def _serialized_wgpu(method):
+    """Keep a renderer's frame resources alive through readback and close."""
+    @wraps(method)
+    def locked(self, *args, **kwargs):
+        """Hold the renderer lock around rendering or resource cleanup."""
+        with self._render_lock:
+            if method.__name__ != 'render':
+                return method(self, *args, **kwargs)
+            if self._dispatch_error is not None:
+                raise self._dispatch_error
+            self._dispatch_index = 0
+            try:
+                result = method(self, *args, **kwargs)
+                self._discard_dispatch_slots(self._dispatch_index)
+                return result
+            except BaseException as exc:
+                if self._dispatch_index:
+                    self._dispatch_error = exc
+                    for slot in self._dispatch_slots:
+                        slot['group'], slot['resources'] = None, ()
+                        slot['pipeline'], slot['layout'] = None, None
+                raise
+    return locked
+
+
 class WGPUVolumeRenderer:
     """:func:`render_volume`, ray-marched on the GPU through wgpu (WGSL).
 
@@ -5634,6 +5661,21 @@ class WGPUVolumeRenderer:
         self._buffers: Dict[str, Tuple[int, Any]] = {}
         self._luts: Dict[Any, Any] = {}
         self._used: set = set()
+        self._init_dispatch_pool()
+
+    def _init_dispatch_pool(self):
+        """Give this device a serialized, initially empty dispatch pool."""
+        self._render_lock = threading.Lock()
+        self._dispatch_slots = []
+        self._dispatch_index = 0
+        self._dispatch_error = None
+
+    def _discard_dispatch_slots(self, start=0):
+        """Release slots only after completed readback or during final close."""
+        for slot in self._dispatch_slots[start:]:
+            if slot['uniform'] is not None:
+                slot['uniform'].destroy()
+        del self._dispatch_slots[start:]
 
     def _limit(self, name: str, default: int) -> int:
         """One of the device's limits, by its hyphenated WebGPU name."""
@@ -5771,21 +5813,47 @@ class WGPUVolumeRenderer:
         import wgpu
 
         pipeline = self._pipeline(name)
-        uniform = self._device.create_buffer_with_data(data=params, usage=wgpu.BufferUsage.UNIFORM)
+        index = self._dispatch_index
+        self._dispatch_index += 1
+        if index == len(self._dispatch_slots):
+            self._dispatch_slots.append({'uniform': None})
+        slot = self._dispatch_slots[index]
+        uniform = slot['uniform']
+        if (uniform is None or slot['device'] is not self._device
+                or uniform.size < params.nbytes):
+            if uniform is not None:
+                uniform.destroy()
+                slot['uniform'] = None
+            uniform = self._device.create_buffer(
+                size=params.nbytes, usage=wgpu.BufferUsage.UNIFORM | wgpu.BufferUsage.COPY_DST)
+            slot.update(uniform=uniform, device=self._device, pipeline=None,
+                        layout=None, group=None, resources=(), size=0)
+        self._device.queue.write_buffer(uniform, 0, np.ascontiguousarray(params))
+        resources = tuple(resources)
+        if (slot['pipeline'] is pipeline and slot['size'] == params.nbytes
+                and len(slot['resources']) == len(resources)
+                and all(left is right for left, right in zip(slot['resources'], resources))):
+            compute.set_pipeline(pipeline)
+            compute.set_bind_group(0, slot['group'])
+            compute.dispatch_workgroups(int(groups[0]), int(groups[1]), 1)
+            return
         entries = [{"binding": 0, "resource": {"buffer": uniform, "offset": 0,
-                                               "size": uniform.size}}]
+                                               "size": params.nbytes}}]
         for binding, resource in enumerate(resources, start=1):
             if isinstance(resource, wgpu.GPUBuffer):
                 entries.append({"binding": binding, "resource": {
                     "buffer": resource, "offset": 0, "size": resource.size}})
             else:
                 entries.append({"binding": binding, "resource": resource})
-        group = self._device.create_bind_group(layout=pipeline.get_bind_group_layout(0),
-                                               entries=entries)
+        layout = pipeline.get_bind_group_layout(0)
+        group = self._device.create_bind_group(layout=layout, entries=entries)
+        slot.update(pipeline=pipeline, layout=layout, group=group,
+                    resources=resources, size=params.nbytes)
         compute.set_pipeline(pipeline)
         compute.set_bind_group(0, group)
         compute.dispatch_workgroups(int(groups[0]), int(groups[1]), 1)
 
+    @_serialized_wgpu
     def render(self, layers: Iterable["Layer"], rays: VolumeRays, *,
                highlight: int = 0, voxel_size: Optional[Sequence[float]] = None,
                lens: Optional[VolumeLens] = None,
@@ -5875,8 +5943,10 @@ class WGPUVolumeRenderer:
         picked = codes[:rows * columns * 2].reshape(rows, columns, 2)[..., 0].astype(np.int64)
         return np.ascontiguousarray(rgb), picked
 
+    @_serialized_wgpu
     def close(self) -> None:
         """Free every volume, buffer and the device."""
+        self._discard_dispatch_slots()
         for _owner, (resource, _view) in self._textures.values():
             resource.destroy()
         for _size, buffer in self._buffers.values():
@@ -5884,6 +5954,7 @@ class WGPUVolumeRenderer:
         for buffer in self._luts.values():
             buffer.destroy()
         self._textures, self._buffers, self._luts, self._pipelines = {}, {}, {}, {}
+        self._dispatch_error = None
         destroy = getattr(self._device, "destroy", None)
         if destroy is not None:
             destroy()

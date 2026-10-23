@@ -79,8 +79,10 @@ Usage
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager as _contextmanager
 import hashlib
 import io
+import itertools
 import json
 import os
 import platform
@@ -830,9 +832,10 @@ def install_excepthook(destination: Optional[os.PathLike] = None,
 
     Chains rather than replaces: the previous ``sys.excepthook`` still runs, so
     the traceback the user is used to seeing still appears, with one line after
-    it saying where the bundle is. With anonymised reports on
-    (:func:`anonymous_reports_enabled`), the crash's :func:`public_summary` is
-    also queued and sent on a background thread; the bundle is never sent.
+    it saying where the bundle is. With affirmative saved consent and automatic
+    reporting enabled, the crash's :func:`public_summary` is processed on a
+    background thread under the configured AI and reporting policy; the bundle
+    is never sent.
 
     :param destination: as :func:`write_crash_report`.
     :param kwargs: passed to :func:`collect`.
@@ -843,14 +846,25 @@ def install_excepthook(destination: Optional[os.PathLike] = None,
 
     def hook(kind, value, tb) -> None:
         """Report, then delegate to the hook that was installed before."""
+        event_id = None
         if not issubclass(kind, KeyboardInterrupt):
+            event_id = _new_error_occurrence(value)
             path = report_exception(value, destination, **kwargs)
-            _report_anonymously(value, str(kwargs.get("app", "") or ""))
+            _report_anonymously(value, str(kwargs.get("app", "") or ""), event_id=event_id)
             if path:
                 print(f"\nspaCR wrote a crash report to {path}\n"
                       f"Attach it to a bug report — it holds the log, the "
                       f"settings, the versions and this run.", file=sys.stderr)
-        previous(kind, value, tb)
+        absent = object()
+        outer = getattr(_ERROR_DISPATCH_LOCAL, "traceback_occurrence", absent)
+        _ERROR_DISPATCH_LOCAL.traceback_occurrence = event_id
+        try:
+            previous(kind, value, tb)
+        finally:
+            if outer is absent:
+                del _ERROR_DISPATCH_LOCAL.traceback_occurrence
+            else:
+                _ERROR_DISPATCH_LOCAL.traceback_occurrence = outer
 
     sys.excepthook = hook
     return hook
@@ -1169,6 +1183,7 @@ def _write_state(state: Mapping[str, Any]) -> None:
     temporary = folder / f"state.{os.getpid()}.{threading.get_ident()}.tmp"
     temporary.write_text(json.dumps(dict(state), indent=2), encoding="utf-8")
     os.replace(temporary, folder / "state.json")
+    globals()["_ERROR_POLICY_CACHE"] = dict(state)
 
 
 def _update_state(**values: Any) -> None:
@@ -2132,8 +2147,8 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
         if source.get("ai_summary") else ""
     if summary_text:
         out["ai_summary"] = summary_text
-    elif source.get("summarize") is True:
-        out["summarize"] = True
+    if isinstance(source.get("summarize"), bool):
+        out["summarize"] = source["summarize"]
     if source.get("kind") in (KIND_FAULT, KIND_USER_ERROR):
         out["kind"] = source["kind"]
     screen = " ".join(_SCREEN_RE.sub("", str(source.get("screen", "") or ""))
@@ -2356,7 +2371,7 @@ def _prune_queue(now: Optional[float] = None) -> List[Path]:
     return kept
 
 
-def _enqueue(summary: Mapping[str, Any]) -> Optional[Path]:
+def _enqueue(summary: Mapping[str, Any], *, automatic=False) -> Optional[Path]:
     """Write a summary to the queue and return its file.
 
     :returns: the file, or ``None`` when it could not be written.
@@ -2367,9 +2382,11 @@ def _enqueue(summary: Mapping[str, Any]) -> Optional[Path]:
             folder.mkdir(parents=True, exist_ok=True)
             now = time.time()
             path = folder / f"{int(now * 1000):015d}-{uuid.uuid4().hex[:8]}.json"
-            path.write_text(json.dumps({"queued_at": now,
-                                        "summary": dict(summary)}),
-                            encoding="utf-8")
+            record = {"queued_at": now, "summary": dict(summary)}
+            if automatic:
+                record.update(automatic=True, active_pid=os.getpid())
+                _ERROR_ACTIVE_QUEUES.add(path)
+            path.write_text(json.dumps(record), encoding="utf-8")
         except OSError:
             return None
         _prune_queue(now)
@@ -2504,7 +2521,7 @@ def _reports_paused_until() -> Optional[datetime]:
 
 
 def _send_queued(path: Optional[Path], summary: Mapping[str, Any],
-                 timeout: float) -> Dict[str, Any]:
+                 timeout: float, *, allowed=None) -> Dict[str, Any]:
     """Send a queued summary, deleting it unless it is to be tried again.
 
     While a quota refusal holds (to the next 00:00 UTC) nothing is
@@ -2515,6 +2532,10 @@ def _send_queued(path: Optional[Path], summary: Mapping[str, Any],
         return {"status": REPORT_QUEUED, "detail": "quota", "quota": True,
                 "scope": "install", "resets_at": paused.isoformat()}
     with _SEND_LOCK:
+        if allowed is not None and not allowed():
+            if path is not None:
+                path.unlink(missing_ok=True)
+            return {"status": REPORT_DISABLED}
         outcome = _send_one(summary, timeout)
         if path is not None and outcome["status"] in (REPORT_SENT,
                                                       REPORT_DROPPED):
@@ -2611,11 +2632,24 @@ def flush_report_queue(timeout: float = SEND_TIMEOUT_S) -> Dict[str, int]:
             waiting = _prune_queue()
         for index, path in enumerate(waiting):
             try:
-                summary = json.loads(path.read_text(encoding="utf-8"))[
-                    "summary"]
+                record = json.loads(path.read_text(encoding="utf-8"))
+                summary = record["summary"]
             except (OSError, ValueError, KeyError):
                 path.unlink(missing_ok=True)
                 continue
+            if (record.get("active_pid") == os.getpid()
+                    and path in _ERROR_ACTIVE_QUEUES):
+                counts["kept"] += 1
+                continue
+            if record.get("automatic") and not _automatic_error_policy(
+                    summary.get("kind", KIND_FAULT))[2]:
+                path.unlink(missing_ok=True)
+                counts["dropped"] += 1
+                continue
+            if record.get("automatic") and not mode_code_context(
+                    _ERROR_POLICY_CACHE.get("mode")):
+                for frame in summary.get("frames", []):
+                    frame.pop("code", None)
             outcome = _send_one(_validated_summary(summary), timeout)
             if outcome["status"] == REPORT_SENT:
                 counts["sent"] += 1
@@ -2985,17 +3019,389 @@ def fetch_allowance(timeout: float = SEND_TIMEOUT_S
     return _normal_allowance(data)
 
 
-def _report_anonymously(exception: BaseException, app: str = "") -> None:
+_REPORTING_TERMS_VERSION = "4.4"
+_ERROR_DISPATCH_LOCK = threading.RLock()
+_ERROR_DISPATCH_SEEN = {}
+_ERROR_DISPATCH_LOCAL = threading.local()
+_ERROR_RESULT_LISTENERS = []
+_ERROR_POLICY_CACHE = {}
+_ERROR_DISPATCH_LIMIT = threading.BoundedSemaphore(QUEUE_LIMIT)
+_ERROR_ACTIVE_QUEUES = set()
+_ERROR_OCCURRENCE_COUNTER = itertools.count()
+_ERROR_OCCURRENCE_POLICIES = {}
+
+
+def _automatic_error_policy(kind):
+    """Read only the affirmed, mirrored reporting policy; never import Qt."""
+    state = _ERROR_POLICY_CACHE
+    saved = state.get("affirmed_policy")
+    policy = dict(saved) if isinstance(saved, Mapping) else {}
+    accepted = policy.get("accepted_at")
+    consent = (policy.get("version") == _REPORTING_TERMS_VERSION
+               and isinstance(accepted, str)
+               and accepted.endswith(("Z", "+00:00"))
+               and _parse_reset(accepted) is not None)
+    mode = state.get("mode", "off" if state.get("enabled") is False else DEFAULT_ERROR_REPORT_MODE)
+    allowed = consent and network_allowed()
+    explain = bool(allowed and mode_explains(mode) and policy.get("explain")
+                   and policy.get("provider") != "none")
+    send = bool(allowed and mode_sends(kind, mode) and policy.get("auto_file")
+                and policy.get("prompt") == "always")
+    policy["_mode"] = mode
+    return policy, explain, send
+
+
+def _deliver_error_result(outcome):
+    """Notify weak GUI listeners, or print a sanitized answer to the terminal."""
+    for ref in reversed(tuple(_ERROR_RESULT_LISTENERS)):
+        listener = ref()
+        if listener is not None:
+            try:
+                if listener(outcome):
+                    return
+            except Exception:
+                pass
+    _write_error_result(outcome)
+
+
+def _write_error_result(outcome):
+    """Write sanitized results to the original terminal outside captured streams."""
+    if outcome.get("pending") or outcome.get("quiet"):
+        return
+    text = str((outcome.get("explanation") or {}).get("text", ""))
+    url = str(outcome.get("issue_url", ""))
+    if not (text or url):
+        return
+    active = getattr(_ERROR_DISPATCH_LOCAL, "active", False)
+    _ERROR_DISPATCH_LOCAL.active = True
+    try:
+        stream = sys.__stderr__ or sys.stderr
+        if stream is not None:
+            stream.write("\n" + "\n".join(v for v in (text, url) if v) + "\n")
+            stream.flush()
+    except (OSError, ValueError, RuntimeError):
+        pass
+    finally:
+        _ERROR_DISPATCH_LOCAL.active = active
+
+
+
+def _new_error_occurrence(exception=None, *, event_key=""):
+    """Create a producer identity and freeze its policy without retaining errors."""
+    known = getattr(exception, "_spacr_error_occurrence", "") if exception is not None else ""
+    traceback_id = id(exception.__traceback__) if exception is not None else None
+    if known and getattr(exception, "_spacr_error_traceback_id", None) == traceback_id:
+        return known
+    event_id = str(event_key or f"error-{next(_ERROR_OCCURRENCE_COUNTER)}")
+    with _ERROR_DISPATCH_LOCK:
+        if event_id not in _ERROR_OCCURRENCE_POLICIES:
+            _ERROR_OCCURRENCE_POLICIES[event_id] = _automatic_error_policy(KIND_FAULT)
+        if len(_ERROR_OCCURRENCE_POLICIES) > 512:
+            _ERROR_OCCURRENCE_POLICIES.pop(next(iter(_ERROR_OCCURRENCE_POLICIES)))
+    if exception is not None:
+        try:
+            exception._spacr_error_occurrence = event_id
+            exception._spacr_error_traceback_id = traceback_id
+        except Exception:
+            pass
+    return event_id
+
+
+def _error_occurrence(event_id):
+    """Forward a producer's policy; an expired or unknown transport cannot opt in."""
+    event_id = event_id or _new_error_occurrence()
+    with _ERROR_DISPATCH_LOCK:
+        captured = _ERROR_OCCURRENCE_POLICIES.get(
+            event_id, ({"_mode": "off"}, False, False))
+        return event_id, captured
+
+
+@_contextmanager
+def _validation_error_context(app_key, problems):
+    """Scope safe validation metadata to the thread running this entry point."""
+    previous = getattr(_ERROR_DISPATCH_LOCAL, "validation_context", None)
+    lines = public_problem_lines(problems)
+    screen = str(app_key or "").replace("_", " ").title()
+    for entry in getattr(sys.modules.get("spacr.qt.app"), "APPS", ()):
+        if entry[0] == app_key:
+            screen = str(entry[1])
+            break
+    message = "\n".join([
+        f"The run did not start: {len(lines)} settings problem"
+        f"{'' if len(lines) == 1 else 's'}."
+    ] + [f"- {line}" for line in lines]) if lines else ""
+    _ERROR_DISPATCH_LOCAL.validation_context = {
+        "module": str(app_key or ""), "screen": screen,
+        "message": message, "error_text": message,
+    }
+    try:
+        yield
+    finally:
+        _ERROR_DISPATCH_LOCAL.validation_context = previous
+
+
+def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
+                    summary=None, event_id="", origin="direct", context=None):
+    """Schedule bounded error processing without file I/O on the emitting thread."""
+    if getattr(_ERROR_DISPATCH_LOCAL, "active", False):
+        return None
+    context = dict(context or {})
+    event_id, (captured, explain, send) = _error_occurrence(
+        event_id or (_new_error_occurrence(exception) if exception is not None else ""))
+    if not (explain or send) or not _ERROR_DISPATCH_LIMIT.acquire(blocking=False):
+        return None
+    with _ERROR_DISPATCH_LOCK:
+        now = time.monotonic()
+        for key, when in list(_ERROR_DISPATCH_SEEN.items()):
+            if now - when > QUEUE_RETENTION_S:
+                _ERROR_DISPATCH_SEEN.pop(key, None)
+                _ERROR_OCCURRENCE_POLICIES.pop(key, None)
+        if (event_id not in _ERROR_OCCURRENCE_POLICIES
+                or event_id in _ERROR_DISPATCH_SEEN):
+            _ERROR_DISPATCH_LIMIT.release()
+            return None
+        if len(_ERROR_DISPATCH_SEEN) >= 256:
+            retired = next(iter(_ERROR_DISPATCH_SEEN))
+            _ERROR_DISPATCH_SEEN.pop(retired)
+            _ERROR_OCCURRENCE_POLICIES.pop(retired, None)
+        _ERROR_DISPATCH_SEEN[event_id] = now
+
+    def work():
+        """Sanitize the captured error and apply its AI and reporting policy."""
+        _ERROR_DISPATCH_LOCAL.active = True
+        queued = None
+        pending_issued = delivered = False
+        try:
+            kind = classify_failure(exception, traceback_text or text)
+            original_send = send and mode_sends(kind, captured["_mode"])
+            current, now_explain, now_send = _automatic_error_policy(kind)
+            if not ((explain and now_explain) or (original_send and now_send)):
+                return
+            clean = summary or public_summary(
+                exception, traceback_text=traceback_text or text,
+                error_text=context.get("error_text") or text, kind=kind,
+                module=context.get("module") or module or "background",
+                screen=context.get("screen", ""), message=context.get("message", ""),
+                code_context=(mode_code_context(captured["_mode"])
+                              and mode_code_context(current["_mode"])))
+            if not clean.get("exception_type"):
+                clean["exception_type"] = "LoggedError"
+            if not clean.get("module"):
+                clean["module"] = "background"
+            if not clean.get("message"):
+                clean["message"] = scrub_public_text(text, MAX_MESSAGE_CHARS)
+            if original_send and now_send:
+                queued = _enqueue(dict(clean, summarize=False), automatic=True)
+            outcome = {"event_id": event_id}
+            current, now_explain, now_send = _automatic_error_policy(kind)
+            selected = str(captured.get("provider", ""))
+            do_explain = explain and now_explain and current.get("provider", "") == selected
+            if do_explain:
+                saved = saved_explanation(explanation_signature(clean))
+                pending_issued = True
+                _deliver_error_result({"event_id": event_id, "pending": True,
+                                       "kind": kind, "explanation": saved or {}})
+                from .qt.ai.providers import list_providers, HostedProvider, explain_failure
+                try:
+                    candidates = [HostedProvider()] + [type(p)() for p in list_providers()]
+                    provider = next((p for p in candidates if p.name == selected), None)
+                    if not selected:
+                        provider = candidates[0]
+                    if provider is not None:
+                        provider._reporting_args = list(captured.get("provider_args") or [])
+                    outcome["explanation"] = explain_failure(clean, provider)
+                except Exception:
+                    outcome["explanation"] = {"text": "", "refused": "error"}
+            payload = dict(clean, summarize=False)
+            advice = (outcome.get("explanation") or {}).get("text", "")
+            if advice:
+                payload["ai_summary"] = advice
+                cause = (outcome.get("explanation") or {}).get("cause")
+                if cause:
+                    payload["cause"] = cause
+            payload = _validated_summary(payload)
+
+            def allowed():
+                """Recheck revocation under the actual relay send lock."""
+                latest, may_explain, may_send = _automatic_error_policy(kind)
+                if not mode_code_context(latest["_mode"]):
+                    for frame in payload.get("frames", []):
+                        frame.pop("code", None)
+                if not may_explain or latest.get("provider", "") != selected:
+                    payload.pop("ai_summary", None)
+                    payload.pop("cause", None)
+                return original_send and may_send
+
+            if original_send:
+                outcome.update(_send_queued(queued, payload, SEND_TIMEOUT_S, allowed=allowed))
+                outcome["ai_summary_attached"] = bool(payload.get("ai_summary"))
+            latest, may_explain, may_send = _automatic_error_policy(kind)
+            if not may_explain or latest.get("provider", "") != selected:
+                outcome.pop("explanation", None)
+                do_explain = False
+            outcome["explained"] = do_explain
+            outcome["kind"] = kind
+            outcome["quiet"] = (selected == "none" or latest.get("provider") == "none"
+                                or not (may_explain or may_send))
+            _deliver_error_result(outcome)
+            delivered = True
+        except Exception:
+            pass
+        finally:
+            if pending_issued and not delivered:
+                try:
+                    _deliver_error_result({"event_id": event_id, "quiet": True})
+                except Exception:
+                    pass
+            if queued is not None:
+                _ERROR_ACTIVE_QUEUES.discard(queued)
+            _ERROR_DISPATCH_LOCAL.active = False
+            _ERROR_DISPATCH_LIMIT.release()
+
+    thread = threading.Thread(target=work, name="spacr-error-report", daemon=True)
+    thread._spacr_error_occurrence = event_id
+    try:
+        thread.start()
+    except Exception:
+        _ERROR_DISPATCH_LIMIT.release()
+        with _ERROR_DISPATCH_LOCK:
+            _ERROR_DISPATCH_SEEN.pop(event_id, None)
+        return None
+    return thread
+
+
+def _capture_error_record(record):
+    """Preserve logging severity and exception context before console formatting."""
+    import logging
+    if record.levelno < logging.ERROR or record.name.startswith((
+            "spacr.crashreport", "spacr.qt.ai")):
+        return
+    text = record.getMessage()
+    exc = record.exc_info[1] if record.exc_info else None
+    tb = str(record.exc_text or "") if exc else ""
+    context = None
+    site = getattr(record, "spacr_call_site", None)
+    if not exc and site:
+        tb = ("Traceback (most recent call last):\n" + "".join(site)
+              + "spacr.errors.ConfigurationError: " + text)
+        context = getattr(_ERROR_DISPATCH_LOCAL, "validation_context", None)
+    event_id = getattr(record, "_spacr_error_occurrence", "") or _new_error_occurrence(exc)
+    record._spacr_error_occurrence = event_id
+    _dispatch_error(text, exception=exc, module=record.name, traceback_text=tb,
+                    event_id=event_id, origin="log", context=context)
+
+
+def _capture_error_line(text, *, origin="terminal"):
+    """Recognize an explicitly tagged terminal ERROR, never incidental prose."""
+    if getattr(_ERROR_DISPATCH_LOCAL, "active", False):
+        return
+    frame = sys._getframe(1)
+    while frame is not None:
+        if frame.f_globals.get("__name__") == "logging":
+            return
+        frame = frame.f_back
+    stamp = r"(?:(?:\d{4}-\d\d-\d\d[ T])?\d\d:\d\d:\d\d(?:[.,]\d+)?(?:Z|[+-]\d\d:\d\d)?\s+)?"
+    for line in str(text).splitlines(keepends=True):
+        buffers = getattr(_ERROR_DISPATCH_LOCAL, "traceback_buffers", {})
+        pending = buffers.get(origin, "")
+        if line.startswith("Traceback (most recent call last)"):
+            pending = ""
+        if pending or line.startswith("Traceback (most recent call last)"):
+            pending = (pending + line)[-65536:]
+            buffers[origin] = pending
+            _ERROR_DISPATCH_LOCAL.traceback_buffers = buffers
+            if not line[:1].isspace() and _EXCEPTION_LINE_RE.match(line.strip()):
+                buffers[origin] = ""
+                event_id = getattr(_ERROR_DISPATCH_LOCAL, "traceback_occurrence", "")
+                if event_id is not None:
+                    _dispatch_error(pending, traceback_text=pending, origin=origin,
+                                    event_id=event_id)
+        elif re.match(r"^\s*" + stamp + r"(?:\[ERROR\]|ERROR(?:\s|:))", line):
+            _dispatch_error(line, origin=origin)
+
+
+def _consume_native_crash(path):
+    """Consume only a new bounded fatal section after startup, never in a signal."""
+    try:
+        path = Path(path)
+        state = _read_state()
+        key = "native_fatal_ack"
+        size = path.stat().st_size
+        policy = state.get("affirmed_policy") or {}
+        if (policy.get("version") != _REPORTING_TERMS_VERSION
+                or _parse_reset(policy.get("accepted_at")) is None):
+            return None
+        old = state.get(key) or {}
+        offset = int(old.get("offset", 0)) if old.get("path") == str(path) else 0
+        if time.time() - path.stat().st_mtime > QUEUE_RETENTION_S:
+            return None
+        if size < offset:
+            offset = 0
+        with path.open("rb") as handle:
+            handle.seek(max(offset, size - MAX_LOG_BYTES))
+            raw = handle.read(MAX_LOG_BYTES).decode("utf-8", "replace")
+        _update_state(**{key: {"path": str(path), "offset": size}})
+        fatals = list(re.finditer(r"Fatal Python error: ([^\n]+)", raw))
+        if fatals:
+            fatal = fatals[-1]
+            message = "Native process termination: " + fatal.group(1)
+            summary = public_summary(message=message, kind=KIND_FAULT)
+            summary["exception_type"] = "NativeCrash"
+            summary["module"] = "native"
+            observed = raw[fatal.end():].split("\n\n", 1)[-1]
+            frames = re.findall(r'  File "([^"\n]+)", line (\d+) in ([^\n]+)', observed)
+            summary["frames"] = [_frame(file, function, line)
+                                 for file, line, function in frames[:MAX_FRAMES]]
+            record = f"{path.stat().st_ino}:{offset}:{size}"
+            event_id = _new_error_occurrence(event_key=record)
+            return _dispatch_error(message, summary=summary, event_id=event_id)
+    except (OSError, ValueError, TypeError):
+        pass
+    return None
+
+
+_NATIVE_CAPTURE_HANDLE = None
+_NATIVE_EXCEPTION_HOOK = None
+
+
+def _install_native_error_capture(path=None):
+    """Prepare faulthandler output; consume old records only in normal startup."""
+    global _NATIVE_CAPTURE_HANDLE, _NATIVE_EXCEPTION_HOOK
+    import faulthandler
+    from .logging_util import log_dir
+    path = Path(path) if path is not None else log_dir() / "spacr-crash.log"
+    _consume_native_crash(path)
+    if _NATIVE_CAPTURE_HANDLE is not None:
+        return str(path)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if path.exists() and path.stat().st_size > MAX_LOG_BYTES:
+            old_size = path.stat().st_size
+            with path.open("rb") as previous:
+                previous.seek(old_size - MAX_LOG_BYTES)
+                tail = previous.read(MAX_LOG_BYTES)
+            ack = _read_state().get("native_fatal_ack") or {}
+            old_offset = int(ack.get("offset", 0)) if ack.get("path") == str(path) else 0
+            path.write_bytes(tail)
+            _update_state(native_fatal_ack={
+                "path": str(path), "offset": max(0, old_offset - old_size + len(tail))})
+        handle = path.open("a", buffering=1, encoding="utf-8")
+        handle.write(f"\n=== spaCR started (pid {os.getpid()}) ===\n")
+        faulthandler.enable(file=handle, all_threads=True)
+        _NATIVE_CAPTURE_HANDLE = handle
+        if _NATIVE_EXCEPTION_HOOK is None:
+            _NATIVE_EXCEPTION_HOOK = install_excepthook()
+        return str(path)
+    except OSError:
+        return ""
+
+
+def _report_anonymously(exception: BaseException, app: str = "", *, event_id="") -> None:
     """Queue and send an anonymised summary of an unhandled exception.
 
     Never raises: it runs on the way out of a crash.
     """
-    try:
-        if _sending_allowed():
-            submit_public_summary_in_background(
-                public_summary(exception, module=app))
-    except Exception:
-        pass
+    _dispatch_error(str(exception), exception=exception, module=app, event_id=event_id)
 
 
 def build_parser() -> argparse.ArgumentParser:

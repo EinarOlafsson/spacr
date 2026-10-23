@@ -5200,11 +5200,103 @@ _PACKED_SCATTER_FAILED = False
 _PACKED_SCATTER_LOCK = threading.Lock()
 _AMBIENT_STARTUP_READY = threading.Event()
 _AMBIENT_STARTUP_READY.set()
+_COMPILER_STOP = threading.Event()
+_COMPILER_LIFECYCLE_LOCK = threading.Lock()
+_COMPILER_THREADS = set()
+_PRIME_PROCESS = None
+
+
+def _compiler_checkpoint():
+    """Abort optional compiler work once shutdown has requested cancellation."""
+    if _COMPILER_STOP.is_set():
+        from concurrent.futures import CancelledError
+
+        raise CancelledError()
+
+
+def _start_compiler(function, name):
+    """Track one non-daemon compiler, refusing new work after shutdown."""
+    def work():
+        """Release this worker's tracked ownership when its function ends."""
+        try:
+            function()
+        finally:
+            with _COMPILER_LIFECYCLE_LOCK:
+                _COMPILER_THREADS.discard(worker)
+
+    with _COMPILER_LIFECYCLE_LOCK:
+        if _COMPILER_STOP.is_set():
+            return False
+        worker = threading.Thread(target=work, name=name, daemon=False)
+        _COMPILER_THREADS.add(worker)
+        try:
+            worker.start()
+        except BaseException:
+            _COMPILER_THREADS.discard(worker)
+            raise
+    return True
+
+
+def _stop_prime_helper(process, deadline):
+    """Terminate and reap only the owned helper before the shared deadline."""
+    import subprocess
+
+    if process.poll() is not None:
+        return
+    try:
+        process.terminate()
+    except ProcessLookupError:
+        pass
+    remaining = max(0.0, deadline - time.monotonic())
+    try:
+        process.wait(timeout=remaining / 2)
+        return
+    except subprocess.TimeoutExpired:
+        pass
+    try:
+        process.kill()
+    except ProcessLookupError:
+        pass
+    process.wait(timeout=max(0.0, deadline - time.monotonic()))
+
+
+def _retire_compiler_threads(timeout_s=3.0):
+    """Cancel owned helper work and report compilers still alive after a bounded wait."""
+    deadline = time.monotonic() + max(0.0, float(timeout_s))
+    with _COMPILER_LIFECYCLE_LOCK:
+        _COMPILER_STOP.set()
+        process = _PRIME_PROCESS
+        workers = list(_COMPILER_THREADS)
+    if process is not None:
+        try:
+            _stop_prime_helper(process, deadline)
+        except Exception:
+            LOG.warning("ambient compiler helper did not stop before exit", exc_info=True)
+    current = threading.current_thread()
+    for worker in workers:
+        if worker is not current and worker.is_alive():
+            worker.join(max(0.0, deadline - time.monotonic()))
+    alive = sum(worker.is_alive() for worker in workers)
+    if process is not None and process.poll() is None:
+        alive = max(1, alive)
+    if alive:
+        LOG.warning("%d ambient compiler thread(s) did not stop before exit", alive)
+    return alive
 
 
 def _begin_ambient_startup() -> None:
     """Defer optional compiler imports until the application's first paint."""
+    global _PACKED_SCATTER_STARTED
     _AMBIENT_STARTUP_READY.clear()
+    with _COMPILER_LIFECYCLE_LOCK:
+        if not _COMPILER_THREADS and _PRIME_PROCESS is None:
+            if _COMPILER_STOP.is_set():
+                _PRIMED_ONCE.clear()
+                if _PACKED_SCATTER is None and not _PACKED_SCATTER_FAILED:
+                    _PACKED_SCATTER_STARTED = False
+                if _SATIN_COMPILER.kernel is None and not _SATIN_COMPILER.failed:
+                    _SATIN_COMPILER.started = False
+            _COMPILER_STOP.clear()
 
 
 def _complete_ambient_startup() -> None:
@@ -5541,6 +5633,7 @@ def _prime_before_first_kernel() -> None:
     The night-theme engines call this at the top of every render; after the
     first call it is one flag test.
     """
+    _compiler_checkpoint()
     if _PRIMED_ONCE.is_set():
         return
     _PRIMED_ONCE.set()
@@ -5549,6 +5642,7 @@ def _prime_before_first_kernel() -> None:
             _prime_in_helper_process()
     except Exception:
         LOG.debug("the kernel cache could not be filled", exc_info=True)
+    _compiler_checkpoint()
 
 
 def _prime_in_helper_process() -> bool:
@@ -5560,12 +5654,15 @@ def _prime_in_helper_process() -> bool:
 
     :returns: whether the cache is known to be filled for this source.
     """
-    if not _priming_allowed():
+    global _PRIME_PROCESS
+    if _COMPILER_STOP.is_set() or not _priming_allowed():
         return False
     folder = _numba_cache_directory()
     if folder is None:
         return False
     with _PRIME_LOCK:
+        if _COMPILER_STOP.is_set():
+            return False
         marker = _primed_marker(folder)
         if marker.exists():
             return True
@@ -5580,27 +5677,47 @@ def _prime_in_helper_process() -> bool:
         env.setdefault("QT_QPA_PLATFORM", "offscreen")
         code = ("import sys; from spacr.qt.widgets.ambient import "
                 "_prime_kernel_cache; sys.exit(_prime_kernel_cache())")
+        process = None
         try:
-            subprocess.run([sys.executable, "-c", code], env=env,
-                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                           stderr=subprocess.DEVNULL, timeout=_PRIME_TIMEOUT_S,
-                           check=False)
+            with _COMPILER_LIFECYCLE_LOCK:
+                if _COMPILER_STOP.is_set():
+                    return False
+                process = subprocess.Popen([sys.executable, "-c", code], env=env,
+                                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                           stderr=subprocess.DEVNULL)
+                _PRIME_PROCESS = process
+            process.wait(timeout=_PRIME_TIMEOUT_S)
         except Exception:
             LOG.debug("the kernel cache helper did not run", exc_info=True)
             return False
+        finally:
+            if process is not None:
+                try:
+                    _stop_prime_helper(process, time.monotonic() + 3.0)
+                except Exception:
+                    _COMPILER_STOP.set()
+                    LOG.warning("ambient compiler helper did not stop", exc_info=True)
+                with _COMPILER_LIFECYCLE_LOCK:
+                    if _PRIME_PROCESS is process and process.poll() is not None:
+                        _PRIME_PROCESS = None
         return marker.exists()
 
 
 def _compiled_kernel(function):
     """``function`` as a nogil numba kernel, cached on disk when it can be."""
+    _compiler_checkpoint()
     cached = _numba_cache_directory() is not None
     njit = _import_numba().njit
+    _compiler_checkpoint()
 
     if cached:
         try:
-            return njit(nogil=True, cache=True)(function)
+            kernel = njit(nogil=True, cache=True)(function)
+            _compiler_checkpoint()
+            return kernel
         except Exception:
             pass
+    _compiler_checkpoint()
     return njit(nogil=True, cache=False)(function)
 
 
@@ -5614,59 +5731,70 @@ def _warm_packed_scatter():
     global _PACKED_SCATTER, _PACKED_SCATTER_FAILED, _PACKED_SCATTER_STARTED
     global _COLORED_SCATTER, _COLORED_SCATTER_FAILED, _SUBPIXEL_SCATTER
     global _COLOR_BLEND
-    if not _AMBIENT_STARTUP_READY.is_set():
+    if _COMPILER_STOP.is_set() or not _AMBIENT_STARTUP_READY.is_set():
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER_STARTED = False
         return
     if _on_a_worker_thread():
         _prime_in_helper_process()
     try:
+        _compiler_checkpoint()
         np = _numpy()
         flat = np.zeros(1, dtype=np.uint32)
         coordinates = np.zeros(1, dtype=np.int32)
         intensity = np.zeros(1, dtype=np.uint8)
         lookup = np.arange(256, dtype=np.uint32)
         kernel = _compiled_kernel(_scatter_packed_grains)
+        _compiler_checkpoint()
         kernel(flat, coordinates, coordinates, intensity, lookup, lookup, lookup,
                1, 1, True)
         if not getattr(kernel, 'nopython_signatures', ()):
             raise RuntimeError('Packed grain compiler did not produce a CPU kernel')
-        with _PACKED_SCATTER_LOCK:
+        with _PACKED_SCATTER_LOCK, _COMPILER_LIFECYCLE_LOCK:
+            _compiler_checkpoint()
             _PACKED_SCATTER = kernel
         try:
             subpixel = _compiled_kernel(_scatter_subpixel_grains)
+            _compiler_checkpoint()
             subpixel(flat, np.zeros(1, dtype=np.float32), np.zeros(1, dtype=np.float32),
                      np.zeros(1, dtype=np.float32), lookup, 1, 1, True,
                      np.zeros(16, dtype=np.float64))
             if getattr(subpixel, 'nopython_signatures', ()):
-                with _PACKED_SCATTER_LOCK:
+                with _PACKED_SCATTER_LOCK, _COMPILER_LIFECYCLE_LOCK:
+                    _compiler_checkpoint()
                     _SUBPIXEL_SCATTER = subpixel
         except Exception:
             pass
         try:
             blender = _compiled_kernel(_blend_colored_words)
+            _compiler_checkpoint()
             blender(flat, flat.copy(), 1)
             if getattr(blender, 'nopython_signatures', ()):
-                with _PACKED_SCATTER_LOCK:
+                with _PACKED_SCATTER_LOCK, _COMPILER_LIFECYCLE_LOCK:
+                    _compiler_checkpoint()
                     _COLOR_BLEND = blender
         except Exception:
             pass
         try:
             colored = _compiled_kernel(_scatter_colored_grains)
+            _compiler_checkpoint()
             table = lookup
             colored(flat, np.zeros(1, dtype=np.uint8), coordinates, coordinates,
                     np.zeros(1, dtype=np.uint16), table, table, table, 1, 1, True, True)
             if getattr(colored, 'nopython_signatures', ()):
-                with _PACKED_SCATTER_LOCK:
+                with _PACKED_SCATTER_LOCK, _COMPILER_LIFECYCLE_LOCK:
+                    _compiler_checkpoint()
                     _COLORED_SCATTER = colored
             else:
                 _COLORED_SCATTER_FAILED = True
         except Exception:
-            _COLORED_SCATTER_FAILED = True
+            if not _COMPILER_STOP.is_set():
+                _COLORED_SCATTER_FAILED = True
             return
     except Exception:
         with _PACKED_SCATTER_LOCK:
-            _PACKED_SCATTER_FAILED = True
+            if not _COMPILER_STOP.is_set():
+                _PACKED_SCATTER_FAILED = True
 
 
 def _ready_packed_scatter():
@@ -5676,7 +5804,7 @@ def _ready_packed_scatter():
     compilation occurs here, and a contended startup lock returns immediately.
     """
     global _PACKED_SCATTER_STARTED, _PACKED_SCATTER_FAILED
-    if not _AMBIENT_STARTUP_READY.is_set():
+    if _COMPILER_STOP.is_set() or not _AMBIENT_STARTUP_READY.is_set():
         return _PACKED_SCATTER
     if (_PACKED_SCATTER is None and not _PACKED_SCATTER_STARTED
             and not _PACKED_SCATTER_FAILED and _PACKED_SCATTER_LOCK.acquire(blocking=False)):
@@ -5684,8 +5812,8 @@ def _ready_packed_scatter():
             if not _PACKED_SCATTER_STARTED and not _PACKED_SCATTER_FAILED:
                 _PACKED_SCATTER_STARTED = True
                 try:
-                    threading.Thread(target=_warm_packed_scatter,
-                                     name='spacr-grain-compile', daemon=False).start()
+                    if not _start_compiler(_warm_packed_scatter, 'spacr-grain-compile'):
+                        _PACKED_SCATTER_STARTED = False
                 except Exception:
                     _PACKED_SCATTER_FAILED = True
         finally:
@@ -5797,31 +5925,37 @@ class _SatinCompiler:
 
     def _warm(self):
         """Compile owned tiny arrays only after application readiness permits it."""
-        if not _AMBIENT_STARTUP_READY.is_set():
+        if _COMPILER_STOP.is_set() or not _AMBIENT_STARTUP_READY.is_set():
             with self.lock:
                 self.started = False
             return
         if _on_a_worker_thread():
             _prime_in_helper_process()
         try:
+            _compiler_checkpoint()
             np = _numpy()
             kernel = _compiled_kernel(_warp_satin_columns)
             source = np.zeros((1, 1), dtype=np.uint32)
             coordinates = np.zeros(1, dtype=np.int32)
+            _compiler_checkpoint()
             kernel(source, source.copy(), coordinates, coordinates, coordinates + 1, 0)
+            _compiler_checkpoint()
             strided = np.zeros((2, 2), dtype=np.uint32)[:, :1]
             kernel(strided, np.zeros((2, 1), dtype=np.uint32), coordinates,
                    coordinates, coordinates + 2, 0)
             if not getattr(kernel, 'nopython_signatures', ()):
                 raise RuntimeError("native wave compiler is disabled")
-            self.pool = _WaveCopyWorker()
-            self.kernel = kernel
+            with _COMPILER_LIFECYCLE_LOCK:
+                _compiler_checkpoint()
+                self.pool = _WaveCopyWorker()
+                self.kernel = kernel
         except Exception:
-            self.failed = True
+            if not _COMPILER_STOP.is_set():
+                self.failed = True
 
     def ready(self):
         """Offer the exact fallback while startup defers compiler imports."""
-        if not _AMBIENT_STARTUP_READY.is_set():
+        if _COMPILER_STOP.is_set() or not _AMBIENT_STARTUP_READY.is_set():
             return self.kernel
         if self.kernel is not None or self.started or self.failed:
             return self.kernel
@@ -5831,8 +5965,8 @@ class _SatinCompiler:
             if not self.started and not self.failed:
                 self.started = True
                 try:
-                    threading.Thread(target=self._warm, name="spacr-satin-compile",
-                                     daemon=False).start()
+                    if not _start_compiler(self._warm, "spacr-satin-compile"):
+                        self.started = False
                 except Exception:
                     self.failed = True
         finally:
@@ -9687,6 +9821,7 @@ def _retire_shading_threads(timeout_s: float = SHADING_EXIT_BUDGET_S,
     :param final: the interpreter is exiting: no shading thread starts again.
     :returns: how many shading threads are still running afterwards.
     """
+    deadline = time.monotonic() + max(0.0, float(timeout_s))
     if final:
         _SHADING_RETIRED[0] = True
     producers = list(_LIVE_PRODUCERS)
@@ -9696,7 +9831,7 @@ def _retire_shading_threads(timeout_s: float = SHADING_EXIT_BUDGET_S,
         box = producer.box
         if box is not None and box and box[0] is producer:
             box[0] = None
-    deadline = time.monotonic() + max(0.0, float(timeout_s))
+    _retire_compiler_threads(timeout_s=max(0.0, deadline - time.monotonic()))
     current = threading.current_thread()
     for producer in producers:
         thread = producer._thread

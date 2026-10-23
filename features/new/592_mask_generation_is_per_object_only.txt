@@ -1,6 +1,19 @@
 MASK GENERATION IS PER-OBJECT ONLY
 
-Status:    DONE 2026-09-28 — (see the note below). Not an alpha feature: it
+Status:    DONE — empty categories removed and alpha filtration relocated
+Owner:     release_ci_takeover — retained shared settings owner; root — publication
+
+CURRENT REQUIREMENTS — 2026-10-23
+In Generate Masks remove the empty Advanced > Image preprocessing (per object)
+category. Move the two remaining real-object classifier/threshold controls from
+Object filtration (all objects) into the per-object area as Object filtration α.
+Reuse their existing future-feature470 alpha registration, add a literal named
+widget for the group, and hide the group with alpha features disabled. Keep
+ordinary object_filters rows and values intact, with no duplicate controls.
+Remove Advanced if it becomes empty. Preserve settings loading and processing
+semantics; validate real category navigation and alpha toggles.
+
+Previous status (superseded 2026-10-23):    DONE 2026-09-28 — (see the note below). Not an alpha feature: it
            reshapes existing settings and adds none.
 Requested: 2026-09-28, by the maintainer, verbatim:
   "in mask generation, please make per object settings the default and only
@@ -99,3 +112,11 @@ reload; captions for the new help texts wait for the catalog lane.
   TestAnUnsetObjectIsHidden, tests/qt/test_object_grid_binding_recovers.py).
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-23 — Reopened for empty-preprocessing removal and relocation of the two real-object filtering controls to the alpha subgroup in per-object settings; related future470 retains its broader scientific acceptance. Shared settings owner implements after Classify visibility/source controls without re-scoping.
+
+2026-10-23 — Generate Masks now nests the two existing real-object classifier controls under Per-object settings / Object filtration α; the existing feature470 widget gate hides the subgroup with alpha features off. Ordinary table filters and saved values remain unchanged; the empty preprocessing/Advanced headings are absent. Three focused GUI/round-trip controls pass (14.64 s); reviewed title binding, shared normal generation and publication remain pending, and broader feature470 scientific acceptance stays open.
+
+2026-10-23 — Integrated visual review confirms the pre-existing wide Input & Metadata category imposes the same horizontal size before and after subgroup relocation. Vertical settings navigation must retain the user's horizontal scroll position (including zero) instead of shifting the whole form right and clipping category labels; retain deliberate horizontal scrolling and validate the real subgroup reveal interaction.
+
+2026-10-23 — Per-object alpha grouping, ordinary filters, empty-heading removal and horizontal-position-preserving navigation pass focused controls and final native alpha-on/off review. The nine reviewed title targets and normal generated outputs are verified; included in the coordinated atomic source and generated-output publication. Broader future470 scientific acceptance remains open.

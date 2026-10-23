@@ -698,6 +698,15 @@ def _format_conversation(messages: List[Dict], system: str = "") -> str:
 
 
 
+
+def _provider_arguments(provider):
+    """Use snapshotted reporting arguments without creating headless Qt settings."""
+    if hasattr(provider, "_reporting_args"):
+        return list(provider._reporting_args)
+    from . import settings
+    return settings.provider_args(provider.name)
+
+
 class ClaudeCliProvider(ChatProvider):
     """Anthropic Claude via the ``claude`` (Claude Code) CLI."""
 
@@ -720,7 +729,6 @@ class ClaudeCliProvider(ChatProvider):
             When None the current response-speed setting supplies one.
         :returns: iterator yielding stdout text chunks.
         """
-        from . import settings as ai_settings
         resume, allowed = self._approved_resume, self._approved_tools
         self._approved_resume, self._approved_tools = "", []
         self.last_permission_denials = []
@@ -738,7 +746,7 @@ class ClaudeCliProvider(ChatProvider):
         if model:
             argv += ["--model", model]
         else:
-            argv += ai_settings.provider_args(self.name)
+            argv += _provider_arguments(self)
         argv += ["--output-format", "json"]
         yield from self._read_result(_stream_process(argv, provider=self))
 
@@ -874,13 +882,12 @@ class CodexCliProvider(ChatProvider):
             When None the current response-speed setting supplies one.
         :returns: iterator yielding stdout text chunks.
         """
-        from . import settings as ai_settings
         prompt = _format_conversation(messages, system=system)
         argv = ["codex", "exec", prompt]
         if model:
             argv += ["--model", model]
         else:
-            argv += ai_settings.provider_args(self.name)
+            argv += _provider_arguments(self)
         yield from _stream_process(argv, provider=self)
 
 
@@ -905,13 +912,12 @@ class GeminiCliProvider(ChatProvider):
             When None the current response-speed setting supplies one.
         :returns: iterator yielding stdout text chunks.
         """
-        from . import settings as ai_settings
         prompt = _format_conversation(messages, system=system)
         argv = ["gemini", "-p", prompt]
         if model:
             argv += ["-m", model]
         else:
-            args = ai_settings.provider_args(self.name)
+            args = _provider_arguments(self)
             if args and args[0] == "--model":
                 argv += ["-m", args[1]]
             elif args:
@@ -1235,9 +1241,14 @@ def configured_providers() -> List[ChatProvider]:
 
     The hosted provider leads whenever the network is allowed. A vendor CLI follows when
     its install and best-effort login checks pass; the current vendor classes treat an
-    executable on ``PATH`` as configured. These checks do not confirm relay capacity or
-    a working authenticated CLI session.
+    executable on ``PATH`` as configured. An explicit saved ``"none"`` choice
+    returns an empty list without discovery. These checks do not confirm relay
+    capacity or a working authenticated CLI session.
     """
+    from ... import crashreport
+    policy = crashreport._ERROR_POLICY_CACHE.get("affirmed_policy") or {}
+    if policy.get("provider") == "none":
+        return []
     ready = [_HOSTED] if _HOSTED.is_configured() else []
     return ready + [p for p in _PROVIDERS if p.is_configured()]
 
@@ -1249,9 +1260,12 @@ def default_provider(preferred: str = "") -> Optional[ChatProvider]:
     :returns: the matching ``preferred`` provider from :func:`configured_providers`;
         otherwise the first provider in that list, or ``None`` if it is empty. The
         hosted provider leads while the network is allowed; otherwise vendor CLIs are
-        considered in their registered order. This is a configuration choice, not a
+        considered in their registered order. An explicit ``"none"`` returns
+        ``None`` without provider discovery. This is a configuration choice, not a
         guarantee of authentication, remaining quota or request success.
     """
+    if preferred == "none":
+        return None
     ready = configured_providers()
     for p in ready:
         if preferred and p.name == preferred:
@@ -1269,6 +1283,7 @@ PROVIDER_CHOICES: Tuple[Tuple[str, str, str], ...] = (
     ("codex", "GPT (Codex)",
      "Uses your ChatGPT login through the Codex CLI."),
     ("gemini", "Gemini", "Uses your Google login through the Gemini CLI."),
+    ("none", "None", ""),
 )
 
 
@@ -1289,7 +1304,8 @@ def apply_provider_choice(name: str) -> bool:
     The choice is saved even when its configuration checks fail. Open consoles are given
     the chosen provider when those checks pass, otherwise the fallback from
     :func:`default_provider`, which can be another vendor CLI or ``None`` when the
-    network is forbidden. Exceptions while updating consoles are ignored.
+    network is forbidden. Choosing ``"none"`` unsets the provider without a
+    fallback. Exceptions while updating consoles are ignored.
 
     :param name: a name from :data:`PROVIDER_CHOICES`.
     :returns: whether the chosen provider passed configuration checks, regardless of
@@ -1301,7 +1317,7 @@ def apply_provider_choice(name: str) -> bool:
     set_preferred_provider(name)
     provider = get_provider(name)
     ready = bool(provider is not None and provider.is_configured())
-    target = provider if ready else default_provider()
+    target = None if name == "none" else (provider if ready else default_provider())
     try:
         from PySide6.QtWidgets import QApplication
 

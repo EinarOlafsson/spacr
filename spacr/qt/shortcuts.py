@@ -34,6 +34,7 @@ editable rows and saved overrides, applied to both existing and new screens.
 from __future__ import annotations
 
 import logging
+import sys
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
@@ -1696,10 +1697,10 @@ def show_cheat_sheet(parent) -> None:
         by_cat.setdefault(s.category, []).append(s)
 
     for cat, specs in by_cat.items():
-        from .theme import font_px
+        from .theme import QSS_FONT_FAMILY, font_px
         hdr = QLabel(f"<b>{cat}</b>")
         hdr.setStyleSheet(
-            "font-family: 'Open Sans', sans-serif;"
+            f"font-family: {QSS_FONT_FAMILY};"
             f"font-weight: 600; font-size: {font_px(12)}px;"
             "letter-spacing: 1.5px; margin-top: 8px;"
         )
@@ -1713,6 +1714,16 @@ def show_cheat_sheet(parent) -> None:
             row.setTextFormat(Qt.RichText)
             layout.addWidget(row)
 
+    from .dialogs import (OPENS_AT, let_the_content_scroll,
+                          make_the_window_resizable, open_at_its_natural_size)
+
+    dlg.ensurePolished()
+    layout.activate()
+    opening = dlg.sizeHint().expandedTo(dlg.minimumSize())
+    let_the_content_scroll(dlg)
+    make_the_window_resizable(dlg)
+    dlg.setProperty(OPENS_AT, opening)
+    open_at_its_natural_size(dlg)
     dlg.exec()
     return None
 
@@ -1747,7 +1758,7 @@ QLabel#ShortcutOverlayCategory {{
     padding-top: 10px;
 }}
 QLabel#ShortcutOverlayKeys {{
-    font-family: monospace;
+    font-family: {"Menlo" if sys.platform == "darwin" else "monospace"};
     color: {palette["fg"]};
 }}
 QLabel#ShortcutOverlayLabel {{
