@@ -1144,3 +1144,297 @@ def test_hcs_reference_reservoir_is_bounded_balanced_and_reproducible_across_exp
     assert fresh.provenance()["selection"] == options["selection"]
     json.dumps(fresh.provenance(), allow_nan=False)
     assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_condition_annotations_roundtrip_relearns_reference_and_representatives_without_raw_csv_drift(
+        qtbot, tmp_path, monkeypatch):
+    import pandas as pd
+    import tifffile
+    from PySide6.QtWidgets import QFileDialog, QPushButton
+    from spacr import tabular
+
+    source = tmp_path / "images"
+    source.mkdir()
+    originals = {}
+    base = np.array([[0, 2], [2, 4]], dtype=np.uint16)
+    for well, field_id, offset in (("A01", 1, 0), ("A01", 2, 4),
+                                   ("B01", 1, 8), ("B01", 2, 12), ("C02", 1, 0)):
+        path = source / f"p1_{well}_F{field_id}_C1.tif"
+        tifffile.imwrite(path, base + offset)
+        originals[path] = path.read_bytes()
+    conditions = {("p1", "A01"): "control", ("p1", "B01"): "candidate",
+                  ("p1", "C02"): "treated"}
+    dialog = browser._FieldOverview(settings={
+        "source": str(source), "source_scope": "folder", "channels": (1,),
+        "geometry": (4, 6), "representatives": 1, "conditions": conditions,
+        "normalization": {"mode": "reference_average", "reference_kind": "reference_condition",
+                          "reference": ("p1", "control"), "percentiles": (0., 100.)}})
+    qtbot.addWidget(dialog)
+    annotations = tmp_path / "conditions.csv"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *_args, **_kwargs: (str(annotations), ""))
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *_args, **_kwargs: (str(annotations), ""))
+
+    def click(caption):
+        button = next(item for item in dialog.findChildren(QPushButton) if item.text() == browser.tr(caption))
+        dialog._controls_scroll.ensureWidgetVisible(button)
+        qtbot.mouseClick(button, browser.Qt.LeftButton)
+
+    def ready(mean):
+        return (dialog._normalization_ready and not dialog._index_jobs.is_busy()
+                and dialog._normalization_plan["reference_means"][1] == pytest.approx(mean, rel=1e-12))
+
+    try:
+        dialog.show()
+        dialog._scan()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 5 and ready(2.), timeout=10000)
+        field_identities = tuple(field.identity for field in dialog._fields)
+        qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
+        dialog.annotation_scope.setCurrentIndex(dialog.annotation_scope.findData("wells"))
+        dialog.wells.clearSelection()
+        dialog.wells.item(*dialog._well_positions["B01"]).setSelected(True)
+        dialog.annotation_text.setText("control")
+        click("Apply annotation")
+        qtbot.waitUntil(lambda: ready(6.), timeout=10000)
+        saved_conditions = dict(dialog._conditions)
+        assert saved_conditions == {("p1", "A01"): "control", ("p1", "B01"): "control",
+                                    ("p1", "C02"): "treated"}
+        click("Save annotations")
+        qtbot.waitUntil(lambda: annotations.is_file() and not dialog._export_jobs.is_busy(), timeout=10000)
+        annotation_bytes = annotations.read_bytes()
+        saved_table = tabular.read_table(annotations, canonicalise=False)
+        assert list(saved_table.columns) == ["plate", "well", "condition"]
+        assert set(saved_table.itertuples(index=False, name=None)) == {
+            (plate, well, value) for (plate, well), value in saved_conditions.items()}
+        baseline = tmp_path / "before_measurements.csv"
+        tabular.write_table(pd.DataFrame([browser._overview_measurement(field, (1,), conditions=saved_conditions)
+                                         for field in dialog._fields]), baseline, canonicalise=False)
+        dialog.wells.clearSelection()
+        dialog.wells.item(*dialog._well_positions["B01"]).setSelected(True)
+        dialog.annotation_text.clear()
+        click("Apply annotation")
+        qtbot.waitUntil(lambda: ready(2.), timeout=10000)
+        assert ("p1", "B01") not in dialog._conditions
+        assert [row["well"] for row in dialog._normalization_plan["reference_wells"]] == ["A01"]
+        previous = dialog._normalization_context
+        click("Load annotations")
+        qtbot.waitUntil(lambda: ready(6.) and not dialog._export_jobs.is_busy()
+                        and dialog._normalization_context is not previous, timeout=10000)
+        assert dialog._conditions == saved_conditions
+        assert dialog._normalization_plan["reference"] == ("p1", "control")
+        previous = dialog._normalization_context
+        dialog.representatives.setValue(2)
+        qtbot.waitUntil(lambda: ready(8.) and dialog._normalization_context is not previous, timeout=10000)
+        plan = dialog._normalization_plan
+        assert plan["reference_kind"] == "reference_condition" and plan["scope_plate"] == "p1"
+        assert plan["selection"]["representatives"] == 2
+        references = plan["reference_wells"]
+        assert [row["well"] for row in references] == ["A01", "B01"]
+        assert [len(row["field_identities"]) for row in references] == [2, 2]
+        assert all(row["sample_pixels"] == {1: 8} for row in references)
+        assert all(row["bounds_sample_pixels"][1] <= plan["max_bounds_pixels_per_channel"] // 2
+                   for row in references)
+        assert tuple(field.identity for field in dialog._fields) == field_identities
+        restored = tmp_path / "after_measurements.csv"
+        tabular.write_table(pd.DataFrame([browser._overview_measurement(field, (1,), conditions=dialog._conditions)
+                                         for field in dialog._fields]), restored, canonicalise=False)
+        assert restored.read_bytes() == baseline.read_bytes()
+        assert annotations.read_bytes() == annotation_bytes
+        assert all(path.read_bytes() == data for path, data in originals.items())
+    finally:
+        dialog._cancel()
+        runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+                   dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        for runner in runners:
+            runner.shutdown(timeout_ms=3000)
+        dialog.close()
+
+
+def test_accepting_a_new_source_wizard_disposes_retained_browser_and_loads_only_new_pixels(qtbot, tmp_path):
+    import tifffile
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtTest import QSignalSpy
+    from PySide6.QtWidgets import QWidget
+    from shiboken6 import isValid
+
+    first_source, second_source = tmp_path / "first", tmp_path / "second"
+    first_source.mkdir()
+    second_source.mkdir()
+    first_path = first_source / "p1_A01_F1_C1.tif"
+    second_path = second_source / "p2_B02_F2_C1.tif"
+    tifffile.imwrite(first_path, np.array([[0, 1], [2, 3]], dtype=np.uint16))
+    second_pixels = np.array([[10, 0, 5], [2, 8, 4]], dtype=np.uint16)
+    tifffile.imwrite(second_path, second_pixels)
+    originals = {path: path.read_bytes() for path in (first_path, second_path)}
+    settings = {"channels": (1,), "normalization_percentiles": (0., 100.), "geometry": (2, 3)}
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    owner.show()
+
+    def runners(dialog):
+        return (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+                dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+
+    try:
+        first_wizard = browser._open_field_overview(owner, {**settings, "source": str(first_source)})
+        qtbot.waitUntil(first_wizard.next.isEnabled, timeout=10000)
+        qtbot.mouseClick(first_wizard.next, browser.Qt.LeftButton)
+        previous = owner._field_overview
+        qtbot.waitUntil(lambda: previous._normalization_ready and "A01" in previous._installed_thumbnails,
+                        timeout=10000)
+        previous_runners = runners(previous)
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in previous_runners), timeout=10000)
+        assert len(previous._fields) == 1 and previous._fields[0].files == (("1", str(first_path)),)
+        previous_identity = previous._fields[0].identity
+        previous_cancelled = previous._cancelled
+        disposed = QSignalSpy(previous.destroyed)
+        retired = tuple(QSignalSpy(runner.destroyed) for runner in previous_runners)
+        second_wizard = browser._open_field_overview(owner, {**settings, "source": str(second_source)})
+        assert second_wizard is not first_wizard
+        assert owner._field_overview is previous and previous.isVisible()
+        qtbot.waitUntil(second_wizard.next.isEnabled, timeout=10000)
+        assert second_wizard.source.text() == str(second_source)
+        qtbot.mouseClick(second_wizard.next, browser.Qt.LeftButton)
+        current = owner._field_overview
+        assert current is not previous
+        qtbot.waitUntil(lambda: current._normalization_ready and "B02" in current._installed_thumbnails,
+                        timeout=10000)
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        qtbot.waitUntil(lambda: not isValid(previous), timeout=10000)
+        assert previous_cancelled.is_set() and disposed.count() == 1
+        assert all(spy.count() == 1 for spy in retired)
+        assert all(not isValid(runner) for runner in previous_runners)
+        assert current.source.text() == str(second_source)
+        field, = current._fields
+        assert (field.plate, field.well, field.field_id, field.files) == (
+            "p2", "B02", "2", (("1", str(second_path)),))
+        assert field.identity != previous_identity and set(current._well_positions) == {"B02"}
+        item = current.wells.item(*current._well_positions["B02"])
+        cached = current._thumbnail_cache[item.data(browser.Qt.UserRole + 1)]
+        expected = np.repeat(np.uint8(second_pixels / 10. * 255)[..., None], 3, axis=2)
+        np.testing.assert_array_equal(cached, expected)
+        assert all(path.read_bytes() == data for path, data in originals.items())
+        assert tuple(first_source.iterdir()) == (first_path,) and tuple(second_source.iterdir()) == (second_path,)
+    finally:
+        wizard = getattr(owner, "_field_overview_wizard", None)
+        if wizard is not None and isValid(wizard):
+            wizard._startup_timer.stop()
+            wizard._cancelled.set()
+            wizard._runner.cancel()
+            qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
+            wizard._runner.shutdown(timeout_ms=3000)
+            wizard.reject()
+        dialog = getattr(owner, "_field_overview", None)
+        if dialog is not None and isValid(dialog):
+            dialog._cancel()
+            dialog._visual_timer.stop()
+            active_runners = runners(dialog)
+            qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in active_runners), timeout=10000)
+            for runner in active_runners:
+                runner.shutdown(timeout_ms=3000)
+            dialog.close()
+        owner.close()
+
+
+def test_cancel_during_real_montage_decode_drops_reference_result_and_reopens_on_new_well(
+        qtbot, tmp_path, monkeypatch):
+    import tifffile
+    from PIL import Image
+    from PySide6.QtGui import QImage
+    from PySide6.QtWidgets import QPushButton
+
+    source = tmp_path / "images"
+    source.mkdir()
+    base = np.array([[0, 2], [2, 4]], dtype=np.uint16)
+    target = base[::-1].copy()
+    originals = {}
+    for well, field_id, pixels in (("A01", 1, base), ("A01", 2, base), ("B02", 1, target)):
+        path = source / f"p1_{well}_F{field_id}_C1.tif"
+        tifffile.imwrite(path, pixels)
+        originals[path] = path.read_bytes()
+    dialog = browser._FieldOverview(settings={
+        "source": str(source), "source_scope": "folder", "channels": (1,),
+        "geometry": (2, 3), "representatives": 2,
+        "normalization": {"mode": "reference_average", "reference_kind": "reference_well",
+                          "reference": ("p1", "A01"), "percentiles": (0., 100.)}})
+    qtbot.addWidget(dialog)
+    decoded, release, returned = threading.Event(), threading.Event(), threading.Event()
+    cancelled_results = []
+    original_read, original_montage = browser._overview_raw_planes, browser._overview_montage
+
+    def read(field, channels, **options):
+        planes = tuple(original_read(field, channels, **options))
+        if field.well == "A01" and options.get("edge") == 240 and not decoded.is_set():
+            np.testing.assert_array_equal(planes[0][2], base)
+            decoded.set()
+            assert release.wait(10)
+        return planes
+
+    def montage(*args, **kwargs):
+        result = original_montage(*args, **kwargs)
+        cancelled = args[3] if len(args) > 3 else kwargs.get("cancelled")
+        if cancelled is not None and cancelled.is_set():
+            cancelled_results.append(result)
+            returned.set()
+        return result
+
+    monkeypatch.setattr(browser, "_overview_raw_planes", read)
+    monkeypatch.setattr(browser, "_overview_montage", montage)
+    runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+
+    def click(caption):
+        button = next(item for item in dialog.findChildren(QPushButton) if item.text() == browser.tr(caption))
+        dialog._controls_scroll.ensureWidgetVisible(button)
+        qtbot.mouseClick(button, browser.Qt.LeftButton)
+
+    try:
+        dialog.show()
+        dialog._scan()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 3 and dialog._normalization_ready
+                        and not dialog._index_jobs.is_busy(), timeout=10000)
+        old_context, old_token = dialog._normalization_context, dialog._cancelled
+        qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
+        dialog.wells.setCurrentItem(dialog.wells.item(*dialog._well_positions["A01"]))
+        click("Open selected well")
+        qtbot.waitUntil(decoded.is_set, timeout=10000)
+        assert dialog.view._item is None
+        click("Cancel loading or export")
+        assert old_token.is_set()
+        release.set()
+        qtbot.waitUntil(lambda: returned.is_set() and dialog._montage_jobs.active_jobs() == 0,
+                        timeout=10000)
+        assert cancelled_results == [(None, ())]
+        assert dialog.view._item is None and dialog._displayed_montage is None
+        assert dialog.status.text() == browser.tr(
+            "Cancellation requested; the current image read may finish.")
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        dialog.close()
+        dialog.show()
+        qtbot.waitUntil(lambda: dialog._normalization_ready
+                        and dialog._normalization_context is not old_context
+                        and not dialog._index_jobs.is_busy(), timeout=10000)
+        assert old_token.is_set() and dialog._cancelled is not old_token
+        dialog.wells.setCurrentItem(dialog.wells.item(*dialog._well_positions["B02"]))
+        click("Open selected well")
+        qtbot.waitUntil(lambda: dialog._displayed_montage == dialog._visual_context()
+                        and dialog.view._item is not None and not dialog._montage_jobs.is_busy(),
+                        timeout=10000)
+        assert dialog._scope == ("p1", "B02")
+        assert dialog.status.text() == browser.tr("{count} fields; {errors} unreadable previews.",
+                                                count=1, errors=0)
+        gray = np.uint8(target.astype(np.float64) / 4. * 255.)
+        rgb = np.repeat(gray[..., None], 3, axis=2)
+        expected = np.asarray(Image.fromarray(rgb).resize((240, 240), Image.Resampling.BILINEAR)).copy()
+        picture = QImage(expected.data, 240, 240, expected.strides[0], QImage.Format_RGB888).copy()
+        actual = dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888)
+        assert actual.copy(0, 24, 240, 240) == picture
+        assert all(path.read_bytes() == payload for path, payload in originals.items())
+    finally:
+        release.set()
+        dialog._cancel()
+        dialog._visual_timer.stop()
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        for runner in runners:
+            runner.shutdown(timeout_ms=3000)
+        dialog.close()
