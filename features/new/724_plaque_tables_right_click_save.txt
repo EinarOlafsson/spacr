@@ -1,6 +1,6 @@
 SAVE ANY PLAQUE ASSAY TABLE FROM ITS CONTEXT MENU
 ================================================
-Status:    IN PROGRESS
+Status:    DONE
 Requested: maintainer, 2026-10-22
 Owner:     widgets_g2 implementation and delivery; widgets_g1 independent peer
 Priority:  Start now alongside release CI
@@ -29,3 +29,5 @@ ACCEPTANCE
 2026-10-22 — Existing Wells/Plaques context saves preserve typed values and visible order; nine focused CPU cases pass and 27 caption drafts passed reciprocal meaning review. Normal outputs and publication remain pending.
 
 2026-10-22 — Canonical API extraction identified the internal nested row provider as a public producer; root approved lifting the row body into a module-private provider with a lambda callback after the canonical collector also selected underscored nested functions. Preserve raw values and callback arguments, with independent refactor peer review and all nine passing controls retained when behavior is equivalent.
+
+2026-10-22 — Delivered typed, ordered Wells/Plaques context-menu exports with native cancellation, overwrite and failure handling; nine focused controls and two final source-bound runtime gates pass. Normal consumer outputs and all 27 AI-authored/independently AI-peered captions are pinned to immutable reviews b27631d6; canonical API remains unchanged.
