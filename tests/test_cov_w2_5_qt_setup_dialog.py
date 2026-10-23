@@ -38,6 +38,127 @@ def _headings(dialog):
             if label.text().startswith("<b>")]
 
 
+@pytest.mark.parametrize('presentation', ['slides', 'grouped'])
+def test_setup_combos_keep_all_offered_text_slots_when_fonts_change(qtbot, presentation):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QSize, Qt
+    from PySide6.QtWidgets import QStyle, QStyleOptionComboBox
+    from spacr.qt import gui_scale, theme
+    from spacr.qt.widgets.setup_slides import SetupSlides
+
+    previous = gui_scale.current_scale()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(.9)
+    choices = [('a', 'Português'), ('b', 'spaCR advection'), ('c', 'Extra Performance')]
+    if presentation == 'slides':
+        combo = SetupSlides._editor(SimpleNamespace(), 'spacr_mode', choices, 'a')
+    else:
+        combo = sd.SetupDialog._editor('spacr_mode', choices, 'a')
+    qtbot.addWidget(combo)
+    try:
+        floors = []
+        for scale in (.9, 2.0, .9):
+            combo.setStyleSheet(theme.stylesheet('dark', font_scale=scale))
+            combo.ensurePolished()
+            combo.show()
+            QApplication.processEvents()
+            expected = gui_scale.scale_int(theme.font_px('body', scale), .9)
+            assert combo.font().pixelSize() == expected
+            hint = combo.minimumSizeHint()
+            gui_scale._resize_actual(combo, hint)
+            option = QStyleOptionComboBox()
+            option.initFrom(combo)
+            option.rect = combo.rect()
+            option.frame = combo.hasFrame()
+            option.editable = combo.isEditable()
+            field = combo.style().subControlRect(QStyle.CC_ComboBox, option, QStyle.SC_ComboBoxEditField, combo)
+            flags = int(Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine)
+            for index in range(combo.count()):
+                text = combo.style().itemTextRect(combo.fontMetrics(), field, flags, True, combo.itemText(index))
+                assert field.contains(text), (presentation, scale, combo.rect(), field, text)
+            gui_scale._resize_actual(combo, QSize(combo.width(), max(1, hint.height() - 5)))
+            option.rect = combo.rect()
+            field = combo.style().subControlRect(QStyle.CC_ComboBox, option, QStyle.SC_ComboBoxEditField, combo)
+            text = combo.style().itemTextRect(combo.fontMetrics(), field, flags, True, combo.currentText())
+            assert field.contains(text), (presentation, scale, combo.rect(), field, text)
+            floors.append((combo.minimumWidth(), combo.minimumHeight()))
+            assert combo.currentData() == 'a'
+        assert floors[-1] == floors[0]
+        assert floors[1][1] > floors[0][1]
+        combo.addItem('An extra long optional setup choice', 'long')
+        assert combo.minimumWidth() > floors[-1][0]
+        assert combo.currentData() == 'a'
+        combo.removeItem(combo.count() - 1)
+        assert (combo.minimumWidth(), combo.minimumHeight()) == floors[-1]
+        combo.setStyleSheet(theme.stylesheet('dark', font_scale=.9)
+                           + '\nQComboBox { padding: 20px 20px; }')
+        QApplication.processEvents()
+        assert combo.minimumHeight() > floors[-1][1]
+        combo.setStyleSheet(theme.stylesheet('dark', font_scale=.9))
+        QApplication.processEvents()
+        assert (combo.minimumWidth(), combo.minimumHeight()) == floors[-1]
+    finally:
+        combo.close()
+        gui_scale.set_gui_scale_live(previous)
+
+
+def test_grouped_setup_keeps_controls_reachable_at_joint_maximum(qtbot, qapp, monkeypatch):
+    from PySide6.QtCore import QPoint, QSize
+    from PySide6.QtGui import QRegion
+    from PySide6.QtWidgets import QAbstractScrollArea, QDialog, QStyle, QStyleOptionButton
+    from spacr.qt import gui_scale, theme
+
+    old_scale, old_sheet = gui_scale.current_scale(), qapp.styleSheet()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(2.0)
+    qapp.setStyleSheet(theme.stylesheet('dark', font_scale=2.0))
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    parent.show()
+    monkeypatch.setattr(sd.SetupDialog, '_backdrop', lambda self, parent: QGraphicsView(self))
+    dialog = sd.SetupDialog(parent)
+    qtbot.addWidget(dialog)
+    try:
+        assert dialog._backdrop_view is not None
+        dialog.show()
+        qtbot.waitExposed(dialog)
+        handle = dialog.windowHandle()
+        assert handle.screen().availableGeometry().contains(handle.frameGeometry())
+        gui_scale._resize_actual(dialog, QSize(1296, 783))
+        qapp.processEvents()
+        editor = dialog._editors['spacr_ai']
+        option = QStyleOptionButton()
+        option.initFrom(editor)
+        option.rect, option.text = editor.rect(), editor.text()
+        indicator = editor.style().subElementRect(QStyle.SE_CheckBoxIndicator, option, editor)
+        print('GROUPED_AI_GEOMETRY', editor.rect(), editor.minimumSizeHint(), indicator)
+        assert not indicator.isEmpty() and editor.rect().contains(indicator)
+        for control in list(dialog._editors.values()) + dialog.findChildren(QLabel):
+            if not control.isVisibleTo(dialog):
+                continue
+            whole = not control.rect().isEmpty() and QRegion(control.rect()).subtracted(control.visibleRegion()).isEmpty()
+            ancestor = control.parentWidget()
+            while ancestor is not None and ancestor is not dialog and not isinstance(ancestor, QAbstractScrollArea):
+                ancestor = ancestor.parentWidget()
+            reachable = False
+            if isinstance(ancestor, QAbstractScrollArea):
+                viewport = ancestor.viewport()
+                mapped = control.rect().translated(control.mapTo(viewport, QPoint()))
+                area = viewport.rect()
+                horizontal, vertical = ancestor.horizontalScrollBar(), ancestor.verticalScrollBar()
+                reachable = (mapped.left() + horizontal.value() >= area.left() + horizontal.minimum()
+                             and mapped.right() + horizontal.value() <= area.right() + horizontal.maximum()
+                             and mapped.top() + vertical.value() >= area.top() + vertical.minimum()
+                             and mapped.bottom() + vertical.value() <= area.bottom() + vertical.maximum()
+                             and not area.contains(mapped))
+            assert whole or reachable, (type(control).__name__, control.rect(), control.visibleRegion())
+    finally:
+        QDialog.reject(dialog)
+        parent.close()
+        qapp.setStyleSheet(old_sheet)
+        gui_scale.set_gui_scale_live(old_scale)
+
+
 # ---------------------------------------------------------------------------
 # the backdrop
 # ---------------------------------------------------------------------------

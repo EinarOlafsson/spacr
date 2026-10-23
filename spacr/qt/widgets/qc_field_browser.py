@@ -4065,21 +4065,21 @@ class _OverviewMetadataWizard(QDialog):
         layout.addRow(tr("Time index"), self.time)
         layout.addRow(tr("Z view"), self.z_mode)
         layout.addRow(tr("Z index"), self.z)
-        self.geometry = QComboBox()
-        self.geometry.setObjectName("OverviewWizardGeometry")
-        self.geometry.addItem(tr("Coverslip"), (1, 1))
+        self.plate_geometry = QComboBox()
+        self.plate_geometry.setObjectName("OverviewWizardGeometry")
+        self.plate_geometry.addItem(tr("Coverslip"), (1, 1))
         for count, dimensions in ((6, (2, 3)), (12, (3, 4)), (24, (4, 6)),
                                   (48, (6, 8)), (96, (8, 12)), (384, (16, 24)),
                                   (1536, (32, 48))):
-            self.geometry.addItem(tr("{count}-well plate", count=count), dimensions)
+            self.plate_geometry.addItem(tr("{count}-well plate", count=count), dimensions)
         self._geometry_explicit = self._settings.get("geometry") is not None
         selected_geometry = self._settings.get("geometry")
-        selected_index = next((index for index in range(self.geometry.count())
+        selected_index = next((index for index in range(self.plate_geometry.count())
                                if selected_geometry and
-                               self.geometry.itemData(index) == tuple(selected_geometry)), -1)
-        self.geometry.setCurrentIndex(selected_index if selected_index >= 0 else 5)
-        self.geometry.activated.connect(self._choose_geometry)
-        layout.addRow(tr("Plate geometry"), self.geometry)
+                               self.plate_geometry.itemData(index) == tuple(selected_geometry)), -1)
+        self.plate_geometry.setCurrentIndex(selected_index if selected_index >= 0 else 5)
+        self.plate_geometry.activated.connect(self._choose_geometry)
+        layout.addRow(tr("Plate geometry"), self.plate_geometry)
         self.representatives = QSpinBox()
         self.representatives.setRange(1, 100)
         self.representatives.setValue(1)
@@ -4265,10 +4265,10 @@ class _OverviewMetadataWizard(QDialog):
         self.z.setRange(0, max(entry.get("z_count", 1) for entry in info["files"]) - 1)
         if not self._geometry_explicit:
             rows_required, columns_required = _overview_geometry_extent(fields)
-            for index in range(self.geometry.count()):
-                rows_available, columns_available = self.geometry.itemData(index)
+            for index in range(self.plate_geometry.count()):
+                rows_available, columns_available = self.plate_geometry.itemData(index)
                 if rows_available >= rows_required and columns_available >= columns_required:
-                    self.geometry.setCurrentIndex(index)
+                    self.plate_geometry.setCurrentIndex(index)
                     break
         wells = sorted({(field.plate, field.well) for field in fields})
         self.conditions.blockSignals(True)
@@ -4336,7 +4336,7 @@ class _OverviewMetadataWizard(QDialog):
         if not channels or len(set(channels)) != len(channels) or not set(channels) <= set(self._info["channels"]):
             raise _OverviewValidationError(tr("Choose only channel IDs reported by this image's metadata."))
         rows_required, columns_required = _overview_geometry_extent(self._fields)
-        rows_available, columns_available = self.geometry.currentData()
+        rows_available, columns_available = self.plate_geometry.currentData()
         if rows_required > rows_available or columns_required > columns_available:
             raise _OverviewValidationError(tr(
                 "The selected geometry does not contain the indexed wells "
@@ -4358,7 +4358,7 @@ class _OverviewMetadataWizard(QDialog):
             raise _OverviewValidationError(tr("The reference channel must be selected for display."))
         return {"source": self.source.text(), "custom_regex": self.regex.text(),
                 "microscope": self.preset.currentData(), "source_scope": self.scope.currentData(),
-                "geometry": tuple(self.geometry.currentData()),
+                "geometry": tuple(self.plate_geometry.currentData()),
                 "channels": channels, "time_index": self.time.value(),
                 "z_mode": self.z_mode.currentData(), "z_index": self.z.value(),
                 "representatives": self.representatives.value(),

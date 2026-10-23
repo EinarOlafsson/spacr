@@ -673,3 +673,258 @@ def test_cancellation_after_actual_raw_measurement_read_does_not_publish_results
     assert metadata["measurements"]["path"] is None
     assert metadata["measurements"]["written_field_count"] == 0
     assert path.read_bytes() == original_bytes
+
+
+def test_unreadable_field_tiles_keep_neighbors_renderable_and_recover_after_reload(tmp_path, qtbot, monkeypatch):
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QImage
+    from PySide6.QtWidgets import QPushButton
+    from tests.qt.test_field_of_view_overview import _retire_overview
+
+    source = tmp_path / "source"
+    source.mkdir()
+    base = np.arange(48 * 64, dtype=np.uint16).reshape(48, 64)
+    planes = {"1": base, "2": base[::-1, ::-1].copy(),
+              "3": np.where(base % 2, 500, 0).astype(np.uint16),
+              "4": base[::-1].copy()}
+    paths = {field: source / f"p1_A01_F{field}_C1.tif" for field in planes}
+    for field, path in paths.items():
+        tifffile.imwrite(path, planes[field])
+    originals = {field: path.read_bytes() for field, path in paths.items()}
+    dialog = browser._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "channels": (1,), "geometry": (1, 1), "normalization_percentiles": (0, 100)})
+
+    def retire(widget):
+        """Stop this overview's queued visuals before retiring its owned workers."""
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+
+    qtbot.addWidget(dialog, before_close_func=retire)
+    messages = []
+    actual_status = dialog.status.setText
+
+    def show_status(message):
+        """Observe the real status presentation without replacing it."""
+        actual_status(message)
+        messages.append(dialog.status.text())
+
+    monkeypatch.setattr(dialog.status, "setText", show_status)
+    dialog.show()
+    dialog._scan()
+    qtbot.waitUntil(lambda: len(dialog._fields) == 4 and dialog._normalization_ready
+                    and not dialog._index_jobs.is_busy(), timeout=10000)
+    indexed = {field.field_id: field for field in dialog._fields}
+    paths["2"].write_bytes(b"This acquired TIFF became unreadable after indexing.")
+    paths["3"].unlink()
+
+    def open_well():
+        """Use the physical well cell to expose its actual indexed field list."""
+        well = dialog.wells.item(*dialog._well_positions["A01"])
+        qtbot.mouseClick(dialog.wells.viewport(), Qt.LeftButton,
+                         pos=dialog.wells.visualItemRect(well).center())
+        assert dialog.wells.currentItem().data(Qt.UserRole) == "A01"
+        open_button = next(button for button in dialog.findChildren(QPushButton)
+                           if button.text() == browser.tr("Open selected well"))
+        qtbot.mouseClick(open_button, Qt.LeftButton)
+        qtbot.waitUntil(lambda: dialog.fields.isVisible() and dialog.fields.count() == 4)
+        return {dialog.fields.item(index).data(Qt.UserRole).field_id: dialog.fields.item(index)
+                for index in range(dialog.fields.count())}
+
+    def wait_for_tile(item):
+        """Scroll to the real item and await its worker's installed identity key."""
+        dialog.fields.scrollToItem(item)
+        qtbot.waitUntil(lambda: item.data(Qt.UserRole + 1) is not None, timeout=10000)
+
+    def open_and_check(item, expected):
+        """Click a field and compare its native displayed pixels with the raw transform."""
+        dialog.fields.scrollToItem(item)
+        qtbot.mouseClick(dialog.fields.viewport(), Qt.LeftButton,
+                         pos=dialog.fields.visualItemRect(item).center())
+        identity = item.data(Qt.UserRole).identity
+        qtbot.waitUntil(lambda: dialog.view._item is not None
+                        and dialog._displayed_field[0] == identity
+                        and not dialog._image_jobs.is_busy(), timeout=10000)
+        image = dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888)
+        actual = np.frombuffer(image.bits(), dtype=np.uint8).reshape(image.height(), image.bytesPerLine())
+        actual = actual[:, :image.width() * 3].reshape(image.height(), image.width(), 3)
+        gray = np.uint8(expected.astype(np.float32) / float(expected.max()) * 255)
+        np.testing.assert_array_equal(actual, np.repeat(gray[..., None], 3, axis=2))
+
+    try:
+        items = open_well()
+        for field_id in ("1", "2", "3", "4"):
+            wait_for_tile(items[field_id])
+        assert not items["1"].icon().isNull() and not items["4"].icon().isNull()
+        assert items["2"].icon().isNull() and items["3"].icon().isNull()
+        for field_id in ("2", "3"):
+            prefix = browser.tr("Could not read {field}: {error}",
+                                field=indexed[field_id].caption, error="").rstrip()
+            assert any(message.startswith(prefix) for message in messages)
+        assert {field: item.data(Qt.UserRole).identity for field, item in items.items()} == {
+            field: record.identity for field, record in indexed.items()}
+        open_and_check(items["4"], planes["4"])
+        assert paths["1"].read_bytes() == originals["1"] and paths["4"].read_bytes() == originals["4"]
+        for field_id in ("2", "3"):
+            paths[field_id].write_bytes(originals[field_id])
+        dialog.options_button.click()
+        load = next(button for button in dialog.findChildren(QPushButton)
+                    if button.text() == browser.tr("Load overview"))
+        dialog._controls_scroll.ensureWidgetVisible(load)
+        qtbot.mouseClick(load, Qt.LeftButton)
+        qtbot.waitUntil(lambda: len(dialog._fields) == 4 and dialog._normalization_ready
+                        and not dialog._index_jobs.is_busy() and not dialog._individual, timeout=10000)
+        recovered = open_well()
+        for item in recovered.values():
+            wait_for_tile(item)
+            assert not item.icon().isNull()
+        open_and_check(recovered["2"], planes["2"])
+        assert all(path.read_bytes() == originals[field] for field, path in paths.items())
+    finally:
+        retire(dialog)
+        dialog.close()
+
+
+def test_unresolved_sources_remain_distinct_deterministic_samples_in_pdf_and_raw_csv(tmp_path):
+    from pypdf import PdfReader
+    from spacr import tabular
+
+    source = tmp_path / "unidentified"
+    source.mkdir()
+    pixels = {
+        "capture-alpha.tif": np.arange(30, dtype=np.uint16).reshape(5, 6),
+        "capture-beta.npy": np.arange(28, dtype=np.uint16).reshape(4, 7)[::-1].copy(),
+        "capture-gamma.npy": np.where(np.indices((6, 5)).sum(axis=0) % 2, 9, 0).astype(np.uint16),
+    }
+    for name, array in pixels.items():
+        if name.endswith(".tif"):
+            tifffile.imwrite(source / name, array)
+        else:
+            np.save(source / name, array)
+    original = {path: path.read_bytes() for path in source.iterdir()}
+    fields = browser._overview_index(source, source_scope="folder")
+    assert len(fields) == len({field.identity for field in fields}) == 3
+    assert all(field.unresolved and field.well == field.row == "" and field.column == 0
+               for field in fields)
+    assert {path for field in fields for channel, path in field.files} == {str(path) for path in original}
+    for grouping in ("well", "row", "column", "plate"):
+        selected = browser._overview_sample(fields, 1, 37, grouping, True)
+        assert selected == browser._overview_sample(tuple(reversed(fields)), 1, 37, grouping, True)
+        assert {field.identity for field in selected} == {field.identity for field in fields}
+    selected = browser._overview_sample(fields, 1, 37, "well", True)
+    output = tmp_path / "export"
+    written, errors = browser._overview_export(selected, output, (0,), (0, 100),
+        seed=37, measurements=True, quality_edge=None)
+    assert len(written) == 1 and errors == ()
+    page = PdfReader(written[0]).pages[0]
+    assert len(page.images) == len(selected)
+    assert {image.image.size for image in page.images} == {(6, 5), (7, 4), (5, 6)}
+    text = "".join(page.extract_text().split())
+    assert all(field.field in text for field in selected)
+    metadata = json.loads((output / "overview_selection.json").read_text())
+    assert metadata["seed"] == 37 and metadata["quality_edge"] is None
+    assert metadata["requested_field_count"] == metadata["written_field_count"] == 3
+    assert [(record["plate"], record["well"], record["field_id"], record["files"])
+            for record in metadata["fields"]] == [
+        (field.plate, "", field.field_id, [list(item) for item in field.files]) for field in selected]
+    table = tabular.read_table(output / "overview_measurements.csv", canonicalise=False,
+                               keep_default_na=False)
+    assert len(table) == len(selected) and set(table["well"]) == {""}
+    assert set(table["row"]) == {""} and set(table["column"]) == {0}
+    assert set(table["metadata_resolved"]) == {False} and set(table["status"]) == {"ok"}
+    for field in selected:
+        row = table.loc[table["field"] == field.field].iloc[0]
+        path = next(iter(dict(field.files).values()))
+        raw = pixels[field.field]
+        assert row["channel_0_source"] == path
+        assert row["roi_area"] == raw.size and row["channel_0_intensity_mean"] == float(raw.mean())
+    assert all(path.read_bytes() == content for path, content in original.items())
+
+
+def test_ui_cancellation_during_first_real_pdf_field_discards_partial_outputs(tmp_path, qtbot, monkeypatch, qapp):
+    import threading
+    from PySide6.QtCore import QThread, QTimer, Qt
+    from PySide6.QtWidgets import QFileDialog, QPushButton
+    from tests.qt.test_field_of_view_overview import _retire_overview
+
+    source = tmp_path / "source"
+    source.mkdir()
+    for field_id in (1, 2, 3):
+        tifffile.imwrite(source / f"p1_A01_F{field_id}_C1.tif",
+            np.arange(48 * 64, dtype=np.uint16).reshape(48, 64) + field_id)
+    original_bytes = {path: path.read_bytes() for path in source.iterdir()}
+    dialog = browser._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "channels": (1,), "geometry": (1, 1), "normalization_percentiles": (0, 100)})
+    started, release = threading.Event(), threading.Event()
+    reads, completed, failures = [], [], []
+    actual_pixels = browser._overview_pixels
+
+    def retire(widget):
+        """Release this test's reader gate and retire only the overview's jobs."""
+        release.set()
+        widget._visual_timer.stop()
+        _retire_overview(widget, qtbot)
+
+    qtbot.addWidget(dialog, before_close_func=retire)
+    dialog.show()
+    dialog._scan()
+    qtbot.waitUntil(lambda: len(dialog._fields) == 3 and dialog._normalization_ready
+                    and not dialog._index_jobs.is_busy(), timeout=10000)
+    dialog.options_button.click()
+    dialog._controls_scroll.ensureWidgetVisible(dialog.export_scope)
+    dialog.export_scope.setCurrentIndex(dialog.export_scope.findData("plate"))
+    dialog.measurements.setChecked(True)
+    assert dialog.pdf_quality.currentData() is None
+    selected = dialog._export_selection()
+    assert len(selected) == 3 and all(field.well == "A01" for field in selected)
+    assert dialog._normalization_context is None
+
+    def read(field, *args, **kwargs):
+        """Pause the real full-source image after decoding, never replace its pixels."""
+        pixels = actual_pixels(field, *args, **kwargs)
+        if "edge" in kwargs and kwargs["edge"] is None:
+            reads.append((field.identity, QThread.currentThread()))
+            started.set()
+            if not release.wait(10):
+                raise RuntimeError("The controlled full-source reader was not released.")
+        return pixels
+
+    monkeypatch.setattr(browser, "_overview_pixels", read)
+    output = tmp_path / "cancelled-export"
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *args, **kwargs: str(output))
+    dialog._export_jobs.job_finished.connect(lambda ok: completed.append((ok, QThread.currentThread())))
+    dialog._export_jobs.job_failed.connect(failures.append)
+    export = next(button for button in dialog.findChildren(QPushButton)
+                  if button.text() == browser.tr("Export PDFs"))
+    cancel = next(button for button in dialog.findChildren(QPushButton)
+                  if button.text() == browser.tr("Cancel loading or export"))
+    try:
+        dialog._controls_scroll.ensureWidgetVisible(export)
+        qtbot.mouseClick(export, Qt.LeftButton)
+        qtbot.waitUntil(started.is_set, timeout=10000)
+        assert dialog._export_jobs.is_busy() and len(reads) == 1
+        assert reads[0][0] == selected[0].identity
+        assert reads[0][1] != qapp.thread()
+        heartbeat = []
+        QTimer.singleShot(0, lambda: heartbeat.append(QThread.currentThread()))
+        qtbot.waitUntil(lambda: bool(heartbeat))
+        assert heartbeat == [qapp.thread()]
+        dialog._controls_scroll.ensureWidgetVisible(cancel)
+        qtbot.mouseClick(cancel, Qt.LeftButton)
+        assert dialog._cancelled.is_set() and dialog._export_jobs.is_busy()
+        assert dialog.status.text() == browser.tr("Cancellation requested; the current image read may finish.")
+        release.set()
+        qtbot.waitUntil(lambda: bool(completed) and not dialog._export_jobs.is_busy(), timeout=10000)
+        assert completed == [(True, qapp.thread())] and failures == []
+        assert len(reads) == 1
+        assert not list(output.glob("*.pdf")) and not (output / "overview_measurements.csv").exists()
+        assert not list(output.glob(".*pending*"))
+        metadata = json.loads((output / "overview_selection.json").read_text())
+        assert metadata["cancelled"] is True and metadata["fields"] == []
+        assert metadata["requested_field_count"] == 3 and metadata["written_field_count"] == 0
+        assert metadata["measurements"]["path"] is None
+        assert metadata["measurements"]["written_field_count"] == 0
+        assert browser.tr("Measurements CSV was not published because export was cancelled.") in dialog.status.text()
+        assert all(path.read_bytes() == content for path, content in original_bytes.items())
+    finally:
+        retire(dialog)
+        dialog.close()

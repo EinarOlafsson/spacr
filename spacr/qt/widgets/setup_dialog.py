@@ -10,13 +10,13 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Optional
 
-from PySide6.QtCore import QPoint, Qt
+from PySide6.QtCore import QEvent, QPoint, QRect, QSize, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog,
                                QDialogButtonBox, QFormLayout, QGridLayout,
                                QGraphicsBlurEffect, QGraphicsScene,
                                QGraphicsPixmapItem, QGraphicsView, QLabel,
-                               QVBoxLayout, QWidget)
+                               QStyle, QStyleOptionComboBox, QVBoxLayout, QWidget)
 
 LOG = logging.getLogger("spacr.qt.setup_dialog")
 
@@ -28,6 +28,70 @@ GROUPS: List[tuple] = [
 
 #: How far the home screen behind is blurred.
 BLUR = 18.0
+
+
+class _SetupComboBox(QComboBox):
+    """Reserve full native text slots for every offered setup choice.
+
+    Minimum floors follow current fonts, style and model contents; neither
+    maximum dimensions nor fixed sizes restrict later layout growth.
+    """
+
+    def __init__(self, parent=None):
+        """Bind model updates after Qt construction, before choices are added."""
+        self._fit_ready = False
+        self._fitting = False
+        super().__init__(parent)
+        self._fit_ready = True
+        self.model().rowsInserted.connect(self._fit_contents)
+        self.model().rowsRemoved.connect(self._fit_contents)
+        self.model().dataChanged.connect(self._fit_contents)
+        self.model().modelReset.connect(self._fit_contents)
+
+    def event(self, event):
+        """Recalculate after Qt has refreshed its font or style hint caches."""
+        result = super().event(event)
+        if event.type() in (QEvent.Polish, QEvent.FontChange, QEvent.StyleChange):
+            self._fit_contents()
+        return result
+
+    def _fit_contents(self, *_unused):
+        """Measure fresh native hints and all text slots in actual pixels.
+
+        Ignore construction-time and reentrant polish events; never derive a
+        new floor from the previously imposed minimum, so shrinking still works.
+        """
+        if not self._fit_ready or self._fitting or not self.count():
+            return
+        self._fitting = True
+        try:
+            from ..gui_scale import _set_actual_dim
+
+            self.ensurePolished()
+            hint = super().sizeHint().expandedTo(super().minimumSizeHint())
+            option = QStyleOptionComboBox()
+            option.initFrom(self)
+            option.rect = QRect(0, 0, hint.width(), hint.height())
+            option.frame = self.hasFrame()
+            option.editable = self.isEditable()
+            option.currentText = self.currentText()
+            option.currentIcon = self.itemIcon(self.currentIndex())
+            option.iconSize = self.iconSize()
+            field = self.style().subControlRect(QStyle.CC_ComboBox, option, QStyle.SC_ComboBoxEditField, self)
+            flags = int(Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine)
+            metrics = self.fontMetrics()
+            widths, heights = [], []
+            for index in range(self.count()):
+                text = self.itemText(index)
+                bounds = self.style().itemTextRect(metrics, field, flags, self.isEnabled(), text)
+                widths.append(max(bounds.width(), metrics.horizontalAdvance(text)))
+                heights.append(max(bounds.height(), metrics.boundingRect(text).height()))
+            width = max(hint.width(), hint.width() - field.width() + max(widths))
+            height = max(hint.height(), hint.height() - field.height() + max(heights))
+            _set_actual_dim(self, "minw", width)
+            _set_actual_dim(self, "minh", height)
+        finally:
+            self._fitting = False
 
 
 class SetupDialog(QDialog):
@@ -81,6 +145,42 @@ class SetupDialog(QDialog):
             self.card.setParent(self)
             self.card.raise_()
         self.resize(680, 560)
+        self._fit_opening_to_screen()
+
+    def _fit_opening_to_screen(self) -> None:
+        """Scroll the grouped card, not its snapshot, for an oversized opening.
+
+        Preserve natural actual-pixel content floors and the ordinary floating
+        card path when it fits; only the opening is capped, never later growth.
+        """
+        screen = self.screen()
+        if screen is None:
+            return
+        opening = self.size()
+        available = screen.availableGeometry().size()
+        if opening.width() <= available.width() and opening.height() <= available.height():
+            return
+        from ..dialogs import (OPENS_AT, let_the_content_scroll,
+                               make_the_window_resizable, open_at_its_natural_size)
+        from ..gui_scale import _set_actual_dim
+
+        self.card.ensurePolished()
+        self.card.layout().activate()
+        natural = self.card.sizeHint().expandedTo(QSize(max(1, opening.width() - 96),
+                                                      max(1, opening.height() - 96)))
+        _set_actual_dim(self.card, "minw", natural.width())
+        _set_actual_dim(self.card, "minh", natural.height())
+        outer = self.layout()
+        if self._backdrop_view is not None:
+            outer.removeWidget(self._backdrop_view)
+            self._backdrop_view.setParent(self)
+            self._backdrop_view.lower()
+        self._card_scrolls = True
+        outer.addWidget(self.card)
+        let_the_content_scroll(self)
+        make_the_window_resizable(self)
+        self.setProperty(OPENS_AT, opening)
+        open_at_its_natural_size(self)
 
 
     def _build_groups(self, layout) -> None:
@@ -113,7 +213,7 @@ class SetupDialog(QDialog):
     def _editor(key: str, choices, value):
         """A combo for a choice, a checkbox for a flag."""
         if choices:
-            box = QComboBox()
+            box = _SetupComboBox()
             for data, caption in choices:
                 box.addItem(str(caption), data)
             index = box.findData(value)
@@ -199,9 +299,10 @@ class SetupDialog(QDialog):
         super().resizeEvent(event)
         if self._backdrop_view is not None:
             self._backdrop_view.setGeometry(self.rect())
-            margin = 48
-            self.card.setGeometry(self.rect().adjusted(
-                margin, margin, -margin, -margin))
+            if not getattr(self, "_card_scrolls", False):
+                margin = 48
+                self.card.setGeometry(self.rect().adjusted(
+                    margin, margin, -margin, -margin))
             self.card.raise_()
 
 

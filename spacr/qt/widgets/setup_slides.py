@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional, Tuple
 
-from PySide6.QtCore import (QEasingCurve, QEvent, QPointF,
+from PySide6.QtCore import (QEasingCurve, QEvent, QObject, QPointF,
                             QPropertyAnimation, Qt, QTimer)
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (QComboBox, QDialog, QFormLayout,
@@ -370,6 +370,24 @@ def _still_a_widget(widget: object | None) -> bool:
     return bool(isValid(widget))
 
 
+class _CardPlacement(QObject):
+    """Coalesce overlay placement until the scroll-owned card finishes resizing."""
+
+    def __init__(self, card, callback):
+        """Own the timer and callback connection for exactly the card's lifetime."""
+        super().__init__(card)
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(callback)
+        card.installEventFilter(self)
+
+    def eventFilter(self, watched, event):
+        """Defer placement until the card's current resize event is complete."""
+        if event.type() == QEvent.Resize:
+            self._timer.start(0)
+        return False
+
+
 class SetupSlides(QDialog):
     """The setup screen: one question per slide, over a moving backdrop.
 
@@ -459,6 +477,34 @@ class SetupSlides(QDialog):
         self._greeted = False
         self._show_slide(0)
         self.resize(720, 560)
+        self._fit_opening_to_screen()
+
+    def _fit_opening_to_screen(self) -> None:
+        """Scroll the whole floating card only when its opening exceeds the screen.
+
+        Keep the natural card coordinates for its overlay labels and controls;
+        the backdrop remains outside the scroll area and the window stays resizable.
+        """
+        screen = self.screen()
+        if screen is None:
+            return
+        opening = self.size()
+        available = screen.availableGeometry().size()
+        if opening.width() <= available.width() and opening.height() <= available.height():
+            return
+        from ..dialogs import (OPENS_AT, let_the_content_scroll,
+                               make_the_window_resizable, open_at_its_natural_size)
+        from ..gui_scale import _set_actual_dim
+
+        _set_actual_dim(self.card, "minw", opening.width())
+        _set_actual_dim(self.card, "minh", opening.height())
+        self._card_scrolls = True
+        self._card_placement = _CardPlacement(self.card, self._place_the_greeting)
+        self.layout().addWidget(self.card)
+        let_the_content_scroll(self)
+        make_the_window_resizable(self)
+        self.setProperty(OPENS_AT, opening)
+        open_at_its_natural_size(self)
 
     def _use_the_light_face(self) -> None:
         """Set every slide in Open Sans Light.
@@ -781,7 +827,9 @@ class SetupSlides(QDialog):
         STATE rather than as a task, which is what these settings are.
         """
         if choices:
-            box = QComboBox()
+            from .setup_dialog import _SetupComboBox
+
+            box = _SetupComboBox()
             for data, caption in choices:
                 box.addItem(str(caption), data)
             index = box.findData(value)
@@ -981,7 +1029,10 @@ class SetupSlides(QDialog):
             return
         margin = 28
         width = max(1, card.width() - 2 * margin)
-        note.setFixedWidth(width)
+        from ..gui_scale import _set_actual_dim
+
+        _set_actual_dim(note, "minw", width)
+        _set_actual_dim(note, "maxw", width)
         height = note.heightForWidth(width)
         if height <= 0:
             height = note.sizeHint().height()
@@ -1445,7 +1496,8 @@ class SetupSlides(QDialog):
         :param event: the Qt resize event.
         """
         super().resizeEvent(event)
-        self.card.setGeometry(self.rect())
+        if not getattr(self, "_card_scrolls", False):
+            self.card.setGeometry(self.rect())
         self.card.raise_()
         self._look_at_the_terms_gate()
         try:

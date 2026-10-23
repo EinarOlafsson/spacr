@@ -1406,3 +1406,209 @@ def test_reopening_well_mean_browser_rebuilds_its_cancelled_context(plate_images
     pixels = browser._overview_pixels(field, (1, 2), (1., 99.), **current)
     assert pixels.shape == (10, 12, 3) and pixels.any()
     assert dialog._scope == ("plate1", None)
+
+
+def test_individual_tczyx_planes_follow_native_axis_wheels_without_borrowing_wells(tmp_path, qtbot):
+    from PySide6.QtCore import QPoint, QPointF
+    from PySide6.QtGui import QImage, QWheelEvent
+    from PySide6.QtWidgets import QApplication, QPushButton
+
+    source = tmp_path / "axis-planes"
+    source.mkdir()
+    arrays, files, originals = {}, {}, {}
+    for well, field in (("A01", 1), ("A01", 2), ("B02", 1)):
+        pixels = np.zeros((3, 2, 3, 16, 20), dtype=np.uint16)
+        for time in range(3):
+            for channel in range(2):
+                for z in range(3):
+                    row = (field * 2 + time + channel * 3 + (7 if well == "B02" else 0)) % 16
+                    column = (field * 3 + z * 2 + channel * 4) % 20
+                    pixels[time, channel, z, row, column] = 2000
+                    pixels[time, channel, z, (row + 5) % 16, (column + 7) % 20] = 1000
+        path = source / f"p1_{well}_F{field}.tif"
+        tifffile.imwrite(path, pixels, metadata={"axes": "TCZYX"}, photometric="minisblack")
+        arrays[well, field], files[well, field] = pixels, path
+        originals[path] = path.read_bytes()
+    pattern = r"(?P<plateID>p\d+)_(?P<wellID>[A-Z]\d+)_F(?P<fieldID>\d+)\.tif"
+    dialog = browser._FieldOverview(settings={"source": str(source), "source_scope": "folder",
+        "custom_regex": pattern, "channels": (0,), "geometry": (2, 2),
+        "normalization_percentiles": (0., 100.)})
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
+    dialog.show()
+    dialog._scan()
+    qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready
+                    and not dialog._index_jobs.is_busy(), timeout=10000)
+    dialog.fov_axis.setCurrentIndex(dialog.fov_axis.findData("1"))
+    item = dialog.wells.item(*dialog._well_positions["A01"])
+    dialog.wells.setCurrentItem(item)
+    open_well = next(button for button in dialog.findChildren(QPushButton)
+                     if button.text() == browser.tr("Open selected well"))
+    qtbot.mouseClick(open_well, browser.Qt.LeftButton)
+    first = dialog.fields.item(0)
+    qtbot.mouseClick(dialog.fields.viewport(), browser.Qt.LeftButton,
+                    pos=dialog.fields.visualItemRect(first).center())
+
+    def assert_plane(well, field, time, z):
+        raw = arrays[well, field][time, 0, z]
+        gray = (raw.astype(np.float64) / 2000. * 255.).astype(np.uint8)
+        expected = np.repeat(gray[..., None], 3, axis=2)
+        picture = QImage(expected.data, 20, 16, expected.strides[0], QImage.Format_RGB888).copy()
+        qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy()
+            and dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888) == picture,
+            timeout=10000)
+        current = dialog.fields.currentItem().data(browser.Qt.UserRole)
+        assert current.well == well and current.field_id == str(field)
+        assert tuple(path for _, path in current.files) == (str(files[well, field]),)
+        assert dialog._individual and dialog._scope == ("p1", well)
+        assert (dialog.fov_axis.currentData(), dialog.time_axis.currentData(),
+                dialog.z_axis.currentData()) == (str(field), time, z)
+
+    def wheel(angle):
+        viewport = dialog.view.viewport()
+        position = viewport.rect().center()
+        event = QWheelEvent(QPointF(position), QPointF(viewport.mapToGlobal(position)),
+                            QPoint(), QPoint(0, angle), browser.Qt.NoButton,
+                            browser.Qt.NoModifier, browser.Qt.NoScrollPhase, False)
+        QApplication.sendEvent(viewport, event)
+        assert event.isAccepted()
+
+    assert_plane("A01", 1, 0, 0)
+    for mode, expected in (("time", ("A01", 1, 1, 0)),
+                           ("z", ("A01", 1, 1, 1)),
+                           ("field", ("A01", 2, 1, 1))):
+        dialog.wheel_axis.setCurrentIndex(dialog.wheel_axis.findData(mode))
+        transform = dialog.view.transform()
+        wheel(120)
+        assert dialog.view.transform() == transform
+        assert_plane(*expected)
+    identity = dialog.fields.currentItem().data(browser.Qt.UserRole).identity
+    axes = (dialog.fov_axis.currentData(), dialog.time_axis.currentData(), dialog.z_axis.currentData())
+    transform = dialog.view.transform()
+    wheel(0)
+    assert dialog.fields.currentItem().data(browser.Qt.UserRole).identity == identity
+    assert (dialog.fov_axis.currentData(), dialog.time_axis.currentData(), dialog.z_axis.currentData()) == axes
+    assert dialog.view.transform() == transform
+    item = dialog.wells.item(*dialog._well_positions["B02"])
+    dialog.wells.setCurrentItem(item)
+    qtbot.mouseClick(open_well, browser.Qt.LeftButton)
+    assert dialog._scope == ("p1", "B02")
+    assert dialog.fields.count() == 0 and dialog.view._item is None
+    wheel(-120)
+    assert dialog.fov_axis.currentData() == "1"
+    first = dialog.fields.item(0)
+    qtbot.mouseClick(dialog.fields.viewport(), browser.Qt.LeftButton,
+                    pos=dialog.fields.visualItemRect(first).center())
+    assert_plane("B02", 1, 1, 1)
+    assert all(path.read_bytes() == before for path, before in originals.items())
+
+
+def test_empty_source_preview_recovers_after_real_tiffs_are_added(tmp_path, qtbot):
+    from PySide6.QtWidgets import QPushButton, QScrollArea, QWidget
+
+    source = tmp_path / "initially-empty"
+    source.mkdir()
+    owner = QWidget()
+    qtbot.addWidget(owner, before_close_func=lambda widget: _retire_overview_owner(widget, qtbot))
+    wizard = browser._open_field_overview(owner, {"source": str(source)})
+    empty_message = browser.tr("No readable image fields or available channels were found.")
+    qtbot.waitUntil(lambda: not wizard._runner.is_busy() and wizard.status.text() == empty_message,
+                    timeout=10000)
+    preview = next(button for button in wizard.findChildren(QPushButton)
+                   if button.text() == browser.tr("Preview metadata"))
+    wizard.findChild(QScrollArea).ensureWidgetVisible(preview)
+    qtbot.mouseClick(preview, browser.Qt.LeftButton)
+    qtbot.waitUntil(lambda: not wizard._runner.is_busy() and wizard.status.text() == empty_message,
+                    timeout=10000)
+    assert wizard._fields == () and wizard._info is None
+    assert wizard.preview.rowCount() == 0 and not wizard.next.isEnabled()
+    assert not hasattr(owner, "_field_overview")
+
+    originals = {}
+    for channel in (1, 2):
+        path = source / f"plate1_A01_T0001F001L01C{channel:02}.tif"
+        pixels = np.arange(120, dtype=np.uint16).reshape(10, 12) * channel
+        tifffile.imwrite(path, pixels)
+        originals[path] = path.read_bytes()
+    qtbot.mouseClick(preview, browser.Qt.LeftButton)
+    qtbot.waitUntil(lambda: not wizard._runner.is_busy() and wizard.next.isEnabled(), timeout=10000)
+    field, = wizard._fields
+    assert (field.plate, field.well, field.field_id) == ("plate1", "A01", "001")
+    assert field.files == tuple((str(channel), str(path)) for channel, path in
+                               zip((1, 2), originals))
+    assert wizard._info["channels"] == (1, 2)
+    assert wizard.preview.rowCount() == 2
+    assert wizard.configuration()["channels"] == (1, 2)
+    assert wizard.status.text() != empty_message
+    qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+    assert hasattr(owner, "_field_overview"), wizard.status.text()
+    dialog = owner._field_overview
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy()
+                    and bool(dialog._well_positions), timeout=10000)
+    assert dialog._fields == (field,)
+    assert dialog.source.text() == str(source)
+    assert dialog.plates.currentData() == "plate1"
+    item = dialog.wells.item(*dialog._well_positions["A01"])
+    qtbot.waitUntil(lambda: not item.icon().isNull(), timeout=10000)
+    assert all(path.read_bytes() == before for path, before in originals.items())
+
+
+def test_rejecting_wizard_during_real_header_probe_retires_without_delivery(tmp_path, qtbot, monkeypatch):
+    from PySide6.QtCore import QCoreApplication, QEvent, QThread
+    from shiboken6 import isValid
+    from spacr.qt.bridge import drain_thread
+    from PySide6.QtWidgets import QDialog, QPushButton, QWidget
+
+    source = tmp_path / "pending-header"
+    source.mkdir()
+    path = source / "plate1_A01_T0001F001L01C01.tif"
+    tifffile.imwrite(path, np.arange(120, dtype=np.uint16).reshape(10, 12))
+    before = path.read_bytes()
+    entered, release, returned = threading.Event(), threading.Event(), threading.Event()
+    retired = threading.Event()
+    owned_threads = []
+    actual_headers = browser._overview_channel_info
+
+    def gated_headers(field):
+        thread = QThread.currentThread()
+        owned_threads.append(thread)
+        thread.finished.connect(retired.set, browser.Qt.DirectConnection)
+        result = actual_headers(field)
+        entered.set()
+        if not release.wait(10):
+            raise RuntimeError("The actual image header read was not released.")
+        returned.set()
+        return result
+
+    monkeypatch.setattr(browser, "_overview_channel_info", gated_headers)
+    owner = QWidget()
+    qtbot.addWidget(owner, before_close_func=lambda widget: _retire_overview_owner(widget, qtbot))
+    with qtbot.captureExceptions() as exceptions:
+        wizard = browser._open_field_overview(owner, {"source": str(source), "channels": (1,)})
+        try:
+            qtbot.waitUntil(entered.is_set, timeout=10000)
+            assert wizard._runner.is_busy() and not wizard.next.isEnabled()
+            assert wizard._fields == () and wizard._info is None
+            state = (wizard.status.text(), wizard.channels.text(), wizard.preview.rowCount())
+            cancel = next(button for button in wizard.findChildren(QPushButton)
+                          if button.text() == browser.tr("Cancel"))
+            qtbot.mouseClick(cancel, browser.Qt.LeftButton)
+            assert wizard.result() == QDialog.Rejected and not wizard.isVisible()
+            assert wizard._finished and wizard._cancelled.is_set()
+            assert not wizard._startup_timer.isActive()
+            release.set()
+            qtbot.waitUntil(returned.is_set, timeout=10000)
+            qtbot.waitUntil(retired.is_set, timeout=10000)
+            owned_thread, = owned_threads
+            QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+            qtbot.waitUntil(lambda: not isValid(owned_thread), timeout=10000)
+            assert drain_thread(owned_thread, timeout_ms=0)
+            qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
+            wizard._runner.shutdown(timeout_ms=3000)
+            assert wizard._fields == () and wizard._info is None
+            assert (wizard.status.text(), wizard.channels.text(), wizard.preview.rowCount()) == state
+            assert not wizard.next.isEnabled() and not hasattr(owner, "_field_overview")
+            assert not wizard._runner.is_busy()
+            assert path.read_bytes() == before and tuple(source.iterdir()) == (path,)
+        finally:
+            release.set()
+    assert exceptions == []

@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-ne71xm2y",
-  "manifest_sha256": "fa31bdef4d72c372d7201e4ca94c7e4f1c914944b98ed544c8f6c78276c324b3",
+  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-20261020/release-candidate-append-0to8p_k8",
+  "manifest_sha256": "77c9db3d815522eb65751dc6fbaff09d8e1edabc4f60e65077d0675d8070d3a8",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -9,8 +9,8 @@
     },
     {
       "path": "web/app_v2.js",
-      "sha256": "6769af7e0673046edf925b5812a45d5a34027a307530d46b980141132eaa4115",
-      "bytes": 121944
+      "sha256": "de2f9d058dce7a647a80e9c9ec6a8fcad84f8662984059b1573ee642c1e92bb4",
+      "bytes": 122681
     },
     {
       "path": "web/catalog/captions_da.json",
@@ -259,8 +259,8 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "f3214d3da4a40a42fd6db411d4ceb714b9aacfaeb449f650d35d2df143e057dc",
-      "bytes": 15699
+      "sha256": "c50fcfbb934af9a830bb49df0cec9bd13ea86c77722a8a3041461c77c2a10cfb",
+      "bytes": 15693
     },
     {
       "path": "web/lesson_catalog.js",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "1246a782b4ffe20a0acfcf21e0695548d5a5daafa489c4b7fa97ac22ec8f7018",
+      "sha256": "c8f05cfbdda6a8467f501a1d4e91fb02f8924e5448efe7da506ee53c8a0cef6a",
       "bytes": 17171
     },
     {
@@ -714,17 +714,17 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "fa31bdef4d72c372d7201e4ca94c7e4f1c914944b98ed544c8f6c78276c324b3",
-      "bytes": 1423164
+      "sha256": "77c9db3d815522eb65751dc6fbaff09d8e1edabc4f60e65077d0675d8070d3a8",
+      "bytes": 1369608
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "06cc5d2359d490e539dcd052dcaefe2cb61d53ac439a2f13e3fdd7ddb94733b9",
-      "bytes": 126683
+      "sha256": "1c02fda842b59fa3cf7207961d94da4a1b98016842857888b6374d00e321b024",
+      "bytes": 126662
     },
     {
       "path": "placeholder-mutation-checks.json",
-      "sha256": "b7fbcfa40ce76fe93547949fad431abaddeccda8a5aee88f15b63bc9aee254cd",
+      "sha256": "f010bfd341327f05d13b918c26a33b633131525b4364640e05fc8d8e3f73b6de",
       "bytes": 510
     }
   ],

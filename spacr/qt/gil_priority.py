@@ -350,13 +350,15 @@ def _hub_geometry_before(hub) -> list:
 
     Two calls a widget, because this runs on every frame of the field.
     """
+    from PySide6.QtWidgets import QWidget
+
     states = []
     for ref in tuple(hub._geometry_watched.values()):
         widget = ref()
         if widget is None:
             continue
         try:
-            states.append((widget, widget.isHidden(), widget.geometry()))
+            states.append((widget, widget.isHidden(), QWidget.geometry(widget)))
         except (AttributeError, RuntimeError):
             continue
     return states
@@ -370,9 +372,11 @@ def _hub_geometry_after(hub, states) -> None:
     is made again from the widget's state and handed to the watchers that
     asked for it, once.
     """
+    from PySide6.QtWidgets import QWidget
+
     for widget, hidden, geometry in states:
         try:
-            now_hidden, now = widget.isHidden(), widget.geometry()
+            now_hidden, now = widget.isHidden(), QWidget.geometry(widget)
         except RuntimeError:
             continue
         if now_hidden == hidden and now == geometry:

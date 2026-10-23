@@ -817,7 +817,7 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
     wizard = module._open_field_overview(owner, {"source": str(source),
         "custom_regex": pattern, "channels": (1,)})
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
-    wizard.geometry.setCurrentIndex(0)
+    wizard.plate_geometry.setCurrentIndex(0)
     assert wizard.configuration()["geometry"] == (1, 1)
     accepted_fields = wizard._fields
     assert len(accepted_fields) == 2 and all(field.well == "" for field in accepted_fields)

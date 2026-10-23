@@ -14,6 +14,8 @@ Status:    DONE 2026-09-26 — Filed 2026-08-27, HIGH PRIORITY. The 5 s and
            quiet machine, a real display with a compositor, macOS and
            Windows; above load ~35 intervals still go over on both arms.
 VERIFIED 2026-10-04: tests green on nightly: test_a_closed_category_builds_nothing_until_opened.py, test_a_hidden_category_stays_off_the_page_until_opened.py, test_a_hidden_panel_is_built_when_it_is_first_shown.py and others.
+2026-10-23 regression — Workstation session 2 owns the reported Overview event-hub crash: widget controls must not break native geometry snapshots or replay. Add a real Qt control-shadowing regression and retain normal move/resize/show delivery; this scoped repair makes no new startup timing claim.
+
 Owner:     spacr/qt startup, application registration, module factories,
            optional-dependency boundaries, preload policy, and timing.
 Depends:   282 for lazy loading and memory budgets, which the 2026-09-14

@@ -124,3 +124,89 @@ def test_the_note_leaves_with_the_first_slide(slides):
     slides._show_slide(1) if hasattr(slides, "_show_slide") else None
     if hasattr(slides, "_show_slide"):
         assert not slides._gpu_note.isVisible()
+
+
+def test_gpu_note_measures_its_actual_scaled_width(qtbot):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QSize, Qt
+    from PySide6.QtGui import QFont, QTextDocument
+    from PySide6.QtWidgets import QLabel, QWidget
+    from spacr.qt import gui_scale
+
+    previous = gui_scale.current_scale()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(.9)
+    card = QWidget()
+    qtbot.addWidget(card)
+    gui_scale._resize_actual(card, QSize(648, 504))
+    note = QLabel(card)
+    note.setWordWrap(True)
+    note.setTextFormat(Qt.RichText)
+    font = QFont('Helvetica Neue')
+    font.setPixelSize(23)
+    note.setFont(font)
+    note.setText('<div>' + GPU_REQUIREMENT + '</div><div>'
+                 + ('GPU acceleration and CPU fallback retain every task. ' * 5)
+                 + '</div>')
+    card.show()
+    note.show()
+    try:
+        SetupSlides._place_the_gpu_note(SimpleNamespace(card=card, _gpu_note=note, _back=None))
+        document = QTextDocument()
+        document.setDefaultFont(note.font())
+        document.setDocumentMargin(0)
+        document.setHtml(note.text())
+        document.setTextWidth(note.contentsRect().width())
+        assert document.size().height() <= note.contentsRect().height() + 1
+        assert note.width() == card.width() - 2 * CARD_MARGIN
+        assert note.geometry().bottom() < card.height()
+    finally:
+        card.close()
+        gui_scale.set_gui_scale_live(previous)
+
+
+def test_joint_maximum_setup_opens_on_screen_with_scrollable_card(qtbot, qapp, monkeypatch):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtWidgets import QAbstractButton, QAbstractScrollArea, QDialog, QLabel
+    from spacr.qt import gui_scale, theme
+
+    old_scale, old_sheet = gui_scale.current_scale(), qapp.styleSheet()
+    gui_scale.install_scaling_layer()
+    gui_scale.set_gui_scale_live(2.0)
+    qapp.setStyleSheet(theme.stylesheet('dark', font_scale=2.0))
+    monkeypatch.setattr(SetupSlides, '_install_backdrop', lambda self: None)
+    from spacr.qt.widgets.setup_slides import GPU_MAC_CPU_HINT
+    note_text = ('<div>' + GPU_REQUIREMENT + '</div><div>GPU: Intel Iris Plus Graphics: Metal</div><div>'
+                 + GPU_MAC_CPU_HINT + '</div><table><tr><td>Cellpose 4</td><td>CPU</td><td>Segmentation</td></tr>'
+                 '<tr><td>Torch models</td><td>CPU</td><td>Classification</td></tr>'
+                 '<tr><td>Live backdrop</td><td>GPU</td><td>Visualization</td></tr>'
+                 '<tr><td>UMAP / t-SNE / cluster</td><td>CPU</td><td>Machine learning</td></tr></table>')
+    monkeypatch.setattr(SetupSlides, '_say_what_the_gpu_is', lambda self: self._gpu_note.setText(note_text))
+    dialog = SetupSlides()
+    qtbot.addWidget(dialog)
+    try:
+        dialog.show()
+        qtbot.waitExposed(dialog)
+        qapp.processEvents()
+        handle = dialog.windowHandle()
+        assert handle.screen().availableGeometry().contains(handle.frameGeometry())
+        ancestor = dialog.card.parentWidget()
+        while ancestor is not None and not isinstance(ancestor, QAbstractScrollArea):
+            ancestor = ancestor.parentWidget()
+        assert ancestor is not None, 'the actual floating card must be the scrolled content'
+        assert ancestor.horizontalScrollBar().maximum() > 0 or ancestor.verticalScrollBar().maximum() > 0
+        viewport = ancestor.viewport()
+        mapped = dialog._next.rect().translated(dialog._next.mapTo(viewport, QPoint()))
+        horizontal, vertical = ancestor.horizontalScrollBar(), ancestor.verticalScrollBar()
+        assert mapped.right() + horizontal.value() <= viewport.rect().right() + horizontal.maximum()
+        assert mapped.bottom() + vertical.value() <= viewport.rect().bottom() + vertical.maximum()
+        note = dialog._gpu_note
+        for control in dialog.findChildren(QLabel) + dialog.findChildren(QAbstractButton):
+            if control is note or not control.isVisibleTo(dialog) or not control.text():
+                continue
+            mapped = control.rect().translated(control.mapTo(dialog.card, QPoint()))
+            assert not note.geometry().intersects(mapped), (control.text(), note.geometry(), mapped)
+    finally:
+        QDialog.reject(dialog)
+        qapp.setStyleSheet(old_sheet)
+        gui_scale.set_gui_scale_live(old_scale)
