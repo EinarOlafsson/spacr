@@ -2573,13 +2573,14 @@ def _mesh_triangle_contact(first, second, common, _basis=None) -> bool:
             _, normal_norm, u, v, uu, uv, vv, determinant = _basis[1 - index]
         for i in range(3):
             start, end = triangle[i], triangle[(i + 1) % 3]
-            denominator = float((end - start) @ normal)
+            edge = end - start
+            denominator = float(edge @ normal)
             if abs(denominator) <= tolerance * normal_norm:
                 continue
             t = float((other[0] - start) @ normal) / denominator
             if t < -tolerance or t > 1 + tolerance:
                 continue
-            point = start + t * (end - start)
+            point = start + t * edge
             if any(_mesh_shared_vertex(point, vertex, tolerance) for vertex in common):
                 continue
             w = point - other[0]

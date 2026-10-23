@@ -232,6 +232,15 @@ end-minus-start vector within one edge iteration. Preserve the exact predicate,
 float64 arithmetic order, thresholds, topology checks and worker policy. Compare
 against the retained original-reference cases and one same-input paired timing;
 keep this candidate out of production unless exact parity and benefit hold.
+Scratch candidate on92fa04714 passes13 retained reference/direct-contact cases
+(2.11s); one fresh-session same-process label1 pair measures29.2511s original
+versus28.7433s reused edge (1.74% lower in this pair), with exact retained
+vertices/faces/groups fingerprints and unchanged mask/history. Exit0,
+sampled RSS0.328GiB; this single small difference is not a robust speed claim
+or native acceptance. The minimal local reuse is adopted after product-function
+AST equality against the tested in-memory transformation; the retained13
+passes and paired fingerprints therefore cover the exact postimage without
+replaying tests. Thresholds, arithmetic order and worker policy are unchanged.
 Projection caching passed107 checks but31.158s versus30.743s showed no gain;
 that source/test experiment was reverted. Next contact-validation path must
 PROVE rectilinear half-cell triangle intersections are only allowed shared
