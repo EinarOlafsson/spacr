@@ -3739,6 +3739,7 @@ def _open_field_overview(owner, settings=None):
         owner._field_overview = dialog
         dialog.show()
         dialog.raise_()
+        dialog._indexed(tuple(wizard._fields))
 
     wizard.accepted.connect(_show_browser)
     wizard.show()

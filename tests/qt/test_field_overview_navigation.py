@@ -786,3 +786,67 @@ def test_wizard_folder_cancel_select_and_real_pattern_transitions(tmp_path, qtbo
     assert configuration["source"] == str(second) and configuration["custom_regex"] == custom
     assert configuration["channels"] == (1, 2)
     assert all(path.read_bytes() == before for path, before in originals.items())
+
+
+def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_path, qtbot):
+    import json
+    from PySide6.QtWidgets import QWidget, QPushButton
+
+    source = tmp_path / "coverslip"
+    source.mkdir()
+    originals = {}
+    for field in (1, 2):
+        path = source / f"f{field:03d}_c01.tif"
+        tifffile.imwrite(path, np.roll(np.arange(1280, dtype=np.uint16).reshape(32, 40),
+                                      field * 3, axis=1))
+        originals[path] = path.read_bytes()
+    pattern = r"f(?P<fieldID>\d+)_c(?P<chanID>\d+)\.tif"
+    owner = QWidget()
+
+    def retire(widget):
+        wizard = widget._field_overview_wizard
+        wizard._cancelled.set()
+        wizard._runner.cancel()
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
+        wizard._runner.shutdown(timeout_ms=3000)
+        dialog = getattr(widget, "_field_overview", None)
+        if dialog is not None:
+            _retire_overview(dialog, qtbot)
+
+    qtbot.addWidget(owner, before_close_func=retire)
+    wizard = module._open_field_overview(owner, {"source": str(source),
+        "custom_regex": pattern, "channels": (1,)})
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    wizard.geometry.setCurrentIndex(0)
+    assert wizard.configuration()["geometry"] == (1, 1)
+    accepted_fields = wizard._fields
+    assert len(accepted_fields) == 2 and all(field.well == "" for field in accepted_fields)
+    qtbot.mouseClick(wizard.next, Qt.LeftButton)
+    dialog = owner._field_overview
+    assert dialog._fields == accepted_fields
+    assert not dialog.options_button.isChecked()
+    qtbot.waitUntil(lambda: dialog._normalization_ready and dialog.wells.rowCount() == 1
+        and dialog.wells.columnCount() == 1 and dialog.wells.item(0, 0) is not None
+        and not dialog.wells.item(0, 0).icon().isNull(), timeout=10000)
+    item = dialog.wells.item(0, 0)
+    assert item.data(Qt.UserRole) == ""
+    assert all(field.well == "" and field.row == "" and field.column == 0
+               for field in dialog._fields)
+    dialog.wells.setCurrentItem(item)
+    open_well = next(button for button in dialog.findChildren(QPushButton)
+                     if button.text() == module.tr("Open selected well"))
+    qtbot.mouseClick(open_well, Qt.LeftButton)
+    qtbot.waitUntil(lambda: dialog.view._item is not None, timeout=10000)
+    picture = dialog.view._item.pixmap().toImage()
+    assert (picture.width(), picture.height()) == (512, 280)
+    assert any(picture.pixelColor(x, 100).red() for x in range(50, 200))
+    assert dialog.fields.count() == 2 and dialog._scope == (str(source), "")
+    output = tmp_path / "export"
+    paths, errors = module._overview_export(dialog._visible, output, (1,), (1., 99.9), measurements=True)
+    assert paths and not errors
+    metadata = json.loads((output / "overview_selection.json").read_text())
+    assert [field["well"] for field in metadata["fields"]] == ["", ""]
+    measured = tabular.read_table(output / "overview_measurements.csv", canonicalise=False,
+                                  keep_default_na=False)
+    assert measured["well"].tolist() == ["", ""]
+    assert all(path.read_bytes() == before for path, before in originals.items())

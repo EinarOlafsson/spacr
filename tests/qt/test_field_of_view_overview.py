@@ -206,17 +206,17 @@ def test_reopening_cancelled_overview_keeps_navigation_and_decodes(plate_images,
     assert hasattr(owner, "_field_overview"), wizard.status.text()
     dialog = owner._field_overview
     dialog._image_jobs._threaded = False
-    _ready_overview(dialog, browser._overview_index(plate_images), qtbot)
-    dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
-    dialog._well(dialog.wells.item(0, 0))
     qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
+    assert dialog._fields == wizard._fields
+    assert dialog.plates.currentData() == str(plate_images / "plate1")
+    dialog._well(dialog.wells.item(0, 0))
     _retire_overview(dialog, qtbot)
     dialog.close()
     assert dialog._cancelled.is_set()
     reopened = owner._field_overview
     reopened.show()
     assert reopened is dialog
-    assert reopened._scope == ("plate1", "A01")
+    assert reopened._scope == (str(plate_images / "plate1"), "A01")
     assert not reopened._cancelled.is_set()
     qtbot.waitUntil(lambda: reopened._normalization_ready and not reopened._index_jobs.is_busy(), timeout=10000)
     reopened.fields.setCurrentRow(0)
@@ -412,8 +412,10 @@ def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, tmp_p
     assert dialog.channels.text() == ",".join(str(value) for value in channels)
     assert dialog.normalise.isChecked() == bool(expected.get("normalize", True))
     assert (dialog.low.value(), dialog.high.value()) == tuple(expected.get("normalization_percentiles") or (1., 99.9))
-    assert dialog._fields == () and not dialog._cache
-    assert not dialog._index_jobs.is_busy()
+    assert dialog._fields == wizard._fields and dialog._fields
+    assert not dialog._cache
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=10000)
+    _retire_overview(dialog, qtbot)
     dialog.close()
 
 
