@@ -537,9 +537,8 @@ def _move_field(
     nothing: the poll no longer froze, and then pressing the button it guards
     froze the application anyway.
 
-    :param sink: written with ``outcome`` the instant the move has committed,
-        so `QCFieldBrowser._settle_pending_move` can still report a move that
-        landed while the dialog was being dismissed.
+    :param sink: receives the committed outcome before the worker returns it
+        to the matching GUI completion callback.
     :returns: ``(now_quarantined, destination)``.
     """
     if was_quarantined:
@@ -796,10 +795,6 @@ class QCFieldBrowser(QDialog):
             self, threaded=threaded, app_key="segmentation QC quarantine")
         self._move_jobs.job_failed.connect(self._on_move_failed)
         self._move_jobs.busy_changed.connect(self._on_move_busy_changed)
-        #: The move in flight, or None. Holds the target it was started for,
-        #: so a result cannot be applied to whatever field is on screen when
-        #: it lands, and the worker's outcome, so a move that commits while
-        #: the dialog is being dismissed is still announced.
         self._pending_move: Optional[Dict[str, Any]] = None
         self._torn_down = False
 
@@ -1398,31 +1393,6 @@ class QCFieldBrowser(QDialog):
             "Could not change quarantine: {error}", error=message)
         self._sync_action()
         self._action_status.setText(self._action_notice)
-
-    def _settle_pending_move(self) -> None:
-        """Announce a move that committed while the dialog was dismissed.
-
-        `JobRunner.shutdown` cancels before it drains, and a cancelled job's
-        result never reaches `_apply_move`. The rename itself is NOT
-        cancelled -- a stat in progress cannot be interrupted -- so without
-        this a field quarantined a moment before the dialog was closed is
-        moved on disk and the Measure scorecard is never told.
-
-        Best effort by construction: dismissing with Escape never drains
-        anything (`QDialog.done` deletes the dialog outright), so a move
-        still running at that moment is announced by nobody. What is
-        recoverable is a move that had already committed.
-        """
-        sink = self._pending_move
-        self._pending_move = None
-        if sink is None or "outcome" not in sink:
-            return
-        changed, _destination = sink["outcome"]
-        target = sink["target"]
-        active_path, quarantined_path = self._paths_for(target)
-        path_probe.prime(active_path, not changed)
-        path_probe.prime(quarantined_path, changed)
-        self.quarantineChanged.emit(target.field, changed)
 
     def _handle_triage_key(self, key: int) -> bool:
         """Apply a one-key triage verdict.

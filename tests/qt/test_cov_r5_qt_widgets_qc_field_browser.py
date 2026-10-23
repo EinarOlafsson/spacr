@@ -462,3 +462,105 @@ def test_a_pending_quarantine_disables_the_action_until_the_move_finishes(
         qtbot.waitUntil(
             lambda: not any(runner._jobs for runner in runners),
             timeout=10000)
+
+
+@pytest.mark.parametrize("collision", [False, True], ids=["committed", "duplicate-refused"])
+def test_a_banner_link_keeps_the_new_field_when_an_earlier_move_settles(
+        qtbot, tmp_path, monkeypatch, qapp, collision):
+    """A real move belongs to its starting field even after a banner jump."""
+    import sys
+    import threading
+
+    from PySide6.QtCore import QThread
+    from PySide6.QtWidgets import QLabel, QWidget
+    from spacr.qt import path_probe, prerun
+    from spacr.qt.widgets import qc_field_browser as module
+
+    plate = tmp_path / "plate1"
+    digest, _finding = _digest(plate)
+    screen = QWidget()
+    screen._thread = None
+    qtbot.addWidget(screen)
+    banner = prerun.SegQCBanner(screen)
+    banner._digest = digest
+    banner._draw()
+    links = banner.findChildren(QLabel, "QCFieldLinks")
+    assert len(links) == 1
+    links[0].linkActivated.emit("0")
+    browser = banner._field_browser
+    qtbot.waitUntil(lambda: not browser._jobs.is_busy()
+                    and not browser._render_jobs.is_busy()
+                    and browser._quarantine.isEnabled())
+    assert browser.current_field == FIELD
+    active = plate / "merged" / f"{FIELD}.npy"
+    destination = plate / "merged_quarantined" / f"{FIELD}.npy"
+    original_bytes = active.read_bytes()
+    second_bytes = (plate / "merged" / f"{SECOND}.npy").read_bytes()
+    entered, release = threading.Event(), threading.Event()
+    original_move = module._move_field
+    workers, changes, failures = [], [], []
+
+    def gated_move(*args, **kwargs):
+        previous = sys.gettrace()
+        inherited = threading.gettrace() if previous is None else None
+        if inherited is not None:
+            sys.settrace(inherited)
+        try:
+            workers.append(QThread.currentThread())
+            entered.set()
+            assert release.wait(10)
+            return original_move(*args, **kwargs)
+        finally:
+            if inherited is not None:
+                sys.settrace(previous)
+
+    monkeypatch.setattr(module, "_move_field", gated_move)
+    browser.quarantineChanged.connect(lambda field, changed: changes.append(
+        (field, changed, QThread.currentThread())))
+    browser._move_jobs.job_failed.connect(failures.append)
+    try:
+        qtbot.keyClick(browser._view, Qt.Key_Q)
+        qtbot.waitUntil(entered.is_set)
+        assert browser._move_jobs.is_busy()
+        links[0].linkActivated.emit("1")
+        qtbot.waitUntil(lambda: browser.current_field == SECOND
+                        and not browser._jobs.is_busy()
+                        and not browser._render_jobs.is_busy()
+                        and browser._view._item is not None)
+        assert banner._field_browser is browser
+        payload, image = browser._payload, browser._view._item
+        pixels = image.pixmap().toImage()
+        notice = browser._action_notice
+        assert notice == ""
+        if collision:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(active, destination)
+        release.set()
+        qtbot.waitUntil(lambda: not browser._move_jobs.is_busy())
+        assert workers and all(worker != qapp.thread() for worker in workers)
+        assert browser.current_field == SECOND
+        assert browser._payload is payload
+        assert browser._view._item is image
+        assert image.pixmap().toImage() == pixels
+        assert browser._action_notice == notice
+        assert "Could not change quarantine" not in browser._action_status.text()
+        assert "Quarantined" not in browser._action_status.text()
+        assert (plate / "merged" / f"{SECOND}.npy").read_bytes() == second_bytes
+        if collision:
+            assert failures == [f"FileExistsError: refusing to overwrite existing field {destination}"]
+            assert changes == []
+            assert active.read_bytes() == original_bytes
+            assert destination.read_bytes() == original_bytes
+            assert not Path(f"{destination}.quarantine.json").exists()
+        else:
+            assert failures == []
+            assert changes == [(FIELD, True, qapp.thread())]
+            assert not active.exists()
+            assert destination.read_bytes() == original_bytes
+            assert path_probe.known(str(active)) is False
+            assert path_probe.known(str(destination)) is True
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not browser._move_jobs.is_busy())
+        browser._move_jobs.shutdown()
+        browser.close()
