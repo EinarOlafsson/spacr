@@ -6654,9 +6654,9 @@ class MainWindow(QMainWindow):
 
         Driven through the button so the control shows the state the form
         has. Page folds (OPS, and the spatial submodules on Mask Generation
-        and Map Barcodes) use their actions-row switch; category folds use
-        the masthead strip. A host without a corresponding switch is left
-        unchanged.
+        and Map Barcodes) use their actions-row switch. The legacy Timelapse
+        route enables its processing checkbox and reveals Time; other category
+        folds use the masthead strip. Missing controls leave the host unchanged.
         """
         screen = self._screens.get(host_key)
         if screen is None:
@@ -6669,6 +6669,10 @@ class MainWindow(QMainWindow):
                 installed.show_page()
             return
         try:
+            if host_key == "mask" and folded_key == "timelapse":
+                screen.apply_settings_dict({"timelapse": True})
+                screen.set_dimension("t", True)
+                return
             from .screens.mask import fold_set
 
             folds = fold_set(screen)

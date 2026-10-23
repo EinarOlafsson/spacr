@@ -2,6 +2,20 @@
 THE MODULE CONSOLIDATION: SEVENTEEN TILES BECOME BUTTONS
 ================================================================================
 
+CURRENT FOLLOW-UP — 2026-10-23
+Status: IN PROGRESS — Workstation session 2 / overview_normalization owns this follow-up.
+The maintainer requests removal of the redundant Timelapse submodule control
+from Mask Generation because the existing Time button covers the same mode.
+Time must expose the retained timelapse settings and tracking preview, and
+preserve saved settings, pipeline gates and legacy timelapse module routing.
+Time changes visibility only; retain the explicit timelapse pipeline checkbox
+and preserve imported t_stack=True/timelapse=False settings when toggling it.
+Keep OPS, Make Masks and the underlying tracking functionality unchanged.
+Acceptance: Mask has one discoverable Time control and no redundant Timelapse
+masthead entry; tracking settings/preview follow it; old saved routes/settings
+still work; focused tests, affected ordinary producers and root source/UI peer
+pass before ordinary nightly publication.
+
 Priority:  HIGHEST. Asked for 2026-08-25: "the instructions list item
            that folds modules into other modules. i want to have the
            highest possible priority." Nothing else on the list comes

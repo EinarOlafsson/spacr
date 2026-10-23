@@ -153,11 +153,8 @@ def test_the_button_still_says_what_it_said_on_align():
     assert stage == "alpha"
 
 
-def test_the_masthead_strip_carries_only_the_settings_folds(mask_screen):
-    """OPS is not on the strip: the strip is for folds that ARE settings."""
+def test_time_categories_need_no_additional_masthead_strip(mask_screen):
     from spacr.qt.screens import mask as mask_mod
 
-    strip = mask_mod.install_folds(mask_screen)
-    assert strip is not None
-    assert list(strip.keys()) == list(mask_mod.CATEGORY_FOLDS)
-    assert "ops" not in strip.keys()
+    assert mask_mod.install_folds(mask_screen) is None
+    assert mask_mod.fold_set(mask_screen).strip is None
