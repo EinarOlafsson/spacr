@@ -3156,7 +3156,7 @@ def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
         _ERROR_DISPATCH_SEEN[event_id] = now
 
     def work():
-        """Sanitize, deduplicate, explain and publish only on this background thread."""
+        """Sanitize the captured error and apply its AI and reporting policy."""
         _ERROR_DISPATCH_LOCAL.active = True
         queued = None
         pending_issued = delivered = False
