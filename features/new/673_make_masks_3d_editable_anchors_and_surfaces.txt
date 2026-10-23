@@ -26,6 +26,63 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+Next scoped native failover check: after a real owned Metal frame, inject one
+error only at that live context's render seam. Preserve the production close/
+refusal/CPU retry route; require released Metal resources, fresh current-request
+CPU RGB/IDs and nonzero picking, an aligned completed paint, unchanged mask/
+history and normal cleanup. Reuse the owned startup/fixture/composition observer;
+no drag matrix, FPS claim or real OS-device-loss claim. No product change assumed.
+First owned run stops before injection: default90% GUI scales the fixed canvas
+away from611x140. Cleanup preserves dirty/image/mask/history, but the parent
+times out280s without a final run-return marker; this is not native failover
+acceptance or a proven interpreter-tail cause. Correct only harness scale setup
+using normal GUI100% with the font retained, and observe requested-exit phases
+plus one conditional Python-only thread snapshot without extending deadlines.
+The affected retry reaches611x140/DPR2 but again stops before injection because
+the harness supplied an argument to the no-argument selection method. A tiny
+isolated preflight now verifies current method signatures and the real label-
+combo callback. Exit observation reaches aboutToQuit, with no compiler owner;
+the main stack remains inside screen prewarming, which direct app.exit bypasses.
+Use the actual native Quit route through the owned MainWindow.close, retaining
+the original error/nonzero outcome; no production quit failure is established.
+The third run has a real Intel Integrated Metal baseline but injects no error:
+raw Axes.view_init is overwritten by GateCanvas's authoritative saved camera.
+It fails normally in63.83s, RSS1.265GiB, with unchanged data/history; actual
+MainWindow.close accepts, stops prewarming and returns the run without force.
+Reuse the retained one-gesture spin route, verify saved angles and reacquired
+projection change, and preflight that interaction offscreen before retrying.
+The focused real CPU interaction preflight passes (9.55s, RSS0.442GiB): one
+press/move/release changes authoritative camera state, invokes the actual render-
+request seam, and survives an axes rebuild with a changed current projection.
+First native setup on1e1694950 fails the611x140 canvas precondition before any
+injected fault; screen closes with unchanged data/history, but process exit
+times out at280s and requires owned-child termination (RSS1.432GiB). This is
+not failover acceptance. Correct actual GUI-scale sizing and diagnose the exit
+hold before retry; retain strict dimensions, transition alignment and20s idle.
+Second native setup fixes scale/dimensions but fails the test's wrong-arity
+_select_label call before injection;280s timeout/RSS1.313GiB is not acceptance.
+Exit witness shows compiler drain completed, main thread still in prewarming.
+Source confirms direct app.exit bypassed native Quit's MainWindow.close/prewarm
+stop; correct that harness route and selection API, preserving nonzero failures.
+Third setup confirms normal close/prewarm stop and natural app return, but raw
+Axes.view_init is restored by the canvas: injected0, unchanged painted pose/
+serial, childexit1 (63.83s/RSS1.265GiB). Correct the camera trigger through the
+existing interaction route; this is still no active-failure/failover acceptance.
+
+Bounded CPU attribution: retained phase timing measures Axes3D.draw at
+5.016 ms per frame but does not isolate projection work. Measure only the
+duplicated installed-Axes3D/current-prepaint aspect, projection and inverse
+math at representative 611x140 camera poses, excluding independent validation
+calls. This diagnostic does not establish FPS or authorize a rendering change;
+reject projection reuse if the measured saving is too small.
+CPU attribution passes on 144 warmed camera poses (Matplotlib 3.11.2): mean
+unstale/aspect/projection/inverse costs are 0.013/0.115/0.349/0.040 ms,
+0.517 ms combined, versus the retained 5.016 ms Axes3D.draw span. Original
+Axes3D.draw matrices/inverses match exactly. The capped node passes in 5.01 s,
+sampled RSS 0.107 GiB. Reject projection-reuse implementation: even removing
+all measured duplicate cost would not bridge 29.38 to 30 painted pairs/s;
+these CPU-only diagnostic timings are not a native performance acceptance.
+
 Additional bounded high-ID coverage: combined readback already tests exact
 uint32 codes through2**32-1 with a fake transport, but real GPU fixtures use
 only IDs1/2. Add one tiny real GPU frame relabelled256/65536, require both IDs

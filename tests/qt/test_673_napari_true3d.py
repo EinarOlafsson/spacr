@@ -489,6 +489,45 @@ def test_shift_drag_pans_the_box_and_reset_view_centres_it(view, qtbot):
     assert stage._view_axes().get_position(original=True).x0 == pytest.approx(start)
 
 
+def test_one_spin_gesture_changes_the_authoritative_camera_after_axes_rebuild(cpu_view, qtbot, monkeypatch):
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+
+    stage = cpu_view
+    assert stage.drag_key('spin')
+    canvas = stage._panel.canvas
+    widget = canvas._canvas
+    before = np.asarray(stage._view_axes().get_proj()).copy()
+    saved = canvas._view_angles
+    requests = []
+    original_request = stage._render_request
+
+    def observed_request(quality):
+        request = original_request(quality)
+        requests.append(request)
+        return request
+
+    monkeypatch.setattr(stage, '_render_request', observed_request)
+    centre = (widget.width() * .5, widget.height() * .5)
+    moved = (centre[0] + 22, centre[1] - 14)
+    for kind, point, button, buttons in (
+            (QEvent.MouseButtonPress, centre, Qt.LeftButton, Qt.LeftButton),
+            (QEvent.MouseMove, moved, Qt.NoButton, Qt.LeftButton),
+            (QEvent.MouseButtonRelease, moved, Qt.LeftButton, Qt.NoButton)):
+        local = QPointF(*point)
+        event = QMouseEvent(kind, local, QPointF(widget.mapToGlobal(local.toPoint())),
+                            button, buttons, Qt.NoModifier)
+        QApplication.sendEvent(widget, event)
+    assert canvas._view_angles != saved
+    _wait_render(stage, qtbot)
+    assert any(request is not None and request.backend == 'cpu' for request in requests)
+    canvas.render_now()
+    _wait_render(stage, qtbot)
+    current = stage._view_axes()
+    assert (current.elev, current.azim, current.roll) == canvas._view_angles
+    assert not np.array_equal(current.get_proj(), before)
+
+
 def test_display_translation_invalidates_the_volume_once_without_changing_the_camera():
     from types import SimpleNamespace
 
