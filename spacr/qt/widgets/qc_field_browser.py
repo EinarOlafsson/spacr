@@ -2533,15 +2533,558 @@ class _FieldOverview(QDialog):
 
 
 def _open_field_overview(owner, settings=None):
-    """Keep one shared overview window per module and retain its navigation."""
-    dialog = getattr(owner, "_field_overview", None)
-    if dialog is None:
-        dialog = _FieldOverview(owner, settings)
+    """Open metadata choices before constructing the shared image browser."""
+    previous = getattr(owner, "_field_overview_wizard", None)
+    if previous is not None and previous.isVisible():
+        previous.raise_()
+        return previous
+    settings = dict(settings or {})
+    source = settings.get("source") or settings.get("src") or ""
+    if isinstance(source, (list, tuple)):
+        source = source[0] if source else ""
+    wizard = _OverviewMetadataWizard(source, settings, owner)
+    owner._field_overview_wizard = wizard
+
+    def _show_browser():
+        """Replace the old view only after valid metadata choices are accepted."""
+        config = wizard.configuration()
+        old = getattr(owner, "_field_overview", None)
+        if old is not None:
+            old.close()
+            old.deleteLater()
+        dialog = _FieldOverview(owner, config)
         owner._field_overview = dialog
-    if dialog._cancelled.is_set():
+        dialog.show()
+        dialog.raise_()
+
+    wizard.accepted.connect(_show_browser)
+    wizard.show()
+    wizard.raise_()
+    return wizard
+
+
+def _overview_reference_key(field, mode, conditions):
+    """Address a reference without merging identically named wells on plates."""
+    if mode == "reference_well":
+        return (field.plate, field.well)
+    if mode == "reference_row":
+        return (field.plate, field.row)
+    if mode == "reference_column":
+        return (field.plate, field.column)
+    if mode == "reference_condition":
+        return conditions.get((field.plate, field.well), "")
+    return None
+
+
+def _overview_normalization_plan(fields, channels, options, read_planes, cancelled=None):
+    """Learn display-only bounds from bounded, deterministic raw-pixel samples.
+
+    Sample at most 128 evenly spaced fields and 2048 finite pixels per
+    channel and field through the reader's 256-pixel preview limit. Reference
+    modes select their scope before sampling. No source arrays are modified.
+    """
+    from concurrent.futures import CancelledError
+
+    options = dict(options or {})
+    mode = options.get("mode", "image")
+    if mode not in ("image", "shared", "reference_well", "reference_row",
+                    "reference_column", "reference_condition"):
+        raise ValueError(tr("Choose a supported normalization mode."))
+    percentiles = tuple(float(value) for value in options.get("percentiles", (1., 99.)))
+    if len(percentiles) != 2 or not 0 <= percentiles[0] < percentiles[1] <= 100:
+        raise ValueError(tr("The lower percentile must be below the upper percentile."))
+    channels = tuple(channels)
+    if not channels or len(set(channels)) != len(channels):
+        raise ValueError(tr("Choose at least one distinct available channel."))
+    reference_channel = options.get("reference_channel")
+    if reference_channel is not None and reference_channel not in channels:
+        raise ValueError(tr("The reference channel must be selected for display."))
+    mean_match = bool(options.get("mean_match", False))
+    if mean_match and reference_channel is None:
+        raise ValueError(tr("Choose a reference channel before enabling mean-matched display scaling."))
+    conditions = dict(options.get("conditions") or {})
+    reference = options.get("reference")
+    if isinstance(reference, list):
+        reference = tuple(reference)
+    selected = tuple(fields)
+    if mode.startswith("reference_"):
+        selected = tuple(field for field in selected
+                         if _overview_reference_key(field, mode, conditions) == reference)
+        if not selected or reference in (None, ""):
+            raise ValueError(tr("The selected normalization reference has no fields."))
+    indices = np.linspace(0, len(selected) - 1, min(128, len(selected)), dtype=int)
+    sampled = tuple(selected[index] for index in indices)
+    bounds = {}
+    gains = {channel: 1. for channel in channels}
+    samples = {channel: [] for channel in channels}
+    needs_sample = mode != "image" or reference_channel is not None
+    if needs_sample:
+        if not sampled:
+            raise ValueError(tr("No fields are available for normalization."))
+        for field in sampled:
+            if cancelled is not None and cancelled.is_set():
+                raise CancelledError()
+            found = set()
+            for channel, path, raw in read_planes(field, channels, edge=256):
+                if cancelled is not None and cancelled.is_set():
+                    raise CancelledError()
+                if channel not in samples or channel in found:
+                    raise ValueError(tr("The normalization sample has ambiguous channels."))
+                found.add(channel)
+                values = np.asarray(raw).ravel()
+                values = values[np.isfinite(values)]
+                if values.size:
+                    positions = np.linspace(0, values.size - 1, min(2048, values.size), dtype=int)
+                    samples[channel].append(np.asarray(values[positions], dtype=np.float64))
+            if found != set(channels):
+                raise ValueError(tr("A selected channel is missing from the normalization sample."))
+        pooled = {}
+        for channel, pieces in samples.items():
+            if not pieces:
+                raise ValueError(tr("This channel has no finite pixels."))
+            pooled[channel] = np.concatenate(pieces)
+            if mode != "image":
+                bounds[channel] = tuple(float(value) for value in np.percentile(
+                    pooled[channel], percentiles))
+        if reference_channel is not None and mode != "image":
+            reference_bounds = bounds[reference_channel]
+            bounds = {channel: reference_bounds for channel in channels}
+        if mean_match:
+            means = {channel: float(np.mean(values)) for channel, values in pooled.items()}
+            if any(not math.isfinite(value) or value <= 0 for value in means.values()):
+                raise ValueError(tr("Channel-reference scaling requires positive finite sample means."))
+            gains = {channel: means[reference_channel] / value for channel, value in means.items()}
+    return {"mode": mode, "percentiles": percentiles, "bounds": bounds,
+            "gains": gains, "reference": reference, "reference_channel": reference_channel,
+            "mean_match": mean_match,
+            "sample_fields": len(sampled) if needs_sample else 0,
+            "sample_pixels": {channel: sum(len(piece) for piece in pieces)
+                              for channel, pieces in samples.items()},
+            "max_fields": 128, "max_pixels_per_field": 2048, "preview_edge": 256,
+            "field_identities": tuple(field.identity for field in sampled) if needs_sample else ()}
+
+
+def _overview_normalized_planes(planes, plan, field=None):
+    """Return fresh display floats; degenerate bounds/nonfinite pixels become black.
+
+    The transform is clip((gain * x - low) / (high - low), 0, 1).
+    Reference-channel bounds are shared; optional mean matching scales raw
+    pixels before that affine display transform, never computing pixel ratios.
+    """
+    planes = tuple(planes)
+    image_bounds = {}
+    if plan["mode"] == "image":
+        for channel, path, raw in planes:
+            source = np.asarray(raw)
+            values = source[np.isfinite(source)]
+            if not values.size:
+                raise ValueError(tr("This channel has no finite pixels."))
+            image_bounds[channel] = np.percentile(values, plan["percentiles"])
+        reference_channel = plan.get("reference_channel")
+        if reference_channel is not None:
+            if reference_channel not in image_bounds:
+                raise ValueError(tr("The reference channel must be selected for display."))
+            image_bounds = {channel: image_bounds[reference_channel] for channel in image_bounds}
+    output = []
+    for channel, path, raw in planes:
+        source = np.asarray(raw)
+        finite = np.isfinite(source)
+        if not finite.any():
+            raise ValueError(tr("This channel has no finite pixels."))
+        if plan["mode"] == "image":
+            low, high = image_bounds[channel]
+        else:
+            if channel not in plan["bounds"]:
+                raise ValueError(tr("A selected channel has no learned normalization bounds."))
+            low, high = plan["bounds"][channel]
+        result = np.zeros(source.shape, dtype=np.float32)
+        if high > low:
+            values = np.asarray(source[finite], dtype=np.float64)
+            values = (plan["gains"].get(channel, 1.) * values - low) / (high - low)
+            result[finite] = np.clip(values, 0., 1.).astype(np.float32)
+        output.append((channel, path, result))
+    return tuple(output)
+
+
+def _overview_metadata_preview(filenames, pattern):
+    """Apply the shared microscope parser to real names without changing files."""
+    import re
+    from ..regex_detect import apply_regex
+
+    compiled = re.compile(pattern, re.I)
+    names = tuple(Path(name).name for name in filenames)[:20]
+    records, missed = apply_regex(names, compiled)
+    by_name = {record.filename: record.groups for record in records}
+    return tuple((name, dict(by_name.get(name, {}))) for name in names), tuple(missed)
+
+
+def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope="folder"):
+    """Index names on a worker and inspect only the first field's image headers."""
+    fields = _overview_index(source, pattern, convention, cancelled, source_scope=source_scope)
+    if cancelled.is_set() or not fields:
+        return fields, None
+    detected_pattern, detected_label = pattern, convention
+    if convention == "auto" and not pattern:
+        from ..regex_detect import auto_detect_regex
+        names = tuple(Path(path).name for field in fields for _, path in field.files)[:20]
+        detected_pattern, detected_label, hits = auto_detect_regex(names)
+        if detected_pattern and hits:
+            fields = _overview_index(source, detected_pattern, "auto", cancelled,
+                                     source_scope=source_scope)
+    if cancelled.is_set() or not fields:
+        return fields, None
+    info = dict(_overview_channel_info(fields[0]))
+    info["detected_pattern"] = detected_pattern or ""
+    info["detected_label"] = detected_label
+    return fields, info
+
+
+class _OverviewMetadataWizard(QDialog):
+    """Choose a real source's metadata, axes, geometry and display transform."""
+
+    def __init__(self, source="", settings=None, parent=None):
+        """Build the source wizard; filesystem work starts only on its worker."""
         import threading
-        dialog._cancelled = threading.Event()
-        dialog._image_pending = False
-    dialog.show()
-    dialog.raise_()
-    return dialog
+        from PySide6.QtWidgets import (QFormLayout, QLineEdit, QSpinBox,
+                                       QDoubleSpinBox, QTableWidget, QTableWidgetItem,
+                                       QHeaderView, QScrollArea)
+        from ..regex_detect import BUILTIN_REGEXES
+        from .sortable_table import install_sorting
+
+        super().__init__(parent)
+        self.setWindowTitle(tr("Image metadata and display"))
+        self._settings = dict(settings or {})
+        self._fields = ()
+        self._info = None
+        self._cancelled = threading.Event()
+        self._generation = 0
+        self._runner = JobRunner(self, threaded=True, app_key="overview metadata", user_visible=False)
+        self._runner.job_failed.connect(self._failed)
+        shell = QVBoxLayout(self)
+        body = QWidget()
+        outer = QVBoxLayout(body)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(body)
+        shell.addWidget(scroll, 1)
+        self.resize(920, 760)
+        form = QFormLayout()
+        self.source = QLineEdit(str(source or ""))
+        self.source.setObjectName("OverviewWizardSource")
+        source_row = QHBoxLayout()
+        source_row.addWidget(self.source, 1)
+        browse = QPushButton(tr("Choose folder…"))
+        browse.clicked.connect(self._browse)
+        source_row.addWidget(browse)
+        form.addRow(tr("Image source"), source_row)
+        self.scope = QComboBox()
+        self.scope.setObjectName("OverviewWizardSourceScope")
+        self.scope.addItem(tr("This folder only (raw images at this level)"), "folder")
+        self.scope.addItem(tr("Include subfolders (may include derived images)"), "recursive")
+        self.scope.currentIndexChanged.connect(self._invalidate)
+        form.addRow(tr("Source scope"), self.scope)
+        self.preset = QComboBox()
+        self.preset.setObjectName("OverviewWizardMicroscope")
+        self.preset.addItem(tr("Automatic filename metadata"), "auto")
+        for key in BUILTIN_REGEXES:
+            self.preset.addItem(tr(key), key)
+        self.preset.addItem(tr("Custom filename regex"), "custom")
+        self.regex = QLineEdit(str(self._settings.get("custom_regex") or ""))
+        self.regex.setObjectName("OverviewWizardRegex")
+        form.addRow(tr("Microscope preset"), self.preset)
+        form.addRow(tr("Filename regex"), self.regex)
+        self.preset.currentIndexChanged.connect(self._preset_changed)
+        preview = QPushButton(tr("Preview metadata"))
+        preview.clicked.connect(self._scan)
+        form.addRow(preview)
+        outer.addLayout(form)
+        self.preview = QTableWidget(0, 7)
+        self.preview.setObjectName("OverviewWizardParsePreview")
+        install_sorting(self.preview)
+        self.preview.setHorizontalHeaderLabels([tr("File"), "plateID", "wellID", "fieldID",
+                                                "timeID", "sliceID", "chanID"])
+        self.preview.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.preview.setEditTriggers(QTableWidget.NoEditTriggers)
+        outer.addWidget(self.preview)
+        self.axes = QLabel("")
+        self.axes.setWordWrap(True)
+        outer.addWidget(self.axes)
+        layout = QFormLayout()
+        self.channels = QLineEdit()
+        self.channels.setObjectName("OverviewWizardChannels")
+        self.channels.setToolTip(tr("Choose only channel IDs reported by this image's metadata."))
+        layout.addRow(tr("Display channels"), self.channels)
+        self.time = QSpinBox()
+        self.time.setObjectName("OverviewWizardTime")
+        self.z_mode = QComboBox()
+        self.z_mode.addItem(tr("Single Z plane"), "plane")
+        self.z_mode.addItem(tr("Maximum Z projection"), "max")
+        self.z_mode.addItem(tr("Mean Z projection"), "mean")
+        self.z = QSpinBox()
+        self.z.setObjectName("OverviewWizardZ")
+        layout.addRow(tr("Time index"), self.time)
+        layout.addRow(tr("Z view"), self.z_mode)
+        layout.addRow(tr("Z index"), self.z)
+        self.geometry = QComboBox()
+        self.geometry.setObjectName("OverviewWizardGeometry")
+        self.geometry.addItem(tr("Coverslip"), (1, 1))
+        for count, dimensions in ((6, (2, 3)), (12, (3, 4)), (24, (4, 6)),
+                                  (48, (6, 8)), (96, (8, 12)), (384, (16, 24)),
+                                  (1536, (32, 48))):
+            self.geometry.addItem(tr("{count}-well plate", count=count), dimensions)
+        self.geometry.setCurrentIndex(5)
+        layout.addRow(tr("Plate geometry"), self.geometry)
+        self.representatives = QSpinBox()
+        self.representatives.setRange(1, 100)
+        self.representatives.setValue(1)
+        layout.addRow(tr("Representative fields per well"), self.representatives)
+        self.mode = QComboBox()
+        for label, value in ((tr("Percentiles per image"), "image"),
+                             (tr("Shared channel percentile bounds"), "shared"),
+                             (tr("Bounds from a reference well"), "reference_well"),
+                             (tr("Bounds from a reference row"), "reference_row"),
+                             (tr("Bounds from a reference column"), "reference_column"),
+                             (tr("Bounds from a reference condition"), "reference_condition")):
+            self.mode.addItem(label, value)
+        self.mode.currentIndexChanged.connect(self._reference_choices)
+        layout.addRow(tr("Display normalization"), self.mode)
+        self.low = QDoubleSpinBox()
+        self.high = QDoubleSpinBox()
+        for spin, value in ((self.low, 1.), (self.high, 99.)):
+            spin.setRange(0., 100.)
+            spin.setDecimals(3)
+            spin.setValue(value)
+        layout.addRow(tr("Lower normalization percentile"), self.low)
+        layout.addRow(tr("Upper normalization percentile"), self.high)
+        self.reference = QComboBox()
+        layout.addRow(tr("Reference scope"), self.reference)
+        self.gain = QComboBox()
+        self.gain.addItem(tr("Use each channel’s own bounds"), None)
+        layout.addRow(tr("Use reference-channel bounds"), self.gain)
+        self.mean_match = QCheckBox(tr("Mean-matched display scaling before reference bounds"))
+        layout.addRow(self.mean_match)
+        outer.addLayout(layout)
+        self.conditions = QTableWidget(0, 3)
+        self.conditions.setObjectName("OverviewWizardConditions")
+        install_sorting(self.conditions)
+        self.conditions.setHorizontalHeaderLabels([tr("Plate"), tr("Well"), tr("Condition")])
+        self.conditions.itemChanged.connect(self._reference_choices)
+        outer.addWidget(self.conditions)
+        explanation = QLabel(tr(
+            "Display only: clip((gain × pixel − lower bound) / (upper bound − lower bound), 0, 1). "
+            "Equal lower/upper bounds and nonfinite pixels are black; channels without finite pixels are refused. "
+            "Shared/reference bounds use at most 128 evenly spaced fields and 2048 finite "
+            "sample pixels per channel and field, from bounded 256-pixel previews. "
+            "Optional mean-matched display scaling uses the reference-channel raw sample mean divided by each channel raw sample mean, including zeros. The same reference-channel bounds are then used; "
+            "both must be positive and finite. It is not a per-pixel ratio. Raw values stay unchanged."))
+        explanation.setWordWrap(True)
+        outer.addWidget(explanation)
+        self.status = QLabel("")
+        self.status.setWordWrap(True)
+        outer.addWidget(self.status)
+        actions = QHBoxLayout()
+        cancel = QPushButton(tr("Cancel"))
+        cancel.clicked.connect(self.reject)
+        self.next = QPushButton(tr("Next"))
+        self.next.setObjectName("OverviewWizardNext")
+        self.next.setEnabled(False)
+        self.next.clicked.connect(self._next)
+        actions.addStretch(1)
+        actions.addWidget(cancel)
+        actions.addWidget(self.next)
+        shell.addLayout(actions)
+        self.source.textEdited.connect(self._invalidate)
+        self.regex.textEdited.connect(self._custom_regex_changed)
+        if self.regex.text():
+            self.preset.setCurrentIndex(self.preset.count() - 1)
+        QTimer.singleShot(0, self._scan)
+
+    def _invalidate(self):
+        """Prevent stale metadata from authorizing a changed source or pattern."""
+        self._generation += 1
+        self._cancelled.set()
+        self.next.setEnabled(False)
+
+    def _browse(self):
+        """Choose another folder while preserving the old source on cancellation."""
+        from PySide6.QtWidgets import QFileDialog
+        path = QFileDialog.getExistingDirectory(self, tr("Image source"))
+        if path:
+            self.source.setText(path)
+            self._scan()
+
+    def _preset_changed(self):
+        """Use the exact filename patterns offered by the Generate Masks editor."""
+        from ..regex_detect import BUILTIN_REGEXES
+        key = self.preset.currentData()
+        if key != "custom":
+            self.regex.setText(BUILTIN_REGEXES.get(key, ""))
+        self._invalidate()
+
+    def _custom_regex_changed(self):
+        """Mark a typed pattern as custom without replacing its contents."""
+        self.preset.blockSignals(True)
+        self.preset.setCurrentIndex(self.preset.count() - 1)
+        self.preset.blockSignals(False)
+        self._invalidate()
+
+    def _scan(self):
+        """Queue cancellable indexing and header inspection without decoding images."""
+        import threading
+        self._invalidate()
+        self._cancelled = threading.Event()
+        generation = self._generation
+        source, pattern = self.source.text(), self.regex.text()
+        source_scope = self.scope.currentData()
+        convention = self.preset.currentData()
+        cancelled = self._cancelled
+        self.status.setText(tr("Reading filename metadata and image headers…"))
+        self._runner.submit(lambda: (generation, _overview_wizard_probe(
+            source, pattern, "auto" if convention == "custom" else convention, cancelled, source_scope)), self._scanned)
+
+    def _scanned(self, payload):
+        """Expose actual parsed identities, available channels and embedded axes."""
+        from PySide6.QtWidgets import QTableWidgetItem
+        generation, (fields, info) = payload
+        if generation != self._generation or self._cancelled.is_set():
+            return
+        self._fields, self._info = fields, info
+        if not fields or not info or not info["channels"]:
+            self.status.setText(tr("No readable image fields or available channels were found."))
+            return
+        detected = info.get("detected_pattern", "")
+        if detected and not self.regex.text():
+            self.regex.setText(detected)
+            index = self.preset.findData(info.get("detected_label"))
+            self.preset.blockSignals(True)
+            self.preset.setCurrentIndex(index if index >= 0 else self.preset.count() - 1)
+            self.preset.blockSignals(False)
+        all_files = tuple(dict.fromkeys(path for field in fields for _, path in field.files))
+        files = all_files[:20]
+        pattern = self.regex.text()
+        if pattern:
+            rows, missed = _overview_metadata_preview(files, pattern)
+        else:
+            rows = tuple((Path(path).name, {}) for path in files)
+            missed = ()
+        self.preview.setRowCount(len(rows))
+        self.preview.setSortingEnabled(False)
+        for row, (name, values) in enumerate(rows):
+            for column, value in enumerate((name,) + tuple(values.get(key, "") or "" for key in
+                    ("plateID", "wellID", "fieldID", "timeID", "sliceID", "chanID"))):
+                self.preview.setItem(row, column, QTableWidgetItem(str(value)))
+        self.preview.setSortingEnabled(True)
+        available = tuple(info["channels"])
+        requested = self._settings.get("channels") or ()
+        chosen = tuple(channel for channel in requested if channel in available) or available[:3]
+        self.channels.setText(", ".join(str(channel) for channel in chosen))
+        self.gain.clear()
+        self.gain.addItem(tr("Use each channel’s own bounds"), None)
+        for channel in available:
+            self.gain.addItem(str(channel), channel)
+        descriptions = []
+        for entry in info["files"]:
+            descriptions.append(tr("{axes}: {shape}; {dtype}", axes=entry["axes"],
+                                   shape=str(entry["shape"]), dtype=entry["dtype"]))
+        self.axes.setText(tr("First field: {details}. Available channel IDs: {channels}",
+                             details="; ".join(descriptions), channels=str(available)))
+        self.time.setRange(0, max(entry.get("time_count", 1) for entry in info["files"]) - 1)
+        self.z.setRange(0, max(entry.get("z_count", 1) for entry in info["files"]) - 1)
+        wells = sorted({(field.plate, field.well) for field in fields})
+        self.conditions.blockSignals(True)
+        self.conditions.setSortingEnabled(False)
+        self.conditions.setRowCount(len(wells))
+        for row, pair in enumerate(wells):
+            for column, value in enumerate(pair + ("",)):
+                item = QTableWidgetItem(str(value))
+                if column < 2:
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                self.conditions.setItem(row, column, item)
+        self.conditions.setSortingEnabled(True)
+        self.conditions.blockSignals(False)
+        self._reference_choices()
+        import re
+        matched = sum(bool(re.match(pattern, Path(path).name, re.I)) for path in all_files) if pattern else 0
+        self.status.setText(tr(
+            "Source: {source}. Indexed {count} fields; {matched} matched filenames and "
+            "{unmatched} unmatched filenames. Available channel IDs in the first field: {channels}.",
+            source=self.source.text(), count=len(fields), matched=matched,
+            unmatched=len(all_files) - matched, channels=str(available)))
+        self.next.setEnabled(True)
+
+    def _condition_mapping(self):
+        """Read explicit condition labels without changing any image metadata."""
+        output = {}
+        for row in range(self.conditions.rowCount()):
+            items = [self.conditions.item(row, column) for column in range(3)]
+            if all(item is not None for item in items) and items[2].text().strip():
+                output[(items[0].text(), items[1].text())] = items[2].text().strip()
+        return output
+
+    def _reference_choices(self):
+        """List only existing plate-qualified references or explicit conditions."""
+        mode = self.mode.currentData()
+        conditions = self._condition_mapping()
+        values = {_overview_reference_key(field, mode, conditions) for field in self._fields}
+        values.discard(None)
+        values.discard("")
+        previous = self.reference.currentData()
+        self.reference.clear()
+        for value in sorted(values, key=str):
+            self.reference.addItem(str(value), value)
+        index = self.reference.findData(previous)
+        if index >= 0:
+            self.reference.setCurrentIndex(index)
+        self.reference.setEnabled(mode.startswith("reference_"))
+
+    def configuration(self):
+        """Return validated metadata and display choices for the browser worker."""
+        if not self._info or not self.next.isEnabled():
+            raise ValueError(tr("Preview the current source metadata before continuing."))
+        try:
+            channels = tuple(int(value.strip()) for value in self.channels.text().split(","))
+        except ValueError:
+            raise ValueError(tr("Choose only channel IDs reported by this image's metadata.")) from None
+        if not channels or len(set(channels)) != len(channels) or not set(channels) <= set(self._info["channels"]):
+            raise ValueError(tr("Choose only channel IDs reported by this image's metadata."))
+        if not self.low.value() < self.high.value():
+            raise ValueError(tr("The lower percentile must be below the upper percentile."))
+        mode = self.mode.currentData()
+        reference = self.reference.currentData()
+        if mode.startswith("reference_") and reference is None:
+            raise ValueError(tr("The selected normalization reference has no fields."))
+        gain = self.gain.currentData()
+        if self.mean_match.isChecked() and gain is None:
+            raise ValueError(tr("Choose a reference channel before enabling mean-matched display scaling."))
+        if gain is not None and gain not in channels:
+            raise ValueError(tr("The reference channel must be selected for display."))
+        return {"source": self.source.text(), "custom_regex": self.regex.text(),
+                "microscope": self.preset.currentData(), "source_scope": self.scope.currentData(),
+                "geometry": tuple(self.geometry.currentData()),
+                "channels": channels, "time_index": self.time.value(),
+                "z_mode": self.z_mode.currentData(), "z_index": self.z.value(),
+                "representatives": self.representatives.value(),
+                "normalization": {"mode": mode, "percentiles": (self.low.value(), self.high.value()),
+                                  "reference": reference, "reference_channel": gain,
+                                  "mean_match": self.mean_match.isChecked(),
+                                  "conditions": self._condition_mapping()}}
+
+    def _next(self):
+        """Accept only a valid current configuration; report errors in place."""
+        try:
+            self.configuration()
+        except ValueError as error:
+            self.status.setText(str(error))
+            return
+        self.accept()
+
+    def _failed(self, error):
+        """Report worker refusals while leaving the source and raw files intact."""
+        self.status.setText(str(error))
+        self.next.setEnabled(False)
+
+    def done(self, result):
+        """Cancel metadata work before hiding the wizard."""
+        self._cancelled.set()
+        self._runner.shutdown(timeout_ms=0)
+        super().done(result)
