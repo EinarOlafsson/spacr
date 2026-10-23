@@ -43,13 +43,12 @@ def overview(qtbot, source_planes):
     dialog = module._FieldOverview(settings={
         "source": str(source), "source_scope": "folder", "custom_regex": PATTERN,
         "channels": (1,), "geometry": (2, 3), "representatives": 1})
-    qtbot.addWidget(dialog)
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire_overview(widget, qtbot))
     dialog.show()
     dialog._scan()
     qtbot.waitUntil(lambda: bool(dialog._fields) and dialog._normalization_ready
                     and not dialog._index_jobs.is_busy(), timeout=10000)
     yield dialog
-    _retire_overview(dialog, qtbot)
 
 
 def _retire_overview(dialog, qtbot):
