@@ -32,6 +32,16 @@ refusal/CPU retry route; require released Metal resources, fresh current-request
 CPU RGB/IDs and nonzero picking, an aligned completed paint, unchanged mask/
 history and normal cleanup. Reuse the owned startup/fixture/composition observer;
 no drag matrix, FPS claim or real OS-device-loss claim. No product change assumed.
+Native22067 on d55b8a49f now exposes a production transition defect: exactly one
+live Metal render error reaches CPU fallback, releases Metal resources/refuses
+that backend, and ends with byte-exact current CPU RGB/IDs and an aligned final
+paint. However two transition paints combine the old image with the changed
+camera (three aligned, zero unknown); strict acceptance fails before two picks.
+Normal close/data/history pass, exit1 in68.82s, RSS1.288GiB. Repair only stale
+image/pick presentation while the first fallback frame is pending; no blocking
+CPU draw, quality reduction or change to successful GPU rendering. Known-absent
+image transitions must be proved separately, never counted as aligned frames/FPS
+or used to waive unknown/misaligned paints. Focused regression precedes repair.
 First owned run stops before injection: default90% GUI scales the fixed canvas
 away from611x140. Cleanup preserves dirty/image/mask/history, but the parent
 times out280s without a final run-return marker; this is not native failover
