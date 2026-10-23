@@ -1097,8 +1097,14 @@ class HostedProvider(ChatProvider):
         from ..i18n import tr
 
         summary, question = _hosted_request(messages)
+        details = messages[-1].get("_spacr_batch_errors") if messages else None
+        if details:
+            summary["_batch_errors"] = details
         try:
-            answer = crashreport.diagnose_remotely(summary, question)
+            saved = (crashreport.saved_explanation(crashreport._error_explanation_signature(summary))
+                     if getattr(crashreport._ERROR_DISPATCH_LOCAL, "error_ai", False) else None)
+            answer = (dict(advice=saved["text"], tier=saved["tier"], model=saved.get("model", ""))
+                      if saved else crashreport.diagnose_remotely(summary, question))
         except crashreport.RelayRefused as exc:
             raise HostedProviderRefused(
                 hosted_refusal_message(exc.reason, exc.scope, exc.resets_at),
@@ -1207,6 +1213,12 @@ def hosted_refusal_message(reason: str, scope: str = "",
             text = tr("You've used today's free spaCR AI questions. They "
                       "reset at {time}.", time=when)
         return f"{text} {hosted_cli_hint()}"
+    if reason == "rate":
+        return tr("spaCR AI allows three requests per minute. Try again at {time}.",
+                  time=local_reset_time(resets_at))
+    if reason == "cooldown":
+        return tr("spaCR AI error explanations are paused for one hour after repeated errors. Try again at {time}.",
+                  time=local_reset_time(resets_at))
     if reason == "network":
         return tr("spaCR hosted AI could not be reached. Check the network "
                   "connection and try again later.")
@@ -1440,18 +1452,20 @@ def explain_failure(summary: Dict, provider: Optional[ChatProvider],
 
     if provider is None:
         return {"text": "", "tier": "", "refused": "none"}
-    signature = crashreport.explanation_signature(summary)
+    signature = crashreport._error_explanation_signature(summary)
     saved = crashreport.saved_explanation(signature)
     if saved:
         return {"text": saved["text"], "tier": saved["tier"], "refused": "",
                 "saved": "local", "cause": saved.get("cause", "")}
     if provider.name == HOSTED_PROVIDER_NAME:
         try:
-            answer = crashreport.diagnose_remotely(
-                summary, crashreport.EXPLAIN_QUESTION,
-                timeout=crashreport.AI_SUMMARY_TIMEOUT_S)
+            with crashreport._hosted_error_context():
+                answer = crashreport.diagnose_remotely(
+                    summary, crashreport.EXPLAIN_QUESTION,
+                    timeout=crashreport.AI_SUMMARY_TIMEOUT_S)
         except crashreport.RelayRefused as exc:
-            return {"text": "", "tier": "", "refused": exc.reason}
+            return {"text": "", "tier": "", "refused": exc.reason,
+                    "scope": exc.scope, "resets_at": exc.resets_at.isoformat()}
         except Exception:
             return {"text": "", "tier": "", "refused": "error"}
         allowance = answer.get("allowance")
@@ -1473,6 +1487,33 @@ def explain_failure(summary: Dict, provider: Optional[ChatProvider],
     crashreport.save_explanation(signature, text, cause=cause)
     return {"text": text, "tier": "", "refused": "" if text else "error",
             "cause": cause}
+
+
+def _batch_widget_error(widget, traceback_text, active_app="", show_raw=True):
+    """Queue an explicit Explain action independently of automatic reporting."""
+    import weakref
+    from ... import crashreport
+
+    provider = widget._current_provider()
+    if provider is None:
+        return False
+    owner = weakref.ref(widget)
+    name = provider.name
+
+    def deliver(batch, omitted):
+        """Emit only a queued widget signal; never touch widgets from a timer."""
+        target = owner()
+        if target is not None:
+            try:
+                target._error_batch_ready.emit(crashreport._combined_error_text(batch, omitted),
+                    active_app, bool(show_raw), name, crashreport._batch_error_diagnostics(batch))
+            except RuntimeError:
+                pass
+
+    crashreport._submit_error_batch(
+        dict(text=str(traceback_text)[-8192:], module=str(active_app), manual=True,
+             provider=name), deliver)
+    return True
 
 
 #: What each vendor CLI can say about its remaining usage, checked

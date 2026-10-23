@@ -54,10 +54,13 @@ def overview(qtbot, source_planes):
 def _retire_overview(dialog, qtbot):
     dialog._cancel()
     runners = (dialog._index_jobs, dialog._image_jobs, dialog._thumbnail_jobs,
-               dialog._field_thumbnail_jobs, dialog._montage_jobs, dialog._export_jobs)
+               dialog._field_thumbnail_jobs, dialog._montage_jobs, dialog._export_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs)
     qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
     for runner in runners:
         runner.shutdown(timeout_ms=3000)
+    from spacr.qt.bridge import prune_parked_threads
+    qtbot.waitUntil(lambda: prune_parked_threads() == 0)
     dialog.close()
 
 
@@ -175,6 +178,7 @@ def test_progressive_detail_is_bounded_and_native_images_own_their_pixels(
     from PySide6.QtCore import QThread
 
     dialog = overview
+    dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(4096))
     requests, shown = [], []
     original_read, original_show = module._overview_pixels, dialog._show_pixels
 
@@ -191,7 +195,7 @@ def test_progressive_detail_is_bounded_and_native_images_own_their_pixels(
     dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
     dialog.fields.setCurrentRow(0)
     dialog._field(dialog.fields.item(0))
-    qtbot.waitUntil(lambda: any(shape[1] == 1024 for shape, _ in shown)
+    qtbot.waitUntil(lambda: any(shape[1] == 2048 for shape, _ in shown)
                     and not dialog._image_jobs.is_busy(), timeout=10000)
     assert any(shape[1] == 256 for shape, _ in shown)
     assert all(thread == qapp.thread() for _, thread in shown)
@@ -199,7 +203,7 @@ def test_progressive_detail_is_bounded_and_native_images_own_their_pixels(
     dialog._request_detail()
     qtbot.waitUntil(lambda: any(edge == 4096 for edge, _ in requests)
                     and not dialog._image_jobs.is_busy(), timeout=10000)
-    assert max(edge for edge, _ in requests) <= 4096
+    assert max(edge for edge, _ in requests if edge is not None) <= 4096
     assert all(ident != threading.get_ident() for _, ident in requests)
     assert len(dialog._cache) <= 8
     before = dialog.view._item.pixmap().toImage().copy()
@@ -218,16 +222,17 @@ def test_small_physical_window_keeps_configuration_and_images_reachable(overview
     qtbot.waitUntil(lambda: dialog.size() == QSize(760, 620))
     assert not dialog._controls_scroll.isVisible()
     dialog.options_button.click()
-    assert dialog._controls_scroll.isVisible()
+    _resize_actual(dialog._options_window, QSize(760, 620))
+    qtbot.waitUntil(lambda: dialog._controls_scroll.isVisible())
     assert dialog._splitter.isVisible()
     assert dialog._splitter.height() > 0
     assert dialog.time_axis.isVisible()
     for control in (dialog.source, dialog.annotation_text,
                     dialog.pdf_quality, dialog.measurements):
         dialog._controls_scroll.ensureWidgetVisible(control)
-        assert dialog._controls_scroll.viewport().rect().contains(
+        qtbot.waitUntil(lambda: dialog._controls_scroll.viewport().rect().contains(
             control.rect().translated(control.mapTo(dialog._controls_scroll.viewport(),
-                                                   control.rect().topLeft())))
+                                                   control.rect().topLeft()))))
     assert dialog.size() == QSize(760, 620)
 
 
@@ -788,7 +793,7 @@ def test_wizard_folder_cancel_select_and_real_pattern_transitions(tmp_path, qtbo
     assert all(path.read_bytes() == before for path, before in originals.items())
 
 
-def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_path, qtbot):
+def test_coverslip_next_loads_real_pixels_with_explicit_well_identity(tmp_path, qtbot):
     import json
     from PySide6.QtWidgets import QWidget, QPushButton
 
@@ -796,11 +801,11 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
     source.mkdir()
     originals = {}
     for field in (1, 2):
-        path = source / f"f{field:03d}_c01.tif"
+        path = source / f"A01_f{field:03d}_c01.tif"
         tifffile.imwrite(path, np.roll(np.arange(1280, dtype=np.uint16).reshape(32, 40),
                                       field * 3, axis=1))
         originals[path] = path.read_bytes()
-    pattern = r"f(?P<fieldID>\d+)_c(?P<chanID>\d+)\.tif"
+    pattern = r"(?P<wellID>A01)_f(?P<fieldID>\d+)_c(?P<chanID>\d+)\.tif"
     owner = QWidget()
 
     def retire(widget):
@@ -820,7 +825,7 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
     wizard.plate_geometry.setCurrentIndex(0)
     assert wizard.configuration()["geometry"] == (1, 1)
     accepted_fields = wizard._fields
-    assert len(accepted_fields) == 2 and all(field.well == "" for field in accepted_fields)
+    assert len(accepted_fields) == 2 and all(field.well == "A01" for field in accepted_fields)
     qtbot.mouseClick(wizard.next, Qt.LeftButton)
     dialog = owner._field_overview
     assert dialog._fields == accepted_fields
@@ -829,8 +834,8 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
         and dialog.wells.columnCount() == 1 and dialog.wells.item(0, 0) is not None
         and not dialog.wells.item(0, 0).icon().isNull(), timeout=10000)
     item = dialog.wells.item(0, 0)
-    assert item.data(Qt.UserRole) == ""
-    assert all(field.well == "" and field.row == "" and field.column == 0
+    assert item.data(Qt.UserRole) == "A01"
+    assert all(field.well == "A01" and field.row == "1" and field.column == 1
                for field in dialog._fields)
     dialog.wells.setCurrentItem(item)
     open_well = next(button for button in dialog.findChildren(QPushButton)
@@ -840,15 +845,15 @@ def test_coverslip_next_loads_real_pixels_without_assigning_a_physical_well(tmp_
     picture = dialog.view._item.pixmap().toImage()
     assert (picture.width(), picture.height()) == (512, 280)
     assert any(picture.pixelColor(x, 100).red() for x in range(50, 200))
-    assert dialog.fields.count() == 2 and dialog._scope == (str(source), "")
+    assert dialog.fields.count() == 2 and dialog._scope == (str(source), "A01")
     output = tmp_path / "export"
     paths, errors = module._overview_export(dialog._visible, output, (1,), (1., 99.9), measurements=True)
     assert paths and not errors
     metadata = json.loads((output / "overview_selection.json").read_text())
-    assert [field["well"] for field in metadata["fields"]] == ["", ""]
+    assert [field["well"] for field in metadata["fields"]] == ["A01", "A01"]
     measured = tabular.read_table(output / "overview_measurements.csv", canonicalise=False,
                                   keep_default_na=False)
-    assert measured["well"].tolist() == ["", ""]
+    assert measured["well"].tolist() == ["A01", "A01"]
     assert all(path.read_bytes() == before for path, before in originals.items())
 
 
@@ -890,19 +895,61 @@ def test_native_image_wheel_keeps_anchor_and_requests_real_progressive_detail(ov
                                          normalized.y() * new_size.height()))
         assert abs(moved.x() - cursor.x()) <= 2
         assert abs(moved.y() - cursor.y()) <= 2
-    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy()
-                    and view._item.pixmap().width() > initial_width, timeout=10000)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and not dialog._native_jobs.is_busy()
+                    and dialog._native_key is not None, timeout=10000)
     actual = view._item.pixmap().toImage()
     moved = view.mapFromScene(QPointF(normalized.x() * actual.width(),
                                      normalized.y() * actual.height()))
     assert abs(moved.x() - cursor.x()) <= 2
     assert abs(moved.y() - cursor.y()) <= 2
-    assert (actual.width(), actual.height()) == (2048, 1536)
+    assert (actual.width(), actual.height()) == (1024, 768)
+    assert actual.width() == dialog.preview_resolution.currentData()
     assert actual.width() * view.transform().m11() > initial_displayed
     assert dialog.fields.currentItem().data(Qt.UserRole).identity == field.identity
     assert dialog._scope == ("p1", "A01")
     assert (dialog.fov_axis.currentData(), dialog.time_axis.currentData(), dialog.z_axis.currentData()) == axes
     assert len(dialog._cache) <= 8
-    expected = module._overview_pixels(field, (1,), (1., 99.9), edge=2048)
-    for x, y in ((128, 96), (1024, 768), (2047, 1535)):
-        assert actual.pixelColor(x, y).getRgb()[:3] == tuple(int(value) for value in expected[y, x])
+    region = dialog._native_key[2]
+    y0, y1, x0, x1 = region
+    native = dialog._native_item.pixmap().toImage()
+    assert (native.width(), native.height()) == (x1 - x0, y1 - y0)
+    assert dialog._native_item.pos() == QPointF(x0 / 2, y0 / 2)
+    expected = module._overview_pixels(field, (1,), (1., 99.9), edge=None,
+        region=region, **dialog._display_kwargs())
+    for x, y in ((0, 0), (native.width() // 2, native.height() // 2),
+                 (native.width() - 1, native.height() - 1)):
+        assert native.pixelColor(x, y).getRgb()[:3] == tuple(int(value) for value in expected[y, x])
+
+
+def test_finer_preview_preserves_source_camera_and_ignores_deselected_native_target(overview, qtbot):
+    from PySide6.QtCore import QPointF
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions["A01"]))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy())
+    field = dialog.fields.currentItem().data(Qt.UserRole)
+    low = module._overview_pixels(field, (1,), (1., 99.9), edge=256, **dialog._display_kwargs())
+    dialog._show_pixels(low)
+    dialog._preview_edge = 256
+    dialog.view.zoom_by(8)
+    anchor = dialog.view.viewport().rect().center()
+    center = dialog.view.mapToScene(anchor)
+    normalized = QPointF(center.x() / low.shape[1], center.y() / low.shape[0])
+    displayed = dialog.view.transform().m11() * low.shape[1]
+    dialog._request_detail()
+    qtbot.waitUntil(lambda: dialog.view._item.pixmap().width() == 1024 and not dialog._image_jobs.is_busy())
+    final = dialog.view._item.pixmap()
+    moved = dialog.view.mapFromScene(QPointF(normalized.x() * final.width(), normalized.y() * final.height()))
+    assert abs(moved.x() - anchor.x()) <= 2 and abs(moved.y() - anchor.y()) <= 2
+    assert dialog.view._user_zoomed
+    assert abs(final.width() * dialog.view.transform().m11() - displayed) < .01
+    dialog._native_timer.stop()
+    qtbot.waitUntil(lambda: not dialog._native_jobs.is_busy())
+    dialog.fields.setCurrentRow(-1)
+    before = dialog.view._item.pixmap().toImage().copy()
+    dialog._preview_edge = 256
+    dialog._request_detail()
+    dialog._load_native_detail()
+    assert dialog.fields.currentItem() is None
+    assert dialog.view._item.pixmap().toImage() == before
+    assert not dialog._native_jobs.is_busy()

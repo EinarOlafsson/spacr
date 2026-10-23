@@ -228,7 +228,8 @@ def test_metadata_wizard_custom_edit_invalidates_preview_until_rescanned(qtbot, 
     wizard = browser._OverviewMetadataWizard(str(tmp_path))
     qtbot.addWidget(wizard)
     wizard.show()
-    qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+    qtbot.waitUntil(lambda: wizard._info is not None, timeout=10000)
+    assert not wizard.next.isEnabled()
     pattern = r"(?P<plateID>P\d+)-(?P<wellID>[A-Z]\d+)-s(?P<fieldID>\d+)-c(?P<chanID>\d+)\.tif$"
     wizard.regex.setFocus()
     qtbot.keyClick(wizard.regex, Qt.Key_A, Qt.ControlModifier)
@@ -237,7 +238,6 @@ def test_metadata_wizard_custom_edit_invalidates_preview_until_rescanned(qtbot, 
     assert not wizard.next.isEnabled()
     with pytest.raises(ValueError, match="Preview"):
         wizard.configuration()
-    wizard._scan()
     qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
     assert wizard.configuration()["channels"] == (9,)
     assert wizard.configuration()["custom_regex"] == pattern
@@ -974,7 +974,8 @@ def test_actual_export_button_forks_well_mean_generation_and_preserves_raw_data(
             qtbot.mouseClick(cancel, browser.Qt.LeftButton)
             release.set()
         qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy()
-                        and (output / "overview_selection.json").exists(), timeout=10000)
+                        and bool(tuple((source / "results").glob("overview_*/overview_selection.json"))), timeout=10000)
+        output = next((source / "results").glob("overview_*"))
         metadata = json.loads((output / "overview_selection.json").read_text())
         assert metadata["normalization"]["reference_means"] == {"1": 7., "2": 14.}
         assert [(row["well"], row["means"]["1"])
@@ -1059,7 +1060,9 @@ def test_export_waits_for_real_channel_relearning_before_asking_for_destination(
         monkeypatch.setattr(QFileDialog, "getExistingDirectory", choose_destination)
         qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
         dialog._controls_scroll.ensureWidgetVisible(dialog.channels)
-        dialog.channels.setFocus()
+        qtbot.waitUntil(dialog._options_window.isVisible)
+        qtbot.mouseClick(dialog.channels, browser.Qt.LeftButton)
+        qtbot.waitUntil(dialog.channels.hasFocus)
         dialog.channels.selectAll()
         qtbot.keyClicks(dialog.channels, "1,2")
         qtbot.keyClick(dialog.channels, browser.Qt.Key_Tab)
@@ -1085,8 +1088,9 @@ def test_export_waits_for_real_channel_relearning_before_asking_for_destination(
         dialog._controls_scroll.ensureWidgetVisible(export)
         qtbot.mouseClick(export, browser.Qt.LeftButton)
         qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy()
-                        and (output / "overview_selection.json").exists(), timeout=10000)
-        assert destinations == [True] and len(list(output.glob("*.pdf"))) == 1
+                        and bool(tuple((source / "results").glob("overview_*/overview_selection.json"))), timeout=10000)
+        output = next((source / "results").glob("overview_*"))
+        assert destinations == [] and len(list(output.glob("*.pdf"))) == 1
         metadata = json.loads((output / "overview_selection.json").read_text())
         assert metadata["channels"] == [1, 2] and metadata["written_field_count"] == 1
         assert metadata["normalization"]["reference_means"] == {"1": 2., "2": 4.}
@@ -1291,7 +1295,8 @@ def test_accepting_a_new_source_wizard_disposes_retained_browser_and_loads_only_
         retired = tuple(QSignalSpy(runner.destroyed) for runner in previous_runners)
         second_wizard = browser._open_field_overview(owner, {**settings, "source": str(second_source)})
         assert second_wizard is not first_wizard
-        assert owner._field_overview is previous and previous.isVisible()
+        assert owner._field_overview is previous and not previous.isVisible()
+        assert isValid(previous) and not previous_cancelled.is_set()
         qtbot.waitUntil(second_wizard.next.isEnabled, timeout=10000)
         assert second_wizard.source.text() == str(second_source)
         qtbot.mouseClick(second_wizard.next, browser.Qt.LeftButton)

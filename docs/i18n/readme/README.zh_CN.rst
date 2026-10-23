@@ -38,9 +38,9 @@
    :target: https://github.com/EinarOlafsson/spacr/issues
    :alt: GitHub 问题
 
-.. |License| image:: https://img.shields.io/badge/License-Noncommercial-blue
+.. |License| image:: https://img.shields.io/badge/License-BSD_3--Clause_with_additional_terms-blue
    :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
-   :alt: 非商业许可证
+   :alt: BSD 3-Clause 及附加条款
 
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
@@ -590,11 +590,11 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing.desktop.svg"><img src="../../readme_images/zh_CN/licensing.svg" alt="许可. spaCR 的新增原创材料采用 spaCR Noncommercial License 1.0。商业使用须另行获得书面许可；请联系 olafsson@med.umich.com。此前授予的 BSD 许可及第三方许可证仍然有效；适用范围和声明请参阅 LICENSE。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing.desktop.svg"><img src="../../readme_images/zh_CN/licensing.svg" alt="许可. spaCR 的新增原创材料采用 BSD 3-Clause with additional terms。商业使用须另行获得书面许可；请联系 olafsson@med.umich.com。此前授予的 BSD 许可及第三方许可证仍然有效；适用范围和声明请参阅 LICENSE。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing-link-1.desktop.svg"><img src="../../readme_images/zh_CN/licensing-link-1.svg" alt="spaCR Noncommercial License 1.0"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing-link-2.desktop.svg"><img src="../../readme_images/zh_CN/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing-link-1.desktop.svg"><img src="../../readme_images/zh_CN/licensing-link-1.svg" alt="BSD 3-Clause with additional terms"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing-link-2.desktop.svg"><img src="../../readme_images/zh_CN/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
 
 .. raw:: html
 

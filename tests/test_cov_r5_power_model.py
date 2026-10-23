@@ -199,6 +199,20 @@ def _install_numpyro(monkeypatch, *, beta_draws, intercept_draws,
         assert recorder.x64_active
         return np.asarray(value, **kwargs)
 
+    def zeros(shape):
+        assert recorder.x64_active
+        array = np.zeros(shape, dtype=np.float64)
+
+        class Updates:
+            def __getitem__(self, index):
+                def set_values(values):
+                    updated = array.copy()
+                    updated[index] = values
+                    return updated
+                return types.SimpleNamespace(set=set_values)
+
+        return types.SimpleNamespace(at=Updates())
+
     class _NUTS:
         def __init__(self, model, **kwargs):
             self.model = model
@@ -225,7 +239,7 @@ def _install_numpyro(monkeypatch, *, beta_draws, intercept_draws,
             return {"diverging": np.ones(recorder.n_divergent)}
 
     jnp = _fake_module(
-        "jax.numpy", asarray=asarray, log=np.log, abs=np.abs,
+        "jax.numpy", asarray=asarray, zeros=zeros, log=np.log, abs=np.abs,
         sqrt=np.sqrt, exp=np.exp, logaddexp=np.logaddexp, float64=np.float64,
     )
     jax = _fake_module(
@@ -323,11 +337,11 @@ def test_the_numpyro_model_is_the_horseshoe_poisson_with_the_offset(
                  n_warmup=1, n_samples=4, n_chains=1)
 
     priors = recorder.priors
-    assert priors["z"].kind == "Normal" and priors["z"].shape == (3,)
+    assert priors["z"].kind == "Normal" and priors["z"].shape == (2,)
     assert priors["lam"].kind == "FoldedDistribution"
     assert priors["lam"].args[0].kind == "StudentT"
     assert priors["lam"].args[0].args == (8.0, 0.0, 1.0)      # df_local
-    assert priors["lam"].shape == (3,)
+    assert priors["lam"].shape == (2,)
     assert priors["lam"].masked is None
     assert priors["lam"].args[0].masked is None
     assert priors["tau"].kind == "FoldedDistribution"
@@ -342,7 +356,8 @@ def test_the_numpyro_model_is_the_horseshoe_poisson_with_the_offset(
         (3.0, float(np.log(baseline)), 2.5))
 
     beta = recorder.deterministic["beta"]
-    assert beta == pytest.approx(_expected_beta(3))
+    assert beta[:2] == pytest.approx(_expected_beta(2))
+    assert beta[2] == 0.0
 
     # the response is the well's positives, and the rate carries the
     # log(Ntotal) offset on the *centred* design.

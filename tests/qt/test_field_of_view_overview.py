@@ -31,10 +31,13 @@ def _ready_overview(dialog, fields, qtbot):
 def _retire_overview(dialog, qtbot):
     dialog._cancel()
     runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
-               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs)
     qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
     for runner in runners:
         runner.shutdown(timeout_ms=3000)
+    from spacr.qt.bridge import prune_parked_threads
+    qtbot.waitUntil(lambda: prune_parked_threads() == 0)
 
 
 def _retire_overview_owner(owner, qtbot):
@@ -159,7 +162,8 @@ def test_real_pdf_and_selection_provenance(plate_images, tmp_path, monkeypatch):
                               "field": field.field, "files": field.files,
                               "field_id": field.field_id or field.field,
                               "time_id": field.time_id, "z_id": field.z_id,
-                              "condition": ""}
+                              "condition": "", "time_index": None, "z_mode": "plane",
+                              "z_index": None, "annotations": {}}
                              for field in selected]
     assert spec["channels"] == (1, 2) and spec["percentiles"] == (1, 99)
     assert spec["seed"] == 15 and spec["image_panels"] == list(range(len(selected)))
@@ -882,12 +886,12 @@ def test_measurement_csv_refuses_overwrite_and_cleans_failed_atomic_write(plate_
     assert not list(fresh.glob(".*pending*"))
 
 
-def test_measurements_follow_the_exact_ui_export_selection_and_dialog_cancel(
+def test_measurements_follow_exact_ui_selection_in_source_results(
         plate_images, tmp_path, qtbot, monkeypatch):
     import pandas as pd
     from PySide6.QtWidgets import QFileDialog
 
-    dialog = browser._FieldOverview()
+    dialog = browser._FieldOverview(settings={"source": str(plate_images)})
     def retire(widget):
         """Retire this overview's actual asynchronous work before closing its owner."""
         widget._visual_timer.stop()
@@ -906,11 +910,9 @@ def test_measurements_follow_the_exact_ui_export_selection_and_dialog_cancel(
     assert dialog.measurements.isChecked() is False
     dialog.measurements.setChecked(True)
     output = tmp_path / "selection"
-    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *a, **k: "")
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *a, **k: pytest.fail("Results export must not ask for a destination"))
     dialog._export()
-    assert not output.exists() and not dialog._export_jobs.is_busy()
-    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *a, **k: str(output))
-    dialog._export()
+    output = next((plate_images / "results").glob("overview_*"))
     actual = pd.read_csv(output / "overview_measurements.csv", dtype={"field": str})
     assert list(zip(actual["plate"], actual["well"], actual["field"])) == [
         (field.plate, field.well, field.field) for field in selected]
@@ -983,7 +985,8 @@ def test_visible_well_thumbnails_follow_native_ratio_and_reuse_source_cache(tmp_
             assert picture.deviceIndependentSize().width() == expected.width()
             assert picture.deviceIndependentSize().height() == expected.height()
         base = max(64, max(dialog._plate_cell_extent or (160, 160)))
-        assert decoded == [base, base * 2]
+        cap = dialog.preview_resolution.currentData()
+        assert decoded == [min(cap, base), min(cap, base * 2)]
         assert len(dialog._thumbnail_cache) == 2
     finally:
         dialog.close()
@@ -1114,7 +1117,7 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
     from PySide6.QtWidgets import QFileDialog, QPushButton
     fields = tuple(field for field in browser._overview_index(plate_images)
                    if field.plate == "plate1" and field.well == "A01")
-    dialog = browser._FieldOverview(settings={"channels": [1, 2]})
+    dialog = browser._FieldOverview(settings={"source": str(plate_images), "channels": [1, 2]})
     def retire(widget):
         """Retire this overview's actual asynchronous work before closing its owner."""
         widget._visual_timer.stop()
@@ -1173,7 +1176,8 @@ def test_editable_export_validation_then_real_worker_and_gui_result(plate_images
         assert dialog.status.text() == browser.tr("Wait for the current export to finish or cancel it.")
         release.set()
         qtbot.waitUntil(lambda: bool(delivered) and not dialog._export_jobs.is_busy())
-        assert len(workers) == len(folders) == 1
+        output = next((plate_images / "results").glob("overview_*"))
+        assert len(workers) == 1 and not folders
         assert workers[0] != qapp.thread() and delivered == [qapp.thread()]
         assert (output / "overview_0001.pdf").read_bytes().startswith(b"%PDF-")
         selection = json.loads((output / "overview_selection.json").read_text())
@@ -1355,6 +1359,7 @@ def test_folder_browse_and_real_metadata_acceptance_reindex_without_moving_image
         dialog._controls_scroll.ensureWidgetVisible(browse)
         qtbot.mouseClick(browse, browser.Qt.LeftButton)
         assert dialog.source.text() == str(initial) and not dialog._fields
+        dialog.regex.setText(r"sample-p9-(?P<wellID>[A-Z]\d+)-f\d+-c(?P<chanID>\d+)")
         monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_a, **_k: str(source))
         dialog._controls_scroll.ensureWidgetVisible(browse)
         qtbot.mouseClick(browse, browser.Qt.LeftButton)

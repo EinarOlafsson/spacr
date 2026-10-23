@@ -46,9 +46,9 @@ blocks:
        :target: https://github.com/EinarOlafsson/spacr/issues
        :alt: GitHub issues
 
-    .. |License| image:: https://img.shields.io/badge/License-Noncommercial-blue
+    .. |License| image:: https://img.shields.io/badge/License-BSD_3--Clause_with_additional_terms-blue
        :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
-       :alt: Noncommercial license
+       :alt: BSD 3-Clause with additional terms
 
     .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
        :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
@@ -401,7 +401,7 @@ blocks:
     most of this information; include the hardware report when reporting performance
     problems.
 - h2: Licensing
-- p: "New original spaCR material is licensed under the `spaCR Noncommercial License 1.0 <https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>`_. Commercial use requires separate written permission; contact `olafsson@med.umich.com <mailto:olafsson@med.umich.com>`_. Earlier BSD grants and third-party licenses remain in effect; see LICENSE for scope and notices."
+- p: "New original spaCR material is licensed under the `BSD 3-Clause with additional terms <https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>`_. Commercial use requires separate written permission; contact `olafsson@med.umich.com <mailto:olafsson@med.umich.com>`_. Earlier BSD grants and third-party licenses remain in effect; see LICENSE for scope and notices."
 - p: If spaCR contributed to published work, a citation is appreciated and is not
     a condition of the licence — see `Citing spaCR`_ below.
 - h2: Tutorials

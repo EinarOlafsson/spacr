@@ -38,9 +38,9 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
    :target: https://github.com/EinarOlafsson/spacr/issues
    :alt: GitHub issues
 
-.. |License| image:: https://img.shields.io/badge/License-Noncommercial-blue
+.. |License| image:: https://img.shields.io/badge/License-BSD_3--Clause_with_additional_terms-blue
    :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
-   :alt: Noncommercial license
+   :alt: BSD 3-Clause with additional terms
 
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
@@ -590,11 +590,11 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="docs/readme_text/en/licensing.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing.desktop.svg"><img src="docs/readme_images/en/licensing.svg" alt="Licensing. New original spaCR material is licensed under the spaCR Noncommercial License 1.0. Commercial use requires separate written permission; contact olafsson@med.umich.com. Earlier BSD grants and third-party licenses remain in effect; see LICENSE for scope and notices."></picture></a></div>
+   <div><a href="docs/readme_text/en/licensing.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing.desktop.svg"><img src="docs/readme_images/en/licensing.svg" alt="Licensing. New original spaCR material is licensed under the BSD 3-Clause with additional terms. Commercial use requires separate written permission; contact olafsson@med.umich.com. Earlier BSD grants and third-party licenses remain in effect; see LICENSE for scope and notices."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing-link-1.desktop.svg"><img src="docs/readme_images/en/licensing-link-1.svg" alt="spaCR Noncommercial License 1.0"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing-link-2.desktop.svg"><img src="docs/readme_images/en/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing-link-1.desktop.svg"><img src="docs/readme_images/en/licensing-link-1.svg" alt="BSD 3-Clause with additional terms"></picture></a><a href="mailto:olafsson@med.umich.com"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/licensing-link-2.desktop.svg"><img src="docs/readme_images/en/licensing-link-2.svg" alt="olafsson@med.umich.com"></picture></a></div>
 
 .. raw:: html
 

@@ -1,8 +1,20 @@
 NONCOMMERCIAL USE POLICY AND USER AGREEMENT
 
-Status:    DONE — prospective noncommercial policy, versioned consent and package outputs
+Status:    DONE — BSD 3-Clause display with additional terms; noncommercial scope and liability policy retained
 Requested: maintainer — add an item to prohibit commercial use
-Owner:     maintainer_input_coordinator — implementation; root — peer/publication
+Owner:     Workstation session 2 / overview_normalization — implementation; root — accuracy peer/publication
+
+CURRENT FOLLOW-UP — 2026-10-23
+The maintainer requests a BSD 3-Clause display name instead of Noncommercial,
+while retaining noncommercial-use, no-warranty and no-liability clauses.
+Use "BSD 3-Clause with additional terms" consistently, identifying the added
+restrictions as custom terms rather than claiming the standard unrestricted
+BSD license. Preserve prior BSD grants, LICENSE-BSD-3-Clause and third-party
+GPL/LGPL rights. Update agreement identity/version, accurate custom SPDX
+metadata, translated notices/documentation and their ordinary generated outputs.
+Acceptance: retained restrictions/disclaimers and historical grants are explicit;
+current package/UI/docs identities agree; consent history is preserved; focused
+tests and ordinary producers pass; root reviews accuracy before nightly publication.
 
 REQUIREMENTS
 The maintainer explicitly directed implementation and publication on 2026-10-22,
@@ -45,3 +57,6 @@ license compatibility limits and validation before nightly publication.
 2026-10-22 — Registered the maintainer's requested noncommercial-policy work; implementation and legal compatibility review remain pending.
 
 2026-10-22 — Implemented LicenseRef-spaCR-Noncommercial for new original material, terms4.4 re-consent and preserved acceptance/licence history; prior BSD and third-party rights remain intact. Fifty-one focused checks pass; all10 README sources/notices and normal outputs pass independent review, with API13606/runtime catalogs unchanged. Local sdist/wheel metadata and both licence files match source exactly, original BSD bytes are retained, and strict Twine passes; these are local content checks, not final-release provenance. The maintainer explicitly owns remaining compatibility work; no blanket compatibility claim is made.
+
+2026-10-23 — Renamed current display to BSD 3-Clause with additional terms, added the three BSD notice conditions subject to the retained noncommercial scope, and identified the custom SPDX licence accurately. Agreement 4.5 requires re-consent and preserves 4.4 acceptance history; legacy BSD and third-party rights remain intact.
+2026-10-23 — Root reviewed source accuracy and all nine badge translations. Eighty-one focused checks pass; one existing installer-markup translation check remains report-only. Normal ten-language README outputs and instruction index are current; local wheel/sdist licence contents and strict Twine checks pass, without a release-provenance or compatibility-clearance claim.

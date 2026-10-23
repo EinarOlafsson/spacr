@@ -1248,6 +1248,9 @@ def _trace_owned_qc_native_jobs(request, monkeypatch):
         "test_overview_metadata_normalization.py",
         "test_field_overview_navigation.py",
         "test_overview_annotation_interactions.py",
+        "test_overview_expanded_workflow.py",
+        "test_overview_measurements_database.py",
+        "test_overview_normalization_comparisons.py",
         "test_the_field_browser_never_stats_the_field.py",
         "test_source_folder_browse.py",
     }

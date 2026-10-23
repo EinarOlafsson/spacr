@@ -1,3 +1,64 @@
+CURRENT FOLLOW-UP — ERROR STORMS AND AI ALLOWANCE, 2026-10-23
+Status: DONE 2026-10-23 — bounded error batching, hosted request limits, persistent cooldown and explicit storm actions delivered; earlier reporting behavior below is retained.
+Owner: Workstation session 2 / retained AI error-control agent; Home retains general CI/release.
+Mac acceptance follow-up (not reopening Home's delivered scope): inspect the
+actual error-storm QMessageBox at GUI90/font90 and GUI90/font200 under owned
+Cocoa settings. Require exposed untouched initial native frame/work-area fit,
+actual11/23px main-message fonts, complete wrapped messages and all three native
+button text slots, Cancel default/Escape, one-shot identity and Cancel-only
+dismissal. Stub destructive actions; no real quit/restart, reports, provider,
+authentication or network calls. Run only these two new geometry nodes plus
+the five existing explicit-action/hidden-relay/failed-restart safety cases under
+the owned8GiB/300s guard. Other platforms may exercise the same geometry test;
+only the actual Cocoa run establishes this Mac-specific acceptance.
+First owned Cocoa cohort56453: six pass in9.34s/RSS0.314GiB, including
+font200 native prompt geometry and all five action/relay/restart safeguards.
+Default geometry is untested: its setup fails before prompt construction when
+liveGUI1.0 differs from already-default owned preferences0.9, causing the normal
+change_scales no-change branch to return. This is a test-startup precondition,
+not an observed prompt clipping failure; align via normal saved-scale startup
+before retrying only that affected default node. No product change.
+Affected default-only retry54535 PASSES after normal saved-scale/font/theme
+bootstrap (5.19s/RSS0.301GiB). Together with the six retained passes, all seven
+scoped Cocoa checks pass: actual11/23px main text; untouched native frames
+420x170/default and579x299/font200 fit1440x870 work area at DPR2; complete
+wrapped labels and all three actual-default-state button text slots fit.
+Cancel/default/Escape, one-shot ownership and the five action/relay/restart
+safeguards pass without any real destructive action, report or provider call.
+Test cleanup restores owned scales and app style/font/palette on all paths.
+This is automated native Mac acceptance, not physical-input certification;
+Home's delivered product scope/status is unchanged. No product fix was needed.
+Priority: current user report; repeated Qt errors exhausted spaCR AI allowance.
+
+For every AI provider, send the first error immediately. An error arriving within
+60 seconds of the preceding error starts/extends a pending combined error. Flush
+that batch only after 60 seconds without another error. Preserve distinct errors
+and occurrence counts within bounded memory rather than creating one AI request
+per exception. At five minutes of an uninterrupted stream, stop automatic sends
+and show one prompt offering force quit or force restart; neither happens without
+the user's choice. Keep local crash logs and existing reporting consent controls.
+
+For spaCR AI only, enforce at most three actual AI requests in any rolling
+60 seconds across the application's chat and error routes. If error submissions
+reach three per minute for three consecutive minutes, block further error
+submissions for one hour. Preserve this cooldown across an app restart; other AI
+providers keep batching but do not receive spaCR AI's rate limit or cooldown.
+Local cached explanations make no request. Proven relay cache hits retain the
+transport-rate slot but do not count toward the error saturation cooldown.
+Protect all actual hosted AI
+request entry points, including report summaries, and prevent concurrent sends
+from bypassing the shared limit. Respect network/consent revocation before delayed
+work runs. Surface useful waiting/cooldown status without recursive AI reporting.
+
+Acceptance: deterministic clock-driven tests cover immediate delivery, exactly
+60-second quiet gaps, repeated and distinct errors, five-minute stream cutoff,
+no repeated restart prompts, three-per-minute boundaries, three consecutive
+saturated minutes, one-hour expiry/restart persistence, concurrent callers,
+provider distinctions, cached results and consent changes. Exercise the actual Qt
+prompt/actions without quitting the test process; retain existing error-report
+ownership and explanation matching. Complete normal generated artifacts and
+translations, review the implementation, then publish to nightly.
+
 ================================================================================
 A FAILED RUN SAYS WHERE ITS REPORT AND ITS AI EXPLANATION WENT
 ================================================================================
@@ -797,3 +858,5 @@ Owed: the new "[issue] Waiting up to {seconds} s…" notice in the nine
 catalogs.
 
 VERIFIED 2026-10-04: named tests pass; fixed test_cov_app_screen hostile widget-map stand-in (lacked .get, broken by the later mask GPU refresh); 5 referenced test files pass.
+
+2026-10-23 — Workstation follow-up delivers immediate first errors, bounded/count-preserving combined errors after60quiet seconds, and one explicit five-minute storm prompt; automatic sends stop while manual Explain remains available under the hosted guard. All hosted AI entry points share a persisted3-per-rolling-minute transport guard; three saturated burst minutes start a one-hour error-only cooldown, with local caches free and proven relay caches excluded from saturation. Captured permissions, old-provider reports and manual ownership survive batching without duplicate AI requests; all eight retained diagnostics reach hosted/vendor prompts. The30 deterministic backend/Qt cases pass, retained routing/owner/provider checks pass, root dark/light prompt and clock peers pass, nine-language81-caption review/runtime/arrival gates pass, and normal API/consumer/flow/Help outputs are current. Ordinary nightly publication follows the approved final review; no live AI billing or destructive force action was used for validation.

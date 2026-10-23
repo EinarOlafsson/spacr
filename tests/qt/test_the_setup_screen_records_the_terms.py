@@ -175,7 +175,7 @@ class TestTheAgreementIsRecorded:
         record = terms_module.agreement_record()
         assert record["version"] == "4.3"
         assert record["accepted_at"] == "2026-01-01T12:00:00+00:00"
-        assert record["current_version"] == "4.4"
+        assert record["current_version"] == "4.5"
         assert record["license"] == "BSD 3-Clause License"
         assert terms_module.needs_agreement() is True
 
@@ -193,12 +193,35 @@ class TestTheAgreementIsRecorded:
 
         after = datetime.now(timezone.utc)
         record = terms_module.agreement_record()
-        assert record["version"] == record["current_version"] == "4.4"
-        assert record["license"] == "spaCR Noncommercial License 1.0"
+        assert record["version"] == record["current_version"] == "4.5"
+        assert record["license"] == "BSD 3-Clause with additional terms"
         accepted = datetime.fromisoformat(record["accepted_at"])
         assert accepted.utcoffset().total_seconds() == 0
         assert before <= accepted <= after
         assert terms_module.needs_agreement() is False
+
+    @pytest.mark.parametrize("stored_license", ("", "spaCR Noncommercial License 1.0"))
+    def test_declining_bsd_first_revision_preserves_the_noncommercial_agreement(self, slides, terms_module, stored_license):
+        store = terms_module._settings()
+        store.setValue("onboarding/terms_agreed_version", "4.4")
+        store.setValue("onboarding/terms_agreed_at", "2026-10-22T12:00:00+00:00")
+        if stored_license:
+            store.setValue("onboarding/terms_agreed_license", stored_license)
+        store.sync()
+        slides.reject()
+        record = terms_module.agreement_record()
+        assert record["version"] == "4.4"
+        assert record["license"] == "spaCR Noncommercial License 1.0"
+        assert record["accepted_at"] == "2026-10-22T12:00:00+00:00"
+        assert record["current_version"] == "4.5"
+        assert terms_module.needs_agreement()
+
+    def test_recording_historical_acceptance_keeps_its_original_license(self, terms_module):
+        terms_module.record_agreement("4.4")
+        record = terms_module.agreement_record()
+        assert record["version"] == "4.4"
+        assert record["license"] == "spaCR Noncommercial License 1.0"
+        assert terms_module.needs_agreement()
 
     def test_the_accepted_license_survives_a_future_current_license(self, terms_module, monkeypatch):
         terms_module.record_agreement()
@@ -208,8 +231,8 @@ class TestTheAgreementIsRecorded:
 
         record = terms_module.agreement_record()
 
-        assert record["version"] == "4.4"
-        assert record["license"] == "spaCR Noncommercial License 1.0"
+        assert record["version"] == "4.5"
+        assert record["license"] == "BSD 3-Clause with additional terms"
         assert record["accepted_at"] == accepted["accepted_at"]
         assert record["current_version"] == "future-version"
         assert terms_module.needs_agreement() is True

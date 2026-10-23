@@ -15,7 +15,16 @@ _ORIGINAL_DELIVERY = cr._deliver_error_result
 
 
 @pytest.fixture
-def configured(tmp_path, monkeypatch):
+def configured(tmp_path, monkeypatch, request):
+    """Exercise routing with independent errors separated by a quiet minute.
+
+    The storm-specific cohort drives close arrivals with its own mutable clock.
+    """
+    moments = iter(range(0, 10000000, 61))
+    control = cr._ErrorBatcher(clock=lambda: next(moments),
+                             schedule=lambda delay, callback: threading.Timer(delay, callback))
+    monkeypatch.setattr(cr, "_ERROR_BATCHER", control)
+    request.addfinalizer(lambda: control.timer.cancel() if control.timer is not None else None)
     monkeypatch.setattr(cr, "_reports_dir", lambda: tmp_path / "reports")
     monkeypatch.setattr(cr, "_ERROR_DISPATCH_SEEN", {})
     monkeypatch.setattr(cr, "_ERROR_OCCURRENCE_POLICIES", {})

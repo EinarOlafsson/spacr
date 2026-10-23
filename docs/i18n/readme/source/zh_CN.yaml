@@ -46,9 +46,9 @@ blocks:
        :target: https://github.com/EinarOlafsson/spacr/issues
        :alt: GitHub 问题
 
-    .. |License| image:: https://img.shields.io/badge/License-Noncommercial-blue
+    .. |License| image:: https://img.shields.io/badge/License-BSD_3--Clause_with_additional_terms-blue
        :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
-       :alt: 非商业许可证
+       :alt: BSD 3-Clause 及附加条款
 
     .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
        :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
@@ -335,7 +335,7 @@ blocks:
 - p: 请通过 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ 提交错误报告和范围明确的功能请求。报告故障时，请提供
     spaCR 版本、操作系统、Python 版本、模块设置和相关日志片段。``spacr-doctor`` 会收集其中的大部分信息；报告性能问题时还应附上硬件报告。
 - h2: 许可
-- p: "spaCR 的新增原创材料采用 `spaCR Noncommercial License 1.0 <https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>`_。商业使用须另行获得书面许可；请联系 `olafsson@med.umich.com <mailto:olafsson@med.umich.com>`_。此前授予的 BSD 许可及第三方许可证仍然有效；适用范围和声明请参阅 LICENSE。"
+- p: "spaCR 的新增原创材料采用 `BSD 3-Clause with additional terms <https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE>`_。商业使用须另行获得书面许可；请联系 `olafsson@med.umich.com <mailto:olafsson@med.umich.com>`_。此前授予的 BSD 许可及第三方许可证仍然有效；适用范围和声明请参阅 LICENSE。"
 - p: 如果 spaCR 对您的已发表研究有所帮助，我们欢迎引用，但引用不是许可证的条件；请参阅下方的 `引用 spaCR`_。
 - h2: 教程
 - p: '`spaCR 交互式教程库 <https://einarolafsson.github.io/spacr/tutorials/>`_ 提供安装和模块使用的分步教程。每节课程均列出可用的旁白和语言。'

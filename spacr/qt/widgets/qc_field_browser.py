@@ -1542,9 +1542,12 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
         custom = re.compile(pattern, re.I) if pattern else None
     except re.error as exc:
         raise _OverviewValidationError(str(exc)) from exc
+    if custom is not None and "wellID" not in custom.groupindex:
+        raise _OverviewValidationError(tr("The filename regex must include a wellID group."))
     groups = {}
     for directory, folders, names in os.walk(root):
-        folders[:] = (sorted(p for p in folders if not p.startswith("."))
+        folders[:] = (sorted(p for p in folders if not p.startswith(".")
+                            and p.lower() not in ("results", "measurements"))
                       if source_scope == "recursive" else [])
         for name in sorted(names):
             if cancelled is not None and cancelled.is_set():
@@ -1585,6 +1588,12 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
                 if channel:
                     values.setdefault("chanID", channel.group(1))
             plate = str(values.get("plateID") or root)
+            if custom is not None and not filename_plate:
+                scope = list(path.relative_to(root).parts[:-1])
+                while scope and _classify(scope[-1]) in ("well", "field", "channel"):
+                    scope.pop()
+                if scope:
+                    plate = str(root.joinpath(*scope))
             if filename_plate:
                 scope = list(path.relative_to(root).parts[:-1])
                 while scope and _classify(scope[-1]) in ("well", "field", "channel"):
@@ -1602,9 +1611,21 @@ def _overview_index(source, pattern="", convention="auto", cancelled=None, sourc
                 row, column = "", 0
                 well = ""
             field = str(values.get("fieldID") or "")
-            unresolved = not well or not field
+            if not field:
+                relative = path.relative_to(root)
+                stem = path.stem
+                if match is not None and values.get("chanID"):
+                    start, end = match.span("chanID")
+                    stem = name[:start] + "{channel}" + name[end:]
+                parents = list(relative.parts[:-1])
+                if parents and values.get("chanID") and _classify(parents[-1]) == "channel":
+                    parents[-1] = "{channel}"
+                    if _CHANNEL_RX.match(path.stem):
+                        stem = "{channel}"
+                field = str(Path(*parents, stem))
+            unresolved = not well
             if unresolved:
-                key = (plate, "", str(path.relative_to(root)), "", "")
+                key = (plate, "", str(path.relative_to(root)), values.get("timeID", ""), values.get("sliceID", ""))
             else:
                 key = (plate, well, field, values.get("timeID", ""), values.get("sliceID", ""))
             channel = str(values.get("chanID") or "")
@@ -1636,7 +1657,7 @@ def _overview_channel_info(field):
         if suffix == ".npy":
             image = np.load(path, mmap_mode="r", allow_pickle=False)
             shape, dtype = image.shape, image.dtype
-            axes = "YX" if image.ndim == 2 else "YXC" if image.ndim == 3 else ""
+            axes = {2: "YX", 3: "YXC", 4: "ZYXC", 5: "TZYXC"}.get(image.ndim, "")
         elif suffix in (".tif", ".tiff"):
             import tifffile
             with tifffile.TiffFile(path) as image:
@@ -1673,11 +1694,22 @@ def _overview_channel_info(field):
                 files=tuple(records))
 
 
-def _overview_tiff_plane(record, channel, selections, z_mode, edge=None):
-    """Read only the selected TIFF pages, streaming an explicit Z projection."""
+def _overview_plane_region(array, region):
+    """Slice spatial source pixels before materialization and decode accounting."""
+    if region is None:
+        return array
+    y0, y1, x0, x1 = (int(value) for value in region)
+    if not 0 <= y0 < y1 <= array.shape[-2] or not 0 <= x0 < x1 <= array.shape[-1]:
+        raise _OverviewValidationError(tr("The requested image region lies outside the field."))
+    return array[..., y0:y1, x0:x1]
+
+
+def _overview_tiff_plane(record, channel, selections, z_mode, edge=None, region=None, page_cache=None):
+    """Read validated TIFF axes as selected pages, streaming explicit Z projections."""
     import tifffile
 
     axes = record["axes"]
+    page_cache = {} if page_cache is None else page_cache
     with tifffile.TiffFile(record["path"]) as tif:
         series = tif.series[0]
         page_axes = series.pages[0].axes.upper().replace("S", "C")
@@ -1685,8 +1717,6 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None):
             raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
         leading = axes[:-len(page_axes)]
         leading_shape = series.shape[:len(leading)]
-        if any(axis not in "TCZ" for axis in leading):
-            raise _OverviewValidationError(tr("This TIFF layout cannot be read as bounded image planes."))
         z_values = (range(record["z_count"]) if "Z" in axes and z_mode != "plane"
                     else (selections.get("Z", 0),))
         result, count = None, 0
@@ -1695,16 +1725,20 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None):
             coordinates = tuple(positions[axis] for axis in leading)
             page_index = int(np.ravel_multi_index(coordinates, leading_shape)) if leading else 0
             page = series.pages[page_index]
-            if math.prod(page.shape) * np.dtype(page.dtype).itemsize > 128 * 1024 ** 2:
-                try:
+            page_key = record["path"], page.index
+            if page_key not in page_cache:
+                page_cache.clear()
+                if page.is_memmappable:
                     plane = tifffile.memmap(record["path"], page=page.index, mode="r")
-                except ValueError as exc:
-                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit.")) from exc
-            else:
-                plane = page.asarray()
+                else:
+                    if math.prod(page.shape) * np.dtype(page.dtype).itemsize > 128 * 1024 ** 2:
+                        raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+                    plane = page.asarray()
+                page_cache[page_key] = plane
+            plane = page_cache[page_key]
             selector = tuple(positions[axis] if axis in "TCZ" else slice(None)
                              for axis in page_axes)
-            plane = plane[selector]
+            plane = _overview_plane_region(plane[selector], region)
             if edge is not None:
                 stride = max(1, math.ceil(max(plane.shape) / max(1, edge)))
                 plane = plane[::stride, ::stride]
@@ -1726,7 +1760,7 @@ def _overview_tiff_plane(record, channel, selections, z_mode, edge=None):
 
 
 def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
-                         z_index=None, edge=None):
+                         z_index=None, edge=None, region=None):
     """Yield selected raw planes, validating declared axes and file channel IDs."""
     from PIL import Image
 
@@ -1746,6 +1780,7 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
     if z_mode not in ("plane", "max", "mean"):
         raise _OverviewValidationError(tr("Choose an explicit Z plane or a maximum or mean projection."))
     decoded_path, decoded_array = None, None
+    page_cache = {}
     for channel in channels:
         record = (next(record for record in info["files"]
                        if str(record["file_channel"]).isdigit()
@@ -1754,6 +1789,8 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
         path, axes = record["path"], record["axes"]
         selections = {}
         for axis, chosen in (("T", time_index), ("Z", z_index)):
+            if axis not in axes and chosen not in (None, 0) and (axis != "Z" or z_mode == "plane"):
+                raise _OverviewValidationError(tr("This channel has no image at the selected time or Z plane."))
             if axis not in axes or (axis == "Z" and z_mode != "plane"):
                 continue
             if chosen is None:
@@ -1773,7 +1810,7 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
                 array = np.load(path, mmap_mode="r", allow_pickle=False)
             elif suffix in (".tif", ".tiff"):
                 plane_channel = channel if info["kind"] == "stack" else 0
-                array = _overview_tiff_plane(record, plane_channel, selections, z_mode, edge)
+                array = _overview_tiff_plane(record, plane_channel, selections, z_mode, edge, region, page_cache)
                 yield channel, path, array
                 continue
             else:
@@ -1786,14 +1823,28 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
         selector = tuple(channel if axis == "C" and info["kind"] == "stack"
                          else 0 if axis == "C" else selections.get(axis, slice(None))
                          for axis in axes)
-        array = array[selector]
+        array = _overview_plane_region(array[selector], region)
         if edge is not None:
             stride = max(1, math.ceil(max(record["shape"][axes.index(axis)] for axis in "YX") / max(1, edge)))
             retained = "".join(axis for axis in axes if axis not in selections and axis != "C")
             array = array[tuple(slice(None, None, stride) if axis in "YX" else slice(None)
                                 for axis in retained)]
+        if "Z" in axes and z_mode != "plane":
+            retained = "".join(axis for axis in axes if axis not in selections and axis != "C")
+            stack = np.moveaxis(array, retained.index("Z"), 0)
+            result = None
+            for index, plane in enumerate(stack):
+                if plane.nbytes > 128 * 1024 ** 2:
+                    raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
+                if result is None:
+                    result = np.array(plane, dtype=np.float64 if z_mode == "mean" else plane.dtype, copy=True)
+                elif z_mode == "mean":
+                    result += plane
+                else:
+                    np.maximum(result, plane, out=result)
+            array = result / len(stack) if z_mode == "mean" else result
         plane_size = math.prod(record["shape"][axes.index(axis)] for axis in "YX") * array.dtype.itemsize
-        if edge is None and plane_size > 128 * 1024 ** 2:
+        if region is None and edge is None and plane_size > 128 * 1024 ** 2:
             raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
         if array.nbytes > 128 * 1024 ** 2:
             raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
@@ -1805,7 +1856,8 @@ def _overview_raw_planes(field, channels, *, time_index=None, z_mode="plane",
 
 def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
-                     channel_views=False, normalization_context=None, cancelled=None):
+                     channel_views=False, normalization_context=None, cancelled=None,
+                     advanced_normalization=None, region=None):
     """Decode canonical display pixels, optionally returning individual channel views."""
     from PIL import Image, ImageDraw
 
@@ -1813,16 +1865,43 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
     columns = math.ceil(math.sqrt(len(channels))) if len(channels) > 3 else 1
     source_planes = []
     total_bytes = 0
-    for item in _overview_raw_planes(field, channels, time_index=time_index,
-                                     z_mode=z_mode, z_index=z_index, edge=edge):
+    axes = dict(time_index=time_index, z_mode=z_mode, z_index=z_index)
+    read_edge = None if region is not None else edge
+    def read_selected(target, selected, edge=read_edge):
+        """Read matching physical planes, optionally cropped in original pixels."""
+        for channel, path, values in _overview_raw_planes(target, selected, edge=edge,
+                region=region if edge is None else None, **axes):
+            yield channel, path, values
+    if region is not None and normalization is None and advanced_normalization is None:
+        bounds = {}
+        for channel, path, raw in read_selected(field, channels, edge=1024):
+            finite = np.asarray(raw)[np.isfinite(raw)]
+            if finite.size:
+                bounds[channel] = (float(finite.min()), float(finite.max())) if percentiles is None else tuple(np.percentile(finite, percentiles))
+        normalization = dict(mode="shared", bounds=bounds, gains={}, percentiles=percentiles)
+    for item in read_selected(field, channels):
         total_bytes += item[2].nbytes
         if total_bytes > 128 * 1024 ** 2:
             raise _OverviewValidationError(tr("This image exceeds the 128 MiB preview decode limit."))
         source_planes.append(item)
-    if normalization_context is not None:
-        normalization = normalization_context.plan_for(field, cancelled)
-    if normalization is not None:
-        source_planes = tuple(_overview_normalized_planes(source_planes, normalization, field))
+    if advanced_normalization is not None:
+        source_planes = _overview_advanced_planes(field, source_planes, advanced_normalization,
+            lambda target, selected: read_selected(target, selected, edge=256), read_selected, cancelled)
+    else:
+        if normalization_context is not None:
+            normalization = normalization_context.plan_for(field, cancelled)
+        if normalization is not None:
+            if region is not None and normalization.get("mode") == "image":
+                bounds = {}
+                for channel, path, raw in read_selected(field, channels, edge=1024):
+                    finite = np.asarray(raw)[np.isfinite(raw)]
+                    if finite.size:
+                        bounds[channel] = tuple(np.percentile(finite, normalization["percentiles"]))
+                reference = normalization.get("reference_channel")
+                if reference is not None and reference in bounds:
+                    bounds = {channel: bounds[reference] for channel in channels}
+                normalization = dict(normalization, mode="shared", bounds=bounds)
+            source_planes = tuple(_overview_normalized_planes(source_planes, normalization, field))
     if edge is None:
         edge = (max((max(array.shape) for _, _, array in source_planes), default=1)
                 + (16 if len(channels) > 3 else 0)) * columns
@@ -1835,7 +1914,7 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
         finite = np.isfinite(plane)
         if not finite.any():
             raise _OverviewValidationError(tr("This channel has no finite pixels."))
-        if normalization is not None:
+        if normalization is not None or advanced_normalization is not None:
             low, high = 0., 1.
         elif percentiles is None:
             low, high = float(plane[finite].min()), float(plane[finite].max())
@@ -1904,7 +1983,8 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
                 record.update(height_px=shape[0], width_px=shape[1])
                 geometry = regionprops_table(np.ones(shape, dtype=np.uint8), properties=(
                     "area", "bbox", "centroid", "axis_major_length",
-                    "axis_minor_length", "eccentricity", "extent", "perimeter"))
+                    "axis_minor_length", "eccentricity", "extent", "perimeter",
+                    "solidity", "equivalent_diameter_area", "orientation"))
                 record.update({"roi_" + key.replace("-", "_"): value[0].item()
                                for key, value in geometry.items()})
             elif plane.shape != shape:
@@ -1918,12 +1998,28 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
                            prefix + "nonfinite_pixel_count": int(plane.size - count)})
             if not count:
                 raise ValueError(tr("This channel has no finite pixels."))
-            intensity = regionprops_table(finite.astype(np.uint8),
-                intensity_image=np.where(finite, plane, 0),
-                properties=("intensity_min", "intensity_max", "intensity_mean"))
-            record.update({prefix + key: value[0].item()
-                           for key, value in intensity.items()})
-            record[prefix + "intensity_std"] = float(np.std(plane[finite]))
+            values = np.asarray(plane[finite], dtype=np.float64)
+            percentiles = np.percentile(values, (1, 5, 25, 50, 75, 95, 99))
+            mean = float(np.mean(values))
+            std = float(np.std(values))
+            median = float(percentiles[3])
+            stats = dict(intensity_min=float(values.min()),
+                         intensity_max=float(values.max()), intensity_mean=mean,
+                         intensity_sum=float(values.sum()), intensity_std=std,
+                         intensity_variance=float(np.var(values)),
+                         intensity_median=median,
+                         intensity_mad=float(np.median(np.abs(values - median))),
+                         intensity_iqr=float(percentiles[4] - percentiles[2]),
+                         intensity_zero_fraction=float(np.count_nonzero(values == 0) / count))
+            if std:
+                centred = (values - mean) / std
+                stats.update(intensity_skewness=float(np.mean(centred ** 3)),
+                             intensity_kurtosis=float(np.mean(centred ** 4) - 3))
+            else:
+                stats.update(intensity_skewness=0., intensity_kurtosis=0.)
+            stats.update({"intensity_p" + str(p): float(v)
+                          for p, v in zip((1, 5, 25, 50, 75, 95, 99), percentiles)})
+            record.update({prefix + key: value for key, value in stats.items()})
         if shape is None:
             raise ValueError(tr("Choose one or more nonnegative channel indices."))
     except CancelledError:
@@ -1932,6 +2028,377 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
         record.update(status="error", error=str(error))
     return record
 
+
+
+def _overview_normalization_group(field, scope, annotations=None):
+    """Use source addresses rather than display labels for normalization groups."""
+    import json
+
+    if scope == "image":
+        value = ("image", repr(field.identity))
+    elif scope == "plate":
+        value = ("plate", field.plate)
+    elif scope == "well":
+        value = ("well", field.plate, field.well)
+    elif scope == "row":
+        value = ("row", field.plate, field.row)
+    elif scope == "column":
+        value = ("column", field.plate, field.column)
+    else:
+        metadata = (annotations or {}).get((field.plate, field.well), {})
+        if scope not in metadata or metadata[scope] in (None, ""):
+            value = ("unannotated", scope, field.plate, field.well)
+        else:
+            value = ("annotation", scope, metadata[scope])
+    return json.dumps(value, sort_keys=True, default=str)
+
+def _overview_channel_normalization(options, channel):
+    """Merge a channel override and validate the display transformation."""
+    values = dict(options or {})
+    overrides = values.get("per_channel", {})
+    values.update(overrides.get(channel, overrides.get(str(channel), {})))
+    method = values.get("method", "percentile")
+    if method not in ("percentile", "minmax", "manual", "zscore", "log", "asinh", "none", "ratio", "difference"):
+        raise ValueError(tr("Choose a supported normalization method."))
+    baseline = values.get("baseline", 0.)
+    if isinstance(baseline, dict):
+        baseline = baseline.get(channel, baseline.get(str(channel), 0.))
+    gamma = float(values.get("gamma", 1.))
+    baseline = float(baseline)
+    if not math.isfinite(gamma) or gamma <= 0 or not math.isfinite(baseline):
+        raise ValueError(tr("Gamma must be positive and the baseline must be finite."))
+    values.update(method=method, baseline=baseline, gamma=gamma)
+    if method in ("ratio", "difference"):
+        reference = int(values.get("reference_channel", 0))
+        epsilon = float(values.get("epsilon", 1e-8))
+        if reference < 0 or epsilon <= 0 or not math.isfinite(epsilon):
+            raise ValueError(tr("Reference channel must be nonnegative and epsilon must be positive and finite."))
+        values.update(reference_channel=reference, epsilon=epsilon)
+    if method in ("percentile", "log", "asinh", "ratio", "difference"):
+        low, high = float(values.get("low", 1.)), float(values.get("high", 99.))
+        if not 0 <= low < high <= 100:
+            raise ValueError(tr("Percentiles must satisfy 0 ≤ low < high ≤ 100."))
+    if method == "manual":
+        low, high = float(values.get("low", 0.)), float(values.get("high", 255.))
+        if not math.isfinite(low) or not math.isfinite(high) or low >= high:
+            raise ValueError(tr("Manual limits must be finite and low must be below high."))
+    return values
+
+def _overview_transform(values, options):
+    """Apply background subtraction and an optional monotonic display transform."""
+    values = np.asarray(values, dtype=np.float64) - options["baseline"]
+    if options["method"] == "log":
+        return np.sign(values) * np.log1p(np.abs(values))
+    if options["method"] == "asinh":
+        return np.arcsinh(values)
+    return values
+
+def _overview_reference_transform(field, channel, original, options, selection, diagnostics=None, read_planes=None):
+    """Compare corresponding physical pixels in the same field, time and Z plane.
+
+    Ratio excludes nonfinite references and references whose absolute value is
+    at most epsilon. Difference excludes nonfinite references. Invalid pixels
+    display black and never contribute to display limits. Baseline subtraction
+    follows the reference operation; raw measurements remain independent.
+    """
+    values = np.asarray(original[selection], dtype=np.float64)
+    method = options["method"]
+    if method in ("ratio", "difference"):
+        reference_channel = options["reference_channel"]
+        if reference_channel == channel:
+            reference = original
+        else:
+            reference = next((read_planes or _overview_raw_planes)(field, (reference_channel,)))[2]
+        if reference.shape != original.shape:
+            raise ValueError(tr("The reference channel must have the same image size."))
+        reference = np.asarray(reference[selection], dtype=np.float64)
+        invalid = ~np.isfinite(reference)
+        near_zero = np.abs(reference) <= options["epsilon"]
+        if method == "ratio":
+            invalid |= near_zero
+            divided = np.full(values.shape, np.nan)
+            np.divide(values, reference, out=divided, where=~invalid)
+            values = divided
+        else:
+            values = np.where(invalid, np.nan, values - reference)
+        if diagnostics is not None:
+            diagnostics.append(dict(field=field.caption, channel=channel,
+                reference_channel=reference_channel, method=method,
+                sampled_pixels=int(values.size), invalid_reference_count=int(np.count_nonzero(invalid)),
+                near_zero_reference_count=int(np.count_nonzero(near_zero))))
+    return _overview_transform(values, options)
+
+def _overview_normalization_bounds(samples, options, transformed=False):
+    """Derive display limits from finite transformed samples."""
+    values = np.asarray(samples) if transformed else _overview_transform(samples, options)
+    if not values.size:
+        raise ValueError(tr("This channel has no finite pixels after normalization."))
+    method = options["method"]
+    if method == "manual":
+        low, high = float(options.get("low", 0.)), float(options.get("high", 255.))
+    elif method == "none":
+        low, high = 0., 255.
+    elif method == "zscore":
+        mean, std = float(np.mean(values)), float(np.std(values))
+        low, high = mean - 3 * std, mean + 3 * std
+    elif method == "minmax":
+        low, high = float(values.min()), float(values.max())
+    else:
+        low, high = np.percentile(values, (float(options.get("low", 1.)),
+                                           float(options.get("high", 99.))))
+    return dict(low=float(low), high=float(high), mean=float(np.mean(values)),
+                std=float(np.std(values)), sample_count=int(len(values)))
+
+def _overview_advanced_normalization(fields, channels, options, annotations=None, cancelled=None, read_planes=None):
+    """Sample all relevant fields with bounded memory and retain reusable limits.
+
+    The result contains JSON-safe options, per-group channel bounds, field group
+    identities, and sampling provenance. Raw image measurements never use it.
+    """
+    from concurrent.futures import CancelledError
+
+    options = dict(options or {})
+    scope = options.get("scope", "image")
+    sample_limit = min(65536, max(64, int(options.get("sample_limit", 4096))))
+    group_limit = min(1048576, max(sample_limit, int(options.get("group_sample_limit", 262144))))
+    total_limit = min(16777216, max(64, int(options.get("total_sample_limit", 4194304))))
+    per_group_limit = min(group_limit, total_limit)
+    by_channel = {channel: _overview_channel_normalization(options, channel) for channel in channels}
+    samples, groups, errors, diagnostics, sampled = {}, {}, [], [], 0
+    for field in sorted(fields, key=lambda item: repr(item.identity)):
+        if cancelled is not None and cancelled.is_set():
+            raise CancelledError()
+        group = _overview_normalization_group(field, scope, annotations)
+        groups[repr(field.identity)] = group
+        try:
+            for channel, path, array in (read_planes or _overview_raw_planes)(field, channels):
+                if cancelled is not None and cancelled.is_set():
+                    raise CancelledError()
+                stride = max(1, math.ceil(math.sqrt(array.size / sample_limit)))
+                values = _overview_reference_transform(field, channel, array, by_channel[channel],
+                    (slice(None, None, stride), slice(None, None, stride)), diagnostics, read_planes).reshape(-1)
+                values = values[np.isfinite(values)]
+                if not values.size:
+                    raise ValueError(tr("This channel has no finite pixels."))
+                key = (group, str(channel))
+                if key not in samples and (len(samples) + 1) * per_group_limit > total_limit:
+                    count = 2 ** math.ceil(math.log2(len(samples) + 1))
+                    per_group_limit = max(1, min(group_limit, total_limit // count))
+                    for existing, values_so_far in tuple(samples.items()):
+                        if len(values_so_far) > per_group_limit:
+                            samples[existing] = values_so_far[np.linspace(0, len(values_so_far) - 1, per_group_limit, dtype=int)]
+                merged = np.concatenate((samples.get(key, np.empty(0)), values))
+                if len(merged) > per_group_limit:
+                    merged = merged[np.linspace(0, len(merged) - 1, per_group_limit, dtype=int)]
+                samples[key] = merged
+            sampled += 1
+        except CancelledError:
+            raise
+        except Exception as error:
+            errors.append((field.caption, str(error)))
+    bounds = {}
+    for (group, channel), values in samples.items():
+        bounds.setdefault(group, {})[channel] = _overview_normalization_bounds(
+            values, by_channel[int(channel)], transformed=True)
+    return dict(options=options, bounds=bounds, field_groups=groups,
+                provenance=dict(sample_limit=sample_limit, group_sample_limit=group_limit,
+                                total_sample_limit=total_limit,
+                                field_count=len(fields), sampled_fields=sampled, errors=errors,
+                                reference_diagnostics=diagnostics,
+                                policy="finite transformed pixel samples; display only"))
+
+def _overview_advanced_planes(field, planes, model, sample_reader, reference_reader, cancelled=None):
+    """Apply independent channel transforms with shared, source-bound limits."""
+    planes = tuple(planes)
+    options = model.get("options", model)
+    if not model.get("bounds") and options.get("scope", "image") == "image":
+        model = _overview_advanced_normalization((field,), tuple(channel for channel, _, _ in planes),
+            options, cancelled=cancelled, read_planes=sample_reader)
+    group = model.get("field_groups", {}).get(repr(field.identity))
+    bounds = model.get("bounds", {}).get(group, {})
+    result = []
+    for channel, path, raw in planes:
+        if cancelled is not None and cancelled.is_set():
+            from concurrent.futures import CancelledError
+            raise CancelledError()
+        settings = _overview_channel_normalization(options, channel)
+        limits = bounds.get(str(channel))
+        if limits is None:
+            raise _OverviewValidationError(tr("No normalization samples are available for this channel."))
+        values = _overview_reference_transform(field, channel, raw, settings,
+            (slice(None), slice(None)), read_planes=reference_reader)
+        scaled = np.nan_to_num((values - limits["low"]) / max(limits["high"] - limits["low"],
+            np.finfo(np.float64).eps), nan=0., posinf=1., neginf=0.)
+        result.append((channel, path, np.asarray(np.clip(scaled, 0, 1) ** (1. / settings["gamma"]), dtype=np.float32)))
+    return tuple(result)
+
+
+def _overview_measurements_export(fields, source, channels, workers=1,
+                                  cancelled=None, annotations=None, progress=None, *,
+                                  time_index=None, z_mode="plane", z_index=None, field_options=None):
+    """Publish an atomic raw-pixel FOV run, with one bounded image per worker.
+
+    ``progress(completed, total)`` runs in the caller thread. Failed or cancelled
+    runs leave existing measurements intact and return per-field diagnostics.
+    Selected channels replace the previous row for the same source field.
+    """
+    import hashlib
+    import json
+    import multiprocessing
+    import sqlite3
+    import tempfile
+    from concurrent.futures import CancelledError, ProcessPoolExecutor, wait, FIRST_COMPLETED
+    from datetime import datetime, timezone
+    from ...database_concurrency import connect, transaction
+    from ...schema import row_id, column_id, field_id, time_id, compose_prc, compose_prcf
+
+    source = Path(source).expanduser().resolve()
+    destination = source / "measurements" / "measurements.db"
+    channels = tuple(dict.fromkeys(int(value) for value in channels))
+    if not channels or any(value < 0 for value in channels):
+        raise ValueError(tr("Choose one or more nonnegative channel indices."))
+    workers = max(1, min(int(workers), os.cpu_count() or 1))
+    fields = tuple(fields)
+    report = dict(path=str(destination), count=0, errors=[], cancelled=False,
+                  attempted=0, diagnostics=[], workers=workers)
+    if not fields:
+        return report
+    annotations = annotations or {}
+    measured_at = datetime.now(timezone.utc).isoformat()
+
+    def axes_for(field):
+        """Resolve immutable per-selection axes for every worker and database row."""
+        return dict(time_index=time_index, z_mode=z_mode, z_index=z_index) | dict((field_options or {}).get(repr(field.identity), {}))
+
+    def check_cancelled():
+        if cancelled is not None and cancelled.is_set():
+            raise CancelledError()
+
+    def record_result(field, row, stage):
+        check_cancelled()
+        report["attempted"] += 1
+        if row.get("status") != "ok":
+            diagnostic = dict(plate=field.plate, well=field.well, field=field.field,
+                              time=str(field.time_id),
+                              z=str(field.z_id),
+                              source_files=field.files,
+                              error=row.get("error", tr("Measurement failed.")))
+            report["errors"].append(diagnostic)
+            report["diagnostics"].append(diagnostic)
+        else:
+            info = _overview_channel_info(field)
+            has_time = any("T" in item["axes"] for item in info["files"])
+            has_z = any("Z" in item["axes"] for item in info["files"])
+            axes = axes_for(field)
+            selected_time = axes["time_index"] if has_time else None
+            selected_mode = axes["z_mode"] if has_z else "plane"
+            selected_z = axes["z_index"] if has_z and selected_mode == "plane" else None
+            row.update(time_index=selected_time, z_mode=selected_mode, z_index=selected_z)
+            identity = [str(source), field.plate, field.well, field.field_id or field.field,
+                        str(field.time_id), str(field.z_id),
+                        [selected_time, selected_mode, selected_z],
+                        sorted((str(key), str(Path(path).resolve()))
+                               for key, path in field.files)]
+            metadata = annotations.get((field.plate, field.well),
+                annotations.get(field.plate + "/" + field.well,
+                    annotations.get(field.well, {})))
+            physical_field = field.field_id or field.field
+            acquisition_time = field.time_id or None
+            if acquisition_time is None and has_time:
+                acquisition_time = selected_time
+            row.update(field_uid=hashlib.sha256(json.dumps(identity).encode()).hexdigest(),
+                       source=str(source), measured_at=measured_at,
+                       plateID=field.plate, rowID=row_id(field.row),
+                       columnID=column_id(field.column), fieldID=field_id(physical_field),
+                       timeID=time_id(acquisition_time) if acquisition_time is not None else "",
+                       sliceID=str(field.z_id),
+                       prc=compose_prc(field.plate, field.row, field.column),
+                       prcf=compose_prcf(field.plate, field.row, field.column, physical_field, acquisition_time),
+                       condition=str(metadata.get("condition", "")),
+                       annotations=json.dumps(metadata, sort_keys=True))
+            stage.execute("INSERT INTO records VALUES (?)", (json.dumps(row),))
+        if progress is not None:
+            progress(report["attempted"], len(fields))
+
+    executor = None
+    pending = {}
+    try:
+        check_cancelled()
+        with tempfile.TemporaryDirectory(prefix="spacr-fov-") as temporary:
+            stage = sqlite3.connect(str(Path(temporary) / "stage.db"))
+            try:
+                stage.execute("CREATE TABLE records (record TEXT NOT NULL)")
+                if workers == 1:
+                    for field in fields:
+                        check_cancelled()
+                        record_result(field, _overview_measurement(field, channels, cancelled,
+                            **axes_for(field)), stage)
+                else:
+                    executor = ProcessPoolExecutor(max_workers=workers,
+                        mp_context=multiprocessing.get_context("spawn"))
+                    remaining = iter(fields)
+                    for field in remaining:
+                        check_cancelled()
+                        pending[executor.submit(_overview_measurement, field, channels, **axes_for(field))] = field
+                        if len(pending) >= workers:
+                            break
+                    while pending:
+                        check_cancelled()
+                        done, _ = wait(pending, timeout=.1, return_when=FIRST_COMPLETED)
+                        for future in done:
+                            field = pending.pop(future)
+                            try:
+                                row = future.result()
+                            except Exception as error:
+                                row = dict(status="error", error=str(error))
+                            record_result(field, row, stage)
+                            next_field = next(remaining, None)
+                            if next_field is not None:
+                                check_cancelled()
+                                pending[executor.submit(_overview_measurement,
+                                    next_field, channels, **axes_for(next_field))] = next_field
+                check_cancelled()
+                if report["errors"]:
+                    return report
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                connection = connect(destination, timeout=30)
+                try:
+                    with transaction(connection, attempts=8, busy_timeout=30):
+                        check_cancelled()
+                        connection.execute('CREATE TABLE IF NOT EXISTS fov (field_uid TEXT PRIMARY KEY)')
+                        existing = {row[1] for row in connection.execute('PRAGMA table_info(fov)')}
+                        if "field_uid" not in existing:
+                            connection.execute('ALTER TABLE fov ADD COLUMN field_uid TEXT')
+                            existing.add("field_uid")
+                        connection.execute('CREATE UNIQUE INDEX IF NOT EXISTS fov_field_uid ON fov(field_uid)')
+                        for (serialized,) in stage.execute("SELECT record FROM records"):
+                            check_cancelled()
+                            row = json.loads(serialized)
+                            for key, value in row.items():
+                                if key not in existing:
+                                    kind = ("INTEGER" if isinstance(value, int) else
+                                            "REAL" if isinstance(value, float) else "TEXT")
+                                    connection.execute(f'ALTER TABLE fov ADD COLUMN "{key}" {kind}')
+                                    existing.add(key)
+                            connection.execute('DELETE FROM fov WHERE field_uid = ?', (row["field_uid"],))
+                            names = ", ".join('"' + key + '"' for key in row)
+                            placeholders = ", ".join("?" for _ in row)
+                            connection.execute(f'INSERT INTO fov ({names}) VALUES ({placeholders})',
+                                               tuple(row.values()))
+                        check_cancelled()
+                    report["count"] = report["attempted"]
+                finally:
+                    connection.close()
+            finally:
+                stage.close()
+    except CancelledError:
+        report["cancelled"] = True
+    finally:
+        if executor is not None:
+            for future in pending:
+                future.cancel()
+            executor.shutdown(wait=True, cancel_futures=True)
+    return report
 
 
 def _overview_sample(fields, count=1, seed=0, grouping="well", randomize=False):
@@ -2014,7 +2481,8 @@ def _overview_pdf_header(channels, percentiles, seed, normalization):
 def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=None,
                      measurements=False, *, quality_edge=1000, dpi=None,
                      normalization=None, time_index=None, z_mode="plane", z_index=None,
-                     conditions=None, normalization_context=None):
+                     conditions=None, normalization_context=None, annotations=None,
+                     advanced_normalization=None, field_options=None):
     """Write twelve bounded images per styled PDF with reproducible provenance."""
     import json
     from matplotlib.figure import Figure
@@ -2047,14 +2515,47 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                 break
         page_normalization = (normalization_context.provenance()
                               if normalization_context is not None else normalization)
-        header = _overview_pdf_header(channels, percentiles, seed, page_normalization)
+        header = _overview_pdf_header(channels, percentiles, seed,
+            None if advanced_normalization is not None else page_normalization)
+        if advanced_normalization is not None:
+            settings = advanced_normalization.get("options", advanced_normalization)
+            header = tuple(header) + (tr("Channels: {channels}; normalization: {method}; scope: {scope}; seed: {seed}",
+                channels=str(channels), method=settings.get("method"), scope=settings.get("scope"), seed=seed),)
+            transforms = []
+            for channel in channels:
+                effective = _overview_channel_normalization(settings, channel)
+                caption = str(channel) + ": " + effective["method"]
+                caption += ", " + tr("Subtract background") + "=" + str(effective["baseline"])
+                caption += ", " + tr("Gamma") + "=" + str(effective["gamma"])
+                if effective["method"] in ("ratio", "difference"):
+                    caption += ", " + tr("Reference channel (ratio / difference)") + "=" + str(effective["reference_channel"])
+                    caption += ", epsilon=" + str(effective["epsilon"])
+                transforms.append(caption)
+            import textwrap
+            header += tuple(textwrap.wrap(tr("Channels") + ": " + "; ".join(transforms), 112))
         header_height = .25 + .18 * len(header)
         panel_width = 12. / columns
         import textwrap
-        captions = ["\n".join(textwrap.wrap(
-            field.caption + (" / " + str((conditions or {}).get((field.plate, field.well), ""))
-                             if (conditions or {}).get((field.plate, field.well), "") else ""),
-            max(24, int(95 / columns)))) for field in page_fields]
+        captions = []
+        for field in page_fields:
+            metadata = (annotations or {}).get((field.plate, field.well), {})
+            text = field.caption
+            selected_axes = axis_options | dict((field_options or {}).get(repr(field.identity), {}))
+            try:
+                info = _overview_channel_info(field)
+            except (OSError, ValueError):
+                info = {"files": ()}
+            if any("T" in item["axes"] for item in info["files"]):
+                text += " / T=" + str(selected_axes["time_index"])
+            if any("Z" in item["axes"] for item in info["files"]):
+                mode = selected_axes["z_mode"]
+                text += " / " + ("Z=" + str(selected_axes["z_index"]) if mode == "plane" else
+                    tr("Maximum Z projection") if mode == "max" else tr("Mean Z projection"))
+            if metadata:
+                text += " / " + ", ".join(str(key) + ": " + str(value) for key, value in sorted(metadata.items()))
+            elif (conditions or {}).get((field.plate, field.well), ""):
+                text += " / " + str(conditions[(field.plate, field.well)])
+            captions.append("\n".join(textwrap.wrap(text, max(24, int(95 / columns)))))
         heights = []
         for row in range(rows):
             lines = max(caption.count("\n") + 1 for caption in captions[row * columns:(row + 1) * columns])
@@ -2070,13 +2571,14 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         page_records, page_errors, page_images, image_panels, image_channels = [], [], [], [], []
         interrupted = False
         for index, field in enumerate(page_fields):
+            selected_axes = axis_options | dict((field_options or {}).get(repr(field.identity), {}))
             if cancelled is not None and cancelled.is_set():
                 interrupted = True
                 break
             if measurements:
                 try:
                     measurement_rows.append(_overview_measurement(field, channels, cancelled,
-                                            conditions=conditions, **axis_options))
+                                            conditions=conditions, **selected_axes))
                     if cancelled is not None and cancelled.is_set():
                         raise CancelledError()
                 except CancelledError:
@@ -2093,7 +2595,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                     views = _overview_pixels(field, channels, percentiles, edge=quality_edge,
                         normalization=normalization, normalization_context=normalization_context,
                         cancelled=cancelled,
-                        channel_views=True, **axis_options)
+                        channel_views=True, advanced_normalization=advanced_normalization, **selected_axes)
                     channel_columns = math.ceil(math.sqrt(len(views)))
                     channel_rows = math.ceil(len(views) / channel_columns)
                     inner = panel.subgridspec(channel_rows, channel_columns, hspace=.18, wspace=.08)
@@ -2109,7 +2611,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                     pixels = _overview_pixels(field, channels, percentiles, edge=quality_edge,
                                               normalization=normalization,
                                               normalization_context=normalization_context,
-                                              cancelled=cancelled, **axis_options)
+                                              cancelled=cancelled, advanced_normalization=advanced_normalization, **selected_axes)
                     axis = figure.add_subplot(panel)
                     axis.imshow(pixels, interpolation="none")
                     axis.set_axis_off()
@@ -2128,7 +2630,8 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                                "field": field.field, "files": field.files,
                                "field_id": field.field_id or field.field,
                                "time_id": field.time_id, "z_id": field.z_id,
-                               "condition": condition})
+                               "condition": condition, **selected_axes,
+                               "annotations": (annotations or {}).get((field.plate, field.well), {})})
         if interrupted:
             figure.clear()
             break
@@ -2137,6 +2640,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                               image_panels=image_panels, image_channels=image_channels,
                               errors=page_errors, grid=(rows, columns), preview_edge=quality_edge,
                               original_resolution=quality_edge is None,
+                              advanced_normalization=advanced_normalization,
                               normalization=(normalization_context.provenance()
                                   if normalization_context is not None else normalization), **axis_options)
         _apply_user_style(figure)
@@ -2163,9 +2667,11 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
         errors.extend((field.caption, row["error"]) for field, row in zip(fields, measurement_rows)
                       if row["status"] == "error" and field.caption not in known)
     metadata = {"channels": channels, "percentiles": percentiles, "seed": seed,
+                "field_options": field_options,
                 "fields": provenance, "errors": errors, "cancelled": stopped,
                 "requested_field_count": len(fields), "written_field_count": len(provenance),
                 "quality_edge": quality_edge, "dpi": dpi,
+                "advanced_normalization": advanced_normalization,
                 "normalization": (normalization_context.provenance()
                     if normalization_context is not None else normalization),
                 **axis_options}
@@ -2183,7 +2689,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
 
 def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                       normalization=None, time_index=None, z_mode="plane", z_index=None,
-                      normalization_context=None):
+                      normalization_context=None, advanced_normalization=None, preview_edge=240):
     """Render one bounded page of field thumbnails, using the shared pixel path."""
     from concurrent.futures import CancelledError
     from PIL import Image, ImageDraw
@@ -2199,11 +2705,12 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
         x, y = (index % columns) * 256, (index // columns) * 280
         draw.text((x, y), field.well + " / " + field.field, fill="white")
         try:
-            pixels = _overview_pixels(field, channels, percentiles, edge=240,
+            pixels = _overview_pixels(field, channels, percentiles, edge=preview_edge,
                                       normalization=normalization,
                                       normalization_context=normalization_context,
                                       cancelled=cancelled, time_index=time_index,
-                                      z_mode=z_mode, z_index=z_index)
+                                      z_mode=z_mode, z_index=z_index,
+                                      advanced_normalization=advanced_normalization)
             preview = Image.fromarray(pixels)
             factor = min(240 / preview.width, 240 / preview.height)
             preview = preview.resize((max(1, round(preview.width * factor)),
@@ -2283,7 +2790,7 @@ class _OverviewImageView(ZoomableImageView):
         self.detail_requested.emit()
 
 
-class _FieldOverview(QDialog):
+class _FieldOverview(QWidget):
     """Shared, lazily loaded plate and field overview for both mask modules."""
 
     def __init__(self, parent=None, settings=None):
@@ -2299,6 +2806,25 @@ class _FieldOverview(QDialog):
 
         super().__init__(parent)
         self._overview_options = dict(settings or {})
+        self._advanced_model = None
+        self._advanced_enabled = False
+        self._channel_overrides = {}
+        self._loading_controls = True
+        self._selected_wells = set()
+        self._selected_well_axes = {}
+        self._selected_well_options = {}
+        self._selected_field_options = {}
+        self._source_shapes = {}
+        self._native_item = self._native_key = None
+        self._native_pending = False
+        self._metadata_source = ""
+        self._annotations = {}
+        self._metadata_revision = 0
+        self._annotation_write_lock = threading.Lock()
+        self._annotation_write_running = False
+        self._annotation_pending_snapshot = {}
+        self._measurement_cancelled = threading.Event()
+        self._drag_start, self._drag_selected = None, False
         self._normalization_plan = None
         self._normalization_context = None
         self._normalization_plate = None
@@ -2307,6 +2833,7 @@ class _FieldOverview(QDialog):
         self._display_generation = 0
         self._conditions = dict(self._overview_options.get("conditions")
                                 or (self._overview_options.get("normalization") or {}).get("conditions") or {})
+        self._annotations = {address: {"condition": value} for address, value in self._conditions.items()}
         self._preview_edge = 256
         self._geometry_valid = True
         self._geometry_error = None
@@ -2332,6 +2859,14 @@ class _FieldOverview(QDialog):
         self._export_jobs = JobRunner(self, app_key="field_overview")
         self._thumbnail_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
         self._montage_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._metadata_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._measurement_jobs = JobRunner(self, app_key="field_overview")
+        self._native_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
+        self._native_timer = QTimer(self)
+        self._native_timer.setSingleShot(True)
+        self._native_timer.setInterval(120)
+        self._native_timer.timeout.connect(self._load_native_detail)
+        self._native_jobs.job_finished.connect(self._native_finished)
         self._field_thumbnail_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
         self._field_thumbnail_jobs.job_finished.connect(self._request_visuals)
         self._visual_timer = QTimer(self)
@@ -2433,9 +2968,12 @@ class _FieldOverview(QDialog):
         self.wells.setIconSize(QSize(160, 120))
         follow_device_ratio(self.wells.viewport(), self._request_visuals)
         self.wells.itemDoubleClicked.connect(self._well)
+        self.wells.itemClicked.connect(self._clicked_well)
+        self.wells.itemSelectionChanged.connect(self._remember_wells)
         self.wells.setToolTip(tr("Select wells for export; double-click a well to explore its fields."))
         self.fields.itemSelectionChanged.connect(self._remember_selection)
         self.fields.itemClicked.connect(self._field)
+        self.fields.currentItemChanged.connect(self._current_field_changed)
         from PySide6.QtWidgets import QSplitter
         splitter = QSplitter()
         self._splitter = splitter
@@ -2444,6 +2982,8 @@ class _FieldOverview(QDialog):
         self.view = _OverviewImageView()
         self.view.axis_step.connect(self._step_axis)
         self.view.detail_requested.connect(self._request_detail)
+        self.view.horizontalScrollBar().valueChanged.connect(self._request_native_detail)
+        self.view.verticalScrollBar().valueChanged.connect(self._request_native_detail)
         splitter.addWidget(self.view)
         splitter.setStretchFactor(2, 3)
         column.addWidget(splitter, 1)
@@ -2467,6 +3007,16 @@ class _FieldOverview(QDialog):
         axes.addWidget(self.z_mode)
         self.z_mode.currentIndexChanged.connect(self._axis_changed)
         axes.addWidget(self.wheel_axis)
+        self.preview_resolution = QComboBox()
+        self.preview_resolution.setObjectName("OverviewPreviewResolution")
+        for value in (128, 256, 512, 1024, 2048, 4096):
+            self.preview_resolution.addItem(str(value), value)
+        self.preview_resolution.setCurrentIndex(3)
+        self.preview_resolution.setToolTip(tr(
+            "Maximum preview edge in pixels; lower values load faster. Zoom still loads original pixels."))
+        self.preview_resolution.currentIndexChanged.connect(self._resolution_changed)
+        axes.addWidget(QLabel(tr("Preview resolution")))
+        axes.addWidget(self.preview_resolution)
         compare = QPushButton(tr("Compare selected fields"))
         compare.clicked.connect(self._compare)
         axes.addWidget(compare)
@@ -2474,20 +3024,26 @@ class _FieldOverview(QDialog):
         column.addLayout(axes)
         annotations = QHBoxLayout()
         self.annotation_scope = QComboBox()
-        for text, value in ((tr("Plate condition"), "plate"), (tr("Row condition"), "row"),
-                            (tr("Column condition"), "column"), (tr("Selected wells condition"), "wells")):
+        for text, value in ((tr("Plate"), "plate"), (tr("Row"), "row"),
+                            (tr("Column"), "column"), (tr("Selected wells"), "wells")):
             self.annotation_scope.addItem(text, value)
         self.annotation_scope.setToolTip(tr(
-            "Replace condition labels only in this scope on the current plate; an empty label clears them."))
+            "Apply metadata in this scope; an empty value removes the selected metadata item."))
+        self.annotation_key = QComboBox()
+        self.annotation_key.setEditable(True)
+        for label, key in ((tr("Condition"), "condition"), (tr("Cell type"), "cell_type"),
+                           (tr("Pathogen"), "pathogen"), (tr("Genotype"), "genotype"), (tr("Drug"), "drug")):
+            self.annotation_key.addItem(label, key)
         self.annotation_text = QLineEdit()
-        self.annotation_text.setPlaceholderText(tr("Condition annotation"))
+        self.annotation_text.setPlaceholderText(tr("Value"))
         annotate = QPushButton(tr("Apply annotation"))
         annotate.clicked.connect(self._annotate)
         save_annotations = QPushButton(tr("Save annotations"))
         load_annotations = QPushButton(tr("Load annotations"))
         save_annotations.clicked.connect(self._save_annotations)
         load_annotations.clicked.connect(self._load_annotations)
-        for widget in (self.annotation_scope, self.annotation_text, annotate,
+        for widget in (self.annotation_scope, QLabel(tr("Metadata")), self.annotation_key,
+                       QLabel(tr("Value")), self.annotation_text, annotate,
                        save_annotations, load_annotations):
             annotations.addWidget(widget)
         column.addLayout(annotations)
@@ -2561,7 +3117,8 @@ class _FieldOverview(QDialog):
         self.status = QLabel(tr("No images have been loaded."))
         self.status.setWordWrap(True)
         column.addWidget(self.status)
-        for runner in (self._index_jobs, self._image_jobs, self._export_jobs):
+        for runner in (self._index_jobs, self._image_jobs, self._export_jobs,
+                       self._metadata_jobs, self._measurement_jobs, self._native_jobs):
             runner.job_failed.connect(self.status.setText)
         for control in (self.channels,):
             control.editingFinished.connect(self._refresh_image)
@@ -2569,9 +3126,397 @@ class _FieldOverview(QDialog):
         self.low.valueChanged.connect(self._refresh_image)
         self.high.valueChanged.connect(self._refresh_image)
         self._convention = str((settings or {}).get("metadata_type") or "auto")
+        self._build_advanced_controls(column)
+        self._loading_controls = False
+        self._normalization_control_states()
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
         self._wrap_controls(column, splitter)
+
+    def _fill_group_choices(self, combo, image=False):
+        """Offer physical addresses and every defined well annotation."""
+        old = combo.currentData()
+        combo.blockSignals(True)
+        combo.clear()
+        if image:
+            combo.addItem(tr("Each image independently"), "image")
+        for label, key in ((tr("Plate"), "plate"), (tr("Well"), "well"),
+                           (tr("Plate row"), "row"), (tr("Plate column"), "column")):
+            combo.addItem(label, key)
+        keys = {key for values in self._annotation_snapshot().values() for key in values}
+        for key in sorted(keys):
+            combo.addItem(tr("Metadata: {key}", key=key), key)
+        if combo.findData(old) >= 0:
+            combo.setCurrentIndex(combo.findData(old))
+        combo.blockSignals(False)
+
+    def _editor_options(self):
+        """Read one channel editor without changing any displayed transform."""
+        method = self.normalization_method.currentData()
+        return dict(method=method,
+                    low=self.manual_low.value() if method == "manual" else self.advanced_low.value(),
+                    high=self.manual_high.value() if method == "manual" else self.advanced_high.value(),
+                    baseline=self.background.value(), gamma=self.gamma.value(),
+                    reference_channel=self.reference_channel.value(), epsilon=self.reference_epsilon.value())
+
+    def _normalization_options(self):
+        """Combine retained global settings with explicitly committed overrides."""
+        options = dict(self._global_normalization_options)
+        if self._editing_channel is None:
+            options = self._editor_options()
+        options.update(scope=self.normalization_scope.currentData(),
+                       per_channel={str(key): dict(value) for key, value in self._channel_overrides.items()})
+        return options
+
+    def _normalization_target_changed(self, *_):
+        """Load the effective settings for one channel without changing others."""
+        if self._editing_channel is None:
+            self._global_normalization_options = self._editor_options()
+        self._editing_channel = self.norm_channel.currentData()
+        options = dict(self._global_normalization_options)
+        options.update(self._channel_overrides.get(self._editing_channel, {}))
+        self._loading_controls = True
+        try:
+            self.normalization_method.setCurrentIndex(self.normalization_method.findData(options["method"]))
+            low, high = ((self.manual_low, self.manual_high) if options["method"] == "manual" else (self.advanced_low, self.advanced_high))
+            low.setValue(options["low"])
+            high.setValue(options["high"])
+            self.background.setValue(options["baseline"])
+            self.gamma.setValue(options["gamma"])
+            self.reference_channel.setValue(options["reference_channel"])
+            self.reference_epsilon.setValue(options["epsilon"])
+        finally:
+            self._loading_controls = False
+        self._normalization_control_states()
+
+    def _normalization_control_states(self):
+        """Enable only the controls used by the current editor method."""
+        method = self.normalization_method.currentData()
+        for widget in (self.advanced_low, self.advanced_high):
+            widget.setEnabled(method in ("percentile", "log", "asinh", "ratio", "difference"))
+        for widget in (self.manual_low, self.manual_high):
+            widget.setEnabled(method == "manual")
+        self.reference_channel.setEnabled(method in ("ratio", "difference"))
+        self.reference_epsilon.setEnabled(method == "ratio")
+
+    def _apply_channel_normalization(self):
+        """Commit editor settings to exactly the selected channel."""
+        channel = self.norm_channel.currentData()
+        if channel is None:
+            self._global_normalization_options = self._editor_options()
+        else:
+            self._channel_overrides[int(channel)] = self._editor_options()
+        self._advanced_invalidate()
+
+    def _clear_channel_normalization(self):
+        """Reset channel overrides and reload the retained global transform."""
+        self._channel_overrides.clear()
+        self._normalization_target_changed()
+        self._advanced_invalidate()
+
+    def _build_advanced_controls(self, column):
+        """Keep independent channel editing distinct from the existing reference modes."""
+        from PySide6.QtWidgets import QSpinBox, QDoubleSpinBox, QGridLayout
+        widget = QWidget(self)
+        layout = QVBoxLayout(widget)
+        self.advanced = QCheckBox(tr("Advanced channel normalization"))
+        layout.addWidget(self.advanced)
+        self.normalization_method, self.normalization_scope = QComboBox(), QComboBox()
+        for text, key in ((tr("Percentiles"), "percentile"), (tr("Minimum / maximum"), "minmax"),
+            (tr("Fixed intensity bounds"), "manual"), (tr("Mean ± 3 standard deviations"), "zscore"),
+            (tr("Log intensity"), "log"), (tr("Inverse hyperbolic sine"), "asinh"),
+            (tr("Raw display values"), "none"), (tr("Ratio to reference channel"), "ratio"),
+            (tr("Difference from reference channel"), "difference")):
+            self.normalization_method.addItem(text, key)
+        self._fill_group_choices(self.normalization_scope, image=True)
+        self.advanced_low, self.advanced_high = QDoubleSpinBox(), QDoubleSpinBox()
+        for control, value in ((self.advanced_low, 1), (self.advanced_high, 99)):
+            control.setRange(0, 100)
+            control.setValue(value)
+        self.manual_low, self.manual_high = QDoubleSpinBox(), QDoubleSpinBox()
+        self.background, self.gamma = QDoubleSpinBox(), QDoubleSpinBox()
+        for control in (self.manual_low, self.manual_high, self.background):
+            control.setRange(-1e12, 1e12)
+            control.setDecimals(5)
+        self.manual_high.setValue(255)
+        self.gamma.setRange(.01, 20)
+        self.gamma.setValue(1)
+        self.reference_channel, self.reference_epsilon = QSpinBox(), QDoubleSpinBox()
+        self.reference_channel.setRange(0, 65535)
+        self.reference_epsilon.setDecimals(12)
+        self.reference_epsilon.setRange(1e-12, 1e12)
+        self.reference_epsilon.setValue(1e-8)
+        self.reference_epsilon.setToolTip(tr("Ratio keeps pixels only when abs(reference) > epsilon; excluded pixels display black."))
+        from .flow import FlowHost, FlowLayout
+        host = FlowHost(widget)
+        grid = FlowLayout(host)
+        choices = ((tr("Method"), self.normalization_method), (tr("Reference group"), self.normalization_scope),
+            (tr("Lower percentile"), self.advanced_low), (tr("Upper percentile"), self.advanced_high),
+            (tr("Fixed low"), self.manual_low), (tr("Fixed high"), self.manual_high),
+            (tr("Subtract background"), self.background), (tr("Gamma"), self.gamma),
+            (tr("Reference channel (ratio / difference)"), self.reference_channel),
+            (tr("Minimum absolute reference value"), self.reference_epsilon))
+        for index, (label, control) in enumerate(choices):
+            pair = QWidget(host)
+            pair_layout = QVBoxLayout(pair)
+            pair_layout.setContentsMargins(0, 0, 0, 0)
+            caption = QLabel(label)
+            caption.setWordWrap(True)
+            pair_layout.addWidget(caption)
+            pair_layout.addWidget(control)
+            pair.setMaximumWidth(240)
+            grid.addWidget(pair)
+        layout.addWidget(host)
+        self.norm_channel = QComboBox()
+        self.norm_channel.addItem(tr("All channels"), None)
+        self._editing_channel = None
+        self._global_normalization_options = self._editor_options()
+        apply = QPushButton(tr("Apply settings to channel"))
+        apply.clicked.connect(self._apply_channel_normalization)
+        reset = QPushButton(tr("Reset channel overrides"))
+        reset.clicked.connect(self._clear_channel_normalization)
+        row = QHBoxLayout()
+        for control in (self.norm_channel, apply, reset):
+            row.addWidget(control)
+        layout.addLayout(row)
+        column.addWidget(widget)
+        channel_host = FlowHost(self)
+        channel_row = FlowLayout(channel_host)
+        self._channel_buttons = {}
+        self._channel_bar = channel_row
+        channel_row.addWidget(QLabel(tr("Channels")))
+        column.addWidget(channel_host)
+        measurements = QHBoxLayout()
+        self.workers = QSpinBox()
+        self.workers.setRange(1, max(1, os.cpu_count() or 1))
+        self.workers.setValue(min(4, self.workers.maximum()))
+        measure = QPushButton(tr("Export image-level measurements"))
+        measure.clicked.connect(self._measure)
+        for control in (QLabel(tr("Parallel images")), self.workers, measure):
+            measurements.addWidget(control)
+        column.addLayout(measurements)
+        column.addWidget(QLabel(tr("PDFs: results/ · Measurements: measurements/measurements.db → fov")))
+        self.advanced.toggled.connect(self._advanced_invalidate)
+        self.norm_channel.currentIndexChanged.connect(self._normalization_target_changed)
+        for control in (self.normalization_method, self.normalization_scope):
+            control.currentIndexChanged.connect(self._advanced_changed)
+        for control in (self.advanced_low, self.advanced_high, self.manual_low, self.manual_high,
+                        self.background, self.gamma, self.reference_channel, self.reference_epsilon):
+            control.valueChanged.connect(self._advanced_changed)
+
+    def _advanced_changed(self, *_):
+        """Keep channel drafts isolated until explicitly applied."""
+        if self._loading_controls:
+            return
+        self._normalization_control_states()
+        if self._editing_channel is None:
+            self._global_normalization_options = self._editor_options()
+        elif self.sender() is not self.normalization_scope:
+            return
+        self._advanced_invalidate()
+
+    def _advanced_invalidate(self, *_):
+        """Recompute advanced limits without changing the saved reference mode."""
+        self._advanced_model = None
+        self._cache.clear()
+        self._thumbnail_cache.clear()
+        self._displayed_montage = None
+        self._prepare_display()
+
+    def _annotation_snapshot(self):
+        """Capture arbitrary metadata with current legacy condition assignments."""
+        values = {address: dict(metadata) for address, metadata in self._annotations.items()}
+        for address, condition in self._conditions.items():
+            values.setdefault(address, {})["condition"] = condition
+        for address in values:
+            if address not in self._conditions:
+                values[address].pop("condition", None)
+        return values
+
+    def _annotation_name(self):
+        """Use stable keys for standard metadata and literal custom names."""
+        if self.annotation_key.currentIndex() >= 0 and self.annotation_key.currentText() == self.annotation_key.itemText(self.annotation_key.currentIndex()):
+            return self.annotation_key.currentData()
+        return self.annotation_key.currentText().strip()
+
+    def _persist_metadata(self):
+        """Serialize pending per-source metadata snapshots, including final close edits."""
+        import json
+        if not self._metadata_source:
+            return
+        self._metadata_revision += 1
+        destination = Path(self._metadata_source) / "results" / "overview_annotations.json"
+        payload = dict(wells=[dict(plate=plate, well=well, metadata=metadata)
+            for (plate, well), metadata in sorted(self._annotation_snapshot().items())])
+        with self._annotation_write_lock:
+            self._annotation_pending_snapshot[destination] = payload
+            if self._annotation_write_running:
+                return
+            self._annotation_write_running = True
+        def write():
+            """Drain immutable snapshots outside Qt and publish atomically."""
+            import json
+            from ... import tabular
+            try:
+                while True:
+                    with self._annotation_write_lock:
+                        if not self._annotation_pending_snapshot:
+                            self._annotation_write_running = False
+                            return
+                        target = next(iter(self._annotation_pending_snapshot))
+                        values = self._annotation_pending_snapshot.pop(target)
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    tabular._publish(str(target), lambda pending:
+                        Path(pending).write_text(json.dumps(values, ensure_ascii=False, indent=2), encoding="utf-8"))
+            except BaseException:
+                with self._annotation_write_lock:
+                    self._annotation_write_running = False
+                raise
+        self._metadata_jobs.submit(write)
+
+    def _restore_metadata(self):
+        """Load saved metadata only for the indexed source's physical wells."""
+        if not self._metadata_source:
+            return
+        source, fields, cancelled = self._metadata_source, self._fields, self._cancelled
+        revision = self._metadata_revision
+        known = {(field.plate, field.well) for field in fields if not field.unresolved}
+        def read():
+            """Validate source-relative metadata without GUI-thread file access."""
+            import json
+            path = Path(source) / "results" / "overview_annotations.json"
+            if not path.is_file():
+                return {}
+            records = json.loads(path.read_text(encoding="utf-8")).get("wells", ())
+            values = {}
+            for record in records:
+                address = str(record["plate"]), str(record["well"])
+                if address not in known or address in values or not isinstance(record["metadata"], dict):
+                    raise _OverviewValidationError(tr("Annotation table identities are missing, duplicated or outside this source."))
+                values[address] = {str(key): str(value) for key, value in record["metadata"].items()}
+            return values
+        def loaded(values):
+            """Install only metadata belonging to the unchanged indexed generation."""
+            if cancelled.is_set() or fields is not self._fields or revision != self._metadata_revision:
+                return
+            for address, metadata in values.items():
+                self._annotations.setdefault(address, {}).update(metadata)
+                if metadata.get("condition") and address not in self._conditions:
+                    self._conditions[address] = metadata["condition"]
+            self._fill_group_choices(self.grouping)
+            self._fill_group_choices(self.normalization_scope, image=True)
+            self._filter()
+            if self.advanced.isChecked():
+                self._prepare_display()
+        self._metadata_jobs.submit(read, loaded)
+
+    def _remember_wells(self):
+        """Retain plate-qualified selections and each plate's acquisition context."""
+        plate = self.plates.currentData()
+        for well in self._well_positions:
+            self._selected_wells.discard((plate, well))
+            self._selected_well_axes.pop((plate, well), None)
+            self._selected_well_options.pop((plate, well), None)
+        for item in self.wells.selectedItems():
+            address = plate, item.data(Qt.UserRole)
+            self._selected_wells.add(address)
+            self._selected_well_axes[address] = (self.time_axis.currentData(), self.z_axis.currentData())
+            self._selected_well_options[address] = self._axis_options()
+
+    def _clicked_well(self, item):
+        """Open ordinary clicks while retaining drag and modifier selections."""
+        if not self._drag_selected and not getattr(self, "_press_modifiers", Qt.NoModifier) & (Qt.ControlModifier | Qt.ShiftModifier):
+            self._well(item)
+
+    def _channel_toggled(self, *_):
+        """Toggle source channel IDs independently without changing their meaning."""
+        values = [str(channel) for channel, widget in self._channel_buttons.items() if widget.isChecked()]
+        self.channels.setText(",".join(values))
+        self._refresh_image()
+
+    def _install_channel_buttons(self, info):
+        """Expose actual declared channels without decoding image pixels."""
+        selected = tuple(int(value.strip()) for value in self.channels.text().split(",") if value.strip().isdigit())
+        available = tuple(info["channels"])
+        if tuple(self._channel_buttons) == available:
+            for channel, control in self._channel_buttons.items():
+                control.blockSignals(True)
+                control.setChecked(channel in selected)
+                control.blockSignals(False)
+            return
+        for widget in self._channel_buttons.values():
+            self._channel_bar.removeWidget(widget)
+            widget.deleteLater()
+        self._channel_buttons.clear()
+        self.norm_channel.blockSignals(True)
+        self.norm_channel.clear()
+        self.norm_channel.addItem(tr("All channels"), None)
+        for channel in available:
+            control = QCheckBox(str(channel))
+            control.setChecked(channel in selected)
+            control.setToolTip(tr("Show channel {channel}", channel=channel))
+            control.toggled.connect(self._channel_toggled)
+            self._channel_bar.addWidget(control)
+            self._channel_buttons[channel] = control
+            self.norm_channel.addItem(str(channel), channel)
+        self.norm_channel.blockSignals(False)
+        self._normalization_target_changed()
+
+    def _sample_fields(self, fields):
+        """Sample physical groups or arbitrary metadata reproducibly."""
+        grouping = self.grouping.currentData()
+        if grouping in ("plate", "row", "column", "well"):
+            return _overview_sample(fields, self.count.value(), self.seed.value(), grouping, self.random.isChecked())
+        import random
+        groups, result = {}, []
+        annotations = self._annotation_snapshot()
+        for field in sorted(fields, key=lambda value: repr(value.identity)):
+            key = _overview_normalization_group(field, grouping, annotations)
+            groups.setdefault(key, []).append(field)
+        rng = random.Random(self.seed.value())
+        for key in sorted(groups):
+            values = groups[key]
+            count = min(self.count.value(), len(values))
+            result.extend(rng.sample(values, count) if self.random.isChecked() else values[:count])
+        return tuple(result)
+
+    def _measure(self):
+        """Run selected raw image measurements separately from display and PDF jobs."""
+        import threading
+        if not self._metadata_source or not self._geometry_valid:
+            self.status.setText(tr("Choose an image folder."))
+            return
+        try:
+            channels, limits = self._choices()
+        except (ValueError, TypeError) as error:
+            self.status.setText(str(error))
+            return
+        if self._measurement_jobs.is_busy():
+            self.status.setText(tr("Wait for the current measurement run or cancel it."))
+            return
+        fields = self._visible if self.export_scope.currentData() == "view" and not self.use_selection.isChecked() else self._export_selection()
+        if not fields:
+            self.status.setText(tr("Select fields or load a plate before exporting."))
+            return
+        self._measurement_cancelled = threading.Event()
+        source, workers = self._metadata_source, self.workers.value()
+        annotations, cancelled = self._annotation_snapshot(), self._measurement_cancelled
+        choices = self._display_kwargs()
+        axes = {key: choices[key] for key in ("time_index", "z_mode", "z_index")}
+        axes["field_options"] = self._selection_options(fields)
+        def done(report):
+            """Report atomic database publication and per-image diagnostics."""
+            if report["cancelled"]:
+                self.status.setText(tr("Measurements cancelled; existing database rows were preserved."))
+            elif report["errors"]:
+                self.status.setText(tr("Measurements were not published: {count} images failed. {error}",
+                    count=len(report["errors"]), error=report["errors"][0]["error"]))
+            else:
+                self.status.setText(tr("Saved {count} image measurements to {path} (table fov).",
+                    count=report["count"], path=report["path"]))
+        self.status.setText(tr("Measuring {count} image planes with {workers} parallel workers…", count=len(fields), workers=workers))
+        self._measurement_jobs.submit(lambda: _overview_measurements_export(fields, source, channels,
+            workers, cancelled, annotations, **axes), done)
 
     def _save_annotations(self):
         """Write conditions only to the user's explicitly chosen output table."""
@@ -2608,6 +3553,7 @@ class _FieldOverview(QDialog):
         if not path:
             return
         fields, cancelled = self._fields, self._cancelled
+        revision = self._metadata_revision
         known = {(field.plate, field.well) for field in fields if not field.unresolved}
         def read():
             """Read a real table and refuse foreign or duplicate physical identities.
@@ -2630,10 +3576,13 @@ class _FieldOverview(QDialog):
 
             :param records: validated physical identities and condition strings.
             """
-            if not cancelled.is_set() and fields is self._fields:
+            if not cancelled.is_set() and fields is self._fields and revision == self._metadata_revision:
                 self._conditions = dict(records)
+                self._persist_metadata()
+                self._fill_group_choices(self.grouping)
+                self._fill_group_choices(self.normalization_scope, image=True)
                 self._filter()
-                if self._overview_options.get("normalization"):
+                if self._overview_options.get("normalization") or self.advanced.isChecked():
                     self._prepare_display()
         self._export_jobs.submit(read, loaded)
 
@@ -2649,12 +3598,13 @@ class _FieldOverview(QDialog):
             return
         viewport, cancelled = self.fields.viewport(), self._cancelled
         ratio = device_ratio(viewport)
+        edge = min(math.ceil(128 * ratio), self.preview_resolution.currentData())
         for index in range(self.fields.count()):
             item = self.fields.item(index)
             if not viewport.rect().intersects(self.fields.visualItemRect(item)):
                 continue
             field = item.data(Qt.UserRole)
-            key = field.identity, channels, limits, repr(options), ratio
+            key = field.identity, channels, limits, self._display_options_key(options), ratio, edge
             if item.data(Qt.UserRole + 1) == key:
                 continue
             def read():
@@ -2664,7 +3614,7 @@ class _FieldOverview(QDialog):
                 """
                 try:
                     return _overview_pixels(field, channels, limits,
-                                             edge=math.ceil(128 * ratio), **options), ""
+                                             edge=edge, **options), ""
                 except Exception as exc:
                     return None, str(exc)
             def shown(result):
@@ -2715,8 +3665,6 @@ class _FieldOverview(QDialog):
 
     def _apply_plate_extent(self):
         """Restore the same native well size after source-axis or annotation changes."""
-        if self._plate_cell_extent is None:
-            return
         width, height = self._plate_cell_extent
         from PySide6.QtCore import QSize
         self.wells.setIconSize(QSize(max(1, width - 2), max(1, height - 2)))
@@ -2740,7 +3688,12 @@ class _FieldOverview(QDialog):
         """
         from PySide6.QtWidgets import QScrollArea
         from .flow import FlowHost, FlowLayout
-        content = QWidget(self)
+        self._options_window = QDialog(self, Qt.Window)
+        self._options_window.setWindowTitle(tr("Options"))
+        self._options_window.setWindowModality(Qt.NonModal)
+        self._options_window.resize(880, 680)
+        options_layout = QVBoxLayout(self._options_window)
+        content = QWidget(self._options_window)
         controls = QVBoxLayout(content)
         essential = FlowHost(self)
         essential_flow = FlowLayout(essential)
@@ -2754,33 +3707,64 @@ class _FieldOverview(QDialog):
                 flow = essential_flow if host is essential else FlowLayout(host)
                 while layout.count():
                     child = layout.takeAt(0)
-                    if child.widget() is not None:
-                        flow.addWidget(child.widget())
+                    flow.addWidget(child.widget())
                 layout.setParent(None)
                 if host is not essential:
                     controls.addWidget(host)
-            elif item.widget() is not None:
+            else:
                 controls.addWidget(item.widget())
         scroll = QScrollArea(self)
         scroll.setWidgetResizable(True)
         scroll.setWidget(content)
         scroll.setMinimumHeight(100)
-        scroll.setMaximumHeight(330)
         self._controls_scroll = scroll
+        options_layout.addWidget(scroll)
         self.options_button = QPushButton(tr("Options"))
         self.options_button.setCheckable(True)
-        self.options_button.toggled.connect(scroll.setVisible)
+        self.options_button.toggled.connect(self._show_options)
+        self._options_window.finished.connect(self._options_closed)
         essential_flow.addWidget(self.options_button)
         fit = QPushButton(tr("Fit plate"))
         fit.clicked.connect(lambda: self._zoom_plate())
         essential_flow.addWidget(fit)
         column.addWidget(essential)
-        column.addWidget(scroll)
         column.addWidget(splitter, 1)
         column.addWidget(self.status)
-        scroll.hide()
         self.fields.hide()
         self.view.hide()
+
+    def _show_options(self, on):
+        """Open the separate controls window with normal keyboard focus."""
+        self._options_window.setVisible(on)
+        if on:
+            self._options_window.raise_()
+            self._options_window.activateWindow()
+
+    def _options_closed(self, *_):
+        """Keep the Options action consistent with its independent window."""
+        self.options_button.setChecked(False)
+
+    @staticmethod
+    def _display_options_key(options):
+        """Keep potentially large immutable advanced plans out of UI cache keys."""
+        values = dict(options)
+        advanced = values.pop("advanced_normalization", None)
+        return repr(values), id(advanced) if advanced is not None else None
+
+    def _axis_options(self):
+        """Capture internal acquisition axes independently from filename identifiers."""
+        time, z = self.time_axis.currentData(), self.z_axis.currentData()
+        return dict(time_index=time if isinstance(time, int) else 0,
+                    z_index=z if isinstance(z, int) else 0,
+                    z_mode=self.z_mode.currentData() or "plane")
+
+    def _selection_options(self, fields):
+        """Retain each selected field or well's acquisition context across plates."""
+        if self.export_scope.currentData() != "selection" and not self.use_selection.isChecked():
+            return {}
+        return {repr(field.identity): dict(self._selected_field_options.get(field.identity,
+            self._selected_well_options.get((field.plate, field.well), self._axis_options())))
+            for field in fields}
 
     def _display_kwargs(self):
         """Freeze selected stack axes and the immutable normalization plan."""
@@ -2790,7 +3774,8 @@ class _FieldOverview(QDialog):
                     normalization_context=self._normalization_context,
                     time_index=time if isinstance(time, int) else 0,
                     z_index=z if isinstance(z, int) else 0,
-                    z_mode=self.z_mode.currentData() or "plane")
+                    z_mode=self.z_mode.currentData() or "plane",
+                    advanced_normalization=self._advanced_model if self.advanced.isChecked() else None)
 
     @staticmethod
     def _natural(value):
@@ -2860,14 +3845,16 @@ class _FieldOverview(QDialog):
         options = dict(self._overview_options.get("normalization") or {})
         options["percentiles"] = limits if limits is not None else (0., 100.)
         options["conditions"] = dict(self._conditions)
-        axes = self._display_kwargs()
-        axes.pop("normalization")
-        axes.pop("normalization_context")
+        captured = self._display_kwargs()
+        axes = {key: captured[key] for key in ("time_index", "z_mode", "z_index")}
+        advanced_enabled = self.advanced.isChecked()
+        advanced_options = self._normalization_options()
+        annotations = self._annotation_snapshot()
         time, z = self.time_axis.currentData(), self.z_axis.currentData()
         sampled_fields = tuple(field for field in fields
             if (not getattr(field, "time_id", "") or field.time_id == time)
             and (not getattr(field, "z_id", "") or field.z_id == z))
-        if options.get("mode") == "reference_average":
+        if options.get("mode") == "reference_average" and not advanced_enabled:
             plate = self.plates.currentData()
             fov = self.fov_axis.currentData()
             representatives = {}
@@ -2890,12 +3877,24 @@ class _FieldOverview(QDialog):
             :returns: header metadata and an immutable display plan.
             """
             info = _overview_channel_info(fields[0])
-            plan, context = None, None
-            if self._overview_options.get("normalization"):
+            plan, context, advanced = None, None, None
+            if advanced_enabled:
+                if advanced_options["scope"] == "image":
+                    for channel in channels:
+                        _overview_channel_normalization(advanced_options, channel)
+                    advanced = dict(options=advanced_options)
+                else:
+                    advanced = _overview_advanced_normalization(sampled_fields, channels,
+                        advanced_options, annotations, cancelled,
+                        read_planes=lambda field, selected: _overview_raw_planes(field, selected, edge=256, **axes))
+                advanced["selection"] = dict(axes)
+                advanced.setdefault("provenance", {})["sampling_axes"] = (
+                    "per_selected_image" if advanced_options["scope"] == "image" else dict(axes))
+            elif self._overview_options.get("normalization"):
                 plan, context = _overview_prepare_normalization(sampled_fields, channels, options,
                     lambda field, selected, edge=256: tuple(_overview_raw_planes(
                         field, selected, edge=edge, **axes)), cancelled)
-            return info, plan, context
+            return info, plan, context, advanced
         def prepared(result):
             """Install only the still-current source generation.
 
@@ -2904,8 +3903,9 @@ class _FieldOverview(QDialog):
             if (cancelled.is_set() or fields is not self._fields
                     or generation != self._display_generation):
                 return
-            info, self._normalization_plan, self._normalization_context = result
+            info, self._normalization_plan, self._normalization_context, self._advanced_model = result
             self._populate_axes(fields, info)
+            self._install_channel_buttons(info)
             self._normalization_ready = True
             self._request_visuals()
             if self._individual:
@@ -2934,7 +3934,7 @@ class _FieldOverview(QDialog):
         self._displayed_montage = None
         self._preview_edge = 256
         self._filter()
-        if self._overview_options.get("normalization"):
+        if self._overview_options.get("normalization") or self.advanced.isChecked():
             self._prepare_display()
         if individual and self.fields.count():
             self.fields.setCurrentRow(0)
@@ -2942,6 +3942,17 @@ class _FieldOverview(QDialog):
         elif not self._visible:
             self.view.clear_image()
             self.status.setText(tr("No field exists for this well and acquisition-axis selection."))
+
+    def _resolution_changed(self, *_):
+        """Rebuild bounded previews without changing raw data or learned display limits."""
+        self._cache.clear()
+        self._thumbnail_cache.clear()
+        self._displayed_montage = None
+        self._displayed_field = None
+        self._request_visuals()
+        item = self.fields.currentItem()
+        if self._individual and item is not None:
+            self._field(item)
 
     def _wheel_mode_changed(self):
         """Apply the explicit wheel action without modifying any acquisition value."""
@@ -2964,12 +3975,90 @@ class _FieldOverview(QDialog):
         width = self.view._item.pixmap().width()
         displayed = width * self.view.transform().m11()
         desired = min(4096, max(256, int(math.ceil(displayed * device_ratio(self.view.viewport())))))
-        desired = next((edge for edge in (256, 1024, 2048, 4096) if edge >= desired), 4096)
+        desired = min(self.preview_resolution.currentData(),
+            next((edge for edge in (256, 512, 1024, 2048, 4096) if edge >= desired), 4096))
+        self._request_native_detail()
         if desired > self._preview_edge:
             self._preview_edge = desired
             item = self.fields.currentItem()
             if item is not None:
                 self._field(item, preserve_view=True)
+
+    def _request_native_detail(self, *_):
+        """Debounce original-pixel crops after zooming or panning a field."""
+        if self._individual and self.view._user_zoomed and not self._cancelled.is_set():
+            self._native_timer.start()
+
+    def _native_finished(self, *_):
+        """Request the latest camera after an in-flight native crop settles."""
+        if self._native_pending:
+            self._native_pending = False
+            self._request_native_detail()
+
+    def _load_native_detail(self):
+        """Overlay a bounded source-resolution crop in the retained preview scene."""
+        if not self._individual or self._cancelled.is_set() or self.view._item is None:
+            return
+        if self._native_jobs.is_busy():
+            self._native_pending = True
+            return
+        item = self.fields.currentItem()
+        if item is None:
+            return
+        field = item.data(Qt.UserRole)
+        shape = self._source_shapes.get(field.identity)
+        if not shape:
+            return
+        channels, limits = self._choices()
+        if len(channels) > 3:
+            self.status.setText(tr("For original-resolution detail, toggle up to three channels or inspect one channel individually."))
+            return
+        preview = self.view._item.pixmap()
+        height, width = shape
+        scale_x, scale_y = preview.width() / width, preview.height() / height
+        if self.view.transform().m11() * scale_x < .5:
+            return
+        visible = self.view.mapToScene(self.view.viewport().rect()).boundingRect()
+        x0, y0 = max(0, int(visible.left() / scale_x)), max(0, int(visible.top() / scale_y))
+        x1, y1 = min(width, math.ceil(visible.right() / scale_x)), min(height, math.ceil(visible.bottom() / scale_y))
+        if x1 <= x0 or y1 <= y0:
+            return
+        if x1 - x0 > 2048:
+            centre = (x0 + x1) // 2
+            x0, x1 = max(0, centre - 1024), min(width, centre + 1024)
+        if y1 - y0 > 2048:
+            centre = (y0 + y1) // 2
+            y0, y1 = max(0, centre - 1024), min(height, centre + 1024)
+        camera = (self.view.transform(), self.view.horizontalScrollBar().value(),
+                  self.view.verticalScrollBar().value(), self.view.viewport().size(), preview.size())
+        options, signature, cancelled = self._display_kwargs(), self._visual_context(), self._cancelled
+        region = y0, y1, x0, x1
+        key = field.identity, signature, region, camera
+        if self._native_key == key:
+            return
+        self._native_pending = False
+        def done(pixels):
+            """Publish only the current field, axes, model and camera crop."""
+            current = self.fields.currentItem()
+            if (cancelled.is_set() or not self._individual or current is None
+                    or current.data(Qt.UserRole).identity != field.identity
+                    or signature != self._visual_context() or self.view._item is None):
+                return
+            current_camera = (self.view.transform(), self.view.horizontalScrollBar().value(),
+                self.view.verticalScrollBar().value(), self.view.viewport().size(), self.view._item.pixmap().size())
+            if camera != current_camera:
+                return
+            from PySide6.QtGui import QTransform
+            if self._native_item is not None:
+                self.view.scene().removeItem(self._native_item)
+            image = QImage(pixels.data, pixels.shape[1], pixels.shape[0], pixels.strides[0], QImage.Format_RGB888).copy()
+            self._native_item = self.view.scene().addPixmap(QPixmap.fromImage(image))
+            self._native_item.setTransform(QTransform.fromScale(scale_x, scale_y))
+            self._native_item.setPos(x0 * scale_x, y0 * scale_y)
+            self._native_item.setZValue(1)
+            self._native_key = key
+        self._native_jobs.submit(lambda: _overview_pixels(field, channels, limits, edge=None,
+            region=region, cancelled=cancelled, **options), done)
 
     def _representatives_changed(self):
         """Invalidate plate representatives while retaining source selections."""
@@ -2979,26 +4068,34 @@ class _FieldOverview(QDialog):
             self._prepare_display()
 
     def _annotate(self):
-        """Associate condition text with stable physical well identities."""
+        """Associate any metadata key with stable physical well identities."""
         plate = self.plates.currentData()
         scope, text = self.annotation_scope.currentData(), self.annotation_text.text().strip()
+        key = self._annotation_name()
         if scope == "wells":
-            wells = {item.data(Qt.UserRole) for item in self.wells.selectedItems()}
+            addresses = set(self._selected_wells)
         else:
             row, column = self.rows.currentData(), self.columns.currentData()
-            wells = {field.well for field in self._fields if field.plate == plate
-                     and (scope != "row" or row is not None and field.row == row)
-                     and (scope != "column" or column is not None and field.column == column)}
-        if not wells:
+            addresses = {(field.plate, field.well) for field in self._fields if field.plate == plate
+                and (scope != "row" or row is not None and field.row == row)
+                and (scope != "column" or column is not None and field.column == column)}
+        if not addresses or not key:
             self.status.setText(tr("Choose a row, column or well selection before annotating."))
             return
-        for well in wells:
+        for address in addresses:
             if text:
-                self._conditions[(plate, well)] = text
+                self._annotations.setdefault(address, {})[key] = text
+                if key == "condition":
+                    self._conditions[address] = text
             else:
-                self._conditions.pop((plate, well), None)
+                self._annotations.get(address, {}).pop(key, None)
+                if key == "condition":
+                    self._conditions.pop(address, None)
+        self._fill_group_choices(self.grouping)
+        self._fill_group_choices(self.normalization_scope, image=True)
+        self._persist_metadata()
         self._filter()
-        if self._overview_options.get("normalization"):
+        if self._overview_options.get("normalization") or self.advanced.isChecked():
             self._prepare_display()
 
     def _compare(self):
@@ -3020,7 +4117,7 @@ class _FieldOverview(QDialog):
         self.fields.show()
         self.view.show()
         self._splitter.setSizes([250, 300, 750])
-        signature = tuple(field.identity for field in fields), channels, limits, repr(options)
+        signature = tuple(field.identity for field in fields), channels, limits, self._display_options_key(options)
         self._comparison_signature = signature
         def done(result):
             """Show only a comparison that still owns the current navigation.
@@ -3082,6 +4179,9 @@ class _FieldOverview(QDialog):
         self._comparison_signature = None
         self.status.setText(tr("Cancellation requested; the current image read may finish."))
         self._index_jobs.cancel()
+        self._measurement_cancelled.set()
+        self._native_timer.stop()
+        self._native_jobs.cancel()
 
     def _scan(self):
         """Replace the source generation; old worker results cannot leak through."""
@@ -3094,6 +4194,10 @@ class _FieldOverview(QDialog):
         self._visual_signature = None
         self._individual = False
         self._selected_fields.clear()
+        self._selected_wells.clear()
+        self._selected_well_axes.clear()
+        self._selected_well_options.clear()
+        self._selected_field_options.clear()
         self._fields, self._visible = (), ()
         self.wells.clear()
         self.fields.clear()
@@ -3101,8 +4205,13 @@ class _FieldOverview(QDialog):
         source, regex, convention, cancelled = self.source.text(), self.regex.text(), self._convention, self._cancelled
         self.status.setText(tr("Indexing image metadata…"))
         source_scope = self._overview_options.get("source_scope", "recursive")
-        self._index_jobs.submit(lambda: _overview_index(
-            source, regex, convention, cancelled, source_scope=source_scope), self._indexed)
+        def read():
+            """Reject unresolved wells on every browser load, retaining honest previews."""
+            fields = _overview_index(source, regex, convention, cancelled, source_scope=source_scope)
+            if any(not field.well or field.unresolved for field in fields):
+                raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
+            return fields
+        self._index_jobs.submit(read, self._indexed)
 
     def _indexed(self, fields):
         """Show actual plate identities and explicitly retained unresolved fields.
@@ -3110,6 +4219,8 @@ class _FieldOverview(QDialog):
         :param fields: immutable source records returned by the metadata indexer.
         """
         self._fields = fields
+        self._metadata_source = self.source.text().strip()
+        self._restore_metadata()
         self._populate_axes(fields)
         channel_ids = sorted({channel for field in fields for channel, _ in field.files if channel},
                              key=lambda value: (not value.isdigit(), int(value) if value.isdigit() else value))
@@ -3173,6 +4284,8 @@ class _FieldOverview(QDialog):
 
         :param _: unused plate, row or column selection arguments.
         """
+        current = self.fields.currentItem()
+        current_identity = current.data(Qt.UserRole).identity if current is not None else None
         plate = self.plates.currentData()
         self._comparison_signature = None
         if self._scope[0] != plate:
@@ -3232,6 +4345,7 @@ class _FieldOverview(QDialog):
             self._well_representatives.setdefault(field.well, field)
         self._well_positions = {}
         self._installed_thumbnails.clear()
+        self.wells.blockSignals(True)
         self.wells.clear()
         coverslip = geometry == (1, 1) and not addresses and known_wells == {""}
         self.wells.setRowCount(1 if coverslip else rows + int("" in known_wells))
@@ -3248,21 +4362,29 @@ class _FieldOverview(QDialog):
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setData(Qt.UserRole, well)
             detail = [item.text(), self._conditions.get((plate, well), "")]
+            detail.extend(str(key) + ": " + str(value)
+                          for key, value in self._annotation_snapshot().get((plate, well), {}).items())
             detail.extend(field.caption for field in self._well_fields.get(well, ())
                           [:self.representatives.value()])
             if not count:
                 detail.append(tr("No image at the selected acquisition axes."))
             item.setToolTip("\n".join(part for part in detail if part))
             self.wells.setItem(r - 1, c - 1, item)
+            item.setSelected((plate, well) in self._selected_wells)
             self._well_positions[well] = (r - 1, c - 1)
             self.wells.setRowHeight(r - 1, 150)
         for index in range(columns):
             self.wells.setColumnWidth(index, 180)
+        self.wells.blockSignals(False)
+        for address in self._selected_wells:
+            if address[0] == plate:
+                self._selected_well_axes[address] = (time, z)
         self._visible = tuple(f for f in available if self._scope[1] is None or f.well == self._scope[1])
         self._page = min(self._page, max(0, (len(self._visible) - 1) // 24))
         self.fields.blockSignals(True)
         self.fields.clear()
         from PySide6.QtWidgets import QListWidgetItem
+        from PySide6.QtCore import QItemSelectionModel
         for field in self._visible[self._page * 24:(self._page + 1) * 24]:
             item = QListWidgetItem(tr("{well} · field {field} · T {time} · Z {z}",
                 well=field.well or tr("Unresolved"), field=getattr(field, "field_id", "") or field.field,
@@ -3272,6 +4394,8 @@ class _FieldOverview(QDialog):
             item.setData(Qt.UserRole, field)
             self.fields.addItem(item)
             item.setSelected(field.identity in self._selected_fields)
+            if field.identity == current_identity:
+                self.fields.setCurrentItem(item, QItemSelectionModel.NoUpdate)
         self.fields.blockSignals(False)
         if not self._visible:
             self.view.clear_image()
@@ -3292,12 +4416,18 @@ class _FieldOverview(QDialog):
             field = item.data(Qt.UserRole)
             if item.isSelected():
                 self._selected_fields[field.identity] = field
+                self._selected_field_options.setdefault(field.identity, self._axis_options())
             else:
                 self._selected_fields.pop(field.identity, None)
+                self._selected_field_options.pop(field.identity, None)
 
     def _clear_selection(self):
         """Clear both visible and retained explicit selections."""
         self._selected_fields.clear()
+        self._selected_wells.clear()
+        self._selected_well_axes.clear()
+        self._selected_well_options.clear()
+        self._selected_field_options.clear()
         self.fields.clearSelection()
         self.wells.clearSelection()
 
@@ -3332,13 +4462,18 @@ class _FieldOverview(QDialog):
         """
         self._displayed_montage = None
         self._comparison_signature = None
-        if self._overview_options.get("normalization"):
+        if self._overview_options.get("normalization") or self.advanced.isChecked():
             self._prepare_display()
             return
         self._request_visuals()
         item = self.fields.currentItem()
         if item is not None and self._individual:
             self._field(item)
+
+    def _current_field_changed(self, current, previous):
+        """Follow keyboard navigation while ignoring list resets during filtering."""
+        if current is not None:
+            self._field(current)
 
     def _field(self, item, preserve_view=False):
         """Progressively decode one field without using Qt objects on a worker.
@@ -3351,17 +4486,21 @@ class _FieldOverview(QDialog):
         except (ValueError, TypeError) as exc:
             self.status.setText(str(exc))
             return
-        if not self._normalization_ready or self._cancelled.is_set() or not self._geometry_valid:
+        if self._cancelled.is_set() or not self._geometry_valid:
             return
         field = item.data(Qt.UserRole)
         if not self._individual:
             self._splitter.setSizes([250, 300, 750])
         self._individual = True
         self._comparison_signature = None
+        self._displayed_montage = None
+        if not self._normalization_ready:
+            self.view.clear_image()
+            return
         options = self._display_kwargs()
-        source_key = field.identity, channels, limits, repr(options)
+        source_key = field.identity, channels, limits, self._display_options_key(options)
         if source_key != self._displayed_field:
-            self._preview_edge = 256
+            self._preview_edge = min(256, self.preview_resolution.currentData())
             self._displayed_field = source_key
             preserve_view = False
         edge = self._preview_edge
@@ -3377,14 +4516,17 @@ class _FieldOverview(QDialog):
             self._show_pixels(self._cache[key], preserve_view)
             return
         cancelled, signature = self._cancelled, self._visual_context()
-        def done(pixels):
+        target_edge = self.preview_resolution.currentData()
+        def done(result):
             """Cache bounded pixels and accept only the exact current axis/view.
 
-            :param pixels: the detached worker-owned RGB array.
+            :param result: detached pixels and the original header dimensions.
             """
+            pixels, shape = result
             if cancelled.is_set():
                 return
             self._cache[key] = pixels
+            self._source_shapes[field.identity] = shape
             while len(self._cache) > 8:
                 self._cache.popitem(last=False)
             current = self.fields.currentItem()
@@ -3393,11 +4535,16 @@ class _FieldOverview(QDialog):
                     and self._visual_context() == signature
                     and self._displayed_field == source_key):
                 self._show_pixels(pixels, preserve_view)
-                if edge == 256:
-                    self._preview_edge = 1024
+                if edge == min(256, target_edge) and edge < target_edge:
+                    self._preview_edge = target_edge
                     self._image_pending = True
-        self._image_jobs.submit(lambda: _overview_pixels(
-            field, channels, limits, edge=edge, **options), done)
+        def read():
+            """Read original dimensions and a bounded preview without Qt access."""
+            info = _overview_channel_info(field)
+            record = info["files"][0]
+            shape = tuple(record["shape"][record["axes"].index(axis)] for axis in "YX")
+            return _overview_pixels(field, channels, limits, edge=edge, **options), shape
+        self._image_jobs.submit(read, done)
 
     def eventFilter(self, watched, event):
         """Request only newly visible well images after viewport paints or resizes.
@@ -3406,6 +4553,16 @@ class _FieldOverview(QDialog):
         :param event: a paint or resize event that may expose image tiles.
         :returns: the inherited event-filter result.
         """
+        if watched is self._well_viewport:
+            if event.type() == QEvent.MouseButtonPress:
+                self._drag_start = event.position().toPoint()
+                self._drag_selected = False
+                self._press_modifiers = event.modifiers()
+            elif event.type() == QEvent.MouseMove and self._drag_start is not None and event.buttons() & Qt.LeftButton:
+                from PySide6.QtWidgets import QApplication
+                self._drag_selected |= (event.position().toPoint() - self._drag_start).manhattanLength() >= QApplication.startDragDistance()
+            elif event.type() == QEvent.MouseButtonRelease:
+                self._drag_start = None
         if (watched is self._well_viewport and event.type() == QEvent.Wheel
                 and event.angleDelta().y()):
             position = event.position().toPoint()
@@ -3455,7 +4612,8 @@ class _FieldOverview(QDialog):
         return (self._scope, self.rows.currentData(), self.columns.currentData(),
                 self._page, self._display_generation,
                 self.fov_axis.currentData(), self.time_axis.currentData(),
-                self.z_axis.currentData(), self.z_mode.currentData(), channels, limits)
+                self.z_axis.currentData(), self.z_mode.currentData(), channels, limits,
+                self.preview_resolution.currentData())
 
     def _update_visuals(self):
         """Load one visible representative or one bounded well montage at a time."""
@@ -3472,6 +4630,7 @@ class _FieldOverview(QDialog):
         self._visual_signature = signature
         cancelled = self._cancelled
         options = self._display_kwargs()
+        resolution = self.preview_resolution.currentData()
         if self.fields.isVisible():
             self._update_field_thumbnails(signature, channels, limits, options)
         if self._comparison_signature is not None:
@@ -3493,7 +4652,8 @@ class _FieldOverview(QDialog):
                 self.status.setText(tr("{count} fields; {errors} unreadable previews.",
                                        count=len(page), errors=len(errors)))
             self._montage_jobs.submit(
-                lambda: _overview_montage(page, channels, limits, cancelled, **options), show_montage)
+                lambda: _overview_montage(page, channels, limits, cancelled,
+                    preview_edge=min(240, resolution), **options), show_montage)
             return
         viewport = self.wells.viewport()
         ratio = device_ratio(viewport)
@@ -3526,8 +4686,8 @@ class _FieldOverview(QDialog):
                 if field is None:
                     continue
                 representatives = tuple(self._well_fields[well][:self.representatives.value()])
-                edge = min(4096, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
-                key = (tuple(record.identity for record in representatives), channels, limits, ratio, edge, repr(options))
+                edge = min(resolution, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
+                key = (tuple(record.identity for record in representatives), channels, limits, ratio, edge, self._display_options_key(options))
                 if item.data(Qt.UserRole + 1) == key:
                     continue
                 if key in self._thumbnail_cache:
@@ -3541,7 +4701,7 @@ class _FieldOverview(QDialog):
                     try:
                         if len(representatives) > 1:
                             pixels, errors = _overview_montage(representatives, channels, limits,
-                                                              cancelled, **options)
+                                                              cancelled, preview_edge=min(240, resolution), **options)
                             return pixels, "; ".join(message for _, message in errors)
                         return _overview_pixels(field, channels, limits,
                                                 edge=edge, **options), ""
@@ -3617,6 +4777,7 @@ class _FieldOverview(QDialog):
             transform = self.view.transform()
         image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
                        pixels.strides[0], QImage.Format_RGB888).copy()
+        self._native_item = self._native_key = None
         self.view.set_pixmap(QPixmap.fromImage(image))
         if keep:
             x_ratio = image.width() / old_size.width()
@@ -3632,6 +4793,7 @@ class _FieldOverview(QDialog):
             horizontal.setValue(horizontal.value() + round(residual.x()))
             vertical.setValue(vertical.value() + round(residual.y()))
             self.view._user_zoomed = True
+            self._request_native_detail()
 
     def _export_selection(self):
         """Export all explicit selections; sample only when selection mode is off."""
@@ -3652,18 +4814,17 @@ class _FieldOverview(QDialog):
             fields = tuple(self._selected_fields.values())
             if fields:
                 return fields
-            wells = {item.data(Qt.UserRole) for item in self.wells.selectedItems()}
             time, z = self.time_axis.currentData(), self.z_axis.currentData()
             fields = tuple(field for field in self._fields
-                if field.plate == self.plates.currentData() and field.well in wells
-                and (not getattr(field, "time_id", "") or field.time_id == time)
-                and (not getattr(field, "z_id", "") or field.z_id == z))
+                if (field.plate, field.well) in self._selected_wells
+                and (not field.time_id or field.time_id == self._selected_well_axes.get(
+                    (field.plate, field.well), (time, z))[0])
+                and (not field.z_id or field.z_id == self._selected_well_axes.get(
+                    (field.plate, field.well), (time, z))[1]))
             if self.sample_selected.isChecked():
-                return _overview_sample(fields, self.count.value(), self.seed.value(),
-                                        self.grouping.currentData(), self.random.isChecked())
+                return self._sample_fields(fields)
             return fields
-        return _overview_sample(self._visible, self.count.value(), self.seed.value(),
-                                self.grouping.currentData(), self.random.isChecked())
+        return self._sample_fields(self._visible)
 
     def _export(self):
         """Export explicit field/well selections or reproducible examples of this view."""
@@ -3686,9 +4847,12 @@ class _FieldOverview(QDialog):
         if self._export_jobs.is_busy():
             self.status.setText(tr("Wait for the current export to finish or cancel it."))
             return
-        folder = QFileDialog.getExistingDirectory(self, tr("PDF output folder"))
-        if not folder:
+        if not self._metadata_source:
+            self.status.setText(tr("Choose an image folder."))
             return
+        from datetime import datetime
+        folder = str(Path(self._metadata_source) / "results" /
+                     ("overview_" + datetime.now().strftime("%Y%m%d_%H%M%S_%f")))
         self._cancelled.set()
         self._cancelled = threading.Event()
         if self._normalization_context is not None:
@@ -3701,7 +4865,8 @@ class _FieldOverview(QDialog):
         measurements = self.measurements.isChecked()
         options = self._display_kwargs()
         options.update(quality_edge=self.pdf_quality.currentData(), dpi=self.pdf_dpi.currentData(),
-                       conditions=dict(self._conditions))
+                       conditions=dict(self._conditions), annotations=self._annotation_snapshot(),
+                       field_options=self._selection_options(selected))
         self._export_jobs.submit(lambda: _overview_export(
             selected, folder, channels, limits, seed, cancelled, measurements, **options),
             lambda result: self._exported(result, measurements, folder, cancelled))
@@ -3712,7 +4877,7 @@ class _FieldOverview(QDialog):
         message = tr("Wrote {count} PDF pages; {errors} unreadable fields.",
                      count=len(paths), errors=len(errors))
         if measurements:
-            if not (Path(folder) / "overview_measurements.csv").is_file():
+            if cancelled is not None and cancelled.is_set():
                 message += " " + tr("Measurements CSV was not published because export was cancelled.")
             else:
                 message += " " + tr("Raw whole-image measurements: {path}",
@@ -3724,45 +4889,177 @@ class _FieldOverview(QDialog):
 
         :param event: the native close event passed to the base dialog.
         """
+        self._retire()
+        super().closeEvent(event)
+
+    def _retire(self):
+        """Stop owned image generations even when a page is already hidden."""
+        self._options_window.close()
         self._cancel()
         self._visual_timer.stop()
+        self._native_timer.stop()
+        self._measurement_cancelled.set()
         for runner in (self._index_jobs, self._image_jobs, self._export_jobs,
-                       self._thumbnail_jobs, self._montage_jobs, self._field_thumbnail_jobs):
+                       self._thumbnail_jobs, self._montage_jobs, self._field_thumbnail_jobs,
+                       self._metadata_jobs, self._measurement_jobs, self._native_jobs):
             runner.shutdown(timeout_ms=0)
+
+
+def _overview_workspace_qss(palette, opacity):
+    """Give embedded overview pages an opaque background in both themes."""
+    return ("QWidget#FieldOverviewWorkspace, QWidget#FieldOverviewBody, "
+            "QWidget#FieldOverviewMetadata { background-color: " + palette["bg"] + "; }")
+
+
+class _OverviewWorkspace(QWidget):
+    """Retain metadata and image navigation on the host's existing page strip."""
+
+    def __init__(self, owner, source):
+        """Create one opaque workspace without opening an extra top-level window."""
+        from PySide6.QtWidgets import QStackedWidget
+        from ..theme import register_widget_qss, ensure_widget_qss_applied
+        super().__init__(owner)
+        self._owner, self.source = owner, source
+        self._previous_workspace = None
+        self.setObjectName("FieldOverviewWorkspace")
+        self.setAutoFillBackground(True)
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        layout = QVBoxLayout(self)
+        navigation = QHBoxLayout()
+        self.back_button = QPushButton(tr("Back"))
+        self.back_button.clicked.connect(self._back)
+        navigation.addWidget(self.back_button)
+        navigation.addWidget(QLabel(tr("Field-of-view overview")), 1)
+        layout.addLayout(navigation)
+        self.stack = QStackedWidget(self)
+        layout.addWidget(self.stack, 1)
+        register_widget_qss("FieldOverviewWorkspace", _overview_workspace_qss, replace=True)
+        ensure_widget_qss_applied("FieldOverviewWorkspace", root=self)
+
+    def show_page(self):
+        """Use the same embedded page host as OPS, including standalone test hosts."""
+        from ..screens.map_barcodes import show_as_page
+        if self._owner.layout() is None:
+            layout = QVBoxLayout(self._owner)
+            layout.addWidget(QWidget(self._owner), 1)
+        show_as_page(self, self._owner, tr("Field-of-view overview"))
+        self._owner.show()
+        self.show()
+
+    def _back(self):
+        """Return through field, well, plate and the owning module."""
+        from ..screens.map_barcodes import hide_as_page
+        current = self.stack.currentWidget()
+        if isinstance(current, _FieldOverview) and current._individual:
+            current._individual = False
+            current._comparison_signature = None
+            current._filter()
+        elif isinstance(current, _FieldOverview) and current._scope[1] is not None:
+            current._back()
+        else:
+            self.hide()
+            hide_as_page(self, self._owner)
+            self.setParent(self._owner, Qt.Widget)
+
+    def hideEvent(self, event):
+        """Hide the independent options window when its workspace leaves view."""
+        current = self.stack.currentWidget()
+        if isinstance(current, _FieldOverview):
+            current._options_window.hide()
+            current._options_closed()
+        super().hideEvent(event)
+
+    def _metadata_rejected(self):
+        """Restore a validated source when replacement metadata is cancelled."""
+        previous = self._previous_workspace
+        if previous is None:
+            self._back()
+            return
+        from ..screens.map_barcodes import hide_as_page
+        self._previous_workspace = None
+        self.hide()
+        hide_as_page(self, self._owner)
+        self.setParent(self._owner, Qt.Widget)
+        self._owner._field_overview_workspace = previous
+        self._owner._field_overview_wizard = previous.stack.widget(0)
+        previous.show_page()
+        self.deleteLater()
+
+    def _retire(self):
+        """Retire owned child jobs independently of native hidden-widget closes."""
+        previous = self._previous_workspace
+        self._previous_workspace = None
+        if previous is not None:
+            previous._retire()
+            previous.deleteLater()
+        for index in range(self.stack.count()):
+            child = self.stack.widget(index)
+            if isinstance(child, _FieldOverview):
+                child._retire()
+            else:
+                child.reject()
+
+    def closeEvent(self, event):
+        """Retire the retained child jobs when replacing or closing the workspace."""
+        self._retire()
         super().closeEvent(event)
 
 
 def _open_field_overview(owner, settings=None):
-    """Open metadata choices before constructing the shared image browser."""
+    """Open metadata and the image browser as a retained embedded submodule."""
+    from ..screens.map_barcodes import hide_as_page
     settings = dict(settings or {})
     source = _overview_source_path(settings.get("source") or settings.get("src"))
-    previous = getattr(owner, "_field_overview_wizard", None)
-    if (previous is not None and previous.isVisible()
-            and _overview_source_path(previous.source.text()) == source):
-        previous.raise_()
-        return previous
+    previous = getattr(owner, "_field_overview_workspace", None)
+    if previous is not None and previous.source == source:
+        current = previous.stack.currentWidget()
+        if not isinstance(current, _OverviewMetadataWizard) or not current._finished:
+            previous.show_page()
+            return owner._field_overview_wizard
+    retained = None
     if previous is not None:
-        previous.reject()
-        previous.deleteLater()
-    wizard = _OverviewMetadataWizard(source, settings, owner)
+        if isinstance(previous.stack.currentWidget(), _FieldOverview):
+            retained = previous
+        else:
+            retained = previous._previous_workspace
+            previous._previous_workspace = None
+            previous._retire()
+            previous.deleteLater()
+        hide_as_page(previous, owner)
+        previous.setParent(owner, Qt.Widget)
+    workspace = _OverviewWorkspace(owner, source)
+    workspace._previous_workspace = retained
+    owner._field_overview_workspace = workspace
+    wizard = _OverviewMetadataWizard(source, settings, workspace)
+    wizard._startup_timer.stop()
+    wizard.setWindowFlags(Qt.Widget)
+    wizard.setObjectName("FieldOverviewMetadata")
+    wizard.setAutoFillBackground(True)
+    workspace.stack.addWidget(wizard)
     owner._field_overview_wizard = wizard
 
     def _show_browser():
-        """Replace the old view only after valid metadata choices are accepted."""
+        """Replace metadata choices with original-image navigation on the same page."""
         config = wizard.configuration()
-        old = getattr(owner, "_field_overview", None)
-        if old is not None:
-            old.close()
+        wizard.rejected.disconnect(workspace._metadata_rejected)
+        if workspace._previous_workspace is not None:
+            old = workspace._previous_workspace
+            workspace._previous_workspace = None
+            old._retire()
             old.deleteLater()
-        dialog = _FieldOverview(owner, config)
+        dialog = _FieldOverview(workspace, config)
+        dialog.setWindowFlags(Qt.Widget)
+        dialog.setObjectName("FieldOverviewBody")
+        dialog.setAutoFillBackground(True)
         owner._field_overview = dialog
-        dialog.show()
-        dialog.raise_()
+        workspace.stack.addWidget(dialog)
+        workspace.stack.setCurrentWidget(dialog)
         dialog._indexed(tuple(wizard._fields))
 
     wizard.accepted.connect(_show_browser)
-    wizard.show()
-    wizard.raise_()
+    wizard.rejected.connect(workspace._metadata_rejected)
+    workspace.show_page()
+    wizard._startup_timer.start(0)
     return wizard
 
 
@@ -3950,9 +5247,12 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
         return fields, None
     detected_pattern, detected_label = pattern, convention
     if convention == "auto" and not pattern:
+        import re
         from ..regex_detect import auto_detect_regex
         names = tuple(Path(path).name for field in fields for _, path in field.files)[:20]
         detected_pattern, detected_label, hits = auto_detect_regex(names)
+        if detected_pattern and "wellID" not in re.compile(detected_pattern).groupindex:
+            detected_pattern, detected_label = pattern, convention
         if detected_pattern and hits:
             inferred = _overview_index(source, detected_pattern, "auto", cancelled,
                                        source_scope=source_scope)
@@ -3978,8 +5278,12 @@ def _overview_wizard_probe(source, pattern, convention, cancelled, source_scope=
     return fields, info
 
 
-class _OverviewMetadataWizard(QDialog):
+class _OverviewMetadataWizard(QWidget):
     """Choose a real source's metadata, axes, geometry and display transform."""
+
+    accepted = Signal()
+    rejected = Signal()
+    finished = Signal(int)
 
     def __init__(self, source="", settings=None, parent=None):
         """Build the source wizard; filesystem work starts only on its worker."""
@@ -3998,6 +5302,7 @@ class _OverviewMetadataWizard(QDialog):
         self._cancelled = threading.Event()
         self._generation = 0
         self._finished = False
+        self._result = QDialog.Rejected
         self._runner = JobRunner(self, threaded=True, app_key="overview metadata", user_visible=False)
         self._runner.job_failed.connect(self._failed)
         shell = QVBoxLayout(self)
@@ -4168,13 +5473,18 @@ class _OverviewMetadataWizard(QDialog):
         self._startup_timer = QTimer(self)
         self._startup_timer.setSingleShot(True)
         self._startup_timer.timeout.connect(self._scan)
+        self._rescan_timer = QTimer(self)
+        self._rescan_timer.setSingleShot(True)
+        self._rescan_timer.timeout.connect(self._scan)
         self._startup_timer.start(0)
 
-    def _invalidate(self):
-        """Prevent stale metadata from authorizing a changed source or pattern."""
+    def _invalidate(self, *_):
+        """Debounce filename previews and prevent acceptance of stale metadata."""
         self._generation += 1
         self._cancelled.set()
         self.next.setEnabled(False)
+        if hasattr(self, "_rescan_timer") and not self._finished:
+            self._rescan_timer.start(300)
 
     def _browse(self):
         """Choose another folder while preserving the old source on cancellation."""
@@ -4205,6 +5515,7 @@ class _OverviewMetadataWizard(QDialog):
         if self._finished:
             return
         self._invalidate()
+        self._rescan_timer.stop()
         self._cancelled = threading.Event()
         generation = self._generation
         source, pattern = self.source.text(), self.regex.text()
@@ -4227,7 +5538,9 @@ class _OverviewMetadataWizard(QDialog):
             return
         detected = info.get("detected_pattern", "")
         if detected and not self.regex.text():
+            self.regex.blockSignals(True)
             self.regex.setText(detected)
+            self.regex.blockSignals(False)
             index = self.preset.findData(info.get("detected_label"))
             self.preset.blockSignals(True)
             self.preset.setCurrentIndex(index if index >= 0 else self.preset.count() - 1)
@@ -4290,7 +5603,10 @@ class _OverviewMetadataWizard(QDialog):
             "{unmatched} unmatched filenames. Available channel IDs in the first field: {channels}.",
             source=self.source.text(), count=len(fields), matched=matched,
             unmatched=len(all_files) - matched, channels=str(available)))
-        self.next.setEnabled(True)
+        valid = all(field.well and not field.unresolved for field in fields)
+        self.next.setEnabled(valid)
+        if not valid:
+            self.status.setText(tr("The filename regex must include a valid wellID for every image."))
 
     def _choose_geometry(self):
         """Keep an explicit user geometry across subsequent metadata previews."""
@@ -4327,7 +5643,7 @@ class _OverviewMetadataWizard(QDialog):
 
     def configuration(self):
         """Return validated metadata and display choices for the browser worker."""
-        if not self._info or not self.next.isEnabled():
+        if not self._info or not self.next.isEnabled() or any(not field.well or field.unresolved for field in self._fields):
             raise _OverviewValidationError(tr("Preview the current source metadata before continuing."))
         try:
             channels = tuple(int(value.strip()) for value in self.channels.text().split(","))
@@ -4336,7 +5652,10 @@ class _OverviewMetadataWizard(QDialog):
         if not channels or len(set(channels)) != len(channels) or not set(channels) <= set(self._info["channels"]):
             raise _OverviewValidationError(tr("Choose only channel IDs reported by this image's metadata."))
         rows_required, columns_required = _overview_geometry_extent(self._fields)
-        rows_available, columns_available = self.plate_geometry.currentData()
+        geometry = self.plate_geometry.currentData()
+        if geometry is None:
+            raise _OverviewValidationError(tr("Choose a plate geometry."))
+        rows_available, columns_available = geometry
         if rows_required > rows_available or columns_required > columns_available:
             raise _OverviewValidationError(tr(
                 "The selected geometry does not contain the indexed wells "
@@ -4383,13 +5702,47 @@ class _OverviewMetadataWizard(QDialog):
         self.status.setText(str(error))
         self.next.setEnabled(False)
 
+    def result(self):
+        """Return the accepted or rejected metadata result."""
+        return self._result
+
+    def accept(self):
+        """Publish validated metadata without turning the body into a popup."""
+        self.done(QDialog.Accepted)
+
+    def reject(self):
+        """Cancel this metadata generation and notify its embedded workspace."""
+        self.done(QDialog.Rejected)
+
     def done(self, result):
-        """Cancel metadata work before hiding the wizard."""
+        """Cancel metadata work before hiding and emitting the matching result."""
+        if self._finished:
+            return
         self._finished = True
+        self._result = result
         self._startup_timer.stop()
+        self._rescan_timer.stop()
         self._cancelled.set()
         self._runner.shutdown(timeout_ms=0)
-        super().done(result)
+        self.hide()
+        if result == QDialog.Accepted:
+            self.accepted.emit()
+        else:
+            self.rejected.emit()
+        self.finished.emit(result)
+
+    def closeEvent(self, event):
+        """Retire pending metadata when its containing window is closed."""
+        self.reject()
+        super().closeEvent(event)
+
+    def keyPressEvent(self, event):
+        """Retain Escape cancellation inside the metadata body."""
+        if event.key() == Qt.Key_Escape:
+            self.reject()
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
 
 def _overview_prepare_normalization(fields, channels, options, read_planes, cancelled=None):
