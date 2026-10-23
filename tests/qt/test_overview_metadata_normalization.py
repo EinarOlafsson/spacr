@@ -1454,3 +1454,36 @@ def test_metadata_wizard_plate_selector_preserves_native_qwidget_geometry(qtbot)
     assert wizard.plate_geometry.currentData() == (1, 1)
     assert wizard.geometry() == QWidget.geometry(wizard)
     wizard.reject()
+
+
+def test_metadata_wizard_keeps_native_geometry_during_a_real_hub_paint(qtbot, qapp, tmp_path):
+    from PySide6.QtCore import QEvent, QObject
+    from PySide6.QtWidgets import QComboBox, QDialog
+    from spacr.qt import gil_priority
+
+    wizard = browser._OverviewMetadataWizard(str(tmp_path), settings={"geometry": (2, 3)})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    qtbot.waitExposed(wizard)
+    qtbot.waitUntil(lambda: not wizard._runner.is_busy(), timeout=10000)
+    choice = wizard.findChild(QComboBox, "OverviewWizardGeometry")
+    assert choice.currentData() == (2, 3)
+    hub = gil_priority._application_event_hub_class()(qapp)
+    watcher = QObject()
+    gil_priority._hub_add_object(hub, wizard, watcher, (QEvent.Resize,))
+    try:
+        native = QDialog.geometry(wizard)
+        states = gil_priority._hub_geometry_before(hub)
+        assert states == [(wizard, wizard.isHidden(), native)]
+        wizard.update()
+        assert hub.eventFilter(wizard, QEvent(QEvent.UpdateRequest))
+        assert wizard.geometry() == QDialog.geometry(wizard)
+        assert choice.currentData() == (2, 3)
+        assert not wizard.grab().isNull()
+    finally:
+        gil_priority._hub_discard_object(hub, wizard, watcher)
+        qapp.removeEventFilter(hub)
+        hub.setParent(None)
+        hub.deleteLater()
+        wizard.reject()
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
