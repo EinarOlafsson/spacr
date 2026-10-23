@@ -430,6 +430,39 @@ def test_mesh_prefilter_keeps_all_original_candidates_and_their_order(monkeypatc
     assert seen == sorted(seen)
 
 
+@pytest.mark.parametrize('reorder', [False, True])
+def test_mesh_face_sets_are_built_once_and_preserve_shared_vertex_order(monkeypatch, reorder):
+    from spacr.qt.widgets import gate_spec
+
+    gate = _box()
+    vertices, faces = np.asarray(gate.vertices), np.asarray(gate.faces)
+    if reorder:
+        faces = faces[np.random.default_rng(673).permutation(len(faces))]
+    points = (vertices - vertices.min(axis=0)) / np.ptp(vertices, axis=0)
+    triangles = points[faces]
+    indices = {triangle.tobytes(): index for index, triangle in enumerate(triangles)}
+    built, seen = [], []
+    original_set = set
+
+    def counted_set(value=()):
+        if isinstance(value, np.ndarray) and value.shape == (3,):
+            built.append(tuple(value))
+        return original_set(value)
+
+    def contact(first, second, common, _basis=None):
+        i, j = indices[first.tobytes()], indices[second.tobytes()]
+        shared = list(original_set(faces[i]) & original_set(faces[j]))
+        assert np.array_equal(common, points[shared])
+        seen.append((i, j))
+        return False
+
+    monkeypatch.setattr(gate_spec, 'set', counted_set, raising=False)
+    monkeypatch.setattr(gate_spec, '_mesh_triangle_contact', contact)
+    gate_spec._validate_volume_mesh(vertices, faces)
+    assert built == [tuple(face) for face in faces]
+    assert len(seen) > len(faces)
+
+
 def test_disconnected_closed_shells_are_not_accepted_as_one_volume():
     gate = _box()
     points = gate.vertices + tuple(tuple(np.asarray(v) + (3, 0, 0)) for v in gate.vertices)

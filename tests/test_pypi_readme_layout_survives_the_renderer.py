@@ -132,7 +132,8 @@ def test_every_readme_row_is_a_desktop_and_a_phone_line_block(rendered):
     for index, row in enumerate(rows):
         desktop, phone = drawn[2 * index], drawn[2 * index + 1]
         assert desktop["tag"] == phone["tag"] == "div"
-        assert desktop["class"] == phone["class"] == "line-block"
+        assert set(desktop["class"].split()) == {"line-block", "hide-below-desktop"}
+        assert set(phone["class"].split()) == {"line-block", "hide-on-desktop"}
         for block, name, column in ((desktop, "desktop", 0), (phone, "phone", 1)):
             assert {CLASSES[image["class"]] for image in block["images"]} == {name}
             assert [image["src"].split(f"/{REFERENCE}/")[-1]
@@ -186,3 +187,16 @@ def test_a_wheel_built_from_the_sdist_reuses_its_description(packaged, tmp_path)
     readme = (ROOT / "README.rst").read_text(encoding="utf-8")
     assert namespace["long_description_for"](readme, tmp_path) == description
     assert namespace["long_description_for"](readme, ROOT) == description
+
+
+def test_responsive_rows_hide_contact_links_with_their_images(rendered):
+    layout = _layout(rendered)
+    rows = [block for block in layout.blocks
+            if any(image.get("alt") == "olafsson@med.umich.com"
+                   for image in block["images"])]
+    assert len(rows) == 2
+    for row in rows:
+        image_classes = {image["class"] for image in row["images"]}
+        assert len(image_classes) == 1
+        assert image_classes.pop() in row["class"].split()
+    assert 'href="mailto:olafsson%40med.umich.com"' in rendered

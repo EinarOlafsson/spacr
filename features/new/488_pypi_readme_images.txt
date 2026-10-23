@@ -51,3 +51,5 @@ VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_pypi_readme_image
 2026-10-21 — Release URLs bind the actual checked-out full40-hex source commit; ordinary builds retain the main fallback. Actual nightly and compatible main sdist→wheel metadata, strict Twine and17 artifact checks pass;11 focused URL checks retain absolute external destinations.
 2026-10-21 — Main941cfcd41e publishes the minimal compatible projection; full-source promotion now preserves current nightly packaging, with final README measurement/source pin and same-source CI still required.
 2026-10-21 — Actual published1.5.1.6 metadata, images, destinations and rendered page remain required before whole-item completion; no release upload is claimed.
+
+2026-10-23 — Current 1.5.1.6 wheel/sdist render checks found Warehouse mailto pseudo-icons keep the hidden responsive licensing/contact row visible. Apply the existing responsive class to the generated row as well as its images, preserving all links, widths, source pins and translated README sources; verify actual artifact rendering before publication. PyPI upload acceptance remains open.

@@ -2644,6 +2644,7 @@ def _validate_volume_mesh(vertices, faces) -> None:
         normal = normals[index]
         bases.append((normal, np.linalg.norm(normal), u, v,
                       float(u @ u), float(u @ v), float(v @ v), float(normal @ normal)))
+    face_sets = [set(face) for face in faces]
     low, high = triangles.min(axis=1), triangles.max(axis=1)
     for i, triangle in enumerate(triangles):
         if token is not None:
@@ -2653,7 +2654,7 @@ def _validate_volume_mesh(vertices, faces) -> None:
         for j in candidates:
             if token is not None:
                 token.checkpoint()
-            shared = set(faces[i]) & set(faces[j])
+            shared = face_sets[i] & face_sets[j]
             if len(shared) == 3 or _mesh_triangle_contact(triangle, triangles[j], points[list(shared)], _basis=(bases[i], bases[j])):
                 raise GateError(tr("Volume surfaces must not intersect or overlap."))
 
