@@ -1714,6 +1714,16 @@ def show_cheat_sheet(parent) -> None:
             row.setTextFormat(Qt.RichText)
             layout.addWidget(row)
 
+    from .dialogs import (OPENS_AT, let_the_content_scroll,
+                          make_the_window_resizable, open_at_its_natural_size)
+
+    dlg.ensurePolished()
+    layout.activate()
+    opening = dlg.sizeHint().expandedTo(dlg.minimumSize())
+    let_the_content_scroll(dlg)
+    make_the_window_resizable(dlg)
+    dlg.setProperty(OPENS_AT, opening)
+    open_at_its_natural_size(dlg)
     dlg.exec()
     return None
 

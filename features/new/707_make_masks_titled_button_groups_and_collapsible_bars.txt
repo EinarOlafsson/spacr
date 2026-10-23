@@ -22,6 +22,18 @@ command palette 504x420 (87 model rows, vertical range77), fallback340x739.
 Actual GUI/font90%/90%, work1440x870/DPR2; app returned0, font assertions failed
 on CommandInput/five fallback headers. Preserve accepted geometry while those
 two source font declarations are repaired; no layout change is warranted.
+Affected stress follow-up: repeat only those two actual popup APIs at GUI90%/
+font200%, using normal live change_scales before construction. Require actual
+CommandInput/header pixel-font preconditions and unchanged native initial-frame,
+axis-specific content reachability, font-family and owned-close checks.
+Native font200 stress confirms a real parentless shortcut-fallback defect:
+756x1295 exceeds the870px work area and has no scroll container. Palette fits
+1120x420 with87 rows scrolling and27px input; fallback fonts22/23px are correct.
+Repair only fallback construction using existing dialog scroll/opening/resize
+helpers, keeping all shortcut rows and the normal MainWindow overlay unchanged.
+The two focused fallback regressions fail before repair; afterward both plus
+the existing overlay route pass (4.62 s, sampled RSS0.281 GiB). Native default/
+font200 reruns remain pending; the repair adds no fixed size or lasting maximum.
 Native4495f2178 final: both cases PASS at unchanged initial sizes, exact scales,
 whole/reachable controls and safe fonts; normal exit0, RSS0.960GiB/0 missed.
 
