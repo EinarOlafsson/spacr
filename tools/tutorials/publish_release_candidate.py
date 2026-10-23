@@ -246,6 +246,85 @@ def resume_receipt(root, branch, tag, checked):
     print('RECEIPT', root / RECEIPT, HOST + commit, flush=True)
 
 
+def reuse_media_receipt(root, baseline):
+    """Reuse a completed immutable publication's media, not an interrupted upload.
+
+    Current main may advance. The original branch/tag/commit, every host file
+    identity and the original full readback must still describe these exact media.
+    No hosted bytes are downloaded, uploaded or relabelled as newly checked.
+    """
+    from copy import deepcopy
+    from huggingface_hub import HfApi
+
+    root, baseline = Path(root).resolve(), Path(baseline).resolve()
+    if root == baseline or (root / RECEIPT).exists():
+        raise SystemExit('Require a distinct candidate without an existing receipt')
+    manifest = require_verified_candidate(root)
+    validate(baseline, require_browser=True)
+    previous = read(baseline / 'release-manifest.json')
+    saved = read(baseline / RECEIPT)
+    expected = media_records(manifest)
+    if not expected or expected != media_records(previous):
+        raise SystemExit('Media reuse requires exactly the original media records')
+    count = len(expected)
+    size = sum(record['bytes'] for record in expected.values())
+    commit, branch, tag = (saved.get(key) for key in ('commit', 'branch', 'tag'))
+    checked, pages = saved.get('readback', {}), saved.get('pages', {})
+    published = read(baseline / 'checks/published-media-browser-checks.json')
+    ready = {row['id'] for row in read(baseline / 'web/catalog/lessons_en.json')['lessons']
+             if row.get('status') != 'coming_soon'}
+    cases = published.get('ready_playback_cases', [])
+    if (not isinstance(commit, str) or not re.fullmatch(r'[0-9a-f]{40}', commit)
+            or not isinstance(saved.get('base_commit'), str)
+            or not re.fullmatch(r'[0-9a-f]{40}', saved['base_commit'])
+            or not isinstance(branch, str) or not branch or branch == 'main'
+            or not isinstance(tag, str) or not tag or branch == tag
+            or saved.get('repository') != f'datasets/{HF_DATASET}'
+            or saved.get('media_root') != HOST + commit
+            or saved.get('manifest_sha256') != digest(baseline / 'release-manifest.json')
+            or saved.get('media_files') != count or saved.get('media_bytes') != size
+            or manifest.get('media_host_bytes') != size or previous.get('media_host_bytes') != size
+            or checked.get('passed') is not True or checked.get('commit') != commit
+            or any(checked.get(key) != count for key in
+                   ('files_expected', 'metadata_matched', 'downloaded_sha256_matched'))
+            or checked.get('bytes_read_back') != size
+            or checked.get('metadata_failures') != [] or checked.get('download_failures') != []
+            or pages.get('ready') != len(ready) or pages.get('routes') != previous['routes']
+            or published.get('passed') is not True or published.get('published') is not False
+            or published.get('manifest_sha256') != saved['manifest_sha256']
+            or published.get('media_root') != saved['media_root']
+            or not pages.get('index_sha256') or published.get('index_sha256') != pages['index_sha256']
+            or published.get('placeholder_cases') != [] or len(cases) != len(ready)
+            or {case.get('lesson') for case in cases} != ready
+            or not all(case.get('passed') is True for case in cases)):
+        raise SystemExit('Original verified publication evidence is incomplete or stale')
+    api = HfApi()
+    if any(api.dataset_info(HF_DATASET, revision=ref).sha != commit for ref in (branch, tag)):
+        raise SystemExit('Original publication branch/tag no longer resolves to its verified commit')
+    history = api.list_repo_commits(HF_DATASET, repo_type='dataset', revision=commit)
+    if len(history) < 2 or history[0].commit_id != commit or history[1].commit_id != saved['base_commit']:
+        raise SystemExit('Immutable publication history differs from its recorded historical base')
+    tree = {entry.path: entry for entry in api.list_repo_tree(
+        HF_DATASET, repo_type='dataset', revision=commit, recursive=True)
+        if entry.__class__.__name__ == 'RepoFile'}
+    for relative, record in expected.items():
+        entry = tree.get(relative)
+        if (entry is None or entry.size != record['bytes']
+                or (entry.lfs is not None and entry.lfs.sha256 != record['sha256'])
+                or (entry.lfs is None and entry.blob_id != git_blob_id(root / 'media_host' / relative))):
+            raise SystemExit('Immutable host metadata differs: ' + relative)
+    if sorted(set(tree) - set(expected)) != checked.get('files_on_revision_not_in_candidate', []):
+        raise SystemExit('Immutable host inventory differs from the original readback')
+    receipt = deepcopy(saved)
+    receipt.pop('pages', None)  # Old Pages/index evidence is not evidence for this player.
+    receipt.update(manifest_sha256=digest(root / 'release-manifest.json'),
+                   readback_source='unchanged media reused from verified publication',
+                   media_reuse={'baseline_manifest_sha256': saved['manifest_sha256'],
+                                'baseline_receipt_sha256': digest(baseline / RECEIPT)})
+    write(root / RECEIPT, receipt)
+    print('RECEIPT', root / RECEIPT, HOST + commit, flush=True)
+
+
 def drop_superseded_web_copies(pages_root, manifest):
     """Remove the Pages copy of every web video the candidate now hosts.
 
@@ -443,9 +522,14 @@ if __name__ == '__main__':
     resume.add_argument('--tag', required=True)
     resume.add_argument('--readback-json', type=Path, required=True,
                         help="the read-back line that run printed, saved as JSON")
+    reuse = commands.add_parser('reuse-media', help='reuse exact media from a verified immutable publication; no upload/download')
+    reuse.add_argument('candidate', type=Path)
+    reuse.add_argument('--baseline', type=Path, required=True)
     args = parser.parse_args()
     candidate = args.candidate.resolve()
-    if args.command == 'resume-receipt':
+    if args.command == 'reuse-media':
+        reuse_media_receipt(candidate, args.baseline)
+    elif args.command == 'resume-receipt':
         resume_receipt(candidate, args.branch, args.tag, read(args.readback_json))
     elif args.command == 'upload':
         upload(candidate, args.branch, args.tag)
