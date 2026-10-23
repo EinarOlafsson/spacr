@@ -312,8 +312,8 @@
     },
     {
       "lesson": "21_model_compare",
-      "master_sha256": "6ebcad0ce7895197a141c561d432b2fd2a7cf098e14821c8934e4c5125485f50",
-      "visual_timing_sha256": "b0f7f3ea22c4d51a504162dbe0a6cfa44216ab0069529dc65702757781b4484c",
+      "master_sha256": "dbc3d8ef2e58972fc2bb900587603cd1383f5f12a38719ccc2b3623296533f81",
+      "visual_timing_sha256": "6cee2bb4bf0f3aa0b29626e82aa7722186af7f91e4bac34817e7e1149cfd3cca",
       "scenes": [
         {
           "visual": "gui_00_home",
@@ -324,12 +324,12 @@
         {
           "visual": "gui_02_model_parameters",
           "source_start": 24.466666666666665,
-          "source_end": 50.06666666666666,
+          "source_end": 50.06666666666667,
           "idle_tail_start": 9.5
         },
         {
           "visual": "api_00_inputs",
-          "source_start": 50.06666666666666,
+          "source_start": 50.06666666666667,
           "source_end": 73.73333333333333,
           "idle_tail_start": 0
         },

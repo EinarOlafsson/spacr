@@ -1,4 +1,17 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT NATIVE CRASH DUMP PATH FALLBACKS — 2026-10-23
+widgets_g2 owns the three Main221 Coverage11 crash-dump failures; root reviews
+and publishes. Guard optional logging-helper resolution and accept string or
+Path directories. A helper RuntimeError must disable the diagnostic without
+mutating the user's home; only an unavailable helper uses the existing local
+SPACR_HOME/default-home fallback. If reporting state cannot be imported, skip
+replay/send while retaining local faulthandler capture. Preserve consent,
+session attribution, bounded history and all original file/failure assertions.
+The three fixtures must own the central capture handle/session header and
+restore any pre-existing real capture state. Missing reporting state must also
+allow bounded oversized-log rotation without inventing or persisting an ack.
+No live crash, AI or issue request.
+
 CURRENT QT BATCH COLLECTION COST — 2026-10-23
 Root owns the demonstrated empty-batch startup cost in the three-hour Qt CI
 job. Retain every selected test, whole-batch conftest checks, bounded memory,
@@ -4555,3 +4568,7 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — Release API closure: reviewed 36 crash-helper translations, rebound 18 unchanged work/allowed targets and reused 99 Mask targets; normal review pin 2c69aa2380a/6928 and API pin d09da1729fb7 verified. All nine catalogs preserve 13,606 unrelated records; Help, consumers and runtime are unchanged. Repaired the stale dispatch-arrival test without changing historical hashes or ratchets; affected inventory 10 PASS plus retained Help 1 PASS, all ten catalog bytes unchanged. F538 excluded; whole CI/release acceptance remains open.
 
 2026-10-23 — Repair the actual Main69 Slow safe-mode Preferences Save failure: the defaults-for-reading/write-through store must support contains without revealing stored preferences. Preserve forced-safe entries, real repair writes and the repaired ordinary startup; validate only the two affected real-launch controls, with no reporter-policy or backdrop changes.
+
+2026-10-23 — Restore native crash-dump fallback for string log directories and unavailable optional logging helpers; directory lookup failures remain local and fail closed. Missing reporting state skips replay/ack writes while preserving bounded marked rotation and capture. Four focused cases PASS (two retained plus two corrected-fixture reruns); independent review accepted. Root publication pending; no native crash cause claim.
+
+2026-10-23 — Restore the explicit no-provider console notice and actionable local CLI failure diagnostics without treating failed output as advice, caching it or attaching it to reports. Issue117 fixtures now affirm real isolated consent and show the actual screen required by central delivery; all original assertions and budgets remain. Seven affected checks pass (three retained plus four final in 6.60s); bounded normal extraction proves unchanged 102 API entries and 59 caption identities, no active removed-helper target and no owning consumer rows. Root owns publication; broader CI/release acceptance remains open.

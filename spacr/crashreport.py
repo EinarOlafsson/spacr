@@ -3851,9 +3851,24 @@ def _install_native_error_capture(path=None):
     """Prepare faulthandler output; consume old records only in normal startup."""
     global _NATIVE_CAPTURE_HANDLE, _NATIVE_EXCEPTION_HOOK
     import faulthandler
-    from .logging_util import log_dir
-    path = Path(path) if path is not None else log_dir() / "spacr-crash.log"
-    _consume_native_crash(path)
+    try:
+        if path is None:
+            try:
+                from .logging_util import log_dir
+            except ImportError:
+                configured = os.environ.get("SPACR_HOME", "").strip()
+                home = Path(configured).expanduser() if configured else Path.home() / ".spacr"
+                path = home / "logs" / "spacr-crash.log"
+            else:
+                path = Path(log_dir()) / "spacr-crash.log"
+        else:
+            path = Path(path)
+    except (OSError, RuntimeError, TypeError, ValueError):
+        return ""
+    try:
+        _consume_native_crash(path)
+    except ImportError:
+        pass
     if _NATIVE_CAPTURE_HANDLE is not None:
         return str(path)
     try:
@@ -3865,11 +3880,18 @@ def _install_native_error_capture(path=None):
             with path.open("rb") as previous:
                 previous.seek(old_size - keep)
                 tail = previous.read(keep)
-            ack = _read_state().get("native_fatal_ack") or {}
-            old_offset = int(ack.get("offset", 0)) if ack.get("path") == str(path) else 0
+            try:
+                ack = _read_state().get("native_fatal_ack") or {}
+            except ImportError:
+                ack = None
+            old_offset = int(ack.get("offset", 0)) if ack is not None and ack.get("path") == str(path) else 0
             path.write_bytes(marker + tail)
-            _update_state(native_fatal_ack={
-                "path": str(path), "offset": len(marker) + max(0, old_offset - old_size + len(tail))})
+            if ack is not None:
+                try:
+                    _update_state(native_fatal_ack={
+                        "path": str(path), "offset": len(marker) + max(0, old_offset - old_size + len(tail))})
+                except ImportError:
+                    pass
         handle = path.open("a", buffering=1, encoding="utf-8")
         session = {
             "known": True, "id": str(uuid.uuid4()),
@@ -3900,7 +3922,7 @@ def _install_native_error_capture(path=None):
         if _NATIVE_EXCEPTION_HOOK is None:
             _NATIVE_EXCEPTION_HOOK = install_excepthook()
         return str(path)
-    except OSError:
+    except (OSError, RuntimeError, ImportError):
         return ""
 
 
