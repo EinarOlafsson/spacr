@@ -189,3 +189,83 @@ def test_expected_channel_validation_is_a_user_error_without_hiding_programming_
     assert crashreport.classify_failure(traceback_text=formatted) == crashreport.KIND_USER_ERROR
     assert crashreport.classify_failure(IndexError("unexpected array indexing")) == crashreport.KIND_FAULT
     assert crashreport.classify_failure(ValueError("unexpected implementation error")) == crashreport.KIND_FAULT
+
+
+def test_reference_normalization_and_plate_conditions_preserve_raw_export_data(tmp_path, monkeypatch):
+    from pypdf import PdfReader
+    from spacr import plot, tabular
+    from spacr.figures import style
+
+    reference = np.array([[10, 20], [30, 40]], dtype=np.uint16)
+    target = np.array([[15, 25], [35, 45]], dtype=np.uint16)
+    original_bytes = {}
+    for plate, plane in (("p1", reference), ("p2", target)):
+        for channel in (1, 2):
+            path = tmp_path / f"{plate}_A01_F1_C{channel}.tif"
+            tifffile.imwrite(path, plane * channel)
+            original_bytes[path] = path.read_bytes()
+    fields = browser._overview_index(tmp_path, source_scope="folder")
+    assert [(field.plate, field.well) for field in fields] == [("p1", "A01"), ("p2", "A01")]
+    conditions = {("p1", "A01"): "reference", ("p2", "A01"): "treated"}
+    plan = browser._overview_normalization_plan(fields, (1, 2), {
+        "mode": "reference_well", "percentiles": (0, 100),
+        "reference": ("p1", "A01"), "reference_channel": 1,
+        "mean_match": True, "conditions": conditions,
+    }, browser._overview_raw_planes)
+    assert plan["bounds"] == {1: (10., 40.), 2: (10., 40.)}
+    assert plan["gains"] == {1: 1., 2: .5}
+    expected = []
+    for plane in (reference, target):
+        normalized = np.clip((plane.astype(np.float64) - 10.) / 30., 0., 1.).astype(np.float32)
+        rgb = np.zeros(plane.shape + (3,), np.uint8)
+        rgb[..., 0] = rgb[..., 1] = np.uint8(normalized * 255)
+        expected.append(rgb)
+    for field, rgb in zip(fields, expected):
+        np.testing.assert_array_equal(browser._overview_pixels(
+            field, (1, 2), edge=None, normalization=plan), rgb)
+    captured, styled = [], []
+    actual_save, actual_style = plot.save_figure, style._apply_user_style
+
+    def apply_style(figure, *args, **kwargs):
+        styled.append(figure)
+        return actual_style(figure, *args, **kwargs)
+
+    def save(figure, *args, **kwargs):
+        assert figure in styled
+        drawn = [np.asarray(axis.images[0].get_array()).copy() for axis in figure.axes]
+        registered = [np.asarray(image).copy() for image in figure._spacr_image]
+        captured.append((drawn, registered, figure._spacr_spec))
+        return actual_save(figure, *args, **kwargs)
+
+    monkeypatch.setattr(style, "_apply_user_style", apply_style)
+    monkeypatch.setattr(plot, "save_figure", save)
+    output = tmp_path / "export"
+    written, errors = browser._overview_export(fields, output, (1, 2), (0, 100),
+        measurements=True, quality_edge=None, dpi=150,
+        normalization=plan, conditions=conditions)
+    assert len(written) == 1 and errors == ()
+    assert len(captured) == 1
+    drawn, registered, spec = captured[0]
+    assert spec["original_resolution"] is True and spec["normalization"] == plan
+    for actual, data, rgb in zip(drawn, registered, expected):
+        np.testing.assert_array_equal(actual, rgb)
+        np.testing.assert_array_equal(data, rgb)
+    embedded = PdfReader(written[0]).pages[0].images
+    assert len(embedded) == 2
+    actual_images = [np.asarray(image.image.convert("RGB")) for image in embedded]
+    assert all(image.shape == (2, 2, 3) for image in actual_images)
+    assert {image.tobytes() for image in actual_images} == {image.tobytes() for image in expected}
+    table = tabular.read_table(output / "overview_measurements.csv", canonicalise=False)
+    for field, raw in zip(fields, (reference, target)):
+        row = table.loc[table["plate"] == field.plate].iloc[0]
+        assert row["condition"] == conditions[(field.plate, field.well)]
+        assert row["field_id"] == 1 and row["well"] == "A01"
+        for channel in (1, 2):
+            assert row[f"channel_{channel}_intensity_mean"] == float((raw * channel).mean())
+            assert row[f"channel_{channel}_source"] == dict(field.files)[str(channel)]
+    metadata = json.loads((output / "overview_selection.json").read_text())
+    assert metadata["normalization"]["gains"] == {"1": 1., "2": .5}
+    assert [(record["plate"], record["well"], record["field_id"], record["condition"])
+            for record in metadata["fields"]] == [("p1", "A01", "1", "reference"), ("p2", "A01", "1", "treated")]
+    assert metadata["measurements"]["intensity_units"] == "raw_stored_pixel_values"
+    assert all(path.read_bytes() == content for path, content in original_bytes.items())
