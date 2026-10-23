@@ -3857,7 +3857,7 @@ class _OverviewMetadataWizard(QDialog):
         for row, (name, values) in enumerate(rows):
             for column, value in enumerate((name,) + tuple(values.get(key, "") or "" for key in
                     ("plateID", "wellID", "fieldID", "timeID", "sliceID", "chanID"))):
-                self.preview.setItem(row, column, table_item(str(value), key=str(value)))
+                self.preview.setItem(row, column, table_item(str(value)))
         self.preview.setSortingEnabled(True)
         available = tuple(info["channels"])
         requested = self._settings.get("channels") or ()
@@ -3881,7 +3881,7 @@ class _OverviewMetadataWizard(QDialog):
         self.conditions.setRowCount(len(wells))
         for row, pair in enumerate(wells):
             for column, value in enumerate(pair + ("",)):
-                item = table_item(str(value), key=str(value))
+                item = table_item(str(value))
                 if column < 2:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self.conditions.setItem(row, column, item)
