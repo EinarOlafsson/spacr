@@ -77,9 +77,9 @@ Record actual outcomes and any missing route/prerequisite in at most five
 dated trailing lines; root owns integration/publication of resulting fixes.
 
 --------------------------------------------------------------------------------
-CURRENT WINDOWS ACCEPTANCE - RESUMED 2026-10-21
+CURRENT WINDOWS ACCEPTANCE - RESUMED 2026-10-22
 
-Maintainer resumes the previously held Windows lane. Codex Windows scope owns
+Maintainer resumes the previously held Windows lane on 2026-10-22. Retain the40 passing Qt uninstall/coordinator checks; native Preferences preview/category/cancel uses a disposable profile and a verified2GiB cap. The N703 owner retains the existing real installed runtime until updater acceptance finishes; reuse it only after an explicit ownership transfer, with no duplicate installation. Codex Windows scope owns
 actual Preferences/Performance uninstall preview, scope/default-category and
 cancel checks on native Windows QPA, plus guarded removal only where every
 selected software/data path is verified disposable and test-owned. Exercise
@@ -88,6 +88,8 @@ registry, shared caches and user data. Retain existing portable/Windows results,
 and distinguish actual dialog/filesystem checks from native NSIS /PURGE or a
 complete installed-desktop uninstall. Coordinate updater fixtures with the
 separate N703 owner; installer PowerShell sources remain with the offline owner.
+
+2026-10-22 Windows native Preferences preview/cancel PASS on8e6a76b38/Python3.10.22/Qt6.11.2/windows QPA under2GiB: production discovery, four scopes/eight categories, model opt-out/default Cancel; three owned sentinels and host registry unchanged, helper never called, normal exit. Retain40 Qt passes; destructive installed-root acceptance awaits explicit N703 runtime transfer.
 
 --------------------------------------------------------------------------------
 CURRENT MAC SESSION: NATIVE UNINSTALL AND CLEANUP ACCEPTANCE

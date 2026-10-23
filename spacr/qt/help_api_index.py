@@ -13840,6 +13840,7 @@ SETTING_CONSUMERS = {
     'min_samples': (('spacr.core', 'generate_image_umap'), ('spacr.settings', 'set_default_umap_image_settings'),),
     'min_total_intensity': (('spacr.settings', 'set_analyze_invasion_defaults'), ('spacr.submodules', 'analyze_invasion'),),
     'min_train_masks': (('spacr.submodules', 'train_cellpose'),),
+    'minimum_object_size': (('spacr.plaque', 'segment_plaque_image'), ('spacr.settings', 'get_analyze_plaque_settings'),),
     'mix': (('spacr.core', 'generate_image_umap'), ('spacr.core', 'reducer_hyperparameter_search'), ('spacr.settings', 'set_default_umap_image_settings'),),
     'mixed_control_wells': (('spacr.settings', 'get_perform_regression_default_settings'), ('spacr.well_spec', 'control_block_wells'),),
     'mixed_precision': (('spacr.deep_spacr', 'train_model'), ('spacr.settings', 'deep_spacr_defaults'), ('spacr.settings', 'get_train_test_model_settings'), ('spacr.settings', 'set_default_train_test_model'),),

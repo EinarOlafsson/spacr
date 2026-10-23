@@ -35,6 +35,8 @@ def snapshot(prefix):
 
 @pytest.fixture
 def online(tmp_path, monkeypatch):
+    monkeypatch.setenv('USERPROFILE', str(tmp_path / 'home'))
+    monkeypatch.setenv('HOME', str(tmp_path / 'home'))
     root = tmp_path / 'home' / 'AppData' / 'Local' / 'spaCR'
     venv = root / 'venv'
     scripts = venv / 'Scripts'
