@@ -3466,19 +3466,19 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
     mode = options.get("mode", "image")
     if mode not in ("image", "shared", "reference_well", "reference_row",
                     "reference_column", "reference_condition"):
-        raise ValueError(tr("Choose a supported normalization mode."))
+        raise _OverviewValidationError(tr("Choose a supported normalization mode."))
     percentiles = tuple(float(value) for value in options.get("percentiles", (1., 99.)))
     if len(percentiles) != 2 or not 0 <= percentiles[0] < percentiles[1] <= 100:
-        raise ValueError(tr("The lower percentile must be below the upper percentile."))
+        raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile."))
     channels = tuple(channels)
     if not channels or len(set(channels)) != len(channels):
-        raise ValueError(tr("Choose at least one distinct available channel."))
+        raise _OverviewValidationError(tr("Choose at least one distinct available channel."))
     reference_channel = options.get("reference_channel")
     if reference_channel is not None and reference_channel not in channels:
-        raise ValueError(tr("The reference channel must be selected for display."))
+        raise _OverviewValidationError(tr("The reference channel must be selected for display."))
     mean_match = bool(options.get("mean_match", False))
     if mean_match and reference_channel is None:
-        raise ValueError(tr("Choose a reference channel before enabling mean-matched display scaling."))
+        raise _OverviewValidationError(tr("Choose a reference channel before enabling mean-matched display scaling."))
     conditions = dict(options.get("conditions") or {})
     reference = options.get("reference")
     if isinstance(reference, list):
@@ -3488,7 +3488,7 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
         selected = tuple(field for field in selected
                          if _overview_reference_key(field, mode, conditions) == reference)
         if not selected or reference in (None, ""):
-            raise ValueError(tr("The selected normalization reference has no fields."))
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
     indices = np.linspace(0, len(selected) - 1, min(128, len(selected)), dtype=int)
     sampled = tuple(selected[index] for index in indices)
     bounds = {}
@@ -3497,7 +3497,7 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
     needs_sample = mode != "image" or reference_channel is not None
     if needs_sample:
         if not sampled:
-            raise ValueError(tr("No fields are available for normalization."))
+            raise _OverviewValidationError(tr("No fields are available for normalization."))
         for field in sampled:
             if cancelled is not None and cancelled.is_set():
                 raise CancelledError()
@@ -3506,7 +3506,7 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
                 if cancelled is not None and cancelled.is_set():
                     raise CancelledError()
                 if channel not in samples or channel in found:
-                    raise ValueError(tr("The normalization sample has ambiguous channels."))
+                    raise _OverviewValidationError(tr("The normalization sample has ambiguous channels."))
                 found.add(channel)
                 values = np.asarray(raw).ravel()
                 values = values[np.isfinite(values)]
@@ -3514,11 +3514,11 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
                     positions = np.linspace(0, values.size - 1, min(2048, values.size), dtype=int)
                     samples[channel].append(np.asarray(values[positions], dtype=np.float64))
             if found != set(channels):
-                raise ValueError(tr("A selected channel is missing from the normalization sample."))
+                raise _OverviewValidationError(tr("A selected channel is missing from the normalization sample."))
         pooled = {}
         for channel, pieces in samples.items():
             if not pieces:
-                raise ValueError(tr("This channel has no finite pixels."))
+                raise _OverviewValidationError(tr("This channel has no finite pixels."))
             pooled[channel] = np.concatenate(pieces)
             if mode != "image":
                 bounds[channel] = tuple(float(value) for value in np.percentile(
@@ -3529,7 +3529,7 @@ def _overview_normalization_plan(fields, channels, options, read_planes, cancell
         if mean_match:
             means = {channel: float(np.mean(values)) for channel, values in pooled.items()}
             if any(not math.isfinite(value) or value <= 0 for value in means.values()):
-                raise ValueError(tr("Channel-reference scaling requires positive finite sample means."))
+                raise _OverviewValidationError(tr("Channel-reference scaling requires positive finite sample means."))
             gains = {channel: means[reference_channel] / value for channel, value in means.items()}
     return {"mode": mode, "percentiles": percentiles, "bounds": bounds,
             "gains": gains, "reference": reference, "reference_channel": reference_channel,
@@ -3555,24 +3555,24 @@ def _overview_normalized_planes(planes, plan, field=None):
             source = np.asarray(raw)
             values = source[np.isfinite(source)]
             if not values.size:
-                raise ValueError(tr("This channel has no finite pixels."))
+                raise _OverviewValidationError(tr("This channel has no finite pixels."))
             image_bounds[channel] = np.percentile(values, plan["percentiles"])
         reference_channel = plan.get("reference_channel")
         if reference_channel is not None:
             if reference_channel not in image_bounds:
-                raise ValueError(tr("The reference channel must be selected for display."))
+                raise _OverviewValidationError(tr("The reference channel must be selected for display."))
             image_bounds = {channel: image_bounds[reference_channel] for channel in image_bounds}
     output = []
     for channel, path, raw in planes:
         source = np.asarray(raw)
         finite = np.isfinite(source)
         if not finite.any():
-            raise ValueError(tr("This channel has no finite pixels."))
+            raise _OverviewValidationError(tr("This channel has no finite pixels."))
         if plan["mode"] == "image":
             low, high = image_bounds[channel]
         else:
             if channel not in plan["bounds"]:
-                raise ValueError(tr("A selected channel has no learned normalization bounds."))
+                raise _OverviewValidationError(tr("A selected channel has no learned normalization bounds."))
             low, high = plan["bounds"][channel]
         result = np.zeros(source.shape, dtype=np.float32)
         if high > low:
@@ -3588,7 +3588,10 @@ def _overview_metadata_preview(filenames, pattern):
     import re
     from ..regex_detect import apply_regex
 
-    compiled = re.compile(pattern, re.I)
+    try:
+        compiled = re.compile(pattern, re.I)
+    except re.error as error:
+        raise _OverviewValidationError(str(error)) from error
     names = tuple(Path(name).name for name in filenames)[:20]
     records, missed = apply_regex(names, compiled)
     by_name = {record.filename: record.groups for record in records}
@@ -3925,24 +3928,24 @@ class _OverviewMetadataWizard(QDialog):
     def configuration(self):
         """Return validated metadata and display choices for the browser worker."""
         if not self._info or not self.next.isEnabled():
-            raise ValueError(tr("Preview the current source metadata before continuing."))
+            raise _OverviewValidationError(tr("Preview the current source metadata before continuing."))
         try:
             channels = tuple(int(value.strip()) for value in self.channels.text().split(","))
         except ValueError:
-            raise ValueError(tr("Choose only channel IDs reported by this image's metadata.")) from None
+            raise _OverviewValidationError(tr("Choose only channel IDs reported by this image's metadata.")) from None
         if not channels or len(set(channels)) != len(channels) or not set(channels) <= set(self._info["channels"]):
-            raise ValueError(tr("Choose only channel IDs reported by this image's metadata."))
+            raise _OverviewValidationError(tr("Choose only channel IDs reported by this image's metadata."))
         if not self.low.value() < self.high.value():
-            raise ValueError(tr("The lower percentile must be below the upper percentile."))
+            raise _OverviewValidationError(tr("The lower percentile must be below the upper percentile."))
         mode = self.mode.currentData()
         reference = self.reference.currentData()
         if mode.startswith("reference_") and reference is None:
-            raise ValueError(tr("The selected normalization reference has no fields."))
+            raise _OverviewValidationError(tr("The selected normalization reference has no fields."))
         gain = self.gain.currentData()
         if self.mean_match.isChecked() and gain is None:
-            raise ValueError(tr("Choose a reference channel before enabling mean-matched display scaling."))
+            raise _OverviewValidationError(tr("Choose a reference channel before enabling mean-matched display scaling."))
         if gain is not None and gain not in channels:
-            raise ValueError(tr("The reference channel must be selected for display."))
+            raise _OverviewValidationError(tr("The reference channel must be selected for display."))
         return {"source": self.source.text(), "custom_regex": self.regex.text(),
                 "microscope": self.preset.currentData(), "source_scope": self.scope.currentData(),
                 "geometry": tuple(self.geometry.currentData()),
@@ -3958,7 +3961,7 @@ class _OverviewMetadataWizard(QDialog):
         """Accept only a valid current configuration; report errors in place."""
         try:
             self.configuration()
-        except ValueError as error:
+        except _OverviewValidationError as error:
             self.status.setText(str(error))
             return
         self.accept()

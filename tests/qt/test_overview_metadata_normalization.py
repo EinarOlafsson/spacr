@@ -273,3 +273,17 @@ def test_metadata_wizard_immediate_cancel_never_starts_work_or_accumulates_forms
             assert not isValid(previous)
         assert len(owner.findChildren(browser._OverviewMetadataWizard)) == 1
         previous = wizard
+
+
+def test_overview_known_constraints_use_configuration_error_without_reclassifying_faults():
+    from spacr.errors import ConfigurationError
+
+    with pytest.raises(browser._OverviewValidationError) as refusal:
+        browser._overview_normalization_plan((_field(),), (0,),
+            {"mode": "reference_well", "reference": ("missing", "A01")}, None)
+    assert isinstance(refusal.value, ConfigurationError)
+    assert isinstance(refusal.value, ValueError)
+    with pytest.raises(browser._OverviewValidationError):
+        browser._overview_metadata_preview(("name.tif",), "(")
+    with pytest.raises(KeyError):
+        browser._overview_normalized_planes(((0, "a", np.ones((2, 2))),), {})
