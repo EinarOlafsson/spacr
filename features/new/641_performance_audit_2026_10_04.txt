@@ -16,6 +16,28 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+Scoped shutdown follow-up: isolate normal MainWindow.close with the two
+production ambient compiler-start routes held at an owned test barrier, without
+real compilation or user settings. Check natural process termination after the
+event loop returns; always release and reap the exact child. Non-daemon compiler
+threads are a possible production exit delay, not an attribution of the retained
+15–25 s diagnostic tails. The initial isolated offscreen diagnostic fails at
+natural exit: normal close and
+event-loop return both succeed, but grain/satin compiler threads remain
+non-daemon and hold the process until the owned barrier is released. The child
+then exits0 naturally (11.49 s test, sampled RSS0.534GiB). An initial bootstrap
+indentation error was corrected before this finding. That whole-warm barrier
+cannot fairly test cooperative cancellation and was replaced by an actual
+owned-helper subprocess plus a queued warmer; it also fails before repair.
+Private lifecycle repair keeps non-daemon compilers, stops/reaps only the owned
+helper, blocks new compilation/publication after quit, and reports already-active
+local compilation honestly rather than interrupting LLVM. Fractal cancellation
+checkpoints preserve ordinary frozen/smoke/no-cache fallback. The affected CPU
+cohort has35passes plus its sole failed grain fixture passing after isolating its
+intended fake in-process compiler (5.59s/0.327GiB); the first failure allowed an
+unintended helper before its5s entry gate, but no exact delay attribution was
+captured. No owned worker/helper remains; native close acceptance is pending.
+
 Next scoped Mac font check: from normal Home startup, open the public command
 palette and parentless shortcut-help fallback sequentially at default 90% GUI/
 font; inspect actual widget fonts/QSS and alias warnings before any repair.

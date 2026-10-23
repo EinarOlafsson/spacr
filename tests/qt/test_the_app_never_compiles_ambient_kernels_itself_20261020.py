@@ -103,6 +103,6 @@ def test_priming_is_refused_in_a_frozen_build(monkeypatch):
     monkeypatch.setattr(sys, "frozen", True, raising=False)
     assert not ambient._priming_allowed()
     ran = []
-    monkeypatch.setattr(subprocess, "run", lambda *a, **k: ran.append(a))
+    monkeypatch.setattr(subprocess, "Popen", lambda *a, **k: ran.append(a))
     assert ambient._prime_in_helper_process() is False
     assert ran == []

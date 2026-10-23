@@ -36,6 +36,8 @@ def _unit_pixel_scale(monkeypatch, _restore_font_scale):
 
 @pytest.fixture(autouse=True)
 def isolated_compiler(monkeypatch):
+    monkeypatch.setattr(ambient, '_COMPILER_STOP', threading.Event())
+    monkeypatch.setattr(ambient, '_COMPILER_THREADS', set())
     for thread in threading.enumerate():
         if thread.name == 'spacr-grain-compile':
             thread.join(10)
