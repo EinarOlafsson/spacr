@@ -1035,3 +1035,35 @@ def test_real_object_filters_live_under_the_table_and_keep_the_alpha_gate(qtbot,
         assert values['real_object_classifier'] == '/saved/model.joblib'
         assert values['real_object_threshold'] == .73
         assert values['object_filters'] == original_filters
+
+
+def test_revealing_real_object_filters_retains_deliberate_horizontal_scroll(qtbot, monkeypatch, tmp_path):
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.settings_search import ALL, install
+
+    monkeypatch.setattr(preferences, '_settings',
+                        lambda: QSettings(str(tmp_path / 'navigation.ini'), QSettings.IniFormat))
+    preferences.set_show_alpha(True)
+    preferences._set_show_alpha_features(True)
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    bar = install(screen)
+    bar.set_level(ALL)
+    screen._settings_scroll.setMaximumWidth(360)
+    screen.resize(1100, 750)
+    screen.show()
+    qtbot.wait(0)
+    horizontal = screen._settings_scroll.horizontalScrollBar()
+    vertical = screen._settings_scroll.verticalScrollBar()
+    assert horizontal.maximum() > 0
+    for key, position in [('real_object_threshold', 0),
+                          ('real_object_classifier', min(40, horizontal.maximum()))]:
+        horizontal.setValue(position)
+        vertical.setValue(0)
+        assert bar.reveal(key)
+        qtbot.wait(50)
+        assert horizontal.value() == position
+        assert vertical.value() > 0
+        assert screen._settings_model._widgets[key].hasFocus()

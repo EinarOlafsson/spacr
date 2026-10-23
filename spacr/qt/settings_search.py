@@ -500,9 +500,13 @@ class SettingsSearchBar(QWidget):
         """
         try:
             scroll = self._screen.findChild(QScrollArea)
+            horizontal = scroll.horizontalScrollBar() if scroll is not None else None
+            position = horizontal.value() if horizontal is not None else None
             if scroll is not None:
                 scroll.ensureWidgetVisible(field, 0, 40)
             field.setFocus(Qt.ShortcutFocusReason)
+            if horizontal is not None:
+                horizontal.setValue(position)
         except RuntimeError:
             LOG.debug("the row went away before it could be shown")
 

@@ -76,6 +76,49 @@ entry. Use an
 icon-only control with the existing translated label as tooltip and accessible
 name. Preserve source/channel/normalization context and opening behavior.
 
+EXPANDED REQUEST (2026-10-23)
+Repair the real multichannel reader IndexError and investigate the reported native
+SIGSEGV through actual async lifetime evidence. Discover real axes/channel counts,
+validate requested indices with available-channel guidance, and preserve separate
+file channel identities without assuming a zero-based filename convention.
+The source icon first opens microscope metadata setup using Generate Masks preset
+and custom-regex controls with real filename parse previews and available channels.
+Make raw versus derived subfolder scope explicit, preview available filename channel
+IDs and stack indices separately, and offer a valid default for the official plate1
+sample without silently skipping incompatible selected files.
+Choose coverslip or plate geometry (6/12/24/96/384 and supported others), then Next
+opens a thumbnail plate browser initially fitting the entire chosen plate on desktop
+and small windows, with setup/export details collapsed and well details hidden until
+explicitly opened. Preserve selection separately from opening; cursor-centered zoom
+requests progressively sharper images. Provide translucent blue hover, responsive multiresolution
+zoom, well opening, FOV/Z/T navigation where present, click/rubber-band comparison,
+and condition annotations scoped to plate/row/column/wells. Provide explicit save/load
+of plate-qualified assignments with stable identity validation, defined replacement
+behavior, condition CSV/PDF provenance and a user-chosen destination; never write
+automatically into input folders. Configure representative
+1/N fields per well and Z/T choices. Define percentile, reference-channel and
+reference-well/column/condition normalization mathematically and expose its scope;
+never invent missing reference data. Reference-channel bounds apply the same raw
+low/high to every selected channel; mean matching uses all finite raw sampled pixels
+including zeros, then clip((gain*x-ref_low)/(ref_high-ref_low),0,1), with undefined
+or nonpositive means refused. Add a distinct display mode matching each well
+mean to the equal-well reference average (well/row/column/condition), using only
+chosen FOV/Z/T representatives and deterministic raw samples. Reference conditions
+are plate-qualified. Keep the existing bounds/channel modes distinct and unchanged.
+Label these operations display scaling, never measurement.
+Export whole or selected views at plate/well/
+field levels while retaining original raw measurement CSV and source-icon placement.
+Validate real YXC/CYX and separate-file missing/ambiguous channels, cancellation and
+widget lifetime, metadata preview, navigation/selection, reference normalization,
+PDF provenance and bounded selected-plane reads for large T/Z stacks. Navigation
+orders dimensions naturally and never substitutes another well for missing planes.
+PDF rendering uses full source at chosen quality independently of thumbnail caches,
+adapts page layout to actual panel count, and keeps channel labels plus display
+normalization/reference/sample provenance legible. The metadata opener reuses a
+visible wizard only for the same current source; a changed source replaces it.
+All new captions require normal reviewed
+translations and generated artifacts before atomic publication/whole acceptance.
+
 ACCEPTANCE
 - Reuse the existing filename-regex and image metadata workflow to resolve each
   field to its plate, well, row and column. Show unresolved metadata honestly;
@@ -136,3 +179,5 @@ ACCEPTANCE
 2026-10-23 — Overview plate cells use the shared factory without changing physical coordinates, displayed counts, read-only flags or raw well identity. All six related registration/parity/HiDPI/bare-cell/sort-declaration gates plus the actual numeric/arrival-order identity control pass (7 tests,44.94 s); independent source/test peer accepted. Existing captions, API docs and source line counts are unchanged, so runtime/API/consumer generation is inapplicable. PUBLICATION PENDING under root.
 
 2026-10-23 — Shared plate cells retain well identity and physical layout; all seven related structural and sorting-identity checks pass with independent source review. Root integrates the exact validated source for nightly/main publication; API/runtime/consumer records and all prior delivered requirements are unchanged.
+
+2026-10-23 — Reopened for the user reader IndexError/native-crash report and expanded metadata-first overview workflow; ownership and acceptance above supersede the earlier completed scope while retaining all delivered raw CSV/PDF/icons. Reader/lifecycle repair and metadata/browser/normalization work proceed in disjoint retained-agent leases; root owns final publication and whole-item acceptance.
