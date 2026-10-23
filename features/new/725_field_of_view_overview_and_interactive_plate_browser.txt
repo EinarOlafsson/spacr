@@ -185,6 +185,16 @@ controls clear, Options88x68 fits, plate1388→1368 does not jump with Options;
 opaque embedding/navigation/thread drain/input preservation/normal close pass.
 Child0/39.934s/RSS1.079GiB/zero missed/no aliases. Readability is not certified;
 the maximum-scale construction blocker is unchanged.
+Affected unprofiled maximum99706/LjKc2X on568dc00b6 reaches actual Mask ready
+16.057505s, but the original combined host phase exceeds20s while also building
+the metadata wizard (approximately6s more, including Measure build5.323s).
+The wizard is embedded and workspace/wizard style-opacity observations pass; Next,
+browser and Options are not reached/certified. Natural child1/43.747s/
+RSS1.152GiB/zero missed, unchanged input and normal close. Preserve this failed
+combined-phase verdict. Next oracle review separates distinct module readiness
+and metadata opening into their own unchanged20s budgets; do not enlarge a
+budget, hide constructor time or infer an unproven layout defect. No new product
+change beyond the separately validated pacing repair is assumed.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 
