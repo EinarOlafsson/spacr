@@ -269,22 +269,51 @@ def test_arbitrary_plate_folder_names_never_merge_their_fields(tmp_path):
 @pytest.mark.parametrize("module,object_name", [
     ("mask", "GenerateMasksFieldOverview"), ("make_masks", "MakeMasksFieldOverview"),
 ])
-def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, module, object_name):
-    from PySide6.QtWidgets import QPushButton
+def test_both_mask_modules_open_the_same_lazy_overview(qtbot, monkeypatch, tmp_path, module, object_name):
+    from PySide6.QtWidgets import QAbstractButton, QToolButton
+    from spacr.qt.i18n import tr
     from spacr.qt.widgets import ambient
     monkeypatch.setattr(ambient, "_flow_graphics_possible", lambda: False)
+    source_path = str(tmp_path / "not_loaded")
     if module == "mask":
         from spacr.qt.screens.app_screen import AppScreen
         screen = AppScreen("mask")
+        source = screen._settings_model._widgets["src"]
+        source.setText(source_path)
+        expected = screen._settings_model.collect()
     else:
         from spacr.qt.screens.make_masks import MakeMasksScreen
         screen = MakeMasksScreen()
+        screen._folder = source_path
+        screen._canvas.norm_lo, screen._canvas.norm_hi = 3., 97.
+        expected = {"src": source_path, "normalization_percentiles": (3., 97.)}
     qtbot.addWidget(screen)
-    button = screen.findChild(QPushButton, object_name)
+    button = screen.findChild(QToolButton, object_name)
     assert button is not None
+    assert len(screen.findChildren(QAbstractButton, object_name)) == 1
+    assert not button.text() and not button.icon().isNull()
+    assert button.accessibleName() == tr("Field-of-view overview")
+    assert tr("Field-of-view overview") in button.toolTip()
+    if module == "mask":
+        assert button.parentWidget() is source
+        actions = source.actions()
+        folder = next(action for action in actions if action.objectName() == "SourceFolderBrowse")
+        assert actions.index(button.defaultAction()) == actions.index(folder) + 1
+        cloud = next(action for action in actions if action.objectName() == "CloudSourceBrowse")
+        assert actions.index(cloud) == actions.index(button.defaultAction()) + 1
+        assert not screen._actions_row.isAncestorOf(button)
+    else:
+        row = screen._io_group.layout().itemAt(1).layout()
+        assert row.itemAt(row.indexOf(screen._btn_open) + 1).widget() is button
+        assert not screen._view_controls.isAncestorOf(button)
     button.click()
     dialog = screen._field_overview
     assert isinstance(dialog, browser._FieldOverview)
+    assert dialog.source.text() == source_path
+    channels = expected.get("channels") or (0,)
+    assert dialog.channels.text() == ",".join(str(value) for value in channels)
+    assert dialog.normalise.isChecked() == bool(expected.get("normalize", True))
+    assert (dialog.low.value(), dialog.high.value()) == tuple(expected.get("normalization_percentiles") or (1., 99.9))
     assert dialog._fields == () and not dialog._cache
     assert not dialog._index_jobs.is_busy()
     dialog.close()

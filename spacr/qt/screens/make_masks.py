@@ -13577,6 +13577,19 @@ class MakeMasksScreen(QWidget):
         action.triggered.connect(lambda _checked=False: self._on_pick_file())
         self._btn_open.set_split_menu(open_menu)
         io_row.addWidget(self._btn_open)
+        from ..widgets.qc_field_browser import _open_field_overview
+
+        overview = QToolButton()
+        overview.setObjectName("MakeMasksFieldOverview")
+        overview.setIcon(iconset.icon("import_images"))
+        overview.setAutoRaise(True)
+        overview.setCursor(Qt.PointingHandCursor)
+        overview.setToolTip(tr("Field-of-view overview"))
+        overview.setAccessibleName(overview.toolTip())
+        overview.clicked.connect(lambda: _open_field_overview(
+            self, {"src": getattr(self, "_folder", ""),
+                   "normalization_percentiles": (self._canvas.norm_lo, self._canvas.norm_hi)}))
+        io_row.addWidget(overview)
         io_row.addWidget(self._build_organize_button())
         io_row.addWidget(self._build_test_data_button())
         io_row.addWidget(self._build_roi_button())
@@ -18452,15 +18465,6 @@ class MakeMasksScreen(QWidget):
         controls_row.setSpacing(SPACING["xs"])
         controls_row.addWidget(self._btn_reset_zoom, 0, Qt.AlignTop)
         controls_row.addWidget(self._btn_ruler, 0, Qt.AlignTop)
-        from ..i18n import tr
-        from ..widgets.qc_field_browser import _open_field_overview
-
-        overview = QPushButton(tr("Field-of-view overview"))
-        overview.setObjectName("MakeMasksFieldOverview")
-        overview.clicked.connect(lambda: _open_field_overview(
-            self, {"src": getattr(self, "_folder", ""),
-                   "normalization_percentiles": (self._canvas.norm_lo, self._canvas.norm_hi)}))
-        controls_row.addWidget(overview, 0, Qt.AlignTop)
         tabs.setTabBar(_ImageViewTabBar(controls))
         self._mask_stage = _VolumeStage(self._canvas, self)
         tabs.addTab(self._mask_stage, "Mask")

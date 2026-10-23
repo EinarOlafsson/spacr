@@ -1,8 +1,8 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-Status:    DONE 2026-10-22
+Status:    DONE
 Requested: maintainer, 2026-10-22
-Owner:     widgets_g1 raw-measurement CSV follow-up and delivery; original overview delivery retained
-Priority:  Current maintainer follow-up; original overview remains delivered
+Owner:     widgets_g1 / root — delivered; completed PDF/CSV delivery retained
+Priority:  Current maintainer UI correction; completed overview/PDF/CSV remain delivered
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
 
 REQUEST
@@ -16,6 +16,14 @@ Keep the delivered PDF overview behavior (complete fields downsampled for displa
 not original-resolution PDFs) and optionally export an image-level measurements
 CSV for the same selected fields. Measure original-resolution raw selected
 channel pixels, never normalized or downsampled display RGB.
+
+UI FOLLOW-UP REQUEST (2026-10-22)
+Move the Generate Masks overview entry out of the OPS/AI toolbar into the source
+field immediately beside its folder-browse icon. In standalone Make Masks, place
+it beside the existing Open File/Folder chooser in IO and remove the old tab-corner
+entry. Use an
+icon-only control with the existing translated label as tooltip and accessible
+name. Preserve source/channel/normalization context and opening behavior.
 
 ACCEPTANCE
 - Reuse the existing filename-regex and image metadata workflow to resolve each
@@ -54,8 +62,6 @@ ACCEPTANCE
   previews, selected-field CSV contents, error and cancellation paths. Translate
   new UI/metadata messages and regenerate affected outputs normally.
 
-2026-10-22 — Registered before implementation; retained overview pair owns the complete shared workflow, necessary validation, normal generation and publication.
-
 2026-10-22 — Shared lazy plate/well/field overview, channel/normalization controls and traceable PDF export passed 27 focused controls plus independent source, screenshot and PDF review. All 459 changed-caption translations passed independent AI meaning review; final normal source/catalog generation and publication remain pending under the retained coordinator.
 
 2026-10-22 — Delivered the shared responsive plate/well/field browser and traceable styled PDF export; 27 focused controls, independent source/screenshot/PDF review and both final runtime gates pass. Normal API remains unchanged; 459 AI-authored and independently AI-peered translations are published under immutable reviews 3f6f31cd, with all previous catalog values and metadata preserved.
@@ -63,3 +69,5 @@ ACCEPTANCE
 2026-10-22 — Reopened only the optional raw image-level CSV follow-up under widgets_g1; original overview/PDF delivery and its accepted 27 controls remain preserved. Raw whole-image ROI measurements, selected-channel provenance, errors/cancellation and atomic CSV/metadata output are the new acceptance gate.
 
 2026-10-22 — Optional original-resolution whole-image CSV measurements pass 13 focused controls and independent source review; 45 new runtime translations pass independent AI meaning review. The 45 independently peered runtime translations ship under immutable reviews f24e45ba; normal catalogs, caption-arrival/flow/consumer checks and final stock API checks pass. The original overview delivery is preserved; this change completes the optional CSV follow-up.
+
+2026-10-22 — Moved both overview entries to icon-only source-browse controls, removing the old toolbar/tab-corner buttons while retaining translated help, accessibility and opening context. Both owning entry checks and native source-icon adjacency pass; normal consumer output changes only source-line offsets and independent source/output review passes. This completes the UI follow-up; completed PDF and raw CSV delivery remain retained.
