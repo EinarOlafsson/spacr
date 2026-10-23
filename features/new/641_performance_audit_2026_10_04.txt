@@ -16,6 +16,41 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
+Separate current Mac ownership: attribute the new GUI200/font200 Mask host
+construction blocker before Overview725 on publisheda5014584ec. Native69770/
+dyQlZa retains its20s host-phase gate and fails before Overview: Home9.641s,
+Mask ready29.032s/8of48 controls painted, child1/51.170s/RSS1.116GiB/zero missed,
+unchanged fixture and normal close. Existing timings identify screen build
+22.607s,249-widget build17.378s and a settings-panel marker20.801s worked/
+0.285s breathed; these overlapping spans are NOT additive. Ambient34–40ms
+paints do not establish their contribution or caller causality. Read only the
+actual construction hotpath and existing call-count contracts first; preserve
+all controls/quality/readiness and the20s gate. No product fix or new job yet.
+This does not reopen the completed CPU audit or resolve the older rare280s
+locale stall, whose caller remains unknown.
+Focused synthetic-clock RED58300 demonstrates a scheduling defect in the real
+SettingsWidgets.build_sections loop: all64 controls/order and excluded-input
+flags are correct, but40ms event pumps cause39 consecutive pumps after control
+25 rather than leaving25ms of new widget work between pumps. One failure4.79s/
+RSS0.286GiB. Source sets the next deadline before, not after, processing events.
+This proves the scheduling mechanism, not its contribution to the native max-
+scale delay; keep production unchanged until the bounded unchanged-workload
+pump-count/duration diagnostic is collected. No native improvement claim.
+Unchanged native diagnostic12789/PRp0Tn on a5014584ec attributes105 exact
+_build_sections/MainThread event pumps totaling16.755047s (maximum0.630691s);
+99of104 intervening gaps are below25ms, minimum0.001005s. Every call retains
+ExcludeUserInputEvents and the original Qt descriptor is restored. Home9.575794s/
+Mask25.451773s; the original20s host gate fails, child1/48.201s/RSS1.116GiB/
+zero missed, unchanged inputs/accepted close. This is diagnostic timing, not
+performance acceptance; no external capture. Together with the causal RED it
+justifies only moving the next25ms deadline AFTER processEvents returns,
+preserving widget bodies/order and flags. No secondary index/layout change.
+Affected green32595 PASSES two checks in5.25s/RSS0.298GiB: the real64-control
+synthetic-clock build now performs two properly spaced pumps while retaining
+exact widget order/flags, and the existing declined-widget build contract passes.
+Independent source/test peer approves the single assignment move. Native
+joint-maximum readiness/layout acceptance remains pending; no speed claim yet.
+
 Mac owner: the current Mac session owns attribution of the isolated setup
 language-cycle timeout on d671f743c (707 follow-up3202). Its original280s
 watchdog terminated only the owned child; no locale epoch was certified.
