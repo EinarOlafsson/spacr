@@ -98,12 +98,13 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Detection Thresholds (5 settings)</summary>
+<summary>Detection Thresholds (6 settings)</summary>
 
 #### Detection Thresholds
 
 - **`CP_prob`** *(optional)* — (float) - Cellpose cellprob_threshold: the cell-probability cut-off applied to the network output when deciding which pixels belong to an object. Lower it (typically toward -6) to recover dim or partly detected objects and grow existing masks; raise it (toward 6) to drop faint false positives and shrink masks. Default 0. Default: `0`.
 - **`flow_threshold`** *(optional)* — (float) - Cellpose flow_threshold: the maximum allowed error between the predicted flow field and the flows recomputed from each candidate mask; masks above it are discarded. Raise it to keep more objects, including irregularly shaped ones; lower it to reject poorly formed masks and reduce false positives. Default 0.4. Default: `0.4`.
+- **`minimum_object_size`** *(optional)* — (float or int) - Minimum plaque area in square pixels of the input image or detected well crop. Objects smaller than this value are discarded. 0 keeps small objects; other segmentation filters still apply. Fractional values are accepted. Default 0. Default: `0.0`.
 - **`rescale`** *(optional)* — (bool) - Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False. Default: `False`.
 - **`resample`** *(optional)* — (bool) - Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen. Default: `False`.
 - **`fill_in`** *(optional)* — (bool) - Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks. Default: `True`.

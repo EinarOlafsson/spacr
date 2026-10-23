@@ -314,10 +314,16 @@ def test_no_widget_on_home_paints_an_opaque_slab(qtbot, qt_theme_applied):
 
     on = render(True)
     off = render(False)
+    assert on.size() == off.size()
+
+    def design_pixel(image, y):
+        x = round(60 * image.width() / 1600)
+        row = round(y * image.height() / 1000)
+        return QColor(image.pixel(x, row)).name()
 
     opaque = [
         y for y in range(10, 400, 10)
-        if QColor(on.pixel(60, y)).name() == QColor(off.pixel(60, y)).name()
+        if design_pixel(on, y) == design_pixel(off, y)
     ]
     assert not opaque, (
         f"{len(opaque)} sample points down the left of Home are unchanged by "

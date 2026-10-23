@@ -3615,10 +3615,15 @@ def _divide_or_cut(mask: np.ndarray, p0, p1,
     out = mask.astype(np.int64, copy=True)
     free_ids = _available_labels(mask)
     splits, cut = [], []
+    boxes = (_label_boxes(mask) if np.issubdtype(mask.dtype, np.integer)
+             and int(mask.max()) <= 65535 else None)
     for source in crossed:
-        rows, cols = np.nonzero(mask == source)
-        box = (slice(int(rows.min()), int(rows.max()) + 1),
-               slice(int(cols.min()), int(cols.max()) + 1))
+        if boxes is None:
+            rows, cols = np.nonzero(mask == source)
+            box = (slice(int(rows.min()), int(rows.max()) + 1),
+                   slice(int(cols.min()), int(cols.max()) + 1))
+        else:
+            box = boxes[source]
         part, strip = out[box], band[box]
         body = part == source
         remainder = body & ~strip

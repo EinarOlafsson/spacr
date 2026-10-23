@@ -16501,7 +16501,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 13180,
+    "line": 13220,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -30598,7 +30598,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_filters",
-    "line": 4294,
+    "line": 4299,
     "module": "spacr.qt.mask_engine",
     "nested": false,
     "qualname": "settings_filters"

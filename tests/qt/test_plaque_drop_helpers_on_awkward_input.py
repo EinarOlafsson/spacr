@@ -251,7 +251,7 @@ def test_a_pdf_that_cannot_start_reading_is_reported(tmp_path, monkeypatch):
     assert started == [(pdfs, str(tmp_path))]
 
 
-def test_a_pdf_dropped_in_plaque_mode_asks_for_figure_mode(
+def test_a_pdf_in_plaque_mode_opens_live_without_changing_mode(
         tmp_path, monkeypatch):
     import spacr.qt.dnd as dnd
 
@@ -262,11 +262,16 @@ def test_a_pdf_dropped_in_plaque_mode_asks_for_figure_mode(
     panel = SimpleNamespace(mode=lambda: PLAQUE_MODE,
                             fetch_paper=lambda *a: started.append(a) or True)
 
-    dh.PlaqueDropHandler._take_pdfs([tmp_path / "a.pdf"], _screen(panel))
+    screen = _screen(panel)
+    opened = []
+    screen._on_preview_switch = lambda on, *, autoload: opened.append((on, autoload))
+    pdf = tmp_path / "a.pdf"
+    dh.PlaqueDropHandler._take_pdfs([pdf], screen)
 
-    assert started == []
-    assert reported == ["Switch Plaque Assay to Figure mode, then drop the "
-                        "PDF again."]
+    assert started == [(str(pdf), str(tmp_path))]
+    assert reported == []
+    assert panel.mode() == PLAQUE_MODE
+    assert opened == [(True, False)]
 
 
 def test_a_paper_folder_dropped_in_figure_mode_becomes_the_source(

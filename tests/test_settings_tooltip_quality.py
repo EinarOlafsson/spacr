@@ -17,6 +17,7 @@ that blanket waiver was retired.
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -1032,7 +1033,19 @@ def test_real_default_claims_have_no_unrecorded_drift():
     assert len(session_reference_arrivals) == 8
     assert session_reference_arrivals <= compared_pairs
     assert not session_reference_arrivals & variants.keys()
-    assert comparisons - len(session_reference_arrivals) == 931
+    plaque_minimum_arrival = {("analyze_plaques", "minimum_object_size")}
+    assert {pair for pair in compared_pairs
+            if pair[1] == "minimum_object_size"} == plaque_minimum_arrival
+    assert not plaque_minimum_arrival & (session_reference_arrivals | variants.keys())
+    assert hashlib.sha256(tooltips["minimum_object_size"].encode()).hexdigest() == (
+        "6578fba958edfa0e2b49aa42171e32ebe6d4cc7c4dca058abdac043342445399")
+    assert resolve_default_settings("analyze_plaques")["minimum_object_size"] == 0.0
+    minimum_claim = list(DEFAULT_LITERAL.finditer(tooltips["minimum_object_size"]))
+    assert len(minimum_claim) == 1
+    assert ast.literal_eval(minimum_claim[0].group("value")) == 0
+    recognized_arrivals = session_reference_arrivals | plaque_minimum_arrival
+    assert len(recognized_arrivals) == 9
+    assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716
@@ -1084,7 +1097,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_537_min_division)
             + len(item_548_pool)
             + len(item_685) + len(item_537_rules)
-            == comparisons - len(session_reference_arrivals))
+            == comparisons - len(recognized_arrivals))
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-630 in features/new, 76 in features/future. BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5.
+633 in features/new, 76 in features/future. BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5.
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
 do not establish current acceptance; use dated trailing evidence.
@@ -907,3 +907,6 @@ NEW FEATURES
   720  OPEN A DROPPED PLAQUE-ASSAY PDF IN LIVE PREVIEW
   721  CONFIGURABLE MINIMUM OBJECT SIZE IN PLAQUE SETTINGS
   722  APPLY THE PLAQUE FIGURE VIEW MODE TO THE SELECTED SINGLE WELL
+  723  BROWSE BUTTONS FOR EVERY SOURCE-FOLDER INPUT
+  724  SAVE ANY PLAQUE ASSAY TABLE FROM ITS CONTEXT MENU
+  725  FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT

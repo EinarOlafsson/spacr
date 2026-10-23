@@ -235,6 +235,16 @@ def test_thread_census_returns_to_baseline_after_runs_are_cancelled(
     runs do not leak" says nothing about it. This is the path a user takes
     every time they press Stop.
     """
+    def _thread_details():
+        return {
+            "python": [(t.name, type(t).__name__, t.ident, t.native_id)
+                       for t in threading.enumerate()],
+            "live_registered_qthreads": sum(
+                h.is_running() for h in registry().active()
+                if getattr(h, "thread", None) is not None),
+            "parked_qthreads": parked_thread_count(),
+        }
+
     def _cycle(index: int):
         started = threading.Event()
 
@@ -257,17 +267,21 @@ def test_thread_census_returns_to_baseline_after_runs_are_cancelled(
     _cycle(-1)
     qtbot.waitUntil(lambda: _drained("census-stop-"), timeout=5000)
     base_py, base_os = threading.active_count(), _os_threads()
+    before_threads = _thread_details()
 
     for index in range(_CYCLES):
         _cycle(index)
 
     qtbot.waitUntil(lambda: _drained("census-stop-"), timeout=5000)
+    after_threads = _thread_details()
     assert threading.active_count() - base_py <= 0, (
         f"Python threads grew {base_py} -> {threading.active_count()} "
-        f"over {_CYCLES} cancelled runs")
+        f"over {_CYCLES} cancelled runs; "
+        f"before={before_threads}; after={after_threads}")
     assert _os_threads() - base_os <= _SLACK, (
         f"OS threads grew {base_os} -> {_os_threads()} over {_CYCLES} "
-        f"cancelled runs; a per-run leak would show up as ~{_CYCLES}")
+        f"cancelled runs; a per-run leak would show up as ~{_CYCLES}; "
+        f"before={before_threads}; after={after_threads}")
 
 
 # ---------------------------------------------------------------------------

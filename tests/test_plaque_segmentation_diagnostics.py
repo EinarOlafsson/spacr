@@ -337,10 +337,19 @@ def test_plaque_minimum_uses_native_pixel_area_without_rounding(
             return filtered, [], None
 
     class Backend:
-        def eval(self, images, **kwargs):
+        def eval(self, images, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+            check_cellpose_eval_call(
+                images, channel_axis, z_axis=z_axis, do_3D=do_3D,
+                stitch_threshold=stitch_threshold, require_channel_axis=False)
             assert len(images) == 1
             assert images[0].shape == labels.shape
-            size = kwargs.get('min_size', 15)
+            size = min_size
             seen.append(size)
             filtered = cellpose_utils.fill_holes_and_remove_small_masks(
                 labels.copy(), min_size=size)
@@ -361,8 +370,17 @@ def test_cellpose3_compatibility_without_an_explicit_minimum_keeps_native_defaul
     seen = []
 
     class Backend:
-        def eval(self, images, **kwargs):
-            size = kwargs.get('min_size', 15)
+        def eval(self, images, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+            check_cellpose_eval_call(
+                images, channel_axis, z_axis=z_axis, do_3D=do_3D,
+                stitch_threshold=stitch_threshold, require_channel_axis=False)
+            size = min_size
             seen.append(size)
             return [cellpose_utils.fill_holes_and_remove_small_masks(
                 labels.copy(), min_size=size)], [[]], None
@@ -374,18 +392,39 @@ def test_cellpose3_compatibility_without_an_explicit_minimum_keeps_native_defaul
 
 
 def test_native_minimum_area_is_applied_after_return_to_input_pixels(monkeypatch):
+    from cellpose import models
+
     coarse = np.zeros((6, 6), dtype=np.uint16)
     coarse[2:4, 2:4] = 1
     seen = []
+    minimums = []
+    native_filter = dynamics.utils.fill_holes_and_remove_small_masks
 
-    def computed(*args, **kwargs):
-        seen.append(kwargs)
-        return coarse.copy()
+    def network(net, image, **kwargs):
+        fields = np.zeros((1, 6, 6, 3), dtype=np.float32)
+        fields[0, :, :, 2] = np.where(coarse, 1.0, -1.0)
+        return fields, np.zeros((1, 256), dtype=np.float32)
 
+    def computed(dP, cellprob, **kwargs):
+        seen.append((dP.shape, cellprob.shape))
+        return (cellprob > 0).astype(np.uint16)
+
+    def filtered(masks, min_size=15):
+        minimums.append(min_size)
+        return native_filter(masks, min_size=min_size)
+
+    monkeypatch.setattr(models, 'run_net', network)
     monkeypatch.setattr(dynamics, 'compute_masks', computed)
-    result = dynamics.resize_and_compute_masks(
-        np.zeros((2, 6, 6), np.float32), np.zeros((6, 6), np.float32),
-        resize=(12, 12), min_size=8.5, device=torch.device('cpu'))
+    monkeypatch.setattr(dynamics.utils, 'fill_holes_and_remove_small_masks', filtered)
+    model = object.__new__(models.CellposeModel)
+    model.device = torch.device('cpu')
+    model.net = object()
+    model.backbone = 'sam_vitl'
+    result = plaque.segment_plaque_image(
+        model, np.zeros((12, 12), dtype=np.float32),
+        {'diameter': 60, 'minimum_object_size': 8.5})
     assert len(seen) == 1
+    assert seen == [((2, 12, 12), (12, 12))]
+    assert minimums == [8.5]
     assert result.shape == (12, 12)
     assert _plaque_areas(result) == [16]

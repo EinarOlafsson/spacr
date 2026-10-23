@@ -261,10 +261,10 @@ def _read(db_path: str, table: str) -> pd.DataFrame:
                            canonicalise=False, report=None)
 
 
-def _keys_in(frame: pd.DataFrame) -> List[str]:
+def _keys_in(frame: pd.DataFrame, *, include_file_name: bool = False) -> List[str]:
     """Return canonical identity columns present, in identity order."""
     return [c for c in (*IDENTITY, "timeID", "time_id", "file_name")
-            if c in frame.columns]
+            if c in frame.columns and (include_file_name or c != "file_name")]
 
 
 def object_keys(values: pd.Series) -> pd.Series:
@@ -583,7 +583,7 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
         wanted.append(PNG_TABLE)
 
     base = _read(db_path, policy.primary)
-    keys = _keys_in(base)
+    keys = _keys_in(base, include_file_name=True)
     if OBJECT_COLUMN not in base.columns:
         raise MergeError(
             f"{policy.primary} has no {OBJECT_COLUMN}, so nothing can be "
@@ -607,12 +607,12 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
             continue
 
         if is_one_row_per_cell(table):
-            skip = set(_keys_in(child)) | {anchor, "prcf", "prcfo"}
+            skip = set(_keys_in(child, include_file_name="file_name" in keys)) | {anchor, "prcf", "prcfo"}
             rolled = child.rename(
                 columns={c: (c if c.startswith(f"{table}_") else f"{table}_{c}")
                          for c in child.columns if c not in skip})
         else:
-            child_keys = _keys_in(child) + [anchor]
+            child_keys = _keys_in(child, include_file_name="file_name" in keys) + [anchor]
             rolled = roll_up(child, child_keys, name=table, policy=policy)
             rolled = rolled.rename(columns={anchor: OBJECT_COLUMN})
         on = [c for c in keys + [OBJECT_COLUMN] if c in rolled.columns]

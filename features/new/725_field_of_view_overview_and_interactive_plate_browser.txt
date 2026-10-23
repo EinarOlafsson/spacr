@@ -1,0 +1,36 @@
+FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
+==============================================================
+Status:    IN PROGRESS
+Requested: maintainer, 2026-10-22
+Owner:     widgets_g3 implementation and delivery; maintainer_input_coordinator independent peer
+Priority:  Start now; deliver complete shared workflow in both requested modules
+Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
+
+REQUEST
+Add an overview submodule to both Generate Masks and Make Masks. Given a source,
+channel choices and normalization settings, it must create representative PDFs
+and let users explore their fields of view interactively, including high-content
+plates.
+
+ACCEPTANCE
+- Reuse the existing filename-regex and image metadata workflow to resolve each
+  field to its plate, well, row and column. Show unresolved metadata honestly;
+  do not silently assign an image to an invented well or combine different plates.
+- Provide source-folder browsing, channel selection and normalization controls
+  consistent with spaCR image display. Preview and exported PDFs use those choices.
+- Provide a plate overview with quick click/zoom navigation into wells and their
+  fields, and easy zoom/back navigation to the plate. Retain navigation context.
+- Remain responsive for high-content datasets using bounded, lazy image/thumbnail
+  loading and caching; avoid loading every full-resolution field into RAM. Handle
+  cancellation, source changes, unreadable files and missing channels gracefully.
+- At plate, row, column, well and field views, support PDF export of the relevant
+  fields: representative examples, random samples per selected well/row/column,
+  and explicit user selections. Offer sample counts and reproducible random
+  selection; include channel and field/well identities so examples are traceable.
+- Use spacr.plot.save_figure and existing figure styling for publication-quality
+  PDFs. Share the workflow between both module entry points without new spacr
+  modules. Translate UI text and regenerate affected artifacts with their tools.
+- Validate real small multichannel/plate fixtures, regex grouping, navigation,
+  selection/random sampling, normalization, PDF output and bounded lazy loading.
+
+2026-10-22 — Registered before implementation; retained overview pair owns the complete shared workflow, necessary validation, normal generation and publication.

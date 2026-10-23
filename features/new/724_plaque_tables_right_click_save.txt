@@ -1,0 +1,25 @@
+SAVE ANY PLAQUE ASSAY TABLE FROM ITS CONTEXT MENU
+================================================
+Status:    IN PROGRESS
+Requested: maintainer, 2026-10-22
+Owner:     widgets_g2 implementation and delivery; widgets_g1 independent peer
+Priority:  Start now alongside release CI
+Related:   468 plaque modes; 424 plaques from published papers
+
+REQUEST
+In Plaque Assay, right-clicking any generated table must offer a save action,
+including the well-level and plaque-level tables.
+
+ACCEPTANCE
+- Cover every generated table in both Plaque and Figure workflows, including
+  live/result tables. Reuse an existing shared table-export menu where suitable.
+- Export the corresponding table with clear column headings and accurate values;
+  preserve object/well identifiers, numeric precision and the applicable visible
+  sorting/filtering contract. Never export another table or stale results.
+- Use the existing save dialog and supported tabular export formats through
+  spacr.tabular. Cancellation leaves files unchanged; report write failures
+  through the existing interface and preserve overwrite confirmation.
+- Translate new actions and test well/plaque exports, current-table identity,
+  cancellation and empty results. Regenerate affected outputs normally.
+
+2026-10-22 — Registered before implementation; retained plaque pair owns implementation, validation, generated outputs and publication end to end.

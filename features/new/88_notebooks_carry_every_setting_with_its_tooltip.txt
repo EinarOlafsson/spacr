@@ -2,13 +2,12 @@
 EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
 ================================================================================
 
-Status:    DONE 2026-10-21 — generated notebooks retained; exported-run input validation repaired
-Current follow-up: acceptance coordinator and retained worker repair export_run's
-required run-folder/manifest.json/settings.json validation before any output
-creation or overwrite. Preserve the public FileNotFoundError contract, existing
-helper semantics, malformed-settings behavior and all published standard/Colab
-outputs. Prove missing inputs preserve a custom destination and valid runs export;
-no notebook regeneration, API prose changes, science execution or network.
+Status:    DONE 2026-10-22 — current generated references ship with this atomic publication
+Current follow-up: obsolete_repo_cleanup alone regenerates the standard and Colab
+notebooks and linked references from final current settings, including the plaque
+minimum_object_size setting and compact reviewed exclusion help. Preserve compact
+initial views, all settings/defaults, native forms and existing workflow content;
+use the producer and focused freshness/description checks without heavy analyses.
 Requested: 2026-08-13 - "Add to instructions to make sure that all notebooks
            contain all settings for the functions (at least the main
            functions) and classes they use, with tooltips for each setting"
@@ -183,3 +182,7 @@ VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_notebook_sett
 2026-10-21 — Maintainer reopens: hide ALL long overview/settings/essential/API/function explanations behind explicit help controls or linked generated references, without relying on Markdown HTML or cell metadata. obsolete_repo_cleanup alone owns producer-generated compact standard notebooks plus a new Colab set with native forms, opt-in setup/data/run/output controls and current complete settings; explicitly replace/delete the six legacy notebooks. Validate schemas, forms/code, live lightweight controls and the initial rendered view; signed-in Colab acceptance is separate and must not be claimed without testing. Root integrates and publishes after review. Ready:32 compact standard notebooks +32 native-form Colab notebooks replace legacy;31 generated references retain current tooltips/APIs and optional preparation/classification guidance. Retained443 owning passes plus one new output-preview case (444 distinct), native-form/safe-off gates and real clicked Help/advanced behavior; metadata-free Chrome export confirms no hidden prose is exposed. Root independently verified all64 notebooks/511 Python cells, empty outputs/unique IDs, actual compact Chrome view and native form metadata. Normal generation and nightly publication complete; signed-in Colab execution and heavy scientific runs are not claimed. Post-publication follow-up normalizes reference EOF in the producer (one affected page; drift1pass), confirms the published helper SHA matches Colab, and verifies the real signed-out public Colab page displays native compact forms/TOC with code hidden and only5 essential mask fields; no runtime was connected or cells executed.
 
 2026-10-21 — Exported runs now enforce the existing missing-run/manifest/settings FileNotFoundError contract before destination creation or overwrite, while retaining private-reader and malformed-present-input behavior. Six missing-input/destination controls, OSError preservation and valid exports pass in 17 focused checks; independent source peer accepted. No public prose/API/generated notebooks changed; prior 32 standard + 32 Colab acceptance remains. This bounded repair is published with this change.
+
+2026-10-22: REOPENED for actualNight02f Coverage2 job120012567210: regenerate missing plaque minimum_object_size descriptions/settings after accepted721 and the final compact exclusion tooltip. The retained sole notebook owner will use the normal producer after both source/category dependencies are frozen, retain all standard/Colab paths and validate the three actual freshness/description failures; root owns final review/publication.
+
+2026-10-22: DONE with this atomic publication: the normal notebook producer refreshed exactly three linked references (Plaque, ML Classify, image UMAP) against the compact reviewed exclusion tooltip plus categorized plaque cutoff. All64 standard/Colab notebook files and interactive helpers remain unchanged; the three actual freshness/description/compact-help checks pass (19.28 s). Source dependencies are the approved category and compact-tooltip candidates; no heavy workflow or duplicate UI matrix was run.

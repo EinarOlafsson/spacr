@@ -76,7 +76,7 @@ def identity_columns(frame):
     :param frame: An object measurement frame.
     :returns: Ordered identity columns, excluding the object label.
     """
-    return _keys_in(frame)
+    return _keys_in(frame, include_file_name=True)
 
 
 def _identifiers(columns):
@@ -110,7 +110,7 @@ def default_definition(path, tables, *, name="Merged measurements", base=None,
         raise MergeError("Missing tables: " + ", ".join(sorted(missing)))
     policy = policy or MergePolicy(primary=base)
     base_columns = [c[0] for c in available[base]]
-    keys = _keys_in(pd.DataFrame(columns=base_columns))
+    keys = _keys_in(pd.DataFrame(columns=base_columns), include_file_name=True)
     joins = []
     for table in tables:
         if table == base:

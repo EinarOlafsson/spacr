@@ -829,3 +829,20 @@ def test_destroying_the_canvas_retires_its_active_worker(
     finally:
         release.set()
         worker.close(timeout=0)
+
+
+@pytest.mark.parametrize("label", [7, 2**31 + 7])
+def test_divide_boxes_cover_disconnected_parts_with_dense_or_sparse_ids(label):
+    labels = np.zeros((18, 24), dtype=np.uint32)
+    labels[2:15, 2:9] = label
+    labels[2:15, 14:22] = label
+    labels[0:2, 0:2] = label + 2
+    before = labels.copy()
+    stroke = ((0, 8), (23, 8))
+    new, splits, cut = engine._divide_or_cut(labels, *stroke)
+    old, old_splits, old_cut = _old_divide_or_cut(labels, *stroke)
+    np.testing.assert_array_equal(new, old)
+    assert new.dtype == old.dtype
+    assert (splits, cut) == (old_splits, old_cut)
+    assert len(splits) == 3 and cut == []
+    np.testing.assert_array_equal(labels, before)

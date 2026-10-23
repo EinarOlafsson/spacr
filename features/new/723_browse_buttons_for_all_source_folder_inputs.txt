@@ -1,0 +1,25 @@
+BROWSE BUTTONS FOR EVERY SOURCE-FOLDER INPUT
+===========================================
+Status:    IN PROGRESS
+Requested: maintainer, 2026-10-22
+Owner:     widgets_g5 implementation and delivery; widgets_g4 independent peer
+Priority:  Start now alongside release CI; preserve ongoing scientific work
+Related:   639 import organization; 353 shared source/data picker
+
+REQUEST
+Anywhere in spaCR that accepts a source folder, provide a small adjacent button
+that opens a folder browser. Reuse an existing suitable button rather than
+adding a duplicate.
+
+ACCEPTANCE
+- Cover shared settings forms and custom source-folder controls in all modules.
+  A folder chooser must populate the correct setting and trigger the same
+  validation/refresh as typing or dropping that folder.
+- Preserve typing, drag/drop, saved settings, and existing multi-source semantics.
+  File-only inputs retain their appropriate file picker; cancel changes nothing.
+- Keep the button compact, keyboard accessible and clear through a translated
+  tooltip or accessible name. Reuse normal platform dialogs and existing styling.
+- Validate shared and custom controls, cancellation, and downstream value updates;
+  regenerate affected translations and generated consumers with their tools.
+
+2026-10-22 — Registered before implementation; retained UI pair owns implementation, focused validation, normal generation and publication end to end.

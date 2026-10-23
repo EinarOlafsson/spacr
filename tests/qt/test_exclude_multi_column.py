@@ -369,16 +369,25 @@ def test_excluded_columns_leave_the_feature_matrix_not_just_the_dict():
 
 
 def test_excluding_a_column_that_is_not_there_says_so():
-    """A typo in Exclude must not be silently ignored -- silently keeping a
-    feature the user asked to drop is the failure that has no symptom."""
+    """A typo warns while the valid exact-column selector still excludes."""
     from spacr.utils import filter_dataframe_features
 
-    frame = pd.DataFrame({"cell_channel_0_area": [1.0, 2.0]})
+    frame = pd.DataFrame({
+        "cell_channel_0_area": [1.0, 2.0],
+        "cell_channel_0_perimeter": [5.0, 9.0],
+    }, index=pd.Index(["well-a", "well-b"], name="observation"))
 
-    with pytest.raises(ValueError, match="cell_channel_0_arae"):
-        filter_dataframe_features(
+    with pytest.warns(
+            UserWarning,
+            match=r"Feature exclusion 'cell_channel_0_arae' matched no columns\."):
+        filtered, features = filter_dataframe_features(
             frame, channel_of_interest=0,
-            exclude=["cell_channel_0_area", "cell_channel_0_arae"])
+            exclude=["cell_channel_0_area", "cell_channel_0_arae"],
+            remove_low_variance_features=False,
+            remove_highly_correlated_features=False)
+
+    assert features == ["cell_channel_0_perimeter"]
+    pd.testing.assert_frame_equal(filtered, frame[["cell_channel_0_perimeter"]])
 
 
 def test_exclude_list_keys_is_what_the_widget_switch_reads():
