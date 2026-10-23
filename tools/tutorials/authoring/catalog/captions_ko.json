@@ -1371,7 +1371,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "이 메모리 사용량 시연에서는 같은 예제 시야를 타일 형태로 반복해 더 큰 배열을 만듭니다. 측정은 시작하지 않습니다. 실행이 시작되기 전에 spaCR은 프로젝트의 필드 하나로 워커 하나에 필요한 메모리를 추정합니다. 이어 붙인 모자이크처럼 매우 큰 필드에서는 요청한 워커가 사용 가능한 RAM에 들어가지 않을 수 있으며, 이때 spaCR이 먼저 묻습니다. 권장 워커 수를 고르거나, 지정한 수를 유지하고 메모리가 부족한 동안 Measure가 새 필드를 잠시 멈추게 하거나, 다른 프로그램을 닫아 메모리를 확보하세요.",
+          "narration": "실행이 시작되기 전에 spaCR은 프로젝트의 필드 하나로 워커 하나에 필요한 메모리를 추정합니다. 이어 붙인 모자이크처럼 매우 큰 필드에서는 요청한 워커가 사용 가능한 RAM에 들어가지 않을 수 있으며, 이때 spaCR이 먼저 묻습니다. 권장 워커 수를 고르거나, 지정한 수를 유지하고 메모리가 부족한 동안 Measure가 새 필드를 잠시 멈추게 하거나, 다른 프로그램을 닫아 메모리를 확보하세요.",
           "focus": [
             1620,
             860,
@@ -2372,8 +2372,9 @@
           "narration": "다음 단계로 도구 모음에서 Volcano Explorer, Hit List, Investigate Hit 중 하나를 여세요. 각 튜토리얼에서 선택한 결과를 살펴보는 방법을 보여 줍니다. 분석을 공유할 때는 입력 표, 저장된 설정, 결과 파일, 진단 보고서를 함께 두세요.",
           "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "73_parameter_sweep"
+            "72_volcano_explorer",
+            "48_hit_list",
+            "71_investigate_hit"
           ]
         }
       ],
@@ -2858,7 +2859,8 @@
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
-            "19_train_cellpose"
+            "19_train_cellpose",
+            "08_measure"
           ]
         }
       ],
@@ -3804,11 +3806,11 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Home에서 Make Masks를 연 뒤 Cellpose Workbench를 여세요. 기존 모델로 이미지를 분할하려면 Apply를 고르세요. 검토한 이미지와 마스크 쌍으로 새 가중치를 학습하려면 Train을 쓰세요.",
+          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "04_setting_src",
@@ -3888,11 +3890,11 @@
             2750,
             455
           ],
+          "hold_after": 0.7,
           "related_lessons": [
-            "07_mask",
-            "06_api"
-          ],
-          "hold_after": 0.7
+            "14_make_masks",
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -6975,8 +6977,8 @@
           "narration": "표를 살펴보려면 Database Browser로, 객체 크롭을 검토하려면 Annotate로 이어 가세요. 검토한 매핑은 완성된 프로젝트와 함께 보관하세요.",
           "hold_after": 0.7,
           "related_lessons": [
-            "06_api",
-            "08_measure"
+            "34_database",
+            "09_annotate"
           ]
         }
       ],
@@ -7921,21 +7923,21 @@
           "focus_modules": [
             "classify_merged"
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_02_family_choices",
           "narration": "객체 이미지로 학습하려면 Computer Vision을, 측정된 특징 열로 학습하려면 Tabular Machine Learning을 고르세요. 이 입력은 Measure가 만들고, Annotate에서 객체 라벨을 붙일 수 있습니다.",
+          "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_03_tabular_family",
@@ -7946,19 +7948,19 @@
             1150,
             1600
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "표 형식 예제에서는 Load test data를 클릭하고 Load를 선택하세요. 클래스 라벨과 특징 설정을 고른 뒤, 표 형식 강의를 따라 모델을 학습하고 예측을 저장하세요.",
+          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -7969,10 +7971,10 @@
             2050,
             1520
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "cv_24_batch_figure",
@@ -7983,10 +7985,10 @@
             3460,
             1440
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "10_classify_cv"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -7997,10 +7999,10 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "39_classifier_evaluation"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -8011,10 +8013,10 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "70_explain_cv"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -8025,10 +8027,10 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "16_activation"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -8039,18 +8041,18 @@
             950,
             160
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "28_training_runs"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Feature Explorer를 열어 선택한 그룹 사이의 측정 특징을 비교하세요. 그룹과 필터를 고른 뒤 특징 순위와 그래프를 확인하세요.",
+          "hold_after": 0.7,
           "related_lessons": [
             "65_feature_explorer"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8061,12 +8063,13 @@
             2050,
             1520
           ],
+          "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "10_classify_cv",
-            "11_classify_ml"
-          ],
-          "hold_after": 0.7
+            "11_classify_ml",
+            "13_regression"
+          ]
         }
       ],
       "narration_voices": {

@@ -722,6 +722,8 @@ class _DetachEveryDialog:
             kind = event.type()
             if kind not in self.moments:
                 return False
+            if isinstance(obj, self._dialog) and not obj.isWindow():
+                return False
             polished = kind == self._polish
             if polished and isinstance(obj, self._dialog):
                 if obj.property(_GLASS_DETACHED):

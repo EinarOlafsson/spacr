@@ -163,7 +163,8 @@
       "related_lessons": [
         "06_api",
         "10_classify_cv",
-        "11_classify_ml"
+        "11_classify_ml",
+        "13_regression"
       ],
       "hold_after": 0.7
     }

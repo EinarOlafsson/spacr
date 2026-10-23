@@ -210,7 +210,7 @@ def test_native_handler_installation_only_prepares_faulthandler(configured, tmp_
     handle = cr._NATIVE_CAPTURE_HANDLE
     assert enabled == [{"file": handle, "all_threads": True}]
     assert handle.fileno() >= 0
-    assert "spaCR started" in path.read_text()
+    assert "spaCR session" in path.read_text()
     assert relay.calls == outcomes == []
     handle.close()
 
@@ -240,7 +240,8 @@ def test_oversized_unconsented_native_record_keeps_a_bounded_pending_tail(config
     path.write_text(" " * cr.MAX_LOG_BYTES + "\nFatal Python error: Aborted\n", encoding="utf-8")
     cr._install_native_error_capture(path)
     handle = cr._NATIVE_CAPTURE_HANDLE
-    assert path.stat().st_size < cr.MAX_LOG_BYTES + 100
+    header = path.read_text().split("\n=== spaCR session ")[-1]
+    assert path.stat().st_size == cr.MAX_LOG_BYTES + len(("\n=== spaCR session " + header).encode())
     assert "Fatal Python error: Aborted" in path.read_text()
     assert relay.calls == []
     cr._update_state(affirmed_policy=policy)
@@ -712,3 +713,169 @@ def test_hook_transport_cannot_enable_a_previously_unconsented_occurrence(
     joined(dispatches[-1][1])
     assert len(relay.calls_to("/report")) == 1
     assert relay.calls_to("/diagnose") == []
+
+
+def test_native_session_capture_replays_its_own_public_versions_and_fixed_sources(configured, tmp_path, monkeypatch):
+    import faulthandler
+    import hashlib
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': ['native_session_v1']})]
+    monkeypatch.setattr(cr, '_NATIVE_CAPTURE_HANDLE', None)
+    monkeypatch.setattr(cr, '_NATIVE_EXCEPTION_HOOK', object())
+    monkeypatch.setattr(faulthandler, 'enable', lambda **kwargs: None)
+    monkeypatch.setattr(cr, '_spacr_version', lambda: '1.2.3')
+    monkeypatch.setattr(cr.platform, 'python_version', lambda: '3.12.11')
+    path = tmp_path / 'fatal.log'
+    assert cr._install_native_error_capture(path) == str(path)
+    handle = cr._NATIVE_CAPTURE_HANDLE
+    header = json.loads(path.read_text().split('=== spaCR session ')[1].split(' ===')[0])
+    assert header['spacr_version'] == '1.2.3'
+    assert header['python'] == '3.12.11'
+    assert cr._parse_reset(header['started_at']) is not None
+    assert set(header['source_sha256']) == {'package', 'app', 'gc_policy', 'crashreport'}
+    assert header['source_sha256']['crashreport'] == hashlib.sha256(cr.Path(cr.__file__).read_bytes()).hexdigest()
+    with path.open('a') as fatal:
+        fatal.write('Fatal Python error: Segmentation fault\n\nCurrent thread:\n  File "/home/private_person/closing.py", line 41 in closeEvent\n')
+    handle.close()
+    monkeypatch.setattr(cr, '_spacr_version', lambda: '9.9.9')
+    monkeypatch.setattr(cr.platform, 'python_version', lambda: '3.14.0')
+    joined(cr._consume_native_crash(path))
+    body = relay.calls_to('/report')[0]['body']
+    assert body['native_session'] == header
+    assert body['spacr_version'] == '9.9.9' and body['python'] == '3.14.0'
+    assert body['frames'][-1]['function'] == 'closeEvent'
+    assert cr._consume_native_crash(path) is None
+    assert 'private_person' not in json.dumps(body) and str(tmp_path) not in json.dumps(body)
+
+
+@pytest.mark.parametrize('prefix', ['', '=== spaCR started (pid 123) ===\n', '=== spaCR session {"known":true\n', '=== spaCR session null ===\n'])
+def test_native_legacy_or_truncated_session_is_explicitly_unknown(configured, tmp_path, prefix):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': ['native_session_v1']})]
+    path = tmp_path / 'fatal.log'
+    path.write_text(prefix + 'Fatal Python error: Aborted\n')
+    joined(cr._consume_native_crash(path))
+    assert relay.calls_to('/report')[0]['body']['native_session'] == {'known': False}
+
+
+def test_native_replay_does_not_borrow_a_following_session_and_retains_previous_header(configured, tmp_path):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': ['native_session_v1']})]
+    first = {'known': True, 'id': '14cbd541-b9a1-41f4-8f50-4b53ba84755a',
+             'started_at': '2026-10-23T18:00:00Z', 'spacr_version': '1.2.3',
+             'python': '3.12.11', 'qt': '6.11.2', 'source_sha256': {'app': 'a' * 64}}
+    second = dict(first, id='6ae2c2af-3e47-4bf8-9a19-f346ba655d34', python='3.14.0')
+    path = tmp_path / 'fatal.log'
+    path.write_text('=== spaCR session ' + json.dumps(first) + ' ===\n')
+    assert cr._consume_native_crash(path) is None
+    with path.open('a') as handle:
+        handle.write('Fatal Python error: Aborted\n\n=== spaCR session ' + json.dumps(second) + ' ===\n')
+    joined(cr._consume_native_crash(path))
+    assert relay.calls_to('/report')[0]['body']['native_session'] == first
+    with path.open('a') as handle:
+        handle.write('Fatal Python error: Aborted\n')
+    joined(cr._consume_native_crash(path))
+    assert relay.calls_to('/report')[1]['body']['native_session'] == second
+    assert cr._consume_native_crash(path) is None
+
+
+@pytest.mark.parametrize('capabilities', [[], ['native_session_v1']])
+def test_native_protocol_capability_is_required_before_sending_optional_field(configured, tmp_path, capabilities):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': capabilities})]
+    path = tmp_path / 'fatal.log'
+    path.write_text('Fatal Python error: Aborted\n')
+    joined(cr._consume_native_crash(path))
+    body = relay.calls_to('/report')[0]['body']
+    assert ('native_session' in body) == bool(capabilities)
+    if not capabilities:
+        assert 'not the crashed build' in body['user_note']
+    assert all(call['method'] == 'GET' for call in relay.calls_to('/health'))
+
+
+def test_native_session_rejects_arbitrary_paths_keys_and_digest_values(configured):
+    source = {'known': True, 'id': '14cbd541-b9a1-41f4-8f50-4b53ba84755a',
+              'started_at': '2026-10-23T18:00:00Z', 'spacr_version': '1.2.3',
+              'python': '3.12.11', 'qt': '6.11.2', 'source_sha256': {'app': 'a' * 64}}
+    assert cr._validated_summary({'native_session': source})['native_session'] == source
+    for malformed in (dict(source, hostname='private-host'),
+                      dict(source, source_sha256={'/home/private/app.py': 'a' * 64}),
+                      dict(source, source_sha256={'app': 'sk-abcdefghijklmnopqrstuv'}),
+                      dict(source, python='/home/private/python'),
+                      dict(source, started_at='2026-02-31T00:00:00Z')):
+        assert cr._validated_summary({'native_session': malformed})['native_session'] == {'known': False}
+
+
+@pytest.mark.parametrize('change', ['off', 'consent', 'network', 'none'])
+def test_native_health_lookup_cannot_override_a_new_optout(configured, tmp_path, monkeypatch, change):
+    relay, outcomes, ready = configured
+    entered = threading.Event()
+    release = threading.Event()
+    original = cr._open_url
+    def gated(request, timeout):
+        if request.full_url.endswith('/health'):
+            entered.set()
+            assert release.wait(5)
+        return original(request, timeout)
+    relay.routes['/health'] = [(200, {'capabilities': ['native_session_v1']})]
+    monkeypatch.setattr(cr, '_open_url', gated)
+    path = tmp_path / 'fatal.log'
+    path.write_text('Fatal Python error: Aborted\n')
+    thread = cr._consume_native_crash(path)
+    try:
+        assert entered.wait(5)
+        if change == 'off':
+            cr.set_error_report_mode('off')
+        elif change == 'consent':
+            cr._update_state(affirmed_policy={})
+        elif change == 'network':
+            monkeypatch.setenv(cr.NO_NETWORK_ENV, '1')
+        else:
+            policy = cr._read_state()['affirmed_policy']
+            cr._update_state(affirmed_policy=dict(policy, provider='none'))
+    finally:
+        release.set()
+    joined(thread)
+    assert relay.calls_to('/diagnose') == []
+    if change == 'none':
+        assert len(relay.calls_to('/report')) == 1
+        assert relay.calls_to('/report')[0]['body']['summarize'] is False
+    else:
+        assert relay.calls_to('/report') == []
+
+
+@pytest.mark.parametrize('user_note', ['', 'I pressed Close after opening the overview.', 'x' * 650, 'x' * 1000])
+def test_old_relay_note_preserves_public_crash_fingerprints_and_user_note(configured, user_note):
+    import hashlib
+    relay, outcomes, ready = configured
+    session = {'known': True, 'id': '14cbd541-b9a1-41f4-8f50-4b53ba84755a',
+               'started_at': '2026-10-23T18:00:00Z', 'spacr_version': '1.5.1.6',
+               'python': '3.12.11', 'qt': '6.11.2', 'source_sha256': {}}
+    package = cr.Path(cr.__file__).resolve().parent
+    for key, relative in (('package', '__init__.py'), ('app', 'qt/app.py'),
+                          ('gc_policy', 'qt/gc_policy.py'), ('crashreport', 'crashreport.py')):
+        session['source_sha256'][key] = hashlib.sha256((package / relative).read_bytes()).hexdigest()
+    summary = cr.public_summary(message='Native process termination: Aborted', module='native', user_note=user_note)
+    summary.update(native_session=session, summarize=False)
+    status, _ = cr._post_json('/report', summary, 1)
+    assert status == 200 and len(relay.calls_to('/report')) == 1
+    body = relay.calls_to('/report')[0]['body']
+    assert 'native_session' not in body and body['summarize'] is False
+    assert relay.calls_to('/diagnose') == []
+    note = body['user_note']
+    assert note.startswith(user_note) and len(note) <= cr.MAX_NOTE_CHARS
+    assert cr.scrub_public_text(note, cr.MAX_NOTE_CHARS) == note
+    if len(user_note) < 650:
+        assert 'not the crashed build' in note and 'Crashed session: 2026-10-23T18:00:00Z' in note
+        assert 'spaCR version v1.5.1.6' in note and 'Python version v3.12.11' in note
+        assert 'Qt version v6.11.2' in note
+        assert session['id'].replace('-', ' ') in note
+        assert 'Public installed-source SHA256 fingerprints (8 groups of 8 hex digits)' in note
+        for key, digest in session['source_sha256'].items():
+            grouped = ' '.join(digest[index:index + 8] for index in range(0, 64, 8))
+            assert key + ' ' + grouped in note
+    elif len(user_note) == 650:
+        assert 'Crash-session details kept locally (note limit)' in note
+        assert 'fingerprints' not in note
+    else:
+        assert note == user_note

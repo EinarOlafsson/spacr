@@ -2,7 +2,7 @@
 RESOLVE ALL OPEN GITHUB ISSUES; THE ITEM REOPENS WHENEVER ISSUES ARE ADDED
 ================================================================================
 
-Status:    OPEN — 1 open GitHub issue
+Status:    OPEN — 2 open GitHub issues
 Requested: maintainer, 2026-10-18 — "make an item that resolves all GitHub
            issues and gets reactivated every time issues are added, currently
            there are 4"
@@ -40,6 +40,42 @@ Issue161 reports a native segmentation fault while collect_once is on the stack;
 retain its exact environment/traceback, do not infer a native cause from that
 stack alone, and leave it open unless a demonstrated repair meets acceptance.
 Preserve Workstation2's N725 source lease and current Mac/Windows changes.
+
+CURRENT CRASH SESSION PROVENANCE FOLLOW-UP (2026-10-23)
+Issues161 and163 remain open with distinct native stacks/signatures and no
+demonstrated native cause. Issue162 is explained and closed after its geometry
+repair was published on main and nightly. widgets_g2 owns this bounded reporting
+follow-up; root owns independent review, integration and publication.
+Capture public crash-session provenance during normal startup: time, installed
+package/source identity where available, and Python/Qt versions, without paths,
+hostnames or secrets. Bind replay to the preceding complete session header;
+legacy, missing or truncated provenance is explicitly unknown and must not be
+presented as the current replay process's crashed build. Preserve affirmative
+consent, provider None, reporting Off, event deduplication and bounded retention.
+Fatal-signal handling remains faulthandler file output only, with no Python
+metadata collection, Qt or network work in the handler. Focused local transport
+controls must cover distinct sessions, legacy/truncation and privacy. This
+diagnosability repair does not resolve or authorize closing either native issue.
+Use an optional strictly allowlisted native_session protocol field and the
+existing relay's capability advertisement. Deploy that compatible relay change
+only after fake-transport tests and independent privacy review; clients must
+omit unsupported fields and explicitly mark missing crash provenance. Keep
+replay-process environment separate from crash-session facts.
+Relay deployment is BLOCKED ON MAINTAINER: existing authenticated OAuth lacks
+subscription-read permission (HTTP403). Verify Workers Free in the existing
+account before deployment; do not infer the plan from configured neuron caps.
+Also inspect the existing Worker's Settings > Build production branch and
+repository root: publishing service code must not trigger an unapproved build.
+Keep the ready relay patch private on both branches until both checks pass;
+then root may publish/deploy that patch with the existing limits unchanged.
+Until then the compatible client omits the unsupported protocol field and
+uses the existing note field for strictly validated public session facts.
+Label grouped source SHA256 values and crashed-versus-replay context explicitly;
+keep all existing scrubbers and the old relay's strict validator unchanged.
+Preserve the complete existing user note first. If both cannot fit its cap,
+retain session details locally and add a clear omission notice when space
+allows; never claim omitted hashes were transmitted. Legacy sessions remain
+explicitly unknown. Focused old-validator/renderer controls qualify this path.
 
 CURRENT VERIFIED ISSUE CLOSURE (2026-10-23)
 Issues158–160 have verified fixes on both main and nightly and are closed.
@@ -96,6 +132,7 @@ running the tool twice changes nothing.
 
 --- OPEN ISSUES (auto) ---
 #161 [user-report] NativeCrash in native: Native process termination: Segmentation fault (spacr-first-responder[bot], 2026-10-23)
+#163 [user-report] NativeCrash in native: Native process termination: Segmentation fault (spacr-first-responder[bot], 2026-10-23)
 --- END OPEN ISSUES ---
 
 2026-10-18 — Registered with the sync tool and the issues workflow. #146 (093ad790e) and #150 (9d8b49418) closed: item 696 already accepted 0/auto and float diameters; regression tests and the "an int" fix text added. #147 closed (9470f0466): Claude tool calls blocked for approval now get an Allow once / Don't allow dialog and a resumed session; other CLIs are told to hand over the command. #153 closed (03ef89e85): user error; the refusal names each channel setting and the acquired indices. #152: 4f0ff7e02 fixed the key matching and restores earlier suggestions after a failed round; maintainer then asked for chosen tables (own row, parent cell via parent key), feature classes by channel/family, and a scope of on-screen, all or chosen pages frozen at opening, remembered per database. Built as the Suggest menu's "Choose tables, features and images…" dialog (see the #152 commit); open until the maintainer confirms. The issues workflow fires only once issues-item.yml is on main (GitHub runs issue-event and dispatch workflows from the default branch), so the block updates automatically after the next release merge; before then run the tool by hand.
@@ -108,3 +145,7 @@ running the tool twice changes nothing.
 2026-10-23 — Maintainer requires a resolution explanation before closing every solved GitHub issue; AI/AGENTS.md rule38 records cause, behavior, fix links, validation and accurate release status. Posted and read back the explanations for issues158/159/160: comments6366062779/6366063513/6366064662; all distinguish merged main/nightly fixes from unreleased1.5.1.6. Existing zero-open status and dedicated watch remain unchanged.
 
 2026-10-23 — New reports161/162 reopen this item. The real metadata wizard reproduced162 at the hub geometry snapshot; renaming only its plate selector preserves QWidget.geometry, choices and configuration. Five focused CPU/Qt6.11.2 controls pass with an independent peer; root publication and the explanatory issue reply precede closure. Report161 remains open: the sanitized Python stack does not identify the native fault or reproduce its trigger; no native crash fix is claimed.
+
+2026-10-23 — Reports161/163 have distinct native stacks but no crashed-source identity; both remain open. Startup now records path-free session versions and four fixed installed-file hashes, replay binds only preceding complete headers, and legacy records stay explicitly unknown. Twenty CPU client controls and111 fake-relay controls pass with independent privacy review; consent/None/Off and signal safety are retained. The compatible client fallback is ready for root publication; relay code stays private and NOT deployed pending actual Workers Free and Git Build verification (subscription API403).
+
+2026-10-23 — Compatible old relays now receive strictly validated public session facts and labelled grouped source fingerprints through the existing scrubbed note field. The complete existing note has priority; space limits cause an explicit local-only notice when possible, without pretending omitted hashes were sent. Five affected CPU controls pass (0.67s), and the unchanged old relay validator/renderer accepts all four known/unknown/note-limit wire cases with readable crash-versus-replay context and zero AI/network calls. Prior capture/consent passes remain valid; the relay patch remains private and161/163 remain open. Root owns publication.

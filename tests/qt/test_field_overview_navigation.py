@@ -945,6 +945,8 @@ def test_finer_preview_preserves_source_camera_and_ignores_deselected_native_tar
     assert abs(final.width() * dialog.view.transform().m11() - displayed) < .01
     dialog._native_timer.stop()
     qtbot.waitUntil(lambda: not dialog._native_jobs.is_busy())
+    dialog._native_jobs.shutdown(timeout_ms=3000)
+    dialog._native_timer.stop()
     dialog.fields.setCurrentRow(-1)
     before = dialog.view._item.pixmap().toImage().copy()
     dialog._preview_edge = 256

@@ -1624,3 +1624,126 @@ def test_unhashable_physical_well_identity_refuses_before_backend_selection(iden
         fit_model(data, backend="numpyro")
     assert isinstance(error.value.__cause__, TypeError)
     assert probes == []
+
+
+@pytest.mark.parametrize("theta", [
+    [.4, -.6, -.8, .5, -4., -.5, -3.],
+    [-.7, .3, 1.2, -1.5, -1., 1.4, -1.2],
+    [.05, 1.1, -2., 2., .4, 3., .2],
+])
+def test_numpyro_marginal_target_and_outputs_ignore_unidentified_coordinates(
+        monkeypatch, theta):
+    """Unused z/lam factors normalize to one, including their support Jacobian.
+
+    Their analytical removal leaves the active marginal target unchanged.
+    Capture actual model closures and evaluate fixed latents without running
+    NUTS; padded outputs must still retain full gene order and NaN masking.
+    Poisson residuals have no separate residual-scale parameter.
+    """
+    jax = pytest.importorskip("jax")
+    pytest.importorskip("numpyro")
+    import jax.numpy as jnp
+    from dataclasses import replace
+    from numpyro import infer
+    from numpyro.infer.util import get_transforms, log_density, potential_energy
+    from scipy.integrate import quad
+    from scipy.stats import norm, t
+    from spacr.power_model import _prepare_design, _prior_calibration_counts
+
+    enable_x64 = getattr(jax, "enable_x64", None)
+    if enable_x64 is None:
+        from jax.experimental import enable_x64
+
+    def parameters(value):
+        return dict(z=value[:2], lam=jnp.exp(value[2:4]),
+                    tau=jnp.exp(value[4]), c2=jnp.exp(value[5]), intercept=value[6])
+
+    models, traces = [], []
+
+    class ConditionedOnly:
+        def __init__(self, model, **kwargs):
+            self.model = model
+
+        def run(self, key):
+            models.append(self.model)
+            _, self.trace = log_density(self.model, (), {}, parameters(jnp.asarray(theta)))
+            traces.append(self.trace)
+
+        def get_samples(self):
+            return {name: jnp.repeat(self.trace[name]["value"][None], 2, axis=0)
+                    for name in ("beta", "intercept")}
+
+        def get_extra_fields(self, **kwargs):
+            return {"diverging": np.zeros(2, dtype=bool)}
+
+    monkeypatch.setattr(infer, "NUTS", lambda model, **kwargs: model)
+    monkeypatch.setattr(infer, "MCMC", ConditionedOnly)
+    active = _calibration_design(repeat=True)
+    padded = replace(
+        active,
+        genes=np.array(["Intercept", "a", "ignored_middle", "b", "ignored_last"]),
+        log10expression=np.column_stack([
+            np.ones(active.n_wells), active.log10expression[:, 0],
+            np.full(active.n_wells, 4.), active.log10expression[:, 1],
+            np.full(active.n_wells, -2.)]),
+    )
+    assert _prior_calibration_counts(active) == _prior_calibration_counts(padded) == (2, 2)
+    active_fit = fit_model(active, backend="numpyro", standardize=True)
+    padded_fit = fit_model(padded, backend="numpyro", standardize=True)
+    active_model, padded_model = models
+    active_trace, padded_trace = traces
+    assert padded_trace["z"]["value"].shape == padded_trace["lam"]["value"].shape == (2,)
+    assert padded_trace["intercept"]["value"].shape == ()
+    np.testing.assert_array_equal(padded_fit.genes, padded.genes)
+    np.testing.assert_array_equal(padded_fit.draws[:, [1, 3]], active_fit.draws)
+    assert np.isnan(padded_fit.draws[:, [0, 2, 4]]).all()
+    assert padded_fit.draws.shape == (2, 5)
+    assert padded_fit.draws.dtype == np.float64
+    np.testing.assert_array_equal(padded_fit.intercept_draws, active_fit.intercept_draws)
+    assert padded_fit.diagnostics["n_unidentified"] == 3
+    assert padded_fit.diagnostics["tau0"] == active_fit.diagnostics["tau0"]
+
+    with enable_x64():
+        x, means, scales, identified = _prepare_design(padded, True)
+        active_x, active_means, active_scales, _ = _prepare_design(active, True)
+        np.testing.assert_array_equal(x[:, [1, 3]], active_x)
+        np.testing.assert_array_equal(x[:, [0, 2, 4]], 0)
+        np.testing.assert_array_equal(means[[1, 3]], active_means)
+        np.testing.assert_array_equal(scales[[1, 3]], active_scales)
+        np.testing.assert_array_equal(padded_fit.diagnostics["column_means"], means)
+        np.testing.assert_array_equal(padded_fit.diagnostics["column_scales"], scales)
+        assert padded_fit.diagnostics["beta_scale"] == active_fit.diagnostics["beta_scale"]
+        assert identified.tolist() == [False, True, False, True, False]
+
+        def density(model, value):
+            return log_density(model, (), {}, parameters(value))[0]
+
+        def energy(model, value):
+            constrained = parameters(value)
+            transforms = get_transforms(model, (), {}, constrained)
+            values = {key: transforms[key].inv(item)
+                      for key, item in constrained.items()}
+            return potential_energy(model, (), {}, values)
+
+        theta = jnp.asarray(theta)
+        for target in (density, energy):
+            padded_value, padded_gradient = jax.value_and_grad(
+                lambda value: target(padded_model, value))(theta)
+            active_value, active_gradient = jax.value_and_grad(
+                lambda value: target(active_model, value))(theta)
+            assert np.isfinite(np.asarray(padded_gradient)).all()
+            np.testing.assert_allclose(padded_value, active_value, rtol=1e-12, atol=1e-12)
+            np.testing.assert_allclose(padded_gradient, active_gradient, rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(np.asarray(padded_trace["beta"]["value"])[[1, 3]],
+                                   active_trace["beta"]["value"], rtol=1e-12, atol=1e-12)
+        full_obs, active_obs = padded_trace["obs"], active_trace["obs"]
+        np.testing.assert_array_equal(full_obs["value"], active.Npositive)
+        np.testing.assert_array_equal(full_obs["scale"], active.likelihood_weights)
+        np.testing.assert_allclose(full_obs["fn"].rate, active_obs["fn"].rate,
+                                   rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(full_obs["value"] - full_obs["fn"].rate,
+                                   active_obs["value"] - active_obs["fn"].rate,
+                                   rtol=1e-12, atol=1e-12)
+
+    assert quad(norm.pdf, -np.inf, np.inf)[0] == pytest.approx(1, abs=1e-10)
+    assert quad(lambda value: 2*t.pdf(value, df=10), 0, np.inf)[0] == pytest.approx(1, abs=1e-10)

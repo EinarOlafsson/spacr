@@ -1105,21 +1105,23 @@ def _fit_numpyro_nuts(
     with enable_x64():
         X_np, col_means, col_scales, identified = _prepare_design(model_data, standardize)
         n_wells, n_genes = X_np.shape
+        active_columns = np.flatnonzero(identified)
+        n_active = len(active_columns)
         baseline = max(float(model_data.Npositive.sum()), 0.5) / max(
             float(model_data.Ntotal.sum()), 1.0
         )
         mu0 = float(np.log(min(max(baseline, 1e-8), 1.0)))
 
-        X = jnp.asarray(X_np)
+        X = jnp.asarray(X_np[:, identified])
         y = jnp.asarray(model_data.Npositive)
         likelihood_weights = jnp.asarray(_observation_weights(model_data))
         log_offset = jnp.log(jnp.asarray(model_data.Ntotal, dtype=jnp.float64))
 
         def model():
             """Define the regularized-horseshoe Poisson model for NumPyro NUTS."""
-            z = numpyro.sample("z", dist.Normal(0.0, 1.0).expand([n_genes]))
+            z = numpyro.sample("z", dist.Normal(0.0, 1.0).expand([n_active]))
             lam = numpyro.sample(
-                "lam", dist.FoldedDistribution(dist.StudentT(df_local, 0.0, 1.0)).expand([n_genes])
+                "lam", dist.FoldedDistribution(dist.StudentT(df_local, 0.0, 1.0)).expand([n_active])
             )
             tau = numpyro.sample(
                 "tau", dist.FoldedDistribution(dist.StudentT(df_global, 0.0, tau0))
@@ -1132,9 +1134,11 @@ def _fit_numpyro_nuts(
             log_lam_tilde = log_lam - 0.5 * jnp.logaddexp(
                 0.0, 2.0 * log_tau + 2.0 * log_lam - jnp.log(c2)
             )
-            beta = numpyro.deterministic("beta", z * jnp.exp(log_tau + log_lam_tilde))
+            active_beta = z * jnp.exp(log_tau + log_lam_tilde)
+            numpyro.deterministic("beta",
+                                  jnp.zeros(n_genes).at[active_columns].set(active_beta))
             intercept = numpyro.sample("intercept", dist.StudentT(3.0, mu0, 2.5))
-            eta = intercept + X @ beta + log_offset
+            eta = intercept + X @ active_beta + log_offset
             with numpyro.handlers.scale(scale=likelihood_weights):
                 numpyro.sample("obs", dist.Poisson(jnp.exp(eta)), obs=y)
 

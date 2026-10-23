@@ -895,7 +895,7 @@ PUBLIC_SUMMARY_KEYS: Tuple[str, ...] = (
     "torch", "gpu", "module", "exception_type", "message", "frames",
     "user_note", "dry_run", "ai_summary", "summarize", "kind", "screen",
     "error_text", "chain", "settings", "inputs", "environment", "run",
-    "log_tail", "cause",
+    "log_tail", "cause", "native_session",
 )
 
 #: The relay refuses a body larger than this many bytes.
@@ -2140,6 +2140,27 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
         if source.get("user_note") else ""
     if note:
         out["user_note"] = note
+    session = source.get("native_session")
+    if isinstance(session, Mapping):
+        out["native_session"] = {"known": False}
+        fields = {"known", "id", "started_at", "spacr_version", "python", "qt", "source_sha256"}
+        hashes = session.get("source_sha256", {})
+        if (set(session) <= fields and session.get("known") is True
+                and isinstance(session.get("id"), str)
+                and _UUID_RE.fullmatch(session["id"])
+                and isinstance(session.get("started_at"), str)
+                and re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", session["started_at"])
+                and _parse_reset(session["started_at"]) is not None
+                and all(isinstance(session.get(key), str)
+                        and re.fullmatch(r"[0-9A-Za-z][0-9A-Za-z.+_-]{0,39}", session[key])
+                        for key in ("spacr_version", "python", "qt"))
+                and isinstance(hashes, Mapping)
+                and set(hashes) <= {"package", "app", "gc_policy", "crashreport"}
+                and all(isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value)
+                        for value in hashes.values())):
+            out["native_session"] = {
+                key: session[key] for key in ("known", "id", "started_at", "spacr_version", "python", "qt")}
+            out["native_session"]["source_sha256"] = dict(hashes)
     if source.get("dry_run") is True:
         out["dry_run"] = True
     summary_text = scrub_public_lines(source.get("ai_summary", ""),
@@ -2521,6 +2542,52 @@ def _post_json(route: str, payload: Optional[Mapping[str, Any]],
     import urllib.request
 
     headers = {"User-Agent": f"spaCR/{_safe_token(_spacr_version(), 40)}"}
+    if payload is not None and "native_session" in payload:
+        payload = dict(payload)
+        captured, could_explain, could_send = _automatic_error_policy(payload.get("kind", KIND_FAULT))
+        if not (could_explain if route == "/diagnose" else could_send):
+            raise RelayRefused("network", "automatic reporting disabled")
+        capable = False
+        if network_allowed():
+            try:
+                health_status, health = _post_json("/health", None, min(timeout, 3.0))
+                capable = health_status == 200 and "native_session_v1" in health.get("capabilities", [])
+            except (OSError, ValueError, TypeError):
+                pass
+        current, may_explain, may_send = _automatic_error_policy(payload.get("kind", KIND_FAULT))
+        if not network_allowed() or not (may_explain if route == "/diagnose" else may_send):
+            raise RelayRefused("network", "automatic reporting disabled")
+        if not may_explain or current.get("provider") != captured.get("provider"):
+            if route == "/diagnose":
+                raise RelayRefused("network", "AI provider changed")
+            payload.pop("ai_summary", None)
+            payload.pop("cause", None)
+            payload["summarize"] = False
+        if not mode_code_context(current["_mode"]):
+            for frame in payload.get("frames", []):
+                frame.pop("code", None)
+        if not capable:
+            session = _validated_summary(payload).get("native_session", {"known": False})
+            payload.pop("native_session", None)
+            existing = scrub_public_text(payload.get("user_note", ""), MAX_NOTE_CHARS)
+            details = ["Environment values describe the replay process, not the crashed build."]
+            if session["known"]:
+                details.append("Crashed session: " + session["started_at"]
+                               + "; random session UUID groups " + session["id"].replace("-", " ") + ".")
+                for key, label in (("spacr_version", "spaCR"), ("python", "Python"), ("qt", "Qt")):
+                    details.append(label + " version " + ("v" if session[key] != "unknown" else "") + session[key] + ".")
+                details.append("Public installed-source SHA256 fingerprints (8 groups of 8 hex digits):")
+                for key, digest in session["source_sha256"].items():
+                    details.append(key + " " + " ".join(digest[index:index + 8] for index in range(0, 64, 8)) + ";")
+            else:
+                details.append("Crashed session unknown: no complete supported startup header.")
+            note = scrub_public_text(" ".join(details), MAX_NOTE_CHARS)
+            separator = " | " if existing else ""
+            if len(existing) + len(separator) + len(note) > MAX_NOTE_CHARS:
+                note = "Crash-session details kept locally (note limit); environment values describe the replay process, not the crashed build."
+            payload["user_note"] = existing
+            if len(existing) + len(separator) + len(note) <= MAX_NOTE_CHARS:
+                payload["user_note"] += separator + note
     if payload is None:
         request = urllib.request.Request(relay_url() + route, method="GET",
                                          headers=headers)
@@ -3739,16 +3806,31 @@ def _consume_native_crash(path):
         if size < offset:
             offset = 0
         with path.open("rb") as handle:
-            handle.seek(max(offset, size - MAX_LOG_BYTES))
+            start = max(0, size - MAX_LOG_BYTES)
+            handle.seek(start)
             raw = handle.read(MAX_LOG_BYTES).decode("utf-8", "replace")
         _update_state(**{key: {"path": str(path), "offset": size}})
-        fatals = list(re.finditer(r"Fatal Python error: ([^\n]+)", raw))
+        fatals = [match for match in re.finditer(r"Fatal Python error: ([^\n]+)", raw)
+                  if start + len(raw[:match.start()].encode("utf-8")) >= offset]
         if fatals:
             fatal = fatals[-1]
             message = "Native process termination: " + fatal.group(1)
             summary = public_summary(message=message, kind=KIND_FAULT)
             summary["exception_type"] = "NativeCrash"
             summary["module"] = "native"
+            headers = list(re.finditer(r"^=== spaCR (?:started|session).*?$", raw[:fatal.start()], re.M))
+            session = {"known": False}
+            if headers:
+                header = headers[-1].group(0)
+                match = re.fullmatch(r"=== spaCR session (\{.*\}) ===", header)
+                if match:
+                    try:
+                        session = json.loads(match.group(1))
+                    except (ValueError, TypeError):
+                        pass
+            if not isinstance(session, Mapping):
+                session = {"known": False}
+            summary["native_session"] = _validated_summary({"native_session": session})["native_session"]
             observed = raw[fatal.end():].split("\n\n", 1)[-1]
             frames = re.findall(r'  File "([^"\n]+)", line (\d+) in ([^\n]+)', observed)
             summary["frames"] = [_frame(file, function, line)
@@ -3787,7 +3869,30 @@ def _install_native_error_capture(path=None):
             _update_state(native_fatal_ack={
                 "path": str(path), "offset": max(0, old_offset - old_size + len(tail))})
         handle = path.open("a", buffering=1, encoding="utf-8")
-        handle.write(f"\n=== spaCR started (pid {os.getpid()}) ===\n")
+        session = {
+            "known": True, "id": str(uuid.uuid4()),
+            "started_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "spacr_version": _spacr_version() or "unknown",
+            "python": platform.python_version() or "unknown",
+            "qt": "unknown",
+            "source_sha256": {},
+        }
+        qtcore = sys.modules.get("PySide6.QtCore")
+        if qtcore is not None:
+            try:
+                session["qt"] = qtcore.qVersion()
+            except Exception:
+                pass
+        package = Path(__file__).resolve().parent
+        for key, relative in (("package", "__init__.py"), ("app", "qt/app.py"),
+                              ("gc_policy", "qt/gc_policy.py"), ("crashreport", "crashreport.py")):
+            try:
+                source_file = package / relative
+                if source_file.stat().st_size <= 2 * 1024 * 1024:
+                    session["source_sha256"][key] = hashlib.sha256(source_file.read_bytes()).hexdigest()
+            except OSError:
+                pass
+        handle.write("\n=== spaCR session " + json.dumps(session, separators=(",", ":")) + " ===\n")
         faulthandler.enable(file=handle, all_threads=True)
         _NATIVE_CAPTURE_HANDLE = handle
         if _NATIVE_EXCEPTION_HOOK is None:
