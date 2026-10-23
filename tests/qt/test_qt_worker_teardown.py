@@ -39,8 +39,10 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 import threading
 import time
+import traceback
 
 import pytest
 
@@ -245,6 +247,37 @@ def test_thread_census_returns_to_baseline_after_runs_are_cancelled(
             "parked_qthreads": parked_thread_count(),
         }
 
+    def _extra_timer_details(before):
+        baseline = {(row[2], row[3]) for row in before["python"]}
+        frames = sys._current_frames()
+        timers = []
+        for thread in threading.enumerate():
+            if (thread.ident, thread.native_id) in baseline:
+                continue
+            cls = type(thread)
+            if not isinstance(thread, threading.Timer) and cls.__name__ != "Timer":
+                continue
+            callback = getattr(thread, "function", None)
+            function = getattr(callback, "__func__", callback)
+            code = getattr(function, "__code__", None)
+            finished = getattr(thread, "finished", None)
+            is_set = getattr(finished, "is_set", None)
+            frame = frames.get(thread.ident)
+            timers.append({
+                "name": thread.name,
+                "class": f"{cls.__module__}.{cls.__qualname__}",
+                "ident": thread.ident,
+                "native_id": thread.native_id,
+                "callback_module": getattr(callback, "__module__", None),
+                "callback_qualname": getattr(callback, "__qualname__", None),
+                "callback_filename": getattr(code, "co_filename", None),
+                "callback_line": getattr(code, "co_firstlineno", None),
+                "interval": getattr(thread, "interval", None),
+                "finished": is_set() if callable(is_set) else None,
+                "stack": traceback.format_stack(frame, limit=16) if frame else [],
+            })
+        return timers
+
     def _cycle(index: int):
         started = threading.Event()
 
@@ -277,11 +310,13 @@ def test_thread_census_returns_to_baseline_after_runs_are_cancelled(
     assert threading.active_count() - base_py <= 0, (
         f"Python threads grew {base_py} -> {threading.active_count()} "
         f"over {_CYCLES} cancelled runs; "
-        f"before={before_threads}; after={after_threads}")
+        f"before={before_threads}; after={after_threads}; "
+        f"extra_timers={_extra_timer_details(before_threads)}")
     assert _os_threads() - base_os <= _SLACK, (
         f"OS threads grew {base_os} -> {_os_threads()} over {_CYCLES} "
         f"cancelled runs; a per-run leak would show up as ~{_CYCLES}; "
-        f"before={before_threads}; after={after_threads}")
+        f"before={before_threads}; after={after_threads}; "
+        f"extra_timers={_extra_timer_details(before_threads)}")
 
 
 # ---------------------------------------------------------------------------

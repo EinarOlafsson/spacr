@@ -4671,6 +4671,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "regression_layout.py")
     paths.add(ROOT / "spacr" / "regression_failure.py")
     paths.add(ROOT / "spacr" / "ml.py")
+    paths.add(ROOT / "spacr" / "power_model.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):

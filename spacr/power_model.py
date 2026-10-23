@@ -185,7 +185,13 @@ class PowerFitError(SpacrError):
 
 @dataclass(frozen=True)
 class ModelData:
-    """Well-level design for the Poisson model, one row per well.
+    """Well-level Poisson design, optionally retaining weighted repeated rows.
+
+    Ordinary designs have one row per well. Repeated LONG observations may
+    retain all rows with inverse multiplicity likelihood weights; design
+    centering and scaling still use the retained rows. Automatic prior
+    calibration counts identified nonconstant predictors and independent
+    physical wells established by explicit row-aligned identities.
 
     :param wells: retained well identifiers in design-row order.
     :param genes: gene identifiers in the column order of
@@ -199,6 +205,14 @@ class ModelData:
         positive.
     :param zero_read_wells: retained wells with no sequencing reads; their
         expression fractions use the pseudocount rather than ``nan``.
+    :param likelihood_weights: optional positive finite row weights applied only
+        to the observation log likelihood. ``None`` counts every row once;
+        inverse within-well multiplicities count repeated LONG rows once per well.
+    :param likelihood_well_ids: optional complete physical-well identities in
+        design-row order. Automatic calibration of weighted rows requires these
+        identities, exact repeated designs/counts/exposures within each well and
+        inverse row-multiplicity weights. Arbitrary weights require an explicit
+        global prior scale instead of an inferred independent-well count.
     :param unidentified_genes: genes whose expression column is constant across
         retained wells and whose fitted effect must remain unidentified.
     """
@@ -211,6 +225,8 @@ class ModelData:
     dropped_wells: Tuple[Any, ...] = ()
     zero_read_wells: Tuple[Any, ...] = ()
     unidentified_genes: Tuple[Any, ...] = ()
+    likelihood_weights: Optional[np.ndarray] = None
+    likelihood_well_ids: Optional[Tuple[Any, ...]] = None
 
     @property
     def n_wells(self) -> int:
@@ -657,15 +673,17 @@ def _horseshoe_global_scale(
     right — what the global scale controls is how hard the bulk is pulled
     to zero, and the local scales rescue any gene the data argue for.
 
-    The default ``p0`` is 5 % of the library, which is the hit rate a
-    pooled Toxoplasma screen is designed around.  Override
+    The default ``p0`` is 5 % of the identified nonconstant predictors,
+    floored at one. This automatic rule is undefined for one or fewer
+    identified predictors; invalid sparsity inputs are refused rather than
+    silently capped. Override
     ``expected_hits`` when you know better, or ``scale_global`` to set
     ``tau0`` outright.
 
-    :param n_genes: number of predictors ``D``.
-    :param n_wells: number of observations ``n``.
+    :param n_genes: number of identified nonconstant predictors ``D``.
+    :param n_wells: number of independent likelihood observations ``n``.
     :param expected_hits: prior guess at ``p0``; ``None`` uses 5 % of the
-        library, floored at 1 and capped below ``D``.
+        identified predictors, floored at 1. Must remain strictly below ``D``.
     :param scale_global: if given, used directly and the rest ignored.
     :returns: positive ``tau0``.
     :raises PowerFitError: if ``scale_global`` is non-positive, or
@@ -719,7 +737,7 @@ def _prepare_design(
     :returns: ``(X, column_means, column_scales, identified_mask)``.
     """
     X = np.array(model_data.log10expression, dtype=np.float64, copy=True)
-    identified = ~np.isin(model_data.genes, np.asarray(model_data.unidentified_genes))
+    identified = _identified_predictors(model_data)
     means = X.mean(axis=0)
     X -= means[None, :]
     if standardize:
@@ -730,6 +748,100 @@ def _prepare_design(
         scales = np.ones(X.shape[1], dtype=np.float64)
     X[:, ~identified] = 0.0
     return X, means, scales, identified
+
+
+def _observation_weights(model_data):
+    """Return validated row weights without changing counts, design or priors."""
+    if model_data.likelihood_weights is None:
+        return np.ones(model_data.n_wells, dtype=float)
+    weights = np.asarray(model_data.likelihood_weights, dtype=float)
+    if (weights.shape != (model_data.n_wells,) or not np.isfinite(weights).all()
+            or np.any(weights <= 0)):
+        from .qt.i18n import tr
+
+        raise ValueError(tr("likelihood_weights must be a positive finite vector aligned with design rows"))
+    return weights
+
+
+def _identified_predictors(model_data):
+    """Exclude declared unidentified and numerically constant design columns."""
+    design = np.asarray(model_data.log10expression, dtype=float)
+    return (~np.isin(model_data.genes, np.asarray(model_data.unidentified_genes))
+            & (np.ptp(design, axis=0) > 0))
+
+
+def _prior_calibration_counts(model_data, scale_global=None):
+    """Count active predictors and explicit independent likelihood units.
+
+    Exact inverse-weighted copies of one observation contribute one unit.
+    Arbitrary power-likelihood weights do not define an independent sample size.
+    An explicit global scale bypasses count inference and returns ``None``
+    for the observation count, while provided identities still require alignment.
+    """
+    predictors = int(_identified_predictors(model_data).sum())
+    if predictors == 0:
+        from .qt.i18n import tr
+
+        raise PowerFitError(tr("no identified nonconstant predictor remains for horseshoe calibration"))
+    weights = _observation_weights(model_data)
+    identities = model_data.likelihood_well_ids
+    if identities is None:
+        if model_data.likelihood_weights is not None and scale_global is None:
+            from .qt.i18n import tr
+
+            raise PowerFitError(
+                tr("automatic weighted calibration needs aligned likelihood_well_ids; "
+                "arbitrary weights require an explicit scale_global"))
+        return predictors, (None if scale_global is not None else model_data.n_wells)
+    if len(identities) != model_data.n_wells:
+        from .qt.i18n import tr
+
+        raise PowerFitError(tr("likelihood_well_ids must align with every design row"))
+    grouped = {}
+    for position, identity in enumerate(identities):
+        try:
+            hash(identity)
+        except TypeError as exc:
+            from .qt.i18n import tr
+
+            raise PowerFitError(tr("likelihood_well_ids must be hashable physical-well identities")) from exc
+        parts = identity if isinstance(identity, tuple) else (identity,)
+        if (not parts or any(not pd.api.types.is_scalar(part) for part in parts)
+                or any(pd.isna(part) for part in parts)):
+            from .qt.i18n import tr
+
+            raise PowerFitError(tr("likelihood_well_ids need complete physical-well identities"))
+        try:
+            grouped.setdefault(identity, []).append(position)
+        except TypeError as exc:
+            from .qt.i18n import tr
+
+            raise PowerFitError(tr("likelihood_well_ids must be hashable physical-well identities")) from exc
+    if scale_global is not None:
+        return predictors, None
+    design = np.asarray(model_data.log10expression)
+    counts = np.asarray(model_data.Npositive)
+    exposure = np.asarray(model_data.Ntotal)
+    for positions in grouped.values():
+        first = positions[0]
+        if (not np.all(design[positions] == design[first])
+                or not np.all(counts[positions] == counts[first])
+                or not np.all(exposure[positions] == exposure[first])):
+            from .qt.i18n import tr
+
+            raise PowerFitError(
+                tr("one likelihood_well_ids identity must have identical design, counts and exposure"))
+        if not np.allclose(weights[positions], 1.0 / len(positions), rtol=1e-12, atol=1e-15):
+            from .qt.i18n import tr
+
+            raise PowerFitError(
+                tr("independent-well calibration requires exact inverse row-multiplicity weights"))
+    return predictors, len(grouped)
+
+
+def _torch_poisson_log_likelihood(eta, counts, weights):
+    """Sum weighted observation terms, omitting parameter-independent factorials."""
+    return ((counts * eta - eta.exp()) * weights).sum(-1)
 
 
 def _fit_torch_advi(
@@ -788,6 +900,8 @@ def _fit_torch_advi(
 
     X = torch.as_tensor(X_np, dtype=dtype, device=torch_device)
     y = torch.as_tensor(model_data.Npositive, dtype=dtype, device=torch_device)
+    likelihood_weights = torch.as_tensor(
+        _observation_weights(model_data), dtype=dtype, device=torch_device)
     log_offset = torch.log(
         torch.as_tensor(model_data.Ntotal, dtype=dtype, device=torch_device)
     )
@@ -837,7 +951,7 @@ def _fit_torch_advi(
         beta = z * torch.exp(log_tau + log_lambda_tilde)
 
         eta = intercept + beta @ X.T + log_offset
-        log_lik = (y * eta - torch.exp(eta)).sum(-1)
+        log_lik = _torch_poisson_log_likelihood(eta, y, likelihood_weights)
 
         log_prior = -0.5 * (z ** 2).sum(-1)
         log_prior = log_prior + (
@@ -1003,6 +1117,7 @@ def _fit_numpyro_nuts(
 
         X = jnp.asarray(X_np)
         y = jnp.asarray(model_data.Npositive)
+        likelihood_weights = jnp.asarray(_observation_weights(model_data))
         log_offset = jnp.log(jnp.asarray(model_data.Ntotal, dtype=jnp.float64))
 
         def model():
@@ -1025,7 +1140,8 @@ def _fit_numpyro_nuts(
             beta = numpyro.deterministic("beta", z * jnp.exp(log_tau + log_lam_tilde))
             intercept = numpyro.sample("intercept", dist.StudentT(3.0, mu0, 2.5))
             eta = intercept + X @ beta + log_offset
-            numpyro.sample("obs", dist.Poisson(jnp.exp(eta)), obs=y)
+            with numpyro.handlers.scale(scale=likelihood_weights):
+                numpyro.sample("obs", dist.Poisson(jnp.exp(eta)), obs=y)
 
         kernel = NUTS(model, max_tree_depth=max_tree_depth, target_accept_prob=target_accept)
         mcmc = MCMC(
@@ -1112,7 +1228,11 @@ def _fit_pymc_nuts(
         beta = pm.Deterministic("beta", z * tau * lam_tilde)
         intercept = pm.StudentT("intercept", nu=3.0, mu=mu0, sigma=2.5)
         eta = intercept + pm.math.dot(X_np, beta) + np.log(model_data.Ntotal)
-        pm.Poisson("obs", mu=pm.math.exp(eta), observed=model_data.Npositive)
+        observation = pm.Poisson("obs", mu=pm.math.exp(eta), observed=model_data.Npositive)
+        if model_data.likelihood_weights is not None:
+            pm.Potential("observation_weight_adjustment", pm.math.sum(
+                (_observation_weights(model_data) - 1.0) *
+                pm.logp(observation, model_data.Npositive)))
 
         started = time.perf_counter()
         idata = pm.sample(
@@ -1197,7 +1317,11 @@ def fit_model(
         Changes the units of ``beta`` (recorded in
         ``diagnostics["beta_scale"]``).  Default ``False``, matching the R.
     :param expected_hits: prior guess at the number of true hits, used
-        for the horseshoe's global scale.  Default: 5 % of the library.
+        for the horseshoe's global scale. Default: 5 % of identified
+        nonconstant predictors, floored at one. It must be strictly between
+        zero and the identified predictor count. With one identified predictor,
+        provide an explicit valid expected-hit count or ``scale_global``;
+        a design with no identified predictor is refused.
     :param scale_global: set the horseshoe global scale ``tau0``
         outright, ignoring ``expected_hits``.
     :param df_local: degrees of freedom of the local shrinkage
@@ -1255,10 +1379,22 @@ def fit_model(
             "just the prior wearing the name of an estimate."
         )
 
+    n_prior_predictors, n_prior_observations = _prior_calibration_counts(model_data, scale_global)
+    if n_prior_observations is not None and n_prior_observations < 2:
+        from .qt.i18n import tr
+
+        raise PowerFitError(tr("a single independent physical well cannot identify gene effects"))
+    if n_prior_predictors <= 1 and expected_hits is None and scale_global is None:
+        from .qt.i18n import tr
+
+        raise PowerFitError(
+            tr("automatic horseshoe calibration needs at least two identified predictors; "
+            "provide expected_hits strictly between zero and the identified count "
+            "or an explicit scale_global"))
     resolved = resolve_backend(backend)
     tau0 = _horseshoe_global_scale(
-        n_genes=model_data.n_genes,
-        n_wells=model_data.n_wells,
+        n_genes=n_prior_predictors,
+        n_wells=n_prior_observations,
         expected_hits=expected_hits,
         scale_global=scale_global,
     )
@@ -1314,6 +1450,9 @@ def fit_model(
             target_accept=target_accept,
         )
         method = "nuts"
+
+    diagnostics.update(n_prior_predictors=n_prior_predictors,
+                       n_prior_observations=n_prior_observations)
 
     return PowerFit(
         backend=resolved,

@@ -620,3 +620,185 @@ def test_back_to_plate_rejects_a_late_individual_field_image(plate_images, qtbot
     finally:
         release.set()
         dialog.close()
+
+
+def test_measurements_use_original_raw_pixels_and_whole_image_regionprops(tmp_path, monkeypatch):
+    import pandas as pd
+    from skimage.measure import regionprops_table
+    import skimage.measure
+
+    def supported_regionprops(*args, **kwargs):
+        assert "intensity_std" not in kwargs.get("properties", ())
+        return regionprops_table(*args, **kwargs)
+
+    monkeypatch.setattr(skimage.measure, "regionprops_table", supported_regionprops)
+    raw = np.zeros((1003, 1007), dtype=np.uint16)
+    raw[1::2, 1::2] = 30000
+    tifffile.imwrite(tmp_path / "plate1_A01_F1_C1.tif", raw)
+    tifffile.imwrite(tmp_path / "plate1_A01_F1_C2.tif", np.full(raw.shape, 1234, np.uint16))
+    field, = browser._overview_index(tmp_path)
+    preview = browser._overview_pixels(field, (1,), (1, 99), edge=1000)
+    assert preview.shape[:2] != raw.shape and not preview.any()
+    output = tmp_path / "measured"
+    paths, errors = browser._overview_export((field,), output, (1, 2), (1, 99), measurements=True)
+    assert len(paths) == 1 and not errors
+    actual = pd.read_csv(output / "overview_measurements.csv", float_precision="round_trip").iloc[0]
+    geometry = regionprops_table(np.ones(raw.shape, np.uint8), properties=(
+        "area", "bbox", "centroid", "axis_major_length", "axis_minor_length", "eccentricity", "extent", "perimeter"))
+    for key, values in geometry.items():
+        assert actual["roi_" + key.replace("-", "_")] == pytest.approx(values[0])
+    assert (actual["height_px"], actual["width_px"]) == raw.shape
+    assert actual["roi"] == "whole_image" and actual["geometry_units"] == "pixels"
+    assert actual["intensity_units"] == "raw_stored_pixel_values"
+    assert actual["channel_1_intensity_mean"] == float(raw.mean())
+    assert actual["channel_1_intensity_std"] == pytest.approx(float(raw.std()))
+    assert actual["channel_1_intensity_min"] == 0 and actual["channel_1_intensity_max"] == 30000
+    assert actual["channel_2_intensity_mean"] == 1234
+    assert actual["channel_1_finite_pixel_count"] == raw.size
+    assert actual["channel_1_nonfinite_pixel_count"] == 0
+    assert actual["channel_1_dtype"] == "uint16" and actual["status"] == "ok"
+    assert actual["channel_1_source"] == str(tmp_path / "plate1_A01_F1_C1.tif")
+    assert json.loads(actual["channels"]) == [1, 2]
+    metadata = json.loads((output / "overview_selection.json").read_text())
+    assert metadata["measurements"]["original_resolution"] is True
+    assert metadata["measurements"]["written_field_count"] == 1
+    assert "object_count" not in actual.index and "label" not in actual.index
+
+
+def test_measurements_report_nonfinite_missing_and_unreadable_fields(tmp_path):
+    import pandas as pd
+
+    partial = np.array([[[1., 10.], [np.nan, 20.]], [[np.inf, 30.], [5., 40.]]])
+    np.save(tmp_path / "plate1_A01_F1.npy", partial)
+    np.save(tmp_path / "plate1_A01_F2.npy", np.full((2, 2, 2), np.nan))
+    np.save(tmp_path / "plate1_A01_F3.npy", np.ones((2, 2)))
+    (tmp_path / "plate1_A01_F4.tif").write_bytes(b"not a TIFF")
+    fields = browser._overview_index(tmp_path)
+    output = tmp_path / "errors"
+    paths, errors = browser._overview_export(fields, output, (0, 1), (1, 99), measurements=True)
+    assert len(paths) == 1 and len(errors) == 3
+    actual = pd.read_csv(output / "overview_measurements.csv").set_index("field")
+    assert len(actual) == len(fields) == 4
+    assert actual.loc[1, "roi_area"] == 4
+    assert actual.loc[1, "channel_0_finite_pixel_count"] == 2
+    assert actual.loc[1, "channel_0_nonfinite_pixel_count"] == 2
+    assert actual.loc[1, "channel_0_intensity_mean"] == 3
+    assert actual.loc[1, "channel_0_intensity_std"] == 2
+    assert actual.loc[1, "status"] == "ok"
+    assert set(actual.loc[[2, 3, 4], "status"]) == {"error"}
+    assert actual.loc[2, "channel_0_finite_pixel_count"] == 0
+    assert "finite" in actual.loc[2, "error"]
+    assert actual.loc[3, "channel_0_intensity_mean"] == 1
+    assert "channel" in actual.loc[3, "error"].lower()
+    assert actual.loc[4, "source_files"] and actual.loc[4, "error"]
+
+
+def test_cancelled_measurements_do_not_publish_a_partial_csv(plate_images, tmp_path, monkeypatch):
+    fields = tuple(f for f in browser._overview_index(plate_images) if not f.unresolved)[:2]
+    cancelled = threading.Event()
+    original = browser._overview_measurement
+    measured = []
+    def measure(*args):
+        row = original(*args)
+        measured.append(row)
+        cancelled.set()
+        return row
+    monkeypatch.setattr(browser, "_overview_measurement", measure)
+    output = tmp_path / "cancelled_measurements"
+    paths, errors = browser._overview_export(fields, output, (1,), (1, 99),
+                                            cancelled=cancelled, measurements=True)
+    assert len(measured) == 1 and measured[0]["status"] == "ok"
+    assert not paths and not errors
+    assert not (output / "overview_measurements.csv").exists()
+    metadata = json.loads((output / "overview_selection.json").read_text())
+    assert metadata["cancelled"] is True and metadata["requested_field_count"] == 2
+    assert metadata["measurements"]["path"] is None
+    assert metadata["measurements"]["written_field_count"] == 0
+    assert not list(output.glob(".*pending*"))
+
+
+def test_measurement_csv_refuses_overwrite_and_cleans_failed_atomic_write(plate_images, tmp_path, monkeypatch):
+    from spacr import tabular
+
+    field = next(f for f in browser._overview_index(plate_images) if not f.unresolved)
+    existing = tmp_path / "existing"
+    existing.mkdir()
+    previous = existing / "overview_measurements.csv"
+    previous.write_bytes(b"original measurements\n")
+    with pytest.raises(ValueError, match="already exist"):
+        browser._overview_export((field,), existing, (1,), None, measurements=True)
+    assert previous.read_bytes() == b"original measurements\n"
+    assert not list(existing.glob("*.pdf"))
+    fresh = tmp_path / "write_failure"
+    fresh.mkdir()
+    sentinel = fresh / "unrelated.csv"
+    sentinel.write_bytes(b"preserve me\n")
+    def fail(frame, path, **kwargs):
+        from pathlib import Path
+        Path(path).write_bytes(b"incomplete CSV")
+        raise OSError("disk unavailable")
+    monkeypatch.setattr(tabular, "write_table", fail)
+    with pytest.raises(OSError, match="disk unavailable"):
+        browser._overview_export((field,), fresh, (1,), None, measurements=True)
+    assert sentinel.read_bytes() == b"preserve me\n"
+    assert not (fresh / "overview_measurements.csv").exists()
+    assert not list(fresh.glob(".*pending*"))
+
+
+def test_measurements_follow_the_exact_ui_export_selection_and_dialog_cancel(
+        plate_images, tmp_path, qtbot, monkeypatch):
+    import pandas as pd
+    from PySide6.QtWidgets import QFileDialog
+
+    dialog = browser._FieldOverview()
+    qtbot.addWidget(dialog)
+    dialog._export_jobs._threaded = False
+    dialog.channels.setText("1,2")
+    dialog._indexed(browser._overview_index(plate_images))
+    dialog.plates.setCurrentIndex(dialog.plates.findData("plate1"))
+    dialog._well(dialog.wells.item(0, 0))
+    dialog.use_selection.setChecked(True)
+    dialog.fields.item(1).setSelected(True)
+    selected = dialog._export_selection()
+    assert len(selected) == 1
+    assert dialog.measurements.isChecked() is False
+    dialog.measurements.setChecked(True)
+    output = tmp_path / "selection"
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *a, **k: "")
+    dialog._export()
+    assert not output.exists() and not dialog._export_jobs.is_busy()
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *a, **k: str(output))
+    dialog._export()
+    actual = pd.read_csv(output / "overview_measurements.csv", dtype={"field": str})
+    assert list(zip(actual["plate"], actual["well"], actual["field"])) == [
+        (field.plate, field.well, field.field) for field in selected]
+    assert all(actual["channel_1_intensity_mean"] == 59.5)
+    assert all(actual["channel_2_intensity_mean"] == 119)
+    assert "overview_measurements.csv" in dialog.status.text()
+    dialog.close()
+
+
+def test_cancellation_during_measurement_csv_write_discards_complete_pending_file(plate_images, tmp_path, monkeypatch):
+    from pathlib import Path
+    from spacr import tabular
+
+    field = next(f for f in browser._overview_index(plate_images) if not f.unresolved)
+    cancelled = threading.Event()
+    original = tabular.write_table
+    pending_paths = []
+    def write_then_cancel(frame, path, **kwargs):
+        original(frame, path, **kwargs)
+        pending_paths.append(path)
+        assert Path(path).is_file()
+        cancelled.set()
+    monkeypatch.setattr(tabular, "write_table", write_then_cancel)
+    output = tmp_path / "cancelled_during_write"
+    paths, errors = browser._overview_export((field,), output, (1,), None,
+                                            cancelled=cancelled, measurements=True)
+    assert len(paths) == 1 and not errors and len(pending_paths) == 1
+    assert not (output / "overview_measurements.csv").exists()
+    assert not any(Path(path).exists() for path in pending_paths)
+    metadata = json.loads((output / "overview_selection.json").read_text())
+    assert metadata["cancelled"] is True
+    assert metadata["measurements"]["path"] is None
+    assert metadata["measurements"]["written_field_count"] == 0

@@ -143,6 +143,26 @@ def test_hindi_clear_button_keeps_native_text_room_in_a_narrow_pane(
                     settings.remove(key)
 
 
+def _native_pane_geometry(screen):
+    from spacr.qt.gui_scale import _actual_minimum_size
+
+    button = screen._diagram.clear_button
+    font = button.font()
+    return {
+        "font": (font.family(), font.pixelSize(), font.pointSizeF(), font.stretch()),
+        "glyph_width": button.fontMetrics().horizontalAdvance(button.text()),
+        "button_minimum_hint": button.minimumSizeHint(),
+        "intro_minimum_hint": screen._intro.minimumSizeHint(),
+        "pane_minima": (_actual_minimum_size(screen._scroll),
+                        _actual_minimum_size(screen._module_scroll)),
+        "pane_hints": (screen._scroll.minimumSizeHint(),
+                       screen._module_scroll.minimumSizeHint()),
+        "splitter": (screen._splitter.geometry(), screen._splitter.contentsRect(),
+                     screen._splitter.minimumSizeHint(), screen._splitter.orientation()),
+        "screen_minimum_hint": screen.minimumSizeHint(),
+    }
+
+
 def test_native_wide_hindi_content_gets_pane_room_without_growing_the_window(
         qtbot, qt_theme_applied, monkeypatch):
     from PySide6.QtWidgets import QApplication
@@ -172,7 +192,7 @@ def test_native_wide_hindi_content_gets_pane_room_without_growing_the_window(
             button.setStyleSheet("font-size: 75px;")
             for _ in range(6):
                 QApplication.processEvents()
-            assert screen.geometry() == geometry
+            assert screen.geometry() == geometry, _native_pane_geometry(screen)
             assert button.fontMetrics().horizontalAdvance(button.text()) <= (
                 button.contentsRect().width() - 20)
             assert screen._diagram._legend.rect().contains(button.geometry())
@@ -274,7 +294,7 @@ def test_native_pane_minima_stack_then_release_without_resizing_the_window(
             assert max(left, right) <= width
             assert left + right + screen._splitter.handleWidth() > width
             assert screen._splitter.orientation() == Qt.Vertical
-            assert screen.geometry() == geometry
+            assert screen.geometry() == geometry, _native_pane_geometry(screen)
             assert button.fontMetrics().horizontalAdvance(button.text()) <= (
                 button.contentsRect().width() - 20)
             assert screen._diagram._legend.rect().contains(button.geometry())

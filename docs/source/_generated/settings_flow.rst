@@ -2958,6 +2958,7 @@ channels
 |     ``dict(...)  [UNRESOLVED]``
 | ``_wound_preview_settings`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.motility_preview.apply_settings` **-- reads it**
+| ``__init__`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
@@ -2973,7 +2974,7 @@ channels
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``v2_channels_from_settings``, ``_cf_load_checkpoint``, ``_watch_measure_settings``, ``_watch_source_channels``, ``_watch_validate_map_channels``, ``_watch_vendor_channels``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_cell_cycle_channel``, ``_classify_viability``, ``_confluency_channel``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_measured_channel_column``, ``_morphological_measurements``, ``_with_distances``, ``_wound_plane``, ``measure_crop``, ``plot_region``, ``_prepare_measure_unmixing``, ``_compute_checked_crops``, ``_confluency_preview_settings``, ``_unmixed_crop_source``, ``_wound_preview_settings``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_app_specific``, ``_check_channels``, ``describe_plan``.
+Read by ``v2_channels_from_settings``, ``_cf_load_checkpoint``, ``_watch_measure_settings``, ``_watch_source_channels``, ``_watch_validate_map_channels``, ``_watch_vendor_channels``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_cell_cycle_channel``, ``_classify_viability``, ``_confluency_channel``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_measured_channel_column``, ``_morphological_measurements``, ``_with_distances``, ``_wound_plane``, ``measure_crop``, ``plot_region``, ``_prepare_measure_unmixing``, ``_compute_checked_crops``, ``_confluency_preview_settings``, ``_unmixed_crop_source``, ``_wound_preview_settings``, ``apply_settings``, ``__init__``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_app_specific``, ``_check_channels``, ``describe_plan``.
 
 .. _setting-flow-checkpoint_path:
 
@@ -4787,6 +4788,7 @@ custom_regex
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_on_measure_clicked`` **-- reads it**
+| ``__init__`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_inventory``
@@ -4794,7 +4796,7 @@ custom_regex
 |                 ``_candidate_patterns`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_on_measure_clicked``, ``_candidate_patterns``.
+Read by ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_on_measure_clicked``, ``__init__``, ``_candidate_patterns``.
 
 .. _setting-flow-cv_best_model_path:
 
@@ -12476,6 +12478,7 @@ metadata_type
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_on_measure_clicked`` **-- reads it**
+| ``__init__`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_inventory``
@@ -12484,7 +12487,7 @@ metadata_type
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_watch_closed_pool_spec``, ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_localize_cloud_source``, ``_on_measure_clicked``, ``get_setting_dependencies``, ``_candidate_patterns``, ``_check_src``.
+Read by ``_watch_closed_pool_spec``, ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_localize_cloud_source``, ``_on_measure_clicked``, ``__init__``, ``get_setting_dependencies``, ``_candidate_patterns``, ``_check_src``.
 
 .. _setting-flow-metadata_type_by:
 
@@ -14142,8 +14145,9 @@ normalization_percentiles
 
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
+| ``__init__`` **-- reads it**
 
-Read by ``plot_merged``.
+Read by ``plot_merged``, ``__init__``.
 
 .. _setting-flow-normalize:
 
@@ -14222,6 +14226,7 @@ normalize
 |     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
+| ``__init__`` **-- reads it**
 | :py:func:`~spacr.spacr_cellpose.check_cellpose_models` **-- reads it**
 | :py:func:`~spacr.spacr_cellpose.identify_masks_finetune` **-- reads it**
 | ``__init__`` **-- reads it**
@@ -14234,7 +14239,7 @@ normalize
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_stardist_volume_batch``, ``preprocess_generate_masks``, ``crop_spec_from_settings``, ``_cross_validate_model``, ``_fit_one``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``_crop_shape_overrides``, ``preprocess_img_data``, ``_measure_crop_core``, ``measure_crop``, ``segment_with_cellpose``, ``plot_merged``, ``_crop_choice_warnings``, ``apply_settings``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``__init__``, ``train_cellpose``, ``_check_app_specific``.
+Read by ``_stardist_volume_batch``, ``preprocess_generate_masks``, ``crop_spec_from_settings``, ``_cross_validate_model``, ``_fit_one``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``_crop_shape_overrides``, ``preprocess_img_data``, ``_measure_crop_core``, ``measure_crop``, ``segment_with_cellpose``, ``plot_merged``, ``_crop_choice_warnings``, ``apply_settings``, ``apply_settings``, ``__init__``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``__init__``, ``train_cellpose``, ``_check_app_specific``.
 
 .. _setting-flow-normalize_by:
 
@@ -16445,13 +16450,15 @@ organelle_method
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_segment_single_image`` **-- reads it**
 | :py:func:`~spacr.organelle_types.preset_for` **-- reads it**
+| ``_classical_organelle_mask`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_segment_single_image``, ``generate_organelle_masks_sam``, ``preset_for``, ``plot_organelle_output``, ``get_setting_dependencies``, ``_describe_objects``.
+Read by ``_segment_single_image``, ``generate_organelle_masks_sam``, ``preset_for``, ``plot_organelle_output``, ``_classical_organelle_mask``, ``get_setting_dependencies``, ``_describe_objects``.
 
 .. _setting-flow-organelle_min_area:
 
@@ -16487,6 +16494,9 @@ organelle_min_area
 | ``_plan_gains``
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``_classical_organelle_mask``
+|     ``_segment_unet`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
 Read by ``_measure_crop_core``, ``_build_object_settings``, ``_network_hysteresis``, ``_network_ridge``, ``_segment_irregular``, ``_segment_network``, ``_segment_ring``, ``_segment_spots``, ``_segment_unet``, ``merge_split_filter_masks``, ``get_measure_crop_settings``.
 
@@ -16751,8 +16761,10 @@ organelle_ridge_sigmas
 | ``_segment_single_image``
 |     ``_segment_network``
 |         ``_network_ridge`` **-- reads it**
+| ``_classical_organelle_mask`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_network_ridge``, ``_organelle_diagnostic``.
+Read by ``_network_ridge``, ``_classical_organelle_mask``, ``_organelle_diagnostic``.
 
 .. _setting-flow-organelle_ring_fill_method:
 
@@ -16882,6 +16894,9 @@ organelle_skeletonize
 |     ``_segment_network`` **-- reads it**
 |         ``_network_hysteresis`` **-- reads it**
 |         ``_network_ridge`` **-- reads it**
+| ``_classical_organelle_mask``
+|     ``_segment_unet`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
 Read by ``_network_hysteresis``, ``_network_ridge``, ``_segment_network``, ``_segment_unet``.
 
@@ -16989,6 +17004,9 @@ organelle_unet_model_path
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_load_unet_model`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_classical_organelle_mask``
+|     ``_load_unet_model`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
 Read by ``_load_unet_model``.
 
@@ -17004,6 +17022,9 @@ organelle_unet_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_unet`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_classical_organelle_mask``
+|     ``_segment_unet`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
 Read by ``_segment_unet``.
 
@@ -23179,6 +23200,7 @@ src
 |     :py:func:`~spacr.qt.widgets.plaque_preview.detect_figure` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.plaque_preview.seed_well_boxes` **-- reads it**
+| ``__init__`` **-- reads it**
 | :py:func:`~spacr.refit.destination` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
@@ -23251,7 +23273,7 @@ src
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 | :py:func:`~spacr.utils.delete_intermedeate_files` **-- reads it**
 
-Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``_watch_vendor_recipe``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_source_value``, ``run_import``, ``analyze_host_pathogen``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_prepare_measurement_calibration``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``_folder_of``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
+Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``_watch_vendor_recipe``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_source_value``, ``run_import``, ``analyze_host_pathogen``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_prepare_measurement_calibration``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``__init__``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``_folder_of``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
 
 .. _setting-flow-ssmd_estimator:
 

@@ -1718,6 +1718,12 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
               "  effects whose intervals can be reported.\n")
     return mixed_model, coef_df
 
+def _regression_well_keys(df):
+    """Keep screen, plate and positional identity when matching well predictors."""
+    return [column for column in (*schema.SCREENED_WELL_KEY_COLUMNS, schema.PRC_KEY)
+            if column in df.columns]
+
+
 def check_and_clean_data(df, dependent_variable):
     """Prepare the merged count / score frame for model fitting.
 
@@ -1732,8 +1738,9 @@ def check_and_clean_data(df, dependent_variable):
     :param df: Merged DataFrame of counts and scores.
     :param dependent_variable: Name of the response column.
     :returns: The cleaned DataFrame used as the model input.
-    :raises ValueError: if a ``(prc, grna)`` pair carries more than one
-        ``fraction``, which makes ``gene_fraction`` ambiguous.
+    :raises ValueError: if a complete well/gRNA identity carries more than
+        one ``fraction``, which makes ``gene_fraction`` ambiguous. Well
+        identity includes screen when present, plate, row, column and prc.
     """
     
     def handle_missing_values(df, columns):
@@ -1807,20 +1814,25 @@ def check_and_clean_data(df, dependent_variable):
     if SCREEN_KEY in df.columns:
         df_cleaned[SCREEN_KEY] = df[SCREEN_KEY]
 
-    grna_key = ['prc', 'gene', 'grna']
+    well_keys = _regression_well_keys(df_cleaned)
+    grna_key = well_keys + ['gene', 'grna']
     per_grna = df_cleaned[grna_key + ['fraction']].drop_duplicates()
     clash = per_grna.duplicated(subset=grna_key, keep=False)
     if clash.any():
         offenders = per_grna.loc[clash, grna_key].drop_duplicates()
-        raise ValueError(
-            f"{len(offenders)} (well, gRNA) pair(s) carry more than one "
-            f"'fraction', so the gene's share of the well is ambiguous - e.g. "
-            f"{offenders.iloc[0].to_dict()}. This means the count table was "
-            f"joined twice, or two count files describe the same plate. "
-            f"Aggregate the counts per (prc, grna) before regressing.")
-    gene_totals = per_grna.groupby(['prc', 'gene'], observed=False)['fraction'].agg(fsum)
-    df_cleaned['gene_fraction'] = pd.MultiIndex.from_arrays(
-        [df_cleaned['prc'], df_cleaned['gene']]).map(gene_totals)
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "{count} (well, gRNA) identities carry more than one 'fraction', "
+            "so the gene's share of the well is ambiguous; for example "
+            "{example}. Keep complete well identity, including screen when "
+            "present, and aggregate counts by {keys} before regressing."
+        ).format(count=len(offenders), example=offenders.iloc[0].to_dict(),
+                 keys=", ".join(grna_key)))
+    gene_keys = well_keys + ['gene']
+    gene_totals = per_grna.groupby(gene_keys, observed=True)['fraction'].agg(fsum)
+    df_cleaned['gene_fraction'] = pd.MultiIndex.from_frame(
+        df_cleaned[gene_keys]).map(gene_totals)
 
     print("Data is ready for model fitting.")
     return df_cleaned
@@ -3547,7 +3559,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      rra_permutations=10000,
                      regression_backend=DEFAULT_REGRESSION_BACKEND,
                      verbose=False, response_name="", transform="",
-                     glm_force_identity=False):
+                     glm_force_identity=False, likelihood_weights=None):
     """Dispatch to the requested regression backend and return the fitted model.
 
     Every name in :data:`REGRESSION_TYPES` is fittable here, and every one of
@@ -3616,6 +3628,13 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     :param weights: Per-observation weights - the well's cell count. Used as
         ``var_weights`` by ``logit``/``probit``/``quasi_binomial`` and as the
         WLS weights by ``wls``.
+    :param likelihood_weights: Optional aligned observation log-likelihood weights
+        for ``horseshoe``. Counts, exposures and design standardization are not
+        rescaled. Automatic global-prior calibration counts identified
+        nonconstant predictors and independent physical wells. Weighted rows
+        require aligned complete well identities in
+        ``X.attrs['likelihood_well_ids']``. For arbitrary weights, use
+        ``spacr.power_model.ModelData`` with an explicit ``scale_global``.
     :param l1_ratio: ``elasticnet`` mix; 1.0 is lasso, 0.0 is ridge.
     :param quantile: Quantile fitted by ``quantile`` regression, in (0, 1).
     :param hinge_threshold: Cut used to binarise a continuous response for
@@ -4026,7 +4045,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
 
     def _horseshoe():
         """Return a horseshoe-Poisson fit for the captured design and exposure."""
-        return _fit_horseshoe_poisson(X, y, exposure)
+        return _fit_horseshoe_poisson(X, y, exposure, likelihood_weights)
 
     def _spline():
         """Fit OLS on a design whose covariates carry a spline basis.
@@ -4167,7 +4186,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     return model
 
 
-def _fit_horseshoe_poisson(X, y, exposure):
+def _fit_horseshoe_poisson(X, y, exposure, likelihood_weights=None):
     """Fit spaCRPower's sparse Poisson model through :mod:`spacr.power_model`.
 
     The model is the one ``spaCRPower/R/fit_model.R`` fits::
@@ -4189,6 +4208,11 @@ def _fit_horseshoe_poisson(X, y, exposure):
     :param X: Design matrix.
     :param y: Per-well positive counts.
     :param exposure: Per-well total cell counts (the Poisson exposure).
+    :param likelihood_weights: Optional positive row weights for log likelihood.
+        Counts, exposures and design standardization remain unscaled. Automatic
+        global-prior calibration counts identified nonconstant predictors and
+        independent physical wells from complete row-aligned identities in
+        ``X.attrs['likelihood_well_ids']``.
     :returns: The fitted object returned by
         ``spacr.power_model.fit_horseshoe_poisson``, which must expose
         ``params`` and either ``pvalues`` or ``bse`` indexed like
@@ -4246,6 +4270,9 @@ def _fit_horseshoe_poisson(X, y, exposure):
         Ntotal=n_total,
         log10expression=design,
         unidentified_genes=tuple(constant),
+        likelihood_weights=likelihood_weights,
+        likelihood_well_ids=(X.attrs.get("likelihood_well_ids")
+                             if likelihood_weights is not None else None),
     )
     fit = fit_model(model_data, seed=0, standardize=True)
     return _HorseshoeResults(fit, gather_model_estimate(fit))
@@ -4723,6 +4750,46 @@ def _wide_fixed_effect_design(df, dependent_variable, *, level,
     return y, X, wide
 
 
+def _long_gene_fixed_effect_design(df, formula):
+    """Broadcast the measured well composition to every retained LONG row.
+
+    Patsy still owns the response, nuisance terms and missing-row selection.
+    Each gene column then contains that gene's complete fraction of the well,
+    including on rows naming another gene. Absent genes are zero; repeated
+    identical well/gene totals collapse once and conflicting totals are refused.
+    The retained rows carry inverse within-well multiplicity weights for the
+    horseshoe observation likelihood, so each physical well contributes once.
+    Fractions that sum to one confound a common gene shift with an intercept;
+    all gene columns and the existing estimator's priors are retained rather
+    than silently choosing a reference gene or changing coefficient units.
+    """
+    from .regression_layout import long_to_wide_regression_data
+
+    positional = df.reset_index(drop=True)
+    y, X = dmatrices(formula, data=positional, return_type='dataframe')
+    positions = y.index.to_numpy(dtype=int)
+    well_keys = _regression_well_keys(positional)
+    composition = long_to_wide_regression_data(
+        positional, index_columns=well_keys, predictor_column='gene',
+        value_column='gene_fraction', fill_value=0.0,
+    ).set_index(well_keys)
+    retained_keys = positional.iloc[positions][well_keys]
+    lookup = (pd.MultiIndex.from_frame(retained_keys) if len(well_keys) > 1
+              else pd.Index(retained_keys[well_keys[0]], name=well_keys[0]))
+    for column in X.columns:
+        if str(column).startswith('gene_fraction:gene['):
+            gene = _gene_of_design_column(column)
+            X[column] = composition[gene].reindex(lookup).to_numpy(dtype=float)
+    multiplicity = retained_keys.groupby(well_keys, observed=True, dropna=False)[
+        well_keys[0]].transform("size")
+    X.attrs["well_likelihood_weights"] = 1.0 / multiplicity.to_numpy(dtype=float)
+    X.attrs["likelihood_well_ids"] = tuple(
+        retained_keys.itertuples(index=False, name=None))
+    y.index = df.index.take(positions)
+    X.index = y.index
+    return y, X
+
+
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=None,
                dst=None, cov_type=None, plot=False, l1_ratio=0.5, quantile=0.5,
@@ -4798,11 +4865,18 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         distributions, which describe the data and not the fit. False on the
         second of two fits, so the figure grid gets one copy rather than two
         identical ones.
-    :param model_data_layout: ``'long'`` preserves the historical formula
-        with one fitted row per well-guide pair. ``'wide'`` pivots fractions
-        to one row per independent well before any fixed-effects estimator is
-        fitted. Mixed models require their long nesting representation and
-        therefore use long data even when a wide count input was supplied.
+    :param model_data_layout: ``'long'`` keeps one fitted row per well-guide
+        pair. At gene level, each row carries all retained measured gene
+        fractions of that complete well; guide-level fits retain the guide
+        interaction. Gene-level LONG horseshoe fits weight only observation
+        log likelihood by inverse fitted-row multiplicity per complete well,
+        so each well contributes once without rescaling counts, exposures,
+        design standardization or priors.
+        ``'wide'`` pivots fractions to one row per independent well before
+        fitting. Full gene compositions can confound a common coefficient
+        shift with the intercept; existing estimator priors and coefficient
+        units are retained. Mixed models keep their long nesting representation
+        even when a wide count input was supplied.
     :returns: ``(model, coef_df, regression_type)``.
     """
 
@@ -4932,6 +5006,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             )
             print(f"Model data pivoted to {len(fit_df)} independent well "
                   f"rows and {X.shape[1]} design columns.")
+        elif level == 'gene':
+            y, X = _long_gene_fixed_effect_design(df, formula)
         else:
             y, X = dmatrices(formula, data=df, return_type='dataframe')
         model_index = y.index
@@ -4971,6 +5047,9 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             spline_knots=spline_knots,
             spline_degree=spline_degree,
             exposure=weights,
+            likelihood_weights=(X.attrs.get("well_likelihood_weights")
+                                if model_layout == "long" and level == "gene"
+                                else None),
             group_lasso_lambda=group_lasso_lambda,
             rra_alpha=rra_alpha,
             rra_permutations=rra_permutations,
