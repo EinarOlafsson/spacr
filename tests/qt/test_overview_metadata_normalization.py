@@ -899,3 +899,113 @@ def test_finite_reference_does_not_hide_nonfinite_target_field(tmp_path):
         browser._overview_normalized_planes(tuple(browser._overview_raw_planes(target, (1,), edge=256)),
                                             plan, target)
     assert target_path.read_bytes() == original
+
+
+@pytest.mark.parametrize("cancel_export", [False, True])
+def test_actual_export_button_forks_well_mean_generation_and_preserves_raw_data(
+        qtbot, tmp_path, monkeypatch, cancel_export):
+    import json
+    import tifffile
+    from PySide6.QtWidgets import QFileDialog, QPushButton
+    from spacr import tabular
+
+    source, output = tmp_path / "source", tmp_path / "output"
+    source.mkdir()
+    output.mkdir()
+    base = np.array([[0, 2], [2, 4]], dtype=np.uint16)
+    originals = {}
+    for well, field_id, offset in (("A01", 1, 0), ("A01", 2, 4), ("B01", 1, 8), ("C02", 1, 0)):
+        for channel in (1, 2):
+            path = source / f"p1_{well}_F{field_id}_C{channel}.tif"
+            tifffile.imwrite(path, (base + offset) * channel)
+            originals[path] = path.read_bytes()
+    conditions = {("p1", "A01"): "reference A", ("p1", "B01"): "reference B",
+                  ("p1", "C02"): "treated"}
+    dialog = browser._FieldOverview(settings={
+        "source": str(source), "source_scope": "folder", "channels": (1, 2),
+        "geometry": (4, 6), "representatives": 2, "conditions": conditions,
+        "normalization": {"mode": "reference_average", "reference_kind": "reference_column",
+                          "reference": ("p1", 1), "percentiles": (0., 100.)}})
+    qtbot.addWidget(dialog)
+    entered, release = threading.Event(), threading.Event()
+    try:
+        dialog.show()
+        dialog._scan()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 4 and dialog._normalization_ready
+                        and not dialog._index_jobs.is_busy(), timeout=10000)
+        assert dialog._normalization_plan["reference_means"] == {1: 7., 2: 14.}
+        dialog.export_scope.setCurrentIndex(dialog.export_scope.findData("selection"))
+        dialog.wells.clearSelection()
+        dialog.wells.item(*dialog._well_positions["C02"]).setSelected(True)
+        dialog.measurements.setChecked(True)
+        dialog.pdf_dpi.setCurrentIndex(dialog.pdf_dpi.findData(150))
+        old_context, old_cancelled = dialog._normalization_context, dialog._cancelled
+        old_generation = dialog._display_generation
+        if cancel_export:
+            actual_read = browser._overview_raw_planes
+
+            def paused_full_source(field, channels, **options):
+                yield from actual_read(field, channels, **options)
+                if field.well == "C02" and options.get("edge", 256) is None:
+                    entered.set()
+                    if not release.wait(10):
+                        raise RuntimeError("The real full-source reader was not released.")
+
+            monkeypatch.setattr(browser, "_overview_raw_planes", paused_full_source)
+        monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *_args, **_kwargs: str(output))
+        export = next(button for button in dialog.findChildren(QPushButton)
+                      if button.text() == browser.tr("Export PDFs"))
+        qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
+        dialog._controls_scroll.ensureWidgetVisible(export)
+        qtbot.mouseClick(export, browser.Qt.LeftButton)
+        fresh = dialog._normalization_context
+        assert old_cancelled.is_set() and old_context._cancelled is old_cancelled
+        assert fresh is not old_context and fresh._cancelled is dialog._cancelled
+        assert not dialog._cancelled.is_set() and dialog._display_generation > old_generation
+        assert fresh._pending is not old_context._pending and fresh._lock is not old_context._lock
+        assert fresh._cache is not old_context._cache and fresh._used is not old_context._used
+        if cancel_export:
+            qtbot.waitUntil(entered.is_set, timeout=10000)
+            cancel = next(button for button in dialog.findChildren(QPushButton)
+                          if button.text() == browser.tr("Cancel loading or export"))
+            dialog._controls_scroll.ensureWidgetVisible(cancel)
+            qtbot.mouseClick(cancel, browser.Qt.LeftButton)
+            release.set()
+        qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy()
+                        and (output / "overview_selection.json").exists(), timeout=10000)
+        metadata = json.loads((output / "overview_selection.json").read_text())
+        assert metadata["normalization"]["reference_means"] == {"1": 7., "2": 14.}
+        assert [(row["well"], row["means"]["1"])
+                for row in metadata["normalization"]["reference_wells"]] == [("A01", 4.), ("B01", 10.)]
+        assert metadata["normalization"]["selection"]["generation"] == dialog._display_generation
+        if cancel_export:
+            assert metadata["cancelled"] is True and metadata["fields"] == []
+            assert not list(output.glob("*.pdf"))
+            assert not (output / "overview_measurements.csv").exists()
+            assert not list(output.glob(".*pending*"))
+        else:
+            from pypdf import PdfReader
+
+            assert metadata["cancelled"] is False and metadata["written_field_count"] == 1
+            page, = PdfReader(next(output.glob("*.pdf"))).pages
+            embedded, = page.images
+            expected = np.zeros((2, 2, 3), dtype=np.uint8)
+            expected[..., 0] = expected[..., 1] = np.uint8(np.clip(base * 3.5 / 12., 0., 1.) * 255)
+            np.testing.assert_array_equal(np.asarray(embedded.image.convert("RGB"))[::-1], expected)
+            table = tabular.read_table(output / "overview_measurements.csv", canonicalise=False)
+            assert len(table) == 1
+            row = table.iloc[0]
+            assert (row["plate"], row["well"], row["condition"]) == ("p1", "C02", "treated")
+            assert row["channel_1_intensity_mean"] == 2. and row["channel_2_intensity_mean"] == 4.
+            target = next(item for item in metadata["normalization"]["used_wells"] if item["well"] == "C02")
+            assert target["gains"] == {"1": 3.5, "2": 3.5}
+        assert all(path.read_bytes() == data for path, data in originals.items())
+    finally:
+        release.set()
+        dialog._cancel()
+        runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+                   dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        for runner in runners:
+            runner.shutdown(timeout_ms=3000)
+        dialog.close()

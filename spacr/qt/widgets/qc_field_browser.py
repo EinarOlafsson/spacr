@@ -3689,6 +3689,13 @@ class _FieldOverview(QDialog):
             return
         self._cancelled.set()
         self._cancelled = threading.Event()
+        if self._normalization_context is not None:
+            self._display_generation += 1
+            self._image_pending = False
+            self._display_pending = False
+            self._normalization_context = self._normalization_context._new_generation(
+                self._cancelled, self._display_generation)
+            self._normalization_plan = self._normalization_context.provenance()
         cancelled, seed = self._cancelled, self.seed.value()
         measurements = self.measurements.isChecked()
         options = self._display_kwargs()
@@ -4480,6 +4487,34 @@ class _OverviewWellMeanContext:
             for channel in self.channels}
         self._bounds = {channel: tuple(float(value) for value in np.percentile(
             np.concatenate(pools[channel]), self._percentiles)) for channel in self.channels}
+
+    def _new_generation(self, cancelled, generation):
+        """Fork completed scalar statistics with independent cancellation and pending reads.
+
+        Immutable field identities are retained; images, in-flight futures and
+        provenance usage are never transferred to the fresh generation.
+        """
+        import copy
+        import threading
+        from collections import OrderedDict
+
+        with self._lock:
+            fresh = copy.copy(self)
+            fresh._cancelled = cancelled
+            fresh._lock = threading.RLock()
+            fresh._pending = {}
+            fresh._used = {}
+            fresh._fields = dict(self._fields)
+            fresh._selection = dict(self._selection, generation=generation)
+            fresh._bounds = dict(self._bounds)
+            fresh._reference_means = dict(self._reference_means)
+            fresh._bounds_counts = {key: dict(counts) for key, counts in self._bounds_counts.items()}
+            fresh._reference_stats = {key: {**stats, "means": dict(stats["means"]),
+                "sample_pixels": dict(stats["sample_pixels"])}
+                for key, stats in self._reference_stats.items()}
+            fresh._cache = OrderedDict((key, {**stats, "means": dict(stats["means"]),
+                "sample_pixels": dict(stats["sample_pixels"])}) for key, stats in self._cache.items())
+        return fresh
 
     def _learn_well(self, key, cancelled, bounds_budget=0):
         """Average every selected FOV equally; optionally retain a bounded raw reservoir."""
