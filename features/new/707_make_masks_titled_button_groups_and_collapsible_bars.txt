@@ -12,6 +12,14 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next uncovered supported setup corner: GUI10%/font200%, within the actual
+GUI_SCALE_MIN0.10/FONT_SCALE_MAX2.0 clamps. Normal live scaling precedes both
+real setup constructors; require actual3px body-font witnesses and exact two
+case names. Preserve untouched initial bounds, every slide/group, all offered
+native text slots/arrows/checkbox indicators, AI reachability, intrinsic labels
+and existing deadlines/normal cleanup. This checks layout at the supported
+minimum, not readability or physical input. No product fix is assumed.
+
 Affected setup follow-up after the new spaCR_AI row: inspect real SetupSlides
 and SetupDialog at normal owned Cocoa GUI/font90%/90%, actual1440x870 work
 area/DPR2. Require untouched initial frame, every slide/group, intrinsic label
@@ -122,9 +130,13 @@ moves that card into scrolling, and leaves its snapshot as a manual background;
 resize no longer compresses scrolled controls to the viewport. The focused
 check passes (3.23s/RSS0.245GiB): untouched opening fits, AI647x42 contains its
 34x34 indicator at y4, and every editor/label is whole or intentionally reachable.
-Default and Slides paths are unchanged. Native grouped-only max acceptance is
-pending; its probe preserves partial pages and exact case names without replaying
-the accepted Slides case or extending the20s deadline.
+Default and Slides paths are unchanged. On 2026-10-23, grouped-only native Cocoa
+acceptance passes at 9a7e41e838 on this 1440x900/DPR2 Mac: initial 1296x783, actual
+52px font, all content/choice checks clear; AI 656x42 is intentionally scroll-
+reachable. Native resize 1306x803 and restore 1296x783 both pass. The case returns
+in 6.384s within its unchanged 20s deadline; normal child exit0 in 24.160s,
+sampled RSS 1.023GiB/0 missed, no alias warnings. Prior failures remain recorded;
+accepted Slides is not replayed, and physical/smaller-display gates remain open.
 
 Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
 public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.
