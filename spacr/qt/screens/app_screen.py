@@ -8450,6 +8450,15 @@ class AppScreen(QWidget):
                     self._lp_switch = self._preview_switch
                 self._on_preview_switch(False)
 
+        if self.app_key == "mask":
+            from ..widgets.qc_field_browser import _open_field_overview
+
+            overview = QPushButton(tr("Field-of-view overview"))
+            overview.setObjectName("GenerateMasksFieldOverview")
+            overview.clicked.connect(lambda: _open_field_overview(
+                self, self._settings_model.collect()))
+            row.addWidget(overview)
+
         self._ops_switch = None
         if self.app_key == "mask":
             try:

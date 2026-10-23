@@ -18452,6 +18452,15 @@ class MakeMasksScreen(QWidget):
         controls_row.setSpacing(SPACING["xs"])
         controls_row.addWidget(self._btn_reset_zoom, 0, Qt.AlignTop)
         controls_row.addWidget(self._btn_ruler, 0, Qt.AlignTop)
+        from ..i18n import tr
+        from ..widgets.qc_field_browser import _open_field_overview
+
+        overview = QPushButton(tr("Field-of-view overview"))
+        overview.setObjectName("MakeMasksFieldOverview")
+        overview.clicked.connect(lambda: _open_field_overview(
+            self, {"src": getattr(self, "_folder", ""),
+                   "normalization_percentiles": (self._canvas.norm_lo, self._canvas.norm_hi)}))
+        controls_row.addWidget(overview, 0, Qt.AlignTop)
         tabs.setTabBar(_ImageViewTabBar(controls))
         self._mask_stage = _VolumeStage(self._canvas, self)
         tabs.addTab(self._mask_stage, "Mask")

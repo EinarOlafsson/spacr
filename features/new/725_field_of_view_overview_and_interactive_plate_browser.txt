@@ -1,5 +1,4 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-==============================================================
 Status:    IN PROGRESS
 Requested: maintainer, 2026-10-22
 Owner:     widgets_g3 implementation and delivery; maintainer_input_coordinator independent peer
@@ -20,6 +19,9 @@ ACCEPTANCE
   consistent with spaCR image display. Preview and exported PDFs use those choices.
 - Provide a plate overview with quick click/zoom navigation into wells and their
   fields, and easy zoom/back navigation to the plate. Retain navigation context.
+- Show representative image thumbnails in the plate overview and a paged field
+  montage when entering a well; retain quick navigation to individual fields and
+  back to the plate. Load imagery only for visible or explicitly requested views.
 - Remain responsive for high-content datasets using bounded, lazy image/thumbnail
   loading and caching; avoid loading every full-resolution field into RAM. Handle
   cancellation, source changes, unreadable files and missing channels gracefully.
