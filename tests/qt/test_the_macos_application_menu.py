@@ -67,9 +67,9 @@ pytestmark = pytest.mark.qt
 #: object exists -- and a process that already has a ``QApplication`` cannot
 #: observe that moment. It also keeps the application-wide rename out of the
 #: session's own Qt state.
-_NAME_PROBE = textwrap.dedent('''
+_OWNED_SETTINGS_PROBE = textwrap.dedent('''
     import json, os, sys
-    os.environ["QT_QPA_PLATFORM"] = "offscreen"
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     os.environ["SPACR_NO_SETUP"] = "1"
 
     from PySide6 import QtCore
@@ -100,6 +100,10 @@ _NAME_PROBE = textwrap.dedent('''
     QtCore.QSettings = OwnedSettings
     settings_file = OwnedSettings("spacr", "qt").fileName()
     assert os.path.commonpath([os.path.realpath(settings_file), settings_root]) == settings_root
+''')
+
+_NAME_PROBE = _OWNED_SETTINGS_PROBE + textwrap.dedent('''
+    os.environ["QT_QPA_PLATFORM"] = "offscreen"
     import spacr.qt.app as app_mod
 
     seen = {"module": app_mod.__file__,
@@ -137,6 +141,164 @@ def _repo_root() -> str:
     import spacr
 
     return os.path.dirname(os.path.dirname(os.path.abspath(spacr.__file__)))
+
+
+_SCALE_STARTUP_PROBE = _OWNED_SETTINGS_PROBE + textwrap.dedent('''
+    import runpy, traceback
+    import numpy as np
+    from PySide6.QtCore import QPoint, QRect, QSize, QTimer
+    from PySide6.QtGui import QAction, QImage
+    from PySide6.QtWidgets import QAbstractButton, QLabel, QStyle
+    from spacr.qt import app as app_mod, gui_scale, preferences, theme, timing
+    from spacr.logging_util import _spacr_home
+
+    assert os.path.commonpath([str(_spacr_home().resolve()), settings_root]) == settings_root
+
+    result = {"module": app_mod.__file__, "settings": settings_file, "metrics": []}
+
+    def measure(window, gui=.9, font=.9):
+        result["preferences_settings"] = preferences._settings().fileName()
+        assert os.path.commonpath([os.path.realpath(result["preferences_settings"]), settings_root]) == settings_root
+        assert window.isVisible() and window._startup.isVisible()
+        assert window._stack.currentWidget() is window._startup
+        buttons = [button for button in window.findChildren(QAbstractButton)
+                   if button.isVisible() and button.objectName() == "AppTile"
+                   and button.visibleRegion().boundingRect() == button.rect()]
+        assert buttons, [(type(button).__name__, button.objectName(), button.isVisible(),
+                          button.icon().isNull()) for button in window.findChildren(QAbstractButton)]
+        button = sorted(buttons, key=lambda item: item.property("moduleAppKey"))[0]
+        glyphs = [label for label in button.findChildren(QLabel) if not label.pixmap().isNull()]
+        assert len(glyphs) == 1
+        glyph = glyphs[0]
+        pixmap = glyph.pixmap()
+        size = pixmap.deviceIndependentSize()
+        assert size.width() > 0 and size.height() > 0
+        assert glyph.visibleRegion().boundingRect() == glyph.rect()
+        assert button.name_label.visibleRegion().boundingRect() == button.name_label.rect()
+        assert button.rect().contains(QRect(glyph.mapTo(button, QPoint()), glyph.size()))
+        image = pixmap.toImage().convertToFormat(QImage.Format_RGBA8888)
+        pixels = np.frombuffer(image.bits(), np.uint8).reshape(image.height(), image.bytesPerLine())
+        ys, xs = np.nonzero(pixels[:, :image.width()*4].reshape(image.height(), image.width(), 4)[..., 3])
+        assert len(xs), "Production icon has no visible pixels"
+        painted = QStyle.alignedRect(glyph.layoutDirection(), glyph.alignment(),
+                                    QSize(round(size.width()), round(size.height())), glyph.contentsRect())
+        dpr = pixmap.devicePixelRatio()
+        ink = [painted.x()+xs.min()/dpr, painted.y()+ys.min()/dpr,
+               painted.x()+(xs.max()+1)/dpr, painted.y()+(ys.max()+1)/dpr]
+        contents = glyph.contentsRect()
+        overflow = (ink[0] < contents.x() or ink[1] < contents.y()
+                    or ink[2] > contents.x()+contents.width() or ink[3] > contents.y()+contents.height())
+        details = dict(key=button.property("moduleAppKey"), pixmap=[size.width(), size.height()],
+                       contents=glyph.contentsRect().getRect(), dpr=pixmap.devicePixelRatio(),
+                       alpha=[int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())],
+                       alignment=int(glyph.alignment()), visible=glyph.visibleRegion().boundingRect().getRect(),
+                       painted=painted.getRect(), ink=[float(value) for value in ink], ink_overflows=bool(overflow))
+        assert size.width() <= glyph.contentsRect().width(), details
+        assert size.height() <= glyph.contentsRect().height(), details
+        assert gui_scale.current_scale() == gui
+        assert preferences.get_gui_scale() == gui and preferences.get_font_scale() == font
+        assert button.name_label.font().pixelSize() == gui_scale.scale_int(theme.font_px(14, font), gui)
+        return dict(key=button.property("moduleAppKey"), font=button.name_label.font().pixelSize(),
+                    icon=[size.width(), size.height()],
+                    dpr=pixmap.devicePixelRatio(),
+                    pixels=[int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())])
+
+    class MeasuredWindow(app_mod.MainWindow):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            timing.subscribe_readiness(self.ready)
+            self.started = False
+            QTimer.singleShot(45000, self.deadline)
+
+        def ready(self, entry):
+            if (entry.get("detail") == "__home__" and not self.started
+                    and self.isVisible() and self._startup.isVisible()):
+                self.started = True
+                timing.unsubscribe_readiness(self.ready)
+                QTimer.singleShot(0, self.check_startup)
+
+        def deadline(self):
+            if not self.started:
+                result["error"] = "Normal entrypoint did not reach post-paint interactive Home within45s"
+                self.finish()
+
+        def check_startup(self):
+            try:
+                result["metrics"].append(measure(self))
+                if os.environ["SPACR_SCALE_TEST_PHASE"] == "reset":
+                    gui_scale.change_scales(self, gui=1.25, font=1.5, ask=False)
+                    assert gui_scale.current_scale() == 1.25
+                    assert preferences.get_font_scale() == 1.5
+                    result["changed"] = measure(self, 1.25, 1.5)
+                    assert result["changed"]["font"] != result["metrics"][0]["font"]
+                    assert result["changed"]["icon"] != result["metrics"][0]["icon"]
+                    gui_scale.reset_every_scale(self)
+                    QTimer.singleShot(500, self.check_reset)
+                else:
+                    self.finish()
+            except Exception:
+                result["error"] = traceback.format_exc()
+                self.finish()
+
+        def check_reset(self):
+            try:
+                result["metrics"].append(measure(self))
+                assert result["metrics"][0] == result["metrics"][1]
+                preferences._settings().sync()
+            except Exception:
+                result["error"] = traceback.format_exc()
+            self.finish()
+
+        def finish(self):
+            print("RESULT " + json.dumps(result), flush=True)
+            actions = [action for action in self._menu_bar_actions()
+                       if action.menuRole() == QAction.QuitRole]
+            assert len(actions) == 1
+            QTimer.singleShot(0, actions[0].trigger)
+
+    app_mod.MainWindow = MeasuredWindow
+    sys.argv = ["spacr.qt", "__home__", "--no-setup"]
+    runpy.run_module("spacr.qt", run_name="__main__")
+''')
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="Actual Cocoa startup/reset/restart contract")
+def test_normal_macos_startup_reset_and_restart_keep_scale_font_and_icons(tmp_path):
+    root = _repo_root()
+    settings = str((tmp_path / "settings").resolve())
+    state = os.path.join(settings, "state")
+    cache = os.path.join(settings, "cache")
+    env = dict(os.environ, QT_QPA_PLATFORM="cocoa", CUDA_VISIBLE_DEVICES="",
+               SPACR_MENU_TEST_SETTINGS=settings, SPACR_NO_BACKDROP="1",
+               SPACR_NO_NETWORK="1", SPACR_LANGUAGE="en", PYTHONPATH=root,
+               SPACR_HOME=state, SPACR_LOG_DIR=os.path.join(state, "logs"),
+               SPACR_ISOLATED_PROFILE="1", SPACR_LOCK_DIR=os.path.join(state, "locks"),
+               SPACR_CHAINING_PINS=os.path.join(state, "pins.json"),
+               SPACR_BACKENDS_DIR=os.path.join(state, "backends"),
+               SPACR_MODEL_CACHE=os.path.join(state, "models"),
+               SPACR_PLUGIN_HOME=os.path.join(state, "plugins"),
+               SPACR_SOUND_CACHE=os.path.join(cache, "sounds"),
+               XDG_CACHE_HOME=cache, XDG_STATE_HOME=os.path.join(state, "xdg"),
+               TORCH_HOME=os.path.join(cache, "torch"), HF_HOME=os.path.join(cache, "huggingface"),
+               MPLCONFIGDIR=os.path.join(cache, "matplotlib"),
+               CELLPOSE_LOCAL_MODELS_PATH=os.path.join(state, "models", "cellpose"),
+               SPACR_TIMING="1", SPACR_TIMING_IMPORTS="0")
+    reports = []
+    for phase in ("reset", "restart"):
+        result = subprocess.run([sys.executable, "-c", _SCALE_STARTUP_PROBE], cwd=root,
+                                env=dict(env, SPACR_SCALE_TEST_PHASE=phase),
+                                capture_output=True, text=True, timeout=130)
+        assert result.returncode == 0, result.stdout + result.stderr
+        lines = [line for line in result.stdout.splitlines() if line.startswith("RESULT ")]
+        assert len(lines) == 1, result.stdout + result.stderr
+        report = json.loads(lines[0][len("RESULT "):])
+        assert "error" not in report, report.get("error")
+        assert report["module"] == os.path.join(root, "spacr", "qt", "app.py")
+        assert os.path.commonpath([os.path.realpath(report["settings"]), settings]) == settings
+        assert os.path.commonpath([os.path.realpath(report["preferences_settings"]), settings]) == settings
+        reports.append(report)
+    assert len(reports[0]["metrics"]) == 2 and len(reports[1]["metrics"]) == 1
+    assert reports[0]["metrics"][0] == reports[0]["metrics"][1] == reports[1]["metrics"][0]
 
 
 @pytest.fixture(scope="module")

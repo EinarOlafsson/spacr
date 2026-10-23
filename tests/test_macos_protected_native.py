@@ -15,6 +15,47 @@ pytestmark = pytest.mark.skipif(
     reason="requires an explicitly assigned native macOS acceptance scope")
 
 
+def test_native_explicit_venv_probe_resolves_alias_and_requires_configuration(tmp_path):
+    """Probe only an owned interpreter, without installing or removing spaCR.
+
+    :param tmp_path: disposable venv, inert metadata and Unicode alias paths.
+    """
+    import venv
+
+    prefix = tmp_path / "private Python μ"
+    venv.EnvBuilder(with_pip=False, symlinks=True).create(prefix)
+    metadata = prefix / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}" / "site-packages" / "spacr-0.0.dist-info"
+    metadata.mkdir(parents=True, exist_ok=True)
+    (metadata / "METADATA").write_text("Name: spacr\nVersion: 0.0\n", encoding="utf-8")
+    alias = tmp_path / "Ólafur's active environment"
+    alias.symlink_to(prefix, target_is_directory=True)
+    expected = [str(prefix.resolve() / "bin" / "python"), "-I", "-c",
+                "import json,sys;print(json.dumps(sys.prefix))"]
+    calls = []
+
+    def run(argv, *, timeout):
+        assert argv == expected and timeout == 15
+        calls.append(tuple(argv))
+        result = subprocess.run(argv, cwd=tmp_path, capture_output=True,
+                                text=True, timeout=timeout)
+        assert not result.stderr
+        return result.returncode, result.stdout
+
+    machine = cleanup._Machine(platform="macos", runner=run)
+    machine.environ = {"VIRTUAL_ENV": str(alias)}
+    assert cleanup._explicit_virtualenv(machine) == str(prefix.resolve())
+    assert len(calls) == 1 and alias.samefile(prefix)
+    configuration = prefix / "pyvenv.cfg"
+    contents = configuration.read_bytes()
+    configuration.unlink()
+    try:
+        assert cleanup._explicit_virtualenv(machine) is None
+        assert len(calls) == 1
+    finally:
+        configuration.write_bytes(contents)
+    assert (metadata / "METADATA").read_text(encoding="utf-8") == "Name: spacr\nVersion: 0.0\n"
+
+
 def test_native_apple_script_string_encoding_cannot_execute_the_embedded_transaction(tmp_path):
     """Ask AppleScript to return the exact string without authorization.
 

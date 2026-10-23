@@ -122,6 +122,19 @@ That single new end-to-end regression passes on the Mac in21.09s, sampled
 aggregate RSS0.746GiB under the8GiB/300s polling wrapper, normal exit0.
 It preserves IDs254/255/256 and exact uint8→uint16 undo/redo/save/reopen
 arrays/object table through the owned NFD Unicode path; source image unchanged.
+Additional save-failure scope: one owned-target atomic replace PermissionError
+after real TIFF write/fsync while a queued Save is drained by normal close.
+Require exact prior file/source bytes, retained unsaved canvas/history and
+saved-state rollback, dirty/error reporting, temporary cleanup and terminal
+request/empty queue without inventing a requirement to refuse window close.
+Keep deterministic fault injection private to the owned destination; no chmod
+assumptions, native file-dialog claim or live-app/source change.
+The single new Cocoa case passes in21.03s, sampled aggregate RSS0.704GiB
+under the8GiB/300s polling wrapper, normal exit0. Real staged TIFF/fsync is
+followed by the owned-target PermissionError; normal close drains the failed
+request within10s, reports it, removes the temporary and preserves prior
+TIFF/source bytes, unsaved mask/history and saved-state rollback/dirty status.
+No production repair is needed; the reusable writer daemon may remain idle.
 
 --------------------------------------------------------------------------------
 BUILT 2026-10-13 (Home, branch feat-697-brush-labels on makemasks-paint; not

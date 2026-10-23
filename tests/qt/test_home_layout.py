@@ -46,6 +46,69 @@ from spacr.qt.widgets.home import AppTile, HomePage
 #: row to measure here.
 _DOCK_ROWS = list(dock_rows())
 
+
+@pytest.mark.parametrize("shape", [(40, 40), (80, 40), (512, 512), (1024, 512)])
+@pytest.mark.parametrize("dpr", [1.0, 2.0])
+def test_app_tile_icon_tracks_live_bounds_and_dpr(qtbot, monkeypatch, shape, dpr):
+    from PySide6.QtCore import QEvent, QSize
+    from PySide6.QtGui import QColor, QIcon, QPixmap
+    from PySide6.QtWidgets import QApplication, QStyle
+    from spacr.qt import gui_scale, hidpi
+    from spacr.qt.widgets import home as home_widgets
+
+    previous = gui_scale.current_scale()
+    ratio = [dpr]
+    monkeypatch.setattr(home_widgets, "device_ratio", lambda widget: ratio[0])
+    monkeypatch.setattr(hidpi, "device_ratio", lambda widget: ratio[0])
+    submitted = []
+    original_set_pixmap = home_widgets._AppTileIcon.setPixmap
+
+    def record_pixmap(label, pixmap):
+        submitted.append(QPixmap(pixmap))
+        original_set_pixmap(label, pixmap)
+
+    monkeypatch.setattr(home_widgets._AppTileIcon, "setPixmap", record_pixmap)
+    source = QPixmap(*shape)
+    source.fill(QColor("red"))
+    tile = None
+    try:
+        gui_scale.set_gui_scale_live(.9)
+        tile = AppTile("Mask", "", QIcon(source), width=180, height=160, icon_px=48)
+        qtbot.addWidget(tile)
+        tile.show()
+        glyph = tile.findChild(home_widgets._AppTileIcon)
+        assert glyph.findChild(hidpi._RatioWatcher) is not None
+        for scale in (.1, .9, 1.25, 2.0):
+            gui_scale.set_gui_scale_live(scale)
+            QApplication.processEvents()
+            for target in (dpr, 3.0 - dpr):
+                ratio[0] = target
+                glyph.findChild(hidpi._RatioWatcher).eventFilter(
+                    glyph, QEvent(QEvent.DevicePixelRatioChange))
+                pixmap = submitted[-1]
+                size = pixmap.deviceIndependentSize()
+                bounds = glyph.contentsRect()
+                assert pixmap.devicePixelRatio() == target
+                shown = glyph.pixmap().deviceIndependentSize()
+                assert abs(shown.width() - size.width()) <= 1 / glyph.devicePixelRatioF()
+                assert abs(shown.height() - size.height()) <= 1 / glyph.devicePixelRatioF()
+                assert shown.width() <= bounds.width()
+                assert shown.height() <= bounds.height()
+                assert 0 < size.width() <= bounds.width()
+                assert 0 < size.height() <= bounds.height()
+                assert abs(max(size.width(), size.height()) - max(bounds.width(), bounds.height())) <= 1 / target
+                assert abs(pixmap.width() * shape[1] - pixmap.height() * shape[0]) <= max(shape)
+                placed = QStyle.alignedRect(glyph.layoutDirection(), glyph.alignment(),
+                                           QSize(round(size.width()), round(size.height())), bounds)
+                assert bounds.contains(placed)
+                assert tile.rect().contains(glyph.geometry())
+                image = pixmap.toImage()
+                assert image.pixelColor(image.width() // 2, image.height() // 2).alpha() == 255
+    finally:
+        if tile is not None:
+            tile.close()
+        gui_scale.set_gui_scale_live(previous)
+
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
