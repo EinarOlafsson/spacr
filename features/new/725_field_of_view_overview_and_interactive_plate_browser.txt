@@ -46,6 +46,12 @@ identical geometry snapshots under the unchanged5s waits, failed-node-only
 field/well/plate Back navigation and retained-workspace reopen. No further
 production change or assertion tolerance was needed; three affected passes
 are retained across the two runs, not claimed as one complete cohort/full app.
+Normal-entrypoint Cocoa89912 on170ffcace PASSES atGUI200/font200/Open Sans52px:
+all89 Options controls, full native plate visibility, bounded resize, independent
+Options/reopen and full Back text after actual scrolling; original host restored.
+Inputs unchanged, all10 job groups and captured threads drained, normal close;
+child0/62.825s/RSS1.241GiB/zero missed samples. Normal generators are unchanged.
+Other-scale current-module coverage, physical input and smaller displays remain separate.
 
 Mac acceptance addendum: retain Workstation's DONE implementation/ownership.
 On b453f2b0702abf5f158793c8b0e783974f488ea2, inspect two fresh normal-app
