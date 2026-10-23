@@ -251,6 +251,15 @@ actual Open Sans52px, full native Next text visible after scrolling at1356x102,
 sticky760/restored102 and independent inner horizontal scrollbar, then the
 same buttons'52→2→52 minimum reset/unbounded maximum. Full normal-app merged
 module ownership, native maximum content/plate/Options acceptance remains pending.
+Full normal-app Cocoa83898 on merged08935 now passes actual maximum-scale
+Next text visibility (170x105 button; native field/full text120x71), both real
+module/settings ownership checks and all three intentional transparent surfaces.
+The run still fails before Options: the1440x870 native minimum equals the work
+area, leaving no bounded resize direction; browser1950x1271/plate1854x655 also
+exceeds the visible host. Local plate-section sums are not on-screen acceptance.
+Natural child1/42.254s/RSS1.035GiB/zero missed samples, unchanged inputs and
+normal close are retained. Continue707 resize-floor and725 visible-module
+repair; Options and complete maximum-scale acceptance are explicitly unresolved.
 
 CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
 

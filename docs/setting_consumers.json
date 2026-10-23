@@ -25662,7 +25662,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 6033,
+    "line": 6148,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_prepare_normalization"
@@ -39638,7 +39638,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 6066,
+    "line": 6181,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewWellMeanContext.__init__"
