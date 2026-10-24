@@ -15,8 +15,24 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / 'packaging/online/install_spacr_unix.sh'
 
 
+def _gui_backend_runnable():
+    """What spacr_linux_gui_install itself refuses without: setsid and Bash 5.1+.
+
+    A Mac has neither (bash 3.2, no setsid), so there the function returns 3
+    before any dialog and every case here failed on "required_command".
+    """
+    bash = shutil.which('bash')
+    if bash is None or shutil.which('setsid') is None:
+        return False
+    version = subprocess.run([bash, '-c', 'echo ${BASH_VERSINFO[0]} ${BASH_VERSINFO[1]}'],
+                             capture_output=True, text=True).stdout.split()
+    return len(version) == 2 and tuple(map(int, version)) >= (5, 1)
+
+
 @pytest.fixture
 def gui(tmp_path):
+    if not _gui_backend_runnable():
+        pytest.skip('the Linux GUI installer needs setsid and Bash 5.1+')
     bindir = tmp_path / 'bin'
     bindir.mkdir()
     os.mkfifo(tmp_path / 'dialog-ready')
@@ -190,8 +206,10 @@ def test_actual_desktop_routing_preserves_explicit_headless_and_child_invocation
 @pytest.mark.parametrize("no_command", [0, 1])
 def test_desktop_entry_runs_verified_private_python_without_command_launcher(tmp_path, directory, no_command):
     gio = shutil.which("gio")
-    if gio is None:
-        pytest.skip("desktop-entry activation needs the GLib gio utility")
+    if gio is None or not sys.platform.startswith("linux"):
+        # Anaconda ships a gio on macOS too, whose `gio launch` answers "not
+        # currently supported on this platform".
+        pytest.skip("desktop-entry activation needs the GLib gio utility on Linux")
     venv = tmp_path / directory
     python = venv / "bin" / "python"
     python.parent.mkdir(parents=True)

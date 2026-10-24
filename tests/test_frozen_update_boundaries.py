@@ -122,7 +122,10 @@ def test_absent_archived_helper_source_returns_a_plan_error_without_spawning(tmp
     marker.write_text("preserve", encoding="utf-8")
     record = cleanup.InstallRecord(kind="installer", layout="linux-online", platform="linux",
                                    root=str(root), running=True)
-    machine = cleanup._Machine(environ={}, fs_root=str(tmp_path), executable=str(root / "spacr"))
+    # The record is a Linux one, so the machine must be too: left to default it
+    # follows the host, and on a Mac the plan took the macOS branch instead.
+    machine = cleanup._Machine(platform="linux", environ={}, fs_root=str(tmp_path),
+                               executable=str(root / "spacr"))
     monkeypatch.setattr(cleanup, "__file__", str(root / "archive" / "install_cleanup.pyc"))
 
     def no_spawn(*args, **kwargs):

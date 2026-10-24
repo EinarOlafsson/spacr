@@ -52,9 +52,10 @@ def test_the_arm64_reexec_passes_exactly_the_arguments_it_was_given(tmp_path, ar
 
 
 def test_no_array_in_the_installer_is_expanded_unguarded_where_it_can_be_empty():
-    """The arrays that can be empty are the arguments and the GUI child's."""
+    """The arrays that can be empty: the arguments, the GUI child's, and
+    ``elevate``, which is empty when the installer already runs as root."""
     source = SCRIPT.read_text(encoding="utf-8")
-    for name in ("SPACR_ORIGINAL_ARGS", "child_args"):
+    for name in ("SPACR_ORIGINAL_ARGS", "child_args", "elevate", "build_deps"):
         assert f'"${{{name}[@]}}"' not in source.replace(
             f'${{{name}[@]+"${{{name}[@]}}"}}', ""), name
 
