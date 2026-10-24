@@ -280,6 +280,7 @@ def _rows(screen) -> dict:
     by_widget = {id(widget): key for key, widget
                  in model._widgets.built_items()}
     found = {}
+    headings = {id(section) for section in screen._settings_sections}
     for section in screen._settings_sections:
         form = getattr(section, "_form", None)
         if not isinstance(form, QFormLayout):
@@ -290,7 +291,7 @@ def _rows(screen) -> dict:
             label_item = form.itemAt(index, QFormLayout.LabelRole)
             field = field_item.widget() if field_item else None
             key = by_widget.get(id(field)) if field is not None else None
-            if key is None and field is not None:
+            if key is None and field is not None and id(field) not in headings:
                 key = next((by_widget[id(child)]
                             for child in field.findChildren(QWidget)
                             if id(child) in by_widget), None)
