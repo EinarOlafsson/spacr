@@ -262,6 +262,12 @@ def preprocess_generate_masks(settings):
     That table is built from Measure's object tables, so before Measure has run
     there are none, and that is not a failure.
     """
+    from .psf_pipeline import _validate_unmix_plate_scope
+
+    _validate_unmix_plate_scope(settings, allow_per_plate=(
+        settings.get('pipeline_style', 'v1') == 'v2'
+        and not any(_watch_truthy(settings.get(key, False))
+                    for key in ('watch_folder', 'timelapse', 'z_stack', 't_stack'))))
     if settings.get('dry_run', False):
         from .validate import run_preflight
         return run_preflight(settings, 'mask')
@@ -290,6 +296,7 @@ def preprocess_generate_masks(settings):
 
     from .ome_zarr import _needs_cloud_run, _run_with_cloud_sources
     if _needs_cloud_run(settings):
+        _validate_unmix_plate_scope(settings)
         return _run_with_cloud_sources(preprocess_generate_masks, settings, 'mask')
 
     if _watch_truthy(settings.get('watch_folder', False)):
@@ -807,6 +814,9 @@ def preprocess_generate_masks_timelapse(settings):
 
     if settings is None:
         settings = {}
+    from .psf_pipeline import _validate_unmix_plate_scope
+
+    _validate_unmix_plate_scope(settings)
     if settings.get('timelapse', True) is False:
         print("Timelapse module: settings['timelapse'] was False — forcing it "
               "to True. Use the Mask module for non-timelapse segmentation.")
@@ -4428,6 +4438,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
     The settings are deep-copied at the start, so a callback or UI edit cannot
     change the recipe between live fields.
     """
+    from .psf_pipeline import _validate_unmix_plate_scope
+
+    _validate_unmix_plate_scope(settings)
     from .cancellation import PipelineCancelled, checkpoint
 
     settings, recipe_defaults = _watch_vendor_recipe(settings)

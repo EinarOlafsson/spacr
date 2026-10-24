@@ -567,3 +567,36 @@ def test_signed_cell_measurement_refuses_unrepresentable_physical_geometry(
     assert not destination.exists()
     assert set(tmp_path.iterdir()) == before
     assert all(path.read_bytes() == original for path, original in sample['sources'].items())
+
+
+@pytest.mark.parametrize('entry', ['measure', 'field-table'])
+def test_per_plate_control_settings_refuse_before_ordinary_measure_outputs(tmp_path, monkeypatch, entry):
+    """Refuse the unsupported option before preflight or hand-picked arrays are written."""
+    import spacr.measure as measure
+    import spacr.validate as validate
+
+    source = tmp_path / 'plate1'
+    source.mkdir()
+    pixels = source / 'channel.npy'
+    labels = source / 'cells.npy'
+    np.save(pixels, np.arange(16, dtype=np.float32).reshape(4, 4))
+    np.save(labels, np.ones((4, 4), dtype=np.uint16))
+    table = measure.FieldTable(rows=[measure.FieldRow('field', channels={0: str(pixels)},
+                                                    masks={'cell': str(labels)})])
+    before = {path: path.read_bytes() for path in source.iterdir()}
+    settings = dict(src=str(source), unmix_per_plate=True, unmix=False,
+                    unmix_calibration='', dry_run=True)
+
+    def forbidden(*args, **kwargs):
+        """Prevent a refusal from being mistaken for completed ordinary preprocessing."""
+        pytest.fail('unsupported per-plate controls reached ordinary Measure work')
+
+    monkeypatch.setattr(validate, 'run_preflight', forbidden)
+    monkeypatch.setattr(measure, 'write_field_table_project', forbidden)
+    with pytest.raises(ValueError, match='Per-plate spectral controls require calibrated organized 2D cell segmentation through V2'):
+        if entry == 'measure':
+            measure.measure_crop(settings)
+        else:
+            measure.measure_from_field_table(table, settings, dst=str(tmp_path / 'features'))
+    assert {path: path.read_bytes() for path in source.iterdir()} == before
+    assert set(tmp_path.iterdir()) == {source}

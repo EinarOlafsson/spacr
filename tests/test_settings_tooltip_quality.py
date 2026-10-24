@@ -1077,6 +1077,61 @@ if app_key == "mask":
     assert ast.dump(mask_branch, include_attributes=False) == ast.dump(
         expected_mask_branch, include_attributes=False)
     recognized_arrivals |= mask_timelapse_arrival
+    published_calibration_arrivals = {
+        (app, key) for app in ("mask", "measure", "external_masks")
+        for key in ("unmix_calibration", "unmix_pixel_size_um")
+    }
+    assert len(published_calibration_arrivals) == 6
+    assert {pair for pair in compared_pairs
+            if pair[1] in {"unmix_calibration", "unmix_pixel_size_um"}} == (
+        published_calibration_arrivals)
+    assert not published_calibration_arrivals & (recognized_arrivals | variants.keys())
+    assert expected_types["unmix_calibration"] is str
+    assert expected_types["unmix_pixel_size_um"] == (list, tuple, type(None))
+    published_calibration_defaults = {"unmix_calibration": "", "unmix_pixel_size_um": None}
+    published_calibration_tooltips = {
+        "unmix_calibration": "3a092a9f351a19ddaaf923bfd748e528087d13573cb6b4962320bf3c4f7c13e3",
+        "unmix_pixel_size_um": "9d05922d4f47d60771865b39f6238f6a688ac2d300222f9a65161e91c395e56b",
+    }
+    for key, digest in published_calibration_tooltips.items():
+        assert hashlib.sha256(tooltips[key].encode()).hexdigest() == digest
+        claims = list(DEFAULT_LITERAL.finditer(tooltips[key]))
+        assert len(claims) == 1
+        raw = claims[0].group("value")
+        claimed = "" if raw.lower() == "blank" else ast.literal_eval(raw)
+        assert claimed == published_calibration_defaults[key]
+    for app, key in published_calibration_arrivals:
+        assert resolve_default_settings(app)[key] == published_calibration_defaults[key]
+    recognized_arrivals |= published_calibration_arrivals
+    plate_control_arrivals = {(app, "unmix_per_plate")
+                              for app in ("mask", "measure", "external_masks")}
+    assert {pair for pair in compared_pairs
+            if pair[1] == "unmix_per_plate"} == plate_control_arrivals
+    assert not plate_control_arrivals & (recognized_arrivals | variants.keys())
+    assert expected_types["unmix_per_plate"] is bool
+    assert hashlib.sha256(tooltips["unmix_per_plate"].encode()).hexdigest() == (
+        "a283816b7371998ef2264b36d318d52ad3158ee5760438b1633001ad6a8097c9")
+    plate_control_claim = list(DEFAULT_LITERAL.finditer(tooltips["unmix_per_plate"]))
+    assert len(plate_control_claim) == 1
+    assert ast.literal_eval(plate_control_claim[0].group("value")) is False
+    for app, key in plate_control_arrivals:
+        assert resolve_default_settings(app)[key] is False
+    from spacr.settings import ALPHA_FEATURES
+    scoped_defaults = {**published_calibration_defaults, "unmix_per_plate": False}
+    assert scoped_defaults.keys() <= set(ALPHA_FEATURES[538]["settings"])
+    settings_tree = ast.parse((Path(__file__).resolve().parents[1]
+                              / "spacr/settings.py").read_text(encoding="utf-8"))
+    unmix_defaults = next(node for node in settings_tree.body
+                          if isinstance(node, ast.FunctionDef)
+                          and node.name == "_set_unmix_defaults")
+    owned_defaults = {
+        ast.literal_eval(node.args[0]): ast.literal_eval(node.args[1])
+        for node in ast.walk(unmix_defaults)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "setdefault"
+    }
+    assert {key: owned_defaults[key] for key in scoped_defaults} == scoped_defaults
+    recognized_arrivals |= plate_control_arrivals
     assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

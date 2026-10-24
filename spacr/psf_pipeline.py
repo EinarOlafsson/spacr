@@ -35,7 +35,7 @@ join the same provenance record.
 """
 from __future__ import annotations
 
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 import hashlib
 import json
@@ -382,6 +382,7 @@ class _UnmixPlan:
     :param controls: ``{dye channel: (well, ...)}`` as the settings named them.
     :param fields: ``{dye channel: (field stem, ...)}`` the estimate read.
     :param calibration: optional captured optical calibration for ROI-aware preview.
+    :param control_selection: immutable JSON plate-control evidence, absent for global plans.
     """
 
     channels: tuple
@@ -390,6 +391,7 @@ class _UnmixPlan:
     controls: dict
     fields: dict
     calibration: object = None
+    control_selection: object = None
 
     def provenance(self):
         """The plan as a JSON-safe record for the run's provenance."""
@@ -405,6 +407,8 @@ class _UnmixPlan:
         }
         if self.calibration is not None:
             record['calibration'] = self.calibration.provenance()
+        if self.control_selection is not None:
+            record['control_selection'] = json.loads(self.control_selection)
         return record
 
     def apply(self, image):
@@ -715,16 +719,198 @@ def _unmix(image, matrix, background_percentile, *, clip_negative=True):
     return solved.reshape(array.shape).astype(np.float32)
 
 
+def _validate_unmix_plate_scope(settings, *, allow_per_plate=False):
+    """Admit plate-qualified controls only through their explicit supported route.
+
+    :param settings: spectral settings including the optional per-plate switch.
+    :param allow_per_plate: whether the caller supplies calibrated V2 identities.
+    :returns: whether the explicitly enabled plate-qualified mode is active.
+    """
+    from .qt.i18n import tr
+
+    enabled = _bool(settings.get('unmix_per_plate', False))
+    if enabled and (not allow_per_plate or not _bool(settings.get('unmix', False))
+                    or not settings.get('unmix_calibration')):
+        raise ValueError(tr("Per-plate spectral controls require calibrated organized 2D cell segmentation through V2; this processing path is not supported."))
+    return enabled
+
+
+def _plate_control_pairs(pairs):
+    """Reject repeated JSON keys before their original spelling can be lost.
+
+    :param pairs: JSON object entries in their supplied order.
+    :returns: a mapping without duplicate keys.
+    """
+    if len({key for key, _ in pairs}) != len(pairs):
+        raise ValueError
+    return dict(pairs)
+
+
+def _plate_unmix_controls(settings, channels, identities):
+    """Capture one exact plate's complete controls from a bounded master map.
+
+    :param settings: enabled plate-qualified spectral settings.
+    :param channels: physical channel IDs in their actual packed order.
+    :param identities: captured physical identities of all source fields.
+    :returns: selected controls and independent JSON-safe selection metadata.
+    """
+    from .qt.i18n import tr
+    from .schema import parse_well, well_id
+
+    message = tr("Per-plate spectral controls require a bounded JSON plate-to-channel-to-well-list map with complete controls for the exact source plate and physical channels.")
+    try:
+        raw = settings.get('unmix_controls')
+        text = raw if isinstance(raw, str) else json.dumps(raw, allow_nan=False)
+        if len(text.encode('utf-8')) > 1024 ** 2:
+            raise ValueError
+        master = json.loads(text, object_pairs_hook=_plate_control_pairs)
+        if not isinstance(master, dict) or not master or len(master) > 8192:
+            raise ValueError
+        canonical = {}
+        for plate, entries in master.items():
+            if not isinstance(plate, str) or not plate or plate != plate.strip() or not isinstance(entries, dict) or not 1 <= len(entries) <= 16:
+                raise ValueError
+            mapped = {}
+            used = set()
+            for channel, wells in entries.items():
+                number = int(channel)
+                if str(number) != channel or number < 0 or not isinstance(wells, list) or not wells:
+                    raise ValueError
+                normalized = []
+                for well in wells:
+                    if not isinstance(well, str):
+                        raise ValueError
+                    row, column = parse_well(well, strict=True)
+                    normalized.append(well_id(row, column))
+                if len(set(normalized)) != len(normalized) or used.intersection(normalized):
+                    raise ValueError
+                used.update(normalized)
+                mapped[str(number)] = sorted(normalized)
+            canonical[plate] = mapped
+        if not identities or any(not _cell_record_identity_valid(identity) for identity in identities.values()):
+            raise ValueError
+        contexts = {(identity['plate'], identity['time'], identity['z'], identity['source_dataset']) for identity in identities.values()}
+        if len(contexts) != 1 or not channels:
+            raise ValueError
+        plate = next(iter(contexts))[0]
+        selected = canonical[plate]
+        if (not 1 <= len(channels) <= 16
+                or any(isinstance(channel, (bool, np.bool_))
+                       or not isinstance(channel, (int, np.integer)) or channel < 0
+                       for channel in channels)
+                or len(set(channels)) != len(channels)):
+            raise ValueError
+        physical = tuple(int(channel) for channel in channels)
+        if set(selected) != {str(channel) for channel in physical}:
+            raise ValueError
+        available = {parse_well(identity['well'], strict=True) for identity in identities.values()}
+        if any(parse_well(well, strict=True) not in available for wells in selected.values() for well in wells):
+            raise ValueError
+        selection = dict(scope='plate', plate=plate, physical_channel_order=list(physical),
+                         canonical_controls_by_plate=canonical,
+                         controls_map_sha256=_cell_record_hash(canonical),
+                         selected_controls=selected, sampled_fields={})
+        return _parse_unmix_controls(selected), selection
+    except (KeyError, TypeError, ValueError, OverflowError):
+        raise ValueError(message) from None
+
+
+def _plate_control_hash(stream, expected_size):
+    """Hash at most the captured input length plus one byte to detect growth.
+
+    :param stream: the same open descriptor used for the control pixels.
+    :param expected_size: captured byte count already admitted by the budget.
+    :returns: exact SHA256 and unchanged native file identity.
+    """
+    before = os.fstat(stream.fileno())
+    if before.st_size != expected_size:
+        raise ValueError
+    stream.seek(0)
+    digest = hashlib.sha256()
+    consumed = 0
+    while True:
+        checkpoint()
+        block = stream.read(min(1024 ** 2, expected_size - consumed + 1))
+        if not block:
+            break
+        consumed += len(block)
+        if consumed > expected_size:
+            raise ValueError
+        digest.update(block)
+    after = os.fstat(stream.fileno())
+    original = (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns)
+    current = (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns)
+    if consumed != expected_size or current != original:
+        raise ValueError
+    return digest.hexdigest(), current
+
+
+@contextmanager
+def _plate_control_input(path, remaining_bytes):
+    """Map and hash the same immutable bounded NPY descriptor used by estimation.
+
+    :param path: assembled raw control NPY, before segmentation replaces it.
+    :param remaining_bytes: remaining unique-control input-byte hashing budget.
+    :yields: a read-only numeric map and its captured input facts.
+    """
+    from .qt.i18n import tr
+
+    message = tr("Per-plate control inputs must be stable bounded numeric 2D NPY fields throughout calibration.")
+    mapped = None
+    delivered = checking = False
+    try:
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0))
+        with os.fdopen(descriptor, 'rb') as stream:
+            size = os.fstat(stream.fileno()).st_size
+            if size > min(remaining_bytes, 128 * 1024 ** 2 + 16384):
+                raise ValueError(message)
+            version = np.lib.format.read_magic(stream)
+            readers = {(1, 0): np.lib.format.read_array_header_1_0,
+                       (2, 0): np.lib.format.read_array_header_2_0}
+            if version not in readers:
+                raise ValueError(message)
+            shape, fortran, dtype = readers[version](stream, max_header_size=16384)
+            offset = stream.tell()
+            if (fortran or len(shape) != 3 or any(type(value) is not int or value <= 0 for value in shape)
+                    or shape[-1] > 16 or np.prod(shape, dtype=object) > 16 * 1024 ** 2
+                    or dtype.hasobject or dtype.kind not in 'uif' or dtype.itemsize > 8
+                    or size != offset + int(np.prod(shape, dtype=object)) * dtype.itemsize):
+                raise ValueError(message)
+            digest, identity = _plate_control_hash(stream, size)
+            mapped = np.memmap(stream, mode='r', dtype=dtype, offset=offset, shape=shape, order='C')
+            facts = dict(input_stage='assembled_pre_unmixing', input_sha256=digest,
+                         input_size_bytes=size, input_shape=list(shape), input_dtype=dtype.str)
+            delivered = True
+            yield mapped, facts
+            checking = True
+            after_digest, after_identity = _plate_control_hash(stream, size)
+            current = os.stat(path, follow_symlinks=False)
+            if (after_digest != digest or after_identity != identity
+                    or (current.st_dev, current.st_ino, current.st_size, current.st_mtime_ns, current.st_ctime_ns) != identity):
+                raise ValueError(message)
+    except (OSError, TypeError, ValueError) as error:
+        if delivered and not checking:
+            raise
+        raise ValueError(message) from error
+    finally:
+        if mapped is not None:
+            mapped._mmap.close()
+
+
 def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_calibrated=False,
                      channel_positions=None, field_identities=None):
     """Estimate the run's unmixing plan from its single-stain control wells.
 
     :param settings: ``unmix``, ``unmix_controls`` and
-        ``unmix_background_percentile``.
+        ``unmix_background_percentile``. Optional ``unmix_per_plate`` requires
+        a complete JSON plate-to-physical-channel-to-well-list master map;
+        only the exact source plate is selected, without cross-plate fallback.
     :param source_dir: folder of ``plate_well_field[_time].npy`` fields.
     :param channels: channel indices to unmix; None means every channel of
         the fields, as Make Masks unmixes whole stacks.
     :param load: reads one field into a channel-last array; ``np.load``.
+        Plate-qualified controls instead use a bounded read-only NPY descriptor
+        shared with their captured input hashes.
     :param allow_calibrated: allow an explicit ROI-aware 2D processing route.
     :param channel_positions: physical channel IDs mapped to packed positions.
     :param field_identities: captured source identities keyed by packed filename.
@@ -733,6 +919,9 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
     """
     from .schema import parse_field_stem, parse_well
 
+    per_plate = _validate_unmix_plate_scope(
+        settings, allow_per_plate=bool(allow_calibrated and channel_positions is not None
+                                      and field_identities is not None and channels is not None))
     requested_calibration = bool(settings.get('unmix_calibration'))
     if requested_calibration and (not allow_calibrated or not settings.get('unmix', False)):
         from .qt.i18n import tr
@@ -765,7 +954,11 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
 
             raise ValueError(tr("Spectral unmixing requires distinct nonnegative integer channel indices.")) from None
         channels = tuple(selected)
-    controls = _parse_unmix_controls(settings.get('unmix_controls'))
+    control_selection = None
+    if per_plate:
+        controls, control_selection = _plate_unmix_controls(settings, channels, field_identities)
+    else:
+        controls = _parse_unmix_controls(settings.get('unmix_controls'))
     if not controls:
         raise ValueError(
             'unmix is on but unmix_controls names no single-stain control '
@@ -818,59 +1011,70 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
     fields_by_dye = {}
     calibration = None
     calibrated_values = 0
+    control_bytes = 0
     for dye, found in stems.items():
         fields_by_dye[dye] = []
         for name in found:
             checkpoint()
-            field = np.asarray(load(source / name))
-            if requested_calibration and (field.ndim != 3 or not all(field.shape)
-                    or field.shape[-1] > 16):
-                from .qt.i18n import tr
-
-                raise ValueError(tr("Calibrated unmixing requires a nonempty 2D channel-last image with at most 16,777,216 channel pixels."))
-            if field.ndim < 3:
-                from .qt.i18n import tr
-
-                raise ValueError(tr("Spectral unmixing requires images with an explicit channel axis and at least three dimensions."))
-            if channels is None:
-                channels = tuple(range(field.shape[-1]))
-            positions = [channel_positions[c] if channel_positions is not None else c
-                         for c in channels]
-            outside = [c for c, position in zip(channels, positions)
-                       if not 0 <= position < field.shape[-1]]
-            if channel_positions is None and not 0 <= dye < field.shape[-1]:
-                outside.append(dye)
-            if outside:
-                raise ValueError(
-                    f'unmixing channel {outside[0]} is outside the '
-                    f'{field.shape[-1]} channels of {name}')
-            if dye not in channels:
-                raise ValueError(
-                    f'unmix_controls names channel {dye}, which is not among '
-                    f'the unmixed channels {list(channels)}')
-            if requested_calibration and field.shape[0] * field.shape[1] * len(channels) > 16 * 1024 ** 2:
-                from .qt.i18n import tr
-
-                raise ValueError(tr("Calibrated unmixing requires a nonempty 2D channel-last image with at most 16,777,216 channel pixels."))
-            if requested_calibration:
-                calibrated_values += field.shape[0] * field.shape[1] * len(channels)
-                if calibrated_values > _UNMIX_CALIBRATED_CONTROL_VALUES:
+            context = (_plate_control_input(source / name, 512 * 1024 ** 2 - control_bytes)
+                       if per_plate else nullcontext((np.asarray(load(source / name)), None)))
+            with context as (field, facts):
+                if requested_calibration and (field.ndim != 3 or not all(field.shape)
+                        or field.shape[-1] > 16):
                     from .qt.i18n import tr
 
-                    raise ValueError(tr("The selected spectral controls exceed the calibrated control-pixel budget; choose fewer or smaller control fields."))
-            selected_field = field[..., positions]
-            if requested_calibration:
-                if calibration is None:
-                    calibration = _load_unmix_calibration(settings, channels)
-                selected_field, _ = calibration.apply(selected_field)
-            fields_by_dye[dye].append(selected_field)
+                    raise ValueError(tr("Calibrated unmixing requires a nonempty 2D channel-last image with at most 16,777,216 channel pixels."))
+                if field.ndim < 3:
+                    from .qt.i18n import tr
+
+                    raise ValueError(tr("Spectral unmixing requires images with an explicit channel axis and at least three dimensions."))
+                if channels is None:
+                    channels = tuple(range(field.shape[-1]))
+                positions = [channel_positions[c] if channel_positions is not None else c
+                             for c in channels]
+                outside = [c for c, position in zip(channels, positions)
+                           if not 0 <= position < field.shape[-1]]
+                if channel_positions is None and not 0 <= dye < field.shape[-1]:
+                    outside.append(dye)
+                if outside:
+                    raise ValueError(
+                        f'unmixing channel {outside[0]} is outside the '
+                        f'{field.shape[-1]} channels of {name}')
+                if dye not in channels:
+                    raise ValueError(
+                        f'unmix_controls names channel {dye}, which is not among '
+                        f'the unmixed channels {list(channels)}')
+                if requested_calibration and field.shape[0] * field.shape[1] * len(channels) > 16 * 1024 ** 2:
+                    from .qt.i18n import tr
+
+                    raise ValueError(tr("Calibrated unmixing requires a nonempty 2D channel-last image with at most 16,777,216 channel pixels."))
+                if requested_calibration:
+                    calibrated_values += field.shape[0] * field.shape[1] * len(channels)
+                    if calibrated_values > _UNMIX_CALIBRATED_CONTROL_VALUES:
+                        from .qt.i18n import tr
+
+                        raise ValueError(tr("The selected spectral controls exceed the calibrated control-pixel budget; choose fewer or smaller control fields."))
+                selected_field = field[..., positions]
+                if requested_calibration:
+                    if calibration is None:
+                        calibration = _load_unmix_calibration(settings, channels)
+                    selected_field, _ = calibration.apply(selected_field)
+                fields_by_dye[dye].append(selected_field)
+                if per_plate:
+                    stem = Path(name).stem
+                    if stem not in control_selection['sampled_fields']:
+                        control_bytes += facts['input_size_bytes']
+                        control_selection['sampled_fields'][stem] = dict(
+                            facts, source_identity=json.loads(json.dumps(field_identities[name])))
     matrix = _estimate_bleed_through(fields_by_dye, channels)
     return _UnmixPlan(
         channels=tuple(int(channel) for channel in channels),
         matrix=tuple(tuple(float(value) for value in row) for row in matrix),
         background_percentile=percentile, controls=controls,
         fields={dye: tuple(Path(name).stem for name in found)
-                for dye, found in stems.items()}, calibration=calibration)
+                for dye, found in stems.items()}, calibration=calibration,
+        control_selection=(json.dumps(control_selection, sort_keys=True, allow_nan=False)
+                           if control_selection is not None else None))
 
 
 def _describe_unmixing(plan):
@@ -1412,6 +1616,9 @@ def _prepare_segmentation_psf(settings, root, channels, *, pipeline_style='v1',
     :returns: a new session, or None for an untracked run with the PSF, the
         chain, unmixing and Noise2Void all off.
     """
+    _validate_unmix_plate_scope(
+        settings, allow_per_plate=bool(pipeline_style == 'v2' and source_channels is not None
+                                      and field_identities is not None))
     if settings.get('unmix_calibration'):
         from .qt.i18n import tr
 
@@ -1583,6 +1790,76 @@ def _cell_record_map(stream, expected_shape):
     return np.memmap(stream, dtype=dtype, mode='r', offset=stream.tell(), shape=shape, order='C')
 
 
+def _validate_plate_control_record(config, rows):
+    """Check optional plate evidence without relaxing older signed-cell records.
+
+    :param config: captured calibrated dataset configuration.
+    :param rows: validated per-field signed artifact records.
+    :returns: None when absent or when all recorded plate-control facts agree.
+    """
+    unmixing = config['unmixing']
+    if 'control_selection' not in unmixing:
+        return
+    try:
+        selection = unmixing['control_selection']
+        identities = {key: row['source_identity'] for key, row in rows.items()}
+        identities.update(config['control_identities'])
+        _, expected = _plate_unmix_controls(
+            {'unmix_controls': selection['canonical_controls_by_plate']},
+            config['physical_channel_order'], identities)
+        if any(selection[key] != expected[key] for key in (
+                'scope', 'plate', 'physical_channel_order', 'canonical_controls_by_plate',
+                'controls_map_sha256', 'selected_controls')):
+            raise _cell_record_error()
+        if selection['selected_controls'] != unmixing['controls']:
+            raise _cell_record_error()
+        samples = selection['sampled_fields']
+        chosen = unmixing['fields']
+        if (set(chosen) != set(selection['selected_controls'])
+                or any(not isinstance(values, list) or not 1 <= len(values) <= _UNMIX_MAX_FIELDS
+                       or len(set(values)) != len(values) for values in chosen.values())):
+            raise _cell_record_error()
+        stems = [stem for values in chosen.values() for stem in values]
+        if not isinstance(samples, dict) or set(samples) != set(stems) or len(stems) != len(set(stems)):
+            raise _cell_record_error()
+        from .schema import parse_well
+
+        for dye, values in chosen.items():
+            wanted = {parse_well(well, strict=True) for well in selection['selected_controls'][dye]}
+            for stem in values:
+                if parse_well(samples[stem]['source_identity']['well'], strict=True) not in wanted:
+                    raise _cell_record_error()
+        by_identity = {json.dumps(row['source_identity'], sort_keys=True, allow_nan=False): row for row in rows.values()}
+        total_bytes = total_values = 0
+        for stem, facts in samples.items():
+            identity = facts['source_identity']
+            if (identity != config['control_identities'][stem] or identity['plate'] != selection['plate']
+                    or identity['source_dataset'] != config['source_dataset']):
+                raise _cell_record_error()
+            target = by_identity.get(json.dumps(identity, sort_keys=True, allow_nan=False))
+            shape = facts['input_shape']
+            dtype = np.dtype(facts['input_dtype'])
+            size = facts['input_size_bytes']
+            digest = facts['input_sha256']
+            if (facts['input_stage'] != 'assembled_pre_unmixing'
+                    or (target is not None and shape != target['source_shape'])
+                    or len(shape) != 3 or any(type(value) is not int or value <= 0 for value in shape)
+                    or shape[-1] != len(config['physical_channel_order'])
+                    or np.prod(shape, dtype=object) > 16 * 1024 ** 2
+                    or dtype.hasobject or dtype.kind not in 'uif' or dtype.itemsize > 8
+                    or dtype.str != facts['input_dtype'] or type(size) is not int
+                    or not 0 < size - int(np.prod(shape, dtype=object)) * dtype.itemsize <= 16384
+                    or not isinstance(digest, str) or len(digest) != 64
+                    or any(character not in '0123456789abcdef' for character in digest)):
+                raise _cell_record_error()
+            total_bytes += size
+            total_values += int(np.prod(shape, dtype=object))
+        if total_bytes > 512 * 1024 ** 2 or total_values > _UNMIX_CALIBRATED_CONTROL_VALUES:
+            raise _cell_record_error()
+    except (KeyError, TypeError, ValueError, OverflowError):
+        raise _cell_record_error() from None
+
+
 class _CalibratedCellDataset:
     """Own bounded one-field maps and exact completed-record provenance for a reader."""
 
@@ -1702,6 +1979,7 @@ class _CalibratedCellDataset:
                     identities.add((identity['plate'], identity['time'], identity['z']))
             if len(identities) != 1:
                 raise _cell_record_error()
+            _validate_plate_control_record(config, record['calibrated_fields'])
             self._metadata_current(full=True)
         except BaseException:
             self.close()

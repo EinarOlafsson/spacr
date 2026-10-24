@@ -2126,6 +2126,25 @@ def _validated_calibrated_batch_inventory(callables):
     sources = json.loads((root / "tests/data/release_contracts"
         / "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json").read_text(encoding="utf-8"))
     by_symbol = {item.symbol: item for item in callables}
+    from tests.test_documentation_i18n import _current_718_metal_class_api
+    current_sources = _current_718_metal_class_api(
+        sources, {symbol: item.docstring for symbol, item in by_symbol.items()})
+    constructor_symbols = {
+        "spacr.mps_reduce.MetalKMeans", "spacr.mps_reduce.MetalPCA",
+        "spacr.torch_loader.ArrayDataLoader",
+    }
+    for owner in constructor_symbols:
+        module, class_name = owner.rsplit(".", 1)
+        module_tree = ast.parse((root / (module.replace(".", "/") + ".py")).read_text(encoding="utf-8"))
+        declaration = next(node for node in module_tree.body
+                           if isinstance(node, ast.ClassDef) and node.name == class_name)
+        constructor = next(node for node in declaration.body
+                           if isinstance(node, ast.FunctionDef) and node.name == "__init__")
+        assert _clean_doc(declaration) == sources[owner]
+        assert current_sources[owner] == sources[owner] + "\n" + _clean_doc(constructor)
+        assert by_symbol[owner].constructor_prose_variant_count == 1
+        assert by_symbol[owner].docless_variant_count == 0
+        assert by_symbol[owner].category == "constructor"
     tree = ast.parse((root / "spacr/mps_reduce.py").read_text(encoding="utf-8"))
     expected_methods = {
         "MetalPCA": {"fit": True, "transform": False,
@@ -2180,7 +2199,7 @@ def _validated_calibrated_batch_inventory(callables):
     arrivals = set()
     for class_name, methods in expected_methods.items():
         owner = f"spacr.mps_reduce.{class_name}"
-        assert by_symbol[owner].docstring == sources[owner]
+        assert by_symbol[owner].docstring == current_sources[owner]
         declaration = next(node for node in tree.body
                            if isinstance(node, ast.ClassDef) and node.name == class_name)
         assert _clean_doc(declaration) == sources[owner]
@@ -2210,6 +2229,22 @@ def _validated_calibrated_batch_inventory(callables):
             if has_y:
                 assert ast.literal_eval(node.args.defaults[0]) is None
     assert len(arrivals) == 8 and not arrivals & sources.keys()
+    iterator_symbol = "spacr.torch_loader.ArrayDataLoader.__iter__"
+    iterator_sources = json.loads((root / "tests/data/release_contracts"
+        / "718_metal_loader_iterator_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(iterator_sources) == {iterator_symbol}
+    assert iterator_symbol not in by_symbol
+    loader_tree = ast.parse((root / "spacr/torch_loader.py").read_text(encoding="utf-8"))
+    loader = next(node for node in loader_tree.body
+                  if isinstance(node, ast.ClassDef) and node.name == "ArrayDataLoader")
+    declaration = next(node for node in loader.body
+                       if isinstance(node, ast.FunctionDef) and node.name == "__iter__")
+    assert _clean_doc(declaration) == iterator_sources[iterator_symbol]
+    assert [argument.arg for argument in declaration.args.args] == ["self"]
+    assert not declaration.args.posonlyargs and not declaration.args.kwonlyargs
+    assert not declaration.args.vararg and not declaration.args.kwarg and not declaration.args.defaults
+    assert not declaration.decorator_list and declaration.returns is None
+    assert not iterator_sources.keys() & (sources.keys() | arrivals)
     symbol = "spacr.pipeline_v2.stream_originals_to_stack"
     item = by_symbol[symbol]
     parameters = {"src", "mapper", "channels", "channel_names", "dst",
@@ -2247,6 +2282,8 @@ def _validated_calibrated_batch_inventory(callables):
         "preserve numeric planes and refuse missing, duplicate, "
         "non-2D or oversized channels for the separate calibrated route.")
     assert not additions & item.required_parameters
+    callables = [replace(row, docstring=sources[row.symbol], constructor_prose_variant_count=0)
+                 if row.symbol in constructor_symbols else row for row in callables]
     return [replace(row, parameters=row.parameters - additions,
                     accepted_documented_parameters=(row.accepted_documented_parameters - additions))
             if row.symbol == symbol else row for row in callables if row.symbol not in arrivals]
@@ -3078,6 +3115,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
                      "707_home_masthead_fit_api_arrival_2026-10-24.json",
                      "718_metal_reducer_method_api_arrivals_2026-10-24.json",
+                     "718_metal_loader_iterator_api_arrival_2026-10-24.json",
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5033,12 +5071,16 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json", 8),
         ("707_home_masthead_fit_api_arrival_2026-10-24.json", 1),
         ("718_metal_reducer_method_api_arrivals_2026-10-24.json", 8),
+        ("718_metal_loader_iterator_api_arrival_2026-10-24.json", 1),
         ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
+        if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
+            from tests.test_documentation_i18n import _current_718_metal_class_api
+            additions = _current_718_metal_class_api(additions, docs)
         assert len(additions) == expected_count
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()
@@ -5555,6 +5597,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
                      "707_home_masthead_fit_api_arrival_2026-10-24.json",
                      "718_metal_reducer_method_api_arrivals_2026-10-24.json",
+                     "718_metal_loader_iterator_api_arrival_2026-10-24.json",
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5640,6 +5683,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
                      "707_home_masthead_fit_api_arrival_2026-10-24.json",
                      "718_metal_reducer_method_api_arrivals_2026-10-24.json",
+                     "718_metal_loader_iterator_api_arrival_2026-10-24.json",
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))

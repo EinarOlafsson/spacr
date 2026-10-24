@@ -239,6 +239,12 @@ def test_documented_parameter_names_match_the_source_signatures():
 def test_public_docstrings_matches_reviewed_visible_coverage():
     docs = builder.public_docstrings()
     dunders = _visible_special_members()
+    metal_iterator_arrival = json.loads((ROOT / "tests/data/release_contracts"
+        / "718_metal_loader_iterator_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(metal_iterator_arrival) == {"spacr.torch_loader.ArrayDataLoader.__iter__"}
+    assert {key: docs[key] for key in metal_iterator_arrival} == metal_iterator_arrival
+    assert metal_iterator_arrival.keys() <= dunders
+    dunders = dunders - metal_iterator_arrival.keys()
     assignments = _visible_assignment_docs()
 
     # The omissions in the audited pages are precisely the documented special
@@ -1881,6 +1887,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         "spacr.torch_loader",
         "spacr.torch_loader.ArrayDataLoader",
     }
+    from tests.test_documentation_i18n import _current_718_metal_class_api
+    calibrated_metal_arrivals = _current_718_metal_class_api(calibrated_metal_arrivals, docs)
     assert {key: docs[key] for key in calibrated_metal_arrivals} == calibrated_metal_arrivals
     assert not calibrated_metal_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **calibrated_metal_arrivals}
@@ -1898,6 +1906,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **metal_method_arrivals}
+    assert not metal_iterator_arrival.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **metal_iterator_arrival}
     home_masthead_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "707_home_masthead_fit_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
     assert set(home_masthead_arrivals) == {

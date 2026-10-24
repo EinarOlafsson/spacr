@@ -118,6 +118,7 @@ def test_calibrated_batch_and_measurement_refusals_enter_runtime_catalog():
         "pipeline_v2": {"_read_plane", "_calibrated_label_array",
                         "stream_originals_to_stack", "stream_masks_from_stack", "run_v2"},
         "psf_pipeline": {"_initialize_calibrated_output", "_validate_calibrated_batch_settings",
+                         "_validate_unmix_plate_scope", "_plate_unmix_controls", "_plate_control_input",
                          "_prepare_segmentation_psf", "_SegmentationPSFSession",
                          "_cell_record_error", "_CalibratedCellDataset"},
     }

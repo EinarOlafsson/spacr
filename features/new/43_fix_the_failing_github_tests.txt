@@ -1,4 +1,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT HOME BODY SCROLL ACCESSIBLE NAME — 2026-10-24
+widgets_g4 owns the Night8fe unnamed Home scroll-area CI regression. Give
+the real keyboard-focusable Home body its existing localized Home name;
+preserve focus policy, scrolling and every tab-stop assertion. Coordinate
+the constructor-only hunk with the separate Home lifetime owner; root publishes.
+2026-10-24: With the accepted viewport-lifetime fix, the original owning
+tab-stop case passes (2.20s); normal Home API/runtime/consumer delta is zero.
+
 CURRENT HOME LOGO DPR FIXTURE — 2026-10-24
 widgets_g4 binds the two Night8fe masthead DPR failures to the current
 allocation-driven Home logo. Preserve native DPR, exact source-pixel and
@@ -27,6 +35,25 @@ The published fresh-profile default is 10%; retain the 50% user choice across
 both animation changes and its saved value. Product defaults remain unchanged.
 The sole current-Qt owning case passes (3.53s); independent peer/root review
 precedes publication. No production or generated changes.
+CURRENT SPECTRAL SETTINGS CONTRACTS — 2026-10-24
+Home owns the Night Coverage 6 calibration category declarations and Coverage 11
+calibration tooltip length failure. Keep the 600-character ceiling and existing
+category baselines; declare only the two published calibration keys and new
+plate-scope key. Condense hover guidance without changing supported routes,
+defaults or numerical behavior, then run only the affected source contracts.
+Home also owns exact accounting for the three already shipped Metal modules
+and normal removal of removable comments in the six named Night failure files.
+Preserve the original packaging baseline, protected attribute documentation,
+all numerical bodies and existing API arrival identities.
+Refresh the separate settings-flow page and index with their normal generator:
+the current plate-scope setting has no flow anchor despite its actual reads.
+Retain the exact source-derived section and index checks; do not regenerate the
+already accepted consumer map or API/runtime catalogs for this artifact repair.
+The settings/category/default checks pass (3); comment/packaging checks pass (2),
+callable/nested documentation checks pass (2), and all three exact API source
+admission checks pass. Normal settings-flow generation and its three freshness
+and index checks pass with independent output review and API/caption zero delta.
+Root owns Night publication; broader hosted CI qualification remains open.
 
 CURRENT QC CALLBACK DOCUMENTATION — 2026-10-23
 Home owns concise missing docs for measurement-export check_cancelled/record_result
@@ -52,6 +79,9 @@ Keep all existing ceilings, consent/privacy/provider choices, batching and
 original output behavior. CPU-only fake transports; no live AI or issue posts.
 Remove only the proven redundant native-session non-Mapping guard; retain the
 JSON-object parser, sanitizer, consent, acknowledgement and history checks.
+Check real logging-handler flush of an earlier non-logging ERROR fragment;
+preserve that fragment and structured-log deduplication. Remove only proven
+redundant timer cancellation while retaining lock/generation semantics.
 
 CURRENT TRACKING CATEGORY MARK GEOMETRY FIXTURE — 2026-10-24
 widgets_g3 owns the Main be67895 Qt 0 trailing-heading-icon fixture failure.
@@ -4870,3 +4900,8 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 
 2026-10-24 — Release lane owns only six actual Night C2 ambient-engine failures caused by the recording GL context omitting the current version_code protocol. Supply the requested context version in that CPU-only double; preserve every frame/material/pixel/resource-ownership assertion and runtime/platform behavior, then run only the six reported cases without a graphics driver. Root accepted the exact protocol-field repair; all six reported engine controls pass (2.94s) on the CPU-only recording context. Frame/material/pixel and release/ownership assertions are unchanged; no driver or GPU qualification is claimed.
 2026-10-24 — Add 43 passing reporting admission, batching, queue, privacy and real Qt lifetime controls; seven native-header cases pass on the final source (two overlap, five existing). Remove only the unreachable non-Mapping session guard. Provider/AIChat recorded gaps are exercised; console/crashreport defensive and existing-control residuals remain qualified without a ratchet-pass claim. Root publication and hosted aggregate remain open.
+
+2026-10-24 — Release lane owns only Night C7's unreadable-driver-info recording-context failure: preserve the intentional info exception and unknown-renderer outcome while providing the actual requested context version to the current renderer. Run only that owning control, with no driver/GPU, runtime change or repetition of the six accepted engine cases. Root accepted the exact factory change; the sole unknown-renderer control passes (1.77s), preserving context identity and the real info exception. No runtime change or native-driver qualification.
+2026-10-24 — Preserve an independent terminal ERROR buffered before a real logging handler flush, restoring scoped provenance even when capture fails. Remove redundant error-batch timer cancellation after both locked callers establish no active timer. The real baseline failed; all 12 affected controls pass, with independent peer acceptance and no API/caption/consumer delta. Root publication and hosted aggregate qualification remain pending.
+2026-10-24 — Release lane owns the measured Qt partition timeout: be67 Qt1 progressed through batch285/290 when its 180-minute job expired, after 23-minute setup and 31.7 minutes of empty collection. Split the existing file ownership into six Qt shards while preserving global batch identity, batch16/two workers, all timeouts/mandatory checks and the single shard2 serial tail; prove disjoint/exhaustive ownership and exact local replay before publication, without rerunning the suite. Root accepted the exact four-path diff; all eight workflow/replay/file-ownership/serial-routing controls pass (4.30s) under the local 8GiB CPU cap. Existing remote resource policy and all test/coverage requirements remain unchanged; hosted runtime qualification is pending.
+2026-10-24 — Release lane owns the two actual Night C9 Home queued callbacks that dereference destroyed viewport wrappers. Stop each observer timer when its referenced viewport dies and refuse callbacks whose measured viewport has been deleted; preserve live title fitting and body reflow. Verify native viewport replacement with pending callbacks plus the affected live construction control, without broad Home reruns or Main inference. Root reviewed the narrowed viewport-only guards; all three native-event controls pass (1.63s), including live fitting/reflow, pending native viewport replacement and later callback refusal. This qualifies explicit retained-owner viewport replacement, not the exact hosted teardown ordering; module prose/signatures/strings remain unchanged.

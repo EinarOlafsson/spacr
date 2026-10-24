@@ -511,3 +511,50 @@ def test_gui_refuses_legacy_cells_when_switching_to_calibrated_organelle_restric
         np.testing.assert_array_equal(panel._image, raw)
     finally:
         panel.shutdown()
+
+
+@pytest.mark.parametrize('unmix', [False, True])
+def test_per_plate_controls_refuse_preview_before_disabled_bypass_or_model(plate, monkeypatch, unmix):
+    """A saved plate-scope request must not silently become an ordinary preview."""
+    settings = config(unmix_per_plate=True, unmix_calibration='')
+    settings['unmix'] = unmix
+    req = request(plate, settings)
+    before = {path: path.read_bytes() for path in plate[0].values()}
+    original = req.image.copy()
+
+    def forbidden(*args, **kwargs):
+        """Keep the unsupported request from reaching inference."""
+        pytest.fail('per-plate controls reached preview inference')
+
+    monkeypatch.setattr(lp, 'preview_cellpose_model', forbidden)
+    monkeypatch.setattr(lp, '_classical_organelle_mask', forbidden)
+    with pytest.raises(ValueError, match='Per-plate spectral controls require calibrated organized 2D cell segmentation through V2'):
+        lp._segment_multi(req)
+    np.testing.assert_array_equal(req.image, original)
+    assert all(path.read_bytes() == content for path, content in before.items())
+
+
+def test_real_preview_refuses_per_plate_controls_before_worker_dispatch(plate, qtbot, monkeypatch):
+    """Show the shared refusal on the actual panel before model selection or worker creation."""
+    panel = lp.LivePreviewPanel(threaded=True)
+    qtbot.addWidget(panel)
+    panel.apply_settings(dict(unmix_per_plate=True, unmix=False, unmix_calibration='',
+                              cell_channel=0, organelle_channel=1))
+    assert panel.load_image(plate[0]['C01']), panel._status.text()
+    before = {path: path.read_bytes() for path in plate[0].values()}
+    original = panel._image.copy()
+
+    def forbidden(*args, **kwargs):
+        """Fail on either model resolution or actual background worker construction."""
+        pytest.fail('unsupported per-plate request was dispatched')
+
+    monkeypatch.setattr(panel, '_model_for_this_pass', forbidden)
+    monkeypatch.setattr(lp, '_PreviewWorker', forbidden)
+    try:
+        panel.run_preview()
+        assert 'Per-plate spectral controls require calibrated organized 2D cell segmentation through V2' in panel._status.text()
+        assert panel._settings['unmix_per_plate'] is True
+        np.testing.assert_array_equal(panel._image, original)
+        assert all(path.read_bytes() == content for path, content in before.items())
+    finally:
+        panel.shutdown()

@@ -16,7 +16,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QSettings                              # noqa: E402
 
-UNMIX_SETTINGS = ("unmix", "unmix_controls", "unmix_background_percentile",
+UNMIX_SETTINGS = ("unmix", "unmix_per_plate", "unmix_controls", "unmix_background_percentile",
                   "unmix_calibration", "unmix_pixel_size_um")
 
 
@@ -52,15 +52,18 @@ def test_the_unmixing_settings_follow_the_switch(qtbot, prefs, app, tmp_path):
 
         assert not any(screen.setting_row_is_visible(key)
                        for key in UNMIX_SETTINGS)
+        assert screen._settings_model.collect()["unmix_per_plate"] is False
         assert screen._settings_model.set_value_for_key(
             "unmix_controls", "0:A01; 1:B01")
         assert screen._settings_model.set_value_for_key("unmix", True)
+        assert screen._settings_model.set_value_for_key("unmix_per_plate", True)
         calibration = str(tmp_path / "measured-calibration.json")
         assert screen._settings_model.set_value_for_key("unmix_calibration", calibration)
         assert screen._settings_model.set_value_for_key("unmix_pixel_size_um", [.25, .5])
         collected = screen._settings_model.collect()
         assert collected["unmix_controls"] == "0:A01; 1:B01"
         assert collected["unmix"] is True
+        assert collected["unmix_per_plate"] is True
         assert collected["unmix_calibration"] == calibration
         assert collected["unmix_pixel_size_um"] == [.25, .5]
         assert not any(screen.setting_row_is_visible(key) for key in UNMIX_SETTINGS)
@@ -78,6 +81,7 @@ def test_the_unmixing_settings_follow_the_switch(qtbot, prefs, app, tmp_path):
         assert hidden["unmix_calibration"] == calibration
         assert hidden["unmix_pixel_size_um"] == [.25, .5]
         assert hidden["unmix_controls"] == "0:A01; 1:B01" and hidden["unmix"] is True
+        assert hidden["unmix_per_plate"] is True
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()

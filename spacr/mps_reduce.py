@@ -11,6 +11,7 @@ import numpy as np
 
 
 def _matrix(data):
+    """Validate finite two-dimensional data with at least one row and return a contiguous float32 Metal tensor."""
     import torch
 
     array = np.asarray(data, dtype=np.float32)
@@ -20,6 +21,7 @@ def _matrix(data):
 
 
 def _centered(data, mean):
+    """Validate the fitted feature count and return float64 mean-centered values."""
     array = np.asarray(data, dtype=np.float64)
     if array.ndim != 2 or array.shape[1] != len(mean):
         raise ValueError("Feature count differs from fitted reducer")
@@ -32,6 +34,7 @@ class MetalPCA:
     def __init__(
         self, n_components=None, *, whiten=False, svd_solver="auto", random_state=None, copy=True
     ):
+        """Store PCA options, refusing solvers outside auto, full and covariance_eigh. The copy argument is accepted for compatibility and is not used."""
         if svd_solver not in ("auto", "full", "covariance_eigh"):
             raise ValueError("This PCA solver remains on the CPU")
         self.n_components = n_components
@@ -81,14 +84,10 @@ class MetalPCA:
 
         if self.projection_backend_ == "cpu":
             return self._reference.transform(np.asarray(data, dtype=np.float64))
-        # Subtract offsets before the float32 transfer, so large absolute
-        # intensities do not erase small, meaningful differences.
         centered = _centered(data, self.mean_)
         x = _matrix(centered)
         out = x @ torch.as_tensor(self.components_.T.copy(), dtype=torch.float32, device="mps")
         if self.whiten:
-            # Match the float64 fitted reference. A float32 epsilon floor
-            # suppresses valid whitening when all feature values are small.
             scale = np.sqrt(self.explained_variance_).clip(min=np.finfo(np.float64).eps)
             out /= torch.as_tensor(scale.astype(np.float32), device="mps")
         return out.cpu().numpy()
@@ -128,6 +127,7 @@ class MetalKMeans:
         copy_x=True,
         verbose=0,
     ):
+        """Store Lloyd KMeans options, accepting random or k-means++ initialization. The copy_x and verbose arguments are accepted for compatibility and are not used."""
         if algorithm != "lloyd" or not isinstance(init, str) or init not in ("k-means++", "random"):
             raise ValueError("This KMeans initialization/algorithm remains on the CPU")
         self.n_clusters = int(n_clusters)
@@ -137,12 +137,11 @@ class MetalKMeans:
 
     @staticmethod
     def _assign(x, centers):
+        """Return nearest-center labels and squared distances using batches of at most 1024 rows."""
         import torch
 
         labels, distances = [], []
         for batch in x.split(1024):
-            # Direct differences avoid catastrophic cancellation in
-            # ||x||² + ||c||² - 2*x*c, even for translated feature tables.
             squared = torch.stack([(batch - center).square().sum(1) for center in centers], dim=1)
             distance, label = squared.min(dim=1)
             labels.append(label)

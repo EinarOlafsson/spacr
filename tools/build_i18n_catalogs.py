@@ -4777,6 +4777,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                                            "_load_unmix_calibration", "_UnmixCalibration",
                                            "_UnmixPlan", "_initialize_calibrated_output",
                                            "_validate_calibrated_batch_settings",
+                                           "_validate_unmix_plate_scope", "_plate_unmix_controls",
+                                           "_plate_control_input",
                                            "_prepare_segmentation_psf", "_SegmentationPSFSession",
                                            "_cell_record_error", "_CalibratedCellDataset"}]
         if path == source_root / "_lineage_trees.py":

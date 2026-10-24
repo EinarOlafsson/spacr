@@ -991,6 +991,7 @@ SETTING_API_TARGETS = {
     'unmix_background_percentile': ('spacr.psf_pipeline', '', False),
     'unmix_calibration': ('spacr.core', 'preprocess_generate_masks', True),
     'unmix_controls': ('spacr.psf_pipeline', '', False),
+    'unmix_per_plate': ('spacr.psf_pipeline', '', False),
     'unmix_pixel_size_um': ('spacr.psf_pipeline', '', False),
     'use_bounding_box': ('spacr.crops', 'crop_spec_from_settings', True),
     'use_checkpoint': ('spacr.deep_spacr', 'train_test_model', True),

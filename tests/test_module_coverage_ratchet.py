@@ -474,7 +474,12 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
                          'spacr/qt/widgets/provider_marks.py',
                          'spacr/regression_search.py'}
     assert not retired_since_608 & shipped
-    assert (len(shipped) == 608 + len(added_since_608)
+    metal_transport_arrivals = {
+        'spacr/metal_cellpose.py', 'spacr/mps_reduce.py', 'spacr/torch_loader.py',
+    }
+    assert metal_transport_arrivals <= shipped
+    assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
+    assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
             - len(retired_since_608) == 661)
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
