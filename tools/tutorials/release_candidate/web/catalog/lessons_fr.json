@@ -14686,7 +14686,7 @@
         "Choisir la base de données de mesures, les prédictions par cellule, les fractions de guides et la colonne de score.",
         "Lire les onglets des éléments de preuve, des puits, des guides et du seuil, et trouver les tables enregistrées."
       ],
-      "prerequisite": "Extrayez Investigate_Hit_real_screen_example.zip. Tout son contenu provient d’un même criblage réel : l’exécution Regression sur les données de test de Regression (les paramètres du tutoriel Regression), les prédictions CV par cellule correspondantes et une base de données de mesures contenant les vraies mesures de forme, de taille et d’intensité de ces mêmes cellules. Pour limiter la taille du téléchargement, la base contient 52 puits : tous les puits analysés portant un guide du gène 225160 et, pour chacun, trois puits sans ce guide provenant de la même plaque. Aucun gène de cette exécution Regression rapide ne vérifie q ≤ 0,05. Considérez l’investigation comme un exemple d’application, pas comme un hit confirmé.",
+      "prerequisite": "Extrayez Investigate_Hit_real_screen_example.zip. Tout son contenu provient d’un même criblage réel : l’exécution Regression sur les données de test de Regression (les paramètres du tutoriel Regression), les prédictions CV par cellule correspondantes et une base de données de mesures contenant les vraies mesures de forme, de taille et d’intensité de ces mêmes cellules. La base de données d’exemple contient 52 puits : tous les puits analysés portant un guide du gène 225160, plus trois puits de la même plaque sans ce guide pour chaque puits cible. Aucun gène de cette exécution Regression rapide ne vérifie q ≤ 0,05. Considérez l’investigation comme un exemple d’application, pas comme un hit confirmé.",
       "scenes": [
         {
           "visual": "01_module",
@@ -14772,9 +14772,9 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence donne le résultat. Les puits cibles ont une prévalence de type hit supérieure de seulement zéro virgule zéro un à celle des puits témoins. L’intervalle bootstrap par puits va de moins zéro virgule zéro quatre à plus zéro virgule zéro six, et la valeur P de la permutation par blocs est d’environ zéro virgule soixante-trois. Les cellules ne soutiennent pas ce candidat.",
+          "narration": "Evidence donne le résultat. Les puits cibles ont une prévalence de type hit supérieure de seulement zéro virgule zéro un à celle des puits témoins. L’intervalle bootstrap par puits va de moins zéro virgule zéro quatre à plus zéro virgule zéro six, et la valeur P de la permutation par blocs est d’environ zéro virgule soixante-trois. Cette analyse ne fournit pas d’éléments clairs en faveur d’une différence pour ce candidat.",
           "hold_after": 0.7,
-          "speech_text": "Evidence donne le résultat. Les puits cibles ont une prévalence de type hit supérieure de seulement zéro virgule zéro un à celle des puits témoins. L’intervalle bootstrap par puits va de moins zéro virgule zéro quatre à plus zéro virgule zéro six, et la valeur P de la permutation par blocs est d’environ zéro virgule soixante-trois. Les cellules ne soutiennent pas ce candidat."
+          "speech_text": "Evidence donne le résultat. Les puits cibles ont une prévalence de type hit supérieure de seulement zéro virgule zéro un à celle des puits témoins. L’intervalle bootstrap par puits va de moins zéro virgule zéro quatre à plus zéro virgule zéro six, et la valeur P de la permutation par blocs est d’environ zéro virgule soixante-trois. Cette analyse ne fournit pas d’éléments clairs en faveur d’une différence pour ce candidat."
         },
         {
           "visual": "14_wells",

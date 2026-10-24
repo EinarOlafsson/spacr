@@ -70,22 +70,19 @@ def test_every_row_names_a_library_a_place_and_a_task(unprobed, monkeypatch):
 
 def test_cuda_and_metal_differ_where_the_backends_differ(unprobed,
                                                           monkeypatch):
-    """THE WHOLE REASON THE TABLE EXISTS.
-
-    cuML ships for CUDA only, so the reductions row is GPU on NVIDIA and
-    CPU on Metal -- while the Cellpose row is GPU on both. A table that
-    showed one verdict for the machine would be wrong about one of them,
-    and a test that only checked it rendered would not notice.
-    """
-    cuda = dict((task, where) for _lib, where, task in
-                _as(monkeypatch, kind="cuda", device="cuda",
-                    label="NVIDIA"))
-    metal = dict((task, where) for _lib, where, task in
-                 _as(monkeypatch, kind="mps", device="mps", label="AMD",
-                     float64=False))
-    assert cuda["Machine learning"] == "GPU"
-    assert metal["Machine learning"] == "CPU", (
-        "cuML is CUDA-only, so this row cannot be GPU on Metal")
+    """The rendered libraries and qualification distinguish mixed Metal support."""
+    cuda_rows = _as(monkeypatch, kind="cuda", device="cuda", label="NVIDIA")
+    metal_rows = _as(monkeypatch, kind="mps", device="mps", label="AMD",
+                     float64=False)
+    assert ("UMAP / t-SNE / cluster", "GPU", "Machine learning") in cuda_rows
+    assert ("PCA / KMeans", "GPU", "Machine learning") in metal_rows
+    assert not any(library == "UMAP / t-SNE / cluster"
+                   for library, _where, task in metal_rows if task == "Machine learning")
+    metal_html = "".join(slides.SetupSlides._what_this_machine_can_do())
+    assert ("PCA/KMeans on Metal; PCA fitting/precision and "
+            "UMAP/t-SNE/DBSCAN on CPU") in metal_html
+    cuda = {task: where for _library, where, task in cuda_rows}
+    metal = {task: where for _library, where, task in metal_rows}
     assert cuda["Segmentation"] == metal["Segmentation"] == "GPU", (
         "Cellpose is accelerated on both, so this row must agree")
 

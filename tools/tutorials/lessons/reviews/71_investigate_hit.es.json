@@ -1,10 +1,10 @@
 {
   "lesson": "71_investigate_hit",
-  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "english_sha256": "72858a0f292935c05078f9bc0ff092ae845130dd45dda499fb3754a06915b7ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); approved subset sentence and scene13 conclusion only; all other reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,7 +17,7 @@
     "Elegir la base de datos de mediciones, las predicciones por célula, las fracciones de guías y la columna de puntuación.",
     "Leer las pestañas de evidencia, pocillos, guías y umbral, y encontrar las tablas guardadas."
   ],
-  "prerequisite": "Extrae Investigate_Hit_real_screen_example.zip. Todo su contenido procede de un mismo cribado real: la ejecución de Regression con los datos de prueba de Regression (los ajustes del tutorial de Regression), las predicciones CV por célula correspondientes y una base de datos de mediciones con las medidas reales de forma, tamaño e intensidad de esas mismas células. Para que la descarga sea pequeña, la base de datos contiene 52 pocillos: todos los pocillos analizados con una guía del gen 225160 y, por cada uno, tres pocillos de la misma placa sin ella. Ningún gen de esta ejecución rápida de Regression cumple q ≤ 0,05. Trata la investigación como un ejemplo práctico, no como un hit confirmado.",
+  "prerequisite": "Extrae Investigate_Hit_real_screen_example.zip. Todo su contenido procede de un mismo cribado real: la ejecución de Regression con los datos de prueba de Regression (los ajustes del tutorial de Regression), las predicciones CV por célula correspondientes y una base de datos de mediciones con las medidas reales de forma, tamaño e intensidad de esas mismas células. La base de datos de ejemplo contiene 52 pocillos: todos los pocillos analizados con una guía del gen 225160, más tres pocillos de la misma placa sin esa guía por cada pocillo diana. Ningún gen de esta ejecución rápida de Regression cumple q ≤ 0,05. Trata la investigación como un ejemplo práctico, no como un hit confirmado.",
   "scenes": [
     "Desde Home, abre Regression. Investigate Hit parte de una ejecución de Regression terminada. Se pregunta si las células medidas en los pocillos asociados a un gen se ven diferentes de las células de pocillos sin ese gen.",
     "Elige Hits para abrir Hit List. Primero extrae el archivo de ejemplo. Contiene una ejecución de Regression con los datos de prueba, las predicciones CV por célula correspondientes y una base de datos de mediciones de esas mismas células. Las tres cosas proceden de un mismo cribado real.",
@@ -31,7 +31,7 @@
     "En Well/guide fractions, elige regression_data.csv en la misma carpeta de resultados. Esta tabla la escribió Regression. Indica la fracción de cada guía en cada pocillo analizado.",
     "Deja vacío Independent morphology features. Así el módulo usa las trece mediciones celulares numéricas de la base de datos y excluye los identificadores, las fracciones de guías y la puntuación CV, de modo que esta comprobación no reutiliza la puntuación. Para tu propia base de datos, indica solo columnas de mediciones que no tengan valores ausentes.",
     "Haz clic en Investigate hit. El modelo se ajusta dejando fuera una placa cada vez, así que ninguna célula se puntúa con un modelo entrenado con su propia placa. La fracción de guía de un pocillo solo fija la expectativa inicial para sus células. Nunca marca una célula como portadora de la guía. Este ejemplo tarda unos minutos.",
-    "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Las células no respaldan a este candidato.",
+    "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Este análisis no aporta evidencia clara de una diferencia para este candidato.",
     "Wells muestra, para cada pocillo, la fracción de guía, la probabilidad media de tipo hit, la prevalencia y el número de células. Cada pocillo cuenta como una unidad independiente, así que la comparación usa trece pocillos diana y treinta y nueve pocillos control, no células individuales.",
     "Guides muestra cada guía diana por separado. Sus respuestas a la dosis apuntan en direcciones distintas, otra razón más para no tratar este gen como un hit.",
     "Threshold sensitivity repite la comparación con umbrales de probabilidad de cero coma cinco a cero coma nueve. Con todos los umbrales la diferencia se mantiene cerca de cero coma cero uno, así que la conclusión no depende del umbral.",
