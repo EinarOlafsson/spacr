@@ -632,8 +632,26 @@ class OrganismDiagram(QWidget):
                             QEvent.StyleChange):
             self._layout_width = None
             self._reserved_cache = None
-            self._fit_width()
+            if self.isVisible():
+                self._fit_width()
+            else:
+                self._fit_when_shown = True
             self.updateGeometry()
+
+    def showEvent(self, event) -> None:
+        """Fit the rows a hidden font, language or style change left unfitted.
+
+        Building an organism page sends several such changes before it is
+        shown; fitting at each re-measured every description for a width
+        the page did not keep.
+
+        :param event: Qt show event forwarded to the parent widget.
+        :returns: None.
+        """
+        super().showEvent(event)
+        if getattr(self, "_fit_when_shown", False):
+            self._fit_when_shown = False
+            self._fit_width()
 
     def clear_components(self) -> None:
         """Clear all persistent selections and the transient compartment highlight."""
