@@ -123,3 +123,101 @@ def test_missing_sources_skip_nonpath_values_and_keep_resolved_plate_sources(pla
     assert resolved == [alias, missing, str(existing)]
     assert sources == before
     assert (plate / 'merged' / 'a.npy').is_file()
+
+
+def _segmentation_coordinate_record(root, *, calibrated=False, complete=True):
+    """Write the actual application schema beside real merged source files."""
+    import json
+    from pathlib import Path
+    from spacr.psf_pipeline import _configuration
+
+    root = Path(root)
+    configuration = _configuration(None, [0, 1], 'v2')
+    if calibrated:
+        configuration.update(coordinate_system='calibrated_reference_canvas',
+            measurement_intensity_source='nonquantitative calibrated display; measurements unsupported')
+    path = root / 'psf' / 'segmentation_application.json'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    record = dict(configuration=configuration, complete=complete,
+                  fields=sorted(p.stem for p in (root / 'merged').glob('*.npy')),
+                  archives={})
+    path.write_text(json.dumps(record), encoding='utf-8')
+    return path
+
+
+@pytest.mark.parametrize('source,complete,marker', [
+    ('root', True, 'coordinate'), ('merged', False, 'coordinate'),
+    ('measurements', True, 'null'), ('root', False, 'empty'),
+])
+def test_persisted_calibrated_coordinates_refuse_before_any_measure_work(
+        plate, source, complete, marker, monkeypatch):
+    import json
+    import spacr.measure as measure
+
+    path = _segmentation_coordinate_record(plate, calibrated=marker == 'coordinate', complete=complete)
+    if marker != 'coordinate':
+        record = json.loads(path.read_text())
+        record['configuration']['unmixing'] = {'calibration': None if marker == 'null' else {}}
+        path.write_text(json.dumps(record))
+    originals = {p: p.read_bytes() for p in plate.rglob('*') if p.is_file()}
+
+    def forbidden(*args, **kwargs):
+        """No run, writer or field job may start for unsupported coordinates."""
+        pytest.fail('Measure entered its run context before coordinate validation')
+
+    monkeypatch.setattr(measure, 'run_context', forbidden)
+    src = plate if source == 'root' else plate / source
+    with pytest.raises(ConfigurationError, match='not supported by Measure'):
+        measure.measure_crop(dict(src=str(src), timelapse=False, unmix=False))
+    assert {p: p.read_bytes() for p in plate.rglob('*') if p.is_file()} == originals
+    assert not (plate / 'measurements').exists()
+
+
+def test_all_plate_coordinates_are_validated_before_the_first_output(plate, tmp_path, monkeypatch):
+    import spacr.measure as measure
+
+    unsafe = tmp_path / 'calibrated_segmentation'
+    (unsafe / 'merged').mkdir(parents=True)
+    np.save(unsafe / 'merged' / 'field.npy', np.zeros((4, 4, 2), np.float32))
+    _segmentation_coordinate_record(unsafe, calibrated=True, complete=False)
+
+    def forbidden(*args, **kwargs):
+        """An unsafe later plate must stop the first plate before any run."""
+        pytest.fail('The first plate started before all sources were checked')
+
+    monkeypatch.setattr(measure, 'run_context', forbidden)
+    with pytest.raises(ConfigurationError, match='not supported by Measure'):
+        measure.measure_crop(dict(src=[str(plate), str(unsafe)], timelapse=False, unmix=False))
+    assert not (plate / 'measurements').exists()
+    assert not (unsafe / 'measurements').exists()
+
+
+def test_a_truncated_coordinate_record_is_not_treated_as_legacy(plate):
+    from spacr.measure import _validate_measurement_coordinate_source
+
+    path = _segmentation_coordinate_record(plate)
+    path.write_text('{"configuration":')
+    before = {p: p.read_bytes() for p in plate.rglob('*') if p.is_file()}
+    with pytest.raises(ConfigurationError, match='Cannot verify'):
+        _validate_measurement_coordinate_source(plate / 'merged')
+    assert {p: p.read_bytes() for p in plate.rglob('*') if p.is_file()} == before
+
+
+@pytest.mark.parametrize('recorded', [False, True])
+def test_raw_measurement_keeps_original_statistics_with_or_without_legacy_record(tmp_path, recorded):
+    import sqlite3
+    from pathlib import Path
+    from spacr.measure import measure_crop
+    from tests.test_measure_hooks import _project, _settings
+
+    root, merged, name = _project(tmp_path)
+    if recorded:
+        _segmentation_coordinate_record(root)
+    source = Path(merged) / name
+    original = source.read_bytes()
+    measure_crop(_settings(merged, unmix=False))
+    with sqlite3.connect(root / 'measurements' / 'measurements.db') as connection:
+        means = connection.execute('SELECT cell_channel_0_mean_intensity FROM cell').fetchall()
+    assert len(means) == 4
+    assert all(row[0] == 1100 for row in means)
+    assert source.read_bytes() == original
