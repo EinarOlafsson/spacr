@@ -12,6 +12,55 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next bounded native hint_bar cohort selects only the exact visible Home strip.
+Check initial default, real MainWindow mask hint and public release using the
+same strict glyph/reveal/readiness rules within one original20s content budget.
+Only default counts toward manifest coverage; held/released rows are separate,
+with full untested counts and no Apps-content usability inference.
+Native29473/7opZHW onb7e50fd4 passes28.92s/RSS1.243GiB: same1200x175 strip
+fully exposes default, real held mask/API/Tutorial and released default; full
+accessible text/state restoration pass. One of139 targets checked,138 untested;
+all three states use3.496s total after tour9.876s, normal close/cleanup pass.
+Apps viewport104x21 is geometry only; full Home/Apps usability remain open.
+
+Default hint scope: at GUI200/90/100%, font200, initial and released prompt
+must fit actual600px styled contents and restore full original on growth,
+retaining the full accessible prompt, empty key/no hold and no module revival.
+Require asserting RED before private default rendering; retain unlaid1px rule.
+RED53310: GUI2 initial/released730.22px prompt exceeds552px contents; GUI.9/1
+controls pass. Render the original translated prompt against actual contents
+on initial/release/local geometry-font-style events, without entering hold.
+GREEN65013 retains13passes (6.33s/.296GiB), including three default and six
+held/height cases; exact unlaid1px fallback correction passes26232 alone
+(4.14s/.269GiB). All14 affected checks pass; actual full native hint/Apps
+geometry remains unaccepted, not implied by these controlled rich-text cases.
+
+Held hint-width scope: GUI200/90/100%, font200, one long summary plus stage
+must fit actual styled contents through wide/narrow/grow, restore original
+text on growth, and preserve key/accessibility/links and the original30s timer.
+The unlaid1px fallback remains unchanged; causal RED precedes local rerender.
+RED53661: all three GUI cases retain stale elision after narrow/grow; GUI2/1
+also overflow initially. Cache original summary/stage/links and rerender only
+text from actual contents room on local geometry/font/style changes, without
+restarting the hold timer; release must prevent later resurrection.
+GREEN1268: three held-width cases pass4.42s/.278GiB; affected vertical cases
+GREEN95701 pass4.54s/.277GiB. Full originals restore on growth, timers/links/
+accessibility remain intact. Released default prompt still overflows atGUI2
+width600 (730.22px text/552px contents); default-prompt fit remains open.
+
+Module hint-height scope: at GUI200/90/100%, font200 and normal Open Sans,
+compare actual fixed height/min/max and stored scale records with the actual
+two-line font metric plus10; retain styled two-line contents, width-change,
+summary/link and release behavior. Causal RED precedes any actual-pixel setter
+correction; native aside five-caption PASS and Apps124x0 limitation remain.
+RED54494 confirms actual double scaling (GUI2:304 vs152; GUI.9:67 vs74)
+and independent GUI1 two-line padding loss (72px text/65px contents). Reserve
+actual two-line metric plus max(10, measured vertical contents insets), using
+actual fixed min/max setters; horizontal summary fit remains separately open.
+GREEN58202: all three GUI cases pass (4.82s/.278GiB), actual heights175/79/89
+leave exactly142/64/72px styled contents for two-line text; width/show/release
+and normalized records pass. This is vertical unit/style fit, not full Home.
+
 Normal launch-policy scope: repeat the real Home causal fixture through the
 actual post-build arrow-removal operation, recording unchanged fonts and
 before/after native pane/tab constraints. Extract only a behavior-neutral
