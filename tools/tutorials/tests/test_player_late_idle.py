@@ -128,13 +128,13 @@ def test_failed_audio_start_preserves_position_and_requires_viewer_action():
     assert r=={'state':None,'audio':10,'seeks':[],'pictureStarts':0,'toasts':1}
 
 
-def test_final_late_transition_plays_actual_last_frame_without_manufacturing_eof():
+def test_final_late_transition_plays_actual_last_two_frames_without_manufacturing_eof():
     r=run('''visualTimings.scenes.length=1;visualTimings.total_duration=50;
       audioTimings.scenes.length=1;elements.video.duration=50;
       const c=cut();beginNativeLateIdleTransition(c,state(),0,42.6);decoded();serviceNativeIdleTransition();
       console.log(JSON.stringify({final:c.final,target:stats.targets[0],pictureStarts:stats.videoStarts,
         ended:elements.video.ended,audioStarts:stats.audioStarts,seeks:stats.audioSeeks,state:nativeIdleTransition}));''')
-    assert r['final'] and r['target']==pytest.approx(50-1/30)
+    assert r['final'] and r['target']==pytest.approx(50-2/30)
     assert r['pictureStarts']==1 and r['ended'] is False and r['audioStarts']==0 and r['seeks']==[] and r['state'] is None
 
 
@@ -179,3 +179,49 @@ def test_final_gap_budget_stays_one_second_and_malformed_gap_fails_closed():
       nativeIdleGapBudget(9.82,10,true),nativeIdleGapBudget(9.82,10.62,false),
       nativeIdleGapBudget(9.82,9,false),nativeIdleGapBudget(9.82,NaN,false)]));""")
     assert r[0]==1 and r[1]==pytest.approx(.8) and r[2:]==[None,None]
+
+
+@pytest.mark.parametrize('fps',[24,30,60])
+@pytest.mark.parametrize('mode',['regular','late'])
+def test_final_transition_avoids_ended_seek_rewind_and_recut_with_two_real_frames(fps,mode):
+    r=run("""visualTimings.scenes.length=1;visualTimings.total_duration=50;
+      visualTimings.fps=FPS;audioTimings.scenes.length=1;elements.video.duration=50;
+      let picture=42.6,rewinds=0;
+      // Model the observed browser: seeking to the last decoded PTS sets ended,
+      // and a subsequent ordinary play() on that ended media rewinds to zero.
+      Object.defineProperty(elements.video,'currentTime',{get(){return picture},set(x){
+        picture=x;this.ended=x>=this.duration-1/FPS;}});
+      elements.video.play=function(){if(this.ended){rewinds++;this.currentTime=0;}
+        this.paused=false;stats.videoStarts++;return Promise.resolve()};
+      const s=state();s.final=true;s.nextLead=0;s.nextSound=10;
+      if('MODE'==='regular'){
+        beginNativeIdleTransition({final:true},s,{completedAt:1000},0);
+      }else{beginNativeLateIdleTransition(cut(),s,0,42.6);}
+      const target=stats.targets[0],endedAfterSeek=elements.video.ended;
+      const deadline=nativeIdleTransition.resumeAt??null;decoded();
+      let startsBeforeDeadline=null;
+      if('MODE'==='regular'){now=deadline-.001;serviceNativeIdleTransition();
+        startsBeforeDeadline=stats.videoStarts;now=deadline;}
+      serviceNativeIdleTransition();
+      // A sync at the two-frame target must not schedule either final cut again.
+      syncCompleteNativeNarration();
+      const pending=nativeIdleTransition;
+      const sourceSecondsLeft=elements.video.duration-picture;
+      // Ordinary source playback, not a fabricated ended flag in the player.
+      now+=sourceSecondsLeft*1000;elements.video.currentTime=elements.video.duration;
+      console.log(JSON.stringify({target,endedAfterSeek,rewinds,starts:stats.videoStarts,
+        startsBeforeDeadline,pending,audioSeeks:stats.audioSeeks,audioStarts:stats.audioStarts,
+        deadline,sourceSecondsLeft,ended:elements.video.ended}));
+      """.replace('FPS',str(fps)).replace('MODE',mode))
+    assert r['target']==pytest.approx(50-2/fps)
+    assert r['endedAfterSeek'] is False and r['rewinds']==0
+    assert r['starts']==1 and r['pending'] is None and r['ended'] is True
+    assert r['audioSeeks']==[] and r['audioStarts']==0
+    assert r['sourceSecondsLeft']==pytest.approx(2/fps)
+    if mode=='regular':
+        assert r['startsBeforeDeadline']==0
+        # .18s of completed speech tail + wall hold + genuine source frames =1s.
+        assert .18+(r['deadline']-1000)/1000+r['sourceSecondsLeft']==pytest.approx(1)
+    else:
+        # Late essential actions already consumed the quiet interval; no extra wait.
+        assert r['deadline'] is None

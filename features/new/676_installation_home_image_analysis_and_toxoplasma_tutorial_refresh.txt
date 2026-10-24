@@ -348,3 +348,5 @@ Prior no-new-recording/deletion/GPU-job holds remain; retain passed media and pl
 2026-10-24 — Adopt approved feature-focused prose for Tutorial78 with13 source-bound locale reviews and unchanged published voice offerings. Audio, native fit/policy where applicable, picture work and normal publication remain pending. Item676 remains open.
 
 2026-10-24 — Tutorial78 retains its accepted native master and all original essential-action fences, rebound only to the actual current50-track timing. Source-coordinate mixed audio and normal onsets passed; browser/publication remain pending. Item676 remains open.
+
+2026-10-24 — Tutorial78 final native playback now reserves two genuine source frames before EOF, preventing last-frame seeks from restarting playback. Seven focused player regressions and13 recovery-tool cases passed (12 retained and one corrected preservation-fixture case); source-bound audio/native production is retained. Fresh50-offering and84-route acceptance/publication remain pending. Item676 remains open.
