@@ -4,6 +4,13 @@ The retained CI owner seeds mandatory pipeline_v2.py in the isolated web
 caption production-inventory fixture, preserving every exact caption and
 exclusion assertion. Bind current Night source first, run the owning node
 once, and return the test-only repair for root review and publication.
+CURRENT SHIPPED DENSITY DEFAULT FIXTURES — 2026-10-24
+widgets_g4 owns four Night8fe fresh/reset appearance fixtures that retain
+the retired 25% field density. Bind the published 10% source first, preserve
+all user-selected, reset and no-write assertions, and run only those four
+CPU/offscreen cases after root peer. No product or generated changes.
+2026-10-24: All four exact cases pass (4.03s); three fresh-store premises
+and every user-selected/reset/no-write assertion are retained.
 
 CURRENT HOME BODY SCROLL ACCESSIBLE NAME — 2026-10-24
 widgets_g4 owns the Night8fe unnamed Home scroll-area CI regression. Give
