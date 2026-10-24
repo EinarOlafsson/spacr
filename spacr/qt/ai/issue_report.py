@@ -99,9 +99,15 @@ def _sync_automatic_failure_policy():
 def _automatic_failure_policy(kind):
     """Read the shared policy after synchronizing actual GUI consent."""
     from ... import crashreport
-    _sync_automatic_failure_policy()
-    policy, explain, send = crashreport._automatic_error_policy(kind)
-    return crashreport.error_report_mode(), explain, send
+    try:
+        _sync_automatic_failure_policy()
+        policy, explain, send = crashreport._automatic_error_policy(kind)
+        return crashreport.error_report_mode(), explain, send
+    except Exception:
+        with crashreport._STATE_LOCK:
+            crashreport._ERROR_POLICY_CACHE = dict(
+                crashreport._ERROR_POLICY_CACHE, affirmed_policy={})
+        return "off", False, False
 
 
 def redact_secrets(s: str) -> str:

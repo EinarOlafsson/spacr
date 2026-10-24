@@ -24,6 +24,18 @@ owned Popen lifecycle, isolating its stop event and preserving no-marker,
 exact call count and cache-directory assertions. No product change; root
 reviews and publishes after the one affected control passes.
 
+CURRENT CONSENTED AI/REPORT FIXTURE MIGRATION — 2026-10-23
+widgets_g3 integrates the 58 Main69 AI/report failures; G2 owns anonymous
+fixtures and G4 the separate coverage fixture plus proven exceptional-path
+robustness. Automatic reports use the consented anonymous relay; explicit
+GitHub reports retain real preview/Send, authentication and redacted bodies.
+Retain local tracebacks while proving outgoing payloads scrubbed, exact modes,
+retries, deduplication, quotas, cached answers and bounded lifecycle waits.
+Unreadable policy fails closed, cache lookup failure permits an uncached
+answer, and summary failure stays local without a misleading queued status.
+Use real batch timing/worker ownership, fake transports only, and affected
+cohorts after independent review; root publishes. No live AI/report request.
+
 CURRENT MAKE MASKS CURATION NATIVE COORDINATES — 2026-10-23
 G4 owns the shared Main CI fixture width mismatch across 23 curation cases.
 Bind current Main/Night canvas sizing and preserve every existing assertion,
@@ -4796,3 +4808,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — Align the two Coverage4 fixtures with current Mask slot-grid activation and Classify’s typed source editor. The real slot toggles None→4→None without an obsolete empty heading; all three plate paths roundtrip through both editor and collection. Exact two controls PASS in 3.19s with independent review; production/generated outputs unchanged and root publication pending.
 
 2026-10-23 — Six stale hierarchy fixtures now verify the current Measure tree’s exact ordered children, row ownership, paths/help and independent 3/7 object-preprocessing schema counts, retaining native model lifetime. Mask’s exact declared order includes Object filtration α and its trailing retained preprocessing defaults, with complete key coverage unchanged. Seven distinct controls PASS (six retained in 2.31s, final category in 0.98s) with independent review; production/generated outputs unchanged and root publication pending.
+
+2026-10-23 — Align the actual AI/report fixtures with consented anonymous batching and explicit GitHub preview/Send, preserving local raw diagnostics and scrubbed outgoing payloads, modes, retries, quotas, saved answers and real occurrence deduplication. Unreadable policy now revokes the mirrored permission and fails closed; broken cache reads permit uncached handling; failed summary construction remains local without a false queued claim. The 57 necessary controls pass (53 retained from 74.85s and four corrected wire/ordering/privacy checks in 9.16s); independent source/test peers accepted. Normal scoped extraction preserves all 142 API entries and caption identities; consumer references are zero; generated outputs are unchanged. Post-run temporary chaining-lock cleanup warnings remain a qualification; both processes terminated normally, and root owns publication/hosted CI.
