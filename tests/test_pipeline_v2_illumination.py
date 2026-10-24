@@ -811,3 +811,193 @@ def test_calibrated_stream_refuses_original_paths_before_any_write(
     assert all(path.read_bytes() == data for path, data in original_bytes.items())
     record = json.loads((root / "psf/segmentation_application.json").read_text())
     assert not record["complete"] and not record["fields"]
+
+
+@pytest.fixture
+def plate_qualified_calibrated_sources(tmp_path):
+    """Two physical plates use distinct control wells and camera mixing matrices."""
+    import tifffile
+
+    calibration_path = tmp_path / "shared_optics.json"
+    calibration = {
+        "version": 1, "axes": "YX", "pixel_size_um": [.4, .3],
+        "reference_channel": 3,
+        "channels": [{"channel": channel, "shift_to_reference_px": [0, 0],
+                      "psf": [[1.]], "psf_origin_px": [0, 0],
+                      "psf_pixel_size_um": [.4, .3]} for channel in (3, 1)],
+    }
+    calibration_path.write_text(json.dumps(calibration), encoding="utf-8")
+    master = {"plate1": {"3": ["A01"], "1": ["B01"]},
+              "plate2": {"3": ["B01"], "1": ["A01"]}}
+    master_text = json.dumps(master)
+    truth = np.zeros((16, 18, 2), np.float32)
+    truth[3:12, 3:14] = [20., 12.]
+    truth[4, 4] = [0., 12.]
+    truth[6, 7] = [6., 25.]
+    assert truth.min() >= 0
+    expected_signed = truth.copy()
+    expected_signed[4, 4, 0] = -2.
+    plates = []
+    for name, matrix in (("plate1", np.array([[1., .25], [.5, 1.]])),
+                         ("plate2", np.array([[1., .5], [.25, 1.]]))):
+        source = tmp_path / name
+        source.mkdir()
+        control_cameras = {}
+        for position, physical_channel in enumerate((3, 1)):
+            dye = np.zeros_like(truth)
+            dye[3:12, 3:14, position] = 80. + 20. * position
+            camera = (dye @ matrix.T).astype(np.float32)
+            well = master[name][str(physical_channel)][0]
+            control_cameras[well] = camera.copy()
+            for packed, channel in enumerate((3, 1)):
+                tifffile.imwrite(source / f"{name}_{well}_F10_T2_Z1_C{channel}.tif",
+                                 camera[..., packed])
+        camera_perturbation = np.zeros_like(truth)
+        camera_perturbation[4, 4] = -2. * matrix[:, 0]
+        camera = (truth @ matrix.T + camera_perturbation).astype(np.float32)
+        assert np.isfinite(camera).all() and camera.min() >= 0
+        for packed, channel in enumerate((3, 1)):
+            tifffile.imwrite(source / f"{name}_C01_F10_T2_Z1_C{channel}.tif",
+                             camera[..., packed])
+        originals = {path: path.read_bytes() for path in source.iterdir()}
+        plates.append(dict(name=name, source=source, matrix=matrix, before=originals,
+                           control_cameras=control_cameras))
+    settings = dict(unmix=True, unmix_per_plate=True, unmix_controls=master_text,
+                    unmix_background_percentile=0., unmix_calibration=str(calibration_path),
+                    unmix_pixel_size_um=[.4, .3], lower_percentile=0.,
+                    cell_background=0., cell_signal_to_noise=0., remove_background_cell=False,
+                    nucleus_background=0., nucleus_signal_to_noise=0., remove_background_nucleus=False)
+    kwargs = dict(channels=(3, 1), channels_for_cellpose=(0, 1),
+                  channel_names=("cell", "nucleus"), metadata_type="custom",
+                  custom_regex=r"^(?P<plateID>plate\d+)_(?P<wellID>[A-Z]\d+)_F(?P<fieldID>\d+)_T(?P<timeID>\d+)_Z(?P<sliceID>\d+)_C(?P<chanID>\d+)\.tif$",
+                  batch_fields=3, postprocess_settings=settings)
+    return dict(plates=plates, kwargs=kwargs, truth=expected_signed, master=master,
+                calibration_path=calibration_path, calibration_bytes=calibration_path.read_bytes())
+
+
+def test_calibrated_v2_uses_each_physical_plates_controls_and_signed_target(
+        plate_qualified_calibrated_sources, capture_cellpose, monkeypatch, tmp_path):
+    """The same master map selects different real controls for each isolated plate."""
+    import functools
+    import hashlib
+    import io
+    from spacr.measure import measure_calibrated_cells
+    from spacr.tabular import read_table
+
+    sample = plate_qualified_calibrated_sources
+    original_eval = _CaptureModel.eval
+
+    @functools.wraps(original_eval)
+    def predict_interior_cells(self, *args, **options):
+        """Keep an actual model-protocol cell over independently known signed pixels."""
+        masks, flows, styles = original_eval(self, *args, **options)
+        for mask in masks:
+            mask[:] = 0
+            mask[3:6, 3:6] = 7
+        return masks, flows, styles
+
+    monkeypatch.setattr(_CaptureModel, "eval", predict_interior_cells)
+    roots = []
+    for plate in sample["plates"]:
+        result = PV.run_v2(plate["source"], **sample["kwargs"])
+        root = result["output_root"]
+        roots.append(root)
+        record = json.loads((root / "psf/segmentation_application.json").read_text())
+        assert record["complete"] and len(record["fields"]) == 3
+        configuration = record["configuration"]
+        assert configuration["source_dataset"] == str(plate["source"].resolve())
+        assert configuration["physical_channel_order"] == [3, 1]
+        unmixing = configuration["unmixing"]
+        np.testing.assert_allclose(unmixing["matrix"], plate["matrix"], atol=1e-6, rtol=0)
+        assert unmixing["controls"] == sample["master"][plate["name"]]
+        selection = unmixing["control_selection"]
+        assert {key: selection[key] for key in ("scope", "plate", "physical_channel_order",
+                "canonical_controls_by_plate", "selected_controls")} == dict(
+            scope="plate", plate=plate["name"], physical_channel_order=[3, 1],
+            canonical_controls_by_plate=sample["master"],
+            selected_controls=sample["master"][plate["name"]])
+        expected_map_hash = hashlib.sha256(json.dumps(
+            sample["master"], sort_keys=True, allow_nan=False).encode()).hexdigest()
+        assert selection["controls_map_sha256"] == expected_map_hash
+        samples = selection["sampled_fields"]
+        assert len(samples) == 2
+        assert set(samples) == {stem for stems in unmixing["fields"].values() for stem in stems}
+        assert {row["source_identity"]["well"] for row in samples.values()} == {"A01", "B01"}
+        for row in samples.values():
+            identity = row["source_identity"]
+            assert identity == dict(plate=plate["name"], well=identity["well"], field=10,
+                                   time=2, z=1, source_dataset=str(plate["source"].resolve()))
+            expected_file = io.BytesIO()
+            np.save(expected_file, plate["control_cameras"][identity["well"]], allow_pickle=False)
+            assert row["input_stage"] == "assembled_pre_unmixing"
+            assert row["input_shape"] == [16, 18, 2] and row["input_dtype"] == np.dtype(np.float32).str
+            assert row["input_size_bytes"] == len(expected_file.getvalue())
+            assert row["input_sha256"] == hashlib.sha256(expected_file.getvalue()).hexdigest()
+        target = None
+        for stack_file in result["stacks"]:
+            row = record["calibrated_fields"][stack_file.field_id]
+            identity = row["source_identity"]
+            assert (identity["plate"], identity["field"], identity["time"], identity["z"]) == (
+                plate["name"], 10, 2, 1)
+            assert row["measurement_schema_version"] == 1 and row["mask_role"] == "cell"
+            signed_path = root / row["signed_crop"]["path"]
+            assert row["signed_crop"]["sha256"] == hashlib.sha256(signed_path.read_bytes()).hexdigest()
+            if identity["well"] == "C01":
+                target = np.load(signed_path)
+                assert row["source_origin_px"] == [0, 0]
+                assert row["valid_roi_yx"] == [[0, 16], [0, 18]]
+                np.testing.assert_allclose(target, sample["truth"], atol=1e-5, rtol=0)
+                assert target[4, 4, 0] == pytest.approx(-2., abs=1e-5)
+        assert target is not None
+        measured = measure_calibrated_cells(root, dst=tmp_path / (plate["name"] + "_cells"),
+                                            channels=[1, 3])
+        cells = read_table(measured["csv_path"])
+        assert measured["fields"] == 3 and measured["rows"] == 6
+        assert list(cells["physical_channel_id"]) == [1, 3] * 3
+        assert set(cells["plateID"]) == {plate["name"]}
+        selected = cells[cells["wellID"] == "C01"]
+        for channel, position in ((1, 1), (3, 0)):
+            values = sample["truth"][3:6, 3:6, position].astype(np.float64)
+            row = selected[selected["physical_channel_id"] == channel].iloc[0]
+            assert float(row["intensity_sum"]) == pytest.approx(values.sum(), abs=1e-5)
+            assert float(row["intensity_mean"]) == pytest.approx(values.mean(), abs=1e-5)
+            assert float(row["intensity_min"]) == pytest.approx(values.min(), abs=1e-5)
+        assert all(path.read_bytes() == before for path, before in plate["before"].items())
+    assert roots[0] != roots[1]
+    assert sample["calibration_path"].read_bytes() == sample["calibration_bytes"]
+
+
+@pytest.mark.parametrize("invalid", ["mixed-plate-identities", "missing-control-well"])
+def test_plate_qualified_v2_refuses_unresolvable_source_before_model_or_output(
+        plate_qualified_calibrated_sources, capture_cellpose, monkeypatch, invalid):
+    """Actual mixed plate files and absent selected wells refuse before artifacts."""
+    import tifffile
+
+    sample = plate_qualified_calibrated_sources
+    source = sample["plates"][0]["source"]
+    if invalid == "mixed-plate-identities":
+        for channel in (3, 1):
+            tifffile.imwrite(source / f"plate2_D01_F10_T2_Z1_C{channel}.tif",
+                             np.full((16, 18), 12., dtype=np.float32))
+    else:
+        master = json.loads(sample["kwargs"]["postprocess_settings"]["unmix_controls"])
+        master["plate1"]["3"] = ["D01"]
+        sample["kwargs"]["postprocess_settings"]["unmix_controls"] = json.dumps(master)
+    before = {path: path.read_bytes() for path in source.rglob("*") if path.is_file()}
+    entries = set(source.iterdir())
+    constructed = []
+    original_init = _CaptureModel.__init__
+
+    def observed_init(self, *args, **options):
+        """Record any forbidden model construction while keeping its real protocol."""
+        constructed.append(self)
+        original_init(self, *args, **options)
+
+    monkeypatch.setattr(_CaptureModel, "__init__", observed_init)
+    with pytest.raises(ValueError):
+        PV.run_v2(source, **sample["kwargs"])
+    assert not constructed and not _CaptureModel.received
+    assert set(source.iterdir()) == entries
+    assert {path: path.read_bytes() for path in source.rglob("*") if path.is_file()} == before
+    assert not list(source.glob("calibrated_segmentation*"))
+    assert sample["calibration_path"].read_bytes() == sample["calibration_bytes"]

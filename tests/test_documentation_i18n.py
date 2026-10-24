@@ -107,6 +107,32 @@ def _retired_707_home_api(docs):
     return retired
 
 
+def _current_718_metal_class_api(entries, docs):
+    """Bind the three constructor summaries while retaining the original eight-entry fixture."""
+    assert len(entries) == 8
+    active = dict(entries)
+    revisions = {
+        'spacr.mps_reduce.MetalKMeans': (
+            '1c5580796a2089553dec2885e2ac10e9afa2374e51397e557a6ab7bc931f6628',
+            '1cddb9110164f79c34244af945a5e3876e5bb3c0b74aeb0acbaa9ffcc334de03',
+            'Lloyd KMeans with chunked Metal assignment and k-means++ initialization.\nStore Lloyd KMeans options, accepting random or k-means++ initialization. The copy_x and verbose arguments are accepted for compatibility and are not used.'),
+        'spacr.mps_reduce.MetalPCA': (
+            '59a35cd4aec1560de2309ff9d34a8c70bf8af4f0f2f6c2854cc63e014a3368ab',
+            'b23cee6c1c646fbebe4fdacc1ed1a35c5f5e11142c752dc1401df385913a76b0',
+            'Stable CPU PCA fitting with Metal projection where precision permits.\nStore PCA options, refusing solvers outside auto, full and covariance_eigh. The copy argument is accepted for compatibility and is not used.'),
+        'spacr.torch_loader.ArrayDataLoader': (
+            '80b3ff300567377e96803da2629490786e0fcbdef214770c43ab3369d6a6941d',
+            '2a4bff5d38d64428dc36c1c6c3a2c0022e722425c3731b1b110fe518a74434a9',
+            'Default CPU batches cross process boundaries as NumPy, then restore.\n\nExplicit custom collators retain their existing behavior. Single-process\nloaders use ordinary PyTorch collation and iteration unchanged.\nUse NumPy transport only for worker loaders without a custom collator.'),
+    }
+    for key, (before, after, body) in revisions.items():
+        assert hashlib.sha256(active[key].encode()).hexdigest() == before
+        assert hashlib.sha256(body.encode()).hexdigest() == after
+        assert docs[key] == body
+        active[key] = body
+    return active
+
+
 def _current_718_mitonet_api(entries, docs):
     """Bind only the selected-accelerator device paragraph in the original N691 contract."""
     assert len(entries) == 4
@@ -3428,12 +3454,15 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json", 8),
         ("707_home_masthead_fit_api_arrival_2026-10-24.json", 1),
         ("718_metal_reducer_method_api_arrivals_2026-10-24.json", 8),
+        ("718_metal_loader_iterator_api_arrival_2026-10-24.json", 1),
         ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
         if filename == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             arrivals = _posix_update_prepared_key_move(arrivals, docs)
+        if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
+            arrivals = _current_718_metal_class_api(arrivals, docs)
         assert len(arrivals) == count
         assert {key: docs[key] for key in arrivals} == arrivals
         assert not arrivals.keys() & (

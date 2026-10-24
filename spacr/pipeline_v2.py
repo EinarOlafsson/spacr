@@ -1052,6 +1052,9 @@ def run_v2(
         labels are restored to the original reference canvas with incomplete
         boundary objects removed. Unsupported preprocessing, custom/intensity/
         perimeter filters and quality exclusion refuse before inference.
+        Optional ``unmix_per_plate`` selects complete physical-channel controls
+        from a JSON master map for one exact source plate/time/plane; mixed
+        sources and missing assignments refuse before output creation.
     :param object_type: picks the weights during ``model_name``
         resolution, names the role given channel 0 in normalisation, and
         is passed to the mask post-processor. An unrecognised value does
@@ -1074,6 +1077,21 @@ def run_v2(
     """
     src = Path(src)
     calibrated = bool((postprocess_settings or {}).get("unmix_calibration"))
+    from .psf_pipeline import _validate_unmix_plate_scope
+
+    per_plate = _validate_unmix_plate_scope(
+        postprocess_settings or {}, allow_per_plate=calibrated)
+    prepared_mapper = None
+    if per_plate:
+        from .psf_pipeline import _plate_unmix_controls
+
+        prepared_mapper = FilenameMapper.discover(
+            src, metadata_type=metadata_type, custom_regex=custom_regex)
+        identities = {record.original_path: dict(
+            plate=record.plate, well=record.well, field=record.field,
+            time=record.time, z=record.z, source_dataset=str(src.resolve()))
+            for record in prepared_mapper.records}
+        _plate_unmix_controls(postprocess_settings, channels, identities)
     output_root = src
     if calibrated:
         from .qt.i18n import tr
@@ -1102,8 +1120,9 @@ def run_v2(
         else:
             raise ValueError(tr("No unused calibrated segmentation output directory is available."))
         _initialize_calibrated_output(output_root, postprocess_settings)
-    mapper = FilenameMapper.discover(src, metadata_type=metadata_type,
-                                       custom_regex=custom_regex)
+    mapper = (prepared_mapper if prepared_mapper is not None else
+              FilenameMapper.discover(src, metadata_type=metadata_type,
+                                      custom_regex=custom_regex))
     if calibrated:
         from .qt.i18n import tr
 

@@ -46,6 +46,20 @@ immutability, wrong role/hash/shape/origin/spacing refusals and cancellation
 before publication. Existing defaults and the separate real known-amount
 double-stain scientific acceptance gate remain unchanged and open.
 
+PLATE-QUALIFIED CONTROL FOLLOW-UP (2026-10-24)
+Home owns the next opt-in per-plate control and matrix-selection slice, with
+G3 tracing organized-field/control transport and G4 reviewing calibration
+semantics and source. Keep the explicit global default, all ordinary default
+numerics, and the published calibrated/signed-cell measurement contracts.
+Before numerical implementation, agree a concrete plate-qualified policy:
+complete controls for every target plate and physical channel, no cross-plate
+ambiguity or implicit fallback, and source/hash/provenance binding for every
+selected matrix. Missing or ambiguous plate/control identities must refuse.
+Use the existing modules and alpha controls; preserve original files and
+validate distinct-matrix plates, missing-control refusal and default regression
+with the smallest deterministic CPU cohort. The real known-amount acceptance
+remains separate and open; review the scientific design before source edits.
+
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: A1 a classefication torch, xgboost, and
     measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
@@ -275,4 +289,6 @@ whole-feature or final CI acceptance claim.
 
 2026-10-24 Home: calibrated cell-only V2 batch candidate writes a separate aligned nonquantitative display/mask dataset with signed crops, explicit physical identities and durable coordinate records; originals remain unchanged. Resource and path preflights refuse unsupported or unsafe inputs before model execution, while persisted-coordinate guards reject Measure, preview, checked crops and cached export regardless of current toggles. Thirty unique focused session, transport, default-path, measurement and runtime-extractor controls pass with independent mathematical/source peers. Normal nine-language API/runtime catalogs, Help, consumer map and caption arrivals are verified at review 19ca991 (6,984 files) and API pin dd8f34d8d0fc; all 16 final owning contracts pass with ten API files byte-identical. Four affected notebook references were regenerated normally and their freshness test passes; root owns Night publication. V1, broader calibrated measurement and real known-amount double-stain acceptance remain OPEN.
 
-2026-10-24 Home: explicit measure_calibrated_cells exports signed float64 first-order cell statistics and full-reference geometry through spacr.tabular to an atomic new CSV/provenance destination; ordinary Measure/preview refusals remain. Versioned cell-role records bind the signed crop and matching mask to calibration, physical channels and typed acquisition identities; old ambiguous records and labels above 65535 refuse. Twenty-seven focused producer/loader/API controls, three source contracts and all 15 final catalog/Help/runtime checks pass; independent source/math/output peers accepted, with ten API files unchanged by final checks. Normal 216-target nine-language closure is verified at review cc935d65 (7,002 files) and API pin b68b901493c6; consumer map, Help and caption arrivals were generated normally. Root owns Night publication; V1/3D, other object roles, ordinary database integration, unsupported platform capabilities and real known-amount double-stain acceptance remain OPEN.
+2026-10-24 Home: explicit measure_calibrated_cells exports signed float64 first-order cell statistics and full-reference geometry through spacr.tabular to an atomic new CSV/provenance destination; ordinary Measure/preview refusals remain. Versioned cell-role records bind the signed crop and matching mask to calibration, physical channels and typed acquisition identities; old ambiguous records and labels above 65535 refuse. Twenty-seven focused producer/loader/API controls, three source contracts and all 15 final catalog/Help/runtime checks pass; independent source/math/output peers accepted, with ten API files unchanged by final checks. Normal 216-target nine-language closure is verified at review cc935d65 (7,002 files) and API pin b68b901493c6; consumer map, Help and caption arrivals were generated normally. Published on Night b7ddf528fe; V1/3D, other object roles, ordinary database integration, unsupported platform capabilities and real known-amount double-stain acceptance remain OPEN.
+
+2026-10-24 Home: opt-in unmix_per_plate selects complete same-plate controls by physical channel ID for one-plate/time/Z calibrated cell-only V2 sources; False preserves the legacy parser, numerics and provenance. Canonical mappings and consumed pre-unmix input hashes are bound to durable records; raw files and signed-reader compatibility remain intact, and unsupported routes refuse before work. Sixteen direct and sixteen real-folder/refusal controls pass with independent source/math review; settings, source-admission and notebook freshness checks pass. Normal 108-target nine-language closure is verified at review 5d0888e2 (7,021 files) and API 2c88c606; all 15 final catalog/Help/runtime checks pass with ten API files unchanged. Consumer, Help, notebook references, caption arrivals and settings-flow artifacts were generated normally; the three flow checks pass with zero API/caption delta. Root owns Night publication. Direct matrix-file loading, mixed-plate partitioning, broader calibrated routes and real known-amount double-stain acceptance remain OPEN.

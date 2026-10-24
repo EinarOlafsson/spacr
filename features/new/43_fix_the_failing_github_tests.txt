@@ -27,6 +27,25 @@ The published fresh-profile default is 10%; retain the 50% user choice across
 both animation changes and its saved value. Product defaults remain unchanged.
 The sole current-Qt owning case passes (3.53s); independent peer/root review
 precedes publication. No production or generated changes.
+CURRENT SPECTRAL SETTINGS CONTRACTS — 2026-10-24
+Home owns the Night Coverage 6 calibration category declarations and Coverage 11
+calibration tooltip length failure. Keep the 600-character ceiling and existing
+category baselines; declare only the two published calibration keys and new
+plate-scope key. Condense hover guidance without changing supported routes,
+defaults or numerical behavior, then run only the affected source contracts.
+Home also owns exact accounting for the three already shipped Metal modules
+and normal removal of removable comments in the six named Night failure files.
+Preserve the original packaging baseline, protected attribute documentation,
+all numerical bodies and existing API arrival identities.
+Refresh the separate settings-flow page and index with their normal generator:
+the current plate-scope setting has no flow anchor despite its actual reads.
+Retain the exact source-derived section and index checks; do not regenerate the
+already accepted consumer map or API/runtime catalogs for this artifact repair.
+The settings/category/default checks pass (3); comment/packaging checks pass (2),
+callable/nested documentation checks pass (2), and all three exact API source
+admission checks pass. Normal settings-flow generation and its three freshness
+and index checks pass with independent output review and API/caption zero delta.
+Root owns Night publication; broader hosted CI qualification remains open.
 
 CURRENT QC CALLBACK DOCUMENTATION — 2026-10-23
 Home owns concise missing docs for measurement-export check_cancelled/record_result

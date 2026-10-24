@@ -50,7 +50,7 @@ def _fit_training_memory(net):
         return
     weights = sum(p.numel() * max(4, p.element_size()) for p in parameters)
     trainable = sum(p.numel() * max(4, p.element_size()) for p in parameters if p.requires_grad)
-    minimum = weights + 3 * trainable  # weights, gradients, two AdamW moments
+    minimum = weights + 3 * trainable
     if minimum <= budget:
         return
     import torch
@@ -88,22 +88,26 @@ def training_context(net=None):
         dynamics = getattr(train, "dynamics", None)
 
         class TrainingDynamics:
+            """Delegate training dynamics while generating label flows on CPU."""
             def __getattr__(self, name):
+                """Return the corresponding attribute from the original dynamics module."""
                 return getattr(dynamics, name)
 
             def labels_to_flows(self, *args, **kwargs):
-                # The same Metal indexing defect affects training-label flow
-                # generation as inference's flow-error postprocessing.
+                """Call the original label-flow function with its device bound to CPU."""
                 function = dynamics.labels_to_flows
                 bound = signature(function).bind(*args, **kwargs)
                 bound.arguments["device"] = original_torch.device("cpu")
                 return function(*bound.args, **bound.kwargs)
 
         class TrainingTorch:
+            """Delegate Torch operations while bypassing CPU and Metal autocast."""
             def __getattr__(self, name):
+                """Return the corresponding attribute from the original Torch module."""
                 return getattr(original_torch, name)
 
             def autocast(self, *args, **kwargs):
+                """Return a no-op context for CPU or Metal, otherwise delegate autocast."""
                 device = kwargs.get("device_type", args[0] if args else "")
                 return (
                     nullcontext()
@@ -116,6 +120,7 @@ def training_context(net=None):
 
             @wraps(augment)
             def cpu_augmentation(*args, **kwargs):
+                """Run Metal-targeted augmentation on CPU and transfer tensor results back."""
                 bound = parameters.bind(*args, **kwargs)
                 device = bound.arguments.get("device", original_torch.device("cpu"))
                 if original_torch.device(device).type != "mps":

@@ -9716,6 +9716,9 @@ def measure_crop(settings):
         :func:`spacr.io.generate_dataset` — build a training set from the PNGs.
         :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops.
     """
+    from .psf_pipeline import _validate_unmix_plate_scope
+
+    _validate_unmix_plate_scope(settings)
     if settings.get('dry_run', False):
         from .validate import run_preflight
         return run_preflight(settings, 'measure')
@@ -12848,6 +12851,9 @@ def measure_from_field_table(table, settings=None, dst=None, progress=None):
         :func:`measure_crop` -- the run this delegates to, unchanged.
         :func:`write_field_table_project` -- the folders it writes first.
     """
+    from .psf_pipeline import _validate_unmix_plate_scope
+
+    _validate_unmix_plate_scope(settings or {})
     from .qt.i18n import tr
 
     def say(message):

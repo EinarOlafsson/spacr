@@ -775,3 +775,208 @@ def test_signed_cell_record_snapshot_caps_a_concurrent_append(completed_calibrat
 
         with pytest.raises(ValueError):
             _cell_record_snapshot(GrowingStream(), None)
+
+
+@pytest.fixture
+def plate_scoped_inputs(calibrated_batch_inputs):
+    """The actual physical-ID fixture with an explicit reusable plate master map."""
+    inputs = calibrated_batch_inputs
+    master = {'plate1': {'3': ['A01'], '1': ['B01']},
+              'plate2': {'3': ['B01'], '1': ['A01']}}
+    for identity in inputs['identities'].values():
+        identity['source_dataset'] = str(inputs['stack'].parent.resolve())
+    inputs['settings'] = dict(inputs['settings'], unmix_per_plate=True,
+                              unmix_controls=json.dumps(master))
+    inputs['master'] = master
+    return inputs
+
+
+def _plate_scoped_plan(inputs):
+    """Build the actual plan with captured physical positions and source identities."""
+    return _prepare_unmixing(
+        inputs['settings'], inputs['stack'], channels=(3, 1), allow_calibrated=True,
+        channel_positions={3: 0, 1: 1}, field_identities=inputs['identities'])
+
+
+def test_per_plate_controls_capture_exact_inputs_and_immutable_selection(plate_scoped_inputs):
+    import hashlib
+
+    inputs = plate_scoped_inputs
+    before = {path: path.read_bytes() for path in inputs['stack'].glob('*.npy')}
+    plan = _plate_scoped_plan(inputs)
+    np.testing.assert_allclose(plan.matrix, inputs['matrix'], atol=2e-6, rtol=0)
+    selection = plan.provenance()['control_selection']
+    assert selection['scope'] == 'plate' and selection['plate'] == 'plate1'
+    assert selection['physical_channel_order'] == [3, 1]
+    assert selection['selected_controls'] == {'3': ['A01'], '1': ['B01']}
+    assert selection['canonical_controls_by_plate'] == inputs['master']
+    assert selection['controls_map_sha256'] == hashlib.sha256(json.dumps(
+        inputs['master'], sort_keys=True, allow_nan=False).encode()).hexdigest()
+    assert set(selection['sampled_fields']) == {'stack_000000', 'stack_000001'}
+    for stem, facts in selection['sampled_fields'].items():
+        path = inputs['stack'] / f'{stem}.npy'
+        raw = np.load(path)
+        assert facts['source_identity'] == inputs['identities'][path.name]
+        assert facts['input_stage'] == 'assembled_pre_unmixing'
+        assert facts['input_shape'] == list(raw.shape)
+        assert facts['input_dtype'] == raw.dtype.str
+        assert facts['input_size_bytes'] == len(before[path])
+        assert facts['input_sha256'] == hashlib.sha256(before[path]).hexdigest()
+    captured = plan.provenance()
+    inputs['settings']['unmix_controls'] = '{}'
+    inputs['identities']['stack_000000.npy']['well'] = 'H12'
+    selection['selected_controls']['3'].append('H12')
+    assert plan.provenance() == captured
+    assert all(path.read_bytes() == content for path, content in before.items())
+
+
+@pytest.mark.parametrize('controls', [
+    '{"3":["A01"],"1":["B01"]}',
+    '{"another":{"3":["A01"],"1":["B01"]}}',
+    '{"plate1":{"3":["A01"]}}',
+    '{"plate1":{"3":["A01"],"3":["B01"],"1":["B01"]}}',
+    '{"plate1":{"3":["A01"],"1":["a1"]}}',
+    '{"plate1":{"3":["A99"],"1":["B01"]}}',
+], ids=['flat', 'missing-plate', 'missing-channel', 'duplicate-key', 'shared-control', 'missing-well'])
+def test_per_plate_controls_refuse_incomplete_or_ambiguous_maps(plate_scoped_inputs, controls):
+    inputs = plate_scoped_inputs
+    before = {path: path.read_bytes() for path in inputs['stack'].glob('*.npy')}
+    inputs['settings']['unmix_controls'] = controls
+    with pytest.raises(ValueError, match='plate-to-channel-to-well-list'):
+        _plate_scoped_plan(inputs)
+    assert not inputs['output'].exists()
+    assert all(path.read_bytes() == content for path, content in before.items())
+
+
+def test_per_plate_controls_refuse_mixed_actual_identities(plate_scoped_inputs):
+    inputs = plate_scoped_inputs
+    inputs['identities']['stack_000002.npy']['plate'] = 'plate2'
+    with pytest.raises(ValueError, match='exact source plate'):
+        _plate_scoped_plan(inputs)
+    assert not inputs['output'].exists()
+
+
+def test_per_plate_false_keeps_global_numbers_and_provenance_exact(calibrated_batch_inputs):
+    inputs = calibrated_batch_inputs
+    options = dict(channels=(3, 1), allow_calibrated=True,
+                   channel_positions={3: 0, 1: 1}, field_identities=inputs['identities'])
+    original = _prepare_unmixing(inputs['settings'], inputs['stack'], **options)
+    explicit_false = _prepare_unmixing(dict(inputs['settings'], unmix_per_plate=False),
+                                      inputs['stack'], **options)
+    assert explicit_false.provenance() == original.provenance()
+    assert 'control_selection' not in explicit_false.provenance()
+    np.testing.assert_array_equal(explicit_false.apply_calibrated(inputs['target']).image,
+                                  original.apply_calibrated(inputs['target']).image)
+
+
+@pytest.fixture
+def plate_scoped_cells(plate_scoped_inputs):
+    """Complete a real scoped session while preserving its independent raw controls."""
+    inputs = plate_scoped_inputs
+    session = _calibrated_batch_session(inputs)
+    result = session.prepare_calibrated(inputs['target'], '000002')
+    labels = np.zeros(result.image.shape[:2], dtype=np.uint16)
+    labels[12:17, 14:20] = 11
+    mask = session.restore_calibrated(labels, result, '000002')
+    output = inputs['output'] / 'merged' / 'stack_000002.npy'
+    signed = inputs['output'] / 'signed' / 'stack_000002.npy'
+    output.parent.mkdir(); signed.parent.mkdir()
+    np.save(output, np.concatenate((session.calibrated_display(inputs['target'], result),
+                                   mask[..., None]), axis=-1).astype(np.float32))
+    np.save(signed, result.image)
+    session.mark_completed('000002', output_path=output, signed_path=signed, mask_role='cell')
+    session.finish({'000002'})
+    return dict(inputs=inputs, record=inputs['output'] / 'psf/segmentation_application.json',
+                signed=signed, mask=mask)
+
+
+@pytest.mark.parametrize('defect', [None, 'wrong-plate', 'wrong-map-hash', 'swapped-dye-fields', 'wrong-source'],
+                         ids=['valid', 'wrong-plate', 'wrong-map-hash', 'swapped-dye-fields', 'wrong-source'])
+def test_per_plate_signed_reader_validates_selection_with_rebound_hashes(plate_scoped_cells, defect):
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = plate_scoped_cells
+    record = json.loads(sample['record'].read_text())
+    unmixing = record['configuration']['unmixing']
+    selection = unmixing['control_selection']
+    if defect == 'wrong-plate':
+        selection['plate'] = 'plate2'
+    elif defect == 'wrong-map-hash':
+        selection['controls_map_sha256'] = '0' * 64
+    elif defect == 'swapped-dye-fields':
+        unmixing['fields']['3'], unmixing['fields']['1'] = unmixing['fields']['1'], unmixing['fields']['3']
+    if defect == 'wrong-source':
+        stem = next(iter(selection['sampled_fields']))
+        selection['sampled_fields'][stem]['source_identity']['source_dataset'] = '/other/source'
+        record['configuration']['control_identities'][stem]['source_dataset'] = '/other/source'
+    if defect is not None:
+        _rewrite_calibrated_cell_record(sample['record'], record)
+        with pytest.raises(ValueError):
+            with _open_calibrated_cell_dataset(sample['inputs']['output']):
+                pytest.fail('inconsistent plate selection was accepted')
+    else:
+        with _open_calibrated_cell_dataset(sample['inputs']['output']) as dataset:
+            fields = dataset.fields()
+            field = next(fields)
+            assert field['source_identity']['plate'] == 'plate1'
+            np.testing.assert_array_equal(field['signed'], np.load(sample['signed']))
+            np.testing.assert_array_equal(field['labels'], sample['mask'][2:46, 1:53])
+            assert dataset.provenance()['configuration']['unmixing']['control_selection'] == selection
+
+
+def test_per_plate_controls_refuse_source_changes_during_matching(plate_scoped_inputs, monkeypatch):
+    from spacr.psf_pipeline import _UnmixCalibration
+
+    inputs = plate_scoped_inputs
+    original_apply = _UnmixCalibration.apply
+    path = inputs['stack'] / 'stack_000000.npy'
+    other = {file: file.read_bytes() for file in inputs['stack'].glob('*.npy') if file != path}
+    changed = []
+
+    def apply_then_change(calibration, pixels):
+        result = original_apply(calibration, pixels)
+        if not changed:
+            raw = np.load(path, mmap_mode='r+')
+            raw[0, 0, 0] += 1
+            raw.flush()
+            raw._mmap.close()
+            changed.append(True)
+        return result
+
+    monkeypatch.setattr(_UnmixCalibration, 'apply', apply_then_change)
+    with pytest.raises(ValueError, match='stable bounded numeric'):
+        _plate_scoped_plan(inputs)
+    assert changed == [True] and not inputs['output'].exists()
+    assert all(file.read_bytes() == content for file, content in other.items())
+
+
+def test_per_plate_control_hash_stops_at_original_size_plus_one(plate_scoped_inputs):
+    from spacr.psf_pipeline import _plate_control_hash
+
+    path = plate_scoped_inputs['stack'] / 'stack_000000.npy'
+    original_size = path.stat().st_size
+    consumed = []
+    appended = []
+    with path.open('rb') as source:
+        class GrowingReader:
+            def fileno(self):
+                return source.fileno()
+
+            def seek(self, position):
+                return source.seek(position)
+
+            def read(self, count):
+                block = source.read(count)
+                consumed.append(len(block))
+                if not appended:
+                    with path.open('ab') as writer:
+                        writer.write(b'x' * (1024 ** 2))
+                    appended.append(True)
+                return block
+
+        with pytest.raises(ValueError):
+            _plate_control_hash(GrowingReader(), original_size)
+    assert appended == [True]
+    assert sum(consumed) == original_size + 1
+    assert path.stat().st_size == original_size + 1024 ** 2
+    assert not plate_scoped_inputs['output'].exists()
