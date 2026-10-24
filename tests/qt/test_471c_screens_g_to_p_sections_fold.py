@@ -124,9 +124,10 @@ def test_the_tab_strip_stays_level_with_the_graphs_one_row(gate_screen):
 def test_a_dragged_gate_table_width_is_remembered(gate_screen, qtbot):
     from spacr.qt.screens.gate_editor import GateEditorScreen
     from spacr.qt.widgets.gate_editor import GRAPH_SPLIT_KEY
+    from spacr.qt.gui_scale import _actual_sizes
 
     split = gate_screen.gates.body
-    split.moveSplitter(split.sizes()[0] - 150, 1)
+    split.moveSplitter(_actual_sizes(split)[0] - 150, 1)
     _pump()
     dragged = cs.get_pane_extents(GRAPH_SPLIT_KEY).get("Gate table", 0)
     assert dragged >= 350
@@ -469,19 +470,20 @@ def test_the_model_zoo_table_and_benchmark_fold_and_drag(qapp, qtbot):
 @pytest.mark.qt
 def test_the_measure_input_table_folds_by_its_card_title(qapp, qtbot):
     from spacr.qt.screens.measure_inputs import FOLD_KEY, MeasureInputsScreen
+    from spacr.qt.gui_scale import _actual_sizes
 
     screen = MeasureInputsScreen(threaded=False)
     qtbot.addWidget(screen)
     _show(screen, 1100, 800)
     card = screen.table_card
-    open_height = screen._body.sizes()[0]
+    open_height = _actual_sizes(screen._body)[0]
     _click(card.title_label)
     _pump()
     assert screen.table_folder.shut
     assert not card.body.isVisibleTo(card)
     assert screen._body.is_collapsed("The files")
     _pump()
-    sizes = screen._body.sizes()
+    sizes = _actual_sizes(screen._body)
     assert sizes[0] < open_height, sizes
     assert sizes[0] <= card.sizeHint().height() + 8, sizes
     assert sizes[1] > sizes[0], "the settings did not take the room freed"

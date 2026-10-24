@@ -157,14 +157,23 @@ def _slot_headings_on_screen(screen) -> list:
 
 
 def test_a_slot_the_run_does_not_have_takes_its_heading_with_it(qtbot):
-    """A heading with every row hidden is a smaller wall, but a wall.
+    """Active slots use grid columns without resurrecting empty old headings."""
+    from spacr.organelle_types import ALL_ORGANELLE_ROLES, organelle_roles
 
-    Mask files each slot's settings under three families, so twenty-two
-    unreachable slots would be sixty-six headings to scroll past.
-    """
     for count in (0, 2, 7):
-        screen, _model = _screen_for_count(qtbot, "mask", count)
-        assert _slot_headings_on_screen(screen) == list(range(1, count + 1))
+        roles = list(organelle_roles(count))
+        current = {f"{role}_channel": index + 1
+                   for index, role in enumerate(roles)}
+        screen, model = _screen_for_count(qtbot, "mask", count, current)
+        screen._open_every_waiting_heading()
+        assert model.collect()["number_of_organelles"] == count
+        assert _slot_headings_on_screen(screen) == []
+        assert _slots_on_screen(screen, "mask") == roles
+        assert [role for role in screen._object_grid.objects()
+                if role in ALL_ORGANELLE_ROLES] == roles
+        for role in roles:
+            assert the_table_answers(screen, f"{role}_diameter")
+            assert screen.setting_row_is_visible(f"{role}_type")
 
 
 # ---------------------------------------------------------------------------
