@@ -154,17 +154,23 @@ def _clone_organelle_registry(mapping, *, tooltip=False):
     READABLE: a settings file written at seven slots is opened by a session
     whose count is two, and its seventh slot has to be typed and tooltipped
     then, not only once the number is raised again.
+
+    Each primary key's slot suffix is taken once rather than through
+    :func:`spacr.organelle_types.slot_setting` for every role, the same
+    spelling without about 100,000 checked calls at every import.
     """
-    primary = [(key, value) for key, value in mapping.items()
+    primary = [(str(key)[len('organelle_'):], value)
+               for key, value in mapping.items()
                if str(key).startswith('organelle_')]
+    setdefault = mapping.setdefault
     for role in ORGANELLE_SLOT_ROLES[1:]:
         number = organelle_number(role)
-        for key, value in primary:
+        for rest, value in primary:
             cloned = value
             if tooltip and isinstance(value, str):
                 cloned = value.replace('organelle_', f'{role}_')
                 cloned = cloned.replace('organelle ', f'organelle {number} ')
-            mapping.setdefault(_organelle_slot_key(key, role), cloned)
+            setdefault(f'{role}_{rest}', cloned)
     return mapping
 
 
