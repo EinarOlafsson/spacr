@@ -1859,6 +1859,17 @@ class NewsPanel(Panel):
     NOTES_H_MIN = 90
     NOTES_H_MAX = 720
 
+    #: Releases built with the panel; the rest follow its first paint. Each
+    #: wrapped rich-text body costs several document layouts to size, and all
+    #: of them together were about 0.4 s of Home's first paint on an Intel
+    #: Mac, for a box that shows the newest release at its default height.
+    FIRST_RELEASES = 2
+
+    #: When a shown panel that has not painted -- scrolled below the fold of
+    #: a short aside -- appends the rest anyway, so every release is there
+    #: for assistive technology without the reader scrolling to it first.
+    REST_AFTER_SHOW_MS = 300
+
     def __init__(self, version: str = "", parent=None):
         """Build the panel and its caption.
 
@@ -1897,7 +1908,7 @@ class NewsPanel(Panel):
         self._placeholder.setStyleSheet(
             f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
             "font-style: italic; background: transparent;")
-        self._fill()
+        self._fill(self.FIRST_RELEASES)
 
         self._grip = _HeightGrip(self._notes, self.NOTES_H_MIN,
                                  self.NOTES_H_MAX,
@@ -1933,14 +1944,19 @@ class NewsPanel(Panel):
         except Exception:                                        # noqa: BLE001
             return []
 
-    def _fill(self) -> None:
+    def _fill(self, count: Optional[int] = None) -> None:
         """Draw :attr:`_releases` into the scrolling column.
 
         Called once while the panel is built and again whenever a fetched
         list arrives, so the two paths cannot diverge. The placeholder is
         kept rather than rebuilt: it is what a build with no bundled
         resource shows, and :meth:`set_content` holds a reference to it.
+
+        :param count: draw only the newest ``count`` releases now and the
+            rest one event-loop turn after the panel first paints; ``None``
+            draws every release at once.
         """
+        self._pending_releases = []
         self._headline_labels = []
         while self._notes_column.count():
             item = self._notes_column.takeAt(0)
@@ -1951,9 +1967,47 @@ class NewsPanel(Panel):
         self._notes_column.addWidget(self._placeholder)
         self._placeholder.setVisible(not self._releases
                                      and self.content is None)
-        for entry in self._releases:
+        drawn = self._releases if count is None else self._releases[:count]
+        for entry in drawn:
             self._notes_column.addWidget(self._release_block(entry))
         self._notes_column.addStretch(1)
+        self._pending_releases = list(self._releases[len(drawn):])
+        fitter = getattr(self, '_news_title_fit', None)
+        if fitter is not None:
+            fitter._timer.start(0)
+
+    def paintEvent(self, event):                                 # noqa: N802
+        """After the first paint, queue the releases not drawn yet.
+
+        :param event: the Qt paint event.
+        """
+        super().paintEvent(event)
+        self._queue_the_rest(0)
+
+    def _queue_the_rest(self, delay_ms: int) -> None:
+        """Start, or bring forward, the append of the releases not drawn yet.
+
+        :param delay_ms: how long to wait; a running timer due sooner is kept.
+        """
+        if not self._pending_releases:
+            return
+        timer = getattr(self, '_rest_timer', None)
+        if timer is None:
+            timer = self._rest_timer = QTimer(self)
+            timer.setSingleShot(True)
+            timer.timeout.connect(self._fill_the_rest)
+        if not timer.isActive() or timer.remainingTime() > delay_ms:
+            timer.start(delay_ms)
+
+    def _fill_the_rest(self) -> None:
+        """Append the releases :meth:`_fill` left for after the first paint."""
+        pending, self._pending_releases = self._pending_releases, []
+        if not pending:
+            return
+        stretch = self._notes_column.count() - 1
+        for offset, entry in enumerate(pending):
+            self._notes_column.insertWidget(stretch + offset,
+                                            self._release_block(entry))
         fitter = getattr(self, '_news_title_fit', None)
         if fitter is not None:
             fitter._timer.start(0)
@@ -1970,6 +2024,7 @@ class NewsPanel(Panel):
         :param event: the Qt show event.
         """
         super().showEvent(event)
+        self._queue_the_rest(self.REST_AFTER_SHOW_MS)
         if self._refresh_asked:
             return
         self._refresh_asked = True
