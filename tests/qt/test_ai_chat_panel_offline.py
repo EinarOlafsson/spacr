@@ -1351,7 +1351,8 @@ def test_a_released_python_chat_owner_does_not_receive_its_delayed_explanation(
 
     request.addfinalizer(retire)
     panel.open_error_flow("ValueError: first field", active_app="mask")
-    qtbot.waitUntil(lambda: len(provider.seen) == 1 and panel._thread is None, timeout=5000)
+    qtbot.waitUntil(
+        lambda: len(provider.seen) == 1 and owner()._thread is None, timeout=5000)
     panel.open_error_flow("ValueError: queued later field", active_app="mask")
     assert len(provider.seen) == 1
     panel.shutdown()
