@@ -555,6 +555,8 @@ def test_calibrated_v2_keeps_originals_and_commits_reference_canvas(
         assert row["source_identity"]["time"] == 1
         assert row["source_identity"]["z"] == 1
         assert row["excluded_boundary_label_ids"] == [9]
+        assert row["measurement_schema_version"] == 1
+        assert row["mask_role"] == "cell" and row["mask_channel_position"] == 2
         for key, path in (("display_mask", stack_file.path), ("signed_crop", signed_path)):
             assert root / row[key]["path"] == path
             assert row[key]["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
@@ -563,6 +565,17 @@ def test_calibrated_v2_keeps_originals_and_commits_reference_canvas(
     mapping = PV.FilenameMapper.load_csv(root / "filename_map.csv")
     assert {entry.channel for entry in mapping.records} == {3, 1}
     assert {entry.well for entry in mapping.records} == {"A01", "B01", "C01"}
+    from spacr.measure import measure_calibrated_cells
+    from spacr.tabular import read_table
+
+    measured = measure_calibrated_cells(root, dst=source.parent / "signed_cells", channels=[1])
+    cells = read_table(measured["csv_path"])
+    assert measured["fields"] == measured["rows"] == 3
+    assert set(cells["physical_channel_id"]) == {1}
+    assert set(cells["label_id"]) == {7}
+    assert set(cells["fieldID"]) == set(cells["timeID"]) == set(cells["sliceID"]) == {1}
+    assert set(cells["wellID"]) == {"A01", "B01", "C01"}
+    assert all(path.read_bytes() == data for path, data in before.items())
 
 
 def test_calibrated_v2_invalid_model_labels_leave_incomplete_separate_output(
