@@ -520,7 +520,36 @@ def test_the_mask_preview_pictures_are_cached_at_the_size_shown(
             backdrop.repaint(region)
             out.append(_region_ms(backdrop, region))
     ratio = statistics.median(cached) / statistics.median(uncached)
+    from PySide6.QtGui import QPixmapCache
+    from spacr.qt.gui_scale import current_scale
+
+    diagnostics = {
+        "native_window": window.geometry().getRect(),
+        "work_area": window.screen().availableGeometry().getRect(),
+        "gui_scale": current_scale(),
+        "region": region.boundingRect().getRect(),
+        "region_rectangles": region.rectCount(),
+        "pixmap_cache_kib": QPixmapCache.cacheLimit(),
+        "views": [],
+        "cached_ms": cached,
+        "uncached_ms": uncached,
+    }
+    for view in views:
+        viewport = view.viewport()
+        transform = view.viewportTransform()
+        pixmap = view._pixmap_item.pixmap()
+        diagnostics["views"].append({
+            "visible": view.isVisible(),
+            "native_viewport": viewport.geometry().getRect(),
+            "visible_region": viewport.visibleRegion().boundingRect().getRect(),
+            "transform": (transform.m11(), transform.m12(), transform.m21(),
+                          transform.m22(), transform.dx(), transform.dy()),
+            "viewport_dpr": viewport.devicePixelRatioF(),
+            "pixmap_size": (pixmap.width(), pixmap.height()),
+            "pixmap_dpr": pixmap.devicePixelRatio(),
+        })
+    print("preview cache diagnostics:", diagnostics, flush=True)
     assert ratio <= 0.75, (
         f"the cached previews cost {ratio:.2f} of drawing them scaled "
         f"({statistics.median(cached):.2f} against "
-        f"{statistics.median(uncached):.2f} ms a repaint)")
+        f"{statistics.median(uncached):.2f} ms a repaint); {diagnostics!r}")
