@@ -27,6 +27,18 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+2026-10-24 — Provenance correction: retained aJLvqM/metal_pool drag uses
+bench3d.py's seven synthetic spheres, not FIBSEM, and a standalone forced exit.
+Its 611×140/100% timings are not normal public-run/FIBSEM cleanup evidence.
+The next real-data/default-viewport diagnostic is a different workload;
+no matched timing/FPS comparison or retroactive acceptance is claimed.
+
+Draw attribution scope: profile only the owned Axes3D's existing drag draw
+calls with per-call wall/threadCPU and aggregate functions/callers afterward.
+Reuse full normal native fresh-frame/current-pick/idle/cleanup gates, no
+fast-phase no-pick shortcut, extra draws, renderer/layout/scheduling/quality
+change or FPS acceptance. Require no prior profiler and exact restoration.
+
 2026-10-24 — Cancel52836/zvbRX7 PASS30.48s/1.275GiB ona4b938ba:
 loaded CZYX→real owned visible/enabled Cancel66×36→Rejected0/publicNone;
 stage/session/all4arrays/source/navigation/files exactly unchanged. Actual
