@@ -78,6 +78,38 @@ HERO_LOGO_PX = 72
 HERO_TITLE_PX = 52
 
 
+class _AsideFloorFit(QObject):
+    """Refresh the aside floor after its real styled content changes."""
+
+    def __init__(self, panels, fit):
+        """Own one coalesced post-layout callback on the panels being measured."""
+        super().__init__(panels)
+        self._fit_floor = fit
+        self._busy = False
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._apply)
+        panels._floor_timer = self._timer
+        panels.installEventFilter(self)
+        self._timer.start(0)
+
+    def eventFilter(self, obj, event):
+        """Observe only local polish/font/style/layout events, never resize polling."""
+        if not self._busy and event.type() in (
+                QEvent.Show, QEvent.Polish, QEvent.FontChange,
+                QEvent.StyleChange, QEvent.LayoutRequest):
+            self._timer.start(0)
+        return False
+
+    def _apply(self):
+        """Measure once after queued polish while guarding synchronous feedback."""
+        self._busy = True
+        try:
+            self._fit_floor()
+        finally:
+            self._busy = False
+
+
 class _HeroMark(QLabel):
     """Keep the source mark while permitting the masthead to compress it."""
 
@@ -2913,6 +2945,7 @@ class HomePage(QWidget):
         self._aside_scroll = scroll
         outer.addWidget(scroll, 1)
         self._fit_aside_minimum()
+        panels._floor_fit = _AsideFloorFit(panels, self._fit_aside_minimum)
         return aside
 
     def _build_aside_slider(self) -> QWidget:

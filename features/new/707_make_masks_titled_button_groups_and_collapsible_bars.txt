@@ -12,6 +12,19 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Automatic aside-floor scope: after real Show/polish and settled52px controls,
+compare the native minimum to actual totalMinimumSize plus scrollbar hint
+without a manual fit call. Verify automatic local heading/style growth and
+shrink, logical pane records, no-op quiescence and queued deletion. Native
+69310 supports stale construction-time sizing but did not record its setter
+chronology; require causal RED before a local coalesced post-polish observer.
+RED77359 observes one construction fit and a settled52px floor462 versus
+required616. Panels-owned local event observation now coalesces the existing
+normalized fitter after polish/content changes. GREEN64341 passes1/8.62s/
+RSS0.297GiB, including automatic growth/shrink, pane record, idle/deletion.
+Affected normalization52656 passes3/20.11s/RSS0.305GiB on the final observer;
+these scoped checks are not full Home acceptance.
+
 The bounded native operation explicitly selects aside_controls: actual buttons under
 HomeAside only, with the original20s content budget. Default all retains the
 complete runtime target manifest. Record all identities/text, selected indices

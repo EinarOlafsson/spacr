@@ -47,14 +47,10 @@ from spacr.qt.widgets.home import AppTile, HomePage
 _DOCK_ROWS = list(dock_rows())
 
 
-@pytest.mark.parametrize("gui", (2., .9, 1.))
-def test_aside_native_floor_is_not_scaled_twice(qtbot, qapp, gui):
-    import math
-    from PySide6.QtCore import QSize, Qt, Signal
+def _aside_builder():
+    """Use the actual aside factory without unrelated Home background jobs."""
+    from PySide6.QtCore import Signal
     from PySide6.QtWidgets import QWidget
-    from spacr.qt import app, gui_scale, preferences, theme
-    from spacr.qt.widgets import home as home_widgets
-    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter, EDGE
 
     class AsideBuilder(QWidget):
         sample_project_requested = Signal()
@@ -72,6 +68,118 @@ def test_aside_native_floor_is_not_scaled_twice(qtbot, qapp, gui):
         refresh = HomePage.refresh
         _version = staticmethod(HomePage._version)
 
+    return AsideBuilder()
+
+
+def test_aside_floor_follows_real_polish_and_local_content_changes(qtbot, qapp, monkeypatch):
+    import math
+    import shiboken6
+    from PySide6.QtCore import QCoreApplication, QEvent, QSize, Qt
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt import app, gui_scale, preferences
+    from spacr.qt.widgets import home as home_widgets
+    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    page = split = None
+    calls = []
+    original = HomePage._fit_aside_minimum
+
+    def fit(owner):
+        calls.append(owner)
+        return original(owner)
+
+    monkeypatch.setattr(HomePage, '_fit_aside_minimum', fit)
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.apply_preferences_to_app()
+        page = _aside_builder()
+        qtbot.addWidget(page)
+        page._P, page._names, page._grids = home_widgets.active_palette(), {}, []
+        aside = page._build_aside()
+        split = CollapsibleSplitter(Qt.Horizontal)
+        qtbot.addWidget(split)
+        split.add_pane(QWidget(), 'Apps', stretch=1)
+        pane = split.add_pane(aside, home_widgets._ASIDE_PANE, mode=EDGE, stretch=0)
+        page._aside_split = split
+        gui_scale._resize_actual(split, QSize(1600, 600))
+        split.show()
+        previous = [None]
+
+        def settled():
+            timer = getattr(page._aside_panels, '_floor_timer', None)
+            if (split._rebalance_queued or split._limits_queued
+                    or (timer is not None and timer.isActive())):
+                previous[0] = None
+                return False
+            current = (page._sample_project_button.font().pixelSize(),
+                       page._aside_panels.layout().totalMinimumSize().width(),
+                       gui_scale._actual_minimum_size(aside).width(), len(calls))
+            same = current == previous[0]
+            previous[0] = current
+            return same and current[0] == 52
+
+        def check():
+            previous[0] = None
+            qtbot.waitUntil(settled)
+            expected = (page._aside_panels.layout().totalMinimumSize().width()
+                        + page._aside_scroll.verticalScrollBar().sizeHint().width())
+            actual = gui_scale._actual_minimum_size(aside).width()
+            assert actual == expected, (actual, expected, len(calls))
+            assert aside._gs_geo['minw'] == math.ceil(expected / 2.) == pane.minimum
+            return actual
+
+        initial = check()
+        label = page._recent.header
+        old_text, old_label_sheet = label.text(), label.styleSheet()
+        label.setText('A deliberately much longer panel heading')
+        label.setStyleSheet(old_label_sheet + '; font-size:44px;')
+        grown = check()
+        assert grown > initial
+        label.setText(old_text)
+        label.setStyleSheet(old_label_sheet)
+        assert check() == initial
+        count = len(calls)
+        for _ in range(8):
+            qapp.processEvents()
+        assert len(calls) == count
+        page._aside_panels._floor_timer.start(0)
+        split.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not shiboken6.isValid(split)
+        split = None
+        qapp.processEvents()
+    finally:
+        try:
+            if split is not None and shiboken6.isValid(split):
+                split.close()
+            if page is not None:
+                page.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
+@pytest.mark.parametrize("gui", (2., .9, 1.))
+def test_aside_native_floor_is_not_scaled_twice(qtbot, qapp, gui):
+    import math
+    from PySide6.QtCore import QSize, Qt
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt import app, gui_scale, preferences, theme
+    from spacr.qt.widgets import home as home_widgets
+    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
     saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
     live_gui = gui_scale.current_scale()
     old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
@@ -84,7 +192,7 @@ def test_aside_native_floor_is_not_scaled_twice(qtbot, qapp, gui):
         preferences.set_font_scale(2.)
         gui_scale.set_gui_scale_live(gui)
         preferences.apply_preferences_to_app()
-        page = AsideBuilder()
+        page = _aside_builder()
         qtbot.addWidget(page)
         page._P = home_widgets.active_palette()
         page._names, page._grids = {}, []
