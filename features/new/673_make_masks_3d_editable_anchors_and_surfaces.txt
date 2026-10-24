@@ -27,6 +27,12 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+2026-10-24 — Thread-local observer trial PASS0/0.30s/0.014GiB: fresh stdlib
+Profile(thread_time).runcall gives root7/leaf21/caller21, worker0 in stats despite
+7 overlapping calls from a distinct thread; current/worker hooks unchanged.
+Workload self/inclusive6.187ms≤outer CPU9.282ms≤wall21.325ms; all synthetic
+rows retained separately. No Qt/native attribution or product change yet.
+
 2026-10-24 — CPU observer discrimination exits1/0.18s/0.014GiB as diagnostic
 failure: both single-thread modes count7 roots/21 children/caller edges exactly.
 With one known worker, windowed root primitive1/total7; continuous6/6, not7/7;
