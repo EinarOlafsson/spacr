@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+News endpoint scope: exact JSON1..3 unique structural body indices1..16,
+first/last rendered lines only (deduplicated), unchanged segment coverage and
+shared20s. Separate source/tag/document/allocation/endpoint queue ledger; no
+whole-body visibility claim or body0 replay. First[1] expects actual lines
+[0,2] for v1.5.1.4; middle line remains uncertified, intrinsic17 retained.
+
 Native37359/ScihQT on7cca95ed2b PASS46.23s/RSS1.446GiB: intrinsic17/17
 bodies/760 rendered lines fit actualcontents; source/layout/frozen fields stable.
 Open Sans44,docwidth696/origin0/heights180..21480; startup9.970s/content14.618s
