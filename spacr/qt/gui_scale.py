@@ -63,6 +63,8 @@ from __future__ import annotations
 import logging
 import math
 import re
+import sys
+import threading
 import weakref
 from typing import Callable, List, Optional
 
@@ -832,6 +834,566 @@ def _install_application_sheet() -> None:
     _ORIGINAL["app_state"] = state
 
 
+_SHEET_GUARD = {"installed": False, "depth": 0, "posted": False,
+                "kinds": None, "watcher": None}
+
+_PENDING_SHEETS: dict = {}
+_PENDING_LOCK = threading.RLock()
+
+_TORN_DOWN: set = set()
+
+_HANDLER_FRAME_DEPTH = 14
+
+_PAINT_OR_POLISH_FRAMES = frozenset({"paintEvent", "polish", "unpolish"})
+
+_EVENT_HANDLER_FRAMES = frozenset({"changeEvent", "event", "eventFilter",
+                                   "customEvent"})
+
+
+def _delicate_event_types() -> frozenset:
+    """The event types during which Qt must not be handed a new sheet.
+
+    Every one is delivered from inside Qt's own styling, painting,
+    reparenting or deletion code, which holds pointers into the style and
+    the widget it is working on. ``PolishRequest`` is not among them: it is
+    only Qt's posted request to call ``ensurePolished``, and the ``Polish``
+    that call sends is. ``QWidget::setStyleSheet`` replaces the
+    widget's style proxy and sends a ``StyleChange`` of its own, so a sheet
+    put on from such a handler frees what the outer call is still using.
+
+    :returns: the ``QEvent.Type`` values, read once.
+    """
+    kinds = _SHEET_GUARD["kinds"]
+    if kinds is None:
+        from PySide6.QtCore import QEvent
+
+        names = ("Polish", "StyleChange", "PaletteChange",
+                 "ApplicationPaletteChange", "FontChange",
+                 "ApplicationFontChange", "Paint", "UpdateRequest",
+                 "StyleAnimationUpdate", "ThemeChange", "DeferredDelete",
+                 "ParentAboutToChange", "ParentChange")
+        kinds = frozenset(getattr(QEvent.Type, name) for name in names
+                          if hasattr(QEvent.Type, name))
+        _SHEET_GUARD["kinds"] = kinds
+    return kinds
+
+
+def _polish_not_yet_begun(target, arguments) -> bool:
+    """Is this the ``Polish`` of ``target`` itself, heard before Qt acts on it?
+
+    An application filter hears a window's ``Polish`` before
+    ``QWidget::event`` polishes it: nothing of Qt's styling of that window
+    has started, and its children are polished after it, so a sheet put on
+    the window there is the one moment that is before the polish rather
+    than inside it -- the theme's documented moment to sheet a new window.
+    Once the window carries ``WA_WState_Polished`` the polish is under way
+    and a sheet waits like any other.
+
+    :param target: the object the sheet is for.
+    :param arguments: the handler's argument values.
+    :returns: ``True`` only for that one moment.
+    """
+    from PySide6.QtCore import Qt
+
+    if target is None or not any(value is target for value in arguments):
+        return False
+    try:
+        return bool(target.isWindow()
+                    and not target.testAttribute(Qt.WA_WState_Polished))
+    except (AttributeError, RuntimeError, TypeError):
+        return False
+
+
+def _frame_handles_a_delicate_event(frame, kinds, target=None) -> bool:
+    """Is ``frame`` an event handler working on one of ``kinds``?
+
+    :param frame: a Python frame named like an event handler.
+    :param kinds: the delicate event types.
+    :param target: the object the sheet is for, which
+        :func:`_polish_not_yet_begun` may clear.
+    :returns: ``True`` when one of its arguments is such an event.
+    """
+    from PySide6.QtCore import QEvent
+
+    code = frame.f_code
+    try:
+        values = frame.f_locals
+    except Exception:
+        return False
+    arguments = [values.get(name)
+                 for name in code.co_varnames[:code.co_argcount]]
+    for value in arguments:
+        if isinstance(value, QEvent):
+            try:
+                kind = value.type()
+            except (RuntimeError, TypeError):
+                return True
+            if kind not in kinds:
+                continue
+            if (kind == QEvent.Type.Polish and code.co_name == "eventFilter"
+                    and _polish_not_yet_begun(target, arguments)):
+                continue
+            return True
+    return False
+
+
+def _inside_a_delicate_moment(target=None) -> bool:
+    """Is Qt in the middle of styling, painting, reparenting or deleting?
+
+    True while a guarded ``setStyleSheet`` is already running -- its
+    ``StyleChange`` and ``Polish`` reach Python handlers that restyle -- and
+    while a Python ``paintEvent``, style ``polish``, or an event handler for
+    one of :func:`_delicate_event_types` is on the stack.
+
+    :param target: the object the sheet is for.
+    :returns: ``True`` when a new sheet has to wait for the event loop.
+    """
+    if _SHEET_GUARD["depth"] > 0:
+        return True
+    kinds = _delicate_event_types()
+    frame = sys._getframe(1)
+    for _ in range(_HANDLER_FRAME_DEPTH):
+        if frame is None:
+            break
+        name = frame.f_code.co_name
+        if name in _PAINT_OR_POLISH_FRAMES:
+            return True
+        if (name in _EVENT_HANDLER_FRAMES
+                and _frame_handles_a_delicate_event(frame, kinds, target)):
+            return True
+        frame = frame.f_back
+    return False
+
+
+def _is_alive(obj) -> bool:
+    """Does ``obj`` still have its C++ object?
+
+    :param obj: a Qt object wrapper.
+    :returns: ``False`` once Qt or Python has deleted it.
+    """
+    if obj is None:
+        return False
+    try:
+        from shiboken6 import isValid
+    except ImportError:
+        return True
+    try:
+        return bool(isValid(obj))
+    except Exception:
+        return False
+
+
+def _address_of(obj):
+    """The C++ address behind ``obj``, which outlives a changing wrapper.
+
+    :param obj: a Qt object wrapper.
+    :returns: the address, or ``None`` when it cannot be read.
+    """
+    try:
+        from shiboken6 import getCppPointer
+
+        return int(getCppPointer(obj)[0])
+    except Exception:
+        return None
+
+
+def _forget_teardown(address) -> None:
+    """Drop ``address`` from the torn-down set once its object is gone.
+
+    :param address: the C++ address recorded by :func:`_mark_torn_down`.
+    """
+    _TORN_DOWN.discard(address)
+
+
+def _mark_torn_down(obj) -> None:
+    """Never put a sheet on ``obj`` or anything inside it again.
+
+    For an object whose deletion is under way or whose window has accepted
+    its last close. The mark is dropped when Qt destroys the object, so a
+    new object at the same address is styled normally.
+
+    :param obj: the object being torn down.
+    """
+    address = _address_of(obj)
+    if address is None or address in _TORN_DOWN:
+        return
+    _TORN_DOWN.add(address)
+    try:
+        obj.destroyed.connect(lambda *_args, a=address: _forget_teardown(a))
+    except Exception:
+        pass
+    _drop_pending_sheets_inside(obj)
+
+
+def _is_torn_down(obj) -> bool:
+    """Is ``obj``, or a widget it sits inside, being destroyed?
+
+    :param obj: a widget, or the application.
+    :returns: ``True`` while the application is closing down or a parent
+        chain reaches an object :func:`_mark_torn_down` recorded.
+    """
+    try:
+        from PySide6.QtCore import QCoreApplication
+
+        if QCoreApplication.closingDown():
+            return True
+    except Exception:
+        pass
+    if not _TORN_DOWN:
+        return False
+    node = obj
+    for _ in range(256):
+        if node is None:
+            return False
+        if _address_of(node) in _TORN_DOWN:
+            return True
+        parent = getattr(node, "parentWidget", None)
+        if not callable(parent):
+            return False
+        try:
+            node = parent()
+        except RuntimeError:
+            return True
+    return False
+
+
+def _on_the_gui_thread() -> bool:
+    """Is this the thread the widgets live on?
+
+    :returns: ``True`` on the main thread, the only one spaCR builds
+        widgets on.
+    """
+    return threading.current_thread() is threading.main_thread()
+
+
+def _top_level_of(obj):
+    """The window ``obj`` is drawn in, for batching deferred sheets.
+
+    :param obj: a widget, or the application.
+    :returns: the top-level widget, or ``obj`` itself.
+    """
+    window = getattr(obj, "window", None)
+    if not callable(window):
+        return obj
+    try:
+        return window() or obj
+    except RuntimeError:
+        return obj
+
+
+def _pending_sheet_for(obj):
+    """The sheet ``obj`` is waiting for, so a getter answers what was set.
+
+    :param obj: a widget, or the application.
+    :returns: the text, or ``None`` when nothing is waiting.
+    """
+    if not _PENDING_SHEETS:
+        return None
+    with _PENDING_LOCK:
+        entry = _PENDING_SHEETS.get(id(obj))
+    if entry is None or entry[0] is not obj:
+        return None
+    return entry[1]
+
+
+def _drop_pending_sheets_inside(root) -> int:
+    """Forget every sheet waiting for ``root`` or a widget inside it.
+
+    :param root: the object being torn down.
+    :returns: how many were forgotten.
+    """
+    dropped = 0
+    with _PENDING_LOCK:
+        for key, entry in list(_PENDING_SHEETS.items()):
+            target = entry[0]
+            inside = target is root
+            if not inside and _is_alive(target) and _is_alive(root):
+                is_ancestor = getattr(root, "isAncestorOf", None)
+                try:
+                    inside = bool(callable(is_ancestor) and is_ancestor(target))
+                except (RuntimeError, TypeError):
+                    inside = False
+            if inside or not _is_alive(target):
+                _PENDING_SHEETS.pop(key, None)
+                dropped += 1
+    return dropped
+
+
+def _post_sheet_flush() -> None:
+    """Have the event loop apply the waiting sheets once, soon."""
+    if _SHEET_GUARD["posted"]:
+        return
+    try:
+        from PySide6.QtCore import QCoreApplication, QTimer
+    except ImportError:
+        return
+    if QCoreApplication.instance() is None:
+        return
+    _SHEET_GUARD["posted"] = True
+    if _on_the_gui_thread():
+        QTimer.singleShot(0, _flush_pending_sheets)
+        return
+    watcher = _SHEET_GUARD["watcher"]
+    if watcher is None or not _is_alive(watcher):
+        _SHEET_GUARD["posted"] = False
+        return
+    watcher.flush_requested.emit()
+
+
+def _defer_sheet(obj, text: str, raw_set) -> None:
+    """Keep ``text`` for ``obj`` and apply it from the event loop.
+
+    A later request for the same object replaces this one, so a burst of
+    restyles costs Qt one repolish.
+
+    :param obj: a widget, or the application.
+    :param text: the sheet text Qt is to be given.
+    :param raw_set: the setter below the guard.
+    """
+    with _PENDING_LOCK:
+        _PENDING_SHEETS[id(obj)] = (obj, text, raw_set)
+    _post_sheet_flush()
+
+
+def _apply_now(obj, text: str, raw_set) -> None:
+    """Hand ``text`` to Qt, counting the call as a guarded application.
+
+    :param obj: a live widget, or the application.
+    :param text: the sheet text.
+    :param raw_set: the setter below the guard.
+    """
+    _SHEET_GUARD["depth"] += 1
+    try:
+        raw_set(obj, text)
+    finally:
+        _SHEET_GUARD["depth"] -= 1
+
+
+def _set_sheet_guarded(obj, text: str, raw_set) -> bool:
+    """Put ``text`` on ``obj`` only at a moment Qt can take it.
+
+    The four rules, each one a way a stylesheet crashes Qt natively:
+
+    * a dead object (``shiboken6.isValid`` is false) is left alone;
+    * an object being destroyed, or inside a window that is, is left alone
+      and anything it was waiting for is forgotten;
+    * from another thread, or from inside a polish, a style change, a
+      paint, a reparent or a deletion -- including the ``StyleChange`` a
+      guarded call itself sends -- the sheet waits for the event loop;
+    * the waiting sheets are applied one top-level window at a time.
+
+    :param obj: a widget, or the application.
+    :param text: the sheet text Qt is to be given.
+    :param raw_set: the setter below the guard.
+    :returns: ``True`` when Qt was given the sheet now.
+    """
+    if not _is_alive(obj):
+        return False
+    if not _on_the_gui_thread():
+        _defer_sheet(obj, text, raw_set)
+        return False
+    if _is_torn_down(obj):
+        with _PENDING_LOCK:
+            _PENDING_SHEETS.pop(id(obj), None)
+        return False
+    if _inside_a_delicate_moment(obj):
+        _defer_sheet(obj, text, raw_set)
+        return False
+    if _PENDING_SHEETS:
+        with _PENDING_LOCK:
+            _PENDING_SHEETS.pop(id(obj), None)
+    _apply_now(obj, text, raw_set)
+    return True
+
+
+def _flush_pending_sheets(window=None) -> int:
+    """Apply the waiting sheets, grouped by their top-level window.
+
+    Run from the event loop, where no Qt styling is under way. A sheet for
+    an object that has died or is being torn down since it was asked for is
+    dropped. A flush asked for at a moment that is itself delicate is
+    posted again instead.
+
+    :param window: only the sheets drawn in this top-level window, for a
+        window about to be shown; ``None`` applies them all.
+    :returns: how many sheets Qt was given.
+    """
+    if window is None:
+        _SHEET_GUARD["posted"] = False
+    if not _PENDING_SHEETS:
+        return 0
+    if not _on_the_gui_thread():
+        return 0
+    if _inside_a_delicate_moment():
+        _post_sheet_flush()
+        return 0
+    batches: dict = {}
+    with _PENDING_LOCK:
+        for key, entry in list(_PENDING_SHEETS.items()):
+            target = entry[0]
+            if not _is_alive(target):
+                _PENDING_SHEETS.pop(key, None)
+                continue
+            top = _top_level_of(target)
+            if window is not None and top is not window:
+                continue
+            _PENDING_SHEETS.pop(key, None)
+            batches.setdefault(id(top), (top, []))[1].append(entry)
+    applied = 0
+    for top, entries in batches.values():
+        if not _is_alive(top) or _is_torn_down(top):
+            continue
+        for target, text, raw_set in entries:
+            if not _is_alive(target) or _is_torn_down(target):
+                continue
+            _apply_now(target, text, raw_set)
+            applied += 1
+    return applied
+
+
+def _note_sheet_lifecycle(watched, kind) -> None:
+    """Record an object whose deletion Qt is delivering now.
+
+    :param watched: the object the event is for.
+    :param kind: the event type.
+    """
+    from PySide6.QtCore import QEvent
+
+    if kind == QEvent.Type.DeferredDelete:
+        _mark_torn_down(watched)
+
+
+def _sheet_guard_watcher_class():
+    """The guard's application watcher, defined on first use.
+
+    It hears ``DeferredDelete`` through the application event hub, so an
+    object about to be deleted is never restyled, and it carries a sheet
+    asked for on another thread across to the GUI thread.
+    """
+    from PySide6.QtCore import QObject, Signal
+
+    class _SheetGuardWatcher(QObject):
+        """Marks objects whose deletion is being delivered."""
+
+        flush_requested = Signal()
+
+        def __init__(self, parent=None) -> None:
+            """Route cross-thread flush requests to the GUI thread."""
+            super().__init__(parent)
+            from PySide6.QtCore import Qt
+
+            self.flush_requested.connect(self._flush,
+                                         Qt.ConnectionType.QueuedConnection)
+
+        def _flush(self) -> None:
+            """Apply the waiting sheets on the GUI thread."""
+            _flush_pending_sheets()
+
+        def eventFilter(self, watched, event):
+            """Note a deletion; never consume the event."""
+            try:
+                _note_sheet_lifecycle(watched, event.type())
+            except (AttributeError, RuntimeError, TypeError):
+                pass
+            return False
+
+    return _SheetGuardWatcher
+
+
+def _watch_for_teardown() -> bool:
+    """Start the guard's watcher on the application, once.
+
+    :returns: ``True`` when it is watching.
+    """
+    from PySide6.QtCore import QCoreApplication, QEvent
+
+    app = QCoreApplication.instance()
+    if app is None or not _on_the_gui_thread():
+        return False
+    watcher = _SHEET_GUARD["watcher"]
+    if watcher is not None and _is_alive(watcher):
+        return True
+    watcher = _sheet_guard_watcher_class()()
+    _SHEET_GUARD["watcher"] = watcher
+    from .gil_priority import _watch_application_events
+
+    return _watch_application_events(app, watcher,
+                                     {QEvent.Type.DeferredDelete})
+
+
+def _install_sheet_guard() -> bool:
+    """Route every ``setStyleSheet`` in the process through the guard.
+
+    Installed below the scaling layer, so the scaled setters and every
+    caller that reaches past them through :data:`_ORIGINAL` are guarded
+    too. ``styleSheet`` answers a sheet that is still waiting, so code that
+    compares its own sheet sees what it asked for. Idempotent.
+
+    :returns: ``True`` the first time.
+    """
+    from PySide6.QtWidgets import QApplication, QWidget
+
+    _watch_for_teardown()
+    if _SHEET_GUARD["installed"]:
+        return False
+    raw_widget_set = QWidget.setStyleSheet
+    raw_widget_get = QWidget.styleSheet
+    raw_app_set = QApplication.setStyleSheet
+    raw_app_get = QApplication.styleSheet
+    _ORIGINAL[(QWidget, "raw_setStyleSheet")] = raw_widget_set
+    _ORIGINAL[(QApplication, "raw_setStyleSheet")] = raw_app_set
+
+    def setStyleSheet(self, text):
+        """Apply the sheet when Qt can take it; see the guard."""
+        _set_sheet_guarded(self, "" if text is None else str(text),
+                           raw_widget_set)
+
+    def styleSheet(self):
+        """The sheet last asked for, applied or still waiting."""
+        waiting = _pending_sheet_for(self)
+        return raw_widget_get(self) if waiting is None else waiting
+
+    def app_setStyleSheet(self, text):
+        """Apply the application sheet when Qt can take it."""
+        _set_sheet_guarded(self, "" if text is None else str(text),
+                           raw_app_set)
+
+    def app_styleSheet(self):
+        """The application sheet last asked for."""
+        waiting = _pending_sheet_for(self)
+        return raw_app_get(self) if waiting is None else waiting
+
+    setStyleSheet.__name__ = "setStyleSheet"
+    styleSheet.__name__ = "styleSheet"
+    app_setStyleSheet.__name__ = "setStyleSheet"
+    app_styleSheet.__name__ = "styleSheet"
+    QWidget.setStyleSheet = setStyleSheet
+    QWidget.styleSheet = styleSheet
+    QApplication.setStyleSheet = app_setStyleSheet
+    QApplication.styleSheet = app_styleSheet
+    _SHEET_GUARD["installed"] = True
+    return True
+
+
+def _close_without_restyling(window, closing: bool = True) -> None:
+    """Stop, or resume, every restyle of a main window that is closing.
+
+    From the moment the window has passed every check that could keep it
+    open, its panels shut down and its workers are released; a sheet put on
+    any widget inside it then can only reach a widget on its way out.
+
+    :param window: the main window.
+    :param closing: ``False`` puts restyling back when the close was not
+        accepted after all.
+    """
+    if closing:
+        _mark_torn_down(window)
+        return
+    address = _address_of(window)
+    if address is not None:
+        _TORN_DOWN.discard(address)
+
+
 def install_scaling_layer() -> bool:
     """Put the scaling layer on the Qt classes. Idempotent.
 
@@ -845,6 +1407,7 @@ def install_scaling_layer() -> bool:
     global _INSTALLED
     if _INSTALLED:
         return False
+    _install_sheet_guard()
     _install_widget_setters()
     _install_layout_setters()
     _install_icon_setters()
