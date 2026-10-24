@@ -92,10 +92,10 @@ def backend_for(method: str, *, prefer_gpu: bool = False) -> str:
     if rapids_available():
         return "cuml"
     if str(method).strip().lower() in ('pca', 'kmeans') and _env_allows():
-        from .accelerator import resolve
+        from .accelerator import _apple_gpu, resolve
 
         found = resolve()
-        if found.is_gpu and found.kind == 'mps':
+        if found.is_gpu and found.kind == 'mps' and not _apple_gpu(found):
             return 'mps'
     return 'cpu'
 

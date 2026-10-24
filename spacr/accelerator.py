@@ -309,6 +309,10 @@ def _metal_gpu_name() -> str:
     """
     if platform.system() != "Darwin":
         return "Metal GPU"
+    if _apple_silicon():
+        chip = _sysctl_string(b"machdep.cpu.brand_string")
+        if chip.startswith("Apple "):
+            return chip
     try:
         import subprocess
 
@@ -344,9 +348,8 @@ def _rosetta_translated() -> bool:
         return False
     try:
         import ctypes
-        import ctypes.util
 
-        libc = ctypes.CDLL(ctypes.util.find_library("c"))
+        libc = _libc()
         value = ctypes.c_int(0)
         size = ctypes.c_size_t(ctypes.sizeof(value))
         if libc.sysctlbyname(b"sysctl.proc_translated", ctypes.byref(value),
@@ -355,6 +358,42 @@ def _rosetta_translated() -> bool:
         return value.value == 1
     except Exception:                                        # noqa: BLE001
         return False
+
+
+@lru_cache(maxsize=1)
+def _libc():
+    """The C library, for ``sysctlbyname``.
+
+    ``CDLL(None)`` is the process's own symbol table, which on macOS already
+    holds libSystem; ``find_library("c")`` scans dyld paths for ~30 ms first.
+    """
+    import ctypes
+
+    try:
+        libc = ctypes.CDLL(None)
+        libc.sysctlbyname
+        return libc
+    except (OSError, AttributeError):
+        import ctypes.util
+
+        return ctypes.CDLL(ctypes.util.find_library("c"))
+
+
+def _sysctl_string(name: bytes) -> str:
+    """A string sysctl read through ``sysctlbyname``, or ``""``. Never raises."""
+    try:
+        import ctypes
+
+        libc = _libc()
+        size = ctypes.c_size_t(0)
+        if libc.sysctlbyname(name, None, ctypes.byref(size), None, ctypes.c_size_t(0)):
+            return ""
+        buffer = ctypes.create_string_buffer(size.value)
+        if libc.sysctlbyname(name, buffer, ctypes.byref(size), None, ctypes.c_size_t(0)):
+            return ""
+        return buffer.value.decode("utf-8", "replace").strip()
+    except Exception:                                        # noqa: BLE001
+        return ""
 
 
 def _apple_silicon() -> bool:
@@ -496,11 +535,36 @@ def resolve(refresh: bool = False) -> Accelerator:
     if found.usable and found.kind != "cpu":
         found = _measure_dtypes(torch, found)
     if found.usable and found.fallback:
-        found = replace(found, fallback=bool(
-            os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK", "")))
+        found = replace(found, fallback=_mps_fallback_live(found))
     _CACHED = found
     LOG.debug("accelerator resolved to %s (%s)", found.device, found.label)
     return found
+
+
+def _mps_fallback_live(found: Accelerator) -> bool:
+    """Whether operators the device lacks will run on the CPU, warning when not.
+
+    The variable alone is not the answer: torch reads it once, at import, so
+    a notebook that ran ``import torch`` before ``import spacr`` has it set
+    and no fallback. On an M2, ``torch.linalg.eig`` on Metal then raised
+    NotImplementedError instead of running on the CPU.
+    """
+    if not os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK", ""):
+        return False
+    import spacr
+
+    if getattr(spacr, "_MPS_FALLBACK_LIVE", True):
+        return True
+    if found.kind == "mps":
+        import warnings
+
+        warnings.warn(
+            "torch was imported before spaCR, so PYTORCH_ENABLE_MPS_FALLBACK "
+            "is not active and operators Apple Metal lacks will raise "
+            "NotImplementedError instead of running on the CPU. Import spacr "
+            "before torch, or set PYTORCH_ENABLE_MPS_FALLBACK=1 before "
+            "starting Python.", RuntimeWarning, stacklevel=3)
+    return False
 
 
 def _measure_dtypes(torch, found: Accelerator) -> Accelerator:
@@ -880,6 +944,7 @@ def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, 
     found = resolve() if found is None else found
     gpu = found.is_gpu
     display_gpu = _opengl_likely()
+    metal_reducers = gpu and found.kind == 'mps' and not _apple_gpu(found)
     rows = [
         ("Segmentation (Cellpose)", gpu,
          "on the GPU — minutes per image on a CPU" if gpu
@@ -890,12 +955,26 @@ def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, 
          "on the GPU" if gpu else "CPU only"),
         ("Live backdrop and spaceout", display_gpu,
          "GPU shader" if display_gpu else "CPU renderer"),
-        ("UMAP / t-SNE / clustering", gpu and found.kind in ('cuda', 'mps'),
+        ("UMAP / t-SNE / clustering", gpu and found.kind == 'cuda' or metal_reducers,
          "on the GPU via cuML" if gpu and found.is_cuda
-         else "PCA/KMeans on Metal; PCA fitting/precision and UMAP/t-SNE/DBSCAN on CPU" if gpu and found.kind == 'mps'
+         else "PCA/KMeans on Metal; PCA fitting/precision and UMAP/t-SNE/DBSCAN on CPU" if metal_reducers
          else "CPU — cuML is built for CUDA only"),
     ]
     return tuple(rows)
+
+
+def _apple_gpu(found: Accelerator) -> bool:
+    """Whether a Metal accelerator is Apple Silicon's own GPU.
+
+    Read from the resolved name ("Apple M2"), not from the host, so an
+    Accelerator describing an Intel Mac's Radeon means that on any machine.
+    "Metal GPU" is :func:`_metal_gpu_name`'s fallback when system_profiler
+    would not answer; only then does the host decide.
+    """
+    if found.kind != "mps":
+        return False
+    name = found.name or ""
+    return name.startswith("Apple ") or (name == "Metal GPU" and _apple_silicon())
 
 
 def _opengl_likely() -> bool:

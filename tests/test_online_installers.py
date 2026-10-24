@@ -843,7 +843,7 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "refusing to infer a release from rewritten history" in workflow
     assert "VERSION remains $version" in workflow
     assert "python packaging/release.py verify" in workflow
-    assert "git add setup.py CITATION.cff spacr/_version.py" in workflow
+    assert "git add -u -- setup.py CITATION.cff spacr/_version.py" in workflow
     commit_step = workflow.split("- name: Commit version increment", 1)[1].split(
         "\n      - name:", 1)[0]
     staged_paths = next(line.strip().split()[2:] for line in commit_step.splitlines()

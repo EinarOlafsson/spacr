@@ -1441,6 +1441,10 @@
         "masks",
         "tracks"
       ],
+      "route": {
+        "narration": "Open Mask from Home.",
+        "docs": "Home → Mask → Time"
+      },
       "guidance": "In Mask, press Time to show the time-axis and tracking settings, then segment and link objects across ordered frames; inspect links before downstream motility analysis.",
       "declared_ports": {
         "key": "timelapse",

@@ -299,7 +299,7 @@ def test_preparation_refreshes_existing_news_before_freezing_the_release_source(
     assert refresh[0] < version < commit < finalize
     assert steps[refresh[0]]["env"]["GH_TOKEN"] == "${{ github.token }}"
     staging = next(line for line in steps[commit]["run"].splitlines()
-                   if line.strip().startswith("git add "))
+                   if line.strip().startswith("git add -u --"))
     assert "spacr/resources/release_notes.json" in shlex.split(staging)
     after_publication = jobs["release-notes"]
     assert "github-release" in after_publication["needs"]

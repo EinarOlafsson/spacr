@@ -1,7 +1,7 @@
 {
   "language": "ko",
   "lesson": "79_module_inputs_outputs",
-  "english_sha256": "74ffb2780312b1dbb6be41c4d4f8489af7431d43e7013377af9aa04070613aed",
+  "english_sha256": "0303eb4f547b49d27da7ce4ffbd7eae9ee49a78b5696f419ca1b4581b6ebcd19",
   "title": "모듈 입력과 출력",
   "section": "Workflows",
   "description": "Home 모듈 안에 중첩된 도구를 포함해, 현재 모든 모듈의 입력 데이터, 저장된 출력, 상류 생성 모듈, 하류 사용 모듈을 찾아보세요.",
@@ -76,7 +76,7 @@
     "Home에서 Measure을(를) 연 다음 Illumination을(를) 선택하세요. 설정한 단계에서 평면 보정을 추정하고 적용하세요. 보정된 표시값은 원본 측정값과 구분하고, 적용한 정책을 기록하세요. Illumination 모듈은 현미경 이미지을(를) 읽습니다. 이를 바탕으로 Illumination 모듈은 현미경 이미지을(를) 만듭니다.",
     "Home에서 Measure을(를) 연 다음 AnnData Export을(를) 선택하세요. 후속 단일 세포 분석을 위해 객체 메타데이터와 측정 특징이 담긴 AnnData .h5ad 파일을 내보내세요. AnnData Export 모듈은 측정된 객체을(를) 읽습니다. 이를 바탕으로 AnnData Export 모듈은 AnnData 내보내기을(를) 만듭니다. AnnData 내보내기은(는) 여기에 있습니다: 측정 특징과 객체 메타데이터가 담긴 내보낸 .h5ad 파일. Measure에서 측정된 객체을(를) 제공할 수 있습니다. 호환되는 특징 열과 메타데이터 열을 내보내세요.",
     "Home에서 Measure을(를) 연 다음 Motility Assay을(를) 선택하세요. 명시적인 프레임 간격과 픽셀 보정값으로 궤적 속도와 감염 관련 측정값을 확인하세요. Motility Assay 모듈은 연결된 시계열 객체 및 측정된 객체을(를) 읽습니다. 이를 바탕으로 Motility Assay 모듈은 분석 결과 및 그림과 내보낸 표을(를) 만듭니다. Timelapse에서 연결된 시계열 객체을(를) 제공할 수 있습니다. 프레임 간격과 픽셀 보정값을 입력하세요. Measure에서 시작하면 그곳에서 측정된 객체을(를) 제공합니다. 측정된 객체를 일치하는 궤적과 결합하세요.",
-    "Home에서 Mask을(를) 연 다음 Timelapse을(를) 선택하세요. Mask 안에서 Timelapse를 열어 순서가 있는 프레임에 걸쳐 객체를 분할하고 연결하세요. 후속 운동성 분석 전에 연결을 확인하세요. Timelapse 모듈은 현미경 이미지을(를) 읽습니다. 이를 바탕으로 Timelapse 모듈은 이미지와 라벨 마스크, 라벨 마스크 및 연결된 시계열 객체을(를) 만듭니다. Mask에서 현미경 이미지을(를) 제공할 수 있습니다. 연결된 라벨을 만들기 전에 중첩된 시계열 경로를 켜세요. 다음으로 Measure에서 이미지와 라벨 마스크을(를) 이어받습니다. 프레임/객체 식별 정보가 안정적인 시계열 프로젝트를 사용하세요. 연결된 시계열 객체을(를) Motility Assay에 넘길 수도 있습니다. 프레임 간격과 픽셀 보정값을 입력하세요.",
+    "Home에서 Mask를 여세요. Mask에서 Time을 눌러 시간 축과 추적 설정을 표시한 다음, 순서가 있는 프레임에 걸쳐 객체를 분할하고 연결하세요. 후속 운동성 분석 전에 연결을 확인하세요. Timelapse 모듈은 현미경 이미지을(를) 읽습니다. 이를 바탕으로 Timelapse 모듈은 이미지와 라벨 마스크, 라벨 마스크 및 연결된 시계열 객체을(를) 만듭니다. Mask에서 현미경 이미지을(를) 제공할 수 있습니다. 연결된 라벨을 만들기 전에 중첩된 시계열 경로를 켜세요. 다음으로 Measure에서 이미지와 라벨 마스크을(를) 이어받습니다. 프레임/객체 식별 정보가 안정적인 시계열 프로젝트를 사용하세요. 연결된 시계열 객체을(를) Motility Assay에 넘길 수도 있습니다. 프레임 간격과 픽셀 보정값을 입력하세요.",
     "Home에서 Mask을(를) 연 다음 OPS을(를) 선택하세요. 시퀀싱 사이클 이미지와 표현형 정렬로 핵마다 바코드를 디코딩하세요. Regression 전에 디코딩한 식별 정보를 호환되는 표현형 입력에 집계/결합하세요. OPS 데이터베이스는 FASTQ 개수 CSV를 대신하지 않습니다. OPS 모듈은 현미경 이미지 및 정렬된 모자이크와 좌표을(를) 읽습니다. 이를 바탕으로 OPS 모듈은 광학 바코드 배정을(를) 만듭니다. Align & Stitch에서 정렬된 모자이크와 좌표을(를) 제공할 수 있습니다. 타일 좌표와 원래 시퀀싱 사이클을 OPS로 가져가세요. 평탄화한 모자이크만으로는 부족합니다. 다음으로 Regression에서 광학 바코드 배정을(를) 이어받습니다. Regression 전에 디코딩한 객체를 표현형과 가이드 입력에 명시적으로 결합/집계하세요. 이것은 CSV 파일을 그대로 넘기는 것이 아닙니다.",
     "Home에서 Classify을(를) 연 다음 Classifier Evaluation을(를) 선택하세요. 일치하는 분류기의 보류 예측, 보정, 분할/누출 근거를 확인하세요. Classifier Evaluation 모듈은 분류기 평가 묶음을(를) 읽습니다. 이를 바탕으로 Classifier Evaluation 모듈은 품질 관리 결과 및 그림과 내보낸 표을(를) 만듭니다. Classify에서 분류기 평가 묶음을(를) 제공할 수 있습니다. 일치하는 보류 예측과 분할 메타데이터를 사용하세요.",
     "Home에서 Classify을(를) 연 다음 Explain CV Model을(를) 선택하세요. 식별 결합을 보존한 채 기존 컴퓨터 비전 점수에 측정 특징 기반 대리 모델을 적합하세요. 대리 설명은 인과가 아닙니다. Explain CV Model 모듈은 측정된 객체 및 객체 분류 점수을(를) 읽습니다. 이를 바탕으로 Explain CV Model 모듈은 적합된 특징 분류기 및 그림과 내보낸 표을(를) 만듭니다. Classify에서 객체 분류 점수을(를) 제공할 수 있습니다. CV 예측과 일치하는 측정 객체를 선택하세요.",
@@ -94,8 +94,8 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "acc2262b70bdca85df02692ab4190b8856e9002e1878c5b1b81c3eae7ed7a392",
-    "phrase_bank_sha256": "9330447287bc7f0ccf60fd9e41a6d671f915f1d2087d33736b1358ab3b5f3432",
+    "workflow_map_sha256": "525297984345aeadceafd53104fad40f00e49d94a6c8b369d4a7719ddc16669a",
+    "phrase_bank_sha256": "b3d2644a512ae09647d838aa4390f9dee6f97ffc4d384ee4ceb62c24954c27c3",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."

@@ -8992,9 +8992,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
     ambient_startup_enabled = not (
         in_safe_mode() or os.environ.get("SPACR_NO_BACKDROP"))
     if ambient_startup_enabled:
-        from .widgets.ambient import _begin_ambient_startup
+        from .widgets.ambient import (_begin_ambient_startup,
+                                      _start_kernel_warmup_before_first_paint)
 
         _begin_ambient_startup()
+        _start_kernel_warmup_before_first_paint()
     apply_preferences_to_app(app)
     try:
         from .preferences import _install_run_notifier
@@ -9050,6 +9052,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
         )
     win._startup_benchmark_controller = benchmark_controller
     _open_at_the_measured_width(win)
+    if ambient_startup_enabled:
+        from .widgets.ambient import _finish_kernel_warmup_before_first_paint
+
+        with _timing.span("ambient kernels"):
+            _finish_kernel_warmup_before_first_paint()
     _show_at_launch(win)
     if update_launch is not None:
         from PySide6.QtCore import QTimer

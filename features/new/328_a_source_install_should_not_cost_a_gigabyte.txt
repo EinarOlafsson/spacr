@@ -519,3 +519,11 @@ VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.
 2026-10-21 — Maintainer explicitly approves prepared main commit6c20ddd7b2, extending the prior output-only exception to its13 concrete source/review/validation support paths. Publish that exact reviewed commit after confirming main still matches prepared base d3c9dcb7b2; retain26 passing checks and1265 MB main measurement without regenerating unchanged outputs. Root owns remote publication and item/index closure.
 
 2026-10-21 — Published the exact approved main commit6c20ddd7b27e7fe1076394b2e2dea986d478524c after confirming its prepared base was unchanged; remote main readback verifies. Nightlycf43d0569b and main now carry coherent reviewed source/output/validation changes, with46 nightly and26 main checks retained, plus the honest720/1265 MB respective tracked checkout measurements. Whole item328 is complete.
+
+2026-10-21 — Corrected only the current MAIN checkout clause: the original sparse preparation missed tracked files; full6c20 HEAD totals5305183243bytes (5059.417MiB), matching hosted5059MB.
+All nine current source-bound translations and the owning fixture now say5059 under the existing MB-label/MiB basis; historical transport figures,2026-10-21 date and executable commands remain unchanged.
+Measurement now refuses missing/sparse tracked files or failed Git listing; its3 real regressions pass0.77s and the original15% tolerance is unchanged.
+Normal generation completes1700 images;17 owning pytest cases pass3.41s and both existing full-domain/history guards pass, including all nine bindings and actual full-tree size.
+Prior installation/launch acceptance is retained; independent review and root MAIN publication complete this reopened measurement correction, without changing nightly’s separately measured720MB clause.
+
+2026-10-21 — Release-source promotion preserves the accepted light-install commands and historical transport figures; remeasure the merged main tracked tree, update its current paragraph and nine source-bound translations through the external review pin, then regenerate the README once against the final version. Root owns publication; the guide’s existing acceptance is retained.

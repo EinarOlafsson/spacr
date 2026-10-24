@@ -18,8 +18,10 @@ from an Intel conda; ``CONDA_SUBDIR=osx-arm64`` is what makes it native
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -114,3 +116,83 @@ def test_the_app_says_it_at_launch(monkeypatch, capsys):
     _translated(monkeypatch, False)
     qt._say_when_running_translated()
     assert capsys.readouterr().err == ""
+
+
+def _forget_gpu_name():
+    clear = getattr(A._metal_gpu_name, "cache_clear", None)
+    if clear is not None:
+        clear()
+
+
+def test_apple_silicon_names_its_gpu_without_system_profiler(monkeypatch):
+    """The chip is the GPU; system_profiler cost 0.75 s on the launch path."""
+    _forget_gpu_name()
+    monkeypatch.setattr(A.platform, "system", lambda: "Darwin")
+    monkeypatch.setattr(A, "_apple_silicon", lambda: True)
+    monkeypatch.setattr(A, "_sysctl_string", lambda name: "Apple M3 Pro")
+
+    def no_subprocess(*args, **kwargs):
+        raise AssertionError("system_profiler was spawned")
+
+    monkeypatch.setattr("subprocess.run", no_subprocess)
+    try:
+        assert A._metal_gpu_name() == "Apple M3 Pro"
+    finally:
+        _forget_gpu_name()
+
+
+@pytest.mark.skipif(sys.platform != "darwin" or not A._apple_silicon(),
+                    reason="needs an Apple Silicon Mac")
+def test_the_kernels_chip_name_is_system_profilers_gpu_name():
+    out = subprocess.run(["system_profiler", "SPDisplaysDataType"],
+                         capture_output=True, text=True, timeout=60).stdout
+    chipset = next(line.split(":", 1)[1].strip() for line in out.splitlines()
+                   if "Chipset Model:" in line)
+    assert A._sysctl_string(b"machdep.cpu.brand_string") == chipset
+
+
+@pytest.mark.parametrize("live", [True, False])
+def test_a_torch_imported_before_spacr_is_named_not_assumed(monkeypatch, recwarn, live):
+    """torch reads PYTORCH_ENABLE_MPS_FALLBACK once, at its own import."""
+    import spacr
+
+    monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+    monkeypatch.setattr(spacr, "_MPS_FALLBACK_LIVE", live)
+    metal = A.Accelerator(kind="mps", device="mps", label="Apple M2 (Apple Metal)",
+                          name="Apple M2", fallback=True)
+    assert A._mps_fallback_live(metal) is live
+    named = [w for w in recwarn if "imported before spaCR" in str(w.message)]
+    assert bool(named) is (not live)
+
+
+_METAL = False
+try:
+    import torch as _torch
+    _METAL = bool(_torch.backends.mps.is_available())
+except Exception:                                            # noqa: BLE001
+    pass
+
+
+@pytest.mark.skipif(not _METAL, reason="needs a Metal device")
+@pytest.mark.parametrize("order, falls_back", [
+    ("import spacr; import torch", True),
+    ("import torch; import spacr", False),
+])
+def test_the_warning_matches_what_metal_actually_does(order, falls_back):
+    script = (
+        "import os, warnings\n"
+        "os.environ.pop('PYTORCH_ENABLE_MPS_FALLBACK', None)\n"
+        f"{order}\n"
+        "from spacr import accelerator\n"
+        "with warnings.catch_warnings(record=True) as caught:\n"
+        "    warnings.simplefilter('always')\n"
+        "    found = accelerator.resolve()\n"
+        "try:\n"
+        "    torch.linalg.eig(torch.eye(4, device='mps')); ran = True\n"
+        "except NotImplementedError:\n"
+        "    ran = False\n"
+        "print(found.fallback, ran, any('imported before spaCR' in str(w.message) for w in caught))\n")
+    env = {k: v for k, v in os.environ.items() if k != "PYTORCH_ENABLE_MPS_FALLBACK"}
+    out = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True,
+                         timeout=300, env=env, cwd=str(Path(__file__).parent)).stdout.split()
+    assert out == [str(falls_back), str(falls_back), str(not falls_back)]

@@ -47,6 +47,8 @@ def test_directml_probe_reports_only_a_working_device(monkeypatch, result):
 @pytest.mark.parametrize('output', ['Chipset Model: Test Radeon\n', 'no chipset row', OSError('profiler missing')])
 def test_metal_name_handles_missing_profiler_and_unrecognized_output(monkeypatch, output):
     monkeypatch.setattr(acc.platform, 'system', lambda: 'Darwin')
+    # The profiler path is the Intel Mac's; Apple Silicon names its chip from sysctl.
+    monkeypatch.setattr(acc, '_apple_silicon', lambda: False)
     profiler = Mock(side_effect=output) if isinstance(output, Exception) else Mock(return_value=SimpleNamespace(stdout=output))
     monkeypatch.setattr(subprocess, 'run', profiler)
     # Bypass only the cache, so a simulated machine cannot poison later tests.

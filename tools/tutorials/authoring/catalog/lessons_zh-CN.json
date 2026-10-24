@@ -16717,7 +16717,7 @@
         },
         {
           "visual": "module_timelapse",
-          "narration": "从 Home 打开 Mask，然后选择 Timelapse。 在 Mask 中打开 Timelapse，对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。 Timelapse 读取 显微图像。 Timelapse 据此生成 图像和标签掩膜, 标签掩膜 以及 关联好的时间序列对象。 Mask 可以提供 显微图像。 生成关联标签前，启用嵌套的时间序列路径。 接下来由 Measure 接收 图像和标签掩膜。 使用具有稳定帧和对象标识的时间序列项目。 您也可以把 关联好的时间序列对象 交给 Motility Assay。 提供帧间隔和像素标定。",
+          "narration": "从 Home 打开 Mask。 在 Mask 中按 Time 显示时间轴与跟踪设置，然后对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。 Timelapse 读取 显微图像。 Timelapse 据此生成 图像和标签掩膜, 标签掩膜 以及 关联好的时间序列对象。 Mask 可以提供 显微图像。 生成关联标签前，启用嵌套的时间序列路径。 接下来由 Measure 接收 图像和标签掩膜。 使用具有稳定帧和对象标识的时间序列项目。 您也可以把 关联好的时间序列对象 交给 Motility Assay。 提供帧间隔和像素标定。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -16725,7 +16725,7 @@
             "17_timelapse",
             "18_motility"
           ],
-          "speech_text": "从 主页 打开 Mask，然后选择 Timelapse。 在 Mask 中打开 Timelapse，对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。 Timelapse 读取 显微图像。 Timelapse 据此生成 图像和标签掩膜, 标签掩膜 以及 关联好的时间序列对象。 Mask 可以提供 显微图像。 生成关联标签前，启用嵌套的时间序列路径。 接下来由 Measure 接收 图像和标签掩膜。 使用具有稳定帧和对象标识的时间序列项目。 您也可以把 关联好的时间序列对象 交给 Motility Assay。 提供帧间隔和像素标定。"
+          "speech_text": "从 主页 打开 Mask。 在 Mask 中按 Time 显示时间轴与跟踪设置，然后对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。 Timelapse 读取 显微图像。 Timelapse 据此生成 图像和标签掩膜, 标签掩膜 以及 关联好的时间序列对象。 Mask 可以提供 显微图像。 生成关联标签前，启用嵌套的时间序列路径。 接下来由 Measure 接收 图像和标签掩膜。 使用具有稳定帧和对象标识的时间序列项目。 您也可以把 关联好的时间序列对象 交给 Motility Assay。 提供帧间隔和像素标定。"
         },
         {
           "visual": "module_ops",
