@@ -495,7 +495,10 @@ def test_single_logit_binary_head_uses_bce_and_binary_metrics(tmp_path, monkeypa
                                 num_classes=1, schedule=None)
 
     assert trained is model
-    assert trained(torch.rand(3, 4)).shape == (3, 1)
+    # train_model moves the model to the accelerator; on a GPU or Metal machine
+    # a CPU batch would not reach it.
+    device = next(trained.parameters()).device
+    assert trained(torch.rand(3, 4, device=device)).shape == (3, 1)
     assert os.path.exists(path)
     df = pd.read_csv(dst / "train.csv")
     # binary metrics (not the multiclass NaN placeholders)
