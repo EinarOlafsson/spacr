@@ -1,9 +1,49 @@
 FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
-Status:    DONE — native module layout and metadata acceptance completed 2026-10-23
+Status:    IN PROGRESS — reopened 2026-10-24 for the maintainer's layout, annotation and comparison requirements
 Requested: maintainer, 2026-10-22
-Owner:     Workstation spaCR session 2 — expanded workflow, implementation, validation and nightly publication; Home retains general CI/release
+Owner:     Claude Home (UI agent A + data agent B)
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
+
+LATEST MAINTAINER REQUIREMENTS — 2026-10-24 (supersede conflicting earlier notes;
+all earlier delivered behavior is retained where compatible)
+UI agent A owns 1-8, the right-click menu of 9 and the UI shells of 10 and 12.
+Data agent B owns the annotation table of 9, the comparisons of 10, the
+measurements of 11 and the representative-image definitions of 12.
+1. The ripple animation when clicking categories is too pronounced; make it subtle.
+2. Overview images load faster: load ONE image per well first, across all wells,
+   then the rest, instead of all of A01, then all of A02, and so on.
+3. In the image view, a "metadata" text button (just the word) turns blue when
+   active and toggles the visibility of the filename/metadata text that overlaps
+   the image. It works exactly like the AI Ops toggle buttons.
+4. The plate level, the well level (shown when a well is clicked) and the image
+   level each sit on a translucent background with rounded edges and can be
+   minimised with spaCR's standard container-collapse arrow. These three
+   containers start at the top of the workspace, right under the current top
+   buttons, and extend down to the console.
+5. The current Figure settings move to a new "Figure settings" category in the
+   left settings column, giving the figures more space.
+6. The settings categories look and work like those of the Mask generation module.
+7. The user can open several well views; they stack on top of each other so
+   wells can be compared easily.
+8. Clicking A01 opens an A01 container whose images start loading. That view has
+   the "metadata" toggle. Clicking an image enlarges it in a container to the right.
+9. Annotation: click to select wells, then right-click -> annotate the selected
+   wells. The annotation is saved to a new image-level table in the same
+   measurements database the other spaCR modules use.
+10. In the Figure view the user easily picks annotation dimensions (for example
+   cell_type HeLa/HFF, pathogen_type Toxoplasma WT/Toxoplasma Ku80, replicate
+   1/2/3) and can compare any combination: replicates 1, 2 and 3; replicates for
+   HFF vs HeLa; HeLa+Toxo WT vs HeLa+Toxo Ku80; and so on.
+11. Capture image-level measurements for these comparisons: regionprops and as
+   many other useful image-level measurements as possible.
+12. For each annotated class, an easy way to choose a representative image, with
+   several measurement-based definitions of "representative" so the image is
+   truly representative.
+Acceptance: Qt tests cover the one-per-well-first load order, metadata toggle
+state and visibility, collapse/expand, stacked well views, the enlarged-image
+container, the Figure settings category and the reduced ripple amplitude/duration;
+B's data layer has its own tests; translations and normal generated artefacts.
 
 LATEST MAINTAINER REQUIREMENTS — 2026-10-23: Overview must reuse Mask Generation’s normal module layout: categorized left settings and the existing console, AI chat, actions and system chrome, inheriting the normal transparent themed background rather than a black custom workspace. The initial metadata screen must not show Back. Its filename preview must include Row and Column, with unmatched files in gray text. Diagnose and fix the valid CellVoyager acquisition at /nas_mnt/carruthers/anu/revision/ALIXALG2KOme49_20261004_144325/AssayPlate_PerkinElmer_CellCarrier-384 where metadata detection finishes but Next remains disabled; inspect user data read-only. Retain true QWidget embedded bodies, resolution controls, bounded fast readers and existing scientific behavior. Workstation session 2 owns implementation, focused full-app validation, normal artifacts and nightly publication; root independently reviews the dataset and UI. These requirements supersede conflicting earlier opaque-background/layout instructions.
 
@@ -502,3 +542,5 @@ Local coverage remains46 missing lines/49 branches against unchanged30/9 limits;
 2026-10-23 — LIVE REGRESSION REPAIRED: actual QWidget metadata/browser bodies remain embedded when the full app installs its global dialog filters, fixing the black tab; Options remains a separate retained window. Visible Preview resolution (128–4096 px) bounds plate/well/field loading while native cell crops retain original pixels; readonly TIFF mapping and request-local compressed-page reuse preserve exact RGB while avoiding repeated full-page decoding. All391 focused tests plus three lifecycle/camera controls pass; exact source coverage has15 missing statements/9 branches against unchanged30/9 ceilings, with no exclusions. Independent full MainWindow Mask dark/Make Masks light startup, source selection, resolution, Options and Back acceptance passes; normal artifacts and all576 reviewed targets/source hashes pass with immutable translation pin d86160b3 preserving Overview/AI history. Earlier scientific/PDF/database acceptance is retained; native Windows/Mac hardware remains with its owning sessions.
 
 2026-10-23 — DONE: Overview reuses the real Mask/Make Masks categorized settings, console/AI/system/actions and transparent theme; initial metadata has no Back, and retained Options restores the same controls. Row/Column remain visible and unmatched files are theme-dimmed; only actual regex nonmatches are excluded, so the supplied read-only CellVoyager source accepts3068 valid fields/12272 images while excluding8 OTF calibrations. Independent actual full-app dark/light and NAS metadata/384-well rendering pass; bounded eight-preview batches reduce the measured full-plate loading from about51 to30 seconds. All409 final merged-source focused tests pass, preserving native Mac text-sizing updates; exact source coverage has13 missing statements/8 branches, zero exclusions, against unchanged30/9 ceilings. Normal API/runtime/Help/consumer/flow/caption/index outputs and603 strict reviewed-target/source bindings pass with immutable review pin f3141ecf; prior scientific/database/PDF acceptance is retained, and native Windows/Mac hardware validation remains with its owning sessions.
+
+2026-10-24 — Reopened IN PROGRESS for the maintainer's twelve 2026-10-24 requirements above; Claude Home owns it (UI agent A: requirements 1-8, the annotate menu and UI shells for 10/12; data agent B: annotation table, image-level measurements, comparisons, representative images).
