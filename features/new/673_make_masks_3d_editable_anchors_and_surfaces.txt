@@ -27,6 +27,24 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+2026-10-24 — Gate41716/A9IBin PASS40.19s/1.277GiB ona1a85c633e:
+native1200×640/Metal75, exact counts0/64/512/64/512/512/512 through real
+Undo/Redo/Save/new-session reopen, exact geometry/hash/axes/spacing/unit.
+Fresh current frames/paint and all accepted GPU contexts released; registry0,
+threads0/normalclose/run0/compiler cleanup. No FPS/physical/pick claim.
+
+2026-10-24 — Gate70609/57xUNd FAIL47.62s/1.296GiB onbd9fabf958:
+first six states through Save pass exact masks/Metal75/current paint; cleanup0.
+Saved geometry equality compares JSON lists to native tuples, a test mismatch;
+no geometry corruption finding. Reopen remains unreached/unaccepted.
+Normalize expected geometry through exact JSON, retaining all fields/values.
+
+Checklist7 native geometry scope: one owned 8³ uint16 ZYX spaced volume,
+programmatic real gate draw/edit callbacks, actual Undo/Redo/Save, and real
+reopen with new-session/data/sidecar verification. Fresh Metal75/current paint
+per phase; Save need not advance serial, reopen records Default then True3D.
+Original30s initial/20s operations/strict cleanup; no physical edit/FPS/pick claim.
+
 2026-10-24 — Masks38675/jz9LF9 PASS40.66s/1.474GiB on669fb7fb:
 Metal75, seven real-control states, exact RGB/ID restorations and finish prefs;
 registry0/threads0/GPUrelease/normalclose/run0/compiler cleanup all pass.
