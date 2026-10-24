@@ -539,11 +539,36 @@ def resolve(refresh: bool = False) -> Accelerator:
     if found.usable and found.kind != "cpu":
         found = _measure_dtypes(torch, found)
     if found.usable and found.fallback:
-        found = replace(found, fallback=bool(
-            os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK", "")))
+        found = replace(found, fallback=_mps_fallback_live(found))
     _CACHED = found
     LOG.debug("accelerator resolved to %s (%s)", found.device, found.label)
     return found
+
+
+def _mps_fallback_live(found: Accelerator) -> bool:
+    """Whether operators the device lacks will run on the CPU, warning when not.
+
+    The variable alone is not the answer: torch reads it once, at import, so
+    a notebook that ran ``import torch`` before ``import spacr`` has it set
+    and no fallback. On an M2, ``torch.linalg.eig`` on Metal then raised
+    NotImplementedError instead of running on the CPU.
+    """
+    if not os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK", ""):
+        return False
+    import spacr
+
+    if getattr(spacr, "_MPS_FALLBACK_LIVE", True):
+        return True
+    if found.kind == "mps":
+        import warnings
+
+        warnings.warn(
+            "torch was imported before spaCR, so PYTORCH_ENABLE_MPS_FALLBACK "
+            "is not active and operators Apple Metal lacks will raise "
+            "NotImplementedError instead of running on the CPU. Import spacr "
+            "before torch, or set PYTORCH_ENABLE_MPS_FALLBACK=1 before "
+            "starting Python.", RuntimeWarning, stacklevel=3)
+    return False
 
 
 def _measure_dtypes(torch, found: Accelerator) -> Accelerator:

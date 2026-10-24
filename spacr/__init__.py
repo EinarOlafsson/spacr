@@ -3,9 +3,16 @@
 from __future__ import annotations
 
 import os as _os
+import sys as _sys
 import warnings as _warnings
 from importlib import import_module
 
+#: Whether torch will run operators Metal lacks on the CPU. torch reads
+#: PYTORCH_ENABLE_MPS_FALLBACK once, when it is imported, so the line below
+#: works only when spaCR is imported first; :func:`spacr.accelerator.resolve`
+#: warns when a notebook imported torch before spaCR.
+_MPS_FALLBACK_LIVE = ("torch" not in _sys.modules
+                      or bool(_os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK")))
 _os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
 
 from ._version import __version__
