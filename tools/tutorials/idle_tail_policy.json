@@ -136,8 +136,8 @@
     },
     {
       "lesson": "04_platform_installers",
-      "master_sha256": "7c93360d640bed781a0756675ff9cdbde2aaf6d907096b8e017e088d1019ec4a",
-      "visual_timing_sha256": "3988e51266fc3df86a97619898d6f8494eb9d74bb94a2b83395216320ba1357f",
+      "master_sha256": "0f8c5a326e101f93a8cd6242d18546e6cc8b5f3bfb0cb058c09a99962a7ececc",
+      "visual_timing_sha256": "098916f919b2127ef83cb59bdf67c11b9fe28410a3b4e342be1d9d72a924aebf",
       "scenes": [
         {
           "visual": "08_official_release",
