@@ -2901,7 +2901,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
                      "thumbnail_popup_close_api_arrival_2026-10-21.json",
-                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json"):
+                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
+                     "707_home_masthead_fit_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -4854,6 +4855,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("thumbnail_popup_close_api_arrival_2026-10-21.json", 1),
         ("current_embedding_mil_api_arrivals_2026-10-23.json", 2),
         ("538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json", 8),
+        ("707_home_masthead_fit_api_arrival_2026-10-24.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5370,7 +5372,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
                      "thumbnail_popup_close_api_arrival_2026-10-21.json",
-                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json"):
+                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
+                     "707_home_masthead_fit_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5452,7 +5455,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
                      "thumbnail_popup_close_api_arrival_2026-10-21.json",
-                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json"):
+                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
+                     "707_home_masthead_fit_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

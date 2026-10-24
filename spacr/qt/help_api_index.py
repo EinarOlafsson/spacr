@@ -10055,6 +10055,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.home.TotalsPanel.read', 'The journal totals. **Worker-thread safe** — see :meth:`RecentRunsPanel.read`; ``journal_totals`` walks the same thousands of manifests, me…'),
     ('spacr.qt.widgets.home.TotalsPanel.refresh', 'Redraw the panel.'),
     ('spacr.qt.widgets.home.TotalsPanel.reset_counts', 'Count from now on, by moving the watermark.'),
+    ('spacr.qt.widgets.home._HeroTextFit._fit.fits', 'Return whether this font pixel size fits the label content rectangle.'),
     ('spacr.qt.widgets.home._scale_text_under.scaled', '``sheet`` with every font-size in it multiplied by ``ratio``.'),
     ('spacr.qt.widgets.home._scale_text_under.scaled.one', 'One ``font-size`` declaration, scaled and floored.'),
     ('spacr.qt.widgets.home.active_palette', 'The palette for the theme that is on screen *right now*.'),

@@ -1884,6 +1884,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in calibrated_metal_arrivals} == calibrated_metal_arrivals
     assert not calibrated_metal_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **calibrated_metal_arrivals}
+    home_masthead_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "707_home_masthead_fit_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(home_masthead_arrivals) == {
+        "spacr.qt.widgets.home._HeroTextFit._fit.fits",
+    }
+    assert {key: docs[key] for key in home_masthead_arrivals} == home_masthead_arrivals
+    assert not home_masthead_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **home_masthead_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]
