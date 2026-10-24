@@ -8,6 +8,13 @@ two measurement-export docs and accepted SQLite timeout, excluding F538/Metal.
 Preserve the immutable N691 arrival bodies while binding only the documented
 Metal-era MitoNet device paragraph to its exact current source hash.
 
+CURRENT MASK TIME-AXIS CATEGORY HELP — 2026-10-23
+widgets_g3 owns the shared Mask help gap for Time Axes & Tracking (Beta).
+Resolve the renamed group to the existing curated 4D Settings (Beta) guidance
+without changing time-axis/linker semantics, source prose or translations.
+G1 retains the real full-slot tree fixture/lifetime and sole failed help gate;
+independent source peer and bounded normal extraction precede root publication.
+
 CURRENT TRUE 3D PREPAINT ARTIST FIXTURE — 2026-10-24
 G4 owns the two Main69 missing-set_visible fixture failures. Bind current
 Main/Night render delivery; preserve image delivery and prepaint requeue
@@ -4721,3 +4728,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — The AI notice fixture now uses the real consented ReportSession, native visible owner and post-batch worker completion instead of a retired provider hook and unrelated job/fixed-delay waits. Both original reply/relay-summary checks and all three no-AI-mode checks pass (5 tests, 15.64s); independent peer accepted. Production/generated outputs are unchanged; the process exited 0 with the known finite ambient-compiler diagnostic retained as a qualification. Root owns publication and hosted CI.
 
 2026-10-24 — Night retains the Main Mask-model lifetime fixture and tests compact whole-plate Fit with complete 16×24 native containment, zero scrolling and actual ancestor allocation caps instead of obsolete fixed floors. Six distinct controls PASS (five retained from 63.63s, corrected Mask in 21.41s), including both embedded variants with unchanged 20/30-second limits; independent fixture peer accepted. The seventh written-help gate exposes the shared tracking-heading alias gap, owned separately by G3; root publication remains pending. Production/generated outputs unchanged in this candidate.
+
+2026-10-23 — Mask’s renamed Time Axes & Tracking (Beta) heading now resolves the existing curated 4D guidance; no prose, translations or tracking semantics changed. The original full-slot tree help gate passes on the exact source (1 test, 17.84s), with G1’s existing Qt/process finalization diagnostics qualified rather than treated as a lifecycle fix. Normal scoped extraction preserves 80 API entries and 2,013 caption identities; the normal Main consumer refresh changes only three downstream settings_model line offsets by +2, independently reviewed. Root owns publication and the separate normal Night consumer refresh.
