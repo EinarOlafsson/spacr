@@ -297,3 +297,32 @@ def test_old_callback_cannot_retire_a_new_export(qtbot, plate, monkeypatch, tmp_
     qtbot.waitUntil(lambda: not widget._export_running, timeout=10000)
     assert (tmp_path / 'second' / 'provenance.json').exists()
     assert not (tmp_path / 'orphan').exists()
+
+
+def test_cached_crop_export_refuses_a_new_persisted_calibrated_marker(
+        qtbot, plate, monkeypatch, tmp_path):
+    from tests.test_measure_src_resolution import _segmentation_coordinate_record
+
+    widget = panel(qtbot, plate, monkeypatch, threaded=True)
+    try:
+        assert not widget._unmix_btn.isChecked()
+        originals = {p: p.read_bytes() for p in plate[0].values()}
+        displayed = [entry['crop'].copy() for entry in widget._crops]
+        _segmentation_coordinate_record(plate[0]['C01'].parent.parent,
+                                        calibrated=True, complete=False)
+        destination = tmp_path / 'refused_export'
+        monkeypatch.setattr(mp.QFileDialog, 'getExistingDirectory', lambda *a, **k: str(tmp_path))
+        monkeypatch.setattr(mp.QInputDialog, 'getText', lambda *a, **k: ('refused_export', True))
+        widget._export_btn.click()
+        qtbot.waitUntil(lambda: not widget._export_running, timeout=10000)
+        assert 'not supported by Measure' in widget._status.text()
+        assert not destination.exists()
+        assert not list(tmp_path.glob('.spacr-preview-*'))
+        for actual, expected in zip(widget._crops, displayed):
+            np.testing.assert_array_equal(actual['crop'], expected)
+        assert len(widget._crops) == len(displayed)
+        assert {p: p.read_bytes() for p in plate[0].values()} == originals
+    finally:
+        widget._cancel_extra_work()
+        widget._jobs.shutdown(timeout_ms=3000)
+        widget.close()

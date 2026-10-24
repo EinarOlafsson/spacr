@@ -226,6 +226,10 @@ def _write_preview_crop_export(destination, crops, metadata, primaries, cancelle
             raise ValueError(tr("Run a crop preview before exporting."))
         if cancelled.is_set():
             return {"cancelled": True}
+        from spacr.measure import _validate_measurement_coordinate_source
+
+        for source_path in {entry["source_path"] for entry in crops}:
+            _validate_measurement_coordinate_source(Path(source_path).parent)
         stage = tempfile.TemporaryDirectory(prefix=".spacr-preview-",
                                             dir=destination.parent)
         records = []
@@ -416,6 +420,9 @@ def load_merged_array(path: str, enumerate_sets: bool = True
         except Exception:
             LOG.exception("Could not enumerate merged arrays beside %s", path)
     try:
+        from spacr.measure import _validate_measurement_coordinate_source
+
+        _validate_measurement_coordinate_source(Path(path).parent)
         data = np.load(path)
     except Exception as exc:
         out["error"] = f"Failed to load: {exc}"
@@ -702,6 +709,14 @@ def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
     Crops own their RGB pixels, so the source mapping is released straight
     away.
     """
+    from spacr.measure import _validate_measurement_coordinate_source
+    from spacr.errors import ConfigurationError
+
+    try:
+        for path in paths:
+            _validate_measurement_coordinate_source(Path(path).parent)
+    except ConfigurationError as exc:
+        return {"crops": [], "error": str(exc)}
     crops, errors = [], []
     plans = {}
     limit = max(1, int(crop_kwargs.get("limit", 60)))

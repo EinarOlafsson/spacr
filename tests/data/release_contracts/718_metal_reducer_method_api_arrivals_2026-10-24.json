@@ -1,0 +1,10 @@
+{
+  "spacr.mps_reduce.MetalKMeans.fit": "Fit cluster centers with chunked Metal assignment and updates.\n\n:param data: nonempty finite sample-by-feature matrix.\n:param y: ignored compatibility argument.\n:returns: this fitted clusterer.",
+  "spacr.mps_reduce.MetalKMeans.fit_predict": "Fit cluster centers and return the training sample assignments.\n\n:param data: nonempty finite sample-by-feature matrix.\n:param y: ignored compatibility argument.\n:returns: NumPy array of training sample cluster indices.",
+  "spacr.mps_reduce.MetalKMeans.fit_transform": "Fit cluster centers and compute distances to every center on Metal.\n\n:param data: nonempty finite sample-by-feature matrix.\n:param y: ignored compatibility argument.\n:returns: sample-by-cluster NumPy array of Euclidean distances.",
+  "spacr.mps_reduce.MetalKMeans.predict": "Assign samples to the nearest fitted cluster centers on Metal.\n\n:param data: sample-by-feature matrix with the fitted feature count.\n:returns: NumPy array of cluster indices.",
+  "spacr.mps_reduce.MetalPCA.fit": "Fit PCA on CPU float64 data and select the projection backend.\n\n:param data: sample-by-feature matrix used to fit PCA.\n:param y: ignored compatibility argument.\n:returns: this fitted reducer.",
+  "spacr.mps_reduce.MetalPCA.fit_transform": "Fit PCA and project the same samples.\n\n:param data: sample-by-feature matrix used for fitting and projection.\n:param y: ignored compatibility argument.\n:returns: NumPy array of projected samples, whitened when configured.",
+  "spacr.mps_reduce.MetalPCA.inverse_transform": "Reconstruct feature values from fitted PCA coordinates.\n\n:param data: sample-by-component matrix of projected coordinates.\n:returns: NumPy array in the original feature space, undoing whitening when configured.",
+  "spacr.mps_reduce.MetalPCA.transform": "Project samples using the fitted CPU or Metal backend.\n\n:param data: sample-by-feature matrix with the fitted feature count.\n:returns: NumPy array of projected samples, whitened when configured."
+}
