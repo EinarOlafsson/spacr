@@ -27,6 +27,12 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+2026-10-24 — CPU observer discrimination exits1/0.18s/0.014GiB as diagnostic
+failure: both single-thread modes count7 roots/21 children/caller edges exactly.
+With one known worker, windowed root primitive1/total7; continuous6/6, not7/7;
+both include all7 worker calls from a distinct recorded thread. This reproduces
+threaded accounting corruption, not the native thread cause; no Qt/product fix.
+
 2026-10-24 — Provenance correction: retained aJLvqM/metal_pool drag uses
 bench3d.py's seven synthetic spheres, not FIBSEM, and a standalone forced exit.
 Its 611×140/100% timings are not normal public-run/FIBSEM cleanup evidence.
