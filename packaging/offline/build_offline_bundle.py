@@ -11,6 +11,7 @@ one folder (and optionally one ``.tar``):
     python/<tag>/<archive>     the CPython build uv would have downloaded,
                                laid out as a uv ``UV_PYTHON_INSTALL_MIRROR``
     wheels/                    every wheel of the locked environment
+    windows-runtime/           pinned Microsoft CRT package (Windows only)
     requirements.txt           the lock, resolved for the target platform
     models/cellpose/           Cellpose weights (default: cpsam)
     test_data/plate1/          Mask test images and gen_mask_settings.csv
@@ -402,6 +403,8 @@ def render_installer(target: Target, version: str, bundle: Path) -> Path:
     shutil.copy2(WINDOWS_INSTALLER, out)
     shutil.copy2(REPO / "spacr" / "install_cleanup.py", bundle / "install_cleanup.py")
     shutil.copy2(REPO / "spacr" / "install_profile.py", bundle / "install_profile.py")
+    for name in ("windows_crt.py", "windows_crt.json"):
+        shutil.copy2(ONLINE / name, bundle / name)
     run([sys.executable, PACKAGING / "i18n" / "render.py"])
     generated = bundle / "generated"
     generated.mkdir(exist_ok=True)
@@ -419,6 +422,21 @@ def package_requirement(version: str, extras: str) -> str:
     """
     suffix = f"[{extras}]" if extras else ""
     return f"spacr{suffix}=={version}"
+
+
+def fetch_windows_crt(bundle: Path, cache: Path) -> dict:
+    """Carry the pinned Microsoft prerequisite without executing it on the builder."""
+    metadata = json.loads((ONLINE / "windows_crt.json").read_text(encoding="utf-8"))
+    artifact = metadata["artifact"]
+    source = download(artifact["url"], cache / artifact["filename"])
+    if source.stat().st_size != artifact["size"] or sha256_file(source) != artifact["sha256"]:
+        raise SystemExit("Microsoft Windows runtime artifact checksum mismatch")
+    destination = bundle / "windows-runtime" / artifact["filename"]
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, destination)
+    return {"version": metadata["version"],
+            "path": destination.relative_to(bundle).as_posix(),
+            "sha256": artifact["sha256"]}
 
 
 def build(args: argparse.Namespace) -> Path:
@@ -439,6 +457,8 @@ def build(args: argparse.Namespace) -> Path:
         cache.mkdir(parents=True, exist_ok=True)
         fetch_uv(host, uv_pin, cache)
     target_uv = fetch_uv(target, uv_pin, bundle / "uv")
+    windows_runtime = (fetch_windows_crt(bundle, cache / "windows-runtime")
+                       if target.key == "windows-x86_64" else None)
     python = fetch_python(host_uv, target, bundle / "python")
 
     spec = args.package_spec or package_requirement(version, args.extras)
@@ -473,6 +493,8 @@ def build(args: argparse.Namespace) -> Path:
         "wheels": len(list(wheels.glob("*.whl"))),
         "cellpose_models": models, "test_data_files": test_files,
     }
+    if windows_runtime is not None:
+        manifest["windows_runtime"] = windows_runtime
     (bundle / "bundle.json").write_text(json.dumps(manifest, indent=2) + "\n",
                                         encoding="utf-8")
     write_checksums(bundle)
