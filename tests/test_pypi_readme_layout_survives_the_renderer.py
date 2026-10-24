@@ -200,3 +200,77 @@ def test_responsive_rows_hide_contact_links_with_their_images(rendered):
         assert len(image_classes) == 1
         assert image_classes.pop() in row["class"].split()
     assert 'href="mailto:olafsson%40med.umich.com"' in rendered
+
+
+class Lines(HTMLParser):
+    """The number of ``line`` divs in each top-level line block."""
+
+    def __init__(self):
+        super().__init__()
+        self.depth = 0
+        self.counts = []
+
+    def handle_starttag(self, tag, attrs):
+        values = dict(attrs)
+        if self.depth == 0:
+            self.counts.append(0)
+        elif (self.depth == 1 and tag == "div"
+              and "line" in (values.get("class") or "").split()):
+            self.counts[-1] += 1
+        if tag not in VOID:
+            self.depth += 1
+
+    def handle_endtag(self, tag):
+        if tag not in VOID:
+            self.depth -= 1
+
+
+def _drawn_width(path):
+    head = (ROOT / path).read_text(encoding="utf-8")[:2000]
+    return float(re.search(r'<svg\b[^>]*?\swidth="([0-9.]+)"', head)[1])
+
+
+def test_every_full_column_box_is_equally_wide_in_both_layouts(rendered):
+    blocks = [block for block in _layout(rendered).blocks
+              if block["images"] and all(image.get("class") in CLASSES
+                                         for image in block["images"])]
+    full = 0
+    for block in blocks:
+        widths = [image["width"] for image in block["images"]]
+        assert len(set(widths)) == 1, widths
+        if len(block["images"]) != 1:
+            continue
+        image = block["images"][0]
+        column = 830 if image["class"] == "hide-below-desktop" else 358
+        if _drawn_width(image["src"].split(f"/{REFERENCE}/")[-1]) == column:
+            assert image["width"] == "100%", image["src"]
+            full += 1
+    assert full > 60
+
+
+def test_each_heading_is_its_own_block_above_its_content(rendered):
+    layout = _layout(rendered)
+    lines = Lines()
+    lines.feed(rendered)
+    assert len(lines.counts) == len(layout.blocks)
+    for block, count in zip(layout.blocks, lines.counts):
+        if block["images"] and all(image.get("class") in CLASSES
+                                   for image in block["images"]):
+            assert count == 1, block
+    for image in (image for block in layout.blocks for image in block["images"]):
+        assert "align" not in image
+        assert not {"align-left", "align-right"} & set(
+            (image.get("class") or "").split())
+    order = [block["images"][0]["alt"] for block in layout.blocks
+             if len(block["images"]) == 1
+             and block["images"][0].get("class") == "hide-below-desktop"]
+    for heading, content in (("Try spaCR.", "conda create"),
+                             ("Hardware support.", "NVIDIA (CUDA)")):
+        position = order.index(heading)
+        assert content not in order[position]
+        if content == "conda create":
+            after = rendered.split(f'alt="{heading}"', 1)[1].split(">", 1)[1]
+            assert after.index("<pre") < after.index(
+                'class="hide-below-desktop"')
+        else:
+            assert order[position + 1].startswith(content)
