@@ -570,6 +570,9 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 body_fitter = getattr(w, '_body_fit', None)
                 if body_fitter is not None and (body_fitter._timer.isActive() or body_fitter._busy):
                     return None
+                news_fitter = getattr(w, '_news_title_fit', None)
+                if news_fitter is not None and (news_fitter._timer.isActive() or news_fitter._busy):
+                    return None
                 if any(getattr(w, key, False) for key in
                         ('_rebalance_queued', '_limits_queued', '_refit_queued', '_fitting_module_actions', '_back_fit_busy')):
                     return None

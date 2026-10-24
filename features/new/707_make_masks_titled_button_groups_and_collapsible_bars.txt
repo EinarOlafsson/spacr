@@ -12,10 +12,32 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+News viewport repair scope: native22421 proves real title shaped lines clipped
+inside hidden-horizontal546px viewport, not merely blank696px document columns.
+First reproduce with real NewsPanel/bundled HTML/normal selected fonts and
+measure child minimum-width sources. Preserve title/date HTML/fonts/links and
+real access to wide bodies; no global font/window or whitespace waiver.
+Focused89569 reproduces native left74px clip and attributes696px minimum to
+the v1.5.0.5 body. First bounded repair28597 exposes a long-title393px width
+with132px allocation but198px document height; reserve the actual viewport
+width consistently for wrapped headings before considering any height floor.
+Width-only15319 still allocates546x132 for a198px rich title. Its local owned
+fitter now derives a fresh document minimum height from original HTML/current
+font/actual width and insets, with no prior-minimum feedback or height maximum.
+Focused2844 passes11.25s/RSS0.292GiB: all34 heading glyphs after real horizontal
+scroll and566→900→566; original HTML/links/fonts/body text retained. Long-title
+height shrinks/restores, current-ref rebuild/quiescence/pending deletion pass.
+Normal-app title/date and separate body-line native acceptance remain pending.
+
 News title attribution scope: native85931 rejects all17 full document columns,
 but allocated696px wrap width alone does not prove clipped title glyphs.
 Before the unchanged assertion, record actual rich line/run bounds and native
 QLabel origin/insets/visible/global mapping; same17 roles/reveal/20s, no waiver.
+Native22421/KAGCV0 on2a41f6522 fails45.57s/RSS1.240GiB: all17 shaped title
+runs start at0 while visible x74..620 clips the left74px; last two titles also
+have668px lines extending48px past the right. This is not blank-column-only
+overflow. Content13.031s/tour9.475s,17/139 checked/122 untested and normal
+cleanup pass; dates remain unrun and17 bodies separately unaccepted.
 
 Next News operations separately inspect17 titles and17 dates using actual
 release-block layout positions paired with owned bundled release records/tags.

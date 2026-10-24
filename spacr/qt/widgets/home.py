@@ -1694,6 +1694,95 @@ class StageLegend(Panel):
         return self._rows.get(stage)
 
 
+class _NewsTitleFit(QObject):
+    """Bound release headings to the real viewport, not wide body hints."""
+
+    def __init__(self, panel):
+        """Own the coalesced observer under its News panel.
+
+        :param panel: actual panel whose headline labels may be rebuilt.
+        """
+        super().__init__(panel)
+        self._panel = panel
+        self._viewport = panel._notes.viewport()
+        self._busy = False
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._fit)
+        panel.installEventFilter(self)
+        self._viewport.installEventFilter(self)
+        self._timer.start(0)
+
+    def eventFilter(self, watched, event):
+        """Observe allocation and source-layout changes without consuming them.
+
+        :param watched: the panel or its actual notes viewport.
+        :param event: native event; only local allocation/style work is queued.
+        :returns: False, preserving normal Qt delivery.
+        """
+        if not self._busy and ((watched is self._viewport and event.type() == QEvent.Resize)
+                or (watched is self._panel and event.type() in
+                    (QEvent.Show, QEvent.FontChange, QEvent.StyleChange, QEvent.LayoutRequest))):
+            self._timer.start(0)
+        return False
+
+    def _fit(self):
+        """Fit fresh wrapped-title documents; leave wide plain dates scrollable."""
+        from math import ceil
+        from PySide6.QtGui import QTextDocument, QTextOption
+        from ..gui_scale import _set_actual_dim
+
+        width = self._viewport.property('size').width()
+        if width <= 0:
+            return
+        self._busy = True
+        try:
+            for label in self._panel._headline_labels:
+                limit = width
+                if label.wordWrap():
+                    if (label.property('minimumSize').width() != width
+                            or getattr(label, '_gs_geo_set', {}).get('minw') != width):
+                        _set_actual_dim(label, 'minw', width)
+                else:
+                    size, contents = label.property('size'), label.contentsRect()
+                    text = label.style().itemTextRect(label.fontMetrics(), contents,
+                        int(label.alignment() | Qt.TextSingleLine), label.isEnabled(), label.text())
+                    required = max(text.width(), label.fontMetrics().horizontalAdvance(label.text()))
+                    if required+size.width()-contents.width() > width:
+                        limit = 16777215
+                if (label.property('maximumSize').width() != limit
+                        or getattr(label, '_gs_geo_set', {}).get('maxw') != limit):
+                    _set_actual_dim(label, 'maxw', limit)
+                if label.wordWrap():
+                    size, contents = label.property('size'), label.contentsRect()
+                    margin = label.margin()
+                    indent = label.indent()
+                    if indent < 0:
+                        indent = max(0, label.fontMetrics().horizontalAdvance('x') // 2-margin) if label.frameWidth() else 0
+                    alignment = QStyle.visualAlignment(label.layoutDirection(), label.alignment())
+                    horizontal = size.width()-contents.width()+2*margin
+                    vertical = size.height()-contents.height()+2*margin
+                    if alignment & (Qt.AlignLeft | Qt.AlignRight):
+                        horizontal += indent
+                    if alignment & (Qt.AlignTop | Qt.AlignBottom):
+                        vertical += indent
+                    document = QTextDocument()
+                    document.setDocumentMargin(0)
+                    document.setDefaultFont(label.font())
+                    option = QTextOption()
+                    option.setWrapMode(QTextOption.WordWrap)
+                    option.setAlignment(label.alignment())
+                    document.setDefaultTextOption(option)
+                    document.setHtml(label.text())
+                    document.setTextWidth(max(1, width-horizontal))
+                    height = ceil(document.size().height()+vertical)
+                    if (label.property('minimumSize').height() != height
+                            or getattr(label, '_gs_geo_set', {}).get('minh') != height):
+                        _set_actual_dim(label, 'minh', height)
+        finally:
+            self._busy = False
+
+
 class NewsPanel(Panel):
     """Every spaCR release, with links, in a box the reader can resize.
 
@@ -1781,7 +1870,7 @@ class NewsPanel(Panel):
         self._notes.setFocusPolicy(Qt.NoFocus)
         self._notes.setWidgetResizable(True)
         self._notes.setFrameShape(QFrame.NoFrame)
-        self._notes.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._notes.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self._notes.setStyleSheet(
             "QScrollArea#HomeNewsScroll { background: transparent;"
             " border: none; }")
@@ -1807,6 +1896,7 @@ class NewsPanel(Panel):
         self._grip.height_changed.connect(self._remember_height)
         self.body_layout.addWidget(self._grip)
         self._notes.setFixedHeight(self._stored_height())
+        self._news_title_fit = _NewsTitleFit(self)
 
         check = QPushButton("Check for updates\u2026")
         check.setObjectName("GhostButton")
@@ -1842,6 +1932,7 @@ class NewsPanel(Panel):
         kept rather than rebuilt: it is what a build with no bundled
         resource shows, and :meth:`set_content` holds a reference to it.
         """
+        self._headline_labels = []
         while self._notes_column.count():
             item = self._notes_column.takeAt(0)
             widget = item.widget()
@@ -1854,6 +1945,9 @@ class NewsPanel(Panel):
         for entry in self._releases:
             self._notes_column.addWidget(self._release_block(entry))
         self._notes_column.addStretch(1)
+        fitter = getattr(self, '_news_title_fit', None)
+        if fitter is not None:
+            fitter._timer.start(0)
 
     def showEvent(self, event):                                  # noqa: N802
         """Ask for a refresh the first time the panel is shown.
@@ -1958,13 +2052,15 @@ class NewsPanel(Panel):
         title.setStyleSheet(
             f"color: {P['fg']}; font-size: {font_px(12)}px;"
             "font-weight: 600; background: transparent;")
-        column.addWidget(title)
+        column.addWidget(title, 0, Qt.AlignLeft)
+        self._headline_labels.append(title)
         if when:
             stamp = QLabel(when)
             stamp.setStyleSheet(
                 f"color: {P['fg_muted']}; font-size: {font_px(10)}px;"
                 "background: transparent;")
-            column.addWidget(stamp)
+            column.addWidget(stamp, 0, Qt.AlignLeft)
+            self._headline_labels.append(stamp)
 
         body = self.render_body(str(entry.get("body") or ""), P["accent"])
         if body:
