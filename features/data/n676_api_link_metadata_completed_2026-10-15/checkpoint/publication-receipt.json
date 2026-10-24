@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-19-cellpose-training-feature-script-20261023",
-  "base_commit": "b297520c8f5bf384abc2f0a82d9d934655579411",
-  "commit": "b4658c7e6829a977fdb75be3497bd40f6bef3bee",
-  "tag": "n676-19-cellpose-training-feature-script-20261023-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b4658c7e6829a977fdb75be3497bd40f6bef3bee",
-  "manifest_sha256": "99c153ed5c1e879e40d0d8385fd828f946a4981f7eb13592e89bf05940f243f3",
+  "branch": "n676-02-installation-reference-cards-20261023",
+  "base_commit": "833dedfe6a96c15e278d677492a7b086096fcac1",
+  "commit": "ffe3ab71daedad7d8ba6b238f66133b9f2bc929e",
+  "tag": "n676-02-installation-reference-cards-20261023-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/ffe3ab71daedad7d8ba6b238f66133b9f2bc929e",
+  "manifest_sha256": "d88f4bb121c5b7b8d17e2dbe2bd9fac54c75d8102f7eb05267e856fa8630349e",
   "media_files": 6448,
-  "media_bytes": 12586324806,
+  "media_bytes": 12585998967,
   "readback": {
-    "commit": "b4658c7e6829a977fdb75be3497bd40f6bef3bee",
+    "commit": "ffe3ab71daedad7d8ba6b238f66133b9f2bc929e",
     "files_expected": 6448,
     "metadata_matched": 6448,
     "metadata_failures": [],
-    "bytes_read_back": 12586324806,
+    "bytes_read_back": 12585998967,
     "downloaded_sha256_matched": 6448,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -1982,33 +1982,32 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 462.3,
+    "seconds": 455.1,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "3181f850188f9d3c0db0a39c64fab23d3bfe8e329228d326c9ad2abe56638e9c",
-    "candidate_index_sha256": "f19f5f120cb62a9dc75e15b0b8383b178949e86bbbabe11ec4315a1c2782b495",
-    "cache_key": "n676-19-cellpose-training-feature-script-20261023-verified",
+    "index_sha256": "8eb6ede4ff6afdb495ff3810d5a68d7c8daf00496b020b59a1149f72ea92ac52",
+    "candidate_index_sha256": "f8df2ca51408944cbe2642ec2e865b305eea42b4f04aa81bb0f2b2c3b1190650",
+    "cache_key": "n676-02-installation-reference-cards-20261023-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
-      "module_navigation.js",
       "styles.css",
       "voice_catalog.js"
     ],
     "versioned_assets": {
       "app_v2.js": "n676-player-short-gap-20261023",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-19-cellpose-training-feature-script-20261023-verified",
-      "module_navigation.js": "n676-59-anndata-feature-prerequisites-20261023",
+      "lesson_catalog.js": "n676-02-installation-reference-cards-20261023-verified",
+      "module_navigation.js": "n676-02-installation-reference-cards-20261023-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/release-candidate-audio-5e7ze8ve/retired-pages",
+      "directory": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/release-candidate-append-rdm8xoam/retired-pages",
       "files": []
     },
     "ready": 84,

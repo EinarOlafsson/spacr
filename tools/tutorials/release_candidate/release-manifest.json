@@ -1,13 +1,13 @@
 {
-  "scope": "Private reviewed script refresh; exact published visual media and voice offerings preserved",
+  "scope": "Private incremental release; incomplete voices and translations remain tracked",
   "ready_lessons": 84,
   "coming_soon": [],
   "routes": 84,
   "catalog_languages": 14,
   "narration_tracks": 3119,
-  "web_bytes": 127361761,
+  "web_bytes": 127352666,
   "ceiling_bytes": 734003200,
-  "media_host_bytes": 12586324806,
+  "media_host_bytes": 12585998967,
   "files": [
     {
       "path": "media_host/01_pypi_github/audio/en/af_aoede.json",
@@ -1021,18 +1021,18 @@
     },
     {
       "path": "media_host/02_install_spacr/video/02_install_spacr_silent.mp4",
-      "sha256": "331e12e22e6118223af0310f75d8ceb32fc4ce45409d12756331d087f02c7dae",
-      "bytes": 23559598
+      "sha256": "f0f9fb555ac880a49f1187a15bc2d9a669f8ee5568f55b1bb1a8b1467ebda5d3",
+      "bytes": 23366089
     },
     {
       "path": "media_host/02_install_spacr/video/native-live-timings.json",
-      "sha256": "714e5fe2c65e72dd1813ce123d4883354e0ab651c9caec95e0b547024916f847",
-      "bytes": 30498
+      "sha256": "a139230b320351aae17684c981062d56b59d53ee0ddb93058b71215a62757966",
+      "bytes": 37532
     },
     {
       "path": "media_host/02_install_spacr/web/02_install_spacr_silent.mp4",
-      "sha256": "ccc88e42413e49bf73c8ef5d8778d6007f2e859f9639ea3962784ee2505c82b7",
-      "bytes": 20323122
+      "sha256": "3e9fd8a3504fbe4dea783ac3dfceaaf190cb7ea085349dd955322777e48325e3",
+      "bytes": 20183758
     },
     {
       "path": "media_host/04_platform_installers/audio/en/af_aoede.json",
@@ -32506,12 +32506,12 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "f19f5f120cb62a9dc75e15b0b8383b178949e86bbbabe11ec4315a1c2782b495",
-      "bytes": 15672
+      "sha256": "f8df2ca51408944cbe2642ec2e865b305eea42b4f04aa81bb0f2b2c3b1190650",
+      "bytes": 15676
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "1185de96de54aa4d8920af2d225359fbea9819fb8b70cd215c7d208c0b1c1d63",
+      "sha256": "a2292afa489bdcad3a944ff5665ecba876482de9c38bc96ab4f1c3242c278a8b",
       "bytes": 610538
     },
     {
@@ -32521,7 +32521,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "f37ad1bfec2eefa1925bee1c8e82f889be0be375d87856ba6c1824ae9e18d37f",
+      "sha256": "dab663420a311e7baed7f2d3d152ea40f66f9645de7ecd369b87bfc03e399766",
       "bytes": 17171
     },
     {
@@ -32531,8 +32531,8 @@
     },
     {
       "path": "web/production/02_install_spacr/poster.jpg",
-      "sha256": "719fa5e885b0b1c6111307e3514f297b4e549e01e84db4f207b9d4732f5c8ff4",
-      "bytes": 272486
+      "sha256": "a9518b96648c62ff078cd5042f83b49f5385b356343a13ecf935bb34641f7c8c",
+      "bytes": 263387
     },
     {
       "path": "web/production/04_platform_installers/poster.jpg",
@@ -32960,15 +32960,28 @@
       "bytes": 4947
     }
   ],
-  "web_checks": [],
-  "baseline_manifest_sha256": "9eef27e15aa048c9ee92452021c58ab42af4dbdf4feb979a35b4372289cbecfc",
+  "web_checks": [
+    {
+      "lesson": "02_install_spacr",
+      "rendition_sha256": "3e9fd8a3504fbe4dea783ac3dfceaaf190cb7ea085349dd955322777e48325e3",
+      "browser_report_sha256": "2887a8d43006c7c2e9bcf5cb3317ae21b57058a4dfefe372b92dba4c4767a9a5"
+    }
+  ],
+  "baseline_manifest_sha256": "99c153ed5c1e879e40d0d8385fd828f946a4981f7eb13592e89bf05940f243f3",
   "preserved_lessons": 83,
   "appended_lessons": [],
   "refreshed_lessons": [
-    "19_train_cellpose"
+    "02_install_spacr"
   ],
   "withdrawn_lessons": [],
-  "retained_narration": {},
+  "retained_narration": {
+    "02_install_spacr": {
+      "track_count": 50,
+      "resynthesized": false,
+      "current_runtime_freshness_claimed": false,
+      "baseline_manifest_sha256": "99c153ed5c1e879e40d0d8385fd828f946a4981f7eb13592e89bf05940f243f3"
+    }
+  },
   "retained_visual_timing": {},
   "link_only_updates": [],
   "hosted_web_lessons": [
@@ -33058,7 +33071,310 @@
     "87_alpha_features"
   ],
   "outstanding_module_tutorials": [],
-  "new_lesson_tracks": {},
+  "new_lesson_tracks": {
+    "02_install_spacr": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "audio_sha256": "055e1f116144bfb85ff4f6fddde7f25ba46c0ad2fb92b34933e09c452de63e23",
+        "timing_sha256": "bdedc68b8ae41ee4fae9fd97d9f49c730664c0b7adcca706130257d64e53b457"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "audio_sha256": "e4044fc7e22850f31240acfe574a799c9c2d3aa69af8d73bb1f6f07ed92b1ec5",
+        "timing_sha256": "ae448f03a46c6a45f0612a480d56825590f8692881ec8ea07f85b811fa3fcb8c"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "audio_sha256": "5ee0f787e0edf1eae678a6a9ad1d242213257b5801d50d5c360d7257329fb6d2",
+        "timing_sha256": "1901292e7dbb0ee33adfc9f7ee1540d878726c94aaaec64cb85bb9ef66f9efd1"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "audio_sha256": "10ba1f3a076d953e11edadc4b0a280173572611d86418f0f5401c45e46fe6b5c",
+        "timing_sha256": "091d806e1d4ab6cf4688094ff6885b8764a579dc0ea919067e7767a0362c937c"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "audio_sha256": "e79ec00104f6eb5609d51368ecbe3d90afcc07897d5d688dbe544d6201c1e5d3",
+        "timing_sha256": "00ffbb5275c8c7bfc6e16734355af639bd1c6e3b15cbdcfbb1c5184fdf2ea8c8"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "audio_sha256": "d45b5a92742e17be3eaaca9273b22d0f9a1dc1971398c6c9d5801d3e40685f98",
+        "timing_sha256": "b4bba9873ca60f22de36c9fd9bd33315ea2d73dc509567162e5b807ab3a5ec97"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "audio_sha256": "891a25030b3d2bcd0eb606158923b1b09ec160da727b5ccaab1f3a65dc94f05f",
+        "timing_sha256": "f6e4bbe1f0978c59f2517daad2ebc68ae6a8343cefd0e59eb8077f4c95187b86"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "audio_sha256": "63618ab65a9b72c4980d373391e26ef29dd5a0e04eb528fd6f7178499f72e0a0",
+        "timing_sha256": "cfeb4f9e0ba19ed70cafcb524f633ac13502857164f8ea58e53e777dfa06413d"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "audio_sha256": "1194a8713f6789cba37fc6a2eea000cbb7a88f943784d59ca55e2005054b146c",
+        "timing_sha256": "fccd98cae27fc7e506f03b78fe273d1dbb5650fb10bab30b000f41b714c8728f"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "audio_sha256": "c2ff94eda71ee36fc566816bb822ce32a62425e49279b244777d0e7406e715ff",
+        "timing_sha256": "670689f33bafc114a5216bf14e538c3ec93872f148a6e2a421fba0a988cf5e48"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "audio_sha256": "f79627084f6f10f63d175411d24ebd4e28db9948d1879b8cb0d4c19f8a95be73",
+        "timing_sha256": "0e248945f0a8ee3e774bb1369e8f39b5c9856bbeb4ed9a2a394ef10dd39fe65c"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "audio_sha256": "5123f49b3001fce0f6b247e45234e896cb6ff1e710a2b17ff1a1e059b6e67e1e",
+        "timing_sha256": "77dedcf85eaf47585529d26610778b4b5608791d9a1c5042e436ce9adbfa01a8"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "audio_sha256": "e66097b80c9e9179bed277cb2189d4a07bedccb69719be94ef562787eb584e22",
+        "timing_sha256": "ee6a2966e9b9186c4d1c06921cef3aca58f076f93c15b5f0f76c1046772675de"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "audio_sha256": "7bda22b8d570dc03c2cff9e6d6516b91deaff35112e1b77b18ee233fb3f6433f",
+        "timing_sha256": "50580f1f7083e451ace78c2d789f095fac0b5c6dc18ae9017ed83f597c914339"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "audio_sha256": "fef1deba6fda44f4a78a4af896b11de408db87a426c8097dc5aeef0c56740cfb",
+        "timing_sha256": "744bd713261c472b916335f0957d6c271c4ad94f071ae89381de4882fdc25f4e"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "audio_sha256": "5ea3256d148f218e262161fcaae3155081a3cbf054ba8d44705724b9d24c9311",
+        "timing_sha256": "1f512a97ab5dec5a3370439a0d2bee2c1409e3d7f15fc5cb6456d97889f71860"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "audio_sha256": "ccccabf0ba5f6a2cb285423972328bf594d7bfcf46bb9fdef0143dd0c80d422c",
+        "timing_sha256": "b5aebf1d05089ab7a40f8a069e6e57c66a7ab77def4bf9fb90ea5816292b0247"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "audio_sha256": "58862809228a213fe9ce5456230caf1a558cf2b63c9ca5a8e8238a7afac1d938",
+        "timing_sha256": "94da27b3873cd0908d3869f96753bf78a70ba9cd95007752b0567d12994e643a"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "audio_sha256": "6315a3abdbcf2fa8fe5f49081910231d111a7b1d73c0ad0a9e8dfa8adca6fd42",
+        "timing_sha256": "d867f559bbb5f0a15ff0cbcca12a1540ec15cf1951b72735343c52cf559ff28b"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "audio_sha256": "1bc967c561fa030782386af229bba4457ad2906bcf8c0fef40e101beeff2a2aa",
+        "timing_sha256": "4037ab75df0a86450d2e3daacdeb3ff4cf5460c5d93380c5bb7e79373ba62f93"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "audio_sha256": "14d4730f09d3a784d80fc99c863b260524baac5e150b0b755fddb0f49c163e85",
+        "timing_sha256": "8a90b77d68ef24c22cface10ebca3b56aad3c8fb03b0544ea7232214b08b54e7"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "audio_sha256": "5335770f1748cd0ea4e511bcc217e5114de9af1b3e62c0e894702e4582534e4a",
+        "timing_sha256": "d5b451b7daa4b4f1bba030549ee51ab10a16e4d01d9472b13c4d05959a0d1211"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "audio_sha256": "2487bb1451abe6f0b45ff25591eea41edd0f0c7b225d444cbe4050a8b75bef3a",
+        "timing_sha256": "2e6c6c4c7386aeeefb5ca07e2ca3c1c8f7b55319d32ae3f757a30ca14d551dd9"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "audio_sha256": "eb1a04d5a39d33d18fd97a3e4316fc3a7f8e06236d8969d7ec09864f5856897f",
+        "timing_sha256": "7f94fdaa813070b5f6fe44101c8dda25f4d3793f7771be1787844259e9d10ea4"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "audio_sha256": "59736caf7f0a4f499eb8e8e0278de0aa05eb27828c08751df8466b3521893b65",
+        "timing_sha256": "635465fdab898e0564546a1e305d90a88c1d515c1c490d4405042a2f86d1ad74"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "audio_sha256": "e54cafdb444723762e2938f946e6a085c03bfc5144111e106abca7ed9bfc92da",
+        "timing_sha256": "53a0a4f11a67529cbd671efba79739974c666708988da91af92a7b1816031117"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "audio_sha256": "9a830c51779d06bbe18bec60233512140706234228d259d1e66977ac468b6dc9",
+        "timing_sha256": "90dff6f346dfbcb1d5c50b05c362e6d3986aaf474f92b216711c3d501f791ed9"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "audio_sha256": "6ca1fb88809fd077e5e69b72d9f6428d98c1ae408a812124103681a86afe46b0",
+        "timing_sha256": "c972ef8bf8524ffefadf05ffb83fc88a9286d1104e0a974d6c0b5c731665b35c"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "audio_sha256": "db1ec6b56bcd429ddbd23889f05e97904b49964fa2ee8d16acb61b090108c0d4",
+        "timing_sha256": "28154e4e3645697191571781b9367e016fd1c703590a869c8b12f8e12af4d313"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "audio_sha256": "92d99cecbb8ef4778c3481af0ed3c35d0105fa5ee56038cc98d64486a01811f2",
+        "timing_sha256": "f9a37a1ad4f8270d27fdc1b48a0ddd23455b69fa545aa8b7512ea5587f8343ae"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "audio_sha256": "b33590aa61ba61cfe51ebeb82df2cf0cd13d8e21bbf3b80d444b14d88e2c9f76",
+        "timing_sha256": "e7a1d2b568f0240fe9de6e8a251eb3a6fe70565acc1ed1f65328330ccc438b41"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "audio_sha256": "a3e35564921d2d7acff38d4212a027e943ab0b06e111a42d71f4d7a526ef15d7",
+        "timing_sha256": "79ee2d13e26ebb3beb43c72ad0747dcb3e104eaf862b62f9ea12d10fdabd4b0a"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "audio_sha256": "d46a59a7a6e4ded0ad080d3ba41d12e8fd7d631b264ddb0ce0c94fda45db4456",
+        "timing_sha256": "0f0d53214222ee920c2a54a80385b452227c935494bb882a0909a5fb7f1a8d3a"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "audio_sha256": "1694997da831e63625337e1abb14b5dc3e09eb6b7c58a37450bef251e9f993ee",
+        "timing_sha256": "593e3aae0422df4af856987da4b3268e9b55f9ef2972a79e3c1cab6cfe3102cf"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "audio_sha256": "0539de712e93cdd98a01a80aa6db721ee3e8afc5274c3492a2e9681bea03f923",
+        "timing_sha256": "c3f00debe4c30f23390d2c7997a5611349ccb0aa623582df33f229b71f502315"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "audio_sha256": "de28250bcac07a62c355fe3871dd76f892de9aa2f45a4f498193db7e9f9ec6e3",
+        "timing_sha256": "15b6d71de3ee49d49f728d13765b42db40c70ed4d201237d7341c46d19a0b12b"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "audio_sha256": "75ef245db08bd9034e077c7597bde423af7f2c468f25ab7d390e9d2aba0088e4",
+        "timing_sha256": "83df7fb6abd846bc7e076173819d3bbbcffb1255f76055e1141d53b988879c3c"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "audio_sha256": "9bc0313fd3959daa0ce5f35df13c43cdc02be7ee37edacaf4cd71c049ca173db",
+        "timing_sha256": "62def879a83865115003fe15fec90e48afb31a55e58921b8ed45e8e28abf62d0"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "audio_sha256": "4524ccbf1f034a2151e5bb2691a8171a814f08dc0dab05597d187a096470172f",
+        "timing_sha256": "ddad8bfae52c21c8c0059e6bfb251e448adfaf15a2759ae35da0b9894d72a18d"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "audio_sha256": "2b44f6704bce911a22c8bd816a98050d5a2562867147b01d11bd8fb7f6851f5a",
+        "timing_sha256": "226be58cd56c525ae87cbfd1a86721eb83eea06395e1f66bab3c15851bd845ef"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "audio_sha256": "87eb65358c3860a3023ec161a984fb8b9f7af5a482b132baac5f459d70bbb583",
+        "timing_sha256": "dd7e15d52598df4f910a5a66a4e6bb3f49cb25787a991fb6e705d6b49ec88ed7"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "audio_sha256": "a6a0d8288aa6320ed2cef06ff1721546956520293b18eb2af17401e93c9454dd",
+        "timing_sha256": "86b79aa357289ff134ae50dd4dcc24f7a4532aad26c2383746c06e0f6ef94312"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "audio_sha256": "3755ee1b61689289561e5ecd75c7fec6a719f40e484d3d46739b89d2a0244982",
+        "timing_sha256": "7a6b9aec4ace619cd5d26d1d2b5dc72fc5ed88fce90908873be5acebb542e9e0"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "audio_sha256": "70820fce7a366bac8141daf41c5ef26f5084d501c609cc512d278a1d6275f5b1",
+        "timing_sha256": "7c2bc948d208525fef1f390d5a6ddd4dc991084cfe81e9d016569906c3ac0317"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "audio_sha256": "618feccb6ab071725bb82bc8cedfecb158ab8500b09b0b78712cb9eb366943ad",
+        "timing_sha256": "32bc3edfe877db59641c4069a2e26404c04b411ace182be8007b2b71977f2ee8"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "audio_sha256": "9cb855b763e4b9cf2b330f9059a9dd205e012077420ada026f0a0c48e5e31f4e",
+        "timing_sha256": "1dfc13de3c17ce307574448f922c3088626c6bebc62e588eedf626939d1cd14e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "audio_sha256": "1f61f00d883467ba4acf619e5eb1e6c06315f833a5543b6330531ef285f8f629",
+        "timing_sha256": "5a09336a21d3a3c3f0225eabafaf5e325f0af0d80f7be337ea4526a3b6179bcb"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "audio_sha256": "4cb865f37853d19535e94b7a4ccbf6bb2531763f4d605b3fbbe5b1809b9a2e32",
+        "timing_sha256": "5afb0b720d5166eaf1b797de5cf52694e9b1ddbc43f95201d9a03a69c44d770b"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "audio_sha256": "eba540b2f8db848c6c9608e4940910e2cf947d0276adf94cfd332459062a0cca",
+        "timing_sha256": "a0b4e5c26ac581dea80f1f40ad27c4f51012c6b54e18ff0b9ff178ef802359bd"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "audio_sha256": "e137bf6b9d608ee59fac6ebeff9736e5d76fbe719bc7048f5c926ce6774f61aa",
+        "timing_sha256": "3d78695b1d37c7f267e628403adda1921494d99e5f764b00ee0f2e58ac5f1b22"
+      }
+    ]
+  },
   "translation_incompatibilities": [
     {
       "lesson": "01_pypi_github",
@@ -39306,299 +39622,5 @@
   "human_listening_signoff": false,
   "release_hold": true,
   "uploaded": false,
-  "published": false,
-  "metadata_only_updates": {
-    "59_anndata_export": {
-      "fields": [
-        "description",
-        "objectives",
-        "prerequisite"
-      ],
-      "narration_changed": false,
-      "current_runtime_freshness_claimed": false
-    }
-  },
-  "audio_patch_tracks": [
-    {
-      "lesson": "19_train_cellpose",
-      "language": "en",
-      "voice": "af_heart",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/en/af_heart.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/en/af_heart.json",
-      "audio_sha256": "cddd2b2115f3ebbc90ee1b83a9573738bf3f663b80f3e76cf6511da4060c47a8",
-      "timing_sha256": "26d669e5c80eeaccbd5691e63db6e2dfdb865bdb5c0bd4dede05e0d9cdac0c6b",
-      "original_audio_sha256": "cfb96ec56d313c4523dbe92d191e518042fe71dfb8aaefc19f328eda411b3a52"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "es",
-      "voice": "ef_dora",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/es/ef_dora.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/es/ef_dora.json",
-      "audio_sha256": "47eaf3c5d536c3c527efe5c0b654239f88dd14a4e5abf61b8736ebf79aceeacc",
-      "timing_sha256": "ba273c67e922e241162fb18fc2471e6c140fa4aa8bba2c53a5a749caf10d74cf",
-      "original_audio_sha256": "2cc03e5296b95e9b01f997d9d074e0fef90b26e4db93992413936b7d02bef426"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "es",
-      "voice": "em_alex",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/es/em_alex.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/es/em_alex.json",
-      "audio_sha256": "333f67e256d1f3f128b1cf9269c79e6b1ab78e6984dfb1f0b4c1b54b31eee4cc",
-      "timing_sha256": "75e652bac70cb6aaea5c30119a6fa850291c7268f55eb70c69dfb7548c554c38",
-      "original_audio_sha256": "d09e6c9e313e3022c084f0b601a007287109c24796d8da7a2b34ead3b32d2ab4"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "es",
-      "voice": "em_santa",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/es/em_santa.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/es/em_santa.json",
-      "audio_sha256": "07a15b4a11907d07c2d336915232fc896811245d9e285627f837a24e5a4f26e0",
-      "timing_sha256": "96f91bf303151184ff60c4df4e4fa17d216ef2d7ab664b51c788d6689ca7a5e2",
-      "original_audio_sha256": "307f8192d3c32d15fe9f003ec4788b2261120a67da8845fb16c913a06b5e201e"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "fr",
-      "voice": "ff_siwis",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/fr/ff_siwis.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/fr/ff_siwis.json",
-      "audio_sha256": "5800b55885bcd1379bde17cd0072c39ad48de9c5f72e80076d577cb38c6f3f98",
-      "timing_sha256": "1046a148305a35962f39f1abec92bbc377d6c1060bd833a37d549d1c54cf629e",
-      "original_audio_sha256": "291752ec69ae3ee6eeb326c12b7935329597939f3a300bc48028716735852204"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "hi",
-      "voice": "hf_alpha",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/hi/hf_alpha.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/hi/hf_alpha.json",
-      "audio_sha256": "8fc4c3e4a4bf0f62a9eb2a1abb518ccbe8d4e097d26599293b4716df36489a2f",
-      "timing_sha256": "0bfcbbe3ee70f37e63d289dca76cb6f40bda4552f3dd6c9bdb9f924db346c174",
-      "original_audio_sha256": "431fdb27c9ccc2ab6e9c1c720ca0b7da91c81df4c17f5d5faca9ab39796eb031"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "hi",
-      "voice": "hf_beta",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/hi/hf_beta.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/hi/hf_beta.json",
-      "audio_sha256": "c7b19a620907ae8898b74e48f0aed742601bb178b2986ed742c366f57d662334",
-      "timing_sha256": "bb7a8afc3fb218210cd442e1fcc7746f78f364afe5cadd6736e38aca7a2d852b",
-      "original_audio_sha256": "35fc1b5351361838d4af7cb3aad09131c0d051cb1ecf94d675ed72e1e10aa994"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "hi",
-      "voice": "hm_omega",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/hi/hm_omega.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/hi/hm_omega.json",
-      "audio_sha256": "6c00f0a6569933a64a75c6b0b790f131b1926b02ab1778b58d63280224d6283e",
-      "timing_sha256": "e15ca4b628b1b311a61e06896f6c247e2a87ec7d68aa93aa1c156026d2859b6e",
-      "original_audio_sha256": "f3436b9737a2ebcdd79b67e1de3b0eb588d3d65927537a8e47fe4c769d6a2317"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "hi",
-      "voice": "hm_psi",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/hi/hm_psi.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/hi/hm_psi.json",
-      "audio_sha256": "a0330266abab56f8798f7a6e5e8347bf81b9d81411200c0f502b866a1e9b6714",
-      "timing_sha256": "8b2e846bdcb65c121e1b4f567a1c9a327ce1b893249dbf5263a830cfcc844df5",
-      "original_audio_sha256": "e92e9471a892ad6e40d149a41aa24588fb5d0b3398452afe3db2b65ddbc25a26"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "it",
-      "voice": "if_sara",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/it/if_sara.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/it/if_sara.json",
-      "audio_sha256": "d61a7e23fbb93259b5813b77384940ce3e8292f95f09f69b4a7cd7e8c38820ae",
-      "timing_sha256": "9900ec67ee347a21e71bd35d966418c765133c5c0ccceff7498afce27d3bca7c",
-      "original_audio_sha256": "c100f5ee30c6165ed7eca139666192c1f460f0925646caa856159410f335a8bf"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "it",
-      "voice": "im_nicola",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/it/im_nicola.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/it/im_nicola.json",
-      "audio_sha256": "a4d1ee3db0e49143606d318c3187f66e7ff50cef43c85780ad7415dae2b16a83",
-      "timing_sha256": "a00717904cbf9471c2a209c9faaba6f2b44758762ffdb65b96bb54d20c76f036",
-      "original_audio_sha256": "1446363e50092faf68cd345360f9506a4733a2f4d77a2f7b3af635c57d2b4e95"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "ja",
-      "voice": "jf_alpha",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jf_alpha.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jf_alpha.json",
-      "audio_sha256": "1bb135629363f4b523e3fae579e0d7bbb63a135e0181c84dd10fcc9f1f92eb5d",
-      "timing_sha256": "b3219f1cf99f1ee727b59b09bf2f94d360a8f33589e564ab17f82e3727939c1a",
-      "original_audio_sha256": "20eabd4eaa67ee58c665e0893d67953a6f42a0441f0826b6310c441c6e2e28e7"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "ja",
-      "voice": "jf_gongitsune",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jf_gongitsune.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jf_gongitsune.json",
-      "audio_sha256": "9866f719ebce9f40e19ba2b24941eb702e98ab6349d2beda92567f39ce594ed9",
-      "timing_sha256": "a7c76a4a33dfcb57c29114f985e92a3efdb9b9eacf3a951ef50871d82f45beb5",
-      "original_audio_sha256": "64fc2ca73f3484d76caf6e94960b87404d8ebd105b03385faa9eac9197d0e761"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "ja",
-      "voice": "jf_nezumi",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jf_nezumi.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jf_nezumi.json",
-      "audio_sha256": "01c834fc10ee197e82bec9201fddadb513dc5931b8f6de2b4e33e255fd9ff720",
-      "timing_sha256": "a1d3d222631e606cc3efe687e5813d92e876afe396d5f10e6b15c6649f036158",
-      "original_audio_sha256": "3f703f38de37aa74c11ad7b65dc08bf6753b7da5b10520bbb179daba81a9a4bd"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "ja",
-      "voice": "jf_tebukuro",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jf_tebukuro.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jf_tebukuro.json",
-      "audio_sha256": "9df869b4d8d073f069574621734b9f8f23d244d4fb6ce67c3191eb70be93f0de",
-      "timing_sha256": "09182cd8bcb6d0937589d29b40df5a7f6dae8aa9327dc3175b687ba95dc6339c",
-      "original_audio_sha256": "497d1e8c4ee9fe856a7ed1ea8e0db5e9dd3a09a121c1e91444ddd5f321f2464c"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "ja",
-      "voice": "jm_kumo",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jm_kumo.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/ja/jm_kumo.json",
-      "audio_sha256": "4938dbee5304962a153f8a0011a99edc1c34dbe2508770646be332adabae5ec2",
-      "timing_sha256": "0166eb7085a0de1bd49c4690ad4d9514e182bf8e22dfde80bf1dd37a5995b375",
-      "original_audio_sha256": "30cb79157062d396469d389739107938c615e4dd050b05bd559277adc3327fc3"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "pt-BR",
-      "voice": "pf_dora",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/pt-BR/pf_dora.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/pt-BR/pf_dora.json",
-      "audio_sha256": "26a0cdc43623a62bd1da17cb60b371cbcc7de55f0a35ad67831f2f0c69aca5a0",
-      "timing_sha256": "a022185fd62d794b0190865ca302224d83a31fbc08c45d25440d4b18811737f3",
-      "original_audio_sha256": "0e3b79305397b488143c94e132b8d548b78407a9c1c224f945f3075994a68c75"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "pt-BR",
-      "voice": "pm_alex",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/pt-BR/pm_alex.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/pt-BR/pm_alex.json",
-      "audio_sha256": "04def4c0a7c0701eac459e9dd5df7530dce0940da27e951ed08166f68544dd7e",
-      "timing_sha256": "6d4292fb4898956523e556ae7fa471ffd28b48491e53d05678fbed9f0a536b1a",
-      "original_audio_sha256": "243afb0131d0c86ded9c064d2c8f1722f77175fc3d1432128a55c4bbe97effe2"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "pt-BR",
-      "voice": "pm_santa",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/pt-BR/pm_santa.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/pt-BR/pm_santa.json",
-      "audio_sha256": "3000c035779484184680fb5df7696f67affcff95c4398775eca8129b365a88db",
-      "timing_sha256": "526628fb24f767b4b889b21d66130d6fb3ae15b10a8be11f291dfe2bcf792c22",
-      "original_audio_sha256": "af32ec9544c65bd29e0a475a02e3f7d6143a0572931094f4be493f814c973205"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "zh-CN",
-      "voice": "zf_xiaobei",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zf_xiaobei.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zf_xiaobei.json",
-      "audio_sha256": "394916b056f5f57822fb671b0eb881250a74b9611ca795964c3008d395585fe5",
-      "timing_sha256": "a830b631602e82ac163486433f3429c280385e7e652bbb68025f7d4f0ee9457d",
-      "original_audio_sha256": "7b83d30b50d84e25e6bfdfc0781184df2b612eb3a802af9f7eeffea5c448fa80"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "zh-CN",
-      "voice": "zf_xiaoni",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zf_xiaoni.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zf_xiaoni.json",
-      "audio_sha256": "7c8a2591fb719dc13825f9a3c8daa54d1c8c4c3da1ba520d5d14c35107b84452",
-      "timing_sha256": "13910e9d9eef3e945fafd4acff7b67a6e723f6ca12da058e680a378707432711",
-      "original_audio_sha256": "ca31a2ca7aa173de38f38f062d102c17370fd1d39b639e95c5f097fc5602dba2"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "zh-CN",
-      "voice": "zf_xiaoxiao",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zf_xiaoxiao.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zf_xiaoxiao.json",
-      "audio_sha256": "ea78abd697dd5e144016040cdae4a5c2b99fec960f9df80f46900f1ec719b7e4",
-      "timing_sha256": "5bfd407c3b076b0bc010fdb765c0386389977f5d78a4ad5cfa3ab207a706804d",
-      "original_audio_sha256": "3c0c246ba159eaff123f6354771a322ca10cc07d43aff37b6b89345ef2697082"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "zh-CN",
-      "voice": "zf_xiaoyi",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zf_xiaoyi.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zf_xiaoyi.json",
-      "audio_sha256": "d508d1d36e20a94c846e5876994ff85df4578aeb5fbfa1bf0b5da65788d8fd06",
-      "timing_sha256": "c6e340dcb390e5723e4b47013fa5daf65e86729bf4c3fd4b8da1a40da503c4ec",
-      "original_audio_sha256": "d98d80455340c297695880bee7756346f2880e8b6ea6f89b2636a9d0e3d50fed"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "zh-CN",
-      "voice": "zm_yunjian",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zm_yunjian.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zm_yunjian.json",
-      "audio_sha256": "58d2f52175930b7f20479e536d3518338dc1b808b164dc3f762b97823457148e",
-      "timing_sha256": "f8b04061888c77402c82ba509577180fa95e4c5ae27a6bd8ad6a10415a4994a3",
-      "original_audio_sha256": "daa5c5da8ec39fb2bb1d45921d9514499311a1a6750c915f35a62e2d2ecaef61"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "zh-CN",
-      "voice": "zm_yunxi",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zm_yunxi.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zm_yunxi.json",
-      "audio_sha256": "bc90623f91e502b8559e25120033d29a05dd0a13a14a351666e3d0b3ad13d9ba",
-      "timing_sha256": "04fe9d4c70144af921cee3e44087c685e09bf52dda2a5502d60634fa78c0b31f",
-      "original_audio_sha256": "64ebdd079d3bad50317a3999c439c42f0578b6a594e7f9cf0aa3901f2d785d7b"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "zh-CN",
-      "voice": "zm_yunxia",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zm_yunxia.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zm_yunxia.json",
-      "audio_sha256": "67a4134e5ba11fe242f83f19d142ecdd128156ed7cc7f8de86070d7b5696f55d",
-      "timing_sha256": "f12b5a3e70ca53dd644310abf544f4804ea38669c636a45fff2a7be250869352",
-      "original_audio_sha256": "07f1d2b5262b5b42550dc5cb88fdcba61fd2899f1acba803eaadae14621507bb"
-    },
-    {
-      "lesson": "19_train_cellpose",
-      "language": "zh-CN",
-      "voice": "zm_yunyang",
-      "audio": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zm_yunyang.m4a",
-      "timing": "/media/carruthers/mnt1/t17-prep/19-script-stage1/stage1/production/19_train_cellpose/audio/zh-CN/zm_yunyang.json",
-      "audio_sha256": "d3b3d9966c7635f1f4fce2406a026ce7f10975138b60c57a9d8426957eeed8ea",
-      "timing_sha256": "f18bff20d18914dc931a4fd294b405d36572505adf56d86e915b7dadbb6021ba",
-      "original_audio_sha256": "ecae8c7ac64f3ceb666c30d0a5b9b7acd1d86db5b824d0b7a6d56f5f777c824f"
-    }
-  ],
-  "original_visual_timings": [
-    {
-      "lesson": "19_train_cellpose",
-      "path": "19_train_cellpose/video/original-visual-timings.json",
-      "original_visual_timing_sha256": "db9c3b43b173ada37e93c611adc007047ffad40e60b2d40207625208a01ef0b8"
-    }
-  ],
-  "audio_patch_player": null,
-  "script_refresh": true,
-  "fresh_capture": false,
-  "raw_capture_revalidated": false
+  "published": false
 }
