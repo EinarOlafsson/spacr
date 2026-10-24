@@ -1424,10 +1424,16 @@ def test_actual_application_dialog_filters_keep_metadata_and_browser_in_their_ho
     code = r'''
 import sys, time, faulthandler
 started = time.monotonic()
+main_cpu_started = time.thread_time()
+process_cpu_started = time.process_time()
 def progress(message):
- """Flush a bounded workflow-stage breadcrumb to the captured child stream."""
- print('overview-host-stage %.3fs %s' % (time.monotonic() - started, message),
-  file=sys.stderr, flush=True)
+ """Flush stage clocks and tool types without callback values or local data."""
+ trace_type = type(sys.gettrace())
+ profile_type = type(sys.getprofile())
+ print('overview-host-stage %.3fs main-cpu=%.3fs process-cpu=%.3fs trace=%s.%s profile=%s.%s %s' % (
+  time.monotonic() - started, time.thread_time() - main_cpu_started,
+  time.process_time() - process_cpu_started, trace_type.__module__, trace_type.__qualname__,
+  profile_type.__module__, profile_type.__qualname__, message), file=sys.stderr, flush=True)
 faulthandler.dump_traceback_later(25, file=sys.stderr)
 progress('import Qt')
 from PySide6.QtWidgets import QApplication, QDialog, QSpacerItem, QSizePolicy
