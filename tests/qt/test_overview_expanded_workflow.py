@@ -1324,7 +1324,7 @@ def test_large_viewport_native_crop_remains_bounded_in_both_spatial_dimensions(t
     dialog._well(dialog.wells.item(0, 0))
     dialog.fields.setCurrentRow(0)
     dialog._field(dialog.fields.item(0))
-    dialog._splitter.setSizes([100, 100, 2800])
+    dialog._splitter.setSizes([200, 2800])
     try:
         qtbot.waitUntil(lambda: dialog.view._item is not None and dialog.view._item.pixmap().width() == 1024
             and not dialog._image_jobs.is_busy())
@@ -1988,7 +1988,7 @@ def test_actual_application_dialog_filters_keep_metadata_and_browser_in_their_ho
     tifffile.imwrite(tmp_path / "plate1_A01_F1.tif", np.arange(120, dtype=np.uint16).reshape(10, 12))
     tifffile.imwrite(tmp_path / "OTF_DC_DCAM#1_CAM1.tif", np.zeros((4, 4), np.uint16))
     code = r'''
-import sys, time, faulthandler
+import sys, time, threading, traceback
 started = time.monotonic()
 main_cpu_started = time.thread_time()
 process_cpu_started = time.process_time()
@@ -2000,7 +2000,16 @@ def progress(message):
   time.monotonic() - started, time.thread_time() - main_cpu_started,
   time.process_time() - process_cpu_started, trace_type.__module__, trace_type.__qualname__,
   profile_type.__module__, profile_type.__qualname__, message), file=sys.stderr, flush=True)
-faulthandler.dump_traceback_later(25, file=sys.stderr)
+def dump_late_stacks():
+ """Print every thread's Python stack under the GIL; faulthandler's native walk of a running thread can crash."""
+ lines = ['Timeout (0:00:25)!']
+ for ident, frame in sys._current_frames().items():
+  lines.append('Thread 0x%016x (most recent call last):' % ident)
+  lines.extend(line.rstrip() for line in traceback.format_stack(frame))
+ print('\n'.join(lines), file=sys.stderr, flush=True)
+late_stacks = threading.Timer(25, dump_late_stacks)
+late_stacks.daemon = True
+late_stacks.start()
 progress('import Qt')
 from PySide6.QtWidgets import QApplication, QDialog, QSpacerItem, QSizePolicy
 from PySide6.QtCore import QTimer, Qt

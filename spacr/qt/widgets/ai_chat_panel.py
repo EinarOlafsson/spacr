@@ -186,6 +186,7 @@ class _ProvidersDialog(QDialog):
             "smallest and quickest, Deep the largest.</span>"
         )
         speed_label.setTextFormat(Qt.RichText)
+        speed_label.setWordWrap(True)
         col.addWidget(speed_label)
 
         self._speed_combo = QComboBox()
@@ -282,6 +283,7 @@ class _ProvidersDialog(QDialog):
             "answers are framed, then Save. Reset restores the default.</span>"
         )
         prompt_label.setTextFormat(Qt.RichText)
+        prompt_label.setWordWrap(True)
         col.addWidget(prompt_label)
 
         self._prompt_edit = QTextEdit()

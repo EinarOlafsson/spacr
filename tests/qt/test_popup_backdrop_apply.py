@@ -23,7 +23,7 @@ def _popup(qtbot, owner):
     return popup
 
 
-def test_spaceout_preferences_keeps_its_popup_drift_without_another_fractal(
+def test_spaceout_popups_keep_their_drift_without_another_fractal(
         private_preferences, qtbot, qapp, monkeypatch):
     from spacr.qt import theme
     from spacr.qt.app import MainWindow
@@ -73,11 +73,19 @@ def test_spaceout_preferences_keeps_its_popup_drift_without_another_fractal(
         before = len(built_here())
         assert before >= 1
 
-        dialog = prefs.PreferencesDialog(window)
-        qtbot.addWidget(dialog)
-        assert glass.glass(dialog)
-        dialog.show()
-        qtbot.waitExposed(dialog)
+        settings = prefs.PreferencesDialog(window)
+        qtbot.addWidget(settings)
+        assert glass.glass(settings)
+        settings.show()
+        qtbot.waitExposed(settings)
+        assert glass._is_settings_popup(settings)
+        assert getattr(settings, "_spacr_popup_backdrop", None) is None, (
+            "a settings popup is solid and carries no backdrop")
+        assert ours() == original
+        assert len(built_here()) == before
+        settings.reject()
+
+        dialog = _popup(qtbot, window)
         backdrop = dialog._spacr_popup_backdrop
         assert isinstance(backdrop, ambient.AmbientWidget)
         assert backdrop.theme() == "drift"

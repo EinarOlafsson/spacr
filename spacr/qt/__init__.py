@@ -210,6 +210,20 @@ def _explain_the_inotify_line() -> None:
         file=sys.stderr)
 
 
+def _say_when_running_translated() -> None:
+    """Name Rosetta at launch: a user who never runs the doctor still learns
+    that this Apple Silicon Mac is running spaCR as Intel code."""
+    from ..accelerator import _ROSETTA_FIX, _rosetta_translated
+
+    if _rosetta_translated():
+        print(
+            "Note: this Python is an Intel (x86_64) build running under "
+            "Rosetta 2 on Apple Silicon, so spaCR and every library it uses "
+            "are emulated and torch is capped at 2.2.2. "
+            + _ROSETTA_FIX,
+            file=sys.stderr)
+
+
 def _quiet_vispy_logging() -> None:
     """Stop vispy narrating the backdrop into the terminal.
 
@@ -540,6 +554,8 @@ def run(argv: list[str] | None = None) -> int:
 
         print(get_version())
         return 0
+
+    _say_when_running_translated()
 
     try:
         from .app import launch

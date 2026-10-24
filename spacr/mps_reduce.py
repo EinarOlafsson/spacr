@@ -135,18 +135,50 @@ class MetalKMeans:
         self.max_iter, self.tol = int(max_iter), float(tol)
         self.random_state = random_state
 
+    #: Elements of the ``rows x clusters x features`` difference tensor one
+    #: assignment chunk may hold (64 MiB of float32).
+    _CHUNK_ELEMENTS = 1 << 24
+
     @staticmethod
     def _assign(x, centers):
-        """Return nearest-center labels and squared distances using batches of at most 1024 rows."""
+        """Return nearest-center labels and squared distances in memory-bounded chunks.
+
+        One broadcast kernel per chunk, not one per center per 1024 rows: on an
+        M2 the per-center loop launched ~500 kernels an iteration and made a
+        20000 x 50, k=8 fit 36x slower than sklearn's. The arithmetic is the
+        same per-element difference, so distances and first-index ties match.
+        """
         import torch
 
+        rows = max(1, MetalKMeans._CHUNK_ELEMENTS // max(1, centers.numel()))
         labels, distances = [], []
-        for batch in x.split(1024):
-            squared = torch.stack([(batch - center).square().sum(1) for center in centers], dim=1)
+        for batch in x.split(rows):
+            squared = (batch[:, None, :] - centers[None, :, :]).square().sum(2)
             distance, label = squared.min(dim=1)
             labels.append(label)
             distances.append(distance)
         return torch.cat(labels), torch.cat(distances)
+
+    def _update(self, x, labels, rng):
+        """Return the member mean of every cluster, reseeding empty ones from ``rng``.
+
+        Sums come from a one-hot matmul rather than ``index_add_``, whose
+        atomic adds on Metal make the result order-dependent, and the counts
+        cross to the CPU in one transfer instead of one per cluster.
+        """
+        import torch
+
+        sums = torch.zeros(self.n_clusters, x.shape[1], dtype=x.dtype, device=x.device)
+        counts = torch.zeros(self.n_clusters, dtype=x.dtype, device=x.device)
+        rows = max(1, self._CHUNK_ELEMENTS // self.n_clusters)
+        for batch, members in zip(x.split(rows), labels.split(rows)):
+            hot = torch.nn.functional.one_hot(members, self.n_clusters).to(x.dtype)
+            sums += hot.T @ batch
+            counts += hot.sum(0)
+        updated = sums / counts.clamp(min=1)[:, None]
+        for k in np.flatnonzero(counts.cpu().numpy() == 0):
+            updated[k] = x[int(rng.integers(len(x)))]
+        return updated
 
     def fit(self, data, y=None):
         """Fit cluster centers with chunked Metal assignment and updates.
@@ -187,11 +219,7 @@ class MetalKMeans:
             centers = x[selected].clone()
             for _iteration in range(self.max_iter):
                 labels, _ = self._assign(x, centers)
-                updated = []
-                for k in range(self.n_clusters):
-                    members = x[labels == k]
-                    updated.append(members.mean(0) if len(members) else x[int(rng.integers(n))])
-                new = torch.stack(updated)
+                new = self._update(x, labels, rng)
                 shift = (new - centers).square().sum().item()
                 centers = new
                 if shift <= self.tol * self.tol:
@@ -235,13 +263,12 @@ class MetalKMeans:
         self.fit(data, y)
         x = _matrix(np.asarray(data, dtype=np.float64) - self._offset)
         centers = torch.as_tensor(self._centered_centers, device="mps")
+        rows = max(1, self._CHUNK_ELEMENTS // max(1, centers.numel()))
         return (
             torch.cat(
                 [
-                    torch.stack(
-                        [(batch - center).square().sum(1).sqrt() for center in centers], dim=1
-                    )
-                    for batch in x.split(1024)
+                    (batch[:, None, :] - centers[None, :, :]).square().sum(2).sqrt()
+                    for batch in x.split(rows)
                 ]
             )
             .cpu()

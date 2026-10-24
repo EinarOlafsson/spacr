@@ -433,7 +433,9 @@ def test_initial_whole_plate_fits_and_opening_is_separate_from_selection(source_
         for position in dialog._well_positions.values()), timeout=10000)
     assert dialog.size() == QSize(*dimensions)
     assert not dialog._controls_scroll.isVisible()
-    assert all(control.isVisible() for control in (dialog.time_axis, dialog.z_axis, dialog.fov_axis))
+    figure_settings = dialog._categories[module.tr("Figure settings")]
+    assert all(figure_settings.isAncestorOf(control) and not control.isHidden()
+               for control in (dialog.time_axis, dialog.z_axis, dialog.fov_axis))
     assert not dialog.fields.isVisible() and not dialog.view.isVisible()
     viewport = dialog.wells.viewport().rect()
     for row, column in ((0, 0), (0, 23), (15, 0), (15, 23)):
