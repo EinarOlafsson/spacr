@@ -9273,7 +9273,7 @@
         "Filtrere kandidater og læse deres effekter og guideoverensstemmelse.",
         "Eksportere de valgte rækker som CSV, Markdown eller HTML."
       ],
-      "prerequisite": "Udpak Hit_List_real_results_companion.zip, og aktivér dit spaCR-miljø. Den nuværende genvej Hits i Regression viser ikke panelet; kør i stedet python hit_list_companion.py, og brug Browse til at gå til den udpakkede resultatmappe. Hjælpescriptet er ikke forbundet med Investigate. Brug wells_with_gene fra results_gene.csv til antallet af understøttende brønde: den eksporterede n_obs=0 er ikke den faktiske understøttelse. Eksemplet indeholder ingen gener, der opfylder q <= 0.05.",
+      "prerequisite": "Udpak Hit_List_real_results_companion.zip, og aktivér dit spaCR-miljø. Hvis genvejen Hits i Regression ikke viser panelet, så kør python hit_list_companion.py, og brug Browse til at gå til den udpakkede resultatmappe. Hjælpescriptet er ikke forbundet med Investigate. Brug wells_with_gene fra results_gene.csv til antallet af understøttende brønde: den eksporterede n_obs=0 er ikke den faktiske understøttelse. Eksemplet indeholder ingen gener, der opfylder q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9285,7 +9285,7 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Udpak det linkede eksempel, og aktivér dit spaCR-miljø. Kør python hit_list_companion.py. I hjælpescriptets vindue klikker du på Browse og vælger den udpakkede resultatmappe.",
+          "narration": "For at bruge alternativet skal du udpakke det linkede eksempel og aktivere dit spaCR-miljø. Kør python hit_list_companion.py. I hjælpescriptets vindue klikker du på Browse og vælger den udpakkede resultatmappe.",
           "hold_after": 0.7
         },
         {
