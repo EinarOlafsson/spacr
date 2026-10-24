@@ -156,7 +156,7 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
             state.update(phase=phase, started=time.perf_counter(), previous=None)
             save()
 
-        def signature(target):
+        def signature(target, require_idle=True):
             window = state['window']
             widgets = [target]
             ancestor = target.parentWidget()
@@ -169,18 +169,36 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
             for widget in widgets:
                 for key in ('_text_fit', '_body_fit'):
                     fitter = getattr(widget, key, None)
-                    if fitter is not None and (fitter._timer.isActive() or fitter._busy):
+                    if require_idle and fitter is not None and (fitter._timer.isActive() or fitter._busy):
                         return None
-                if any(getattr(widget, key, False) for key in
+                if require_idle and any(getattr(widget, key, False) for key in
                     ('_rebalance_queued', '_limits_queued', '_refit_queued', '_fitting_module_actions', '_back_fit_busy')):
                     return None
                 for key in ('_floor_timer', '_module_action_fit_timer', '_back_fit_timer'):
                     timer = getattr(widget, key, None)
-                    if timer is not None and timer.isActive():
+                    if require_idle and timer is not None and timer.isActive():
                         return None
                 rows.append((shiboken6.getCppPointer(widget), widget.property('geometry').getRect(),
                     widget.property('minimumSize').toTuple(), widget.property('maximumSize').toTuple(),
                     widget.font().toString()))
+            return rows
+
+        def readiness_flags(target):
+            rows = []
+            widget = target
+            while widget is not None:
+                flags = {key: bool(getattr(widget, key, False)) for key in
+                    ('_rebalance_queued', '_limits_queued', '_refit_queued', '_fitting_module_actions', '_back_fit_busy')}
+                timers = {key: timer.isActive() for key in
+                    ('_floor_timer', '_module_action_fit_timer', '_back_fit_timer')
+                    if (timer := getattr(widget, key, None)) is not None}
+                fitters = {key: {'busy': fitter._busy, 'timer_active': fitter._timer.isActive()}
+                    for key in ('_text_fit', '_body_fit') if (fitter := getattr(widget, key, None)) is not None}
+                rows.append({'class': type(widget).__name__, 'name': widget.objectName(),
+                    'pointer': shiboken6.getCppPointer(widget), 'flags': flags, 'timers': timers, 'fitters': fitters})
+                if widget is state['window']:
+                    break
+                widget = widget.parentWidget()
             return rows
 
         def tick():
@@ -283,9 +301,16 @@ def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
                     state['revealed'] = signature(widget)
                     assert state['revealed'] is not None
                     return
-                assert current is not None and current == state['revealed'], 'Post-reveal geometry changed'
                 text = widget.style().itemTextRect(widget.fontMetrics(), widget.contentsRect(),
                     int(widget.alignment() | Qt.TextSingleLine), widget.isEnabled(), widget.displayed_text())
+                report.setdefault('post_reveal_observations', []).append({
+                    'role': expected, 'logical': widget.text(), 'displayed': widget.displayed_text(),
+                    'font': widget.font().toString(), 'contents': widget.contentsRect().getRect(),
+                    'text': text.getRect(), 'expected_signature': state['revealed'],
+                    'actual_signature': signature(widget, require_idle=False),
+                    'strict_idle_signature': current, 'readiness': readiness_flags(widget)})
+                save()
+                assert current is not None and current == state['revealed'], 'Post-reveal geometry changed'
                 handle = window.windowHandle()
                 row = {'role': expected, 'pointer': shiboken6.getCppPointer(widget),
                     'logical': widget.text(), 'displayed': widget.displayed_text(),

@@ -21,11 +21,20 @@ Native19131 stops before word checks on an unidentified post-open tour;
 source offers a Mask-owned walkthrough. Verify that exact live owner/key and
 normal Skip/seen lifecycle inside the same module20s before inspecting words.
 Record registry identities at close/return; the prior count1 is unclassified.
+Corrected51868 verifies Mask Skip/seen and empty registry, but stops before
+words on Live post-reveal geometry drift. Persist its exact before/after native
+signature and owned readiness flags before that unchanged assertion; no waits,
+budget increase or inferred glyph/product defect. Prior remainder is history.
 Native19131/EVUagm on7d2814613 fails34.49s/RSS1.206GiB: after owned Home
 Skip/startup9.511s and Mask1.572s, a visible tour aborts controls at0.717s;
 all three refs exist but zero words are certified. AI remains default-off.
 Normal close/run0 and compiler cleanup pass; post-run registry count1 with
 zero pre-close captured threads remains unclassified, not a text-layout bug.
+Native51868/pw1Why on3bb4bba21 fails35.74s/RSS1.203GiB: exact owned Mask
+Skip/hidden/seen pass (startup9.209s/module2.282s), then first Live post-reveal
+signature changes at controls3.092s. Zero words certified; changed field is not
+recorded, so no glyph defect is claimed. Registry before/after are empty and
+normal close/compiler cleanup pass; prior remainder remains historical.
 
 Chrome lifetime scope: retain an actual button Python wrapper after its native
 parent is deferred-deleted, then change live GUI scale once alongside a live
