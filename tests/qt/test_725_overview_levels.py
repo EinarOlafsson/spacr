@@ -420,3 +420,15 @@ def test_annotations_reach_the_image_table_and_drive_comparisons_and_representat
     dialog._apply_annotation({("p1", "A01")}, "cell_type", "")
     qtbot.waitUntil(lambda: not dialog._metadata_jobs.is_busy(), timeout=10000)
     assert "cell_type" not in _well_image_annotations(database).get(("p1", "A01"), {})
+
+
+def test_annotation_dialog_counts_one_well_in_the_singular(qtbot):
+    from PySide6.QtWidgets import QLabel
+
+    def note(wells):
+        dialog = browser._OverviewAnnotationDialog([], wells)
+        qtbot.addWidget(dialog)
+        return [label.text() for label in dialog.findChildren(QLabel)]
+
+    assert browser.tr("One selected well") in note([("p1", "A1")])
+    assert browser.tr("{count} selected wells", count=2) in note([("p1", "A1"), ("p1", "A2")])

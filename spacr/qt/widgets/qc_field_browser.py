@@ -3095,7 +3095,8 @@ class _OverviewAnnotationDialog(QDialog):
         self.setWindowTitle(tr("Annotate selected wells"))
         self.wells = tuple(wells)
         form = QFormLayout(self)
-        form.addRow(QLabel(tr("{count} selected wells", count=len(self.wells))))
+        form.addRow(QLabel(tr("One selected well") if len(self.wells) == 1
+                           else tr("{count} selected wells", count=len(self.wells))))
         self.key = _SetupComboBox()
         self.key.setEditable(True)
         for label, key in ((tr("Condition"), "condition"), (tr("Cell type"), "cell_type"),
