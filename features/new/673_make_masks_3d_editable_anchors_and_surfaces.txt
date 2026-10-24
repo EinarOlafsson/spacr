@@ -27,11 +27,11 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
-Native chooser scope: public open_volume(None) selects an owned CZYX file with
-Unicode/spaces in directory and basename through the real modal Qt fileNameEdit
-and visible enabled Open button on Cocoa. Require app dialog policy/ownership,
-samefile source identity/exact channels+mask/files and normal cleanup; no fake
-chooser/accept, clipboard, True3D/backend/layer/FPS or physical keyboard claim.
+2026-10-24 — Chooser30963/S07fI0 PASS36.23s/1.285GiB on17954df6:
+real owned Qt QFileDialog/fileNameEdit/Open66×36 selects Unicode+spaces path;
+public return/source samefile, exact CZYX uint16 channels/ZYX masks0,1,2/files.
+Startup19.933s, normalclose/run0/registry/threads/compiler cleanup0; guard clean.
+No fake chooser/accept/clipboard, True3D/backend/FPS/physical keyboard claim.
 
 2026-10-24 — Channels67356/uonSwY PASS35.74s/1.330GiB on0597e7b5:
 public CZYX2×12×24×28 uint16→ZYX, two additive green/magenta channels;
