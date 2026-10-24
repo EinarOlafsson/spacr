@@ -108,6 +108,56 @@ def test_new_unpinned_review_is_preserved_and_rejected(pinned_reviews):
     assert path.read_bytes() == b"new review"
 
 
+def _repin(remote, root, pin, payloads):
+    for path in list(remote.glob("docs/**/*")):
+        if path.is_file() and path.relative_to(remote).as_posix() not in payloads:
+            path.unlink()
+    for path, raw in payloads.items():
+        (remote / path).parent.mkdir(parents=True, exist_ok=True)
+        (remote / path).write_bytes(raw)
+    files = {path: {"size": len(raw), "sha256": hashlib.sha256(raw).hexdigest()} for path, raw in payloads.items()}
+    manifest = json.dumps({"schema": 1, "files": files}, sort_keys=True).encode()
+    (remote / "manifest.json").write_bytes(manifest)
+    git(remote, "add", "-A")
+    git(remote, "-c", "user.name=Archive test", "-c", "user.email=archive-test@example.invalid", "commit", "-qm", "Next review inputs")
+    pin = dict(pin, revision=git(remote, "rev-parse", "HEAD").decode().strip(),
+               manifest_sha256=hashlib.sha256(manifest).hexdigest(), file_count=len(files))
+    (root / bootstrap.PIN_NAME).write_text(json.dumps(pin))
+    bootstrap._READY.clear()
+
+
+def test_a_new_pin_replaces_and_drops_what_the_previous_pin_hydrated(pinned_reviews):
+    root, cache, remote, payloads, pin = pinned_reviews
+    bootstrap.ensure_review_inputs(root, cache=cache)
+    changed, dropped = "docs/i18n/reviewed/runtime/de/current.json", "docs/i18n/retired/api/old.json"
+    following = {path: raw for path, raw in payloads.items() if path != dropped}
+    following[changed] = b'{"records":[{"source":"Ready","translation":"Fertig"}]}\n'
+    _repin(remote, root, pin, following)
+    bootstrap.ensure_review_inputs(root, cache=cache)
+    for path, raw in following.items():
+        assert (root / path).read_bytes() == raw
+    assert not (root / dropped).exists()
+    bootstrap._READY.clear()
+    bootstrap.ensure_review_inputs(root, cache=cache, offline=True, check=True)
+
+
+def test_a_new_pin_still_refuses_to_overwrite_a_local_edit(pinned_reviews):
+    root, cache, remote, payloads, pin = pinned_reviews
+    bootstrap.ensure_review_inputs(root, cache=cache)
+    edited, dropped = "docs/i18n/reviewed/runtime/de/current.json", "docs/i18n/retired/api/old.json"
+    (root / edited).write_bytes(b"unpublished reviewed translation")
+    (root / dropped).write_bytes(b"unpublished retirement")
+    following = {path: raw for path, raw in payloads.items() if path != dropped}
+    following[edited] = b'{"records":[{"source":"Ready","translation":"Fertig"}]}\n'
+    _repin(remote, root, pin, following)
+    with pytest.raises(bootstrap.ReviewInputsError, match="Unpinned local review"):
+        bootstrap.ensure_review_inputs(root, cache=cache)
+    (root / dropped).unlink()
+    with pytest.raises(bootstrap.ReviewInputsError, match="refusing to overwrite"):
+        bootstrap.ensure_review_inputs(root, cache=cache)
+    assert (root / edited).read_bytes() == b"unpublished reviewed translation"
+
+
 def test_manifest_corruption_is_a_hard_failure_before_hydration(pinned_reviews):
     root, cache, remote, _, pin = pinned_reviews
     pin["manifest_sha256"] = "0" * 64
@@ -135,7 +185,10 @@ def test_symlinked_source_parent_cannot_redirect_restoration(pinned_reviews, tmp
     root, cache, _, _, _ = pinned_reviews
     external = tmp_path / "external"
     external.mkdir()
-    (root / "docs/i18n").symlink_to(external, target_is_directory=True)
+    try:
+        (root / "docs/i18n").symlink_to(external, target_is_directory=True)
+    except OSError as error:
+        pytest.skip(f"this host cannot create symlinks: {error}")
     with pytest.raises(bootstrap.ReviewInputsError, match="symlink"):
         bootstrap.ensure_review_inputs(root, cache=cache)
     assert list(external.iterdir()) == []
@@ -191,7 +244,7 @@ def test_kernel_lock_is_released_when_owning_process_is_killed(tmp_path):
     code = _child_code("with b._lock(Path(sys.argv[2])):\n print('locked',flush=True)\n sys.stdin.read()\n")
     child = subprocess.Popen([sys.executable, "-c", code, str(ROOT / "tools/bootstrap_translation_reviews.py"), str(lock)], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     try:
-        assert child.stdout.readline() == b"locked\n"
+        assert child.stdout.readline().splitlines() == [b"locked"]
     finally:
         child.kill()
         child.wait(timeout=5)
@@ -208,7 +261,7 @@ def test_killed_partial_stage_never_becomes_a_hydrated_review(pinned_reviews):
     code = _child_code("def interrupted(stream,raw):\n stream.write(raw[:3]);stream.flush()\n print('partial',flush=True)\n sys.stdin.read()\nb._write_stage=interrupted\nb._publish_no_clobber(Path(sys.argv[2]),b'complete target bytes')\n")
     child = subprocess.Popen([sys.executable, "-c", code, str(ROOT / "tools/bootstrap_translation_reviews.py"), str(target)], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     try:
-        assert child.stdout.readline() == b"partial\n"
+        assert child.stdout.readline().splitlines() == [b"partial"]
         assert not target.exists()
     finally:
         child.kill()
@@ -250,7 +303,7 @@ def test_two_processes_can_bootstrap_the_same_cold_checkout(pinned_reviews):
         for child in children:
             output, errors = child.communicate(timeout=10)
             assert child.returncode == 0, errors.decode()
-            assert output == b"verified\n"
+            assert output.splitlines() == [b"verified"]
     finally:
         for child in children:
             if child.poll() is None:
