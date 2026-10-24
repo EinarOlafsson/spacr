@@ -15204,7 +15204,7 @@
         "Scegliere una destinazione, un nome di piastra e se copiare o collegare.",
         "Salvare un piano riutilizzabile e importare immagini per Mask."
       ],
-      "prerequisite": "Scarica prima l’esempio di Mask. Questa guida usa copie dei campi E01/F001 e L01/F009, con quattro canali ciascuno. Le copie preparate omettono l’elemento A ridondante subito prima di Z e conservano l’identità di pozzetto, campo e canale. Conserva gli originali e usa i registri di acquisizione per interpretare elementi non familiari.",
+      "prerequisite": "Scarica prima l’esempio di Mask. Usa copie di lavoro dei campi E01/F001 e L01/F009, con quattro canali ciascuno. Solo in queste copie, rimuovi l’elemento A ridondante subito prima di Z, conservando ogni elemento di pozzetto, campo e canale. Conserva gli originali e usa i registri di acquisizione per interpretare elementi non familiari.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -15241,9 +15241,9 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Analizza le copie d’esempio preparate. L’elemento di acquisizione ridondante è stato rimosso, mentre restano quelli di pozzetto, campo e canale. Verifica che la proposta elenchi otto immagini, due pozzetti, due numeri di campo e quattro canali.",
+          "narration": "Analizza queste copie di lavoro. L’elemento di acquisizione ridondante è stato rimosso, mentre restano quelli di pozzetto, campo e canale. Verifica che la proposta elenchi otto immagini, due pozzetti, due numeri di campo e quattro canali.",
           "hold_after": 0.7,
-          "speech_text": "Analizza le copie d’esempio preparate. L’elemento di acquisizione ridondante è stato rimosso, mentre restano quelli di pozzetto, campo e canale. Verifica che la proposta elenchi otto immagini, due pozzetti, due numeri di campo e quattro canali."
+          "speech_text": "Analizza queste copie di lavoro. L’elemento di acquisizione ridondante è stato rimosso, mentre restano quelli di pozzetto, campo e canale. Verifica che la proposta elenchi otto immagini, due pozzetti, due numeri di campo e quattro canali."
         },
         {
           "visual": "06_check_filename",

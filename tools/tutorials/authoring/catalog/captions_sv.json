@@ -14166,7 +14166,7 @@
         "Välja mål, plattnamn och om filer ska kopieras eller länkas.",
         "Spara en återanvändbar plan och importera bilder för Mask."
       ],
-      "prerequisite": "Hämta först Mask-exemplet. Genomgången använder kopior av synfälten E01/F001 och L01/F009 med fyra kanaler vardera. De förberedda kopiorna utelämnar den överflödiga token A direkt före Z men behåller brunns-, synfälts- och kanalidentiteterna. Behåll originalen och använd avbildningsprotokollen när du tolkar okända tokens.",
+      "prerequisite": "Hämta först Mask-exemplet. Använd arbetskopior av synfälten E01/F001 och L01/F009 med fyra kanaler vardera. Ta bara i dessa kopior bort den överflödiga token A direkt före Z och bevara varje brunns-, synfälts- och kanaltoken. Behåll originalen och använd avbildningsprotokollen när du tolkar okända tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -14199,7 +14199,7 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Skanna de förberedda exempelkopiorna. Den överflödiga avbildningstoken har tagits bort, medan brunns-, synfälts- och kanaltokens finns kvar. Kontrollera att förslaget listar åtta bilder, två brunnar, två synfältsnummer och fyra kanaler.",
+          "narration": "Skanna dessa arbetskopior. Den överflödiga avbildningstoken har tagits bort, medan brunns-, synfälts- och kanaltokens finns kvar. Kontrollera att förslaget listar åtta bilder, två brunnar, två synfältsnummer och fyra kanaler.",
           "hold_after": 0.7
         },
         {
