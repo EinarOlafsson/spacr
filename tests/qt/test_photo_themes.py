@@ -23,13 +23,28 @@ the user's home directory is redirected through ``SPACR_SPACE_CACHE``.
 from __future__ import annotations
 
 import math
-import resource
+import os
 
 import numpy as np
 import pytest
 from PIL import Image, ImageDraw
 
 from spacr.qt import imagery, preferences, theme
+
+
+def _peak_rss_kb() -> float:
+    """This process's peak resident memory, in KiB, as ``ru_maxrss`` reports it.
+
+    ``resource`` is POSIX only; Windows keeps the same high-water mark as the
+    peak working set.
+    """
+    if os.name == "nt":
+        import psutil
+
+        return psutil.Process().memory_info().peak_wset / 1024.0
+    import resource
+
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
 
@@ -496,13 +511,19 @@ class TestCache:
     def test_an_unwritable_cache_returns_none_rather_than_raising(
             self, qapp, monkeypatch, tmp_path):
         blocked = tmp_path / "ro" / "backgrounds"
-        (tmp_path / "ro").mkdir()
-        (tmp_path / "ro").chmod(0o500)
+        if os.name == "nt":
+            # chmod cannot make a Windows folder read-only; a file where the
+            # cache's parent folder should be makes it just as unwritable.
+            (tmp_path / "ro").write_bytes(b"")
+        else:
+            (tmp_path / "ro").mkdir()
+            (tmp_path / "ro").chmod(0o500)
         monkeypatch.setenv("SPACR_SPACE_CACHE", str(blocked))
         try:
             assert imagery.background_path("filopodia", 1920, 1200) is None
         finally:
-            (tmp_path / "ro").chmod(0o700)
+            if os.name != "nt":
+                (tmp_path / "ro").chmod(0o700)
 
     def test_a_screen_size_of_zero_falls_back_to_the_primary_screen(
             self, qapp, cache_dir):
@@ -686,10 +707,10 @@ class TestNoDecodeOnResizeOrRepaint:
         # untouched, and they are what this budget is about. Driven straight
         # through `imagery.background_path`, which is what the cap protects.
         monkeypatch.setattr(preferences, "get_theme", lambda: "cell")
-        before = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        before = _peak_rss_kb()
         path = imagery.background_path("deep_field", 3840, 2400)
         preferences.apply_preferences_to_app(qapp)
-        after = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        after = _peak_rss_kb()
         assert path is not None
         assert (after - before) / 1024.0 < 250.0, \
             f"theme switch grew RSS by {(after - before) / 1024.0:.0f} MB"

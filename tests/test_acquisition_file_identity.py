@@ -18,6 +18,11 @@ class NativeCall:
 
 @pytest.fixture
 def windows_file_api(monkeypatch):
+    # spacr.core imports torch, and on Windows torch's import calls the real
+    # kernel32 through ctypes.WinDLL; load it before WinDLL is faked so a
+    # test run on its own does not hand torch the fake.
+    import spacr.core  # noqa: F401
+
     state = {'handle': 73, 'readable': True, 'change': 987654321}
 
     def information(handle, kind, pointer, size):
