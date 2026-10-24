@@ -4283,13 +4283,23 @@ class _FieldOverview(QWidget):
         revision = self._metadata_revision
         known = {(field.plate, field.well) for field in fields if not field.unresolved}
         def read():
-            """Validate source-relative metadata without GUI-thread file access."""
+            """Validate source-relative metadata without GUI-thread file access.
+
+            :mod:`spacr.measure` is imported only when a Measure database can
+            exist: a fresh source has none, and the import would otherwise wait
+            behind the pipeline preload's library imports before any metadata
+            reached the overview.
+            """
             import json
-            from ...measure import _image_annotation_database, _well_image_annotations
 
             values = {}
-            database = _image_annotation_database(source)
-            if database.is_file():
+            candidate = Path(source).expanduser()
+            if candidate.suffix == ".db" or (candidate / "measurements" / "measurements.db").is_file():
+                from ...measure import _image_annotation_database, _well_image_annotations
+                database = _image_annotation_database(source)
+            else:
+                database = None
+            if database is not None and database.is_file():
                 for address, metadata in _well_image_annotations(database).items():
                     if address in known:
                         values[address] = {str(key): str(value) for key, value in metadata.items()

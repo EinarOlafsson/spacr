@@ -158,3 +158,14 @@ def test_a_measured_field_writes_its_confluency_and_draws_it(tmp_path,
         row = c.execute(f"SELECT confluency, monolayer_ok FROM "
                         f"{m._CONFLUENCY_TABLE}").fetchone()
     assert row == (pytest.approx(0.28125), 1)
+
+
+def test_values_that_differ_only_by_rounding_are_one_class():
+    """Four log-SD values a rounding step apart once made Otsu's 256-bin
+    histogram raise instead of reporting a flat field."""
+    value = -1.04194795
+    near = np.nextafter(value, 0.0)
+    assert m._otsu_separation(np.array([value, near, value, near])) == (
+        pytest.approx(value), 0.0)
+    threshold, separation = m._otsu_separation(np.array([1.0, 1.0000001, 5.0, 5.1]))
+    assert 1.0 < threshold < 5.0 and separation > 0
