@@ -247,7 +247,7 @@ def test_native_volume_gate_history_save_and_reopen(tmp_path):
             assert record['version']==1 and record['source_sha256']==source_hash
             assert record['mask_sha256']==digest(full) and record['shape']==[8,8,8]
             assert record['axes']=='ZYX' and record['spacing']==[1.,.5,.25] and record['unit']=='um'
-            assert record['geometry']==GateSet(list(stage.session.geometries.values())).to_dict()
+            assert record['geometry']==json.loads(json.dumps(GateSet(list(stage.session.geometries.values())).to_dict()))
             assert record['editor_controls']==stage.session._editor_controls
             report['sidecar']=record
             report['mask_file_hash']=file_hash(target)

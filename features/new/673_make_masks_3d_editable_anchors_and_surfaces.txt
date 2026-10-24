@@ -27,6 +27,12 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
+2026-10-24 — Gate70609/57xUNd FAIL47.62s/1.296GiB onbd9fabf958:
+first six states through Save pass exact masks/Metal75/current paint; cleanup0.
+Saved geometry equality compares JSON lists to native tuples, a test mismatch;
+no geometry corruption finding. Reopen remains unreached/unaccepted.
+Normalize expected geometry through exact JSON, retaining all fields/values.
+
 Checklist7 native geometry scope: one owned 8³ uint16 ZYX spaced volume,
 programmatic real gate draw/edit callbacks, actual Undo/Redo/Save, and real
 reopen with new-session/data/sidecar verification. Fresh Metal75/current paint
