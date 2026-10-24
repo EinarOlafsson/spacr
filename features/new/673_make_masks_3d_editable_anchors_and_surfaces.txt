@@ -27,10 +27,11 @@ Use a small synthetic 3D image with independently known expected voxels. Draw an
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
 
-Affected observer repair scope: replace only broken cProfile with fresh stdlib
-Profile(thread_time).runcall per owned draw, merge afterward; retain all rows,
-classify synthetic/bookkeeping, require exact actual draw counts/CPU bounds
-and hook/descriptor restoration. Native workload/gates/deadlines unchanged.
+2026-10-24 — ThreadDraw43330/YHH29u FAIL42.51s/1.260GiB on5f8716a6:
+9core/9outer, core CPU223.766ms≤outer458.545ms;10motions/3.036s.
+FIBSEM626×122/DPR2/Metal75, freshframe/pick0/idle/resources/run0 PASS.
+Registry: stopped MakeMasks usage before/afterclose; different stopped Measure
+afterreturn FAIL. Hooks restored; graph≠invocation tree, no FPS/product claim.
 
 2026-10-24 — Thread-local observer trial PASS0/0.30s/0.014GiB: fresh stdlib
 Profile(thread_time).runcall gives root7/leaf21/caller21, worker0 in stats despite
