@@ -12,7 +12,8 @@ CAPTURE_THEME = "dark"
 CAPTURE_BACKDROP = "data_art_impulse_lens"
 #: Settings windows (Preferences, ...) show plain glass in tutorials: no popup
 #: backdrop animation (maintainer decision, 2026-10-13).
-CAPTURE_POPUP_BACKDROP = "off"
+#: Settings-window backdrop: the shipped default (maintainer 2026-10-24: record current defaults; drift).
+CAPTURE_POPUP_BACKDROP = None
 _PRIVATE_PATH = re.compile(r"(?:/home/[^/\s]+|/Users/[^/\s]+|[A-Za-z]:[\\/]Users[\\/][^\\/\s]+|/mnt/[^\s<>\"']+|/(?:run/)?media/[^\s<>\"']+|/nas_mnt(?:/[^\s<>\"']*)?)")
 
 
@@ -388,9 +389,9 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP, *, home
         from spacr.qt.widgets.ambient import _default_density_for
         prefs.set_ambient_palette(prefs.ambient_default_palette(backdrop))
         prefs.set_ambient_density(_default_density_for(backdrop))
-    # Settings windows on plain glass (maintainer, 2026-10-13); verify_appearance
-    # refuses any other choice, so every capture path sets it here.
-    prefs.set_popup_backdrop(CAPTURE_POPUP_BACKDROP)
+    # Settings windows on the shipped backdrop (maintainer, 2026-10-24); set explicitly so a
+    # reused profile cannot carry an older choice into the recording.
+    prefs.set_popup_backdrop(CAPTURE_POPUP_BACKDROP or prefs.DEFAULT_POPUP_BACKDROP)
     force_alpha_features_off()
     force_fresh_start()
 
@@ -442,11 +443,12 @@ def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=No
     if not visible or any(widget.theme() != expected for widget in visible):
         raise RuntimeError("Capture refused: visible backdrop widgets are not the requested backdrop")
     popup_choice = prefs.get_popup_backdrop() if hasattr(prefs, "get_popup_backdrop") else None
-    if popup_choice != CAPTURE_POPUP_BACKDROP:
+    wanted_popup = CAPTURE_POPUP_BACKDROP or getattr(prefs, "DEFAULT_POPUP_BACKDROP", None)
+    if popup_choice != wanted_popup:
         raise RuntimeError(f"Capture refused: the settings-window backdrop is {popup_choice!r}, "
-                           f"tutorials record it {CAPTURE_POPUP_BACKDROP!r}")
-    if any(widget.theme() not in ("off", None) for widget in popups):
-        raise RuntimeError("Capture refused: a settings window is painting a backdrop animation")
+                           f"tutorials record it {wanted_popup!r}")
+    if any(widget.theme() not in (wanted_popup, "off", None) for widget in popups):
+        raise RuntimeError("Capture refused: a settings window is painting another backdrop animation")
     if not any(widget.frames_painted > 0 for widget in visible):
         raise RuntimeError("Capture refused: the backdrop has not painted a frame")
     if any(widget.isVisible() for widget in window.findChildren(DnaRainWidget)):
