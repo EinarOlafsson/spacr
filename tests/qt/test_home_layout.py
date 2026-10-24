@@ -47,14 +47,138 @@ from spacr.qt.widgets.home import AppTile, HomePage
 _DOCK_ROWS = list(dock_rows())
 
 
-@pytest.mark.parametrize("gui", (2., .9, 1.))
-def test_aside_native_floor_is_not_scaled_twice(qtbot, qapp, gui):
-    import math
-    from PySide6.QtCore import QSize, Qt, Signal
-    from PySide6.QtWidgets import QWidget
-    from spacr.qt import app, gui_scale, preferences, theme
+def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtbot, qapp, monkeypatch):
+    import json
+    from PySide6.QtCore import QPoint, QSize, Qt
+    from PySide6.QtGui import QRegion
+    from PySide6.QtWidgets import QAbstractButton, QScrollArea, QStyle, QStyleOptionButton, QTabWidget, QWidget
+    from spacr.qt import app, gui_scale, preferences
     from spacr.qt.widgets import home as home_widgets
-    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    host = page = None
+    monkeypatch.setattr(HomePage, '_install_ambient', lambda self: None)
+    monkeypatch.setattr(HomePage, '_read_the_journal', lambda self: None)
+    monkeypatch.setattr(home_widgets.NewsPanel, '_ask_for_newer_releases', lambda self: None)
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.apply_preferences_to_app()
+        host = QWidget()
+        qtbot.addWidget(host)
+        page = make_home_page(parent=host)
+        assert page._tabs.usesScrollButtons()
+        other_tabs = QTabWidget(host)
+        other_tabs.setUsesScrollButtons(True)
+        split = page._aside_split
+        gui_scale._resize_actual(host, QSize(1200, 496))
+        gui_scale._resize_actual(page, QSize(1200, 496))
+        host.show()
+        previous = [None]
+
+        def widget_record(widget):
+            policy = widget.sizePolicy()
+            return {'class': type(widget).__name__, 'name': widget.objectName(),
+                    'rect': widget.geometry().getRect(), 'minimum': widget.property('minimumSize').toTuple(),
+                    'hint': widget.minimumSizeHint().toTuple(), 'preferred': widget.sizeHint().toTuple(),
+                    'policy': (policy.horizontalPolicy().value, policy.verticalPolicy().value)}
+
+        def settled():
+            if (split._rebalance_queued or split._limits_queued or split._refit_queued
+                    if hasattr(split, '_refit_queued') else split._rebalance_queued or split._limits_queued):
+                return False
+            if page._aside_panels._floor_timer.isActive():
+                return False
+            hero = page.findChild(QWidget, 'Hero')
+            if hero._text_fit._timer.isActive() or hero._text_fit._busy:
+                return False
+            current = (split.property('size').toTuple(), tuple(gui_scale._actual_sizes(split)),
+                       tuple(widget.geometry().getRect() for widget in (page._tabs, page._aside)),
+                       page._aside_panels.layout().totalMinimumSize().toTuple())
+            same = current == previous[0]
+            previous[0] = current
+            return same
+
+        qtbot.waitUntil(settled)
+        assert page._sample_project_button.font().pixelSize() == 52
+        if split.property('size') != QSize(1104, 84):
+            gui_scale._resize_actual(split, QSize(1104, 84))
+            previous[0] = None
+            qtbot.waitUntil(settled)
+        current_page = page._tabs.currentWidget()
+        report = {'background_only_isolation': ['ambient', 'journal', 'news-refresh'],
+                  'normal_app_acceptance': False, 'split': widget_record(split),
+                  'native_sizes': gui_scale._actual_sizes(split),
+                  'native_handle': split.handle(1).property('size').toTuple(),
+                  'panes': [{**widget_record(pane.widget), 'pane': pane.name,
+                             'logical_minimum': pane.minimum, 'logical_extent': pane.extent,
+                             'stored_geometry': getattr(pane.widget, '_gs_geo', {})}
+                            for pane in split._panes],
+                  'tabbar': widget_record(page._tabs.tabBar()),
+                  'tab_scroll_buttons': page._tabs.usesScrollButtons(),
+                  'current_page': widget_record(current_page),
+                  'page_scrolls': [widget_record(scroll) for scroll in page._tabs.findChildren(QScrollArea)]}
+        print('HOME_SPLIT_DIAGNOSTIC', json.dumps(report), flush=True)
+        assert split.property('size') == QSize(1104, 84), report
+        assert all(split.rect().contains(pane.widget.geometry()) for pane in split._panes), report
+        app._apply_home_tab_scroll_policy(host, page)
+        assert page._tabs.usesScrollButtons()
+        assert not other_tabs.usesScrollButtons()
+        previous[0] = None
+        qtbot.waitUntil(settled)
+        after = {'native_sizes': gui_scale._actual_sizes(split),
+                 'panes': [widget_record(pane.widget) for pane in split._panes],
+                 'tabbar': widget_record(page._tabs.tabBar()),
+                 'tab_scroll_buttons': page._tabs.usesScrollButtons()}
+        print('HOME_AFTER_NORMAL_TAB_POLICY', json.dumps(after), flush=True)
+        assert all(split.rect().contains(pane.widget.geometry()) for pane in split._panes), after
+        buttons = [button for button in page._aside.findChildren(QAbstractButton) if button.isVisible()]
+        assert len(buttons) == 5
+        assert {button.text() for button in buttons} == {
+            'Pipeline overviews', 'Clear', 'Check for updates…', 'Reset', 'Refresh'}
+        for button in buttons:
+            page._aside_scroll.ensureWidgetVisible(button, 0, 0)
+            previous[0] = None
+            qtbot.waitUntil(settled)
+            option = QStyleOptionButton()
+            option.initFrom(button)
+            option.rect, option.text = button.rect(), button.text()
+            option.icon, option.iconSize = button.icon(), button.property('iconSize')
+            for active, flag in ((button.isDefault(), QStyleOptionButton.DefaultButton),
+                                 (button.autoDefault(), QStyleOptionButton.AutoDefaultButton),
+                                 (button.isFlat(), QStyleOptionButton.Flat)):
+                if active:
+                    option.features |= flag
+            field = button.style().subElementRect(QStyle.SE_PushButtonContents, option, button)
+            text = button.style().itemTextRect(button.fontMetrics(), field,
+                int(Qt.AlignCenter | Qt.TextSingleLine), button.isEnabled(), button.text())
+            assert field.contains(text) and QRegion(text).subtracted(button.visibleRegion()).isEmpty()
+            assert host.rect().contains(text.translated(button.mapTo(host, QPoint())))
+    finally:
+        try:
+            if page is not None:
+                page.close()
+            if host is not None:
+                host.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
+def _aside_builder():
+    """Use the actual aside factory without unrelated Home background jobs."""
+    from PySide6.QtCore import Signal
+    from PySide6.QtWidgets import QWidget
 
     class AsideBuilder(QWidget):
         sample_project_requested = Signal()
@@ -72,6 +196,118 @@ def test_aside_native_floor_is_not_scaled_twice(qtbot, qapp, gui):
         refresh = HomePage.refresh
         _version = staticmethod(HomePage._version)
 
+    return AsideBuilder()
+
+
+def test_aside_floor_follows_real_polish_and_local_content_changes(qtbot, qapp, monkeypatch):
+    import math
+    import shiboken6
+    from PySide6.QtCore import QCoreApplication, QEvent, QSize, Qt
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt import app, gui_scale, preferences
+    from spacr.qt.widgets import home as home_widgets
+    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    page = split = None
+    calls = []
+    original = HomePage._fit_aside_minimum
+
+    def fit(owner):
+        calls.append(owner)
+        return original(owner)
+
+    monkeypatch.setattr(HomePage, '_fit_aside_minimum', fit)
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(2.)
+        preferences.apply_preferences_to_app()
+        page = _aside_builder()
+        qtbot.addWidget(page)
+        page._P, page._names, page._grids = home_widgets.active_palette(), {}, []
+        aside = page._build_aside()
+        split = CollapsibleSplitter(Qt.Horizontal)
+        qtbot.addWidget(split)
+        split.add_pane(QWidget(), 'Apps', stretch=1)
+        pane = split.add_pane(aside, home_widgets._ASIDE_PANE, mode=EDGE, stretch=0)
+        page._aside_split = split
+        gui_scale._resize_actual(split, QSize(1600, 600))
+        split.show()
+        previous = [None]
+
+        def settled():
+            timer = getattr(page._aside_panels, '_floor_timer', None)
+            if (split._rebalance_queued or split._limits_queued
+                    or (timer is not None and timer.isActive())):
+                previous[0] = None
+                return False
+            current = (page._sample_project_button.font().pixelSize(),
+                       page._aside_panels.layout().totalMinimumSize().width(),
+                       gui_scale._actual_minimum_size(aside).width(), len(calls))
+            same = current == previous[0]
+            previous[0] = current
+            return same and current[0] == 52
+
+        def check():
+            previous[0] = None
+            qtbot.waitUntil(settled)
+            expected = (page._aside_panels.layout().totalMinimumSize().width()
+                        + page._aside_scroll.verticalScrollBar().sizeHint().width())
+            actual = gui_scale._actual_minimum_size(aside).width()
+            assert actual == expected, (actual, expected, len(calls))
+            assert aside._gs_geo['minw'] == math.ceil(expected / 2.) == pane.minimum
+            return actual
+
+        initial = check()
+        label = page._recent.header
+        old_text, old_label_sheet = label.text(), label.styleSheet()
+        label.setText('A deliberately much longer panel heading')
+        label.setStyleSheet(old_label_sheet + '; font-size:44px;')
+        grown = check()
+        assert grown > initial
+        label.setText(old_text)
+        label.setStyleSheet(old_label_sheet)
+        assert check() == initial
+        count = len(calls)
+        for _ in range(8):
+            qapp.processEvents()
+        assert len(calls) == count
+        page._aside_panels._floor_timer.start(0)
+        split.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not shiboken6.isValid(split)
+        split = None
+        qapp.processEvents()
+    finally:
+        try:
+            if split is not None and shiboken6.isValid(split):
+                split.close()
+            if page is not None:
+                page.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
+@pytest.mark.parametrize("gui", (2., .9, 1.))
+def test_aside_native_floor_is_not_scaled_twice(qtbot, qapp, gui):
+    import math
+    from PySide6.QtCore import QSize, Qt
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt import app, gui_scale, preferences, theme
+    from spacr.qt.widgets import home as home_widgets
+    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
     saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
     live_gui = gui_scale.current_scale()
     old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
@@ -84,7 +320,7 @@ def test_aside_native_floor_is_not_scaled_twice(qtbot, qapp, gui):
         preferences.set_font_scale(2.)
         gui_scale.set_gui_scale_live(gui)
         preferences.apply_preferences_to_app()
-        page = AsideBuilder()
+        page = _aside_builder()
         qtbot.addWidget(page)
         page._P = home_widgets.active_palette()
         page._names, page._grids = {}, []

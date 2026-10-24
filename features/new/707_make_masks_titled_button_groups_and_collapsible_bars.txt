@@ -12,6 +12,68 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Normal launch-policy scope: repeat the real Home causal fixture through the
+actual post-build arrow-removal operation, recording unchanged fonts and
+before/after native pane/tab constraints. Extract only a behavior-neutral
+private launch seam shared by MainWindow and this test; require causal RED
+before restoring Home-only overflow navigation. Generic helper/public API
+and other tab bars remain unchanged; full native acceptance stays separate.
+RED94044 reproduces native overcommit after the shipped helper: tab minimum
+123→1482px, aside right1174px beyond1104px. Home-only builder/launch policy
+retains generic behavior elsewhere; GREEN64817 passes containment and all five
+native caption checks (8.83s/.330GiB). Apps page height0 and full native Home
+acceptance remain open; no global splitter, font or public-helper change.
+Native28655/9Kcjz8 on424cc4ba4 passes29.12s/RSS1.214GiB: all five selected
+captions fully visible, errors[];139 total targets include two tab arrows,
+134 remain untested. Split1104x84 allocates124/968 with arrows enabled and
+aside contained; Apps page remains0px high. Tour9.296s/content4.385s and normal
+close/worker cleanup pass. This accepts aside controls only, not full Home.
+
+Next native attribution records both splitter panes' actual geometry, minima,
+policies and stored pane records before the1200x640 resize and at content-ready,
+plus HomeTabs scroll bounds and settled panels/scrollbar hints. The controlled
+real-Home33965 pass does not reproduce native host clipping; no fix is assumed.
+This is observation only: existing checks, waits and operation budgets remain.
+Native88937/HgpVSa fails35.66s/RSS1.222GiB: all5 checked/132 untested,
+Pipeline passes, four other captions clip; normal close/cleanup pass.
+After shrink, native splitter slots546/546 disagree with the616px aside;
+Apps minHint1486 follows a1482px tabbar with scroll buttons disabled. Its
+101px bar leaves the84px pane's page0px high; no causal repair is claimed.
+
+Real Home overcommit scope: retain the correct aside floor and construct
+the shipped Apps/categories with normal fonts and layout policies. At the
+measured1104x84 child splitter allocation, record both pane minima/hints,
+policies, native sizes/handle and tab/page scroll constraints before requiring
+containment and actual aside-button text access. Isolate only unrelated
+ambient/journal/news background work; this is not normal-app acceptance.
+Require causal RED before any local left-pane or splitter-policy repair.
+Controlled33965 passes1/9.32s/RSS0.324GiB: direct-small real Home contains
+both panes and all five aside captions. This does not reproduce the native
+already-shown-window shrink failure; no product repair is justified yet.
+Launch applies preferences before MainWindow, matching this fixture; native
+style and resize chronology need actual before/after constraint observations.
+Non-vacuous99402 passes1/9.66s/RSS0.326GiB with exactly five visible controls:
+native pane sizes476/616,12px handle and Apps minimum hint127px. The current
+Apps page is0px high at this allocation; no Apps-content usability is claimed.
+
+Automatic aside-floor scope: after real Show/polish and settled52px controls,
+compare the native minimum to actual totalMinimumSize plus scrollbar hint
+without a manual fit call. Verify automatic local heading/style growth and
+shrink, logical pane records, no-op quiescence and queued deletion. Native
+69310 supports stale construction-time sizing but did not record its setter
+chronology; require causal RED before a local coalesced post-polish observer.
+RED77359 observes one construction fit and a settled52px floor462 versus
+required616. Panels-owned local event observation now coalesces the existing
+normalized fitter after polish/content changes. GREEN64341 passes1/8.62s/
+RSS0.297GiB, including automatic growth/shrink, pane record, idle/deletion.
+Affected normalization52656 passes3/20.11s/RSS0.305GiB on the final observer;
+these scoped checks are not full Home acceptance.
+Native18914/faN4gA on1b362ce70: floor616/viewport596/panels596; Pipeline passes.
+All5 selected checked in4.647s;132/137 untested. Aside616 starts at558 in a
+1104px splitter: Clear/Reset/Refresh lose50px right, Updates1px. Host fit stays
+open. Natural failure34.60s/RSS1.236GiB; tour9.327s, normal close/cleanup pass,
+no deadline/overlay failure. The local post-polish floor is now native-proved.
+
 The bounded native operation explicitly selects aside_controls: actual buttons under
 HomeAside only, with the original20s content budget. Default all retains the
 complete runtime target manifest. Record all identities/text, selected indices

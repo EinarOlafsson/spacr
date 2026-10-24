@@ -129,6 +129,68 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             """Persist actual partial evidence before any strict assertion."""
             output.write_text(json.dumps(report, indent=2))
 
+        def aside_layout_snapshot(window):
+            """Observe native pane constraints without requesting another layout."""
+            def widget_row(widget):
+                if widget is None:
+                    return None
+                policy = widget.sizePolicy()
+                layout = widget.layout()
+                style = widget.style()
+                return {'class': type(widget).__name__, 'name': widget.objectName(),
+                    'style': {'python_class': type(style).__name__, 'object_name': style.objectName(),
+                        'meta_class': style.metaObject().className()},
+                    'rect': widget.property('geometry').getRect(),
+                    'in_window': (widget.mapTo(window, QPoint()).toTuple(), widget.property('size').toTuple()),
+                    'minimum': widget.property('minimumSize').toTuple(),
+                    'maximum': widget.property('maximumSize').toTuple(),
+                    'logical_geometry': dict(getattr(widget, '_gs_geo', {}) or {}),
+                    'applied_geometry': dict(getattr(widget, '_gs_geo_set', {}) or {}),
+                    'size_hint': widget.sizeHint().toTuple(), 'minimum_hint': widget.minimumSizeHint().toTuple(),
+                    'policy': {'horizontal': policy.horizontalPolicy().value,
+                        'vertical': policy.verticalPolicy().value,
+                        'horizontal_stretch': policy.horizontalStretch(), 'vertical_stretch': policy.verticalStretch()},
+                    'layout_constraint': layout.sizeConstraint().value if layout is not None else None,
+                    'font': widget.font().toString()}
+            home = window._startup
+            split = home._aside_split
+            panes = []
+            for index in range(split.count()):
+                widget = split.widget(index)
+                pane = split._pane_of(widget)
+                panes.append({'index': index, 'widget': widget_row(widget),
+                    'pane': {key: getattr(pane, key) for key in ('name', 'mode', 'extent', 'minimum', 'stretch')}
+                        if pane is not None else None})
+            tabs = home._tabs
+            current = tabs.currentWidget()
+            scrolls = [w for w in current.findChildren(QScrollArea)]
+            if isinstance(current, QScrollArea):
+                scrolls.insert(0, current)
+            panels = home._aside_panels
+            return {'splitter': widget_row(split), 'actual_sizes': gui_scale._actual_sizes(split),
+                'handle_width': split.property('handleWidth'), 'panes': panes,
+                'splitter_flags': {key: getattr(split, key, None) for key in
+                    ('_laid_out', '_held', '_rebalance_queued', '_limits_queued', '_refit_queued')},
+                'tabs': widget_row(tabs), 'tab_bar': widget_row(tabs.tabBar()),
+                'tab_scroll_policy': {'tabs_use_scroll_buttons': tabs.usesScrollButtons(),
+                    'bar_uses_scroll_buttons': tabs.tabBar().usesScrollButtons(),
+                    'elide_mode': tabs.tabBar().elideMode().value,
+                    'prefer_no_arrows': tabs.tabBar().style().styleHint(
+                        QStyle.SH_TabBar_PreferNoArrows, None, tabs.tabBar())},
+                'tab_stacks': [widget_row(w) for w in tabs.findChildren(QWidget)
+                    if type(w).__name__ == 'QStackedWidget'],
+                'current_page': widget_row(current),
+                'current_page_scrolls': [{'scroll': widget_row(scroll), 'viewport': widget_row(scroll.viewport()),
+                    'content': widget_row(scroll.widget()),
+                    'horizontal_range': (scroll.horizontalScrollBar().minimum(), scroll.horizontalScrollBar().maximum()),
+                    'vertical_range': (scroll.verticalScrollBar().minimum(), scroll.verticalScrollBar().maximum())}
+                    for scroll in scrolls],
+                'panels': widget_row(panels),
+                'panels_total_minimum': panels.layout().totalMinimumSize().toTuple(),
+                'aside_scrollbar_hint': home._aside_scroll.verticalScrollBar().sizeHint().toTuple(),
+                'aside_logical_geometry': dict(getattr(home._aside, '_gs_geo', {}) or {}),
+                'aside_applied_geometry': dict(getattr(home._aside, '_gs_geo_set', {}) or {})}
+
         def close():
             """Use the real owned MainWindow close route even on failure."""
             if 'timer' in state:
@@ -390,6 +452,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     state['phase'] = 'content'
                     state['started'] = time.perf_counter()
                     report['content_started_since_home_ready'] = state['started']-state['home_ready_at']
+                    report['aside_layout_content_ready'] = aside_layout_snapshot(window)
                     persist()
                     return
                 assert not tours, ('Unexpected tour during content inspection', observed_startup)
@@ -494,6 +557,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             started = time.perf_counter()
             state.update(window=window, started=started, home_ready_at=started, phase='startup_tour')
             report['initial_startup_observation'] = startup_snapshot(window)
+            report['aside_layout_before_resize'] = aside_layout_snapshot(window)
             witness = window._startup.findChild(QLabel, 'HeroSubtitle')
             expected_subtitle = gui_scale.scale_int(theme.font_px('subtitle', 2.), 2.)
             report['startup_witness'] = {

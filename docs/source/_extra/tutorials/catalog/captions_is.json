@@ -3681,7 +3681,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Athugaðu möppur, heiti líkans og úttaksstað og ýttu svo á Run. Spjaldið Figures sýnir þjálfunarmyndirnar fyrir ofan grímur þeirra og stjórnborðið fylgir framvindunni. Á þessu GPU-skjákorti tóku 10 umferðir á sex myndum innan við mínútu.",
+          "narration": "Athugaðu möppur, heiti líkans og úttaksstað og ýttu svo á Run. Spjaldið Figures sýnir þjálfunarmyndirnar fyrir ofan grímur þeirra og stjórnborðið fylgir framvindunni.",
           "hold_after": 0.7,
           "focus": [
             390,

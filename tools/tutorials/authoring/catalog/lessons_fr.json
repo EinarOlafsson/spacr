@@ -4004,7 +4004,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Vérifiez les dossiers, le nom du modèle et l’emplacement de sortie, puis appuyez sur Run. Le panneau Figures montre les images d’entraînement au-dessus de leurs masques, et la console suit la progression. Sur ce GPU, dix époques sur six images se sont terminées en moins d’une minute.",
+          "narration": "Vérifiez les dossiers, le nom du modèle et l’emplacement de sortie, puis appuyez sur Run. Le panneau Figures montre les images d’entraînement au-dessus de leurs masques, et la console suit la progression.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -4012,7 +4012,7 @@
             3410,
             1260
           ],
-          "speech_text": "Vérifiez les dossiers, le nom du modèle et l’emplacement de sortie, puis appuyez sur Run. Le panneau Figures montre les images d’entraînement au-dessus de leurs masques, et la console suit la progression. Sur ce GPU, dix époques sur six images se sont terminées en moins d’une minute."
+          "speech_text": "Vérifiez les dossiers, le nom du modèle et l’emplacement de sortie, puis appuyez sur Run. Le panneau Figures montre les images d’entraînement au-dessus de leurs masques, et la console suit la progression."
         },
         {
           "visual": "train_checkpoint",

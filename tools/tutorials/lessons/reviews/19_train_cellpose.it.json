@@ -1,13 +1,23 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review (Codex), no native-speaker signoff",
+    "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the final timing-boast sentence in scene9 removed; remaining two sentences and every other chapter unchanged.",
+    "previous_english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "it",
   "title": "Addestrare un modello Cellpose",
@@ -27,7 +37,7 @@
     "Imposta N epochs e Batch size. Questa prova rapida usa dieci epoche con dimensione del lotto uno. Più epoche danno al modello più aggiornamenti, e lotti più grandi usano più memoria. Per iniziare, mantieni il tasso di apprendimento mostrato.",
     "Lascia attivo Normalize, con il primo e il novantanovesimo percentile come punto di partenza. Questi fissano l’intervallo di intensità usato per ogni canale. Scale range varia la dimensione delle immagini durante l’addestramento, e Min train masks salta le immagini con meno oggetti etichettati.",
     "Per seguire la perdita di validazione, scegli una Validation image folder separata e la relativa Validation mask folder. Non riutilizzare mai lì immagini di addestramento. Lascia entrambe vuote se non hai un insieme etichettato separato, come in questo esempio.",
-    "Controlla le cartelle, il nome del modello e la posizione di output, poi premi Run. Il pannello Figures mostra le immagini di addestramento sopra le loro maschere, e la console segue l’avanzamento. Su questa GPU, dieci epoche su sei immagini sono terminate in meno di un minuto.",
+    "Controlla le cartelle, il nome del modello e la posizione di output, poi premi Run. Il pannello Figures mostra le immagini di addestramento sopra le loro maschere, e la console segue l’avanzamento.",
     "Al termine dell’addestramento, la console indica il percorso del checkpoint. Con la posizione predefinita si trova nella cartella di origine, in models, cellpose model, models. Il nome del file aggiunge al nome del modello l’architettura e il numero di epoche. Conservalo insieme alle impostazioni di addestramento.",
     "Apri la scheda Apply. Custom model ora punta al checkpoint che hai addestrato. Imposta Source sulla cartella apply dell’esempio, le cui immagini provengono da pozzetti non usati per l’addestramento. Imposta Channels su zero e Percentiles su due e novantanove. Disattiva Fill in perché le cellule che si toccano restino separate, e attiva Save e Verbose.",
     "Apri Live preview, scegli un’immagine e premi Run preview, con lo stesso canale e gli stessi percentili. L’immagine viene segmentata con il tuo checkpoint, che qui trova settantotto cellule. Regola le impostazioni qui prima di elaborare tutta la cartella.",
