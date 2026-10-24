@@ -1968,6 +1968,7 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
                   coordinates="zero_based_row_column_bbox_max_exclusive",
                   status="ok", error="")
     shape = None
+    collected = {}
     try:
         planes = (item for channel in channels
                   for item in _overview_raw_planes(field, (channel,),
@@ -2020,8 +2021,14 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
             stats.update({"intensity_p" + str(p): float(v)
                           for p, v in zip((1, 5, 25, 50, 75, 95, 99), percentiles)})
             record.update({prefix + key: value for key, value in stats.items()})
+            collected[channel] = plane
         if shape is None:
             raise ValueError(tr("Choose one or more nonnegative channel indices."))
+        from ...measure import _image_feature_masks, _image_level_features
+        masks = _image_feature_masks(field.files, field.plate, field.well, field.field, shape)
+        record.update(_image_level_features(collected, masks))
+        record["image_features"] = "intensity_focus_texture_coverage_objects_colocalization"
+        record["object_source"] = ("masks:" + ",".join(sorted(masks))) if masks else "otsu_per_channel"
     except CancelledError:
         raise
     except Exception as error:

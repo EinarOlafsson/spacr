@@ -13804,6 +13804,290 @@ def _import_overview_annotations_json(db_path, json_path, fields, *, source=None
     return written
 
 
+def _image_plane_for_features(plane):
+    """Return a finite float64 plane and its finite-pixel mask."""
+    array = np.asarray(plane)
+    if array.ndim != 2:
+        raise ValueError(f'Image-level measurements need 2-D planes, got shape {array.shape}')
+    values = array.astype(np.float64, copy=False)
+    finite = np.isfinite(values)
+    if not finite.all():
+        values = np.where(finite, values, np.median(values[finite]) if finite.any() else 0.0)
+    return values, finite
+
+
+def _image_saturation_level(plane, level=None):
+    """Return the saturating value of ``plane``, or ``None`` when undefined."""
+    if level is not None:
+        return float(level)
+    dtype = np.asarray(plane).dtype
+    if np.issubdtype(dtype, np.integer):
+        return float(np.iinfo(dtype).max)
+    return None
+
+
+def _image_focus(values):
+    """Variance of the Laplacian, Brenner and Tenengrad focus scores.
+
+    Brenner is the mean squared two-pixel difference, averaged over the
+    horizontal and vertical directions. Tenengrad is the mean squared 3x3
+    Sobel gradient magnitude.
+    """
+    plane = values.astype(np.float32)
+    laplacian = cv2.Laplacian(plane, cv2.CV_32F, ksize=1)
+    horizontal = np.square(plane[:, 2:] - plane[:, :-2], dtype=np.float64) if plane.shape[1] > 2 else np.zeros(1)
+    vertical = np.square(plane[2:, :] - plane[:-2, :], dtype=np.float64) if plane.shape[0] > 2 else np.zeros(1)
+    gx = cv2.Sobel(plane, cv2.CV_32F, 1, 0, ksize=3)
+    gy = cv2.Sobel(plane, cv2.CV_32F, 0, 1, ksize=3)
+    return dict(focus_laplacian_variance=float(laplacian.var(dtype=np.float64)),
+                focus_brenner=float(0.5 * (horizontal.mean() + vertical.mean())),
+                focus_tenengrad=float(np.mean(np.square(gx, dtype=np.float64))
+                                      + np.mean(np.square(gy, dtype=np.float64))))
+
+
+def _image_block_mean(values, edge):
+    """Block-average ``values`` so its long side is at most ``edge`` pixels.
+
+    :returns: ``(plane, step)``; ``step`` is 1 when no reduction was needed.
+    """
+    step = max(1, int(np.ceil(max(values.shape) / float(edge))))
+    if step == 1:
+        return values, 1
+    height, width = (values.shape[0] // step) * step, (values.shape[1] // step) * step
+    return values[:height, :width].reshape(height // step, step, width // step, step).mean(axis=(1, 3)), step
+
+
+def _image_texture(values, finite, bounds, levels=32, edge=512):
+    """Haralick (GLCM) summary on a bounded, quantised copy of the plane.
+
+    The plane is block-averaged to at most ``edge`` pixels on its long side
+    and quantised between ``bounds`` (the 1st and 99th finite percentiles) into
+    ``levels`` grey levels; properties are averaged over four directions at
+    distance one.
+    """
+    small, step = _image_block_mean(values, edge)
+    low, high = bounds
+    if high > low:
+        quantised = np.clip((small - low) / (high - low) * (levels - 1) + 0.5, 0, levels - 1).astype(np.uint8)
+    else:
+        quantised = np.zeros(small.shape, dtype=np.uint8)
+    matrix = graycomatrix(quantised, distances=[1], angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4],
+                          levels=levels, symmetric=True, normed=True)
+    result = {}
+    for prop in ('contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation', 'ASM'):
+        with np.errstate(divide='ignore', invalid='ignore'):
+            result['texture_glcm_' + prop.lower()] = float(np.nanmean(graycoprops(matrix, prop)))
+    probabilities = matrix.mean(axis=(2, 3))
+    nonzero = probabilities[probabilities > 0]
+    result['texture_glcm_entropy'] = float(-np.sum(nonzero * np.log2(nonzero)))
+    result['texture_glcm_downsample'] = step
+    return result
+
+
+def _image_otsu(values, finite):
+    """Otsu threshold of the finite pixels, or ``None`` for a flat plane."""
+    data = values[finite]
+    if data.size == 0 or float(data.max()) == float(data.min()):
+        return None
+    return float(filters.threshold_otsu(data))
+
+
+def _image_objects(labels, intensity=None, prefix='objects', solidity_limit=1000):
+    """Count and summarise labelled objects with regionprops.
+
+    Solidity, the only convex-hull property, is averaged over at most
+    ``solidity_limit`` evenly spaced objects so dense fields stay bounded.
+    """
+    labels = np.asarray(labels)
+    properties = ['label', 'area', 'eccentricity']
+    if intensity is not None:
+        properties += ['intensity_mean']
+    if labels.max() <= 0:
+        summary = {prefix + '_count': 0}
+        for name in ('area_mean', 'area_median', 'eccentricity_mean', 'solidity_mean'):
+            summary[f'{prefix}_{name}'] = float('nan')
+        if intensity is not None:
+            summary[prefix + '_intensity_mean'] = float('nan')
+            summary[prefix + '_integrated_intensity_mean'] = float('nan')
+        return summary
+    table = regionprops_table(labels.astype(np.int64, copy=False), intensity_image=intensity,
+                              properties=properties)
+    regions = regionprops(labels.astype(np.int64, copy=False))
+    stride = max(1, int(np.ceil(len(regions) / float(solidity_limit))))
+    sampled = regions[::stride]
+    area = np.asarray(table['area'], dtype=np.float64)
+    summary = {prefix + '_count': int(area.size),
+               prefix + '_area_mean': float(area.mean()),
+               prefix + '_area_median': float(np.median(area)),
+               prefix + '_eccentricity_mean': float(np.mean(table['eccentricity'])),
+               prefix + '_solidity_mean': float(np.mean([region.solidity for region in sampled])),
+               prefix + '_solidity_sampled': len(sampled)}
+    if intensity is not None:
+        mean = np.asarray(table['intensity_mean'], dtype=np.float64)
+        summary[prefix + '_intensity_mean'] = float(mean.mean())
+        summary[prefix + '_integrated_intensity_mean'] = float(np.mean(mean * area))
+    return summary
+
+
+def _image_level_features(planes, masks=None, *, saturation_levels=None, min_object_area=9,
+                          confluency=True, confluency_edge=1024):
+    """Measure whole-image intensity, focus, texture, coverage and objects.
+
+    Every value is computed on raw stored pixels; nonfinite pixels are
+    excluded from statistics and replaced by the finite median only where a
+    filter needs a full grid. Names follow the overview ``fov`` row:
+    ``channel_<c>_<measure>`` per channel, ``<role>_objects_<measure>`` per
+    existing mask and ``channels_<a>_<b>_<measure>`` per channel pair.
+
+    :param planes: ``{channel: 2-D array}`` of matching shapes.
+    :param masks: optional ``{role: label array}`` of existing spaCR masks
+        (``cell``, ``nucleus``, ``pathogen``...); used for object summaries
+        instead of the per-channel Otsu segmentation when present.
+    :param saturation_levels: optional ``{channel: value}``; integer images
+        default to their dtype maximum, floating images report ``nan``.
+    :param min_object_area: smallest Otsu object, in pixels, that counts.
+    :param confluency: also run spaCR's texture confluency estimator.
+    :param confluency_edge: long side, in pixels, above which confluency is
+        estimated on a block-averaged copy with a proportionally smaller window.
+    :returns: flat ``dict`` of measurement names to numbers.
+    :raises ValueError: for non-2-D planes or mismatched shapes.
+    """
+    from skimage.measure import label as _label
+    planes = {key: np.asarray(value) for key, value in dict(planes).items()}
+    if not planes:
+        return {}
+    shapes = {value.shape for value in planes.values()}
+    if len(shapes) != 1:
+        raise ValueError('Image-level measurements need channels of one shape')
+    masks = {role: np.asarray(value) for role, value in dict(masks or {}).items()
+             if value is not None and np.asarray(value).shape in shapes}
+    saturation_levels = dict(saturation_levels or {})
+    record, prepared, foreground = {}, {}, {}
+    for channel, plane in planes.items():
+        values, finite = _image_plane_for_features(plane)
+        prepared[channel] = (values, finite)
+        prefix = f'channel_{channel}_'
+        data = values[finite]
+        if data.size == 0:
+            raise ValueError(f'Channel {channel} has no finite pixels')
+        percentiles = np.percentile(data, (1, 5, 25, 50, 75, 95, 99))
+        mean, std = float(data.mean()), float(data.std())
+        level = _image_saturation_level(plane, saturation_levels.get(channel))
+        stats = dict(intensity_mean=mean, intensity_median=float(percentiles[3]),
+                     intensity_std=std, intensity_integrated=float(data.sum()),
+                     intensity_cv=std / mean if mean else float('nan'),
+                     intensity_dynamic_range=float(percentiles[6] - percentiles[0]),
+                     saturation_level=float('nan') if level is None else level,
+                     saturation_fraction=(float(np.count_nonzero(data >= level)) / data.size
+                                          if level is not None else float('nan')))
+        stats.update({f'intensity_p{p}': float(v) for p, v in zip((1, 5, 25, 50, 75, 95, 99), percentiles)})
+        stats.update(_image_focus(values))
+        stats.update(_image_texture(values, finite, (percentiles[0], percentiles[6])))
+        threshold = _image_otsu(values, finite)
+        if threshold is None:
+            above = np.zeros(values.shape, dtype=bool)
+            background = data
+            stats.update(otsu_threshold=float('nan'), otsu_area_fraction=0.0,
+                         foreground_mean=float('nan'))
+        else:
+            above = (values > threshold) & finite
+            background = values[finite & ~above]
+            stats.update(otsu_threshold=threshold,
+                         otsu_area_fraction=float(np.count_nonzero(above)) / data.size,
+                         foreground_mean=float(values[above].mean()) if above.any() else float('nan'))
+        foreground[channel] = above
+        background_level = float(np.median(background)) if background.size else float('nan')
+        background_std = float(np.std(background)) if background.size else float('nan')
+        stats.update(background_median=background_level, background_std=background_std)
+        signal = stats['foreground_mean']
+        stats['snr'] = (float((signal - background_level) / background_std)
+                        if np.isfinite(signal) and background_std > 0 else float('nan'))
+        stats['signal_to_background'] = (float(signal / background_level)
+                                         if np.isfinite(signal) and background_level > 0 else float('nan'))
+        if confluency:
+            reduced, step = _image_block_mean(values, confluency_edge)
+            stats['confluency'] = float(_field_confluency(
+                reduced, source='texture', window=max(3, int(round(15 / step)))).confluency)
+            stats['confluency_downsample'] = step
+        if not masks:
+            objects = morphology.remove_small_objects(above, min_size=max(1, int(min_object_area)))
+            stats.update(_image_objects(_label(objects, connectivity=2), values, prefix='objects'))
+        else:
+            for role, labels in masks.items():
+                summary = _image_objects(labels, values, prefix=role + '_objects')
+                stats[role + '_object_intensity_mean'] = summary[role + '_objects_intensity_mean']
+                stats[role + '_object_integrated_intensity_mean'] = summary[role + '_objects_integrated_intensity_mean']
+        record.update({prefix + key: value for key, value in stats.items()})
+    for role, labels in masks.items():
+        summary = _image_objects(labels, None, prefix=role + '_objects')
+        summary[role + '_objects_source'] = 'mask'
+        record.update(summary)
+    channels = list(planes)
+    for index, first in enumerate(channels):
+        for second in channels[index + 1:]:
+            a, fa = prepared[first]
+            b, fb = prepared[second]
+            both = fa & fb
+            x, y = a[both], b[both]
+            prefix = f'channels_{first}_{second}_'
+            if x.size > 1 and x.std() > 0 and y.std() > 0:
+                record[prefix + 'pearson'] = float(np.corrcoef(x, y)[0, 1])
+            else:
+                record[prefix + 'pearson'] = float('nan')
+            on_a, on_b = foreground[first] & both, foreground[second] & both
+            total_a, total_b = float(a[on_a].sum()), float(b[on_b].sum())
+            record[prefix + 'manders_m1'] = float(a[on_a & on_b].sum()) / total_a if total_a else float('nan')
+            record[prefix + 'manders_m2'] = float(b[on_a & on_b].sum()) / total_b if total_b else float('nan')
+            union = np.count_nonzero(on_a | on_b)
+            record[prefix + 'overlap_fraction'] = float(np.count_nonzero(on_a & on_b)) / union if union else float('nan')
+    return record
+
+
+def _image_feature_masks(files, plate, well, field, shape, roles=('cell', 'nucleus', 'pathogen', 'cytoplasm')):
+    """Find existing spaCR label masks for one field, matching its shape.
+
+    Looks in ``masks/<role>_mask_stack`` beside the image folder and up to two
+    parents for a ``.npy`` or ``.tif`` named after a source file stem or the
+    ``<plate>_<well>_<field>`` stack name.
+
+    :param files: the field's ``(channel, path)`` pairs.
+    :returns: ``{role: label array}``; empty when none match.
+    """
+    from pathlib import Path
+    stems = {Path(path).stem for _, path in files} | {f'{plate}_{well}_{field}'}
+    folders = []
+    for _, path in files:
+        parent = Path(path).expanduser().resolve().parent
+        for candidate in (parent, parent.parent, parent.parent.parent):
+            if candidate not in folders:
+                folders.append(candidate)
+    found = {}
+    for role in roles:
+        for folder in folders:
+            stack = folder / 'masks' / f'{role}_mask_stack'
+            if not stack.is_dir():
+                continue
+            for stem in sorted(stems):
+                for suffix in ('.npy', '.tif', '.tiff'):
+                    candidate = stack / (stem + suffix)
+                    if not candidate.is_file():
+                        continue
+                    if suffix == '.npy':
+                        labels = np.load(candidate, mmap_mode='r', allow_pickle=False)
+                    else:
+                        import tifffile
+                        labels = tifffile.imread(candidate)
+                    labels = np.squeeze(np.asarray(labels))
+                    if labels.shape == tuple(shape) and np.issubdtype(labels.dtype, np.integer):
+                        found[role] = labels
+                        break
+                if role in found:
+                    break
+            if role in found:
+                break
+    return found
+
+
 def _image_measurement_frame(db_path, *, annotations=True, status_ok=True):
     """Join overview ``fov`` measurements with the image annotations.
 
