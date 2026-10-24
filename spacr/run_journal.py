@@ -1612,8 +1612,8 @@ def _restrict_to_owner(path: Path, *, folder: bool = False) -> None:
         result = subprocess.run(
             ["icacls", str(path), "/inheritance:r", "/grant:r",
              f"{account}:(OI)(CI)F" if folder else f"{account}:F"],
-            capture_output=True, text=True, timeout=30,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+            capture_output=True, text=True, encoding="oem", errors="replace",
+            timeout=30, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     except (OSError, subprocess.SubprocessError) as exc:
         raise OSError(tr("Could not make {path} private, so the secret was not "
                          "saved: {error}", path=path, error=exc)) from exc

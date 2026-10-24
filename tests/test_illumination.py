@@ -2104,3 +2104,20 @@ def test_measure_input_guard_fails_closed_on_malformed_provenance(tmp_path):
             'illumination_correction': True,
             'src': str(merged),
         })
+
+
+def test_a_model_on_another_drive_is_recorded_by_absolute_path(
+        tmp_path, monkeypatch):
+    """Windows relpath refuses Z:\\models from D:\\plate; keep the full path."""
+    prepared = segmentation_prepared(tmp_path)
+
+    def other_drive(path, start=None):
+        raise ValueError("path is on mount 'Z:', start on mount 'D:'")
+
+    monkeypatch.setattr(ill.os.path, 'relpath', other_drive)
+    record = ill._segmentation_application_record(
+        prepared, str(tmp_path / 'plate' / 'provenance.json'), 'v1',
+        [], 'complete')
+
+    assert record['model_path'] == os.path.abspath(prepared.model_path)
+    assert os.path.isabs(record['model_path'])

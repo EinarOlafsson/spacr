@@ -1523,8 +1523,11 @@ def _segmentation_application_record(
     :param application_state: where the session has got to.
     :returns: the record.
     """
-    model_path = os.path.relpath(
-        prepared.model_path, os.path.dirname(provenance_path))
+    try:
+        model_path = os.path.relpath(
+            prepared.model_path, os.path.dirname(provenance_path))
+    except ValueError:
+        model_path = os.path.abspath(prepared.model_path)
     return {
         'schema_version': 1,
         'model_path': model_path,
@@ -1697,8 +1700,8 @@ def load_segmentation_illumination_resume(
         model_path = os.path.join(os.path.dirname(path), model_path)
     model_path = os.path.abspath(model_path)
     requested_model = str(settings.get('illumination_model', '') or '').strip()
-    if (requested_model and
-            os.path.abspath(requested_model) != model_path):
+    if (requested_model and os.path.normcase(os.path.abspath(requested_model))
+            != os.path.normcase(model_path)):
         raise IlluminationError(
             "settings['illumination_model'] does not name the model recorded "
             'for these masks; use the recorded model or re-run preprocessing '

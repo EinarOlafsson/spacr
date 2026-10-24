@@ -68,13 +68,31 @@ def test_usable_cores_survives_an_affinity_call_that_fails(monkeypatch):
     assert LM.usable_cores() == 3
 
 
+def _blind_psutil(monkeypatch):
+    def _blind():
+        raise RuntimeError("psutil cannot read this host either")
+
+    monkeypatch.setattr("psutil.virtual_memory", _blind)
+
+
 def test_unreadable_memory_is_none_rather_than_an_exception(monkeypatch):
     """A platform without ``SC_PHYS_PAGES`` reports unknown, not a traceback."""
     def _refuse(_name):
         raise ValueError("unrecognised configuration name")
 
     monkeypatch.setattr(os, "sysconf", _refuse, raising=False)
+    _blind_psutil(monkeypatch)
     assert LM.total_memory_gib() is None
+
+
+def test_windows_memory_is_read_without_sysconf(monkeypatch):
+    """Windows has no ``os.sysconf``; an 8 GiB laptop must still count as small."""
+    import types
+
+    monkeypatch.delattr(os, "sysconf", raising=False)
+    monkeypatch.setattr("psutil.virtual_memory",
+                        lambda: types.SimpleNamespace(total=8 * 1024 ** 3))
+    assert LM.total_memory_gib() == pytest.approx(8.0)
 
 
 def test_a_reading_with_no_memory_still_decides_and_omits_the_memory_phrase(monkeypatch):
@@ -83,6 +101,7 @@ def test_a_reading_with_no_memory_still_decides_and_omits_the_memory_phrase(monk
         raise ValueError("unrecognised configuration name")
 
     monkeypatch.setattr(os, "sysconf", _refuse, raising=False)
+    _blind_psutil(monkeypatch)
     monkeypatch.delenv(LM.OVERRIDE_VARIABLE, raising=False)
     reading = LM.measure()
     assert reading["memory_gib"] is None

@@ -3068,7 +3068,10 @@ class OrganizeForMeasureDialog(QDialog):
                           for p in row if p})
         if not folders:
             return ""
-        common = os.path.commonpath(folders)
+        try:
+            common = os.path.commonpath(folders)
+        except ValueError:
+            return folders[0]
         if os.path.dirname(common) == common:
             common = folders[0]
         return common

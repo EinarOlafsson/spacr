@@ -1203,3 +1203,5 @@ the file's known field size (scale source "image metadata") below manual and
 settings scales. Also wired into the Format Converter, Make Masks/curation
 queue and channel sorting (rewritten as TIFF). tests/test_scn_reader.py: 16
 pass incl. the real-file check; docs: plaque_assay.rst section.
+
+2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).

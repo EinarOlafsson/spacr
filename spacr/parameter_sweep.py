@@ -603,12 +603,19 @@ def be_polite() -> None:
     The adjustments are best-effort and platform dependent. On Linux, the
     worker uses the lowest CPU and I/O priorities and sets
     ``oom_score_adj=800`` so it is preferred over interactive applications
-    when the system is under memory pressure.
+    when the system is under memory pressure. On Windows, which has none of
+    those, the worker drops to the idle priority class.
     """
     try:
         os.nice(19)
     except (OSError, AttributeError):
         pass
+    if os.name == "nt":
+        try:
+            import psutil
+            psutil.Process().nice(psutil.IDLE_PRIORITY_CLASS)
+        except Exception:
+            pass
     try:
         with open(f"/proc/{os.getpid()}/oom_score_adj", "w", encoding="utf-8") as handle:
             handle.write("800")
@@ -689,8 +696,10 @@ def free_memory_gb() -> float:
     MemAvailable is the kernel's own estimate of what a new allocation could
     get without swapping.
 
-    :returns: available memory in GB, or ``inf`` where the file does not
-        exist. Infinity rather than zero deliberately -- this is a safety
+    Windows has no ``/proc``, so there psutil supplies the same estimate.
+
+    :returns: available memory in GB, or ``inf`` where neither source can
+        be read. Infinity rather than zero deliberately -- this is a safety
         check, and a check that cannot read the machine must not become a
         check that blocks every run on it.
     """
@@ -699,8 +708,15 @@ def free_memory_gb() -> float:
             for line in handle:
                 if line.startswith("MemAvailable:"):
                     return int(line.split()[1]) / 1e6
+        return float("inf")
     except OSError:
         pass
+    if os.name == "nt":
+        try:
+            import psutil
+            return psutil.virtual_memory().available / 1e9
+        except Exception:
+            pass
     return float("inf")
 
 
@@ -754,6 +770,7 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
         json.dump(payload, handle, default=str)
 
     child = [sys.executable, "-m", "spacr.sweep_child", settings_path, out_path]
+    launch = {}
     if containment_available():
         command = ["systemd-run", "--user", "--scope", "--quiet",
                    "-p", f"MemoryMax={memory_max}",
@@ -767,7 +784,11 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
               "down. Reduce the worker count and search space, or start the "
               "sweep from a systemd user session before running large "
               "trials.")
-        command = ["nice", "-n", "19"] + child
+        if os.name == "nt":
+            command = child
+            launch["creationflags"] = subprocess.IDLE_PRIORITY_CLASS
+        else:
+            command = ["nice", "-n", "19"] + child
 
     environment = dict(os.environ)
     for name in _THREAD_VARS:
@@ -775,7 +796,7 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
 
     try:
         finished = subprocess.run(command, capture_output=True, text=True,
-                                  timeout=timeout, env=environment)
+                                  timeout=timeout, env=environment, **launch)
         code, tail = finished.returncode, (finished.stderr or "")[-400:]
     except subprocess.TimeoutExpired:
         code, tail = -1, "timed out"

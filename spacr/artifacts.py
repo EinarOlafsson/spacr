@@ -51,6 +51,7 @@ import os
 import sqlite3
 import time
 from dataclasses import dataclass, field
+from stat import S_ISLNK
 from datetime import datetime, timezone
 from typing import (Any, Dict, Iterable, Iterator, List, Mapping, Optional,
                     Sequence, Tuple, Union)
@@ -392,12 +393,12 @@ def content_fingerprint(
                 if not os.path.islink(os.path.join(root, name)))
             for name in sorted(filenames):
                 candidate = os.path.join(root, name)
-                if os.path.islink(candidate):
+                details = os.lstat(candidate)
+                if S_ISLNK(details.st_mode):
                     continue
-                stat = os.stat(candidate)
                 records.append((os.path.relpath(candidate, target),
-                                stat.st_size, stat.st_mtime_ns))
-                total += stat.st_size
+                                details.st_size, details.st_mtime_ns))
+                total += details.st_size
         payload = json.dumps(records, separators=(",", ":")).encode("utf-8")
         return Fingerprint(hashlib.sha256(payload).hexdigest(), "tree",
                            total, len(records))

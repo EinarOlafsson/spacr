@@ -613,3 +613,5 @@ entrypoints are recorded; no counts were invented, images read, or data changed.
 Live Work labeling state remains unverified; locate existing truth before
 asking for duplicate annotation. Whole validation/published-weight acceptance
 remains open. No inference, training or GPU execution.
+
+2026-10-24 — Maintainer decision: labelling packets are not wanted now; deferred by the maintainer.

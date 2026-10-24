@@ -161,7 +161,7 @@ def test_each_filename_sits_beside_the_fields_it_was_parsed_into(screen,
     tree = corpus["imagexpress"]
     _scanned(screen, tree)
 
-    seen = {screen.proposal_value(row, "file"): row
+    seen = {Path(screen.proposal_value(row, "file")).as_posix(): row
             for row in range(screen.proposal_row_count())}
     for rel, truth in tree.truth.items():
         row = seen[rel]
@@ -236,7 +236,7 @@ def test_answering_resolves_the_parse_in_memory_and_enables_import(screen,
 
     assert screen.can_import() is True
     assert screen.problems() == []
-    seen = {screen.proposal_value(row, "file"): row
+    seen = {Path(screen.proposal_value(row, "file")).as_posix(): row
             for row in range(screen.proposal_row_count())}
     for rel, truth in tree.truth.items():
         assert screen.proposal_value(seen[rel], "channel") == str(truth["channel"])
@@ -375,7 +375,10 @@ def test_the_import_links_rather_than_copying_the_plate(screen, corpus,
     assert screen.run_import() is True
     result = screen.result()
     assert result.linked == result.written
-    assert all(p.is_symlink() for p in destination.iterdir())
+    # Windows grants symlinks only to administrators or Developer Mode; the
+    # import then hard-links, which duplicates no bytes either.
+    assert all(p.is_symlink() or p.stat().st_nlink > 1
+               for p in destination.iterdir())
     assert result.bytes_saved > 0
     assert "not duplicated" in screen.report_text()
 

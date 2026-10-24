@@ -2179,10 +2179,10 @@ def dataset_class_balance(src, classes=None):
             if not os.path.isdir(class_dir):
                 counts[name] = 0
                 continue
-            counts[name] = sum(
-                1 for f in os.listdir(class_dir)
-                if not f.startswith('.')
-                and os.path.isfile(os.path.join(class_dir, f)))
+            with os.scandir(class_dir) as entries:
+                counts[name] = sum(
+                    1 for entry in entries
+                    if not entry.name.startswith('.') and entry.is_file())
         if counts:
             out[split] = counts
     return out

@@ -111,6 +111,14 @@ def _install_fake_popen(monkeypatch, proc):
     return rec
 
 
+@pytest.fixture(autouse=True)
+def _no_batch_shims(monkeypatch):
+    """Argv tests describe a CLI that is a real executable; a Windows host
+    with an npm-installed CLI on PATH must not change what they see."""
+    from spacr.qt.ai import providers as pmod
+    monkeypatch.setattr(pmod, "_batch_shim", lambda name: "")
+
+
 # ---------------------------------------------------------------------------
 # _stream_process — the shared subprocess helper
 # ---------------------------------------------------------------------------
@@ -153,6 +161,8 @@ def test_stream_process_passes_argv_env_and_merges_stderr(monkeypatch):
     assert rec["stderr"] is subprocess.STDOUT   # stderr folded into stdout
     assert rec["stdin"] is None                 # no stdin_text -> no pipe
     assert rec["text"] is True
+    assert rec["encoding"] == "utf-8"           # not the Windows ANSI page
+    assert rec["errors"] == "replace"
     assert rec["bufsize"] == 1                  # line buffered
     # env_extra is layered on top of a copy of os.environ, not replacing it
     assert rec["env"]["EXTRA_VAR"] == "1"
@@ -520,6 +530,72 @@ def test_gemini_argv_explicit_model(monkeypatch, speed):
     list(pmod.GeminiCliProvider().stream_chat(
         [{"role": "user", "content": "q"}], model="gemini-3"))
     assert rec["argv"] == ["gemini", "-p", "User:\nq", "-m", "gemini-3"]
+
+
+# ---------------------------------------------------------------------------
+# npm .cmd shims on Windows: started by full path, prompt on stdin
+# ---------------------------------------------------------------------------
+
+def _shimmed(monkeypatch, shim):
+    from spacr.qt.ai import providers as pmod
+    monkeypatch.setattr(pmod, "_batch_shim",
+                        lambda name: f"C:\\npm\\{name}.cmd" if name == shim else "")
+    stdin = _FakeStdin()
+    return stdin, _install_fake_popen(monkeypatch, _FakeProc([], stdin=stdin))
+
+
+def test_codex_shim_reads_the_multi_line_prompt_from_stdin(monkeypatch):
+    from spacr.qt.ai.providers import CodexCliProvider
+
+    stdin, rec = _shimmed(monkeypatch, "codex")
+    list(CodexCliProvider().stream_chat(
+        [{"role": "user", "content": "a\nb"}], system="persona", model="o3"))
+    assert rec["argv"] == ["C:\\npm\\codex.cmd", "exec", "-", "--model", "o3"]
+    assert stdin.written == ["System:\npersona\n\nUser:\na\nb"]
+    assert not any("\n" in part for part in rec["argv"])
+
+
+def test_gemini_shim_reads_the_prompt_from_stdin(monkeypatch):
+    from spacr.qt.ai.providers import GeminiCliProvider
+
+    stdin, rec = _shimmed(monkeypatch, "gemini")
+    list(GeminiCliProvider().stream_chat(
+        [{"role": "user", "content": "q"}], model="gemini-3"))
+    assert rec["argv"] == ["C:\\npm\\gemini.cmd", "-m", "gemini-3"]
+    assert stdin.written == ["User:\nq"]
+
+
+def test_claude_shim_folds_the_system_prompt_into_stdin(monkeypatch):
+    from spacr.qt.ai.providers import ClaudeCliProvider
+
+    stdin, rec = _shimmed(monkeypatch, "claude")
+    provider = ClaudeCliProvider()
+    list(provider.stream_chat([{"role": "user", "content": "q"}],
+                              system="be terse", model="sonnet"))
+    assert rec["argv"] == ["C:\\npm\\claude.cmd", "-p", "--model", "sonnet",
+                           "--output-format", "json"]
+    assert stdin.written == ["System:\nbe terse\n\nUser:\nq"]
+
+    provider.allow_once([{"tool_name": "Read"}], "session-1")
+    stdin.written.clear()
+    list(provider.stream_chat([{"role": "user", "content": "go on"}],
+                              system="be terse", model="sonnet"))
+    assert rec["argv"] == ["C:\\npm\\claude.cmd", "-p", "--resume",
+                           "session-1", "--allowedTools", "Read", "--model",
+                           "sonnet", "--output-format", "json"]
+    assert stdin.written == ["System:\nbe terse\n\nUser:\ngo on"]
+
+
+@pytest.mark.skipif(os.name != "nt", reason="CreateProcess shim lookup")
+def test_batch_shim_finds_an_npm_cmd_on_path(monkeypatch, tmp_path):
+    from spacr.qt.ai import providers as pmod
+
+    monkeypatch.undo()
+    (tmp_path / "codex.cmd").write_text("@echo off\n", encoding="utf-8")
+    monkeypatch.setenv("PATH", str(tmp_path))
+    assert os.path.normcase(pmod._batch_shim("codex")) == \
+        os.path.normcase(str(tmp_path / "codex.cmd"))
+    assert pmod._batch_shim("no-such-cli-anywhere") == ""
 
 
 def test_every_stream_chat_registers_provider_for_cancellation(monkeypatch,

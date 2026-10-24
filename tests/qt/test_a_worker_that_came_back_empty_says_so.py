@@ -30,7 +30,11 @@ def test_memory_that_cannot_be_read_is_none_not_a_crash(error, monkeypatch):
     def _refuse(_name):
         raise error("no sysconf here")
 
+    def _blind():
+        raise RuntimeError("psutil cannot read this host either")
+
     monkeypatch.setattr(laptop_mode.os, "sysconf", _refuse, raising=False)
+    monkeypatch.setattr("psutil.virtual_memory", _blind)
 
     assert laptop_mode.total_memory_gib() is None
 

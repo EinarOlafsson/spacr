@@ -374,3 +374,5 @@ All 42 unique focused behavior/settings/source/reference/flow/catalog controls a
 Notebook references, consumer/flow artifacts and caption arrivals were generated normally; root owns Night publication. Unsupported routes, native qualification and real known-amount scientific acceptance remain OPEN.
 
 2026-10-24 Home: correct the signed-cell CSV durability flush to use an existing write-capable descriptor, retaining read-only digest calculation, missing-file failure and atomic no-overwrite publication; both fsync guards and the real signed CSV export pass (3 controls), with callable prose, translated strings and generated source positions unchanged. Root owns publication; broader F538 acceptance remains OPEN.
+
+2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).

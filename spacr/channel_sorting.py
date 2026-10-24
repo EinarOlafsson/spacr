@@ -1785,11 +1785,15 @@ def _original_names(folder: str) -> Dict[str, str]:
     if not rows:
         return {}
     originals = [os.path.normpath(r["original_path"]) for r in rows]
-    root = (os.path.commonpath([os.path.dirname(p) for p in originals])
-            if len(originals) > 1 else os.path.dirname(originals[0]))
+    try:
+        root = (os.path.commonpath([os.path.dirname(p) for p in originals])
+                if len(originals) > 1 else os.path.dirname(originals[0]))
+    except ValueError:
+        root = ""
     names = {}
     for row, original in zip(rows, originals):
-        relative = os.path.relpath(original, root)
+        relative = (os.path.relpath(original, root) if root
+                    else os.path.splitdrive(original)[1])
         names[row["new_filename"]] = "_".join(
             part for part in relative.replace("\\", "/").split("/") if part)
     return names
