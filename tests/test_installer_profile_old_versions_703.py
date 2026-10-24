@@ -119,6 +119,8 @@ def test_windows_installer_and_distributables_carry_the_current_writer(tmp_path,
     online = tmp_path / "source"
     generated = online / "generated"
     generated.mkdir(parents=True)
+    for name in ("windows_crt.py", "windows_crt.json"):
+        (online / name).write_bytes((ONLINE / name).read_bytes())
     (generated / "installer_messages.ps1").write_text(
         renderer.render_powershell(renderer.catalogs()), encoding="utf-8",
     )
@@ -127,3 +129,5 @@ def test_windows_installer_and_distributables_carry_the_current_writer(tmp_path,
     builder.render_installer(builder.TARGETS["windows-x86_64"], "1.5.1.5", tmp_path)
     assert (tmp_path / "install_profile.py").read_bytes() == PROFILE.read_bytes()
     assert (tmp_path / "install_cleanup.py").read_bytes() == (ROOT / "spacr" / "install_cleanup.py").read_bytes()
+    for name in ("windows_crt.py", "windows_crt.json"):
+        assert (tmp_path / name).read_bytes() == (ONLINE / name).read_bytes()
