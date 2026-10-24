@@ -258,6 +258,9 @@ def test_private_acl_accepts_current_user_or_builtin_administrators_owner(crt, m
     monkeypatch.setattr(crt, 'os', SimpleNamespace(name='nt'))
     monkeypatch.setattr(crt, '_read_acl', lambda path: evidence)
     crt._private('owned directory')
+    evidence['has_dacl'] = False
+    with pytest.raises(ValueError, match='private current-user or Administrators-owned ACL'):
+        crt._private('owned directory')
 
 
 @pytest.mark.parametrize('owner,has_dacl,rules', [
