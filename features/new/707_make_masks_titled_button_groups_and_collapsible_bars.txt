@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Five endpoint batches on02e991c63f PASS31.40/32.28/38.34/31.67/32.73s,
+RSS1.205..1.243GiB: bodies2..16 accepted30 endpoint lines via33 visible segments.
+Their369/399 middlelines remain untested; source/layout/doc/origin/line totals
+EXACTLY match ScihQT. Content5.756..7.251s/startup9.649..11.912s; all normal
+cleanup pass. No whole-body visibility or139whole-target acceptance claimed.
+
 Native17474/fpPOvJ onfc6add0fdd PASS30.93s/RSS1.087GiB: body1/v1.5.1.4
 endpoints[0,2] accepted2/2 lines/2/2 visible segments; middleline untested.
 Open Sans44/doc696×180/origin0/3lines; source/layout/doc witnesses EXACTLY
