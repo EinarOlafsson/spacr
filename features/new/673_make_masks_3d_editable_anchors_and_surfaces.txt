@@ -26,6 +26,14 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+Checklist5 Image-controls scope: one seven-state native run (baseline, eye off/
+restore, valid contrast-high126/192 restore, mip/attenuated_mip restore).
+Reveal each real enabled/visible control once inside its original20s operation;
+preserve canvas/request pose, all non-target layer/UI fields and data/prefs.
+Every changed frame must differ, every restore must match baseline RGB/IDs;
+fresh Metal75/completed paints/new serials and normal cleanup stay strict.
+No opacity replay, picking, FPS, axes/lens or whole-item acceptance claim.
+
 2026-10-24 — Native63357/bm7W28 onb3e92d2f21 PASS35.81s/RSS1.465GiB:
 real Image100→37→100, Masks60/other fields unchanged; Metal75 newserials7/9/11.
 Fresh RGB/IDs/completed paints match; changedRGB differs and baseline restores

@@ -165,6 +165,11 @@ def test_native_image_opacity_changes_only_its_layer_and_restores_the_frame(tmp_
     _run_native_volume_probe(tmp_path, scenario='image_opacity')
 
 
+def test_native_image_visibility_contrast_and_rendering_restore_the_frame(tmp_path):
+    """Check seven real image-control states without changing sibling layers."""
+    _run_native_volume_probe(tmp_path, scenario='image_controls')
+
+
 def _run_native_volume_probe(tmp_path, *, scenario):
     """Share only normal startup, owned data and current-frame verification."""
     import ast
@@ -177,7 +182,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
     import sys
     import textwrap
 
-    assert scenario in ('restart', 'image_opacity')
+    assert scenario in ('restart', 'image_opacity', 'image_controls')
     if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
         pytest.skip('Requires the owned native Cocoa acceptance runner')
     root = Path(__file__).resolve().parents[2]
@@ -218,7 +223,9 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         assert timing.ENABLED and not layers.gpu_render_refusal()
         phase = os.environ['SPACR_RESTART_PHASE']
         scenario = os.environ['SPACR_VOLUME_SCENARIO']
-        assert scenario in ('restart', 'image_opacity')
+        assert scenario in ('restart', 'image_opacity', 'image_controls')
+        control_operations = ['initial', 'visibility_hidden', 'visibility_restored',
+            'contrast_changed', 'contrast_restored', 'rendering_changed', 'rendering_restored']
         folder = Path(os.environ['SPACR_RESTART_FIXTURE'])
         output = Path(os.environ['SPACR_RESTART_OUTPUT'])
         report = {'phase': phase, 'errors': [], 'initial_saved': preferences.get_volume_view(),
@@ -228,6 +235,8 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                   'pick_scope': 'inside-frame background only; positive selection not exercised'}
         if scenario == 'image_opacity':
             report.update(scenario=scenario, pick_scope='not exercised', opacity_states=[])
+        elif scenario == 'image_controls':
+            report.update(scenario=scenario, pick_scope='not exercised', image_control_states=[], image_control_actions=[])
         if phase == 'B':
             assert report['initial_saved']['backend'] == 'metal' and report['initial_saved']['scale'] == 75
         else:
@@ -353,6 +362,62 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                 'camera': (axes.elev, axes.azim, axes.roll, tuple(axes.get_xlim3d()),
                     tuple(axes.get_ylim3d()), tuple(axes.get_zlim3d()))}
 
+        def current_request(stage, quality):
+            bookkeeping = (stage._render_serial, stage._render_floor, stage._render_turning)
+            try:
+                return stage._render_request(quality)
+            finally:
+                stage._render_serial, stage._render_floor, stage._render_turning = bookkeeping
+
+        def image_state(stage, context, request):
+            session = stage.session
+            return {'operation': state['operation'], 'pose': request_pose(stage, request),
+                'layers': layer_snapshot(stage), 'frame': dict(report['current_frame']),
+                'preferences': preferences.get_volume_view(), 'selected': stage._selected,
+                'selected_ui': stage._labels.currentData(), 'context': id(context),
+                'data_history_unchanged': (
+                    (id(session.image), id(session.mask)) == state['session_arrays']
+                    and digest(session.image) == state['image'] and digest(session.mask) == state['mask']
+                    and (tuple(map(id, session._undo)), tuple(map(id, session._redo))) == state['history']
+                    and stage.dirty == state['dirty'])}
+
+        def act_on_image_control(stage, operation):
+            controls = state['image_controls']
+            target = controls.eye if operation.startswith('visibility_') else (
+                controls.high if operation.startswith('contrast_') else controls.rendering)
+            advance(operation)
+            ancestor = target.parentWidget()
+            reveals = []
+            while ancestor is not None and ancestor is not state['window']:
+                if isinstance(ancestor, QScrollArea):
+                    ancestor.ensureWidgetVisible(target, 0, 0)
+                    reveals.append(ancestor.objectName())
+                ancestor = ancestor.parentWidget()
+            action = {'operation': operation, 'target': target.objectName(), 'reveals': reveals,
+                'enabled': target.isEnabled(), 'visible': target.isVisible(),
+                'visible_region': target.visibleRegion().boundingRect().getRect(),
+                'elapsed_at_reveal': time.perf_counter()-state['started']}
+            report['image_control_actions'].append(action)
+            save()
+            assert 'VolumeLayerScroll' in reveals
+            assert target.isEnabled() and target.isVisible() and not target.visibleRegion().isEmpty()
+            assert request_pose(stage, current_request(stage, 'preview')) == state['controls_baseline']['pose']
+            if operation.startswith('visibility_'):
+                expected = operation == 'visibility_restored'
+                assert target.isChecked() != expected
+                target.click()
+                assert target.isChecked() == expected
+            elif operation.startswith('contrast_'):
+                target.setValue(state['contrast_target'] if operation == 'contrast_changed' else state['contrast_original'])
+            else:
+                value = 'attenuated_mip' if operation == 'rendering_changed' else 'mip'
+                index = target.findData(value)
+                assert index >= 0 and target.currentIndex() != index
+                target.setCurrentIndex(index)
+            action['elapsed_after_action'] = time.perf_counter()-state['started']
+            save()
+            assert action['elapsed_after_action'] < 20
+
         def tick():
             try:
                 elapsed = time.perf_counter()-state['started']
@@ -402,7 +467,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                     assert set(np.unique(session.mask)) == set(range(44))
                     state.update(stage=stage, image=digest(session.image), mask=digest(session.mask),
                         history=(tuple(map(id, session._undo)), tuple(map(id, session._redo))), dirty=stage.dirty)
-                    if scenario == 'image_opacity':
+                    if scenario in ('image_opacity', 'image_controls'):
                         state['session_arrays'] = (id(session.image), id(session.mask))
                     assert 'metal' in mm.volume_render_backends()
                     report['before_true3d_saved'] = preferences.get_volume_view()
@@ -419,7 +484,9 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                     advance('initial')
                     return
                 stage = state['stage']
-                if state['operation'] in ('initial', 'opacity_changed', 'opacity_restored'):
+                if state['operation'] in ('initial', 'opacity_changed', 'opacity_restored',
+                        'visibility_hidden', 'visibility_restored', 'contrast_changed', 'contrast_restored',
+                        'rendering_changed', 'rendering_restored'):
                     if not idle(stage) or stage._render_state is None:
                         return
                     if scenario == 'image_opacity' and 'opacity_slider' not in state:
@@ -457,11 +524,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                     if not matching:
                         state['canvas'].draw_idle()
                         return
-                    bookkeeping = (stage._render_serial, stage._render_floor, stage._render_turning)
-                    try:
-                        request = stage._render_request(rendered.quality)
-                    finally:
-                        stage._render_serial, stage._render_floor, stage._render_turning = bookkeeping
+                    request = current_request(stage, rendered.quality)
                     rgb, picked = context.render(request)
                     assert tuple(request.rect) == tuple(rendered.rect) and request.scale.percent == 75
                     assert np.array_equal(rgb, rendered.rgb) and np.array_equal(picked, rendered.picked)
@@ -470,20 +533,63 @@ def _run_native_volume_probe(tmp_path, *, scenario):
                         'positive_original_ids': sorted(map(int, np.unique(picked[picked > 0]))),
                         'fresh_request_exact': True, 'paint': matching[-1]}
                     assert set(report['current_frame']['positive_original_ids']) <= set(range(1, 44))
+                    if scenario == 'image_controls':
+                        assert request.quality == 'preview'
+                        row = image_state(stage, context, request)
+                        report['image_control_states'].append(row)
+                        save()
+                        assert row['data_history_unchanged']
+                        state['context'] = context
+                        if state['operation'] == 'initial':
+                            images = [layer for layer in stage._layers if isinstance(layer, layers.ImageLayer)]
+                            masks = [layer for layer in stage._layers if isinstance(layer, layers.LabelsLayer)]
+                            assert len(images) == len(masks) == 1
+                            image = images[0]
+                            controls = stage._layer_rows[image.name]
+                            low, high = image.contrast_limits(0)
+                            assert image.visible and controls.eye.isChecked()
+                            assert image.metadata['rendering'] == controls.rendering.currentData() == 'mip'
+                            assert controls.low.value() == low == 60 and controls.high.value() == high == 192
+                            assert controls.high.minimum() <= 126 <= controls.high.maximum() and low < 126 < high
+                            state.update(controls_baseline=row, controls_rgb=rgb.copy(), controls_picked=picked.copy(),
+                                image_layer=image, image_controls=controls, contrast_original=high, contrast_target=126)
+                        else:
+                            baseline = state['controls_baseline']
+                            assert row['pose'] == baseline['pose'] and row['context'] == baseline['context']
+                            assert row['selected'] == baseline['selected'] and row['selected_ui'] == baseline['selected_ui']
+                            assert row['preferences'] == baseline['preferences']
+                            assert row['frame']['serial'] > report['image_control_states'][-2]['frame']['serial']
+                            expected = []
+                            for original in baseline['layers']:
+                                copied = dict(original, ui=dict(original['ui']))
+                                if copied['name'] == state['image_layer'].name:
+                                    if state['operation'] == 'visibility_hidden':
+                                        copied['visible'], copied['ui']['eye'] = False, False
+                                    elif state['operation'] == 'contrast_changed':
+                                        copied['contrast'] = (copied['contrast'][0], 126.)
+                                        copied['ui']['high'] = 126.
+                                    elif state['operation'] == 'rendering_changed':
+                                        copied['rendering'] = copied['ui']['rendering'] = 'attenuated_mip'
+                                expected.append(copied)
+                            assert row['layers'] == expected
+                            if state['operation'].endswith('_restored'):
+                                assert row['layers'] == baseline['layers']
+                                assert np.array_equal(rgb, state['controls_rgb']) and np.array_equal(picked, state['controls_picked'])
+                            else:
+                                assert not np.array_equal(rgb, state['controls_rgb'])
+                        index = control_operations.index(state['operation'])
+                        if index == len(control_operations)-1:
+                            report['image_controls_restored'] = True
+                            advance('current_idle')
+                        else:
+                            act_on_image_control(stage, control_operations[index+1])
+                        return
                     if scenario == 'image_opacity':
                         assert request.quality == 'preview'
                         assert state['opacity_slider'].isEnabled() and state['opacity_slider'].isVisible()
                         assert not state['opacity_slider'].visibleRegion().isEmpty()
-                        pose, rows = request_pose(stage, request), layer_snapshot(stage)
-                        row = {'operation': state['operation'], 'pose': pose, 'layers': rows,
-                            'frame': dict(report['current_frame']), 'preferences': preferences.get_volume_view(),
-                            'selected': stage._selected, 'selected_ui': stage._labels.currentData(), 'context': id(context)}
-                        session = stage.session
-                        row['data_history_unchanged'] = (
-                            (id(session.image), id(session.mask)) == state['session_arrays']
-                            and digest(session.image) == state['image'] and digest(session.mask) == state['mask']
-                            and (tuple(map(id, session._undo)), tuple(map(id, session._redo))) == state['history']
-                            and stage.dirty == state['dirty'])
+                        row = image_state(stage, context, request)
+                        pose, rows = row['pose'], row['layers']
                         report['opacity_states'].append(row)
                         save()
                         assert row['data_history_unchanged']
@@ -601,6 +707,24 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             assert [row['operation'] for row in report['opacity_states']] == ['initial', 'opacity_changed', 'opacity_restored']
             assert all(row['data_history_unchanged'] for row in report['opacity_states'])
             assert 'pick' not in report
+        elif scenario == 'image_controls':
+            assert report['image_controls_restored'] and 'pick' not in report
+            assert [row['operation'] for row in report['image_control_states']] == control_operations
+            assert [row['operation'] for row in report['image_control_actions']] == control_operations[1:]
+            baseline = report['image_control_states'][0]
+            for i, row in enumerate(report['image_control_states']):
+                assert report[row['operation']+'_seconds'] < (30 if i == 0 else 20)
+                assert row['data_history_unchanged'] and row['frame']['fresh_request_exact']
+                assert row['pose'] == baseline['pose'] and row['preferences'] == baseline['preferences']
+                if i:
+                    assert row['frame']['serial'] > report['image_control_states'][i-1]['frame']['serial']
+                    if row['operation'].endswith('_restored'):
+                        assert row['frame']['rgb'] == baseline['frame']['rgb'] and row['frame']['picked'] == baseline['frame']['picked']
+                    else:
+                        assert row['frame']['rgb'] != baseline['frame']['rgb']
+            assert all(row['enabled'] and row['visible'] and row['visible_region'][2] > 0
+                and row['visible_region'][3] > 0 and row['elapsed_after_action'] < 20
+                for row in report['image_control_actions'])
         assert report.get('data_history_unchanged') and report['current_frame']['fresh_request_exact']
         assert report['gpu_resources_released'] and report['remaining_jobs'] == report['owned_threads_alive'] == 0
         assert not report['compiler_threads'] and not report['compiler_helper_present']
@@ -639,11 +763,31 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         assert report['current_frame']['fresh_request_exact']
         if scenario == 'restart':
             assert report['pick']['returned'] == report['pick']['expected'] == 0
-        else:
+        elif scenario == 'image_opacity':
             assert report['scenario'] == scenario and report['opacity_changed_seconds'] < 20 and report['opacity_restored_seconds'] < 20
             assert report['opacity_rgb_changed'] and report['opacity_frame_restored'] and 'pick' not in report
             assert [row['operation'] for row in report['opacity_states']] == ['initial', 'opacity_changed', 'opacity_restored']
             assert all(row['data_history_unchanged'] for row in report['opacity_states'])
+        else:
+            assert report['scenario'] == scenario and report['image_controls_restored'] and 'pick' not in report
+            operations = ['initial', 'visibility_hidden', 'visibility_restored',
+                'contrast_changed', 'contrast_restored', 'rendering_changed', 'rendering_restored']
+            assert [row['operation'] for row in report['image_control_states']] == operations
+            assert [row['operation'] for row in report['image_control_actions']] == operations[1:]
+            baseline = report['image_control_states'][0]
+            for i, row in enumerate(report['image_control_states']):
+                assert report[row['operation']+'_seconds'] < (30 if i == 0 else 20)
+                assert row['data_history_unchanged'] and row['frame']['fresh_request_exact']
+                assert row['pose'] == baseline['pose'] and row['preferences'] == baseline['preferences']
+                if i:
+                    assert row['frame']['serial'] > report['image_control_states'][i-1]['frame']['serial']
+                    if row['operation'].endswith('_restored'):
+                        assert row['frame']['rgb'] == baseline['frame']['rgb'] and row['frame']['picked'] == baseline['frame']['picked']
+                    else:
+                        assert row['frame']['rgb'] != baseline['frame']['rgb']
+            assert all(row['enabled'] and row['visible'] and row['visible_region'][2] > 0
+                and row['visible_region'][3] > 0 and row['elapsed_after_action'] < 20
+                for row in report['image_control_actions'])
         assert report['data_history_unchanged'] and report['gpu_resources_released']
         assert report['remaining_jobs'] == report['owned_threads_alive'] == 0
         assert not report['errors'] and not report['compiler_threads'] and not report['compiler_helper_present']
