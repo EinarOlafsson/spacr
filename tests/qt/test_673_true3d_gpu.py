@@ -238,7 +238,7 @@ def _run_native_volume_probe(tmp_path, *, scenario):
         required = (volume_name, 'masks/'+volume_name)
     else:
         retained = Path(os.environ.get('SPACR_RESTART_FIBSEM_FIXTURE',
-            '/Users/olafsson/Library/Caches/spacr-acceptance/fibsem-native.aGEZyt/make_masks_fibsem'))
+            Path.home() / 'Library/Caches/spacr-acceptance/fibsem-native.aGEZyt/make_masks_fibsem'))
         required = ('hela_fibsem.tif', 'manifest.csv', 'ground_truth_masks/hela_fibsem.tif',
                     'corrected_masks/hela_fibsem.tif')
         assert all((retained / name).is_file() for name in required), retained
