@@ -208,27 +208,26 @@ class TestGuardsAfterALoopThatCannotFallThrough:
         assert flashed == ([True] if text.strip() else [])
 
     def test_the_fold_strip_guard_sits_inside_the_handler(self):
-        """THE PIN, for ``if strip is None`` in the mask screen.
+        """An empty Time-category mount is inside the same failure handler.
 
-        ``build_strip`` answers a widget or raises; the ``None`` arm is
-        belt and braces INSIDE a try that already turns any failure into
-        a screen with no fold strip. What matters is that both roads end
-        the same way -- the screen opens.
+        The mount can contribute no categories or raise while constructing
+        them. Both paths must leave the existing Mask screen usable without
+        installing a redundant masthead strip.
         """
         from spacr.qt.screens import mask as M
 
         source = inspect.getsource(M.install_folds)
         assert "if not folds.mount():" in source
-        guard = source.index("if strip is None:")
+        guard = source.index("if not folds.mount():")
 
         # The LAST `try` before the guard, and the FIRST `except` after
-        # it: there are two of each in this function, and anchoring on
+        # it: earlier button installers have their own guards, and anchoring on
         # the wrong one is how this pin first passed for the wrong reason.
         opened = source.rindex("    try:", 0, guard)
         closed = source.index("    except Exception:", guard)
 
         assert opened < guard < closed, (
-            "the None check is no longer inside a try, so a failure there "
+            "the empty mount check is no longer inside a try, so a failure there "
             "escapes and the mask screen does not open")
         assert "return None" in source[guard:closed]
 

@@ -56,7 +56,7 @@ def _clipped_by_an_ancestor(widget, screen):
 
 @pytest.fixture(params=[False, True], ids=["no-search-strip", "search-strip"])
 def mask_with_tracking(request, qtbot, qt_theme_applied):
-    """A shown Mask screen with the Timelapse fold switched on.
+    """A shown Mask screen with the existing Time visibility switch on.
 
     Both with and without the settings search strip: in the app the strip
     is installed early, and it lives in the settings column, which folds
@@ -68,12 +68,14 @@ def mask_with_tracking(request, qtbot, qt_theme_applied):
         from spacr.qt import settings_search
 
         assert settings_search.install(screen) is not None
-    strip = mask_folds.install_folds(screen)
-    assert strip is not None
+    assert mask_folds.install_folds(screen) is None
+    time_switch = screen.dimension_switch("t")
+    assert time_switch is not None
     screen.resize(1280, 800)
     screen.show()
     _settle()
-    strip.button_for("timelapse").setChecked(True)
+    time_switch.setChecked(True)
+    assert time_switch.isChecked()
     _settle()
     preview = screen._folded_previews["timelapse"]
     return screen, preview
