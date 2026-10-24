@@ -160,6 +160,7 @@ class _HeroTextFit(QObject):
                     continue
 
                 def fits(size):
+                    """Return whether this font pixel size fits the label content rectangle."""
                     font = QFont(selected)
                     font.setPixelSize(size)
                     text = label.style().itemTextRect(
