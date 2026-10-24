@@ -72,6 +72,9 @@ class ModuleHintBar(QLabel):
         :param parent: parent widget, or ``None``.
         """
         super().__init__(default, parent)
+        self._held_summary = None
+        self._held_stage = ""
+        self._held_links = ""
         self._default = default
         self._key = ""
         self._timer: Optional[QTimer] = None
@@ -125,6 +128,10 @@ class ModuleHintBar(QLabel):
         if event.type() in (QEvent.Type.FontChange, QEvent.Type.StyleChange,
                             QEvent.Type.ApplicationFontChange):
             self._fit_height()
+        if event.type() in (QEvent.Type.Resize, QEvent.Type.FontChange,
+                            QEvent.Type.StyleChange, QEvent.Type.ApplicationFontChange):
+            if getattr(self, '_held_summary', None) is not None:
+                self._render_held_summary()
         return handled
 
     @property
@@ -146,16 +153,22 @@ class ModuleHintBar(QLabel):
         text = str(summary or "").strip()
         mark = str(stage or "").strip()
         self._key = str(key or "")
-        suffix = f" — {mark}" if mark else ""
-        html = escape(self._fit(text, reserve=suffix) + suffix)
-        links = self._links_html(self._key)
-        if links:
-            html = f"{html}<br>{links}" if html else links
-        self.setText(html)
+        self._held_summary, self._held_stage = text, mark
+        self._held_links = self._links_html(self._key)
+        self._render_held_summary()
         self.setAccessibleName(text or self._default)
         self.setAccessibleDescription(text)
         self._hold(True)
-        return html
+        return self.text()
+
+    def _render_held_summary(self) -> None:
+        """Refit the original held text without changing its links or deadline."""
+        suffix = f" — {self._held_stage}" if self._held_stage else ""
+        html = escape(self._fit(self._held_summary, reserve=suffix) + suffix)
+        if self._held_links:
+            html = f"{html}<br>{self._held_links}" if html else self._held_links
+        if html != self.text():
+            self.setText(html)
 
     def _fit(self, text: str, reserve: str = "") -> str:
         """``text`` shortened to the one line the strip has for it.
@@ -174,7 +187,7 @@ class ModuleHintBar(QLabel):
         from PySide6.QtCore import Qt as _Qt
 
         metrics = self.fontMetrics()
-        room = self.width() - 16 - (metrics.horizontalAdvance(reserve)
+        room = self.contentsRect().width() - (metrics.horizontalAdvance(reserve)
                                     if reserve else 0)
         if room <= 0:
             return text
@@ -226,6 +239,8 @@ class ModuleHintBar(QLabel):
     def release(self) -> None:
         """Put the default prompt back and stop holding."""
         self._key = ""
+        self._held_summary = None
+        self._held_stage = self._held_links = ""
         self._hold(False)
         from ..i18n import tr
         self.setText(escape(tr(self._default)))

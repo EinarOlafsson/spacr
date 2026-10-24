@@ -12,6 +12,19 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Held hint-width scope: GUI200/90/100%, font200, one long summary plus stage
+must fit actual styled contents through wide/narrow/grow, restore original
+text on growth, and preserve key/accessibility/links and the original30s timer.
+The unlaid1px fallback remains unchanged; causal RED precedes local rerender.
+RED53661: all three GUI cases retain stale elision after narrow/grow; GUI2/1
+also overflow initially. Cache original summary/stage/links and rerender only
+text from actual contents room on local geometry/font/style changes, without
+restarting the hold timer; release must prevent later resurrection.
+GREEN1268: three held-width cases pass4.42s/.278GiB; affected vertical cases
+GREEN95701 pass4.54s/.277GiB. Full originals restore on growth, timers/links/
+accessibility remain intact. Released default prompt still overflows atGUI2
+width600 (730.22px text/552px contents); default-prompt fit remains open.
+
 Module hint-height scope: at GUI200/90/100%, font200 and normal Open Sans,
 compare actual fixed height/min/max and stored scale records with the actual
 two-line font metric plus10; retain styled two-line contents, width-change,

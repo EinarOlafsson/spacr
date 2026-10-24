@@ -119,6 +119,108 @@ def test_module_hint_height_uses_actual_two_line_metrics(qtbot, qapp, gui):
             qapp.setPalette(old_palette)
 
 
+@pytest.mark.parametrize('gui', [2., .9, 1.])
+def test_held_module_hint_refits_actual_contents_without_restarting_hold(qtbot, qapp, gui):
+    import json
+    import math
+    from PySide6.QtCore import QSize
+    from PySide6.QtGui import QFontInfo, QTextDocument
+    from spacr.qt import app, gui_scale, preferences
+
+    saved_gui, saved_font = preferences.get_gui_scale(), preferences.get_font_scale()
+    live_gui = gui_scale.current_scale()
+    old_sheet, old_font, old_palette = qapp.styleSheet(), qapp.font(), qapp.palette()
+    bar = None
+    try:
+        app._load_bundled_fonts()
+        app._use_open_sans(qapp)
+        gui_scale.install_scaling_layer()
+        preferences.set_gui_scale(gui)
+        preferences.set_font_scale(2.)
+        gui_scale.set_gui_scale_live(gui)
+        preferences.apply_preferences_to_app()
+        bar = ModuleHintBar()
+        qtbot.addWidget(bar)
+        gui_scale._resize_actual(bar, QSize(900, 600))
+        bar.show()
+        previous = [None]
+
+        def settled():
+            now = (bar.property('size').toTuple(), bar.font().toString(), bar.text())
+            same = now == previous[0]
+            previous[0] = now
+            return same
+
+        qtbot.waitUntil(settled)
+        assert QFontInfo(bar.font()).family() == 'Open Sans'
+        summary = 'Segment cells and nuclei while retaining the original image and every measured object.'
+        stage = 'Preview'
+        bar.show_module('mask', summary, stage)
+        timer, timer_id = bar._timer, bar._timer.timerId()
+        remaining = timer.remainingTime()
+        height = bar.property('size').height()
+        links = bar._links_html('mask')
+        full = QTextDocument()
+        full.setDocumentMargin(0)
+        full.setDefaultFont(bar.font())
+        full.setPlainText(summary + ' — ' + stage)
+        insets = bar.rect().width() - bar.contentsRect().width()
+        grow_width = math.ceil(full.idealWidth()) + insets + 2
+        rows, failures = [], []
+        for width in (900, 600, grow_width):
+            gui_scale._resize_actual(bar, QSize(width, height))
+            previous[0] = None
+            qtbot.waitUntil(settled)
+            document = QTextDocument()
+            document.setDocumentMargin(0)
+            document.setDefaultFont(bar.font())
+            document.setHtml(bar.text())
+            contents = bar.contentsRect()
+            row = {'width': width, 'contents': contents.getRect(),
+                   'document': document.size().toTuple(), 'html': bar.text(),
+                   'timer_id': timer.timerId(), 'remaining': timer.remainingTime()}
+            rows.append(row)
+            if document.size().width() > contents.width() or document.size().height() > contents.height():
+                failures.append(row)
+            assert bar._timer is timer and timer.timerId() == timer_id and timer.isActive()
+            assert timer.interval() == 30_000 and 0 < timer.remainingTime() <= remaining
+            remaining = timer.remainingTime()
+            assert bar.module_key == 'mask'
+            assert bar.accessibleName() == bar.accessibleDescription() == summary
+            assert stage in bar.text() and links in bar.text()
+            assert bar.property('size').height() == height
+        restored = document.toPlainText().split('\n')[0]
+        print('HELD_MODULE_HINT_WIDTH', json.dumps({'gui': gui, 'rows': rows,
+              'restored': restored, 'expected_original': summary + ' — ' + stage}), flush=True)
+        assert not failures, failures
+        assert restored == summary + ' — ' + stage
+        seen = []
+        bar.link_followed.connect(lambda key, href: seen.append((key, href)))
+        bar._on_link('https://example.invalid/mask')
+        assert seen == [('mask', 'https://example.invalid/mask')]
+        bar.release()
+        gui_scale._resize_actual(bar, QSize(600, height))
+        previous[0] = None
+        qtbot.waitUntil(settled)
+        assert bar.text() == bar._default and not bar.is_holding()
+        assert bar.module_key == ''
+        document.setHtml(bar.text())
+        print('RELEASED_MODULE_HINT_WIDTH', json.dumps({
+            'gui': gui, 'document': document.size().toTuple(),
+            'contents': bar.contentsRect().getRect(), 'fit_acceptance': False}), flush=True)
+    finally:
+        try:
+            if bar is not None:
+                bar.close()
+        finally:
+            preferences.set_gui_scale(saved_gui)
+            preferences.set_font_scale(saved_font)
+            gui_scale.set_gui_scale_live(live_gui)
+            qapp.setStyleSheet(old_sheet)
+            qapp.setFont(old_font)
+            qapp.setPalette(old_palette)
+
+
 @pytest.fixture(scope="module")
 def window(qapp, qt_theme_applied):
     win = MainWindow()
