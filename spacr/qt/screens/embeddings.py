@@ -680,6 +680,7 @@ class EmbeddingsScreen(QWidget):
         available = 0 if crops is None else int(crops.shape[-1])
         dialog = QDialog(self)
         dialog.setObjectName("EmbeddingsSubCellChannelsDialog")
+        dialog.setProperty("spacrSettingsPopup", True)
         dialog.setWindowTitle(tr("SubCell four-plane channels"))
         layout = QVBoxLayout(dialog)
         guidance = QLabel(tr(
@@ -785,6 +786,7 @@ class EmbeddingsScreen(QWidget):
         available = 0 if crops is None else int(crops.shape[-1])
         dialog = QDialog(self)
         dialog.setObjectName("EmbeddingsCellDinoDialog")
+        dialog.setProperty("spacrSettingsPopup", True)
         dialog.setWindowTitle(tr("Cell-DINO checkpoint and model planes"))
         layout = QVBoxLayout(dialog)
         guidance = QLabel(tr(

@@ -4620,6 +4620,8 @@ class _FieldOverview(QWidget):
         from .section import Section
         self._options_window = QDialog(self, Qt.Window)
         self._options_window.setWindowTitle(tr("Options"))
+        self._options_window.setObjectName("OverviewOptionsWindow")
+        self._options_window.setProperty("spacrSettingsPopup", True)
         self._options_window.setWindowModality(Qt.NonModal)
         self._options_window.resize(880, 680)
         options_layout = QVBoxLayout(self._options_window)

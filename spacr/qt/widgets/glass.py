@@ -1,8 +1,9 @@
-"""Give every popup the translucent card and the travelling rim.
+"""Give every popup the rounded card and the travelling rim.
 
-Every settings popup in the program -- preferences, the hyperparameter
-search, live settings, AI settings, figure settings and the rest -- gets
-the same translucent background and the same rim.
+Every popup in the program gets the same rounded card and the same rim.
+Settings popups -- preferences, live settings, AI settings, figure settings
+and the rest, see :func:`_is_settings_popup` -- get a solid card in the
+theme's surface colour; the other popups keep the translucent one.
 
 ONE INSTALL POINT, NOT THIRTY-NINE EDITS. There are thirty-nine ``QDialog``
 subclasses in this package and there will be more next week; a look applied
@@ -30,6 +31,7 @@ be a native colour picker or a video surface that must own its own painting.
 from __future__ import annotations
 
 import logging
+import re
 from typing import Optional
 
 from PySide6.QtCore import QEvent, QLineF, QObject, QRect, Qt
@@ -93,6 +95,82 @@ RIM_ROOM = 10
 #: This is `SetupCard`'s own default, named here so the backdrop can be told
 #: the same thing.
 CARD_RADIUS = 18
+
+#: Set on a dialog that is a settings popup, whose card is painted solid.
+#:
+#: "the settings window in live mode in mask generation should have a solid
+#: non transparent background same for other settings popup windows." A
+#: settings popup is read, not looked through: its card is painted in the
+#: theme's own surface colour at full opacity and no ambient backdrop is put
+#: behind it. The window itself stays translucent, so only the four corner
+#: arcs outside the rounded card let the desktop through.
+#:
+#: :func:`glass` records the verdict of :func:`_is_settings_popup` here. A
+#: dialog built without a class of its own sets it to ``True`` before it is
+#: shown; ``False`` keeps a dialog whose class name says otherwise glassed.
+SETTINGS_POPUP = "spacrSettingsPopup"
+
+#: Class names that make a dialog a settings popup by name alone.
+#:
+#: So the next ``SomethingSettingsDialog`` is solid without anyone having to
+#: remember this module exists.
+SETTINGS_POPUP_NAME = re.compile(r"(Settings|Options|Preferences)(Dialog|Window)?$")
+
+#: Settings popups whose class name does not say so.
+SETTINGS_POPUP_CLASSES = frozenset({
+    "UmapAppearanceDialog",
+    "_ProvidersDialog",
+    "_KeymapDialog",
+    "ExecutionProfileDialog",
+    "SettingsAdvisorDialog",
+    "PlaqueOverlayDialog",
+    "AggregationRulesDialog",
+    "_LevelsDialog",
+})
+
+
+def _is_settings_popup(widget) -> bool:
+    """Whether ``widget`` is a settings popup, painted on a solid card.
+
+    The :data:`SETTINGS_POPUP` property decides when it is set. Otherwise any
+    spaCR class the dialog is built from decides, by its name matching
+    :data:`SETTINGS_POPUP_NAME` or appearing in
+    :data:`SETTINGS_POPUP_CLASSES`. Qt's own dialogs never qualify.
+
+    :param widget: the window to classify.
+    :returns: true for a settings popup.
+    """
+    if not isinstance(widget, QDialog):
+        return False
+    try:
+        flag = widget.property(SETTINGS_POPUP)
+    except RuntimeError:
+        return False
+    if flag is not None:
+        return bool(flag)
+    for cls in type(widget).__mro__:
+        if not str(getattr(cls, "__module__", "")).startswith("spacr."):
+            continue
+        name = cls.__name__
+        if name in SETTINGS_POPUP_CLASSES or SETTINGS_POPUP_NAME.search(name):
+            return True
+    return False
+
+
+def _settings_popup_colour(palette: Optional[dict] = None) -> QColor:
+    """The fully opaque colour a settings popup's card is painted in.
+
+    :param palette: a theme palette; ``None`` reads the theme on screen.
+    :returns: the palette's surface colour at alpha 255.
+    """
+    if palette is None:
+        from ..theme import active_palette
+
+        palette = active_palette()
+    colour = QColor(palette.get("surface", palette["bg"]))
+    colour.setAlpha(255)
+    return colour
+
 
 #: Marks a dialog that has already been told how to close itself.
 CLOSE_HINT = "spacrSaysPressEscape"
@@ -861,6 +939,7 @@ def _glass_held(dialog: QDialog) -> bool:
         LOG.debug("no card to put behind this dialog", exc_info=True)
         return False
     try:
+        dialog.setProperty(SETTINGS_POPUP, _is_settings_popup(dialog))
         backdrop = _install_the_backdrop(dialog)
 
         _paint_nothing_behind_the_card(dialog)
@@ -959,7 +1038,7 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
     try:
         from ..preferences import get_popup_backdrop, _popup_backdrop_motion
 
-        theme = get_popup_backdrop()
+        theme = "off" if _is_settings_popup(dialog) else get_popup_backdrop()
         if theme == "off":
             if backdrop is not None:
                 pause = getattr(backdrop, "set_animating", None)
