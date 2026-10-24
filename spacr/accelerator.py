@@ -309,10 +309,6 @@ def _metal_gpu_name() -> str:
     """
     if platform.system() != "Darwin":
         return "Metal GPU"
-    # On Apple Silicon the GPU is the chip, and the kernel names it in
-    # microseconds; system_profiler took 0.75 s on an M2, on the launch path
-    # through the backdrop's graphics probe. Its "Chipset Model" is the same
-    # string ("Apple M2"), natively and under Rosetta.
     if _apple_silicon():
         chip = _sysctl_string(b"machdep.cpu.brand_string")
         if chip.startswith("Apple "):
@@ -948,7 +944,6 @@ def capabilities(found: Optional[Accelerator] = None) -> Tuple[Tuple[str, bool, 
     found = resolve() if found is None else found
     gpu = found.is_gpu
     display_gpu = _opengl_likely()
-    # Apple Silicon keeps PCA/KMeans on the CPU; see gpu_reduce.backend_for.
     metal_reducers = gpu and found.kind == 'mps' and not _apple_gpu(found)
     rows = [
         ("Segmentation (Cellpose)", gpu,
