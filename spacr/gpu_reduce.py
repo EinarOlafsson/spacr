@@ -92,10 +92,15 @@ def backend_for(method: str, *, prefer_gpu: bool = False) -> str:
     if rapids_available():
         return "cuml"
     if str(method).strip().lower() in ('pca', 'kmeans') and _env_allows():
-        from .accelerator import resolve
+        from .accelerator import _apple_gpu, resolve
 
+        # Metal reducers pay off against an Intel Mac's CPU, which is what
+        # they were measured on. Apple Silicon's CPU beats them at every
+        # size: on an M2, 20k/100k/400k x 50 rows, KMeans k=8 took
+        # 0.04/0.17/0.63 s on the CPU and 0.30/2.75/13.1 s on Metal, and PCA
+        # 0.001/0.006/0.021 s against 0.009/0.143/0.080 s.
         found = resolve()
-        if found.is_gpu and found.kind == 'mps':
+        if found.is_gpu and found.kind == 'mps' and not _apple_gpu(found):
             return 'mps'
     return 'cpu'
 
