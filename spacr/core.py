@@ -87,7 +87,7 @@ from .figures.style import figure_style, theme_target
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
-def _score_v2_masks(src, settings, object_type: str = "cell"):
+def _score_v2_masks(src, settings, object_type: str = "cell", *, strict=False):
     """Score the masks a v2 run just wrote, the way v1 scores its own.
 
     v1 reaches this through :func:`spacr.object._run_seg_qc`, which globs a
@@ -99,10 +99,12 @@ def _score_v2_masks(src, settings, object_type: str = "cell"):
     `seg_qc` means the same thing whichever pipeline produced the masks.
 
     :param src: the plate folder handed to `run_v2`; `merged/` sits under it.
+    :param strict: propagate scoring errors and cancellation for independent
+        partitioned outputs; False retains the legacy best-effort scorecard.
     :returns: what :func:`spacr.seg_qc.run_segmentation_qc` returns, or None
         when QC is off, there are no masks to score, or scoring failed.
 
-    Never raises into a finished run. A plate that has just spent hours
+    With the default strict=False, never raises into a finished run. A plate that has just spent hours
     segmenting must not lose its masks to a scorecard bug, which is the same
     rule `_run_seg_qc` follows.
     """
@@ -131,6 +133,8 @@ def _score_v2_masks(src, settings, object_type: str = "cell"):
             verbose=bool(settings.get('verbose', True)),
         )
     except Exception as exc:                                 # noqa: BLE001
+        if strict:
+            raise
         print(f"Segmentation QC skipped for {object_type}: "
               f"{type(exc).__name__}: {exc}")
         return None
@@ -243,6 +247,22 @@ def preprocess_generate_masks(settings):
         signal matrix for the calibrated single-plate 2D cell V2 route, instead
         of control estimation. Its acquisition compatibility is an unverified
         user assertion; its exact matrix and calibration binding are recorded.
+        ``unmix_partition_plates=True`` instead partitions a mixed source into
+        independent calibrated cell-only 2D V2 datasets, using complete
+        same-plate controls and ``unmix_plate_calibrations``. That JSON maps
+        every exact plate ID to ``calibration_file``, ``pixel_size_um`` [Y,X],
+        ``source_context`` {plate,time,z} and ``acquisition_compatibility``
+        set to ``user_asserts_same_channel_gains_exposures_and_linear_response``.
+        Relative calibration paths resolve from the original source folder.
+        Optical applicability and within-plate acquisition compatibility are
+        unverified user assertions; cross-plate intensity comparability is not
+        established. Global calibration/spacing and direct matrices conflict.
+        Directory-relative, no-follow and nonblocking descriptor access must
+        be supported by the host; unsupported hosts refuse this opt-in route.
+        The nonquantitative collection records separate child roots and honest
+        partial completion; completed children survive a later error or cancel.
+        QC runs independently on each child after all segmentations succeed,
+        in report/off mode only. Original files and field identities persist.
     :raises ValueError: if ``src`` is missing or of the wrong type, or no
         segmentation channel is defined.
 
@@ -271,6 +291,9 @@ def preprocess_generate_masks(settings):
 
     _validate_unmix_plate_scope(settings, allow_per_plate=(
         settings.get('pipeline_style', 'v1') == 'v2'
+        and not any(_watch_truthy(settings.get(key, False))
+                    for key in ('watch_folder', 'timelapse', 'z_stack', 't_stack'))),
+        allow_partition=(settings.get('pipeline_style', 'v1') == 'v2'
         and not any(_watch_truthy(settings.get(key, False))
                     for key in ('watch_folder', 'timelapse', 'z_stack', 't_stack'))))
     _validate_unmix_matrix_scope(settings, allow_matrix=(
@@ -360,6 +383,53 @@ def preprocess_generate_masks(settings):
                 object_type='cell',
                 illumination_settings=settings,
             )
+            if result.get('partitioned', False):
+                from copy import deepcopy
+                from .cancellation import PipelineCancelled
+                from .pipeline_v2 import _record_partition_qc
+                from .seg_qc import qc_mode
+
+                qc_states = []
+                try:
+                    _record_partition_qc(result, None, 'running')
+                    for child in result['plate_results']:
+                        cancellation_checkpoint()
+                        child_settings = deepcopy(child['settings'])
+                        child_settings['src'] = child['output_root']
+                        if qc_mode(child_settings) == 'off':
+                            _record_partition_qc(result, child, 'off')
+                            qc_states.append('off')
+                            continue
+                        _record_partition_qc(result, child, 'running')
+                        try:
+                            score = _score_v2_masks(child['output_root'], child_settings,
+                                                    object_type='cell', strict=True)
+                        except BaseException as exc:
+                            status = 'cancelled' if isinstance(exc, PipelineCancelled) else 'failed'
+                            try:
+                                _record_partition_qc(result, child, status, error=exc)
+                            except Exception as status_error:
+                                note = getattr(exc, 'add_note', None)
+                                if callable(note):
+                                    note(str(status_error))
+                            raise
+                        status = 'complete' if score is not None else 'skipped'
+                        _record_partition_qc(result, child, status)
+                        qc_states.append(status)
+                    cancellation_checkpoint()
+                    status = ('skipped' if 'skipped' in qc_states else
+                              'off' if all(state == 'off' for state in qc_states) else 'complete')
+                    _record_partition_qc(result, None, status)
+                except BaseException as exc:
+                    status = 'cancelled' if isinstance(exc, PipelineCancelled) else 'failed'
+                    try:
+                        _record_partition_qc(result, None, status, error=exc)
+                    except Exception as status_error:
+                        note = getattr(exc, 'add_note', None)
+                        if callable(note):
+                            note(str(status_error))
+                    raise
+                continue
             output_root = result.get('output_root', src)
             if 'output_root' in result:
                 from .qt.i18n import tr

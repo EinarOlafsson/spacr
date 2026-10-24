@@ -1110,7 +1110,7 @@ if app_key == "mask":
     assert not plate_control_arrivals & (recognized_arrivals | variants.keys())
     assert expected_types["unmix_per_plate"] is bool
     assert hashlib.sha256(tooltips["unmix_per_plate"].encode()).hexdigest() == (
-        "a283816b7371998ef2264b36d318d52ad3158ee5760438b1633001ad6a8097c9")
+        "f2bea215a9aedbac4ce413817c616289f0b6726555d23d9ac3fdeb5185076ac2")
     plate_control_claim = list(DEFAULT_LITERAL.finditer(tooltips["unmix_per_plate"]))
     assert len(plate_control_claim) == 1
     assert ast.literal_eval(plate_control_claim[0].group("value")) is False
@@ -1118,7 +1118,8 @@ if app_key == "mask":
         assert resolve_default_settings(app)[key] is False
     from spacr.settings import ALPHA_FEATURES
     scoped_defaults = {**published_calibration_defaults, "unmix_per_plate": False,
-                       "unmix_matrix_file": ""}
+                       "unmix_matrix_file": "", "unmix_partition_plates": False,
+                       "unmix_plate_calibrations": ""}
     assert scoped_defaults.keys() <= set(ALPHA_FEATURES[538]["settings"])
     settings_tree = ast.parse((Path(__file__).resolve().parents[1]
                               / "spacr/settings.py").read_text(encoding="utf-8"))
@@ -1147,6 +1148,30 @@ if app_key == "mask":
     for app, key in supplied_matrix_arrivals:
         assert resolve_default_settings(app)[key] == ""
     recognized_arrivals |= supplied_matrix_arrivals
+    partition_defaults = {"unmix_partition_plates": False,
+                          "unmix_plate_calibrations": ""}
+    partition_hashes = {
+        "unmix_partition_plates": "13dc8b8b65e8c71961486c9f6fd76d23e14ba2cec743e5525b2e9717410b7f95",
+        "unmix_plate_calibrations": "80efab4427e28cd5154dac220d46665d077315022e2a12f5fbd52c1d75247c55",
+    }
+    partition_arrivals = {(app, key) for app in ("mask", "measure", "external_masks")
+                          for key in partition_defaults}
+    assert len(partition_arrivals) == 6
+    assert {pair for pair in compared_pairs
+            if pair[1] in partition_defaults} == partition_arrivals
+    assert not partition_arrivals & (recognized_arrivals | variants.keys())
+    assert expected_types["unmix_partition_plates"] is bool
+    assert expected_types["unmix_plate_calibrations"] is str
+    for key, value in partition_defaults.items():
+        assert hashlib.sha256(tooltips[key].encode()).hexdigest() == partition_hashes[key]
+        claims = list(DEFAULT_LITERAL.finditer(tooltips[key]))
+        assert len(claims) == 1
+        raw = claims[0].group("value")
+        claimed = "" if raw.lower() == "blank" else ast.literal_eval(raw)
+        assert claimed == value
+        for app in ("mask", "measure", "external_masks"):
+            assert resolve_default_settings(app)[key] == value
+    recognized_arrivals |= partition_arrivals
     assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

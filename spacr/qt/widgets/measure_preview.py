@@ -2245,7 +2245,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """
         self._cancel_crop_export()
         settings = dict(settings or {})
-        for key in ('unmix', 'unmix_controls', 'unmix_background_percentile', 'unmix_per_plate', 'unmix_matrix_file'):
+        for key in ('unmix', 'unmix_controls', 'unmix_background_percentile', 'unmix_per_plate', 'unmix_matrix_file',
+                    'unmix_partition_plates', 'unmix_plate_calibrations'):
             if key in settings:
                 self._unmix_settings[key] = deepcopy(settings[key])
         from ...psf_pipeline import (_validate_unmix_plate_scope,
