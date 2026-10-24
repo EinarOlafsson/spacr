@@ -24,6 +24,11 @@ normalized fitter after polish/content changes. GREEN64341 passes1/8.62s/
 RSS0.297GiB, including automatic growth/shrink, pane record, idle/deletion.
 Affected normalization52656 passes3/20.11s/RSS0.305GiB on the final observer;
 these scoped checks are not full Home acceptance.
+Native18914/faN4gA on1b362ce70: floor616/viewport596/panels596; Pipeline passes.
+All5 selected checked in4.647s;132/137 untested. Aside616 starts at558 in a
+1104px splitter: Clear/Reset/Refresh lose50px right, Updates1px. Host fit stays
+open. Natural failure34.60s/RSS1.236GiB; tour9.327s, normal close/cleanup pass,
+no deadline/overlay failure. The local post-polish floor is now native-proved.
 
 The bounded native operation explicitly selects aside_controls: actual buttons under
 HomeAside only, with the original20s content budget. Default all retains the
