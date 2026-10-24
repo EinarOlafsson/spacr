@@ -701,3 +701,50 @@ def test_get_avg_object_size_empty_input_returns_zeros():
     from spacr.io import _get_avg_object_size
 
     assert _get_avg_object_size([]) == (0, 0)
+
+
+@pytest.mark.parametrize('entry', ['v1', 'watch', 'cloud', 'timelapse', 'direct-watch', 'preprocess'])
+def test_per_plate_unmixing_refuses_unsupported_entry_before_dispatch(tmp_path, monkeypatch, entry):
+    """Keep real inputs unchanged when a requested plate-control route is unsupported."""
+    import spacr.core as core
+    import spacr.io as io
+    import spacr.ome_zarr as cloud
+    import spacr.validate as validate
+
+    source = tmp_path / 'plate1'
+    source.mkdir()
+    _write_tif(source / 'plate1_A01_1_0.tif', _tiny_img())
+    before = {path: path.read_bytes() for path in source.iterdir()}
+    settings = dict(src=str(source), unmix_per_plate=True, unmix=True,
+                    unmix_calibration=str(tmp_path / 'explicit-calibration.json'))
+
+    def forbidden(*args, **kwargs):
+        """Fail if an unsupported request reaches staging, acquisition or a worker."""
+        pytest.fail('per-plate controls reached unsupported dispatch')
+
+    monkeypatch.setattr(validate, 'run_preflight', forbidden)
+    monkeypatch.setattr(cloud, '_run_with_cloud_sources', forbidden)
+    monkeypatch.setattr(core, '_watch_vendor_recipe', forbidden)
+    monkeypatch.setattr(io, '_preprocess_mapped_volume_series', forbidden)
+    if entry == 'v1':
+        settings.update(pipeline_style='v1', dry_run=True)
+        call = core.preprocess_generate_masks
+    elif entry == 'watch':
+        settings.update(pipeline_style='v2', watch_folder=True)
+        call = core.preprocess_generate_masks
+    elif entry == 'cloud':
+        settings.update(pipeline_style='v2', src='s3://example-bucket/plate1')
+        call = core.preprocess_generate_masks
+    elif entry == 'timelapse':
+        settings.update(pipeline_style='v2')
+        call = core.preprocess_generate_masks_timelapse
+    elif entry == 'direct-watch':
+        settings.update(unmix=False, unmix_calibration='')
+        call = core._watch_folder_and_analyse
+    else:
+        settings.update(z_stack=True, t_stack=True, z_segmentation_mode='volumetric')
+        call = io.preprocess_img_data
+    with pytest.raises(ValueError, match='Per-plate spectral controls require calibrated organized 2D cell segmentation through V2'):
+        call(settings)
+    assert {path: path.read_bytes() for path in source.iterdir()} == before
+    assert set(tmp_path.iterdir()) == {source}

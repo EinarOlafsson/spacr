@@ -1,0 +1,3 @@
+{
+  "spacr.torch_loader.ArrayDataLoader.__iter__": "Wrap worker transport batches for restoration, otherwise retain native iteration."
+}

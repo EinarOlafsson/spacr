@@ -3681,7 +3681,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Prüfen Sie Ordner, Modellnamen und Ausgabeort und drücken Sie dann Run. Das Feld Figures zeigt die Trainingsbilder über ihren Masken, und die Konsole verfolgt den Fortschritt. Auf dieser GPU waren 10 Epochen mit sechs Bildern in unter einer Minute fertig.",
+          "narration": "Prüfen Sie Ordner, Modellnamen und Ausgabeort und drücken Sie dann Run. Das Feld Figures zeigt die Trainingsbilder über ihren Masken, und die Konsole verfolgt den Fortschritt.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3811,15 +3811,15 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Öffnen Sie von Home aus Make Masks und dann dessen Cellpose Workbench. Wählen Sie Apply, um Bilder mit einem vorhandenen Modell zu segmentieren. Verwenden Sie Train, wenn Sie neue Gewichte aus geprüften Bild-Masken-Paaren lernen möchten.",
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "Entpacken Sie das verlinkte Beispiel und setzen Sie Source auf seinen Ordner images. Er enthält drei einkanalige Zellbilder mit jeweils 512 × 512 Pixeln. Wenn Sie die aufgezeichnete Einstellungsdatei als Referenz nutzen, ersetzen Sie deren Quellpfad durch Ihren entpackten Ordner.",
+          "narration": "Entpacken Sie das verlinkte Beispiel und setzen Sie Source auf seinen Ordner images. Er enthält drei einkanalige Zellbilder mit jeweils 512 × 512 Pixeln. Wenn Sie die mitgelieferte Referenz für die Einstellungen nutzen, ersetzen Sie deren Quellpfad durch Ihren entpackten Ordner.",
           "hold_after": 0.7
         },
         {
@@ -3895,11 +3895,11 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -9273,7 +9273,7 @@
         "Kandidaten filtern und ihre Effekte und Guide-Übereinstimmung lesen.",
         "Die ausgewählten Zeilen als CSV, Markdown oder HTML exportieren."
       ],
-      "prerequisite": "Entpacken Sie Hit_List_real_results_companion.zip und aktivieren Sie Ihre spaCR-Umgebung. Die aktuelle Hits-Verknüpfung in Regression zeigt den Bereich nicht an; führen Sie stattdessen python hit_list_companion.py aus und wählen Sie mit Browse den entpackten Ergebnisordner. Das Begleitskript ist nicht mit Investigate verbunden. Verwenden Sie für die Zahl stützender Wells wells_with_gene aus results_gene.csv: das exportierte n_obs=0 ist nicht die tatsächliche Stützung. Das Beispiel enthält keine Gene mit q <= 0.05.",
+      "prerequisite": "Entpacken Sie Hit_List_real_results_companion.zip und aktivieren Sie Ihre spaCR-Umgebung. Wenn die Hits-Verknüpfung in Regression den Bereich nicht anzeigt, führen Sie python hit_list_companion.py aus und wählen Sie mit Browse den entpackten Ergebnisordner. Das Begleitskript ist nicht mit Investigate verbunden. Verwenden Sie für die Zahl stützender Wells wells_with_gene aus results_gene.csv: das exportierte n_obs=0 ist nicht die tatsächliche Stützung. Das Beispiel enthält keine Gene mit q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9285,7 +9285,7 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Entpacken Sie das verlinkte Beispiel und aktivieren Sie Ihre spaCR-Umgebung. Führen Sie python hit_list_companion.py aus. Klicken Sie im Fenster des Begleitskripts auf Browse und wählen Sie den entpackten Ergebnisordner.",
+          "narration": "Um die Ausweichlösung zu verwenden, entpacken Sie das verlinkte Beispiel und aktivieren Sie Ihre spaCR-Umgebung. Führen Sie python hit_list_companion.py aus. Klicken Sie im Fenster des Begleitskripts auf Browse und wählen Sie den entpackten Ergebnisordner.",
           "hold_after": 0.7
         },
         {
@@ -13689,7 +13689,7 @@
         "Messdatenbank, Zellvorhersagen, Guide-Anteile und Score-Spalte wählen.",
         "Die Tabs für Belege, Wells, Guides und Schwellenwerte lesen und die gespeicherten Tabellen finden."
       ],
-      "prerequisite": "Entpacken Sie Investigate_Hit_real_screen_example.zip. Alles darin stammt aus einem einzigen echten Screen: dem Regression-Lauf auf den Testdaten von Regression (die Einstellungen aus dem Regression-Tutorial), den passenden CV-Vorhersagen pro Zelle und einer Messdatenbank mit den echten Form-, Größen- und Intensitätsmessungen derselben Zellen. Damit der Download klein bleibt, enthält die Datenbank 52 Wells: alle analysierten Wells mit einem Guide für Gen 225160 und zu jedem drei Wells ohne ihn von derselben Platte. Kein Gen in diesem schnellen Regression-Lauf erfüllt q ≤ 0,05. Behandeln Sie die Untersuchung als durchgerechnetes Beispiel, nicht als bestätigten Hit.",
+      "prerequisite": "Entpacken Sie Investigate_Hit_real_screen_example.zip. Alles darin stammt aus einem einzigen echten Screen: dem Regression-Lauf auf den Testdaten von Regression (die Einstellungen aus dem Regression-Tutorial), den passenden CV-Vorhersagen pro Zelle und einer Messdatenbank mit den echten Form-, Größen- und Intensitätsmessungen derselben Zellen. Die Beispieldatenbank enthält 52 Wells: alle analysierten Wells mit einem Guide für Gen 225160 sowie für jedes Ziel-Well drei Wells derselben Platte ohne diesen Guide. Kein Gen in diesem schnellen Regression-Lauf erfüllt q ≤ 0,05. Behandeln Sie die Untersuchung als durchgerechnetes Beispiel, nicht als bestätigten Hit.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13763,7 +13763,7 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence zeigt das Ergebnis. Ziel-Wells haben eine hit-ähnliche Prävalenz, die nur 0,01 über der von Kontroll-Wells liegt. Das Well-Bootstrap-Intervall reicht von minus 0,04 bis plus 0,06, und der P-Wert der blockierten Permutation liegt bei etwa 0,63. Die Zellen stützen diesen Kandidaten nicht.",
+          "narration": "Evidence zeigt das Ergebnis. Ziel-Wells haben eine hit-ähnliche Prävalenz, die nur 0,01 über der von Kontroll-Wells liegt. Das Well-Bootstrap-Intervall reicht von minus 0,04 bis plus 0,06, und der P-Wert der blockierten Permutation liegt bei etwa 0,63. Diese Analyse liefert keine klaren Hinweise auf einen Unterschied bei diesem Kandidaten.",
           "hold_after": 0.7
         },
         {
@@ -14171,7 +14171,7 @@
         "Ziel, Plattenname und Kopier- oder Verknüpfungsverhalten wählen.",
         "Einen wiederverwendbaren Plan speichern und Bilder für Mask importieren."
       ],
-      "prerequisite": "Laden Sie zuerst das Mask-Beispiel herunter. Diese Anleitung verwendet Kopien der Bildfelder E01/F001 und L01/F009 mit je vier Kanälen. Die vorbereiteten Kopien lassen das überflüssige Token A direkt vor Z weg und erhalten die Identitäten von Well, Bildfeld und Kanal. Bewahren Sie die Originale auf und klären Sie unbekannte Tokens anhand der Aufnahmeprotokolle.",
+      "prerequisite": "Laden Sie zuerst das Mask-Beispiel herunter. Verwenden Sie Arbeitskopien der Bildfelder E01/F001 und L01/F009 mit je vier Kanälen. Entfernen Sie nur in diesen Kopien das überflüssige Token A direkt vor Z und erhalten Sie jedes Token für Well, Bildfeld und Kanal. Bewahren Sie die Originale auf und klären Sie unbekannte Tokens anhand der Aufnahmeprotokolle.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -14204,7 +14204,7 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Scannen Sie die vorbereiteten Beispielkopien. Ihr überflüssiges Aufnahme-Token wurde entfernt, die Tokens für Well, Bildfeld und Kanal bleiben erhalten. Prüfen Sie, dass der Vorschlag acht Bilder, zwei Wells, zwei Bildfeldnummern und vier Kanäle aufführt.",
+          "narration": "Scannen Sie diese Arbeitskopien. Ihr überflüssiges Aufnahme-Token wurde entfernt, die Tokens für Well, Bildfeld und Kanal bleiben erhalten. Prüfen Sie, dass der Vorschlag acht Bilder, zwei Wells, zwei Bildfeldnummern und vier Kanäle aufführt.",
           "hold_after": 0.7
         },
         {
@@ -14831,7 +14831,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Bevor ein Klassifikator etwas lernen kann, braucht er Beispiele. Öffnen Sie Annotate von Home aus; es zeigt Ihnen die Objekt-Bildausschnitte, die Measure gespeichert hat oder streamt. Gehen Sie repräsentative Zellen durch und beschriften Sie sie. Jedes Label wird in eine Annotationsspalte der Tabelle png_list geschrieben und an die Identität dieses Objekts gebunden. Verwenden Sie für jede Frage eine eigene Spalte, und legen Sie einige beschriftete Objekte für die Evaluierung beiseite. Auf dieser Annotationsspalte trainiert Classify als Nächstes.",
+          "narration": "Bevor ein Klassifikator etwas lernen kann, braucht er Beispiele. Öffnen Sie Annotate von Home aus, um die Objekt-Bildausschnitte zu sehen, die zu Ihrem vermessenen Projekt gehören. Gehen Sie repräsentative Zellen durch und beschriften Sie sie. Jedes Label wird in eine Annotationsspalte der Tabelle png_list geschrieben und an die Identität dieses Objekts gebunden. Verwenden Sie für jede Frage eine eigene Spalte, und legen Sie einige beschriftete Objekte für die Evaluierung beiseite. Auf dieser Annotationsspalte trainiert Classify als Nächstes.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

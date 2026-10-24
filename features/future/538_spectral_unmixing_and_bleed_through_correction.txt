@@ -1,8 +1,134 @@
 SPECTRAL UNMIXING / BLEED-THROUGH CORRECTION
 
-Status: DONE (alpha) 2026-09-27 (evidence b5ccf4887)
+Status: IN PROGRESS (alpha) — calibrated registration/PSF and residual policy follow-up
 Owner: item-538-work. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
+
+CURRENT SOFTWARE FOLLOW-UP (2026-10-23)
+Home owns the calibrated opt-in software extension with widgets_g4 as scientific
+and source peer; root owns final review/publication. Preserve the shipped default
+matrix, clipping, integer-Measure contract and all original raw data. Before
+changing model behavior, agree an explicit user-supplied registration/PSF
+calibration, traceable plan/provenance, finite-boundary/valid-region treatment,
+and signed versus nonnegative residual semantics with declared resolution and
+measurement consequences. Never infer microscope calibration or biological truth.
+Use CPU-only deterministic shifted/unequal-PSF and strong-spill controls plus the
+smallest affected integration cohort; normal artifacts and reviewed translations
+are required. Real known-amount double-stain biological acceptance stays OPEN.
+
+NEXT SOFTWARE SLICE (2026-10-24)
+Home owns a bounded calibrated organized-2D batch segmentation integration,
+with widgets_g3 tracing the real batch transport, widgets_g1 checking downstream
+measurement coordinate safety, and widgets_g4 reviewing the mathematical and
+source contract. Preserve explicit measured calibration, valid signed ROI,
+original-canvas identities and raw files; refuse unsupported routes rather than
+using aligned masks against unaligned intensities. Agree the concrete supported
+route before editing numerical behavior. Validate deterministic matched-control/
+target correction, restored masks, provenance/resume and unsafe downstream
+refusal using CPU fakes; no model download or biological efficacy claim.
+The calibrated V2 cell-only route writes a separate calibrated_segmentation dataset: aligned nonquantitative float32 display planes and restored full-canvas masks, blank outside valid support, plus signed crop outputs and durable coordinate metadata. Original raw channels/files remain unchanged. Measure, its preview, checked crops and cached export must refuse that dataset independently of current unmix switches; V1, 3D, additional processing and unsupported exports remain refused. Default routes and the separate known-amount scientific gate remain unchanged.
+
+CALIBRATED CELL MEASUREMENT FOLLOW-UP (2026-10-24)
+Home owns an explicit measure_calibrated_cells API in the existing Measure
+module, with G1 implementing signed statistics, G5 binding producer records
+and input transport, and G4 independently reviewing mathematics and source.
+Require an explicit versioned cell-mask role and hash-bound complete signed
+crop/matching-mask records; refuse older ambiguous records. Preserve original
+data and the ordinary Measure/preview refusals. Export separate CSV/JSON to a
+new atomic destination without overwrite or raw measurement database mixing.
+Report signed float64 first-order camera-linear statistics at the recorded
+common PSF, geometric full-reference coordinates, physical channel identities,
+area and positive anisotropic pixel spacing. Preserve negative values; never
+use display planes, uint16 casts, clipping, weighted centroids, relative or
+texture statistics, crops, reprocessing or concentration claims in this slice.
+Validate known signed/zero-sum cells, ROI offsets and channel order, source
+immutability, wrong role/hash/shape/origin/spacing refusals and cancellation
+before publication. Existing defaults and the separate real known-amount
+double-stain scientific acceptance gate remain unchanged and open.
+
+PLATE-QUALIFIED CONTROL FOLLOW-UP (2026-10-24)
+Home owns the next opt-in per-plate control and matrix-selection slice, with
+G3 tracing organized-field/control transport and G4 reviewing calibration
+semantics and source. Keep the explicit global default, all ordinary default
+numerics, and the published calibrated/signed-cell measurement contracts.
+Before numerical implementation, agree a concrete plate-qualified policy:
+complete controls for every target plate and physical channel, no cross-plate
+ambiguity or implicit fallback, and source/hash/provenance binding for every
+selected matrix. Missing or ambiguous plate/control identities must refuse.
+Use the existing modules and alpha controls; preserve original files and
+validate distinct-matrix plates, missing-control refusal and default regression
+with the smallest deterministic CPU cohort. The real known-amount acceptance
+remains separate and open; review the scientific design before source edits.
+
+DIRECT MATRIX INPUT FOLLOW-UP (2026-10-24)
+Home owns the next bounded direct matrix-file input design, with G3 examining
+the existing calibrated plan/record transport and G4 reviewing matrix units,
+operator compatibility and provenance. Root reviews the concrete contract
+before API-changing implementation and owns Night publication. Preserve both
+existing global and plate-qualified control behavior when no matrix is supplied;
+never guess channel order, transpose a matrix, fall back to unrelated controls
+or reinterpret historical input hashes as current raw files. Bound all input
+before allocation, reject unsafe/conflicting or incompatible routes before
+writes, and retain raw originals and the published signed-cell reader contract.
+Specify matrix orientation, physical channels, background semantics, exact
+calibration/operator binding and durable source/hash evidence before coding.
+Use existing modules and alpha controls with deterministic CPU tests; no model
+downloads, scientific benchmark tuning or known-amount biological claim.
+The approved first route accepts a bounded version-1 matrix JSON only for
+calibrated organized-2D cell-only V2, one actual plate/time/Z. An empty
+unmix_matrix_file preserves current global/per-plate behavior exactly; supplied
+matrices conflict with estimated controls and unmix_per_plate. Require exact
+physical channel order, rows-readings/columns-dyes orientation, nonnegative
+finite unit-diagonal coefficients and the existing conditioning bound. Bind
+the existing captured calibration identity, per-field percentile subtract/
+solve/restore background policy and source context without guessing or fallback.
+Capture stable bounded input bytes before writes and preserve a durable copy
+and SHA; signed readers validate that copy, not a surviving external path.
+Acquisition compatibility is an explicit unverified user assertion, never a
+certificate: unknown gains/exposures stay unknown; compare exact declared
+units/values only when actual metadata exists. Retain signed camera-linear
+common-PSF residual semantics, ordinary-route refusal even for hidden saved
+settings, old signed-record compatibility and no quantitative display reuse.
+Validate direct inverse/negative residuals, default equality, real V2 source
+immutability, durable reload and malformed/conflicting/tampered input refusal.
+Mixed-plate partitioning and real known-amount scientific acceptance remain open.
+
+MIXED-PLATE PARTITION FOLLOW-UP (2026-10-24)
+Home coordinates the approved implementation after the published direct-matrix
+closure, with G3 examining producer/partition/record transport and G1 examining
+raw-source identity, downstream readers and real two-plate acceptance. Root
+reviews the exact contract before implementation and owns publication. Preserve
+the existing opt-in single-context plans, signed dataset schema and exact
+unpartitioned default behavior. Consider independent per-plate calibrated child
+outputs selected from complete master controls, never one global matrix silently
+shared across plates. Calibration/operator applicability must be supplied
+explicitly; do not infer equal PSFs, gains, exposures or acquisition compatibility.
+Keep physical channel order and typed plate/time/Z identities, unchanged raw
+files, valid support and context-bound matrix-file input. Missing controls,
+ambiguous context or unsupported routes must refuse without fallback.
+Before code, freeze subset discovery, return/output shape, child naming, durable
+parent manifest and child provenance, completion/cancellation and no-overwrite
+semantics. Preserve ordinary Measure/preview/crop/export refusals for persisted
+calibrated parent and child outputs; existing signed readers must not mistake a
+collection for one dataset. Define per-child QC dispatch without sampling raw
+coordinates against calibrated masks. The smallest deterministic CPU controls
+must use two real plates with distinct matrices, prove complete same-plate
+selection and raw immutability, and refuse missing mappings before publication.
+No new modules, model/data scans, training, native or biological acceptance
+claims; real known-amount scientific acceptance remains separate and OPEN.
+Root approved explicit complete per-plate optical calibration, spacing and
+context mappings; partitioning requires calibrated cell-only 2D V2 with
+same-plate controls and refuses global calibration/spacing or direct matrices.
+Preflight all configuration and bounded finite controls before parent/model
+creation; distinguish canonical control pixel hashes from actual assembled-file
+hashes and verify equality before model dispatch. Unread target I/O may still
+fail later. Publish the refusal marker and manifest before any child artifacts.
+Preserve completed children on cancellation/error, mark aggregate/interrupted
+states truthfully and rethrow; no resume, deletion or overwrite. Parent arrays
+must remain refused by ordinary measurement, previews, crops and cached exports.
+Use plural results and child-only QC report/off; preserve legacy False behavior.
+Validate two real plates with independent matrices and explicitly mapped
+anisotropic spacing, raw identity, cancellation and pre-output/bypass refusals.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: A1 a classefication torch, xgboost, and
@@ -63,8 +189,10 @@ WHAT IS LEFT
     (Live preview done: Make Masks preview unmixes via _unmix_preview_field,
     Measure preview via its Unmixed display toggle; tests
     tests/qt/test_unmix_preview_f538.py, test_measure_unmix_preview_f538.py.)
-    - Controls are matched by well only, across all plates in the folder;
-      per-plate matrices and a matrix loaded from a file are not offered.
+    - The global default matches controls by well across plates. The calibrated
+      V2 opt-in selects same-plate controls for one plate/time/Z per source;
+      mixed-plate partitioning remains open. Direct matrix-file input is now
+      available for the explicitly calibrated single-context cell-only V2 route.
     - Unmixing runs on raw fields before illumination correction; a
       controls-free (blind/NMF) estimate is not built.
     - The new category help caption waits in _AWAITING_CATALOG_REBUILD for
@@ -228,3 +356,23 @@ arrays unchanged. Prior 24 owning tests not repeated. Original collector
 and four source/tool/test file hashes unchanged across ordinary closure.
 No upper dimension limit, scientific algorithm, PSF, biological efficacy,
 whole-feature or final CI acceptance claim.
+
+2026-10-23 Home: explicit calibrated 2D Live Preview uses matched control/target PSFs and registration on a valid signed ROI, bounded control allocation, aligned display/canvas restoration and stale-generation protection; unsafe filters and unsupported routes refuse. Core/default controls 39 PASS, resource/extractor 2 PASS, affected GUI/alpha seven retained plus corrected real-channel driver 1 PASS, cumulative real-control budget 1 PASS; independent math/source peers accepted. Normal review pin 4ed25 (6,947 files), API pin 3d49f82803ff, nine-language catalogs, Help and caption arrivals are verified; 17 material source/catalog contracts pass with ten API files unchanged. Four affected notebook references were generated normally and their freshness control passes (15.99s). Root owns Night publication; calibrated batch/Measure and real known-amount double-stain acceptance remain OPEN.
+
+2026-10-24 Home: calibrated cell-only V2 batch candidate writes a separate aligned nonquantitative display/mask dataset with signed crops, explicit physical identities and durable coordinate records; originals remain unchanged. Resource and path preflights refuse unsupported or unsafe inputs before model execution, while persisted-coordinate guards reject Measure, preview, checked crops and cached export regardless of current toggles. Thirty unique focused session, transport, default-path, measurement and runtime-extractor controls pass with independent mathematical/source peers. Normal nine-language API/runtime catalogs, Help, consumer map and caption arrivals are verified at review 19ca991 (6,984 files) and API pin dd8f34d8d0fc; all 16 final owning contracts pass with ten API files byte-identical. Four affected notebook references were regenerated normally and their freshness test passes; root owns Night publication. V1, broader calibrated measurement and real known-amount double-stain acceptance remain OPEN.
+
+2026-10-24 Home: explicit measure_calibrated_cells exports signed float64 first-order cell statistics and full-reference geometry through spacr.tabular to an atomic new CSV/provenance destination; ordinary Measure/preview refusals remain. Versioned cell-role records bind the signed crop and matching mask to calibration, physical channels and typed acquisition identities; old ambiguous records and labels above 65535 refuse. Twenty-seven focused producer/loader/API controls, three source contracts and all 15 final catalog/Help/runtime checks pass; independent source/math/output peers accepted, with ten API files unchanged by final checks. Normal 216-target nine-language closure is verified at review cc935d65 (7,002 files) and API pin b68b901493c6; consumer map, Help and caption arrivals were generated normally. Published on Night b7ddf528fe; V1/3D, other object roles, ordinary database integration, unsupported platform capabilities and real known-amount double-stain acceptance remain OPEN.
+
+2026-10-24 Home: opt-in unmix_per_plate selects complete same-plate controls by physical channel ID for one-plate/time/Z calibrated cell-only V2 sources; False preserves the legacy parser, numerics and provenance. Canonical mappings and consumed pre-unmix input hashes are bound to durable records; raw files and signed-reader compatibility remain intact, and unsupported routes refuse before work. Sixteen direct and sixteen real-folder/refusal controls pass with independent source/math review; settings, source-admission and notebook freshness checks pass. Normal 108-target nine-language closure is verified at review 5d0888e2 (7,021 files) and API 2c88c606; all 15 final catalog/Help/runtime checks pass with ten API files unchanged. Consumer, Help, notebook references, caption arrivals and settings-flow artifacts were generated normally; the three flow checks pass with zero API/caption delta. Root owns Night publication. Direct matrix-file loading, mixed-plate partitioning, broader calibrated routes and real known-amount double-stain acceptance remain OPEN.
+
+2026-10-24 Home: bounded version-1 unmix_matrix_file supplies an explicit unit-diagonal camera-signal matrix to calibrated single-plate/time/Z cell-only V2; blank preserves estimated global/per-plate controls. Exact physical order, background and captured calibration bindings accompany a durable copied artifact; acquisition compatibility is an unverified user assertion and signed readers do not need the original external path. All 39 focused behavior/settings controls, the callable and reference checks, and three settings-flow contracts pass with independent mathematical/source/output review. Normal 63-target nine-language closure plus nine unchanged binding reuses is verified at review 705db182 (7,039 files) and API 3a7a1e33; all 15 final catalog/Help/runtime checks pass with ten API files unchanged, and consumer, notebook references, settings flow and caption arrivals were generated normally. Root owns Night publication; mixed-plate partitioning, unsupported routes, native-platform qualification and real known-amount scientific acceptance remain OPEN.
+
+2026-10-24 Home: opt-in mixed-plate partitioning writes independent calibrated cell-only 2D V2 children from complete same-plate controls and explicit per-plate optical/context/spacing mappings; False preserves legacy behavior.
+Raw images and original merged inputs stay intact; bounded header/control preflight and assembled-input/matrix bindings precede model work, while collection parents refuse ordinary measurement and cached routes.
+Completed signed-readable children survive cancellation or later failure; isolated child QC report/off statuses distinguish segmentation from aggregate completion, with supplied acquisition assertions remaining unverified and descriptor capabilities required.
+All 42 unique focused behavior/settings/source/reference/flow/catalog controls and 18 strict locale loaders pass with independent mathematical/source/output peers; normal 126-target translations plus nine binding reuses are verified at review 3165c367 (7,058 files) and API af91aea06859.
+Notebook references, consumer/flow artifacts and caption arrivals were generated normally; root owns Night publication. Unsupported routes, native qualification and real known-amount scientific acceptance remain OPEN.
+
+2026-10-24 Home: correct the signed-cell CSV durability flush to use an existing write-capable descriptor, retaining read-only digest calculation, missing-file failure and atomic no-overwrite publication; both fsync guards and the real signed CSV export pass (3 controls), with callable prose, translated strings and generated source positions unchanged. Root owns publication; broader F538 acceptance remains OPEN.
+
+2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).

@@ -1,10 +1,10 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "english_sha256": "98a0eaaf0bb38a6b0d2f7bead3b40748f9b4f8b544e9192492f538f27a5529ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); conditional wording only; untouched reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,10 +17,10 @@
     "候補を絞り込み、その効果とガイドの一致度を読む。",
     "選んだ行をCSV、Markdown、HTMLで書き出す。"
   ],
-  "prerequisite": "Hit_List_real_results_companion.zipを展開し、spaCRの環境を有効にします。現在のRegressionのHitsのショートカットではパネルが表示されないので、代わりにpython hit_list_companion.pyを実行し、Browseで展開した結果フォルダーを選びます。補助スクリプトはInvestigateとは連携しません。裏付けとなるウェル数には、results_gene.csvのwells_with_geneを使います。書き出されたn_obs=0は実際の裏付けではありません。この例には、q <= 0.05を満たす遺伝子はありません。",
+  "prerequisite": "Hit_List_real_results_companion.zipを展開し、spaCRの環境を有効にします。RegressionのHitsのショートカットでパネルが表示されない場合は、python hit_list_companion.pyを実行し、Browseで展開した結果フォルダーを選びます。補助スクリプトはInvestigateとは連携しません。裏付けとなるウェル数には、results_gene.csvのwells_with_geneを使います。書き出されたn_obs=0は実際の裏付けではありません。この例には、q <= 0.05を満たす遺伝子はありません。",
   "scenes": [
     "HomeからRegressionを開き、Hitsを選びます。パネルが表示されないままの場合は、このレッスンに付属の補助スクリプトでHit Listを開きます。",
-    "リンク先の例を展開し、spaCRの環境を有効にします。python hit_list_companion.pyを実行します。補助スクリプトのウィンドウでBrowseをクリックし、展開した結果フォルダーを選びます。",
+    "代替手順を使う場合は、リンク先の例を展開し、spaCRの環境を有効にします。python hit_list_companion.pyを実行します。補助スクリプトのウィンドウでBrowseをクリックし、展開した結果フォルダーを選びます。",
     "この例では三百二十五の遺伝子が読み込まれます。列を広げて、効果、P、q、ガイドの一致度を読みます。効果は標準化した周辺効果です。裏付けとなるウェル数は、results_gene.csvのwells_with_geneで確認します。書き出された観測数ゼロは、裏付けが利用できないことを示します。",
     "Max qをゼロ点ゼロ五にします。この例ではこれを満たす遺伝子がないので、表は空になります。すべての候補を見るには、Max qを一に戻します。",
     "Minimum guidesを二にします。検定されたガイドの行が二つ以上ある、百十七の遺伝子が残ります。このフィルターでは元のq値はそのままです。",

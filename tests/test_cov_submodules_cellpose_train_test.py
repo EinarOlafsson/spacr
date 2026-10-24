@@ -200,9 +200,14 @@ def _dataset_labels(img_paths, mask_paths, target_size):
 # train_cellpose
 # ===========================================================================
 
-def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
+def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub, monkeypatch):
     """One full train_cellpose pass: batch build, model dir, train_seg kwargs."""
     from spacr.submodules import train_cellpose
+    from spacr import accelerator
+
+    selected = accelerator.Accelerator(kind="cuda", device="cuda:0",
+                                       label="recording CUDA device", bfloat16=False)
+    monkeypatch.setattr(accelerator, "resolve", lambda: selected)
 
     labels = [
         _label_image(32, [(1, (2, 10, 2, 10)), (2, (18, 28, 18, 28))]),
@@ -226,6 +231,8 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
     # -- the model was built for the SAM checkpoint on the GPU path
     assert len(cp_stub["models"]) == 1
     assert cp_stub["models"][0].gpu is True
+    assert str(cp_stub["models"][0].extra_kwargs["device"]) == "cuda:0"
+    assert cp_stub["models"][0].extra_kwargs["use_bfloat16"] is False
     assert cp_stub["models"][0].pretrained_model == cp_stub["training_base"]
 
     # -- train_seg got the resolved settings

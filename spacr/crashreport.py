@@ -3256,9 +3256,7 @@ class _ErrorBatcher:
         return timer
 
     def _arm(self, now):
-        """Serialize stale timer cancellation against incoming errors."""
-        if self.timer is not None:
-            self.timer.cancel()
+        """Schedule the current generation's next quiet or storm boundary."""
         self.generation += 1
         generation = self.generation
         delay = max(0., min(self.last + 60, self.started + 300) - now)
@@ -3665,7 +3663,10 @@ def _dispatch_error_now(text="", *, exception=None, module="", traceback_text=""
             selected = str(captured.get("provider", ""))
             do_explain = explain and now_explain and current.get("provider", "") == selected
             if do_explain:
-                saved = saved_explanation(_error_explanation_signature(clean))
+                try:
+                    saved = saved_explanation(_error_explanation_signature(clean))
+                except Exception:
+                    saved = None
                 pending_issued = True
                 _deliver_error_result({"event_id": event_id, "pending": True,
                                        "kind": kind, "explanation": saved or {}})
@@ -3763,11 +3764,12 @@ def _capture_error_line(text, *, origin="terminal"):
     """Recognize an explicitly tagged terminal ERROR, never incidental prose."""
     if getattr(_ERROR_DISPATCH_LOCAL, "active", False):
         return
-    frame = sys._getframe(1)
-    while frame is not None:
-        if frame.f_globals.get("__name__") == "logging":
-            return
-        frame = frame.f_back
+    if not getattr(_ERROR_DISPATCH_LOCAL, "terminal_buffer_flush", False):
+        frame = sys._getframe(1)
+        while frame is not None:
+            if frame.f_globals.get("__name__") == "logging":
+                return
+            frame = frame.f_back
     stamp = r"(?:(?:\d{4}-\d\d-\d\d[ T])?\d\d:\d\d:\d\d(?:[.,]\d+)?(?:Z|[+-]\d\d:\d\d)?\s+)?"
     for line in str(text).splitlines(keepends=True):
         buffers = getattr(_ERROR_DISPATCH_LOCAL, "traceback_buffers", {})
@@ -3828,8 +3830,6 @@ def _consume_native_crash(path):
                         session = json.loads(match.group(1))
                     except (ValueError, TypeError):
                         pass
-            if not isinstance(session, Mapping):
-                session = {"known": False}
             summary["native_session"] = _validated_summary({"native_session": session})["native_session"]
             observed = raw[fatal.end():].split("\n\n", 1)[-1]
             frames = re.findall(r'  File "([^"\n]+)", line (\d+) in ([^\n]+)', observed)

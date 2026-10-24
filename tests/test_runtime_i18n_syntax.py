@@ -105,6 +105,40 @@ def test_volume_measurement_diagnostics_enter_runtime_catalog():
     } <= sources
 
 
+def test_calibrated_batch_and_measurement_refusals_enter_runtime_catalog():
+    import ast
+    import build_i18n_catalogs as builder
+
+    owners = {
+        "core": {"preprocess_generate_masks"},
+        "measure": {"_validate_measurement_coordinate_source",
+                    "_calibrated_measurement_checkpoint",
+                    "_publish_calibrated_measurement_directory",
+                    "_calibrated_cell_statistics", "measure_calibrated_cells"},
+        "pipeline_v2": {"_read_plane", "_calibrated_label_array",
+                        "stream_originals_to_stack", "stream_masks_from_stack", "run_v2"},
+        "psf_pipeline": {"_initialize_calibrated_output", "_validate_calibrated_batch_settings",
+                         "_validate_unmix_plate_scope", "_plate_unmix_controls", "_plate_control_input",
+                         "_prepare_segmentation_psf", "_SegmentationPSFSession",
+                         "_cell_record_error", "_CalibratedCellDataset"},
+    }
+    expected = set()
+    for module, names in owners.items():
+        tree = ast.parse((ROOT / "spacr" / (module + ".py")).read_text(encoding="utf-8"))
+        selected = [node for node in tree.body
+                    if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name in names]
+        assert {node.name for node in selected} == names
+        for owner in selected:
+            expected.update(node.args[0].value for node in ast.walk(owner)
+                            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                            and node.func.id == "tr" and node.args
+                            and isinstance(node.args[0], ast.Constant)
+                            and isinstance(node.args[0].value, str)
+                            and builder._looks_translatable(node.args[0].value))
+    assert expected
+    assert expected <= set(builder.extract_static_ui_sources())
+
+
 def test_make_masks_short_group_headings_enter_translation():
     import ast
     import build_i18n_catalogs as builder
@@ -448,6 +482,49 @@ def _published_panel_retirements(language, filename):
     return sources
 
 
+def _automatic_report_retirements(language, filename, original):
+    """Bind the replaced report captions to their exact preserved records."""
+    import ast
+
+    filenames = {
+        "sv": "2026-09-21-runtime-ui-refresh.json",
+        "fr": "2026-09-21-runtime-fourth-slice.json",
+    }
+    if filenames.get(language) != filename:
+        return set()
+    relative = f"docs/i18n/reviewed/runtime/{language}/{filename}"
+    archive = ROOT / "docs/i18n/retired/runtime/2026-10-23-central-errors-and-ai-choice.json"
+    entries = [entry for entry in json.loads(archive.read_text())["records"]
+               if entry["path"] == relative]
+    assert len(entries) == 1
+    entry = entries[0]
+    assert set(entry) == {"path", "reason", "records"}
+    assert entry["reason"] == (
+        "2026-10-23: retire the replaced automatic-error-reporting presentation; "
+        "preserve its exact original source-bound translation.")
+    expected = {
+        "98eacfbd1ef751932ad138775f1813a8260e120cec8469650346bf6f850559f7",
+        "425bf7825eca02541b5497dcd8c2d87ec8ad78d79a4f49f98450f6e72e1a425b",
+    }
+    records = entry["records"]
+    assert len(records) == 2
+    assert {row["source_sha256"] for row in records} == expected
+    assert records == [row for row in original if row["source_sha256"] in expected]
+    assert all(row["table"] == "ui" and row["key"] == row["source"]
+               and hashlib.sha256(row["source"].encode()).hexdigest() == row["source_sha256"]
+               for row in records)
+    sources = {row["source"] for row in records}
+    current = json.loads((ROOT / relative).read_text())["records"]
+    assert not sources & {row["source"] for row in current}
+    tree = ast.parse((ROOT / "spacr/qt/i18n_catalogs/en.py").read_text())
+    ui = next(node.value for node in tree.body if isinstance(node, ast.Assign)
+              and any(isinstance(target, ast.Name) and target.id == "UI_SOURCES"
+                      for target in node.targets))
+    assert isinstance(ui, ast.Call) and isinstance(ui.func, ast.Name) and ui.func.id == "frozenset"
+    assert not sources & set(ast.literal_eval(ui.args[0]))
+    return sources
+
+
 def _requested_detection_retirements(language, filename):
     """Validate the preserved October 7 records against their exact originals."""
     from build_i18n_catalogs import reviewed_runtime_translations
@@ -486,13 +563,14 @@ def _requested_detection_retirements(language, filename):
             if str(row.get('retired', '')).startswith(
                 ('2026-10-11', '2026-10-16', '2026-10-17', TUTORIAL_RENDERER_RETIRED))}
     published = _published_panel_retirements(language, filename)
+    automatic_reports = _automatic_report_retirements(language, filename, original)
     assert current['records'] == [row for row in original if row not in retired
-                                  and row['source'] not in later_sources | n678 | published]
+                                  and row['source'] not in later_sources | n678 | published | automatic_reports]
     assert all(any(item.get('date') == '2026-10-07' and item.get('record') == row
                    for item in current.get('retired_records', [])) for row in retired)
     values = {row['source'] for row in retired}
     assert not values & reviewed_runtime_translations(language).keys()
-    return values | later_sources
+    return values | later_sources | automatic_reports
 
 
 def _figure_export_retirements(language, filename):
@@ -907,7 +985,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     base_retired = _theme_cohort_retirements("sv", "2026-09-15-integration-review.json")
     refresh_retired = _theme_cohort_retirements("sv", "2026-09-21-runtime-ui-refresh.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == 4 and len(refresh_retired) == 2
+    assert len(base_retired) == 4 and len(refresh_retired) == 4
     assert not cohort_retired & reviewed.keys()
     # +269 distinct UI/category sources, with three OPS descriptions shared
     # between both tables (272 records). The detection-panel consolidation
@@ -1176,7 +1254,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh_retired = _theme_cohort_retirements("fr", "2026-09-21-runtime-third-slice.json")
     refresh_retired |= _theme_cohort_retirements("fr", "2026-09-21-runtime-fourth-slice.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == 4 and len(refresh_retired) == 2
+    assert len(base_retired) == 4 and len(refresh_retired) == 4
     assert not cohort_retired & all_reviewed.keys()
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text(encoding="utf-8"))

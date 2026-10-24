@@ -4599,9 +4599,6 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
                     values, inside, modes[index], length).reshape(last - first, columns)
                 continue
             labels = ndimage.map_coordinates(
-                # Stabilize categorical picking within a few float32 ulps
-                # of a half-voxel boundary; GPU fused arithmetic otherwise
-                # chooses a different object along the same camera ray.
                 np.asarray(layer.data),
                 np.floor(flat + 0.5 + np.maximum(1.0, np.abs(flat)) * 1e-6),
                 order=0, mode="nearest"

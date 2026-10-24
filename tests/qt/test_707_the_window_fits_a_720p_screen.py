@@ -82,6 +82,2050 @@ def test_the_main_window_minimum_fits_the_smallest_work_area(qtbot):
     assert (window.width(), window.height()) == app_mod._MAIN_WINDOW_OPENING
 
 
+def test_native_mask_word_toggles_fit_selected_zoom(tmp_path):
+    """Inspect the three real word switches without enabling any of them."""
+    import ast
+    import json
+    import subprocess
+    import sys
+    import textwrap
+
+    if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
+        pytest.skip('Requires the owned native Cocoa acceptance runner')
+    root = Path(app_mod.__file__).resolve().parents[2]
+    source = ast.parse((root / 'tests/qt/test_the_macos_application_menu.py').read_text())
+    bootstrap = next(node.value.args[0] for node in source.body if isinstance(node, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == '_OWNED_SETTINGS_PROBE' for t in node.targets))
+    child = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
+        import subprocess, time, traceback
+        from pathlib import Path
+        import shiboken6
+        from PySide6.QtCore import QPoint, QSize, Qt, QTimer
+        from PySide6.QtGui import QFontInfo, QRegion
+        from PySide6.QtWidgets import QWidget, QScrollArea
+        from spacr.qt import preferences, gui_scale, theme, timing
+        from spacr.qt.app import MainWindow
+        from spacr.qt.bridge import registry, thread_has_stopped
+        from spacr.qt.first_run import _TourOverlay, was_tour_shown
+        from spacr.qt import walkthrough
+        from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+
+        assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_WORD_ROOT'])
+        assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_WORD_HEAD']
+        # This is an owned profile opt-out, before run/prewarm; never a toggle click.
+        preferences.set_ai_on_by_default(False)
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        report = {'errors': [], 'checks': [], 'programmatic_not_physical': True,
+                  'ai_default_off_before_run': not preferences.get_ai_on_by_default()}
+        state = {}
+        output = Path(os.environ['SPACR_WORD_OUTPUT'])
+
+        def save():
+            output.write_text(json.dumps(report, indent=2))
+
+        def jobs():
+            rows = []
+            for handle in registry().active():
+                thread = handle.thread
+                valid = thread is not None and shiboken6.isValid(thread)
+                rows.append({'app_key': handle.app_key, 'kind': handle.kind,
+                    'blocks_shutdown': handle.blocks_shutdown, 'user_visible': handle.user_visible,
+                    'is_running': handle.is_running(), 'stop_on_quit': getattr(handle, 'stop_on_quit', True),
+                    'worker_class': type(handle.worker).__name__, 'handle_valid': shiboken6.isValid(handle),
+                    'handle_pointer': shiboken6.getCppPointer(handle) if shiboken6.isValid(handle) else None,
+                    'thread_pointer': shiboken6.getCppPointer(thread) if valid else None,
+                    'thread_valid': valid, 'thread_running': bool(valid and thread.isRunning()),
+                    'thread_finished': bool(valid and thread.isFinished())})
+            return rows
+
+        def close():
+            state['timer'].stop()
+            report['closing_phase'] = state['phase']
+            report['closing_elapsed'] = time.perf_counter()-state['started']
+            state['threads'] = [handle.thread for handle in registry().active()]
+            report['captured_threads'] = len(state['threads'])
+            report['registry_before_close'] = jobs()
+            report['normal_close_accepted'] = state['window'].close()
+            save()
+
+        def advance(phase):
+            elapsed = time.perf_counter()-state['started']
+            assert elapsed < 20, (state['phase'], elapsed)
+            report[state['phase']+'_seconds'] = elapsed
+            state.update(phase=phase, started=time.perf_counter(), previous=None)
+            save()
+
+        def signature(target, require_idle=True):
+            window = state['window']
+            widgets = [target]
+            ancestor = target.parentWidget()
+            while ancestor is not None:
+                widgets.append(ancestor)
+                if ancestor is window:
+                    break
+                ancestor = ancestor.parentWidget()
+            rows = []
+            for widget in widgets:
+                for key in ('_text_fit', '_body_fit', '_action_word_fit'):
+                    fitter = getattr(widget, key, None)
+                    if require_idle and fitter is not None and (fitter._timer.isActive() or fitter._busy):
+                        return None
+                if require_idle and any(getattr(widget, key, False) for key in
+                    ('_rebalance_queued', '_limits_queued', '_refit_queued', '_fitting_module_actions', '_back_fit_busy')):
+                    return None
+                for key in ('_floor_timer', '_module_action_fit_timer', '_back_fit_timer'):
+                    timer = getattr(widget, key, None)
+                    if require_idle and timer is not None and timer.isActive():
+                        return None
+                rows.append((shiboken6.getCppPointer(widget), widget.property('geometry').getRect(),
+                    widget.property('minimumSize').toTuple(), widget.property('maximumSize').toTuple(),
+                    widget.font().toString()))
+            return rows
+
+        def readiness_flags(target):
+            rows = []
+            widget = target
+            while widget is not None:
+                flags = {key: bool(getattr(widget, key, False)) for key in
+                    ('_rebalance_queued', '_limits_queued', '_refit_queued', '_fitting_module_actions', '_back_fit_busy')}
+                timers = {key: timer.isActive() for key in
+                    ('_floor_timer', '_module_action_fit_timer', '_back_fit_timer')
+                    if (timer := getattr(widget, key, None)) is not None}
+                fitters = {key: {'busy': fitter._busy, 'timer_active': fitter._timer.isActive()}
+                    for key in ('_text_fit', '_body_fit', '_action_word_fit') if (fitter := getattr(widget, key, None)) is not None}
+                rows.append({'class': type(widget).__name__, 'name': widget.objectName(),
+                    'pointer': shiboken6.getCppPointer(widget), 'flags': flags, 'timers': timers, 'fitters': fitters})
+                if widget is state['window']:
+                    break
+                widget = widget.parentWidget()
+            return rows
+
+        def tick():
+            try:
+                window = state['window']
+                assert time.perf_counter()-state['started'] < 20, (state['phase'], 'exceeded20s')
+                assert QApplication.activeModalWidget() is None, 'No modal/provider dismissal authorized'
+                if state['phase'] == 'startup':
+                    if window._startup_sequence_running():
+                        return
+                    tours = [w for w in window.findChildren(_TourOverlay) if w.isVisible()]
+                    if not state.get('tour'):
+                        if not tours:
+                            return
+                        assert len(tours) == 1 and tours[0].parentWidget() is window
+                        tour = tours[0]
+                        skip = tour._skip_btn
+                        assert skip.isVisible() and skip.isEnabled() and not skip.visibleRegion().isEmpty()
+                        state['tour'] = tour
+                        skip.click()
+                        return
+                    tour = state['tour']
+                    if shiboken6.isValid(tour) and tour.isVisible():
+                        return
+                    assert was_tour_shown()
+                    report['owned_tour_skipped'] = True
+                    advance('module')
+                    window.open_module('mask')
+                    return
+                tours = [w for w in window.findChildren(_TourOverlay) if w.isVisible()]
+                report['post_home_tours'] = [{'pointer': shiboken6.getCppPointer(w),
+                    'key': getattr(w, '_walkthrough_app_key', None),
+                    'owned_by_window': w.parentWidget() is window,
+                    'in_module_owner_list': w in getattr(window, '_module_walkthroughs', ())}
+                    for w in tours]
+                save()
+                if state['phase'] == 'module':
+                    host = window._screens.get('mask')
+                    if host is None or not host.isVisible():
+                        return
+                    assert window._stack.currentWidget() is host
+                    if not state.get('mask_tour'):
+                        if not tours:
+                            return
+                        assert len(tours) == 1
+                        tour = tours[0]
+                        assert tour.parentWidget() is window and getattr(tour, '_walkthrough_app_key', None) == 'mask'
+                        assert getattr(window, '_module_walkthroughs', ()) == [tour]
+                        skip = tour._skip_btn
+                        report['mask_tour'] = {'pointer': shiboken6.getCppPointer(tour),
+                            'key': tour._walkthrough_app_key, 'seen_before': walkthrough.was_seen('mask'),
+                            'skip_enabled': skip.isEnabled(), 'skip_visible': skip.isVisible(),
+                            'skip_visible_region': skip.visibleRegion().boundingRect().getRect(),
+                            'skip_in_window': skip.rect().translated(skip.mapTo(window, QPoint())).getRect()}
+                        save()
+                        assert not walkthrough.was_seen('mask')
+                        assert skip.window() is window and skip.isVisible() and skip.isEnabled()
+                        assert not skip.visibleRegion().isEmpty()
+                        state['mask_tour'] = tour
+                        skip.click()
+                        report['mask_tour']['clicked'] = True
+                        save()
+                        return
+                    tour = state['mask_tour']
+                    hidden = not shiboken6.isValid(tour) or not tour.isVisible()
+                    report['mask_tour'].update(hidden_after_click=hidden, seen_after=walkthrough.was_seen('mask'))
+                    save()
+                    if not hidden:
+                        return
+                    assert not tours and walkthrough.was_seen('mask')
+                    refs = [('Live', getattr(host, '_preview_switch', None)),
+                            ('3D', getattr(host, '_dimension_switches', {}).get('z')),
+                            ('AI', getattr(host, '_ai_switch', None))]
+                    report['module_refs'] = {name: None if w is None else {
+                        'class': type(w).__name__, 'visible': w.isVisible(),
+                        'pointer': shiboken6.getCppPointer(w)} for name, w in refs}
+                    save()
+                    if any(w is None for _, w in refs):
+                        return
+                    assert refs[0][1] is host._lp_switch
+                    assert all(isinstance(w, AiToggleLabel) and w.window() is window for _, w in refs)
+                    state.update(host=host, refs=refs, index=0)
+                    advance('controls')
+                    return
+                assert not tours, ('Unexpected tour during word inspection', report['post_home_tours'])
+                expected, widget = state['refs'][state['index']]
+                current = signature(widget)
+                if 'revealed' not in state:
+                    if current is None or current != state.get('previous'):
+                        state['previous'] = current
+                        return
+                    scrolls = []
+                    ancestor = widget.parentWidget()
+                    while ancestor is not None and ancestor is not window:
+                        if isinstance(ancestor, QScrollArea):
+                            scrolls.append(ancestor)
+                        ancestor = ancestor.parentWidget()
+                    for scroll in scrolls:
+                        scroll.ensureWidgetVisible(widget, 0, 0)
+                    state['revealed'] = signature(widget)
+                    assert state['revealed'] is not None
+                    return
+                text = widget.style().itemTextRect(widget.fontMetrics(), widget.contentsRect(),
+                    int(widget.alignment() | Qt.TextSingleLine), widget.isEnabled(), widget.displayed_text())
+                actual = signature(widget, require_idle=False)
+                report.setdefault('post_reveal_observations', []).append({
+                    'role': expected, 'logical': widget.text(), 'displayed': widget.displayed_text(),
+                    'font': widget.font().toString(), 'contents': widget.contentsRect().getRect(),
+                    'text': text.getRect(), 'expected_signature': state['revealed'],
+                    'actual_signature': actual,
+                    'strict_idle_signature': current, 'readiness': readiness_flags(widget)})
+                save()
+                assert actual == state['revealed'], 'Post-reveal geometry changed'
+                if current is None:
+                    return
+                assert current is not None and current == state['revealed'], 'Post-reveal geometry changed'
+                handle = window.windowHandle()
+                row = {'role': expected, 'pointer': shiboken6.getCppPointer(widget),
+                    'logical': widget.text(), 'displayed': widget.displayed_text(),
+                    'source': widget.property('_spacr_i18n_text'), 'checked': widget.isChecked(),
+                    'font': widget.font().toString(), 'sheet': widget.styleSheet(),
+                    'rect': widget.property('geometry').getRect(), 'contents': widget.contentsRect().getRect(),
+                    'text': text.getRect(), 'visible': widget.visibleRegion().boundingRect().getRect(),
+                    'text_in_window': text.translated(widget.mapTo(window, QPoint())).getRect(),
+                    'client': handle.size().toTuple(), 'frame': handle.frameGeometry().getRect(),
+                    'work': handle.screen().availableGeometry().getRect(), 'dpr': handle.devicePixelRatio(),
+                    'signature': current}
+                report['checks'].append(row)
+                save()
+                from spacr.qt.i18n import tr
+                assert widget.property('_spacr_i18n_text') == expected
+                assert widget.text() == widget.displayed_text() == tr(expected)
+                assert QFontInfo(widget.font()).family() == 'Open Sans'
+                assert widget.font().pixelSize() == gui_scale.scale_int(theme.font_px('body', 2.), 2.)
+                assert not widget.isChecked() and widget.isVisible() and widget.isEnabled()
+                assert widget.contentsRect().contains(text)
+                assert QRegion(text).subtracted(widget.visibleRegion()).isEmpty()
+                assert window.rect().contains(text.translated(widget.mapTo(window, QPoint())))
+                assert handle.size() == QSize(1200, 640) and handle.screen().availableGeometry().contains(handle.frameGeometry())
+                assert all(not w.isChecked() for _, w in state['refs'])
+                state['index'] += 1
+                state.pop('revealed')
+                state['previous'] = None
+                if state['index'] == 3:
+                    report['controls_seconds'] = time.perf_counter()-state['started']
+                    close()
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                close()
+
+        def ready(entry):
+            if entry.get('detail') != '__home__' or state:
+                return
+            windows = [w for w in QApplication.instance().topLevelWidgets() if isinstance(w, MainWindow)]
+            assert len(windows) == 1
+            window = windows[0]
+            timer = QTimer(window)
+            timer.setInterval(50)
+            state.update(window=window, timer=timer, phase='startup', started=time.perf_counter())
+            try:
+                assert QApplication.platformName() == 'cocoa' and window.windowHandle().isExposed()
+                assert window.windowHandle().screen().availableGeometry().size() == QSize(1440, 870)
+                assert window.windowHandle().devicePixelRatio() == 2.
+                assert not preferences.get_ai_on_by_default()
+                assert gui_scale.current_scale() == preferences.get_gui_scale() == preferences.get_font_scale() == 2.
+                window.showNormal()
+                window.windowHandle().resize(QSize(1200, 640))
+                timer.timeout.connect(tick)
+                timer.start()
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                close()
+
+        timing.subscribe_readiness(ready)
+        from spacr.qt import run
+        result = run(['--no-setup', '--fresh'])
+        timing.unsubscribe_readiness(ready)
+        from spacr.qt.widgets import ambient
+        report.update(normal_return=result, remaining_jobs=len(registry().active()), registry_after_return=jobs(),
+            owned_threads_alive=sum(not thread_has_stopped(t) for t in state.get('threads', [])),
+            compiler_threads=[t.name for t in ambient._COMPILER_THREADS if t.is_alive()],
+            compiler_helper_present=ambient._PRIME_PROCESS is not None)
+        save()
+        assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
+        assert [r['role'] for r in report['checks']] == ['Live', '3D', 'AI'], report
+        assert report['mask_tour']['clicked'] and report['mask_tour']['hidden_after_click'] and report['mask_tour']['seen_after'], report
+        assert not report['remaining_jobs'] and not report['owned_threads_alive'], report
+        assert not report['compiler_threads'] and not report['compiler_helper_present'], report
+    ''')
+    env = os.environ.copy()
+    env.update(QT_QPA_PLATFORM='cocoa', SPACR_ISOLATED_PROFILE='1', SPACR_HOME=str(tmp_path / 'profile'),
+        SPACR_MENU_TEST_SETTINGS=str(tmp_path.resolve()), SPACR_WORD_ROOT=str(root),
+        SPACR_WORD_HEAD=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),
+        SPACR_WORD_OUTPUT=str(tmp_path / 'native-mask-words.json'), SPACR_TIMING='1',
+        SPACR_TIMING_LOG=str(tmp_path / 'timing.txt'), SPACR_NO_NETWORK='1', SPACR_NO_SETUP='1',
+        XDG_CONFIG_HOME=str(tmp_path / 'settings'), XDG_CACHE_HOME=str(tmp_path / 'cache'),
+        MPLCONFIGDIR=str(tmp_path / 'cache' / 'matplotlib'), NUMBA_CACHE_DIR=str(tmp_path / 'numba'))
+    for key in tuple(env):
+        if key.startswith('SPACR_BENCHMARK_'):
+            env.pop(key)
+    result = subprocess.run([sys.executable, '-c', child], cwd=root, env=env,
+        capture_output=True, text=True, timeout=180)
+    (tmp_path / 'native-mask-words-stdout.txt').write_text(result.stdout + result.stderr)
+    assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads((tmp_path / 'native-mask-words.json').read_text())
+    assert not report['errors'] and report['normal_return'] == 0 and report['normal_close_accepted']
+    assert [row['role'] for row in report['checks']] == ['Live', '3D', 'AI']
+    assert report['ai_default_off_before_run'] and report['owned_tour_skipped']
+    assert report['mask_tour']['clicked'] and report['mask_tour']['hidden_after_click'] and report['mask_tour']['seen_after']
+    assert not report['remaining_jobs'] and not report['owned_threads_alive']
+    assert not report['compiler_threads'] and not report['compiler_helper_present']
+
+
+def test_native_home_content_fits_new_desktop_minimum(tmp_path):
+    """Check real Home text and icons at the newly legal native desktop floor."""
+    import ast
+    import json
+    import subprocess
+    import sys
+    import textwrap
+
+    if sys.platform != "darwin" or os.environ.get("QT_QPA_PLATFORM", "").lower() != "cocoa":
+        pytest.skip("Requires the owned native Cocoa acceptance runner")
+    cohort = os.environ.get("SPACR_HOME_TEST_COHORT", "all")
+    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows", "tab_navigation", "tile_batch", "ordinary_labels", "status_home_access", "news_titles", "news_dates", "news_body_lines", "news_body_intrinsic", "news_body_endpoints"), cohort
+    body_indices = json.loads(os.environ["SPACR_HOME_TEST_BODY_INDICES"]) if cohort == "news_body_endpoints" else []
+    if cohort == "news_body_endpoints":
+        assert isinstance(body_indices, list) and 1 <= len(body_indices) <= 3
+        assert all(type(index) is int and 1 <= index < 17 for index in body_indices)
+        assert len(set(body_indices)) == len(body_indices)
+    body_parameters = {name: int(os.environ.get("SPACR_HOME_TEST_BODY_"+name.upper(), str(default)))
+                       for name, default in (("release_index", 0), ("start", 0), ("max_count", 16))} if cohort == "news_body_lines" else {}
+    if cohort == "news_body_lines":
+        assert 0 <= body_parameters["release_index"] < 17
+        assert body_parameters["start"] >= 0 and 1 <= body_parameters["max_count"] <= 16
+    tile_keys = json.loads(os.environ["SPACR_HOME_TEST_TILE_KEYS"]) if cohort == "tile_batch" else []
+    if cohort == "tile_batch":
+        assert isinstance(tile_keys, list) and 2 <= len(tile_keys) <= 3
+        assert all(isinstance(key, str) and key.strip() == key and key for key in tile_keys)
+        assert len(set(tile_keys)) == len(tile_keys)
+    root = Path(app_mod.__file__).resolve().parents[2]
+    source = ast.parse((root / "tests/qt/test_the_macos_application_menu.py").read_text())
+    bootstrap = next(node.value.args[0] for node in source.body
+                     if isinstance(node, ast.Assign) and any(
+                         isinstance(target, ast.Name) and target.id == "_OWNED_SETTINGS_PROBE"
+                         for target in node.targets))
+    child = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
+
+        import subprocess, time, traceback
+        from pathlib import Path
+        from PySide6.QtCore import QPoint, QPointF, QRect, QSize, Qt, QTimer
+        from PySide6.QtGui import QFontInfo, QRegion, QTextDocument, QTextOption
+        from PySide6.QtWidgets import (QAbstractButton, QLabel, QMenuBar, QPushButton, QScrollArea,
+            QStyle, QStyleOptionButton, QStyleOptionToolButton, QStyleOptionTab, QToolButton)
+        from PySide6.QtTest import QTest
+        from spacr.qt import gui_scale, preferences, theme, timing
+        from spacr.qt.app import MainWindow
+        from spacr.qt.widgets.home import AppTile, _AppTileIcon, _find_logo_pixmap
+        from spacr.qt.widgets.eliding import ElidingLabel
+        from spacr.qt.first_run import _TourOverlay, was_tour_shown
+        import shiboken6
+
+        assert timing.ENABLED, 'Readiness requires explicit SPACR_TIMING=1'
+        assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_HOME_TEST_ROOT'])
+        assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_HOME_TEST_HEAD']
+        cohort = os.environ['SPACR_HOME_TEST_COHORT']
+        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows', 'tab_navigation', 'tile_batch', 'ordinary_labels', 'status_home_access', 'news_titles', 'news_dates', 'news_body_lines', 'news_body_intrinsic', 'news_body_endpoints'), cohort
+        body_indices = json.loads(os.environ['SPACR_HOME_TEST_BODY_INDICES']) if cohort == 'news_body_endpoints' else []
+        if cohort == 'news_body_endpoints':
+            assert isinstance(body_indices, list) and 1 <= len(body_indices) <= 3
+            assert all(type(index) is int and 1 <= index < 17 for index in body_indices)
+            assert len(set(body_indices)) == len(body_indices)
+        body_parameters = {name: int(os.environ['SPACR_HOME_TEST_BODY_'+name.upper()])
+                           for name in ('release_index', 'start', 'max_count')} if cohort == 'news_body_lines' else {}
+        if cohort == 'news_body_lines':
+            assert 0 <= body_parameters['release_index'] < 17
+            assert body_parameters['start'] >= 0 and 1 <= body_parameters['max_count'] <= 16
+        tile_keys = json.loads(os.environ['SPACR_HOME_TEST_TILE_KEYS']) if cohort == 'tile_batch' else []
+        if cohort == 'tile_batch':
+            assert isinstance(tile_keys, list) and 2 <= len(tile_keys) <= 3
+            assert all(isinstance(key, str) and key.strip() == key and key for key in tile_keys)
+            assert len(set(tile_keys)) == len(tile_keys)
+        preferences.set_gui_scale(2.)
+        preferences.set_font_scale(2.)
+        report = {'errors': [], 'checks': [], 'programmatic_not_physical': True, 'cohort': cohort}
+        output = Path(os.environ['SPACR_HOME_TEST_OUTPUT'])
+        state = {}
+
+        def persist():
+            """Persist actual partial evidence before any strict assertion."""
+            output.write_text(json.dumps(report, indent=2))
+
+        def aside_layout_snapshot(window):
+            """Observe native pane constraints without requesting another layout."""
+            def widget_row(widget):
+                if widget is None:
+                    return None
+                policy = widget.sizePolicy()
+                layout = widget.layout()
+                style = widget.style()
+                return {'class': type(widget).__name__, 'name': widget.objectName(),
+                    'style': {'python_class': type(style).__name__, 'object_name': style.objectName(),
+                        'meta_class': style.metaObject().className()},
+                    'rect': widget.property('geometry').getRect(),
+                    'in_window': (widget.mapTo(window, QPoint()).toTuple(), widget.property('size').toTuple()),
+                    'minimum': widget.property('minimumSize').toTuple(),
+                    'maximum': widget.property('maximumSize').toTuple(),
+                    'logical_geometry': dict(getattr(widget, '_gs_geo', {}) or {}),
+                    'applied_geometry': dict(getattr(widget, '_gs_geo_set', {}) or {}),
+                    'size_hint': widget.sizeHint().toTuple(), 'minimum_hint': widget.minimumSizeHint().toTuple(),
+                    'policy': {'horizontal': policy.horizontalPolicy().value,
+                        'vertical': policy.verticalPolicy().value,
+                        'horizontal_stretch': policy.horizontalStretch(), 'vertical_stretch': policy.verticalStretch()},
+                    'layout_constraint': layout.sizeConstraint().value if layout is not None else None,
+                    'font': widget.font().toString()}
+            home = window._startup
+            split = home._aside_split
+            panes = []
+            for index in range(split.count()):
+                widget = split.widget(index)
+                pane = split._pane_of(widget)
+                panes.append({'index': index, 'widget': widget_row(widget),
+                    'pane': {key: getattr(pane, key) for key in ('name', 'mode', 'extent', 'minimum', 'stretch')}
+                        if pane is not None else None})
+            tabs = home._tabs
+            current = tabs.currentWidget()
+            scrolls = [w for w in current.findChildren(QScrollArea)]
+            if isinstance(current, QScrollArea):
+                scrolls.insert(0, current)
+            panels = home._aside_panels
+            return {'splitter': widget_row(split), 'actual_sizes': gui_scale._actual_sizes(split),
+                'handle_width': split.property('handleWidth'), 'panes': panes,
+                'splitter_flags': {key: getattr(split, key, None) for key in
+                    ('_laid_out', '_held', '_rebalance_queued', '_limits_queued', '_refit_queued')},
+                'tabs': widget_row(tabs), 'tab_bar': widget_row(tabs.tabBar()),
+                'tab_scroll_policy': {'tabs_use_scroll_buttons': tabs.usesScrollButtons(),
+                    'bar_uses_scroll_buttons': tabs.tabBar().usesScrollButtons(),
+                    'elide_mode': tabs.tabBar().elideMode().value,
+                    'prefer_no_arrows': tabs.tabBar().style().styleHint(
+                        QStyle.SH_TabBar_PreferNoArrows, None, tabs.tabBar())},
+                'tab_stacks': [widget_row(w) for w in tabs.findChildren(QWidget)
+                    if type(w).__name__ == 'QStackedWidget'],
+                'current_page': widget_row(current),
+                'current_page_scrolls': [{'scroll': widget_row(scroll), 'viewport': widget_row(scroll.viewport()),
+                    'content': widget_row(scroll.widget()),
+                    'horizontal_range': (scroll.horizontalScrollBar().minimum(), scroll.horizontalScrollBar().maximum()),
+                    'vertical_range': (scroll.verticalScrollBar().minimum(), scroll.verticalScrollBar().maximum())}
+                    for scroll in scrolls],
+                'panels': widget_row(panels),
+                'panels_total_minimum': panels.layout().totalMinimumSize().toTuple(),
+                'aside_scrollbar_hint': home._aside_scroll.verticalScrollBar().sizeHint().toTuple(),
+                'aside_logical_geometry': dict(getattr(home._aside, '_gs_geo', {}) or {}),
+                'aside_applied_geometry': dict(getattr(home._aside, '_gs_geo_set', {}) or {})}
+
+        def close():
+            """Use the real owned MainWindow close route even on failure."""
+            if 'timer' in state:
+                state['timer'].stop()
+            report['operation_at_close'] = state['phase']
+            report[state['phase'] + '_seconds_at_close'] = time.perf_counter()-state['started']
+            if 'target_manifest' in report and cohort not in ('news_body_lines', 'news_body_intrinsic', 'news_body_endpoints'):
+                checked = {row['manifest_index'] for row in report['checks']}
+                selected = set(report['selected_indices'])
+                all_targets = set(range(len(report['target_manifest'])))
+                report.update(inspected_indices=sorted(checked),
+                    selected_inspection_complete=checked == selected,
+                    full_inspection_complete=checked == all_targets,
+                    full_untested_count=len(all_targets-checked),
+                    selected_untested_count=len(selected-checked))
+            report['normal_close_accepted'] = state['window'].close()
+            persist()
+
+        def signature(window, target, identities=None, require_idle=True):
+            """Compare actual widget geometry and log layout bookkeeping separately."""
+            snapshot = []
+            widgets = [target, *target.findChildren(QWidget)]
+            ancestor = target.parentWidget()
+            while ancestor is not None:
+                if ancestor not in widgets:
+                    widgets.append(ancestor)
+                if ancestor is window:
+                    break
+                ancestor = ancestor.parentWidget()
+            for w in widgets:
+                if not w.isVisible():
+                    continue
+                fitter = getattr(w, '_text_fit', None)
+                if require_idle and fitter is not None and (fitter._timer.isActive() or fitter._busy):
+                    return None
+                body_fitter = getattr(w, '_body_fit', None)
+                if require_idle and body_fitter is not None and (body_fitter._timer.isActive() or body_fitter._busy):
+                    return None
+                news_fitter = getattr(w, '_news_title_fit', None)
+                if require_idle and news_fitter is not None and (news_fitter._timer.isActive() or news_fitter._busy):
+                    return None
+                if require_idle and any(getattr(w, key, False) for key in
+                        ('_rebalance_queued', '_limits_queued', '_refit_queued', '_fitting_module_actions', '_back_fit_busy')):
+                    return None
+                for key in ('_floor_timer', '_module_action_fit_timer', '_back_fit_timer'):
+                    timer = getattr(w, key, None)
+                    if require_idle and timer is not None and timer.isActive():
+                        return None
+                layout = w.layout()
+                snapshot.append((id(w), w.property('size').toTuple(), w.pos().toTuple(),
+                    w.property('minimumSize').toTuple(), w.property('maximumSize').toTuple(),
+                    None, w.font().toString()))
+                if identities is not None:
+                    identities.append({'class': type(w).__name__, 'name': w.objectName(),
+                        'python_wrapper_id': id(w), 'native_cpp_pointer': shiboken6.getCppPointer(w),
+                        'observed_layout_geometry': layout.geometry().getRect() if layout is not None else None,
+                        'raw_signature': snapshot[-1]})
+            return snapshot
+
+        def native_menu_child(widget):
+            """Keep external macOS menu-bar objects out of in-window claims."""
+            parent = widget.parentWidget()
+            while parent is not None:
+                if isinstance(parent, QMenuBar) and parent.isNativeMenuBar():
+                    return True
+                parent = parent.parentWidget()
+            return False
+
+        def startup_snapshot(window):
+            """Observe normal covers and owned onboarding without dismissing them."""
+            def geometry(widget, controls=False):
+                if widget is None:
+                    return None
+                try:
+                    return {'class': type(widget).__name__, 'name': widget.objectName(),
+                        'visible': widget.isVisible(), 'size': widget.property('size').toTuple(),
+                        'global_rect': widget.rect().translated(widget.mapToGlobal(QPoint())).getRect(),
+                        'mask_empty': widget.mask().isEmpty(),
+                        'mask_bounds': widget.mask().boundingRect().getRect(),
+                        'mask_rect_count': widget.mask().rectCount(),
+                        'visible_region': widget.visibleRegion().boundingRect().getRect(),
+                        'controls': [{'class': type(child).__name__, 'text': child.text(),
+                            'name': child.objectName(), 'visible': child.isVisible(), 'enabled': child.isEnabled()}
+                            for child in widget.findChildren(QAbstractButton) if controls and child.isVisible()]}
+                except RuntimeError:
+                    return {'destroyed': True}
+            running = window._startup_sequence_running()
+            overlays = [w for w in window.findChildren(QWidget)
+                        if w.isVisible() and ('Overlay' in type(w).__name__ or w.isWindow())]
+            modal = QApplication.activeModalWidget()
+            if modal is not None and modal not in overlays:
+                overlays.append(modal)
+            return {'sequence_running': running,
+                'loading_screen': geometry(getattr(window, '_loading_screen', None)),
+                'blowing_cover': geometry(getattr(window, '_blowing_cover', None)),
+                'current_stack': geometry(window._stack.currentWidget()),
+                'owned_overlays': [geometry(w, controls=True) for w in overlays],
+                'active_modal': geometry(modal, controls=True)}
+
+        def check(widget, destination=None):
+            """Check the current native text or icon after one scroll reveal."""
+            window = state['window']
+            dynamic = (cohort == 'tab_navigation'
+                and destination is report['navigation']['tile_checks']
+                and (widget is state['nav_glyph'] or widget is state['nav_tile'].name_label))
+            if dynamic:
+                assert widget not in state['manifest_indices']
+                manifest_index = None
+            else:
+                manifest_index = state['manifest_indices'][widget]
+            row = {'class': type(widget).__name__, 'name': widget.objectName(),
+                   'enabled': widget.isEnabled(),
+                   'manifest_index': manifest_index,
+                   'rect': widget.rect().getRect(), 'visible': widget.visibleRegion().boundingRect().getRect(),
+                   'font': widget.font().toString(), 'startup_observation': startup_snapshot(window)}
+            if manifest_index is not None:
+                row['module_coverage'] = {key: report['target_manifest'][manifest_index][key]
+                    for key in ('module_key', 'tile_role', 'full_caption')}
+                row['ordinary_label_role'] = report['target_manifest'][manifest_index]['ordinary_label_role']
+                row['status_label_role'] = report['target_manifest'][manifest_index]['status_label_role']
+                row['news_coverage'] = {key: report['target_manifest'][manifest_index][key]
+                    for key in ('news_role', 'release_tag', 'release_index')}
+            row['ancestors'] = []
+            ancestor = widget
+            while ancestor is not None:
+                row['ancestors'].append({'class': type(ancestor).__name__, 'name': ancestor.objectName(),
+                    'actual_size': ancestor.property('size').toTuple(),
+                    'in_window': ancestor.rect().translated(ancestor.mapTo(window, QPoint())).getRect(),
+                    'minimum_hint': ancestor.minimumSizeHint().toTuple()})
+                if ancestor is window:
+                    break
+                ancestor = ancestor.parentWidget()
+            (report['checks'] if destination is None else destination).append(row)
+            if (cohort in ('home_access', 'status_home_access') and widget in state['access_tile_widgets']) or cohort == 'tile_batch':
+                scroll = state['batch_scroll'] if cohort == 'tile_batch' else state['access_tile_scroll']
+                row['tile_scroll'] = {'horizontal_policy': scroll.horizontalScrollBarPolicy().value,
+                    'horizontal_range': (scroll.horizontalScrollBar().minimum(), scroll.horizontalScrollBar().maximum()),
+                    'content_width': scroll.widget().property('size').width(),
+                    'viewport_width': scroll.viewport().property('size').width()}
+                persist()
+                assert scroll.horizontalScrollBar().maximum() == 0, row
+                assert row['tile_scroll']['content_width'] <= row['tile_scroll']['viewport_width'], row
+            def visible(rect):
+                return (QRegion(rect).subtracted(widget.visibleRegion()).isEmpty()
+                        and window.rect().contains(rect.translated(widget.mapTo(window, QPoint()))))
+            if isinstance(widget, QLabel):
+                pixmap = widget.pixmap()
+                if pixmap is not None and not pixmap.isNull():
+                    shown = pixmap.deviceIndependentSize()
+                    placed = QStyle.alignedRect(widget.layoutDirection(), widget.alignment(),
+                        QSize(round(shown.width()), round(shown.height())), widget.contentsRect())
+                    row.update(icon_size=(shown.width(), shown.height()), dpr=pixmap.devicePixelRatio(),
+                               placed=placed.getRect())
+                    source_size = None
+                    if isinstance(widget, _AppTileIcon):
+                        sizes = widget._icon.availableSizes()
+                        assert sizes, row
+                        source_size = max(sizes, key=lambda s: s.width()*s.height())
+                    elif widget.objectName() == 'HeroMark':
+                        source_size = _find_logo_pixmap().size()
+                    if source_size is not None:
+                        assert abs(shown.width()*source_size.height()-shown.height()*source_size.width()) <= max(source_size.width(), source_size.height()), row
+                    assert pixmap.devicePixelRatio() == 2. and not placed.isEmpty(), row
+                    assert widget.contentsRect().contains(placed) and visible(placed), row
+                if widget.text():
+                    flags = int(widget.alignment() | (Qt.TextWordWrap if widget.wordWrap() else Qt.TextSingleLine))
+                    text = widget.style().itemTextRect(widget.fontMetrics(), widget.contentsRect(),
+                        flags, widget.isEnabled(), widget.text())
+                    if widget.textFormat() == Qt.RichText or (widget.textFormat() == Qt.AutoText and '<' in widget.text()):
+                        document = QTextDocument()
+                        document.setDocumentMargin(0)
+                        document.setDefaultFont(widget.font())
+                        option = QTextOption()
+                        option.setWrapMode(QTextOption.WordWrap if widget.wordWrap() else QTextOption.NoWrap)
+                        document.setDefaultTextOption(option)
+                        document.setHtml(widget.text())
+                        document.setTextWidth(widget.contentsRect().width() if widget.wordWrap() else -1)
+                        needed = document.size().toSize()
+                        text = QStyle.alignedRect(widget.layoutDirection(), widget.alignment(), needed, widget.contentsRect())
+                        if cohort == 'news_titles' and row['news_coverage']['news_role'] == 'title':
+                            attributed = document.clone()
+                            area = widget.contentsRect().adjusted(widget.margin(), widget.margin(),
+                                -widget.margin(), -widget.margin())
+                            alignment = QStyle.visualAlignment(widget.layoutDirection(), widget.alignment())
+                            indent = widget.indent()
+                            if indent < 0 and widget.frameWidth():
+                                indent = widget.fontMetrics().horizontalAdvance('x') // 2-widget.margin()
+                            if indent > 0:
+                                if alignment & Qt.AlignLeft:
+                                    area.setLeft(area.left()+indent)
+                                if alignment & Qt.AlignRight:
+                                    area.setRight(area.right()-indent)
+                                if alignment & Qt.AlignTop:
+                                    area.setTop(area.top()+indent)
+                                if alignment & Qt.AlignBottom:
+                                    area.setBottom(area.bottom()-indent)
+                            rich_option = attributed.defaultTextOption()
+                            rich_option.setAlignment(widget.alignment())
+                            attributed.setDefaultTextOption(rich_option)
+                            attributed.setTextWidth(area.width())
+                            height = attributed.size().height()
+                            offset = (max(0., (area.height()-height)/2) if alignment & Qt.AlignVCenter
+                                      else max(0., area.height()-height) if alignment & Qt.AlignBottom else 0.)
+                            origin = QPointF(area.x(), area.y()+offset)
+                            diagnostic = {'font': widget.font().toString(), 'sheet': widget.styleSheet(),
+                                'contents': widget.contentsRect().getRect(), 'document_area': area.getRect(),
+                                'margin': widget.margin(), 'indent': widget.indent(), 'frame_width': widget.frameWidth(),
+                                'alignment': widget.alignment().value, 'layout_direction': widget.layoutDirection().value,
+                                'document_origin': (origin.x(), origin.y()),
+                                'document_size': (attributed.size().width(), height),
+                                'visible_region': {'bounding_rect': widget.visibleRegion().boundingRect().getRect(),
+                                                   'rect_count': widget.visibleRegion().rectCount()},
+                                'label_in_window': widget.rect().translated(widget.mapTo(window, QPoint())).getRect(),
+                                'window_client': window.rect().getRect(), 'lines': []}
+
+                            def bounds(rect):
+                                native = rect.toAlignedRect()
+                                return {'label_rect': rect.getRect(),
+                                    'window_rect': native.translated(widget.mapTo(window, QPoint())).getRect(),
+                                    'contents_contains': widget.contentsRect().contains(native),
+                                    'whole_visible': visible(native)}
+
+                            block = attributed.begin()
+                            while block.isValid():
+                                layout = block.layout()
+                                block_rect = attributed.documentLayout().blockBoundingRect(block)
+                                for index in range(layout.lineCount()):
+                                    line = layout.lineAt(index)
+                                    runs = line.glyphRuns()
+                                    line_row = {'block_position': block.position(), 'block_text': block.text(),
+                                        'block_rect': block_rect.getRect(),
+                                        'layout_position': (layout.position().x(), layout.position().y()),
+                                        'line_position': (line.position().x(), line.position().y()),
+                                        'text_start': line.textStart(), 'text_length': line.textLength(),
+                                        'natural_raw': line.naturalTextRect().getRect(),
+                                        'natural': bounds(line.naturalTextRect().translated(block_rect.topLeft()+origin)),
+                                        'glyph_runs': [dict(bounds(run.boundingRect().translated(block_rect.topLeft()+origin)),
+                                            raw_rect=run.boundingRect().getRect(), glyph_count=len(run.glyphIndexes()),
+                                            font_family=run.rawFont().familyName(), font_pixels=run.rawFont().pixelSize())
+                                            for run in runs]}
+                                    diagnostic['lines'].append(line_row)
+                                block = block.next()
+                            row['rich_title_attribution'] = diagnostic
+                    row.update(text=widget.text(), text_rect=text.getRect())
+                    if isinstance(widget, ElidingLabel) and widget.is_elided():
+                        row['intentional_elision'] = widget.full_text()
+                        assert widget.toolTip() == widget.full_text() and '…' in widget.text(), row
+                    persist()
+                    assert widget.contentsRect().contains(text) and visible(text), row
+            elif isinstance(widget, AppTile):
+                glyphs = widget.findChildren(_AppTileIcon)
+                for glyph in glyphs:
+                    assert not glyph.geometry().intersects(widget.name_label.geometry()), row
+            elif isinstance(widget, QPushButton):
+                option = QStyleOptionButton()
+                option.initFrom(widget)
+                option.rect, option.text = widget.rect(), widget.text()
+                option.icon, option.iconSize = widget.icon(), widget.property('iconSize')
+                for active, feature in ((widget.isDefault(), QStyleOptionButton.DefaultButton),
+                        (widget.autoDefault(), QStyleOptionButton.AutoDefaultButton),
+                        (widget.isFlat(), QStyleOptionButton.Flat)):
+                    if active:
+                        option.features |= feature
+                field = widget.style().subElementRect(QStyle.SE_PushButtonContents, option, widget)
+                text = widget.style().itemTextRect(widget.fontMetrics(), field,
+                    int(Qt.AlignCenter | Qt.TextSingleLine), widget.isEnabled(), widget.text())
+                row.update(text=widget.text(), field=field.getRect(), text_rect=text.getRect())
+                row['icon_scope'] = 'Child QLabel and native QToolButton icons checked separately'
+                persist()
+                assert widget.icon().isNull(), ('Additional QPushButton icon placement requires native proof', row)
+                assert field.contains(text) and visible(text), row
+            elif isinstance(widget, QToolButton):
+                row['tool_button_style'] = widget.toolButtonStyle().value
+                assert not widget.text() or widget.toolButtonStyle() == Qt.ToolButtonIconOnly, ('Unmeasured displayed tool-button caption', row)
+                option = QStyleOptionToolButton()
+                option.initFrom(widget)
+                option.rect, option.icon, option.iconSize = widget.rect(), widget.icon(), widget.property('iconSize')
+                option.toolButtonStyle = widget.toolButtonStyle()
+                option.text, option.arrowType = widget.text(), widget.arrowType()
+                field = widget.style().subControlRect(QStyle.CC_ToolButton, option, QStyle.SC_ToolButton, widget)
+                if widget.arrowType() != Qt.NoArrow:
+                    row.update(native_arrow=widget.arrowType().value, field=field.getRect())
+                    persist()
+                    assert not field.isEmpty() and widget.rect().contains(field) and visible(field), row
+                    return
+                pixmap = widget.icon().pixmap(widget.property('iconSize'), 2.)
+                shown = pixmap.deviceIndependentSize()
+                placed = QStyle.alignedRect(widget.layoutDirection(), Qt.AlignCenter,
+                    QSize(round(shown.width()), round(shown.height())), field)
+                row.update(field=field.getRect(), placed=placed.getRect(), dpr=pixmap.devicePixelRatio(),
+                           actual_icon_size=widget.property('iconSize').toTuple(),
+                           source_sizes=[size.toTuple() for size in widget.icon().availableSizes()])
+                persist()
+                assert not pixmap.isNull() and pixmap.devicePixelRatio() == 2., row
+                assert field.contains(placed) and visible(placed), row
+            else:
+                assert False, ('Unmeasured native button type', row)
+            persist()
+
+        def navigation_ready(window, target):
+            """Use existing cadence/readiness and exactly one ancestor reveal."""
+            bar = window._startup._tabs.tabBar()
+            observed = signature(window, target)
+            if observed is None:
+                state['nav_previous'] = None
+                return False
+            observed = (observed, tuple(bar.tabRect(i).getRect() for i in range(bar.count())), bar.currentIndex())
+            if not state.get('nav_revealed'):
+                if state.get('nav_previous') != observed:
+                    state['nav_previous'] = observed
+                    return False
+                parent = target.parentWidget()
+                while parent is not None and parent is not window:
+                    if isinstance(parent, QScrollArea):
+                        parent.ensureWidgetVisible(target, 0, 0)
+                    parent = parent.parentWidget()
+                state['nav_revealed'] = True
+                state['nav_frozen'] = (signature(window, target),
+                    tuple(bar.tabRect(i).getRect() for i in range(bar.count())), bar.currentIndex())
+                return False
+            assert state['nav_frozen'] == observed, ('Navigation changed after one reveal', state['nav_phase'])
+            return True
+
+        def navigation_stage(phase):
+            """Change only interaction/readiness state, never the content clock."""
+            state.update(nav_phase=phase, nav_previous=None, nav_revealed=False)
+            report['navigation']['phase'] = phase
+
+        def native_tab_caption(window, bar, index):
+            """Measure the full native mnemonic caption, not Qt's elided copy."""
+            option = QStyleOptionTab()
+            bar.initStyleOption(option, index)
+            option_text = option.text
+            full = bar.tabText(index)
+            option.text = full
+            field = bar.style().subElementRect(QStyle.SE_TabBarTabText, option, bar)
+            text = bar.style().itemTextRect(option.fontMetrics, field,
+                int(Qt.AlignCenter | Qt.TextSingleLine | Qt.TextShowMnemonic),
+                bar.isTabEnabled(index), full)
+            region = QRegion(bar.rect()).intersected(bar.visibleRegion())
+            for button in bar.findChildren(QToolButton):
+                if button.isVisible():
+                    region = region.subtracted(QRegion(button.rect().translated(button.mapTo(bar, QPoint()))))
+            return {'index': index, 'full_text': full, 'option_text': option_text,
+                'tab_rect': bar.tabRect(index).getRect(), 'field': field.getRect(),
+                'text_rect': text.getRect(), 'native_font_height': option.fontMetrics.height(),
+                'fits': (not text.isEmpty() and field.contains(text)
+                    and QRegion(text).subtracted(region).isEmpty()
+                    and window.rect().contains(text.translated(bar.mapTo(window, QPoint())))),
+                'point': text.center().toTuple(), 'tab_at_point': bar.tabAt(text.center())}
+
+        def navigation_tick(window):
+            """Perform one bounded native Home/category/Home interaction sequence."""
+            home = window._startup
+            tabs, bar = home._tabs, home._tabs.tabBar()
+            if 'navigation' not in report:
+                assert tabs.currentIndex() == 0 and tabs.count() > 1
+                state['nav_home_page'] = tabs.currentWidget()
+                state['nav_last_page'] = tabs.widget(tabs.count()-1)
+                state['nav_arrows'] = {w.arrowType(): w for w in state['widgets']}
+                report['navigation'] = {'captions': [], 'actions': [], 'tile_checks': [],
+                    'original_home_pointer': shiboken6.getCppPointer(tabs.currentWidget()),
+                    'last_index': tabs.count()-1, 'category_title': home._categories[-1][0],
+                    'baseline_manifest_scope': 'Only the two clicked arrow targets; dynamic category rows are separate',
+                    'complete': False}
+                state['nav_arrow_counts'] = {'right': 0, 'left': 0}
+                state['nav_checked_arrows'] = set()
+                navigation_stage('home_initial')
+            nav, phase = report['navigation'], state['nav_phase']
+            target = state.get('nav_tile_target') if phase in ('category_icon', 'category_name') else bar
+            if not navigation_ready(window, target):
+                return
+            pending = state.pop('nav_pending_arrow', None)
+            if pending is not None:
+                pending['after_rects'] = [bar.tabRect(i).getRect() for i in range(bar.count())]
+                pending['after_index'] = tabs.currentIndex()
+                persist()
+                assert pending['after_index'] == pending['before_index'], pending
+                assert pending['after_rects'] != pending['before_rects'], pending
+            if phase in ('home_initial', 'last_selected', 'home_restored'):
+                index = nav['last_index'] if phase == 'last_selected' else 0
+                row = {'state': phase, **native_tab_caption(window, bar, index),
+                    'current_index': tabs.currentIndex(),
+                    'page_pointer': shiboken6.getCppPointer(tabs.currentWidget())}
+                nav['captions'].append(row)
+                persist()
+                assert row['fits'] and row['current_index'] == index and row['tab_at_point'] == index, row
+                if phase == 'home_initial':
+                    navigation_stage('right')
+                elif phase == 'last_selected':
+                    assert tabs.currentWidget() is state['nav_last_page']
+                    scroll = tabs.currentWidget()
+                    tile = next(w for w in scroll.findChildren(AppTile)
+                                if w.isVisible() and w.findChildren(_AppTileIcon))
+                    assert tile.accessibleName() == tile.name_label.full_text()
+                    state.update(nav_tile=tile, nav_category_scroll=scroll,
+                        nav_glyph=tile.findChild(_AppTileIcon), nav_tile_target=tile.findChild(_AppTileIcon))
+                    nav['category_first_tile'] = {'key': tile.property('moduleAppKey'),
+                        'accessible_name': tile.accessibleName(), 'full_name': tile.name_label.full_text(),
+                        'source_key': state['nav_glyph']._icon.cacheKey(),
+                        'native_pointer': shiboken6.getCppPointer(tile)}
+                    navigation_stage('category_icon')
+                else:
+                    assert tabs.currentWidget() is state['nav_home_page']
+                    nav['restored_home_pointer'] = shiboken6.getCppPointer(tabs.currentWidget())
+                    nav['complete'] = True
+                    persist()
+                    close()
+                return
+            if phase in ('category_icon', 'category_name'):
+                scroll = state['nav_category_scroll']
+                nav['tile_scroll'] = {'content_width': scroll.widget().property('size').width(),
+                    'viewport_width': scroll.viewport().property('size').width(),
+                    'hidden_horizontal_maximum': scroll.horizontalScrollBar().maximum()}
+                persist()
+                assert nav['tile_scroll']['hidden_horizontal_maximum'] == 0, nav['tile_scroll']
+                assert nav['tile_scroll']['content_width'] <= nav['tile_scroll']['viewport_width'], nav['tile_scroll']
+                check(target, nav['tile_checks'])
+                nav['tile_checks'][-1]['dynamic_state'] = phase
+                if phase == 'category_icon':
+                    state['nav_tile_target'] = state['nav_tile'].name_label
+                    navigation_stage('category_name')
+                else:
+                    assert state['nav_glyph']._icon.cacheKey() == nav['category_first_tile']['source_key']
+                    navigation_stage('left')
+                persist()
+                return
+            assert phase in ('right', 'left'), phase
+            index = nav['last_index'] if phase == 'right' else 0
+            row = native_tab_caption(window, bar, index)
+            nav['candidate_caption'] = row
+            persist()
+            if row['fits']:
+                assert state['nav_arrow_counts'][phase] > 0, ('No overflow interaction exercised', phase)
+                point = QPoint(*row['point'])
+                assert row['tab_at_point'] == index and bar.isTabEnabled(index), row
+                action = {'kind': 'tab_click', 'index': index, 'before_index': tabs.currentIndex(),
+                    'point': row['point'], 'tab_at_point': row['tab_at_point'], 'caption': row}
+                nav['actions'].append(action)
+                persist()
+                QTest.mouseClick(bar, Qt.LeftButton, Qt.NoModifier, point)
+                action['after_index'] = tabs.currentIndex()
+                assert action['after_index'] == index, action
+                navigation_stage('last_selected' if phase == 'right' else 'home_restored')
+                return
+            state['nav_arrow_counts'][phase] += 1
+            assert state['nav_arrow_counts'][phase] <= tabs.count()+1, ('Bounded arrow clicks exhausted', phase, row)
+            arrow = state['nav_arrows'][Qt.RightArrow if phase == 'right' else Qt.LeftArrow]
+            assert arrow.isEnabled() and arrow.isVisible(), (phase, row)
+            destination = None if arrow not in state['nav_checked_arrows'] else []
+            check(arrow, destination)
+            state['nav_checked_arrows'].add(arrow)
+            action = {'kind': 'arrow_click', 'direction': phase, 'before_index': tabs.currentIndex(),
+                'before_rects': [bar.tabRect(i).getRect() for i in range(bar.count())],
+                'button_pointer': shiboken6.getCppPointer(arrow), 'enabled': arrow.isEnabled()}
+            nav['actions'].append(action)
+            state['nav_pending_arrow'] = action
+            persist()
+            QTest.mouseClick(arrow, Qt.LeftButton, Qt.NoModifier, arrow.rect().center())
+            navigation_stage(phase)
+
+
+        def prepare_body_range():
+            from html.parser import HTMLParser
+            from PySide6.QtGui import QTextDocumentFragment
+            from spacr.qt.widgets.home import NewsPanel
+
+            class Format(HTMLParser):
+                def __init__(self, html):
+                    super().__init__(convert_charrefs=True)
+                    self.links = []
+                    self.feed(html)
+
+                def handle_starttag(self, tag, attrs):
+                    assert tag in ('a', 'b', 'br'), ('Unsupported rendered object/tag', tag)
+                    assert not attrs or tag == 'a'
+                    assert set(dict(attrs)) <= {'href', 'style'}
+                    if tag == 'a':
+                        self.links.append(dict(attrs).get('href', ''))
+
+                def handle_startendtag(self, tag, attrs):
+                    self.handle_starttag(tag, attrs)
+
+            window = state['window']
+            news = window._startup._news
+            widgets = [w for w in window.findChildren(QWidget)
+                if w.isVisible() and w.window() is window and not native_menu_child(w)
+                and (isinstance(w, QLabel) and (w.text() or (w.pixmap() is not None and not w.pixmap().isNull()))
+                     or isinstance(w, QAbstractButton))]
+            assert len(widgets) == 139
+            report['target_manifest'] = [{'index': i, 'class': type(w).__name__, 'name': w.objectName(),
+                'native_cpp_pointer': shiboken6.getCppPointer(w)} for i, w in enumerate(widgets)]
+            report.update(selected_indices=[], selected_target_count=0, inspected_indices=[],
+                selected_inspection_complete=False, full_inspection_complete=False,
+                selected_untested_count=0, full_untested_count=len(widgets))
+            blocks = [news._notes_column.itemAt(i).widget() for i in range(news._notes_column.count())
+                if news._notes_column.itemAt(i).widget() not in (None, news._placeholder)]
+            assert len(blocks) == len(news._releases) == 17
+            bodies, ledger, tags = [], [], []
+            for i, (block, entry) in enumerate(zip(blocks, news._releases)):
+                assert entry.get('published') and entry.get('tag') and entry['tag'] not in tags
+                tags.append(entry['tag'])
+                title, stamp, body = [block.layout().itemAt(j).widget() for j in range(3)]
+                assert all(isinstance(w, QLabel) and w in widgets and w.parentWidget() is block
+                           for w in (title, stamp, body))
+                assert body.text() == NewsPanel.render_body(str(entry.get('body') or ''), theme.active_palette()['accent'])
+                parsed = Format(body.text())
+                assert body.accessibleName() == str(entry.get('name') or entry['tag'] or 'spaCR')
+                assert body.accessibleDescription() == QTextDocumentFragment.fromHtml(body.text()).toPlainText()
+                bodies.append(body)
+                ledger.append({'release_index': i, 'release_tag': entry['tag'], 'manifest_index': widgets.index(body),
+                    'pointer': shiboken6.getCppPointer(body), 'allowed_renderer_tags_only': True,
+                    'links': parsed.links, 'whole_body_certified': False})
+            assert len(set(bodies)) == len(set(tags)) == 17
+            assert tags[0] == 'v1.5.1.5'
+            release_index = body_parameters['release_index'] if cohort == 'news_body_lines' else 0
+            body = bodies[release_index]
+            state['body_range'] = {'label': body, 'bodies': bodies, 'Format': Format, 'previous': None,
+                'next': body_parameters['start'] if cohort == 'news_body_lines' else 0}
+            if cohort == 'news_body_lines':
+                report['body_range'] = {'scope': 'rendered line range only', 'whole_body_certified': False,
+                    'structural_bodies': ledger, 'selected_body': ledger[release_index],
+                    'requested_parameters': dict(body_parameters), 'checks': [], 'complete': False}
+            elif cohort == 'news_body_intrinsic':
+                report['body_intrinsic'] = {'scope': 'intrinsic geometry only', 'visibility_certified': False,
+                    'whole_body_certified': False, 'structural_bodies': ledger, 'checks': [], 'complete': False,
+                    'attempted_body_count': 0, 'accepted_body_count': 0, 'untested_body_count': 17}
+            else:
+                report['body_endpoints'] = {'scope': 'rendered endpoints only', 'whole_body_certified': False,
+                    'structural_bodies': ledger, 'requested_indices': list(body_indices), 'checks': [],
+                    'accepted_body_count': 0, 'unselected_body_count': 17-len(body_indices), 'complete': False}
+            state['widgets'] = []
+            persist()
+
+        def body_source_identity(body):
+            parser = state['body_range']['Format'](body.text())
+            return {'html': body.text(), 'font': body.font().toString(),
+                'accessible_name': body.accessibleName(), 'accessible_description': body.accessibleDescription(),
+                'links': parser.links, 'open_external_links': body.openExternalLinks(),
+                'text_interaction_flags': body.textInteractionFlags().value}
+
+        def body_layout_identity(body):
+            return {'size': body.property('size').toTuple(), 'contents': body.contentsRect().getRect(),
+                'margin': body.margin(), 'indent': body.indent(), 'frame_width': body.frameWidth(),
+                'alignment': body.alignment().value, 'word_wrap': body.wordWrap()}
+
+        def body_document(body):
+            from PySide6.QtCore import QRectF
+            from PySide6.QtGui import QTextDocumentFragment
+            assert body.margin() == body.frameWidth() == 0 and body.indent() < 0
+            assert body.wordWrap() and body.isVisible()
+            assert QFontInfo(body.font()).family() == 'Open Sans'
+            assert body.font().pixelSize() == gui_scale.scale_int(theme.font_px(11, 2.), 2.)
+            document = QTextDocument()
+            document.setDocumentMargin(0)
+            document.setDefaultFont(body.font())
+            option = QTextOption()
+            option.setWrapMode(QTextOption.WordWrap)
+            option.setAlignment(body.alignment())
+            document.setDefaultTextOption(option)
+            document.setHtml(body.text())
+            document.setTextWidth(body.contentsRect().width())
+            height = document.size().height()
+            assert not document.rootFrame().childFrames()
+            assert chr(0xfffc) not in document.toPlainText()
+            assert body.accessibleDescription() == QTextDocumentFragment.fromHtml(body.text()).toPlainText()
+            area = body.contentsRect()
+            offset = max(0., (area.height()-height)/2) if body.alignment() & Qt.AlignVCenter else 0.
+            if body.alignment() & Qt.AlignBottom:
+                offset = max(0., area.height()-height)
+            origin = QPointF(area.x(), area.y()+offset)
+            lines = []
+            block = document.begin()
+            while block.isValid():
+                iterator = block.begin()
+                while not iterator.atEnd():
+                    fragment = iterator.fragment()
+                    assert fragment.isValid() and fragment.charFormat().objectType() == 0
+                    iterator += 1
+                layout = block.layout()
+                block_origin = document.documentLayout().blockBoundingRect(block).topLeft()
+                utf16 = block.text().encode('utf-16-le')
+                for i in range(layout.lineCount()):
+                    line = layout.lineAt(i)
+                    natural = line.naturalTextRect().translated(block_origin+origin)
+                    runs = [run.boundingRect().translated(block_origin+origin) for run in line.glyphRuns()]
+                    source = utf16[2*line.textStart():2*(line.textStart()+line.textLength())].decode('utf-16-le')
+                    nonempty = bool(source.strip())
+                    assert not nonempty or runs
+                    bounds = QRectF(natural)
+                    for run in runs:
+                        bounds = bounds.united(run)
+                    if not nonempty:
+                        bounds = QRectF(natural.x(), natural.y(), max(1., natural.width()), max(1., natural.height()))
+                    lines.append({'rect': bounds.toAlignedRect(), 'natural': natural, 'runs': runs,
+                        'block_position': block.position(), 'line_position': (line.position().x(), line.position().y()),
+                        'layout_position': (layout.position().x(), layout.position().y()),
+                        'block_origin': (block_origin.x(), block_origin.y()), 'text_start': line.textStart(),
+                        'natural_raw': line.naturalTextRect().getRect(),
+                        'glyph_raw': [run.boundingRect().getRect() for run in line.glyphRuns()],
+                        'source_text': source, 'source_positions': 'UTF-16 code units within block',
+                        'text_length': line.textLength(), 'classification': 'text' if nonempty else 'whitespace'})
+                block = block.next()
+            return document, lines, origin, area, height
+
+        def body_intrinsic_tick():
+            window = state['window']
+            local = state['body_range']
+            result = report['body_intrinsic']
+            body = local['bodies'][local['next']]
+            current = signature(window, body)
+            if 'pending' not in local:
+                if current is None or local['previous'] != current:
+                    local['previous'] = current
+                    return False
+                identity = body_source_identity(body)
+                allocation = body_layout_identity(body)
+                document, lines, origin, area, height = body_document(body)
+                identities = []
+                frozen = signature(window, body, identities=identities, require_idle=False)
+                row = {'release_index': local['next'],
+                    'release_tag': result['structural_bodies'][local['next']]['release_tag'],
+                    'source_identity': identity, 'layout_identity': allocation,
+                    'document_origin': (origin.x(), origin.y()),
+                    'document_size': (document.size().width(), height), 'rendered_line_count': len(lines),
+                    'no_inline_objects': True, 'no_child_frames': True, 'no_object_replacement_character': True,
+                    'visibility_certified': False, 'whole_body_certified': False, 'accepted': False,
+                    'frozen_signature': frozen, 'frozen_identities': identities,
+                    'lines': [{'rendered_index': i, 'classification': line['classification'],
+                        'required_rect': line['rect'].getRect(), 'natural': line['natural'].getRect(),
+                        'glyph_runs': [run.getRect() for run in line['runs']],
+                        'source_text': line['source_text'], 'text_start': line['text_start'],
+                        'text_length': line['text_length'], 'source_positions': line['source_positions'],
+                        'block_origin': line['block_origin'], 'line_position': line['line_position'],
+                        'contents_fit': area.contains(line['rect'])} for i, line in enumerate(lines)]}
+                result['checks'].append(row)
+                result['attempted_body_count'] += 1
+                local.update(pending=row, document=document)
+                persist()
+                return False
+            row = local['pending']
+            identities = []
+            actual = signature(window, body, identities=identities, require_idle=False)
+            row.update(actual_signature=actual, actual_identities=identities,
+                final_source_identity=body_source_identity(body), final_layout_identity=body_layout_identity(body))
+            persist()
+            assert actual == row['frozen_signature'], 'Intrinsic body geometry changed after document measurement'
+            assert [r['native_cpp_pointer'] for r in identities] == [r['native_cpp_pointer'] for r in row['frozen_identities']]
+            assert row['source_identity'] == row['final_source_identity']
+            assert row['layout_identity'] == row['final_layout_identity']
+            if current is None:
+                return False
+            assert current == row['frozen_signature']
+            assert row['rendered_line_count'] > 0
+            assert all(line['contents_fit'] for line in row['lines']), ('Intrinsic News body bounds exceed contents', row)
+            row['accepted'] = True
+            result['accepted_body_count'] += 1
+            result['untested_body_count'] = 17-result['accepted_body_count']
+            local['next'] += 1
+            local.pop('pending')
+            local.pop('document')
+            local['previous'] = None
+            result['complete'] = local['next'] == 17
+            persist()
+            return result['complete']
+
+        def body_endpoints_tick():
+            local = state['body_range']
+            result = report['body_endpoints']
+            if 'range_result' not in local:
+                index = body_indices[result['accepted_body_count']]
+                row = {'selected_body': result['structural_bodies'][index], 'whole_body_certified': False,
+                    'checks': [], 'complete': False}
+                result['checks'].append(row)
+                local.update(label=local['bodies'][index], range_result=row)
+            if not body_range_tick():
+                return False
+            result['accepted_body_count'] += 1
+            result['complete'] = result['accepted_body_count'] == len(body_indices)
+            if not result['complete']:
+                state['body_range'] = {'bodies': local['bodies'], 'Format': local['Format'], 'previous': None, 'next': 0}
+            persist()
+            return result['complete']
+
+        def body_range_tick():
+            window = state['window']
+            local = state['body_range']
+            body = local['label']
+            result = local['range_result'] if cohort == 'news_body_endpoints' else report['body_range']
+            if 'layout_identity' in local:
+                assert body_layout_identity(body) == local['layout_identity'], 'Cached body line allocation changed'
+            current = signature(window, body)
+            if 'lines' not in local:
+                if current is None or local['previous'] != current:
+                    local['previous'] = current
+                    return False
+                document, lines, origin, area, height = body_document(body)
+                assert lines
+                if cohort == 'news_body_endpoints':
+                    queue = sorted({0, len(lines)-1})
+                else:
+                    assert body_parameters['start'] < len(lines)
+                    stop = min(body_parameters['start']+body_parameters['max_count'], len(lines))
+                    queue = list(range(body_parameters['start'], stop))
+                local.update(document=document, lines=lines, identity=body_source_identity(body),
+                             layout_identity=body_layout_identity(body), previous=None,
+                             queue=queue, queue_position=0, next=queue[0])
+                result.update(rendered_line_count=len(lines), untested_line_count=len(lines),
+                    endpoint_indices=queue if cohort == 'news_body_endpoints' else None,
+                    attempted_line_count=0, accepted_line_count=0,
+                    attempted_segment_count=0, accepted_segment_count=0, reveal_guard_px=2,
+                    no_inline_objects=True, no_child_frames=True, no_object_replacement_character=True,
+                    original_identity=local['identity'], document_origin=(origin.x(), origin.y()),
+                    original_layout_identity=local['layout_identity'],
+                    contents=area.getRect(), document_size=(document.size().width(), height))
+                if cohort == 'news_body_lines':
+                    result['actual_range'] = [queue[0], queue[-1]+1]
+                persist()
+                return False
+            assert body_source_identity(body) == local['identity']
+            line = local['lines'][local['next']]
+            if 'segments' not in local:
+                if current is None or local['previous'] != current:
+                    local['previous'] = current
+                    return False
+                viewports = []
+                ancestor = body.parentWidget()
+                while ancestor is not None and ancestor is not window:
+                    if isinstance(ancestor, QScrollArea):
+                        viewports.append(ancestor.viewport().property('size').toTuple())
+                    ancestor = ancestor.parentWidget()
+                assert viewports
+                width = min(size[0] for size in viewports)-2
+                height = min(size[1] for size in viewports)-2
+                assert width > 0 and height > 0
+                required = line['rect']
+                segments = [QRect(x, y, min(width, required.right()+1-x), min(height, required.bottom()+1-y))
+                    for y in range(required.y(), required.bottom()+1, height)
+                    for x in range(required.x(), required.right()+1, width)]
+                row = {k: v for k, v in line.items() if k not in ('rect', 'natural', 'runs')}
+                row.update(rendered_index=local['next'], rect=required.getRect(), natural=line['natural'].getRect(),
+                    glyph_runs=[r.getRect() for r in line['runs']], ancestor_viewports=viewports,
+                    segment_capacity=(width, height), planned_segments=[r.getRect() for r in segments],
+                    segments=[], accepted=False, coverage_complete=False)
+                result['checks'].append(row)
+                result['attempted_line_count'] += 1
+                local.update(segments=segments, segment_index=0, coverage=QRegion(), line_row=row)
+            if 'frozen' not in local:
+                if current is None or local['previous'] != current:
+                    local['previous'] = current
+                    return False
+                rect = local['segments'][local['segment_index']]
+                reveals = []
+                ancestor = body.parentWidget()
+                while ancestor is not None and ancestor is not window:
+                    if isinstance(ancestor, QScrollArea):
+                        # Re-map this chunk after each inner scroll, never the oversized label.
+                        mapped = rect.translated(body.mapTo(ancestor.widget(), QPoint()))
+                        ancestor.ensureVisible(mapped.center().x(), mapped.center().y(),
+                            mapped.width()//2+1, mapped.height()//2+1)
+                        reveals.append({'viewport': ancestor.viewport().property('size').toTuple(),
+                            'segment_in_content': mapped.getRect(),
+                            'margins': (mapped.width()//2+1, mapped.height()//2+1),
+                            'horizontal': (ancestor.horizontalScrollBar().value(), ancestor.horizontalScrollBar().maximum()),
+                            'vertical': (ancestor.verticalScrollBar().value(), ancestor.verticalScrollBar().maximum())})
+                    ancestor = ancestor.parentWidget()
+                identities = []
+                local.update(frozen=signature(window, body, identities=identities, require_idle=False),
+                             frozen_identities=identities, reveals=reveals)
+                result['attempted_segment_count'] += 1
+                persist()
+                return False
+            identities = []
+            actual = signature(window, body, identities=identities, require_idle=False)
+            assert actual == local['frozen'], 'Body geometry changed after one segment reveal'
+            assert [r['native_cpp_pointer'] for r in identities] == [r['native_cpp_pointer'] for r in local['frozen_identities']]
+            if current is None:
+                return False
+            assert current == local['frozen']
+            rect = local['segments'][local['segment_index']]
+            missing = QRegion(rect).subtracted(body.visibleRegion())
+            mapped = rect.translated(body.mapTo(window, QPoint()))
+            row = dict(segment_index=local['segment_index'], rect=rect.getRect(), reveals=local['reveals'],
+                visible=body.visibleRegion().boundingRect().getRect(), in_window=mapped.getRect(),
+                frozen_signature=local['frozen'], actual_signature=actual,
+                frozen_identities=local['frozen_identities'], actual_identities=identities,
+                whole_visible=missing.isEmpty() and window.rect().contains(mapped)
+                    and body.contentsRect().contains(rect))
+            local['line_row']['segments'].append(row)
+            persist()
+            assert row['whole_visible'], ('Required line segment is not fully reachable', row)
+            local['coverage'] = local['coverage'].united(QRegion(rect))
+            result['accepted_segment_count'] += 1
+            local['segment_index'] += 1
+            local.pop('frozen')
+            local['previous'] = None
+            if local['segment_index'] < len(local['segments']):
+                persist()
+                return False
+            uncovered = QRegion(line['rect']).subtracted(local['coverage'])
+            local['line_row'].update(coverage_complete=uncovered.isEmpty(),
+                uncovered_bounds=uncovered.boundingRect().getRect(),
+                accepted_area=sum(r.width()*r.height() for r in local['segments']),
+                required_area=line['rect'].width()*line['rect'].height())
+            assert uncovered.isEmpty(), 'Verified segments do not cover the original full line'
+            local['line_row']['accepted'] = True
+            result['accepted_line_count'] += 1
+            result['untested_line_count'] = result['rendered_line_count']-result['accepted_line_count']
+            local['queue_position'] += 1
+            for key in ('segments', 'segment_index', 'coverage', 'line_row'):
+                local.pop(key)
+            result['complete'] = local['queue_position'] == len(local['queue'])
+            if not result['complete']:
+                local['next'] = local['queue'][local['queue_position']]
+            if result['complete']:
+                result['final_identity'] = body_source_identity(body)
+                result['final_layout_identity'] = body_layout_identity(body)
+                assert result['final_identity'] == result['original_identity']
+                persist()
+            return result['complete']
+
+
+        def tick():
+            """Bound startup/tour and the separate content operation independently."""
+            try:
+                assert time.perf_counter()-state['started'] < 20, (state['phase'], 'exceeded20s')
+                window = state['window']
+                handle = window.windowHandle()
+                assert handle.size() == QSize(1200, 640), handle.size()
+                observed_startup = startup_snapshot(window)
+                if observed_startup != state.get('last_startup'):
+                    report.setdefault('startup_history', []).append(
+                        {'operation': state['phase'], 'elapsed': time.perf_counter()-state['started'],
+                         'since_home_ready': time.perf_counter()-state['home_ready_at'], **observed_startup})
+                    state['last_startup'] = observed_startup
+                    persist()
+                if observed_startup['sequence_running']:
+                    return
+                assert observed_startup['active_modal'] is None, ('No consent/privacy/provider dialog dismissal is authorized', observed_startup)
+                tours = [w for w in window.findChildren(_TourOverlay) if w.isVisible()]
+                if state['phase'] == 'startup_tour':
+                    if not state.get('tour_clicked'):
+                        if not tours:
+                            return
+                        assert len(tours) == 1 and tours[0].parentWidget() is window
+                        tour = tours[0]
+                        skip = tour._skip_btn
+                        report['tour_interaction'] = {
+                            'operation': 'real_owned_skip_button_click', 'programmatic_not_physical': True,
+                            'tour': observed_startup['owned_overlays'], 'skip_text': skip.text(),
+                            'skip_visible': skip.isVisible(), 'skip_enabled': skip.isEnabled(),
+                            'skip_rect_in_window': skip.rect().translated(skip.mapTo(window, QPoint())).getRect(),
+                            'skip_visible_region': skip.visibleRegion().boundingRect().getRect(),
+                            'seen_before': was_tour_shown(), 'clicked': False}
+                        persist()
+                        assert skip.isVisible() and skip.isEnabled() and not skip.visibleRegion().isEmpty()
+                        assert skip.window() is window
+                        state['tour'] = tour
+                        skip.click()
+                        state['tour_clicked'] = True
+                        report['tour_interaction']['clicked'] = True
+                        persist()
+                        return
+                    tour = state['tour']
+                    hidden = not shiboken6.isValid(tour) or not tour.isVisible()
+                    report['tour_interaction'].update(hidden_after_click=hidden, seen_after=was_tour_shown())
+                    persist()
+                    if not hidden:
+                        return
+                    assert not tours and was_tour_shown(), report['tour_interaction']
+                    current = signature(window, state['font_witness'])
+                    if current is None or state.get('startup_layout_previous') != current:
+                        state['startup_layout_previous'] = current
+                        return
+                    report['startup_tour_seconds'] = time.perf_counter()-state['started']
+                    assert report['startup_tour_seconds'] < 20
+                    state['phase'] = 'content'
+                    state['started'] = time.perf_counter()
+                    report['content_started_since_home_ready'] = state['started']-state['home_ready_at']
+                    report['aside_layout_content_ready'] = aside_layout_snapshot(window)
+                    persist()
+                    return
+                assert not tours, ('Unexpected tour during content inspection', observed_startup)
+                if not state.get('font_witness_checked'):
+                    witness = state['font_witness']
+                    fitter = witness.parentWidget()._text_fit
+                    if fitter._timer.isActive() or fitter._busy:
+                        return
+                    selected = fitter._selected.get(witness)
+                    assert selected is not None, 'Missing actual selected Hero subtitle font'
+                    selected_font = selected['font']
+                    report['startup_witness'].update(
+                        selected_subtitle_font=selected_font.toString(),
+                        selected_subtitle_pixels=selected_font.pixelSize(),
+                        selected_subtitle_base_sheet=selected['base'],
+                        actual_subtitle_font=witness.font().toString(),
+                        actual_subtitle_pixels=witness.font().pixelSize())
+                    persist()
+                    assert selected_font.pixelSize() == report['startup_witness']['expected_subtitle_pixels']
+                    assert QFontInfo(selected_font).family() == QFontInfo(witness.font()).family() == 'Open Sans'
+                    assert 0 < witness.font().pixelSize() <= selected_font.pixelSize()
+                    state['font_witness_checked'] = True
+                if cohort in ('news_body_lines', 'news_body_intrinsic', 'news_body_endpoints'):
+                    if 'body_range' not in state:
+                        prepare_body_range()
+                    elif (body_range_tick() if cohort == 'news_body_lines' else
+                          body_endpoints_tick() if cohort == 'news_body_endpoints' else body_intrinsic_tick()):
+                        close()
+                    return
+                if 'widgets' not in state:
+                    report['external_native_menu_objects'] = [w.objectName() for w in window.findChildren(QWidget)
+                        if w.isVisible() and native_menu_child(w) and isinstance(w, (QLabel, QAbstractButton))]
+                    all_widgets = [w for w in window.findChildren(QWidget)
+                        if w.isVisible() and w.window() is window and not native_menu_child(w)
+                            and (isinstance(w, QLabel) and (w.text() or (w.pixmap() is not None and not w.pixmap().isNull()))
+                            or isinstance(w, QAbstractButton))]
+                    aside = window._startup._aside
+                    tile_coverage = {}
+                    for widget in all_widgets:
+                        owner = widget
+                        while owner is not None and owner is not window._startup and not isinstance(owner, AppTile):
+                            owner = owner.parentWidget()
+                        if not isinstance(owner, AppTile):
+                            continue
+                        role = ('tile' if widget is owner else 'icon' if isinstance(widget, _AppTileIcon)
+                                else 'name' if widget is owner.name_label else 'label' if isinstance(widget, QLabel) else 'button')
+                        caption = (widget.full_text() if isinstance(widget, ElidingLabel)
+                                   else widget.accessibleName() if widget is owner else widget.text())
+                        tile_coverage[widget] = {'module_key': owner.property('moduleAppKey'),
+                            'tile_role': role, 'full_caption': caption}
+                    if cohort == 'tile_batch':
+                        from spacr.qt.app import APPS
+                        assert set(tile_keys) <= {row[0] for row in APPS}, tile_keys
+                        state['batch_scroll'] = window._startup._tabs.currentWidget()
+                        observed_keys = {row['module_key'] for row in tile_coverage.values()
+                                         if row['module_key'] in tile_keys}
+                        assert observed_keys == set(tile_keys), (tile_keys, observed_keys)
+                        report['tile_batch'] = {'requested_keys': tile_keys, 'observed_keys': sorted(observed_keys),
+                            'scope': 'All currently visible manifest members of the requested actual tiles'}
+                    ordinary_roles = {}
+                    status_roles = {}
+                    news_roles = {}
+                    if cohort in ('news_titles', 'news_dates'):
+                        news = window._startup._news
+                        blocks = [news._notes_column.itemAt(i).widget() for i in range(news._notes_column.count())
+                                  if news._notes_column.itemAt(i).widget() is not None
+                                  and news._notes_column.itemAt(i).widget() is not news._placeholder]
+                        assert len(blocks) == len(news._releases) == 17
+                        tags, bodies = [], []
+                        for index, (block, entry) in enumerate(zip(blocks, news._releases)):
+                            tag = str(entry.get('tag') or '')
+                            assert tag and tag not in tags
+                            tags.append(tag)
+                            layout = block.layout()
+                            title, stamp = layout.itemAt(0).widget(), layout.itemAt(1).widget()
+                            assert str(entry.get('published') or '')
+                            assert all(isinstance(w, QLabel) and w in all_widgets and w.parentWidget() is block
+                                       for w in (title, stamp))
+                            assert title.accessibleName() == str(entry.get('name') or tag or 'spaCR')
+                            assert stamp.text() == str(entry['published'])
+                            news_roles[title] = {'news_role': 'title', 'release_tag': tag, 'release_index': index}
+                            news_roles[stamp] = {'news_role': 'date', 'release_tag': tag, 'release_index': index}
+                            body = layout.itemAt(2).widget() if layout.count() > 2 else None
+                            assert isinstance(body, QLabel) and body in all_widgets and body not in (title, stamp)
+                            bodies.append(body)
+                        assert len(news_roles) == 34 and len(set(bodies)) == 17 and not set(bodies).intersection(news_roles)
+                        report['news_selection'] = {'release_tags': tags,
+                            'title_count': sum(row['news_role'] == 'title' for row in news_roles.values()),
+                            'date_count': sum(row['news_role'] == 'date' for row in news_roles.values()),
+                            'excluded_body_indices': [all_widgets.index(w) for w in bodies],
+                            'scope': 'Structural title/date roles only; body text is not certified'}
+                    if cohort == 'status_home_access':
+                        status_roles = {window._status_app_label: 'app', window._status_version_label: 'version'}
+                        assert len(status_roles) == 2 and all(isinstance(w, QLabel) and w in all_widgets for w in status_roles)
+                        report['status_label_owners'] = {role: shiboken6.getCppPointer(w) for w, role in status_roles.items()}
+                    if cohort == 'ordinary_labels':
+                        home = window._startup
+                        expected = {'recent_placeholder': 1, 'totals': 8, 'system': 6,
+                                    'text_size': 2, 'bands': 8, 'headers': 4, 'status': 2}
+                        def assign_labels(role, widgets):
+                            labels = [w for w in widgets if w in all_widgets]
+                            assert len(labels) == expected[role], (role, len(labels), expected[role])
+                            assert all(isinstance(w, QLabel) and w not in ordinary_roles for w in labels), role
+                            ordinary_roles.update((w, role) for w in labels)
+                        assign_labels('headers', [home._recent.header, home._news.header,
+                                                 home._totals.header, home._system.header])
+                        for panel, role in ((home._recent, 'recent_placeholder'),
+                                            (home._totals, 'totals'), (home._system, 'system')):
+                            assign_labels(role, [w for w in panel.findChildren(QLabel) if w is not panel.header])
+                        assign_labels('text_size', home._aside_controls.findChildren(QLabel))
+                        assert home._tabs.currentIndex() == 0
+                        assign_labels('bands', [w for w in home._tabs.currentWidget().findChildren(QLabel)
+                                                if w not in tile_coverage])
+                        assign_labels('status', [window._status_app_label, window._status_version_label])
+                        assert len(ordinary_roles) == 31
+                        assert all(not home._news.isAncestorOf(w) or w is home._news.header for w in ordinary_roles)
+                        report['ordinary_labels'] = {'expected_role_counts': expected,
+                            'observed_role_counts': {role: list(ordinary_roles.values()).count(role) for role in expected},
+                            'scope': 'Owned placeholder state; News descendants except its exact header are excluded'}
+                    tab_arrow_roles = {}
+                    if cohort in ('tab_arrows', 'tab_navigation'):
+                        tab_bar = window._startup._tabs.tabBar()
+                        arrows = [w for w in tab_bar.findChildren(QToolButton)
+                                  if w.isVisible() and w.arrowType() != Qt.NoArrow]
+                        assert len(arrows) == 2 and all(w in all_widgets and tab_bar.isAncestorOf(w) for w in arrows)
+                        assert {w.arrowType() for w in arrows} == {Qt.LeftArrow, Qt.RightArrow}
+                        tab_arrow_roles = {w: 'left' if w.arrowType() == Qt.LeftArrow else 'right' for w in arrows}
+                        report['tab_arrow_owner'] = {'class': type(tab_bar).__name__, 'name': tab_bar.objectName(),
+                            'native_cpp_pointer': shiboken6.getCppPointer(tab_bar)}
+                    access_roles = {}
+                    if cohort in ('home_access', 'status_home_access'):
+                        home = window._startup
+                        for name in ('HeroMark', 'HeroTitle', 'HeroSubtitle'):
+                            widget = home.findChild(QLabel, name)
+                            assert widget is not None and widget.isVisible(), name
+                            access_roles[widget] = name
+                        tile_scroll = home._tabs.currentWidget()
+                        tile = next(w for w in tile_scroll.findChildren(AppTile)
+                                    if w.isVisible() and w.findChildren(_AppTileIcon))
+                        glyphs = tile.findChildren(_AppTileIcon)
+                        assert len(glyphs) == 1
+                        state['access_tile_widgets'] = (tile, glyphs[0], tile.name_label)
+                        state['access_tile_scroll'] = tile_scroll
+                        access_roles.update(zip(state['access_tile_widgets'], ('tile', 'tile_icon', 'tile_name')))
+                        access_roles[home._hint_bar] = 'hint_bar'
+                        buttons = [w for w in all_widgets if isinstance(w, QAbstractButton) and aside.isAncestorOf(w)]
+                        assert len(buttons) == 5
+                        access_roles.update((w, 'aside_button') for w in buttons)
+                        assert len(access_roles) == 12 and all(w in all_widgets for w in access_roles)
+                    report['target_manifest'] = [{'index': index, 'class': type(w).__name__,
+                        'name': w.objectName(), 'actual_text': w.text(),
+                        'native_cpp_pointer': shiboken6.getCppPointer(w),
+                        'aside_control': isinstance(w, QAbstractButton) and aside.isAncestorOf(w),
+                        'hint_bar': w is window._startup._hint_bar,
+                        'tab_arrows': w in tab_arrow_roles, 'tab_arrow_role': tab_arrow_roles.get(w),
+                        'tile_batch': w in tile_coverage and tile_coverage[w]['module_key'] in tile_keys,
+                        'ordinary_labels': w in ordinary_roles, 'ordinary_label_role': ordinary_roles.get(w),
+                        'status_labels': w in status_roles, 'status_label_role': status_roles.get(w),
+                        'status_home_access': w in status_roles or w in access_roles,
+                        'news_titles': news_roles.get(w, {}).get('news_role') == 'title',
+                        'news_dates': news_roles.get(w, {}).get('news_role') == 'date',
+                        **news_roles.get(w, {'news_role': None, 'release_tag': None, 'release_index': None}),
+                        **tile_coverage.get(w, {'module_key': None, 'tile_role': None, 'full_caption': w.text()}),
+                        'home_access': w in access_roles, 'home_access_role': access_roles.get(w)}
+                        for index, w in enumerate(all_widgets)]
+                    state['manifest_indices'] = {w: index for index, w in enumerate(all_widgets)}
+                    report['selected_indices'] = [entry['index'] for entry in report['target_manifest']
+                        if cohort == 'all' or entry[{'aside_controls': 'aside_control', 'hint_bar': 'hint_bar', 'home_access': 'home_access', 'tab_arrows': 'tab_arrows', 'tab_navigation': 'tab_arrows', 'tile_batch': 'tile_batch', 'ordinary_labels': 'ordinary_labels', 'status_home_access': 'status_home_access', 'news_titles': 'news_titles', 'news_dates': 'news_dates'}[cohort]]]
+                    state['widgets'] = [all_widgets[index] for index in report['selected_indices']]
+                    assert state['widgets'], ('No actual targets in selected cohort', cohort)
+                    state['index'] = 0
+                    report['target_count'] = len(all_widgets)
+                    report['selected_target_count'] = len(state['widgets'])
+                    if cohort in ('tab_arrows', 'tab_navigation'):
+                        assert len(state['widgets']) == 2
+                    if cohort in ('home_access', 'status_home_access'):
+                        assert len(state['widgets']) == (14 if cohort == 'status_home_access' else 12)
+                    if cohort == 'hint_bar':
+                        assert state['widgets'] == [window._startup._hint_bar]
+                        state['hint_phase'] = 'initial_default'
+                        report['hint_states'] = []
+                    persist()
+                if cohort == 'tab_navigation':
+                    navigation_tick(window)
+                    return
+                if state['index'] == len(state['widgets']):
+                    assert report['checks']
+                    if cohort == 'all':
+                        assert any(row.get('icon_size') for row in report['checks'])
+                    close()
+                    return
+                widget = state['widgets'][state['index']]
+                actual_identities = []
+                current = signature(window, widget, actual_identities)
+                if current is None:
+                    state['previous'] = None
+                    return
+                if not state.get('revealed'):
+                    if state.get('previous') != current:
+                        state['previous'] = current
+                        return
+                    parent = widget.parentWidget()
+                    while parent is not None and parent is not window:
+                        if isinstance(parent, QScrollArea):
+                            parent.ensureWidgetVisible(widget, 0, 0)
+                        parent = parent.parentWidget()
+                    state['revealed'] = True
+                    expected_identities = []
+                    state['after_reveal'] = signature(window, widget, expected_identities)
+                    state['after_reveal_identities'] = expected_identities
+                    return
+                report.setdefault('post_reveal_signatures', []).append({
+                    'target_class': type(widget).__name__, 'target_name': widget.objectName(),
+                    'expected_raw': state['after_reveal'], 'actual_raw': current,
+                    'expected_identities': state['after_reveal_identities'],
+                    'actual_identities': actual_identities,
+                    'raw_identity_unchanged': current == state['after_reveal']})
+                persist()
+                assert state['after_reveal'] is not None and current == state['after_reveal'], 'Layout changed after the single reveal'
+                try:
+                    if cohort == 'hint_bar':
+                        hint_row = {'state': state['hint_phase'], 'checks': [],
+                            'native_cpp_pointer': shiboken6.getCppPointer(widget),
+                            'module_key': widget.module_key, 'holding': widget.is_holding(),
+                            'html': widget.text(), 'accessible_name': widget.accessibleName(),
+                            'accessible_description': widget.accessibleDescription(),
+                            'held_summary': widget._held_summary, 'held_links': widget._held_links,
+                            'timer_remaining': widget._timer.remainingTime() if widget._timer is not None else None}
+                        report['hint_states'].append(hint_row)
+                        persist()
+                        if state['hint_phase'] == 'held_mask':
+                            assert widget.module_key == 'mask' and widget.is_holding(), hint_row
+                        else:
+                            from spacr.qt.i18n import tr
+                            assert widget.module_key == '' and not widget.is_holding(), hint_row
+                            assert widget.accessibleName() == tr(widget._default), hint_row
+                        check(widget, None if state['hint_phase'] == 'initial_default' else hint_row['checks'])
+                        if state['hint_phase'] == 'initial_default':
+                            hint_row['checks'].append(report['checks'][-1])
+                    else:
+                        check(widget)
+                except AssertionError:
+                    report['errors'].append(traceback.format_exc())
+                    persist()
+                if cohort == 'hint_bar' and state['hint_phase'] != 'released_default':
+                    if state['hint_phase'] == 'initial_default':
+                        window._show_module_hint('mask')
+                        state['hint_phase'] = 'held_mask'
+                    else:
+                        widget.release()
+                        state['hint_phase'] = 'released_default'
+                    state['revealed'] = False
+                    state['previous'] = None
+                    persist()
+                    return
+                state['index'] += 1
+                state['revealed'] = False
+                if state['index'] < len(state['widgets']):
+                    state['previous'] = signature(window, state['widgets'][state['index']])
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                persist()
+                close()
+
+        def prepare(entry):
+            """Set the real client minimum only after normal Home readiness."""
+            if entry.get('detail') != '__home__' or state:
+                return
+            app = QApplication.instance()
+            windows = [w for w in app.topLevelWidgets() if isinstance(w, MainWindow)]
+            assert len(windows) == 1
+            window = windows[0]
+            handle = window.windowHandle()
+            started = time.perf_counter()
+            state.update(window=window, started=started, home_ready_at=started, phase='startup_tour')
+            report['initial_startup_observation'] = startup_snapshot(window)
+            report['aside_layout_before_resize'] = aside_layout_snapshot(window)
+            witness = window._startup.findChild(QLabel, 'HeroSubtitle')
+            expected_subtitle = gui_scale.scale_int(theme.font_px('subtitle', 2.), 2.)
+            report['startup_witness'] = {
+                'platform': app.platformName(), 'exposed': handle.isExposed(),
+                'screen': handle.screen().geometry().getRect(),
+                'work': handle.screen().availableGeometry().getRect(), 'dpr': handle.devicePixelRatio(),
+                'live_gui': gui_scale.current_scale(), 'saved_gui': preferences.get_gui_scale(),
+                'saved_font': preferences.get_font_scale(), 'app_font': app.font().toString(),
+                'app_family': QFontInfo(app.font()).family(), 'declared_role': 'subtitle',
+                'expected_subtitle_pixels': expected_subtitle,
+                'actual_subtitle_font': witness.font().toString() if witness is not None else None,
+                'actual_subtitle_pixels': witness.font().pixelSize() if witness is not None else None}
+            persist()
+            assert app.platformName() == 'cocoa' and handle.isExposed()
+            assert handle.screen().geometry().size() == QSize(1440, 900)
+            assert handle.screen().availableGeometry().size() == QSize(1440, 870)
+            assert handle.devicePixelRatio() == 2.
+            assert gui_scale.current_scale() == preferences.get_gui_scale() == 2.
+            assert preferences.get_font_scale() == 2.
+            assert QFontInfo(app.font()).family() == 'Open Sans'
+            assert witness is not None
+            state['font_witness'] = witness
+            window.showNormal()
+            handle.resize(QSize(1200, 640))
+            report['native'] = {'client': handle.size().toTuple(), 'work': handle.screen().availableGeometry().getRect(),
+                                'dpr': handle.devicePixelRatio(), 'app_font': app.font().toString(),
+                                'styled_witness_font': witness.font().toString()}
+            assert handle.screen().availableGeometry().contains(handle.frameGeometry())
+            timer = QTimer(window)
+            timer.setInterval(50)
+            timer.timeout.connect(tick)
+            state['timer'] = timer
+            timer.start()
+            persist()
+
+        def ready(entry):
+            """Record callback failures and close rather than silently timing out."""
+            try:
+                prepare(entry)
+            except Exception:
+                report['errors'].append(traceback.format_exc())
+                persist()
+                if 'window' in state:
+                    close()
+                else:
+                    windows = [w for w in QApplication.instance().topLevelWidgets() if isinstance(w, MainWindow)]
+                    assert len(windows) == 1
+                    state['window'] = windows[0]
+                    close()
+
+        from PySide6.QtWidgets import QWidget
+        timing.subscribe_readiness(ready)
+        from spacr.qt import run
+        result = run(['--no-setup', '--fresh'])
+        timing.unsubscribe_readiness(ready)
+        from spacr.qt.widgets import ambient
+        report.update(normal_return=result, compiler_threads=[t.name for t in ambient._COMPILER_THREADS if t.is_alive()],
+                      compiler_helper_present=ambient._PRIME_PROCESS is not None)
+        persist()
+        assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
+        if cohort == 'news_body_endpoints':
+            assert report['cohort'] == 'news_body_endpoints'
+            assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+            assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+            assert not report['compiler_threads'] and not report['compiler_helper_present']
+            assert report['checks'] == [] and report['selected_target_count'] == 0
+            assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+            assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+            endpoints = report['body_endpoints']
+            assert endpoints['scope'] == 'rendered endpoints only' and not endpoints['whole_body_certified']
+            assert endpoints['requested_indices'] == body_indices and endpoints['complete']
+            assert endpoints['accepted_body_count'] == len(endpoints['checks']) == len(body_indices)
+            assert endpoints['unselected_body_count'] == 17-len(body_indices)
+            ledger = endpoints['structural_bodies']
+            assert len(ledger) == len({row['release_tag'] for row in ledger}) == len({row['manifest_index'] for row in ledger}) == 17
+            assert [row['release_index'] for row in ledger] == list(range(17))
+            for selected in ledger:
+                assert not selected['whole_body_certified'] and selected['allowed_renderer_tags_only']
+                assert list(selected['pointer']) == list(report['target_manifest'][selected['manifest_index']]['native_cpp_pointer'])
+            for index, body in zip(body_indices, endpoints['checks']):
+                assert body['selected_body'] == ledger[index] and not body['whole_body_certified']
+                assert body['rendered_line_count'] > 0
+                expected = sorted({0, body['rendered_line_count']-1})
+                assert body['endpoint_indices'] == expected and body['complete']
+                assert [row['rendered_index'] for row in body['checks']] == expected
+                assert body['attempted_line_count'] == body['accepted_line_count'] == len(expected)
+                assert body['untested_line_count'] == body['rendered_line_count']-len(expected)
+                assert body['reveal_guard_px'] == 2
+                assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
+                for row in body['checks']:
+                    assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
+                    assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
+                    assert all(segment['whole_visible'] for segment in row['segments'])
+                assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
+                assert body['original_identity'] == body['final_identity']
+                assert body['original_layout_identity'] == body['final_layout_identity']
+        elif cohort == 'news_body_intrinsic':
+            assert report['cohort'] == 'news_body_intrinsic'
+            assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+            assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+            assert not report['compiler_threads'] and not report['compiler_helper_present']
+            assert report['checks'] == [] and report['selected_target_count'] == 0
+            assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+            assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+            intrinsic = report['body_intrinsic']
+            assert intrinsic['scope'] == 'intrinsic geometry only' and intrinsic['complete']
+            assert not intrinsic['visibility_certified'] and not intrinsic['whole_body_certified']
+            assert intrinsic['attempted_body_count'] == intrinsic['accepted_body_count'] == len(intrinsic['checks']) == 17
+            assert intrinsic['untested_body_count'] == 0
+            ledger = intrinsic['structural_bodies']
+            assert len(ledger) == len({row['release_tag'] for row in ledger}) == len({row['manifest_index'] for row in ledger}) == 17
+            assert [row['release_index'] for row in ledger] == list(range(17))
+            assert [row['release_index'] for row in intrinsic['checks']] == list(range(17))
+            for selected, row in zip(ledger, intrinsic['checks']):
+                assert not selected['whole_body_certified'] and selected['allowed_renderer_tags_only']
+                assert list(selected['pointer']) == list(report['target_manifest'][selected['manifest_index']]['native_cpp_pointer'])
+                assert row['release_tag'] == selected['release_tag'] and row['accepted']
+                assert not row['visibility_certified'] and not row['whole_body_certified']
+                assert row['source_identity'] == row['final_source_identity']
+                assert row['layout_identity'] == row['final_layout_identity']
+                assert row['frozen_signature'] == row['actual_signature']
+                assert [r['native_cpp_pointer'] for r in row['frozen_identities']] == [r['native_cpp_pointer'] for r in row['actual_identities']]
+                assert row['no_inline_objects'] and row['no_child_frames'] and row['no_object_replacement_character']
+                assert row['rendered_line_count'] == len(row['lines']) > 0
+                assert [line['rendered_index'] for line in row['lines']] == list(range(row['rendered_line_count']))
+                assert all(line['contents_fit'] for line in row['lines'])
+        elif cohort == 'news_body_lines':
+            assert report['cohort'] == 'news_body_lines'
+            assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+            assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+            assert not report['compiler_threads'] and not report['compiler_helper_present']
+            assert report['checks'] == [] and report['selected_target_count'] == 0
+            assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+            assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+            body = report['body_range']
+            assert body['scope'] == 'rendered line range only' and not body['whole_body_certified']
+            assert len(body['structural_bodies']) == len({row['release_tag'] for row in body['structural_bodies']}) == 17
+            assert len({row['manifest_index'] for row in body['structural_bodies']}) == 17
+            for row in body['structural_bodies']:
+                assert not row['whole_body_certified']
+                assert list(row['pointer']) == list(report['target_manifest'][row['manifest_index']]['native_cpp_pointer'])
+            assert body['requested_parameters'] == body_parameters
+            assert body['selected_body'] == body['structural_bodies'][body_parameters['release_index']]
+            assert body['selected_body']['release_index'] == body_parameters['release_index']
+            start = body_parameters['start']
+            stop = min(start+body_parameters['max_count'], body['rendered_line_count'])
+            assert start < stop and body['actual_range'] == [start, stop] and body['complete']
+            assert [row['rendered_index'] for row in body['checks']] == list(range(start, stop))
+            assert body['attempted_line_count'] == body['accepted_line_count'] == stop-start
+            assert body['reveal_guard_px'] == 2
+            assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
+            for row in body['checks']:
+                assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
+                assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
+                assert all(segment['whole_visible'] for segment in row['segments'])
+            assert body['untested_line_count'] == body['rendered_line_count']-body['accepted_line_count']
+            assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
+            assert body['original_identity'] == body['final_identity']
+            assert body['original_layout_identity'] == body['final_layout_identity']
+        else:
+            assert report['selected_inspection_complete'] and report['selected_untested_count'] == 0, report
+            assert len(report['checks']) == len(report['selected_indices']) == report['selected_target_count'], report
+            if cohort in ('news_titles', 'news_dates'):
+                role = 'title' if cohort == 'news_titles' else 'date'
+                assert report['news_selection']['title_count'] == report['news_selection']['date_count'] == len(set(report['news_selection']['release_tags'])) == 17, report
+                assert report['selected_target_count'] == 17, report
+                assert [report['target_manifest'][i]['release_index'] for i in report['selected_indices']] == list(range(17)), report
+                assert [report['target_manifest'][i]['release_tag'] for i in report['selected_indices']] == report['news_selection']['release_tags'], report
+                assert all(report['target_manifest'][i]['news_role'] == role for i in report['selected_indices']), report
+                assert len(report['news_selection']['excluded_body_indices']) == 17 and not set(report['selected_indices']).intersection(report['news_selection']['excluded_body_indices']), report
+            if cohort == 'status_home_access':
+                assert report['selected_target_count'] == 14 and set(report['status_label_owners']) == {'app', 'version'}, report
+                status_indices = [i for i in report['selected_indices'] if report['target_manifest'][i]['status_labels']]
+                assert len(status_indices) == 2 and {report['target_manifest'][i]['status_label_role'] for i in status_indices} == {'app', 'version'}, report
+                for i in status_indices:
+                    entry = report['target_manifest'][i]
+                    assert list(entry['native_cpp_pointer']) == list(report['status_label_owners'][entry['status_label_role']]), report
+            if cohort == 'ordinary_labels':
+                expected = {'recent_placeholder': 1, 'totals': 8, 'system': 6, 'text_size': 2, 'bands': 8, 'headers': 4, 'status': 2}
+                assert report['selected_target_count'] == 31, report
+                assert report['ordinary_labels']['observed_role_counts'] == report['ordinary_labels']['expected_role_counts'] == expected, report
+                assert {role: sum(report['target_manifest'][i]['ordinary_label_role'] == role
+                                 for i in report['selected_indices']) for role in expected} == expected, report
+            if cohort == 'tile_batch':
+                assert set(report['tile_batch']['observed_keys']) == set(report['tile_batch']['requested_keys']) == set(tile_keys), report
+                assert report['selected_indices'] == [entry['index'] for entry in report['target_manifest']
+                    if entry['module_key'] in tile_keys], report
+                for key in tile_keys:
+                    assert sum(report['target_manifest'][i]['tile_role'] == 'tile' for i in report['selected_indices']
+                        if report['target_manifest'][i]['module_key'] == key) == 1, report
+                    assert {'tile', 'icon', 'name'} <= {report['target_manifest'][i]['tile_role']
+                        for i in report['selected_indices'] if report['target_manifest'][i]['module_key'] == key}, report
+            if cohort in ('tab_arrows', 'tab_navigation'):
+                assert report['selected_target_count'] == 2, report
+                assert sorted(report['target_manifest'][i]['tab_arrow_role'] for i in report['selected_indices']) == ['left', 'right'], report
+            if cohort == 'tab_navigation':
+                nav = report['navigation']
+                assert nav['complete'] and [row['state'] for row in nav['captions']] == ['home_initial', 'last_selected', 'home_restored'], report
+                assert all(row['fits'] for row in nav['captions']), report
+                assert [row['dynamic_state'] for row in nav['tile_checks']] == ['category_icon', 'category_name'], report
+                assert all(row['manifest_index'] is None for row in nav['tile_checks']), report
+                assert nav['restored_home_pointer'] == nav['original_home_pointer'], report
+                assert [row['index'] for row in nav['actions'] if row['kind'] == 'tab_click'] == [nav['last_index'], 0], report
+                arrows = [row for row in nav['actions'] if row['kind'] == 'arrow_click']
+                assert {row['direction'] for row in arrows} == {'left', 'right'}, report
+                assert all(row['after_index'] == row['before_index'] and row['after_rects'] != row['before_rects'] for row in arrows), report
+            if cohort in ('home_access', 'status_home_access'):
+                assert report['selected_target_count'] == (14 if cohort == 'status_home_access' else 12), report
+                assert sorted(report['target_manifest'][i]['home_access_role'] for i in report['selected_indices']
+                              if report['target_manifest'][i]['home_access']) == sorted(
+                    ['HeroMark', 'HeroTitle', 'HeroSubtitle', 'tile', 'tile_icon', 'tile_name', 'hint_bar'] + ['aside_button'] * 5), report
+            if cohort == 'hint_bar':
+                assert [row['state'] for row in report['hint_states']] == ['initial_default', 'held_mask', 'released_default'], report
+                assert all(len(row['checks']) == 1 for row in report['hint_states']), report
+                assert all(list(row['native_cpp_pointer']) == list(report['target_manifest'][report['selected_indices'][0]]['native_cpp_pointer'])
+                           for row in report['hint_states']), report
+                assert [(row['module_key'], row['holding']) for row in report['hint_states']] == [('', False), ('mask', True), ('', False)], report
+            if cohort == 'all':
+                assert report['full_inspection_complete'] and report['full_untested_count'] == 0, report
+            assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20, report
+            assert not report['compiler_threads'] and not report['compiler_helper_present'], report
+    ''')
+    settings = (tmp_path / "settings").resolve()
+    settings.mkdir()
+    expected_head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    env = os.environ.copy()
+    env.update(QT_QPA_PLATFORM="cocoa", SPACR_ISOLATED_PROFILE="1", SPACR_HOME=str(tmp_path / "profile"),
+               SPACR_MENU_TEST_SETTINGS=str(tmp_path.resolve()), SPACR_HOME_TEST_ROOT=str(root),
+               SPACR_HOME_TEST_HEAD=expected_head,
+               SPACR_HOME_TEST_COHORT=cohort,
+               SPACR_HOME_TEST_BODY_INDICES=json.dumps(body_indices),
+               **{"SPACR_HOME_TEST_BODY_"+name.upper(): str(value) for name, value in body_parameters.items()},
+               SPACR_HOME_TEST_TILE_KEYS=json.dumps(tile_keys),
+               SPACR_HOME_TEST_OUTPUT=str(tmp_path / "native-home.json"),
+               XDG_CONFIG_HOME=str(settings), XDG_CACHE_HOME=str(tmp_path / "cache"),
+               MPLCONFIGDIR=str(tmp_path / "cache" / "matplotlib"),
+               SPACR_TIMING_LOG=str(tmp_path / "timing.txt"),
+               NUMBA_CACHE_DIR=str(tmp_path / "numba"), SPACR_NO_NETWORK="1", SPACR_NO_SETUP="1", SPACR_TIMING="1")
+    for key in tuple(env):
+        if key.startswith("SPACR_BENCHMARK_"):
+            env.pop(key)
+    result = subprocess.run([sys.executable, "-c", child], cwd=root, env=env,
+                            capture_output=True, text=True, timeout=180)
+    (tmp_path / "native-home-stdout.txt").write_text(result.stdout + result.stderr)
+    assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads((tmp_path / "native-home.json").read_text())
+    assert not report["errors"] and report["normal_close_accepted"]
+    if cohort == 'news_body_endpoints':
+        assert report['cohort'] == 'news_body_endpoints'
+        assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+        assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+        assert not report['compiler_threads'] and not report['compiler_helper_present']
+        assert report['checks'] == [] and report['selected_target_count'] == 0
+        assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+        assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+        endpoints = report['body_endpoints']
+        assert endpoints['scope'] == 'rendered endpoints only' and not endpoints['whole_body_certified']
+        assert endpoints['requested_indices'] == body_indices and endpoints['complete']
+        assert endpoints['accepted_body_count'] == len(endpoints['checks']) == len(body_indices)
+        assert endpoints['unselected_body_count'] == 17-len(body_indices)
+        ledger = endpoints['structural_bodies']
+        assert len(ledger) == len({row['release_tag'] for row in ledger}) == len({row['manifest_index'] for row in ledger}) == 17
+        assert [row['release_index'] for row in ledger] == list(range(17))
+        for selected in ledger:
+            assert not selected['whole_body_certified'] and selected['allowed_renderer_tags_only']
+            assert list(selected['pointer']) == list(report['target_manifest'][selected['manifest_index']]['native_cpp_pointer'])
+        for index, body in zip(body_indices, endpoints['checks']):
+            assert body['selected_body'] == ledger[index] and not body['whole_body_certified']
+            assert body['rendered_line_count'] > 0
+            expected = sorted({0, body['rendered_line_count']-1})
+            assert body['endpoint_indices'] == expected and body['complete']
+            assert [row['rendered_index'] for row in body['checks']] == expected
+            assert body['attempted_line_count'] == body['accepted_line_count'] == len(expected)
+            assert body['untested_line_count'] == body['rendered_line_count']-len(expected)
+            assert body['reveal_guard_px'] == 2
+            assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
+            for row in body['checks']:
+                assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
+                assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
+                assert all(segment['whole_visible'] for segment in row['segments'])
+            assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
+            assert body['original_identity'] == body['final_identity']
+            assert body['original_layout_identity'] == body['final_layout_identity']
+        return
+    if cohort == 'news_body_intrinsic':
+        assert report['cohort'] == 'news_body_intrinsic'
+        assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+        assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+        assert not report['compiler_threads'] and not report['compiler_helper_present']
+        assert report['checks'] == [] and report['selected_target_count'] == 0
+        assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+        assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+        intrinsic = report['body_intrinsic']
+        assert intrinsic['scope'] == 'intrinsic geometry only' and intrinsic['complete']
+        assert not intrinsic['visibility_certified'] and not intrinsic['whole_body_certified']
+        assert intrinsic['attempted_body_count'] == intrinsic['accepted_body_count'] == len(intrinsic['checks']) == 17
+        assert intrinsic['untested_body_count'] == 0
+        ledger = intrinsic['structural_bodies']
+        assert len(ledger) == len({row['release_tag'] for row in ledger}) == len({row['manifest_index'] for row in ledger}) == 17
+        assert [row['release_index'] for row in ledger] == list(range(17))
+        assert [row['release_index'] for row in intrinsic['checks']] == list(range(17))
+        for selected, row in zip(ledger, intrinsic['checks']):
+            assert not selected['whole_body_certified'] and selected['allowed_renderer_tags_only']
+            assert list(selected['pointer']) == list(report['target_manifest'][selected['manifest_index']]['native_cpp_pointer'])
+            assert row['release_tag'] == selected['release_tag'] and row['accepted']
+            assert not row['visibility_certified'] and not row['whole_body_certified']
+            assert row['source_identity'] == row['final_source_identity']
+            assert row['layout_identity'] == row['final_layout_identity']
+            assert row['frozen_signature'] == row['actual_signature']
+            assert [r['native_cpp_pointer'] for r in row['frozen_identities']] == [r['native_cpp_pointer'] for r in row['actual_identities']]
+            assert row['no_inline_objects'] and row['no_child_frames'] and row['no_object_replacement_character']
+            assert row['rendered_line_count'] == len(row['lines']) > 0
+            assert [line['rendered_index'] for line in row['lines']] == list(range(row['rendered_line_count']))
+            assert all(line['contents_fit'] for line in row['lines'])
+        return
+    if cohort == 'news_body_lines':
+        assert report['cohort'] == 'news_body_lines'
+        assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+        assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+        assert not report['compiler_threads'] and not report['compiler_helper_present']
+        assert report['checks'] == [] and report['selected_target_count'] == 0
+        assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+        assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+        body = report['body_range']
+        assert body['scope'] == 'rendered line range only' and not body['whole_body_certified']
+        assert len(body['structural_bodies']) == len({row['release_tag'] for row in body['structural_bodies']}) == 17
+        assert len({row['manifest_index'] for row in body['structural_bodies']}) == 17
+        for row in body['structural_bodies']:
+            assert not row['whole_body_certified']
+            assert list(row['pointer']) == list(report['target_manifest'][row['manifest_index']]['native_cpp_pointer'])
+        assert body['requested_parameters'] == body_parameters
+        assert body['selected_body'] == body['structural_bodies'][body_parameters['release_index']]
+        assert body['selected_body']['release_index'] == body_parameters['release_index']
+        start = body_parameters['start']
+        stop = min(start+body_parameters['max_count'], body['rendered_line_count'])
+        assert start < stop and body['actual_range'] == [start, stop] and body['complete']
+        assert [row['rendered_index'] for row in body['checks']] == list(range(start, stop))
+        assert body['attempted_line_count'] == body['accepted_line_count'] == stop-start
+        assert body['reveal_guard_px'] == 2
+        assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
+        for row in body['checks']:
+            assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
+            assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
+            assert all(segment['whole_visible'] for segment in row['segments'])
+        assert body['untested_line_count'] == body['rendered_line_count']-body['accepted_line_count']
+        assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
+        assert body['original_identity'] == body['final_identity']
+        assert body['original_layout_identity'] == body['final_layout_identity']
+        return
+    assert report["cohort"] == cohort and report["selected_inspection_complete"]
+    expected_indices = [entry["index"] for entry in report["target_manifest"]
+                        if cohort == "all" or entry[{"aside_controls": "aside_control", "hint_bar": "hint_bar", "home_access": "home_access", "tab_arrows": "tab_arrows", "tab_navigation": "tab_arrows", "tile_batch": "tile_batch", "ordinary_labels": "ordinary_labels", "status_home_access": "status_home_access", "news_titles": "news_titles", "news_dates": "news_dates"}[cohort]]]
+    assert expected_indices and report["selected_indices"] == expected_indices
+    assert len(report["checks"]) == len(expected_indices) == report["selected_target_count"]
+    if cohort in ("news_titles", "news_dates"):
+        role = "title" if cohort == "news_titles" else "date"
+        assert report["news_selection"]["title_count"] == report["news_selection"]["date_count"] == len(set(report["news_selection"]["release_tags"])) == 17
+        assert len(expected_indices) == 17
+        assert [report["target_manifest"][i]["release_index"] for i in expected_indices] == list(range(17))
+        assert [report["target_manifest"][i]["release_tag"] for i in expected_indices] == report["news_selection"]["release_tags"]
+        assert all(report["target_manifest"][i]["news_role"] == role for i in expected_indices)
+        assert len(report["news_selection"]["excluded_body_indices"]) == 17
+        assert not set(expected_indices).intersection(report["news_selection"]["excluded_body_indices"])
+    if cohort == "status_home_access":
+        assert len(expected_indices) == 14 and set(report["status_label_owners"]) == {"app", "version"}
+        status_indices = [i for i in expected_indices if report["target_manifest"][i]["status_labels"]]
+        assert len(status_indices) == 2 and {report["target_manifest"][i]["status_label_role"] for i in status_indices} == {"app", "version"}
+        for i in status_indices:
+            entry = report["target_manifest"][i]
+            assert entry["native_cpp_pointer"] == report["status_label_owners"][entry["status_label_role"]]
+    if cohort == "ordinary_labels":
+        expected = {"recent_placeholder": 1, "totals": 8, "system": 6, "text_size": 2, "bands": 8, "headers": 4, "status": 2}
+        assert len(expected_indices) == 31
+        assert report["ordinary_labels"]["observed_role_counts"] == report["ordinary_labels"]["expected_role_counts"] == expected
+        assert {role: sum(report["target_manifest"][i]["ordinary_label_role"] == role
+                         for i in expected_indices) for role in expected} == expected
+    if cohort == "tile_batch":
+        assert report["tile_batch"]["requested_keys"] == tile_keys
+        assert set(report["tile_batch"]["observed_keys"]) == set(tile_keys)
+        exact_indices = [entry["index"] for entry in report["target_manifest"] if entry["module_key"] in tile_keys]
+        assert expected_indices == exact_indices
+        for key in tile_keys:
+            assert sum(report["target_manifest"][i]["tile_role"] == "tile" for i in expected_indices
+                if report["target_manifest"][i]["module_key"] == key) == 1
+            assert {"tile", "icon", "name"} <= {report["target_manifest"][i]["tile_role"]
+                for i in expected_indices if report["target_manifest"][i]["module_key"] == key}
+    if cohort in ("tab_arrows", "tab_navigation"):
+        assert len(expected_indices) == 2
+        assert sorted(report["target_manifest"][i]["tab_arrow_role"] for i in expected_indices) == ["left", "right"]
+    if cohort == "tab_navigation":
+        nav = report["navigation"]
+        assert nav["complete"] and [row["state"] for row in nav["captions"]] == ["home_initial", "last_selected", "home_restored"]
+        assert all(row["fits"] for row in nav["captions"])
+        assert [row["dynamic_state"] for row in nav["tile_checks"]] == ["category_icon", "category_name"]
+        assert all(row["manifest_index"] is None for row in nav["tile_checks"])
+        assert nav["restored_home_pointer"] == nav["original_home_pointer"]
+        assert [row["index"] for row in nav["actions"] if row["kind"] == "tab_click"] == [nav["last_index"], 0]
+        arrows = [row for row in nav["actions"] if row["kind"] == "arrow_click"]
+        assert {row["direction"] for row in arrows} == {"left", "right"}
+        assert all(row["after_index"] == row["before_index"] and row["after_rects"] != row["before_rects"] for row in arrows)
+    if cohort in ("home_access", "status_home_access"):
+        assert len(expected_indices) == (14 if cohort == "status_home_access" else 12)
+        assert sorted(report["target_manifest"][i]["home_access_role"] for i in expected_indices
+                      if report["target_manifest"][i]["home_access"]) == sorted(
+            ["HeroMark", "HeroTitle", "HeroSubtitle", "tile", "tile_icon", "tile_name", "hint_bar"] + ["aside_button"] * 5)
+    if cohort == "hint_bar":
+        assert len(expected_indices) == 1
+        assert [row["state"] for row in report["hint_states"]] == ["initial_default", "held_mask", "released_default"]
+        assert all(len(row["checks"]) == 1 for row in report["hint_states"])
+        assert all(row["native_cpp_pointer"] == report["target_manifest"][expected_indices[0]]["native_cpp_pointer"]
+                   for row in report["hint_states"])
+        assert [(row["module_key"], row["holding"]) for row in report["hint_states"]] == [("", False), ("mask", True), ("", False)]
+    if cohort == "all":
+        assert report["full_inspection_complete"] and report["full_untested_count"] == 0
+
+
 @pytest.mark.parametrize("font_scale", (2., .1))
 def test_main_window_live_scaled_floor_fits_native_work_area_without_losing_baseline(qtbot, qapp, font_scale):
     from spacr.qt import gui_scale, preferences

@@ -941,8 +941,6 @@ class LoadingScreen(QWidget):
         """
         grid = self._mosaic.grid
         occupied = self._mosaic.occupied
-        # Group adjacent cells on Retina Macs to bound per-frame pixmap calls.
-        # The resting mosaic retains its original pixels and the same timing.
         if sys.platform == 'darwin' and grid >= 64 and grid % 2 == 0:
             occupied = np.asarray(occupied).reshape(grid // 2, 2,
                                                    grid // 2, 2).any(axis=(1, 3))

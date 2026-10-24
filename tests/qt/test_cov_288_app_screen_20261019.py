@@ -19,6 +19,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from spacr.qt.screens import app_screen as aps                   # noqa: E402
 from spacr.qt.screens.app_screen import AppScreen                # noqa: E402
+from spacr.qt.widgets.console_panel import ConsolePanel          # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -382,10 +383,13 @@ class TestWorkspaceRestore:
 
 
 class _Outcome(_Console):
+    _show_error_report_result = ConsolePanel._show_error_report_result
+
     def __init__(self):
         super().__init__()
         self.entries = []
         self.usage_refreshed = 0
+        self._pending_report_entries = {}
 
     def fill_ai_entry(self, entry, text):
         self.entries.append(text)
@@ -719,15 +723,19 @@ class TestStoppingTheRefusalWatch:
 
 
 class _Jobs:
-    def __init__(self):
-        self.job = None
-        self.done = None
+    def __init__(self, outcomes):
+        self.thread = None
+        self.outcomes = outcomes
 
-    def submit(self, fn, done):
-        self.job, self.done = fn, done
+    def job(self):
+        assert self.thread is not None
+        self.thread.join(timeout=5)
+        assert not self.thread.is_alive()
+        return next((outcome for outcome in reversed(self.outcomes)
+                     if not outcome.get("pending")), None)
 
 
-class _ReportConsole(_Console):
+class _ReportConsole(_Outcome):
     _run_function = "mask"
 
     def __init__(self, as_text_fails=False):
@@ -751,11 +759,32 @@ class _ReportConsole(_Console):
 
 class TestSendingTheAnonymousReport:
 
+    @pytest.fixture(autouse=True)
+    def _owned_dispatch(self, monkeypatch, tmp_path):
+        from spacr import crashreport
+
+        self._outcomes = []
+        self._jobs = _Jobs(self._outcomes)
+        self._batcher = crashreport._ErrorBatcher()
+        monkeypatch.setattr(crashreport, "_reports_dir", lambda: tmp_path / "reports")
+        monkeypatch.setattr(crashreport, "_ERROR_BATCHER", self._batcher)
+        monkeypatch.setattr(crashreport, "_ERROR_DISPATCH_SEEN", {})
+        monkeypatch.setattr(crashreport, "_ERROR_OCCURRENCE_POLICIES", {})
+        monkeypatch.setattr(crashreport, "_ERROR_POLICY_CACHE", {})
+        yield
+        if self._jobs.thread is not None:
+            self._jobs.thread.join(timeout=5)
+            assert not self._jobs.thread.is_alive()
+        if self._batcher.timer is not None:
+            self._batcher.timer.cancel()
+            self._batcher.timer.join(timeout=5)
+            assert not self._batcher.timer.is_alive()
+
     def _screen(self, console=None, started=None):
-        jobs = _Jobs()
+        jobs = self._jobs
         ns = types.SimpleNamespace(
             _last_error_text="Traceback\nValueError: x",
-            _last_error_console_text="",
+            _last_error_console_text="", _last_error_occurrence="",
             _last_error_problems=["a", "b"],
             _run_settings={"dry_run": True}, _run_started_at=started,
             _console=console or _ReportConsole(), _jobs=jobs, app_key="mask",
@@ -764,34 +793,59 @@ class TestSendingTheAnonymousReport:
             _screen_name=lambda: "Mask",
             _report_summary_provider=lambda: object())
         ns.jobs = jobs
+        self._console = ns._console
         return ns
 
     def _patch(self, monkeypatch, **overrides):
         from spacr import crashreport
-        from spacr.qt.ai import providers
+        from spacr.qt import preferences, terms
+        from spacr.qt.ai import providers, settings
 
-        calls = {}
-        table = {
-            "error_report_mode": lambda: "summarize",
-            "network_allowed": lambda: True,
-            "mode_explains": lambda mode=None: True,
-            "mode_sends": lambda kind, mode: True,
-            "anonymous_reports_enabled": lambda: True,
-            "mode_code_context": lambda mode: False,
-            "public_problem_lines": lambda problems: list(problems),
-            "saved_explanation": lambda key: None,
-            "explanation_key": lambda *a: "key",
-            "public_summary": lambda **kw: calls.setdefault(
-                "summary", dict(kw, summary=True)),
-            "submit_public_summary": lambda summary: calls.setdefault(
-                "submitted", {"status": "sent", "summary": dict(summary)}),
-        }
+        calls = {"queued": [], "provider_requests": []}
+        monkeypatch.setattr(crashreport, "network_allowed", lambda: True)
+        terms.record_agreement()
+        preferences.set_preferred_provider("claude")
+        preferences.set_issue_prompt_mode("always")
+        settings.set_route_errors_through_ai(True)
+        settings.set_auto_file_issues(True)
+        crashreport.set_error_report_mode("all")
+        original_summary = crashreport.public_summary
+        original_dispatch = crashreport._dispatch_error
+
+        def public_summary(*args, **kwargs):
+            calls["summary"] = dict(kwargs)
+            return original_summary(*args, **kwargs)
+
+        def dispatch(*args, **kwargs):
+            self._jobs.thread = original_dispatch(*args, **kwargs)
+            return self._jobs.thread
+
+        def deliver(outcome):
+            self._outcomes.append(dict(outcome))
+            self._console._show_error_report_result(outcome)
+
+        def enqueue(summary, **kwargs):
+            calls["queued"].append(dict(summary))
+            return None
+
+        def send_queued(queued, summary, timeout, *, allowed):
+            assert allowed()
+            calls["submitted"] = {"status": "sent", "summary": dict(summary)}
+            return {"status": "sent"}
+
+        table = {"public_summary": public_summary,
+                 "_dispatch_error": dispatch,
+                 "_deliver_error_result": deliver,
+                 "_enqueue": enqueue,
+                 "_send_queued": send_queued}
         table.update(overrides)
         for name, fn in table.items():
             monkeypatch.setattr(crashreport, name, fn)
-        monkeypatch.setattr(providers, "explain_failure",
-                            lambda summary, provider: {"text": "why",
-                                                       "cause": "c"})
+        def report_summary_result(summary, provider, timeout):
+            calls["provider_requests"].append(dict(summary))
+            return "why", ""
+
+        monkeypatch.setattr(providers, "_report_summary_result", report_summary_result)
         return calls
 
     def test_nothing_is_sent_without_an_error_text(self):
@@ -803,8 +857,14 @@ class TestSendingTheAnonymousReport:
         def refuse():
             raise RuntimeError("no")
 
-        self._patch(monkeypatch, error_report_mode=refuse)
+        from spacr import crashreport
+
+        calls = self._patch(monkeypatch, error_report_mode=refuse)
         assert AppScreen._send_the_anonymous_report(self._screen()) is False
+        assert crashreport._ERROR_POLICY_CACHE["affirmed_policy"] == {}
+        assert crashreport._automatic_error_policy("fault")[1:] == (False, False)
+        assert self._jobs.thread is None and self._outcomes == []
+        assert calls["queued"] == [] and "submitted" not in calls
 
     def test_neither_explaining_nor_sending_does_nothing(self, monkeypatch):
         self._patch(monkeypatch, mode_explains=lambda mode=None: False,
@@ -818,17 +878,19 @@ class TestSendingTheAnonymousReport:
         console = _ReportConsole(as_text_fails=True)
         ns = self._screen(console, started=1.0)
         assert AppScreen._send_the_anonymous_report(ns) is True
-        assert console.begun == [False] and console.filled == ["kept"]
         outcome = ns.jobs.job()
+        assert console.begun == [False] and console.filled == ["kept"]
         assert outcome["explained"] is True and outcome["kind"] == "fault"
         assert outcome["ai_summary_attached"] is True
         sent = calls["submitted"]["summary"]
         assert sent["ai_summary"] == "kept" and sent["cause"] == "root"
+        assert calls["provider_requests"] == []
         assert calls["summary"]["message"].startswith(
             "The run did not start: 2 settings problems.")
-        assert calls["summary"]["run"]["dry_run"] is True
-        assert calls["summary"]["run"]["elapsed_s"] > 0
-        assert calls["summary"]["log_text"] == ""
+        assert not {"run", "run_settings", "log_text"} & calls["summary"].keys()
+        assert not {"run", "run_settings", "log_text", "elapsed_s"} & sent.keys()
+        assert ns._run_settings == {"dry_run": True} and ns._run_started_at == 1.0
+        assert ns._last_error_text == "Traceback\nValueError: x"
 
     def test_a_saved_lookup_that_raises_asks_the_ai_afresh(self, monkeypatch):
         def refuse(key):
@@ -837,10 +899,11 @@ class TestSendingTheAnonymousReport:
         calls = self._patch(monkeypatch, saved_explanation=refuse)
         ns = self._screen()
         assert AppScreen._send_the_anonymous_report(ns) is True
-        assert ns._console.begun == [True]
         outcome = ns.jobs.job()
+        assert ns._console.begun == [True]
         assert outcome["explanation"]["text"] == "why"
         assert calls["submitted"]["summary"]["ai_summary"] == "why"
+        assert len(calls["provider_requests"]) == 1
 
     def test_an_ai_that_raises_is_recorded_and_the_report_still_goes(
             self, monkeypatch):
@@ -858,17 +921,18 @@ class TestSendingTheAnonymousReport:
         assert outcome["explanation"]["refused"] == "error"
         assert outcome["ai_summary_attached"] is False
 
-    def test_a_summary_that_cannot_be_built_is_queued_for_later(
+    def test_a_summary_that_cannot_be_built_stays_local_without_a_queue_claim(
             self, monkeypatch):
         def refuse(**kw):
             raise OSError("no disk")
 
-        self._patch(monkeypatch, public_summary=refuse)
+        calls = self._patch(monkeypatch, public_summary=refuse)
         ns = self._screen()
         AppScreen._send_the_anonymous_report(ns)
-        outcome = ns.jobs.job()
-        assert outcome["status"] == "queued"
-        assert "OSError: no disk" in outcome["detail"]
+        assert ns.jobs.job() is None
+        assert calls["queued"] == [] and "submitted" not in calls
+        assert self._outcomes == [] and ns._console.notices == []
+        assert ns._last_error_text == "Traceback\nValueError: x"
 
 
 class TestSmallHelpers:

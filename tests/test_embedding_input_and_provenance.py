@@ -98,6 +98,40 @@ def test_cpu_adapter_batches_real_tensors_in_eval_mode_without_gradients(monkeyp
     create.assert_called_once_with('test-encoder', pretrained=True, num_classes=0)
 
 
+def test_default_embedding_device_routes_a_real_encoder_to_shared_cpu(monkeypatch):
+    torch = pytest.importorskip('torch')
+    from spacr import accelerator
+
+    batches = []
+
+    class TinyEncoder(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.scale = torch.nn.Parameter(torch.tensor(2.0, device='cpu'))
+
+        def forward(self, tensor):
+            batches.append((tensor.device.type, self.scale.device.type,
+                            self.training, torch.is_grad_enabled()))
+            return self.scale * tensor.mean(dim=(2, 3))
+
+    model = TinyEncoder()
+    create = Mock(return_value=model)
+    choose_device = Mock(return_value=torch.device('cpu'))
+    monkeypatch.setattr(accelerator, 'torch_device', choose_device)
+    monkeypatch.setitem(sys.modules, 'timm', SimpleNamespace(create_model=create))
+    spec = emb.EmbeddingSpec(backbone='recorded-tiny-encoder')
+    assert spec.device is None
+    crops = np.arange(12, dtype=np.float32).reshape(1, 2, 2, 3) / 10
+
+    run = emb._timm_encoder(spec)
+    actual = run(crops)
+
+    choose_device.assert_called_once_with()
+    create.assert_called_once_with('recorded-tiny-encoder', pretrained=True, num_classes=0)
+    assert batches == [('cpu', 'cpu', False, False)]
+    np.testing.assert_allclose(actual, 2 * crops.mean(axis=(1, 2)), rtol=1e-6)
+
+
 def test_strict_timm_patch_embed_resizes_rectangular_crops_before_each_batch(monkeypatch):
     torch = pytest.importorskip('torch')
     timm = pytest.importorskip('timm')

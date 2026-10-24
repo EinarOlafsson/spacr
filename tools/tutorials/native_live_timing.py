@@ -60,8 +60,82 @@ def complete_native_duration(receipt, fps):
     return duration
 
 
+def _mixed_prose_native_tracks(stage, identity, english):
+    """Join explicit mixed speech to the same immutable native-reuse source."""
+    if identity not in {'20_cellpose_masks', '78_spacr_screens', '80_image_analysis_pathways'}:
+        raise ValueError('Mixed prose/native is limited to the three reviewed lessons')
+    from published_scene_audio_refresh import regular
+    from published_native_reuse import RECORD as REUSE_RECORD, _published_inputs
+    from published_prose_audio_refresh import KIND, RECORD, checked_tracks
+    from check_completed_matrix import voice_matrix
+    from stage_lesson import REPO
+    root = Path(stage) / 'production' / identity
+    if any((root / name).exists() or (root / name).is_symlink() for name in (
+            'published-retained-narration.json', 'published-native-edit.json',
+            'published-native-mix.json')):
+        raise ValueError('Choose explicit mixed prose with unchanged native reuse only')
+    mixed_path = regular(root, RECORD)
+    mixed = read(mixed_path)
+    reuse = read(regular(root, REUSE_RECORD))
+    baseline, original, bindings, source = _published_inputs(reuse['baseline_root'], identity)
+    expected = dict(schema=1, kind='published_native_narration_reuse', lesson=identity,
+                    fresh_capture=False, raw_capture_revalidated=False, **source,
+                    published_master=bindings['master'], published_timing=bindings['timing'])
+    if reuse != expected or english != read(regular(root, 'lesson.en.json')):
+        raise ValueError('Exact native reuse record/current staged English required')
+    provenance = mixed.get('source', {})
+    visual = dict(kind='native_visual_timing', path=bindings['timing']['path'],
+                  sha256=bindings['timing']['sha256'], published_bindings=bindings)
+    if (mixed.get('schema') != 1 or mixed.get('kind') != KIND
+            or provenance.get('lesson') != identity
+            or provenance.get('native_adapter_required') is not True
+            or provenance.get('baseline_root') != str(baseline)
+            or provenance.get('baseline_manifest_sha256') != source['baseline_manifest_sha256']
+            or provenance.get('publication_receipt_sha256') != source['baseline_publication_receipt_sha256']
+            or provenance.get('original_visual_clock') != visual):
+        raise ValueError('Mixed speech/native baseline, master or clock differs')
+    inventory = voice_matrix(REPO / 'tools/tutorials/authoring/tools/render_all_voices.py')
+    wanted = {(language, voice) for language, voices in inventory.items() for voice in voices}
+    original_proofs = original.get('source_tracks', [])
+    if (len(original_proofs) != 50 or len(wanted) != 50
+            or {(p.get('language'), p.get('voice')) for p in original_proofs} != wanted):
+        raise ValueError('Require all fifty original native source proofs')
+    declared, proofs = checked_tracks(Path(stage), baseline, identity, decode=False)
+    if (set(declared) != set(inventory)
+            or any(len(declared[language]) != len(inventory[language])
+                   or set(declared[language]) != set(inventory[language]) for language in inventory)
+            or len(proofs) != 50
+            or {(p.get('language'), p.get('voice')) for p in proofs} != wanted):
+        raise ValueError('Mixed native narration must preserve every original offering')
+    original_audio = {(p['language'], p['voice']): p['audio_sha256']
+                      for p in provenance.get('tracks', [])}
+    if len(provenance.get('tracks', [])) != 50 or set(original_audio) != wanted:
+        raise ValueError('Mixed original track provenance is incomplete')
+    tracks = []
+    fields = {'language', 'voice', 'audio_sha256', 'timing_sha256', 'provenance_kind',
+              'mixed_record_sha256', 'original_audio_sha256'}
+    for proof in proofs:
+        language, voice = proof['language'], proof['voice']
+        path = regular(root, f'audio/{language}/{voice}.json')
+        timing = read(path)
+        media = regular(root, f'audio/{language}/{voice}.m4a')
+        if (set(proof) != fields or proof['provenance_kind'] != KIND
+                or proof['mixed_record_sha256'] != sha256(mixed_path)
+                or proof['original_audio_sha256'] != original_audio[language, voice]
+                or proof['timing_sha256'] != sha256(path)
+                or timing.get('media_sha256') != proof['audio_sha256']
+                or timing.get('media_bytes') != media.stat().st_size
+                or timing.get('language') != language or timing.get('voice') != voice):
+            raise ValueError('Mixed native track/proof binding changed')
+        tracks.append(timing)
+    return tracks, [dict(proof) for proof in proofs]
+
+
 def verified_narration_tracks(stage, identity, english):
     """Validate fresh tracks, or explicitly bound immutable published narration."""
+    mixed = Path(stage) / 'production' / identity / 'published-prose-audio-refresh.json'
+    if mixed.exists() or mixed.is_symlink():
+        return _mixed_prose_native_tracks(stage, identity, english)
     from published_retained_narration import RECORD, checked_published_narration
     record = Path(stage) / 'production' / identity / RECORD
     if record.exists() or record.is_symlink():

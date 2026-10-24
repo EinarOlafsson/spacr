@@ -88,6 +88,31 @@ def test_english_gets_no_translation_from_any_of_the_lookups():
     assert cat.module_summary("mask", "anything", "en") is None
 
 
+def test_an_english_session_never_reads_the_canonical_catalogue(monkeypatch):
+    """The canonical English module is 23 000 lines of literals. Executing it
+    under a line tracer costs seconds of GUI-thread time on the first module
+    open, and an English lookup can only ever answer ``None``, so no lookup
+    may read it when the language has no catalogue."""
+    english = getattr(cat._english(), "SETTING_LABELS", {})
+    key, source = next(iter(english.items()))
+
+    def _read_the_canonical_catalogue():
+        raise AssertionError("an English lookup read the canonical catalogue")
+
+    monkeypatch.setattr(cat, "_english", _read_the_canonical_catalogue)
+    for language in ("en", "", "xx"):
+        assert cat.setting_label(key, source, language) is None
+        assert cat.setting_label("remove_background_organelle_9",
+                                 "anything", language) is None
+        assert cat.setting_label("organelle_9_threshold", "anything",
+                                 language, "mask") is None
+        assert cat.setting_tooltip(key, source, language) is None
+        assert cat.setting_tooltip("organelle_9_threshold", "anything",
+                                   language) is None
+        assert cat.category_help("anything", language) is None
+        assert cat.module_summary("mask", "anything", language) is None
+
+
 def test_an_unknown_language_gets_no_translation_from_any_lookup():
     english = getattr(cat._english(), "SETTING_LABELS", {})
     key, source = next(iter(english.items()))

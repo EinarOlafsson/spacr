@@ -18,8 +18,11 @@ import pytest
 pytest.importorskip("PySide6")
 
 from spacr import crashreport as cr  # noqa: E402
-from spacr.qt.ai import providers  # noqa: E402
 from tests.test_700_anonymous_error_reports import FakeRelay  # noqa: E402
+from tests.qt.test_700_anonymous_reports_qt import _ReportSession  # noqa: E402
+from tests.qt.test_the_console_keeps_the_ai_error_analysis import (  # noqa: E402
+    manual_error_batches,
+)
 
 REFUSAL = ("At least one registered *_channel (for example cell_channel or "
            "organelle_channel) must be set; no masks can be generated.")
@@ -29,12 +32,19 @@ RELAY_SUMMARY = "Likely cause: no {channel} is set for Mask."
 
 
 @pytest.fixture
-def relay(monkeypatch):
+def relay(monkeypatch, manual_error_batches):
     """Allow the network for this test and install a fake relay."""
     monkeypatch.delenv(cr.NO_NETWORK_ENV, raising=False)
+    monkeypatch.setattr(cr, "_ERROR_DISPATCH_SEEN", {})
+    monkeypatch.setattr(cr, "_ERROR_OCCURRENCE_POLICIES", {})
     fake = FakeRelay()
+    fake.finish_quiet_window = manual_error_batches
+    fake.sessions = []
     monkeypatch.setattr(cr, "_open_url", fake)
-    return fake
+    yield fake
+    fake.finish_quiet_window()
+    for session in fake.sessions:
+        session.wait()
 
 
 def _console_text(screen) -> str:
@@ -67,13 +77,13 @@ def _refuse_a_mask_run(qtbot, relay, monkeypatch, mode, report_answer,
     relay.routes["/report"] = [(200, report_answer)]
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
-    monkeypatch.setattr(screen, "_report_summary_provider",
-                        providers.hosted_provider)
+    session = _ReportSession(screen, qtbot, monkeypatch)
+    relay.sessions.append(session)
     screen._watch_for_refusals()
     raise_if_strict(REFUSAL, settings={})
     screen._on_finished(True)
-    qtbot.waitUntil(lambda: not screen._jobs.is_busy(), timeout=15000)
-    qtbot.wait(50)
+    relay.finish_quiet_window()
+    session.wait()
     return screen
 
 

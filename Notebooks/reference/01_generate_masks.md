@@ -118,13 +118,19 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Spectral Unmixing α (3 settings)</summary>
+<summary>Spectral Unmixing α (9 settings)</summary>
 
 #### Spectral Unmixing α
 
 - **`unmix`** *(optional)* — (bool) - Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False. Default: `False`.
-- **`unmix_controls`** *(optional)* — (str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank. Default: `''`.
+- **`unmix_per_plate`** *(optional)* — (bool) - Select same-plate controls by physical channel ID using a JSON plate-to-channel-to-well-list map in unmix_controls. Requires unmix and explicit calibration. Every selected physical channel needs same-plate controls; no global or cross-plate fallback. Calibrated organized 2D cell-only V2 supports one plate/time/Z per dataset; mixed sources require unmix_partition_plates and explicit optical mappings. Previews, V1 and ordinary Measure refuse. No matrix-file loading or purity inference. Default False preserves global controls and packed-stack syntax. Default: `False`.
+- **`unmix_partition_plates`** *(optional)* — (bool) - Split mixed organized sources into independent calibrated 2D cell-only V2 datasets. Requires unmix_per_plate, complete controls and unmix_plate_calibrations. Conflicts with global calibration, pixel spacing and matrix files. Requires directory-relative, no-follow and nonblocking descriptor access. Originals stay unchanged; the collection is nonquantitative. Cancellation retains completed plate outputs without resuming or overwriting. QC supports report or off. Acquisition compatibility is supplied, not verified. Default False preserves the single-dataset route. Default: `False`.
+- **`unmix_plate_calibrations`** *(optional)* — (str) - JSON object keyed by exact plate ID. Each entry has calibration_file, pixel_size_um [Y,X], source_context {plate,time,z}, and acquisition_compatibility='user_asserts_same_channel_gains_exposures_and_linear_response'. Relative calibration paths start at the original source folder. Used only with unmix_partition_plates; every plate requires a complete entry. Optical applicability and within-plate gain/exposure compatibility are unverified user assertions, not cross-plate comparability. Default blank. Default: `''`.
+- **`unmix_controls`** *(optional)* — (str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank. When unmix_per_plate is True, instead supply a JSON plate-to-physical-channel-to-well-list mapping; every selected physical channel must have same-plate controls. The legacy positional syntax is refused in that mode. Default: `''`.
+- **`unmix_matrix_file`** *(optional)* — (str) - Version-1 spectral matrix JSON for calibrated organized 2D cell-only V2. Requires explicit physical channel order, unit diagonal, plate/time/Z, calibration hash and background policy. Acquisition gain/exposure compatibility is an unverified user assertion. Conflicts with control estimation and unmix_per_plate; unsupported routes refuse even if this alpha setting is hidden. The captured matrix is copied into the output for signed-record validation. No concentration or acquisition-transfer validation. Default blank preserves estimated controls. Default: `''`.
 - **`unmix_background_percentile`** *(optional)* — (float) - Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0. Default: `5.0`.
+- **`unmix_calibration`** *(optional)* — (str) - Calibration JSON with measured channel PSFs, integer shifts, reference channel and pixel sampling. Organized 2D previews and cell-only V2 use a common broadened PSF and valid overlap. V2 preserves raw files and writes separate nonquantitative display planes, restored masks and signed crops; boundary-touching labels are excluded. Ordinary Measure/preview, V1, 3D, timelapse and extra processing refuse calibrated outputs/settings. No calibration is inferred. Default blank preserves legacy unmixing. Default: `''`.
+- **`unmix_pixel_size_um`** *(optional)* — (list or None) - Explicit source pixel size [Y, X] in micrometers for calibrated spectral live previews and V2 batch segmentation. Both values must be positive and match the supplied image and PSF calibration; no resampling is performed. Required when unmix_calibration is set. Default None. Default: `None`.
 
 </details>
 
@@ -271,28 +277,12 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Image Preprocessing (per object) (10 settings)</summary>
+<summary>Object filtration α (9 settings)</summary>
 
-#### Image Preprocessing (per object)
+#### Object filtration α
 
-- **`cell_background`** *(optional)* — (int) - Background intensity of the cell channel in raw image units. Pixels below it are zeroed when remove_background_cell is True, and it is multiplied by cell_signal_to_noise to set the intensity the normalisation ceiling must reach. Set it from a genuinely empty region; too high and dim cells are erased. Default 100. Default: `100`.
-- **`cell_signal_to_noise`** *(optional)* — (int) - Multiplied by cell_background to define the minimum intensity for the normalisation ceiling. spaCR evaluates the 98th through 99.5th percentiles of the cell channel and uses the first value at or above that product as the upper anchor. Increase it to raise the ceiling and reduce normalised intensity; decrease it to increase the visibility of faint cells. Default 10. Default: `10`.
-- **`remove_background_cell`** *(optional)* — (bool) - Before normalisation, zero every pixel in the cell channel below cell_background. This flattens haze so the percentile stretch is driven by real signal, but it also erases genuinely dim cell edges and can shrink masks. Enable only once cell_background is set from an actual empty region. Default False. Default: `False`.
-- **`nucleus_background`** *(optional)* — (int) - Raw intensity value treated as background in the nucleus channel. When remove_background_nucleus is True, every pixel below it is zeroed before normalization; it is also multiplied by nucleus_signal_to_noise to set the upper-clip target. Raise it for images with high offset or autofluorescence, lower it if dim nuclei disappear. Default 100. Default: `100`.
-- **`nucleus_signal_to_noise`** *(optional)* — (float) - Multiplied by nucleus_background to define the intensity a bright pixel must reach before normalisation stops increasing the upper clip point. spaCR evaluates the 98th through 99.5th percentiles of the non-zero nucleus channel and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. A higher value raises the clip point, reduces contrast stretching and protects bright nuclei from saturation; a lower value increases contrast for dim nuclei but saturates bright nuclei sooner. Default 10. Default: `10`.
-- **`remove_background_nucleus`** *(optional)* — (bool) - Before normalizing the nucleus channel, zero every pixel below nucleus_background and exclude those pixels from the percentile calculation. Enabling it raises contrast on real nuclei and suppresses haze, but clips genuinely dim nuclei to zero so they may become unsegmentable. Default False; check nucleus_background against raw images first. Default: `False`.
-- **`pathogen_background`** *(optional)* — (int) - Assumed background intensity of the pathogen channel in raw image units. It has two jobs: when remove_background_pathogen is True every pixel below it is zeroed, and it is multiplied by pathogen_signal_to_noise to set the brightness the normalisation ceiling must reach. Raise it if dim haze is being segmented; lower it if faint parasites vanish. Default 200. Default: `200`.
-- **`pathogen_signal_to_noise`** *(optional)* — (int) - Expected foreground-to-background ratio of the pathogen channel. Multiplied by pathogen_background, it defines the minimum intensity for the normalisation ceiling. spaCR evaluates percentiles 98 through 99.5 and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. Increase it for a higher ceiling with less clipping; decrease it for greater contrast. Default 20. Default: `20`.
-- **`remove_background_pathogen`** *(optional)* — (bool) - Before normalising the pathogen channel, hard-zero every pixel whose raw intensity is below pathogen_background. Enable it when diffuse autofluorescence inflates the low percentile and Cellpose starts segmenting haze; leave it off for dim parasites, since the clipping erases real signal and biases downstream intensity measurements. Default True. Default: `True`.
-- **`remove_background_organelle`** *(optional)* — (bool) - Before normalising the organelle channel, hard-zero every pixel whose raw intensity is below organelle_background. Enable it when diffuse autofluorescence inflates the low percentile and faint puncta are lost in haze; leave it off for dim organelles, since the clipping erases real signal and biases downstream intensity measurements. Default False. Default: `False`.
-
-</details>
-
-<details>
-<summary>Object Filtration (all objects) (9 settings)</summary>
-
-#### Object Filtration (all objects)
-
+- **`real_object_classifier`** *(optional)* — (str or None) - A trained real / not-real classifier, or a folder holding cell.joblib, nucleus.joblib and pathogen.joblib, as written by tools/train_real_object_classifier.py. After the masks are made, each object is cut from the field with the cell, pathogen and nucleus channels and erased from its mask when the classifier calls it not real; the other ids are kept. Verdicts go to qc/real_object_filter_&lt;object&gt;.csv. Not applied to timelapse runs. Default None. Default: `None`.
+- **`real_object_threshold`** *(optional)* — (float) - Probability of being real below which the real / not-real classifier erases an object. Higher removes more objects. Only used with real_object_classifier. Default 0.5. Default: `0.5`.
 - **`cell_perimeter_fraction`** *(optional)* — (float) - For each touching pair of cell labels, the shared boundary length divided by the smaller object's perimeter; pairs at or above this fraction are merged into one cell. Low values such as 0.1 merge aggressively and can fuse true neighbours, high values only rejoin pieces of the same cell. 0 disables perimeter merging. Default 0. Default: `0`.
 - **`cell_remove_border_objects`** *(optional)* — (bool) - Delete every cell label touching any of the four image edges before measurement. Removes partial cells whose area and total intensity are truncated and would bias per-cell statistics, at the cost of losing objects - a large cost in fields where cells are big relative to the field. Default False. Default: `False`.
 - **`nucleus_perimeter_fraction`** *(optional)* — (float) - Merge two touching nucleus labels when their shared boundary covers at least this fraction of the smaller object's perimeter. Low non-zero values merge aggressively (0.1 joins barely-touching nuclei); high values only fuse objects sharing most of an edge. Range 0-1; 0 (default) disables perimeter merging. Use it when one nucleus is split into fragments. Default: `0`.
@@ -300,8 +290,6 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`pathogen_perimeter_fraction`** *(optional)* — (float) - Fraction, from 0 to 1, of the smaller label's perimeter that two touching pathogen objects must share before they are merged. The default of 0 disables perimeter-based merging. Values near 0.1 merge most touching objects, whereas values from 0.5 to 0.8 merge only objects with a long shared boundary. Use this setting to join vacuoles that Cellpose divided into multiple labels. Default: `0`.
 - **`pathogen_remove_border_objects`** *(optional)* — (bool) - Delete any pathogen label touching the first or last row or column of the image. Enable it so partially imaged parasites do not enter area and intensity statistics with truncated values; leave it off when parasites are sparse and losing edge objects costs too much data. Default False. Default: `False`.
 - **`object_filters`** *(optional)* — (dict) - Object filters on any scalar scikit-image regionprop, per object type, for example {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. An object is kept when min &lt;= value &lt;= max; a missing side is off. Intensity properties read the object's own raw channel. An area minimum is also Cellpose's min_size. An old file's cell_min_area and the other retired per-object bounds become rows here when it loads. Default {}. Default: `{}`.
-- **`real_object_classifier`** *(optional)* — (str or None) - A trained real / not-real classifier, or a folder holding cell.joblib, nucleus.joblib and pathogen.joblib, as written by tools/train_real_object_classifier.py. After the masks are made, each object is cut from the field with the cell, pathogen and nucleus channels and erased from its mask when the classifier calls it not real; the other ids are kept. Verdicts go to qc/real_object_filter_&lt;object&gt;.csv. Not applied to timelapse runs. Default None. Default: `None`.
-- **`real_object_threshold`** *(optional)* — (float) - Probability of being real below which the real / not-real classifier erases an object. Higher removes more objects. Only used with real_object_classifier. Default 0.5. Default: `0.5`.
 
 </details>
 
@@ -389,6 +377,24 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
+<summary>Additional Settings (10 settings)</summary>
+
+#### Additional Settings
+
+- **`cell_background`** *(optional)* — (int) - Background intensity of the cell channel in raw image units. Pixels below it are zeroed when remove_background_cell is True, and it is multiplied by cell_signal_to_noise to set the intensity the normalisation ceiling must reach. Set it from a genuinely empty region; too high and dim cells are erased. Default 100. Default: `100`.
+- **`cell_signal_to_noise`** *(optional)* — (int) - Multiplied by cell_background to define the minimum intensity for the normalisation ceiling. spaCR evaluates the 98th through 99.5th percentiles of the cell channel and uses the first value at or above that product as the upper anchor. Increase it to raise the ceiling and reduce normalised intensity; decrease it to increase the visibility of faint cells. Default 10. Default: `10`.
+- **`remove_background_cell`** *(optional)* — (bool) - Before normalisation, zero every pixel in the cell channel below cell_background. This flattens haze so the percentile stretch is driven by real signal, but it also erases genuinely dim cell edges and can shrink masks. Enable only once cell_background is set from an actual empty region. Default False. Default: `False`.
+- **`nucleus_background`** *(optional)* — (int) - Raw intensity value treated as background in the nucleus channel. When remove_background_nucleus is True, every pixel below it is zeroed before normalization; it is also multiplied by nucleus_signal_to_noise to set the upper-clip target. Raise it for images with high offset or autofluorescence, lower it if dim nuclei disappear. Default 100. Default: `100`.
+- **`nucleus_signal_to_noise`** *(optional)* — (float) - Multiplied by nucleus_background to define the intensity a bright pixel must reach before normalisation stops increasing the upper clip point. spaCR evaluates the 98th through 99.5th percentiles of the non-zero nucleus channel and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. A higher value raises the clip point, reduces contrast stretching and protects bright nuclei from saturation; a lower value increases contrast for dim nuclei but saturates bright nuclei sooner. Default 10. Default: `10`.
+- **`remove_background_nucleus`** *(optional)* — (bool) - Before normalizing the nucleus channel, zero every pixel below nucleus_background and exclude those pixels from the percentile calculation. Enabling it raises contrast on real nuclei and suppresses haze, but clips genuinely dim nuclei to zero so they may become unsegmentable. Default False; check nucleus_background against raw images first. Default: `False`.
+- **`pathogen_background`** *(optional)* — (int) - Assumed background intensity of the pathogen channel in raw image units. It has two jobs: when remove_background_pathogen is True every pixel below it is zeroed, and it is multiplied by pathogen_signal_to_noise to set the brightness the normalisation ceiling must reach. Raise it if dim haze is being segmented; lower it if faint parasites vanish. Default 200. Default: `200`.
+- **`pathogen_signal_to_noise`** *(optional)* — (int) - Expected foreground-to-background ratio of the pathogen channel. Multiplied by pathogen_background, it defines the minimum intensity for the normalisation ceiling. spaCR evaluates percentiles 98 through 99.5 and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. Increase it for a higher ceiling with less clipping; decrease it for greater contrast. Default 20. Default: `20`.
+- **`remove_background_pathogen`** *(optional)* — (bool) - Before normalising the pathogen channel, hard-zero every pixel whose raw intensity is below pathogen_background. Enable it when diffuse autofluorescence inflates the low percentile and Cellpose starts segmenting haze; leave it off for dim parasites, since the clipping erases real signal and biases downstream intensity measurements. Default True. Default: `True`.
+- **`remove_background_organelle`** *(optional)* — (bool) - Before normalising the organelle channel, hard-zero every pixel whose raw intensity is below organelle_background. Enable it when diffuse autofluorescence inflates the low percentile and faint puncta are lost in haze; leave it off for dim organelles, since the clipping erases real signal and biases downstream intensity measurements. Default False. Default: `False`.
+
+</details>
+
+<details>
 <summary>Additional settings (2 settings)</summary>
 
 #### Additional settings
@@ -459,23 +465,9 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Image Preprocessing (per object) (6 settings)</summary>
+<summary>Object filtration α (7 settings)</summary>
 
-#### Image Preprocessing (per object)
-
-- **`organelle_background`** *(optional)* — (int or float) - Raw intensity treated as background on the organelle channel: the floor that remove_background_organelle clips to zero, and the base of the organelle_signal_to_noise product. Read it off a blank region of the image rather than guessing. Default 100. Default: `100`.
-- **`organelle_signal_to_noise`** *(optional)* — (int or float) - Multiple of organelle_background an organelle pixel must reach to count as signal during normalisation. Raise it when background haze is being normalised as if it were organelle; lower it when faint puncta are being flattened away. Default 10. Default: `10`.
-- **`organelle_rolling_ball`** *(optional)* — (bool) - Apply rolling-ball background estimation with organelle_rolling_ball_radius, subtract the estimated background, and clip negative values to zero before segmentation. This corrects uneven illumination and haze so that a single global threshold can be applied across the field of view, at an additional computational cost per image. Default False. Default: `False`.
-- **`organelle_rolling_ball_radius`** *(optional)* — (int) - Radius in pixels of the rolling-ball background estimator. It must exceed the diameter of the largest expected organelle to avoid subtracting the objects themselves; an excessively large value may not follow the illumination gradient. An initial value of several times the expected object diameter is appropriate. Default 50; runtime increases steeply with radius. Default: `50`.
-- **`organelle_clahe`** *(optional)* — (bool) - Rescale each image to 0-1 on its 0.5/99.5 percentiles, then run contrast-limited adaptive histogram equalisation before segmentation. Pulls dim organelles in dark corners up to the same working contrast as bright ones, at the cost of amplifying background noise and destroying absolute intensity comparability between fields. Default False. Default: `False`.
-- **`organelle_clahe_clip_limit`** *(optional)* — (float) - Contrast ceiling for CLAHE, range 0-1: each tile's histogram is clipped at this height before equalisation, so higher values permit stronger local stretching and more noise amplification. 0.01 is gentle, 0.03-0.05 is aggressive. Only read when organelle_clahe is True. Default 0.01. Default: `0.01`.
-
-</details>
-
-<details>
-<summary>Object Filtration (all objects) (7 settings)</summary>
-
-#### Object Filtration (all objects)
+#### Object filtration α
 
 - **`organelle_min_area`** *(optional)* — (int) - Post-segmentation area floor in square pixels; smaller objects are deleted and the mask relabelled. Raise it to clear noise specks left by thresholding, lower it to keep faint puncta. One filter for both the live preview and the batch run. Default 10 in Mask; Measure and External Masks start at 0 because they consume existing labels rather than segmenting new ones. Default: `10`.
 - **`organelle_max_area`** *(optional)* — (int or None) - Post-segmentation area ceiling in square pixels; larger objects are deleted rather than split. Use it to reject fused clumps, saturated debris and background merged by Otsu into one component. Values below the largest valid organelle remove biological objects without warning. One filter for both the live preview and the batch run. Default None in Mask, meaning no limit; 0 in Measure and External Masks, which also disables it. Default: `None`.
@@ -484,6 +476,20 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`organelle_perimeter_fraction`** *(optional)* — (float) - Merge two touching organelle labels when their shared boundary is at least this fraction of the smaller object's perimeter. Range 0-1; increase it toward 1 to merge only nearly fully fused pairs, or decrease it to merge labels with shorter shared boundaries. Applied before area and mean-intensity filtering in both Mask runs and Live Preview. Default 0 (disabled). Default: `0`.
 - **`organelle_remove_border`** *(optional)* — (bool) - Delete organelle labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organelle_remove_border_objects is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False. Default: `False`.
 - **`organelle_remove_border_objects`** *(optional)* — (bool) - Delete organelle labels touching any image edge in both Mask runs and Live Preview. Enabled when either this setting or organelle_remove_border is True; the Live Preview toggle updates both names together. Removes partially imaged objects from area and intensity statistics, at the cost of losing valid objects at the field boundary. Default False. Default: `False`.
+
+</details>
+
+<details>
+<summary>Additional Settings (6 settings)</summary>
+
+#### Additional Settings
+
+- **`organelle_background`** *(optional)* — (int or float) - Raw intensity treated as background on the organelle channel: the floor that remove_background_organelle clips to zero, and the base of the organelle_signal_to_noise product. Read it off a blank region of the image rather than guessing. Default 100. Default: `100`.
+- **`organelle_signal_to_noise`** *(optional)* — (int or float) - Multiple of organelle_background an organelle pixel must reach to count as signal during normalisation. Raise it when background haze is being normalised as if it were organelle; lower it when faint puncta are being flattened away. Default 10. Default: `10`.
+- **`organelle_rolling_ball`** *(optional)* — (bool) - Apply rolling-ball background estimation with organelle_rolling_ball_radius, subtract the estimated background, and clip negative values to zero before segmentation. This corrects uneven illumination and haze so that a single global threshold can be applied across the field of view, at an additional computational cost per image. Default False. Default: `False`.
+- **`organelle_rolling_ball_radius`** *(optional)* — (int) - Radius in pixels of the rolling-ball background estimator. It must exceed the diameter of the largest expected organelle to avoid subtracting the objects themselves; an excessively large value may not follow the illumination gradient. An initial value of several times the expected object diameter is appropriate. Default 50; runtime increases steeply with radius. Default: `50`.
+- **`organelle_clahe`** *(optional)* — (bool) - Rescale each image to 0-1 on its 0.5/99.5 percentiles, then run contrast-limited adaptive histogram equalisation before segmentation. Pulls dim organelles in dark corners up to the same working contrast as bright ones, at the cost of amplifying background noise and destroying absolute intensity comparability between fields. Default False. Default: `False`.
+- **`organelle_clahe_clip_limit`** *(optional)* — (float) - Contrast ceiling for CLAHE, range 0-1: each tile's histogram is clipped at this height before equalisation, so higher values permit stronger local stretching and more noise amplification. 0.01 is gentle, 0.03-0.05 is aggressive. Only read when organelle_clahe is True. Default 0.01. Default: `0.01`.
 
 </details>
 

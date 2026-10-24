@@ -1,10 +1,10 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "english_sha256": "98a0eaaf0bb38a6b0d2f7bead3b40748f9b4f8b544e9192492f538f27a5529ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); conditional wording only; untouched reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,10 +17,10 @@
     "Kandidaten filtern und ihre Effekte und Guide-Übereinstimmung lesen.",
     "Die ausgewählten Zeilen als CSV, Markdown oder HTML exportieren."
   ],
-  "prerequisite": "Entpacken Sie Hit_List_real_results_companion.zip und aktivieren Sie Ihre spaCR-Umgebung. Die aktuelle Hits-Verknüpfung in Regression zeigt den Bereich nicht an; führen Sie stattdessen python hit_list_companion.py aus und wählen Sie mit Browse den entpackten Ergebnisordner. Das Begleitskript ist nicht mit Investigate verbunden. Verwenden Sie für die Zahl stützender Wells wells_with_gene aus results_gene.csv: das exportierte n_obs=0 ist nicht die tatsächliche Stützung. Das Beispiel enthält keine Gene mit q <= 0.05.",
+  "prerequisite": "Entpacken Sie Hit_List_real_results_companion.zip und aktivieren Sie Ihre spaCR-Umgebung. Wenn die Hits-Verknüpfung in Regression den Bereich nicht anzeigt, führen Sie python hit_list_companion.py aus und wählen Sie mit Browse den entpackten Ergebnisordner. Das Begleitskript ist nicht mit Investigate verbunden. Verwenden Sie für die Zahl stützender Wells wells_with_gene aus results_gene.csv: das exportierte n_obs=0 ist nicht die tatsächliche Stützung. Das Beispiel enthält keine Gene mit q <= 0.05.",
   "scenes": [
     "Öffnen Sie von Home aus Regression und wählen Sie Hits. Bleibt der Bereich verborgen, öffnen Sie Hit List mit dem Begleitskript dieser Lektion.",
-    "Entpacken Sie das verlinkte Beispiel und aktivieren Sie Ihre spaCR-Umgebung. Führen Sie python hit_list_companion.py aus. Klicken Sie im Fenster des Begleitskripts auf Browse und wählen Sie den entpackten Ergebnisordner.",
+    "Um die Ausweichlösung zu verwenden, entpacken Sie das verlinkte Beispiel und aktivieren Sie Ihre spaCR-Umgebung. Führen Sie python hit_list_companion.py aus. Klicken Sie im Fenster des Begleitskripts auf Browse und wählen Sie den entpackten Ergebnisordner.",
     "Das Beispiel lädt 325 Gene. Verbreitern Sie die Spalten, um Effekt, P, q und Guide-Übereinstimmung zu lesen. Die Effekte sind standardisierte marginale Effekte. Lesen Sie für die Zahl stützender Wells wells_with_gene in results_gene.csv; eine exportierte Beobachtungszahl von 0 bedeutet, dass die Stützung nicht verfügbar ist.",
     "Setzen Sie Max q auf 0,05. In diesem Beispiel besteht kein Gen diese Schwelle, daher wird die Tabelle leer. Setzen Sie Max q wieder auf 1, um alle Kandidaten anzusehen.",
     "Setzen Sie Minimum guides auf 2. Es bleiben 117 Gene mit mindestens zwei getesteten Guide-Zeilen. Dieser Filter behält die ursprünglichen q-Werte bei.",

@@ -4664,6 +4664,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "object_classifier.py")
     paths.add(ROOT / "spacr" / "core.py")
     paths.add(ROOT / "spacr" / "psf_pipeline.py")
+    paths.add(ROOT / "spacr" / "pipeline_v2.py")
     paths.add(ROOT / "spacr" / "_lineage_trees.py")
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
@@ -4740,6 +4741,10 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "measure_from_field_table",
                              "_volume_measure_spacing", "_volume_measure_input",
                              "_write_volume_measurements", "measure_volume_rows",
+                             "_validate_measurement_coordinate_source",
+                             "_calibrated_measurement_checkpoint",
+                             "_publish_calibrated_measurement_directory",
+                             "_calibrated_cell_statistics", "measure_calibrated_cells",
                          }]
         if path == source_root / "channel_sorting.py":
             tree.body = [node for node in tree.body
@@ -4759,11 +4764,26 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         if path == source_root / "core.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name == "_microscope_positions"]
-        if path == source_root / "psf_pipeline.py":
+                         and node.name in {"_microscope_positions", "preprocess_generate_masks"}]
+        if path == source_root / "pipeline_v2.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name == "_prepare_unmixing"]
+                         and node.name in {"_read_plane", "_calibrated_label_array",
+                                           "stream_originals_to_stack", "stream_masks_from_stack", "run_v2",
+                                           "_run_partitioned_v2"}]
+        if path == source_root / "psf_pipeline.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, (ast.FunctionDef, ast.ClassDef))
+                         and node.name in {"_prepare_unmixing", "_prepare_measure_unmixing",
+                                           "_load_unmix_calibration", "_UnmixCalibration",
+                                           "_UnmixPlan", "_initialize_calibrated_output",
+                                           "_validate_calibrated_batch_settings",
+                                           "_validate_unmix_plate_scope", "_plate_unmix_controls",
+                                           "_partition_input_error", "_validate_unmix_partition_scope",
+                                           "_validate_unmix_matrix_scope", "_matrix_input_error",
+                                           "_plate_control_input",
+                                           "_prepare_segmentation_psf", "_SegmentationPSFSession",
+                                           "_cell_record_error", "_CalibratedCellDataset"}]
         if path == source_root / "_lineage_trees.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)

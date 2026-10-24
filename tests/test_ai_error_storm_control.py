@@ -404,3 +404,93 @@ def test_enabling_ai_does_not_retroactively_explain_send_only_error(isolated_gua
     assert calls[-2][1][1:] == (False, True)
     assert calls[-1][1][1:] == (True, True)
     assert "send-only error" not in calls[-1][0]
+
+
+def test_backwards_wall_clock_reanchors_admission_and_cached_chat_is_not_an_error(isolated_guard):
+    first = cr._reserve_hosted_request(error=True, now=100)
+    moved = cr._reserve_hosted_request(error=True, now=90)
+    assert moved['anchor'] == 90 and moved['minute'] == 0
+    chat = cr._reserve_hosted_request(error=False, now=91)
+    before = cr._read_state()
+    cr._refund_cached_error(chat)
+    assert cr._read_state() == before
+    cr._refund_cached_error(first)
+    assert cr._read_state()['ai_request_guard']['error_minutes'] == before['ai_request_guard']['error_minutes']
+
+
+def test_earlier_cached_response_keeps_a_later_three_minute_saturated_window(isolated_guard):
+    first = cr._reserve_hosted_request(error=True, now=0)
+    for minute in (1, 2, 3):
+        for second in (0, 1, 2):
+            cr._reserve_hosted_request(error=True, now=minute * 61 + second)
+    before = cr._read_state()['ai_request_guard']
+    cr._refund_cached_error(first)
+    guard = cr._read_state()['ai_request_guard']
+    assert guard['cooldown_window'] == before['cooldown_window']
+    assert guard['error_minutes'] == before['error_minutes']
+    assert guard['error_cooldown_until'] > 185
+    with pytest.raises(cr.RelayRefused, match='cooldown'):
+        cr._reserve_hosted_request(error=True, now=186)
+
+
+def test_stale_timer_cannot_flush_a_new_batch_and_early_timer_rearms():
+    control, clock, sent, _, timers, deliver = batcher()
+    control.submit(dict(text='first'), deliver)
+    stale = timers[-1][1]
+    clock.now = 1
+    control.submit(dict(text='second'), deliver)
+    clock.now = 60
+    stale()
+    assert len(sent) == 1 and len(timers) == 2
+    obsolete = timers[-1][1]
+    clock.now = 61
+    control._tick()
+    obsolete()
+    assert [[entry['text'] for entry, count in batch] for batch, _ in sent] == [['first'], ['second']]
+
+
+@pytest.mark.parametrize('failing', ['report-only', 'mixed-report', 'ai-owner'])
+def test_one_broken_batch_recipient_cannot_poison_later_delivery(failing):
+    seen = []
+    def broken(*args):
+        raise RuntimeError('recipient closed')
+    if failing == 'report-only':
+        payload = dict(text='old', provider='none', report_only=broken,
+                       ai_eligible=lambda: False, report_eligible=lambda: True)
+        entries = [[payload, 1, broken]]
+    elif failing == 'mixed-report':
+        entries = [[dict(text='automatic', provider='none', report_only=broken,
+                         report_eligible=lambda: True), 1, broken],
+                   [dict(text='manual', provider='claude', manual=True), 1,
+                    lambda batch, omitted: seen.append(batch)]]
+    else:
+        entries = [[dict(text='old', provider='claude'), 1, broken]]
+    cr._ErrorBatcher._deliver(entries, 0)
+    cr._ErrorBatcher._deliver([[dict(text='healthy', provider='claude'), 1,
+                               lambda batch, omitted: seen.append(batch)]], 0)
+    assert seen[-1] == [(dict(text='healthy', provider='claude'), 1)]
+    if failing == 'mixed-report':
+        assert seen[0] == [(dict(text='manual', provider='claude', manual=True), 1)]
+
+
+def test_revoked_report_only_batch_drops_without_invoking_its_old_owner():
+    called = []
+    payload = dict(text='revoked', provider='none', report_only=lambda *args: called.append(args),
+                   ai_eligible=lambda: False, report_eligible=lambda: False)
+    cr._ErrorBatcher._deliver([[payload, 1, lambda *args: called.append(args)]], 0)
+    assert called == []
+
+
+def test_rate_refusal_preserves_report_without_requesting_a_fourth_ai_call(isolated_guard, monkeypatch):
+    from tests.test_700_anonymous_error_reports import FakeRelay
+    relay = FakeRelay()
+    monkeypatch.setattr(cr, '_open_url', relay)
+    for _ in range(3):
+        cr._reserve_hosted_request(error=False)
+    result = cr._send_one({'exception_type': 'RuntimeError', 'message': 'failed',
+                           'frames': [], 'summarize': True}, 2)
+    assert result['status'] == cr.REPORT_SENT
+    assert result['ai_refusal']['reason'] == 'rate'
+    [report] = relay.calls_to('/report')
+    assert report['body']['summarize'] is False
+    assert relay.calls_to('/diagnose') == []

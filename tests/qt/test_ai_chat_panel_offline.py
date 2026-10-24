@@ -24,6 +24,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QDialog, QLabel, QLineEdit
 
+from tests.qt.test_the_console_keeps_the_ai_error_analysis import manual_error_batches
+from spacr.crashreport import network_allowed as _REAL_NETWORK_ALLOWED
+
 
 # ---------------------------------------------------------------------------
 # Doubles + fixtures
@@ -1040,12 +1043,13 @@ def test_clear_chat_mid_stream_does_not_crash_the_next_chunk(panel):
 # open_error_flow
 # ---------------------------------------------------------------------------
 
-def test_open_error_flow_sends_the_wrapped_traceback(panel, qtbot, ai_env):
+def test_open_error_flow_sends_the_wrapped_traceback(panel, qtbot, ai_env, manual_error_batches):
     from spacr.qt.ai.prompts import error_explainer_prompt
 
     provider = ai_env["providers"][0]
     tb = "Traceback (most recent call last):\nValueError: channels is None"
     panel.open_error_flow(tb, active_app="mask")
+    manual_error_batches()
     qtbot.waitUntil(lambda: panel._thread is None, timeout=5000)
 
     sent = provider.seen[0]
@@ -1061,18 +1065,20 @@ def test_open_error_flow_sends_the_wrapped_traceback(panel, qtbot, ai_env):
 
 
 def test_open_error_flow_without_a_provider_tells_the_user_what_to_do(panel,
-                                                                      ai_env):
+                                                                      ai_env, manual_error_batches):
     ai_env["providers"] = []
     panel.open_error_flow("boom", active_app="measure")
+    manual_error_batches()
     assert panel._status.text() == "Install a vendor CLI first (Providers…)."
     assert panel._messages == []
     assert panel._thread is None
 
 
 def test_open_error_flow_omits_the_app_line_when_unknown(panel, qtbot,
-                                                          ai_env):
+                                                          ai_env, manual_error_batches):
     provider = ai_env["providers"][0]
     panel.open_error_flow("KeyError: 'plate'")
+    manual_error_batches()
     qtbot.waitUntil(lambda: panel._thread is None, timeout=5000)
     body = provider.seen[0]["messages"][0]["content"]
     assert "Active app:" not in body
@@ -1251,3 +1257,113 @@ def test_empty_state_cta_opens_the_dialog(ai_env, qtbot, monkeypatch):
                         lambda self: opened.append(1) or QDialog.Rejected)
     p._empty_state.cta_button.click()
     assert opened == [1]
+
+
+
+@pytest.mark.parametrize("change", ["provider", "none", "network", "deleted-owner"])
+def test_delayed_manual_explain_rechecks_live_provider_network_and_native_owner(
+        ai_env, qtbot, monkeypatch, manual_error_batches, request, change):
+    """A real queued Explain cannot send after its owner or permission changes."""
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+    from spacr import crashreport
+    from spacr.qt import preferences
+    from spacr.qt.widgets.ai_chat_panel import AIChatPanel
+
+    ai_env["providers"] = [_ScriptedProvider(chunks=["Hello ", "world"])]
+    panel = AIChatPanel()
+    qtbot.addWidget(panel)
+
+    def retire():
+        """Drain this actual panel only while its native owner still exists."""
+        if isValid(panel):
+            panel.shutdown()
+            panel.close()
+
+    request.addfinalizer(retire)
+    provider = ai_env["providers"][0]
+    first = "IndexError: first field channel"
+    panel.open_error_flow(first, active_app="mask")
+    qtbot.waitUntil(lambda: len(provider.seen) == 1 and panel._thread is None, timeout=5000)
+    messages = [dict(message) for message in panel._messages]
+    delivered = []
+    panel._error_batch_ready.connect(lambda *args: delivered.append(args))
+    panel.open_error_flow("IndexError: later field channel", active_app="mask")
+    assert len(provider.seen) == 1
+    assert delivered == []
+    replacement = None
+    if change == "provider":
+        replacement = _ScriptedProvider(name="gemini", label="Other fake provider")
+        ai_env["providers"].append(replacement)
+        panel.refresh_provider_combo()
+        panel._provider_combo.setCurrentIndex(panel._provider_combo.findData("gemini"))
+        assert panel._current_provider() is replacement
+    elif change == "none":
+        monkeypatch.setattr(preferences, "_settings", ai_env["settings"]._settings)
+        preferences.set_preferred_provider("none")
+        assert crashreport._ERROR_POLICY_CACHE["affirmed_policy"]["provider"] == "none"
+    elif change == "network":
+        monkeypatch.setattr(crashreport, "network_allowed", _REAL_NETWORK_ALLOWED)
+        monkeypatch.setenv(crashreport.NO_NETWORK_ENV, "1")
+        assert not crashreport.network_allowed()
+    else:
+        panel.shutdown()
+        panel.close()
+        panel.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not isValid(panel)
+    manual_error_batches()
+    QCoreApplication.processEvents()
+    assert len(provider.seen) == 1
+    if replacement is not None:
+        assert replacement.seen == []
+    if change == "deleted-owner":
+        assert delivered == []
+    else:
+        assert len(delivered) == 1
+        assert panel._thread is None
+        assert panel._messages == messages
+
+
+
+def test_a_released_python_chat_owner_does_not_receive_its_delayed_explanation(
+        ai_env, qtbot, manual_error_batches, request):
+    """A queued manual explanation holds no Python owner after native shutdown."""
+    import gc
+    import weakref
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+    from spacr.qt.widgets.ai_chat_panel import AIChatPanel
+
+    ai_env["providers"] = [_ScriptedProvider(chunks=["First answer"])]
+    provider = ai_env["providers"][0]
+    panel = AIChatPanel()
+    qtbot.addWidget(panel)
+    owner = weakref.ref(panel)
+
+    def retire():
+        """A weak failure cleanup cannot retain the very owner under test."""
+        target = owner()
+        if target is not None and isValid(target):
+            target.shutdown()
+            target.close()
+            target.deleteLater()
+
+    request.addfinalizer(retire)
+    panel.open_error_flow("ValueError: first field", active_app="mask")
+    qtbot.waitUntil(
+        lambda: len(provider.seen) == 1 and owner()._thread is None, timeout=5000)
+    panel.open_error_flow("ValueError: queued later field", active_app="mask")
+    assert len(provider.seen) == 1
+    panel.shutdown()
+    panel.close()
+    panel.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not isValid(panel)
+    del panel
+    gc.collect()
+    assert owner() is None
+    manual_error_batches()
+    QCoreApplication.processEvents()
+    assert owner() is None
+    assert len(provider.seen) == 1

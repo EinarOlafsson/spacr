@@ -323,3 +323,5 @@ training, scientific efficacy, wholefeature or fullCI/release acceptance.
 31 focused transport/alpha/extractor/localized-refusal/layout controls and 12 stock API/caption gates pass; existing 13,606 API records and unrelated runtime targets remain exact.
 Normal Help, 2 API entries and 6 runtime captions are generated in all 10 languages; 72 reviewed targets are pinned at a5dd0ca4a6a7eb2813439f4144ef713701b95127 and API memory at 0c9efde6375b7df0807da43af788fa6c6bdfdbea with exact immutable readback.
 This completes the software handoff without new model training, biological efficacy or broader scientific-acceptance claims.
+
+2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).

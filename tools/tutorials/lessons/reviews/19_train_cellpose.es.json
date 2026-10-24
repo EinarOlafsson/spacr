@@ -1,13 +1,23 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review (Codex), no native-speaker signoff",
+    "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the final timing-boast sentence in scene9 removed; remaining two sentences and every other chapter unchanged.",
+    "previous_english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "es",
   "title": "Entrenar un modelo de Cellpose",
@@ -27,7 +37,7 @@
     "Define N epochs y Batch size. Esta ejecución rápida usa diez épocas con un tamaño de lote de uno. Más épocas dan al modelo más actualizaciones de entrenamiento, y los lotes más grandes usan más memoria. Para empezar, mantén la tasa de aprendizaje que se muestra.",
     "Mantén activado Normalize, con los percentiles uno y noventa y nueve como punto de partida. Definen el rango de intensidad usado en cada canal. Scale range varía el tamaño de imagen durante el entrenamiento, y Min train masks omite las imágenes con menos objetos etiquetados.",
     "Para seguir la pérdida de validación, elige una Validation image folder aparte y su Validation mask folder. Nunca reutilices ahí imágenes de entrenamiento. Deja ambas vacías si no tienes un conjunto etiquetado aparte, como en este ejemplo.",
-    "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso. En esta GPU, diez épocas con seis imágenes terminaron en menos de un minuto.",
+    "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso.",
     "Cuando termina el entrenamiento, la consola indica la ruta del punto de control. Con la ubicación predeterminada está en la carpeta de origen, en models, cellpose model, models. El nombre del archivo añade al nombre del modelo la arquitectura y el número de épocas. Guárdalo junto con tu configuración de entrenamiento.",
     "Abre la pestaña Apply. Custom model apunta ahora al punto de control que entrenaste. Pon Source en la carpeta apply del ejemplo, cuyas imágenes proceden de pozos que no se usaron para entrenar. Pon Channels en cero y Percentiles en dos y noventa y nueve. Desactiva Fill in para que las células que se tocan sigan separadas, y activa Save y Verbose.",
     "Abre Live preview, elige una imagen y pulsa Run preview, con el mismo canal y los mismos percentiles. Segmenta esa imagen con tu punto de control; aquí encuentra setenta y ocho células. Ajusta la configuración aquí antes de procesar toda la carpeta.",

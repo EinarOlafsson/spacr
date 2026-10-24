@@ -344,7 +344,7 @@ def _run_torch_routing_shard(tmp_path, step, node, batched, fail_tail, shard_ind
         os.environ, PATH=f"{tmp_path}{os.pathsep}{os.environ['PATH']}",
         PYTEST_ADDOPTS=original_addopts, SPACR_QT_NATIVE_EVIDENCE_DIR="",
         SPACR_PYTEST_FILE_SHARD_INDEX=str(shard_index),
-        SPACR_PYTEST_FILE_SHARD_COUNT="3",
+        SPACR_PYTEST_FILE_SHARD_COUNT=str(QT_SHARD_COUNT),
         ROUTING_LOG=str(log), ROUTING_NODE=node,
         ROUTING_FAIL_TAIL="1" if fail_tail else "0",
     )
@@ -381,14 +381,14 @@ def _assert_torch_serial_routing(tail, node, filename, original_addopts, allocat
 
 def _assert_torch_routing_assignment(tmp_path, step, node, filename, original_nodes, batched, fail_tail):
     assigned: list[str] = []
-    for shard_index in range(3):
+    for shard_index in range(QT_SHARD_COUNT):
         commands, original_addopts, serial_tail = _run_torch_routing_shard(
             tmp_path, step, node, batched, fail_tail, shard_index)
         parallel = commands[0]
         _assert_torch_parallel_routing(parallel, node, filename, batched)
         allocated = original_nodes - {node}
         assert len(allocated) == 8
-        if _ci_file_shard(ROOT / filename, 3) == shard_index:
+        if _ci_file_shard(ROOT / filename, QT_SHARD_COUNT) == shard_index:
             assigned.extend(allocated)
         if serial_tail:
             tail = commands[1]
@@ -442,8 +442,8 @@ def test_qt_suite_has_room_for_its_measured_runtime():
     # with the four xdist workers gone. Two hours covered the parallel half
     # on both shards. It did not cover that serial tail.
     #
-    # The split is three shards since 2026-09-15 and its shape is asserted in
-    # test_the_qt_suite_is_three_shards_and_exactly_one_runs_the_serial_tail.
+    # Six shards retain this budget; the matrix and single serial tail are
+    # checked by test_the_qt_suite_is_six_shards_and_exactly_one_runs_the_serial_tail.
     assert "timeout_minutes: 180" in qt_block
 
     # A BIGGER BUDGET ON ITS OWN ONLY BUYS A HANG MORE ROOM TO HIDE IN. A job
@@ -463,7 +463,8 @@ def test_qt_suite_has_room_for_its_measured_runtime():
 #: Qt shards in tests.yml. Two became three on 2026-09-15: on dispatched run
 #: 35012948690 Qt shard 0 of 2 climbed to used=14,939 MiB of the runner's
 #: 15,989 with 2,035 MiB swapped, and twice that day shard 0 lost its runner.
-QT_SHARD_COUNT = 3
+#: Six preserve that memory shape after be67 exhausted the 180-minute budget.
+QT_SHARD_COUNT = 6
 
 
 def _qt_job():
@@ -472,7 +473,7 @@ def _qt_job():
     return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["qt"]
 
 
-def test_the_qt_suite_is_three_shards_and_exactly_one_runs_the_serial_tail():
+def test_the_qt_suite_is_six_shards_and_exactly_one_runs_the_serial_tail():
     """The matrix, the file split and the name agree, and the serial tail runs
     once. Two shards with the tail would run it twice; none would drop it."""
     job = _qt_job()
@@ -480,6 +481,8 @@ def test_the_qt_suite_is_three_shards_and_exactly_one_runs_the_serial_tail():
     shards = job["strategy"]["matrix"]["shard"]
 
     assert given["file_shard_count"] == QT_SHARD_COUNT
+    assert (given["batch_size"], given["xdist_workers"], given["timeout_minutes"],
+            given["per_test_timeout_seconds"]) == (16, 2, 180, 1200)
     assert shards == list(range(QT_SHARD_COUNT))
     assert given["file_shard_index"] == "${{ matrix.shard }}"
     assert given["suite_name"] == (
@@ -489,13 +492,11 @@ def test_the_qt_suite_is_three_shards_and_exactly_one_runs_the_serial_tail():
     tail = re.fullmatch(
         r"\$\{\{ matrix\.shard == (\d+) \}\}", str(given["run_serial_tail"]))
     assert tail, given["run_serial_tail"]
-    assert [shard for shard in shards if shard == int(tail.group(1))] == [
-        int(tail.group(1))
-    ]
+    assert [shard for shard in shards if shard == int(tail.group(1))] == [2]
 
 
 def _file_shard_counts():
-    return sorted({2, QT_SHARD_COUNT, int(_qt_job()["with"]["file_shard_count"])})
+    return sorted({2, 3, QT_SHARD_COUNT, int(_qt_job()["with"]["file_shard_count"])})
 
 
 def _files_in_shards(files, count):

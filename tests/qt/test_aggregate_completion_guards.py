@@ -162,6 +162,7 @@ def test_an_unavailable_priming_interpreter_leaves_the_cache_unclaimed(
     from spacr.qt.widgets import ambient
 
     calls = []
+    monkeypatch.setattr(ambient, "_COMPILER_STOP", threading.Event())
     monkeypatch.setattr(ambient, "_priming_allowed", lambda: True)
     monkeypatch.setattr(ambient, "_numba_cache_directory", lambda: tmp_path)
     marker = tmp_path / "primed"
@@ -171,7 +172,7 @@ def test_an_unavailable_priming_interpreter_leaves_the_cache_unclaimed(
         calls.append((argv, options))
         raise FileNotFoundError("interpreter unavailable")
 
-    monkeypatch.setattr(subprocess, "run", missing_interpreter)
+    monkeypatch.setattr(subprocess, "Popen", missing_interpreter)
     assert not ambient._prime_in_helper_process()
     assert len(calls) == 1 and not marker.exists()
     assert calls[0][1]["env"]["NUMBA_CACHE_DIR"] == str(tmp_path)

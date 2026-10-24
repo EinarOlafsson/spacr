@@ -69,7 +69,7 @@ def test_no_category_is_empty(mask):
     # AppScreen._mount_the_object_grid -- so it is judged by the table.
     table = grid_section(mask)
     for section in _sections_below(mask):
-        if not isinstance(section, Section):
+        if not isinstance(section, Section) or not section.isVisibleTo(mask):
             continue
         if section is table:
             assert mask._object_grid.objects(), "a table with no column"
@@ -191,13 +191,14 @@ def test_cell_is_never_gated(mask):
         "cell settings were hidden; the form a user just opened is empty")
 
 
-def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp, monkeypatch):
+def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp, qtbot, monkeypatch):
     """Typing stays quick and cannot launch the full visibility pass.
 
     Process queued events between edits, but measure only the edit itself:
     unrelated queued jobs do not belong to this keystroke's response time.
     """
     import time
+    import traceback
 
     model = mask._settings_model
     widget = model._widgets.get("nucleus_channel")
@@ -205,24 +206,31 @@ def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp, monkeypatch):
         pytest.skip("nucleus_channel is not on this panel")
 
     qapp.processEvents()
+    builder = mask._idle_prebuild
+    qtbot.waitUntil(lambda: not builder._work_left(), timeout=10000)
+    assert not any("_spacr_opening" in section.__dict__
+                   for section in mask._settings_sections)
     visibility_checks = []
+    phase = "before editing"
     original = model._object_visibility_settings
 
     def record_visibility_check():
-        visibility_checks.append(True)
+        visibility_checks.append(phase + "\n" + "".join(traceback.format_stack(limit=12)))
         return original()
 
     monkeypatch.setattr(model, "_object_visibility_settings", record_visibility_check)
     worst = 0.0
     for index in range(6):
+        phase = f"edit {index}"
         started = time.perf_counter()
         if hasattr(widget, "setText"):
             widget.setText(str(index % 3))
         else:
             widget.setValue(index % 3)
         worst = max(worst, time.perf_counter() - started)
+        phase = f"event delivery after edit {index}"
         qapp.processEvents()
-        assert not visibility_checks, "typing recomputed all object rows"
+        assert not visibility_checks, "typing recomputed all object rows: " + "\n".join(visibility_checks)
     assert worst < 0.20, f"{worst * 1000:.0f} ms a keystroke"
 
 

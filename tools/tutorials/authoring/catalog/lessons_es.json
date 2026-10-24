@@ -4004,7 +4004,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso. En esta GPU, diez épocas con seis imágenes terminaron en menos de un minuto.",
+          "narration": "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -4012,7 +4012,7 @@
             3410,
             1260
           ],
-          "speech_text": "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso. En esta GPU, diez épocas con seis imágenes terminaron en menos de un minuto."
+          "speech_text": "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso."
         },
         {
           "visual": "train_checkpoint",
@@ -4139,18 +4139,18 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Desde Home, abre Make Masks y luego su Cellpose Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados.",
-          "hold_after": 0.7,
-          "speech_text": "Desde Home, abre Make Masks y luego su sel póus Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados.",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Desde Home, abre Make Masks y luego su sel póus Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados."
         },
         {
           "visual": "04_setting_src",
-          "narration": "Extrae el ejemplo enlazado y pon en Source su carpeta images. Contiene tres imágenes de células de un solo canal, cada una de quinientos doce píxeles de lado. Si usas el archivo de ajustes grabado como referencia, sustituye su ruta de origen por tu carpeta extraída.",
+          "narration": "Extrae el ejemplo enlazado y pon en Source su carpeta images. Contiene tres imágenes de células de un solo canal, cada una de quinientos doce píxeles de lado. Si usas la referencia de ajustes proporcionada, sustituye su ruta de origen por tu carpeta extraída.",
           "hold_after": 0.7,
-          "speech_text": "Extrae el ejemplo enlazado y pon en Source su carpeta images. Contiene tres imágenes de células de un solo canal, cada una de quinientos doce píxeles de lado. Si usas el archivo de ajustes grabado como referencia, sustituye su ruta de origen por tu carpeta extraída."
+          "speech_text": "Extrae el ejemplo enlazado y pon en Source su carpeta images. Contiene tres imágenes de células de un solo canal, cada una de quinientos doce píxeles de lado. Si usas la referencia de ajustes proporcionada, sustituye su ruta de origen por tu carpeta extraída."
         },
         {
           "visual": "05_setting_model_name",
@@ -4233,12 +4233,12 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "Devuelve Minimum cell area a cero para restaurar la vista previa sin filtrar. Mantén juntos las imágenes de entrada, la identidad del modelo, los ajustes y las máscaras guardadas. Usa Make Masks para hacer correcciones o Measure para extraer características de los objetos a partir de las máscaras revisadas.",
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Devuelve Minimum cell area a cero para restaurar la vista previa sin filtrar. Mantén juntos las imágenes de entrada, la identidad del modelo, los ajustes y las máscaras guardadas. Usa Make Masks para hacer correcciones o Measure para extraer características de los objetos a partir de las máscaras revisadas."
         }
       ],
       "narration_voices": {
@@ -9943,7 +9943,7 @@
         "Filtrar candidatos y leer sus efectos y la concordancia entre guías.",
         "Exportar las filas seleccionadas como CSV, Markdown o HTML."
       ],
-      "prerequisite": "Extrae Hit_List_real_results_companion.zip y activa tu entorno de spaCR. El acceso directo Hits actual de Regression no muestra el panel; ejecuta python hit_list_companion.py y usa Browse para ir a la carpeta de resultados extraída. El complemento no conecta con Investigate. Usa wells_with_gene de results_gene.csv para el número de pozos de soporte: el n_obs=0 exportado no es el soporte real. El ejemplo no contiene genes que cumplan q <= 0.05.",
+      "prerequisite": "Extrae Hit_List_real_results_companion.zip y activa tu entorno de spaCR. Si el acceso directo Hits de Regression no muestra el panel, ejecuta python hit_list_companion.py y usa Browse para ir a la carpeta de resultados extraída. El complemento no conecta con Investigate. Usa wells_with_gene de results_gene.csv para el número de pozos de soporte: el n_obs=0 exportado no es el soporte real. El ejemplo no contiene genes que cumplan q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9956,9 +9956,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extrae el ejemplo enlazado y activa tu entorno de spaCR. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída.",
+          "narration": "Para usar la alternativa, extrae el ejemplo enlazado y activa tu entorno de spaCR. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída.",
           "hold_after": 0.7,
-          "speech_text": "Extrae el ejemplo enlazado y activa tu entorno de espáquer. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída."
+          "speech_text": "Para usar la alternativa, extrae el ejemplo enlazado y activa tu entorno de espáquer. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída."
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
@@ -14681,7 +14681,7 @@
         "Elegir la base de datos de mediciones, las predicciones por célula, las fracciones de guías y la columna de puntuación.",
         "Leer las pestañas de evidencia, pocillos, guías y umbral, y encontrar las tablas guardadas."
       ],
-      "prerequisite": "Extrae Investigate_Hit_real_screen_example.zip. Todo su contenido procede de un mismo cribado real: la ejecución de Regression con los datos de prueba de Regression (los ajustes del tutorial de Regression), las predicciones CV por célula correspondientes y una base de datos de mediciones con las medidas reales de forma, tamaño e intensidad de esas mismas células. Para que la descarga sea pequeña, la base de datos contiene 52 pocillos: todos los pocillos analizados con una guía del gen 225160 y, por cada uno, tres pocillos de la misma placa sin ella. Ningún gen de esta ejecución rápida de Regression cumple q ≤ 0,05. Trata la investigación como un ejemplo práctico, no como un hit confirmado.",
+      "prerequisite": "Extrae Investigate_Hit_real_screen_example.zip. Todo su contenido procede de un mismo cribado real: la ejecución de Regression con los datos de prueba de Regression (los ajustes del tutorial de Regression), las predicciones CV por célula correspondientes y una base de datos de mediciones con las medidas reales de forma, tamaño e intensidad de esas mismas células. La base de datos de ejemplo contiene 52 pocillos: todos los pocillos analizados con una guía del gen 225160, más tres pocillos de la misma placa sin esa guía por cada pocillo diana. Ningún gen de esta ejecución rápida de Regression cumple q ≤ 0,05. Trata la investigación como un ejemplo práctico, no como un hit confirmado.",
       "scenes": [
         {
           "visual": "01_module",
@@ -14767,9 +14767,9 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Las células no respaldan a este candidato.",
+          "narration": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Este análisis no aporta evidencia clara de una diferencia para este candidato.",
           "hold_after": 0.7,
-          "speech_text": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Las células no respaldan a este candidato."
+          "speech_text": "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Este análisis no aporta evidencia clara de una diferencia para este candidato."
         },
         {
           "visual": "14_wells",
@@ -15204,7 +15204,7 @@
         "Elegir un destino, un nombre de placa y si copiar o enlazar.",
         "Guardar un plan reutilizable e importar imágenes para Mask."
       ],
-      "prerequisite": "Descarga primero el ejemplo de Mask. Este recorrido usa copias de los campos E01/F001 y L01/F009, con cuatro canales cada uno. Sus copias preparadas omiten el elemento A redundante justo antes de Z y conservan la identidad de pozo, campo y canal. Guarda los originales y usa los registros de adquisición para interpretar elementos desconocidos.",
+      "prerequisite": "Descarga primero el ejemplo de Mask. Usa copias de trabajo de los campos E01/F001 y L01/F009, con cuatro canales cada uno. Solo en esas copias, elimina el elemento A redundante justo antes de Z y conserva todos los elementos de pozo, campo y canal. Guarda los originales y usa los registros de adquisición para interpretar elementos desconocidos.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -15241,9 +15241,9 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Analiza las copias de ejemplo preparadas. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales.",
+          "narration": "Analiza esas copias de trabajo. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales.",
           "hold_after": 0.7,
-          "speech_text": "Analiza las copias de ejemplo preparadas. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales."
+          "speech_text": "Analiza esas copias de trabajo. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales."
         },
         {
           "visual": "06_check_filename",
@@ -15909,14 +15909,14 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Antes de que un clasificador pueda aprender algo, necesita ejemplos. Abra Annotate desde Home y le mostrará los recortes de objetos que Measure guardó o transmite. Recorra células representativas y etiquételas. Cada etiqueta se escribe en una columna de anotación de la tabla png_list, vinculada a la identidad de ese objeto. Use una columna distinta para cada pregunta y reserve algunos objetos etiquetados para la evaluación. Esa columna de anotación es con la que Classify entrena a continuación.",
+          "narration": "Antes de que un clasificador pueda aprender algo, necesita ejemplos. Abra Annotate desde Home para ver los recortes de objetos asociados con su proyecto medido. Recorra células representativas y etiquételas. Cada etiqueta se escribe en una columna de anotación de la tabla png_list, vinculada a la identidad de ese objeto. Use una columna distinta para cada pregunta y reserve algunos objetos etiquetados para la evaluación. Esa columna de anotación es con la que Classify entrena a continuación.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Antes de que un clasificador pueda aprender algo, necesita ejemplos. Abra Annotate desde Home y le mostrará los recortes de objetos que Measure guardó o transmite. Recorra células representativas y etiquételas. Cada etiqueta se escribe en una columna de anotación de la tabla png_list, vinculada a la identidad de ese objeto. Use una columna distinta para cada pregunta y reserve algunos objetos etiquetados para la evaluación. Esa columna de anotación es con la que Classify entrena a continuación."
+          "speech_text": "Antes de que un clasificador pueda aprender algo, necesita ejemplos. Abra Annotate desde Home para ver los recortes de objetos asociados con su proyecto medido. Recorra células representativas y etiquételas. Cada etiqueta se escribe en una columna de anotación de la tabla png_list, vinculada a la identidad de ese objeto. Use una columna distinta para cada pregunta y reserve algunos objetos etiquetados para la evaluación. Esa columna de anotación es con la que Classify entrena a continuación."
         },
         {
           "visual": "module_classify_merged",

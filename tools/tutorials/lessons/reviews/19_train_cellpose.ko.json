@@ -1,13 +1,23 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review (Codex), no native-speaker signoff",
+    "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the final timing-boast sentence in scene9 removed; remaining two sentences and every other chapter unchanged.",
+    "previous_english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "ko",
   "title": "Cellpose 모델 학습",
@@ -27,7 +37,7 @@
     "N epochs와 Batch size를 설정하세요. 이 빠른 실행은 배치 크기 1로 10 에포크를 씁니다. 에포크가 많을수록 학습 업데이트가 늘고, 배치가 클수록 메모리를 더 씁니다. 처음에는 표시된 학습률을 그대로 두세요.",
     "처음에는 1번째와 99번째 백분위수로 Normalize를 켜 두세요. 이 값이 각 채널에 쓰는 강도 범위를 정합니다. Scale range는 학습 중 이미지 크기를 바꾸고, Min train masks는 라벨이 붙은 객체가 적은 이미지를 건너뜁니다.",
     "검증 손실을 보려면 별도의 Validation image folder와 그 Validation mask folder를 고르세요. 거기에 학습 이미지를 다시 쓰면 안 됩니다. 이 예제처럼 별도로 라벨을 붙인 세트가 없으면 둘 다 비워 두세요.",
-    "폴더, 모델 이름, 출력 위치를 확인한 뒤 Run을 누르세요. Figures 패널에는 학습 이미지가 마스크 위에 표시되고, 콘솔에서 진행 상황을 볼 수 있습니다. 이 GPU에서는 이미지 6개로 10 에포크 학습이 1분도 안 되어 끝났습니다.",
+    "폴더, 모델 이름, 출력 위치를 확인한 뒤 Run을 누르세요. Figures 패널에는 학습 이미지가 마스크 위에 표시되고, 콘솔에서 진행 상황을 볼 수 있습니다.",
     "학습이 끝나면 콘솔에 체크포인트 경로가 표시됩니다. 기본 위치에서는 원본 폴더의 models/cellpose_model/models 아래에 있습니다. 파일 이름은 모델 이름에 아키텍처와 에포크 수를 덧붙입니다. 학습 설정과 함께 보관하세요.",
     "Apply 탭을 여세요. Custom model은 이제 학습한 체크포인트를 가리킵니다. Source를 예제의 apply 폴더로 설정하세요. 그 이미지는 학습에 쓰지 않은 웰에서 나온 것입니다. Channels를 0으로, Percentiles를 2와 99로 설정하세요. 맞닿은 세포가 분리된 채로 남도록 Fill in을 끄고, Save와 Verbose를 켜세요.",
     "Live preview를 열고 이미지 하나를 고른 뒤, 같은 채널과 백분위수로 Run preview를 누르세요. 체크포인트로 그 이미지를 분할하며, 여기서는 세포 78개를 찾습니다. 폴더 전체를 실행하기 전에 여기서 설정을 조정하세요.",

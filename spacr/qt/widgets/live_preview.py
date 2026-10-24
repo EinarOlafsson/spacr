@@ -934,6 +934,7 @@ class _PreviewWorker(QThread):
     flows_ready = Signal(object, int)
     cellprob_ready = Signal(object, int)
     provenance_ready = Signal(object, int)
+    _calibrated_display_ready = Signal(object, int)
 
     def __init__(self, request: PreviewRequest, parent=None, token: int = 0):
         """Prepare the worker.
@@ -975,6 +976,8 @@ class _PreviewWorker(QThread):
                 masks, flows = res, {}
             _check_preview_cancel(self._request)
             if masks:
+                self._calibrated_display_ready.emit(
+                    getattr(self._request, '_calibrated_display_payload', None), self.token)
                 record = deepcopy(self._request.provenance)
                 record.update(model=self._request.model,
                               model_note=self._request.model_note)
@@ -1044,7 +1047,17 @@ def _check_preview_cancel(req: PreviewRequest) -> None:
 
 def _unmix_preview_field(req):
     """Unmix an organized intensity stack without modifying its source."""
+    from ...psf_pipeline import (_validate_unmix_plate_scope,
+                               _validate_unmix_matrix_scope)
+
+    _validate_unmix_plate_scope(req.preprocess_settings)
+    _validate_unmix_matrix_scope(req.preprocess_settings)
     if not req.preprocess_settings.get('unmix', False):
+        if req.preprocess_settings.get('unmix_calibration'):
+            from ...psf_pipeline import _prepare_unmixing
+
+            _prepare_unmixing(req.preprocess_settings, Path(req.source_path).parent,
+                              allow_calibrated=True)
         return req.image, None
     from ...psf_pipeline import _prepare_unmixing
     from ...schema import parse_field_stem
@@ -1069,15 +1082,36 @@ def _unmix_preview_field(req):
         return field
 
     _check_preview_cancel(req)
+    calibrated = bool(req.preprocess_settings.get('unmix_calibration'))
     plan = _prepare_unmixing(req.preprocess_settings, source.parent,
-                            load=load_control)
+                            load=load_control, **({'allow_calibrated': True} if calibrated else {}))
     _check_preview_cancel(req)
+    if calibrated:
+        result = plan.apply_calibrated(req.image)
+        _check_preview_cancel(req)
+        record = dict(result.record)
+        record['source_directory'] = str(source.parent.resolve())
+        record['stage'] = 'signed calibrated valid crop before segmentation display view'
+        return result.image, record
     image = plan.apply(req.image)
     _check_preview_cancel(req)
     record = plan.provenance()
     record['source_directory'] = str(source.parent.resolve())
     record['stage'] = 'before channel selection, PSF and enhancement'
     return image, record
+
+
+def _validate_calibrated_preview_filters(settings, objects):
+    """Refuse filters that cannot use the calibrated preview's reference frame."""
+    from ...utils import _validated_intensity_bounds
+    from ..mask_engine import settings_filters
+
+    for obj in objects:
+        bounds = _validated_intensity_bounds(settings.get(f'{obj}_min_intensity'),
+                                              settings.get(f'{obj}_max_intensity'))
+        perimeter = float(settings.get(f'{obj}_perimeter_fraction') or 0)
+        if any(bounds) or perimeter != 0 or settings_filters(settings, obj):
+            raise ValueError(tr("Calibrated previews do not support intensity, perimeter-merge or custom object filters; use size and border filters only."))
 
 
 def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
@@ -1107,11 +1141,30 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     from ..detect_chain import provenance as chain_provenance
 
     _check_preview_cancel(req)
+    req._calibrated_display_payload = None
+    if req.preprocess_settings.get('unmix_calibration'):
+        _validate_calibrated_preview_filters(req.postprocess_settings or req.preprocess_settings,
+                                             req.object_types)
     preview_image, unmixing = _unmix_preview_field(req)
     inferred = fill_psf_settings(req.preprocess_settings,
                                  req.source_path or None)
     plan = prepare_psf(req.preprocess_settings)
     chain = prepare_chain(req.preprocess_settings, plan)
+    calibrated = unmixing is not None and unmixing.get('mode') == 'calibrated_live_preview'
+    valid_slices = None
+    supplied_cell_mask = req.cell_mask
+    if calibrated:
+        if plan is not None or chain is not None:
+            raise ValueError(tr("Calibrated unmixing preview cannot be combined with additional PSF or enhancement processing."))
+        valid_slices = tuple(slice(int(start), int(stop)) for start, stop in unmixing['valid_roi_yx'])
+        supplied_cell_mask = None
+        preview_image = np.maximum(preview_image, 0)
+        display_canvas = np.zeros(req.image.shape, dtype=np.float32)
+        display_canvas[valid_slices] = preview_image
+        req._calibrated_display_payload = {
+            'image': display_canvas, 'source_image_id': id(req.image),
+            'source_path': str(req.source_path)}
+        unmixing['segmentation_view'] = 'nonnegative clipped view; not quantitative correction'
     _check_preview_cancel(req)
     model = None
     route = None
@@ -1127,7 +1180,8 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         'illumination': 'no preview illumination correction',
         'unmixing': unmixing or {'operation': 'none'},
         'input_modified': False,
-        'filter_intensity_source': 'original loaded preview field',
+        'filter_intensity_source': ('unavailable in calibrated reference frame' if calibrated
+                                    else 'original loaded preview field'),
         'input_shape': list(req.image.shape),
         'input_dtype': str(req.image.dtype),
         'channels': {},
@@ -1152,6 +1206,18 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
 
     out: Dict[str, np.ndarray] = {}
     flows_out: Dict[str, np.ndarray] = {}
+
+    def _crop_labels(mask, obj):
+        """Discard complete labels intersecting the calibrated crop's boundary."""
+        if not calibrated:
+            return mask
+        if mask.shape != preview_image.shape[:2]:
+            raise ValueError(tr("Calibrated segmentation labels must match the valid image crop."))
+        boundary = np.unique(np.concatenate((mask[0], mask[-1], mask[:, 0], mask[:, -1])))
+        boundary = boundary[boundary != 0]
+        unmixing.setdefault('excluded_boundary_label_ids', {})[obj] = [int(value) for value in boundary]
+        return np.where(np.isin(mask, boundary), 0, mask)
+
     for obj in req.object_types:
         _check_preview_cancel(req)
         ch_idx = int(req.channels.get(obj, 0))
@@ -1173,7 +1239,9 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
                 if key.startswith(obj + "_"):
                     organelle_settings["organelle_" + key[len(obj) + 1:]] = value
             if organelle_settings.get("organelle_mask_within_cells"):
-                cell_mask = out.get("cell", req.cell_mask)
+                cell_mask = out.get("cell", supplied_cell_mask)
+                if calibrated and cell_mask is None:
+                    raise ValueError(tr("Calibrated organelle restriction requires cells generated in the same preview pass."))
                 if cell_mask is None or cell_mask.shape != image_2d.shape:
                     raise ValueError(tr(
                         "Preview cell masks are required to restrict organelles to cells."))
@@ -1188,8 +1256,8 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         req.provenance['methods'][obj] = (
             method if obj.startswith('organelle') else 'cellpose')
         if obj.startswith("organelle") and method != "cellpose":
-            out[obj] = _classical_organelle_mask(
-                image_2d, obj, req.preprocess_settings)
+            out[obj] = _crop_labels(_classical_organelle_mask(
+                image_2d, obj, req.preprocess_settings), obj)
             continue
 
         _check_preview_cancel(req)
@@ -1199,7 +1267,8 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         if route:
             masks_of = _backend_preview_pass(req, obj, image_2d, route,
                                              _prepared)
-            out[obj], flow_rgb, probability = masks_of
+            mask, flow_rgb, probability = masks_of
+            out[obj] = _crop_labels(mask, obj)
             if flow_rgb is not None:
                 flows_out[obj] = flow_rgb
             if probability is not None:
@@ -1234,8 +1303,26 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         if probability is not None:
             req.cellprob_maps[obj] = probability
 
-        out[obj] = mask
+        out[obj] = _crop_labels(mask, obj)
     _check_preview_cancel(req)
+    if calibrated:
+        crop_shape = preview_image.shape[:2]
+        for obj, mask in out.items():
+            canvas = np.zeros(req.image.shape[:2], dtype=mask.dtype)
+            canvas[valid_slices] = mask
+            out[obj] = canvas
+        for collection in (flows_out, req.cellprob_maps):
+            for obj, values in tuple(collection.items()):
+                values = np.asarray(values)
+                if values.shape[:2] == crop_shape:
+                    canvas = np.zeros(req.image.shape[:2] + values.shape[2:], dtype=values.dtype)
+                    canvas[valid_slices] = values
+                elif values.shape[-2:] == crop_shape:
+                    canvas = np.zeros(values.shape[:-2] + req.image.shape[:2], dtype=values.dtype)
+                    canvas[(Ellipsis,) + valid_slices] = values
+                else:
+                    raise ValueError(tr("Calibrated preview overlays must match the valid image crop."))
+                collection[obj] = canvas
     return out, flows_out
 
 
@@ -2180,6 +2267,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._session_serial = 0
         self._processing_provenance: Dict[str, Any] = {}
         self._pending_provenance = None
+        self._calibrated_display = None
+        self._pending_calibrated_display = None
         self._settings: Dict[str, Any] = {}
         #: The model the masks on screen were actually made with, and the
         #: clause explaining it when that is not the model that was asked
@@ -2866,7 +2955,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             worker.setParent(None)
             for signal in (worker.finished_masks, worker.flows_ready,
                            worker.cellprob_ready,
-                           worker.provenance_ready, worker.finished):
+                           worker.provenance_ready, worker._calibrated_display_ready,
+                           worker.finished):
                 signal.disconnect()
             drain_thread(worker, timeout_ms=0)
             self._worker = None
@@ -2907,6 +2997,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self.cancel_preview()
         self._src_view.ruler.clear()
         self._src_view.ruler.calibrate_from_file(path, getattr(arr, "shape", None))
+        if self._calibrated_display is not None:
+            self._filter_timer.stop()
+            self._filter_token += 1
         self._image = arr
         self._image_path = Path(path)
         self._masks = {}
@@ -2917,6 +3010,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._update_compare_button()
         self._processing_provenance = {}
         self._pending_provenance = None
+        self._calibrated_display = None
+        self._pending_calibrated_display = None
         self._model_that_ran = ""
         self._model_note = ""
         self._status.setToolTip("")
@@ -3603,7 +3698,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if composite is not None:
             return self._apply_display_background(composite)
         return self._apply_display_background(
-            channel_view(self._image, self.display_channel()))
+            channel_view(self._reference_display_image(), self.display_channel()))
 
     def _on_display_channel_changed(self, *_args) -> None:
         """Re-render both canvases for the newly selected channel.
@@ -4131,9 +4226,15 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             return
         self._release_worker()
         self._run_token += 1
-        req = self._build_request()
+        try:
+            req = self._build_request()
+        except ValueError as exc:
+            self._on_worker_done(None, str(exc), self._run_token)
+            return
         self._status.setText(PREVIEW_RUNNING_MESSAGE)
         worker = _PreviewWorker(req, self, token=self._run_token)
+        worker._calibrated_display_ready.connect(
+            self._receive_calibrated_display, Qt.QueuedConnection)
         worker.provenance_ready.connect(
             self._receive_processing_provenance, Qt.QueuedConnection)
         worker.finished_masks.connect(
@@ -4146,6 +4247,52 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._receive_worker_finished, Qt.QueuedConnection)
         self._worker = worker
         worker.start()
+
+    @Slot(object, int)
+    def _receive_calibrated_display(self, payload, token: int) -> None:
+        """Stage detached display pixels only for the current source and run."""
+        if self._stale(token):
+            return
+        if payload is not None and (self._image is None
+                or payload['source_image_id'] != id(self._image)
+                or payload['source_path'] != self._path_full
+                or payload['image'].shape != self._image.shape):
+            return
+        self._pending_calibrated_display = (token, self._canvas_epoch, payload)
+
+    def _reference_display_image(self):
+        """Use accepted aligned display values while retaining the original source."""
+        return self._calibrated_display if self._calibrated_display is not None else self._image
+
+    def _calibrated_filter_options(self, merged, objects):
+        """Project only GUI-generated area bounds, retaining saved custom refusals."""
+        from ..mask_engine import parse_object_filters, settings_filters
+
+        _validate_calibrated_preview_filters(self._settings, objects)
+        options = deepcopy(merged)
+        table = parse_object_filters(options.get('object_filters'))
+        for obj in objects:
+            if not _retired_bound(f'{obj}_min_area'):
+                continue
+            rows = settings_filters(options, obj)
+            if any(row['property'] != 'area' for row in rows):
+                _validate_calibrated_preview_filters(options, (obj,))
+            lows = [row['min'] for row in rows if row['min'] is not None]
+            highs = [row['max'] for row in rows if row['max'] is not None]
+            options[f'{obj}_min_area'] = max(lows, default=0)
+            options[f'{obj}_max_area'] = min(highs, default=0)
+            table.pop(obj, None)
+        options['object_filters'] = table
+        _validate_calibrated_preview_filters(options, objects)
+        return options
+
+    def _preview_frame_key(self):
+        """Separate original-grid comparisons from source-bound calibrated frames."""
+        record = self._processing_provenance.get('unmixing', {})
+        if record.get('mode') != 'calibrated_live_preview':
+            return None
+        return (self._path_full, id(self._image), json.dumps(record.get('calibration', {}), sort_keys=True),
+                repr(record['valid_roi_yx']))
 
     @Slot(object, int)
     def _receive_processing_provenance(self, record, token: int) -> None:
@@ -4211,6 +4358,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _processing_tooltip(self, record) -> str:
         """Explain preview scope and expose the captured scientific settings."""
+        if record.get('unmixing', {}).get('mode') == 'calibrated_live_preview':
+            return tr("Calibrated display only; pixels outside the valid ROI are blank. Intensity-dependent filters are unavailable.") + '\n\n' + json.dumps(record, indent=2, default=str)
         note = tr("Preview uses the loaded field and field-local normalization. "
                   "Full Mask runs can use batch normalization and illumination "
                   "correction, so their masks may differ. Intensity filters "
@@ -4856,7 +5005,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         planes = []
         for role in roles:
             channel = self._channel_for_object(role)
-            planes.append(_select_channel(self._image,
+            planes.append(_select_channel(self._reference_display_image(),
                                           0 if channel is None else channel))
         if len(planes) == 1:
             return planes[0]
@@ -5156,6 +5305,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if hasattr(self, "_compartment_widgets"):
             merged.update(self._compartment_settings())
         pre = deepcopy(merged)
+        from ...psf_pipeline import (_validate_unmix_plate_scope,
+                                   _validate_unmix_matrix_scope)
+
+        _validate_unmix_plate_scope(pre)
+        _validate_unmix_matrix_scope(pre)
+        if pre.get('unmix_calibration'):
+            pre = self._calibrated_filter_options(pre, obj_types)
         post = pre
         model, note = self._model_for_this_pass()
         return PreviewRequest(
@@ -5463,7 +5619,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._hover_label.setText(
                 "Hover over the image to inspect pixels.")
             return
-        if self._image.ndim == 3:
+        if self._calibrated_display is not None:
+            vals = tuple(float(v) for v in self._calibrated_display[y, x])
+            i_str = tr("Calibrated display only; pixels outside the valid ROI are blank. Intensity-dependent filters are unavailable.") + f" display_channels={vals}"
+        elif self._image.ndim == 3:
             vals = tuple(int(v) for v in self._image[y, x])
             i_str = f"channels={vals}"
         else:
@@ -5504,19 +5663,63 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             return
         self.set_preview_busy(False)
         if err:
+            if self._calibrated_display is not None or self._pending_calibrated_display is not None:
+                self._filter_timer.stop()
+                self._filter_token += 1
+                self._masks, self._raw_masks = {}, {}
+                self._processing_provenance = {}
+                self._flows, self._cellprob = {}, {}
+                self._calibrated_display = None
+                self._pending_calibrated_display = None
+                self._pending_provenance = None
+                self._refresh_canvases()
             self._status.setText(preview_failure_message(err))
             self.preview_ready.emit(None)
             return
         if masks is None or not masks:
+            if self._calibrated_display is not None:
+                self._filter_timer.stop()
+                self._filter_token += 1
+                self._masks, self._raw_masks = {}, {}
+                self._processing_provenance = {}
+                self._calibrated_display = None
+                self._flows, self._cellprob = {}, {}
+                self._refresh_canvases()
+            self._pending_calibrated_display = None
+            self._pending_provenance = None
             self._status.setText("Preview returned no masks.")
             return
         pending = self._pending_provenance
+        if self._calibrated_display is not None or (pending is not None
+                and pending[1].get('unmixing', {}).get('mode') == 'calibrated_live_preview'):
+            self._flows, self._cellprob = {}, {}
+        if pending is None and self._calibrated_display is not None:
+            self._calibrated_display = None
+            self._processing_provenance = {}
         if pending is not None and pending[0] == token:
+            display = self._pending_calibrated_display
+            if pending[1].get('unmixing', {}).get('mode') == 'calibrated_live_preview':
+                if display is None or display[0] != token or display[1] != self._canvas_epoch or display[2] is None:
+                    self._run_token += 1
+                    self._filter_timer.stop()
+                    self._filter_token += 1
+                    self._pending_calibrated_display = None
+                    self._pending_provenance = None
+                    self._calibrated_display = None
+                    self._processing_provenance = {}
+                    self._raw_masks = {}
+                    self._flows, self._cellprob = {}, {}
+                    self._filtering_failed(ValueError(tr("Calibrated display data is unavailable; run the preview again.")))
+                    return
+                self._calibrated_display = display[2]['image']
+            else:
+                self._calibrated_display = None
             self._processing_provenance = pending[1]
             self._model_that_ran = pending[1].get('model', '')
             self._model_note = pending[1].get('model_note', '')
             self._status.setToolTip(self._processing_tooltip(pending[1]))
         self._pending_provenance = None
+        self._pending_calibrated_display = None
         self._raw_masks = masks
         self._recompute_masks(snapshot=True)
 
@@ -5563,6 +5766,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         post = dict(self._settings)
         if hasattr(self, "_compartment_widgets"):
             post.update(self._compartment_settings())
+        if self._processing_provenance.get('unmixing', {}).get('mode') == 'calibrated_live_preview':
+            post = self._calibrated_filter_options(post, self._raw_masks)
+            return post, {obj: None for obj in self._raw_masks}
         intensities = {obj: _select_channel(self._image,
                                             self._obj_channel(obj))
                        for obj in self._raw_masks}
@@ -5704,7 +5910,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if self._image is None:
             return
         snap = {
-            "image": self._image,
+            "image": self._reference_display_image(),
+            "frame_key": self._preview_frame_key(),
             "masks": {k: v for k, v in masks.items()},
             "norm": self._normalise_check.isChecked(),
             "lo": float(self._lo_pct.value()),
@@ -5751,6 +5958,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                     tr("Run {n}", n=self._session_runs), str(model or ""),
                     str(obj), field) if part),
                 "labels": np.asarray(mask),
+                "frame_key": self._preview_frame_key(),
                 "colour": colour,
             })
         del self._session_masks[:-SESSION_MASK_LIMIT]
@@ -5762,7 +5970,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             return []
         shape = tuple(self._image.shape[:2])
         return [entry for entry in self._session_masks
-                if tuple(entry["labels"].shape[:2]) == shape]
+                if tuple(entry["labels"].shape[:2]) == shape
+                and entry.get('frame_key') == self._preview_frame_key()]
 
     def _update_compare_button(self) -> None:
         """Offer the comparison once two masks fit the field on screen."""
@@ -5793,7 +6002,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             for channel in range(self._image.shape[-1]):
                 layers.append(Layer(
                     tr("Channel {n}", n=channel + 1), IMAGE,
-                    _to_uint8(_select_channel(self._image, channel),
+                    _to_uint8(_select_channel(self._reference_display_image(), channel),
                               normalise=norm, lo_pct=lo, hi_pct=hi),
                     ticked=False, opacity=1.0))
         return layers
@@ -5847,6 +6056,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if not (0 <= idx < len(self._history)):
             return
         snap = self._history[idx]
+        if snap.get('frame_key') != self._preview_frame_key():
+            self._status.setText(tr("This preview history uses a different source or calibration and cannot be overlaid."))
+            return
         img = channel_view(snap["image"], self.display_channel())
         norm, lo, hi = snap["norm"], snap["lo"], snap["hi"]
         src_pix = numpy_to_qpixmap(

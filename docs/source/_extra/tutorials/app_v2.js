@@ -1621,7 +1621,7 @@ function beginNativeIdleTransition(cut, state, clock, index) {
   const gap = nativeIdleGapBudget(state.lastSound, state.nextSound, state.final);
   if (gap === null) return;
   const quietHeard = state.speechEnd - state.lastSound;
-  const finalFrame = cut.final ? 1 / Number(visualTimings.fps || 30) : 0;
+  const finalFrame = cut.final ? 2 / Number(visualTimings.fps || 30) : 0;
   nativeIdleTransition = {
     request: narrationRequest, lesson: activeLesson.id,
     voice: elements.voice.value, language: elements.language.value,
@@ -1666,7 +1666,7 @@ function beginNativeLateIdleTransition(cut, state, index, visualTime) {
   if (nativeIdleTransition || !nativeIdleTailReady(state) || visualTime < cut.fence ||
       state.speechEnd !== cut.speechEnd ||
       (!cut.final && elements.audio.currentTime >= cut.nextStart)) return false;
-  const frame = 1 / Number(visualTimings.fps || 30);
+  const frame = 2 / Number(visualTimings.fps || 30);
   if (cut.final && elements.video.currentTime >= elements.video.duration - frame - 0.000001) return false;
   nativeIdleTransition = {
     mode: "late", phase: "decode", request: narrationRequest, lesson: activeLesson.id,
@@ -1705,7 +1705,7 @@ function serviceNativeLateIdleTransition(transition) {
       return;
     }
     if (transition.final) {
-      // Play the genuine last frame to the browser's actual ended event.
+      // Play the genuine final two frames to the browser's actual ended event.
       nativeIdleTransition = null;
       if (nativeIdleTransitionTimer !== null) clearTimeout(nativeIdleTransitionTimer);
       nativeIdleTransitionTimer = null;
@@ -1781,10 +1781,11 @@ function syncCompleteNativeNarration(seek = false) {
   const lateCut = nativeLateIdleTailCut(visualTimings, audioTimings, located.index);
   if (lateCut && beginNativeLateIdleTransition(lateCut, idleState, located.index, visualTime)) return;
   const protectedEnd = Number(located.scene.idle_tail_start);
-  // A final cut decodes the real last frame, then plays it to actual EOF.
-  // Do not schedule that same transition again during its remaining frame.
+  // Decode two genuine final frames: seeking to the final decoded PTS can
+  // already mark the video ended, making play() rewind instead of finish.
+  // Do not schedule that same transition again during its remaining frames.
   const finalFramePending = idleCut?.final &&
-    visualTime >= timingDuration(visualTimings, elements.video.duration) - 1 / Number(visualTimings.fps || 30) - 0.000001;
+    visualTime >= timingDuration(visualTimings, elements.video.duration) - 2 / Number(visualTimings.fps || 30) - 0.000001;
   if (idleCut && idleWait.clock && !finalFramePending && (idleCut.final || !elements.audio.paused) && visualTime >= Number(located.scene.speech_start) + protectedEnd) {
     beginNativeIdleTransition(idleCut, idleState, idleWait.clock, located.index);
     return;

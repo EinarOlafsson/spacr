@@ -92,11 +92,13 @@ def test_apply_without_a_dynamic_policy_still_configures_the_fields(
 def test_density_the_user_moved_stays_put_when_the_theme_changes(
         store, qtbot, qt_theme_applied):
     prefs.set_ambient_animation("data_art_impulse_lens")
+    assert not store.contains(prefs._KEY_AMBIENT_DENSITY)
+    assert prefs.get_ambient_density() == pytest.approx(0.1)
     dialog = prefs.PreferencesDialog()
     qtbot.addWidget(dialog)
     density = dialog.findChild(QSlider, "AmbientDensity")
     combo = _theme_combo(dialog)
-    assert density.value() == 25
+    assert density.value() == 10
     density.setValue(50)
     combo.setCurrentIndex(combo.findData("blobs"))
     assert density.value() == 50

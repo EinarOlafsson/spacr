@@ -1,13 +1,23 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical editorial review (Codex), no native-speaker signoff",
+    "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Only the final timing-boast sentence in scene9 removed; remaining two sentences and every other chapter unchanged.",
+    "previous_english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "ja",
   "title": "Cellposeのモデルを学習させる",
@@ -27,7 +37,7 @@
     "N epochsとBatch sizeを設定します。この短い実行では、十エポック、バッチサイズ一を使います。エポックを増やすと学習の更新回数が増え、バッチを大きくするとメモリを多く使います。最初は、表示された学習率のままにします。",
     "Normalizeはオンのままにし、最初は一パーセンタイルと九十九パーセンタイルを使います。これらは各チャンネルで使う強度の範囲を決めます。Scale rangeは学習中の画像の大きさを変化させ、Min train masksはラベル付きの物体が少ない画像を飛ばします。",
     "検証の損失を見るには、別のValidation image folderと、そのValidation mask folderを選びます。そこに学習用の画像を使い回してはいけません。この例のように、別のラベル付きの組がないときは、両方とも空のままにします。",
-    "フォルダー、モデル名、出力先を確認してから、Runを押します。Figuresパネルには学習用の画像がマスクの上に並び、コンソールで進み具合がわかります。このGPUでは、六枚の画像で十エポックの学習が一分かからずに終わりました。",
+    "フォルダー、モデル名、出力先を確認してから、Runを押します。Figuresパネルには学習用の画像がマスクの上に並び、コンソールで進み具合がわかります。",
     "学習が終わると、コンソールにチェックポイントのパスが表示されます。既定の場所では、元のフォルダーの中のmodels、cellpose model、modelsにあります。ファイル名は、モデル名にアーキテクチャーとエポック数を加えたものです。学習の設定と一緒に保管します。",
     "Applyタブを開きます。Custom modelは、学習させたチェックポイントを指しています。Sourceを例のapplyフォルダーにします。その画像は、学習に使っていないウェルから撮ったものです。Channelsをゼロ、Percentilesを二と九十九にします。接している細胞が分かれたままになるようFill inをオフにし、SaveとVerboseをオンにします。",
     "Live previewを開いて画像を一枚選び、同じチャンネルとパーセンタイルでRun previewを押します。チェックポイントでその画像がセグメンテーションされ、ここでは細胞が七十八個見つかります。フォルダー全体を処理する前に、ここで設定を調整します。",

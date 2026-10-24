@@ -763,6 +763,58 @@ with image dimensions, channel count and the saved settings. Existing
 ``stack/`` files help distinguish a completed ingestion stage from a failure
 before the first field was written.
 
+Calibrated spectral live preview (alpha)
+----------------------------------------
+
+The optional calibrated route supports organized two-dimensional channel-last
+``stack/*.npy`` fields in Segmentation Live Preview. Enable alpha features and
+spectral unmixing, supply the existing single-stain control wells, and set
+``unmix_calibration`` to your measured calibration JSON. Set
+``unmix_pixel_size_um`` explicitly to the source's ``[Y, X]`` sampling in
+micrometers. No microscope calibration is inferred. Batch segmentation,
+Measure, volumes, and additional PSF or enhancement processing refuse this
+route; leaving the calibration blank preserves legacy processing.
+
+The calibration JSON has ``version: 1``, ``axes: "YX"``,
+``pixel_size_um: [Y, X]``, ``reference_channel`` and a ``channels`` list.
+Every physical channel appears exactly once. Each channel entry supplies
+``channel``, ``shift_to_reference_px: [dy, dx]``, a measured two-dimensional
+``psf`` array, ``psf_origin_px: [Y, X]`` and ``psf_pixel_size_um: [Y, X]``.
+The reference channel has zero shift. A shift means
+``aligned[y, x] = acquired[y - dy, x - dx]``; only integer shifts are
+supported. Each finite nonnegative PSF must have positive mass, odd dimensions
+and its declared origin at its center. Image and PSF sampling must agree;
+no implicit resampling is performed.
+
+Each channel is convolved with all the other channels' supplied PSFs. Their
+common effective PSF is the product convolution of all supplied kernels:
+resolution is broadened, not restored by deconvolution. This assumes a
+shift-invariant PSF per observation channel and a common linear mixing matrix.
+Only the intersection supported by real acquired pixels is used. No reflected,
+wrapped or zero-padded image pixels enter the solve or segmentation.
+Controls and the selected image undergo the same calibrated operation.
+
+The valid crop retains signed float residuals, including negative values from
+noise or model mismatch; these are not negative biological concentrations.
+Provenance records the matrix, calibration and kernel hashes, shifts, sampling,
+common support, original-canvas crop and negative fractions. Segmentation
+receives a separately recorded nonnegative view. Labels are restored to the
+original canvas; complete labels touching the valid crop boundary are excluded
+and recorded rather than presented as complete objects. Source files and raw
+measurement data remain unchanged. Real known-amount double-stain validation
+and calibrated batch/Measure integration remain open.
+
+Calibration is bounded to 16 channels, 31-pixel individual PSF dimensions,
+127-pixel combined support, integer shifts within 4096 pixels and 16,777,216
+selected channel pixels per image. Oversized or incompatible inputs refuse
+before calibrated channel-copy allocation. These limits do not alter the
+legacy route. Across all selected control fields, at most 67,108,864 channel
+pixels are retained, bounding their matched float64 arrays to 512 MiB; this is
+not a total process-memory limit, as convolution and other working arrays
+require additional memory. Choose fewer or smaller control fields if this
+aggregate limit is exceeded. This limit never triggers additional sampling or
+dropping; the existing selection of up to 24 fields per dye is unchanged.
+
 Engine parameter reference
 --------------------------
 

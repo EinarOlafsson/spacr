@@ -3865,14 +3865,15 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Check the folders, model name and output location, then press Run. The Figures panel shows the training images above their masks, and the console follows progress. On this GPU, ten epochs on six images finished in under a minute.",
+          "narration": "Check the folders, model name and output location, then press Run. The Figures panel shows the training images above their masks, and the console follows progress.",
           "hold_after": 0.7,
           "focus": [
             390,
             520,
             3410,
             1260
-          ]
+          ],
+          "speech_text": "Check the folders, model name and output location, then press Run. The Figures panel shows the training images above their masks, and the console follows progress."
         },
         {
           "visual": "train_checkpoint",
@@ -3995,16 +3996,17 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "From Home, open Make Masks, then its Cellpose Workbench. Choose Apply to segment images with an existing model. Use Train when you want to learn new weights from curated image-mask pairs.",
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the recorded settings file as a reference, replace its source path with your extracted folder.",
-          "hold_after": 0.7
+          "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the supplied settings reference, replace its source path with your extracted folder.",
+          "hold_after": 0.7,
+          "speech_text": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the supplied settings reference, replace its source path with your extracted folder."
         },
         {
           "visual": "05_setting_model_name",
@@ -4079,11 +4081,11 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -9457,7 +9459,7 @@
         "Filter candidates and read their effects and guide agreement.",
         "Export the selected rows as CSV, Markdown or HTML."
       ],
-      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
+      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. If the Regression Hits shortcut does not reveal the panel, run python hit_list_companion.py and Browse to the extracted results folder. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9469,8 +9471,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
-          "hold_after": 0.7
+          "narration": "To use the fallback, extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+          "hold_after": 0.7,
+          "speech_text": "To use the fallback, extract the linked example and activate your spacer environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder."
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
@@ -13878,7 +13881,7 @@
         "Choose the measurement database, cell predictions, guide fractions and score column.",
         "Read the evidence, wells, guides and threshold tabs and find the saved tables."
       ],
-      "prerequisite": "Extract Investigate_Hit_real_screen_example.zip. Everything in it comes from one real screen: the Regression run on Regression's test data (the settings from the Regression tutorial), the matching per-cell CV predictions, and a measurement database with the same cells' real shape, size and intensity measurements. To keep the download small, the database holds 52 wells: every analysed well with a guide for gene 225160, and three wells without one from the same plate for each. No gene in this quick Regression run passes q ≤ 0.05. Treat the investigation as a worked example, not a confirmed hit.",
+      "prerequisite": "Extract Investigate_Hit_real_screen_example.zip. Everything in it comes from one real screen: the Regression run on Regression's test data (the settings from the Regression tutorial), the matching per-cell CV predictions, and a measurement database with the same cells' real shape, size and intensity measurements. The example database contains 52 wells: every analysed well with a guide for gene 225160, plus three same-plate wells without that guide for each target well. No gene in this quick Regression run passes q ≤ 0.05. Treat the investigation as a worked example, not a confirmed hit.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13952,8 +13955,9 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence gives the result. Target wells have a hit-like prevalence only zero point zero one higher than control wells. The well bootstrap interval runs from minus zero point zero four to plus zero point zero six, and the blocked permutation P value is about zero point six three. The cells do not support this candidate.",
-          "hold_after": 0.7
+          "narration": "Evidence gives the result. Target wells have a hit-like prevalence only zero point zero one higher than control wells. The well bootstrap interval runs from minus zero point zero four to plus zero point zero six, and the blocked permutation P value is about zero point six three. This analysis provides no clear evidence of a difference for this candidate.",
+          "hold_after": 0.7,
+          "speech_text": "Evidence gives the result. Target wells have a hit-like prevalence only zero point zero one higher than control wells. The well bootstrap interval runs from minus zero point zero four to plus zero point zero six, and the blocked permutation P value is about zero point six three. This analysis provides no clear evidence of a difference for this candidate."
         },
         {
           "visual": "14_wells",
@@ -14360,7 +14364,7 @@
         "Choose a destination, plate name and copy or link behavior.",
         "Save a reusable plan and import images for Mask."
       ],
-      "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
+      "prerequisite": "Download the Mask example first. Use working copies of fields E01/F001 and L01/F009, with four channels each. In those copies only, remove the redundant A token immediately before Z, preserving every well, field and channel token. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -14393,8 +14397,9 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
-          "hold_after": 0.7
+          "narration": "Scan those working copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
+          "hold_after": 0.7,
+          "speech_text": "Scan those working copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels."
         },
         {
           "visual": "06_check_filename",
@@ -15020,13 +15025,14 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+          "narration": "Before a classifier can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate",
             "41_classify"
-          ]
+          ],
+          "speech_text": "Before a [classifier](/klˈæsəfIəɹ/) can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what [Classify](/klˈæsəfI/) trains on next."
         },
         {
           "visual": "module_classify_merged",

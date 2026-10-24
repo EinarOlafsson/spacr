@@ -43,8 +43,8 @@ import warnings
 from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
-from PySide6.QtCore import QEvent, QObject, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import (QColor, QIcon, QPainter, QPixmap,
+from PySide6.QtCore import QEvent, QObject, QRect, QSize, Qt, QTimer, Signal
+from PySide6.QtGui import (QColor, QFont, QFontMetrics, QIcon, QPainter, QPixmap,
                            QTextDocumentFragment)
 from PySide6.QtWidgets import (
     QApplication,
@@ -55,6 +55,7 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QPushButton,
     QScrollArea,
+    QStyle,
     QSizePolicy,
     QTabWidget,
     QVBoxLayout,
@@ -75,6 +76,273 @@ from .height_grip import HeightGrip
 #: label's font size have to move together to stay optically balanced.
 HERO_LOGO_PX = 72
 HERO_TITLE_PX = 52
+
+
+class _AsideFloorFit(QObject):
+    """Refresh the aside floor after its real styled content changes."""
+
+    def __init__(self, panels, fit):
+        """Own one coalesced post-layout callback on the panels being measured."""
+        super().__init__(panels)
+        self._fit_floor = fit
+        self._busy = False
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._apply)
+        panels._floor_timer = self._timer
+        panels.installEventFilter(self)
+        self._timer.start(0)
+
+    def eventFilter(self, obj, event):
+        """Observe only local polish/font/style/layout events, never resize polling."""
+        if not self._busy and event.type() in (
+                QEvent.Show, QEvent.Polish, QEvent.FontChange,
+                QEvent.StyleChange, QEvent.LayoutRequest):
+            self._timer.start(0)
+        return False
+
+    def _apply(self):
+        """Measure once after queued polish while guarding synchronous feedback."""
+        self._busy = True
+        try:
+            self._fit_floor()
+        finally:
+            self._busy = False
+
+
+class _HomeBodyFit(QObject):
+    """Keep tile access and the masthead inside Home's local scroll bounds."""
+
+    def __init__(self, body, scroll, tabs, reflow):
+        """Own coalesced fresh style/layout measurements with this body."""
+        super().__init__(body)
+        self._tabs = tabs
+        self._hero = body.findChild(QWidget, 'Hero')
+        self._outer_viewport = scroll.viewport()
+        self._viewports = {scroll.viewport(),
+                           *(tabs.widget(index).viewport() for index in range(tabs.count()))}
+        self._reflow = reflow
+        self._busy = False
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._apply)
+        self._outer_viewport.destroyed.connect(self._timer.stop)
+        for widget in (body, *self._viewports, tabs, tabs.tabBar(),
+                       *(tabs.widget(index).widget() for index in range(tabs.count()))):
+            widget.installEventFilter(self)
+        self._timer.start(0)
+
+    def eventFilter(self, widget, event):
+        """Observe this subtree's native layout/style and viewport resizing."""
+        if not self._busy and (event.type() in (
+                QEvent.Show, QEvent.Polish, QEvent.FontChange, QEvent.StyleChange,
+                QEvent.LayoutRequest) or
+                (widget in self._viewports and event.type() == QEvent.Resize)):
+            self._timer.start(0)
+        return False
+
+    def _apply(self):
+        """Use fresh row minima and cap only the masthead to its real viewport."""
+        from shiboken6 import isValid
+        from ..gui_scale import _set_actual_dim
+
+        if not isValid(self._outer_viewport):
+            return
+        self._busy = True
+        try:
+            cap = max(1, self._outer_viewport.property('size').height())
+            if self._hero.property('maximumSize').height() != cap:
+                _set_actual_dim(self._hero, 'maxh', cap)
+            self._reflow()
+            width = height = 0
+            for index in range(self._tabs.count()):
+                scroll = self._tabs.widget(index)
+                tiles = scroll.findChildren(AppTile)
+                if not tiles:
+                    continue
+                left, top, right, bottom = scroll.widget().layout().getContentsMargins()
+                row_width = max(max(tile.property('minimumSize').width(),
+                                    tile.layout().totalMinimumSize().width()) for tile in tiles)
+                row_height = max(tile.layout().totalMinimumSize().height() for tile in tiles)
+                frame = scroll.frameWidth() * 2
+                width = max(width, row_width + left + right + frame
+                            + scroll.verticalScrollBar().sizeHint().width())
+                height = max(height, row_height + top + bottom + frame)
+            width = max(width, self._tabs.tabBar().minimumSizeHint().width())
+            height += self._tabs.tabBar().sizeHint().height()
+            height += max(0, self._tabs.rect().height()
+                          - self._tabs.currentWidget().rect().height()
+                          - self._tabs.tabBar().sizeHint().height())
+            current = self._tabs.property('minimumSize')
+            for key, wanted, actual in (('minw', width, current.width()),
+                                        ('minh', height, current.height())):
+                if wanted != actual:
+                    _set_actual_dim(self._tabs, key, wanted)
+        finally:
+            self._busy = False
+
+
+class _HeroMark(QLabel):
+    """Keep the source mark while permitting the masthead to compress it."""
+
+    def __init__(self, source, preferred_side):
+        """Retain the original pixels and a logical preferred branding size."""
+        super().__init__()
+        self._source = QPixmap(source)
+        self._preferred_side = preferred_side
+        self._drawn = None
+        follow_device_ratio(self, self._redraw)
+
+    def sizeHint(self):
+        """Offer the selected font/GUI size without making it a hard floor."""
+        from ..gui_scale import scale_int
+
+        side = scale_int(font_px(self._preferred_side))
+        return QSize(side, side)
+
+    def minimumSizeHint(self):
+        """Allow the actual header allocation to be smaller than its preference."""
+        return QSize(0, 0)
+
+    def _redraw(self):
+        """Fit original source pixels to actual bounds, preserving ratio and DPR."""
+        bounds = self.contentsRect().size().boundedTo(self.sizeHint())
+        signature = (bounds.width(), bounds.height(), device_ratio(self))
+        if not bounds.isEmpty() and signature != self._drawn:
+            self.setPixmap(scaled_for(self._source, self, bounds))
+            self._drawn = signature
+
+    def resizeEvent(self, event):
+        """Redraw after the label receives its actual allocation."""
+        super().resizeEvent(event)
+        self._redraw()
+
+
+class _HeroLabel(QLabel):
+    """Retain selected-font preferred space without imposing a minimum."""
+
+    def sizeHint(self):
+        """Let a larger hero restore the font instead of retaining fitted hints."""
+        return getattr(self, '_hero_preferred_hint', None) or super().sizeHint()
+
+    def heightForWidth(self, width):
+        """Prefer selected-font wrapped height, not the last fitted allocation."""
+        selected = getattr(self, '_hero_selected_font', None)
+        if not self.wordWrap() or selected is None:
+            return super().heightForWidth(width)
+        contents = self.contentsRect()
+        horizontal = self.rect().width() - contents.width()
+        vertical = self.rect().height() - contents.height()
+        bounds = QRect(0, 0, max(1, width - horizontal), 1 << 20)
+        flags = int(self.alignment() | Qt.TextWordWrap)
+        return QFontMetrics(selected).boundingRect(bounds, flags, self.text()).height() + vertical
+
+
+class _HeroTextFit(QObject):
+    """Fit only the masthead text, retaining its selected styles for growth."""
+
+    def __init__(self, hero, labels):
+        """Coalesce actual slot and selected-font changes on the owned hero."""
+        super().__init__(hero)
+        self._labels = labels
+        self._selected = {}
+        self._busy = False
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._fit)
+        hero.installEventFilter(self)
+        for label in labels:
+            label.installEventFilter(self)
+        self._timer.start(0)
+
+    def eventFilter(self, obj, event):
+        """Schedule one fit without recursing through our own style changes."""
+        if not self._busy and event.type() in (
+                QEvent.Resize, QEvent.FontChange, QEvent.StyleChange,
+                QEvent.Polish, QEvent.LayoutRequest):
+            self._timer.start(0)
+        return False
+
+    def _fit(self):
+        """Choose the largest fitting actual pixel size from the selected font."""
+        from .. import gui_scale, preferences, theme
+
+        if self._busy:
+            return
+        original_get = gui_scale._ORIGINAL.get((QWidget, "styleSheet"), QWidget.styleSheet)
+        original_set = gui_scale._ORIGINAL.get((QWidget, "setStyleSheet"), QWidget.setStyleSheet)
+        app = QApplication.instance()
+        window = self.parent().window()
+        context = (gui_scale.current_scale(), preferences.get_font_scale(),
+                   app.styleSheet(), app.font().toString(),
+                   window.property(theme._WINDOW_SHEET_SERIAL),
+                   window.property(theme._WINDOW_SHEET_DIGEST))
+        self._busy = True
+        try:
+            for label in self._labels:
+                label.ensurePolished()
+                sheet = original_get(label)
+                previous = self._selected.get(label)
+                if (previous is None or previous['context'] != context
+                        or sheet != previous['applied']
+                        or label.font().toString() != previous.get('applied_font')):
+                    base = previous['base'] if previous is not None and sheet == previous['applied'] else sheet
+                    if sheet != base:
+                        original_set(label, base)
+                        label.ensurePolished()
+                    previous = dict(base=base, font=QFont(label.font()),
+                                    context=context, applied=base)
+                    font_changed = getattr(label, '_hero_selected_font', None) != previous['font']
+                    label._hero_selected_font = QFont(previous['font'])
+                    hint = QLabel.sizeHint(label)
+                    if font_changed or getattr(label, '_hero_preferred_hint', None) != hint:
+                        label._hero_preferred_hint = hint
+                        label.updateGeometry()
+                    self._selected[label] = previous
+                selected = previous['font']
+                maximum = selected.pixelSize()
+                if maximum <= 0:
+                    maximum = QFontMetrics(selected).height()
+                bounds = label.contentsRect()
+                if bounds.isEmpty():
+                    continue
+                flags = int(label.alignment() | (
+                    Qt.TextWordWrap if label.wordWrap() else Qt.TextSingleLine))
+                signature = (bounds.getRect(), label.text(), flags,
+                             label.isEnabled(), selected.toString(), sheet)
+                if previous.get('signature') == signature:
+                    continue
+
+                def fits(size):
+                    """Return whether this font pixel size fits the label content rectangle."""
+                    font = QFont(selected)
+                    font.setPixelSize(size)
+                    text = label.style().itemTextRect(
+                        QFontMetrics(font), bounds, flags, label.isEnabled(), label.text())
+                    return bounds.contains(text)
+
+                size = maximum
+                if not fits(maximum):
+                    low, high, size = 1, maximum - 1, 1
+                    while low <= high:
+                        middle = (low + high) // 2
+                        if fits(middle):
+                            size, low = middle, middle + 1
+                        else:
+                            high = middle - 1
+                target = previous['base']
+                if size < maximum:
+                    if '{' in target:
+                        target += f'\nQLabel#{label.objectName()} {{ font-size: {size}px; }}'
+                    else:
+                        target = (target.rstrip().rstrip(';') + '; ' if target else '') + f'font-size: {size}px;'
+                if original_get(label) != target:
+                    original_set(label, target)
+                previous['applied'] = target
+                previous['applied_font'] = label.font().toString()
+                previous['signature'] = (*signature[:-1], target)
+        finally:
+            self._busy = False
 
 
 def active_palette() -> dict:
@@ -1430,6 +1698,100 @@ class StageLegend(Panel):
         return self._rows.get(stage)
 
 
+class _NewsTitleFit(QObject):
+    """Bound release headings to the real viewport, not wide body hints."""
+
+    def __init__(self, panel):
+        """Own the coalesced observer under its News panel.
+
+        :param panel: actual panel whose headline labels may be rebuilt.
+        """
+        self._busy = True
+        super().__init__(panel)
+        self._panel = panel
+        self._viewport = panel._notes.viewport()
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._fit)
+        self._viewport.destroyed.connect(self._timer.stop)
+        panel.installEventFilter(self)
+        self._viewport.installEventFilter(self)
+        self._busy = False
+        self._timer.start(0)
+
+    def eventFilter(self, watched, event):
+        """Observe allocation and source-layout changes without consuming them.
+
+        :param watched: the panel or its actual notes viewport.
+        :param event: native event; only local allocation/style work is queued.
+        :returns: False, preserving normal Qt delivery.
+        """
+        if not getattr(self, "_busy", True) and ((watched is self._viewport and event.type() == QEvent.Resize)
+                or (watched is self._panel and event.type() in
+                    (QEvent.Show, QEvent.FontChange, QEvent.StyleChange, QEvent.LayoutRequest))):
+            self._timer.start(0)
+        return False
+
+    def _fit(self):
+        """Fit fresh wrapped-title documents; leave wide plain dates scrollable."""
+        from math import ceil
+        from PySide6.QtGui import QTextDocument, QTextOption
+        from shiboken6 import isValid
+        from ..gui_scale import _set_actual_dim
+
+        if not isValid(self._viewport):
+            return
+        width = self._viewport.property('size').width()
+        if width <= 0:
+            return
+        self._busy = True
+        try:
+            for label in self._panel._headline_labels:
+                limit = width
+                if label.wordWrap():
+                    if (label.property('minimumSize').width() != width
+                            or getattr(label, '_gs_geo_set', {}).get('minw') != width):
+                        _set_actual_dim(label, 'minw', width)
+                else:
+                    size, contents = label.property('size'), label.contentsRect()
+                    text = label.style().itemTextRect(label.fontMetrics(), contents,
+                        int(label.alignment() | Qt.TextSingleLine), label.isEnabled(), label.text())
+                    required = max(text.width(), label.fontMetrics().horizontalAdvance(label.text()))
+                    if required+size.width()-contents.width() > width:
+                        limit = 16777215
+                if (label.property('maximumSize').width() != limit
+                        or getattr(label, '_gs_geo_set', {}).get('maxw') != limit):
+                    _set_actual_dim(label, 'maxw', limit)
+                if label.wordWrap():
+                    size, contents = label.property('size'), label.contentsRect()
+                    margin = label.margin()
+                    indent = label.indent()
+                    if indent < 0:
+                        indent = max(0, label.fontMetrics().horizontalAdvance('x') // 2-margin) if label.frameWidth() else 0
+                    alignment = QStyle.visualAlignment(label.layoutDirection(), label.alignment())
+                    horizontal = size.width()-contents.width()+2*margin
+                    vertical = size.height()-contents.height()+2*margin
+                    if alignment & (Qt.AlignLeft | Qt.AlignRight):
+                        horizontal += indent
+                    if alignment & (Qt.AlignTop | Qt.AlignBottom):
+                        vertical += indent
+                    document = QTextDocument()
+                    document.setDocumentMargin(0)
+                    document.setDefaultFont(label.font())
+                    option = QTextOption()
+                    option.setWrapMode(QTextOption.WordWrap)
+                    option.setAlignment(label.alignment())
+                    document.setDefaultTextOption(option)
+                    document.setHtml(label.text())
+                    document.setTextWidth(max(1, width-horizontal))
+                    height = ceil(document.size().height()+vertical)
+                    if (label.property('minimumSize').height() != height
+                            or getattr(label, '_gs_geo_set', {}).get('minh') != height):
+                        _set_actual_dim(label, 'minh', height)
+        finally:
+            self._busy = False
+
+
 class NewsPanel(Panel):
     """Every spaCR release, with links, in a box the reader can resize.
 
@@ -1517,7 +1879,7 @@ class NewsPanel(Panel):
         self._notes.setFocusPolicy(Qt.NoFocus)
         self._notes.setWidgetResizable(True)
         self._notes.setFrameShape(QFrame.NoFrame)
-        self._notes.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._notes.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self._notes.setStyleSheet(
             "QScrollArea#HomeNewsScroll { background: transparent;"
             " border: none; }")
@@ -1543,6 +1905,7 @@ class NewsPanel(Panel):
         self._grip.height_changed.connect(self._remember_height)
         self.body_layout.addWidget(self._grip)
         self._notes.setFixedHeight(self._stored_height())
+        self._news_title_fit = _NewsTitleFit(self)
 
         check = QPushButton("Check for updates\u2026")
         check.setObjectName("GhostButton")
@@ -1578,6 +1941,7 @@ class NewsPanel(Panel):
         kept rather than rebuilt: it is what a build with no bundled
         resource shows, and :meth:`set_content` holds a reference to it.
         """
+        self._headline_labels = []
         while self._notes_column.count():
             item = self._notes_column.takeAt(0)
             widget = item.widget()
@@ -1590,6 +1954,9 @@ class NewsPanel(Panel):
         for entry in self._releases:
             self._notes_column.addWidget(self._release_block(entry))
         self._notes_column.addStretch(1)
+        fitter = getattr(self, '_news_title_fit', None)
+        if fitter is not None:
+            fitter._timer.start(0)
 
     def showEvent(self, event):                                  # noqa: N802
         """Ask for a refresh the first time the panel is shown.
@@ -1694,13 +2061,15 @@ class NewsPanel(Panel):
         title.setStyleSheet(
             f"color: {P['fg']}; font-size: {font_px(12)}px;"
             "font-weight: 600; background: transparent;")
-        column.addWidget(title)
+        column.addWidget(title, 0, Qt.AlignLeft)
+        self._headline_labels.append(title)
         if when:
             stamp = QLabel(when)
             stamp.setStyleSheet(
                 f"color: {P['fg_muted']}; font-size: {font_px(10)}px;"
                 "background: transparent;")
-            column.addWidget(stamp)
+            column.addWidget(stamp, 0, Qt.AlignLeft)
+            self._headline_labels.append(stamp)
 
         body = self.render_body(str(entry.get("body") or ""), P["accent"])
         if body:
@@ -2044,7 +2413,17 @@ class HomePage(QWidget):
         col.addWidget(split, 1)
         self._read_the_journal()
 
-        outer.addWidget(body, 1)
+        from ..i18n import tr
+        self._body_scroll = QScrollArea()
+        self._body_scroll.setAccessibleName(tr("Home"))
+        self._body_scroll.setFrameShape(QScrollArea.NoFrame)
+        self._body_scroll.setWidgetResizable(True)
+        self._body_scroll.setWidget(body)
+        make_transparent(body, self._body_scroll)
+        self._body_scroll.viewport().setAutoFillBackground(False)
+        self._body_fit = _HomeBodyFit(body, self._body_scroll, self._tabs,
+                                     self._rewrap_grids)
+        outer.addWidget(self._body_scroll, 1)
 
         from .module_hint_bar import ModuleHintBar
         self._hint_bar = ModuleHintBar(_DEFAULT_HINT)
@@ -2354,29 +2733,16 @@ class HomePage(QWidget):
                                SPACING["md"], SPACING["sm"])
         row.setSpacing(SPACING["md"])
 
-        logo_px = font_px(HERO_LOGO_PX)
         logo = _find_logo_pixmap()
         if logo is not None:
-            label = QLabel()
+            label = _HeroMark(logo, HERO_LOGO_PX)
             label.setObjectName("HeroMark")
-            label.setFixedSize(logo_px, logo_px)
             label.setStyleSheet("background: transparent;")
-
-            def _draw_mark(label=label, source=logo, side=logo_px):
-                """Redraw the mark at the ratio of the screen it is on.
-
-                Always from the 3334 px master. Re-scaling whatever is
-                already on the label would compound one resample for every
-                screen the window has been dragged across.
-                """
-                label.setPixmap(scaled_for(source, label, side))
-
-            _draw_mark()
-            follow_device_ratio(label, _draw_mark)
             self._hero_mark = label
             row.addWidget(label)
 
-        title = QLabel("spaCR")
+        title = _HeroLabel("spaCR")
+        title.setObjectName("HeroTitle")
         title.setStyleSheet(
             f"font-family: {QSS_FONT_FAMILY}; font-weight: 300;"
             f"font-size: {font_px(HERO_TITLE_PX)}px; color: {P['accent']};"
@@ -2384,10 +2750,11 @@ class HomePage(QWidget):
         row.addWidget(title)
 
         from .loading_screen import strap_line
-        subtitle = QLabel(strap_line())
+        subtitle = _HeroLabel(strap_line())
         subtitle.setObjectName("HeroSubtitle")
         subtitle.setWordWrap(True)
         row.addWidget(subtitle, 1)
+        hero._text_fit = _HeroTextFit(hero, (title, subtitle))
 
         return hero
 
@@ -2409,6 +2776,7 @@ class HomePage(QWidget):
         """
         self._tabs = QTabWidget()
         self._tabs.setObjectName("HomeTabs")
+        self._tabs.setUsesScrollButtons(True)
         self._tabs.setDocumentMode(False)
         self._tabs.setStyleSheet(
             _tab_qss(self._P, self._pane_alpha()))
@@ -2448,8 +2816,7 @@ class HomePage(QWidget):
             grid.setVerticalSpacing(SPACING["xs"])
             tiles = [self._make_tile(k, n, d) for k, n, d in entries]
             self._grids.append((holder, grid, tiles, width))
-            self._fill_grid(grid, tiles,
-                            self._columns_for(self.width(), width))
+            self._fill_grid(grid, tiles, 1)
             col.addWidget(holder)
         col.addStretch(1)
         return self._scrolled(page)
@@ -2535,7 +2902,7 @@ class HomePage(QWidget):
         width = scaled_px(self.TILE_MIN_W)
         tiles = [self._make_tile(k, n, d) for k, n, d in entries]
         self._grids.append((holder, grid, tiles, width))
-        self._fill_grid(grid, tiles, self._columns_for(self.width(), width))
+        self._fill_grid(grid, tiles, 1)
         col.addWidget(holder)
         col.addStretch(1)
         return self._scrolled(page)
@@ -2608,6 +2975,7 @@ class HomePage(QWidget):
         """
         for tile in tiles:
             grid.removeWidget(tile)
+        grid._home_columns = columns
         rows = 0
         for index, tile in enumerate(tiles):
             rows = index // columns
@@ -2776,6 +3144,7 @@ class HomePage(QWidget):
         self._aside_scroll = scroll
         outer.addWidget(scroll, 1)
         self._fit_aside_minimum()
+        panels._floor_fit = _AsideFloorFit(panels, self._fit_aside_minimum)
         return aside
 
     def _build_aside_slider(self) -> QWidget:
@@ -2872,19 +3241,44 @@ class HomePage(QWidget):
         scroll = getattr(self, "_aside_scroll", None)
         if scroll is not None:
             floor += scroll.verticalScrollBar().sizeHint().width()
-        if aside.minimumWidth() != floor:
-            aside.setMinimumWidth(floor)
-            split = getattr(self, "_aside_split", None)
-            pane = split.pane(_ASIDE_PANE) if split is not None else None
-            if pane is not None:
-                pane.minimum = floor
+        from ..gui_scale import _actual_minimum_size, _set_actual_dim
+
+        changed = _actual_minimum_size(aside).width() != floor
+        if changed:
+            _set_actual_dim(aside, 'minw', floor)
+        split = getattr(self, "_aside_split", None)
+        pane = split.pane(_ASIDE_PANE) if split is not None else None
+        if pane is not None:
+            pane.minimum = getattr(aside, '_gs_geo', {}).get('minw', aside.minimumWidth())
+        if changed:
             self._rewrap_grids()
 
     def _rewrap_grids(self) -> None:
-        """Re-flow every tile grid for the page's width and the column's."""
-        for _holder, grid, tiles, tile_w in self._grids:
-            self._fill_grid(grid, tiles,
-                            self._columns_for(self.width(), tile_w))
+        """Re-flow every grid against its own actual tab viewport."""
+        from ..gui_scale import _ORIGINAL
+
+        for holder, grid, tiles, _tile_w in self._grids:
+            ancestor = holder
+            margins = 0
+            while ancestor is not None and not isinstance(ancestor, QScrollArea):
+                layout = ancestor.layout()
+                if layout is not None:
+                    left, _top, right, _bottom = layout.getContentsMargins()
+                    margins += left + right
+                ancestor = ancestor.parentWidget()
+            if ancestor is None or not tiles:
+                continue
+            available = max(0, ancestor.viewport().property('size').width() - margins)
+            spacing = _ORIGINAL.get((QGridLayout, 'horizontalSpacing'),
+                                    QGridLayout.horizontalSpacing)(grid)
+            if spacing < 0:
+                spacing = holder.style().pixelMetric(QStyle.PM_LayoutHorizontalSpacing, None, holder)
+            spacing = max(0, spacing)
+            tile_width = max(max(tile.property('minimumSize').width(),
+                                 tile.layout().totalMinimumSize().width()) for tile in tiles)
+            columns = max(1, (available + spacing) // max(1, tile_width + spacing))
+            if columns != getattr(grid, '_home_columns', None):
+                self._fill_grid(grid, tiles, columns)
 
     def _on_run_clicked(self, key: str) -> None:
         """Open the module a Recent runs row names, if it still exists.

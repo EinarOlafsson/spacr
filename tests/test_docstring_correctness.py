@@ -2117,6 +2117,178 @@ def _validated_prior_radius_callables(callables):
             if item.symbol not in arrivals]
 
 
+
+def _validated_calibrated_batch_inventory(callables):
+    """Bind prior Metal methods and current batch keywords before historical replay."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    sources = json.loads((root / "tests/data/release_contracts"
+        / "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json").read_text(encoding="utf-8"))
+    by_symbol = {item.symbol: item for item in callables}
+    from tests.test_documentation_i18n import _current_718_metal_class_api
+    current_sources = _current_718_metal_class_api(
+        sources, {symbol: item.docstring for symbol, item in by_symbol.items()})
+    constructor_symbols = {
+        "spacr.mps_reduce.MetalKMeans", "spacr.mps_reduce.MetalPCA",
+        "spacr.torch_loader.ArrayDataLoader",
+    }
+    for owner in constructor_symbols:
+        module, class_name = owner.rsplit(".", 1)
+        module_tree = ast.parse((root / (module.replace(".", "/") + ".py")).read_text(encoding="utf-8"))
+        declaration = next(node for node in module_tree.body
+                           if isinstance(node, ast.ClassDef) and node.name == class_name)
+        constructor = next(node for node in declaration.body
+                           if isinstance(node, ast.FunctionDef) and node.name == "__init__")
+        assert _clean_doc(declaration) == sources[owner]
+        assert current_sources[owner] == sources[owner] + "\n" + _clean_doc(constructor)
+        assert by_symbol[owner].constructor_prose_variant_count == 1
+        assert by_symbol[owner].docless_variant_count == 0
+        assert by_symbol[owner].category == "constructor"
+    tree = ast.parse((root / "spacr/mps_reduce.py").read_text(encoding="utf-8"))
+    expected_methods = {
+        "MetalPCA": {"fit": True, "transform": False,
+                     "fit_transform": True, "inverse_transform": False},
+        "MetalKMeans": {"fit": True, "predict": False,
+                        "fit_predict": True, "fit_transform": True},
+    }
+    expected_docs = {'MetalPCA.fit': 'Fit PCA on CPU float64 data and select the projection backend.\n'
+                     '\n'
+                     ':param data: sample-by-feature matrix used to fit PCA.\n'
+                     ':param y: ignored compatibility argument.\n'
+                     ':returns: this fitted reducer.',
+     'MetalPCA.transform': 'Project samples using the fitted CPU or Metal backend.\n'
+                           '\n'
+                           ':param data: sample-by-feature matrix with the fitted feature count.\n'
+                           ':returns: NumPy array of projected samples, whitened when configured.',
+     'MetalPCA.fit_transform': 'Fit PCA and project the same samples.\n'
+                               '\n'
+                               ':param data: sample-by-feature matrix used for fitting and '
+                               'projection.\n'
+                               ':param y: ignored compatibility argument.\n'
+                               ':returns: NumPy array of projected samples, whitened when configured.',
+     'MetalPCA.inverse_transform': 'Reconstruct feature values from fitted PCA coordinates.\n'
+                                   '\n'
+                                   ':param data: sample-by-component matrix of projected coordinates.\n'
+                                   ':returns: NumPy array in the original feature space, undoing '
+                                   'whitening when configured.',
+     'MetalKMeans.fit': 'Fit cluster centers with chunked Metal assignment and updates.\n'
+                        '\n'
+                        ':param data: nonempty finite sample-by-feature matrix.\n'
+                        ':param y: ignored compatibility argument.\n'
+                        ':returns: this fitted clusterer.',
+     'MetalKMeans.predict': 'Assign samples to the nearest fitted cluster centers on Metal.\n'
+                            '\n'
+                            ':param data: sample-by-feature matrix with the fitted feature count.\n'
+                            ':returns: NumPy array of cluster indices.',
+     'MetalKMeans.fit_predict': 'Fit cluster centers and return the training sample assignments.\n'
+                                '\n'
+                                ':param data: nonempty finite sample-by-feature matrix.\n'
+                                ':param y: ignored compatibility argument.\n'
+                                ':returns: NumPy array of training sample cluster indices.',
+     'MetalKMeans.fit_transform': 'Fit cluster centers and compute distances to every center on '
+                                  'Metal.\n'
+                                  '\n'
+                                  ':param data: nonempty finite sample-by-feature matrix.\n'
+                                  ':param y: ignored compatibility argument.\n'
+                                  ':returns: sample-by-cluster NumPy array of Euclidean distances.'}
+    method_sources = json.loads((root / "tests/data/release_contracts"
+        / "718_metal_reducer_method_api_arrivals_2026-10-24.json").read_text(encoding="utf-8"))
+    assert method_sources == {"spacr.mps_reduce." + name: doc
+                              for name, doc in expected_docs.items()}
+    arrivals = set()
+    for class_name, methods in expected_methods.items():
+        owner = f"spacr.mps_reduce.{class_name}"
+        assert by_symbol[owner].docstring == current_sources[owner]
+        declaration = next(node for node in tree.body
+                           if isinstance(node, ast.ClassDef) and node.name == class_name)
+        assert _clean_doc(declaration) == sources[owner]
+        public = {node.name: node for node in declaration.body
+                  if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                  and not node.name.startswith("_")}
+        assert public.keys() == methods.keys()
+        for name, has_y in methods.items():
+            symbol = owner + "." + name
+            arrivals.add(symbol)
+            item, node = by_symbol[symbol], public[name]
+            parameters = {"data", "y"} if has_y else {"data"}
+            assert item.parameters == item.accepted_documented_parameters == parameters
+            assert item.required_parameters == {"data"}
+            assert item.category == "method" and item.exposure == "autoapi"
+            assert item.variant_count == 1 and item.docless_variant_count == 0
+            assert item.constructor_prose_variant_count == 0
+            assert not item.accepts_arbitrary_keywords
+            assert item.docstring == _clean_doc(node) == expected_docs[class_name + "." + name]
+            assert _documented_parameter_names(item.docstring) == parameters
+            assert not node.decorator_list and not node.args.posonlyargs
+            assert not node.args.vararg and not node.args.kwarg and not node.args.kwonlyargs
+            assert [argument.arg for argument in node.args.args] == (
+                ["self", "data", "y"] if has_y else ["self", "data"])
+            assert all(argument.annotation is None for argument in node.args.args)
+            assert len(node.args.defaults) == int(has_y)
+            if has_y:
+                assert ast.literal_eval(node.args.defaults[0]) is None
+    assert len(arrivals) == 8 and not arrivals & sources.keys()
+    iterator_symbol = "spacr.torch_loader.ArrayDataLoader.__iter__"
+    iterator_sources = json.loads((root / "tests/data/release_contracts"
+        / "718_metal_loader_iterator_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(iterator_sources) == {iterator_symbol}
+    assert iterator_symbol not in by_symbol
+    loader_tree = ast.parse((root / "spacr/torch_loader.py").read_text(encoding="utf-8"))
+    loader = next(node for node in loader_tree.body
+                  if isinstance(node, ast.ClassDef) and node.name == "ArrayDataLoader")
+    declaration = next(node for node in loader.body
+                       if isinstance(node, ast.FunctionDef) and node.name == "__iter__")
+    assert _clean_doc(declaration) == iterator_sources[iterator_symbol]
+    assert [argument.arg for argument in declaration.args.args] == ["self"]
+    assert not declaration.args.posonlyargs and not declaration.args.kwonlyargs
+    assert not declaration.args.vararg and not declaration.args.kwarg and not declaration.args.defaults
+    assert not declaration.decorator_list and declaration.returns is None
+    assert not iterator_sources.keys() & (sources.keys() | arrivals)
+    symbol = "spacr.pipeline_v2.stream_originals_to_stack"
+    item = by_symbol[symbol]
+    parameters = {"src", "mapper", "channels", "channel_names", "dst",
+                  "metadata_root", "calibrated"}
+    additions = {"metadata_root", "calibrated"}
+    assert item.parameters == item.accepted_documented_parameters == parameters
+    assert item.required_parameters == {"src", "mapper"}
+    assert _documented_parameter_names(item.docstring) == parameters
+    assert item.category == "function" and item.exposure == "autoapi"
+    assert item.variant_count == 1
+    assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+    assert not item.accepts_arbitrary_keywords
+    tree = ast.parse((root / "spacr/pipeline_v2.py").read_text(encoding="utf-8"))
+    declaration = next(node for node in tree.body
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "stream_originals_to_stack")
+    assert _clean_doc(declaration) == item.docstring
+    assert not declaration.args.posonlyargs and not declaration.args.vararg and not declaration.args.kwarg
+    assert [argument.arg for argument in declaration.args.args] == [
+        "src", "mapper", "channels", "channel_names", "dst"]
+    keywords = {argument.arg: argument for argument in declaration.args.kwonlyargs}
+    assert keywords.keys() == additions
+    assert ast.unparse(keywords["metadata_root"].annotation) == "Optional[Path]"
+    assert ast.unparse(keywords["calibrated"].annotation) == "bool"
+    defaults = _declared_defaults(declaration)
+    assert ast.literal_eval(defaults["channels"]) == (0, 1, 2, 3)
+    assert ast.literal_eval(defaults["channel_names"]) is None
+    assert ast.literal_eval(defaults["dst"]) is None
+    assert ast.literal_eval(defaults["metadata_root"]) is None
+    assert ast.literal_eval(defaults["calibrated"]) is False
+    fields = {match.group(1): " ".join(match.group(2).split())
+              for match in PARAM_FIELD.finditer(item.docstring)}
+    assert fields["metadata_root"] == "mapping CSV destination, defaulting to the source folder."
+    assert fields["calibrated"] == (
+        "preserve numeric planes and refuse missing, duplicate, "
+        "non-2D or oversized channels for the separate calibrated route.")
+    assert not additions & item.required_parameters
+    callables = [replace(row, docstring=sources[row.symbol], constructor_prose_variant_count=0)
+                 if row.symbol in constructor_symbols else row for row in callables]
+    return [replace(row, parameters=row.parameters - additions,
+                    accepted_documented_parameters=(row.accepted_documented_parameters - additions))
+            if row.symbol == symbol else row for row in callables if row.symbol not in arrivals]
+
+
 def _validated_prior_plaque_callables(callables):
     """Validate the optional diagnostics return before reproducing old pins."""
     symbol = "spacr.plaque.segment_plaque_image"
@@ -2456,6 +2628,43 @@ def _validated_prior_weighted_preview_callables(callables):
             if item.symbol in contracts else item for item in callables]
 
 
+def _validated_signed_cell_measurement_arrival(callables):
+    """Bind the one signed-cell API's complete source boundary before historical replay."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    arrivals = json.loads((root / "tests/data/release_contracts"
+        / "538_signed_cell_measurement_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    symbol = "spacr.measure.measure_calibrated_cells"
+    assert arrivals.keys() == {symbol}
+    item = next(row for row in callables if row.symbol == symbol)
+    parameters = {"src", "dst", "channels", "cancelled"}
+    assert item.parameters == item.accepted_documented_parameters == parameters
+    assert item.required_parameters == {"src", "dst"}
+    assert item.category == "function" and item.exposure == "autoapi"
+    assert item.variant_count == 1
+    assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+    assert not item.accepts_arbitrary_keywords
+    assert item.docstring == arrivals[symbol]
+    assert hashlib.sha256(item.docstring.encode()).hexdigest() == "33ccf9911ea4d8d4e03931535c71f9392870258bc008a32a676602ece361f2f3"
+    assert _documented_parameter_names(item.docstring) == parameters
+    tree = ast.parse((root / "spacr/measure.py").read_text(encoding="utf-8"))
+    declaration = next(node for node in tree.body
+                       if isinstance(node, ast.FunctionDef) and node.name == "measure_calibrated_cells")
+    assert _clean_doc(declaration) == item.docstring
+    assert not declaration.decorator_list and declaration.returns is None
+    assert not declaration.args.posonlyargs and not declaration.args.defaults
+    assert not declaration.args.vararg and not declaration.args.kwarg
+    assert [argument.arg for argument in declaration.args.args] == ["src"]
+    assert [argument.arg for argument in declaration.args.kwonlyargs] == ["dst", "channels", "cancelled"]
+    assert all(argument.annotation is None for argument in (
+        declaration.args.args + declaration.args.kwonlyargs))
+    assert declaration.args.kw_defaults[0] is None
+    assert all(isinstance(value, ast.Constant) and value.value is None
+               for value in declaration.args.kw_defaults[1:])
+    return callables
+
+
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """Freeze the whole boundary and every source-owned parameter name.
 
@@ -2475,6 +2684,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_prior_example_background_callables(callables)
     callables = _validated_prior_152_callables(callables)
     callables = _validated_prior_weighted_preview_callables(callables)
+    callables = _validated_calibrated_batch_inventory(callables)
+    callables = _validated_signed_cell_measurement_arrival(callables)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -2900,7 +3111,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "561_classifier_api_arrivals_2026-10-15.json",
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
-                     "thumbnail_popup_close_api_arrival_2026-10-21.json"):
+                     "thumbnail_popup_close_api_arrival_2026-10-21.json",
+                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
+                     "707_home_masthead_fit_api_arrival_2026-10-24.json",
+                     "718_metal_reducer_method_api_arrivals_2026-10-24.json",
+                     "718_metal_loader_iterator_api_arrival_2026-10-24.json",
+                     "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -4710,6 +4926,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(mitonet_additions) == 4
+    from tests.test_documentation_i18n import _current_718_mitonet_api
+    mitonet_additions = _current_718_mitonet_api(mitonet_additions, docs)
     assert {key: docs[key] for key in mitonet_additions} == mitonet_additions
     assert not mitonet_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **mitonet_additions}
@@ -4850,11 +5068,19 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
         ("thumbnail_popup_close_api_arrival_2026-10-21.json", 1),
         ("current_embedding_mil_api_arrivals_2026-10-23.json", 2),
+        ("538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json", 8),
+        ("707_home_masthead_fit_api_arrival_2026-10-24.json", 1),
+        ("718_metal_reducer_method_api_arrivals_2026-10-24.json", 8),
+        ("718_metal_loader_iterator_api_arrival_2026-10-24.json", 1),
+        ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
+        if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
+            from tests.test_documentation_i18n import _current_718_metal_class_api
+            additions = _current_718_metal_class_api(additions, docs)
         assert len(additions) == expected_count
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()
@@ -4957,12 +5183,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
     )
     zoo_additions = {**zoo_additions, **approval_preferences}
-    assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
+    from tests.test_documentation_i18n import _retired_707_home_api
+    retired_home = _retired_707_home_api(docs)
+    assert len((docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) == 13138
+               - zoo_additions.keys()) | retired_home.keys()) == 13138
     # 2026-10-20: 13,139 -> 13,138, item 127: the spacr.regression_search
     # shim module left in 1.5.1.6.
     # 2026-10-19: 13,154 -> 13,153, FoldButton.paintEvent retired (native
@@ -5365,11 +5593,23 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "561_classifier_api_arrivals_2026-10-15.json",
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
-                     "thumbnail_popup_close_api_arrival_2026-10-21.json"):
+                     "thumbnail_popup_close_api_arrival_2026-10-21.json",
+                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
+                     "707_home_masthead_fit_api_arrival_2026-10-24.json",
+                     "718_metal_reducer_method_api_arrivals_2026-10-24.json",
+                     "718_metal_loader_iterator_api_arrival_2026-10-24.json",
+                     "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             entries = _posix_update_prepared_key_move(entries)
+        if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
+            assert entries.keys() & rendered_documented_callables.keys() == {
+                "spacr.metal_cellpose.training_context",
+                "spacr.mps_reduce.MetalKMeans",
+                "spacr.mps_reduce.MetalPCA",
+                "spacr.torch_loader.ArrayDataLoader",
+            }
         contract_callables |= set(entries)
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
@@ -5439,7 +5679,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "561_classifier_api_arrivals_2026-10-15.json",
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
-                     "thumbnail_popup_close_api_arrival_2026-10-21.json"):
+                     "thumbnail_popup_close_api_arrival_2026-10-21.json",
+                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
+                     "707_home_masthead_fit_api_arrival_2026-10-24.json",
+                     "718_metal_reducer_method_api_arrivals_2026-10-24.json",
+                     "718_metal_loader_iterator_api_arrival_2026-10-24.json",
+                     "538_signed_cell_measurement_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

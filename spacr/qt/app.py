@@ -45,7 +45,7 @@ from PySide6.QtWidgets import (
 )
 
 
-from .hidpi import scaled_for
+from .hidpi import device_ratio, follow_device_ratio, scaled_for
 from .i18n import tr
 from . import iconset
 from .app_catalog import (LazyScreenFactory, declared_for as _declared_for,
@@ -1746,6 +1746,23 @@ def folded_children() -> Dict[str, Tuple[str, ...]]:
 
 _TOP_LEVEL_CACHE: dict = {}
 
+#: Bumped when the kept node types or the cached text format change.
+_TOP_LEVEL_DISK_VERSION = 1
+
+
+def _top_level_disk_path(module_name: str, raw: bytes):
+    """Where the kept declarations of one exact source text are stored.
+
+    Keyed by the source bytes and the running Python, so an edited module or
+    an interpreter with a different grammar never reads another's entry.
+    """
+    import hashlib
+
+    key = hashlib.sha1(raw)
+    key.update(f"|{sys.version_info[:2]}|v{_TOP_LEVEL_DISK_VERSION}".encode())
+    return (_spacr_home() / "cache" / "top-level"
+            / f"{module_name.rpartition('.')[2]}-{key.hexdigest()[:20]}.py")
+
 
 def _top_level_nodes(module_name: str):
     """A module's top-level assignments and relative imports, from its source.
@@ -1756,6 +1773,12 @@ def _top_level_nodes(module_name: str):
     ``AnnAssign`` and ``ImportFrom`` nodes are kept, so the function bodies
     of a large screen module are not held in memory.
 
+    The kept nodes are also written back as source text under the spaCR
+    cache. Parsing the whole of the fold hosts took about 0.5 s of every
+    launch on an Intel Mac (``make_masks`` alone is over 1 MB); parsing the
+    few kilobytes of kept declarations takes about 10 ms. The entry is
+    plain Python text read with ``ast.parse``, never executed.
+
     :param module_name: dotted name of the module to read.
     :returns: a tuple of nodes, or ``None`` when the source cannot be read.
     """
@@ -1765,17 +1788,54 @@ def _top_level_nodes(module_name: str):
     import importlib.util
     import pathlib
 
+    kept = (ast.Assign, ast.AnnAssign, ast.ImportFrom)
     try:
         spec = importlib.util.find_spec(module_name)
-        tree = ast.parse(
-            pathlib.Path(spec.origin).read_text(encoding="utf-8"))
+        raw = pathlib.Path(spec.origin).read_bytes()
     except Exception:                                   # noqa: BLE001
         _TOP_LEVEL_CACHE[module_name] = None
         return None
-    nodes = tuple(node for node in tree.body if isinstance(
-        node, (ast.Assign, ast.AnnAssign, ast.ImportFrom)))
+    stored = None
+    try:
+        stored = _top_level_disk_path(module_name, raw)
+        nodes = tuple(node for node in ast.parse(
+            stored.read_text(encoding="utf-8")).body
+            if isinstance(node, kept))
+    except Exception:                                   # noqa: BLE001
+        nodes = None
+    if nodes is None:
+        try:
+            tree = ast.parse(raw.decode("utf-8"))
+        except Exception:                               # noqa: BLE001
+            _TOP_LEVEL_CACHE[module_name] = None
+            return None
+        nodes = tuple(node for node in tree.body if isinstance(node, kept))
+        if stored is not None:
+            _store_top_level_nodes(stored, nodes)
     _TOP_LEVEL_CACHE[module_name] = nodes
     return nodes
+
+
+def _store_top_level_nodes(path, nodes) -> None:
+    """Write kept declarations as source text, atomically; failure is silent."""
+    import ast
+
+    tmp = None
+    try:
+        text = ast.unparse(ast.Module(body=list(nodes), type_ignores=[]))
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.part")
+        tmp.write_text(text, encoding="utf-8")
+        os.replace(tmp, path)
+        tmp = None
+    except Exception:                                   # noqa: BLE001
+        pass
+    finally:
+        if tmp is not None:
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
 
 
 def _declared_constant(module_name: str, name: str):
@@ -2047,6 +2107,15 @@ def make_home_page(parent=None):
         stages=home_stages())
 
 
+def _apply_home_tab_scroll_policy(root, home):
+    """Apply the normal launch tab policy below this owned application root."""
+    from .theme import take_the_scroll_arrows_off
+
+    count = take_the_scroll_arrows_off(root)
+    home._tabs.setUsesScrollButtons(True)
+    return count
+
+
 DEMO_LABELS = {
     "mask":         "Mask fixture…",
     "measure":      "Measure fixture…",
@@ -2195,12 +2264,34 @@ class _ChromeButton(QToolButton):
         :param colour: what the mark turns on hover and on press.
         """
         super().__init__(parent)
+        from PySide6.QtCore import QTimer
+        from .gui_scale import add_listener
+
         self._paint_icon = painter
         self._hover_colour = colour
         self._lit = False
+        self._icon_timer = QTimer(self)
+        self._icon_timer.setSingleShot(True)
+        self._icon_timer.timeout.connect(self._refresh_icon)
         self.setAutoRaise(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self._show(False)
+        add_listener(self._queue_icon_paint)
+        follow_device_ratio(self, self._queue_icon_paint)
+
+    def _queue_icon_paint(self, _scale=None):
+        """Coalesce GUI-slot and screen-density changes on this owned button."""
+        from shiboken6 import isValid
+
+        if isValid(self._icon_timer):
+            self._icon_timer.start(0)
+
+    def _refresh_icon(self):
+        """Repaint only when the actual native slot or screen ratio changed."""
+        size = self.property('iconSize')
+        signature = (size.width(), size.height(), device_ratio(self), self._lit)
+        if signature != self._paint_signature:
+            self._show(self._lit)
 
     def _show(self, lit: bool, scale=None) -> None:
         """Repaint the mark, lit or resting, at the interface scale.
@@ -2217,16 +2308,21 @@ class _ChromeButton(QToolButton):
         :param lit: whether the pointer is on the button or it is held down.
         :param scale: the interface scale; the stored preference when None.
         """
-        from .preferences import (_scaled_side, _set_scaled_icon_size,
-                                  get_font_scale)
+        from .preferences import _set_scaled_icon_size, get_font_scale
 
         self._lit = bool(lit)
         if scale is None:
             scale = get_font_scale()
-        side = _scaled_side(CHROME_ICON_PX, scale)
-        self.setIcon(self._paint_icon(size=side, colour=self._hover_colour)
-                     if lit else self._paint_icon(size=side))
         _set_scaled_icon_size(self, CHROME_ICON_PX, scale=scale)
+        size = self.property('iconSize')
+        ratio = device_ratio(self)
+        physical = max(1, round(max(size.width(), size.height()) * ratio))
+        icon = (self._paint_icon(size=physical, colour=self._hover_colour)
+                if lit else self._paint_icon(size=physical))
+        pixmap = icon.pixmap(QSize(physical, physical))
+        pixmap.setDevicePixelRatio(ratio)
+        self.setIcon(QIcon(pixmap))
+        self._paint_signature = (size.width(), size.height(), ratio, self._lit)
 
     def _apply_icon_scale(self, scale=None) -> None:
         """Repaint the mark for a new interface scale, keeping its state.
@@ -2993,6 +3089,8 @@ class _ScreenPrewarm(QObject):
             return "modal"
         if getattr(self._window, "_opening_a_screen", False):
             return "opening"
+        if self._window._stack.currentWidget() is not self._window._startup:
+            return "not Home"
         from .widgets.loading_screen import blow_away_running
 
         if blow_away_running():
@@ -3246,7 +3344,6 @@ class MainWindow(QMainWindow):
         status.addPermanentWidget(self._status_version_label)
         status.showMessage(tr("Ready"))
         status.setSizeGripEnabled(False)
-        status.setFixedHeight(status.sizeHint().height())
         self.setStatusBar(status)
 
         try:
@@ -3302,8 +3399,7 @@ class MainWindow(QMainWindow):
         self._start_settings_autosave()
 
         try:
-            from .theme import take_the_scroll_arrows_off
-            take_the_scroll_arrows_off(self)
+            _apply_home_tab_scroll_policy(self, self._startup)
         except Exception:                                # noqa: BLE001
             LOG.debug("could not take the tab scroll arrows off",
                       exc_info=True)

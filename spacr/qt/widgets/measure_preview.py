@@ -226,6 +226,10 @@ def _write_preview_crop_export(destination, crops, metadata, primaries, cancelle
             raise ValueError(tr("Run a crop preview before exporting."))
         if cancelled.is_set():
             return {"cancelled": True}
+        from spacr.measure import _validate_measurement_coordinate_source
+
+        for source_path in {entry["source_path"] for entry in crops}:
+            _validate_measurement_coordinate_source(Path(source_path).parent)
         stage = tempfile.TemporaryDirectory(prefix=".spacr-preview-",
                                             dir=destination.parent)
         records = []
@@ -416,6 +420,9 @@ def load_merged_array(path: str, enumerate_sets: bool = True
         except Exception:
             LOG.exception("Could not enumerate merged arrays beside %s", path)
     try:
+        from spacr.measure import _validate_measurement_coordinate_source
+
+        _validate_measurement_coordinate_source(Path(path).parent)
         data = np.load(path)
     except Exception as exc:
         out["error"] = f"Failed to load: {exc}"
@@ -648,7 +655,11 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
 def _unmixed_crop_source(data, path, settings, cancelled, plans):
     """Make a display copy using Measure's ordered intensity-channel plan."""
     from spacr.psf_pipeline import (_prepare_unmixing, _apply_recorded_unmixing,
-                                    _UNMIX_RECORD_KEY)
+                                    _UNMIX_RECORD_KEY, _validate_unmix_plate_scope,
+                                    _validate_unmix_matrix_scope)
+
+    _validate_unmix_plate_scope(settings)
+    _validate_unmix_matrix_scope(settings)
     from spacr.cancellation import PipelineCancelled
 
     def checkpoint():
@@ -702,6 +713,14 @@ def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
     Crops own their RGB pixels, so the source mapping is released straight
     away.
     """
+    from spacr.measure import _validate_measurement_coordinate_source
+    from spacr.errors import ConfigurationError
+
+    try:
+        for path in paths:
+            _validate_measurement_coordinate_source(Path(path).parent)
+    except ConfigurationError as exc:
+        return {"crops": [], "error": str(exc)}
     crops, errors = [], []
     plans = {}
     limit = max(1, int(crop_kwargs.get("limit", 60)))
@@ -2226,9 +2245,19 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """
         self._cancel_crop_export()
         settings = dict(settings or {})
-        for key in ('unmix', 'unmix_controls', 'unmix_background_percentile'):
+        for key in ('unmix', 'unmix_controls', 'unmix_background_percentile', 'unmix_per_plate', 'unmix_matrix_file',
+                    'unmix_partition_plates', 'unmix_plate_calibrations'):
             if key in settings:
                 self._unmix_settings[key] = deepcopy(settings[key])
+        from ...psf_pipeline import (_validate_unmix_plate_scope,
+                                   _validate_unmix_matrix_scope)
+
+        try:
+            _validate_unmix_plate_scope(self._unmix_settings)
+            _validate_unmix_matrix_scope(self._unmix_settings)
+        except ValueError:
+            self.refresh()
+            return
         self._unmix_btn.setEnabled(bool(self._unmix_settings.get('unmix')))
         if not self._unmix_btn.isEnabled():
             self._unmix_btn.setChecked(False)
@@ -2408,6 +2437,14 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _preview_blocked_reason(self) -> str:
         """Why this panel cannot crop right now, or ``""``."""
+        from ...psf_pipeline import (_validate_unmix_plate_scope,
+                                   _validate_unmix_matrix_scope)
+
+        try:
+            _validate_unmix_plate_scope(self._unmix_settings)
+            _validate_unmix_matrix_scope(self._unmix_settings)
+        except ValueError as error:
+            return str(error)
         if self._data is None:
             return self.PREVIEW_SOURCE_HINT
         return ""
@@ -2439,6 +2476,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if (self._export_running or self._crop_running
                 or self._export_source_loading or not self._crops):
             return
+        reason = self._preview_blocked_reason()
+        if reason:
+            self.set_preview_status(reason)
+            return
         token = self._crop_token
         parent = QFileDialog.getExistingDirectory(
             self, tr("Choose an export parent folder"),
@@ -2463,6 +2504,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """Submit a bounded snapshot of crop references and copied metadata."""
         if (self._export_running or self._crop_running
                 or self._export_source_loading or not self._crops):
+            return
+        reason = self._preview_blocked_reason()
+        if reason:
+            self.set_preview_status(reason)
             return
         self._export_token += 1
         token, crop_token = self._export_token, self._crop_token
@@ -2553,6 +2598,17 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._render_plan.clear()
         self._selected.clear()
         self.set_preview_busy(False)
+        from ...psf_pipeline import (_validate_unmix_plate_scope,
+                                   _validate_unmix_matrix_scope)
+
+        try:
+            _validate_unmix_plate_scope(self._unmix_settings)
+            _validate_unmix_matrix_scope(self._unmix_settings)
+        except ValueError as error:
+            self._render_grid()
+            self.set_preview_status(str(error))
+            self.preview_ready.emit([])
+            return
         if self._data is not None and not self._checked_sources:
             self._render_grid()
             self.set_preview_busy(False)
@@ -2617,6 +2673,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _start_crop_request(self, request) -> None:
         """Run one crop pass at a time and retain only the newest request."""
+        reason = self._preview_blocked_reason()
+        if reason:
+            self._pending_crop_request = None
+            self.set_preview_busy(False)
+            self.set_preview_status(reason)
+            return
         token, paths, path, data, kwargs, params, unmix_settings = request[:7]
         spec = request[7] if len(request) > 7 else None
         cancelled = self._crop_cancel = threading.Event()

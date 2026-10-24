@@ -222,3 +222,59 @@ def test_unmixed_display_control_uses_source_bound_locale(qtbot, monkeypatch, la
     assert widget._unmix_btn.text() == records[0]['translation']
     assert widget._unmix_btn.toolTip() == records[1]['translation']
     assert not widget._unmix_btn.isChecked()
+
+
+def test_persisted_calibration_refuses_raw_load_and_cached_checked_crops(plate):
+    from tests.test_measure_src_resolution import _segmentation_coordinate_record
+
+    paths, _ = plate
+    path = paths['C01']
+    before = {p: p.read_bytes() for p in paths.values()}
+    loaded = mp.load_merged_array(str(path))
+    assert not loaded['error']
+    np.testing.assert_array_equal(loaded['data'], np.load(path))
+    kwargs = dict(mask_dim=2, channels=[1, 0, 1], normalize=False,
+                  mask_background=False, limit=10)
+    params = dict(object='cell', cell_dim=2, dims={}, minima={}, uninfected=True)
+    initial = mp._compute_checked_crops([path], path, loaded['data'], kwargs,
+                                       params, threading.Event(), None)
+    assert len(initial['crops']) == 2 and not initial['error']
+    _segmentation_coordinate_record(path.parent.parent, calibrated=True, complete=False)
+    refused = mp.load_merged_array(str(path))
+    assert refused['data'] is None and 'not supported by Measure' in refused['error']
+    recropped = mp._compute_checked_crops([path], path, loaded['data'], kwargs,
+                                         params, threading.Event(), None)
+    assert recropped['crops'] == [] and 'not supported by Measure' in recropped['error']
+    assert {p: p.read_bytes() for p in paths.values()} == before
+    np.testing.assert_array_equal(loaded['data'], np.load(path))
+
+
+@pytest.mark.parametrize('checked', [False, True])
+def test_real_measure_preview_refuses_plate_controls_before_checkbox_bypass(
+        qtbot, plate, monkeypatch, tmp_path, checked):
+    """Reject a saved plate-scope request before raw or processed crop workers and export."""
+    widget = panel(qtbot, plate, monkeypatch)
+    widget._unmix_btn.setChecked(checked)
+    assert widget._crops
+    before = {path: path.read_bytes() for path in plate[0].values()}
+    raw = widget._data.copy()
+
+    def forbidden(*args, **kwargs):
+        """An unsupported saved scope must not open a destination or dispatch crop work."""
+        pytest.fail('per-plate controls reached ordinary Measure preview work')
+
+    monkeypatch.setattr(widget._jobs, 'submit', forbidden)
+    monkeypatch.setattr(mp.QFileDialog, 'getExistingDirectory', forbidden)
+    try:
+        widget.apply_settings({'unmix_per_plate': True})
+        assert widget._unmix_settings['unmix_per_plate'] is True
+        widget.run_preview()
+        widget._export_displayed_crops()
+        destination = tmp_path / 'unsupported-crops'
+        widget._start_crop_export(destination)
+        assert 'Per-plate spectral controls require calibrated organized 2D cell segmentation through V2' in widget._status.text()
+        assert not widget._crops and not destination.exists()
+        np.testing.assert_array_equal(widget._data, raw)
+        assert all(path.read_bytes() == content for path, content in before.items())
+    finally:
+        widget.shutdown()

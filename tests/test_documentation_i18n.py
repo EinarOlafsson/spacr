@@ -91,6 +91,63 @@ if str(TOOLS) not in sys.path:
 
 
 
+def _retired_707_home_api(docs):
+    """Restore the exact removed Home helper only for historical inventory replay."""
+    retirement = json.loads((ROOT / "tests/data/release_contracts"
+        / "707_home_draw_mark_api_retirement_2026-10-24.json").read_text(encoding="utf-8"))
+    assert retirement["source_commit"] == "aa3e482ea210afa58855bde1b223657d18d0d0c4"
+    assert retirement["source_blob"] == "ae0714b828ada80f471c7ed94f12f1febe729290"
+    assert retirement["source_path"] == "spacr/qt/widgets/home.py"
+    retired = retirement["retired"]
+    assert set(retired) == {"spacr.qt.widgets.home.HomePage._build_hero._draw_mark"}
+    assert hashlib.sha256(json.dumps(
+        retired, sort_keys=True, ensure_ascii=False,
+    ).encode()).hexdigest() == "b92674d13d7b9eedf9d25de0e397b086b662c14591f3200d1104c1cfa65b1228"
+    assert not retired.keys() & docs.keys()
+    return retired
+
+
+def _current_718_metal_class_api(entries, docs):
+    """Bind the three constructor summaries while retaining the original eight-entry fixture."""
+    assert len(entries) == 8
+    active = dict(entries)
+    revisions = {
+        'spacr.mps_reduce.MetalKMeans': (
+            '1c5580796a2089553dec2885e2ac10e9afa2374e51397e557a6ab7bc931f6628',
+            '1cddb9110164f79c34244af945a5e3876e5bb3c0b74aeb0acbaa9ffcc334de03',
+            'Lloyd KMeans with chunked Metal assignment and k-means++ initialization.\nStore Lloyd KMeans options, accepting random or k-means++ initialization. The copy_x and verbose arguments are accepted for compatibility and are not used.'),
+        'spacr.mps_reduce.MetalPCA': (
+            '59a35cd4aec1560de2309ff9d34a8c70bf8af4f0f2f6c2854cc63e014a3368ab',
+            'b23cee6c1c646fbebe4fdacc1ed1a35c5f5e11142c752dc1401df385913a76b0',
+            'Stable CPU PCA fitting with Metal projection where precision permits.\nStore PCA options, refusing solvers outside auto, full and covariance_eigh. The copy argument is accepted for compatibility and is not used.'),
+        'spacr.torch_loader.ArrayDataLoader': (
+            '80b3ff300567377e96803da2629490786e0fcbdef214770c43ab3369d6a6941d',
+            '2a4bff5d38d64428dc36c1c6c3a2c0022e722425c3731b1b110fe518a74434a9',
+            'Default CPU batches cross process boundaries as NumPy, then restore.\n\nExplicit custom collators retain their existing behavior. Single-process\nloaders use ordinary PyTorch collation and iteration unchanged.\nUse NumPy transport only for worker loaders without a custom collator.'),
+    }
+    for key, (before, after, body) in revisions.items():
+        assert hashlib.sha256(active[key].encode()).hexdigest() == before
+        assert hashlib.sha256(body.encode()).hexdigest() == after
+        assert docs[key] == body
+        active[key] = body
+    return active
+
+
+def _current_718_mitonet_api(entries, docs):
+    """Bind only the selected-accelerator device paragraph in the original N691 contract."""
+    assert len(entries) == 4
+    active = dict(entries)
+    key = "spacr.model_zoo.segment_mitonet"
+    assert hashlib.sha256(active[key].encode()).hexdigest() == '04182dc98518d6d754b1fb63d27e8c43766e7f64342426d0707b872f2588e718'
+    before = ':param device: a torch device; None uses CUDA when torch sees it and\n    the CPU otherwise.'
+    after = ":param device: a torch device; None uses spaCR's selected accelerator."
+    assert active[key].count(before) == 1
+    active[key] = active[key].replace(before, after)
+    assert hashlib.sha256(active[key].encode()).hexdigest() == 'b92360dc02cfe8863fbbeb2bc1a38c9e5c85cd648b954dae2270b1d1e17adfcd'
+    assert docs[key] == active[key]
+    return active
+
+
 def _current_700_client_api(entries, docs):
     """Apply only the consented dispatch replacement to the original client contract."""
     assert len(entries) == 55
@@ -3216,6 +3273,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     mitonet_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(mitonet_arrivals) == 4
+    mitonet_arrivals = _current_718_mitonet_api(mitonet_arrivals, docs)
     assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
     assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
@@ -3393,11 +3451,18 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
         ("thumbnail_popup_close_api_arrival_2026-10-21.json", 1),
         ("current_embedding_mil_api_arrivals_2026-10-23.json", 2),
+        ("538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json", 8),
+        ("707_home_masthead_fit_api_arrival_2026-10-24.json", 1),
+        ("718_metal_reducer_method_api_arrivals_2026-10-24.json", 8),
+        ("718_metal_loader_iterator_api_arrival_2026-10-24.json", 1),
+        ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
         if filename == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             arrivals = _posix_update_prepared_key_move(arrivals, docs)
+        if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
+            arrivals = _current_718_metal_class_api(arrivals, docs)
         assert len(arrivals) == count
         assert {key: docs[key] for key in arrivals} == arrivals
         assert not arrivals.keys() & (
@@ -3460,7 +3525,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         (api_catalogs / "en.json").read_text(encoding="utf-8")
     )["symbols"].keys())
     assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
-                - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+                - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()
+                | _retired_707_home_api(docs).keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Symbols in the source "
         f"but not in the English API catalog: {uncataloged}. A new documented "
         "callable needs, in the same commit, a dated arrival contract in "

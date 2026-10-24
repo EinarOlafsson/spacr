@@ -4004,7 +4004,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "检查文件夹、模型名称和输出位置，然后按Run。Figures面板把训练图像显示在其掩膜上方，控制台显示进度。在这块GPU上，用六张图像训练十轮不到一分钟就完成了。",
+          "narration": "检查文件夹、模型名称和输出位置，然后按Run。Figures面板把训练图像显示在其掩膜上方，控制台显示进度。",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -4012,7 +4012,7 @@
             3410,
             1260
           ],
-          "speech_text": "检查文件夹、模型名称和输出位置，然后按Run。Figures面板把训练图像显示在其掩膜上方，控制台显示进度。在这块GPU上，用六张图像训练十轮不到一分钟就完成了。"
+          "speech_text": "检查文件夹、模型名称和输出位置，然后按Run。Figures面板把训练图像显示在其掩膜上方，控制台显示进度。"
         },
         {
           "visual": "train_checkpoint",
@@ -4139,18 +4139,18 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "从Home打开Make Masks，再打开其中的Cellpose Workbench。选择Apply，用现有模型分割图像。如果想从审核过的图像和掩膜对中学习新的权重，请使用Train。",
-          "hold_after": 0.7,
-          "speech_text": "从主页打开Make Masks，再打开其中的塞尔波斯 Workbench。选择Apply，用现有模型分割图像。如果想从审核过的图像和掩膜对中学习新的权重，请使用Train。",
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Make Masks，再打开其中的塞尔波斯 Workbench。选择Apply，用现有模型分割图像。如果想从审核过的图像和掩膜对中学习新的权重，请使用Train。"
         },
         {
           "visual": "04_setting_src",
-          "narration": "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果把记录的设置文件作为参考，请把其中的源路径替换为您解压的文件夹。",
+          "narration": "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果使用随附的设置参考，请把其中的源路径替换为您解压的文件夹。",
           "hold_after": 0.7,
-          "speech_text": "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果把记录的设置文件作为参考，请把其中的源路径替换为您解压的文件夹。"
+          "speech_text": "解压链接中的示例，把Source设为其中的images文件夹。其中有三张单通道细胞图像，每张都是五百一十二像素见方。如果使用随附的设置参考，请把其中的源路径替换为您解压的文件夹。"
         },
         {
           "visual": "05_setting_model_name",
@@ -4233,12 +4233,12 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
-          "speech_text": "把Minimum cell area改回零，恢复未过滤的预览。把输入图像、模型标识、设置和保存的掩膜放在一起。需要修正时使用Make Masks，或使用Measure从审核过的掩膜中提取对象特征。",
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "把Minimum cell area改回零，恢复未过滤的预览。把输入图像、模型标识、设置和保存的掩膜放在一起。需要修正时使用Make Masks，或使用Measure从审核过的掩膜中提取对象特征。"
         }
       ],
       "narration_voices": {
@@ -9943,7 +9943,7 @@
         "筛选候选，并阅读其效应和向导序列一致性。",
         "把所选行导出为CSV、Markdown或HTML。"
       ],
-      "prerequisite": "解压Hit_List_real_results_companion.zip并激活spaCR环境。当前Regression中的Hits快捷方式不会显示面板；请改为运行python hit_list_companion.py，并用Browse选择解压出的结果文件夹。配套脚本不连接Investigate。支持孔数请使用results_gene.csv中的wells_with_gene：导出的n_obs=0并不是实际支持数。该示例中没有满足q <= 0.05的基因。",
+      "prerequisite": "解压Hit_List_real_results_companion.zip并激活spaCR环境。如果Regression中的Hits快捷方式未显示面板，请运行python hit_list_companion.py，并用Browse选择解压出的结果文件夹。配套脚本不连接Investigate。支持孔数请使用results_gene.csv中的wells_with_gene：导出的n_obs=0并不是实际支持数。该示例中没有满足q <= 0.05的基因。",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9956,9 +9956,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "解压链接中的示例并激活spaCR环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。",
+          "narration": "如需使用备用方式，请解压链接中的示例并激活spaCR环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。",
           "hold_after": 0.7,
-          "speech_text": "解压链接中的示例并激活斯佩克尔环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。"
+          "speech_text": "如需使用备用方式，请解压链接中的示例并激活斯佩克尔环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。"
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
@@ -14681,7 +14681,7 @@
         "选择测量数据库、细胞预测、向导比例和分数列。",
         "阅读证据、孔、向导和阈值选项卡，并找到保存的表格。"
       ],
-      "prerequisite": "解压Investigate_Hit_real_screen_example.zip。其中所有内容都来自同一次真实筛选：在Regression测试数据上的Regression运行（使用Regression教程中的设置）、对应的单细胞CV预测，以及包含这些细胞真实形状、大小和强度测量值的测量数据库。为了让下载更小，数据库包含52个孔：所有带有基因225160向导的已分析孔，以及每个孔对应的三个来自同一块板、不含该向导的孔。在这次快速Regression运行中，没有基因满足q ≤ 0.05。请把这次调查当作实例演示，而不是已确认的命中。",
+      "prerequisite": "解压Investigate_Hit_real_screen_example.zip。其中所有内容都来自同一次真实筛选：在Regression测试数据上的Regression运行（使用Regression教程中的设置）、对应的单细胞CV预测，以及包含这些细胞真实形状、大小和强度测量值的测量数据库。示例数据库包含52个孔：所有带有基因225160向导的已分析孔，以及每个目标孔对应的三个来自同一块板、不含该向导的孔。在这次快速Regression运行中，没有基因满足q ≤ 0.05。请把这次调查当作实例演示，而不是已确认的命中。",
       "scenes": [
         {
           "visual": "01_module",
@@ -14767,9 +14767,9 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。这些细胞不支持这个候选。",
+          "narration": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。对于这个候选，这项分析未提供存在差异的明确证据。",
           "hold_after": 0.7,
-          "speech_text": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。这些细胞不支持这个候选。"
+          "speech_text": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。对于这个候选，这项分析未提供存在差异的明确证据。"
         },
         {
           "visual": "14_wells",
@@ -15204,7 +15204,7 @@
         "选择目标位置、板名称以及复制或链接方式。",
         "保存可复用的方案，并为Mask导入图像。"
       ],
-      "prerequisite": "先下载Mask示例。本演示使用视野E01/F001和L01/F009的副本，每个视野有四个通道。准备好的副本省略了Z之前多余的A标记，同时保留孔、视野和通道的身份。请保留原始文件，并借助采集记录解读不熟悉的标记。",
+      "prerequisite": "先下载Mask示例。使用视野E01/F001和L01/F009的工作副本，每个视野有四个通道。仅在这些副本中删除Z之前多余的A标记，并保留每个孔、视野和通道标记。请保留原始文件，并借助采集记录解读不熟悉的标记。",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -15241,9 +15241,9 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "扫描准备好的示例副本。其中多余的采集标记已被删除，孔、视野和通道标记则保留下来。确认建议中列出八张图像、两个孔、两个视野编号和四个通道。",
+          "narration": "扫描这些工作副本。其中多余的采集标记已被删除，孔、视野和通道标记则保留下来。确认建议中列出八张图像、两个孔、两个视野编号和四个通道。",
           "hold_after": 0.7,
-          "speech_text": "扫描准备好的示例副本。其中多余的采集标记已被删除，孔、视野和通道标记则保留下来。确认建议中列出八张图像、两个孔、两个视野编号和四个通道。"
+          "speech_text": "扫描这些工作副本。其中多余的采集标记已被删除，孔、视野和通道标记则保留下来。确认建议中列出八张图像、两个孔、两个视野编号和四个通道。"
         },
         {
           "visual": "06_check_filename",
@@ -15909,14 +15909,14 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "分类器在学习之前需要示例。从 Home 打开 Annotate，它会显示 Measure 保存或流式提供的对象裁剪图像。浏览有代表性的细胞并为它们加标签。每个标签都会写入 png_list 表中的一个注释列，并与该对象的标识关联。每个问题使用单独的一列，并留出一些已标注的对象用于评估。接下来 Classify 训练时使用的就是这个注释列。",
+          "narration": "分类器在学习之前需要示例。从 Home 打开 Annotate，查看与已完成测量的项目关联的对象裁剪图像。浏览有代表性的细胞并为它们加标签。每个标签都会写入 png_list 表中的一个注释列，并与该对象的标识关联。每个问题使用单独的一列，并留出一些已标注的对象用于评估。接下来 Classify 训练时使用的就是这个注释列。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "分类器在学习之前需要示例。从 主页 打开 Annotate，它会显示 Measure 保存或流式提供的对象裁剪图像。浏览有代表性的细胞并为它们加标签。每个标签都会写入 png_list 表中的一个注释列，并与该对象的标识关联。每个问题使用单独的一列，并留出一些已标注的对象用于评估。接下来 Classify 训练时使用的就是这个注释列。"
+          "speech_text": "分类器在学习之前需要示例。从 主页 打开 Annotate，查看与已完成测量的项目关联的对象裁剪图像。浏览有代表性的细胞并为它们加标签。每个标签都会写入 png_list 表中的一个注释列，并与该对象的标识关联。每个问题使用单独的一列，并留出一些已标注的对象用于评估。接下来 Classify 训练时使用的就是这个注释列。"
         },
         {
           "visual": "module_classify_merged",

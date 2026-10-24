@@ -793,15 +793,15 @@ def test_native_protocol_capability_is_required_before_sending_optional_field(co
     assert all(call['method'] == 'GET' for call in relay.calls_to('/health'))
 
 
-def test_native_session_rejects_arbitrary_paths_keys_and_digest_values(configured):
+def test_native_session_rejects_arbitrary_paths_keys_and_digest_values(configured, tmp_path):
     source = {'known': True, 'id': '14cbd541-b9a1-41f4-8f50-4b53ba84755a',
               'started_at': '2026-10-23T18:00:00Z', 'spacr_version': '1.2.3',
               'python': '3.12.11', 'qt': '6.11.2', 'source_sha256': {'app': 'a' * 64}}
     assert cr._validated_summary({'native_session': source})['native_session'] == source
     for malformed in (dict(source, hostname='private-host'),
-                      dict(source, source_sha256={'/home/private/app.py': 'a' * 64}),
+                      dict(source, source_sha256={str(tmp_path / 'app.py'): 'a' * 64}),
                       dict(source, source_sha256={'app': 'sk-abcdefghijklmnopqrstuv'}),
-                      dict(source, python='/home/private/python'),
+                      dict(source, python=str(tmp_path / 'python')),
                       dict(source, started_at='2026-02-31T00:00:00Z')):
         assert cr._validated_summary({'native_session': malformed})['native_session'] == {'known': False}
 
@@ -945,3 +945,413 @@ def test_actual_native_rotation_retains_unknown_history_within_the_existing_cap(
     assert 'Crashed session unknown' in body['user_note']
     assert 'Python version v3.14.0' not in body['user_note']
     assert rotated[0].startswith(b'\n=== spaCR session history truncated ===\n')
+
+
+def test_empty_structured_error_still_has_an_honest_public_identity(configured):
+    relay, outcomes, ready = configured
+    record = logging.LogRecord('spacr.worker', logging.ERROR, __file__, 1, '', (), None)
+    cr._capture_error_record(record)
+    assert ready.wait(5)
+    body = relay.calls_to('/report')[0]['body']
+    assert body['exception_type'] == 'LoggedError'
+    assert body['module'] == 'spacrworker'
+    assert body['message'] == ''
+    assert len(relay.calls_to('/report')) == 1
+
+
+def test_readonly_exception_and_policy_capacity_never_reuse_an_expired_token(configured):
+    class ReadOnlyError(RuntimeError):
+        def __setattr__(self, name, value):
+            raise AttributeError('read-only exception')
+    error = ReadOnlyError('failed')
+    first = cr._new_error_occurrence(error)
+    second = cr._new_error_occurrence(error)
+    assert first != second
+    for index in range(512):
+        cr._new_error_occurrence(event_key='capacity-' + str(index))
+    assert cr._dispatch_error_now('old delivery', event_id=first) is None
+    assert cr._dispatch_error_now('old delivery', event_id=second) is None
+    relay, outcomes, ready = configured
+    assert relay.calls == []
+    assert not ready.is_set()
+
+
+def test_worker_start_failure_releases_its_slot_for_the_next_real_error(configured, monkeypatch):
+    relay, outcomes, ready = configured
+    original = threading.Thread.start
+    def fail_start(thread):
+        if thread.name == 'spacr-error-report':
+            raise RuntimeError('thread cannot start')
+        return original(thread)
+    with monkeypatch.context() as scoped:
+        scoped.setattr(threading.Thread, 'start', fail_start)
+        assert cr._dispatch_error_now('RuntimeError: first failure') is None
+    joined(cr._dispatch_error_now('RuntimeError: second failure'))
+    assert len(relay.calls_to('/report')) == 1
+    assert outcomes[-1]['status'] == cr.REPORT_SENT
+
+
+def test_result_delivery_ignores_dead_and_broken_listeners_and_keeps_original_stderr(configured, monkeypatch):
+    import weakref
+    relay, outcomes, ready = configured
+    def broken(outcome):
+        raise RuntimeError('GUI has closed')
+    def retired(outcome):
+        raise AssertionError('dead listener ran')
+    dead = weakref.ref(retired)
+    del retired
+    monkeypatch.setattr(cr, '_ERROR_RESULT_LISTENERS', [weakref.ref(broken), dead])
+    stream = io.StringIO()
+    import types
+    local_sys = types.SimpleNamespace(**vars(cr.sys))
+    local_sys.__stderr__ = stream
+    monkeypatch.setattr(cr, 'sys', local_sys)
+    _ORIGINAL_DELIVERY({'explanation': {'text': 'Safe advice'}, 'issue_url': 'https://example.org/12'})
+    assert stream.getvalue() == '\nSafe advice\nhttps://example.org/12\n'
+    assert relay.calls == []
+
+
+def test_disabled_native_diagnosis_never_even_queries_capabilities(configured):
+    relay, outcomes, ready = configured
+    cr.set_error_report_mode('off')
+    with pytest.raises(cr.RelayRefused, match='automatic reporting disabled'):
+        cr._post_json('/diagnose', {'kind': cr.KIND_FAULT, 'native_session': {'known': False}}, 2)
+    assert relay.calls == []
+
+
+@pytest.mark.parametrize('provider', ['none', 'claude'])
+def test_native_provider_revocation_during_health_prevents_diagnosis(configured, monkeypatch, provider):
+    relay, outcomes, ready = configured
+    original = relay
+    def revoke(request, timeout):
+        if request.full_url.endswith('/health'):
+            state = cr._read_state()
+            state['affirmed_policy']['provider'] = provider
+            cr._write_state(state)
+        return original(request, timeout)
+    monkeypatch.setattr(cr, '_open_url', revoke)
+    with pytest.raises(cr.RelayRefused, match='automatic reporting disabled|AI provider changed'):
+        cr._post_json('/diagnose', {'kind': cr.KIND_FAULT, 'native_session': {'known': False}}, 2)
+    assert len(relay.calls_to('/health')) == 1
+    assert relay.calls_to('/diagnose') == []
+
+
+def test_failed_capability_lookup_preserves_legacy_native_report(configured):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [OSError('health unavailable')]
+    status, answer = cr._post_json('/report', {
+        'kind': cr.KIND_FAULT, 'native_session': {'known': False}, 'summarize': False}, 2)
+    assert status == 200
+    [posted] = relay.calls_to('/report')
+    assert 'native_session' not in posted['body']
+    assert 'Crashed session unknown' in posted['body']['user_note']
+    assert posted['body']['summarize'] is False
+
+
+def test_offline_hosted_request_is_refused_before_transport(configured, monkeypatch):
+    relay, outcomes, ready = configured
+    monkeypatch.setenv(cr.NO_NETWORK_ENV, '1')
+    with pytest.raises(cr.RelayRefused, match='network disabled'):
+        cr._post_json('/diagnose', {'message': 'failed'}, 2)
+    assert relay.calls == []
+
+
+def test_active_queue_is_kept_then_revoked_user_error_is_dropped(configured):
+    relay, outcomes, ready = configured
+    summary = cr.public_summary(traceback_text='spacr.errors.ConfigurationError: choose a channel')
+    path = cr._enqueue(summary, automatic=True)
+    assert path is not None
+    cr._ERROR_ACTIVE_QUEUES.add(path)
+    try:
+        assert cr.flush_report_queue()['kept'] == 1
+        assert path.exists()
+    finally:
+        cr._ERROR_ACTIVE_QUEUES.discard(path)
+    cr.set_error_report_mode('faults')
+    result = cr.flush_report_queue()
+    assert result['dropped'] == 1 and not path.exists()
+    assert relay.calls_to('/report') == []
+
+
+@pytest.mark.parametrize('header', ['{broken}', '[]'])
+def test_invalid_native_session_header_keeps_real_fatal_frames_but_never_invents_a_build(
+        configured, tmp_path, header):
+    relay, outcomes, ready = configured
+    relay.routes['/health'] = [(200, {'capabilities': ['native_session_v1']})]
+    path = tmp_path / 'fatal.log'
+    path.write_text('=== spaCR session ' + header + ' ===\n'
+                    'Fatal Python error: Aborted\n\nCurrent thread:\n'
+                    f'  File "{cr.Path(cr.__file__).parent / "qt" / "app.py"}", line 41 in closeEvent\n')
+    joined(cr._consume_native_crash(path))
+    body = relay.calls_to('/report')[0]['body']
+    assert body['native_session'] == {'known': False}
+    assert body['frames'] == [{'file': 'app.py', 'line': 41, 'function': 'closeEvent'}]
+    assert cr._consume_native_crash(path) is None
+
+
+def test_native_log_truncation_resets_the_old_ack_but_expired_logs_are_not_replayed(
+        configured, tmp_path):
+    import os
+    import time
+    relay, outcomes, ready = configured
+    path = tmp_path / 'fatal.log'
+    path.write_text('Fatal Python error: Aborted\n')
+    cr._update_state(native_fatal_ack={'path': str(path), 'offset': path.stat().st_size + 100})
+    expired = time.time() - cr.QUEUE_RETENTION_S - 60
+    os.utime(path, (expired, expired))
+    assert cr._consume_native_crash(path) is None
+    assert relay.calls == []
+    os.utime(path, None)
+    joined(cr._consume_native_crash(path))
+    assert len(relay.calls_to('/report')) == 1
+    assert cr._read_state()['native_fatal_ack']['offset'] == path.stat().st_size
+
+
+def test_local_native_capture_survives_unreadable_fixed_source_and_broken_loaded_qt_version(
+        configured, tmp_path, monkeypatch):
+    import faulthandler
+    import types
+    from pathlib import Path
+    relay, outcomes, ready = configured
+    path = tmp_path / 'fatal.log'
+    monkeypatch.setattr(cr, '_NATIVE_CAPTURE_HANDLE', None)
+    monkeypatch.setattr(cr, '_NATIVE_EXCEPTION_HOOK', None)
+    previous_hook = cr.sys.excepthook
+    local_sys = types.SimpleNamespace(**vars(cr.sys))
+    local_sys.modules = dict(cr.sys.modules)
+    monkeypatch.setattr(cr, 'sys', local_sys)
+    enabled = []
+    monkeypatch.setattr(faulthandler, 'enable', lambda **kwargs: enabled.append(kwargs['file']))
+    def broken_version():
+        raise RuntimeError('Qt binding unavailable')
+    local_sys.modules['PySide6.QtCore'] = types.SimpleNamespace(qVersion=broken_version)
+    original = Path.read_bytes
+    def unreadable(target):
+        if target == Path(cr.__file__).resolve():
+            raise OSError('source unreadable')
+        return original(target)
+    monkeypatch.setattr(Path, 'read_bytes', unreadable)
+    assert cr._install_native_error_capture(path) == str(path)
+    try:
+        header = json.loads(path.read_text().split('=== spaCR session ')[1].split(' ===')[0])
+        assert header['qt'] == 'unknown'
+        assert set(header['source_sha256']) == {'package', 'app', 'gc_policy'}
+        assert enabled == [cr._NATIVE_CAPTURE_HANDLE]
+        assert cr._NATIVE_EXCEPTION_HOOK is cr.sys.excepthook
+        assert cr.sys.excepthook is not previous_hook
+        assert relay.calls == []
+    finally:
+        cr._NATIVE_CAPTURE_HANDLE.close()
+
+
+def test_real_burst_reports_omission_counts_and_bounded_long_error_details(configured, monkeypatch):
+    relay, outcomes, ready = configured
+    now = [0.]
+    control = cr._ErrorBatcher(clock=lambda: now[0],
+        schedule=lambda delay, callback: threading.Timer(delay, callback))
+    monkeypatch.setattr(cr, '_ERROR_BATCHER', control)
+    workers = []
+    actual = cr._dispatch_error_now
+    def observe(*args, **kwargs):
+        worker = actual(*args, **kwargs)
+        if worker is not None:
+            workers.append(worker)
+        return worker
+    monkeypatch.setattr(cr, '_dispatch_error_now', observe)
+    try:
+        joined(cr._dispatch_error('RuntimeError: initial field'))
+        now[0] = 1.
+        for index in range(12):
+            assert cr._dispatch_error('RuntimeError: field ' + str(index) + ' ' + 'x' * 240 + '\n\n') is None
+        now[0] = 61.
+        control._tick()
+        for worker in workers:
+            joined(worker)
+        reports = relay.calls_to('/report')
+        assert len(reports) == 2
+        assert '4 additional occurrences omitted' in reports[-1]['body']['message']
+        question = relay.calls_to('/diagnose')[-1]['body']['question']
+        assert ' ... ' in question
+        assert 'x' * 181 not in question
+        assert reports[-1]['body']['kind'] == cr.KIND_FAULT
+    finally:
+        if control.timer is not None:
+            control.timer.cancel()
+        for worker in workers:
+            worker.join(5)
+            assert not worker.is_alive()
+
+
+def test_same_explicit_producer_token_is_frozen_and_duplicate_direct_delivery_is_once(configured):
+    relay, outcomes, ready = configured
+    token = cr._new_error_occurrence(event_key='real-explicit-producer')
+    cr.set_error_report_mode('off')
+    assert cr._new_error_occurrence(event_key='real-explicit-producer') == token
+    cr.set_error_report_mode('all')
+    joined(cr._dispatch_error_now('RuntimeError: first', event_id=token))
+    assert cr._dispatch_error_now('RuntimeError: transported', event_id=token) is None
+    assert len(relay.calls_to('/report')) == 1
+
+
+def test_nested_reporter_output_cannot_reenter_capture(configured, monkeypatch):
+    relay, outcomes, ready = configured
+    def nested(outcome):
+        cr._capture_error_line('ERROR nested reporter message\n')
+        assert cr._dispatch_error_now('RuntimeError: nested reporter failure') is None
+        outcomes.append(outcome)
+    monkeypatch.setattr(cr, '_deliver_error_result', nested)
+    joined(cr._dispatch_error('RuntimeError: original'))
+    assert len(relay.calls_to('/report')) == 1
+    assert outcomes[-1]['status'] == cr.REPORT_SENT
+
+
+def test_validation_log_without_exception_keeps_typed_callsite_and_public_context(configured, monkeypatch):
+    relay, outcomes, ready = configured
+    record = logging.LogRecord('spacr.qt.bridge', logging.ERROR, __file__, 1, 'Choose a channel', (), None)
+    record.spacr_call_site = [f'  File "{cr.Path(cr.__file__).parent / "qt" / "bridge.py"}", line 42, in run\n']
+    previous = getattr(cr._ERROR_DISPATCH_LOCAL, 'validation_context', None)
+    with cr._validation_error_context('mask', ['Choose a channel']):
+        cr._capture_error_record(record)
+    assert getattr(cr._ERROR_DISPATCH_LOCAL, 'validation_context', None) is previous
+    assert ready.wait(5)
+    [report] = relay.calls_to('/report')
+    assert report['body']['kind'] == cr.KIND_USER_ERROR
+    assert report['body']['exception_type'] == 'ConfigurationError'
+    assert report['body']['module'] == 'mask'
+    assert report['body']['screen'] == 'Mask'
+    assert report['body']['frames'][-1] == {'file': 'bridge.py', 'function': 'run', 'line': 42}
+
+
+def test_formatted_logging_stream_does_not_recapture_its_structured_error(configured):
+    relay, outcomes, ready = configured
+    sink = io.StringIO()
+    logger = logging.Logger('spacr.worker')
+    structured = _AutomaticErrorHandler(logging.ERROR)
+    terminal = logging.StreamHandler(_ErrorStream(sink))
+    terminal.setFormatter(logging.Formatter('ERROR %(name)s: %(message)s'))
+    logger.addHandler(structured)
+    logger.addHandler(terminal)
+    try:
+        logger.error('original worker error')
+        assert ready.wait(5)
+        assert sink.getvalue() == 'ERROR spacr.worker: original worker error\n'
+        assert len(relay.calls_to('/diagnose')) == len(relay.calls_to('/report')) == 1
+    finally:
+        logger.removeHandler(structured)
+        logger.removeHandler(terminal)
+        terminal.close()
+        structured.close()
+
+
+def test_no_network_refusal_returns_queued_outcome_without_any_post(configured, monkeypatch):
+    relay, outcomes, ready = configured
+    monkeypatch.setenv(cr.NO_NETWORK_ENV, '1')
+    result = cr._send_one({'exception_type': 'RuntimeError', 'message': 'failed',
+                           'frames': [], 'summarize': True}, 2)
+    assert result == {'status': cr.REPORT_QUEUED, 'detail': 'network'}
+    assert relay.calls == []
+
+
+def test_revocation_after_queue_storage_failure_still_sends_nothing(configured):
+    relay, outcomes, ready = configured
+    occupied = cr._queue_dir()
+    occupied.write_text('existing non-directory data')
+    summary = {'exception_type': 'RuntimeError', 'message': 'failed', 'kind': cr.KIND_FAULT}
+    path = cr._enqueue(summary)
+    assert path is None
+    cr.set_error_report_mode('off')
+    result = cr._send_queued(path, summary, 2,
+        allowed=lambda: cr._automatic_error_policy(cr.KIND_FAULT)[2])
+    assert result == {'status': cr.REPORT_DISABLED}
+    assert occupied.read_text() == 'existing non-directory data'
+    assert relay.calls == []
+
+
+def test_empty_saved_explanations_never_create_a_cache_entry(configured):
+    relay, outcomes, ready = configured
+    cr.save_explanation('', 'An answer without an error identity')
+    cr.save_explanation('valid-identity', '')
+    assert cr.saved_explanation('valid-identity') is None
+    assert not cr._saved_path().exists()
+    assert relay.calls == []
+
+
+def test_both_final_and_cleanup_delivery_failure_cannot_poison_the_next_report(configured, monkeypatch):
+    relay, outcomes, ready = configured
+    seen = []
+    def failed_delivery(outcome):
+        seen.append(outcome)
+        if not outcome.get('pending'):
+            raise RuntimeError('result receiver disappeared')
+    with monkeypatch.context() as scoped:
+        scoped.setattr(cr, '_deliver_error_result', failed_delivery)
+        joined(cr._dispatch_error('RuntimeError: original field'))
+    assert seen[0]['pending']
+    assert seen[-1]['quiet'] and seen[-1]['event_id'] == seen[0]['event_id']
+    assert cr.queued_summaries() == []
+    joined(cr._dispatch_error('RuntimeError: healthy later field'))
+    assert len(relay.calls_to('/report')) == 2
+    assert outcomes[-1]['status'] == cr.REPORT_SENT
+
+
+@pytest.mark.parametrize("prior", ["absent", None, "outer"])
+def test_logging_flush_cannot_drop_an_earlier_independent_terminal_error(configured, monkeypatch, prior):
+    relay, outcomes, ready = configured
+    cr._update_state(affirmed_policy=dict(cr._read_state()['affirmed_policy'], provider='none'))
+    local = cr._ERROR_DISPATCH_LOCAL
+    if prior == 'absent':
+        monkeypatch.delattr(local, 'terminal_buffer_flush', raising=False)
+    else:
+        monkeypatch.setattr(local, 'terminal_buffer_flush', prior, raising=False)
+    sink = io.StringIO()
+    stream = _ErrorStream(sink)
+    logger = logging.Logger('spacr.ordinary')
+    handler = logging.StreamHandler(stream)
+    logger.addHandler(handler)
+    try:
+        stream.write('ERROR independent terminal failure')
+        assert relay.calls == []
+        logger.info('ordinary log entry')
+        assert sink.getvalue() == 'ERROR independent terminal failureordinary log entry\n'
+        if prior == 'absent':
+            assert not hasattr(local, 'terminal_buffer_flush')
+        else:
+            assert local.terminal_buffer_flush is prior
+        assert ready.wait(5)
+        [report] = relay.calls_to('/report')
+        assert 'independent terminal failure' in report['body']['message']
+        assert relay.calls_to('/diagnose') == []
+        stream.flush()
+        assert len(relay.calls_to('/report')) == 1
+    finally:
+        logger.removeHandler(handler)
+        handler.close()
+
+
+@pytest.mark.parametrize("prior", ["absent", None, "outer"])
+def test_partial_error_flush_restores_provenance_before_original_flush_even_if_capture_fails(monkeypatch, prior):
+    local = cr._ERROR_DISPATCH_LOCAL
+    if prior == "absent":
+        monkeypatch.delattr(local, "terminal_buffer_flush", raising=False)
+    else:
+        monkeypatch.setattr(local, "terminal_buffer_flush", prior, raising=False)
+    flushed = []
+    class Sink(io.StringIO):
+        def flush(self):
+            if prior == "absent":
+                assert not hasattr(local, "terminal_buffer_flush")
+            else:
+                assert local.terminal_buffer_flush is prior
+            flushed.append(True)
+            return "original flush result"
+    def failed_capture(text):
+        assert text == "ERROR buffered user failure"
+        assert local.terminal_buffer_flush is True
+        raise RuntimeError("reporter hook failed")
+    sink = Sink()
+    stream = _ErrorStream(sink)
+    stream.write("ERROR buffered user failure")
+    monkeypatch.setattr(cr, "_capture_error_line", failed_capture)
+    assert stream.flush() == "original flush result"
+    assert sink.getvalue() == "ERROR buffered user failure"
+    assert flushed == [True]

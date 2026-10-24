@@ -239,6 +239,12 @@ def test_documented_parameter_names_match_the_source_signatures():
 def test_public_docstrings_matches_reviewed_visible_coverage():
     docs = builder.public_docstrings()
     dunders = _visible_special_members()
+    metal_iterator_arrival = json.loads((ROOT / "tests/data/release_contracts"
+        / "718_metal_loader_iterator_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(metal_iterator_arrival) == {"spacr.torch_loader.ArrayDataLoader.__iter__"}
+    assert {key: docs[key] for key in metal_iterator_arrival} == metal_iterator_arrival
+    assert metal_iterator_arrival.keys() <= dunders
+    dunders = dunders - metal_iterator_arrival.keys()
     assignments = _visible_assignment_docs()
 
     # The omissions in the audited pages are precisely the documented special
@@ -1549,6 +1555,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         / "data/release_contracts"
         / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(mitonet_arrivals) == 4
+    from tests.test_documentation_i18n import _current_718_mitonet_api
+    mitonet_arrivals = _current_718_mitonet_api(mitonet_arrivals, docs)
     assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
     assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
@@ -1867,6 +1875,56 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in embedding_mil_arrivals} == embedding_mil_arrivals
     assert not embedding_mil_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **embedding_mil_arrivals}
+    calibrated_metal_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json").read_text(encoding="utf-8"))
+    assert set(calibrated_metal_arrivals) == {
+        "spacr.metal_cellpose",
+        "spacr.metal_cellpose.training_context",
+        "spacr.mps_reduce",
+        "spacr.mps_reduce.MetalKMeans",
+        "spacr.mps_reduce.MetalPCA",
+        "spacr.qt.widgets.live_preview._segment_multi._crop_labels",
+        "spacr.torch_loader",
+        "spacr.torch_loader.ArrayDataLoader",
+    }
+    from tests.test_documentation_i18n import _current_718_metal_class_api
+    calibrated_metal_arrivals = _current_718_metal_class_api(calibrated_metal_arrivals, docs)
+    assert {key: docs[key] for key in calibrated_metal_arrivals} == calibrated_metal_arrivals
+    assert not calibrated_metal_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **calibrated_metal_arrivals}
+    metal_method_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "718_metal_reducer_method_api_arrivals_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(metal_method_arrivals) == {
+        *("spacr.mps_reduce.MetalPCA." + name for name in (
+            "fit", "transform", "fit_transform", "inverse_transform")),
+        *("spacr.mps_reduce.MetalKMeans." + name for name in (
+            "fit", "predict", "fit_predict", "fit_transform")),
+    }
+    assert {key: docs[key] for key in metal_method_arrivals} == metal_method_arrivals
+    assert not metal_method_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **metal_method_arrivals}
+    assert not metal_iterator_arrival.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **metal_iterator_arrival}
+    home_masthead_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "707_home_masthead_fit_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(home_masthead_arrivals) == {
+        "spacr.qt.widgets.home._HeroTextFit._fit.fits",
+    }
+    assert {key: docs[key] for key in home_masthead_arrivals} == home_masthead_arrivals
+    assert not home_masthead_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **home_masthead_arrivals}
+    signed_cell_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "538_signed_cell_measurement_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
+    assert set(signed_cell_arrivals) == {"spacr.measure.measure_calibrated_cells"}
+    assert {key: docs[key] for key in signed_cell_arrivals} == signed_cell_arrivals
+    assert not signed_cell_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **signed_cell_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]
@@ -1907,7 +1965,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
-    actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
+    from tests.test_documentation_i18n import _retired_707_home_api
+    retired_home = _retired_707_home_api(docs)
+    actual = len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
         f"({actual - expected:+d}). A public docstring addition must bump this "
@@ -1955,7 +2015,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_174
+    assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_174
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

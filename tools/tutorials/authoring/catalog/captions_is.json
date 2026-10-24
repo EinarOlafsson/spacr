@@ -3676,7 +3676,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Athugaðu möppur, heiti líkans og úttaksstað og ýttu svo á Run. Spjaldið Figures sýnir þjálfunarmyndirnar fyrir ofan grímur þeirra og stjórnborðið fylgir framvindunni. Á þessu GPU-skjákorti tóku 10 umferðir á sex myndum innan við mínútu.",
+          "narration": "Athugaðu möppur, heiti líkans og úttaksstað og ýttu svo á Run. Spjaldið Figures sýnir þjálfunarmyndirnar fyrir ofan grímur þeirra og stjórnborðið fylgir framvindunni.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3806,15 +3806,15 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Frá Home opnarðu Make Masks og svo Cellpose Workbench þess. Veldu Apply til að aðgreina myndir með fyrirliggjandi líkani. Notaðu Train þegar þú vilt læra nýja vigta af yfirförnum pörum mynda og grímna.",
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "Dragðu tengda dæmið út og stilltu Source á möppuna images. Hún inniheldur þrjár einrása frumumyndir, hver 512 × 512 dílar. Ef þú notar skráðu stillingaskrána sem tilvísun skiptirðu upprunaslóð hennar út fyrir útdregnu möppuna þína.",
+          "narration": "Dragðu tengda dæmið út og stilltu Source á möppuna images. Hún inniheldur þrjár einrása frumumyndir, hver 512 × 512 dílar. Ef þú notar meðfylgjandi stillingaviðmiðun skiptirðu upprunaslóð hennar út fyrir útdregnu möppuna þína.",
           "hold_after": 0.7
         },
         {
@@ -3890,11 +3890,11 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -9268,7 +9268,7 @@
         "Sía kandídata og lesa áhrif þeirra og samræmi leiðaraða.",
         "Flytja valdar línur út sem CSV, Markdown eða HTML."
       ],
-      "prerequisite": "Dragðu út Hit_List_real_results_companion.zip og virkjaðu spaCR-umhverfið þitt. Núverandi Hits-flýtileið í Regression sýnir ekki spjaldið; keyrðu í staðinn python hit_list_companion.py og notaðu Browse til að fara í útdregnu niðurstöðumöppuna. Hjálparskriftan tengist ekki Investigate. Notaðu wells_with_gene úr results_gene.csv fyrir fjölda styðjandi brunna: útflutta n_obs=0 er ekki raunverulegur stuðningur. Dæmið inniheldur engin gen sem uppfylla q <= 0.05.",
+      "prerequisite": "Dragðu út Hit_List_real_results_companion.zip og virkjaðu spaCR-umhverfið þitt. Ef Hits-flýtileiðin í Regression sýnir ekki spjaldið, keyrðu python hit_list_companion.py og notaðu Browse til að fara í útdregnu niðurstöðumöppuna. Hjálparskriftan tengist ekki Investigate. Notaðu wells_with_gene úr results_gene.csv fyrir fjölda styðjandi brunna: útflutta n_obs=0 er ekki raunverulegur stuðningur. Dæmið inniheldur engin gen sem uppfylla q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9280,7 +9280,7 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Dragðu tengda dæmið út og virkjaðu spaCR-umhverfið. Keyrðu python hit_list_companion.py. Í glugga hjálparskriftunnar smellirðu á Browse og velur útdregnu niðurstöðumöppuna.",
+          "narration": "Til að nota varaleiðina skaltu draga tengda dæmið út og virkja spaCR-umhverfið. Keyrðu python hit_list_companion.py. Í glugga hjálparskriftunnar smellirðu á Browse og velur útdregnu niðurstöðumöppuna.",
           "hold_after": 0.7
         },
         {
@@ -13684,7 +13684,7 @@
         "Velja mæligagnagrunn, frumuspár, hlutföll leiðsagnar-RNA og stigadálk.",
         "Lesa flipana fyrir vísbendingar, brunna, leiðsagnar-RNA og þröskuld og finna vistuðu töflurnar."
       ],
-      "prerequisite": "Afþjappaðu Investigate_Hit_real_screen_example.zip. Allt í því kemur úr einni raunverulegri skimun: Regression-keyrslunni á prófunargögnum Regression (stillingunum úr Regression-kennslunni), samsvarandi CV-spám fyrir hverja frumu og mæligagnagrunni með raunverulegum mælingum á lögun, stærð og styrk sömu frumna. Til að halda niðurhalinu litlu inniheldur gagnagrunnurinn 52 brunna: alla greinda brunna með leiðsagnar-RNA fyrir gen 225160 og, fyrir hvern þeirra, þrjá brunna án þess af sömu plötu. Ekkert gen í þessari fljótlegu Regression-keyrslu stenst q ≤ 0,05. Líttu á rannsóknina sem útreiknað dæmi, ekki staðfestan smell.",
+      "prerequisite": "Afþjappaðu Investigate_Hit_real_screen_example.zip. Allt í því kemur úr einni raunverulegri skimun: Regression-keyrslunni á prófunargögnum Regression (stillingunum úr Regression-kennslunni), samsvarandi CV-spám fyrir hverja frumu og mæligagnagrunni með raunverulegum mælingum á lögun, stærð og styrk sömu frumna. Dæmisgagnagrunnurinn inniheldur 52 brunna: alla greinda brunna með leiðsagnar-RNA fyrir gen 225160 og þrjá brunna af sömu plötu án þess fyrir hvern markbrunn. Ekkert gen í þessari fljótlegu Regression-keyrslu stenst q ≤ 0,05. Líttu á rannsóknina sem útreiknað dæmi, ekki staðfestan smell.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13758,7 +13758,7 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence sýnir niðurstöðuna. Markbrunnar hafa smell-líka tíðni sem er aðeins 0,01 hærri en í viðmiðunarbrunnum. Ræsiúrtaksbilið eftir brunnum nær frá mínus 0,04 til plús 0,06, og P-gildi blokkaðrar umröðunar er um 0,63. Frumurnar styðja ekki þennan kandídat.",
+          "narration": "Evidence sýnir niðurstöðuna. Markbrunnar hafa smell-líka tíðni sem er aðeins 0,01 hærri en í viðmiðunarbrunnum. Ræsiúrtaksbilið eftir brunnum nær frá mínus 0,04 til plús 0,06, og P-gildi blokkaðrar umröðunar er um 0,63. Þessi greining gefur engar skýrar vísbendingar um mun fyrir þennan kandídat.",
           "hold_after": 0.7
         },
         {
@@ -14166,7 +14166,7 @@
         "Velja áfangastað, heiti plötu og hvort afritað sé eða tengt.",
         "Vista endurnýtanlega áætlun og flytja inn myndir fyrir Mask."
       ],
-      "prerequisite": "Sæktu fyrst Mask-dæmið. Yfirferðin notar afrit af sjónsviðunum E01/F001 og L01/F009, með fjórum rásum hvort. Undirbúnu afritin sleppa óþarfa tákninu A beint á undan Z en halda auðkennum brunns, sjónsviðs og rásar. Geymdu frumritin og notaðu myndatökuskrár til að ráða í ókunnug tákn.",
+      "prerequisite": "Sæktu fyrst Mask-dæmið. Notaðu vinnuafrit af sjónsviðunum E01/F001 og L01/F009, með fjórum rásum hvort. Fjarlægðu óþarfa táknið A beint á undan Z aðeins í þessum afritum og varðveittu hvert tákn fyrir brunn, sjónsvið og rás. Geymdu frumritin og notaðu myndatökuskrár til að ráða í ókunnug tákn.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -14199,7 +14199,7 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Skannaðu undirbúnu dæmaafritin. Óþarfa myndatökutáknið hefur verið fjarlægt en tákn brunns, sjónsviðs og rásar halda sér. Athugaðu að tillagan telji átta myndir, tvo brunna, tvö sjónsviðsnúmer og fjórar rásir.",
+          "narration": "Skannaðu þessi vinnuafrit. Óþarfa myndatökutáknið hefur verið fjarlægt en tákn brunns, sjónsviðs og rásar halda sér. Athugaðu að tillagan telji átta myndir, tvo brunna, tvö sjónsviðsnúmer og fjórar rásir.",
           "hold_after": 0.7
         },
         {
@@ -14826,7 +14826,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Áður en flokkari getur lært eitthvað þarf hann dæmi. Opnaðu Annotate frá Home og það sýnir úrklipp hlutanna sem Measure vistaði eða streymir. Farðu í gegnum dæmigerðar frumur og merktu þær. Hver merking er skrifuð í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Notaðu sérstakan dálk fyrir hverja spurningu og settu nokkra merkta hluti til hliðar fyrir mat. Það er þessi merkingadálkur sem Classify þjálfar á næst.",
+          "narration": "Áður en flokkari getur lært eitthvað þarf hann dæmi. Opnaðu Annotate frá Home til að skoða úrklipp hlutanna sem tengjast verkefninu þínu með mælingum. Farðu í gegnum dæmigerðar frumur og merktu þær. Hver merking er skrifuð í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Notaðu sérstakan dálk fyrir hverja spurningu og settu nokkra merkta hluti til hliðar fyrir mat. Það er þessi merkingadálkur sem Classify þjálfar á næst.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

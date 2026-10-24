@@ -471,6 +471,14 @@ class _Window(QWidget):
 
     _opening_a_screen = False
 
+    def __init__(self):
+        super().__init__()
+        from PySide6.QtWidgets import QStackedWidget
+
+        self._stack = QStackedWidget(self)
+        self._startup = QWidget(self._stack)
+        self._stack.addWidget(self._startup)
+
     def _prewarmable_keys(self):
         return []
 

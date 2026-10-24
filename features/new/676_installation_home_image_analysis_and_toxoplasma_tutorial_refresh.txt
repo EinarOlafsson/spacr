@@ -308,3 +308,47 @@ Prior no-new-recording/deletion/GPU-job holds remain; retain passed media and pl
 2026-10-23 — AnnData Export prerequisites retain the measured-project and source-image instructions while removing the obsolete nightly-build sentence in English and all13 reviewed translations. Narration, titles, chapter mappings and media remain unchanged; metadata publication is pending.
 
 2026-10-23 — AnnData Export prerequisite wording is feature-focused in all14 catalogs. Normal84-route candidate and published checks passed with all media, narration, chapter visuals, player and idle policies unchanged; the exact verified immutable media receipt/readback is reused. Remaining thematic work and the historical Home stack relay remain open.
+
+2026-10-23 — A strict legacy script-refresh mode preserves accepted visual media, original scene clocks and exact published voice offerings while validating fresh reviewed narration. Its23new focused cases passed; existing default guard bodies remain unchanged. Tutorial19 staging, audio and publication remain pending.
+
+2026-10-23 — Tutorial19 scene9 removes only the hardware-specific training-time claim. Canonical prose, all13 reviewed deletions and matching authoring speech aliases are adopted;27 existing voice offerings remain unchanged. Audio, legacy-clock playback and publication are pending.
+
+2026-10-23 — Cellpose training narration now explains the training task and saved outputs without the GPU benchmark aside. Its13 reviewed translations and exact27 existing narration offerings passed explicit mixed-audio source/current-unit and normal finalAAC validation, sentence onsets and27-offering live chapter/gap checks. English uses the normal cache renderer; unchanged non-English spans are retained from decoded published AAC and only26 changed scene9 units use current synthesis. Original published picture/master/web/poster and scene clock are retained; normal84-route candidate/published and full new-media readback passed. Item676 remains open.
+
+2026-10-23 — Installation’s create-environment, activate-environment and launch reference cards now use feature-focused instructions. Normal mix/finish passed with all 21 original clocks and fence values, 18 complete source intervals, the genuine Home native interval and 50 original speech tracks retained. Other 34 policies remain unchanged; browser/publication acceptance remain separately guarded and item676 stays open.
+
+2026-10-23 — Installation’s create-environment, activate-environment and launch instruction cards now teach the user task without recording or reuse commentary. All 21 original scene clocks, 18 complete source intervals, the genuine Home interval, 21 reviewed fences and 50 spoken tracks remain unchanged. Staged retained QA, 71 browser cases/completed matrix and 84-route candidate/published/full media readback passed; all 83 other lessons are preserved. Item676 remains open.
+
+2026-10-23 — Platform installation and maintenance references now show task-focused guidance and the original saved backend/version examples. Normal maintenance-v1 mix/finish passed with all 14 original clocks/fences, four complete original source intervals including the genuine Home/performance views and Doctor result, and 50 original spoken tracks preserved. Other 34 policies remain unchanged; browser/publication acceptance remain separately guarded and item676 stays open.
+
+2026-10-23 — Platform installation and maintenance now use ten reviewed task-focused references, including the original saved backend/version results. All 14 original scene clocks and fences, four complete source intervals including native views 8/9 and Doctor 10, and 50 spoken tracks are retained. Staged retained QA, 71 browser cases/completed matrix and 84-route candidate/published/full media readback passed; all 83 other lessons are preserved. Item676 remains open.
+
+2026-10-23 — Classify now uses reviewed example-input, split-command and manifest reference pictures instead of terminal production prompts. All 27 original spoken tracks and timing files, 14 catalogs, runtime entries and original non-native visual clock remain byte-identical. Eight complete original source intervals remain at 1x in the constructed master; playback retains its normal per-voice legacy ratio. The actual 27-offering caption/picture/continuous-boundary checks, normal 84-route candidate/published checks and full media readback passed. Item676 remains open.
+
+2026-10-23 — Python API and batch commands now use five indexed, clearly labelled command/example reference pictures. All 27 original spoken tracks and timing files, 14 catalogs, runtime entries and six original non-native scene clocks remain byte-identical. Chapter2 retains its complete original source interval at 1x in construction; playback retains its normal per-voice legacy ratio. The actual 27-offering caption/picture checks and five bounded continuous-boundary checks per offering, normal 84-route candidate/published checks and full media readback passed. Item676 remains open.
+
+2026-10-23 — Hit List now describes the companion as a conditional fallback. The first sentence of scene2 and prerequisite are adopted with all13 reviewed locale corrections; all other authored text and27 voice offerings are retained. Mixed audio, reference pictures, browser checks and publication remain pending. Item676 remains open.
+
+2026-10-23 — Hit List now teaches its fallback condition directly and shows a labelled route reference plus task-specific picture headers. The approved first English sentence and 26 translated scene-two paragraph units were refreshed; unchanged published speech PCM was preserved before final AAC encoding. Current 27-offering caption, source, legacy-picture mapping and bounded continuous-gap checks passed, alongside normal 84-route candidate/published checks and full media readback. Original picture clocks and moving figure bodies remain independent of new speech timings; no new recording or native timeline is claimed. Item676 remains open.
+
+2026-10-24 — Adopt approved feature-focused prose for Tutorial20 with13 source-bound locale reviews and unchanged published voice offerings. Audio, native fit/policy where applicable, picture work and normal publication remain pending. Item676 remains open.
+
+2026-10-24 — Tutorial20 retains its accepted native master and all original essential-action fences, rebound only to the actual current50-track timing. Source-coordinate mixed audio and normal onsets passed; browser/publication remain pending. Item676 remains open.
+
+2026-10-24 — Tutorial20 feature-focused prose now has source-bound mixed audio for all50 existing offerings, normal onset checks, unchanged native master with reviewed original fences and exact current timing. Actual50 offering/caption/native-boundary checks,84 candidate and84 published routes and full media readback passed. Item676 remains open.
+
+2026-10-24 — Adopt approved feature-focused prose for Tutorial71 with13 source-bound locale reviews and unchanged published voice offerings. Audio, native fit/policy where applicable, picture work and normal publication remain pending. Item676 remains open.
+
+2026-10-24 — Tutorial71 feature-focused prose now has source-bound mixed audio for the27 existing offerings and normal onset checks. Original master/web/poster and the independent original picture clock are retained; actual27 offering/caption/legacy-ratio and affected declared-gap checks,84 candidate and84 published routes and full media readback passed. Item676 remains open.
+
+2026-10-24 — Adopt approved feature-focused prose for Tutorial74 with13 source-bound locale reviews and unchanged published voice offerings. Audio, native fit/policy where applicable, picture work and normal publication remain pending. Item676 remains open.
+
+2026-10-24 — Tutorial74 feature-focused prose now has source-bound mixed audio for the27 existing offerings and normal onset checks. Original master/web/poster and the independent original picture clock are retained; actual27 offering/caption/legacy-ratio and affected declared-gap checks,84 candidate and84 published routes and full media readback passed. Item676 remains open.
+
+2026-10-24 — Adopt approved feature-focused prose for Tutorial78 with13 source-bound locale reviews and unchanged published voice offerings. Audio, native fit/policy where applicable, picture work and normal publication remain pending. Item676 remains open.
+
+2026-10-24 — Tutorial78 retains its accepted native master and all original essential-action fences, rebound only to the actual current50-track timing. Source-coordinate mixed audio and normal onsets passed; browser/publication remain pending. Item676 remains open.
+
+2026-10-24 — Tutorial78 final native playback now reserves two genuine source frames before EOF, preventing last-frame seeks from restarting playback. Seven focused player regressions and13 recovery-tool cases passed (12 retained and one corrected preservation-fixture case); source-bound audio/native production is retained. Fresh50-offering and84-route acceptance/publication remain pending. Item676 remains open.
+
+2026-10-24 — Tutorial78 feature-focused prose now has source-bound mixed audio for all50 existing offerings, normal onset checks, unchanged native master with reviewed original fences and exact current timing. Actual50 offering/caption/native-boundary checks,84 candidate and84 published routes and full media readback passed. Item676 remains open.

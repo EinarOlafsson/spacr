@@ -6,7 +6,8 @@ the left, a Z button that makes the wheel change the slice, and a View list
 left of the Mask tab offering Default, Orthogonal and True 3D. Every edit,
 from any view, lands in the one label volume.
 
-No GPU and no network: the volumes are small synthetic stacks.
+Portable checks need no GPU or network; the explicit native acceptance node
+requires Cocoa and Metal. All volumes are small synthetic stacks.
 """
 from __future__ import annotations
 
@@ -45,6 +46,385 @@ def _spaced(folder, name="spaced.tif"):
     write_tiff(Path(folder) / name, image,
                metadata={"axes": "ZYX", "voxel_spacing": [1., .5, .25], "unit": "um"})
     return Path(folder) / name
+
+
+def test_native_volume_gate_history_save_and_reopen(tmp_path):
+    """Exercise programmatic gate persistence through a normal native window."""
+    import ast
+    import hashlib
+    import json
+    import os
+    import subprocess
+    import sys
+    import textwrap
+
+    if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
+        pytest.skip('Requires the owned native Cocoa acceptance runner')
+    root = Path(__file__).resolve().parents[2]
+    fixture = tmp_path / 'fixture'
+    fixture.mkdir()
+    source = _spaced(fixture)
+    original_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+    head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+    syntax = ast.parse(Path(__file__).with_name('test_the_macos_application_menu.py').read_text())
+    bootstrap = next(node.value.args[0] for node in syntax.body if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == '_OWNED_SETTINGS_PROBE' for target in node.targets))
+    child = textwrap.dedent(ast.literal_eval(bootstrap)) + textwrap.dedent(r'''
+        import hashlib, subprocess, time, traceback
+        from pathlib import Path
+        import numpy as np
+        import tifffile, shiboken6
+        from PySide6.QtCore import QTimer, QSize
+        from PySide6.QtWidgets import QScrollArea
+        from spacr import layers
+        from spacr.qt import preferences, timing
+        from spacr.qt.app import MainWindow
+        from spacr.qt.bridge import registry, thread_has_stopped
+        from spacr.qt.first_run import _TourOverlay, was_tour_shown
+        from spacr.qt.gui_scale import _resize_actual
+        from spacr.qt.screens import make_masks as mm
+        from spacr.qt.widgets.gate_spec import BoxGate, EditableVolumeGate, GateSet
+
+        root = Path(os.environ['SPACR_GATE_ROOT'])
+        assert Path(__import__('spacr').__file__).resolve().parent.parent == root
+        assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip() == os.environ['SPACR_GATE_HEAD']
+        assert timing.ENABLED and not layers.gpu_render_refusal()
+        source = Path(os.environ['SPACR_GATE_SOURCE'])
+        output = Path(os.environ['SPACR_GATE_OUTPUT'])
+        digest = lambda a: hashlib.sha256(np.ascontiguousarray(a).tobytes()).hexdigest()
+        file_hash = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+        source_hash = file_hash(source)
+        image = np.arange(512,dtype=np.uint16).reshape(8,8,8)
+        small = np.zeros_like(image); small[:4,:4,:4] = 1
+        full = np.ones_like(image)
+        expected = {'initial':np.zeros_like(image),'draw':small,'edit':full,'undo':small,
+                    'redo':full,'save':full,'reopen':full}
+        operations = list(expected)
+        report = {'source_head':os.environ['SPACR_GATE_HEAD'],'errors':[], 'states':[],
+                  'actions':[], 'scope':'programmatic gate callbacks; no physical/FPS/pick claim',
+                  'source_hash':source_hash, 'settings_file':preferences._settings().fileName()}
+        preferences.set_ai_on_by_default(False)
+        state = {}
+
+        def save_report():
+            output.write_text(json.dumps(report,indent=2))
+
+        def advance(operation):
+            elapsed = time.perf_counter()-state['started']
+            assert elapsed < (30 if state['operation'] in ('startup','initial') else 20)
+            report[state['operation']+'_seconds'] = elapsed
+            state.update(operation=operation,started=time.perf_counter())
+            save_report()
+
+        def close():
+            state['timer'].stop()
+            report['closing_elapsed'] = time.perf_counter()-state['started']
+            state['threads'] = [h.thread for h in registry().active()]
+            state.setdefault('registry_snapshots',[]).append(registry_snapshot('before_close'))
+            report['normal_close_accepted'] = state['window'].close()
+            state['registry_snapshots'].append(registry_snapshot('after_close'))
+            save_report()
+
+        def registry_snapshot(moment):
+            rows=[]
+            for handle in registry().active():
+                valid=shiboken6.isValid(handle)
+                thread,worker=handle.thread,handle.worker
+                thread_valid=thread is not None and shiboken6.isValid(thread)
+                owner=handle.parent() if valid else None
+                owner_valid=owner is not None and shiboken6.isValid(owner)
+                rows.append({'handle_id':id(handle),'handle_type':type(handle).__name__,
+                    'handle_valid':valid,'handle_cpp':shiboken6.getCppPointer(handle) if valid else None,
+                    'name':handle.app_key,'native_name':handle.objectName() if valid else None,
+                    'kind':handle.kind,'stop_on_quit':getattr(handle,'stop_on_quit',True),
+                    'blocks_shutdown':handle.blocks_shutdown,
+                    'owner_id':id(owner) if owner is not None else None,
+                    'owner_type':type(owner).__name__ if owner is not None else None,
+                    'owner_cpp':shiboken6.getCppPointer(owner) if owner_valid else None,
+                    'is_running':handle.is_running() if valid and (thread is None or thread_valid) else None,
+                    'thread_id':id(thread) if thread is not None else None,'thread_valid':thread_valid,
+                    'thread_cpp':shiboken6.getCppPointer(thread) if thread_valid else None,
+                    'thread_name':thread.objectName() if thread_valid else None,
+                    'thread_is_running':thread.isRunning() if thread_valid else None,
+                    'thread_is_finished':thread.isFinished() if thread_valid else None,
+                    'thread_has_stopped':thread_has_stopped(thread) if thread_valid else True,
+                    'thread_captured_before_close':thread is not None and any(
+                        thread is captured for captured in state.get('threads',())),
+                    'worker_id':id(worker) if worker is not None else None,
+                    'worker_type':type(worker).__name__ if worker is not None else None,
+                    'worker_valid':worker is not None and shiboken6.isValid(worker)})
+            return {'moment':moment,'operation':state['operation'],
+                'elapsed':time.perf_counter()-state['started'],'handles':rows}
+
+        def tours_ready(window):
+            assert QApplication.activeModalWidget() is None
+            if window._startup_sequence_running():
+                return False
+            home = not state.get('requested',False)
+            tours = [t for t in window.findChildren(_TourOverlay) if t.isVisible()]
+            if home and not tours and not was_tour_shown():
+                return False
+            if tours:
+                assert len(tours)==1
+                tour = tours[0]
+                observation = {'key':getattr(tour,'_walkthrough_app_key',None),
+                    'pointer':shiboken6.getCppPointer(tour), 'home':home,
+                    'enabled':tour._skip_btn.isEnabled(),'visible':tour._skip_btn.isVisible(),
+                    'region':tour._skip_btn.visibleRegion().boundingRect().getRect()}
+                report.setdefault('tours',[]).append(observation); save_report()
+                assert tour.parentWidget() is window and observation['enabled'] and observation['visible']
+                assert not tour._skip_btn.visibleRegion().isEmpty()
+                if home:
+                    assert observation['key'] is None and window._stack.currentWidget() is window._startup
+                    assert not was_tour_shown()
+                else:
+                    assert observation['key']=='make_masks' and window._module_walkthroughs==[tour]
+                    assert window._stack.currentWidget() is state['screen']
+                tour._skip_btn.click()
+                return False
+            if home:
+                assert was_tour_shown()
+            return True
+
+        def observe_paint(stage):
+            canvas = stage._panel.canvas._canvas
+            cls, original = type(canvas),type(canvas).paintEvent
+            state.update(canvas=canvas,paint_class=cls,original_paint=original,painted=[])
+            def paint(widget,event):
+                original(widget,event)
+                if widget is canvas and stage._render_state is not None:
+                    rendered,artist=stage._render_state,stage._render_artist
+                    state['painted'].append({'serial':stage._shown_serial,'state':id(rendered),
+                        'visible':artist is not None and artist.get_visible(),
+                        'exact':artist is not None and np.array_equal(np.asarray(artist.get_array()),rendered.rgb),
+                        'offset':artist is not None and (artist.ox,artist.oy)==(int(rendered.rect[0]),int(rendered.rect[2]))})
+            cls.paintEvent=paint
+
+        def reveal(target):
+            ancestor=target.parentWidget()
+            while ancestor is not None and ancestor is not state['window']:
+                if isinstance(ancestor,QScrollArea):
+                    ancestor.ensureWidgetVisible(target,0,0)
+                ancestor=ancestor.parentWidget()
+            row={'operation':state['operation'],'target':target.objectName(),
+                'enabled':target.isEnabled(),'visible':target.isVisible(),
+                'region':target.visibleRegion().boundingRect().getRect(),
+                'elapsed':time.perf_counter()-state['started']}
+            report['actions'].append(row); save_report()
+            assert row['enabled'] and row['visible'] and not target.visibleRegion().isEmpty()
+
+        def act(operation):
+            advance(operation)
+            screen,stage=state['screen'],state['stage']
+            if operation=='draw':
+                stage._panel.canvas.gate_drawn.emit(BoxGate.from_limits('(unnamed)',('X','Y','Z'),[(0,1),(0,2),(0,4)]))
+            elif operation=='edit':
+                stage._panel.canvas.gate_edited.emit(EditableVolumeGate.from_gate(
+                    BoxGate.from_limits('1',('X','Y','Z'),[(0,2),(0,4),(0,8)])))
+            elif operation in ('undo','redo'):
+                action=screen._act_undo if operation=='undo' else screen._act_redo
+                assert action.isEnabled(); action.trigger()
+            elif operation=='save':
+                reveal(screen._btn_save)
+                screen._btn_save.click()
+                assert not stage.dirty
+            elif operation=='reopen':
+                assert not stage.dirty
+                old=stage.session
+                assert screen.open_volume(str(source)) is stage
+                assert stage.session is not old
+                report['reopen_default_view']=stage.view
+                report['session_replaced']=True
+                assert stage.view=='default'
+                assert stage.set_view('true3d')
+
+        def saved_files(stage):
+            target=source.parent/'masks'/source.name
+            sidecar=target.with_suffix(target.suffix+'.volume.json')
+            record=json.loads(sidecar.read_text())
+            assert np.array_equal(tifffile.imread(target),full) and tifffile.imread(target).dtype==np.uint16
+            assert set(record)=={'version','source_sha256','mask_sha256','shape','axes','spacing','unit','geometry','editor_controls'}
+            assert record['version']==1 and record['source_sha256']==source_hash
+            assert record['mask_sha256']==digest(full) and record['shape']==[8,8,8]
+            assert record['axes']=='ZYX' and record['spacing']==[1.,.5,.25] and record['unit']=='um'
+            assert record['geometry']==json.loads(json.dumps(GateSet(list(stage.session.geometries.values())).to_dict()))
+            assert record['editor_controls']==stage.session._editor_controls
+            report['sidecar']=record
+            report['mask_file_hash']=file_hash(target)
+            assert file_hash(source)==source_hash
+
+        def tick():
+            try:
+                operation=state['operation']
+                assert time.perf_counter()-state['started'] < (30 if operation in ('startup','initial') else 20),operation
+                window=state['window']
+                assert QApplication.activeModalWidget() is None
+                if operation=='startup':
+                    if state.get('requested',False):
+                        screen=window._screens.get('make_masks')
+                        if screen is None:return
+                        assert isinstance(screen,mm.MakeMasksScreen)
+                        if window._opening_a_screen or window._stack.currentWidget() is not screen or not screen.isVisible():return
+                        state['screen']=screen
+                    if not tours_ready(window):return
+                    if not state.get('requested',False):
+                        state['requested']=True
+                        assert window.open_module('make_masks')=='make_masks'
+                        return
+                    advance('initial')
+                    screen=state['screen']
+                    stage=screen.open_volume(str(source))
+                    assert stage is screen._mask_stage
+                    state['stage']=stage
+                    assert stage.set_view('true3d')
+                    observe_paint(stage)
+                    index=stage._backend_box.findData('metal'); assert index>=0
+                    stage._backend_box.setCurrentIndex(index)
+                    stage._scale_slider.setValue(75)
+                    return
+                stage=state['stage']
+                report['client_size']=[window.property('size').width(),window.property('size').height()]
+                assert report['client_size']==[1200,640]
+                if not (not stage.busy and stage.render_idle() and all(w.idle() for w in
+                        (stage._worker,stage._mesher,stage._renderer))) or stage._render_state is None:return
+                if operation=='current_idle':
+                    report['current_idle_seconds']=time.perf_counter()-state['started']
+                    assert file_hash(source)==source_hash
+                    close(); return
+                assert not [t for t in window.findChildren(_TourOverlay) if t.isVisible()]
+                session=stage.session
+                assert session.image.dtype==session.mask.dtype==np.uint16
+                assert np.array_equal(session.image,image) and np.array_equal(session.mask,expected[operation])
+                assert session.axes=='ZYX' and tuple(session.spacing)==(1.,.5,.25) and session.unit=='um'
+                assert file_hash(source)==source_hash
+                rendered=stage._render_state
+                if state['canvas']._draw_pending:return
+                paints=[r for r in state['painted'] if r['state']==id(rendered) and r['serial']==stage._shown_serial
+                        and r['visible'] and r['exact'] and r['offset']]
+                if not paints:
+                    state['canvas'].draw_idle(); return
+                assert stage._backend_box.currentData()==stage._backend_choice=='metal'
+                assert stage._scale_slider.value()==stage._scale==stage._render_percent()==75
+                context=stage._gl
+                assert context is not None and context.backend==rendered.backend=='metal' and rendered.scale.percent==75
+                bookkeeping=(stage._render_serial,stage._render_floor,stage._render_turning)
+                try:request=stage._render_request(rendered.quality)
+                finally:stage._render_serial,stage._render_floor,stage._render_turning=bookkeeping
+                rgb,picked=context.render(request)
+                assert tuple(request.rect)==tuple(rendered.rect) and request.scale.percent==75
+                assert np.array_equal(rgb,rendered.rgb) and np.array_equal(picked,rendered.picked)
+                assert np.any(rgb[...,:3])
+                x0,x1,y0,y1=request.rect
+                assert x1>x0 and y1>y0
+                if operation=='initial':assert not np.any(picked)
+                else:assert set(np.unique(picked)) <= {0,1} and np.any(picked==1)
+                serial=stage._shown_serial
+                if report['states']:
+                    previous=report['states'][-1]['serial']
+                    assert serial>=previous if operation=='save' else serial>previous
+                row={'operation':operation,'serial':serial,'mask_hash':digest(session.mask),
+                    'count':int(np.count_nonzero(session.mask)),'dtype':str(session.mask.dtype),
+                    'image_hash':digest(session.image),'session_id':id(session),'dirty':stage.dirty,
+                    'rgb':digest(rgb),'picked':digest(picked),'rect':list(request.rect),'backend':context.backend,
+                    'scale':stage._scale,'paint':paints[-1],'elapsed':time.perf_counter()-state['started']}
+                report['states'].append(row)
+                state.setdefault('contexts',{})[id(context)]=context
+                save_report()
+                if operation in ('save','reopen'):
+                    assert not stage.dirty
+                    saved_files(stage)
+                elif operation!='initial':assert stage.dirty
+                index=operations.index(operation)
+                if index+1<len(operations):act(operations[index+1]); return
+                advance('current_idle')
+            except Exception:
+                report['errors'].append(traceback.format_exc()); save_report(); close()
+
+        def ready(entry):
+            if entry.get('detail')!='__home__' or state:return
+            try:
+                windows=[w for w in QApplication.instance().topLevelWidgets() if isinstance(w,MainWindow)]
+                assert len(windows)==1
+                window=windows[0]
+                _resize_actual(window,QSize(1200,640))
+                native=window.windowHandle()
+                report['native']={'platform':QApplication.instance().platformName(),
+                    'exposed':native.isExposed(),'dpr':native.devicePixelRatio()}
+                state.update(window=window,operation='startup',started=time.perf_counter())
+                timer=QTimer(window); timer.setInterval(50); timer.timeout.connect(tick)
+                state['timer']=timer
+                assert report['native']=={'platform':'cocoa','exposed':True,'dpr':2.}
+                timer.start(); save_report()
+            except Exception:
+                report['errors'].append(traceback.format_exc()); save_report()
+                if state:close()
+                else:raise
+
+        timing.subscribe_readiness(ready)
+        from spacr.qt import run
+        result=run(['--no-setup','--fresh'])
+        timing.unsubscribe_readiness(ready)
+        if 'paint_class' in state:state['paint_class'].paintEvent=state['original_paint']
+        from spacr.qt.widgets import ambient
+        renderers=[context.renderer for context in state.get('contexts',{}).values()]
+        state.setdefault('registry_snapshots',[]).append(registry_snapshot('after_run_return'))
+        report.update(normal_return=result,remaining_jobs=len(registry().active()),
+            owned_threads_alive=sum(not thread_has_stopped(t) for t in state.get('threads',[])),
+            compiler_threads=[t.name for t in ambient._COMPILER_THREADS if t.is_alive()],
+            compiler_helper_present=ambient._PRIME_PROCESS is not None,
+            accepted_context_count=len(renderers),
+            gpu_resources_released=bool(renderers) and all(not any((renderer._textures,renderer._buffers,
+                renderer._pipelines,renderer._luts,renderer._dispatch_slots)) for renderer in renderers),
+            final_source_hash=file_hash(source))
+        if report['remaining_jobs']:report['registry_diagnostic']=state['registry_snapshots']
+        save_report()
+        assert not report['errors'],report
+        assert report['normal_close_accepted'] and result==0
+        assert [r['operation'] for r in report['states']]==operations
+        assert [r['count'] for r in report['states']]==[0,64,512,64,512,512,512]
+        assert report['startup_seconds']<30 and report['initial_seconds']<30
+        assert all(r['elapsed']<(30 if r['operation']=='initial' else 20) for r in report['states'])
+        assert all(report[op+'_seconds']<(30 if op=='initial' else 20) for op in operations)
+        assert report['current_idle_seconds']<20 and report['closing_elapsed']<20
+        assert report['session_replaced'] and report['reopen_default_view']=='default'
+        assert report['client_size']==[1200,640]
+        assert report['source_hash']==report['final_source_hash']
+        assert report['remaining_jobs']==report['owned_threads_alive']==0 and report['gpu_resources_released']
+        assert not report['compiler_threads'] and not report['compiler_helper_present']
+    ''')
+    env=os.environ.copy()
+    for name in ('CUDA_VISIBLE_DEVICES','SPACR_NO_GPU_RENDER','SPACR_GPU_RENDER','SPACR_HOME','SPACR_ISOLATED_PROFILE'):
+        env.pop(name,None)
+    output=tmp_path/'native-gate-history.json'
+    env.update(QT_QPA_PLATFORM='cocoa',PYTHONPATH=str(root),SPACR_ISOLATED_PROFILE='1',
+        SPACR_HOME=str(tmp_path/'profile'),SPACR_MENU_TEST_SETTINGS=str(tmp_path.resolve()),
+        SPACR_GATE_ROOT=str(root),SPACR_GATE_HEAD=head,SPACR_GATE_SOURCE=str(source),SPACR_GATE_OUTPUT=str(output),
+        SPACR_NO_NETWORK='1',SPACR_TIMING='1',SPACR_TIMING_LOG=str(tmp_path/'timing.txt'),
+        XDG_CONFIG_HOME=str(tmp_path/'settings'),XDG_CACHE_HOME=str(tmp_path/'cache'),
+        MPLCONFIGDIR=str(tmp_path/'cache'/'matplotlib'),NUMBA_CACHE_DIR=str(tmp_path/'numba'))
+    result=subprocess.run([sys.executable,'-c',child],cwd=root,env=env,capture_output=True,text=True,timeout=180)
+    (tmp_path/'native-gate-history-stdout.txt').write_text(result.stdout+result.stderr)
+    assert result.returncode==0,result.stdout+result.stderr
+    assert all(marker not in result.stdout+result.stderr for marker in
+        ('Error calling Python override','Traceback (most recent call last):','spaCR wrote a crash report'))
+    observed=json.loads(output.read_text())
+    assert observed['source_head']==head and not observed['errors']
+    assert observed['normal_return']==0 and observed['normal_close_accepted']
+    assert observed['native']=={'platform':'cocoa','exposed':True,'dpr':2.}
+    assert [r['operation'] for r in observed['states']]==['initial','draw','edit','undo','redo','save','reopen']
+    assert [r['count'] for r in observed['states']]==[0,64,512,64,512,512,512]
+    assert all(r['dtype']=='uint16' and r['backend']=='metal' and r['scale']==75 for r in observed['states'])
+    assert observed['startup_seconds']<30 and observed['initial_seconds']<30
+    assert all(r['elapsed']<(30 if r['operation']=='initial' else 20) for r in observed['states'])
+    assert all(observed[op+'_seconds']<(30 if op=='initial' else 20) for op in
+        ('initial','draw','edit','undo','redo','save','reopen'))
+    assert observed['current_idle_seconds']<20 and observed['closing_elapsed']<20
+    assert observed['session_replaced'] and observed['reopen_default_view']=='default'
+    assert observed['client_size']==[1200,640]
+    assert observed['remaining_jobs']==observed['owned_threads_alive']==0 and observed['gpu_resources_released']
+    assert not observed['compiler_threads'] and not observed['compiler_helper_present']
+    assert hashlib.sha256(source.read_bytes()).hexdigest()==original_hash==observed['final_source_hash']
+    assert np.array_equal(tifffile.imread(fixture/'masks'/'spaced.tif'),np.ones((8,8,8),dtype=np.uint16))
 
 
 @pytest.fixture

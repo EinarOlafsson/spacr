@@ -138,3 +138,61 @@ def test_the_regression_screen_frame_asks_no_converted_filter(qtbot):
              "settings_model.py", "theme.py", "dnd.py", "chaining.py",
              "glass.py")
     assert {name: n for name, n in sources.items() if name in quiet} == {}
+
+
+def test_short_action_words_observe_style_and_row_layout_without_paint_entry(qtbot):
+    from PySide6.QtGui import QFont
+    from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+    from spacr.qt.screens.app_screen import _ActionWordFit
+    from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+
+    window = QWidget()
+    layout = QVBoxLayout(window)
+    row = QWidget(window)
+    layout.addWidget(row)
+    actions = QHBoxLayout(row)
+    switch = AiToggleLabel(text="AI")
+    actions.addWidget(switch)
+    fit = _ActionWordFit(switch)
+    qtbot.addWidget(window)
+    window.resize(500, 180)
+    window.show()
+    qtbot.waitExposed(window)
+    qtbot.waitUntil(lambda: not fit._timer.isActive())
+    original_width = switch.property("minimumSize").width()
+    delivered, fitted = [], []
+    previous_profile = sys.getprofile()
+
+    def profile(frame, event, arg):
+        if event == "call" and frame.f_locals.get("self") is fit:
+            if frame.f_code.co_name == "eventFilter":
+                delivered.append(frame.f_locals["event"].type())
+            elif frame.f_code.co_name == "_fit":
+                fitted.append(True)
+
+    sys.setprofile(profile)
+    try:
+        window.repaint()
+        row.repaint()
+        switch.repaint()
+        assert delivered == []
+        font = QFont(switch.font())
+        font.setPixelSize(28)
+        switch.setText("3D and time")
+        switch.setFont(font)
+        QApplication.sendEvent(switch, QEvent(QEvent.StyleChange))
+        assert QEvent.FontChange in delivered and QEvent.StyleChange in delivered
+        assert fit._timer.isActive()
+        qtbot.waitUntil(lambda: not fit._timer.isActive())
+        assert fitted
+        assert switch.property("minimumSize").width() > original_width
+        assert switch.property("minimumSize").width() >= switch.fontMetrics().horizontalAdvance(switch.text())
+        fitted.clear()
+        QApplication.sendEvent(row, QEvent(QEvent.LayoutRequest))
+        assert delivered[-1] == QEvent.LayoutRequest
+        assert fit._timer.isActive()
+        qtbot.waitUntil(lambda: not fit._timer.isActive())
+        assert fitted
+        assert QEvent.Paint not in delivered and QEvent.UpdateRequest not in delivered
+    finally:
+        sys.setprofile(previous_profile)

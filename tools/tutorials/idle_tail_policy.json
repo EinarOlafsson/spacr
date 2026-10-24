@@ -3,8 +3,8 @@
   "lessons": [
     {
       "lesson": "02_install_spacr",
-      "master_sha256": "331e12e22e6118223af0310f75d8ceb32fc4ce45409d12756331d087f02c7dae",
-      "visual_timing_sha256": "714e5fe2c65e72dd1813ce123d4883354e0ab651c9caec95e0b547024916f847",
+      "master_sha256": "f0f9fb555ac880a49f1187a15bc2d9a669f8ee5568f55b1bb1a8b1467ebda5d3",
+      "visual_timing_sha256": "a139230b320351aae17684c981062d56b59d53ee0ddb93058b71215a62757966",
       "scenes": [
         {
           "visual": "00_install_routes",
@@ -136,8 +136,8 @@
     },
     {
       "lesson": "04_platform_installers",
-      "master_sha256": "7c93360d640bed781a0756675ff9cdbde2aaf6d907096b8e017e088d1019ec4a",
-      "visual_timing_sha256": "3988e51266fc3df86a97619898d6f8494eb9d74bb94a2b83395216320ba1357f",
+      "master_sha256": "0f8c5a326e101f93a8cd6242d18546e6cc8b5f3bfb0cb058c09a99962a7ececc",
+      "visual_timing_sha256": "098916f919b2127ef83cb59bdf67c11b9fe28410a3b4e342be1d9d72a924aebf",
       "scenes": [
         {
           "visual": "08_official_release",
@@ -1110,7 +1110,7 @@
     {
       "lesson": "78_spacr_screens",
       "master_sha256": "eb9b61246caf544168caf85b5d554e4373417a3086afcd42da64ae750e4c92f8",
-      "visual_timing_sha256": "1ed168619d3ab24785f374b7e1e71ffd7923e01dfa4c17db549375f628de01c4",
+      "visual_timing_sha256": "67bf0f64a3055c27251f75c6e5d6e0ce034911e2ae258e2a7bbff29cca963c48",
       "scenes": [
         {
           "visual": "home",
@@ -1723,7 +1723,7 @@
     {
       "lesson": "20_cellpose_masks",
       "master_sha256": "6d28c9cb05ca832bd2a4a2984466f9a323435237616dca99e1ac6d42d2db715d",
-      "visual_timing_sha256": "3a4310ddf878f945a635ad0ce4e5fbca59eb252313360840e5af509476057ccf",
+      "visual_timing_sha256": "f37e02a141701abf9392a8a85f5c88ee469fe0bd00b60ed1382b4c80e8d361c4",
       "scenes": [
         {
           "visual": "02_actual_train_and_apply_tabs",

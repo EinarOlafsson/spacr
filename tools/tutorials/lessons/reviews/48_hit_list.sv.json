@@ -1,10 +1,10 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "english_sha256": "98a0eaaf0bb38a6b0d2f7bead3b40748f9b4f8b544e9192492f538f27a5529ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); conditional wording only; untouched reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,10 +17,10 @@
     "Filtrera kandidater och läsa deras effekter och guideöverensstämmelse.",
     "Exportera de valda raderna som CSV, Markdown eller HTML."
   ],
-  "prerequisite": "Packa upp Hit_List_real_results_companion.zip och aktivera din spaCR-miljö. Den nuvarande genvägen Hits i Regression visar inte panelen; kör i stället python hit_list_companion.py och använd Browse för att gå till den uppackade resultatmappen. Hjälpskriptet är inte kopplat till Investigate. Använd wells_with_gene från results_gene.csv för antalet stödjande brunnar: det exporterade n_obs=0 är inte det faktiska stödet. Exemplet innehåller inga gener som uppfyller q <= 0.05.",
+  "prerequisite": "Packa upp Hit_List_real_results_companion.zip och aktivera din spaCR-miljö. Om genvägen Hits i Regression inte visar panelen, kör python hit_list_companion.py och använd Browse för att gå till den uppackade resultatmappen. Hjälpskriptet är inte kopplat till Investigate. Använd wells_with_gene från results_gene.csv för antalet stödjande brunnar: det exporterade n_obs=0 är inte det faktiska stödet. Exemplet innehåller inga gener som uppfyller q <= 0.05.",
   "scenes": [
     "Från Home öppnar du Regression och väljer Hits. Om panelen förblir dold använder du hjälpskriptet som följer med lektionen för att öppna Hit List.",
-    "Packa upp det länkade exemplet och aktivera din spaCR-miljö. Kör python hit_list_companion.py. Klicka på Browse i hjälpskriptets fönster och välj den uppackade resultatmappen.",
+    "För att använda alternativet packar du upp det länkade exemplet och aktiverar din spaCR-miljö. Kör python hit_list_companion.py. Klicka på Browse i hjälpskriptets fönster och välj den uppackade resultatmappen.",
     "Exemplet läser in 325 gener. Bredda kolumnerna för att läsa effekt, P, q och guideöverensstämmelse. Effekterna är standardiserade marginaleffekter. För antalet stödjande brunnar läser du wells_with_gene i results_gene.csv; ett exporterat observationsantal på 0 betyder att stödet inte är tillgängligt.",
     "Ställ Max q på 0,05. Inga gener i exemplet klarar gränsen, så tabellen blir tom. Återställ Max q till 1 för att bläddra bland alla kandidater.",
     "Ställ Minimum guides på 2. Det återstår 117 gener med minst två testade guiderader. Filtret behåller de ursprungliga q-värdena.",

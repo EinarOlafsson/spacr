@@ -361,7 +361,8 @@ class TestSetupNeedsNoGithubAccount:
         """First-run setup remains usable regardless of optional GitHub credentials."""
         import shutil
 
-        from spacr.qt import setup_screen, terms
+        from spacr import crashreport
+        from spacr.qt import preferences, setup_screen, terms
         from spacr.qt.ai import github_auth
         from spacr.qt.widgets.setup_slides import SetupSlides
 
@@ -387,11 +388,15 @@ class TestSetupNeedsNoGithubAccount:
             app.processEvents()
             for attribute in ("_gh_mark", "_gh_status", "_gh_action"):
                 assert not hasattr(slides, attribute), attribute
+            slides._editors["spacr_ai"].setChecked(False)
             answers = slides.answers()
             assert set(answers) == {question[0] for question in setup_screen.questions()}
             assert set(answers) == {"language", "theme", "colour_blind",
-                                    "spacr_mode", "hash_inputs"}
+                                    "spacr_mode", "hash_inputs", "spacr_ai"}
+            assert answers["spacr_ai"] is False
             assert setup_screen.apply(answers) == []
+            assert preferences.get_preferred_provider() == "none"
+            assert crashreport.error_report_mode() == "off"
             assert setup_screen.current() == answers
             assert terms.needs_agreement() is agreement_before
             assert probes == []

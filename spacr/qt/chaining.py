@@ -468,11 +468,21 @@ class ChainingBar(QFrame):
 
     def _on_screen_shown(self) -> None:
         """Re-read the registry when the user comes back to this screen."""
-        self._timer.start()
+        if not self._host_closed():
+            self._timer.start()
 
     def _on_edited(self) -> None:
         """A keystroke in a bound path field."""
-        self._timer.start()
+        if not self._host_closed():
+            self._timer.start()
+
+    def _host_closed(self) -> bool:
+        """Drop deferred work only after the containing host accepted close."""
+        if not getattr(self.host_window(), "_closing", False):
+            return False
+        self._timer.stop()
+        self._resolve_again = None
+        return True
 
     def _remember_project(self) -> str:
         """Record the folder this module is being run in, and return it.
@@ -654,6 +664,8 @@ class ChainingBar(QFrame):
         :param finished: a run just finished successfully, so offer the next
             step as well.
         """
+        if self._host_closed():
+            return
         self._capture_edits()
         settings = self.current_settings()
         if self._resolving:
@@ -686,6 +698,8 @@ class ChainingBar(QFrame):
                 when it produced nothing to draw.
             """
             self._resolving = False
+            if self._host_closed():
+                return
             again, self._resolve_again = self._resolve_again, None
             try:
                 if payload is not None:
@@ -694,7 +708,7 @@ class ChainingBar(QFrame):
                 if again is not None:
                     self.refresh(finished=bool(again))
 
-        if not self._resolver.submit(work, done):
+        if self._host_closed() or not self._resolver.submit(work, done):
             self._resolving = False
 
     def _paint(self, resolution, notes, *, finished: bool) -> None:
@@ -959,6 +973,8 @@ def _chained_app_screen(app_key: str, host=None):
     from .screens.app_screen import AppScreen
 
     screen = AppScreen(app_key=app_key)
+    if host is not None and getattr(host, "_closing", False):
+        return screen
     _connect_host(screen, host)
     install_chaining(screen)
     return screen

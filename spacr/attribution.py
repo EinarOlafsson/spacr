@@ -642,8 +642,6 @@ def _eigen_cam(spec: "MethodSpec", wrapped: ClassScoreModel, x: torch.Tensor,
             wrapped(x)
     finally:
         handle.remove()
-    # The feature extraction stays on the GPU. Small double-precision map
-    # reductions run on the CPU, since Metal cannot store float64 tensors.
     act = captured[0][0].detach()
     if act.device.type == 'mps':
         act = act.cpu()
@@ -3270,9 +3268,6 @@ def _counterfactual_sequences(model: nn.Module,
                 seq = _cf_preserve_reference_channels(seq, x, preserved)
             probs = torch.softmax(wrapped(seq), dim=-1)
             want = target_probs[int(tgt[i])]
-            # torch 2.2's Metal vector-dot graph aborts the process for
-            # these small score vectors. Keep generation/classification on
-            # Metal and reduce their completed probabilities on the CPU.
             if probs.device.type == 'mps':
                 probs, want = probs.cpu(), want.cpu()
             score = ((probs @ want) / (want @ want)).cpu().numpy()

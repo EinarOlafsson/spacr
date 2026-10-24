@@ -14,6 +14,10 @@ from typing import List, Optional
 
 import pytest
 
+from tests.qt.test_the_console_keeps_the_ai_error_analysis import (
+    manual_error_batches,
+)
+
 
 # ---------------------------------------------------------------------------
 # Fixtures — a real-subprocess-backed fake provider
@@ -232,7 +236,8 @@ def test_provider_switch_between_messages(qtbot, qt_theme_applied,
 # 5. Explain-error flow end-to-end (fake provider replies)
 # ---------------------------------------------------------------------------
 
-def test_open_error_flow_streams_a_reply(qtbot, qt_theme_applied, monkeypatch):
+def test_open_error_flow_streams_a_reply(
+        qtbot, qt_theme_applied, monkeypatch, manual_error_batches):
     from spacr.qt.widgets.console_panel import ConsolePanel
 
     fake = _make_short_provider("You forgot to pass channels=[0,1].")
@@ -245,6 +250,7 @@ def test_open_error_flow_streams_a_reply(qtbot, qt_theme_applied, monkeypatch):
     try:
         tb = "Traceback (most recent call last):\n  File 'x'\nTypeError: foo"
         panel.open_error_flow(tb, active_app="Mask")
+        manual_error_batches()
         assert _wait_stream_done(panel, qtbot)
         # The reply should show up in a stdout block containing the fake text
         from spacr.qt.widgets.console_panel import _StdoutBlock

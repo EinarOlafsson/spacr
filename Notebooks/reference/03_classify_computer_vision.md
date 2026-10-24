@@ -47,7 +47,16 @@ This linked reference contains the full generated setting descriptions. Return t
 
 
 <details>
-<summary>Plate Sources &amp; Workflow (5 settings)</summary>
+<summary>Classifier (1 settings)</summary>
+
+#### Classifier
+
+- **`learning_rate`** *(optional)* — (float) - Initial optimizer step size. Values that are too high may prevent convergence; values that are too low may slow convergence or converge to a suboptimal solution. A value near 1e-3 is commonly used for training from random initialization, while 1e-4 to 1e-5 is appropriate for fine-tuning ImageNet weights (init_weights=True). The selected schedule modifies this initial value during training. Default 0.001. Default: `0.001`.
+
+</details>
+
+<details>
+<summary>Plate Sources &amp; Workflow (7 settings)</summary>
 
 #### Plate Sources & Workflow
 
@@ -56,6 +65,8 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`test`** *(optional)* — (bool) - In classifier training, run the held-out evaluation pass, either with train or alone to score an existing model. In the sequencing barcode mapper, process only the first read chunk and print a preview so the regex and barcode CSVs can be validated quickly. Default False. Default: `False`.
 - **`generate_full_dataset`** *(optional)* — (bool) - Build the full unlabelled inference dataset tar from every selected plate independently of training or model application. Apply model to dataset also creates it automatically when needed. API: spacr.io.generate_dataset. Default False. Default: `False`.
 - **`tar_path`** *(optional)* — (str) - Existing full-dataset tar to reuse for inference. Leave blank to generate one beneath the first plate's datasets folder. Multiple selected plates are combined into one tar. API: spacr.deep_spacr.apply_model_to_tar. Default empty. Default: `''`.
+- **`channel_of_interest`** *(optional)* — (int, list, or str) - Measurements available to the model. Specify one channel to train on that channel alone, multiple channels to use their combination of measurements, or 'shape' to use outline-derived features. An empty value includes every measurement. A colocalisation feature is associated with both measured channels, so selecting either channel also includes their shared colocalisation features. This setting also selects the channel used for recruitment measurements. Default 3 in machine-learning steps and 1 or 2 elsewhere. Default: `3`.
+- **`tables`** *(optional)* — (list) - Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm']. Default: `['cell', 'nucleus', 'pathogen', 'cytoplasm']`.
 
 </details>
 
@@ -73,13 +84,11 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Computer Vision — Images &amp; Cropping (11 settings)</summary>
+<summary>Computer Vision — Images &amp; Cropping (9 settings)</summary>
 
 #### Computer Vision — Images & Cropping
 
 - **`image_source`** *(optional)* — (str) - Source of classification images. 'load_images' reads previously exported object crops; 'stream_images' generates crops from merged image and mask arrays during training. Streaming avoids creating a separate export for each object, channel, and crop-shape combination. Default 'load_images'. Default: `'load_images'`.
-- **`tables`** *(optional)* — (list) - Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm']. Default: `['cell', 'nucleus', 'pathogen', 'cytoplasm']`.
-- **`channel_of_interest`** *(optional)* — (int, list, or str) - Measurements available to the model. Specify one channel to train on that channel alone, multiple channels to use their combination of measurements, or 'shape' to use outline-derived features. An empty value includes every measurement. A colocalisation feature is associated with both measured channels, so selecting either channel also includes their shared colocalisation features. This setting also selects the channel used for recruitment measurements. Default 3 in machine-learning steps and 1 or 2 elsewhere. Default: `3`.
 - **`stream_method`** *(optional)* — (str) - Method used to locate objects for streamed crops. 'column' uses coordinates stored in the object table and requires object_array and channel_arrays. 'array' uses labelled objects in the same object_array plane and additionally requires bounding_box. Settings that do not apply to the selected method are ignored. Default 'column'. Default: `'column'`.
 - **`object_array`** *(optional)* — (str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'. Default: `'cell'`.
 - **`channel_arrays`** *(optional)* — (list[int]) - Zero-based intensity-plane indices included in each streamed image, in output-channel order. This setting applies to both stream methods; changing the order changes the channel mapping presented to the model. Default [0, 1, 2]. Default: `[0, 1, 2]`.
@@ -108,13 +117,12 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Computer Vision — Training &amp; Loss (15 settings)</summary>
+<summary>Computer Vision — Training &amp; Loss (14 settings)</summary>
 
 #### Computer Vision — Training & Loss
 
 - **`epochs`** *(optional)* — (int) - Number of full passes over the training set. It also sets the learning-rate schedule horizon - cosine anneals over exactly this many epochs and step_lr drops every epochs/5 - so changing it rescales the schedule. A checkpoint is always written on the final epoch and every 100th. Raise it for small datasets and use early_stopping_patience to cut runs short. Default 100. Default: `100`.
 - **`optimizer_type`** *(optional)* — (str) - PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the default for fine-tuning; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'. Default: `'adamw'`.
-- **`learning_rate`** *(optional)* — (float) - Initial optimizer step size. Values that are too high may prevent convergence; values that are too low may slow convergence or converge to a suboptimal solution. A value near 1e-3 is commonly used for training from random initialization, while 1e-4 to 1e-5 is appropriate for fine-tuning ImageNet weights (init_weights=True). The selected schedule modifies this initial value during training. Default 0.001. Default: `0.001`.
 - **`schedule`** *(optional)* — (str) - Learning-rate scheduler used by spacr.deep_spacr.train_model: 'cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', or 'none'. Plateau reacts to validation loss; cosine and linear use the epoch budget; warm restarts periodically raise the rate to escape a narrow minimum. API: train_model(schedule=...). Default 'cosine'. Default: `'cosine'`.
 - **`amsgrad`** *(optional)* — (bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True. Default: `True`.
 - **`loss_type`** *(optional)* — (str) - Loss used to train the classifier. For a head with two or more classes: 'focal_loss' (down-weights easy examples), 'cross_entropy', 'label_smoothing' (epsilon 0.1), 'ce_weighted' (inverse-frequency class weights), 'logit_adjust_ce' and 'asl'. 'binary_cross_entropy_with_logits' is valid only for a single-logit head and raises otherwise. Use a weighted or focal loss for imbalanced classes. Default 'focal_loss'. Merged Classifier starts at 'auto', which resolves to cross_entropy for a multi-class head and binary_cross_entropy_with_logits for a single-logit head. Default: `'auto'`.

@@ -2,14 +2,16 @@
 
 Five screens turn a worker traceback into ONE inline line -- none of them
 may raise a dialog for a failed job, so that line is the whole error
-report. All five walk the lines backwards looking for a non-blank one,
-and in all five the skip cannot fire, for the same reason: the text was
-``.strip()``ed before it was split.
+report. Four walk the lines backwards looking for a non-blank one;
+JobRunner takes the equivalent final line directly. The text is
+``.strip()``ed before splitting, so a nonempty result cannot end blank.
 """
 from __future__ import annotations
 
+import ast
 import inspect
 import logging
+import textwrap
 
 import pytest
 
@@ -47,14 +49,29 @@ class TestEveryLastNonBlankLineLoop:
         already stripped -- so the LAST element is never blank and the
         first candidate always breaks. The skip cannot fire.
 
-        Removing the strip is what makes it live, in any of the five, so
-        that is what this checks in all of them at once.
+        JobRunner now takes that same final line directly. Pin its exact
+        one-conversion summary and empty fallback while retaining the four
+        other loop guards. Removing the initial strip breaks either form.
         """
         pytest.importorskip("PySide6")
         source = _source(module_name, class_name)
 
-        assert "candidate.strip()" in source, (
-            f"{module_name} no longer walks for a non-blank line")
+        if module_name == "spacr.qt.job_runner":
+            from spacr.qt.job_runner import JobRunner
+
+            source = inspect.getsource(JobRunner._on_worker_error_text)
+            method = ast.parse(textwrap.dedent(source)).body[0]
+            expected = ast.parse(
+                'lines = str(text).strip().splitlines()\n'
+                'self.job_failed.emit(lines[-1].strip() if lines else "unknown error")')
+            actual = ast.Module(body=method.body[-2:], type_ignores=[])
+            assert ast.dump(actual, include_attributes=False) == ast.dump(
+                expected, include_attributes=False)
+            assert sum(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                       and node.func.id == "str" for node in ast.walk(method)) == 1
+        else:
+            assert "candidate.strip()" in source, (
+                f"{module_name} no longer walks for a non-blank line")
         assert ".strip().splitlines()" in source, (
             f"{module_name} no longer strips before it splits, so a "
             f"trailing blank line can now reach the loop")

@@ -1988,10 +1988,24 @@ def test_actual_application_dialog_filters_keep_metadata_and_browser_in_their_ho
     tifffile.imwrite(tmp_path / "plate1_A01_F1.tif", np.arange(120, dtype=np.uint16).reshape(10, 12))
     tifffile.imwrite(tmp_path / "OTF_DC_DCAM#1_CAM1.tif", np.zeros((4, 4), np.uint16))
     code = r'''
-import sys
+import sys, time, faulthandler
+started = time.monotonic()
+main_cpu_started = time.thread_time()
+process_cpu_started = time.process_time()
+def progress(message):
+ """Flush stage clocks and tool types without callback values or local data."""
+ trace_type = type(sys.gettrace())
+ profile_type = type(sys.getprofile())
+ print('overview-host-stage %.3fs main-cpu=%.3fs process-cpu=%.3fs trace=%s.%s profile=%s.%s %s' % (
+  time.monotonic() - started, time.thread_time() - main_cpu_started,
+  time.process_time() - process_cpu_started, trace_type.__module__, trace_type.__qualname__,
+  profile_type.__module__, profile_type.__qualname__, message), file=sys.stderr, flush=True)
+faulthandler.dump_traceback_later(25, file=sys.stderr)
+progress('import Qt')
 from PySide6.QtWidgets import QApplication, QDialog, QSpacerItem, QSizePolicy
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtTest import QTest
+progress('import application')
 from spacr.qt.app import MainWindow, install_the_dialog_filters
 from spacr.qt import preferences
 from spacr.qt.first_run import mark_tour_seen
@@ -1999,20 +2013,62 @@ from spacr.qt.theme import active_palette
 from PySide6.QtGui import QColor, QPalette
 from spacr.qt.widgets.qc_field_browser import _open_field_overview
 from spacr.qt.screens.map_barcodes import host_pages
+progress('create QApplication')
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 mark_tour_seen()
 preferences.set_theme('dark' if sys.argv[1] == 'mask' else 'light')
 preferences.apply_preferences_to_app(app)
+progress('create MainWindow')
 window = MainWindow()
+progress('MainWindow created')
 window.resize(1180, 820)
 window.show()
 install_the_dialog_filters(app)
 state = {}
+def finish(code):
+ """Stop this workflow's owned jobs and close the real window before exit."""
+ if state.get('finishing'):
+  return
+ state['finishing'] = True
+ progress('finish %s: cancel owned jobs' % code)
+ timer.stop()
+ host = state.get('host')
+ owners = [state.get('wizard'), state.get('body'), state.get('replacement')]
+ workspace = getattr(host, '_field_overview_workspace', None)
+ runners = []
+ for owner in owners:
+  if owner is None:
+   continue
+  for name in ('_visual_timer', '_native_timer', '_readout_timer', '_startup_timer', '_rescan_timer', '_action_fit_timer'):
+   owned_timer = getattr(owner, name, None)
+   if owned_timer is not None:
+    owned_timer.stop()
+  cancelled = getattr(owner, '_cancelled', None)
+  if cancelled is not None:
+   cancelled.set()
+  cancel = getattr(owner, '_cancel', None)
+  if callable(cancel):
+   cancel()
+  for name in ('_runner', '_index_jobs', '_image_jobs', '_export_jobs', '_thumbnail_jobs',
+    '_montage_jobs', '_field_thumbnail_jobs', '_metadata_jobs', '_native_jobs', '_measurement_jobs'):
+   runner = getattr(owner, name, None)
+   if runner is not None:
+    runner.cancel()
+    runners.append(runner)
+ progress('finish: drain %s owned runners' % len(runners))
+ for runner in runners:
+  runner.shutdown(timeout_ms=3000)
+ progress('finish: close workspace and window')
+ if workspace is not None:
+  workspace.close()
+ window.close()
+ progress('finish: leave event loop')
+ app.exit(code)
 def fail():
  import traceback
  traceback.print_exc()
- app.exit(1)
+ finish(1)
 def open_empty():
  try:
   window.open_module(sys.argv[1])
@@ -2050,8 +2106,9 @@ def tick():
     assert not host._btn_run.isVisible() and wizard.next.isVisible()
     assert not host._settings_search.isVisible()
    if not state.get('cancelled_initial'):
-    wizard.reject()
+    progress('cancel initial metadata wizard')
     wizard._runner.shutdown(timeout_ms=3000)
+    wizard.reject()
     assert host._settings_scroll.widget() is state['original_settings']
     state['wizard'] = _open_field_overview(host, state['settings'])
     assert state['wizard'] is not wizard
@@ -2071,12 +2128,16 @@ def tick():
    assert gray != wizard.palette().color(QPalette.ColorGroup.Active, QPalette.ColorRole.Text)
    image = wizard.preview.viewport().grab().toImage()
    rect = wizard.preview.visualItemRect(wizard.preview.item(row, 0)).intersected(image.rect())
-   assert any(image.pixelColor(x, y) == gray for y in range(rect.top(), rect.bottom()) for x in range(rect.left(), rect.right()))
+   assert any(pixel.alpha() > 0 and pixel.getRgb()[:3] == gray.getRgb()[:3]
+    for pixel in (image.pixelColor(x, y) for y in range(rect.top(), rect.bottom())
+     for x in range(rect.left(), rect.right())))
    QTest.mouseClick(wizard.next, Qt.LeftButton)
    state['stage'] = 2
   elif state['stage'] == 2:
    body = host._field_overview
-   if not body._normalization_ready:
+   state['body'] = body
+   if (not body._normalization_ready or body._module_action_fit_timer.isActive()
+     or body._fitting_module_actions):
     return
    assert body.isVisible() and not body.isWindow() and not isinstance(body, QDialog)
    assert not body.property('spacrGlassed') and body.window() is window
@@ -2086,8 +2147,27 @@ def tick():
    assert host._field_overview_workspace.stack.property('spacrTransparent') is True
    if sys.argv[1] == 'mask':
     assert (body.wells.rowCount(), body.wells.columnCount()) == (16, 24)
-    assert body.wells.viewport().height() >= 400
-    assert body.wells.rowHeight(0) >= 22
+    viewport = body.wells.viewport()
+    room = viewport.rect()
+    assert room.width() > 0 and room.height() > 0
+    assert body._plate_fit
+    assert all(body.wells.rowHeight(row) > 0 for row in range(16))
+    assert all(body.wells.columnWidth(column) > 0 for column in range(24))
+    assert sum(body.wells.rowHeight(row) for row in range(16)) <= room.height()
+    assert sum(body.wells.columnWidth(column) for column in range(24)) <= room.width()
+    first_cell = body.wells.visualRect(body.wells.model().index(0, 0))
+    last_cell = body.wells.visualRect(body.wells.model().index(15, 23))
+    assert first_cell.width() > 0 and first_cell.height() > 0
+    assert room.contains(first_cell) and room.contains(last_cell)
+    assert body.wells.horizontalScrollBar().maximum() == 0
+    assert body.wells.verticalScrollBar().maximum() == 0
+    viewports = body._allocation_viewports
+    assert viewports
+    budget = min(window.property('size').height(),
+     *(ancestor.property('size').height() for ancestor in viewports))
+    assert 0 < body.wells.property('size').height() <= budget
+    assert body.wells.property('maximumHeight') == budget
+    assert body.wells.property('minimumHeight') <= budget
    QTest.mouseClick(body.options_button, Qt.LeftButton)
    state['stage'] = 3
   elif state['stage'] == 3:
@@ -2097,9 +2177,10 @@ def tick():
    body._options_window.close()
    assert host._settings_scroll.widget() is body._settings_content
    replacement = _open_field_overview(host, {'source': sys.argv[2] + '/missing'})
+   state['replacement'] = replacement
    assert host._field_overview_workspace.stack.currentWidget() is replacement
-   replacement.reject()
    replacement._runner.shutdown(timeout_ms=3000)
+   replacement.reject()
    assert host._field_overview_workspace.stack.currentWidget() is body
    assert host._settings_scroll.widget() is body._settings_content
    host._field_overview_workspace._back()
@@ -2109,27 +2190,32 @@ def tick():
     assert host._btn_run.isVisible() and host._settings_search.isVisible()
    assert _open_field_overview(host, {}) is wizard
    assert body.isVisible() and host._settings_scroll.widget() is body._settings_content
-   host._field_overview_workspace.close()
-   for runner in (body._index_jobs, body._image_jobs, body._export_jobs, body._thumbnail_jobs,
-     body._montage_jobs, body._field_thumbnail_jobs, body._metadata_jobs, body._native_jobs, body._measurement_jobs):
-    runner.shutdown(timeout_ms=3000)
-   wizard._runner.shutdown(timeout_ms=3000)
+   finish(0)
    print('embedded widgets survive actual application dialog filters', flush=True)
-   app.exit(0)
  except Exception:
   fail()
 QTimer.singleShot(0, open_empty)
 timer = QTimer()
 timer.timeout.connect(tick)
 timer.start(50)
-QTimer.singleShot(20000, lambda: app.exit(2))
+QTimer.singleShot(20000, lambda: finish(2))
 sys.exit(app.exec())
 '''
     environment = dict(os.environ, XDG_CONFIG_HOME=str(tmp_path / "config"),
         XDG_CACHE_HOME=str(tmp_path / "cache"), SPACR_NO_NETWORK="1", SPACR_PREWARM="0",
         SPACR_ISOLATED_PROFILE="1", SPACR_HOME=str(tmp_path / "profile"))
-    result = subprocess.run([sys.executable, "-c", code, host_key, str(tmp_path)],
-        env=environment, capture_output=True, text=True, timeout=30)
+    try:
+        result = subprocess.run([sys.executable, "-c", code, host_key, str(tmp_path)],
+            env=environment, capture_output=True, text=True, timeout=30)
+    except subprocess.TimeoutExpired as error:
+        stdout = error.output or ""
+        stderr = error.stderr or ""
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode(errors="replace")
+        if isinstance(stderr, bytes):
+            stderr = stderr.decode(errors="replace")
+        pytest.fail(f"Embedded {host_key} exceeded the unchanged {error.timeout}s budget."
+                    f"\nCaptured stdout:\n{stdout}\nCaptured stderr:\n{stderr}", pytrace=False)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "embedded widgets survive actual application dialog filters" in result.stdout
 

@@ -828,16 +828,24 @@ class _ErrorStream:
     def flush(self):
         """Flush an explicitly tagged partial error without delaying output."""
         try:
-            from .crashreport import _capture_error_line
+            from .crashreport import _capture_error_line, _ERROR_DISPATCH_LOCAL
         except Exception:
             return self.original.flush()
         text = getattr(self._buffers, "text", "")
         self._buffers.text = ""
         if text:
+            absent = object()
+            previous = getattr(_ERROR_DISPATCH_LOCAL, "terminal_buffer_flush", absent)
+            _ERROR_DISPATCH_LOCAL.terminal_buffer_flush = True
             try:
                 _capture_error_line(text)
             except Exception:
                 pass
+            finally:
+                if previous is absent:
+                    del _ERROR_DISPATCH_LOCAL.terminal_buffer_flush
+                else:
+                    _ERROR_DISPATCH_LOCAL.terminal_buffer_flush = previous
         return self.original.flush()
 
     def __getattr__(self, name):

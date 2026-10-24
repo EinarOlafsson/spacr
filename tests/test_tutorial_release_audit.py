@@ -531,6 +531,7 @@ def test_pypi_preserves_the_final_i_and_reviewed_language_forms():
     # receipts under features/data/676_publication_2026-10-13_{07_mask,08_measure}.
     native_ids = {"02_install_spacr", "04_platform_installers", "05_home", "07_mask", "08_measure", "09_annotate", "11_classify_ml", "14_make_masks", "15_image_umap", "17_timelapse", "20_cellpose_masks", "21_model_compare", "23_agreement", "27_replication", "28_training_runs", "32_align_stitch", "33_plate_viewer", "35_converter", "38_distributed_jobs", "39_classifier_evaluation", "40_run_history", "42_curate", "43_illumination", "44_data_manager", "45_project_browser", "49_methods_results", "51_control_charts", "52_pipeline_graph", "53_prediction_profiler", "54_qc_dashboard", "55_image_scatter", "62_feature_dictionary", "67_experiment_design", "78_spacr_screens", "80_image_analysis_pathways", "82_toxoplasma"}
     original_ids = {"18_motility", "19_train_cellpose", "24_plaque",
+                    "48_hit_list", "71_investigate_hit",
                     "74_import_images", "85_host_pathogen", "87_alpha_features"}
     assert visual_references == {
         **{identity: identity + "/video/native-live-timings.json" for identity in native_ids},

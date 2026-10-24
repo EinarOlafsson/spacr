@@ -1,10 +1,10 @@
 {
   "lesson": "71_investigate_hit",
-  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "english_sha256": "72858a0f292935c05078f9bc0ff092ae845130dd45dda499fb3754a06915b7ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); approved subset sentence and scene13 conclusion only; all other reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,7 +17,7 @@
     "Velge måledatabase, celleprediksjoner, guideandeler og poengkolonne.",
     "Lese fanene for bevis, brønner, guider og terskel og finne de lagrede tabellene."
   ],
-  "prerequisite": "Pakk ut Investigate_Hit_real_screen_example.zip. Alt i det kommer fra én og samme reelle screening: Regression-kjøringen på testdataene til Regression (innstillingene fra Regression-veiledningen), de tilsvarende CV-prediksjonene per celle og en måledatabase med de faktiske målingene av form, størrelse og intensitet for de samme cellene. For å holde nedlastingen liten inneholder databasen 52 brønner: alle analyserte brønner med en guide for gen 225160 og, for hver av dem, tre brønner uten den fra samme plate. Ingen gener i denne raske Regression-kjøringen oppfyller q ≤ 0,05. Behandle undersøkelsen som et gjennomregnet eksempel, ikke som et bekreftet treff.",
+  "prerequisite": "Pakk ut Investigate_Hit_real_screen_example.zip. Alt i det kommer fra én og samme reelle screening: Regression-kjøringen på testdataene til Regression (innstillingene fra Regression-veiledningen), de tilsvarende CV-prediksjonene per celle og en måledatabase med de faktiske målingene av form, størrelse og intensitet for de samme cellene. Eksempeldatabasen inneholder 52 brønner: alle analyserte brønner med en guide for gen 225160, pluss tre brønner fra samme plate uten denne guiden for hver målbrønn. Ingen gener i denne raske Regression-kjøringen oppfyller q ≤ 0,05. Behandle undersøkelsen som et gjennomregnet eksempel, ikke som et bekreftet treff.",
   "scenes": [
     "Fra Home åpner du Regression. Investigate Hit tar utgangspunkt i en ferdig Regression-kjøring. Det spør om de målte cellene i brønnene bak ett gen ser annerledes ut enn celler i brønner uten det genet.",
     "Velg Hits for å åpne Hit List. Pakk først ut eksempelarkivet. Det inneholder en Regression-kjøring på testdataene, de tilsvarende CV-prediksjonene per celle og en måledatabase for de samme cellene. Alle tre kommer fra én og samme reelle screening.",
@@ -31,7 +31,7 @@
     "For Well/guide fractions velger du regression_data.csv i den samme resultatmappen. Denne tabellen ble skrevet av Regression. Den angir andelen for hver guide i hver analysert brønn.",
     "La Independent morphology features stå tomt. Modulen bruker da databasens 13 numeriske cellemålinger og utelater identifikatorer, guideandeler og CV-poengsummen, slik at denne kontrollen ikke gjenbruker poengsummen. For din egen database oppgir du bare målekolonner uten manglende verdier.",
     "Klikk på Investigate hit. Modellen tilpasses med én plate holdt utenfor om gangen, slik at ingen celle får poeng av en modell som er trent på dens egen plate. Guideandelen i en brønn setter bare utgangsforventningen for cellene i brønnen. Den merker aldri en celle som bærer av guiden. Dette eksemplet tar noen minutter.",
-    "Evidence gir resultatet. Målbrønnene har en treff-lignende prevalens som bare er 0,01 høyere enn i kontrollbrønnene. Bootstrap-intervallet per brønn går fra minus 0,04 til pluss 0,06, og P-verdien for den blokkerte permutasjonen er omtrent 0,63. Cellene støtter ikke denne kandidaten.",
+    "Evidence gir resultatet. Målbrønnene har en treff-lignende prevalens som bare er 0,01 høyere enn i kontrollbrønnene. Bootstrap-intervallet per brønn går fra minus 0,04 til pluss 0,06, og P-verdien for den blokkerte permutasjonen er omtrent 0,63. Denne analysen gir ingen klare holdepunkter for en forskjell for denne kandidaten.",
     "Wells viser guideandel, gjennomsnittlig treff-lignende sannsynlighet, prevalens og celleantall for hver brønn. Hver brønn teller som én uavhengig enhet, så sammenligningen bruker 13 målbrønner og 39 kontrollbrønner, ikke enkeltceller.",
     "Guides viser hver målguide for seg. Dose-respons-forløpene deres peker i ulike retninger, noe som er enda en grunn til ikke å behandle dette genet som et treff.",
     "Threshold sensitivity gjentar sammenligningen ved sannsynlighetsgrenser fra 0,5 til 0,9. Ved hver grense holder forskjellen seg nær 0,01, så konklusjonen avhenger ikke av grensen.",

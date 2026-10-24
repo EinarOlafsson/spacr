@@ -975,8 +975,14 @@ def _set_psf_defaults(settings):
 def _set_unmix_defaults(settings):
     """Populate the dormant spectral-unmixing settings, unmixing off."""
     settings.setdefault('unmix', False)
+    settings.setdefault('unmix_per_plate', False)
+    settings.setdefault('unmix_partition_plates', False)
+    settings.setdefault('unmix_plate_calibrations', '')
     settings.setdefault('unmix_controls', '')
+    settings.setdefault('unmix_matrix_file', '')
     settings.setdefault('unmix_background_percentile', 5.0)
+    settings.setdefault('unmix_calibration', '')
+    settings.setdefault('unmix_pixel_size_um', None)
 
 
 def _set_n2v_defaults(settings):
@@ -3347,8 +3353,11 @@ expected_types = {
     "psf_image_sampling_um": (list, type(None)),
     "psf_kernel_sampling_um": (list, type(None)),
     "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
-    "unmix": bool, "unmix_controls": str,
+    "unmix": bool, "unmix_per_plate": bool, "unmix_partition_plates": bool,
+    "unmix_plate_calibrations": str, "unmix_controls": str, "unmix_matrix_file": str,
     "unmix_background_percentile": (float, int),
+    "unmix_calibration": str,
+    "unmix_pixel_size_um": (list, tuple, type(None)),
     "n2v_denoise": bool, "n2v_model": str, "n2v_epochs": int,
     "enhance_background": str, "enhance_background_radius": int,
     "enhance_background_scale": float,
@@ -4407,8 +4416,14 @@ tooltips = {
     'psf_fwhm_um': "(list or None) - Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
     'psf_iterations': "(int) - Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
     'unmix': "(bool) - Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
-    'unmix_controls': "(str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank.",
+    'unmix_per_plate': "(bool) - Select same-plate controls by physical channel ID using a JSON plate-to-channel-to-well-list map in unmix_controls. Requires unmix and explicit calibration. Every selected physical channel needs same-plate controls; no global or cross-plate fallback. Calibrated organized 2D cell-only V2 supports one plate/time/Z per dataset; mixed sources require unmix_partition_plates and explicit optical mappings. Previews, V1 and ordinary Measure refuse. No matrix-file loading or purity inference. Default False preserves global controls and packed-stack syntax.",
+    'unmix_partition_plates': "(bool) - Split mixed organized sources into independent calibrated 2D cell-only V2 datasets. Requires unmix_per_plate, complete controls and unmix_plate_calibrations. Conflicts with global calibration, pixel spacing and matrix files. Requires directory-relative, no-follow and nonblocking descriptor access. Originals stay unchanged; the collection is nonquantitative. Cancellation retains completed plate outputs without resuming or overwriting. QC supports report or off. Acquisition compatibility is supplied, not verified. Default False preserves the single-dataset route.",
+    'unmix_plate_calibrations': "(str) - JSON object keyed by exact plate ID. Each entry has calibration_file, pixel_size_um [Y,X], source_context {plate,time,z}, and acquisition_compatibility='user_asserts_same_channel_gains_exposures_and_linear_response'. Relative calibration paths start at the original source folder. Used only with unmix_partition_plates; every plate requires a complete entry. Optical applicability and within-plate gain/exposure compatibility are unverified user assertions, not cross-plate comparability. Default blank.",
+    'unmix_matrix_file': "(str) - Version-1 spectral matrix JSON for calibrated organized 2D cell-only V2. Requires explicit physical channel order, unit diagonal, plate/time/Z, calibration hash and background policy. Acquisition gain/exposure compatibility is an unverified user assertion. Conflicts with control estimation and unmix_per_plate; unsupported routes refuse even if this alpha setting is hidden. The captured matrix is copied into the output for signed-record validation. No concentration or acquisition-transfer validation. Default blank preserves estimated controls.",
+    'unmix_controls': "(str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank. When unmix_per_plate is True, instead supply a JSON plate-to-physical-channel-to-well-list mapping; every selected physical channel must have same-plate controls. The legacy positional syntax is refused in that mode.",
     'unmix_background_percentile': "(float) - Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
+    'unmix_calibration': "(str) - Calibration JSON with measured channel PSFs, integer shifts, reference channel and pixel sampling. Organized 2D previews and cell-only V2 use a common broadened PSF and valid overlap. V2 preserves raw files and writes separate nonquantitative display planes, restored masks and signed crops; boundary-touching labels are excluded. Ordinary Measure/preview, V1, 3D, timelapse and extra processing refuse calibrated outputs/settings. No calibration is inferred. Default blank preserves legacy unmixing.",
+    'unmix_pixel_size_um': "(list or None) - Explicit source pixel size [Y, X] in micrometers for calibrated spectral live previews and V2 batch segmentation. Both values must be positive and match the supplied image and PSF calibration; no resampling is performed. Required when unmix_calibration is set. Default None.",
     'n2v_denoise': "(bool) - Self-supervised denoising: train a Noise2Void (N2V2) network per segmentation channel on this run's own noisy fields, with no clean images, and denoise every field with it after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo; training wants a GPU. The models' hashes and training losses are recorded with the run. Default False.",
     'n2v_model': "(str) - Folder of trained Noise2Void models, one channel_<c>.ckpt per segmentation channel, such as the n2v folder of an earlier run on the same microscope. Blank trains new models on up to eight of this run's fields into its own n2v folder and reuses them when the run is resumed. Ignored unless n2v_denoise is on. Default blank.",
     'n2v_epochs': "(int) - Training passes over the Noise2Void patches, at least 1. More epochs denoise better up to a point and take longer: on a CPU, 30 epochs over ten 512 x 512 crops took under four minutes, and eight full 2000 x 2000 fields take about twelve times as long per epoch, so train on a GPU. Changing it trains new models. Ignored when n2v_model names trained models. Default 20.",
@@ -5593,8 +5608,10 @@ categories = {
                               "psf_path", "psf_image_sampling_um", "psf_kernel_sampling_um",
                               "psf_fwhm_um", "psf_iterations"],
 
-    "Spectral Unmixing α": ["unmix", "unmix_controls",
-                                  "unmix_background_percentile"],
+    "Spectral Unmixing α": ["unmix", "unmix_per_plate", "unmix_partition_plates",
+                                  "unmix_plate_calibrations", "unmix_controls", "unmix_matrix_file",
+                                  "unmix_background_percentile", "unmix_calibration",
+                                  "unmix_pixel_size_um"],
 
     "Self-Supervised Denoising α": ["n2v_denoise", "n2v_model",
                                           "n2v_epochs"],
@@ -7615,7 +7632,9 @@ ALPHA_FEATURES = {
         'settings': ('anndata_format', 'anndata_tidy_dir'),
     },
     538: {
-        'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
+        'settings': ('unmix', 'unmix_per_plate', 'unmix_partition_plates',
+                     'unmix_plate_calibrations', 'unmix_controls', 'unmix_matrix_file', 'unmix_background_percentile',
+                     'unmix_calibration', 'unmix_pixel_size_um'),
     },
     557: {
         'settings': ('n2v_denoise', 'n2v_model', 'n2v_epochs'),

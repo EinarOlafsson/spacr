@@ -97,6 +97,9 @@ out = {"ratio": device_ratio(QLabel())}
 # The masthead -- the picture the complaint was about.
 from spacr.qt.widgets.home import HomePage
 page = HomePage([("mask", "Mask", "d", "Core")], lambda key: None)
+page.resize(1100, 760)
+page.show()
+app.processEvents()
 mark = page._hero_mark
 pixmap = mark.pixmap()
 out["home"] = {

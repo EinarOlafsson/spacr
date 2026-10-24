@@ -1,10 +1,10 @@
 {
   "lesson": "20_cellpose_masks",
-  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "english_sha256": "ab0837359e26a864539d5b7388c6b9f5ab14f9d120bd72335ab2baa2ec1c5c99",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); scene2 phrase proposal; scenes5–8 copied unchanged from current published catalogs",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,13 +20,13 @@
   "prerequisite": "Estrai l’esempio Apply Cellpose collegato in una nuova cartella. Contiene tre immagini di cellule a canale singolo e un riferimento delle impostazioni. Seleziona la sua cartella images come Source. Questa guida usa il modello standard cpsam; per un modello personalizzato, scegli pesi e impostazioni compatibili con le tue immagini.",
   "scenes": [
     "Da Home, apri Make Masks e poi il suo Cellpose Workbench. Scegli Apply per segmentare immagini con un modello esistente. Usa Train quando vuoi apprendere nuovi pesi da coppie immagine-maschera verificate.",
-    "Estrai l’esempio collegato e imposta Source sulla sua cartella images. Contiene tre immagini di cellule a canale singolo, ciascuna di cinquecentododici pixel di lato. Se usi il file di impostazioni registrato come riferimento, sostituisci il suo percorso di origine con la cartella che hai estratto.",
+    "Estrai l’esempio collegato e imposta Source sulla sua cartella images. Contiene tre immagini di cellule a canale singolo, ciascuna di cinquecentododici pixel di lato. Se usi il riferimento alle impostazioni fornito, sostituisci il suo percorso di origine con la cartella che hai estratto.",
     "Seleziona cpsam e lascia vuoto Custom model in questo esempio. Imposta Channels a zero, i percentili di normalizzazione a due e novantanove, Diameter a trenta, Flow threshold a zero virgola quattro e Cell probability a zero. Regola queste impostazioni dopo aver esaminato alcuni campi rappresentativi del tuo esperimento.",
     "Attiva Save e Verbose, scegli una dimensione del batch di uno e fai clic su Run in Apply. Segui la console mentre viene elaborata ogni immagine. Esamina gli errori prima di passare alla misurazione.",
-    "Apri la sottocartella masks dentro Source. Ogni immagine ha un TIFF di maschera con lo stesso nome base. Esamina le figure accanto alle immagini originali, facendo attenzione agli oggetti mancati e alle cellule unite. Il pannello dei flussi mostra le direzioni usate dal modello per la segmentazione.",
-    "Attiva Live preview e scegli un’immagine con il selettore delle immagini. Apri Live settings e controlla i comandi di canale e di normalizzazione. Comprimi Console e System per dare più spazio all’anteprima, se serve.",
-    "Confronta l’anteprima con la maschera salvata del batch. In questo esempio anteprima e Apply seguono percorsi di elaborazione diversi, quindi possono produrre contorni e conteggi diversi. Esamina i TIFF salvati quando decidi se gli output del batch sono adatti alla misurazione.",
-    "Usa la rotella del mouse per ingrandire un’area su entrambe le aree di anteprima. Esamina gli oggetti che si toccano e i contorni deboli, poi riduci lo zoom per controllare l’intero campo.",
+    "La sottocartella masks dentro Source contiene un TIFF di maschera con lo stesso nome base per ogni immagine. Esamina le figure accanto alle immagini originali, facendo attenzione agli oggetti mancati e alle cellule unite. Il pannello dei flussi mostra le direzioni usate dal modello per la segmentazione.",
+    "Comprimi le altre schede dei risultati per dare più spazio all’anteprima. Attiva Live preview e scegli un’immagine con il selettore delle immagini. Cerca l’immagine di esempio fornita.",
+    "Controlla canale e normalizzazione in Live settings, poi esegui l’anteprima. Anteprima e Apply elaborano queste immagini in modo diverso, quindi contorni e conteggi possono differire. Esamina i TIFF salvati quando decidi se gli output del batch sono adatti alla misurazione.",
+    "Usa la rotella del mouse per ingrandire un’area su entrambe le aree di anteprima. Esamina gli oggetti che si toccano e i contorni deboli nella vista ingrandita.",
     "Apri Live settings e aumenta Minimum cell area per rimuovere gli oggetti piccoli dall’anteprima. La soglia è in pixel; sceglila in base alla dimensione dei tuoi oggetti. Chiudi la finestra per esaminare il risultato filtrato.",
     "Confronta i contorni filtrati con l’immagine originale. Cambiare questo filtro dal vivo aggiorna l’anteprima senza riscrivere le maschere già salvate da Apply. Riesegui il batch con le impostazioni volute quando ti servono nuovi output salvati.",
     "Riporta Minimum cell area a zero per ripristinare l’anteprima non filtrata. Tieni insieme le immagini di input, l’identità del modello, le impostazioni e le maschere salvate. Usa Make Masks per le correzioni oppure Measure per estrarre le caratteristiche degli oggetti dalle maschere verificate."

@@ -3676,7 +3676,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Kontrollera mappar, modellnamn och utdataplats och tryck sedan på Run. Panelen Figures visar träningsbilderna ovanför deras masker, och konsolen följer förloppet. På den här GPU:n tog 10 epoker med sex bilder under en minut.",
+          "narration": "Kontrollera mappar, modellnamn och utdataplats och tryck sedan på Run. Panelen Figures visar träningsbilderna ovanför deras masker, och konsolen följer förloppet.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3806,15 +3806,15 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Från Home öppnar du Make Masks och sedan dess Cellpose Workbench. Välj Apply för att segmentera bilder med en befintlig modell. Använd Train när du vill lära nya vikter från granskade par av bild och mask.",
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "Packa upp det länkade exemplet och ställ Source på dess mapp images. Den innehåller tre enkanaliga cellbilder, var och en 512 × 512 pixlar. Om du använder den inspelade inställningsfilen som referens byter du ut dess källsökväg mot din uppackade mapp.",
+          "narration": "Packa upp det länkade exemplet och ställ Source på dess mapp images. Den innehåller tre enkanaliga cellbilder, var och en 512 × 512 pixlar. Om du använder den medföljande inställningsreferensen byter du ut dess källsökväg mot din uppackade mapp.",
           "hold_after": 0.7
         },
         {
@@ -3890,11 +3890,11 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -9268,7 +9268,7 @@
         "Filtrera kandidater och läsa deras effekter och guideöverensstämmelse.",
         "Exportera de valda raderna som CSV, Markdown eller HTML."
       ],
-      "prerequisite": "Packa upp Hit_List_real_results_companion.zip och aktivera din spaCR-miljö. Den nuvarande genvägen Hits i Regression visar inte panelen; kör i stället python hit_list_companion.py och använd Browse för att gå till den uppackade resultatmappen. Hjälpskriptet är inte kopplat till Investigate. Använd wells_with_gene från results_gene.csv för antalet stödjande brunnar: det exporterade n_obs=0 är inte det faktiska stödet. Exemplet innehåller inga gener som uppfyller q <= 0.05.",
+      "prerequisite": "Packa upp Hit_List_real_results_companion.zip och aktivera din spaCR-miljö. Om genvägen Hits i Regression inte visar panelen, kör python hit_list_companion.py och använd Browse för att gå till den uppackade resultatmappen. Hjälpskriptet är inte kopplat till Investigate. Använd wells_with_gene från results_gene.csv för antalet stödjande brunnar: det exporterade n_obs=0 är inte det faktiska stödet. Exemplet innehåller inga gener som uppfyller q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9280,7 +9280,7 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Packa upp det länkade exemplet och aktivera din spaCR-miljö. Kör python hit_list_companion.py. Klicka på Browse i hjälpskriptets fönster och välj den uppackade resultatmappen.",
+          "narration": "För att använda alternativet packar du upp det länkade exemplet och aktiverar din spaCR-miljö. Kör python hit_list_companion.py. Klicka på Browse i hjälpskriptets fönster och välj den uppackade resultatmappen.",
           "hold_after": 0.7
         },
         {
@@ -13684,7 +13684,7 @@
         "Välja mätdatabas, cellprediktioner, guideandelar och poängkolumn.",
         "Läsa flikarna för evidens, brunnar, guider och tröskel och hitta de sparade tabellerna."
       ],
-      "prerequisite": "Packa upp Investigate_Hit_real_screen_example.zip. Allt i det kommer från en och samma verkliga screening: Regression-körningen på Regressions testdata (inställningarna från Regression-handledningen), motsvarande CV-prediktioner per cell och en mätdatabas med samma cellers verkliga mått på form, storlek och intensitet. För att hålla nedladdningen liten innehåller databasen 52 brunnar: alla analyserade brunnar med en guide för gen 225160 och, för var och en, tre brunnar utan den från samma platta. Ingen gen i den här snabba Regression-körningen klarar q ≤ 0,05. Behandla undersökningen som ett genomräknat exempel, inte som en bekräftad träff.",
+      "prerequisite": "Packa upp Investigate_Hit_real_screen_example.zip. Allt i det kommer från en och samma verkliga screening: Regression-körningen på Regressions testdata (inställningarna från Regression-handledningen), motsvarande CV-prediktioner per cell och en mätdatabas med samma cellers verkliga mått på form, storlek och intensitet. Exempeldatabasen innehåller 52 brunnar: alla analyserade brunnar med en guide för gen 225160 samt tre brunnar från samma platta utan den guiden för varje målbrunn. Ingen gen i den här snabba Regression-körningen klarar q ≤ 0,05. Behandla undersökningen som ett genomräknat exempel, inte som en bekräftad träff.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13758,7 +13758,7 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence visar resultatet. Målbrunnarna har en träfflik prevalens som bara är 0,01 högre än kontrollbrunnarnas. Bootstrapintervallet per brunn går från minus 0,04 till plus 0,06, och P-värdet för den blockade permutationen är ungefär 0,63. Cellerna stöder inte kandidaten.",
+          "narration": "Evidence visar resultatet. Målbrunnarna har en träfflik prevalens som bara är 0,01 högre än kontrollbrunnarnas. Bootstrapintervallet per brunn går från minus 0,04 till plus 0,06, och P-värdet för den blockade permutationen är ungefär 0,63. Den här analysen ger inga tydliga belägg för en skillnad för den här kandidaten.",
           "hold_after": 0.7
         },
         {
@@ -14166,7 +14166,7 @@
         "Välja mål, plattnamn och om filer ska kopieras eller länkas.",
         "Spara en återanvändbar plan och importera bilder för Mask."
       ],
-      "prerequisite": "Hämta först Mask-exemplet. Genomgången använder kopior av synfälten E01/F001 och L01/F009 med fyra kanaler vardera. De förberedda kopiorna utelämnar den överflödiga token A direkt före Z men behåller brunns-, synfälts- och kanalidentiteterna. Behåll originalen och använd avbildningsprotokollen när du tolkar okända tokens.",
+      "prerequisite": "Hämta först Mask-exemplet. Använd arbetskopior av synfälten E01/F001 och L01/F009 med fyra kanaler vardera. Ta bara i dessa kopior bort den överflödiga token A direkt före Z och bevara varje brunns-, synfälts- och kanaltoken. Behåll originalen och använd avbildningsprotokollen när du tolkar okända tokens.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -14199,7 +14199,7 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Skanna de förberedda exempelkopiorna. Den överflödiga avbildningstoken har tagits bort, medan brunns-, synfälts- och kanaltokens finns kvar. Kontrollera att förslaget listar åtta bilder, två brunnar, två synfältsnummer och fyra kanaler.",
+          "narration": "Skanna dessa arbetskopior. Den överflödiga avbildningstoken har tagits bort, medan brunns-, synfälts- och kanaltokens finns kvar. Kontrollera att förslaget listar åtta bilder, två brunnar, två synfältsnummer och fyra kanaler.",
           "hold_after": 0.7
         },
         {
@@ -14826,7 +14826,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Innan en klassificerare kan lära sig något behöver den exempel. Öppna Annotate från Home så visar den objektutsnitten som Measure sparat eller strömmar. Gå igenom representativa celler och märk dem. Varje etikett skrivs till en annoteringskolumn i tabellen png_list, kopplad till objektets identitet. Använd en separat kolumn för varje fråga och lägg undan några märkta objekt för utvärdering. Det är den annoteringskolumnen som Classify tränar på därefter.",
+          "narration": "Innan en klassificerare kan lära sig något behöver den exempel. Öppna Annotate från Home för att se objektutsnitten som hör till ditt uppmätta projekt. Gå igenom representativa celler och märk dem. Varje etikett skrivs till en annoteringskolumn i tabellen png_list, kopplad till objektets identitet. Använd en separat kolumn för varje fråga och lägg undan några märkta objekt för utvärdering. Det är den annoteringskolumnen som Classify tränar på därefter.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

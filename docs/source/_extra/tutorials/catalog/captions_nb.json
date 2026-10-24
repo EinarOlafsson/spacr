@@ -3681,7 +3681,7 @@
         },
         {
           "visual": "train_run_console",
-          "narration": "Kontroller mapper, modellnavn og utdataplassering, og trykk deretter på Run. Panelet Figures viser treningsbildene over maskene, og konsollen følger fremdriften. På denne GPU-en ble 10 epoker på seks bilder ferdige på under ett minutt.",
+          "narration": "Kontroller mapper, modellnavn og utdataplassering, og trykk deretter på Run. Panelet Figures viser treningsbildene over maskene, og konsollen følger fremdriften.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3811,15 +3811,15 @@
         {
           "visual": "02_actual_train_and_apply_tabs",
           "narration": "Fra Home åpner du Make Masks og deretter Cellpose Workbench. Velg Apply for å segmentere bilder med en eksisterende modell. Bruk Train når du vil lære nye vekter fra kontrollerte par av bilde og maske.",
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "19_train_cellpose"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "04_setting_src",
-          "narration": "Pakk ut det lenkede eksemplet og sett Source til mappen images. Den inneholder tre enkanals cellebilder, hver på 512 × 512 piksler. Hvis du bruker den innspilte innstillingsfilen som referanse, bytter du ut kildebanen med mappen du pakket ut.",
+          "narration": "Pakk ut det lenkede eksemplet og sett Source til mappen images. Den inneholder tre enkanals cellebilder, hver på 512 × 512 piksler. Hvis du bruker den medfølgende innstillingsreferansen, bytter du ut kildebanen med mappen du pakket ut.",
           "hold_after": 0.7
         },
         {
@@ -3895,11 +3895,11 @@
             2750,
             455
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -9273,7 +9273,7 @@
         "Filtrere kandidater og lese effektene og guidesamsvaret.",
         "Eksportere de valgte radene som CSV, Markdown eller HTML."
       ],
-      "prerequisite": "Pakk ut Hit_List_real_results_companion.zip og aktiver spaCR-miljøet ditt. Den nåværende snarveien Hits i Regression viser ikke panelet; kjør i stedet python hit_list_companion.py og bruk Browse for å gå til den utpakkede resultatmappen. Hjelpeskriptet er ikke koblet til Investigate. Bruk wells_with_gene fra results_gene.csv for antall støttende brønner: den eksporterte n_obs=0 er ikke den faktiske støtten. Eksemplet inneholder ingen gener som oppfyller q <= 0.05.",
+      "prerequisite": "Pakk ut Hit_List_real_results_companion.zip og aktiver spaCR-miljøet ditt. Hvis snarveien Hits i Regression ikke viser panelet, kjør python hit_list_companion.py og bruk Browse for å gå til den utpakkede resultatmappen. Hjelpeskriptet er ikke koblet til Investigate. Bruk wells_with_gene fra results_gene.csv for antall støttende brønner: den eksporterte n_obs=0 er ikke den faktiske støtten. Eksemplet inneholder ingen gener som oppfyller q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9285,7 +9285,7 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Pakk ut det lenkede eksemplet og aktiver spaCR-miljøet ditt. Kjør python hit_list_companion.py. I hjelpeskriptets vindu klikker du på Browse og velger den utpakkede resultatmappen.",
+          "narration": "For å bruke alternativet pakker du ut det lenkede eksemplet og aktiverer spaCR-miljøet ditt. Kjør python hit_list_companion.py. I hjelpeskriptets vindu klikker du på Browse og velger den utpakkede resultatmappen.",
           "hold_after": 0.7
         },
         {
@@ -13689,7 +13689,7 @@
         "Velge måledatabase, celleprediksjoner, guideandeler og poengkolonne.",
         "Lese fanene for bevis, brønner, guider og terskel og finne de lagrede tabellene."
       ],
-      "prerequisite": "Pakk ut Investigate_Hit_real_screen_example.zip. Alt i det kommer fra én og samme reelle screening: Regression-kjøringen på testdataene til Regression (innstillingene fra Regression-veiledningen), de tilsvarende CV-prediksjonene per celle og en måledatabase med de faktiske målingene av form, størrelse og intensitet for de samme cellene. For å holde nedlastingen liten inneholder databasen 52 brønner: alle analyserte brønner med en guide for gen 225160 og, for hver av dem, tre brønner uten den fra samme plate. Ingen gener i denne raske Regression-kjøringen oppfyller q ≤ 0,05. Behandle undersøkelsen som et gjennomregnet eksempel, ikke som et bekreftet treff.",
+      "prerequisite": "Pakk ut Investigate_Hit_real_screen_example.zip. Alt i det kommer fra én og samme reelle screening: Regression-kjøringen på testdataene til Regression (innstillingene fra Regression-veiledningen), de tilsvarende CV-prediksjonene per celle og en måledatabase med de faktiske målingene av form, størrelse og intensitet for de samme cellene. Eksempeldatabasen inneholder 52 brønner: alle analyserte brønner med en guide for gen 225160, pluss tre brønner fra samme plate uten denne guiden for hver målbrønn. Ingen gener i denne raske Regression-kjøringen oppfyller q ≤ 0,05. Behandle undersøkelsen som et gjennomregnet eksempel, ikke som et bekreftet treff.",
       "scenes": [
         {
           "visual": "01_module",
@@ -13763,7 +13763,7 @@
         },
         {
           "visual": "13_evidence",
-          "narration": "Evidence gir resultatet. Målbrønnene har en treff-lignende prevalens som bare er 0,01 høyere enn i kontrollbrønnene. Bootstrap-intervallet per brønn går fra minus 0,04 til pluss 0,06, og P-verdien for den blokkerte permutasjonen er omtrent 0,63. Cellene støtter ikke denne kandidaten.",
+          "narration": "Evidence gir resultatet. Målbrønnene har en treff-lignende prevalens som bare er 0,01 høyere enn i kontrollbrønnene. Bootstrap-intervallet per brønn går fra minus 0,04 til pluss 0,06, og P-verdien for den blokkerte permutasjonen er omtrent 0,63. Denne analysen gir ingen klare holdepunkter for en forskjell for denne kandidaten.",
           "hold_after": 0.7
         },
         {
@@ -14171,7 +14171,7 @@
         "Velge mål, platenavn og om filer skal kopieres eller lenkes.",
         "Lagre en gjenbrukbar plan og importere bilder for Mask."
       ],
-      "prerequisite": "Last ned Mask-eksemplet først. Gjennomgangen bruker kopier av synsfeltene E01/F001 og L01/F009, med fire kanaler hver. De forberedte kopiene utelater den overflødige tokenen A rett før Z, men beholder identitetene for brønn, synsfelt og kanal. Behold originalene og bruk opptaksprotokollene når du tolker ukjente tokener.",
+      "prerequisite": "Last ned Mask-eksemplet først. Bruk arbeidskopier av synsfeltene E01/F001 og L01/F009, med fire kanaler hver. Fjern den overflødige tokenen A rett før Z bare i disse kopiene, og bevar alle tokener for brønn, synsfelt og kanal. Behold originalene og bruk opptaksprotokollene når du tolker ukjente tokener.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -14204,7 +14204,7 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Skann de forberedte eksempelkopiene. Den overflødige opptakstokenen er fjernet, mens tokenene for brønn, synsfelt og kanal er beholdt. Kontroller at forslaget viser åtte bilder, to brønner, to synsfeltnumre og fire kanaler.",
+          "narration": "Skann disse arbeidskopiene. Den overflødige opptakstokenen er fjernet, mens tokenene for brønn, synsfelt og kanal er beholdt. Kontroller at forslaget viser åtte bilder, to brønner, to synsfeltnumre og fire kanaler.",
           "hold_after": 0.7
         },
         {
@@ -14831,7 +14831,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Før en klassifikator kan lære noe, trenger den eksempler. Åpne Annotate fra Home, så viser den objektutsnittene som Measure har lagret eller strømmer. Gå gjennom representative celler og merk dem. Hver merkelapp skrives til en annotasjonskolonne i tabellen png_list, knyttet til objektets identitet. Bruk en egen kolonne for hvert spørsmål, og sett av noen merkede objekter til evaluering. Det er denne annotasjonskolonnen Classify trener på deretter.",
+          "narration": "Før en klassifikator kan lære noe, trenger den eksempler. Åpne Annotate fra Home for å se objektutsnittene som er knyttet til prosjektet ditt med målinger. Gå gjennom representative celler og merk dem. Hver merkelapp skrives til en annotasjonskolonne i tabellen png_list, knyttet til objektets identitet. Bruk en egen kolonne for hvert spørsmål, og sett av noen merkede objekter til evaluering. Det er denne annotasjonskolonnen Classify trener på deretter.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
