@@ -8,6 +8,15 @@ two measurement-export docs and accepted SQLite timeout, excluding F538/Metal.
 Preserve the immutable N691 arrival bodies while binding only the documented
 Metal-era MitoNet device paragraph to its exact current source hash.
 
+CURRENT MAIN DEFAULT-CLAIM ARRIVAL — 2026-10-24
+Root and retained G5/G4 own the Main be67895b19 Coverage 1 default-claim
+failure. Identify the exact approved source/default claim before admitting
+only its source-bound historical replay; preserve 931, prior arrivals and
+all variant/drift gates. Validate only the affected case, without product,
+review, catalog or generator changes; root reviews and publishes.
+The exact singleton is independently reviewed; the sole owning case passes
+(1.08s). Root publication remains pending; product defaults are unchanged.
+
 CURRENT MASK TIME-AXIS CATEGORY HELP — 2026-10-23
 widgets_g3 owns the shared Mask help gap for Time Axes & Tracking (Beta).
 Resolve the renamed group to the existing curated 4D Settings (Beta) guidance

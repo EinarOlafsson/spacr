@@ -1045,6 +1045,38 @@ def test_real_default_claims_have_no_unrecorded_drift():
     assert ast.literal_eval(minimum_claim[0].group("value")) == 0
     recognized_arrivals = session_reference_arrivals | plaque_minimum_arrival
     assert len(recognized_arrivals) == 9
+    mask_timelapse_arrival = {("mask", "timelapse")}
+    assert {pair for pair in compared_pairs if pair[1] == "timelapse"} == {
+        ("mask", "timelapse"), ("measure", "timelapse"),
+        ("external_masks", "timelapse"),
+    }
+    assert not mask_timelapse_arrival & (recognized_arrivals | variants.keys())
+    assert expected_types["timelapse"] is bool
+    assert hashlib.sha256(tooltips["timelapse"].encode()).hexdigest() == (
+        "03ae8c17902479acb31f9da2c7d12d5d2500d0ab838155727c1def71088ce891")
+    assert resolve_default_settings("mask")["timelapse"] is False
+    timelapse_claim = list(DEFAULT_LITERAL.finditer(tooltips["timelapse"]))
+    assert len(timelapse_claim) == 1
+    assert ast.literal_eval(timelapse_claim[0].group("value")) is False
+    model_path = Path(__file__).resolve().parents[1] / "spacr/qt/screens/settings_model.py"
+    model_tree = ast.parse(model_path.read_text(encoding="utf-8"))
+    resolver = next(node for node in model_tree.body
+                    if isinstance(node, ast.FunctionDef)
+                    and node.name == "resolve_default_settings")
+    mask_branch = next(node for node in ast.walk(resolver)
+                       if isinstance(node, ast.If)
+                       and ast.unparse(node.test) == "app_key == 'mask'")
+    expected_mask_branch = ast.parse("""
+if app_key == "mask":
+    s = set_default_settings_preprocess_generate_masks(settings={})
+    for key in timelapse_and_motility_keys():
+        s.pop(key, None)
+    s["timelapse"] = False
+    return s
+""").body[0]
+    assert ast.dump(mask_branch, include_attributes=False) == ast.dump(
+        expected_mask_branch, include_attributes=False)
+    recognized_arrivals |= mask_timelapse_arrival
     assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
