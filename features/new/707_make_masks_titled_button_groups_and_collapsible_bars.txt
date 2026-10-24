@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Native26067/20ewJJ titles and97887/XXj0fA dates PASS on1d31f5ebfe7:
+17/139 each,122 untested each; Open Sans48/40,546×380 notes viewport;
+all title shaped lines/runs (long titles198px high) and209×55 dates visible.
+Wall46.25/37.26s,RSS1.240/1.208GiB; content14.302/12.015s,startup8.841/9.155s.
+Both normalclose/run0/compiler cleanup pass;17 bodies remain unaccepted.
+
 News viewport repair scope: native22421 proves real title shaped lines clipped
 inside hidden-horizontal546px viewport, not merely blank696px document columns.
 First reproduce with real NewsPanel/bundled HTML/normal selected fonts and
