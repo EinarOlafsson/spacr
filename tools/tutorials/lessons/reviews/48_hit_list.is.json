@@ -1,10 +1,10 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "english_sha256": "98a0eaaf0bb38a6b0d2f7bead3b40748f9b4f8b544e9192492f538f27a5529ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); conditional wording only; untouched reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,10 +17,10 @@
     "Sía kandídata og lesa áhrif þeirra og samræmi leiðaraða.",
     "Flytja valdar línur út sem CSV, Markdown eða HTML."
   ],
-  "prerequisite": "Dragðu út Hit_List_real_results_companion.zip og virkjaðu spaCR-umhverfið þitt. Núverandi Hits-flýtileið í Regression sýnir ekki spjaldið; keyrðu í staðinn python hit_list_companion.py og notaðu Browse til að fara í útdregnu niðurstöðumöppuna. Hjálparskriftan tengist ekki Investigate. Notaðu wells_with_gene úr results_gene.csv fyrir fjölda styðjandi brunna: útflutta n_obs=0 er ekki raunverulegur stuðningur. Dæmið inniheldur engin gen sem uppfylla q <= 0.05.",
+  "prerequisite": "Dragðu út Hit_List_real_results_companion.zip og virkjaðu spaCR-umhverfið þitt. Ef Hits-flýtileiðin í Regression sýnir ekki spjaldið, keyrðu python hit_list_companion.py og notaðu Browse til að fara í útdregnu niðurstöðumöppuna. Hjálparskriftan tengist ekki Investigate. Notaðu wells_with_gene úr results_gene.csv fyrir fjölda styðjandi brunna: útflutta n_obs=0 er ekki raunverulegur stuðningur. Dæmið inniheldur engin gen sem uppfylla q <= 0.05.",
   "scenes": [
     "Frá Home opnarðu Regression og velur Hits. Ef spjaldið helst falið notarðu hjálparskriftuna sem fylgir þessari kennslustund til að opna Hit List.",
-    "Dragðu tengda dæmið út og virkjaðu spaCR-umhverfið. Keyrðu python hit_list_companion.py. Í glugga hjálparskriftunnar smellirðu á Browse og velur útdregnu niðurstöðumöppuna.",
+    "Til að nota varaleiðina skaltu draga tengda dæmið út og virkja spaCR-umhverfið. Keyrðu python hit_list_companion.py. Í glugga hjálparskriftunnar smellirðu á Browse og velur útdregnu niðurstöðumöppuna.",
     "Dæmið hleður inn 325 genum. Breikkaðu dálkana til að lesa áhrif, P, q og samræmi leiðaraða. Áhrifin eru stöðluð jaðaráhrif. Fyrir fjölda styðjandi brunna lestu wells_with_gene í results_gene.csv; útflutt athuganafjöldi 0 þýðir að stuðningur er ekki tiltækur.",
     "Stilltu Max q á 0,05. Ekkert gen í dæminu stenst það, svo taflan verður tóm. Settu Max q aftur á 1 til að skoða alla kandídata.",
     "Stilltu Minimum guides á 2. Eftir standa 117 gen með að minnsta kosti tvær prófaðar leiðaraðalínur. Þessi sía heldur upprunalegu q-gildunum.",

@@ -1,10 +1,10 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "english_sha256": "98a0eaaf0bb38a6b0d2f7bead3b40748f9b4f8b544e9192492f538f27a5529ec",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+    "translator": "Codex (AI); conditional wording only; untouched reviewed text retained",
+    "date": "2026-10-23",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -17,10 +17,10 @@
     "筛选候选，并阅读其效应和向导序列一致性。",
     "把所选行导出为CSV、Markdown或HTML。"
   ],
-  "prerequisite": "解压Hit_List_real_results_companion.zip并激活spaCR环境。当前Regression中的Hits快捷方式不会显示面板；请改为运行python hit_list_companion.py，并用Browse选择解压出的结果文件夹。配套脚本不连接Investigate。支持孔数请使用results_gene.csv中的wells_with_gene：导出的n_obs=0并不是实际支持数。该示例中没有满足q <= 0.05的基因。",
+  "prerequisite": "解压Hit_List_real_results_companion.zip并激活spaCR环境。如果Regression中的Hits快捷方式未显示面板，请运行python hit_list_companion.py，并用Browse选择解压出的结果文件夹。配套脚本不连接Investigate。支持孔数请使用results_gene.csv中的wells_with_gene：导出的n_obs=0并不是实际支持数。该示例中没有满足q <= 0.05的基因。",
   "scenes": [
     "从Home打开Regression，选择Hits。如果面板仍未显示，请使用本课程附带的配套脚本打开Hit List。",
-    "解压链接中的示例并激活spaCR环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。",
+    "如需使用备用方式，请解压链接中的示例并激活spaCR环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。",
     "示例加载三百二十五个基因。加宽列以阅读效应、P、q和向导序列一致性。效应是标准化的边际效应。支持孔数请查看results_gene.csv中的wells_with_gene；导出的观测数为零表示支持数不可用。",
     "把Max q设为零点零五。本例中没有基因通过，因此表格变为空。把Max q恢复为一即可浏览全部候选。",
     "把Minimum guides设为二。剩下一百一十七个至少有两行已检验向导序列的基因。此过滤会保留原始q值。",

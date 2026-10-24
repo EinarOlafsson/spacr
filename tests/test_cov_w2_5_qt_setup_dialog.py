@@ -364,3 +364,37 @@ def test_an_answered_setup_opens_nothing(qapp):
     setup_screen.mark_answered(setup_screen.current_version())
 
     assert sd.open_setup_if_needed(None) is None
+
+
+def test_grouped_setup_without_screen_keeps_its_existing_controls(qtbot, monkeypatch):
+    monkeypatch.setattr(sd.SetupDialog, '_backdrop', lambda self, parent: None)
+    monkeypatch.setattr(sd.SetupDialog, 'screen', lambda self: None)
+    dialog = sd.SetupDialog()
+    qtbot.addWidget(dialog)
+    before_size = dialog.size()
+    editors = dict(dialog._editors)
+    dialog._fit_opening_to_screen()
+    assert dialog.size() == before_size
+    assert dialog._editors == editors
+    assert not getattr(dialog, '_card_scrolls', False)
+    assert dialog.layout().indexOf(dialog.card) >= 0
+
+
+def test_oversized_grouped_setup_without_backdrop_scrolls_the_same_controls(qtbot, monkeypatch):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QRect
+    from PySide6.QtWidgets import QAbstractScrollArea
+
+    monkeypatch.setattr(sd.SetupDialog, '_backdrop', lambda self, parent: None)
+    monkeypatch.setattr(sd.SetupDialog, 'screen', lambda self: SimpleNamespace(
+        availableGeometry=lambda: QRect(0, 0, 360, 240)))
+    dialog = sd.SetupDialog()
+    qtbot.addWidget(dialog)
+    assert dialog._backdrop_view is None
+    assert dialog._card_scrolls
+    areas = dialog.findChildren(QAbstractScrollArea)
+    assert any(area.isAncestorOf(dialog.card) for area in areas)
+    assert set(dialog._editors) == {key for _, keys in sd.GROUPS for key in keys}
+    for editor in dialog._editors.values():
+        assert dialog.card.isAncestorOf(editor)
+        assert editor.isEnabled()

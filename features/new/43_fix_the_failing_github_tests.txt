@@ -1,4 +1,25 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT BACKEND CAPTION FIXTURE SOURCE INVENTORY — 2026-10-24
+The retained CI owner applies the same mandatory pipeline_v2 fake-source
+repair to the backend-caption owner fixture, preserving all 78 existing
+caption/refusal/scope assertions. Bind current Night producer/source first,
+run only the owning file once; root reviews and publishes, no product change.
+
+CURRENT METADATA CAPTION FIXTURE SOURCE INVENTORY — 2026-10-24
+The retained CI owner repairs four Night8fe metadata-caption failures by
+seeding the catalog producer’s mandatory pipeline_v2 source in its isolated
+fake tree. Preserve every exact-owner, scope-exclusion and ten-caption
+assertion; run only the owning four tests, root reviews and publishes.
+CURRENT USER-CHOSEN DENSITY ACROSS THEME CHANGES — 2026-10-24
+widgets_g4 owns Night 8fe Coverage 11's density/theme regression. Bind the
+current preference and style contract, preserve a user's explicit density
+and verify the one owning CPU/offscreen case without changing expected values
+blindly or touching leased Home/AppScreen work. Root reviews and publishes.
+The published fresh-profile default is 10%; retain the 50% user choice across
+both animation changes and its saved value. Product defaults remain unchanged.
+The sole current-Qt owning case passes (3.53s); independent peer/root review
+precedes publication. No production or generated changes.
+
 CURRENT QC CALLBACK DOCUMENTATION — 2026-10-23
 Home owns concise missing docs for measurement-export check_cancelled/record_result
 and native action-width apply; root publishes. Preserve behavior and existing
@@ -7,6 +28,13 @@ keep the existing QC nested-helper rollout disabled. Main receives only the
 two measurement-export docs and accepted SQLite timeout, excluding F538/Metal.
 Preserve the immutable N691 arrival bodies while binding only the documented
 Metal-era MitoNet device paragraph to its exact current source hash.
+CURRENT RENDER POOL AND SETUP OPENING CONTRACTS — 2026-10-24
+The retained dependency worker owns Main be67895 aggregate render-buffer growth,
+failed-allocation cleanup and grouped setup missing-screen/backdrop-free opening
+contracts. Preserve production behavior, native controls and all coverage limits;
+use bounded CPU-only lifecycle and real Qt controls, then root review/publication.
+Three controls pass (4.25s); corrected missing-screen fixture passes alone (0.87s).
+Production/generated files are unchanged; root owns final publication.
 
 CURRENT TRACKING CATEGORY MARK GEOMETRY FIXTURE — 2026-10-24
 widgets_g3 owns the Main be67895 Qt 0 trailing-heading-icon fixture failure.
@@ -4812,3 +4840,11 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — The real-object classifier alpha fixture now follows the current Mask Object filtration α card: heading hidden/off, visible/on, hidden/off, retaining every row/search/hidden-value gate. The sole affected case PASS in 2.50s with independent source peer acceptance; production/generated outputs unchanged and root Main publication pending. The existing SpawnProcess exit diagnostic remains observed; no hosted runtime-cause claim.
 
 2026-10-24 — Mask typing diagnostics now include the actual unexpected visibility caller stack and edit/event-delivery phase while preserving the zero-count and 200ms assertions. Standalone qualification PASS (1 case, 5.22s) and the actual shared-state prerequisite sequence PASS (4 cases, 3.75s); the hosted failure is not reproduced or claimed fixed. No production/generated changes; root publication and hosted attribution remain pending.
+
+2026-10-24 — Seed the metadata-caption fake tree with the catalog producer’s mandatory pipeline_v2.py source. The four original exact-owner, scope-exclusion and ten-current-caption assertions remain unchanged and pass (4 tests, 1.56s). No product/generated changes or Main inference; root review/publication pending.
+2026-10-24 — The Cellpose fake-training GPU premise now uses the current shared accelerator resolver, retaining every native batch/training/settings assertion and checking exact device/precision forwarding. The sole affected case PASS in 7.97s with independent root source peer acceptance; no GPU execution, training, downloads or production/generated changes. Root publication pending.
+2026-10-24 — Release lane owns the actual Night C11 Home observer construction failure: initialize event-filter readiness before native parenting/reentrant viewport setup, preserve normal fitting after construction, and verify only the smallest real Qt control. Preserve the already-published Mac deleted-toggle repair and its owning teardown proof; no duplicate fix or Main inference. Root accepted the exact source/test diff; one Qt6.11.2 CPU/offscreen native-event construction control reproduces the missing attribute before the fix and passes afterward (1.52s), retaining real title fitting and resize. This demonstrates explicit construction reentry, not the exact hosted event trigger; module prose/signatures/strings are unchanged.
+2026-10-24 — Bind the density/theme fixture to the published 10% fresh-profile default, explicitly requiring no saved density and retaining every 50% user-selection/theme/save assertion. The sole owning Qt/offscreen case PASS (3.53s); no production or generated changes. Root owns review and publication.
+
+2026-10-24 — Seed the backend-caption fake tree with the same mandatory pipeline_v2.py source. Current Night producer, test and affected runtime-source preimages match; all 78 original caption/refusal/scope assertions pass (78 tests, 1.80s). No product/generated changes or Main inference; root review/publication pending.
+2026-10-24 — Release lane owns only the actual Night min1 Cellpose test contracts: make the two calibrated-preview CPU doubles declare the recorded eval signature and validate the real channel axis, and bind the CPU fallback diagnostic control to the current delegated accelerator boundary. Preserve all segmentation/pixel assertions, zero-offender ratchets and runtime behavior; no GPU, training, weights or downloads. Root accepted the exact fixture diff; all six affected contracts/preview controls pass (46.53s) under CPU/offscreen with an 8GiB cap. Failed-source/current-Night owning preimages match; no runtime change, model load or ratchet relaxation.

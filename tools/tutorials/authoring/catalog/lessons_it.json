@@ -9943,7 +9943,7 @@
         "Filtrare i candidati e leggerne effetti e concordanza tra guide.",
         "Esportare le righe selezionate come CSV, Markdown o HTML."
       ],
-      "prerequisite": "Estrai Hit_List_real_results_companion.zip e attiva il tuo ambiente spaCR. L’attuale scorciatoia Hits di Regression non mostra il pannello; esegui invece python hit_list_companion.py e usa Browse per arrivare alla cartella dei risultati estratta. Lo script non si collega a Investigate. Usa wells_with_gene di results_gene.csv per il numero di pozzetti di supporto: l’n_obs=0 esportato non è il supporto reale. L’esempio non contiene geni che soddisfano q <= 0.05.",
+      "prerequisite": "Estrai Hit_List_real_results_companion.zip e attiva il tuo ambiente spaCR. Se la scorciatoia Hits di Regression non mostra il pannello, esegui python hit_list_companion.py e usa Browse per arrivare alla cartella dei risultati estratta. Lo script non si collega a Investigate. Usa wells_with_gene di results_gene.csv per il numero di pozzetti di supporto: l’n_obs=0 esportato non è il supporto reale. L’esempio non contiene geni che soddisfano q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9956,9 +9956,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Estrai l’esempio collegato e attiva il tuo ambiente spaCR. Esegui python hit_list_companion.py. Nella finestra dello script, fai clic su Browse e seleziona la cartella dei risultati estratta.",
+          "narration": "Per usare l’alternativa, estrai l’esempio collegato e attiva il tuo ambiente spaCR. Esegui python hit_list_companion.py. Nella finestra dello script, fai clic su Browse e seleziona la cartella dei risultati estratta.",
           "hold_after": 0.7,
-          "speech_text": "Estrai l’esempio collegato e attiva il tuo ambiente spàker. Esegui python hit_list_companion.py. Nella finestra dello script, fai clic su Browse e seleziona la cartella dei risultati estratta."
+          "speech_text": "Per usare l’alternativa, estrai l’esempio collegato e attiva il tuo ambiente spàker. Esegui python hit_list_companion.py. Nella finestra dello script, fai clic su Browse e seleziona la cartella dei risultati estratta."
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",

@@ -9948,7 +9948,7 @@
         "उम्मीदवार छाँटें और उनके प्रभाव तथा गाइड सहमति पढ़ें।",
         "चुनी गई पंक्तियाँ CSV, Markdown या HTML के रूप में निर्यात करें।"
       ],
-      "prerequisite": "Hit_List_real_results_companion.zip निकालें और अपना spaCR वातावरण सक्रिय करें। Regression का मौजूदा Hits शॉर्टकट पैनल नहीं दिखाता; इसके बजाय python hit_list_companion.py चलाएँ और Browse से निकाले गए परिणाम फ़ोल्डर पर जाएँ। सहायक स्क्रिप्ट Investigate से नहीं जुड़ती। समर्थन वाले वेल की गिनती के लिए results_gene.csv का wells_with_gene इस्तेमाल करें: निर्यात किया गया n_obs=0 असली समर्थन नहीं है। उदाहरण में कोई जीन q <= 0.05 को पूरा नहीं करता।",
+      "prerequisite": "Hit_List_real_results_companion.zip निकालें और अपना spaCR वातावरण सक्रिय करें। यदि Regression का Hits शॉर्टकट पैनल नहीं दिखाता, तो python hit_list_companion.py चलाएँ और Browse से निकाले गए परिणाम फ़ोल्डर पर जाएँ। सहायक स्क्रिप्ट Investigate से नहीं जुड़ती। समर्थन वाले वेल की गिनती के लिए results_gene.csv का wells_with_gene इस्तेमाल करें: निर्यात किया गया n_obs=0 असली समर्थन नहीं है। उदाहरण में कोई जीन q <= 0.05 को पूरा नहीं करता।",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
@@ -9961,9 +9961,9 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "जुड़ा हुआ उदाहरण निकालें और अपना spaCR वातावरण सक्रिय करें। python hit_list_companion.py चलाएँ। सहायक विंडो में Browse पर क्लिक करें और निकाला गया परिणाम फ़ोल्डर चुनें।",
+          "narration": "वैकल्पिक तरीके का उपयोग करने के लिए, जुड़ा हुआ उदाहरण निकालें और अपना spaCR वातावरण सक्रिय करें। python hit_list_companion.py चलाएँ। सहायक विंडो में Browse पर क्लिक करें और निकाला गया परिणाम फ़ोल्डर चुनें।",
           "hold_after": 0.7,
-          "speech_text": "जुड़ा हुआ उदाहरण निकालें और अपना स्पेकर वातावरण सक्रिय करें। python hit_list_companion.py चलाएँ। सहायक विंडो में Browse पर क्लिक करें और निकाला गया परिणाम फ़ोल्डर चुनें।"
+          "speech_text": "वैकल्पिक तरीके का उपयोग करने के लिए, जुड़ा हुआ उदाहरण निकालें और अपना स्पेकर वातावरण सक्रिय करें। python hit_list_companion.py चलाएँ। सहायक विंडो में Browse पर क्लिक करें और निकाला गया परिणाम फ़ोल्डर चुनें।"
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",

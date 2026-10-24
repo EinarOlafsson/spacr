@@ -1702,15 +1702,16 @@ class _NewsTitleFit(QObject):
 
         :param panel: actual panel whose headline labels may be rebuilt.
         """
+        self._busy = True
         super().__init__(panel)
         self._panel = panel
         self._viewport = panel._notes.viewport()
-        self._busy = False
         self._timer = QTimer(self)
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self._fit)
         panel.installEventFilter(self)
         self._viewport.installEventFilter(self)
+        self._busy = False
         self._timer.start(0)
 
     def eventFilter(self, watched, event):

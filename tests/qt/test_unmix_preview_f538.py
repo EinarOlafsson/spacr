@@ -5,6 +5,9 @@ import threading
 import numpy as np
 import pytest
 
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
+from tests.conftest import check_cellpose_eval_call
+
 from spacr.cancellation import PipelineCancelled
 from spacr.psf_pipeline import _prepare_unmixing, prepare_psf
 from spacr.qt.widgets import live_preview as lp
@@ -285,7 +288,15 @@ def test_calibrated_model_adapter_keeps_crop_for_generated_cells_then_restores_o
     observed = []
 
     class CPUAdapter:
-        def eval(self, image, **_kwargs):
+        def eval(self, image, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+            check_cellpose_eval_call(image, channel_axis, z_axis=z_axis,
+                                     do_3D=do_3D, stitch_threshold=stitch_threshold)
             observed.append(image.copy())
             return cell.copy(), [flow.copy(), np.zeros((2,) + shape), probability.copy()]
 
@@ -464,7 +475,15 @@ def test_gui_refuses_legacy_cells_when_switching_to_calibrated_organelle_restric
     actual_classical = lp._classical_organelle_mask
 
     class CPUCellAdapter:
-        def eval(self, image, **_kwargs):
+        def eval(self, image, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+            check_cellpose_eval_call(image, channel_axis, z_axis=z_axis,
+                                     do_3D=do_3D, stitch_threshold=stitch_threshold)
             return actual_classical(image, 'organelle', config()), []
 
     monkeypatch.setattr(lp, 'preview_cellpose_model', lambda *_: CPUCellAdapter())
