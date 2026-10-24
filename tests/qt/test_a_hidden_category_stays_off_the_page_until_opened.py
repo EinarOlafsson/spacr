@@ -293,16 +293,22 @@ def test_searching_reveals_a_setting_whose_category_was_away(qtbot):
     # place of the raw editor, which is then never visible, found or not
     # (since 594 the first away setting, heatmap_feature, is one).
     model = screen._settings_model
+    hidden = set(model.keys_hidden_by_the_run())
+    indexed = set(bar.indexed_keys())
     key, widget = next(
         (key, widget) for key, widget in model._widgets.items()
-        if not screen.isAncestorOf(widget)
+        if key in indexed and key not in hidden
+        and not screen.isAncestorOf(widget)
         and type(widget).__name__ in ("Toggle", "QSpinBox", "QDoubleSpinBox"))
+    assert key in indexed and key not in hidden
     if not bar._disclosure.isChecked():
         bar._disclosure.click()
     bar._input.setText(key)
     _pump(30)
     assert screen.isAncestorOf(widget), "the search left the row off the page"
     assert widget.isVisible(), f"the search did not reveal {key}"
+    assert all(not control.isVisible() for name, control in model._widgets.built_items()
+               if name in hidden), "the search revealed an inapplicable setting"
 
 
 def test_a_category_that_comes_back_speaks_the_language_of_now(qtbot):
