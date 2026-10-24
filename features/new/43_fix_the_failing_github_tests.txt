@@ -36,6 +36,12 @@ waiting on the actual fake-provider subprocess stream. Preserve the original
 reply-content assertion, timeout and real worker shutdown; no production or
 consent-policy change and no live AI/report request. G2 peers, root publishes.
 
+CURRENT QT LOG SEVERITY DISPLAY CONTROL — 2026-10-24
+The retained CI owner observes already-classified stdout/error display seams
+while retaining the real warning route and exact INFO/WARNING/ERROR/CRITICAL
+band order. Preserve the published capture-versus-display split; peer and
+run only the owning case before root publication. No product change.
+
 CURRENT CLI LOGGING ROLE IDEMPOTENCE — 2026-10-24
 The retained CI owner reconciles the CLI control with the approved automatic
 error dispatcher: exactly one stdout handler and one error handler after
@@ -4730,3 +4736,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — Night retains the Main Mask-model lifetime fixture and tests compact whole-plate Fit with complete 16×24 native containment, zero scrolling and actual ancestor allocation caps instead of obsolete fixed floors. Six distinct controls PASS (five retained from 63.63s, corrected Mask in 21.41s), including both embedded variants with unchanged 20/30-second limits; independent fixture peer accepted. The seventh written-help gate exposes the shared tracking-heading alias gap, owned separately by G3; root publication remains pending. Production/generated outputs unchanged in this candidate.
 
 2026-10-23 — Mask’s renamed Time Axes & Tracking (Beta) heading now resolves the existing curated 4D guidance; no prose, translations or tracking semantics changed. The original full-slot tree help gate passes on the exact source (1 test, 17.84s), with G1’s existing Qt/process finalization diagnostics qualified rather than treated as a lifecycle fix. Normal scoped extraction preserves 80 API entries and 2,013 caption identities; the normal Main consumer refresh changes only three downstream settings_model line offsets by +2, independently reviewed. Root owns publication and the separate normal Night consumer refresh.
+
+2026-10-24 — The Qt severity-band control now observes the actual stdout/error display seams after the capture/display split, retaining real warning routing and the unchanged four-band exact-order assertion. Independent peer accepted; the owning case passes (1 test, 2.29s). No product/generated changes; root publication pending.
