@@ -1,4 +1,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT HOME LOGO DPR FIXTURE — 2026-10-24
+widgets_g4 binds the two Night8fe masthead DPR failures to the current
+allocation-driven Home logo. Preserve native DPR, exact source-pixel and
+72px ordinary-display checks; establish actual visible layout before reading
+the render. Both original cases pass (19.94s); root reviews and publishes.
+2026-10-24: Native Home show/layout restores the fixture’s pixel measurement;
+all original DPR/72px/144px assertions remain, with no production change.
+
 CURRENT BACKEND CAPTION FIXTURE SOURCE INVENTORY — 2026-10-24
 The retained CI owner applies the same mandatory pipeline_v2 fake-source
 repair to the backend-caption owner fixture, preserving all 78 existing
