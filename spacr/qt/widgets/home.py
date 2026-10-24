@@ -2578,6 +2578,7 @@ class HomePage(QWidget):
         """
         self._tabs = QTabWidget()
         self._tabs.setObjectName("HomeTabs")
+        self._tabs.setUsesScrollButtons(True)
         self._tabs.setDocumentMode(False)
         self._tabs.setStyleSheet(
             _tab_qss(self._P, self._pane_alpha()))

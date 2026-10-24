@@ -2047,6 +2047,15 @@ def make_home_page(parent=None):
         stages=home_stages())
 
 
+def _apply_home_tab_scroll_policy(root, home):
+    """Apply the normal launch tab policy below this owned application root."""
+    from .theme import take_the_scroll_arrows_off
+
+    count = take_the_scroll_arrows_off(root)
+    home._tabs.setUsesScrollButtons(True)
+    return count
+
+
 DEMO_LABELS = {
     "mask":         "Mask fixture…",
     "measure":      "Measure fixture…",
@@ -3326,8 +3335,7 @@ class MainWindow(QMainWindow):
         self._start_settings_autosave()
 
         try:
-            from .theme import take_the_scroll_arrows_off
-            take_the_scroll_arrows_off(self)
+            _apply_home_tab_scroll_policy(self, self._startup)
         except Exception:                                # noqa: BLE001
             LOG.debug("could not take the tab scroll arrows off",
                       exc_info=True)

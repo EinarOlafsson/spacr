@@ -51,7 +51,7 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
     import json
     from PySide6.QtCore import QPoint, QSize, Qt
     from PySide6.QtGui import QRegion
-    from PySide6.QtWidgets import QAbstractButton, QScrollArea, QStyle, QStyleOptionButton, QWidget
+    from PySide6.QtWidgets import QAbstractButton, QScrollArea, QStyle, QStyleOptionButton, QTabWidget, QWidget
     from spacr.qt import app, gui_scale, preferences
     from spacr.qt.widgets import home as home_widgets
 
@@ -73,6 +73,9 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
         host = QWidget()
         qtbot.addWidget(host)
         page = make_home_page(parent=host)
+        assert page._tabs.usesScrollButtons()
+        other_tabs = QTabWidget(host)
+        other_tabs.setUsesScrollButtons(True)
         split = page._aside_split
         gui_scale._resize_actual(host, QSize(1200, 496))
         gui_scale._resize_actual(page, QSize(1200, 496))
@@ -118,11 +121,23 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
                              'stored_geometry': getattr(pane.widget, '_gs_geo', {})}
                             for pane in split._panes],
                   'tabbar': widget_record(page._tabs.tabBar()),
+                  'tab_scroll_buttons': page._tabs.usesScrollButtons(),
                   'current_page': widget_record(current_page),
                   'page_scrolls': [widget_record(scroll) for scroll in page._tabs.findChildren(QScrollArea)]}
         print('HOME_SPLIT_DIAGNOSTIC', json.dumps(report), flush=True)
         assert split.property('size') == QSize(1104, 84), report
         assert all(split.rect().contains(pane.widget.geometry()) for pane in split._panes), report
+        app._apply_home_tab_scroll_policy(host, page)
+        assert page._tabs.usesScrollButtons()
+        assert not other_tabs.usesScrollButtons()
+        previous[0] = None
+        qtbot.waitUntil(settled)
+        after = {'native_sizes': gui_scale._actual_sizes(split),
+                 'panes': [widget_record(pane.widget) for pane in split._panes],
+                 'tabbar': widget_record(page._tabs.tabBar()),
+                 'tab_scroll_buttons': page._tabs.usesScrollButtons()}
+        print('HOME_AFTER_NORMAL_TAB_POLICY', json.dumps(after), flush=True)
+        assert all(split.rect().contains(pane.widget.geometry()) for pane in split._panes), after
         buttons = [button for button in page._aside.findChildren(QAbstractButton) if button.isVisible()]
         assert len(buttons) == 5
         assert {button.text() for button in buttons} == {

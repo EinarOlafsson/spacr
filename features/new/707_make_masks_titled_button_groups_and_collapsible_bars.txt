@@ -12,6 +12,18 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Normal launch-policy scope: repeat the real Home causal fixture through the
+actual post-build arrow-removal operation, recording unchanged fonts and
+before/after native pane/tab constraints. Extract only a behavior-neutral
+private launch seam shared by MainWindow and this test; require causal RED
+before restoring Home-only overflow navigation. Generic helper/public API
+and other tab bars remain unchanged; full native acceptance stays separate.
+RED94044 reproduces native overcommit after the shipped helper: tab minimum
+123→1482px, aside right1174px beyond1104px. Home-only builder/launch policy
+retains generic behavior elsewhere; GREEN64817 passes containment and all five
+native caption checks (8.83s/.330GiB). Apps page height0 and full native Home
+acceptance remain open; no global splitter, font or public-helper change.
+
 Next native attribution records both splitter panes' actual geometry, minima,
 policies and stored pane records before the1200x640 resize and at content-ready,
 plus HomeTabs scroll bounds and settled panels/scrollbar hints. The controlled
