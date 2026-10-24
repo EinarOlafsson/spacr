@@ -1324,7 +1324,7 @@ def test_large_viewport_native_crop_remains_bounded_in_both_spatial_dimensions(t
     dialog._well(dialog.wells.item(0, 0))
     dialog.fields.setCurrentRow(0)
     dialog._field(dialog.fields.item(0))
-    dialog._splitter.setSizes([100, 100, 2800])
+    dialog._splitter.setSizes([200, 2800])
     try:
         qtbot.waitUntil(lambda: dialog.view._item is not None and dialog.view._item.pixmap().width() == 1024
             and not dialog._image_jobs.is_busy())

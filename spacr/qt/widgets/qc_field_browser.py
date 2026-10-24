@@ -30,10 +30,12 @@ from PySide6.QtWidgets import (
     QStyledItemDelegate,
     QComboBox,
     QDialog,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QPushButton,
     QSizePolicy,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -2698,8 +2700,12 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
 
 def _overview_montage(fields, channels, percentiles, cancelled=None, *,
                       normalization=None, time_index=None, z_mode="plane", z_index=None,
-                      normalization_context=None, advanced_normalization=None, preview_edge=240):
-    """Render one bounded page of field thumbnails, using the shared pixel path."""
+                      normalization_context=None, advanced_normalization=None, preview_edge=240,
+                      labels=True):
+    """Render one bounded page of field thumbnails, using the shared pixel path.
+
+    ``labels`` draws each tile's well and field name above its image.
+    """
     from concurrent.futures import CancelledError
     from PIL import Image, ImageDraw
 
@@ -2712,7 +2718,8 @@ def _overview_montage(fields, channels, percentiles, cancelled=None, *,
         if cancelled is not None and cancelled.is_set():
             return None, ()
         x, y = (index % columns) * 256, (index // columns) * 280
-        draw.text((x, y), field.well + " / " + field.field, fill="white")
+        if labels:
+            draw.text((x, y), field.well + " / " + field.field, fill="white")
         try:
             pixels = _overview_pixels(field, channels, percentiles, edge=preview_edge,
                                       normalization=normalization,
@@ -2890,6 +2897,201 @@ def _fit_overview_action_width(button, width, context):
     button._overview_font_fit = state
 
 
+_OVERVIEW_METADATA_TOOLTIP = "Show or hide the filename and metadata text over the images."
+_OVERVIEW_MAX_WELL_VIEWS = 6
+
+
+def _overview_panel_qss(palette, opacity):
+    """Give the plate, well and image levels one translucent rounded surface.
+
+    :param palette: the active palette with rendered surface roles.
+    :param opacity: the page-opacity preference, passed through unchanged.
+    :returns: the QSS block for every overview level container.
+    """
+    from ..theme import RADIUS, block_surface
+
+    surface = block_surface("surface_alt", palette["theme"], opacity)
+    return (f"QFrame#FieldOverviewPanel {{ background: {surface}; "
+            f"border: 1px solid {palette['border']}; border-radius: {RADIUS['md']}px; }}\n"
+            f"QLabel#FieldOverviewImageMetadata {{ background: rgba(0, 0, 0, 150); "
+            f"color: white; border-radius: {RADIUS['sm']}px; padding: 4px; }}")
+
+
+def _overview_comparison_frame(source):
+    """Read a source's image-level measurements joined with their annotations.
+
+    :param source: the indexed image source folder.
+    :returns: one row per measured image.
+    :raises _OverviewValidationError: before any measurements were exported.
+    """
+    from ...measure import _image_annotation_database, _image_measurement_frame
+
+    path = _image_annotation_database(source)
+    frame = _image_measurement_frame(path) if path.is_file() else None
+    if frame is None or frame.empty:
+        raise _OverviewValidationError(tr(
+            "Export image-level measurements first; comparisons read them from {path}.", path=path))
+    return frame
+
+
+class _OverviewCollapseArrow(QToolButton):
+    """Paint spaCR's standard container-collapse tab on a level header."""
+
+    def __init__(self, parent=None):
+        """Create a checkable arrow whose checked state means collapsed.
+
+        :param parent: the owning level container.
+        """
+        super().__init__(parent)
+        self.setCheckable(True)
+        self.setAutoRaise(True)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setToolTip(tr("Collapse or expand this container"))
+        self.setAccessibleName(tr("Collapse or expand this container"))
+
+    def sizeHint(self):
+        """Keep the shared handle proportions at the current font size.
+
+        :returns: a horizontal tab three text lines wide.
+        """
+        from PySide6.QtCore import QSize
+
+        height = max(12, self.fontMetrics().height())
+        return QSize(3 * height, height)
+
+    def minimumSizeHint(self):
+        """Never squeeze the arrow below its painted tab.
+
+        :returns: the same size as :meth:`sizeHint`.
+        """
+        return self.sizeHint()
+
+    def paintEvent(self, _event):
+        """Point up while open and down while collapsed.
+
+        :param _event: the paint event; the whole handle is drawn.
+        """
+        from PySide6.QtGui import QPainter
+        from ..theme import active_palette
+        from .collapse_arrow import paint_collapse_arrow
+
+        painter = QPainter(self)
+        paint_collapse_arrow(painter, self.rect(), Qt.Vertical, not self.isChecked(),
+                             active_palette() or {}, self.underMouse() or self.hasFocus())
+        painter.end()
+
+
+class _OverviewPanel(QFrame):
+    """One translucent, rounded and collapsible plate, well or image level."""
+
+    collapsed_changed = Signal(bool)
+
+    def __init__(self, title, parent=None, *, shrink_width=False):
+        """Create a header with the shared collapse arrow above a body.
+
+        :param title: the translated level caption.
+        :param parent: the owning overview.
+        :param shrink_width: also release horizontal space while collapsed.
+        """
+        super().__init__(parent)
+        self.setObjectName("FieldOverviewPanel")
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self._shrink_width = shrink_width
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(8, 4, 8, 8)
+        outer.setSpacing(4)
+        self.header_layout = QHBoxLayout()
+        self.header_layout.setContentsMargins(0, 0, 0, 0)
+        self.arrow = _OverviewCollapseArrow(self)
+        self.arrow.toggled.connect(self._apply_collapsed)
+        self.title = QLabel(title)
+        self.header_layout.addWidget(self.arrow)
+        self.header_layout.addWidget(self.title, 1)
+        outer.addLayout(self.header_layout)
+        self.body = QWidget(self)
+        self.body_layout = QVBoxLayout(self.body)
+        self.body_layout.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(self.body, 1)
+
+    def set_collapsed(self, collapsed):
+        """Minimise the level to its header or restore its body.
+
+        :param collapsed: whether only the header remains.
+        """
+        self.arrow.setChecked(bool(collapsed))
+
+    def is_collapsed(self):
+        """Report whether the level shows only its header.
+
+        :returns: the arrow's checked state.
+        """
+        return self.arrow.isChecked()
+
+    def _apply_collapsed(self, collapsed):
+        """Release the body's space to the neighbouring levels.
+
+        :param collapsed: the arrow's new checked state.
+        """
+        from ..gui_scale import _set_actual_dim
+
+        self.body.setVisible(not collapsed)
+        hint = self.sizeHint()
+        _set_actual_dim(self, "maxh", hint.height() if collapsed else 16777215)
+        if self._shrink_width:
+            _set_actual_dim(self, "maxw", hint.width() if collapsed else 16777215)
+        self.collapsed_changed.emit(collapsed)
+
+
+class _OverviewAnnotationDialog(QDialog):
+    """Ask for one metadata key and value for the selected wells."""
+
+    def __init__(self, keys, wells, parent=None):
+        """Offer standard and existing metadata keys with a free value.
+
+        :param keys: existing annotation keys in display order.
+        :param wells: the plate-qualified wells that will be annotated.
+        :param parent: the owning overview.
+        """
+        from PySide6.QtWidgets import QDialogButtonBox, QFormLayout, QLineEdit
+        from .setup_dialog import _SetupComboBox
+
+        super().__init__(parent)
+        self.setWindowTitle(tr("Annotate selected wells"))
+        self.wells = tuple(wells)
+        form = QFormLayout(self)
+        form.addRow(QLabel(tr("{count} selected wells", count=len(self.wells))))
+        self.key = _SetupComboBox()
+        self.key.setEditable(True)
+        for label, key in ((tr("Condition"), "condition"), (tr("Cell type"), "cell_type"),
+                               (tr("Pathogen"), "pathogen_type"), (tr("Genotype"), "genotype"),
+                           (tr("Drug"), "drug"), (tr("Replicate"), "replicate")):
+            self.key.addItem(label, key)
+        for key in keys:
+            if self.key.findData(key) < 0:
+                self.key.addItem(key, key)
+        self.value = QLineEdit()
+        self.value.setPlaceholderText(tr("Value"))
+        form.addRow(tr("Metadata"), self.key)
+        form.addRow(tr("Value"), self.value)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        form.addRow(buttons)
+
+    def annotation(self):
+        """Return the chosen key and stripped value.
+
+        A listed choice keeps its stable key; typed text is used literally.
+
+        :returns: ``(key, value)``.
+        """
+        index = self.key.currentIndex()
+        if index >= 0 and self.key.currentText() == self.key.itemText(index):
+            return self.key.currentData(), self.value.text().strip()
+        return self.key.currentText().strip(), self.value.text().strip()
+
+
 class _FieldOverview(QWidget):
     """Shared, lazily loaded plate and field overview for both mask modules."""
 
@@ -2901,7 +3103,7 @@ class _FieldOverview(QWidget):
         """
         from collections import OrderedDict
         from PySide6.QtWidgets import (QLineEdit, QSpinBox, QDoubleSpinBox,
-                                       QListWidget, QAbstractItemView, QTableWidget)
+                                       QAbstractItemView, QTableWidget)
         import threading
 
         super().__init__(parent)
@@ -2952,6 +3154,7 @@ class _FieldOverview(QWidget):
         self._individual = False
         self._visual_signature = None
         self._displayed_montage = None
+        self._montage_labels = False
         self._cancelled = threading.Event()
         self._index_jobs = JobRunner(self, app_key="field_overview", user_visible=False)
         self._index_jobs.job_finished.connect(self._finish_display_prepare)
@@ -3038,7 +3241,7 @@ class _FieldOverview(QWidget):
         self._navigation_layout = navigation
         column.addLayout(navigation)
         from PySide6.QtCore import QSize
-        self.wells, self.fields = QTableWidget(), QListWidget()
+        self.wells = QTableWidget()
         self.wells.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.wells.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.wells.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
@@ -3047,46 +3250,57 @@ class _FieldOverview(QWidget):
         self.wells.setItemDelegate(_OverviewPlateDelegate(self.wells))
         self.wells.setMouseTracking(True)
         self.wells.viewport().setMouseTracking(True)
-        self.fields.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        from PySide6.QtWidgets import QListView
-        self.fields.setViewMode(QListView.IconMode)
-        self.fields.setResizeMode(QListView.Adjust)
-        self.fields.setMovement(QListView.Static)
-        self.fields.setSelectionRectVisible(True)
-        self.fields.setWrapping(True)
-        self.fields.setWordWrap(True)
-        self.fields.setIconSize(QSize(128, 96))
-        self.fields.setGridSize(QSize(154, 140))
-        self.fields.viewport().installEventFilter(self)
-        self.fields.verticalScrollBar().valueChanged.connect(self._request_visuals)
+        self.wells.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.wells.customContextMenuRequested.connect(self._well_menu)
+        self.fields = self._new_field_list()
         self._well_viewport = self.wells.viewport()
         self._well_viewport.installEventFilter(self)
         self.wells.installEventFilter(self)
         self.wells.horizontalScrollBar().valueChanged.connect(self._request_visuals)
         self.wells.verticalScrollBar().valueChanged.connect(self._request_visuals)
-        from PySide6.QtCore import QSize
         self.wells.setIconSize(QSize(160, 120))
         follow_device_ratio(self.wells.viewport(), self._request_visuals)
         self.wells.itemDoubleClicked.connect(self._well)
         self.wells.itemClicked.connect(self._clicked_well)
         self.wells.itemSelectionChanged.connect(self._remember_wells)
         self.wells.setToolTip(tr("Select wells for export; double-click a well to explore its fields."))
-        self.fields.itemSelectionChanged.connect(self._remember_selection)
-        self.fields.itemClicked.connect(self._field)
-        self.fields.currentItemChanged.connect(self._current_field_changed)
         from PySide6.QtWidgets import QSplitter
-        splitter = QSplitter()
-        self._splitter = splitter
-        splitter.addWidget(self.wells)
-        splitter.addWidget(self.fields)
+        from .ai_toggle_label import AiToggleLabel
+        from ..theme import ensure_widget_qss_applied, register_widget_qss
+
+        register_widget_qss("FieldOverviewPanel", _overview_panel_qss, replace=True)
+        self._plate_panel = _OverviewPanel(tr("Plate"))
+        self._plate_panel.body_layout.addWidget(self.wells)
+        self._levels = QSplitter(Qt.Vertical)
+        self._levels.setChildrenCollapsible(False)
+        self._levels.addWidget(self._plate_panel)
+        self._well_panels = []
+        self._well_panel = self._new_well_panel(self.fields)
+        self._levels.addWidget(self._well_panel)
         self.view = _OverviewImageView()
         self.view.axis_step.connect(self._step_axis)
         self.view.detail_requested.connect(self._request_detail)
         self.view.horizontalScrollBar().valueChanged.connect(self._request_native_detail)
         self.view.verticalScrollBar().valueChanged.connect(self._request_native_detail)
-        splitter.addWidget(self.view)
-        splitter.setStretchFactor(2, 3)
+        self._image_panel = _OverviewPanel(tr("Image"), shrink_width=True)
+        self._image_panel.body_layout.addWidget(self.view)
+        self.metadata_toggle = AiToggleLabel(text="metadata", tooltip=_OVERVIEW_METADATA_TOOLTIP)
+        self.metadata_toggle.toggled.connect(self._image_metadata_toggled)
+        self._image_panel.header_layout.addWidget(self.metadata_toggle)
+        self._image_metadata = QLabel(self.view.viewport())
+        self._image_metadata.setObjectName("FieldOverviewImageMetadata")
+        self._image_metadata.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self._image_metadata.setWordWrap(True)
+        self._image_metadata.hide()
+        self._image_panel.hide()
+        splitter = QSplitter(Qt.Horizontal)
+        self._splitter = splitter
+        splitter.addWidget(self._levels)
+        splitter.addWidget(self._image_panel)
+        splitter.setStretchFactor(0, 2)
+        splitter.setStretchFactor(1, 3)
         column.addWidget(splitter, 1)
+        ensure_widget_qss_applied("FieldOverviewPanel", root=self)
         axes = QHBoxLayout()
         self.fov_axis, self.time_axis, self.z_axis = QComboBox(), QComboBox(), QComboBox()
         self.z_mode = QComboBox()
@@ -3296,13 +3510,13 @@ class _FieldOverview(QWidget):
             self._fitting_module_actions = False
 
     def _fit_plate_allocation(self):
-        """Reserve the delegate's image budget and scroll excess essential rows.
+        """Reserve the delegate's image budget and show every Figure setting.
 
         The delegate's 20-pixel image budget and cell insets are preferred
-        only within the enclosing viewport capacity. Other controls remain
-        separately scrollable. Dense plates retain whole-plate
-        Fit rather than imposing an unbounded per-row floor. Ample layouts
-        retain the essential controls' natural height rather than a fixed cap.
+        only within the enclosing viewport capacity. Dense plates retain
+        whole-plate Fit rather than imposing an unbounded per-row floor.
+        The Figure settings flow, which lives in the settings column, is
+        given the height its wrapped rows need at the column's width.
         A scrolling ancestor bounds surplus table stretch; removing that
         ancestor restores the unbounded maximum, and resizing recomputes it.
         Only embedded content receives its fresh layout's width-dependent
@@ -3315,13 +3529,12 @@ class _FieldOverview(QWidget):
         if not hasattr(self, "_allocation_minimum_baseline"):
             self._allocation_minimum_baseline = self.property("minimumHeight")
         content = scroll.widget()
-        layout = content.layout()
-        margins = layout.contentsMargins()
-        row = max((layout.itemAt(index).widget().sizeHint().height()
-                   for index in range(layout.count()) if layout.itemAt(index).widget()), default=0)
-        row += margins.top() + margins.bottom() + 2 * scroll.frameWidth()
+        rows = content.heightForWidth(max(1, scroll.viewport().width())) + 2 * scroll.frameWidth()
         if content.minimumSizeHint().width() > scroll.viewport().width():
-            row += scroll.horizontalScrollBar().sizeHint().height()
+            rows += scroll.horizontalScrollBar().sizeHint().height()
+        if scroll.property("minimumHeight") != rows:
+            _set_actual_dim(scroll, "minh", rows)
+            _set_actual_dim(scroll, "maxh", rows)
         gaps = [self.wells.rowHeight(index) - self.wells.visualItemRect(item).height()
                 for index in range(self.wells.rowCount())
                 if (item := self.wells.item(index, 0)) is not None]
@@ -3329,7 +3542,6 @@ class _FieldOverview(QWidget):
         plate = (22 + gap) * max(1, self.wells.rowCount()) + 2 * self.wells.frameWidth()
         if self.wells.horizontalHeader().isVisible():
             plate += self.wells.horizontalHeader().property("size").height()
-        outer = self.layout().contentsMargins()
         available = self.window().property("size").height()
         ancestor = self.parentWidget()
         viewports = []
@@ -3347,7 +3559,6 @@ class _FieldOverview(QWidget):
         self._allocation_viewports = tuple(viewports)
         if not viewports:
             available = min(available, self.property("size").height())
-        room = available - outer.top() - outer.bottom() - self.status.sizeHint().height()
         budget = max(0, available)
         plate = min(plate, budget)
         if self.wells.property("minimumHeight") != plate:
@@ -3355,11 +3566,6 @@ class _FieldOverview(QWidget):
         maximum = budget if viewports else 16777215
         if self.wells.property("maximumHeight") != maximum:
             _set_actual_dim(self.wells, "maxh", maximum)
-        natural = content.heightForWidth(scroll.viewport().width())
-        constrained = natural + plate > room
-        maximum = row if constrained else 16777215
-        if scroll.property("maximumHeight") != maximum:
-            _set_actual_dim(scroll, "maxh", maximum)
         floor = self._allocation_minimum_baseline
         if viewports:
             body_layout = self.layout()
@@ -3367,6 +3573,465 @@ class _FieldOverview(QWidget):
                         body_layout.totalHeightForWidth(self.property("size").width()))
         if self.property("minimumHeight") != floor:
             _set_actual_dim(self, "minh", floor)
+
+    def _new_field_list(self):
+        """Create one well's field thumbnails with the shared selection behaviour.
+
+        :returns: an icon list whose clicks and keyboard moves activate its well.
+        """
+        from PySide6.QtCore import QSize
+        from PySide6.QtWidgets import QAbstractItemView, QListView, QListWidget
+
+        fields = QListWidget()
+        fields.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        fields.setViewMode(QListView.IconMode)
+        fields.setResizeMode(QListView.Adjust)
+        fields.setMovement(QListView.Static)
+        fields.setSelectionRectVisible(True)
+        fields.setWrapping(True)
+        fields.setWordWrap(True)
+        fields.setIconSize(QSize(128, 96))
+        fields.setGridSize(QSize(154, 140))
+        fields.viewport().installEventFilter(self)
+        fields.verticalScrollBar().valueChanged.connect(self._request_visuals)
+        fields.itemSelectionChanged.connect(self._remember_selection)
+        fields.itemClicked.connect(lambda item, owner=fields: self._field_in(owner, item))
+        fields.currentItemChanged.connect(
+            lambda current, previous, owner=fields: self._current_field_in(owner, current, previous))
+        fields._overview_well, fields._overview_page = None, 0
+        fields._overview_metadata = False
+        return fields
+
+    def _new_well_panel(self, fields):
+        """Wrap one field list in a level container with metadata and close actions.
+
+        :param fields: the well's field thumbnail list.
+        :returns: the hidden, unopened well container.
+        """
+        from .ai_toggle_label import AiToggleLabel
+        from ..theme import apply_close_mark
+
+        panel = _OverviewPanel("")
+        panel.field_list = fields
+        panel.body_layout.addWidget(fields)
+        panel.metadata_toggle = AiToggleLabel(text="metadata", tooltip=_OVERVIEW_METADATA_TOOLTIP)
+        panel.metadata_toggle.toggled.connect(
+            lambda on, owner=fields: self._well_metadata_toggled(owner, on))
+        panel.header_layout.addWidget(panel.metadata_toggle)
+        panel.close_button = QToolButton()
+        apply_close_mark(panel.close_button, tooltip=tr("Close this well view"))
+        panel.close_button.setAccessibleName(tr("Close this well view"))
+        panel.close_button.clicked.connect(lambda _checked=False, owner=panel: self._close_well_panel(owner))
+        panel.header_layout.addWidget(panel.close_button)
+        panel.hide()
+        return panel
+
+    def _field_lists(self):
+        """Return the active field list followed by every other open well view.
+
+        :returns: distinct lists in display priority.
+        """
+        lists = [self.fields]
+        lists.extend(panel.field_list for panel in self._well_panels
+                     if panel.field_list is not self.fields)
+        return lists
+
+    def _open_well_panel(self, well):
+        """Open or reuse one stacked well container and make it active.
+
+        :param well: the physical well identity.
+        """
+        panel = next((panel for panel in self._well_panels
+                      if panel.field_list._overview_well == well), None)
+        if panel is None:
+            if len(self._well_panels) >= _OVERVIEW_MAX_WELL_VIEWS:
+                self._close_well_panel(self._well_panels[0], refresh=False)
+            panel = (self._well_panel if self._well_panel not in self._well_panels
+                     else self._new_well_panel(self._new_field_list()))
+            panel.field_list._overview_well, panel.field_list._overview_page = well, 0
+            panel.title.setText(tr("Well {well}", well=well or tr("Unresolved")))
+            self._well_panels.append(panel)
+            self._levels.addWidget(panel)
+            panel.set_collapsed(False)
+            panel.show()
+        self.fields = panel.field_list
+
+    def _close_well_panel(self, panel, refresh=True):
+        """Close one stacked well view, keeping the other open wells unchanged.
+
+        :param panel: the well container to close.
+        :param refresh: refresh navigation after closing the active view.
+        """
+        self._well_panels.remove(panel)
+        panel.hide()
+        if panel is not self._well_panel:
+            panel.setParent(None)
+            panel.deleteLater()
+        if panel.field_list is not self.fields or not refresh:
+            return
+        if not self._well_panels:
+            self._back()
+            return
+        self._activate_well_list(self._well_panels[-1].field_list)
+        self._filter()
+
+    def _activate_well_list(self, fields):
+        """Make another open well view the navigation target without rebuilding it.
+
+        :param fields: the open well's field list.
+        """
+        if fields is self.fields:
+            return
+        self.fields = fields
+        self._scope = (self.plates.currentData(), fields._overview_well)
+        self._page = fields._overview_page
+        self._visible = tuple(self._well_fields.get(fields._overview_well, ()))
+        self._individual = False
+        self._comparison_signature = None
+        self._displayed_montage = None
+
+    def _field_in(self, fields, item):
+        """Enlarge a clicked field from any open well view.
+
+        :param fields: the list that received the click.
+        :param item: the clicked field item.
+        """
+        self._activate_well_list(fields)
+        self._field(item)
+
+    def _current_field_in(self, fields, current, previous):
+        """Follow keyboard navigation in whichever well view has focus.
+
+        :param fields: the list whose current item changed.
+        :param current: the new current item, or ``None`` during a reset.
+        :param previous: the earlier current item.
+        """
+        if current is not None:
+            self._activate_well_list(fields)
+        self._current_field_changed(current, previous)
+
+    def _fill_field_list(self, fields, records, current_identity):
+        """Show one well view's bounded field page without decoding pixels.
+
+        :param fields: the list to fill.
+        :param records: the field records on its current page.
+        :param current_identity: the identity to keep current, if present.
+        """
+        from PySide6.QtWidgets import QListWidgetItem
+        from PySide6.QtCore import QItemSelectionModel
+
+        fields.blockSignals(True)
+        fields.clear()
+        for field in records:
+            caption = tr("{well} · field {field} · T {time} · Z {z}",
+                well=field.well or tr("Unresolved"), field=getattr(field, "field_id", "") or field.field,
+                time=getattr(field, "time_id", "") or str(self.time_axis.currentData()),
+                z=getattr(field, "z_id", "") or str(self.z_axis.currentData()))
+            item = QListWidgetItem(caption if fields._overview_metadata else "")
+            item.setData(Qt.UserRole + 2, caption)
+            item.setToolTip(caption + "\n" + field.caption)
+            item.setData(Qt.UserRole, field)
+            fields.addItem(item)
+            item.setSelected(field.identity in self._selected_fields)
+            if field.identity == current_identity:
+                fields.setCurrentItem(item, QItemSelectionModel.NoUpdate)
+        fields.blockSignals(False)
+
+    def _well_metadata_toggled(self, fields, on):
+        """Show or hide the captions of one well view's thumbnails.
+
+        :param fields: the well view's list.
+        :param on: whether the caption text is visible.
+        """
+        fields._overview_metadata = bool(on)
+        for index in range(fields.count()):
+            item = fields.item(index)
+            item.setText(item.data(Qt.UserRole + 2) if on else "")
+
+    def _image_metadata_toggled(self, on):
+        """Show or hide filename and metadata text over the enlarged image.
+
+        :param on: whether the text is visible.
+        """
+        self._update_image_metadata()
+        self._request_visuals()
+
+    def _update_image_metadata(self, field=None):
+        """Place the current field's filename and metadata over the image view.
+
+        :param field: the enlarged field, or ``None`` to keep the current text.
+        """
+        if field is not None:
+            names = "\n".join(Path(path).name for _channel, path in field.files)
+            self._image_metadata.setText(field.caption + ("\n" + names if names else ""))
+        shown = self.metadata_toggle.isChecked() and self._individual
+        self._image_metadata.setVisible(shown)
+        if shown:
+            self._image_metadata.setMaximumWidth(max(80, self.view.viewport().width() - 16))
+            self._image_metadata.adjustSize()
+            self._image_metadata.move(8, 8)
+            self._image_metadata.raise_()
+
+    def _show_image_panel(self):
+        """Reveal the image level to the right of the plate and well levels."""
+        if self._image_panel.isHidden():
+            self._image_panel.show()
+            total = max(2, sum(self._splitter.sizes()))
+            self._splitter.setSizes([total * 2 // 5, total - total * 2 // 5])
+
+    def _well_menu(self, position):
+        """Offer annotation of the selected wells on a right click.
+
+        A right click on an unselected well selects only that well first.
+
+        :param position: the click position in viewport coordinates.
+        :returns: the shown context menu.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        item = self.wells.itemAt(position)
+        if item is not None and not item.isSelected():
+            self.wells.clearSelection()
+            item.setSelected(True)
+        menu = QMenu(self.wells)
+        action = menu.addAction(tr("Annotate selected wells…"))
+        action.setEnabled(bool(self._selected_wells))
+        action.triggered.connect(self._annotate_selected_wells)
+        self._well_context_menu = menu
+        menu.popup(self.wells.viewport().mapToGlobal(position))
+        return menu
+
+    def _annotate_selected_wells(self):
+        """Open the key/value prompt for every selected plate-qualified well.
+
+        :returns: the open prompt, or ``None`` without a selection.
+        """
+        wells = tuple(sorted(self._selected_wells))
+        if not wells:
+            self.status.setText(tr("Choose a row, column or well selection before annotating."))
+            return None
+        keys = sorted({key for values in self._annotation_snapshot().values() for key in values})
+        dialog = _OverviewAnnotationDialog(keys, wells, self)
+        dialog.accepted.connect(lambda: self._apply_annotation(set(dialog.wells), *dialog.annotation()))
+        self._annotation_dialog = dialog
+        dialog.open()
+        return dialog
+
+    def _build_comparison_controls(self):
+        """Create the annotation-dimension picker and representative-image choices.
+
+        :returns: the widget placed in the Comparisons settings category.
+        """
+        from PySide6.QtWidgets import QTreeWidget
+        from .setup_dialog import _SetupComboBox
+
+        host = QWidget(self)
+        layout = QVBoxLayout(host)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.comparison_dimensions = QTreeWidget()
+        self.comparison_dimensions.setHeaderHidden(True)
+        self.comparison_dimensions.setMinimumHeight(120)
+        self.comparison_dimensions.setToolTip(tr(
+            "Tick annotation columns and the values to compare; every combination of the ticked values is one group."))
+        self.comparison_within = _SetupComboBox()
+        self.comparison_measurement = _SetupComboBox()
+        self.comparison_measurement.setEditable(True)
+        self.comparison_measurement.setToolTip(tr(
+            "Image-level measurement to compare; leave empty to use the first measured column."))
+        self.representative_method = _SetupComboBox()
+        for text, value in ((tr("Closest to the class median"), "median"),
+                            (tr("Class medoid"), "medoid"),
+                            (tr("Closest to the class centroid in principal components"), "pca_centroid"),
+                            (tr("Closest to the class median of the chosen measurement"), "measurement"),
+                            (tr("Typical, in focus and unsaturated"), "typical_in_focus")):
+            self.representative_method.addItem(text, value)
+        compare = QPushButton(tr("Compare annotated groups"))
+        compare.clicked.connect(self._compare_groups)
+        representatives = QPushButton(tr("Show representative images"))
+        representatives.clicked.connect(self._show_representatives)
+        for widget in (self.comparison_dimensions, QLabel(tr("Compare within")), self.comparison_within,
+                       QLabel(tr("Measurement")), self.comparison_measurement, compare,
+                       QLabel(tr("Representative image")), self.representative_method, representatives):
+            layout.addWidget(widget)
+        self._refresh_comparison_choices()
+        return host
+
+    def _refresh_comparison_choices(self):
+        """Offer every annotation column and value, keeping earlier ticks."""
+        from PySide6.QtWidgets import QTreeWidgetItem
+
+        tree = self.comparison_dimensions
+        ticked = {(item.parent().text(0) if item.parent() else None, item.text(0))
+                  for item in self._comparison_items() if item.checkState(0) == Qt.Checked}
+        values = {}
+        for metadata in self._annotation_snapshot().values():
+            for key, value in metadata.items():
+                values.setdefault(key, set()).add(value)
+        tree.clear()
+        for key in sorted(values):
+            parent = QTreeWidgetItem([key])
+            parent.setFlags(parent.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsAutoTristate)
+            tree.addTopLevelItem(parent)
+            for value in sorted(values[key], key=_overview_natural_key):
+                child = QTreeWidgetItem([value])
+                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                child.setCheckState(0, Qt.Checked if (key, value) in ticked else Qt.Unchecked)
+                parent.addChild(child)
+            parent.setExpanded(True)
+        old = self.comparison_within.currentData()
+        self.comparison_within.clear()
+        self.comparison_within.addItem(tr("No stratification"), None)
+        for key in sorted(values):
+            self.comparison_within.addItem(key, key)
+        self.comparison_within.setCurrentIndex(max(0, self.comparison_within.findData(old)))
+
+    def _comparison_items(self):
+        """Return every value item of the dimension picker.
+
+        :returns: the checkable value items, in display order.
+        """
+        tree = self.comparison_dimensions
+        return [tree.topLevelItem(index).child(child)
+                for index in range(tree.topLevelItemCount())
+                for child in range(tree.topLevelItem(index).childCount())]
+
+    def _comparison_selection(self):
+        """Read the ticked annotation dimensions and their chosen values.
+
+        :returns: ``(dimensions, levels, within)`` for the comparison API.
+        """
+        levels = {}
+        for item in self._comparison_items():
+            if item.checkState(0) == Qt.Checked:
+                levels.setdefault(item.parent().text(0), []).append(item.text(0))
+        within = self.comparison_within.currentData()
+        return [key for key in levels if key != within], {key: values for key, values in levels.items()
+                                                           if key != within}, within
+
+    def _compare_groups(self):
+        """Test and plot one measurement across every chosen annotation group."""
+        dimensions, levels, within = self._comparison_selection()
+        if not dimensions:
+            self.status.setText(tr("Tick the annotation values to compare."))
+            return
+        source = self._metadata_source
+        measurement = self.comparison_measurement.currentText().strip()
+        folder = Path(source) / "results" / "overview_comparisons"
+        def run():
+            """Read, test, draw and save the comparison outside the GUI thread.
+
+            :returns: ``(png bytes, saved figure, tables, measurement)`` or an error text.
+            """
+            from datetime import datetime
+            from io import BytesIO
+            from ...sp_stats import (_compare_image_groups, _image_comparison_figure,
+                                     _image_measurement_columns, _write_image_comparison)
+
+            try:
+                frame = _overview_comparison_frame(source)
+            except _OverviewValidationError as error:
+                return str(error)
+            columns = _image_measurement_columns(frame)
+            column = measurement or (columns[0] if columns else "")
+            stratum = [within] if within else None
+            try:
+                result = _compare_image_groups(frame, [column], dimensions, levels=levels, within=stratum)
+                stem = "comparison_" + datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                folder.mkdir(parents=True, exist_ok=True)
+                tables = _write_image_comparison(result, folder, stem)
+                figure, saved = _image_comparison_figure(frame, column, dimensions, levels=levels,
+                                                         within=stratum, tests=result["tests"],
+                                                         path=str(folder / stem))
+            except (KeyError, ValueError, IndexError) as error:
+                LOG.warning("overview comparison refused: %s", error)
+                return tr("These annotation groups cannot be compared with {measurement}.",
+                          measurement=column or tr("Measurement"))
+            buffer = BytesIO()
+            figure.savefig(buffer, format="png", dpi=110)
+            import matplotlib.pyplot as plt
+            plt.close(figure)
+            return buffer.getvalue(), str(saved), tables, column, columns
+        def shown(result):
+            """Show the comparison figure in the image level and offer its measurements.
+
+            :param result: the worker's figure and paths, or a refusal text.
+            """
+            if isinstance(result, str):
+                self.status.setText(result)
+                return
+            png, saved, tables, column, columns = result
+            if self.comparison_measurement.count() != len(columns):
+                self.comparison_measurement.blockSignals(True)
+                self.comparison_measurement.clear()
+                self.comparison_measurement.addItems(columns)
+                self.comparison_measurement.setCurrentText(column)
+                self.comparison_measurement.blockSignals(False)
+            pixmap = QPixmap()
+            pixmap.loadFromData(png, "PNG")
+            self._individual = False
+            self._comparison_signature = ("groups", saved)
+            self._show_image_panel()
+            self.view.set_pixmap(pixmap)
+            self._update_image_metadata()
+            self.status.setText(tr("Comparison of {measurement}: figure {path}; tables {tables}.",
+                                   measurement=column, path=saved, tables=tables["tests"]))
+        self.status.setText(tr("Comparing annotated groups…"))
+        self._export_jobs.submit(run, shown)
+
+    def _show_representatives(self):
+        """Show the most representative image of every chosen annotation class."""
+        dimensions, levels, within = self._comparison_selection()
+        by = dimensions + ([within] if within else [])
+        if not by:
+            self.status.setText(tr("Tick the annotation values to compare."))
+            return
+        method = self.representative_method.currentData()
+        measurement = self.comparison_measurement.currentText().strip() or None
+        fields, source = self._fields, self._metadata_source
+        def run():
+            """Rank representatives and pick their source fields off the GUI thread.
+
+            :returns: ``(fields, class captions)`` of the top image per class, or an error text.
+            """
+            from ...sp_stats import _representative_images
+
+            try:
+                frame = _overview_comparison_frame(source)
+            except _OverviewValidationError as error:
+                return str(error)
+            for key, values in levels.items():
+                frame = frame[frame[key].astype(str).isin(values)]
+            try:
+                ranked = _representative_images(frame, by, method=method, measurement=measurement, top=1)
+            except (KeyError, ValueError) as error:
+                LOG.warning("representative images refused: %s", error)
+                return tr("No representative image can be chosen this way for these annotation values.")
+            known = {(field.plate, field.well, str(field.field), str(field.time_id), str(field.z_id)): field
+                     for field in fields}
+            chosen, captions = [], []
+            for record in ranked.to_dict("records"):
+                field = known.get((str(record["plate"]), str(record["well"]), str(record["field"]),
+                                   str(record.get("time_id") or ""), str(record.get("z_id") or "")))
+                if field is not None:
+                    chosen.append(field)
+                    captions.append(" + ".join(str(record[key]) for key in by) + ": " + field.caption)
+            return tuple(chosen), tuple(captions)
+        def shown(result):
+            """Compare the representatives side by side in the image level.
+
+            :param result: the chosen fields and their class captions.
+            """
+            if isinstance(result, str):
+                self.status.setText(result)
+                return
+            chosen, captions = result
+            if not chosen:
+                self.status.setText(tr("No measured image matches the chosen annotation values."))
+                return
+            self._compare_fields(chosen[:24], tr("Representative images: {classes}",
+                                                 classes="; ".join(captions)))
+        self.status.setText(tr("Choosing representative images…"))
+        self._export_jobs.submit(run, shown)
 
     def _fill_group_choices(self, combo, image=False):
         """Offer physical addresses and every defined well annotation."""
@@ -3620,16 +4285,27 @@ class _FieldOverview(QWidget):
         def read():
             """Validate source-relative metadata without GUI-thread file access."""
             import json
+            from ...measure import _image_annotation_database, _well_image_annotations
+
+            values = {}
+            database = _image_annotation_database(source)
+            if database.is_file():
+                for address, metadata in _well_image_annotations(database).items():
+                    if address in known:
+                        values[address] = {str(key): str(value) for key, value in metadata.items()
+                                           if key != "_mixed"}
             path = Path(source) / "results" / "overview_annotations.json"
             if not path.is_file():
-                return {}
+                return values
             records = json.loads(path.read_text(encoding="utf-8")).get("wells", ())
-            values = {}
+            stored, values = values, {}
             for record in records:
                 address = str(record["plate"]), str(record["well"])
                 if address not in known or address in values or not isinstance(record["metadata"], dict):
                     raise _OverviewValidationError(tr("Annotation table identities are missing, duplicated or outside this source."))
                 values[address] = {str(key): str(value) for key, value in record["metadata"].items()}
+            for address, metadata in stored.items():
+                values.setdefault(address, {}).update(metadata)
             return values
         def loaded(values):
             """Install only metadata belonging to the unchanged indexed generation."""
@@ -3641,6 +4317,7 @@ class _FieldOverview(QWidget):
                     self._conditions[address] = metadata["condition"]
             self._fill_group_choices(self.grouping)
             self._fill_group_choices(self.normalization_scope, image=True)
+            self._refresh_comparison_choices()
             self._filter()
             if self.advanced.isChecked():
                 self._prepare_display()
@@ -3817,13 +4494,18 @@ class _FieldOverview(QWidget):
                 self._persist_metadata()
                 self._fill_group_choices(self.grouping)
                 self._fill_group_choices(self.normalization_scope, image=True)
+                self._refresh_comparison_choices()
                 self._filter()
                 if self._overview_options.get("normalization") or self.advanced.isChecked():
                     self._prepare_display()
         self._export_jobs.submit(read, loaded)
 
     def _update_field_thumbnails(self, signature, channels, limits, options):
-        """Decode one visible field tile at a time, with at most 24 native icons.
+        """Decode one visible field tile at a time, one per open well first.
+
+        The next tile comes from the open well view with the fewest current
+        tiles, so every stacked well shows an image before any well gets its
+        second one.
 
         :param signature: the current source, axes and display generation.
         :param channels: exact requested source channel identities.
@@ -3832,53 +4514,64 @@ class _FieldOverview(QWidget):
         """
         if self._field_thumbnail_jobs.is_busy():
             return
-        viewport, cancelled = self.fields.viewport(), self._cancelled
-        ratio = device_ratio(viewport)
-        edge = min(math.ceil(128 * ratio), self.preview_resolution.currentData())
-        for index in range(self.fields.count()):
-            item = self.fields.item(index)
-            if not viewport.rect().intersects(self.fields.visualItemRect(item)):
+        cancelled, choices = self._cancelled, []
+        for order, fields in enumerate(self._field_lists()):
+            if not fields.isVisible():
                 continue
-            field = item.data(Qt.UserRole)
-            key = field.identity, channels, limits, self._display_options_key(options), ratio, edge
-            if item.data(Qt.UserRole + 1) == key:
-                continue
-            def read():
-                """Decode only the requested tile, preserving unreadable-field state.
-
-                :returns: detached pixels and an empty error, or None and the refusal.
-                """
-                try:
-                    return _overview_pixels(field, channels, limits,
-                                             edge=edge, **options), ""
-                except Exception as exc:
-                    return None, str(exc)
-            def shown(result):
-                """Install only an exact current visible field identity.
-
-                :param result: detached worker pixels and an optional refusal message.
-                """
-                from PySide6.QtGui import QIcon
-                if cancelled.is_set() or self._visual_context() != signature:
-                    return
-                pixels, error = result
-                if error:
-                    self.status.setText(tr("Could not read {field}: {error}", field=field.caption, error=error))
-                for current_index in range(self.fields.count()):
-                    current = self.fields.item(current_index)
-                    if current.data(Qt.UserRole).identity != field.identity:
-                        continue
-                    current.setData(Qt.UserRole + 1, key)
-                    if pixels is None:
-                        current.setIcon(QIcon())
-                    else:
-                        image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
-                                       pixels.strides[0], QImage.Format_RGB888).copy()
-                        pixmap = scaled_for(QPixmap.fromImage(image), viewport, self.fields.iconSize())
-                        current.setIcon(QIcon(pixmap))
-                    break
-            self._field_thumbnail_jobs.submit(read, shown)
+            viewport = fields.viewport()
+            ratio = device_ratio(viewport)
+            edge = min(math.ceil(128 * ratio), self.preview_resolution.currentData())
+            loaded, waiting = 0, []
+            for index in range(fields.count()):
+                item = fields.item(index)
+                if not viewport.rect().intersects(fields.visualItemRect(item)):
+                    continue
+                key = (item.data(Qt.UserRole).identity, channels, limits,
+                       self._display_options_key(options), ratio, edge)
+                if item.data(Qt.UserRole + 1) == key:
+                    loaded += 1
+                else:
+                    waiting.append((item.data(Qt.UserRole), key))
+            if waiting:
+                choices.append((loaded, order, fields, edge, *waiting[0]))
+        if not choices:
             return
+        _loaded, _order, owner, edge, field, key = min(choices, key=lambda choice: choice[:2])
+        def read():
+            """Decode only the requested tile, preserving unreadable-field state.
+
+            :returns: detached pixels and an empty error, or None and the refusal.
+            """
+            try:
+                return _overview_pixels(field, channels, limits,
+                                         edge=edge, **options), ""
+            except Exception as exc:
+                return None, str(exc)
+        def shown(result):
+            """Install only an exact current visible field identity.
+
+            :param result: detached worker pixels and an optional refusal message.
+            """
+            from PySide6.QtGui import QIcon
+            if cancelled.is_set() or self._visual_context() != signature or owner not in self._field_lists():
+                return
+            pixels, error = result
+            if error:
+                self.status.setText(tr("Could not read {field}: {error}", field=field.caption, error=error))
+            for current_index in range(owner.count()):
+                current = owner.item(current_index)
+                if current.data(Qt.UserRole).identity != field.identity:
+                    continue
+                current.setData(Qt.UserRole + 1, key)
+                if pixels is None:
+                    current.setIcon(QIcon())
+                else:
+                    image = QImage(pixels.data, pixels.shape[1], pixels.shape[0],
+                                   pixels.strides[0], QImage.Format_RGB888).copy()
+                    pixmap = scaled_for(QPixmap.fromImage(image), owner.viewport(), owner.iconSize())
+                    current.setIcon(QIcon(pixmap))
+                break
+        self._field_thumbnail_jobs.submit(read, shown)
 
     def _zoom_plate(self, delta=0):
         """Fit the complete physical plate or explicitly magnify its cells.
@@ -3924,7 +4617,7 @@ class _FieldOverview(QWidget):
         """
         from PySide6.QtWidgets import QScrollArea
         from .flow import FlowHost, FlowLayout
-        from .card import Card
+        from .section import Section
         self._options_window = QDialog(self, Qt.Window)
         self._options_window.setWindowTitle(tr("Options"))
         self._options_window.setWindowModality(Qt.NonModal)
@@ -3935,10 +4628,11 @@ class _FieldOverview(QWidget):
         self._settings_host = None
         controls = QVBoxLayout(content)
         categories = {}
-        for name in (tr("Source"), tr("Display"), tr("Annotations"), tr("Export")):
-            card = Card(title=name, foldable=True)
-            controls.addWidget(card)
-            categories[name] = card.body_layout
+        for name in ("Source", "Figure settings", "Display", "Annotations", "Comparisons", "Export"):
+            section = Section(name, expanded=True)
+            controls.addWidget(section)
+            categories[tr(name)] = section
+        self._categories = categories
         essential = FlowHost(self)
         essential_flow = FlowLayout(essential)
         while column.count():
@@ -3962,9 +4656,9 @@ class _FieldOverview(QWidget):
                     flow.addWidget(child.widget())
                 layout.setParent(None)
                 if host is not essential:
-                    categories[category].addWidget(host)
+                    categories[category].add_widget(host)
             else:
-                categories[category].addWidget(item.widget())
+                categories[category].add_widget(item.widget())
         controls.addStretch(1)
         scroll = QScrollArea(self)
         scroll.setWidgetResizable(True)
@@ -3980,20 +4674,20 @@ class _FieldOverview(QWidget):
         fit = QPushButton(tr("Fit plate"))
         fit.clicked.connect(lambda: self._zoom_plate())
         essential_flow.addWidget(fit)
-        essential_scroll = QScrollArea(self)
+        essential_scroll = QScrollArea(content)
         essential_scroll.setWidgetResizable(True)
         essential_scroll.setFrameShape(QScrollArea.NoFrame)
+        essential_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         essential_scroll.viewport().setAutoFillBackground(False)
         essential_scroll.setWidget(essential)
         self._essential_scroll = essential_scroll
         self.installEventFilter(self)
         essential_scroll.viewport().installEventFilter(self)
         essential.installEventFilter(self)
-        column.addWidget(essential_scroll)
+        categories[tr("Figure settings")].add_widget(essential_scroll)
+        categories[tr("Comparisons")].add_widget(self._build_comparison_controls())
         column.addWidget(splitter, 1)
         column.addWidget(self.status)
-        self.fields.hide()
-        self.view.hide()
 
     def _show_options(self, on):
         """Open the separate controls window with normal keyboard focus."""
@@ -4345,8 +5039,25 @@ class _FieldOverview(QWidget):
             addresses = {(field.plate, field.well) for field in self._fields if field.plate == plate
                 and (scope != "row" or row is not None and field.row == row)
                 and (scope != "column" or column is not None and field.column == column)}
+        self._apply_annotation(addresses, key, text)
+
+    def _apply_annotation(self, addresses, key, text):
+        """Set or remove one metadata value on plate-qualified wells.
+
+        :param addresses: ``(plate, well)`` identities to annotate.
+        :param key: the metadata key.
+        :param text: the value; empty text removes the key.
+        """
         if not addresses or not key:
             self.status.setText(tr("Choose a row, column or well selection before annotating."))
+            return
+        from ...measure import _image_annotation_column_name
+        try:
+            _image_annotation_column_name(key)
+        except ValueError:
+            self.status.setText(tr(
+                "Annotation names use letters, digits and underscores, start with a letter and cannot name an image identity: {name}",
+                name=key))
             return
         for address in addresses:
             if text:
@@ -4359,10 +5070,49 @@ class _FieldOverview(QWidget):
                     self._conditions.pop(address, None)
         self._fill_group_choices(self.grouping)
         self._fill_group_choices(self.normalization_scope, image=True)
+        self._refresh_comparison_choices()
         self._persist_metadata()
+        self._store_image_annotation(addresses, key, text)
         self._filter()
         if self._overview_options.get("normalization") or self.advanced.isChecked():
             self._prepare_display()
+
+    def _store_image_annotation(self, addresses, key, text):
+        """Save one annotation for every image of the wells in measurements.db.
+
+        :param addresses: ``(plate, well)`` identities that were annotated.
+        :param key: the validated annotation column.
+        :param text: the value; empty text clears it.
+        """
+        from ...measure import _image_annotation_database, _set_image_annotations
+
+        source = self._metadata_source
+        if not source:
+            return
+        path = _image_annotation_database(source)
+        wells = sorted(addresses)
+        fields = tuple(field for field in self._fields if (field.plate, field.well) in addresses)
+        def write():
+            """Write the annotation rows outside the GUI thread.
+
+            :returns: the changed image count, or ``None`` after a refusal.
+            """
+            try:
+                return _set_image_annotations(path, fields, key, text, source=source, wells=wells)["count"]
+            except (OSError, ValueError, RuntimeError) as error:
+                LOG.warning("image annotation not saved: %s", error)
+                return None
+        def written(count):
+            """Report where the image-level annotation was saved.
+
+            :param count: changed images, or ``None`` after a refusal.
+            """
+            if count is None:
+                self.status.setText(tr("The annotation could not be saved to {path}.", path=path))
+            else:
+                self.status.setText(tr("Saved {name} for {count} images in {path} (table image_annotations).",
+                                       name=key, count=count, path=path))
+        self._metadata_jobs.submit(write, written)
 
     def _compare(self):
         """Render only explicitly selected fields, retaining their source identities."""
@@ -4373,16 +5123,23 @@ class _FieldOverview(QWidget):
         if len(fields) > 24:
             self.status.setText(tr("Compare up to 24 fields at a time."))
             return
+        self._compare_fields(fields)
+
+    def _compare_fields(self, fields, message=None):
+        """Show up to 24 fields side by side in the image level.
+
+        :param fields: the source fields, in display order.
+        :param message: status text replacing the default preview count.
+        """
         try:
             channels, limits = self._choices()
         except (ValueError, TypeError) as exc:
             self.status.setText(str(exc))
             return
         options, cancelled = self._display_kwargs(), self._cancelled
+        labels = self.metadata_toggle.isChecked()
         self._individual = False
-        self.fields.show()
-        self.view.show()
-        self._splitter.setSizes([250, 300, 750])
+        self._show_image_panel()
         signature = tuple(field.identity for field in fields), channels, limits, self._display_options_key(options)
         self._comparison_signature = signature
         def done(result):
@@ -4395,10 +5152,10 @@ class _FieldOverview(QWidget):
                 pixels, errors = result
                 if pixels is not None:
                     self._show_pixels(pixels)
-                    self.status.setText(tr("{count} fields; {errors} unreadable previews.",
-                                           count=len(fields), errors=len(errors)))
+                    self.status.setText(message or tr("{count} fields; {errors} unreadable previews.",
+                                                      count=len(fields), errors=len(errors)))
         self._montage_jobs.submit(lambda: _overview_montage(
-            fields, channels, limits, cancelled, **options), done)
+            fields, channels, limits, cancelled, labels=labels, **options), done)
 
     def _choices(self):
         """Validate one display/export configuration on the GUI thread."""
@@ -4517,12 +5274,13 @@ class _FieldOverview(QWidget):
         self._scope = (self.plates.currentData(), None)
         self._individual = False
         self._comparison_signature = None
-        self.fields.hide()
-        self.view.hide()
+        for panel in tuple(self._well_panels):
+            self._close_well_panel(panel, refresh=False)
+        self.fields = self._well_panel.field_list
+        self._image_panel.hide()
         self.wells.show()
         self._plate_fit = True
         self._plate_cell_extent = None
-        self._splitter.setSizes([1000, 0, 0])
         self.view.clear_image()
         self._page = 0
         self._filter()
@@ -4551,12 +5309,15 @@ class _FieldOverview(QWidget):
 
         :param _: unused plate, row or column selection arguments.
         """
-        current = self.fields.currentItem()
-        current_identity = current.data(Qt.UserRole).identity if current is not None else None
+        current_identities = {id(fields): fields.currentItem().data(Qt.UserRole).identity
+                              for fields in self._field_lists() if fields.currentItem() is not None}
         plate = self.plates.currentData()
         self._comparison_signature = None
         if self._scope[0] != plate:
             self._scope = (plate, None)
+            for panel in tuple(self._well_panels):
+                self._close_well_panel(panel, refresh=False)
+            self.fields = self._well_panel.field_list
         available = tuple(f for f in self._fields if f.plate == plate)
         try:
             geometry = self._checked_plate_geometry(available, self._overview_options.get("geometry"))
@@ -4648,22 +5409,13 @@ class _FieldOverview(QWidget):
                 self._selected_well_axes[address] = (time, z)
         self._visible = tuple(f for f in available if self._scope[1] is None or f.well == self._scope[1])
         self._page = min(self._page, max(0, (len(self._visible) - 1) // 24))
-        self.fields.blockSignals(True)
-        self.fields.clear()
-        from PySide6.QtWidgets import QListWidgetItem
-        from PySide6.QtCore import QItemSelectionModel
-        for field in self._visible[self._page * 24:(self._page + 1) * 24]:
-            item = QListWidgetItem(tr("{well} · field {field} · T {time} · Z {z}",
-                well=field.well or tr("Unresolved"), field=getattr(field, "field_id", "") or field.field,
-                time=getattr(field, "time_id", "") or str(self.time_axis.currentData()),
-                z=getattr(field, "z_id", "") or str(self.z_axis.currentData())))
-            item.setToolTip(field.caption)
-            item.setData(Qt.UserRole, field)
-            self.fields.addItem(item)
-            item.setSelected(field.identity in self._selected_fields)
-            if field.identity == current_identity:
-                self.fields.setCurrentItem(item, QItemSelectionModel.NoUpdate)
-        self.fields.blockSignals(False)
+        self.fields._overview_page = self._page
+        for fields in self._field_lists():
+            records = (self._visible if fields is self.fields
+                       else tuple(self._well_fields.get(fields._overview_well, ())))
+            page = min(fields._overview_page, max(0, (len(records) - 1) // 24))
+            self._fill_field_list(fields, records[page * 24:(page + 1) * 24],
+                                  current_identities.get(id(fields)))
         if not self._visible:
             self.view.clear_image()
         if self._overview_options.get("geometry"):
@@ -4677,9 +5429,9 @@ class _FieldOverview(QWidget):
         self._request_visuals()
 
     def _remember_selection(self):
-        """Retain explicit field selections across pages and plate navigation."""
-        for index in range(self.fields.count()):
-            item = self.fields.item(index)
+        """Retain explicit field selections across pages, well views and plates."""
+        for item in (fields.item(index) for fields in self._field_lists()
+                     for index in range(fields.count())):
             field = item.data(Qt.UserRole)
             if item.isSelected():
                 self._selected_fields[field.identity] = field
@@ -4695,7 +5447,8 @@ class _FieldOverview(QWidget):
         self._selected_well_axes.clear()
         self._selected_well_options.clear()
         self._selected_field_options.clear()
-        self.fields.clearSelection()
+        for fields in self._field_lists():
+            fields.clearSelection()
         self.wells.clearSelection()
 
     def _well(self, item):
@@ -4703,11 +5456,10 @@ class _FieldOverview(QWidget):
 
         :param item: the selected physical well cell.
         """
+        self._open_well_panel(item.data(Qt.UserRole))
         self._scope = (self.plates.currentData(), item.data(Qt.UserRole))
         self._comparison_signature = None
-        self.fields.show()
-        self.view.show()
-        self._splitter.setSizes([250, 200, 750])
+        self._show_image_panel()
         self._individual = False
         self._page = 0
         self._filter()
@@ -4756,9 +5508,9 @@ class _FieldOverview(QWidget):
         if self._cancelled.is_set() or not self._geometry_valid:
             return
         field = item.data(Qt.UserRole)
-        if not self._individual:
-            self._splitter.setSizes([250, 300, 750])
+        self._show_image_panel()
         self._individual = True
+        self._update_image_metadata(field)
         self._comparison_signature = None
         self._displayed_montage = None
         if not self._normalization_ready:
@@ -4864,7 +5616,8 @@ class _FieldOverview(QWidget):
             return True
         if watched is self._well_viewport and event.type() == QEvent.Resize and self._plate_fit:
             self._zoom_plate()
-        if watched in (self._well_viewport, self.fields.viewport()) and event.type() in (QEvent.Paint, QEvent.Resize):
+        if ((watched is self._well_viewport or hasattr(watched.parentWidget(), "_overview_well"))
+                and event.type() in (QEvent.Paint, QEvent.Resize)):
             self._request_visuals()
         return super().eventFilter(watched, event)
 
@@ -4914,12 +5667,13 @@ class _FieldOverview(QWidget):
         cancelled = self._cancelled
         options = self._display_kwargs()
         resolution = self.preview_resolution.currentData()
-        if self.fields.isVisible():
-            self._update_field_thumbnails(signature, channels, limits, options)
+        self._update_field_thumbnails(signature, channels, limits, options)
         if self._comparison_signature is not None:
             return
         if self._scope[1] is not None and not self._individual and page:
-            if self._displayed_montage == signature or self._montage_jobs.is_busy():
+            labels = self.metadata_toggle.isChecked()
+            if ((self._displayed_montage == signature and self._montage_labels == labels)
+                    or self._montage_jobs.is_busy()):
                 return
             def show_montage(result):
                 """Display a montage only while its navigation choices match.
@@ -4931,12 +5685,12 @@ class _FieldOverview(QWidget):
                         or pixels is None):
                     return
                 self._show_pixels(pixels)
-                self._displayed_montage = signature
+                self._displayed_montage, self._montage_labels = signature, labels
                 self.status.setText(tr("{count} fields; {errors} unreadable previews.",
                                        count=len(page), errors=len(errors)))
             self._montage_jobs.submit(
                 lambda: _overview_montage(page, channels, limits, cancelled,
-                    preview_edge=min(240, resolution), **options), show_montage)
+                    preview_edge=min(240, resolution), labels=labels, **options), show_montage)
             return
         viewport = self.wells.viewport()
         ratio = device_ratio(viewport)
@@ -4959,7 +5713,7 @@ class _FieldOverview(QWidget):
         last_column = self.wells.columnAt(viewport.width() - 1)
         if last_column < 0:
             last_column = self.wells.columnCount() - 1
-        requests = []
+        requests, later = [], []
         for row in range(first_row, last_row + 1):
             for column in range(first_column, last_column + 1):
                 item = self.wells.item(row, column)
@@ -4972,16 +5726,25 @@ class _FieldOverview(QWidget):
                 representatives = tuple(self._well_fields[well][:self.representatives.value()])
                 edge = min(resolution, max(64, math.ceil(max(self._plate_cell_extent or (160, 160)) * ratio)))
                 key = (tuple(record.identity for record in representatives), channels, limits, ratio, edge, self._display_options_key(options))
-                if item.data(Qt.UserRole + 1) == key:
+                first = ((field.identity,),) + key[1:]
+                installed = item.data(Qt.UserRole + 1)
+                if installed == key:
                     continue
                 if key in self._thumbnail_cache:
                     self._set_thumbnail(well, key, self._thumbnail_cache[key])
                     continue
-                requests.append((well, key, field, representatives, edge))
+                if installed != first and first in self._thumbnail_cache:
+                    self._set_thumbnail(well, first, self._thumbnail_cache[first])
+                    installed = first
+                if installed == first:
+                    later.append((well, key, field, representatives, edge))
+                    continue
+                requests.append((well, first, field, (field,), edge))
                 if len(requests) == 8:
                     break
             if len(requests) == 8:
                 break
+        requests = requests or later[:8]
         if not requests:
             return
         def read_thumbnails():
@@ -5070,6 +5833,7 @@ class _FieldOverview(QWidget):
                        pixels.strides[0], QImage.Format_RGB888).copy()
         self._native_item = self._native_key = None
         self.view.set_pixmap(QPixmap.fromImage(image))
+        self._update_image_metadata()
         if keep:
             x_ratio = image.width() / old_size.width()
             y_ratio = image.height() / old_size.height()
