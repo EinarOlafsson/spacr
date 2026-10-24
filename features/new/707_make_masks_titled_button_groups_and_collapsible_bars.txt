@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Tab-navigation scope: normal owned Home→last nonempty category→Home through
+actual QTest arrow/tab clicks, distinguishing strip scrolling from selection.
+Require full native tab captions (including mnemonic handling), category tile
+icon/name real access, exact page restoration, separate dynamic-state ledger
+and the original20s content budget; no setCurrentIndex or physical-input claim.
+
 Next tab_arrows cohort selects exactly the two real HomeTabs overflow buttons,
 including disabled controls, from the actual tab bar. Preserve full manifest,
 explicit untested counts and original20s content/reveal/native-field visibility

@@ -93,7 +93,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     if sys.platform != "darwin" or os.environ.get("QT_QPA_PLATFORM", "").lower() != "cocoa":
         pytest.skip("Requires the owned native Cocoa acceptance runner")
     cohort = os.environ.get("SPACR_HOME_TEST_COHORT", "all")
-    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows"), cohort
+    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows", "tab_navigation"), cohort
     root = Path(app_mod.__file__).resolve().parents[2]
     source = ast.parse((root / "tests/qt/test_the_macos_application_menu.py").read_text())
     bootstrap = next(node.value.args[0] for node in source.body
@@ -106,7 +106,8 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         from PySide6.QtCore import QPoint, QRect, QSize, Qt, QTimer
         from PySide6.QtGui import QFontInfo, QRegion, QTextDocument, QTextOption
         from PySide6.QtWidgets import (QAbstractButton, QLabel, QMenuBar, QPushButton, QScrollArea,
-            QStyle, QStyleOptionButton, QStyleOptionToolButton, QToolButton)
+            QStyle, QStyleOptionButton, QStyleOptionToolButton, QStyleOptionTab, QToolButton)
+        from PySide6.QtTest import QTest
         from spacr.qt import gui_scale, preferences, theme, timing
         from spacr.qt.app import MainWindow
         from spacr.qt.widgets.home import AppTile, _AppTileIcon, _find_logo_pixmap
@@ -118,7 +119,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_HOME_TEST_ROOT'])
         assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_HOME_TEST_HEAD']
         cohort = os.environ['SPACR_HOME_TEST_COHORT']
-        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows'), cohort
+        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows', 'tab_navigation'), cohort
         preferences.set_gui_scale(2.)
         preferences.set_font_scale(2.)
         report = {'errors': [], 'checks': [], 'programmatic_not_physical': True, 'cohort': cohort}
@@ -290,9 +291,17 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         def check(widget, destination=None):
             """Check the current native text or icon after one scroll reveal."""
             window = state['window']
+            dynamic = (cohort == 'tab_navigation'
+                and destination is report['navigation']['tile_checks']
+                and (widget is state['nav_glyph'] or widget is state['nav_tile'].name_label))
+            if dynamic:
+                assert widget not in state['manifest_indices']
+                manifest_index = None
+            else:
+                manifest_index = state['manifest_indices'][widget]
             row = {'class': type(widget).__name__, 'name': widget.objectName(),
                    'enabled': widget.isEnabled(),
-                   'manifest_index': state['manifest_indices'][widget],
+                   'manifest_index': manifest_index,
                    'rect': widget.rect().getRect(), 'visible': widget.visibleRegion().boundingRect().getRect(),
                    'font': widget.font().toString(), 'startup_observation': startup_snapshot(window)}
             row['ancestors'] = []
@@ -408,6 +417,168 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 assert False, ('Unmeasured native button type', row)
             persist()
 
+        def navigation_ready(window, target):
+            """Use existing cadence/readiness and exactly one ancestor reveal."""
+            bar = window._startup._tabs.tabBar()
+            observed = signature(window, target)
+            if observed is None:
+                state['nav_previous'] = None
+                return False
+            observed = (observed, tuple(bar.tabRect(i).getRect() for i in range(bar.count())), bar.currentIndex())
+            if not state.get('nav_revealed'):
+                if state.get('nav_previous') != observed:
+                    state['nav_previous'] = observed
+                    return False
+                parent = target.parentWidget()
+                while parent is not None and parent is not window:
+                    if isinstance(parent, QScrollArea):
+                        parent.ensureWidgetVisible(target, 0, 0)
+                    parent = parent.parentWidget()
+                state['nav_revealed'] = True
+                state['nav_frozen'] = (signature(window, target),
+                    tuple(bar.tabRect(i).getRect() for i in range(bar.count())), bar.currentIndex())
+                return False
+            assert state['nav_frozen'] == observed, ('Navigation changed after one reveal', state['nav_phase'])
+            return True
+
+        def navigation_stage(phase):
+            """Change only interaction/readiness state, never the content clock."""
+            state.update(nav_phase=phase, nav_previous=None, nav_revealed=False)
+            report['navigation']['phase'] = phase
+
+        def native_tab_caption(window, bar, index):
+            """Measure the full native mnemonic caption, not Qt's elided copy."""
+            option = QStyleOptionTab()
+            bar.initStyleOption(option, index)
+            option_text = option.text
+            full = bar.tabText(index)
+            option.text = full
+            field = bar.style().subElementRect(QStyle.SE_TabBarTabText, option, bar)
+            text = bar.style().itemTextRect(option.fontMetrics, field,
+                int(Qt.AlignCenter | Qt.TextSingleLine | Qt.TextShowMnemonic),
+                bar.isTabEnabled(index), full)
+            region = QRegion(bar.rect()).intersected(bar.visibleRegion())
+            for button in bar.findChildren(QToolButton):
+                if button.isVisible():
+                    region = region.subtracted(QRegion(button.rect().translated(button.mapTo(bar, QPoint()))))
+            return {'index': index, 'full_text': full, 'option_text': option_text,
+                'tab_rect': bar.tabRect(index).getRect(), 'field': field.getRect(),
+                'text_rect': text.getRect(), 'native_font_height': option.fontMetrics.height(),
+                'fits': (not text.isEmpty() and field.contains(text)
+                    and QRegion(text).subtracted(region).isEmpty()
+                    and window.rect().contains(text.translated(bar.mapTo(window, QPoint())))),
+                'point': text.center().toTuple(), 'tab_at_point': bar.tabAt(text.center())}
+
+        def navigation_tick(window):
+            """Perform one bounded native Home/category/Home interaction sequence."""
+            home = window._startup
+            tabs, bar = home._tabs, home._tabs.tabBar()
+            if 'navigation' not in report:
+                assert tabs.currentIndex() == 0 and tabs.count() > 1
+                state['nav_home_page'] = tabs.currentWidget()
+                state['nav_last_page'] = tabs.widget(tabs.count()-1)
+                state['nav_arrows'] = {w.arrowType(): w for w in state['widgets']}
+                report['navigation'] = {'captions': [], 'actions': [], 'tile_checks': [],
+                    'original_home_pointer': shiboken6.getCppPointer(tabs.currentWidget()),
+                    'last_index': tabs.count()-1, 'category_title': home._categories[-1][0],
+                    'baseline_manifest_scope': 'Only the two clicked arrow targets; dynamic category rows are separate',
+                    'complete': False}
+                state['nav_arrow_counts'] = {'right': 0, 'left': 0}
+                state['nav_checked_arrows'] = set()
+                navigation_stage('home_initial')
+            nav, phase = report['navigation'], state['nav_phase']
+            target = state.get('nav_tile_target') if phase in ('category_icon', 'category_name') else bar
+            if not navigation_ready(window, target):
+                return
+            pending = state.pop('nav_pending_arrow', None)
+            if pending is not None:
+                pending['after_rects'] = [bar.tabRect(i).getRect() for i in range(bar.count())]
+                pending['after_index'] = tabs.currentIndex()
+                persist()
+                assert pending['after_index'] == pending['before_index'], pending
+                assert pending['after_rects'] != pending['before_rects'], pending
+            if phase in ('home_initial', 'last_selected', 'home_restored'):
+                index = nav['last_index'] if phase == 'last_selected' else 0
+                row = {'state': phase, **native_tab_caption(window, bar, index),
+                    'current_index': tabs.currentIndex(),
+                    'page_pointer': shiboken6.getCppPointer(tabs.currentWidget())}
+                nav['captions'].append(row)
+                persist()
+                assert row['fits'] and row['current_index'] == index and row['tab_at_point'] == index, row
+                if phase == 'home_initial':
+                    navigation_stage('right')
+                elif phase == 'last_selected':
+                    assert tabs.currentWidget() is state['nav_last_page']
+                    scroll = tabs.currentWidget()
+                    tile = next(w for w in scroll.findChildren(AppTile)
+                                if w.isVisible() and w.findChildren(_AppTileIcon))
+                    assert tile.accessibleName() == tile.name_label.full_text()
+                    state.update(nav_tile=tile, nav_category_scroll=scroll,
+                        nav_glyph=tile.findChild(_AppTileIcon), nav_tile_target=tile.findChild(_AppTileIcon))
+                    nav['category_first_tile'] = {'key': tile.property('moduleAppKey'),
+                        'accessible_name': tile.accessibleName(), 'full_name': tile.name_label.full_text(),
+                        'source_key': state['nav_glyph']._icon.cacheKey(),
+                        'native_pointer': shiboken6.getCppPointer(tile)}
+                    navigation_stage('category_icon')
+                else:
+                    assert tabs.currentWidget() is state['nav_home_page']
+                    nav['restored_home_pointer'] = shiboken6.getCppPointer(tabs.currentWidget())
+                    nav['complete'] = True
+                    persist()
+                    close()
+                return
+            if phase in ('category_icon', 'category_name'):
+                scroll = state['nav_category_scroll']
+                nav['tile_scroll'] = {'content_width': scroll.widget().property('size').width(),
+                    'viewport_width': scroll.viewport().property('size').width(),
+                    'hidden_horizontal_maximum': scroll.horizontalScrollBar().maximum()}
+                persist()
+                assert nav['tile_scroll']['hidden_horizontal_maximum'] == 0, nav['tile_scroll']
+                assert nav['tile_scroll']['content_width'] <= nav['tile_scroll']['viewport_width'], nav['tile_scroll']
+                check(target, nav['tile_checks'])
+                nav['tile_checks'][-1]['dynamic_state'] = phase
+                if phase == 'category_icon':
+                    state['nav_tile_target'] = state['nav_tile'].name_label
+                    navigation_stage('category_name')
+                else:
+                    assert state['nav_glyph']._icon.cacheKey() == nav['category_first_tile']['source_key']
+                    navigation_stage('left')
+                persist()
+                return
+            assert phase in ('right', 'left'), phase
+            index = nav['last_index'] if phase == 'right' else 0
+            row = native_tab_caption(window, bar, index)
+            nav['candidate_caption'] = row
+            persist()
+            if row['fits']:
+                assert state['nav_arrow_counts'][phase] > 0, ('No overflow interaction exercised', phase)
+                point = QPoint(*row['point'])
+                assert row['tab_at_point'] == index and bar.isTabEnabled(index), row
+                action = {'kind': 'tab_click', 'index': index, 'before_index': tabs.currentIndex(),
+                    'point': row['point'], 'tab_at_point': row['tab_at_point'], 'caption': row}
+                nav['actions'].append(action)
+                persist()
+                QTest.mouseClick(bar, Qt.LeftButton, Qt.NoModifier, point)
+                action['after_index'] = tabs.currentIndex()
+                assert action['after_index'] == index, action
+                navigation_stage('last_selected' if phase == 'right' else 'home_restored')
+                return
+            state['nav_arrow_counts'][phase] += 1
+            assert state['nav_arrow_counts'][phase] <= tabs.count()+1, ('Bounded arrow clicks exhausted', phase, row)
+            arrow = state['nav_arrows'][Qt.RightArrow if phase == 'right' else Qt.LeftArrow]
+            assert arrow.isEnabled() and arrow.isVisible(), (phase, row)
+            destination = None if arrow not in state['nav_checked_arrows'] else []
+            check(arrow, destination)
+            state['nav_checked_arrows'].add(arrow)
+            action = {'kind': 'arrow_click', 'direction': phase, 'before_index': tabs.currentIndex(),
+                'before_rects': [bar.tabRect(i).getRect() for i in range(bar.count())],
+                'button_pointer': shiboken6.getCppPointer(arrow), 'enabled': arrow.isEnabled()}
+            nav['actions'].append(action)
+            state['nav_pending_arrow'] = action
+            persist()
+            QTest.mouseClick(arrow, Qt.LeftButton, Qt.NoModifier, arrow.rect().center())
+            navigation_stage(phase)
+
         def tick():
             """Bound startup/tour and the separate content operation independently."""
             try:
@@ -497,7 +668,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                             or isinstance(w, QAbstractButton))]
                     aside = window._startup._aside
                     tab_arrow_roles = {}
-                    if cohort == 'tab_arrows':
+                    if cohort in ('tab_arrows', 'tab_navigation'):
                         tab_bar = window._startup._tabs.tabBar()
                         arrows = [w for w in tab_bar.findChildren(QToolButton)
                                   if w.isVisible() and w.arrowType() != Qt.NoArrow]
@@ -536,13 +707,13 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                         for index, w in enumerate(all_widgets)]
                     state['manifest_indices'] = {w: index for index, w in enumerate(all_widgets)}
                     report['selected_indices'] = [entry['index'] for entry in report['target_manifest']
-                        if cohort == 'all' or entry[{'aside_controls': 'aside_control', 'hint_bar': 'hint_bar', 'home_access': 'home_access', 'tab_arrows': 'tab_arrows'}[cohort]]]
+                        if cohort == 'all' or entry[{'aside_controls': 'aside_control', 'hint_bar': 'hint_bar', 'home_access': 'home_access', 'tab_arrows': 'tab_arrows', 'tab_navigation': 'tab_arrows'}[cohort]]]
                     state['widgets'] = [all_widgets[index] for index in report['selected_indices']]
                     assert state['widgets'], ('No actual targets in selected cohort', cohort)
                     state['index'] = 0
                     report['target_count'] = len(all_widgets)
                     report['selected_target_count'] = len(state['widgets'])
-                    if cohort == 'tab_arrows':
+                    if cohort in ('tab_arrows', 'tab_navigation'):
                         assert len(state['widgets']) == 2
                     if cohort == 'home_access':
                         assert len(state['widgets']) == 12
@@ -551,6 +722,9 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                         state['hint_phase'] = 'initial_default'
                         report['hint_states'] = []
                     persist()
+                if cohort == 'tab_navigation':
+                    navigation_tick(window)
+                    return
                 if state['index'] == len(state['widgets']):
                     assert report['checks']
                     if cohort == 'all':
@@ -705,9 +879,20 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert report['selected_inspection_complete'] and report['selected_untested_count'] == 0, report
         assert len(report['checks']) == len(report['selected_indices']) == report['selected_target_count'], report
-        if cohort == 'tab_arrows':
+        if cohort in ('tab_arrows', 'tab_navigation'):
             assert report['selected_target_count'] == 2, report
             assert sorted(report['target_manifest'][i]['tab_arrow_role'] for i in report['selected_indices']) == ['left', 'right'], report
+        if cohort == 'tab_navigation':
+            nav = report['navigation']
+            assert nav['complete'] and [row['state'] for row in nav['captions']] == ['home_initial', 'last_selected', 'home_restored'], report
+            assert all(row['fits'] for row in nav['captions']), report
+            assert [row['dynamic_state'] for row in nav['tile_checks']] == ['category_icon', 'category_name'], report
+            assert all(row['manifest_index'] is None for row in nav['tile_checks']), report
+            assert nav['restored_home_pointer'] == nav['original_home_pointer'], report
+            assert [row['index'] for row in nav['actions'] if row['kind'] == 'tab_click'] == [nav['last_index'], 0], report
+            arrows = [row for row in nav['actions'] if row['kind'] == 'arrow_click']
+            assert {row['direction'] for row in arrows} == {'left', 'right'}, report
+            assert all(row['after_index'] == row['before_index'] and row['after_rects'] != row['before_rects'] for row in arrows), report
         if cohort == 'home_access':
             assert report['selected_target_count'] == 12, report
             assert sorted(report['target_manifest'][i]['home_access_role'] for i in report['selected_indices']) == sorted(
@@ -747,12 +932,23 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     assert not report["errors"] and report["normal_close_accepted"]
     assert report["cohort"] == cohort and report["selected_inspection_complete"]
     expected_indices = [entry["index"] for entry in report["target_manifest"]
-                        if cohort == "all" or entry[{"aside_controls": "aside_control", "hint_bar": "hint_bar", "home_access": "home_access", "tab_arrows": "tab_arrows"}[cohort]]]
+                        if cohort == "all" or entry[{"aside_controls": "aside_control", "hint_bar": "hint_bar", "home_access": "home_access", "tab_arrows": "tab_arrows", "tab_navigation": "tab_arrows"}[cohort]]]
     assert expected_indices and report["selected_indices"] == expected_indices
     assert len(report["checks"]) == len(expected_indices) == report["selected_target_count"]
-    if cohort == "tab_arrows":
+    if cohort in ("tab_arrows", "tab_navigation"):
         assert len(expected_indices) == 2
         assert sorted(report["target_manifest"][i]["tab_arrow_role"] for i in expected_indices) == ["left", "right"]
+    if cohort == "tab_navigation":
+        nav = report["navigation"]
+        assert nav["complete"] and [row["state"] for row in nav["captions"]] == ["home_initial", "last_selected", "home_restored"]
+        assert all(row["fits"] for row in nav["captions"])
+        assert [row["dynamic_state"] for row in nav["tile_checks"]] == ["category_icon", "category_name"]
+        assert all(row["manifest_index"] is None for row in nav["tile_checks"])
+        assert nav["restored_home_pointer"] == nav["original_home_pointer"]
+        assert [row["index"] for row in nav["actions"] if row["kind"] == "tab_click"] == [nav["last_index"], 0]
+        arrows = [row for row in nav["actions"] if row["kind"] == "arrow_click"]
+        assert {row["direction"] for row in arrows} == {"left", "right"}
+        assert all(row["after_index"] == row["before_index"] and row["after_rects"] != row["before_rects"] for row in arrows)
     if cohort == "home_access":
         assert len(expected_indices) == 12
         assert sorted(report["target_manifest"][i]["home_access_role"] for i in expected_indices) == sorted(
