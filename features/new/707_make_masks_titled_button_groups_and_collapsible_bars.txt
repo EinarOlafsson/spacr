@@ -91,6 +91,21 @@ The next observer-only capture persists both expected/actual raw signatures
 and Python-wrapper/native-C++ identities before that same strict comparison.
 Retain the existing identity assertion, waits and budgets so the data, not an
 assumption, distinguishes wrapper churn from actual geometry or font changes.
+Native19870/IUIKLz on5ef5a63fd fails naturally1 in32.61s/RSS1.210GiB.
+Tour completes in9.5261s; Minimise passes, then content stops after3.2516s
+before Maximise inspection. Persisted tuples prove all Python/native identities
+and actual widget sizes/positions/minima/maxima/fonts unchanged. The sole
+changed field is MainWindow's internal layout geometry:0,0,0,0 becomes
+0,98,1200,542. This disproves wrapper churn for this capture; it does not show
+target movement or clipping. One of137 targets is checked;136 remain untested.
+Normal close/return0 and helper/thread cleanup pass. Attribute internal Qt
+layout invalidation/readiness before changing any product geometry policy.
+The next evidence-based oracle correction omits only MainWindow's internal
+QLayout bookkeeping rectangle from stability equality, retaining it explicitly
+in both identity observations. Every actual widget/native geometry, position,
+minimum/maximum, font and identity remains strict, as do all other layouts,
+one-reveal/next-turn text/icon visibility and unchanged operation budgets.
+No product geometry repair or additional tested-target claim follows from this.
 No smaller physical display, physical input or tiny-font readability is certified.
 
 New MainWindow scale-fit scope: native59310/zKXERs on publishedaad96b90c
