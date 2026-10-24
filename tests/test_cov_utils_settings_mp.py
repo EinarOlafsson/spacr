@@ -158,6 +158,30 @@ def test_load_settings_matches_cli_for_spreadsheet_booleans(tmp_path):
     assert load_settings(str(path)) == cli.load_settings_file(str(path)) == expected
 
 
+def test_load_settings_rejects_an_excel_error_in_model_metadata(tmp_path):
+    """Excel error cells remain missing scalars even in the raw text reread."""
+    openpyxl = pytest.importorskip("openpyxl")
+    from spacr import tabular
+    from spacr.model_zoo import ModelZooError
+    from spacr.utils import load_settings
+
+    path = tmp_path / "invalid-model-metadata.xlsx"
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.append(["Key", "Value"])
+    sheet.append(["src", "/data/plate"])
+    sheet.append(["model_metadata", "#DIV/0!"])
+    assert sheet["B3"].data_type == "e"
+    workbook.save(path)
+    workbook.close()
+
+    raw = tabular.read_table(path, report=None, dtype=str, keep_default_na=False)
+    value = raw.loc[raw["Key"] == "model_metadata", "Value"].iloc[0]
+    assert not isinstance(value, str) and pd.isna(value)
+    with pytest.raises(ModelZooError, match=r"model_metadata \(schema_version, settings\)"):
+        load_settings(path)
+
+
 def test_load_settings_show_true_uses_display(tmp_path, monkeypatch):
     """``show=True`` routes the DataFrame through ``display`` exactly once."""
     import spacr.utils as U
