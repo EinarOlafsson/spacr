@@ -26,6 +26,12 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+2026-10-24 — Masks91836/VNE5nx on3a9fef33e2 FAIL50.11s/RSS1.548GiB:
+all7 controls/freshframes/restores/finish-prefs pass, but final registry count1
+is unclassified. Captured threads0alive/GPUreleased/normalclose/run0 pass;
+no full-case acceptance. Startup21.919s,maxoperation1.479s; metadata is needed
+to distinguish a live job from registered stopped work; no cleanup waiver.
+
 Checklist5 Masks scope: seven real Labels-layer states (opacity60/37/60,
 surface/translucent/surface, matte/satin/matte), fresh Metal75/paint/new serials
 with changedRGB and exact baseline restores. Preserve all sibling/UI/data/

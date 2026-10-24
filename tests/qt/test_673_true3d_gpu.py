@@ -263,12 +263,46 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             return stage.render_idle() and all(worker.idle() for worker in
                 (stage._worker, stage._mesher, stage._renderer))
 
+        def registry_snapshot(moment):
+            rows = []
+            for handle in registry().active():
+                valid = shiboken6.isValid(handle)
+                thread, worker = handle.thread, handle.worker
+                thread_valid = thread is not None and shiboken6.isValid(thread)
+                owner = handle.parent() if valid else None
+                owner_valid = owner is not None and shiboken6.isValid(owner)
+                rows.append({'handle_id': id(handle), 'handle_type': type(handle).__name__,
+                    'handle_valid': valid, 'handle_cpp': shiboken6.getCppPointer(handle) if valid else None,
+                    'name': handle.app_key, 'native_name': handle.objectName() if valid else None,
+                    'owner_id': id(owner) if owner is not None else None,
+                    'owner_type': type(owner).__name__ if owner is not None else None,
+                    'owner_cpp': shiboken6.getCppPointer(owner) if owner_valid else None,
+                    'kind': handle.kind, 'stop_on_quit': getattr(handle, 'stop_on_quit', True),
+                    'blocks_shutdown': handle.blocks_shutdown,
+                    'is_running': handle.is_running() if valid and (thread is None or thread_valid) else None,
+                    'thread_id': id(thread) if thread is not None else None,
+                    'thread_valid': thread_valid,
+                    'thread_cpp': shiboken6.getCppPointer(thread) if thread_valid else None,
+                    'thread_name': thread.objectName() if thread_valid else None,
+                    'thread_is_running': thread.isRunning() if thread_valid else None,
+                    'thread_is_finished': thread.isFinished() if thread_valid else None,
+                    'thread_has_stopped': thread_has_stopped(thread) if thread_valid else True,
+                    'thread_captured_before_close': thread is not None and any(
+                        thread is captured for captured in state.get('threads', ())),
+                    'worker_id': id(worker) if worker is not None else None,
+                    'worker_type': type(worker).__name__ if worker is not None else None,
+                    'worker_valid': worker is not None and shiboken6.isValid(worker)})
+            return {'moment': moment, 'operation': state['operation'],
+                'elapsed': time.perf_counter()-state['started'], 'handles': rows}
+
         def close():
             state['timer'].stop()
             report['closing_phase'] = state['operation']
             report['closing_elapsed'] = time.perf_counter()-state['started']
             state['threads'] = [handle.thread for handle in registry().active()]
+            state.setdefault('registry_snapshots', []).append(registry_snapshot('before_close'))
             report['normal_close_accepted'] = state['window'].close()
+            state['registry_snapshots'].append(registry_snapshot('after_close'))
             save()
 
         def advance(operation):
@@ -785,6 +819,9 @@ def _run_native_volume_probe(tmp_path, *, scenario):
             compiler_helper_present=ambient._PRIME_PROCESS is not None,
             gpu_resources_released=renderer is not None and not any((renderer._textures, renderer._buffers,
                 renderer._pipelines, renderer._luts, renderer._dispatch_slots)))
+        state.setdefault('registry_snapshots', []).append(registry_snapshot('after_run_return'))
+        if report['remaining_jobs']:
+            report['registry_diagnostic'] = state['registry_snapshots']
         save()
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
