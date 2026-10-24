@@ -57,6 +57,40 @@ def test_title_observation_defers_reentrant_construction_then_fits(qtbot, qapp):
     assert title.minimumHeight() > title.fontMetrics().height()
 
 
+def test_news_title_observation_is_inert_during_ordinary_owner_collection(qtbot, qapp):
+    """Native retirement must not dispatch into Python state already collected."""
+    import gc
+    import weakref
+
+    def fit_and_close():
+        """Release every strong caller reference after an actual live title fit."""
+        panel = home.NewsPanel()
+        qtbot.addWidget(panel)
+        panel.resize(460, 580)
+        panel.show()
+        qtbot.waitExposed(panel)
+
+        def fitted():
+            """Require settled native text floors against the actual viewport."""
+            titles = [label for label in panel._headline_labels if label.wordWrap()]
+            width = panel._notes.viewport().property('size').width()
+            return (bool(titles) and width > 0 and not panel._news_title_fit._timer.isActive()
+                    and all(label.property('minimumSize').width() == width for label in titles))
+
+        qtbot.waitUntil(fitted)
+        references = (weakref.ref(panel), weakref.ref(panel._news_title_fit))
+        panel.close()
+        return references
+
+    with qtbot.captureExceptions() as errors:
+        references = fit_and_close()
+        gc.collect()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        qapp.processEvents()
+    assert errors == []
+    assert all(reference() is None for reference in references)
+
+
 def test_news_viewport_destruction_cancels_pending_and_later_fitting(qtbot, qapp):
     import shiboken6
 
