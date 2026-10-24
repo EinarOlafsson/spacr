@@ -423,7 +423,12 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     if sys.platform != "darwin" or os.environ.get("QT_QPA_PLATFORM", "").lower() != "cocoa":
         pytest.skip("Requires the owned native Cocoa acceptance runner")
     cohort = os.environ.get("SPACR_HOME_TEST_COHORT", "all")
-    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows", "tab_navigation", "tile_batch", "ordinary_labels", "status_home_access", "news_titles", "news_dates", "news_body_lines"), cohort
+    assert cohort in ("all", "aside_controls", "hint_bar", "home_access", "tab_arrows", "tab_navigation", "tile_batch", "ordinary_labels", "status_home_access", "news_titles", "news_dates", "news_body_lines", "news_body_intrinsic", "news_body_endpoints"), cohort
+    body_indices = json.loads(os.environ["SPACR_HOME_TEST_BODY_INDICES"]) if cohort == "news_body_endpoints" else []
+    if cohort == "news_body_endpoints":
+        assert isinstance(body_indices, list) and 1 <= len(body_indices) <= 3
+        assert all(type(index) is int and 1 <= index < 17 for index in body_indices)
+        assert len(set(body_indices)) == len(body_indices)
     body_parameters = {name: int(os.environ.get("SPACR_HOME_TEST_BODY_"+name.upper(), str(default)))
                        for name, default in (("release_index", 0), ("start", 0), ("max_count", 16))} if cohort == "news_body_lines" else {}
     if cohort == "news_body_lines":
@@ -460,7 +465,12 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
         assert Path(__import__('spacr').__file__).resolve().parent.parent == Path(os.environ['SPACR_HOME_TEST_ROOT'])
         assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == os.environ['SPACR_HOME_TEST_HEAD']
         cohort = os.environ['SPACR_HOME_TEST_COHORT']
-        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows', 'tab_navigation', 'tile_batch', 'ordinary_labels', 'status_home_access', 'news_titles', 'news_dates', 'news_body_lines'), cohort
+        assert cohort in ('all', 'aside_controls', 'hint_bar', 'home_access', 'tab_arrows', 'tab_navigation', 'tile_batch', 'ordinary_labels', 'status_home_access', 'news_titles', 'news_dates', 'news_body_lines', 'news_body_intrinsic', 'news_body_endpoints'), cohort
+        body_indices = json.loads(os.environ['SPACR_HOME_TEST_BODY_INDICES']) if cohort == 'news_body_endpoints' else []
+        if cohort == 'news_body_endpoints':
+            assert isinstance(body_indices, list) and 1 <= len(body_indices) <= 3
+            assert all(type(index) is int and 1 <= index < 17 for index in body_indices)
+            assert len(set(body_indices)) == len(body_indices)
         body_parameters = {name: int(os.environ['SPACR_HOME_TEST_BODY_'+name.upper()])
                            for name in ('release_index', 'start', 'max_count')} if cohort == 'news_body_lines' else {}
         if cohort == 'news_body_lines':
@@ -549,7 +559,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 state['timer'].stop()
             report['operation_at_close'] = state['phase']
             report[state['phase'] + '_seconds_at_close'] = time.perf_counter()-state['started']
-            if 'target_manifest' in report and cohort != 'news_body_lines':
+            if 'target_manifest' in report and cohort not in ('news_body_lines', 'news_body_intrinsic', 'news_body_endpoints'):
                 checked = {row['manifest_index'] for row in report['checks']}
                 selected = set(report['selected_indices'])
                 all_targets = set(range(len(report['target_manifest'])))
@@ -1058,12 +1068,22 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     'links': parsed.links, 'whole_body_certified': False})
             assert len(set(bodies)) == len(set(tags)) == 17
             assert tags[0] == 'v1.5.1.5'
-            release_index = body_parameters['release_index']
+            release_index = body_parameters['release_index'] if cohort == 'news_body_lines' else 0
             body = bodies[release_index]
-            state['body_range'] = {'label': body, 'Format': Format, 'previous': None, 'next': body_parameters['start']}
-            report['body_range'] = {'scope': 'rendered line range only', 'whole_body_certified': False,
-                'structural_bodies': ledger, 'selected_body': ledger[release_index],
-                'requested_parameters': dict(body_parameters), 'checks': [], 'complete': False}
+            state['body_range'] = {'label': body, 'bodies': bodies, 'Format': Format, 'previous': None,
+                'next': body_parameters['start'] if cohort == 'news_body_lines' else 0}
+            if cohort == 'news_body_lines':
+                report['body_range'] = {'scope': 'rendered line range only', 'whole_body_certified': False,
+                    'structural_bodies': ledger, 'selected_body': ledger[release_index],
+                    'requested_parameters': dict(body_parameters), 'checks': [], 'complete': False}
+            elif cohort == 'news_body_intrinsic':
+                report['body_intrinsic'] = {'scope': 'intrinsic geometry only', 'visibility_certified': False,
+                    'whole_body_certified': False, 'structural_bodies': ledger, 'checks': [], 'complete': False,
+                    'attempted_body_count': 0, 'accepted_body_count': 0, 'untested_body_count': 17}
+            else:
+                report['body_endpoints'] = {'scope': 'rendered endpoints only', 'whole_body_certified': False,
+                    'structural_bodies': ledger, 'requested_indices': list(body_indices), 'checks': [],
+                    'accepted_body_count': 0, 'unselected_body_count': 17-len(body_indices), 'complete': False}
             state['widgets'] = []
             persist()
 
@@ -1079,13 +1099,149 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 'margin': body.margin(), 'indent': body.indent(), 'frame_width': body.frameWidth(),
                 'alignment': body.alignment().value, 'word_wrap': body.wordWrap()}
 
-        def body_range_tick():
+        def body_document(body):
             from PySide6.QtCore import QRectF
             from PySide6.QtGui import QTextDocumentFragment
+            assert body.margin() == body.frameWidth() == 0 and body.indent() < 0
+            assert body.wordWrap() and body.isVisible()
+            assert QFontInfo(body.font()).family() == 'Open Sans'
+            assert body.font().pixelSize() == gui_scale.scale_int(theme.font_px(11, 2.), 2.)
+            document = QTextDocument()
+            document.setDocumentMargin(0)
+            document.setDefaultFont(body.font())
+            option = QTextOption()
+            option.setWrapMode(QTextOption.WordWrap)
+            option.setAlignment(body.alignment())
+            document.setDefaultTextOption(option)
+            document.setHtml(body.text())
+            document.setTextWidth(body.contentsRect().width())
+            height = document.size().height()
+            assert not document.rootFrame().childFrames()
+            assert chr(0xfffc) not in document.toPlainText()
+            assert body.accessibleDescription() == QTextDocumentFragment.fromHtml(body.text()).toPlainText()
+            area = body.contentsRect()
+            offset = max(0., (area.height()-height)/2) if body.alignment() & Qt.AlignVCenter else 0.
+            if body.alignment() & Qt.AlignBottom:
+                offset = max(0., area.height()-height)
+            origin = QPointF(area.x(), area.y()+offset)
+            lines = []
+            block = document.begin()
+            while block.isValid():
+                iterator = block.begin()
+                while not iterator.atEnd():
+                    fragment = iterator.fragment()
+                    assert fragment.isValid() and fragment.charFormat().objectType() == 0
+                    iterator += 1
+                layout = block.layout()
+                block_origin = document.documentLayout().blockBoundingRect(block).topLeft()
+                utf16 = block.text().encode('utf-16-le')
+                for i in range(layout.lineCount()):
+                    line = layout.lineAt(i)
+                    natural = line.naturalTextRect().translated(block_origin+origin)
+                    runs = [run.boundingRect().translated(block_origin+origin) for run in line.glyphRuns()]
+                    source = utf16[2*line.textStart():2*(line.textStart()+line.textLength())].decode('utf-16-le')
+                    nonempty = bool(source.strip())
+                    assert not nonempty or runs
+                    bounds = QRectF(natural)
+                    for run in runs:
+                        bounds = bounds.united(run)
+                    if not nonempty:
+                        bounds = QRectF(natural.x(), natural.y(), max(1., natural.width()), max(1., natural.height()))
+                    lines.append({'rect': bounds.toAlignedRect(), 'natural': natural, 'runs': runs,
+                        'block_position': block.position(), 'line_position': (line.position().x(), line.position().y()),
+                        'layout_position': (layout.position().x(), layout.position().y()),
+                        'block_origin': (block_origin.x(), block_origin.y()), 'text_start': line.textStart(),
+                        'natural_raw': line.naturalTextRect().getRect(),
+                        'glyph_raw': [run.boundingRect().getRect() for run in line.glyphRuns()],
+                        'source_text': source, 'source_positions': 'UTF-16 code units within block',
+                        'text_length': line.textLength(), 'classification': 'text' if nonempty else 'whitespace'})
+                block = block.next()
+            return document, lines, origin, area, height
+
+        def body_intrinsic_tick():
+            window = state['window']
+            local = state['body_range']
+            result = report['body_intrinsic']
+            body = local['bodies'][local['next']]
+            current = signature(window, body)
+            if 'pending' not in local:
+                if current is None or local['previous'] != current:
+                    local['previous'] = current
+                    return False
+                identity = body_source_identity(body)
+                allocation = body_layout_identity(body)
+                document, lines, origin, area, height = body_document(body)
+                identities = []
+                frozen = signature(window, body, identities=identities, require_idle=False)
+                row = {'release_index': local['next'],
+                    'release_tag': result['structural_bodies'][local['next']]['release_tag'],
+                    'source_identity': identity, 'layout_identity': allocation,
+                    'document_origin': (origin.x(), origin.y()),
+                    'document_size': (document.size().width(), height), 'rendered_line_count': len(lines),
+                    'no_inline_objects': True, 'no_child_frames': True, 'no_object_replacement_character': True,
+                    'visibility_certified': False, 'whole_body_certified': False, 'accepted': False,
+                    'frozen_signature': frozen, 'frozen_identities': identities,
+                    'lines': [{'rendered_index': i, 'classification': line['classification'],
+                        'required_rect': line['rect'].getRect(), 'natural': line['natural'].getRect(),
+                        'glyph_runs': [run.getRect() for run in line['runs']],
+                        'source_text': line['source_text'], 'text_start': line['text_start'],
+                        'text_length': line['text_length'], 'source_positions': line['source_positions'],
+                        'block_origin': line['block_origin'], 'line_position': line['line_position'],
+                        'contents_fit': area.contains(line['rect'])} for i, line in enumerate(lines)]}
+                result['checks'].append(row)
+                result['attempted_body_count'] += 1
+                local.update(pending=row, document=document)
+                persist()
+                return False
+            row = local['pending']
+            identities = []
+            actual = signature(window, body, identities=identities, require_idle=False)
+            row.update(actual_signature=actual, actual_identities=identities,
+                final_source_identity=body_source_identity(body), final_layout_identity=body_layout_identity(body))
+            persist()
+            assert actual == row['frozen_signature'], 'Intrinsic body geometry changed after document measurement'
+            assert [r['native_cpp_pointer'] for r in identities] == [r['native_cpp_pointer'] for r in row['frozen_identities']]
+            assert row['source_identity'] == row['final_source_identity']
+            assert row['layout_identity'] == row['final_layout_identity']
+            if current is None:
+                return False
+            assert current == row['frozen_signature']
+            assert row['rendered_line_count'] > 0
+            assert all(line['contents_fit'] for line in row['lines']), ('Intrinsic News body bounds exceed contents', row)
+            row['accepted'] = True
+            result['accepted_body_count'] += 1
+            result['untested_body_count'] = 17-result['accepted_body_count']
+            local['next'] += 1
+            local.pop('pending')
+            local.pop('document')
+            local['previous'] = None
+            result['complete'] = local['next'] == 17
+            persist()
+            return result['complete']
+
+        def body_endpoints_tick():
+            local = state['body_range']
+            result = report['body_endpoints']
+            if 'range_result' not in local:
+                index = body_indices[result['accepted_body_count']]
+                row = {'selected_body': result['structural_bodies'][index], 'whole_body_certified': False,
+                    'checks': [], 'complete': False}
+                result['checks'].append(row)
+                local.update(label=local['bodies'][index], range_result=row)
+            if not body_range_tick():
+                return False
+            result['accepted_body_count'] += 1
+            result['complete'] = result['accepted_body_count'] == len(body_indices)
+            if not result['complete']:
+                state['body_range'] = {'bodies': local['bodies'], 'Format': local['Format'], 'previous': None, 'next': 0}
+            persist()
+            return result['complete']
+
+        def body_range_tick():
             window = state['window']
             local = state['body_range']
             body = local['label']
-            result = report['body_range']
+            result = local['range_result'] if cohort == 'news_body_endpoints' else report['body_range']
             if 'layout_identity' in local:
                 assert body_layout_identity(body) == local['layout_identity'], 'Cached body line allocation changed'
             current = signature(window, body)
@@ -1093,72 +1249,27 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 if current is None or local['previous'] != current:
                     local['previous'] = current
                     return False
-                assert body.margin() == body.frameWidth() == 0 and body.indent() < 0
-                assert body.wordWrap() and body.isVisible()
-                assert QFontInfo(body.font()).family() == 'Open Sans'
-                assert body.font().pixelSize() == gui_scale.scale_int(theme.font_px(11, 2.), 2.)
-                document = QTextDocument()
-                document.setDocumentMargin(0)
-                document.setDefaultFont(body.font())
-                option = QTextOption()
-                option.setWrapMode(QTextOption.WordWrap)
-                option.setAlignment(body.alignment())
-                document.setDefaultTextOption(option)
-                document.setHtml(body.text())
-                document.setTextWidth(body.contentsRect().width())
-                height = document.size().height()
-                assert not document.rootFrame().childFrames()
-                assert chr(0xfffc) not in document.toPlainText()
-                assert body.accessibleDescription() == QTextDocumentFragment.fromHtml(body.text()).toPlainText()
-                area = body.contentsRect()
-                offset = max(0., (area.height()-height)/2) if body.alignment() & Qt.AlignVCenter else 0.
-                if body.alignment() & Qt.AlignBottom:
-                    offset = max(0., area.height()-height)
-                origin = QPointF(area.x(), area.y()+offset)
-                lines = []
-                block = document.begin()
-                while block.isValid():
-                    iterator = block.begin()
-                    while not iterator.atEnd():
-                        fragment = iterator.fragment()
-                        assert fragment.isValid() and fragment.charFormat().objectType() == 0
-                        iterator += 1
-                    layout = block.layout()
-                    block_origin = document.documentLayout().blockBoundingRect(block).topLeft()
-                    utf16 = block.text().encode('utf-16-le')
-                    for i in range(layout.lineCount()):
-                        line = layout.lineAt(i)
-                        natural = line.naturalTextRect().translated(block_origin+origin)
-                        runs = [run.boundingRect().translated(block_origin+origin) for run in line.glyphRuns()]
-                        source = utf16[2*line.textStart():2*(line.textStart()+line.textLength())].decode('utf-16-le')
-                        nonempty = bool(source.strip())
-                        assert not nonempty or runs
-                        bounds = QRectF(natural)
-                        for run in runs:
-                            bounds = bounds.united(run)
-                        if not nonempty:
-                            bounds = QRectF(natural.x(), natural.y(), max(1., natural.width()), max(1., natural.height()))
-                        lines.append({'rect': bounds.toAlignedRect(), 'natural': natural, 'runs': runs,
-                            'block_position': block.position(), 'line_position': (line.position().x(), line.position().y()),
-                            'layout_position': (layout.position().x(), layout.position().y()),
-                            'block_origin': (block_origin.x(), block_origin.y()), 'text_start': line.textStart(),
-                            'natural_raw': line.naturalTextRect().getRect(),
-                            'glyph_raw': [run.boundingRect().getRect() for run in line.glyphRuns()],
-                            'source_text': source, 'source_positions': 'UTF-16 code units within block',
-                            'text_length': line.textLength(), 'classification': 'text' if nonempty else 'whitespace'})
-                    block = block.next()
-                assert body_parameters['start'] < len(lines)
-                stop = min(body_parameters['start']+body_parameters['max_count'], len(lines))
+                document, lines, origin, area, height = body_document(body)
+                assert lines
+                if cohort == 'news_body_endpoints':
+                    queue = sorted({0, len(lines)-1})
+                else:
+                    assert body_parameters['start'] < len(lines)
+                    stop = min(body_parameters['start']+body_parameters['max_count'], len(lines))
+                    queue = list(range(body_parameters['start'], stop))
                 local.update(document=document, lines=lines, identity=body_source_identity(body),
-                             layout_identity=body_layout_identity(body), previous=None, stop=stop)
+                             layout_identity=body_layout_identity(body), previous=None,
+                             queue=queue, queue_position=0, next=queue[0])
                 result.update(rendered_line_count=len(lines), untested_line_count=len(lines),
-                    actual_range=[body_parameters['start'], stop],
+                    endpoint_indices=queue if cohort == 'news_body_endpoints' else None,
                     attempted_line_count=0, accepted_line_count=0,
                     attempted_segment_count=0, accepted_segment_count=0, reveal_guard_px=2,
                     no_inline_objects=True, no_child_frames=True, no_object_replacement_character=True,
                     original_identity=local['identity'], document_origin=(origin.x(), origin.y()),
                     original_layout_identity=local['layout_identity'],
                     contents=area.getRect(), document_size=(document.size().width(), height))
+                if cohort == 'news_body_lines':
+                    result['actual_range'] = [queue[0], queue[-1]+1]
                 persist()
                 return False
             assert body_source_identity(body) == local['identity']
@@ -1250,10 +1361,12 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             local['line_row']['accepted'] = True
             result['accepted_line_count'] += 1
             result['untested_line_count'] = result['rendered_line_count']-result['accepted_line_count']
-            local['next'] += 1
+            local['queue_position'] += 1
             for key in ('segments', 'segment_index', 'coverage', 'line_row'):
                 local.pop(key)
-            result['complete'] = local['next'] == local['stop']
+            result['complete'] = local['queue_position'] == len(local['queue'])
+            if not result['complete']:
+                local['next'] = local['queue'][local['queue_position']]
             if result['complete']:
                 result['final_identity'] = body_source_identity(body)
                 result['final_layout_identity'] = body_layout_identity(body)
@@ -1342,10 +1455,11 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                     assert QFontInfo(selected_font).family() == QFontInfo(witness.font()).family() == 'Open Sans'
                     assert 0 < witness.font().pixelSize() <= selected_font.pixelSize()
                     state['font_witness_checked'] = True
-                if cohort == 'news_body_lines':
+                if cohort in ('news_body_lines', 'news_body_intrinsic', 'news_body_endpoints'):
                     if 'body_range' not in state:
                         prepare_body_range()
-                    elif body_range_tick():
+                    elif (body_range_tick() if cohort == 'news_body_lines' else
+                          body_endpoints_tick() if cohort == 'news_body_endpoints' else body_intrinsic_tick()):
                         close()
                     return
                 if 'widgets' not in state:
@@ -1656,7 +1770,73 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                       compiler_helper_present=ambient._PRIME_PROCESS is not None)
         persist()
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
-        if cohort == 'news_body_lines':
+        if cohort == 'news_body_endpoints':
+            assert report['cohort'] == 'news_body_endpoints'
+            assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+            assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+            assert not report['compiler_threads'] and not report['compiler_helper_present']
+            assert report['checks'] == [] and report['selected_target_count'] == 0
+            assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+            assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+            endpoints = report['body_endpoints']
+            assert endpoints['scope'] == 'rendered endpoints only' and not endpoints['whole_body_certified']
+            assert endpoints['requested_indices'] == body_indices and endpoints['complete']
+            assert endpoints['accepted_body_count'] == len(endpoints['checks']) == len(body_indices)
+            assert endpoints['unselected_body_count'] == 17-len(body_indices)
+            ledger = endpoints['structural_bodies']
+            assert len(ledger) == len({row['release_tag'] for row in ledger}) == len({row['manifest_index'] for row in ledger}) == 17
+            assert [row['release_index'] for row in ledger] == list(range(17))
+            for selected in ledger:
+                assert not selected['whole_body_certified'] and selected['allowed_renderer_tags_only']
+                assert list(selected['pointer']) == list(report['target_manifest'][selected['manifest_index']]['native_cpp_pointer'])
+            for index, body in zip(body_indices, endpoints['checks']):
+                assert body['selected_body'] == ledger[index] and not body['whole_body_certified']
+                assert body['rendered_line_count'] > 0
+                expected = sorted({0, body['rendered_line_count']-1})
+                assert body['endpoint_indices'] == expected and body['complete']
+                assert [row['rendered_index'] for row in body['checks']] == expected
+                assert body['attempted_line_count'] == body['accepted_line_count'] == len(expected)
+                assert body['untested_line_count'] == body['rendered_line_count']-len(expected)
+                assert body['reveal_guard_px'] == 2
+                assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
+                for row in body['checks']:
+                    assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
+                    assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
+                    assert all(segment['whole_visible'] for segment in row['segments'])
+                assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
+                assert body['original_identity'] == body['final_identity']
+                assert body['original_layout_identity'] == body['final_layout_identity']
+        elif cohort == 'news_body_intrinsic':
+            assert report['cohort'] == 'news_body_intrinsic'
+            assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+            assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+            assert not report['compiler_threads'] and not report['compiler_helper_present']
+            assert report['checks'] == [] and report['selected_target_count'] == 0
+            assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+            assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+            intrinsic = report['body_intrinsic']
+            assert intrinsic['scope'] == 'intrinsic geometry only' and intrinsic['complete']
+            assert not intrinsic['visibility_certified'] and not intrinsic['whole_body_certified']
+            assert intrinsic['attempted_body_count'] == intrinsic['accepted_body_count'] == len(intrinsic['checks']) == 17
+            assert intrinsic['untested_body_count'] == 0
+            ledger = intrinsic['structural_bodies']
+            assert len(ledger) == len({row['release_tag'] for row in ledger}) == len({row['manifest_index'] for row in ledger}) == 17
+            assert [row['release_index'] for row in ledger] == list(range(17))
+            assert [row['release_index'] for row in intrinsic['checks']] == list(range(17))
+            for selected, row in zip(ledger, intrinsic['checks']):
+                assert not selected['whole_body_certified'] and selected['allowed_renderer_tags_only']
+                assert list(selected['pointer']) == list(report['target_manifest'][selected['manifest_index']]['native_cpp_pointer'])
+                assert row['release_tag'] == selected['release_tag'] and row['accepted']
+                assert not row['visibility_certified'] and not row['whole_body_certified']
+                assert row['source_identity'] == row['final_source_identity']
+                assert row['layout_identity'] == row['final_layout_identity']
+                assert row['frozen_signature'] == row['actual_signature']
+                assert [r['native_cpp_pointer'] for r in row['frozen_identities']] == [r['native_cpp_pointer'] for r in row['actual_identities']]
+                assert row['no_inline_objects'] and row['no_child_frames'] and row['no_object_replacement_character']
+                assert row['rendered_line_count'] == len(row['lines']) > 0
+                assert [line['rendered_index'] for line in row['lines']] == list(range(row['rendered_line_count']))
+                assert all(line['contents_fit'] for line in row['lines'])
+        elif cohort == 'news_body_lines':
             assert report['cohort'] == 'news_body_lines'
             assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
             assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
@@ -1760,6 +1940,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                SPACR_MENU_TEST_SETTINGS=str(tmp_path.resolve()), SPACR_HOME_TEST_ROOT=str(root),
                SPACR_HOME_TEST_HEAD=expected_head,
                SPACR_HOME_TEST_COHORT=cohort,
+               SPACR_HOME_TEST_BODY_INDICES=json.dumps(body_indices),
                **{"SPACR_HOME_TEST_BODY_"+name.upper(): str(value) for name, value in body_parameters.items()},
                SPACR_HOME_TEST_TILE_KEYS=json.dumps(tile_keys),
                SPACR_HOME_TEST_OUTPUT=str(tmp_path / "native-home.json"),
@@ -1776,6 +1957,74 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
     assert result.returncode == 0, result.stdout + result.stderr
     report = json.loads((tmp_path / "native-home.json").read_text())
     assert not report["errors"] and report["normal_close_accepted"]
+    if cohort == 'news_body_endpoints':
+        assert report['cohort'] == 'news_body_endpoints'
+        assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+        assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+        assert not report['compiler_threads'] and not report['compiler_helper_present']
+        assert report['checks'] == [] and report['selected_target_count'] == 0
+        assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+        assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+        endpoints = report['body_endpoints']
+        assert endpoints['scope'] == 'rendered endpoints only' and not endpoints['whole_body_certified']
+        assert endpoints['requested_indices'] == body_indices and endpoints['complete']
+        assert endpoints['accepted_body_count'] == len(endpoints['checks']) == len(body_indices)
+        assert endpoints['unselected_body_count'] == 17-len(body_indices)
+        ledger = endpoints['structural_bodies']
+        assert len(ledger) == len({row['release_tag'] for row in ledger}) == len({row['manifest_index'] for row in ledger}) == 17
+        assert [row['release_index'] for row in ledger] == list(range(17))
+        for selected in ledger:
+            assert not selected['whole_body_certified'] and selected['allowed_renderer_tags_only']
+            assert list(selected['pointer']) == list(report['target_manifest'][selected['manifest_index']]['native_cpp_pointer'])
+        for index, body in zip(body_indices, endpoints['checks']):
+            assert body['selected_body'] == ledger[index] and not body['whole_body_certified']
+            assert body['rendered_line_count'] > 0
+            expected = sorted({0, body['rendered_line_count']-1})
+            assert body['endpoint_indices'] == expected and body['complete']
+            assert [row['rendered_index'] for row in body['checks']] == expected
+            assert body['attempted_line_count'] == body['accepted_line_count'] == len(expected)
+            assert body['untested_line_count'] == body['rendered_line_count']-len(expected)
+            assert body['reveal_guard_px'] == 2
+            assert body['attempted_segment_count'] == body['accepted_segment_count'] == sum(len(row['segments']) for row in body['checks'])
+            for row in body['checks']:
+                assert row['accepted'] and row['coverage_complete'] and row['accepted_area'] == row['required_area']
+                assert [segment['rect'] for segment in row['segments']] == row['planned_segments']
+                assert all(segment['whole_visible'] for segment in row['segments'])
+            assert body['no_inline_objects'] and body['no_child_frames'] and body['no_object_replacement_character']
+            assert body['original_identity'] == body['final_identity']
+            assert body['original_layout_identity'] == body['final_layout_identity']
+        return
+    if cohort == 'news_body_intrinsic':
+        assert report['cohort'] == 'news_body_intrinsic'
+        assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']
+        assert report['startup_tour_seconds'] < 20 and report['content_seconds_at_close'] < 20
+        assert not report['compiler_threads'] and not report['compiler_helper_present']
+        assert report['checks'] == [] and report['selected_target_count'] == 0
+        assert report['selected_indices'] == [] and not report['selected_inspection_complete']
+        assert not report['full_inspection_complete'] and report['full_untested_count'] == len(report['target_manifest']) == 139
+        intrinsic = report['body_intrinsic']
+        assert intrinsic['scope'] == 'intrinsic geometry only' and intrinsic['complete']
+        assert not intrinsic['visibility_certified'] and not intrinsic['whole_body_certified']
+        assert intrinsic['attempted_body_count'] == intrinsic['accepted_body_count'] == len(intrinsic['checks']) == 17
+        assert intrinsic['untested_body_count'] == 0
+        ledger = intrinsic['structural_bodies']
+        assert len(ledger) == len({row['release_tag'] for row in ledger}) == len({row['manifest_index'] for row in ledger}) == 17
+        assert [row['release_index'] for row in ledger] == list(range(17))
+        assert [row['release_index'] for row in intrinsic['checks']] == list(range(17))
+        for selected, row in zip(ledger, intrinsic['checks']):
+            assert not selected['whole_body_certified'] and selected['allowed_renderer_tags_only']
+            assert list(selected['pointer']) == list(report['target_manifest'][selected['manifest_index']]['native_cpp_pointer'])
+            assert row['release_tag'] == selected['release_tag'] and row['accepted']
+            assert not row['visibility_certified'] and not row['whole_body_certified']
+            assert row['source_identity'] == row['final_source_identity']
+            assert row['layout_identity'] == row['final_layout_identity']
+            assert row['frozen_signature'] == row['actual_signature']
+            assert [r['native_cpp_pointer'] for r in row['frozen_identities']] == [r['native_cpp_pointer'] for r in row['actual_identities']]
+            assert row['no_inline_objects'] and row['no_child_frames'] and row['no_object_replacement_character']
+            assert row['rendered_line_count'] == len(row['lines']) > 0
+            assert [line['rendered_index'] for line in row['lines']] == list(range(row['rendered_line_count']))
+            assert all(line['contents_fit'] for line in row['lines'])
+        return
     if cohort == 'news_body_lines':
         assert report['cohort'] == 'news_body_lines'
         assert report['normal_return'] == 0 and report['normal_close_accepted'] and not report['errors']

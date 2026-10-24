@@ -12,6 +12,42 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Five endpoint batches on02e991c63f PASS31.40/32.28/38.34/31.67/32.73s,
+RSS1.205..1.243GiB: bodies2..16 accepted30 endpoint lines via33 visible segments.
+Their369/399 middlelines remain untested; source/layout/doc/origin/line totals
+EXACTLY match ScihQT. Content5.756..7.251s/startup9.649..11.912s; all normal
+cleanup pass. No whole-body visibility or139whole-target acceptance claimed.
+
+Native17474/fpPOvJ onfc6add0fdd PASS30.93s/RSS1.087GiB: body1/v1.5.1.4
+endpoints[0,2] accepted2/2 lines/2/2 visible segments; middleline untested.
+Open Sans44/doc696×180/origin0/3lines; source/layout/doc witnesses EXACTLY
+match ScihQT intrinsic[1]. Startup7.378s/content1.951s,normal cleanup pass;
+17 whole bodies/139 whole targets remain uncertified; no further run.
+
+News endpoint scope: exact JSON1..3 unique structural body indices1..16,
+first/last rendered lines only (deduplicated), unchanged segment coverage and
+shared20s. Separate source/tag/document/allocation/endpoint queue ledger; no
+whole-body visibility claim or body0 replay. First[1] expects actual lines
+[0,2] for v1.5.1.4; middle line remains uncertified, intrinsic17 retained.
+
+Native37359/ScihQT on7cca95ed2b PASS46.23s/RSS1.446GiB: intrinsic17/17
+bodies/760 rendered lines fit actualcontents; source/layout/frozen fields stable.
+Open Sans44,docwidth696/origin0/heights180..21480; startup9.970s/content14.618s
+and normal cleanup pass. Geometry only: visibility/whole-body false and all139
+whole-manifest targets uncertified; prior34/358 access coverage is unchanged.
+
+News intrinsic scope: all17 actual body labels, original HTML/font/source and
+fresh document natural/glyph-run bounds versus actual contents. Freeze actual
+allocation/CPP/source and require owned-idle next turn; separate intrinsic
+ledger only, visibility uncertified and139 whole targets unaccepted. Preserve
+existing range semantics and both20s clocks; no scroll or whole-body claim.
+
+Native33043/2CF5Sa on919b170142 PASS42.61s/RSS1.238GiB: last[352,358)
+accepted6/6 lines via10/10 visible segments; startup10.351s/content9.086s.
+Source/layout/doc696×21480/origin0/358total EXACTLY match both earlier ranges;
+disjoint[0,28)+[352,358) accepted34/358,324unchecked (run-local352).
+Normal cleanup pass;17 whole bodies/139 whole targets remain uncertified.
+
 Native25138/ORpMMJ onfc36398a05 PASS50.59s/RSS1.324GiB: lines[16,28)
 accepted12/12 via21/21 visible segments; startup8.527s/content19.990752s.
 Source/layout/doc696×21480/origin0/358-line witnesses EXACTLY match Qqn93W;

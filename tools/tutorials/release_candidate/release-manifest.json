@@ -5,9 +5,9 @@
   "routes": 84,
   "catalog_languages": 14,
   "narration_tracks": 3119,
-  "web_bytes": 127493548,
+  "web_bytes": 127570587,
   "ceiling_bytes": 734003200,
-  "media_host_bytes": 12582247713,
+  "media_host_bytes": 12584522910,
   "files": [
     {
       "path": "media_host/01_pypi_github/audio/en/af_aoede.json",
@@ -2336,13 +2336,13 @@
     },
     {
       "path": "media_host/06_api/video/06_api_silent.mp4",
-      "sha256": "090735b9b233339cbff894391e723b5c5376b0387c22a1a2634160733e398aeb",
-      "bytes": 3255467
+      "sha256": "98e3cb08fd859283a0b1ad5a72ef825b3b83d4e69d7109b65df13cea5c9dd4b7",
+      "bytes": 3064751
     },
     {
       "path": "media_host/06_api/web/06_api_silent.mp4",
-      "sha256": "d633e3c4a9d69ea0e5af7a44ee7ee06c5446250925e9fbe08d661f5bf9b10d7b",
-      "bytes": 1491154
+      "sha256": "dc67bcc3aef32198f35880da7b13c3497d8be92fe77f088e68cd8c3a141f7813",
+      "bytes": 3957067
     },
     {
       "path": "media_host/07_mask/audio/en/af_aoede.json",
@@ -32546,8 +32546,8 @@
     },
     {
       "path": "web/production/06_api/poster.jpg",
-      "sha256": "c4f48312110a0fe5868229d2e7c31091d678951bf19dd817852fa45a5e9e1fdb",
-      "bytes": 102619
+      "sha256": "9ea3aafc75c493152f64dd1ee958bc7d46586f91121195cb594d41b13e7f917d",
+      "bytes": 179658
     },
     {
       "path": "web/production/07_mask/poster.jpg",
@@ -32967,11 +32967,11 @@
       "browser_report_sha256": "0fca7d2a840d388d0c047c86ca9c18351fc3f30fdf8d129ef5b325e615b8bef2"
     }
   ],
-  "baseline_manifest_sha256": "f744c3409b8cbc917b5a85587ce5ccbe8c70401e9f98f12dc793c44339ad2fcd",
+  "baseline_manifest_sha256": "566643488cff3083196227f57c88a690cb27dd6fa8809baea9af7778d27c75ae",
   "preserved_lessons": 83,
   "appended_lessons": [],
   "refreshed_lessons": [
-    "10_classify_cv"
+    "06_api"
   ],
   "withdrawn_lessons": [],
   "retained_narration": {
@@ -39628,35 +39628,37 @@
   "fresh_capture": false,
   "raw_capture_revalidated": false,
   "legacy_picture_references": {
-    "lesson": "10_classify_cv",
-    "source_manifest_sha256": "f744c3409b8cbc917b5a85587ce5ccbe8c70401e9f98f12dc793c44339ad2fcd",
+    "lesson": "06_api",
+    "source_manifest_sha256": "566643488cff3083196227f57c88a690cb27dd6fa8809baea9af7778d27c75ae",
     "original_clock": {
-      "path": "media_host/10_classify_cv/audio/en/af_heart.json",
-      "sha256": "c69edbba9c364fd37672d6ba01df746c61877cb6616b2cc057a01abc6942ce67"
+      "path": "media_host/06_api/audio/en/af_heart.json",
+      "sha256": "f73e32b649bc474fae3c0b74dcc6be5a99711cb7d855bbb739f27c0540a18977"
     },
     "original_visuals": [
       {
-        "path": "media_host/10_classify_cv/video/10_classify_cv_silent.mp4",
-        "sha256": "6b7b3175829dcf2785525a87207985ffd9e355fd30a5ff80f3ac1f95e6b110b7",
-        "bytes": 6552403
+        "path": "media_host/06_api/video/06_api_silent.mp4",
+        "sha256": "090735b9b233339cbff894391e723b5c5376b0387c22a1a2634160733e398aeb",
+        "bytes": 3255467
       },
       {
-        "path": "media_host/10_classify_cv/web/10_classify_cv_silent.mp4",
-        "sha256": "ac42b434e2e62f4cf984f0a52418e6e7d8a2f7d9b086b19f2701234f75cffb4f",
-        "bytes": 5002861
+        "path": "media_host/06_api/web/06_api_silent.mp4",
+        "sha256": "d633e3c4a9d69ea0e5af7a44ee7ee06c5446250925e9fbe08d661f5bf9b10d7b",
+        "bytes": 1491154
       },
       {
-        "path": "web/production/10_classify_cv/poster.jpg",
-        "sha256": "db263e7817c5f9b5ee8df0b1a9511dd3018853a24b74e0b8e7e24129245914ae",
-        "bytes": 137434
+        "path": "web/production/06_api/poster.jpg",
+        "sha256": "c4f48312110a0fe5868229d2e7c31091d678951bf19dd817852fa45a5e9e1fdb",
+        "bytes": 102619
       }
     ],
     "card_slots": [
-      2,
+      1,
       3,
-      4
+      4,
+      5,
+      6
     ],
-    "card_contract_sha256": "7b9ad08a37652fb828211ffd1cc2bb29a813fdc65791397599a38766ec73f340",
+    "card_contract_sha256": "c439f19b44516ecf036c0a32a381920995ab4143202b0a141818071dc48ff347",
     "current_runtime_freshness_claimed": false
   }
 }
