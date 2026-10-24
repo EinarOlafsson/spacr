@@ -8858,11 +8858,15 @@ def _preferences_window_class():
             first show: the window sheet, the glass and the resize filter
             walk the dialog then, and bringing the pages back for them is
             the cost the waiting exists to save. Nor while a page is coming
-            back, whose glass asks the dialog for its card.
+            back, whose glass asks the dialog for its card. Nor for the
+            translation pass after a show: a page that comes back is
+            translated then, and bringing all seven back for that pass cost
+            about 0.5 s of every open on an Intel Mac.
 
             :returns: every match.
             """
-            if not self._window_only:
+            if not self._window_only and not self.property(
+                    "spacrWalkingShownTree"):
                 for index in list(self._pages_away):
                     self._bring_the_page_back(index)
             return super().findChildren(*args, **kwargs)

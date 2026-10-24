@@ -4759,6 +4759,11 @@ TRANSLATE_ONCE_PER_LANGUAGE = "spacrTranslateOncePerLanguage"
 #: The language such a dialog was last walked in.
 _TRANSLATED_FOR = "spacrTranslatedFor"
 
+#: Set on a dialog while its shown tree is walked. A dialog that keeps
+#: pages out of its tree until they are opened (Preferences) answers that
+#: walk with the pages it shows; each page is translated as it comes back.
+WALKING_SHOWN_TREE = "spacrWalkingShownTree"
+
 
 def _translate_shown_dialog(dialog) -> None:
     """Walk a shown dialog once its show has finished."""
@@ -4768,7 +4773,12 @@ def _translate_shown_dialog(dialog) -> None:
     language = current_language() if once else None
     if once and dialog.property(_TRANSLATED_FOR) == language:
         return
-    retranslate_widget_tree(dialog)
+    dialog.setProperty(WALKING_SHOWN_TREE, True)
+    try:
+        retranslate_widget_tree(dialog)
+    finally:
+        if _a11y_alive(dialog):
+            dialog.setProperty(WALKING_SHOWN_TREE, False)
     if once and _a11y_alive(dialog):
         dialog.setProperty(_TRANSLATED_FOR, language)
 

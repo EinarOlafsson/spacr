@@ -503,3 +503,37 @@ def test_a_whole_sheet_counts_only_the_roots_that_took_it(
     monkeypatch.setattr(theme, "_sheet_one_window", lambda _root: False)
     assert theme.apply_stylesheet_per_window(
         app, theme.window_stylesheet(app) or "") == 0
+
+
+def test_the_shown_translation_pass_leaves_waiting_pages_away(qtbot, monkeypatch):
+    """Translating a shown Preferences walks the pages it shows, not all nine.
+
+    The after-show pass walked the dialog with ``findChildren``, which brings
+    every waiting page back: about 0.5 s of every open on an Intel Mac. A
+    page still waiting is translated when it comes back instead.
+    """
+    from spacr.qt import i18n
+
+    translated = []
+    monkeypatch.setattr(i18n, "retranslate_widget_tree",
+                        lambda widget: (translated.append(widget),
+                                        widget.findChildren(QWidget)))
+    dialog = _bare_window()
+    qtbot.addWidget(dialog)
+    tabs = QTabWidget(dialog)
+    scroll = QScrollArea()
+    tabs.addTab(scroll, "one")
+    page = QWidget()
+    dialog._page_tabs = tabs
+    dialog._pages_away = {0: page}
+    dialog.setAttribute(Qt.WA_DontShowOnScreen, True)
+    dialog.show()
+
+    i18n._translate_shown_dialog(dialog)
+    assert translated == [dialog]
+    assert dialog._pages_away == {0: page}
+    assert not dialog.property(i18n.WALKING_SHOWN_TREE)
+
+    dialog.findChildren(QWidget)
+    assert not dialog._pages_away and scroll.widget() is page
+    assert page in translated
