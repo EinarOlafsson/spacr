@@ -446,3 +446,5 @@ and18actual localized checks are unchanged and not repeated. The original
 closure receipt remains historical; merged-runtime-receipt.json and the final
 publication proof bind the current generated outputs. Scope remains software
 calibration metadata/localization, not biological or whole-feature acceptance.
+
+2026-10-24 — Maintainer will label debris vs genuine closure himself in spaCR; ready: /mnt/firecuda2/Claude/toxoplasma_projects/spacr_curation/f536_wound_closure_2026-10-24 (28 BBBC019 cases: all 14 failures of the frozen 51-frame baseline + 14 subset-matched successes, blind 2x2 t0/later panels with detected mask, wound crops over time; key/ holds outcomes). Annotate column wound_call (1 genuine_closure..5 cannot_judge); README there. No training or detector change yet.
