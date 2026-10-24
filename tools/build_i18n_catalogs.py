@@ -4769,7 +4769,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in {"_read_plane", "_calibrated_label_array",
-                                           "stream_originals_to_stack", "stream_masks_from_stack", "run_v2"}]
+                                           "stream_originals_to_stack", "stream_masks_from_stack", "run_v2",
+                                           "_run_partitioned_v2"}]
         if path == source_root / "psf_pipeline.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, (ast.FunctionDef, ast.ClassDef))
@@ -4778,6 +4779,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                                            "_UnmixPlan", "_initialize_calibrated_output",
                                            "_validate_calibrated_batch_settings",
                                            "_validate_unmix_plate_scope", "_plate_unmix_controls",
+                                           "_partition_input_error", "_validate_unmix_partition_scope",
                                            "_validate_unmix_matrix_scope", "_matrix_input_error",
                                            "_plate_control_input",
                                            "_prepare_segmentation_psf", "_SegmentationPSFSession",

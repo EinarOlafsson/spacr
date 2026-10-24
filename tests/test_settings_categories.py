@@ -802,6 +802,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Timelapse and Measure.
     "unmix", "unmix_controls", "unmix_background_percentile",
     "unmix_calibration", "unmix_pixel_size_um", "unmix_per_plate", "unmix_matrix_file",
+    "unmix_partition_plates", "unmix_plate_calibrations",
     # NEW SETTINGS, not a regrouping (item 557, 2026-09-27): Noise2Void
     # denoising's switch, its model folder and training epochs, under a
     # "Self-Supervised Denoising α" heading in Mask and Timelapse.

@@ -9425,50 +9425,55 @@ def _validate_measurement_coordinate_source(merged_folder):
     from pathlib import Path
     from .qt.i18n import tr
 
-    path = Path(merged_folder).parent / 'psf' / 'segmentation_application.json'
-    try:
-        limit = 32 * 1024 ** 2
-        with path.open('rb') as handle:
-            if os.fstat(handle.fileno()).st_size > limit:
+    folder = Path(merged_folder)
+    for root in (folder, folder.parent):
+        if os.path.lexists(root / 'plate_batch.json'):
+            raise ConfigurationError(tr(
+                "Calibrated segmentation uses nonquantitative aligned display planes and is not supported by Measure or its crop preview. Use a separate project segmented without spectral calibration for measurement."))
+        path = root / 'psf' / 'segmentation_application.json'
+        try:
+            limit = 32 * 1024 ** 2
+            with path.open('rb') as handle:
+                if os.fstat(handle.fileno()).st_size > limit:
+                    raise ValueError
+                payload = handle.read(limit + 1)
+            if len(payload) > limit:
                 raise ValueError
-            payload = handle.read(limit + 1)
-        if len(payload) > limit:
-            raise ValueError
-        record = json.loads(payload.decode('utf-8'))
-    except FileNotFoundError as exc:
-        if not os.path.lexists(path):
-            return
-        raise ConfigurationError(tr(
-            "Cannot verify the segmentation coordinate record at {path}. Restore its provenance or use a separate project rebuilt from original images.",
-            path=str(path))) from exc
-    except (OSError, UnicodeError, ValueError) as exc:
-        raise ConfigurationError(tr(
-            "Cannot verify the segmentation coordinate record at {path}. Restore its provenance or use a separate project rebuilt from original images.",
-            path=str(path))) from exc
-    configuration = record.get('configuration') if isinstance(record, dict) else None
-    unmixing = configuration.get('unmixing') if isinstance(configuration, dict) else None
-    if (isinstance(configuration, dict)
-            and (configuration.get('coordinate_system') == 'calibrated_reference_canvas'
-                 or isinstance(unmixing, dict) and 'calibration' in unmixing)):
-        raise ConfigurationError(tr(
-            "Calibrated segmentation uses nonquantitative aligned display planes and is not supported by Measure or its crop preview. Use a separate project segmented without spectral calibration for measurement."))
-    if (not isinstance(configuration, dict)
-            or type(configuration.get('version')) is not int
-            or configuration.get('version') != 1
-            or configuration.get('pipeline_style') not in ('v1', 'v2')
-            or not isinstance(configuration.get('processing'), dict)
-            or not isinstance(configuration['processing'].get('operation'), str)
-            or configuration.get('measurement_intensity_source') != 'original persisted intensities'
-            or not isinstance(configuration.get('channels'), list)
-            or any(type(channel) is not int or channel < 0 for channel in configuration['channels'])
-            or 'coordinate_system' in configuration
-            or 'unmixing' in configuration and not isinstance(unmixing, dict)
-            or not isinstance(record.get('complete'), bool)
-            or not isinstance(record.get('fields'), list)
-            or not isinstance(record.get('archives'), dict)):
-        raise ConfigurationError(tr(
-            "Cannot verify the segmentation coordinate record at {path}. Restore its provenance or use a separate project rebuilt from original images.",
-            path=str(path)))
+            record = json.loads(payload.decode('utf-8'))
+        except FileNotFoundError as exc:
+            if not os.path.lexists(path):
+                continue
+            raise ConfigurationError(tr(
+                "Cannot verify the segmentation coordinate record at {path}. Restore its provenance or use a separate project rebuilt from original images.",
+                path=str(path))) from exc
+        except (OSError, UnicodeError, ValueError) as exc:
+            raise ConfigurationError(tr(
+                "Cannot verify the segmentation coordinate record at {path}. Restore its provenance or use a separate project rebuilt from original images.",
+                path=str(path))) from exc
+        configuration = record.get('configuration') if isinstance(record, dict) else None
+        unmixing = configuration.get('unmixing') if isinstance(configuration, dict) else None
+        if (isinstance(configuration, dict)
+                and (configuration.get('coordinate_system') == 'calibrated_reference_canvas'
+                     or isinstance(unmixing, dict) and 'calibration' in unmixing)):
+            raise ConfigurationError(tr(
+                "Calibrated segmentation uses nonquantitative aligned display planes and is not supported by Measure or its crop preview. Use a separate project segmented without spectral calibration for measurement."))
+        if (not isinstance(configuration, dict)
+                or type(configuration.get('version')) is not int
+                or configuration.get('version') != 1
+                or configuration.get('pipeline_style') not in ('v1', 'v2')
+                or not isinstance(configuration.get('processing'), dict)
+                or not isinstance(configuration['processing'].get('operation'), str)
+                or configuration.get('measurement_intensity_source') != 'original persisted intensities'
+                or not isinstance(configuration.get('channels'), list)
+                or any(type(channel) is not int or channel < 0 for channel in configuration['channels'])
+                or 'coordinate_system' in configuration
+                or 'unmixing' in configuration and not isinstance(unmixing, dict)
+                or not isinstance(record.get('complete'), bool)
+                or not isinstance(record.get('fields'), list)
+                or not isinstance(record.get('archives'), dict)):
+            raise ConfigurationError(tr(
+                "Cannot verify the segmentation coordinate record at {path}. Restore its provenance or use a separate project rebuilt from original images.",
+                path=str(path)))
 
 
 def _measure_merged_folder(src):
@@ -13382,7 +13387,7 @@ def measure_calibrated_cells(src, *, dst, channels=None, cancelled=None):
                 json.dump(provenance, stream, ensure_ascii=False, indent=2, allow_nan=False)
                 stream.flush()
                 os.fsync(stream.fileno())
-            with csv_path.open('rb') as stream:
+            with csv_path.open('r+b') as stream:
                 os.fsync(stream.fileno())
         _calibrated_measurement_checkpoint(cancelled)
         _publish_calibrated_measurement_directory(staging, destination)

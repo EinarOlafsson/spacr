@@ -7117,6 +7117,17 @@ def generate_dataset(settings=None):
     from .settings import set_generate_dataset_defaults
 
     settings = set_generate_dataset_defaults(settings)
+    from .measure import _validate_measurement_coordinate_source
+    from .validate import _resolve_measure_src
+
+    sources = settings.get('src')
+    if isinstance(sources, (str, os.PathLike)):
+        sources = [sources]
+    if isinstance(sources, list):
+        for source in sources:
+            if isinstance(source, (str, os.PathLike)):
+                merged, _ = _resolve_measure_src(os.fspath(source))
+                _validate_measurement_coordinate_source(merged)
     save_settings(settings, 'generate_dataset', show=True)
 
     if isinstance(settings['src'], str):

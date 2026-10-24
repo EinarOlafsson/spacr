@@ -1726,7 +1726,7 @@ class _NewsTitleFit(QObject):
         :param event: native event; only local allocation/style work is queued.
         :returns: False, preserving normal Qt delivery.
         """
-        if not self._busy and ((watched is self._viewport and event.type() == QEvent.Resize)
+        if not getattr(self, "_busy", True) and ((watched is self._viewport and event.type() == QEvent.Resize)
                 or (watched is self._panel and event.type() in
                     (QEvent.Show, QEvent.FontChange, QEvent.StyleChange, QEvent.LayoutRequest))):
             self._timer.start(0)

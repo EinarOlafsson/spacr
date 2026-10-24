@@ -93,6 +93,43 @@ Validate direct inverse/negative residuals, default equality, real V2 source
 immutability, durable reload and malformed/conflicting/tampered input refusal.
 Mixed-plate partitioning and real known-amount scientific acceptance remain open.
 
+MIXED-PLATE PARTITION FOLLOW-UP (2026-10-24)
+Home coordinates the approved implementation after the published direct-matrix
+closure, with G3 examining producer/partition/record transport and G1 examining
+raw-source identity, downstream readers and real two-plate acceptance. Root
+reviews the exact contract before implementation and owns publication. Preserve
+the existing opt-in single-context plans, signed dataset schema and exact
+unpartitioned default behavior. Consider independent per-plate calibrated child
+outputs selected from complete master controls, never one global matrix silently
+shared across plates. Calibration/operator applicability must be supplied
+explicitly; do not infer equal PSFs, gains, exposures or acquisition compatibility.
+Keep physical channel order and typed plate/time/Z identities, unchanged raw
+files, valid support and context-bound matrix-file input. Missing controls,
+ambiguous context or unsupported routes must refuse without fallback.
+Before code, freeze subset discovery, return/output shape, child naming, durable
+parent manifest and child provenance, completion/cancellation and no-overwrite
+semantics. Preserve ordinary Measure/preview/crop/export refusals for persisted
+calibrated parent and child outputs; existing signed readers must not mistake a
+collection for one dataset. Define per-child QC dispatch without sampling raw
+coordinates against calibrated masks. The smallest deterministic CPU controls
+must use two real plates with distinct matrices, prove complete same-plate
+selection and raw immutability, and refuse missing mappings before publication.
+No new modules, model/data scans, training, native or biological acceptance
+claims; real known-amount scientific acceptance remains separate and OPEN.
+Root approved explicit complete per-plate optical calibration, spacing and
+context mappings; partitioning requires calibrated cell-only 2D V2 with
+same-plate controls and refuses global calibration/spacing or direct matrices.
+Preflight all configuration and bounded finite controls before parent/model
+creation; distinguish canonical control pixel hashes from actual assembled-file
+hashes and verify equality before model dispatch. Unread target I/O may still
+fail later. Publish the refusal marker and manifest before any child artifacts.
+Preserve completed children on cancellation/error, mark aggregate/interrupted
+states truthfully and rethrow; no resume, deletion or overwrite. Parent arrays
+must remain refused by ordinary measurement, previews, crops and cached exports.
+Use plural results and child-only QC report/off; preserve legacy False behavior.
+Validate two real plates with independent matrices and explicitly mapped
+anisotropic spacing, raw identity, cancellation and pre-output/bypass refusals.
+
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: A1 a classefication torch, xgboost, and
     measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
@@ -329,3 +366,11 @@ whole-feature or final CI acceptance claim.
 2026-10-24 Home: opt-in unmix_per_plate selects complete same-plate controls by physical channel ID for one-plate/time/Z calibrated cell-only V2 sources; False preserves the legacy parser, numerics and provenance. Canonical mappings and consumed pre-unmix input hashes are bound to durable records; raw files and signed-reader compatibility remain intact, and unsupported routes refuse before work. Sixteen direct and sixteen real-folder/refusal controls pass with independent source/math review; settings, source-admission and notebook freshness checks pass. Normal 108-target nine-language closure is verified at review 5d0888e2 (7,021 files) and API 2c88c606; all 15 final catalog/Help/runtime checks pass with ten API files unchanged. Consumer, Help, notebook references, caption arrivals and settings-flow artifacts were generated normally; the three flow checks pass with zero API/caption delta. Root owns Night publication. Direct matrix-file loading, mixed-plate partitioning, broader calibrated routes and real known-amount double-stain acceptance remain OPEN.
 
 2026-10-24 Home: bounded version-1 unmix_matrix_file supplies an explicit unit-diagonal camera-signal matrix to calibrated single-plate/time/Z cell-only V2; blank preserves estimated global/per-plate controls. Exact physical order, background and captured calibration bindings accompany a durable copied artifact; acquisition compatibility is an unverified user assertion and signed readers do not need the original external path. All 39 focused behavior/settings controls, the callable and reference checks, and three settings-flow contracts pass with independent mathematical/source/output review. Normal 63-target nine-language closure plus nine unchanged binding reuses is verified at review 705db182 (7,039 files) and API 3a7a1e33; all 15 final catalog/Help/runtime checks pass with ten API files unchanged, and consumer, notebook references, settings flow and caption arrivals were generated normally. Root owns Night publication; mixed-plate partitioning, unsupported routes, native-platform qualification and real known-amount scientific acceptance remain OPEN.
+
+2026-10-24 Home: opt-in mixed-plate partitioning writes independent calibrated cell-only 2D V2 children from complete same-plate controls and explicit per-plate optical/context/spacing mappings; False preserves legacy behavior.
+Raw images and original merged inputs stay intact; bounded header/control preflight and assembled-input/matrix bindings precede model work, while collection parents refuse ordinary measurement and cached routes.
+Completed signed-readable children survive cancellation or later failure; isolated child QC report/off statuses distinguish segmentation from aggregate completion, with supplied acquisition assertions remaining unverified and descriptor capabilities required.
+All 42 unique focused behavior/settings/source/reference/flow/catalog controls and 18 strict locale loaders pass with independent mathematical/source/output peers; normal 126-target translations plus nine binding reuses are verified at review 3165c367 (7,058 files) and API af91aea06859.
+Notebook references, consumer/flow artifacts and caption arrivals were generated normally; root owns Night publication. Unsupported routes, native qualification and real known-amount scientific acceptance remain OPEN.
+
+2026-10-24 Home: correct the signed-cell CSV durability flush to use an existing write-capable descriptor, retaining read-only digest calculation, missing-file failure and atomic no-overwrite publication; both fsync guards and the real signed CSV export pass (3 controls), with callable prose, translated strings and generated source positions unchanged. Root owns publication; broader F538 acceptance remains OPEN.

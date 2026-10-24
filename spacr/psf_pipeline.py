@@ -526,15 +526,24 @@ class _UnmixCalibration:
         return matched, region
 
 
-def _load_unmix_calibration(settings, channels):
-    """Capture and validate explicitly supplied 2D registration and PSF samples."""
+def _load_unmix_calibration(settings, channels, *, captured=None):
+    """Capture and validate explicitly supplied 2D registration and PSF samples.
+
+    :param settings: explicit calibration path and source pixel sampling.
+    :param channels: ordered physical channel identifiers.
+    :param captured: optional exact file bytes already captured by plate preflight.
+    :returns: captured registration and matching-kernel plan.
+    """
     from scipy.signal import convolve2d
     from .qt.i18n import tr
 
     path = Path(settings['unmix_calibration']).expanduser()
-    with path.open('rb') as stream:
-        raw = stream.read(1024 ** 2 + 1)
-    if len(raw) > 1024 ** 2:
+    if captured is None:
+        with path.open('rb') as stream:
+            raw = stream.read(1024 ** 2 + 1)
+    else:
+        raw = captured
+    if not isinstance(raw, bytes) or len(raw) > 1024 ** 2:
         raise ValueError(tr("The spectral calibration file must not exceed 1 MiB."))
     payload = json.loads(raw)
     def spacing(value):
@@ -726,15 +735,114 @@ def _unmix(image, matrix, background_percentile, *, clip_negative=True):
     return solved.reshape(array.shape).astype(np.float32)
 
 
-def _validate_unmix_plate_scope(settings, *, allow_per_plate=False):
+def _partition_input_error():
+    """Return the common refusal for unsupported plate-partition input evidence."""
+    from .qt.i18n import tr
+
+    return ValueError(tr("Mixed-plate calibration requires complete explicit per-plate controls, optical files, pixel sizes and acquisition contexts within the existing 2D resource limits; no cross-plate fallback or inferred acquisition compatibility is allowed."))
+
+
+def _validate_unmix_partition_scope(settings, *, allow_partition=False):
+    """Admit an explicit partition request only on the supported V2 route.
+
+    :param settings: processing settings with the optional partition switch.
+    :param allow_partition: this caller supports independently bound child datasets.
+    :returns: whether plate partitioning was explicitly enabled.
+    """
+    if not _bool(settings.get('unmix_partition_plates', False)):
+        return False
+    from .qt.i18n import tr
+    from .seg_qc import qc_mode
+
+    message = tr("Plate partitioning requires calibrated 2D cell V2 segmentation with per-plate controls, an explicit optical mapping, QC report or off, and no global calibration, matrix file or VVVV export. Directory-relative, no-follow and nonblocking descriptor access is required; unsupported hosts refuse.")
+    try:
+        if (not allow_partition or not _bool(settings.get('unmix', False))
+                or not _bool(settings.get('unmix_per_plate', False))
+                or not settings.get('unmix_controls')
+                or not isinstance(settings.get('unmix_plate_calibrations'), str)
+                or not settings['unmix_plate_calibrations'].strip()
+                or settings.get('unmix_calibration')
+                or settings.get('unmix_pixel_size_um') is not None
+                or str(settings.get('unmix_matrix_file') or '').strip()
+                or _bool(settings.get('export_vvvv', False))
+                or any(_bool(settings.get(key, False)) for key in ('watch_folder', 'timelapse', 'z_stack', 't_stack'))
+                or qc_mode(settings) not in ('report', 'off')
+                or not hasattr(os, 'O_DIRECTORY') or not hasattr(os, 'O_NOFOLLOW')
+                or not hasattr(os, 'O_NONBLOCK') or os.open not in os.supports_dir_fd):
+            raise ValueError
+    except (TypeError, ValueError):
+        raise ValueError(message) from None
+    return True
+
+
+def _capture_plate_calibrations(settings, source, contexts, channels):
+    """Capture each explicitly assigned optical input before creating outputs.
+
+    :param settings: JSON optical mapping and within-plate acquisition assertions.
+    :param source: actual original image folder used for relative input paths.
+    :param contexts: plate-to-exact-time/Z acquisition contexts.
+    :param channels: physical channels in persisted order.
+    :returns: per-plate entry, immutable file bytes, and captured optical plan.
+    """
+    try:
+        text = settings['unmix_plate_calibrations']
+        if not isinstance(text, str) or len(text.encode('utf-8')) > 1024 ** 2:
+            raise _partition_input_error()
+        mapping = json.loads(text, object_pairs_hook=_plate_control_pairs,
+                             parse_constant=_matrix_json_constant)
+        if not isinstance(mapping, dict) or not mapping or set(mapping) != set(contexts):
+            raise _partition_input_error()
+        result = {}
+        retained_bytes = 0
+        for plate in sorted(mapping):
+            checkpoint()
+            entry = mapping[plate]
+            if (not isinstance(entry, dict) or set(entry) != {
+                    'calibration_file', 'pixel_size_um', 'source_context', 'acquisition_compatibility'}
+                    or not isinstance(entry['calibration_file'], str) or not entry['calibration_file'].strip()
+                    or entry['source_context'] != dict(plate=plate, time=contexts[plate][0], z=contexts[plate][1])
+                    or any(type(entry['source_context'][key]) is not type(value)
+                           for key, value in zip(('time', 'z'), contexts[plate]))
+                    or entry['acquisition_compatibility'] != 'user_asserts_same_channel_gains_exposures_and_linear_response'
+                    or not isinstance(entry['pixel_size_um'], list) or len(entry['pixel_size_um']) != 2
+                    or any(type(value) not in (int, float) or not np.isfinite(value) or value <= 0
+                           for value in entry['pixel_size_um'])):
+                raise _partition_input_error()
+            path = Path(entry['calibration_file']).expanduser()
+            if not path.is_absolute():
+                path = Path(source) / path
+            descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+            with os.fdopen(descriptor, 'rb') as stream:
+                raw, payload, digest, identity = _matrix_input_snapshot(stream)
+                current = path.lstat()
+                if identity != (current.st_dev, current.st_ino, current.st_size,
+                                current.st_mtime_ns, current.st_ctime_ns):
+                    raise _partition_input_error()
+            retained_bytes += len(raw)
+            if retained_bytes > 16 * 1024 ** 2:
+                raise _partition_input_error()
+            resolved = dict(settings, unmix_partition_plates=False,
+                            unmix_calibration=str(path), unmix_pixel_size_um=list(entry['pixel_size_um']))
+            calibration = _load_unmix_calibration(resolved, channels, captured=raw)
+            result[plate] = dict(entry=json.loads(json.dumps(entry)), raw=raw,
+                                 sha256=digest, calibration=calibration)
+        return result
+    except (OSError, KeyError, TypeError, ValueError, OverflowError, RecursionError):
+        raise _partition_input_error() from None
+
+
+def _validate_unmix_plate_scope(settings, *, allow_per_plate=False, allow_partition=False):
     """Admit plate-qualified controls only through their explicit supported route.
 
     :param settings: spectral settings including the optional per-plate switch.
     :param allow_per_plate: whether the caller supplies calibrated V2 identities.
+    :param allow_partition: this caller supports independent plate child outputs.
     :returns: whether the explicitly enabled plate-qualified mode is active.
     """
     from .qt.i18n import tr
 
+    if _validate_unmix_partition_scope(settings, allow_partition=allow_partition):
+        return True
     enabled = _bool(settings.get('unmix_per_plate', False))
     if enabled and (not allow_per_plate or not _bool(settings.get('unmix', False))
                     or not settings.get('unmix_calibration')):

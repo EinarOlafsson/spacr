@@ -351,6 +351,10 @@ def stream_originals_to_stack(
     written: List[StackFile] = []
 
     for field_id, recs in by_field.items():
+        if getattr(mapper, '_partitioned', False):
+            from .cancellation import checkpoint
+
+            checkpoint()
         by_ch = {r.channel: r for r in recs}
         if calibrated:
             from .qt.i18n import tr
@@ -651,6 +655,11 @@ def stream_masks_from_stack(
     if not stacks:
         return stacks
     calibrated = bool(getattr(psf_session, "calibrated", False))
+    partitioned = calibrated and bool(psf_session.configuration.get("plate_partition"))
+    if partitioned:
+        from .cancellation import checkpoint
+
+        checkpoint()
     if calibrated:
         from .qt.i18n import tr
         from .psf_pipeline import _validate_calibrated_batch_settings
@@ -696,6 +705,8 @@ def stream_masks_from_stack(
     scratch = Path(npz_dir) if npz_dir else stacks[0].path.parent / "_scratch"
     scratch.mkdir(parents=True, exist_ok=True)
 
+    if partitioned:
+        checkpoint()
     try:
         from .object import _prefixed_model_route
     except ImportError as e:
@@ -733,6 +744,8 @@ def stream_masks_from_stack(
         _record_cellpose_hash(model, model_name)
 
     for batch_start in range(0, len(stacks), batch_fields):
+        if partitioned:
+            checkpoint()
         batch = stacks[batch_start:batch_start + batch_fields]
         with Timer(
             f"v2.batch[{batch_start}:{batch_start + len(batch)}] "
@@ -751,6 +764,8 @@ def stream_masks_from_stack(
         calibrated_results = []
         raw_intensity_per_field: List[np.ndarray] = []
         for sf, arr in zip(batch, loaded):
+            if partitioned:
+                checkpoint()
             indices = _cellpose_channel_indices(
                 channels_for_cellpose, arr.shape[-1])
             if filter_by_raw_intensity:
@@ -890,6 +905,8 @@ def stream_masks_from_stack(
             ))
 
         for index, (sf, arr, mask) in enumerate(zip(batch, loaded, masks_per_field)):
+            if partitioned:
+                checkpoint()
             if calibrated:
                 result = calibrated_results[index]
                 shape = result.image.shape[:2]
@@ -951,10 +968,445 @@ def stream_masks_from_stack(
     if illumination_session is not None:
         illumination_session.finish(sf.field_id for sf in stacks)
     if psf_session is not None:
+        if partitioned:
+            checkpoint()
         psf_session.finish(sf.field_id for sf in stacks)
 
     return stacks
 
+
+
+def _partition_plane_header(path):
+    """Read reliable source bounds without decoding an unrelated target plane.
+
+    :param path: original single-channel image path.
+    :returns: acquired shape, numeric dtype and native file identity.
+    """
+    from .psf_pipeline import _partition_input_error
+
+    path = Path(path)
+    before = path.stat()
+    if path.suffix.lower() in ('.tif', '.tiff'):
+        import tifffile
+
+        with tifffile.TiffFile(path) as image:
+            if len(image.series) != 1:
+                raise _partition_input_error()
+            shape, dtype = image.series[0].shape, np.dtype(image.series[0].dtype)
+    else:
+        from PIL import Image, ImageMode
+
+        with Image.open(path) as image:
+            if len(image.getbands()) != 1 or getattr(image, 'n_frames', 1) != 1:
+                raise _partition_input_error()
+            shape = (image.height, image.width)
+            dtype = np.dtype(ImageMode.getmode(image.mode).typestr)
+    after = path.stat()
+    identity = (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns)
+    if (identity != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns)
+            or len(shape) != 2 or not all(shape) or dtype.kind not in 'uif' or dtype.itemsize > 8):
+        raise _partition_input_error()
+    return dict(shape=list(shape), dtype=dtype.str, identity=list(identity))
+
+
+def _partition_packed_fingerprint(array, channels):
+    """Identify canonical packed values, explicitly not serialized NPY file bytes.
+
+    :param array: acquired channel-last control values.
+    :param channels: physical channel order represented by the last axis.
+    :returns: dtype, shape, channel order and C-order value hash.
+    """
+    import hashlib
+
+    contiguous = np.ascontiguousarray(array)
+    return dict(stage='canonical_channel_packed_control_values', shape=list(contiguous.shape),
+                dtype=contiguous.dtype.str, channels=list(channels),
+                values_sha256=hashlib.sha256(memoryview(contiguous).cast('B')).hexdigest())
+
+
+def _partition_read_control(records, channels, headers):
+    """Read one actual control field after its header bounds have been admitted.
+
+    :param records: original records for this exact field.
+    :param channels: selected physical channels in persisted order.
+    :param headers: immutable preflight source bounds and native identities.
+    :returns: numeric finite acquired HWC values without changing the originals.
+    """
+    from .cancellation import checkpoint
+    from .psf_pipeline import _partition_input_error
+
+    by_channel = {record.channel: record for record in records}
+    planes = []
+    for channel in channels:
+        checkpoint()
+        record = by_channel[channel]
+        expected = headers[record.original_path]
+        if _partition_plane_header(record.original_path) != expected:
+            raise _partition_input_error()
+        plane = _read_plane(record.original_path, calibrated=True,
+                            max_pixels=(16 * 1024 ** 2) // len(channels))
+        if (list(plane.shape) != expected['shape'] or plane.dtype.str != expected['dtype']
+                or not np.isfinite(plane).all()
+                or _partition_plane_header(record.original_path) != expected):
+            raise _partition_input_error()
+        planes.append(plane)
+    return np.stack(planes, axis=-1)
+
+
+def _preflight_plate_partitions(src, mapper, settings, options):
+    """Admit every plate's headers, optics and sampled controls before any output.
+
+    Target pixel values not read here are still validated by the ordinary child
+    route before its model is constructed. Control arrays are released per plate.
+
+    :param src: original source folder, never replaced by a synthetic child source.
+    :param mapper: one discovery containing the original global field identities.
+    :param settings: explicit partition, controls and optical-map settings.
+    :param options: V2 channel, model-position and batching options.
+    :returns: bounded independently captured plate plans.
+    """
+    import io
+    from .cancellation import checkpoint
+    from .psf_pipeline import (
+        _partition_input_error, _capture_plate_calibrations, _plate_unmix_controls,
+        _estimate_bleed_through, _UNMIX_MAX_FIELDS, _UNMIX_CALIBRATED_CONTROL_VALUES,
+        _validate_calibrated_batch_settings, _cell_record_hash,
+    )
+    from .schema import parse_well
+
+    channels = tuple(options['channels'])
+    model_positions = tuple(options['channels_for_cellpose'])
+    batch_fields = options['batch_fields']
+    if (not channels or len(channels) > 16 or len(set(channels)) != len(channels)
+            or any(isinstance(value, (bool, np.bool_)) or not isinstance(value, (int, np.integer))
+                   or value < 0 for value in channels)
+            or not model_positions or any(isinstance(value, (bool, np.bool_))
+                or not isinstance(value, (int, np.integer)) or not 0 <= value < len(channels)
+                for value in model_positions)
+            or type(batch_fields) is not int or batch_fields <= 0
+            or options['object_type'] != 'cell'
+            or (options['channel_names'] is not None and len(options['channel_names']) != len(channels))
+            or (options['illumination_settings'] or {}).get('illumination_correction')):
+        raise _partition_input_error()
+    channels = tuple(int(value) for value in channels)
+    options['channels'] = channels
+    percentile = float(settings.get('unmix_background_percentile', 5.0))
+    if not 0 <= percentile < 100:
+        raise _partition_input_error()
+    from .image_quality import quality_policy
+
+    quality_policy(settings)
+    _validate_calibrated_batch_settings(settings)
+    grouped = mapper.by_field()
+    if not 1 <= len(grouped) <= 8192:
+        raise _partition_input_error()
+    plate_records, contexts = {}, {}
+    for record in mapper.records:
+        plate_records.setdefault(record.plate, []).append(record)
+        contexts.setdefault(record.plate, set()).add((record.time, record.z))
+    if any(len(values) != 1 for values in contexts.values()):
+        raise _partition_input_error()
+    contexts = {plate: next(iter(values)) for plate, values in contexts.items()}
+    optics = _capture_plate_calibrations(settings, src, contexts, channels)
+    plans = []
+    retained_bytes = sum(len(value['raw']) for value in optics.values())
+    header_bytes = retained_bytes
+    for number, plate in enumerate(sorted(plate_records), 1):
+        checkpoint()
+        child_mapper = FilenameMapper(plate_records[plate], mapper.metadata_type, mapper.regex)
+        child_mapper._partitioned = True
+        identities = {}
+        headers, field_shapes, regions = {}, {}, {}
+        calibration = optics[plate]['calibration']
+        for field_id, records in child_mapper.by_field().items():
+            checkpoint()
+            record = records[0]
+            identity = dict(plate=record.plate, well=record.well, field=record.field,
+                            time=record.time, z=record.z, source_dataset=str(src.resolve()))
+            if any((row.plate, row.well, row.field, row.time, row.z) !=
+                   (record.plate, record.well, record.field, record.time, record.z) for row in records):
+                raise _partition_input_error()
+            identities[field_id] = identity
+            identities[f'stack_{field_id}.npy'] = identity
+            by_channel = {row.channel: row for row in records}
+            if len(by_channel) != len(records) or any(channel not in by_channel for channel in channels):
+                raise _partition_input_error()
+            selected_headers = []
+            for channel in channels:
+                path = by_channel[channel].original_path
+                headers[path] = _partition_plane_header(path)
+                selected_headers.append(headers[path])
+            shape = selected_headers[0]['shape']
+            if (any(item['shape'] != shape for item in selected_headers)
+                    or int(np.prod(shape, dtype=object)) * len(channels) > 16 * 1024 ** 2):
+                raise _partition_input_error()
+            field_shapes[field_id] = tuple(shape) + (len(channels),)
+            regions[field_id] = calibration.valid_region(field_shapes[field_id])
+            header_bytes += len(json.dumps(dict(
+                identities={field_id: identity, f'stack_{field_id}.npy': identity},
+                headers={by_channel[channel].original_path: headers[by_channel[channel].original_path]
+                         for channel in channels}), allow_nan=False).encode())
+            if header_bytes > 16 * 1024 ** 2:
+                raise _partition_input_error()
+        controls, selection = _plate_unmix_controls(settings, channels, identities)
+        ordered = list(child_mapper.by_field())
+        selected_count = len(_cellpose_channel_indices(model_positions, len(channels)))
+        for start in range(0, len(ordered), batch_fields):
+            batch = ordered[start:start + batch_fields]
+            if sum(int(np.prod(field_shapes[field_id], dtype=object)) for field_id in batch) > _CALIBRATED_BATCH_VALUES:
+                raise _partition_input_error()
+            height = max(regions[field_id][0].stop - regions[field_id][0].start for field_id in batch)
+            width = max(regions[field_id][1].stop - regions[field_id][1].start for field_id in batch)
+            if len(batch) * height * width * selected_count > _CALIBRATED_BATCH_VALUES:
+                raise _partition_input_error()
+        captured = optics[plate]
+        metadata = dict(child_name=f'plate_{number:06d}', plate_id=plate,
+            time_id=contexts[plate][0], z_id=contexts[plate][1],
+            calibration_source_sha256=captured['sha256'],
+            calibration_identity_sha256=_cell_record_hash({key: value for key, value
+                in calibration.provenance().items() if key != 'source'}),
+            pixel_size_um=list(captured['entry']['pixel_size_um']),
+            control_map_sha256=selection['controls_map_sha256'],
+            acquisition_compatibility_verified=False)
+        plans.append(dict(mapper=child_mapper, identities=identities, headers=headers,
+                          metadata=metadata, optics=captured, field_shapes=field_shapes,
+                          controls=controls))
+        summary = [dict(metadata=plan['metadata'], headers=plan['headers'], identities=plan['identities'])
+                   for plan in plans]
+        if retained_bytes + len(json.dumps(summary, allow_nan=False).encode()) > 16 * 1024 ** 2:
+            raise _partition_input_error()
+    for plan in plans:
+        checkpoint()
+        child_mapper, identities, headers = plan['mapper'], plan['identities'], plan['headers']
+        field_shapes, controls = plan['field_shapes'], plan['controls']
+        calibration = plan['optics']['calibration']
+        samples, selected_fields, fields_by_dye, values, input_bytes = {}, {}, {}, 0, 0
+        for dye, wells in controls.items():
+            wanted = {parse_well(well, strict=True) for well in wells}
+            chosen = [field_id for field_id in sorted(child_mapper.by_field())
+                      if parse_well(identities[field_id]['well'], strict=True) in wanted][:_UNMIX_MAX_FIELDS]
+            if not chosen:
+                raise _partition_input_error()
+            selected_fields[str(dye)] = ['stack_' + field_id for field_id in chosen]
+            fields_by_dye[dye] = []
+            for field_id in chosen:
+                checkpoint()
+                shape = field_shapes[field_id]
+                values += int(np.prod(shape, dtype=object))
+                if values > _UNMIX_CALIBRATED_CONTROL_VALUES:
+                    raise _partition_input_error()
+                field = _partition_read_control(child_mapper.by_field()[field_id], channels, headers)
+                header = io.BytesIO()
+                np.lib.format.write_array_header_1_0(header, {
+                    'descr': np.lib.format.dtype_to_descr(field.dtype), 'fortran_order': False,
+                    'shape': field.shape})
+                size = field.nbytes + len(header.getvalue())
+                input_bytes += size
+                if size > 128 * 1024 ** 2 + 16384 or input_bytes > 512 * 1024 ** 2:
+                    raise _partition_input_error()
+                samples[field_id] = _partition_packed_fingerprint(field, channels)
+                matched, unused_region = calibration.apply(field)
+                fields_by_dye[dye].append(matched)
+                del field
+        matrix = _estimate_bleed_through(fields_by_dye, channels)
+        del fields_by_dye
+        plan['metadata'].update(control_values=samples, control_fields=selected_fields,
+                                matrix=matrix.tolist())
+        summary = [dict(metadata=item['metadata'], headers=item['headers'], identities=item['identities'])
+                   for item in plans]
+        if retained_bytes + len(json.dumps(summary, allow_nan=False).encode()) > 16 * 1024 ** 2:
+            raise _partition_input_error()
+    return plans
+
+
+def _record_partition_qc(result, child, status, error=None):
+    """Atomically record child or aggregate QC without changing segmentation facts.
+
+    :param result: trusted plural result returned by this partition producer.
+    :param child: one returned child entry, or None for aggregate QC state.
+    :param status: pending, running, complete, off, skipped, failed or cancelled.
+    :param error: optional original failure whose type is recorded without its message.
+    """
+    from .psf_pipeline import _write_json, _partition_input_error
+
+    if status not in {'pending', 'running', 'complete', 'off', 'skipped', 'failed', 'cancelled'}:
+        raise _partition_input_error()
+    path = Path(result['manifest_path'])
+    record = json.loads(path.read_text(encoding='utf-8'))
+    if record.get('artifact') != 'spacr_calibrated_plate_batch' or record.get('version') != 1:
+        raise _partition_input_error()
+    if child is not None:
+        matches = [entry for entry in record['children'] if entry['child_name'] == child['child_name']]
+        if len(matches) != 1 or path.parent / matches[0]['path'] != Path(child['output_root']):
+            raise _partition_input_error()
+        matches[0]['qc_status'] = status
+        if error is not None:
+            matches[0]['qc_error_type'] = type(error).__name__
+    else:
+        record['qc_status'] = status
+        complete = (status in {'complete', 'off'} and record['segmentation_complete']
+                    and all(entry['qc_status'] in {'complete', 'off'} for entry in record['children']))
+        record['aggregate_complete'] = record['complete'] = complete
+        record['status'] = 'complete' if complete else ('partial' if status in {'complete', 'off', 'skipped'} else status)
+        if error is not None:
+            record['qc_error_type'] = type(error).__name__
+    _write_json(path, record)
+
+
+def _run_partitioned_v2(src, settings, options):
+    """Execute preflighted independent child datasets under a collection-only root.
+
+    :param src: original source folder whose image files and merged data remain untouched.
+    :param settings: enabled partition settings with explicit per-plate optical assignments.
+    :param options: unchanged V2 processing arguments used separately for each child.
+    :returns: plural child results and a durable collection manifest path.
+    """
+    import copy
+    import hashlib
+    from functools import partial
+    from .qt.i18n import tr
+    from .cancellation import checkpoint, PipelineCancelled
+    from .psf_pipeline import (
+        _partition_input_error, _write_json, _initialize_calibrated_output,
+        _prepare_segmentation_psf, _cell_record_hash,
+    )
+
+    mapper = FilenameMapper.discover(src, metadata_type=options['metadata_type'],
+                                     custom_regex=options['custom_regex'])
+    plans = _preflight_plate_partitions(src, mapper, settings, options)
+    checkpoint()
+    for index in range(10000):
+        root = src / ('calibrated_plate_batch' if index == 0 else f'calibrated_plate_batch_{index:04d}')
+        try:
+            root.mkdir()
+            break
+        except FileExistsError:
+            continue
+    else:
+        raise _partition_input_error()
+    manifest_path = root / 'plate_batch.json'
+    manifest = dict(artifact='spacr_calibrated_plate_batch', version=1,
+        stage='calibrated_segmentation', source_dataset=str(src.resolve()),
+        physical_channel_order=[int(value) for value in options['channels']],
+        complete=False, segmentation_complete=False, aggregate_complete=False,
+        status='running', qc_status='pending', children=[])
+    for plan in plans:
+        entry = dict(plan['metadata'], path=plan['metadata']['child_name'],
+                     status='pending', qc_status='pending', record_sha256=None)
+        manifest['children'].append(entry)
+    _write_json(root / 'psf/segmentation_application.json', dict(
+        configuration=dict(version=1, pipeline_style='v2',
+            coordinate_system='calibrated_reference_canvas', collection_only=True,
+            measurement_intensity_source='collection only; select an individual calibrated child dataset'),
+        complete=False, fields=[], archives={}))
+    _write_json(manifest_path, manifest)
+    print(tr("Calibrated plate collection created at {path}; each child is an independent signed-cell dataset, and the collection itself is not a Measure input.", path=str(root)))
+    children = []
+    active = None
+    try:
+        for plan, entry in zip(plans, manifest['children']):
+            checkpoint()
+            active = entry
+            entry['status'] = 'running'
+            _write_json(manifest_path, manifest)
+            child_root = root / entry['path']
+            child_settings = copy.deepcopy(settings)
+            child_settings.update(unmix_partition_plates=False,
+                unmix_calibration=str(child_root / 'psf/input_calibration.json'),
+                unmix_pixel_size_um=list(entry['pixel_size_um']), src=str(child_root))
+            _initialize_calibrated_output(child_root, child_settings)
+            optics_path = child_root / 'psf/input_calibration.json'
+            with optics_path.open('xb') as stream:
+                stream.write(plan['optics']['raw'])
+                stream.flush()
+                import os
+                os.fsync(stream.fileno())
+            checkpoint()
+            stacks = stream_originals_to_stack(src, plan['mapper'],
+                channels=options['channels'], channel_names=options['channel_names'],
+                dst=child_root / 'merged', metadata_root=child_root, calibrated=True)
+            for field_id, expected in entry['control_values'].items():
+                checkpoint()
+                field = np.load(child_root / 'merged' / f'stack_{field_id}.npy',
+                                mmap_mode='r', allow_pickle=False)
+                try:
+                    if _partition_packed_fingerprint(field, options['channels']) != expected:
+                        raise _partition_input_error()
+                finally:
+                    field._mmap.close()
+            from .image_quality import screen_fields
+
+            rejected = screen_fields(child_root, child_settings,
+                                     [stack.path for stack in stacks], options['channels'])
+            if rejected:
+                raise _partition_input_error()
+            session = _prepare_segmentation_psf(child_settings, child_root,
+                _cellpose_channel_indices(options['channels_for_cellpose'], len(options['channels'])),
+                pipeline_style='v2', stack_dir=child_root / 'merged',
+                load=partial(np.load, mmap_mode='r', allow_pickle=False),
+                source_channels=tuple(int(value) for value in options['channels']),
+                field_identities=plan['identities'])
+            actual_fields = {str(dye): list(stems) for dye, stems in session.unmixing.fields.items()}
+            actual_samples = json.loads(session.unmixing.control_selection)['sampled_fields']
+            if (actual_fields != entry['control_fields']
+                    or set(actual_samples) != {'stack_' + field_id for field_id in entry['control_values']}
+                    or not np.array_equal(np.asarray(session.unmixing.matrix), np.asarray(entry['matrix']))):
+                raise _partition_input_error()
+            actual_optics = session.unmixing.calibration.provenance()
+            if _cell_record_hash({key: value for key, value in actual_optics.items() if key != 'source'}) != entry['calibration_identity_sha256']:
+                raise _partition_input_error()
+            session.configuration['plate_partition'] = dict(
+                collection_manifest='../plate_batch.json', child_name=entry['child_name'],
+                acquisition_compatibility=plan['optics']['entry']['acquisition_compatibility'],
+                acquisition_compatibility_verified=False,
+                control_value_preflight=entry['control_values'],
+                calibration_source_sha256=entry['calibration_source_sha256'])
+            session._write(False)
+            checkpoint()
+            stream_masks_from_stack(stacks, model_name=options['model_name'],
+                channels_for_cellpose=options['channels_for_cellpose'],
+                diameter=options['diameter'], batch_fields=options['batch_fields'],
+                keep_npz=options['keep_npz'], cellprob_threshold=options['cellprob_threshold'],
+                flow_threshold=options['flow_threshold'], min_size=options['min_size'],
+                resample=options['resample'], postprocess_settings=child_settings,
+                object_type='cell', psf_session=session)
+            record_path = child_root / 'psf/segmentation_application.json'
+            with record_path.open('rb') as stream:
+                raw_record = stream.read(16 * 1024 ** 2 + 1)
+            if len(raw_record) > 16 * 1024 ** 2:
+                raise _partition_input_error()
+            entry['record_sha256'] = hashlib.sha256(raw_record).hexdigest()
+            entry['status'] = 'complete'
+            children.append(dict(child_name=entry['child_name'], plate_id=entry['plate_id'],
+                time_id=entry['time_id'], z_id=entry['z_id'], output_root=child_root,
+                mapper=plan['mapper'], stacks=stacks, dst=child_root / 'merged',
+                settings=copy.deepcopy(child_settings)))
+            manifest['segmentation_complete'] = all(row['status'] == 'complete' for row in manifest['children'])
+            _write_json(manifest_path, manifest)
+            print(tr("Calibrated child outputs saved to {path}; display planes are nonquantitative, and quantitative measurements use the signed-cell API.", path=str(child_root)))
+        checkpoint()
+        manifest['segmentation_complete'] = True
+        manifest['status'] = 'segmented'
+        _write_json(manifest_path, manifest)
+    except BaseException as error:
+        status = 'cancelled' if isinstance(error, PipelineCancelled) else 'failed'
+        if active is not None and active['status'] != 'complete':
+            active['status'] = status
+            active['error_type'] = type(error).__name__
+        manifest['status'] = status
+        manifest['error_type'] = type(error).__name__
+        try:
+            _write_json(manifest_path, manifest)
+        except BaseException as status_error:
+            note = getattr(error, 'add_note', None)
+            if callable(note):
+                try:
+                    note(tr("Collection status could not be saved: {error_type}", error_type=type(status_error).__name__))
+                except BaseException:
+                    pass
+        raise
+    return dict(partitioned=True, plate_results=children,
+                output_roots=[child['output_root'] for child in children], manifest_path=manifest_path)
 
 
 def run_v2(
@@ -1106,11 +1558,68 @@ def run_v2(
     Signed-cell readers validate that copied bundle and never depend on the
     original external path. An empty path preserves control-estimation behavior.
 
+    With ``unmix_partition_plates=True`` and ``unmix_per_plate=True``, one
+    mixed-plate source produces independent calibrated child datasets. Supply
+    ``unmix_plate_calibrations`` as a JSON string mapping every exact plate ID
+    to ``calibration_file``, positive YX ``pixel_size_um``, ``source_context``
+    containing exact ``plate``, ``time`` and ``z`` IDs, and
+    ``acquisition_compatibility`` set to
+    ``user_asserts_same_channel_gains_exposures_and_linear_response``.
+    Relative optical paths resolve against the original source folder. Each
+    plate has one time/Z context, complete physical-channel controls in the
+    master map, and its own optical assignment and pixel spacing. The assertion
+    concerns controls and targets within that plate, remains unverified, and
+    does not assert equal acquisition settings between plates. Global optical
+    settings and supplied matrix files cannot be combined with partitioning.
+
+    Before creating outputs, partitioning captures optical bytes, admits all
+    source headers and batch bounds, and estimates each plate's sampled-control
+    matrix sequentially. Unread target values are validated later by the child
+    route before model construction. Canonical control-value fingerprints are
+    compared after assembly; actual NPY file hashes remain the child record's
+    authority. Limits are 8192 fields, 16 physical channels and 16 MiB retained
+    metadata, with the ordinary per-field, control and batch budgets unchanged.
+    Supported source formats are unchanged; QC supports report or off only.
+    Directory-relative, no-follow and nonblocking descriptor access is required;
+    unsupported hosts refuse before creating outputs.
+
+    A fresh ``calibrated_plate_batch`` collection directory contains a
+    ``plate_batch.json`` manifest and numbered ``plate_000001`` child datasets.
+    Existing names receive a suffix. The collection is never a measurable
+    dataset; each child retains the ordinary version-1 calibrated signed-cell
+    contract and original global field/source identities. Original files and
+    existing merged data remain untouched. Cancellation or failure preserves
+    completed children and rethrows the original error. Segmentation completion
+    is distinct from aggregate completion, which also requires completed or
+    disabled QC. The opt-in return has ``partitioned=True``, ``plate_results``
+    with independent resolved ``settings`` and ``output_root`` per child,
+    ``output_roots``, and ``manifest_path``; it has no singular output fallback.
+    With partitioning disabled, the existing return and processing are unchanged.
+
     :raises ValueError: from :meth:`FilenameMapper.discover` when ``src``
         holds no images, when ``metadata_type="custom"`` has no
         ``custom_regex``, or from ``batch_fields=0``.
     """
     src = Path(src)
+    from .psf_pipeline import _validate_unmix_partition_scope
+
+    if _validate_unmix_partition_scope(postprocess_settings or {}, allow_partition=True):
+        return _run_partitioned_v2(src, postprocess_settings, dict(
+            channels=channels,
+            channel_names=channel_names,
+            model_name=model_name,
+            channels_for_cellpose=channels_for_cellpose,
+            diameter=diameter,
+            batch_fields=batch_fields,
+            metadata_type=metadata_type,
+            custom_regex=custom_regex,
+            keep_npz=keep_npz,
+            cellprob_threshold=cellprob_threshold,
+            flow_threshold=flow_threshold,
+            min_size=min_size,
+            resample=resample,
+            object_type=object_type,
+            illumination_settings=illumination_settings))
     calibrated = bool((postprocess_settings or {}).get("unmix_calibration"))
     from .psf_pipeline import _validate_unmix_plate_scope
 
