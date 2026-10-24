@@ -26,6 +26,13 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 MAC SESSION: CURRENT-BUILD ACCEPTANCE AND MAC-SPECIFIC REPAIRS
+Checklist5 opacity scope: normal owned FIB-SEM/Metal controls, one real Image
+slider37→original after visible/enabled one-pass reveal before baseline.
+Require only Image opacity changes, exact current-request/completed-paint RGB
+and IDs with stable rays/quality/camera/session/cache/selection; RGB must change
+and restore exactly. All sibling model/UI fields, prefs/data/history/files and
+normal cleanup stay unchanged;30s initial/20s per operation, no pick/FPS claim.
+
 2026-10-24 — Native83585/vVwAFy on75cf7a4711 PASS69.47s/RSS1.341GiB:
 two same-build/profile Cocoa processes retain real Metal/explicit75% (B no reseed).
 Fresh RGB/IDs/current paint exact; IDs1..43 present, inside-frame background0/0;

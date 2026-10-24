@@ -157,6 +157,16 @@ def test_backends_offered_and_the_choice_is_remembered(view, qtbot):
 
 def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
     """Check two real Cocoa processes sharing only their owned portable profile."""
+    _run_native_volume_probe(tmp_path, scenario='restart')
+
+
+def test_native_image_opacity_changes_only_its_layer_and_restores_the_frame(tmp_path):
+    """Check the actual image slider and exact Metal frame restoration."""
+    _run_native_volume_probe(tmp_path, scenario='image_opacity')
+
+
+def _run_native_volume_probe(tmp_path, *, scenario):
+    """Share only normal startup, owned data and current-frame verification."""
     import ast
     import hashlib
     import json
@@ -167,6 +177,7 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
     import sys
     import textwrap
 
+    assert scenario in ('restart', 'image_opacity')
     if sys.platform != 'darwin' or os.environ.get('QT_QPA_PLATFORM', '').lower() != 'cocoa':
         pytest.skip('Requires the owned native Cocoa acceptance runner')
     root = Path(__file__).resolve().parents[2]
@@ -192,6 +203,7 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
         import numpy as np
         import shiboken6
         from PySide6.QtCore import QTimer
+        from PySide6.QtWidgets import QScrollArea
         from spacr import layers
         from spacr.qt import preferences, timing
         from spacr.qt.app import MainWindow
@@ -205,6 +217,8 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
         assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip() == os.environ['SPACR_RESTART_HEAD']
         assert timing.ENABLED and not layers.gpu_render_refusal()
         phase = os.environ['SPACR_RESTART_PHASE']
+        scenario = os.environ['SPACR_VOLUME_SCENARIO']
+        assert scenario in ('restart', 'image_opacity')
         folder = Path(os.environ['SPACR_RESTART_FIXTURE'])
         output = Path(os.environ['SPACR_RESTART_OUTPUT'])
         report = {'phase': phase, 'errors': [], 'initial_saved': preferences.get_volume_view(),
@@ -212,6 +226,8 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
                   'settings_file': preferences._settings().fileName(),
                   'home_tour_seen_before_run': was_tour_shown(),
                   'pick_scope': 'inside-frame background only; positive selection not exercised'}
+        if scenario == 'image_opacity':
+            report.update(scenario=scenario, pick_scope='not exercised', opacity_states=[])
         if phase == 'B':
             assert report['initial_saved']['backend'] == 'metal' and report['initial_saved']['scale'] == 75
         else:
@@ -304,6 +320,38 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
                         'rect': list(rendered.rect), 'backend': rendered.backend, 'scale': rendered.scale.percent})
             cls.paintEvent = paint
 
+        def layer_snapshot(stage):
+            rows = []
+            for layer in stage._layers:
+                image = isinstance(layer, layers.ImageLayer)
+                controls = stage._layer_rows[layer.name]
+                rows.append({'name': layer.name, 'image': image, 'identity': id(layer),
+                    'visible': layer.visible, 'opacity': layer.opacity,
+                    'colormap': layer.colormap.name if image else None,
+                    'contrast': tuple(layer.contrast_limits(0)) if image else None,
+                    'label_seed': None if image else layer._seed,
+                    'rendering': layer.metadata['rendering'], 'finish': layer.metadata.get('finish'),
+                    'ui': {'eye': controls.eye.isChecked(), 'opacity': controls.opacity.value(),
+                        'colour': controls.colour.currentData() if controls.colour is not None else None,
+                        'low': controls.low.value() if controls.low is not None else None,
+                        'high': controls.high.value() if controls.high is not None else None,
+                        'rendering': controls.rendering.currentData(),
+                        'finish': controls.finish.currentData() if controls.finish is not None else None}})
+            return rows
+
+        def request_pose(stage, request):
+            axes = stage._view_axes()
+            assert request.lens is None, 'This opacity probe does not enable the magnifier'
+            return {'session': id(request.session), 'cache': id(request.cache), 'quality': request.quality,
+                'rect': tuple(request.rect), 'steps': tuple(request.steps), 'version': request.version,
+                'highlight': request.highlight, 'voxel_size': tuple(request.voxel_size),
+                'rays': (tuple(request.rays.origin), tuple(request.rays.across), tuple(request.rays.down),
+                    tuple(request.rays.depth), tuple(request.rays.shape)),
+                'scale': (request.scale.percent, request.scale.pixel, request.scale.max_voxels),
+                'lens': request.lens,
+                'camera': (axes.elev, axes.azim, axes.roll, tuple(axes.get_xlim3d()),
+                    tuple(axes.get_ylim3d()), tuple(axes.get_zlim3d()))}
+
         def tick():
             try:
                 elapsed = time.perf_counter()-state['started']
@@ -323,6 +371,8 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
                     assert set(np.unique(session.mask)) == set(range(44))
                     state.update(stage=stage, image=digest(session.image), mask=digest(session.mask),
                         history=(tuple(map(id, session._undo)), tuple(map(id, session._redo))), dirty=stage.dirty)
+                    if scenario == 'image_opacity':
+                        state['session_arrays'] = (id(session.image), id(session.mask))
                     assert 'metal' in mm.volume_render_backends()
                     report['before_true3d_saved'] = preferences.get_volume_view()
                     if phase == 'B':
@@ -338,8 +388,29 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
                     advance('initial')
                     return
                 stage = state['stage']
-                if state['operation'] == 'initial':
+                if state['operation'] in ('initial', 'opacity_changed', 'opacity_restored'):
                     if not idle(stage) or stage._render_state is None:
+                        return
+                    if scenario == 'image_opacity' and 'opacity_slider' not in state:
+                        images = [layer for layer in stage._layers if isinstance(layer, layers.ImageLayer)]
+                        masks = [layer for layer in stage._layers if isinstance(layer, layers.LabelsLayer)]
+                        assert len(images) == len(masks) == 1
+                        slider = stage._layer_rows[images[0].name].opacity
+                        ancestor = slider.parentWidget()
+                        reveals = []
+                        while ancestor is not None and ancestor is not window:
+                            if isinstance(ancestor, QScrollArea):
+                                ancestor.ensureWidgetVisible(slider, 0, 0)
+                                reveals.append(ancestor.objectName())
+                            ancestor = ancestor.parentWidget()
+                        report['opacity_control'] = {'name': slider.objectName(),
+                            'enabled': slider.isEnabled(), 'visible': slider.isVisible(),
+                            'visible_region': slider.visibleRegion().boundingRect().getRect(), 'reveals': reveals}
+                        save()
+                        assert 'VolumeLayerScroll' in reveals
+                        assert slider.isEnabled() and slider.isVisible() and not slider.visibleRegion().isEmpty()
+                        assert slider.value() != 37
+                        state.update(opacity_slider=slider, opacity_layer=images[0], original_opacity=slider.value())
                         return
                     assert stage._backend_box.currentData() == stage._backend_choice == 'metal'
                     assert stage._scale_slider.value() == stage._scale == stage._render_percent() == 75
@@ -368,6 +439,53 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
                         'positive_original_ids': sorted(map(int, np.unique(picked[picked > 0]))),
                         'fresh_request_exact': True, 'paint': matching[-1]}
                     assert set(report['current_frame']['positive_original_ids']) <= set(range(1, 44))
+                    if scenario == 'image_opacity':
+                        assert request.quality == 'preview'
+                        assert state['opacity_slider'].isEnabled() and state['opacity_slider'].isVisible()
+                        assert not state['opacity_slider'].visibleRegion().isEmpty()
+                        pose, rows = request_pose(stage, request), layer_snapshot(stage)
+                        row = {'operation': state['operation'], 'pose': pose, 'layers': rows,
+                            'frame': dict(report['current_frame']), 'preferences': preferences.get_volume_view(),
+                            'selected': stage._selected, 'selected_ui': stage._labels.currentData(), 'context': id(context)}
+                        session = stage.session
+                        row['data_history_unchanged'] = (
+                            (id(session.image), id(session.mask)) == state['session_arrays']
+                            and digest(session.image) == state['image'] and digest(session.mask) == state['mask']
+                            and (tuple(map(id, session._undo)), tuple(map(id, session._redo))) == state['history']
+                            and stage.dirty == state['dirty'])
+                        report['opacity_states'].append(row)
+                        save()
+                        assert row['data_history_unchanged']
+                        state['context'] = context
+                        if state['operation'] == 'initial':
+                            state.update(opacity_baseline=row, baseline_rgb=rgb.copy(), baseline_picked=picked.copy())
+                            state['opacity_slider'].setValue(37)
+                            advance('opacity_changed')
+                            return
+                        baseline = state['opacity_baseline']
+                        assert pose == baseline['pose'] and id(context) == baseline['context']
+                        assert stage._selected == baseline['selected'] and stage._labels.currentData() == baseline['selected_ui']
+                        assert stage._shown_serial > report['opacity_states'][-2]['frame']['serial']
+                        assert preferences.get_volume_view() == baseline['preferences']
+                        expected = []
+                        for original in baseline['layers']:
+                            copied = dict(original, ui=dict(original['ui']))
+                            if copied['name'] == state['opacity_layer'].name and state['operation'] == 'opacity_changed':
+                                copied['opacity'], copied['ui']['opacity'] = .37, 37
+                            expected.append(copied)
+                        assert rows == expected
+                        if state['operation'] == 'opacity_changed':
+                            assert not np.array_equal(rgb, state['baseline_rgb'])
+                            report['opacity_rgb_changed'] = True
+                            state['opacity_slider'].setValue(state['original_opacity'])
+                            advance('opacity_restored')
+                            return
+                        assert rows == baseline['layers']
+                        assert np.array_equal(rgb, state['baseline_rgb'])
+                        assert np.array_equal(picked, state['baseline_picked'])
+                        report['opacity_frame_restored'] = True
+                        advance('current_idle')
+                        return
                     row, column = map(int, np.argwhere(picked == 0)[0])
                     x0, x1, y0, y1 = rendered.rect
                     rows, columns = picked.shape
@@ -446,6 +564,12 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
         assert result == 0 and not report['errors'] and report.get('normal_close_accepted'), report
         assert report['startup_seconds'] < 30 and report['initial_seconds'] < 30
         assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
+        if scenario == 'image_opacity':
+            assert report['opacity_changed_seconds'] < 20 and report['opacity_restored_seconds'] < 20
+            assert report['opacity_rgb_changed'] and report['opacity_frame_restored']
+            assert [row['operation'] for row in report['opacity_states']] == ['initial', 'opacity_changed', 'opacity_restored']
+            assert all(row['data_history_unchanged'] for row in report['opacity_states'])
+            assert 'pick' not in report
         assert report.get('data_history_unchanged') and report['current_frame']['fresh_request_exact']
         assert report['gpu_resources_released'] and report['remaining_jobs'] == report['owned_threads_alive'] == 0
         assert not report['compiler_threads'] and not report['compiler_helper_present']
@@ -460,8 +584,9 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
         SPACR_RESTART_FIXTURE=str(fixture), SPACR_NO_NETWORK='1', SPACR_TIMING='1',
         XDG_CONFIG_HOME=str(tmp_path / 'settings'), XDG_CACHE_HOME=str(tmp_path / 'cache'),
         MPLCONFIGDIR=str(tmp_path / 'cache' / 'matplotlib'), NUMBA_CACHE_DIR=str(tmp_path / 'numba'))
+    env['SPACR_VOLUME_SCENARIO'] = scenario
     reports = []
-    for phase in ('A', 'B'):
+    for phase in (('A', 'B') if scenario == 'restart' else ('A',)):
         output = tmp_path / ('restart-'+phase+'.json')
         env.update(SPACR_RESTART_PHASE=phase, SPACR_RESTART_OUTPUT=str(output),
                    SPACR_TIMING_LOG=str(tmp_path / ('timing-'+phase+'.txt')))
@@ -480,16 +605,24 @@ def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
         assert report['current_idle_seconds'] < 20 and report['closing_elapsed'] < 20
         assert report['saved']['backend'] == 'metal' and report['saved']['scale'] == 75
         assert report['current_frame']['backend'] == 'metal' and report['current_frame']['scale'] == 75
-        assert report['current_frame']['fresh_request_exact'] and report['pick']['returned'] == report['pick']['expected'] == 0
+        assert report['current_frame']['fresh_request_exact']
+        if scenario == 'restart':
+            assert report['pick']['returned'] == report['pick']['expected'] == 0
+        else:
+            assert report['scenario'] == scenario and report['opacity_changed_seconds'] < 20 and report['opacity_restored_seconds'] < 20
+            assert report['opacity_rgb_changed'] and report['opacity_frame_restored'] and 'pick' not in report
+            assert [row['operation'] for row in report['opacity_states']] == ['initial', 'opacity_changed', 'opacity_restored']
+            assert all(row['data_history_unchanged'] for row in report['opacity_states'])
         assert report['data_history_unchanged'] and report['gpu_resources_released']
         assert report['remaining_jobs'] == report['owned_threads_alive'] == 0
         assert not report['errors'] and not report['compiler_threads'] and not report['compiler_helper_present']
         reports.append(report)
         assert {name: hashlib.sha256((fixture / name).read_bytes()).hexdigest() for name in required} == checksums
-    assert reports[0]['settings_file'] == reports[1]['settings_file']
-    assert reports[0]['source_head'] == reports[1]['source_head'] == head
-    assert reports[0]['runtime'] == reports[1]['runtime'] == sys.executable
-    assert reports[1]['initial_saved'] == reports[0]['saved']
+    if scenario == 'restart':
+        assert reports[0]['settings_file'] == reports[1]['settings_file']
+        assert reports[0]['source_head'] == reports[1]['source_head'] == head
+        assert reports[0]['runtime'] == reports[1]['runtime'] == sys.executable
+        assert reports[1]['initial_saved'] == reports[0]['saved']
 
 
 def test_auto_falls_back_to_the_cpu_with_a_one_line_note(view, qtbot, monkeypatch, caplog):
