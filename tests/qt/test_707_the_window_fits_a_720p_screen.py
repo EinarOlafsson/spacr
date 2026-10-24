@@ -169,12 +169,43 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 parent = parent.parentWidget()
             return False
 
+        def startup_snapshot(window):
+            """Observe normal covers and owned onboarding without dismissing them."""
+            def geometry(widget, controls=False):
+                if widget is None:
+                    return None
+                try:
+                    return {'class': type(widget).__name__, 'name': widget.objectName(),
+                        'visible': widget.isVisible(), 'size': widget.property('size').toTuple(),
+                        'global_rect': widget.rect().translated(widget.mapToGlobal(QPoint())).getRect(),
+                        'mask_empty': widget.mask().isEmpty(),
+                        'mask_bounds': widget.mask().boundingRect().getRect(),
+                        'mask_rect_count': widget.mask().rectCount(),
+                        'visible_region': widget.visibleRegion().boundingRect().getRect(),
+                        'controls': [{'class': type(child).__name__, 'text': child.text(),
+                            'name': child.objectName(), 'visible': child.isVisible(), 'enabled': child.isEnabled()}
+                            for child in widget.findChildren(QAbstractButton) if controls and child.isVisible()]}
+                except RuntimeError:
+                    return {'destroyed': True}
+            running = window._startup_sequence_running()
+            overlays = [w for w in window.findChildren(QWidget)
+                        if w.isVisible() and ('Overlay' in type(w).__name__ or w.isWindow())]
+            modal = QApplication.activeModalWidget()
+            if modal is not None and modal not in overlays:
+                overlays.append(modal)
+            return {'sequence_running': running,
+                'loading_screen': geometry(getattr(window, '_loading_screen', None)),
+                'blowing_cover': geometry(getattr(window, '_blowing_cover', None)),
+                'current_stack': geometry(window._stack.currentWidget()),
+                'owned_overlays': [geometry(w, controls=True) for w in overlays],
+                'active_modal': geometry(modal, controls=True)}
+
         def check(widget):
             """Check the current native text or icon after one scroll reveal."""
             window = state['window']
             row = {'class': type(widget).__name__, 'name': widget.objectName(),
                    'rect': widget.rect().getRect(), 'visible': widget.visibleRegion().boundingRect().getRect(),
-                   'font': widget.font().toString()}
+                   'font': widget.font().toString(), 'startup_observation': startup_snapshot(window)}
             row['ancestors'] = []
             ancestor = widget
             while ancestor is not None:
@@ -286,6 +317,18 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
                 window = state['window']
                 handle = window.windowHandle()
                 assert handle.size() == QSize(1200, 640), handle.size()
+                observed_startup = startup_snapshot(window)
+                if observed_startup != state.get('last_startup'):
+                    report.setdefault('startup_history', []).append(
+                        {'elapsed': time.perf_counter()-state['started'], **observed_startup})
+                    state['last_startup'] = observed_startup
+                    persist()
+                if observed_startup['sequence_running']:
+                    return
+                blockers = [entry for entry in observed_startup['owned_overlays']
+                            if entry and entry.get('visible') and
+                                ('TourOverlay' in entry.get('class', '') or observed_startup['active_modal'] == entry)]
+                assert not blockers, ('Normal startup has an interactive owned overlay; no automatic dismissal', blockers)
                 if not state.get('font_witness_checked'):
                     witness = state['font_witness']
                     fitter = witness.parentWidget()._text_fit
@@ -360,6 +403,7 @@ def test_native_home_content_fits_new_desktop_minimum(tmp_path):
             window = windows[0]
             handle = window.windowHandle()
             state.update(window=window, started=time.perf_counter())
+            report['initial_startup_observation'] = startup_snapshot(window)
             witness = window._startup.findChild(QLabel, 'HeroSubtitle')
             expected_subtitle = gui_scale.scale_int(theme.font_px('subtitle', 2.), 2.)
             report['startup_witness'] = {

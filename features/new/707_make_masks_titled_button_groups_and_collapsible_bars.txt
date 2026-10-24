@@ -29,7 +29,25 @@ Causal16422 reproduces actual208/68px clipping. Private coalesced fitting keeps
 selected preferred hints (not minima), raw actual-pixel QSS and no-op guards.
 Focused70020 PASS4.73s/RSS0.313GiB covers fit, exact styles/font reset, quiescence
 and queued deletion. Native probe separately checks selected68 and actual fit.
-Full native Home/header/parent access remains pending; logo geometry is unchanged.
+Native2180/tmwFiQ on5d504ea58 exits naturally1 in34.89s/RSS1.205GiB.
+Selected subtitle68/Open Sans and actual1200x640/work1440x870/DPR2 pass.
+Local intrinsic text fitting passes: title38px has104x52 text in581x52;
+subtitle9px has142x42 text in163x52. Both still have empty visible regions.
+Hero is1104x84/minhint531x320 inside a1200x248 body; Home's hint is2510x929.
+Only17/137 targets are inspected before post-reveal geometry drift;120 are
+untested. Preserve14 widget failures and the structural abort, not a full pass.
+Chrome source-DPR and intentionally long scrollable News observations require
+attribution; startup-cover state was not captured, so empty regions alone do
+not prove parent clipping. Normal close/return0 and empty helper/thread state
+pass. Full Home/header/parent access remains pending; logo drawing is unchanged.
+Next attribution is probe-only: record the actual startup-sequence flag,
+cover/onboarding geometry/masks and current stack before assertions, and wait
+for the real sequence to finish inside the same20s. The prior fitted title
+text maps wholly inside its84px hero band yet has an empty visible region;
+without cover state this does not establish the reason for occlusion. Do not
+disable startup effects, extend budgets or dismiss interactive overlays. Long
+News documents need actual scroll access, not simultaneous whole-document
+visibility; defer that classification without treating clipped controls as fit.
 No smaller physical display, physical input or tiny-font readability is certified.
 
 New MainWindow scale-fit scope: native59310/zKXERs on publishedaad96b90c
