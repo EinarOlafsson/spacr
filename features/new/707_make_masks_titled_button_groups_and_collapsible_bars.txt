@@ -17,6 +17,11 @@ icon-bearing tile/icon/name, five aside buttons and the pinned hint (12 targets)
 Retain full manifest/untested ledger and original20s content budget, owned body
 fitter readiness and one-reveal strict glyph/source-DPR visibility. Reject hidden
 inner horizontal overflow; this is bounded access, not all Home targets tested.
+Native67514/sDimXo on012c5e114 passes34.10s/RSS1.208GiB: all12 selected of139
+pass,127 untested. Hero mark/text, five aside captions, first Mask icon/name
+and pinned prompt are individually fully visible; tile source/aspect/DPR2 and
+736px inner content/viewport with hidden-horizontal range0 pass. Content9.646s/
+tour8.122s, normal close/worker cleanup pass; full Home/physical gates stay open.
 
 Compressed Home scope: real factory/launch policy, GUI/font200, Home1200x496;
 mark/title/full wrapped subtitle and first tile icon/name must be individually
