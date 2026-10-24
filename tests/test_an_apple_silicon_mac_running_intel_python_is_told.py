@@ -65,7 +65,7 @@ def test_nothing_but_macos_is_ever_translated(monkeypatch):
 
 def test_the_doctor_warns_and_gives_a_conda_that_builds_arm64(monkeypatch):
     _translated(monkeypatch, True)
-    result = doctor.check_native_cpu(doctor.Context())
+    result = doctor._check_native_cpu(doctor.Context())
     assert result.status == doctor.WARN
     assert "Rosetta" in result.message
     assert "CONDA_SUBDIR=osx-arm64" in result.fix
@@ -74,7 +74,7 @@ def test_the_doctor_warns_and_gives_a_conda_that_builds_arm64(monkeypatch):
 
 def test_a_native_python_passes(monkeypatch):
     _translated(monkeypatch, False)
-    result = doctor.check_native_cpu(doctor.Context())
+    result = doctor._check_native_cpu(doctor.Context())
     assert result.status == doctor.PASS
 
 

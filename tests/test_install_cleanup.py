@@ -453,6 +453,30 @@ def _installers(records):
     return [r for r in records if r.kind == "installer"]
 
 
+def _same_dir(found, expected):
+    """One directory on disk, however each side spells it.
+
+    On a case-insensitive file system (macOS's default, and Windows) a copy
+    built under the old capitalised name is found under ``spaCR``: the same
+    folder, which the product proves by device and inode. A string compare
+    fails there, and normcase only folds case on Windows.
+    """
+    try:
+        return os.path.samefile(found, expected)
+    except OSError:
+        return os.path.normcase(str(found)) == os.path.normcase(str(expected))
+
+
+def _case_insensitive(directory):
+    """Whether ``directory`` is on a file system that ignores case."""
+    probe = Path(directory) / "CaseProbe"
+    probe.write_text("", encoding="utf-8")
+    try:
+        return (Path(directory) / "caseprobe").exists()
+    finally:
+        probe.unlink()
+
+
 # ---------------------------------------------------------------------------
 # Find, then delete: every layout, every tag
 # ---------------------------------------------------------------------------
@@ -478,7 +502,7 @@ def test_every_released_layout_is_found_and_removed_down_to_user_data(
     installers = _installers(ic.find_old_installs(system=machine))
 
     assert layout in {r.layout for r in installers}, installers
-    assert os.path.normcase(str(root)) in {os.path.normcase(r.root) for r in installers}, installers
+    assert any(_same_dir(r.root, root) for r in installers), installers
     if name != "windows-offline":          # PyInstaller keeps no readable version
         assert tag in {r.version for r in installers}, installers
 
@@ -506,7 +530,7 @@ def test_a_1_5_0_1_whose_own_uninstaller_is_missing_is_removed_all_the_same(
     machine = box.machine(platform)
 
     [record] = [r for r in ic.find_old_installs(system=machine)
-                if os.path.normcase(r.root) == os.path.normcase(str(root))]
+                if _same_dir(r.root, root)]
     assert "its own uninstaller is missing" in record.notes
     for other in _installers(ic.find_old_installs(system=machine)):
         assert ic.remove_install(other, system=machine).ok
@@ -1753,7 +1777,7 @@ def test_a_registration_naming_another_folder_is_not_this_copys_to_delete(tmp_pa
     machine = box.machine("windows")
 
     [record] = _installers(ic.find_old_installs(system=machine))
-    assert os.path.normcase(record.root) == os.path.normcase(str(root)) and record.registrations == ()
+    assert _same_dir(record.root, root) and record.registrations == ()
     assert ic.remove_install(record, system=machine).ok
 
     assert not (root / "venv").exists()
@@ -1781,6 +1805,8 @@ def test_a_redirected_desktop_is_searched_for_the_old_shortcut(tmp_path):
 
 @pytest.mark.posix_only
 def test_start_menu_entries_of_another_spacr_are_left_alone(tmp_path):
+    if _case_insensitive(tmp_path):
+        pytest.skip("a spaCR folder and a SpaCR file are one name on this file system")
     box = Box(tmp_path)
     root = windows_online(box, "1.5.0.1")
     programs = box.appdata / "Microsoft" / "Windows" / "Start Menu" / "Programs"
