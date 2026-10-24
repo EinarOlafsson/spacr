@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import sys
 import threading
 from functools import lru_cache
 from pathlib import Path
@@ -85,8 +86,24 @@ RESOURCE_DIR = os.path.normpath(
 
 @lru_cache(maxsize=128)
 def _try_qta():
-    """Return the ``qtawesome`` module, or ``None`` when it isn't installed."""
+    """Return the ``qtawesome`` module, or ``None`` when it isn't installed.
+
+    QtPy, which QtAwesome imports, loads ``QtDataVisualization`` at package
+    import for a Qt5-on-Windows spelling alias spaCR never uses: 12-64 ms
+    of every launch before Home on an Intel Mac. That one guarded import is
+    skipped while QtPy initialises, and ``qtpy.QtDataVisualization`` still
+    imports normally afterwards for anything that asks for it.
+    """
+    alias = "qtpy.QtDataVisualization"
+    placed = "qtpy" not in sys.modules and alias not in sys.modules
     try:
+        if placed:
+            sys.modules[alias] = None
+            try:
+                import qtpy  # noqa: F401
+            finally:
+                if sys.modules.get(alias, 0) is None:
+                    del sys.modules[alias]
         import qtawesome as qta
         return qta
     except Exception:

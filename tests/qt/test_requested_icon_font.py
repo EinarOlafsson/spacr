@@ -119,3 +119,27 @@ def test_an_upstream_font_without_a_known_checksum_can_still_render(provider, mo
     selected = iconset._glyph_provider(provider, "fa5s.cog")
     assert selected is not provider
     assert not selected.icon("fa5s.cog", color="white").isNull()
+
+
+def test_qtawesome_loads_without_qtpys_data_visualization_alias():
+    """QtPy's QtDataVisualization alias is not loaded on the way to the icons.
+
+    Checked in a fresh interpreter: the alias cost 12-64 ms of every launch
+    before Home on an Intel Mac, and the module must still import on request.
+    """
+    import subprocess
+    import sys
+
+    probe = (
+        "import sys\n"
+        "from PySide6.QtWidgets import QApplication\n"
+        "app = QApplication([])\n"
+        "from spacr.qt import iconset\n"
+        "assert iconset._try_qta() is not None\n"
+        "assert 'PySide6.QtDataVisualization' not in sys.modules\n"
+        "assert sys.modules.get('qtpy.QtDataVisualization', 0) is not None\n"
+        "import qtpy.QtDataVisualization\n"
+        "assert 'PySide6.QtDataVisualization' in sys.modules\n"
+    )
+    subprocess.run([sys.executable, "-c", probe], check=True, timeout=120,
+                   env={**__import__("os").environ, "QT_QPA_PLATFORM": "offscreen"})
