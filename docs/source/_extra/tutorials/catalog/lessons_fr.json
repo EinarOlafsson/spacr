@@ -15209,7 +15209,7 @@
         "Choisir une destination, un nom de plaque et le mode copie ou lien.",
         "Enregistrer un plan réutilisable et importer des images pour Mask."
       ],
-      "prerequisite": "Téléchargez d’abord l’exemple Mask. Cette démonstration utilise des copies des champs E01/F001 et L01/F009, avec quatre canaux chacun. Ses copies préparées omettent l’élément A redondant situé juste avant Z, tout en conservant l’identité du puits, du champ et du canal. Gardez les originaux et appuyez-vous sur les registres d’acquisition pour interpréter les éléments inconnus.",
+      "prerequisite": "Téléchargez d’abord l’exemple Mask. Utilisez des copies de travail des champs E01/F001 et L01/F009, avec quatre canaux chacun. Dans ces copies uniquement, retirez l’élément A redondant juste avant Z en conservant chaque élément de puits, de champ et de canal. Gardez les originaux et appuyez-vous sur les registres d’acquisition pour interpréter les éléments inconnus.",
       "scenes": [
         {
           "visual": "02_import_fold",
@@ -15246,9 +15246,9 @@
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Analysez les copies d’exemple préparées. L’élément d’acquisition redondant en a été retiré, tandis que ceux du puits, du champ et du canal sont conservés. Vérifiez que la proposition compte huit images, deux puits, deux numéros de champ et quatre canaux.",
+          "narration": "Analysez ces copies de travail. L’élément d’acquisition redondant en a été retiré, tandis que ceux du puits, du champ et du canal sont conservés. Vérifiez que la proposition compte huit images, deux puits, deux numéros de champ et quatre canaux.",
           "hold_after": 0.7,
-          "speech_text": "Analysez les copies d’exemple préparées. L’élément d’acquisition redondant en a été retiré, tandis que ceux du puits, du champ et du canal sont conservés. Vérifiez que la proposition compte huit images, deux puits, deux numéros de champ et quatre canaux."
+          "speech_text": "Analysez ces copies de travail. L’élément d’acquisition redondant en a été retiré, tandis que ceux du puits, du champ et du canal sont conservés. Vérifiez que la proposition compte huit images, deux puits, deux numéros de champ et quatre canaux."
         },
         {
           "visual": "06_check_filename",
