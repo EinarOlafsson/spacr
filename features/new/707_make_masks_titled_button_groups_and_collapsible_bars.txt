@@ -12,6 +12,12 @@ Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
 
 MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
 
+Next News operations separately inspect17 titles and17 dates using actual
+release-block layout positions paired with owned bundled release records/tags.
+Require exact role/count/manifest membership and unchanged20s strict rich/plain
+text, one-reveal/global visibility checks. The17 body labels remain separately
+unaccepted; no regex, HTML-category selection or whole-document waiver.
+
 Dimension-word repair scope: native91273 proves stable3D48px allocation cannot
 contain selected52px word68px plus80px real horizontal padding. Live passes;
 AI remains untested. Add real normal-font Mask caller regression for fresh
