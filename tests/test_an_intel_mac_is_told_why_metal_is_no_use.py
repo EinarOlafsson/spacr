@@ -64,6 +64,9 @@ def _mac(monkeypatch, *, gpu, release="13.5", machine="x86_64"):
     monkeypatch.setattr(A.platform, "machine", lambda: machine)
     monkeypatch.setattr(A.platform, "mac_ver", lambda: (release, ("", "", ""), ""))
     monkeypatch.setattr(A, "_metal_gpu_name", lambda: gpu)
+    # An Intel Mac is never translated; pinned so a run under Rosetta on an
+    # M-series Mac, where the kernel says otherwise, still simulates one.
+    monkeypatch.setattr(A, "_rosetta_translated", lambda: False)
 
 
 def _torch_with_metal_built_but_unavailable():

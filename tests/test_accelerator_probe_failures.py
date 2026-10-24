@@ -92,6 +92,7 @@ def test_a_broken_probe_does_not_hide_a_later_working_backend(monkeypatch):
 def test_neural_engine_is_reported_only_for_apple_silicon(monkeypatch):
     monkeypatch.setattr(acc.platform, 'system', lambda: 'Darwin')
     monkeypatch.setattr(acc.platform, 'machine', lambda: 'arm64')
+    monkeypatch.setattr(acc, '_rosetta_translated', lambda: False)
     assert acc.neural_engines() == ('Apple Neural Engine (CoreML only)',)
     monkeypatch.setattr(acc.platform, 'machine', lambda: 'x86_64')
     assert acc.neural_engines() == ()
@@ -148,6 +149,7 @@ def test_device_questions_and_cellpose_arguments_agree(monkeypatch, kind, gpu, d
 def test_missing_torch_is_a_safe_cpu_diagnostic_and_no_cache_cleanup(monkeypatch):
     monkeypatch.setitem(sys.modules, 'torch', None)
     monkeypatch.delenv(acc.ENV_DEVICE, raising=False)
+    monkeypatch.setattr(acc, '_rosetta_translated', lambda: False)
     assert acc._torch() is None
     assert acc.empty_cache() == ''
     assert acc.describe() == 'CPU (PyTorch is not installed)'
