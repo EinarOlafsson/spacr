@@ -23,6 +23,11 @@ RED94044 reproduces native overcommit after the shipped helper: tab minimum
 retains generic behavior elsewhere; GREEN64817 passes containment and all five
 native caption checks (8.83s/.330GiB). Apps page height0 and full native Home
 acceptance remain open; no global splitter, font or public-helper change.
+Native28655/9Kcjz8 on424cc4ba4 passes29.12s/RSS1.214GiB: all five selected
+captions fully visible, errors[];139 total targets include two tab arrows,
+134 remain untested. Split1104x84 allocates124/968 with arrows enabled and
+aside contained; Apps page remains0px high. Tour9.296s/content4.385s and normal
+close/worker cleanup pass. This accepts aside controls only, not full Home.
 
 Next native attribution records both splitter panes' actual geometry, minima,
 policies and stored pane records before the1200x640 resize and at content-ready,
