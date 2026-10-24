@@ -332,6 +332,7 @@ class _WGPU:
     def __init__(self, limits=None, info=None, destroyable=True):
         self.dispatches = []
         self.writes = []
+        self.buffer_writes = []
         self.created = []
         self.submitted = 0
         self.copies = []
@@ -414,6 +415,17 @@ class _WGPU:
         class Queue:
             def write_texture(self, destination, data, layout, size):
                 state.writes.append((destination, np.array(data), layout, size))
+
+            def write_buffer(self, buffer, buffer_offset, data):
+                values = np.array(data, copy=True, order="C")
+                payload = values.tobytes()
+                assert not buffer.destroyed and buffer.mapped is None
+                assert buffer.usage & module.BufferUsage.COPY_DST
+                assert buffer_offset >= 0 and buffer_offset % 4 == 0 and len(payload) % 4 == 0
+                assert buffer_offset + len(payload) <= buffer.size
+                buffer.storage[buffer_offset:buffer_offset + len(payload)] = payload
+                buffer.data = values
+                state.buffer_writes.append((buffer, buffer_offset, values.copy()))
 
             def submit(self, buffers):
                 state.submitted += len(buffers)
@@ -615,7 +627,19 @@ def test_wgpu_volumes_and_buffers_are_kept_resized_and_freed(monkeypatch):
     staging = renderer._buffers["readback"][1]
     assert staging.size == 6 * 7 * (4 + 8)
     assert len(textures) == 2
+    uniforms = tuple(slot["uniform"] for slot in renderer._dispatch_slots)
+    groups = tuple(slot["group"] for slot in renderer._dispatch_slots)
+    assert len(uniforms) == 4
+    assert all(buffer.usage == fake.module.BufferUsage.UNIFORM | fake.module.BufferUsage.COPY_DST
+               for buffer in uniforms)
+    assert [buffer for buffer, offset, _values in fake.buffer_writes] == list(uniforms)
+    assert all(offset == 0 for _buffer, offset, _values in fake.buffer_writes)
+    assert all(bytes(buffer.storage) == values.tobytes()
+               for buffer, _offset, values in fake.buffer_writes)
     renderer.render([channel, masks], rays)
+    assert all(slot["uniform"] is uniform and slot["group"] is group
+               for slot, uniform, group in zip(renderer._dispatch_slots, uniforms, groups))
+    assert [buffer for buffer, _offset, _values in fake.buffer_writes] == list(uniforms) * 2
     assert len([obj for obj in fake.created if isinstance(obj, fake.Texture)]) == 2
     assert renderer._buffers["frame"][1] is frame and not frame.destroyed
     colours = renderer._textures[(layers._array_key(masks.data), "colours")][1][0]
@@ -673,13 +697,19 @@ def test_wgpu_refuses_what_the_gpu_cannot_hold(monkeypatch):
         renderer.render([ImageLayer(np.ones((4, 5), np.float32))], _rays())
     with pytest.raises(LayerError, match="exceeds this GPU's 8"):
         renderer.render([masks], _rays())
+    renderer.close()
+    renderer = WGPUVolumeRenderer(fake.adapter)
     negative = LabelsLayer(np.full((2, 3, 4), -1, np.int32), name="neg")
     with pytest.raises(LayerError, match="between 0 and 2\\*\\*32"):
         renderer.render([negative], _rays())
+    renderer.close()
+    renderer = WGPUVolumeRenderer(fake.adapter)
     many = np.zeros((2, 3, 4), np.uint16)
     many[0, 0, 0] = 4
     with pytest.raises(LayerError, match="too many for this GPU's colour table"):
         renderer.render([LabelsLayer(many, name="many")], _rays())
+    renderer.close()
+    renderer = WGPUVolumeRenderer(fake.adapter)
     few = np.zeros((2, 3, 4), np.uint16)
     few[0, 0, :3] = (1, 2, 3)
     rgb, _ = renderer.render([LabelsLayer(few, name="few")], _rays())

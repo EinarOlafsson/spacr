@@ -1,4 +1,109 @@
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT QC CALLBACK DOCUMENTATION — 2026-10-23
+Home owns concise missing docs for measurement-export check_cancelled/record_result
+and native action-width apply; root publishes. Preserve behavior and existing
+reviewed catalogs. Normal scoped extraction proves API/runtime zero delta;
+keep the existing QC nested-helper rollout disabled. Main receives only the
+two measurement-export docs and accepted SQLite timeout, excluding F538/Metal.
+Preserve the immutable N691 arrival bodies while binding only the documented
+Metal-era MitoNet device paragraph to its exact current source hash.
+
+CURRENT MASK TIME-AXIS CATEGORY HELP — 2026-10-23
+widgets_g3 owns the shared Mask help gap for Time Axes & Tracking (Beta).
+Resolve the renamed group to the existing curated 4D Settings (Beta) guidance
+without changing time-axis/linker semantics, source prose or translations.
+G1 retains the real full-slot tree fixture/lifetime and sole failed help gate;
+independent source peer and bounded normal extraction precede root publication.
+
+CURRENT TRUE 3D PREPAINT ARTIST FIXTURE — 2026-10-24
+G4 owns the two Main69 missing-set_visible fixture failures. Bind current
+Main/Night render delivery; preserve image delivery and prepaint requeue
+assertions while adding only the real artist visibility protocol.
+Use CPU/offscreen focused validation; renderer production and Work2 stay untouched.
+
+CURRENT AI NOTICE BATCH FIXTURE — 2026-10-23
+widgets_g3 owns the two Main69 AI notice failures and three modes sharing
+their helper. Reuse the accepted real ReportSession with affirmative saved
+choices, exposed owners and actual post-batch worker waits; advance the real
+quiet clock instead of waiting on unrelated jobs or a fixed delay. Preserve
+all reply/relay-summary and no-AI-mode assertions. Fake transport only,
+independent peer and five CPU/offscreen checks; root publishes.
+
+CURRENT MANUAL AI SUBPROCESS STRESS FIXTURE — 2026-10-23
+widgets_g3 owns the exact Main69 stress error-flow failure. Advance the real
+manual error batcher's quiet clock with its existing isolated fixture before
+waiting on the actual fake-provider subprocess stream. Preserve the original
+reply-content assertion, timeout and real worker shutdown; no production or
+consent-policy change and no live AI/report request. G2 peers, root publishes.
+
+CURRENT QT LOG SEVERITY DISPLAY CONTROL — 2026-10-24
+The retained CI owner observes already-classified stdout/error display seams
+while retaining the real warning route and exact INFO/WARNING/ERROR/CRITICAL
+band order. Preserve the published capture-versus-display split; peer and
+run only the owning case before root publication. No product change.
+
+CURRENT CLI LOGGING ROLE IDEMPOTENCE — 2026-10-24
+The retained CI owner reconciles the CLI control with the approved automatic
+error dispatcher: exactly one stdout handler and one error handler after
+each setup, with one INFO line emitted once and logger/stream state restored.
+Preserve both runtime roles; validate only the owning case, root publishes.
+
+CURRENT NATIVE SESSION REFUSAL FIXTURE — 2026-10-24
+The retained CI owner uses owned temporary paths for malicious session fields,
+preserving arbitrary-key and path-value privacy refusal while satisfying the
+existing home-path hygiene gate. Validate only the owning case and hygiene
+check; no product or policy change, root publication.
+
+CURRENT CACHE HELPER FAILURE FIXTURE — 2026-10-24
+The retained CI owner aligns the unavailable-interpreter control with the
+owned Popen lifecycle, isolating its stop event and preserving no-marker,
+exact call count and cache-directory assertions. No product change; root
+reviews and publishes after the one affected control passes.
+
+CURRENT CONSENTED AI/REPORT FIXTURE MIGRATION — 2026-10-23
+widgets_g3 integrates the 58 Main69 AI/report failures; G2 owns anonymous
+fixtures and G4 the separate coverage fixture plus proven exceptional-path
+robustness. Automatic reports use the consented anonymous relay; explicit
+GitHub reports retain real preview/Send, authentication and redacted bodies.
+Retain local tracebacks while proving outgoing payloads scrubbed, exact modes,
+retries, deduplication, quotas, cached answers and bounded lifecycle waits.
+Unreadable policy fails closed, cache lookup failure permits an uncached
+answer, and summary failure stays local without a misleading queued status.
+Use real batch timing/worker ownership, fake transports only, and affected
+cohorts after independent review; root publishes. No live AI/report request.
+
+CURRENT MAKE MASKS CURATION NATIVE COORDINATES — 2026-10-23
+G4 owns the shared Main CI fixture width mismatch across 23 curation cases.
+Bind current Main/Night canvas sizing and preserve every existing assertion,
+600×400 physical gesture coordinates and Work2 production ownership.
+Prove scaling before a minimal fixture-only repair, then run affected cases.
+
+CURRENT QC WORKSPACE THEME REGISTRATION — 2026-10-23
+G4 owns the deferred registrar failure: exhaustive first stylesheets must
+include the QC workspace block, while late-open scoped refresh remains intact.
+Preserve current Main/Night widget behavior and source positions; validate
+the exact failed contract with independent peer and root publication.
+
+CURRENT HOSTED-AI CONSOLE BATCH FIXTURES — 2026-10-23
+widgets_g3 owns the three Main69 AI700 console-entry failures. Observe the
+actual post-batch dispatch worker, advance the real batcher's quiet clock and
+establish affirmative saved consent plus visible GUI delivery. Preserve all
+settings-problem privacy, report-body and saved-answer assertions; fake only
+relay transport, retire owned timers/workers, and run the exact three cases.
+No production policy change or live AI/report request; root publishes.
+
+CURRENT HEADLESS WGPU BUFFER PROTOCOL — 2026-10-23
+widgets_g4 owns the five Main minimum2 recording-renderer failures. Complete
+the fake queue's buffer-write protocol for reused uniform buffers and isolate
+independent refusal cases after a failed frame quarantines its renderer. Retain
+all render, dispatch, reuse, resize and release assertions. Production stays
+unchanged. Validate only the five CPU/offscreen cases; root publishes.
+CURRENT SETUP GPU-NOTE FLOATING PLACEMENT FIXTURE — 2026-10-23
+G4 owns the exact Main CI geometry failure; preserve native floating-band,
+missing-greeting/card/note assertions and layout-owned opening behavior.
+Update only the fixture after explicitly removing native layout ownership;
+run the single owning CPU/offscreen test, with G1 peer and root publication.
+
 CURRENT NATIVE CRASH DUMP PATH FALLBACKS — 2026-10-23
 widgets_g2 owns the three Main221 Coverage11 crash-dump failures; root reviews
 and publishes. Guard optional logging-helper resolution and accept string or
@@ -4572,3 +4677,64 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-23 — Restore native crash-dump fallback for string log directories and unavailable optional logging helpers; directory lookup failures remain local and fail closed. Missing reporting state skips replay/ack writes while preserving bounded marked rotation and capture. Four focused cases PASS (two retained plus two corrected-fixture reruns); independent review accepted. Root publication pending; no native crash cause claim.
 
 2026-10-23 — Restore the explicit no-provider console notice and actionable local CLI failure diagnostics without treating failed output as advice, caching it or attaching it to reports. Issue117 fixtures now affirm real isolated consent and show the actual screen required by central delivery; all original assertions and budgets remain. Seven affected checks pass (three retained plus four final in 6.60s); bounded normal extraction proves unchanged 102 API entries and 59 caption identities, no active removed-helper target and no owning consumer rows. Root owns publication; broader CI/release acceptance remains open.
+
+2026-10-23 — obsolete_repo_cleanup owns the source-bound notebook freshness failure from Main69 minimum2: regenerate the maintained classifier notebook and mask/classifier reference pages against the current release candidate with the existing producer; retain compact controls and all settings, then validate the owning freshness assertion without a notebook redesign. The headless wgpu queue now records real uniform-buffer writes, and independent refusal fixtures close quarantined renderers before continuing. All five affected cases pass (four retained from the 0.93s cohort; the corrected refusal case passes in 0.69s). Independent peer accepted; production rendering and all original assertions are unchanged. No GPU was used.
+
+2026-10-23 — Reconcile three actual Main69 C0 source-field contracts with the approved editable source control: saved lists remain lists, scalar folder seeds remain exact strings, and Train navigation/rejected unrelated values still preserve source paths. Bind the list fixture to its actual model default and assert both scalar and multiple-path handoffs without changing supported pipeline shapes, browse/overview/AWS actions or production UI. Mask category visibility now combines alpha gating with existing object/grid/mode/classifier hiding and retains parents containing real prose controls. The visible-heading check ignores parked forms; five obsolete Advanced-settings fixtures verify the current Measure tree’s exact hierarchy, row ownership, guidance and ancestor lookup instead. Nine distinct controls pass (eight retained in 10.98s, final Mask filter/grid toggle in 3.30s); independent review accepted, with transient grain-compiler/child shutdown diagnostics reported to root. API/captions unchanged; 34 normal consumer offsets and root publication remain pending.
+
+2026-10-23 — Repair the setup GPU-note floating fixture by removing actual layout ownership, showing the note and activating the resized native card layout. The unchanged exact band and missing-widget assertions pass (1 test, 3.17s); production and generated outputs are unchanged. G1 independently reviewed the fixture; root publication remains pending. Retained public-data worker owns the two actual Main SV/FR runtime-review CI failures: validate the exact preserved automatic-report caption archive and account for its two retirements without changing translations, pins, historical totals or ratchets. Require full original-record/hash equality and current English-source absence, then run only the two failed nodes under the CPU/offscreen 8 GiB cap. Root reviews and publishes; broader CI acceptance remains open.
+
+2026-10-23 — The exact SV/FR failed nodes pass (2 tests, 66.38s) with unchanged review pin 2c69 and all historical totals retained. Independent review accepted the test-only helper; root owns integration/publication and normal item-index refresh. No translation, runtime catalog or pin changed; whole CI acceptance remains open. Restore AIChatPanel’s explicit no-provider notice and align manual explanation fixtures with named providers, the real batcher’s quiet clock and owned timer cleanup. Preserve the required None choice and exact provider ordering; two report-body controls now use explicit preview → Send with FakeGitHub instead of the retired automatic GitHub route. All original pairing/privacy/body assertions pass (13 checks, 9.13s); normal source extraction is unchanged at 8 API entries/34 caption identities and consumer rows are zero. The process exited successfully with a finite ambient-compiler diagnostic; hosted qualification and publication remain with root.
+
+2026-10-23 — Three QC callback docstrings close the source-only callable gaps (255 scoped callables, zero omissions; API/runtime zero delta). Exact Metal-era MitoNet device prose and the eight named API arrivals now bind all source-derived guards without altering immutable fixtures or historical baselines; all 17 material API/Help/runtime checks pass (five retained, three strict and nine corrected locale parameters), preserving all ten approved API catalog bytes. Normal final consumer generation retains every access identity and record order with 34 final AppScreen line offsets refreshed; whole hosted CI/release acceptance remains open.
+
+2026-10-23 — Document the existing overview-export cancellation and staged-result callbacks truthfully, without behavioral changes. Scoped normal extraction confirms the private QC module is excluded from rendered nested-helper API inventory; published API, captions and review records remain valid.
+
+2026-10-23 — Mask category visibility now combines alpha gating with existing object/grid/mode/classifier hiding and retains parents containing real prose controls. The visible-heading check ignores parked forms; five obsolete Advanced-settings fixtures verify the current Measure tree’s exact hierarchy, row ownership, guidance and ancestor lookup instead. Nine distinct controls pass (eight retained in 10.98s, final Mask filter/grid toggle in 3.30s); independent review accepted, with transient grain-compiler/child shutdown diagnostics reported to root. API/captions unchanged; 34 normal consumer offsets and root publication remain pending.
+
+2026-10-23 — Repair the setup GPU-note floating fixture by removing actual layout ownership, showing the note and activating the resized native card layout. The unchanged exact band and missing-widget assertions pass (1 test, 3.17s); production and generated outputs are unchanged. G1 independently reviewed the fixture; root publication remains pending.
+
+2026-10-23 — Retained public-data worker owns the two actual Main SV/FR runtime-review CI failures: validate the exact preserved automatic-report caption archive and account for its two retirements without changing translations, pins, historical totals or ratchets. Require full original-record/hash equality and current English-source absence, then run only the two failed nodes under the CPU/offscreen 8 GiB cap. Root reviews and publishes; broader CI acceptance remains open.
+2026-10-23 — The exact SV/FR failed nodes pass (2 tests, 66.38s) with unchanged review pin 2c69 and all historical totals retained. Independent review accepted the test-only helper; root owns integration/publication and normal item-index refresh. No translation, runtime catalog or pin changed; whole CI acceptance remains open.
+
+2026-10-23 — Restore AIChatPanel’s explicit no-provider notice and align manual explanation fixtures with named providers, the real batcher’s quiet clock and owned timer cleanup. Preserve the required None choice and exact provider ordering; two report-body controls now use explicit preview → Send with FakeGitHub instead of the retired automatic GitHub route. All original pairing/privacy/body assertions pass (13 checks, 9.13s); normal source extraction is unchanged at 8 API entries/34 caption identities and consumer rows are zero. The process exited successfully with a finite ambient-compiler diagnostic; hosted qualification and publication remain with root.
+
+2026-10-23 — Correct the curation fixture’s physical canvas size with the existing native resize helper, preserving the real 90% startup scale, gesture coordinates and all original assertions. All 23 affected cases pass (40.55s); Main/Night owning canvas and scaling contracts are identical. G1 independently accepted the test-only repair; production, Work2 ownership and generated outputs are unchanged, with root publication pending.
+
+2026-10-23 — Three source-bound Main69 folding/slot fixtures now use native splitter pixels for native drag and collapse comparisons, retaining the original persistence and tight-fold assertions. Actual channel-backed counts 0/2/7 verify exact active grid roles and controls without restoring obsolete empty slot headings. Main84d/Night704 production remains unchanged; independent peer accepted and all three controls PASS in 7.67s. Process exited normally with the existing QApplication/widget-tree finalization diagnostic; root integration/publication pending, no generated artifacts affected.
+
+2026-10-23 — Reconcile six actual Main69 setup controls with the approved startup AI switch: an empty How-it-runs scenario removes all three current run questions, and account-free setup asserts the exact six-question set including spaCR AI. Preserve no GitHub/CLI probing and agreement state, and exercise explicit AI Off selecting provider None and reports Off; no product/setup policy change.
+
+2026-10-23 — Register the existing QC workspace QSS at module import and include its module in the exhaustive first-sheet loader, preserving scoped late-open refresh. The unchanged deferred-registrar contract passes (1 test, 3.71s); G1 independently accepted the source change. Existing QC source positions, declarations and captions remain unchanged; no generated output changes apply. Root publication remains pending.
+
+2026-10-23 — Mask category visibility now combines alpha gating with existing object/grid/mode/classifier hiding and retains parents containing real prose controls. The visible-heading check ignores parked forms; five obsolete Advanced-settings fixtures verify the current Measure tree’s exact hierarchy, row ownership, guidance and ancestor lookup instead. Nine distinct controls pass (eight retained in 10.98s, final Mask filter/grid toggle in 3.30s); independent review accepted, with transient grain-compiler/child shutdown diagnostics reported to root. API/captions unchanged; 34 normal consumer offsets and root publication remain pending.
+
+2026-10-23 — Deferred-settings fixtures now search a positively indexed/applicable detached editor while checking that run-suppressed controls remain hidden. The parity scanner records nested heading containers separately from their child controls; full lazy/eager values and row tuples remain exactly equal. Both source-bound controls PASS in 11.93s with independent review; production and generated outputs are unchanged. The process exited normally after reported grain-compiler/widget-tree finalization; root integration/publication pending.
+
+2026-10-23 — Align the three hosted-AI console-entry controls with real post-batch worker delivery, affirmative saved consent and visible native owners. Reuse the real batcher's quiet clock and owned timer cleanup; all original settings-problem privacy, report-body and repeated-answer assertions pass (3 tests, 12.36s). Production and generated outputs are unchanged; the process exited 0 with the finite ambient-compiler diagnostic retained as a qualification. Independent peer accepted; root owns publication and hosted qualification.
+
+2026-10-23 — The manual error-flow stress fixture now advances the real batcher's quiet clock before awaiting its real fake-provider subprocess. Its original reply-content, completion budget and shutdown assertions pass (1 test, 2.86s); independent peer accepted. Production and generated outputs are unchanged; root owns publication and hosted qualification.
+
+2026-10-24 — The unavailable ambient cache interpreter control now intercepts the actual owned Popen constructor and isolates its compiler-stop event; unchanged call-count, no-marker and NUMBA_CACHE_DIR assertions pass (1 test, 3.04s). No product or generated-output changes; root review/publication remains pending.
+
+2026-10-24 — Native-session privacy-negative fixtures now use owned temporary absolute paths instead of hard-coded home paths. Arbitrary-key and invalid-version rejection assertions remain unchanged; the owning refusal case and existing home-path hygiene gate pass (2 tests, 14.84s). No product/generated changes; root review/publication pending.
+
+2026-10-23 — Embedded overview fixtures now require exact excluded-row gray RGB with positive native alpha and drain only their owned timers/workers before closing, including failure/deadline paths. Both current Main variants PASS in 43.01s with independent review; original 20-second Qt and 30-second subprocess limits and embedding/data assertions remain. The old timeout was not reproduced: current baseline exposed an opacity premise and unsafe failure cleanup. Production/generated outputs unchanged; root integration/publication pending.
+
+2026-10-24 — The CLI idempotence control now verifies the approved distinct sinks: exactly one stdout stream and one automatic error dispatcher after each setup, with one INFO record printed once. Logger and stream state are restored; the owning case passes (1 test, 0.91s). No product/generated changes; root review/publication pending.
+
+2026-10-23 — Align the two Coverage4 fixtures with current Mask slot-grid activation and Classify’s typed source editor. The real slot toggles None→4→None without an obsolete empty heading; all three plate paths roundtrip through both editor and collection. Exact two controls PASS in 3.19s with independent review; production/generated outputs unchanged and root publication pending.
+
+2026-10-23 — Six stale hierarchy fixtures now verify the current Measure tree’s exact ordered children, row ownership, paths/help and independent 3/7 object-preprocessing schema counts, retaining native model lifetime. Mask’s exact declared order includes Object filtration α and its trailing retained preprocessing defaults, with complete key coverage unchanged. Seven distinct controls PASS (six retained in 2.31s, final category in 0.98s) with independent review; production/generated outputs unchanged and root publication pending.
+
+2026-10-23 — Align the actual AI/report fixtures with consented anonymous batching and explicit GitHub preview/Send, preserving local raw diagnostics and scrubbed outgoing payloads, modes, retries, quotas, saved answers and real occurrence deduplication. Unreadable policy now revokes the mirrored permission and fails closed; broken cache reads permit uncached handling; failed summary construction remains local without a false queued claim. The 57 necessary controls pass (53 retained from 74.85s and four corrected wire/ordering/privacy checks in 9.16s); independent source/test peers accepted. Normal scoped extraction preserves all 142 API entries and caption identities; consumer references are zero; generated outputs are unchanged. Post-run temporary chaining-lock cleanup warnings remain a qualification; both processes terminated normally, and root owns publication/hosted CI.
+
+2026-10-24 — Add the real artist visibility protocol to the True 3D prepaint stand-in, retaining exact image-delivery and redraw suppression assertions. Both states pass (2 tests, 3.42s); G1 independently accepted the test-only correction. Production and generated outputs are unchanged; root publication remains pending.
+
+2026-10-23 — The AI notice fixture now uses the real consented ReportSession, native visible owner and post-batch worker completion instead of a retired provider hook and unrelated job/fixed-delay waits. Both original reply/relay-summary checks and all three no-AI-mode checks pass (5 tests, 15.64s); independent peer accepted. Production/generated outputs are unchanged; the process exited 0 with the known finite ambient-compiler diagnostic retained as a qualification. Root owns publication and hosted CI.
+
+2026-10-24 — Night retains the Main Mask-model lifetime fixture and tests compact whole-plate Fit with complete 16×24 native containment, zero scrolling and actual ancestor allocation caps instead of obsolete fixed floors. Six distinct controls PASS (five retained from 63.63s, corrected Mask in 21.41s), including both embedded variants with unchanged 20/30-second limits; independent fixture peer accepted. The seventh written-help gate exposes the shared tracking-heading alias gap, owned separately by G3; root publication remains pending. Production/generated outputs unchanged in this candidate.
+
+2026-10-23 — Mask’s renamed Time Axes & Tracking (Beta) heading now resolves the existing curated 4D guidance; no prose, translations or tracking semantics changed. The original full-slot tree help gate passes on the exact source (1 test, 17.84s), with G1’s existing Qt/process finalization diagnostics qualified rather than treated as a lifecycle fix. Normal scoped extraction preserves 80 API entries and 2,013 caption identities; the normal Main consumer refresh changes only three downstream settings_model line offsets by +2, independently reviewed. Root owns publication and the separate normal Night consumer refresh.
+
+2026-10-24 — The Qt severity-band control now observes the actual stdout/error display seams after the capture/display split, retaining real warning routing and the unchanged four-band exact-order assertion. Independent peer accepted; the owning case passes (1 test, 2.29s). No product/generated changes; root publication pending.

@@ -22,6 +22,9 @@ pytest.importorskip("PySide6")
 from spacr import crashreport as cr  # noqa: E402
 from spacr.qt.ai import providers  # noqa: E402
 from tests.test_700_anonymous_error_reports import FakeRelay  # noqa: E402
+from tests.qt.test_the_console_keeps_the_ai_error_analysis import manual_error_batches  # noqa: E402
+
+_REAL_NETWORK_ALLOWED = cr.network_allowed
 
 TRACEBACK = (
     "Traceback (most recent call last):\n"
@@ -144,6 +147,7 @@ class _ReportSession:
         from spacr.qt import preferences
         from spacr.qt.ai import settings
         from spacr.qt.terms import record_agreement
+        from spacr.qt.ai.issue_report import _sync_automatic_failure_policy
         from PySide6.QtCore import QCoreApplication
 
         self.workers = []
@@ -154,24 +158,30 @@ class _ReportSession:
         settings.set_route_errors_through_ai(True)
         settings.set_auto_file_issues(True)
         record_agreement()
+        _sync_automatic_failure_policy()
         screen.show()
-        dispatch = cr._dispatch_error
+        qtbot.waitExposed(screen)
+        dispatch = cr._dispatch_error_now
         def submit(*args, **kwargs):
             worker = dispatch(*args, **kwargs)
             if worker is not None:
                 self.workers.append(worker)
             return worker
-        monkeypatch.setattr(cr, "_dispatch_error", submit)
+        monkeypatch.setattr(cr, "_dispatch_error_now", submit)
 
     def wait(self):
         """Consume actual completion and then queued GUI result delivery."""
+        getattr(self, "_finish_quiet_window", lambda: None)()
         self.qtbot.waitUntil(lambda: all(not w.is_alive() for w in self.workers), timeout=15000)
         self.process_events()
 
 
 @pytest.fixture(autouse=True)
-def _fresh_dispatch_memory(monkeypatch):
+def _fresh_dispatch_memory(monkeypatch, manual_error_batches):
     """Keep each existing per-test profile's policy and occurrence memory separate."""
+    monkeypatch.setattr(cr, "network_allowed", _REAL_NETWORK_ALLOWED)
+    monkeypatch.setattr(_ReportSession, "_finish_quiet_window",
+                        staticmethod(manual_error_batches), raising=False)
     monkeypatch.setattr(cr, "_ERROR_POLICY_CACHE", {})
     monkeypatch.setattr(cr, "_ERROR_DISPATCH_SEEN", {})
     monkeypatch.setattr(cr, "_ERROR_OCCURRENCE_POLICIES", {})
@@ -1009,6 +1019,7 @@ class TestTheReportLineAfterTheAiEntry:
         raise_if_strict("At least one registered *_channel must be set; no "
                         "masks can be generated.", settings={})
         screen._on_finished(True)
+        recorder.wait()
         qtbot.waitUntil(lambda: "Reported" in self._texts(screen),
                         timeout=15000)
         return screen

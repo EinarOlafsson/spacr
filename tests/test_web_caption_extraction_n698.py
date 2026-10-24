@@ -118,9 +118,31 @@ tr("Compact web caption")
 tr("Term-owned web caption")
 tr("Web caption through production inventory")
 ''')
+    (source_root / "psf_pipeline.py").write_text('''
+raise RuntimeError("Spectral caption collection must not import processing code")
+def _prepare_unmixing():
+    return tr("The spectral control settings are invalid.")
+def _prepare_measure_unmixing():
+    return tr("Calibrated measurement is not supported.")
+def _load_unmix_calibration():
+    return tr("The measured spectral calibration is invalid.")
+class _UnmixCalibration:
+    def apply(self):
+        return tr("The calibrated image has no valid overlap.")
+class _UnmixPlan:
+    def apply(self):
+        return tr("An explicit calibrated region is required.")
+def unrelated_legacy_helper():
+    return tr("This unrelated legacy caption must remain excluded.")
+''', encoding="utf-8")
     assert set(builder.extract_static_ui_sources()) == {
         "Family label through production inventory",
         "Web caption through production inventory",
+        "The spectral control settings are invalid.",
+        "Calibrated measurement is not supported.",
+        "The measured spectral calibration is invalid.",
+        "The calibrated image has no valid overlap.",
+        "An explicit calibrated region is required.",
     }
 
 

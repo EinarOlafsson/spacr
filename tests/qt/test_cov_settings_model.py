@@ -1106,14 +1106,15 @@ def test_the_class_editor_is_handed_the_live_preview_frame(monkeypatch):
 
 
 def test_a_list_default_for_a_scalar_setting_still_gets_a_list_widget(qtbot):
-    """``expected_types`` says string; the shipped default is a list anyway."""
+    """The saved list stays typed even though the source field accepts strings."""
     widgets = SM.SettingsWidgets("measure")
 
+    widgets._defaults["src"] = ["a", "b"]
     widget = widgets._widget_for("entry", None, ["a", "b"], "src")
 
     assert widget is not None
     qtbot.addWidget(widget)
-    assert widget.get_value() in (["a", "b"], "['a', 'b']")
+    assert widget.get_value() == ["a", "b"]
 
 
 def test_a_widget_kind_nobody_declared_builds_nothing():

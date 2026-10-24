@@ -194,3 +194,221 @@ def test_measure_records_the_matrix_and_unmixes_in_the_field_dtype(plate):
     assert _prepare_measure_unmixing(off) is None
     assert _UNMIX_RECORD_KEY not in off
     assert _apply_recorded_unmixing(field, off) is field
+
+
+def _calibrated_test_blur(plane, kernel):
+    """Convolve a small oracle plane by explicit centered spatial summation."""
+    ry, rx = np.array(kernel.shape) // 2
+    padded = np.pad(np.asarray(plane, dtype=np.float64), ((ry, ry), (rx, rx)))
+    result = np.zeros_like(plane, dtype=np.float64)
+    for y, x in np.ndindex(kernel.shape):
+        result += kernel[y, x] * padded[2 * ry - y:2 * ry - y + plane.shape[0],
+                                       2 * rx - x:2 * rx - x + plane.shape[1]]
+    return result
+
+
+def _calibrated_test_camera(dyes, matrix, kernels, shifts, noise=None):
+    """Form nonnegative camera readings with declared sensor offsets and noise."""
+    mixed = dyes @ matrix.T
+    readings = np.zeros_like(mixed)
+    for channel, ((dy, dx), kernel) in enumerate(zip(shifts, kernels)):
+        aligned = _calibrated_test_blur(mixed[..., channel], kernel)
+        if noise is not None:
+            aligned += noise[..., channel]
+        for y, x in np.ndindex(dyes.shape[:2]):
+            if 0 <= y + dy < dyes.shape[0] and 0 <= x + dx < dyes.shape[1]:
+                readings[y, x, channel] = aligned[y + dy, x + dx]
+    return readings.astype(np.float32)
+
+
+@pytest.fixture
+def calibrated_plate(tmp_path):
+    """Two single-stain wells have known spill, different PSFs and pixel shifts."""
+    stack = tmp_path / 'stack'
+    stack.mkdir()
+    shape = (48, 56)
+    matrix = np.array([[1., .6], [.8, 1.]])
+    rows = (np.array([1., 2., 1.]), np.array([1., 4., 6., 4., 1.]))
+    columns = np.array([1., 2., 1.])
+    kernels = tuple(np.outer(row, columns) / (row.sum() * columns.sum()) for row in rows)
+    shifts = ((0, 0), (1, -2))
+    for channel, well in enumerate(('A01', 'B01')):
+        dyes = np.zeros(shape + (2,))
+        dyes[10:22, 14:27, channel] = 200.
+        dyes[28:36, 30:40, channel] = 80.
+        np.save(stack / f'plate1_{well}_1.npy',
+                _calibrated_test_camera(dyes, matrix, kernels, shifts))
+    dyes = np.zeros(shape + (2,))
+    dyes[9:25, 10:27, 0] = 180.
+    dyes[28:38, 31:44, 1] = 120.
+    dyes[30:36, 35:41, 0] = 60.
+    target = _calibrated_test_camera(dyes, matrix, kernels, shifts)
+    np.save(stack / 'plate1_C01_1.npy', target)
+    calibration = {
+        'version': 1, 'axes': 'YX', 'pixel_size_um': [.4, .3], 'reference_channel': 0,
+        'channels': [{'channel': channel, 'shift_to_reference_px': list(shift),
+                      'psf': kernel.tolist(),
+                      'psf_origin_px': [kernel.shape[0] // 2, kernel.shape[1] // 2],
+                      'psf_pixel_size_um': [.4, .3]}
+                     for channel, (shift, kernel) in enumerate(zip(shifts, kernels))]}
+    calibration_path = tmp_path / 'calibration.json'
+    calibration_path.write_text(json.dumps(calibration), encoding='utf-8')
+    settings = _settings(unmix_background_percentile=0.,
+                         unmix_calibration=str(calibration_path), unmix_pixel_size_um=[.4, .3])
+    common_rows = np.convolve(rows[0], rows[1])
+    common_columns = np.convolve(columns, columns)
+    common = np.outer(common_rows, common_columns)
+    common /= common.sum()
+    expected = np.stack([_calibrated_test_blur(dyes[..., channel], common)
+                         for channel in range(2)], axis=-1)
+    return stack, settings, calibration_path, calibration, dyes, target, matrix, kernels, shifts, expected
+
+
+def test_calibrated_controls_recover_spill_and_exact_common_blur_roi(calibrated_plate):
+    stack, settings, path, _, _, target, matrix, _, _, expected = calibrated_plate
+    original_files = {file: file.read_bytes() for file in stack.iterdir()}
+    calibration_bytes = path.read_bytes()
+    original_target = target.copy()
+    plan = _prepare_unmixing(settings, stack, allow_calibrated=True)
+    np.testing.assert_allclose(plan.matrix, matrix, atol=2e-6, rtol=0)
+    result = plan.apply_calibrated(target)
+    assert result.valid_slices == (slice(2, 46), slice(1, 53))
+    assert result.source_origin_px == (2, 1)
+    assert result.image.shape == (44, 52, 2) and result.image.dtype == np.float32
+    np.testing.assert_allclose(result.image, expected[2:46, 1:53], atol=2e-4, rtol=0)
+    assert json.loads(json.dumps(result.record)) == result.record
+    assert result.record
+    np.testing.assert_array_equal(target, original_target)
+    assert path.read_bytes() == calibration_bytes
+    assert all(file.read_bytes() == content for file, content in original_files.items())
+
+
+def test_calibrated_camera_noise_keeps_signed_residuals_without_clipping(calibrated_plate):
+    stack, settings, _, _, dyes, _, matrix, kernels, shifts, expected = calibrated_plate
+    noise = np.zeros_like(dyes)
+    noise[14:20, 15:22, 0] = .5
+    noise[14:20, 15:22, 1] = -.5
+    camera = _calibrated_test_camera(dyes, matrix, kernels, shifts, noise)
+    assert camera.min() >= 0
+    original = camera.copy()
+    common_noise = np.stack((_calibrated_test_blur(noise[..., 0], kernels[1]),
+                             _calibrated_test_blur(noise[..., 1], kernels[0])), axis=-1)
+    expected_residual = common_noise @ np.linalg.inv(matrix).T
+    plan = _prepare_unmixing(settings, stack, allow_calibrated=True)
+    actual = plan.apply_calibrated(camera)
+    np.testing.assert_allclose(actual.image, (expected + expected_residual)[2:46, 1:53],
+                               atol=2e-4, rtol=0)
+    assert actual.image[..., 1].min() < -.5
+    assert np.max(np.abs(actual.image - expected[2:46, 1:53])) < 2.
+    np.testing.assert_array_equal(camera, original)
+
+
+def test_calibration_is_explicit_preview_only_and_legacy_apply_is_unchanged(calibrated_plate):
+    stack, settings, _, _, _, target, _, _, _, _ = calibrated_plate
+    with pytest.raises(ValueError):
+        _prepare_unmixing(settings, stack)
+    plan = _prepare_unmixing(settings, stack, allow_calibrated=True)
+    with pytest.raises(ValueError):
+        plan.apply(target)
+    legacy_settings = {key: value for key, value in settings.items()
+                       if key not in ('unmix_calibration', 'unmix_pixel_size_um')}
+    legacy = _prepare_unmixing(legacy_settings, stack)
+    explicit = _prepare_unmixing(legacy_settings, stack, allow_calibrated=True)
+    assert explicit.matrix == legacy.matrix
+    np.testing.assert_array_equal(explicit.apply(target), legacy.apply(target))
+    assert legacy.apply(target).shape == target.shape
+
+
+@pytest.mark.parametrize('invalid', ('axes', 'pixel-grid', 'channel-set', 'reference-shift',
+                                     'psf-origin', 'psf-grid'))
+def test_calibrated_geometry_refuses_incompatible_metadata(calibrated_plate, invalid):
+    stack, settings, path, calibration, _, _, _, _, _, _ = calibrated_plate
+    if invalid == 'axes':
+        calibration['axes'] = 'ZYX'
+    elif invalid == 'pixel-grid':
+        settings = dict(settings, unmix_pixel_size_um=[.8, .3])
+    elif invalid == 'channel-set':
+        calibration['channels'][1]['channel'] = 2
+    elif invalid == 'reference-shift':
+        calibration['channels'][0]['shift_to_reference_px'] = [1, 0]
+    elif invalid == 'psf-origin':
+        calibration['channels'][1]['psf_origin_px'] = [0, 1]
+    else:
+        calibration['channels'][1]['psf_pixel_size_um'] = [.4, .6]
+    path.write_text(json.dumps(calibration), encoding='utf-8')
+    before = {file: file.read_bytes() for file in stack.iterdir()}
+    with pytest.raises(ValueError):
+        _prepare_unmixing(settings, stack, allow_calibrated=True)
+    assert all(file.read_bytes() == content for file, content in before.items())
+
+
+def test_calibrated_oversized_control_is_mapped_and_refused_before_channel_copy(
+        calibrated_plate, monkeypatch):
+    stack, settings, calibration_path, _, _, _, _, _, _, _ = calibrated_plate
+    path = stack / 'plate1_A01_1.npy'
+    path.unlink()
+    oversized = np.lib.format.open_memmap(path, mode='w+', dtype=np.uint8,
+                                         shape=(4097, 2048, 2))
+    oversized[0, 0, 0], oversized[-1, -1, 1] = 17, 29
+    oversized.flush()
+    del oversized
+    before_stat = path.stat()
+    calibration_bytes = calibration_path.read_bytes()
+    other_controls = {file: file.read_bytes() for file in stack.iterdir() if file != path}
+    before_paths = {file.relative_to(stack.parent) for file in stack.parent.rglob('*')}
+    real_load = np.load
+    loads = []
+
+    def observe_real_load(file, *args, **kwargs):
+        result = real_load(file, *args, **kwargs)
+        loads.append((str(file), dict(kwargs), isinstance(result, np.memmap)))
+        return result
+
+    with monkeypatch.context() as patch:
+        patch.setattr(np, 'load', observe_real_load)
+        with pytest.raises(ValueError, match='at most 16,777,216 channel pixels'):
+            _prepare_unmixing(settings, stack, allow_calibrated=True)
+    assert loads and loads[0][0] == str(path)
+    assert all(options.get('mmap_mode') == 'r' and options.get('allow_pickle') is False
+               and mapped for _, options, mapped in loads)
+    unchanged = real_load(path, mmap_mode='r', allow_pickle=False)
+    assert isinstance(unchanged, np.memmap)
+    assert unchanged.shape == (4097, 2048, 2) and unchanged.dtype == np.uint8
+    assert unchanged[0, 0, 0] == 17 and unchanged[-1, -1, 1] == 29
+    assert unchanged[0, 0, 1] == 0 and unchanged[-1, -1, 0] == 0
+    del unchanged
+    assert (path.stat().st_size, path.stat().st_mtime_ns) == (before_stat.st_size, before_stat.st_mtime_ns)
+    assert calibration_path.read_bytes() == calibration_bytes
+    assert all(file.read_bytes() == content for file, content in other_controls.items())
+    assert {file.relative_to(stack.parent) for file in stack.parent.rglob('*')} == before_paths
+
+
+def test_calibrated_controls_refuse_cumulative_budget_before_copying_the_next_field(
+        calibrated_plate, monkeypatch):
+    from spacr import psf_pipeline
+
+    stack, settings, calibration_path, _, _, _, _, _, _, _ = calibrated_plate
+    before = {file: file.read_bytes() for file in stack.iterdir()}
+    calibration_bytes = calibration_path.read_bytes()
+    before_paths = {file.relative_to(stack.parent) for file in stack.parent.rglob('*')}
+    controls = [np.load(stack / f'plate1_{well}_1.npy', mmap_mode='r', allow_pickle=False)
+                for well in ('A01', 'B01')]
+    assert all(control.shape == (48, 56, 2) and control.size < 8192 for control in controls)
+    assert sum(control.size for control in controls) > 8192
+    monkeypatch.setattr(psf_pipeline, '_UNMIX_CALIBRATED_CONTROL_VALUES', 8192)
+    with pytest.raises(ValueError, match='exceed the calibrated control-pixel budget') as failure:
+        _prepare_unmixing(settings, stack, allow_calibrated=True)
+    traceback = failure.value.__traceback__
+    while traceback.tb_next is not None:
+        traceback = traceback.tb_next
+    assert traceback.tb_frame.f_code is _prepare_unmixing.__code__
+    state = traceback.tb_frame.f_locals
+    assert state['name'] == 'plate1_B01_1.npy'
+    assert state['field'].shape == controls[1].shape
+    np.testing.assert_array_equal(state['field'], controls[1])
+    assert len(state['fields_by_dye'][0]) == 1 and state['fields_by_dye'][1] == []
+    assert state['selected_field'] is state['fields_by_dye'][0][0]
+    assert state['selected_field'].shape == (44, 52, 2)
+    assert all(file.read_bytes() == content for file, content in before.items())
+    assert calibration_path.read_bytes() == calibration_bytes
+    assert {file.relative_to(stack.parent) for file in stack.parent.rglob('*')} == before_paths

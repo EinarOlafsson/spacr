@@ -240,10 +240,15 @@ def test_src_keeps_its_line_edit(qtbot):
 
 def test_classify_src_accepts_an_arbitrary_number_of_plates(qtbot):
     """Classify supports typing or dropping several plate paths."""
-    widget = _model(qtbot, "classify")._widgets["src"]
-    assert isinstance(widget, _ListEditor)
+    from spacr.qt.screens.settings_model import _SourcePathEdit
+
+    model = _model(qtbot, "classify")
+    widget = model._widgets["src"]
+    assert isinstance(widget, _SourcePathEdit)
     widget.set_value(["/data/plate-a", "/data/plate-b", "/data/plate-c"])
     assert widget.get_value() == [
+        "/data/plate-a", "/data/plate-b", "/data/plate-c"]
+    assert model.collect()["src"] == [
         "/data/plate-a", "/data/plate-b", "/data/plate-c"]
 
 

@@ -3665,7 +3665,10 @@ def _dispatch_error_now(text="", *, exception=None, module="", traceback_text=""
             selected = str(captured.get("provider", ""))
             do_explain = explain and now_explain and current.get("provider", "") == selected
             if do_explain:
-                saved = saved_explanation(_error_explanation_signature(clean))
+                try:
+                    saved = saved_explanation(_error_explanation_signature(clean))
+                except Exception:
+                    saved = None
                 pending_issued = True
                 _deliver_error_result({"event_id": event_id, "pending": True,
                                        "kind": kind, "explanation": saved or {}})

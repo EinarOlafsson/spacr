@@ -1474,7 +1474,10 @@ def explain_failure(summary: Dict, provider: Optional[ChatProvider],
     if provider is None:
         return {"text": "", "tier": "", "refused": "none"}
     signature = crashreport._error_explanation_signature(summary)
-    saved = crashreport.saved_explanation(signature)
+    try:
+        saved = crashreport.saved_explanation(signature)
+    except Exception:
+        saved = None
     if saved:
         return {"text": saved["text"], "tier": saved["tier"], "refused": "",
                 "saved": "local", "cause": saved.get("cause", "")}

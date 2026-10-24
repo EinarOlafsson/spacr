@@ -2900,7 +2900,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "561_classifier_api_arrivals_2026-10-15.json",
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
-                     "thumbnail_popup_close_api_arrival_2026-10-21.json"):
+                     "thumbnail_popup_close_api_arrival_2026-10-21.json",
+                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
+                     "707_home_masthead_fit_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -4710,6 +4712,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(mitonet_additions) == 4
+    from tests.test_documentation_i18n import _current_718_mitonet_api
+    mitonet_additions = _current_718_mitonet_api(mitonet_additions, docs)
     assert {key: docs[key] for key in mitonet_additions} == mitonet_additions
     assert not mitonet_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **mitonet_additions}
@@ -4850,6 +4854,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
         ("thumbnail_popup_close_api_arrival_2026-10-21.json", 1),
         ("current_embedding_mil_api_arrivals_2026-10-23.json", 2),
+        ("538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json", 8),
+        ("707_home_masthead_fit_api_arrival_2026-10-24.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -4957,12 +4963,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
     )
     zoo_additions = {**zoo_additions, **approval_preferences}
-    assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
+    from tests.test_documentation_i18n import _retired_707_home_api
+    retired_home = _retired_707_home_api(docs)
+    assert len((docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) == 13138
+               - zoo_additions.keys()) | retired_home.keys()) == 13138
     # 2026-10-20: 13,139 -> 13,138, item 127: the spacr.regression_search
     # shim module left in 1.5.1.6.
     # 2026-10-19: 13,154 -> 13,153, FoldButton.paintEvent retired (native
@@ -5365,11 +5373,20 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "561_classifier_api_arrivals_2026-10-15.json",
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
-                     "thumbnail_popup_close_api_arrival_2026-10-21.json"):
+                     "thumbnail_popup_close_api_arrival_2026-10-21.json",
+                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
+                     "707_home_masthead_fit_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             entries = _posix_update_prepared_key_move(entries)
+        if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
+            assert entries.keys() & rendered_documented_callables.keys() == {
+                "spacr.metal_cellpose.training_context",
+                "spacr.mps_reduce.MetalKMeans",
+                "spacr.mps_reduce.MetalPCA",
+                "spacr.torch_loader.ArrayDataLoader",
+            }
         contract_callables |= set(entries)
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
@@ -5439,7 +5456,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "561_classifier_api_arrivals_2026-10-15.json",
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json",
-                     "thumbnail_popup_close_api_arrival_2026-10-21.json"):
+                     "thumbnail_popup_close_api_arrival_2026-10-21.json",
+                     "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json",
+                     "707_home_masthead_fit_api_arrival_2026-10-24.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

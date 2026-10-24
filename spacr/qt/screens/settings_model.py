@@ -3789,6 +3789,8 @@ def _category_blurb(app_key: str, title: str) -> str:
     if app_key == "mask" and key == "OBJECT FILTRATION Α":
         return get_tooltips().get("real_object_classifier", "")
     candidates = [key]
+    if app_key == "mask" and key == "TIME AXES & TRACKING (BETA)":
+        candidates.append("4D SETTINGS (BETA)")
     mark = ALPHA_MARK.upper()
     if key.endswith(mark) and key[:-len(mark)].strip():
         candidates.append(key[:-len(mark)].strip())

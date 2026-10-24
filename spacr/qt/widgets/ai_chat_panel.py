@@ -845,7 +845,8 @@ class AIChatPanel(QWidget):
         :param active_app: optional app label used in the framing prompt.
         """
         from ..ai.providers import _batch_widget_error
-        _batch_widget_error(self, traceback_text, active_app)
+        if not _batch_widget_error(self, traceback_text, active_app):
+            self._open_error_flow_now(traceback_text, active_app)
 
     def _open_batched_error(self, text, active_app, show_raw, provider_name, diagnostics):
         """Recheck the selected provider and network before a delayed request."""

@@ -38,15 +38,29 @@ from spacr.qt.screens.settings_model import (
 
 
 @pytest.fixture(scope="module")
-def mask_tree(qapp):
-    """The mask panel's sections. Mask is the module with the most of them."""
+def mask_model(qapp):
+    """Keep the full-slot Mask model alive for its section-tree checks."""
     from spacr.qt.screens.settings_model import PANEL_ORGANELLE_SLOTS
 
     return SettingsWidgets("mask", current={
         "number_of_organelles": PANEL_ORGANELLE_SLOTS,
         "nucleus_channel": 1,
         "pathogen_channel": 2,
-    }).build_sections()
+    })
+
+
+@pytest.fixture(scope="module")
+def mask_tree(mask_model):
+    """The mask panel's sections. Mask is the module with the most of them."""
+    return mask_model.build_sections()
+
+
+@pytest.fixture(scope="module")
+def measure_tree(qapp):
+    """Keep the current Measure model and its native row owners alive."""
+    model = SettingsWidgets("measure")
+    tree = model.build_sections()
+    yield tree
 
 
 def _walk(sections):
@@ -82,7 +96,7 @@ def test_a_section_is_still_the_pair_it_always_was(mask_tree):
     assert dict(mask_tree)
 
 
-def test_a_flat_reader_sees_every_row_exactly_once(mask_tree):
+def test_a_flat_reader_sees_every_row_exactly_once(mask_tree, mask_model):
     """A panel that cannot draw a tree must still draw every control.
 
     The outer `rows` therefore holds the WHOLE subtree, not just the rows the
@@ -94,15 +108,7 @@ def test_a_flat_reader_sees_every_row_exactly_once(mask_tree):
     flat = [widget for _title, rows in mask_tree for _label, widget in rows]
     assert len(flat) == len({id(w) for w in flat}), "a row rendered twice"
 
-    from spacr.qt.screens.settings_model import PANEL_ORGANELLE_SLOTS
-
-    model = SettingsWidgets("mask", current={
-        "number_of_organelles": PANEL_ORGANELLE_SLOTS,
-        "nucleus_channel": 1,
-        "pathogen_channel": 2,
-    })
-    model.build_sections()
-    assert len(flat) == len(model._widgets)
+    assert len(flat) == len(mask_model._widgets)
 
 
 def test_a_category_with_no_parent_is_still_one_flat_section(mask_tree):
@@ -120,77 +126,52 @@ def test_a_category_with_no_parent_is_still_one_flat_section(mask_tree):
 # The three levels the request asked for
 # ---------------------------------------------------------------------------
 
-def test_the_advanced_families_nest_under_one_umbrella(mask_tree):
-    umbrella = _named(mask_tree, "Advanced settings")
+def test_the_advanced_families_nest_under_one_umbrella(measure_tree):
+    """The current correction families share one populated umbrella."""
+    umbrella = _named(measure_tree, "Image Preprocessing")
     assert [child.title for child in umbrella.children] == [
-        "Image Preprocessing (per object)",
-        "Object Filtration (all objects)",
+        "Bleach Correction α", "Spectral Unmixing α",
+        "Image Deconvolution (PSF)", "Illumination Correction",
+        "Intensity Calibration α", "Plate Barcode Linkage α",
     ]
     assert umbrella.own_rows == [], "the umbrella holds headings, not rows"
     assert umbrella.rows, "and it reports the rows underneath it"
 
 
-def test_the_umbrella_takes_the_place_of_its_first_family(mask_tree):
-    """The panel's running order is the one its layout wrote.
-
-    Hoisting the umbrella to the top or dropping it to the bottom would move
-    a block of settings the layout deliberately put between the segmentation
-    settings and the quality-control checks.
-    """
-    titles = [section.title for section in mask_tree]
-    # The segmentation block ends with "Cellpose 3": the legacy Cellpose 3
-    # model settings apply to whichever object a Cellpose 3 model segments,
-    # so they follow the per-object segmentation headings (organelle's
-    # advanced one last) rather than sitting inside any of them, and the
-    # umbrella comes straight after the block.
-    umbrella = titles.index("Advanced settings")
-    assert titles[umbrella - 2:umbrella] == [
-        "Organelle Segmentation (advanced)", "Cellpose 3"]
-    assert titles[umbrella + 1] == "Quality Control"
+def test_the_umbrella_takes_the_place_of_its_first_family(measure_tree):
+    """The current correction umbrella retains its workflow position."""
+    titles = [section.title for section in measure_tree]
+    umbrella = titles.index("Image Preprocessing")
+    assert titles[umbrella - 1] == "Mask & Channel Mapping"
+    assert titles[umbrella + 1] == "Features"
+    assert "Bleach Correction α" not in titles
 
 
-def test_each_family_splits_into_a_sub_section_per_object(mask_tree):
-    """The third level, which is the half the panel could not express.
+def test_each_family_splits_into_a_sub_section_per_object(measure_tree):
+    """Current nested families own their declared rows exactly once."""
+    from spacr.qt.screens.settings_model import categories_for_app, resolve_default_settings
 
-    `cell_min_size` and `nucleus_min_size` are one decision applied to two
-    objects; the object sub-heading is what makes that readable rather than
-    a run of forty rows whose prefixes the reader has to notice.
-
-    ONE PER SLOT THAT CAN BE NAMED, not one per slot the module ships:
-    `number_of_organelles` reveals a slot by showing rows the panel has
-    already built, and a heading it could not build is a heading the count
-    could never reveal. Which of them is ON SCREEN is decided afterwards --
-    see `SettingsWidgets._hide_the_headings_of_slots_the_run_lacks`.
-    """
-    from spacr.organelle_types import organelle_roles, organelle_slot_label
-    from spacr.qt.screens.settings_model import PANEL_ORGANELLE_SLOTS
-
-    filtration = _named(mask_tree, "Object Filtration (all objects)")
-    assert [child.title for child in filtration.children] == [
-        "Cell", "Nucleus", "Pathogen",
-        *(organelle_slot_label(role)
-          for role in organelle_roles(PANEL_ORGANELLE_SLOTS)),
-    ]
-    # The family heading owns exactly the settings that apply to EVERY
-    # object at once. `object_filters` is one mapping holding each object
-    # type's filter list, so it has no object prefix and no sub-heading can
-    # own it; it sits once on the family, beside the per-object bounds it
-    # extends. Anything else on the family itself would be a row a
-    # sub-heading should have taken.
-    from spacr.settings import _FAMILY_SHARED_KEYS
-
-    assert sorted(widget.property("settingKey")
-                  for _label, widget in filtration.own_rows) == sorted(
-        _FAMILY_SHARED_KEYS["Object filtration"])
-    for child in filtration.children:
+    umbrella = _named(measure_tree, "Image Preprocessing")
+    categories = categories_for_app("measure", S.categories)
+    defaults = resolve_default_settings("measure")
+    assert umbrella.children
+    seen = set()
+    for child in umbrella.children:
+        expected = [key for key in categories[child.title] if key in defaults]
+        actual = [widget.property("settingKey") for _label, widget in child.own_rows]
+        assert actual == expected and actual, f"{child.title} lost its own rows"
         assert child.children == ()
-        assert child.own_rows, f"{child.title} sub-section is empty"
+        assert not set(actual) & seen
+        seen.update(actual)
+    assert len(umbrella.rows) == len(seen)
 
 
-def test_a_sub_section_records_the_whole_path_down_to_it(mask_tree):
-    cell = _named(mask_tree, "Advanced settings").children[1].children[0]
-    assert cell.path == (
-        "Advanced settings", "Object Filtration (all objects)", "Cell")
+def test_a_sub_section_records_the_whole_path_down_to_it(measure_tree):
+    umbrella = _named(measure_tree, "Image Preprocessing")
+    assert umbrella.path == ("Image Preprocessing",)
+    child = umbrella.children[0]
+    assert child.title == "Bleach Correction α"
+    assert child.path == ("Image Preprocessing", "Bleach Correction α")
 
 
 def test_an_app_layout_that_renames_a_family_keeps_its_place():
@@ -211,37 +192,20 @@ def test_an_app_layout_that_renames_a_family_keeps_its_place():
 # Image preprocessing, and the gap it makes visible
 # ---------------------------------------------------------------------------
 
-def test_the_preprocessing_family_shows_each_object_what_it_actually_has(
-        mask_tree):
-    """The lopsided family is grouped, not levelled.
+def test_the_preprocessing_family_shows_each_object_what_it_actually_has(measure_tree):
+    """Schema object differences survive while Measure renders its corrections."""
+    from spacr.settings import advanced_object_of
 
-    Cell, nucleus and pathogen can zero a background floor and set a
-    signal-to-noise anchor; organelle can do both of those AND flatten with a
-    rolling ball and equalise with CLAHE. A shared heading with no object level
-    would make three objects look like they have settings they do not have --
-    with one, each sub-heading shows exactly the keys its object offers, and
-    the gap is visible instead of implied.
-
-    4 -> 7 ON 2026-09-13, AND THE PROSE ABOVE WAS ALREADY DESCRIBING THIS.
-    Until 364, `organelle` carried only the four rolling-ball and CLAHE keys.
-    It had NO background floor and NO signal-to-noise anchor -- it was the one
-    object channel whose background could not be removed -- while `io.py` read
-    `remove_background_organelle`, `organelle_background` and
-    `organelle_signal_to_noise` regardless. Declaring those three is what moved
-    this count.
-
-    So the word "also" in the first sentence was a claim about a world that did
-    not exist: it reads as "organelle does what the others do, and more", and
-    organelle did strictly less. The number was right about the gap and the
-    sentence was wrong about it, which is why the sentence is the part that
-    changed least here -- one word.
-    """
-    family = _named(mask_tree, "Image Preprocessing (per object)")
-    sizes = {child.title: len(child.own_rows) for child in family.children}
-    assert sizes["Cell"] == sizes["Nucleus"] == sizes["Pathogen"] == 3
-    # 3 shared (background, signal_to_noise, remove_background) + 4 organelle
-    # only (rolling_ball, rolling_ball_radius, clahe, clahe_clip_limit).
-    assert sizes["Organelle 1"] == 7
+    keys = S.categories[S.PER_OBJECT_PREPROCESSING]
+    sizes = {role: sum(advanced_object_of(key) == role for key in keys)
+             for role in ("cell", "nucleus", "pathogen", "organelle")}
+    assert sizes["cell"] == sizes["nucleus"] == sizes["pathogen"] == 3
+    assert sizes["organelle"] == 7
+    family = _named(measure_tree, "Image Preprocessing")
+    assert family.children and family.rows
+    assert all(child.own_rows for child in family.children)
+    assert [widget for child in family.children for _label, widget in child.rows] == [
+        widget for _label, widget in family.rows]
 
 
 def test_the_per_object_family_is_not_the_whole_image_one():
@@ -290,18 +254,16 @@ def test_every_heading_in_the_tree_has_written_help(mask_tree):
     assert not bare, f"headings with no written help: {bare}"
 
 
-def test_a_sub_heading_is_not_given_the_categorys_help(mask_tree):
-    """"Cell" under a family is not the "Cell" segmentation category.
-
-    A title-only lookup hands a filtration sub-heading the blurb about
-    Cellpose models and expected diameters, which is help for a group of
-    settings that is not on the screen. The path is the only thing that
-    tells the two apart.
-    """
-    cell_sub = _named(mask_tree, "Object Filtration (all objects)").children[0]
-    assert cell_sub.title == "Cell"
-    assert section_tooltip("mask", cell_sub) != category_tooltip("mask", "Cell")
-    assert "cell mask" in section_tooltip("mask", cell_sub)
+def test_a_sub_heading_is_not_given_the_categorys_help(measure_tree):
+    """A populated nested child receives its own guidance, not its parent's."""
+    parent = _named(measure_tree, "Input & Experiment")
+    child = _named(parent.children, "Cloud α")
+    assert parent.own_rows and child.own_rows
+    assert child.path == ("Input & Experiment", "Cloud α")
+    guidance = section_tooltip("measure", child)
+    assert guidance and guidance == category_tooltip("measure", "Cloud α")
+    assert guidance != category_tooltip("measure", parent.title)
+    assert "Cellpose" not in guidance
 
 
 def test_a_top_level_heading_keeps_its_own_help(mask_tree):

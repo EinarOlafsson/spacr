@@ -4762,8 +4762,10 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                          and node.name == "_microscope_positions"]
         if path == source_root / "psf_pipeline.py":
             tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name == "_prepare_unmixing"]
+                         if isinstance(node, (ast.FunctionDef, ast.ClassDef))
+                         and node.name in {"_prepare_unmixing", "_prepare_measure_unmixing",
+                                           "_load_unmix_calibration", "_UnmixCalibration",
+                                           "_UnmixPlan"}]
         if path == source_root / "_lineage_trees.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)

@@ -142,9 +142,9 @@ def test_a_warning_is_not_classified_as_an_error(qapp):
 
     panel = ConsolePanel()
     routed = []
-    panel.append_error = lambda text: routed.append(("error", text))
+    panel._display_error = lambda text: routed.append(("error", text))
     panel.append_warning = lambda text: routed.append(("warning", text))
-    panel.append_stdout = lambda text: routed.append(("stdout", text))
+    panel._display_stdout = lambda text: routed.append(("stdout", text))
 
     panel._on_log_record("chatter", logging.INFO)
     panel._on_log_record("Qt warning: something routine", logging.WARNING)
