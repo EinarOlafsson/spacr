@@ -1216,35 +1216,37 @@ def test_noshow_survives_a_matplotlib_that_raises(monkeypatch):
     assert plt.show is original_show
 
 
-def test_setup_logging_replaces_its_handler():
-    """Called twice, the CLI logger keeps exactly one handler, not two.
+def test_setup_logging_replaces_its_handler(capsys):
+    """Repeated setup retains one stdout sink and one automatic error sink."""
+    import logging
+    from spacr.logging_util import _AutomaticErrorHandler
 
-    AND PUTS THE LOGGER BACK, which it did not until 2026-09-07.
-    `cli.setup_logging` is right to set `propagate = False` and install its
-    own stdout handler -- a batch run must not print every line twice -- but
-    that is a PROCESS-GLOBAL, PERMANENT change, and this test made it on
-    behalf of the whole session.
-
-    What it cost was invisible here and showed up elsewhere: with propagation
-    off, `caplog` attaches at the root and never sees a `spacr.cli` record
-    again, so `test_cov_8_cli_registry` reported an empty `caplog.text` for a
-    message the code emits correctly and prints to stderr. That file passes
-    alone and failed in a full run, which is the signature of exactly this.
-
-    Same shape as the QSettings value another session left switched off: a
-    global mutated for one assertion and never restored.
-    """
     before_handlers = list(cli.LOG.handlers)
     before_propagate = cli.LOG.propagate
     before_level = cli.LOG.level
+    before_streams = sys.stdout, sys.stderr
     try:
-        cli.setup_logging(False)
-        cli.setup_logging(True)
-        assert len(cli.LOG.handlers) == 1
+        for verbose in (False, True):
+            cli.setup_logging(verbose)
+            streams = [handler for handler in cli.LOG.handlers
+                       if isinstance(handler, logging.StreamHandler)]
+            dispatchers = [handler for handler in cli.LOG.handlers
+                           if isinstance(handler, _AutomaticErrorHandler)]
+            assert len(streams) == 1
+            assert streams[0].stream is before_streams[0] or streams[0].stream is sys.stdout
+            assert len(dispatchers) == 1
+            assert set(cli.LOG.handlers) == {streams[0], dispatchers[0]}
+        capsys.readouterr()
+        cli.LOG.info("one CLI output record")
+        captured = capsys.readouterr()
+        assert captured.out.count("one CLI output record") == 1
+        assert captured.err == ""
     finally:
         cli.LOG.handlers[:] = before_handlers
         cli.LOG.propagate = before_propagate
         cli.LOG.setLevel(before_level)
+        sys.stdout, sys.stderr = before_streams
+
 
 
 def test_run_with_an_unknown_module_exits_2(capsys, fake_settings):
