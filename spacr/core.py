@@ -348,7 +348,8 @@ def preprocess_generate_masks(settings):
                 from .qt.i18n import tr
 
                 print(tr("Calibrated segmentation saved nonquantitative display outputs to {path}; quantitative Measure is not supported.").format(path=output_root))
-            report_disk_savings(output_root, result['stacks'])
+            if 'output_root' not in result:
+                report_disk_savings(output_root, result['stacks'])
             _score_v2_masks(output_root, settings, object_type='cell')
             if settings.get('export_vvvv', False):
                 from .io import _export_vvvv_merged
