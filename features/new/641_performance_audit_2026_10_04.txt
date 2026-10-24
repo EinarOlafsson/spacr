@@ -16,11 +16,11 @@ prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
 
 MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
 
-Fresh-alias trial: avoid reparsing only complete successful current-helper
-TTF/OTF/TTC groups with stable device/inode/size/mtime/ctime; preserve every
-face/alternate name/fname/index/order/cache clear. Never seed from old cache;
-unsupported, changed or failed cases use original parsing. Require causal RED,
-exact real catalogue/JSON/findfont parity before any speedup claim.
+2026-10-24 — Fresh-alias RED52767 then GREEN71466:20PASS; parity26756 on86714
+passes830 real paths: original parses830→533, all1840TTF/61AFM ordered fields
+and normal JSON exact;1029 findfont path/index queries include789 ties/499 indexed.
+Fresh groups only; fallback/file/cache checks pass. Generator52790 ran once.
+Controlled font-only result, not startup acceptance; Home5s/Mask10s/30FPS OPEN.
 
 2026-10-24 — Corrected90629/jslqL8 diagnostic0/0.472GiB/zero missed:
 756 addfont calls/721 success cost.929s wall/.811CPU; valid JSON write.233s.
