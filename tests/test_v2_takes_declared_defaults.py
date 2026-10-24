@@ -38,13 +38,70 @@ def _v2_branch_source():
     raise AssertionError("the v2 branch is gone; update this test")
 
 
-def test_the_branch_applies_the_defaults_before_reading_the_dict():
-    body = _v2_branch_source()
-    applied = body.index("set_default_settings_preprocess_generate_masks")
-    first_get = body.index("settings.get")
-    assert applied < first_get, (
-        "the v2 branch reads settings before applying the declared defaults, "
-        "so every inline fallback is live again")
+def test_the_branch_applies_the_defaults_before_reading_the_dict(tmp_path, monkeypatch):
+    """Apply real declared defaults before reading processing arguments for dispatch."""
+    from spacr import pipeline_v2
+
+    processing_keys = {
+        "cell_model_name", "cell_diameter", "batch_fields", "metadata_type",
+        "custom_regex", "keep_npz", "cell_cellprob_threshold", "cell_flow_threshold",
+    }
+    real_defaults = S.set_default_settings_preprocess_generate_masks
+    real_organelle_defaults = S._set_organelle_defaults
+    declared = real_defaults(dict(
+        src=str(tmp_path), pipeline_style="v2", cell_channel=0,
+        nucleus_channel=None, pathogen_channel=None, seg_qc="off"))
+    events = []
+    reads = []
+    dispatched = []
+
+    class ObservedSettings(dict):
+        def get(self, key, default=None):
+            if key in processing_keys:
+                assert "defaults" in events, f"processing read before defaults: {key}"
+                reads.append(key)
+            return super().get(key, default)
+
+    def defaults(settings):
+        events.append("defaults")
+        return real_defaults(settings)
+
+    def organelle_defaults(settings):
+        assert "defaults" in events
+        events.append("organelles")
+        return real_organelle_defaults(settings)
+
+    def run(src, **kwargs):
+        assert events == ["defaults", "organelles", "organelles"]
+        dispatched.append(kwargs)
+        return {"stacks": []}
+
+    monkeypatch.setattr(S, "set_default_settings_preprocess_generate_masks", defaults)
+    monkeypatch.setattr(S, "_set_organelle_defaults", organelle_defaults)
+    monkeypatch.setattr(pipeline_v2, "run_v2", run)
+    for explicit in (None, 0.25):
+        events.clear()
+        reads.clear()
+        source = tmp_path / ("declared" if explicit is None else "explicit")
+        source.mkdir()
+        settings = ObservedSettings(
+            src=str(source), pipeline_style="v2", cell_channel=0,
+            nucleus_channel=None, pathogen_channel=None, seg_qc="off")
+        if explicit is not None:
+            settings["cell_flow_threshold"] = explicit
+        core.preprocess_generate_masks(settings)
+        actual = dispatched[-1]
+        assert processing_keys <= set(reads)
+        assert actual["flow_threshold"] == (
+            declared["cell_flow_threshold"] if explicit is None else explicit)
+        assert actual["cellprob_threshold"] == declared["cell_cellprob_threshold"]
+        assert actual["batch_fields"] == declared["batch_fields"]
+        assert actual["model_name"] == declared["cell_model_name"]
+        assert actual["postprocess_settings"] is settings
+        assert actual["illumination_settings"] is settings
+        if explicit is not None:
+            assert actual["flow_threshold"] == explicit
+    assert len(dispatched) == 2
 
 
 def test_the_organelle_defaults_are_applied_too():

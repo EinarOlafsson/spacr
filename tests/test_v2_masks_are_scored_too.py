@@ -151,15 +151,48 @@ def test_an_undescribable_stack_is_flagged_rather_than_skipped(tmp_path):
     assert ["unreadable_mask"] == list(result["field_qcs"][0].flags)
 
 
-def test_the_v2_branch_calls_it():
-    """Wired, not merely defined -- the original bug was exactly a check
-    that nothing invoked."""
-    import inspect
+def test_the_v2_branch_calls_it(tmp_path, monkeypatch):
+    """Score real masks from both legacy sources and the V2-selected output root."""
+    from spacr import core, pipeline_v2
 
-    from spacr import core
+    ordinary = tmp_path / "ordinary"
+    redirected = tmp_path / "redirected-source"
+    output = tmp_path / "separate-output"
+    _plate(ordinary, fields=1, objects=1)
+    _plate(redirected, fields=1, objects=3)
+    _plate(output, fields=1, objects=2)
+    calls = []
+    scored = []
+    original_score = core._score_v2_masks
 
-    assert "_score_v2_masks(src, settings" in inspect.getsource(
-        core.preprocess_generate_masks)
+    def run(src, **kwargs):
+        calls.append(src)
+        result = {"stacks": []}
+        if src == str(redirected):
+            result["output_root"] = str(output)
+        return result
+
+    def score(src, settings, object_type):
+        result = original_score(src, settings, object_type=object_type)
+        scored.append((src, object_type, result))
+        return result
+
+    monkeypatch.setattr(pipeline_v2, "run_v2", run)
+    monkeypatch.setattr(core, "_score_v2_masks", score)
+    core.preprocess_generate_masks({
+        "src": [str(ordinary), str(redirected)], "pipeline_style": "v2",
+        "cell_channel": 0, "nucleus_channel": None, "pathogen_channel": None,
+        "seg_qc": "report", "verbose": False,
+    })
+
+    assert calls == [str(ordinary), str(redirected)]
+    assert [(src, role) for src, role, _ in scored] == [
+        (str(ordinary), "cell"), (str(output), "cell")]
+    assert [result["field_qcs"][0].n_objects for _, _, result in scored] == [1, 2]
+    assert all(result["mode"] == "report" for _, _, result in scored)
+    assert (ordinary / "qc" / "segmentation_qc_cell.csv").is_file()
+    assert (output / "qc" / "segmentation_qc_cell.csv").is_file()
+    assert not (redirected / "qc").exists()
 
 
 # --- the seg_qc change that made it possible -------------------------------

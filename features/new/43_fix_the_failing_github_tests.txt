@@ -11,6 +11,12 @@ all user-selected, reset and no-write assertions, and run only those four
 CPU/offscreen cases after root peer. No product or generated changes.
 2026-10-24: All four exact cases pass (4.03s); three fresh-store premises
 and every user-selected/reset/no-write assertion are retained.
+CURRENT V2 DEFAULT AND SCORE DISPATCH CONTRACTS — 2026-10-24
+widgets_g3 owns the two Night8fe source-shape failures. Replace stale text
+checks with actual V2 dispatch: declared processing defaults before argument
+reads, explicit overrides retained, and real scorecards at legacy or returned
+output roots. Keep calibration route refusals and all product behavior unchanged;
+run only the two affected nodes, independent peer and root publication.
 
 CURRENT HOME BODY SCROLL ACCESSIBLE NAME — 2026-10-24
 widgets_g4 owns the Night8fe unnamed Home scroll-area CI regression. Give
@@ -4921,3 +4927,5 @@ Mac follow-up on0b400b2fa: both new Preferences detach/draft and changed-control
 2026-10-24 — The web-caption production-inventory fake tree now includes mandatory pipeline_v2.py, as required by both failing Night8fe and current Night producers. Its unchanged owning caption/exclusion assertions pass (1 case, 1.33s); no product or generated artifacts change. Root review/publication and fresh hosted qualification remain pending.
 
 2026-10-24 — Release lane reconciles the actual minimum2 JobRunner source guard with the accepted direct last-line equivalent. Keep its parameter and require the exact strip-before-split, one-conversion, final-line emission and empty fallback; retain the other four loop contracts and existing Unicode behavior proof unchanged. No production change or suite rerun. Root accepted the exact AST guard; the sole failed JobRunner parameter passes (0.66s). Main200 and Nighte3e owning runtime/test preimages are byte-identical, so the same focused result applies to that port; no production or generator change.
+
+2026-10-24 — The two Night8fe V2 shape checks now exercise actual core dispatch: real scorecards follow legacy or returned output roots, and declared defaults precede processing reads while explicit overrides survive. Both owning nodes pass (9.07s scoring retained; 4.99s defaults rerun after fixture-only setup correction); production and generated artifacts are unchanged, pending root publication.
