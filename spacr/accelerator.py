@@ -262,7 +262,8 @@ def _why_metal_is_unavailable() -> Tuple[str, str]:
 
     gpu = _metal_gpu_name()
     release = platform.mac_ver()[0]
-    intel_mac = platform.machine() in ("x86_64", "i386")
+    intel_mac = (platform.machine() in ("x86_64", "i386")
+                 and not _rosetta_translated())
 
     if release:
         try:
@@ -322,6 +323,60 @@ def _metal_gpu_name() -> str:
     return "Metal GPU"
 
 
+@lru_cache(maxsize=1)
+def _rosetta_translated() -> bool:
+    """True when this process is Intel code running under Rosetta 2.
+
+    ``platform.machine()`` cannot answer this: a translated process is told
+    ``x86_64``, so an M2 running an Intel Anaconda looks exactly like an
+    Intel Mac to every other check in spaCR. Found 2026-10-24 on the
+    maintainer's first Apple Silicon test machine, where a hand-made
+    ``conda create -n spacr`` from a 2023 Intel Anaconda had put spaCR on
+    an emulated Python with torch capped at 2.2.2 (the last Intel-Mac
+    wheel) and nothing in spaCR said so.
+
+    The kernel answers it directly through ``sysctl.proc_translated``: 1
+    when translated, 0 when native, and absent on an Intel Mac. Read
+    through ``sysctlbyname`` rather than a ``sysctl`` subprocess because
+    it is asked at launch. Never raises.
+    """
+    if platform.system() != "Darwin":
+        return False
+    try:
+        import ctypes
+        import ctypes.util
+
+        libc = ctypes.CDLL(ctypes.util.find_library("c"))
+        value = ctypes.c_int(0)
+        size = ctypes.c_size_t(ctypes.sizeof(value))
+        if libc.sysctlbyname(b"sysctl.proc_translated", ctypes.byref(value),
+                             ctypes.byref(size), None, ctypes.c_size_t(0)):
+            return False
+        return value.value == 1
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _apple_silicon() -> bool:
+    """True on an Apple Silicon Mac, whether or not this Python is native."""
+    return (platform.system() == "Darwin"
+            and (platform.machine() == "arm64" or _rosetta_translated()))
+
+
+#: What to do about :func:`_rosetta_translated`. ``CONDA_SUBDIR`` is the part
+#: that matters: an Intel Anaconda creates Intel environments by default, so
+#: the plain ``conda create`` the doctor used to suggest rebuilt the problem.
+#: Verified on that M2 with Anaconda's x86_64 conda 23.7.4.
+_ROSETTA_FIX = (
+    "Create a native arm64 environment and reinstall spaCR into it:\n"
+    "CONDA_SUBDIR=osx-arm64 conda create -n spacr-arm64 python=3.12 -y && "
+    "conda activate spacr-arm64 && conda config --env --set subdir osx-arm64 && "
+    'python -m pip install "spacr"\n'
+    "(or install Miniforge for Apple Silicon, or the spaCR macOS installer, "
+    "which installs a native runtime itself)"
+)
+
+
 def _xpu(torch, *, device_names=True) -> Optional[Accelerator]:
     """Intel Arc / Xe, on a torch built with XPU or with IPEX loaded."""
     xpu = getattr(torch, "xpu", None)
@@ -368,7 +423,7 @@ def neural_engines() -> Tuple[str, ...]:
     through OpenVINO -- so none of them is offered as a compute device.
     """
     found = []
-    if platform.system() == "Darwin" and platform.machine() == "arm64":
+    if _apple_silicon():
         found.append("Apple Neural Engine (CoreML only)")
     return tuple(found)
 
@@ -838,8 +893,10 @@ def _opengl_likely() -> bool:
 def describe() -> str:
     """One line for a log or a console: what was found and whether it runs."""
     accelerator = resolve()
+    emulated = (" — Intel Python under Rosetta on Apple Silicon, see "
+                "spacr-doctor" if _rosetta_translated() else "")
     if accelerator.is_gpu:
-        return f"{accelerator.label} — in use"
+        return f"{accelerator.label} — in use{emulated}"
     if accelerator.detected and not accelerator.usable:
-        return f"{accelerator.label} — found, not used ({accelerator.note})"
-    return "CPU" + (f" ({accelerator.note})" if accelerator.note else "")
+        return f"{accelerator.label} — found, not used ({accelerator.note}){emulated}"
+    return "CPU" + (f" ({accelerator.note})" if accelerator.note else "") + emulated

@@ -542,7 +542,7 @@ def check_python(ctx: Context) -> Result:
             fix=(
                 f"Compare by hand: spaCR supports {declared}. If this "
                 "interpreter is outside that range:\n"
-                "conda create -n spacr python=3.12 -y && conda activate spacr"
+                f"{_conda_create('spacr')} && conda activate spacr"
             ),
             details=(f"interpreter: {sys.executable}",),
         )
@@ -552,7 +552,7 @@ def check_python(ctx: Context) -> Result:
             FAIL,
             f"Python {running} is outside spaCR's supported range ({declared}).",
             fix=(
-                "conda create -n spacr python=3.12 -y && conda activate spacr && "
+                f"{_conda_create('spacr')} && conda activate spacr && "
                 'python -m pip install "spacr"'
             ),
             details=(f"interpreter: {sys.executable}",),
@@ -564,6 +564,43 @@ def check_python(ctx: Context) -> Result:
         details=(f"interpreter: {sys.executable}",),
     )
 
+
+@_register("native CPU")
+def check_native_cpu(ctx: Context) -> Result:
+    """Warn when this Python is Intel code translated by Rosetta 2.
+
+    Everything still runs, which is why it goes unnoticed: the interpreter,
+    NumPy's BLAS, every wheel and torch are all emulated, and torch stays
+    on 2.2.2 because that is the last release with an Intel-Mac wheel.
+    ``WARN`` rather than ``FAIL`` because the install works; it is slow.
+
+    :param ctx: not read; accepted so every check shares one signature.
+    """
+    import platform
+
+    from .accelerator import _ROSETTA_FIX, _rosetta_translated
+
+    machine = platform.machine() or "unknown"
+    if _rosetta_translated():
+        return Result(
+            "native CPU",
+            WARN,
+            "This is an Apple Silicon Mac running an Intel (x86_64) Python "
+            "under Rosetta 2. spaCR works, but every library is emulated "
+            "and torch cannot be newer than 2.2.2.",
+            fix=_ROSETTA_FIX,
+            details=(f"interpreter: {sys.executable}",),
+        )
+    return Result("native CPU", PASS, f"Python runs natively on {machine}.")
+
+
+def _conda_create(name: str) -> str:
+    """``conda create`` for this machine: an Intel conda on Apple Silicon
+    would otherwise build another Intel environment."""
+    from .accelerator import _rosetta_translated
+
+    prefix = "CONDA_SUBDIR=osx-arm64 " if _rosetta_translated() else ""
+    return f"{prefix}conda create -n {name} python=3.12 -y"
 
 
 def _import_spacr() -> Any:
