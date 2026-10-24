@@ -623,7 +623,7 @@
     },
     {
       "visual": "module_timelapse",
-      "narration": "Open Mask from Home, then choose Timelapse. Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis. Timelapse reads the microscope images. From those, Timelapse produces the images and label masks, the label masks, and the linked time-series objects. Mask can supply the microscope images. Enable the nested time-series route before generating linked labels. Measure picks up the images and label masks next. Use the time-series project with stable frame/object identities. You can also take the linked time-series objects on to Motility Assay. Supply frame interval and pixel calibration.",
+      "narration": "Open Mask from Home, then choose Timelapse. In Mask, press Time to show the time-axis and tracking settings, then segment and link objects across ordered frames; inspect links before downstream motility analysis. Timelapse reads the microscope images. From those, Timelapse produces the images and label masks, the label masks, and the linked time-series objects. Mask can supply the microscope images. Enable the nested time-series route before generating linked labels. Measure picks up the images and label masks next. Use the time-series project with stable frame/object identities. You can also take the linked time-series objects on to Motility Assay. Supply frame interval and pixel calibration.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask",

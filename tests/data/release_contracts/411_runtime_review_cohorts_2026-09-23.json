@@ -8,7 +8,7 @@
       "current_total": 1700,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 4,
-      "later_distinct_additions": 774,
+      "later_distinct_additions": 773,
       "current_historical_cohort": 261,
       "files": [
         {
@@ -218,9 +218,9 @@
         },
         {
           "name": "2026-09-23-workflow-map-phrases.json",
-          "records": 203,
-          "sources": 203,
-          "sha256": "b4d8de3205017df938f13347e63b4ff60e7a23f73bbf4aabd1072d9861b1d527"
+          "records": 202,
+          "sources": 202,
+          "sha256": "bddcf9a0143e689a21b3ed4595d25831eb7fe2cc0a462701cc44b172deb8c1b7"
         },
         {
           "name": "2026-09-24-cellpose-inversion.json",
@@ -277,14 +277,14 @@
           "sha256": "2ad1f04060ecb740e69ba91e478d9d1b914a7e6576802d18201d61b5b64a1263"
         }
       ],
-      "added_sources_sha256": "f685c7cc5b56dc7c611c57b3430086dd37a8ae2786087b7ab440f73e296cc7e3"
+      "added_sources_sha256": "aa75f3dce97a7c3c9925ddc73db8dd76dfaf9245be790dcee0b7730b9e3775c6"
     },
     "fr": {
       "previous_total": 926,
       "current_total": 1696,
       "historical_cohort_retired": 9,
       "older_cohort_retired": 3,
-      "later_distinct_additions": 774,
+      "later_distinct_additions": 773,
       "current_historical_cohort": 260,
       "files": [
         {
@@ -494,9 +494,9 @@
         },
         {
           "name": "2026-09-23-workflow-map-phrases.json",
-          "records": 203,
-          "sources": 203,
-          "sha256": "15352c53a33653a8b8667e1a87bd882ce3242d9fc0f2efcdb68576679efdf8a4"
+          "records": 202,
+          "sources": 202,
+          "sha256": "9c05ad678c70c32872a2cde841a2bcd3f154bda98ad7780915e6025614bde204"
         },
         {
           "name": "2026-09-24-cellpose-inversion.json",
@@ -553,7 +553,7 @@
           "sha256": "53917479df2ce0a03389ccd24e558ca7c32a5580fac313c766372750bd52b87c"
         }
       ],
-      "added_sources_sha256": "f685c7cc5b56dc7c611c57b3430086dd37a8ae2786087b7ab440f73e296cc7e3"
+      "added_sources_sha256": "aa75f3dce97a7c3c9925ddc73db8dd76dfaf9245be790dcee0b7730b9e3775c6"
     }
   }
 }
